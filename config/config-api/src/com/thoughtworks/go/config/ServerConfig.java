@@ -1,29 +1,29 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config;
-
-import java.util.UUID;
-import javax.annotation.PostConstruct;
 
 import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.ServerSiteUrlConfig;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.StringUtil;
+
+import javax.annotation.PostConstruct;
+import java.util.UUID;
 
 @ConfigTag("server")
 public class ServerConfig implements Validatable {
@@ -37,6 +37,7 @@ public class ServerConfig implements Validatable {
     @ConfigAttribute(value="agentAutoRegisterKey", optional = true, allowNull = true) private String agentAutoRegisterKey;
     @ConfigAttribute(value="commandRepositoryLocation", alwaysWrite = true) private String commandRepositoryLocation = "default";
 
+    @ConfigSubtag private ElasticConfig elasticConfig = new ElasticConfig();
 
     @SkipParameterResolution
     @ConfigAttribute(value = "serverId", optional = true, allowNull = true)
@@ -128,6 +129,9 @@ public class ServerConfig implements Validatable {
         this.artifactsDir = path;
     }
 
+    public ElasticConfig getElasticConfig() {
+        return elasticConfig;
+    }
 
     @Override
     public boolean equals(Object o) {

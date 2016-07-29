@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -456,20 +456,18 @@ public class AgentServiceIntegrationTest {
         AgentInstance denied = AgentInstanceMother.disabled();
         AgentService agentService = getAgentService(new AgentInstances(null, new SystemEnvironment(), idle, pending, building, denied));
 
-        AgentInstances agents = agentService.findPhysicalAgents();
-        assertThat(agents.size(), is(4));
+        assertThat(agentService.agents().size(), is(4));
 
-        assertThat(agents.findAgentAndRefreshStatus(idle.agentConfig().getUuid()), is(idle));
-        assertThat(agents.findAgentAndRefreshStatus(pending.agentConfig().getUuid()), is(pending));
-        assertThat(agents.findAgentAndRefreshStatus(building.agentConfig().getUuid()), is(building));
-        assertThat(agents.findAgentAndRefreshStatus(denied.agentConfig().getUuid()), is(denied));
+        assertThat(agentService.findAgentAndRefreshStatus(idle.agentConfig().getUuid()), is(idle));
+        assertThat(agentService.findAgentAndRefreshStatus(pending.agentConfig().getUuid()), is(pending));
+        assertThat(agentService.findAgentAndRefreshStatus(building.agentConfig().getUuid()), is(building));
+        assertThat(agentService.findAgentAndRefreshStatus(denied.agentConfig().getUuid()), is(denied));
     }
 
     @Test
     public void shouldApproveAgent() throws Exception {
         AgentInstance pending = AgentInstanceMother.pending();
-        agentService.requestRegistration(AgentRuntimeInfo.fromServer(pending.agentConfig(), false, "var/lib", 0L, "linux", false));
-
+        agentService.requestRegistration(new Username("bob"), AgentRuntimeInfo.fromServer(pending.agentConfig(), false, "var/lib", 0L, "linux", false));
         agentService.approve(pending.getUuid());
 
         assertThat(agentService.findRegisteredAgents().size(), is(1));
@@ -481,19 +479,19 @@ public class AgentServiceIntegrationTest {
     @Test
     public void shouldAddOrUpdateAgent() throws Exception {
         AgentInstance pending = AgentInstanceMother.pending();
-        agentService.requestRegistration(AgentRuntimeInfo.fromServer(pending.agentConfig(), false, "var/lib", 0L, "linux", false));
+        agentService.requestRegistration(new Username("bob"), AgentRuntimeInfo.fromServer(pending.agentConfig(), false, "var/lib", 0L, "linux", false));
 
         agentService.approve(pending.getUuid());
 
-        agentService.requestRegistration(AgentRuntimeInfo.fromServer(pending.agentConfig(), true, "var/lib", 0L, "linux", false));
-        agentService.requestRegistration(AgentRuntimeInfo.fromServer(pending.agentConfig(), true, "var/lib", 0L, "linux", false));
+        agentService.requestRegistration(new Username("bob"), AgentRuntimeInfo.fromServer(pending.agentConfig(), true, "var/lib", 0L, "linux", false));
+        agentService.requestRegistration(new Username("bob"), AgentRuntimeInfo.fromServer(pending.agentConfig(), true, "var/lib", 0L, "linux", false));
         assertThat(agentService.findRegisteredAgents().size(), is(1));
     }
 
     @Test
     public void shouldDenyAgentFromPendingList() throws Exception {
         AgentInstance pending = AgentInstanceMother.pending();
-        agentService.requestRegistration(AgentRuntimeInfo.fromServer(pending.agentConfig(), false, "var/lib", 0L, "linux", false));
+        agentService.requestRegistration(new Username("bob"), AgentRuntimeInfo.fromServer(pending.agentConfig(), false, "var/lib", 0L, "linux", false));
 
         String uuid = pending.getUuid();
 
@@ -501,7 +499,7 @@ public class AgentServiceIntegrationTest {
         agentService.disableAgents(USERNAME, operationResult, Arrays.asList(uuid));
         assertAgentDisablingSucceeded(operationResult, uuid);
         Agents agents = agentConfigService.agents();
-        assertThat(agentService.findPhysicalAgents().size(), is(1));
+        assertThat(agentService.agents().size(), is(1));
         assertThat(agents.size(), is(1));
         assertThat(agents.get(0).isDisabled(), is(true));
         assertThat(agentService.findAgentAndRefreshStatus(uuid).isDisabled(), is(true));
@@ -613,7 +611,7 @@ public class AgentServiceIntegrationTest {
         AgentConfig agentConfig = new AgentConfig(agentId, agentName, "50.40.30.9");
         AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false);
         agentRuntimeInfo.busy(new AgentBuildingInfo("path", "buildLocator"));
-        agentService.requestRegistration(agentRuntimeInfo);
+        agentService.requestRegistration(new Username("bob"), agentRuntimeInfo);
         HttpOperationResult operationResult = new HttpOperationResult();
         agentService.disableAgents(USERNAME, operationResult, Arrays.asList(agentId));
         assertThat(operationResult.httpCode(), is(200));
@@ -627,7 +625,7 @@ public class AgentServiceIntegrationTest {
         AgentConfig agentConfig = new AgentConfig(agentId, agentName, "50.40.30.9");
         AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false);
         agentRuntimeInfo.busy(new AgentBuildingInfo("path", "buildLocator"));
-        agentService.requestRegistration(agentRuntimeInfo);
+        agentService.requestRegistration(new Username("bob"), agentRuntimeInfo);
         HttpOperationResult operationResult = new HttpOperationResult();
         agentService.enableAgents(USERNAME, operationResult, Arrays.asList(agentId));
         assertThat(operationResult.httpCode(), is(200));
@@ -716,7 +714,7 @@ public class AgentServiceIntegrationTest {
         assertThat(SystemUtil.isLocalIpAddress(nonLoopbackIp), is(true));
         AgentConfig agentConfig = new AgentConfig("uuid", inetAddress.getHostName(), nonLoopbackIp);
         AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(agentConfig, false, "/var/lib", 0L, "linux", false);
-        agentService.requestRegistration(agentRuntimeInfo);
+        agentService.requestRegistration(new Username("bob"), agentRuntimeInfo);
 
         AgentInstance agentInstance = agentService.findRegisteredAgents().findAgentAndRefreshStatus("uuid");
 
@@ -739,12 +737,11 @@ public class AgentServiceIntegrationTest {
 
         agentService.initialize();
 
-        AgentInstances approvedAgents = agentService.findPhysicalAgents().findEnabledAgents();
+        AgentInstances approvedAgents = agentService.findEnabledAgents();
         assertThat(approvedAgents.size(), is(1));
         assertThat(approvedAgents.findAgentAndRefreshStatus("uuid3").agentConfig().getHostname(), is("approvedAgent1"));
 
-        AgentInstances deniedAgents =
-                agentService.findPhysicalAgents().findAgents(AgentStatus.Disabled);
+        AgentInstances deniedAgents = agentService.findDisabledAgents();
         assertThat(deniedAgents.size(), is(2));
         assertThat(deniedAgents.findAgentAndRefreshStatus("uuid1").agentConfig().getHostname(), is("deniedAgent1"));
         assertThat(deniedAgents.findAgentAndRefreshStatus("uuid2").agentConfig().getHostname(), is("deniedAgent2"));
@@ -1176,7 +1173,7 @@ public class AgentServiceIntegrationTest {
 
     private void disableAgent() {
         AgentConfig pending = new AgentConfig("uuid1", "agent1", "192.168.0.1");
-        agentService.requestRegistration(AgentRuntimeInfo.fromServer(pending, false, "/var/lib", 0L, "linux", false));
+        agentService.requestRegistration(new Username("bob"), AgentRuntimeInfo.fromServer(pending, false, "/var/lib", 0L, "linux", false));
         agentService.approve("uuid1");
         agentConfigService.updateAgentApprovalStatus("uuid1", true, Username.ANONYMOUS);
     }
@@ -1186,7 +1183,7 @@ public class AgentServiceIntegrationTest {
     }
 
     public void addAgent(AgentConfig agentConfig) {
-        agentService.requestRegistration(AgentRuntimeInfo.fromServer(agentConfig, false, "/var/lib", 0L, "linux", false));
+        agentService.requestRegistration(new Username("bob"), AgentRuntimeInfo.fromServer(agentConfig, false, "/var/lib", 0L, "linux", false));
         agentService.approve(agentConfig.getUuid());
     }
 

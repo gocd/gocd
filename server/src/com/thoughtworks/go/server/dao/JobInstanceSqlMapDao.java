@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.dao;
 
@@ -61,6 +61,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
     private GoCache goCache;
     private TransactionTemplate transactionTemplate;
     private EnvironmentVariableDao environmentVariableDao;
+    private JobAgentMetadataDao jobAgentMetadataDao;
     private Cloner cloner = new Cloner();
     private ResourceRepository resourceRepository;
     private ArtifactPlanRepository artifactPlanRepository;
@@ -69,7 +70,8 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
     @Autowired
     public JobInstanceSqlMapDao(EnvironmentVariableDao environmentVariableDao, GoCache goCache, TransactionTemplate transactionTemplate, SqlMapClient sqlMapClient, Cache cache,
                                 TransactionSynchronizationManager transactionSynchronizationManager, SystemEnvironment systemEnvironment, Database database,
-                                ResourceRepository resourceRepository, ArtifactPlanRepository artifactPlanRepository, ArtifactPropertiesGeneratorRepository artifactPropertiesGeneratorRepository) {
+                                ResourceRepository resourceRepository, ArtifactPlanRepository artifactPlanRepository, ArtifactPropertiesGeneratorRepository artifactPropertiesGeneratorRepository,
+                                JobAgentMetadataDao jobAgentMetadataDao) {
         super(goCache, sqlMapClient, systemEnvironment, database);
         this.environmentVariableDao = environmentVariableDao;
         this.goCache = goCache;
@@ -79,6 +81,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         this.resourceRepository = resourceRepository;
         this.artifactPlanRepository = artifactPlanRepository;
         this.artifactPropertiesGeneratorRepository = artifactPropertiesGeneratorRepository;
+        this.jobAgentMetadataDao = jobAgentMetadataDao;
     }
 
     public JobInstance buildByIdWithTransitions(long buildInstanceId) {
@@ -193,6 +196,10 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
             artifactPlanRepository.saveCopyOf(jobId, artifactPlan);
         }
         environmentVariableDao.save(jobId, EnvironmentVariableSqlMapDao.EnvironmentVariableType.Job, plan.getVariables());
+
+        if (plan.requiresElasticAgent()){
+            jobAgentMetadataDao.save(new JobAgentMetadata(jobId, plan.getJobAgentConfig()));
+        }
     }
 
     public JobPlan loadPlan(long jobId) {
@@ -207,6 +214,10 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         plan.setResources(resourceRepository.findByBuildId(plan.getJobId()));
         plan.setVariables(environmentVariableDao.load(plan.getJobId(), EnvironmentVariableSqlMapDao.EnvironmentVariableType.Job));
         plan.setTriggerVariables(environmentVariableDao.load(plan.getPipelineId(), EnvironmentVariableSqlMapDao.EnvironmentVariableType.Trigger));
+        JobAgentMetadata jobAgentMetadata = jobAgentMetadataDao.load(plan.getJobId());
+        if (jobAgentMetadata != null){
+            plan.setJobAgentConfig(jobAgentMetadata.jobAgentConfig());
+        }
     }
 
     public JobIdentifier findOriginalJobIdentifier(StageIdentifier stageIdentifier, String jobName) {

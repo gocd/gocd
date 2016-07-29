@@ -20,6 +20,7 @@ import com.thoughtworks.go.plugin.api.GoApplicationAccessor;
 import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
 import com.thoughtworks.go.plugin.api.exceptions.UnhandledRequestTypeException;
+import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.infra.commons.PluginUploadResponse;
@@ -39,10 +40,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_BUNDLE_PATH;
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_FRAMEWORK_ENABLED;
@@ -62,15 +60,17 @@ public class DefaultPluginManager implements PluginManager {
     private PluginValidator pluginValidator;
     private PluginsZipUpdater pluginsZipUpdater;
     private PluginsListListener pluginsListListener;
+    private final Set<PluginDescriptor> initializedPlugins = new HashSet<>();
+    private PluginRequestProcessorRegistry requestProcesRegistry;
 
     @Autowired
     public DefaultPluginManager(DefaultPluginJarLocationMonitor monitor, DefaultPluginRegistry registry, GoPluginOSGiFramework goPluginOSGiFramework,
-                                DefaultPluginJarChangeListener defaultPluginJarChangeListener, GoApplicationAccessor goApplicationAccessor, PluginWriter pluginWriter,
+                                DefaultPluginJarChangeListener defaultPluginJarChangeListener, PluginRequestProcessorRegistry requestProcesRegistry, PluginWriter pluginWriter,
                                 PluginValidator pluginValidator, SystemEnvironment systemEnvironment, PluginsZipUpdater pluginsZipUpdater, PluginsListListener pluginsListListener) {
         this.monitor = monitor;
         this.registry = registry;
         this.defaultPluginJarChangeListener = defaultPluginJarChangeListener;
-        this.goApplicationAccessor = goApplicationAccessor;
+        this.requestProcesRegistry = requestProcesRegistry;
         this.systemEnvironment = systemEnvironment;
         this.pluginsZipUpdater = pluginsZipUpdater;
         this.pluginsListListener = pluginsListListener;
@@ -135,6 +135,20 @@ public class DefaultPluginManager implements PluginManager {
         removeBundleDirectory();
         goPluginOSGiFramework.start();
 
+        addPluginChangeListener(new PluginChangeListener() {
+            @Override
+            public void pluginLoaded(GoPluginDescriptor pluginDescriptor) {
+
+            }
+
+            @Override
+            public void pluginUnLoaded(GoPluginDescriptor pluginDescriptor) {
+                synchronized (initializedPlugins) {
+                    initializedPlugins.remove(pluginDescriptor);
+                }
+            }
+        });
+
         monitor.addPluginJarChangeListener(defaultPluginJarChangeListener);
         monitor.start();
     }
@@ -163,11 +177,11 @@ public class DefaultPluginManager implements PluginManager {
     }
 
     @Override
-    public GoPluginApiResponse submitTo(String pluginId, final GoPluginApiRequest apiRequest) {
+    public GoPluginApiResponse submitTo(final String pluginId, final GoPluginApiRequest apiRequest) {
         return goPluginOSGiFramework.doOn(GoPlugin.class, pluginId, new ActionWithReturn<GoPlugin, GoPluginApiResponse>() {
             @Override
             public GoPluginApiResponse execute(GoPlugin plugin, GoPluginDescriptor pluginDescriptor) {
-                plugin.initializeGoApplicationAccessor(goApplicationAccessor);
+                ensureInitializerInvoked(pluginDescriptor, plugin);
                 try {
                     return plugin.handle(apiRequest);
                 } catch (UnhandledRequestTypeException e) {
@@ -177,6 +191,17 @@ public class DefaultPluginManager implements PluginManager {
                 }
             }
         });
+    }
+
+    private void ensureInitializerInvoked(GoPluginDescriptor pluginDescriptor, GoPlugin plugin) {
+        synchronized (initializedPlugins) {
+            if (initializedPlugins.contains(pluginDescriptor)) {
+                return;
+            }
+            initializedPlugins.add(pluginDescriptor);
+            PluginAwareDefaultGoApplicationAccessor accessor = new PluginAwareDefaultGoApplicationAccessor(pluginDescriptor, requestProcesRegistry);
+            plugin.initializeGoApplicationAccessor(accessor);
+        }
     }
 
     public List<GoPluginIdentifier> allPluginsOfType(final String extension) {

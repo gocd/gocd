@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.Agents;
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.listener.AgentChangeListener;
@@ -26,6 +25,7 @@ import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.security.Registration;
 import com.thoughtworks.go.server.domain.AgentInstances;
+import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.AgentDao;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
@@ -44,6 +44,7 @@ import com.thoughtworks.go.utils.Timeout;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -105,10 +106,6 @@ public class AgentService {
         agentInstances.sync(agents);
     }
 
-    public AgentInstances findPhysicalAgents() {
-        return agentInstances.findPhysicalAgents();
-    }
-
     public List<String> getUniqueAgentNames() {
         return new ArrayList<>(agentInstances.getAllHostNames());
     }
@@ -121,9 +118,8 @@ public class AgentService {
         return new ArrayList<>(agentInstances.getAllOperatingSystems());
     }
 
-
     public AgentsViewModel agents() {
-        return toAgentViewModels(agentInstances.findPhysicalAgents());
+        return toAgentViewModels(agentInstances.allAgents());
     }
 
     public AgentsViewModel registeredAgents() {
@@ -175,7 +171,7 @@ public class AgentService {
         }
 
         AgentConfig agentConfig = agentConfigService.updateAgentAttributes(uuid, username, newHostname, resources, environments, enable, agentInstances, result);
-        if(agentConfig !=null)
+        if (agentConfig != null)
             return AgentInstance.createFromConfig(agentConfig, systemEnvironment);
         return null;
     }
@@ -238,8 +234,7 @@ public class AgentService {
 
         List<AgentInstance> failedToDeleteAgents = new ArrayList<>();
         for (AgentInstance agentInstance : agents) {
-            boolean isBuildingOrCancelled = agentInstance.isBuilding() || agentInstance.isCancelled();
-            if (!agentInstance.isDisabled() || isBuildingOrCancelled) {
+            if (!agentInstance.canBeDeleted()) {
                 failedToDeleteAgents.add(agentInstance);
             }
         }
@@ -312,25 +307,24 @@ public class AgentService {
             LOGGER.warn(
                     String.format("Agent with UUID [%s] changed IP Address from [%s] to [%s]",
                             info.getUUId(), agentConfig.getIpAddress(), info.getIpAdress()));
-            String userName = usernameForAgent(info.getUUId(), info.getIpAdress(), agentConfig.getHostNameForDispaly());
+            Username userName = agentUsername(info.getUUId(), info.getIpAdress(), agentConfig.getHostNameForDispaly());
             agentConfigService.updateAgentIpByUuid(agentConfig.getUuid(), info.getIpAdress(), userName);
         }
         agentInstances.updateAgentRuntimeInfo(info);
     }
 
-    private String usernameForAgent(String uuId, String ipAddress, String hostNameForDisplay) {
-        return String.format("agent_%s_%s_%s", uuId, ipAddress, hostNameForDisplay);
+    public Username agentUsername(String uuId, String ipAddress, String hostNameForDisplay) {
+        return new Username(String.format("agent_%s_%s_%s", uuId, ipAddress, hostNameForDisplay));
     }
 
-    public Registration requestRegistration(AgentRuntimeInfo agentRuntimeInfo) {
+    public Registration requestRegistration(Username username, AgentRuntimeInfo agentRuntimeInfo) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Agent is requesting registration " + agentRuntimeInfo);
         }
         AgentInstance agentInstance = agentInstances.register(agentRuntimeInfo);
         Registration registration = agentInstance.assignCertification();
         if (agentInstance.isRegistered()) {
-            String userName = usernameForAgent(agentInstance.getUuid(), agentInstance.getIpAddress(), agentInstance.getHostname());
-            agentConfigService.saveOrUpdateAgent(agentInstance, new Username(new CaseInsensitiveString(userName)));
+            agentConfigService.saveOrUpdateAgent(agentInstance, username);
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("New Agent approved " + agentRuntimeInfo);
             }
@@ -379,10 +373,6 @@ public class AgentService {
         agentInstances.refresh();
     }
 
-    public int numberOfActiveRemoteAgents() {
-        return agentInstances.numberOfActiveRemoteAgents();
-    }
-
     public void building(String uuid, AgentBuildingInfo agentBuildingInfo) {
         agentInstances.building(uuid, agentBuildingInfo);
     }
@@ -411,5 +401,21 @@ public class AgentService {
 
     public AgentViewModel findAgentViewModel(String uuid) {
         return toAgentViewModel(findAgentAndRefreshStatus(uuid));
+    }
+
+    public LinkedMultiValueMap<String, ElasticAgentMetadata> allElasticAgents() {
+        return agentInstances.allElasticAgentsGroupedByPluginId();
+    }
+
+    public AgentInstance findElasticAgent(String elasticAgentId, String elasticPluginId) {
+        return agentInstances.findElasticAgent(elasticAgentId, elasticPluginId);
+    }
+
+    public AgentInstances findEnabledAgents() {
+        return agentInstances.findEnabledAgents();
+    }
+
+    public AgentInstances findDisabledAgents() {
+        return agentInstances.findDisabledAgents();
     }
 }

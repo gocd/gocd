@@ -24,6 +24,7 @@ import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.helper.StubMultipartHttpServletRequest;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
+import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.ArtifactsService;
@@ -204,7 +205,7 @@ public class ArtifactsControllerIntegrationTest {
     }
 
     private Date updateHeardTime() throws Exception {
-        agentService.requestRegistration(AgentRuntimeInfo.fromServer(new AgentConfig("uuid", "localhost", "127.0.0.1"),
+        agentService.requestRegistration(new Username("bob"), AgentRuntimeInfo.fromServer(new AgentConfig("uuid", "localhost", "127.0.0.1"),
                 false, "/var/lib", 0L, "linux", false));
         agentService.approve("uuid");
         artifactsController.putArtifact(pipelineName, "latest", "stage", null, "build2", null, "/foo.xml",

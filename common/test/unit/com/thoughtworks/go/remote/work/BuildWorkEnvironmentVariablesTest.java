@@ -224,9 +224,7 @@ public class BuildWorkEnvironmentVariablesTest {
     }
 
     private BuildAssignment createAssignment() {
-        JobPlan plan = new DefaultJobPlan(new Resources(), new ArtifactPlans(),
-                new ArtifactPropertiesGenerators(), -1,
-                new JobIdentifier(PIPELINE_NAME, 1, "1", STAGE_NAME, "1", JOB_NAME, 123L));
+        JobPlan plan = new DefaultJobPlan(new Resources(), new ArtifactPlans(), new ArtifactPropertiesGenerators(), -1, new JobIdentifier(PIPELINE_NAME, 1, "1", STAGE_NAME, "1", JOB_NAME, 123L), null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null);
         MaterialRevisions materialRevisions = materialRevisions();
         BuildCause buildCause = BuildCause.createWithModifications(materialRevisions, TRIGGERED_BY_USER);
         List<Builder> builders = new ArrayList<Builder>();

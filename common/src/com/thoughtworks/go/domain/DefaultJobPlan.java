@@ -1,37 +1,29 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain;
+
+import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.util.GoConstants;
+import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import com.thoughtworks.go.work.DefaultGoPublisher;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.thoughtworks.go.config.ArtifactPlan;
-import com.thoughtworks.go.config.ArtifactPlans;
-import com.thoughtworks.go.config.ArtifactPropertiesGenerator;
-import com.thoughtworks.go.config.ArtifactPropertiesGenerators;
-import com.thoughtworks.go.config.EnvironmentVariablesConfig;
-import com.thoughtworks.go.config.Resource;
-import com.thoughtworks.go.config.Resources;
-import com.thoughtworks.go.config.StageConfig;
-import com.thoughtworks.go.config.TestArtifactPlan;
-import com.thoughtworks.go.util.GoConstants;
-import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import com.thoughtworks.go.work.DefaultGoPublisher;
 
 public class DefaultJobPlan implements JobPlan {
 
@@ -45,6 +37,7 @@ public class DefaultJobPlan implements JobPlan {
     private String agentUuid;
     private EnvironmentVariablesConfig variables;
     private EnvironmentVariablesConfig triggerVariables;
+    private JobAgentConfig jobAgentConfig;
     private boolean fetchMaterials = StageConfig.DEFAULT_FETCH_MATERIALS;
     private boolean cleanWorkingDir = StageConfig.DEFAULT_CLEAN_WORKING_DIR;
 
@@ -55,13 +48,7 @@ public class DefaultJobPlan implements JobPlan {
 
     public DefaultJobPlan(Resources resources, ArtifactPlans plans,
                           ArtifactPropertiesGenerators generators, long jobId,
-                          JobIdentifier identifier) {
-        this(resources, plans, generators, jobId, identifier, null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig());
-    }
-
-    public DefaultJobPlan(Resources resources, ArtifactPlans plans,
-                          ArtifactPropertiesGenerators generators, long jobId,
-                          JobIdentifier identifier, String agentUuid, EnvironmentVariablesConfig variables, EnvironmentVariablesConfig triggerTimeVariables) {
+                          JobIdentifier identifier, String agentUuid, EnvironmentVariablesConfig variables, EnvironmentVariablesConfig triggerTimeVariables, JobAgentConfig jobAgentConfig) {
         this.jobId = jobId;
         this.identifier = identifier;
         this.resources = resources;
@@ -70,6 +57,7 @@ public class DefaultJobPlan implements JobPlan {
         this.agentUuid = agentUuid;
         this.variables = variables;
         this.triggerVariables = triggerTimeVariables;
+        this.jobAgentConfig = jobAgentConfig;
     }
 
     public String getPipelineName() {
@@ -264,5 +252,23 @@ public class DefaultJobPlan implements JobPlan {
 
     public boolean shouldCleanWorkingDir() {
         return cleanWorkingDir;
+    }
+
+    public JobAgentConfig getJobAgentConfig() {
+        return jobAgentConfig;
+    }
+
+    @Override
+    public boolean requiresElasticAgent() {
+        return jobAgentConfig != null;
+    }
+
+    public void setJobAgentConfig(JobAgentConfig jobAgentConfig) {
+        this.jobAgentConfig = jobAgentConfig;
+    }
+
+    @Override
+    public boolean assignedToAgent() {
+        return agentUuid == null;
     }
 }

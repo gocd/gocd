@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,7 +20,6 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.domain.AgentStatus;
-import com.thoughtworks.go.domain.EnvironmentPipelineMatcher;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
@@ -28,25 +27,13 @@ import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 
 public class AgentInstanceMother {
-    private static final Set<EnvironmentPipelineMatcher> NO_ENVIRONMENTS = new HashSet<EnvironmentPipelineMatcher>();
-
-    public static AgentInstance virtual() {
-        AgentConfig virtualAgentConfig = new AgentConfig("uuid1", "ec2", "10.18.8.10");
-        AgentInstance instance = AgentInstance.create(virtualAgentConfig, true, new SystemEnvironment()
-        );
-        instance.update(new AgentRuntimeInfo(virtualAgentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false));
-        return instance;
-    }
 
     public static AgentInstance local(SystemEnvironment systemEnvironment) {
-        return AgentInstance.createFromConfig(new AgentConfig("uuid-local", "localhost", "127.0.0.1"), systemEnvironment
-        );
+        return AgentInstance.createFromConfig(new AgentConfig("uuid-local", "localhost", "127.0.0.1"), systemEnvironment);
     }
 
     public static AgentInstance idle()  {

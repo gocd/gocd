@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.google.caja.util.Sets;
+import com.google.common.collect.Sets;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
@@ -72,12 +72,12 @@ public class AgentConfigService {
         goConfigService.register(agentChangeListener);
     }
 
-    public void disableAgents(Username currentUser, AgentInstance... agentInstance) {
-        disableAgents(true, currentUser, agentInstance);
-    }
-
     public void enableAgents(Username currentUser, AgentInstance... agentInstance) {
         disableAgents(false, currentUser, agentInstance);
+    }
+
+    public void disableAgents(Username currentUser, AgentInstance... agentInstance) {
+        disableAgents(true, currentUser, agentInstance);
     }
 
     private void disableAgents(boolean disabled, Username currentUser, AgentInstance... instances) {
@@ -87,11 +87,11 @@ public class AgentConfigService {
             String uuid = agentInstance.getUuid();
             uuids.add(uuid);
             if (goConfigService.hasAgent(uuid)) {
-                command.addCommand(updateApprovalStatus(uuid, disabled));
+                command.addCommand(new UpdateAgentApprovalStatus(uuid, disabled));
             } else {
                 AgentConfig agentConfig = agentInstance.agentConfig();
                 agentConfig.disable(disabled);
-                command.addCommand(createAddAgentCommand(agentConfig));
+                command.addCommand(new AddAgentCommand(agentConfig));
             }
         }
         updateAgentWithoutValidations(command, currentUser);
@@ -205,8 +205,8 @@ public class AgentConfigService {
         }
     }
 
-    public void updateAgentIpByUuid(String uuid, String ipAddress, String userName) {
-        updateAgents(new UpdateAgentIp(uuid, ipAddress, userName), new AgentConfigsUpdateValidator(asList(uuid)), new Username(new CaseInsensitiveString(userName)));
+    public void updateAgentIpByUuid(String uuid, String ipAddress, Username userName) {
+        updateAgents(new UpdateAgentIp(uuid, ipAddress, userName), new AgentConfigsUpdateValidator(asList(uuid)), userName);
     }
 
     private static class UpdateAgentIp implements UpdateConfigCommand, UserAware {
@@ -214,10 +214,10 @@ public class AgentConfigService {
         private final String ipAddress;
         private final String userName;
 
-        private UpdateAgentIp(String uuid, String ipAddress, String userName) {
+        private UpdateAgentIp(String uuid, String ipAddress, Username userName) {
             this.uuid = uuid;
             this.ipAddress = ipAddress;
-            this.userName = userName;
+            this.userName = userName.getUsername().toString();
         }
 
         public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
@@ -252,15 +252,15 @@ public class AgentConfigService {
         if (!goConfigService.hasAgent(uuid) && enable.isTrue()) {
             AgentInstance agentInstance = agentInstances.findAgent(uuid);
             AgentConfig agentConfig = agentInstance.agentConfig();
-            command.addCommand(createAddAgentCommand(agentConfig));
+            command.addCommand(new AddAgentCommand(agentConfig));
         }
 
         if (enable.isTrue()) {
-            command.addCommand(updateApprovalStatus(uuid, false));
+            command.addCommand(new UpdateAgentApprovalStatus(uuid, false));
         }
 
         if (enable.isFalse()) {
-            command.addCommand(updateApprovalStatus(uuid, true));
+            command.addCommand(new UpdateAgentApprovalStatus(uuid, true));
         }
 
         if (hostname != null) {
@@ -305,18 +305,14 @@ public class AgentConfigService {
         if (goConfigService.hasAgent(agentInstance.getUuid())) {
             LOGGER.warn("Registered agent with the same uuid [" + agentInstance + "] already approved.");
         } else {
-            updateAgent(createAddAgentCommand(agentInstance.agentConfig()), agentInstance.getUuid(), new HttpOperationResult(), Username.ANONYMOUS);
+            updateAgent(new AddAgentCommand(agentInstance.agentConfig()), agentInstance.getUuid(), new HttpOperationResult(), Username.ANONYMOUS);
         }
-    }
-
-    protected static UpdateConfigCommand createAddAgentCommand(final AgentConfig agentConfig) {
-        return new AddAgentCommand(agentConfig);
     }
 
     /**
      * @understands how to add an agent to the config file
      */
-    private static class AddAgentCommand implements UpdateConfigCommand {
+    public static class AddAgentCommand implements UpdateConfigCommand {
         private final AgentConfig agentConfig;
 
         public AddAgentCommand(AgentConfig agentConfig) {
@@ -366,11 +362,11 @@ public class AgentConfigService {
     }
 
     public void updateAgentApprovalStatus(final String uuid, final Boolean isDenied, Username currentUser) {
-        updateAgentWithoutValidations(updateApprovalStatus(uuid, isDenied), currentUser);
+        updateAgentWithoutValidations(new UpdateAgentApprovalStatus(uuid, isDenied), currentUser);
     }
 
     public void addAgent(AgentConfig agentConfig, Username currentUser) {
-        updateAgent(createAddAgentCommand(agentConfig), agentConfig.getUuid(), currentUser);
+        updateAgent(new AddAgentCommand(agentConfig), agentConfig.getUuid(), currentUser);
     }
 
     public void modifyResources(AgentInstance[] agentInstances, List<TriStateSelection> selections, Username currentUser) {
@@ -408,7 +404,7 @@ public class AgentConfigService {
     /**
      * @understands how to update the agent approval status
      */
-    private static class UpdateAgentApprovalStatus implements UpdateConfigCommand {
+    public static class UpdateAgentApprovalStatus implements UpdateConfigCommand {
         private final String uuid;
         private final Boolean denied;
 
@@ -527,6 +523,5 @@ public class AgentConfigService {
             return new ConfigModifyingUser(userName);
         }
     }
-
 
 }

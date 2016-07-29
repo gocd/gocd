@@ -56,6 +56,10 @@
           p:targetObject-ref="scheduleService"
           p:targetMethod="rescheduleHungJobs"/>
 
+    <bean id="elasticAgentPluginPingTask" class="com.thoughtworks.go.timer.ModeAwareMethodInvokingTimerTaskFactoryBean"
+          p:targetObject-ref="elasticAgentPluginService"
+          p:targetMethod="heartbeat"/>
+
     <bean id="cancelHungJob" class="com.thoughtworks.go.timer.ModeAwareMethodInvokingTimerTaskFactoryBean"
           p:targetObject-ref="scheduleService"
           p:targetMethod="cancelHungJobs"/>
@@ -130,6 +134,18 @@
                       p:delay="3000"
                       p:period="${cruise.reschedule.hung.builds.interval}"
                       p:timerTask-ref="rescheduleHungBuildTask"/>
+            </list>
+        </property>
+    </bean>
+
+    <!-- a heartbeat/ping call to elastic agent plugins -->
+    <bean name="elasticAgentPluginPingThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
+        <property name="scheduledTimerTasks">
+            <list>
+                <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
+                      p:delay="3000"
+                      p:period="${go.elasticplugin.heartbeat.interval}"
+                      p:timerTask-ref="elasticAgentPluginPingTask"/>
             </list>
         </property>
     </bean>

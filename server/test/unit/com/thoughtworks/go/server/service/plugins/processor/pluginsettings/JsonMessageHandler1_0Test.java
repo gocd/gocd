@@ -26,7 +26,6 @@ import java.util.Map;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 
 public class JsonMessageHandler1_0Test {
     private JsonMessageHandler1_0 messageHandler;
@@ -34,11 +33,6 @@ public class JsonMessageHandler1_0Test {
     @Before
     public void setUp() {
         messageHandler = new JsonMessageHandler1_0();
-    }
-
-    @Test
-    public void shouldHandleRequestMessagePluginSettingsGet() {
-        assertThat(messageHandler.requestMessagePluginSettingsGet("{\"plugin-id\":\"plugin-id-1\"}"), is("plugin-id-1"));
     }
 
     @Test
@@ -56,18 +50,4 @@ public class JsonMessageHandler1_0Test {
         assertThat(messageHandler.responseMessagePluginSettingsGet(new PluginSettings("plugin-id-2")), is(nullValue()));
     }
 
-    @Test
-    public void shouldHandleIncorrectDataForPluginSettingsGet() {
-        assertErrorMessageForPluginSettingsGet("{}", "'plugin-id' cannot be empty");
-        assertErrorMessageForPluginSettingsGet("{\"plugin-id\":true}", "'plugin-id' should of string type");
-    }
-
-    private void assertErrorMessageForPluginSettingsGet(String requestBody, String message) {
-        try {
-            messageHandler.requestMessagePluginSettingsGet(requestBody);
-            fail("should have thrown up");
-        } catch (Exception e) {
-            assertThat(e.getMessage(), is(message));
-        }
-    }
 }

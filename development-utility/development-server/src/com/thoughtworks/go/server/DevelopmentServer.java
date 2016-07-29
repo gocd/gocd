@@ -59,6 +59,7 @@ public class DevelopmentServer {
         systemEnvironment.set(SystemEnvironment.DEFAULT_PLUGINS_ZIP, "/plugins.zip");
         systemEnvironment.setProperty(GoConstants.I18N_CACHE_LIFE, "0"); //0 means reload when stale
         setupPeriodicGC(systemEnvironment);
+        PropertyConfigurator.configureAndWatch("./properties/src/log4j.properties", 100L);
         File pluginsDist = new File("../tw-go-plugins/dist/");
         if (!pluginsDist.exists()) {
             pluginsDist.mkdirs();
@@ -83,7 +84,7 @@ public class DevelopmentServer {
     }
 
     private static void setupPeriodicGC(SystemEnvironment systemEnvironment) {
-        systemEnvironment.set(SystemEnvironment.GO_CONFIG_REPO_GC_LOOSE_OBJECT_WARNING_THRESHOLD, 1L);
+        systemEnvironment.set(SystemEnvironment.GO_CONFIG_REPO_GC_LOOSE_OBJECT_WARNING_THRESHOLD, 100L);
         systemEnvironment.set(SystemEnvironment.GO_CONFIG_REPO_PERIODIC_GC, true);
         systemEnvironment.set(SystemEnvironment.GO_CONFIG_REPO_GC_AGGRESSIVE, true);
         systemEnvironment.setProperty("go.config.repo.gc.cron", "0 0/1 * 1/1 * ?");

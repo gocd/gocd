@@ -57,6 +57,11 @@ public class ElasticAgentRuntimeInfo extends AgentRuntimeInfo implements Seriali
         this.elasticPluginId = ((ElasticAgentRuntimeInfo) newRuntimeInfo).getElasticPluginId();
     }
 
+    @Override
+    public boolean isElastic() {
+        return true;
+    }
+
     public String getElasticAgentId() {
         return elasticAgentId;
     }

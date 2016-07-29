@@ -16,9 +16,8 @@
 
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.config.AgentConfig;
-import com.thoughtworks.go.config.ArtifactPlans;
-import com.thoughtworks.go.config.Resources;
+import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.security.Registration;
@@ -26,6 +25,7 @@ import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
+import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,13 +36,16 @@ import java.util.Date;
 import java.util.List;
 
 import static com.thoughtworks.go.domain.AgentInstance.AgentType.LOCAL;
+import static com.thoughtworks.go.domain.AgentInstance.AgentType.REMOTE;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
+import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.number.OrderingComparison.lessThan;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 
 public class AgentInstanceTest {
     private SystemEnvironment systemEnvironment;
@@ -234,15 +237,6 @@ public class AgentInstanceTest {
         agentRuntimeInfo.busy(defaultBuildingInfo);
         agentRuntimeInfo.cancel();
         return agentRuntimeInfo;
-    }
-
-    @Test
-    public void shouldNotChangeVirtualMachineIpAddress() throws Exception {
-        AgentInstance virtual = AgentInstance.create(new AgentConfig("uuid", "ccedev01", "10.18.7.51"), true, systemEnvironment);
-        final AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("ccedev01", "10.18.7.52", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false);
-        boolean required = virtual.isIpChangeRequired(
-                info.getIpAdress());
-        assertThat(required, is(false));
     }
 
     @Test
@@ -520,6 +514,21 @@ public class AgentInstanceTest {
         assertThat(status, is(AgentStatus.Idle));
     }
 
+    @Test public void syncConfigShouldUpdateElasticAgentRuntimeInfo() {
+        AgentInstance agent = AgentInstanceMother.idle();
+
+        AgentConfig agentConfig = new AgentConfig(agent.getUuid(), agent.getHostname(), agent.getIpAddress());
+        agentConfig.setElasticAgentId("i-123456");
+        agentConfig.setElasticPluginId("com.example.aws");
+
+        assertFalse(agent.isElastic());
+        agent.syncConfig(agentConfig);
+        assertTrue(agent.isElastic());
+
+        assertEquals("i-123456", agent.elasticAgentMetadata().elasticAgentId());
+        assertEquals("com.example.aws", agent.elasticAgentMetadata().elasticPluginId());
+    }
+
     @Test
     public void shouldReturnFreeDiskSpace() throws Exception {
         assertThat(AgentInstanceMother.updateRuntimeStatus(AgentInstanceMother.updateUsableSpace(AgentInstanceMother.idle(new Date(), "CCeDev01"), 1024L), AgentRuntimeStatus.Missing).freeDiskSpace(), is(DiskSpace.unknownDiskSpace()));
@@ -560,6 +569,48 @@ public class AgentInstanceTest {
     }
 
     @Test
+    public void shouldMatchJobPlanIfTheAgentWasLaunchedByTheSamePluginAsWasConfiguredForTheJob(){
+        AgentConfig agentConfig = new AgentConfig("uuid");
+        agentConfig.setElasticAgentId("elastic-agent-id-1");
+        String elasticPluginId = "elastic-plugin-id-1";
+        agentConfig.setElasticPluginId(elasticPluginId);
+        AgentInstance agentInstance = new AgentInstance(agentConfig, REMOTE, mock(SystemEnvironment.class));
+        DefaultJobPlan jobPlan1 = new DefaultJobPlan();
+        jobPlan1.setJobAgentConfig(new JobAgentConfig(elasticPluginId, new ArrayList<ConfigurationProperty>()));
+        List<JobPlan> jobPlans = asList(jobPlan1, (JobPlan)new DefaultJobPlan());
+
+        assertThat(agentInstance.firstMatching(jobPlans), Is.<JobPlan>is(jobPlan1));
+    }
+
+    @Test
+    public void shouldNotMatchJobPlanIfTheAgentWasLaunchedByADifferentPluginFromThatConfiguredForTheJob(){
+        AgentConfig agentConfig = new AgentConfig("uuid");
+        agentConfig.setElasticAgentId("elastic-agent-id-1");
+        String elasticPluginId = "elastic-plugin-id-1";
+        agentConfig.setElasticPluginId(elasticPluginId);
+        AgentInstance agentInstance = new AgentInstance(agentConfig, REMOTE, mock(SystemEnvironment.class));
+        DefaultJobPlan jobPlan1 = new DefaultJobPlan();
+        jobPlan1.setJobAgentConfig(new JobAgentConfig("elastic-plugin-id-2", new ArrayList<ConfigurationProperty>()));
+        List<JobPlan> jobPlans = asList(jobPlan1, (JobPlan)new DefaultJobPlan());
+
+        assertThat(agentInstance.firstMatching(jobPlans), is(nullValue()));
+    }
+
+    @Test
+    public void shouldNotMatchJobPlanIfTheAgentIsElasticAndJobHasResourcesDefined(){
+        AgentConfig agentConfig = new AgentConfig("uuid", "hostname", "11.1.1.1", new Resources(new Resource("r1")));
+        agentConfig.setElasticAgentId("elastic-agent-id-1");
+        String elasticPluginId = "elastic-plugin-id-1";
+        agentConfig.setElasticPluginId(elasticPluginId);
+        AgentInstance agentInstance = new AgentInstance(agentConfig, REMOTE, mock(SystemEnvironment.class));
+        DefaultJobPlan jobPlan1 = new DefaultJobPlan();
+        jobPlan1.setResources(asList(new Resource("r1")));
+        List<JobPlan> jobPlans = asList(jobPlan1, (JobPlan)new DefaultJobPlan());
+
+        assertThat(agentInstance.firstMatching(jobPlans), is(nullValue()));
+    }
+
+    @Test
     public void lostContact() {
         AgentInstance agentInstance = AgentInstanceMother.building();
         agentInstance.lostContact();
@@ -586,8 +637,7 @@ public class AgentInstanceTest {
 
     private DefaultJobPlan jobPlan(String pipelineName, String jobName, String resource, String uuid) {
         JobIdentifier jobIdentifier = new JobIdentifier(pipelineName, 1, "1", "stage1", "1", jobName, 1L);
-        DefaultJobPlan plan = new DefaultJobPlan(new Resources(resource), new ArtifactPlans(), null, 100,
-                jobIdentifier);
+        DefaultJobPlan plan = new DefaultJobPlan(new Resources(resource), new ArtifactPlans(), null, 100, jobIdentifier, null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null);
         plan.setAgentUuid(uuid);
         return plan;
     }

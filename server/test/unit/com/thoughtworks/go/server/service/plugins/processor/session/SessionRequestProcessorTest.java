@@ -1,25 +1,26 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service.plugins.processor.session;
 
 import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
 import com.thoughtworks.go.plugin.api.request.GoApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoApiResponse;
-import com.thoughtworks.go.plugin.infra.DefaultGoApplicationAccessor;
+import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
+import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.json.JsonHelper;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,12 +38,13 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 public class SessionRequestProcessorTest {
     @Mock
-    private DefaultGoApplicationAccessor applicationAccessor;
+    private PluginRequestProcessorRegistry applicationAccessor;
     @Mock
     private HttpSession session;
     @Mock
     private JsonMessageHandler jsonMessageHandler;
-
+    @Mock
+    private GoPluginDescriptor pluginDescriptor;
     private SessionRequestProcessor processor;
 
     @Before
@@ -62,7 +64,7 @@ public class SessionRequestProcessorTest {
 
     @Test
     public void shouldHandleIncorrectAPIVersion() {
-        GoApiResponse response = processor.process(getGoPluginApiRequest("1.1", null, null));
+        GoApiResponse response = processor.process(pluginDescriptor, getGoPluginApiRequest("1.1", null, null));
         assertThat(response.responseCode(), is(500));
     }
 
@@ -78,7 +80,7 @@ public class SessionRequestProcessorTest {
         SessionRequestProcessor applicationAccessorSpy = spy(processor);
         doReturn(session).when(applicationAccessorSpy).getUserSession();
 
-        GoApiResponse response = applicationAccessorSpy.process(getGoPluginApiRequest("1.0", SessionRequestProcessor.PUT_INTO_SESSION, requestBody));
+        GoApiResponse response = applicationAccessorSpy.process(pluginDescriptor, getGoPluginApiRequest("1.0", SessionRequestProcessor.PUT_INTO_SESSION, requestBody));
 
         assertThat(response.responseCode(), is(200));
         verify(session).setAttribute(pluginId, sessionData);
@@ -93,7 +95,7 @@ public class SessionRequestProcessorTest {
         SessionRequestProcessor applicationAccessorSpy = spy(processor);
         doReturn(null).when(applicationAccessorSpy).getUserSession();
 
-        GoApiResponse response = applicationAccessorSpy.process(getGoPluginApiRequest("1.0", SessionRequestProcessor.PUT_INTO_SESSION, requestBody));
+        GoApiResponse response = applicationAccessorSpy.process(pluginDescriptor, getGoPluginApiRequest("1.0", SessionRequestProcessor.PUT_INTO_SESSION, requestBody));
 
         assertThat(response.responseCode(), is(500));
     }
@@ -112,7 +114,7 @@ public class SessionRequestProcessorTest {
         SessionRequestProcessor applicationAccessorSpy = spy(processor);
         doReturn(session).when(applicationAccessorSpy).getUserSession();
 
-        GoApiResponse response = applicationAccessorSpy.process(getGoPluginApiRequest("1.0", SessionRequestProcessor.GET_FROM_SESSION, requestBody));
+        GoApiResponse response = applicationAccessorSpy.process(pluginDescriptor, getGoPluginApiRequest("1.0", SessionRequestProcessor.GET_FROM_SESSION, requestBody));
 
         assertThat(response.responseCode(), is(200));
         assertEquals(JsonHelper.fromJson(response.responseBody(), Map.class), sessionData);
@@ -128,7 +130,7 @@ public class SessionRequestProcessorTest {
         SessionRequestProcessor applicationAccessorSpy = spy(processor);
         doReturn(null).when(applicationAccessorSpy).getUserSession();
 
-        GoApiResponse response = applicationAccessorSpy.process(getGoPluginApiRequest("1.0", SessionRequestProcessor.GET_FROM_SESSION, requestBody));
+        GoApiResponse response = applicationAccessorSpy.process(pluginDescriptor, getGoPluginApiRequest("1.0", SessionRequestProcessor.GET_FROM_SESSION, requestBody));
 
         assertThat(response.responseCode(), is(500));
     }
@@ -142,7 +144,7 @@ public class SessionRequestProcessorTest {
         SessionRequestProcessor applicationAccessorSpy = spy(processor);
         doReturn(session).when(applicationAccessorSpy).getUserSession();
 
-        GoApiResponse response = applicationAccessorSpy.process(getGoPluginApiRequest("1.0", SessionRequestProcessor.REMOVE_FROM_SESSION, requestBody));
+        GoApiResponse response = applicationAccessorSpy.process(pluginDescriptor, getGoPluginApiRequest("1.0", SessionRequestProcessor.REMOVE_FROM_SESSION, requestBody));
 
         assertThat(response.responseCode(), is(200));
         verify(session).removeAttribute(pluginId);
@@ -157,7 +159,7 @@ public class SessionRequestProcessorTest {
         SessionRequestProcessor applicationAccessorSpy = spy(processor);
         doReturn(null).when(applicationAccessorSpy).getUserSession();
 
-        GoApiResponse response = applicationAccessorSpy.process(getGoPluginApiRequest("1.0", SessionRequestProcessor.REMOVE_FROM_SESSION, requestBody));
+        GoApiResponse response = applicationAccessorSpy.process(pluginDescriptor, getGoPluginApiRequest("1.0", SessionRequestProcessor.REMOVE_FROM_SESSION, requestBody));
 
         assertThat(response.responseCode(), is(500));
     }

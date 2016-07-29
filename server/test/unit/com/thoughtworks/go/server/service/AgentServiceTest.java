@@ -167,10 +167,7 @@ public class AgentServiceTest {
 
         when(securityService.hasOperatePermissionForAgents(username)).thenReturn(true);
 
-        when(agentInstance.isNullAgent()).thenReturn(false);
-        when(agentInstance.isDisabled()).thenReturn(true);
-        when(agentInstance.isBuilding()).thenReturn(false);
-        when(agentInstance.isCancelled()).thenReturn(false);
+        when(agentInstance.canBeDeleted()).thenReturn(true);
 
         doThrow(new RuntimeException()).when(agentConfigService).deleteAgents(username, agentInstance);
 

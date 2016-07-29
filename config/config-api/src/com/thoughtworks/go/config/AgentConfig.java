@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,6 +25,7 @@ import com.thoughtworks.go.util.SystemUtil;
 import java.util.Collection;
 
 import static java.lang.String.format;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 /**
  * @understands the current persistent information related to an Agent
@@ -39,6 +40,13 @@ public class AgentConfig implements Validatable {
     private String uuid;
     @ConfigAttribute(value = "isDisabled")
     private Boolean isDisabled = false;
+
+    @ConfigAttribute(value = "elasticAgentId", allowNull = true, optional = true)
+    private String elasticAgentId;
+
+    @ConfigAttribute(value = "elasticPluginId", allowNull = true, optional = true)
+    private String elasticPluginId;
+
     @ConfigSubtag
     private Resources resources = new Resources();
 
@@ -73,8 +81,15 @@ public class AgentConfig implements Validatable {
     }
     public void validate(ValidationContext validationContext) {
         validateIpAddress();
-        if(StringUtil.isBlank(uuid)){
+        if(StringUtil.isBlank(uuid)) {
             addError(UUID, "UUID cannot be empty");
+        }
+        validateResources();
+    }
+
+    private void validateResources() {
+        if (isElastic() && !resources.isEmpty()) {
+            errors.add("elasticAgentId", "Elastic agents cannot have resources.");
         }
     }
 
@@ -157,14 +172,9 @@ public class AgentConfig implements Validatable {
         return cachedIsFromLocalHost.booleanValue();
     }
 
-    public boolean isFromRemoteHost() {
-        return !isFromLocalHost();
-    }
-
     public String getIpAddress() {
         return this.ipAddress;
     }
-
 
     public String getHostname() {
         return this.hostName;
@@ -182,19 +192,44 @@ public class AgentConfig implements Validatable {
         return uuid;
     }
 
+    public String getElasticAgentId() {
+        return elasticAgentId;
+    }
+
+    public void setElasticAgentId(String elasticAgentId) {
+        this.elasticAgentId = elasticAgentId;
+    }
+
+    public String getElasticPluginId() {
+        return elasticPluginId;
+    }
+
+    public void setElasticPluginId(String elasticPluginId) {
+        this.elasticPluginId = elasticPluginId;
+    }
+
+    public boolean isElastic() {
+        return isNotBlank(elasticAgentId) && isNotBlank(elasticPluginId);
+    }
+
     @Deprecated
     public void setUuid(String uuid) {
         this.uuid = uuid;
     }
 
     public String toString() {
-        return format("Agent [%s, %s, %s]", hostName, ipAddress, uuid);
+        if (isElastic()) {
+            return format("ElasticAgent [%s, %s, %s, %s, %s]", hostName, ipAddress, uuid, elasticAgentId, elasticPluginId);
+        } else {
+            return format("Agent [%s, %s, %s]", hostName, ipAddress, uuid);
+        }
     }
 
     public AgentIdentifier getAgentIdentifier() {
         return new AgentIdentifier(this.getHostname(), getIpAddress(), getUuid());
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -211,25 +246,30 @@ public class AgentConfig implements Validatable {
         if (ipAddress != null ? !ipAddress.equals(agentConfig.ipAddress) : agentConfig.ipAddress != null) {
             return false;
         }
-        if (isDisabled != null ? !isDisabled.equals(agentConfig.isDisabled) : agentConfig.isDisabled != null) {
-            return false;
-        }
-        if (resources != null ? !resources.equals(agentConfig.resources) : agentConfig.resources != null) {
-            return false;
-        }
         if (uuid != null ? !uuid.equals(agentConfig.uuid) : agentConfig.uuid != null) {
             return false;
         }
+        if (isDisabled != null ? !isDisabled.equals(agentConfig.isDisabled) : agentConfig.isDisabled != null) {
+            return false;
+        }
+        if (elasticAgentId != null ? !elasticAgentId.equals(agentConfig.elasticAgentId) : agentConfig.elasticAgentId != null) {
+            return false;
+        }
+        if (elasticPluginId != null ? !elasticPluginId.equals(agentConfig.elasticPluginId) : agentConfig.elasticPluginId != null) {
+            return false;
+        }
+        return resources != null ? resources.equals(agentConfig.resources) : agentConfig.resources == null;
 
-        return true;
     }
 
+    @Override
     public int hashCode() {
-        int result;
-        result = (hostName != null ? hostName.hashCode() : 0);
+        int result = hostName != null ? hostName.hashCode() : 0;
         result = 31 * result + (ipAddress != null ? ipAddress.hashCode() : 0);
         result = 31 * result + (uuid != null ? uuid.hashCode() : 0);
         result = 31 * result + (isDisabled != null ? isDisabled.hashCode() : 0);
+        result = 31 * result + (elasticAgentId != null ? elasticAgentId.hashCode() : 0);
+        result = 31 * result + (elasticPluginId != null ? elasticPluginId.hashCode() : 0);
         result = 31 * result + (resources != null ? resources.hashCode() : 0);
         return result;
     }

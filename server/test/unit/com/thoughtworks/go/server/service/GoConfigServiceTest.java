@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -64,7 +64,6 @@ import org.junit.Test;
 import java.io.File;
 import java.util.*;
 
-import static com.thoughtworks.go.helper.AgentMother.*;
 import static com.thoughtworks.go.helper.ConfigFileFixture.configWith;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
@@ -416,12 +415,6 @@ public class GoConfigServiceTest {
         final ConfigChangedListener listener = mock(ConfigChangedListener.class);
         goConfigService.register(listener);
         verify(goConfigDao).registerListener(listener);
-    }
-
-    @Test
-    public void shouldReturnApprovedAgentsNumber() throws Exception {
-        expectLoad(configWithAgents(approvedLocalAgent(), approvedAgent(), deniedAgent()));
-        assertThat(goConfigService.getNumberOfApprovedRemoteAgents(), is(1));
     }
 
     private CruiseConfig configWithAgents(AgentConfig... agentConfigs) {

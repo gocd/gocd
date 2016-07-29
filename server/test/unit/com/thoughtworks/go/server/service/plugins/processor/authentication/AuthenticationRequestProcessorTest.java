@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service.plugins.processor.authentication;
 
@@ -22,7 +22,8 @@ import com.thoughtworks.go.plugin.access.authentication.model.User;
 import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
 import com.thoughtworks.go.plugin.api.request.GoApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoApiResponse;
-import com.thoughtworks.go.plugin.infra.DefaultGoApplicationAccessor;
+import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
+import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.security.AuthorityGranter;
 import com.thoughtworks.go.server.security.GoAuthority;
@@ -44,7 +45,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 public class AuthenticationRequestProcessorTest {
     @Mock
-    private DefaultGoApplicationAccessor applicationAccessor;
+    private PluginRequestProcessorRegistry applicationAccessor;
     @Mock
     private AuthorityGranter authorityGranter;
     @Mock
@@ -56,6 +57,8 @@ public class AuthenticationRequestProcessorTest {
 
     private GrantedAuthority userAuthority;
     private AuthenticationRequestProcessor processor;
+    @Mock
+    private GoPluginDescriptor pluginDescriptor;
 
     @Before
     public void setUp() {
@@ -75,7 +78,7 @@ public class AuthenticationRequestProcessorTest {
 
     @Test
     public void shouldHandleIncorrectAPIVersion() {
-        GoApiResponse response = processor.process(getGoPluginApiRequest("1.1", null));
+        GoApiResponse response = processor.process(pluginDescriptor, getGoPluginApiRequest("1.1", null));
         assertThat(response.responseCode(), is(500));
     }
 
@@ -88,7 +91,7 @@ public class AuthenticationRequestProcessorTest {
         AuthenticationRequestProcessor processorSpy = spy(processor);
         doReturn(securityContext).when(processorSpy).getSecurityContext();
 
-        GoApiResponse response = processorSpy.process(getGoPluginApiRequest("1.0", responseBody));
+        GoApiResponse response = processorSpy.process(pluginDescriptor, getGoPluginApiRequest("1.0", responseBody));
 
         assertThat(response.responseCode(), is(200));
         verify(userService).addUserIfDoesNotExist(new Username(new CaseInsensitiveString("username"), "display name"));
@@ -104,7 +107,7 @@ public class AuthenticationRequestProcessorTest {
 
     @Test
     public void shouldHandleEmptyRequestBody() {
-        GoApiResponse response = processor.process(getGoPluginApiRequest("1.0", "{}"));
+        GoApiResponse response = processor.process(pluginDescriptor, getGoPluginApiRequest("1.0", "{}"));
         assertThat(response.responseCode(), is(500));
     }
 

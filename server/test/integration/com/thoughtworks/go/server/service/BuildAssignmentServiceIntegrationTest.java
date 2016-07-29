@@ -5,14 +5,13 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package com.thoughtworks.go.server.service;
@@ -85,8 +84,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -119,6 +117,7 @@ public class BuildAssignmentServiceIntegrationTest {
     @Autowired private AgentRemoteHandler agentRemoteHandler;
     @Autowired private PipelineConfigService pipelineConfigService;
     @Autowired private EntityHashingService entityHashingService;
+    @Autowired private ElasticAgentPluginService elasticAgentPluginService;
 
     private PipelineConfig evolveConfig;
     private static final String STAGE_NAME = "dev";
@@ -132,6 +131,7 @@ public class BuildAssignmentServiceIntegrationTest {
     private Username loserUser = new Username(new CaseInsensitiveString("loser"));
     private AgentStub agent;
     private String pipelineConfigMD5 = "md5";
+
 
     @BeforeClass
     public static void setupRepos() throws IOException {
@@ -243,10 +243,12 @@ public class BuildAssignmentServiceIntegrationTest {
         fixture.createPipelineWithFirstStageScheduled();
         buildAssignmentService.onTimer();
 
-        int before = agentService.numberOfActiveRemoteAgents();
+        AgentInstance agent = agentService.findAgent(agentConfig.getUuid());
+        assertFalse(agent.isBuilding());
+
         Work work = buildAssignmentService.assignWorkToAgent(agent(agentConfig));
         assertThat(work, instanceOf(BuildWork.class));
-        assertThat(agentService.numberOfActiveRemoteAgents(), is(before + 1));
+        assertTrue(agent.isBuilding());
     }
 
     @Test
@@ -349,7 +351,7 @@ public class BuildAssignmentServiceIntegrationTest {
         };
 
         final BuildAssignmentService buildAssignmentServiceUnderTest = new BuildAssignmentService(goConfigService, mockJobInstanceService, scheduleService,
-                agentService, environmentConfigService, transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory, agentRemoteHandler);
+                agentService, environmentConfigService, transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory, agentRemoteHandler, elasticAgentPluginService, timeProvider);
 
         final Throwable[] fromThread = new Throwable[1];
         buildAssignmentServiceUnderTest.onTimer();
@@ -392,7 +394,7 @@ public class BuildAssignmentServiceIntegrationTest {
         when(mockGoConfigService.getCurrentConfig()).thenReturn(config);
 
         buildAssignmentService = new BuildAssignmentService(mockGoConfigService, jobInstanceService, scheduleService, agentService, environmentConfigService,
-                transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory, agentRemoteHandler);
+                transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory, agentRemoteHandler, elasticAgentPluginService, timeProvider);
         buildAssignmentService.onTimer();
 
         AgentConfig agentConfig = AgentMother.localAgent();
@@ -702,13 +704,14 @@ public class BuildAssignmentServiceIntegrationTest {
 
         agentRemoteHandler.process(agent, new Message(Action.ping, MessageEncoding.encodeData(info)));
 
-        int before = agentService.numberOfActiveRemoteAgents();
+        AgentInstance agent = agentService.findAgent(agentConfig.getUuid());
+        assertFalse(agent.isBuilding());
 
         buildAssignmentService.onTimer();
 
-        assertThat(agent.messages.size(), is(1));
-        assertThat(MessageEncoding.decodeWork(agent.messages.get(0).getData()), instanceOf(BuildWork.class));
-        assertThat(agentService.numberOfActiveRemoteAgents(), is(before + 1));
+        assertThat(this.agent.messages.size(), is(1));
+        assertThat(MessageEncoding.decodeWork(this.agent.messages.get(0).getData()), instanceOf(BuildWork.class));
+        assertTrue(agent.isBuilding());
     }
 
     @Test
@@ -790,7 +793,7 @@ public class BuildAssignmentServiceIntegrationTest {
         AgentConfig agentConfig = AgentMother.remoteAgent();
         fixture.createPipelineWithFirstStageScheduled();
         AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS", false);
-        agentService.requestRegistration(info);
+        agentService.requestRegistration(new Username("bob"), info);
 
         assertThat(agentService.findAgent(info.getUUId()).isRegistered(), is(false));
 
@@ -817,7 +820,7 @@ public class BuildAssignmentServiceIntegrationTest {
 
         AgentConfig needRegisterAgentConfig = AgentMother.remoteAgent();
         AgentRuntimeInfo needRegisterAgentInfo = AgentRuntimeInfo.fromServer(needRegisterAgentConfig, true, "location", 1000000l, "OS", false);
-        agentService.requestRegistration(needRegisterAgentInfo);
+        agentService.requestRegistration(new Username("bob"), needRegisterAgentInfo);
         needRegisterAgentInfo.setCookie("cookie2");
         AgentStub needRegisterAgent = new AgentStub();
         agentRemoteHandler.process(needRegisterAgent, new Message(Action.ping, MessageEncoding.encodeData(needRegisterAgentInfo)));

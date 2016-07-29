@@ -17,14 +17,17 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.helper.GoConfigMother;
 import org.junit.Test;
 
 import static com.thoughtworks.go.util.TestUtils.contains;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 public class AgentConfigTest {
+
     @Test
     public void agentWithNoIpAddressShouldBeValid() throws Exception {
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
@@ -96,6 +99,31 @@ public class AgentConfigTest {
         agentConfig = new AgentConfig(null);
         agentConfig.validate(ConfigSaveValidationContext.forChain(agentConfig));
         assertThat(agentConfig.errors().on(AgentConfig.UUID), is("UUID cannot be empty"));
+
+    }
+
+    @Test
+    public void shouldAllowResourcesOnNonElasticAgents() throws Exception {
+        BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("dev", "qa");
+        AgentConfig agentConfig = new AgentConfig("uuid", "hostname", "10.10.10.10");
+        cruiseConfig.agents().add(agentConfig);
+
+        agentConfig.addResource(new Resource("foo"));
+        assertThat(cruiseConfig.validateAfterPreprocess().isEmpty(), is(true));
+    }
+
+    @Test
+    public void shouldNotAllowResourcesElasticAgents() throws Exception {
+        BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("dev", "qa");
+        AgentConfig agentConfig = new AgentConfig("uuid", "hostname", "10.10.10.10");
+        cruiseConfig.agents().add(agentConfig);
+
+        agentConfig.setElasticPluginId("com.example.foo");
+        agentConfig.setElasticAgentId("foobar");
+        agentConfig.addResource(new Resource("foo"));
+        assertThat(cruiseConfig.validateAfterPreprocess().isEmpty(), is(false));
+        assertEquals(1, agentConfig.errors().size());
+        assertThat(agentConfig.errors().on("elasticAgentId"), is("Elastic agents cannot have resources."));
     }
 
     private void shouldBeValid(String ipAddress) throws Exception {

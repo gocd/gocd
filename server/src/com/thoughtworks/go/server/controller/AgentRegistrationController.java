@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,7 +19,6 @@ package com.thoughtworks.go.server.controller;
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
-import com.thoughtworks.go.config.update.ApproveAgentCommand;
 import com.thoughtworks.go.config.update.UpdateEnvironmentsCommand;
 import com.thoughtworks.go.config.update.UpdateResourceCommand;
 import com.thoughtworks.go.domain.AllConfigErrors;
@@ -27,16 +26,10 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.plugin.infra.commons.PluginsZip;
 import com.thoughtworks.go.security.Registration;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.AgentConfigService;
-import com.thoughtworks.go.server.service.AgentRuntimeInfo;
-import com.thoughtworks.go.server.service.AgentService;
-import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo;
-import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
-import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +49,8 @@ import java.util.Map;
 
 import static com.thoughtworks.go.util.FileDigester.copyAndDigest;
 import static com.thoughtworks.go.util.FileDigester.md5DigestOfStream;
+import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 @Controller
 public class AgentRegistrationController {
@@ -204,23 +199,43 @@ public class AgentRegistrationController {
         }
         Registration keyEntry;
         String preferredHostname = hostname;
+
         try {
             if (goConfigService.serverConfig().shouldAutoRegisterAgentWith(agentAutoRegisterKey)) {
                 preferredHostname = getPreferredHostname(agentAutoRegisterHostname, hostname);
                 LOG.info("[Agent Auto Registration] Auto registering agent with uuid {} ", uuid);
+            } else {
+                if (elasticAgentAutoregistrationInfoPresent(elasticAgentId, elasticPluginId)) {
+                    throw new RuntimeException(String.format("Elastic agent registration requires an auto-register agent key to be setup on the server. Agent-id: [%s], Plugin-id: [%s]", elasticAgentId, elasticPluginId));
+                }
+            }
+
+            AgentConfig agentConfig = new AgentConfig(uuid, preferredHostname, ipAddress);
+
+            if (partialElasticAgentAutoregistrationInfo(elasticAgentId, elasticPluginId)) {
+                throw new RuntimeException("Elastic agents must submit both elasticAgentId and elasticPluginId");
+            }
+
+            if (elasticAgentAutoregistrationInfoPresent(elasticAgentId, elasticPluginId)) {
+                agentConfig.setElasticAgentId(elasticAgentId);
+                agentConfig.setElasticPluginId(elasticPluginId);
+            }
+
+            if (goConfigService.serverConfig().shouldAutoRegisterAgentWith(agentAutoRegisterKey)) {
+                LOG.info(String.format("[Agent Auto Registration] Auto registering agent with uuid %s ", uuid));
                 GoConfigDao.CompositeConfigCommand compositeConfigCommand = new GoConfigDao.CompositeConfigCommand(
-                        new ApproveAgentCommand(uuid, ipAddress, preferredHostname),
+                        new AgentConfigService.AddAgentCommand(agentConfig),
                         new UpdateResourceCommand(uuid, agentAutoRegisterResources),
                         new UpdateEnvironmentsCommand(uuid, agentAutoRegisterEnvironments)
                 );
                 HttpOperationResult result = new HttpOperationResult();
-                AgentConfig agentConfig = agentConfigService.updateAgent(compositeConfigCommand, uuid, result, Username.ANONYMOUS);
-                if(!result.isSuccess()){
+                agentConfig = agentConfigService.updateAgent(compositeConfigCommand, uuid, result, agentService.agentUsername(uuid, ipAddress, preferredHostname));
+                if (!result.isSuccess()) {
                     List<ConfigErrors> errors = com.thoughtworks.go.config.ErrorCollector.getAllErrors(agentConfig);
                     throw new GoConfigInvalidException(null, new AllConfigErrors(errors).asString());
                 }
             }
-            AgentConfig agentConfig = new AgentConfig(uuid, preferredHostname, ipAddress);
+
             boolean registeredAlready = goConfigService.hasAgent(uuid);
             long usablespace = Long.parseLong(usablespaceAsString);
 
@@ -230,7 +245,7 @@ public class AgentRegistrationController {
                 agentRuntimeInfo = ElasticAgentRuntimeInfo.fromServer(agentRuntimeInfo, elasticAgentId, elasticPluginId);
             }
 
-            keyEntry = agentService.requestRegistration(agentRuntimeInfo);
+            keyEntry = agentService.requestRegistration(agentService.agentUsername(uuid, ipAddress, preferredHostname), agentRuntimeInfo);
         } catch (Exception e) {
             keyEntry = Registration.createNullPrivateKeyEntry();
             LOG.error("Error occured during agent registration process: ", e);
@@ -254,12 +269,16 @@ public class AgentRegistrationController {
         });
     }
 
-    private boolean elasticAgentAutoregistrationInfoPresent(@RequestParam("elasticAgentId") String elasticAgentId, @RequestParam("elasticPluginId") String elasticPluginId) {
-        return !StringUtils.isBlank(elasticAgentId) && !StringUtils.isBlank(elasticPluginId);
+    private boolean partialElasticAgentAutoregistrationInfo(String elasticAgentId, String elasticPluginId) {
+        return (isBlank(elasticAgentId) && isNotBlank(elasticPluginId)) || (isNotBlank(elasticAgentId) && isBlank(elasticPluginId));
+    }
+
+    private boolean elasticAgentAutoregistrationInfoPresent(String elasticAgentId, String elasticPluginId) {
+        return isNotBlank(elasticAgentId) && isNotBlank(elasticPluginId);
     }
 
     private String getPreferredHostname(String agentAutoRegisterHostname, String hostname) {
-        return !StringUtil.isBlank(agentAutoRegisterHostname) ? agentAutoRegisterHostname : hostname;
+        return isNotBlank(agentAutoRegisterHostname) ? agentAutoRegisterHostname : hostname;
     }
 
     public interface InputStreamSrc {

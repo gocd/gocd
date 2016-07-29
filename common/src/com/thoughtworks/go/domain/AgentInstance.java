@@ -1,37 +1,38 @@
-/*************************GO-LICENSE-START*********************************
+/*
  * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain;
-
-import java.util.Date;
-import java.util.List;
 
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.Resources;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.security.Registration;
 import com.thoughtworks.go.security.X509CertificateGenerator;
-import com.thoughtworks.go.server.domain.AgentInstances;
+import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
+import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo;
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
+
+import java.util.Date;
+import java.util.List;
 
 //TODO put the logic back to the AgentRuntimeInfo for all the sync method
 /**
@@ -40,15 +41,15 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 public class AgentInstance implements Comparable<AgentInstance> {
     private AgentType agentType;
     protected AgentConfig agentConfig;
-    protected AgentRuntimeInfo agentRuntimeInfo;
+    private AgentRuntimeInfo agentRuntimeInfo;
 
     private AgentConfigStatus agentConfigStatus;
 
-    protected volatile Date lastHeardTime;
+    private volatile Date lastHeardTime;
     private TimeProvider timeProvider;
     private SystemEnvironment systemEnvironment;
 
-    protected AgentInstance(AgentConfig agentConfig,AgentType agentType, SystemEnvironment systemEnvironment) {
+    protected AgentInstance(AgentConfig agentConfig, AgentType agentType, SystemEnvironment systemEnvironment) {
         this.systemEnvironment = systemEnvironment;
         this.agentRuntimeInfo = AgentRuntimeInfo.initialState(agentConfig);
         this.agentConfigStatus = AgentConfigStatus.Pending;
@@ -78,9 +79,16 @@ public class AgentInstance implements Comparable<AgentInstance> {
 
     public void syncConfig(AgentConfig agentConfig) {
         this.agentConfig = agentConfig;
+
+        if (agentConfig.isElastic()){
+            agentRuntimeInfo = ElasticAgentRuntimeInfo.fromServer(agentRuntimeInfo, agentConfig.getElasticAgentId(), agentConfig.getElasticPluginId());
+        }
+
         if (agentRuntimeInfo.getRuntimeStatus()== AgentRuntimeStatus.Unknown) {
             agentRuntimeInfo.idle();
         }
+
+
         agentConfigStatus = agentConfig.isDisabled() ? AgentConfigStatus.Disabled : AgentConfigStatus.Enabled;
     }
 
@@ -92,7 +100,6 @@ public class AgentInstance implements Comparable<AgentInstance> {
         }
     }
 
-    @Deprecated
     public void building(AgentBuildingInfo agentBuildingInfo) {
         syncStatus(AgentRuntimeStatus.Building);
         agentRuntimeInfo.busy(agentBuildingInfo);
@@ -159,36 +166,6 @@ public class AgentInstance implements Comparable<AgentInstance> {
         return agentConfigStatus != AgentConfigStatus.Enabled && !agentConfig.isDisabled();
     }
 
-    public void addToVirtuals(AgentInstances agents) {
-        if (this.isVirtualAgent()) {
-            agents.add(this);
-        }
-    }
-
-    public void addToPhysical(AgentInstances physicalAgents) {
-        if (!isVirtualAgent()) {
-            physicalAgents.add(this);
-        }
-    }
-
-    public void addToEnabled(AgentInstances agentInstances) {
-        if (this.getStatus().isEnabled()) {
-            agentInstances.add(this);
-        }
-    }
-
-    public void addToRegistered(AgentInstances agentInstances) {
-        if (this.getStatus().isRegistered()) {
-            agentInstances.add(this);
-        }
-    }
-
-    public void addTo(AgentInstances agentInstances, AgentStatus status) {
-        if (this.getStatus().equals(status)) {
-            agentInstances.add(this);
-        }
-    }
-
     public void refresh(final AgentRuntimeStatus.ChangeListener changeListener) {
         if (agentConfigStatus == AgentConfigStatus.Pending || agentConfigStatus == AgentConfigStatus.Disabled) {
             return;
@@ -221,10 +198,6 @@ public class AgentInstance implements Comparable<AgentInstance> {
         }
         X509CertificateGenerator certificateGenerator = new X509CertificateGenerator();
         Registration entry = certificateGenerator.createAgentCertificate(new SystemEnvironment().agentkeystore(), agentConfig.getHostname());
-        if (AgentType.VIRTUAL.equals(agentType)) {
-            return new Registration(entry.getPrivateKey(), entry.getChain());
-        }
-
         return new Registration(entry.getPrivateKey(), entry.getChain());
     }
 
@@ -245,8 +218,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
     }
 
     public boolean isIpChangeRequired(String newIpAdress) {
-        return !StringUtils.equals(this.agentConfig.getIpAddress(), newIpAdress)
-                && (!isVirtualAgent()) && this.isRegistered();
+        return !StringUtils.equals(this.agentConfig.getIpAddress(), newIpAdress) && this.isRegistered();
     }
 
     public String getLocation() {
@@ -265,24 +237,8 @@ public class AgentInstance implements Comparable<AgentInstance> {
         return agentRuntimeInfo.getAgentLauncherVersion();
     }
 
-    public boolean isActiveRemoteAgent() {
-        return isRemote() && isBuilding();
-    }
-
-    public boolean isFromRemoteHost() {
-        return agentConfig().isFromRemoteHost();
-    }
-
-    public boolean isVirtualAgent() {
-        return agentType == AgentType.VIRTUAL;
-    }
-
     public boolean isRegistered() {
         return agentConfigStatus != AgentConfigStatus.Pending;
-    }
-
-    private boolean isRemote() {
-        return agentType == AgentType.REMOTE;
     }
 
     public boolean isDisabled() {
@@ -319,15 +275,25 @@ public class AgentInstance implements Comparable<AgentInstance> {
 
     public JobPlan firstMatching(List<JobPlan> jobPlans) {
         for (JobPlan jobPlan : jobPlans) {
-            if (jobPlan.getAgentUuid() == null) {
-                if (agentConfig.hasAllResources(jobPlan.getResources())) {
+            if (jobPlan.assignedToAgent()) {
+                if (isElasticAndLaunchedBySamePluginAsConfiguredForJob(jobPlan) || isNotElasticAndResourcesMatchForNonElasticAgents(jobPlan)) {
                     return jobPlan;
                 }
             } else {
-                if (agentConfig.getUuid().equals(jobPlan.getAgentUuid())) { return jobPlan; }
+                if (agentConfig.getUuid().equals(jobPlan.getAgentUuid())) {
+                    return jobPlan;
+                }
             }
         }
         return null;
+    }
+
+    private boolean isNotElasticAndResourcesMatchForNonElasticAgents(JobPlan jobPlan) {
+        return !jobPlan.requiresElasticAgent() && !isElastic() && agentConfig.hasAllResources(jobPlan.getResources());
+    }
+
+    private boolean isElasticAndLaunchedBySamePluginAsConfiguredForJob(JobPlan jobPlan) {
+        return isElastic() && jobPlan.requiresElasticAgent() && jobPlan.getJobAgentConfig().getPluginId().equals(agentConfig.getElasticPluginId());
     }
 
     public String getBuildLocator() {
@@ -359,8 +325,21 @@ public class AgentInstance implements Comparable<AgentInstance> {
         return agentRuntimeInfo.getSupportsBuildCommandProtocol();
     }
 
-    public static enum AgentType {
-        LOCAL, VIRTUAL, REMOTE
+    public boolean isElastic() {
+        return agentRuntimeInfo.isElastic();
+    }
+
+    public ElasticAgentMetadata elasticAgentMetadata() {
+        ElasticAgentRuntimeInfo runtimeInfo = (ElasticAgentRuntimeInfo) this.agentRuntimeInfo;
+        return new ElasticAgentMetadata(getUuid(), runtimeInfo.getElasticAgentId(), runtimeInfo.getElasticPluginId(), this.agentRuntimeInfo.getRuntimeStatus(), getAgentConfigStatus());
+    }
+
+    public boolean canBeDeleted() {
+        return isDisabled() && !(isBuilding() || isCancelled());
+    }
+
+    enum AgentType {
+        LOCAL, REMOTE
     }
 
     public static AgentInstance createFromConfig(AgentConfig agentInConfig,
@@ -387,21 +366,6 @@ public class AgentInstance implements Comparable<AgentInstance> {
             instance.update(agentRuntimeInfo);
         }
         return instance;
-    }
-
-    @Deprecated // ChrisT & JJ: For tests
-    public static AgentInstance create(AgentConfig agentConfig,
-                                       boolean virtual, SystemEnvironment systemEnvironment) {
-        if (virtual) {
-            return new AgentInstance(agentConfig, AgentType.VIRTUAL, systemEnvironment);
-        } else if (agentConfig.isFromLocalHost()) {
-            AgentInstance local = new AgentInstance(agentConfig, AgentType.LOCAL, systemEnvironment);
-            local.agentConfigStatus = AgentConfigStatus.Enabled;
-            local.agentRuntimeInfo.idle();
-            return local;
-        } else {
-            return new AgentInstance(agentConfig, AgentType.REMOTE, systemEnvironment);
-        }
     }
 
     public boolean equals(Object that) {

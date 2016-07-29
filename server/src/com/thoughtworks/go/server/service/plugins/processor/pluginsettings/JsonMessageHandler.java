@@ -19,7 +19,6 @@ package com.thoughtworks.go.server.service.plugins.processor.pluginsettings;
 import com.thoughtworks.go.server.domain.PluginSettings;
 
 public interface JsonMessageHandler {
-    String requestMessagePluginSettingsGet(String message);
 
     String responseMessagePluginSettingsGet(PluginSettings pluginSettings);
 }

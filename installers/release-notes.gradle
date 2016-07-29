@@ -53,7 +53,7 @@ task releaseNotes {
       Pattern pattern = Pattern.compile(/#(\d+)/)
       gitLogOut.toString().eachLine { line ->
         def (String shortSha, String sha, String message) = line.split(/ /, 3)
-        md.write("[${shortSha}](https://github.com/gocd/gocd/commit/${sha})")
+        md.write("[`${shortSha}`](https://github.com/gocd/gocd/commit/${sha})")
         md.write(" ")
         Matcher matcher = pattern.matcher(message)
         if (matcher.find()) {
@@ -79,7 +79,7 @@ task releaseNotes {
         def (String shortSha, String sha, String message) = line.split(/ /, 3)
 
         bugfixes.write("<p>")
-        bugfixes.write("""<a href="https://www.github.com/gocd/gocd/commit/${sha}">${shortSha}</a>""")
+        bugfixes.write("""<a href="https://www.github.com/gocd/gocd/commit/${sha}"><code>${shortSha}</code></a>""")
         bugfixes.write(" ")
         Matcher matcher = pattern.matcher(message)
         if (matcher.find()) {

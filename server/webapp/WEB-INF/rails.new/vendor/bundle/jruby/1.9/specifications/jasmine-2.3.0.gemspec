@@ -6,6 +6,7 @@ Gem::Specification.new do |s|
   s.version = "2.3.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
+  s.require_paths = ["lib"]
   s.authors = ["Rajan Agaskar", "Christian Williams", "Davis Frank"]
   s.date = "2015-04-28"
   s.description = "Test your JavaScript without any framework dependencies, in any environment, and with a nice descriptive syntax."
@@ -15,9 +16,10 @@ Gem::Specification.new do |s|
   s.homepage = "http://jasmine.github.io/"
   s.licenses = ["MIT"]
   s.rdoc_options = ["--charset=UTF-8"]
-  s.require_paths = ["lib"]
-  s.rubygems_version = "2.1.9"
+  s.rubygems_version = "2.4.8"
   s.summary = "JavaScript BDD framework"
+
+  s.installed_by_version = "2.4.8" if s.respond_to? :installed_by_version
 
   if s.respond_to? :specification_version then
     s.specification_version = 4

@@ -1,0 +1,131 @@
+#!/usr/bin/env ruby
+require 'rubygems'
+require 'optparse'
+require "ostruct"
+if RUBY_VERSION < "1.9"
+  require 'ruby-debug-ide'
+else
+  require_relative '../lib/ruby-debug-ide'
+end
+
+$stdout.sync=true
+
+options = OpenStruct.new(
+  'frame_bind'  => false,
+  'host'        => nil,
+  'load_mode'   => false,
+  'port'        => 1234,
+  'stop'        => false,
+  'tracing'     => false,
+  'int_handler' => true,
+  'dispatcher_port' => -1,
+  'evaluation_timeout' => 10,
+  'rm_protocol_extensions' => false,
+  'catchpoint_deleted_event' => false,
+  'value_as_nested_element' => false
+)
+
+opts = OptionParser.new do |opts|
+  opts.banner = <<EOB
+Using ruby-debug-base #{Debugger::VERSION}
+Usage: rdebug-ide is supposed to be called from RDT, NetBeans, RubyMine, or
+       the IntelliJ IDEA Ruby plugin.  The command line interface to
+       ruby-debug is rdebug.
+EOB
+  opts.separator ""
+  opts.separator "Options:"
+  opts.on("-h", "--host HOST", "Host name used for remote debugging") {|host| options.host = host}
+  opts.on("-p", "--port PORT", Integer, "Port used for remote debugging") {|port| options.port = port}  
+  opts.on("--dispatcher-port PORT", Integer, "Port used for multi-process debugging dispatcher") do |dp| 
+    options.dispatcher_port = dp
+  end
+  opts.on('--evaluation-timeout TIMEOUT', Integer,'evaluation timeout in seconds (default: 10)') do |timeout|
+    options.evaluation_timeout = timeout
+  end
+  opts.on('--stop', 'stop when the script is loaded') {options.stop = true}
+  opts.on("-x", "--trace", "turn on line tracing") {options.tracing = true}
+  opts.on("-l", "--load-mode", "load mode (experimental)") {options.load_mode = true}
+  opts.on("-d", "--debug", "Debug self - prints information for debugging ruby-debug itself") do
+    Debugger.cli_debug = true
+  end
+  opts.on("--xml-debug", "Debug self - sends information <message>s for debugging ruby-debug itself") do
+    Debugger.xml_debug = true
+  end
+  opts.on("-I", "--include PATH", String, "Add PATH to $LOAD_PATH") do |path|
+    $LOAD_PATH.unshift(path)
+  end
+  
+  opts.on("--keep-frame-binding", "Keep frame bindings") {options.frame_bind = true}
+  opts.on("--disable-int-handler", "Disables interrupt signal handler") {options.int_handler = false}
+  opts.on("--rubymine-protocol-extensions", "Enable all RubyMine-specific incompatible protocol extensions") do
+    options.rm_protocol_extensions = true
+  end
+  opts.on("--catchpoint-deleted-event", "Enable chatchpointDeleted event") do
+    options.catchpoint_deleted_event = true
+  end
+  opts.on("--value-as-nested-element", "Allow to pass variable's value as nested element instead of attribute") do
+    options.value_as_nested_element = true
+  end
+  opts.separator ""
+  opts.separator "Common options:"
+  opts.on_tail("-v", "--version", "Show version") do
+    puts "Using ruby-debug-base #{Debugger::VERSION}"
+    exit
+  end
+end
+
+begin
+  Debugger::ARGV = ARGV.clone
+  rdebug_path = File.expand_path($0)
+  if RUBY_PLATFORM =~ /mswin/
+    rdebug_path += ".cmd" unless rdebug_path =~ /\.cmd$/i
+  end
+  Debugger::RDEBUG_SCRIPT = rdebug_path
+  opts.parse! ARGV
+rescue StandardError => e
+  puts opts
+  puts
+  puts e.message
+  exit(1)
+end
+
+if ARGV.empty?
+  puts opts
+  puts
+  puts "Must specify a script to run"
+  exit(1)
+end    
+
+# save script name
+Debugger::PROG_SCRIPT = ARGV.shift
+
+if options.dispatcher_port != -1
+  ENV['IDE_PROCESS_DISPATCHER'] = options.dispatcher_port.to_s
+  if RUBY_VERSION < "1.9"
+    $: << File.expand_path(File.dirname(__FILE__) + "/../lib/")
+    require 'ruby-debug-ide/multiprocess'
+  else
+    require_relative '../lib/ruby-debug-ide/multiprocess'
+  end
+
+  ENV['DEBUGGER_STORED_RUBYLIB'] = ENV['RUBYLIB'] 
+  old_opts = ENV['RUBYOPT']
+  ENV['RUBYOPT'] = "-r#{File.expand_path(File.dirname(__FILE__))}/../lib/ruby-debug-ide/multiprocess/starter"
+  ENV['RUBYOPT'] += " #{old_opts}" if old_opts
+  ENV['DEBUGGER_CLI_DEBUG'] = Debugger.cli_debug.to_s
+end
+
+if options.int_handler
+  # install interruption handler
+  trap('INT') { Debugger.interrupt_last }
+end
+  
+# set options
+Debugger.keep_frame_binding = options.frame_bind
+Debugger.tracing = options.tracing
+Debugger.evaluation_timeout = options.evaluation_timeout
+Debugger.catchpoint_deleted_event = options.catchpoint_deleted_event || options.rm_protocol_extensions
+Debugger.value_as_nested_element = options.value_as_nested_element || options.rm_protocol_extensions
+
+Debugger.debug_program(options)
+

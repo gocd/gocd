@@ -6,16 +6,18 @@ Gem::Specification.new do |s|
   s.version = "1.2.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
+  s.require_paths = ["lib"]
   s.authors = ["Wavii, Inc."]
   s.date = "2014-07-28"
   s.description = "A collection of tweaks to improve your Rails (3.1+) development experience."
   s.email = ["info@wavii.com"]
   s.homepage = "http://wavii.com/"
   s.licenses = ["MIT"]
-  s.require_paths = ["lib"]
   s.rubyforge_project = "rails-dev-tweaks"
-  s.rubygems_version = "2.1.9"
+  s.rubygems_version = "2.4.8"
   s.summary = "A collection of tweaks to improve your Rails (3.1+) development experience."
+
+  s.installed_by_version = "2.4.8" if s.respond_to? :installed_by_version
 
   if s.respond_to? :specification_version then
     s.specification_version = 4

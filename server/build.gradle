@@ -1,6 +1,8 @@
 import com.thoughtworks.go.build.VerifyJarTask
 import groovy.json.JsonOutput
 import org.jruby.Ruby
+import org.jruby.CompatVersion
+import org.jruby.RubyInstanceConfig
 
 /*
  * Copyright 2016 ThoughtWorks, Inc.
@@ -220,7 +222,13 @@ def findGemsToNotPack = {
   def gems = []
   Ruby ruby
   try {
-    ruby = Ruby.newInstance()
+    def config = new RubyInstanceConfig()
+    config.compatVersion = CompatVersion.RUBY2_0
+    config.output = System.out
+    config.error = System.err
+    config.compileMode = RubyInstanceConfig.CompileMode.OFF
+
+    ruby = Ruby.newInstance(config)
     gems = ruby.evalScriptlet(
       """
           Dir.chdir('${project.railsRoot}') do

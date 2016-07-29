@@ -6,16 +6,18 @@ Gem::Specification.new do |s|
   s.version = "2.53.0"
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
+  s.require_paths = ["lib"]
   s.authors = ["Jari Bakken"]
   s.date = "2016-03-15"
   s.description = "WebDriver is a tool for writing automated tests of websites. It aims to mimic the behaviour of a real user, and as such interacts with the HTML of the application."
   s.email = "jari.bakken@gmail.com"
   s.homepage = "https://github.com/seleniumhq/selenium"
   s.licenses = ["Apache"]
-  s.require_paths = ["lib"]
   s.required_ruby_version = Gem::Requirement.new(">= 1.9.2")
-  s.rubygems_version = "2.1.9"
+  s.rubygems_version = "2.4.8"
   s.summary = "The next generation developer focused tool for automated testing of webapps"
+
+  s.installed_by_version = "2.4.8" if s.respond_to? :installed_by_version
 
   if s.respond_to? :specification_version then
     s.specification_version = 3

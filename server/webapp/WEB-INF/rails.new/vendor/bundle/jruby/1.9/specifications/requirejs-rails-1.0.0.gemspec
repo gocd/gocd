@@ -6,15 +6,17 @@ Gem::Specification.new do |s|
   s.version = "1.0.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
+  s.require_paths = ["lib"]
   s.authors = ["John Whitley"]
   s.date = "2015-12-14"
   s.description = "This gem provides RequireJS support for your Rails 3 application."
   s.email = ["whitley@bangpath.org"]
   s.homepage = "http://github.com/jwhitley/requirejs-rails"
-  s.require_paths = ["lib"]
   s.requirements = ["node.js is required for 'rake assets:precompile', used to run the r.js build", "If needed, jQuery should be v1.7 or greater (jquery-rails >= 1.0.17)."]
-  s.rubygems_version = "2.1.9"
+  s.rubygems_version = "2.4.8"
   s.summary = "Use RequireJS with the Rails 3+ Asset Pipeline"
+
+  s.installed_by_version = "2.4.8" if s.respond_to? :installed_by_version
 
   if s.respond_to? :specification_version then
     s.specification_version = 4

@@ -22,7 +22,7 @@ import org.gradle.api.tasks.ParallelizableTask
 class DebPackagingTask extends LinuxPackagingTask {
 
   public File getOutputFile() {
-    project.file("${project.convention.plugins.get("base").distsDir}/deb/${packageName}-${version}-${distVersion}.deb")
+    project.file("${project.convention.plugins.get("base").distsDir}/deb/${packageName}_${version}-${distVersion}_all.deb")
   }
 
   def packageType() {

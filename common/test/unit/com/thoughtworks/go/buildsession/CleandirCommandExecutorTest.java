@@ -24,6 +24,7 @@ import static com.thoughtworks.go.domain.BuildCommand.cleandir;
 import static com.thoughtworks.go.domain.BuildCommand.mkdirs;
 import static com.thoughtworks.go.domain.JobResult.Passed;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertTrue;
 
@@ -50,7 +51,7 @@ public class CleandirCommandExecutorTest extends BuildSessionBasedTestCase {
         runBuild(cleandir("bar", "file2", "foo2"), Passed);
         assertThat(new File(sandbox, "bar").isDirectory(), is(true));
         assertThat(new File(sandbox, "file3").exists(), is(true));
-        assertThat(new File(sandbox, "bar").listFiles(), is(new File[]{new File(sandbox, "bar/file2"), new File(sandbox, "bar/foo2")}));
+        assertThat(new File(sandbox, "bar").listFiles(), arrayContainingInAnyOrder(new File(sandbox, "bar/file2"), new File(sandbox, "bar/foo2")));
     }
 
     @Test
@@ -64,7 +65,7 @@ public class CleandirCommandExecutorTest extends BuildSessionBasedTestCase {
         runBuild(cleandir("", "file2", "foo2").setWorkingDirectory("bar"), Passed);
         assertThat(new File(sandbox, "bar").isDirectory(), is(true));
         assertThat(new File(sandbox, "file3").exists(), is(true));
-        assertThat(new File(sandbox, "bar").listFiles(), is(new File[]{new File(sandbox, "bar/file2"), new File(sandbox, "bar/foo2")}));
+        assertThat(new File(sandbox, "bar").listFiles(), arrayContainingInAnyOrder(new File(sandbox, "bar/file2"), new File(sandbox, "bar/foo2")));
     }
 
 

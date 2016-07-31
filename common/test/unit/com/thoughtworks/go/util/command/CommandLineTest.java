@@ -16,25 +16,24 @@
 
 package com.thoughtworks.go.util.command;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
 import com.googlecode.junit.ext.checkers.OSChecker;
+import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.util.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.endsWith;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
@@ -53,7 +52,8 @@ public class CommandLineTest {
     private File tempFolder;
     private File subFolder;
 
-    @Before public void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         tempFolder = TestFileUtil.createTempFolder("tempCommandLineTestFolder-" + System.currentTimeMillis());
         toDelete.add(tempFolder);
 
@@ -65,7 +65,8 @@ public class CommandLineTest {
         toDelete.add(file);
     }
 
-    @After public void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         for (File folder : toDelete) {
             FileUtil.deleteFolder(folder);
         }
@@ -136,11 +137,11 @@ public class CommandLineTest {
     }
 
     @Test
-    @RunIf(value = OSChecker.class, arguments = OSChecker.LINUX)
+    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, OSChecker.WINDOWS})
     public void shouldNotLogPasswordsFromStream() {
         LogFixture logFixture = LogFixture.startListening();
         LogFixture.enableDebug();
-        CommandLine line = CommandLine.createCommandLine("echo").withArg("=>").withArg(new PasswordArgument("secret"));
+        CommandLine line = CommandLine.createCommandLine("/bin/echo").withArg("=>").withArg(new PasswordArgument("secret"));
         line.runOrBomb(null);
 
         assertThat(ArrayUtil.join(logFixture.getMessages()), not(containsString("secret")));
@@ -149,7 +150,7 @@ public class CommandLineTest {
     }
 
     @Test
-    @RunIf(value = OSChecker.class, arguments = OSChecker.LINUX)
+    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, OSChecker.WINDOWS})
     public void shouldNotLogPasswordsOnExceptionThrown() throws IOException {
         File dir = FileUtil.createTempFolder();
         File file = new File(dir, "test.sh");
@@ -166,7 +167,7 @@ public class CommandLineTest {
     }
 
     @Test
-    @RunIf(value = OSChecker.class, arguments = OSChecker.LINUX)
+    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, OSChecker.WINDOWS})
     public void shouldLogPasswordsOnOutputAsStarsUnderLinux() throws IOException {
         CommandLine line = CommandLine.createCommandLine("echo")
                 .withArg("My Password is:")
@@ -214,8 +215,7 @@ public class CommandLineTest {
                 .withArg("My Password is:")
                 .withEnv(map)
                 .withArg(new PasswordArgument("secret"))
-                .withArg(new PasswordArgument("new-pwd"))
-                ;
+                .withArg(new PasswordArgument("new-pwd"));
 
         line.addInput(new String[]{"my pwd is: new-pwd "});
         assertThat(line.describe(), not(containsString("secret")));
@@ -223,7 +223,7 @@ public class CommandLineTest {
     }
 
     @Test
-    @RunIf(value = OSChecker.class, arguments = OSChecker.LINUX)
+    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, OSChecker.WINDOWS})
     public void shouldLogPasswordsOnEnvironemntAsStarsUnderLinux() throws IOException {
         CommandLine line = CommandLine.createCommandLine("echo")
                 .withArg("My Password is:")
@@ -243,7 +243,7 @@ public class CommandLineTest {
     }
 
     @Test
-    @RunIf(value = OSChecker.class, arguments = OSChecker.LINUX)
+    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, OSChecker.WINDOWS})
     public void shouldBeAbleToSpecifyEncoding() throws IOException {
         String chrisWasHere = "?????";
         CommandLine line = CommandLine.createCommandLine("echo")
@@ -257,7 +257,7 @@ public class CommandLineTest {
     }
 
     @Test
-    @RunIf(value = OSChecker.class, arguments = OSChecker.LINUX)
+    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, OSChecker.WINDOWS})
     public void shouldBeAbleToRunCommandsInSubdirectories() throws IOException {
 
         File shellScript = createScript("hello-world.sh", "echo ${PWD}");
@@ -272,7 +272,7 @@ public class CommandLineTest {
     }
 
     @Test
-    @RunIf(value = OSChecker.class, arguments = OSChecker.LINUX)
+    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, OSChecker.WINDOWS})
     public void shouldBeAbleToRunCommandsInSubdirectoriesWithNoWorkingDir() throws IOException {
 
         File shellScript = createScript("hello-world.sh", "echo 'Hello World!'");
@@ -287,7 +287,7 @@ public class CommandLineTest {
     }
 
     @Test
-    @RunIf(value = OSChecker.class, arguments = OSChecker.LINUX)
+    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, OSChecker.WINDOWS})
     public void shouldNotRunLocalCommandsThatAreNotExecutable() throws IOException {
         createScript("echo", "echo 'this should not be here'");
 
@@ -302,7 +302,7 @@ public class CommandLineTest {
     }
 
     @Test
-    @RunIf(value = OSChecker.class, arguments = OSChecker.LINUX)
+    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, OSChecker.WINDOWS})
     public void shouldBeAbleToRunCommandsFromRelativeDirectories() throws IOException {
         File shellScript = new File(tempFolder, "hello-world.sh");
         FileUtil.writeContentToFile("echo ${PWD}", shellScript);

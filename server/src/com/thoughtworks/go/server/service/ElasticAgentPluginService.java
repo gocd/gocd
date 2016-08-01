@@ -32,8 +32,8 @@ import com.thoughtworks.go.server.messaging.elasticagents.ServerPingQueueHandler
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
+import com.thoughtworks.go.util.Filter;
 import com.thoughtworks.go.util.ListUtil;
-import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.TimeProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,15 +106,6 @@ public class ElasticAgentPluginService implements JobStatusListener {
     }
 
     public void createAgentsFor(List<JobPlan> old, List<JobPlan> newPlan) {
-        if (StringUtil.isBlank(serverConfigService.getAutoregisterKey())) {
-            String description = "Auto-register agent key needs to be setup for elastic agent feature to work.";
-            serverHealthService.update(ServerHealthState.error("Auto-register agent key is not setup", description, HealthStateType.autoregisterKeyRequired()));
-            LOGGER.warn(description);
-            return;
-        } else {
-            serverHealthService.update(ServerHealthState.success(HealthStateType.autoregisterKeyRequired()));
-        }
-
         Collection<JobPlan> starvingJobs = new ArrayList<>();
         for (JobPlan jobPlan : newPlan) {
             if (jobPlan.requiresElasticAgent()) {
@@ -127,17 +118,37 @@ public class ElasticAgentPluginService implements JobStatusListener {
                 }
             }
         }
+
         ArrayList<JobPlan> jobsThatRequireAgent = new ArrayList<>();
         jobsThatRequireAgent.addAll(disjunction(old, newPlan));
         jobsThatRequireAgent.addAll(starvingJobs);
 
-        for (JobPlan plan : jobsThatRequireAgent) {
-            if (plan.requiresElasticAgent()) {
+        ArrayList<JobPlan> plansThatRequireElasticAgent = ListUtil.filterInto(new ArrayList<JobPlan>(), jobsThatRequireAgent, isElasticAgent());
+
+        if (serverConfigService.hasAutoregisterKey()) {
+            serverHealthService.update(ServerHealthState.success(HealthStateType.autoregisterKeyRequired()));
+
+            for (JobPlan plan : plansThatRequireElasticAgent) {
                 String environment = environmentConfigService.envForPipeline(plan.getPipelineName());
                 map.put(plan.getJobId(), timeProvider.currentTimeMillis());
                 createAgentQueue.post(new CreateAgentMessage(serverConfigService.getAutoregisterKey(), environment, plan.getJobAgentConfig()));
             }
+        } else {
+            if (!plansThatRequireElasticAgent.isEmpty()) {
+                String description = "Auto-register agent key needs to be setup for elastic agent feature to work.";
+                serverHealthService.update(ServerHealthState.error("Auto-register agent key is not setup", description, HealthStateType.autoregisterKeyRequired()));
+                LOGGER.warn(description);
+            }
         }
+    }
+
+    private Filter<JobPlan> isElasticAgent() {
+        return new Filter<JobPlan>() {
+            @Override
+            public boolean matches(JobPlan input) {
+                return input.requiresElasticAgent();
+            }
+        };
     }
 
     public boolean shouldAssignWork(ElasticAgentMetadata metadata, String environment, JobAgentConfig jobAgentConfig) {

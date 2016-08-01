@@ -45,7 +45,6 @@ import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -101,7 +100,7 @@ public class ElasticAgentPluginServiceTest {
     @Test
     public void shouldNotCreateAgentIfAutoRegisterIsNotSetup() {
         JobPlan plan = plan(1);
-        when(serverConfigService.getAutoregisterKey()).thenReturn(null);
+        when(serverConfigService.hasAutoregisterKey()).thenReturn(false);
         ArgumentCaptor<ServerHealthState> captor = ArgumentCaptor.forClass(ServerHealthState.class);
 
         service.createAgentsFor(new ArrayList<JobPlan>(), Arrays.asList(plan));
@@ -114,6 +113,7 @@ public class ElasticAgentPluginServiceTest {
 
     @Test
     public void shouldCreateAgentForNewlyAddedJobPlansOnly() {
+        when(serverConfigService.hasAutoregisterKey()).thenReturn(true);
         JobPlan plan1 = plan(1);
         JobPlan plan2 = plan(2);
         ArgumentCaptor<ServerHealthState> captorForHealthState = ArgumentCaptor.forClass(ServerHealthState.class);
@@ -136,6 +136,7 @@ public class ElasticAgentPluginServiceTest {
 
     @Test
     public void shouldRetryCreateAgentForJobThatHasBeenWaitingForAnAgentForALongTime() {
+        when(serverConfigService.hasAutoregisterKey()).thenReturn(true);
         when(serverConfigService.elasticJobStarvationThreshold()).thenReturn(0L);
         JobPlan plan1 = plan(1);
         ArgumentCaptor<ServerHealthState> captorForHealthState = ArgumentCaptor.forClass(ServerHealthState.class);

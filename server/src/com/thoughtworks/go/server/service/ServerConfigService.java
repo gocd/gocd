@@ -31,6 +31,7 @@ import com.thoughtworks.go.server.service.result.LocalizedResult;
 import com.thoughtworks.go.server.web.BaseUrlProvider;
 import com.thoughtworks.go.validators.HostNameValidator;
 import com.thoughtworks.go.validators.PortValidator;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
@@ -182,6 +183,10 @@ public class ServerConfigService implements BaseUrlProvider {
         return serverConfig().getAgentAutoRegisterKey();
     }
 
+    public boolean hasAutoregisterKey() {
+        return StringUtils.isNotBlank(getAutoregisterKey());
+    }
+
     public boolean hasAnyUrlConfigured() {
         return serverConfig().hasAnyUrlConfigured();
     }
@@ -189,5 +194,4 @@ public class ServerConfigService implements BaseUrlProvider {
     public Long elasticJobStarvationThreshold() {
         return serverConfig().getElasticConfig().getJobStarvationThreshold();
     }
-
 }

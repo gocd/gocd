@@ -42,11 +42,12 @@ task releaseNotes {
 
     ByteArrayOutputStream gitContributorsOut = new ByteArrayOutputStream()
     exec {
-      commandLine "git", "log", "--no-merges", "--format=%cN", "${project.previousVersion}..${rootProject.gitRevision}"
+
+      commandLine "git", 'shortlog', "-s", "--no-merges", "${project.previousVersion}..${rootProject.gitRevision}"
       standardOutput = gitContributorsOut
     }
 
-    def collaborators = gitContributorsOut.toString().readLines().unique()
+    def collaborators = gitContributorsOut.toString().readLines().collect { line -> line.trim().split(/\s+/, 2).last() }
 
     releaseNotesMarkdownFile.withWriter { md ->
       md.println "## Issues and Bug fixes\n"

@@ -15,18 +15,23 @@
  */
 
 define([], function () {
-  var mrequest = {
-    xhrConfig: {
-      v1: function (xhr) {
-        xhr.setRequestHeader("Content-Type", "application/json");
-        xhr.setRequestHeader("Accept", "application/vnd.go.cd.v1+json");
-      },
-
-      v2: function (xhr) {
-        xhr.setRequestHeader("Content-Type", "application/json");
-        xhr.setRequestHeader("Accept", "application/vnd.go.cd.v2+json");
-      }
-    }
+  var setHeaders = function (xhr, version) {
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.setRequestHeader("Accept", "application/vnd.go.cd." + version + "+json");
   };
-  return mrequest;
+
+  return {
+        xhrConfig: {
+          v1: function (xhr) {
+            setHeaders(xhr, 'v1');
+          },
+          v2: function (xhr) {
+            setHeaders(xhr, 'v2');
+          },
+          v3: function (xhr) {
+            setHeaders(xhr, 'v3');
+          }
+        }
+      }
 });
+

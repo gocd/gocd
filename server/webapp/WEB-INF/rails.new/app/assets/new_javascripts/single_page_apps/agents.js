@@ -14,28 +14,26 @@
  * limitations under the License.
  */
 
+requirejs([
+  'jquery', 'mithril',
+  'js-routes',
+  'models/agents/resources',
+  'models/agents/environments',
+  'views/agents/agents_widget',
+  'foundation.util.mediaQuery', 'foundation.dropdownMenu', 'foundation.responsiveToggle', 'foundation.dropdown'
+], function ($, m, JsRoutes,
+             Resources, Environments, AgentsWidget) {
 
+  $(function () {
 
-@media only screen and (min-width: 120.063em) {
+    Resources.init();
+    Environments.init();
+    $(document).foundation();
 
-  .row.expanded{
-    max-width:130rem;
-  }
-}
+    var mount = function(){
+      m.mount(document.getElementById('agents'), AgentsWidget);
+    };
 
-.key-value {
-  label {
-    display: inline-block;
-    min-width: 60px;
-    position: relative;
-    &:after {
-      content: ":";
-      position: absolute;
-      right: 10px;
-    }
-  }
-}
-
-.add-button {
-  @include icon-before($type: plus-circle);
-}
+    mount();
+  });
+});

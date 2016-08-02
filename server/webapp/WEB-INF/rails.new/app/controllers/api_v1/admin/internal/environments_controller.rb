@@ -21,7 +21,7 @@ module ApiV1
         before_action :check_admin_user_and_401
 
         def index
-          environment_list = environment_config_service.environmentNames().sort
+          environment_list = environment_config_service.environmentNames()
           if stale?(etag: environment_list)
             render json_hal_v1: environment_list
           end

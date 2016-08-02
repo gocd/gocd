@@ -14,19 +14,28 @@
 # limitations under the License.
 ##########################################################################
 
-module ApiV1
-  module Admin
-    module Internal
-      class ResourcesController < ApiV1::BaseController
-        before_action :check_admin_user_or_group_admin_user_and_401
+module Admin
+  class AgentsController < ::ApplicationController
+    include ApiV1::AuthenticationHelper
 
-        def index
-          resource_list = go_config_service.getResourceList()
-          if stale?(etag: resource_list)
-            render json_hal_v1: resource_list
-          end
-        end
+    layout 'single_page_app'
+    before_action :check_admin_user_and_401
+    before_action :check_feature_toggle
+
+    def index
+      @view_title = 'Agents'
+    end
+
+    private
+
+    helper_method :plugin_templates
+
+    def check_feature_toggle
+      unless Toggles.isToggleOn(Toggles.AGENTS_SINGLE_PAGE_APP)
+        render :text => 'This feature is not enabled!'
       end
     end
+
   end
+
 end

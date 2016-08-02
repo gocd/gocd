@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service.support.toggle;
 public class Toggles {
     public static String PIPELINE_COMMENT_FEATURE_TOGGLE_KEY = "pipeline_comment_feature_toggle_key";
     public static String PIPELINE_CONFIG_SINGLE_PAGE_APP = "pipeline_config_single_page_app_key";
+    public static String AGENTS_SINGLE_PAGE_APP = "agents_single_page_app_key";
 
     private static FeatureToggleService service;
 

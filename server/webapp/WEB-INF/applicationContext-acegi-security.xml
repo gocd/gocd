@@ -267,6 +267,7 @@
                 /api/admin/pipelines/*=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR
                 /api/admin/scms/**=ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR
                 /api/admin/plugin_info/**=ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR
+                /api/admin/agents=ROLE_SUPERVISOR
                 /api/admin/**=ROLE_SUPERVISOR
                 /api/config-repository.git/**=ROLE_SUPERVISOR
                 /api/jobs/scheduled.xml=ROLE_SUPERVISOR

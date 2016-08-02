@@ -61,6 +61,7 @@ define([
       return (
         <f.inputWithLabel attrName='url'
                           type='url'
+                          validate={true}
                           model={args.material}/>
       )
     }
@@ -95,6 +96,7 @@ define([
     view: function (ctrl, args) {
       return (
         <f.inputWithLabel attrName='name'
+                          validate={true}
                           model={args.material}
                           tooltip={{
                                     content: tt.material.name,
@@ -393,7 +395,7 @@ define([
       this.createMaterial = function (type) {
         var newMaterial = Materials.isBuiltInType(type()) ? args.materials.createMaterial({type: type()})
                                                           : args.materials.createMaterial({type: type(), pluginInfo: PluginInfos.findById(type())});
-        var indexOfMaterial = this.materials.indexOfMaterial(newMaterial);
+        var indexOfMaterial = args.materials.indexOfMaterial(newMaterial);
         this.vmState('material-' + indexOfMaterial, {selectedMaterialIndex: m.prop(0)})
       };
     },

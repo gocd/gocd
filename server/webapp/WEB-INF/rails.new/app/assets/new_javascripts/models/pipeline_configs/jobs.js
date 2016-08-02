@@ -15,20 +15,35 @@
  */
 
 define([
-  'mithril', 'lodash', 'string-plus',
-  'models/model_mixins',
-  'models/pipeline_configs/environment_variables', 'models/pipeline_configs/tasks', 'models/pipeline_configs/artifacts', 'models/pipeline_configs/tabs', 'models/pipeline_configs/properties'
-], function (m, _, s,
-             Mixins,
-             EnvironmentVariables, Tasks, Artifacts, Tabs, Properties) {
+  'mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipeline_configs/environment_variables',
+  'models/pipeline_configs/tasks', 'models/pipeline_configs/artifacts', 'models/pipeline_configs/tabs',
+  'models/pipeline_configs/properties', 'models/validatable_mixin'
+], function (m, _, s, Mixins, EnvironmentVariables, Tasks, Artifacts, Tabs, Properties, Validatable) {
 
   var Jobs = function (data) {
     Mixins.HasMany.call(this, {factory: Jobs.Job.create, as: 'Job', collection: data, uniqueOn: 'name'});
   };
 
+  var TimeoutValidator = function () {
+    this.validate = function (entity) {
+      if (!(entity.isTimeoutNever() || entity.isTimeoutDefault() || entity.isTimeoutCustom())) {
+        entity.errors().add('timeout', Validatable.ErrorMessages.mustBePositiveNumber('timeout'));
+      }
+    }
+  };
+
+  var RunInstanceCountValidator = function () {
+    this.validate = function (entity) {
+      if (!(entity.isRunOnAllAgents() || entity.isRunOnOneAgent() || entity.isRunOnSomeAgents())) {
+        entity.errors().add('runInstanceCount', Validatable.ErrorMessages.mustBePositiveNumber('runInstanceCount'));
+      }
+    }
+  };
+
   Jobs.Job = function (data) {
     this.constructor.modelType = 'job';
     Mixins.HasUUID.call(this);
+    Validatable.call(this, data);
 
     this.parent = Mixins.GetterSetter();
 
@@ -72,27 +87,10 @@ define([
       return s.isPositiveInteger(this.timeout());
     };
 
-    this.validate = function () {
-      var errors = new Mixins.Errors();
-
-      if (s.isBlank(this.name())) {
-        errors.add('name', Mixins.ErrorMessages.mustBePresent('name'));
-      } else {
-        if (this.parent()) {
-          this.parent().validateUniqueJobName(this, errors);
-        }
-      }
-
-      if (!(this.isTimeoutNever() || this.isTimeoutDefault() || this.isTimeoutCustom())) {
-        errors.add('timeout', Mixins.ErrorMessages.mustBePositiveNumber('timeout'));
-      }
-
-      if (!(this.isRunOnAllAgents() || this.isRunOnOneAgent() || this.isRunOnSomeAgents())) {
-        errors.add('runInstanceCount', Mixins.ErrorMessages.mustBePositiveNumber('runInstanceCount'));
-      }
-
-      return errors;
-    };
+    this.validatePresenceOf('name');
+    this.validateUniquenessOf('name');
+    this.validateWith('timeout', TimeoutValidator);
+    this.validateWith('runInstanceCount', RunInstanceCountValidator);
   };
 
   Jobs.Job.create = function (data) {
@@ -115,7 +113,8 @@ define([
       tasks:                Tasks.fromJSON(data.tasks),
       artifacts:            Artifacts.fromJSON(data.artifacts),
       tabs:                 Tabs.fromJSON(data.tabs),
-      properties:           Properties.fromJSON(data.properties)
+      properties:           Properties.fromJSON(data.properties),
+      errors:               data.errors
     });
   };
 

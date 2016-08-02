@@ -50,6 +50,7 @@ define([
                   <f.input model={parameter}
                            attrName='name'
                            placeholder='Name'
+                           validate={true}
                            onchange={ctrl.changed.bind(ctrl)}/>
                   <f.input model={parameter}
                            attrName='value'

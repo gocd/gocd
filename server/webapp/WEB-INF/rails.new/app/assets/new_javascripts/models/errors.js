@@ -23,8 +23,8 @@ define(['mithril', 'lodash'], function (m, _) {
       errors[attrName].push(message);
     };
 
-    this.clear = function () {
-      errors = {};
+    this.clear = function (optionalAttribute) {
+      optionalAttribute ? (errors[optionalAttribute] = []) : (errors = {});
     };
 
     this.errors = function (optionalAttribute) {
@@ -32,11 +32,11 @@ define(['mithril', 'lodash'], function (m, _) {
         return;
       }
 
-      if (optionalAttribute) {
-        return errors[optionalAttribute];
-      }
+      return optionalAttribute ? errors[optionalAttribute] : errors;
+    };
 
-      return errors;
+    this.hasErrors = function (attr) {
+      return !_.isEmpty(errors[attr]);
     };
 
     this._isEmpty = function () {

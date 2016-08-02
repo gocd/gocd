@@ -34,6 +34,7 @@ define([
                               attrName='baseUrl'
                               label='Base URL'
                               type='url'
+                              validate={true}
                               tooltip={{
                                           content: <tt.trackingTool.mingle.baseUrl callback={trackingTool().baseUrl}/>,
                                           direction: 'bottom',
@@ -45,6 +46,7 @@ define([
           <f.row>
             <f.inputWithLabel model={trackingTool()}
                               attrName='projectIdentifier'
+                              validate={true}
                               tooltip={{
                                           content: <tt.trackingTool.mingle.projectIdentifier callback={trackingTool().projectIdentifier}/>,
                                           direction: 'bottom',
@@ -56,6 +58,7 @@ define([
           <f.row>
             <f.inputWithLabel model={trackingTool()}
                               attrName='mqlGroupingConditions'
+                              validate={true}
                               tooltip={{
                                           content: <tt.trackingTool.mingle.mqlGroupingConditions callback={trackingTool().mqlGroupingConditions}/>,
                                           direction: 'bottom',
@@ -74,6 +77,7 @@ define([
             <f.inputWithLabel model={trackingTool()}
                               attrName='regex'
                               label='Regular expression'
+                              validate={true}
                               tooltip={{
                                           content: <tt.trackingTool.generic.regex callback={trackingTool().regex}/>,
                                           direction: 'bottom',
@@ -86,6 +90,7 @@ define([
                               attrName='urlPattern'
                               label='URL Pattern'
                               type='url'
+                              validate={true}
                               tooltip={{
                                           content: <tt.trackingTool.generic.urlPattern callback={trackingTool().urlPattern}/>,
                                           direction: 'bottom',

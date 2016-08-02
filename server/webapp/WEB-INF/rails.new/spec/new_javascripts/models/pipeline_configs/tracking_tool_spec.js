@@ -18,7 +18,7 @@ define(['lodash', "models/pipeline_configs/tracking_tool", 'string-plus'], funct
   describe("TrackingTool Model", function () {
     var trackingTool;
     describe("Generic", function () {
-      beforeEach(function () {
+      beforeAll(function () {
         trackingTool = new TrackingTool.Generic({
           urlPattern: 'http://example.com/bugzilla?id=${ID}',
           regex:      "bug-(\\d+)"
@@ -35,6 +35,28 @@ define(['lodash', "models/pipeline_configs/tracking_tool", 'string-plus'], funct
 
       it("should initialize trackingTool model with regex", function () {
         expect(trackingTool.regex()).toBe("bug-(\\d+)");
+      });
+
+      describe('validations', function () {
+        beforeAll(function () {
+          trackingTool = new TrackingTool.Generic({});
+          trackingTool.validate();
+        });
+
+        it('should validate presence and format of urlPattern', function () {
+          expect(trackingTool.errors().errors('urlPattern')).toEqual(['URL pattern must be present', "Url pattern must contain the string '${ID}'"]);
+        });
+
+        it('should validate urlPattern to be a valid url', function () {
+          trackingTool.urlPattern("ftp://foo.bar '${ID}'");
+          trackingTool.validate();
+
+          expect(trackingTool.errors().errors('urlPattern')).toEqual(["Url pattern must be a valid http(s) url"]);
+        });
+
+        it('should validate presence and format of regex', function () {
+          expect(trackingTool.errors().errors('regex')).toEqual(['Regex must be present']);
+        });
       });
 
       describe("Deserialization to/from JSON", function () {
@@ -62,12 +84,10 @@ define(['lodash', "models/pipeline_configs/tracking_tool", 'string-plus'], funct
           };
         }
       });
-
-
     });
 
     describe("Mingle", function () {
-      beforeEach(function () {
+      beforeAll(function () {
         trackingTool = new TrackingTool.Mingle({
           baseUrl:               'http://mingle.example.com',
           projectIdentifier:     "gocd",
@@ -89,6 +109,32 @@ define(['lodash', "models/pipeline_configs/tracking_tool", 'string-plus'], funct
 
       it("should initialize trackingTool model with mqlGroupingConditions", function () {
         expect(trackingTool.mqlGroupingConditions()).toBe("status > 'In Dev'");
+      });
+
+      describe('validations', function () {
+        beforeAll(function () {
+          trackingTool = new TrackingTool.Mingle({});
+          trackingTool.validate();
+        });
+
+        it('should validate presence and format of baseUrl', function () {
+          expect(trackingTool.errors().errors('baseUrl')).toEqual(['Base URL must be present']);
+        });
+
+        it('should validate baseUrl to be a valid url', function () {
+          trackingTool.baseUrl("ftp://foo.bar");
+          trackingTool.validate();
+
+          expect(trackingTool.errors().errors('baseUrl')).toEqual(["Base url must be a valid http(s) url"]);
+        });
+
+        it('should validate presence and format of projectIdentifier', function () {
+          expect(trackingTool.errors().errors('projectIdentifier')).toEqual(['Project identifier must be present']);
+        });
+
+        it('should validate presence and format of mqlGroupingConditions', function () {
+          expect(trackingTool.errors().errors('mqlGroupingConditions')).toEqual(['Mql grouping conditions must be present']);
+        });
       });
 
       describe("Deserialization from JSON", function () {

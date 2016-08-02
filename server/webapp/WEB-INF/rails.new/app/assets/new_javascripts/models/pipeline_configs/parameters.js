@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', 'models/model_mixins'], function (m, _, s, Mixins) {
+define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/validatable_mixin'], function (m, _, s, Mixins, Validatable) {
 
   var Parameters = function (data) {
     Mixins.HasMany.call(this, {
@@ -28,6 +28,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins'], function (m,
   Parameters.Parameter = function (data) {
     this.constructor.modelType = 'parameter';
     Mixins.HasUUID.call(this);
+    Validatable.call(this, data);
 
     this.parent = Mixins.GetterSetter();
 
@@ -38,23 +39,8 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins'], function (m,
       return s.isBlank(this.name()) && s.isBlank(this.value());
     };
 
-    this.validate = function () {
-      var errors = new Mixins.Errors();
-
-      if (this.isBlank()) {
-        return errors;
-      }
-
-      if (s.isBlank(this.name())) {
-        if (!s.isBlank(this.value())) {
-          errors.add('name', Mixins.ErrorMessages.mustBePresent('name'));
-        }
-      } else {
-        this.parent().validateUniqueParameterName(this, errors);
-      }
-
-      return errors;
-    };
+    this.validatePresenceOf('name', {condition: function(property) {return (!s.isBlank(property.value()))}});
+    this.validateUniquenessOf('name');
   };
 
   Parameters.Parameter.create = function (data) {

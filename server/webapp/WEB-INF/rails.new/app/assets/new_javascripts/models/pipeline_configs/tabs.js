@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', 'models/model_mixins'], function (m, _, s, Mixins) {
+define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/validatable_mixin'], function (m, _, s, Mixins, Validatable) {
   var Tabs = function (data) {
     Mixins.HasMany.call(this, {factory: Tabs.Tab.create, as: 'Tab', collection: data, uniqueOn: 'name'});
   };
@@ -22,6 +22,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins'], function (m,
   Tabs.Tab = function (data) {
     this.constructor.modelType = 'tab';
     Mixins.HasUUID.call(this);
+    Validatable.call(this, data);
 
     this.parent = Mixins.GetterSetter();
 
@@ -32,23 +33,8 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins'], function (m,
       return s.isBlank(this.name()) && s.isBlank(this.path());
     };
 
-    this.validate = function () {
-      var errors = new Mixins.Errors();
-
-      if (this.isBlank()) {
-        return errors;
-      }
-
-      if (s.isBlank(this.name())) {
-        if (!s.isBlank(this.path())) {
-          errors.add('name', Mixins.ErrorMessages.mustBePresent('name'));
-        }
-      } else {
-        this.parent().validateUniqueTabName(this, errors);
-      }
-
-      return errors;
-    };
+    this.validatePresenceOf('name', {condition: function(property) {return (!s.isBlank(property.path()))}});
+    this.validateUniquenessOf('name');
   };
 
   Tabs.Tab.create = function (data) {

@@ -68,6 +68,7 @@ define([
           self.pipeline().update(self.etag(), extractEtag).then(function (data) {
             ctrl.setPipelineAndPreserveSelection(Pipeline.fromJSON(data));
           }, function (data) {
+            self.errorMessage = data.message;
             if (data.data) {
               ctrl.setPipelineAndPreserveSelection(Pipeline.fromJSON(data.data));
             }
@@ -77,6 +78,7 @@ define([
 
       view: function (ctrl) {
         var pipeline = ctrl.pipeline();
+        var errorMessage = ctrl.errorMessage ? (<div class='alert callout'><p>{ctrl.errorMessage}</p></div>) : '';
         var header = function () {
           return (
             <f.row class="heading">
@@ -102,6 +104,7 @@ define([
           <form class='pipeline'>
             {header()}
             <f.row class='pipeline-body'>
+              {errorMessage}
               <f.column end={true} size={12}>
                 <PipelineSettingsWidget pipeline={ctrl.pipeline}
                                         vm={ctrl.vmState('pipelineSettingsConfig')}/>

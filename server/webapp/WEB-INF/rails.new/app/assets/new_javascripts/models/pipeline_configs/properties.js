@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', 'models/model_mixins'], function (m, _, s, Mixins) {
+define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/validatable_mixin'], function (m, _, s, Mixins, Validatable) {
 
   var Properties = function (data) {
     Mixins.HasMany.call(this, {
@@ -29,6 +29,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins'], function (m,
   Properties.Property = function (data) {
     this.constructor.modelType = 'property';
     Mixins.HasUUID.call(this);
+    Validatable.call(this, data);
 
     this.parent = Mixins.GetterSetter();
 
@@ -40,31 +41,10 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins'], function (m,
       return s.isBlank(this.name()) && s.isBlank(this.source()) && s.isBlank(this.xpath());
     };
 
-    this.validate = function () {
-      var errors = new Mixins.Errors();
-
-      if (this.isBlank()) {
-        return errors;
-      }
-
-      if (s.isBlank(this.name())) {
-        if (!s.isBlank(this.source()) || !s.isBlank(this.xpath())) {
-          errors.add('name', Mixins.ErrorMessages.mustBePresent('name'));
-        }
-      } else {
-        this.parent().validateUniquePropertyName(this, errors);
-      }
-
-      if (s.isBlank(this.source())) {
-        errors.add("source", Mixins.ErrorMessages.mustBePresent('source'));
-      }
-
-      if (s.isBlank(this.xpath())) {
-        errors.add("xpath", Mixins.ErrorMessages.mustBePresent('XPath'));
-      }
-      return errors;
-    };
-
+    this.validatePresenceOf('name', {condition: function(property) {return (!s.isBlank(property.source()) || !s.isBlank(property.xpath()))}});
+    this.validateUniquenessOf('name');
+    this.validatePresenceOf('source', {condition: function(property) {return !property.isBlank()}});
+    this.validatePresenceOf('xpath',  {condition: function(property) {return !property.isBlank()}});
   };
 
   Properties.Property.create = function (data) {

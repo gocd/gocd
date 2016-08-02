@@ -31,6 +31,7 @@ define([
                        attrName='name'
                        placeholder='Name'
                        onchange={args.onChange}
+                       validate={true}
                        end={true}
                        size={5}
                        largeSize={4}/>
@@ -54,6 +55,7 @@ define([
                      attrName='value'
                      placeholder='Value'
                      onchange={args.onChange}
+                     validate={'all'}
                      size={5}
                      largeSize={4}/>
           </EnvironmentVariableWidget.base>

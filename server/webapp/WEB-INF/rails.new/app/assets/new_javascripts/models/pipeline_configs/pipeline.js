@@ -15,11 +15,12 @@
  */
 
 define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipeline_configs/environment_variables', 'models/pipeline_configs/parameters',
-  'models/pipeline_configs/materials', 'models/pipeline_configs/tracking_tool', 'models/pipeline_configs/stages', 'helpers/mrequest'],
-  function (m, _, s, Mixins, EnvironmentVariables, Parameters, Materials, TrackingTool, Stages, mrequest) {
+  'models/pipeline_configs/materials', 'models/pipeline_configs/tracking_tool', 'models/pipeline_configs/stages', 'helpers/mrequest', 'models/validatable_mixin'],
+  function (m, _, s, Mixins, EnvironmentVariables, Parameters, Materials, TrackingTool, Stages, mrequest, Validatable) {
   var Pipeline = function (data) {
     this.constructor.modelType = 'pipeline';
     Mixins.HasUUID.call(this);
+    Validatable.call(this, data);
 
     this.name                  = m.prop(data.name);
     this.enablePipelineLocking = m.prop(data.enablePipelineLocking);
@@ -49,17 +50,9 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     };
     this.stages                = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.stages, new Stages())));
 
-    this.validate = function () {
-      var errors = new Mixins.Errors();
-
-      if (s.isBlank(this.labelTemplate())) {
-        errors.add('labelTemplate', Mixins.ErrorMessages.mustBePresent('labelTemplate'));
-      } else if (!this.labelTemplate().match(/(([a-zA-Z0-9_\-.!~*'()#:])*[$#]\{[a-zA-Z0-9_\-.!~*'()#:]+(\[:(\d+)])?}([a-zA-Z0-9_\-.!~*'()#:])*)+/)) {
-        errors.add('labelTemplate', "Label should be composed of alphanumeric text, it may contain the build number as ${COUNT}, it may contain a material revision as ${<material-name>} or ${<material-name>[:<length>]}, or use params as #{<param-name>}");
-      }
-
-      return errors;
-    };
+    this.validatePresenceOf('labelTemplate');
+    this.validateFormatOf('labelTemplate', {format: /(([a-zA-Z0-9_\-.!~*'()#:])*[$#]\{[a-zA-Z0-9_\-.!~*'()#:]+(\[:(\d+)])?}([a-zA-Z0-9_\-.!~*'()#:])*)+/,
+                                            message: "Label should be composed of alphanumeric text, it may contain the build number as ${COUNT}, it may contain a material revision as ${<material-name>} or ${<material-name>[:<length>]}, or use params as #{<param-name>}"});
 
     this.update = function (etag, extract) {
       var self = this;

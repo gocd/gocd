@@ -16,8 +16,8 @@
 
 define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeline_configs/scms", 'models/pipeline_configs/plugin_infos'],
   function (m, _, Materials, SCMs, PluginInfos) {
-  var materials, gitMaterial, svnMaterial, mercurialMaterial, perforceMaterial, tfsMaterial;
-  beforeEach(function () {
+  var materials, gitMaterial, svnMaterial, mercurialMaterial, perforceMaterial, tfsMaterial, dependencyMaterial;
+  beforeAll(function () {
     materials = new Materials();
 
     gitMaterial = materials.createMaterial({
@@ -78,6 +78,14 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
       autoUpdate:  true,
       filter:      new Materials.Filter({ignore: ['*.doc']})
     });
+
+    dependencyMaterial = materials.createMaterial({
+      type:       "dependency",
+      pipeline:   "p1",
+      stage:      "first_stage",
+      name:       "p1_first_stage",
+      autoUpdate: true
+    });
   });
 
 
@@ -113,10 +121,10 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
         });
 
         var errorsOnA = materialA.validate();
-        expect(errorsOnA._isEmpty()).toBe(true);
+        expect(errorsOnA.hasErrors('name')).toBe(false);
 
         var errorsOnB = materialB.validate();
-        expect(errorsOnB._isEmpty()).toBe(true);
+        expect(errorsOnB.hasErrors('name')).toBe(false);
       });
     });
 
@@ -620,17 +628,6 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
     });
 
     describe('dependency', function() {
-      var dependencyMaterial;
-      beforeAll(function () {
-        dependencyMaterial = Materials.create({
-          type:       "dependency",
-          pipeline:   "p1",
-          stage:      "first_stage",
-          name:       "p1_first_stage",
-          autoUpdate: true
-        });
-      });
-
       it('it should initialize material with type', function() {
         expect(dependencyMaterial.type()).toBe('dependency');
       });
@@ -648,12 +645,11 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
       });
 
       describe("validation", function () {
-        var material, errors;
+        var errors;
         beforeAll(function() {
-          material = Materials.create({
-            "type":       "dependency"
-          });
-          errors = material.validate();
+          dependencyMaterial.pipeline('');
+          dependencyMaterial.stage('');
+          errors = dependencyMaterial.validate();
         });
 
         it("should check presence of pipeline", function () {

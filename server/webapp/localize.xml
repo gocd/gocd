@@ -241,7 +241,7 @@
     <entry key="INVALID_ADMIN_ADDRESS">Admin address is not a valid email address.</entry>
     <entry key="INVALID_EMAIL">Not a valid email address.</entry>
     <entry key="VALID_VALUE">Valid</entry>
-    <entry key="FAILED_TO_SEND_TEST_MAIL">Failed to send test mail because: {0}</entry>
+    <entry key="FAILED_TO_SEND_TEST_MAIL">Email: {0}</entry>
     <entry key="SENT_TEST_MAIL_SUCCESSFULLY">Sent test email successfully.</entry>
     <entry key="INVALID_TLS">TLS should be selected.</entry>
     <entry key="ADMIN_ADDRESS_REQUIRED">Admin email address is required.</entry>

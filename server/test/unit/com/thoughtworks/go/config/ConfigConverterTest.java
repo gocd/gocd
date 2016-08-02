@@ -30,6 +30,7 @@ import org.junit.Test;
 
 import java.util.*;
 
+import static junit.framework.TestCase.fail;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.junit.Assert.assertNotNull;
@@ -763,4 +764,32 @@ public class ConfigConverterTest {
         assertThat(partialConfig.getEnvironments().size(),is(1));
     }
 
+    @Test
+    public void shouldConvertCRTimerWhenAllAssigned(){
+        CRTimer timer = new CRTimer("0 15 * * 6",true);
+        TimerConfig result = configConverter.toTimerConfig(timer);
+        assertThat(result.getTimerSpec(),is("0 15 * * 6"));
+        assertThat(result.getOnlyOnChanges(),is(true));
+    }
+
+    @Test
+    public void shouldConvertCRTimerWhenNullOnChanges(){
+        CRTimer timer = new CRTimer("0 15 * * 6",null);
+        TimerConfig result = configConverter.toTimerConfig(timer);
+        assertThat(result.getTimerSpec(),is("0 15 * * 6"));
+        assertThat(result.getOnlyOnChanges(),is(false));
+    }
+
+    @Test
+    public void shouldFailConvertCRTimerWhenNullSpec(){
+        CRTimer timer = new CRTimer(null,false);
+        try {
+            configConverter.toTimerConfig(timer);
+            fail("should have thrown");
+        }
+        catch(Exception ex)
+        {
+            //ok
+        }
+    }
 }

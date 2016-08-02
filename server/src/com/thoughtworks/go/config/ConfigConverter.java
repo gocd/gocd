@@ -23,6 +23,7 @@ import com.thoughtworks.go.plugin.access.configrepo.contract.*;
 import com.thoughtworks.go.plugin.access.configrepo.contract.material.*;
 import com.thoughtworks.go.plugin.access.configrepo.contract.tasks.*;
 import com.thoughtworks.go.security.GoCipher;
+import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.command.HgUrlArgument;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.lang.StringUtils;
@@ -514,7 +515,7 @@ public class ConfigConverter {
 
         CRTimer crTimer = crPipeline.getTimer();
         if (crTimer != null) {
-            pipelineConfig.setTimer(new TimerConfig(crTimer.getTimerSpec(), crTimer.isOnlyOnChanges()));
+            pipelineConfig.setTimer(toTimerConfig(crTimer));
         }
 
         EnvironmentVariablesConfig variables = pipelineConfig.getVariables();
@@ -525,6 +526,13 @@ public class ConfigConverter {
         pipelineConfig.setLock(crPipeline.isLocked());
 
         return pipelineConfig;
+    }
+
+    public TimerConfig toTimerConfig(CRTimer crTimer) {
+        String spec = crTimer.getTimerSpec();
+        if(StringUtil.isBlank(spec))
+            throw new RuntimeException("timer schedule is not specified");
+        return new TimerConfig(spec, crTimer.isOnlyOnChanges() == null ? false : crTimer.isOnlyOnChanges());
     }
 
     private MingleConfig toMingleConfig(CRMingle crMingle) {

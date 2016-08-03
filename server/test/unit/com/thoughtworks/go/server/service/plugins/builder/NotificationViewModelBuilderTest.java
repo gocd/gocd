@@ -69,7 +69,7 @@ public class NotificationViewModelBuilderTest {
         List<PluginInfo> pluginInfos = builder.allPluginInfos();
 
         assertThat(pluginInfos.size(), is(2));
-        PluginInfo pluginInfo = pluginInfos.get(0).getId() == "email.notifier" ? pluginInfos.get(0) : pluginInfos.get(1);
+        PluginInfo pluginInfo = pluginInfos.get(0).getId().equals("email.notifier") ? pluginInfos.get(0) : pluginInfos.get(1);
         assertThat(pluginInfo.getId(), is("email.notifier"));
         assertThat(pluginInfo.getType(), is("notification"));
         assertThat(pluginInfo.getName(), is(emailNotifier.about().name()));
@@ -83,7 +83,6 @@ public class NotificationViewModelBuilderTest {
 
         when(registry.getNotificationPlugins()).thenReturn(pluginIds);
         when(manager.getPluginDescriptorFor("email.notifier")).thenReturn(emailNotifier);
-        ;
 
         PluginInfo pluginInfo = builder.pluginInfoFor("email.notifier");
 

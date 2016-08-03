@@ -18,6 +18,8 @@ package com.thoughtworks.go.server.service.plugins.builder;
 
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationExtension;
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationPluginRegistry;
+import com.thoughtworks.go.plugin.access.elastic.Constants;
+import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginRegistry;
 import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
 import com.thoughtworks.go.plugin.access.notification.NotificationPluginRegistry;
 import com.thoughtworks.go.plugin.access.packagematerial.JsonBasedPackageRepositoryExtension;
@@ -40,12 +42,16 @@ public class PluginInfoBuilder {
     private Map<String, ViewModelBuilder> pluginExtensionToBuilder = new HashMap<>();
 
     @Autowired
-    public PluginInfoBuilder(AuthenticationPluginRegistry authenticationPluginRegistry, NotificationPluginRegistry notificationPluginRegistry, PluginManager pluginManager) {
+    public PluginInfoBuilder(AuthenticationPluginRegistry authenticationPluginRegistry,
+                             NotificationPluginRegistry notificationPluginRegistry,
+                             ElasticAgentPluginRegistry elasticAgentPluginRegistry,
+                             PluginManager pluginManager) {
         pluginExtensionToBuilder.put(AuthenticationExtension.EXTENSION_NAME, new AuthenticationViewModelBuilder(pluginManager, authenticationPluginRegistry));
         pluginExtensionToBuilder.put(NotificationExtension.EXTENSION_NAME, new NotificationViewModelBuilder(pluginManager, notificationPluginRegistry));
         pluginExtensionToBuilder.put(JsonBasedPackageRepositoryExtension.EXTENSION_NAME, new PackageViewModelBuilder(pluginManager));
         pluginExtensionToBuilder.put(JsonBasedTaskExtension.TASK_EXTENSION, new PluggableTaskViewModelBuilder(pluginManager));
         pluginExtensionToBuilder.put(SCMExtension.EXTENSION_NAME, new SCMViewModelBuilder(pluginManager));
+        pluginExtensionToBuilder.put(Constants.EXTENSION_NAME, new ElasticAgentViewViewModelBuilder(pluginManager, elasticAgentPluginRegistry));
     }
 
     public List<PluginInfo> allPluginInfos(String type) {

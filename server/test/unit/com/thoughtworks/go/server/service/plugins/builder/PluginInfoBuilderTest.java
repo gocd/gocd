@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.service.plugins.builder;
 
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationPluginRegistry;
+import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginRegistry;
 import com.thoughtworks.go.plugin.access.notification.NotificationPluginRegistry;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfigurations;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageMetadataStore;
@@ -27,7 +28,7 @@ import com.thoughtworks.go.plugin.access.scm.SCMConfigurations;
 import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
 import com.thoughtworks.go.plugin.access.scm.SCMPreference;
 import com.thoughtworks.go.plugin.access.scm.SCMView;
-import com.thoughtworks.go.plugin.api.task.Task;
+import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.api.task.TaskView;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
@@ -43,9 +44,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -58,6 +57,9 @@ public class PluginInfoBuilderTest {
     NotificationPluginRegistry notificationPluginRegistry;
 
     @Mock
+    ElasticAgentPluginRegistry elasticPluginRegistry;
+
+    @Mock
     PluginManager manager;
 
     private GoPluginDescriptor githubDescriptor;
@@ -65,25 +67,30 @@ public class PluginInfoBuilderTest {
     private GoPluginDescriptor yumPoller;
     private GoPluginDescriptor xunitConvertor;
     private GoPluginDescriptor githubPR;
+    private GoPluginDescriptor dockerElasticAgentPlugin;
     private PluginInfoBuilder pluginViewModelBuilder;
 
     @Before
     public void setUp() {
         initMocks(this);
         githubDescriptor = new GoPluginDescriptor("github.oauth", "version1",
-                new GoPluginDescriptor.About("Github OAuth Plugin", "1.0", null, null, null,null),
+                new GoPluginDescriptor.About("Github OAuth Plugin", "1.0", null, null, null, null),
                 null, null, false);
         emailNotifier = new GoPluginDescriptor("email.notifier", "version1",
-                new GoPluginDescriptor.About("Email Notifier", "1.0", null, null, null,null),
+                new GoPluginDescriptor.About("Email Notifier", "1.0", null, null, null, null),
                 null, null, false);
         yumPoller = new GoPluginDescriptor("yum.poller", "version1",
-                new GoPluginDescriptor.About("Yum Poller", "1.0", null, null, null,null),
+                new GoPluginDescriptor.About("Yum Poller", "1.0", null, null, null, null),
                 null, null, false);
         xunitConvertor = new GoPluginDescriptor("xunit.convertor", "version1",
-                new GoPluginDescriptor.About("Xunit Convertor", "1.0", null, null, null,null),
+                new GoPluginDescriptor.About("Xunit Convertor", "1.0", null, null, null, null),
                 null, null, false);
         githubPR = new GoPluginDescriptor("github.pr", "version1",
-                new GoPluginDescriptor.About("Github PR", "1.0", null, null, null,null),
+                new GoPluginDescriptor.About("Github PR", "1.0", null, null, null, null),
+                null, null, false);
+
+        dockerElasticAgentPlugin = new GoPluginDescriptor("cd.go.elastic-agent.docker", "1.0",
+                new GoPluginDescriptor.About("GoCD Docker Elastic Agent Plugin", "1.0", null, null, null, null),
                 null, null, false);
 
         JsonBasedPluggableTask jsonBasedPluggableTask = mock(JsonBasedPluggableTask.class);
@@ -102,6 +109,7 @@ public class PluginInfoBuilderTest {
 
         when(authenticationPluginRegistry.getAuthenticationPlugins()).thenReturn(new HashSet<>(Arrays.asList("github.oauth")));
         when(notificationPluginRegistry.getNotificationPlugins()).thenReturn(new HashSet<>(Arrays.asList("email.notifier")));
+        when(elasticPluginRegistry.getPlugins()).thenReturn(new ArrayList<PluginDescriptor>(Arrays.asList(dockerElasticAgentPlugin)));
         when(jsonBasedPluggableTask.view()).thenReturn(taskView);
 
         when(manager.getPluginDescriptorFor("github.oauth")).thenReturn(githubDescriptor);
@@ -109,20 +117,21 @@ public class PluginInfoBuilderTest {
         when(manager.getPluginDescriptorFor("yum.poller")).thenReturn(yumPoller);
         when(manager.getPluginDescriptorFor("xunit.convertor")).thenReturn(xunitConvertor);
         when(manager.getPluginDescriptorFor("github.pr")).thenReturn(githubPR);
+        when(manager.getPluginDescriptorFor("cd.go.elastic-agent.docker")).thenReturn(dockerElasticAgentPlugin);
 
         PackageMetadataStore.getInstance().addMetadataFor(yumPoller.id(), new PackageConfigurations());
         PluggableTaskConfigStore.store().setPreferenceFor("xunit.convertor", new TaskPreference(jsonBasedPluggableTask));
         SCMMetadataStore.getInstance().setPreferenceFor("github.pr", new SCMPreference(new SCMConfigurations(), mock(SCMView.class)));
-        pluginViewModelBuilder = new PluginInfoBuilder(authenticationPluginRegistry, notificationPluginRegistry, manager);
+        pluginViewModelBuilder = new PluginInfoBuilder(authenticationPluginRegistry, notificationPluginRegistry, elasticPluginRegistry, manager);
     }
 
     @Test
     public void shouldBeAbleToFetchAllPluginInfos() {
         List<PluginInfo> pluginInfos = pluginViewModelBuilder.allPluginInfos(null);
 
-        assertThat(pluginInfos.size(), is(5));
-        List<String> expectedPlugins = new ArrayList();
-        for(PluginInfo pluginInfo: pluginInfos) {
+        assertThat(pluginInfos.size(), is(6));
+        List<String> expectedPlugins = new ArrayList<>();
+        for (PluginInfo pluginInfo : pluginInfos) {
             expectedPlugins.add(pluginInfo.getId());
         }
         assertTrue(expectedPlugins.contains(githubDescriptor.id()));
@@ -130,6 +139,7 @@ public class PluginInfoBuilderTest {
         assertTrue(expectedPlugins.contains(yumPoller.id()));
         assertTrue(expectedPlugins.contains(xunitConvertor.id()));
         assertTrue(expectedPlugins.contains(githubPR.id()));
+        assertTrue(expectedPlugins.contains(dockerElasticAgentPlugin.id()));
     }
 
     @Test
@@ -140,7 +150,7 @@ public class PluginInfoBuilderTest {
         assertThat(pluginInfos.get(0).getId(), is(githubPR.id()));
     }
 
-    @Test(expected=InvalidPluginTypeException.class)
+    @Test(expected = InvalidPluginTypeException.class)
     public void shouldErrorOutForInvalidPluginType() {
         assertThat(pluginViewModelBuilder.allPluginInfos("invalid_type").size(), is(0));
     }

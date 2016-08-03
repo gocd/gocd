@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.server.ui.plugins;
 
+import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
+
 public class PluginInfo {
     private final String id;
     private final String name;
@@ -31,6 +33,10 @@ public class PluginInfo {
         this.type = type;
         this.displayName = displayName;
         this.pluggableInstanceSettings = settings;
+    }
+
+    public PluginInfo(PluginDescriptor descriptor, String type, String displayName, PluggableInstanceSettings settings) {
+        this(descriptor.id(), descriptor.about().name(), descriptor.about().version(), type, displayName, settings);
     }
 
     public PluginInfo(String id, String name, String version, String type, String displayName) {

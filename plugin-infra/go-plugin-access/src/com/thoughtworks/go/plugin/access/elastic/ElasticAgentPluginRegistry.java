@@ -22,13 +22,15 @@ import com.thoughtworks.go.plugin.infra.PluginChangeListener;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.ListUtil;
-import com.thoughtworks.go.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class ElasticAgentPluginRegistry implements PluginChangeListener {
@@ -87,7 +89,7 @@ public class ElasticAgentPluginRegistry implements PluginChangeListener {
         return result;
     }
 
-    private PluginDescriptor findPlugin(final String pluginId) {
+    public PluginDescriptor findPlugin(final String pluginId) {
         return ListUtil.find(plugins, new ListUtil.Condition() {
             @Override
             public <T> boolean isMet(T item) {

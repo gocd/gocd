@@ -29,7 +29,7 @@ module ApiV1
     end
 
     link :doc do
-      'http://api.go.cd/#get-stage-history'
+      'https://api.go.cd/#get-stage-history'
     end
 
     collection :stages, embedded: true, exec_context: :decorator, decorator: StageRepresenter

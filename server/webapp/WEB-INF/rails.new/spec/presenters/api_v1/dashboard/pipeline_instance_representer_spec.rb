@@ -25,7 +25,7 @@ describe ApiV1::Dashboard::PipelineInstanceRepresenter do
     actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
     expect(actual_json).to have_links(:self, :doc, :build_cause_url, :compare_url, :history_url, :vsm_url)
     expect(actual_json).to have_link(:self).with_url('http://test.host/api/pipelines/p1/instance/0')
-    expect(actual_json).to have_link(:doc).with_url('http://api.go.cd/current/#get-pipeline-instance')
+    expect(actual_json).to have_link(:doc).with_url('https://api.go.cd/#get-pipeline-instance')
     expect(actual_json).to have_link(:build_cause_url).with_url('http://test.host/pipelines/p1/0/build_cause')
     expect(actual_json).to have_link(:compare_url).with_url('http://test.host/compare/p1/-1/with/0')
     expect(actual_json).to have_link(:history_url).with_url('http://test.host/api/pipelines/p1/history')

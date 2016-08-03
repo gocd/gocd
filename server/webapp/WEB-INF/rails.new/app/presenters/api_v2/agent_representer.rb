@@ -29,7 +29,7 @@ module ApiV2
     end
 
     link :doc do |opts|
-      'http://api.go.cd/#agents'
+      'https://api.go.cd/#agents'
     end
 
     link :find do |opts|

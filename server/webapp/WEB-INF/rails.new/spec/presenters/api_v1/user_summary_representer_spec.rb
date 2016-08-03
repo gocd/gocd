@@ -27,7 +27,7 @@ describe ApiV1::UserSummaryRepresenter do
 
     expect(actual_json).to have_link(:self).with_url('http://test.host/api/users/jdoe')
     expect(actual_json).to have_link(:find).with_url('http://test.host/api/users/:login_name')
-    expect(actual_json).to have_link(:doc).with_url('http://api.go.cd/#users')
+    expect(actual_json).to have_link(:doc).with_url('https://api.go.cd/#users')
 
     actual_json.delete(:_links)
     expect(actual_json).to eq({login_name: 'jdoe'})

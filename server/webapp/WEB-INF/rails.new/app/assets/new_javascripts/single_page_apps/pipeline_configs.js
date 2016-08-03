@@ -15,13 +15,11 @@
  */
 
 requirejs([
-  'jquery', 'mithril',
-  'models/pipeline_configs/pluggable_tasks', 'models/pipeline_configs/resources', 'models/pipeline_configs/users', 'models/pipeline_configs/roles',
-  'views/pipeline_configs/pipeline_config_widget', 'models/pipeline_configs/plugin_infos', 'foundation.util.mediaQuery', 'foundation.dropdownMenu', 'foundation.responsiveToggle',
-  'foundation.dropdown'
-], function ($, m,
-             PluggableTasks, Resources, Users, Roles,
-             PipelineConfigWidget, PluginInfos) {
+  'jquery', 'mithril', 'models/pipeline_configs/pluggable_tasks', 'models/pipeline_configs/resources', 'models/pipeline_configs/users',
+  'models/pipeline_configs/roles', 'views/pipeline_configs/pipeline_config_widget', 'models/pipeline_configs/plugin_infos',
+  'models/pipeline_configs/pluggable_scms', 'models/pipeline_configs/scms','foundation.util.mediaQuery', 'foundation.dropdownMenu',
+  'foundation.responsiveToggle', 'foundation.dropdown'
+], function ($, m, PluggableTasks, Resources, Users, Roles, PipelineConfigWidget, PluginInfos, PluggableSCMs, SCMs) {
 
   $(function () {
     var pipelineConfigElem            = $('#pipeline-config');
@@ -32,8 +30,9 @@ requirejs([
 
     PluginInfos.init().then(function () {
       PluggableTasks.init();
+      PluggableSCMs.init();
     });
-
+    SCMs.init();
     Resources.initializeWith(allResourceNames);
     Users.initializeWith(allUserNames);
     Roles.initializeWith(allRoleNames);

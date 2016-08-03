@@ -147,7 +147,7 @@ shim:
     - foundation.util.box
     - foundation.util.triggers
     - foundation.util.mediaQuery
-    - foundation.util.motion if using animations
+    - foundation.util.motion
     - foundation.core
   foundation.slider:
     deps:

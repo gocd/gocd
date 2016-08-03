@@ -288,7 +288,6 @@ define(["jquery", "mithril", "models/pipeline_configs/materials", "views/pipelin
           pipeline:   'pipeline1',
           stage:      'stage1',
           autoUpdate: true
-
         });
 
         mount(materials);

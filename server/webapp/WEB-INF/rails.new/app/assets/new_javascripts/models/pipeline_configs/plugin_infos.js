@@ -29,9 +29,7 @@ define(['mithril', 'lodash', 'string-plus', 'helpers/mrequest'], function (m, _,
       config:        mrequest.xhrConfig.v1,
       unwrapSuccess: unwrap,
       type:          PluginInfos.PluginInfo
-    }).then(function(data) {
-      PluginInfos(data);
-    });
+    }).then(PluginInfos);
   };
 
   PluginInfos.findById = function (id) {

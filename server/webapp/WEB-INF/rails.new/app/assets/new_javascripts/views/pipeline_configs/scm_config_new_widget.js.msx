@@ -1,0 +1,94 @@
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+define(['mithril', 'lodash', 'helpers/form_helper', 'views/pipeline_configs/scm_config_angular_widget', 'models/pipeline_configs/scms'],
+  function (m, _, f, SCMConfigAngularWidget, SCMs) {
+    //This has to be done to get around mithril's controller caching
+    var submodule = function (module, args) {
+      return module.view.bind(this, new module.controller(args));
+    };
+
+    /*
+     'scmForEdit' is a cloned copy of the actual SCM, this is required since SCMConfigEditWidget is rendered in a modal. There might be scenarios
+     wherein a user can make changes to the scm but not save it and close the modal, in this scenario the changes should not
+     be retained. To achieve this behaviour the widget works with a clonened copy of scm.
+     */
+
+    var SCMConfigNewWidget = {
+
+      controller: function (args) {
+        var self        = this;
+        self.parentView = args.parentView;
+        self.material   = args.material;
+        self.scmForEdit = new SCMs.SCM({
+                                          plugin_metadata: {
+                                            id: self.material.pluginInfo().id(),
+                                            version: self.material.pluginInfo().version()
+                                          }
+                                        });
+        self.angularModule = submodule(SCMConfigAngularWidget, {scm: self.scmForEdit, parentView: self.parentView});
+
+        self.create = function () {
+          self.scmForEdit.create().then(function (scm) {
+            self.material.scm(scm);
+            self.parentView.close();
+            SCMs.init();
+          }, function (data) {
+            self.errorMessage = data.message;
+            if (data.data) {
+              self.scmForEdit.reInitialize(data.data);
+            }
+          });
+        };
+
+        self.parentView.onClose(function () {
+          self.scmForEdit.reInitialize({});
+          self.errorMessage = null;
+        })
+      },
+
+      view: function (ctrl) {
+        var errorMessage = ctrl.errorMessage ? (<div class='alert callout'><p>{ctrl.errorMessage}</p></div>) : '';
+
+        return (
+          <div class='modal-content'>
+            {errorMessage}
+            <f.row>
+              <f.inputWithLabel attrName='name'
+                                class='align'
+                                size={12}
+                                largeSize={12}
+                                model={ctrl.scmForEdit}/>
+            </f.row>
+            <f.row>
+              <f.checkBox model={ctrl.scmForEdit}
+                          attrName='autoUpdate'
+                          class='align'
+                          size={6}
+                          end={true}/>
+            </f.row>
+            {ctrl.angularModule()}
+            <f.row>
+              <f.button title='Save' onclick={ctrl.create.bind(ctrl)}>Save</f.button>
+            </f.row>
+          </div>
+        );
+      }
+    };
+
+    return SCMConfigNewWidget;
+  }
+);

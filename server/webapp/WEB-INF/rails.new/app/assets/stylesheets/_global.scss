@@ -19,16 +19,16 @@
 select {
   height: rem-calc(40);
 }
+
 [type='text'], [type='password'], [type='date'], [type='datetime'], [type='datetime-local'], [type='month'], [type='week'], [type='email'], [type='number'], [type='search'], [type='tel'], [type='time'], [type='url'], [type='color'],
 textarea {
   height: rem-calc(40);
 }
 
-
 //alerts
 
 .callout {
-    font-size: rem-calc(12);
+  font-size: rem-calc(12);
   padding: 10px 10px 10px 50px;
   position: relative;
   &:before {
@@ -36,6 +36,9 @@ textarea {
     left: 10px;
     font-size: 18px;
     top: 6px;
+  }
+  p {
+    margin-bottom: 0;
   }
   &.warning {
     background: #F9F4E6;
@@ -45,8 +48,8 @@ textarea {
 
   &.alert {
     background: #FFF2F0;
+    @include icon-before($type: exclamation-triangle, $color: #ff4f34);
     border: 1px solid #FBE1DD;
-    white-space: pre;
     font-size: 12px;
   }
 }

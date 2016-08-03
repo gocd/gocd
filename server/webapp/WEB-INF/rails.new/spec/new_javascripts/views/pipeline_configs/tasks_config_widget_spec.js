@@ -306,7 +306,7 @@ define(["jquery", "mithril", "models/pipeline_configs/tasks", "views/pipeline_co
         expect(tasks().countTask()).toBe(5);
         expect($root.find('.task-definition').length).toBe(5);
 
-        var addTaskButton = $root.find('.add-task').get(0);
+        var addTaskButton = $root.find('.add-button').get(0);
         var evObj = document.createEvent('MouseEvents');
         evObj.initEvent('click', true, false);
         addTaskButton.onclick(evObj);

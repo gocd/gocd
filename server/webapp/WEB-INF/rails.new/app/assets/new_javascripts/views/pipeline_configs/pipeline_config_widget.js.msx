@@ -131,7 +131,7 @@ define([
         return (
           <form class='pipeline'>
             {header()}
-            <f.row>
+            <f.row class='pipeline-body'>
               <f.column end={true} size={12}>
                 <PipelineSettingsWidget pipeline={ctrl.pipeline}
                                         vm={ctrl.vmState('pipelineSettingsConfig')}/>

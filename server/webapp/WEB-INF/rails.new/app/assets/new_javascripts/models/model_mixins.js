@@ -92,8 +92,11 @@ define(['lodash', 'string-plus', 'mithril'], function (_, s, m) {
 
     this['becomeSecure' + capitalizedName] = function () {
       return _value().becomeSecure();
-    }
+    };
 
+    this['becomeUnSecure' + capitalizedName] = function () {
+      return _value().becomeUnSecure();
+    }
   };
 
   Mixins.HasMany = function (options) {

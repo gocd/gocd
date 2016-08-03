@@ -251,11 +251,6 @@ $active-job: $lighter-gray;
 
 //tasks
 
-.add-task {
-  margin-top: 25px;
-  @include icon-before($type: plus-circle);
-}
-
 .task-header {
   @include icon-before($type: ellipsis-v, $margin: 0 12px 0 0);
   padding: 0 70px 0 30px;

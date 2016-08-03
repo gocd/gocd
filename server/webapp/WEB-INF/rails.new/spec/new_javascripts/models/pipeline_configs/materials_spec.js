@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', "models/pipeline_configs/materials"], function (m, _, Materials) {
+define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeline_configs/scms", 'models/pipeline_configs/plugin_infos'],
+  function (m, _, Materials, SCMs, PluginInfos) {
   var materials, gitMaterial, svnMaterial, mercurialMaterial, perforceMaterial, tfsMaterial;
   beforeEach(function () {
     materials = new Materials();
@@ -622,11 +623,11 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials"], function (m, 
       var dependencyMaterial;
       beforeAll(function () {
         dependencyMaterial = Materials.create({
-          "type":       "dependency",
-          "pipeline":   "p1",
-          "stage":      "first_stage",
-          "name":       "p1_first_stage",
-          "autoUpdate": true
+          type:       "dependency",
+          pipeline:   "p1",
+          stage:      "first_stage",
+          name:       "p1_first_stage",
+          autoUpdate: true
         });
       });
 
@@ -666,11 +667,11 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials"], function (m, 
 
       describe("Serialization/De-serialization to/from JSON", function () {
         beforeEach(function () {
-          dependencyMaterial = Materials.Material.fromJSON(sampleTaskJSON());
+          dependencyMaterial = Materials.Material.fromJSON(sampleJSON());
         });
 
         it("should serialize to JSON", function () {
-          expect(dependencyMaterial.toJSON()).toEqual(sampleTaskJSON());
+          expect(dependencyMaterial.toJSON()).toEqual(sampleJSON());
         });
 
         it("should de-serialize from JSON", function () {
@@ -680,7 +681,7 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials"], function (m, 
           expect(dependencyMaterial.stage()).toEqual('s1');
         });
 
-        function sampleTaskJSON() {
+        function sampleJSON() {
           return {
             type:       'dependency',
             attributes: {
@@ -691,6 +692,85 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials"], function (m, 
           };
         }
       });
-    })
+    });
+
+    describe('plugin', function() {
+      var pluggableMaterial;
+      var github = new SCMs.SCM({
+        id:             '43c45e0b-1b0c-46f3-a60a-2bbc5cec069c',
+        name:           'Github PR',
+        auto_update:     true,
+        plugin_metadata: {id: 'github.pr', version: '1.1'},
+        configuration:   [{key: 'url', value: 'path/to/repo'}, {key: 'username', value: 'some_name'}]
+      });
+
+
+      beforeAll(function () {
+        SCMs([github]);
+        pluggableMaterial = Materials.create({
+          type:        "plugin",
+          scm :        github,
+          filter:      new Materials.Filter({ignore: ['*.doc']}),
+          destination: "dest_folder"
+        });
+        spyOn(SCMs, 'findById').and.returnValue(github);
+      });
+
+      afterAll(function() {
+        SCMs([]);
+      });
+
+      it('it should initialize material with type', function() {
+        expect(pluggableMaterial.type()).toBe('plugin');
+      });
+
+      it('it should initialize material with scm', function() {
+        expect(pluggableMaterial.scm().id()).toBe('43c45e0b-1b0c-46f3-a60a-2bbc5cec069c');
+      });
+
+      it("should initialize material model with filters", function () {
+        expect(pluggableMaterial.filter().ignore()).toEqual(['*.doc']);
+      });
+
+      it("should initialize material model with destination", function () {
+        expect(pluggableMaterial.destination()).toBe('dest_folder');
+      });
+
+      it("should initialize material model with pluginInfo", function () {
+        expect(Materials.create({pluginInfo: new PluginInfos.PluginInfo({id: 'plugin_id'})}).pluginInfo().id()).toBe('plugin_id');
+      });
+
+
+      describe("Serialization/De-serialization to/from JSON", function () {
+        beforeEach(function () {
+          pluggableMaterial = Materials.Material.fromJSON(sampleJSON());
+        });
+
+        it("should serialize to JSON", function () {
+          expect(pluggableMaterial.toJSON()).toEqual(sampleJSON());
+          expect(SCMs.findById).toHaveBeenCalledWith('43c45e0b-1b0c-46f3-a60a-2bbc5cec069c');
+        });
+
+        it("should de-serialize from JSON", function () {
+          expect(pluggableMaterial.type()).toBe("plugin");
+          expect(pluggableMaterial.scm().id()).toBe("43c45e0b-1b0c-46f3-a60a-2bbc5cec069c");
+          expect(pluggableMaterial.destination()).toBe('dest_folder');
+          expect(pluggableMaterial.filter().ignore()).toEqual(['*.doc']);
+        });
+
+        function sampleJSON() {
+          return {
+            type:       'plugin',
+            attributes: {
+              ref:         '43c45e0b-1b0c-46f3-a60a-2bbc5cec069c',
+              destination: 'dest_folder',
+              filter:      {
+                ignore: ['*.doc']
+              }
+            }
+          };
+        }
+      });
+    });
   });
 });

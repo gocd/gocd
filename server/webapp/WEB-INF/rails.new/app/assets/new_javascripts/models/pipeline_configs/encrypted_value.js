@@ -26,14 +26,14 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins'], function (m,
     var _originalValue = m.prop(_.has(data, 'cipherText') ? data.cipherText : data.clearText);
     var _value         = m.prop(_.has(data, 'cipherText') ? data.cipherText : data.clearText);
     var _isEncrypted   = m.prop(_.has(data, 'cipherText'));
-    var _isEdit        = m.prop(!_isEncrypted());
+    var _canEdit        = m.prop(!_isEncrypted());
 
     this.value = function () {
       if (arguments.length) {
         if (this.isPlain()) {
           return _value(arguments[0]);
         } else {
-          if (_isEdit()) {
+          if (_canEdit()) {
             return _value(arguments[0]);
           } else {
             throw "You cannot edit a cipher text value!";
@@ -44,12 +44,12 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins'], function (m,
     };
 
     this.edit = function () {
-      _isEdit(true);
+      _canEdit(true);
       _value('');
     };
 
     this.isEditing = function () {
-      return _isEdit();
+      return _canEdit();
     };
 
     this.isDirty = function () {
@@ -66,7 +66,12 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins'], function (m,
 
     this.becomeSecure = function () {
       _isEncrypted(true);
-      _isEdit(false);
+      _canEdit(false);
+    };
+
+    this.becomeUnSecure = function () {
+      _isEncrypted(false);
+      _canEdit(true);
     };
 
     this.resetToOriginal = function () {
@@ -74,7 +79,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins'], function (m,
         this.edit();
       } else {
         _value(_originalValue());
-        _isEdit(false);
+        _canEdit(false);
       }
     };
   };

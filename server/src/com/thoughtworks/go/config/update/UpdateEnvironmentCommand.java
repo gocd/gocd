@@ -24,6 +24,7 @@ import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
@@ -34,14 +35,18 @@ public class UpdateEnvironmentCommand extends EnvironmentCommand implements Enti
     private final EnvironmentConfig oldEnvironmentConfig;
     private final EnvironmentConfig newEnvironmentConfig;
     private final Username username;
+    private String md5;
+    private EntityHashingService hashingService;
     private final HttpLocalizedOperationResult result;
 
-    public UpdateEnvironmentCommand(GoConfigService goConfigService, EnvironmentConfig oldEnvironmentConfig, EnvironmentConfig newEnvironmentConfig, Username username, Localizable.CurryableLocalizable actionFailed, HttpLocalizedOperationResult result) {
+    public UpdateEnvironmentCommand(GoConfigService goConfigService, EnvironmentConfig oldEnvironmentConfig, EnvironmentConfig newEnvironmentConfig, Username username, Localizable.CurryableLocalizable actionFailed, String md5, EntityHashingService hashingService, HttpLocalizedOperationResult result) {
         super(actionFailed, newEnvironmentConfig, result);
         this.goConfigService = goConfigService;
         this.oldEnvironmentConfig = oldEnvironmentConfig;
         this.newEnvironmentConfig = newEnvironmentConfig;
         this.username = username;
+        this.md5 = md5;
+        this.hashingService = hashingService;
         this.result = result;
     }
 
@@ -60,6 +65,19 @@ public class UpdateEnvironmentCommand extends EnvironmentCommand implements Enti
 
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
+        return isAuthorized(cruiseConfig) && isRequestFresh(cruiseConfig);
+    }
+
+    private boolean isRequestFresh(CruiseConfig cruiseConfig) {
+        EnvironmentConfig config = cruiseConfig.getEnvironments().find(oldEnvironmentConfig.name());
+        boolean freshRequest =  hashingService.md5ForEntity(config, config.name().toString()).equals(md5);
+        if (!freshRequest) {
+            result.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", "Environment", oldEnvironmentConfig.name()));
+        }
+        return freshRequest;
+    }
+
+    private boolean isAuthorized(CruiseConfig cruiseConfig) {
         if (!goConfigService.isAdministrator(username.getUsername())) {
             Localizable noPermission = LocalizedMessage.string("NO_PERMISSION_TO_UPDATE_ENVIRONMENT", oldEnvironmentConfig.name().toString(), username.getDisplayName());
             result.unauthorized(noPermission, HealthStateType.unauthorised());

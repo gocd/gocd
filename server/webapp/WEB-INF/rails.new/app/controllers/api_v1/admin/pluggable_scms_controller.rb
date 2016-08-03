@@ -28,7 +28,7 @@ module ApiV1
 
       def show
         hash = get_scm_hash(params[:material_name])
-        render DEFAULT_FORMAT => hash if stale?(etag: JSON.generate(hash))
+        render DEFAULT_FORMAT => hash if stale?(etag: get_etag_for_scm_object(params[:material_name]))
       end
 
       def create
@@ -36,34 +36,37 @@ module ApiV1
         @scm = ApiV1::Scms::PluggableScmRepresenter.new(SCM.new).from_hash(params[:pluggable_scm])
         @scm.ensureIdExists
         pluggable_scm_service.createPluggableScmMaterial(current_user, @scm, result)
-
-        json = ApiV1::Scms::PluggableScmRepresenter.new(@scm).to_hash(url_builder: self)
-        result.isSuccessful ? (render DEFAULT_FORMAT => json) : (render_http_operation_result(result, {data: json}))
+        handle_create_or_update_response(result, @scm)
       end
 
       def update
         result = HttpLocalizedOperationResult.new
-        @scm = ApiV1::Scms::PluggableScmRepresenter.new(SCM.new).from_hash(params[:pluggable_scm])
-        pluggable_scm_service.updatePluggableScmMaterial(current_user, @scm, result)
-
-        json = ApiV1::Scms::PluggableScmRepresenter.new(@scm).to_hash(url_builder: self)
-        result.isSuccessful ? (render DEFAULT_FORMAT => json) : (render_http_operation_result(result, {data: json}))
+        updated_scm = ApiV1::Scms::PluggableScmRepresenter.new(SCM.new).from_hash(params[:pluggable_scm])
+        pluggable_scm_service.updatePluggableScmMaterial(current_user, updated_scm, result, get_etag_for_scm_object(params[:material_name]))
+        handle_create_or_update_response(result, updated_scm)
       end
 
       private
-      def check_for_stale_request
-        if (request.env["HTTP_IF_MATCH"] != "\"#{get_etag_for_material(params[:material_name])}\"")
-          render_message("Someone has modified the global SCM '#{params[:material_name]}'. Please update your copy of the config with the changes.", :precondition_failed)
+      def handle_create_or_update_response(result, updated_scm)
+        json = ApiV1::Scms::PluggableScmRepresenter.new(updated_scm).to_hash(url_builder: self)
+        if result.isSuccessful
+          response.etag = [get_etag_for_scm_object(updated_scm.getName)]
+          render DEFAULT_FORMAT => json
+        else
+          render_http_operation_result(result, {data: json})
         end
       end
 
-      def get_etag_for_material(material_name)
-        hash = get_scm_hash(material_name)
-        get_etag_for_scm_json(hash)
+      def check_for_stale_request
+        if (request.env["HTTP_IF_MATCH"] != "\"#{Digest::MD5.hexdigest(get_etag_for_scm_object(params[:material_name]))}\"")
+          result = HttpLocalizedOperationResult.new
+          result.stale(LocalizedMessage::string('STALE_RESOURCE_CONFIG', 'SCM', params[:material_name]))
+          render_http_operation_result(result)
+        end
       end
 
-      def get_etag_for_scm_json(hash)
-        Digest::MD5.hexdigest(JSON.generate(hash))
+      def get_etag_for_scm_object(material_name)
+        entity_hashing_service.md5ForEntity(find_scm(material_name), material_name)
       end
 
       def check_for_scm_rename
@@ -73,9 +76,13 @@ module ApiV1
       end
 
       def get_scm_hash(material_name)
+        ApiV1::Scms::PluggableScmRepresenter.new(find_scm(material_name)).to_hash(url_builder: self)
+      end
+
+      def find_scm(material_name)
         scm = pluggable_scm_service.findPluggableScmMaterial(material_name)
         raise ApiV1::RecordNotFound unless scm
-        ApiV1::Scms::PluggableScmRepresenter.new(scm).to_hash(url_builder: self)
+        scm
       end
 
     end

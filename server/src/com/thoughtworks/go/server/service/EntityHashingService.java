@@ -16,14 +16,14 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
+import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.initializers.Initializer;
-import com.thoughtworks.go.server.util.EntityDigest;
+import com.thoughtworks.go.util.CachedDigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -31,23 +31,23 @@ import org.springframework.stereotype.Component;
 public class EntityHashingService implements ConfigChangedListener, Initializer {
     private GoConfigService goConfigService;
     private GoCache goCache;
-    private EntityDigest entityDigest;
-    private static final String PIPELINE_CONFIG_CACHE_KEY = "GO_PIPELINE_CONFIGS_ETAGS_CACHE".intern();
+    private static final String ETAG_CACHE_KEY = "GO_ETAG_CACHE".intern();
+    private ConfigCache configCache;
+    private ConfigElementImplementationRegistry registry;
 
     @Autowired
-    public EntityHashingService(GoConfigService goConfigService, GoCache goCache) {
+    public EntityHashingService(GoConfigService goConfigService, GoCache goCache, ConfigCache configCache, ConfigElementImplementationRegistry registry) {
         this.goConfigService = goConfigService;
         this.goCache = goCache;
+        this.configCache = configCache;
+        this.registry = registry;
     }
 
     public void initialize() {
         goConfigService.register(this);
         goConfigService.register(new PipelineConfigChangedListener());
-    }
-
-    public EntityHashingService initializeWith(EntityDigest entityDigest) {
-        this.entityDigest = entityDigest;
-        return this;
+        goConfigService.register(new SCMConfigChangedListner());
+        goConfigService.register(new EnvironmentConfigListener());
     }
 
     public String md5ForPipelineConfig(String pipelineName) {
@@ -56,31 +56,64 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         return cachedMD5 != null ? cachedMD5 : md5For(pipelineName);
     }
 
-    @Override
-    public void onConfigChange(CruiseConfig newCruiseConfig) {
-        goCache.remove(PIPELINE_CONFIG_CACHE_KEY);
+    private String md5ForEntity(Object domainObject) {
+        String xml = new MagicalGoConfigXmlWriter(configCache, registry).toXmlPartial(domainObject);
+        return CachedDigestUtils.md5Hex(xml);
     }
 
-    private String md5For(String pipelineName) {
-        String md5 = entityDigest.md5ForPipeline(goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName)));
+    public String md5ForEntity(Object domainObject, String subkey) {
+        String cacheKey = domainObject.getClass().getName() + subkey;
+        String cachedMD5 = cachedMD5(cacheKey);
 
-        addToCache(pipelineName, md5);
+        return cachedMD5 != null ? cachedMD5 : cachingFor(domainObject, cacheKey);
+    }
 
+    private String cachingFor(Object domainObject, String subkey) {
+        String md5 = md5ForEntity(domainObject);
+        addToCache(subkey, md5);
         return md5;
     }
 
-    private String cachedMD5(String pipelineName) {
-        return (String) goCache.get(PIPELINE_CONFIG_CACHE_KEY, pipelineName.toLowerCase());
+    @Override
+    public void onConfigChange(CruiseConfig newCruiseConfig) {
+        goCache.remove(ETAG_CACHE_KEY);
     }
 
-    private void addToCache(String pipelineName, String md5) {
-        goCache.put(PIPELINE_CONFIG_CACHE_KEY, pipelineName.toLowerCase(), md5);
+    private String md5For(String pipelineName) {
+        PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
+        String cacheKey = pipelineConfig.getClass().getName() + pipelineName;
+        return cachingFor(pipelineConfig, cacheKey);
+    }
+
+    private String cachedMD5(String subkey) {
+        return (String) goCache.get(ETAG_CACHE_KEY, subkey.toLowerCase());
+    }
+
+    private void addToCache(String subkey, String md5) {
+        goCache.put(ETAG_CACHE_KEY, subkey.toLowerCase(), md5);
     }
 
     class PipelineConfigChangedListener extends EntityConfigChangedListener<PipelineConfig> {
         @Override
         public void onEntityConfigChange(PipelineConfig pipelineConfig) {
-            goCache.remove(PIPELINE_CONFIG_CACHE_KEY, pipelineConfig.name().toLower());
+            String cacheKey = pipelineConfig.getClass().getName() + pipelineConfig.name().toLower();
+            goCache.remove(ETAG_CACHE_KEY, cacheKey.toLowerCase());
+        }
+    }
+
+    class SCMConfigChangedListner extends EntityConfigChangedListener<SCM> {
+        @Override
+        public void onEntityConfigChange(SCM scm) {
+            String cacheKey =  scm.getClass().getName() + scm.getName();
+            goCache.remove(ETAG_CACHE_KEY, cacheKey.toLowerCase());
+        }
+    }
+
+    class EnvironmentConfigListener extends EntityConfigChangedListener<BasicEnvironmentConfig> {
+        @Override
+        public void onEntityConfigChange(BasicEnvironmentConfig config) {
+            String cacheKey = config.getClass().getName() + config.name().toLower();
+            goCache.remove(ETAG_CACHE_KEY, cacheKey.toLowerCase());
         }
     }
 }

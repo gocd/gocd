@@ -107,23 +107,26 @@ describe ApiV1::Admin::EnvironmentsController do
 
     before(:each) do
       @environment_name = 'foo-environment'
+      @md5 = 'some-digest'
       @environment_config = BasicEnvironmentConfig.new(CaseInsensitiveString.new(@environment_name))
       @environment_config_service = double('environment-config-service')
+      @entity_hashing_service = double('entity-hashing-see=rvice')
       controller.stub(:environment_config_service).and_return(@environment_config_service)
+      controller.stub(:entity_hashing_service).and_return(@entity_hashing_service)
       @environment_config_service.stub(:getEnvironmentConfig).with(@environment_name).and_return(@environment_config)
+      @entity_hashing_service.stub(:md5ForEntity).and_return(@md5)
     end
 
     describe :for_admins do
       it 'should allow patching environments' do
         login_as_admin
         result = HttpLocalizedOperationResult.new
-        @environment_config_service.should_receive(:updateEnvironment).with(@environment_config, anything(), anything(), anything()).and_return(result)
+        @environment_config_service.should_receive(:updateEnvironment).with(@environment_config, anything, anything, @md5, anything).and_return(result)
         hash = {name: @environment_name, pipelines: [], agents: [], environment_variables: []}
 
-        controller.request.env['HTTP_IF_MATCH'] = '"some-digest"'
-        controller.should_receive(:get_etag_for_environment).twice.and_return('some-digest')
+        controller.request.env['HTTP_IF_MATCH'] = "\"#{Digest::MD5.hexdigest(@md5)}\""
 
-        patch_with_api_header :update,name: @environment_name, :environment => hash
+        patch_with_api_header :update, name: @environment_name, :environment => hash
         expect(response.status).to eq(200)
         expect(actual_response).to eq(expected_response(@environment_config, ApiV1::Config::EnvironmentConfigRepresenter))
       end
@@ -157,10 +160,12 @@ describe ApiV1::Admin::EnvironmentsController do
     end
 
     describe :security do
+      before(:each) do
+        controller.stub(:check_for_stale_request).and_return(nil)
+      end
+
       it 'should allow anyone, with security disabled' do
         disable_security
-        controller.should_receive(:get_etag_for_environment).and_return('some-digest')
-        controller.request.env['HTTP_IF_MATCH'] = '"some-digest"'
         expect(controller).to allow_action(:patch, :update, name: @environment_name)
       end
 

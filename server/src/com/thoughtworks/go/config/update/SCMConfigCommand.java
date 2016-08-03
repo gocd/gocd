@@ -33,8 +33,8 @@ public abstract class SCMConfigCommand implements EntityConfigUpdateCommand<SCM>
     protected final LocalizedOperationResult result;
     private final PluggableScmService pluggableScmService;
     private SCM preprocessedGlobalScmConfig;
-    private final GoConfigService goConfigService;
-    private final Username currentUser;
+    protected final GoConfigService goConfigService;
+    protected final Username currentUser;
 
     public SCMConfigCommand(SCM globalScmConfig, PluggableScmService pluggableScmService, GoConfigService goConfigService, Username currentUser, LocalizedOperationResult result) {
         this.globalScmConfig = globalScmConfig;
@@ -62,15 +62,6 @@ public abstract class SCMConfigCommand implements EntityConfigUpdateCommand<SCM>
     @Override
     public SCM getPreprocessedEntityConfig() {
         return preprocessedGlobalScmConfig;
-    }
-
-    @Override
-    public boolean canContinue(CruiseConfig cruiseConfig) {
-        if (!(goConfigService.isUserAdmin(currentUser)) || goConfigService.isGroupAdministrator(currentUser.getUsername())) {
-            result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
-            return false;
-        }
-        return true;
     }
 
     @Override

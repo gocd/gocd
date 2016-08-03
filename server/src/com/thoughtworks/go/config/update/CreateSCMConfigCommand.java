@@ -19,10 +19,12 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMs;
+import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.materials.PluggableScmService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
+import com.thoughtworks.go.serverhealth.HealthStateType;
 
 public class CreateSCMConfigCommand extends SCMConfigCommand {
 
@@ -35,6 +37,15 @@ public class CreateSCMConfigCommand extends SCMConfigCommand {
         SCMs scms = modifiedConfig.getSCMs();
         scms.add(globalScmConfig);
         modifiedConfig.setSCMs(scms);
+    }
+
+    @Override
+    public boolean canContinue(CruiseConfig cruiseConfig) {
+        if (!(goConfigService.isUserAdmin(currentUser)) || goConfigService.isGroupAdministrator(currentUser.getUsername())) {
+            result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
+            return false;
+        }
+        return true;
     }
 
 }

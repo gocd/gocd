@@ -145,14 +145,4 @@ public class SCMConfigCommandTest {
         assertThat(duplicateSCM.errors().getAllOn("scmId"), is(Arrays.asList("Cannot save SCM, found duplicate SCMs. material, another.material")));
     }
 
-    @Test
-    public void shouldNotContinueWithConfigSaveIfUserIsUnauthorized() {
-        when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
-        when(goConfigService.isGroupAdministrator(currentUser.getUsername())).thenReturn(false);
-
-        CreateSCMConfigCommand command = new CreateSCMConfigCommand(scm, pluggableScmService, result, currentUser, goConfigService);
-
-        assertThat(command.canContinue(cruiseConfig), is(false));
-    }
-
 }

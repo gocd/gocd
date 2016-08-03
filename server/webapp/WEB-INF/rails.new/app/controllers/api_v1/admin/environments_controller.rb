@@ -27,7 +27,7 @@ module ApiV1
 
       def show
         json = ApiV1::Config::EnvironmentConfigRepresenter.new(@environment_config).to_hash(url_builder: self)
-        render DEFAULT_FORMAT => json if stale?(etag: JSON.generate(json))
+        render DEFAULT_FORMAT => json if stale?(etag: get_etag_for_environment)
       end
 
       def create
@@ -40,7 +40,7 @@ module ApiV1
       def update
         result = HttpLocalizedOperationResult.new
         get_environment_from_request
-        environment_config_service.updateEnvironment(@environment_config, @environment_config_from_request, current_user, result)
+        environment_config_service.updateEnvironment(@environment_config, @environment_config_from_request, current_user, get_etag_for_environment, result)
         handle_config_save_or_update_result(result, @environment_config_from_request.name.to_s)
       end
 
@@ -64,15 +64,15 @@ module ApiV1
         end
       end
 
-      def get_etag_for_environment(json)
-        Digest::MD5.hexdigest(JSON.generate(json))
+      def get_etag_for_environment
+        entity_hashing_service.md5ForEntity(@environment_config, @environment_config.name.to_s)
       end
 
       def handle_config_save_or_update_result(result, environment_name)
         if result.isSuccessful
           load_environment(environment_name)
           json = ApiV1::Config::EnvironmentConfigRepresenter.new(@environment_config).to_hash(url_builder: self)
-          response.etag = [get_etag_for_environment(json)]
+          response.etag = [get_etag_for_environment]
           render DEFAULT_FORMAT => json
         else
           render_http_operation_result(result)
@@ -80,8 +80,7 @@ module ApiV1
       end
 
       def check_for_stale_request
-        json = ApiV1::Config::EnvironmentConfigRepresenter.new(@environment_config).to_hash(url_builder: self)
-        if request.env['HTTP_IF_MATCH'] != "\"#{get_etag_for_environment(json)}\""
+        if request.env['HTTP_IF_MATCH'] != "\"#{Digest::MD5.hexdigest(get_etag_for_environment)}\""
           result = HttpLocalizedOperationResult.new
           result.stale(LocalizedMessage::string('STALE_RESOURCE_CONFIG', 'environment', params[:name]))
           render_http_operation_result(result)

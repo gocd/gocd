@@ -317,7 +317,7 @@ describe ApiV1::Admin::PluggableScmsController do
 
         put_with_api_header :update, material_name: 'foo', pluggable_scm: params
 
-        expect(response).to have_api_message_response(412, "Someone has modified the global SCM 'foo'. Please update your copy of the config with the changes." )
+        expect(response).to have_api_message_response(412, "Someone has modified the configuration for SCM 'foo'. Please update your copy of the config with the changes." )
 
       end
 

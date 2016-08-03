@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2015 ThoughtWorks, Inc.
+# Copyright 2016 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ module ApiV1
       end
 
       link :doc do
-        'https://api.go.cd#pipelines'
+        'https://api.go.cd/#pipelines'
       end
 
       link :settings_path do |opts|

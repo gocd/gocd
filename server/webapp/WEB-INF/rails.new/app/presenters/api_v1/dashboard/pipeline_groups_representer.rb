@@ -25,7 +25,7 @@ module ApiV1
       end
 
       link :doc do
-        'http://api.go.cd/current/#dashboard'
+        'https://api.go.cd/#dashboard'
       end
 
       collection :pipeline_groups, embedded: true, exec_context: :decorator, decorator: PipelineGroupRepresenter

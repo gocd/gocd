@@ -26,7 +26,7 @@ module ApiV1
     end
 
     link :doc do |opts|
-      'http://api.go.cd/#get-stage-instance'
+      'https://api.go.cd/#get-stage-instance'
     end
 
     property :stage_name, as: :name

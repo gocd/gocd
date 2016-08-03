@@ -30,7 +30,7 @@ describe ApiV1::StageRepresenter do
     expect(actual_json).to have_links(:self, :doc)
 
     expect(actual_json).to have_link(:self).with_url('http://test.host/api/stages/pipeline/1/stage/2')
-    expect(actual_json).to have_link(:doc).with_url('http://api.go.cd/#get-stage-instance')
+    expect(actual_json).to have_link(:doc).with_url('https://api.go.cd/#get-stage-instance')
 
     actual_json.delete(:_links)
     actual_json.fetch(:_embedded).should == {:jobs => stage_model.getJobInstances().collect { |j| ApiV1::JobSummaryRepresenter.new(j).to_hash(url_builder: UrlBuilder.new) }}

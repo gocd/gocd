@@ -31,7 +31,7 @@ module ApiV2
       end
 
       link :doc do |opts|
-        'http://api.go.cd/#pipeline-config'
+        'https://api.go.cd/#pipeline-config'
       end
 
       link :find do |opts|

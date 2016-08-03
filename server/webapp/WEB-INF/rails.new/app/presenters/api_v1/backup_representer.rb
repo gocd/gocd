@@ -19,7 +19,7 @@ module ApiV1
     alias_method :backup, :represented
 
     link :doc do
-      'http://api.go.cd/#backups'
+      'https://api.go.cd/#backups'
     end
 
     property :getTime, as: :time

@@ -27,7 +27,7 @@ describe ApiV1::BackupRepresenter do
 
     expect(actual_json).to have_links(:doc)
 
-    expect(actual_json).to have_link(:doc).with_url('http://api.go.cd/#backups')
+    expect(actual_json).to have_link(:doc).with_url('https://api.go.cd/#backups')
 
     actual_json.delete(:_links)
     expect(actual_json).to eq({

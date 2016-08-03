@@ -30,7 +30,7 @@ describe ApiV1::StageHistoryRepresenter do
     expect(actual_json).to have_links(:self, :doc)
 
     expect(actual_json).to have_link(:self).with_url('http://test.host/api/stages/stage/pipeline')
-    expect(actual_json).to have_link(:doc).with_url('http://api.go.cd/#get-stage-history')
+    expect(actual_json).to have_link(:doc).with_url('https://api.go.cd/#get-stage-history')
 
     actual_json.delete(:_links)
     actual_json.fetch(:_embedded).should == {:stages => [ApiV1::StageRepresenter.new(stage_model).to_hash(url_builder: UrlBuilder.new)]}

@@ -35,7 +35,7 @@ module ApiV1
       end
 
       link :doc do
-        'http://api.go.cd/current/#get-stage-instance'
+        'https://api.go.cd/#get-stage-instance'
       end
 
       property :getName, as: :name

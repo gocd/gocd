@@ -24,7 +24,7 @@ describe ApiV1::Dashboard::PipelineGroupsRepresenter do
     actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
     expect(actual_json).to have_links(:self, :doc)
     expect(actual_json).to have_link(:self).with_url('http://test.host/api/dashboard')
-    expect(actual_json).to have_link(:doc).with_url('http://api.go.cd/current/#dashboard')
+    expect(actual_json).to have_link(:doc).with_url('https://api.go.cd/#dashboard')
     actual_json.fetch(:_embedded)[:pipeline_groups].should == [expected_embedded_pipeline_groups(model)]
   end
 

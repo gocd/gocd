@@ -84,7 +84,7 @@ describe ApplicationHelper do
 
   it "should generate hidden field for config_md5" do
     allow(self).to receive(:cruise_config_md5).and_return("foo_bar_baz")
-    config_md5_field.should == '<input type="hidden" name="cruise_config_md5" value="foo_bar_baz"/>'
+    config_md5_field.should == '<input id="cruise_config_md5" name="cruise_config_md5" type="hidden" value="foo_bar_baz" />'
   end
 
   describe :tab_for do
@@ -618,5 +618,10 @@ describe ApplicationHelper do
 
       expect(check_go_updates?).to be_true
     end
+  end
+
+  it 'should encode cruise-config-md5 before allowing it to be displayed.' do
+    allow(self).to receive(:cruise_config_md5).and_return("<foo>")
+    config_md5_field.should == '<input id="cruise_config_md5" name="cruise_config_md5" type="hidden" value="&lt;foo&gt;" />'
   end
 end

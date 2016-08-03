@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+# Copyright 2016 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -393,7 +393,7 @@ module ApplicationHelper
   end
 
   def config_md5_field
-    "<input type=\"hidden\" name=\"cruise_config_md5\" value=\"#{cruise_config_md5}\"/>".html_safe
+    hidden_field_tag('cruise_config_md5', cruise_config_md5)
   end
 
   def unauthorized_access

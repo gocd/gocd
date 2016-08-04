@@ -65,15 +65,18 @@ public class ElasticAgentRequestProcessor implements GoPluginApiRequestProcessor
 
     @Override
     public GoApiResponse process(final GoPluginDescriptor pluginDescriptor, GoApiRequest goPluginApiRequest) {
-        Collection<AgentMetadata> agents = elasticAgentExtension.getElasticAgentMessageConverter(goPluginApiRequest.apiVersion()).deleteAndDisableAgentRequestBody(goPluginApiRequest.requestBody());
-        if (agents.isEmpty()) {
-            return new DefaultGoApiResponse(200);
-        }
-
         switch (goPluginApiRequest.api()) {
             case PROCESS_DISABLE_AGENTS:
+                Collection<AgentMetadata> agentsToDisable = elasticAgentExtension.getElasticAgentMessageConverter(goPluginApiRequest.apiVersion()).deleteAndDisableAgentRequestBody(goPluginApiRequest.requestBody());
+                if (agentsToDisable.isEmpty()) {
+                    return new DefaultGoApiResponse(200);
+                }
                 return processDisableAgent(pluginDescriptor, goPluginApiRequest);
             case PROCESS_DELETE_AGENTS:
+                Collection<AgentMetadata> agentsToDelete = elasticAgentExtension.getElasticAgentMessageConverter(goPluginApiRequest.apiVersion()).deleteAndDisableAgentRequestBody(goPluginApiRequest.requestBody());
+                if (agentsToDelete.isEmpty()) {
+                    return new DefaultGoApiResponse(200);
+                }
                 return processDeleteAgent(pluginDescriptor, goPluginApiRequest);
             case REQUEST_SERVER_LIST_AGENTS:
                 return processListAgents(pluginDescriptor, goPluginApiRequest);
@@ -128,7 +131,7 @@ public class ElasticAgentRequestProcessor implements GoPluginApiRequestProcessor
         return new DefaultGoApiResponse(200);
     }
 
-    private Username usernameFor(GoPluginDescriptor pluginDescriptor) {
+    Username usernameFor(GoPluginDescriptor pluginDescriptor) {
         return new Username(format("plugin-%s", pluginDescriptor.id()));
     }
 

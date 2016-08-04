@@ -30,13 +30,11 @@ import java.util.*;
 @Component
 public class ElasticAgentExtension extends AbstractExtension {
 
-    private final static List<String> supportedVersions = Arrays.asList(ElasticAgentExtensionConverterV1.VERSION);
-
     private final HashMap<String, ElasticAgentMessageConverter> messageHandlerMap = new HashMap<>();
 
     @Autowired
     public ElasticAgentExtension(PluginManager pluginManager) {
-        super(pluginManager, new PluginRequestHelper(pluginManager, supportedVersions, Constants.EXTENSION_NAME), Constants.EXTENSION_NAME);
+        super(pluginManager, new PluginRequestHelper(pluginManager, Constants.SUPPORTED_VERSIONS, Constants.EXTENSION_NAME), Constants.EXTENSION_NAME);
         addHandler(ElasticAgentExtensionConverterV1.VERSION, new PluginSettingsJsonMessageHandler1_0(), new ElasticAgentExtensionConverterV1());
     }
 

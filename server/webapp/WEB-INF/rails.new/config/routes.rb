@@ -225,8 +225,8 @@ Go::Application.routes.draw do
       end
 
       namespace :admin do
-        resources :pipelines, param: :pipeline_name, only: [:show, :update, :create, :destroy], constraints: {name: PIPELINE_NAME_FORMAT}
-        resources :environments, param: :name, only: [:show, :destroy, :create, :update, :index], constraints: ENVIRONMENT_NAME_CONSTRAINT
+        resources :pipelines, param: :pipeline_name, only: [:show, :update, :create, :destroy], constraints: {pipeline_name: PIPELINE_NAME_FORMAT}
+        resources :environments, param: :name, only: [:show, :destroy, :create, :update, :index], constraints: {:name => ENVIRONMENT_NAME_FORMAT}
         post :material_test, controller: :material_test, action: :test, as: :material_test
         namespace :internal do
           resources :pipelines, only: [:index]
@@ -255,7 +255,7 @@ Go::Application.routes.draw do
   scope :api, as: :apiv2, format: false do
     api_version(:module => 'ApiV2', header: {name: 'Accept', value: 'application/vnd.go.cd.v2+json'}) do
       namespace :admin do
-        resources :pipelines, param: :pipeline_name, only: [:show, :update, :create, :destroy], constraints: {name: PIPELINE_NAME_FORMAT}
+        resources :pipelines, param: :pipeline_name, only: [:show, :update, :create, :destroy], constraints: {pipeline_name: PIPELINE_NAME_FORMAT}
       end
 
       resources :agents, param: :uuid, except: [:new, :create, :edit, :update] do

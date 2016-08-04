@@ -143,6 +143,22 @@ public class AgentInstanceMother {
         return agentInstance;
     }
 
+    public static AgentInstance updateElasticAgentId(AgentInstance agentInstance, String elasticAgentId) {
+        AgentConfig agentConfig = agentInstance.agentConfig();
+        agentConfig.setElasticAgentId(elasticAgentId);
+
+        agentInstance.syncConfig(agentConfig);
+        return agentInstance;
+    }
+
+    public static AgentInstance updateElasticPluginId(AgentInstance agentInstance, String elasticPluginId) {
+        AgentConfig agentConfig = agentInstance.agentConfig();
+        agentConfig.setElasticPluginId(elasticPluginId);
+
+        agentInstance.syncConfig(agentConfig);
+        return agentInstance;
+    }
+
     public static AgentInstance updateRuntimeStatus(AgentInstance agentInstance, AgentRuntimeStatus status) {
         AgentConfig agentConfig = agentInstance.agentConfig();
         AgentRuntimeInfo newRuntimeInfo = AgentRuntimeInfo.fromServer(agentConfig, true, agentInstance.getLocation(), agentInstance.getUsableSpace(), "linux", false);

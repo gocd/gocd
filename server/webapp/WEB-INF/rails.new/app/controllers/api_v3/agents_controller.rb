@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2015 ThoughtWorks, Inc.
+# Copyright 2016 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
 # limitations under the License.
 ##########################################################################
 
-module ApiV2
-  class AgentsController < ApiV2::BaseController
+module ApiV3
+  class AgentsController < ApiV3::BaseController
 
     before_action :set_cache_control
     before_action :check_user_and_404
@@ -24,8 +24,9 @@ module ApiV2
     before_action :load_agent, only: [:show, :edit, :update, :destroy, :enable, :disable]
 
     def index
-      presenters    = AgentsRepresenter.new(agent_service.agents.to_a)
+      presenters    = AgentsRepresenter.new(agent_service.agentEnvironmentMap)
       response_hash = presenters.to_hash(url_builder: self)
+
       if stale?(etag: Digest::MD5.hexdigest(JSON.generate(response_hash)))
         render DEFAULT_FORMAT => response_hash
       end
@@ -36,7 +37,7 @@ module ApiV2
     end
 
     def update
-      result    = HttpOperationResult.new
+      result = HttpOperationResult.new
 
       @agent_instance = agent_service.updateAgentAttributes(current_user, result, params[:uuid], params[:hostname], maybe_join(params[:resources]), maybe_join(params[:environments]), to_enabled_tristate)
 
@@ -45,7 +46,7 @@ module ApiV2
         render DEFAULT_FORMAT => agent_presenter.to_hash(url_builder: self)
       else
         json = agent_presenter.to_hash(url_builder: self)
-        render_http_operation_result(result, {data: json})
+        render_http_operation_result(result, { data: json })
       end
     end
 
@@ -56,11 +57,11 @@ module ApiV2
     end
 
     def bulk_update
-      result = HttpLocalizedOperationResult.new
-      uuids = params[:uuids]
-      resources_to_add = params[:operations][:resources][:add]
-      resources_to_remove = params[:operations][:resources][:remove]
-      environments_to_add = params[:operations][:environments][:add]
+      result                = HttpLocalizedOperationResult.new
+      uuids                 = params[:uuids]
+      resources_to_add      = params[:operations][:resources][:add]
+      resources_to_remove   = params[:operations][:resources][:remove]
+      environments_to_add   = params[:operations][:environments][:add]
       environment_to_remove = params[:operations][:environments][:remove]
       agent_service.bulkUpdateAgentAttributes(current_user, result, uuids, resources_to_add, resources_to_remove, environments_to_add, environment_to_remove, to_enabled_tristate)
       render_http_operation_result(result)
@@ -75,13 +76,13 @@ module ApiV2
     private
 
     def set_default_values_if_not_present
-      params[:uuids] = params[:uuids] || []
-      params[:operations] = params[:operations] || {}
-      params[:operations][:resources] = params[:operations][:resources] || {}
-      params[:operations][:environments] = params[:operations][:environments] || {}
-      params[:operations][:resources][:add] = params[:operations][:resources][:add] || []
-      params[:operations][:resources][:remove] = params[:operations][:resources][:remove] || []
-      params[:operations][:environments][:add] = params[:operations][:environments][:add] || []
+      params[:uuids]                              = params[:uuids] || []
+      params[:operations]                         = params[:operations] || {}
+      params[:operations][:resources]             = params[:operations][:resources] || {}
+      params[:operations][:environments]          = params[:operations][:environments] || {}
+      params[:operations][:resources][:add]       = params[:operations][:resources][:add] || []
+      params[:operations][:resources][:remove]    = params[:operations][:resources][:remove] || []
+      params[:operations][:environments][:add]    = params[:operations][:environments][:add] || []
       params[:operations][:environments][:remove] = params[:operations][:environments][:remove] || []
     end
 
@@ -120,12 +121,9 @@ module ApiV2
     end
 
     def agent_presenter
-      AgentRepresenter.new(agent_view_model)
+      AgentRepresenter.new([@agent_instance, environment_config_service.environmentsFor(@agent_instance.getUuid())])
     end
 
-    def agent_view_model
-      com.thoughtworks.go.server.ui.AgentViewModel.new(@agent_instance, environment_config_service.environmentsFor(@agent_instance.getUuid())) if @agent_instance
-    end
   end
 
 end

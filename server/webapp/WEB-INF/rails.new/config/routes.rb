@@ -268,6 +268,18 @@ Go::Application.routes.draw do
     end
   end
 
+  scope :api, as: :apiv3, format: false do
+    api_version(:module => 'ApiV3', header: {name: 'Accept', value: 'application/vnd.go.cd.v3+json'}) do
+      resources :agents, param: :uuid, except: [:new, :create, :edit, :update] do
+        patch :update, on: :member
+        patch on: :collection, action: :bulk_update
+        delete on: :collection, action: :bulk_destroy
+      end
+
+      match '*url', via: :all, to: 'errors#not_found'
+    end
+  end
+
 
   namespace :admin do
     resources :pipelines, only: [:edit], controller: :pipeline_configs, param: :pipeline_name, as: :pipeline_config

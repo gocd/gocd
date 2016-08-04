@@ -22,7 +22,7 @@ module ApiV1
       error_representer
 
       link :self do |opts|
-        opts[:url_builder].apiv1_admin_scm_url(material_name: scm.getName) if scm.getName
+        opts[:url_builder].apiv1_admin_scm_url(material_name: scm.getName) unless scm.getName.blank?
       end
 
       link :doc do

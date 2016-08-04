@@ -16,9 +16,12 @@
 
 define([
   'mithril', 'lodash', 'jquery', 'string-plus',
-  'helpers/form_helper', 'helpers/pipeline_configs/tooltips', 'helpers/mithril_component_mixins',
-  'models/pipeline_configs/materials', 'views/pipeline_configs/test_connection_widget', 'views/pipeline_configs/pipeline_stage_field_widget', 'models/pipeline_configs/pipelines'
-], function (m, _, $, s, f, tt, ComponentMixins, Materials, TestConnectionWidget, PipelineStageField, Pipelines) {
+  'helpers/form_helper', 'helpers/pipeline_configs/tooltips', 'helpers/mithril_component_mixins', 'models/pipeline_configs/materials',
+  'views/pipeline_configs/test_connection_widget', 'views/pipeline_configs/pipeline_stage_field_widget', 'models/pipeline_configs/pipelines',
+  'models/pipeline_configs/pluggable_scms', 'views/pipeline_configs/pluggable_scm_widget', 'views/pipeline_configs/material_filter_widget',
+  'models/pipeline_configs/plugin_infos'
+], function (m, _, $, s, f, tt, ComponentMixins, Materials, TestConnectionWidget, PipelineStageField, Pipelines, PluggableSCMs,
+             PluggableSCMWidget, MaterialFilterWidget, PluginInfos) {
 
   var PasswordField = {
     view: function (ctrl, args, children) {
@@ -111,16 +114,6 @@ define([
     }
   };
 
-  var IgnorepatternField = {
-    view: function (ctrl, args) {
-      return (
-        <f.inputWithLabel attrName='ignore'
-                          label="Ignore pattern"
-                          model={args.material.filter()}/>
-      );
-    }
-  };
-
   var AutoUpdateField = {
     view: function (ctrl, args) {
       return (
@@ -129,6 +122,24 @@ define([
                     addPadding={true}
                     end={true}/>
       );
+    }
+  };
+
+  var TestConnection = {
+    controller: function (args) {
+      ComponentMixins.HasViewModel.call(this);
+    },
+
+    view: function (ctrl, args) {
+      return (
+        <f.row>
+          <f.column size={12} largeSize={12}>
+            <TestConnectionWidget material={args.material}
+                                  pipelineName={args.pipelineName}
+                                  vm={ctrl.vmState('testConnection')}/>
+          </f.column>
+        </f.row>
+      )
     }
   };
 
@@ -143,50 +154,23 @@ define([
       },
 
       view: function (ctrl, args, children) {
-        var title = [ctrl.material.type(), '-', ctrl.material.name()].join(' ');
-
-        var filterField = function() {
-          if (ctrl.material.filter) {
-            // TODO: make this an 'intelligent' text component that maps to an array.
-            return (
-              <div class='ignore-pattern'>
-                <f.row>
-                  <f.inputWithLabel attrName='ignore'
-                                    label="Ignore pattern"
-                                    model={ctrl.material.filter()}
-                                    size={12}
-                                    largeSize={12}/>
-                </f.row>
-              </div>
-            );
-          }
-        };
-
-        var testConnection = function () {
-          if (ctrl.material.type() !== 'dependency') {
-            return (
-              <f.row>
-                <f.column size={12} largeSize={12}>
-                  <TestConnectionWidget material={ctrl.material}
-                                        pipelineName={ctrl.pipelineName}
-                                        vm={ctrl.vmState('testConnection')}/>
-                </f.column>
-              </f.row>
-            )
+        var title = function () {
+          if(Materials.isBuiltInType(ctrl.material.type())) {
+            return [ctrl.material.type(), '-', ctrl.material.name()].join(' ');
+          } else {
+            return [ctrl.material.type(), '-', ctrl.material.scm() ? ctrl.material.scm().name() : ''].join(' ');
           }
         };
 
         return (
           <f.accordion class="material-definitions accordion-inner"
-                       accordionTitles={[title]}
+                       accordionTitles={[title()]}
                        accordionKeys={[ctrl.material.uuid()]}
                        selectedIndex={ctrl.vmState('selectedMaterialIndex', m.prop(-1))}>
 
             <div class="material-definition">
               <f.removeButton onclick={ctrl.onRemove} class="remove-material"/>
               {children}
-              {testConnection()}
-              {filterField()}
             </div>
           </f.accordion>
         );
@@ -217,6 +201,8 @@ define([
             <f.row>
               <DestinationField material={material}/>
             </f.row>
+            <TestConnection material={material}/>
+            <MaterialFilterWidget material={material}/>
           </MaterialViews.base>
         );
       }
@@ -244,6 +230,8 @@ define([
             <f.row>
               <DestinationField material={material}/>
             </f.row>
+            <TestConnection material={material}/>
+            <MaterialFilterWidget material={material}/>
           </MaterialViews.base>
         );
       }
@@ -262,6 +250,8 @@ define([
             <f.row>
               <DestinationField material={material}/>
             </f.row>
+            <TestConnection material={material}/>
+            <MaterialFilterWidget material={material}/>
           </MaterialViews.base>
         );
       }
@@ -297,6 +287,8 @@ define([
             <f.row>
               <DestinationField material={material}/>
             </f.row>
+            <TestConnection material={material}/>
+            <MaterialFilterWidget material={material}/>
           </MaterialViews.base>
         );
       }
@@ -328,11 +320,12 @@ define([
             <f.row>
               <DestinationField material={material}/>
             </f.row>
+            <TestConnection material={material}/>
+            <MaterialFilterWidget material={material}/>
           </MaterialViews.base>
         );
       }
     },
-
 
     dependency: {
       view: function (ctrl, args) {
@@ -349,6 +342,18 @@ define([
           </MaterialViews.base>
         );
       }
+    },
+
+    plugin: {
+      view: function (ctrl, args) {
+        var material = args.material;
+
+        return (
+          <MaterialViews.base {...args}>
+            <PluggableSCMWidget material={material}/>
+          </MaterialViews.base>
+        );
+      }
     }
   };
 
@@ -360,18 +365,20 @@ define([
     },
 
     view: function (ctrl) {
+      var items = _.transform(_.merge({}, Materials.Types, PluggableSCMs.Types), function (result, value, key) {
+        result[key] = value.description;
+      });
+
       return (
         <f.row class='material-selector'>
           <f.select
             value={ctrl.selected}
             class='inline'
             label='Add a new material of type'
-            items={_.transform(Materials.Types, function(result, value, key){
-                  result[key] = value.description;
-                })}
+            items={items}
             size={2}/>
           <f.column size={2} end={true}>
-            <a class='add-material button' href="javascript:void(0)" onclick={ctrl.createMaterial.bind(ctrl, ctrl.selected)}>Add</a>
+            <f.link class='add-button button' onclick={ctrl.createMaterial.bind(ctrl, ctrl.selected)}>Add</f.link>
           </f.column>
         </f.row>
       );
@@ -391,7 +398,8 @@ define([
       };
 
       this.createMaterial = function (type) {
-        var newMaterial     = this.materials.createMaterial({type: type()});
+        var newMaterial = Materials.isBuiltInType(type()) ? this.materials.createMaterial({type: type()})
+                                                          : this.materials.createMaterial({type: type(), pluginInfo: PluginInfos.findById(type())});
         var indexOfMaterial = this.materials.indexOfMaterial(newMaterial);
         this.vmState('material-' + indexOfMaterial, {selectedMaterialIndex: m.prop(0)})
       };

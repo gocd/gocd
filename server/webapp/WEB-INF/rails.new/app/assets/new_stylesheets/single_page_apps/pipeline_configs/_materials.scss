@@ -64,7 +64,77 @@
   margin-bottom: 10px;
 }
 
-.add-material {
-  margin-top: 26px;
-  @include icon-before($type: plus-circle);
+.pluggable-scm {
+  position: relative;
+  border: 1px solid $border;
+  display: inline-block;
+  padding: 20px;
+  margin: 0 0 20px 15px;
+
+  ul {
+    list-style-type: none;
+    margin: 0 70px 0 0;
+  }
+
+  li {
+    margin-bottom: 5px;
+  }
+
+  button.edit {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+  }
+
+  label {
+    display: inline-block;
+    width: 150px;
+    margin-right: 20px;
+    font-weight: 600;
+    position: relative;
+    &:after {
+      content: ":";
+      position: absolute;
+      right: 0;
+    }
+  }
+
+  .callout {
+    margin-bottom: 20px;
+  }
+}
+
+.scm-selector {
+  .or {
+    margin: 0 40px 0;
+    position: relative;
+    top: 5px;
+  }
+}
+
+.no-scm {
+  .add-button {
+    margin-top: 13px;
+  }
+
+  label {
+    margin-right: 30px;
+  }
+}
+
+.scm-plugin-modal {
+  width: 400px;
+  .key-value {
+    margin-bottom: 10px;
+  }
+  .align, .button.align {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .modal-content {
+    padding: 0 20px;
+  }
+  .callout {
+    margin-bottom: 20px;
+  }
 }

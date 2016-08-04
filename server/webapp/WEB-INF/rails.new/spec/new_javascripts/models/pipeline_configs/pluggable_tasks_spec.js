@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-define(['lodash', 'models/pipeline_configs/pluggable_tasks', 'models/pipeline_configs/plugin_infos'], function (_, PluggableTasks, PluginInfos) {
+define(['lodash', 'models/pipeline_configs/pluggable_tasks', 'models/pipeline_configs/plugin_infos', 'models/pipeline_configs/tasks'],
+  function (_, PluggableTasks, PluginInfos, Tasks) {
   describe('PluggableTasks', function () {
     describe('init', function () {
       it('should build pluggable task types from plugins', function () {
         var dockerTaskPlugin = new PluginInfos.PluginInfo({
-          id:          'docker.task',
-          type:        'task',
-          description: 'Docker task plugin'
+          id:           'docker.task',
+          type:         'task',
+          display_name: 'Docker',
+          description:  'Docker task plugin'
         });
 
         var scmPlugin = new PluginInfos.PluginInfo({
@@ -31,9 +33,10 @@ define(['lodash', 'models/pipeline_configs/pluggable_tasks', 'models/pipeline_co
         });
 
         var xunitConvertor = new PluginInfos.PluginInfo({
-          id:          'xunitConvertor',
-          type:        'task',
-          description: 'Xunit Convertor'
+          id:           'xunitConvertor',
+          type:         'task',
+          display_name: 'xUnit',
+          description:  'Xunit Convertor'
         });
 
         PluginInfos([dockerTaskPlugin, scmPlugin, xunitConvertor]);
@@ -42,6 +45,8 @@ define(['lodash', 'models/pipeline_configs/pluggable_tasks', 'models/pipeline_co
 
         expect(_.size(PluggableTasks.Types)).toBe(2);
         expect(_.keys(PluggableTasks.Types)).toEqual(['docker.task', 'xunitConvertor']);
+        expect(_.values(PluggableTasks.Types)).toEqual([{type: Tasks.Task.PluginTask, description: 'Docker'},
+                                                        {type: Tasks.Task.PluginTask, description: 'xUnit'}]);
       });
     });
   });

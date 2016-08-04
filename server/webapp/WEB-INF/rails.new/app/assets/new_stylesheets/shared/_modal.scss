@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-@import 'shared/mixins';
 
-@import 'shared/_autocomplete';
-@import 'shared/_common';
-@import 'shared/_modal';
-@import 'pipeline_configs/_pipeline';
-@import 'pipeline_configs/_accordion';
-@import 'pipeline_configs/_stages';
-@import 'pipeline_configs/_materials';
+.modal-title {
+  border-bottom: 1px solid #ccc;
+  padding: 10px 15px;
+  margin: -17px -16px 20px;
+  border-top-left-radius: 5px;
+  background: #e0dfdf;
+  border-top-right-radius: 5px;
+}

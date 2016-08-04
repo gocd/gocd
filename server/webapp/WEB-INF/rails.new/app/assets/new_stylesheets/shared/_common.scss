@@ -14,12 +14,19 @@
  * limitations under the License.
  */
 
-@import 'shared/mixins';
+.key-value {
+  label {
+    display: inline-block;
+    min-width: 60px;
+    position: relative;
+    &:after {
+      content: ":";
+      position: absolute;
+      right: 10px;
+    }
+  }
+}
 
-@import 'shared/_autocomplete';
-@import 'shared/_common';
-@import 'shared/_modal';
-@import 'pipeline_configs/_pipeline';
-@import 'pipeline_configs/_accordion';
-@import 'pipeline_configs/_stages';
-@import 'pipeline_configs/_materials';
+.add-button {
+  @include icon-before($type: plus-circle);
+}

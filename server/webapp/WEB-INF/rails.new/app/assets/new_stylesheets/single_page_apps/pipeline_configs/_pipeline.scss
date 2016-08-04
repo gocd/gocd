@@ -23,9 +23,9 @@
     margin-bottom: 20px;
     background-color: #ffffff; // Old browsers
     @include linear-gradient(#ffffff, #cccccc);
-    h1{
+    h1 {
       font-size: rem-calc(20px);
-      margin:10px 0;
+      margin: 10px 0;
     }
   }
 
@@ -124,6 +124,12 @@
     &:before{
       margin:0 5px 0 0;
     }
+  }
+}
+
+.pipeline-body {
+  .button {
+    margin-top: 26px;
   }
 }
 

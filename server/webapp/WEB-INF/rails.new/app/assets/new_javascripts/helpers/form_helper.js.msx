@@ -168,6 +168,12 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins'], function (m,
           }
         }
 
+        if (model.errors) {
+          if (model.errors.errors(attrName)) {
+            propertyError = (<span class='form-error is-visible'>{model.errors.errorsForDisplay(attrName)}</span>);
+          }
+        }
+
         return (
           <f.column {...args} class={_.compact([propertyError ? 'is-invalid-label' : null, args.class]).join(' ')}>
             <label

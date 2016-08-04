@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipeline_configs/encrypted_value'], function (m, _, s, Mixins, EncryptedValue) {
+define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipeline_configs/encrypted_value', 'models/pipeline_configs/scms'],
+  function (m, _, s, Mixins, EncryptedValue, SCMs) {
 
   function plainOrCipherValue(data) {
     if (data.encryptedPassword) {
@@ -30,7 +31,8 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
   };
 
   Materials.create = function (data) {
-    return new Materials.Types[data.type].type(data);
+    return Materials.isBuiltInType(data.type) ? new Materials.Types[data.type].type(data)
+                                              : new Materials.Material.PluggableMaterial(data);
   };
 
   Materials.Filter = function (data) {
@@ -71,7 +73,6 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     Mixins.HasUUID.call(this);
     this.parent           = Mixins.GetterSetter();
     this.type             = m.prop(type);
-    this.name             = m.prop(s.defaultToIfBlank(data.name, ''));
 
     if (hasFilter) {
       this.filter = m.prop(s.defaultToIfBlank(data.filter, new Materials.Filter(s.defaultToIfBlank(data.filter, {}))));
@@ -84,9 +85,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     };
 
     this.toJSON = function () {
-      var attrs = {
-        name: this.name()
-      };
+      var attrs = {};
 
       if (hasFilter) {
         _.merge(attrs, this.filter().toJSON());
@@ -148,6 +147,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
 
   Materials.Material.SVN = function (data) {
     Materials.Material.call(this, "svn", true, data);
+    this.name           = m.prop(s.defaultToIfBlank(data.name, ''));
     this.destination    = m.prop(s.defaultToIfBlank(data.destination, ''));
     this.url            = m.prop(s.defaultToIfBlank(data.url, ''));
     this.username       = m.prop(s.defaultToIfBlank(data.username, ''));
@@ -170,6 +170,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
 
     this._attributesToJSON = function () {
       var attrs = {
+        name:           this.name(),
         destination:    this.destination(),
         url:            this.url(),
         username:       this.username(),
@@ -197,6 +198,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
 
   Materials.Material.Git = function (data) {
     Materials.Material.call(this, "git", true, data);
+    this.name         = m.prop(s.defaultToIfBlank(data.name, ''));
     this.destination  = m.prop(s.defaultToIfBlank(data.destination, ''));
     this.url          = m.prop(s.defaultToIfBlank(data.url, ''));
     this.branch       = m.prop(s.defaultToIfBlank(data.branch, 'master'));
@@ -217,6 +219,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
 
     this._attributesToJSON = function () {
       return {
+        name:          this.name(),
         destination:   this.destination(),
         url:           this.url(),
         branch:        this.branch(),
@@ -240,6 +243,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
 
   Materials.Material.Mercurial = function (data) {
     Materials.Material.call(this, "hg", true, data);
+    this.name        = m.prop(s.defaultToIfBlank(data.name, ''));
     this.destination = m.prop(s.defaultToIfBlank(data.destination, ''));
     this.url         = m.prop(s.defaultToIfBlank(data.url, ''));
     this.branch      = m.prop(s.defaultToIfBlank(data.branch, ''));
@@ -259,9 +263,11 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
 
     this._attributesToJSON = function () {
       return {
+        name:        this.name(),
         destination: this.destination(),
         url:         this.url(),
-        branch:      this.branch()
+        branch:      this.branch(),
+        auto_update: this.autoUpdate()
       };
     };
   };
@@ -279,6 +285,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
 
   Materials.Material.Perforce = function (data) {
     Materials.Material.call(this, "p4", true, data);
+    this.name        = m.prop(s.defaultToIfBlank(data.name, ''));
     this.destination = m.prop(s.defaultToIfBlank(data.destination, ''));
     this.port        = m.prop(s.defaultToIfBlank(data.port, ''));
     this.username    = m.prop(s.defaultToIfBlank(data.username, ''));
@@ -306,6 +313,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
 
     this._attributesToJSON = function () {
       var attrs = {
+        name:        this.name(),
         destination: this.destination(),
         port:        this.port(),
         username:    this.username(),
@@ -336,6 +344,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
 
   Materials.Material.TFS = function (data) {
     Materials.Material.call(this, "tfs", true, data);
+    this.name        = m.prop(s.defaultToIfBlank(data.name, ''));
     this.destination = m.prop(s.defaultToIfBlank(data.destination, ''));
     this.url         = m.prop(s.defaultToIfBlank(data.url, ''));
     this.domain      = m.prop(s.defaultToIfBlank(data.domain, ''));
@@ -367,6 +376,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
 
     this._attributesToJSON = function () {
       var attrs = {
+        name:         this.name(),
         destination:  this.destination(),
         url:          this.url(),
         domain:       this.domain(),
@@ -396,6 +406,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
 
   Materials.Material.Dependency = function (data) {
     Materials.Material.call(this, "dependency", false, data);
+    this.name     = m.prop(s.defaultToIfBlank(data.name, ''));
     this.pipeline = m.prop(s.defaultToIfBlank(data.pipeline, ''));
     this.stage    = m.prop(s.defaultToIfBlank(data.stage, ''));
 
@@ -417,6 +428,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
 
     this._attributesToJSON = function () {
       return {
+        name:     this.name(),
         pipeline: this.pipeline(),
         stage:    this.stage()
       };
@@ -431,6 +443,34 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     });
   };
 
+  Materials.Material.PluggableMaterial = function (data) {
+    Materials.Material.call(this, "plugin", true, data);
+    this.name        = m.prop(''); //TODO: This needs to be removed, added to pass base validation.
+    this.pluginInfo  = m.prop(data.pluginInfo);
+    this.destination = m.prop(s.defaultToIfBlank(data.destination, ''));
+    this.scm         = m.prop(data.scm);
+
+    this._attributesToJSON = function () {
+      return {
+        destination: this.destination(),
+        ref:         this.scm().id()
+      };
+    };
+  };
+
+  Materials.Material.PluggableMaterial.fromJSON = function (data) {
+    return new Materials.Material.PluggableMaterial({
+      scm:         SCMs.findById(data.ref),
+      destination: data.destination,
+      filter:      Materials.Filter.fromJSON(data.filter)
+    });
+  };
+
+
+  Materials.isBuiltInType = function (type) {
+    return _.hasIn(Materials.Types, type);
+  };
+
   Materials.Types = {
     git:        {type: Materials.Material.Git, description: "Git"},
     svn:        {type: Materials.Material.SVN, description: "SVN"},
@@ -441,7 +481,8 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
   };
 
   Materials.Material.fromJSON = function (data) {
-    return Materials.Types[data.type].type.fromJSON(data.attributes || {});
+    return Materials.isBuiltInType(data.type) ? Materials.Types[data.type].type.fromJSON(data.attributes || {})
+                                              : Materials.Material.PluggableMaterial.fromJSON(data.attributes || {});
   };
 
   return Materials;

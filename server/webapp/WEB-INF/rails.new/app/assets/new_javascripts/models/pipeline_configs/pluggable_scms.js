@@ -14,12 +14,21 @@
  * limitations under the License.
  */
 
-@import 'shared/mixins';
 
-@import 'shared/_autocomplete';
-@import 'shared/_common';
-@import 'shared/_modal';
-@import 'pipeline_configs/_pipeline';
-@import 'pipeline_configs/_accordion';
-@import 'pipeline_configs/_stages';
-@import 'pipeline_configs/_materials';
+define(['mithril', 'lodash', 'jquery', 'models/pipeline_configs/materials', 'models/pipeline_configs/plugin_infos'],
+  function (m, _, $, Materials, PluginInfos) {
+    var PluggableSCMs = {};
+
+    PluggableSCMs.init = function () {
+      _.each(PluginInfos.filterByType('scm'), function (pluginInfo) {
+        PluggableSCMs.Types[pluginInfo.id()] = {
+          type: Materials.Material.PluggableMaterial,
+          description: pluginInfo.displayName()
+        };
+      });
+    };
+
+    PluggableSCMs.Types = {};
+
+    return PluggableSCMs;
+  });

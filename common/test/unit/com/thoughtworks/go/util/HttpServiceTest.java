@@ -83,6 +83,7 @@ public class HttpServiceTest {
         service.upload(uploadUrl, 100L, uploadingFile, checksums);
 
         verify(mockPostMethod).setHeader(GO_ARTIFACT_PAYLOAD_SIZE, "100");
+        verify(mockPostMethod).setHeader("Confirm", "true");
         verify(httpClientFactory).createMultipartRequestEntity(uploadingFile, checksums);
         verify(httpClient).execute(mockPostMethod);
     }

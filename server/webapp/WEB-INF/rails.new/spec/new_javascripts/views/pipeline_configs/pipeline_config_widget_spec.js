@@ -14,17 +14,20 @@
  * limitations under the License.
  */
 
-define(["jquery", "mithril", 'lodash', 'string-plus', "models/pipeline_configs/pipeline", "views/pipeline_configs/pipeline_config_widget"], function ($, m, _, s, Pipeline, PipelineConfigWidget) {
-  describe("PipelineConfigWidget", function () {
+define(["jquery", "mithril", 'lodash', 'string-plus', "models/pipeline_configs/pipeline", "views/pipeline_configs/pipeline_config_widget"],
+  function ($, m, _, s, Pipeline, PipelineConfigWidget) {
+
+    describe("PipelineConfigWidget", function () {
     var $root = $('#mithril-mount-point'), root = $root.get(0);
     var pipeline;
 
     beforeAll(function (done) {
-      jasmine.Ajax.install();
-      jasmine.Ajax.stubRequest(/\/pipeline.json\?_=\d+/).andReturn({
-        contentType:  'application/vnd.go.cd.v1+json',
-        responseText: JSON.stringify(samplePipelineJSON())
+      var deferred = $.Deferred();
+
+      spyOn(Pipeline, 'find').and.callFake(function () {
+        return deferred.promise();
       });
+
 
       // needed because the widget needs to fetch data via ajax, and complete rendering
       var reallyDone = _.after(2, function () {
@@ -39,12 +42,10 @@ define(["jquery", "mithril", 'lodash', 'string-plus', "models/pipeline_configs/p
         reallyDone();
       });
 
-      m.mount($root.get(0), component);
-      reallyDone();
-    });
+      m.mount(root, component);
 
-    afterAll(function () {
-      jasmine.Ajax.uninstall();
+      deferred.resolve(samplePipelineJSON());
+      reallyDone();
     });
 
     function inputFieldFor(propName, modelType) {

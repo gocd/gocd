@@ -15,29 +15,27 @@
  */
 
 define([
-  'mithril', 'jquery', 'string-plus', 'lodash',
-  'helpers/form_helper', 'helpers/pipeline_configs/tooltips', 'helpers/mithril_component_mixins',
-  'models/pipeline_configs/pipeline', 'models/pipeline_configs/tasks', 'views/pipeline_configs/pipeline_settings_widget', 'views/pipeline_configs/materials_config_widget', 'views/pipeline_configs/pipeline_flow_widget'
-], function (m, $, s, _,
-             f, tt, ComponentMixins,
-             Pipeline, Tasks, PipelineSettingsWidget, MaterialsConfigWidget,
-             PipelineFlowWidget) {
+  'mithril', 'jquery', 'string-plus', 'lodash', 'helpers/form_helper', 'helpers/pipeline_configs/tooltips', 'helpers/mithril_component_mixins',
+  'models/pipeline_configs/pipeline', 'models/pipeline_configs/tasks', 'views/pipeline_configs/pipeline_settings_widget',
+  'views/pipeline_configs/materials_config_widget', 'views/pipeline_configs/pipeline_flow_widget'],
+  function (m, $, s, _, f, tt, ComponentMixins, Pipeline, Tasks, PipelineSettingsWidget, MaterialsConfigWidget, PipelineFlowWidget) {
 
   var PipelineConfigWidget = function (url, callback) {
     return {
       controller: function () {
         var ctrl              = this;
-        this.pipeline         = m.prop();
-        this.currentSelection = m.prop();
-        this.etag             = m.prop();
-        this.url              = url;
-        this.saveState        = m.prop('');
+        var self              = this;
+        self.pipeline         = m.prop();
+        self.currentSelection = m.prop();
+        self.etag             = m.prop();
+        self.url              = url;
+        self.saveState        = m.prop('');
         ComponentMixins.HasViewModel.call(this);
 
         window.pipelineConfigWidget = m.prop(this);
 
-        this.setPipelineAndPreserveSelection = function (newPipeline) {
-          var oldPipeline = this.pipeline();
+        self.setPipelineAndPreserveSelection = function (newPipeline) {
+          var oldPipeline = self.pipeline();
           var newSelection;
 
           if (oldPipeline) {
@@ -48,61 +46,33 @@ define([
 
           newSelection = newSelection || newPipeline.stages().firstStage();
 
-          ctrl.pipeline(newPipeline);
-          ctrl.currentSelection(newSelection);
+          self.pipeline(newPipeline);
+          self.currentSelection(newSelection);
         };
 
-        this.savePipeline = function () {
-          ctrl.saveState('in-progress disabled');
-          m.redraw();
-          $.ajax({
-            type:       'PATCH',
-            url:        url,
-            cache:      false,
-            headers:    {
-              'Accept':       'application/vnd.go.cd.v1+json',
-              'Content-Type': "application/json",
-              'If-Match':     ctrl.etag()
-            },
-            data:       JSON.stringify(ctrl.pipeline, s.snakeCaser),
-            beforeSend: function () {
-              m.startComputation();
-            },
-            success:    function (data, status, xhr) {
-              var pipeline = Pipeline.fromJSON(data);
-              ctrl.etag(xhr.getResponseHeader('ETag'));
-              ctrl.saveState('success');
-              ctrl.setPipelineAndPreserveSelection(pipeline);
-            },
-            error:      function () {
-              ctrl.saveState('alert')
-            },
-            complete:   function () {
-              m.endComputation();
-            }
-          });
+        var extractEtag = function (xhr) {
+          if (xhr.status === 200) {
+            self.etag = m.prop(xhr.getResponseHeader('ETag'));
+          }
+          return xhr.responseText;
         };
 
-        $.ajax({
-          type:       'GET',
-          url:        url,
-          cache:      false,
-          headers:    {
-            'Accept': 'application/vnd.go.cd.v1+json'
-          },
-          success:    function (data, status, xhr) {
-            var pipeline = Pipeline.fromJSON(data);
-            ctrl.etag(xhr.getResponseHeader('ETag'));
-
-            ctrl.setPipelineAndPreserveSelection(pipeline);
-
-            if (callback) {
-              callback(ctrl);
-            }
-          },
-          beforeSend: m.startComputation,
-          complete:   m.endComputation
+        Pipeline.find(url, extractEtag).then(function (data) {
+          self.setPipelineAndPreserveSelection(Pipeline.fromJSON(data));
+          if (callback) {
+            callback(ctrl);
+          }
         });
+
+        self.onSavePipeline = function () {
+          self.pipeline().update(self.etag(), extractEtag).then(function (data) {
+            ctrl.setPipelineAndPreserveSelection(Pipeline.fromJSON(data));
+          }, function (data) {
+            if (data.data) {
+              ctrl.setPipelineAndPreserveSelection(Pipeline.fromJSON(data.data));
+            }
+          })
+        };
       },
 
       view: function (ctrl) {
@@ -118,7 +88,7 @@ define([
                 </h1>
               </f.column>
               <f.column size={1}>
-                <f.button onclick={ctrl.savePipeline.bind(ctrl)}
+                <f.button onclick={ctrl.onSavePipeline.bind(ctrl)}
                           class={'save-pipeline' + ctrl.saveState()}>
                   <span class={'save-state ' + ctrl.saveState()}/>
                   Save

@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipeline_configs/environment_variables', 'models/pipeline_configs/parameters', 'models/pipeline_configs/materials', 'models/pipeline_configs/tracking_tool', 'models/pipeline_configs/stages'], function (m, _, s, Mixins, EnvironmentVariables, Parameters, Materials, TrackingTool, Stages) {
+define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipeline_configs/environment_variables', 'models/pipeline_configs/parameters',
+  'models/pipeline_configs/materials', 'models/pipeline_configs/tracking_tool', 'models/pipeline_configs/stages', 'helpers/mrequest'],
+  function (m, _, s, Mixins, EnvironmentVariables, Parameters, Materials, TrackingTool, Stages, mrequest) {
   var Pipeline = function (data) {
     this.constructor.modelType = 'pipeline';
     Mixins.HasUUID.call(this);
@@ -58,6 +60,24 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
 
       return errors;
     };
+
+    this.update = function (etag, extract) {
+      var self = this;
+
+      var config =  function (xhr) {
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.setRequestHeader("Accept", "application/vnd.go.cd.v1+json");
+        xhr.setRequestHeader("If-Match", etag);
+      };
+
+      return m.request({
+        method: 'PATCH',
+        url:     Routes.apiv1AdminPipelinePath({pipeline_name: self.name()}),
+        config:  config,
+        extract: extract,
+        data:    this
+      });
+    };
   };
 
   Pipeline.fromJSON = function (data) {
@@ -94,8 +114,17 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
         onlyOnChanges: data.only_on_changes
       });
     }
-
   };
+
+    Pipeline.find = function (url, extract) {
+      return m.request({
+        method:  'GET',
+        url:     url,
+        background: false,
+        config:  mrequest.xhrConfig.v1,
+        extract: extract
+      });
+    };
 
   return Pipeline;
 });

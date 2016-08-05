@@ -26,7 +26,6 @@ define([
       this.args = args;
       ComponentMixins.HasViewModel.call(this);
 
-      this.pipeline         = args.pipeline;
       this.currentSelection = args.currentSelection;
 
       this.appendStage = function () {
@@ -34,7 +33,7 @@ define([
       };
     },
 
-    view: function (ctrl) {
+    view: function (ctrl, args) {
       var appendStage = (
         <div class="pipeline-flow-box add-stage">
           <span class='label' onclick={ctrl.appendStage.bind(ctrl)}>Add Stage</span>
@@ -49,9 +48,9 @@ define([
         if(!isInitialized) {
           var onDrop = function () {
             var reorderedStages = _.map($(elem).find('.stage:not(.gu-mirror)'), function (eachStageElem) {
-              return ctrl.pipeline().stages().stageAtIndex($(eachStageElem).attr('data-stage-index'));
+              return args.pipeline().stages().stageAtIndex($(eachStageElem).attr('data-stage-index'));
             });
-            ctrl.pipeline().stages().setStages(reorderedStages);
+            args.pipeline().stages().setStages(reorderedStages);
           };
 
           dragulaConfig(elem, {dragulaOptions: {}, onDropCallback: onDrop});
@@ -71,7 +70,7 @@ define([
 
               <div class="stage-boxes">
                 <div config={dragDropConfig} class="stages-wrapper">
-                  {ctrl.pipeline().stages().mapStages(function (stage, stageIndex) {
+                  {args.pipeline().stages().mapStages(function (stage, stageIndex) {
                     return (
                       <div class={classes(stage, 'stage')}
                            data-stage-index={stageIndex}
@@ -86,7 +85,7 @@ define([
                 {appendStage}
               </div>
 
-            <StagesConfigWidget pipeline={ctrl.pipeline}
+            <StagesConfigWidget pipeline={args.pipeline}
                                 currentSelection={ctrl.currentSelection}
                                 vm={ctrl.vmState('stagesConfig')}/>
           </div>

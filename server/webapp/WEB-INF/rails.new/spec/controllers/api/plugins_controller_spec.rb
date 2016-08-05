@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+# Copyright 2016 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -38,4 +38,11 @@ describe Api::PluginsController do
     get :status, {:no_layout => true}
     expect(response.body).to eq("enabled")
   end
+
+  describe :route do
+    it 'should route to status action of the plugins controller' do
+      expect(:get => 'api/plugins/status').to route_to(no_layout: true, controller: 'api/plugins', action: 'status')
+    end
+  end
+
 end

@@ -76,5 +76,27 @@ describe ApiV1::BackupsController do
       end
     end
 
+    describe :route do
+      describe :with_header do
+        before :each do
+          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v1+json"
+        end
+        after :each do
+          Rack::MockRequest::DEFAULT_ENV = {}
+        end
+
+        it 'should route to create action of the backups controller' do
+          expect(:post => 'api/backups').to route_to(action: 'create', controller: 'api_v1/backups')
+        end
+      end
+      describe :without_header do
+        it 'should not route to create action of backups controller without header' do
+          expect(:post => 'api/backups').to_not route_to(action: 'backups', controller: 'api_v1/backups')
+          expect(:post => 'api/backups').to route_to(controller: 'application', action: 'unresolved', url: 'api/backups')
+        end
+      end
+
+    end
+
   end
 end

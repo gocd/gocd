@@ -30,7 +30,7 @@
       <xsd:attribute name="id" use="required">
         <xsd:simpleType>
           <xsd:restriction base="xsd:string">
-            <xsd:pattern value="[a-zA-Z0-9\-_.]+"/>
+            <xsd:pattern value="[\w\-.]+"/>
             <xsd:maxLength value="200"/>
           </xsd:restriction>
         </xsd:simpleType>

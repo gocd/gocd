@@ -26,7 +26,7 @@ Go::Application.routes.draw do
     PIPELINE_LOCATOR_CONSTRAINTS = {:pipeline_name => PIPELINE_NAME_FORMAT, :pipeline_counter => PIPELINE_COUNTER_FORMAT}
     STAGE_LOCATOR_CONSTRAINTS = {:stage_name => STAGE_NAME_FORMAT, :stage_counter => STAGE_COUNTER_FORMAT}.merge(PIPELINE_LOCATOR_CONSTRAINTS)
     ENVIRONMENT_NAME_CONSTRAINT = {:name => ENVIRONMENT_NAME_FORMAT}
-    PLUGIN_ID_FORMAT = /[a-zA-Z0-9\-_.]+/
+    PLUGIN_ID_FORMAT = /[\w\-.]+/
     ALLOW_DOTS = /[^\/]+/
     CONSTANTS = true
   end

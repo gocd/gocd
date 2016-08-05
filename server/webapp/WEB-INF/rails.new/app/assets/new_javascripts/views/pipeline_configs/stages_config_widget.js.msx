@@ -214,25 +214,24 @@ define([
   var StagesConfigWidget = {
     controller: function (args) {
       this.args             = args;
-      this.pipeline         = args.pipeline;
       this.currentSelection = args.currentSelection;
 
       ComponentMixins.HasViewModel.call(this);
 
-      this.removeStage = function (stage) {
-        var previousStage = this.pipeline().stages().previousStage(stage);
-        this.pipeline().stages().removeStage(stage);
-        var firstStage = this.pipeline().stages().firstStage();
+      this.removeStage = function (pipeline, stage) {
+        var previousStage = pipeline().stages().previousStage(stage);
+        pipeline().stages().removeStage(stage);
+        var firstStage = pipeline().stages().firstStage();
 
-        this.currentSelection(previousStage || firstStage || this.pipeline().stages().createStage());
+        this.currentSelection(previousStage || firstStage || pipeline().stages().createStage());
       };
     },
 
     view: function (ctrl, args) {
       return (
         <div class='stage-definition-container'>
-          <StageConfigDefinitionWidget stage={ctrl.currentSelection()}
-                                       onRemove={ctrl.removeStage.bind(ctrl, ctrl.currentSelection())}
+          <StageConfigDefinitionWidget stage={args.currentSelection()}
+                                       onRemove={ctrl.removeStage.bind(ctrl, args.pipeline, args.currentSelection())}
                                        vm={ctrl.vmState('stageDefinitionConfigs')}/>
         </div>
       );

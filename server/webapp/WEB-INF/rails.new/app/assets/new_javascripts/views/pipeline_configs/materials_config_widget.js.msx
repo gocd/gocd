@@ -61,6 +61,7 @@ define([
       return (
         <f.inputWithLabel attrName='url'
                           type='url'
+                          validate={true}
                           model={args.material}/>
       )
     }
@@ -95,6 +96,7 @@ define([
     view: function (ctrl, args) {
       return (
         <f.inputWithLabel attrName='name'
+                          validate={true}
                           model={args.material}
                           tooltip={{
                                     content: tt.material.name,
@@ -147,29 +149,26 @@ define([
     base: {
       controller: function (args) {
         this.args     = args;
-        this.material = args.material;
-        this.onRemove = args.onRemove;
-        this.pipelineName = args.pipelineName;
         ComponentMixins.HasViewModel.call(this);
       },
 
       view: function (ctrl, args, children) {
         var title = function () {
-          if(Materials.isBuiltInType(ctrl.material.type())) {
-            return [ctrl.material.type(), '-', ctrl.material.name()].join(' ');
+          if(Materials.isBuiltInType(args.material.type())) {
+            return [args.material.type(), '-', args.material.name()].join(' ');
           } else {
-            return [ctrl.material.type(), '-', ctrl.material.scm() ? ctrl.material.scm().name() : ''].join(' ');
+            return [args.material.type(), '-', args.material.scm() ? args.material.scm().name() : ''].join(' ');
           }
         };
 
         return (
           <f.accordion class="material-definitions accordion-inner"
                        accordionTitles={[title()]}
-                       accordionKeys={[ctrl.material.uuid()]}
+                       accordionKeys={[args.material.uuid()]}
                        selectedIndex={ctrl.vmState('selectedMaterialIndex', m.prop(-1))}>
 
             <div class="material-definition">
-              <f.removeButton onclick={ctrl.onRemove} class="remove-material"/>
+              <f.removeButton onclick={args.onRemove} class="remove-material"/>
               {children}
             </div>
           </f.accordion>
@@ -359,12 +358,10 @@ define([
 
   var MaterialTypeSelector = {
     controller: function (args) {
-      this.materials      = args.materials;
-      this.createMaterial = args.createMaterial;
       this.selected       = m.prop('git');
     },
 
-    view: function (ctrl) {
+    view: function (ctrl, args) {
       var items = _.transform(_.merge({}, Materials.Types, PluggableSCMs.Types), function (result, value, key) {
         result[key] = value.description;
       });
@@ -378,7 +375,7 @@ define([
             items={items}
             size={2}/>
           <f.column size={2} end={true}>
-            <f.link class='add-button button' onclick={ctrl.createMaterial.bind(ctrl, ctrl.selected)}>Add</f.link>
+            <f.link class='add-button button' onclick={args.createMaterial.bind(ctrl, ctrl.selected)}>Add</f.link>
           </f.column>
         </f.row>
       );
@@ -387,25 +384,23 @@ define([
 
   var MaterialsConfigWidget = {
     controller: function (args) {
-      this.materials    = args.materials;
       this.args         = args;
-      this.pipelineName = args.pipelineName;
-      this.pipelines    = Pipelines.init(this.pipelineName());
+      this.pipelines    = Pipelines.init(args.pipelineName());
       ComponentMixins.HasViewModel.call(this);
 
       this.removeMaterial = function (material) {
-        this.materials.removeMaterial(material);
+        args.materials.removeMaterial(material);
       };
 
       this.createMaterial = function (type) {
-        var newMaterial = Materials.isBuiltInType(type()) ? this.materials.createMaterial({type: type()})
-                                                          : this.materials.createMaterial({type: type(), pluginInfo: PluginInfos.findById(type())});
-        var indexOfMaterial = this.materials.indexOfMaterial(newMaterial);
+        var newMaterial = Materials.isBuiltInType(type()) ? args.materials.createMaterial({type: type()})
+                                                          : args.materials.createMaterial({type: type(), pluginInfo: PluginInfos.findById(type())});
+        var indexOfMaterial = args.materials.indexOfMaterial(newMaterial);
         this.vmState('material-' + indexOfMaterial, {selectedMaterialIndex: m.prop(0)})
       };
     },
 
-    view: function (ctrl) {
+    view: function (ctrl, args) {
       return (
         <f.accordion accordionTitles={[
                         (
@@ -416,13 +411,13 @@ define([
                      class='materials'
                      selectedIndex={ctrl.vmState('materialsSelected', m.prop(-1))}>
           <div>
-            {ctrl.materials.mapMaterials(function (material, index) {
+            {args.materials.mapMaterials(function (material, index) {
               var materialView = MaterialViews[material.type()];
               return (m.component(materialView, {
                 material: material,
                 onRemove: ctrl.removeMaterial.bind(ctrl, material),
                 key: material.uuid(),
-                pipelineName: ctrl.pipelineName,
+                pipelineName: args.pipelineName,
                 pipelines: ctrl.pipelines,
                 vm: ctrl.vmState('material-' + index)
               }));

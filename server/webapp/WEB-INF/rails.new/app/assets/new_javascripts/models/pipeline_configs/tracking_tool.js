@@ -14,8 +14,15 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', 'models/model_mixins'], function (m, _, s, Mixins) {
-  var URL_REGEX = /^http(s)?:\/\/.+/;
+define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/validatable_mixin'], function (m, _, s, Mixins, Validatable) {
+
+  var UrlPatternValidator = function () {
+    this.validate = function (entity) {
+      if (!s.include(entity.urlPattern(), '${ID}')) {
+        entity.errors().add('urlPattern', Validatable.ErrorMessages.mustContainString("urlPattern", '${ID}'));
+      }
+    }
+  };
 
   var TrackingTool = function (type) {
     this.constructor.modelType = 'trackingTool';
@@ -39,31 +46,14 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins'], function (m,
 
   TrackingTool.Generic = function (data) {
     TrackingTool.call(this, "generic");
+    Validatable.call(this, data);
     this.urlPattern = m.prop(s.defaultToIfBlank(data.urlPattern, ''));
     this.regex      = m.prop(s.defaultToIfBlank(data.regex, ''));
 
-    this.validate = function () {
-      var errors = new Mixins.Errors();
-
-      if (s.isBlank(this.urlPattern())) {
-        errors.add('urlPattern', Mixins.ErrorMessages.mustBePresent('URL pattern'));
-      } else {
-        if (!this.urlPattern().match(URL_REGEX)) {
-          errors.add("urlPattern", Mixins.ErrorMessages.mustBeAUrl("urlPattern"));
-        }
-
-        if (!s.include(this.urlPattern(), '${ID}')) {
-          errors.add("urlPattern", Mixins.ErrorMessages.mustContainString("urlPattern", '${ID}'));
-        }
-      }
-
-
-      if (s.isBlank(this.regex())) {
-        errors.add('regex', Mixins.ErrorMessages.mustBePresent('regular expression'));
-      }
-
-      return errors;
-    };
+    this.validatePresenceOf('urlPattern');
+    this.validateUrlPattern('urlPattern');
+    this.validateWith('urlPattern', UrlPatternValidator);
+    this.validatePresenceOf('regex');
 
     this._attributesToJSON = function () {
       return {
@@ -82,29 +72,15 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins'], function (m,
 
   TrackingTool.Mingle = function (data) {
     TrackingTool.call(this, "mingle");
+    Validatable.call(this, data);
     this.baseUrl               = m.prop(s.defaultToIfBlank(data.baseUrl, ''));
     this.projectIdentifier     = m.prop(s.defaultToIfBlank(data.projectIdentifier, ''));
     this.mqlGroupingConditions = m.prop(s.defaultToIfBlank(data.mqlGroupingConditions, ''));
 
-    this.validate = function () {
-      var errors = new Mixins.Errors();
-
-      if (s.isBlank(this.baseUrl())) {
-        errors.add('baseUrl', Mixins.ErrorMessages.mustBePresent('Base URL'));
-      } else if (!this.baseUrl().match(URL_REGEX)) {
-        errors.add("baseUrl", Mixins.ErrorMessages.mustBeAUrl("baseUrl"));
-      }
-
-      if (s.isBlank(this.projectIdentifier())) {
-        errors.add('projectIdentifier', Mixins.ErrorMessages.mustBePresent('projectIdentifier'));
-      }
-
-      if (s.isBlank(this.mqlGroupingConditions())) {
-        errors.add('mqlGroupingConditions', Mixins.ErrorMessages.mustBePresent('mqlGroupingConditions'));
-      }
-
-      return errors;
-    };
+    this.validatePresenceOf('baseUrl');
+    this.validateUrlPattern('baseUrl');
+    this.validatePresenceOf('projectIdentifier');
+    this.validatePresenceOf('mqlGroupingConditions');
 
     this._attributesToJSON = function () {
       return {

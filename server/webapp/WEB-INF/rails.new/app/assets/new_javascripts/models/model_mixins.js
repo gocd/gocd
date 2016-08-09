@@ -179,6 +179,15 @@ define(['lodash', 'string-plus', 'mithril'], function (_, s, m) {
       });
     };
 
+    this.isUnique = function (childModel, uniqueOn) {
+      if(_.isNil(childModel[uniqueOn]()) || _.isEmpty(childModel[uniqueOn]())) {
+        return true;
+      }
+
+      var occurences = _.countBy(this['collect' + associationName + 'Property'](uniqueOn));
+      return (occurences[childModel[uniqueOn]()] <= 1);
+    };
+
     if (uniqueOn) {
       this['validateUnique' + associationName + _.capitalize(uniqueOn)] = function (childModel, errors) {
         var occurences = _.countBy(this['collect' + associationName + 'Property'](uniqueOn));

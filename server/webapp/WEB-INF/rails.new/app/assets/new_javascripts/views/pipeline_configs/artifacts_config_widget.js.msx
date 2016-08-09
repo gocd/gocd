@@ -45,11 +45,13 @@ define(['mithril', 'helpers/form_helper', 'helpers/mithril_component_mixins'], f
                            attrName='source'
                            placeholder='Source'
                            onchange={ctrl.changed.bind(ctrl)}
+                           validate={true}
                            size={3}/>
                   <f.input model={artifact}
                            attrName='destination'
                            placeholder='Destination'
                            onchange={ctrl.changed.bind(ctrl)}
+                           validate={'all'}
                            size={3}/>
                   <f.select value={artifact.type}
                             class='inline'

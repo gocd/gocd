@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', 'models/model_mixins'], function (m, _, s, Mixins) {
+define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/validatable_mixin'], function (m, _, s, Mixins, Validatable) {
 
   var Artifacts = function (data) {
     Mixins.HasMany.call(this, {factory: Artifacts.Artifact.create, as: 'Artifact', collection: data});
@@ -23,6 +23,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins'], function (m,
   Artifacts.Artifact = function (data) {
     this.constructor.modelType = 'artifact';
     Mixins.HasUUID.call(this);
+    Validatable.call(this, data);
 
     this.parent = Mixins.GetterSetter();
 
@@ -34,20 +35,8 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins'], function (m,
       return s.isBlank(this.source()) && s.isBlank(this.destination());
     };
 
-    this.validate = function () {
-      var errors = new Mixins.Errors();
-
-      if (s.isBlank(this.source()) && !s.isBlank(this.destination())) {
-        errors.add('source', Mixins.ErrorMessages.mustBePresent('source'));
-      }
-
-      if (!s.isBlank(this.source()) && s.isBlank(this.destination())) {
-        errors.add('destination', Mixins.ErrorMessages.mustBePresent('destination'));
-      }
-
-      return errors;
-    };
-
+    this.validatePresenceOf('source', {condition: function(property) {return (!s.isBlank(property.destination()))}});
+    this.validatePresenceOf('destination', {condition: function(property) {return (!s.isBlank(property.source()))}});
   };
 
   Artifacts.Artifact.create = function (data) {

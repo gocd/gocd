@@ -47,11 +47,13 @@ define([
                            attrName='name'
                            placeholder='Tab name'
                            onchange={ctrl.changed.bind(ctrl)}
+                           validate={true}
                            size={4}/>
                   <f.input model={tab}
                            attrName='path'
                            placeholder='Path of artifact'
                            onchange={ctrl.changed.bind(ctrl)}
+                           validate={'all'}
                            size={4}/>
                   <f.column size={3} end={true}>
                     {ctrl.removeLink.call(ctrl, tab)}

@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipeline_configs/encrypted_value'], function (m, _, s, Mixins, EncryptedValue) {
+define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipeline_configs/encrypted_value', 'models/validatable_mixin'],
+  function (m, _, s, Mixins, EncryptedValue, Validatable) {
 
   var EnvironmentVariables = function (data) {
     Mixins.HasMany.call(this, {
@@ -48,6 +49,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
   EnvironmentVariables.Variable = function (data) {
     this.constructor.modelType = 'environmentVariable';
     Mixins.HasUUID.call(this);
+    Validatable.call(this, data);
 
     this.parent = Mixins.GetterSetter();
 
@@ -83,23 +85,8 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
       return s.isBlank(this.name()) && s.isBlank(this.value());
     };
 
-    this.validate = function () {
-      var errors = new Mixins.Errors();
-
-      if (this.isBlank()) {
-        return errors;
-      }
-
-      if (s.isBlank(this.name())) {
-        if (!s.isBlank(this.value())) {
-          errors.add('name', Mixins.ErrorMessages.mustBePresent('name'));
-        }
-      } else {
-        this.parent().validateUniqueVariableName(this, errors);
-      }
-
-      return errors;
-    };
+    this.validatePresenceOf('name', {condition: function(property) {return (!s.isBlank(property.value()))}});
+    this.validateUniquenessOf('name');
   };
 
   EnvironmentVariables.Variable.create = function (data) {

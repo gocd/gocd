@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipeline_configs/environment_variables', 'models/pipeline_configs/parameters', 'models/pipeline_configs/materials', 'models/pipeline_configs/tracking_tool', 'models/pipeline_configs/stages'], function (m, _, s, Mixins, EnvironmentVariables, Parameters, Materials, TrackingTool, Stages) {
+define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipeline_configs/environment_variables', 'models/pipeline_configs/parameters',
+  'models/pipeline_configs/materials', 'models/pipeline_configs/tracking_tool', 'models/pipeline_configs/stages', 'helpers/mrequest', 'models/validatable_mixin'],
+  function (m, _, s, Mixins, EnvironmentVariables, Parameters, Materials, TrackingTool, Stages, mrequest, Validatable) {
   var Pipeline = function (data) {
     this.constructor.modelType = 'pipeline';
     Mixins.HasUUID.call(this);
+    Validatable.call(this, data);
 
     this.name                  = m.prop(data.name);
     this.enablePipelineLocking = m.prop(data.enablePipelineLocking);
@@ -47,16 +50,26 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     };
     this.stages                = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.stages, new Stages())));
 
-    this.validate = function () {
-      var errors = new Mixins.Errors();
+    this.validatePresenceOf('labelTemplate');
+    this.validateFormatOf('labelTemplate', {format: /(([a-zA-Z0-9_\-.!~*'()#:])*[$#]\{[a-zA-Z0-9_\-.!~*'()#:]+(\[:(\d+)])?}([a-zA-Z0-9_\-.!~*'()#:])*)+/,
+                                            message: "Label should be composed of alphanumeric text, it may contain the build number as ${COUNT}, it may contain a material revision as ${<material-name>} or ${<material-name>[:<length>]}, or use params as #{<param-name>}"});
 
-      if (s.isBlank(this.labelTemplate())) {
-        errors.add('labelTemplate', Mixins.ErrorMessages.mustBePresent('labelTemplate'));
-      } else if (!this.labelTemplate().match(/(([a-zA-Z0-9_\-.!~*'()#:])*[$#]\{[a-zA-Z0-9_\-.!~*'()#:]+(\[:(\d+)])?}([a-zA-Z0-9_\-.!~*'()#:])*)+/)) {
-        errors.add('labelTemplate', "Label should be composed of alphanumeric text, it may contain the build number as ${COUNT}, it may contain a material revision as ${<material-name>} or ${<material-name>[:<length>]}, or use params as #{<param-name>}");
-      }
+    this.update = function (etag, extract) {
+      var self = this;
 
-      return errors;
+      var config =  function (xhr) {
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.setRequestHeader("Accept", "application/vnd.go.cd.v1+json");
+        xhr.setRequestHeader("If-Match", etag);
+      };
+
+      return m.request({
+        method: 'PATCH',
+        url:     Routes.apiv1AdminPipelinePath({pipeline_name: self.name()}),
+        config:  config,
+        extract: extract,
+        data:    this
+      });
     };
   };
 
@@ -94,8 +107,17 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
         onlyOnChanges: data.only_on_changes
       });
     }
-
   };
+
+    Pipeline.find = function (url, extract) {
+      return m.request({
+        method:  'GET',
+        url:     url,
+        background: false,
+        config:  mrequest.xhrConfig.v1,
+        extract: extract
+      });
+    };
 
   return Pipeline;
 });

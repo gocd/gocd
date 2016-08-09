@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipeline_configs/encrypted_value', 'models/pipeline_configs/scms'],
-  function (m, _, s, Mixins, EncryptedValue, SCMs) {
+define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipeline_configs/encrypted_value', 'models/pipeline_configs/scms',
+  'models/validatable_mixin'],
+  function (m, _, s, Mixins, EncryptedValue, SCMs, Validatable) {
 
   function plainOrCipherValue(data) {
     if (data.encryptedPassword) {
@@ -38,7 +39,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
   Materials.Filter = function (data) {
     this.constructor.modelType = 'materialFilter';
     Mixins.HasUUID.call(this);
-
+    Validatable.call(this, data);
     this.ignore = s.withNewJSONImpl(m.prop(s.defaultToIfBlank(data.ignore, '')), s.stringToArray);
 
     this.isBlank = function () {
@@ -71,6 +72,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
   Materials.Material = function (type, hasFilter, data) {
     this.constructor.modelType = 'material';
     Mixins.HasUUID.call(this);
+    Validatable.call(this, data);
     this.parent           = Mixins.GetterSetter();
     this.type             = m.prop(type);
 
@@ -78,11 +80,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
       this.filter = m.prop(s.defaultToIfBlank(data.filter, new Materials.Filter(s.defaultToIfBlank(data.filter, {}))));
     }
 
-    this._validate = function (errors) {
-      if (!s.isBlank(this.name())) {
-        this.parent().validateUniqueMaterialName(this, errors);
-      }
-    };
+    this.validateUniquenessOf('name');
 
     this.toJSON = function () {
       var attrs = {};
@@ -156,17 +154,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     this.autoUpdate     = m.prop(data.autoUpdate);
     Mixins.HasEncryptedAttribute.call(this, {attribute: _password, name: 'passwordValue'});
 
-    this.validate = function () {
-      var errors = new Mixins.Errors();
-
-      this._validate(errors);
-
-      if (s.isBlank(this.url())) {
-        errors.add('url', Mixins.ErrorMessages.mustBePresent("url"));
-      }
-
-      return errors;
-    };
+    this.validatePresenceOf('url');
 
     this._attributesToJSON = function () {
       var attrs = {
@@ -183,16 +171,18 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
   };
 
   Materials.Material.SVN.fromJSON = function (data) {
+    var attr = data.attributes || {};
     return new Materials.Material.SVN({
-      url:               data.url,
-      username:          data.username,
-      password:          data.password,
-      encryptedPassword: data.encrypted_password,
-      checkExternals:    data.check_externals,
-      destination:       data.destination,
-      name:              data.name,
-      autoUpdate:        data.auto_update,
-      filter:            Materials.Filter.fromJSON(data.filter)
+      url:               attr.url,
+      username:          attr.username,
+      password:          attr.password,
+      encryptedPassword: attr.encrypted_password,
+      checkExternals:    attr.check_externals,
+      destination:       attr.destination,
+      name:              attr.name,
+      autoUpdate:        attr.auto_update,
+      filter:            Materials.Filter.fromJSON(attr.filter),
+      errors:            data.errors
     });
   };
 
@@ -205,17 +195,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     this.shallowClone = m.prop(data.shallowClone);
     this.autoUpdate   = m.prop(data.autoUpdate);
 
-    this.validate = function () {
-      var errors = new Mixins.Errors();
-
-      this._validate(errors);
-
-      if (s.isBlank(this.url())) {
-        errors.add('url', Mixins.ErrorMessages.mustBePresent("url"));
-      }
-
-      return errors;
-    };
+    this.validatePresenceOf('url');
 
     this._attributesToJSON = function () {
       return {
@@ -230,14 +210,16 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
   };
 
   Materials.Material.Git.fromJSON = function (data) {
+    var attr = data.attributes || {};
     return new Materials.Material.Git({
-      url:          data.url,
-      branch:       data.branch,
-      destination:  data.destination,
-      name:         data.name,
-      autoUpdate:   data.auto_update,
-      filter:       Materials.Filter.fromJSON(data.filter),
-      shallowClone: data.shallow_clone
+      url:          attr.url,
+      branch:       attr.branch,
+      destination:  attr.destination,
+      name:         attr.name,
+      autoUpdate:   attr.auto_update,
+      filter:       Materials.Filter.fromJSON(attr.filter),
+      shallowClone: attr.shallow_clone,
+      errors:       data.errors
     });
   };
 
@@ -249,17 +231,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     this.branch      = m.prop(s.defaultToIfBlank(data.branch, ''));
     this.autoUpdate  = m.prop(data.autoUpdate);
 
-    this.validate = function () {
-      var errors = new Mixins.Errors();
-
-      this._validate(errors);
-
-      if (s.isBlank(this.url())) {
-        errors.add('url', Mixins.ErrorMessages.mustBePresent("url"));
-      }
-
-      return errors;
-    };
+    this.validatePresenceOf('url');
 
     this._attributesToJSON = function () {
       return {
@@ -273,13 +245,15 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
   };
 
   Materials.Material.Mercurial.fromJSON = function (data) {
+    var attr = data.attributes || {};
     return new Materials.Material.Mercurial({
-      url:         data.url,
-      branch:      data.branch,
-      destination: data.destination,
-      name:        data.name,
-      autoUpdate:  data.auto_update,
-      filter:      Materials.Filter.fromJSON(data.filter)
+      url:         attr.url,
+      branch:      attr.branch,
+      destination: attr.destination,
+      name:        attr.name,
+      autoUpdate:  attr.auto_update,
+      filter:      Materials.Filter.fromJSON(attr.filter),
+      errors:      data.errors
     });
   };
 
@@ -295,21 +269,8 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     this.autoUpdate  = m.prop(data.autoUpdate);
     Mixins.HasEncryptedAttribute.call(this, {attribute: _password, name: 'passwordValue'});
 
-    this.validate = function () {
-      var errors = new Mixins.Errors();
-
-      this._validate(errors);
-
-      if (s.isBlank(this.port())) {
-        errors.add('port', Mixins.ErrorMessages.mustBePresent("port"));
-      }
-
-      if (s.isBlank(this.view())) {
-        errors.add('view', Mixins.ErrorMessages.mustBePresent("view"));
-      }
-
-      return errors;
-    };
+    this.validatePresenceOf('port');
+    this.validatePresenceOf('view');
 
     this._attributesToJSON = function () {
       var attrs = {
@@ -328,17 +289,19 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
   };
 
   Materials.Material.Perforce.fromJSON = function (data) {
+    var attr = data.attributes || {};
     return new Materials.Material.Perforce({
-      port:              data.port,
-      username:          data.username,
-      password:          data.password,
-      encryptedPassword: data.encrypted_password,
-      useTickets:        data.use_tickets,
-      destination:       data.destination,
-      view:              data.view,
-      autoUpdate:        data.auto_update,
-      name:              data.name,
-      filter:            Materials.Filter.fromJSON(data.filter)
+      port:              attr.port,
+      username:          attr.username,
+      password:          attr.password,
+      encryptedPassword: attr.encrypted_password,
+      useTickets:        attr.use_tickets,
+      destination:       attr.destination,
+      view:              attr.view,
+      autoUpdate:        attr.auto_update,
+      name:              attr.name,
+      filter:            Materials.Filter.fromJSON(attr.filter),
+      errors:            data.errors
     });
   };
 
@@ -354,25 +317,9 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     this.autoUpdate  = m.prop(data.autoUpdate);
     Mixins.HasEncryptedAttribute.call(this, {attribute: _password, name: 'passwordValue'});
 
-    this.validate = function () {
-      var errors = new Mixins.Errors();
-
-      this._validate(errors);
-
-      if (s.isBlank(this.url())) {
-        errors.add('url', Mixins.ErrorMessages.mustBePresent("url"));
-      }
-
-      if (s.isBlank(this.username())) {
-        errors.add('username', Mixins.ErrorMessages.mustBePresent("username"));
-      }
-
-      if (s.isBlank(this.projectPath())) {
-        errors.add('projectPath', Mixins.ErrorMessages.mustBePresent("projectPath"));
-      }
-
-      return errors;
-    };
+    this.validatePresenceOf('url');
+    this.validatePresenceOf('username');
+    this.validatePresenceOf('projectPath');
 
     this._attributesToJSON = function () {
       var attrs = {
@@ -390,17 +337,19 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
   };
 
   Materials.Material.TFS.fromJSON = function (data) {
+    var attr = data.attributes || {};
     return new Materials.Material.TFS({
-      url:               data.url,
-      domain:            data.domain,
-      username:          data.username,
-      password:          data.password,
-      encryptedPassword: data.encrypted_password,
-      destination:       data.destination,
-      projectPath:       data.project_path,
-      autoUpdate:        data.auto_update,
-      name:              data.name,
-      filter:            Materials.Filter.fromJSON(data.filter)
+      url:               attr.url,
+      domain:            attr.domain,
+      username:          attr.username,
+      password:          attr.password,
+      encryptedPassword: attr.encrypted_password,
+      destination:       attr.destination,
+      projectPath:       attr.project_path,
+      autoUpdate:        attr.auto_update,
+      name:              attr.name,
+      filter:            Materials.Filter.fromJSON(attr.filter),
+      errors:            data.errors
     });
   };
 
@@ -410,21 +359,8 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     this.pipeline = m.prop(s.defaultToIfBlank(data.pipeline, ''));
     this.stage    = m.prop(s.defaultToIfBlank(data.stage, ''));
 
-    this.validate = function () {
-      var errors = new Mixins.Errors();
-
-      this._validate(errors);
-
-      if (s.isBlank(this.pipeline())) {
-        errors.add('pipeline', Mixins.ErrorMessages.mustBePresent("pipeline"));
-      }
-
-      if (s.isBlank(this.stage())) {
-        errors.add('stage', Mixins.ErrorMessages.mustBePresent("stage"));
-      }
-
-      return errors;
-    };
+    this.validatePresenceOf('pipeline');
+    this.validatePresenceOf('stage');
 
     this._attributesToJSON = function () {
       return {
@@ -436,10 +372,12 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
   };
 
   Materials.Material.Dependency.fromJSON = function (data) {
+    var attr = data.attributes || {};
     return new Materials.Material.Dependency({
-      pipeline:   data.pipeline,
-      stage:      data.stage,
-      name:       data.name
+      pipeline: attr.pipeline,
+      stage:    attr.stage,
+      name:     attr.name,
+      errors:   data.errors
     });
   };
 
@@ -459,10 +397,12 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
   };
 
   Materials.Material.PluggableMaterial.fromJSON = function (data) {
+    var attr = data.attributes || {};
     return new Materials.Material.PluggableMaterial({
-      scm:         SCMs.findById(data.ref),
-      destination: data.destination,
-      filter:      Materials.Filter.fromJSON(data.filter)
+      scm:         SCMs.findById(attr.ref),
+      destination: attr.destination,
+      filter:      Materials.Filter.fromJSON(attr.filter),
+      errors:      data.errors
     });
   };
 
@@ -481,8 +421,8 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
   };
 
   Materials.Material.fromJSON = function (data) {
-    return Materials.isBuiltInType(data.type) ? Materials.Types[data.type].type.fromJSON(data.attributes || {})
-                                              : Materials.Material.PluggableMaterial.fromJSON(data.attributes || {});
+    return Materials.isBuiltInType(data.type) ? Materials.Types[data.type].type.fromJSON(data || {})
+                                              : Materials.Material.PluggableMaterial.fromJSON(data || {});
   };
 
   return Materials;

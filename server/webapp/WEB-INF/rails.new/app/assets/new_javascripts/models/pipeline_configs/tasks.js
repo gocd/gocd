@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipeline_configs/argument', 'models/pipeline_configs/run_if_conditions'],
-  function (m, _, s, Mixins, Argument, RunIfConditions) {
+define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipeline_configs/argument', 'models/pipeline_configs/run_if_conditions',
+    'models/validatable_mixin'],
+  function (m, _, s, Mixins, Argument, RunIfConditions, Validatable) {
 
   var Tasks = function (data) {
     Mixins.HasMany.call(this, {factory: Tasks.createByType, as: 'Task', collection: data});
@@ -44,6 +45,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
   Tasks.Task = function (type, data) {
     this.constructor.modelType = 'task';
     Mixins.HasUUID.call(this);
+    Validatable.call(this, data);
 
     this.type   = m.prop(type);
     this.parent = Mixins.GetterSetter();
@@ -77,7 +79,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
   });
 
   Tasks.Task.Ant = function (data) {
-    Tasks.Task.call(this, "ant");
+    Tasks.Task.call(this, "ant", data);
     this.target           = m.prop(s.defaultToIfBlank(data.target, ''));
     this.workingDirectory = m.prop(s.defaultToIfBlank(data.workingDirectory, ''));
     this.buildFile        = m.prop(s.defaultToIfBlank(data.buildFile, ''));
@@ -114,7 +116,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
   };
 
   Tasks.Task.NAnt = function (data) {
-    Tasks.Task.call(this, "nant");
+    Tasks.Task.call(this, "nant", data);
     this.target            = m.prop(s.defaultToIfBlank(data.target, ''));
     this.workingDirectory  = m.prop(s.defaultToIfBlank(data.workingDirectory, ''));
     this.buildFile         = m.prop(s.defaultToIfBlank(data.buildFile, ''));
@@ -154,7 +156,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
   };
 
   Tasks.Task.Exec = function (data) {
-    Tasks.Task.call(this, "exec");
+    Tasks.Task.call(this, "exec", data);
     this.command          = m.prop(s.defaultToIfBlank(data.command, ''));
     this.args             = m.prop(Argument.create(data.args, data.arguments));
     this.workingDirectory = m.prop(s.defaultToIfBlank(data.workingDirectory, ''));
@@ -191,7 +193,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
   };
 
   Tasks.Task.Rake = function (data) {
-    Tasks.Task.call(this, "rake");
+    Tasks.Task.call(this, "rake", data);
     this.target           = m.prop(s.defaultToIfBlank(data.target, ''));
     this.workingDirectory = m.prop(s.defaultToIfBlank(data.workingDirectory, ''));
     this.buildFile        = m.prop(s.defaultToIfBlank(data.buildFile, ''));
@@ -228,7 +230,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
   };
 
   Tasks.Task.FetchArtifact = function (data) {
-    Tasks.Task.call(this, "fetch");
+    Tasks.Task.call(this, "fetch", data);
     this.pipeline      = m.prop(s.defaultToIfBlank(data.pipeline, ''));
     this.stage         = m.prop(s.defaultToIfBlank(data.stage, ''));
     this.job           = m.prop(s.defaultToIfBlank(data.job, ''));
@@ -275,7 +277,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
   };
 
   Tasks.Task.PluginTask = function (data) {
-    Tasks.Task.call(this, 'pluggable_task');
+    Tasks.Task.call(this, 'pluggable_task', data);
 
     this.pluginId      = m.prop(s.defaultToIfBlank(data.pluginId, ''));
     this.version       = m.prop(s.defaultToIfBlank(data.version, ''));

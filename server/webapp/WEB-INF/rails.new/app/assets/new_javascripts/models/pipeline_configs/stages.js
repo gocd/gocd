@@ -14,13 +14,9 @@
  * limitations under the License.
  */
 
-define([
-  'mithril', 'lodash', 'string-plus',
-  'models/model_mixins',
-  'models/pipeline_configs/jobs', 'models/pipeline_configs/environment_variables', 'models/pipeline_configs/approval'
-], function (m, _, s,
-             Mixins,
-             Jobs, EnvironmentVariables, Approval) {
+define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipeline_configs/jobs',
+  'models/pipeline_configs/environment_variables', 'models/pipeline_configs/approval', 'models/validatable_mixin'],
+  function (m, _, s, Mixins, Jobs, EnvironmentVariables, Approval, Validatable) {
 
   var Stages = function (data) {
     Mixins.HasMany.call(this, {factory: Stages.Stage.create, as: 'Stage', collection: data, uniqueOn: 'name'});
@@ -29,6 +25,7 @@ define([
   Stages.Stage = function (data) {
     this.constructor.modelType = 'stage';
     Mixins.HasUUID.call(this);
+    Validatable.call(this, data);
 
     this.parent = Mixins.GetterSetter();
 
@@ -40,18 +37,8 @@ define([
     this.jobs                  = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.jobs, new Jobs())));
     this.approval              = m.prop(s.defaultToIfBlank(data.approval, new Approval({})));
 
-    this.validate = function () {
-      var errors = new Mixins.Errors();
-
-      if (s.isBlank(this.name())) {
-        errors.add('name', Mixins.ErrorMessages.mustBePresent('name'));
-      } else {
-        this.parent().validateUniqueStageName(this, errors);
-      }
-
-
-      return errors;
-    };
+    this.validatePresenceOf('name');
+    this.validateUniquenessOf('name');
   };
 
   Stages.Stage.create = function (data) {
@@ -72,7 +59,8 @@ define([
       neverCleanupArtifacts: data.never_cleanup_artifacts,
       environmentVariables:  EnvironmentVariables.fromJSON(data.environment_variables),
       jobs:                  Jobs.fromJSON(data.jobs),
-      approval:              Approval.fromJSON(data.approval || {})
+      approval:              Approval.fromJSON(data.approval || {}),
+      errors:                data.errors
     });
   };
 

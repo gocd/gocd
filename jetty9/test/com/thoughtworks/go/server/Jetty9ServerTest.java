@@ -305,6 +305,30 @@ public class Jetty9ServerTest {
         assertThat(FileUtil.readContentFromFile(systemEnvironment.getJettyConfigFile()), is(originalContent));
     }
 
+    @Test
+    public void shouldSetErrorHandlerForServer() throws Exception {
+        jetty9Server.configure();
+        verify(server).addBean(any(JettyCustomErrorPageHandler.class));
+    }
+
+
+    @Test
+    public void shouldSetErrorHandlerForWebAppContext() throws Exception {
+        ArgumentCaptor<HandlerCollection> captor = ArgumentCaptor.forClass(HandlerCollection.class);
+        jetty9Server.configure();
+
+        verify(server, times(1)).setHandler(captor.capture());
+        HandlerCollection handlerCollection = captor.getValue();
+        assertThat(handlerCollection.getHandlers().length, is(3));
+
+        Handler handler = handlerCollection.getHandlers()[2];
+        assertThat(handler instanceof WebAppContext, is(true));
+        WebAppContext webAppContext = (WebAppContext) handler;
+
+        assertThat(webAppContext.getErrorHandler() instanceof JettyCustomErrorPageHandler, is(true));
+    }
+
+
     private WebAppContext getWebAppContext(Jetty9Server server) {
         return (WebAppContext) ReflectionUtil.getField(server, "webAppContext");
     }

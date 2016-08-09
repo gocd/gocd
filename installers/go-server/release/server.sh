@@ -53,7 +53,7 @@ location of your Java installation."
       fi
   else
       java_cmd="java"
-      which java >/dev/null 2>&1 || die "ERROR: GO_JAVA_HOME is not set and no 'java' command could be found in your PATH.
+      command -v java >/dev/null 2>&1 || die "ERROR: GO_JAVA_HOME is not set and no 'java' command could be found in your PATH.
 
 Please set the GO_JAVA_HOME variable in your environment to match the
 location of your Java installation."

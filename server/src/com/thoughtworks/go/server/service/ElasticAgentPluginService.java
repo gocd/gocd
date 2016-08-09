@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.google.common.collect.Sets;
 import com.thoughtworks.go.config.JobAgentConfig;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobPlan;
@@ -43,10 +44,9 @@ import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-
-import static org.apache.commons.collections.CollectionUtils.disjunction;
 
 @Service
 public class ElasticAgentPluginService implements JobStatusListener {
@@ -120,7 +120,7 @@ public class ElasticAgentPluginService implements JobStatusListener {
         }
 
         ArrayList<JobPlan> jobsThatRequireAgent = new ArrayList<>();
-        jobsThatRequireAgent.addAll(disjunction(old, newPlan));
+        jobsThatRequireAgent.addAll(Sets.difference(new HashSet<>(newPlan), new HashSet<>(old)));
         jobsThatRequireAgent.addAll(starvingJobs);
 
         ArrayList<JobPlan> plansThatRequireElasticAgent = ListUtil.filterInto(new ArrayList<JobPlan>(), jobsThatRequireAgent, isElasticAgent());

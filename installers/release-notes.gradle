@@ -95,6 +95,7 @@ task releaseNotes {
       html.println("""<!DOCTYPE html>
 <html>
 <head>
+  <meta charset="utf-8" />
   <title>GoCD Release Notes v${rootProject.goVersion}</title>
   <style>
     .release-notes p {

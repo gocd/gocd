@@ -1,3 +1,5 @@
+import groovy.xml.XmlUtil
+
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
@@ -78,6 +80,8 @@ task releaseNotes {
       Pattern pattern = Pattern.compile(/#(\d+)/)
       gitLogOut.toString().eachLine { line ->
         def (String shortSha, String sha, String message) = line.split(/ /, 3)
+
+        message = XmlUtil.escapeXml(message)
 
         bugfixes.write("<p>")
         bugfixes.write("""<a href="https://www.github.com/gocd/gocd/commit/${sha}"><code>${shortSha}</code></a>""")

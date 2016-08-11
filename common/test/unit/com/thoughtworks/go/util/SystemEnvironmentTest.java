@@ -513,4 +513,25 @@ public class SystemEnvironmentTest {
     public void shouldReturnFalseWhenShineEnabledIsNotSet() {
         assertFalse(systemEnvironment.isShineEnabled());
     }
+
+    @Test
+    public void shouldReturnTrueIfBooleanSystemPropertyIsEnabledByY() {
+        assertThat(new SystemEnvironment().get(SystemEnvironment.GO_CONFIG_REPO_PERIODIC_GC), is(false));
+        System.setProperty("go.config.repo.gc.periodic", "Y");
+        assertThat(new SystemEnvironment().get(SystemEnvironment.GO_CONFIG_REPO_PERIODIC_GC), is(true));
+    }
+
+    @Test
+    public void shouldReturnTrueIfBooleanSystemPropertyIsEnabledByTrue() {
+        assertThat(new SystemEnvironment().get(SystemEnvironment.GO_CONFIG_REPO_PERIODIC_GC), is(false));
+        System.setProperty("go.config.repo.gc.periodic", "true");
+        assertThat(new SystemEnvironment().get(SystemEnvironment.GO_CONFIG_REPO_PERIODIC_GC), is(true));
+    }
+
+    @Test
+    public void shouldReturnFalseIfBooleanSystemPropertyIsAnythingButYOrTrue() {
+        assertThat(new SystemEnvironment().get(SystemEnvironment.GO_CONFIG_REPO_PERIODIC_GC), is(false));
+        System.setProperty("go.config.repo.gc.periodic", "some-value");
+        assertThat(new SystemEnvironment().get(SystemEnvironment.GO_CONFIG_REPO_PERIODIC_GC), is(false));
+    }
 }

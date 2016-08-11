@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.plugin.controller;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.infra.PluginManager;
+import com.thoughtworks.go.server.web.ResponseCodeView;
 import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,7 +30,12 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
@@ -71,6 +77,7 @@ public class PluginControllerTest {
     @Test
     public void shouldForwardWebRequestToPlugin() throws Exception {
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(200));
+        when(pluginManager.isPluginOfType(any(String.class), any(String.class))).thenReturn(true);
 
         Map<String, String[]> springParameterMap = new HashMap<String, String[]>();
         springParameterMap.put("k1", new String[]{"v1"});
@@ -101,6 +108,7 @@ public class PluginControllerTest {
 
     @Test
     public void shouldRenderPluginResponseWithDefaultContentTypeOn200() throws Exception {
+        when(pluginManager.isPluginOfType(any(String.class), any(String.class))).thenReturn(true);
         DefaultGoPluginApiResponse apiResponse = new DefaultGoPluginApiResponse(200);
         String responseBody = "response-body";
         apiResponse.setResponseBody(responseBody);
@@ -119,6 +127,7 @@ public class PluginControllerTest {
 
     @Test
     public void shouldRenderPluginResponseWithSpecifiedContentTypeOn200() throws Exception {
+        when(pluginManager.isPluginOfType(any(String.class), any(String.class))).thenReturn(true);
         DefaultGoPluginApiResponse apiResponse = new DefaultGoPluginApiResponse(200);
         String contentType = "image/png";
         apiResponse.responseHeaders().put("Content-Type", contentType);
@@ -138,6 +147,7 @@ public class PluginControllerTest {
 
     @Test
     public void shouldRedirectToSpecifiedLocationOn302() throws Exception {
+        when(pluginManager.isPluginOfType(any(String.class), any(String.class))).thenReturn(true);
         DefaultGoPluginApiResponse apiResponse = new DefaultGoPluginApiResponse(302);
         String redirectLocation = "/go/plugin/interact/plugin.id/request.name";
         apiResponse.responseHeaders().put("Location", redirectLocation);
@@ -150,6 +160,35 @@ public class PluginControllerTest {
 
 
         assertThat(modelAndView.getViewName(), is("redirect:" + redirectLocation));
+    }
+
+    @Test
+    public void shouldAllowInteractionOnlyForAuthPlugins() {
+        when(pluginManager.isPluginOfType("authentication", "github.pr")).thenReturn(false);
+
+        ModelAndView modelAndView = pluginController.handlePluginInteractRequest(PLUGIN_ID, REQUEST_NAME, servletRequest);
+        ResponseCodeView view = (ResponseCodeView) modelAndView.getView();
+
+        assertThat(view.getStatusCode(), is(403));
+    }
+
+    @Test
+    public void shouldDisallowRequestsWhichNeedAuthentication() {
+        when(pluginManager.isPluginOfType(any(String.class), any(String.class))).thenReturn(true);
+
+        List<String> restrictedRequests = Arrays.asList("go.plugin-settings.get-configuration",
+                                                        "go.plugin-settings.get-view",
+                                                        "go.plugin-settings.validate-configuration",
+                                                        "go.authentication.plugin-configuration",
+                                                        "go.authentication.authenticate-user",
+                                                        "go.authentication.search-user");
+
+        for (String requestName : restrictedRequests) {
+            ModelAndView modelAndView = pluginController.handlePluginInteractRequest(PLUGIN_ID, requestName, servletRequest);
+            ResponseCodeView view = (ResponseCodeView) modelAndView.getView();
+
+            assertThat(view.getStatusCode(), is(403));
+        }
     }
 
     private Enumeration<String> getMockEnumeration(List<String> elements) {

@@ -16,10 +16,13 @@
 
 package com.thoughtworks.go.server.plugin.controller;
 
+import com.google.common.collect.Sets;
+import com.thoughtworks.go.plugin.access.authentication.AuthenticationExtension;
 import com.thoughtworks.go.plugin.api.request.DefaultGoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoApiResponse;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.infra.PluginManager;
+import com.thoughtworks.go.server.web.ResponseCodeView;
 import com.thoughtworks.go.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -34,12 +37,21 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+
+import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN;
 
 @Controller
 public class PluginController {
     public static final String CONTENT_TYPE_HTML = "text/html; charset=UTF-8";
 
     private PluginManager pluginManager;
+    private static final Set<String> BLACK_LISTED_REQUESTS = Sets.newHashSet("go.plugin-settings.get-configuration",
+                        "go.plugin-settings.get-view",
+                        "go.plugin-settings.validate-configuration",
+                        "go.authentication.plugin-configuration",
+                        "go.authentication.authenticate-user",
+                        "go.authentication.search-user");
 
     @Autowired
     public PluginController(PluginManager pluginManager) {
@@ -51,6 +63,15 @@ public class PluginController {
             @PathVariable String pluginId,
             @PathVariable String requestName,
             HttpServletRequest request) {
+
+        if(!isAuthPlugin(pluginId)) {
+            return ResponseCodeView.create(SC_FORBIDDEN, "Plugin interact endpoint is enabled only for Authentication Plugins");
+        }
+
+        if(isRestrictedRequestName(requestName)) {
+            return ResponseCodeView.create(SC_FORBIDDEN, String.format("Plugin interact for '%s' requestName is disallowed.", requestName));
+        }
+
         DefaultGoPluginApiRequest apiRequest = new DefaultGoPluginApiRequest(null, null, requestName);
         apiRequest.setRequestParams(getParameterMap(request));
         addRequestHeaders(request, apiRequest);
@@ -72,6 +93,14 @@ public class PluginController {
             // handle
         }
         throw new RuntimeException("render error page");
+    }
+
+    private boolean isRestrictedRequestName(String requestName) {
+        return BLACK_LISTED_REQUESTS.contains(requestName);
+    }
+
+    private boolean isAuthPlugin(String pluginId) {
+        return pluginManager.isPluginOfType(AuthenticationExtension.EXTENSION_NAME, pluginId);
     }
 
     private Map<String, String> getParameterMap(HttpServletRequest request) {

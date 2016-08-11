@@ -87,11 +87,6 @@ describe Api::JobsController do
   describe :history do
     include APIModelMother
 
-    it "should route to history" do
-      expect(:get => "/api/jobs/pipeline/stage/job/history").to route_to(:controller => 'api/jobs', :action => "history", :pipeline_name => "pipeline", :stage_name => "stage", :job_name => "job", :offset => "0", :no_layout => true)
-      expect(:get => "/api/jobs/pipeline/stage/job/history/1").to route_to(:controller => 'api/jobs', :action => "history", :pipeline_name => "pipeline", :stage_name => "stage", :job_name => "job", :offset => "1", :no_layout => true)
-    end
-
     it "should render history json" do
       loser = Username.new(CaseInsensitiveString.new("loser"))
       controller.should_receive(:current_user).and_return(loser)
@@ -115,6 +110,91 @@ describe Api::JobsController do
 
       expect(response.status).to eq(406)
       expect(response.body).to eq("Not Acceptable\n")
+    end
+
+    describe :route do
+      it "should route to history" do
+        expect(:get => "/api/jobs/pipeline/stage/job/history").to route_to(:controller => 'api/jobs', :action => "history", :pipeline_name => "pipeline", :stage_name => "stage", :job_name => "job", :offset => "0", :no_layout => true)
+        expect(:get => "/api/jobs/pipeline/stage/job/history/1").to route_to(:controller => 'api/jobs', :action => "history", :pipeline_name => "pipeline", :stage_name => "stage", :job_name => "job", :offset => "1", :no_layout => true)
+      end
+
+      describe :with_pipeline_name_contraint do
+        it 'should route to history action of stages controller having dots in pipeline name' do
+          expect(:get => 'api/jobs/some.thing/bar/jobName/history').to route_to(no_layout: true, controller: 'api/jobs', action: 'history', pipeline_name: 'some.thing', stage_name: 'bar', job_name: 'jobName', offset: '0')
+        end
+
+        it 'should route to history action of stages controller having hyphen in pipeline name' do
+          expect(:get => 'api/jobs/some-thing/bar/jobName/history').to route_to(no_layout: true, controller: 'api/jobs', action: 'history', pipeline_name: 'some-thing', stage_name: 'bar', job_name: 'jobName', offset: '0')
+        end
+
+        it 'should route to history action of stages controller having underscore in pipeline name' do
+          expect(:get => 'api/jobs/some_thing/bar/jobName/history').to route_to(no_layout: true, controller: 'api/jobs', action: 'history', pipeline_name: 'some_thing', stage_name: 'bar', job_name: 'jobName', offset: '0')
+        end
+
+        it 'should route to history action of stages controller having alphanumeric pipeline name' do
+          expect(:get => 'api/jobs/123foo/bar/jobName/history').to route_to(no_layout: true, controller: 'api/jobs', action: 'history', pipeline_name: '123foo', stage_name: 'bar', job_name: 'jobName', offset: '0')
+        end
+
+        it 'should route to history action of stages controller having capitalized pipeline name' do
+          expect(:get => 'api/jobs/FOO/bar/jobName/history').to route_to(no_layout: true, controller: 'api/jobs', action: 'history', pipeline_name: 'FOO', stage_name: 'bar', job_name: 'jobName', offset: '0')
+        end
+
+        it 'should not route to history action of stages controller for invalid pipeline name' do
+          expect(:get => 'api/jobs/fo$%#@6/bar/jobName/history').to_not be_routable
+        end
+      end
+
+      describe :with_stage_name_constraint do
+        it 'should route to history action of stages controller having dots in stage name' do
+          expect(:get => 'api/jobs/foo/some.thing/jobName/history').to route_to(no_layout: true, controller: 'api/jobs', action: 'history', pipeline_name: 'foo', stage_name: 'some.thing', job_name: 'jobName', offset: '0')
+        end
+
+        it 'should route to history action of stages controller having hyphen in stage name' do
+          expect(:get => 'api/jobs/foo/some-thing/jobName/history').to route_to(no_layout: true, controller: 'api/jobs', action: 'history', pipeline_name: 'foo', stage_name: 'some-thing', job_name: 'jobName', offset: '0')
+        end
+
+        it 'should route to history action of stages controller having underscore in stage name' do
+          expect(:get => 'api/jobs/foo/some_thing/jobName/history').to route_to(no_layout: true, controller: 'api/jobs', action: 'history', pipeline_name: 'foo', stage_name: 'some_thing', job_name: 'jobName', offset: '0')
+        end
+
+        it 'should route to history action of stages controller having alphanumeric stage name' do
+          expect(:get => 'api/jobs/123foo/bar123/jobName/history').to route_to(no_layout: true, controller: 'api/jobs', action: 'history', pipeline_name: '123foo', stage_name: 'bar123', job_name: 'jobName', offset: '0')
+        end
+
+        it 'should route to history action of stages controller having capitalized stage name' do
+          expect(:get => 'api/jobs/foo/BAR/jobName/history').to route_to(no_layout: true, controller: 'api/jobs', action: 'history', pipeline_name: 'foo', stage_name: 'BAR', job_name: 'jobName', offset: '0')
+        end
+
+        it 'should not route to history action of stages controller for invalid stage name' do
+          expect(:get => 'api/jobs/some_thing/fo$%#@6/jobName/history').to_not be_routable
+        end
+      end
+
+      describe :with_job_name_constraint do
+        it 'should route to history action of stages controller having dots in stage name' do
+          expect(:get => 'api/jobs/foo/bar/some.thing/history').to route_to(no_layout: true, controller: 'api/jobs', action: 'history', pipeline_name: 'foo', stage_name: 'bar', job_name: 'some.thing',  offset: '0')
+        end
+
+        it 'should route to history action of stages controller having hyphen in stage name' do
+          expect(:get => 'api/jobs/foo/bar/some-thing/history').to route_to(no_layout: true, controller: 'api/jobs', action: 'history', pipeline_name: 'foo', stage_name: 'bar', job_name: 'some-thing',  offset: '0')
+        end
+
+        it 'should route to history action of stages controller having underscore in stage name' do
+          expect(:get => 'api/jobs/foo/bar/some_thing/history').to route_to(no_layout: true, controller: 'api/jobs', action: 'history', pipeline_name: 'foo', stage_name: 'bar', job_name: 'some_thing',  offset: '0')
+        end
+
+        it 'should route to history action of stages controller having alphanumeric stage name' do
+          expect(:get => 'api/jobs/123foo/bar/bar123/history').to route_to(no_layout: true, controller: 'api/jobs', action: 'history', pipeline_name: '123foo', stage_name: 'bar', job_name: 'bar123',  offset: '0')
+        end
+
+        it 'should route to history action of stages controller having capitalized stage name' do
+          expect(:get => 'api/jobs/foo/bar/BAR/history').to route_to(no_layout: true, controller: 'api/jobs', action: 'history', pipeline_name: 'foo', stage_name: 'bar', job_name: 'BAR',  offset: '0')
+        end
+
+        it 'should not route to history action of stages controller for invalid stage name' do
+          expect(:get => 'api/jobs/some_thing/stage_name/fo$%#@6/history').to_not be_routable
+        end
+      end
     end
   end
 end

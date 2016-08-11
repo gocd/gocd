@@ -85,8 +85,14 @@ describe ApiV1::BackupsController do
           Rack::MockRequest::DEFAULT_ENV = {}
         end
 
-        it 'should route to create action of the backups controller' do
+        it 'should route to create action of the backups controller with custom header' do
+          expect_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(true)
           expect(:post => 'api/backups').to route_to(action: 'create', controller: 'api_v1/backups')
+        end
+
+        it 'should route to errors without custom header' do
+          expect_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(false)
+          expect(:post => 'api/backups').to route_to(controller: 'api_v1/errors', action: 'not_found', url: 'backups')
         end
       end
       describe :without_header do

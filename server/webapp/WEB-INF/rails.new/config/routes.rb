@@ -317,7 +317,7 @@ Go::Application.routes.draw do
 
       # stage api's
       post 'stages/:id/cancel' => 'stages#cancel', constraints: HeaderConstraint.new, as: :cancel_stage
-      constraints pipeline_name: PIPELINE_NAME_FORMAT do
+      constraints pipeline_name: PIPELINE_NAME_FORMAT, stage_name: STAGE_NAME_FORMAT do
         post 'stages/:pipeline_name/:stage_name/cancel' => 'stages#cancel_stage_using_pipeline_stage_name', constraints: HeaderConstraint.new, as: :cancel_stage_using_pipeline_stage_name
       end
 

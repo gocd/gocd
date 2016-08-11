@@ -280,6 +280,14 @@ define(['lodash', "models/pipeline_configs/tasks", "string-plus", 'models/pipeli
         });
       });
 
+      describe('validation', function () {
+        it('should validate presence of command', function () {
+          var task = new Tasks.Task.Exec({});
+
+          expect(task.isValid()).toBe(false);
+          expect(task.errors().errors('command')).toEqual(['Command must be present'])
+        })
+      });
 
       describe("Serialize from/to JSON", function () {
         beforeEach(function () {
@@ -291,6 +299,20 @@ define(['lodash', "models/pipeline_configs/tasks", "string-plus", 'models/pipeli
           expect(task.command()).toBe('bash');
           expect(task.args().data()).toEqual(['-c', 'ls -al /']);
           expect(task.runIf().data()).toEqual(['any']);
+        });
+
+        it('should map server side errors', function () {
+          var task = Tasks.Task.fromJSON({
+            type:   "exec",
+            errors: {
+              command: [
+                "Command cannot be empty"
+              ]
+            }
+          });
+
+          expect(task.errors()._isEmpty()).toBe(false);
+          expect(task.errors().errors('command')).toEqual(['Command cannot be empty']);
         });
 
         it("should serialize to JSON", function () {
@@ -485,6 +507,16 @@ define(['lodash', "models/pipeline_configs/tasks", "string-plus", 'models/pipeli
 
         expect(task.onCancelTask).toBe(null);
       });
+
+      it('should validate presence of required fields', function () {
+        var task = new Tasks.Task.FetchArtifact({});
+
+        expect(task.isValid()).toBe(false);
+        expect(task.errors().errors('stage')).toEqual(['Stage must be present']);
+        expect(task.errors().errors('job')).toEqual(['Job must be present']);
+        expect(task.errors().errors('source')).toEqual(['Source must be present']);
+      });
+
       describe("Serialize from/to JSON", function () {
         beforeEach(function () {
           task = Tasks.Task.fromJSON(sampleTaskJSON());
@@ -499,6 +531,28 @@ define(['lodash', "models/pipeline_configs/tasks", "string-plus", 'models/pipeli
           expect(task.isSourceAFile()).toBe(true);
           expect(task.destination()).toBe("Dest");
           expect(task.runIf().data()).toEqual(['any']);
+        });
+
+        it('should map server side errors', function () {
+          var task = Tasks.Task.fromJSON({
+            type: "fetch",
+            errors: {
+              job: [
+                'Job is a required field.'
+              ],
+              source: [
+                'Should provide either srcdir or srcfile'
+              ],
+              stage: [
+                'Stage is a required field.'
+              ]
+            }
+          });
+
+          expect(task.errors()._isEmpty()).toBe(false);
+          expect(task.errors().errors('stage')).toEqual(['Stage is a required field.']);
+          expect(task.errors().errors('job')).toEqual(['Job is a required field.']);
+          expect(task.errors().errors('source')).toEqual(['Should provide either srcdir or srcfile']);
         });
 
         it("should serialize to JSON", function () {

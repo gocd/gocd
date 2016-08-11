@@ -93,6 +93,7 @@ define([
                 <f.row>
                   <f.inputWithLabel attrName='command'
                                     model={task}
+                                    validate={true}
                                     size={12}
                                     largeSize={12}/>
                   <f.inputWithLabel attrName='workingDirectory'
@@ -136,14 +137,17 @@ define([
               <f.inputWithLabel attrName='pipeline'
                                 model={task}/>
               <f.inputWithLabel attrName='stage'
-                                model={task}/>
+                                model={task}
+                                validate={true}/>
               <f.inputWithLabel attrName='job'
                                 model={task}
+                                validate={true}
                                 end={true}/>
             </f.row>
             <f.row>
               <f.inputWithLabel attrName='source'
-                                model={task}/>
+                                model={task}
+                                validate={true}/>
               <f.inputWithLabel attrName='destination'
                                 model={task}/>
               <f.checkBox attrName='isSourceAFile'

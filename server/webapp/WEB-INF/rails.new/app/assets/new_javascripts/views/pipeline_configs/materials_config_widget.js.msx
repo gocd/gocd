@@ -82,6 +82,7 @@ define([
         <f.inputWithLabel attrName='destination'
                           label="Destination"
                           model={args.material}
+                          validate={true}
                           tooltip={{
                                     content: tt.material.destination,
                                     direction: 'bottom',
@@ -200,7 +201,7 @@ define([
             <f.row>
               <DestinationField material={material}/>
             </f.row>
-            <TestConnection material={material}/>
+            <TestConnection material={material} pipelineName={args.pipelineName}/>
             <MaterialFilterWidget material={material}/>
           </MaterialViews.base>
         );
@@ -229,7 +230,7 @@ define([
             <f.row>
               <DestinationField material={material}/>
             </f.row>
-            <TestConnection material={material}/>
+            <TestConnection material={material}  pipelineName={args.pipelineName}/>
             <MaterialFilterWidget material={material}/>
           </MaterialViews.base>
         );
@@ -249,7 +250,7 @@ define([
             <f.row>
               <DestinationField material={material}/>
             </f.row>
-            <TestConnection material={material}/>
+            <TestConnection material={material}  pipelineName={args.pipelineName}/>
             <MaterialFilterWidget material={material}/>
           </MaterialViews.base>
         );
@@ -286,7 +287,7 @@ define([
             <f.row>
               <DestinationField material={material}/>
             </f.row>
-            <TestConnection material={material}/>
+            <TestConnection material={material}  pipelineName={args.pipelineName}/>
             <MaterialFilterWidget material={material}/>
           </MaterialViews.base>
         );
@@ -308,10 +309,13 @@ define([
                                 model={material}/>
               <f.inputWithLabel attrName='projectPath'
                                 model={material}
+                                validate={true}
                                 end={true}/>
             </f.row>
             <f.row>
-              <UsernameField material={material}/>
+              <f.inputWithLabel attrName='username'
+                                model={material}
+                                validate={true}/>
               <PasswordField model={material}
                              attrName='passwordValue'
                              end={true}/>
@@ -319,7 +323,7 @@ define([
             <f.row>
               <DestinationField material={material}/>
             </f.row>
-            <TestConnection material={material}/>
+            <TestConnection material={material}  pipelineName={args.pipelineName}/>
             <MaterialFilterWidget material={material}/>
           </MaterialViews.base>
         );

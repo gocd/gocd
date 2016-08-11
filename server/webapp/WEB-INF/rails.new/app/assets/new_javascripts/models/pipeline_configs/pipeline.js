@@ -53,6 +53,11 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     this.validatePresenceOf('labelTemplate');
     this.validateFormatOf('labelTemplate', {format: /(([a-zA-Z0-9_\-.!~*'()#:])*[$#]\{[a-zA-Z0-9_\-.!~*'()#:]+(\[:(\d+)])?}([a-zA-Z0-9_\-.!~*'()#:])*)+/,
                                             message: "Label should be composed of alphanumeric text, it may contain the build number as ${COUNT}, it may contain a material revision as ${<material-name>} or ${<material-name>[:<length>]}, or use params as #{<param-name>}"});
+    this.validateAssociated('materials');
+    this.validateAssociated('environmentVariables');
+    this.validateAssociated('parameters');
+    this.validateAssociated('stages');
+    this.validateAssociated('trackingTool');
 
     this.update = function (etag, extract) {
       var self = this;

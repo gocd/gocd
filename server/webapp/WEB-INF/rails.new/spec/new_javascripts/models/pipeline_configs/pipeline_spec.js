@@ -83,6 +83,73 @@ define(['lodash', "models/pipeline_configs/pipeline", 'models/pipeline_configs/t
         var errors = pipeline.validate();
         expect(errors.errors('labelTemplate')).toEqual(["Label should be composed of alphanumeric text, it may contain the build number as ${COUNT}, it may contain a material revision as ${<material-name>} or ${<material-name>[:<length>]}, or use params as #{<param-name>}"]);
       });
+
+      describe('validate association', function () {
+        it('should validate materials', function () {
+          var pipeline = Pipeline.fromJSON(samplePipelineJSON());
+
+          expect(pipeline.isValid()).toBe(true);
+
+          pipeline.materials().firstMaterial().url('');
+
+          expect(pipeline.isValid()).toBe(false);
+          expect(pipeline.materials().firstMaterial().errors().errors('url')).toEqual(['URL must be present']);
+        });
+
+        it('should validate environmental variables', function () {
+          var pipeline = Pipeline.fromJSON(samplePipelineJSON());
+
+          expect(pipeline.isValid()).toBe(true);
+
+          pipeline.environmentVariables().firstVariable().name('');
+
+          expect(pipeline.isValid()).toBe(false);
+          expect(pipeline.environmentVariables().firstVariable().errors().errors('name')).toEqual(['Name must be present']);
+        });
+
+        it('should validate parameters', function () {
+          var pipeline = Pipeline.fromJSON(samplePipelineJSON());
+
+          expect(pipeline.isValid()).toBe(true);
+
+          pipeline.parameters().firstParameter().name('');
+
+          expect(pipeline.isValid()).toBe(false);
+          expect(pipeline.parameters().firstParameter().errors().errors('name')).toEqual(['Name must be present']);
+        });
+
+        it('should validate tracking tools', function () {
+          var pipeline = Pipeline.fromJSON(samplePipelineJSON());
+
+          expect(pipeline.isValid()).toBe(true);
+
+          pipeline.trackingTool().regex('');
+
+          expect(pipeline.isValid()).toBe(false);
+          expect(pipeline.trackingTool().errors().errors('regex')).toEqual(['Regex must be present']);
+        });
+
+        it('should validate stages', function () {
+          var pipeline = Pipeline.fromJSON({
+            label_template: "foo-1.0.${COUNT}-${svn}",
+            tracking_tool:           {
+              type:       "generic",
+              attributes: {
+                url_pattern: "http://mingle.example.com ${ID}",
+                regex:       "my_project"
+              }
+            },
+            stages:         [{name: 'stage1'}]
+          });
+
+          expect(pipeline.isValid()).toBe(true);
+
+          pipeline.stages().firstStage().name('');
+
+          expect(pipeline.isValid()).toBe(false);
+          expect(pipeline.stages().firstStage().errors().errors('name')).toEqual(['Name must be present']);
+        });
+      });
     });
 
     describe("Serialization/De-serialization to/from JSON", function () {
@@ -111,60 +178,60 @@ define(['lodash', "models/pipeline_configs/pipeline", 'models/pipeline_configs/t
         expect(expectedEnvironmentVarNames).toEqual(['MULTIPLE_LINES', 'COMPLEX']);
         expect(expectedMaterialNames).toEqual(['materialA']);
       });
-
-      function samplePipelineJSON() {
-        return {
-          name:                    "yourproject",
-          enable_pipeline_locking: true,
-          template_name:           "",
-          label_template:          "foo-1.0.${COUNT}-${svn}",
-          timer:                   {
-            spec:            "0 0 22 ? * MON-FRI",
-            only_on_changes: true
-          },
-          environment_variables:   [
-            {
-              name:   "MULTIPLE_LINES",
-              value:  "multiplelines",
-              secure: false
-            }, {
-              name:   "COMPLEX",
-              value:  "This has very <complex> data",
-              secure: !1
-            }
-          ],
-          parameters:              [
-            {
-              name:  "COMMAND",
-              value: "echo"
-            },
-            {
-              name:  "WORKING_DIR",
-              value: "/repo/branch"
-            }
-          ],
-          materials:               [{
-            type:       "svn",
-            attributes: {
-              name:        "materialA",
-              auto_update: false,
-              filter:      null,
-              destination: "dest_folder",
-              url:         "http://your-svn/",
-              username:    "",
-              password:    ""
-            }
-          }],
-          tracking_tool:           {
-            type:       "generic",
-            attributes: {
-              url_pattern: "http://mingle.example.com",
-              regex:       "my_project",
-            }
-          },
-          stages:                  []
-        };
-      }
     });
+
+    function samplePipelineJSON() {
+      return {
+        name:                    "yourproject",
+        enable_pipeline_locking: true,
+        template_name:           "",
+        label_template:          "foo-1.0.${COUNT}-${svn}",
+        timer:                   {
+          spec:            "0 0 22 ? * MON-FRI",
+          only_on_changes: true
+        },
+        environment_variables:   [
+          {
+            name:   "MULTIPLE_LINES",
+            value:  "multiplelines",
+            secure: false
+          }, {
+            name:   "COMPLEX",
+            value:  "This has very <complex> data",
+            secure: !1
+          }
+        ],
+        parameters:              [
+          {
+            name:  "COMMAND",
+            value: "echo"
+          },
+          {
+            name:  "WORKING_DIR",
+            value: "/repo/branch"
+          }
+        ],
+        materials:               [{
+          type:       "svn",
+          attributes: {
+            name:        "materialA",
+            auto_update: false,
+            filter:      null,
+            destination: "dest_folder",
+            url:         "http://your-svn/",
+            username:    "",
+            password:    ""
+          }
+        }],
+        tracking_tool:           {
+          type:       "generic",
+          attributes: {
+            url_pattern: "http://mingle.example.com ${ID}",
+            regex:       "my_project"
+          }
+        },
+        stages:                  []
+      };
+    }
   });
 });

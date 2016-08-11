@@ -93,6 +93,72 @@ define(['lodash', "models/pipeline_configs/jobs", "string-plus"], function (_, J
         expect(errorsOnDuplicate.errors('name')).toEqual(['Name is a duplicate']);
       });
 
+      describe('validate associations', function () {
+        it('should validate environmental variables', function () {
+          var job = Jobs.Job.fromJSON(sampleJobJSON());
+
+          expect(job.isValid()).toBe(true);
+
+          job.environmentVariables().firstVariable().name('');
+
+          expect(job.isValid()).toBe(false);
+          expect(job.environmentVariables().firstVariable().errors().errors('name')).toEqual(['Name must be present']);
+        });
+
+        it('should validate tasks', function () {
+          var job = Jobs.Job.fromJSON({
+            name: "UnitTest",
+            tasks: [
+              {
+                type: "exec",
+                attributes: {
+                  command: 'bash'
+                }
+              }
+            ]
+          });
+
+          expect(job.isValid()).toBe(true);
+
+          job.tasks().firstTask().command('');
+
+          expect(job.isValid()).toBe(false);
+          expect(job.tasks().firstTask().errors().errors('command')).toEqual(['Command must be present']);
+        });
+      });
+
+      it('should validate artifacts', function () {
+        var job = Jobs.Job.fromJSON(sampleJobJSON());
+
+        expect(job.isValid()).toBe(true);
+
+        job.artifacts().firstArtifact().source('');
+
+        expect(job.isValid()).toBe(false);
+        expect(job.artifacts().firstArtifact().errors().errors('source')).toEqual(['Source must be present']);
+      });
+
+      it('should validate tabs', function () {
+        var job = Jobs.Job.fromJSON(sampleJobJSON());
+
+        expect(job.isValid()).toBe(true);
+
+        job.tabs().firstTab().name('');
+
+        expect(job.isValid()).toBe(false);
+        expect(job.tabs().firstTab().errors().errors('name')).toEqual(['Name must be present']);
+      });
+
+      it('should validate properties', function () {
+        var job = Jobs.Job.fromJSON(sampleJobJSON());
+
+        expect(job.isValid()).toBe(true);
+
+        job.properties().firstProperty().name('');
+
+        expect(job.isValid()).toBe(false);
+        expect(job.properties().firstProperty().errors().errors('name')).toEqual(['Name must be present']);
+      });
     });
 
     describe("Serialization from/to JSON", function () {
@@ -130,19 +196,19 @@ define(['lodash', "models/pipeline_configs/jobs", "string-plus"], function (_, J
 
       it("should validate timeout", function () {
         job.timeout('never');
-        expect(job.validate().errors()).toBe(undefined);
+        expect(job.validate().hasErrors()).toBe(false);
 
         job.timeout(null);
-        expect(job.validate().errors()).toBe(undefined);
+        expect(job.validate().hasErrors()).toBe(false);
 
         job.timeout(undefined);
-        expect(job.validate().errors()).toBe(undefined);
+        expect(job.validate().hasErrors()).toBe(false);
 
         job.timeout('10');
-        expect(job.validate().errors()).toBe(undefined);
+        expect(job.validate().hasErrors()).toBe(false);
 
         job.timeout(10);
-        expect(job.validate().errors()).toBe(undefined);
+        expect(job.validate().hasErrors()).toBe(false);
 
         job.timeout('');
         expect(job.validate().errors('timeout')).toEqual(['Timeout must be a positive integer']);
@@ -162,19 +228,19 @@ define(['lodash', "models/pipeline_configs/jobs", "string-plus"], function (_, J
 
       it("should validate runInstanceCount", function () {
         job.runInstanceCount('all');
-        expect(job.validate().errors()).toBe(undefined);
+        expect(job.validate().hasErrors()).toBe(false);
 
         job.runInstanceCount(null);
-        expect(job.validate().errors()).toBe(undefined);
+        expect(job.validate().hasErrors()).toBe(false);
 
         job.runInstanceCount(undefined);
-        expect(job.validate().errors()).toBe(undefined);
+        expect(job.validate().hasErrors()).toBe(false);
 
         job.runInstanceCount('10');
-        expect(job.validate().errors()).toBe(undefined);
+        expect(job.validate().hasErrors()).toBe(false);
 
         job.runInstanceCount(10);
-        expect(job.validate().errors()).toBe(undefined);
+        expect(job.validate().hasErrors()).toBe(false);
 
         job.runInstanceCount('');
         expect(job.validate().errors('runInstanceCount')).toEqual(['Run instance count must be a positive integer']);
@@ -191,60 +257,59 @@ define(['lodash', "models/pipeline_configs/jobs", "string-plus"], function (_, J
         job.runInstanceCount('xy.123');
         expect(job.validate().errors('runInstanceCount')).toEqual(['Run instance count must be a positive integer']);
       });
-
-      function sampleJobJSON() {
-        return {
-          name:                  "UnitTest",
-          run_instance_count:    10,
-          timeout:               20,
-          resources:             ["jdk5", "tomcat"],
-          environment_variables: [
-            {
-              name:   "MULTIPLE_LINES",
-              encrypted_value:  "multiplelines",
-              secure: true
-            },
-            {
-              name:   "COMPLEX",
-              value:  "This has very <complex> data",
-              secure: false
-            }
-          ],
-          tasks:                 [
-            {
-              type:       "ant",
-              attributes: {
-                target:            "clean",
-                working_directory: "dir",
-                build_file:        "",
-                run_if:            ['any'],
-                on_cancel:         null
-              }
-            }
-          ],
-          artifacts:             [
-            {
-              type:        "build",
-              source:      "target/dist.jar",
-              destination: "pkg"
-            }
-          ],
-          tabs:                  [
-            {
-              name: "coverage",
-              path: "Jcoverage/index.html"
-            }
-          ],
-          properties:            [
-            {
-              name:   "coverage.class",
-              source: "target/emma/coverage.xml",
-              xpath:  "substring-before(//report/data/all/coverage[starts-with(@type,'class')]/@value, '%')"
-            }
-          ]
-        };
-      }
     });
-  });
 
+    function sampleJobJSON() {
+      return {
+        name:                  "UnitTest",
+        run_instance_count:    10,
+        timeout:               20,
+        resources:             ["jdk5", "tomcat"],
+        environment_variables: [
+          {
+            name:   "MULTIPLE_LINES",
+            encrypted_value:  "multiplelines",
+            secure: true
+          },
+          {
+            name:   "COMPLEX",
+            value:  "This has very <complex> data",
+            secure: false
+          }
+        ],
+        tasks:                 [
+          {
+            type:       "ant",
+            attributes: {
+              target:            "clean",
+              working_directory: "dir",
+              build_file:        "",
+              run_if:            ['any'],
+              on_cancel:         null
+            }
+          }
+        ],
+        artifacts:             [
+          {
+            type:        "build",
+            source:      "target/dist.jar",
+            destination: "pkg"
+          }
+        ],
+        tabs:                  [
+          {
+            name: "coverage",
+            path: "Jcoverage/index.html"
+          }
+        ],
+        properties:            [
+          {
+            name:   "coverage.class",
+            source: "target/emma/coverage.xml",
+            xpath:  "substring-before(//report/data/all/coverage[starts-with(@type,'class')]/@value, '%')"
+          }
+        ]
+      };
+    }
+  });
 });

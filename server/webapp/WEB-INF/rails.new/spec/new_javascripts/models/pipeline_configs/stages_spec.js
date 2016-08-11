@@ -82,6 +82,35 @@ define(['lodash', "models/pipeline_configs/stages", 'models/pipeline_configs/app
         var errorsOnDuplicate = duplicateStage.validate();
         expect(errorsOnDuplicate.errors('name')).toEqual(['Name is a duplicate']);
       });
+
+      describe('validate associations', function () {
+        it('should validate environmental variables', function () {
+          var stage = Stages.Stage.fromJSON(sampleStageJSON());
+
+          expect(stage.isValid()).toBe(true);
+
+          stage.environmentVariables().firstVariable().name('');
+
+          expect(stage.isValid()).toBe(false);
+          expect(stage.environmentVariables().firstVariable().errors().errors('name')).toEqual(['Name must be present']);
+        });
+
+        it('should validate jobs', function () {
+          var stage = Stages.Stage.fromJSON({
+            name: 'stage1',
+            jobs: [
+              {name: 'job1'}
+            ]
+          });
+
+          expect(stage.isValid()).toBe(true);
+
+          stage.jobs().firstJob().name('');
+
+          expect(stage.isValid()).toBe(false);
+          expect(stage.jobs().firstJob().errors().errors('name')).toEqual(['Name must be present']);
+        });
+      });
     });
 
     describe("Serialization/De-serialization to/from JSON", function () {
@@ -100,42 +129,40 @@ define(['lodash', "models/pipeline_configs/stages", 'models/pipeline_configs/app
         });
 
         expect(expectedEnvironmentVarNames).toEqual(['MULTIPLE_LINES', 'COMPLEX']);
-
       });
 
       it("should serialize to JSON", function () {
         expect(JSON.parse(JSON.stringify(stage, s.snakeCaser))).toEqual(sampleStageJSON());
       });
-
-      function sampleStageJSON() {
-        return {
-          name:                    "UnitTest",
-          fetch_materials:         true,
-          clean_working_directory: false,
-          never_cleanup_artifacts: true,
-          environment_variables:   [
-            {
-              name:   "MULTIPLE_LINES",
-              encrypted_value:  "multiplelines",
-              secure: true
-            },
-            {
-              name:   "COMPLEX",
-              value:  "This has very <complex> data",
-              secure: false
-            }
-          ],
-          jobs:                    [],
-          approval:                {
-            type:          'manual',
-            authorization: {
-              users: [],
-              roles: []
-            }
-          }
-        };
-      }
     });
-  });
 
+    function sampleStageJSON() {
+      return {
+        name:                    "UnitTest",
+        fetch_materials:         true,
+        clean_working_directory: false,
+        never_cleanup_artifacts: true,
+        environment_variables:   [
+          {
+            name:   "MULTIPLE_LINES",
+            encrypted_value:  "multiplelines",
+            secure: true
+          },
+          {
+            name:   "COMPLEX",
+            value:  "This has very <complex> data",
+            secure: false
+          }
+        ],
+        jobs:                    [],
+        approval:                {
+          type:          'manual',
+          authorization: {
+            users: [],
+            roles: []
+          }
+        }
+      };
+    }
+  });
 });

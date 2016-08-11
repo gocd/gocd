@@ -65,6 +65,11 @@ define([
         });
 
         self.onSavePipeline = function () {
+          if(!self.pipeline().isValid()) {
+            self.errorMessage = "There are errors on the page, fix them and save.";
+            return;
+          }
+
           self.pipeline().update(self.etag(), extractEtag).then(function (data) {
             ctrl.setPipelineAndPreserveSelection(Pipeline.fromJSON(data));
           }, function (data) {

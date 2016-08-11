@@ -22,10 +22,10 @@ define(["jquery", "mithril", 'lodash', 'string-plus', "models/pipeline_configs/p
     var pipeline;
 
     beforeAll(function (done) {
-      var deferred = $.Deferred();
-
       spyOn(Pipeline, 'find').and.callFake(function () {
-        return deferred.promise();
+        return {
+          then: function(callback) { return callback(samplePipelineJSON())}
+        }
       });
 
 
@@ -44,7 +44,6 @@ define(["jquery", "mithril", 'lodash', 'string-plus', "models/pipeline_configs/p
 
       m.mount(root, component);
 
-      deferred.resolve(samplePipelineJSON());
       reallyDone();
     });
 

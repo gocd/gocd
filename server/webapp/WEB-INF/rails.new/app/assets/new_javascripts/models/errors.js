@@ -28,10 +28,6 @@ define(['mithril', 'lodash'], function (m, _) {
     };
 
     this.errors = function (optionalAttribute) {
-      if (this._isEmpty()) {
-        return;
-      }
-
       return optionalAttribute ? errors[optionalAttribute] : errors;
     };
 

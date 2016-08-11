@@ -106,12 +106,14 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
   };
 
   Tasks.Task.Ant.fromJSON = function (data) {
+    var attr = data.attributes || {};
     return new Tasks.Task.Ant({
-      target:           data.target,
-      workingDirectory: data.working_directory,
-      buildFile:        data.build_file,
-      runIf:            data.run_if,
-      onCancelTask:     data.on_cancel
+      target:           attr.target,
+      workingDirectory: attr.working_directory,
+      buildFile:        attr.build_file,
+      runIf:            attr.run_if,
+      onCancelTask:     attr.on_cancel,
+      errors:           data.errors
     });
   };
 
@@ -145,13 +147,15 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
   };
 
   Tasks.Task.NAnt.fromJSON = function (data) {
+    var attr = data.attributes || {};
     return new Tasks.Task.NAnt({
-      target:           data.target,
-      workingDirectory: data.working_directory,
-      buildFile:        data.build_file,
-      nantPath:         data.nant_path,
-      runIf:            data.run_if,
-      onCancelTask:     data.on_cancel
+      target:           attr.target,
+      workingDirectory: attr.working_directory,
+      buildFile:        attr.build_file,
+      nantPath:         attr.nant_path,
+      runIf:            attr.run_if,
+      onCancelTask:     attr.on_cancel,
+      errors:           data.errors
     });
   };
 
@@ -162,6 +166,8 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     this.workingDirectory = m.prop(s.defaultToIfBlank(data.workingDirectory, ''));
     this.runIf            = m.prop(RunIfConditions.create(data.runIf));
     this.onCancelTask     = Tasks.Task.onCancelTask(data.onCancelTask);
+
+    this.validatePresenceOf('command');
 
     this._attributesToJSON = function () {
       return _.assign({
@@ -182,13 +188,15 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
   };
 
   Tasks.Task.Exec.fromJSON = function (data) {
+    var attr = data.attributes || {};
     return new Tasks.Task.Exec({
-      command:          data.command,
-      args:             data.args,
-      arguments:        data.arguments,
-      workingDirectory: data.working_directory,
-      runIf:            data.run_if,
-      onCancelTask:     data.on_cancel
+      command:          attr.command,
+      args:             attr.args,
+      arguments:        attr.arguments,
+      workingDirectory: attr.working_directory,
+      runIf:            attr.run_if,
+      onCancelTask:     attr.on_cancel,
+      errors:           data.errors
     });
   };
 
@@ -220,12 +228,14 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
   };
 
   Tasks.Task.Rake.fromJSON = function (data) {
+    var attr = data.attributes || {};
     return new Tasks.Task.Rake({
-      target:           data.target,
-      workingDirectory: data.working_directory,
-      buildFile:        data.build_file,
-      runIf:            data.run_if,
-      onCancelTask:     data.on_cancel
+      target:           attr.target,
+      workingDirectory: attr.working_directory,
+      buildFile:        attr.build_file,
+      runIf:            attr.run_if,
+      onCancelTask:     attr.on_cancel,
+      errors:           data.errors
     });
   };
 
@@ -239,6 +249,10 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     this.destination   = m.prop(s.defaultToIfBlank(data.destination, ''));
     this.runIf         = m.prop(RunIfConditions.create(data.runIf));
     this.onCancelTask  = Tasks.Task.onCancelTask(data.onCancelTask);
+
+    this.validatePresenceOf('stage');
+    this.validatePresenceOf('job');
+    this.validatePresenceOf('source');
 
     this._attributesToJSON = function () {
       return {
@@ -264,15 +278,17 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
 
 
   Tasks.Task.FetchArtifact.fromJSON = function (data) {
+    var attr = data.attributes || {};
     return new Tasks.Task.FetchArtifact({
-      pipeline:      data.pipeline,
-      stage:         data.stage,
-      job:           data.job,
-      source:        data.source,
-      isSourceAFile: data.is_source_a_file,
-      destination:   data.destination,
-      runIf:         data.run_if,
-      onCancelTask:  data.on_cancel
+      pipeline:      attr.pipeline,
+      stage:         attr.stage,
+      job:           attr.job,
+      source:        attr.source,
+      isSourceAFile: attr.is_source_a_file,
+      destination:   attr.destination,
+      runIf:         attr.run_if,
+      onCancelTask:  attr.on_cancel,
+      errors:        data.errors
     });
   };
 
@@ -309,12 +325,14 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
   };
 
   Tasks.Task.PluginTask.fromJSON = function (data) {
+    var attr = data.attributes || {};
     return new Tasks.Task.PluginTask({
-      pluginId:      data.plugin_configuration.id,
-      version:       data.plugin_configuration.version,
-      configuration: Tasks.Task.PluginTask.Configurations.fromJSON(data.configuration),
-      runIf:         data.run_if,
-      onCancelTask:  data.on_cancel
+      pluginId:      attr.plugin_configuration.id,
+      version:       attr.plugin_configuration.version,
+      configuration: Tasks.Task.PluginTask.Configurations.fromJSON(attr.configuration),
+      runIf:         attr.run_if,
+      onCancelTask:  attr.on_cancel,
+      errors:        data.errors
     });
   };
 
@@ -404,9 +422,9 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
 
   Tasks.Task.fromJSON = function (data) {
     if (Tasks.isBuiltInTaskType(data.type)) {
-      return Tasks.Types[data.type].type.fromJSON(data.attributes || {});
+      return Tasks.Types[data.type].type.fromJSON(data || {});
     } else {
-      return Tasks.Task.PluginTask.fromJSON(data.attributes || {});
+      return Tasks.Task.PluginTask.fromJSON(data || {});
     }
   };
 

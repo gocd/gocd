@@ -66,9 +66,10 @@ define(['lodash', 'string-plus', 'mithril', 'models/errors', 'models/model_mixin
   };
 
   Validatable = function (data) {
-    var self             = this;
-    var attrToValidators = {};
-    self.errors          = Mixins.GetterSetter(new Errors(data.errors));
+    var self                   = this;
+    var attrToValidators       = {};
+    var associationsToValidate = [];
+    self.errors                = Mixins.GetterSetter(new Errors(data.errors));
 
     var validateWith = function (validator, attr) {
       _.has(attrToValidators, attr) ? attrToValidators[attr].push(validator) : attrToValidators[attr] = [validator]
@@ -98,6 +99,10 @@ define(['lodash', 'string-plus', 'mithril', 'models/errors', 'models/model_mixin
       validateWith(new validator(), attr);
     };
 
+    self.validateAssociated = function (association) {
+      associationsToValidate.push(association);
+    };
+
     self.validate = function (attr) {
       var attrs = attr ? [attr] : _.keys(attrToValidators);
 
@@ -114,7 +119,10 @@ define(['lodash', 'string-plus', 'mithril', 'models/errors', 'models/model_mixin
 
     self.isValid = function () {
       self.validate();
-      return _.isEmpty(self.errors().errors());
+
+      return _.isEmpty(self.errors().errors()) && _.every(associationsToValidate, function (association) {
+          return self[association]() ? self[association]().isValid() : true;
+        });
     };
   };
 

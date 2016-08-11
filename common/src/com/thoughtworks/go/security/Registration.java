@@ -34,8 +34,15 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public class Registration implements Serializable {
 
+    public static final Gson GSON = new Gson();
+
     public static Registration fromJson(String json) {
-        Map map = new Gson().fromJson(json, Map.class);
+        Map map = GSON.fromJson(json, Map.class);
+
+        if (map.isEmpty()) {
+            return Registration.createNullPrivateKeyEntry();
+        }
+
         List<Certificate> chain = new ArrayList<>();
         try {
             PemReader reader = new PemReader(new StringReader((String) map.get("agentPrivateKey")));
@@ -61,7 +68,7 @@ public class Registration implements Serializable {
     private final Certificate[] chain;
 
     public static Registration createNullPrivateKeyEntry() {
-        return new Registration(emptyPrivateKey());
+        return new Registration(null);
     }
 
     public Registration(PrivateKey privateKey, Certificate... chain) {
@@ -89,39 +96,31 @@ public class Registration implements Serializable {
         return getFirstCertificate().getNotBefore();
     }
 
-    private static PrivateKey emptyPrivateKey() {
-        return new PrivateKey() {
-            public String getAlgorithm() {
-                return null;
-            }
-
-            public String getFormat() {
-                return null;
-            }
-
-            public byte[] getEncoded() {
-                return new byte[0];
-            }
-        };
-    }
-
     public KeyStore.PrivateKeyEntry asKeyStoreEntry() {
         return new KeyStore.PrivateKeyEntry(privateKey, chain);
     }
 
+    public boolean isValid() {
+        return privateKey != null && chain != null && chain.length > 0;
+    }
+
     public String toJson() {
         Map<String, Object> ret = new HashMap<>();
-        ret.put("agentPrivateKey", serialize("RSA PRIVATE KEY", privateKey.getEncoded()));
-        StringBuilder builder = new StringBuilder();
-        for (Certificate c : chain) {
-            try {
-                builder.append(serialize("CERTIFICATE", c.getEncoded()));
-            } catch (CertificateEncodingException e) {
-                throw bomb(e);
+
+        if (isValid()) {
+            ret.put("agentPrivateKey", serialize("RSA PRIVATE KEY", privateKey.getEncoded()));
+            StringBuilder builder = new StringBuilder();
+            for (Certificate c : chain) {
+                try {
+                    builder.append(serialize("CERTIFICATE", c.getEncoded()));
+                } catch (CertificateEncodingException e) {
+                    throw bomb(e);
+                }
             }
+            ret.put("agentCertificate", builder.toString());
         }
-        ret.put("agentCertificate", builder.toString());
-        return new Gson().toJson(ret);
+
+        return GSON.toJson(ret);
     }
 
     private String serialize(String type, byte[] data) {

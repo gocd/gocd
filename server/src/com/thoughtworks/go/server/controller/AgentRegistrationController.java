@@ -25,7 +25,6 @@ import com.thoughtworks.go.domain.AllConfigErrors;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.plugin.infra.commons.PluginsZip;
 import com.thoughtworks.go.security.Registration;
-import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -40,7 +39,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
@@ -251,20 +249,20 @@ public class AgentRegistrationController {
             LOG.error("Error occured during agent registration process: ", e);
         }
 
-        final Registration anotherCopy = keyEntry;
+        return render(keyEntry);
+    }
+
+    private ModelAndView render(final Registration registration) {
         return new ModelAndView(new View() {
             public String getContentType() {
                 return "application/json";
             }
 
             public void render(Map model, HttpServletRequest request, HttpServletResponse response) throws IOException {
-                ServletOutputStream servletOutputStream = null;
-                try {
-                    servletOutputStream = response.getOutputStream();
-                    servletOutputStream.print(anotherCopy.toJson());
-                } finally {
-                    IOUtils.closeQuietly(servletOutputStream);
+                if (!registration.isValid()) {
+                    response.setStatus(HttpServletResponse.SC_ACCEPTED);
                 }
+                response.getWriter().print(registration.toJson());
             }
         });
     }

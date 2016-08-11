@@ -17,12 +17,13 @@
 package com.thoughtworks.go.security;
 
 import com.thoughtworks.go.util.TestFileUtil;
+import org.apache.commons.lang.builder.EqualsBuilder;
 import org.junit.Test;
 
 import java.io.File;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 public class RegistrationTest {
     private static String authorityKeystorePath = "tempAuthorityKeystore";
@@ -39,7 +40,25 @@ public class RegistrationTest {
         assertThat(reg.getChain().length, is(3));
     }
 
-    public static Registration createRegistration() {
+
+    @Test
+    public void shouldBeValidWhenPrivateKeyAndChainIsPresent() throws Exception {
+        assertFalse(Registration.createNullPrivateKeyEntry().isValid());
+        assertFalse(new Registration(null, null).isValid());
+        assertFalse(new Registration(null).isValid());
+
+        assertTrue(createRegistration().isValid());
+    }
+
+    @Test
+    public void shouldEncodeDecodeEmptyRegistration() throws Exception {
+        Registration toSerialize = Registration.createNullPrivateKeyEntry();
+        Registration deserialized = Registration.fromJson(toSerialize.toJson());
+
+        assertTrue(EqualsBuilder.reflectionEquals(toSerialize, deserialized));
+    }
+
+    private static Registration createRegistration() {
         File tempKeystoreFile = TestFileUtil.createUniqueTempFile(authorityKeystorePath);
         X509CertificateGenerator certificateGenerator = new X509CertificateGenerator();
         certificateGenerator.createAndStoreCACertificates(tempKeystoreFile);

@@ -96,8 +96,8 @@ public class SslInfrastructureService {
 
     private void register(AgentAutoRegistrationProperties agentAutoRegistrationProperties) throws Exception {
         String hostName = SystemUtil.getLocalhostNameOrRandomNameIfNotFound();
-        Registration keyEntry = null;
-        while (keyEntry == null || keyEntry.getChain().length == 0) {
+        Registration keyEntry = Registration.createNullPrivateKeyEntry();
+        while (!keyEntry.isValid()) {
             try {
                 keyEntry = remoteRegistrationRequester.requestRegistration(hostName, agentAutoRegistrationProperties);
             } catch (Exception e) {

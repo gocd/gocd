@@ -829,24 +829,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return serverConfig().security().passwordFileConfig();
     }
 
-    @Deprecated
-    public ConfigSaveState updateEnvironment(final String named, final EnvironmentConfig newEnvDefinition, final Username username, final String md5) {
-        return goConfigDao.updateConfig(new NoOverwriteUpdateConfigCommand() {
-            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                EnvironmentsConfig environments = cruiseConfig.getEnvironments();
-                EnvironmentConfig oldConfig = environments.find(new CaseInsensitiveString(named));
-                int index = environments.indexOf(oldConfig);
-                environments.remove(index);
-                environments.add(index, newEnvDefinition);
-                return cruiseConfig;
-            }
-
-            public String unmodifiedMd5() {
-                return md5;
-            }
-        });
-    }
-
     public boolean isUserAdminOfGroup(final CaseInsensitiveString userName, String groupName) {
         PipelineConfigs group = null;
         if (groupName != null) {

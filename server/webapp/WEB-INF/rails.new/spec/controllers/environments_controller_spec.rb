@@ -277,7 +277,7 @@ describe EnvironmentsController do
       put :update, :no_layout => true, :environment => {'pipelines' => [{'name' => "foo-pipeline"}, {'name' => "bar-pipeline"}]}, :name => @environment_name, :cruise_config_md5 => md5
 
       expect(response.status).to eq(400)
-      expect(response.body).to eq("Failed to update environment 'foo-environment'. Duplicate unique value [bar-pipeline] declared for identity constraint \"uniqueEnvironmentPipelineName\" of element \"environments\".\n")
+      expect(response.body).to eq("Failed to update environment 'foo-environment'. failed to save : Duplicate unique value [bar-pipeline] declared for identity constraint \"uniqueEnvironmentPipelineName\" of element \"environments\".\n")
     end
 
     it "should return error when invalid agent uuid is added" do
@@ -314,12 +314,19 @@ describe EnvironmentsController do
   describe "update environment showing success messages" do
 
     it "should show that modified environment is merged with latest configuration" do
-
       environment_service = double("Environment Config Service")
+      entity_hashing_service = double("Entity Hashing Service")
       controller.stub(:environment_config_service).and_return(environment_service)
+      controller.stub(:entity_hashing_service).and_return(entity_hashing_service)
+      entity_hashing_service.stub(:md5ForEntity).and_return('md5')
+      environment_service.stub(:getEnvironmentConfig).with("environment_name").and_return(BasicEnvironmentConfig.new(CaseInsensitiveString.new("environment_name")))
+
       result = HttpLocalizedOperationResult.new()
-      result.setMessage(LocalizedMessage.composite([LocalizedMessage.string("UPDATE_ENVIRONMENT_SUCCESS",["foo_env"].to_java(java.lang.String)),LocalizedMessage.string("CONFIG_MERGED")].to_java(com.thoughtworks.go.i18n.Localizable)))
-      environment_service.should_receive(:updateEnvironment).with(any_args,any_args,any_args,any_args).and_return(result)
+      environment_service.should_receive(:updateEnvironment).with(any_args,any_args,any_args,'md5',result) do |old_config, new_config, user, md5, result|
+        result.setMessage(LocalizedMessage.composite([LocalizedMessage.string("UPDATE_ENVIRONMENT_SUCCESS",["foo_env"].to_java(java.lang.String)),LocalizedMessage.string("CONFIG_MERGED")].to_java(com.thoughtworks.go.i18n.Localizable)))
+      end
+
+      environment_service.should_receive(:getEnvironmentConfig).with("environment_name")
       environment_service.should_receive(:forEdit).with(any_args,any_args).and_return(com.thoughtworks.go.domain.ConfigElementForEdit.new(BasicEnvironmentConfig.new(),"md5"))
       environment_service.should_receive(:getAllLocalPipelinesForUser).with(any_args).and_return([])
       environment_service.should_receive(:getAllRemotePipelinesForUserInEnvironment).with(any_args,any_args).and_return([])

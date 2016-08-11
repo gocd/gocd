@@ -52,7 +52,11 @@ class EnvironmentsController < ApplicationController
       render_error_response l.string("ENVIRONMENT_NAME_REQUIRED"), 400, true
       return
     end
-    result = environment_config_service.updateEnvironment(params[:name], @environment, current_user, params[:cruise_config_md5])
+
+    old_environment = environment_config_service.getEnvironmentConfig(params[:name])
+    result = HttpLocalizedOperationResult.new
+    md5 = entity_hashing_service.md5ForEntity(old_environment, old_environment.name.to_s)
+    environment_config_service.updateEnvironment(old_environment, @environment, current_user, md5, result)
 
     message = result.message(Spring.bean('localizer'))
     if result.isSuccessful()
@@ -89,7 +93,6 @@ class EnvironmentsController < ApplicationController
     env_for_edit = environment_config_service.forEdit(params[:name], result)
     if (result.isSuccessful())
       @environment = env_for_edit.getConfigElement()
-      @cruise_config_md5 = env_for_edit.getMd5()
     end
     render_if_error(result.message(Spring.bean('localizer')), result.httpCode())
     result.isSuccessful()

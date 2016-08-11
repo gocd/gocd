@@ -34,8 +34,6 @@ import com.thoughtworks.go.presentation.environment.EnvironmentPipelineModel;
 import com.thoughtworks.go.remote.work.BuildAssignment;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -180,20 +178,6 @@ public class EnvironmentConfigService implements ConfigChangedListener {
         update(addEnvironmentCommand, environmentConfig, user, result, actionFailed);
     }
 
-    @Deprecated
-    private void editEnvironments(EditEnvironments edit, Username user, LocalizedOperationResult result,
-                                  Localizable noPermissionMessage, Localizable.CurryableLocalizable actionFailedMessage) {
-        if (!securityService.isUserAdmin(user)) {
-            result.unauthorized(noPermissionMessage, HealthStateType.unauthorised());
-            return;
-        }
-        try {
-            edit.performEdit();
-        } catch (Exception e) {
-            result.badRequest(actionFailedMessage.addParam(e.getMessage()));
-        }
-    }
-
     public List<EnvironmentPipelineModel> getAllLocalPipelinesForUser(Username user) {
         List<PipelineConfig> pipelineConfigs = goConfigService.getAllLocalPipelineConfigs();
         return getAllPipelinesForUser(user, pipelineConfigs);
@@ -228,24 +212,6 @@ public class EnvironmentConfigService implements ConfigChangedListener {
         return pipelines;
     }
 
-    @Deprecated //No need of md5 (used in environments-edit page)
-    public HttpLocalizedOperationResult updateEnvironment(final String named, final EnvironmentConfig newDefinition, final Username username, final String md5) {
-        final HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        Localizable noPermission = LocalizedMessage.string("NO_PERMISSION_TO_UPDATE_ENVIRONMENT", named, username.getDisplayName());
-        Localizable.CurryableLocalizable actionFailed = LocalizedMessage.string("ENV_UPDATE_FAILED", named);
-        editEnvironments(new EditEnvironments() {
-            public void performEdit() {
-                ConfigSaveState configSaveState = goConfigService.updateEnvironment(named, newDefinition, username, md5);
-                if (ConfigSaveState.MERGED.equals(configSaveState)) {
-                    result.setMessage(LocalizedMessage.composite(LocalizedMessage.string("UPDATE_ENVIRONMENT_SUCCESS", named), LocalizedMessage.string("CONFIG_MERGED")));
-                } else if (ConfigSaveState.UPDATED.equals(configSaveState)) {
-                    result.setMessage(LocalizedMessage.string("UPDATE_ENVIRONMENT_SUCCESS", named));
-                }
-            }
-        }, username, result, noPermission, actionFailed);
-        return result;
-    }
-
     public void updateEnvironment(final EnvironmentConfig oldEnvironmentConfig, final EnvironmentConfig newEnvironmentConfig, final Username username, String md5, final HttpLocalizedOperationResult result) {
         Localizable.CurryableLocalizable actionFailed = LocalizedMessage.string("ENV_UPDATE_FAILED", oldEnvironmentConfig.name());
         UpdateEnvironmentCommand updateEnvironmentCommand = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig, newEnvironmentConfig, username, actionFailed, md5, entityHashingService, result);
@@ -263,11 +229,6 @@ public class EnvironmentConfigService implements ConfigChangedListener {
         if (result.isSuccessful()) {
             result.setMessage(LocalizedMessage.string("ENVIRONMENT_DELETE_SUCCESSFUL", environmentName));
         }
-    }
-
-    @Deprecated
-    public interface EditEnvironments {
-        void performEdit();
     }
 
     private void update(EntityConfigUpdateCommand command, EnvironmentConfig config, Username currentUser, HttpLocalizedOperationResult result, Localizable.CurryableLocalizable actionFailed) {

@@ -23,8 +23,6 @@ import com.thoughtworks.go.domain.DefaultJobPlan;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobPlan;
 import com.thoughtworks.go.helper.EnvironmentConfigMother;
-import com.thoughtworks.go.i18n.Localizable;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.presentation.environment.EnvironmentPipelineModel;
 import com.thoughtworks.go.remote.work.BuildAssignment;
 import com.thoughtworks.go.server.domain.Username;
@@ -348,37 +346,6 @@ public class EnvironmentConfigServiceTest {
         when(mockGoConfigService.getMergedConfigForEditing()).thenReturn(config);
         assertThat(environmentConfigService.forEdit("foo", result).getConfigElement(), Is.<EnvironmentConfig>is(env));
         assertThat(result.isSuccessful(), is(true));
-    }
-
-    @Test
-    public void shouldReturnResultWithMessageThatConfigWasMerged_WhenMergingEnvironmentChanges() {
-        String environmentName = "env_name";
-        EnvironmentConfig environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
-        String md5 = "md5";
-        Username user = new Username(new CaseInsensitiveString("user"));
-
-        when(securityService.isUserAdmin(user)).thenReturn(true);
-        when(mockGoConfigService.updateEnvironment(environmentName, environmentConfig, user, md5)).thenReturn(ConfigSaveState.MERGED);
-
-        HttpLocalizedOperationResult result = environmentConfigService.updateEnvironment(environmentName, environmentConfig, user, md5);
-
-        assertThat(result.localizable(),
-                is(LocalizedMessage.composite(LocalizedMessage.string("UPDATE_ENVIRONMENT_SUCCESS", environmentName), LocalizedMessage.string("CONFIG_MERGED"))));
-    }
-
-    @Test
-    public void shouldReturnResultWithMessageThatConfigisUpdated_WhenUpdatingLatestConfiguration() {
-        String environmentName = "env_name";
-        EnvironmentConfig environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
-        String md5 = "md5";
-        Username user = new Username(new CaseInsensitiveString("user"));
-
-        when(securityService.isUserAdmin(user)).thenReturn(true);
-        when(mockGoConfigService.updateEnvironment(environmentName, environmentConfig, user, md5)).thenReturn(ConfigSaveState.UPDATED);
-
-        HttpLocalizedOperationResult result = environmentConfigService.updateEnvironment(environmentName, environmentConfig, user, md5);
-
-        assertThat(result.localizable(), is((Localizable) LocalizedMessage.string("UPDATE_ENVIRONMENT_SUCCESS", environmentName)));
     }
 
     @Test

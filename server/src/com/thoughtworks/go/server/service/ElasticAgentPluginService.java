@@ -82,21 +82,22 @@ public class ElasticAgentPluginService implements JobStatusListener {
     }
 
     public void heartbeat() {
-        LinkedMultiValueMap<String, ElasticAgentMetadata> elasticAgents = agentService.allElasticAgents();
+        LinkedMultiValueMap<String, ElasticAgentMetadata> elasticAgentsOfMissingPlugins = agentService.allElasticAgents();
+
         for (PluginDescriptor descriptor : elasticAgentPluginRegistry.getPlugins()) {
             serverPingQueue.post(new ServerPingMessage(descriptor.id()));
+            elasticAgentsOfMissingPlugins.remove(descriptor.id());
         }
 
-        if (!elasticAgents.isEmpty()) {
-            for (String pluginId : elasticAgents.keySet()) {
-
-                Collection<String> uuids = ListUtil.map(elasticAgents.get(pluginId), new ListUtil.Transformer<ElasticAgentMetadata, String>() {
+        if (!elasticAgentsOfMissingPlugins.isEmpty()) {
+            for (String pluginId : elasticAgentsOfMissingPlugins.keySet()) {
+                Collection<String> uuids = ListUtil.map(elasticAgentsOfMissingPlugins.get(pluginId), new ListUtil.Transformer<ElasticAgentMetadata, String>() {
                     @Override
                     public String transform(ElasticAgentMetadata input) {
                         return input.uuid();
                     }
                 });
-                LOGGER.warn("Elastic agent plugin with identifier {} has gone missing, but left behind {} agent(s) with UUIDs {}.", pluginId, elasticAgents.get(pluginId).size(), uuids);
+                LOGGER.warn("Elastic agent plugin with identifier {} has gone missing, but left behind {} agent(s) with UUIDs {}.", pluginId, elasticAgentsOfMissingPlugins.get(pluginId).size(), uuids);
             }
         }
     }

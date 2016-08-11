@@ -870,7 +870,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
             if (propertyValueFromSystem == null) {
                 return defaultValue;
             }
-            return "Y".equalsIgnoreCase(propertyValueFromSystem);
+            return "Y".equalsIgnoreCase(propertyValueFromSystem) || "true".equalsIgnoreCase(propertyValueFromSystem);
         }
     }
 }

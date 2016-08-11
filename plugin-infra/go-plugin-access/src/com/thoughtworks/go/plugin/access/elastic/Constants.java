@@ -25,7 +25,7 @@ public class Constants {
     public final static String EXTENSION_NAME = "elastic-agent";
 
     public static final String REQUEST_PREFIX = "go.cd.elastic-agent";
-    public static final String PROCESSOR_PREFIX = "go.processor.elastic-agent";
+    public static final String PROCESSOR_PREFIX = "go.processor.elastic-agents";
 
     public static final String REQUEST_CREATE_AGENT = REQUEST_PREFIX + ".create-agent";
     public static final String REQUEST_SERVER_PING = REQUEST_PREFIX + ".server-ping";

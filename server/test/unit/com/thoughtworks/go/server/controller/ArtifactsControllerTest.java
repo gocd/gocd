@@ -24,11 +24,13 @@ import com.thoughtworks.go.server.service.ConsoleService;
 import com.thoughtworks.go.server.service.RestfulService;
 import com.thoughtworks.go.server.web.ArtifactFolderViewFactory;
 import com.thoughtworks.go.server.web.ResponseCodeView;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.mock.web.MockMultipartHttpServletRequest;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletResponse;
@@ -52,6 +54,7 @@ public class ArtifactsControllerTest {
     private RestfulService restfulService;
     private ArtifactsService artifactService;
     private ConsoleService consoleService;
+    private SystemEnvironment systemEnvironment;
 
     @Before
     public void setUp() {
@@ -60,8 +63,8 @@ public class ArtifactsControllerTest {
         restfulService = mock(RestfulService.class);
         artifactService = mock(ArtifactsService.class);
         consoleService = mock(ConsoleService.class);
-
-        artifactsController = new ArtifactsController(artifactService, restfulService, mock(ZipArtifactCache.class), consoleActivityMonitor, consoleService);
+        systemEnvironment = mock(SystemEnvironment.class);
+        artifactsController = new ArtifactsController(artifactService, restfulService, mock(ZipArtifactCache.class), consoleActivityMonitor, consoleService, systemEnvironment);
 
         request = new MockHttpServletRequest();
     }
@@ -102,7 +105,7 @@ public class ArtifactsControllerTest {
     @Test
     public void shouldFunnelAll_GET_calls() throws Exception {
         final ModelAndView returnVal = new ModelAndView();
-        ArtifactsController controller = new ArtifactsController(artifactService, restfulService, mock(ZipArtifactCache.class), consoleActivityMonitor, consoleService) {
+        ArtifactsController controller = new ArtifactsController(artifactService, restfulService, mock(ZipArtifactCache.class), consoleActivityMonitor, consoleService, systemEnvironment) {
             @Override ModelAndView getArtifact(String filePath, ArtifactFolderViewFactory folderViewFactory, String pipelineName, String counterOrLabel, String stageName, String stageCounter,
                                                String buildName, String sha, String serverAlias) throws Exception {
                 return returnVal;
@@ -112,5 +115,18 @@ public class ArtifactsControllerTest {
         assertThat(controller.getArtifactAsHtml("pipeline", "counter", "stage", "2", "job", "file_name", "sha1", null), sameInstance(returnVal));
         assertThat(controller.getArtifactAsZip("pipeline", "counter", "stage", "2", "job", "file_name", "sha1"), sameInstance(returnVal));
         assertThat(controller.getArtifactAsJson("pipeline", "counter", "stage", "2", "job", "file_name", "sha1"), sameInstance(returnVal));
+    }
+
+    @Test
+    public void shouldReturnBadRequestIfRequiredHeadersAreMissingOnACreateArtifactRequest() throws Exception {
+        MultipartHttpServletRequest multipartHttpServletRequest = new MockMultipartHttpServletRequest();
+
+        when(systemEnvironment.isApiSafeModeEnabled()).thenReturn(true);
+        ModelAndView modelAndView = artifactsController.postArtifact("pipeline", "invalid-label", "stage", "stage-counter", "job-name", 3L, "file-path", 3, multipartHttpServletRequest);
+        ResponseCodeView codeView = (ResponseCodeView) modelAndView.getView();
+
+        assertThat(codeView.getStatusCode(), is(HttpServletResponse.SC_BAD_REQUEST));
+        assertThat(codeView.getContent(), is("Missing required header 'Confirm'"));
+
     }
 }

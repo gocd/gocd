@@ -82,6 +82,7 @@ public class HttpService {
     private HttpPost createHttpPostForUpload(String url, long size, File artifactFile, Properties artifactChecksums) throws IOException {
         HttpPost filePost = httpClientFactory.createPost(url);
         setSizeHeader(filePost, size);
+        filePost.setHeader("Confirm", "true");
         filePost.setEntity(httpClientFactory.createMultipartRequestEntity(artifactFile, artifactChecksums));
         return filePost;
     }

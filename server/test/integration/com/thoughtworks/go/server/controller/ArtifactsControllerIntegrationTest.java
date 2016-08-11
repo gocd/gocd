@@ -184,7 +184,9 @@ public class ArtifactsControllerIntegrationTest {
 
     @Test
     public void shouldReturn404WhenNoLatestBuildForPost() throws Exception {
-        ModelAndView mav = artifactsController.postArtifact(pipelineName, "latest", "stage", "1", "build2", null, "/foo.xml", 1, null);
+        request.addHeader("Confirm", "true");
+        StubMultipartHttpServletRequest multipartRequest = new StubMultipartHttpServletRequest(request);
+        ModelAndView mav = artifactsController.postArtifact(pipelineName, "latest", "stage", "1", "build2", null, "/foo.xml", 1, multipartRequest);
         assertValidContentAndStatus(mav, SC_NOT_FOUND, "Job " + pipelineName + "/latest/stage/1/build2 not found.");
     }
 
@@ -502,6 +504,7 @@ public class ArtifactsControllerIntegrationTest {
         FileUtils.writeStringToFile(checksumFile, "baz/foobar.html:FooMD5\n");
         MockMultipartFile artifactMultipart = new MockMultipartFile("file", new FileInputStream(fooFile));
         MockMultipartFile checksumMultipart = new MockMultipartFile("file_checksum", new FileInputStream(checksumFile));
+        request.addHeader("Confirm", "true");
         StubMultipartHttpServletRequest multipartRequest = new StubMultipartHttpServletRequest(request, artifactMultipart, checksumMultipart);
         postFileWithChecksum("baz/foobar.html", multipartRequest);
 
@@ -519,6 +522,7 @@ public class ArtifactsControllerIntegrationTest {
 
         MockMultipartFile artifactMultipart = new MockMultipartFile("file", new FileInputStream(fooFile));
         MockMultipartFile checksumMultipart = new MockMultipartFile("file_checksum", new FileInputStream(checksumFile));
+        request.addHeader("Confirm", "true");
         StubMultipartHttpServletRequest multipartRequest = new StubMultipartHttpServletRequest(request, artifactMultipart, checksumMultipart);
 
         postFileWithChecksum("baz/foobar.html", multipartRequest);
@@ -590,6 +594,7 @@ public class ArtifactsControllerIntegrationTest {
     private ModelAndView postFile(String requestFilename, String multipartFilename, InputStream stream,
                                   MockHttpServletResponse response) throws Exception {
         MockMultipartFile multipartFile = new MockMultipartFile(multipartFilename, stream);
+        request.addHeader("Confirm", "true");
         StubMultipartHttpServletRequest multipartRequest = new StubMultipartHttpServletRequest(request, multipartFile);
         return artifactsController.postArtifact(pipelineName, pipeline.getLabel(), "stage", "LATEST", "build", buildId,
                 requestFilename,

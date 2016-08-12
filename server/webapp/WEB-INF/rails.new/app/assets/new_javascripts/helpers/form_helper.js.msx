@@ -602,6 +602,16 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins'], function (m,
           </div>
         );
       }
+    },
+
+    info: {
+      view: function (ctrl, args, children) {
+        return (
+          <div class='info callout'>
+            <p>{children}</p>
+          </div>
+        );
+      }
     }
   };
 

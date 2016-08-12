@@ -26,6 +26,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     this.enablePipelineLocking = m.prop(data.enablePipelineLocking);
     this.templateName          = m.prop(s.defaultToIfBlank(data.templateName, ''));
     this.labelTemplate         = m.prop(s.defaultToIfBlank(data.labelTemplate, ''));
+    this.template              = m.prop(data.template);
     this.timer                 = m.prop(s.defaultToIfBlank(data.timer, new Pipeline.Timer({})));
     this.timer.toJSON          = function () {
       var timer = this();
@@ -73,7 +74,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
         url:     Routes.apiv1AdminPipelinePath({pipeline_name: self.name()}),
         config:  config,
         extract: extract,
-        data:    this
+        data:    JSON.parse(JSON.stringify(this, s.snakeCaser))
       });
     };
   };
@@ -84,6 +85,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
       enablePipelineLocking: data.enable_pipeline_locking,
       templateName:          data.template_name,
       labelTemplate:         data.label_template,
+      template:              data.template,
       timer:                 Pipeline.Timer.fromJSON(data.timer),
       trackingTool:          TrackingTool.fromJSON(data.tracking_tool),
       environmentVariables:  EnvironmentVariables.fromJSON(data.environment_variables),

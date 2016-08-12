@@ -305,7 +305,7 @@ define(["jquery", "mithril", "models/pipeline_configs/materials", "views/pipelin
 
     function mount(materials) {
       m.mount(root,
-        m.component(MaterialsConfigWidget, {materials: materials, pipelineName: m.prop('testPipeLine')})
+        m.component(MaterialsConfigWidget, {materials: m.prop(materials), pipelineName: m.prop('testPipeLine')})
       );
       m.redraw(true);
     }

@@ -157,8 +157,11 @@ define([
         var title = function () {
           if(Materials.isBuiltInType(args.material.type())) {
             return [args.material.type(), '-', args.material.name()].join(' ');
-          } else {
+          }
+          if(_.isEqual(args.material.type, 'scm')) {
             return [args.material.type(), '-', args.material.scm() ? args.material.scm().name() : ''].join(' ');
+          } else {
+            return args.material.type();
           }
         };
 
@@ -169,7 +172,7 @@ define([
                        selectedIndex={ctrl.vmState('selectedMaterialIndex', m.prop(-1))}>
 
             <div class="material-definition">
-              <f.removeButton onclick={args.onRemove} class="remove-material"/>
+              <f.removeButton onclick={args.onRemove.bind(this, args.material)} class="remove-material"/>
               {children}
             </div>
           </f.accordion>
@@ -357,7 +360,19 @@ define([
           </MaterialViews.base>
         );
       }
+    },
+
+    package: {
+      view: function (ctrl, args) {
+        var material = args.material;
+        return (
+          <MaterialViews.base {...args}>
+            <f.info>Package materials edit is not yet supported, click <f.link href={["/go/admin/pipelines/",  args.pipelineName(), "/materials?current_tab=materials"].join('')}>here</f.link> to edit.</f.info>
+          </MaterialViews.base>
+        );
+      }
     }
+
   };
 
   var MaterialTypeSelector = {
@@ -388,19 +403,25 @@ define([
 
   var MaterialsConfigWidget = {
     controller: function (args) {
-      this.args         = args;
-      this.pipelines    = Pipelines.init(args.pipelineName());
-      ComponentMixins.HasViewModel.call(this);
+      var self       = this;
+      self.args      = args;
+      self.pipelines = Pipelines.init(args.pipelineName());
+      ComponentMixins.HasViewModel.call(self);
 
-      this.removeMaterial = function (material) {
-        args.materials.removeMaterial(material);
+      self.removeMaterial = function (materials) {
+        return function (material) {
+          materials().removeMaterial(material);
+        };
       };
 
-      this.createMaterial = function (type) {
-        var newMaterial = Materials.isBuiltInType(type()) ? args.materials.createMaterial({type: type()})
-                                                          : args.materials.createMaterial({type: type(), pluginInfo: PluginInfos.findById(type())});
-        var indexOfMaterial = args.materials.indexOfMaterial(newMaterial);
-        this.vmState('material-' + indexOfMaterial, {selectedMaterialIndex: m.prop(0)})
+      self.createMaterial = function (materials) {
+        return function (type) {
+          var newMaterial = Materials.isBuiltInType(type()) ? materials().createMaterial({type: type()})
+                                                            : materials().createMaterial({type: type(), pluginInfo: PluginInfos.findById(type())});
+
+          var indexOfMaterial = materials().indexOfMaterial(newMaterial);
+          self.vmState('material-' + indexOfMaterial, {selectedMaterialIndex: m.prop(0)})
+        }
       };
     },
 
@@ -415,18 +436,18 @@ define([
                      class='materials'
                      selectedIndex={ctrl.vmState('materialsSelected', m.prop(-1))}>
           <div>
-            {args.materials.mapMaterials(function (material, index) {
+            {args.materials().mapMaterials(function (material, index) {
               var materialView = MaterialViews[material.type()];
               return (m.component(materialView, {
                 material: material,
-                onRemove: ctrl.removeMaterial.bind(ctrl, material),
+                onRemove: ctrl.removeMaterial(args.materials),
                 key: material.uuid(),
                 pipelineName: args.pipelineName,
                 pipelines: ctrl.pipelines,
                 vm: ctrl.vmState('material-' + index)
               }));
             })}
-            <MaterialTypeSelector materials={ctrl.materials} createMaterial={ctrl.createMaterial.bind(ctrl)}
+            <MaterialTypeSelector createMaterial={ctrl.createMaterial(args.materials)}
                                   key='material-type-selector'/>
           </div>
         </f.accordion>

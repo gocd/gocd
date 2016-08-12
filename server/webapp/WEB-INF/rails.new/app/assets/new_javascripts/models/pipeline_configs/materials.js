@@ -15,8 +15,7 @@
  */
 
 define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipeline_configs/encrypted_value', 'models/pipeline_configs/scms',
-  'models/validatable_mixin'],
-  function (m, _, s, Mixins, EncryptedValue, SCMs, Validatable) {
+  'models/validatable_mixin'], function (m, _, s, Mixins, EncryptedValue, SCMs, Validatable) {
 
   function plainOrCipherValue(data) {
     if (data.encryptedPassword) {
@@ -406,6 +405,25 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     });
   };
 
+  Materials.Material.PackageMaterial = function (data) {
+    Materials.Material.call(this, "package", true, data);
+    this.name = m.prop(''); //TODO: This needs to be removed, added to pass base validation.
+    this.ref  = m.prop(data.ref);
+
+    this._attributesToJSON = function () {
+      return {
+        ref: this.ref()
+      };
+    };
+  };
+
+  Materials.Material.PackageMaterial.fromJSON = function (data) {
+    var attr = data.attributes || {};
+    return new Materials.Material.PackageMaterial({
+      ref:    attr.ref,
+      errors: data.errors
+    });
+  };
 
   Materials.isBuiltInType = function (type) {
     return _.hasIn(Materials.Types, type);
@@ -420,9 +438,18 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     dependency: {type: Materials.Material.Dependency, description: "Pipeline Dependency"}
   };
 
+
   Materials.Material.fromJSON = function (data) {
-    return Materials.isBuiltInType(data.type) ? Materials.Types[data.type].type.fromJSON(data || {})
-                                              : Materials.Material.PluggableMaterial.fromJSON(data || {});
+    if (Materials.isBuiltInType(data.type)) {
+      return Materials.Types[data.type].type.fromJSON(data || {});
+    }
+
+    var nonBuiltInTypes = {
+      plugin:  Materials.Material.PluggableMaterial,
+      package: Materials.Material.PackageMaterial
+    };
+
+    return nonBuiltInTypes[data.type].fromJSON(data || {});
   };
 
   return Materials;

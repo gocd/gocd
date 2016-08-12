@@ -105,6 +105,21 @@ define([
           )
         };
 
+        var pipelineFlowWidget = function () {
+          if(!s.isBlank(ctrl.pipeline().template())) {
+            return (
+              <f.info>{['Pipeline', "'", ctrl.pipeline().name(), "'", 'uses template', "'", ctrl.pipeline().template(), "'",
+                '. Template editing is not yet supported. '].join(' ')} Click <f.link href={["/go/admin/templates/",  ctrl.pipeline().template(), "/general"].join('')}>here</f.link> to edit template.</f.info>
+            )
+          }
+
+          return (
+            <PipelineFlowWidget pipeline={ctrl.pipeline}
+                                currentSelection={ctrl.currentSelection}
+                                vm={ctrl.vmState('pipelineFlowConfig')}/>
+          )
+        };
+
         return (
           <form class='pipeline'>
             {header()}
@@ -113,13 +128,11 @@ define([
               <f.column end={true} size={12}>
                 <PipelineSettingsWidget pipeline={ctrl.pipeline}
                                         vm={ctrl.vmState('pipelineSettingsConfig')}/>
-                <MaterialsConfigWidget materials={pipeline.materials()}
+                <MaterialsConfigWidget materials={pipeline.materials}
                                        key={pipeline.materials().uuid}
                                        pipelineName={pipeline.name}
                                        vm={ctrl.vmState('materialsConfig')}/>
-                <PipelineFlowWidget pipeline={ctrl.pipeline}
-                                    currentSelection={ctrl.currentSelection}
-                                    vm={ctrl.vmState('pipelineFlowConfig')}/>
+                {pipelineFlowWidget()}
               </f.column>
             </f.row>
           </form>

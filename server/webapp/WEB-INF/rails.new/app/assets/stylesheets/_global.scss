@@ -52,4 +52,10 @@ textarea {
     border: 1px solid #FBE1DD;
     font-size: 12px;
   }
+
+  &.info {
+    background: #d9f9d9;
+    @include icon-before($type: info, $color: #346114);
+    border: 1px solid #9de69c;
+  }
 }

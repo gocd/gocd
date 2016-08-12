@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.servlet.ErrorPageErrorHandler;
 
@@ -34,7 +33,7 @@ public class JettyCustomErrorPageHandler extends ErrorPageErrorHandler {
     private final String fileContents;
 
     public JettyCustomErrorPageHandler() throws IOException {
-        try (InputStream in = getClass().getClassLoader().getResourceAsStream("error.html")) {
+        try (InputStream in = getClass().getResourceAsStream("/error.html")) {
             fileContents = IOUtils.toString(in, StandardCharsets.UTF_8);
         }
     }
@@ -42,16 +41,9 @@ public class JettyCustomErrorPageHandler extends ErrorPageErrorHandler {
     @Override
     protected void writeErrorPage(HttpServletRequest request, Writer writer, int code, String message, boolean showStacks) throws IOException {
 
-        message = getDefaultMessageIfNull(code, message);
-        String errorPage = replaceHtml(code, StringEscapeUtils.escapeHtml(message));
+        String defaultErrorMessage = HttpStatus.getMessage(code);
+        String errorPage = replaceHtml(code, defaultErrorMessage);
         writer.write(errorPage);
-    }
-
-    private String getDefaultMessageIfNull(int code, String message) {
-        if (message == null) {
-            message = HttpStatus.getMessage(code);
-        }
-        return message;
     }
 
     private String replaceHtml(int code, String message) {

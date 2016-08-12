@@ -61,27 +61,24 @@ describe("package_material_check_connection", function () {
         jQuery.ajax = function (options) {
             actual_options = options;
             var waiting_message_element = jQuery('#connection_message');
-            assertEquals('Checking connection...', waiting_message_element.text());
-            assertEquals("Waiting message should not have success or error classes", false, waiting_message_element.hasClass("error_message"));
-            assertEquals("Waiting message should not have success or error classes", false, waiting_message_element.hasClass("ok_message"));
-            options.success('{"success":"Connection OK. Successfully accessed repository metadata at file:///tmp/repo/repodata/repomd.xml"}');
+            options.complete({"responseText": '{ "success": "Connection OK. Successfully accessed repository metadata at file:///tmp/repo/repodata/repomd.xml" }'});
         };
         jQuery("#check_connection_button").click();
         assertEquals("admin/package_repositories/check_connection", actual_options.url);
-        assertEquals("GET", actual_options.type);
+        assertEquals("POST", actual_options.type);
         assertEquals("text", actual_options.dataType);
         assertEquals(jQuery('#parent_container :input').serialize(), actual_options.data);
-        assertEquals("Should set ok_message class", true, jQuery("#connection_message").hasClass("ok_message"))
+        assertEquals("Should set ok_message class", true, jQuery("#connection_message").hasClass("ok_message"));
         assertEquals("Connection ok message not showing up", "Connection OK. Successfully accessed repository metadata at file:///tmp/repo/repodata/repomd.xml", jQuery("#connection_message").text())
     });
 
     it("testShouldCheckConnectionFailureMessage", function () {
         new PackageMaterialCheckConnection("admin/package_repositories/check_connection_button").bind("#parent_container", "#check_connection_button", "#connection_message");
         jQuery.ajax = function (options) {
-            options.success('{"error":"Error in connection!!"}');
+            options.complete({"responseText": '{"error":"Error in connection!!"}' });
         };
         jQuery("#check_connection_button").click();
-        assertEquals("Should set error_message class", true, jQuery("#connection_message").hasClass("error_message"))
+        assertEquals("Should set error_message class", true, jQuery("#connection_message").hasClass("error_message"));
         assertEquals("Error message not showing up", "Error in connection!!", jQuery("#connection_message").text())
     });
 

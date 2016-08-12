@@ -15,18 +15,25 @@
  *************************GO-LICENSE-END**********************************/
 
 PackageMaterialCheckConnection = function (url) {
-
     _bind = function (parent_container_selector, check_connection_selector, connection_message_selector) {
         jQuery(parent_container_selector).on('click', check_connection_selector, function (e) {
             var connection_message_element = jQuery(connection_message_selector);
-            connection_message_element.removeClass("error_message").removeClass("ok_message").text('Checking connection...');
+            var authToken = jQuery(parent_container_selector).parents('form').find('[name=authenticity_token]');
+            var inputs = jQuery(parent_container_selector + " :input");
+            var formData = jQuery.merge(inputs, authToken).serialize();
+            formData = formData.replace("_method=PUT", "_method=POST");
+
             jQuery.ajax({
-                type: "GET",
+                type: "POST",
                 url: url,
-                data: jQuery(parent_container_selector + " :input").serialize(),
+                data: formData,
                 dataType: 'text',
-                success: function (data) {
-                    var value = JSON.parse(data);
+                beforeSend: function(xhr) {
+	                  xhr.setRequestHeader('Confirm', 'true');
+                    connection_message_element.removeClass("error_message").removeClass("ok_message").text('Checking connection...');
+                },
+                complete: function (response) {
+                    var value = JSON.parse(response.responseText);
                     if (value.error) {
                         connection_message_element.removeClass("ok_message").addClass("error_message").text(value.error);
                     } else {
@@ -36,7 +43,7 @@ PackageMaterialCheckConnection = function (url) {
             });
             return false;
         });
-    }
+    };
 
     return {
         bind: _bind

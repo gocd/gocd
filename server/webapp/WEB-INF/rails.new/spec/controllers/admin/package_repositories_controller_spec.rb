@@ -56,7 +56,7 @@ describe Admin::PackageRepositoriesController do
     end
 
     it "should resolve route to check connection for repo" do
-      expect({:get => "/admin/package_repositories/check_connection?id=foo"}).to route_to(:controller => "admin/package_repositories", :action => "check_connection", :id => "foo")
+      expect({:post => "admin/package_repositories/check_connection"}).to route_to(:controller => "admin/package_repositories", :action => "check_connection")
       expect(package_repositories_check_connection_path).to eq("/admin/package_repositories/check_connection")
     end
 

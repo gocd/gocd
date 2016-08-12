@@ -102,7 +102,6 @@
                 <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
                       p:delay="${agent.ping.delay}"
                       p:period="${agent.ping.interval}"
-                      p:fixedRate="true"
                       p:timerTask-ref="agentControllerPinger"/>
             </list>
         </property>

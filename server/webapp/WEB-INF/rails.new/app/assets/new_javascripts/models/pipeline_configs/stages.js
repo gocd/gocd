@@ -39,6 +39,8 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
 
     this.validatePresenceOf('name');
     this.validateUniquenessOf('name');
+    this.validateAssociated('environmentVariables');
+    this.validateAssociated('jobs');
   };
 
   Stages.Stage.create = function (data) {

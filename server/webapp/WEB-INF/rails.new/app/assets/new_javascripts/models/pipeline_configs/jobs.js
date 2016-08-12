@@ -91,6 +91,11 @@ define([
     this.validateUniquenessOf('name');
     this.validateWith('timeout', TimeoutValidator);
     this.validateWith('runInstanceCount', RunInstanceCountValidator);
+    this.validateAssociated('environmentVariables');
+    this.validateAssociated('tasks');
+    this.validateAssociated('artifacts');
+    this.validateAssociated('tabs');
+    this.validateAssociated('properties');
   };
 
   Jobs.Job.create = function (data) {

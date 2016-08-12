@@ -243,6 +243,20 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
           expect(svnMaterial.filter().ignore()).toEqual(['*.doc']);
         });
 
+        it('should map server side errors', function () {
+          var material = Materials.Material.fromJSON({
+            type:   "svn",
+            errors: {
+              url: [
+                "URL cannot be empty"
+              ]
+            }
+          });
+
+          expect(material.errors()._isEmpty()).toBe(false);
+          expect(material.errors().errors('url')).toEqual(['URL cannot be empty']);
+        });
+
         function sampleJSON() {
           return {
             type:       "svn",
@@ -340,6 +354,20 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
           expect(gitMaterial.shallowClone()).toBe(true);
         });
 
+        it('should map server side errors', function () {
+          var material = Materials.Material.fromJSON({
+            type:   "git",
+            errors: {
+              url: [
+                "URL cannot be empty"
+              ]
+            }
+          });
+
+          expect(material.errors()._isEmpty()).toBe(false);
+          expect(material.errors().errors('url')).toEqual(['URL cannot be empty']);
+        });
+
         function sampleJSON() {
           return {
             type:       "git",
@@ -409,6 +437,20 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
           expect(mercurialMaterial.name()).toBe("materialA");
           expect(mercurialMaterial.autoUpdate()).toBe(true);
           expect(mercurialMaterial.filter().ignore()).toEqual(['*.doc'])
+        });
+
+        it('should map server side errors', function () {
+          var material = Materials.Material.fromJSON({
+            type:   "hg",
+            errors: {
+              url: [
+                "URL cannot be empty"
+              ]
+            }
+          });
+
+          expect(material.errors()._isEmpty()).toBe(false);
+          expect(material.errors().errors('url')).toEqual(['URL cannot be empty']);
         });
 
         function sampleJSON() {
@@ -500,6 +542,24 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
           expect(perforceMaterial.autoUpdate()).toBe(true);
           expect(perforceMaterial.view()).toBe("//depot/dev/source...          //anything/source/");
           expect(perforceMaterial.filter().ignore()).toEqual(['*.doc']);
+        });
+
+        it('should map server side errors', function () {
+          var material = Materials.Material.fromJSON({
+            type:   "p4",
+            errors: {
+              view: [
+                "View cannot be empty"
+              ],
+              port: [
+                "Port cannot be empty"
+              ]
+            }
+          });
+
+          expect(material.errors()._isEmpty()).toBe(false);
+          expect(material.errors().errors('view')).toEqual(['View cannot be empty']);
+          expect(material.errors().errors('port')).toEqual(['Port cannot be empty']);
         });
 
         function sampleJSON() {
@@ -606,6 +666,28 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
           expect(tfsMaterial.filter().ignore()).toEqual(['*.doc']);
         });
 
+        it('should map server side errors', function () {
+          var material = Materials.Material.fromJSON({
+            type:   "tfs",
+            errors: {
+              url: [
+                "URL cannot be empty"
+              ],
+              username: [
+                "Username cannot be empty"
+              ],
+              projectPath: [
+                "ProjectPath cannot be empty"
+              ]
+            }
+          });
+
+          expect(material.errors()._isEmpty()).toBe(false);
+          expect(material.errors().errors('url')).toEqual(['URL cannot be empty']);
+          expect(material.errors().errors('username')).toEqual(['Username cannot be empty']);
+          expect(material.errors().errors('projectPath')).toEqual(['ProjectPath cannot be empty']);
+        });
+
         function sampleTaskJSON() {
           return {
             type:       "tfs",
@@ -675,6 +757,24 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
           expect(dependencyMaterial.name()).toBe("materialA");
           expect(dependencyMaterial.pipeline()).toBe('p1');
           expect(dependencyMaterial.stage()).toEqual('s1');
+        });
+
+        it('should map server side errors', function () {
+          var material = Materials.Material.fromJSON({
+            type:   "p4",
+            errors: {
+              pipeline: [
+                "Pipeline cannot be empty"
+              ],
+              stage: [
+                "Stage cannot be empty"
+              ]
+            }
+          });
+
+          expect(material.errors()._isEmpty()).toBe(false);
+          expect(material.errors().errors('pipeline')).toEqual(['Pipeline cannot be empty']);
+          expect(material.errors().errors('stage')).toEqual(['Stage cannot be empty']);
         });
 
         function sampleJSON() {

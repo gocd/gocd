@@ -205,6 +205,33 @@ define(['mithril', 'lodash', 'string-plus', 'models/validatable_mixin', 'models/
       });
     });
 
+    describe('validateAssociated', function () {
+      var Material = function (data) {
+        Validatable.call(this, data);
+        this.url = m.prop(data.url);
+
+        this.validatePresenceOf('url');
+      };
+
+      var Pipeline = function (data) {
+        Validatable.call(this, data);
+        this.material = m.prop(new Material(data.material));
+
+        this.validateAssociated('material');
+      };
+
+      it('should validate associated attributes', function () {
+        var pipeline = new Pipeline({material: {}});
+
+        pipeline.isValid();
+
+        expect(pipeline.errors()._isEmpty()).toBe(true);
+        expect(pipeline.material().errors()._isEmpty()).toBe(false);
+        expect(pipeline.material().errors().errors('url')).toEqual(['URL must be present']);
+      });
+
+    });
+
     describe('validate', function () {
       var Material = function (data) {
         Validatable.call(this, data);
@@ -300,6 +327,38 @@ define(['mithril', 'lodash', 'string-plus', 'models/validatable_mixin', 'models/
         expect(var1.errors()._isEmpty()).toBe(false);
         expect(var1.errors().errors('key')).toEqual(['Key is a duplicate']);
         expect(var1.errors().errors('name')).toEqual(['Name must be present']);
+      });
+
+      it('should be invalid if associated attributes are invalid', function () {
+        var Material = function (data) {
+          Validatable.call(this, data);
+          this.url = m.prop(data.url);
+
+          this.validatePresenceOf('url');
+        };
+
+        var Task = function (data) {
+          Validatable.call(this, data);
+          this.command = m.prop(data.command);
+
+          this.validatePresenceOf('command');
+        };
+
+        var Pipeline = function (data) {
+          Validatable.call(this, data);
+          this.material = m.prop(new Material(data.material));
+          this.task     = m.prop(new Task(data.task));
+
+          this.validateAssociated('material');
+          this.validateAssociated('task');
+        };
+
+        var pipeline = new Pipeline({material: {}, task: {command: 'some_command'}});
+
+        expect(pipeline.isValid()).toBe(false);
+        expect(pipeline.errors()._isEmpty()).toBe(true);
+        expect(pipeline.material().errors()._isEmpty()).toBe(false);
+        expect(pipeline.task().errors()._isEmpty()).toBe(true);
       });
     })
   });

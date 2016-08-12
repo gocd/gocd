@@ -18,41 +18,6 @@ define(['lodash', 'string-plus', 'mithril'], function (_, s, m) {
 
   var Mixins = {};
 
-  Mixins.Errors = function () {
-    var errors = {};
-
-    this.add = function (attrName, message) {
-      errors[attrName] = errors[attrName] || [];
-      errors[attrName].push(message);
-    };
-
-    this.clear = function () {
-      errors = {};
-    };
-
-    this.errors = function (optionalAttribute) {
-      if (this._isEmpty()) {
-        return;
-      }
-
-      if (optionalAttribute) {
-        return errors[optionalAttribute];
-      }
-
-      return errors;
-    };
-
-    this._isEmpty = function () {
-      return _.isEmpty(errors);
-    };
-
-    this.errorsForDisplay = function (attrName) {
-      return _.map(errors[attrName] || [], function (message) {
-        return message + ".";
-      }).join(" ");
-    };
-  };
-
   Mixins.HasUUID = function () {
     this.uuid = Mixins.GetterSetter(this.constructor.modelType + '-' + s.uuid());
   };
@@ -176,6 +141,18 @@ define(['lodash', 'string-plus', 'mithril'], function (_, s, m) {
     this['collect' + associationName + 'Property'] = function (propName) {
       return this['map' + associationNamePlural](function (child) {
         return child[propName]();
+      });
+    };
+
+    this.validate = function () {
+      _.forEach(collection(), function (item) {
+        return item.validate();
+      });
+    };
+
+    this.isValid = function () {
+      return _.every(collection() , function (item) {
+        return item.isValid();
       });
     };
 

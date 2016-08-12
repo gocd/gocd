@@ -80,8 +80,9 @@ public class Jetty9Server extends AppServer {
         createWebAppContext();
         addResourceHandler(handlers, webAppContext);
         handlers.addHandler(webAppContext);
-        webAppContext.setErrorHandler(new JettyCustomErrorPageHandler());
-        server.addBean(new JettyCustomErrorPageHandler());
+        JettyCustomErrorPageHandler errorHandler = new JettyCustomErrorPageHandler();
+        webAppContext.setErrorHandler(errorHandler);
+        server.addBean(errorHandler);
         server.setHandler(handlers);
         performCustomConfiguration();
         server.setStopAtShutdown(true);

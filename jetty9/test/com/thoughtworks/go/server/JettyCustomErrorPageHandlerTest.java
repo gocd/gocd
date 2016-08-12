@@ -23,6 +23,7 @@ import org.mockito.ArgumentCaptor;
 import javax.servlet.http.HttpServletRequest;
 import java.io.PrintWriter;
 
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -44,8 +45,8 @@ public class JettyCustomErrorPageHandlerTest {
     }
 
     @Test
-    public void shouldWriteErrorPage() throws Exception {
-        errorHandler.writeErrorPage(request, writer, 404, "Not Found", false);
+    public void shouldWriteErrorPageFor404WithMessage() throws Exception {
+        errorHandler.writeErrorPage(request, writer, 404, null, false);
 
         verify(writer).write(captor.capture());
         String fileContents = captor.getValue();
@@ -55,23 +56,12 @@ public class JettyCustomErrorPageHandlerTest {
     }
 
     @Test
-    public void shouldReplaceErrorMessageIfItIsNull() throws Exception {
-        errorHandler.writeErrorPage(request, writer, 500, null, false);
+    public void shouldNotUseErrorMessageFromResponse() throws Exception {
+        errorHandler.writeErrorPage(request, writer, 500, "this message should not be rendered", false);
 
         verify(writer).write(captor.capture());
         String fileContents = captor.getValue();
 
-        assertThat(fileContents, containsString("<h1>500</h1>"));
-        assertThat(fileContents, containsString("<h2>Server Error</h2>"));
-    }
-
-    @Test
-    public void shouldEscapeHtmlMessage() throws Exception {
-        errorHandler.writeErrorPage(request, writer, 500, "<script>alert(1)</script>", false);
-
-        verify(writer).write(captor.capture());
-        String fileContents = captor.getValue();
-
-        assertThat(fileContents, containsString("&lt;script&gt;alert(1)&lt;/script&gt;"));
+        assertThat(fileContents, not(containsString("this message should not be rendered")));
     }
 }

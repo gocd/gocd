@@ -17,13 +17,16 @@
 package com.thoughtworks.go.agent;
 
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.StatusLine;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.protocol.BasicHttpContext;
 import org.springframework.remoting.httpinvoker.AbstractHttpInvokerRequestExecutor;
 import org.springframework.remoting.httpinvoker.HttpInvokerClientConfiguration;
 import org.springframework.remoting.support.RemoteInvocationResult;
@@ -35,9 +38,11 @@ import java.util.zip.GZIPInputStream;
 
 public class GoHttpClientHttpInvokerRequestExecutor extends AbstractHttpInvokerRequestExecutor {
     private final GoAgentServerHttpClient goAgentServerHttpClient;
+    private final SystemEnvironment environment;
 
-    public GoHttpClientHttpInvokerRequestExecutor(GoAgentServerHttpClient goAgentServerHttpClient) {
+    public GoHttpClientHttpInvokerRequestExecutor(GoAgentServerHttpClient goAgentServerHttpClient, SystemEnvironment environment) {
         this.goAgentServerHttpClient = goAgentServerHttpClient;
+        this.environment = environment;
     }
 
     @Override
@@ -48,7 +53,14 @@ public class GoHttpClientHttpInvokerRequestExecutor extends AbstractHttpInvokerR
         entity.setContentType(getContentType());
         postMethod.setEntity(entity);
 
-        try (CloseableHttpResponse response = goAgentServerHttpClient.execute(postMethod)) {
+        BasicHttpContext context = null;
+
+        if (environment.useSslContext()) {
+            context = new BasicHttpContext();
+            context.setAttribute(HttpClientContext.USER_TOKEN, goAgentServerHttpClient.principal());
+        }
+
+        try (CloseableHttpResponse response = goAgentServerHttpClient.execute(postMethod, context)) {
             validateResponse(response);
             InputStream responseBody = getResponseBody(response);
             return readRemoteInvocationResult(responseBody, config.getCodebaseUrl());

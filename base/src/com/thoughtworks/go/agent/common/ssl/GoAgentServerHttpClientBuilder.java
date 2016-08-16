@@ -28,6 +28,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContextBuilder;
 
 import javax.net.ssl.HostnameVerifier;
+import javax.security.auth.x500.X500Principal;
 import java.io.*;
 import java.security.*;
 import java.security.cert.CertificateException;
@@ -134,4 +135,15 @@ public class GoAgentServerHttpClientBuilder {
         return !keyStoreFile.exists() ? null : new FileInputStream(keyStoreFile);
     }
 
+    public X500Principal principal() {
+        try {
+            KeyStore keyStore = agentKeystore();
+            if (keyStore.containsAlias("agent")) {
+                return ((X509Certificate) keyStore.getCertificate("agent")).getSubjectX500Principal();
+            }
+        } catch (Exception e) {
+            // ignore
+        }
+        return null;
+    }
 }

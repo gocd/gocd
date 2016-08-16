@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.controller;
 
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationPluginRegistry;
-import com.thoughtworks.go.server.service.SecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
@@ -34,20 +32,21 @@ import java.util.HashMap;
 @Controller
 public class AuthorizationController {
     private final Localizer localizer;
-    private final SecurityService securityService;
     private AuthenticationPluginRegistry authenticationPluginRegistry;
 
     @Autowired
-    public AuthorizationController(Localizer localizer, SecurityService securityService,
-                                   AuthenticationPluginRegistry authenticationPluginRegistry) {
+    public AuthorizationController(Localizer localizer, AuthenticationPluginRegistry authenticationPluginRegistry) {
         this.localizer = localizer;
-        this.securityService = securityService;
         this.authenticationPluginRegistry = authenticationPluginRegistry;
     }
 
     @RequestMapping(value = "/auth/login", method = RequestMethod.GET)
     public ModelAndView login(@RequestParam(value = "login_error", required = false) Boolean loginError,
-                              HttpServletRequest request, HttpServletResponse response) throws IOException {
+                              HttpServletResponse response) throws IOException {
+
+        response.setHeader("Cache-Control", "no-cache, must-revalidate, no-store");
+        response.setHeader("Pragma", "no-cache");
+
         HashMap model = new HashMap();
         model.put("login_error", loginError);
         model.put("l", localizer);
@@ -55,10 +54,8 @@ public class AuthorizationController {
         return new ModelAndView("auth/login", model);
     }
 
-
     @RequestMapping(value = "/auth/security_check", method = RequestMethod.POST)
-    public ModelAndView securityCheckHandlerWhenAuthenticationProcessingFilterIsOff(HttpServletRequest request,
-                                                                                    HttpServletResponse response)
+    public ModelAndView securityCheckHandlerWhenAuthenticationProcessingFilterIsOff(HttpServletResponse response)
             throws IOException {
         response.sendRedirect("/go");
         return null;

@@ -233,81 +233,91 @@ describe EnvironmentsController do
 
     before :each do
       @user = com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('user_foo'))
-      @environment_service = Object.new
-      @config_helper = com.thoughtworks.go.util.GoConfigFileHelper.new
-      @config_helper.onSetUp()
-      @config_helper.using_cruise_config_dao(controller.go_config_dao)
       controller.stub(:current_user).and_return(@user)
-      controller.stub(:security_service).and_return(@security_service = Object.new)
-      @security_service.stub(:canViewAdminPage).with(@user).and_return(true)
-      @environment_name = "foo-environment"
-      @config_helper.addEnvironments([@environment_name])
-      @config_helper.addAdmins(["user_foo"].to_java(:string))
-      setup_base_urls
-    end
 
-    after :each do
-      @config_helper.onTearDown()
+      @security_service = double("Security Service")
+      controller.stub(:security_service).and_return(@security_service)
+      @security_service.stub(:canViewAdminPage).with(@user).and_return(true)
+
+      @environment_name = "foo-environment"
+
+      @environment_service = double("Environment Config Service")
+      @entity_hashing_service = double("Entity Hashing Service")
+      controller.stub(:environment_config_service).and_return(@environment_service)
+      controller.stub(:entity_hashing_service).and_return(@entity_hashing_service)
+      @entity_hashing_service.stub(:md5ForEntity).and_return('md5')
+      @environment = BasicEnvironmentConfig.new(CaseInsensitiveString.new("environment_name"))
     end
 
     def md5
-      Spring.bean("goConfigDao").md5OfConfigFile()
+      'md5'
     end
 
     it "should return error message and the response status code of the passed in result" do
-      put :update, :no_layout => true, :environment => {:pipelines => [{:name => "foo"}]}, :name => @environment_name, :cruise_config_md5 => md5
+      result = HttpLocalizedOperationResult.new()
+      @environment_service.should_receive(:getEnvironmentConfig).with(@environment_name).and_return(@environment)
+      @environment_service.should_receive(:forEdit).with(@environment_name, an_instance_of(HttpLocalizedOperationResult)).and_return(com.thoughtworks.go.domain.ConfigElementForEdit.new(@environment,"md5"))
+      @environment_service.should_receive(:getAllLocalPipelinesForUser).with(@user).and_return([])
+      @environment_service.should_receive(:getAllRemotePipelinesForUserInEnvironment).with(@user,@environment).and_return([])
+
+      @environment_service.should_receive(:updateEnvironment).with(any_args,any_args,any_args,'md5',result) do |old_config, new_config, user, md5, result|
+        result.badRequest(LocalizedMessage.string("ENV_UPDATE_FAILED", @environment_name))
+      end
+
+      put :update, :no_layout => true,
+          :environment => {'agents' => [{'uuid' => "uuid-1"}], 'name' => 'foo_env', 'pipelines' => [{'name' => 'bar'}], 'variables' => [{'name' => "var_name", 'value' => "var_value"}]},
+          :name => @environment_name, :cruise_config_md5 => md5
 
       expect(response.status).to eq(400)
-      expect(response.body).to match(/Failed to update environment 'foo-environment'. Environment 'foo-environment' refers to an unknown pipeline 'foo'./)
+      expect(response.body).to match(/Failed to update environment 'foo-environment'/)
     end
 
     it "should return error message if environment name is blank" do
+      @environment_service.should_receive(:forEdit).with(@environment_name, an_instance_of(HttpLocalizedOperationResult)).and_return(com.thoughtworks.go.domain.ConfigElementForEdit.new(@environment,"md5"))
+      @environment_service.should_receive(:getAllLocalPipelinesForUser).with(@user).and_return([])
+      @environment_service.should_receive(:getAllRemotePipelinesForUserInEnvironment).with(@user,@environment).and_return([])
+
       put :update, :no_layout => true, :environment => {:name => ""}, :name => @environment_name, :cruise_config_md5 => md5
 
       expect(response.status).to eq(400)
       expect(response.body).to match(/Environment name is required/)
     end
 
-    it "should return error when pipeline added in a different environment is added" do
-      @config_helper.addPipelineWithGroup("foo-group", "foo-pipeline", "dev", ["unit"].to_java(:string))
-      @config_helper.addPipelineWithGroup("bar-group", "bar-pipeline", "dev", ["unit"].to_java(:string))
-      @config_helper.addEnvironments(["another_env"].to_java(:string))
-      @config_helper.addPipelineToEnvironment("another_env", "bar-pipeline")
+    it "should return error occured while loading the environment for edit" do
+      result = HttpLocalizedOperationResult.new()
 
-      put :update, :no_layout => true, :environment => {'pipelines' => [{'name' => "foo-pipeline"}, {'name' => "bar-pipeline"}]}, :name => @environment_name, :cruise_config_md5 => md5
+      @environment_service.should_receive(:forEdit).with(any_args,result) do |name, result|
+        result.unprocessableEntity(LocalizedMessage.string("ENV_UPDATE_FAILED", @environment_name))
+      end
 
-      expect(response.status).to eq(400)
-      expect(response.body).to eq("Failed to update environment 'foo-environment'. failed to save : Duplicate unique value [bar-pipeline] declared for identity constraint \"uniqueEnvironmentPipelineName\" of element \"environments\".\n")
-    end
+      put :update, :no_layout => true,
+          :environment => {'agents' => [{'uuid' => "uuid-1"}], 'name' => 'foo_env', 'pipelines' => [{'name' => 'bar'}], 'variables' => [{'name' => "var_name", 'value' => "var_value"}]},
+          :name => @environment_name, :cruise_config_md5 => md5
 
-    it "should return error when invalid agent uuid is added" do
-      put :update, :no_layout => true, :environment => {'agents' => [{'uuid' => "invalid-one"}]}, :name => @environment_name, :cruise_config_md5 => md5
-
-      expect(response.status).to eq(400)
-      expect(response.body).to eq("Failed to update environment 'foo-environment'. Environment 'foo-environment' has an invalid agent uuid 'invalid-one'\n")
-    end
-
-    it "should return error when updating a non-exitant environment" do
-      put :update, :no_layout => true, :environment => {'agents' => [{'uuid' => "something"}]}, :name => "an_env_that_does_not_exist", :cruise_config_md5 => md5
-
-      expect(response.status).to eq(400)
-      expect(response.body).to eq("Environment named 'an_env_that_does_not_exist' not found.\n")
+      expect(response.status).to eq(422)
+      expect(response.body).to match(/Failed to update environment 'foo-environment'/)
     end
 
     it "should successfully update environment" do
-      @config_helper.addPipelineWithGroup("bar-group", "bar", "dev", ["unit"].to_java(:string))
-      @config_helper.addAgent("agent.com", "uuid-1")
+      result = HttpLocalizedOperationResult.new()
+      @environment_service.should_receive(:getEnvironmentConfig).with(@environment_name).and_return(@environment)
+      @environment_service.should_receive(:forEdit).with(@environment_name, an_instance_of(HttpLocalizedOperationResult)).and_return(com.thoughtworks.go.domain.ConfigElementForEdit.new(@environment,"md5"))
+      @environment_service.should_receive(:getAllLocalPipelinesForUser).with(@user).and_return([])
+      @environment_service.should_receive(:getAllRemotePipelinesForUserInEnvironment).with(@user,@environment).and_return([])
+      @environment_service.should_receive(:updateEnvironment).with(any_args,any_args,any_args,'md5',result) do |old_config, new_config, user, md5, result|
+        result.setMessage(LocalizedMessage.string("UPDATE_ENVIRONMENT_SUCCESS",["foo_env"].to_java(java.lang.String)))
+      end
 
       put :update, :no_layout => true,
-          :environment => {'agents' => [{'uuid' => "uuid-1"}], 'name' => @environment_name, 'pipelines' => [{'name' => 'bar'}], 'variables' => [{'name' => "var_name", 'value' => "var_value"}]},
+          :environment => {'agents' => [{'uuid' => "uuid-1"}], 'name' => 'foo_env', 'pipelines' => [{'name' => 'bar'}], 'variables' => [{'name' => "var_name", 'value' => "var_value"}]},
           :name => @environment_name, :cruise_config_md5 => md5
 
       expect(response).to be_success
-      expect(response.location).to match(/^\/environments\/foo-environment\/show\?.*?fm=/)
-      flash_guid = $1 if response.location =~ /environments\/foo-environment\/show\?.*?fm=(.+)/
+      expect(response.location).to match(/^\/environments\/foo_env\/show\?.*?fm=/)
+      flash_guid = $1 if response.location =~ /environments\/foo_env\/show\?.*?fm=(.+)/
       flash = controller.flash_message_service.get(flash_guid)
-      assert_flash_message_and_class(flash, "Updated environment 'foo-environment'.", "success")
-      expect(response.body).to eq("Updated environment 'foo-environment'.")
+      assert_flash_message_and_class(flash, "Updated environment 'foo_env'.", "success")
+      expect(response.body).to eq("Updated environment 'foo_env'.")
     end
   end
 

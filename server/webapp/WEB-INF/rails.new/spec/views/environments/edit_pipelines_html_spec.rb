@@ -26,4 +26,10 @@ describe "environments/edit_pipelines.html.erb" do
 
     view.stub(:cruise_config_md5).and_return("foo_bar_baz")
   end
+
+  it "should have cruise_config_md5 as part of output" do
+    stub_template "environments/_edit_pipelines.html.erb" => "DUMMY"
+    render
+    expect(response.body).to have_selector("form input[type='hidden'][name='cruise_config_md5'][value='foo_bar_baz']")
+  end
 end

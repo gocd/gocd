@@ -37,6 +37,10 @@ describe "environments/edit_variables.html.erb" do
     end
   end
 
+  it "should have cruise_config_md5 as part of output" do
+    expect(response.body).to have_selector("form input[type='hidden'][name='cruise_config_md5'][value='foo_bar_baz']")
+  end
+
   it "should have a template for newly added environment variables" do
     Capybara.string(response.body).find('div.plain-text-variables tbody.template', visible: false).tap do |template|
       expect(template).to have_selector("input.environment_variable_name[name='environment[variables][][name]']", visible: false)

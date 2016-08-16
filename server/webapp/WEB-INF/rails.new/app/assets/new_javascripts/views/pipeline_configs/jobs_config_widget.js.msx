@@ -164,10 +164,11 @@ define([
                      checked={job.isRunOnAllAgents()}
                      onchange={job.runInstanceCount.bind(job, 'all')}/>
               <label for={radioName + '-all'}>Run on all agents</label>
+
               <input type='radio'
                      name={radioName}
                      id={radioName + '-custom'}
-                     checked={!(job.isRunOnOneAgent() || !job.isRunOnAllAgents())}
+                     checked={!(job.isRunOnOneAgent() || job.isRunOnAllAgents())}
                      onchange={job.runInstanceCount.bind(job, '')}/>
               <label for={radioName + '-custom'}>
                 Run

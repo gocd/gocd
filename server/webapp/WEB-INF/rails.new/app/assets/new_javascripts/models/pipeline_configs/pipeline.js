@@ -65,7 +65,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
 
       var config =  function (xhr) {
         xhr.setRequestHeader("Content-Type", "application/json");
-        xhr.setRequestHeader("Accept", "application/vnd.go.cd.v1+json");
+        xhr.setRequestHeader("Accept", "application/vnd.go.cd.v2+json");
         xhr.setRequestHeader("If-Match", etag);
       };
 
@@ -121,7 +121,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
         method:  'GET',
         url:     url,
         background: false,
-        config:  mrequest.xhrConfig.v1,
+        config:  mrequest.xhrConfig.v2,
         extract: extract
       });
     };

@@ -21,13 +21,14 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
     materials = new Materials();
 
     gitMaterial = materials.createMaterial({
-      type:        'git',
-      url:         "http://git.example.com/git/myProject",
-      branch:      "release-1.2",
-      destination: "projectA",
-      name:        "git-repo",
-      autoUpdate:  true,
-      filter:      new Materials.Filter({ignore: ['*.doc']}),
+      type:         'git',
+      url:          "http://git.example.com/git/myProject",
+      branch:       "release-1.2",
+      destination:  "projectA",
+      name:         "git-repo",
+      autoUpdate:   true,
+      filter:       new Materials.Filter({ignore: ['*.doc']}),
+      invertFilter: true,
       shallowClone: true
     });
 
@@ -40,43 +41,47 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
       destination:    "projectA",
       name:           "svn-repo",
       autoUpdate:     true,
-      filter:         new Materials.Filter({ignore: ['*.doc']})
+      filter:         new Materials.Filter({ignore: ['*.doc']}),
+      invertFilter:   true
     });
 
     mercurialMaterial = materials.createMaterial({
-      type:        'hg',
-      url:         "http://hg.example.com/hg/myProject",
-      branch:      "release-1.2",
-      destination: "projectA",
-      name:        "hg-repo",
-      autoUpdate:  true,
-      filter:      new Materials.Filter({ignore: ['*.doc']})
+      type:         'hg',
+      url:          "http://hg.example.com/hg/myProject",
+      branch:       "release-1.2",
+      destination:  "projectA",
+      name:         "hg-repo",
+      autoUpdate:   true,
+      filter:       new Materials.Filter({ignore: ['*.doc']}),
+      invertFilter: true
     });
 
     perforceMaterial = materials.createMaterial({
-      type:        'p4',
-      port:        "p4.example.com:1666",
-      username:    "bob",
-      password:    "p@ssw0rd",
-      useTickets:  true,
-      destination: "projectA",
-      view:        "//depot/dev/source...          //anything/source/",
-      name:        "perforce-repo",
-      autoUpdate:  true,
-      filter:      new Materials.Filter({ignore: ['*.doc']})
+      type:         'p4',
+      port:         "p4.example.com:1666",
+      username:     "bob",
+      password:     "p@ssw0rd",
+      useTickets:   true,
+      destination:  "projectA",
+      view:         "//depot/dev/source...          //anything/source/",
+      name:         "perforce-repo",
+      autoUpdate:   true,
+      filter:       new Materials.Filter({ignore: ['*.doc']}),
+      invertFilter: true
     });
 
     tfsMaterial = materials.createMaterial({
-      type:        'tfs',
-      url:         "http://tfs.example.com/tfs/projectA",
-      username:    "bob",
-      password:    "p@ssw0rd",
-      domain:      'AcmeCorp',
-      destination: "projectA",
-      projectPath: "$/webApp",
-      name:        "tfs-repo",
-      autoUpdate:  true,
-      filter:      new Materials.Filter({ignore: ['*.doc']})
+      type:         'tfs',
+      url:          "http://tfs.example.com/tfs/projectA",
+      username:     "bob",
+      password:     "p@ssw0rd",
+      domain:       'AcmeCorp',
+      destination:  "projectA",
+      projectPath:  "$/webApp",
+      name:         "tfs-repo",
+      autoUpdate:   true,
+      filter:       new Materials.Filter({ignore: ['*.doc']}),
+      invertFilter: true
     });
 
     dependencyMaterial = materials.createMaterial({
@@ -218,6 +223,10 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
         expect(svnMaterial.filter().ignore()).toEqual(['*.doc']);
       });
 
+      it("should initialize material model with invert_filter", function () {
+        expect(svnMaterial.invertFilter()).toBe(true);
+      });
+
       describe("validation", function () {
         it("should add error when url is blank", function () {
           svnMaterial.url("");
@@ -241,6 +250,7 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
           expect(svnMaterial.name()).toBe("materialA");
           expect(svnMaterial.autoUpdate()).toBe(true);
           expect(svnMaterial.filter().ignore()).toEqual(['*.doc']);
+          expect(svnMaterial.invertFilter()).toBe(true);
         });
 
         it('should map server side errors', function () {
@@ -270,7 +280,8 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
               auto_update:     true,
               filter:          {
                 ignore: ['*.doc']
-              }
+              },
+              invert_filter: true
             }
           };
         }
@@ -308,6 +319,10 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
 
       it("should initialize material model with shallow clone", function () {
         expect(gitMaterial.shallowClone()).toBe(true);
+      });
+
+      it("should initialize material model with invert_filter", function () {
+        expect(gitMaterial.invertFilter()).toBe(true);
       });
 
       describe("validation", function () {
@@ -352,6 +367,7 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
           expect(gitMaterial.autoUpdate()).toBe(true);
           expect(gitMaterial.filter().ignore()).toEqual(['*.doc'])
           expect(gitMaterial.shallowClone()).toBe(true);
+          expect(gitMaterial.invertFilter()).toBe(true);
         });
 
         it('should map server side errors', function () {
@@ -380,7 +396,8 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
               filter:      {
                 ignore: ['*.doc']
               },
-              shallow_clone: true
+              shallow_clone: true,
+              invert_filter: true
             }
           };
         }
@@ -416,6 +433,10 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
         expect(mercurialMaterial.filter().ignore()).toEqual(['*.doc']);
       });
 
+      it("should initialize material model with invert_filter", function () {
+        expect(mercurialMaterial.invertFilter()).toBe(true);
+      });
+
       describe("validation", function () {
         it("should add error when url is blank", function () {
           mercurialMaterial.url("");
@@ -436,7 +457,8 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
           expect(mercurialMaterial.destination()).toBe("projectA");
           expect(mercurialMaterial.name()).toBe("materialA");
           expect(mercurialMaterial.autoUpdate()).toBe(true);
-          expect(mercurialMaterial.filter().ignore()).toEqual(['*.doc'])
+          expect(mercurialMaterial.filter().ignore()).toEqual(['*.doc']);
+          expect(mercurialMaterial.invertFilter()).toBe(true);
         });
 
         it('should map server side errors', function () {
@@ -464,7 +486,8 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
               auto_update: true,
               filter:      {
                 ignore: ['*.doc']
-              }
+              },
+              invert_filter: true
             }
           };
         }
@@ -512,6 +535,10 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
         expect(perforceMaterial.filter().ignore()).toEqual(['*.doc']);
       });
 
+      it("should initialize material model with invert_filter", function () {
+        expect(perforceMaterial.invertFilter()).toBe(true);
+      });
+
       describe("validation", function () {
         it("should add error when port is blank", function () {
           perforceMaterial.port("");
@@ -542,6 +569,7 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
           expect(perforceMaterial.autoUpdate()).toBe(true);
           expect(perforceMaterial.view()).toBe("//depot/dev/source...          //anything/source/");
           expect(perforceMaterial.filter().ignore()).toEqual(['*.doc']);
+          expect(perforceMaterial.invertFilter()).toBe(true);
         });
 
         it('should map server side errors', function () {
@@ -576,7 +604,8 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
               auto_update: true,
               filter:      {
                 ignore: ['*.doc']
-              }
+              },
+              invert_filter: true
             }
           };
         }
@@ -624,6 +653,10 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
         expect(tfsMaterial.filter().ignore()).toEqual(['*.doc']);
       });
 
+      it("should initialize material model with invert_filter", function () {
+        expect(tfsMaterial.invertFilter()).toBe(true);
+      });
+
       describe("validation", function () {
         it("should add error when url is blank", function () {
           tfsMaterial.url("");
@@ -646,11 +679,11 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
 
       describe("Serialization/De-serialization to/from JSON", function () {
         beforeEach(function () {
-          tfsMaterial = Materials.Material.fromJSON(sampleTaskJSON());
+          tfsMaterial = Materials.Material.fromJSON(sampleJSON());
         });
 
         it("should serialize to JSON", function () {
-          expect(tfsMaterial.toJSON()).toEqual(sampleTaskJSON());
+          expect(tfsMaterial.toJSON()).toEqual(sampleJSON());
         });
 
         it("should de-serialize from JSON", function () {
@@ -664,6 +697,7 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
           expect(tfsMaterial.autoUpdate()).toBe(true);
           expect(tfsMaterial.projectPath()).toBe("$/webApp");
           expect(tfsMaterial.filter().ignore()).toEqual(['*.doc']);
+          expect(tfsMaterial.invertFilter()).toBe(true);
         });
 
         it('should map server side errors', function () {
@@ -688,7 +722,7 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
           expect(material.errors().errors('projectPath')).toEqual(['ProjectPath cannot be empty']);
         });
 
-        function sampleTaskJSON() {
+        function sampleJSON() {
           return {
             type:       "tfs",
             attributes: {
@@ -697,12 +731,13 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
               filter:       {
                 ignore: ['*.doc']
               },
-              url:          "http://tfs.example.com/tfs/projectA",
-              username:     "bob",
-              password:     "p@ssw0rd",
-              domain:       'AcmeCorp',
-              destination:  "projectA",
-              project_path: "$/webApp"
+              url:           "http://tfs.example.com/tfs/projectA",
+              username:      "bob",
+              password:      "p@ssw0rd",
+              domain:        'AcmeCorp',
+              destination:   "projectA",
+              project_path:  "$/webApp",
+              invert_filter: true
             }
           };
         }
@@ -804,10 +839,11 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
       beforeAll(function () {
         SCMs([github]);
         pluggableMaterial = Materials.create({
-          type:        "plugin",
-          scm :        github,
-          filter:      new Materials.Filter({ignore: ['*.doc']}),
-          destination: "dest_folder"
+          type:         "plugin",
+          scm :         github,
+          filter:       new Materials.Filter({ignore: ['*.doc']}),
+          destination:  "dest_folder",
+          invertFilter: true
         });
         spyOn(SCMs, 'findById').and.returnValue(github);
       });
@@ -836,6 +872,9 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
         expect(Materials.create({pluginInfo: new PluginInfos.PluginInfo({id: 'plugin_id'})}).pluginInfo().id()).toBe('plugin_id');
       });
 
+      it("should initialize material model with invert_filter", function () {
+        expect(pluggableMaterial.invertFilter()).toBe(true);
+      });
 
       describe("Serialization/De-serialization to/from JSON", function () {
         beforeEach(function () {
@@ -852,6 +891,7 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
           expect(pluggableMaterial.scm().id()).toBe("43c45e0b-1b0c-46f3-a60a-2bbc5cec069c");
           expect(pluggableMaterial.destination()).toBe('dest_folder');
           expect(pluggableMaterial.filter().ignore()).toEqual(['*.doc']);
+          expect(pluggableMaterial.invertFilter()).toBe(true);
         });
 
         function sampleJSON() {
@@ -862,7 +902,8 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
               destination: 'dest_folder',
               filter:      {
                 ignore: ['*.doc']
-              }
+              },
+              invert_filter: true
             }
           };
         }

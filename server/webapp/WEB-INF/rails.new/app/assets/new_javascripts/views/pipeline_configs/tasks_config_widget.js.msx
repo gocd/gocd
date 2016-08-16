@@ -104,7 +104,8 @@ define([
                   task: task,
                   onRemove: args.tasks().removeTask.bind(args.tasks(), task),
                   taskIndex: taskIndex,
-                  key: task.uuid()
+                  key: task.uuid(),
+                  vm: ctrl.vmState('task-' + taskIndex)
                 }));
               })}
             </div>

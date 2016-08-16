@@ -82,7 +82,8 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins'], function (m,
             type        = deleteKeyAndReturnValue(args, 'type', 'text'),
             placeholder = deleteKeyAndReturnValue(args, 'placeholder', ''),
             modelType   = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
-            validate    = deleteKeyAndReturnValue(args, 'validate', false);
+            validate    = deleteKeyAndReturnValue(args, 'validate', false),
+            tooltip     = deleteKeyAndReturnValue(args, 'tooltip');
 
         args.size = args.size || 6;
         args.largeSize = args.largeSize || 4;
@@ -108,6 +109,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins'], function (m,
               class={propertyError ? 'is-invalid-input' : ''}
               oninput={ctrl.onInput.bind(ctrl, model, attrName, onchange)}
               onblur={validate ? model.validate.bind(model, validationAttr) : undefined}/>
+            <f.tooltip tooltip={tooltip} model={model} attrName={attrName}/>
             {propertyError}
           </f.column>
         );
@@ -431,9 +433,10 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins'], function (m,
       },
 
       view: function (ctrl, args) {
-        var items = deleteKeyAndReturnValue(args, 'items', {}),
-            label = deleteKeyAndReturnValue(args, 'label'),
-            value = s.coerceToMprop(deleteKeyAndReturnValue(args, 'value'), '');
+        var items   = deleteKeyAndReturnValue(args, 'items', {}),
+            label   = deleteKeyAndReturnValue(args, 'label'),
+            value   = s.coerceToMprop(deleteKeyAndReturnValue(args, 'value'), ''),
+            tooltip = deleteKeyAndReturnValue(args, 'tooltip');
 
         if (!args.size) {
           args.size = 3;
@@ -451,7 +454,11 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins'], function (m,
         );
 
         if (s.isBlank(label)) {
-          return (<f.column {...args}>{selectElem}</f.column>);
+          return (
+            <f.column {...args}>
+              {selectElem}
+              <f.tooltip tooltip={tooltip}/>
+          </f.column>);
         } else {
           return (
             <f.column {...args}>
@@ -459,6 +466,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins'], function (m,
                 {label}
               </label>
               {selectElem}
+              <f.tooltip tooltip={tooltip}/>
             </f.column>
           );
         }
@@ -576,6 +584,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins'], function (m,
                  class={_.compact(['f-dropdown', 'dropdown-pane', 'content', 'tooltip-content', size]).join(' ')}
                  data-dropdown
                  data-hover='true'
+                 data-hover-pane='true'
                  config={foundationReflow()}>
               {content}
             </div>

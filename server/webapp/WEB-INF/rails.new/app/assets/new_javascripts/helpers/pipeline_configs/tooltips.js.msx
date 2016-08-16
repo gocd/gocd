@@ -210,7 +210,7 @@ define(['mithril', 'lodash', 'helpers/form_helper'], function (m, _, f) {
         variables values from the console logs.
       </p>
 
-      <a href='http://www.go.cd/documentation/user/current/faq/dev_use_current_revision_in_build.html'>
+      <a href='http://www.go.cd/documentation/user/current/faq/dev_use_current_revision_in_build.html' target='_blank'>
         Read more...
       </a>
 
@@ -426,7 +426,7 @@ define(['mithril', 'lodash', 'helpers/form_helper'], function (m, _, f) {
         complex configurations.{' '}
       </p>
       <a
-        href='http://www.go.cd/documentation/user/current/configuration/admin_use_parameters_in_configuration.html'>
+        href='http://www.go.cd/documentation/user/current/configuration/admin_use_parameters_in_configuration.html' target='_blank'>
         Read more...
       </a>
     </div>
@@ -479,13 +479,6 @@ define(['mithril', 'lodash', 'helpers/form_helper'], function (m, _, f) {
     </div>
   );
 
-  var lookupCommand = (
-    <div>
-      Lookup sample command snippets from your local
-      <a class="" href="http://www.go.cd/documentation/user/current/advanced_usage/command_repository.html" target="_blank"> command repository</a>.
-    </div>
-  );
-
   var onCancelTask = (
     <div>
       <p>
@@ -493,6 +486,181 @@ define(['mithril', 'lodash', 'helpers/form_helper'], function (m, _, f) {
       </p>
     </div>
   );
+
+  var task = {
+    lookup: (
+      <div>
+        Lookup sample command snippets from your local
+        <a class="" href="http://www.go.cd/documentation/user/current/advanced_usage/command_repository.html" target="_blank"> command repository</a>.
+      </div>
+    ),
+    custom: {
+      command: (
+        <div>
+          The command or script to be executed, relative to the working directory
+        </div>
+      ),
+      workingDirectory: (
+        <div>
+          <p>
+            The directory in which the script or command is to be executed. This is always relative to the directory where
+            the agent checks out materials.
+          </p>
+        </div>
+      )
+    },
+    ant: {
+      buildFile: (
+      <div>
+        Path to Ant build file. If not specified, the path defaults to 'build.xml'.
+      </div>
+      ),
+      target: (
+        <div>
+          Ant target(s) to run. If not specified, the target defaults to 'default'.
+        </div>
+      ),
+      workingDirectory: (
+        <div>
+          The directory from where Ant is invoked.
+        </div>
+      )
+    },
+    nant: {
+      buildFile: (
+        <div>
+          Relative path to a NAnt build file. If not specified, the path defaults to 'default.build'.
+        </div>
+      ),
+      target: (
+        <div>
+          NAnt target(s) to run. If not specified, defaults to the default target of the build file.
+        </div>
+      ),
+      workingDirectory: (
+        <div>
+          The directory from where NAnt is invoked.
+        </div>
+      ),
+      path: (
+        <div>
+          Path of the directory in which NAnt is installed. By default Go will assume that NAnt is in the system path.
+        </div>
+      )
+    },
+    rake: {
+      buildFile: (
+        <div>
+          Path to Rake file. If not specified, the path defaults to 'rakefile'.
+        </div>
+      ),
+      target: (
+        <div>
+          Rake target(s) to run. If not specified, defaults to the default target of the build file.
+        </div>
+      ),
+      workingDirectory: (
+        <div>
+          The directory from where Rake is invoked.
+        </div>
+      )
+    },
+    fetchArtifacts: {
+      pipeline: (
+        <div>
+          <p>
+            The name of direct upstream pipeline or ancestor pipeline of one of the upstream pipelines on which the
+            pipeline of the job depends on. The pipeline should be a dependency material or should be reachable as an
+            ancestor(of the form fetch-from-pipeline/path/to/upstream-pipeline) of at-least one dependency material.
+            Defaults to current pipeline if not specified.
+          </p>
+        </div>
+      ),
+      stage: (
+        <div>
+          The name of the stage to fetch artifacts from.
+        </div>
+      ),
+      job: (
+        <div>
+          The name of the job to fetch artifacts from.
+        </div>
+      ),
+      source: (
+        <div>
+          <p>
+            The path of the artifact directory or file of a specific job, relative to the sandbox directory. If the
+            directory or file does not exist, the job is failed.
+          </p>
+        </div>
+      ),
+      destination: (
+        <div>
+          <p>
+            The path of the directory where the artifact is fetched to. The directory is overwritten if it already
+            exists. The directory path is relative to the pipeline working directory.
+          </p>
+        </div>
+      )
+    }
+  };
+
+  var artifacts = {
+    main: (
+      <div>
+          Publish build artifacts to the artifact repository.
+      </div>
+    ),
+    source: (
+      <div>
+        <p>
+          The file or folders to publish to the server. Go will only upload files that are in the working directory of
+          the job. You can use wildcards to specify the files and folders to upload (** means any path, * means any file
+          or folder name).
+        </p>
+      </div>
+    ),
+    destination: (
+      <div>
+        <p>
+          The destination is relative to the artifacts folder of the current instance on the server side. If it is not
+          specified, the artifact will be stored in the root of the artifacts directory
+        </p>
+      </div>
+    ),
+    type: (
+      <div>
+        <p>
+          When 'Test Artifact' is selected, Go will use this artifact to generate a test report. Test information is
+          placed in the Failures and Test sub-tabs. Test results from multiple jobs are aggregated on the stage detail
+          pages. This allows you to see the results of tests from both functional and unit tests even if they are run in
+          different jobs.
+        </p>
+      </div>
+    )
+  };
+
+  var tabs = {
+    main: (
+      <div>
+        <p>
+          Lets you add new tabs within the Job Details page. <a href="http://www.go.cd/documentation/user/current/faq/dev_see_artifact_as_tab.html"
+                                                                target="_blank">More...</a>
+        </p>
+      </div>
+    ),
+    name: (
+      <div>
+        Name of the tab which will appear in the Job Detail Page.
+      </div>
+    ),
+    path: (
+      <div>
+        The artifact that will be rendered in the custom tab. This is typically a html or xml file.
+      </div>
+    )
+  };
+
 
   return {
     pipeline: {
@@ -548,10 +716,9 @@ define(['mithril', 'lodash', 'helpers/form_helper'], function (m, _, f) {
       }
     },
 
-    task: {
-      lookup: lookupCommand
-    },
-
+    task: task,
+    artifacts: artifacts,
+    tabs: tabs,
     onCancelTask: onCancelTask
   };
 });

@@ -269,6 +269,7 @@ define([
               <NameField material={material}/>
               <f.inputWithLabel attrName='port'
                                 model={material}
+                                validate={true}
                                 onchange={m.withAttr('value', material.port)}/>
               <AutoUpdateField material={material}/>
             </f.row>
@@ -279,6 +280,7 @@ define([
             </f.row>
             <f.row>
               <f.inputWithLabel attrName='view'
+                                validate={true}
                                 model={material}/>
               <f.checkBox name="material[use_tickets]"
                           type="checkbox"

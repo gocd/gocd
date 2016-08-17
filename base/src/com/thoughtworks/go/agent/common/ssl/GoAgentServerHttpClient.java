@@ -24,6 +24,7 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.protocol.HttpContext;
 
+import javax.security.auth.x500.X500Principal;
 import java.io.Closeable;
 import java.io.IOException;
 
@@ -32,6 +33,7 @@ public class GoAgentServerHttpClient implements Closeable {
 
     private final SystemEnvironment systemEnvironment;
     private CloseableHttpClient client;
+    private X500Principal principal;
 
     public GoAgentServerHttpClient(SystemEnvironment systemEnvironment) {
         this.systemEnvironment = systemEnvironment;
@@ -39,7 +41,9 @@ public class GoAgentServerHttpClient implements Closeable {
 
     // called by spring
     public void init() throws Exception {
-        this.client = new GoAgentServerHttpClientBuilder(systemEnvironment).httpClient();
+        GoAgentServerHttpClientBuilder builder = new GoAgentServerHttpClientBuilder(systemEnvironment);
+        this.client = builder.httpClient();
+        this.principal = builder.principal();
     }
 
 
@@ -70,5 +74,9 @@ public class GoAgentServerHttpClient implements Closeable {
 
     public void reset() throws IOException {
         close();
+    }
+
+    public X500Principal principal() {
+        return this.principal;
     }
 }

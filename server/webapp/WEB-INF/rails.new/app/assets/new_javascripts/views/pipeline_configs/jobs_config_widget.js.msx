@@ -205,7 +205,7 @@ define([
       }
     },
 
-    view: function (ctrl) {
+    view: function (ctrl, args) {
       var allJobNames = ctrl.map(function (job) {
         return job.name();
       });
@@ -227,6 +227,7 @@ define([
                 isVertical={true}
                 selectedIndex={ctrl.vmState('selectedJobIndex', m.prop(0))}>
           {ctrl.map(function (job) {
+            var jobIndex = args.jobs().indexOfJob(job);
             return (
               <f.row class='job-definition' key={job.uuid()}>
                 <f.column size={12}>
@@ -237,7 +238,7 @@ define([
                         )
                      ]}
                                accordionKeys={['job-settings']}
-                               selectedIndex={ctrl.vmState('jobSettingsSelected' + job.name(), m.prop(-1))}
+                               selectedIndex={ctrl.vmState('jobSettingsSelected' + jobIndex, m.prop(s.isBlank(job.name()) ? 0 : -1))}
                                class="accordion-inner">
                     <div>
                       <f.row>
@@ -272,23 +273,23 @@ define([
                     <EnvironmentVariablesConfigWidget title='Jobs Environment Variables'
                                                       variables={job.environmentVariables}
                                                       key={job.environmentVariables().uuid()}
-                                                      vm={ctrl.vmState('environmentVariablesConfig-' + job.name())}/>
+                                                      vm={ctrl.vmState('environmentVariablesConfig-' + jobIndex)}/>
                   </f.row>
                   <f.row>
                     <TasksConfigWidget tasks={job.tasks}
-                                       vm={ctrl.vmState('tasksConfig-' + job.name())} />
+                                       vm={ctrl.vmState('tasksConfig-' + jobIndex)} />
                   </f.row>
 
                   <f.row>
                       <ArtifactsConfigWidget artifacts={job.artifacts}
                                              keys={job.artifacts().uuid()}
-                                             vm={ctrl.vmState('artifactsConfig-' + job.name())}/>
+                                             vm={ctrl.vmState('artifactsConfig-' + jobIndex)}/>
                       <TabsConfigWidget tabs={job.tabs}
                                         keys={job.tabs().uuid()}
-                                        vm={ctrl.vmState('tabsConfig-' + job.name())}/>
+                                        vm={ctrl.vmState('tabsConfig-' + jobIndex)}/>
                       <PropertiesConfigWidget properties={job.properties}
                                               keys={job.properties().uuid()}
-                                              vm={ctrl.vmState('propertiesConfig-' + job.name())}/>
+                                              vm={ctrl.vmState('propertiesConfig-' + jobIndex)}/>
                   </f.row>
                 </f.column>
               </f.row>

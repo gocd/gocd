@@ -15,8 +15,8 @@
  */
 
 define([
-  'mithril', 'helpers/form_helper', 'helpers/mithril_component_mixins'
-], function (m, f, ComponentMixins) {
+  'mithril', 'helpers/form_helper', 'helpers/mithril_component_mixins', 'helpers/pipeline_configs/tooltips'
+], function (m, f, ComponentMixins, tt) {
   var TabsConfigWidget = {
     controller: function (args) {
       this.args = args;
@@ -33,13 +33,13 @@ define([
       return (
         <f.accordion accordionTitles={[
                         (
-                          <span>Tabs</span>
+                          <span>Tabs<f.tooltip tooltip={{content: tt.tabs.main, size:'small'}}/></span>
                         )
                      ]}
                      accordionKeys={['job-tabs']}
                      selectedIndex={ctrl.vmState('tabsSelected', m.prop(-1))}
                      class="accordion-inner">
-          <div class='job-tabs'>
+          <div class='job-tabs position-tooltip'>
             {ctrl.map(function (tab) {
               return (
                 <f.row class='tab' data-tab-name={tab.name()} key={tab.uuid()}>
@@ -48,13 +48,23 @@ define([
                            placeholder='Tab name'
                            onchange={ctrl.changed.bind(ctrl)}
                            validate={true}
-                           size={4}/>
+                           size={4}
+                           tooltip={{
+                                       content: tt.tabs.name,
+                                       direction: 'bottom',
+                                       size: 'small'
+                                        }}/>
                   <f.input model={tab}
                            attrName='path'
                            placeholder='Path of artifact'
                            onchange={ctrl.changed.bind(ctrl)}
                            validate={'all'}
-                           size={4}/>
+                           size={4}
+                           tooltip={{
+                                       content: tt.tabs.path,
+                                       direction: 'bottom',
+                                       size: 'medium'
+                                        }}/>
                   <f.column size={3} end={true}>
                     {ctrl.removeLink.call(ctrl, tab)}
                   </f.column>

@@ -136,3 +136,14 @@
 .tooltip-spacing {
   margin-left: -15px;
 }
+
+.position-tooltip {
+  .columns{
+    position: relative;
+  }
+  .tooltip-wrapper {
+    right: -15px;
+    position: absolute;
+    top: 9px;
+  }
+}

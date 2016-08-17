@@ -94,11 +94,12 @@ define([
     view: function(ctrl, args) {
       var stage     = args.stage;
       var radioName = 'radio-' + stage.uuid() + '-approval-type';
+      var settingSelected = s.isBlank(args.stage.name()) ? 0 : -1;
 
       return (
         <f.accordion accordionTitles={[(<span>Stage Settings</span>)]}
                      accordionKeys={['stageSettings']}
-                     selectedIndex={ctrl.vmState('stageSettingsSelected', m.prop(-1))}
+                     selectedIndex={ctrl.vmState('stageSettingsSelected', m.prop(settingSelected))}
                      class='accordion-inner'>
           <f.row>
             <f.column size={4}>
@@ -185,26 +186,27 @@ define([
     },
 
     view: function (ctrl, args) {
-      var stage     = args.stage;
+      var stage      = args.stage;
+      var stageIndex = args.pipeline().stages().indexOfStage(args.stage);
 
       return (
         <div class='stage-definition' data-stage-name={stage.name()}>
           <f.removeButton onclick={args.onRemove} class="remove-stage"/>
 
           <SettingsWidget stage={stage}
-                          vm={ctrl.vmState('settingsWidgetConfig-' + stage.name())}/>
+                          vm={ctrl.vmState('settingsWidgetConfig-' + stageIndex)}/>
           <ApprovalWidget approval={stage.approval}
-                          vm={ctrl.vmState('approvalWidgetConfig-' + stage.name())}/>
+                          vm={ctrl.vmState('approvalWidgetConfig-' + stageIndex)}/>
           <EnvironmentVariablesConfigWidget title='Stages Environment Variables'
                                             variables={stage.environmentVariables}
                                             key={stage.environmentVariables().uuid()}
-                                            vm={ctrl.vmState('environmentVariablesConfig-' + stage.name())}/>
+                                            vm={ctrl.vmState('environmentVariablesConfig-' + stageIndex)}/>
 
           <f.row>
             <f.column size={12} end={true}>
               <JobsConfigWidget jobs={stage.jobs}
                                 key={stage.jobs().uuid()}
-                                vm={ctrl.vmState('jobsWidgetConfig-'+ stage.name())}/>
+                                vm={ctrl.vmState('jobsWidgetConfig-'+ stageIndex)}/>
             </f.column>
           </f.row>
         </div>
@@ -215,8 +217,6 @@ define([
   var StagesConfigWidget = {
     controller: function (args) {
       this.args             = args;
-      this.currentSelection = args.currentSelection;
-
       ComponentMixins.HasViewModel.call(this);
 
       this.removeStage = function (pipeline, stage) {
@@ -232,6 +232,7 @@ define([
       return (
         <div class='stage-definition-container'>
           <StageConfigDefinitionWidget stage={args.currentSelection()}
+                                       pipeline={args.pipeline}
                                        onRemove={ctrl.removeStage.bind(ctrl, args.pipeline, args.currentSelection())}
                                        vm={ctrl.vmState('stageDefinitionConfigs')}/>
         </div>

@@ -27,24 +27,23 @@ define([
       controller: function (args) {
         var self = this;
         self.args = args;
-        self.task = args.task;
-        var vmStateKey = 'taskEdit' + self.task.uuid();
+        var vmStateKey = 'taskEdit';
 
         ComponentMixins.HasViewModel.call(this);
-        self.vmState(vmStateKey, m.prop(self.task.isEmpty() ? true : false));
+        self.vmState(vmStateKey, m.prop(args.task.isEmpty() ? true : false));
 
-        this.isEditing = function () {
+        self.isEditing = function () {
           return self.vmState(vmStateKey)();
         };
 
-        this.toggleIsEditing = function () {
+        self.toggleIsEditing = function () {
           var isEditing = self.vmState(vmStateKey)();
-          self.vmState('taskEdit' + self.task.uuid())(!isEditing);
+          self.vmState(vmStateKey)(!isEditing);
         };
 
-        this.taskDisplayName = function () {
-          return Tasks.isBuiltInTaskType(self.task.type()) ? self.task.type() : PluginInfos.findById(self.task.pluginId()).name();
-        }
+        self.taskDisplayName = function () {
+          return Tasks.isBuiltInTaskType(args.task.type()) ? args.task.type() : PluginInfos.findById(args.task.pluginId()).name();
+        };
       },
 
       view: function (ctrl, args, children) {

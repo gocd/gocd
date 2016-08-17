@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['mithril', 'helpers/form_helper', 'helpers/mithril_component_mixins'], function (m, f, ComponentMixins) {
+define(['mithril', 'helpers/form_helper', 'helpers/mithril_component_mixins', 'helpers/pipeline_configs/tooltips'], function (m, f, ComponentMixins, tt) {
   var ArtifactsConfigWidget = {
     controller: function (args) {
       this.args = args;
@@ -31,13 +31,13 @@ define(['mithril', 'helpers/form_helper', 'helpers/mithril_component_mixins'], f
       return (
         <f.accordion accordionTitles={[
                         (
-                          <span>Artifacts</span>
+                          <span>Artifacts<f.tooltip tooltip={{content: tt.artifacts.main, size:'small'}}/></span>
                         )
                      ]}
                      accordionKeys={['job-artifacts']}
                      selectedIndex={ctrl.vmState('artifactsSelected', m.prop(-1))}
                      class="accordion-inner">
-          <div class='job-artifacts'>
+          <div class='job-artifacts position-tooltip'>
             {ctrl.map(function (artifact) {
               return (
                 <f.row class='artifact' data-artifact-source={artifact.source()} key={artifact.uuid()}>
@@ -46,20 +46,35 @@ define(['mithril', 'helpers/form_helper', 'helpers/mithril_component_mixins'], f
                            placeholder='Source'
                            onchange={ctrl.changed.bind(ctrl)}
                            validate={true}
-                           size={3}/>
+                           size={4}
+                           tooltip={{
+                                          content: tt.artifacts.source,
+                                          direction: 'bottom',
+                                          size: 'medium'
+                                        }}/>
                   <f.input model={artifact}
                            attrName='destination'
                            placeholder='Destination'
                            onchange={ctrl.changed.bind(ctrl)}
                            validate={'all'}
-                           size={3}/>
+                           size={4}
+                           tooltip={{
+                                          content: tt.artifacts.destination,
+                                          direction: 'bottom',
+                                          size: 'medium'
+                                        }}/>
                   <f.select value={artifact.type}
                             class='inline'
                             items={{
                             build: 'build',
                             test: 'test'
                           }}
-                            size={2}/>
+                            size={2}
+                            tooltip={{
+                                          content: tt.artifacts.type,
+                                          direction: 'bottom',
+                                          size: 'medium'
+                                        }}/>
                   <f.column size={1} end={true}>
                     {ctrl.removeLink.call(ctrl, artifact)}
                   </f.column>

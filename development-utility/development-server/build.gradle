@@ -18,12 +18,12 @@ description = 'GoCD Server used for development'
 
 dependencies {
   compile project(':server')
-  compile group: 'org.eclipse.jetty', name: 'jetty-server', version: '9.2.17.v20160517'
-  compile group: 'org.eclipse.jetty', name: 'jetty-plus', version: '9.2.17.v20160517'
-  compile group: 'org.eclipse.jetty', name: 'jetty-jmx', version: '9.2.17.v20160517'
-  compile group: 'org.eclipse.jetty', name: 'jetty-servlets', version: '9.2.17.v20160517'
-  compile group: 'org.eclipse.jetty', name: 'jetty-util', version: '9.2.17.v20160517'
-  compile group: 'org.eclipse.jetty.websocket', name: 'websocket-server', version: '9.2.17.v20160517'
+  compile group: 'org.eclipse.jetty', name: 'jetty-server', version: versions.jetty
+  compile group: 'org.eclipse.jetty', name: 'jetty-plus', version: versions.jetty
+  compile group: 'org.eclipse.jetty', name: 'jetty-jmx', version: versions.jetty
+  compile group: 'org.eclipse.jetty', name: 'jetty-servlets', version: versions.jetty
+  compile group: 'org.eclipse.jetty', name: 'jetty-util', version: versions.jetty
+  compile group: 'org.eclipse.jetty.websocket', name: 'websocket-server', version: versions.jetty
   compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit.http.server', version: '4.1.0.201509280440-r'
   compile project(':jetty9')
   compile group: 'javax.servlet', name: 'javax.servlet-api', version: '3.1.0'

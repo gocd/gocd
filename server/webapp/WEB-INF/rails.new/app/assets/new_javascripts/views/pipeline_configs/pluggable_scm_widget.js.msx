@@ -76,6 +76,7 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'helpers/pipeline_configs/to
               <f.inputWithLabel attrName='destination'
                                 label="Destination"
                                 model={ctrl.material}
+                                validate={true}
                                 tooltip={{
                                     content: tt.material.destination,
                                     direction: 'bottom',

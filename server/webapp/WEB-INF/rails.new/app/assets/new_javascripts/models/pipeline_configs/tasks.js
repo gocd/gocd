@@ -15,8 +15,7 @@
  */
 
 define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipeline_configs/argument', 'models/pipeline_configs/run_if_conditions',
-    'models/validatable_mixin'],
-  function (m, _, s, Mixins, Argument, RunIfConditions, Validatable) {
+    'models/validatable_mixin'], function (m, _, s, Mixins, Argument, RunIfConditions, Validatable) {
 
   var Tasks = function (data) {
     Mixins.HasMany.call(this, {factory: Tasks.createByType, as: 'Task', collection: data});
@@ -27,18 +26,6 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
       return new Tasks.Types[data.type].type({});
     } else {
       return new Tasks.Task.PluginTask.fromPluginInfo(data.pluginInfo);
-    }
-  };
-
-  Tasks.taskByType  = function (type) {
-    if (Tasks.isBuiltInTaskType(type)) {
-      return new Tasks.Types[type].type({})
-    } else {
-      return new Tasks.Task.PluginTask({
-        type:     type,
-        pluginId: type,
-        version:  PluggableTasks.Types[type].version
-      });
     }
   };
 
@@ -100,6 +87,14 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
       return _.join([this.target(), this.buildFile()], ' ');
     };
 
+    this.summary = function () {
+      return {
+        buildFile:        this.buildFile(),
+        target:           this.target(),
+        workingDirectory: this.workingDirectory()
+      }
+    };
+
     this.isEmpty = function() {
       return _.isEmpty(_.compact([this.target(), this.buildFile()]));
     };
@@ -139,6 +134,15 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
 
     this.toString = function() {
       return _.join([this.target(), this.buildFile()], ' ');
+    };
+
+    this.summary = function () {
+      return {
+        buildFile:        this.buildFile(),
+        target:           this.target(),
+        workingDirectory: this.workingDirectory(),
+        nantPath:         this.nantPath()
+      }
     };
 
     this.isEmpty = function() {
@@ -182,6 +186,12 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
       return _.join([this.command(), this.args().toString()], ' ');
     };
 
+    this.summary = function () {
+      return {
+        command: this.command()
+      }
+    };
+
     this.isEmpty = function() {
       return _.isEmpty(_.compact([this.command(), this.args().toString()]));
     };
@@ -220,6 +230,14 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
 
     this.toString = function() {
       return _.join([this.target(), this.buildFile()], ' ');
+    };
+
+    this.summary = function () {
+      return {
+        buildFile:        this.buildFile(),
+        target:           this.target(),
+        workingDirectory: this.workingDirectory()
+      }
     };
 
     this.isEmpty = function() {
@@ -271,6 +289,16 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
       return _.join([this.pipeline(), this.stage(), this.job()], ' ');
     };
 
+    this.summary = function () {
+      return {
+        pipeline:    this.pipeline(),
+        stage:       this.stage(),
+        job:         this.job(),
+        source:      this.source(),
+        destination: this.destination()
+      }
+    };
+
     this.isEmpty = function() {
       return _.isEmpty(_.compact([this.pipeline(), this.stage(), this.job()]));
     };
@@ -309,6 +337,16 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
       return _.join(this.configuration().mapConfigurations(function(configuration) {
         return _.join([configuration.key(), ':', ' ', configuration.value()], '');
       }), ' ');
+    };
+
+    this.summary = function () {
+      var data = {};
+
+      this.configuration().mapConfigurations(function (conf) {
+        data[_.capitalize(conf.key())] = conf.value();
+      });
+
+      return data;
     };
 
     this._attributesToJSON = function () {
@@ -397,11 +435,11 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
   });
 
   Tasks.BuiltInTypes = {
-    exec:          {type: Tasks.Task.Exec, description: "Custom Command"},
-    ant:           {type: Tasks.Task.Ant, description: "Ant"},
-    nant:          {type: Tasks.Task.NAnt, description: "NAnt"},
-    rake:          {type: Tasks.Task.Rake, description: "Rake"},
-    fetch:         {type: Tasks.Task.FetchArtifact, description: "Fetch Artifact"}
+    exec:  {type: Tasks.Task.Exec, description: "Custom Command"},
+    ant:   {type: Tasks.Task.Ant, description: "Ant"},
+    nant:  {type: Tasks.Task.NAnt, description: "NAnt"},
+    rake:  {type: Tasks.Task.Rake, description: "Rake"},
+    fetch: {type: Tasks.Task.FetchArtifact, description: "Fetch Artifact"}
   };
 
   Tasks.Types = _.assign({}, Tasks.BuiltInTypes);

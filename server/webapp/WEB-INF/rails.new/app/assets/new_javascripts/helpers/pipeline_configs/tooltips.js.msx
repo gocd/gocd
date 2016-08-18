@@ -210,7 +210,7 @@ define(['mithril', 'lodash', 'helpers/form_helper'], function (m, _, f) {
         variables values from the console logs.
       </p>
 
-      <a href='http://www.go.cd/documentation/user/current/faq/dev_use_current_revision_in_build.html' target='_blank'>
+      <a href='https://www.go.cd/documentation/user/current/faq/dev_use_current_revision_in_build.html' target='_blank'>
         Read more...
       </a>
 
@@ -426,7 +426,7 @@ define(['mithril', 'lodash', 'helpers/form_helper'], function (m, _, f) {
         complex configurations.{' '}
       </p>
       <a
-        href='http://www.go.cd/documentation/user/current/configuration/admin_use_parameters_in_configuration.html' target='_blank'>
+        href='https://www.go.cd/documentation/user/current/configuration/admin_use_parameters_in_configuration.html' target='_blank'>
         Read more...
       </a>
     </div>
@@ -491,7 +491,7 @@ define(['mithril', 'lodash', 'helpers/form_helper'], function (m, _, f) {
     lookup: (
       <div>
         Lookup sample command snippets from your local
-        <a class="" href="http://www.go.cd/documentation/user/current/advanced_usage/command_repository.html" target="_blank"> command repository</a>.
+        <a class="" href="https://www.go.cd/documentation/user/current/advanced_usage/command_repository.html" target="_blank"> command repository</a>.
       </div>
     ),
     custom: {
@@ -644,7 +644,7 @@ define(['mithril', 'lodash', 'helpers/form_helper'], function (m, _, f) {
     main: (
       <div>
         <p>
-          Lets you add new tabs within the Job Details page. <a href="http://www.go.cd/documentation/user/current/faq/dev_see_artifact_as_tab.html"
+          Lets you add new tabs within the Job Details page. <a href="https://www.go.cd/documentation/user/current/faq/dev_see_artifact_as_tab.html"
                                                                 target="_blank">More...</a>
         </p>
       </div>

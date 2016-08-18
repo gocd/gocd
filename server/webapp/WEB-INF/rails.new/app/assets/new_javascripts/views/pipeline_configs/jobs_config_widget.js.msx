@@ -246,6 +246,7 @@ define([
                           attrName='name'
                           model={job}
                           validate={true}
+                          isRequired={true}
                           size={6}
                           largeSize={4}/>
                         <f.inputWithLabel

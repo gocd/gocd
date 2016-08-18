@@ -85,7 +85,7 @@ define(["mithril", "lodash", "views/pipeline_configs/pipeline_stage_field_widget
         expect(_.isEmpty(material.stage())).toBe(true);
       });
 
-      it('should not show validation errors on providing valid input', function() {
+      it('should hide validation errors on providing valid input', function() {
         var material = Materials.create({
           type:     "dependency"
         });
@@ -97,6 +97,49 @@ define(["mithril", "lodash", "views/pipeline_configs/pipeline_stage_field_widget
         m.redraw(true);
 
         expect($root.find(".form-error").text()).toBe("'invalid-input' should conform to the pattern 'pipeline [stage]'");
+
+        $root.find("input[name='pipeline-stage']").val('pipeline [stage]');
+        $root.find("input[name='pipeline-stage']").blur();
+        m.redraw(true);
+
+        expect($root.find("input[name='pipeline-stage']").val()).toBe('pipeline [stage]');
+        expect(_.isEmpty($root.find(".form-error"))).toBe(true);
+      });
+
+      it('should show server side validation errors', function () {
+        var material = Materials.create({
+          type:     "dependency",
+          pipeline: "a",
+          stage:    "b",
+          errors: {
+            pipeline: ["Pipeline with name 'a' does not exist"],
+            stage:    ["Stage with name 'b' does not exist"]
+          }
+        });
+
+        mount(material, Pipelines);
+
+        $root.find("input[name='pipeline-stage']").val('invalid-input');
+
+        expect($root.find(".form-error").text()).toBe("Pipeline with name 'a' does not exist. Stage with name 'b' does not exist");
+      });
+
+      it('should clear server side errors on valid input', function () {
+        var material = Materials.create({
+          type:     "dependency",
+          pipeline: "a",
+          stage:    "b",
+          errors: {
+            pipeline: ["Pipeline with name 'a' does not exist"],
+            stage:    ["Stage with name 'b' does not exist"]
+          }
+        });
+
+        mount(material, Pipelines);
+
+        $root.find("input[name='pipeline-stage']").val('invalid-input');
+
+        expect($root.find(".form-error").text()).toBe("Pipeline with name 'a' does not exist. Stage with name 'b' does not exist");
 
         $root.find("input[name='pipeline-stage']").val('pipeline [stage]');
         $root.find("input[name='pipeline-stage']").blur();

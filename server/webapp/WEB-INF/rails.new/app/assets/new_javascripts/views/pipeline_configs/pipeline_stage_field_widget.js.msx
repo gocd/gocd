@@ -45,6 +45,7 @@ define(['mithril', 'lodash', 'jquery', 'string-plus', 'helpers/form_helper', 'jq
       vm: function (material) {
         const PIPELINE_STAGE_PATTERN = /^(.+) \[(.+)\]$/;
         this.material  = material;
+        this.errors    = [];
 
         this.getPipelineStage = function () {
           if(this.material.pipeline() && this.material.stage()){
@@ -58,6 +59,7 @@ define(['mithril', 'lodash', 'jquery', 'string-plus', 'helpers/form_helper', 'jq
         this.setPipelineStage = function (e) {
           var target  = (e || event).target;
           this.pipelineStage(target.value || target.getAttribute('value'));
+          this.validate();
 
           var match = PIPELINE_STAGE_PATTERN.exec(this.pipelineStage());
 
@@ -66,19 +68,30 @@ define(['mithril', 'lodash', 'jquery', 'string-plus', 'helpers/form_helper', 'jq
         };
 
         this.validate = function () {
-          if(s.isBlank(this.pipelineStage())) {
+          this.errors    = [];
+          this.material.errors().clear();
+
+          if (s.isBlank(this.pipelineStage())) {
             return;
           }
 
           if (!PIPELINE_STAGE_PATTERN.test(this.pipelineStage())) {
-            return _.join(["'", this.pipelineStage(), "'", " ", "should conform to the pattern 'pipeline [stage]'"], '')
+            this.errors.push(_.join(["'", this.pipelineStage(), "'", " ", "should conform to the pattern 'pipeline [stage]'"], ''));
           }
         };
+
+        this.hasErrors = function () {
+          return (!_.isEmpty(this.errors) || !_.isEmpty( this.material.errors().errors()));
+        };
+
+        this.errorsForDisplay = function () {
+          return !_.isEmpty(this.errors) ? this.errors : _.values(this.material.errors().errors()).join(". ");
+        }
       },
 
       controller: function (args) {
         this.pipelines = args.pipelines;
-        this.vm        = new PipelineStageFieldWidget.vm(args.material);
+        this.vm = new PipelineStageFieldWidget.vm(args.material);
 
         this.pipelineStages = function() {
           var data = _.map(this.pipelines(), function (pipeline) {
@@ -93,15 +106,14 @@ define(['mithril', 'lodash', 'jquery', 'string-plus', 'helpers/form_helper', 'jq
       },
 
       view: function (ctrl) {
-        var propertyError = function() {
-          var error = ctrl.vm.validate();
-          return error ? (<span class='form-error is-visible'>{error}</span>) : '';
-        };
+        var propertyError = ctrl.vm.hasErrors() ? (<span class='form-error is-visible'>{ctrl.vm.errorsForDisplay()}</span>) : undefined;
 
         return (
           <div
             config={PipelineStageFieldWidget.textComplete('pipeline-stage', ctrl.pipelineStages())}>
-            <label>Pipeline [Stage]</label>
+            <label>Pipeline [Stage]
+              <span class='asterisk'>*</span>
+            </label>
             <input type='text'
                    name='pipeline-stage'
                    autocomplete="off"
@@ -110,7 +122,7 @@ define(['mithril', 'lodash', 'jquery', 'string-plus', 'helpers/form_helper', 'jq
                    spellcheck="off"
                    value={ctrl.vm.pipelineStage()}
                    onblur={ctrl.vm.setPipelineStage.bind(ctrl.vm)}/>
-            {propertyError()}
+            {propertyError}
           </div>
         );
       }

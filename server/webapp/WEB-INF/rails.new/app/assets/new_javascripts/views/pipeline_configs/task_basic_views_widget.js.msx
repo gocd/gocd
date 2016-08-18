@@ -132,6 +132,7 @@ define([
                   <f.inputWithLabel attrName='command'
                                     model={task}
                                     validate={true}
+                                    isRequired={true}
                                     size={12}
                                     largeSize={12}
                                     tooltip={{
@@ -193,7 +194,7 @@ define([
       }
     },
 
-    fetchartifact: {
+    fetch: {
       view: function (ctrl, args) {
         var task = args.task;
         return (
@@ -209,6 +210,7 @@ define([
               <f.inputWithLabel attrName='stage'
                                 model={task}
                                 validate={true}
+                                isRequired={true}
                                 tooltip={{
                                           content: tt.task.fetchArtifacts.stage,
                                           direction: 'bottom',
@@ -217,6 +219,7 @@ define([
               <f.inputWithLabel attrName='job'
                                 model={task}
                                 validate={true}
+                                isRequired={true}
                                 end={true}
                                 tooltip={{
                                           content: tt.task.fetchArtifacts.job,
@@ -228,6 +231,7 @@ define([
               <f.inputWithLabel attrName='source'
                                 model={task}
                                 validate={true}
+                                isRequired={true}
                                 tooltip={{
                                           content: tt.task.fetchArtifacts.source,
                                           direction: 'bottom',
@@ -331,10 +335,14 @@ define([
         };
 
         return (
-          <div id={'pluggable-task-template-' + ctrl.task.uuid()} ng-controller={ctrl.ngControllerName} config={config}>
+          <div id={'pluggable-task-template-' + ctrl.task.uuid()} ng-controller={ctrl.ngControllerName} class='task-basic' config={config}>
             <div class="alert-box alert"
                  ng-show="pluggableTaskGenericError">{'{{pluggableTaskGenericError}}'}</div>
-            {m.trust(ctrl.templateHTML)}
+            <f.row>
+              <f.column size={6} largeSize={4}>
+                {m.trust(ctrl.templateHTML)}
+              </f.column>
+            </f.row>
           </div>
         );
       }

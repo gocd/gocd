@@ -22,8 +22,8 @@ dependencies {
   compile(group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: '4.1.0.201509280440-r') {
     exclude(group: 'org.apache.httpcomponents')
   }
-  compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.12'
-  compile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.12'
+  compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.21'
+  compile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.21'
   compile group: 'xerces', name: 'xercesImpl', version: '2.9.1'
   compile group: 'cglib', name: 'cglib', version: '2.1_3'
   testCompile project(path: ':config-api', configuration: 'testOutput')

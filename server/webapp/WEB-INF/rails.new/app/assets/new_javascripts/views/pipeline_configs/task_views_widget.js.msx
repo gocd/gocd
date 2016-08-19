@@ -22,6 +22,19 @@ define([
 ], function (m, _, $, angular, f, Tasks, PluggableTasks, Routes, Argument, ComponentMixins,
              RunIfConditionsWidget, TaskBasicViews, CancelTaskWidget, PluginInfos) {
 
+  var TaskSummaryView = {
+    view: function (ctrl, args) {
+      return (
+        <ul class='task-type'>
+          {_.map(args.task.summary(), function (v, k) {
+            return (
+              <li><label class={_.toLower(k)}>{_.startCase(k)}</label> < span > {v}</span></li>
+            );
+          })}
+        </ul>
+      )
+    }
+  };
   var TaskViews = {
     base: {
       controller: function (args) {
@@ -42,7 +55,7 @@ define([
         };
 
         self.taskDisplayName = function () {
-          return Tasks.isBuiltInTaskType(args.task.type()) ? args.task.type() : PluginInfos.findById(args.task.pluginId()).name();
+          return Tasks.isBuiltInTaskType(args.task.type()) ? args.task.type() : PluginInfos.findById(args.task.pluginId()).displayName();
         };
       },
 
@@ -54,14 +67,22 @@ define([
         return (
           <div class={'task-definition task-type-' + args.task.type()} data-task-index={args.taskIndex}>
             <div>
-              <div class="task-header" onclick={ctrl.toggleIsEditing.bind(ctrl)}>
-                <strong>{ctrl.taskDisplayName()}</strong>
-                <span class='task-type'>{args.task.toString()}</span>
-                <div class='actions'>
-                  <f.removeButton onclick={args.onRemove} class="remove-task"/>
-                  <f.editButton class={ctrl.isEditing() ? 'done' : null}/>
-                </div>
-              </div>
+              <f.row class="task-summary" onclick={ctrl.toggleIsEditing.bind(ctrl)}>
+                <f.column size={2} largeSize={2}><span>{ctrl.taskDisplayName()}</span></f.column>
+                <f.column size={6} largeSize={6}>
+                  {!ctrl.isEditing() ? <TaskSummaryView task={args.task}/> : undefined}
+                </f.column>
+                <f.column size={2} largeSize={2}>
+                  {!ctrl.isEditing() ? (<span>{_.capitalize(args.task.runIf().data().join(' '))}</span>) : undefined}
+                </f.column>
+                <f.column size={2} largeSize={2}>
+                  {!ctrl.isEditing() ? (<span>{_.isNil(args.task.onCancelTask) ? 'No' : args.task.onCancelTask.type()}</span>) : undefined}
+                  <div class='actions'>
+                    <f.removeButton onclick={args.onRemove} class="remove-task"/>
+                    <f.editButton class={ctrl.isEditing() ? 'done' : null}/>
+                  </div>
+                </f.column>
+              </f.row>
               <div class={_.compact(["task-body", classNameForTaskBody()]).join(' ')}>
                 {children}
                 <RunIfConditionsWidget task={args.task}/>
@@ -117,7 +138,7 @@ define([
       view: function (ctrl, args) {
         return (
           <TaskViews.base {...args}>
-            <TaskBasicViews.fetchartifact {...args}/>
+            <TaskBasicViews.fetch {...args}/>
           </TaskViews.base>
         );
       }

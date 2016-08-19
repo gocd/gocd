@@ -45,10 +45,6 @@ define(['mithril', 'lodash', 'models/pipeline_configs/scms'],
           expect(xhr.setRequestHeader).toHaveBeenCalledWith("Accept", "application/vnd.go.cd.v1+json");
         });
 
-        it('should not stop page redraw', function() {
-          expect(requestArgs.background).toBe(true);
-        });
-
         it('should unwrap the response data to return list of scms', function () {
           SCMs.init();
 

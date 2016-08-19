@@ -23,7 +23,9 @@ define(['mithril', 'lodash', 'string-plus', 'helpers/form_helper'],
           <f.row class='runif'>
             <f.row>
               <f.column>
-                <label>Run If Current Job Status</label>
+                <label>Run If Current Job Status
+                  <span class='asterisk'>*</span>
+                </label>
               </f.column>
             </f.row>
             <f.row>

@@ -62,6 +62,7 @@ define([
         <f.inputWithLabel attrName='url'
                           type='url'
                           validate={true}
+                          isRequired={true}
                           model={args.material}/>
       )
     }
@@ -270,6 +271,7 @@ define([
               <f.inputWithLabel attrName='port'
                                 model={material}
                                 validate={true}
+                                isRequired={true}
                                 onchange={m.withAttr('value', material.port)}/>
               <AutoUpdateField material={material}/>
             </f.row>
@@ -281,6 +283,7 @@ define([
             <f.row>
               <f.inputWithLabel attrName='view'
                                 validate={true}
+                                isRequired={true}
                                 model={material}/>
               <f.checkBox name="material[use_tickets]"
                           type="checkbox"
@@ -315,11 +318,13 @@ define([
               <f.inputWithLabel attrName='projectPath'
                                 model={material}
                                 validate={true}
+                                isRequired={true}
                                 end={true}/>
             </f.row>
             <f.row>
               <f.inputWithLabel attrName='username'
                                 model={material}
+                                isRequired={true}
                                 validate={true}/>
               <PasswordField model={material}
                              attrName='passwordValue'

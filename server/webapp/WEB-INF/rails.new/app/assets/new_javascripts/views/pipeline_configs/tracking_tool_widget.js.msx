@@ -35,6 +35,7 @@ define([
                               label='Base URL'
                               type='url'
                               validate={true}
+                              isRequired={true}
                               tooltip={{
                                           content: <tt.trackingTool.mingle.baseUrl callback={trackingTool().baseUrl}/>,
                                           direction: 'bottom',
@@ -47,6 +48,7 @@ define([
             <f.inputWithLabel model={trackingTool()}
                               attrName='projectIdentifier'
                               validate={true}
+                              isRequired={true}
                               tooltip={{
                                           content: <tt.trackingTool.mingle.projectIdentifier callback={trackingTool().projectIdentifier}/>,
                                           direction: 'bottom',
@@ -78,6 +80,7 @@ define([
                               attrName='regex'
                               label='Regular expression'
                               validate={true}
+                              isRequired={true}
                               tooltip={{
                                           content: <tt.trackingTool.generic.regex callback={trackingTool().regex}/>,
                                           direction: 'bottom',
@@ -91,6 +94,7 @@ define([
                               label='URL Pattern'
                               type='url'
                               validate={true}
+                              isRequired={true}
                               tooltip={{
                                           content: <tt.trackingTool.generic.urlPattern callback={trackingTool().urlPattern}/>,
                                           direction: 'bottom',

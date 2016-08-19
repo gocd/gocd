@@ -73,7 +73,7 @@ define([
           };
 
           var disableDrag = function (el, h) {
-            return !($(h).is('.task-header') || $(h).is('.task-type'));
+            return !($(h).is('.task-summary') || $(h).is('.task-type'));
           };
 
           var options = {
@@ -97,7 +97,14 @@ define([
                      selectedIndex={ctrl.vmState('tasksSelected', m.prop(0))}
                      class="accordion-inner">
           <div class='task-definitions' key="task-definitions">
-            <div config={dragDropConfig}>
+            <f.row class='task-header'>
+              <f.column size={2} largeSize={2}><span>Task Type</span></f.column>
+              <f.column size={6} largeSize={6}><span>Properties</span></f.column>
+              <f.column size={2} largeSize={2}><span>Run If</span></f.column>
+              <f.column size={2} largeSize={2}><span>On Cancel</span></f.column>
+            </f.row>
+
+            <span config={dragDropConfig}>
               {args.tasks().mapTasks(function (task, taskIndex) {
                 var taskView = TaskViews[task.type()];
                 return (m.component(taskView, {
@@ -108,7 +115,7 @@ define([
                   vm: ctrl.vmState('task-' + taskIndex)
                 }));
               })}
-            </div>
+            </span>
             <TaskTypeSelector tasks={args.tasks} key="task-type-selector"/>
           </div>
         </f.accordion>

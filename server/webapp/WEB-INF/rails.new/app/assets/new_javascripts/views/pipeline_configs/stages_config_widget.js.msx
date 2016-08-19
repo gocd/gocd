@@ -108,6 +108,7 @@ define([
                                   label='Stage name'
                                   model={stage}
                                   validate={true}
+                                  isRequired={true}
                                   size={12}
                                   largeSize={12}/>
               </f.row>

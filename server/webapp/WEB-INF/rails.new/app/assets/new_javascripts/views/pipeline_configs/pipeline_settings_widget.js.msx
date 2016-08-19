@@ -41,6 +41,7 @@ define([
               <f.inputWithLabel model={pipeline}
                                 attrName='labelTemplate'
                                 validate={true}
+                                isRequired={true}
                                 tooltip={{
                                           content: <tt.pipeline.labelTemplate callback={pipeline.labelTemplate}/>,
                                           direction: 'bottom',

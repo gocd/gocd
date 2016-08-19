@@ -186,7 +186,6 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
       m.request({
         method:        'GET',
         url:           Routes.apiv1AdminScmsPath(),
-        background:    true,
         config:        mrequest.xhrConfig.v1,
         type:          SCMs.SCM,
         unwrapSuccess: function (response) {

@@ -137,7 +137,8 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins'], function (m,
             onchange    = deleteKeyAndReturnValue(args, 'onchange'),
             tooltip     = deleteKeyAndReturnValue(args, 'tooltip'),
             modelType   = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null))
-            validate    = deleteKeyAndReturnValue(args, 'validate', false);
+            validate    = deleteKeyAndReturnValue(args, 'validate', false),
+            isRequired  = deleteKeyAndReturnValue(args, 'isRequired', false);
 
         args.size = args.size || 6;
         args.largeSize = args.largeSize || 4;
@@ -161,6 +162,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins'], function (m,
             <label
               class={_.compact([propertyError ? 'is-invalid-label' : null, tooltip ? 'has-tooltip' : null]).join(' ')}>
               {labelText || s.humanize(attrName)}
+              {isRequired ? (<span class='asterisk'>*</span>) : undefined}
             </label>
 
             <f.tooltip tooltip={tooltip} model={model} attrName={attrName}/>

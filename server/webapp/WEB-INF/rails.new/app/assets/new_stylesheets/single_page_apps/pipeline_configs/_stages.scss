@@ -252,31 +252,66 @@ $active-job: $lighter-gray;
 //tasks
 
 .task-header {
+  padding: 5px 15px;
+  margin-bottom: 5px;
+  background: $dark-gray;
+  color: #fefefe;
+  font-weight: 600;
+  font-size: rem-calc(16px);
+}
+
+.task-summary {
   @include icon-before($type: ellipsis-v, $margin: 0 12px 0 0);
-  padding: 0 70px 0 30px;
+  padding: 0 15px;
   height: 30px;
   line-height: 30px;
   background: $lighter-gray;
   cursor: move;
+  overflow: hidden;
 
   &:before {
-    left: 15px;
+    left: 14px;
     top: 8px;
     position: absolute;
   }
 
-  strong {
-    margin-right: 15px;
-    float: left;
-    line-height: 28px;
-    height: 30px;
+  > .columns {
+    font-size: rem-calc(13px);
+    &:first-child {
+      font-weight: 600;
+      font-size: rem-calc(15px);
+    }
   }
 
   .task-type {
     font-size: rem-calc(13px);
     @include ellipsis();
-    width: calc(100% - 400px);
-    float: left;
+    margin: 0;
+    list-style: none;
+    line-height: 30px;
+
+    li {
+      float: left;
+      list-style: none;
+      margin-bottom: 5px;
+    }
+
+    span {
+      margin-right: 10px;
+    }
+
+    label {
+      display: inline-block;
+      margin-right: 5px;
+      font-size: rem-calc(13px);
+      font-weight: 600;
+      position: relative;
+      &:after {
+        content: ":";
+        position: absolute;
+        right: -5px;
+      }
+    }
   }
 
   .actions {
@@ -285,7 +320,7 @@ $active-job: $lighter-gray;
     top: 2px;
     .edit {
       position: relative;
-      top: -1px;
+      top: -3px;
     }
   }
 

@@ -1,11 +1,11 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,6 +19,7 @@ package com.thoughtworks.go.util;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,13 +29,15 @@ import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.FileUtil.isSubdirectoryOf;
 import static com.thoughtworks.go.util.FileUtil.normalizePath;
 import static com.thoughtworks.go.util.TestUtils.isEquivalentPathName;
@@ -52,19 +55,24 @@ import static org.mockito.Mockito.when;
 
 @RunWith(JunitExtRunner.class)
 public class FileUtilTest {
-    private List<File> filesNeedToDelete = new ArrayList<File>();
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+    @Before
+    public void setUp() throws Exception {
+        temporaryFolder.create();
+    }
 
     @After
     public void tearDown() {
-        for (File file : filesNeedToDelete) {
-            FileUtils.deleteQuietly(file);
-        }
+        temporaryFolder.delete();
     }
 
     @Test
     public void shouldReadTillEnd() throws Exception {
         String content = "Hello" + FileUtil.lineSeparator() + "World";
-        File file = TestFileUtil.writeStringToTempFileInFolder("foo", "txt", content);
+        File file = temporaryFolder.newFile("foo.txt");
+        FileUtils.writeStringToFile(file, content, Charset.defaultCharset());
         String message = FileUtil.readToEnd(file);
         assertThat(message, is(content));
     }
@@ -72,7 +80,7 @@ public class FileUtilTest {
     @Test
     public void shouldWriteContentToFile() throws IOException {
         String content = "content";
-        File targetFile = TestFileUtil.createTempFile("test1.txt");
+        File targetFile = temporaryFolder.newFile("test1.txt");
         FileUtil.writeContentToFile(content, targetFile);
         FileInputStream input = new FileInputStream(targetFile);
         String actual = IOUtils.toString(input);
@@ -96,7 +104,7 @@ public class FileUtilTest {
     @Test
     public void shouldReadContentFromFile() throws IOException {
         String content = "content";
-        File targetFile = TestFileUtil.createTempFile("test1.txt");
+        File targetFile = temporaryFolder.newFile("test1.txt");
         FileUtil.writeContentToFile(content, targetFile);
         String actual = FileUtil.readContentFromFile(targetFile);
         assertThat(actual, is(content));
@@ -136,7 +144,7 @@ public class FileUtilTest {
 
     @Test
     public void shouldReturnTrueWhenTwoFolderHasSameStructure() throws Exception {
-        File root = createTempDirectory();
+        File root = temporaryFolder.newFolder();
         File folder1 = new File(root, "folder1");
         folder1.mkdirs();
         File file1 = new File(folder1, "readme.txt");
@@ -150,7 +158,7 @@ public class FileUtilTest {
 
     @Test
     public void shouldReturnFalseWhenTwoFolderHasDifferentStructure() throws Exception {
-        File root = createTempDirectory();
+        File root = temporaryFolder.newFolder();
         File folder1 = new File(root, "folder1");
         folder1.mkdirs();
         File file1 = new File(folder1, "readme.txt");
@@ -162,43 +170,16 @@ public class FileUtilTest {
         assertThat(FileUtil.isStructureSame(folder1, folder2), is(false));
     }
 
-
-    private File createTempDirectory() throws IOException {
-        File tmpdir = new File(System.getProperty("java.io.tmpdir"), "fileUtilTest");
-        filesNeedToDelete.add(tmpdir);
-        tmpdir.deleteOnExit();
-
-        final File dir = new File(tmpdir, "testdir");
-        if (dir.exists() && dir.isDirectory()) {
-            return dir;
-        }
-        if (!dir.mkdirs()) {
-            bomb("Unable to create " + dir.getAbsolutePath());
-        }
-        dir.deleteOnExit();
-        ArrayList<File> files = new ArrayList<File>() {
-            {
-                add(new File(dir, "test1.txt"));
-                add(new File(dir, "test2.txt"));
-            }
-        };
-        for (File file : files) {
-            if (!file.createNewFile()) {
-                bomb("Unable to create " + file.getAbsolutePath());
-            }
-            file.deleteOnExit();
-        }
-        return dir;
-    }
-
-    @Test public void shouldCreateUniqueHashForFolders() throws Exception {
+    @Test
+    public void shouldCreateUniqueHashForFolders() throws Exception {
         File file = new File("c:a/b/c/d/e");
         File file2 = new File("c:foo\\bar\\baz");
         assertThat(FileUtil.filesystemSafeFileHash(file).matches("[0-9a-zA-Z\\.\\-]*"), is(true));
         assertThat(FileUtil.filesystemSafeFileHash(file2), not(FileUtil.filesystemSafeFileHash(file)));
     }
 
-    @Test public void shouldDetectSubfolders() throws Exception {
+    @Test
+    public void shouldDetectSubfolders() throws Exception {
         assertThat(isSubdirectoryOf(new File("a"), new File("a")), is(true));
         assertThat(isSubdirectoryOf(new File("a"), new File("a/b")), is(true));
         assertThat(isSubdirectoryOf(new File("a"), new File("aaaa")), is(false));
@@ -281,7 +262,6 @@ public class FileUtilTest {
     public void shouldCreateFileURIForFileOnWindows() {
         assertThat(FileUtil.toFileURI(new File("c:\\foo")).startsWith("file:///c:/foo"), is(true));
         assertThat(FileUtil.toFileURI(new File("c:\\a dir with spaces\\foo")).startsWith("file:///c:/a%20dir%20with%20spaces/foo"), is(true));
-//        assertThat(FileUtil.toFileURI(new File("c:\\司徒空在此/foo")), is("file:///c:/%E5%8F%B8%E5%BE%92%E7%A9%BA%E5%9C%A8%E6%AD%A4/foo"));
     }
 
     @Test
@@ -314,15 +294,15 @@ public class FileUtilTest {
     }
 
     @Test
-    public void FolderIsEmptyWhenItHasNoContents() {
-        File folder = TestFileUtil.createUniqueTempFolder("foo");
+    public void FolderIsEmptyWhenItHasNoContents() throws Exception {
+        File folder = temporaryFolder.newFolder("foo");
         assertThat(FileUtil.isFolderEmpty(folder), is(true));
     }
 
     @Test
     public void FolderIsNotEmptyWhenItHasContents() throws Exception {
-        File folder = TestFileUtil.createUniqueTempFolder("foo");
-        TestFileUtil.createTestFile(folder, "bar");
+        File folder = temporaryFolder.newFolder("foo");
+        new File(folder, "subfolder").createNewFile();
         assertThat(FileUtil.isFolderEmpty(folder), is(false));
     }
 
@@ -333,7 +313,7 @@ public class FileUtilTest {
 
     @Test
     public void shouldReturnCanonicalPath() throws IOException {
-        File f = FileUtil.createTempFolder();
+        File f = temporaryFolder.newFolder();
         assertThat(FileUtil.getCanonicalPath(f), is(f.getCanonicalPath()));
         File spyFile = spy(new File("/xyz/non-existent-file"));
         IOException canonicalPathException = new IOException("Failed to build the canonical path");
@@ -341,7 +321,7 @@ public class FileUtilTest {
         try {
             FileUtil.getCanonicalPath(spyFile);
         } catch (RuntimeException e) {
-            assertThat((IOException) e.getCause(),is(canonicalPathException));
+            assertThat((IOException) e.getCause(), is(canonicalPathException));
         }
     }
 

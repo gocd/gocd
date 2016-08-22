@@ -26,10 +26,9 @@ import org.apache.commons.lang.NullArgumentException;
 import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffFormatter;
-import org.eclipse.jgit.lib.ObjectId;
-import org.eclipse.jgit.lib.ObjectLoader;
-import org.eclipse.jgit.lib.ObjectReader;
-import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.errors.IncorrectObjectTypeException;
+import org.eclipse.jgit.errors.MissingObjectException;
+import org.eclipse.jgit.lib.*;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
@@ -42,7 +41,8 @@ import org.springframework.stereotype.Component;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * @understands versioning cruise-config
@@ -63,7 +63,7 @@ public class ConfigRepository {
     private Repository gitRepo;
 
     @Autowired
-    public ConfigRepository(SystemEnvironment systemEnvironment) throws IOException{
+    public ConfigRepository(SystemEnvironment systemEnvironment) throws IOException {
         this.systemEnvironment = systemEnvironment;
         workingDir = this.systemEnvironment.getConfigRepoDir();
         File configRepoDir = new File(workingDir, ".git");
@@ -79,13 +79,13 @@ public class ConfigRepository {
     public void initialize() throws IOException {
         if (!gitRepo.getDirectory().exists()) {
             gitRepo.create();
-        }
-        else {
+        } else {
             cleanAndResetToMaster();
         }
     }
 
-    @Deprecated // used in test only
+    @Deprecated
+        // used in test only
     Git git() {
         return git;
     }
@@ -144,7 +144,7 @@ public class ConfigRepository {
     }
 
     public RevCommit getRevCommitForMd5(String md5) throws GitAPIException {
-        if(md5 == null)
+        if (md5 == null)
             throw new NullArgumentException("md5");
 
         final String expectedPart = GoConfigRevision.Fragment.md5.represent(GoConfigRevision.esc(md5));
@@ -157,14 +157,14 @@ public class ConfigRepository {
         throw new IllegalArgumentException(String.format("There is no config version corresponding to md5: '%s'", md5));
     }
 
-	RevCommit getRevCommitForCommitSHA(String commitSHA) throws GitAPIException {
-		for (RevCommit revision : revisions()) {
-			if (revision.getName().equals(commitSHA)) {
-				return revision;
-			}
-		}
-		throw new IllegalArgumentException(String.format("There is no commit corresponding to SHA: '%s'", commitSHA));
-	}
+    RevCommit getRevCommitForCommitSHA(String commitSHA) throws GitAPIException {
+        for (RevCommit revision : revisions()) {
+            if (revision.getName().equals(commitSHA)) {
+                return revision;
+            }
+        }
+        throw new IllegalArgumentException(String.format("There is no commit corresponding to SHA: '%s'", commitSHA));
+    }
 
     public GoConfigRevision getCurrentRevision() {
         return doLocked(new ThrowingFn<GoConfigRevision, RuntimeException>() {
@@ -191,25 +191,25 @@ public class ConfigRepository {
         }
     }
 
-	public GoConfigRevisions getCommits(final int pageSize, final int offset) throws Exception {
-		return doLocked(new ThrowingFn<GoConfigRevisions, RuntimeException>() {
-			public GoConfigRevisions call() {
-				GoConfigRevisions goConfigRevisions = new GoConfigRevisions();
-				try {
-					LogCommand command = git.log().setMaxCount(pageSize).setSkip(offset);
-					Iterable<RevCommit> revisions = command.call();
-					for (RevCommit revision : revisions) {
-						GoConfigRevision goConfigRevision = new GoConfigRevision(null, revision.getFullMessage());
-						goConfigRevision.setCommitSHA(revision.name());
-						goConfigRevisions.add(goConfigRevision);
-					}
-				} catch (Exception e) {
-					// ignore
-				}
-				return goConfigRevisions;
-			}
-		});
-	}
+    public GoConfigRevisions getCommits(final int pageSize, final int offset) throws Exception {
+        return doLocked(new ThrowingFn<GoConfigRevisions, RuntimeException>() {
+            public GoConfigRevisions call() {
+                GoConfigRevisions goConfigRevisions = new GoConfigRevisions();
+                try {
+                    LogCommand command = git.log().setMaxCount(pageSize).setSkip(offset);
+                    Iterable<RevCommit> revisions = command.call();
+                    for (RevCommit revision : revisions) {
+                        GoConfigRevision goConfigRevision = new GoConfigRevision(null, revision.getFullMessage());
+                        goConfigRevision.setCommitSHA(revision.name());
+                        goConfigRevisions.add(goConfigRevision);
+                    }
+                } catch (Exception e) {
+                    // ignore
+                }
+                return goConfigRevisions;
+            }
+        });
+    }
 
     private GoConfigRevision getGoConfigRevision(final RevCommit revision) {
         return new GoConfigRevision(contentFromTree(revision.getTree()), revision.getFullMessage());
@@ -249,31 +249,31 @@ public class ConfigRepository {
             public String call() throws GitAPIException {
                 RevCommit laterCommit = null;
                 RevCommit earlierCommit = null;
-                if(!StringUtil.isBlank(laterMD5)) {
+                if (!StringUtil.isBlank(laterMD5)) {
                     laterCommit = getRevCommitForMd5(laterMD5);
                 }
-                if(!StringUtil.isBlank(earlierMD5))
+                if (!StringUtil.isBlank(earlierMD5))
                     earlierCommit = getRevCommitForMd5(earlierMD5);
                 return findDiffBetweenTwoRevisions(laterCommit, earlierCommit);
             }
         });
     }
 
-	public String configChangesForCommits(final String fromRevision, final String toRevision) throws GitAPIException {
-		return doLocked(new ThrowingFn<String, GitAPIException>() {
-			public String call() throws GitAPIException {
-				RevCommit laterCommit = null;
-				RevCommit earlierCommit = null;
-				if (!StringUtil.isBlank(fromRevision)) {
-					laterCommit = getRevCommitForCommitSHA(fromRevision);
-				}
-				if (!StringUtil.isBlank(toRevision)) {
-					earlierCommit = getRevCommitForCommitSHA(toRevision);
-				}
-				return findDiffBetweenTwoRevisions(laterCommit, earlierCommit);
-			}
-		});
-	}
+    public String configChangesForCommits(final String fromRevision, final String toRevision) throws GitAPIException {
+        return doLocked(new ThrowingFn<String, GitAPIException>() {
+            public String call() throws GitAPIException {
+                RevCommit laterCommit = null;
+                RevCommit earlierCommit = null;
+                if (!StringUtil.isBlank(fromRevision)) {
+                    laterCommit = getRevCommitForCommitSHA(fromRevision);
+                }
+                if (!StringUtil.isBlank(toRevision)) {
+                    earlierCommit = getRevCommitForCommitSHA(toRevision);
+                }
+                return findDiffBetweenTwoRevisions(laterCommit, earlierCommit);
+            }
+        });
+    }
 
     String findDiffBetweenTwoRevisions(RevCommit laterCommit, RevCommit earlierCommit) throws GitAPIException {
         if (laterCommit == null || earlierCommit == null) {
@@ -384,7 +384,7 @@ public class ConfigRepository {
     }
 
     public void garbageCollect() throws Exception {
-        if (!systemEnvironment.get(SystemEnvironment.GO_CONFIG_REPO_PERIODIC_GC)){
+        if (!systemEnvironment.get(SystemEnvironment.GO_CONFIG_REPO_PERIODIC_GC)) {
             return;
         }
         doLocked(new VoidThrowingFn<Exception>() {
@@ -404,8 +404,31 @@ public class ConfigRepository {
     public long getLooseObjectCount() throws Exception {
         return doLocked(new ThrowingFn<Long, GitAPIException>() {
             public Long call() throws GitAPIException {
-                return (Long) git.gc().getStatistics().get("numberOfLooseObjects");
+                return (Long) getStatistics().get("numberOfLooseObjects");
             }
         });
+    }
+
+    public Properties getStatistics() throws GitAPIException {
+        // not inside a doLocked/synchronized block because we don't want to block the server status service.
+        return git.gc().getStatistics();
+    }
+
+    public Long commitCountOnMaster() throws GitAPIException, IncorrectObjectTypeException, MissingObjectException {
+        // not inside a doLocked/synchronized block because we don't want to block the server status service.
+        // we do a `git branch` because we switch branches as part of normal git operations,
+        // and we don't care about number of commits on those branches.
+        List<Ref> branches = git.branchList().call();
+        for (Ref branch : branches) {
+            if (branch.getName().equals("refs/heads/master")) {
+                Iterable<RevCommit> commits = git.log().add(branch.getObjectId()).call();
+                long count = 0;
+                for (RevCommit commit : commits) {
+                    count++;
+                }
+                return count;
+            }
+        }
+        return Long.valueOf(-1);
     }
 }

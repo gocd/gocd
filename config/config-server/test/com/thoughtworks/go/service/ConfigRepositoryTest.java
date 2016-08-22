@@ -130,17 +130,6 @@ public class ConfigRepositoryTest {
     }
 
     @Test
-    public void shouldReturnPreviousCommitRevisionForGivenCommitRevision() throws Exception {
-        configRepo.checkin(goConfigRevision("v1", "md5-1"));
-        RevCommit previousCommit = configRepo.revisions().iterator().next();
-        configRepo.checkin(new GoConfigRevision("v1 v2", "md5-2", "user-2", "13.2", new TimeProvider()));
-        RevCommit latestCommit = configRepo.revisions().iterator().next();
-
-        assertThat(configRepo.getPreviousCommit(previousCommit), is(nullValue()));
-        assertThat(configRepo.getPreviousCommit(latestCommit), is(previousCommit));
-    }
-
-    @Test
     public void shouldShowDiffBetweenTwoConsecutiveGitRevisions() throws Exception {
         configRepo.checkin(goConfigRevision(ConfigFileFixture.configWithPipeline(ConfigFileFixture.SIMPLE_PIPELINE, 33), "md5-1"));
         RevCommit previousCommit = configRepo.revisions().iterator().next();

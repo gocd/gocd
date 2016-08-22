@@ -36,7 +36,6 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/valid
     };
 
     this.validatePresenceOf('source', {condition: function(property) {return (!s.isBlank(property.destination()))}});
-    this.validatePresenceOf('destination', {condition: function(property) {return (!s.isBlank(property.source()))}});
   };
 
   Artifacts.Artifact.create = function (data) {

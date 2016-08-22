@@ -14,13 +14,23 @@
  * limitations under the License.
  */
 
-@import 'shared/mixins';
+.pluggable-task {
+  padding:0 15px;
 
-@import 'shared/_autocomplete';
-@import 'shared/_common';
-@import 'shared/_modal';
-@import 'pipeline_configs/_pipeline';
-@import 'pipeline_configs/_accordion';
-@import 'pipeline_configs/_stages';
-@import 'pipeline_configs/_materials';
-@import 'pipeline_configs/_pluggable_task';
+  select, [type='text'], [type='password'], [type='date'], [type='datetime'], [type='datetime-local'], [type='month'], [type='week'], [type='email'], [type='number'], [type='search'], [type='tel'], [type='time'], [type='url'], [type='color'], textarea {
+    width: 300px;
+    display: block;
+  }
+  br {
+    display: none;
+  }
+  h1, h2, h3 {
+    font-size: rem-calc(20px);
+    margin: 20px 0;
+  }
+
+  h4, h5, h6 {
+    font-size: rem-calc(15px);
+    margin: 20px 0;
+  }
+}

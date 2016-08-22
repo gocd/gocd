@@ -15,8 +15,8 @@
  */
 
 define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipeline_configs/environment_variables', 'models/pipeline_configs/parameters',
-  'models/pipeline_configs/materials', 'models/pipeline_configs/tracking_tool', 'models/pipeline_configs/stages', 'helpers/mrequest', 'models/validatable_mixin'],
-  function (m, _, s, Mixins, EnvironmentVariables, Parameters, Materials, TrackingTool, Stages, mrequest, Validatable) {
+  'models/pipeline_configs/materials', 'models/pipeline_configs/tracking_tool', 'models/pipeline_configs/stages', 'helpers/mrequest', 'models/validatable_mixin'
+], function (m, _, s, Mixins, EnvironmentVariables, Parameters, Materials, TrackingTool, Stages, mrequest, Validatable) {
   var Pipeline = function (data) {
     this.constructor.modelType = 'pipeline';
     Mixins.HasUUID.call(this);
@@ -116,15 +116,56 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     }
   };
 
-    Pipeline.find = function (url, extract) {
-      return m.request({
-        method:  'GET',
-        url:     url,
-        background: false,
-        config:  mrequest.xhrConfig.v2,
-        extract: extract
-      });
+  Pipeline.find = function (url, extract) {
+    return m.request({
+      method:     'GET',
+      url:        url,
+      background: false,
+      config:     mrequest.xhrConfig.v2,
+      extract:    extract
+    });
+  };
+
+  Pipeline.vm = function () {
+    this.saveState = m.prop('');
+    var errors    = [];
+
+    this.updating = function () {
+      this.saveState('in-progress disabled');
     };
+
+    this.saveFailed = function (data) {
+      errors.push(data.message);
+
+      if(data.data) {
+        if(data.data.errors) {
+          errors = _.concat(errors, _.flattenDeep(_.values(data.data.errors)));
+        }
+      }
+
+      this.saveState('alert');
+    };
+
+    this.saveSuccess = function () {
+      this.saveState('success');
+    };
+
+    this.clearErrors = function () {
+      errors = [];
+    };
+
+    this.errorsForDisplay = function () {
+      return errors.join('\n');
+    };
+
+    this.hasErrors = function () {
+      return !_.isEmpty(errors);
+    };
+
+    this.markClientSideErrors = function () {
+      errors.push('There are errors on the page, fix them and save')
+    }
+  };
 
   return Pipeline;
 });

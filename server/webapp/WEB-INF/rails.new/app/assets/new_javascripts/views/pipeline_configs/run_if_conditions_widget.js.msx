@@ -20,7 +20,7 @@ define(['mithril', 'lodash', 'string-plus', 'helpers/form_helper'],
       view: function (ctrl, args) {
         var task = args.task;
         return (
-          <f.row class='runif'>
+          <div class='runif'>
             <f.row>
               <f.column>
                 <label>Run If Current Job Status
@@ -46,7 +46,7 @@ define(['mithril', 'lodash', 'string-plus', 'helpers/form_helper'],
                                    size={2}
                                    end={true}/>
             </f.row>
-          </f.row>
+          </div>
         )
       }
     };

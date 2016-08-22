@@ -120,7 +120,7 @@ define([
                            }}/>
               </label>
               <f.row>
-                <f.column size={4}>
+                <f.column size={6} largeSize={6}>
                   <input type='radio'
                          name={radioName}
                          id={radioName + '-success'}
@@ -128,7 +128,7 @@ define([
                          onchange={stage.approval().makeOnSuccess.bind(stage.approval())}/>
                   <label for={radioName + '-success'}>On Success</label>
                 </f.column>
-                <f.column size={4} end>
+                <f.column size={6} largeSize={6} end>
                   <input type='radio'
                          name={radioName}
                          id={radioName + '-manual'}

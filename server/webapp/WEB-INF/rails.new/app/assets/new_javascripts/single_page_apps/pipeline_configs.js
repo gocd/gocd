@@ -28,16 +28,16 @@ requirejs([
     var allUserNames                  = JSON.parse(pipelineConfigElem.attr('data-user-names'));
     var allRoleNames                  = JSON.parse(pipelineConfigElem.attr('data-role-names'));
 
-    PluginInfos.init().then(function () {
-      PluggableTasks.init();
-      PluggableSCMs.init();
-    });
-    SCMs.init();
     Resources.initializeWith(allResourceNames);
     Users.initializeWith(allUserNames);
     Roles.initializeWith(allRoleNames);
+    m.sync([PluginInfos.init(), SCMs.init()]).then(function () {
+      PluggableTasks.init();
+      PluggableSCMs.init();
 
-    m.mount(pipelineConfigElem.get(0), PipelineConfigWidget(url));
-    $(document).foundation();
+      m.mount(pipelineConfigElem.get(0), PipelineConfigWidget(url));
+      $(document).foundation();
+    });
+
   });
 });

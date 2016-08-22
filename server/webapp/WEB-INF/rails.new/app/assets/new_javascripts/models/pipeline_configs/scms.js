@@ -183,7 +183,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
     };
 
     SCMs.init = function () {
-      m.request({
+      return m.request({
         method:        'GET',
         url:           Routes.apiv1AdminScmsPath(),
         config:        mrequest.xhrConfig.v1,

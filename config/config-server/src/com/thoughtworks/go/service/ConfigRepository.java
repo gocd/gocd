@@ -298,23 +298,6 @@ public class ConfigRepository {
         return output;
     }
 
-    RevCommit getPreviousCommit(RevCommit givenCommit) throws GitAPIException {
-        Iterable<RevCommit> revisions = revisions();
-        Iterator<RevCommit> iterator = revisions.iterator();
-
-        RevCommit current, next = null;
-        while (iterator.hasNext()) {
-            current = iterator.next();
-            if (current.equals(givenCommit)) {
-                if (iterator.hasNext()) {
-                    next = iterator.next();
-                    break;
-                }
-            }
-        }
-        return next;
-    }
-
     public String getConfigMergedWithLatestRevision(GoConfigRevision configRevision, String oldMD5) throws Exception {
         try {
             LOGGER.debug("[Config Save] Starting git merge of config");

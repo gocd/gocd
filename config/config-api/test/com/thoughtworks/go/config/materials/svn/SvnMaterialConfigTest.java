@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import com.thoughtworks.go.config.materials.IgnoredFiles;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ReflectionUtil;
+import com.thoughtworks.go.util.command.UrlArgument;
 import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
@@ -92,6 +93,21 @@ public class SvnMaterialConfigTest {
         svnMaterialConfig.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FOLDER, "../a"));
         svnMaterialConfig.validate(new ConfigSaveValidationContext(null));
         assertThat(svnMaterialConfig.errors().on(SvnMaterialConfig.FOLDER), is("Dest folder '../a' is not valid. It must be a sub-directory of the working folder."));
+    }
+
+    @Test
+    public void shouldThrowErrorsIfBothPasswordAndEncryptedPasswordAreProvided() {
+        SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig(new UrlArgument("foo/bar"), "password", "encryptedPassword", new GoCipher(), null, false, "folder");
+        svnMaterialConfig.validate(new ConfigSaveValidationContext(null));
+        assertThat(svnMaterialConfig.errors().on("password"), is("You may only specify `password` or `encrypted_password`, not both!"));
+        assertThat(svnMaterialConfig.errors().on("encryptedPassword"), is("You may only specify `password` or `encrypted_password`, not both!"));
+    }
+
+    @Test
+    public void shouldValidateWhetherTheEncryptedPasswordIsCorrect() {
+        SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig(new UrlArgument("foo/bar"), "", "encryptedPassword", new GoCipher(), null, false, "folder");
+        svnMaterialConfig.validate(new ConfigSaveValidationContext(null));
+        assertThat(svnMaterialConfig.errors().on("encryptedPassword"), is("Encrypted password value for svn material with url 'foo/bar' is invalid. This usually happens when the cipher text is modified to have an invalid value."));
     }
 
     @Test

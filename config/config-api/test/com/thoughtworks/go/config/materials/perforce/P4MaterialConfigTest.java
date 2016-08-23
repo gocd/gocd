@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ReflectionUtil;
+import com.thoughtworks.go.util.command.UrlArgument;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -132,6 +133,21 @@ public class P4MaterialConfigTest {
 
         p4MaterialConfig.setConfigAttributes(new HashMap());
         assertThat(p4MaterialConfig.getUseTickets(), is(false));
+    }
+
+    @Test
+    public void shouldThrowErrorsIfBothPasswordAndEncryptedPasswordAreProvided() {
+        P4MaterialConfig materialConfig = new P4MaterialConfig("foo/bar, 80", "password", "encryptedPassword", new GoCipher());
+        materialConfig.validate(new ConfigSaveValidationContext(null));
+        assertThat(materialConfig.errors().on("password"), is("You may only specify `password` or `encrypted_password`, not both!"));
+        assertThat(materialConfig.errors().on("encryptedPassword"), is("You may only specify `password` or `encrypted_password`, not both!"));
+    }
+
+    @Test
+    public void shouldValidateWhetherTheEncryptedPasswordIsCorrect() {
+        P4MaterialConfig materialConfig = new P4MaterialConfig("foo/bar, 80", "", "encryptedPassword", new GoCipher());
+        materialConfig.validate(new ConfigSaveValidationContext(null));
+        assertThat(materialConfig.errors().on("encryptedPassword"), is("Encrypted password value for P4 material with serverAndPort 'foo/bar, 80' is invalid. This usually happens when the cipher text is modified to have an invalid value."));
     }
 
     private void assertNoError(String port, String view, String expectedKeyForError) {

@@ -32,6 +32,7 @@ import java.util.Map;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
+import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 
 @ConfigTag(value = "svn", label = "Subversion")
@@ -105,6 +106,15 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
         this.setPassword(password);
     }
 
+    //for tests
+    protected SvnMaterialConfig(UrlArgument url, String password, String encryptedPassword, GoCipher goCipher, Filter filter, boolean invertFilter, String folder) {
+        super(new CaseInsensitiveString("test"), filter, invertFilter, folder, true, TYPE, new ConfigErrors());
+        this.url = url;
+        this.password = password;
+        this.encryptedPassword = encryptedPassword;
+        this.goCipher = goCipher;
+    }
+
     public GoCipher getGoCipher() {
         return goCipher;
     }
@@ -155,7 +165,7 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
     public String currentPassword() {
         try {
             return StringUtil.isBlank(encryptedPassword) ? null : this.goCipher.decrypt(encryptedPassword);
-        } catch (InvalidCipherTextException e) {
+        } catch (Exception e) {
             throw new RuntimeException("Could not decrypt the password to get the real password", e);
         }
     }
@@ -166,7 +176,7 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
     }
 
     public void setEncryptedPassword(String encryptedPassword) {
-        this.encryptedPassword=encryptedPassword;
+        this.encryptedPassword = encryptedPassword;
     }
 
     @PostConstruct
@@ -207,9 +217,17 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
         if (StringUtil.isBlank(url.forDisplay())) {
             errors().add(URL, "URL cannot be blank");
         }
-        if (isNotEmpty(this.password) && isNotEmpty(this.encryptedPassword)){
+        if (isNotEmpty(this.password) && isNotEmpty(this.encryptedPassword)) {
             addError("password", "You may only specify `password` or `encrypted_password`, not both!");
             addError("encryptedPassword", "You may only specify `password` or `encrypted_password`, not both!");
+        }
+        if (isNotEmpty(this.encryptedPassword)) {
+            try {
+                currentPassword();
+            } catch (Exception e) {
+                addError("encryptedPassword", format("Encrypted password value for svn material with url '%s' is invalid. This usually happens when the cipher text is modified to have an invalid value.",
+                       this.getUriForDisplay()));
+            }
         }
     }
 
@@ -300,11 +318,11 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
         this.checkExternals = "true".equals(map.get(CHECK_EXTERNALS));
     }
 
-    public void setCheckExternals(boolean checkExternals){
+    public void setCheckExternals(boolean checkExternals) {
         this.checkExternals = checkExternals;
     }
 
-    public void setUserName(String userName){
+    public void setUserName(String userName) {
         this.userName = userName;
     }
 

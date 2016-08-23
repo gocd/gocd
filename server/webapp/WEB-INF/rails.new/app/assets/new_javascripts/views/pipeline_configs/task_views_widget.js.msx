@@ -15,11 +15,11 @@
  */
 
 define([
-  'mithril', 'lodash', 'jquery', 'angular', 'helpers/form_helper', 'models/pipeline_configs/tasks',
+  'mithril', 'lodash', 'jquery', 'angular', 'helpers/form_helper', 'string-plus', 'models/pipeline_configs/tasks',
   'models/pipeline_configs/pluggable_tasks', 'js-routes', 'models/pipeline_configs/argument', 'helpers/mithril_component_mixins',
   'views/pipeline_configs/run_if_conditions_widget', 'views/pipeline_configs/task_basic_views_widget', 'views/pipeline_configs/cancel_task_widget',
   'models/pipeline_configs/plugin_infos'
-], function (m, _, $, angular, f, Tasks, PluggableTasks, Routes, Argument, ComponentMixins,
+], function (m, _, $, angular, f, s, Tasks, PluggableTasks, Routes, Argument, ComponentMixins,
              RunIfConditionsWidget, TaskBasicViews, CancelTaskWidget, PluginInfos) {
 
   var TaskSummaryView = {
@@ -27,14 +27,14 @@ define([
       return (
         <ul class='task-type'>
           {_.map(args.task.summary(), function (v, k) {
-            return (
-              <li><label class={_.toLower(k)}>{_.startCase(k)}</label> < span > {v}</span></li>
-            );
+            return !s.isBlank(v) ? (<li><label class={_.toLower(k)}>{_.startCase(k)}</label> < span > {v}</span></li>) : undefined
           })}
         </ul>
       )
     }
   };
+
+
   var TaskViews = {
     base: {
       controller: function (args) {

@@ -399,7 +399,8 @@ define([
             class='inline'
             label='Add a new material of type'
             items={items}
-            size={2}/>
+            size={3}
+            largeSize={3}/>
           <f.column size={2} end={true}>
             <f.link class='add-button button' onclick={args.createMaterial.bind(ctrl, ctrl.selected)}>Add</f.link>
           </f.column>

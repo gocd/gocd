@@ -64,7 +64,6 @@ define([
               <div class="cancel-task-container">
                 <div class="task-header">
                   <strong>{cancelTask.type()}</strong>
-                  <span class='task-type'>{cancelTask.toString()}</span>
                 </div>
                 {
                   m.component(TaskBasicViews[cancelTask.type()], {
@@ -90,7 +89,8 @@ define([
           return (
               <f.select value={ctrl.selected}
                         items={items}
-                        size={2}
+                        size={3}
+                        largeSize={3}
                         end="true"/>
           )
         }
@@ -103,8 +103,8 @@ define([
                         attrName='checked'
                         label='On cancel task'
                         class="check"
-                        size={6}
-                        largeSize={6}
+                        size={3}
+                        largeSize={3}
                         tooltip={{content: tt.onCancelTask,
                             direction: 'bottom',
                             size: 'small'

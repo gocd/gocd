@@ -15,8 +15,9 @@
  */
 
 
-define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mrequest', 'models/errors', 'models/pipeline_configs/encrypted_value'],
-  function (m, _, s, Mixins, mrequest, Errors, EncryptedValue) {
+define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mrequest', 'models/errors', 'models/pipeline_configs/encrypted_value',
+  'models/validatable_mixin'],
+  function (m, _, s, Mixins, mrequest, Errors, EncryptedValue, Validatable) {
     var SCMs = m.prop([]);
     SCMs.scmIdToEtag = {};
 
@@ -29,13 +30,15 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
     }
 
     SCMs.SCM = function (data) {
+      Validatable.call(this, data);
+
       this.init = function (data) {
         this.id             = m.prop(s.defaultToIfBlank(data.id));
         this.name           = m.prop(s.defaultToIfBlank(data.name, ''));
         this.autoUpdate     = m.prop(s.defaultToIfBlank(data.auto_update));
         this.pluginMetadata = m.prop(new SCMs.SCM.PluginMetadata(data.plugin_metadata || {}));
         this.configuration  = s.collectionToJSON(m.prop(SCMs.SCM.Configurations.fromJSON(data.configuration || {})));
-        this.errors         = new Errors(data.errors);
+        this.errors         = m.prop(new Errors(data.errors));
       };
 
       this.init(data);
@@ -222,6 +225,53 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
         extract:    extract,
         type:       SCMs.SCM
       })
+    };
+
+    SCMs.vm = function () {
+      this.saveState = m.prop('');
+      var errors    = [];
+
+      this.startUpdating = function () {
+        errors = [];
+        this.saveState('in-progress disabled');
+      };
+
+      this.saveFailed = function (data) {
+        errors.push(data.message);
+
+        if(data.data) {
+          if(data.data.configuration) {
+            errors = _.concat(errors, _.flattenDeep(_.map(data.data.configuration, function(conf) {return _.values(conf.errors)})));
+          }
+        }
+
+        this.saveState('alert');
+      };
+
+      this.saveSuccess = function () {
+        this.saveState('success');
+      };
+
+      this.clearErrors = function () {
+        errors = [];
+      };
+
+      this.reset = function () {
+        errors = [];
+        this.saveState('');
+      };
+
+      this.errors = function () {
+        return errors;
+      };
+
+      this.hasErrors = function () {
+        return !_.isEmpty(errors);
+      };
+
+      this.markClientSideErrors = function () {
+        errors.push('There are errors on the page, fix them and save')
+      }
     };
 
     return SCMs;

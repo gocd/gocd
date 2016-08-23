@@ -17,8 +17,8 @@
 define([
   'mithril', 'jquery', 'string-plus', 'lodash', 'helpers/form_helper', 'helpers/pipeline_configs/tooltips', 'helpers/mithril_component_mixins',
   'models/pipeline_configs/pipeline', 'models/pipeline_configs/tasks', 'views/pipeline_configs/pipeline_settings_widget',
-  'views/pipeline_configs/materials_config_widget', 'views/pipeline_configs/pipeline_flow_widget'],
-  function (m, $, s, _, f, tt, ComponentMixins, Pipeline, Tasks, PipelineSettingsWidget, MaterialsConfigWidget, PipelineFlowWidget) {
+  'views/pipeline_configs/materials_config_widget', 'views/pipeline_configs/pipeline_flow_widget', 'views/pipeline_configs/errors_widget'],
+  function (m, $, s, _, f, tt, ComponentMixins, Pipeline, Tasks, PipelineSettingsWidget, MaterialsConfigWidget, PipelineFlowWidget, ErrorsWidget) {
 
   var PipelineConfigWidget = function (url, callback) {
     return {
@@ -88,16 +88,21 @@ define([
 
       view: function (ctrl) {
         var pipeline = ctrl.pipeline();
-        var errorMessage = ctrl.vm.hasErrors() ? (<pre class='alert callout'><p>{ctrl.vm.errorsForDisplay()}</p></pre>) : '';
+        var errors = ctrl.vm.hasErrors() ? (<ErrorsWidget errors={ctrl.vm.errors()}/>) : undefined;
+
         var header = function () {
           return (
             <f.row class="heading">
-              <f.column size={11}>
+              <f.column size={8}>
                 <h1>
                   Pipeline configuation for pipeline
                   {' '}
                   {pipeline.name()}
                 </h1>
+              </f.column>
+              <f.column size={3}>
+                <a class='toggele-old-view'
+                   href={['/go/admin/pipelines/', ctrl.pipeline().name(), '/general'].join('')}>Switch back to old view</a>
               </f.column>
               <f.column size={1}>
                 <f.button onclick={ctrl.onSavePipeline.bind(ctrl)}
@@ -129,7 +134,7 @@ define([
           <form class='pipeline'>
             {header()}
             <f.row class='pipeline-body'>
-              {errorMessage}
+              {errors}
               <f.column end={true} size={12}>
                 <PipelineSettingsWidget pipeline={ctrl.pipeline}
                                         vm={ctrl.vmState('pipelineSettingsConfig')}/>

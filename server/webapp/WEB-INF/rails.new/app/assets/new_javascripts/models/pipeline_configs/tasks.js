@@ -188,7 +188,8 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
 
     this.summary = function () {
       return {
-        command: this.command()
+        command: this.command(),
+        args   : this.args().toString()
       }
     };
 

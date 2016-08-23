@@ -73,7 +73,7 @@ define([
           };
 
           var disableDrag = function (el, h) {
-            return !($(h).is('.task-summary') || $(h).is('.task-type'));
+            return !($('.task-summary').has(h).length > 0);
           };
 
           var options = {

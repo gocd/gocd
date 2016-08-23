@@ -46,7 +46,8 @@ define(['mithril', 'helpers/form_helper', 'helpers/mithril_component_mixins', 'h
                            placeholder='Source'
                            onchange={ctrl.changed.bind(ctrl)}
                            validate={true}
-                           size={4}
+                           size={3}
+                           largeSize={3}
                            tooltip={{
                                           content: tt.artifacts.source,
                                           direction: 'bottom',
@@ -57,7 +58,8 @@ define(['mithril', 'helpers/form_helper', 'helpers/mithril_component_mixins', 'h
                            placeholder='Destination'
                            onchange={ctrl.changed.bind(ctrl)}
                            validate={'all'}
-                           size={4}
+                           size={3}
+                           largeSize={3}
                            tooltip={{
                                           content: tt.artifacts.destination,
                                           direction: 'bottom',

@@ -31,6 +31,7 @@ textarea {
   font-size: rem-calc(12);
   padding: 10px 10px 10px 50px;
   position: relative;
+  margin: 0 15px 1rem;
   &:before {
     position: absolute;
     left: 10px;
@@ -57,5 +58,8 @@ textarea {
     background: #d9f9d9;
     @include icon-before($type: info, $color: #346114);
     border: 1px solid #9de69c;
+  }
+  .accordion & , .reveal & {
+    margin: auto auto 1rem;
   }
 }

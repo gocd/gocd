@@ -416,25 +416,8 @@ public class GoFileConfigDataSource {
                 serverVersion.version(), timeProvider);
 
         String mergedConfigXml = configRepository.getConfigMergedWithLatestRevision(configRevision, oldMd5);
-        validateMergedXML(mergedConfigXml, latestMd5, partials);
+        LOGGER.debug("[Config Save] -=- Done converting merged config to XML");
         return mergedConfigXml;
-    }
-
-    private CruiseConfig validateMergedXML(String mergedConfigXml, String latestMd5, final List<PartialConfig> partials) throws Exception {
-        LOGGER.debug("[Config Save] -=- Converting merged config to XML");
-        try {
-            return magicalGoConfigXmlLoader.loadConfigHolder(mergedConfigXml, new MagicalGoConfigXmlLoader.Callback() {
-                @Override
-                public void call(CruiseConfig cruiseConfig) {
-                    cruiseConfig.setPartials(partials);
-                }
-            }).configForEdit;
-        } catch (Exception e) {
-            LOGGER.info(format("[CONFIG_MERGE] Post merge validation failed, latest-md5: %s", latestMd5));
-            throw new ConfigMergePostValidationException(e.getMessage(), e);
-        } finally {
-            LOGGER.debug("[Config Save] -=- Done converting merged config to XML");
-        }
     }
 
     private String convertMutatedConfigToXml(CruiseConfig modifiedConfig, String latestMd5) throws Exception {

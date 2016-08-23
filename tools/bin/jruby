@@ -15,7 +15,7 @@
 # limitations under the License.
 #*************************GO-LICENSE-END**********************************
 
-JRUBY_BASE="$(dirname $0)/../jruby-1.7.11"
+JRUBY_BASE="$(dirname $0)/../jruby"
 unset GEM_HOME GEM_PATH
 export PATH=$JRUBY_BASE/bin:$PATH
 export JRUBY_OPTS="${JRUBY_OPTS} -J-XX:+TieredCompilation -J-XX:TieredStopAtLevel=1 -J-Djruby.compile.invokedynamic=false -J-Djruby.compile.mode=OFF"

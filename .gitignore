@@ -134,3 +134,4 @@ tfs-impl/target/
 tw-go-plugins/dist/
 util/target/
 .vagrant/
+tools/jruby

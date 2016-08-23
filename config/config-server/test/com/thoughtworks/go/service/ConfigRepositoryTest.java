@@ -386,6 +386,13 @@ public class ConfigRepositoryTest {
     }
 
 
+    @Test
+    public void shouldReturnNumberOfCommitsOnMaster() throws Exception {
+        configRepo.checkin(goConfigRevision("v1", "md5-1"));
+        configRepo.checkin(goConfigRevision("v2", "md5-2"));
+        assertThat(configRepo.commitCountOnMaster(), is(2L));
+    }
+
     private GoConfigRevision goConfigRevision(String fileContent, String md5) {
         return new GoConfigRevision(fileContent, md5, "user-1", "13.2", new TimeProvider());
     }

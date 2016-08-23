@@ -33,6 +33,7 @@ import javax.annotation.PostConstruct;
 import java.util.Map;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 
 @ConfigTag(value = "tfs", label = "TFS")
@@ -97,6 +98,14 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
         this.goCipher = goCipher;
         setPassword(password);
         this.projectPath = projectPath;
+    }
+
+    //for tests only
+    protected TfsMaterialConfig(UrlArgument urlArgument, String password, String encryptedPassword, GoCipher goCipher) {
+        this(goCipher);
+        this.url = urlArgument;
+        this.password = password;
+        this.encryptedPassword = encryptedPassword;
     }
 
     public GoCipher getGoCipher() {
@@ -180,6 +189,15 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
         if (isNotEmpty(this.password) && isNotEmpty(this.encryptedPassword)){
             addError("password", "You may only specify `password` or `encrypted_password`, not both!");
             addError("encryptedPassword", "You may only specify `password` or `encrypted_password`, not both!");
+        }
+
+        if(isNotEmpty(this.encryptedPassword)) {
+            try{
+                goCipher.decrypt(encryptedPassword);
+            }catch (Exception e) {
+                addError("encryptedPassword", format("Encrypted password value for TFS material with url '%s' is invalid. This usually happens when the cipher text is modified to have an invalid value.",
+                        this.getUriForDisplay()));
+            }
         }
     }
 

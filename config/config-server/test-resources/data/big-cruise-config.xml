@@ -12628,7 +12628,7 @@
     <pipeline name="cleanArtifacts">
       <timer>59 59 23 ? * *</timer>
       <materials>
-        <svn url="http://10.18.3.171:8080/svn/artifactsmanagement/trunk" username="cce" encryptedPassword="pVyuW5ny9I6YT4Ou+KLZhQ==" dest="keptfolder" autoUpdate="false" />
+        <svn url="http://10.18.3.171:8080/svn/artifactsmanagement/trunk" dest="keptfolder" autoUpdate="false" />
         <svn url="http://cruisetools.googlecode.com/svn/trunk/artifactsmanagement/lib" dest="app" autoUpdate="false" />
       </materials>
       <stage name="defaultStage">

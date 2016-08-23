@@ -32,6 +32,7 @@ import java.util.Map;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
+import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 
 @ConfigTag(value = "p4", label = "Perforce")
@@ -96,6 +97,14 @@ public class P4MaterialConfig extends ScmMaterialConfig implements ParamsAttribu
         this.userName = userName;
         this.useTickets = useTickets;
         setView(viewStr);
+    }
+
+    //for tests only
+    protected P4MaterialConfig(String serverAndPort, String password, String encryptedPassword, GoCipher goCipher) {
+        this(goCipher);
+        this.password = password;
+        this.encryptedPassword = encryptedPassword;
+        this.serverAndPort = serverAndPort;
     }
 
     public GoCipher getGoCipher() {
@@ -238,6 +247,14 @@ public class P4MaterialConfig extends ScmMaterialConfig implements ParamsAttribu
             addError("password", "You may only specify `password` or `encrypted_password`, not both!");
             addError("encryptedPassword", "You may only specify `password` or `encrypted_password`, not both!");
         }
+        if(isNotEmpty(this.encryptedPassword)) {
+            try{
+                currentPassword();
+            }catch (Exception e) {
+                addError("encryptedPassword", format("Encrypted password value for P4 material with serverAndPort '%s' is invalid. This usually happens when the cipher text is modified to have an invalid value.",
+                        this.getServerAndPort()));
+            }
+        }
     }
 
     @Override
@@ -312,7 +329,7 @@ public class P4MaterialConfig extends ScmMaterialConfig implements ParamsAttribu
     public String currentPassword() {
         try {
             return StringUtil.isBlank(encryptedPassword) ? null : this.goCipher.decrypt(encryptedPassword);
-        } catch (InvalidCipherTextException e) {
+        } catch (Exception e) {
             throw new RuntimeException("Could not decrypt the password to get the real password", e);
         }
     }

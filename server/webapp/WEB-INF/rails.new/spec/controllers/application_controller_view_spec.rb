@@ -135,7 +135,7 @@ describe Api::TestController do
     it "should render a pretty payload with message" do
       @controller.stub(:url_for).and_return("foo/bar")
       get :unresolved
-      expect(response.body).to have_selector("h3", :text=>"The url [ foo/bar ] you are trying to reach doesn't appear to be correct.")
+      expect(response.body).to have_selector("h3", :text=>"The url you are trying to reach appears to be incorrect.")
     end
 
     it "should render a 404" do

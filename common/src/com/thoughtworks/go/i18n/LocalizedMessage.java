@@ -92,8 +92,8 @@ public class LocalizedMessage {
         return new LocalizedKeyValueMessage(LocalizedKeyValueMessage.X_OF_Y, x, y);
     }
 
-    public static Localizable urlNotKnown(String url) {
-        return new LocalizedKeyValueMessage(LocalizedKeyValueMessage.URL_NOT_KNOWN, url);
+    public static Localizable urlNotKnown() {
+        return new LocalizedKeyValueMessage(LocalizedKeyValueMessage.URL_NOT_KNOWN);
     }
 
     public static Localizable stageNotFound(StageIdentifier stageLocator) {

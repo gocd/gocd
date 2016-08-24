@@ -98,7 +98,7 @@ class ApplicationController < ActionController::Base
   end
 
   def unresolved
-    render_error_response l.urlNotKnown(url_for), 404, false
+    render_error_response l.urlNotKnown, 404, false
   end
 
   def error_template_for_request

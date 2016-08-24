@@ -116,7 +116,7 @@
     <entry key="FAILED_JOBS">Failed: {0}</entry>
     <entry key="IN_PROGRESS_JOBS">In Progress: {0}</entry>
     <entry key="UNABLE_TO_RETRIEVE_FAILURE_RESULTS">Unable to retrieve failure results.</entry>
-    <entry key="URL_NOT_KNOWN">The url [ {0} ] you are trying to reach doesn''t appear to be correct.</entry>
+    <entry key="URL_NOT_KNOWN">The url you are trying to reach appears to be incorrect.</entry>
     <entry key="ELAPSED">Elapsed</entry>
     <entry key="CURRENT_FAILURES_BY_PIPELINE_HISTORY">Current Failures by Pipeline History</entry>
     <entry key="TOTAL:">Total:</entry>

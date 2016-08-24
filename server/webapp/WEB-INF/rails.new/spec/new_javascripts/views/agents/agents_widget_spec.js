@@ -43,7 +43,7 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agents_widget
     it('should contain the agents state count information', function () {
       var agentStateCount = $root.find('.search-summary')[0];
       var stateCountInfo  = "Total2Pending0Enabled0Disabled2";
-      expect(agentStateCount.innerText).toBe(stateCountInfo);
+      expect($(agentStateCount).text()).toBe(stateCountInfo);
     });
 
     it('should contain the agent rows equal to the number of agents', function () {
@@ -55,15 +55,15 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agents_widget
       var agentInfo      = $root.find('table tbody tr')[0];
       var firstAgentInfo = $(agentInfo).find('td');
       expect(firstAgentInfo.length).toBe(9);
-      expect(firstAgentInfo[0].innerHTML).toBe('<input type="checkbox">');
-      expect(firstAgentInfo[1].innerText).toBe('host-1');
-      expect(firstAgentInfo[2].innerText).toBe('usr/local/foo');
-      expect(firstAgentInfo[3].innerText).toBe('Linux');
-      expect(firstAgentInfo[4].innerText).toBe('10.12.2.200');
-      expect(firstAgentInfo[5].innerText).toBe('Disabled');
-      expect(firstAgentInfo[6].innerText).toBe('Unknown');
-      expect(firstAgentInfo[7].innerText).toBe('Firefox');
-      expect(firstAgentInfo[8].innerText).toBe('Dev, Test');
+      expect($(firstAgentInfo[0]).html()).toBe('<input type="checkbox">');
+      expect($(firstAgentInfo[1]).text()).toBe('host-1');
+      expect($(firstAgentInfo[2]).text()).toBe('usr/local/foo');
+      expect($(firstAgentInfo[3]).text()).toBe('Linux');
+      expect($(firstAgentInfo[4]).text()).toBe('10.12.2.200');
+      expect($(firstAgentInfo[5]).text()).toBe('Disabled');
+      expect($(firstAgentInfo[6]).text()).toBe('Unknown');
+      expect($(firstAgentInfo[7]).text()).toBe('Firefox');
+      expect($(firstAgentInfo[8]).text()).toBe('Dev, Test');
     });
 
     it('should select all the agents when selectAll checkbox is selected', function () {

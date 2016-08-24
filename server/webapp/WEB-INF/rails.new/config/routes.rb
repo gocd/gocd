@@ -142,10 +142,10 @@ Go::Application.routes.draw do
   get "admin/package_definitions/:repo_id/:package_id/for_new_pipeline_wizard" => "admin/package_definitions#show_for_new_pipeline_wizard", as: :package_definitions_show_for_new_pipeline_wizard
   get "admin/package_definitions/:repo_id/:package_id/with_repository_list" => "admin/package_definitions#show_with_repository_list", as: :package_definitions_show_with_repository_list
   delete "admin/package_definitions/:repo_id/:package_id" => "admin/package_definitions#destroy", as: :package_definition_delete
-  post "admin/package_definitions/check_connection" => "admin/package_definitions#check_connection", as: :package_definition_check_connection
+  post "admin/package_definitions/check_connection" => "admin/package_definitions#check_connection", as: :package_definition_check_connection, constraints: HeaderConstraint.new
 
   get "admin/package_repositories/new" => "admin/package_repositories#new", as: :package_repositories_new
-  post "admin/package_repositories/check_connection" => "admin/package_repositories#check_connection", as: :package_repositories_check_connection
+  post "admin/package_repositories/check_connection" => "admin/package_repositories#check_connection", as: :package_repositories_check_connection, constraints: HeaderConstraint.new
   get "admin/package_repositories/list" => "admin/package_repositories#list", as: :package_repositories_list
   get "admin/package_repositories/:id/edit" => "admin/package_repositories#edit", as: :package_repositories_edit
   post "admin/package_repositories" => "admin/package_repositories#create", as: :package_repositories_create

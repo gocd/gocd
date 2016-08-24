@@ -55,6 +55,12 @@ describe Admin::PackageDefinitionsController do
       package_definition_delete_path(:repo_id => "repoid", :package_id => "packageid").should == "/admin/package_definitions/repoid/packageid"
     end
 
+    it "should resolve route to check connection for repo" do
+      expect_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(true)
+      expect({:post => "admin/package_definitions/check_connection"}).to route_to(:controller => "admin/package_definitions", :action => "check_connection")
+      expect(package_definition_check_connection_path).to eq("/admin/package_definitions/check_connection")
+    end
+
   end
 
   describe "action" do

@@ -22,12 +22,14 @@ import com.thoughtworks.go.domain.BaseCollection;
 
 public class PipelineConfigErrorCopier {
     private static void copy(Validatable from, Validatable to){
+        if(from == null || to == null) return;
         to.errors().addAll(from.errors());
     }
 
     private static void copyCollectionErrors(BaseCollection from, BaseCollection to){
+        if(from == null || to == null) return;
         copy((Validatable) from, (Validatable) to);
-        for (int i = 0; i < from.size(); i++) {
+        for (int i = 0; i < to.size(); i++) {
             copy((Validatable) from.get(i), (Validatable) to.get(i));
         }
     }
@@ -35,13 +37,22 @@ public class PipelineConfigErrorCopier {
    static void copyErrors(PipelineConfig from, PipelineConfig to) {
         copy(from, to);
         copyCollectionErrors(from.materialConfigs(), to.materialConfigs());
-        for (StageConfig fromStage : from.getStages()) {
-            StageConfig toStage = to.findBy(fromStage.name());
+        copyCollectionErrors(from.getVariables(), to.getVariables());
+        copyCollectionErrors(from.getParams(), to.getParams());
+        copy(from.getTrackingTool(), to.getTrackingTool());
+        for (StageConfig toStage : to.getStages()) {
+            StageConfig fromStage = from.findBy(toStage.name());
             copy(fromStage, toStage);
-            for (JobConfig fromJob : fromStage.getJobs()) {
-                JobConfig toJob = toStage.jobConfigByConfigName(fromJob.name());
-                copy(fromJob, toJob);
+            copyCollectionErrors(fromStage.getVariables(), toStage.getVariables());
+
+            for (JobConfig toJob : toStage.getJobs()) {
+                JobConfig fromJob = fromStage.jobConfigByConfigName(toJob.name());
+                copy(toJob, fromJob);
                 copyCollectionErrors(fromJob.getTasks(), toJob.getTasks());
+                copyCollectionErrors(fromJob.artifactPlans(), toJob.artifactPlans());
+                copyCollectionErrors(fromJob.getTabs(), toJob.getTabs());
+                copyCollectionErrors(fromJob.getProperties(), toJob.getProperties());
+                copyCollectionErrors(fromJob.getVariables(), toJob.getVariables());
             }
         }
     }

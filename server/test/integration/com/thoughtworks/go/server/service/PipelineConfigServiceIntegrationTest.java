@@ -46,6 +46,7 @@ import com.thoughtworks.go.util.CachedDigestUtils;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.After;
 import org.junit.Before;
@@ -310,6 +311,131 @@ public class PipelineConfigServiceIntegrationTest {
         assertThat(result.httpCode(), is(422));
         String expectedError = String.format("Task of job 'default-job' in stage 'default-stage' of pipeline '%s' has dest path '/usr/dest' which is outside the working directory.", pipeline.name());
         assertThat(fetchTask.errors().on("dest"), is(expectedError));
+    }
+
+    @Test
+    public void shouldShowThePipelineConfigErrorMessageWhenPipelineBeingCreatedHasErrorsOnEnvironmentVariables() throws GitAPIException {
+        PipelineConfig pipeline = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), new DependencyMaterialConfig(pipelineConfig.name(), pipelineConfig.first().name()));
+        pipeline.addEnvironmentVariable("", "PipelineEnvVar");
+
+        EnvironmentVariablesConfig stageVariables = new EnvironmentVariablesConfig();
+        EnvironmentVariableConfig stageVar = new EnvironmentVariableConfig("", "StageEnvVar");
+        stageVariables.add(stageVar);
+
+
+        EnvironmentVariablesConfig jobVariables = new EnvironmentVariablesConfig();
+        EnvironmentVariableConfig jobVar = new EnvironmentVariableConfig("", "JobEnvVar");
+        jobVariables.add(jobVar);
+
+        StageConfig stageConfig = pipeline.get(0);
+        stageConfig.setVariables(stageVariables);
+
+        JobConfig jobConfig = stageConfig.getJobs().get(0);
+        jobConfig.setVariables(jobVariables);
+
+        pipelineConfigService.createPipelineConfig(user, pipeline, result, groupName);
+
+        assertThat(result.toString(), result.isSuccessful(), is(false));
+        assertThat(result.httpCode(), is(422));
+        assertThat(pipeline.getVariables().get(0).errors().firstError(), is(String.format("Environment Variable cannot have an empty name for pipeline '"+ pipeline.name()+"'.", pipeline.name())));
+        assertThat(stageVar.errors().firstError(), is(String.format("Environment Variable cannot have an empty name for stage 'stage'.", pipeline.name())));
+        assertThat(jobVar.errors().firstError(), is(String.format("Environment Variable cannot have an empty name for job 'job'.", pipeline.name())));
+    }
+
+    @Test
+    public void shouldShowThePipelineConfigErrorMessageWhenPipelineBeingCreatedHasErrorsOnParameters() throws GitAPIException {
+        PipelineConfig pipeline = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), new DependencyMaterialConfig(pipelineConfig.name(), pipelineConfig.first().name()));
+        ParamConfig param = new ParamConfig("", "Foo");
+        pipeline.addParam(param);
+
+        pipelineConfigService.createPipelineConfig(user, pipeline, result, groupName);
+
+        assertThat(result.toString(), result.isSuccessful(), is(false));
+        assertThat(result.httpCode(), is(422));
+        assertThat(param.errors().firstError(), is(String.format("Parameter cannot have an empty name for pipeline '"+pipeline.name()+"'.", pipeline.name())));
+    }
+
+    @Test
+    public void shouldShowThePipelineConfigErrorMessageWhenPipelineBeingCreatedHasErrorsOnTrackingTool() throws GitAPIException {
+        PipelineConfig pipeline = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), new DependencyMaterialConfig(pipelineConfig.name(), pipelineConfig.first().name()));
+        TrackingTool trackingTool = new TrackingTool();
+        pipeline.setTrackingTool(trackingTool);
+
+        pipelineConfigService.createPipelineConfig(user, pipeline, result, groupName);
+
+        assertThat(result.toString(), result.isSuccessful(), is(false));
+        assertThat(result.httpCode(), is(422));
+        assertThat(trackingTool.errors().firstError(), is(String.format("Regex should be populated", pipeline.name())));
+    }
+
+    @Test
+    public void shouldShowThePipelineConfigErrorMessageWhenPipelineBeingCreatedHasErrorsOnArtifactPlans() throws GitAPIException {
+        PipelineConfig pipeline = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), new DependencyMaterialConfig(pipelineConfig.name(), pipelineConfig.first().name()));
+        JobConfig jobConfig = pipeline.get(0).getJobs().get(0);
+        ArtifactPlans artifactPlans = new ArtifactPlans();
+        ArtifactPlan artifactPlan = new ArtifactPlan("", "/foo");
+        artifactPlans.add(artifactPlan);
+        jobConfig.setArtifactPlans(artifactPlans);
+
+        pipelineConfigService.createPipelineConfig(user, pipeline, result, groupName);
+
+        assertThat(result.toString(), result.isSuccessful(), is(false));
+        assertThat(result.httpCode(), is(422));
+        assertThat(artifactPlan.errors().firstError(), is(String.format("Job 'job' has an artifact with an empty source", pipeline.name())));
+    }
+
+    @Test
+    public void shouldShowThePipelineConfigErrorMessageWhenPipelineBeingCreatedHasErrorsOnProperties() throws GitAPIException {
+        PipelineConfig pipeline = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), new DependencyMaterialConfig(pipelineConfig.name(), pipelineConfig.first().name()));
+        JobConfig jobConfig = pipeline.get(0).getJobs().get(0);
+        ArtifactPropertiesGenerators properties = new ArtifactPropertiesGenerators();
+        ArtifactPropertiesGenerator artifactPropertiesGenerator = new ArtifactPropertiesGenerator();
+        properties.add(artifactPropertiesGenerator);
+        jobConfig.setProperties(properties);
+
+        pipelineConfigService.createPipelineConfig(user, pipeline, result, groupName);
+
+        assertThat(result.toString(), result.isSuccessful(), is(false));
+        assertThat(result.httpCode(), is(422));
+        assertThat(artifactPropertiesGenerator.errors().firstError(), is(String.format("Invalid property name 'null'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.", pipeline.name())));
+    }
+
+    @Test
+    public void shouldShowThePipelineConfigErrorMessageWhenPipelineBeingCreatedHasErrorsOnTabs() throws GitAPIException {
+        PipelineConfig pipeline = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), new DependencyMaterialConfig(pipelineConfig.name(), pipelineConfig.first().name()));
+        JobConfig jobConfig = pipeline.get(0).getJobs().get(0);
+        jobConfig.addTab("", "/foo");
+
+        pipelineConfigService.createPipelineConfig(user, pipeline, result, groupName);
+
+        assertThat(result.toString(), result.isSuccessful(), is(false));
+        assertThat(result.httpCode(), is(422));
+        assertThat(jobConfig.getTabs().first().errors().firstError(), is(String.format("Tab name '' is invalid. This must be alphanumeric and can contain underscores and periods.", pipeline.name())));
+    }
+
+    @Test
+    public void shouldShowThePipelineConfigErrorMessageWhenPipelineBeingCreatedFromTemplateHasErrors() throws GitAPIException {
+        JobConfigs jobConfigs = new JobConfigs();
+        jobConfigs.add(new JobConfig(new CaseInsensitiveString("Job")));
+        StageConfig stage = new StageConfig(new CaseInsensitiveString("Stage-1"), jobConfigs);
+        final PipelineTemplateConfig templateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("foo"), stage);
+        goConfigDao.updateConfig(new UpdateConfigCommand() {
+            @Override
+            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
+                cruiseConfig.addTemplate(templateConfig);
+                return cruiseConfig;
+            }
+        });
+
+        PipelineConfig pipeline = GoConfigMother.createPipelineConfigWithMaterialConfig();
+        pipeline.templatize(templateConfig.name());
+        DependencyMaterialConfig material = new DependencyMaterialConfig(new CaseInsensitiveString("Invalid-pipeline"), new CaseInsensitiveString("Stage"));
+        pipeline.addMaterialConfig(material);
+        pipelineConfigService.createPipelineConfig(user, pipeline, result, groupName);
+
+        assertThat(result.toString(), result.isSuccessful(), is(false));
+        assertThat(result.httpCode(), is(422));
+        assertThat(material.errors().firstError(), is(String.format("Pipeline with name 'Invalid-pipeline' does not exist, it is defined as a dependency for pipeline 'pipeline' (cruise-config.xml)", pipeline.name())));
     }
 
     @Test

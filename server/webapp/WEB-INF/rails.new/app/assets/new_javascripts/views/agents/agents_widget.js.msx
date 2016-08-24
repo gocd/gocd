@@ -1,0 +1,281 @@
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+define([
+  'mithril', 'lodash', 'helpers/form_helper',
+  'views/agents/agent_state_count_widget',
+  'views/agents/agent_row_widget',
+  'views/agents/agent_table_header',
+  'views/agents/button_row_widget',
+  'models/agents/agents'
+], function (m, _, f,
+             AgentStateCountWidget,
+             AgentRowWidget,
+             AgentTableHeader,
+             ButtonRowWidget, Agents) {
+
+  var vm = {};
+
+  vm.dropdown = {
+    states: {},
+
+    reset: m.prop(true),
+
+    add: function (name) {
+      if (!this.states[name]) {
+        this.states[name] = m.prop(false);
+      }
+    },
+
+    hide: function (name) {
+      this.states[name](false);
+    },
+
+    hideAllDropDowns: function () {
+      if (this.reset()) {
+        for (var item in this.states) {
+          this.states[item](false);
+        }
+      }
+      this.reset(true);
+    }
+  };
+
+  vm.agents = {
+    all: {
+      selected: m.prop(false)
+    }
+  };
+
+  vm.filterText = m.prop('');
+
+  vm.agentsCheckedState = {};
+
+
+  var AgentsWidget = {
+    controller: function () {
+
+      var toggleAllAgentsSelected = function () {
+        return vm.agents.all.selected(!vm.agents.all.selected());
+      };
+
+      var clearAllCheckboxes = function () {
+        _.each(vm.agentsCheckedState, function (boxState) {
+          boxState(false);
+        });
+      };
+
+      var ctrl = {
+        message: m.prop(),
+
+        type:    m.prop(),
+
+        allAgents:  Agents.all(),
+
+        hideDropDowns: function () {
+          vm.dropdown.hideAllDropDowns();
+        },
+
+        refresh: function () {
+          this.allAgents = Agents.all();
+        },
+
+        selectAllAgents: function () {
+          var isChecked = toggleAllAgentsSelected();
+
+          var filteredAgents = this.allAgents().filterAgent(function (agent) {
+            return agent.matches(vm.filterText());
+          });
+
+          _.each(filteredAgents, function (agent) {
+            vm.agentsCheckedState[agent.uuid()](isChecked);
+          });
+        },
+
+        areAllAgentsSelected: function () {
+          var filteredAgents = this.allAgents().filterAgent(function (agent) {
+            return agent.matches(vm.filterText());
+          });
+
+          var isChecked = _.every(filteredAgents, function (agent) {
+            return vm.agentsCheckedState[agent.uuid()]();
+          });
+
+          vm.agents.all.selected(isChecked);
+          return isChecked;
+        },
+
+        selectedAgentsUuids: function () {
+          return _.compact(_.map(vm.agentsCheckedState, function (boxSate, agentId) {
+              if (boxSate()) {
+                return agentId;
+              }
+            }
+          ));
+        },
+
+        selectedAgentsCount: function () {
+          return this.selectedAgentsUuids().length;
+        },
+
+        displaySuccessMessage: function (action) {
+          var count = this.selectedAgentsCount();
+          this.message(action + count + ' ' + _('agent').pluralize(count));
+          this.type('success');
+        },
+
+        displayErrorMessage: function (errors) {
+          var count = this.selectedAgentsCount();
+          this.message(errors.message + count + ' ' + _('agent').pluralize(count));
+          this.type('warning');
+        },
+
+        displayModifiedMessage: function (action, addedItems, removedItems) {
+          var count = this.selectedAgentsCount();
+          this.message(_(action).pluralize(_.compact(_.concat(addedItems, removedItems)).length) + ' modified on ' + count + ' ' + _('agent').pluralize(count));
+          this.type('success');
+        },
+
+        disableAgents: function () {
+          this.allAgents().disableAgents(this.selectedAgentsUuids())
+            .then(this.displaySuccessMessage.bind(this, "Disabled "),
+              this.displayErrorMessage.bind(this))
+            .then(this.refresh.bind(this))
+            .then(clearAllCheckboxes);
+        },
+
+        enableAgents: function () {
+          this.allAgents().enableAgents(this.selectedAgentsUuids())
+            .then(this.displaySuccessMessage.bind(this, 'Enabled '),
+              this.displayErrorMessage.bind(this))
+            .then(this.refresh.bind(this))
+            .then(clearAllCheckboxes)
+        },
+
+
+        deleteAgents: function () {
+          this.allAgents().deleteAgents(this.selectedAgentsUuids())
+            .then(this.displaySuccessMessage.bind(this, 'Deleted '),
+              this.displayErrorMessage.bind(this))
+            .then(this.refresh.bind(this))
+            .then(clearAllCheckboxes);
+        },
+
+        updateResources: function (addResources, removeResources) {
+          this.allAgents().updateResources(this.selectedAgentsUuids(), addResources, removeResources)
+            .then(this.displayModifiedMessage.bind(this, 'Resource', addResources, removeResources),
+              this.displayErrorMessage.bind(this))
+            .then(this.refresh.bind(this))
+            .then(clearAllCheckboxes);
+        },
+
+        updateEnvironments: function (addEnvironments, removeEnvironments) {
+          this.allAgents().updateEnvironments(this.selectedAgentsUuids(), addEnvironments, removeEnvironments)
+            .then(this.displayModifiedMessage.bind(this, 'Environment', addEnvironments, removeEnvironments),
+              this.displayErrorMessage.bind(this))
+            .then(this.refresh.bind(this))
+            .then(clearAllCheckboxes);
+        },
+
+        findAgent: function (uuid) {
+          return this.allAgents().findAgent(function (agent) {
+            return agent.uuid() == uuid;
+          });
+        },
+
+        selectedAgents: function () {
+          return _.map(this.selectedAgentsUuids(), this.findAgent.bind(this));
+        },
+
+        filteredAgents: function () {
+          return this.allAgents().filterAgent(function (agent) {
+            return agent.matches(vm.filterText());
+          })
+        }
+
+      };
+
+      window.setInterval(ctrl.refresh, 10000);
+
+      return ctrl;
+    },
+
+    view: function (ctrl) {
+      return (
+        <div onclick={ctrl.hideDropDowns}>
+          <ButtonRowWidget agentsCheckedState={ vm.agentsCheckedState }
+                           dropdown={ vm.dropdown }
+                           selectedAgents={ ctrl.selectedAgents.bind(ctrl) }
+                           onDisable={ ctrl.disableAgents.bind(ctrl) }
+                           onEnable={ ctrl.enableAgents.bind(ctrl) }
+                           onDelete={ ctrl.deleteAgents.bind(ctrl) }
+                           onResourcesUpdate={ ctrl.updateResources.bind(ctrl) }
+                           onEnvironmentsUpdate={ ctrl.updateEnvironments.bind(ctrl) }
+          />
+          <div class="search-panel">
+            <f.row>
+              <f.column size={6} largeSize={3}>
+                <label class="search-bar">
+                  <input type="text"
+                         oninput={m.withAttr("value", vm.filterText)}
+                         value={vm.filterText()}
+                         placeholder="Filter Agents"
+                         id="filter-agent"/>
+                </label>
+              </f.column>
+
+              <f.column size={6} largeSize={8}>
+                <AgentStateCountWidget agents={ctrl.filteredAgents.bind(ctrl)}/>
+              </f.column>
+
+            </f.row>
+          </div>
+          <f.flashMessage message={ ctrl.message } type={ ctrl.type } timeout={ 10000 }></f.flashMessage>
+          <f.row>
+            <table class="go-table">
+              <AgentTableHeader
+                onCheckboxClick={ctrl.selectAllAgents.bind(ctrl)}
+                checkboxValue={ctrl.areAllAgentsSelected.bind(ctrl)}/>
+              <tbody>
+              {
+                _.map(ctrl.filteredAgents(), function (agent) {
+                  var checkboxModel = vm.agentsCheckedState[agent.uuid()];
+
+                  if (!checkboxModel) {
+                    checkboxModel = vm.agentsCheckedState[agent.uuid()] = m.prop();
+                  }
+
+                  return (
+                    <AgentRowWidget agent={agent}
+                                    key={agent.uuid()}
+                                    checkBoxModel={checkboxModel}/>
+                  )
+
+                })
+
+              }
+              </tbody>
+
+            </table>
+
+          </f.row>
+        </div>
+      );
+    }
+  };
+
+  return AgentsWidget;
+});

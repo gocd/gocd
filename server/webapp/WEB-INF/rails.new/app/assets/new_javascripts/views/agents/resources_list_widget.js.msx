@@ -1,0 +1,127 @@
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+define(['mithril', 'lodash', 'string-plus', 'jquery', 'helpers/form_helper',
+  'views/agents/tri_state_checkbox_widget', 'models/agents/resources', 'models/agents/tri_state_checkbox'
+], function (m, _, s, $, f, TriStateCheckboxWidget, Resources, TriStateCheckbox) {
+
+  var NewResourceVM = {
+    newResource: m.prop(''),
+    error:       m.prop('')
+  };
+
+  var ResourcesListWidget = {
+    controller: function (args) {
+      return {
+        addNewResource: function () {
+          var currentResources = Resources.list();
+
+          var isDuplicateResource = function (newResource) {
+            return _.some(currentResources, function (resource) {
+              return _.isEqual(resource.name().toLowerCase(), newResource.toLowerCase());
+            });
+          };
+
+          var newResource       = _.trim(NewResourceVM.newResource());
+          var duplicateResource = isDuplicateResource(newResource);
+
+          if (duplicateResource) {
+            NewResourceVM.error("duplicate resource");
+          }
+
+          if ((!duplicateResource) && !(_.isEqual('', newResource))) {
+            currentResources.push(new TriStateCheckbox(newResource, []));
+            Resources.list(currentResources);
+            NewResourceVM.newResource('');
+            NewResourceVM.error('');
+          }
+        },
+
+        updateResources: function () {
+          var hideResourcesDropDown = function () {
+            args.dropDownState.hide('resource');
+          };
+
+          hideResourcesDropDown();
+          var resourcesToBeAdded   = [];
+          var resourcesToBeRemoved = [];
+
+          _.each(Resources.list(), function (resource) {
+            if (resource.isIndeterminate()) {
+              return;
+            }
+
+            if (resource.isChecked()) {
+              resourcesToBeAdded.push(resource.name());
+            } else {
+              resourcesToBeRemoved.push(resource.name());
+            }
+          });
+
+          args.onResourcesUpdate(resourcesToBeAdded, resourcesToBeRemoved);
+          NewResourceVM.newResource('');
+        }
+
+      }
+    },
+
+    view: function (ctrl, args) {
+      return (
+        <div class="agent-button-group-dropdown resource-dropdown" onclick={function() {
+          args.dropDownState.reset(false);
+        }}>
+          <ul class="resources-items">
+
+            {
+              _.map(Resources.list(), function (resource, index) {
+                return <TriStateCheckboxWidget triStateCheckbox={resource} index={index} key={resource.name()}/>
+              })
+            }
+          </ul>
+          <div class="add-resource">
+            <div class="row collapse">
+              {_.isEqual('', NewResourceVM.error()) ? "" : <span class="resource-error">{NewResourceVM.error()}</span> }
+              <div class="small-9 columns">
+                <input type="text"
+                       oninput={m.withAttr("value", function(value){
+                      NewResourceVM.newResource(value);
+                      NewResourceVM.error('');
+                     })
+                     }
+                       value={NewResourceVM.newResource()}
+                       placeholder="Add resource"/>
+              </div>
+              <div class="small-3 columns">
+                <f.button onclick={ctrl.addNewResource.bind(ctrl)}
+                          href="#">
+                  Add
+                </f.button>
+              </div>
+
+            </div>
+            <f.button onclick={ctrl.updateResources.bind(ctrl)}
+                      class="btn-apply tiny"
+                      data-toggle="resources-list">
+              Apply
+            </f.button>
+          </div>
+        </div>
+      );
+    }
+  };
+
+  return ResourcesListWidget;
+});

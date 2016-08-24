@@ -19,7 +19,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins'], function (m,
   var deleteKeyAndReturnValue = function (object, key, defaultValue) {
     var value = object[key];
     delete object[key];
-    return value || defaultValue;
+    return _.isNil(value) ? defaultValue : value;
   };
 
   var compactClasses = function (args) {
@@ -85,7 +85,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins'], function (m,
             validate    = deleteKeyAndReturnValue(args, 'validate', false),
             tooltip     = deleteKeyAndReturnValue(args, 'tooltip');
 
-        args.size = args.size || 6;
+        args.size      = args.size || 6;
         args.largeSize = args.largeSize || 4;
 
         var validationAttr = (validate && !_.isEqual(validate, 'all')) ? attrName : undefined;
@@ -102,7 +102,6 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins'], function (m,
               spellcheck="off"
               data-prop-name={attrName}
               data-model-type={modelType}
-              data-model-uuid={model.uuid()}
               value={model[attrName]()}
               type={type}
               placeholder={placeholder}
@@ -137,10 +136,10 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins'], function (m,
             onchange    = deleteKeyAndReturnValue(args, 'onchange'),
             tooltip     = deleteKeyAndReturnValue(args, 'tooltip'),
             modelType   = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null))
-            validate    = deleteKeyAndReturnValue(args, 'validate', false),
-            isRequired  = deleteKeyAndReturnValue(args, 'isRequired', false);
+        validate = deleteKeyAndReturnValue(args, 'validate', false),
+          isRequired = deleteKeyAndReturnValue(args, 'isRequired', false);
 
-        args.size = args.size || 6;
+        args.size      = args.size || 6;
         args.largeSize = args.largeSize || 4;
 
         var validationAttr = (validate && !_.isEqual(validate, 'all')) ? attrName : undefined;
@@ -148,8 +147,8 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins'], function (m,
         var propertyError = (validate && model.errors().hasErrors(attrName)) ? (
           <span class='form-error is-visible'>{model.errors().errorsForDisplay(attrName)}</span>) : undefined;
 
-        var resetButton = function() {
-          if(args.withReset && model[attrName]()) {
+        var resetButton = function () {
+          if (args.withReset && model[attrName]()) {
             var capitalizedAttrName = _.upperFirst(attrName)
             return (
               <f.resetButton onclick={model['resetToOriginal' + capitalizedAttrName].bind(model)}/>
@@ -200,14 +199,14 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins'], function (m,
       },
 
       view: function (ctrl, args) {
-        var model     = deleteKeyAndReturnValue(args, 'model'),
-          attrName    = deleteKeyAndReturnValue(args, 'attrName'),
-          placeholder = deleteKeyAndReturnValue(args, 'placeholder', ''),
-          labelText   = deleteKeyAndReturnValue(args, 'label'),
-          onchange    = deleteKeyAndReturnValue(args, 'onchange'),
-          tooltip     = deleteKeyAndReturnValue(args, 'tooltip'),
-          modelType   = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
-          validate    = deleteKeyAndReturnValue(args, 'validate', false);
+        var model       = deleteKeyAndReturnValue(args, 'model'),
+            attrName    = deleteKeyAndReturnValue(args, 'attrName'),
+            placeholder = deleteKeyAndReturnValue(args, 'placeholder', ''),
+            labelText   = deleteKeyAndReturnValue(args, 'label'),
+            onchange    = deleteKeyAndReturnValue(args, 'onchange'),
+            tooltip     = deleteKeyAndReturnValue(args, 'tooltip'),
+            modelType   = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
+            validate    = deleteKeyAndReturnValue(args, 'validate', false);
 
         args.size = args.size || 3;
 
@@ -219,7 +218,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins'], function (m,
         return (
           <f.column {...args} class={propertyError ? 'error' : null}>
             <label class={_.compact([propertyError ? 'error' : null, tooltip ? 'has-tooltip' : null]).join(' ')}>
-              {labelText || s.humanize(attrName)}
+              {_.isNil(labelText) ? s.humanize(attrName) : labelText}
             </label>
 
             <f.tooltip tooltip={tooltip} model={model} attrName={attrName}/>
@@ -289,24 +288,24 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins'], function (m,
           var currentTarget = (e || event).currentTarget;
 
           currentTarget.checked ? this.attr().push(currentTarget.value)
-                                : this.attr().pop(currentTarget.value)
+            : this.attr().pop(currentTarget.value)
         };
 
-        this.isChecked = function(value) {
+        this.isChecked = function (value) {
           return _.includes(this.attr().data(), value);
         }
       },
 
       view: function (ctrl, args) {
-        var model    = deleteKeyAndReturnValue(args, 'model'),
-          attrName   = deleteKeyAndReturnValue(args, 'attrName'),
-          value      = deleteKeyAndReturnValue(args, 'value'),
-          labelText  = deleteKeyAndReturnValue(args, 'label'),
-          disabled   = deleteKeyAndReturnValue(args, 'disabled'),
-          tooltip    = deleteKeyAndReturnValue(args, 'tooltip'),
-          addPadding = deleteKeyAndReturnValue(args, 'addPadding'),
-          id         = s.uuid(),
-          modelType  = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null));
+        var model      = deleteKeyAndReturnValue(args, 'model'),
+            attrName   = deleteKeyAndReturnValue(args, 'attrName'),
+            value      = deleteKeyAndReturnValue(args, 'value'),
+            labelText  = deleteKeyAndReturnValue(args, 'label'),
+            disabled   = deleteKeyAndReturnValue(args, 'disabled'),
+            tooltip    = deleteKeyAndReturnValue(args, 'tooltip'),
+            addPadding = deleteKeyAndReturnValue(args, 'addPadding'),
+            id         = s.uuid(),
+            modelType  = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null));
 
         if (!args.size) {
           args.size = 3;
@@ -460,7 +459,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins'], function (m,
             <f.column {...args}>
               {selectElem}
               <f.tooltip tooltip={tooltip}/>
-          </f.column>);
+            </f.column>);
         } else {
           return (
             <f.column {...args}>
@@ -499,7 +498,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins'], function (m,
               }
               return (
                 <li class={_.compact(['accordion-item', ctrl.classNameForAccordionIndex(index)]).join(' ')}
-                    key={args.accordionKeys[index]} data-accordion-item >
+                    key={args.accordionKeys[index]} data-accordion-item>
                   <a href="javascript:void(0)"
                      class="accordion-title"
                      onclick={ctrl.selectedIndex.bind(ctrl, index)}>
@@ -622,6 +621,25 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins'], function (m,
             <p>{children}</p>
           </div>
         );
+      }
+    },
+
+    flashMessage: {
+      view: function (ctrl, args) {
+        if (_.isEmpty(args.message())) {
+          return <div></div>;
+        } else {
+          var message = args.message;
+          _.delay(function () {
+            message('')
+          }, args.timeout);
+          return (
+            <f.row data-alert class={"alert-box radius "+ args.type()}>
+              {args.message()}
+              <a href="#" class="close"></a>
+            </f.row>
+          );
+        }
       }
     }
   };

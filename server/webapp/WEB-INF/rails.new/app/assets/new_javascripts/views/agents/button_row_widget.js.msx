@@ -1,0 +1,148 @@
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+define(['mithril', 'lodash',
+  'helpers/form_helper',
+  'views/agents/resources_list_widget',
+  'views/agents/environments_list_widget',
+  'models/agents/resources', 'models/agents/environments'
+], function (m, _, f,
+             ResourcesListWidget,
+             EnvironmentsListWidget,
+             Resources, Environments) {
+
+  var ButtonRowWidget = {
+    controller: function (args) {
+
+      var hideOtherDropdowns = function (name) {
+        var vm = args.dropdown;
+        for (var item in vm.states) {
+          if (!_.isEqual(item, name)) {
+            vm.states[item](false);
+          }
+        }
+      };
+
+
+      var ctrl = {
+        enableAgents: function () {
+          args.onEnable();
+        },
+
+        toggleDropdown: function (name) {
+          var vm = args.dropdown;
+          vm.reset(false);
+          vm.states[name](!vm.states[name]());
+          hideOtherDropdowns(name);
+        },
+
+        dropdownClass: function (name) {
+          var vm = args.dropdown;
+          vm.add(name);
+          return vm.states[name]() ? 'has-dropdown is-open' : 'has-dropdown';
+        },
+
+        isAnyAgentSelected: function () {
+          return _.some(args.agentsCheckedState, function (boxState) {
+            return boxState();
+          });
+        },
+
+        fetchResources: function () {
+          Resources.init(args.selectedAgents());
+        },
+
+        fetchEnvironments: function () {
+          Environments.init(args.selectedAgents());
+        }
+      };
+
+      return ctrl;
+    },
+
+    view: function (ctrl, args) {
+
+      return (
+        <header class="page-header">
+          <f.row>
+            <f.column size={5}>
+              <h1>Agents</h1>
+            </f.column>
+
+            <f.column size={7}>
+              <ul class="button-group agent-button-group">
+                <li>
+                  <f.button class="button"
+                            onclick={args.onDelete}
+                            disabled={!ctrl.isAnyAgentSelected()}>
+                    Delete
+                  </f.button>
+                </li>
+
+                <li>
+                  <f.button class="button"
+                            onclick={args.onDisable}
+                            disabled={!ctrl.isAnyAgentSelected()}>
+                    Disable
+                  </f.button>
+                </li>
+
+                <li>
+                  <f.button class="button"
+                            onclick={args.onEnable}
+                            disabled={!ctrl.isAnyAgentSelected()}>
+                    Enable
+                  </f.button>
+                </li>
+
+                <li class={ ctrl.dropdownClass('resource') }>
+
+                  <f.button class="button"
+                            onclick={function() {
+                              ctrl.fetchResources();
+                              ctrl.toggleDropdown('resource');
+                            }}
+                            disabled={!ctrl.isAnyAgentSelected()}>
+                    Resources
+                  </f.button>
+
+
+                  <ResourcesListWidget dropDownState={args.dropdown}
+                                       onResourcesUpdate={args.onResourcesUpdate}/>
+                </li>
+                <li class={ctrl.dropdownClass('environment')}>
+                  <f.button class="button"
+                            onclick={function () {
+                              ctrl.fetchEnvironments();
+                              ctrl.toggleDropdown('environment');
+                            }}
+                            disabled={!ctrl.isAnyAgentSelected()}>
+                    Environments
+                  </f.button>
+
+                  <EnvironmentsListWidget dropDownState={args.dropdown}
+                                          onEnvironmentsUpdate={args.onEnvironmentsUpdate}/>
+
+                </li>
+              </ul>
+            </f.column>
+          </f.row>
+        </header>
+      );
+    }
+  };
+  return ButtonRowWidget
+});

@@ -1,0 +1,285 @@
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+@import 'shared/mixins';
+@import 'shared/common';
+@import 'shared/alert';
+
+
+.page-header {
+  background: url(/go/assets/bg-pattern.jpg) no-repeat 0 0;
+  background-size: cover;
+  padding: 20px 0;
+  h1 {
+    font-size: 30px;
+    margin: 4px 0 0 0;
+    color: #ffffff;
+    text-transform: uppercase;
+  }
+}
+
+.button {
+  &:hover,
+  &:focus {
+    outline: 0;
+  }
+}
+
+// custom button group
+$agent-button-group-border-radius:5px;
+$secondary-color:#34D9DB;
+$border-color:#cccccc;
+
+.agent-button-group {
+  margin-bottom: 0;
+  float: right;
+  > li {
+    margin-left: 3px;
+    display: inline-block;
+    position: relative;
+    &:first-child {
+      margin-left: 0;
+      > .button {
+        border-top-left-radius: $agent-button-group-border-radius;
+        border-bottom-left-radius: $agent-button-group-border-radius;
+      }
+    }
+    &:last-child {
+      > .button {
+        border-top-right-radius: $agent-button-group-border-radius;
+        border-bottom-right-radius: $agent-button-group-border-radius;
+      }
+    }
+    .button {
+      background-color: $secondary-color;
+      color: #333333;
+      border: 0;
+      font-size: 16px;
+      margin: 0;
+      border-radius:0;
+      &:hover,
+      &:focus {
+        background-color: lighten( $secondary-color, 20%);
+        outline: 0;
+      }
+      &.btn-apply {
+        font-size: 14px;
+        padding: 7px 20px;
+        border-radius: $agent-button-group-border-radius;
+        margin-right: 1px;
+        color: #333333;
+        height: auto;
+      }
+    }
+    > .button:not(:last-child) {
+      border-right: 0;
+    }
+    &.is-open {
+      > .button {
+        background-color: lighten( $secondary-color, 20%);
+        border-bottom-right-radius: 0px;
+        &:before {
+          content: "";
+          position: absolute;
+          z-index: 1;
+          bottom: -10px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 0;
+          height: 0;
+          border-style: solid;
+          border-width: 10px 10px 0 10px;
+          border-color: lighten( $secondary-color, 20%) transparent transparent transparent;
+        }
+      }
+    }
+  }
+}
+
+.agent-button-group-dropdown {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background: #535353;
+  padding: 20px;
+  width: 300px;
+  box-shadow: 0px 3px 3px 0px rgba(0, 0, 0, 0.34);
+  transition: all 0.3s ease-in-out;
+  .is-open & {
+    display: block;
+    transition: all 0.3s ease-in-out;
+  }
+  .resource-error {
+    display: block;
+    color: #e2a5a5;
+    font-size: 13px;
+    margin-bottom: 10px;
+  }
+}
+
+.resources-items {
+  list-style-type: none;
+  padding: 0;
+  margin: 0 0 10px 0;
+  max-height: 190px;
+  overflow-y: auto;
+  li {
+    border-bottom: 1px dotted #717171;
+    padding-bottom: 5px;
+    margin-bottom: 5px;
+    input[type=checkbox] {
+      margin-bottom: 0;
+    }
+    label {
+      color: #ffffff;
+    }
+  }
+}
+
+.agent-button-group > li{
+  .add-resource {
+    input[type="text"] {
+      border-radius: 0;
+      border-top-left-radius: $agent-button-group-border-radius;
+      border-bottom-left-radius: $agent-button-group-border-radius;
+      height: 40px;
+    }
+    button {
+      border-radius: 0;
+      border-top-right-radius: 5px;
+      border-bottom-right-radius: 5px;
+      border: 1px solid #34D9DB;
+      background: #34D9DB;
+      margin-right: 1px;
+      font-size: 15px;
+      color: #333333;
+      height: 40px;
+      &:hover,
+      &:focus {
+        background-color: lighten( $secondary-color, 10%);
+        outline: 0;
+        color: #333333;
+      }
+    }
+  }
+
+  .button.disabled,
+  .button[disabled] {
+    opacity: 1;
+    cursor: not-allowed;
+  }
+}
+
+
+
+// search panel
+.search-panel {
+  padding: 30px 0;
+  background:#fff;
+}
+
+.search-bar {
+  position: relative;
+  margin-top: 10px;
+  @include icon-before($type:search);
+  &:before{
+    position: absolute;
+    left: 7px;
+    color:#cacaca;
+    top: 6px;
+    font-size: 18px;
+  }
+
+  input[type="text"] {
+
+    border-radius: 15px;
+    padding-left: 40px;
+    margin-bottom: 0;
+  }
+  .fa {
+    position: absolute;
+    left: 14px;
+    top: 11px;
+    color: #cccccc;
+    font-size: 16px;
+  }
+}
+
+.search-summary {
+  display: flex;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  float: right;
+  width: 350px;
+  li {
+    width: 25%;
+    border-left: 1px solid #cccccc;
+    text-align: center;
+    &:first-child {
+      border: 0;
+    }
+    label {
+      color: #444444;
+      cont-size: 14px;
+    }
+    .value {
+      font-size: 20px;
+      font-weight: 500;
+    }
+    &.enabled {
+      color:#50E3C2;
+    }
+    &.disabled{
+      color: #EE6161;
+    }
+  }
+}
+
+
+//table styles
+
+.go-table{
+  border-bottom:2px solid #cccccc;
+  thead{
+    tr{
+      background:#333333;
+      color:#ffffff;
+
+    }
+  }
+  tbody{
+    tr{
+      &.building{
+        background:#ffeda0;
+        border-bottom:1px solid #fff;
+      }
+      &.disabled {
+        color: #999;
+        font-style: italic;
+      }
+    }
+  }
+  input[type="checkbox"]{
+    margin:0;
+  }
+}
+
+
+
+
+

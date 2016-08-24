@@ -97,13 +97,14 @@ define([
       };
 
       return (
-        <f.row class='on-cancel'>
+        <div class='on-cancel'>
           <f.row>
             <f.checkBox model={ctrl}
                         attrName='checked'
                         label='On cancel task'
                         class="check"
-                        size={2}
+                        size={6}
+                        largeSize={6}
                         tooltip={{content: tt.onCancelTask,
                             direction: 'bottom',
                             size: 'small'
@@ -111,7 +112,7 @@ define([
             {taskSelector()}
           </f.row>
           {cancelTask()}
-        </f.row>
+        </div>
       );
     }
   };

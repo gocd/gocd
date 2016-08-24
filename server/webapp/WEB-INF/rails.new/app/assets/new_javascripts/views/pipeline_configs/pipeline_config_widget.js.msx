@@ -29,7 +29,7 @@ define([
         self.currentSelection = m.prop();
         self.etag             = m.prop();
         self.url              = url;
-        self.saveState        = m.prop('');
+        self.vm               = new Pipeline.vm();
         ComponentMixins.HasViewModel.call(this);
 
         window.pipelineConfigWidget = m.prop(this);
@@ -65,20 +65,20 @@ define([
         });
 
         self.onSavePipeline = function () {
+          self.vm.clearErrors();
+
           if(!self.pipeline().isValid()) {
-            self.errorMessage = "There are errors on the page, fix them and save.";
+            self.vm.markClientSideErrors();
             return;
           }
 
-          self.saveState('in-progress disabled');
-          m.redraw(true);
+          self.vm.updating();
 
           self.pipeline().update(self.etag(), extractEtag).then(function (data) {
             ctrl.setPipelineAndPreserveSelection(Pipeline.fromJSON(data));
-            self.saveState('success');
+            self.vm.saveSuccess();
           }, function (data) {
-            self.errorMessage = data.message;
-            self.saveState('alert');
+            self.vm.saveFailed(data);
             if (data.data) {
               ctrl.setPipelineAndPreserveSelection(Pipeline.fromJSON(data.data));
             }
@@ -88,7 +88,7 @@ define([
 
       view: function (ctrl) {
         var pipeline = ctrl.pipeline();
-        var errorMessage = ctrl.errorMessage ? (<div class='alert callout'><p>{ctrl.errorMessage}</p></div>) : '';
+        var errorMessage = ctrl.vm.hasErrors() ? (<pre class='alert callout'><p>{ctrl.vm.errorsForDisplay()}</p></pre>) : '';
         var header = function () {
           return (
             <f.row class="heading">
@@ -101,8 +101,8 @@ define([
               </f.column>
               <f.column size={1}>
                 <f.button onclick={ctrl.onSavePipeline.bind(ctrl)}
-                          class={'save-pipeline ' + ctrl.saveState()}>
-                  <span class={'save-state ' + ctrl.saveState()}/>
+                          class={'save-pipeline ' + ctrl.vm.saveState()}>
+                  <span class={'save-state ' + ctrl.vm.saveState()}/>
                   Save
                 </f.button>
               </f.column>

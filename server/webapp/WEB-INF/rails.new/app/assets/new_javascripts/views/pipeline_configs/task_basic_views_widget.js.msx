@@ -126,7 +126,7 @@ define([
 
         return (
           <div class="task-basic">
-            <f.row>
+            <f.row collapse>
               <f.column size={4}>
                 <f.row>
                   <f.inputWithLabel attrName='command'
@@ -338,11 +338,9 @@ define([
           <div id={'pluggable-task-template-' + ctrl.task.uuid()} ng-controller={ctrl.ngControllerName} class='task-basic' config={config}>
             <div class="alert-box alert"
                  ng-show="pluggableTaskGenericError">{'{{pluggableTaskGenericError}}'}</div>
-            <f.row>
-              <f.column size={6} largeSize={4}>
-                {m.trust(ctrl.templateHTML)}
-              </f.column>
-            </f.row>
+            <div class='pluggable-task'>
+              {m.trust(ctrl.templateHTML)}
+            </div>
           </div>
         );
       }

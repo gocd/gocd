@@ -31,11 +31,28 @@
 
   .save-pipeline {
     margin: 4px 0 0 0;
+    position: relative;
+    trasition: all 0.5s ease-in-out;
+
+    &.in-progress {
+      padding-left: 40px;
+      trasition: all 0.5s ease-in-out;
+    }
+
+    &.alert {
+      padding-left: 40px;
+      trasition: all 0.5s ease-in-out;
+    }
+
+    &.success {
+      padding-left: 40px;
+      trasition: all 0.5s ease-in-out;
+    }
 
     .save-state {
-      position:  absolute;
-      left:      21px;
-      top:       7px;
+      position: absolute;
+      left: 10px;
+      top: 9px;
       font-size: rem-calc(20px);
 
       &.in-progress {
@@ -46,6 +63,7 @@
       &.alert {
         @include icon-before($type: exclamation, $margin: 0);
         @include animation(fadeIn 1.0s ease-in);
+        left: 17px;
       }
 
       &.success {

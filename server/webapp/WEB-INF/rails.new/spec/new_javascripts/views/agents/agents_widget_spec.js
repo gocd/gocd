@@ -86,16 +86,16 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agents_widget
       m.redraw(true);
 
       var resourceButton = $root.find("button:contains('Resources')");
-      $(resourceButton).click();
+      resourceButton.click();
       m.redraw(true);
 
-      var resourcesList = $root.find("button:contains('Resources')").parent()[0];
-      expect(resourcesList.classList).toContain('is-open');
+      expect($(resourceButton).parent().attr('class')).toContain('is-open');
 
       var body = $root.find('.search-panel');
       $(body).click();
       m.redraw(true);
-      expect(resourcesList.classList).not.toContain('is-open');
+
+      expect($(resourceButton).parent().attr('class')).not.toContain('is-open');
     });
 
     it('should not hide dropdown on click of dropdown list', function () {
@@ -103,16 +103,15 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agents_widget
 
       selectAllCheckbox.click();
 
-      var resource       = $root.find('.has-dropdown')[0];
-      var resourceButton = $(resource).find('button')[0];
+      var resourceButton = $root.find("button:contains('Resources')");
       $(resourceButton).click();
       m.redraw(true);
 
-      var resourcesList = $root.find('.has-dropdown')[0];
-      expect(resourcesList.classList).toContain('is-open');
+      expect($(resourceButton).parent().attr('class')).toContain('is-open');
 
-      $(resourcesList).click();
-      expect(resourcesList.classList).toContain('is-open');
+      $(resourceButton).parent().click();
+
+      expect($(resourceButton).parent().attr('class')).toContain('is-open');
 
       var disableButton = $root.find("button:contains('Disable')");
       $(disableButton).click();

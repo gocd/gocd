@@ -36,7 +36,6 @@ define(['mithril', 'lodash',
         }
       };
 
-
       var ctrl = {
         enableAgents: function () {
           args.onEnable();
@@ -111,7 +110,8 @@ define(['mithril', 'lodash',
                 <li class={ ctrl.dropdownClass('resource') }>
 
                   <f.button class="button"
-                            onclick={function() {
+                            onclick={function(e) {
+                              e.preventDefault();
                               ctrl.fetchResources();
                               ctrl.toggleDropdown('resource');
                             }}
@@ -125,7 +125,8 @@ define(['mithril', 'lodash',
                 </li>
                 <li class={ctrl.dropdownClass('environment')}>
                   <f.button class="button"
-                            onclick={function () {
+                            onclick={function (e) {
+                              e.preventDefault();
                               ctrl.fetchEnvironments();
                               ctrl.toggleDropdown('environment');
                             }}

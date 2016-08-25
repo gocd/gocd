@@ -31,14 +31,14 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agent_row_wid
       var row         = $root.find('tr')[0];
       var checkbox    = $(row).find('input');
       var information = row.children;
-      expect(information[1].innerText).toBe('in-john.local');
-      expect(information[2].innerText).toBe('/var/lib/go-agent');
-      expect(information[3].innerText).toBe('Linux');
-      expect(information[4].innerText).toBe('10.12.2.200');
-      expect(information[5].innerText).toBe('Missing');
-      expect(information[6].innerText).toBe('Unknown');
-      expect(information[7].innerText).toBe('firefox');
-      expect(information[8].innerText).toBe('Dev');
+      expect($(information[1]).text()).toBe('in-john.local');
+      expect($(information[2]).text()).toBe('/var/lib/go-agent');
+      expect($(information[3]).text()).toBe('Linux');
+      expect($(information[4]).text()).toBe('10.12.2.200');
+      expect($(information[5]).text()).toBe('Missing');
+      expect($(information[6]).text()).toBe('Unknown');
+      expect($(information[7]).text()).toBe('firefox');
+      expect($(information[8]).text()).toBe('Dev');
       expect($(checkbox).prop('checked')).toBe(true);
     });
 
@@ -56,7 +56,7 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agent_row_wid
       mount(agents(), model);
       var row         = $root.find('tr')[0];
       var information = row.children;
-      expect(information[7].innerText).toBe('none specified');
+      expect($(information[7]).text()).toBe('none specified');
     });
 
     it('should show none specified if agent has no environment', function () {
@@ -64,7 +64,7 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agent_row_wid
       mount(agents(), model);
       var row         = $root.find('tr')[0];
       var information = row.children;
-      expect(information[8].innerText).toBe('none specified');
+      expect($(information[8]).text()).toBe('none specified');
     });
 
     it('should set the class based on the status of the agent', function () {

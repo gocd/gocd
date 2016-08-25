@@ -24,15 +24,15 @@ define(["jquery", "mithril", "views/agents/agent_table_header"], function ($, m,
     it('should contain the agents table header information', function () {
       var children = $root.find('thead tr').children();
       expect(children.length).toBe(9);
-      expect(children[0].innerHTML).toBe('<input type="checkbox">');
-      expect(children[1].innerText).toBe('Agent Name');
-      expect(children[2].innerText).toBe('Sandbox');
-      expect(children[3].innerText).toBe('OS');
-      expect(children[4].innerText).toBe('IP Address');
-      expect(children[5].innerText).toBe('Status');
-      expect(children[6].innerText).toBe('Free Space');
-      expect(children[7].innerText).toBe('Resources');
-      expect(children[8].innerText).toBe('Environments');
+      expect($(children[0]).html()).toBe('<input type="checkbox">');
+      expect($(children[1]).text()).toBe('Agent Name');
+      expect($(children[2]).text()).toBe('Sandbox');
+      expect($(children[3]).text()).toBe('OS');
+      expect($(children[4]).text()).toBe('IP Address');
+      expect($(children[5]).text()).toBe('Status');
+      expect($(children[6]).text()).toBe('Free Space');
+      expect($(children[7]).text()).toBe('Resources');
+      expect($(children[8]).text()).toBe('Environments');
     });
 
     it('should select the checkbox depending upon the "checkboxValue" ', function () {

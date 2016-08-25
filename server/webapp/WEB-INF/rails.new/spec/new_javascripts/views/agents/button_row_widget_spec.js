@@ -77,7 +77,7 @@ define(["jquery", "mithril", "lodash", 'models/agents/agents', "views/agents/but
 
     describe('Heading Row', function () {
       it('should contain the agents page heading text', function () {
-        var headingText = $root.find('.page-header h1')[0].innerText;
+        var headingText = $root.find('.page-header h1').text();
         expect(headingText).toBe('Agents');
       });
     });
@@ -86,14 +86,14 @@ define(["jquery", "mithril", "lodash", 'models/agents/agents', "views/agents/but
       it('should contain the row elements', function () {
         var rowElements = $root.find('.agent-button-group button');
         expect(rowElements.length).toBe(8);
-        expect(rowElements[0].innerText).toBe("Delete");
-        expect(rowElements[1].innerText).toBe("Disable");
-        expect(rowElements[2].innerText).toBe("Enable");
-        expect(rowElements[3].innerText).toBe("Resources");
-        expect(rowElements[4].innerText).toBe("Add");
-        expect(rowElements[5].innerText).toBe("Apply");
-        expect(rowElements[6].innerText).toBe("Environments");
-        expect(rowElements[7].innerText).toBe("Apply");
+        expect($(rowElements[0]).text()).toBe("Delete");
+        expect($(rowElements[1]).text()).toBe("Disable");
+        expect($(rowElements[2]).text()).toBe("Enable");
+        expect($(rowElements[3]).text()).toBe("Resources");
+        expect($(rowElements[4]).text()).toBe("Add");
+        expect($(rowElements[5]).text()).toBe("Apply");
+        expect($(rowElements[6]).text()).toBe("Environments");
+        expect($(rowElements[7]).text()).toBe("Apply");
       });
 
       it('should disable the buttons if agents are not selected', function () {

@@ -41,6 +41,11 @@ public abstract class AbstractExtension implements GoPluginExtension {
         return pluginManager.isPluginOfType(this.extensionName, pluginId);
     }
 
+    @Override
+    public String extensionName() {
+        return extensionName;
+    }
+
     public PluginSettingsConfiguration getPluginSettingsConfiguration(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_CONFIGURATION, new DefaultPluginInteractionCallback<PluginSettingsConfiguration>() {
             @Override

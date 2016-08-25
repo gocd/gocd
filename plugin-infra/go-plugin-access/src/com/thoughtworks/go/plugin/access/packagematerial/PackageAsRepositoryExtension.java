@@ -104,4 +104,9 @@ public class PackageAsRepositoryExtension implements PackageAsRepositoryExtensio
     public boolean canHandlePlugin(String pluginId) {
         return pluginManager.hasReferenceFor(PackageMaterialProvider.class, pluginId) || pluginManager.isPluginOfType(JsonBasedPackageRepositoryExtension.EXTENSION_NAME, pluginId);
     }
+
+    @Override
+    public String extensionName() {
+        return jsonBasedPackageRepositoryExtension.extensionName();
+    }
 }

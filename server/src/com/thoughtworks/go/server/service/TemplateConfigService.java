@@ -31,6 +31,7 @@ import com.thoughtworks.go.config.TemplatesConfig;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.update.ConfigUpdateCheckFailedException;
 import com.thoughtworks.go.config.update.CreateTemplateConfigCommand;
+import com.thoughtworks.go.config.update.DeleteTemplateConfigCommand;
 import com.thoughtworks.go.config.update.UpdateTemplateConfigCommand;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.presentation.ConfigForEdit;
@@ -77,6 +78,14 @@ public class TemplateConfigService {
     public void updateTemplateConfig(final Username currentUser, final PipelineTemplateConfig templateConfig, final LocalizedOperationResult result, String md5) {
         UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(templateConfig, currentUser, goConfigService, result, md5, entityHashingService);
         update(currentUser, result, command);
+    }
+
+    public void deleteTemplateConfig(final Username currentUser, final PipelineTemplateConfig templateConfig, final LocalizedOperationResult result) {
+        DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(templateConfig, result, goConfigService, currentUser);
+        update(currentUser, result, command);
+        if(result.isSuccessful()) {
+            result.setMessage(LocalizedMessage.string("TEMPLATE_DELETED_SUCCESSFUL", templateConfig.name().toString()));
+        }
     }
 
     private void update(Username currentUser, LocalizedOperationResult result, EntityConfigUpdateCommand command) {

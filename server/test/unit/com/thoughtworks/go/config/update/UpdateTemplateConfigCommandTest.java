@@ -24,6 +24,7 @@ import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import org.junit.Before;
 import org.junit.Rule;
@@ -32,6 +33,7 @@ import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -44,9 +46,7 @@ public class UpdateTemplateConfigCommandTest {
     @Mock
     private GoConfigService goConfigService;
 
-    @Mock
     private LocalizedOperationResult result;
-
     private Username currentUser;
     private BasicCruiseConfig cruiseConfig;
     private PipelineTemplateConfig pipelineTemplateConfig;
@@ -59,6 +59,7 @@ public class UpdateTemplateConfigCommandTest {
         initMocks(this);
         currentUser = new Username(new CaseInsensitiveString("user"));
         cruiseConfig = new GoConfigMother().defaultCruiseConfig();
+        result = new HttpLocalizedOperationResult();
         pipelineTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"));
     }
 
@@ -78,7 +79,7 @@ public class UpdateTemplateConfigCommandTest {
     public void shouldThrowAnExceptionIfTemplateConfigNotFound() throws Exception {
         UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(pipelineTemplateConfig, currentUser, goConfigService, result, "md5", entityHashingService);
 
-        thrown.expectMessage("The template with name 'template' is not found or should not be null.");
+        thrown.expectMessage("The template with name 'template' is not found.");
         command.update(cruiseConfig);
     }
 
@@ -89,6 +90,7 @@ public class UpdateTemplateConfigCommandTest {
         UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(pipelineTemplateConfig, currentUser, goConfigService, result, "md5", entityHashingService);
 
         assertThat(command.canContinue(cruiseConfig), is(false));
+        assertThat(result.toString(), containsString("UNAUTHORIZED_TO_EDIT"));
     }
 
     @Test
@@ -100,6 +102,7 @@ public class UpdateTemplateConfigCommandTest {
         UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(pipelineTemplateConfig, currentUser, goConfigService, result, "md5", entityHashingService);
 
         assertThat(command.canContinue(cruiseConfig), is(false));
+        assertThat(result.toString(), containsString("STALE_RESOURCE_CONFIG"));
     }
 
     @Test
@@ -108,7 +111,7 @@ public class UpdateTemplateConfigCommandTest {
 
         UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(pipelineTemplateConfig, currentUser, goConfigService, result, "md5", entityHashingService);
 
-        thrown.expectMessage("The template with name 'template' is not found or should not be null.");
+        thrown.expectMessage("The template with name 'template' is not found.");
         command.canContinue(cruiseConfig);
     }
 }

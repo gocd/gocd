@@ -32,6 +32,7 @@ import org.mockito.Mock;
 
 import java.util.Arrays;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -72,8 +73,17 @@ public class TemplateConfigCommandTest {
         PipelineTemplateConfig templateConfig = new PipelineTemplateConfig(null, StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"));
         cruiseConfig.addTemplate(templateConfig);
         TemplateConfigCommand command = new CreateTemplateConfigCommand(templateConfig, currentUser, goConfigService, result);
-        thrown.expectMessage("The template with name 'null' is not found or should not be null.");
+        thrown.expectMessage("Template name cannot be null.");
         command.isValid(cruiseConfig);
+    }
+
+    @Test
+    public void shouldThrowAnExceptionIfTemplateConfigCannotBeFound() {
+        PipelineTemplateConfig templateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("non-existent-template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"));
+        TemplateConfigCommand command = new CreateTemplateConfigCommand(templateConfig, currentUser, goConfigService, result);
+        thrown.expectMessage("The template with name 'non-existent-template' is not found.");
+        command.isValid(cruiseConfig);
+        assertThat(result.toString(), containsString("RESOURCE_NOT_FOUND"));
     }
 
     @Test

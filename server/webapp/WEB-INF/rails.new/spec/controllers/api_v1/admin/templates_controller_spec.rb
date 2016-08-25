@@ -288,6 +288,73 @@ describe ApiV1::Admin::TemplatesController do
     end
   end
 
+  describe :destroy do
+    describe :security do
+      it 'should allow all with security disabled' do
+        disable_security
+
+        expect(controller).to allow_action(:delete, :destroy)
+      end
+
+      it 'should disallow anonymous users, with security enabled' do
+        enable_security
+        login_as_anonymous
+
+        expect(controller).to disallow_action(:delete, :destroy, template_name: 'foo').with(401, 'You are not authorized to perform this action.')
+      end
+
+      it 'should disallow normal users, with security enabled' do
+        enable_security
+        login_as_user
+
+        expect(controller).to disallow_action(:delete, :destroy, template_name: 'foo').with(401, 'You are not authorized to perform this action.')
+      end
+
+      it 'should allow admin, with security enabled' do
+        enable_security
+        login_as_admin
+
+        expect(controller).to allow_action(:delete, :destroy)
+      end
+    end
+    describe 'admin' do
+      before(:each) do
+        enable_security
+        login_as_admin
+      end
+
+      it 'should raise an error if template is not found' do
+        @template_config_service.should_receive(:loadForView).and_return(nil)
+
+        delete_with_api_header :destroy, template_name: 'foo'
+
+        expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
+      end
+
+      it 'should render the success message on deleting a template' do
+        @template_config_service.should_receive(:loadForView).and_return(@template)
+        result = HttpLocalizedOperationResult.new
+        @template_config_service.stub(:deleteTemplateConfig).with(anything, an_instance_of(PipelineTemplateConfig), result) do |user, template, result|
+          result.setMessage(LocalizedMessage::string("TEMPLATE_DELETED_SUCCESSFUL", 'some-template'))
+        end
+        delete_with_api_header :destroy, template_name: 'some-template'
+
+        expect(response).to have_api_message_response(200, "The template 'some-template' was deleted successfully.")
+      end
+
+      it 'should render the validation errors on failure to delete' do
+        @template_config_service.should_receive(:loadForView).and_return(@template)
+        result = HttpLocalizedOperationResult.new
+        @template_config_service.stub(:deleteTemplateConfig).with(anything, an_instance_of(PipelineTemplateConfig), result) do |user, template, result|
+          result.unprocessableEntity(LocalizedMessage::string("SAVE_FAILED_WITH_REASON", "Validation failed"))
+        end
+        delete_with_api_header :destroy, template_name: 'some-template'
+
+        expect(response).to have_api_message_response(422, "Save failed. Validation failed")
+      end
+    end
+  end
+
 
     private
     def template_hash

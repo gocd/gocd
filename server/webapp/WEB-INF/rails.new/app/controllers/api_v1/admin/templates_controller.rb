@@ -46,6 +46,12 @@ module ApiV1
         handle_create_or_update_response(result, updated_template)
       end
 
+      def destroy
+        result = HttpLocalizedOperationResult.new
+        template_config_service.deleteTemplateConfig(current_user, @template, result)
+        render_http_operation_result(result)
+      end
+
       def load_template(template_name = params[:template_name])
         result = HttpLocalizedOperationResult.new
         @template = template_config_service.loadForView(template_name, result)

@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineTemplateConfig;
 import com.thoughtworks.go.config.TemplatesConfig;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.exceptions.NoSuchTemplateException;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
@@ -28,7 +29,7 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 
 public abstract class TemplateConfigCommand implements EntityConfigUpdateCommand<PipelineTemplateConfig> {
 
-    private PipelineTemplateConfig preprocessedTemplateConfig;
+    protected PipelineTemplateConfig preprocessedTemplateConfig;
     protected final LocalizedOperationResult result;
     protected PipelineTemplateConfig templateConfig;
 
@@ -53,17 +54,17 @@ public abstract class TemplateConfigCommand implements EntityConfigUpdateCommand
     }
 
     protected PipelineTemplateConfig findAddedTemplate(CruiseConfig cruiseConfig) {
-        try {
+        if (templateConfig == null || templateConfig.name() == null) {
+            result.unprocessableEntity(LocalizedMessage.string("TEMPLATE_INVALID"));
+            throw new NullPointerException("Template name cannot be null.");
+        } else {
             PipelineTemplateConfig pipelineTemplateConfig = cruiseConfig.findTemplate(templateConfig.name());
-            if(pipelineTemplateConfig == null) {
+            if (pipelineTemplateConfig == null) {
                 result.notFound(LocalizedMessage.string("RESOURCE_NOT_FOUND"), HealthStateType.notFound());
-                throw new NullPointerException(String.format("The template with name '%s' is not found or should not be null.", templateConfig.name()));
+                throw new NoSuchTemplateException(templateConfig.name());
             }
             return pipelineTemplateConfig;
-        }catch (NullPointerException e) {
-            throw new NullPointerException(String.format("The template with name '%s' is not found or should not be null.", templateConfig.name()));
         }
-
     }
 
     @Override

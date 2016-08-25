@@ -148,4 +148,28 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
         assertThat(cruiseConfig.getAllPipelineNames().contains(new CaseInsensitiveString("pipeline_in_repo1")), is(false));
         assertThat(cruiseConfig.getAllPipelineNames().contains(new CaseInsensitiveString("pipeline_in_repo2")), is(true));
     }
+
+    @Test
+    public void shouldReturnAListOfPipelineNamesAssociatedWithOneTemplate() {
+        ArrayList<CaseInsensitiveString> pipelinesAssociatedWithATemplate = new ArrayList<>();
+        pipelinesAssociatedWithATemplate.add(new CaseInsensitiveString("p1"));
+        BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
+        new GoConfigMother().addPipelineWithTemplate(cruiseConfig, "p1", "t1", "s1", "j1");
+
+        assertThat(cruiseConfig.pipelinesAssociatedWithTemplate(new CaseInsensitiveString("t1")), is(pipelinesAssociatedWithATemplate));
+    }
+
+    @Test
+    public void shouldReturnAnEmptyListForPipelinesIfTemplateNameIsNull() {
+        BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
+
+        assertThat(cruiseConfig.pipelinesAssociatedWithTemplate(null).isEmpty(), is(true));
+    }
+
+    @Test
+    public void shouldReturnAnEmptyListIfThereAreNoPipelinesAssociatedWithGivenTemplate() {
+        BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
+
+        assertThat(cruiseConfig.pipelinesAssociatedWithTemplate(new CaseInsensitiveString("non-existent-template")).isEmpty(), is(true));
+    }
 }

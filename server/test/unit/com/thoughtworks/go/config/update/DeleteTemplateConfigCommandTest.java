@@ -39,14 +39,12 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-public class CreateTemplateConfigCommandTest {
+public class DeleteTemplateConfigCommandTest {
 
     @Mock
     private GoConfigService goConfigService;
 
-
     private LocalizedOperationResult result;
-
     private Username currentUser;
     private BasicCruiseConfig cruiseConfig;
     private PipelineTemplateConfig pipelineTemplateConfig;
@@ -58,18 +56,28 @@ public class CreateTemplateConfigCommandTest {
     @Before
     public void setup() {
         initMocks(this);
-        result = new HttpLocalizedOperationResult();
         currentUser = new Username(new CaseInsensitiveString("user"));
         cruiseConfig = new GoConfigMother().defaultCruiseConfig();
         pipelineTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"));
+        result = new HttpLocalizedOperationResult();
     }
 
     @Test
-    public void shouldAddNewTemplateToGivenConfig() throws Exception {
-        CreateTemplateConfigCommand createTemplateConfigCommand = new CreateTemplateConfigCommand(pipelineTemplateConfig, currentUser, goConfigService, result);
-        assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(false));
-        createTemplateConfigCommand.update(cruiseConfig);
+    public void shouldDeleteTemplateFromTheGivenConfig() throws Exception {
+        cruiseConfig.addTemplate(pipelineTemplateConfig);
+        DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(pipelineTemplateConfig, result, goConfigService, currentUser);
         assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(true));
+        command.update(cruiseConfig);
+        assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(false));
+    }
+
+    @Test
+    public  void shouldValidateWhetherTemplateIsAssociatedWithPipelines() {
+        new GoConfigMother().addPipelineWithTemplate(cruiseConfig, "p1", pipelineTemplateConfig.name().toString(), "s1", "j1");
+        DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(pipelineTemplateConfig, result, goConfigService, currentUser);
+
+        thrown.expectMessage("The template 'template' is being referenced by pipeline(s): [p1]");
+        assertThat(command.isValid(cruiseConfig), is(false));
     }
 
 
@@ -77,9 +85,19 @@ public class CreateTemplateConfigCommandTest {
     public void shouldNotContinueWithConfigSaveIfUserIsUnauthorized() {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
 
-        CreateTemplateConfigCommand command = new CreateTemplateConfigCommand(pipelineTemplateConfig, currentUser, goConfigService, result);
+        DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(pipelineTemplateConfig, result, goConfigService, currentUser);
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result.toString(), containsString("UNAUTHORIZED_TO_EDIT"));
     }
+
+    @Test
+    public void shouldNotContinueWhenTemplateNoLongerExists() {
+        when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
+
+        DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(pipelineTemplateConfig, result, goConfigService, currentUser);
+
+        assertThat(command.canContinue(cruiseConfig), is(false));
+    }
+
 }

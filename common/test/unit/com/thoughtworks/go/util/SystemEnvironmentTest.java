@@ -31,11 +31,13 @@ import java.util.Properties;
 
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(JunitExtRunner.class)
 public class SystemEnvironmentTest {
-    static final Cloner CLONER = new Cloner();
+    private static final Cloner CLONER = new Cloner();
     private Properties original;
     private SystemEnvironment systemEnvironment;
 
@@ -49,19 +51,6 @@ public class SystemEnvironmentTest {
     public void after() {
         System.setProperties(original);
         new SystemEnvironment().reset(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE);
-    }
-
-    @Test
-    public void shouldDisableNewFeaturesByDefault() {
-        assertThat(systemEnvironment.isFeatureEnabled("cruise.experimental.feature.some-feature"), is(false));
-    }
-
-    @Test
-    public void shouldBeAbletoEnableAllNewFeatures() {
-        Properties properties = new Properties();
-        properties.setProperty(SystemEnvironment.CRUISE_EXPERIMENTAL_ENABLE_ALL, "true");
-        SystemEnvironment systemEnvironment = new SystemEnvironment(properties);
-        assertThat(systemEnvironment.isFeatureEnabled("cruise.experimental.feature.some-feature"), is(true));
     }
 
     @Test
@@ -84,11 +73,6 @@ public class SystemEnvironmentTest {
         assertThat(systemEnvironment.useCompressedJs(), is(false));
         systemEnvironment.setProperty(GoConstants.USE_COMPRESSED_JAVASCRIPT, Boolean.TRUE.toString());
         assertThat(systemEnvironment.useCompressedJs(), is(true));
-    }
-
-    @Test
-    public void shouldHaveBaseUrl() {
-        assertThat(systemEnvironment.getBaseUrlForShine(), is("http://localhost:8153/go"));
     }
 
     @Test
@@ -152,12 +136,6 @@ public class SystemEnvironmentTest {
     }
 
     @Test
-    public void shouldPrefixApplicationPathWithContext() {
-        assertThat(systemEnvironment.pathFor("foo/bar"), is("/go/foo/bar"));
-        assertThat(systemEnvironment.pathFor("/baz/quux"), is("/go/baz/quux"));
-    }
-
-    @Test
     public void shouldUnderstandConfigRepoDir() {
         Properties properties = new Properties();
         SystemEnvironment systemEnvironment = new SystemEnvironment(properties);
@@ -209,18 +187,6 @@ public class SystemEnvironmentTest {
     public void shouldGetPluginEnabledStatusAsTrueIfPropertyIsSetToY() {
         System.setProperty(GoConstants.ENABLE_PLUGINS_PROPERTY, "Y");
         assertThat(systemEnvironment.pluginStatus(), is(GoConstants.ENABLE_PLUGINS_RESPONSE_TRUE));
-    }
-
-    @Test
-    public void shouldReturnTrueWhenPluginsAreEnabled() {
-        System.setProperty(GoConstants.ENABLE_PLUGINS_PROPERTY, "Y");
-        assertThat(systemEnvironment.isPluginsEnabled(), is(true));
-    }
-
-    @Test
-    public void shouldReturnFalseWhenPluginsAreNotEnabled() {
-        System.setProperty(GoConstants.ENABLE_PLUGINS_PROPERTY, "N");
-        assertThat(systemEnvironment.isPluginsEnabled(), is(false));
     }
 
     @Test
@@ -444,10 +410,9 @@ public class SystemEnvironmentTest {
     @Test
     public void shouldGetRenegotiationAllowedFlagForSSLConfig() {
         assertThat(SystemEnvironment.GO_SSL_RENEGOTIATION_ALLOWED.propertyName(), is("go.ssl.renegotiation.allowed"));
-        boolean defaultValue = true;
-        assertThat(systemEnvironment.get(SystemEnvironment.GO_SSL_RENEGOTIATION_ALLOWED), is(defaultValue));
+        assertThat(systemEnvironment.get(SystemEnvironment.GO_SSL_RENEGOTIATION_ALLOWED), is(true));
         System.clearProperty("go.ssl.renegotiation.allowed");
-        assertThat(systemEnvironment.get(SystemEnvironment.GO_SSL_RENEGOTIATION_ALLOWED), is(defaultValue));
+        assertThat(systemEnvironment.get(SystemEnvironment.GO_SSL_RENEGOTIATION_ALLOWED), is(true));
         System.setProperty("go.ssl.renegotiation.allowed", "false");
         assertThat(systemEnvironment.get(SystemEnvironment.GO_SSL_RENEGOTIATION_ALLOWED), is(false));
     }

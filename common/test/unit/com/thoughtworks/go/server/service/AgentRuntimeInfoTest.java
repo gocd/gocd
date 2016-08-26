@@ -140,14 +140,7 @@ public class AgentRuntimeInfoTest {
         agentRuntimeInfo.setUsableSpace(10L);
         assertThat(agentRuntimeInfo.isLowDiskSpace(20L), is(true));
     }
-
-    @Test
-    public void shouldUnderstandOperatingSystem() {
-        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false);
-        agentRuntimeInfo.refreshOperatingSystem();
-        assertThat(agentRuntimeInfo.getOperatingSystem(), is(new SystemEnvironment().getOperatingSystemName()));
-    }
-
+    
     @Test
     public void shouldHaveRelevantFieldsInDebugString() throws Exception {
         AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false);

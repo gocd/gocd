@@ -36,6 +36,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.server.service.EnvironmentConfigServiceTest.env;
@@ -219,6 +220,41 @@ public class EnvironmentConfigServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         service.deleteEnvironment(service.getEnvironmentConfig("foo"), new Username(new CaseInsensitiveString("evil_hacker")), result);
         assertThat(result.message(localizer), is("Failed to delete environment 'foo'. User 'evil_hacker' does not have permission to update environments"));
+    }
+
+    @Test
+    public void shouldPatchAnEnvironment() throws Exception{
+        String environmentName = "env";
+
+        BasicEnvironmentConfig env = environmentConfig(environmentName);
+        Username user = Username.ANONYMOUS;
+        String uuid = "uuid-1";
+        agentConfigService.addAgent(new AgentConfig(uuid, "host-1", "192.168.1.2"), user);
+        goConfigService.addEnvironment(env);
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+
+        List<String> agentsToremove = new ArrayList<>();
+        List<String> agentsToAdd = new ArrayList<>();
+        agentsToAdd.add(uuid);
+        List<String> pipelinesToAdd = new ArrayList<>();
+        List<String> pipelinesToRemove = new ArrayList<>();
+
+        service.patchEnvironment(service.getEnvironmentConfig(environmentName), pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToremove, user, result);
+        EnvironmentConfig updatedEnv = service.named(env.name().toString());
+
+        assertThat(updatedEnv.name(), is(new CaseInsensitiveString(environmentName)));
+        assertThat(updatedEnv.getAgents().getUuids(), is(Arrays.asList("uuid-1")));
+        assertThat(result.message(localizer), containsString("Updated environment 'env'."));
+    }
+
+    @Test
+    public void shouldReturnTheCorrectLocalizedMessageWhenUserDoesNotHavePermissionToPatch() throws IOException, NoSuchEnvironmentException {
+        configHelper.addEnvironments("foo");
+        configHelper.turnOnSecurity();
+        configHelper.addAdmins("super_hero");
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        service.patchEnvironment(service.getEnvironmentConfig("foo"), new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(),new Username(new CaseInsensitiveString("evil_hacker")), result);
+        assertThat(result.message(localizer), is("Failed to update environment 'foo'. User 'evil_hacker' does not have permission to update environments"));
     }
 
     @Test

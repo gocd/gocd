@@ -141,6 +141,11 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
     }
 
     @Override
+    public void removePipeline(final CaseInsensitiveString pipelineName) {
+        pipelines.remove(new EnvironmentPipelineConfig(pipelineName));
+    }
+
+    @Override
     public boolean contains(String pipelineName) {
         return pipelines.containsPipelineNamed(new CaseInsensitiveString(pipelineName));
     }

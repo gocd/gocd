@@ -23,6 +23,7 @@ import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
 import com.thoughtworks.go.config.update.AddEnvironmentCommand;
 import com.thoughtworks.go.config.update.DeleteEnvironmentCommand;
+import com.thoughtworks.go.config.update.PatchEnvironmentCommand;
 import com.thoughtworks.go.config.update.UpdateEnvironmentCommand;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.i18n.Localizable;
@@ -218,6 +219,16 @@ public class EnvironmentConfigService implements ConfigChangedListener {
         update(updateEnvironmentCommand, oldEnvironmentConfig, username, result, actionFailed);
         if (result.isSuccessful()) {
             result.setMessage(LocalizedMessage.string("UPDATE_ENVIRONMENT_SUCCESS", oldEnvironmentConfig.name()));
+        }
+    }
+
+    public void patchEnvironment(final EnvironmentConfig environmentConfig, List<String> pipelinesToAdd, List<String> pipelinesToRemove, List<String> agentsToAdd, List<String> agentsToRemove, final Username username, final HttpLocalizedOperationResult result) {
+        Localizable.CurryableLocalizable actionFailed = LocalizedMessage.string("ENV_UPDATE_FAILED", environmentConfig.name());
+
+        PatchEnvironmentCommand patchEnvironmentCommand = new PatchEnvironmentCommand(goConfigService, environmentConfig, pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToRemove, username, actionFailed, result);
+        update(patchEnvironmentCommand, environmentConfig, username, result, actionFailed);
+        if (result.isSuccessful()) {
+            result.setMessage(LocalizedMessage.string("UPDATE_ENVIRONMENT_SUCCESS", environmentConfig.name()));
         }
     }
 

@@ -159,7 +159,7 @@ describe ApiV1::Admin::EnvironmentsController do
     end
   end
 
-  describe :update do
+  describe :put do
 
     before(:each) do
       @environment_name = 'foo-environment'
@@ -174,7 +174,7 @@ describe ApiV1::Admin::EnvironmentsController do
     end
 
     describe :for_admins do
-      it 'should allow patching environments' do
+      it 'should allow updating environments' do
         login_as_admin
         result = HttpLocalizedOperationResult.new
         @environment_config_service.should_receive(:updateEnvironment).with(@environment_config, anything, anything, @md5, anything).and_return(result)
@@ -182,24 +182,24 @@ describe ApiV1::Admin::EnvironmentsController do
 
         controller.request.env['HTTP_IF_MATCH'] = "\"#{Digest::MD5.hexdigest(@md5)}\""
 
-        patch_with_api_header :update, name: @environment_name, :environment => hash
+        put_with_api_header :put, name: @environment_name, :environment => hash
         expect(response.status).to eq(200)
         expect(actual_response).to eq(expected_response(@environment_config, ApiV1::Config::EnvironmentConfigRepresenter))
       end
 
-      it 'should not update environment config if etag passed does not match the one on server' do
+      it 'should not put environment config if etag passed does not match the one on server' do
         login_as_admin
         controller.request.env['HTTP_IF_MATCH'] = 'old-etag'
 
-        patch_with_api_header :update,name: @environment_name, :environment => { name: @environment_name, pipelines: [], agents: [], environment_variables: []}
+        put_with_api_header :put, name: @environment_name, :environment => {name: @environment_name, pipelines: [], agents: [], environment_variables: []}
 
         expect(response.status).to eq(412)
-        expect(actual_response).to eq({ :message => "Someone has modified the configuration for environment 'foo-environment'. Please update your copy of the config with the changes." })
+        expect(actual_response).to eq({:message => "Someone has modified the configuration for environment 'foo-environment'. Please update your copy of the config with the changes."})
       end
 
-      it 'should not update environment config if no etag is passed' do
+      it 'should not put environment config if no etag is passed' do
         login_as_admin
-        patch_with_api_header :update,name: @environment_name, :environment => { name: @environment_name, pipelines: [], agents: [], environment_variables: []}
+        put_with_api_header :put, name: @environment_name, :environment => {name: @environment_name, pipelines: [], agents: [], environment_variables: []}
 
         expect(response.status).to eq(412)
         expect(response).to have_api_message_response(412, "Someone has modified the configuration for environment 'foo-environment'. Please update your copy of the config with the changes.")
@@ -210,7 +210,7 @@ describe ApiV1::Admin::EnvironmentsController do
 
         @environment_name = SecureRandom.hex
         @environment_config_service.stub(:getEnvironmentConfig).and_raise(com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException.new(CaseInsensitiveString.new('foo-env')))
-        patch_with_api_header :update, name: @environment_name
+        put_with_api_header :put, name: @environment_name
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end
     end
@@ -222,18 +222,18 @@ describe ApiV1::Admin::EnvironmentsController do
 
       it 'should allow anyone, with security disabled' do
         disable_security
-        expect(controller).to allow_action(:patch, :update, name: @environment_name)
+        expect(controller).to allow_action(:put, :put, name: @environment_name)
       end
 
       it 'should disallow anonymous users, with security enabled' do
         enable_security
         login_as_anonymous
-        expect(controller).to disallow_action(:patch, :update, name: @environment_name).with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:put, :put, name: @environment_name).with(401, 'You are not authorized to perform this action.')
       end
 
       it 'should disallow normal users, with security enabled' do
         login_as_user
-        expect(controller).to disallow_action(:patch, :update, name: @environment_name).with(401, 'You are not authorized to perform this action.')
+        expect(controller).to disallow_action(:put, :put, name: @environment_name).with(401, 'You are not authorized to perform this action.')
       end
     end
 
@@ -245,29 +245,134 @@ describe ApiV1::Admin::EnvironmentsController do
         after :each do
           Rack::MockRequest::DEFAULT_ENV = {}
         end
-        it 'should route to update action of environments controller for alphanumeric environment name' do
-          expect(:patch => 'api/admin/environments/foo123').to route_to(action: 'update', controller: 'api_v1/admin/environments', name: 'foo123')
+        it 'should route to put action of environments controller for alphanumeric environment name' do
+          expect(:put => 'api/admin/environments/foo123').to route_to(action: 'put', controller: 'api_v1/admin/environments', name: 'foo123')
         end
 
-        it 'should route to update action of environments controller for environment name with dots' do
-          expect(:patch => 'api/admin/environments/foo.123').to route_to(action: 'update', controller: 'api_v1/admin/environments', name: 'foo.123')
+        it 'should route to put action of environments controller for environment name with dots' do
+          expect(:put => 'api/admin/environments/foo.123').to route_to(action: 'put', controller: 'api_v1/admin/environments', name: 'foo.123')
         end
 
-        it 'should route to update action of environments controller for environment name with hyphen' do
-          expect(:patch => 'api/admin/environments/foo-123').to route_to(action: 'update', controller: 'api_v1/admin/environments', name: 'foo-123')
+        it 'should route to put action of environments controller for environment name with hyphen' do
+          expect(:put => 'api/admin/environments/foo-123').to route_to(action: 'put', controller: 'api_v1/admin/environments', name: 'foo-123')
         end
 
-        it 'should route to update action of environments controller for environment name with underscore' do
-          expect(:patch => 'api/admin/environments/foo_123').to route_to(action: 'update', controller: 'api_v1/admin/environments', name: 'foo_123')
+        it 'should route to put action of environments controller for environment name with underscore' do
+          expect(:put => 'api/admin/environments/foo_123').to route_to(action: 'put', controller: 'api_v1/admin/environments', name: 'foo_123')
         end
 
-        it 'should route to update action of environments controller for capitalized environment name' do
-          expect(:patch => 'api/admin/environments/FOO').to route_to(action: 'update', controller: 'api_v1/admin/environments', name: 'FOO')
+        it 'should route to put action of environments controller for capitalized environment name' do
+          expect(:put => 'api/admin/environments/FOO').to route_to(action: 'put', controller: 'api_v1/admin/environments', name: 'FOO')
         end
       end
       describe :without_header do
-        it 'should not route to update action of environments controller without header' do
-          expect(:patch => 'api/admin/environments/foo').to_not route_to(action: 'update', controller: 'api_v1/admin/environments')
+        it 'should not route to put action of environments controller without header' do
+          expect(:put => 'api/admin/environments/foo').to_not route_to(action: 'put', controller: 'api_v1/admin/environments')
+          expect(:put => 'api/admin/environments/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/environments/foo')
+        end
+      end
+    end
+  end
+
+  describe :patch do
+
+    before(:each) do
+      @environment_name = 'foo-environment'
+      @environment_config = BasicEnvironmentConfig.new(CaseInsensitiveString.new(@environment_name))
+      @environment_config_service = double('environment-config-service')
+      controller.stub(:environment_config_service).and_return(@environment_config_service)
+      @environment_config_service.stub(:getEnvironmentConfig).with(@environment_name).and_return(@environment_config)
+    end
+
+    describe :for_admins do
+      it 'should allow patching environments' do
+        login_as_admin
+        result = HttpLocalizedOperationResult.new
+        pipelines_to_add = ['foo']
+        pipelines_to_remove = ['bar']
+        agents_to_add = ['agent1']
+        agents_to_remove = ['agent2']
+        @environment_config_service.should_receive(:patchEnvironment).with(@environment_config, pipelines_to_add, pipelines_to_remove, agents_to_add, agents_to_remove, anything, result).and_return(result)
+
+        patch_with_api_header :patch, name: @environment_name, :pipelines => {add: pipelines_to_add, remove: pipelines_to_remove}, :agents => {add: agents_to_add, remove: agents_to_remove}
+        expect(response.status).to eq(200)
+        expect(actual_response).to eq(expected_response(@environment_config, ApiV1::Config::EnvironmentConfigRepresenter))
+      end
+
+      it 'should render error when it fails to patch environment' do
+        login_as_admin
+        result = HttpLocalizedOperationResult.new
+        pipelines_to_add = ['foo']
+        pipelines_to_remove = ['bar']
+        agents_to_add = ['agent1']
+        agents_to_remove = ['agent2']
+        @environment_config_service.stub(:patchEnvironment).with(@environment_config, pipelines_to_add, pipelines_to_remove, agents_to_add, agents_to_remove, anything, result) do |environment_config, pipelines_to_add, pipelines_to_remove, agents_to_add, agents_to_remove, user, result|
+          result.badRequest(LocalizedMessage.string("PIPELINES_WITH_NAMES_NOT_FOUND", pipelines_to_add))
+        end
+
+        patch_with_api_header :patch, name: @environment_name, :pipelines => {add: pipelines_to_add, remove: pipelines_to_remove}, :agents => {add: agents_to_add, remove: agents_to_remove}
+        expect(response).to have_api_message_response(400, 'Pipelines(s) with name(s) [foo] not found.')
+      end
+
+      it 'should render 404 when a environment does not exist' do
+        login_as_admin
+
+        @environment_name = SecureRandom.hex
+        @environment_config_service.stub(:getEnvironmentConfig).and_raise(com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException.new(CaseInsensitiveString.new('foo-env')))
+        patch_with_api_header :patch, name: @environment_name
+        expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
+      end
+    end
+
+    describe :security do
+      it 'should allow anyone, with security disabled' do
+        disable_security
+        expect(controller).to allow_action(:patch, :patch, name: @environment_name)
+      end
+
+      it 'should disallow anonymous users, with security enabled' do
+        enable_security
+        login_as_anonymous
+        expect(controller).to disallow_action(:patch, :patch, name: @environment_name).with(401, 'You are not authorized to perform this action.')
+      end
+
+      it 'should disallow normal users, with security enabled' do
+        login_as_user
+        expect(controller).to disallow_action(:patch, :patch, name: @environment_name).with(401, 'You are not authorized to perform this action.')
+      end
+    end
+
+    describe :route do
+      describe :with_header do
+        before :each do
+          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v1+json"
+        end
+        after :each do
+          Rack::MockRequest::DEFAULT_ENV = {}
+        end
+        it 'should route to patch action of environments controller for alphanumeric environment name' do
+          expect(:patch => 'api/admin/environments/foo123').to route_to(action: 'patch', controller: 'api_v1/admin/environments', name: 'foo123')
+        end
+
+        it 'should route to patch action of environments controller for environment name with dots' do
+          expect(:patch => 'api/admin/environments/foo.123').to route_to(action: 'patch', controller: 'api_v1/admin/environments', name: 'foo.123')
+        end
+
+        it 'should route to patch action of environments controller for environment name with hyphen' do
+          expect(:patch => 'api/admin/environments/foo-123').to route_to(action: 'patch', controller: 'api_v1/admin/environments', name: 'foo-123')
+        end
+
+        it 'should route to patch action of environments controller for environment name with underscore' do
+          expect(:patch => 'api/admin/environments/foo_123').to route_to(action: 'patch', controller: 'api_v1/admin/environments', name: 'foo_123')
+        end
+
+        it 'should route to patch action of environments controller for capitalized environment name' do
+          expect(:patch => 'api/admin/environments/FOO').to route_to(action: 'patch', controller: 'api_v1/admin/environments', name: 'FOO')
+        end
+      end
+      describe :without_header do
+        it 'should not route to put action of environments controller without header' do
+          expect(:patch => 'api/admin/environments/foo').to_not route_to(action: 'put', controller: 'api_v1/admin/environments')
           expect(:patch => 'api/admin/environments/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/environments/foo')
         end
       end
@@ -287,7 +392,7 @@ describe ApiV1::Admin::EnvironmentsController do
       it 'should allow deleting environments' do
         login_as_admin
 
-        @environment_config_service.should_receive(:deleteEnvironment).with(@environment_config,an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)) do |envConfig, user, result|
+        @environment_config_service.should_receive(:deleteEnvironment).with(@environment_config, an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)) do |envConfig, user, result|
           result.setMessage(LocalizedMessage.string('ENVIRONMENT_DELETE_SUCCESSFUL', @environment_config.name))
         end
         controller.request.env['HTTP_IF_MATCH'] = "\"#{Digest::MD5.hexdigest('latest-etag')}\""
@@ -377,22 +482,22 @@ describe ApiV1::Admin::EnvironmentsController do
 
         @environment_config_service.should_receive(:createEnvironment)
 
-        post_with_api_header :create, :environment => { name: @environment_name, pipelines: [], agents: [], environment_variables: []}
+        post_with_api_header :create, :environment => {name: @environment_name, pipelines: [], agents: [], environment_variables: []}
         expect(response.status).to be(200)
         expect(actual_response).to eq(expected_response(@environment_config, ApiV1::Config::EnvironmentConfigRepresenter))
       end
 
       it 'should render the error occurred while creating an environment' do
-          login_as_admin
+        login_as_admin
 
-          @environment_config_service.should_receive(:createEnvironment).with(@environment_config,an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)) do |env, user, result|
-            result.conflict(LocalizedMessage.string("CANNOT_ADD_ENV_ALREADY_EXISTS", env.name));
-          end
-
-          post_with_api_header :create, :environment => { name: @environment_name, pipelines: [], agents: [], environment_variables: []}
-          expect(response).to have_api_message_response(409, 'Failed to add environment. Environment \'foo-environment\' already exists.')
+        @environment_config_service.should_receive(:createEnvironment).with(@environment_config, an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)) do |env, user, result|
+          result.conflict(LocalizedMessage.string("CANNOT_ADD_ENV_ALREADY_EXISTS", env.name));
         end
+
+        post_with_api_header :create, :environment => {name: @environment_name, pipelines: [], agents: [], environment_variables: []}
+        expect(response).to have_api_message_response(409, 'Failed to add environment. Environment \'foo-environment\' already exists.')
       end
+    end
 
     describe :security do
       it 'should allow anyone, with security disabled' do

@@ -193,6 +193,11 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig>  i
     }
 
     @Override
+    public void removePipeline(CaseInsensitiveString pipelineName) {
+        this.getFirstEditablePart().removePipeline(pipelineName);
+    }
+
+    @Override
     public void removeAgent(String uuid) {
         for(EnvironmentConfig part : this)
         {

@@ -32,7 +32,7 @@
 //= require "lib/jquery.url-1.0.js"
 //= require "lib/jquery-pinOnScroll.js"
 //= require "lib/jquery_no_conflict.js"
-//= require "lib/prototype-1.6.0.js"
+//= require "lib/prototype-1.6.0.3.js"
 //= require "lib/scriptaculous-1.8.0.js"
 //= require "lib/bootstrap-2.3.2.min.js"
 //= require "lib/angular-1.0.8.js"

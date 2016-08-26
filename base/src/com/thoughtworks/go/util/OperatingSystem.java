@@ -21,6 +21,7 @@ import java.io.FileReader;
 import java.util.Properties;
 import java.util.Scanner;
 
+import static com.thoughtworks.go.util.StringUtil.isBlank;
 import static com.thoughtworks.go.util.StringUtil.unQuote;
 
 public class OperatingSystem {
@@ -54,7 +55,11 @@ public class OperatingSystem {
     }
 
     private static String cleanUpPythonOutput(String str) {
-        return str == null ? "" : str.replaceAll("[()',]+", "");
+        String output = str.replaceAll("[()',]+", "");
+        if (isBlank(output)) {
+            throw new RuntimeException("The linux distribution string is empty");
+        }
+        return output;
     }
 
     public static String getCompleteName() {

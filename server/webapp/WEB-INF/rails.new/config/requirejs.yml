@@ -205,3 +205,4 @@ shim:
 # our modules
 modules:
   - name: "single_page_apps/pipeline_configs"
+  - name: "single_page_apps/agents"

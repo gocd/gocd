@@ -16,46 +16,52 @@
 
 //alert styles
 
+$success: #DBF1D9;
+$success-border: #98e478;
+$warning: #FDF5E2;
+$warning-border: #EEE4C9;
+$alert: #FEEBEC;
+$alert-border: #E5BFC0;
+$info: #D3EFFB;
+$info-border: #B8D4E0;
+$secondary: #ffffff;
+$border-radius: 3px;
 
-$succes: #DBF1D9;
-$succes-border: #DBEFD3;
-$warning: #000;
-$error: #000;
-$info: #000;
-$message: #000;
-$border-radius:3px;
-
-
-.alert-box {
+.callout {
   font-weight: 600;
   font-size: 15px;
   padding: 10px 20px;
-  border-radius:$border-radius;
+  border-radius: $border-radius;
   margin: 10px 30px;
   &.success {
-    background-color: #DBF1D9;
-    border-color: #DBEFD3;
+    background-color: $success;
+    border-color: $success-border;
     color: #298A4C;
   }
   &.warning {
-    background-color: #FDF5E2;
-    border-color: #EEE4C9;
+    background-color: $warning;
+    border-color: $warning-border;
     color: #B88C34;
   }
   &.info {
-    background-color: #D3EFFB;
-    border-color: #B8D4E0;
+    background-color: $info;
+    border-color: $info-border;
     color: #0072B7;
   }
   &.alert {
-    background-color: #FEEBEC;
-    border-color: #E5BFC0;
+    background-color: $alert;
+    border-color: $alert-border;
     color: #F23962;
   }
   &.secondary {
-    background-color: #ffffff;
+    background-color: $secondary;
     border-color: #E3E3E3;
     color: #4a4a4a;
   }
-
+  .pipeline & {
+    margin: 10px 15px;
+  }
+  .modal-content & {
+    margin: 10px 0;
+  }
 }

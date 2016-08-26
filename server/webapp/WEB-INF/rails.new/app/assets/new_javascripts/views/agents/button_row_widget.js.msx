@@ -79,6 +79,7 @@ define(['mithril', 'lodash',
           <f.row>
             <f.column size={5}>
               <h1>Agents</h1>
+              <a href="/go/agents" class="old-agents-page">Switch back to old view</a>
             </f.column>
 
             <f.column size={7}>

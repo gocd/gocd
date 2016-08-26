@@ -78,7 +78,7 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'string-plus', 'helpers/mith
 
         return (
           <div class='plugin-view' id={'pluggable-scm-template-' + ctrl.uuid} ng-controller={ctrl.ngControllerName} config={config}>
-            <div class="alert-box alert"
+            <div class="callout alert"
                  ng-show="pluggableTaskGenericError">{'{{pluggableTaskGenericError}}'}</div>
             {m.trust(ctrl.templateHTML)}
           </div>

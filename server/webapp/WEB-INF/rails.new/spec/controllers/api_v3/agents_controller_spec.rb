@@ -68,6 +68,27 @@ describe ApiV3::AgentsController do
         expect(actual_response).to eq(expected_response(zero_agents, ApiV3::AgentsRepresenter))
       end
     end
+
+    describe :route do
+      describe :with_header do
+        before :each do
+          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v3+json"
+        end
+        after :each do
+          Rack::MockRequest::DEFAULT_ENV = {}
+        end
+
+        it 'should route to index action of the agents controller' do
+          expect(:get => 'api/agents').to route_to(action: 'index', controller: 'api_v3/agents')
+        end
+      end
+      describe :without_header do
+        it 'should not route to index action of the agents controller without header' do
+          expect(:get => 'api/agents').to_not route_to(action: 'index', controller: 'api_v3/agents')
+          expect(:get => 'api/agents').to route_to(controller: 'application', action: 'unresolved', url: 'api/agents')
+        end
+      end
+    end
   end
 
   describe :show do
@@ -114,6 +135,35 @@ describe ApiV3::AgentsController do
 
         get_with_api_header :show, uuid: null_agent.getUuid()
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
+      end
+    end
+
+    describe :route do
+      describe :with_header do
+        before :each do
+          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v3+json"
+        end
+        after :each do
+          Rack::MockRequest::DEFAULT_ENV = {}
+        end
+
+        it 'should route to show action of the agents controller for uuid with hyphen' do
+          expect(:get => 'api/agents/uuid-123').to route_to(action: 'show', controller: 'api_v3/agents', uuid: 'uuid-123')
+        end
+
+        it 'should route to show action of the agents controller for uuid with underscore' do
+          expect(:get => 'api/agents/uuid_123').to route_to(action: 'show', controller: 'api_v3/agents', uuid: 'uuid_123')
+        end
+
+        it 'should not route to show action of the agents controller for uuid with dots' do
+          expect(:get => 'api/agents/uuid.123').to_not route_to(action: 'show', controller: 'api_v3/agents', uuid: 'uuid.123')
+        end
+      end
+      describe :without_header do
+        it 'should not route to show action of the agents controller without header' do
+          expect(:get => 'api/agents/uuid').to_not route_to(action: 'show', controller: 'api_v3/agents')
+          expect(:get => 'api/agents/uuid').to route_to(controller: 'application', action: 'unresolved', url: 'api/agents/uuid')
+        end
       end
     end
   end
@@ -170,6 +220,35 @@ describe ApiV3::AgentsController do
         delete_with_api_header :destroy, :uuid => agent.getUuid()
         expect(response).to be_ok
         expect(response).to have_api_message_response(200, 'Deleted 1 agent(s).')
+      end
+    end
+
+    describe :route do
+      describe :with_header do
+        before :each do
+          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v3+json"
+        end
+        after :each do
+          Rack::MockRequest::DEFAULT_ENV = {}
+        end
+
+        it 'should route to destoy action of the agents controller for uuid with hyphen' do
+          expect(:delete => 'api/agents/uuid-123').to route_to(action: 'destroy', controller: 'api_v3/agents', uuid: 'uuid-123')
+        end
+
+        it 'should route to destroy action of the agents controller for uuid with underscore' do
+          expect(:delete => 'api/agents/uuid_123').to route_to(action: 'destroy', controller: 'api_v3/agents', uuid: 'uuid_123')
+        end
+
+        it 'should not route to destroy action of the agents controller for uuid with dots' do
+          expect(:delete => 'api/agents/uuid.123').to_not route_to(action: 'destroy', controller: 'api_v3/agents', uuid: 'uuid.123')
+        end
+      end
+      describe :without_header do
+        it 'should not route to destroy action of the agents controller without header' do
+          expect(:delete => 'api/agents/uuid').to_not route_to(action: 'destroy', controller: 'api_v3/agents')
+          expect(:delete => 'api/agents/uuid').to route_to(controller: 'application', action: 'unresolved', url: 'api/agents/uuid')
+        end
       end
     end
   end
@@ -301,6 +380,189 @@ describe ApiV3::AgentsController do
 
         patch_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname', agent_config_state: 'foo'
         expect(response).to have_api_message_response(400, 'Your request could not be processed. The value of `agent_config_state` can be one of `Enabled`, `Disabled` or null.')
+      end
+    end
+
+    describe :route do
+      describe :with_header do
+        before :each do
+          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v3+json"
+        end
+        after :each do
+          Rack::MockRequest::DEFAULT_ENV = {}
+        end
+
+        it 'should route to update action of the agents controller for uuid with hyphen' do
+          expect(:patch => 'api/agents/uuid-123').to route_to(action: 'update', controller: 'api_v3/agents', uuid: 'uuid-123')
+        end
+
+        it 'should route to update action of the agents controller for uuid with underscore' do
+          expect(:patch => 'api/agents/uuid_123').to route_to(action: 'update', controller: 'api_v3/agents', uuid: 'uuid_123')
+        end
+
+        it 'should not route to update action of the agents controller for uuid with dots' do
+          expect(:patch => 'api/agents/uuid.123').to_not route_to(action: 'update', controller: 'api_v3/agents', uuid: 'uuid.123')
+        end
+      end
+      describe :without_header do
+        it 'should not route to update action of the agents controller without header' do
+          expect(:patch => 'api/agents/uuid').to_not route_to(action: 'update', controller: 'api_v3/agents')
+          expect(:patch => 'api/agents/uuid').to route_to(controller: 'application', action: 'unresolved', url: 'api/agents/uuid')
+        end
+      end
+    end
+  end
+
+  describe :bulk_delete do
+    describe :security do
+      it 'should allow anyone, with security disabled' do
+        disable_security
+        expect(controller).to allow_action(:delete, :bulk_destroy)
+      end
+
+      it 'should disallow anonymous users, with security enabled' do
+        enable_security
+        login_as_anonymous
+        expect(controller).to disallow_action(:delete, :bulk_destroy)
+      end
+
+      it 'should not allow normal users, with security enabled' do
+        login_as_user
+        expect(controller).to disallow_action(:delete, :bulk_destroy)
+      end
+    end
+
+    describe 'as user' do
+      it 'should not allow normal users to bulk_destroy the agents' do
+        login_as_user
+
+        delete_with_api_header :bulk_destroy, :uuids => ['foo']
+        expect(response).to have_api_message_response(401, 'You are not authorized to perform this action.')
+      end
+    end
+
+    describe 'as admin user' do
+      before(:each) do
+        login_as_admin
+      end
+
+      it 'should allow admin users to delete a group of agents' do
+        agent1 = AgentInstanceMother.idle()
+        agent2= AgentInstanceMother.idle()
+
+        @agent_service.should_receive(:deleteAgents).with(@user, anything(), [agent1.getUuid(), agent2.getUuid()]) do |user, result, uuids|
+          result.ok('Deleted 2 agent(s).')
+        end
+
+        delete_with_api_header :bulk_destroy, :uuids => [agent1.getUuid(), agent2.getUuid()]
+        expect(response).to be_ok
+        expect(response).to have_api_message_response(200, 'Deleted 2 agent(s).')
+      end
+
+      it 'should render result in case of error' do
+        agent1 = AgentInstanceMother.idle()
+        agent2 = AgentInstanceMother.idle()
+
+        @agent_service.should_receive(:deleteAgents).with(@user, anything(), [agent1.getUuid(), agent2.getUuid()]) do |user, result, uuids|
+          result.notAcceptable('Not Acceptable', HealthStateType.general(HealthStateScope::GLOBAL))
+        end
+
+        delete_with_api_header :bulk_destroy, :uuids => [agent1.getUuid(), agent2.getUuid()]
+        expect(response).to have_api_message_response(406, 'Not Acceptable')
+      end
+    end
+
+    describe :route do
+      describe :with_header do
+        before :each do
+          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v3+json"
+        end
+        after :each do
+          Rack::MockRequest::DEFAULT_ENV = {}
+        end
+
+        it 'should route to bulk_destroy action of the agents controller' do
+          expect(:delete => 'api/agents').to route_to(action: 'bulk_destroy', controller: 'api_v3/agents')
+        end
+      end
+      describe :without_header do
+        it 'should not route to bulk_destroy action of the agents controller without header' do
+          expect(:delete => 'api/agents').to_not route_to(action: 'bulk_destroy', controller: 'api_v3/agents')
+          expect(:delete => 'api/agents').to route_to(controller: 'application', action: 'unresolved', url: 'api/agents')
+        end
+      end
+    end
+
+  end
+
+  describe :bulk_update do
+    describe :security do
+      it 'should allow anyone, with security disabled' do
+        disable_security
+        expect(controller).to allow_action(:patch, :bulk_update)
+      end
+
+      it 'should disallow anonymous users, with security enabled' do
+        enable_security
+        login_as_anonymous
+        expect(controller).to disallow_action(:patch, :bulk_update)
+      end
+
+      it 'should not allow normal users, with security enabled' do
+        login_as_user
+        expect(controller).to disallow_action(:patch, :bulk_update)
+      end
+
+      it 'should allow admin users, with security enabled' do
+        login_as_admin
+        expect(controller).to allow_action(:patch, :bulk_update)
+      end
+    end
+
+    describe 'as user ' do
+      it 'should not allow normal users to bulk_destroy the agents' do
+        login_as_user
+
+        patch_with_api_header :bulk_update, :uuids => ['foo']
+        expect(response).to have_api_message_response(401, 'You are not authorized to perform this action.')
+      end
+    end
+
+    describe 'as admin user' do
+      before(:each) do
+        login_as_admin
+      end
+
+      it 'should allow admin users to update a group of agents' do
+        uuids = %w(agent-1 agent-2)
+        @agent_service.should_receive(:bulkUpdateAgentAttributes).with(@user, anything(), uuids, anything(), anything(), anything(), anything(), anything()) do |user, result, uuids, r_add, r_remove, e_add, e_remove, state|
+          result.setMessage(LocalizedMessage.string("BULK_AGENT_UPDATE_SUCESSFUL", uuids.join(', ')));
+        end
+
+        patch_with_api_header :bulk_update, :uuids => uuids
+        expect(response).to be_ok
+        expect(response).to have_api_message_response(200, 'Updated agent(s) with uuid(s): [agent-1, agent-2].')
+      end
+    end
+
+    describe :route do
+      describe :with_header do
+        before :each do
+          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v3+json"
+        end
+        after :each do
+          Rack::MockRequest::DEFAULT_ENV = {}
+        end
+
+        it 'should route to bulk_update action of the agents controller' do
+          expect(:patch => 'api/agents').to route_to(action: 'bulk_update', controller: 'api_v3/agents')
+        end
+      end
+      describe :without_header do
+        it 'should not route to bulk_update action of the agents controller without header' do
+          expect(:patch => 'api/agents').to_not route_to(action: 'bulk_update', controller: 'api_v3/agents')
+          expect(:patch => 'api/agents').to route_to(controller: 'application', action: 'unresolved', url: 'api/agents')
+        end
       end
     end
   end

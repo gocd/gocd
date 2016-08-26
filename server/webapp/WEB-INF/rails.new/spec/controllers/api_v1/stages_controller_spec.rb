@@ -60,6 +60,92 @@ describe ApiV1::StagesController do
         end
       end
     end
+
+    describe :route do
+      describe :with_header do
+        before :each do
+          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v1+json"
+        end
+        after :each do
+          Rack::MockRequest::DEFAULT_ENV = {}
+        end
+
+        describe :with_pipeline_name_contraint do
+          it 'should route to show action of stages controller having dots in pipeline name' do
+            expect(:get => 'api/stages/some.thing/1/bar/2').to route_to(controller: 'api_v1/stages', action: 'show', pipeline_name: 'some.thing', pipeline_counter: '1', stage_name: 'bar', stage_counter: '2')
+          end
+
+          it 'should route to show action of stages controller having hyphen in pipeline name' do
+            expect(:get => 'api/stages/some-thing/1/bar/2').to route_to(controller: 'api_v1/stages', action: 'show', pipeline_name: 'some-thing', pipeline_counter: '1', stage_name: 'bar', stage_counter: '2')
+          end
+
+          it 'should route to show action of stages controller having underscore in pipeline name' do
+            expect(:get => 'api/stages/some_thing/1/bar/2').to route_to(controller: 'api_v1/stages', action: 'show', pipeline_name: 'some_thing', pipeline_counter: '1', stage_name: 'bar', stage_counter: '2')
+          end
+
+          it 'should route to show action of stages controller having alphanumeric pipeline name' do
+            expect(:get => 'api/stages/123foo/1/bar/2').to route_to(controller: 'api_v1/stages', action: 'show', pipeline_name: '123foo', pipeline_counter: '1', stage_name: 'bar', stage_counter: '2')
+          end
+
+          it 'should route to show action of stages controller having capitalized pipeline name' do
+            expect(:get => 'api/stages/FOO/1/bar/2').to route_to(controller: 'api_v1/stages', action: 'show', pipeline_name: 'FOO', pipeline_counter: '1', stage_name: 'bar', stage_counter: '2')
+          end
+
+          it 'should not route to show action of stages controller for invalid pipeline name' do
+            expect(:get => 'api/stages/fo$%#@6/1/bar/2').to_not be_routable
+          end
+        end
+
+        describe :with_stage_name_constraint do
+          it 'should route to show action of stages controller' do
+            expect(:get => 'api/stages/foo/1/bar/2').to route_to(controller: 'api_v1/stages', action: 'show', pipeline_name: 'foo', pipeline_counter: '1', stage_name: 'bar', stage_counter: '2')
+          end
+
+          it 'should route to show action of stages controller having dots in stage name' do
+            expect(:get => 'api/stages/foo/1/some.thing/2').to route_to(controller: 'api_v1/stages', action: 'show', pipeline_name: 'foo', pipeline_counter: '1', stage_name: 'some.thing', stage_counter: '2')
+          end
+
+          it 'should route to show action of stages controller having hyphen in stage name' do
+            expect(:get => 'api/stages/foo/1/some-thing/2').to route_to(controller: 'api_v1/stages', action: 'show', pipeline_name: 'foo', pipeline_counter: '1', stage_name: 'some-thing', stage_counter: '2')
+          end
+
+          it 'should route to show action of stages controller having underscore in stage name' do
+            expect(:get => 'api/stages/foo/1/some_thing/2').to route_to(controller: 'api_v1/stages', action: 'show', pipeline_name: 'foo', pipeline_counter: '1', stage_name: 'some_thing', stage_counter: '2')
+          end
+
+          it 'should route to show action of stages controller having alphanumeric stage name' do
+            expect(:get => 'api/stages/123foo/1/bar123/2').to route_to(controller: 'api_v1/stages', action: 'show', pipeline_name: '123foo', pipeline_counter: '1', stage_name: 'bar123', stage_counter: '2')
+          end
+
+          it 'should route to show action of stages controller having capitalized stage name' do
+            expect(:get => 'api/stages/foo/1/BAR/2').to route_to(controller: 'api_v1/stages', action: 'show', pipeline_name: 'foo', pipeline_counter: '1', stage_name: 'BAR', stage_counter: '2')
+          end
+
+          it 'should not route to show action of stages controller for invalid stage name' do
+            expect(:get => 'api/stages/foo/1/fo$%#@6/2').to_not be_routable
+          end
+        end
+
+        describe :with_pipeline_counter_constraint do
+          it 'should not route to show action of stages controller for invalid pipeline counter' do
+            expect(:get => 'api/stages/some.thing/fo$%#@6/bar/2').to_not be_routable
+          end
+        end
+
+        describe :with_stage_counter_constraint do
+          it 'should not route to show action of stages controller for invalid stage counter' do
+            expect(:get => 'api/stages/some.thing/1/bar/fo$%#@6').to_not be_routable
+          end
+        end
+      end
+
+      describe :without_header do
+        it 'should not route to show action of stages controller without header' do
+          expect(:get => 'api/stages/foo/1/bar/1').to_not route_to(action: 'show', controller: 'api_v1/stages')
+          expect(:get => 'api/stages/foo/bar').to route_to(controller: 'application', action: 'unresolved', url: 'api/stages/foo/bar')
+        end
+      end
+    end
   end
 
   describe :history do
@@ -102,6 +188,80 @@ describe ApiV1::StagesController do
           get_with_api_header :history, pipeline_name: 'pipeline', stage_name: 'stage', pipeline_counter: '1', stage_counter: '1'
           expect(response).to be_ok
           expect(actual_response).to eq(expected_response_with_options(@stage_instance_models, {pipeline_name: 'pipeline', stage_name: 'stage'}, ApiV1::StageHistoryRepresenter))
+        end
+      end
+    end
+
+    describe :route do
+      describe :with_header do
+        before :each do
+          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v1+json"
+        end
+        after :each do
+          Rack::MockRequest::DEFAULT_ENV = {}
+        end
+
+        describe :with_pipeline_name_contraint do
+          it 'should route to history action of stages controller having dots in pipeline name' do
+            expect(:get => 'api/stages/some.thing/bar').to route_to(controller: 'api_v1/stages', action: 'history', pipeline_name: 'some.thing', stage_name: 'bar')
+          end
+
+          it 'should route to history action of stages controller having hyphen in pipeline name' do
+            expect(:get => 'api/stages/some-thing/bar').to route_to(controller: 'api_v1/stages', action: 'history', pipeline_name: 'some-thing', stage_name: 'bar')
+          end
+
+          it 'should route to history action of stages controller having underscore in pipeline name' do
+            expect(:get => 'api/stages/some_thing/bar').to route_to(controller: 'api_v1/stages', action: 'history', pipeline_name: 'some_thing', stage_name: 'bar')
+          end
+
+          it 'should route to history action of stages controller having alphanumeric pipeline name' do
+            expect(:get => 'api/stages/123foo/bar').to route_to(controller: 'api_v1/stages', action: 'history', pipeline_name: '123foo', stage_name: 'bar')
+          end
+
+          it 'should route to history action of stages controller having capitalized pipeline name' do
+            expect(:get => 'api/stages/FOO/bar').to route_to(controller: 'api_v1/stages', action: 'history', pipeline_name: 'FOO', stage_name: 'bar')
+          end
+
+          it 'should not route to history action of stages controller for invalid pipeline name' do
+            expect(:get => 'api/stages/fo$%#@6/bar').to_not be_routable
+          end
+        end
+
+        describe :with_stage_name_constraint do
+          it 'should route to history action of stages controller' do
+            expect(:get => 'api/stages/foo/bar').to route_to(controller: 'api_v1/stages', action: 'history', pipeline_name: 'foo', stage_name: 'bar')
+          end
+
+          it 'should route to history action of stages controller having dots in stage name' do
+            expect(:get => 'api/stages/foo/some.thing').to route_to(controller: 'api_v1/stages', action: 'history', pipeline_name: 'foo', stage_name: 'some.thing')
+          end
+
+          it 'should route to history action of stages controller having hyphen in stage name' do
+            expect(:get => 'api/stages/foo/some-thing').to route_to(controller: 'api_v1/stages', action: 'history', pipeline_name: 'foo', stage_name: 'some-thing')
+          end
+
+          it 'should route to history action of stages controller having underscore in stage name' do
+            expect(:get => 'api/stages/foo/some_thing').to route_to(controller: 'api_v1/stages', action: 'history', pipeline_name: 'foo', stage_name: 'some_thing')
+          end
+
+          it 'should route to history action of stages controller having alphanumeric stage name' do
+            expect(:get => 'api/stages/123foo/bar123').to route_to(controller: 'api_v1/stages', action: 'history', pipeline_name: '123foo', stage_name: 'bar123')
+          end
+
+          it 'should route to history action of stages controller having capitalized stage name' do
+            expect(:get => 'api/stages/foo/BAR').to route_to(controller: 'api_v1/stages', action: 'history', pipeline_name: 'foo', stage_name: 'BAR')
+          end
+
+          it 'should not route to history action of stages controller for invalid stage name' do
+            expect(:get => 'api/stages/foo/fo$%#@6').to_not be_routable
+          end
+        end
+      end
+
+      describe :without_header do
+        it 'should not route to history of stages controller without header' do
+          expect(:get => 'api/stages/foo/bar').to_not route_to(action: 'history', controller: 'api_v1/stages')
+          expect(:get => 'api/stages/foo/bar').to route_to(controller: 'application', action: 'unresolved', url: 'api/stages/foo/bar')
         end
       end
     end

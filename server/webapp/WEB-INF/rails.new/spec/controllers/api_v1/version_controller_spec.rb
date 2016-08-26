@@ -27,4 +27,24 @@ describe ApiV1::VersionController do
       expect(actual_response).to eq(expected_response(OpenStruct.new(actual_json), ApiV1::VersionRepresenter))
     end
   end
+
+  describe :routing do
+    describe 'with header' do
+      before :each do
+        Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v1+json"
+      end
+      after :each do
+        Rack::MockRequest::DEFAULT_ENV = {}
+      end
+      it 'should route to show action of version controller' do
+        expect(:get => 'api/version').to route_to(action: 'show', controller: 'api_v1/version')
+      end
+    end
+    describe 'without header' do
+      it 'should not route to show action of version controller' do
+        expect(:get => 'api/version').to_not route_to(action: 'show', controller: 'api_v1/version')
+        expect(:get => 'api/version').to route_to(controller: 'application', action: 'unresolved', url: 'api/version')
+      end
+    end
+  end
 end

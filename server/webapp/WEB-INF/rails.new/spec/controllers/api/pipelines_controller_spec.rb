@@ -54,10 +54,6 @@ describe Api::PipelinesController do
   end
 
   describe :history do
-    it "should route to history" do
-      expect(:get => '/api/pipelines/up42/history').to route_to(:controller => "api/pipelines", :action => "history", :pipeline_name => 'up42', :offset => '0', :no_layout => true)
-      expect(:get => '/api/pipelines/up42/history/1').to route_to(:controller => "api/pipelines", :action => "history", :pipeline_name => 'up42', :offset => '1', :no_layout => true)
-    end
 
     it "should render history json" do
       loser = Username.new(CaseInsensitiveString.new("loser"))
@@ -83,12 +79,43 @@ describe Api::PipelinesController do
       expect(response.status).to eq(406)
       expect(response.body).to eq("Not Acceptable\n")
     end
+
+    describe :route do
+      it "should route to history" do
+        expect(:get => '/api/pipelines/up42/history').to route_to(:controller => "api/pipelines", :action => "history", :pipeline_name => 'up42', :offset => '0', :no_layout => true)
+        expect(:get => '/api/pipelines/up42/history/1').to route_to(:controller => "api/pipelines", :action => "history", :pipeline_name => 'up42', :offset => '1', :no_layout => true)
+      end
+
+      describe :with_pipeline_name_contraint do
+        it 'should route to history action of pipelines controller having dots in pipeline name' do
+          expect(:get => 'api/pipelines/some.thing/history').to route_to(no_layout: true, controller: 'api/pipelines', action: 'history', pipeline_name: 'some.thing', :offset => '0')
+        end
+
+        it 'should route to history action of pipelines controller having hyphen in pipeline name' do
+          expect(:get => 'api/pipelines/some-thing/history').to route_to(no_layout: true, controller: 'api/pipelines', action: 'history', pipeline_name: 'some-thing', :offset => '0')
+        end
+
+        it 'should route to history action of pipelines controller having underscore in pipeline name' do
+          expect(:get => 'api/pipelines/some_thing/history').to route_to(no_layout: true, controller: 'api/pipelines', action: 'history', pipeline_name: 'some_thing', :offset => '0')
+        end
+
+        it 'should route to history action of pipelines controller having alphanumeric pipeline name' do
+          expect(:get => 'api/pipelines/123foo/history').to route_to(no_layout: true, controller: 'api/pipelines', action: 'history', pipeline_name: '123foo', :offset => '0')
+        end
+
+        it 'should route to history action of pipelines controller having capitalized pipeline name' do
+          expect(:get => 'api/pipelines/FOO/history').to route_to(no_layout: true, controller: 'api/pipelines', action: 'history', pipeline_name: 'FOO', :offset => '0')
+        end
+
+        it 'should not route to history action of pipelines controller for invalid pipeline name' do
+          expect(:get => 'api/pipelines/fo$%#@6/history').to_not be_routable
+        end
+      end
+
+    end
   end
 
   describe :instance_by_counter do
-    it "should route to instance_by_counter" do
-      expect(:get => '/api/pipelines/up42/instance/1').to route_to(:controller => "api/pipelines", :action => "instance_by_counter", :pipeline_name => 'up42', :pipeline_counter => '1', :no_layout => true)
-    end
 
     it "should render instance json" do
       loser = Username.new(CaseInsensitiveString.new("loser"))
@@ -112,12 +139,43 @@ describe Api::PipelinesController do
       expect(response.status).to eq(406)
       expect(response.body).to eq("Not Acceptable\n")
     end
+
+    describe :route do
+      describe :with_pipeline_name_contraint do
+        it 'should route to instance_by_counter action of pipelines controller having dots in pipeline name' do
+          expect(:get => 'api/pipelines/some.thing/instance/1').to route_to(no_layout: true, controller: 'api/pipelines', action: 'instance_by_counter', pipeline_name: 'some.thing',  pipeline_counter: '1')
+        end
+
+        it 'should route to instance_by_counter action of pipelines controller having hyphen in pipeline name' do
+          expect(:get => 'api/pipelines/some-thing/instance/1').to route_to(no_layout: true, controller: 'api/pipelines', action: 'instance_by_counter', pipeline_name: 'some-thing',  pipeline_counter: '1')
+        end
+
+        it 'should route to instance_by_counter action of pipelines controller having underscore in pipeline name' do
+          expect(:get => 'api/pipelines/some_thing/instance/1').to route_to(no_layout: true, controller: 'api/pipelines', action: 'instance_by_counter', pipeline_name: 'some_thing',  pipeline_counter: '1')
+        end
+
+        it 'should route to instance_by_counter action of pipelines controller having alphanumeric pipeline name' do
+          expect(:get => 'api/pipelines/123foo/instance/1').to route_to(no_layout: true, controller: 'api/pipelines', action: 'instance_by_counter', pipeline_name: '123foo',  pipeline_counter: '1')
+        end
+
+        it 'should route to instance_by_counter action of pipelines controller having capitalized pipeline name' do
+          expect(:get => 'api/pipelines/FOO/instance/1').to route_to(no_layout: true, controller: 'api/pipelines', action: 'instance_by_counter', pipeline_name: 'FOO',  pipeline_counter: '1')
+        end
+
+        it 'should not route to instance_by_counter action of pipelines controller for invalid pipeline name' do
+          expect(:get => 'api/pipelines/fo$%#@6/instance/1').to_not be_routable
+        end
+      end
+
+      describe :with_pipeline_counter_constraint do
+        it 'should not route to instance_by_counter action of pipelines controller for invalid pipeline counter' do
+          expect(:get => 'api/pipelines/some.thing/instance/fo$%#@6/2').to_not be_routable
+        end
+      end
+    end
   end
 
   describe :status do
-    it "should route to history" do
-      expect(:get => '/api/pipelines/up42/status').to route_to(:controller => "api/pipelines", :action => "status", :pipeline_name => 'up42', :no_layout => true)
-    end
 
     it "should render status json" do
       loser = Username.new(CaseInsensitiveString.new("loser"))
@@ -140,6 +198,39 @@ describe Api::PipelinesController do
 
       expect(response.status).to eq(406)
       expect(response.body).to eq("Not Acceptable\n")
+    end
+
+    describe :route do
+      it "should route to status" do
+        expect(:get => '/api/pipelines/up42/status').to route_to(:controller => "api/pipelines", :action => "status", :pipeline_name => 'up42', :no_layout => true)
+      end
+
+      describe :with_pipeline_name_contraint do
+        it 'should route to status action of pipelines controller having dots in pipeline name' do
+          expect(:get => 'api/pipelines/some.thing/status').to route_to(no_layout: true, controller: 'api/pipelines', action: 'status', pipeline_name: 'some.thing')
+        end
+
+        it 'should route to status action of pipelines controller having hyphen in pipeline name' do
+          expect(:get => 'api/pipelines/some-thing/status').to route_to(no_layout: true, controller: 'api/pipelines', action: 'status', pipeline_name: 'some-thing')
+        end
+
+        it 'should route to status action of pipelines controller having underscore in pipeline name' do
+          expect(:get => 'api/pipelines/some_thing/status').to route_to(no_layout: true, controller: 'api/pipelines', action: 'status', pipeline_name: 'some_thing')
+        end
+
+        it 'should route to status action of pipelines controller having alphanumeric pipeline name' do
+          expect(:get => 'api/pipelines/123foo/status').to route_to(no_layout: true, controller: 'api/pipelines', action: 'status', pipeline_name: '123foo')
+        end
+
+        it 'should route to status action of pipelines controller having capitalized pipeline name' do
+          expect(:get => 'api/pipelines/FOO/status').to route_to(no_layout: true, controller: 'api/pipelines', action: 'status', pipeline_name: 'FOO')
+        end
+
+        it 'should not route to status action of pipelines controller for invalid pipeline name' do
+          expect(:get => 'api/pipelines/fo$%#@6/status').to_not be_routable
+        end
+      end
+
     end
   end
 
@@ -180,6 +271,44 @@ describe Api::PipelinesController do
       end
       get :card_activity, :pipeline_name => 'foo', :from_pipeline_counter => "10", :to_pipeline_counter => "20", :no_layout => true
       expect(response.body).to eq("Pipeline 'foo' not found.\n")
+    end
+
+    describe :route do
+      describe :with_pipeline_name_contraint do
+        it 'should route to card_activity action of pipelines controller having dots in pipeline name' do
+          expect(:get => 'api/card_activity/some.thing/1/to/10').to route_to(no_layout: true, controller: 'api/pipelines', action: 'card_activity', pipeline_name: 'some.thing',  from_pipeline_counter: '1', to_pipeline_counter: '10', format: 'xml')
+        end
+
+        it 'should route to card_activity action of pipelines controller having hyphen in pipeline name' do
+          expect(:get => 'api/card_activity/some-thing/1/to/10').to route_to(no_layout: true, controller: 'api/pipelines', action: 'card_activity', pipeline_name: 'some-thing',  from_pipeline_counter: '1', to_pipeline_counter: '10', format: 'xml')
+        end
+
+        it 'should route to card_activity action of pipelines controller having underscore in pipeline name' do
+          expect(:get => 'api/card_activity/some_thing/1/to/10').to route_to(no_layout: true, controller: 'api/pipelines', action: 'card_activity', pipeline_name: 'some_thing',  from_pipeline_counter: '1', to_pipeline_counter: '10', format: 'xml')
+        end
+
+        it 'should route to card_activity action of pipelines controller having alphanumeric pipeline name' do
+          expect(:get => 'api/card_activity/123foo/1/to/10').to route_to(no_layout: true, controller: 'api/pipelines', action: 'card_activity', pipeline_name: '123foo',  from_pipeline_counter: '1', to_pipeline_counter: '10', format: 'xml')
+        end
+
+        it 'should route to card_activity action of pipelines controller having capitalized pipeline name' do
+          expect(:get => 'api/card_activity/FOO/1/to/10').to route_to(no_layout: true, controller: 'api/pipelines', action: 'card_activity', pipeline_name: 'FOO',  from_pipeline_counter: '1', to_pipeline_counter: '10', format: 'xml')
+        end
+
+        it 'should not route to card_activity action of pipelines controller for invalid pipeline name' do
+          expect(:get => 'api/card_activity/fo$%#@6/1/to/10').to_not be_routable
+        end
+      end
+
+      describe :with_pipeline_counter_constraint do
+        it 'should not route to card_activity action of pipelines controller for invalid from_pipeline_counter' do
+          expect(:get => 'api/card_activity/some.thing/fo$%#@6/to/2').to_not be_routable
+        end
+
+        it 'should not route to card_activity action of pipelines controller for invalid to_pipeline_counter' do
+          expect(:get => 'api/card_activity/some.thing/1/to/fo$%#@6').to_not be_routable
+        end
+      end
     end
   end
 
@@ -286,6 +415,48 @@ describe Api::PipelinesController do
       @status.stub(:detailedMessage).and_return("accepted request to schedule pipeline badger")
       post 'schedule', :pipeline_name => 'downstream', "material_fingerprint" => {svn => ""}, "original_fingerprint" => {svn => "30"}, :no_layout => true
     end
+
+    describe :route do
+      describe :with_header do
+        before :each do
+          allow_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(true)
+        end
+        describe :with_pipeline_name_constraint do
+          it 'should route to schedule action of pipelines controller having dots in pipeline name' do
+            expect(post: 'api/pipelines/some.thing/schedule').to route_to(no_layout: true, controller: 'api/pipelines', action: 'schedule', pipeline_name: 'some.thing')
+          end
+
+          it 'should route to schedule action of pipelines controller having hyphen in pipeline name' do
+            expect(post: 'api/pipelines/some-thing/schedule').to route_to(no_layout: true, controller: 'api/pipelines', action: 'schedule', pipeline_name: 'some-thing')
+          end
+
+          it 'should route to schedule action of pipelines controller having underscore in pipeline name' do
+            expect(post: 'api/pipelines/some_thing/schedule').to route_to(no_layout: true, controller: 'api/pipelines', action: 'schedule', pipeline_name: 'some_thing')
+          end
+
+          it 'should route to schedule action of pipelines controller having alphanumeric pipeline name' do
+            expect(post: 'api/pipelines/123foo/schedule').to route_to(no_layout: true, controller: 'api/pipelines', action: 'schedule', pipeline_name: '123foo')
+          end
+
+          it 'should route to schedule action of pipelines controller having capitalized pipeline name' do
+            expect(post: 'api/pipelines/FOO/schedule').to route_to(no_layout: true, controller: 'api/pipelines', action: 'schedule', pipeline_name: 'FOO')
+          end
+
+          it 'should not route to schedule action of pipelines controller for invalid pipeline name' do
+            expect(post: 'api/pipelines/fo$%#@6/schedule').to_not be_routable
+          end
+        end
+      end
+      describe :without_header do
+        before :each do
+          allow_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(false)
+        end
+        it 'should not resolve route to schedule' do
+          expect(:post => "api/pipelines/foo.bar/schedule").to_not route_to(controller: "api/pipelines", pipeline_name: "foo.bar", action: "schedule", no_layout: true)
+          expect(post: 'api/pipelines/foo.bar/schedule').to route_to(controller: 'application', action: 'unresolved', url: 'api/pipelines/foo.bar/schedule')
+        end
+      end
+    end
   end
 
   describe :pipeline_instance do
@@ -316,6 +487,36 @@ describe Api::PipelinesController do
     it "should resolve url to action" do
       expect(:get => "/api/pipelines/pipeline.com/10.xml?foo=bar").to route_to(:controller => 'api/pipelines', :action => 'pipeline_instance', :name => "pipeline.com", :id => "10", :format => "xml", :foo  => "bar", :no_layout => true)
     end
+
+    describe :route do
+
+      describe :with_pipeline_name_contraint do
+        it 'should route to pipeline_instance action of pipelines controller having dots in pipeline name' do
+          expect(:get => 'api/pipelines/some.thing/1.xml').to route_to(no_layout: true, format: 'xml', controller: 'api/pipelines', action: 'pipeline_instance', name: 'some.thing', id: '1')
+        end
+
+        it 'should route to pipeline_instance action of pipelines controller having hyphen in pipeline name' do
+          expect(:get => 'api/pipelines/some-thing/1.xml').to route_to(no_layout: true, format: 'xml', controller: 'api/pipelines', action: 'pipeline_instance', name: 'some-thing', id: '1')
+        end
+
+        it 'should route to pipeline_instance action of pipelines controller having underscore in pipeline name' do
+          expect(:get => 'api/pipelines/some_thing/1.xml').to route_to(no_layout: true, format: 'xml', controller: 'api/pipelines', action: 'pipeline_instance', name: 'some_thing', id: '1')
+        end
+
+        it 'should route to pipeline_instance action of pipelines controller having alphanumeric pipeline name' do
+          expect(:get => 'api/pipelines/123foo/1.xml').to route_to(no_layout: true, format: 'xml', controller: 'api/pipelines', action: 'pipeline_instance', name: '123foo', id: '1')
+        end
+
+        it 'should route to pipeline_instance action of pipelines controller having capitalized pipeline name' do
+          expect(:get => 'api/pipelines/FOO/1.xml').to route_to(no_layout: true, format: 'xml', controller: 'api/pipelines', action: 'pipeline_instance', name: 'FOO', id: '1')
+        end
+
+        it 'should not route to pipeline_instance action of pipelines controller for invalid pipeline name' do
+          expect(:get => 'api/pipelines/fo$%#@6/1.xml').to_not be_routable
+        end
+      end
+
+    end
   end
 
   describe :pipelines do
@@ -323,6 +524,12 @@ describe Api::PipelinesController do
       @pipeline_history_service.should_receive(:latestInstancesForConfiguredPipelines).with("user").and_return(:pipeline_instance)
       get :pipelines, :format => "xml", :no_layout => true
       expect(assigns[:pipelines]).to eq(:pipeline_instance)
+    end
+
+    describe :route do
+      it 'should resolve route to pipelines action' do
+        expect(get: 'api/pipelines.xml').to route_to(no_layout: true, format: 'xml', controller: 'api/pipelines', action: 'pipelines')
+      end
     end
   end
 
@@ -399,6 +606,36 @@ describe Api::PipelinesController do
       @go_config_service.should_receive(:hasPipelineNamed).with(CaseInsensitiveString.new('does_not_exist')).and_return(true)
       get 'stage_feed', :format => "xml", :no_layout => true, :name => 'does_not_exist'
     end
+
+    describe :route do
+
+      describe :with_pipeline_name_contraint do
+        it 'should route to stage_feed action of pipelines controller having dots in pipeline name' do
+          expect(:get => 'api/pipelines/some.thing/stages.xml').to route_to(no_layout: true, format: 'xml', controller: 'api/pipelines', action: 'stage_feed', name: 'some.thing')
+        end
+
+        it 'should route to stage_feed action of pipelines controller having hyphen in pipeline name' do
+          expect(:get => 'api/pipelines/some-thing/stages.xml').to route_to(no_layout: true, format: 'xml', controller: 'api/pipelines', action: 'stage_feed', name: 'some-thing')
+        end
+
+        it 'should route to stage_feed action of pipelines controller having underscore in pipeline name' do
+          expect(:get => 'api/pipelines/some_thing/stages.xml').to route_to(no_layout: true, format: 'xml', controller: 'api/pipelines', action: 'stage_feed', name: 'some_thing')
+        end
+
+        it 'should route to stage_feed action of pipelines controller having alphanumeric pipeline name' do
+          expect(:get => 'api/pipelines/123foo/stages.xml').to route_to(no_layout: true, format: 'xml', controller: 'api/pipelines', action: 'stage_feed', name: '123foo')
+        end
+
+        it 'should route to stage_feed action of pipelines controller having capitalized pipeline name' do
+          expect(:get => 'api/pipelines/FOO/stages.xml').to route_to(no_layout: true, format: 'xml', controller: 'api/pipelines', action: 'stage_feed', name: 'FOO')
+        end
+
+        it 'should not route to stage_feed action of pipelines controller for invalid pipeline name' do
+          expect(:get => 'api/pipelines/fo$%#@6/stages.xml').to_not be_routable
+        end
+      end
+
+    end
   end
 
   describe :releaseLock do
@@ -412,50 +649,46 @@ describe Api::PipelinesController do
 
       post :releaseLock, :pipeline_name => 'pipeline-name', :no_layout => true
     end
-  end
 
-  describe 'routes' do
-    describe 'when constraint is met' do
-      before :each do
-        allow_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(true)
+    describe :route do
+      describe :with_header do
+        before :each do
+          allow_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(true)
+        end
+        describe :with_pipeline_name_constraint do
+          it 'should route to releaseLock action of pipelines controller having dots in pipeline name' do
+            expect(post: 'api/pipelines/some.thing/releaseLock').to route_to(no_layout: true, controller: 'api/pipelines', action: 'releaseLock', pipeline_name: 'some.thing')
+          end
+
+          it 'should route to releaseLock action of pipelines controller having hyphen in pipeline name' do
+            expect(post: 'api/pipelines/some-thing/releaseLock').to route_to(no_layout: true, controller: 'api/pipelines', action: 'releaseLock', pipeline_name: 'some-thing')
+          end
+
+          it 'should route to releaseLock action of pipelines controller having underscore in pipeline name' do
+            expect(post: 'api/pipelines/some_thing/releaseLock').to route_to(no_layout: true, controller: 'api/pipelines', action: 'releaseLock', pipeline_name: 'some_thing')
+          end
+
+          it 'should route to releaseLock action of pipelines controller having alphanumeric pipeline name' do
+            expect(post: 'api/pipelines/123foo/releaseLock').to route_to(no_layout: true, controller: 'api/pipelines', action: 'releaseLock', pipeline_name: '123foo')
+          end
+
+          it 'should route to releaseLock action of pipelines controller having capitalized pipeline name' do
+            expect(post: 'api/pipelines/FOO/releaseLock').to route_to(no_layout: true, controller: 'api/pipelines', action: 'releaseLock', pipeline_name: 'FOO')
+          end
+
+          it 'should not route to releaseLock action of pipelines controller for invalid pipeline name' do
+            expect(post: 'api/pipelines/fo$%#@6/releaseLock').to_not be_routable
+          end
+        end
       end
-
-      it 'should map /api/pipelines/:pipeline_name/releaseLock to :release_lock' do
-        expect(:post => "/api/pipelines/cruise-1.3.2/releaseLock").to route_to(:controller => "api/pipelines", :pipeline_name => "cruise-1.3.2", :action => "releaseLock", :no_layout => true)
-      end
-
-      it 'should resolve route to pause' do
-        expect(:post => "/api/pipelines/foo.bar/pause").to route_to(:controller => "api/pipelines", :pipeline_name => "foo.bar", :action => "pause", :no_layout => true)
-      end
-
-      it 'should resolve route to unpause' do
-        expect(:post => "/api/pipelines/foo.bar/unpause").to route_to(:controller => "api/pipelines", :pipeline_name => "foo.bar", :action => "unpause", :no_layout => true)
-      end
-
-      it 'should resolve route to schedule' do
-        expect(:post => '/api/pipelines/blahpipeline/schedule').to route_to(:controller => "api/pipelines", :pipeline_name => "blahpipeline", :action => "schedule", :no_layout => true)
-      end
-    end
-
-    describe 'when constraint is not met' do
-      before :each do
-        allow_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(false)
-      end
-
-      it 'should not map /api/pipelines/:pipeline_name/releaseLock to :release_lock' do
-        expect(:post => "/api/pipelines/cruise-1.3.2/releaseLock").to_not route_to(:controller => "api/pipelines", :pipeline_name => "cruise-1.3.2", :action => "releaseLock", :no_layout => true)
-      end
-
-      it 'should not resolve route to pause' do
-        expect(:post => "/api/pipelines/foo.bar/pause").to_not route_to(:controller => "api/pipelines", :pipeline_name => "foo.bar", :action => "pause", :no_layout => true)
-      end
-
-      it 'should not resolve route to unpause' do
-        expect(:post => "/api/pipelines/foo.bar/unpause").to_not route_to(:controller => "api/pipelines", :pipeline_name => "foo.bar", :action => "unpause", :no_layout => true)
-      end
-
-      it 'should not resolve route to schedule' do
-        expect(:post => '/api/pipelines/blahpipeline/schedule').to_not route_to(:controller => "api/pipelines", :pipeline_name => "blahpipeline", :action => "schedule", :no_layout => true)
+      describe :without_header do
+        before :each do
+          allow_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(false)
+        end
+        it 'should not resolve route to releaseLock' do
+          expect(:post => "api/pipelines/foo.bar/releaseLock").to_not route_to(controller: "api/pipelines", pipeline_name: "foo.bar", action: "releaseLock", no_layout: true)
+          expect(post: 'api/pipelines/foo.bar/releaseLock').to route_to(controller: 'application', action: 'unresolved', url: 'api/pipelines/foo.bar/releaseLock')
+        end
       end
     end
   end
@@ -466,6 +699,48 @@ describe Api::PipelinesController do
       @controller.stub(:current_user).and_return(Username.new(CaseInsensitiveString.new("someuser"), "Some User"))
       post :pause, {:pipeline_name => "foo.bar", :no_layout => true, :pauseCause => "wait for next checkin"}
     end
+
+    describe :route do
+      describe :with_header do
+        before :each do
+          allow_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(true)
+        end
+        describe :with_pipeline_name_constraint do
+          it 'should route to pause action of pipelines controller having dots in pipeline name' do
+            expect(post: 'api/pipelines/some.thing/pause').to route_to(no_layout: true, controller: 'api/pipelines', action: 'pause', pipeline_name: 'some.thing')
+          end
+
+          it 'should route to pause action of pipelines controller having hyphen in pipeline name' do
+            expect(post: 'api/pipelines/some-thing/pause').to route_to(no_layout: true, controller: 'api/pipelines', action: 'pause', pipeline_name: 'some-thing')
+          end
+
+          it 'should route to pause action of pipelines controller having underscore in pipeline name' do
+            expect(post: 'api/pipelines/some_thing/pause').to route_to(no_layout: true, controller: 'api/pipelines', action: 'pause', pipeline_name: 'some_thing')
+          end
+
+          it 'should route to pause action of pipelines controller having alphanumeric pipeline name' do
+            expect(post: 'api/pipelines/123foo/pause').to route_to(no_layout: true, controller: 'api/pipelines', action: 'pause', pipeline_name: '123foo')
+          end
+
+          it 'should route to pause action of pipelines controller having capitalized pipeline name' do
+            expect(post: 'api/pipelines/FOO/pause').to route_to(no_layout: true, controller: 'api/pipelines', action: 'pause', pipeline_name: 'FOO')
+          end
+
+          it 'should not route to pause action of pipelines controller for invalid pipeline name' do
+            expect(post: 'api/pipelines/fo$%#@6/pause').to_not be_routable
+          end
+        end
+      end
+      describe :without_header do
+        before :each do
+          allow_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(false)
+        end
+        it 'should not resolve route to pause' do
+          expect(:post => "api/pipelines/foo.bar/pause").to_not route_to(controller: "api/pipelines", pipeline_name: "foo.bar", action: "pause", no_layout: true)
+          expect(post: 'api/pipelines/foo.bar/pause').to route_to(controller: 'application', action: 'unresolved', url: 'api/pipelines/foo.bar/pause')
+        end
+      end
+    end
   end
 
   describe :unpause do
@@ -473,6 +748,48 @@ describe Api::PipelinesController do
       @pipeline_pause_service.should_receive(:unpause).with("foo.bar", Username.new(CaseInsensitiveString.new("someuser"), "Some User"), an_instance_of(HttpLocalizedOperationResult))
       @controller.stub(:current_user).and_return(Username.new(CaseInsensitiveString.new("someuser"), "Some User"))
       post :unpause, {:pipeline_name => "foo.bar", :no_layout => true}
+    end
+
+    describe :route do
+      describe :with_header do
+        before :each do
+          allow_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(true)
+        end
+        describe :with_pipeline_name_constraint do
+          it 'should route to unpause action of pipelines controller having dots in pipeline name' do
+            expect(post: 'api/pipelines/some.thing/unpause').to route_to(no_layout: true, controller: 'api/pipelines', action: 'unpause', pipeline_name: 'some.thing')
+          end
+
+          it 'should route to unpause action of pipelines controller having hyphen in pipeline name' do
+            expect(post: 'api/pipelines/some-thing/unpause').to route_to(no_layout: true, controller: 'api/pipelines', action: 'unpause', pipeline_name: 'some-thing')
+          end
+
+          it 'should route to unpause action of pipelines controller having underscore in pipeline name' do
+            expect(post: 'api/pipelines/some_thing/unpause').to route_to(no_layout: true, controller: 'api/pipelines', action: 'unpause', pipeline_name: 'some_thing')
+          end
+
+          it 'should route to unpause action of pipelines controller having alphanumeric pipeline name' do
+            expect(post: 'api/pipelines/123foo/unpause').to route_to(no_layout: true, controller: 'api/pipelines', action: 'unpause', pipeline_name: '123foo')
+          end
+
+          it 'should route to unpause action of pipelines controller having capitalized pipeline name' do
+            expect(post: 'api/pipelines/FOO/unpause').to route_to(no_layout: true, controller: 'api/pipelines', action: 'unpause', pipeline_name: 'FOO')
+          end
+
+          it 'should not route to unpause action of pipelines controller for invalid pipeline name' do
+            expect(post: 'api/pipelines/fo$%#@6/unpause').to_not be_routable
+          end
+        end
+      end
+      describe :without_header do
+        before :each do
+          allow_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(false)
+        end
+        it 'should not resolve route to unpause' do
+          expect(:post => "api/pipelines/foo.bar/unpause").to_not route_to(controller: "api/pipelines", pipeline_name: "foo.bar", action: "unpause", no_layout: true)
+          expect(post: 'api/pipelines/foo.bar/unpause').to route_to(controller: 'application', action: 'unresolved', url: 'api/pipelines/foo.bar/unpause')
+        end
+      end
     end
   end
 end

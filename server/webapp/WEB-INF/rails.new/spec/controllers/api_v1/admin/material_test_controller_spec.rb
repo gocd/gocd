@@ -142,5 +142,26 @@ describe ApiV1::Admin::MaterialTestController do
         expect(response).to have_api_message_response(200, 'Connection OK.')
       end
     end
+
+    describe :route do
+      describe :with_header do
+        before :each do
+          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v1+json"
+        end
+        after :each do
+          Rack::MockRequest::DEFAULT_ENV = {}
+        end
+
+        it 'should route to test action of the material_test controller' do
+          expect(:post => 'api/admin/material_test').to route_to(action: 'test', controller: 'api_v1/admin/material_test')
+        end
+      end
+      describe :without_header do
+        it 'should not route to test action of material_test controller without header' do
+          expect(:post => 'api/admin/material_test').to_not route_to(action: 'test', controller: 'api_v1/admin/material_test')
+          expect(:post => 'api/admin/material_test').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/material_test')
+        end
+      end
+    end
   end
 end

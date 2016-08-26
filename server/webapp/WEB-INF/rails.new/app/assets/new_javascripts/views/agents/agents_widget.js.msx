@@ -208,7 +208,7 @@ define([
 
       };
 
-      window.setInterval(ctrl.refresh, 10000);
+      window.setInterval(ctrl.refresh.bind(ctrl), 10000);
 
       return ctrl;
     },

@@ -48,7 +48,8 @@ define([
                            placeholder='Tab name'
                            onchange={ctrl.changed.bind(ctrl)}
                            validate={true}
-                           size={4}
+                           size={3}
+                           largeSize={3}
                            tooltip={{
                                        content: tt.tabs.name,
                                        direction: 'bottom',
@@ -59,7 +60,8 @@ define([
                            placeholder='Path of artifact'
                            onchange={ctrl.changed.bind(ctrl)}
                            validate={'all'}
-                           size={4}
+                           size={3}
+                           largeSize={3}
                            tooltip={{
                                        content: tt.tabs.path,
                                        direction: 'bottom',

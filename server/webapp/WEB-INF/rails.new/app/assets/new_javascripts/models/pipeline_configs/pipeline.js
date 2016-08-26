@@ -154,8 +154,8 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
       errors = [];
     };
 
-    this.errorsForDisplay = function () {
-      return errors.join('\n');
+    this.errors = function () {
+      return errors;
     };
 
     this.hasErrors = function () {

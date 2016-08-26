@@ -29,7 +29,7 @@ define([
     mingle: function (trackingTool) {
       return (
         <div>
-          <f.row>
+          <f.row collapse>
             <f.inputWithLabel model={trackingTool()}
                               attrName='baseUrl'
                               label='Base URL'
@@ -41,10 +41,11 @@ define([
                                           direction: 'bottom',
                                           size: 'medium'
                                         }}
-                              size={8}/>
+                              size={8}
+                              largeSize={6}/>
           </f.row>
 
-          <f.row>
+          <f.row collapse>
             <f.inputWithLabel model={trackingTool()}
                               attrName='projectIdentifier'
                               validate={true}
@@ -54,10 +55,11 @@ define([
                                           direction: 'bottom',
                                           size: 'medium'
                                         }}
-                              size={8}/>
+                              size={8}
+                              largeSize={6}/>
           </f.row>
 
-          <f.row>
+          <f.row collapse>
             <f.inputWithLabel model={trackingTool()}
                               attrName='mqlGroupingConditions'
                               validate={true}
@@ -66,7 +68,8 @@ define([
                                           direction: 'bottom',
                                           size: 'medium'
                                         }}
-                              size={8}/>
+                              size={8}
+                              largeSize={6}/>
           </f.row>
         </div>
       );
@@ -75,7 +78,7 @@ define([
     generic: function (trackingTool) {
       return (
         <div>
-          <f.row>
+          <f.row collapse>
             <f.inputWithLabel model={trackingTool()}
                               attrName='regex'
                               label='Regular expression'
@@ -86,9 +89,10 @@ define([
                                           direction: 'bottom',
                                           size: 'large'
                                         }}
-                              size={8}/>
+                              size={8}
+                              largeSize={6}/>
           </f.row>
-          <f.row>
+          <f.row collapse>
             <f.inputWithLabel model={trackingTool()}
                               attrName='urlPattern'
                               label='URL Pattern'
@@ -100,7 +104,8 @@ define([
                                           direction: 'bottom',
                                           size: 'large'
                                         }}
-                              size={8}/>
+                              size={8}
+                              largeSize={6}/>
           </f.row>
         </div>
       );

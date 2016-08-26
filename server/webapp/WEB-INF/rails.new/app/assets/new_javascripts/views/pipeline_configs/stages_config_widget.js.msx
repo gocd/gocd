@@ -139,7 +139,7 @@ define([
               </f.row>
             </f.column>
 
-            <f.column size={4} end>
+            <f.column size={4} largeSize={5} end>
               <label></label>
               <f.row>
                 <f.checkBox model={stage}
@@ -225,7 +225,7 @@ define([
         pipeline().stages().removeStage(stage);
         var firstStage = pipeline().stages().firstStage();
 
-        this.currentSelection(previousStage || firstStage || pipeline().stages().createStage());
+        args.currentSelection(previousStage || firstStage || pipeline().stages().createStage());
       };
     },
 

@@ -123,7 +123,7 @@
 }
 
 .scm-plugin-modal {
-  width: 400px;
+  width: 550px;
   .key-value {
     margin-bottom: 10px;
   }
@@ -133,6 +133,9 @@
   }
   .modal-content {
     padding: 0 20px;
+  }
+  .modal-body {
+    width: 400px;
   }
   .callout {
     margin-bottom: 20px;

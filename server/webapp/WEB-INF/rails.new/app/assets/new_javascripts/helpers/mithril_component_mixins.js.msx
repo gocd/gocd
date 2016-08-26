@@ -62,7 +62,7 @@ define(['string-plus', 'mithril', 'lodash', 'helpers/form_helper'], function (s,
 
     this.removeLink = function (thing) {
       if (thing !== this.last()) {
-        return (<f.removeButton onclick={this.remove.bind(this, thing)}/>);
+        return (<f.removeButton class='position-remove-button' onclick={this.remove.bind(this, thing)}/>);
       }
     };
 

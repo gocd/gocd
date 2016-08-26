@@ -14,18 +14,21 @@
  * limitations under the License.
  */
 
-.reveal {
-  .modal-title {
-    border-bottom: 1px solid #ccc;
-    padding: 10px 15px;
-    margin: -17px -16px 20px;
-    border-top-left-radius: 5px;
-    background: #e0dfdf;
-    border-top-right-radius: 5px;
-  }
+define(['mithril', 'lodash'], function (m, _) {
 
-  thead th, thead td, tfoot th, tfoot td , tbody th, tbody td {
-    padding: 5px 10px;
-    font-size: 13px;
-  }
-}
+  var ErrorsWidget = {
+    view: function (ctrl, args) {
+      return (
+        <div class='alert callout'>
+          <ul>
+            {_.map(args.errors, function (error) {
+              return (<li>{error}</li>);
+            })}
+          </ul>
+        </div>
+      )
+    }
+  };
+
+  return ErrorsWidget;
+});

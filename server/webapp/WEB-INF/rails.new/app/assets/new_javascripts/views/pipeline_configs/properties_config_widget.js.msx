@@ -49,20 +49,23 @@ define([
                            placeholder='Property Name'
                            onchange={ctrl.changed.bind(ctrl)}
                            validate={true}
-                           size={3}/>
+                           size={3}
+                           largeSize={3}/>
                   <f.input model={property}
                            attrName='source'
                            placeholder='The XML file source'
                            onchange={ctrl.changed.bind(ctrl)}
                            validate={'all'}
-                           size={3}/>
+                           size={3}
+                           largeSize={3}/>
                   <f.input model={property}
                            attrName='xpath'
                            placeholder='XPath'
                            onchange={ctrl.changed.bind(ctrl)}
                            validate={'all'}
-                           size={3}/>
-                  <f.column size={1} end={true}>
+                           size={3}
+                           largeSize={3}/>
+                  <f.column size={1} largeSize={3} end={true}>
                     {ctrl.removeLink.call(ctrl, property)}
                   </f.column>
                 </f.row>

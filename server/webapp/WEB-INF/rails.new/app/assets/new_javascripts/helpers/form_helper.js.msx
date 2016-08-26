@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', 'models/model_mixins'], function (m, _, s, Mixin) {
+define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'es6shim'], function (m, _, s, Mixin) {
 
   var deleteKeyAndReturnValue = function (object, key, defaultValue) {
     var value = object[key];
@@ -135,9 +135,9 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins'], function (m,
             labelText   = deleteKeyAndReturnValue(args, 'label'),
             onchange    = deleteKeyAndReturnValue(args, 'onchange'),
             tooltip     = deleteKeyAndReturnValue(args, 'tooltip'),
-            modelType   = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null))
-        validate = deleteKeyAndReturnValue(args, 'validate', false),
-          isRequired = deleteKeyAndReturnValue(args, 'isRequired', false);
+            modelType   = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
+            validate    = deleteKeyAndReturnValue(args, 'validate', false),
+            isRequired  = deleteKeyAndReturnValue(args, 'isRequired', false);
 
         args.size      = args.size || 6;
         args.largeSize = args.largeSize || 4;

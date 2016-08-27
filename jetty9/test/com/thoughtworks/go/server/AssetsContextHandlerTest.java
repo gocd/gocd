@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server;
 
+import com.thoughtworks.go.util.OperatingSystem;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.eclipse.jetty.server.Request;
@@ -102,7 +103,7 @@ public class AssetsContextHandlerTest {
             public boolean matches(Object o) {
                 String actualFile = (String) o;
 
-                if ("Windows".equals(new SystemEnvironment().getOperatingSystemFamilyName())) {
+                if (OperatingSystem.WINDOWS.equals(new SystemEnvironment().getCurrentOperatingSystem())) {
                     return expected.equalsIgnoreCase(actualFile);
                 }
                 return expected.equals(actualFile);

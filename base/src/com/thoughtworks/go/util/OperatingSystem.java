@@ -16,13 +16,12 @@
 
 package com.thoughtworks.go.util;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.io.File;
 import java.io.FileReader;
 import java.util.Properties;
 import java.util.Scanner;
-
-import static com.thoughtworks.go.util.StringUtil.isBlank;
-import static com.thoughtworks.go.util.StringUtil.unQuote;
 
 public class OperatingSystem {
     private static final String OS_FAMILY_NAME = System.getProperty("os.name");
@@ -47,19 +46,18 @@ public class OperatingSystem {
     }
 
     private static String readFromOsRelease() throws Exception {
-        try (FileReader fileReader = new FileReader(new File("/etc/os-release"))) {
-            Properties properties = new Properties();
-            properties.load(fileReader);
-            return unQuote(properties.getProperty("PRETTY_NAME"));
-        }
+        FileReader fileReader;
+        File releaseFile = new File("/etc/os-release");
+        fileReader = new FileReader(releaseFile);
+        Properties properties = new Properties();
+        properties.load(fileReader);
+        return StringUtils.strip(properties.getProperty("PRETTY_NAME"), "\"");
     }
 
     private static String cleanUpPythonOutput(String str) {
-        String output = str.replaceAll("[()',]+", "");
-        if (isBlank(output)) {
-            throw new RuntimeException("The linux distribution string is empty");
-        }
-        return output;
+        String array[] = str.substring(1, str.length() - 1).split(",");
+        array = StringUtils.stripAll(array, "' ");
+        return StringUtils.join(array, ' ');
     }
 
     public static String getCompleteName() {

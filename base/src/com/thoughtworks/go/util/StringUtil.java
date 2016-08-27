@@ -205,8 +205,4 @@ public final class StringUtil {
         }
         return input;
     }
-
-    public static String unQuote(String string) {
-        return string == null ? null: string.replaceAll("^\"|\"$", "");
-    }
 }

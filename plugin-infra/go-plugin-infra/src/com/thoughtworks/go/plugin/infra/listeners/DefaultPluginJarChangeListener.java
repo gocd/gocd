@@ -137,7 +137,7 @@ public class DefaultPluginJarChangeListener implements PluginJarChangeListener {
     }
 
     private void validatePluginCompatibilityWithCurrentOS(GoPluginDescriptor descriptor) {
-        String currentOS = systemEnvironment.getOperatingSystemFamilyName();
+        OperatingSystem currentOS = systemEnvironment.getCurrentOperatingSystem();
 
         if (!descriptor.isCurrentOSValidForThisPlugin(currentOS)) {
             List<String> messages = Arrays.asList(String.format("Plugin with ID (%s) is not valid: Incompatible with current operating system '%s'. Valid operating systems are: %s.",

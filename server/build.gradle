@@ -19,6 +19,10 @@ import groovy.json.JsonOutput
 
 description = 'GoCD Server'
 
+repositories {
+  maven { url 'http://rubygems-proxy.torquebox.org/releases/' }
+}
+
 buildscript {
   repositories {
     jcenter()
@@ -37,6 +41,7 @@ configurations {
   jarConfig
   additionalClasspath
   jrubyDist
+  jrubyGems
 
   compile.exclude(group: 'org.springframework', module: 'spring-support')
   runtime.exclude(group: 'org.springframework', module: 'spring-support')
@@ -121,6 +126,7 @@ dependencies {
   }
   compile group: 'org.jruby', name: 'jruby-complete', version: '1.7.11'
   jrubyDist group: 'org.jruby', name: 'jruby-dist', version: '1.7.11', classifier: 'bin', ext: 'tar.gz'
+  jrubyGems group: 'rubygems', name: 'bundler', version: '1.9.9'
   compile group: 'org.jruby.rack', name: 'jruby-rack', version: '1.1.14'
   compile group: 'org.openrdf', name: 'sesame-onejar', version: '2.3.1'
   compile group: 'org.springframework', name: 'spring-web', version: '3.1.3.RELEASE'
@@ -339,6 +345,18 @@ task prepareJRuby {
     }
 
     rootProject.file('tools/jruby-1.7.11').renameTo(rootProject.file('tools/jruby'))
+    exec {
+      standardOutput = System.out
+      errorOutput = System.err
+
+      if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
+        setExecutable project.rootProject.file("tools/bin/jruby.bat")
+      } else {
+        setExecutable project.rootProject.file("tools/bin/jruby")
+      }
+
+      args = ['-S', 'gem', 'install', project.configurations.jrubyGems.singleFile, '--quiet', '--no-ri', '--no-rdoc', '--local', '--ignore-dependencies']
+    }
   }
 }
 

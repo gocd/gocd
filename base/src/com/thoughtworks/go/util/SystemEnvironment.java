@@ -362,8 +362,12 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return System.getProperty(property);
     }
 
-    public OperatingSystem getCurrentOperatingSystem() {
-        return OperatingSystem.fromProperty();
+    public String getOperatingSystemFamilyName() {
+        return OperatingSystem.getFamilyName();
+    }
+
+    public String getOperatingSystemCompleteName() {
+        return OperatingSystem.getCompleteName();
     }
 
     public String getOperatingSystemName() {

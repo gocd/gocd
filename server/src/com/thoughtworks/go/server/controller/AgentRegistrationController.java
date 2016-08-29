@@ -25,6 +25,7 @@ import com.thoughtworks.go.domain.AllConfigErrors;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.plugin.infra.commons.PluginsZip;
 import com.thoughtworks.go.security.Registration;
+import com.thoughtworks.go.security.RegistrationJSONizer;
 import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -262,7 +263,7 @@ public class AgentRegistrationController {
                 if (!registration.isValid()) {
                     response.setStatus(HttpServletResponse.SC_ACCEPTED);
                 }
-                response.getWriter().print(registration.toJson());
+                response.getWriter().print(RegistrationJSONizer.toJson(registration));
             }
         });
     }

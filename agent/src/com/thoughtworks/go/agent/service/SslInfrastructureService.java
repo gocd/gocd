@@ -23,6 +23,7 @@ import com.thoughtworks.go.config.AgentRegistry;
 import com.thoughtworks.go.config.GuidService;
 import com.thoughtworks.go.security.KeyStoreManager;
 import com.thoughtworks.go.security.Registration;
+import com.thoughtworks.go.security.RegistrationJSONizer;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.SystemUtil;
@@ -183,7 +184,7 @@ public class SslInfrastructureService {
         }
 
         protected Registration readResponse(InputStream is) throws IOException, ClassNotFoundException {
-            return Registration.fromJson(IOUtils.toString(is));
+            return RegistrationJSONizer.fromJson(IOUtils.toString(is));
         }
     }
 }

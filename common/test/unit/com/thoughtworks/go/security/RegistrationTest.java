@@ -31,7 +31,7 @@ public class RegistrationTest {
     @Test
     public void decodeFromJson() {
         Registration origin = createRegistration();
-        Registration reg = Registration.fromJson(origin.toJson());
+        Registration reg = RegistrationJSONizer.fromJson(RegistrationJSONizer.toJson(origin));
         assertThat(reg.getPrivateKey(), is(origin.getPrivateKey()));
         assertThat(reg.getPublicKey(), is(origin.getPublicKey()));
         assertThat(reg.getChain(), is(origin.getChain()));
@@ -53,7 +53,7 @@ public class RegistrationTest {
     @Test
     public void shouldEncodeDecodeEmptyRegistration() throws Exception {
         Registration toSerialize = Registration.createNullPrivateKeyEntry();
-        Registration deserialized = Registration.fromJson(toSerialize.toJson());
+        Registration deserialized = RegistrationJSONizer.fromJson(RegistrationJSONizer.toJson(toSerialize));
 
         assertTrue(EqualsBuilder.reflectionEquals(toSerialize, deserialized));
     }

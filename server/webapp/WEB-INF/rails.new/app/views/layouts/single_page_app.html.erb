@@ -13,8 +13,19 @@
 </head>
 
 <body data-controller-name="<%= controller_name %>" data-action-name="<%= action_name %>">
-<%= render :partial => 'navigation_elements/navigation' %>
-<%= yield %>
+<div class="page-wrap">
+  <header class="app-header">
+    <div class="container">
+      <%= render :partial => 'navigation_elements/navigation' %>
+    </div>
+  </header>
+  <main class="main-container">
+    <div class="container">
+      <%= yield %>
+    </div>
+  </main>
+</div>
 <%= render :partial => 'navigation_elements/footer' %>
+
 </body>
 </html>

@@ -14,16 +14,11 @@
  * limitations under the License.
  */
 
-@import 'shared/go-variables';
-@import 'shared/mixins';
 
-@import 'shared/_autocomplete';
-@import 'shared/_common';
-@import 'shared/_modal';
-@import 'shared/header';
 
-@import 'pipeline_configs/_pipeline';
-@import 'pipeline_configs/_accordion';
-@import 'pipeline_configs/_stages';
-@import 'pipeline_configs/_materials';
-@import 'pipeline_configs/_pluggable_task';
+$primary       : #94399e;
+$secondary     : #40d9da;
+$tertiary      : #F5A623;
+$light-grey    : #e2e2e2;
+$grey          : #535353;
+$dark-grey     : #1e1e1e;

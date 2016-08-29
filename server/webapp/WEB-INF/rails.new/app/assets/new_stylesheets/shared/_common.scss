@@ -25,17 +25,44 @@
 
 .key-value {
   label {
-    display: inline-block;
-    min-width: 60px;
-    position: relative;
+    display   : inline-block;
+    min-width : 60px;
+    position  : relative;
     &:after {
-      content: ":";
-      position: absolute;
-      right: 10px;
+      content  : ":";
+      position : absolute;
+      right    : 10px;
     }
   }
 }
 
 .add-button {
-  @include icon-before($type: plus-circle);
+  @include icon-before($type : plus-circle);
+}
+
+//sticky footer
+
+$app-footer-height : 76px;
+
+* {
+  margin : 0;
+}
+
+html, body {
+  height : 100%;
+}
+
+.page-wrap {
+  min-height    : 100%;
+  /* equal to footer height */
+  margin-bottom : -$app-footer-height;
+}
+
+.page-wrap:after {
+  content : "";
+  display : block;
+}
+
+.app-footer, .page-wrap:after {
+  height : $app-footer-height;
 }

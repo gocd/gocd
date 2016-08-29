@@ -1,52 +1,45 @@
-<div class="navigation">
-  <div class="title-bar" data-responsive-toggle="main-menu" data-hide-for="medium">
-    <button class="menu-icon" type="button" data-toggle></button>
-    <div class="title-bar-title">Menu</div>
-  </div>
+<nav class="main-nav">
 
-  <div class="top-bar">
-    <div class="top-bar-left">
-      <ul class="dropdown menu" data-dropdown-menu>
-        <li><%= link_to '', pipeline_dashboard_path, class: 'logo' -%></li>
-        <li><%= link_to 'Pipelines', pipeline_dashboard_path -%></li>
-        <li><%= link_to 'Environments', environments_path -%></li>
-        <li><%= link_to 'Agents', agents_path -%></li>
+  <%= link_to '', pipeline_dashboard_path, class: 'logo' -%>
+
+  <ul class="dropdown menu nav-left" data-dropdown-menu>
+
+    <li><%= link_to 'Pipelines', pipeline_dashboard_path -%></li>
+    <li><%= link_to 'Environments', environments_path -%></li>
+    <li><%= link_to 'Agents', agents_path -%></li>
+    <li>
+      <% unless can_view_admin_page? -%>
+          <span>Admin</span>
+      <% else -%>
+          <a href="#">Admin</a>
+          <ul class="menu vertical admin-dropdown">
+            <%- if is_user_an_admin? -%>
+                <%= render partial: 'navigation_elements/dropdown_admin' -%>
+            <%- elsif is_user_a_group_admin? -%>
+                <%= render partial: 'navigation_elements/dropdown_pipeline_group_admin' -%>
+            <%- elsif is_user_a_template_admin? -%>
+                <li role="presentation">
+                  <%= link_to 'Templates', templates_path -%>
+                </li>
+            <%- end -%>
+          </ul>
+      <%- end -%>
+    </li>
+  </ul>
+
+  <ul class="dropdown menu current-user nav-right" data-dropdown-menu>
+    <% unless @user.anonymous? %>
         <li>
-          <% unless can_view_admin_page? -%>
-              <span>Admin</span>
-          <% else -%>
-              <a href="#">Admin</a>
-              <ul class="menu vertical admin-dropdown">
-                <%- if is_user_an_admin? -%>
-                    <%= render partial: 'navigation_elements/dropdown_admin' -%>
-                <%- elsif is_user_a_group_admin? -%>
-                    <%= render partial: 'navigation_elements/dropdown_pipeline_group_admin' -%>
-                <%- elsif is_user_a_template_admin? -%>
-                    <li role="presentation">
-                      <%= link_to 'Templates', templates_path -%>
-                    </li>
-                <%- end -%>
-              </ul>
-          <%- end -%>
+          <a href="#"><i class="user"></i><%= @user.display_name %></a>
+          <ul class="menu vertical">
+            <li><%= link_to 'Preferences', url_for_path('/tab/mycruise/user') %></li>
+            <li><%= link_to 'Sign out', url_for_path('auth/logout') %></li>
+          </ul>
         </li>
-      </ul>
+    <% end %>
+    <li><%= link_to(l.string('HELP_SMALL'), 'https://go.cd/help', :target => '_blank') %></li>
+  </ul>
 
-    </div>
-    <div class="top-bar-right">
-      <ul class="dropdown menu current-user" data-dropdown-menu>
-        <% unless @user.anonymous? %>
-          <li>
-            <a href="#"><i class="user"></i><%= @user.display_name %></a>
-            <ul class="menu vertical">
-              <li><%= link_to 'Preferences', url_for_path('/tab/mycruise/user') %></li>
-              <li><%= link_to 'Sign out', url_for_path('auth/logout') %></li>
-            </ul>
-          </li>
-        <% end %>
-        <li><%= link_to(l.string('HELP_SMALL'), 'https://go.cd/help', :target => '_blank') %></li>
-      </ul>
-    </div>
-  </div>
-</div>
+</nav>
 
 

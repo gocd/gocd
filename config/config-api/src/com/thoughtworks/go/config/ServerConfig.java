@@ -72,6 +72,13 @@ public class ServerConfig implements Validatable {
         }
     }
 
+    @PostConstruct
+    public void ensureAgentAutoregisterKeyExists() {
+        if (agentAutoRegisterKey == null) {
+            agentAutoRegisterKey = UUID.randomUUID().toString();
+        }
+    }
+
     public ServerConfig(SecurityConfig securityConfig, MailHost mailHost) {
         this(securityConfig, mailHost, new ServerSiteUrlConfig(), new ServerSiteUrlConfig());
     }
@@ -153,6 +160,9 @@ public class ServerConfig implements Validatable {
         if (serverId != null ? !serverId.equals(that.serverId) : that.serverId != null) {
             return false;
         }
+        if (agentAutoRegisterKey != null ? !agentAutoRegisterKey.equals(that.agentAutoRegisterKey) : that.agentAutoRegisterKey != null) {
+            return false;
+        }
         if (mailHost != null ? !mailHost.equals(that.mailHost) : that.mailHost != null) {
             return false;
         }
@@ -178,6 +188,7 @@ public class ServerConfig implements Validatable {
     @Override
     public int hashCode() {
         int result = artifactsDir != null ? artifactsDir.hashCode() : 0;
+        result = 31 * result + (agentAutoRegisterKey != null ? agentAutoRegisterKey.hashCode() : 0);
         result = 31 * result + (siteUrl != null ? siteUrl.hashCode() : 0);
         result = 31 * result + (secureSiteUrl != null ? secureSiteUrl.hashCode() : 0);
         result = 31 * result + (purgeStart != null ? purgeStart.hashCode() : 0);

@@ -16,22 +16,24 @@
 
 package com.thoughtworks.go.config;
 
-import java.io.File;
-import java.io.IOException;
-
 import com.thoughtworks.go.domain.ServerSiteUrlConfig;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.annotation.PostConstruct;
+import java.io.File;
+import java.io.IOException;
+
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 public class ServerConfigTest {
     private ServerConfig defaultServerConfig;
@@ -187,5 +189,14 @@ public class ServerConfigTest {
         ServerConfig configWithServerId = new ServerConfig();
         configWithServerId.ensureServerIdExists();
         assertThat(configWithoutServerId, not(configWithServerId));
+    }
+
+    @Test
+    public void shouldEnsureAgentAutoregisterKeyExists() throws Exception {
+        ServerConfig serverConfig = new ServerConfig();
+        assertNull(serverConfig.getAgentAutoRegisterKey());
+        assertNotNull(serverConfig.getClass().getMethod("ensureAgentAutoregisterKeyExists").getAnnotation(PostConstruct.class));
+        serverConfig.ensureAgentAutoregisterKeyExists();
+        assertTrue(StringUtils.isNotBlank(serverConfig.getAgentAutoRegisterKey()));
     }
 }

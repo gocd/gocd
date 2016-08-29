@@ -16,10 +16,6 @@
 
 package com.thoughtworks.go.config;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import javax.annotation.PostConstruct;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
@@ -40,6 +36,11 @@ import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.*;
 import org.apache.commons.collections.ListUtils;
+
+import javax.annotation.PostConstruct;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
@@ -152,6 +153,7 @@ public class BasicCruiseConfig implements CruiseConfig {
     @PostConstruct
     public void initializeServer() {
         serverConfig.ensureServerIdExists();
+        serverConfig.ensureAgentAutoregisterKeyExists();
     }
 
 

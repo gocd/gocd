@@ -347,6 +347,20 @@ public class MaterialUpdateServiceTest {
     }
 
     @Test
+    public void shouldNotAllowPostCommitNotificationsToPassThroughToTheConfigQueue_WhenTheSameMaterialIsCurrentlyInProgressAndMaterialIsAutoUpdateTrueAndMaterialIsConfigRepo() throws Exception {
+        ScmMaterial material = mock(ScmMaterial.class);
+        when(material.isAutoUpdate()).thenReturn(true);
+        when(material.getFingerprint()).thenReturn("fingerprint");
+        when(watchList.hasConfigRepoWithFingerprint("fingerprint")).thenReturn(true);
+        MaterialUpdateMessage message = new MaterialUpdateMessage(material, 0);
+        doNothing().when(configQueue).post(message);
+        service.updateMaterial(material); //prune inprogress queue to have this material in it
+        service.updateMaterial(material); // immediately notify another check-in
+        verify(configQueue, times(1)).post(message);
+        verify(material).isAutoUpdate();
+    }
+
+    @Test
     public void shouldNotAllowPostCommitNotificationsToPassThroughToTheQueue_WhenTheSameMaterialIsCurrentlyInProgressAndMaterialIsAutoUpdateTrue() throws Exception {
         ScmMaterial material = mock(ScmMaterial.class);
         when(material.isAutoUpdate()).thenReturn(true);

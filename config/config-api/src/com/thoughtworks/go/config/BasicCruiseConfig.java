@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentMap;
 import javax.annotation.PostConstruct;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
+import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.merge.MergeConfigOrigin;
@@ -717,6 +718,33 @@ public class BasicCruiseConfig implements CruiseConfig {
     @Override
     public int schemaVersion() {
         return GoConstants.CONFIG_SCHEMA_VERSION;
+    }
+
+    @Override
+    public Set<MaterialConfig> getAllUniquePostCommitSchedulableMaterials() {
+        Set<MaterialConfig> materialConfigs = new HashSet<MaterialConfig>();
+        Set<String> uniqueMaterials = new HashSet<String>();
+        for (PipelineConfigs pipelineConfigs : this.groups) {
+            for (PipelineConfig pipelineConfig : pipelineConfigs) {
+                for (MaterialConfig materialConfig : pipelineConfig.materialConfigs()) {
+                    if ((materialConfig instanceof ScmMaterialConfig || materialConfig instanceof PluggableSCMMaterialConfig)
+                            && !materialConfig.isAutoUpdate()
+                            && !uniqueMaterials.contains(materialConfig.getFingerprint())) {
+                        materialConfigs.add(materialConfig);
+                        uniqueMaterials.add(materialConfig.getFingerprint());
+                    }
+                }
+            }
+        }
+        for(ConfigRepoConfig configRepo : this.configRepos)
+        {
+            MaterialConfig materialConfig = configRepo.getMaterialConfig();
+            if (!uniqueMaterials.contains(materialConfig.getFingerprint())) {
+                materialConfigs.add(materialConfig);
+                uniqueMaterials.add(materialConfig.getFingerprint());
+            }
+        }
+        return materialConfigs;
     }
 
     @Override

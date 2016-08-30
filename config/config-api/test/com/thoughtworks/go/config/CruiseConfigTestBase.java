@@ -22,13 +22,12 @@ import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
+import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
-import com.thoughtworks.go.domain.ConfigErrors;
-import com.thoughtworks.go.domain.NullTask;
-import com.thoughtworks.go.domain.Task;
-import com.thoughtworks.go.domain.TaskConfigVisitor;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
+import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.config.merge.MergePipelineConfigs;
 import com.thoughtworks.go.config.remote.*;
 import com.thoughtworks.go.domain.config.Configuration;
@@ -42,6 +41,7 @@ import com.thoughtworks.go.domain.scm.SCMMother;
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ReflectionUtil;
+import com.thoughtworks.go.util.command.UrlArgument;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.Is;
 import org.junit.Ignore;
@@ -49,9 +49,14 @@ import org.junit.Test;
 
 import java.util.*;
 
+import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
 import static org.hamcrest.Matchers.hasItem;
+import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.*;
@@ -918,6 +923,74 @@ public abstract class CruiseConfigTestBase {
         assertNotNull(job);
     }
 
+    @Test
+    public void shouldReturnAllUniqueSchedulableScmMaterials() {
+        final MaterialConfig svnMaterialConfig = new SvnMaterialConfig("http://svn_url_1", "username", "password", false);
+        ((ScmMaterialConfig) svnMaterialConfig).setAutoUpdate(false);
+        final MaterialConfig svnMaterialConfigWithAutoUpdate = new SvnMaterialConfig("http://svn_url_2", "username", "password", false);
+        ((ScmMaterialConfig) svnMaterialConfigWithAutoUpdate).setAutoUpdate(true);
+        final MaterialConfig hgMaterialConfig = new HgMaterialConfig("http://hg_url", null);
+        ((ScmMaterialConfig) hgMaterialConfig).setAutoUpdate(false);
+        final MaterialConfig gitMaterialConfig = new GitMaterialConfig("http://git_url");
+        ((ScmMaterialConfig) gitMaterialConfig).setAutoUpdate(false);
+        final MaterialConfig tfsMaterialConfig = new TfsMaterialConfig(mock(GoCipher.class), new UrlArgument("http://tfs_url"), "username", "domain", "password", "project_path");
+        ((ScmMaterialConfig) tfsMaterialConfig).setAutoUpdate(false);
+        final MaterialConfig p4MaterialConfig = new P4MaterialConfig("http://p4_url", "view", "username");
+        ((ScmMaterialConfig) p4MaterialConfig).setAutoUpdate(false);
+        final MaterialConfig dependencyMaterialConfig = MaterialConfigsMother.dependencyMaterialConfig();
+        final PluggableSCMMaterialConfig pluggableSCMMaterialConfig = MaterialConfigsMother.pluggableSCMMaterialConfig("scm-id-1", null, null);
+        pluggableSCMMaterialConfig.getSCMConfig().setAutoUpdate(false);
+
+        final PipelineConfig p1 = PipelineConfigMother.pipelineConfig("pipeline1", new MaterialConfigs(svnMaterialConfig), new JobConfigs(new JobConfig(new CaseInsensitiveString("jobName"))));
+        final PipelineConfig p2 = PipelineConfigMother.pipelineConfig("pipeline2", new MaterialConfigs(svnMaterialConfig, gitMaterialConfig),
+                new JobConfigs(new JobConfig(new CaseInsensitiveString("jobName"))));
+        final PipelineConfig p3 = PipelineConfigMother.pipelineConfig("pipeline3", new MaterialConfigs(hgMaterialConfig, dependencyMaterialConfig),
+                new JobConfigs(new JobConfig(new CaseInsensitiveString("jobName"))));
+        final PipelineConfig p4 = PipelineConfigMother.pipelineConfig("pipeline4", new MaterialConfigs(p4MaterialConfig, pluggableSCMMaterialConfig), new JobConfigs(new JobConfig(new CaseInsensitiveString("jobName"))));
+        final PipelineConfig p5 = PipelineConfigMother.pipelineConfig("pipeline5", new MaterialConfigs(svnMaterialConfigWithAutoUpdate, tfsMaterialConfig),
+                new JobConfigs(new JobConfig(new CaseInsensitiveString("jobName"))));
+        cruiseConfig.getGroups().add( new BasicPipelineConfigs(p1, p2, p3, p4, p5));
+        final Set<MaterialConfig> materials = cruiseConfig.getAllUniquePostCommitSchedulableMaterials();
+
+        assertThat(materials.size(), is(6));
+        assertThat(materials, hasItems(svnMaterialConfig, hgMaterialConfig, gitMaterialConfig, tfsMaterialConfig, p4MaterialConfig, pluggableSCMMaterialConfig));
+        assertThat(materials, not(hasItem(svnMaterialConfigWithAutoUpdate)));
+    }
+
+    @Test
+    public void getAllUniquePostCommitSchedulableMaterials_shouldReturnMaterialsWithAutoUpdateFalse(){
+        GitMaterialConfig gitAutoMaterial = MaterialConfigsMother.gitMaterialConfig("url");
+        PipelineConfig pipelineAuto = pipelineConfig("pipelineAuto", new MaterialConfigs(gitAutoMaterial));
+        GitMaterialConfig gitNonAutoMaterial = new GitMaterialConfig(new UrlArgument("other-url"),"master","dest",false,null,false,null,new CaseInsensitiveString("git"),false);
+        PipelineConfig pipelineTriggerable =  pipelineConfig("pipelineTriggerable", new MaterialConfigs(gitNonAutoMaterial));
+        PipelineConfigs defaultGroup = createGroup("defaultGroup", pipelineAuto,pipelineTriggerable);
+        cruiseConfig.getGroups().add(defaultGroup);
+        Set<MaterialConfig> materials = cruiseConfig.getAllUniquePostCommitSchedulableMaterials();
+        assertThat(materials.size(),is(1));
+        assertThat(materials,hasItem(gitNonAutoMaterial));
+    }
+
+    @Test
+    public void getAllUniquePostCommitSchedulableMaterials_shouldReturnMaterialsWithAutoUpdateFalseAndConfigRepos(){
+        GitMaterialConfig gitAutoMaterial = MaterialConfigsMother.gitMaterialConfig("url");
+        PipelineConfig pipelineAuto = pipelineConfig("pipelineAuto", new MaterialConfigs(gitAutoMaterial));
+        GitMaterialConfig gitNonAutoMaterial = new GitMaterialConfig(new UrlArgument("other-url"),"master","dest",false,null,false,null,new CaseInsensitiveString("git"),false);
+        PipelineConfig pipelineTriggerable =  pipelineConfig("pipelineTriggerable", new MaterialConfigs(gitNonAutoMaterial));
+        PipelineConfigs defaultGroup = createGroup("defaultGroup", pipelineAuto,pipelineTriggerable);
+
+        cruiseConfig = new BasicCruiseConfig(defaultGroup);
+        ConfigReposConfig reposConfig = new ConfigReposConfig();
+        GitMaterialConfig configRepoMaterial = new GitMaterialConfig("http://git");
+        reposConfig.add(new ConfigRepoConfig(configRepoMaterial,"myplug"));
+        cruiseConfig.setConfigRepos(reposConfig);
+
+
+        PipelineGroups pipelineGroups = new PipelineGroups(defaultGroup);
+        Set<MaterialConfig> materials = cruiseConfig.getAllUniquePostCommitSchedulableMaterials();
+        assertThat(materials.size(),is(2));
+        assertThat(materials,hasItem(gitNonAutoMaterial));
+        assertThat(materials,hasItem(configRepoMaterial));
+    }
 
     @Test
     public void shouldCheckCyclicDependency() throws Exception {

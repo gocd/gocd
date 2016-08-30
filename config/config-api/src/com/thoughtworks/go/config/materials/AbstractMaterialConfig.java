@@ -135,6 +135,7 @@ public abstract class AbstractMaterialConfig implements MaterialConfig, ParamsAt
 
     protected abstract void appendPipelineUniqueCriteria(Map<String, Object> basicCriteria);
 
+    @Override
     public void setName(final CaseInsensitiveString name) {
         this.name = name;
     }

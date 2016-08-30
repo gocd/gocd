@@ -30,6 +30,8 @@ public interface MaterialConfig extends Serializable, Validatable {
 
     CaseInsensitiveString getName();
 
+    void setName(CaseInsensitiveString name);
+
     Filter filter();
 
     boolean isInvertFilter();

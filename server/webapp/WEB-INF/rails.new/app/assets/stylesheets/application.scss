@@ -41,3 +41,7 @@
  *= require '_new-footer-with-old-css'
  */
 
+@import "../new_stylesheets/shared/go-variables";
+@import "../new_stylesheets/shared/mixins";
+@import "../new_stylesheets/shared/common";
+@import 'footer';

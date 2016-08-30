@@ -13,74 +13,79 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@import "shared/go-variables";
 
-.footer {
-  background-color: #292c2f;
-  text-align:       center;
-  font-size:        1.2rem;
-  padding:          1rem;
+.app-footer {
+  background : $grey;
+  text-align : center;
+  font-size  : 1.2rem;
+  padding    : 1rem;
 
   .inline-list a {
-    display:       inline-block;
-    border-radius: 2px;
+    display       : inline-block;
+    border-radius : 2px;
 
     &:nth-of-type(3) {
-      border-right:  2px solid green;
-      padding-right: 3px;
+      padding-right : 3px;
     }
 
     @mixin footer-icon($icon) {
-      @include icon-before($type: $icon, $color: #fff, $size: 1.5rem, $line-height: 1.5rem);
+      @include icon-before($type : $icon, $color : #fff, $size : 1.5rem, $line-height : 1.5rem);
     }
 
     &.twitter {
-      @include footer-icon($icon: twitter);
+      @include footer-icon($icon : twitter);
     }
 
     &.github {
-      @include footer-icon($icon: github);
+      @include footer-icon($icon : github);
     }
 
     &.forums {
-      @include footer-icon($icon: comment);
+      @include footer-icon($icon : comment);
     }
 
     &.plugins {
-      @include footer-icon($icon: plug);
+      @include footer-icon($icon : plug);
     }
 
     &.documentation {
-      @include footer-icon($icon: book);
+      @include footer-icon($icon : book);
     }
 
     &.cctray {
-      @include footer-icon($icon: rss);
+      @include footer-icon($icon : rss);
     }
 
     &.api {
-      @include footer-icon($icon: code);
+      @include footer-icon($icon : code);
     }
 
     &.server-details {
-      @include footer-icon($icon: server);
+      @include footer-icon($icon : server);
     }
   }
 
   .copyright {
-    color:     #8f9296;
-    font-size: 0.875rem;
-    margin:    0 0 1rem 0;
+    color     : #fff;
+    font-size: rem-calc(13px);
+    margin    : 0 ;
+    a{
+      color:#fff;
+      text-decoration : underline;
+    }
   }
 
-  @media only screen and (min-width: 40.063em) {
+  @media only screen and (min-width : 40.063em) {
 
     p {
-      text-align: left;
+      text-align : left;
     }
 
     .social {
-      text-align: right;
-      margin:     0;
+      text-align : right;
+      margin     : 0;
+      display:block;
     }
 
   }

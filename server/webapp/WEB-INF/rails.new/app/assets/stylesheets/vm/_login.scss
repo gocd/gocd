@@ -14,35 +14,18 @@
  * limitations under the License.
  */
 
+@import "../../new_stylesheets/shared/go-variables";
+@import "../../new_stylesheets/shared/mixins";
+@import "../../new_stylesheets/shared/common";
+
+@import '../../new_stylesheets/footer';
 
 
-@media only screen and (min-width: 120.063em) {
 
-  .row.expanded{
-    max-width:130rem;
-  }
-}
 
-.key-value {
-  label {
-    display   : inline-block;
-    min-width : 60px;
-    position  : relative;
-    &:after {
-      content  : ":";
-      position : absolute;
-      right    : 10px;
-    }
-  }
-}
-
-.add-button {
-  @include icon-before($type : plus-circle);
-}
 
 //sticky footer
 
-$app-footer-height : 76px;
 
 * {
   margin : 0;
@@ -55,7 +38,7 @@ html, body {
 .page-wrap {
   min-height    : 100%;
   /* equal to footer height */
-  margin-bottom : -$app-footer-height;
+  margin-bottom : -76px;
 }
 
 .page-wrap:after {
@@ -64,5 +47,5 @@ html, body {
 }
 
 .app-footer, .page-wrap:after {
-  height : $app-footer-height;
+  height : 76px;
 }

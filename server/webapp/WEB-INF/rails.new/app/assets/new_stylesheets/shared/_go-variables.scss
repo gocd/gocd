@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,27 +14,11 @@
  * limitations under the License.
  */
 
-// helps renders the new foundation based footer into old rails + vm pages
 
-@import '_font-awesome-glyphs';
-@import '_fonts';
 
-@import '_variables';
-@import 'settings';
-@import 'foundation';
-
-#footer-new-foundation {
-  box-sizing: border-box;
-  font-family: $body-font-family;
-  font-weight: $global-weight-normal;
-  line-height: $global-lineheight;
-  color: $body-font-color;
-  background: $body-background;
-
-  @include foundation-global-styles;
-  @include foundation-grid;
-  @include foundation-typography;
-
-  @import './_footer';
-
-}
+$primary       : #94399e;
+$secondary     : #40d9da;
+$tertiary      : #F5A623;
+$light-grey    : #e2e2e2;
+$grey          : #535353;
+$dark-grey     : #1e1e1e;

@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
+@import 'shared/go-variables';
 @import 'shared/mixins';
 
 @import 'shared/_autocomplete';
 @import 'shared/_common';
 @import 'shared/_modal';
+@import 'shared/header';
+
 @import 'pipeline_configs/_pipeline';
 @import 'pipeline_configs/_accordion';
 @import 'pipeline_configs/_stages';

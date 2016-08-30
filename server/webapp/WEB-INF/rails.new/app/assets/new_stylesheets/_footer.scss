@@ -25,10 +25,6 @@
     display       : inline-block;
     border-radius : 2px;
 
-    &:nth-of-type(3) {
-      padding-right : 3px;
-    }
-
     @mixin footer-icon($icon) {
       @include icon-before($type : $icon, $color : #fff, $size : 1.5rem, $line-height : 1.5rem);
     }

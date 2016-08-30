@@ -334,7 +334,8 @@ describe Admin::ServerController do
     end
 
     it "should resolve /admin/config/server/validate" do
-      {:get => "/admin/config/server/validate"}.should route_to(:controller => "admin/server", :action => "validate")
+      expect_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(true)
+      {:post => "/admin/config/server/validate"}.should route_to(:controller => "admin/server", :action => "validate")
     end
 
     it "should validate email" do

@@ -17,13 +17,22 @@
 ServerConfiguration = function(validation_url) {
     var validate = function(id, error_id, type) {
         var value = $(id).value;
-        var ajaxRequest = new Ajax.Request(validation_url, {
-            method: 'GET',
-            parameters: type + "=" + encodeURIComponent(value),
-            onSuccess: function(transport) {
-                var jsonText = transport.responseText;
+        data = {};
+        data['authenticity_token'] = jQuery('form').find('[name=authenticity_token]').val();
+        data[type] = encodeURIComponent(value);
+
+        jQuery.ajax({
+            type: "POST",
+            url: validation_url,
+            data: data,
+            dataType: 'json',
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader('Confirm', 'true');
+            },
+            complete: function(response) {
+                var jsonText = response.responseText;
                 var value = jsonText.evalJSON();
-                if (value.error) {
+                if(value.error) {
                     showFailure(error_id, value.error);
                 } else {
                     $(error_id).removeClassName("error_message").removeClassName("ok_message").update("");

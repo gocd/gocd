@@ -45,6 +45,7 @@ include ':development-agent'
 include ':development-server'
 include ':installers'
 include ':release'
+include ':tools'
 
 project(':base').projectDir = "$rootDir/base" as File
 project(':util').projectDir = "$rootDir/util" as File
@@ -75,3 +76,4 @@ project(':development-agent').projectDir = "$rootDir/development-utility/develop
 project(':development-server').projectDir = "$rootDir/development-utility/development-server" as File
 project(':installers').projectDir = "$rootDir/installers" as File
 project(':release').projectDir = "$rootDir/release" as File
+project(':tools').projectDir = "$rootDir/tools" as File

@@ -46,6 +46,7 @@
 #set($current_tab = $currentTab.name)
 #end
 <body>
+<div class="page-wrap">
 <div id="body_bg"><div id="body_bg_highlight"><div id="body_wrapper">
 
 ##    #if($_hide_collapse-sidebar-button)

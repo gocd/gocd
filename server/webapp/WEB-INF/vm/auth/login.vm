@@ -32,11 +32,11 @@
 
   <style type="text/css">
     body {
-      background: #000;
+      background:  #535353;
     }
 
     #bd {
-      background: #000;
+      background: #535353;
       border: none;
       padding-top: 0;
     }
@@ -63,10 +63,38 @@
       color: #FFF;
     }
 
+    //sticky footer
+
+
+    * {
+        margin : 0;
+    }
+
+    html, body {
+        height : 100%;
+    }
+
+    .page-wrap {
+        min-height    : 100%;
+        /* equal to footer height */
+        margin-bottom : -76px;
+    }
+
+    .page-wrap:after {
+        content : "";
+        display : block;
+    }
+
+    .app-footer, .page-wrap:after {
+        height : 76px;
+    }
+
+
   </style>
   <title>Go - Login</title>
 </head>
 <body id="login-page">
+<div class="page-wrap">
 <div id="doc3" class="yui-t7">
   <div id="bd">
     <div id="yui-main">
@@ -144,9 +172,10 @@
       </div>
     </div>
   </div>
-
+</div>
+</div>
   #parse("shared/_copyright_license_info.vm")
 
-</div>
+
 </body>
 </html>

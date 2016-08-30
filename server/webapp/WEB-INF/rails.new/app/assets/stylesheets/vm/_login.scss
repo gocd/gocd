@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,27 +14,38 @@
  * limitations under the License.
  */
 
-// helps renders the new foundation based footer into old rails + vm pages
+@import "../../new_stylesheets/shared/go-variables";
+@import "../../new_stylesheets/shared/mixins";
+@import "../../new_stylesheets/shared/common";
 
-@import '_font-awesome-glyphs';
-@import '_fonts';
+@import '../../new_stylesheets/footer';
 
-@import '_variables';
-@import 'settings';
-@import 'foundation';
 
-#footer-new-foundation {
-  box-sizing: border-box;
-  font-family: $body-font-family;
-  font-weight: $global-weight-normal;
-  line-height: $global-lineheight;
-  color: $body-font-color;
-  background: $body-background;
 
-  @include foundation-global-styles;
-  @include foundation-grid;
-  @include foundation-typography;
 
-  @import './_footer';
 
+//sticky footer
+
+
+* {
+  margin : 0;
+}
+
+html, body {
+  height : 100%;
+}
+
+.page-wrap {
+  min-height    : 100%;
+  /* equal to footer height */
+  margin-bottom : -76px;
+}
+
+.page-wrap:after {
+  content : "";
+  display : block;
+}
+
+.app-footer, .page-wrap:after {
+  height : 76px;
 }

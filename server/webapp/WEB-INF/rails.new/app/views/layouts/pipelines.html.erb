@@ -5,6 +5,7 @@
     <link rel="alternate" type="application/atom+xml" title="<%= @pipeline.getName() %> stages - Atom" href="<%=api_pipeline_stage_feed_path(:name => @pipeline.getName())-%>" />
 </head>
 <body id="<%= page_name %>" class="<%= page_name %>">
+<div class="page-wrap">
 <div id="body_bg"><div id="body_bg_highlight"><div id="body_wrapper">
     <div id="header">
         <%= render :partial => "shared/header" %>
@@ -55,12 +56,13 @@
             </div>
         <%= end_content_wrapper %>
     </div>
-
+</div>
+</div></div></div>
 
   <div id='footer-new-foundation'>
     <%= render :partial => 'navigation_elements/footer' %>
   </div>
-</div></div></div>
+
 </body>
 </html>
 

@@ -8,6 +8,7 @@
     <%= render :partial => "shared/head" %>
 </head>
 <body id="<%= page_name %>" class="<%= page_name %>">
+<div class="page-wrap">
 <div id="body_bg">
     <div id="header">
         <%= render :partial => "shared/header" %>
@@ -106,10 +107,11 @@
             </div>
         </div>
     </div>
+  </div>
+</div>
     <%= end_content_wrapper %>
     <div id='footer-new-foundation'>
       <%= render :partial => 'navigation_elements/footer' %>
     </div>
-</div>
 </body>
 </html>

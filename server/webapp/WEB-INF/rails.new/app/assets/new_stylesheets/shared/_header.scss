@@ -15,7 +15,7 @@
  */
 
 $menu-hover : #3e3d3d;
-$header-height : 60px;
+$header-height : 50px;
 
 .app-header {
   position   : relative;
@@ -51,11 +51,35 @@ $header-height : 60px;
         padding        : 0 20px;
         color          : #fff;
         text-transform : uppercase;
+        font-size: rem-calc(13px);
+        font-weight:600;
 
       }
 
       &:hover, &.is-active {
         background : $menu-hover;
+      }
+      &.current-user{
+        padding-left :10px;
+        @include icon-before($type:user);
+        &:before{
+          position: absolute;
+          left: 7px;
+          color:#cacaca;
+          top: 12px;
+          font-size: 16px;
+        }
+      }
+      &.is-dropdown-submenu-parent{
+        right :10px;
+        @include icon-after($type:sort-down);
+        &:after{
+          position: absolute;
+          right: 3px;
+          color:#cacaca;
+          top: 13px;
+          font-size: 12px;
+        }
       }
     }
     ul {
@@ -65,14 +89,16 @@ $header-height : 60px;
           line-height    : normal;
           text-transform : none;
           padding        : 5px 15px;
-          font-size      : 14px;
           transition     : all 0.2s ease-in-out;
+          font-size: rem-calc(13px);
+          font-weight:600;
           &:hover {
             background : $grey;
             transition : all 0.2s ease-in-out;
 
           }
         }
+
       }
     }
   }

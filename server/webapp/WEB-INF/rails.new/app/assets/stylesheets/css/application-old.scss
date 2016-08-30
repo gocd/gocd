@@ -401,7 +401,7 @@ table.simple td {
 table.extra-simple {
     zoom: 1;
     /*color: #7d4e32;*/
-    border: none;   
+    border: none;
 }
 table.extra-simple td,
 table.extra-simple th {
@@ -592,8 +592,11 @@ a.sign-out:hover
 /* login screen */
 
 body#login-page {
-    background: #333;
-    color: #FFF;
+  background : #333;
+  color      : #FFF;
+  .page-wrap {
+    background : #444444;
+  }
 }
 
 body#login-page #bd {
@@ -625,8 +628,8 @@ body#login-page #yui-main {
 #login-page .yui-t7 #yui-main .yui-b {
 
     background-color: #444444;
-    
-    
+
+
 }
 
 #graphic-dialog {
@@ -634,9 +637,9 @@ body#login-page #yui-main {
 /*    height: 380px;*/
 /*    background: image_url('g9/backgrounds/bg_login_box.png') no-repeat 0 0;*/
 /*    margin: auto;*/
-    
-    
-    
+
+
+
     margin: 80px auto;
     width: 510px;
     border: 0px solid #895A8D;
@@ -668,7 +671,7 @@ div#logo-login {
 
 
 /* community or enterprise login */
-.graphic-dialog-community div#logo-login h2, 
+.graphic-dialog-community div#logo-login h2,
 .graphic-dialog-free div#logo-login h2 {
     margin: 0;
     padding: 20px 20px 10px 195px;
@@ -694,7 +697,7 @@ div#logo-login {
 
 #graphic-dialog-input
 {
-    clear: both;    
+    clear: both;
     width: 300px;
     margin: 20px auto 0 auto;
     text-align: left;
@@ -1424,7 +1427,7 @@ a:hover#link-to-this-page {
 
 /* Add New Pipeline Page */
 .add_new_pipeline{
-    
+
 }
 .add_new_pipeline label{
     font-size: 24px;

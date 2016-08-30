@@ -29,7 +29,7 @@
 
   <ul class="dropdown menu current-user nav-right" data-dropdown-menu>
     <% unless @user.anonymous? %>
-        <li>
+        <li class="current-user">
           <a href="#"><i class="user"></i><%= @user.display_name %></a>
           <ul class="menu vertical">
             <li><%= link_to 'Preferences', url_for_path('/tab/mycruise/user') %></li>

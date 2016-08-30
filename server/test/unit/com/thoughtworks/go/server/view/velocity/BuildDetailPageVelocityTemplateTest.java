@@ -50,8 +50,7 @@ public class BuildDetailPageVelocityTemplateTest {
         HashMap<String, Object> data = new HashMap<>();
 
         Document actualDoc = Jsoup.parse(getBuildDetailVelocityView(data).render());
-
-        assertThat(actualDoc.select("#footer-new-foundation .footer .copyright").first().html(), containsString("some-version"));
+        assertThat(actualDoc.select("#footer-new-foundation .copyright").first().html(), containsString("some-version"));
     }
 
     @Test

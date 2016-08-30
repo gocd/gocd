@@ -224,7 +224,7 @@ public class AgentInstanceMother {
         AgentRuntimeInfo newRuntimeInfo = AgentRuntimeInfo.initialState(agentConfig);
         newRuntimeInfo.setStatus(AgentStatus.LostContact);
         newRuntimeInfo.setUsableSpace(1000L);
-        newRuntimeInfo.setBuildingInfo(new AgentBuildingInfo("", buildLocator));
+        newRuntimeInfo.setBuildingInfo(new AgentBuildingInfo("buildInfo", buildLocator));
         instance.update(newRuntimeInfo);
         return instance;
     }

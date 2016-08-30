@@ -142,6 +142,7 @@ module JavaImports
   java_import com.thoughtworks.go.serverhealth.ServerHealthState unless defined? ServerHealthState
   java_import com.thoughtworks.go.server.scheduling.ScheduleOptions unless defined? ScheduleOptions
   java_import com.thoughtworks.go.server.service.AgentRuntimeInfo unless defined? AgentRuntimeInfo
+  java_import com.thoughtworks.go.server.service.AgentBuildingInfo unless defined? AgentBuildingInfo
   java_import com.thoughtworks.go.server.service.ChangesetService unless defined? ChangesetService
   java_import com.thoughtworks.go.server.service.PipelineStagesFeedService unless defined? PipelineStagesFeedService
   java_import com.thoughtworks.go.server.service.result.DefaultLocalizedResult unless defined? DefaultLocalizedResult

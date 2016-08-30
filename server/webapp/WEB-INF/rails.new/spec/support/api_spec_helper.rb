@@ -104,6 +104,11 @@ module ApiSpecHelper
     JSON.parse(representer.new(thing).to_hash(url_builder: controller).to_json).deep_symbolize_keys
   end
 
+  def expected_response_with_args(thing, representer, *args)
+    JSON.parse(representer.new(thing, *args).to_hash(url_builder: controller).to_json).deep_symbolize_keys
+  end
+
+
   def expected_response_with_options(thing, opts=[], representer)
     JSON.parse(representer.new(thing, opts).to_hash(url_builder: controller).to_json).deep_symbolize_keys
   end

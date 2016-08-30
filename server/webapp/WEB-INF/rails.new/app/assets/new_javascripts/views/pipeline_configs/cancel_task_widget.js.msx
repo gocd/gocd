@@ -22,7 +22,7 @@ define([
     controller: function (args) {
       var self = this;
       self.task = args.task;
-      const DEFAULT_TASK_TYPE = 'exec';
+      var DEFAULT_TASK_TYPE = 'exec';
 
 
       this.selected = function (val) {

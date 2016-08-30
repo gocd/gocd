@@ -69,6 +69,15 @@ h3.entity_title {
   background-position: -12px -10px;
 }
 
+.pipeline_header .toggle-new-view {
+  display: inline-block;
+  margin-left: 10px;
+  color: #333;
+  &:hover{
+    text-decoration: underline;
+  }
+}
+
 
 /**
  * =! MISC NEEDS MIGRATION

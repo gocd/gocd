@@ -101,7 +101,7 @@ define([
                 </h1>
               </f.column>
               <f.column size={3}>
-                <a class='toggele-old-view'
+                <a class='toggle-old-view'
                    href={['/go/admin/pipelines/', ctrl.pipeline().name(), '/general'].join('')}>Switch back to old view</a>
               </f.column>
               <f.column size={1}>

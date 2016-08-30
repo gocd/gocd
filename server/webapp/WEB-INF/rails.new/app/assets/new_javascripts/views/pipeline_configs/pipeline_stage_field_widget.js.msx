@@ -43,7 +43,7 @@ define(['mithril', 'lodash', 'jquery', 'string-plus', 'helpers/form_helper', 'jq
       },
 
       vm: function (material) {
-        const PIPELINE_STAGE_PATTERN = /^(.+) \[(.+)\]$/;
+        var PIPELINE_STAGE_PATTERN = /^(.+) \[(.+)\]$/;
         this.material  = material;
         this.errors    = [];
 

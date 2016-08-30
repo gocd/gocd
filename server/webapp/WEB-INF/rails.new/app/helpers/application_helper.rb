@@ -450,6 +450,10 @@ module ApplicationHelper
     form_remote_tag(options)
   end
 
+  def is_pipeline_config_spa_enabled?
+    Toggles.isToggleOn(Toggles.PIPELINE_CONFIG_SINGLE_PAGE_APP)
+  end
+
   private
   def form_remote_tag(options = {})
     options[:form] = true

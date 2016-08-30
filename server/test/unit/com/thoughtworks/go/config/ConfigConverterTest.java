@@ -368,12 +368,73 @@ public class ConfigConverterTest {
         assertThat(gitMaterialConfig.getBranch(), is("master"));
     }
 
+
+    @Test
+    public void shouldConvertConfigMaterialWhenConfigRepoIsGitWithBlacklist() {
+        // this url would be configured inside xml config-repo section
+        GitMaterialConfig configRepoMaterial = new GitMaterialConfig("url");
+        when(context.configMaterial()).thenReturn(configRepoMaterial);
+        CRConfigMaterial crConfigMaterial = new CRConfigMaterial();
+        crConfigMaterial.setFilter(new CRFilter(filter,false));
+
+        MaterialConfig materialConfig = configConverter.toMaterialConfig(crConfigMaterial,context);
+        assertNull("shouldSetEmptyMaterialNameAsInConfigRepoSourceCode",materialConfig.getName());
+
+        GitMaterialConfig gitMaterialConfig = (GitMaterialConfig)materialConfig;
+        assertThat(gitMaterialConfig.getAutoUpdate(), is(true));
+        assertThat(gitMaterialConfig.getUrl(), is("url"));
+        assertNull(gitMaterialConfig.getFolder());
+        assertThat(gitMaterialConfig.getAutoUpdate(), is(true));
+        assertThat(gitMaterialConfig.isShallowClone(), is(false));
+        Filter blacklistFilter = new Filter(new IgnoredFiles("filter"));
+        assertThat(gitMaterialConfig.filter(), is(blacklistFilter));
+        assertThat(gitMaterialConfig.getUrl(), is("url"));
+        assertThat(gitMaterialConfig.getBranch(), is("master"));
+    }
+
+    @Test
+    public void shouldConvertConfigMaterialWhenConfigRepoIsHgWithWhitelist() {
+        // this url would be configured inside xml config-repo section
+        HgMaterialConfig configRepoMaterial = new HgMaterialConfig("url","folder");
+        when(context.configMaterial()).thenReturn(configRepoMaterial);
+        CRConfigMaterial crConfigMaterial = new CRConfigMaterial(null, null,new CRFilter(filter,true));
+
+        MaterialConfig materialConfig = configConverter.toMaterialConfig(crConfigMaterial,context);
+        assertNull("shouldSetEmptyMaterialNameAsInConfigRepoSourceCode",materialConfig.getName());
+
+        HgMaterialConfig hgMaterialConfig = (HgMaterialConfig)materialConfig;
+        assertThat(hgMaterialConfig.getAutoUpdate(), is(true));
+        assertThat(hgMaterialConfig.getFilterAsString(), is("filter"));
+        assertThat(hgMaterialConfig.getUrl(), is("url"));
+        Filter whitelistFilter = new Filter(new IgnoredFiles("filter"));
+        assertThat(hgMaterialConfig.filter(), is(whitelistFilter));
+        assertThat(hgMaterialConfig.isInvertFilter(),is(true));
+    }
+
+    @Test
+    public void shouldConvertConfigMaterialWhenConfigRepoIsHgWithEmptyFilter() {
+        // this url would be configured inside xml config-repo section
+        HgMaterialConfig configRepoMaterial = new HgMaterialConfig("url","folder");
+        when(context.configMaterial()).thenReturn(configRepoMaterial);
+        CRConfigMaterial crConfigMaterial = new CRConfigMaterial(null, null,new CRFilter(new ArrayList<String>(),true));
+
+        MaterialConfig materialConfig = configConverter.toMaterialConfig(crConfigMaterial,context);
+        assertNull("shouldSetEmptyMaterialNameAsInConfigRepoSourceCode",materialConfig.getName());
+
+        HgMaterialConfig hgMaterialConfig = (HgMaterialConfig)materialConfig;
+        assertThat(hgMaterialConfig.getAutoUpdate(), is(true));
+        assertThat(hgMaterialConfig.getFilterAsString(), is(""));
+        assertThat(hgMaterialConfig.getUrl(), is("url"));
+        assertThat(hgMaterialConfig.filter(), is(new Filter()));
+        assertThat(hgMaterialConfig.isInvertFilter(),is(false));
+    }
+
     @Test
     public void shouldConvertConfigMaterialWhenConfigRepoIsHg() {
         // these parameters would be configured inside xml config-repo section
         HgMaterialConfig configRepoMaterial = new HgMaterialConfig(new HgUrlArgument("url"),true,new Filter(new IgnoredFiles("ignore")),false,"folder",new CaseInsensitiveString("name"));
         when(context.configMaterial()).thenReturn(configRepoMaterial);
-        CRConfigMaterial crConfigMaterial = new CRConfigMaterial("example", null);
+        CRConfigMaterial crConfigMaterial = new CRConfigMaterial("example", null,null);
 
         MaterialConfig materialConfig = configConverter.toMaterialConfig(crConfigMaterial,context);
         assertThat("shouldSetMaterialNameAsInConfigRepoSourceCode",materialConfig.getName().toLower(), is("example"));
@@ -390,7 +451,7 @@ public class ConfigConverterTest {
         // these parameters would be configured inside xml config-repo section
         HgMaterialConfig configRepoMaterial = new HgMaterialConfig(new HgUrlArgument("url"),true,new Filter(new IgnoredFiles("ignore")),false,"folder",new CaseInsensitiveString("name"));
         when(context.configMaterial()).thenReturn(configRepoMaterial);
-        CRConfigMaterial crConfigMaterial = new CRConfigMaterial("example", "dest1");
+        CRConfigMaterial crConfigMaterial = new CRConfigMaterial("example", "dest1",null);
 
         MaterialConfig materialConfig = configConverter.toMaterialConfig(crConfigMaterial,context);
         assertThat("shouldSetMaterialNameAsInConfigRepoSourceCode",materialConfig.getName().toLower(), is("example"));
@@ -400,6 +461,51 @@ public class ConfigConverterTest {
         assertThat(hgMaterialConfig.getAutoUpdate(), is(true));
         assertThat(hgMaterialConfig.getFilterAsString(), is("ignore"));
         assertThat(hgMaterialConfig.getUrl(), is("url"));
+    }
+
+    @Test
+    public void shouldConvertConfigMaterialWhenPluggableScmMaterial()
+    {
+        SCM myscm = new SCM("scmid", new PluginConfiguration(), new Configuration());
+        SCMs scms = new SCMs(myscm);
+        BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
+        cruiseConfig.setSCMs(scms);
+        when(cachedGoConfig.currentConfig()).thenReturn(cruiseConfig);
+        PluggableSCMMaterialConfig configRepoMaterial = new PluggableSCMMaterialConfig(new CaseInsensitiveString("scmid"),myscm,null,null);
+        when(context.configMaterial()).thenReturn(configRepoMaterial);
+        CRConfigMaterial crConfigMaterial = new CRConfigMaterial("example", "dest1",null);
+
+        PluggableSCMMaterialConfig pluggableSCMMaterialConfig =
+                (PluggableSCMMaterialConfig)configConverter.toMaterialConfig(crConfigMaterial,context);
+
+        assertThat(pluggableSCMMaterialConfig.getName().toLower(),is("example"));
+        assertThat(pluggableSCMMaterialConfig.getSCMConfig(),is(myscm));
+        assertThat(pluggableSCMMaterialConfig.getScmId(),is("scmid"));
+        assertThat(pluggableSCMMaterialConfig.getFolder(),is("dest1"));
+        assertThat(pluggableSCMMaterialConfig.getFilterAsString(), is(""));
+    }
+
+
+    @Test
+    public void shouldFailToConvertConfigMaterialWhenPluggableScmMaterialWithWhitelist()
+    {
+        SCM myscm = new SCM("scmid", new PluginConfiguration(), new Configuration());
+        SCMs scms = new SCMs(myscm);
+        BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
+        cruiseConfig.setSCMs(scms);
+        when(cachedGoConfig.currentConfig()).thenReturn(cruiseConfig);
+        PluggableSCMMaterialConfig configRepoMaterial = new PluggableSCMMaterialConfig(new CaseInsensitiveString("scmid"),myscm,null,null);
+        when(context.configMaterial()).thenReturn(configRepoMaterial);
+        CRConfigMaterial crConfigMaterial = new CRConfigMaterial("example", "dest1",new CRFilter(filter,true));
+
+        try {
+            configConverter.toMaterialConfig(crConfigMaterial, context);
+            fail("should have thrown");
+        }
+        catch (ConfigConvertionException ex)
+        {
+            assertThat(ex.getMessage(),is("Plugable SCMs do not support whitelisting"));
+        }
     }
 
     @Test
@@ -581,7 +687,6 @@ public class ConfigConverterTest {
         assertThat(pluggableSCMMaterialConfig.getScmId(),is("scmid"));
         assertThat(pluggableSCMMaterialConfig.getFolder(),is("directory"));
         assertThat(pluggableSCMMaterialConfig.getFilterAsString(), is("filter"));
-
     }
 
     @Test

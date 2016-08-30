@@ -19,10 +19,6 @@ import groovy.json.JsonOutput
 
 description = 'GoCD Server'
 
-repositories {
-  maven { url 'http://rubygems-proxy.torquebox.org/releases/' }
-}
-
 buildscript {
   repositories {
     jcenter()
@@ -40,8 +36,6 @@ configurations {
   warConfig
   jarConfig
   additionalClasspath
-  jrubyDist
-  jrubyGems
 
   compile.exclude(group: 'org.springframework', module: 'spring-support')
   runtime.exclude(group: 'org.springframework', module: 'spring-support')
@@ -125,8 +119,6 @@ dependencies {
     exclude(module: 'commons-logging')
   }
   compile group: 'org.jruby', name: 'jruby-complete', version: '1.7.11'
-  jrubyDist group: 'org.jruby', name: 'jruby-dist', version: '1.7.11', classifier: 'bin', ext: 'tar.gz'
-  jrubyGems group: 'rubygems', name: 'bundler', version: '1.9.9'
   compile group: 'org.jruby.rack', name: 'jruby-rack', version: '1.1.14'
   compile group: 'org.openrdf', name: 'sesame-onejar', version: '2.3.1'
   compile group: 'org.springframework', name: 'spring-web', version: '3.1.3.RELEASE'
@@ -322,45 +314,7 @@ task prepareDb(dependsOn: [':server:cleanDb']) {
   }
 }
 
-task prepareJRuby {
-  doFirst {
-    rootProject.delete('tools/jruby')
-    rootProject.delete('tools/jruby-1.7.11')
-
-    def copyDetails = []
-
-    def toolsDir = rootProject.file('tools')
-    project.copy {
-      from tarTree(project.files(project.configurations.jrubyDist.files).singleFile)
-      into toolsDir
-      eachFile { copyDetails << it }
-    }
-
-    // we do this so IntelliJ does not re-index it over and over again
-    copyDetails.each { FileCopyDetails details ->
-      def target = new File(toolsDir, details.path)
-      if (target.exists()) {
-        target.setLastModified(details.lastModified)
-      }
-    }
-
-    rootProject.file('tools/jruby-1.7.11').renameTo(rootProject.file('tools/jruby'))
-    exec {
-      standardOutput = System.out
-      errorOutput = System.err
-
-      if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
-        setExecutable project.rootProject.file("tools/bin/jruby.bat")
-      } else {
-        setExecutable project.rootProject.file("tools/bin/jruby")
-      }
-
-      args = ['-S', 'gem', 'install', project.configurations.jrubyGems.singleFile, '--quiet', '--no-ri', '--no-rdoc', '--local', '--ignore-dependencies']
-    }
-  }
-}
-
-task prepare(dependsOn: [cleanDb, prepareDb, prepareJRuby, ':agent-launcher:fatJar', ':test-agent:jar', ':go-plugin-activator:jar', ':agent:fatJar']) {
+task prepare(dependsOn: [cleanDb, prepareDb, ':tools:prepareJRuby', ':agent-launcher:fatJar', ':test-agent:jar', ':go-plugin-activator:jar', ':agent:fatJar']) {
   doFirst {
     project.copy {
       from { project(':test-agent').jar.archivePath }
@@ -404,6 +358,10 @@ clean.doFirst {
 }
 
 task inlinePartials {
+  if (!project.hasProperty('fastBuild')) {
+    dependsOn ':tools:prepareJRuby'
+  }
+
   def inlinedPartialsDir = file("${project.buildDir}/inline-partials")
   def viewsDir = file("${project.railsRoot}/app/views")
 
@@ -424,7 +382,7 @@ task inlinePartials {
         standardOutput = System.out
         errorOutput = System.err
 
-        setExecutable project.rootProject.file("tools/rails/bin/jruby")
+        setExecutable project.findProject(':tools').file("rails/bin/jruby")
 
         environment += [
             'INPUT_DIR': inlinedPartialsDir

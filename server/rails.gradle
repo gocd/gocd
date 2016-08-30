@@ -108,7 +108,7 @@ task rspec(type: ExecuteUnderRailsTask) {
 
   description = "Run specs (pass '-Ppots=...' to pass options)"
 
-  def rspecCommand = [rootProject.file('tools/rails/bin/rspec')]
+  def rspecCommand = [project.findProject(':tools').file('rails/bin/rspec')]
   if (project.hasProperty('opts')) {
     rspecCommand += [project.property('opts')]
   }
@@ -125,7 +125,7 @@ task parallelRspec(type: ExecuteUnderRailsTask) {
 
   description = "Run specs in parallel (pass '-Ppots=...' to pass options)"
 
-  def rspecCommand = [rootProject.file('tools/rails/bin/rspec')]
+  def rspecCommand = [project.findProject(':tools').file('rails/bin/rspec')]
 
   FileTree tree = fileTree(dir: "${project.railsRoot}/spec").include('**/*_spec.rb')
 

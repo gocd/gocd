@@ -28,6 +28,7 @@ public class ExecuteUnderRailsTask extends Exec {
   def railsCommand
 
   public ExecuteUnderRailsTask() {
+    dependsOn ':tools:prepareJRuby'
     dependsOn ':server:prepare'
     dependsOn ':server:cleanRails'
     dependsOn ':server:jar'
@@ -56,9 +57,9 @@ public class ExecuteUnderRailsTask extends Exec {
 
 
     if (OperatingSystem.current().isWindows()) {
-      setExecutable project.rootProject.file("tools/rails/bin/jruby.bat")
+      setExecutable project.findProject(':tools').file("rails/bin/jruby.bat")
     } else {
-      setExecutable project.rootProject.file("tools/rails/bin/jruby")
+      setExecutable project.findProject(':tools').file("rails/bin/jruby")
     }
 
     args('-S')

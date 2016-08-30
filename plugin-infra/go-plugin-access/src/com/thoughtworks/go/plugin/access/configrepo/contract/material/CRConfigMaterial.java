@@ -5,16 +5,17 @@ import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
 public class CRConfigMaterial extends CRMaterial {
     public static final String TYPE_NAME = "configrepo";
 
+    private CRFilter filter;
     private String destination;
 
     public CRConfigMaterial() {
         type = TYPE_NAME;
     }
-    public CRConfigMaterial(String name, String destination) {
+    public CRConfigMaterial(String name, String destination,CRFilter filter) {
         super(TYPE_NAME,name);
         this.destination = destination;
+        this.filter = filter;
     }
-
 
     @Override
     public boolean equals(Object o) {
@@ -32,6 +33,9 @@ public class CRConfigMaterial extends CRMaterial {
         if (destination != null ? !destination.equals(that.destination) : that.destination != null) {
             return false;
         }
+        if (filter != null ? !filter.equals(that.filter) : that.filter != null) {
+            return false;
+        }
 
         return true;
     }
@@ -40,6 +44,7 @@ public class CRConfigMaterial extends CRMaterial {
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + (destination != null ? destination.hashCode() : 0);
+        result = 31 * result + (filter != null ? filter.hashCode() : 0);
         return result;
     }
 
@@ -50,7 +55,9 @@ public class CRConfigMaterial extends CRMaterial {
 
     @Override
     public void getErrors(ErrorCollection errors, String parentLocation) {
-        // no errors possible
+        String location = getLocation(parentLocation);
+        if(this.filter != null)
+            this.filter.getErrors(errors,location);
     }
 
     @Override
@@ -66,5 +73,13 @@ public class CRConfigMaterial extends CRMaterial {
 
     public void setDestination(String destination) {
         this.destination = destination;
+    }
+
+    public void setFilter(CRFilter filter) {
+        this.filter = filter;
+    }
+
+    public CRFilter getFilter() {
+        return filter;
     }
 }

@@ -31,6 +31,8 @@ public class CRFilter extends CRBase {
         return String.format("%s; Filter",myLocation);
     }
 
+    public boolean isEmpty() { return (whitelist == null || whitelist.isEmpty()) && (ignore == null || ignore.isEmpty()); }
+
     public boolean isWhitelist() {
         return whitelist != null && whitelist.size() > 0;
     }

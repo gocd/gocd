@@ -268,6 +268,20 @@ public class ConfigConverter {
                 repoMaterial.setName(new CaseInsensitiveString(crConfigMaterial.getName()));
             if(StringUtils.isNotEmpty(crConfigMaterial.getDestination()))
                 setDestination(repoMaterial,crConfigMaterial.getDestination());
+            if(crConfigMaterial.getFilter() != null && !crConfigMaterial.getFilter().isEmpty()) {
+                if(repoMaterial instanceof ScmMaterialConfig) {
+                    ScmMaterialConfig scmMaterialConfig = (ScmMaterialConfig)repoMaterial;
+                    scmMaterialConfig.setFilter(toFilter(crConfigMaterial.getFilter().getList()));
+                    scmMaterialConfig.setInvertFilter(crConfigMaterial.getFilter().isWhitelist());
+                }
+                else //must be a pluggable SCM
+                {
+                    PluggableSCMMaterialConfig pluggableSCMMaterial = (PluggableSCMMaterialConfig)repoMaterial;
+                    pluggableSCMMaterial.setFilter(toFilter(crConfigMaterial.getFilter().getList()));
+                    if(crConfigMaterial.getFilter().isWhitelist())
+                        throw new ConfigConvertionException("Plugable SCMs do not support whitelisting");
+                }
+            }
             return repoMaterial;
         } else
             throw new ConfigConvertionException(
@@ -321,7 +335,6 @@ public class ConfigConverter {
         String materialName = crScmMaterial.getName();
         if (crScmMaterial instanceof CRGitMaterial) {
             CRGitMaterial git = (CRGitMaterial) crScmMaterial;
-            Filter filter = toFilter(crScmMaterial);
             String gitBranch = git.getBranch();
             if (StringUtils.isBlank(gitBranch))
                 gitBranch = GitMaterialConfig.DEFAULT_BRANCH;

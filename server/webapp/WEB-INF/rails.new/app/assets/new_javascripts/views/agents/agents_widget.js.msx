@@ -78,19 +78,44 @@ define([
         });
       };
 
+      var timeoutID         = m.prop();
+      var currentRefreshXHR = m.prop();
+
       var ctrl = {
         message: m.prop(),
 
-        type:    m.prop(),
+        type: m.prop(),
 
-        allAgents:  Agents.all(),
+        allAgents: m.prop(new Agents()),
 
         hideDropDowns: function () {
           vm.dropdown.hideAllDropDowns();
         },
 
+        refreshAfterInterval: function () {
+          if (!_.isNil(timeoutID())) {
+            window.clearTimeout(timeoutID());
+            timeoutID(undefined);
+          }
+
+          timeoutID(window.setTimeout(ctrl.refresh.bind(ctrl), 10000));
+        },
+
+        cancelRefresh: function () {
+          if (!_.isNil(currentRefreshXHR())) {
+            currentRefreshXHR().abort();
+            currentRefreshXHR(undefined);
+          }
+        },
+
         refresh: function () {
-          this.allAgents = Agents.all();
+          this.cancelRefresh();
+          Agents.all(currentRefreshXHR).then(
+            function (data) {
+              ctrl.allAgents(data);
+              ctrl.refreshAfterInterval();
+            },
+            ctrl.refreshAfterInterval);
         },
 
         selectAllAgents: function () {
@@ -150,6 +175,7 @@ define([
         },
 
         disableAgents: function () {
+          this.cancelRefresh();
           this.allAgents().disableAgents(this.selectedAgentsUuids())
             .then(this.displaySuccessMessage.bind(this, "Disabled "),
               this.displayErrorMessage.bind(this))
@@ -158,6 +184,7 @@ define([
         },
 
         enableAgents: function () {
+          this.cancelRefresh();
           this.allAgents().enableAgents(this.selectedAgentsUuids())
             .then(this.displaySuccessMessage.bind(this, 'Enabled '),
               this.displayErrorMessage.bind(this))
@@ -167,6 +194,7 @@ define([
 
 
         deleteAgents: function () {
+          this.cancelRefresh();
           this.allAgents().deleteAgents(this.selectedAgentsUuids())
             .then(this.displaySuccessMessage.bind(this, 'Deleted '),
               this.displayErrorMessage.bind(this))
@@ -175,6 +203,7 @@ define([
         },
 
         updateResources: function (addResources, removeResources) {
+          this.cancelRefresh();
           this.allAgents().updateResources(this.selectedAgentsUuids(), addResources, removeResources)
             .then(this.displayModifiedMessage.bind(this, 'Resource', addResources, removeResources),
               this.displayErrorMessage.bind(this))
@@ -183,6 +212,7 @@ define([
         },
 
         updateEnvironments: function (addEnvironments, removeEnvironments) {
+          this.cancelRefresh();
           this.allAgents().updateEnvironments(this.selectedAgentsUuids(), addEnvironments, removeEnvironments)
             .then(this.displayModifiedMessage.bind(this, 'Environment', addEnvironments, removeEnvironments),
               this.displayErrorMessage.bind(this))
@@ -205,10 +235,9 @@ define([
             return agent.matches(vm.filterText());
           })
         }
-
       };
 
-      window.setInterval(ctrl.refresh.bind(ctrl), 10000);
+      ctrl.refresh();
 
       return ctrl;
     },

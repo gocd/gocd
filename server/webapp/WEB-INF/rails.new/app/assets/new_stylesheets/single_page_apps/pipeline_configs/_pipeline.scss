@@ -32,21 +32,21 @@
   .save-pipeline {
     margin: 4px 0 0 0;
     position: relative;
-    trasition: all 0.5s ease-in-out;
+    transition: all 0.5s ease-in-out;
 
     &.in-progress {
       padding-left: 40px;
-      trasition: all 0.5s ease-in-out;
+      transition: all 0.5s ease-in-out;
     }
 
     &.alert {
       padding-left: 40px;
-      trasition: all 0.5s ease-in-out;
+      transition: all 0.5s ease-in-out;
     }
 
     &.success {
       padding-left: 40px;
-      trasition: all 0.5s ease-in-out;
+      transition: all 0.5s ease-in-out;
     }
 
     .save-state {

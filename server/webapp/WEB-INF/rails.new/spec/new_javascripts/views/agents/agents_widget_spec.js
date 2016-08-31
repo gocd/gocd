@@ -129,7 +129,7 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agents_widget
       $(disableButton).click();
       m.redraw(true);
 
-      var message = $root.find('.alert-box');
+      var message = $root.find('.callout');
       expect(message.text()).toBe('Disabled 2 agents');
     });
 
@@ -140,13 +140,13 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agents_widget
       m.redraw(true);
 
       var buttons = $root.find('.agent-button-group button');
-      var message = $root.find('.alert-box');
+      var message = $root.find('.callout');
 
       expect(message.length).toBe(0);
       buttons[2].click();
       m.redraw(true);
 
-      var message = $root.find('.alert-box');
+      var message = $root.find('.callout');
       expect(message.text()).toBe('Enabled 2 agents');
     });
 
@@ -161,7 +161,7 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agents_widget
       delete_button.click();
       m.redraw(true);
 
-      var message = $root.find('.alert-box');
+      var message = $root.find('.callout');
       expect(message.text()).toBe('Deleted 2 agents');
       expect(delete_button.disabled).toBe(true);
     });
@@ -178,7 +178,7 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agents_widget
       apply_resource.click();
       m.redraw(true);
 
-      var message = $root.find('.alert-box');
+      var message = $root.find('.callout');
       expect(message.text()).toBe('Resources modified on 2 agents');
     });
 
@@ -193,7 +193,7 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agents_widget
       apply_environment.click();
       m.redraw(true);
 
-      var message = $root.find('.alert-box');
+      var message = $root.find('.callout');
       expect(message.text()).toBe('Environment modified on 2 agents');
     });
 

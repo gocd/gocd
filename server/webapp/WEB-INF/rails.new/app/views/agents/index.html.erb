@@ -1,7 +1,11 @@
 <%- @view_title = "Agents" -%>
 <div class="page_header" style='overflow:inherit;'>
     <h1 class="entity_title">Agents</h1>
-    <%= render :partial => "agents/agent_filter.html" -%>
+
+  <%= link_to_if is_agents_spa_enabled?, "Check out the new agents page", admin_agents_path, :class => 'new_agents_page' %>
+
+  <%= render :partial => "agents/agent_filter.html" -%>
+
 
     <% if has_operate_permission_for_agents? %>
     <div class="edit_panel" id="dd_ajax_float" style='float:right;'>
@@ -65,7 +69,7 @@
     </div>
 
 
-    
+
     <script type="text/javascript">
         Util.on_load(function() {
             var resource_panel_callback_handler = new EditPopupHandler.AddEditHandler('<%= url_for(:action => 'resource_selector') %>', $('agents_form'), Util.are_any_rows_selected('.agents .agent_select'), AgentUtil.validate_resource_name, 'agent_edit_operation', 'Apply_Resource', 'Add_Resource');

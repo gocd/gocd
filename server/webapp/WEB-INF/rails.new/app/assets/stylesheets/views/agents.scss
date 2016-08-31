@@ -190,3 +190,24 @@
 }
 
 
+.page_header {
+    a.new_agents_page {
+        font-size: 13px;
+        color: #333;
+        text-decoration: none;
+        margin: 8px 0 0 10px;
+        display: inline-block;
+        font-weight: normal;
+        &:hover {
+            text-decoration: underline;
+        }
+        &:before {
+            content: "|";
+            margin-right: 10px;
+            display:inline-block;
+
+        }
+    }
+}
+
+

@@ -59,10 +59,12 @@ define(['mithril', 'lodash', 'jquery', 'helpers/form_helper',
             }
           </ul>
 
-          <f.button data-toggle="environments-list" class="btn-apply"
-                    onclick={ctrl.updateEnvironments.bind(ctrl)}>
-            Apply
-          </f.button>
+          {_.isEmpty(Environments.list) ? <span class="resource-error">No environments are defined</span> :
+            <f.button data-toggle="environments-list" class="btn-apply"
+                      onclick={ctrl.updateEnvironments.bind(ctrl)}>
+              Apply
+            </f.button>
+          }
 
         </div>
       );

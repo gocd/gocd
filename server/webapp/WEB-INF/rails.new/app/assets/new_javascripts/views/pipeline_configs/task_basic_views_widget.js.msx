@@ -336,7 +336,7 @@ define([
 
         return (
           <div id={'pluggable-task-template-' + ctrl.task.uuid()} ng-controller={ctrl.ngControllerName} class='task-basic' config={config}>
-            <div class="alert-box alert"
+            <div class="callout alert"
                  ng-show="pluggableTaskGenericError">{'{{pluggableTaskGenericError}}'}</div>
             <div class='pluggable-task'>
               {m.trust(ctrl.templateHTML)}

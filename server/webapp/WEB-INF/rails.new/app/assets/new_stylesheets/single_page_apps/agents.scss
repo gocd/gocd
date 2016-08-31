@@ -16,21 +16,51 @@
 @import 'shared/go-variables';
 @import 'shared/mixins';
 @import 'shared/common';
-
 @import 'shared/header';
 @import 'shared/alert';
-
 
 .page-header {
   background: image-url('bg_agents_page_header.jpg') no-repeat 0 0;
   background-size: cover;
   padding: 20px 0;
+  position: relative;
   h1 {
     font-size: 30px;
-    margin: 4px 0 0 0;
+    margin: 0;
     color: #ffffff;
     text-transform: uppercase;
   }
+  .old-agents-page {
+    position: absolute;
+    left: 150px;
+    color: #fff;
+    font-size: 13px;
+    top: 31px;
+    text-decoration: none;
+
+    &:before {
+      content: "|";
+      margin-right: 10px;
+      display: inline-block;
+    }
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+span.info {
+  color: #fff;
+  clear: right;
+  position: absolute;
+  margin: 5px 0 0 0;
+  font-size: 13px;
+  right: 408px;
+  background: #333;
+  padding: 5px 10px;
+  top: 60px;
+  border-radius: 5px;
+  display: block;
 }
 
 .button {
@@ -41,9 +71,9 @@
 }
 
 // custom button group
-$agent-button-group-border-radius:5px;
-$secondary-color:#34D9DB;
-$border-color:#cccccc;
+$agent-button-group-border-radius: 5px;
+$secondary-color: #34D9DB;
+$border-color: #cccccc;
 
 .agent-button-group {
   margin-bottom: 0;
@@ -71,10 +101,10 @@ $border-color:#cccccc;
       border: 0;
       font-size: 16px;
       margin: 0;
-      border-radius:0;
+      border-radius: 0;
       &:hover,
       &:focus {
-        background-color: lighten( $secondary-color, 20%);
+        background-color: lighten($secondary-color, 20%);
         outline: 0;
       }
       &.btn-apply {
@@ -91,7 +121,7 @@ $border-color:#cccccc;
     }
     &.is-open {
       > .button {
-        background-color: lighten( $secondary-color, 20%);
+        background-color: lighten($secondary-color, 20%);
         border-bottom-right-radius: 0px;
         &:before {
           content: "";
@@ -104,7 +134,7 @@ $border-color:#cccccc;
           height: 0;
           border-style: solid;
           border-width: 10px 10px 0 10px;
-          border-color: lighten( $secondary-color, 20%) transparent transparent transparent;
+          border-color: lighten($secondary-color, 20%) transparent transparent transparent;
         }
       }
     }
@@ -152,7 +182,7 @@ $border-color:#cccccc;
   }
 }
 
-.agent-button-group > li{
+.agent-button-group > li {
   .add-resource {
     input[type="text"] {
       border-radius: 0;
@@ -172,7 +202,7 @@ $border-color:#cccccc;
       height: 40px;
       &:hover,
       &:focus {
-        background-color: lighten( $secondary-color, 10%);
+        background-color: lighten($secondary-color, 10%);
         outline: 0;
         color: #333333;
       }
@@ -183,25 +213,27 @@ $border-color:#cccccc;
   .button[disabled] {
     opacity: 1;
     cursor: not-allowed;
+    &:hover {
+      background: #34D9DB;
+      color: #333;
+    }
   }
 }
-
-
 
 // search panel
 .search-panel {
   padding: 30px 0;
-  background:#fff;
+  background: #fff;
 }
 
 .search-bar {
   position: relative;
   margin-top: 10px;
-  @include icon-before($type:search);
-  &:before{
+  @include icon-before($type: search);
+  &:before {
     position: absolute;
     left: 7px;
-    color:#cacaca;
+    color: #cacaca;
     top: 6px;
     font-size: 18px;
   }
@@ -244,31 +276,30 @@ $border-color:#cccccc;
       font-weight: 500;
     }
     &.enabled {
-      color:#50E3C2;
+      color: #50E3C2;
     }
-    &.disabled{
+    &.disabled {
       color: #EE6161;
     }
   }
 }
 
-
 //table styles
 
-.go-table{
-  border-bottom:2px solid #cccccc;
-  thead{
-    tr{
-      background:#333333;
-      color:#ffffff;
+.go-table {
+  border-bottom: 2px solid #cccccc;
+  thead {
+    tr {
+      background: #333333;
+      color: #ffffff;
 
     }
   }
-  tbody{
-    tr{
-      &.building{
-        background:#ffeda0;
-        border-bottom:1px solid #fff;
+  tbody {
+    tr {
+      &.building {
+        background: #ffeda0;
+        border-bottom: 1px solid #fff;
       }
       &.disabled {
         color: #999;
@@ -276,8 +307,8 @@ $border-color:#cccccc;
       }
     }
   }
-  input[type="checkbox"]{
-    margin:0;
+  input[type="checkbox"] {
+    margin: 0;
   }
 }
 

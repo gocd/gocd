@@ -17,8 +17,23 @@
 define([
   'mithril', 'jquery', 'string-plus', 'lodash', 'helpers/form_helper', 'helpers/pipeline_configs/tooltips', 'helpers/mithril_component_mixins',
   'models/pipeline_configs/pipeline', 'models/pipeline_configs/tasks', 'views/pipeline_configs/pipeline_settings_widget',
-  'views/pipeline_configs/materials_config_widget', 'views/pipeline_configs/pipeline_flow_widget', 'views/pipeline_configs/errors_widget'],
-  function (m, $, s, _, f, tt, ComponentMixins, Pipeline, Tasks, PipelineSettingsWidget, MaterialsConfigWidget, PipelineFlowWidget, ErrorsWidget) {
+  'views/pipeline_configs/materials_config_widget', 'views/pipeline_configs/pipeline_flow_widget', 'views/pipeline_configs/errors_widget', 'views/shared/modal'], function (m, $, s, _, f, tt, ComponentMixins, Pipeline, Tasks, PipelineSettingsWidget, MaterialsConfigWidget, PipelineFlowWidget, ErrorsWidget, Modal) {
+
+  var ToggleViewWarning = {
+    view: function (ctrl, args) {
+      return (
+        <div class='modal-content'>
+          <p> 'Proceed' will discard any unsaved data.</p>
+          <div class='actions'>
+            <a class='toggle-old-view' href="javascript:void(0)"
+               onclick={args.parentView.close.bind(args.parentView)}>Cancel</a>
+            <a class='toggle-old-view' href="javascript:void(0)"
+               href={['/go/admin/pipelines/', args.pipeline().name(), '/general'].join('')}>Proceed</a>
+          </div>
+        </div>
+      )
+    }
+  };
 
   var PipelineConfigWidget = function (url, callback) {
     return {
@@ -31,6 +46,11 @@ define([
         self.url              = url;
         self.vm               = new Pipeline.vm();
         ComponentMixins.HasViewModel.call(this);
+
+        self.modal    = new Modal({
+          subView: { component: ToggleViewWarning, args: {pipeline: self.pipeline}},
+          title: 'Unsaved Changes'
+        });
 
         window.pipelineConfigWidget = m.prop(this);
 
@@ -93,16 +113,14 @@ define([
         var header = function () {
           return (
             <f.row class="heading">
-              <f.column size={8}>
+              <f.column size={10} largeSize={10}>
                 <h1>
                   Pipeline configuation for pipeline
                   {' '}
                   {pipeline.name()}
                 </h1>
-              </f.column>
-              <f.column size={3}>
-                <a class='toggle-old-view'
-                   href={['/go/admin/pipelines/', ctrl.pipeline().name(), '/general'].join('')}>Switch back to old view</a>
+                <a class='toggle-old-view' href="javascript:void(0)"
+                   onclick={ctrl.modal.open.bind(ctrl.modal)}>Normal Edit</a>
               </f.column>
               <f.column size={1}>
                 <f.button onclick={ctrl.onSavePipeline.bind(ctrl)}
@@ -145,6 +163,7 @@ define([
                 {pipelineFlowWidget()}
               </f.column>
             </f.row>
+            {ctrl.modal.view()}
           </form>
         );
       }

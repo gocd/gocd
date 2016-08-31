@@ -26,6 +26,7 @@
     h1 {
       font-size: rem-calc(20px);
       margin: 10px 0;
+      display: inline-block;
     }
   }
 
@@ -175,7 +176,17 @@
   padding-left: 3px;
 }
 
-.toggele-old-view {
-  float: right;
-  margin-top: 10px;
+.toggle-old-view {
+  display: inline-block;
+  margin: 0px 0 0 10px;
+  background: $primary-color;
+  color: #fff;
+  position: relative;
+  padding: 4px 10px;
+  font-size: 13px;
+  border-radius: 5px;
+  top: -2px;
+  &:hover, &:active, &:focus{
+    color: #fff;
+  }
 }

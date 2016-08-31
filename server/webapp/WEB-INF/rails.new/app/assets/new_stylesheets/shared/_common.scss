@@ -67,17 +67,6 @@ html, body {
   height: $app-footer-height;
 }
 
-.toggle-old-view {
-  color: #333;
-  display: inline-block;
-  font-size: 13px;
-  margin: 14px 0 0 0;
-  float: right;
-  &:hover {
-    text-decoration: underline;
-  }
-}
-
 .page-spinner {
   position: absolute;
   top: 50%;

@@ -91,11 +91,16 @@ define(['mithril', 'lodash', 'string-plus',
     Mixins.HasMany.call(this, {factory: Agents.Agent.create, as: 'Agent', collection: data, uniqueOn: 'uuid'});
   };
 
-  Agents.all = function () {
+  Agents.all = function (configCallBack) {
     return m.request({
       method:        "GET",
       url:           Routes.apiv2AgentsPath(),
-      config:        mrequest.xhrConfig.v3,
+      config:        function (xhr) {
+        mrequest.xhrConfig.v3(xhr);
+        if (configCallBack) {
+          configCallBack(xhr)
+        }
+      },
       unwrapSuccess: function (data) {
         return Agents.fromJSON(data['_embedded']['agents']);
       }

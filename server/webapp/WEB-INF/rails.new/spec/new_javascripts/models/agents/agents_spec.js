@@ -110,7 +110,7 @@ define([
     });
 
     it('should give the agents object', function () {
-      var agents = Agents.all(JsRoutes.apiv2AgentsPath());
+      var agents = Agents.all();
       expect(agents().countAgent()).toBe(1);
     });
 
@@ -126,7 +126,7 @@ define([
         expect(agent.matches("invalid-search")).toBe(false);
       });
     });
-
+    
     var agentData = {
       "_links":             {
         "self": {

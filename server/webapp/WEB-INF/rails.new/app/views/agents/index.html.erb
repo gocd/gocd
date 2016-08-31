@@ -2,7 +2,9 @@
 <div class="page_header" style='overflow:inherit;'>
     <h1 class="entity_title">Agents</h1>
 
-  <%= link_to_if is_agents_spa_enabled?, "Check out the new agents page", admin_agents_path, :class => 'new_agents_page' %>
+  <% if is_agents_spa_enabled? %>
+      <%= link_to "Check out the new agents page", admin_agents_path, :class => 'new_agents_page' %>
+  <% end %>
 
   <%= render :partial => "agents/agent_filter.html" -%>
 

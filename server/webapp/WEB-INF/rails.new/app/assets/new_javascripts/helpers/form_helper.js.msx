@@ -634,10 +634,12 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'es6shim'], f
             message('')
           }, args.timeout);
           return (
-            <f.row data-alert class={"callout radius "+ args.type()}>
+          <f.row>
+            <div data-alert class={"callout radius "+ args.type()}>
               {args.message()}
               <a href="#" class="close"></a>
-            </f.row>
+            </div>
+          </f.row>
           );
         }
       }

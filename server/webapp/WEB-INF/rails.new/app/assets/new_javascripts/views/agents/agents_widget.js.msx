@@ -257,13 +257,13 @@ define([
           <div class="search-panel">
             <f.row>
               <f.column size={6} largeSize={3}>
-                <label class="search-bar">
+                <div class="search-bar">
                   <input type="text"
                          oninput={m.withAttr("value", vm.filterText)}
                          value={vm.filterText()}
                          placeholder="Filter Agents"
                          id="filter-agent"/>
-                </label>
+                </div>
               </f.column>
 
               <f.column size={6} largeSize={8}>

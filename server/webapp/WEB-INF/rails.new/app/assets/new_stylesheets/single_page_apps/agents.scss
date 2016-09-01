@@ -19,32 +19,37 @@
 @import 'shared/header';
 @import 'shared/alert';
 
+#agents {
+  transition: all 0.3s ease-in-out;
+}
+
 .page-header {
   background: image-url('bg_agents_page_header.jpg') no-repeat 0 0;
   background-size: cover;
-  padding: 20px 0;
+  padding: 10px 0;
   position: relative;
   h1 {
-    font-size: 30px;
+    font-size: 20px;
     margin: 0;
     color: #ffffff;
     text-transform: uppercase;
+    display: inline-block;
+    font-weight: 600;
   }
   .old-agents-page {
-    position: absolute;
-    left: 150px;
     color: #fff;
-    font-size: 13px;
-    top: 31px;
+    background: $dark-grey;
+    font-size: rem-calc(13px);
+    font-weight: 600;
+    position: relative;
+    margin: 0 10px;
     text-decoration: none;
-
-    &:before {
-      content: "|";
-      margin-right: 10px;
-      display: inline-block;
-    }
+    top: -1px;
+    padding: 3px 7px;
+    border-radius: 5px;
     &:hover {
-      text-decoration: underline;
+      background: #fff;
+      color: #333;
     }
   }
 }
@@ -79,29 +84,30 @@ $border-color: #cccccc;
   margin-bottom: 0;
   float: right;
   > li {
-    margin-left: 3px;
+    margin-left: 1px;
     display: inline-block;
     position: relative;
     &:first-child {
       margin-left: 0;
       > .button {
-        border-top-left-radius: $agent-button-group-border-radius;
-        border-bottom-left-radius: $agent-button-group-border-radius;
+        border-radius: $agent-button-group-border-radius 0 0 $agent-button-group-border-radius;
       }
     }
     &:last-child {
       > .button {
-        border-top-right-radius: $agent-button-group-border-radius;
-        border-bottom-right-radius: $agent-button-group-border-radius;
+        border-radius: 0 $agent-button-group-border-radius $agent-button-group-border-radius 0;
       }
     }
     .button {
       background-color: $secondary-color;
       color: #333333;
       border: 0;
-      font-size: 16px;
+      font-size: rem-calc(13px);
+      font-weight: 600;
       margin: 0;
       border-radius: 0;
+      padding: 0 7px;
+      line-height: 30px;
       &:hover,
       &:focus {
         background-color: lighten($secondary-color, 20%);
@@ -114,6 +120,7 @@ $border-color: #cccccc;
         margin-right: 1px;
         color: #333333;
         height: auto;
+        line-height: normal;
       }
     }
     > .button:not(:last-child) {
@@ -127,7 +134,7 @@ $border-color: #cccccc;
           content: "";
           position: absolute;
           z-index: 1;
-          bottom: -10px;
+          bottom: -9px;
           left: 50%;
           transform: translateX(-50%);
           width: 0;
@@ -145,7 +152,7 @@ $border-color: #cccccc;
   display: none;
   position: absolute;
   right: 0;
-  top: 100%;
+  top: 102%;
   background: #535353;
   padding: 20px;
   width: 300px;
@@ -200,8 +207,10 @@ $border-color: #cccccc;
       font-size: 15px;
       color: #333333;
       height: 40px;
+      transition: all 0.3s ease-in-out;
       &:hover,
       &:focus {
+        transition: all 0.3s ease-in-out;
         background-color: lighten($secondary-color, 10%);
         outline: 0;
         color: #333333;
@@ -213,16 +222,19 @@ $border-color: #cccccc;
   .button[disabled] {
     opacity: 1;
     cursor: not-allowed;
+    background-color: #c7c7c7;
+    color: #a9a9a9;
+    transition: all 0.3s ease-in-out;
     &:hover {
-      background: #34D9DB;
-      color: #333;
+      background-color: #c7c7c7;
+      color: #a9a9a9;
     }
   }
 }
 
 // search panel
 .search-panel {
-  padding: 30px 0;
+  padding: 10px 0;
   background: #fff;
 }
 
@@ -273,7 +285,7 @@ $border-color: #cccccc;
     }
     .value {
       font-size: 20px;
-      font-weight: 500;
+      font-weight: 600;
     }
     &.enabled {
       color: #50E3C2;
@@ -289,14 +301,17 @@ $border-color: #cccccc;
 .go-table {
   border-bottom: 2px solid #cccccc;
   thead {
+    border: 0;
     tr {
       background: #333333;
       color: #ffffff;
+      font-size: rem-calc(14px);
 
     }
   }
   tbody {
     tr {
+      font-size: rem-calc(13px);
       &.building {
         background: #ffeda0;
         border-bottom: 1px solid #fff;

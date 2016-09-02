@@ -111,7 +111,7 @@ Go::Application.routes.draw do
 
   get "admin/config/server" => "admin/server#index", as: :edit_server_config
   post "admin/config/server/update" => "admin/server#update", as: :update_server_config
-  get "admin/config/server/validate" => "admin/server#validate", as: :validate_server_config_params
+  post "admin/config/server/validate" => "admin/server#validate", as: :validate_server_config_params, constraints: HeaderConstraint.new
   post "admin/config/server/test_email" => "admin/server#test_email", as: :send_test_email
   post "admin/config/server/validate_ldap" => "admin/server#validate_ldap", as: :validate_ldap_settings
 

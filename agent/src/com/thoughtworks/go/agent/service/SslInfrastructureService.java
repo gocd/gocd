@@ -163,7 +163,7 @@ public class SslInfrastructureService {
                     .addParameter("uuid", agentRegistry.uuid())
                     .addParameter("location", SystemUtil.currentWorkingDirectory())
                     .addParameter("usablespace", String.valueOf(AgentRuntimeInfo.usableSpace(SystemUtil.currentWorkingDirectory())))
-                    .addParameter("operatingSystem", new SystemEnvironment().getOperatingSystemName())
+                    .addParameter("operatingSystem", new SystemEnvironment().getOperatingSystemCompleteName())
                     .addParameter("agentAutoRegisterKey", agentAutoRegisterProperties.agentAutoRegisterKey())
                     .addParameter("agentAutoRegisterResources", agentAutoRegisterProperties.agentAutoRegisterResources())
                     .addParameter("agentAutoRegisterEnvironments", agentAutoRegisterProperties.agentAutoRegisterEnvironments())

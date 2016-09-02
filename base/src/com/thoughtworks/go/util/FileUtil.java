@@ -20,11 +20,22 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Stack;
+import java.util.StringTokenizer;
+import java.util.UUID;
 
 import static java.lang.System.getProperty;
 
@@ -32,14 +43,8 @@ public class FileUtil {
     private static final String CRUISE_TMP_FOLDER = "cruise" + "-" + UUID.randomUUID().toString();
     private static final Logger LOGGER = Logger.getLogger(FileUtil.class);
 
-    private static final boolean ON_NETWARE = Os.isFamily("netware");
-    private static final boolean ON_DOS = Os.isFamily("dos");
-
-    public static final FileFilter NONHIDDEN_FILE_FILTER = new FileFilter() {
-        public boolean accept(File pathname) {
-            return !isHidden(pathname);
-        }
-    };
+    private static final boolean ON_NETWARE = OperatingSystem.isFamily("netware");
+    private static final boolean ON_DOS = OperatingSystem.isFamily("dos");
 
     public static boolean isFolderEmpty(File folder) {
         if (folder == null) {
@@ -237,29 +242,14 @@ public class FileUtil {
     //CopiedFromAnt
 
     public static boolean isAbsolutePath(String filename) {
-        int len = filename.length();
-        if (len == 0) {
-            return false;
-        }
-        char sep = File.separatorChar;
-        filename = filename.replace('/', sep).replace('\\', sep);
-        char c = filename.charAt(0);
-        if (!(ON_DOS || ON_NETWARE)) {
-            return (c == sep);
-        }
-        if (c == sep) {
-            // CheckStyle:MagicNumber OFF
-            if (!(ON_DOS && len > 4 && filename.charAt(1) == sep)) {
-                return false;
+        File file = new File(filename);
+        boolean absolute = file.isAbsolute();
+        if (absolute && OperatingSystem.isFamily(OperatingSystem.WINDOWS)) {
+            if (filename.startsWith("\\\\") && !filename.matches("\\\\\\\\.*\\\\.+")) {
+                absolute = false;
             }
-            // CheckStyle:MagicNumber ON
-            int nextsep = filename.indexOf(sep, 2);
-            return nextsep > 2 && nextsep + 1 < len;
         }
-        int colon = filename.indexOf(':');
-        return (Character.isLetter(c) && colon == 1
-                && filename.length() > 2 && filename.charAt(2) == sep)
-                || (ON_NETWARE && colon > 0);
+        return absolute;
     }
 
     public static String[] dissect(String path) {

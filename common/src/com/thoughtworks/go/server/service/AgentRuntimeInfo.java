@@ -211,7 +211,7 @@ public class AgentRuntimeInfo implements Serializable {
     }
 
     public AgentRuntimeInfo refreshOperatingSystem() {
-        setOperatingSystem(new SystemEnvironment().getOperatingSystemName());
+        setOperatingSystem(new SystemEnvironment().getOperatingSystemCompleteName());
         return this;
     }
 

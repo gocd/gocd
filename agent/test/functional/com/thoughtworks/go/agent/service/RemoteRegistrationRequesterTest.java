@@ -29,8 +29,6 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -38,6 +36,8 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
 
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.Is.isA;
 import static org.junit.Assert.assertThat;
@@ -47,18 +47,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class RemoteRegistrationRequesterTest {
-    private String original;
-
-    @Before
-    public void before() {
-        original = System.getProperty("os.name");
-        System.setProperty("os.name", "minix");
-    }
-
-    @After
-    public void after() {
-        System.setProperty("os.name", original);
-    }
 
     @Test
     public void shouldPassAllParametersToPostForRegistrationOfNonElasticAgent() throws IOException, ClassNotFoundException {
@@ -107,7 +95,7 @@ public class RemoteRegistrationRequesterTest {
                     assertThat(getParameter(params, "uuid"), is(uuid));
                     String workingDir = SystemUtil.currentWorkingDirectory();
                     assertThat(getParameter(params, "location"), is(workingDir));
-                    assertThat(getParameter(params, "operatingSystem"), is("minix"));
+                    assertThat(getParameter(params, "operatingSystem"), not(nullValue()));
                     assertThat(getParameter(params, "agentAutoRegisterKey"), is("t0ps3cret"));
                     assertThat(getParameter(params, "agentAutoRegisterResources"), is("linux, java"));
                     assertThat(getParameter(params, "agentAutoRegisterEnvironments"), is("uat, staging"));

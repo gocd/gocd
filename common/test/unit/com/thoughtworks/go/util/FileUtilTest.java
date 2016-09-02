@@ -271,6 +271,20 @@ public class FileUtilTest {
     }
 
     @Test
+    @RunIf(value = EnhancedOSChecker.class, arguments = {EnhancedOSChecker.WINDOWS})
+    public void shouldReturnFalseForInvalidWindowsUNCFilePath() {
+        assertThat(FileUtil.isAbsolutePath("\\\\host\\"), is(false));
+        assertThat(FileUtil.isAbsolutePath("\\\\host"), is(false));
+    }
+
+    @Test
+    @RunIf(value = EnhancedOSChecker.class, arguments = {EnhancedOSChecker.WINDOWS})
+    public void shouldReturnTrueForValidWindowsUNCFilePath() {
+        assertThat(FileUtil.isAbsolutePath("\\\\host\\share"), is(true));
+        assertThat(FileUtil.isAbsolutePath("\\\\host\\share\\dir"), is(true));
+    }
+
+    @Test
     @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, WINDOWS})
     public void shouldReturnFalseIfGivenFolderIsAbsoluteUnderLinux() {
         assertThat(FileUtil.isFolderInsideSandbox("/tmp"), is(false));

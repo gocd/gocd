@@ -18,6 +18,7 @@ package com.thoughtworks.go.config;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
 @ConfigAttributeValue(fieldName = "name", createForNull = false)
@@ -26,12 +27,13 @@ public class CaseInsensitiveString implements Comparable<CaseInsensitiveString>,
     private final String name;
     private final String lowerCaseName;//used only for comparison
 
-    public CaseInsensitiveString(String name){
+    public CaseInsensitiveString(String name) {
         this.name = name;
-        this.lowerCaseName = name == null ? null : name.toLowerCase();
+        this.lowerCaseName = StringUtils.lowerCase(name);
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return name;
     }
 
@@ -47,20 +49,16 @@ public class CaseInsensitiveString implements Comparable<CaseInsensitiveString>,
 
         CaseInsensitiveString that = (CaseInsensitiveString) o;
 
-        if (name != null ? !toLower().equals(that.toLower()) : that.name != null) {
-            return false;
-        }
-
-        return true;
+        return StringUtils.equals(toLower(), that.toLower());
     }
 
-    public String toLower(){
+    public String toLower() {
         return lowerCaseName;
     }
 
     @Override
     public int hashCode() {
-        return name != null ? toLower().hashCode() : 0;
+        return toLower() != null ? toLower().hashCode() : 0;
     }
 
     public boolean isBlank() {
@@ -72,7 +70,7 @@ public class CaseInsensitiveString implements Comparable<CaseInsensitiveString>,
     }
 
     public int compareTo(CaseInsensitiveString other) {
-        return toLower().compareTo(other.toLower());
+        return ObjectUtils.compare(toLower(), other.toLower());
     }
 
     public static boolean isBlank(CaseInsensitiveString string) {

@@ -37,7 +37,7 @@ public class CaseInsensitiveStringTest {
         assertThat(name, is(new CaseInsensitiveString("SOMENAME")));
         assertThat(name, not(new CaseInsensitiveString("SOMECRAP")));
     }
-    
+
     @Test
     public void shouldUnderstandBlankString() {
         assertThat(new CaseInsensitiveString("someName").isBlank(), is(false));
@@ -59,12 +59,15 @@ public class CaseInsensitiveStringTest {
         CaseInsensitiveString foo = new CaseInsensitiveString("foo");
         CaseInsensitiveString fOO = new CaseInsensitiveString("fOO");
         CaseInsensitiveString bar = new CaseInsensitiveString("bar");
+        CaseInsensitiveString nullString = new CaseInsensitiveString(null);
         assertThat(foo.compareTo(fOO), is(0));
         assertThat(fOO.compareTo(foo), is(0));
         assertThat(bar.compareTo(foo), lessThan(0));
         assertThat(bar.compareTo(fOO), lessThan(0));
         assertThat(foo.compareTo(bar), greaterThan(0));
         assertThat(fOO.compareTo(bar), greaterThan(0));
+        assertThat(nullString.compareTo(foo), lessThan(0));
+        assertThat(foo.compareTo(nullString), greaterThan(0));
     }
 
     @Test
@@ -72,7 +75,7 @@ public class CaseInsensitiveStringTest {
         assertThat(new CaseInsensitiveString("foo").toUpper(), is("FOO"));
         assertThat(new CaseInsensitiveString("FOO").toLower(), is("foo"));
     }
-    
+
     @Test
     public void shouldReturnNullSafeStringRepresentation() {
         assertThat(CaseInsensitiveString.str(new CaseInsensitiveString("foo")), is("foo"));

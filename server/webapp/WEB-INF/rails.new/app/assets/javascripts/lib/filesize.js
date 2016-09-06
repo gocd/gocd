@@ -5,13 +5,19 @@
  *
  * @copyright 2016 Jason Mulligan <jason.mulligan@avoidwork.com>
  * @license BSD-3-Clause
- * @version 3.2.1
+ * @version 3.3.0
  */
 (function (global) {
 	var b = /^(b|B)$/;
 	var symbol = {
-		bits: ["b", "Kb", "Mb", "Gb", "Tb", "Pb", "Eb", "Zb", "Yb"],
-		bytes: ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"]
+		iec: {
+			bits: ["b", "Kib", "Mib", "Gib", "Tib", "Pib", "Eib", "Zib", "Yib"],
+			bytes: ["B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"]
+		},
+		jedec: {
+			bits: ["b", "Kb", "Mb", "Gb", "Tb", "Pb", "Eb", "Zb", "Yb"],
+			bytes: ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"]
+		}
 	};
 
 	/**
@@ -27,17 +33,18 @@
 
 		var result = [],
 		    val = 0,
-		    e = undefined,
-		    base = undefined,
-		    bits = undefined,
-		    ceil = undefined,
-		    neg = undefined,
-		    num = undefined,
-		    output = undefined,
-		    round = undefined,
-		    unix = undefined,
-		    spacer = undefined,
-		    symbols = undefined;
+		    e = void 0,
+		    base = void 0,
+		    bits = void 0,
+		    ceil = void 0,
+		    neg = void 0,
+		    num = void 0,
+		    output = void 0,
+		    round = void 0,
+		    unix = void 0,
+		    spacer = void 0,
+		    standard = void 0,
+		    symbols = void 0;
 
 		if (isNaN(arg)) {
 			throw new Error("Invalid arguments");
@@ -49,6 +56,7 @@
 		round = descriptor.round !== undefined ? descriptor.round : unix ? 1 : 2;
 		spacer = descriptor.spacer !== undefined ? descriptor.spacer : unix ? "" : " ";
 		symbols = descriptor.symbols || descriptor.suffixes || {};
+		standard = base === 2 ? descriptor.standard || "jedec" : "jedec";
 		output = descriptor.output || "string";
 		e = descriptor.exponent !== undefined ? descriptor.exponent : -1;
 		num = Number(arg);
@@ -91,10 +99,10 @@
 			}
 
 			result[0] = Number(val.toFixed(e > 0 ? round : 0));
-			result[1] = base === 10 && e === 1 ? bits ? "kb" : "kB" : symbol[bits ? "bits" : "bytes"][e];
+			result[1] = base === 10 && e === 1 ? bits ? "kb" : "kB" : symbol[standard][bits ? "bits" : "bytes"][e];
 
 			if (unix) {
-				result[1] = result[1].charAt(0);
+				result[1] = standard === "jedec" ? result[1].charAt(0) : e > 0 ? result[1].replace(/B$/, "") : result[1];
 
 				if (b.test(result[1])) {
 					result[0] = Math.floor(result[0]);
@@ -108,7 +116,7 @@
 			result[0] = -result[0];
 		}
 
-		// Applying custom suffix
+		// Applying custom symbol
 		result[1] = symbols[result[1]] || result[1];
 
 		// Returning Array, Object, or String (default)

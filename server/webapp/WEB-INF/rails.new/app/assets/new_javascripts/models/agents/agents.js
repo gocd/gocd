@@ -107,6 +107,18 @@ define(['mithril', 'lodash', 'string-plus',
     });
   };
 
+  var toHumanReadable = function () {
+    try {
+      if (_.isNumber(this.freeSpace())) {
+        return filesize(this.freeSpace());
+      } else {
+        return 'Unknown'
+      }
+    } catch (e) {
+      return 'Unknown';
+    }
+  };
+
   Agents.Agent = function (data) {
     var self              = this;
     this.uuid             = m.prop(data.uuid);
@@ -115,6 +127,7 @@ define(['mithril', 'lodash', 'string-plus',
     this.sandbox          = m.prop(data.sandbox);
     this.operatingSystem  = m.prop(data.operatingSystem);
     this.freeSpace        = m.prop(data.freeSpace);
+    this.readableFreeSpace = m.prop(toHumanReadable(data.freeSpace));
     this.agentConfigState = m.prop(data.agentConfigState);
     this.agentState       = m.prop(data.agentState);
     this.buildState       = m.prop(data.buildState);
@@ -139,14 +152,6 @@ define(['mithril', 'lodash', 'string-plus',
         return 'Building';
       }
       return this.agentState();
-    };
-
-    this.readableFreeSpace = function () {
-      try {
-        return filesize(this.freeSpace());
-      } catch (e) {
-        return 'Unknown';
-      }
     };
 
     this.matches = function (filterText) {

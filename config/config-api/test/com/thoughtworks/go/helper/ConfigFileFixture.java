@@ -631,7 +631,7 @@ public final class ConfigFileFixture {
             + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
             + "xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\""
             + CONFIG_SCHEMA_VERSION + "\">\n"
-            + "  <server artifactsdir=\"other-artifacts\" commandRepositoryLocation=\"default\" serverId=\"foo\" />\n"
+            + "  <server artifactsdir=\"other-artifacts\" agentAutoRegisterKey=\"default\" commandRepositoryLocation=\"default\" serverId=\"foo\" />\n"
             + "</cruise>\n\n";
 
     public static final String STAGE_WITH_EMPTY_AUTH = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"

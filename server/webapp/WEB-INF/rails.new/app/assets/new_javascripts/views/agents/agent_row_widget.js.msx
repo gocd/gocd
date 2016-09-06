@@ -14,15 +14,21 @@
  * limitations under the License.
  */
 
-define(['mithril'], function (m) {
+define(['mithril', 'lodash'], function (m, _) {
 
-  var joinOrNoneSpecified = function (things) {
+  var cacheKey = function (things) {
+    return things.join(', ');
+  };
+
+  var joinFunction = function (things) {
     if (things.length == 0) {
       return (<em>none specified</em>);
     } else {
       return things.join(', ')
     }
   };
+
+  var joinOrNoneSpecified = _.memoize(joinFunction, cacheKey);
 
   var AgentRowWidget = {
     view: function (ctrl, args) {
@@ -32,22 +38,19 @@ define(['mithril'], function (m) {
 
       return (
         <tr key={agent.uuid()} class={agent.status().toLowerCase()}>
-          <td>
+          <td key="checkbox">
             <input type="checkbox"
                    checked={args.checkBoxModel()}
-                   onclick={m.withAttr('checked', function(value) {
-                    args.checkBoxModel(value)
-                   })}
-            />
+                   onclick={m.withAttr('checked', args.checkBoxModel)}/>
           </td>
-          <td>{agent.hostname()}</td>
-          <td>{agent.sandbox()}</td>
-          <td>{agent.operatingSystem()}</td>
-          <td>{agent.ipAddress()}</td>
-          <td>{agent.status()}</td>
-          <td>{agent.readableFreeSpace()}</td>
-          <td>{resources}</td>
-          <td>{environments}</td>
+          <td key="hostname">{agent.hostname()}</td>
+          <td key="sandbox">{agent.sandbox()}</td>
+          <td key="operatingSystem">{agent.operatingSystem()}</td>
+          <td key="ipAddress">{agent.ipAddress()}</td>
+          <td key="status">{agent.status()}</td>
+          <td key="readableFreeSpace">{agent.readableFreeSpace()}</td>
+          <td key="resources">{resources}</td>
+          <td key="environments">{environments}</td>
         </tr>
       );
     }

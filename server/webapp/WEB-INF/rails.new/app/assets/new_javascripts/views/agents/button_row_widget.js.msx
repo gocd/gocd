@@ -27,25 +27,12 @@ define(['mithril', 'lodash',
   var ButtonRowWidget = {
     controller: function (args) {
 
-      var hideOtherDropdowns = function (name) {
-        var vm = args.dropdown;
-        for (var item in vm.states) {
-          if (!_.isEqual(item, name)) {
-            vm.states[item](false);
-          }
-        }
-      };
-
       var ctrl = {
-        enableAgents: function () {
-          args.onEnable();
-        },
-
         toggleDropdown: function (name) {
           var vm = args.dropdown;
           vm.reset(false);
           vm.states[name](!vm.states[name]());
-          hideOtherDropdowns(name);
+          args.dropdown.hideAllDropDownsExcept(name);
         },
 
         dropdownClass: function (name) {
@@ -54,18 +41,20 @@ define(['mithril', 'lodash',
           return vm.states[name]() ? 'has-dropdown is-open' : 'has-dropdown';
         },
 
-        isAnyAgentSelected: function () {
-          return _.some(args.agentsCheckedState, function (boxState) {
+        isButtonDisabled:          function () {
+          return args.isUpdateInProgress() || !_.some(args.agentsCheckedState, function (boxState) {
             return boxState();
           });
         },
-
-        fetchResources: function () {
+        resourcesButtonClicked:    function (e) {
+          e.preventDefault();
           Resources.init(args.selectedAgents());
+          ctrl.toggleDropdown('resource');
         },
-
-        fetchEnvironments: function () {
+        environmentsButtonClicked: function (e) {
+          e.preventDefault();
           Environments.init(args.selectedAgents());
+          ctrl.toggleDropdown('environment');
         }
       };
 
@@ -73,7 +62,6 @@ define(['mithril', 'lodash',
     },
 
     view: function (ctrl, args) {
-
       return (
         <header class="page-header">
           <f.row>
@@ -87,7 +75,7 @@ define(['mithril', 'lodash',
                 <li>
                   <f.button class="button"
                             onclick={args.onDelete}
-                            disabled={!ctrl.isAnyAgentSelected()}>
+                            disabled={ctrl.isButtonDisabled()}>
                     Delete
                   </f.button>
                 </li>
@@ -95,7 +83,7 @@ define(['mithril', 'lodash',
                 <li>
                   <f.button class="button"
                             onclick={args.onDisable}
-                            disabled={!ctrl.isAnyAgentSelected()}>
+                            disabled={ctrl.isButtonDisabled()}>
                     Disable
                   </f.button>
                 </li>
@@ -103,41 +91,30 @@ define(['mithril', 'lodash',
                 <li>
                   <f.button class="button"
                             onclick={args.onEnable}
-                            disabled={!ctrl.isAnyAgentSelected()}>
+                            disabled={ctrl.isButtonDisabled()}>
                     Enable
                   </f.button>
                 </li>
 
                 <li class={ ctrl.dropdownClass('resource') }>
-
                   <f.button class="button"
-                            onclick={function(e) {
-                              e.preventDefault();
-                              ctrl.fetchResources();
-                              ctrl.toggleDropdown('resource');
-                            }}
-                            disabled={!ctrl.isAnyAgentSelected()}>
+                            onclick={ctrl.resourcesButtonClicked}
+                            disabled={ctrl.isButtonDisabled()}>
                     Resources
                   </f.button>
-
-
                   <ResourcesListWidget dropDownState={args.dropdown}
                                        onResourcesUpdate={args.onResourcesUpdate}/>
                 </li>
+
                 <li class={ctrl.dropdownClass('environment')}>
                   <f.button class="button"
-                            onclick={function (e) {
-                              e.preventDefault();
-                              ctrl.fetchEnvironments();
-                              ctrl.toggleDropdown('environment');
-                            }}
-                            disabled={!ctrl.isAnyAgentSelected()}>
+                            onclick={ctrl.environmentsButtonClicked}
+                            disabled={ctrl.isButtonDisabled()}>
                     Environments
                   </f.button>
 
                   <EnvironmentsListWidget dropDownState={args.dropdown}
                                           onEnvironmentsUpdate={args.onEnvironmentsUpdate}/>
-
                 </li>
               </ul>
             </f.column>

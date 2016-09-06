@@ -313,11 +313,30 @@ span.info {
   }
 }
 
-
 .go-table {
-  background: transparent;
-  border:     0;
-  margin:     0;
+  border-bottom: 2px solid #ccc;
+  background:    transparent;
+  border:        0;
+  margin:        0;
+
+  $columnWidths: (
+                     "1": 2%,
+                     "2": 13%,
+                     "3": 5%,
+                     "4": 12%,
+                     "5": 10%,
+                     "6": 5%,
+                     "7": 8%,
+                     "8": 25%,
+                     "9": 20%,
+                 );
+
+  @each $key, $val in $columnWidths {
+    td:nth-child(#{$key}), th:nth-child(#{$key}) {
+      width: $val;
+    }
+  }
+
   thead {
     border: 0;
     tr {

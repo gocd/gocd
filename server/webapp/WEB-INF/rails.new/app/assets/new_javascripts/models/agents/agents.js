@@ -18,6 +18,7 @@ define(['mithril', 'lodash', 'string-plus',
   'models/model_mixins', 'filesize',
   'helpers/mrequest', 'js-routes', 'lodash-inflection'], function (m, _, s, Mixins, filesize, mrequest, Routes) {
   var Agents = function (data) {
+    var self = this;
 
     this.disableAgents = function (uuids) {
       var json = {
@@ -42,6 +43,24 @@ define(['mithril', 'lodash', 'string-plus',
         config: mrequest.xhrConfig.v4,
         data:   json
       });
+    };
+
+    var agentsWithState = _.memoize(function (state) {
+      return self.filterAgent(function (agent) {
+        return agent.agentConfigState() === state;
+      }).length;
+    });
+
+    this.countDisabledAgents = function () {
+      return agentsWithState('Disabled');
+    };
+
+    this.countEnabledAgents = function () {
+      return agentsWithState('Enabled');
+    };
+
+    this.countPendingAgents = function () {
+      return agentsWithState('Pending');
     };
 
     this.enableAgents = function (uuids) {

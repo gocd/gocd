@@ -16,20 +16,23 @@
 
 package com.thoughtworks.go.security;
 
-import com.thoughtworks.go.util.TestFileUtil;
 import org.apache.commons.lang.builder.EqualsBuilder;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
+import java.io.IOException;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 
 public class RegistrationTest {
-    private static String authorityKeystorePath = "tempAuthorityKeystore";
+    @Rule
+    public TemporaryFolder tmpFolder = new TemporaryFolder();
 
     @Test
-    public void decodeFromJson() {
+    public void decodeFromJson() throws IOException {
         Registration origin = createRegistration();
         Registration reg = RegistrationJSONizer.fromJson(RegistrationJSONizer.toJson(origin));
         assertThat(reg.getPrivateKey(), is(origin.getPrivateKey()));
@@ -51,6 +54,11 @@ public class RegistrationTest {
     }
 
     @Test
+    public void registrationFromEmptyJSONShouldBeInvalid() throws Exception {
+        assertFalse(RegistrationJSONizer.fromJson("{}").isValid());
+    }
+
+    @Test
     public void shouldEncodeDecodeEmptyRegistration() throws Exception {
         Registration toSerialize = Registration.createNullPrivateKeyEntry();
         Registration deserialized = RegistrationJSONizer.fromJson(RegistrationJSONizer.toJson(toSerialize));
@@ -58,8 +66,8 @@ public class RegistrationTest {
         assertTrue(EqualsBuilder.reflectionEquals(toSerialize, deserialized));
     }
 
-    private static Registration createRegistration() {
-        File tempKeystoreFile = TestFileUtil.createUniqueTempFile(authorityKeystorePath);
+    private Registration createRegistration() throws IOException {
+        File tempKeystoreFile = tmpFolder.newFile();
         X509CertificateGenerator certificateGenerator = new X509CertificateGenerator();
         certificateGenerator.createAndStoreCACertificates(tempKeystoreFile);
         return certificateGenerator.createAgentCertificate(tempKeystoreFile, "blah");

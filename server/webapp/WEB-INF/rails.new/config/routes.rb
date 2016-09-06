@@ -282,7 +282,7 @@ Go::Application.routes.draw do
 
 
   namespace :admin do
-    resources :pipelines, only: [:edit], controller: :pipeline_configs, param: :pipeline_name, as: :pipeline_config
+    resources :pipelines, only: [:edit], controller: :pipeline_configs, param: :pipeline_name, as: :pipeline_config, constraints: {pipeline_name: PIPELINE_NAME_FORMAT}
     resources :agents, only: [:index], controller: :agents, as: :agents
   end
 

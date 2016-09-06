@@ -16,21 +16,25 @@
 
 package com.thoughtworks.go.security;
 
-import com.thoughtworks.go.util.TestFileUtil;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
+import java.io.IOException;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 public class RegistrationTest {
-    private static String authorityKeystorePath = "tempAuthorityKeystore";
+    @Rule
+    public TemporaryFolder tmpFolder = new TemporaryFolder();
 
     @Test
-    public void decodeFromJson() {
+    public void decodeFromJson() throws IOException {
         Registration origin = createRegistration();
-        Registration reg = Registration.fromJson(origin.toJson());
+        Registration reg = RegistrationJSONizer.fromJson(RegistrationJSONizer.toJson(origin));
         assertThat(reg.getPrivateKey(), is(origin.getPrivateKey()));
         assertThat(reg.getPublicKey(), is(origin.getPublicKey()));
         assertThat(reg.getChain(), is(origin.getChain()));
@@ -39,8 +43,31 @@ public class RegistrationTest {
         assertThat(reg.getChain().length, is(3));
     }
 
-    public static Registration createRegistration() {
-        File tempKeystoreFile = TestFileUtil.createUniqueTempFile(authorityKeystorePath);
+
+    @Test
+    public void shouldBeValidWhenPrivateKeyAndChainIsPresent() throws Exception {
+        assertFalse(Registration.createNullPrivateKeyEntry().isValid());
+        assertFalse(new Registration(null, null).isValid());
+        assertFalse(new Registration(null).isValid());
+
+        assertTrue(createRegistration().isValid());
+    }
+
+    @Test
+    public void registrationFromEmptyJSONShouldBeInvalid() throws Exception {
+        assertFalse(RegistrationJSONizer.fromJson("{}").isValid());
+    }
+
+    @Test
+    public void shouldEncodeDecodeEmptyRegistration() throws Exception {
+        Registration toSerialize = Registration.createNullPrivateKeyEntry();
+        Registration deserialized = RegistrationJSONizer.fromJson(RegistrationJSONizer.toJson(toSerialize));
+
+        assertTrue(EqualsBuilder.reflectionEquals(toSerialize, deserialized));
+    }
+
+    private Registration createRegistration() throws IOException {
+        File tempKeystoreFile = tmpFolder.newFile();
         X509CertificateGenerator certificateGenerator = new X509CertificateGenerator();
         certificateGenerator.createAndStoreCACertificates(tempKeystoreFile);
         return certificateGenerator.createAgentCertificate(tempKeystoreFile, "blah");

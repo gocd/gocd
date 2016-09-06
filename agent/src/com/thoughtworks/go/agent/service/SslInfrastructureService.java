@@ -23,6 +23,7 @@ import com.thoughtworks.go.config.AgentRegistry;
 import com.thoughtworks.go.config.GuidService;
 import com.thoughtworks.go.security.KeyStoreManager;
 import com.thoughtworks.go.security.Registration;
+import com.thoughtworks.go.security.RegistrationJSONizer;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.SystemUtil;
@@ -96,8 +97,8 @@ public class SslInfrastructureService {
 
     private void register(AgentAutoRegistrationProperties agentAutoRegistrationProperties) throws Exception {
         String hostName = SystemUtil.getLocalhostNameOrRandomNameIfNotFound();
-        Registration keyEntry = null;
-        while (keyEntry == null || keyEntry.getChain().length == 0) {
+        Registration keyEntry = Registration.createNullPrivateKeyEntry();
+        while (!keyEntry.isValid()) {
             try {
                 keyEntry = remoteRegistrationRequester.requestRegistration(hostName, agentAutoRegistrationProperties);
             } catch (Exception e) {
@@ -183,7 +184,7 @@ public class SslInfrastructureService {
         }
 
         protected Registration readResponse(InputStream is) throws IOException, ClassNotFoundException {
-            return Registration.fromJson(IOUtils.toString(is));
+            return RegistrationJSONizer.fromJson(IOUtils.toString(is));
         }
     }
 }

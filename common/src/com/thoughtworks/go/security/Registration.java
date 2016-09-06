@@ -16,52 +16,21 @@
 
 package com.thoughtworks.go.security;
 
-import com.google.gson.Gson;
-import org.apache.commons.io.IOUtils;
-import org.bouncycastle.util.io.pem.PemObject;
-import org.bouncycastle.util.io.pem.PemReader;
-import org.bouncycastle.util.io.pem.PemWriter;
-
-import java.io.*;
-import java.security.*;
+import java.io.Serializable;
+import java.security.KeyStore;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.cert.Certificate;
-import java.security.cert.*;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.util.*;
-
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+import java.security.cert.X509Certificate;
+import java.util.Date;
 
 public class Registration implements Serializable {
-
-    public static Registration fromJson(String json) {
-        Map map = new Gson().fromJson(json, Map.class);
-        List<Certificate> chain = new ArrayList<>();
-        try {
-            PemReader reader = new PemReader(new StringReader((String) map.get("agentPrivateKey")));
-            KeyFactory kf = KeyFactory.getInstance("RSA");
-            PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(reader.readPemObject().getContent());
-            PrivateKey privateKey = kf.generatePrivate(spec);
-            String agentCertificate = (String) map.get("agentCertificate");
-            PemReader certReader = new PemReader(new StringReader(agentCertificate));
-            while (true) {
-                PemObject obj = certReader.readPemObject();
-                if (obj == null) {
-                    break;
-                }
-                chain.add(CertificateFactory.getInstance("X.509").generateCertificate(new ByteArrayInputStream(obj.getContent())));
-            }
-            return new Registration(privateKey, chain.toArray(new Certificate[chain.size()]));
-        } catch (IOException | NoSuchAlgorithmException | CertificateException | InvalidKeySpecException e) {
-            throw bomb(e);
-        }
-    }
 
     private final PrivateKey privateKey;
     private final Certificate[] chain;
 
     public static Registration createNullPrivateKeyEntry() {
-        return new Registration(emptyPrivateKey());
+        return new Registration(null);
     }
 
     public Registration(PrivateKey privateKey, Certificate... chain) {
@@ -89,53 +58,12 @@ public class Registration implements Serializable {
         return getFirstCertificate().getNotBefore();
     }
 
-    private static PrivateKey emptyPrivateKey() {
-        return new PrivateKey() {
-            public String getAlgorithm() {
-                return null;
-            }
-
-            public String getFormat() {
-                return null;
-            }
-
-            public byte[] getEncoded() {
-                return new byte[0];
-            }
-        };
-    }
-
     public KeyStore.PrivateKeyEntry asKeyStoreEntry() {
         return new KeyStore.PrivateKeyEntry(privateKey, chain);
     }
 
-    public String toJson() {
-        Map<String, Object> ret = new HashMap<>();
-        ret.put("agentPrivateKey", serialize("RSA PRIVATE KEY", privateKey.getEncoded()));
-        StringBuilder builder = new StringBuilder();
-        for (Certificate c : chain) {
-            try {
-                builder.append(serialize("CERTIFICATE", c.getEncoded()));
-            } catch (CertificateEncodingException e) {
-                throw bomb(e);
-            }
-        }
-        ret.put("agentCertificate", builder.toString());
-        return new Gson().toJson(ret);
-    }
-
-    private String serialize(String type, byte[] data) {
-        PemObject obj = new PemObject(type, data);
-        StringWriter out = new StringWriter();
-        PemWriter writer = new PemWriter(out);
-        try {
-            writer.writeObject(obj);
-        } catch (IOException e) {
-            throw bomb(e);
-        } finally {
-            IOUtils.closeQuietly(writer);
-        }
-        return out.toString();
+    public boolean isValid() {
+        return privateKey != null && chain != null && chain.length > 0;
     }
 
 }

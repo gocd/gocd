@@ -461,10 +461,32 @@ a.unpause-build-link-disabled {
     background-image: image_url('pause-icon.png');
 }
 
+#labelFilterField {
+  width: 250px;
+  font-size: 1.2em;
+}
 
+.label-filter-group {
+  padding: 5px;
+  position: fixed;
+  top: 50px;
+  z-index: 1200;
+  right: 10px;
+}
 
+#search-message {
+  font-size: 2em;
+  padding-left: 10px;
+}
 
-
-
-
+.filter-clear-icon {
+  background: image_url('andare/nav-sprites-pipeline.png') no-repeat 1px 1px;
+  height: 14px;
+  width: 14px;
+  position: absolute;
+  right: 10px;
+  padding: 2px;
+  top: 11px;
+  opacity: 0.4;
+}
 

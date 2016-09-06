@@ -26,19 +26,25 @@
 #parse("shared/_header.vm")
 
 <style type="text/css">
-.pipeline-history-group .wrapper .onHover .detail,
-.pipeline-history-group .wrapper .onHover .rerun,
-.pipeline-history-group .wrapper .onHover .disabled-rerun
-{
-    display:block;
-    zoom: 1;
-}
+    .pipeline-history-group .wrapper .onHover .detail,
+    .pipeline-history-group .wrapper .onHover .rerun,
+    .pipeline-history-group .wrapper .onHover .disabled-rerun {
+        display: block;
+        zoom: 1;
+    }
 </style>
 <![endif]-->
 <textarea rows="0" cols="0" id='pipeline-history-list-template' style="display: none;">
 #parse('pipeline/_pipeline_history_list_jstemplate.vm')
 </textarea>
 <div id="yui-main">
+
+    <!-- Pipeline Label Filter -->
+    <div class="label-filter-group">
+        <button title="Clear" class="filter-clear-icon" style="display: block;" id="labelFilterClear"></button>
+        <input type="text" id="labelFilterField" placeholder='Filter history...'>
+    </div>
+
     <div class="yui-b">
         <!-- breadcrumbs -->
         #set($current_page="pipeline_history")
@@ -57,6 +63,8 @@
             Loading...
             <img src="$req.getContextPath()/$concatenatedSpinnerIconFilePath" alt="loading..."/>
         </div>
+
+        <p id="search-message"></p>
 
         #set($previousPage = "pipelineHistoryPage.switchToPage('$pipelineName', paginator.currentPage - 1)")
         #set($nextPage = "pipelineHistoryPage.switchToPage('$pipelineName', paginator.currentPage + 1)")
@@ -85,6 +93,8 @@
     #if($pipeline_comment_feature_toggle_key)
     var PipelineHistoryComment = initPipelineHistoryComment(jQuery, Modalbox, dashboard_periodical_executer);
     #end
+
+    var pipelineName = "$pipelineName";
 </script>
 
 #parse("shared/_footer.vm")

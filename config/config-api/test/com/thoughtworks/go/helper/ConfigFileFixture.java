@@ -806,7 +806,7 @@ public final class ConfigFileFixture {
             + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
             + "xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\""
             + CONFIG_SCHEMA_VERSION + "\">\n"
-            + "  <server artifactsdir=\"other-artifacts\" commandRepositoryLocation=\"default\" serverId=\"bar\">\n"
+            + "  <server artifactsdir=\"other-artifacts\" agentAutoRegisterKey=\"default\" commandRepositoryLocation=\"default\" serverId=\"bar\">\n"
             + "    <security>\n"
             + "      <roles>\n"
             + "        <role name=\"admin\" />\n"

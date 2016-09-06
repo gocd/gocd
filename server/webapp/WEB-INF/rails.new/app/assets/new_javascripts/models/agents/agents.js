@@ -107,10 +107,10 @@ define(['mithril', 'lodash', 'string-plus',
     });
   };
 
-  var toHumanReadable = function () {
+  var toHumanReadable = function (freeSpace) {
     try {
-      if (_.isNumber(this.freeSpace())) {
-        return filesize(this.freeSpace());
+      if (_.isNumber(freeSpace)) {
+        return filesize(freeSpace);
       } else {
         return 'Unknown'
       }
@@ -120,20 +120,20 @@ define(['mithril', 'lodash', 'string-plus',
   };
 
   Agents.Agent = function (data) {
-    var self              = this;
-    this.uuid             = m.prop(data.uuid);
-    this.hostname         = m.prop(data.hostname);
-    this.ipAddress        = m.prop(data.ipAddress);
-    this.sandbox          = m.prop(data.sandbox);
-    this.operatingSystem  = m.prop(data.operatingSystem);
-    this.freeSpace        = m.prop(data.freeSpace);
+    var self               = this;
+    this.uuid              = m.prop(data.uuid);
+    this.hostname          = m.prop(data.hostname);
+    this.ipAddress         = m.prop(data.ipAddress);
+    this.sandbox           = m.prop(data.sandbox);
+    this.operatingSystem   = m.prop(data.operatingSystem);
+    this.freeSpace         = m.prop(data.freeSpace);
     this.readableFreeSpace = m.prop(toHumanReadable(data.freeSpace));
-    this.agentConfigState = m.prop(data.agentConfigState);
-    this.agentState       = m.prop(data.agentState);
-    this.buildState       = m.prop(data.buildState);
-    this.resources        = m.prop(data.resources);
-    this.environments     = m.prop(data.environments);
-    this.parent           = Mixins.GetterSetter();
+    this.agentConfigState  = m.prop(data.agentConfigState);
+    this.agentState        = m.prop(data.agentState);
+    this.buildState        = m.prop(data.buildState);
+    this.resources         = m.prop(data.resources);
+    this.environments      = m.prop(data.environments);
+    this.parent            = Mixins.GetterSetter();
 
     this.status = function () {
       if (this.agentConfigState() === 'Pending') {

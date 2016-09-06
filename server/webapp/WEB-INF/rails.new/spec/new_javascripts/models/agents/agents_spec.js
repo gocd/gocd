@@ -50,7 +50,7 @@ define([
       expect(agent.ipAddress()).toBe('127.0.0.1');
       expect(agent.sandbox()).toBe('/Users/bob/projects/gocd/gocd-master/agent');
       expect(agent.operatingSystem()).toBe('Mac OS X');
-      expect(agent.freeSpace()).toBe('111902543872');
+      expect(agent.freeSpace()).toBe(111902543872);
       expect(agent.agentConfigState()).toBe('Enabled');
       expect(agent.agentState()).toBe('LostContact');
       expect(agent.buildState()).toBe('Unknown');
@@ -71,9 +71,9 @@ define([
     });
 
     it("should give the freeSpace in human readable format", function () {
-      expect(new Agents.Agent({freeSpace: '1024'}).readableFreeSpace()).toBe('1 KB');
-      expect(new Agents.Agent({freeSpace: '2048526'}).readableFreeSpace()).toBe('1.95 MB');
-      expect(new Agents.Agent({freeSpace: '2199023255552'}).readableFreeSpace()).toBe('2 TB');
+      expect(new Agents.Agent({freeSpace: 1024}).readableFreeSpace()).toBe('1 KB');
+      expect(new Agents.Agent({freeSpace: 2048526}).readableFreeSpace()).toBe('1.95 MB');
+      expect(new Agents.Agent({freeSpace: 2199023255552}).readableFreeSpace()).toBe('2 TB');
       expect(new Agents.Agent({freeSpace: 'snafu'}).readableFreeSpace()).toBe('Unknown');
     });
 
@@ -144,7 +144,7 @@ define([
       "ip_address":         "127.0.0.1",
       "sandbox":            "/Users/bob/projects/gocd/gocd-master/agent",
       "operating_system":   "Mac OS X",
-      "free_space":         "111902543872",
+      "free_space":         111902543872,
       "agent_config_state": "Enabled",
       "agent_state":        "LostContact",
       "build_state":        "Unknown",

@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+# Copyright 2016 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -128,6 +128,34 @@ describe "config_view/templates/show.html.erb" do
             expect(rows[0]).to have_selector("td.name_value_cell", :text => "value1")
             expect(rows[1]).to have_selector("td.name_value_cell", :text => "env2")
             expect(rows[1]).to have_selector("td.name_value_cell", :text => "value2")
+          end
+        end
+      end
+    end
+  end
+
+  it 'should mask the value of secure environment variable for a stage' do
+    stage = StageConfigMother.stage_config("stage1")
+    environment_variable_config_new = EnvironmentVariableConfig.new("env2", "value2")
+    environment_variable_config_new.setIsSecure(true)
+    stage.setVariables(EnvironmentVariablesConfig.new([EnvironmentVariableConfig.new("env1", "value1"), environment_variable_config_new]))
+    template = PipelineTemplateConfigMother.create_template("t1", [stage].to_java(StageConfig))
+    assign(:template_config, template)
+    render
+    Capybara.string(response.body).find("#definition_view_stage_1").tap do |stage|
+      stage.find(".tab-content #environment_variables_stage_1.tab-pane.active table.variables").tap do |table|
+        table.find("thead").tap do |head|
+          head.find("tr").tap do |row|
+            expect(row).to have_selector("th", :text => "Name")
+            expect(row).to have_selector("th", :text => "Value")
+          end
+        end
+        table.find("tbody").tap do |body|
+          body.all("tr").tap do |rows|
+            expect(rows[0]).to have_selector("td.name_value_cell", :text => "env1")
+            expect(rows[0]).to have_selector("td.name_value_cell", :text => "value1")
+            expect(rows[1]).to have_selector("td.name_value_cell", :text => "env2")
+            expect(rows[1]).to have_selector("td.name_value_cell", :text => "****")
           end
         end
       end

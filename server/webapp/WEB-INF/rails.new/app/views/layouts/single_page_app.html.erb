@@ -6,6 +6,7 @@
   <meta charset="utf-8">
   <title><%= @view_title %> - Go</title>
 
+  <link rel="shortcut icon" href="<%=asset_path('cruise.ico')%>"/>
   <%= stylesheet_link_tag 'frameworks' %>
   <%= stylesheet_link_tag "single_page_apps/#{controller_name}" %>
   <%= requirejs_include_tag "single_page_apps/#{controller_name}" %>

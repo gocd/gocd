@@ -301,8 +301,7 @@ public class GoFileConfigDataSource {
             List<PartialConfig> lastKnownPartials = cachedGoPartials.lastKnownPartials();
             List<PartialConfig> lastValidPartials = cachedGoPartials.lastValidPartials();
             try {
-                String configAsXml = trySavingConfig(updatingCommand, configHolder, lastKnownPartials);
-                validatedConfigHolder = internalLoad(configAsXml, getConfigUpdatingUser(updatingCommand), lastKnownPartials);
+                validatedConfigHolder = trySavingConfig(updatingCommand, configHolder, lastKnownPartials);
                 updateMergedConfigForEdit(validatedConfigHolder, lastKnownPartials);
             } catch (Exception e) {
                 if (lastKnownPartials.isEmpty() || areKnownPartialsSameAsValidPartials(lastKnownPartials, lastValidPartials)) {
@@ -312,8 +311,7 @@ public class GoFileConfigDataSource {
                             "Merged config update operation failed on LATEST %s partials. Falling back to using LAST VALID %s partials. Exception message was: %s",
                             lastKnownPartials.size(), lastValidPartials.size(), e.getMessage()), e);
                     try {
-                        String configAsXml = trySavingConfig(updatingCommand, configHolder, lastValidPartials);
-                        validatedConfigHolder = internalLoad(configAsXml, getConfigUpdatingUser(updatingCommand), lastValidPartials);
+                        validatedConfigHolder = trySavingConfig(updatingCommand, configHolder, lastValidPartials);
                         updateMergedConfigForEdit(validatedConfigHolder, lastValidPartials);
                         LOGGER.info(String.format("Update operation on merged configuration succeeded with old %s LAST VALID partials.", lastValidPartials.size()));
                     } catch (GoConfigInvalidException fallbackFailed) {
@@ -366,25 +364,35 @@ public class GoFileConfigDataSource {
         validatedConfigHolder.mergedConfigForEdit = mergedCruiseConfigForEdit;
     }
 
-    private String trySavingConfig(UpdateConfigCommand updatingCommand, GoConfigHolder configHolder, List<PartialConfig> partials) throws Exception {
-        String configAsXml = getModifiedConfig(updatingCommand, configHolder, partials);
+    private GoConfigHolder trySavingConfig(UpdateConfigCommand updatingCommand, GoConfigHolder configHolder, List<PartialConfig> partials) throws Exception {
+        String configAsXml;
+        GoConfigHolder validatedConfigHolder;
+        LOGGER.debug("[Config Save] ==-- Getting modified config");
+        if (shouldMergeConfig(updatingCommand, configHolder)) {
+            if (!systemEnvironment.get(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE)) {
+                throw new ConfigMergeException(ConfigFileHasChangedException.CONFIG_CHANGED_PLEASE_REFRESH);
+            }
+            configAsXml = getMergedConfig((NoOverwriteUpdateConfigCommand) updatingCommand, configHolder.configForEdit.getMd5(), partials);
+            try {
+                validatedConfigHolder = internalLoad(configAsXml, getConfigUpdatingUser(updatingCommand), partials);
+            } catch (Exception e) {
+                LOGGER.info(format("[CONFIG_MERGE] Post merge validation failed, latest-md5: %s", configHolder.configForEdit.getMd5()));
+                throw new ConfigMergePostValidationException(e.getMessage(), e);
+            }
+        } else {
+            configAsXml = getUnmergedConfig(updatingCommand, configHolder, partials);
+            validatedConfigHolder = internalLoad(configAsXml, getConfigUpdatingUser(updatingCommand), partials);
+        }
         LOGGER.info(String.format("[Configuration Changed] Saving updated configuration."));
         writeToConfigXmlFile(configAsXml);
-        return configAsXml;
+        return validatedConfigHolder;
     }
 
     private ConfigModifyingUser getConfigUpdatingUser(UpdateConfigCommand updatingCommand) {
         return updatingCommand instanceof UserAware ? ((UserAware) updatingCommand).user() : new ConfigModifyingUser();
     }
 
-    private String getModifiedConfig(UpdateConfigCommand updatingCommand, GoConfigHolder configHolder, List<PartialConfig> partials) throws Exception {
-        LOGGER.debug("[Config Save] ==-- Getting modified config");
-        if (shouldMergeConfig(updatingCommand, configHolder)) {
-            if (!systemEnvironment.get(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE)) {
-                throw new ConfigMergeException(ConfigFileHasChangedException.CONFIG_CHANGED_PLEASE_REFRESH);
-            }
-            return getMergedConfig((NoOverwriteUpdateConfigCommand) updatingCommand, configHolder.configForEdit.getMd5(), partials);
-        }
+    private String getUnmergedConfig(UpdateConfigCommand updatingCommand, GoConfigHolder configHolder, List<PartialConfig> partials) throws Exception {
         CruiseConfig deepCloneForEdit = cloner.deepClone(configHolder.configForEdit);
         deepCloneForEdit.setPartials(partials);
         CruiseConfig config = updatingCommand.update(deepCloneForEdit);
@@ -416,25 +424,8 @@ public class GoFileConfigDataSource {
                 serverVersion.version(), timeProvider);
 
         String mergedConfigXml = configRepository.getConfigMergedWithLatestRevision(configRevision, oldMd5);
-        validateMergedXML(mergedConfigXml, latestMd5, partials);
+        LOGGER.debug("[Config Save] -=- Done converting merged config to XML");
         return mergedConfigXml;
-    }
-
-    private CruiseConfig validateMergedXML(String mergedConfigXml, String latestMd5, final List<PartialConfig> partials) throws Exception {
-        LOGGER.debug("[Config Save] -=- Converting merged config to XML");
-        try {
-            return magicalGoConfigXmlLoader.loadConfigHolder(mergedConfigXml, new MagicalGoConfigXmlLoader.Callback() {
-                @Override
-                public void call(CruiseConfig cruiseConfig) {
-                    cruiseConfig.setPartials(partials);
-                }
-            }).configForEdit;
-        } catch (Exception e) {
-            LOGGER.info(format("[CONFIG_MERGE] Post merge validation failed, latest-md5: %s", latestMd5));
-            throw new ConfigMergePostValidationException(e.getMessage(), e);
-        } finally {
-            LOGGER.debug("[Config Save] -=- Done converting merged config to XML");
-        }
     }
 
     private String convertMutatedConfigToXml(CruiseConfig modifiedConfig, String latestMd5) throws Exception {

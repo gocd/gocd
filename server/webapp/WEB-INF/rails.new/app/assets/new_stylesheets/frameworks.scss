@@ -16,7 +16,6 @@
 
 // contains all common "framework" css
 @import '_variables';
-@import 'normalize-3.0.2';
 @import 'foundation_and_overrides';
 // make sure to load after foundation
 @import "bourbon";

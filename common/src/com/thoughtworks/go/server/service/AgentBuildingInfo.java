@@ -71,6 +71,35 @@ public class AgentBuildingInfo implements Serializable {
         return result;
     }
 
+    public String getPipelineName() {
+        if(isBuilding()) {
+            return buildLocator.split("/")[0];
+        }
+        return null;
+    }
+
+    public String getJobName() {
+        if (isBuilding()) {
+            try {
+                return buildLocator.split("/")[4];
+            } catch (ArrayIndexOutOfBoundsException e) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    public String getStageName() {
+        if(isBuilding()) {
+            try {
+                return buildLocator.split("/")[2];
+            } catch (ArrayIndexOutOfBoundsException e) {
+                return null;
+            }
+        }
+        return null;
+    }
+
     public boolean isBuilding() {
         return !buildingInfo.equals("");
     }

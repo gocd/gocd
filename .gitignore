@@ -17,6 +17,7 @@
 # intellij
 .idea/
 !.idea/copyright/
+!.idea/codeStyleSettings.xml
 
 *.iml
 

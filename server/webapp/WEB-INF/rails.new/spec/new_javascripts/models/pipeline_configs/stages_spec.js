@@ -137,6 +137,7 @@ define(['lodash', "models/pipeline_configs/stages", 'models/pipeline_configs/app
     });
 
     function sampleStageJSON() {
+      /* eslint-disable camelcase */
       return {
         name:                    "UnitTest",
         fetch_materials:         true,
@@ -163,6 +164,7 @@ define(['lodash', "models/pipeline_configs/stages", 'models/pipeline_configs/app
           }
         }
       };
+      /* eslint-enable camelcase */
     }
   });
 });

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-requirejs([
+require([
   'jquery', 'mithril', 'models/pipeline_configs/pluggable_tasks', 'models/pipeline_configs/resources', 'models/pipeline_configs/users',
   'models/pipeline_configs/roles', 'views/pipeline_configs/pipeline_config_widget', 'models/pipeline_configs/plugin_infos',
   'models/pipeline_configs/pluggable_scms', 'models/pipeline_configs/scms','foundation.util.mediaQuery', 'foundation.dropdownMenu',

@@ -17,55 +17,55 @@
 define(['lodash', 'string-plus', 'mithril', 'models/errors', 'models/model_mixins'], function (_, s, m, Errors, Mixins) {
   var PresenceValidator = function (options) {
     this.validate = function (entity, attr) {
-      if(options.condition && (!options.condition(entity))) {
+      if (options.condition && (!options.condition(entity))) {
         return;
       }
 
       if (s.isBlank(entity[attr]())) {
         entity.errors().add(attr, Validatable.ErrorMessages.mustBePresent(attr));
       }
-    }
+    };
   };
 
   var UniquenessValidator = function (options) {
     this.validate = function (entity, attr) {
-      if(_.isNil(entity.parent()) || s.isBlank(entity[attr]())) {
+      if (_.isNil(entity.parent()) || s.isBlank(entity[attr]())) {
         return;
       }
 
       if (!entity.parent().isUnique(entity, attr)) {
         entity.errors().add(attr, Validatable.ErrorMessages.duplicate(attr));
       }
-    }
+    };
   };
 
   var UrlPatternValidator = function (options) {
     var URL_REGEX = /^http(s)?:\/\/.+/;
 
     this.validate = function (entity, attr) {
-      if(s.isBlank(entity[attr]())) {
+      if (s.isBlank(entity[attr]())) {
         return;
       }
 
       if (!entity[attr]().match(URL_REGEX)) {
         entity.errors().add(attr, Validatable.ErrorMessages.mustBeAUrl(attr));
       }
-    }
+    };
   };
 
   var FormatValidator = function (options) {
     this.validate = function (entity, attr) {
-      if(s.isBlank(entity[attr]())) {
+      if (s.isBlank(entity[attr]())) {
         return;
       }
 
       if (!entity[attr]().match(options.format)) {
         entity.errors().add(attr, options.message || (s.humanize(attribute) + ' format is in valid'));
       }
-    }
+    };
   };
 
-  Validatable = function (data) {
+  var Validatable = function (data) {
     var self                   = this;
     var attrToValidators       = {};
     var associationsToValidate = [];
@@ -80,11 +80,11 @@ define(['lodash', 'string-plus', 'mithril', 'models/errors', 'models/model_mixin
     };
 
     self.validatePresenceOf = function (attr, options) {
-      validateWith(new PresenceValidator(options || {}), attr)
+      validateWith(new PresenceValidator(options || {}), attr);
     };
 
     self.validateUniquenessOf = function (attr, options) {
-      validateWith(new UniquenessValidator(options || {}), attr)
+      validateWith(new UniquenessValidator(options || {}), attr);
     };
 
     self.validateFormatOf = function (attr, options) {
@@ -110,8 +110,8 @@ define(['lodash', 'string-plus', 'mithril', 'models/errors', 'models/model_mixin
 
       _.forEach(attrs, function (attr) {
         _.forEach(attrToValidators[attr], function (validator) {
-          validator.validate(self, attr)
-        })
+          validator.validate(self, attr);
+        });
       });
 
       return self.errors();

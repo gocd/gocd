@@ -26,8 +26,9 @@ define(["string-plus"], function (s) {
           arrays:        ["one", "two"],
           objectInArray: [{"key": "value"}, {"key2": "value2"}]
         }
-      }
+      };
 
+      /* eslint-disable camelcase */
       var expected = {
         to_snake_case: "value",
         nested:        {
@@ -35,7 +36,8 @@ define(["string-plus"], function (s) {
           arrays:        ["one", "two"],
           object_in_array: [{"key": "value"}, {"key_2": "value2"}]
         }
-      }
+      };
+      /* eslint-enable camelcase */
 
       expect(JSON.parse(JSON.stringify(input, s.snakeCaser))).toEqual(expected);
 

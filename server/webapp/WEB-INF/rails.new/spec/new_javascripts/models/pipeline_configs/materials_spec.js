@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeline_configs/scms", 'models/pipeline_configs/plugin_infos'],
-  function (m, _, Materials, SCMs, PluginInfos) {
+define([
+  'mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeline_configs/scms", 'models/pipeline_configs/plugin_infos'
+], function (m, _, Materials, SCMs, PluginInfos) {
   var materials, gitMaterial, svnMaterial, mercurialMaterial, perforceMaterial, tfsMaterial, dependencyMaterial;
   beforeAll(function () {
     materials = new Materials();
@@ -105,7 +106,7 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
           name: gitMaterial.name()
         });
 
-        var errorsOnOriginal = gitMaterial.validate();
+        errorsOnOriginal = gitMaterial.validate();
         expect(errorsOnOriginal.errors('name')).toEqual(['Name is a duplicate']);
 
         var errorsOnDuplicate = duplicate.validate();
@@ -133,21 +134,21 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
       });
     });
 
-    describe('Test Connection', function() {
+    describe('Test Connection', function () {
       var requestArgs, material;
 
-      beforeEach(function(){
+      beforeEach(function () {
         material = new Materials().createMaterial({
           type: 'git',
-          url: "http://git.example.com/git/myProject"
+          url:  "http://git.example.com/git/myProject"
         });
 
         spyOn(m, 'request');
         material.testConnection(m.prop('testPipeline'));
-        requestArgs = m.request.calls.mostRecent().args[0]
+        requestArgs = m.request.calls.mostRecent().args[0];
       });
 
-      describe('post', function(){
+      describe('post', function () {
         it('should post to material_test url', function () {
           expect(requestArgs.method).toBe('POST');
           expect(requestArgs.url).toBe('/go/api/admin/material_test');
@@ -161,8 +162,8 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
           expect(xhr.setRequestHeader).toHaveBeenCalledWith("Accept", "application/vnd.go.cd.v1+json");
         });
 
-        it('should post the material for test connection', function(){
-          var payload = _.merge(material.toJSON(), {pipeline_name: 'testPipeline'});
+        it('should post the material for test connection', function () {
+          var payload = _.merge(material.toJSON(), {pipeline_name: 'testPipeline'}); // eslint-disable-line camelcase
 
           expect(JSON.stringify(requestArgs.data)).toBe(JSON.stringify(payload));
         });
@@ -173,14 +174,14 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
           expect(requestArgs.unwrapError({message: errorMessage})).toBe(errorMessage);
         });
 
-        it('should stringfy the request payload', function() {
+        it('should stringfy the request payload', function () {
           var payload = {'keyOne': 'value'};
 
           spyOn(JSON, 'stringify').and.callThrough();
 
-          expect(requestArgs.serialize(payload)).toBe(JSON.stringify({ key_one: 'value' }));
+          expect(requestArgs.serialize(payload)).toBe(JSON.stringify({key_one: 'value'})); // eslint-disable-line camelcase
           expect(JSON.stringify).toHaveBeenCalled();
-        })
+        });
       });
     });
   });
@@ -268,6 +269,7 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
         });
 
         function sampleJSON() {
+          /* eslint-disable camelcase */
           return {
             type:       "svn",
             attributes: {
@@ -281,9 +283,10 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
               filter:          {
                 ignore: ['*.doc']
               },
-              invert_filter: true
+              invert_filter:   true
             }
           };
+          /* eslint-enable camelcase */
         }
       });
     });
@@ -333,7 +336,7 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
         });
       });
 
-      describe("Default Value", function(){
+      describe("Default Value", function () {
         beforeEach(function () {
           gitMaterial = Materials.Material.fromJSON(sampleJSON());
         });
@@ -346,8 +349,8 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
           return {
             type:       "git",
             attributes: {
-              url:         "http://git.example.com/git/myProject",
-              branch:      null,
+              url:    "http://git.example.com/git/myProject",
+              branch: null,
             }
           };
         }
@@ -365,7 +368,7 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
           expect(gitMaterial.destination()).toBe("projectA");
           expect(gitMaterial.name()).toBe("materialA");
           expect(gitMaterial.autoUpdate()).toBe(true);
-          expect(gitMaterial.filter().ignore()).toEqual(['*.doc'])
+          expect(gitMaterial.filter().ignore()).toEqual(['*.doc']);
           expect(gitMaterial.shallowClone()).toBe(true);
           expect(gitMaterial.invertFilter()).toBe(true);
         });
@@ -385,21 +388,23 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
         });
 
         function sampleJSON() {
+          /* eslint-disable camelcase */
           return {
             type:       "git",
             attributes: {
-              url:         "http://git.example.com/git/myProject",
-              branch:      "release-1.2",
-              destination: "projectA",
-              name:        "materialA",
-              auto_update: true,
-              filter:      {
+              url:           "http://git.example.com/git/myProject",
+              branch:        "release-1.2",
+              destination:   "projectA",
+              name:          "materialA",
+              auto_update:   true,
+              filter:        {
                 ignore: ['*.doc']
               },
               shallow_clone: true,
               invert_filter: true
             }
           };
+          /* eslint-enable camelcase */
         }
       });
     });
@@ -476,20 +481,22 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
         });
 
         function sampleJSON() {
+          /* eslint-disable camelcase */
           return {
             type:       "hg",
             attributes: {
-              url:         "http://hg.example.com/hg/myProject",
-              branch:      "release-1.2",
-              destination: "projectA",
-              name:        "materialA",
-              auto_update: true,
-              filter:      {
+              url:           "http://hg.example.com/hg/myProject",
+              branch:        "release-1.2",
+              destination:   "projectA",
+              name:          "materialA",
+              auto_update:   true,
+              filter:        {
                 ignore: ['*.doc']
               },
               invert_filter: true
             }
           };
+          /* eslint-enable camelcase */
         }
       });
     });
@@ -591,23 +598,25 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
         });
 
         function sampleJSON() {
+          /* eslint-disable camelcase */
           return {
             type:       "p4",
             attributes: {
-              port:        "p4.example.com:1666",
-              username:    "bob",
-              password:    "p@ssw0rd",
-              use_tickets: true,
-              destination: "projectA",
-              view:        "//depot/dev/source...          //anything/source/",
-              name:        "materialA",
-              auto_update: true,
-              filter:      {
+              port:          "p4.example.com:1666",
+              username:      "bob",
+              password:      "p@ssw0rd",
+              use_tickets:   true,
+              destination:   "projectA",
+              view:          "//depot/dev/source...          //anything/source/",
+              name:          "materialA",
+              auto_update:   true,
+              filter:        {
                 ignore: ['*.doc']
               },
               invert_filter: true
             }
           };
+          /* eslint-enable camelcase */
         }
       });
     });
@@ -704,10 +713,10 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
           var material = Materials.Material.fromJSON({
             type:   "tfs",
             errors: {
-              url: [
+              url:         [
                 "URL cannot be empty"
               ],
-              username: [
+              username:    [
                 "Username cannot be empty"
               ],
               projectPath: [
@@ -723,12 +732,13 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
         });
 
         function sampleJSON() {
+          /* eslint-disable camelcase */
           return {
             type:       "tfs",
             attributes: {
-              name:         "materialA",
-              auto_update:  true,
-              filter:       {
+              name:          "materialA",
+              auto_update:   true,
+              filter:        {
                 ignore: ['*.doc']
               },
               url:           "http://tfs.example.com/tfs/projectA",
@@ -740,30 +750,31 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
               invert_filter: true
             }
           };
+          /* eslint-enable camelcase */
         }
       });
     });
 
-    describe('dependency', function() {
-      it('it should initialize material with type', function() {
+    describe('dependency', function () {
+      it('it should initialize material with type', function () {
         expect(dependencyMaterial.type()).toBe('dependency');
       });
 
-      it('it should initialize material with pipeline', function() {
+      it('it should initialize material with pipeline', function () {
         expect(dependencyMaterial.pipeline()).toBe('p1');
       });
 
-      it('it should initialize material with stage', function() {
+      it('it should initialize material with stage', function () {
         expect(dependencyMaterial.stage()).toBe('first_stage');
       });
 
-      it('it should initialize material with name', function() {
+      it('it should initialize material with name', function () {
         expect(dependencyMaterial.name()).toBe('p1_first_stage');
       });
 
       describe("validation", function () {
         var errors;
-        beforeAll(function() {
+        beforeAll(function () {
           dependencyMaterial.pipeline('');
           dependencyMaterial.stage('');
           errors = dependencyMaterial.validate();
@@ -801,7 +812,7 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
               pipeline: [
                 "Pipeline cannot be empty"
               ],
-              stage: [
+              stage:    [
                 "Stage cannot be empty"
               ]
             }
@@ -816,23 +827,25 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
           return {
             type:       'dependency',
             attributes: {
-              name:         'materialA',
-              pipeline:     'p1',
-              stage:        's1'
+              name:     'materialA',
+              pipeline: 'p1',
+              stage:    's1'
             }
           };
         }
       });
     });
 
-    describe('plugin', function() {
+    describe('plugin', function () {
       var pluggableMaterial;
       var github = new SCMs.SCM({
-        id:             '43c45e0b-1b0c-46f3-a60a-2bbc5cec069c',
-        name:           'Github PR',
+        /* eslint-disable camelcase */
+        id:              '43c45e0b-1b0c-46f3-a60a-2bbc5cec069c',
+        name:            'Github PR',
         auto_update:     true,
         plugin_metadata: {id: 'github.pr', version: '1.1'},
         configuration:   [{key: 'url', value: 'path/to/repo'}, {key: 'username', value: 'some_name'}]
+        /* eslint-enable camelcase */
       });
 
 
@@ -840,7 +853,7 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
         SCMs([github]);
         pluggableMaterial = Materials.create({
           type:         "plugin",
-          scm :         github,
+          scm:          github,
           filter:       new Materials.Filter({ignore: ['*.doc']}),
           destination:  "dest_folder",
           invertFilter: true
@@ -848,15 +861,15 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
         spyOn(SCMs, 'findById').and.returnValue(github);
       });
 
-      afterAll(function() {
+      afterAll(function () {
         SCMs([]);
       });
 
-      it('it should initialize material with type', function() {
+      it('it should initialize material with type', function () {
         expect(pluggableMaterial.type()).toBe('plugin');
       });
 
-      it('it should initialize material with scm', function() {
+      it('it should initialize material with scm', function () {
         expect(pluggableMaterial.scm().id()).toBe('43c45e0b-1b0c-46f3-a60a-2bbc5cec069c');
       });
 
@@ -895,17 +908,19 @@ define(['mithril', 'lodash', "models/pipeline_configs/materials", "models/pipeli
         });
 
         function sampleJSON() {
+          /* eslint-disable camelcase */
           return {
             type:       'plugin',
             attributes: {
-              ref:         '43c45e0b-1b0c-46f3-a60a-2bbc5cec069c',
-              destination: 'dest_folder',
-              filter:      {
+              ref:           '43c45e0b-1b0c-46f3-a60a-2bbc5cec069c',
+              destination:   'dest_folder',
+              filter:        {
                 ignore: ['*.doc']
               },
               invert_filter: true
             }
           };
+          /* eslint-enable camelcase */
         }
       });
     });

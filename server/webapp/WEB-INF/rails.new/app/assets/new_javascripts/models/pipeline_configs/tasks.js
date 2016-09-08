@@ -56,7 +56,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
 
     this.onCancelTaskToJSON = function () {
       return this.onCancelTask ? this.onCancelTask.toJSON() : null;
-    }
+    };
   };
 
   Mixins.fromJSONCollection({
@@ -80,7 +80,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
         buildFile:        this.buildFile,
         run_if:           this.runIf().data(),
         on_cancel:        this.onCancelTaskToJSON()
-      }
+      };
     };
 
     this.toString = function() {
@@ -92,7 +92,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
         buildFile:        this.buildFile(),
         target:           this.target(),
         workingDirectory: this.workingDirectory()
-      }
+      };
     };
 
     this.isEmpty = function() {
@@ -129,7 +129,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
         nantPath:         this.nantPath,
         run_if:           this.runIf().data(),
         on_cancel:        this.onCancelTaskToJSON()
-      }
+      };
     };
 
     this.toString = function() {
@@ -142,7 +142,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
         target:           this.target(),
         workingDirectory: this.workingDirectory(),
         nantPath:         this.nantPath()
-      }
+      };
     };
 
     this.isEmpty = function() {
@@ -190,7 +190,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
       return {
         command: this.command(),
         args   : this.args().toString()
-      }
+      };
     };
 
     this.isEmpty = function() {
@@ -226,7 +226,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
         buildFile:        this.buildFile,
         run_if:           this.runIf().data(),
         on_cancel:        this.onCancelTaskToJSON()
-      }
+      };
     };
 
     this.toString = function() {
@@ -238,7 +238,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
         buildFile:        this.buildFile(),
         target:           this.target(),
         workingDirectory: this.workingDirectory()
-      }
+      };
     };
 
     this.isEmpty = function() {
@@ -283,7 +283,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
         destination:       this.destination,
         run_if:            this.runIf().data(),
         on_cancel:         this.onCancelTaskToJSON()
-      }
+      };
     };
 
     this.toString = function() {
@@ -297,7 +297,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
         job:         this.job(),
         source:      this.source(),
         destination: this.destination()
-      }
+      };
     };
 
     this.isEmpty = function() {
@@ -359,8 +359,8 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
         configuration: this.configuration,
         run_if:        this.runIf().data(),
         on_cancel:     this.onCancelTaskToJSON()
-      }
-    }
+      };
+    };
   };
 
   Tasks.Task.PluginTask.fromJSON = function (data) {

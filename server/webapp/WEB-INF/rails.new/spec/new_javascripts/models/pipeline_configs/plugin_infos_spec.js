@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', "models/pipeline_configs/plugin_infos"], function (m, _, PluginInfos) {
+define(['jquery', 'mithril', 'lodash', "models/pipeline_configs/plugin_infos"], function ($, m, _, PluginInfos) {
   describe('PluginInfos', function () {
     describe('init', function () {
       var requestArgs, deferred;
@@ -30,7 +30,7 @@ define(['mithril', 'lodash', "models/pipeline_configs/plugin_infos"], function (
 
       it('should fetch all plugin_infos', function () {
         expect(requestArgs.method).toBe('GET');
-        expect(requestArgs.url).toBe('/go/api/admin/plugin_info')
+        expect(requestArgs.url).toBe('/go/api/admin/plugin_info');
       });
 
       it('should post required headers', function () {
@@ -46,7 +46,7 @@ define(['mithril', 'lodash', "models/pipeline_configs/plugin_infos"], function (
       });
 
       it('should unwrap the response data to return list of plugin_infos', function () {
-        var pluginInfos = {_embedded: {plugin_info: ['plugin']}};
+        var pluginInfos = {_embedded: {plugin_info: ['plugin']}}; //eslint-disable-line camelcase
 
         expect(requestArgs.unwrapSuccess(pluginInfos)).toEqual(['plugin']);
       });
@@ -63,14 +63,15 @@ define(['mithril', 'lodash', "models/pipeline_configs/plugin_infos"], function (
     });
 
     describe('PluginInfo', function() {
-      var plugin;
+      var pluginInfo;
       beforeAll(function () {
+        /* eslint-disable camelcase */
         pluginInfo = new PluginInfos.PluginInfo({
-          id:             'plugin_id',
-          name:           'plugin_name',
-          version:        'plugin_version',
-          type:           'plugin_type',
-          display_name:  'Plugin Display Name',
+          id:                          'plugin_id',
+          name:                        'plugin_name',
+          version:                     'plugin_version',
+          type:                        'plugin_type',
+          display_name:                'Plugin Display Name',
           pluggable_instance_settings: {
             configurations: [
               {
@@ -82,11 +83,13 @@ define(['mithril', 'lodash', "models/pipeline_configs/plugin_infos"], function (
                 type:     'package',
                 metadata: {required: true, secure: false}
               }],
-            view: {
-              template:     'plugin_view_template'
+            view:           {
+              template: 'plugin_view_template'
             }
-          }});
+          }
         });
+        /* eslint-enable camelcase */
+      });
 
       it('should initialize with id', function () {
         expect(pluginInfo.id()).toBe('plugin_id');
@@ -145,7 +148,7 @@ define(['mithril', 'lodash', "models/pipeline_configs/plugin_infos"], function (
 
       it('should fetch the plugin for the given id', function () {
         expect(requestArgs.method).toBe('GET');
-        expect(requestArgs.url).toBe('/go/api/admin/plugin_info/plugin_id')
+        expect(requestArgs.url).toBe('/go/api/admin/plugin_info/plugin_id');
       });
 
       it('should post required headers', function () {

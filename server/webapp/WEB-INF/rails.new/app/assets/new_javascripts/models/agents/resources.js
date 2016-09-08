@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'helpers/mrequest', 'models/agents/tri_state_checkbox'], function (m, _, mrequest, TriStateCheckbox) {
+define(['mithril', 'lodash', 'helpers/mrequest', 'models/agents/tri_state_checkbox', 'js-routes'], function (m, _, mrequest, TriStateCheckbox, Routes) {
   var Resources         = {};
   Resources.list        = m.prop([]);
 
@@ -32,7 +32,7 @@ define(['mithril', 'lodash', 'helpers/mrequest', 'models/agents/tri_state_checkb
 
         Resources.list(list);
       }
-    })
+    });
   };
 
   return Resources;

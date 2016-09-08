@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-
 define([
   'mithril', 'lodash', 'string-plus',
   'models/model_mixins',
   'models/agents/agents',
-  'js-routes'
-], function (m, _, s, Mixin, Agents, JsRoutes) {
+], function (m, _, s, Mixin, Agents) {
   describe('Agent Model', function () {
 
     function ajaxCall(agentData) {
@@ -65,10 +63,10 @@ define([
         hostname:           'Johnpkr.local',
         resources:          ['linux', 'java'],
         environments:       ['staging', 'perf'],
-        agent_config_state: 'Enabled'
+        agent_config_state: 'Enabled' // eslint-disable-line camelcase
       });
-
     });
+
 
     it("should give the freeSpace in human readable format", function () {
       expect(new Agents.Agent({freeSpace: 1024}).readableFreeSpace()).toBe('1 KB');
@@ -79,32 +77,32 @@ define([
 
     describe("agent status", function () {
       it("should be pending when agentConfigState is Pending", function () {
-        agent = new Agents.Agent({agentConfigState: 'Pending'});
+        var agent = new Agents.Agent({agentConfigState: 'Pending'});
         expect(agent.status()).toBe('Pending');
       });
 
       it("should be 'Disabled (Building)' when agentConfigState is 'Disabled' and buildState is 'Building'", function () {
-        agent = new Agents.Agent({agentConfigState: 'Disabled', buildState: 'Building'});
+        var agent = new Agents.Agent({agentConfigState: 'Disabled', buildState: 'Building'});
         expect(agent.status()).toBe('Disabled (Building)');
       });
 
       it("should be 'Disabled (Cancelled)' when agentConfigState is 'Disabled' and buildState is 'Cancelled'", function () {
-        agent = new Agents.Agent({agentConfigState: 'Disabled', buildState: 'Cancelled'});
+        var agent = new Agents.Agent({agentConfigState: 'Disabled', buildState: 'Cancelled'});
         expect(agent.status()).toBe('Disabled (Cancelled)');
       });
 
       it("should be 'Disabled' when agentConfigState is 'Disabled'", function () {
-        agent = new Agents.Agent({agentConfigState: 'Disabled'});
+        var agent = new Agents.Agent({agentConfigState: 'Disabled'});
         expect(agent.status()).toBe('Disabled');
       });
 
       it("should be 'Building (Cancelled)' when agentState is 'Building' and buildState is 'Cancelled'", function () {
-        agent = new Agents.Agent({agentState: 'Building', buildState: 'Cancelled'});
+        var agent = new Agents.Agent({agentState: 'Building', buildState: 'Cancelled'});
         expect(agent.status()).toBe('Building (Cancelled)');
       });
 
       it("should be 'Building' when agentState is 'Building'", function () {
-        agent = new Agents.Agent({agentState: 'Building'});
+        var agent = new Agents.Agent({agentState: 'Building'});
         expect(agent.status()).toBe('Building');
       });
     });
@@ -126,7 +124,7 @@ define([
         expect(agent.matches("invalid-search")).toBe(false);
       });
     });
-    
+
     var agentData = {
       "_links":             {
         "self": {

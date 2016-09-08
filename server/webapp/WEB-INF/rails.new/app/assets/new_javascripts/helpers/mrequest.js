@@ -21,17 +21,17 @@ define([], function () {
   };
 
   return {
-        xhrConfig: {
-          v1: function (xhr) {
-            setHeaders(xhr, 'v1');
-          },
-          v2: function (xhr) {
-            setHeaders(xhr, 'v2');
-          },
-          v3: function (xhr) {
-            setHeaders(xhr, 'v3');
-          }
-        }
+    xhrConfig: {
+      v1: function (xhr) {
+        setHeaders(xhr, 'v1');
+      },
+      v2: function (xhr) {
+        setHeaders(xhr, 'v2');
+      },
+      v3: function (xhr) {
+        setHeaders(xhr, 'v3');
       }
+    }
+  };
 });
 

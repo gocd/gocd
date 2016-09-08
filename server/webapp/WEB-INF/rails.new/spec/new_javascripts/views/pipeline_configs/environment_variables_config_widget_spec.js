@@ -71,7 +71,7 @@ define(["jquery", "mithril", "models/pipeline_configs/environment_variables", "v
       editLink.get(0).onclick(evObj);
       m.redraw(true);
 
-      var editLink = environmentVariableField.find("a.edit-secure-variable");
+      editLink = environmentVariableField.find("a.edit-secure-variable");
       expect(editLink.length).toBe(0);
     });
   });

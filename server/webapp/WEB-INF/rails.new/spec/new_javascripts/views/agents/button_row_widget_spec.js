@@ -18,8 +18,6 @@ define(["jquery", "mithril", "lodash", 'models/agents/agents', "views/agents/but
   describe("Button Row Widget", function () {
 
     var agents;
-    var agent;
-
     var $root = $('#mithril-mount-point'), root = $root.get(0);
 
     var vm = {
@@ -36,19 +34,6 @@ define(["jquery", "mithril", "lodash", 'models/agents/agents', "views/agents/but
     vm.dropdown.states['environment'] = m.prop(false);
     vm.dropdown.states['resource']    = m.prop(false);
 
-    var selectedAgents     = function () {
-    };
-    var disableAgents      = function () {
-    };
-    var enableAgents       = function () {
-    };
-    var deleteAgents       = function () {
-    };
-    var updateResources    = function () {
-    };
-    var updateEnvironments = function () {
-    };
-
     beforeAll(function () {
       jasmine.Ajax.install();
       jasmine.Ajax.stubRequest(/\/api\/admin\/internal\/resources/).andReturn({
@@ -63,7 +48,6 @@ define(["jquery", "mithril", "lodash", 'models/agents/agents', "views/agents/but
       agents        = m.prop();
       var allAgents = Agents.fromJSON(json());
       agents(allAgents);
-      agent = allAgents.firstAgent();
       mount(vm);
     });
 
@@ -195,12 +179,12 @@ define(["jquery", "mithril", "lodash", 'models/agents/agents', "views/agents/but
           {
             'agentsCheckedState':   vm.agentsCheckedState,
             'dropdown':             vm.dropdown,
-            'selectedAgents':       selectedAgents,
-            'onDisable':            disableAgents,
-            'onEnable':             enableAgents,
-            'onDelete':             deleteAgents,
-            'onResourcesUpdate':    updateResources,
-            'onEnvironmentsUpdate': updateEnvironments
+            'selectedAgents':       m.prop(),
+            'onDisable':            m.prop(),
+            'onEnable':             m.prop(),
+            'onDelete':             m.prop(),
+            'onResourcesUpdate':    m.prop(),
+            'onEnvironmentsUpdate': m.prop()
           })
       );
       m.redraw(true);

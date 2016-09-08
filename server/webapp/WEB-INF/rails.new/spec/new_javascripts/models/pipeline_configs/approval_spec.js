@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 define(['lodash', "models/pipeline_configs/approval", "string-plus"], function (_, Approval, s) {
 
   describe("Stage Approval Model", function () {
@@ -21,7 +22,7 @@ define(['lodash', "models/pipeline_configs/approval", "string-plus"], function (
       approval = new Approval({
         type:          'manual',
         authorization: new Approval.AuthConfig({roles: ['Administrators'], users: ['bob']})
-      })
+      });
     });
 
     it("should initialize with type", function () {

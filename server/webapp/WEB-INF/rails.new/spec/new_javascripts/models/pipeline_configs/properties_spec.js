@@ -63,7 +63,7 @@ define(["models/pipeline_configs/properties"], function (Properties) {
           name: property.name()
         });
 
-        var errorsOnOriginal = property.validate();
+        errorsOnOriginal = property.validate();
         expect(errorsOnOriginal.errors('name')).toEqual(['Name is a duplicate']);
 
         var errorsOnDuplicate = duplicateProperty.validate();

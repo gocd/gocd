@@ -23,11 +23,14 @@ repositories {
 configurations {
   jrubyDist
   jrubyGems
+  jrubyGemsRuby2
 }
 
 dependencies {
   jrubyDist group: 'org.jruby', name: 'jruby-dist', version: '1.7.11', classifier: 'bin', ext: 'tar.gz'
   jrubyGems group: 'rubygems', name: 'bundler', version: '1.9.9'
+
+  jrubyGemsRuby2 group: 'rubygems', name: 'scss_lint', version: '0.50.1'
 }
 
 task prepareJRuby {
@@ -52,6 +55,7 @@ task prepareJRuby {
     }
 
     project.file('jruby-1.7.11').renameTo(project.file('jruby'))
+
     exec {
       standardOutput = System.out
       errorOutput = System.err
@@ -62,9 +66,87 @@ task prepareJRuby {
         setExecutable project.file("bin/jruby")
       }
 
-      args = ['-S', 'gem', 'install', project.configurations.jrubyGems.singleFile, '--quiet', '--no-ri', '--no-rdoc', '--local', '--ignore-dependencies']
+      args = ['-S', 'gem', 'install', '--quiet', '--no-ri', '--no-rdoc', '--local', '--ignore-dependencies']
+      args += project.configurations.jrubyGems.files
+    }
+
+    exec {
+      standardOutput = System.out
+      errorOutput = System.err
+
+      if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
+        setExecutable project.file("bin/jruby.bat")
+      } else {
+        setExecutable project.file("bin/jruby")
+      }
+      args = ['--2.0', '-S', 'gem', 'install', '--quiet', '--no-ri', '--no-rdoc', '--local', '--ignore-dependencies']
+      args += project.configurations.jrubyGemsRuby2.files
     }
   }
+}
+
+task scssLint(type: Exec) {
+  description "Run scss-lint"
+  standardOutput = System.out
+  errorOutput = System.err
+
+  if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
+    setExecutable project.file("bin/jruby.bat")
+  } else {
+    setExecutable project.file("bin/jruby")
+  }
+
+  args = ['--2.0', '-S', 'scss-lint', "--config=${project.file('scss-lint.yml')}", "${project.findProject(':server').railsRoot}/app/assets/new_stylesheets"]
+}
+
+task jsLint {
+  description "Run ESLint"
+  def commonCommandLine = [
+      './node_modules/.bin/eslint',
+      '--config', project.file('.eslintrc.json'),
+      '--color',
+      '--format', project.hasProperty('jsLintFormat') ? project.jsLintFormat : 'stylish']
+  doFirst {
+    project.exec {
+      standardOutput = System.out
+      errorOutput = System.err
+      commandLine = ['npm', 'install']
+    }
+
+    project.exec {
+      standardOutput = System.out
+      errorOutput = System.err
+      commandLine = commonCommandLine
+      commandLine += ["${project.findProject(':server').railsRoot}/app/assets/new_javascripts"]
+    }
+
+    project.exec {
+      standardOutput = System.out
+      errorOutput = System.err
+      commandLine = commonCommandLine
+      commandLine += [
+          'it',
+          'describe',
+          'expect',
+          'beforeEach',
+          'afterEach',
+          'afterAll',
+          'beforeAll',
+          'xit',
+          'spyOn',
+          'jasmine',
+          'angular'
+      ].collect { "--global=${it}" }
+
+      commandLine += project.fileTree(dir: "${project.findProject(':server').railsRoot}/spec/new_javascripts", excludes: ["helpers/*", "*.html.*"]).files
+
+      println commandLine.join(" ")
+    }
+  }
+}
+
+task lint {
+  dependsOn scssLint, jsLint
 }
 
 task prepare {

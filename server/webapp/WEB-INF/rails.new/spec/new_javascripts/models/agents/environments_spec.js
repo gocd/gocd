@@ -39,11 +39,11 @@ define(['models/agents/environments'], function (Environments) {
     it("should initialize the environments with state depending upon the checkedAgents", function () {
       var checkedAgents = [{
         environments: function () {
-          return ['Test']
+          return ['Test'];
         }
       }, {
         environments: function () {
-          return ['Test', 'Dev']
+          return ['Test', 'Dev'];
         }
       }];
       Environments.init(checkedAgents);

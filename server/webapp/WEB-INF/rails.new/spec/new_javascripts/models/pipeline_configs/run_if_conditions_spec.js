@@ -60,6 +60,6 @@ define(['lodash', 'models/pipeline_configs/run_if_conditions'], function (_, Run
       runIfConditions.pop();
 
       expect(runIfConditions.data()).toEqual(['passed']);
-    })
+    });
   });
 });

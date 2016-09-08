@@ -20,6 +20,7 @@ define(["jquery", "mithril", "models/pipeline_configs/tasks", "views/pipeline_co
     var task;
     describe('view task with onCancel task', function () {
       beforeAll(function () {
+        /* eslint-disable camelcase */
         task = new Tasks.Task.Ant({
           buildFile:        'build-moduleA.xml',
           target:           'clean',
@@ -35,6 +36,7 @@ define(["jquery", "mithril", "models/pipeline_configs/tasks", "views/pipeline_co
             }
           }
         });
+        /* eslint-enable camelcase */
 
         mount(task);
       });
@@ -61,7 +63,7 @@ define(["jquery", "mithril", "models/pipeline_configs/tasks", "views/pipeline_co
 
       it('should have onCancelTask type selected in dropdown', function () {
         expect($root.find("select :checked").val()).toBe(task.onCancelTask.type());
-      })
+      });
     });
 
     describe('view task without onCancel task', function () {
@@ -104,6 +106,7 @@ define(["jquery", "mithril", "models/pipeline_configs/tasks", "views/pipeline_co
 
     describe('change onCancel task', function() {
       it('should allow selecting a different onCancel task', function() {
+        /* eslint-disable camelcase */
         var task = new Tasks.Task.Ant({
           buildFile:        'build-moduleA.xml',
           target:           'clean',
@@ -119,6 +122,7 @@ define(["jquery", "mithril", "models/pipeline_configs/tasks", "views/pipeline_co
             }
           }
         });
+        /* eslint-enable camelcase */
 
         mount(task);
 

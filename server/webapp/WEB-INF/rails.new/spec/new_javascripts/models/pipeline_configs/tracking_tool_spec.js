@@ -78,7 +78,7 @@ define(['lodash', "models/pipeline_configs/tracking_tool", 'string-plus'], funct
           return {
             type:       "generic",
             attributes: {
-              url_pattern: 'http://example.com/bugzilla?id=${ID}',
+              url_pattern: 'http://example.com/bugzilla?id=${ID}', // eslint-disable-line camelcase
               regex:       "bug-(\\d+)"
             }
           };
@@ -150,6 +150,7 @@ define(['lodash', "models/pipeline_configs/tracking_tool", 'string-plus'], funct
         });
 
         function sampleJSON() {
+          /* eslint-disable camelcase */
           return {
             type:       "mingle",
             attributes: {
@@ -158,6 +159,7 @@ define(['lodash', "models/pipeline_configs/tracking_tool", 'string-plus'], funct
               mql_grouping_conditions: "status > 'In Dev'"
             }
           };
+          /* eslint-enable camelcase */
         }
       });
     });

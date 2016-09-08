@@ -73,7 +73,7 @@ define(['string-plus', "models/pipeline_configs/environment_variables"], functio
           name: "WORKING_DIR"
         });
 
-        var errorsOnOriginal = plainVariable.validate();
+        errorsOnOriginal = plainVariable.validate();
         expect(errorsOnOriginal.errors('name')).toEqual(['Name is a duplicate']);
 
         var errorsOnDuplicate = duplicateVariable.validate();
@@ -118,7 +118,7 @@ define(['string-plus', "models/pipeline_configs/environment_variables"], functio
       function sampleSecureVariableJSON() {
         return {
           name:            "HTTP_PASSWORD",
-          encrypted_value: "c!ph3rt3xt",
+          encrypted_value: "c!ph3rt3xt", // eslint-disable-line camelcase
           secure:          true
         };
       }

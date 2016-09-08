@@ -59,7 +59,7 @@ define(["models/pipeline_configs/parameters"], function (Parameters) {
           name: "WORKING_DIR"
         });
 
-        var errorsOnOriginal = parameter.validate();
+        errorsOnOriginal = parameter.validate();
         expect(errorsOnOriginal.errors('name')).toEqual(['Name is a duplicate']);
 
         var errorsOnDuplicate = duplicateParameter.validate();
@@ -83,7 +83,7 @@ define(["models/pipeline_configs/parameters"], function (Parameters) {
           value: "/var/foo"
         };
       }
-    })
+    });
 
   });
 });

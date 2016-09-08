@@ -15,8 +15,8 @@
  */
 
 define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipeline_configs/jobs',
-  'models/pipeline_configs/environment_variables', 'models/pipeline_configs/approval', 'models/validatable_mixin'],
-  function (m, _, s, Mixins, Jobs, EnvironmentVariables, Approval, Validatable) {
+  'models/pipeline_configs/environment_variables', 'models/pipeline_configs/approval', 'models/validatable_mixin'
+], function (m, _, s, Mixins, Jobs, EnvironmentVariables, Approval, Validatable) {
 
   var Stages = function (data) {
     Mixins.HasMany.call(this, {factory: Stages.Stage.create, as: 'Stage', collection: data, uniqueOn: 'name'});

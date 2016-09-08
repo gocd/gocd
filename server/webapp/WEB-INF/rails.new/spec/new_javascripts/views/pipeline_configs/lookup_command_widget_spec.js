@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(["mithril", "lodash", "views/pipeline_configs/lookup_command_widget", "models/pipeline_configs/tasks"], function (m, _, LookupCommandWidget, Tasks) {
+define(["jquery", "mithril", "lodash", "views/pipeline_configs/lookup_command_widget", "models/pipeline_configs/tasks"], function ($, m, _, LookupCommandWidget, Tasks) {
   describe("Lookup Command Widget", function () {
     var $root = $('#mithril-mount-point'), root = $root.get(0);
 
@@ -31,6 +31,7 @@ define(["mithril", "lodash", "views/pipeline_configs/lookup_command_widget", "mo
       beforeAll(function(){
         model = new Tasks.Task.Exec({command: 'ls'});
         snippet = new LookupCommandWidget.Command.Snippet({
+          /* eslint-disable camelcase */
           name:          'scp',
           description:   'scp desc',
           author:        'go team',
@@ -39,6 +40,7 @@ define(["mithril", "lodash", "views/pipeline_configs/lookup_command_widget", "mo
           command:       'scp',
           arguments:     ['src', 'dest'],
           relative_path: '/build/scp.xml'
+          /* eslint-enable camelcase */
         });
 
         enableTextComplete = jasmine.createSpy('enableTextComplete');
@@ -175,7 +177,7 @@ define(["mithril", "lodash", "views/pipeline_configs/lookup_command_widget", "mo
 
       it('should get snippets from admin_command_snippets url', function () {
         expect(requestArgs.method).toBe('GET');
-        expect(requestArgs.url).toBe('/go/api/admin/internal/command_snippets?prefix=rake')
+        expect(requestArgs.url).toBe('/go/api/admin/internal/command_snippets?prefix=rake');
       });
 
       it('should post required headers', function () {
@@ -187,7 +189,7 @@ define(["mithril", "lodash", "views/pipeline_configs/lookup_command_widget", "mo
       });
 
       it('should unwrap the response data to return list of snippets', function () {
-        var snippets = {_embedded: {command_snippets: ['snippet']}};
+        var snippets = {_embedded: {command_snippets: ['snippet']}}; // eslint-disable-line camelcase
 
         expect(requestArgs.unwrapSuccess(snippets)).toEqual(['snippet']);
       });

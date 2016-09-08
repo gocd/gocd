@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-requirejs([
+require([
   'jquery', 'mithril',
   'js-routes',
   'models/agents/resources',

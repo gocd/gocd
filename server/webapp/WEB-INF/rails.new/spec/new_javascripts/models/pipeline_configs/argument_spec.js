@@ -73,7 +73,7 @@ define(['lodash', 'models/pipeline_configs/argument'], function (_, Argument) {
 
         Argument.vm(argument).data("bundle\nexec");
 
-        expect(argument.data()).toEqual(['bundle', 'exec'])
+        expect(argument.data()).toEqual(['bundle', 'exec']);
       });
 
       it('should assign an empty array if args is empty', function () {
@@ -81,8 +81,8 @@ define(['lodash', 'models/pipeline_configs/argument'], function (_, Argument) {
 
         Argument.vm(argument).data("");
 
-        expect(argument.data()).toEqual([])
-      })
+        expect(argument.data()).toEqual([]);
+      });
     });
 
     describe('getter', function () {
@@ -90,8 +90,8 @@ define(['lodash', 'models/pipeline_configs/argument'], function (_, Argument) {
         var argument = Argument.create(undefined, ['bundle', 'exec']);
 
         expect(Argument.vm(argument).data()).toEqual("bundle\nexec");
-      })
-    })
+      });
+    });
   });
 
   describe('Argument string VM', function () {
@@ -101,8 +101,8 @@ define(['lodash', 'models/pipeline_configs/argument'], function (_, Argument) {
 
         Argument.vm(argument).data("rake db:migrate");
 
-        expect(argument.data()).toEqual("rake db:migrate")
-      })
+        expect(argument.data()).toEqual("rake db:migrate");
+      });
     });
 
     describe('getter', function () {
@@ -110,7 +110,7 @@ define(['lodash', 'models/pipeline_configs/argument'], function (_, Argument) {
         var argument = Argument.create("bundle exec", undefined);
 
         expect(Argument.vm(argument).data()).toEqual("bundle exec");
-      })
-    })
+      });
+    });
   });
 });

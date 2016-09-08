@@ -52,7 +52,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/validatable_mixin', 'models/
           this.name = m.prop('');
           this.value = m.prop('');
 
-          this.validatePresenceOf('value', {condition: function (variable) {return !s.isBlank(variable.name())}});
+          this.validatePresenceOf('value', {condition: function (variable) {return !s.isBlank(variable.name());}});
         };
 
         var variable = new EnvVariable({});
@@ -113,7 +113,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/validatable_mixin', 'models/
         var1.validate();
 
         expect(var1.errors()._isEmpty()).toBe(true);
-      })
+      });
     });
 
     describe('validateUrlPattern', function () {
@@ -179,7 +179,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/validatable_mixin', 'models/
             if (_.isEmpty(entity.url())) {
               entity.errors().add('url', 'Url cannot be blank');
             }
-          }
+          };
         };
 
         var NameValidator = function () {
@@ -187,7 +187,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/validatable_mixin', 'models/
             if (_.isEmpty(entity.url())) {
               entity.errors().add('name', 'Name cannot be blank');
             }
-          }
+          };
         };
 
         this.validateWith('url', UrlValidator);
@@ -360,6 +360,6 @@ define(['mithril', 'lodash', 'string-plus', 'models/validatable_mixin', 'models/
         expect(pipeline.material().errors()._isEmpty()).toBe(false);
         expect(pipeline.task().errors()._isEmpty()).toBe(true);
       });
-    })
+    });
   });
 });

@@ -36,9 +36,6 @@ define(["jquery", "mithril", 'models/agents/environments', "views/agents/environ
     vm.dropdown.states['environment'] = m.prop(false);
     vm.dropdown.states['resource']    = m.prop(false);
 
-    var updateEnvironments = function (resourcesToBeAdded, resourcesToBeRemoved) {
-    };
-
     beforeAll(function () {
       jasmine.Ajax.install();
       jasmine.Ajax.stubRequest(/\/api\/admin\/internal\/environments/).andReturn({
@@ -71,50 +68,44 @@ define(["jquery", "mithril", 'models/agents/environments', "views/agents/environ
     });
 
     it('should contain all the environments checkbox', function () {
-      var all_environments = $.find('.resources-items :checkbox');
-      expect(all_environments.length).toBe(4);
-      expect(all_environments[0].value).toBe('Dev');
-      expect(all_environments[1].value).toBe('Build');
-      expect(all_environments[2].value).toBe('Testing');
-      expect(all_environments[3].value).toBe('Deploy');
+      var allEnvironments = $.find('.resources-items :checkbox');
+      expect(allEnvironments.length).toBe(4);
+      expect(allEnvironments[0].value).toBe('Dev');
+      expect(allEnvironments[1].value).toBe('Build');
+      expect(allEnvironments[2].value).toBe('Testing');
+      expect(allEnvironments[3].value).toBe('Deploy');
     });
 
     it('should check environments that are present on all the agents', function () {
-      var all_environments = $.find('.resources-items :checkbox');
-      expect(all_environments[2].value).toBe('Testing');
-      expect(all_environments[2].checked).toBe(true);
+      var allEnvironments = $.find('.resources-items :checkbox');
+      expect(allEnvironments[2].value).toBe('Testing');
+      expect(allEnvironments[2].checked).toBe(true);
     });
 
     it('should select environments as indeterminate that are present on some of the agents', function () {
-      var all_environments = $.find('.resources-items :checkbox');
-      expect(all_environments[0].value).toBe('Dev');
-      expect(all_environments[0].indeterminate).toBe(true);
+      var allEnvironments = $.find('.resources-items :checkbox');
+      expect(allEnvironments[0].value).toBe('Dev');
+      expect(allEnvironments[0].indeterminate).toBe(true);
 
-      expect(all_environments[1].value).toBe('Build');
-      expect(all_environments[1].indeterminate).toBe(true);
+      expect(allEnvironments[1].value).toBe('Build');
+      expect(allEnvironments[1].indeterminate).toBe(true);
     });
 
     it('should uncheck environments that are not present on any the agents', function () {
-      var all_environments = $.find('.resources-items :checkbox');
-      expect(all_environments[3].value).toBe('Deploy');
-      expect(all_environments[3].checked).toBe(false);
-      expect(all_environments[3].indeterminate).toBe(false);
+      var allEnvironments = $.find('.resources-items :checkbox');
+      expect(allEnvironments[3].value).toBe('Deploy');
+      expect(allEnvironments[3].checked).toBe(false);
+      expect(allEnvironments[3].indeterminate).toBe(false);
     });
 
     var mount = function () {
-      m.mount(root, m.component(EnvironmentsListWidget, {
+      m.mount(root,
+        m.component(EnvironmentsListWidget, {
           'dropDownState':        vm.dropdown,
-          'onEnvironmentsUpdate': updateEnvironments
+          'onEnvironmentsUpdate': m.prop()
         })
       );
       m.redraw(true);
-    };
-
-    var agents = function () {
-      return {
-        updateResources: function () {
-        }
-      }
     };
   });
 });

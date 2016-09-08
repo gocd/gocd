@@ -41,10 +41,10 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/valid
       return s.isBlank(this.name()) && s.isBlank(this.source()) && s.isBlank(this.xpath());
     };
 
-    this.validatePresenceOf('name', {condition: function(property) {return (!s.isBlank(property.source()) || !s.isBlank(property.xpath()))}});
+    this.validatePresenceOf('name', {condition: function(property) {return (!s.isBlank(property.source()) || !s.isBlank(property.xpath()));}});
     this.validateUniquenessOf('name');
-    this.validatePresenceOf('source', {condition: function(property) {return !property.isBlank()}});
-    this.validatePresenceOf('xpath',  {condition: function(property) {return !property.isBlank()}});
+    this.validatePresenceOf('source', {condition: function(property) {return !property.isBlank();}});
+    this.validatePresenceOf('xpath',  {condition: function(property) {return !property.isBlank();}});
   };
 
   Properties.Property.create = function (data) {

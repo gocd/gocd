@@ -1,0 +1,43 @@
+severity: warning
+linters:
+  Comment:
+    enabled: false
+    style: silent
+
+  SpaceAfterComment:
+    enabled: false
+
+  SingleLinePerSelector:
+    enabled: false
+
+  SpaceAfterPropertyColon:
+    enabled: true
+    style: aligned
+
+  LeadingZero:
+    enabled: true
+    style: include_zero
+
+
+  PropertySortOrder:
+    enabled: false
+
+  NestingDepth:
+    enabled: false
+  HexNotation:
+    enabled: false
+  ColorNotation:
+    enabled: false
+  EmptyLineBetweenBlocks:
+    enabled: false
+  HexLength:
+    enabled: false
+  ColorVariable:
+    enabled: false
+  StringQuotes:
+    enabled: false
+  SelectorDepth:
+    enabled: true
+    max_depth: 4
+  PseudoElement:
+    enabled: false

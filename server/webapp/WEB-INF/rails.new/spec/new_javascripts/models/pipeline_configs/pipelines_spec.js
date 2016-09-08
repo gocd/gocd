@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', "models/pipeline_configs/pipelines"],
-  function (m, _, Pipelines) {
+define(['jquery', 'mithril', 'lodash', "models/pipeline_configs/pipelines"],
+  function ($, m, _, Pipelines) {
     describe('Pipelines', function () {
       describe('init', function () {
         var requestArgs;
@@ -30,7 +30,7 @@ define(['mithril', 'lodash', "models/pipeline_configs/pipelines"],
           requestArgs = m.request.calls.mostRecent().args[0];
 
           expect(requestArgs.method).toBe('GET');
-          expect(requestArgs.url).toBe('/go/api/admin/internal/pipelines')
+          expect(requestArgs.url).toBe('/go/api/admin/internal/pipelines');
         });
 
         it('should post required headers', function () {

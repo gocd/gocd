@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-define(["mithril", "lodash", "views/pipeline_configs/pipeline_stage_field_widget", "models/pipeline_configs/pipelines", "models/pipeline_configs/materials"],
-  function (m, _, PipelineStageFieldWidget, Pipelines, Materials) {
+define([
+  "jquery", "mithril", "lodash", "views/pipeline_configs/pipeline_stage_field_widget", "models/pipeline_configs/pipelines", "models/pipeline_configs/materials"
+], function ($, m, _, PipelineStageFieldWidget, Pipelines, Materials) {
   describe("PipelineStageField Widget", function () {
     var $root = $('#mithril-mount-point'), root = $root.get(0);
 
@@ -27,7 +28,7 @@ define(["mithril", "lodash", "views/pipeline_configs/pipeline_stage_field_widget
     }
 
     describe('view', function () {
-      it('should render the pipeline stage field', function() {
+      it('should render the pipeline stage field', function () {
         var material = Materials.create({
           type:     "dependency",
           pipeline: "p1",
@@ -40,9 +41,9 @@ define(["mithril", "lodash", "views/pipeline_configs/pipeline_stage_field_widget
         expect(_.isEmpty($root.find(".form-error"))).toBe(true);
       });
 
-      it('should render a empty text box in absence of pipeline', function() {
+      it('should render a empty text box in absence of pipeline', function () {
         var material = Materials.create({
-          type:     "dependency"
+          type: "dependency"
         });
 
         mount(material, Pipelines);
@@ -50,9 +51,9 @@ define(["mithril", "lodash", "views/pipeline_configs/pipeline_stage_field_widget
         expect(_.isEmpty($root.find("input[name='pipeline-stage']").val())).toBe(true);
       });
 
-      it('should assign pipeline_stage value to model', function() {
+      it('should assign pipeline_stage value to model', function () {
         var material = Materials.create({
-          type:     "dependency"
+          type: "dependency"
         });
 
         mount(material, Pipelines);
@@ -65,7 +66,7 @@ define(["mithril", "lodash", "views/pipeline_configs/pipeline_stage_field_widget
         expect(material.stage()).toBe('stage');
       });
 
-      it('should validate the format of pipeline stage string', function() {
+      it('should validate the format of pipeline stage string', function () {
         var material = Materials.create({
           type:     "dependency",
           pipeline: "p1",
@@ -85,9 +86,9 @@ define(["mithril", "lodash", "views/pipeline_configs/pipeline_stage_field_widget
         expect(_.isEmpty(material.stage())).toBe(true);
       });
 
-      it('should hide validation errors on providing valid input', function() {
+      it('should hide validation errors on providing valid input', function () {
         var material = Materials.create({
-          type:     "dependency"
+          type: "dependency"
         });
 
         mount(material, Pipelines);
@@ -111,7 +112,7 @@ define(["mithril", "lodash", "views/pipeline_configs/pipeline_stage_field_widget
           type:     "dependency",
           pipeline: "a",
           stage:    "b",
-          errors: {
+          errors:   {
             pipeline: ["Pipeline with name 'a' does not exist"],
             stage:    ["Stage with name 'b' does not exist"]
           }
@@ -129,7 +130,7 @@ define(["mithril", "lodash", "views/pipeline_configs/pipeline_stage_field_widget
           type:     "dependency",
           pipeline: "a",
           stage:    "b",
-          errors: {
+          errors:   {
             pipeline: ["Pipeline with name 'a' does not exist"],
             stage:    ["Stage with name 'b' does not exist"]
           }

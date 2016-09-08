@@ -39,11 +39,11 @@ define(['models/agents/resources'], function (Resources) {
     it("should initialize the resources with state depending upon the checkedAgents", function () {
       var checkedAgents = [{
         resources: function () {
-          return ['Linux']
+          return ['Linux'];
         }
       }, {
         resources: function () {
-          return ['Linux', 'Firefox']
+          return ['Linux', 'Firefox'];
         }
       }];
       Resources.init(checkedAgents);

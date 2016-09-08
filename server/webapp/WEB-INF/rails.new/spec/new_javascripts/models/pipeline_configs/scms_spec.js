@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'models/pipeline_configs/scms'],
-  function (m, _, SCMs) {
+define(['jquery', 'mithril', 'lodash', 'models/pipeline_configs/scms'],
+  function ($, m, _, SCMs) {
     describe('SCMs', function () {
       describe('init', function () {
         var requestArgs;
@@ -30,7 +30,7 @@ define(['mithril', 'lodash', 'models/pipeline_configs/scms'],
           requestArgs = m.request.calls.mostRecent().args[0];
 
           expect(requestArgs.method).toBe('GET');
-          expect(requestArgs.url).toBe('/go/api/admin/scms')
+          expect(requestArgs.url).toBe('/go/api/admin/scms');
         });
 
         it('should post required headers', function () {
@@ -70,13 +70,13 @@ define(['mithril', 'lodash', 'models/pipeline_configs/scms'],
             new SCMs.SCM({
               id:              'plugin_id_1',
               name:            'material_1',
-              plugin_metadata: {id: 'github.pr', version: '1.1'}
+              plugin_metadata: {id: 'github.pr', version: '1.1'} //eslint-disable-line camelcase
 
             }),
             new SCMs.SCM({
               id:              'plugin_id_2',
               name:            'material_2',
-              plugin_metadata: {id: 'scm_plugin', version: '1.1'},
+              plugin_metadata: {id: 'scm_plugin', version: '1.1'}, //eslint-disable-line camelcase
             })
           ]);
 
@@ -86,7 +86,7 @@ define(['mithril', 'lodash', 'models/pipeline_configs/scms'],
 
         afterAll(function() {
           SCMs([]);
-          SCMs.scmIdToEtag = {}
+          SCMs.scmIdToEtag = {};
         });
 
         it('should fetch scm for a given id', function () {
@@ -95,7 +95,7 @@ define(['mithril', 'lodash', 'models/pipeline_configs/scms'],
           requestArgs = m.request.calls.mostRecent().args[0];
 
           expect(requestArgs.method).toBe('GET');
-          expect(requestArgs.url).toBe('/go/api/admin/scms/material_2')
+          expect(requestArgs.url).toBe('/go/api/admin/scms/material_2');
         });
 
         it('should post required headers', function () {
@@ -128,8 +128,7 @@ define(['mithril', 'lodash', 'models/pipeline_configs/scms'],
 
         it('should extract and cache etag for the scm', function() {
           var xhr = {
-            getResponseHeader: function (header) {
-            }
+            getResponseHeader: m.prop()
           };
 
           spyOn(xhr, 'getResponseHeader').and.returnValue('etag2');
@@ -140,7 +139,7 @@ define(['mithril', 'lodash', 'models/pipeline_configs/scms'],
           requestArgs.extract(xhr);
 
           expect(xhr.getResponseHeader).toHaveBeenCalledWith('ETag');
-          expect(SCMs.scmIdToEtag).toEqual({'plugin_id_2': 'etag2'})
+          expect(SCMs.scmIdToEtag).toEqual({'plugin_id_2': 'etag2'});
         });
       });
 
@@ -149,16 +148,16 @@ define(['mithril', 'lodash', 'models/pipeline_configs/scms'],
           SCMs([
             new SCMs.SCM({
               id:              'plugin_id_1',
-              plugin_metadata: {id: 'github.pr', version: '1.1'}
+              plugin_metadata: {id: 'github.pr', version: '1.1'} //eslint-disable-line camelcase
 
             }),
             new SCMs.SCM({
               id:              'plugin_id_2',
-              plugin_metadata: {id: 'scm_plugin', version: '1.1'}
+              plugin_metadata: {id: 'scm_plugin', version: '1.1'} //eslint-disable-line camelcase
             }),
             new SCMs.SCM({
               id:              'plugin_id_3',
-              plugin_metadata: {id: 'github.pr', version: '1.1'}
+              plugin_metadata: {id: 'github.pr', version: '1.1'} //eslint-disable-line camelcase
             })
           ]);
         });
@@ -181,11 +180,13 @@ define(['mithril', 'lodash', 'models/pipeline_configs/scms'],
           var scm;
           beforeAll(function () {
             scm = new SCMs.SCM({
+              /* eslint-disable camelcase */
               id:              '43c45e0b-1b0c-46f3-a60a-2bbc5cec069c',
               name:            'material_name',
               auto_update:     true,
               plugin_metadata: {id: 'github.pr', version: '1.1'},
               configuration:   [{key: 'url', value: 'path/to/repo'}, {key: 'username', value: 'some_name'}]
+              /* eslint-enable camelcase */
             });
           });
 
@@ -213,20 +214,22 @@ define(['mithril', 'lodash', 'models/pipeline_configs/scms'],
         });
 
         describe('update', function() {
-          var scm, requestArgs, deferred;;
+          var scm, requestArgs, deferred;
 
           scm = new SCMs.SCM({
+            /* eslint-disable camelcase */
             id:              '43c45e0b-1b0c-46f3-a60a-2bbc5cec069c',
             name:            'material_name',
             auto_update:     true,
             plugin_metadata: {id: 'github.pr', version: '1.1'},
             configuration:   [{key: 'url', value: 'path/to/repo'}, {key: 'username', value: 'some_name'}]
+            /* eslint-enable camelcase */
           });
 
           beforeAll(function () {
             deferred = $.Deferred();
             spyOn(m, 'request').and.returnValue(deferred.promise());
-            SCMs.scmIdToEtag['43c45e0b-1b0c-46f3-a60a-2bbc5cec069c'] = 'etag'
+            SCMs.scmIdToEtag['43c45e0b-1b0c-46f3-a60a-2bbc5cec069c'] = 'etag';
 
             scm.update();
 
@@ -234,12 +237,12 @@ define(['mithril', 'lodash', 'models/pipeline_configs/scms'],
           });
 
           afterAll(function () {
-            SCMs.scmIdToEtag = {}
+            SCMs.scmIdToEtag = {};
           });
 
           it('should patch to scm endpoint', function () {
             expect(requestArgs.method).toBe('PATCH');
-            expect(requestArgs.url).toBe('/go/api/admin/scms/material_name')
+            expect(requestArgs.url).toBe('/go/api/admin/scms/material_name');
           });
 
           it('should post required headers', function () {
@@ -253,20 +256,21 @@ define(['mithril', 'lodash', 'models/pipeline_configs/scms'],
 
           it('should post SCM json', function() {
             expect(JSON.stringify(requestArgs.data)).toBe(JSON.stringify({
+              /* eslint-disable camelcase */
               id:              '43c45e0b-1b0c-46f3-a60a-2bbc5cec069c',
               name:            'material_name',
               auto_update:     true,
               plugin_metadata: {id: 'github.pr', version: '1.1'},
               configuration:   [{key: 'url', value: 'path/to/repo'}, {key: 'username', value: 'some_name'}]
-            }))
+              /* eslint-enable camelcase */
+            }));
           });
 
           it('should update etag cache on success', function() {
             SCMs.scmIdToEtag[scm.id()] = 'etag_before_update';
             var xhr = {
               status:            200,
-              getResponseHeader: function (header) {
-              }
+              getResponseHeader: m.prop()
             };
 
             spyOn(xhr, 'getResponseHeader').and.returnValue('etag_after_update');
@@ -280,12 +284,12 @@ define(['mithril', 'lodash', 'models/pipeline_configs/scms'],
         });
 
         describe('create', function() {
-          var scm, requestArgs, deferred;;
+          var scm, requestArgs, deferred;
 
           scm = new SCMs.SCM({
             name:            'material_name',
-            auto_update:     true,
-            plugin_metadata: {id: 'github.pr', version: '1.1'},
+            auto_update:     true, //eslint-disable-line camelcase
+            plugin_metadata: {id: 'github.pr', version: '1.1'}, //eslint-disable-line camelcase
             configuration:   [{key: 'url', value: 'path/to/repo'}, {key: 'username', value: 'some_name'}]
           });
 
@@ -298,12 +302,12 @@ define(['mithril', 'lodash', 'models/pipeline_configs/scms'],
           });
 
           afterAll(function () {
-            SCMs.scmIdToEtag = {}
+            SCMs.scmIdToEtag = {};
           });
 
           it('should post to scm endpoint', function () {
             expect(requestArgs.method).toBe('POST');
-            expect(requestArgs.url).toBe('/go/api/admin/scms')
+            expect(requestArgs.url).toBe('/go/api/admin/scms');
           });
 
           it('should post required headers', function () {
@@ -316,18 +320,19 @@ define(['mithril', 'lodash', 'models/pipeline_configs/scms'],
 
           it('should post SCM json', function() {
             expect(JSON.stringify(requestArgs.data)).toBe(JSON.stringify({
+              /* eslint-disable camelcase */
               name:            'material_name',
               auto_update:     true,
               plugin_metadata: {id: 'github.pr', version: '1.1'},
               configuration:   [{key: 'url', value: 'path/to/repo'}, {key: 'username', value: 'some_name'}]
-            }))
+              /* eslint-enable camelcase */
+            }));
           });
 
           it('should update etag cache on success', function() {
             var xhr = {
               status:            200,
-              getResponseHeader: function (header) {
-              },
+              getResponseHeader: m.prop(),
               responseText : JSON.stringify({id: 'new_id'})
             };
 
@@ -343,6 +348,7 @@ define(['mithril', 'lodash', 'models/pipeline_configs/scms'],
 
         describe('clone', function() {
           it('should return a cloned copy of the object', function () {
+            /* eslint-disable camelcase */
             var scm = new SCMs.SCM({
               id:              '43c45e0b-1b0c-46f3-a60a-2bbc5cec069c',
               name:            'material_name',
@@ -350,13 +356,15 @@ define(['mithril', 'lodash', 'models/pipeline_configs/scms'],
               plugin_metadata: {id: 'github.pr', version: '1.1'},
               configuration:   [{key: 'url', value: 'path/to/repo'}, {key: 'username', value: 'some_name'}]
             });
+            /* eslint-enable camelcase */
 
             expect(JSON.stringify(scm.clone())).toEqual(JSON.stringify(scm));
-          })
+          });
         });
 
         describe('reInitialize', function() {
           it('should re-initilaize with provided data', function () {
+            /* eslint-disable camelcase */
             var scm = new SCMs.SCM({
               id:              '43c45e0b-1b0c-46f3-a60a-2bbc5cec069c',
               name:            'material_name',
@@ -372,11 +380,12 @@ define(['mithril', 'lodash', 'models/pipeline_configs/scms'],
               plugin_metadata: {id: 'new.github.pr', version: 'new.1.1'},
               configuration:   [{key: 'url', value: 'path/to/new/repo'}, {key: 'username', value: 'new_name'}]
             };
+            /* eslint-enable camelcase */
 
             scm.reInitialize(sampleJSON);
 
             expect(JSON.stringify(sampleJSON)).toEqual(JSON.stringify(scm));
-          })
+          });
         });
       });
 
@@ -393,7 +402,7 @@ define(['mithril', 'lodash', 'models/pipeline_configs/scms'],
           });
 
           it('should handle secure configurations', function () {
-            var configurations = SCMs.SCM.Configurations.fromJSON([{key: 'username', value: 'some_name'}, {key: 'password', encrypted_value: 'adkfkk='}]);
+            var configurations = SCMs.SCM.Configurations.fromJSON([{key: 'username', value: 'some_name'}, {key: 'password', encrypted_value: 'adkfkk='}]); // eslint-disable-line camelcase
 
             expect(configurations.countConfiguration()).toBe(2);
             expect(configurations.firstConfiguration().isSecureValue()).toBe(false);
@@ -405,13 +414,13 @@ define(['mithril', 'lodash', 'models/pipeline_configs/scms'],
           it('should serialize to JSON', function () {
             var configurations = SCMs.SCM.Configurations.fromJSON([{key: 'url', value: 'path/to/repo'}, {key: 'username', value: 'some_name'}]);
 
-            expect(JSON.parse(JSON.stringify(configurations))).toEqual([{key: 'url', value: 'path/to/repo'}, {key: 'username', value: 'some_name'}])
+            expect(JSON.parse(JSON.stringify(configurations))).toEqual([{key: 'url', value: 'path/to/repo'}, {key: 'username', value: 'some_name'}]);
           });
 
           it('should handle secure configurations', function () {
-            var configurations = SCMs.SCM.Configurations.fromJSON([{key: 'username', value: 'some_name'}, {key: 'password', encrypted_value: 'adkfkk='}]);
+            var configurations = SCMs.SCM.Configurations.fromJSON([{key: 'username', value: 'some_name'}, {key: 'password', encrypted_value: 'adkfkk='}]); // eslint-disable-line camelcase
 
-            expect(JSON.parse(JSON.stringify(configurations))).toEqual([{key: 'username', value: 'some_name'}, {key: 'password', encrypted_value: 'adkfkk='}])
+            expect(JSON.parse(JSON.stringify(configurations))).toEqual([{key: 'username', value: 'some_name'}, {key: 'password', encrypted_value: 'adkfkk='}]); // eslint-disable-line camelcase
           });
         });
 
@@ -437,7 +446,7 @@ define(['mithril', 'lodash', 'models/pipeline_configs/scms'],
           });
 
           it('should change a secure configuration to unsecure on update', function () {
-            var configurations = SCMs.SCM.Configurations.fromJSON([{key: 'password', encrypted_value: 'jdbfj+='}]);
+            var configurations = SCMs.SCM.Configurations.fromJSON([{key: 'password', encrypted_value: 'jdbfj+='}]); //eslint-disable-line camelcase
 
             expect(configurations.firstConfiguration().isSecureValue()).toBe(true);
 
@@ -448,7 +457,7 @@ define(['mithril', 'lodash', 'models/pipeline_configs/scms'],
           });
 
           it('should not update a configuration if new value is same as old', function () {
-            var configurations = SCMs.SCM.Configurations.fromJSON([{key: 'password', encrypted_value: 'jdbfj+='}]);
+            var configurations = SCMs.SCM.Configurations.fromJSON([{key: 'password', encrypted_value: 'jdbfj+='}]); // eslint-disable-line camelcase
 
             expect(configurations.firstConfiguration().isSecureValue()).toBe(true);
 

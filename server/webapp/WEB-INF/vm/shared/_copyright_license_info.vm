@@ -1,6 +1,5 @@
 <div id="footer-new-foundation">
 <footer class="app-footer">
-    <div class="container">
         <div class="row expanded">
             <div class="small-12 medium-6 large-8 columns">
                 <p class="copyright">Copyright &copy; 2016
@@ -24,6 +23,5 @@
                     </span>
             </div>
         </div>
-    </div>
 </footer>
 </div>

@@ -21,7 +21,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/valid
       if (!s.include(entity.urlPattern(), '${ID}')) {
         entity.errors().add('urlPattern', Validatable.ErrorMessages.mustContainString("urlPattern", '${ID}'));
       }
-    }
+    };
   };
 
   var TrackingTool = function (type) {

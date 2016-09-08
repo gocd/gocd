@@ -39,7 +39,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/valid
       return s.isBlank(this.name()) && s.isBlank(this.value());
     };
 
-    this.validatePresenceOf('name', {condition: function(property) {return (!s.isBlank(property.value()))}});
+    this.validatePresenceOf('name', {condition: function(property) {return (!s.isBlank(property.value()));}});
     this.validateUniquenessOf('name');
   };
 

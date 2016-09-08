@@ -17,22 +17,11 @@
 define(["jquery", "mithril", 'lodash', "models/pipeline_configs/tracking_tool", "views/pipeline_configs/tracking_tool_widget"], function ($, m, _, TrackingTool, TrackingToolWidget) {
   describe("Tracking Tool Widget", function () {
     var $root = $('#mithril-mount-point'), root = $root.get(0);
-    var genericTrackingTool, mingleTrackingTool, trackingToolProp;
+    var trackingToolProp;
 
     beforeEach(function () {
       trackingToolProp = m.prop();
 
-      genericTrackingTool = new TrackingTool.Generic({
-        urlPattern: 'http://example.com/bugzilla?id=${ID}',
-        regex:      "bug-(\\d+)"
-      });
-
-      mingleTrackingTool = new TrackingTool.Mingle({
-        baseUrl:               'http://mingle.example.com',
-        projectIdentifier:     "gocd",
-        mqlGroupingConditions: "status > 'In Dev'"
-      });
-      
       m.mount(root,
         m.component(TrackingToolWidget, {trackingTool: trackingToolProp})
       );

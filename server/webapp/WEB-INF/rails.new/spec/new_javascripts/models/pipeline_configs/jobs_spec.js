@@ -86,7 +86,7 @@ define(['lodash', "models/pipeline_configs/jobs", "string-plus"], function (_, J
           name: "UnitTest"
         });
 
-        var errorsOnOriginal = job.validate();
+        errorsOnOriginal = job.validate();
         expect(errorsOnOriginal.errors('name')).toEqual(['Name is a duplicate']);
 
         var errorsOnDuplicate = duplicateVariable.validate();
@@ -260,6 +260,7 @@ define(['lodash', "models/pipeline_configs/jobs", "string-plus"], function (_, J
     });
 
     function sampleJobJSON() {
+      /* eslint-disable camelcase */
       return {
         name:                  "UnitTest",
         run_instance_count:    10,
@@ -310,6 +311,7 @@ define(['lodash', "models/pipeline_configs/jobs", "string-plus"], function (_, J
           }
         ]
       };
+      /* eslint-enable camelcase */
     }
   });
 });

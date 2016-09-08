@@ -47,7 +47,7 @@ define(['mithril', 'lodash'], function (m, _) {
         }
         var args = _.isEmpty(val) ? [] : val.split('\n');
         model.data(args);
-      }
+      };
     };
 
     var stringVM = function () {

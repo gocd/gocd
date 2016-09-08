@@ -184,7 +184,7 @@ define(["jquery", "mithril", "models/pipeline_configs/materials", "views/pipelin
       });
 
       it('should bind port', function () {
-        expect($root.find("input[data-prop-name='port']").val()).toBe(material.port())
+        expect($root.find("input[data-prop-name='port']").val()).toBe(material.port());
       });
 
       it('should bind username', function () {

@@ -18,7 +18,6 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agents_widget
   describe("Agents Widget", function () {
 
     var $root = $('#mithril-mount-point'), root = $root.get(0);
-    var agents;
 
     beforeAll(function () {
       jasmine.Ajax.install();
@@ -118,9 +117,9 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agents_widget
     });
 
     it('should show message after disabling the agents', function () {
-      var agents_checkbox = $root.find('.go-table thead tr input[type="checkbox"]');
+      var agentsCheckbox = $root.find('.go-table thead tr input[type="checkbox"]');
 
-      $(agents_checkbox[0]).click();
+      $(agentsCheckbox[0]).click();
       m.redraw(true);
 
       var disableButton = $root.find("button:contains('Disable')");
@@ -129,14 +128,14 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agents_widget
       $(disableButton).click();
       m.redraw(true);
 
-      var message = $root.find('.callout');
+      message = $root.find('.callout');
       expect(message.text()).toBe('Disabled 2 agents');
     });
 
     it('should show message after enabling the agents', function () {
-      var agents_checkbox = $root.find('.go-table thead tr input[type="checkbox"]');
+      var agentsCheckbox = $root.find('.go-table thead tr input[type="checkbox"]');
 
-      $(agents_checkbox[0]).click();
+      $(agentsCheckbox[0]).click();
       m.redraw(true);
 
       var buttons = $root.find('.agent-button-group button');
@@ -146,36 +145,36 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agents_widget
       buttons[2].click();
       m.redraw(true);
 
-      var message = $root.find('.callout');
+      message = $root.find('.callout');
       expect(message.text()).toBe('Enabled 2 agents');
     });
 
     it('should show message after deleting the agents', function () {
-      var agents_checkbox = $root.find('.go-table thead tr input[type="checkbox"]');
-      var delete_button   = $root.find('.agent-button-group button')[0];
+      var agentsCheckbox = $root.find('.go-table thead tr input[type="checkbox"]');
+      var deleteButton   = $root.find('.agent-button-group button')[0];
 
-      $(agents_checkbox[0]).click();
+      $(agentsCheckbox[0]).click();
       m.redraw(true);
 
-      expect(delete_button.disabled).toBe(false);
-      delete_button.click();
+      expect(deleteButton.disabled).toBe(false);
+      deleteButton.click();
       m.redraw(true);
 
       var message = $root.find('.callout');
       expect(message.text()).toBe('Deleted 2 agents');
-      expect(delete_button.disabled).toBe(true);
+      expect(deleteButton.disabled).toBe(true);
     });
 
     it('should show message after updating resource of the agents', function () {
       var resource = $root.find('.add-resource');
 
-      var agents_checkbox = $root.find('.go-table thead tr input[type="checkbox"]');
-      var apply_resource  = resource.find('button')[1];
+      var agentsCheckbox = $root.find('.go-table thead tr input[type="checkbox"]');
+      var applyResource  = resource.find('button')[1];
 
-      $(agents_checkbox[0]).click();
+      $(agentsCheckbox[0]).click();
       m.redraw(true);
 
-      apply_resource.click();
+      applyResource.click();
       m.redraw(true);
 
       var message = $root.find('.callout');
@@ -183,14 +182,14 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agents_widget
     });
 
     it('should show message after updating environment of the agents', function () {
-      var environment       = $root.find('.env-dropdown');
-      var agents_checkbox   = $root.find('.go-table thead tr input[type="checkbox"]');
-      var apply_environment = environment.find('button');
+      var environment      = $root.find('.env-dropdown');
+      var agentsCheckbox   = $root.find('.go-table thead tr input[type="checkbox"]');
+      var applyEnvironment = environment.find('button');
 
-      $(agents_checkbox[0]).click();
+      $(agentsCheckbox[0]).click();
       m.redraw(true);
 
-      apply_environment.click();
+      applyEnvironment.click();
       m.redraw(true);
 
       var message = $root.find('.callout');
@@ -198,47 +197,47 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agents_widget
     });
 
     it('should show only filtered agents after inserting filter text', function () {
-      var search_field         = $root.find('#filter-agent')[0];
-      var no_of_agents_on_page = $root.find('table tbody tr');
-      expect(no_of_agents_on_page.length).toBe(2);
+      var searchField       = $root.find('#filter-agent')[0];
+      var agentsCountOnPage = $root.find('table tbody tr');
+      expect(agentsCountOnPage.length).toBe(2);
 
-      $(search_field).val('host-2').trigger('input');
+      $(searchField).val('host-2').trigger('input');
       m.redraw(true);
 
-      expect($(search_field).val()).toBe('host-2');
-      no_of_agents_on_page = $root.find('table tbody tr');
-      expect(no_of_agents_on_page.length).toBe(1);
+      expect($(searchField).val()).toBe('host-2');
+      agentsCountOnPage = $root.find('table tbody tr');
+      expect(agentsCountOnPage.length).toBe(1);
     });
 
     it('should filter the agents based on filter text value', function () {
-      var search_field = $root.find('#filter-agent')[0];
-      $(search_field).val('').trigger('input');
+      var searchField = $root.find('#filter-agent')[0];
+      $(searchField).val('').trigger('input');
       m.redraw(true);
 
-      var no_of_agents_on_page = $root.find('table tbody tr');
-      expect(no_of_agents_on_page.length).toBe(2);
+      var agentsCountOnPage = $root.find('table tbody tr');
+      expect(agentsCountOnPage.length).toBe(2);
 
-      $(search_field).val('invalidtextnotvalid').trigger('input');
+      $(searchField).val('invalidtextnotvalid').trigger('input');
       m.redraw(true);
 
-      expect($(search_field).val()).toBe('invalidtextnotvalid');
+      expect($(searchField).val()).toBe('invalidtextnotvalid');
 
-      no_of_agents_on_page = $root.find('table tbody tr');
-      expect(no_of_agents_on_page.length).toBe(0);
+      agentsCountOnPage = $root.find('table tbody tr');
+      expect(agentsCountOnPage.length).toBe(0);
 
-      $(search_field).val('').trigger('input');
+      $(searchField).val('').trigger('input');
       m.redraw(true);
 
-      expect($(search_field).val()).toBe('');
+      expect($(searchField).val()).toBe('');
 
-      no_of_agents_on_page = $root.find('table tbody tr');
-      expect(no_of_agents_on_page.length).toBe(2);
+      agentsCountOnPage = $root.find('table tbody tr');
+      expect(agentsCountOnPage.length).toBe(2);
     });
 
     it('should preserve the selection of agents during filter', function () {
-      var search_field = $root.find('#filter-agent')[0];
+      var searchField = $root.find('#filter-agent')[0];
 
-      $(search_field).val('host-1').trigger('input');
+      $(searchField).val('host-1').trigger('input');
       m.redraw(true);
 
       var allBoxes = $root.find('.go-table tbody tr input[type="checkbox"]');
@@ -247,10 +246,10 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agents_widget
       $(allBoxes[0]).prop('checked', true).trigger('input');
       expect(allBoxes[0].checked).toBe(true);
 
-      $(search_field).val('').trigger('input');
+      $(searchField).val('').trigger('input');
       m.redraw(true);
 
-      var allBoxes = $root.find('.go-table tbody tr input[type="checkbox"]');
+      allBoxes = $root.find('.go-table tbody tr input[type="checkbox"]');
       expect(allBoxes.length).toBe(2);
       expect(allBoxes[0].checked).toBe(true);
       expect(allBoxes[1].checked).toBe(false);
@@ -269,68 +268,46 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agents_widget
       m.redraw(true);
     };
 
+    /* eslint-disable camelcase */
     var agentsData = {
-      "_embedded": {
-        "agents": [
-          {
-            "_links":             {
-              "self": {
-                "href": "https://ci.example.com/go/api/agents/dfdbe0b1-4521-4a52-ac2f-ca0cf6bdaa3e"
-              },
-              "doc":  {
-                "href": "http://api.go.cd/#agents"
-              },
-              "find": {
-                "href": "https://ci.example.com/go/api/agents/:uuid"
-              }
-            },
-            "uuid":               "dfdbe0b1-4521-4a52-ac2f-ca0cf6bdaa3e",
-            "hostname":           "host-1",
-            "ip_address":         "10.12.2.200",
-            "sandbox":            "usr/local/foo",
-            "operating_system":   "Linux",
-            "free_space":         "unknown",
-            "agent_config_state": "Disabled",
-            "agent_state":        "Missing",
-            "build_state":        "Unknown",
-            "resources":          [
-              "Firefox"
-            ],
-            "environments":       [
-              "Dev",
-              "Test"
-            ]
+      _embedded: {
+        agents: [{
+          _links:             {
+            self: {href: "https://ci.example.com/go/api/agents/dfdbe0b1-4521-4a52-ac2f-ca0cf6bdaa3e"},
+            doc:  {href: "http://api.go.cd/#agents"},
+            find: {href: "https://ci.example.com/go/api/agents/:uuid"}
           },
-          {
-            "_links":             {
-              "self": {
-                "href": "https://ci.example.com/go/api/agents/dfdbe0b1-aa31-4a52-ac42d-ca0cf6bdaa3e"
-              },
-              "doc":  {
-                "href": "http://api.go.cd/#agents"
-              },
-              "find": {
-                "href": "https://ci.example.com/go/api/agents/:uuid"
-              }
-            },
-            "uuid":               "dfdbe0b1-aa31-4a52-ac42d-ca0cf6bdaa3e",
-            "hostname":           "host-2",
-            "ip_address":         "10.12.2.201",
-            "sandbox":            "usr/local/bin",
-            "operating_system":   "Linux",
-            "free_space":         "unknown",
-            "agent_config_state": "Disabled",
-            "agent_state":        "Missing",
-            "build_state":        "Unknown",
-            "resources":          [
-              "Chrome"
-            ],
-            "environments":       [
-              "Test"
-            ]
-          }
-        ]
+          uuid:               "dfdbe0b1-4521-4a52-ac2f-ca0cf6bdaa3e",
+          hostname:           "host-1",
+          ip_address:         "10.12.2.200",
+          sandbox:            "usr/local/foo",
+          operating_system:   "Linux",
+          free_space:         "unknown",
+          agent_config_state: "Disabled",
+          agent_state:        "Missing",
+          build_state:        "Unknown",
+          resources:          ["Firefox"],
+          environments:       ["Dev", "Test"]
+        }, {
+          _links:             {
+            self: {href: "https://ci.example.com/go/api/agents/dfdbe0b1-aa31-4a52-ac42d-ca0cf6bdaa3e"},
+            doc:  {href: "http://api.go.cd/#agents"},
+            find: {href: "https://ci.example.com/go/api/agents/:uuid"}
+          },
+          uuid:               "dfdbe0b1-aa31-4a52-ac42d-ca0cf6bdaa3e",
+          hostname:           "host-2",
+          ip_address:         "10.12.2.201",
+          sandbox:            "usr/local/bin",
+          operating_system:   "Linux",
+          free_space:         "unknown",
+          agent_config_state: "Disabled",
+          agent_state:        "Missing",
+          build_state:        "Unknown",
+          resources:          ["Chrome"],
+          environments:       ["Test"]
+        }]
       }
     };
+    /* eslint-enable camelcase */
   });
 });

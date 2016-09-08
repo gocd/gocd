@@ -16,7 +16,7 @@
 
 define(['mithril', 'lodash', 'string-plus',
   'models/model_mixins', 'filesize',
-  'helpers/mrequest', 'lodash-inflection', 'js-routes'], function (m, _, s, Mixins, filesize, mrequest, JsRoutes) {
+  'helpers/mrequest', 'js-routes', 'lodash-inflection'], function (m, _, s, Mixins, filesize, mrequest, Routes) {
   var Agents = function (data) {
 
     this.disableAgents = function (uuids) {
@@ -58,7 +58,7 @@ define(['mithril', 'lodash', 'string-plus',
       });
     };
 
-    this.updateResources = function (uuids, add, remove, message, type, success) {
+    this.updateResources = function (uuids, add, remove) {
       var data = {
         uuids:      uuids,
         operations: {
@@ -71,10 +71,10 @@ define(['mithril', 'lodash', 'string-plus',
         url:    Routes.apiv2AgentsPath(),
         config: mrequest.xhrConfig.v2,
         data:   data
-      })
+      });
     };
 
-    this.updateEnvironments = function (uuids, add, remove, message, type, success) {
+    this.updateEnvironments = function (uuids, add, remove) {
       var data = {
         uuids:      uuids,
         operations: {environments: {add: add, remove: remove}}
@@ -98,7 +98,7 @@ define(['mithril', 'lodash', 'string-plus',
       config:        function (xhr) {
         mrequest.xhrConfig.v3(xhr);
         if (configCallBack) {
-          configCallBack(xhr)
+          configCallBack(xhr);
         }
       },
       unwrapSuccess: function (data) {
@@ -112,7 +112,7 @@ define(['mithril', 'lodash', 'string-plus',
       if (_.isNumber(freeSpace)) {
         return filesize(freeSpace);
       } else {
-        return 'Unknown'
+        return 'Unknown';
       }
     } catch (e) {
       return 'Unknown';
@@ -139,14 +139,14 @@ define(['mithril', 'lodash', 'string-plus',
       if (this.agentConfigState() === 'Pending') {
         return 'Pending';
       } else if (this.agentConfigState() === 'Disabled') {
-        if (this.buildState() == 'Building') {
+        if (this.buildState() === 'Building') {
           return 'Disabled (Building)';
-        } else if (this.buildState() == 'Cancelled') {
+        } else if (this.buildState() === 'Cancelled') {
           return 'Disabled (Cancelled)';
         }
         return 'Disabled';
-      } else if (this.agentState() == 'Building') {
-        if (this.buildState() == 'Cancelled') {
+      } else if (this.agentState() === 'Building') {
+        if (this.buildState() === 'Cancelled') {
           return 'Building (Cancelled)';
         }
         return 'Building';
@@ -169,8 +169,8 @@ define(['mithril', 'lodash', 'string-plus',
         resources:          this.resources(),
         environments:       this.environments(),
         agent_config_state: this.agentConfigState()
-      }
-    }
+      };
+    };
   };
 
   Agents.Agent.fromJSON = function (data) {

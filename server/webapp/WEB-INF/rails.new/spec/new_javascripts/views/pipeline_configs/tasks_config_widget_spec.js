@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(["jquery", "mithril", "models/pipeline_configs/tasks", "views/pipeline_configs/tasks_config_widget"], function ($, m, Tasks, TasksConfigWidget) {
+define(["jquery", "mithril", "lodash", "models/pipeline_configs/tasks", "views/pipeline_configs/tasks_config_widget"], function ($, m, _, Tasks, TasksConfigWidget) {
   describe("Tasks Widget", function () {
     var $root = $('#mithril-mount-point'), root = $root.get(0);
 
@@ -24,6 +24,7 @@ define(["jquery", "mithril", "models/pipeline_configs/tasks", "views/pipeline_co
         var tasks = m.prop(new Tasks());
 
         task = new Tasks.Task.Ant({
+          /* eslint-disable camelcase */
           buildFile:        'build-moduleA.xml',
           target:           'clean',
           workingDirectory: 'moduleA',
@@ -38,6 +39,7 @@ define(["jquery", "mithril", "models/pipeline_configs/tasks", "views/pipeline_co
               run_if:            []
             }
           }
+          /* eslint-enable camelcase */
         });
         tasks().addTask(task);
 

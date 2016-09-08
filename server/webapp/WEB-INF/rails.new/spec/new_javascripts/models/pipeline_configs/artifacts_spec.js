@@ -42,7 +42,7 @@ define(["models/pipeline_configs/artifacts"], function (Artifacts) {
         var errors = artifact.validate();
         expect(errors.errors('source')).toEqual(['Source must be present']);
       });
-      
+
       it("should NOT add error when both source and destination are blank", function () {
         artifact.destination("");
         artifact.source("");

@@ -60,7 +60,7 @@ define(['lodash', 'string-plus', 'models/pipeline_configs/tabs'], function (_, s
           name: tab.name()
         });
 
-        var errorsOnOriginal = tab.validate();
+        errorsOnOriginal = tab.validate();
         expect(errorsOnOriginal.errors('name')).toEqual(['Name is a duplicate']);
 
         var errorsOnDuplicate = duplicateTab.validate();

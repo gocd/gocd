@@ -87,7 +87,7 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agent_state_c
           ]
         }
       ];
-    }
+    };
 
   });
 });

@@ -14,20 +14,22 @@
  * limitations under the License.
  */
 
-define(["jquery", "mithril", 'lodash', 'string-plus', "models/pipeline_configs/pipeline", "views/pipeline_configs/pipeline_config_widget"],
-  function ($, m, _, s, Pipeline, PipelineConfigWidget) {
+define([
+  "jquery", "mithril", 'lodash', 'string-plus', "models/pipeline_configs/pipeline", "views/pipeline_configs/pipeline_config_widget"
+], function ($, m, _, s, Pipeline, PipelineConfigWidget) {
 
-    describe("PipelineConfigWidget", function () {
+  describe("PipelineConfigWidget", function () {
     var $root = $('#mithril-mount-point'), root = $root.get(0);
     var pipeline;
 
     beforeAll(function (done) {
       spyOn(Pipeline, 'find').and.callFake(function () {
         return {
-          then: function(callback) { return callback(samplePipelineJSON())}
-        }
+          then: function (callback) {
+            return callback(samplePipelineJSON());
+          }
+        };
       });
-
 
       // needed because the widget needs to fetch data via ajax, and complete rendering
       var reallyDone = _.after(2, function () {
@@ -121,6 +123,7 @@ define(["jquery", "mithril", 'lodash', 'string-plus', "models/pipeline_configs/p
   });
 
   function samplePipelineJSON() {
+    /* eslint-disable camelcase */
     return {
       name:                    "yourproject",
       label_template:          "foo-1.0.${COUNT}-${svn}",
@@ -158,5 +161,6 @@ define(["jquery", "mithril", 'lodash', 'string-plus', "models/pipeline_configs/p
         }
       ]
     };
+    /* eslint-enable camelcase */
   }
 });

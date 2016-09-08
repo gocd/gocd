@@ -131,6 +131,7 @@ define(['lodash', "models/pipeline_configs/pipeline", 'models/pipeline_configs/t
 
         it('should validate stages', function () {
           var pipeline = Pipeline.fromJSON({
+            /* eslint-disable camelcase */
             label_template: "foo-1.0.${COUNT}-${svn}",
             tracking_tool:           {
               type:       "generic",
@@ -140,6 +141,7 @@ define(['lodash', "models/pipeline_configs/pipeline", 'models/pipeline_configs/t
               }
             },
             stages:         [{name: 'stage1'}]
+            /* eslint-enable camelcase */
           });
 
           expect(pipeline.isValid()).toBe(true);
@@ -181,6 +183,7 @@ define(['lodash', "models/pipeline_configs/pipeline", 'models/pipeline_configs/t
     });
 
     function samplePipelineJSON() {
+      /* eslint-disable camelcase */
       return {
         name:                    "yourproject",
         enable_pipeline_locking: true,
@@ -232,6 +235,7 @@ define(['lodash', "models/pipeline_configs/pipeline", 'models/pipeline_configs/t
         },
         stages:                  []
       };
+      /* eslint-enable camelcase */
     }
   });
 });

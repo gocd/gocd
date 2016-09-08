@@ -22,6 +22,7 @@ define(["jquery", "mithril", "models/pipeline_configs/materials", "models/pipeli
       var $root = $('#mithril-mount-point'), root = $root.get(0);
 
       describe('EditView', function () {
+        /* eslint-disable camelcase */
         var github = new SCMs.SCM({
           id:              '43c45e0b-1b0c-46f3-a60a-2bbc5cec069c',
           name:            'Github PR',
@@ -29,6 +30,7 @@ define(["jquery", "mithril", "models/pipeline_configs/materials", "models/pipeli
           plugin_metadata: {id: 'github.pr', version: '1.1'},
           configuration:   [{key: 'url', value: 'path/to/repo'}, {key: 'username', value: 'some_name'}]
         });
+        /* eslint-enable camelcase */
 
         var pluggableMaterial = Materials.create({
           type:        'plugin',
@@ -82,13 +84,13 @@ define(["jquery", "mithril", "models/pipeline_configs/materials", "models/pipeli
             new SCMs.SCM({
               id:              'plugin_id_1',
               name:            'material_1',
-              plugin_metadata: {id: 'github.pr', version: '1.1'}
+              plugin_metadata: {id: 'github.pr', version: '1.1'} // eslint-disable-line camelcase
 
             }),
             new SCMs.SCM({
               id:              'plugin_id_2',
               name:            'material_2',
-              plugin_metadata: {id: 'scm_plugin', version: '1.1'},
+              plugin_metadata: {id: 'scm_plugin', version: '1.1'} // eslint-disable-line camelcase
             })
           ]);
 
@@ -118,7 +120,7 @@ define(["jquery", "mithril", "models/pipeline_configs/materials", "models/pipeli
           }));
 
           expect($('.scm-selector select option').length).toBe(0);
-        })
+        });
       });
 
       function mount(pluggableMaterial) {

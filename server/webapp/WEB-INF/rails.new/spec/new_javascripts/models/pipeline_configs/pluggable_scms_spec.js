@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-define(['lodash', 'models/pipeline_configs/pluggable_scms', 'models/pipeline_configs/plugin_infos', 'models/pipeline_configs/materials'],
-  function (_, PluggableSCMs, PluginInfos, Materials) {
+define([
+  'lodash', 'models/pipeline_configs/pluggable_scms', 'models/pipeline_configs/plugin_infos', 'models/pipeline_configs/materials'
+], function (_, PluggableSCMs, PluginInfos, Materials) {
   describe('PluggableTasks', function () {
     describe('init', function () {
       it('should build pluggable scm types from plugins', function () {
@@ -28,14 +29,14 @@ define(['lodash', 'models/pipeline_configs/pluggable_scms', 'models/pipeline_con
         var scmPlugin = new PluginInfos.PluginInfo({
           id:           'github.pr',
           type:         'scm',
-          display_name: 'Github PR',
+          display_name: 'Github PR', // eslint-disable-line camelcase
           description:  'Github PR Plugin'
         });
 
         var xunitConvertor = new PluginInfos.PluginInfo({
           id:           'scm.poller',
           type:         'scm',
-          display_name: 'SCM Poller',
+          display_name: 'SCM Poller', // eslint-disable-line camelcase
           description:  'SCM Poller'
         });
 
@@ -45,8 +46,11 @@ define(['lodash', 'models/pipeline_configs/pluggable_scms', 'models/pipeline_con
 
         expect(_.size(PluggableSCMs.Types)).toBe(2);
         expect(_.keys(PluggableSCMs.Types)).toEqual(['github.pr', 'scm.poller']);
-        expect(_.values(PluggableSCMs.Types)).toEqual([{type: Materials.Material.PluggableMaterial, description: 'Github PR'},
-                                                       {type: Materials.Material.PluggableMaterial, description: 'SCM Poller'}]);
+        expect(_.values(PluggableSCMs.Types)).toEqual([{
+          type:        Materials.Material.PluggableMaterial,
+          description: 'Github PR'
+        },
+          {type: Materials.Material.PluggableMaterial, description: 'SCM Poller'}]);
       });
     });
   });

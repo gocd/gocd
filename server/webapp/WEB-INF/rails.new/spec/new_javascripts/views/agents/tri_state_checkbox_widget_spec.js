@@ -20,36 +20,32 @@ define(["jquery", "mithril", "views/agents/tri_state_checkbox_widget", "models/a
     var resources = [['Firefox'], ['Firefox', 'Chrome']];
 
     it('should have checkbox with value', function () {
-      var checkbox = new TriStateCheckbox('Firefox', resources);
-      mount(checkbox);
+      mount(new TriStateCheckbox('Firefox', resources));
       var checkbox = $root.find('input')[0];
       expect(checkbox.value).toBe('Firefox');
     });
 
     it('should select the box as checked depending upon check field', function () {
-      var checkbox = new TriStateCheckbox('Firefox', resources);
-      mount(checkbox);
+      mount(new TriStateCheckbox('Firefox', resources));
       var checkbox = $root.find('input')[0];
       expect(checkbox.checked).toBe(true);
     });
 
     it('should select the box as unchecked depending upon check field', function () {
-      var checkbox = new TriStateCheckbox('Linux', resources);
-      mount(checkbox);
+      mount(new TriStateCheckbox('Linux', resources));
       var checkbox = $root.find('input')[0];
       expect(checkbox.checked).toBe(false);
     });
 
     it('should select the box as indeterminate depending upon the isIndeterminate field', function () {
-      var checkbox = new TriStateCheckbox('Chrome', resources);
-      mount(checkbox);
+      mount(new TriStateCheckbox('Chrome', resources));
       var checkbox = $root.find('input')[0];
       expect(checkbox.indeterminate).toBe(true);
     });
 
-    var mount = function (checkbox) {
+    var mount = function (triStateCheckbox) {
       m.mount(root,
-        m.component(TriStateCheckboxWidget, {'triStateCheckbox': checkbox, 'index': 1})
+        m.component(TriStateCheckboxWidget, {'triStateCheckbox': triStateCheckbox, 'index': 1})
       );
       m.redraw(true);
     };

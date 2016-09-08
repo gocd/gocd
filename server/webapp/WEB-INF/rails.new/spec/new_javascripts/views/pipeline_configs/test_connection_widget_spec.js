@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(["mithril", "lodash", "models/pipeline_configs/materials", "views/pipeline_configs/test_connection_widget"], function (m, _, Materials, TestConnectionWidget) {
+define(['jquery', "mithril", "lodash", "models/pipeline_configs/materials", "views/pipeline_configs/test_connection_widget"], function ($, m, _, Materials, TestConnectionWidget) {
   describe("Test Connection Widget", function () {
     describe('view', function() {
       var $root = $('#mithril-mount-point'), root = $root.get(0);
@@ -48,7 +48,7 @@ define(["mithril", "lodash", "models/pipeline_configs/materials", "views/pipelin
           m.component(TestConnectionWidget, {material: material, pipelineName: 'testPipeLine', vm: vm})
         );
         m.redraw(true);
-      };
+      }
     });
 
 
@@ -67,7 +67,7 @@ define(["mithril", "lodash", "models/pipeline_configs/materials", "views/pipelin
 
         spyOn(material, 'testConnection').and.callFake(function(){
           return deferred.promise();
-        })
+        });
       });
 
       it('should mark connection state to in progress', function(){

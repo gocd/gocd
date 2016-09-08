@@ -18,13 +18,13 @@ define(['mithril', 'lodash'], function (m, _) {
   var isPresentOnAll = function (setOfValues, value) {
     return _.every(setOfValues, function (values) {
       return _.includes(values, value);
-    })
+    });
   };
 
   var isPresentOnAny = function (setOfValues, value) {
     return _.some(setOfValues, function (values) {
       return _.includes(values, value);
-    })
+    });
   };
 
   var TriStateCheckbox = function (value, setOfValues) {
@@ -75,7 +75,7 @@ define(['mithril', 'lodash'], function (m, _) {
     this.becomeIndeterminate = function () {
       checked(false);
       indeterminate(true);
-    }
+    };
   };
 
   return TriStateCheckbox;

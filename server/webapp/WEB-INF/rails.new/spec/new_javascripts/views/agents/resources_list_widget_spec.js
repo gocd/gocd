@@ -37,9 +37,6 @@ define(["jquery", "mithril", 'models/agents/agents', 'models/agents/resources', 
     vm.dropdown.states['environment'] = m.prop(false);
     vm.dropdown.states['resource']    = m.prop(false);
 
-    var updateResources = function (resourcesToBeAdded, resourcesToBeRemoved) {
-    };
-
     beforeAll(function () {
       jasmine.Ajax.install();
       jasmine.Ajax.stubRequest(/\/api\/admin\/internal\/resources/).andReturn({
@@ -75,96 +72,97 @@ define(["jquery", "mithril", 'models/agents/agents', 'models/agents/resources', 
     });
 
     it('should contain all the resources checkbox', function () {
-      var all_resources = $.find('.resources-items :checkbox');
-      expect(all_resources.length).toBe(4);
-      expect(all_resources[0].value).toBe('Linux');
-      expect(all_resources[1].value).toBe('Gauge');
-      expect(all_resources[2].value).toBe('Java');
-      expect(all_resources[3].value).toBe('Windows');
+      var allResources = $.find('.resources-items :checkbox');
+      expect(allResources.length).toBe(4);
+      expect(allResources[0].value).toBe('Linux');
+      expect(allResources[1].value).toBe('Gauge');
+      expect(allResources[2].value).toBe('Java');
+      expect(allResources[3].value).toBe('Windows');
     });
 
     it('should check resources that are present on all the agents', function () {
-      var all_resources = $.find('.resources-items :checkbox');
-      expect(all_resources[2].value).toBe('Java');
-      expect(all_resources[2].checked).toBe(true);
+      var allResources = $.find('.resources-items :checkbox');
+      expect(allResources[2].value).toBe('Java');
+      expect(allResources[2].checked).toBe(true);
     });
 
     it('should select resources as indeterminate that are present on some of the agents', function () {
-      var all_resources = $.find('.resources-items :checkbox');
-      expect(all_resources[0].value).toBe('Linux');
-      expect(all_resources[0].indeterminate).toBe(true);
+      var allResources = $.find('.resources-items :checkbox');
+      expect(allResources[0].value).toBe('Linux');
+      expect(allResources[0].indeterminate).toBe(true);
 
-      expect(all_resources[1].value).toBe('Gauge');
-      expect(all_resources[1].indeterminate).toBe(true);
+      expect(allResources[1].value).toBe('Gauge');
+      expect(allResources[1].indeterminate).toBe(true);
     });
 
     it('should uncheck resources that are not present on any the agents', function () {
-      var all_resources = $.find('.resources-items :checkbox');
-      expect(all_resources[3].value).toBe('Windows');
-      expect(all_resources[3].checked).toBe(false);
-      expect(all_resources[3].indeterminate).toBe(false);
+      var allResources = $.find('.resources-items :checkbox');
+      expect(allResources[3].value).toBe('Windows');
+      expect(allResources[3].checked).toBe(false);
+      expect(allResources[3].indeterminate).toBe(false);
     });
 
     it('should have button to add resources', function () {
-      var add_button = $root.find('.add-resource :button')[0];
-      expect(add_button.textContent).toBe("Add");
+      var addButton = $root.find('.add-resource :button')[0];
+      expect(addButton.textContent).toBe("Add");
     });
 
     it('should have button to apply resources', function () {
-      var apply_button = $root.find('.add-resource :button')[1];
-      expect(apply_button.textContent).toBe("Apply");
+      var applyButton = $root.find('.add-resource :button')[1];
+      expect(applyButton.textContent).toBe("Apply");
     });
 
     it('should add resource after invoking add button', function () {
-      var all_resources = $root.find('.resources-items :checkbox');
-      expect(all_resources.length).toBe(4);
+      var allResources = $root.find('.resources-items :checkbox');
+      expect(allResources.length).toBe(4);
 
-      var input_box = $root.find('.add-resource :text')[0];
-      $(input_box).val('Chrome').trigger('input');
+      var inputBox = $root.find('.add-resource :text')[0];
+      $(inputBox).val('Chrome').trigger('input');
 
 
-      var add_button = $root.find('.add-resource :button')[0];
-      add_button.click();
+      var addButton = $root.find('.add-resource :button')[0];
+      addButton.click();
       m.redraw(true);
 
-      var all_resources = $root.find('.resources-items :checkbox');
-      expect(all_resources.length).toBe(5);
+      allResources = $root.find('.resources-items :checkbox');
+      expect(allResources.length).toBe(5);
     });
 
 
     it('should clear input-text box after adding resource', function () {
-      var input_box = $root.find('.add-resource input');
-      $(input_box).val('Chrome').trigger('change');
+      var inputBox = $root.find('.add-resource input');
+      $(inputBox).val('Chrome').trigger('change');
 
-      expect(input_box.val()).toBe('Chrome');
-      var add_button = $root.find('.add-resource button')[0];
-      add_button.click();
+      expect(inputBox.val()).toBe('Chrome');
+      var addButton = $root.find('.add-resource button')[0];
+      addButton.click();
       m.redraw(true);
 
-      var input_box = $root.find('.add-resource input');
-      expect(input_box.val()).toBe('');
+      inputBox = $root.find('.add-resource input');
+      expect(inputBox.val()).toBe('');
     });
 
     it('should not add duplicate resources', function () {
-      var all_resources = $root.find('.resources-items input[type="Checkbox"]');
-      expect(all_resources.length).toBe(4);
-      expect(all_resources[0].value).toBe('Linux');
+      var allResources = $root.find('.resources-items input[type="Checkbox"]');
+      expect(allResources.length).toBe(4);
+      expect(allResources[0].value).toBe('Linux');
 
-      var input_box = $root.find('.add-resource :input')[0];
-      $(input_box).val('Linux').trigger('change');
+      var inputBox = $root.find('.add-resource :input')[0];
+      $(inputBox).val('Linux').trigger('change');
 
-      var add_button = $root.find('.add-resource :button')[1];
-      add_button.click();
+      var addButton = $root.find('.add-resource :button')[1];
+      addButton.click();
       m.redraw(true);
 
-      var all_resources = $root.find('.resources-items input[type="Checkbox"]');
-      expect(all_resources.length).toBe(4);
+      allResources = $root.find('.resources-items input[type="Checkbox"]');
+      expect(allResources.length).toBe(4);
     });
 
     var mount = function () {
-      m.mount(root, m.component(ResourcesListWidget, {
+      m.mount(root,
+        m.component(ResourcesListWidget, {
           'dropDownState':     vm.dropdown,
-          'onResourcesUpdate': updateResources
+          'onResourcesUpdate': m.prop()
         })
       );
       m.redraw(true);

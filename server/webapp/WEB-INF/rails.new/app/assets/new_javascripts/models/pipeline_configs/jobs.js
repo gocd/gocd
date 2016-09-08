@@ -29,7 +29,7 @@ define([
       if (!(entity.isTimeoutNever() || entity.isTimeoutDefault() || entity.isTimeoutCustom())) {
         entity.errors().add('timeout', Validatable.ErrorMessages.mustBePositiveNumber('timeout'));
       }
-    }
+    };
   };
 
   var RunInstanceCountValidator = function () {
@@ -37,7 +37,7 @@ define([
       if (!(entity.isRunOnAllAgents() || entity.isRunOnOneAgent() || entity.isRunOnSomeAgents())) {
         entity.errors().add('runInstanceCount', Validatable.ErrorMessages.mustBePositiveNumber('runInstanceCount'));
       }
-    }
+    };
   };
 
   Jobs.Job = function (data) {

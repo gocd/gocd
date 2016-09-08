@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@import '../shared/go-variables';
 @import '../shared/mixins';
 @import '../shared/common';
 @import '../shared/header';
@@ -77,8 +76,6 @@ span.info {
     outline: 0;
   }
 }
-
-// custom button group
 
 .agent-button-group {
   margin-bottom: 0;
@@ -245,10 +242,8 @@ span.info {
   }
 }
 
-// search panel
 .search-panel {
   padding: 10px 0;
-           //background: #fff;
 }
 
 .search-bar {
@@ -318,7 +313,6 @@ span.info {
   }
 }
 
-//table styles
 
 .go-table {
   background: transparent;

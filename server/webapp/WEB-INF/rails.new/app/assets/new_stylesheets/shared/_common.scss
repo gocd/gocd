@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-//z-index
 $app-header-top-line: 11;
 $main-navigation: 10;
 $agents-filters: 2;
@@ -58,8 +57,6 @@ body {
   @include icon-before($type: plus-circle);
 }
 
-//sticky footer
-
 $app-footer-height: 76px;
 
 * {
@@ -89,7 +86,7 @@ html, body {
   position:      absolute;
   top:           50%;
   left:          50%;
-  border:        16px solid #f3f3f3; /* Light grey */
+  border:        16px solid #f3f3f3;
   border-top:    16px solid #963fb7;
   border-radius: 50%;
   width:         100px;

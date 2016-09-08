@@ -16,17 +16,18 @@
 <body data-controller-name="<%= controller_name %>" data-action-name="<%= action_name %>">
 <div class="page-wrap">
   <header class="app-header">
-    <div class="container">
-      <%= render :partial => 'navigation_elements/navigation' %>
+    <div class="row expanded">
+      <%= render :partial => 'new_navigation_elements/navigation' %>
     </div>
   </header>
+
   <main class="main-container">
-    <div class="container">
-      <%= yield %>
-    </div>
+
+    <%= yield %>
   </main>
+
 </div>
-<%= render :partial => 'navigation_elements/footer' %>
+<%= render :partial => 'new_navigation_elements/footer' %>
 
 </body>
 </html>

@@ -15,11 +15,31 @@
  */
 
 
+//z-index
+$app-header-top-line :11;
+$main-navigation :10;
+$agents-filters :2;
 
-@media only screen and (min-width: 120.063em) {
+
+body{
+  background: image-url('bg-texture-dark.png') repeat 0 0;
+}
+
+.container{
+  overflow:hidden;
+  background:#fff;
+  padding:0;
+  border-radius:5px;
+  margin:0 10px;
+  #agents & {
+    margin-bottom:30px;
+  }
+}
+
+@media only screen and (min-width: 1600px) {
 
   .row.expanded{
-    max-width:130rem;
+    max-width:1400px;
   }
 }
 

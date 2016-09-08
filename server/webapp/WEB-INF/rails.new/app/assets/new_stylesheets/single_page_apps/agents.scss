@@ -13,14 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@import 'shared/go-variables';
-@import 'shared/mixins';
-@import 'shared/common';
-@import 'shared/header';
-@import 'shared/alert';
+
+
+@import '../shared/go-variables';
+@import '../shared/mixins';
+@import '../shared/common';
+@import '../shared/header';
+@import '../shared/alert';
 
 #agents {
   transition: all 0.3s ease-in-out;
+  .container{
+    background:transparent;
+  }
 }
 
 .page-header {
@@ -46,7 +51,7 @@
     text-decoration: none;
     top: -1px;
     padding: 3px 7px;
-    border-radius: 5px;
+    border-radius:$global-border-radius;
     &:hover {
       background: #fff;
       color: #333;
@@ -64,7 +69,7 @@ span.info {
   background: #333;
   padding: 5px 10px;
   top: 60px;
-  border-radius: 5px;
+  border-radius: $global-border-radius;
   display: block;
 }
 
@@ -76,9 +81,7 @@ span.info {
 }
 
 // custom button group
-$agent-button-group-border-radius: 5px;
-$secondary-color: #34D9DB;
-$border-color: #cccccc;
+
 
 .agent-button-group {
   margin-bottom: 0;
@@ -87,19 +90,20 @@ $border-color: #cccccc;
     margin-left: 1px;
     display: inline-block;
     position: relative;
+    z-index: $agents-filters;
     &:first-child {
       margin-left: 0;
       > .button {
-        border-radius: $agent-button-group-border-radius 0 0 $agent-button-group-border-radius;
+        border-radius: $global-border-radius 0 0 $global-border-radius;
       }
     }
     &:last-child {
       > .button {
-        border-radius: 0 $agent-button-group-border-radius $agent-button-group-border-radius 0;
+        border-radius: 0 $global-border-radius $global-border-radius 0;
       }
     }
     .button {
-      background-color: $secondary-color;
+      background-color: $go-secondary;
       color: #333333;
       border: 0;
       font-size: rem-calc(13px);
@@ -110,13 +114,13 @@ $border-color: #cccccc;
       line-height: 30px;
       &:hover,
       &:focus {
-        background-color: lighten($secondary-color, 20%);
+        background-color: lighten($go-secondary, 20%);
         outline: 0;
       }
       &.btn-apply {
         font-size: 14px;
         padding: 7px 20px;
-        border-radius: $agent-button-group-border-radius;
+        border-radius: $global-border-radius;
         margin-right: 1px;
         color: #333333;
         height: auto;
@@ -128,7 +132,7 @@ $border-color: #cccccc;
     }
     &.is-open {
       > .button {
-        background-color: lighten($secondary-color, 20%);
+        background-color: lighten($go-secondary, 20%);
         border-bottom-right-radius: 0px;
         &:before {
           content: "";
@@ -141,7 +145,7 @@ $border-color: #cccccc;
           height: 0;
           border-style: solid;
           border-width: 10px 10px 0 10px;
-          border-color: lighten($secondary-color, 20%) transparent transparent transparent;
+          border-color: lighten($go-secondary, 20%) transparent transparent transparent;
         }
       }
     }
@@ -168,6 +172,18 @@ $border-color: #cccccc;
     font-size: 13px;
     margin-bottom: 10px;
   }
+  &.env-dropdown.empty{
+    padding:10px;
+    ul{
+      display:none;
+    }
+    .resource-error {
+      color:#fff;
+      font-weight:700;
+      margin:0;
+    }
+
+  }
 }
 
 .resources-items {
@@ -193,9 +209,9 @@ $border-color: #cccccc;
   .add-resource {
     input[type="text"] {
       border-radius: 0;
-      border-top-left-radius: $agent-button-group-border-radius;
-      border-bottom-left-radius: $agent-button-group-border-radius;
-      height: 40px;
+      border-top-left-radius: $global-border-radius;
+      border-bottom-left-radius: $global-border-radius;
+      height: 35px;
     }
     button {
       border-radius: 0;
@@ -206,12 +222,12 @@ $border-color: #cccccc;
       margin-right: 1px;
       font-size: 15px;
       color: #333333;
-      height: 40px;
+      height: 35px;
       transition: all 0.3s ease-in-out;
       &:hover,
       &:focus {
         transition: all 0.3s ease-in-out;
-        background-color: lighten($secondary-color, 10%);
+        background-color: lighten($go-secondary, 10%);
         outline: 0;
         color: #333333;
       }
@@ -235,26 +251,30 @@ $border-color: #cccccc;
 // search panel
 .search-panel {
   padding: 10px 0;
-  background: #fff;
+  //background: #fff;
 }
 
 .search-bar {
   position: relative;
-  margin-top: 10px;
+  margin-top: 8px;
   @include icon-before($type: search);
   &:before {
     position: absolute;
     left: 7px;
-    color: #cacaca;
-    top: 6px;
+    color: $go-tertiary;
+    top: 3px;
     font-size: 18px;
   }
 
   input[type="text"] {
 
-    border-radius: 15px;
+    border-radius: $global-border-radius;
     padding-left: 40px;
     margin-bottom: 0;
+    height:35px;
+    background:transparent;
+    color:#fff;
+
   }
   .fa {
     position: absolute;
@@ -274,24 +294,29 @@ $border-color: #cccccc;
   width: 350px;
   li {
     width: 25%;
-    border-left: 1px solid #cccccc;
+    border-left: 1px solid rgba(255, 255, 255, 0.12);
     text-align: center;
+    font-weight: 600;
     &:first-child {
       border: 0;
     }
     label {
-      color: #444444;
+      color: #fff;
       font-size: 14px;
     }
     .value {
       font-size: 20px;
-      font-weight: 600;
+      color: #fff;
     }
     &.enabled {
-      color: #50E3C2;
+      .value {
+        color: #50E3C2;
+      }
     }
     &.disabled {
-      color: #EE6161;
+      .value {
+        color: #EE6161;
+      }
     }
   }
 }
@@ -299,17 +324,20 @@ $border-color: #cccccc;
 //table styles
 
 .go-table {
-  border-bottom: 2px solid #cccccc;
+  background:transparent;
+  border:0;
+  margin:0;
   thead {
     border: 0;
     tr {
-      background: #333333;
-      color: #ffffff;
+      background: $go-tertiary;
+      color: $grey;
       font-size: rem-calc(14px);
 
     }
   }
   tbody {
+    border: 0;
     tr {
       font-size: rem-calc(13px);
       &.building {

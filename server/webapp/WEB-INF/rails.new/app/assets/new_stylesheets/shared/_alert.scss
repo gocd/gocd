@@ -32,7 +32,7 @@ $border-radius: 3px;
   font-size: 15px;
   padding: 10px 20px;
   border-radius: $border-radius;
-  margin: 10px 30px;
+  margin: 10px;
   &.success {
     background-color: $success;
     border-color: $success-border;
@@ -52,6 +52,10 @@ $border-radius: 3px;
     background-color: $alert;
     border-color: $alert-border;
     color: #F23962;
+  }
+  &.small{
+    padding:5px 10px;
+    font-size: rem-calc(13px);
   }
   &.secondary {
     background-color: $secondary;

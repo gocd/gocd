@@ -1,0 +1,77 @@
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+task scssLint(type: Exec) {
+  description "Run scss-lint"
+  standardOutput = System.out
+  errorOutput = System.err
+
+  if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
+    setExecutable project.file("bin/jruby.bat")
+  } else {
+    setExecutable project.file("bin/jruby")
+  }
+
+  args = ['--2.0', '-S', 'scss-lint', "--config", project.file('scss-lint.yml'), "${project.findProject(':server').railsRoot}/app/assets/new_stylesheets"]
+}
+
+task jsLint {
+  description "Run ESLint"
+  doFirst {
+    def commonCommandLine = [
+        './node_modules/.bin/eslint',
+        '--config', project.file('.eslintrc.json'),
+        '--color',
+        '--format', project.hasProperty('jsLintFormat') ? project.jsLintFormat : 'stylish'
+    ]
+
+    project.exec {
+      standardOutput = System.out
+      errorOutput = System.err
+      commandLine = commonCommandLine
+      commandLine += ["${project.findProject(':server').railsRoot}/app/assets/new_javascripts"]
+      println commandLine.join(" ")
+    }
+
+    project.exec {
+      standardOutput = System.out
+      errorOutput = System.err
+      commandLine = commonCommandLine
+      commandLine += [
+          'it',
+          'describe',
+          'expect',
+          'beforeEach',
+          'afterEach',
+          'afterAll',
+          'beforeAll',
+          'xit',
+          'spyOn',
+          'jasmine',
+          'angular'
+      ].collect { "--global=${it}" }
+
+      commandLine += project.fileTree(dir: "${project.findProject(':server').railsRoot}/spec/new_javascripts", excludes: ["helpers/*", "*.html.*"]).files
+
+      println commandLine.join(" ")
+    }
+  }
+}
+
+task lint {
+  description 'Run all lint tools'
+  dependsOn scssLint, jsLint
+}

@@ -15,6 +15,7 @@
  */
 
 description = 'GoCD build tools'
+apply from: 'lint.gradle'
 
 repositories {
   maven { url 'http://rubygems-proxy.torquebox.org/releases/' }
@@ -85,70 +86,19 @@ task prepareJRuby {
   }
 }
 
-task scssLint(type: Exec) {
-  description "Run scss-lint"
+task prepareNodeJS(type: Exec) {
   standardOutput = System.out
   errorOutput = System.err
-
-  if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
-    setExecutable project.file("bin/jruby.bat")
-  } else {
-    setExecutable project.file("bin/jruby")
-  }
-
-  args = ['--2.0', '-S', 'scss-lint', "--config=${project.file('scss-lint.yml')}", "${project.findProject(':server').railsRoot}/app/assets/new_stylesheets"]
+  commandLine = ['npm', 'install']
 }
 
-task jsLint {
-  description "Run ESLint"
-  def commonCommandLine = [
-      './node_modules/.bin/eslint',
-      '--config', project.file('.eslintrc.json'),
-      '--color',
-      '--format', project.hasProperty('jsLintFormat') ? project.jsLintFormat : 'stylish']
-  doFirst {
-    project.exec {
-      standardOutput = System.out
-      errorOutput = System.err
-      commandLine = ['npm', 'install']
-    }
-
-    project.exec {
-      standardOutput = System.out
-      errorOutput = System.err
-      commandLine = commonCommandLine
-      commandLine += ["${project.findProject(':server').railsRoot}/app/assets/new_javascripts"]
-    }
-
-    project.exec {
-      standardOutput = System.out
-      errorOutput = System.err
-      commandLine = commonCommandLine
-      commandLine += [
-          'it',
-          'describe',
-          'expect',
-          'beforeEach',
-          'afterEach',
-          'afterAll',
-          'beforeAll',
-          'xit',
-          'spyOn',
-          'jasmine',
-          'angular'
-      ].collect { "--global=${it}" }
-
-      commandLine += project.fileTree(dir: "${project.findProject(':server').railsRoot}/spec/new_javascripts", excludes: ["helpers/*", "*.html.*"]).files
-
-      println commandLine.join(" ")
-    }
-  }
-}
-
-task lint {
-  dependsOn scssLint, jsLint
+clean.doFirst {
+  project.delete('jruby')
+  project.delete('jruby-1.7.11')
+  project.delete('node_modules')
 }
 
 task prepare {
   dependsOn prepareJRuby
+  dependsOn prepareNodeJS
 }

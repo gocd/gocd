@@ -24,36 +24,36 @@
     border-radius: $accordion-border-radius;
   }
   &.accordion-inner {
-    background: $white;
-    border: 1px solid $border;
-    margin-left: 15px;
+    background:   $white;
+    border:       1px solid $border;
+    margin-left:  15px;
     margin-right: 15px;
     .accordion-content {
-      background: $white;
+      background:  $white;
       padding-top: 20px;
     }
   }
 }
 
 .accordion-title {
-  font-size: rem-calc(14);
+  font-size:      rem-calc(14);
   text-transform: uppercase;
-  background: $accordion-bg;
-  padding: 0 35px;
-  height: 40px;
-  line-height: 40px;
-  color: $black;
-  border-radius: $accordion-border-radius;
+  background:     $accordion-bg;
+  padding:        0 35px;
+  height:         40px;
+  line-height:    40px;
+  color:          $black;
+  border-radius:  $accordion-border-radius;
 
   &:hover, &:focus {
-    color: $black;
+    color:      $black;
     background: $accordion-bg;
   }
 
   &:before {
     @include icon-only(caret-right);
     position: absolute;
-    left: 16px;
+    left:     16px;
   }
 
   .is-active > &::before {
@@ -62,11 +62,11 @@
   }
 
   .accordion-inner & {
-    background: $white;
-    font-size: rem-calc(12);
-    height: 30px;
+    background:  $white;
+    font-size:   rem-calc(12);
+    height:      30px;
     line-height: 33px;
-    padding: 0 28px;
+    padding:     0 28px;
     &:before {
       left: 13px;
     }
@@ -76,8 +76,8 @@
 .accordion-inner {
   .is-active {
     .accordion-title {
-      border-bottom-left-radius: 0;
-      border-bottom: 1px solid $border;
+      border-bottom-left-radius:  0;
+      border-bottom:              1px solid $border;
       border-bottom-right-radius: 0;
       &::before {
         left: 11px;
@@ -85,8 +85,8 @@
     }
   }
   .sub-header {
-    font-size: 15px;
-    margin-left: 10px;
+    font-size:     15px;
+    margin-left:   10px;
     margin-bottom: 15px;
   }
 }

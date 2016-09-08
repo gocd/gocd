@@ -16,51 +16,51 @@
 
 //alert styles
 
-$success: #DBF1D9;
+$success: #dbf1d9;
 $success-border: #98e478;
-$warning: #FDF5E2;
-$warning-border: #EEE4C9;
-$alert: #FEEBEC;
-$alert-border: #E5BFC0;
-$info: #D3EFFB;
-$info-border: #B8D4E0;
-$secondary: #ffffff;
+$warning: #fdf5e2;
+$warning-border: #eee4c9;
+$alert: #feebec;
+$alert-border: #e5bfc0;
+$info: #d3effb;
+$info-border: #b8d4e0;
+$secondary: #fff;
 $border-radius: 3px;
 
 .callout {
-  font-weight: 600;
-  font-size: 15px;
-  padding: 10px 20px;
+  font-weight:   600;
+  font-size:     15px;
+  padding:       10px 20px;
   border-radius: $border-radius;
-  margin: 10px;
+  margin:        10px;
   &.success {
     background-color: $success;
-    border-color: $success-border;
-    color: #298A4C;
+    border-color:     $success-border;
+    color:            #298a4c;
   }
   &.warning {
     background-color: $warning;
-    border-color: $warning-border;
-    color: #B88C34;
+    border-color:     $warning-border;
+    color:            #b88c34;
   }
   &.info {
     background-color: $info;
-    border-color: $info-border;
-    color: #0072B7;
+    border-color:     $info-border;
+    color:            #0072b7;
   }
   &.alert {
     background-color: $alert;
-    border-color: $alert-border;
-    color: #F23962;
+    border-color:     $alert-border;
+    color:            #f23962;
   }
-  &.small{
-    padding:5px 10px;
+  &.small {
+    padding:   5px 10px;
     font-size: rem-calc(13px);
   }
   &.secondary {
     background-color: $secondary;
-    border-color: #E3E3E3;
-    color: #4a4a4a;
+    border-color:     #e3e3e3;
+    color:            #4a4a4a;
   }
   .pipeline & {
     margin: 10px 15px;

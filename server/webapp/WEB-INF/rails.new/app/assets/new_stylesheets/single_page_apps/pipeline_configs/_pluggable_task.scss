@@ -15,10 +15,10 @@
  */
 
 .pluggable-task {
-  padding:0 15px;
+  padding: 0 15px;
 
   select, [type='text'], [type='password'], [type='date'], [type='datetime'], [type='datetime-local'], [type='month'], [type='week'], [type='email'], [type='number'], [type='search'], [type='tel'], [type='time'], [type='url'], [type='color'], textarea {
-    width: 300px;
+    width:   300px;
     display: block;
   }
   br {
@@ -26,11 +26,11 @@
   }
   h1, h2, h3 {
     font-size: rem-calc(20px);
-    margin: 20px 0;
+    margin:    20px 0;
   }
 
   h4, h5, h6 {
     font-size: rem-calc(15px);
-    margin: 20px 0;
+    margin:    20px 0;
   }
 }

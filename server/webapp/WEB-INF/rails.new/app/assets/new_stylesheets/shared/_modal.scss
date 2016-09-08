@@ -16,16 +16,16 @@
 
 .reveal {
   .modal-title {
-    border-bottom: 1px solid #ccc;
-    padding: 10px 15px;
-    margin: -17px -16px 20px;
-    border-top-left-radius: 5px;
-    background: #e0dfdf;
+    border-bottom:           1px solid #ccc;
+    padding:                 10px 15px;
+    margin:                  -17px -16px 20px;
+    border-top-left-radius:  5px;
+    background:              #e0dfdf;
     border-top-right-radius: 5px;
   }
 
-  thead th, thead td, tfoot th, tfoot td , tbody th, tbody td {
-    padding: 5px 10px;
+  thead th, thead td, tfoot th, tfoot td, tbody th, tbody td {
+    padding:   5px 10px;
     font-size: 13px;
   }
 }

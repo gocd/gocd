@@ -3,41 +3,30 @@ linters:
   Comment:
     enabled: false
     style: silent
-
+  Shorthand:
+    enabled: false
   SpaceAfterComment:
     enabled: false
-
   SingleLinePerSelector:
     enabled: false
-
   SpaceAfterPropertyColon:
     enabled: true
     style: aligned
-
   LeadingZero:
     enabled: true
     style: include_zero
-
-
+  ColorVariable:
+    enabled: false
   PropertySortOrder:
     enabled: false
-
   NestingDepth:
-    enabled: false
-  HexNotation:
-    enabled: false
-  ColorNotation:
     enabled: false
   EmptyLineBetweenBlocks:
     enabled: false
-  HexLength:
-    enabled: false
-  ColorVariable:
-    enabled: false
   StringQuotes:
-    enabled: false
+    enabled: false # we don't care about the type of quotes used
   SelectorDepth:
     enabled: true
     max_depth: 4
   PseudoElement:
-    enabled: false
+    enabled: false # we don't support IE8, so ::after, or :after are both OK.

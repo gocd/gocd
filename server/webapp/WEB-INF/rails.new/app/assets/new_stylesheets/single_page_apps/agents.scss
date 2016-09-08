@@ -13,8 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
 @import '../shared/go-variables';
 @import '../shared/mixins';
 @import '../shared/common';
@@ -23,54 +21,54 @@
 
 #agents {
   transition: all 0.3s ease-in-out;
-  .container{
-    background:transparent;
+  .container {
+    background: transparent;
   }
 }
 
 .page-header {
-  background: image-url('bg_agents_page_header.jpg') no-repeat 0 0;
+  background:      image-url('bg_agents_page_header.jpg') no-repeat 0 0;
   background-size: cover;
-  padding: 10px 0;
-  position: relative;
+  padding:         10px 0;
+  position:        relative;
   h1 {
-    font-size: 20px;
-    margin: 0;
-    color: #ffffff;
+    font-size:      20px;
+    margin:         0;
+    color:          #fff;
     text-transform: uppercase;
-    display: inline-block;
-    font-weight: 600;
+    display:        inline-block;
+    font-weight:    600;
   }
   .old-agents-page {
-    color: #fff;
-    background: $dark-grey;
-    font-size: rem-calc(13px);
-    font-weight: 600;
-    position: relative;
-    margin: 0 10px;
+    color:           #fff;
+    background:      $dark-grey;
+    font-size:       rem-calc(13px);
+    font-weight:     600;
+    position:        relative;
+    margin:          0 10px;
     text-decoration: none;
-    top: -1px;
-    padding: 3px 7px;
-    border-radius:$global-border-radius;
+    top:             -1px;
+    padding:         3px 7px;
+    border-radius:   $global-border-radius;
     &:hover {
       background: #fff;
-      color: #333;
+      color:      #333;
     }
   }
 }
 
 span.info {
-  color: #fff;
-  clear: right;
-  position: absolute;
-  margin: 5px 0 0 0;
-  font-size: 13px;
-  right: 408px;
-  background: #333;
-  padding: 5px 10px;
-  top: 60px;
+  color:         #fff;
+  clear:         right;
+  position:      absolute;
+  margin:        5px 0 0 0;
+  font-size:     13px;
+  right:         408px;
+  background:    #333;
+  padding:       5px 10px;
+  top:           60px;
   border-radius: $global-border-radius;
-  display: block;
+  display:       block;
 }
 
 .button {
@@ -82,15 +80,14 @@ span.info {
 
 // custom button group
 
-
 .agent-button-group {
   margin-bottom: 0;
-  float: right;
+  float:         right;
   > li {
     margin-left: 1px;
-    display: inline-block;
-    position: relative;
-    z-index: $agents-filters;
+    display:     inline-block;
+    position:    relative;
+    z-index:     $agents-filters;
     &:first-child {
       margin-left: 0;
       > .button {
@@ -104,27 +101,27 @@ span.info {
     }
     .button {
       background-color: $go-secondary;
-      color: #333333;
-      border: 0;
-      font-size: rem-calc(13px);
-      font-weight: 600;
-      margin: 0;
-      border-radius: 0;
-      padding: 0 7px;
-      line-height: 30px;
+      color:            #333;
+      border:           0;
+      font-size:        rem-calc(13px);
+      font-weight:      600;
+      margin:           0;
+      border-radius:    0;
+      padding:          0 7px;
+      line-height:      30px;
       &:hover,
       &:focus {
         background-color: lighten($go-secondary, 20%);
-        outline: 0;
+        outline:          0;
       }
       &.btn-apply {
-        font-size: 14px;
-        padding: 7px 20px;
+        font-size:     14px;
+        padding:       7px 20px;
         border-radius: $global-border-radius;
-        margin-right: 1px;
-        color: #333333;
-        height: auto;
-        line-height: normal;
+        margin-right:  1px;
+        color:         #333;
+        height:        auto;
+        line-height:   normal;
       }
     }
     > .button:not(:last-child) {
@@ -132,17 +129,17 @@ span.info {
     }
     &.is-open {
       > .button {
-        background-color: lighten($go-secondary, 20%);
-        border-bottom-right-radius: 0px;
+        background-color:           lighten($go-secondary, 20%);
+        border-bottom-right-radius: 0;
         &:before {
-          content: "";
-          position: absolute;
-          z-index: 1;
-          bottom: -9px;
-          left: 50%;
-          transform: translateX(-50%);
-          width: 0;
-          height: 0;
+          content:      "";
+          position:     absolute;
+          z-index:      1;
+          bottom:       -9px;
+          left:         50%;
+          transform:    translateX(-50%);
+          width:        0;
+          height:       0;
           border-style: solid;
           border-width: 10px 10px 0 10px;
           border-color: lighten($go-secondary, 20%) transparent transparent transparent;
@@ -153,34 +150,34 @@ span.info {
 }
 
 .agent-button-group-dropdown {
-  display: none;
-  position: absolute;
-  right: 0;
-  top: 102%;
+  display:    none;
+  position:   absolute;
+  right:      0;
+  top:        102%;
   background: #535353;
-  padding: 20px;
-  width: 300px;
-  box-shadow: 0px 3px 3px 0px rgba(0, 0, 0, 0.34);
+  padding:    20px;
+  width:      300px;
+  box-shadow: 0 3px 3px 0 rgba(0, 0, 0, 0.34);
   transition: all 0.3s ease-in-out;
   .is-open & {
-    display: block;
+    display:    block;
     transition: all 0.3s ease-in-out;
   }
   .resource-error {
-    display: block;
-    color: #e2a5a5;
-    font-size: 13px;
+    display:       block;
+    color:         #e2a5a5;
+    font-size:     13px;
     margin-bottom: 10px;
   }
-  &.env-dropdown.empty{
-    padding:10px;
-    ul{
-      display:none;
+  &.env-dropdown.empty {
+    padding: 10px;
+    ul {
+      display: none;
     }
     .resource-error {
-      color:#fff;
-      font-weight:700;
-      margin:0;
+      color:       #fff;
+      font-weight: 700;
+      margin:      0;
     }
 
   }
@@ -188,19 +185,19 @@ span.info {
 
 .resources-items {
   list-style-type: none;
-  padding: 0;
-  margin: 0 0 10px 0;
-  max-height: 190px;
-  overflow-y: auto;
+  padding:         0;
+  margin:          0 0 10px 0;
+  max-height:      190px;
+  overflow-y:      auto;
   li {
-    border-bottom: 1px dotted #717171;
+    border-bottom:  1px dotted #717171;
     padding-bottom: 5px;
-    margin-bottom: 5px;
+    margin-bottom:  5px;
     input[type=checkbox] {
       margin-bottom: 0;
     }
     label {
-      color: #ffffff;
+      color: #fff;
     }
   }
 }
@@ -208,42 +205,42 @@ span.info {
 .agent-button-group > li {
   .add-resource {
     input[type="text"] {
-      border-radius: 0;
-      border-top-left-radius: $global-border-radius;
+      border-radius:             0;
+      border-top-left-radius:    $global-border-radius;
       border-bottom-left-radius: $global-border-radius;
-      height: 35px;
+      height:                    35px;
     }
     button {
-      border-radius: 0;
-      border-top-right-radius: 5px;
+      border-radius:              0;
+      border-top-right-radius:    5px;
       border-bottom-right-radius: 5px;
-      border: 1px solid #34D9DB;
-      background: #34D9DB;
-      margin-right: 1px;
-      font-size: 15px;
-      color: #333333;
-      height: 35px;
-      transition: all 0.3s ease-in-out;
+      border:                     1px solid #34d9db;
+      background:                 #34d9db;
+      margin-right:               1px;
+      font-size:                  15px;
+      color:                      #333;
+      height:                     35px;
+      transition:                 all 0.3s ease-in-out;
       &:hover,
       &:focus {
-        transition: all 0.3s ease-in-out;
+        transition:       all 0.3s ease-in-out;
         background-color: lighten($go-secondary, 10%);
-        outline: 0;
-        color: #333333;
+        outline:          0;
+        color:            #333;
       }
     }
   }
 
   .button.disabled,
   .button[disabled] {
-    opacity: 1;
-    cursor: not-allowed;
+    opacity:          1;
+    cursor:           not-allowed;
     background-color: #c7c7c7;
-    color: #a9a9a9;
-    transition: all 0.3s ease-in-out;
+    color:            #a9a9a9;
+    transition:       all 0.3s ease-in-out;
     &:hover {
       background-color: #c7c7c7;
-      color: #a9a9a9;
+      color:            #a9a9a9;
     }
   }
 }
@@ -251,71 +248,71 @@ span.info {
 // search panel
 .search-panel {
   padding: 10px 0;
-  //background: #fff;
+           //background: #fff;
 }
 
 .search-bar {
-  position: relative;
+  position:   relative;
   margin-top: 8px;
   @include icon-before($type: search);
   &:before {
-    position: absolute;
-    left: 7px;
-    color: $go-tertiary;
-    top: 3px;
+    position:  absolute;
+    left:      7px;
+    color:     $go-tertiary;
+    top:       3px;
     font-size: 18px;
   }
 
   input[type="text"] {
 
     border-radius: $global-border-radius;
-    padding-left: 40px;
+    padding-left:  40px;
     margin-bottom: 0;
-    height:35px;
-    background:transparent;
-    color:#fff;
+    height:        35px;
+    background:    transparent;
+    color:         #fff;
 
   }
   .fa {
-    position: absolute;
-    left: 14px;
-    top: 11px;
-    color: #cccccc;
+    position:  absolute;
+    left:      14px;
+    top:       11px;
+    color:     #ccc;
     font-size: 16px;
   }
 }
 
 .search-summary {
-  display: flex;
+  display:         flex;
   list-style-type: none;
-  margin: 0;
-  padding: 0;
-  float: right;
-  width: 350px;
+  margin:          0;
+  padding:         0;
+  float:           right;
+  width:           350px;
   li {
-    width: 25%;
+    width:       25%;
     border-left: 1px solid rgba(255, 255, 255, 0.12);
-    text-align: center;
+    text-align:  center;
     font-weight: 600;
     &:first-child {
       border: 0;
     }
     label {
-      color: #fff;
+      color:     #fff;
       font-size: 14px;
     }
     .value {
       font-size: 20px;
-      color: #fff;
+      color:     #fff;
     }
     &.enabled {
       .value {
-        color: #50E3C2;
+        color: #50e3c2;
       }
     }
     &.disabled {
       .value {
-        color: #EE6161;
+        color: #ee6161;
       }
     }
   }
@@ -324,15 +321,15 @@ span.info {
 //table styles
 
 .go-table {
-  background:transparent;
-  border:0;
-  margin:0;
+  background: transparent;
+  border:     0;
+  margin:     0;
   thead {
     border: 0;
     tr {
       background: $go-tertiary;
-      color: $grey;
-      font-size: rem-calc(14px);
+      color:      $grey;
+      font-size:  rem-calc(14px);
 
     }
   }
@@ -341,11 +338,11 @@ span.info {
     tr {
       font-size: rem-calc(13px);
       &.building {
-        background: #ffeda0;
+        background:    #ffeda0;
         border-bottom: 1px solid #fff;
       }
       &.disabled {
-        color: #999;
+        color:      #999;
         font-style: italic;
       }
     }

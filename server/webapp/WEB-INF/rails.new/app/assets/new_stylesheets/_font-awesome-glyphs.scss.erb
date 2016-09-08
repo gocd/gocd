@@ -44,7 +44,7 @@ $fa-font-icons: (
   }
 }
 
-@mixin icon-only($type, $font: 'font-awesome'){
+@mixin icon-only($type, $font: 'font-awesome') {
   @if $font == 'font-awesome' {
     font-family: 'FontAwesome';
     @include icon-glyph("fa-var-#{$type}");

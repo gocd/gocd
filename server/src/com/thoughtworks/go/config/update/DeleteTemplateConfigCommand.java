@@ -27,21 +27,14 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static java.lang.String.format;
 
 public class DeleteTemplateConfigCommand extends TemplateConfigCommand {
 
-
-    private GoConfigService goConfigService;
-    private Username currentUser;
-
     public DeleteTemplateConfigCommand(PipelineTemplateConfig templateConfig, LocalizedOperationResult result, GoConfigService goConfigService, Username currentUser) {
-        super(templateConfig, result);
-        this.goConfigService = goConfigService;
-        this.currentUser = currentUser;
+        super(templateConfig, result, currentUser, goConfigService);
     }
 
     @Override
@@ -64,18 +57,10 @@ public class DeleteTemplateConfigCommand extends TemplateConfigCommand {
 
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
-        return isUserAuthorized() && doesTemplateExist(cruiseConfig);
+        return super.canContinue(cruiseConfig) && doesTemplateExist(cruiseConfig);
     }
 
     private boolean doesTemplateExist(CruiseConfig cruiseConfig) {
         return cruiseConfig.findTemplate(templateConfig.name()) != null;
-    }
-
-    private boolean isUserAuthorized() {
-        if (!(goConfigService.isUserAdmin(currentUser))) {
-            result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
-            return false;
-        }
-        return true;
     }
 }

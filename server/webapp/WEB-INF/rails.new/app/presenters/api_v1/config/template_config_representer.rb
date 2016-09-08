@@ -22,7 +22,7 @@ module ApiV1
       error_representer
 
       link :self do |opts|
-        opts[:url_builder].apiv1_admin_template_url(template_name: template.name.to_s) unless template.name.nil? || template.name.to_s.blank?
+        opts[:url_builder].apiv1_admin_template_url(template_name: template.name.to_s) unless template.name.blank?
       end
 
       link :doc do |opts|
@@ -44,7 +44,7 @@ module ApiV1
                  class:        com.thoughtworks.go.config.StageConfig
 
       def stages
-        template.getStages() if !template.getStages().isEmpty
+        template.getStages() unless template.getStages().isEmpty
       end
 
       def stages=(value)

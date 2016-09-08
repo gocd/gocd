@@ -26,13 +26,9 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 
 
 public class CreateTemplateConfigCommand extends TemplateConfigCommand {
-    private final Username currentUser;
-    private GoConfigService goConfigService;
 
     public CreateTemplateConfigCommand(PipelineTemplateConfig templateConfig, Username currentUser, GoConfigService goConfigService, LocalizedOperationResult result) {
-        super(templateConfig, result);
-        this.currentUser = currentUser;
-        this.goConfigService = goConfigService;
+        super(templateConfig, result, currentUser, goConfigService);
     }
 
     @Override
@@ -40,12 +36,4 @@ public class CreateTemplateConfigCommand extends TemplateConfigCommand {
         modifiedConfig.addTemplate(templateConfig);
     }
 
-    @Override
-    public boolean canContinue(CruiseConfig cruiseConfig) {
-        if (!(goConfigService.isUserAdmin(currentUser))) {
-            result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
-            return false;
-        }
-        return true;
-    }
 }

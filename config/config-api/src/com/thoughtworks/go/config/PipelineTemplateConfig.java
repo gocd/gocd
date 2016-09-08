@@ -102,7 +102,7 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
     }
 
     public void setName(String name) {
-        this.name = new CaseInsensitiveString(name);
+        setName(new CaseInsensitiveString(name));
     }
 
     public void setName(CaseInsensitiveString name) {

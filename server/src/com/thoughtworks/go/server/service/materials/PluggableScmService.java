@@ -140,12 +140,9 @@ public class PluggableScmService {
         try {
             goConfigService.updateConfig(command, currentUser);
         } catch (Exception e) {
-            if (e instanceof ConfigUpdateCheckFailedException) {
-                return;
-            }
-            else {
+            if (!result.hasMessage()) {
+                result.internalServerError(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", "An error occurred while saving the template config. Please check the logs for more information."));
                 LOGGER.error(e.getMessage(), e);
-                result.unprocessableEntity(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", e.getMessage()));
             }
         }
     }

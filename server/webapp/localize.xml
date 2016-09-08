@@ -536,7 +536,7 @@
     <entry key="NO_ENVIRONMENTS_CONFIGURED">No environments are displayed because either no environments have been set up or you are not authorized to view the pipelines within any of the environments.</entry>
     <entry key="CANNOT_DELETE_TEMPLATE">Cannot delete this template as it is used by at least one pipeline</entry>
     <entry key="TEMPLATE_DELETED_SUCCESSFUL">The template ''{0}'' was deleted successfully.</entry>
-    <entry key="TEMPLATE_INVALID">The template config is invalid. Template name cannot be null.</entry>
+    <entry key="TEMPLATE_NAME_CANNOT_BE_NULL">The template config is invalid. Template name cannot be null.</entry>
     <entry key="DELETE_TEMPLATE">Delete this template</entry>
     <entry key="UNAUTHORIZED_TO_ADMINISTER">Unauthorized to edit configuration</entry>
     <entry key="TEMPLATE_NOT_FOUND">Template ''{0}'' not found</entry>

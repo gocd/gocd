@@ -160,6 +160,16 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
     }
 
     @Test
+    public void shouldReturnNullForAssociatedPipelineNamesWhenTemplateNameIsBlank() {
+        ArrayList<CaseInsensitiveString> pipelinesAssociatedWithATemplate = new ArrayList<>();
+        pipelinesAssociatedWithATemplate.add(new CaseInsensitiveString("p1"));
+        BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
+        new GoConfigMother().addPipelineWithTemplate(cruiseConfig, "p1", "t1", "s1", "j1");
+
+        assertThat(cruiseConfig.pipelinesAssociatedWithTemplate(new CaseInsensitiveString("")), is(new ArrayList<CaseInsensitiveString>()));
+    }
+
+    @Test
     public void shouldReturnAnEmptyListForPipelinesIfTemplateNameIsNull() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
 

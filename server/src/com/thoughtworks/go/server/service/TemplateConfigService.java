@@ -21,15 +21,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.rits.cloning.Cloner;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.GoConfigHolder;
-import com.thoughtworks.go.config.DeleteTemplateCommand;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.PipelineTemplateConfig;
-import com.thoughtworks.go.config.TemplatesConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
-import com.thoughtworks.go.config.update.ConfigUpdateCheckFailedException;
+import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.update.CreateTemplateConfigCommand;
 import com.thoughtworks.go.config.update.DeleteTemplateConfigCommand;
 import com.thoughtworks.go.config.update.UpdateTemplateConfigCommand;
@@ -72,31 +66,34 @@ public class TemplateConfigService {
 
     public void createTemplateConfig(final Username currentUser, final PipelineTemplateConfig templateConfig, final LocalizedOperationResult result) {
         CreateTemplateConfigCommand command = new CreateTemplateConfigCommand(templateConfig, currentUser, goConfigService, result);
-        update(currentUser, result, command);
+        update(currentUser, result, command, templateConfig);
     }
 
     public void updateTemplateConfig(final Username currentUser, final PipelineTemplateConfig templateConfig, final LocalizedOperationResult result, String md5) {
         UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(templateConfig, currentUser, goConfigService, result, md5, entityHashingService);
-        update(currentUser, result, command);
+        update(currentUser, result, command, templateConfig);
     }
 
     public void deleteTemplateConfig(final Username currentUser, final PipelineTemplateConfig templateConfig, final LocalizedOperationResult result) {
         DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(templateConfig, result, goConfigService, currentUser);
-        update(currentUser, result, command);
+        update(currentUser, result, command, templateConfig);
         if(result.isSuccessful()) {
             result.setMessage(LocalizedMessage.string("TEMPLATE_DELETED_SUCCESSFUL", templateConfig.name().toString()));
         }
     }
 
-    private void update(Username currentUser, LocalizedOperationResult result, EntityConfigUpdateCommand command) {
+    private void update(Username currentUser, LocalizedOperationResult result, EntityConfigUpdateCommand command, PipelineTemplateConfig templateConfig) {
         try {
             goConfigService.updateConfig(command, currentUser);
         } catch (Exception e) {
-            if (e instanceof ConfigUpdateCheckFailedException) {
-                return;
+            if (e instanceof GoConfigInvalidException) {
+                result.unprocessableEntity(LocalizedMessage.string("ENTITY_CONFIG_VALIDATION_FAILED", templateConfig.getClass().getAnnotation(ConfigTag.class).value(), templateConfig.name(), e.getMessage()));
+            } else {
+                if (!result.hasMessage()) {
+                    LOGGER.error(e.getMessage(), e);
+                    result.internalServerError(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", "An error occurred while saving the template config. Please check the logs for more information."));
+                }
             }
-            LOGGER.error(e.getMessage(), e);
-            result.unprocessableEntity(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", e.getMessage()));
         }
     }
 

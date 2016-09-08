@@ -27,15 +27,11 @@ import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 
 public class UpdateTemplateConfigCommand extends TemplateConfigCommand{
-    private final Username currentUser;
     private String md5;
     private EntityHashingService entityHashingService;
-    private GoConfigService goConfigService;
 
     public UpdateTemplateConfigCommand(PipelineTemplateConfig templateConfig, Username currentUser, GoConfigService goConfigService, LocalizedOperationResult result, String md5, EntityHashingService entityHashingService) {
-        super(templateConfig, result);
-        this.currentUser = currentUser;
-        this.goConfigService = goConfigService;
+        super(templateConfig, result, currentUser, goConfigService);
         this.md5 = md5;
         this.entityHashingService = entityHashingService;
     }
@@ -51,7 +47,7 @@ public class UpdateTemplateConfigCommand extends TemplateConfigCommand{
 
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
-        return isUserAuthorized() && isRequestFresh(cruiseConfig);
+        return super.canContinue(cruiseConfig) && isRequestFresh(cruiseConfig);
     }
 
     private boolean isRequestFresh(CruiseConfig cruiseConfig) {
@@ -62,14 +58,6 @@ public class UpdateTemplateConfigCommand extends TemplateConfigCommand{
         }
 
         return freshRequest;
-    }
-
-    private boolean isUserAuthorized() {
-        if (!(goConfigService.isUserAdmin(currentUser))) {
-            result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
-            return false;
-        }
-        return true;
     }
 }
 

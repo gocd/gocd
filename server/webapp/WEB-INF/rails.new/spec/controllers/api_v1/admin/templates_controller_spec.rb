@@ -69,10 +69,33 @@ describe ApiV1::Admin::TemplatesController do
         expect(actual_response).to eq(expected_response(template_pipelines_map, ApiV1::Config::TemplatesConfigRepresenter))
       end
     end
+    describe :route do
+      describe :with_header do
+        before :each do
+          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v1+json"
+        end
+        after :each do
+          Rack::MockRequest::DEFAULT_ENV = {}
+        end
+        it 'should route to index action of templates controller' do
+          expect(:get => 'api/admin/templates').to route_to(action: 'index', controller: 'api_v1/admin/templates')
+        end
+      end
+      describe :without_header do
+        it 'should not route to index action of templates controller without header' do
+          expect(:get => 'api/admin/templates').to_not route_to(action: 'index', controller: 'api_v1/admin/templates')
+          expect(:get => 'api/admin/templates').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/templates')
+        end
+      end
+    end
+
   end
 
   describe :show do
     describe :security do
+      before :each do
+        controller.stub(:load_template).and_return(nil)
+      end
       it 'should allow all with security disabled' do
         disable_security
 
@@ -127,6 +150,43 @@ describe ApiV1::Admin::TemplatesController do
 
       end
     end
+    describe :route do
+      describe :with_header do
+        before :each do
+          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v1+json"
+        end
+        after :each do
+          Rack::MockRequest::DEFAULT_ENV = {}
+        end
+
+        it 'should route to show action of templates controller for alphanumeric template name' do
+          expect(:get => 'api/admin/templates/foo123').to route_to(action: 'show', controller: 'api_v1/admin/templates', template_name: 'foo123')
+        end
+
+        it 'should route to show action of templates controller for template name with dots' do
+          expect(:get => 'api/admin/templates/foo.123').to route_to(action: 'show', controller: 'api_v1/admin/templates', template_name: 'foo.123')
+        end
+
+        it 'should route to show action of templates controller for template name with hyphen' do
+          expect(:get => 'api/admin/templates/foo-123').to route_to(action: 'show', controller: 'api_v1/admin/templates', template_name: 'foo-123')
+        end
+
+        it 'should route to show action of templates controller for template name with underscore' do
+          expect(:get => 'api/admin/templates/foo_123').to route_to(action: 'show', controller: 'api_v1/admin/templates', template_name: 'foo_123')
+        end
+
+        it 'should route to show action of templates controller for capitalized template name' do
+          expect(:get => 'api/admin/templates/FOO').to route_to(action: 'show', controller: 'api_v1/admin/templates', template_name: 'FOO')
+        end
+      end
+      describe :without_header do
+        it 'should not route to show action of templates controller without header' do
+          expect(:get => 'api/admin/templates/foo').to_not route_to(action: 'show', controller: 'api_v1/admin/templates')
+          expect(:get => 'api/admin/templates/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/templates/foo')
+        end
+      end
+    end
+
   end
 
   describe :create do
@@ -186,10 +246,34 @@ describe ApiV1::Admin::TemplatesController do
         expect(response).to have_api_message_response(422, "Save failed")
       end
     end
+    describe :route do
+      describe :with_header do
+        before :each do
+          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v1+json"
+        end
+        after :each do
+          Rack::MockRequest::DEFAULT_ENV = {}
+        end
+        it 'should route to create action of templates controller' do
+          expect(:post => 'api/admin/templates').to route_to(action: 'create', controller: 'api_v1/admin/templates')
+        end
+      end
+      describe :without_header do
+        it 'should not route to create action of templates controller without header' do
+          expect(:post => 'api/admin/templates').to_not route_to(action: 'create', controller: 'api_v1/admin/templates')
+          expect(:post => 'api/admin/templates').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/templates')
+        end
+      end
+    end
+
   end
 
   describe :update do
     describe :security do
+      before :each do
+        controller.stub(:load_template).and_return(nil)
+        controller.stub(:check_for_stale_request).and_return(nil)
+      end
       it 'should allow all with security disabled' do
         disable_security
 
@@ -286,10 +370,48 @@ describe ApiV1::Admin::TemplatesController do
         expect(response).to have_api_message_response(422, 'Save failed. Validation failed')
       end
     end
+    describe :route do
+      describe :with_header do
+        before :each do
+          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v1+json"
+        end
+        after :each do
+          Rack::MockRequest::DEFAULT_ENV = {}
+        end
+        it 'should route to update action of templates controller for alphanumeric template name' do
+          expect(:put => 'api/admin/templates/foo123').to route_to(action: 'update', controller: 'api_v1/admin/templates', template_name: 'foo123')
+        end
+
+        it 'should route to update action of templates controller for template name with dots' do
+          expect(:put => 'api/admin/templates/foo.123').to route_to(action: 'update', controller: 'api_v1/admin/templates', template_name: 'foo.123')
+        end
+
+        it 'should route to update action of templates controller for template name with hyphen' do
+          expect(:put => 'api/admin/templates/foo-123').to route_to(action: 'update', controller: 'api_v1/admin/templates', template_name: 'foo-123')
+        end
+
+        it 'should route to update action of templates controller for template name with underscore' do
+          expect(:put => 'api/admin/templates/foo_123').to route_to(action: 'update', controller: 'api_v1/admin/templates', template_name: 'foo_123')
+        end
+
+        it 'should route to update action of templates controller for capitalized template name' do
+          expect(:put => 'api/admin/templates/FOO').to route_to(action: 'update', controller: 'api_v1/admin/templates', template_name: 'FOO')
+        end
+      end
+      describe :without_header do
+        it 'should not route to update action of templates controller without header' do
+          expect(:put => 'api/admin/templates/foo').to_not route_to(action: 'update', controller: 'api_v1/admin/templates')
+          expect(:put => 'api/admin/templates/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/templates/foo')
+        end
+      end
+    end
   end
 
   describe :destroy do
     describe :security do
+      before :each do
+        controller.stub(:load_template).and_return(nil)
+      end
       it 'should allow all with security disabled' do
         disable_security
 
@@ -351,6 +473,41 @@ describe ApiV1::Admin::TemplatesController do
         delete_with_api_header :destroy, template_name: 'some-template'
 
         expect(response).to have_api_message_response(422, "Save failed. Validation failed")
+      end
+    end
+    describe :route do
+      describe :with_header do
+        before :each do
+          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v1+json"
+        end
+        after :each do
+          Rack::MockRequest::DEFAULT_ENV = {}
+        end
+        it 'should route to destroy action of templates controller for alphanumeric template name' do
+          expect(:delete => 'api/admin/templates/foo123').to route_to(action: 'destroy', controller: 'api_v1/admin/templates', template_name: 'foo123')
+        end
+
+        it 'should route to destroy action of templates controller for template name with dots' do
+          expect(:delete => 'api/admin/templates/foo.123').to route_to(action: 'destroy', controller: 'api_v1/admin/templates', template_name: 'foo.123')
+        end
+
+        it 'should route to destroy action of templates controller for template name with hyphen' do
+          expect(:delete => 'api/admin/templates/foo-123').to route_to(action: 'destroy', controller: 'api_v1/admin/templates', template_name: 'foo-123')
+        end
+
+        it 'should route to destroy action of templates controller for template name with underscore' do
+          expect(:delete => 'api/admin/templates/foo_123').to route_to(action: 'destroy', controller: 'api_v1/admin/templates', template_name: 'foo_123')
+        end
+
+        it 'should route to destroy action of templates controller for capitalized template name' do
+          expect(:delete => 'api/admin/templates/FOO').to route_to(action: 'destroy', controller: 'api_v1/admin/templates', template_name: 'FOO')
+        end
+      end
+      describe :without_header do
+        it 'should not route to destroy action of templates controller without header' do
+          expect(:delete => 'api/admin/templates/foo').to_not route_to(action: 'destroy', controller: 'api_v1/admin/templates')
+          expect(:delete => 'api/admin/templates/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/templates/foo')
+        end
       end
     end
   end

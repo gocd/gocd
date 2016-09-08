@@ -13,18 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 @import 'shared/go-variables';
 @import 'shared/mixins';
-
-@import 'shared/_autocomplete';
-@import 'shared/_common';
-@import 'shared/_modal';
+@import 'shared/autocomplete';
+@import 'shared/common';
+@import 'shared/modal';
 @import 'shared/header';
 @import 'shared/alert';
-
-@import 'pipeline_configs/_pipeline';
-@import 'pipeline_configs/_accordion';
-@import 'pipeline_configs/_stages';
-@import 'pipeline_configs/_materials';
-@import 'pipeline_configs/_pluggable_task';
+@import 'pipeline_configs/pipeline';
+@import 'pipeline_configs/accordion';
+@import 'pipeline_configs/stages';
+@import 'pipeline_configs/materials';
+@import 'pipeline_configs/pluggable_task';

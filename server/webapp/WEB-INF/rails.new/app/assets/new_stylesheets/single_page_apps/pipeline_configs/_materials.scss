@@ -21,14 +21,14 @@
   }
 
   .edit-secure-password {
-    display: inline-block;
+    display:     inline-block;
     padding-top: rem-calc(28px);
   }
 
   .remove-material {
-    position: absolute;
-    right: -8px;
-    top: -48px;
+    position:  absolute;
+    right:     -8px;
+    top:       -48px;
     font-size: 16px;
   }
 
@@ -40,10 +40,10 @@
     display: block;
   }
   .ignore-pattern {
-    background: $lighter-gray;
-    margin: 10px -15px -15px;
-    border-bottom-left-radius: 5px;
-    padding: 10px 20px;
+    background:                 $lighter-gray;
+    margin:                     10px -15px -15px;
+    border-bottom-left-radius:  5px;
+    padding:                    10px 20px;
     border-bottom-right-radius: 5px;
   }
   .columns {
@@ -51,8 +51,8 @@
   }
   .reset {
     position: absolute;
-    right: -12px;
-    top: 32px;
+    right:    -12px;
+    top:      32px;
   }
   .check-box-spacing {
     margin-top: 7px;
@@ -60,20 +60,20 @@
 }
 
 .test-connection {
-  margin-top: 25px;
+  margin-top:    25px;
   margin-bottom: 10px;
 }
 
 .pluggable-scm {
   position: relative;
-  border: 1px solid $border;
-  display: inline-block;
-  padding: 20px;
-  margin: 0 0 20px 15px;
+  border:   1px solid $border;
+  display:  inline-block;
+  padding:  20px;
+  margin:   0 0 20px 15px;
 
   ul {
     list-style-type: none;
-    margin: 0 70px 0 0;
+    margin:          0 70px 0 0;
   }
 
   li {
@@ -82,20 +82,20 @@
 
   button.edit {
     position: absolute;
-    right: 5px;
-    top: 5px;
+    right:    5px;
+    top:      5px;
   }
 
   label {
-    display: inline-block;
-    width: 150px;
+    display:      inline-block;
+    width:        150px;
     margin-right: 20px;
-    font-weight: 600;
-    position: relative;
+    font-weight:  600;
+    position:     relative;
     &:after {
-      content: ":";
+      content:  ":";
       position: absolute;
-      right: 0;
+      right:    0;
     }
   }
 
@@ -106,9 +106,9 @@
 
 .scm-selector {
   .or {
-    margin: 0 40px 0;
+    margin:   0 40px 0;
     position: relative;
-    top: 5px;
+    top:      5px;
   }
 }
 
@@ -128,7 +128,7 @@
     margin-bottom: 10px;
   }
   .align, .button.align {
-    padding-left: 0;
+    padding-left:  0;
     padding-right: 0;
   }
   .modal-content {

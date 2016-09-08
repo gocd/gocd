@@ -13,19 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 // contains all common "framework" css
-@import '_variables';
+@import 'variables';
 @import 'foundation_and_overrides';
 // make sure to load after foundation
 @import "bourbon";
-@import '_keyframes';
-@import '_font-awesome-glyphs';
-@import '_global';
-@import '_fonts';
-@import './_footer';
-
-
+@import 'keyframes';
+@import 'font-awesome-glyphs';
+@import 'global';
+@import 'fonts';
+@import 'footer';
 
 form {
 
@@ -41,9 +38,9 @@ form {
   }
 
   .tooltip-content {
-    font-family: $body-font-family;
-    cursor:      auto;
-    font-size:   rem-calc(13px);
+    font-family:    $body-font-family;
+    cursor:         auto;
+    font-size:      rem-calc(13px);
     text-transform: none;
     * {
       font-size: rem-calc(13px);

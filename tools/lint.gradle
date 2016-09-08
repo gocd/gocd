@@ -20,12 +20,13 @@ task scssLint(type: Exec) {
   errorOutput = System.err
 
   if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
-    setExecutable project.file("bin/jruby.bat")
+    commandLine = [project.file("bin/jruby.bat")]
   } else {
-    setExecutable project.file("bin/jruby")
+    commandLine = [project.file("bin/jruby")]
   }
 
-  args = ['--2.0', '-S', 'scss-lint', "--config", project.file('scss-lint.yml'), "${project.findProject(':server').railsRoot}/app/assets/new_stylesheets"]
+  commandLine += ['--2.0', '-S', 'scss-lint', "--config", project.file('scss-lint.yml'), "${project.findProject(':server').railsRoot}/app/assets/new_stylesheets"]
+  println commandLine.join(" ")
 }
 
 task jsLint {

@@ -15,61 +15,60 @@
  */
 
 [data-controller-name=pipeline_configs][data-action-name=edit] {
-  @import './_dragula-3.0.1';
+  @import './dragula-3.0.1';
 
   $standard-margin: nth($fieldset-margin, 1);
 
   .heading {
-    margin-bottom: 20px;
-    background-color: #ffffff; // Old browsers
-    @include linear-gradient(#ffffff, #cccccc);
+    margin-bottom:    20px;
+    @include linear-gradient(#fff, #ccc);
     h1 {
       font-size: rem-calc(20px);
-      margin: 10px 0;
-      display: inline-block;
+      margin:    10px 0;
+      display:   inline-block;
     }
   }
 
   .save-pipeline {
-    margin: 4px 0 0 0;
-    position: relative;
+    margin:     4px 0 0 0;
+    position:   relative;
     transition: all 0.5s ease-in-out;
 
     &.in-progress {
       padding-left: 40px;
-      transition: all 0.5s ease-in-out;
+      transition:   all 0.5s ease-in-out;
     }
 
     &.alert {
       padding-left: 40px;
-      transition: all 0.5s ease-in-out;
+      transition:   all 0.5s ease-in-out;
     }
 
     &.success {
       padding-left: 40px;
-      transition: all 0.5s ease-in-out;
+      transition:   all 0.5s ease-in-out;
     }
 
     .save-state {
-      position: absolute;
-      left: 10px;
-      top: 9px;
+      position:  absolute;
+      left:      10px;
+      top:       9px;
       font-size: rem-calc(20px);
 
       &.in-progress {
         @include icon-before($type: spinner, $margin: 0);
-        @include animation(spin 1.0s ease-in);
+        @include animation(spin 1s ease-in);
       }
 
       &.alert {
         @include icon-before($type: exclamation, $margin: 0);
-        @include animation(fadeIn 1.0s ease-in);
+        @include animation(fadeIn 1s ease-in);
         left: 17px;
       }
 
       &.success {
         @include icon-before($type: check, $margin: 0);
-        @include animation(fadeIn 1.0s ease-in);
+        @include animation(fadeIn 1s ease-in);
       }
     }
   }
@@ -139,9 +138,9 @@
     }
   }
 
-  .button{
-    &:before{
-      margin:0 5px 0 0;
+  .button {
+    &:before {
+      margin: 0 5px 0 0;
     }
   }
 }
@@ -157,13 +156,13 @@
 }
 
 .position-tooltip {
-  .columns{
+  .columns {
     position: relative;
   }
   .tooltip-wrapper {
-    right: -15px;
+    right:    -15px;
     position: absolute;
-    top: 9px;
+    top:      9px;
   }
 }
 
@@ -172,21 +171,21 @@
 }
 
 .asterisk {
-  color: #C00;
+  color:        #c00;
   padding-left: 3px;
 }
 
 .toggle-old-view {
-  display: inline-block;
-  margin: 0px 0 0 10px;
-  background: $primary-color;
-  color: #fff;
-  position: relative;
-  padding: 4px 10px;
-  font-size: 13px;
+  display:       inline-block;
+  margin:        0 0 0 10px;
+  background:    $primary-color;
+  color:         #fff;
+  position:      relative;
+  padding:       4px 10px;
+  font-size:     13px;
   border-radius: 5px;
-  top: -2px;
-  &:hover, &:active, &:focus{
+  top:           -2px;
+  &:hover, &:active, &:focus {
     color: #fff;
   }
 }

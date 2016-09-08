@@ -136,6 +136,5 @@ tw-go-plugins/dist/
 util/target/
 .vagrant/
 tools/jruby
-tools/.eslintrc.json
 tools/node_modules/
 tools/npm-debug.log

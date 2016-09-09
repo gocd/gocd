@@ -106,10 +106,13 @@ public class SslInfrastructureService {
                 throw e;
             }
 
-            try {
-                Thread.sleep(REGISTER_RETRY_INTERVAL);
-            } catch (InterruptedException e) {
-                // Ok
+            if((!keyEntry.isValid())) {
+                try {
+                    LOGGER.debug("[Agent Registration] Retrieved agent key from Go server is not valid.");
+                    Thread.sleep(REGISTER_RETRY_INTERVAL);
+                } catch (InterruptedException e) {
+                    // Ok
+                }
             }
         }
         LOGGER.info("[Agent Registration] Retrieved registration from Go server.");

@@ -28,6 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static org.mockito.Mockito.*;
 
@@ -46,6 +47,14 @@ public class ScheduleServiceRescheduleHungJobsTest {
         scheduleService = new ScheduleService(null, null, null, null, null, null, null, null, null, null, jobInstanceService,
                 null, null, null, null, null, null, agentService, null, null, consoleActivityMonitor, null, null, schedulingPerformanceLogger
         );
+    }
+
+    @Test
+    public void shouldNotQueryForBuildWhenThereAreNoLiveAgents() {
+        when(agentService.findRegisteredAgents()).thenReturn(new AgentInstances(null));
+        scheduleService.rescheduleHungJobs();
+        verify(agentService).findRegisteredAgents();
+        verify(jobInstanceService, times(0)).findHungJobs((List<String>) any());
     }
 
     @Test

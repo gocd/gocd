@@ -44,7 +44,7 @@ public class Tabs extends BaseCollection<Tab> implements Validatable, ParamsAttr
         configErrors.add(fieldName, message);
     }
 
-    public boolean validateTree(PipelineConfigSaveValidationContext validationContext) {
+    public boolean validateTree(ValidationContext validationContext) {
         validate(validationContext);
         boolean isValid = errors().isEmpty();
 

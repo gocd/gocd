@@ -70,6 +70,13 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
     public void validate(ValidationContext validationContext) {
         validateTemplateName();
         validateStageNameUniqueness();
+        validateStageConfig(validationContext);
+    }
+
+    public void validateStageConfig(ValidationContext validationContext) {
+        for(StageConfig stageConfig : this) {
+            stageConfig.validateTree(validationContext);
+        }
     }
 
     private void validateStageNameUniqueness() {

@@ -16,10 +16,7 @@
 
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.BasicCruiseConfig;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.PipelineTemplateConfig;
-import com.thoughtworks.go.config.TemplatesConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.NoSuchTemplateException;
 import com.thoughtworks.go.i18n.LocalizedMessage;
@@ -49,7 +46,7 @@ public abstract class TemplateConfigCommand implements EntityConfigUpdateCommand
     public boolean isValid(CruiseConfig preprocessedConfig) {
         TemplatesConfig templatesConfig = preprocessedConfig.getTemplates();
         preprocessedTemplateConfig = findAddedTemplate(preprocessedConfig);
-        preprocessedTemplateConfig.validate(null);
+        preprocessedTemplateConfig.validate(ConfigSaveValidationContext.forChain(preprocessedConfig));
         if(preprocessedTemplateConfig.getAllErrors().isEmpty()) {
             templatesConfig.validate(null);
             BasicCruiseConfig.copyErrors(preprocessedTemplateConfig, templateConfig);

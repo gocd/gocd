@@ -249,10 +249,10 @@ public class StageConfig implements Validatable, ParamsAttributeAware, Environme
         this.cleanWorkingDir = cleanWorkingDir;
     }
 
-    public boolean validateTree(PipelineConfigSaveValidationContext validationContext) {
+    public boolean validateTree(ValidationContext validationContext) {
         validate(validationContext);
         boolean isValid = errors.isEmpty();
-        PipelineConfigSaveValidationContext contextForChildren = validationContext.withParent(this);
+        ValidationContext contextForChildren = validationContext.withParent(this);
         isValid = jobConfigs.validateTree(contextForChildren) && isValid;
         isValid = approval.validateTree(contextForChildren) && isValid;
         isValid = variables.validateTree(contextForChildren) && isValid;

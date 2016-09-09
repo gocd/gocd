@@ -36,7 +36,7 @@ public class ArtifactPlans extends BaseCollection<ArtifactPlan> implements Valid
         super(plans);
     }
 
-    public boolean validateTree(PipelineConfigSaveValidationContext validationContext) {
+    public boolean validateTree(ValidationContext validationContext) {
         validate(validationContext);
         boolean isValid = errors().isEmpty();
 

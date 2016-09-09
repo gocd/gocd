@@ -55,5 +55,7 @@ public interface ValidationContext {
     SCM findScmById(String scmID);
 
     PackageRepository findPackageById(String packageId);
+
+    ValidationContext withParent(Validatable validatable);
 }
 

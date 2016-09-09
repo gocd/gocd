@@ -45,7 +45,7 @@ public class Tasks extends BaseCollection<Task> implements Validatable {
     public void validate(ValidationContext validationContext) {
     }
 
-    public boolean validateTree(PipelineConfigSaveValidationContext validationContext) {
+    public boolean validateTree(ValidationContext validationContext) {
         boolean isValid = true;
         for (Task task : this) {
             isValid = task.validateTree(validationContext) && isValid;

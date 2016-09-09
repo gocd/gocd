@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', 'helpers/mrequest'], function (m, _, s, mrequest) {
+define(['mithril', 'lodash', 'string-plus', 'helpers/mrequest', 'js-routes'], function (m, _, s, mrequest, Routes) {
   var PluginInfos = m.prop([]);
 
   PluginInfos.init = function () {
@@ -46,7 +46,7 @@ define(['mithril', 'lodash', 'string-plus', 'helpers/mrequest'], function (m, _,
 
   PluginInfos.PluginInfo = function (data) {
     var view = function (settings) {
-      return settings ? settings.view : {}
+      return settings ? settings.view : {};
     };
 
     this.id             = m.prop(data.id);

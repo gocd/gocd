@@ -74,6 +74,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     this.onCancelTask     = Tasks.Task.onCancelTask(data.onCancelTask);
 
     this._attributesToJSON = function () {
+      /* eslint-disable camelcase */
       return {
         target:           this.target,
         workingDirectory: this.workingDirectory,
@@ -81,6 +82,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
         run_if:           this.runIf().data(),
         on_cancel:        this.onCancelTaskToJSON()
       };
+      /* eslint-enable camelcase */
     };
 
     this.toString = function() {
@@ -122,6 +124,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     this.onCancelTask      = Tasks.Task.onCancelTask(data.onCancelTask);
 
     this._attributesToJSON = function () {
+      /* eslint-disable camelcase */
       return {
         target:           this.target,
         workingDirectory: this.workingDirectory,
@@ -130,6 +133,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
         run_if:           this.runIf().data(),
         on_cancel:        this.onCancelTaskToJSON()
       };
+      /* eslint-enable camelcase */
     };
 
     this.toString = function() {
@@ -174,12 +178,14 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     this.validatePresenceOf('command');
 
     this._attributesToJSON = function () {
+      /* eslint-disable camelcase */
       return _.assign({
         command:          this.command,
         workingDirectory: this.workingDirectory,
         run_if:           this.runIf().data(),
         on_cancel:        this.onCancelTaskToJSON()
       }, this.args().toJSON());
+      /* eslint-enable camelcase */
     };
 
     this.toString = function () {
@@ -220,6 +226,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     this.onCancelTask     = Tasks.Task.onCancelTask(data.onCancelTask);
 
     this._attributesToJSON = function () {
+      /* eslint-disable camelcase */
       return {
         target:           this.target,
         workingDirectory: this.workingDirectory,
@@ -227,6 +234,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
         run_if:           this.runIf().data(),
         on_cancel:        this.onCancelTaskToJSON()
       };
+      /* eslint-enable camelcase */
     };
 
     this.toString = function() {
@@ -274,6 +282,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     this.validatePresenceOf('source');
 
     this._attributesToJSON = function () {
+      /* eslint-disable camelcase */
       return {
         pipeline:          this.pipeline,
         stage:             this.stage,
@@ -284,6 +293,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
         run_if:            this.runIf().data(),
         on_cancel:         this.onCancelTaskToJSON()
       };
+      /* eslint-enable camelcase */
     };
 
     this.toString = function() {
@@ -351,6 +361,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     };
 
     this._attributesToJSON = function () {
+      /* eslint-disable camelcase */
       return {
         plugin_configuration: {
           id:      this.pluginId,
@@ -360,6 +371,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
         run_if:        this.runIf().data(),
         on_cancel:     this.onCancelTaskToJSON()
       };
+      /* eslint-enable camelcase */
     };
   };
 

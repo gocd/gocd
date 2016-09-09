@@ -24,8 +24,8 @@ define(['lodash', 'string-plus', 'mithril'], function (_, s, m) {
 
   Mixins.HasEncryptedAttribute = function (options) {
     var _value          = options.attribute,
-        name            = options.name,
-        capitalizedName = _.upperFirst(name);
+      name            = options.name,
+      capitalizedName = _.upperFirst(name);
 
     this[name] = function () {
       return _value().value.apply(_value(), arguments);
@@ -61,7 +61,7 @@ define(['lodash', 'string-plus', 'mithril'], function (_, s, m) {
 
     this['becomeUnSecure' + capitalizedName] = function () {
       return _value().becomeUnSecure();
-    }
+    };
   };
 
   Mixins.HasMany = function (options) {

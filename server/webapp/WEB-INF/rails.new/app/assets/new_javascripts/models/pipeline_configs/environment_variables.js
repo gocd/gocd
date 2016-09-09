@@ -17,97 +17,97 @@
 define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipeline_configs/encrypted_value', 'models/validatable_mixin'],
   function (m, _, s, Mixins, EncryptedValue, Validatable) {
 
-  var EnvironmentVariables = function (data) {
-    Mixins.HasMany.call(this, {
-      factory:    EnvironmentVariables.Variable.create,
-      as:         'Variable',
-      collection: data,
-      uniqueOn:   'name'
-    });
-
-    this.secureVariables = function () {
-      return this.filterVariable(function (variable) {
-        return variable.isSecureValue();
+    var EnvironmentVariables = function (data) {
+      Mixins.HasMany.call(this, {
+        factory:    EnvironmentVariables.Variable.create,
+        as:         'Variable',
+        collection: data,
+        uniqueOn:   'name'
       });
+
+      this.secureVariables = function () {
+        return this.filterVariable(function (variable) {
+          return variable.isSecureValue();
+        });
+      };
+
+      this.plainVariables = function () {
+        return this.filterVariable(function (variable) {
+          return !variable.isSecureValue();
+        });
+      };
     };
 
-    this.plainVariables = function () {
-      return this.filterVariable(function (variable) {
-        return !variable.isSecureValue();
-      });
-    }
-  };
-
-  function plainOrCipherValue(data) {
-    if (data.secure) {
-      return new EncryptedValue({cipherText: s.defaultToIfBlank(data.encryptedValue, '')});
-    } else {
-      return new EncryptedValue({clearText: s.defaultToIfBlank(data.value, '')});
-    }
-  }
-
-  EnvironmentVariables.Variable = function (data) {
-    this.constructor.modelType = 'environmentVariable';
-    Mixins.HasUUID.call(this);
-    Validatable.call(this, data);
-
-    this.parent = Mixins.GetterSetter();
-
-    this.name  = m.prop(s.defaultToIfBlank(data.name, ''));
-    var _value = m.prop(plainOrCipherValue(data));
-    Mixins.HasEncryptedAttribute.call(this, {attribute: _value, name: 'value'});
-
-    this.toJSON = function () {
-      if (this.isPlainValue()) {
-        return {
-          name:   this.name(),
-          secure: false,
-          value:  this.value()
-        };
+    function plainOrCipherValue(data) {
+      if (data.secure) {
+        return new EncryptedValue({cipherText: s.defaultToIfBlank(data.encryptedValue, '')});
       } else {
-        if (this.isDirtyValue()) {
+        return new EncryptedValue({clearText: s.defaultToIfBlank(data.value, '')});
+      }
+    }
+
+    EnvironmentVariables.Variable = function (data) {
+      this.constructor.modelType = 'environmentVariable';
+      Mixins.HasUUID.call(this);
+      Validatable.call(this, data);
+
+      this.parent = Mixins.GetterSetter();
+
+      this.name  = m.prop(s.defaultToIfBlank(data.name, ''));
+      var _value = m.prop(plainOrCipherValue(data));
+      Mixins.HasEncryptedAttribute.call(this, {attribute: _value, name: 'value'});
+
+      this.toJSON = function () {
+        if (this.isPlainValue()) {
           return {
             name:   this.name(),
-            secure: true,
+            secure: false,
             value:  this.value()
           };
         } else {
-          return {
-            name:           this.name(),
-            secure:         true,
-            encryptedValue: this.value()
-          };
+          if (this.isDirtyValue()) {
+            return {
+              name:   this.name(),
+              secure: true,
+              value:  this.value()
+            };
+          } else {
+            return {
+              name:           this.name(),
+              secure:         true,
+              encryptedValue: this.value()
+            };
+          }
         }
-      }
+      };
+
+      this.isBlank = function () {
+        return s.isBlank(this.name()) && s.isBlank(this.value());
+      };
+
+      this.validatePresenceOf('name', {condition: function(property) {return (!s.isBlank(property.value()));}});
+      this.validateUniquenessOf('name');
     };
 
-    this.isBlank = function () {
-      return s.isBlank(this.name()) && s.isBlank(this.value());
+    EnvironmentVariables.Variable.create = function (data) {
+      return new EnvironmentVariables.Variable(data);
     };
 
-    this.validatePresenceOf('name', {condition: function(property) {return (!s.isBlank(property.value()))}});
-    this.validateUniquenessOf('name');
-  };
-
-  EnvironmentVariables.Variable.create = function (data) {
-    return new EnvironmentVariables.Variable(data);
-  };
-
-  Mixins.fromJSONCollection({
-    parentType: EnvironmentVariables,
-    childType:  EnvironmentVariables.Variable,
-    via:        'addVariable'
-  });
-
-  EnvironmentVariables.Variable.fromJSON = function (data) {
-    return new EnvironmentVariables.Variable({
-      name:           data.name,
-      value:          data.value,
-      secure:         data.secure,
-      encryptedValue: data.encrypted_value
+    Mixins.fromJSONCollection({
+      parentType: EnvironmentVariables,
+      childType:  EnvironmentVariables.Variable,
+      via:        'addVariable'
     });
-  };
 
-  return EnvironmentVariables;
+    EnvironmentVariables.Variable.fromJSON = function (data) {
+      return new EnvironmentVariables.Variable({
+        name:           data.name,
+        value:          data.value,
+        secure:         data.secure,
+        encryptedValue: data.encrypted_value
+      });
+    };
 
-});
+    return EnvironmentVariables;
+
+  });

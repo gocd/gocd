@@ -15,8 +15,8 @@
  */
 
 define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipeline_configs/environment_variables', 'models/pipeline_configs/parameters',
-  'models/pipeline_configs/materials', 'models/pipeline_configs/tracking_tool', 'models/pipeline_configs/stages', 'helpers/mrequest', 'models/validatable_mixin'
-], function (m, _, s, Mixins, EnvironmentVariables, Parameters, Materials, TrackingTool, Stages, mrequest, Validatable) {
+  'models/pipeline_configs/materials', 'models/pipeline_configs/tracking_tool', 'models/pipeline_configs/stages', 'helpers/mrequest', 'models/validatable_mixin', 'js-routes'
+], function (m, _, s, Mixins, EnvironmentVariables, Parameters, Materials, TrackingTool, Stages, mrequest, Validatable, Routes) {
   var Pipeline = function (data) {
     this.constructor.modelType = 'pipeline';
     Mixins.HasUUID.call(this);
@@ -71,7 +71,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
 
       return m.request({
         method: 'PATCH',
-        url:     Routes.apiv1AdminPipelinePath({pipeline_name: self.name()}),
+        url:     Routes.apiv1AdminPipelinePath({pipeline_name: self.name()}), //eslint-disable-line camelcase
         config:  config,
         extract: extract,
         data:    JSON.parse(JSON.stringify(this, s.snakeCaser))
@@ -163,8 +163,8 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     };
 
     this.markClientSideErrors = function () {
-      errors.push('There are errors on the page, fix them and save')
-    }
+      errors.push('There are errors on the page, fix them and save');
+    };
   };
 
   return Pipeline;

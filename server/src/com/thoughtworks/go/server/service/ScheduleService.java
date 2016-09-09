@@ -548,10 +548,12 @@ public class ScheduleService {
             //TODO 2779
             AgentInstances knownAgents = agentService.findRegisteredAgents();
             List<String> liveAgentIdList = getLiveAgentUuids(knownAgents);
-            JobInstances jobs = jobInstanceService.findHungJobs(liveAgentIdList);
-            for (JobInstance buildId : jobs) {
-                LOGGER.warn("Found hung job[id=" + buildId + "], rescheduling it");
-                rescheduleJob(buildId);
+            if (!liveAgentIdList.isEmpty()) {
+                JobInstances jobs = jobInstanceService.findHungJobs(liveAgentIdList);
+                for (JobInstance buildId : jobs) {
+                    LOGGER.warn("Found hung job[id=" + buildId + "], rescheduling it");
+                    rescheduleJob(buildId);
+                }
             }
         } catch (Exception e) {
             LOGGER.error("Error occured during reschedule hung builds: ", e);

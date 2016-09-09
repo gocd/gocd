@@ -16,8 +16,8 @@
 
 
 define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mrequest', 'models/errors', 'models/pipeline_configs/encrypted_value',
-  'models/validatable_mixin'],
-  function (m, _, s, Mixins, mrequest, Errors, EncryptedValue, Validatable) {
+  'models/validatable_mixin', 'js-routes'],
+  function (m, _, s, Mixins, mrequest, Errors, EncryptedValue, Validatable, Routes) {
     var SCMs = m.prop([]);
     SCMs.scmIdToEtag = {};
 
@@ -52,13 +52,15 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
       };
 
       this.toJSON = function() {
+        /* eslint-disable camelcase */
         return {
           id:              this.id(),
           name:            this.name(),
           auto_update:     this.autoUpdate(),
           plugin_metadata: this.pluginMetadata().toJSON(),
           configuration:   this.configuration
-        }
+        };
+        /* eslint-enable camelcase */
       };
 
       this.update = function() {
@@ -79,7 +81,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
 
         return m.request({
           method:     'PATCH',
-          url:        Routes.apiv1AdminScmPath({material_name: this.name()}),
+          url:        Routes.apiv1AdminScmPath({material_name: this.name()}), //eslint-disable-line camelcase
           background: false,
           config:     config,
           extract:    extract,
@@ -117,7 +119,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
           id:      this.id(),
           version: this.version()
         };
-      }
+      };
     };
 
     SCMs.SCM.Configurations = function (data) {
@@ -179,10 +181,10 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
       Mixins.HasEncryptedAttribute.call(this, {attribute: _value, name: 'value'});
 
       this.toJSON = function () {
-        var valueHash = this.isPlainValue() ? {value: this.value()} : {encrypted_value: this.value()};
+        var valueHash = this.isPlainValue() ? {value: this.value()} : {encrypted_value: this.value()};  //eslint-disable-line camelcase
 
         return _.merge({key: this.key()}, valueHash);
-      }
+      };
     };
 
     SCMs.init = function () {
@@ -204,7 +206,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
     };
 
     SCMs.findById = function (id) {
-       var scm = _.find(SCMs(), function (scm) {
+      var scm = _.find(SCMs(), function (scm) {
         return _.isEqual(scm.id(), id);
       });
 
@@ -219,12 +221,12 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
 
       return m.request({
         method:     'GET',
-        url:        Routes.apiv1AdminScmPath({material_name: scm.name()}),
+        url:        Routes.apiv1AdminScmPath({material_name: scm.name()}),  //eslint-disable-line camelcase
         background: false,
         config:     mrequest.xhrConfig.v1,
         extract:    extract,
         type:       SCMs.SCM
-      })
+      });
     };
 
     SCMs.vm = function () {
@@ -241,7 +243,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
 
         if(data.data) {
           if(data.data.configuration) {
-            errors = _.concat(errors, _.flattenDeep(_.map(data.data.configuration, function(conf) {return _.values(conf.errors)})));
+            errors = _.concat(errors, _.flattenDeep(_.map(data.data.configuration, function(conf) {return _.values(conf.errors);})));
           }
         }
 
@@ -270,8 +272,8 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
       };
 
       this.markClientSideErrors = function () {
-        errors.push('There are errors on the page, fix them and save')
-      }
+        errors.push('There are errors on the page, fix them and save');
+      };
     };
 
     return SCMs;

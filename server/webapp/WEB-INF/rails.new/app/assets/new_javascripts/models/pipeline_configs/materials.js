@@ -15,7 +15,7 @@
  */
 
 define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipeline_configs/encrypted_value', 'models/pipeline_configs/scms',
-  'models/validatable_mixin'], function (m, _, s, Mixins, EncryptedValue, SCMs, Validatable) {
+  'models/validatable_mixin', 'js-routes'], function (m, _, s, Mixins, EncryptedValue, SCMs, Validatable, Routes) {
 
   function plainOrCipherValue(data) {
     if (data.encryptedPassword) {
@@ -103,11 +103,11 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
       };
 
       var payload = function () {
-        return _.merge(self.toJSON(), {pipeline_name: pipelineName()});
+        return _.merge(self.toJSON(), {pipeline_name: pipelineName()}); //eslint-disable-line camelcase
       };
 
       var stringfy = function (data) {
-        return JSON.stringify(data, s.snakeCaser)
+        return JSON.stringify(data, s.snakeCaser);
       };
 
       var onError = function (response) {
@@ -157,6 +157,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     this.validatePresenceOf('url');
 
     this._attributesToJSON = function () {
+      /* eslint-disable camelcase */
       var attrs = {
         name:           this.name(),
         destination:    this.destination(),
@@ -166,6 +167,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
         auto_update:    this.autoUpdate(),
         invert_filter:  this.invertFilter()
       };
+      /* eslint-enable camelcase */
 
       return _.merge(attrs, this._passwordHash());
     };
@@ -201,6 +203,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     this.validatePresenceOf('url');
 
     this._attributesToJSON = function () {
+      /* eslint-disable camelcase */
       return {
         name:          this.name(),
         destination:   this.destination(),
@@ -210,6 +213,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
         auto_update:   this.autoUpdate(),
         invert_filter:  this.invertFilter()
       };
+      /* eslint-enable camelcase */
     };
   };
 
@@ -240,6 +244,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     this.validatePresenceOf('url');
 
     this._attributesToJSON = function () {
+      /* eslint-disable camelcase */
       return {
         name:          this.name(),
         destination:   this.destination(),
@@ -248,6 +253,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
         auto_update:   this.autoUpdate(),
         invert_filter: this.invertFilter()
       };
+      /* eslint-enable camelcase */
     };
   };
 
@@ -282,6 +288,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     this.validatePresenceOf('view');
 
     this._attributesToJSON = function () {
+      /* eslint-disable camelcase */
       var attrs = {
         name:          this.name(),
         destination:   this.destination(),
@@ -292,6 +299,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
         auto_update:   this.autoUpdate(),
         invert_filter: this.invertFilter()
       };
+      /* eslint-enable camelcase */
 
       return _.merge(attrs, this._passwordHash());
     };
@@ -334,6 +342,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     this.validatePresenceOf('projectPath');
 
     this._attributesToJSON = function () {
+      /* eslint-disable camelcase */
       var attrs = {
         name:          this.name(),
         destination:   this.destination(),
@@ -344,6 +353,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
         auto_update:   this.autoUpdate(),
         invert_filter: this.invertFilter()
       };
+      /* eslint-enable camelcase */
 
       return _.merge(attrs, this._passwordHash());
     };
@@ -404,11 +414,13 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     this.invertFilter = m.prop(data.invertFilter);
 
     this._attributesToJSON = function () {
+      /* eslint-disable camelcase */
       return {
         destination:   this.destination(),
         ref:           this.scm().id(),
         invert_filter: this.invertFilter()
       };
+      /* eslint-enable camelcase */
     };
   };
 

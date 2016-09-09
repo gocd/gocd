@@ -58,7 +58,7 @@ define([
     this.properties           = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.properties, new Properties())));
 
     this.isRunOnAllAgents = function () {
-      return this.runInstanceCount() == 'all';
+      return this.runInstanceCount() === 'all';
     };
 
     this.isRunOnOneAgent = function () {

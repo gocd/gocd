@@ -16,7 +16,7 @@
 
 define(['mithril', 'lodash'], function (m, _) {
   var Errors = function (errors) {
-    var errors = errors || {};
+    errors = errors || {};
 
     this.add = function (attrName, message) {
       errors[attrName] = errors[attrName] || [];

@@ -22,7 +22,7 @@ define(['mithril', 'lodash', 'string-plus',
     this.disableAgents = function (uuids) {
       var json = {
         uuids:              uuids,
-        agent_config_state: 'Disabled'
+        agent_config_state: 'Disabled'  //eslint-disable-line camelcase
       };
 
       return m.request({
@@ -47,7 +47,7 @@ define(['mithril', 'lodash', 'string-plus',
     this.enableAgents = function (uuids) {
       var json = {
         uuids:              uuids,
-        agent_config_state: 'Enabled'
+        agent_config_state: 'Enabled' //eslint-disable-line camelcase
       };
 
       return m.request({
@@ -168,7 +168,7 @@ define(['mithril', 'lodash', 'string-plus',
         hostname:           this.hostname(),
         resources:          this.resources(),
         environments:       this.environments(),
-        agent_config_state: this.agentConfigState()
+        agent_config_state: this.agentConfigState() //eslint-disable-line camelcase
       };
     };
   };

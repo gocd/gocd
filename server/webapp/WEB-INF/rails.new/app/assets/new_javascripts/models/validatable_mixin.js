@@ -27,7 +27,7 @@ define(['lodash', 'string-plus', 'mithril', 'models/errors', 'models/model_mixin
     };
   };
 
-  var UniquenessValidator = function (options) {
+  var UniquenessValidator = function () {
     this.validate = function (entity, attr) {
       if (_.isNil(entity.parent()) || s.isBlank(entity[attr]())) {
         return;
@@ -39,7 +39,7 @@ define(['lodash', 'string-plus', 'mithril', 'models/errors', 'models/model_mixin
     };
   };
 
-  var UrlPatternValidator = function (options) {
+  var UrlPatternValidator = function () {
     var URL_REGEX = /^http(s)?:\/\/.+/;
 
     this.validate = function (entity, attr) {
@@ -72,7 +72,7 @@ define(['lodash', 'string-plus', 'mithril', 'models/errors', 'models/model_mixin
     self.errors                = Mixins.GetterSetter(new Errors(data.errors));
 
     var validateWith = function (validator, attr) {
-      _.has(attrToValidators, attr) ? attrToValidators[attr].push(validator) : attrToValidators[attr] = [validator]
+      _.has(attrToValidators, attr) ? attrToValidators[attr].push(validator) : attrToValidators[attr] = [validator];
     };
 
     var clearErrors = function (attr) {
@@ -121,8 +121,8 @@ define(['lodash', 'string-plus', 'mithril', 'models/errors', 'models/model_mixin
       self.validate();
 
       return _.isEmpty(self.errors().errors()) && _.every(associationsToValidate, function (association) {
-          return self[association]() ? self[association]().isValid() : true;
-        });
+        return self[association]() ? self[association]().isValid() : true;
+      });
     };
   };
 

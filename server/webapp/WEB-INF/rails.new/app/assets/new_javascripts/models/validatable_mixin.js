@@ -60,7 +60,7 @@ define(['lodash', 'string-plus', 'mithril', 'models/errors', 'models/model_mixin
       }
 
       if (!entity[attr]().match(options.format)) {
-        entity.errors().add(attr, options.message || (s.humanize(attribute) + ' format is in valid'));
+        entity.errors().add(attr, options.message || (s.humanize(attr) + ' format is in valid'));
       }
     };
   };

@@ -36,7 +36,6 @@ dependencies {
   testCompile project(path: ':common', configuration: 'testOutput')
   testCompile project(path: ':config-api', configuration: 'testOutput')
   testCompile project(':test-utils')
-  packagingOnly project(path: ':tfs-impl', configuration: 'fatJarConfig')
   extractedAtTopLevel project(':agent-process-launcher')
   extractedAtTopLevel group: 'one-jar', name: 'boot', version: '0.96'
 }
@@ -54,7 +53,7 @@ clean.doFirst {
   delete 'plugins_work'
 }
 
-task fatJar(type: Jar, dependsOn: [':agent:jar', ':agent-process-launcher:jar', ':tfs-impl:fatJar']) {
+task fatJar(type: Jar, dependsOn: [':agent:jar', ':agent-process-launcher:jar']) {
   manifest {
     attributes 'Main-Class': 'com.simontuffs.onejar.Boot'
     attributes 'One-Jar-Main-Class': 'com.thoughtworks.go.agent.AgentMain'
@@ -62,9 +61,8 @@ task fatJar(type: Jar, dependsOn: [':agent:jar', ':agent-process-launcher:jar', 
   }
 
   doFirst {
-    from(configurations.packagingOnly + configurations.compile) {
+    from(configurations.compile) {
       into "lib/"
-      rename "tfs-impl-${project.version}.jar", 'tfs-impl.jar'
       rename "go-plugin-activator-${project.version}.jar", "go-plugin-activator.jar"
     }
 
@@ -156,7 +154,6 @@ task verifyJar(type: VerifyJarTask) {
           "spring-web-3.1.3.RELEASE.jar",
           "spring-webmvc-3.1.3.RELEASE.jar",
           "stax-api-1.0.1.jar",
-          "tfs-impl.jar",
           "util-${project.version}.jar",
           "websocket-api-${versions.jetty}.jar",
           "websocket-client-${versions.jetty}.jar",

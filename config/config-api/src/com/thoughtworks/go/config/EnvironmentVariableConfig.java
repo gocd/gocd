@@ -172,7 +172,7 @@ public class EnvironmentVariableConfig extends PersistentObject implements Seria
         String currentVariableName = name.toLowerCase();
         String parentDisplayName = validationContext.getParentDisplayName();
         CaseInsensitiveString parentName = getParentNameFrom(validationContext);
-        if(currentVariableName.startsWith(" ") || currentVariableName.endsWith(" ")){
+        if(!currentVariableName.trim().equals(currentVariableName)){
             configErrors.add(NAME, String.format("Environment Variable cannot start or end with spaces for %s '%s'.", parentDisplayName, parentName));
             return;
         }

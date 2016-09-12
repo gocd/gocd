@@ -235,10 +235,6 @@ public class AgentInstance implements Comparable<AgentInstance> {
         return agentRuntimeInfo.getUsableSpace();
     }
 
-    public String getAgentLauncherVersion() {
-        return agentRuntimeInfo.getAgentLauncherVersion();
-    }
-
     public boolean isRegistered() {
         return agentConfigStatus != AgentConfigStatus.Pending;
     }
@@ -316,11 +312,6 @@ public class AgentInstance implements Comparable<AgentInstance> {
 
     public String agentInfoForDisplay() {
         return agentRuntimeInfo.agentInfoForDisplay();
-    }
-
-    public boolean needsUpgrade() {
-        if(isMissing()) return false;
-        return StringUtil.isBlank(agentRuntimeInfo.getAgentLauncherVersion());
     }
 
     public boolean getSupportsBuildCommandProtocol() {

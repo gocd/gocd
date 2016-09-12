@@ -109,16 +109,15 @@ public class MessageEncoding {
             Long usableSpace = jsonObject.has("usableSpace") ? jsonObject.get("usableSpace").getAsLong() : null;
             String operatingSystemName = jsonObject.has("operatingSystemName") ? jsonObject.get("operatingSystemName").getAsString() : null;
             String cookie = jsonObject.has("cookie") ? jsonObject.get("cookie").getAsString() : null;
-            String agentLauncherVersion = jsonObject.has("agentLauncherVersion") ? jsonObject.get("agentLauncherVersion").getAsString() : null;
             boolean supportsBuildCommandProtocol = jsonObject.has("supportsBuildCommandProtocol") && jsonObject.get("supportsBuildCommandProtocol").getAsBoolean();
             String elasticPluginId = jsonObject.has("elasticPluginId") ? jsonObject.get("elasticPluginId").getAsString() : null;
             String elasticAgentId = jsonObject.has("elasticAgentId") ? jsonObject.get("elasticAgentId").getAsString() : null;
 
             AgentRuntimeInfo info;
             if (elasticPluginId == null || StringUtil.isBlank(elasticPluginId)) {
-                info = new AgentRuntimeInfo(identifier, runtimeStatus, location, cookie, agentLauncherVersion, supportsBuildCommandProtocol);
+                info = new AgentRuntimeInfo(identifier, runtimeStatus, location, cookie, supportsBuildCommandProtocol);
             } else {
-                info = new ElasticAgentRuntimeInfo(identifier, runtimeStatus, location, cookie, agentLauncherVersion, elasticAgentId, elasticPluginId);
+                info = new ElasticAgentRuntimeInfo(identifier, runtimeStatus, location, cookie, elasticAgentId, elasticPluginId);
             }
             info.setUsableSpace(usableSpace);
             info.setOperatingSystem(operatingSystemName);

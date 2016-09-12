@@ -82,7 +82,6 @@ public class GoConstants {
     public static final String AGENT_JAR_MD5 = "agent.binary.md5";
     public static final String AGENT_PLUGINS_MD5 = "agent.plugins.md5";
     public static final String GIVEN_AGENT_LAUNCHER_JAR_MD5 = "agent.launcher.md5";
-    public static final String AGENT_LAUNCHER_VERSION = "agent.launcher.version";
     public static final String ANY_PIPELINE = "[Any Pipeline]";
     public static final String ANY_STAGE = "[Any Stage]";
 }

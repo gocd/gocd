@@ -64,16 +64,6 @@ public class AgentViewModel implements Comparable<AgentViewModel>{
         return agentInstance.freeDiskSpace();
     }
 
-    public String getBootstrapperVersion() {
-        if(agentInstance.isMissing()){
-            return MISSING_AGENT_BOOTSTRAPPER_VERSION;
-        }
-        if(agentInstance.getAgentLauncherVersion() == null && !agentInstance.isMissing()){
-            return OLDER_AGENT_BOOTSTRAPPER_VERSION;
-        }
-        return agentInstance.getAgentLauncherVersion();
-    }
-
     public List<String> getResources() {
         return resources().resourceNames();
     }
@@ -170,12 +160,6 @@ public class AgentViewModel implements Comparable<AgentViewModel>{
         }
     };
 
-    public static Comparator<AgentViewModel> BOOTSTRAPPER_VERSION_COMPARATOR=new Comparator<AgentViewModel>() {
-        public int compare(AgentViewModel agentInstance1, AgentViewModel agentInstance2) {
-            return new NumericStringComparator().compare(agentInstance1.getBootstrapperVersion(), agentInstance2.getBootstrapperVersion());
-        }
-    };
-
     public int compareTo(AgentViewModel other) {
         return this.agentInstance.compareTo(other.agentInstance);
     }
@@ -191,8 +175,7 @@ public class AgentViewModel implements Comparable<AgentViewModel>{
                 " resources= " + getResources().toString() +
                 " os= " + getOperatingSystem() +
                 " status = " + getStatus() +
-                " ip = " + getIpAddress() +
-                " bootstrapperVersion = " + getBootstrapperVersion();
+                " ip = " + getIpAddress();
     }
 
     public String getOperatingSystem() {
@@ -229,10 +212,6 @@ public class AgentViewModel implements Comparable<AgentViewModel>{
         int result = agentInstance != null ? agentInstance.hashCode() : 0;
         result = 31 * result + (environments != null ? environments.hashCode() : 0);
         return result;
-    }
-
-    public boolean needsUpgrade() {
-        return agentInstance.needsUpgrade();
     }
 
     public ConfigErrors errors() {

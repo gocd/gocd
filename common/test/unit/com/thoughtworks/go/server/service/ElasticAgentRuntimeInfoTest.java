@@ -29,8 +29,8 @@ public class ElasticAgentRuntimeInfoTest {
 
     @Test
     public void shouldUpdateSelfForAnIdleAgent() throws Exception {
-        ElasticAgentRuntimeInfo agentRuntimeInfo = new ElasticAgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, "/foo/one", null, null, "42", "go.cd.elastic-agent-plugin.docker");
-        ElasticAgentRuntimeInfo newRuntimeInfo = new ElasticAgentRuntimeInfo(new AgentIdentifier("go02", "10.10.10.1", "uuid"), AgentStatus.Building.getRuntimeStatus(), "/foo/two", "cookie", "12.3", "42", "go.cd.elastic-agent-plugin.docker");
+        ElasticAgentRuntimeInfo agentRuntimeInfo = new ElasticAgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, "/foo/one", null, "42", "go.cd.elastic-agent-plugin.docker");
+        ElasticAgentRuntimeInfo newRuntimeInfo = new ElasticAgentRuntimeInfo(new AgentIdentifier("go02", "10.10.10.1", "uuid"), AgentStatus.Building.getRuntimeStatus(), "/foo/two", "cookie", "42", "go.cd.elastic-agent-plugin.docker");
 
         agentRuntimeInfo.updateSelf(newRuntimeInfo);
 
@@ -38,14 +38,13 @@ public class ElasticAgentRuntimeInfoTest {
         assertThat(agentRuntimeInfo.getLocation(), is(newRuntimeInfo.getLocation()));
         assertThat(agentRuntimeInfo.getUsableSpace(), is(newRuntimeInfo.getUsableSpace()));
         assertThat(agentRuntimeInfo.getOperatingSystem(), is(newRuntimeInfo.getOperatingSystem()));
-        assertThat(agentRuntimeInfo.getAgentLauncherVersion(), is(newRuntimeInfo.getAgentLauncherVersion()));
         assertThat(agentRuntimeInfo.getElasticAgentId(), is(newRuntimeInfo.getElasticAgentId()));
         assertThat(agentRuntimeInfo.getElasticPluginId(), is(newRuntimeInfo.getElasticPluginId()));
     }
 
     @Test
     public void dataMapEncodingAndDecoding() {
-        AgentRuntimeInfo info = new ElasticAgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, "/foo/one", null, null, "42", "go.cd.elastic-agent-plugin.docker");
+        AgentRuntimeInfo info = new ElasticAgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, "/foo/one", null, "42", "go.cd.elastic-agent-plugin.docker");
         AgentRuntimeInfo clonedInfo = MessageEncoding.decodeData(MessageEncoding.encodeData(info), AgentRuntimeInfo.class);
         assertThat(clonedInfo, is(info));
     }

@@ -42,7 +42,7 @@ public class AgentInstanceMother {
 
     public static AgentInstance idle(final Date lastHeardAt, final String hostname, SystemEnvironment systemEnvironment)  {
         AgentConfig idleAgentConfig = new AgentConfig("uuid2", hostname, "10.18.5.1");
-        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(idleAgentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false);
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(idleAgentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
         agentRuntimeInfo.setLocation("/var/lib/foo");
         agentRuntimeInfo.idle();
         agentRuntimeInfo.setUsableSpace(10*1024l);
@@ -67,7 +67,7 @@ public class AgentInstanceMother {
 
     public static AgentInstance building(String buildLocator, SystemEnvironment systemEnvironment) {
         AgentConfig buildingAgentConfig = new AgentConfig("uuid3", "CCeDev01", "10.18.5.1", new Resources("java"));
-        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(buildingAgentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false);
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(buildingAgentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
         agentRuntimeInfo.busy(new AgentBuildingInfo("pipeline", buildLocator));
         AgentInstance building = AgentInstance.createFromConfig(buildingAgentConfig, systemEnvironment);
         building.update(agentRuntimeInfo);
@@ -88,7 +88,7 @@ public class AgentInstanceMother {
     }
 
     public static AgentInstance pendingInstance() {
-        AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(new AgentIdentifier("CCeDev03", "10.18.5.3", "uuid4"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), null, null, false);
+        AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(new AgentIdentifier("CCeDev03", "10.18.5.3", "uuid4"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), null, false);
         return AgentInstance.createFromLiveAgent(runtimeInfo, new SystemEnvironment());
     }
 
@@ -166,15 +166,6 @@ public class AgentInstanceMother {
         agentInstance.update(newRuntimeInfo);
         return agentInstance;
     }
-
-    public static AgentInstance updateAgentLauncherVersion(AgentInstance agentInstance, String agentLauncherVersion) {
-        AgentRuntimeInfo newRuntimeInfo = AgentRuntimeInfo.fromServer(agentInstance.agentConfig(), agentInstance.isRegistered(), agentInstance.getLocation(), agentInstance.getUsableSpace(),
-                agentInstance.getOperatingSystem(), false);
-        newRuntimeInfo.setAgentLauncherVersion(agentLauncherVersion);
-        agentInstance.update(newRuntimeInfo);
-        return agentInstance;
-    }
-
 
     public static AgentInstance disabled()  {
         return disabled("10.18.5.4");

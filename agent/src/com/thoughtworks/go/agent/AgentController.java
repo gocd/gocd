@@ -128,9 +128,9 @@ public class AgentController {
         Boolean buildCommandProtocolEnabled = new SystemEnvironment().get(SystemEnvironment.ENABLE_BUILD_COMMAND_PROTOCOL);
 
         if (agentAutoRegistrationProperties.isElastic()) {
-            agentRuntimeInfo = ElasticAgentRuntimeInfo.fromAgent(identifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), systemEnvironment.getAgentLauncherVersion(), agentAutoRegistrationProperties.agentAutoRegisterElasticAgentId(), agentAutoRegistrationProperties.agentAutoRegisterElasticPluginId());
+            agentRuntimeInfo = ElasticAgentRuntimeInfo.fromAgent(identifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), agentAutoRegistrationProperties.agentAutoRegisterElasticAgentId(), agentAutoRegistrationProperties.agentAutoRegisterElasticPluginId());
         } else {
-            agentRuntimeInfo = AgentRuntimeInfo.fromAgent(identifier, AgentStatus.Idle.getRuntimeStatus(), currentWorkingDirectory(), systemEnvironment.getAgentLauncherVersion(), buildCommandProtocolEnabled);
+            agentRuntimeInfo = AgentRuntimeInfo.fromAgent(identifier, AgentStatus.Idle.getRuntimeStatus(), currentWorkingDirectory(), buildCommandProtocolEnabled);
         }
 
         subprocessLogger.registerAsExitHook("Following processes were alive at shutdown: ");

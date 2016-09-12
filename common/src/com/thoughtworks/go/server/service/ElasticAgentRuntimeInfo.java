@@ -33,21 +33,20 @@ public class ElasticAgentRuntimeInfo extends AgentRuntimeInfo implements Seriali
                 runtimeInfo.getRuntimeStatus(),
                 runtimeInfo.getLocation(),
                 runtimeInfo.getCookie(),
-                runtimeInfo.getAgentLauncherVersion(),
                 elasticAgentId,
                 elasticPluginId);
         this.setOperatingSystem(runtimeInfo.getOperatingSystem());
         this.setUsableSpace(runtimeInfo.getUsableSpace());
     }
 
-    public ElasticAgentRuntimeInfo(AgentIdentifier identifier, AgentRuntimeStatus runtimeStatus, String location, String cookie, String agentLauncherVersion, String elasticAgentId, String elasticPluginId) {
-        super(identifier, runtimeStatus, location, cookie, agentLauncherVersion, false);
+    public ElasticAgentRuntimeInfo(AgentIdentifier identifier, AgentRuntimeStatus runtimeStatus, String location, String cookie, String elasticAgentId, String elasticPluginId) {
+        super(identifier, runtimeStatus, location, cookie, false);
         this.elasticAgentId = elasticAgentId;
         this.elasticPluginId = elasticPluginId;
     }
 
-    public static ElasticAgentRuntimeInfo fromAgent(AgentIdentifier identifier, AgentRuntimeStatus runtimeStatus, String workingDir, String launcherVersion, String elasticAgentId, String pluginId) {
-        return new ElasticAgentRuntimeInfo(identifier, runtimeStatus, workingDir, elasticAgentId, launcherVersion, elasticAgentId, pluginId);
+    public static ElasticAgentRuntimeInfo fromAgent(AgentIdentifier identifier, AgentRuntimeStatus runtimeStatus, String workingDir, String elasticAgentId, String pluginId) {
+        return new ElasticAgentRuntimeInfo(identifier, runtimeStatus, workingDir, elasticAgentId, elasticAgentId, pluginId);
     }
 
     @Override

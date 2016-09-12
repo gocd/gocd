@@ -29,7 +29,6 @@ class AgentsController < ApplicationController
     :resources => AgentViewModel.RESOURCES_COMPARATOR,
     :environments => AgentViewModel.ENVIRONMENTS_COMPARATOR,
     :operating_system => AgentViewModel.OS_COMPARATOR,
-    :bootstrapper_version => AgentViewModel.BOOTSTRAPPER_VERSION_COMPARATOR
   })
 
   LISTING_MESSAGE_KEY = :agents_flash_message

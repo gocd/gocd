@@ -150,24 +150,24 @@ public class JobRunnerTest {
     @Test
     public void shouldDoNothingWhenJobIsNotCancelled() {
         runner.setWork(work);
-        runner.handleInstruction(new AgentInstruction(false), new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false));
+        runner.handleInstruction(new AgentInstruction(false), new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false));
         assertThat(work.getCallCount(), is(0));
     }
 
     @Test
     public void shouldCancelOncePerJob() {
         runner.setWork(work);
-        runner.handleInstruction(new AgentInstruction(true), new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false));
+        runner.handleInstruction(new AgentInstruction(true), new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false));
         assertThat(work.getCallCount(), is(1));
 
-        runner.handleInstruction(new AgentInstruction(true), new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false));
+        runner.handleInstruction(new AgentInstruction(true), new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false));
         assertThat(work.getCallCount(), is(1));
     }
 
     @Test
     public void shouldReturnTrueOnGetJobIsCancelledWhenJobIsCancelled() {
         assertThat(runner.isJobCancelled(), is(false));
-        runner.handleInstruction(new AgentInstruction(true), new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false));
+        runner.handleInstruction(new AgentInstruction(true), new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false));
         assertThat(runner.isJobCancelled(), is(true));
     }
 
@@ -188,12 +188,12 @@ public class JobRunnerTest {
             public void run() {
                 jobRunner.run(buildWork, agentIdentifier,
                         new BuildRepositoryRemoteStub(), stubPublisher(properties, consoleOut),
-                        new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false), null, null, null);
+                        new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), null, null, null);
             }
         });
         Thread cancel = new Thread(new Runnable() {
             public void run() {
-                jobRunner.handleInstruction(new AgentInstruction(true), new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false));
+                jobRunner.handleInstruction(new AgentInstruction(true), new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false));
             }
         });
 
@@ -235,12 +235,12 @@ public class JobRunnerTest {
             public void run() {
                 jobRunner.run(buildWork, agentIdentifier,
                         new BuildRepositoryRemoteStub(), stubPublisher(properties, consoleOut),
-                        new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false), null, null, null);
+                        new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), null, null, null);
             }
         });
         Thread cancel = new Thread(new Runnable() {
             public void run() {
-                jobRunner.handleInstruction(new AgentInstruction(true), new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false));
+                jobRunner.handleInstruction(new AgentInstruction(true), new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false));
             }
         });
 

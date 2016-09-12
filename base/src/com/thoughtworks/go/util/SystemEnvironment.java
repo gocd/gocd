@@ -633,10 +633,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return GoConstants.Y_YES.equals(property) ? GoConstants.ENABLE_PLUGINS_RESPONSE_TRUE : GoConstants.ENABLE_PLUGINS_RESPONSE_FALSE;
     }
 
-    public String getAgentLauncherVersion() {
-        return getPropertyImpl(GoConstants.AGENT_LAUNCHER_VERSION, EMPTY_STRING);
-    }
-
     public static final ThreadLocal<Boolean> enforceServerIdImmutability = new ThreadLocal<Boolean>() {
         @Override
         protected Boolean initialValue() {

@@ -16,12 +16,6 @@
 
 package com.thoughtworks.go.server.ui;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.Resource;
 import com.thoughtworks.go.config.Resources;
@@ -33,21 +27,11 @@ import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.Test;
 
-import static com.thoughtworks.go.helper.AgentInstanceMother.building;
-import static com.thoughtworks.go.helper.AgentInstanceMother.cancelled;
-import static com.thoughtworks.go.helper.AgentInstanceMother.idle;
-import static com.thoughtworks.go.helper.AgentInstanceMother.pending;
-import static com.thoughtworks.go.helper.AgentInstanceMother.updateAgentLauncherVersion;
-import static com.thoughtworks.go.helper.AgentInstanceMother.updateHostname;
-import static com.thoughtworks.go.helper.AgentInstanceMother.updateIpAddress;
-import static com.thoughtworks.go.helper.AgentInstanceMother.updateLocation;
-import static com.thoughtworks.go.helper.AgentInstanceMother.updateOS;
-import static com.thoughtworks.go.helper.AgentInstanceMother.updateResources;
-import static com.thoughtworks.go.helper.AgentInstanceMother.updateRuntimeStatus;
-import static com.thoughtworks.go.helper.AgentInstanceMother.updateUsableSpace;
+import java.util.*;
+
+import static com.thoughtworks.go.helper.AgentInstanceMother.*;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.contains;
 import static org.mockito.Mockito.mock;
 
 public class AgentViewModelTest {
@@ -178,78 +162,11 @@ public class AgentViewModelTest {
     }
 
     @Test
-    public void shouldSortAgentOnAgentBootstrapperVersion(){
-        AgentViewModel v12dot3 = new AgentViewModel(updateAgentLauncherVersion(AgentInstanceMother.building(), "12.3"));
-        AgentViewModel v12dot3Another = new AgentViewModel(updateAgentLauncherVersion(AgentInstanceMother.building(), "12.3"));
-        AgentViewModel v2dot4 = new AgentViewModel(updateAgentLauncherVersion(AgentInstanceMother.building(), "2.4"));
-        AgentViewModel v12dot2 = new AgentViewModel(updateAgentLauncherVersion(AgentInstanceMother.building(), "12.2"));
-        AgentViewModel v12dot5 = new AgentViewModel(updateAgentLauncherVersion(AgentInstanceMother.building(), "12.5"));
-        AgentViewModel unknown = new AgentViewModel(updateAgentLauncherVersion(AgentInstanceMother.building(), "unknown"));
-
-        List<AgentViewModel> sorted = sort(AgentViewModel.BOOTSTRAPPER_VERSION_COMPARATOR, v12dot3, v12dot3Another, v2dot4, v12dot2, v12dot5, unknown);
-        assertThat(sorted.get(0), is(v2dot4));
-        assertThat(sorted.get(1), is(v12dot2));
-        assertThat(sorted.get(2), is(v12dot3));
-        assertThat(sorted.get(3), is(v12dot3Another));
-        assertThat(sorted.get(4), is(v12dot5));
-        assertThat(sorted.get(5), is(unknown));
-    }
-
-    @Test
     public void shouldDisplayTheRightStatusMessage() {
         AgentInstance building = AgentInstanceMother.building();
         assertThat(new AgentViewModel(updateRuntimeStatus(building, AgentRuntimeStatus.Idle)).getStatusForDisplay(), is("Idle"));
         assertThat(new AgentViewModel(updateRuntimeStatus(building, AgentRuntimeStatus.Building)).getStatusForDisplay(), is("Building"));
         assertThat(new AgentViewModel(updateRuntimeStatus(building, AgentRuntimeStatus.Cancelled)).getStatusForDisplay(), is("Building (Cancelled)"));
-    }
-
-    @Test
-    public void shouldShowUnknownBoostrapperVersionWhenAgentIsMissing() {
-        AgentInstance missing = AgentInstanceMother.missing();
-        AgentViewModel missingViewModel = new AgentViewModel(missing);
-        assertThat(missingViewModel.getBootstrapperVersion(), is(AgentViewModel.MISSING_AGENT_BOOTSTRAPPER_VERSION));
-    }
-
-    @Test
-    public void shouldShowAppropriateBoostrapperVersionForAgentsGtEq12dot3() {
-        AgentInstance building = AgentInstanceMother.building();
-        AgentInstanceMother.updateAgentLauncherVersion(building, "12.5");
-        AgentViewModel buildingViewModel = new AgentViewModel(building);
-        assertThat(buildingViewModel.getBootstrapperVersion(), is(building.getAgentLauncherVersion()));
-        AgentInstanceMother.updateAgentLauncherVersion(building, "12.3");
-        buildingViewModel = new AgentViewModel(building);
-        assertThat(buildingViewModel.getBootstrapperVersion(), is(building.getAgentLauncherVersion()));
-    }
-
-    @Test
-    public void shouldShowOlderBoostrapperVersionForAgentsLt12dot3() {
-        AgentInstance building = AgentInstanceMother.building();
-        AgentViewModel buildingViewModel = new AgentViewModel(building);
-        assertThat(buildingViewModel.getBootstrapperVersion(), is(AgentViewModel.OLDER_AGENT_BOOTSTRAPPER_VERSION));
-    }
-
-    @Test
-    public void shouldIndicateThatAgentNeedsUpgrade() {
-        AgentInstance agentInstance = AgentInstanceMother.updateAgentLauncherVersion(AgentInstanceMother.building(), null);
-        AgentViewModel modelWithNullLauncherVersion = new AgentViewModel(agentInstance);
-        assertThat(modelWithNullLauncherVersion.needsUpgrade(), is(true));
-
-        AgentInstanceMother.updateAgentLauncherVersion(agentInstance, "");
-        AgentViewModel modelWithEmptyLauncherVersion = new AgentViewModel(agentInstance);
-        assertThat(modelWithEmptyLauncherVersion.needsUpgrade(), is(true));
-    }
-
-    @Test
-    public void shouldIndicateThatAgentDoesNOTNeedUpgrade() {
-        AgentInstance agentInstance = AgentInstanceMother.updateAgentLauncherVersion(AgentInstanceMother.building(), "12.3");
-        AgentViewModel model = new AgentViewModel(agentInstance);
-        assertThat(model.needsUpgrade(), is(false));
-    }
-
-    @Test
-    public void shouldIndicateThatAgentDoesNOTNeedUpgrade_WhenMissing() {
-        AgentViewModel model = new AgentViewModel(AgentInstanceMother.missing());
-        assertThat(model.needsUpgrade(), is(false));
     }
 
     @Test

@@ -118,13 +118,6 @@ public class AgentsViewModel extends BaseCollection<AgentViewModel> {
         return count;
     }
 
-    public Boolean hasAgentsThatNeedUpgrade() {
-        for (AgentViewModel agentViewModel : this) {
-            if(agentViewModel.needsUpgrade())
-                return true;
-        }
-        return false;
-    }
 }
 
 enum AgentFilters {

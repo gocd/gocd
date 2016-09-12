@@ -88,7 +88,7 @@ public class UpdateAgentStatusTest {
         assertThat(oldIp, is("10.81.2.1"));
 
         AgentIdentifier agentIdentifier1 = new AgentIdentifier("localhost", "10.18.3.95", "uuid");
-        AgentRuntimeInfo agentRuntimeInfo1 = new AgentRuntimeInfo(agentIdentifier1, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false);
+        AgentRuntimeInfo agentRuntimeInfo1 = new AgentRuntimeInfo(agentIdentifier1, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
         agentRuntimeInfo1.busy(new AgentBuildingInfo("building", "buildLocator"));
 
         agentService.updateRuntimeInfo(agentRuntimeInfo1);
@@ -103,7 +103,7 @@ public class UpdateAgentStatusTest {
     @Test
     public void shouldUpdateAgentWorkingDirWhenItChanges() throws Exception {
         AgentIdentifier agentIdentifier1 = new AgentIdentifier("localhost", "10.18.3.95", "uuid");
-        AgentRuntimeInfo agentRuntimeInfo1 = new AgentRuntimeInfo(agentIdentifier1, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false);
+        AgentRuntimeInfo agentRuntimeInfo1 = new AgentRuntimeInfo(agentIdentifier1, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
         agentRuntimeInfo1.busy(new AgentBuildingInfo("building", "buildLocator"));
         agentRuntimeInfo1.setLocation("/myDirectory");
 
@@ -116,7 +116,7 @@ public class UpdateAgentStatusTest {
     @Test
     public void shouldLogWarningWhenIPAddressChanges() throws Exception {
         AgentIdentifier agentIdentifier1 = new AgentIdentifier("localhost", "10.18.3.95", "uuid");
-        AgentRuntimeInfo agentRuntimeInfo1 = new AgentRuntimeInfo(agentIdentifier1, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", null, false);
+        AgentRuntimeInfo agentRuntimeInfo1 = new AgentRuntimeInfo(agentIdentifier1, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
         agentRuntimeInfo1.busy(new AgentBuildingInfo("building", "buildLocator"));
         agentRuntimeInfo1.setLocation("/myDirectory");
 

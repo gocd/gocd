@@ -36,7 +36,7 @@ public class BuildVariablesTest {
     @Before
     public void setup() {
         AgentIdentifier agentIdentifier = new AgentIdentifier("duloc", "127.0.0.1", "uuid");
-        AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, "/home/lord-farquaad/builds", "cookie", null, false);
+        AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, "/home/lord-farquaad/builds", "cookie", false);
 
         bvs = new BuildVariables(runtimeInfo, new TestingClock(new Date(0)));
     }

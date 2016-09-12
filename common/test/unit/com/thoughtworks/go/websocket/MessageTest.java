@@ -53,7 +53,7 @@ public class MessageTest {
 
     @Test
     public void encodeAndDecodePingMessage() {
-        AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("hostName", "ipAddress", "uuid"), null, null, null, null, false);
+        AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("hostName", "ipAddress", "uuid"), null, null, null, false);
         byte[] msg = MessageEncoding.encodeMessage(new Message(Action.ping, MessageEncoding.encodeData(info)));
         Message decoded = MessageEncoding.decodeMessage(new ByteArrayInputStream(msg));
         AgentRuntimeInfo decodedInfo = MessageEncoding.decodeData(decoded.getData(), AgentRuntimeInfo.class);

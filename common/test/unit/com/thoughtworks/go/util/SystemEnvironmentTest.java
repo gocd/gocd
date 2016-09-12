@@ -224,21 +224,6 @@ public class SystemEnvironmentTest {
     }
 
     @Test
-    public void shouldReadAgentBootstrapperVersion() {
-        try {
-            System.setProperty(GoConstants.AGENT_LAUNCHER_VERSION, "12.2");
-            assertThat(systemEnvironment.getAgentLauncherVersion(), is("12.2"));
-        } finally {
-            System.setProperty(GoConstants.AGENT_LAUNCHER_VERSION, "");
-        }
-    }
-
-    @Test
-    public void shouldDefaultAgentBootstrapperVersionToEmptyString() {
-        assertThat(systemEnvironment.getAgentLauncherVersion(), is(""));
-    }
-
-    @Test
     public void shouldResolveRevisionsForDependencyGraph_byDefault() {
         assertThat(System.getProperty(SystemEnvironment.RESOLVE_FANIN_REVISIONS), nullValue());
         assertThat(new SystemEnvironment().enforceRevisionCompatibilityWithUpstream(), is(true));

@@ -30,7 +30,7 @@ describe "/agents/index.html.erb" do
   end
 
   before(:each) do
-    @agent1 = idle_agent(:hostname => 'host1', :location => '/var/lib/cruise-agent', :operating_system => "Linux", :uuid => "UUID_host1", :agent_launcher_version => "12.3")
+    @agent1 = idle_agent(:hostname => 'host1', :location => '/var/lib/cruise-agent', :operating_system => "Linux", :uuid => "UUID_host1")
     @agent2 = pending_agent(:location => 'C:\Program Files\Cruise Agent', :ip_address => '127.0.0.1')
     @agent3 = cancelled_agent(:locator => LOCATOR2, :ip_address => "10.6.6.6", :space => 10*1024*1024*1024, :resources => "db,dbSync")
     @agent4 = building_agent(:locator => LOCATOR1, :uuid => "UUID_host4", :resources => "java")

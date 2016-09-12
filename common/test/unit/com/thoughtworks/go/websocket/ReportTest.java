@@ -29,7 +29,7 @@ public class ReportTest {
 
     @Test
     public void encodeAndDecodeAsMessageData() throws Exception {
-        AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("HostName", "ipAddress", "uuid"), AgentRuntimeStatus.Idle, null, null, null, true);
+        AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("HostName", "ipAddress", "uuid"), AgentRuntimeStatus.Idle, null, null, true);
         JobIdentifier jobIdentifier = new JobIdentifier("pipeline", 1, "pipelinelabel", "stagename", "1", "job", 1L);
         Report report = new Report(info, jobIdentifier, JobResult.Passed);
         assertThat(MessageEncoding.decodeData(MessageEncoding.encodeData(report), Report.class), is(report));

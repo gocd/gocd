@@ -17,12 +17,12 @@
 package com.thoughtworks.go.server.ui;
 
 
-import java.util.Date;
-
 import com.thoughtworks.go.config.Resource;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import org.junit.Test;
+
+import java.util.Date;
 
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.core.Is.is;
@@ -147,26 +147,6 @@ public class AgentsViewModelTest {
         agents.filter("status:Building");
         assertThat(agents.size(), is(1));
         assertThat(agents.get(0).isBuilding(), is(true));
-    }
-
-    @Test
-    public void shouldIndicateThatAgentsNeedUpgrade_WhenAtleastOneAgentNeedsUpgrade() {
-        AgentInstance idle = AgentInstanceMother.idle();
-        AgentInstanceMother.updateAgentLauncherVersion(idle, null);
-        AgentInstance building = AgentInstanceMother.building();
-        AgentInstanceMother.updateAgentLauncherVersion(building, "12.3");
-        AgentsViewModel agentsViewModel = new AgentsViewModel(new AgentViewModel(building), new AgentViewModel(idle));
-        assertThat(agentsViewModel.hasAgentsThatNeedUpgrade(), is(true));
-    }
-
-    @Test
-    public void shouldIndicateThatAgentsDoNOTNeedUpgrade_WhenNOAgentNeedsUpgrade() {
-        AgentInstance idle = AgentInstanceMother.idle();
-        AgentInstanceMother.updateAgentLauncherVersion(idle, "12.4");
-        AgentInstance building = AgentInstanceMother.building();
-        AgentInstanceMother.updateAgentLauncherVersion(building, "12.3");
-        AgentsViewModel agentsViewModel = new AgentsViewModel(new AgentViewModel(building), new AgentViewModel(idle), new AgentViewModel(AgentInstanceMother.missing()));
-        assertThat(agentsViewModel.hasAgentsThatNeedUpgrade(), is(false));
     }
 
     @Test

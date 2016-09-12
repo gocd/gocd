@@ -63,7 +63,7 @@ public class AgentProcessParentImpl implements AgentProcessParent {
             ServerBinaryDownloader pluginZipDownloader = new ServerBinaryDownloader(urlGenerator, DownloadableFile.AGENT_PLUGINS, rootCertFile, sslVerificationMode);
             pluginZipDownloader.downloadIfNecessary();
 
-            command = agentInvocationCommand(agentDownloader.md5(), launcherMd5, pluginZipDownloader.md5(), env, context, agentDownloader.sslPort(), launcherVersion);
+            command = agentInvocationCommand(agentDownloader.md5(), launcherMd5, pluginZipDownloader.md5(), env, context, agentDownloader.sslPort());
             LOG.info("Launching Agent with command: " + join(command, " "));
 
             Process agent = invoke(command);
@@ -106,8 +106,8 @@ public class AgentProcessParentImpl implements AgentProcessParent {
     }
 
     private String[] agentInvocationCommand(String agentMD5, String launcherMd5, String agentPluginsZipMd5, Map<String, String> env, Map context,
-                                            @Deprecated String sslPort, // the port is kept for backward compatibility to ensure that old bootstrappers are able to launch new agents
-                                            String launcherVersion) {
+                                            @Deprecated String sslPort // the port is kept for backward compatibility to ensure that old bootstrappers are able to launch new agents
+    ) {
         AgentBootstrapperBackwardCompatibility backwardCompatibility = backwardCompatibility(context);
 
         String startupArgsString = env.get(AGENT_STARTUP_ARGS);
@@ -122,7 +122,6 @@ public class AgentProcessParentImpl implements AgentProcessParent {
                 }
             }
         }
-        commandSnippets.add(property(GoConstants.AGENT_LAUNCHER_VERSION, launcherVersion));
         commandSnippets.add(property(GoConstants.AGENT_PLUGINS_MD5, agentPluginsZipMd5));
         commandSnippets.add(property(GoConstants.AGENT_JAR_MD5, agentMD5));
         commandSnippets.add(property(GoConstants.GIVEN_AGENT_LAUNCHER_JAR_MD5, launcherMd5));

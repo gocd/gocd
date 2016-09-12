@@ -74,8 +74,9 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
     }
 
     public void validateStageConfig(ValidationContext validationContext) {
+        ValidationContext contextForChildren = validationContext.withParent(this);
         for(StageConfig stageConfig : this) {
-            stageConfig.validateTree(validationContext);
+            stageConfig.validateTree(contextForChildren);
         }
     }
 

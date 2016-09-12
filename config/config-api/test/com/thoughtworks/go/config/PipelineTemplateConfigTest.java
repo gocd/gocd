@@ -116,8 +116,9 @@ public class PipelineTemplateConfigTest {
 
     @Test
     public void validate_shouldEnsureThatTemplateFollowsTheNameType() {
+        BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
         PipelineTemplateConfig config = new PipelineTemplateConfig(new CaseInsensitiveString(".Abc"));
-        config.validate(null);
+        config.validate(ConfigSaveValidationContext.forChain(cruiseConfig));
         assertThat(config.errors().isEmpty(), is(false));
         assertThat(config.errors().on(PipelineTemplateConfig.NAME),
                 is("Invalid template name '.Abc'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));

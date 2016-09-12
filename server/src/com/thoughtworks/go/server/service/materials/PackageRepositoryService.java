@@ -16,16 +16,20 @@
 
 package com.thoughtworks.go.server.service.materials;
 
+import com.thoughtworks.go.config.ConfigTag;
 import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.config.Validatable;
-import com.thoughtworks.go.config.update.ConfigUpdateAjaxResponse;
-import com.thoughtworks.go.config.update.ConfigUpdateResponse;
-import com.thoughtworks.go.config.update.UpdateConfigFromUI;
+import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
+import com.thoughtworks.go.config.update.*;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
+import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
+import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
@@ -39,6 +43,7 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -52,6 +57,7 @@ import java.util.List;
 
 import static com.thoughtworks.go.config.update.ErrorCollector.collectFieldErrors;
 import static com.thoughtworks.go.config.update.ErrorCollector.collectGlobalErrors;
+import static com.thoughtworks.go.server.service.ArtifactsService.LOGGER;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
 @Service
@@ -59,17 +65,19 @@ public class PackageRepositoryService {
     private PluginManager pluginManager;
     private GoConfigService goConfigService;
     private SecurityService securityService;
+    private EntityHashingService entityHashingService;
     private final Localizer localizer;
     private RepositoryMetadataStore repositoryMetadataStore;
     private PackageAsRepositoryExtension packageAsRepositoryExtension;
 
     @Autowired
     public PackageRepositoryService(PluginManager pluginManager, PackageAsRepositoryExtension packageAsRepositoryExtension, GoConfigService goConfigService, SecurityService securityService,
-                                    Localizer localizer) {
+                                    EntityHashingService entityHashingService, Localizer localizer) {
         this.pluginManager = pluginManager;
         this.packageAsRepositoryExtension = packageAsRepositoryExtension;
         this.goConfigService = goConfigService;
         this.securityService = securityService;
+        this.entityHashingService = entityHashingService;
         this.localizer = localizer;
         repositoryMetadataStore = RepositoryMetadataStore.getInstance();
     }
@@ -196,6 +204,48 @@ public class PackageRepositoryService {
         ArrayList<String> globalErrors = new ArrayList<>();
         collectGlobalErrors(globalErrors, allErrorsExceptSubject);
         return globalErrors;
+    }
+
+    public PackageRepository getPackageRepository(String repoId) {
+        return goConfigService.getConfigForEditing().getPackageRepositories().find(repoId);
+    }
+
+    public PackageRepositories getPackageRepositories() {
+        return goConfigService.getConfigForEditing().getPackageRepositories();
+    }
+
+    private void update(Username username, PackageRepository repository, HttpLocalizedOperationResult result, EntityConfigUpdateCommand command) {
+        try {
+            goConfigService.updateConfig(command, username);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+            if (!result.hasMessage()) {
+                result.internalServerError(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", e.getMessage()));
+            }
+        }
+    }
+
+    //Used only in tests
+    public void setPluginManager(PluginManager pluginManager) {
+        this.pluginManager = pluginManager;
+    }
+
+    public void deleteRepository(Username username, PackageRepository repository, HttpLocalizedOperationResult result) {
+        DeletePackageRepositoryCommand command = new DeletePackageRepositoryCommand(goConfigService, repository, username, result);
+        update(username, repository, result, command);
+        if (result.isSuccessful()) {
+            result.setMessage(LocalizedMessage.string("PACKAGE_REPOSITORY_DELETE_SUCCESSFUL", repository.getId()));
+        }
+    }
+
+    public void createPackageRepository(PackageRepository repository, Username username, HttpLocalizedOperationResult result){
+        CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, repository, username, this.pluginManager, result);
+        update(username, repository, result, command);
+    }
+
+    public void updatePackageRepository(PackageRepository oldRepo,PackageRepository newRepo, Username username, String md5, HttpLocalizedOperationResult result){
+        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, oldRepo, newRepo, username, this.pluginManager, md5, entityHashingService, result);
+        update(username, newRepo, result, command);
     }
 
     private RepositoryConfiguration populateConfiguration(Configuration configuration) {

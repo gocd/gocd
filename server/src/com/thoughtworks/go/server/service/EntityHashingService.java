@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
+import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
@@ -49,6 +50,7 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         goConfigService.register(new SCMConfigChangedListner());
         goConfigService.register(new TemplateConfigChangedListner());
         goConfigService.register(new EnvironmentConfigListener());
+        goConfigService.register(new PackageRepositoryChangeListener());
     }
 
     @Override
@@ -143,6 +145,13 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         @Override
         public void onEntityConfigChange(BasicEnvironmentConfig config) {
             removeFromCache(config, config.name());
+        }
+    }
+
+    private class PackageRepositoryChangeListener extends EntityConfigChangedListener<PackageRepository> {
+        @Override
+        public void onEntityConfigChange(PackageRepository repo) {
+            removeFromCache(repo, repo.getId());
         }
     }
 }

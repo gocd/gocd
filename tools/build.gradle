@@ -75,7 +75,7 @@ task prepareJRuby {
       standardOutput = System.out
       errorOutput = System.err
 
-      if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
+      if (isWindows()) {
         setExecutable project.file("bin/jruby.bat")
       } else {
         setExecutable project.file("bin/jruby")
@@ -86,17 +86,15 @@ task prepareJRuby {
   }
 }
 
+private boolean isWindows() {
+  org.gradle.internal.os.OperatingSystem.current().isWindows()
+}
+
 task prepareNodeJS(type: Exec) {
   standardOutput = System.out
   errorOutput = System.err
-  if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
-    setExecutable project.file("npm.cmd")
-  } else {
-    setExecutable project.file("npm")
-  }
 
-
-  args += ['install']
+  commandLine = [ isWindows() ? "npm.cmd" : "npm", "install"]
 }
 
 clean.doFirst {

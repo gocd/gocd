@@ -17,7 +17,6 @@ JsRoutes.setup do |config|
   config.camel_case = true
   config.include    = [
     /^api_internal/,
-    /^apiv1/,
-    /^apiv2/
+    /^apiv\d/,
   ]
 end

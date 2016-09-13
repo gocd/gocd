@@ -534,7 +534,7 @@
     <entry key="ADD_PIPELINE_TO_GROUP">Create a new pipeline within this group</entry>
     <entry key="MORE_INFORMATION">More Information</entry>
     <entry key="NO_ENVIRONMENTS_CONFIGURED">No environments are displayed because either no environments have been set up or you are not authorized to view the pipelines within any of the environments.</entry>
-    <entry key="CANNOT_DELETE_TEMPLATE">Cannot delete this template as it is used by at least one pipeline</entry>
+    <entry key="CANNOT_DELETE_TEMPLATE">Cannot delete the template ''{0}'' as it is used by pipeline(s): ''{1}''</entry>
     <entry key="TEMPLATE_DELETED_SUCCESSFUL">The template ''{0}'' was deleted successfully.</entry>
     <entry key="TEMPLATE_NAME_CANNOT_BE_NULL">The template config is invalid. Template name cannot be null.</entry>
     <entry key="DELETE_TEMPLATE">Delete this template</entry>

@@ -27,8 +27,8 @@ define(['mithril', 'lodash', 'string-plus',
 
       return m.request({
         method: 'PATCH',
-        url:    Routes.apiv2AgentsPath(),
-        config: mrequest.xhrConfig.v2,
+        url:    Routes.apiv4AgentsPath(),
+        config: mrequest.xhrConfig.v4,
         data:   json
       });
     };
@@ -38,8 +38,8 @@ define(['mithril', 'lodash', 'string-plus',
 
       return m.request({
         method: 'DELETE',
-        url:    Routes.apiv2AgentsPath(),
-        config: mrequest.xhrConfig.v2,
+        url:    Routes.apiv4AgentsPath(),
+        config: mrequest.xhrConfig.v4,
         data:   json
       });
     };
@@ -52,8 +52,8 @@ define(['mithril', 'lodash', 'string-plus',
 
       return m.request({
         method: 'PATCH',
-        url:    Routes.apiv2AgentsPath(),
-        config: mrequest.xhrConfig.v2,
+        url:    Routes.apiv4AgentsPath(),
+        config: mrequest.xhrConfig.v4,
         data:   json
       });
     };
@@ -68,8 +68,8 @@ define(['mithril', 'lodash', 'string-plus',
 
       return m.request({
         method: 'PATCH',
-        url:    Routes.apiv2AgentsPath(),
-        config: mrequest.xhrConfig.v2,
+        url:    Routes.apiv4AgentsPath(),
+        config: mrequest.xhrConfig.v4,
         data:   data
       });
     };
@@ -82,8 +82,8 @@ define(['mithril', 'lodash', 'string-plus',
 
       return m.request({
         method: 'PATCH',
-        url:    Routes.apiv2AgentsPath(),
-        config: mrequest.xhrConfig.v2,
+        url:    Routes.apiv4AgentsPath(),
+        config: mrequest.xhrConfig.v4,
         data:   data
       });
     };
@@ -94,7 +94,7 @@ define(['mithril', 'lodash', 'string-plus',
   Agents.all = function (configCallBack) {
     return m.request({
       method:        "GET",
-      url:           Routes.apiv2AgentsPath(),
+      url:           Routes.apiv4AgentsPath(),
       config:        function (xhr) {
         mrequest.xhrConfig.v3(xhr);
         if (configCallBack) {

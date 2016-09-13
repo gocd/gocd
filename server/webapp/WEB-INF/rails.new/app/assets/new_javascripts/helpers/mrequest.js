@@ -30,6 +30,9 @@ define([], function () {
       },
       v3: function (xhr) {
         setHeaders(xhr, 'v3');
+      },
+      v4: function (xhr) {
+        setHeaders(xhr, 'v4');
       }
     }
   };

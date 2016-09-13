@@ -14,25 +14,31 @@
  * limitations under the License.
  */
 
-task scssLint(type: Exec) {
+task scssLint {
   description "Run scss-lint"
-  standardOutput = System.out
-  errorOutput = System.err
+  doFirst {
+    project.exec {
 
-  if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
-    commandLine = [project.file("bin/jruby.bat")]
-  } else {
-    commandLine = [project.file("bin/jruby")]
+      standardOutput = System.out
+      errorOutput = System.err
+
+      if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
+        commandLine = [project.file("bin/jruby.bat")]
+      } else {
+        commandLine = [project.file("bin/jruby")]
+      }
+
+      commandLine += ['--2.0', '-S', 'scss-lint', "--config", project.file('scss-lint.yml'), "${project.findProject(':server').railsRoot}/app/assets/new_stylesheets"]
+      println commandLine.join(" ")
+    }
   }
-
-  commandLine += ['--2.0', '-S', 'scss-lint', "--config", project.file('scss-lint.yml'), "${project.findProject(':server').railsRoot}/app/assets/new_stylesheets"]
-  println commandLine.join(" ")
 }
+
 
 task jsLint {
   description "Run ESLint"
   doFirst {
-    def binary = isWindows() ? 'node_modules/.bin/eslint.cmd' : 'node_modules/.bin/eslint'
+    def binary = isWindows() ? project.file('node_modules/.bin/eslint.cmd') : project.file('node_modules/.bin/eslint')
 
     def commonCommandLine = [
       binary,

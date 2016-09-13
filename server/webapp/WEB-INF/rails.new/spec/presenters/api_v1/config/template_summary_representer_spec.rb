@@ -22,7 +22,8 @@ describe ApiV1::Config::TemplateSummaryRepresenter do
     template_with_pipelines = ['template-name', ['pipeline1', 'pipeline2']]
     actual_json = ApiV1::Config::TemplateSummaryRepresenter.new(template_with_pipelines).to_hash(url_builder: UrlBuilder.new)
 
-    expect(actual_json).to have_link(:self).with_url(UrlBuilder.new.apiv1_admin_templates_url)
+    expect(actual_json).to have_links(:self, :doc, :find)
+    expect(actual_json).to have_link(:self).with_url('http://test.host/api/admin/templates/template-name')
     expect(actual_json).to have_link(:doc).with_url('https://api.go.cd/#template-config')
     expect(actual_json).to have_link(:find).with_url('http://test.host/api/admin/templates/:template_name')
     actual_json.delete(:_links)

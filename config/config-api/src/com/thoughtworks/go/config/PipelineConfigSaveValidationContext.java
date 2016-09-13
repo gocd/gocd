@@ -90,6 +90,7 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
         return tail;
     }
 
+    @Override
     public PipelineConfigSaveValidationContext withParent(Validatable current) {
         return new PipelineConfigSaveValidationContext(current, this);
     }

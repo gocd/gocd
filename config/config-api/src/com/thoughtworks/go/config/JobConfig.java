@@ -313,10 +313,10 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         return false;
     }
 
-    public boolean validateTree(PipelineConfigSaveValidationContext validationContext) {
+    public boolean validateTree(ValidationContext validationContext) {
         validate(validationContext);
         boolean isValid = errors.isEmpty();
-        PipelineConfigSaveValidationContext contextForChildren = validationContext.withParent(this);
+        ValidationContext contextForChildren = validationContext.withParent(this);
         isValid = tasks.validateTree(contextForChildren) && isValid;
         isValid = variables.validateTree(contextForChildren) && isValid;
         isValid = resources.validateTree(contextForChildren) && isValid;

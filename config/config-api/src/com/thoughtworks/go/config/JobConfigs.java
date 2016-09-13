@@ -81,7 +81,7 @@ public class JobConfigs extends BaseCollection<JobConfig> implements Validatable
         verifyUniqueName(jobConfig);
     }
 
-    public boolean validateTree(PipelineConfigSaveValidationContext validationContext) {
+    public boolean validateTree(ValidationContext validationContext) {
         validate(validationContext);
         boolean isValid = errors().isEmpty();
         for (JobConfig jobConfig : this) {

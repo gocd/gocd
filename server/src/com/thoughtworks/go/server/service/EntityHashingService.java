@@ -47,6 +47,7 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         goConfigService.register(this);
         goConfigService.register(new PipelineConfigChangedListener());
         goConfigService.register(new SCMConfigChangedListner());
+        goConfigService.register(new TemplateConfigChangedListner());
         goConfigService.register(new EnvironmentConfigListener());
     }
 
@@ -105,6 +106,14 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         @Override
         public void onEntityConfigChange(SCM scm) {
             String cacheKey =  scm.getClass().getName() + scm.getName();
+            goCache.remove(ETAG_CACHE_KEY, cacheKey.toLowerCase());
+        }
+    }
+
+    class TemplateConfigChangedListner extends EntityConfigChangedListener<PipelineTemplateConfig> {
+        @Override
+        public void onEntityConfigChange(PipelineTemplateConfig pipelineTemplateConfig) {
+            String cacheKey =  pipelineTemplateConfig.getClass().getName() + pipelineTemplateConfig.name().toLower();
             goCache.remove(ETAG_CACHE_KEY, cacheKey.toLowerCase());
         }
     }

@@ -1345,6 +1345,19 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
+    public ArrayList<CaseInsensitiveString> pipelinesAssociatedWithTemplate(CaseInsensitiveString templateName) {
+        ArrayList<CaseInsensitiveString> pipelines = new ArrayList<>();
+        if(templateName != null) {
+            for (PipelineConfig pipelineConfig : getAllPipelineConfigs()) {
+                if (pipelineConfig.hasTemplate() && pipelineConfig.getTemplateName().equals(templateName)) {
+                    pipelines.add(pipelineConfig.getName());
+                }
+            }
+        }
+        return pipelines;
+    }
+
+    @Override
     public boolean isArtifactCleanupProhibited(String pipelineName, String stageName) {
         if (!hasStageConfigNamed(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(stageName), true)) {
             return false;

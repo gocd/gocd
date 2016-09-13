@@ -1,23 +1,24 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config;
 
 import java.util.Map;
 
+import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.PipelineTemplateConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.util.DataStructureUtils;
@@ -115,8 +116,9 @@ public class PipelineTemplateConfigTest {
 
     @Test
     public void validate_shouldEnsureThatTemplateFollowsTheNameType() {
+        BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
         PipelineTemplateConfig config = new PipelineTemplateConfig(new CaseInsensitiveString(".Abc"));
-        config.validate(null);
+        config.validate(ConfigSaveValidationContext.forChain(cruiseConfig));
         assertThat(config.errors().isEmpty(), is(false));
         assertThat(config.errors().on(PipelineTemplateConfig.NAME),
                 is("Invalid template name '.Abc'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
@@ -124,9 +126,10 @@ public class PipelineTemplateConfigTest {
 
     @Test
     public void shouldErrorOutWhenTryingToAddTwoStagesWithSameName() {
+        BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
         PipelineTemplateConfig pipelineTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.manualStage("stage1"),
                 StageConfigMother.manualStage("stage1"));
-        pipelineTemplateConfig.validate(null);
+        pipelineTemplateConfig.validate(ConfigSaveValidationContext.forChain(cruiseConfig));
         assertThat(pipelineTemplateConfig.get(0).errors().isEmpty(), is(false));
         assertThat(pipelineTemplateConfig.get(1).errors().isEmpty(), is(false));
         assertThat(pipelineTemplateConfig.get(0).errors().on(StageConfig.NAME), is("You have defined multiple stages called 'stage1'. Stage names are case-insensitive and must be unique."));

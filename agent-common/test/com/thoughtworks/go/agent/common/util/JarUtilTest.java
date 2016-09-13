@@ -15,17 +15,13 @@
  */
 package com.thoughtworks.go.agent.common.util;
 
-import com.thoughtworks.go.agent.common.util.JarUtil;
-
-import org.junit.Test;
-import org.junit.Before;
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
-import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
-
-import org.apache.commons.io.FileUtils;
 
 public class JarUtilTest {
 
@@ -45,11 +41,6 @@ public class JarUtilTest {
   @Test
   public void shouldNotThrowMalformedUrlException() throws Exception {
     String absolutePath =  new File(PATH_WITH_HASHES + "test-agent.jar").getAbsolutePath();
-
-    try {
-      Object agent_launcher = JarUtil.objectFromJar(absolutePath, "Go-Agent-Bootstrap-Class");
-    } catch (Exception e) {
-      fail();
-    }
+    JarUtil.objectFromJar(absolutePath, "Go-Agent-Bootstrap-Class");
   }
 }

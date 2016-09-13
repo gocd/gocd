@@ -18,6 +18,18 @@ module ApiV1
   module Config
     class TemplatesConfigRepresenter < ApiV1::BaseRepresenter
 
+      link :self do |opts|
+        opts[:url_builder].apiv1_admin_templates_url
+      end
+
+      link :doc do |opts|
+        'https://api.go.cd/#template-config'
+      end
+
+      link :find do |opts|
+        opts[:url_builder].apiv1_admin_template_url(template_name: '__template_name__').gsub(/__template_name__/, ':template_name')
+      end
+
       collection :templates, decorator: ApiV1::Config::TemplateSummaryRepresenter, exec_context: :decorator
 
       def templates

@@ -17,8 +17,9 @@
 module ApiV1
   module Config
     class TemplateSummaryRepresenter < ApiV1::BaseRepresenter
+
       link :self do |opts|
-        opts[:url_builder].apiv1_admin_templates_url
+        opts[:url_builder].apiv1_admin_template_url(template_name: name.to_s) unless name.to_s.blank?
       end
 
       link :doc do |opts|

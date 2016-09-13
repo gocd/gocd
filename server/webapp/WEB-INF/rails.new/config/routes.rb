@@ -227,7 +227,10 @@ Go::Application.routes.draw do
       namespace :admin do
         resources :pipelines, param: :pipeline_name, only: [:show, :update, :create, :destroy], constraints: {pipeline_name: PIPELINE_NAME_FORMAT}
         resources :templates, param: :template_name, only: [:show, :index, :update, :create, :destroy], constraints: {template_name: TEMPLATE_NAME_FORMAT}
-        resources :environments, param: :name, only: [:show, :destroy, :create, :update, :index], constraints: {:name => ENVIRONMENT_NAME_FORMAT}
+        resources :environments, param: :name, only: [:show, :destroy, :create, :update, :index], constraints: {:name => ENVIRONMENT_NAME_FORMAT} do
+          patch on: :member, action: :patch
+          put on: :member, action: :put
+        end
         post :material_test, controller: :material_test, action: :test, as: :material_test
         namespace :internal do
           resources :pipelines, only: [:index]

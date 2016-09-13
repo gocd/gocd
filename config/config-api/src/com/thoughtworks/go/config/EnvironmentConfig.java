@@ -58,6 +58,8 @@ public interface EnvironmentConfig extends ParamsAttributeAware, Validatable, En
 
     void addPipeline(CaseInsensitiveString pipelineName);
 
+    void removePipeline(CaseInsensitiveString pipelineName);
+
     boolean contains(String pipelineName);
 
     void validateContainsOnlyPipelines(List<CaseInsensitiveString> pipelineNames);

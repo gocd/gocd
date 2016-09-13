@@ -18,8 +18,8 @@ module ApiV1
   module Admin
     class EnvironmentsController < ApiV1::BaseController
       before_action :check_admin_user_and_401
-      before_action :load_environment, only: [:show, :update, :destroy]
-      before_action :check_for_stale_request, only: [:update]
+      before_action :load_environment, only: [:show, :put, :patch, :destroy]
+      before_action :check_for_stale_request, only: [:put]
 
       def index
         render DEFAULT_FORMAT => ApiV1::Config::EnvironmentsConfigRepresenter.new(environment_config_service.getEnvironments()).to_hash(url_builder: self)
@@ -34,14 +34,28 @@ module ApiV1
         result = HttpLocalizedOperationResult.new
         get_environment_from_request
         environment_config_service.createEnvironment(@environment_config_from_request, current_user, result)
-        handle_config_save_or_update_result(result, @environment_config_from_request.name.to_s)
+        handle_config_save_result(result, @environment_config_from_request.name.to_s)
       end
 
-      def update
+      def put
         result = HttpLocalizedOperationResult.new
         get_environment_from_request
         environment_config_service.updateEnvironment(@environment_config, @environment_config_from_request, current_user, get_etag_for_environment, result)
-        handle_config_save_or_update_result(result, @environment_config_from_request.name.to_s)
+        handle_config_save_result(result, @environment_config_from_request.name.to_s)
+      end
+
+      def patch
+        result = HttpLocalizedOperationResult.new
+        pipelines = params[:pipelines] || {}
+        pipelines_to_add = pipelines[:add] || []
+        pipelines_to_remove = pipelines[:remove] || []
+
+        agents = params[:agents] || {}
+        agents_to_add = agents[:add] || []
+        agents_to_remove = agents[:remove] || []
+
+        environment_config_service.patchEnvironment(@environment_config, pipelines_to_add, pipelines_to_remove, agents_to_add, agents_to_remove, current_user, result)
+        handle_config_save_result(result, @environment_config.name.to_s)
       end
 
       def destroy
@@ -68,7 +82,7 @@ module ApiV1
         entity_hashing_service.md5ForEntity(@environment_config, @environment_config.name.to_s)
       end
 
-      def handle_config_save_or_update_result(result, environment_name)
+      def handle_config_save_result(result, environment_name)
         if result.isSuccessful
           load_environment(environment_name)
           json = ApiV1::Config::EnvironmentConfigRepresenter.new(@environment_config).to_hash(url_builder: self)
@@ -86,7 +100,6 @@ module ApiV1
           render_http_operation_result(result)
         end
       end
-
     end
   end
 end

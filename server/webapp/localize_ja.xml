@@ -621,6 +621,7 @@
     <entry key="DOES_NOT_APPLY">-</entry>
     <entry key="AGENT_WITH_UUID_NOT_FOUND">Agent with uuid ''{0}'' not found.</entry>
     <entry key="AGENTS_WITH_UUIDS_NOT_FOUND">Agent(s) with uuid(s) [{0}] not found.</entry>
+    <entry key="PIPELINES_WITH_NAMES_NOT_FOUND">Pipeline(s) with name(s) [{0}] not found.</entry>
     <entry key="CLONE">Clone</entry>
     <entry key="CLONE_PIPELINE">Clone Pipeline</entry>
     <entry key="AGENT_NO_JOB_RUN_HISTORY">This agent has no completed job runs.</entry>

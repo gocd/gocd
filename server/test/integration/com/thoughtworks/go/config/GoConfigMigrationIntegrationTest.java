@@ -1184,29 +1184,36 @@ public class GoConfigMigrationIntegrationTest {
 
     @Test
     public void ShouldTrimEnvironmentVariables_asPartOfMigration85() throws Exception {
-        String configXml =
-                "<cruise schemaVersion='84'>"
+        String configXml = "<cruise schemaVersion='84'>"
                         +"  <pipelines group='first'>"
-                        +"    <authorization>"
-                        +"       <view>"
-                        +"         <user></user>"
-                        +"       </view>"
-                        +"    </authorization>"
                         +"    <pipeline name='up42'>"
                         +"      <environmentvariables>"
-                        +"        <variable name=\"test  \">"
-                        +"          <value>abcd</value>"
+                        +"        <variable name=\" test  \">"
+                        +"          <value>foobar</value>"
                         +"        </variable>"
+                        +"        <variable name=\"   PATH \" secure=\"true\">\n" +
+                        "          <encryptedValue>trMHp15AjUE=</encryptedValue>\n" +
+                        "        </variable>"
                         +"      </environmentvariables>"
                         +"      <materials>"
                         +"        <hg url='../manual-testing/ant_hg/dummy' />"
                         +"      </materials>"
+                        + "  <stage name='dist'>"
+                        + "    <jobs>"
+                        + "      <job name='test' />"
+                        + "    </jobs>"
+                        + "  </stage>"
                         +"     </pipeline>"
                         +"  </pipelines>"
                         +"</cruise>";
-        String migratedXml = migrateXmlString(configXml, 84);
-        assertThat(migratedXml, not(containsString("test  ")));
-        assertThat(migratedXml, containsString("test"));
+        CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml, 84);
+        PipelineConfig pipelineConfig = migratedConfig.pipelineConfigByName(new CaseInsensitiveString("up42"));
+        EnvironmentVariablesConfig variables = pipelineConfig.getVariables();
+        assertThat(variables.getPlainTextVariables().first().getName(), is("test"));
+        assertThat(variables.getPlainTextVariables().first().getValue(), is("foobar"));
+        assertThat(variables.getSecureVariables().first().getName(), is("PATH"));
+        // encrypted value for "abcd" is "trMHp15AjUE=" for the cipher "269298bc31c44620"
+        assertThat(variables.getSecureVariables().first().getValue(), is("abcd"));
     }
 
     private void assertStringsIgnoringCarriageReturnAreEqual(String expected, String actual) {

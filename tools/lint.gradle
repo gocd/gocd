@@ -32,11 +32,13 @@ task scssLint(type: Exec) {
 task jsLint {
   description "Run ESLint"
   doFirst {
+    def binary = isWindows() ? 'node_modules/.bin/eslint.cmd' : 'node_modules/.bin/eslint'
+
     def commonCommandLine = [
-        './node_modules/.bin/eslint',
-        '--config', project.file('.eslintrc.json'),
-        '--color',
-        '--format', project.hasProperty('jsLintFormat') ? project.jsLintFormat : 'stylish'
+      binary,
+      '--config', project.file('.eslintrc.json'),
+      '--color',
+      '--format', project.hasProperty('jsLintFormat') ? project.jsLintFormat : 'stylish'
     ]
 
     project.exec {
@@ -52,17 +54,17 @@ task jsLint {
       errorOutput = System.err
       commandLine = commonCommandLine
       commandLine += [
-          'it',
-          'describe',
-          'expect',
-          'beforeEach',
-          'afterEach',
-          'afterAll',
-          'beforeAll',
-          'xit',
-          'spyOn',
-          'jasmine',
-          'angular'
+        'it',
+        'describe',
+        'expect',
+        'beforeEach',
+        'afterEach',
+        'afterAll',
+        'beforeAll',
+        'xit',
+        'spyOn',
+        'jasmine',
+        'angular'
       ].collect { "--global=${it}" }
 
       commandLine += project.fileTree(dir: "${project.findProject(':server').railsRoot}/spec/new_javascripts", excludes: ["helpers/*", "*.html.*"]).files

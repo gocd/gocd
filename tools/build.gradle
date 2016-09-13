@@ -89,7 +89,14 @@ task prepareJRuby {
 task prepareNodeJS(type: Exec) {
   standardOutput = System.out
   errorOutput = System.err
-  commandLine = ['npm', 'install']
+  if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
+    setExecutable project.file("npm.cmd")
+  } else {
+    setExecutable project.file("npm")
+  }
+
+
+  args += ['install']
 }
 
 clean.doFirst {

@@ -281,10 +281,11 @@ define([
                              attrName='passwordValue'/>
             </f.row>
             <f.row>
-              <f.inputWithLabel attrName='view'
-                                validate={true}
-                                isRequired={true}
-                                model={material}/>
+              <f.textareaWithLabel attrName='view'
+                                   validate={true}
+                                   isRequired={true}
+                                   model={material}
+                                   size={4}/>
               <f.checkBox name="material[use_tickets]"
                           type="checkbox"
                           model={material}

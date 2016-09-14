@@ -18,6 +18,10 @@
 
   .material-definition {
     position: relative;
+
+    textarea {
+      min-height: 98px;
+    }
   }
 
   .edit-secure-password {

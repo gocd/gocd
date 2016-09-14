@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@import "go-variables";
 @import "shared/mixins";
 @import "common";
 
+$menu-hover: #3e3d3d;
 $header-height: 50px;
 
 .app-header {

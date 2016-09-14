@@ -44,6 +44,24 @@ define(['mithril', 'lodash', 'string-plus',
       });
     };
 
+    var agentsWithState = _.memoize(function (state) {
+      return this.filterAgent(function (agent) {
+        return agent.agentConfigState() === state;
+      }).length;
+    });
+
+    this.countDisabledAgents = function () {
+      return agentsWithState.bind(this, 'Disabled')();
+    };
+
+    this.countEnabledAgents = function () {
+      return agentsWithState.bind(this, 'Enabled')();
+    };
+
+    this.countPendingAgents = function () {
+      return agentsWithState.bind(this, 'Pending')();
+    };
+
     this.enableAgents = function (uuids) {
       var json = {
         uuids:              uuids,
@@ -88,6 +106,48 @@ define(['mithril', 'lodash', 'string-plus',
       });
     };
 
+    this.sortBy = function (attrName, order) {
+
+      var sortByStatus = function () {
+        return this.sortByAgents(function (agent) {
+          var rank = {
+            "Pending":              1,
+            "LostContact":          2,
+            "Missing":              3,
+            "Building":             4,
+            "Building (Cancelled)": 5,
+            "Idle":                 6,
+            "Disabled (Building)":  7,
+            "Disabled (Cancelled)": 8,
+            "Disabled":             9
+          };
+          return rank[agent['status']()];
+        });
+      };
+
+      var sortByAlphaNumeric = function () {
+        return this.sortByAgents(function (agent) {
+          return _.toLower(agent[attrName]());
+        });
+      };
+
+
+      var sortedAgents = _.isEqual(attrName, 'agentState') ? sortByStatus.bind(this)() : sortByAlphaNumeric.bind(this)();
+      if (order === 'desc') {
+        sortedAgents = _.reverse(sortedAgents);
+      }
+
+      return new Agents(sortedAgents);
+    };
+
+    this.filterBy = function (text) {
+      return new Agents(
+        this.filterAgent(function (agent) {
+          return agent.matches(text);
+        })
+      );
+    };
+
     Mixins.HasMany.call(this, {factory: Agents.Agent.create, as: 'Agent', collection: data, uniqueOn: 'uuid'});
   };
 
@@ -96,7 +156,7 @@ define(['mithril', 'lodash', 'string-plus',
       method:        "GET",
       url:           Routes.apiv4AgentsPath(),
       config:        function (xhr) {
-        mrequest.xhrConfig.v3(xhr);
+        mrequest.xhrConfig.v4(xhr);
         if (configCallBack) {
           configCallBack(xhr);
         }
@@ -133,6 +193,7 @@ define(['mithril', 'lodash', 'string-plus',
     this.buildState        = m.prop(data.buildState);
     this.resources         = m.prop(data.resources);
     this.environments      = m.prop(data.environments);
+    this.buildDetails      = m.prop(data.buildDetails);
     this.parent            = Mixins.GetterSetter();
 
     this.status = function () {
@@ -174,6 +235,21 @@ define(['mithril', 'lodash', 'string-plus',
   };
 
   Agents.Agent.fromJSON = function (data) {
+
+    var setToDefaultIfNotPresent = function (data, attribute) {
+      var buildDetails = data.build_details;
+      if (buildDetails) {
+        return buildDetails['_links'][attribute]['href'];
+      }
+      return "";
+    };
+
+    var BuildDetails = function (data) {
+      this.pipeline = m.prop(setToDefaultIfNotPresent(data, 'pipeline'));
+      this.stage    = m.prop(setToDefaultIfNotPresent(data, 'stage'));
+      this.job      = m.prop(setToDefaultIfNotPresent(data, 'job'));
+    };
+
     return new Agents.Agent({
       uuid:             data.uuid,
       hostname:         data.hostname,
@@ -185,7 +261,8 @@ define(['mithril', 'lodash', 'string-plus',
       agentState:       data.agent_state,
       buildState:       data.build_state,
       resources:        data.resources,
-      environments:     data.environments
+      environments:     data.environments,
+      buildDetails:     new BuildDetails(data)
     });
   };
 

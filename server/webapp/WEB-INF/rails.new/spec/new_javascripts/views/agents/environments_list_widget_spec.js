@@ -16,25 +16,7 @@
 
 define(["jquery", "mithril", 'models/agents/environments', "views/agents/environments_list_widget", "foundation.dropdown"], function ($, m, Environments, EnvironmentsListWidget) {
   describe("Environments List Widget", function () {
-    var $root = $('#mithril-mount-point'), root = $root.get(0);
-
-    var vm = {
-      agentsCheckedState: {}
-    };
-
-    vm.dropdown = {
-      reset:  m.prop(true),
-      states: {},
-      add:    function () {
-      },
-
-      hide: function (name) {
-        this.states[name](false);
-      }
-    };
-
-    vm.dropdown.states['environment'] = m.prop(false);
-    vm.dropdown.states['resource']    = m.prop(false);
+    var $root = $(  '#mithril-mount-point'), root = $root.get(0);
 
     beforeAll(function () {
       jasmine.Ajax.install();
@@ -65,47 +47,62 @@ define(["jquery", "mithril", 'models/agents/environments', "views/agents/environ
 
     afterAll(function () {
       jasmine.Ajax.uninstall();
+      unmount();
     });
 
     it('should contain all the environments checkbox', function () {
       var allEnvironments = $.find('.resources-items :checkbox');
-      expect(allEnvironments.length).toBe(4);
-      expect(allEnvironments[0].value).toBe('Dev');
-      expect(allEnvironments[1].value).toBe('Build');
-      expect(allEnvironments[2].value).toBe('Testing');
-      expect(allEnvironments[3].value).toBe('Deploy');
+      expect(allEnvironments).toHaveLength(4);
+      expect(allEnvironments[0]).toHaveValue('Dev');
+      expect(allEnvironments[1]).toHaveValue('Build');
+      expect(allEnvironments[2]).toHaveValue('Testing');
+      expect(allEnvironments[3]).toHaveValue('Deploy');
     });
 
     it('should check environments that are present on all the agents', function () {
       var allEnvironments = $.find('.resources-items :checkbox');
-      expect(allEnvironments[2].value).toBe('Testing');
-      expect(allEnvironments[2].checked).toBe(true);
+      expect(allEnvironments[2]).toHaveValue('Testing');
+      expect(allEnvironments[2]).toBeChecked();
     });
 
     it('should select environments as indeterminate that are present on some of the agents', function () {
       var allEnvironments = $.find('.resources-items :checkbox');
-      expect(allEnvironments[0].value).toBe('Dev');
+      expect(allEnvironments[0]).toHaveValue('Dev');
       expect(allEnvironments[0].indeterminate).toBe(true);
 
-      expect(allEnvironments[1].value).toBe('Build');
+      expect(allEnvironments[1]).toHaveValue('Build');
       expect(allEnvironments[1].indeterminate).toBe(true);
     });
 
     it('should uncheck environments that are not present on any the agents', function () {
       var allEnvironments = $.find('.resources-items :checkbox');
-      expect(allEnvironments[3].value).toBe('Deploy');
-      expect(allEnvironments[3].checked).toBe(false);
+      expect(allEnvironments[3]).toHaveValue('Deploy');
+      expect(allEnvironments[3]).not.toBeChecked();
       expect(allEnvironments[3].indeterminate).toBe(false);
     });
 
     var mount = function () {
       m.mount(root,
-        m.component(EnvironmentsListWidget, {
-          'dropDownState':        vm.dropdown,
-          'onEnvironmentsUpdate': m.prop()
-        })
+          m.component(EnvironmentsListWidget, {
+            hideDropDown:         hideDropDown,
+            dropDownReset:        dropDownReset,
+            onEnvironmentsUpdate: onEnvironmentsUpdate,
+          })
       );
       m.redraw(true);
     };
+
+    var hideDropDown  = function () {
+    };
+    var dropDownReset = function () {
+    };
+    var onEnvironmentsUpdate = function () {
+    };
+
+    var unmount = function () {
+      m.mount(root, null);
+      m.redraw(true);
+    };
+    
   });
 });

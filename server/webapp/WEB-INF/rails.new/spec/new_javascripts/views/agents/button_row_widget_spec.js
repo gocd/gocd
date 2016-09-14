@@ -18,6 +18,7 @@ define(["jquery", "mithril", "lodash", 'models/agents/agents', "views/agents/but
   describe("Button Row Widget", function () {
 
     var agents;
+
     var $root = $('#mithril-mount-point'), root = $root.get(0);
 
     var vm = {
@@ -34,6 +35,19 @@ define(["jquery", "mithril", "lodash", 'models/agents/agents', "views/agents/but
     vm.dropdown.states['environment'] = m.prop(false);
     vm.dropdown.states['resource']    = m.prop(false);
 
+    var selectedAgents     = function () {
+    };
+    var disableAgents      = function () {
+    };
+    var enableAgents       = function () {
+    };
+    var deleteAgents       = function () {
+    };
+    var updateResources    = function () {
+    };
+    var updateEnvironments = function () {
+    };
+
     beforeAll(function () {
       jasmine.Ajax.install();
       jasmine.Ajax.stubRequest(/\/api\/admin\/internal\/resources/).andReturn({
@@ -41,18 +55,20 @@ define(["jquery", "mithril", "lodash", 'models/agents/agents', "views/agents/but
         "status":       200
       });
       jasmine.Ajax.stubRequest(/\/api\/admin\/internal\/environments/).andReturn({
-        "responseText": JSON.stringify(["Dev"]),
+        "responseText": JSON.stringify(["Dev", "Test"]),
         "status":       200
       });
 
       agents        = m.prop();
       var allAgents = Agents.fromJSON(json());
       agents(allAgents);
-      mount(vm);
+      var isAnyAgentSelected = m.prop(false);
+      mount(vm, isAnyAgentSelected);
     });
 
     afterAll(function () {
       jasmine.Ajax.uninstall();
+      unmount();
     });
 
     beforeEach(function () {
@@ -61,8 +77,8 @@ define(["jquery", "mithril", "lodash", 'models/agents/agents', "views/agents/but
 
     describe('Heading Row', function () {
       it('should contain the agents page heading text', function () {
-        var headingText = $root.find('.page-header h1').text();
-        expect(headingText).toBe('Agents');
+        var headingText = $root.find('.page-header h1');
+        expect(headingText).toHaveText('Agents');
       });
     });
 
@@ -70,124 +86,67 @@ define(["jquery", "mithril", "lodash", 'models/agents/agents', "views/agents/but
       it('should contain the row elements', function () {
         var rowElements = $root.find('.agent-button-group button');
         expect(rowElements.length).toBe(8);
-        expect($(rowElements[0]).text()).toBe("Delete");
-        expect($(rowElements[1]).text()).toBe("Disable");
-        expect($(rowElements[2]).text()).toBe("Enable");
-        expect($(rowElements[3]).text()).toBe("Resources");
-        expect($(rowElements[4]).text()).toBe("Add");
-        expect($(rowElements[5]).text()).toBe("Apply");
-        expect($(rowElements[6]).text()).toBe("Environments");
-        expect($(rowElements[7]).text()).toBe("Apply");
+        expect(rowElements[0]).toHaveText("Delete");
+        expect(rowElements[1]).toHaveText("Disable");
+        expect(rowElements[2]).toHaveText("Enable");
+        expect(rowElements[3]).toHaveText("Resources");
+        expect(rowElements[4]).toHaveText("Add");
+        expect(rowElements[5]).toHaveText("Apply");
+        expect(rowElements[6]).toHaveText("Environments");
+        expect(rowElements[7]).toHaveText("Apply");
       });
 
       it('should disable the buttons if agents are not selected', function () {
         var rowElements = $root.find('.agent-button-group button');
-        expect(rowElements[0].disabled).toBe(true);
-        expect(rowElements[1].disabled).toBe(true);
-        expect(rowElements[2].disabled).toBe(true);
-        expect(rowElements[3].disabled).toBe(true);
-        expect(rowElements[6].disabled).toBe(true);
+        expect(rowElements[0]).toBeDisabled();
+        expect(rowElements[1]).toBeDisabled();
+        expect(rowElements[2]).toBeDisabled();
+        expect(rowElements[3]).toBeDisabled();
+        expect(rowElements[6]).toBeDisabled();
       });
 
       it('should enable the buttons if at least one agent is selected', function () {
-        vm.agentsCheckedState['uuid'] = m.prop(true);
-        mount(vm);
+        var isAnyAgentSelected = m.prop(true);
+        mount(vm, isAnyAgentSelected);
         var rowElements = $root.find('.agent-button-group button');
 
-        expect(rowElements[0].disabled).toBe(false);
-        expect(rowElements[1].disabled).toBe(false);
-        expect(rowElements[2].disabled).toBe(false);
-        expect(rowElements[3].disabled).toBe(false);
-        expect(rowElements[5].disabled).toBe(false);
+        expect(rowElements[0]).not.toBeDisabled();
+        expect(rowElements[1]).not.toBeDisabled();
+        expect(rowElements[2]).not.toBeDisabled();
+        expect(rowElements[3]).not.toBeDisabled();
+        expect(rowElements[5]).not.toBeDisabled();
       });
 
-      it('should toggle the resources list on click of the resources button', function () {
-        vm.agentsCheckedState['uuid'] = m.prop(true);
-        mount(vm);
-        var resourceButton = $root.find('.agent-button-group button')[3];
-        var resourcesList  = $root.find('.has-dropdown')[0];
-        expect(resourcesList.classList).not.toContain('is-open');
-
-        resourceButton.click();
-        m.redraw(true);
-
-        expect(resourcesList.classList).toContain('is-open');
-
-        resourceButton.click();
-        m.redraw(true);
-        expect(resourcesList.classList).not.toContain('is-open');
-      });
-
-      it('should toggle the environments list on click of the environments button', function () {
-        var environmentButton = $root.find('.agent-button-group button')[6];
-        var environmentsList  = $root.find('.has-dropdown')[1];
-        expect(environmentsList.classList).not.toContain('is-open');
-
-        environmentButton.click();
-        m.redraw(true);
-        expect(environmentsList.classList).toContain('is-open');
-
-        environmentButton.click();
-        m.redraw(true);
-        expect(environmentsList.classList).not.toContain('is-open');
-      });
-
-      it('should hide the resources list on click of the environments button', function () {
-        vm.dropdown.states['resource'] = m.prop(false);
-        vm.agentsCheckedState['uuid']  = m.prop(true);
-        mount(vm);
-
-        var environmentButton = $root.find("button:contains('Environments')");
-        var resourcesButton   = $root.find("button:contains('Resources')");
-        var dropddown         = $root.find("button:contains('Resources')").parent()[0];
-
-        resourcesButton.click();
-        m.redraw(true);
-
-        expect(dropddown.classList).toContain('is-open');
-
-        environmentButton.click();
-        m.redraw(true);
-
-        expect(dropddown.classList).not.toContain('is-open');
-      });
-
-      it('should hide the environment list on click of the resource button', function () {
-        vm.dropdown.states['environment'] = m.prop(false);
-        vm.agentsCheckedState['uuid']     = m.prop(true);
-        mount(vm);
-
-        var environmentButton = $root.find("button:contains('Environments')");
-        var resourcesButton   = $root.find("button:contains('Resources')");
-        var dropdown          = $root.find("button:contains('Environments')").parent()[0];
-
-        environmentButton.click();
-        m.redraw(true);
-
-        expect(dropdown.classList).toContain('is-open');
-
-        resourcesButton.click();
-        m.redraw(true);
-
-        expect(dropdown.classList).not.toContain('is-open');
-      });
     });
 
-    var mount = function (vm) {
+    var mount = function (vm, isAnyAgentSelected) {
       m.mount(root,
-        m.component(ButtonRowWidget,
-          {
-            'agentsCheckedState':   vm.agentsCheckedState,
-            'dropdown':             vm.dropdown,
-            'selectedAgents':       m.prop(),
-            'onDisable':            m.prop(),
-            'onEnable':             m.prop(),
-            'onDelete':             m.prop(),
-            'onResourcesUpdate':    m.prop(),
-            'onEnvironmentsUpdate': m.prop()
-          })
+          m.component(ButtonRowWidget,
+            {
+              isAnyAgentSelected:     isAnyAgentSelected,
+              dropdown:               vm.dropdown,
+              toggleDropDownState:    toggleDropDownState,
+              dropDownState:          dropDownState,
+              'selectedAgents':       selectedAgents,
+              'onDisable':            disableAgents,
+              'onEnable':             enableAgents,
+              'onDelete':             deleteAgents,
+              'onResourcesUpdate':    updateResources,
+              'onEnvironmentsUpdate': updateEnvironments
+            })
       );
       m.redraw(true);
+    };
+
+    var unmount = function () {
+      m.mount(root, null);
+      m.redraw(true);
+    };
+
+    var toggleDropDownState = function () {};
+
+    var dropDownState = function () {
+      return false;
     };
 
     var json = function () {

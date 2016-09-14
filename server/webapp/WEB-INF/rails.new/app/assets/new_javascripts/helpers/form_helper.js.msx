@@ -622,28 +622,8 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'es6shim'], f
           </div>
         );
       }
-    },
-
-    flashMessage: {
-      view: function (ctrl, args) {
-        if (_.isEmpty(args.message())) {
-          return <div></div>;
-        } else {
-          var message = args.message;
-          _.delay(function () {
-            message('')
-          }, args.timeout);
-          return (
-          <f.row>
-            <div data-alert class={"callout radius "+ args.type()}>
-              {args.message()}
-              <a href="#" class="close"></a>
-            </div>
-          </f.row>
-          );
-        }
-      }
     }
+
   };
 
   return f;

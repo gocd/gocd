@@ -27,53 +27,15 @@ define([
              AgentTableHeader,
              ButtonRowWidget, Agents) {
 
-  var vm = {};
-
-  vm.dropdown = {
-    states: {},
-
-    reset: m.prop(true),
-
-    add: function (name) {
-      if (!this.states[name]) {
-        this.states[name] = m.prop(false);
-      }
-    },
-
-    hide: function (name) {
-      this.states[name](false);
-    },
-
-    hideAllDropDowns: function () {
-      if (this.reset()) {
-        for (var item in this.states) {
-          this.states[item](false);
-        }
-      }
-      this.reset(true);
-    }
-  };
-
-  vm.agents = {
-    all: {
-      selected: m.prop(false)
-    }
-  };
-
-  vm.filterText = m.prop('');
-
-  vm.agentsCheckedState = {};
-
-
   var AgentsWidget = {
-    controller: function () {
+    controller: function (args) {
 
       var toggleAllAgentsSelected = function () {
-        return vm.agents.all.selected(!vm.agents.all.selected());
+        return args.vm.agents.all.selected(!args.vm.agents.all.selected());
       };
 
       var clearAllCheckboxes = function () {
-        _.each(vm.agentsCheckedState, function (boxState) {
+        _.each(args.vm.agentsCheckedState, function (boxState) {
           boxState(false);
         });
       };
@@ -81,28 +43,58 @@ define([
       var timeoutID         = m.prop();
       var currentRefreshXHR = m.prop();
 
+      var isUpdateInProgress = m.prop(false);
+
       var ctrl = {
         message: m.prop(),
 
         type: m.prop(),
 
-        allAgents: m.prop(new Agents()),
+        allAgents: args.allAgents,
 
-        hideDropDowns: function () {
-          vm.dropdown.hideAllDropDowns();
+        onunload: function () {
+          this.cancelRefresh();
+          this.cancelRefreshTimeout();
         },
 
-        refreshAfterInterval: function () {
+        performingUpdate: function () {
+          isUpdateInProgress(true);
+          this.cancelRefresh();
+          m.redraw(true);
+        },
+
+        donePerformingUpdate: function () {
+          isUpdateInProgress(false);
+          clearAllCheckboxes();
+          this.cancelRefresh();
+          this.refresh();
+          m.redraw(true);
+        },
+
+        isUpdateInProgress: function () {
+          return isUpdateInProgress();
+        },
+
+        hideDropDownsAndMessage: function () {
+          args.vm.dropdown.hideAllDropDowns();
+          this.message('');
+        },
+
+        cancelRefreshTimeout: function () {
           if (!_.isNil(timeoutID())) {
             window.clearTimeout(timeoutID());
             timeoutID(undefined);
           }
+        },
 
+        refreshAfterInterval: function () {
+          this.cancelRefreshTimeout();
           timeoutID(window.setTimeout(ctrl.refresh.bind(ctrl), 10000));
         },
 
         cancelRefresh: function () {
           if (!_.isNil(currentRefreshXHR())) {
+            currentRefreshXHR().isAbortedByGoCD = true;
             currentRefreshXHR().abort();
             currentRefreshXHR(undefined);
           }
@@ -110,41 +102,53 @@ define([
 
         refresh: function () {
           this.cancelRefresh();
-          Agents.all(currentRefreshXHR).then(
-            function (data) {
-              ctrl.allAgents(data);
-              ctrl.refreshAfterInterval();
-            },
-            ctrl.refreshAfterInterval);
+          var requestPromise      = Agents.all(currentRefreshXHR);
+          var request             = currentRefreshXHR();
+          request.isAbortedByGoCD = false;
+          var onSuccess           = function (data) {
+            this.allAgents(data);
+            this.refreshAfterInterval();
+          };
+          var onError             = function () {
+            if (!request.isAbortedByGoCD) {
+              this.refreshAfterInterval()
+            }
+          };
+          requestPromise.then(onSuccess.bind(this), onError.bind(this));
         },
 
         selectAllAgents: function () {
-          var isChecked = toggleAllAgentsSelected();
+          var isChecked  = toggleAllAgentsSelected();
+          var filterText = args.vm.filterText();
 
           var filteredAgents = this.allAgents().filterAgent(function (agent) {
-            return agent.matches(vm.filterText());
+            return agent.matches(filterText);
           });
 
           _.each(filteredAgents, function (agent) {
-            vm.agentsCheckedState[agent.uuid()](isChecked);
+            args.vm.agentsCheckedState[agent.uuid()](isChecked);
           });
         },
 
         areAllAgentsSelected: function () {
+          var filterText     = args.vm.filterText();
           var filteredAgents = this.allAgents().filterAgent(function (agent) {
-            return agent.matches(vm.filterText());
+            return agent.matches(filterText);
           });
 
           var isChecked = _.every(filteredAgents, function (agent) {
-            return vm.agentsCheckedState[agent.uuid()]();
+            var agentsCheckedState = args.vm.agentsCheckedState[agent.uuid()];
+            if (agentsCheckedState) {
+              return agentsCheckedState();
+            }
           });
 
-          vm.agents.all.selected(isChecked);
+          args.vm.agents.all.selected(isChecked);
           return isChecked;
         },
 
         selectedAgentsUuids: function () {
-          return _.compact(_.map(vm.agentsCheckedState, function (boxSate, agentId) {
+          return _.compact(_.map(args.vm.agentsCheckedState, function (boxSate, agentId) {
               if (boxSate()) {
                 return agentId;
               }
@@ -158,7 +162,7 @@ define([
 
         displaySuccessMessage: function (action) {
           var count = this.selectedAgentsCount();
-          this.message(action + count + ' ' + _('agent').pluralize(count));
+          this.message(action + ' ' + count + ' ' + _('agent').pluralize(count));
           this.type('success');
         },
 
@@ -175,49 +179,38 @@ define([
         },
 
         disableAgents: function () {
-          this.cancelRefresh();
-          this.allAgents().disableAgents(this.selectedAgentsUuids())
-            .then(this.displaySuccessMessage.bind(this, "Disabled "),
-              this.displayErrorMessage.bind(this))
-            .then(this.refresh.bind(this))
-            .then(clearAllCheckboxes);
+          this.performingUpdate();
+          ctrl.allAgents().disableAgents(ctrl.selectedAgentsUuids())
+            .then(this.displaySuccessMessage.bind(this, 'Disabled'), ctrl.displayErrorMessage.bind(ctrl))
+            .then(this.donePerformingUpdate.bind(this));
         },
 
         enableAgents: function () {
-          this.cancelRefresh();
+          this.performingUpdate();
           this.allAgents().enableAgents(this.selectedAgentsUuids())
-            .then(this.displaySuccessMessage.bind(this, 'Enabled '),
-              this.displayErrorMessage.bind(this))
-            .then(this.refresh.bind(this))
-            .then(clearAllCheckboxes)
+            .then(this.displaySuccessMessage.bind(this, 'Enabled'), this.displayErrorMessage.bind(this))
+            .then(this.donePerformingUpdate.bind(this));
         },
 
-
         deleteAgents: function () {
-          this.cancelRefresh();
+          this.performingUpdate();
           this.allAgents().deleteAgents(this.selectedAgentsUuids())
-            .then(this.displaySuccessMessage.bind(this, 'Deleted '),
-              this.displayErrorMessage.bind(this))
-            .then(this.refresh.bind(this))
-            .then(clearAllCheckboxes);
+            .then(this.displaySuccessMessage.bind(this, 'Deleted'), this.displayErrorMessage.bind(this))
+            .then(this.donePerformingUpdate.bind(this));
         },
 
         updateResources: function (addResources, removeResources) {
-          this.cancelRefresh();
+          this.performingUpdate();
           this.allAgents().updateResources(this.selectedAgentsUuids(), addResources, removeResources)
-            .then(this.displayModifiedMessage.bind(this, 'Resource', addResources, removeResources),
-              this.displayErrorMessage.bind(this))
-            .then(this.refresh.bind(this))
-            .then(clearAllCheckboxes);
+            .then(this.displayModifiedMessage.bind(this, 'Resource', addResources, removeResources), this.displayErrorMessage.bind(this))
+            .then(this.donePerformingUpdate.bind(this));
         },
 
         updateEnvironments: function (addEnvironments, removeEnvironments) {
-          this.cancelRefresh();
+          this.performingUpdate();
           this.allAgents().updateEnvironments(this.selectedAgentsUuids(), addEnvironments, removeEnvironments)
-            .then(this.displayModifiedMessage.bind(this, 'Environment', addEnvironments, removeEnvironments),
-              this.displayErrorMessage.bind(this))
-            .then(this.refresh.bind(this))
-            .then(clearAllCheckboxes);
+            .then(this.displayModifiedMessage.bind(this, 'Environment', addEnvironments, removeEnvironments), this.displayErrorMessage.bind(this))
+            .then(this.donePerformingUpdate.bind(this));
         },
 
         findAgent: function (uuid) {
@@ -230,11 +223,42 @@ define([
           return _.map(this.selectedAgentsUuids(), this.findAgent.bind(this));
         },
 
-        filteredAgents: function () {
-          return this.allAgents().filterAgent(function (agent) {
-            return agent.matches(vm.filterText());
-          })
+        filteredAndSortedAgents: function () {
+          var attrName = m.route.param('sortBy') || 'agentState';
+          var orderBy  = m.route.param('orderBy') || 'asc';
+          return this.allAgents().filterBy(args.vm.filterText()).sortBy(attrName, orderBy);
+        },
+
+        sortBy: function (sortBy, orderBy) {
+          m.route('/' + sortBy + '/' + orderBy);
+        },
+
+        toggleDropDownState: function (dropDownName) {
+          var dropdown = args.vm.dropdown;
+          dropdown.reset(false);
+          dropdown.states[dropDownName](!dropdown.states[dropDownName]());
+          dropdown.hideOtherDropdowns(dropDownName);
+        },
+
+        dropDownState: function (dropDownName) {
+          args.vm.dropdown.add(dropDownName);
+          return args.vm.dropdown.states[dropDownName]();
+        },
+
+        isAnyAgentSelected: function () {
+          return _.some(args.vm.agentsCheckedState, function (boxState) {
+            return boxState();
+          });
+        },
+
+        hideDropDown: function (dropDownName) {
+          args.vm.dropdown.hide(dropDownName);
+        },
+
+        dropDownReset: function (resetValue) {
+          args.vm.dropdown.reset(resetValue);
         }
+
       };
 
       ctrl.refresh();
@@ -242,65 +266,88 @@ define([
       return ctrl;
     },
 
-    view: function (ctrl) {
+    view: function (ctrl, args) {
+      var filterText     = args.vm.filterText();
+      var filteredAgents = ctrl.filteredAndSortedAgents();
+
+      var updateMessage = function () {
+        if (_.isEmpty(ctrl.message())) {
+          return <div></div>;
+        } else {
+          return (
+            <f.row>
+              <div data-alert class={"callout radius "+ ctrl.type()}>
+                {ctrl.message()}
+                <a href="#" class="close"></a>
+              </div>
+            </f.row>
+          );
+        }
+      };
+
       return (
-        <div onclick={ctrl.hideDropDowns}>
-          <ButtonRowWidget agentsCheckedState={ vm.agentsCheckedState }
-                           dropdown={ vm.dropdown }
+        <div onclick={ctrl.hideDropDownsAndMessage.bind(ctrl)}>
+          <ButtonRowWidget isAnyAgentSelected={ ctrl.isAnyAgentSelected.bind(ctrl) }
+                           hideDropDown={ ctrl.hideDropDown.bind(ctrl) }
+                           dropDownReset={ ctrl.dropDownReset.bind(ctrl) }
+                           toggleDropDownState={ ctrl.toggleDropDownState.bind(ctrl) }
+                           dropDownState={ ctrl.dropDownState.bind(ctrl) }
                            selectedAgents={ ctrl.selectedAgents.bind(ctrl) }
                            onDisable={ ctrl.disableAgents.bind(ctrl) }
                            onEnable={ ctrl.enableAgents.bind(ctrl) }
                            onDelete={ ctrl.deleteAgents.bind(ctrl) }
                            onResourcesUpdate={ ctrl.updateResources.bind(ctrl) }
                            onEnvironmentsUpdate={ ctrl.updateEnvironments.bind(ctrl) }
-          />
+                           isUpdateInProgress={ctrl.isUpdateInProgress}/>
+
           <div class="search-panel">
             <f.row>
               <f.column size={6} largeSize={3}>
                 <div class="search-bar">
                   <input type="text"
-                         oninput={m.withAttr("value", vm.filterText)}
-                         value={vm.filterText()}
+                         oninput={m.withAttr("value", args.vm.filterText)}
+                         value={filterText}
                          placeholder="Filter Agents"
                          id="filter-agent"/>
                 </div>
               </f.column>
 
               <f.column size={6} largeSize={8}>
-                <AgentStateCountWidget agents={ctrl.filteredAgents.bind(ctrl)}/>
+                <AgentStateCountWidget agents={ctrl.filteredAndSortedAgents.bind(ctrl)}/>
               </f.column>
 
             </f.row>
           </div>
-          <f.flashMessage message={ ctrl.message } type={ ctrl.type } timeout={ 10000 }></f.flashMessage>
+          {updateMessage()}
           <f.row>
-              <div class="container">
-            <table class="go-table">
-              <AgentTableHeader
-                onCheckboxClick={ctrl.selectAllAgents.bind(ctrl)}
-                checkboxValue={ctrl.areAllAgentsSelected.bind(ctrl)}/>
-              <tbody>
-              {
-                _.map(ctrl.filteredAgents(), function (agent) {
-                  var checkboxModel = vm.agentsCheckedState[agent.uuid()];
+            <div class="container">
+              <table class="go-table agents-table">
+                <AgentTableHeader
+                  onCheckboxClick={ctrl.selectAllAgents.bind(ctrl)}
+                  checkboxValue={ctrl.areAllAgentsSelected.bind(ctrl)}
+                  sortBy={ctrl.sortBy}/>
+                <tbody>
+                {
+                  filteredAgents.mapAgents(function (agent) {
+                    var uuid          = agent.uuid();
+                    var checkboxModel = args.vm.agentsCheckedState[uuid];
 
-                  if (!checkboxModel) {
-                    checkboxModel = vm.agentsCheckedState[agent.uuid()] = m.prop();
-                  }
+                    if (!checkboxModel) {
+                      checkboxModel = args.vm.agentsCheckedState[uuid] = m.prop();
+                    }
 
-                  return (
-                    <AgentRowWidget agent={agent}
-                                    key={agent.uuid()}
-                                    checkBoxModel={checkboxModel}/>
-                  )
+                    return (
+                      <AgentRowWidget agent={agent}
+                                      key={uuid}
+                                      checkBoxModel={checkboxModel}
+                                      show={agent.matches(filterText)}/>
+                    )
 
-                })
-
-              }
-              </tbody>
-
-            </table>
-              </div>
+                  })
+                }
+                </tbody>
+              </table>
+            </div>
           </f.row>
         </div>
       );

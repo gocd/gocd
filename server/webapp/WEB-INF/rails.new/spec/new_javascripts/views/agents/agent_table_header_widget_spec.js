@@ -17,41 +17,69 @@
 define(["jquery", "mithril", "views/agents/agent_table_header"], function ($, m, AgentsTableHeader) {
   describe("Agent Table Header Widget", function () {
     var $root = $('#mithril-mount-point'), root = $root.get(0);
-    beforeAll(function () {
-      mount();
+
+    beforeEach(function () {
+      route();
     });
 
-    it('should contain the agents table header information', function () {
-      var children = $root.find('thead tr').children();
-      expect(children.length).toBe(9);
-      expect($(children[0]).html()).toBe('<input type="checkbox">');
-      expect($(children[1]).text()).toBe('Agent Name');
-      expect($(children[2]).text()).toBe('Sandbox');
-      expect($(children[3]).text()).toBe('OS');
-      expect($(children[4]).text()).toBe('IP Address');
-      expect($(children[5]).text()).toBe('Status');
-      expect($(children[6]).text()).toBe('Free Space');
-      expect($(children[7]).text()).toBe('Resources');
-      expect($(children[8]).text()).toBe('Environments');
+    afterEach(function () {
+      unmount();
     });
+
+    var route = function () {
+      m.route.mode = "hash";
+      m.route(root, '',
+        {
+          '':                  agentTableHeaderComponent(),
+          '/:sortBy/:orderBy': agentTableHeaderComponent()
+        }
+      );
+      m.route('');
+      m.redraw(true);
+    };
+
+    var unmount = function () {
+      m.route('');
+      m.route.mode = "search";
+      m.mount(root, null);
+      m.redraw(true);
+    };
+
 
     it('should select the checkbox depending upon the "checkboxValue" ', function () {
       var checkbox = $root.find('thead input')[0];
       expect(checkbox.checked).toBe(checkboxValue());
     });
 
-    var mount = function () {
-      m.mount(root,
-        m.component(AgentsTableHeader,
-          {
-            'onCheckboxClick': onCheckboxClick,
-            'checkboxValue':   checkboxValue
-          })
-      );
+
+    it('should add the ascending css class to table header cell attribute when table is sorted ascending on the corresponding attribute', function () {
+      m.route('/agentState/asc');
       m.redraw(true);
+      var headerAttribute = $root.find("th:contains('Status') .sort");
+      expect(headerAttribute).toHaveClass('asc');
+    });
+
+
+    it('should add the descending css class to table header cell attribute when table is sorted descending on the corresponding attribute', function () {
+      m.route('/agentState/desc');
+      m.redraw(true);
+      var headerAttribute = $root.find("th:contains('Status') .sort");
+      expect(headerAttribute).toHaveClass('desc');
+    });
+
+    var agentTableHeaderComponent = function () {
+      return m.component(AgentsTableHeader,
+        {
+          onCheckboxClick: onCheckboxClick,
+          checkboxValue:   checkboxValue,
+          sortBy:          sortBy
+        });
     };
 
     var onCheckboxClick = function () {
+    };
+
+    var sortBy = function () {
     };
 
     var checkboxValue = function () {

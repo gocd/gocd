@@ -25,7 +25,7 @@ define(['mithril', 'lodash', 'helpers/mrequest', 'models/agents/tri_state_checkb
       config:        mrequest.xhrConfig.v1,
       unwrapSuccess: function (responseBody) {
         Environments.list = _.map(responseBody, function (value) {
-          return new TriStateCheckbox(value, _.map(selectedAgents, function(agent){
+          return new TriStateCheckbox(value, _.map(selectedAgents, function (agent) {
             return agent.environments();
           }));
         });

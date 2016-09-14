@@ -138,6 +138,10 @@ define(['lodash', 'string-plus', 'mithril'], function (_, s, m) {
       return _.map(collection(), cb, thisArg);
     };
 
+    this['sortBy' + associationNamePlural] = function(cb, thisArg) {
+      return _.sortBy(collection(), cb, thisArg);
+    };
+
     this['collect' + associationName + 'Property'] = function (propName) {
       return this['map' + associationNamePlural](function (child) {
         return child[propName]();

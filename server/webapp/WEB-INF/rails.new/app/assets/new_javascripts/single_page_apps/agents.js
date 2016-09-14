@@ -17,23 +17,32 @@
 require([
   'jquery', 'mithril',
   'js-routes',
+  'models/agents/agents',
   'models/agents/resources',
   'models/agents/environments',
   'views/agents/agents_widget',
+  'views/agents/models/agents_widget_view_model',
   'foundation.util.mediaQuery', 'foundation.dropdownMenu', 'foundation.responsiveToggle', 'foundation.dropdown'
 ], function ($, m, JsRoutes,
-             Resources, Environments, AgentsWidget) {
+             Agents, Resources, Environments, AgentsWidget, AgentsVM) {
 
   $(function () {
 
     Resources.init();
     Environments.init();
+
     $(document).foundation();
 
-    var mount = function(){
-      m.mount(document.getElementById('agents'), AgentsWidget);
-    };
+    m.route.mode = "hash";
 
-    mount();
+    var agents = m.prop(new Agents());
+
+    var agentsViewModel = new AgentsVM();
+
+    m.route(document.getElementById('agents'), '', {
+      '':                  m.component(AgentsWidget, {vm: agentsViewModel, allAgents: agents}),
+      '/:sortBy/:orderBy': m.component(AgentsWidget, {vm: agentsViewModel, allAgents: agents})
+    });
   });
 });
+

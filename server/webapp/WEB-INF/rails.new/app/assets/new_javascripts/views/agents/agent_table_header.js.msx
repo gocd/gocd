@@ -17,26 +17,77 @@
 define(['mithril'], function (m) {
 
   var AgentsTableHeader = {
+
+    controller: function (args) {
+
+      var sortType = function () {
+        return m.route.param('sortBy');
+      };
+
+      var orderType = function () {
+        return m.route.param('orderBy')
+      };
+
+      return {
+        sortOrder: function (sortBy) {
+          var attrName = sortType() || 'agentState';
+          var orderBy  = orderType() || 'asc';
+          return _.isEqual(attrName, sortBy) ? orderBy : '';
+        },
+
+        toggleSortingOrder: function (sortBy) {
+          var sortingOrder = _.isEqual(sortBy, sortType()) ? (_.isEqual(orderType(), 'asc') ? 'desc' : 'asc') : 'asc';
+          args.sortBy(sortBy, sortingOrder);
+        }
+      }
+    },
+
     view: function (ctrl, args) {
+
+      var sortHeader = function (attribute, attrName) {
+        return (
+          <label class="agents-table-header" onclick={ctrl.toggleSortingOrder.bind(ctrl, attribute)}>{attrName}
+            <div class={"sort " + ctrl.sortOrder(attribute)}>
+              <span class="up"/>
+              <span class="down"/>
+            </div>
+          </label>
+        )
+      };
+
       return (
-        <thead>
+        <thead style={args.style}>
         <tr>
-          <td width="2%">
+          <th>
             <input type="checkbox"
                    checked={args.checkboxValue()}
-                   onclick={m.withAttr('checked', function(value) {
-                      args.onCheckboxClick(value);
-                   })}
+                   onclick={m.withAttr('checked', args.onCheckboxClick)}
             />
-          </td>
-          <td width="13%">Agent Name</td>
-          <td width="5%">Sandbox</td>
-          <td width="12%">OS</td>
-          <td width="10%">IP Address</td>
-          <td width="5%">Status</td>
-          <td width="8%">Free Space</td>
-          <td width="25%">Resources</td>
-          <td width="20%">Environments</td>
+          </th>
+          <th>
+            {sortHeader('hostname', 'Agent Name')}
+          </th>
+          <th>
+            {sortHeader('sandbox', 'Sandbox')}
+          </th>
+          <th>
+            {sortHeader('operatingSystem', 'OS')}
+          </th>
+          <th>
+            {sortHeader('ipAddress', 'IP Address')}
+          </th>
+          <th>
+            {sortHeader('agentState', 'Status')}
+          </th>
+          <th>
+            {sortHeader('freeSpace', 'Free Space')}
+          </th>
+          <th>
+            {sortHeader('resources', 'Resources')}
+          </th>
+          <th>
+            {sortHeader('environments', 'Environments')}
+          </th>
         </tr>
         </thead>
       );

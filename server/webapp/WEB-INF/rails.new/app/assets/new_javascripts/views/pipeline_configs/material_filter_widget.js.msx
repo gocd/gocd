@@ -14,32 +14,37 @@
  * limitations under the License.
  */
 
-define([
-  'mithril', 'lodash', 'helpers/form_helper'
-], function (m, _, f) {
-  var MaterialFilterWidget = {
-    view: function (ctrl, args) {
-      // TODO: make this an 'intelligent' text component that maps to an array.
-      return (
-        <div class='ignore-pattern'>
-          <f.row>
-            <f.inputWithLabel attrName='ignore'
-                              label="Ignore pattern"
-                              model={args.material.filter()}
-                              size={12}
-                              largeSize={12}/>
-          </f.row>
-          <f.row>
-            <f.checkBox model={args.material}
-                        attrName='invertFilter'
-                        label='Invert the file filter, e.g. a Blacklist becomes a Whitelist instead.'
-                        size={12}
-                        largeSize={12}/>
-          </f.row>
-        </div>
-      );
-    }
-  };
 
-  return MaterialFilterWidget;
-});
+define(['mithril', 'lodash', 'helpers/form_helper', 'helpers/pipeline_configs/tooltips'],
+  function (m, _, f, tt) {
+    var MaterialFilterWidget = {
+      view: function (ctrl, args) {
+        // TODO: make this an 'intelligent' text component that maps to an array.
+        return (
+          <div class='ignore-pattern'>
+            <f.row>
+              <f.inputWithLabel attrName='ignore'
+                                label="Ignore pattern"
+                                model={args.material.filter()}
+                                size={12}
+                                largeSize={12}
+                                tooltip={{
+                                  content:   tt.material.filter(args.material.invertFilter() ? 'included' : 'excluded'),
+                                  direction: 'bottom',
+                                  size:      'small'
+                                }}/>
+            </f.row>
+            <f.row>
+              <f.checkBox model={args.material}
+                          attrName='invertFilter'
+                          label='Invert the file filter, e.g. a Blacklist becomes a Whitelist instead.'
+                          size={12}
+                          largeSize={12}/>
+            </f.row>
+          </div>
+        );
+      }
+    };
+
+    return MaterialFilterWidget;
+  });

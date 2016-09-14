@@ -65,10 +65,10 @@ define(['mithril', 'lodash', 'helpers/form_helper'], function (m, _, f) {
           <ExampleTable tableTitle='Allowed substitutions'
                         firstColumnWidth='260px'
                         examples={{
-                          '${COUNT}': 'The pipeline counter (starts at 1).',
-                          '${<material-name>}': 'The revision of the material named "material-name". The "material-name" can be the name of an SCM material, or a pipeline material.',
+                          '${COUNT}':                      'The pipeline counter (starts at 1).',
+                          '${<material-name>}':            'The revision of the material named "material-name". The "material-name" can be the name of an SCM material, or a pipeline material.',
                           '${<material-name>[:<length>]}': 'The first "length" characters of revision of the material named "material-name".',
-                          '#{<parameter-name>}': 'Substitute the value of the parameter named "parameter-name".'
+                          '#{<parameter-name>}':           'Substitute the value of the parameter named "parameter-name".'
                         }}/>
 
         </div>
@@ -103,20 +103,20 @@ define(['mithril', 'lodash', 'helpers/form_helper'], function (m, _, f) {
           <ExampleTable callback={args.callback}
                         firstColumnWidth='150px'
                         examples={{
-                          '##(\\d+)': (
-                            <span>
+                          '##(\\d+)':    (
+                                           <span>
                               Will extract the issue "1748" from the message
                               <br/>
                               <code>Improve message on login failure (fixes <a>#1748</a>).</code>
                             </span>
-                          ),
+                                         ),
                           '(JIRA-\\d+)': (
-                            <span>
+                                           <span>
                               Will extract the issue "JIRA-1748" from the message
                               <br/>
                               <code>[<a>JIRA-1748</a>] Improve message on login failure.</code>
                             </span>
-                          )
+                                         )
                         }}/>
         </div>
       );
@@ -137,9 +137,9 @@ define(['mithril', 'lodash', 'helpers/form_helper'], function (m, _, f) {
 
           <ExampleTable callback={args.callback}
                         examples={{
-                          'https://github.com/gocd/gocd/issues/${ID}': 'GitHub Issues',
+                          'https://github.com/gocd/gocd/issues/${ID}':          'GitHub Issues',
                           'https://bugzilla.example.com/bugs/bug.php?id=${ID}': 'Bugzilla Issue',
-                          'https://jira.example.com/jira/browse/${ID}': 'Jira Issue'
+                          'https://jira.example.com/jira/browse/${ID}':         'Jira Issue'
                         }}/>
         </div>
       );
@@ -156,7 +156,7 @@ define(['mithril', 'lodash', 'helpers/form_helper'], function (m, _, f) {
 
           <ExampleTable callback={args.callback}
                         examples={{
-                          'https://widgets.example.com/mingle': 'Mingle on your premises',
+                          'https://widgets.example.com/mingle':      'Mingle on your premises',
                           'https://example.mingle.thoughtworks.com': 'Hosted mingle'
                         }}/>
         </div>
@@ -231,6 +231,17 @@ define(['mithril', 'lodash', 'helpers/form_helper'], function (m, _, f) {
         You can override this by setting the material name explicitly.</p>
     </div>
   );
+
+  var materialIgnorePattern = function (word) {
+    return (
+      <div>
+        <p>
+          (Optional)
+          Enter the paths to be {word} while triggering pipelines. Separate multiple entries with a comma.
+        </p>
+      </div>
+    );
+  };
 
   var pipelineTimerSpec          = {
     view: function (ctrl, args) {
@@ -360,9 +371,9 @@ define(['mithril', 'lodash', 'helpers/form_helper'], function (m, _, f) {
 
           <ExampleTable callback={args.callback}
                         examples={{
-                          '0 0 0/4 * * ?': 'Run every 4th hour',
-                          '0 0 1 * * ?': 'Run at 1:00 AM everyday',
-                          '0 43 2 * * sat': 'Run at 2:43 AM every saturday',
+                          '0 0 0/4 * * ?':   'Run every 4th hour',
+                          '0 0 1 * * ?':     'Run at 1:00 AM everyday',
+                          '0 43 2 * * sat':  'Run at 2:43 AM every saturday',
                           '0 15 10 3 * ?	': 'Run at 10:15am on the 3rd day of every month'
                         }}/>
 
@@ -426,7 +437,8 @@ define(['mithril', 'lodash', 'helpers/form_helper'], function (m, _, f) {
         complex configurations.{' '}
       </p>
       <a
-        href='https://www.go.cd/documentation/user/current/configuration/admin_use_parameters_in_configuration.html' target='_blank'>
+        href='https://www.go.cd/documentation/user/current/configuration/admin_use_parameters_in_configuration.html'
+        target='_blank'>
         Read more...
       </a>
     </div>
@@ -496,177 +508,193 @@ define(['mithril', 'lodash', 'helpers/form_helper'], function (m, _, f) {
   );
 
   var task = {
-    lookup: (
-      <div>
-        Lookup sample command snippets from your local
-        <a class="" href="https://www.go.cd/documentation/user/current/advanced_usage/command_repository.html" target="_blank"> command repository</a>.
-      </div>
-    ),
-    custom: {
-      command: (
-        <div>
-          The command or script to be executed, relative to the working directory
-        </div>
-      ),
+    lookup:         (
+                      <div>
+                        Lookup sample command snippets from your local
+                        <a class=""
+                           href="https://www.go.cd/documentation/user/current/advanced_usage/command_repository.html"
+                           target="_blank"> command repository</a>.
+                      </div>
+                    ),
+    custom:         {
+      command:          (
+                          <div>
+                            The command or script to be executed, relative to the working directory
+                          </div>
+                        ),
       workingDirectory: (
-        <div>
-          <p>
-            The directory in which the script or command is to be executed. This is always relative to the directory where
-            the agent checks out materials.
-          </p>
-        </div>
-      )
+                          <div>
+                            <p>
+                              The directory in which the script or command is to be executed. This is always relative to
+                              the directory where
+                              the agent checks out materials.
+                            </p>
+                          </div>
+                        )
     },
-    ant: {
-      buildFile: (
-      <div>
-        Path to Ant build file. If not specified, the path defaults to 'build.xml'.
-      </div>
-      ),
-      target: (
-        <div>
-          Ant target(s) to run. If not specified, the target defaults to 'default'.
-        </div>
-      ),
+    ant:            {
+      buildFile:        (
+                          <div>
+                            Path to Ant build file. If not specified, the path defaults to 'build.xml'.
+                          </div>
+                        ),
+      target:           (
+                          <div>
+                            Ant target(s) to run. If not specified, the target defaults to 'default'.
+                          </div>
+                        ),
       workingDirectory: (
-        <div>
-          The directory from where Ant is invoked.
-        </div>
-      )
+                          <div>
+                            The directory from where Ant is invoked.
+                          </div>
+                        )
     },
-    nant: {
-      buildFile: (
-        <div>
-          Relative path to a NAnt build file. If not specified, the path defaults to 'default.build'.
-        </div>
-      ),
-      target: (
-        <div>
-          NAnt target(s) to run. If not specified, defaults to the default target of the build file.
-        </div>
-      ),
+    nant:           {
+      buildFile:        (
+                          <div>
+                            Relative path to a NAnt build file. If not specified, the path defaults to 'default.build'.
+                          </div>
+                        ),
+      target:           (
+                          <div>
+                            NAnt target(s) to run. If not specified, defaults to the default target of the build file.
+                          </div>
+                        ),
       workingDirectory: (
-        <div>
-          The directory from where NAnt is invoked.
-        </div>
-      ),
-      path: (
-        <div>
-          Path of the directory in which NAnt is installed. By default Go will assume that NAnt is in the system path.
-        </div>
-      )
+                          <div>
+                            The directory from where NAnt is invoked.
+                          </div>
+                        ),
+      path:             (
+                          <div>
+                            Path of the directory in which NAnt is installed. By default Go will assume that NAnt is in
+                            the system path.
+                          </div>
+                        )
     },
-    rake: {
-      buildFile: (
-        <div>
-          Path to Rake file. If not specified, the path defaults to 'rakefile'.
-        </div>
-      ),
-      target: (
-        <div>
-          Rake target(s) to run. If not specified, defaults to the default target of the build file.
-        </div>
-      ),
+    rake:           {
+      buildFile:        (
+                          <div>
+                            Path to Rake file. If not specified, the path defaults to 'rakefile'.
+                          </div>
+                        ),
+      target:           (
+                          <div>
+                            Rake target(s) to run. If not specified, defaults to the default target of the build file.
+                          </div>
+                        ),
       workingDirectory: (
-        <div>
-          The directory from where Rake is invoked.
-        </div>
-      )
+                          <div>
+                            The directory from where Rake is invoked.
+                          </div>
+                        )
     },
     fetchArtifacts: {
-      pipeline: (
-        <div>
-          <p>
-            The name of direct upstream pipeline or ancestor pipeline of one of the upstream pipelines on which the
-            pipeline of the job depends on. The pipeline should be a dependency material or should be reachable as an
-            ancestor(of the form fetch-from-pipeline/path/to/upstream-pipeline) of at-least one dependency material.
-            Defaults to current pipeline if not specified.
-          </p>
-        </div>
-      ),
-      stage: (
-        <div>
-          The name of the stage to fetch artifacts from.
-        </div>
-      ),
-      job: (
-        <div>
-          The name of the job to fetch artifacts from.
-        </div>
-      ),
-      source: (
-        <div>
-          <p>
-            The path of the artifact directory or file of a specific job, relative to the sandbox directory. If the
-            directory or file does not exist, the job is failed.
-          </p>
-        </div>
-      ),
+      pipeline:    (
+                     <div>
+                       <p>
+                         The name of direct upstream pipeline or ancestor pipeline of one of the upstream pipelines on
+                         which the
+                         pipeline of the job depends on. The pipeline should be a dependency material or should be
+                         reachable as an
+                         ancestor(of the form fetch-from-pipeline/path/to/upstream-pipeline) of at-least one dependency
+                         material.
+                         Defaults to current pipeline if not specified.
+                       </p>
+                     </div>
+                   ),
+      stage:       (
+                     <div>
+                       The name of the stage to fetch artifacts from.
+                     </div>
+                   ),
+      job:         (
+                     <div>
+                       The name of the job to fetch artifacts from.
+                     </div>
+                   ),
+      source:      (
+                     <div>
+                       <p>
+                         The path of the artifact directory or file of a specific job, relative to the sandbox
+                         directory. If the
+                         directory or file does not exist, the job is failed.
+                       </p>
+                     </div>
+                   ),
       destination: (
-        <div>
-          <p>
-            The path of the directory where the artifact is fetched to. The directory is overwritten if it already
-            exists. The directory path is relative to the pipeline working directory.
-          </p>
-        </div>
-      )
+                     <div>
+                       <p>
+                         The path of the directory where the artifact is fetched to. The directory is overwritten if it
+                         already
+                         exists. The directory path is relative to the pipeline working directory.
+                       </p>
+                     </div>
+                   )
     }
   };
 
   var artifacts = {
-    main: (
-      <div>
-          Publish build artifacts to the artifact repository.
-      </div>
-    ),
-    source: (
-      <div>
-        <p>
-          The file or folders to publish to the server. Go will only upload files that are in the working directory of
-          the job. You can use wildcards to specify the files and folders to upload (** means any path, * means any file
-          or folder name).
-        </p>
-      </div>
-    ),
+    main:        (
+                   <div>
+                     Publish build artifacts to the artifact repository.
+                   </div>
+                 ),
+    source:      (
+                   <div>
+                     <p>
+                       The file or folders to publish to the server. Go will only upload files that are in the working
+                       directory of
+                       the job. You can use wildcards to specify the files and folders to upload (** means any path, *
+                       means any file
+                       or folder name).
+                     </p>
+                   </div>
+                 ),
     destination: (
-      <div>
-        <p>
-          The destination is relative to the artifacts folder of the current instance on the server side. If it is not
-          specified, the artifact will be stored in the root of the artifacts directory
-        </p>
-      </div>
-    ),
-    type: (
-      <div>
-        <p>
-          When 'Test Artifact' is selected, Go will use this artifact to generate a test report. Test information is
-          placed in the Failures and Test sub-tabs. Test results from multiple jobs are aggregated on the stage detail
-          pages. This allows you to see the results of tests from both functional and unit tests even if they are run in
-          different jobs.
-        </p>
-      </div>
-    )
+                   <div>
+                     <p>
+                       The destination is relative to the artifacts folder of the current instance on the server side.
+                       If it is not
+                       specified, the artifact will be stored in the root of the artifacts directory
+                     </p>
+                   </div>
+                 ),
+    type:        (
+                   <div>
+                     <p>
+                       When 'Test Artifact' is selected, Go will use this artifact to generate a test report. Test
+                       information is
+                       placed in the Failures and Test sub-tabs. Test results from multiple jobs are aggregated on the
+                       stage detail
+                       pages. This allows you to see the results of tests from both functional and unit tests even if
+                       they are run in
+                       different jobs.
+                     </p>
+                   </div>
+                 )
   };
 
   var tabs = {
     main: (
-      <div>
-        <p>
-          Lets you add new tabs within the Job Details page. <a href="https://www.go.cd/documentation/user/current/faq/dev_see_artifact_as_tab.html"
-                                                                target="_blank">More...</a>
-        </p>
-      </div>
-    ),
+            <div>
+              <p>
+                Lets you add new tabs within the Job Details page. <a
+                href="https://www.go.cd/documentation/user/current/faq/dev_see_artifact_as_tab.html"
+                target="_blank">More...</a>
+              </p>
+            </div>
+          ),
     name: (
-      <div>
-        Name of the tab which will appear in the Job Detail Page.
-      </div>
-    ),
+            <div>
+              Name of the tab which will appear in the Job Detail Page.
+            </div>
+          ),
     path: (
-      <div>
-        The artifact that will be rendered in the custom tab. This is typically a html or xml file.
-      </div>
-    )
+            <div>
+              The artifact that will be rendered in the custom tab. This is typically a html or xml file.
+            </div>
+          )
   };
 
 
@@ -703,7 +731,10 @@ define(['mithril', 'lodash', 'helpers/form_helper'], function (m, _, f) {
 
     material: {
       name:        materialName,
-      destination: materialDestination
+      destination: materialDestination,
+      filter:      function (word) {
+        return materialIgnorePattern(word);
+      }
     },
 
     stage: {
@@ -725,9 +756,9 @@ define(['mithril', 'lodash', 'helpers/form_helper'], function (m, _, f) {
       }
     },
 
-    task: task,
-    artifacts: artifacts,
-    tabs: tabs,
+    task:         task,
+    artifacts:    artifacts,
+    tabs:         tabs,
     onCancelTask: onCancelTask
   };
 });

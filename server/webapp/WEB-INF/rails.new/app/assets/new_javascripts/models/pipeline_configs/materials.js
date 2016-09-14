@@ -151,7 +151,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     var _password       = m.prop(plainOrCipherValue(data));
     this.checkExternals = m.prop(data.checkExternals);
     this.autoUpdate     = m.prop(s.defaultToIfBlank(data.autoUpdate, true));
-    this.invertFilter   = m.prop(data.invertFilter);
+    this.invertFilter = m.prop(s.defaultToIfBlank(data.invertFilter, false));
     Mixins.HasEncryptedAttribute.call(this, {attribute: _password, name: 'passwordValue'});
 
     this.validatePresenceOf('url');
@@ -198,7 +198,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     this.branch       = m.prop(s.defaultToIfBlank(data.branch, 'master'));
     this.shallowClone = m.prop(data.shallowClone);
     this.autoUpdate   = m.prop(s.defaultToIfBlank(data.autoUpdate, true));
-    this.invertFilter = m.prop(data.invertFilter);
+    this.invertFilter = m.prop(s.defaultToIfBlank(data.invertFilter, false));
 
     this.validatePresenceOf('url');
 
@@ -239,7 +239,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     this.url          = m.prop(s.defaultToIfBlank(data.url, ''));
     this.branch       = m.prop(s.defaultToIfBlank(data.branch, ''));
     this.autoUpdate   = m.prop(s.defaultToIfBlank(data.autoUpdate, true));
-    this.invertFilter = m.prop(data.invertFilter);
+    this.invertFilter = m.prop(s.defaultToIfBlank(data.invertFilter, false));
 
     this.validatePresenceOf('url');
 
@@ -281,7 +281,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     this.view        = m.prop(s.defaultToIfBlank(data.view, ''));
     this.useTickets  = m.prop(data.useTickets);
     this.autoUpdate  = m.prop(s.defaultToIfBlank(data.autoUpdate, true));
-    this.invertFilter   = m.prop(data.invertFilter);
+    this.invertFilter = m.prop(s.defaultToIfBlank(data.invertFilter, false));
     Mixins.HasEncryptedAttribute.call(this, {attribute: _password, name: 'passwordValue'});
 
     this.validatePresenceOf('port');
@@ -334,7 +334,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     var _password     = m.prop(plainOrCipherValue(data));
     this.projectPath  = m.prop(s.defaultToIfBlank(data.projectPath, ''));
     this.autoUpdate   = m.prop(s.defaultToIfBlank(data.autoUpdate, true));
-    this.invertFilter = m.prop(data.invertFilter);
+    this.invertFilter = m.prop(s.defaultToIfBlank(data.invertFilter, false));
     Mixins.HasEncryptedAttribute.call(this, {attribute: _password, name: 'passwordValue'});
 
     this.validatePresenceOf('url');
@@ -411,7 +411,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     this.pluginInfo   = m.prop(data.pluginInfo);
     this.destination  = m.prop(s.defaultToIfBlank(data.destination, ''));
     this.scm          = m.prop(data.scm);
-    this.invertFilter = m.prop(data.invertFilter);
+    this.invertFilter = m.prop(s.defaultToIfBlank(data.invertFilter, false));
 
     this._attributesToJSON = function () {
       /* eslint-disable camelcase */

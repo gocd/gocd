@@ -97,7 +97,7 @@ plugin-infra/go-plugin-infra/target/
 rack_hack/target/
 release/target/
 server-launcher/target/
-server/*.log
+server/*.log*
 server/agent.jar
 server/agent-launcher.jar
 server/artifactsDir/

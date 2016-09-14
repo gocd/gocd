@@ -29,9 +29,9 @@ module ApiV4
       opts[:url_builder].root_url + pipeline_url if represented.isBuilding()
     end
 
-    property :getPipelineName, as: :pipeline, skip_nil: true
-    property :getStageName, as: :stage, skip_nil: true
-    property :getJobName, as: :job, skip_nil: true
+    property :getPipelineName, as: :pipeline_name, skip_nil: true
+    property :getStageName, as: :stage_name, skip_nil: true
+    property :getJobName, as: :job_name, skip_nil: true
 
     def job_url
       'tab/build/detail/' + represented.getBuildLocator()

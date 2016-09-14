@@ -28,9 +28,9 @@ describe ApiV4::BuildDetailsRepresenter do
 
     actual_json.delete(:_links)
     expect(actual_json).to eq({
-                                  pipeline: 'pipeline1',
-                                  stage: 'stage1',
-                                  job: 'job'
+                                  pipeline_name: 'pipeline1',
+                                  stage_name: 'stage1',
+                                  job_name: 'job'
                               })
   end
 end

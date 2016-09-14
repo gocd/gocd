@@ -20,7 +20,7 @@ $opensans-variants: (Bold, BoldItalic, ExtraBold, ExtraBoldItalic, Italic, Light
 
 @each $variant in $opensans-variants {
   @include font-face($font-family: 'OpenSans#{$variant}',
-                     $file-path: font-path('opensans/OpenSans-#{$variant}-webfont'),
-                     $asset-pipeline: false,
+                     $file-path: 'opensans/OpenSans-#{$variant}-webfont',
+                     $asset-pipeline: true,
                      $file-formats: eot woff ttf svg);
 }

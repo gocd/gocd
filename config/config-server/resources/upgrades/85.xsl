@@ -27,11 +27,12 @@
     </xsl:template>
 
     <xsl:template match="//environmentvariables/variable">
-        <xsl:copy>
+        <xsl:element name="variable">
+            <xsl:copy-of select="@*"/>
             <xsl:attribute name="name">
                 <xsl:value-of select="translate(@name, ' ','')"/>
             </xsl:attribute>
-            <xsl:apply-templates />
-        </xsl:copy>
+            <xsl:copy-of select="node()"/>
+        </xsl:element>
     </xsl:template>
 </xsl:stylesheet>

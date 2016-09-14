@@ -39,12 +39,6 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agents_widget
       jasmine.Ajax.uninstall();
     });
 
-    it('should contain the agents state count information', function () {
-      var agentStateCount = $root.find('.search-summary')[0];
-      var stateCountInfo  = "Total2Pending0Enabled0Disabled2";
-      expect($(agentStateCount).text()).toBe(stateCountInfo);
-    });
-
     it('should contain the agent rows equal to the number of agents', function () {
       var agentRows = $root.find('table tbody tr');
       expect(agentRows.length).toBe(2);

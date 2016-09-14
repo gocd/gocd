@@ -30,10 +30,6 @@ require([
     Environments.init();
     $(document).foundation();
 
-    var mount = function(){
-      m.mount(document.getElementById('agents'), AgentsWidget);
-    };
-
-    mount();
+    m.mount(document.getElementById('agents'), AgentsWidget);
   });
 });

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', 'jquery', 'helpers/form_helper',
+define(['mithril', 'lodash', 'string-plus', 'helpers/form_helper',
   'views/agents/tri_state_checkbox_widget', 'models/agents/resources', 'models/agents/tri_state_checkbox'
-], function (m, _, s, $, f, TriStateCheckboxWidget, Resources, TriStateCheckbox) {
+], function (m, _, s, f, TriStateCheckboxWidget, Resources, TriStateCheckbox) {
 
   var NewResourceVM = {
     newResource: m.prop(''),
@@ -73,6 +73,9 @@ define(['mithril', 'lodash', 'string-plus', 'jquery', 'helpers/form_helper',
 
           args.onResourcesUpdate(resourcesToBeAdded, resourcesToBeRemoved);
           NewResourceVM.newResource('');
+        },
+        closeDropdown:   function () {
+          args.dropDownState.reset(false);
         }
 
       }
@@ -80,9 +83,7 @@ define(['mithril', 'lodash', 'string-plus', 'jquery', 'helpers/form_helper',
 
     view: function (ctrl, args) {
       return (
-        <div class="agent-button-group-dropdown resource-dropdown" onclick={function() {
-          args.dropDownState.reset(false);
-        }}>
+        <div class="agent-button-group-dropdown resource-dropdown" onclick={ctrl.closeDropdown}>
           <ul class="resources-items">
 
             {
@@ -96,11 +97,11 @@ define(['mithril', 'lodash', 'string-plus', 'jquery', 'helpers/form_helper',
               {_.isEqual('', NewResourceVM.error()) ? "" : <span class="resource-error">{NewResourceVM.error()}</span> }
               <div class="small-9 columns">
                 <input type="text"
-                       oninput={m.withAttr("value", function(value){
-                      NewResourceVM.newResource(value);
-                      NewResourceVM.error('');
-                     })
-                     }
+                       oninput={m.withAttr("value", function (value) {
+                         NewResourceVM.newResource(value);
+                         NewResourceVM.error('');
+                       })
+                       }
                        value={NewResourceVM.newResource()}
                        placeholder="Add resource"/>
               </div>

@@ -14,57 +14,30 @@
  * limitations under the License.
  */
 
-define(['mithril'], function (m) {
+define(['mithril', 'lodash'], function (m, _) {
   var AgentStateCountWidget = {
-    controller: function (args) {
-      return {
-        disabledAgentsCount: function () {
-          return _.filter(args.agents(), function (agent) {
-            return agent.agentConfigState() == 'Disabled';
-          }).length;
-        },
-
-        enabledAgentsCount: function () {
-          return _.filter(args.agents(), function (agent) {
-            return agent.agentConfigState() == 'Enabled';
-          }).length;
-        },
-
-        pendingAgentsCount: function () {
-          return _.filter(args.agents(), function (agent) {
-            return agent.agentConfigState() == 'Pending';
-          }).length;
-        },
-
-        totalAgentsCount: function () {
-          return args.agents().length;
-        }
-      }
-    },
-
-    view: function (ctrl) {
+    view: function (ctrl, args) {
       return (
 
         <ul class="search-summary">
           <li>
             <label for="total">Total</label>
-            <span class="value">{ctrl.totalAgentsCount()}</span>
+            <span class="value">{args.agents().countAgent()}</span>
           </li>
-
 
           <li>
             <label for="total">Pending</label>
-            <span class="value">{ctrl.pendingAgentsCount()}</span>
+            <span class="value">{args.agents().countPendingAgents()}</span>
           </li>
 
           <li class="enabled">
             <label for="total">Enabled</label>
-            <span class="value">{ctrl.enabledAgentsCount()}</span>
+            <span class="value">{args.agents().countEnabledAgents()}</span>
           </li>
 
           <li class="disabled">
             <label for="total">Disabled</label>
-            <span class="value">{ctrl.disabledAgentsCount()}</span>
+            <span class="value">{args.agents().countDisabledAgents()}</span>
           </li>
 
         </ul>

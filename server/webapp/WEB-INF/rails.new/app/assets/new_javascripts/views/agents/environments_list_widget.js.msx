@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'jquery', 'helpers/form_helper',
+define(['mithril', 'lodash', 'helpers/form_helper',
   'views/agents/tri_state_checkbox_widget',
   'models/agents/environments'
-], function (m, _, $, f, TriStateCheckboxWidget, Environments) {
+], function (m, _, f, TriStateCheckboxWidget, Environments) {
 
   var EnvironmentsListWidget = {
     controller: function (args) {
@@ -43,15 +43,16 @@ define(['mithril', 'lodash', 'jquery', 'helpers/form_helper',
             }
           });
           args.onEnvironmentsUpdate(environmentsToBeAdded, environmentsToBeRemoved);
+        },
+        closeDropdown:      function () {
+          args.dropDownState.reset(false);
         }
       }
     },
 
     view: function (ctrl, args) {
       return (
-        <div class="agent-button-group-dropdown env-dropdown" onclick={function() {
-          args.dropDownState.reset(false)
-        }}>
+        <div class="agent-button-group-dropdown env-dropdown" onclick={ctrl.closeDropdown}>
           <ul class="resources-items">
             { _.map(Environments.list, function (environment, index) {
               return (<TriStateCheckboxWidget triStateCheckbox={environment} index={index} key={environment.name()}/>)
@@ -59,13 +60,12 @@ define(['mithril', 'lodash', 'jquery', 'helpers/form_helper',
             }
           </ul>
 
-          {_.isEmpty(Environments.list) ? <span class="resource-error">No environments are defined</span> :
+          {_.isEmpty(Environments.list) ? (<span class="resource-error">No environments are defined</span>) :
             <f.button data-toggle="environments-list" class="btn-apply"
                       onclick={ctrl.updateEnvironments.bind(ctrl)}>
               Apply
             </f.button>
           }
-
         </div>
       );
     }

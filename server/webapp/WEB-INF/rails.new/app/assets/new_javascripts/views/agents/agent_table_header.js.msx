@@ -19,24 +19,22 @@ define(['mithril'], function (m) {
   var AgentsTableHeader = {
     view: function (ctrl, args) {
       return (
-        <thead>
+        <thead style={args.style}>
         <tr>
-          <td width="2%">
+          <td>
             <input type="checkbox"
                    checked={args.checkboxValue()}
-                   onclick={m.withAttr('checked', function(value) {
-                      args.onCheckboxClick(value);
-                   })}
+                   onclick={m.withAttr('checked', args.onCheckboxClick)}
             />
           </td>
-          <td width="13%">Agent Name</td>
-          <td width="5%">Sandbox</td>
-          <td width="12%">OS</td>
-          <td width="10%">IP Address</td>
-          <td width="5%">Status</td>
-          <td width="8%">Free Space</td>
-          <td width="25%">Resources</td>
-          <td width="20%">Environments</td>
+          <td>Agent Name</td>
+          <td>Sandbox</td>
+          <td>OS</td>
+          <td>IP Address</td>
+          <td>Status</td>
+          <td>Free Space</td>
+          <td>Resources</td>
+          <td>Environments</td>
         </tr>
         </thead>
       );

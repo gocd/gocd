@@ -75,6 +75,20 @@ define([
       expect(new Agents.Agent({freeSpace: 'snafu'}).readableFreeSpace()).toBe('Unknown');
     });
 
+    it("should count agents with specific state", function () {
+      var agents = new Agents(
+        [
+          new Agents.Agent({agentConfigState: 'Pending'}),
+          new Agents.Agent({agentConfigState: 'Disabled'}),
+          new Agents.Agent({agentConfigState: 'Enabled'}),
+        ]
+      );
+
+      expect(agents.countDisabledAgents()).toBe(1);
+      expect(agents.countPendingAgents()).toBe(1);
+      expect(agents.countEnabledAgents()).toBe(1);
+    });
+
     describe("agent status", function () {
       it("should be pending when agentConfigState is Pending", function () {
         var agent = new Agents.Agent({agentConfigState: 'Pending'});

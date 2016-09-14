@@ -18,9 +18,7 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agent_state_c
   describe("Agent State Count Widget", function () {
     var $root = $('#mithril-mount-point'), root = $root.get(0);
     beforeAll(function () {
-      var agents    = m.prop();
-      var allAgents = Agents.fromJSON(json());
-      agents(allAgents.toJSON());
+      var agents    = m.prop(Agents.fromJSON(json()));
       mount(agents);
     });
 

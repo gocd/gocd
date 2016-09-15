@@ -144,7 +144,7 @@ public class EnvironmentConfigServiceIntegrationTest {
         newUat.addAgent("uuid-1");
         newUat.addEnvironmentVariable("env-three", "THREE");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        String md5 = entityHashingService.md5ForEntity(uat, uat.name().toString());
+        String md5 = entityHashingService.md5ForEntity(uat);
         service.updateEnvironment(uat, newUat, new Username(new CaseInsensitiveString("foo")), md5, result);
         EnvironmentConfig updatedEnv = service.named("prod");
         assertThat(updatedEnv.name(), is(new CaseInsensitiveString("prod")));
@@ -165,7 +165,7 @@ public class EnvironmentConfigServiceIntegrationTest {
         configHelper.addAdmins("super_hero");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        String md5 = entityHashingService.md5ForEntity(service.getEnvironmentConfig("foo"), "foo");
+        String md5 = entityHashingService.md5ForEntity(service.getEnvironmentConfig("foo"));
         service.updateEnvironment(service.getEnvironmentConfig("foo"), env("foo-env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("evil_hacker")), md5, result);
         assertThat(result.message(localizer), is("Failed to update environment 'foo'. User 'evil_hacker' does not have permission to update environments"));
     }
@@ -175,7 +175,7 @@ public class EnvironmentConfigServiceIntegrationTest {
         configHelper.addEnvironments("foo-env");
         configHelper.addEnvironments("bar-env");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        String md5 = entityHashingService.md5ForEntity(service.getEnvironmentConfig("bar-env"), "bar-env");
+        String md5 = entityHashingService.md5ForEntity(service.getEnvironmentConfig("bar-env"));
         service.updateEnvironment(service.getEnvironmentConfig("bar-env"), env("foo-env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("any")), md5, result);
         assertThat(result.message(localizer), is("Failed to update environment 'bar-env'. failed to save : Duplicate unique value [foo-env] declared for identity constraint \"uniqueEnvironmentName\" of element \"environments\"."));
     }
@@ -194,7 +194,7 @@ public class EnvironmentConfigServiceIntegrationTest {
     public void shouldReturnBadRequestForUpdateWhenUsingInvalidEnvName_ForNewUpdateEnvironmentMethod_ForNewUpdateEnvironmentMethod() throws NoSuchEnvironmentException {
         configHelper.addEnvironments("foo-env");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        String md5 = entityHashingService.md5ForEntity(service.getEnvironmentConfig("foo-env"), "foo-env");
+        String md5 = entityHashingService.md5ForEntity(service.getEnvironmentConfig("foo-env"));
         service.updateEnvironment(service.getEnvironmentConfig("foo-env"), env("foo env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("any")), md5, result);
         assertThat(result.httpCode(), is(HttpServletResponse.SC_BAD_REQUEST));
         assertThat(result.message(localizer), containsString("Failed to update environment 'foo-env'."));

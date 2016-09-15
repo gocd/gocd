@@ -114,7 +114,7 @@ public class UpdateSCMConfigCommandTest {
 
         SCM updatedScm = new SCM("id", new PluginConfiguration("plugin-id", "1"), new Configuration(new ConfigurationProperty(new ConfigurationKey("key1"),new ConfigurationValue("value1"))));
         updatedScm.setName("material");
-        when(entityHashingService.md5ForEntity(cruiseConfig.getSCMs().find("id"), "material")).thenReturn("another-md5");
+        when(entityHashingService.md5ForEntity(cruiseConfig.getSCMs().find("id"))).thenReturn("another-md5");
         UpdateSCMConfigCommand command = new UpdateSCMConfigCommand(updatedScm, pluggableScmService, goConfigService, currentUser, result, "md5", entityHashingService);
 
         assertThat(command.canContinue(cruiseConfig), is(false));

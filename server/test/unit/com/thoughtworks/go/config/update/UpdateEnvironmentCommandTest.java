@@ -135,7 +135,7 @@ public class UpdateEnvironmentCommandTest {
     public void shouldNotContinueIfTheUserSubmittedStaleEtag() throws Exception {
         UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig, newEnvironmentConfig, currentUser, actionFailed, md5, entityHashingService, result);
         when(goConfigService.isAdministrator(currentUser.getUsername())).thenReturn(true);
-        when(entityHashingService.md5ForEntity(oldEnvironmentConfig, oldEnvironmentConfig.name().toString())).thenReturn("foo");
+        when(entityHashingService.md5ForEntity(oldEnvironmentConfig)).thenReturn("foo");
         assertThat(command.canContinue(cruiseConfig), is(false));
         HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
         expectResult.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", "Environment", oldEnvironmentConfig.name()));

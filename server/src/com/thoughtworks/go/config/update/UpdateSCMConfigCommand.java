@@ -55,7 +55,7 @@ public class UpdateSCMConfigCommand extends SCMConfigCommand {
 
     private boolean isRequestFresh(CruiseConfig cruiseConfig) {
         SCM existingSCM = findSCM(cruiseConfig);
-        boolean freshRequest =  entityHashingService.md5ForEntity(existingSCM, existingSCM.getName()).equals(md5);
+        boolean freshRequest =  entityHashingService.md5ForEntity(existingSCM).equals(md5);
         if (!freshRequest) {
             result.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", "SCM", globalScmConfig.getName()));
         }

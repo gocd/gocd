@@ -18,12 +18,12 @@ module ApiV1
   module Admin
     class PipelinesController < ApiV1::BaseController
       before_action :check_pipeline_group_admin_user_and_401
-      before_action :load_pipeline, only: [:show, :destroy]
+      before_action :load_pipeline, only: [:show, :update, :destroy]
       before_action :check_if_pipeline_by_same_name_already_exists, :check_group_not_blank, only: [:create]
       before_action :check_for_stale_request, :check_for_attempted_pipeline_rename, only: [:update]
 
       def show
-        if stale?(etag: get_etag_for_pipeline(@pipeline_config.name.to_s))
+        if stale?(etag: get_etag_for(@pipeline_config))
           json = ApiV1::Config::PipelineConfigRepresenter.new(@pipeline_config).to_hash(url_builder: self)
           render DEFAULT_FORMAT => json
         end
@@ -42,7 +42,7 @@ module ApiV1
       def update
         result = HttpLocalizedOperationResult.new
         get_pipeline_from_request
-        pipeline_config_service.updatePipelineConfig(current_user, @pipeline_config_from_request, get_etag_for_pipeline(params[:pipeline_name]), result)
+        pipeline_config_service.updatePipelineConfig(current_user, @pipeline_config_from_request, get_etag_for(@pipeline_config), result)
         handle_config_save_or_update_result(result)
       end
 
@@ -64,7 +64,7 @@ module ApiV1
         if result.isSuccessful
           load_pipeline(pipeline_name)
           json = ApiV1::Config::PipelineConfigRepresenter.new(@pipeline_config).to_hash(url_builder: self)
-          response.etag = [get_etag_for_pipeline(@pipeline_config.name.to_s)]
+          response.etag = [get_etag_for(@pipeline_config)]
           render DEFAULT_FORMAT => json
         else
           json = ApiV1::Config::PipelineConfigRepresenter.new(@pipeline_config_from_request).to_hash(url_builder: self)
@@ -80,20 +80,16 @@ module ApiV1
         end
       end
 
-      def get_etag_for_pipeline(pipeline_name)
-        entity_hashing_service.md5ForPipelineConfig(pipeline_name)
+      def get_etag_for(pipeline)
+        entity_hashing_service.md5ForEntity(pipeline)
       end
 
       def check_for_stale_request
-        return unless stale_request?
-
-        result = HttpLocalizedOperationResult.new
-        result.stale(LocalizedMessage::string("STALE_RESOURCE_CONFIG", 'pipeline', params[:pipeline_name]))
-        render_http_operation_result(result)
-      end
-
-      def stale_request?
-        request.env["HTTP_IF_MATCH"] != "\"#{Digest::MD5.hexdigest(get_etag_for_pipeline(params[:pipeline_name]))}\""
+        if request.env["HTTP_IF_MATCH"] != "\"#{Digest::MD5.hexdigest(get_etag_for(@pipeline_config))}\""
+          result = HttpLocalizedOperationResult.new
+          result.stale(LocalizedMessage::string("STALE_RESOURCE_CONFIG", 'pipeline', params[:pipeline_name]))
+          render_http_operation_result(result)
+        end
       end
 
       def load_pipeline(pipeline_name = params[:pipeline_name])

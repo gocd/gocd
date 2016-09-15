@@ -97,7 +97,7 @@ public class UpdateTemplateConfigCommandTest {
     public void shouldNotContinueWithConfigSaveIfRequestIsNotFresh() {
         cruiseConfig.addTemplate(pipelineTemplateConfig);
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
-        when(entityHashingService.md5ForEntity(pipelineTemplateConfig, pipelineTemplateConfig.name().toString())).thenReturn("another-md5");
+        when(entityHashingService.md5ForEntity(pipelineTemplateConfig)).thenReturn("another-md5");
 
         UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(pipelineTemplateConfig, currentUser, goConfigService, result, "md5", entityHashingService);
 

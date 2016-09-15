@@ -1,9 +1,10 @@
 package com.thoughtworks.go.config.update;
 
+import com.thoughtworks.go.config.BasicCruiseConfig;
+import com.thoughtworks.go.config.BasicPipelineConfigs;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.helper.PipelineConfigMother;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -12,10 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class UpdatePipelineConfigCommandTest {
 
@@ -42,9 +40,10 @@ public class UpdatePipelineConfigCommandTest {
 
         when(goConfigService.findGroupNameByPipeline(pipelineConfig.name())).thenReturn("group1");
         when(goConfigService.canEditPipeline(pipelineConfig.name().toString(), username, localizedOperationResult, "group1")).thenReturn(true);
-        when(entityHashingService.md5ForPipelineConfig(pipelineConfig.name().toString())).thenReturn("latest_md5");
+        when(entityHashingService.md5ForEntity(pipelineConfig)).thenReturn("latest_md5");
 
-        assertFalse(command.canContinue(mock(CruiseConfig.class)));
+        BasicCruiseConfig basicCruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(pipelineConfig));
+        assertFalse(command.canContinue(basicCruiseConfig));
     }
 
     @Test

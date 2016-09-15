@@ -79,7 +79,7 @@ module ApiV1
       end
 
       def get_etag_for_environment
-        entity_hashing_service.md5ForEntity(@environment_config, @environment_config.name.to_s)
+        entity_hashing_service.md5ForEntity(@environment_config)
       end
 
       def handle_config_save_result(result, environment_name)

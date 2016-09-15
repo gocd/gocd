@@ -139,7 +139,7 @@ describe ApiV1::Admin::PluggableScmsController do
 
       it 'should render the pluggable scm material of specified name' do
         @pluggable_scm_service.should_receive(:findPluggableScmMaterial).with('material').exactly(2).times.and_return(@scm)
-        @entity_hashing_service.should_receive(:md5ForEntity).with(@scm, 'material').and_return('md5')
+        @entity_hashing_service.should_receive(:md5ForEntity).with(@scm).and_return('md5')
 
         get_with_api_header :show, material_name: 'material'
 
@@ -327,7 +327,7 @@ describe ApiV1::Admin::PluggableScmsController do
 
         hash = {id: '1', name: 'material', auto_update: false, plugin_metadata: {id: 'some-plugin', version: '1'}, configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bar.git'}]}
 
-        @entity_hashing_service.should_receive(:md5ForEntity).with(an_instance_of(SCM), anything).exactly(2).times.and_return('md5')
+        @entity_hashing_service.should_receive(:md5ForEntity).with(an_instance_of(SCM)).exactly(2).times.and_return('md5')
         @pluggable_scm_service.should_receive(:findPluggableScmMaterial).exactly(2).times.and_return(@scm)
         @pluggable_scm_service.should_receive(:updatePluggableScmMaterial).with(anything, an_instance_of(SCM), anything, 'md5')
 
@@ -354,7 +354,7 @@ describe ApiV1::Admin::PluggableScmsController do
 
         result = HttpLocalizedOperationResult.new
 
-        @entity_hashing_service.should_receive(:md5ForEntity).with(an_instance_of(SCM), anything).and_return('md5')
+        @entity_hashing_service.should_receive(:md5ForEntity).with(an_instance_of(SCM)).and_return('md5')
         @pluggable_scm_service.should_receive(:findPluggableScmMaterial).and_return(@scm)
         @pluggable_scm_service.stub(:updatePluggableScmMaterial).with(anything, an_instance_of(SCM), result, anything)  do |user, scm, result|
           result.unprocessableEntity(LocalizedMessage::string("SAVE_FAILED_WITH_REASON", "Validation failed"))
@@ -370,7 +370,7 @@ describe ApiV1::Admin::PluggableScmsController do
       it 'should fail update if etag does not match' do
         controller.request.env['HTTP_IF_MATCH'] = "some-etag"
         params = {id: '1', name: 'foo', auto_update: false, plugin_metadata: {id: 'some-plugin', version: '1'}, configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bar.git'}]}
-        @entity_hashing_service.should_receive(:md5ForEntity).with(an_instance_of(SCM), anything).and_return('another-etag')
+        @entity_hashing_service.should_receive(:md5ForEntity).with(an_instance_of(SCM)).and_return('another-etag')
         @pluggable_scm_service.should_receive(:findPluggableScmMaterial).with('foo').and_return(@scm)
 
         put_with_api_header :update, material_name: 'foo', pluggable_scm: params
@@ -383,7 +383,7 @@ describe ApiV1::Admin::PluggableScmsController do
         controller.request.env['HTTP_IF_MATCH'] = "\"#{Digest::MD5.hexdigest("md5")}\""
         hash = {id: '1', name: 'material', auto_update: false, plugin_metadata: {id: 'some-plugin', version: '1'}, configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bar.git'}]}
 
-        @entity_hashing_service.should_receive(:md5ForEntity).with(an_instance_of(SCM), 'material').exactly(3).times.and_return('md5')
+        @entity_hashing_service.should_receive(:md5ForEntity).with(an_instance_of(SCM)).exactly(3).times.and_return('md5')
         @pluggable_scm_service.should_receive(:findPluggableScmMaterial).with('material').exactly(3).times.and_return(@scm)
         @pluggable_scm_service.should_receive(:updatePluggableScmMaterial).with(anything, an_instance_of(SCM), anything, "md5")
 

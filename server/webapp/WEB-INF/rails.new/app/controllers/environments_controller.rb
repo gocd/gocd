@@ -92,7 +92,7 @@ class EnvironmentsController < ApplicationController
     env_for_edit = environment_config_service.forEdit(params[:name], result)
     if (result.isSuccessful())
       @environment = env_for_edit.getConfigElement()
-      @cruise_config_md5 = entity_hashing_service.md5ForEntity(@environment, @environment.name.to_s)
+      @cruise_config_md5 = entity_hashing_service.md5ForEntity(@environment)
     end
     render_if_error(result.message(Spring.bean('localizer')), result.httpCode())
     result.isSuccessful()

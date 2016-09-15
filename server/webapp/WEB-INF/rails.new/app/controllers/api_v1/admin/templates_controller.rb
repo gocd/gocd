@@ -83,7 +83,7 @@ module ApiV1
       end
 
       def get_etag_for_template(template)
-        entity_hashing_service.md5ForEntity(template, template.name.to_s)
+        entity_hashing_service.md5ForEntity(template)
       end
     end
   end

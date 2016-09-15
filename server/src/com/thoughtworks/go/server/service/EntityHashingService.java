@@ -51,78 +51,98 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         goConfigService.register(new EnvironmentConfigListener());
     }
 
-    public String md5ForPipelineConfig(String pipelineName) {
-        String cachedMD5 = cachedMD5(pipelineName);
-
-        return cachedMD5 != null ? cachedMD5 : md5For(pipelineName);
-    }
-
-    private String md5ForEntity(Object domainObject) {
-        String xml = new MagicalGoConfigXmlWriter(configCache, registry).toXmlPartial(domainObject);
-        return CachedDigestUtils.md5Hex(xml);
-    }
-
-    public String md5ForEntity(Object domainObject, String subkey) {
-        String cacheKey = domainObject.getClass().getName() + subkey;
-        String cachedMD5 = cachedMD5(cacheKey);
-
-        return cachedMD5 != null ? cachedMD5 : cachingFor(domainObject, cacheKey);
-    }
-
-    private String cachingFor(Object domainObject, String subkey) {
-        String md5 = md5ForEntity(domainObject);
-        addToCache(subkey, md5);
-        return md5;
-    }
-
     @Override
     public void onConfigChange(CruiseConfig newCruiseConfig) {
         goCache.remove(ETAG_CACHE_KEY);
     }
 
-    private String md5For(String pipelineName) {
-        PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
-        String cacheKey = pipelineConfig.getClass().getName() + pipelineName;
-        return cachingFor(pipelineConfig, cacheKey);
+    public String md5ForEntity(PipelineTemplateConfig config) {
+        String cacheKey = cacheKey(config, config.name());
+        return getFromCache(config, cacheKey);
     }
 
-    private String cachedMD5(String subkey) {
-        return (String) goCache.get(ETAG_CACHE_KEY, subkey.toLowerCase());
+    public String md5ForEntity(EnvironmentConfig config) {
+        String cacheKey = cacheKey(config, config.name());
+        return getFromCache(config, cacheKey);
     }
 
-    private void addToCache(String subkey, String md5) {
-        goCache.put(ETAG_CACHE_KEY, subkey.toLowerCase(), md5);
+    public String md5ForEntity(SCM config) {
+        String cacheKey = cacheKey(config, config.getName());
+        return getFromCache(config, cacheKey);
+    }
+
+    public String md5ForEntity(PipelineConfig config) {
+        String cacheKey = cacheKey(config, config.name());
+        return getFromCache(config, cacheKey);
+    }
+
+    private String cacheKey(Object domainObject, CaseInsensitiveString name) {
+        return cacheKey(domainObject, name.toLower());
+    }
+
+    private String cacheKey(Object domainObject, String name) {
+        return getClass(domainObject) + "." + name;
+    }
+
+    private String getFromCache(Object domainObject, String cacheKey) {
+        String cachedMD5 = getFromCache(cacheKey);
+
+        if (cachedMD5 != null) {
+            return cachedMD5;
+        }
+
+        String md5 = computeMd5For(domainObject);
+        goCache.put(ETAG_CACHE_KEY, cacheKey, md5);
+
+        return md5;
+    }
+
+    private void removeFromCache(Object domainObject, CaseInsensitiveString name) {
+        removeFromCache(domainObject, name.toLower());
+    }
+
+    private void removeFromCache(Object domainObject, String name) {
+        goCache.remove(ETAG_CACHE_KEY, cacheKey(domainObject, name));
+    }
+
+    private String getFromCache(String cacheKey) {
+        return (String) goCache.get(ETAG_CACHE_KEY, cacheKey);
+    }
+
+    private String getClass(Object entity) {
+        return entity.getClass().getName();
+    }
+
+    private String computeMd5For(Object domainObject) {
+        String xml = new MagicalGoConfigXmlWriter(configCache, registry).toXmlPartial(domainObject);
+        return CachedDigestUtils.md5Hex(xml);
     }
 
     class PipelineConfigChangedListener extends EntityConfigChangedListener<PipelineConfig> {
         @Override
         public void onEntityConfigChange(PipelineConfig pipelineConfig) {
-            String cacheKey = pipelineConfig.getClass().getName() + pipelineConfig.name().toLower();
-            goCache.remove(ETAG_CACHE_KEY, cacheKey.toLowerCase());
+            removeFromCache(pipelineConfig, pipelineConfig.name());
         }
     }
 
     class SCMConfigChangedListner extends EntityConfigChangedListener<SCM> {
         @Override
         public void onEntityConfigChange(SCM scm) {
-            String cacheKey =  scm.getClass().getName() + scm.getName();
-            goCache.remove(ETAG_CACHE_KEY, cacheKey.toLowerCase());
+            removeFromCache(scm, scm.getName());
         }
     }
 
     class TemplateConfigChangedListner extends EntityConfigChangedListener<PipelineTemplateConfig> {
         @Override
         public void onEntityConfigChange(PipelineTemplateConfig pipelineTemplateConfig) {
-            String cacheKey =  pipelineTemplateConfig.getClass().getName() + pipelineTemplateConfig.name().toLower();
-            goCache.remove(ETAG_CACHE_KEY, cacheKey.toLowerCase());
+            removeFromCache(pipelineTemplateConfig, pipelineTemplateConfig.name());
         }
     }
 
     class EnvironmentConfigListener extends EntityConfigChangedListener<BasicEnvironmentConfig> {
         @Override
         public void onEntityConfigChange(BasicEnvironmentConfig config) {
-            String cacheKey = config.getClass().getName() + config.name().toLower();
-            goCache.remove(ETAG_CACHE_KEY, cacheKey.toLowerCase());
+            removeFromCache(config, config.name());
         }
     }
 }

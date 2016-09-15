@@ -192,7 +192,7 @@ define(["jquery", "mithril", "models/pipeline_configs/materials", "views/pipelin
       });
 
       it('should bind view', function () {
-        expect($root.find("input[data-prop-name='view']").val()).toBe(material.view());
+        expect($root.find("textarea[data-prop-name='view']").val()).toBe(material.view());
       });
 
       it('should bind password value', function () {

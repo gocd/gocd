@@ -241,6 +241,33 @@ describe "config_view/templates/_job_view.html.erb" do
     end
   end
 
+  it "should display masked value for secure environment variables for a job" do
+    job = JobConfig.new('job1')
+    environment_variable_config_new = EnvironmentVariableConfig.new("env2", "value2")
+    environment_variable_config_new.setIsSecure(true)
+    job.setVariables(EnvironmentVariablesConfig.new([EnvironmentVariableConfig.new("env1", "value1"), environment_variable_config_new]))
+    job.addTask(ant_task)
+    render :partial => 'config_view/templates/job_view', :locals => {:scope => {:job => job, :index => 1, :stage_id => 'stage_id', :stage_name => "stage_build"}}
+    Capybara.string(response.body).find("#stage_id_job_1").tap do |job|
+      job.find(".tab-content #environment_variables_stage_id_job_1.tab-pane table.variables.list_table").tap do |table|
+        table.find("thead").tap do |head|
+          head.find("tr").tap do |row|
+            expect(row).to have_selector("th", :text => "Name")
+            expect(row).to have_selector("th", :text => "Value")
+          end
+        end
+        table.find("tbody").tap do |body|
+          body.all("tr").tap do |rows|
+            expect(rows[0]).to have_selector("td.name_value_cell", :text => "env1")
+            expect(rows[0]).to have_selector("td.name_value_cell", :text => "value1")
+            expect(rows[1]).to have_selector("td.name_value_cell", :text => "env2")
+            expect(rows[1]).to have_selector("td.name_value_cell", :text => "****")
+          end
+        end
+      end
+    end
+  end
+
   it "should render environment variables tab when no variables are configured" do
     job = JobConfig.new('job1')
     job.addTask(ant_task)

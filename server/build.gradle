@@ -44,14 +44,14 @@ configurations {
 project.ext.railsRoot = file("${project.projectDir}/webapp/WEB-INF/rails.new")
 
 def props = [
-    'go.enforce.serverId.immutability': 'N',
-    'rails.use.compressed.js'         : 'false',
-    'go.database.provider'            : 'com.thoughtworks.go.server.database.H2Database',
-    'db.host'                         : 'localhost',
-    'db.user'                         : 'sa',
-    'db.password'                     : '',
-    'db.name'                         : 'cruise',
-    'db.port'                         : ''
+  'go.enforce.serverId.immutability': 'N',
+  'rails.use.compressed.js'         : 'false',
+  'go.database.provider'            : 'com.thoughtworks.go.server.database.H2Database',
+  'db.host'                         : 'localhost',
+  'db.user'                         : 'sa',
+  'db.password'                     : '',
+  'db.name'                         : 'cruise',
+  'db.port'                         : ''
 ]
 props.putAll(project.hasProperty('testSystemProperties') ? project.testSystemProperties : [:])
 project.ext.testSystemProperties = props
@@ -218,9 +218,9 @@ task createVersionJsonFile {
     versionFile.getParentFile().mkdirs()
     versionFile.withWriter { out ->
       out.write(JsonOutput.prettyPrint(JsonOutput.toJson([
-          version     : rootProject.goVersion,
-          build_number: rootProject.distVersion,
-          git_sha     : rootProject.gitRevision,
+        version     : rootProject.goVersion,
+        build_number: rootProject.distVersion,
+        git_sha     : rootProject.gitRevision,
       ])))
     }
   }
@@ -259,7 +259,7 @@ def findGemsToNotPack = {
   try {
     ruby = org.jruby.Ruby.newInstance()
     gems = ruby.evalScriptlet(
-        """
+      """
           Dir.chdir('${project.railsRoot}') do
             \$LOAD_PATH.unshift("vendor/bundle/jruby/1.9/gems/bundler-1.9.9/lib")
             require 'bundler'
@@ -340,6 +340,35 @@ test {
   forkEvery 1
 
   classpath += project.files(project.configurations.additionalClasspath.files)
+
+  testLogging {
+    showStandardStreams = false
+    exceptionFormat 'full'
+  }
+
+  onOutput { TestDescriptor descriptor, TestOutputEvent event ->
+    if (event.message.startsWith("Compiler warnings:")) {
+      return
+    }
+
+    if (event.message.startsWith("  WARNING:  'org.apache.xerces.jaxp.SAXParserImpl:")) {
+      return
+    }
+
+    if (event.message.startsWith("Warning:  org.apache.xerces.parsers.SAXParser:")) {
+      return
+    }
+
+    if (event.message.startsWith("Warning:  org.apache.xerces.jaxp.SAXParserImpl\$JAXPSAXParser")) {
+      return
+    }
+
+    if (event.destination == TestOutputEvent.Destination.StdOut) {
+      logger.quiet(TextUtil.toPlatformLineSeparators(TextUtil.indent(event.getMessage(), "  OUT: ")));
+    } else if (event.destination == TestOutputEvent.Destination.StdErr) {
+      logger.quiet(TextUtil.toPlatformLineSeparators(TextUtil.indent(event.getMessage(), "  ERR: ")))
+    }
+  }
 }
 
 clean.doFirst {
@@ -385,7 +414,7 @@ task inlinePartials {
         setExecutable project.findProject(':tools').file("rails/bin/jruby")
 
         environment += [
-            'INPUT_DIR': inlinedPartialsDir
+          'INPUT_DIR': inlinedPartialsDir
         ]
 
         args = ['-S', 'rake', '--trace', '--rakefile', 'inline-partials.rake']
@@ -465,153 +494,153 @@ task war(type: Jar) {
 task verifyWar(type: VerifyJarTask) {
   jarTask = war
   expectedJars = [
-      "WEB-INF/lib": [
-          "activation-1.1.jar",
-          "activeio-core-3.1.2.jar",
-          "activemq-core-5.5.0.jar",
-          "activemq-protobuf-1.1.jar",
-          "antlr-2.7.6.jar",
-          "aopalliance-1.0.jar",
-          "AppleJavaExtensions-1.4.jar",
-          "asm-1.5.3.jar",
-          "aspectjrt-1.5.4.jar",
-          "aspectjweaver-1.5.4.jar",
-          "base-${project.version}.jar",
-          "caja-3828.jar",
-          "cas-client-core-3.2.1.jar",
-          "cglib-2.1_3.jar",
-          "cglib-nodep-2.2.jar",
-          "cloning-1.7.3.jar",
-          "common-${project.version}.jar",
-          "commons-beanutils-1.7.0.jar",
-          "commons-beanutils-core-1.7.0.jar",
-          "commons-codec-1.9.jar",
-          "commons-collections-3.2.2.jar",
-          "commons-dbcp-1.4.jar",
-          "commons-digester-1.8.jar",
-          "commons-fileupload-1.2.jar",
-          "commons-httpclient-3.1.jar",
-          "commons-io-2.5.jar",
-          "commons-lang-2.6.jar",
-          "commons-logging-1.2.jar",
-          "commons-net-2.0.jar",
-          "commons-pool-1.5.6.jar",
-          "commons-validator-1.3.1.jar",
-          "config-api-${project.version}.jar",
-          "config-server-${project.version}.jar",
-          "database-${project.version}.jar",
-          "db-${project.version}.jar",
-          "dbdeploy-2.11.1.jar",
-          "dom4j-1.6.1.jar",
-          "dsn-1.4.4.jar",
-          "ehcache-core-2.0.0.jar",
-          "ejb3-persistence-1.0.2.GA.jar",
-          "fluent-hc-4.5.2.jar",
-          "freemarker-2.3.18.jar",
-          "gadgets-1.1.jar",
-          "geronimo-j2ee-management_1.1_spec-1.0.1.jar",
-          "geronimo-jms_1.1_spec-1.1.1.jar",
-          "go-plugin-access-${project.version}.jar",
-          "go-plugin-activator-${project.version}.jar",
-          "go-plugin-api-${project.version}.jar",
-          "go-plugin-api-internal-${project.version}.jar",
-          "go-plugin-infra-${project.version}.jar",
-          "google-collections-1.0-rc2.jar",
-          "gson-2.3.1.jar",
-          "guice-2.0.jar",
-          "h2-1.3.168.jar",
-          "hibernate-annotations-3.4.0.GA.jar",
-          "hibernate-commons-annotations-3.1.0.GA.jar",
-          "hibernate-core-3.3.2.GA.jar",
-          "hibernate-ehcache-3.3.2.GA.jar",
-          "htmlparser-1.0.7.jar",
-          "httpclient-4.5.2.jar",
-          "httpcore-4.4.4.jar",
-          "httpmime-4.5.2.jar",
-          "ibatis-sqlmap-2.3.4.726.jar",
-          "imap-1.4.4.jar",
-          "jackson-annotations-2.5.0.jar",
-          "jackson-core-2.5.0.jar",
-          "jackson-databind-2.5.0.jar",
-          "jasypt-1.7.jar",
-          "JavaEWAH-0.7.9.jar",
-          "javassist-3.9.0.GA.jar",
-          "javasysmon-0.3.6.jar",
-          "javax.inject-1.jar",
-          "javax.mail-1.4.4.jar",
-          "javax.servlet-api-3.1.0.jar",
-          "jaxen-1.1.jar",
-          "jdom-1.0.jar",
-          "jettison-1.2.jar",
-          "joda-time-2.3.jar",
-          "jolt-core-0.0.20.jar",
-          "jruby-complete-1.7.11.jar",
-          "jruby-rack-1.1.14.jar",
-          "jsch-0.1.53.jar",
-          "json-20070829.jar",
-          "json-simple-1.1.jar",
-          "json-utils-0.0.20.jar",
-          "jta-1.1.jar",
-          "juel-api-2.1.2.jar",
-          "juel-impl-2.1.2.jar",
-          "jul-to-slf4j-1.7.21.jar",
-          "kahadb-5.5.0.jar",
-          "kxml2-2.3.0.jar",
-          "kxml2-min-2.3.0.jar",
-          "log4j-1.2.17.jar",
-          "mailapi-1.4.4.jar",
-          "nekohtml-1.9.13.jar",
-          "oauth-20090531.jar",
-          "oauth-consumer-20090531.jar",
-          "oauth-httpclient3-20090531.jar",
-          "objenesis-1.2.jar",
-          "org.apache.felix.framework-4.2.1.jar",
-          "org.eclipse.jdt.annotation-1.1.0.jar",
-          "org.eclipse.jgit-4.1.0.201509280440-r.jar",
-          "org.eclipse.jgit.http.server-4.1.0.201509280440-r.jar",
-          "oro-2.0.8.jar",
-          "oscache-2.4.1.jar",
-          "pop3-1.4.4.jar",
-          "quartz-1.6.5.jar",
-          "rack_hack-${project.version}.jar",
-          "rome-1.0.jar",
-          "sanselan-0.97-incubator.jar",
-          "sesame-onejar-2.3.1.jar",
-          "shindig-common-1.1-BETA5-incubating.jar",
-          "shindig-features-1.1-BETA5-incubating.jar",
-          "shindig-gadgets-1.1-BETA5-incubating.jar",
-          "slf4j-api-1.7.21.jar",
-          "slf4j-log4j12-1.7.21.jar",
-          "smtp-1.4.4.jar",
-          "spring-aop-3.1.3.RELEASE.jar",
-          "spring-asm-3.1.3.RELEASE.jar",
-          "spring-beans-3.1.3.RELEASE.jar",
-          "spring-context-3.1.3.RELEASE.jar",
-          "spring-context-support-3.1.3.RELEASE.jar",
-          "spring-core-3.1.3.RELEASE.jar",
-          "spring-expression-3.1.3.RELEASE.jar",
-          "spring-jdbc-3.1.3.RELEASE.jar",
-          "spring-ldap-1.2.1.jar",
-          "spring-orm-3.1.3.RELEASE.jar",
-          "spring-security-acl-2.0.3.jar",
-          "spring-security-cas-client-2.0.3.jar",
-          "spring-security-core-2.0.3.jar",
-          "spring-security-core-tiger-2.0.3.jar",
-          "spring-tx-3.1.3.RELEASE.jar",
-          "spring-web-3.1.3.RELEASE.jar",
-          "spring-webmvc-3.1.3.RELEASE.jar",
-          "stax-api-1.0.1.jar",
-          "urlrewritefilter-3.2.0.jar",
-          "util-${project.version}.jar",
-          "velocity-1.7.jar",
-          "velocity-tools-view-1.2.jar",
-          "web.servlet-3.1.3.RELEASE.jar",
-          "xercesImpl-2.9.1.jar",
-          "xml-apis-1.3.04.jar",
-          "xmlParserAPIs-2.6.2.jar",
-          "xpp3_min-1.1.4c.jar",
-          "xstream-1.3.1.jar",
-      ]
+    "WEB-INF/lib": [
+      "activation-1.1.jar",
+      "activeio-core-3.1.2.jar",
+      "activemq-core-5.5.0.jar",
+      "activemq-protobuf-1.1.jar",
+      "antlr-2.7.6.jar",
+      "aopalliance-1.0.jar",
+      "AppleJavaExtensions-1.4.jar",
+      "asm-1.5.3.jar",
+      "aspectjrt-1.5.4.jar",
+      "aspectjweaver-1.5.4.jar",
+      "base-${project.version}.jar",
+      "caja-3828.jar",
+      "cas-client-core-3.2.1.jar",
+      "cglib-2.1_3.jar",
+      "cglib-nodep-2.2.jar",
+      "cloning-1.7.3.jar",
+      "common-${project.version}.jar",
+      "commons-beanutils-1.7.0.jar",
+      "commons-beanutils-core-1.7.0.jar",
+      "commons-codec-1.9.jar",
+      "commons-collections-3.2.2.jar",
+      "commons-dbcp-1.4.jar",
+      "commons-digester-1.8.jar",
+      "commons-fileupload-1.2.jar",
+      "commons-httpclient-3.1.jar",
+      "commons-io-2.5.jar",
+      "commons-lang-2.6.jar",
+      "commons-logging-1.2.jar",
+      "commons-net-2.0.jar",
+      "commons-pool-1.5.6.jar",
+      "commons-validator-1.3.1.jar",
+      "config-api-${project.version}.jar",
+      "config-server-${project.version}.jar",
+      "database-${project.version}.jar",
+      "db-${project.version}.jar",
+      "dbdeploy-2.11.1.jar",
+      "dom4j-1.6.1.jar",
+      "dsn-1.4.4.jar",
+      "ehcache-core-2.0.0.jar",
+      "ejb3-persistence-1.0.2.GA.jar",
+      "fluent-hc-4.5.2.jar",
+      "freemarker-2.3.18.jar",
+      "gadgets-1.1.jar",
+      "geronimo-j2ee-management_1.1_spec-1.0.1.jar",
+      "geronimo-jms_1.1_spec-1.1.1.jar",
+      "go-plugin-access-${project.version}.jar",
+      "go-plugin-activator-${project.version}.jar",
+      "go-plugin-api-${project.version}.jar",
+      "go-plugin-api-internal-${project.version}.jar",
+      "go-plugin-infra-${project.version}.jar",
+      "google-collections-1.0-rc2.jar",
+      "gson-2.3.1.jar",
+      "guice-2.0.jar",
+      "h2-1.3.168.jar",
+      "hibernate-annotations-3.4.0.GA.jar",
+      "hibernate-commons-annotations-3.1.0.GA.jar",
+      "hibernate-core-3.3.2.GA.jar",
+      "hibernate-ehcache-3.3.2.GA.jar",
+      "htmlparser-1.0.7.jar",
+      "httpclient-4.5.2.jar",
+      "httpcore-4.4.4.jar",
+      "httpmime-4.5.2.jar",
+      "ibatis-sqlmap-2.3.4.726.jar",
+      "imap-1.4.4.jar",
+      "jackson-annotations-2.5.0.jar",
+      "jackson-core-2.5.0.jar",
+      "jackson-databind-2.5.0.jar",
+      "jasypt-1.7.jar",
+      "JavaEWAH-0.7.9.jar",
+      "javassist-3.9.0.GA.jar",
+      "javasysmon-0.3.6.jar",
+      "javax.inject-1.jar",
+      "javax.mail-1.4.4.jar",
+      "javax.servlet-api-3.1.0.jar",
+      "jaxen-1.1.jar",
+      "jdom-1.0.jar",
+      "jettison-1.2.jar",
+      "joda-time-2.3.jar",
+      "jolt-core-0.0.20.jar",
+      "jruby-complete-1.7.11.jar",
+      "jruby-rack-1.1.14.jar",
+      "jsch-0.1.53.jar",
+      "json-20070829.jar",
+      "json-simple-1.1.jar",
+      "json-utils-0.0.20.jar",
+      "jta-1.1.jar",
+      "juel-api-2.1.2.jar",
+      "juel-impl-2.1.2.jar",
+      "jul-to-slf4j-1.7.21.jar",
+      "kahadb-5.5.0.jar",
+      "kxml2-2.3.0.jar",
+      "kxml2-min-2.3.0.jar",
+      "log4j-1.2.17.jar",
+      "mailapi-1.4.4.jar",
+      "nekohtml-1.9.13.jar",
+      "oauth-20090531.jar",
+      "oauth-consumer-20090531.jar",
+      "oauth-httpclient3-20090531.jar",
+      "objenesis-1.2.jar",
+      "org.apache.felix.framework-4.2.1.jar",
+      "org.eclipse.jdt.annotation-1.1.0.jar",
+      "org.eclipse.jgit-4.1.0.201509280440-r.jar",
+      "org.eclipse.jgit.http.server-4.1.0.201509280440-r.jar",
+      "oro-2.0.8.jar",
+      "oscache-2.4.1.jar",
+      "pop3-1.4.4.jar",
+      "quartz-1.6.5.jar",
+      "rack_hack-${project.version}.jar",
+      "rome-1.0.jar",
+      "sanselan-0.97-incubator.jar",
+      "sesame-onejar-2.3.1.jar",
+      "shindig-common-1.1-BETA5-incubating.jar",
+      "shindig-features-1.1-BETA5-incubating.jar",
+      "shindig-gadgets-1.1-BETA5-incubating.jar",
+      "slf4j-api-1.7.21.jar",
+      "slf4j-log4j12-1.7.21.jar",
+      "smtp-1.4.4.jar",
+      "spring-aop-3.1.3.RELEASE.jar",
+      "spring-asm-3.1.3.RELEASE.jar",
+      "spring-beans-3.1.3.RELEASE.jar",
+      "spring-context-3.1.3.RELEASE.jar",
+      "spring-context-support-3.1.3.RELEASE.jar",
+      "spring-core-3.1.3.RELEASE.jar",
+      "spring-expression-3.1.3.RELEASE.jar",
+      "spring-jdbc-3.1.3.RELEASE.jar",
+      "spring-ldap-1.2.1.jar",
+      "spring-orm-3.1.3.RELEASE.jar",
+      "spring-security-acl-2.0.3.jar",
+      "spring-security-cas-client-2.0.3.jar",
+      "spring-security-core-2.0.3.jar",
+      "spring-security-core-tiger-2.0.3.jar",
+      "spring-tx-3.1.3.RELEASE.jar",
+      "spring-web-3.1.3.RELEASE.jar",
+      "spring-webmvc-3.1.3.RELEASE.jar",
+      "stax-api-1.0.1.jar",
+      "urlrewritefilter-3.2.0.jar",
+      "util-${project.version}.jar",
+      "velocity-1.7.jar",
+      "velocity-tools-view-1.2.jar",
+      "web.servlet-3.1.3.RELEASE.jar",
+      "xercesImpl-2.9.1.jar",
+      "xml-apis-1.3.04.jar",
+      "xmlParserAPIs-2.6.2.jar",
+      "xpp3_min-1.1.4c.jar",
+      "xstream-1.3.1.jar",
+    ]
   ]
 }
 

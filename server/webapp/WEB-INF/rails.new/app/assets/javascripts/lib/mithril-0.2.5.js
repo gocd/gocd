@@ -1399,10 +1399,11 @@
 			roots[index] = root
 			var currentComponent
 
+			var dummy = {controller: noop}
 			if (component) {
 				currentComponent = topComponent = component
 			} else {
-				currentComponent = topComponent = component = {controller: noop}
+        currentComponent = topComponent = component = dummy
 			}
 
 			var controller = new (component.controller || noop)()
@@ -1416,8 +1417,9 @@
 				components[index] = component
 			}
 			endFirstComputation()
-			if (component === null) {
+			if (component === dummy) {
 				removeRootElement(root, index)
+				return
 			}
 			return controllers[index]
 		} else if (component == null) {

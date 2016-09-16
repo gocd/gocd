@@ -35,6 +35,9 @@ dependencies {
 }
 
 task prepareJRuby {
+  inputs.files project.configurations.jrubyDist.files + project.configurations.jrubyGems.files + project.configurations.jrubyGemsRuby2.files
+  outputs.dir project.file('jruby')
+
   doFirst {
     project.delete('jruby')
     project.delete('jruby-1.7.11')
@@ -91,6 +94,9 @@ private boolean isWindows() {
 }
 
 task prepareNodeJS(type: Exec) {
+  inputs.file project.file("package.json")
+  outputs.dir project.file('node_modules')
+
   standardOutput = System.out
   errorOutput = System.err
 

@@ -1,3 +1,5 @@
+import groovy.io.FileType
+
 import java.security.SecureRandom
 
 /*
@@ -139,13 +141,13 @@ allprojects {
   tasks.withType(Jar) { jarTask ->
     manifest {
       attributes(
-          'Go-Version': project.version,
-          'ImplementationVersion': project.version,
-          'Go-Revision': project.gitRevision,
-          'Implementation-Title': project.name,
-          'Implementation-Version': project.version,
-          'Source-Compatibility': project.sourceCompatibility,
-          'Target-Compatibility': project.targetCompatibility
+        'Go-Version': project.version,
+        'ImplementationVersion': project.version,
+        'Go-Revision': project.gitRevision,
+        'Implementation-Title': project.name,
+        'Implementation-Version': project.version,
+        'Source-Compatibility': project.sourceCompatibility,
+        'Target-Compatibility': project.targetCompatibility
       )
     }
 
@@ -205,7 +207,7 @@ allprojects {
       tmpDir.mkdirs()
 
       def files = []
-      testTask.testClassesDir.eachFileRecurse(groovy.io.FileType.FILES) { f ->
+      testTask.testClassesDir.eachFileRecurse(FileType.FILES) { f ->
         def relPath = new File(testTask.testClassesDir.toURI().relativize(f.toURI()).toString()).toString().replaceAll(/\$.*/, '.*').replaceAll(/\.class/, '.*')
         files << relPath
       }
@@ -223,7 +225,7 @@ allprojects {
     }
 
     testLogging {
-      showStandardStreams = true
+      showStandardStreams = project.path != ':server'
 
       exceptionFormat 'full'
 
@@ -273,5 +275,5 @@ task allDependencies {
 }
 
 ext.versions = [
-    jetty: '9.2.18.v20160721'
+  jetty: '9.2.18.v20160721'
 ]

@@ -19,8 +19,10 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.config.*;
+import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
+import com.thoughtworks.go.domain.packagerepository.Packages;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.plugin.infra.PluginManager;
@@ -98,6 +100,31 @@ public class UpdatePackageRepositoryCommandTest {
         assertThat(result, is(expectedResult));
         assertThat(cruiseConfig.getPackageRepositories().size(), is(1));
         assertThat(cruiseConfig.getPackageRepositories().find(newRepoId), is(newPackageRepo));
+        assertNull(cruiseConfig.getPackageRepositories().find(oldRepoId));
+    }
+
+    @Test
+    public void shouldCopyPackagesFromOldRepositoryToTheUpdatedRepository() throws Exception {
+        PackageDefinition nodePackage = new PackageDefinition();
+        nodePackage.setId("foo");
+        nodePackage.setName("bar");
+        oldPackageRepo.setPackages(new Packages(nodePackage));
+        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, oldPackageRepo, newPackageRepo, currentUser, pluginManager, md5, entityHashingService, result);
+        when(pluginManager.getPluginDescriptorFor(pluginId)).thenReturn(new GoPluginDescriptor(pluginId, "1", null, null, null, false));
+
+        assertThat(cruiseConfig.getPackageRepositories().size(), is(1));
+        assertThat(cruiseConfig.getPackageRepositories().find(oldRepoId), is(oldPackageRepo));
+        assertThat(cruiseConfig.getPackageRepositories().find(oldRepoId).getPackages().size(), is(1));
+        assertThat(newPackageRepo.getPackages().size(), is(0));
+        assertNull(cruiseConfig.getPackageRepositories().find(newRepoId));
+
+        command.update(cruiseConfig);
+        HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
+        assertThat(result, is(expectedResult));
+        assertThat(cruiseConfig.getPackageRepositories().size(), is(1));
+        assertThat(cruiseConfig.getPackageRepositories().find(newRepoId), is(newPackageRepo));
+        assertThat(cruiseConfig.getPackageRepositories().find(newRepoId).getPackages().size(), is(1));
+        assertThat(cruiseConfig.getPackageRepositories().find(newRepoId).getPackages().first(), is(nodePackage));
         assertNull(cruiseConfig.getPackageRepositories().find(oldRepoId));
     }
 

@@ -98,6 +98,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
   Pipeline.Timer = function (data) {
     this.constructor.modelType = 'pipelineTimer';
     Mixins.HasUUID.call(this);
+    Validatable.call(this, data);
 
     this.spec          = m.prop(s.defaultToIfBlank(data.spec, ''));
     this.onlyOnChanges = m.prop(data.onlyOnChanges);
@@ -110,8 +111,9 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
   Pipeline.Timer.fromJSON = function (data) {
     if (!_.isEmpty(data)) {
       return new Pipeline.Timer({
-        spec:          data.spec,
-        onlyOnChanges: data.only_on_changes
+        spec:                  data.spec,
+        onlyOnChanges:         data.only_on_changes,
+        errors:                data.errors
       });
     }
   };

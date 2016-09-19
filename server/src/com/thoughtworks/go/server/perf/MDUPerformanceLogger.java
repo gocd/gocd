@@ -33,24 +33,24 @@ public class MDUPerformanceLogger {
     public long materialSentToUpdateQueue(Material material) {
         long trackingId = currentTrackingId++;
 
-        performanceLogger.log("MDU-QUEUE-PUT {} {}", trackingId, material.getFingerprint());
+        performanceLogger.log("MDU-QUEUE-PUT {} {} {}", trackingId, material.getFingerprint(), material.getDisplayName());
         return trackingId;
     }
 
     public void pickedUpMaterialForMDU(long trackingId, Material material) {
-        performanceLogger.log("MDU-START {} {}", trackingId, material.getFingerprint());
+        performanceLogger.log("MDU-START {} {} {}", trackingId, material.getFingerprint(), material.getDisplayName());
     }
 
     public void postingMessageAboutMDUCompletion(long trackingId, Material material) {
-        performanceLogger.log("MDU-DONE {} {}", trackingId, material.getFingerprint());
+        performanceLogger.log("MDU-DONE {} {} {}", trackingId, material.getFingerprint(), material.getDisplayName());
     }
 
     public void postingMessageAboutMDUFailure(long trackingId, Material material) {
-        performanceLogger.log("MDU-FAIL {} {}", trackingId, material.getFingerprint());
+        performanceLogger.log("MDU-FAIL {} {} {}", trackingId, material.getFingerprint(), material.getDisplayName());
     }
 
     public void completionMessageForMaterialReceived(long trackingId, Material material) {
-        performanceLogger.log("MDU-QUEUE-REMOVE {} {}", trackingId, material.getFingerprint());
+        performanceLogger.log("MDU-QUEUE-REMOVE {} {} {}", trackingId, material.getFingerprint(), material.getDisplayName());
     }
 
 }

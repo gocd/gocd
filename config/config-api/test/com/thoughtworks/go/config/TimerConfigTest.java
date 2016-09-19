@@ -36,6 +36,13 @@ public class TimerConfigTest {
     }
 
     @Test
+    public void shouldPopulateErrorsWhenTimerSpecIsNull() {
+        timerConfig = new TimerConfig(null, true);
+        timerConfig.validate(null);
+        assertThat(timerConfig.errors().firstError(), is("Timer Spec can not be null."));
+    }
+
+    @Test
     public void shouldNotPopulateErrorsWhenTimerSpecIsValid() {
         timerConfig = new TimerConfig("0 0 12 * * ?", false);
         timerConfig.validate(null);

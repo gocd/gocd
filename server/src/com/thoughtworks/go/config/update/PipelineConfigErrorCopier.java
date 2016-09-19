@@ -21,25 +21,26 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.domain.BaseCollection;
 
 public class PipelineConfigErrorCopier {
-    private static void copy(Validatable from, Validatable to){
-        if(from == null || to == null) return;
+    private static void copy(Validatable from, Validatable to) {
+        if (from == null || to == null) return;
         to.errors().addAll(from.errors());
     }
 
-    private static void copyCollectionErrors(BaseCollection from, BaseCollection to){
-        if(from == null || to == null) return;
+    private static void copyCollectionErrors(BaseCollection from, BaseCollection to) {
+        if (from == null || to == null) return;
         copy((Validatable) from, (Validatable) to);
         for (int i = 0; i < to.size(); i++) {
             copy((Validatable) from.get(i), (Validatable) to.get(i));
         }
     }
 
-   static void copyErrors(PipelineConfig from, PipelineConfig to) {
+    static void copyErrors(PipelineConfig from, PipelineConfig to) {
         copy(from, to);
         copyCollectionErrors(from.materialConfigs(), to.materialConfigs());
         copyCollectionErrors(from.getVariables(), to.getVariables());
         copyCollectionErrors(from.getParams(), to.getParams());
         copy(from.getTrackingTool(), to.getTrackingTool());
+        copy(from.getTimer(), to.getTimer());
         for (StageConfig toStage : to.getStages()) {
             StageConfig fromStage = from.findBy(toStage.name());
             copy(fromStage, toStage);

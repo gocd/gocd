@@ -41,7 +41,8 @@ define([
                                           direction: 'bottom',
                                           size: 'small'
                                         }}/>
-              <f.inputWithLabel attrName='workingDirectory'
+              <f.inputWithLabel attrName='working_directory'
+                                validate={true}
                                 model={task}
                                 end={true}
                                 tooltip={{
@@ -75,7 +76,8 @@ define([
                                           direction: 'bottom',
                                           size: 'medium'
                                         }}/>
-              <f.inputWithLabel attrName='workingDirectory'
+              <f.inputWithLabel attrName='working_directory'
+                                validate={true}
                                 model={task}
                                 end={true}
                                 tooltip={{
@@ -140,8 +142,9 @@ define([
                                           direction: 'bottom',
                                           size: 'small'
                                         }}/>
-                  <f.inputWithLabel attrName='workingDirectory'
+                  <f.inputWithLabel attrName='working_directory'
                                     model={task}
+                                    validate={true}
                                     end={true}
                                     size={12}
                                     largeSize={12}
@@ -180,7 +183,8 @@ define([
                                           direction: 'bottom',
                                           size: 'medium'
                                         }}/>
-              <f.inputWithLabel attrName='workingDirectory'
+              <f.inputWithLabel attrName='working_directory'
+                                validate={true}
                                 model={task}
                                 end={true}
                                 tooltip={{

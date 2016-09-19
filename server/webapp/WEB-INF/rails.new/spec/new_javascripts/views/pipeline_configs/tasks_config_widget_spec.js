@@ -27,7 +27,7 @@ define(["jquery", "mithril", "lodash", "models/pipeline_configs/tasks", "views/p
           /* eslint-disable camelcase */
           buildFile:        'build-moduleA.xml',
           target:           'clean',
-          workingDirectory: 'moduleA',
+          working_directory: 'moduleA',
           runIf:            ['passed', 'failed'],
           onCancelTask: {
             type:                "nant",
@@ -55,7 +55,7 @@ define(["jquery", "mithril", "lodash", "models/pipeline_configs/tasks", "views/p
       });
 
       it('should bind working directory', function () {
-        expect($root.find("input[data-prop-name='workingDirectory']").val()).toBe(task.workingDirectory());
+        expect($root.find("input[data-prop-name='working_directory']").val()).toBe(task.working_directory());
       });
 
       it('should render run_if conditions', function () {
@@ -67,7 +67,7 @@ define(["jquery", "mithril", "lodash", "models/pipeline_configs/tasks", "views/p
       it('should render onCancel task', function () {
         expect($root.find("input[data-prop-name='target']").val()).toBe(task.onCancelTask.target());
         expect($root.find("input[data-prop-name='buildFile']").val()).toBe(task.onCancelTask.buildFile());
-        expect($root.find("input[data-prop-name='workingDirectory']").val()).toBe(task.onCancelTask.workingDirectory());
+        expect($root.find("input[data-prop-name='working_directory']").val()).toBe(task.onCancelTask.working_directory());
         expect($root.find("input[data-prop-name='nantPath']").val()).toBe(task.onCancelTask.nantPath());
         expect($root.find("input[type=checkbox][data-prop-name=checked]").is(':checked')).toBe(true);
         expect($root.find("select :checked").val()).toBe(task.onCancelTask.type());
@@ -80,11 +80,13 @@ define(["jquery", "mithril", "lodash", "models/pipeline_configs/tasks", "views/p
         var tasks = m.prop(new Tasks());
 
         task = new Tasks.Task.NAnt({
+          /* eslint-disable camelcase */
           buildFile:        'build-moduleA.xml',
           target:           "clean",
-          workingDirectory: "moduleA",
+          working_directory: "moduleA",
           nantPath:         'C:\\NAnt',
           runIf:            ['passed', 'failed']
+          /* eslint-enable camelcase */
         });
         tasks().addTask(task);
 
@@ -100,7 +102,7 @@ define(["jquery", "mithril", "lodash", "models/pipeline_configs/tasks", "views/p
       });
 
       it('should bind build file', function () {
-        expect($root.find("input[data-prop-name='workingDirectory']").val()).toBe(task.workingDirectory());
+        expect($root.find("input[data-prop-name='working_directory']").val()).toBe(task.working_directory());
       });
 
       it('should bind nant path', function () {
@@ -124,10 +126,12 @@ define(["jquery", "mithril", "lodash", "models/pipeline_configs/tasks", "views/p
         var tasks = m.prop(new Tasks());
 
         task = new Tasks.Task.Exec({
+          /* eslint-disable camelcase */
           command:          'bash',
           args:             ['-c', 'ls -al /'],
-          workingDirectory: 'moduleA',
+          working_directory: 'moduleA',
           runIf:            ['passed', 'failed']
+          /* eslint-enable camelcase */
         });
         tasks().addTask(task);
 
@@ -140,7 +144,7 @@ define(["jquery", "mithril", "lodash", "models/pipeline_configs/tasks", "views/p
         });
 
         it('should bind the working directory', function () {
-          expect($root.find("input[data-prop-name='workingDirectory']").val()).toBe(task.workingDirectory());
+          expect($root.find("input[data-prop-name='working_directory']").val()).toBe(task.working_directory());
         });
 
         it('should bind the args', function () {
@@ -165,10 +169,12 @@ define(["jquery", "mithril", "lodash", "models/pipeline_configs/tasks", "views/p
         var tasks = m.prop(new Tasks());
 
         task = new Tasks.Task.Rake({
+          /* eslint-disable camelcase */
           buildFile:        'foo.rake',
           target:           "clean",
-          workingDirectory: "moduleA",
+          working_directory: "moduleA",
           runIf:            ['passed', 'failed']
+          /* eslint-enable camelcase */
         });
         tasks().addTask(task);
 
@@ -184,7 +190,7 @@ define(["jquery", "mithril", "lodash", "models/pipeline_configs/tasks", "views/p
       });
 
       it('should bind build file', function () {
-        expect($root.find("input[data-prop-name='workingDirectory']").val()).toBe(task.workingDirectory());
+        expect($root.find("input[data-prop-name='working_directory']").val()).toBe(task.working_directory());
       });
 
       it('should render run_if conditions', function () {
@@ -255,29 +261,31 @@ define(["jquery", "mithril", "lodash", "models/pipeline_configs/tasks", "views/p
     describe("Add Tasks", function () {
       var antTask, nantTask, execTask, rakeTask, fetchArtifactTask, tasks;
       beforeEach(function () {
+        /* eslint-disable camelcase */
         antTask = new Tasks.Task.Ant({
           buildFile:        'build-moduleA.xml',
           target:           "clean",
-          workingDirectory: "moduleA"
+          working_directory: "moduleA"
         });
 
         nantTask = new Tasks.Task.NAnt({
           buildFile:        'build-moduleA.xml',
           target:           "clean",
-          workingDirectory: "moduleA",
+          working_directory: "moduleA",
           nantPath:         'C:\\NAnt'
         });
 
         execTask = new Tasks.Task.Exec({
           command:          'bash',
           args:             ['-c', 'ls -al /'],
-          workingDirectory: "moduleA"
+          working_directory: "moduleA"
         });
 
         rakeTask = new Tasks.Task.Rake({
           buildFile:        'foo.rake',
           target:           "clean",
-          workingDirectory: "moduleA"
+          working_directory: "moduleA"
+          /* eslint-enable camelcase */
         });
 
         fetchArtifactTask = new Tasks.Task.FetchArtifact({

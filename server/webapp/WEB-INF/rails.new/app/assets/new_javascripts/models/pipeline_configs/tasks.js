@@ -66,18 +66,18 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
   });
 
   Tasks.Task.Ant = function (data) {
+    /* eslint-disable camelcase */
     Tasks.Task.call(this, "ant", data);
     this.target           = m.prop(s.defaultToIfBlank(data.target, ''));
-    this.workingDirectory = m.prop(s.defaultToIfBlank(data.workingDirectory, ''));
+    this.working_directory = m.prop(s.defaultToIfBlank(data.working_directory, ''));
     this.buildFile        = m.prop(s.defaultToIfBlank(data.buildFile, ''));
     this.runIf            = m.prop(RunIfConditions.create(data.runIf));
     this.onCancelTask     = Tasks.Task.onCancelTask(data.onCancelTask);
 
     this._attributesToJSON = function () {
-      /* eslint-disable camelcase */
       return {
         target:           this.target,
-        workingDirectory: this.workingDirectory,
+        working_directory: this.working_directory,
         buildFile:        this.buildFile,
         run_if:           this.runIf().data(),
         on_cancel:        this.onCancelTaskToJSON()
@@ -90,11 +90,13 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     };
 
     this.summary = function () {
+      /* eslint-disable camelcase */
       return {
         buildFile:        this.buildFile(),
         target:           this.target(),
-        workingDirectory: this.workingDirectory()
+        working_directory: this.working_directory()
       };
+      /* eslint-enable camelcase */
     };
 
     this.isEmpty = function() {
@@ -103,10 +105,11 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
   };
 
   Tasks.Task.Ant.fromJSON = function (data) {
+    /* eslint-disable camelcase */
     var attr = data.attributes || {};
     return new Tasks.Task.Ant({
       target:           attr.target,
-      workingDirectory: attr.working_directory,
+      working_directory: attr.working_directory,
       buildFile:        attr.build_file,
       runIf:            attr.run_if,
       onCancelTask:     attr.on_cancel,
@@ -117,17 +120,16 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
   Tasks.Task.NAnt = function (data) {
     Tasks.Task.call(this, "nant", data);
     this.target            = m.prop(s.defaultToIfBlank(data.target, ''));
-    this.workingDirectory  = m.prop(s.defaultToIfBlank(data.workingDirectory, ''));
+    this.working_directory  = m.prop(s.defaultToIfBlank(data.working_directory, ''));
     this.buildFile         = m.prop(s.defaultToIfBlank(data.buildFile, ''));
     this.nantPath          = m.prop(s.defaultToIfBlank(data.nantPath, ''));
     this.runIf             = m.prop(RunIfConditions.create(data.runIf));
     this.onCancelTask      = Tasks.Task.onCancelTask(data.onCancelTask);
 
     this._attributesToJSON = function () {
-      /* eslint-disable camelcase */
       return {
         target:           this.target,
-        workingDirectory: this.workingDirectory,
+        working_directory: this.working_directory,
         buildFile:        this.buildFile,
         nantPath:         this.nantPath,
         run_if:           this.runIf().data(),
@@ -141,10 +143,11 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     };
 
     this.summary = function () {
+      /* eslint-disable camelcase */
       return {
         buildFile:        this.buildFile(),
         target:           this.target(),
-        workingDirectory: this.workingDirectory(),
+        working_directory: this.working_directory(),
         nantPath:         this.nantPath()
       };
     };
@@ -158,7 +161,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     var attr = data.attributes || {};
     return new Tasks.Task.NAnt({
       target:           attr.target,
-      workingDirectory: attr.working_directory,
+      working_directory: attr.working_directory,
       buildFile:        attr.build_file,
       nantPath:         attr.nant_path,
       runIf:            attr.run_if,
@@ -171,17 +174,17 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     Tasks.Task.call(this, "exec", data);
     this.command          = m.prop(s.defaultToIfBlank(data.command, ''));
     this.args             = m.prop(Argument.create(data.args, data.arguments));
-    this.workingDirectory = m.prop(s.defaultToIfBlank(data.workingDirectory, ''));
+    this.working_directory = m.prop(s.defaultToIfBlank(data.working_directory, ''));
     this.runIf            = m.prop(RunIfConditions.create(data.runIf));
     this.onCancelTask     = Tasks.Task.onCancelTask(data.onCancelTask);
 
     this.validatePresenceOf('command');
 
     this._attributesToJSON = function () {
-      /* eslint-disable camelcase */
+
       return _.assign({
         command:          this.command,
-        workingDirectory: this.workingDirectory,
+        working_directory: this.working_directory,
         run_if:           this.runIf().data(),
         on_cancel:        this.onCancelTaskToJSON()
       }, this.args().toJSON());
@@ -205,12 +208,13 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
   };
 
   Tasks.Task.Exec.fromJSON = function (data) {
+    /* eslint-disable camelcase */
     var attr = data.attributes || {};
     return new Tasks.Task.Exec({
       command:          attr.command,
       args:             attr.args,
       arguments:        attr.arguments,
-      workingDirectory: attr.working_directory,
+      working_directory: attr.working_directory,
       runIf:            attr.run_if,
       onCancelTask:     attr.on_cancel,
       errors:           data.errors
@@ -220,16 +224,15 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
   Tasks.Task.Rake = function (data) {
     Tasks.Task.call(this, "rake", data);
     this.target           = m.prop(s.defaultToIfBlank(data.target, ''));
-    this.workingDirectory = m.prop(s.defaultToIfBlank(data.workingDirectory, ''));
+    this.working_directory = m.prop(s.defaultToIfBlank(data.working_directory, ''));
     this.buildFile        = m.prop(s.defaultToIfBlank(data.buildFile, ''));
     this.runIf            = m.prop(RunIfConditions.create(data.runIf));
     this.onCancelTask     = Tasks.Task.onCancelTask(data.onCancelTask);
 
     this._attributesToJSON = function () {
-      /* eslint-disable camelcase */
       return {
         target:           this.target,
-        workingDirectory: this.workingDirectory,
+        working_directory: this.working_directory,
         buildFile:        this.buildFile,
         run_if:           this.runIf().data(),
         on_cancel:        this.onCancelTaskToJSON()
@@ -242,10 +245,11 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     };
 
     this.summary = function () {
+      /* eslint-disable camelcase */
       return {
         buildFile:        this.buildFile(),
         target:           this.target(),
-        workingDirectory: this.workingDirectory()
+        working_directory: this.working_directory()
       };
     };
 
@@ -258,12 +262,13 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     var attr = data.attributes || {};
     return new Tasks.Task.Rake({
       target:           attr.target,
-      workingDirectory: attr.working_directory,
+      working_directory: attr.working_directory,
       buildFile:        attr.build_file,
       runIf:            attr.run_if,
       onCancelTask:     attr.on_cancel,
       errors:           data.errors
     });
+    /* eslint-enable camelcase */
   };
 
   Tasks.Task.FetchArtifact = function (data) {

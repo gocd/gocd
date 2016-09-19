@@ -337,7 +337,7 @@ public class PipelineConfigServiceIntegrationTest {
 
         assertThat(result.toString(), result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(422));
-        assertThat(pipeline.getVariables().get(0).errors().firstError(), is(String.format("Environment Variable cannot have an empty name for pipeline '"+ pipeline.name()+"'.", pipeline.name())));
+        assertThat(pipeline.getVariables().get(0).errors().firstError(), is(String.format("Environment Variable cannot have an empty name for pipeline '" + pipeline.name() + "'.", pipeline.name())));
         assertThat(stageVar.errors().firstError(), is(String.format("Environment Variable cannot have an empty name for stage 'stage'.", pipeline.name())));
         assertThat(jobVar.errors().firstError(), is(String.format("Environment Variable cannot have an empty name for job 'job'.", pipeline.name())));
     }
@@ -352,7 +352,7 @@ public class PipelineConfigServiceIntegrationTest {
 
         assertThat(result.toString(), result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(422));
-        assertThat(param.errors().firstError(), is(String.format("Parameter cannot have an empty name for pipeline '"+pipeline.name()+"'.", pipeline.name())));
+        assertThat(param.errors().firstError(), is(String.format("Parameter cannot have an empty name for pipeline '" + pipeline.name() + "'.", pipeline.name())));
     }
 
     @Test
@@ -382,6 +382,19 @@ public class PipelineConfigServiceIntegrationTest {
         assertThat(result.toString(), result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(422));
         assertThat(artifactPlan.errors().firstError(), is(String.format("Job 'job' has an artifact with an empty source", pipeline.name())));
+    }
+
+    @Test
+    public void shouldShowThePipelineConfigErrorMessageWhenPipelineBeingCreatedHasErrorsOnTimer() throws GitAPIException {
+        PipelineConfig pipeline = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), new DependencyMaterialConfig(pipelineConfig.name(), pipelineConfig.first().name()));
+        TimerConfig timer = new TimerConfig(null, true);
+        pipeline.setTimer(timer);
+
+        pipelineConfigService.createPipelineConfig(user, pipeline, result, groupName);
+
+        assertThat(result.toString(), result.isSuccessful(), is(false));
+        assertThat(result.httpCode(), is(422));
+        assertThat(timer.errors().firstError(), is("Timer Spec can not be null."));
     }
 
     @Test
@@ -453,7 +466,7 @@ public class PipelineConfigServiceIntegrationTest {
         pipelineConfig.add(stage);
         pipelineConfig.addParam(new ParamConfig("foo", "."));
 
-        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, md5,  result);
+        pipelineConfigService.updatePipelineConfig(user, pipelineConfig, md5, result);
 
         assertThat(result.toString(), result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(422));

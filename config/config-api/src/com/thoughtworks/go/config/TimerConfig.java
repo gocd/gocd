@@ -78,6 +78,10 @@ public class TimerConfig implements Validatable {
     }
 
     public void validate(ValidationContext validationContext) {
+        if (timerSpec == null) {
+            errors.add(TIMER_SPEC, "Timer Spec can not be null.");
+            return;
+        }
         try {
             new CronExpression(timerSpec);
         } catch (ParseException pe) {

@@ -17,7 +17,6 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
@@ -32,7 +31,7 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 
 public class UpdatePackageRepositoryCommand extends PackageRepositoryCommand implements EntityConfigUpdateCommand<PackageRepository> {
     private final GoConfigService goConfigService;
-    private final PackageRepository oldRepo;
+    private String oldRepoId;
     private final PackageRepository newRepo;
     private final Username username;
     private final PluginManager pluginManager;
@@ -40,10 +39,10 @@ public class UpdatePackageRepositoryCommand extends PackageRepositoryCommand imp
     private final EntityHashingService entityHashingService;
     private final HttpLocalizedOperationResult result;
 
-    public UpdatePackageRepositoryCommand(GoConfigService goConfigService, PackageRepository oldRepo, PackageRepository newRepo, Username username, PluginManager pluginManager, String md5, EntityHashingService entityHashingService, HttpLocalizedOperationResult result) {
+    public UpdatePackageRepositoryCommand(GoConfigService goConfigService, String oldRepoId, PackageRepository newRepo, Username username, PluginManager pluginManager, String md5, EntityHashingService entityHashingService, HttpLocalizedOperationResult result) {
         super(goConfigService, newRepo, username, pluginManager, result);
         this.goConfigService = goConfigService;
-        this.oldRepo = oldRepo;
+        this.oldRepoId = oldRepoId;
         this.newRepo = newRepo;
         this.username = username;
         this.pluginManager = pluginManager;
@@ -54,10 +53,11 @@ public class UpdatePackageRepositoryCommand extends PackageRepositoryCommand imp
 
     @Override
     public void update(CruiseConfig preprocessedConfig) throws Exception {
-        this.newRepo.setPackages(this.oldRepo.getPackages());
+        PackageRepository oldRepo = preprocessedConfig.getPackageRepositories().find(oldRepoId);
+        this.newRepo.setPackages(oldRepo.getPackages());
         this.newRepo.setPluginConfiguration(getPluginCofiguration(this.newRepo));
         PackageRepositories repositories = preprocessedConfig.getPackageRepositories();
-        repositories.removePackageRepository(this.oldRepo.getId());
+        repositories.removePackageRepository(oldRepo.getId());
         repositories.add(this.newRepo);
         preprocessedConfig.setPackageRepositories(repositories);
     }
@@ -68,9 +68,10 @@ public class UpdatePackageRepositoryCommand extends PackageRepositoryCommand imp
     }
 
     private boolean isRequestFresh(CruiseConfig cruiseConfig) {
-        boolean freshRequest = entityHashingService.md5ForEntity(oldRepo, oldRepo.getId()).equals(md5);
+        PackageRepository oldRepo = goConfigService.getPackageRepository(oldRepoId);
+        boolean freshRequest = entityHashingService.md5ForEntity(oldRepo).equals(md5);
         if (!freshRequest) {
-            result.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", "Package Repository", oldRepo.getId()));
+            result.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", "Package Repository", oldRepoId));
         }
         return freshRequest;
     }

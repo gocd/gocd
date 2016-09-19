@@ -311,7 +311,7 @@ describe ApiV1::Admin::RepositoriesController do
         login_as_admin
         result = HttpLocalizedOperationResult.new
 
-        @package_repository_service.should_receive(:updatePackageRepository).with(@package_repo, an_instance_of(PackageRepository), an_instance_of(Username), @md5, an_instance_of(HttpLocalizedOperationResult)).and_return(result)
+        @package_repository_service.should_receive(:updatePackageRepository).with(@repo_id, an_instance_of(PackageRepository), an_instance_of(Username), @md5, an_instance_of(HttpLocalizedOperationResult)).and_return(result)
         hash = {name: "foo", plugin_configuration: {id: 'npm', version: '1'}, configuration: [ {key: 'REPO_URL', value:'https://foo.bar'}]}
 
         controller.request.env['HTTP_IF_MATCH'] = "\"#{Digest::MD5.hexdigest(@md5)}\""

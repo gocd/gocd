@@ -88,7 +88,7 @@ public class UpdatePackageRepositoryCommandTest {
 
     @Test
     public void shouldUpdatePackageRepository() throws Exception {
-        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, oldPackageRepo, newPackageRepo, currentUser, pluginManager, md5, entityHashingService, result);
+        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, oldRepoId, newPackageRepo, currentUser, pluginManager, md5, entityHashingService, result);
         when(pluginManager.getPluginDescriptorFor(pluginId)).thenReturn(new GoPluginDescriptor(pluginId, "1", null, null, null, false));
 
         assertThat(cruiseConfig.getPackageRepositories().size(), is(1));
@@ -109,7 +109,7 @@ public class UpdatePackageRepositoryCommandTest {
         nodePackage.setId("foo");
         nodePackage.setName("bar");
         oldPackageRepo.setPackages(new Packages(nodePackage));
-        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, oldPackageRepo, newPackageRepo, currentUser, pluginManager, md5, entityHashingService, result);
+        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, oldRepoId, newPackageRepo, currentUser, pluginManager, md5, entityHashingService, result);
         when(pluginManager.getPluginDescriptorFor(pluginId)).thenReturn(new GoPluginDescriptor(pluginId, "1", null, null, null, false));
 
         assertThat(cruiseConfig.getPackageRepositories().size(), is(1));
@@ -130,7 +130,7 @@ public class UpdatePackageRepositoryCommandTest {
 
     @Test
     public void shouldNotUpdatePackageRepositoryIfTheSpecifiedPluginTypeIsInvalid() throws Exception {
-        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, oldPackageRepo, newPackageRepo, currentUser, pluginManager, md5, entityHashingService, result);
+        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, oldRepoId, newPackageRepo, currentUser, pluginManager, md5, entityHashingService, result);
         assertThat(cruiseConfig.getPackageRepositories().size(), is(1));
         assertThat(cruiseConfig.getPackageRepositories().find(oldRepoId), is(oldPackageRepo));
         assertNull(cruiseConfig.getPackageRepositories().find(newRepoId));
@@ -144,7 +144,7 @@ public class UpdatePackageRepositoryCommandTest {
     public void shouldNotUpdatePackageRepositoryWhenRepositoryWithSpecifiedNameAlreadyExists() throws Exception {
         cruiseConfig.getPackageRepositories().add(newPackageRepo);
         when(pluginManager.getPluginDescriptorFor(pluginId)).thenReturn(new GoPluginDescriptor(pluginId, "1", null, null, null, false));
-        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, oldPackageRepo, newPackageRepo, currentUser, pluginManager, md5, entityHashingService, result);
+        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, oldRepoId, newPackageRepo, currentUser, pluginManager, md5, entityHashingService, result);
         command.update(cruiseConfig);
         assertFalse(command.isValid(cruiseConfig));
         assertThat(newPackageRepo.errors().firstError(), is("You have defined multiple repositories called 'npmOrg'. Repository names are case-insensitive and must be unique."));
@@ -158,7 +158,7 @@ public class UpdatePackageRepositoryCommandTest {
         configuration.add(property);
         newPackageRepo.setConfiguration(configuration);
         when(pluginManager.getPluginDescriptorFor(pluginId)).thenReturn(new GoPluginDescriptor(pluginId, "1", null, null, null, false));
-        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, oldPackageRepo, newPackageRepo, currentUser, pluginManager, md5, entityHashingService, result);
+        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, oldRepoId, newPackageRepo, currentUser, pluginManager, md5, entityHashingService, result);
         command.update(cruiseConfig);
         assertFalse(command.isValid(cruiseConfig));
         assertThat(property.errors().firstError(), is("Duplicate key 'foo' found for Repository 'npmOrg'"));
@@ -168,7 +168,7 @@ public class UpdatePackageRepositoryCommandTest {
     public void shouldNotUpdatePackageRepositoryWhenRepositoryHasInvalidName() throws Exception {
         newPackageRepo.setName("~!@#$%^&*(");
         when(pluginManager.getPluginDescriptorFor(pluginId)).thenReturn(new GoPluginDescriptor(pluginId, "1", null, null, null, false));
-        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, oldPackageRepo, newPackageRepo, currentUser, pluginManager, md5, entityHashingService, result);
+        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, oldRepoId, newPackageRepo, currentUser, pluginManager, md5, entityHashingService, result);
         command.update(cruiseConfig);
         assertFalse(command.isValid(cruiseConfig));
         assertThat(newPackageRepo.errors().firstError(), is("Invalid PackageRepository name '~!@#$%^&*('. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
@@ -177,7 +177,7 @@ public class UpdatePackageRepositoryCommandTest {
     @Test
     public void shouldNotContinueIfTheUserDontHavePermissionsToOperateOnPackageRepositories() throws Exception {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
-        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, oldPackageRepo, newPackageRepo, currentUser, pluginManager, md5, entityHashingService, result);
+        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, oldRepoId, newPackageRepo, currentUser, pluginManager, md5, entityHashingService, result);
 
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         expectedResult.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_OPERATE"), HealthStateType.unauthorised());
@@ -188,9 +188,10 @@ public class UpdatePackageRepositoryCommandTest {
 
     @Test
     public void shouldNotContinueIfTheUserSubmitttedStaleEtag() throws Exception {
-        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, oldPackageRepo, newPackageRepo, currentUser, pluginManager, md5, entityHashingService, result);
+        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, oldRepoId, newPackageRepo, currentUser, pluginManager, md5, entityHashingService, result);
         when(goConfigService.isAdministrator(currentUser.getUsername())).thenReturn(true);
-        when(entityHashingService.md5ForEntity(oldPackageRepo, oldRepoId)).thenReturn("foobar");
+        when(goConfigService.getPackageRepository(oldRepoId)).thenReturn(oldPackageRepo);
+        when(entityHashingService.md5ForEntity(oldPackageRepo)).thenReturn("foobar");
         assertThat(command.canContinue(cruiseConfig), is(false));
         HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
         expectResult.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", "Package Repository", oldRepoId));

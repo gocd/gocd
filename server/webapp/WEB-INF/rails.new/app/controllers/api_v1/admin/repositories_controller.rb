@@ -40,7 +40,7 @@ module ApiV1
       def update
         result = HttpLocalizedOperationResult.new
         get_package_repository_from_request
-        package_repository_service.updatePackageRepository(@package_repo_config, @package_repo_from_request, current_user, get_etag_for_package_repository, result)
+        package_repository_service.updatePackageRepository(@package_repo_config.getId, @package_repo_from_request, current_user, get_etag_for_package_repository, result)
         handle_config_save_result(result, @package_repo_from_request.getId())
       end
 
@@ -75,7 +75,7 @@ module ApiV1
       end
 
       def get_etag_for_package_repository
-        entity_hashing_service.md5ForEntity(@package_repo_config, @package_repo_config.getId)
+        entity_hashing_service.md5ForEntity(@package_repo_config)
       end
 
       def check_for_stale_request

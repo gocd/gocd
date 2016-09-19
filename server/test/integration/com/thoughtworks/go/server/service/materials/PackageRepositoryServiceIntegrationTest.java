@@ -176,41 +176,39 @@ public class PackageRepositoryServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
 
+        String repoId = "npmOrg";
+        String newRepoId = "npmFoo";
+
+        PackageRepository npmRepo = new PackageRepository();
+
         PluginConfiguration pluginConfiguration = new PluginConfiguration();
         pluginConfiguration.setId("npm");
+
+        npmRepo.setPluginConfiguration(pluginConfiguration);
+        npmRepo.setId(repoId);
+        npmRepo.setName(repoId);
 
         Configuration configuration = new Configuration();
         configuration.add(new ConfigurationProperty(new ConfigurationKey("foo"), new ConfigurationValue("bar")));
 
-        String oldRepoId = "npmOrg";
-        PackageRepository oldPackageRepo = new PackageRepository();
-        oldPackageRepo.setPluginConfiguration(pluginConfiguration);
-        oldPackageRepo.setId(oldRepoId);
-        oldPackageRepo.setName(oldRepoId);
-        oldPackageRepo.setConfiguration(configuration);
-
-        String newRepoId = "npm.org";
-        PackageRepository newPackageRepo = new PackageRepository();
-        newPackageRepo.setPluginConfiguration(pluginConfiguration);
-        newPackageRepo.setId(newRepoId);
-        newPackageRepo.setName(newRepoId);
-        newPackageRepo.setConfiguration(configuration);
-
-        String md5 = entityHashingService.md5ForEntity(oldPackageRepo, oldPackageRepo.getId());
-        goConfigService.getConfigForEditing().setPackageRepositories(new PackageRepositories(oldPackageRepo));
+        npmRepo.setConfiguration(configuration);
 
         when(pluginManager.getPluginDescriptorFor("npm")).thenReturn(new GoPluginDescriptor("npm", "1", null, null, null, false));
+        service.createPackageRepository(npmRepo, username, result);
 
-        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().size(), is(1));
-        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().find(oldRepoId), is(oldPackageRepo));
-        assertNull(goConfigService.getConfigForEditing().getPackageRepositories().find(newRepoId));
+        PackageRepository newNpmRepo = new PackageRepository();
+        newNpmRepo.setPluginConfiguration(pluginConfiguration);
+        newNpmRepo.setId(newRepoId);
+        newNpmRepo.setName(newRepoId);
+        newNpmRepo.setConfiguration(configuration);
 
-        service.updatePackageRepository(oldPackageRepo, newPackageRepo, username, md5, result);
+        String md5 = entityHashingService.md5ForEntity(npmRepo);
+        service.updatePackageRepository(repoId, newNpmRepo, username, md5, result);
 
         assertThat(result, is(expectedResult));
         assertThat(goConfigService.getConfigForEditing().getPackageRepositories().size(), is(1));
-        assertNull(goConfigService.getConfigForEditing().getPackageRepositories().find(oldRepoId));
-        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().find(newRepoId), is(newPackageRepo));
+        assertNull(goConfigService.getConfigForEditing().getPackageRepositories().find(repoId));
+        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().find(newRepoId), is(newNpmRepo));
     }
 
     @Test
@@ -242,7 +240,7 @@ public class PackageRepositoryServiceIntegrationTest {
         assertThat(goConfigService.getConfigForEditing().getPackageRepositories().size(), is(1));
         assertThat(goConfigService.getConfigForEditing().getPackageRepositories().find(oldRepoId), is(oldPackageRepo));
         assertNull(goConfigService.getConfigForEditing().getPackageRepositories().find(newRepoId));
-        service.updatePackageRepository(oldPackageRepo, newPackageRepo, new Username("UnauthorizedUser"), "md5", result);
+        service.updatePackageRepository(oldRepoId, newPackageRepo, new Username("UnauthorizedUser"), "md5", result);
         assertThat(result, is(expectedResult));
         assertThat(goConfigService.getConfigForEditing().getPackageRepositories().size(), is(1));
         assertThat(goConfigService.getConfigForEditing().getPackageRepositories().find(oldRepoId), is(oldPackageRepo));

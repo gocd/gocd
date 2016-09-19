@@ -68,6 +68,11 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         return getFromCache(config, cacheKey);
     }
 
+    public String md5ForEntity(PackageRepository config) {
+        String cacheKey = cacheKey(config, config.getId());
+        return getFromCache(config, cacheKey);
+    }
+
     public String md5ForEntity(SCM config) {
         String cacheKey = cacheKey(config, config.getName());
         return getFromCache(config, cacheKey);

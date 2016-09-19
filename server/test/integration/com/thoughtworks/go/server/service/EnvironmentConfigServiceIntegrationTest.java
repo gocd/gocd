@@ -55,14 +55,22 @@ import static org.junit.Assert.*;
 })
 public class EnvironmentConfigServiceIntegrationTest {
 
-    @Autowired private SecurityService securityService;
-    @Autowired private GoConfigDao goConfigDao;
-    @Autowired private GoConfigService goConfigService;
-    @Autowired private EntityHashingService entityHashingService;
-    @Autowired private AgentConfigService agentConfigService;
-    @Autowired private EnvironmentConfigService service;
-    @Autowired private Localizer localizer;
-    @Autowired private AgentService agentService;
+    @Autowired
+    private SecurityService securityService;
+    @Autowired
+    private GoConfigDao goConfigDao;
+    @Autowired
+    private GoConfigService goConfigService;
+    @Autowired
+    private EntityHashingService entityHashingService;
+    @Autowired
+    private AgentConfigService agentConfigService;
+    @Autowired
+    private EnvironmentConfigService service;
+    @Autowired
+    private Localizer localizer;
+    @Autowired
+    private AgentService agentService;
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
@@ -86,7 +94,7 @@ public class EnvironmentConfigServiceIntegrationTest {
         configHelper.addAdmins("super_hero");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         service.createEnvironment(env("foo-env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("evil_hacker")), result);
-        assertThat(result.message(localizer), is("Failed to add environment. User 'evil_hacker' does not have permission to add environments"));
+        assertThat(result.message(localizer), is("You are not authorized to perform this operation."));
     }
 
     @Test
@@ -123,7 +131,7 @@ public class EnvironmentConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldUpdateExistingEnvironment_ForNewUpdateEnvironmentMethod() throws Exception{
+    public void shouldUpdateExistingEnvironment_ForNewUpdateEnvironmentMethod() throws Exception {
         BasicEnvironmentConfig uat = environmentConfig("uat");
         goConfigService.addPipeline(PipelineConfigMother.createPipelineConfig("foo", "dev", "job"), "foo-grp");
         goConfigService.addPipeline(PipelineConfigMother.createPipelineConfig("bar", "dev", "job"), "foo-grp");
@@ -145,7 +153,7 @@ public class EnvironmentConfigServiceIntegrationTest {
         newUat.addEnvironmentVariable("env-three", "THREE");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         String md5 = entityHashingService.md5ForEntity(uat);
-        service.updateEnvironment(uat, newUat, new Username(new CaseInsensitiveString("foo")), md5, result);
+        service.updateEnvironment(uat.name().toString(), newUat, new Username(new CaseInsensitiveString("foo")), md5, result);
         EnvironmentConfig updatedEnv = service.named("prod");
         assertThat(updatedEnv.name(), is(new CaseInsensitiveString("prod")));
         assertThat(updatedEnv.getAgents().getUuids(), is(Arrays.asList("uuid-1")));
@@ -166,8 +174,8 @@ public class EnvironmentConfigServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
         String md5 = entityHashingService.md5ForEntity(service.getEnvironmentConfig("foo"));
-        service.updateEnvironment(service.getEnvironmentConfig("foo"), env("foo-env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("evil_hacker")), md5, result);
-        assertThat(result.message(localizer), is("Failed to update environment 'foo'. User 'evil_hacker' does not have permission to update environments"));
+        service.updateEnvironment("foo", env("foo-env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("evil_hacker")), md5, result);
+        assertThat(result.message(localizer), is("You are not authorized to perform this operation."));
     }
 
     @Test
@@ -176,7 +184,7 @@ public class EnvironmentConfigServiceIntegrationTest {
         configHelper.addEnvironments("bar-env");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         String md5 = entityHashingService.md5ForEntity(service.getEnvironmentConfig("bar-env"));
-        service.updateEnvironment(service.getEnvironmentConfig("bar-env"), env("foo-env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("any")), md5, result);
+        service.updateEnvironment("bar-env", env("foo-env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("any")), md5, result);
         assertThat(result.message(localizer), is("Failed to update environment 'bar-env'. failed to save : Duplicate unique value [foo-env] declared for identity constraint \"uniqueEnvironmentName\" of element \"environments\"."));
     }
 
@@ -186,7 +194,7 @@ public class EnvironmentConfigServiceIntegrationTest {
         configHelper.addEnvironments("bar-env");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         String md5 = "invalid-md5";
-        service.updateEnvironment(service.getEnvironmentConfig("bar-env"), env("foo-env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("any")), md5, result);
+        service.updateEnvironment("bar-env", env("foo-env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("any")), md5, result);
         assertThat(result.message(localizer), is("Someone has modified the configuration for Environment 'bar-env'. Please update your copy of the config with the changes."));
     }
 
@@ -195,7 +203,7 @@ public class EnvironmentConfigServiceIntegrationTest {
         configHelper.addEnvironments("foo-env");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         String md5 = entityHashingService.md5ForEntity(service.getEnvironmentConfig("foo-env"));
-        service.updateEnvironment(service.getEnvironmentConfig("foo-env"), env("foo env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("any")), md5, result);
+        service.updateEnvironment("foo-env", env("foo env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("any")), md5, result);
         assertThat(result.httpCode(), is(HttpServletResponse.SC_BAD_REQUEST));
         assertThat(result.message(localizer), containsString("Failed to update environment 'foo-env'."));
     }
@@ -219,11 +227,11 @@ public class EnvironmentConfigServiceIntegrationTest {
         configHelper.addAdmins("super_hero");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         service.deleteEnvironment(service.getEnvironmentConfig("foo"), new Username(new CaseInsensitiveString("evil_hacker")), result);
-        assertThat(result.message(localizer), is("Failed to delete environment 'foo'. User 'evil_hacker' does not have permission to update environments"));
+        assertThat(result.message(localizer), is("You are not authorized to perform this operation."));
     }
 
     @Test
-    public void shouldPatchAnEnvironment() throws Exception{
+    public void shouldPatchAnEnvironment() throws Exception {
         String environmentName = "env";
 
         BasicEnvironmentConfig env = environmentConfig(environmentName);
@@ -253,8 +261,8 @@ public class EnvironmentConfigServiceIntegrationTest {
         configHelper.turnOnSecurity();
         configHelper.addAdmins("super_hero");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        service.patchEnvironment(service.getEnvironmentConfig("foo"), new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(),new Username(new CaseInsensitiveString("evil_hacker")), result);
-        assertThat(result.message(localizer), is("Failed to update environment 'foo'. User 'evil_hacker' does not have permission to update environments"));
+        service.patchEnvironment(service.getEnvironmentConfig("foo"), new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), new Username(new CaseInsensitiveString("evil_hacker")), result);
+        assertThat(result.message(localizer), is("You are not authorized to perform this operation."));
     }
 
     @Test

@@ -172,7 +172,7 @@ describe ApiV1::Admin::EnvironmentsController do
       it 'should allow updating environments' do
         login_as_admin
         result = HttpLocalizedOperationResult.new
-        @environment_config_service.should_receive(:updateEnvironment).with(@environment_config, anything, anything, @md5, anything).and_return(result)
+        @environment_config_service.should_receive(:updateEnvironment).with(anything, anything, anything, @md5, anything).and_return(result)
         hash = {name: @environment_name, pipelines: [], agents: [], environment_variables: []}
 
         controller.request.env['HTTP_IF_MATCH'] = "\"#{Digest::MD5.hexdigest(@md5)}\""

@@ -124,8 +124,7 @@ public class PatchEnvironmentCommand extends EnvironmentCommand implements Entit
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
         if (!goConfigService.isAdministrator(username.getUsername())) {
-            Localizable noPermission = LocalizedMessage.string("NO_PERMISSION_TO_UPDATE_ENVIRONMENT", environmentConfig.name().toString(), username.getDisplayName());
-            result.unauthorized(noPermission, HealthStateType.unauthorised());
+            result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_OPERATE"), HealthStateType.unauthorised());
             return false;
         }
         return true;
@@ -133,9 +132,9 @@ public class PatchEnvironmentCommand extends EnvironmentCommand implements Entit
 
     public boolean isValidConfig(CruiseConfig preprocessedConfig) {
         boolean isValid = validateAgents(agentsToAdd, result, preprocessedConfig.agents());
-        isValid = isValid && validateAgents(agentsToRemove, result, preprocessedConfig.agents());
-        isValid = isValid && validatePipelines(pipelinesToAdd, result, preprocessedConfig);
-        isValid = isValid && validatePipelines(pipelinesToRemove, result, preprocessedConfig);
+        isValid = validateAgents(agentsToRemove, result, preprocessedConfig.agents()) && isValid;
+        isValid = validatePipelines(pipelinesToAdd, result, preprocessedConfig) && isValid;
+        isValid = validatePipelines(pipelinesToRemove, result, preprocessedConfig) && isValid;
         return isValid;
     }
 }

@@ -213,12 +213,12 @@ public class EnvironmentConfigService implements ConfigChangedListener {
         return pipelines;
     }
 
-    public void updateEnvironment(final EnvironmentConfig oldEnvironmentConfig, final EnvironmentConfig newEnvironmentConfig, final Username username, String md5, final HttpLocalizedOperationResult result) {
-        Localizable.CurryableLocalizable actionFailed = LocalizedMessage.string("ENV_UPDATE_FAILED", oldEnvironmentConfig.name());
-        UpdateEnvironmentCommand updateEnvironmentCommand = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig, newEnvironmentConfig, username, actionFailed, md5, entityHashingService, result);
-        update(updateEnvironmentCommand, oldEnvironmentConfig, username, result, actionFailed);
+    public void updateEnvironment(final String oldEnvironmentName, final EnvironmentConfig newEnvironmentConfig, final Username username, String md5, final HttpLocalizedOperationResult result) {
+        Localizable.CurryableLocalizable actionFailed = LocalizedMessage.string("ENV_UPDATE_FAILED", oldEnvironmentName);
+        UpdateEnvironmentCommand updateEnvironmentCommand = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentName, newEnvironmentConfig, username, actionFailed, md5, entityHashingService, result);
+        update(updateEnvironmentCommand, this.environments.find(new CaseInsensitiveString(oldEnvironmentName)), username, result, actionFailed);
         if (result.isSuccessful()) {
-            result.setMessage(LocalizedMessage.string("UPDATE_ENVIRONMENT_SUCCESS", oldEnvironmentConfig.name()));
+            result.setMessage(LocalizedMessage.string("UPDATE_ENVIRONMENT_SUCCESS", oldEnvironmentName));
         }
     }
 

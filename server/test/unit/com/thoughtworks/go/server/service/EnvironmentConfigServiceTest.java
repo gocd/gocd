@@ -359,7 +359,11 @@ public class EnvironmentConfigServiceTest {
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         String md5 = "md5";
-        environmentConfigService.updateEnvironment(environmentConfig, environmentConfig, user, md5, result);
+        EnvironmentsConfig environments = new EnvironmentsConfig();
+        environments.add(environmentConfig);
+        environmentConfigService.sync(environments);
+
+        environmentConfigService.updateEnvironment(environmentConfig.name().toString(), environmentConfig, user, md5, result);
 
         assertTrue(result.isSuccessful());
         assertThat(result.toString(), containsString("UPDATE_ENVIRONMENT_SUCCESS"));
@@ -376,7 +380,10 @@ public class EnvironmentConfigServiceTest {
         when(mockGoConfigService.updateConfig(any(UpdateConfigCommand.class))).thenReturn(ConfigSaveState.UPDATED);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         String md5 = "md5";
-        environmentConfigService.updateEnvironment(environmentConfig, environmentConfig, user, md5, result);
+        EnvironmentsConfig environments = new EnvironmentsConfig();
+        environments.add(environmentConfig);
+        environmentConfigService.sync(environments);
+        environmentConfigService.updateEnvironment(environmentConfig.name().toString(), environmentConfig, user, md5, result);
 
         assertTrue(result.isSuccessful());
         assertThat(result.toString(), containsString("UPDATE_ENVIRONMENT_SUCCESS"));

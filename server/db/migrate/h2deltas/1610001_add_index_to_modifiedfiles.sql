@@ -19,8 +19,8 @@
 -- A migration was added to create the missing index on a foreign key in postgres.
 -- To maintain sanity, and avoid mismatch of the migrations we have on h2 and postgres, this migration is added.
 
-SELECT 1 + 1
+SELECT 1 + 1;
 
 --//@UNDO
 
-SELECT 1 + 1
+SELECT 1 + 1;

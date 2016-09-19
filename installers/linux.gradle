@@ -113,4 +113,28 @@ task serverPackageRpm(dependsOn: [':server-launcher:fatJar'], type: RpmPackaging
   directories server.dirs
 }
 
+docker {
+  baseImage "phusion/baseimage:0.9.18"
+  maintainer 'GoCD <go-cd-dev@googlegroups.com'
+}
+
+task agentDocker(dependsOn: [':installers:agentPackageDeb'], type: Docker) {
+  applicationName = "gocd-agent"
+  tag = "gocd/agent"
+  runCommand 'rm -rf /etc/service/sshd /etc/my_init.d/00_regen_ssh_host_keys.sh'
+  runCommand 'apt-get update'
+  runCommand 'apt-get upgrade -y'
+  runCommand 'apt-get install -y -q unzip openjdk-7-jre-headless git mercurial subversion'
+  addFile file('go-agent/docker/go-agent-start.sh').path, '/etc/service/go-agent/run'
+  addFile "${project.convention.plugins.get("base").distsDir}/deb/go-agent_${rootProject.fullVersion}_all.deb", '/tmp/go-agent.deb'
+  workingDir '/tmp'
+  runCommand 'dpkg -i /tmp/go-agent.deb'
+  runCommand "sed -i -e 's/DAEMON=Y/DAEMON=N/' /etc/default/go-agent"
+  runCommand 'apt-get clean'
+  runCommand 'rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*'
+
+  defaultCommand(['/sbin/my_init'])
+}
+
+
 assemble.dependsOn(":installers:agentPackageRpm", ":installers:serverPackageRpm", ":installers:agentPackageDeb", ":installers:serverPackageDeb")

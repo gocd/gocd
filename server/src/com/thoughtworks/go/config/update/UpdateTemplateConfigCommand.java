@@ -24,7 +24,6 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 
 public class UpdateTemplateConfigCommand extends TemplateConfigCommand{
     private String md5;
@@ -52,7 +51,7 @@ public class UpdateTemplateConfigCommand extends TemplateConfigCommand{
 
     private boolean isRequestFresh(CruiseConfig cruiseConfig) {
         PipelineTemplateConfig pipelineTemplateConfig = findAddedTemplate(cruiseConfig);
-        boolean freshRequest =  entityHashingService.md5ForEntity(pipelineTemplateConfig, pipelineTemplateConfig.name().toString()).equals(md5);
+        boolean freshRequest =  entityHashingService.md5ForEntity(pipelineTemplateConfig).equals(md5);
         if (!freshRequest) {
             result.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", "Template", templateConfig.name()));
         }

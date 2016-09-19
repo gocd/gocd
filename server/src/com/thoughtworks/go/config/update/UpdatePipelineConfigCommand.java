@@ -80,15 +80,15 @@ public class UpdatePipelineConfigCommand implements EntityConfigUpdateCommand<Pi
 
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
-        return canEditPipeline() && isRequestFresh();
+        return canEditPipeline() && isRequestFresh(cruiseConfig);
     }
 
     private boolean canEditPipeline() {
         return goConfigService.canEditPipeline(pipelineConfig.name().toString(), currentUser, result, getPipelineGroup());
     }
 
-    private boolean isRequestFresh() {
-        boolean freshRequest = entityHashingService.md5ForPipelineConfig(pipelineConfig.name().toString()).equals(md5);
+    private boolean isRequestFresh(CruiseConfig cruiseConfig) {
+        boolean freshRequest = entityHashingService.md5ForEntity(cruiseConfig.getPipelineConfigByName(pipelineConfig.name())).equals(md5);
 
         if (!freshRequest) {
             result.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", "pipeline", pipelineConfig.name().toString()));

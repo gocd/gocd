@@ -1,6 +1,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.ConfigCache;
+import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.config.MagicalGoConfigXmlWriter;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
@@ -15,10 +16,7 @@ import org.junit.rules.ExpectedException;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class EntityHashingServiceTest {
     private GoConfigService goConfigService;
@@ -43,7 +41,7 @@ public class EntityHashingServiceTest {
     @Test
     public void shouldThrowAnExceptionWhenObjectIsNull() {
         thrown.expect(NullPointerException.class);
-        entityHashingService.md5ForEntity(null, null);
+        entityHashingService.md5ForEntity((EnvironmentConfig) null);
     }
 
     @Test
@@ -51,23 +49,7 @@ public class EntityHashingServiceTest {
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("P1");
         String xml = new MagicalGoConfigXmlWriter(configCache, registry).toXmlPartial(pipelineConfig);
 
-        assertThat(entityHashingService.md5ForEntity(pipelineConfig, "P1"), is(CachedDigestUtils.md5Hex(xml)));
-    }
-
-    @Test
-    public void shouldReturnCachedMD5IfPresent() {
-        when(goCache.get("GO_ETAG_CACHE", "p1")).thenReturn("pipeline_config_md5");
-
-        assertThat(entityHashingService.md5ForPipelineConfig("P1"), is("pipeline_config_md5"));
-
-        verifyZeroInteractions(goConfigService);
-    }
-
-    @Test
-    public void shouldMakeCaseInsensitiveComparisonsOnCacheKeyWhileRetrievingMD5() {
-        when(goCache.get("GO_ETAG_CACHE", "foo")).thenReturn("something");
-
-        assertThat(entityHashingService.md5ForPipelineConfig("FOO"), is("something"));
+        assertThat(entityHashingService.md5ForEntity(pipelineConfig), is(CachedDigestUtils.md5Hex(xml)));
     }
 
     @Test
@@ -75,7 +57,6 @@ public class EntityHashingServiceTest {
         entityHashingService.initialize();
 
         verify(goConfigService).register(entityHashingService);
-//        verify(goConfigService, times(1)).register(any(entityHashingService.new PipelineConfigChangedListener));
     }
 
     @Test
@@ -92,6 +73,16 @@ public class EntityHashingServiceTest {
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("P1");
         listener.onEntityConfigChange(pipelineConfig);
 
-        verify(goCache).remove("GO_ETAG_CACHE", (pipelineConfig.getClass().getName() + "p1").toLowerCase());
+        verify(goCache).remove("GO_ETAG_CACHE", (pipelineConfig.getClass().getName() + "." + "p1"));
+    }
+
+    @Test
+    public void entityChecksumIsIdenticalForObjectsWithCaseInsensitiveName() throws Exception {
+        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("UPPER_CASE_NAME");
+        when(goCache.get("GO_ETAG_CACHE", "com.thoughtworks.go.config.PipelineConfig.upper_case_name")).thenReturn("foo");
+        String checksum = entityHashingService.md5ForEntity(pipelineConfig);
+        assertThat(checksum, is("foo"));
+        verify(goCache).get("GO_ETAG_CACHE", "com.thoughtworks.go.config.PipelineConfig.upper_case_name");
+        verifyNoMoreInteractions(goCache);
     }
 }

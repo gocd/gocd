@@ -70,7 +70,7 @@ public class UpdateEnvironmentCommand extends EnvironmentCommand implements Enti
 
     private boolean isRequestFresh(CruiseConfig cruiseConfig) {
         EnvironmentConfig config = cruiseConfig.getEnvironments().find(oldEnvironmentConfig.name());
-        boolean freshRequest =  hashingService.md5ForEntity(config, config.name().toString()).equals(md5);
+        boolean freshRequest =  hashingService.md5ForEntity(config).equals(md5);
         if (!freshRequest) {
             result.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", "Environment", oldEnvironmentConfig.name()));
         }

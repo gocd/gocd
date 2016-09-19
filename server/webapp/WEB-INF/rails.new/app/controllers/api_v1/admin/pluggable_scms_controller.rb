@@ -66,7 +66,7 @@ module ApiV1
       end
 
       def get_etag_for_scm_object(material_name)
-        entity_hashing_service.md5ForEntity(find_scm(material_name), material_name)
+        entity_hashing_service.md5ForEntity(find_scm(material_name))
       end
 
       def check_for_scm_rename

@@ -132,7 +132,7 @@ describe ApiV1::Admin::TemplatesController do
       end
 
       it 'should render the template of specified name' do
-        @entity_hashing_service.should_receive(:md5ForEntity).with(an_instance_of(PipelineTemplateConfig), anything).and_return('md5')
+        @entity_hashing_service.should_receive(:md5ForEntity).with(an_instance_of(PipelineTemplateConfig)).and_return('md5')
         @template_config_service.should_receive(:loadForView).with('template', @result).and_return(@template)
 
         get_with_api_header :show, template_name: 'template'
@@ -344,7 +344,7 @@ describe ApiV1::Admin::TemplatesController do
         controller.request.env['HTTP_IF_MATCH'] = "\"#{Digest::MD5.hexdigest("md5")}\""
 
         @template_config_service.should_receive(:loadForView).with('some-template', anything).and_return(@template)
-        @entity_hashing_service.should_receive(:md5ForEntity).with(an_instance_of(PipelineTemplateConfig), 'some-template').exactly(3).times.and_return('md5')
+        @entity_hashing_service.should_receive(:md5ForEntity).with(an_instance_of(PipelineTemplateConfig)).exactly(3).times.and_return('md5')
         @template_config_service.should_receive(:updateTemplateConfig).with(anything, an_instance_of(PipelineTemplateConfig), anything, "md5")
 
         put_with_api_header :update, template_name: 'some-template', template: template_hash
@@ -359,7 +359,7 @@ describe ApiV1::Admin::TemplatesController do
 
         result = HttpLocalizedOperationResult.new
 
-        @entity_hashing_service.should_receive(:md5ForEntity).with(an_instance_of(PipelineTemplateConfig), anything).and_return('md5')
+        @entity_hashing_service.should_receive(:md5ForEntity).with(an_instance_of(PipelineTemplateConfig)).and_return('md5')
         @template_config_service.should_receive(:loadForView).and_return(@template)
         @template_config_service.stub(:updateTemplateConfig).with(anything, an_instance_of(PipelineTemplateConfig), result, anything)  do |user, template, result|
           result.unprocessableEntity(LocalizedMessage::string("SAVE_FAILED_WITH_REASON", "Validation failed"))

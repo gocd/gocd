@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2015 ThoughtWorks, Inc.
+# Copyright 2016 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ describe ApiV1::Admin::PipelinesController do
     @pipeline_groups = com.thoughtworks.go.domain.PipelineGroups.new
     @go_config_service.stub(:groups).and_return(@pipeline_groups)
     @pipeline_groups.stub(:hasGroup).and_return(true)
-    @entity_hashing_service.stub(:md5ForPipelineConfig).and_return(@pipeline_md5)
+    @entity_hashing_service.stub(:md5ForEntity).and_return(@pipeline_md5)
     @latest_etag = "\"#{Digest::MD5.hexdigest(@pipeline_md5)}\""
   end
 
@@ -73,6 +73,7 @@ describe ApiV1::Admin::PipelinesController do
 
     describe :update do
       it 'should allow anyone, with security disabled' do
+        @pipeline_config_service.stub(:getPipelineConfig).with(anything()).and_return(PipelineConfig.new)
         disable_security
         controller.stub(:check_for_stale_request).and_return(nil)
         controller.stub(:check_for_attempted_pipeline_rename).and_return(nil)
@@ -86,6 +87,7 @@ describe ApiV1::Admin::PipelinesController do
       end
 
       it 'should allow admin users, with security enabled' do
+        @pipeline_config_service.stub(:getPipelineConfig).with(anything()).and_return(PipelineConfig.new)
         login_as_pipeline_group_admin_user(@group)
         controller.stub(:check_for_stale_request).and_return(nil)
         controller.stub(:check_for_attempted_pipeline_rename).and_return(nil)
@@ -170,7 +172,7 @@ describe ApiV1::Admin::PipelinesController do
         pipeline_md5 = 'md5_for_pipeline_config'
 
         @pipeline_config_service.should_receive(:getPipelineConfig).with(pipeline_name).and_return(pipeline)
-        @entity_hashing_service.should_receive(:md5ForPipelineConfig).with(pipeline_name).and_return(pipeline_md5)
+        @entity_hashing_service.should_receive(:md5ForEntity).with(pipeline).and_return(pipeline_md5)
 
         get_with_api_header :show, :pipeline_name => pipeline_name
 
@@ -187,7 +189,7 @@ describe ApiV1::Admin::PipelinesController do
         pipeline_md5 = 'md5_for_pipeline_config'
 
         @pipeline_config_service.should_receive(:getPipelineConfig).with(pipeline_name).and_return(pipeline)
-        @entity_hashing_service.should_receive(:md5ForPipelineConfig).with(pipeline_name).and_return(pipeline_md5)
+        @entity_hashing_service.should_receive(:md5ForEntity).with(pipeline).and_return(pipeline_md5)
 
         controller.request.env['HTTP_IF_NONE_MATCH'] = Digest::MD5.hexdigest(pipeline_md5)
 
@@ -216,7 +218,7 @@ describe ApiV1::Admin::PipelinesController do
         pipeline_md5 = 'md5_for_pipeline_config'
 
         @pipeline_config_service.should_receive(:getPipelineConfig).with(pipeline_name).and_return(pipeline)
-        @entity_hashing_service.should_receive(:md5ForPipelineConfig).with(pipeline_name).and_return(pipeline_md5)
+        @entity_hashing_service.should_receive(:md5ForEntity).with(pipeline).and_return(pipeline_md5)
 
         controller.request.env['HTTP_IF_NONE_MATCH'] = 'stale-etag'
 
@@ -282,8 +284,8 @@ describe ApiV1::Admin::PipelinesController do
       end
 
       it "should update pipeline config for an admin" do
-        @entity_hashing_service.should_receive(:md5ForPipelineConfig).with(@pipeline_name).and_return(@pipeline_md5)
-        @pipeline_config_service.should_receive(:getPipelineConfig).with(@pipeline_name).and_return(@pipeline)
+        @entity_hashing_service.should_receive(:md5ForEntity).with(@pipeline).and_return(@pipeline_md5)
+        @pipeline_config_service.should_receive(:getPipelineConfig).twice.with(@pipeline_name).and_return(@pipeline)
         @pipeline_config_service.should_receive(:updatePipelineConfig).with(anything(), anything(), @pipeline_md5, anything())
 
         controller.request.env['HTTP_IF_MATCH'] = "\"#{Digest::MD5.hexdigest(@pipeline_md5)}\""
@@ -295,6 +297,7 @@ describe ApiV1::Admin::PipelinesController do
       end
 
       it "should not update pipeline config if etag passed does not match the one on server" do
+        @pipeline_config_service.should_receive(:getPipelineConfig).with(@pipeline_name).and_return(@pipeline)
         controller.request.env['HTTP_IF_MATCH'] = "old-etag"
 
         put_with_api_header :update, pipeline_name: @pipeline_name, :pipeline => pipeline
@@ -305,6 +308,7 @@ describe ApiV1::Admin::PipelinesController do
 
 
       it "should not update pipeline config if no etag is passed" do
+        @pipeline_config_service.should_receive(:getPipelineConfig).with(@pipeline_name).and_return(@pipeline)
         put_with_api_header :update, pipeline_name: @pipeline_name, :pipeline => pipeline
 
         expect(response.code).to eq("412")
@@ -312,6 +316,7 @@ describe ApiV1::Admin::PipelinesController do
       end
 
       it "should handle server validation errors" do
+        @pipeline_config_service.should_receive(:getPipelineConfig).with(@pipeline_name).and_return(@pipeline)
         result = double('HttpLocalizedOperationResult')
         result.stub(:isSuccessful).and_return(false)
         result.stub(:message).with(anything()).and_return("message from server")
@@ -322,7 +327,6 @@ describe ApiV1::Admin::PipelinesController do
         controller.stub(:get_pipeline_from_request) do
           controller.instance_variable_set(:@pipeline_config_from_request, @pipeline)
         end
-        @pipeline_config_service.should_not_receive(:getPipelineConfig).with(@pipeline_name)
         @pipeline_config_service.should_receive(:updatePipelineConfig).with(anything(), anything(), @pipeline_md5, result)
         controller.request.env['HTTP_IF_MATCH'] = @latest_etag
 
@@ -339,6 +343,7 @@ describe ApiV1::Admin::PipelinesController do
       end
 
       it "should not allow renaming a pipeline" do
+        @pipeline_config_service.should_receive(:getPipelineConfig).with(@pipeline_name).and_return(@pipeline)
         controller.request.env['HTTP_IF_MATCH'] = @latest_etag
 
         put_with_api_header :update, pipeline_name: @pipeline_name, :pipeline => pipeline("renamed_pipeline")
@@ -348,7 +353,7 @@ describe ApiV1::Admin::PipelinesController do
       end
 
       it "should set package definition on to package material before save" do
-        @pipeline_config_service.should_receive(:getPipelineConfig).with(@pipeline_name).and_return(@pipeline)
+        @pipeline_config_service.should_receive(:getPipelineConfig).twice.with(@pipeline_name).and_return(@pipeline)
         pipeline_being_saved = nil
         allow(@pipeline_config_service).to receive(:updatePipelineConfig) do |user, pipeline, result|
           pipeline_being_saved = pipeline
@@ -363,7 +368,7 @@ describe ApiV1::Admin::PipelinesController do
 
       it "should set scm config on to pluggable scm material before save" do
         pipeline_being_saved = nil
-        @pipeline_config_service.should_receive(:getPipelineConfig).with(@pipeline_name).and_return(@pipeline)
+        @pipeline_config_service.should_receive(:getPipelineConfig).twice.with(@pipeline_name).and_return(@pipeline)
 
         allow(@pipeline_config_service).to receive(:updatePipelineConfig) do |user, pipeline, result|
           pipeline_being_saved = pipeline
@@ -486,7 +491,7 @@ describe ApiV1::Admin::PipelinesController do
         controller.stub(:get_pipeline_from_request) do
           controller.instance_variable_set(:@pipeline_config_from_request, @pipeline)
         end
-        @pipeline_config_service.should_not_receive(:getPipelineConfig).with(@pipeline_name)
+
         @pipeline_config_service.should_receive(:createPipelineConfig).with(anything(), anything(), result, "group")
         controller.request.env['HTTP_IF_MATCH'] = "\"#{Digest::MD5.hexdigest("latest-etag")}\""
 

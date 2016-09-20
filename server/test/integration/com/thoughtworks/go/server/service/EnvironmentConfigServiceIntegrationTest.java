@@ -94,7 +94,7 @@ public class EnvironmentConfigServiceIntegrationTest {
         configHelper.addEnvironments("foo-env");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         service.createEnvironment(env("foo-env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("any")), result);
-        assertThat(result.message(localizer), is("Failed to add environment. Environment 'foo-env' already exists."));
+        assertThat(result.message(localizer), is("Failed to add environment. The environment 'foo-env' already exists."));
     }
 
     @Test
@@ -209,7 +209,7 @@ public class EnvironmentConfigServiceIntegrationTest {
         assertTrue(goConfigService.hasEnvironmentNamed(new CaseInsensitiveString(environmentName)));
         service.deleteEnvironment(service.getEnvironmentConfig(environmentName), new Username(new CaseInsensitiveString("foo")), result);
         assertFalse(goConfigService.hasEnvironmentNamed(new CaseInsensitiveString(environmentName)));
-        assertThat(result.message(localizer), containsString("Environment 'dev' was deleted successfully."));
+        assertThat(result.message(localizer), containsString("The environment 'dev' was deleted successfully."));
     }
 
     @Test
@@ -270,7 +270,7 @@ public class EnvironmentConfigServiceIntegrationTest {
     public void shouldPopulateResultWithErrorIfEnvNotFound() throws NoSuchEnvironmentException {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         ConfigElementForEdit<EnvironmentConfig> edit = service.forEdit("foo-env", result);
-        assertThat(result.message(localizer), is("Environment named 'foo-env' not found."));
+        assertThat(result.message(localizer), is("Environment 'foo-env' not found."));
         assertThat(edit, is(nullValue()));
     }
 

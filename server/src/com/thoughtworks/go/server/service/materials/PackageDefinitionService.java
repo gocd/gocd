@@ -16,8 +16,14 @@
 
 package com.thoughtworks.go.server.service.materials;
 
+import com.thoughtworks.go.config.ConfigTag;
 import com.thoughtworks.go.config.Validatable;
+import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
+import com.thoughtworks.go.config.update.CreatePackageConfigCommand;
+import com.thoughtworks.go.config.update.DeletePackageConfigCommand;
 import com.thoughtworks.go.config.update.ErrorCollector;
+import com.thoughtworks.go.config.update.UpdatePackageConfigCommand;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
@@ -33,7 +39,13 @@ import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfi
 import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.EntityHashingService;
+import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
+import com.thoughtworks.go.util.StringUtil;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -44,12 +56,18 @@ import java.util.List;
 @Service
 public class PackageDefinitionService {
     private final Localizer localizer;
+    private EntityHashingService entityHashingService;
+    private GoConfigService goConfigService;
     PackageAsRepositoryExtension packageAsRepositoryExtension;
 
+    public static final Logger LOGGER = Logger.getLogger(PackageDefinitionService.class);
+
     @Autowired
-    public PackageDefinitionService(PackageAsRepositoryExtension packageAsRepositoryExtension, Localizer localizer) {
+    public PackageDefinitionService(PackageAsRepositoryExtension packageAsRepositoryExtension, Localizer localizer, EntityHashingService entityHashingService, GoConfigService goConfigService) {
         this.packageAsRepositoryExtension = packageAsRepositoryExtension;
         this.localizer = localizer;
+        this.entityHashingService = entityHashingService;
+        this.goConfigService = goConfigService;
     }
 
     public void performPluginValidationsFor(final PackageDefinition packageDefinition) {
@@ -66,6 +84,31 @@ public class PackageDefinitionService {
                 if (configurationProperty.getValue().isEmpty() && configurationProperty.doesNotHaveErrorsAgainstConfigurationValue()) {
                     configurationProperty.addErrorAgainstConfigurationValue(localizer.localize("MANDATORY_CONFIGURATION_FIELD_WITH_NAME", configurationProperty.getConfigurationKey().getName()));
                 }
+            }
+        }
+    }
+
+    public boolean validatePackageConfiguration(final PackageDefinition packageDefinition) {
+        String pluginId = packageDefinition.getRepository().getPluginConfiguration().getId();
+        if (!packageDefinition.getRepository().doesPluginExist()) {
+            throw new RuntimeException(String.format("Plugin with id '%s' is not found.", pluginId));
+        }
+
+        ValidationResult validationResult = packageAsRepositoryExtension.isPackageConfigurationValid(pluginId, buildPackageConfigurations(packageDefinition), buildRepositoryConfigurations(packageDefinition.getRepository()));
+        addErrorsToConfiguration(validationResult, packageDefinition);
+
+        return validationResult.isSuccessful();
+    }
+
+    private void addErrorsToConfiguration(ValidationResult validationResult, PackageDefinition packageDefinition) {
+        for (ValidationError validationError : validationResult.getErrors()) {
+            ConfigurationProperty property = packageDefinition.getConfiguration().getProperty(validationError.getKey());
+
+            if (property != null) {
+                property.addError(validationError.getKey(), validationError.getMessage());
+            } else {
+                String validationErrorKey = StringUtil.isBlank(validationError.getKey()) ? PackageDefinition.CONFIGURATION : validationError.getKey();
+                packageDefinition.addError(validationErrorKey, validationError.getMessage());
             }
         }
     }
@@ -104,6 +147,48 @@ public class PackageDefinitionService {
         RepositoryConfiguration repositoryConfiguration = new RepositoryConfiguration();
         populateConfiguration(packageRepository.getConfiguration(), repositoryConfiguration);
         return repositoryConfiguration;
+    }
+
+    private void update(Username username, PackageDefinition packageDeinition, HttpLocalizedOperationResult result, EntityConfigUpdateCommand command) {
+        try {
+            goConfigService.updateConfig(command, username);
+        } catch (Exception e) {
+            if (e instanceof GoConfigInvalidException) {
+                result.unprocessableEntity(LocalizedMessage.string("ENTITY_CONFIG_VALIDATION_FAILED", packageDeinition.getClass().getAnnotation(ConfigTag.class).value(), packageDeinition.getId(), e.getMessage()));
+            } else {
+                if (!result.hasMessage()) {
+                    LOGGER.error(e.getMessage(), e);
+                    result.internalServerError(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", "An error occurred while saving the package config. Please check the logs for more information."));
+                }
+            }
+        }
+    }
+
+
+    public PackageDefinition find(String packageId) {
+        return goConfigService.findPackage(packageId);
+    }
+
+    public List<PackageDefinition> getPackages() {
+        return goConfigService.getPackages();
+    }
+
+    public void deletePackage(PackageDefinition packageDefinition, Username username, HttpLocalizedOperationResult result) {
+        DeletePackageConfigCommand command = new DeletePackageConfigCommand(goConfigService, packageDefinition, username, result);
+        update(username, packageDefinition, result, command);
+        if (result.isSuccessful()) {
+            result.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", "package definition", packageDefinition.getId()));
+        }
+    }
+
+    public void createPackage(PackageDefinition packageDefinition, String repositoryId, Username username, HttpLocalizedOperationResult result) {
+        CreatePackageConfigCommand command = new CreatePackageConfigCommand(goConfigService, packageDefinition, repositoryId, username, result, this);
+        update(username, packageDefinition, result, command);
+    }
+
+    public void updatePackage(String oldPackageId, PackageDefinition newPackage, String md5, Username username, HttpLocalizedOperationResult result) {
+        UpdatePackageConfigCommand command = new UpdatePackageConfigCommand(goConfigService, oldPackageId, newPackage, username, md5, this.entityHashingService, result, this);
+        update(username, this.find(oldPackageId), result, command);
     }
 
     private com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration buildPackageConfigurations(PackageDefinition packageDefinition) {

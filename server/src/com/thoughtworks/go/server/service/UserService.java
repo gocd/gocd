@@ -250,9 +250,9 @@ public class UserService {
     public void deleteUser(String username, HttpLocalizedOperationResult result) {
         try {
             userDao.deleteUser(username);
-            result.setMessage(LocalizedMessage.string("USER_DELETE_SUCCESSFUL", username));
+            result.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", "user", username));
         } catch (UserNotFoundException e) {
-            result.notFound(LocalizedMessage.string("USER_NOT_FOUND", username), HealthStateType.general(HealthStateScope.GLOBAL));
+            result.notFound(LocalizedMessage.string("RESOURCE_NOT_FOUND", "User", username), HealthStateType.general(HealthStateScope.GLOBAL));
         } catch (UserEnabledException e) {
             result.badRequest(LocalizedMessage.string("USER_NOT_DISABLED", username));
         }
@@ -468,7 +468,7 @@ public class UserService {
                 User user = userSearchModel.getUser();
 
                 if (userExists(user)) {
-                    result.conflict(LocalizedMessage.string("USER_ALREADY_EXISTS", user.getName(), user.getDisplayName(), user.getEmail()));
+                    result.conflict(LocalizedMessage.string("RESOURCE_ALREADY_EXISTS", "user", user.getName(), user.getDisplayName(), user.getEmail()));
                     return;
                 }
 

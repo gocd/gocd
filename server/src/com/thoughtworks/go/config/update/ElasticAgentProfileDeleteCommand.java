@@ -57,7 +57,7 @@ public class ElasticAgentProfileDeleteCommand extends ElasticAgentProfileCommand
         }
 
         if (!usedByPipelines.isEmpty()) {
-            result.unprocessableEntity(LocalizedMessage.string("CANNOT_DELETE_ELASTIC_AGENT_PROFILE", elasticProfile.getId(), usedByPipelines));
+            result.unprocessableEntity(LocalizedMessage.string("CANNOT_DELETE_RESOURCE_REFERENCED_BY_PIPELINES", "elastic agent profile", elasticProfile.getId(), usedByPipelines));
             throw new GoConfigInvalidException(preprocessedConfig, String.format("The elastic agent profile '%s' is being referenced by pipeline(s): %s.", elasticProfile.getId(), usedByPipelines));
         }
         return true;

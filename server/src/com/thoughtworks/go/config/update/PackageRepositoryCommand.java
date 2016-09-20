@@ -47,6 +47,7 @@ public abstract class PackageRepositoryCommand implements EntityConfigUpdateComm
         this.username = username;
     }
 
+    @Override
     public boolean isValid(CruiseConfig preprocessedConfig) {
         PackageRepositories repositories = preprocessedConfig.getPackageRepositories();
         this.preprocessedRepository = repositories.find(this.repository.getRepoId());
@@ -57,18 +58,24 @@ public abstract class PackageRepositoryCommand implements EntityConfigUpdateComm
         return getAllErrors(this.repository).isEmpty() && isValidConfiguration && result.isSuccessful();
     }
 
+    @Override
     public void clearErrors() {
         BasicCruiseConfig.clearErrors(this.preprocessedRepository);
     }
 
+    @Override
     public PackageRepository getPreprocessedEntityConfig() {
         return this.preprocessedRepository;
     }
 
+    @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
-        if (!goConfigService.isAdministrator(username.getUsername())) {
-            Localizable noPermission = LocalizedMessage.string("UNAUTHORIZED_TO_OPERATE");
-            result.unauthorized(noPermission, HealthStateType.unauthorised());
+        return isAuthorized();
+    }
+
+    private boolean isAuthorized() {
+        if (!(goConfigService.isUserAdmin(username) || goConfigService.isGroupAdministrator(username.getUsername()))) {
+            result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
             return false;
         }
         return true;

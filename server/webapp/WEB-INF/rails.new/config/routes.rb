@@ -236,7 +236,7 @@ Go::Application.routes.draw do
           patch on: :member, action: :patch
           put on: :member, action: :put
         end
-
+        resources :packages, param: :package_id, only: [:show, :destroy, :index, :create, :update]
         post :material_test, controller: :material_test, action: :test, as: :material_test
         namespace :internal do
           resources :pipelines, only: [:index]

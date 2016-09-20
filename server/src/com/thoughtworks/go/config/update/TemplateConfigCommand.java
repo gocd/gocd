@@ -63,7 +63,7 @@ public abstract class TemplateConfigCommand implements EntityConfigUpdateCommand
         } else {
             PipelineTemplateConfig pipelineTemplateConfig = cruiseConfig.findTemplate(templateConfig.name());
             if (pipelineTemplateConfig == null) {
-                result.notFound(LocalizedMessage.string("RESOURCE_NOT_FOUND"), HealthStateType.notFound());
+                result.notFound(LocalizedMessage.string("RESOURCE_NOT_FOUND", "Template", templateConfig.name()), HealthStateType.notFound());
                 throw new NoSuchTemplateException(templateConfig.name());
             }
             return pipelineTemplateConfig;

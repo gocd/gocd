@@ -267,10 +267,10 @@ describe Api::PipelinesController do
       loser = Username.new(CaseInsensitiveString.new("loser"))
       controller.should_receive(:current_user).and_return(loser)
       @changeset_service.should_receive(:getCardNumbersBetween).with('foo', 10, 20, loser, an_instance_of(HttpLocalizedOperationResult), false) do |name, from, to, user, result, show_bisect|
-        result.notFound(LocalizedMessage.string("PIPELINE_NOT_FOUND", ['foo']), HealthStateType.general(HealthStateScope.forPipeline('foo')))
+        result.notFound(LocalizedMessage.string("RESOURCE_NOT_FOUND", 'pipeline', ['foo']), HealthStateType.general(HealthStateScope.forPipeline('foo')))
       end
       get :card_activity, :pipeline_name => 'foo', :from_pipeline_counter => "10", :to_pipeline_counter => "20", :no_layout => true
-      expect(response.body).to eq("Pipeline 'foo' not found.\n")
+      expect(response.body).to eq("pipeline '[\"foo\"]' not found.\n")
     end
 
     describe :route do

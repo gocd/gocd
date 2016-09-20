@@ -29,6 +29,7 @@ import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
+import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.i18n.LocalizedMessage;
@@ -50,6 +51,7 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.ExceptionUtils;
+import com.thoughtworks.go.util.Pair;
 import com.thoughtworks.go.util.SystemTimeClock;
 import org.apache.log4j.Logger;
 import org.dom4j.DocumentFactory;
@@ -156,7 +158,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
 
     private boolean doesPipelineExist(String pipelineName, LocalizedOperationResult result) {
         if (!getCurrentConfig().hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
-            result.notFound(LocalizedMessage.string("PIPELINE_NOT_FOUND", pipelineName), HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
+            result.notFound(LocalizedMessage.string("RESOURCE_NOT_FOUND", "pipeline", pipelineName), HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
             return false;
         }
         return true;
@@ -564,6 +566,27 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return null;
     }
 
+    public List<PackageDefinition> getPackages() {
+        ArrayList<PackageDefinition> packages = new ArrayList<>();
+        for (PackageRepository repository : this.getCurrentConfig().getPackageRepositories()) {
+            packages.addAll(repository.getPackages());
+        }
+        return packages;
+    }
+
+    public PackageDefinition findPackage(String packageId) {
+        PackageDefinition packageDefinition = null;
+        for (PackageRepository repository : this.getCurrentConfig().getPackageRepositories()) {
+            for (PackageDefinition pkg : repository.getPackages()) {
+                if (packageId.equals(pkg.getId())) {
+                    packageDefinition = pkg;
+                    break;
+                }
+            }
+        }
+        return packageDefinition;
+    }
+
     public MaterialConfigs materialConfigsFor(final CaseInsensitiveString name) {
         return pipelineConfigNamed(name).materialConfigs();
     }
@@ -950,7 +973,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
 
     public boolean isPipelineEditableViaUI(String pipelineName) {
         PipelineConfig pipelineConfig = this.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
-        if(pipelineConfig == null)
+        if (pipelineConfig == null)
             return false;
         return isOriginLocal(pipelineConfig.getOrigin());
     }
@@ -974,6 +997,10 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
 
     public PackageRepositories getPackageRepositories() {
         return cruiseConfig().getPackageRepositories();
+    }
+
+    public Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> getPackageUsageInPipelines() {
+        return groups().getPackageUsageInPipelines();
     }
 
     public abstract class XmlPartialSaver<T> {

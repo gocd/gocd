@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2016 ThoughtWorks, Inc.
+# Copyright 2015 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,18 +16,24 @@
 
 module ApiV1
   module Config
-    class PackageRepositoriesRepresenter < ApiV1::BaseRepresenter
-      alias_method :package_repositories, :represented
+    class PackageSummaryRepresenter < ApiV1::BaseRepresenter
+      alias_method :package, :represented
 
       link :self do |opts|
-        opts[:url_builder].apiv1_admin_repositories_url
+        opts[:url_builder].apiv1_admin_package_url(package_id: package.id)
       end
 
-      link :doc do
-        'https://api.go.cd/#package-repositories'
+      link :doc do |opts|
+        'https://api.go.cd/#packages'
       end
 
-      collection :package_repositories, embedded: true, exec_context: :decorator, decorator: PackageRepositoryRepresenter
+      link :find do |opts|
+        opts[:url_builder].apiv1_admin_package_url(package_id: '__package_id__').gsub(/__package_id__/, ':package_id')
+      end 
+
+      property :name
+      property :id
     end
   end
+
 end

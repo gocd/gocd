@@ -16,14 +16,13 @@
 
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
-import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -35,58 +34,56 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class DeletePackageRepositoryCommand implements EntityConfigUpdateCommand<PackageRepository> {
+public class DeletePackageConfigCommand implements EntityConfigUpdateCommand<PackageDefinition> {
     private final GoConfigService goConfigService;
-    private final PackageRepository repository;
-    private PackageRepository existingPackageRepository;
+    private final PackageDefinition packageDefinition;
     private final Username username;
     private final HttpLocalizedOperationResult result;
 
-    public DeletePackageRepositoryCommand(GoConfigService goConfigService, PackageRepository repository, Username username, HttpLocalizedOperationResult result) {
+    public DeletePackageConfigCommand(GoConfigService goConfigService, PackageDefinition packageDefinition, Username username, HttpLocalizedOperationResult result) {
         this.goConfigService = goConfigService;
-        this.repository = repository;
+        this.packageDefinition = packageDefinition;
         this.username = username;
         this.result = result;
     }
 
     @Override
     public void update(CruiseConfig modifiedConfig) throws Exception {
-        existingPackageRepository = modifiedConfig.getPackageRepositories().find(repository.getRepoId());
-        PackageRepositories packageRepositories = modifiedConfig.getPackageRepositories();
-        packageRepositories.removePackageRepository(this.repository.getId());
-        modifiedConfig.setPackageRepositories(packageRepositories);
+        PackageRepositories repositories = modifiedConfig.getPackageRepositories();
+        PackageRepository packageRepository = repositories.findPackageRepositoryHaving(this.packageDefinition.getId());
+        packageRepository.removePackage(this.packageDefinition.getId());
+        modifiedConfig.setPackageRepositories(repositories);
     }
 
     @Override
     public boolean isValid(CruiseConfig preprocessedConfig) {
-        boolean canDeleteRepository = preprocessedConfig.canDeletePackageRepository(existingPackageRepository);
-        if (!canDeleteRepository) {
-            Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> packageUsageInPipelines = goConfigService.getPackageUsageInPipelines();
-            Localizable.CurryableLocalizable message = LocalizedMessage.string("CANNOT_DELETE_RESOURCE_REFERENCED_BY_PIPELINES", "package repository", repository.getId(), populateList(packageUsageInPipelines));
-            this.result.unprocessableEntity(message);
+        Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> packageUsageInPipelines = goConfigService.getPackageUsageInPipelines();
+        List<String> pipelinesUsingPackages = populateList(packageUsageInPipelines);
+        if (!pipelinesUsingPackages.isEmpty()) {
+            result.unprocessableEntity(LocalizedMessage.string("CANNOT_DELETE_RESOURCE_REFERENCED_BY_PIPELINES", "package definition", packageDefinition.getId(), pipelinesUsingPackages));
+            return false;
         }
-        return canDeleteRepository;
+        return true;
     }
 
     private List<String> populateList(Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> packageUsageInPipelines) {
-        ArrayList<String> pipleines = new ArrayList<>();
-        for(String key: packageUsageInPipelines.keySet()) {
+        ArrayList<String> pipelinesReferringPackages = new ArrayList<>();
+        for (String key : packageUsageInPipelines.keySet()) {
             List<Pair<PipelineConfig, PipelineConfigs>> pairs = packageUsageInPipelines.get(key);
-            for(Pair<PipelineConfig, PipelineConfigs> pair : pairs) {
-                pipleines.add(pair.first().getName().toLower());
+            for (Pair<PipelineConfig, PipelineConfigs> pair : pairs) {
+                pipelinesReferringPackages.add(pair.first().getName().toLower());
             }
         }
-        return pipleines;
+        return pipelinesReferringPackages;
     }
 
     @Override
     public void clearErrors() {
-        BasicCruiseConfig.clearErrors(this.repository);
     }
 
     @Override
-    public PackageRepository getPreprocessedEntityConfig() {
-        return this.repository;
+    public PackageDefinition getPreprocessedEntityConfig() {
+        return this.packageDefinition;
     }
 
     @Override

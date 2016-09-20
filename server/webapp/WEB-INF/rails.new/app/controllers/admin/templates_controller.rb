@@ -28,7 +28,7 @@ class Admin::TemplatesController < AdminController
       assert_load :pipeline, create_empty_template_view_model
       render :layout => false
     else
-      render_error_template(l.string("PIPELINE_NOT_FOUND", [pipelineName]), 404)
+      render_error_template(l.string("RESOURCE_NOT_FOUND", 'pipeline', [pipelineName]), 404)
     end
   end
 

@@ -69,7 +69,7 @@ public class AddEnvironmentCommand extends EnvironmentCommand implements EntityC
         }
         CaseInsensitiveString environmentName = environmentConfig.name();
         if (goConfigService.hasEnvironmentNamed(environmentName)) {
-            result.conflict(LocalizedMessage.string("CANNOT_ADD_ENV_ALREADY_EXISTS", environmentName));
+            result.conflict(LocalizedMessage.string("RESOURCE_ALREADY_EXISTS", "environment", environmentName));
             return false;
         }
         return true;

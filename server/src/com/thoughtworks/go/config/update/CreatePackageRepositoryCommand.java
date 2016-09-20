@@ -24,7 +24,7 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.materials.PackageRepositoryService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 
-public class CreatePackageRepositoryCommand extends PackageRepositoryCommand{
+public class CreatePackageRepositoryCommand extends PackageRepositoryCommand {
     private final PackageRepository repository;
 
     public CreatePackageRepositoryCommand(GoConfigService goConfigService, PackageRepositoryService packageRepositoryService, PackageRepository repository, Username username, HttpLocalizedOperationResult result) {
@@ -33,9 +33,9 @@ public class CreatePackageRepositoryCommand extends PackageRepositoryCommand{
     }
 
     @Override
-    public void update(CruiseConfig preprocessedConfig) throws Exception {
-        PackageRepositories repositories = preprocessedConfig.getPackageRepositories();
+    public void update(CruiseConfig modifiedConfig) throws Exception {
+        PackageRepositories repositories = modifiedConfig.getPackageRepositories();
         repositories.add(this.repository);
-        preprocessedConfig.setPackageRepositories(repositories);
+        modifiedConfig.setPackageRepositories(repositories);
     }
 }

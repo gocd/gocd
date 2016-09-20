@@ -19,21 +19,25 @@ module ApiV1
     class PackageRepositoryRepresenter < ApiV1::BaseRepresenter
       alias_method :package_repository, :represented
 
-      error_representer
+      error_representer(
+        {
+          "repoConfiguration" => "configuration"
+        }
+      )
 
       link :self do |opts|
         opts[:url_builder].apiv1_admin_repository_url(repo_id: package_repository.id)
       end
 
       link :doc do |opts|
-        'https://api.go.cd/#package-repository'
+        'https://api.go.cd/#package-repositories'
       end
 
       link :find do |opts|
         opts[:url_builder].apiv1_admin_repository_url(repo_id: '__repo_id__').gsub(/__repo_id__/, ':repo_id')
       end
 
-      property :id, as: :repo_id, default: SecureRandom.hex
+      property :id, as: :repo_id
       property :name
 
       property :plugin_configuration,
@@ -49,7 +53,7 @@ module ApiV1
       collection :packages,
                  exec_context: :decorator,
                  embedded: true,
-                 decorator:    ApiV1::Config::PackageHalRepresenter,
+                 decorator:    ApiV1::Config::PackageSummaryRepresenter,
                  class:        com.thoughtworks.go.domain.packagerepository.PackageDefinition
 
       delegate :packages, :configuration, to: :package_repository

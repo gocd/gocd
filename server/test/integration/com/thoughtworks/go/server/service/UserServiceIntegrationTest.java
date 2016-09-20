@@ -297,7 +297,7 @@ public class UserServiceIntegrationTest {
         userService.create(Arrays.asList(foo), result);
 
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(localizer), is("Failed to add user. User 'fooUser' already exists."));
+        assertThat(result.message(localizer), is("Failed to add user. The user 'fooUser' already exists."));
     }
 
     @Test

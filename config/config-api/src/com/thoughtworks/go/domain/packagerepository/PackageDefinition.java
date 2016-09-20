@@ -27,14 +27,8 @@ import javax.annotation.PostConstruct;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import com.thoughtworks.go.config.ConfigAttribute;
-import com.thoughtworks.go.config.ConfigReferenceCollection;
-import com.thoughtworks.go.config.ConfigSubtag;
-import com.thoughtworks.go.config.ConfigTag;
-import com.thoughtworks.go.config.IgnoreTraversal;
-import com.thoughtworks.go.config.ParamsAttributeAware;
-import com.thoughtworks.go.config.Validatable;
-import com.thoughtworks.go.config.ValidationContext;
+import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.builder.ConfigurationPropertyBuilder;
 import com.thoughtworks.go.config.materials.AbstractMaterialConfig;
 import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.ConfigErrors;
@@ -42,6 +36,7 @@ import com.thoughtworks.go.domain.ConfigurationDisplayUtil;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.SecureKeyInfoProvider;
+import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.util.CachedDigestUtils;
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.plugin.access.packagematerial.AbstractMetaDataStore;
@@ -59,6 +54,7 @@ import static org.apache.commons.lang.StringUtils.isBlank;
 public class PackageDefinition implements Serializable, Validatable, ParamsAttributeAware {
     public static final String NAME = "name";
     public static final String ID = "id";
+    public static final String CONFIGURATION = "configuration";
     private final ConfigErrors errors = new ConfigErrors();
 
     @ConfigAttribute(value = "id", allowNull = true)
@@ -185,6 +181,10 @@ public class PackageDefinition implements Serializable, Validatable, ParamsAttri
         return errors;
     }
 
+    public List<ConfigErrors> getAllErrors() {
+        return ErrorCollector.getAllErrors(this);
+    }
+
     @Override
     public void addError(String fieldName, String message) {
         errors.add(fieldName, message);
@@ -220,6 +220,34 @@ public class PackageDefinition implements Serializable, Validatable, ParamsAttri
 
     private String pluginId() {
         return packageRepository.getPluginConfiguration().getId();
+    }
+
+    public void addConfigurations(List<ConfigurationProperty> configurations) {
+        ConfigurationPropertyBuilder builder = new ConfigurationPropertyBuilder();
+        for (ConfigurationProperty property : configurations) {
+            if (doesPluginExist()) {
+                com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration packageMetadata = PackageMetadataStore.getInstance().getPackageMetadata(pluginId());
+                if (isValidConfiguration(property.getConfigKeyName(), packageMetadata)) {
+                    configuration.add(builder.create(property.getConfigKeyName(), property.getConfigValue(), property.getEncryptedValue(), packagePropertyFor(property.getConfigKeyName(), packageMetadata).getOption(Property.SECURE)));
+                } else {
+                    configuration.add(property);
+                }
+            } else {
+                configuration.add(property);
+            }
+        }
+    }
+
+    private boolean isValidConfiguration(String configKeyName, com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration packageMetadata) {
+        return packagePropertyFor(configKeyName, packageMetadata) != null;
+    }
+
+    private Property packagePropertyFor(String configKeyName, com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration packageMetadata) {
+        return packageMetadata.get(configKeyName);
+    }
+
+    private boolean doesPluginExist() {
+        return packageRepository != null && RepositoryMetadataStore.getInstance().hasPlugin(pluginId());
     }
 
     private void handlePackageRepositoryProperties(List<String> list) {
@@ -266,7 +294,7 @@ public class PackageDefinition implements Serializable, Validatable, ParamsAttri
     private SecureKeyInfoProvider getSecureKeyInfoProvider() {
         PackageMetadataStore packageMetadataStore = PackageMetadataStore.getInstance();
         final PackageConfigurations metadata = packageMetadataStore.getMetadata(pluginId());
-        if(metadata==null){
+        if (metadata == null) {
             return null;
         }
         return new SecureKeyInfoProvider() {
@@ -277,7 +305,6 @@ public class PackageDefinition implements Serializable, Validatable, ParamsAttri
             }
         };
     }
-
 
     public void addConfigurationErrorFor(String key, String message) {
         configuration.addErrorFor(key, message);

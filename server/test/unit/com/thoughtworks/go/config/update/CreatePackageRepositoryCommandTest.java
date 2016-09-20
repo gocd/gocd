@@ -120,10 +120,30 @@ public class CreatePackageRepositoryCommandTest {
         CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, packageRepositoryService, packageRepository, currentUser, result);
 
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_OPERATE"), HealthStateType.unauthorised());
+        expectedResult.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result, is(expectedResult));
+    }
+
+    @Test
+    public void shouldContinueWithConfigSaveIfUserIsAdmin() {
+        when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
+        when(goConfigService.isGroupAdministrator(currentUser.getUsername())).thenReturn(false);
+
+        CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, packageRepositoryService, packageRepository, currentUser, result);
+
+        assertThat(command.canContinue(cruiseConfig), is(true));
+    }
+
+    @Test
+    public void shouldContinueWithConfigSaveIfUserIsGroupAdmin() {
+        when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
+        when(goConfigService.isGroupAdministrator(currentUser.getUsername())).thenReturn(true);
+
+        CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, packageRepositoryService, packageRepository, currentUser, result);
+
+        assertThat(command.canContinue(cruiseConfig), is(true));
     }
 }
 

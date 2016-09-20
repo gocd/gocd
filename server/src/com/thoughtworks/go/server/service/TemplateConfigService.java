@@ -116,7 +116,7 @@ public class TemplateConfigService {
     private boolean doesTemplateExist(String templateName, CruiseConfig cruiseConfig, HttpLocalizedOperationResult result) {
         TemplatesConfig templates = cruiseConfig.getTemplates();
         if (!templates.hasTemplateNamed(new CaseInsensitiveString(templateName))) {
-            result.notFound(LocalizedMessage.string("TEMPLATE_NOT_FOUND", templateName), HealthStateType.general(HealthStateScope.GLOBAL));
+            result.notFound(LocalizedMessage.string("RESOURCE_NOT_FOUND", "Template", templateName), HealthStateType.general(HealthStateScope.GLOBAL));
             return false;
         }
         return true;

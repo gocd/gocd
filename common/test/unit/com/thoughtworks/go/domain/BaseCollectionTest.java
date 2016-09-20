@@ -1,5 +1,5 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain;
 
@@ -20,10 +20,15 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
-import com.thoughtworks.go.domain.BaseCollection;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+
 
 public class BaseCollectionTest {
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     @Test
     public void shouldReturnFirstOrLastItem() {
@@ -40,6 +45,68 @@ public class BaseCollectionTest {
         assertThat(collection.first(), is(nullValue()));
         assertThat(collection.last(), is(nullValue()));
     }
+
+    @Test
+    public void shouldReplaceOldItemWithNewItem() {
+        Object oldItem = new Object();
+        Object newItem = new Object();
+
+        BaseCollection collection = new BaseCollection(oldItem);
+
+        assertThat(collection.size(), is(1));
+        assertThat(collection.first(), is(oldItem));
+
+        collection.replace(oldItem, newItem);
+
+        assertThat(collection.size(), is(1));
+        assertThat(collection.first(), is(newItem));
+    }
+
+    @Test
+    public void shouldReplaceAtTheIndexOfOldItem() {
+        Object newItem = new Object();
+        BaseCollection collection = new BaseCollection(new Object(), new Object());
+
+        collection.replace(1, newItem);
+
+        assertThat(collection.last(), is(newItem));
+    }
+
+    @Test
+    public void shouldThrowAnExceptionWhenItemToBeReplacedIsNotFound() {
+        String oldItem = "foo";
+        String newItem = "bar";
+
+        BaseCollection collection = new BaseCollection("foobar");
+
+        thrown.expect(IndexOutOfBoundsException.class);
+        thrown.expectMessage("There is no object at index '-1' in this collection of java.lang.String");
+
+        collection.replace(oldItem, newItem);
+    }
+
+    @Test
+    public void shouldThrowAnExceptionWhenIndexIsInvalid() {
+        Object newItem = new Object();
+        BaseCollection collection = new BaseCollection(new Object(), new Object());
+
+        thrown.expect(IndexOutOfBoundsException.class);
+        thrown.expectMessage("There is no object at index '-1' in this collection of java.lang.Object");
+
+        collection.replace(-1, newItem);
+    }
+
+    @Test
+    public void shouldThrowAnExceptionWhenIndexIsGreaterThanSizeOfCollection() {
+        Object newItem = new Object();
+        BaseCollection collection = new BaseCollection(new Object(), new Object());
+
+        thrown.expect(IndexOutOfBoundsException.class);
+        thrown.expectMessage("There is no object at index '3' in this collection of java.lang.Object");
+
+        collection.replace(3, newItem);
+    }
+
 }
 
 

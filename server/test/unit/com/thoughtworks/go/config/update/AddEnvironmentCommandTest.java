@@ -124,7 +124,7 @@ public class AddEnvironmentCommandTest {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
         when(goConfigService.hasEnvironmentNamed(environmentName)).thenReturn(true);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.conflict(LocalizedMessage.string("CANNOT_ADD_ENV_ALREADY_EXISTS", environmentName));
+        expectedResult.conflict(LocalizedMessage.string("RESOURCE_ALREADY_EXISTS", "environment", environmentName));
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result, is(expectedResult));

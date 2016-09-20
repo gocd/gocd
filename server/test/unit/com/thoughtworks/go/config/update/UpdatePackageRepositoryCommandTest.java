@@ -38,6 +38,7 @@ import org.mockito.Mock;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -149,7 +150,7 @@ public class UpdatePackageRepositoryCommandTest {
         UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, packageRepositoryService, newPackageRepo, currentUser, "md5", entityHashingService, result, repoId);
 
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_OPERATE"), HealthStateType.unauthorised());
+        expectedResult.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result, is(expectedResult));
@@ -157,7 +158,7 @@ public class UpdatePackageRepositoryCommandTest {
 
     @Test
     public void shouldNotContinueIfTheUserSubmittedStaleEtag() throws Exception {
-        when(goConfigService.isAdministrator(currentUser.getUsername())).thenReturn(true);
+        when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
         when(goConfigService.getPackageRepository(repoId)).thenReturn(oldPackageRepo);
         when(entityHashingService.md5ForEntity(oldPackageRepo)).thenReturn("foobar");
         HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
@@ -171,15 +172,37 @@ public class UpdatePackageRepositoryCommandTest {
 
     @Test
     public void shouldNotContinueIfRepoIdIsChanged() {
-        when(goConfigService.isAdministrator(currentUser.getUsername())).thenReturn(true);
+        when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
         when(goConfigService.getPackageRepository(repoId)).thenReturn(oldPackageRepo);
         when(entityHashingService.md5ForEntity(oldPackageRepo)).thenReturn("md5");
         HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
-        expectResult.unprocessableEntity(LocalizedMessage.string("Changing the repository id is not supported by this API."));
+        expectResult.unprocessableEntity(LocalizedMessage.string("PACKAGE_REPOSITORY_ID_CHANGED", "repository"));
 
         UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, packageRepositoryService, newPackageRepo, currentUser, "md5", entityHashingService, result, "old-repo-id");
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result, is(expectResult));
+    }
+
+    @Test
+    public void shouldContinueWithConfigSaveIfUserIsAdmin() {
+        when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
+        when(goConfigService.isGroupAdministrator(currentUser.getUsername())).thenReturn(false);
+        when(entityHashingService.md5ForEntity(any(PackageRepository.class))).thenReturn("md5");
+
+        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, packageRepositoryService, newPackageRepo, currentUser, "md5", entityHashingService, result, repoId);
+
+        assertThat(command.canContinue(cruiseConfig), is(true));
+    }
+
+    @Test
+    public void shouldContinueWithConfigSaveIfUserIsGroupAdmin() {
+        when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
+        when(goConfigService.isGroupAdministrator(currentUser.getUsername())).thenReturn(true);
+        when(entityHashingService.md5ForEntity(any(PackageRepository.class))).thenReturn("md5");
+
+        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, packageRepositoryService, newPackageRepo, currentUser, "md5", entityHashingService, result, repoId);
+
+        assertThat(command.canContinue(cruiseConfig), is(true));
     }
 }

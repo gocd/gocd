@@ -138,7 +138,7 @@ public class GoConfigServiceIntegrationTest {
         ConfigForEdit configForEdit = goConfigService.loadForEdit("non-existent-pipeline", new Username(new CaseInsensitiveString("loser")), result);
         assertThat(configForEdit, is(nullValue()));
         assertThat(result.httpCode(), is(404));
-        assertThat(result.message(localizer), is("Pipeline 'non-existent-pipeline' not found."));
+        assertThat(result.message(localizer), is("pipeline 'non-existent-pipeline' not found."));
     }
 
     private void setupSecurity() {
@@ -157,7 +157,7 @@ public class GoConfigServiceIntegrationTest {
         assertThat(goConfigService.loadForEdit("my-invalid-pipeline", new Username(new CaseInsensitiveString("root")), result), is(nullValue()));
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(404));
-        assertThat(result.message(localizer), is("Pipeline 'my-invalid-pipeline' not found."));
+        assertThat(result.message(localizer), is("pipeline 'my-invalid-pipeline' not found."));
     }
 
     @Test

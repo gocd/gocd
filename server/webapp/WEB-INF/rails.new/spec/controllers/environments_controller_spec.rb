@@ -200,7 +200,7 @@ describe EnvironmentsController do
 
       post :create, :no_layout => true, :environment => {:name => environment_name, :pipelines => []}
 
-      expect(response.body).to match(/Failed to add environment. Environment &#39;foo-environment&#39; already exists./)
+      expect(response.body).to match(/Failed to add environment. The environment &#39;foo-environment&#39; already exists./)
       expect(response.status).to eq(409)
     end
 
@@ -427,7 +427,7 @@ describe EnvironmentsController do
 
       expect(assigns[:environment]).to be_nil
 
-      expect(response.body).to eq("Environment named 'some-non-existent-environment' not found.\n")
+      expect(response.body).to eq("Environment 'some-non-existent-environment' not found.\n")
     end
 
     it "should fail pipeline_edit for a non existing environment" do
@@ -435,7 +435,7 @@ describe EnvironmentsController do
 
       expect(assigns[:environment]).to be_nil
 
-      expect(response.body).to eq("Environment named 'some-non-existent-environment' not found.\n")
+      expect(response.body).to eq("Environment 'some-non-existent-environment' not found.\n")
     end
 
     it "should fail variable_edit for a non existing environment" do
@@ -443,7 +443,7 @@ describe EnvironmentsController do
 
       expect(assigns[:environment]).to be_nil
 
-      expect(response.body).to eq("Environment named 'some-non-existent-environment' not found.\n")
+      expect(response.body).to eq("Environment 'some-non-existent-environment' not found.\n")
     end
   end
 

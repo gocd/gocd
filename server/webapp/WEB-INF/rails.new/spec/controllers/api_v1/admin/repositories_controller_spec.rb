@@ -56,6 +56,16 @@ describe ApiV1::Admin::RepositoriesController do
         login_as_user
         expect(controller).to disallow_action(:get, :index).with(401, 'You are not authorized to perform this action.')
       end
+
+      it 'should allow admin users, with security enabled' do
+        login_as_admin
+        expect(controller).to allow_action(:get, :index)
+      end
+
+      it 'should allow pipeline group admin users, with security enabled' do
+        login_as_group_admin
+        expect(controller).to allow_action(:get, :index)
+      end
     end
 
     describe :route do
@@ -121,6 +131,16 @@ describe ApiV1::Admin::RepositoriesController do
         login_as_user
         expect(controller).to disallow_action(:get, :show, repo_id: @repo_id).with(401, 'You are not authorized to perform this action.')
       end
+
+      it 'should allow admin users, with security enabled' do
+        login_as_admin
+        expect(controller).to allow_action(:get, :show)
+      end
+
+      it 'should allow pipeline group admin users, with security enabled' do
+        login_as_group_admin
+        expect(controller).to allow_action(:get, :show)
+      end
     end
 
     describe :route do
@@ -156,11 +176,11 @@ describe ApiV1::Admin::RepositoriesController do
       it 'should allow deleting package repositories' do
         @package_repository_service.stub(:getPackageRepository).with(@repo_id).and_return(@package_repo)
         @package_repository_service.should_receive(:deleteRepository).with(an_instance_of(Username), @package_repo, an_instance_of(HttpLocalizedOperationResult)) do |user, repo, result|
-          result.setMessage(LocalizedMessage.string("PACKAGE_REPOSITORY_DELETE_SUCCESSFUL", @package_repo.getId()))
+          result.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", 'package repository', @package_repo.getId()))
         end
 
         delete_with_api_header :destroy, repo_id: @repo_id
-        expect(response).to have_api_message_response(200, "Package Repository with id 'npm' was deleted successfully.")
+        expect(response).to have_api_message_response(200, "The package repository 'npm' was deleted successfully.")
       end
 
       it 'should render 404 when a package repository does not exist' do
@@ -190,6 +210,16 @@ describe ApiV1::Admin::RepositoriesController do
       it 'should disallow normal users, with security enabled' do
         login_as_user
         expect(controller).to disallow_action(:delete, :destroy, repo_id: @repo_id).with(401, 'You are not authorized to perform this action.')
+      end
+
+      it 'should allow admin users, with security enabled' do
+        login_as_admin
+        expect(controller).to allow_action(:delete, :destroy)
+      end
+
+      it 'should allow pipeline group admin users, with security enabled' do
+        login_as_group_admin
+        expect(controller).to allow_action(:delete, :destroy)
       end
     end
 
@@ -230,6 +260,14 @@ describe ApiV1::Admin::RepositoriesController do
         expect(actual_response).to eq(expected_response(@package_repo, ApiV1::Config::PackageRepositoryRepresenter))
       end
 
+      it 'should generate id if id is not provided by user' do
+        @package_repository_service.should_receive(:createPackageRepository).with(an_instance_of(PackageRepository), an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult))
+        @package_repository_service.stub(:getPackageRepository).and_return(@package_repo)
+
+        post_with_api_header :create, :repository => {name: @repo_id, plugin_metadata: {id: 'npm', version: '1'}, configuration: []}
+        expect(actual_response).to have_key(:repo_id)
+      end
+
       it 'should render the error occurred while creating a package repository' do
         @package_repository_service.should_receive(:createPackageRepository).with(an_instance_of(PackageRepository), an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)) do |repo, user, result|
           result.unprocessableEntity(LocalizedMessage.string("PLUGIN_ID_INVALID", 'invalid_id'));
@@ -238,6 +276,7 @@ describe ApiV1::Admin::RepositoriesController do
         post_with_api_header :create, :repository => {name: @repo_id, type: 'invalid_id', configuration: []}
         expect(response).to have_api_message_response(422, 'Invalid plugin id')
       end
+
     end
 
     describe :security do
@@ -255,6 +294,16 @@ describe ApiV1::Admin::RepositoriesController do
       it 'should disallow normal users, with security enabled' do
         login_as_user
         expect(controller).to disallow_action(:post, :create).with(401, 'You are not authorized to perform this action.')
+      end
+
+      it 'should allow admin users, with security enabled' do
+        login_as_admin
+        expect(controller).to allow_action(:post, :create)
+      end
+
+      it 'should allow pipeline group admin users, with security enabled' do
+        login_as_group_admin
+        expect(controller).to allow_action(:post, :create)
       end
     end
 
@@ -356,6 +405,16 @@ describe ApiV1::Admin::RepositoriesController do
       it 'should disallow normal users, with security enabled' do
         login_as_user
         expect(controller).to disallow_action(:put, :update, repo_id: @repo_id).with(401, 'You are not authorized to perform this action.')
+      end
+
+      it 'should allow admin users, with security enabled' do
+        login_as_admin
+        expect(controller).to allow_action(:put, :update)
+      end
+
+      it 'should allow pipeline group admin users, with security enabled' do
+        login_as_group_admin
+        expect(controller).to allow_action(:put, :update)
       end
     end
 

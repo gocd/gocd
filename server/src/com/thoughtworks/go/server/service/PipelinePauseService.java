@@ -95,7 +95,7 @@ public class PipelinePauseService {
         if (cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
             return false;
         }
-        result.notFound(LocalizedMessage.string("PIPELINE_NOT_FOUND", pipelineName), HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
+        result.notFound(LocalizedMessage.string("RESOURCE_NOT_FOUND", "pipeline", pipelineName), HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
         return true;
     }
 

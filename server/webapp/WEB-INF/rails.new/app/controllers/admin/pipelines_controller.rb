@@ -155,7 +155,7 @@ module Admin
         load_group_list
         render layout: false
       else
-        render_error_template(l.string("PIPELINE_NOT_FOUND", [pipelineName]), 404)
+        render_error_template(l.string("RESOURCE_NOT_FOUND", 'pipeline', [pipelineName]), 404)
       end
     end
 

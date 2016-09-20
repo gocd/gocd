@@ -246,12 +246,12 @@ describe ComparisonController, "view" do
       service.should_receive(:mingleConfigForPipelineNamed).with('some_pipeline', loser, result).and_return(mingle_config)
 
       changeset_service.should_receive(:revisionsBetween).with('some_pipeline', 10, 17, loser, an_instance_of(HttpLocalizedOperationResult), true, false) do |name, from, to, loser, result|
-        result.notFound(LocalizedMessage.string("PIPELINE_NOT_FOUND", ['some_pipeline']), HealthStateType.general(HealthStateScope.forPipeline('foo')))
+        result.notFound(LocalizedMessage.string("RESOURCE_NOT_FOUND", 'pipleine', ['some_pipeline']), HealthStateType.general(HealthStateScope.forPipeline('foo')))
       end
 
       get :show, :pipeline_name => "some_pipeline", :from_counter => "10", :to_counter => '17', :no_layout => true #Using No layout here so that we can assert on that message.
 
-      expect(response.body).to eq("Pipeline 'some_pipeline' not found.\n")
+      expect(response.body).to eq("pipleine '[\"some_pipeline\"]' not found.\n")
     end
   end
 

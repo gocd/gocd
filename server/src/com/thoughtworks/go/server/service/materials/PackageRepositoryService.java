@@ -16,9 +16,11 @@
 
 package com.thoughtworks.go.server.service.materials;
 
+import com.thoughtworks.go.config.ConfigTag;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.update.*;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Configuration;
@@ -45,6 +47,7 @@ import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.util.StringUtil;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -66,6 +69,8 @@ public class PackageRepositoryService {
     private final Localizer localizer;
     private RepositoryMetadataStore repositoryMetadataStore;
     private PackageAsRepositoryExtension packageAsRepositoryExtension;
+
+    public static final Logger LOGGER = Logger.getLogger(PackageRepositoryService.class);
 
     @Autowired
     public PackageRepositoryService(PluginManager pluginManager, PackageAsRepositoryExtension packageAsRepositoryExtension, GoConfigService goConfigService, SecurityService securityService,
@@ -150,7 +155,7 @@ public class PackageRepositoryService {
             if (property != null) {
                 property.addError(validationError.getKey(), validationError.getMessage());
             } else {
-                String validationErrorKey = StringUtil.isBlank(validationError.getKey()) ? PackageRepository.PLUGIN_CONFIGURATION : validationError.getKey();
+                String validationErrorKey = StringUtil.isBlank(validationError.getKey()) ? PackageRepository.CONFIGURATION : validationError.getKey();
                 packageRepository.addError(validationErrorKey, validationError.getMessage());
             }
         }
@@ -235,13 +240,17 @@ public class PackageRepositoryService {
         return goConfigService.getPackageRepositories();
     }
 
-    private void update(Username username, HttpLocalizedOperationResult result, EntityConfigUpdateCommand command) {
+    private void update(Username username, HttpLocalizedOperationResult result, EntityConfigUpdateCommand command, PackageRepository repository) {
         try {
             goConfigService.updateConfig(command, username);
         } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
-            if (!result.hasMessage()) {
-                result.internalServerError(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", e.getMessage()));
+            if (e instanceof GoConfigInvalidException) {
+                result.unprocessableEntity(LocalizedMessage.string("ENTITY_CONFIG_VALIDATION_FAILED", repository.getClass().getAnnotation(ConfigTag.class).value(), repository.getId(), e.getMessage()));
+            } else {
+                if (!result.hasMessage()) {
+                    LOGGER.error(e.getMessage(), e);
+                    result.internalServerError(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", "An error occurred while saving the package repository config. Please check the logs for more information."));
+                }
             }
         }
     }
@@ -253,20 +262,20 @@ public class PackageRepositoryService {
 
     public void deleteRepository(Username username, PackageRepository repository, HttpLocalizedOperationResult result) {
         DeletePackageRepositoryCommand command = new DeletePackageRepositoryCommand(goConfigService, repository, username, result);
-        update(username, result, command);
+        update(username, result, command, repository);
         if (result.isSuccessful()) {
-            result.setMessage(LocalizedMessage.string("PACKAGE_REPOSITORY_DELETE_SUCCESSFUL", repository.getId()));
+            result.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", "package repository", repository.getId()));
         }
     }
 
     public void createPackageRepository(PackageRepository repository, Username username, HttpLocalizedOperationResult result){
         CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, this, repository, username, result);
-        update(username, result, command);
+        update(username, result, command, repository);
     }
 
     public void updatePackageRepository(PackageRepository newRepo, Username username, String md5, HttpLocalizedOperationResult result, String oldRepoId){
         UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, this, newRepo, username, md5, entityHashingService, result, oldRepoId);
-        update(username,result, command);
+        update(username,result, command, newRepo);
     }
 
     private RepositoryConfiguration populateConfiguration(Configuration configuration) {

@@ -497,7 +497,7 @@ public class AgentConfigServiceIntegrationTest {
 
         assertFalse(result.isSuccessful());
         assertThat(result.toString(), result.httpCode(), is(400));
-        assertThat(result.toString(), containsString("ENV_NOT_FOUND"));
+        assertThat(result.toString(), containsString("RESOURCE_NOT_FOUND"));
         assertThat(result.toString(), containsString("Non-Existing-Environment"));
     }
 
@@ -521,7 +521,7 @@ public class AgentConfigServiceIntegrationTest {
 
         assertFalse(result.isSuccessful());
         assertThat(result.toString(), result.httpCode(), is(400));
-        assertThat(result.toString(), containsString("ENV_NOT_FOUND"));
+        assertThat(result.toString(), containsString("RESOURCE_NOT_FOUND"));
         assertThat(result.toString(), containsString("NonExistingEnvironment"));
     }
 

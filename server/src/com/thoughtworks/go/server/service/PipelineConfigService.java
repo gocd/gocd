@@ -161,7 +161,7 @@ public class PipelineConfigService {
         DeletePipelineConfigCommand deletePipelineConfigCommand = new DeletePipelineConfigCommand(goConfigService, pipelineConfig, currentUser, result);
         update(currentUser, pipelineConfig, result, deletePipelineConfigCommand);
         if(result.isSuccessful()) {
-            result.setMessage(LocalizedMessage.string("PIPELINE_DELETE_SUCCESSFUL", pipelineConfig.name()));
+            result.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", "pipeline", pipelineConfig.name()));
         }
     }
 

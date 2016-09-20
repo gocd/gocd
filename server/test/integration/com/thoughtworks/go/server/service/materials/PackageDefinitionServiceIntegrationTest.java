@@ -1,0 +1,158 @@
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.thoughtworks.go.server.service.materials;
+
+import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.domain.config.*;
+import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
+import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
+import com.thoughtworks.go.domain.packagerepository.PackageRepository;
+import com.thoughtworks.go.i18n.LocalizedMessage;
+import com.thoughtworks.go.i18n.Localizer;
+import com.thoughtworks.go.presentation.TriStateSelection;
+import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
+import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.*;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import com.thoughtworks.go.serverhealth.HealthStateType;
+import com.thoughtworks.go.util.GoConfigFileHelper;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.util.List;
+
+import static java.util.Arrays.asList;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.*;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = {
+        "classpath:WEB-INF/applicationContext-global.xml",
+        "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
+        "classpath:WEB-INF/applicationContext-acegi-security.xml"
+})
+public class PackageDefinitionServiceIntegrationTest {
+    @Autowired
+    private SecurityService securityService;
+    @Autowired
+    private GoConfigDao goConfigDao;
+    @Autowired
+    private GoConfigService goConfigService;
+    @Autowired
+    private EntityHashingService entityHashingService;
+    @Autowired
+    private PackageDefinitionService service;
+    @Autowired
+    private Localizer localizer;
+    @Autowired
+    private CachedGoPartials cachedGoPartials;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
+
+    private GoConfigFileHelper configHelper = new GoConfigFileHelper();
+    private Username user;
+    private String repoId;
+
+    @Before
+    public void setup() throws Exception {
+        cachedGoPartials.clear();
+        configHelper = new GoConfigFileHelper();
+        dbHelper.onSetUp();
+        configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
+        configHelper.onSetUp();
+        goConfigService.forceNotifyListeners();
+        user = new Username(new CaseInsensitiveString("current"));
+        final PackageRepository npmRepo = new PackageRepository();
+        PluginConfiguration pluginConfiguration = new PluginConfiguration();
+        pluginConfiguration.setId("npm");
+        pluginConfiguration.setVersion("1");
+        npmRepo.setPluginConfiguration(pluginConfiguration);
+        repoId = "repoId";
+        npmRepo.setId(repoId);
+        npmRepo.setName(repoId);
+        Configuration configuration = new Configuration();
+        configuration.add(new ConfigurationProperty(new ConfigurationKey("PACKAGE_ID"), new ConfigurationValue("prettyjson")));
+        npmRepo.setConfiguration(configuration);
+        goConfigService.updateConfig(new UpdateConfigCommand() {
+            @Override
+            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
+                cruiseConfig.setPackageRepositories(new PackageRepositories(npmRepo));
+                return cruiseConfig;
+            }
+        });
+        UpdateConfigCommand command = goConfigService.modifyAdminPrivilegesCommand(asList(user.getUsername().toString()), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.add));
+        goConfigService.updateConfig(command);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        cachedGoPartials.clear();
+        configHelper.onTearDown();
+        dbHelper.onTearDown();
+    }
+
+    @Test
+    public void shouldReturnTheExactLocalizeMessageIfItFailsToCreatePackageDefinition() throws Exception {
+        String packageUuid = "random-uuid";
+        String packageName = "prettyjson";
+        Configuration configuration = new Configuration();
+        configuration.add(new ConfigurationProperty(new ConfigurationKey("PACKAGE_ID"), new ConfigurationValue("prettyjson")));
+        PackageDefinition packageDefinition = new PackageDefinition(packageUuid, packageName, configuration);
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
+        String repositoryId = "Id";
+        expectedResult.unprocessableEntity(LocalizedMessage.string("PACKAGE_REPOSITORY_NOT_FOUND", repositoryId));
+
+        assertNull(service.find(packageUuid));
+        service.createPackage(packageDefinition, repositoryId, user, result);
+
+        assertThat(result, is(expectedResult));
+        assertNull(service.find(packageUuid));
+    }
+
+    @Test
+    public void shouldDeletePackageDefinition() throws Exception {
+        String packageUuid = "random-uuid";
+        String packageName = "prettyjson";
+        Configuration configuration = new Configuration();
+        configuration.add(new ConfigurationProperty(new ConfigurationKey("PACKAGE_ID"), new ConfigurationValue("prettyjson")));
+        PackageDefinition packageDefinition = new PackageDefinition(packageUuid, packageName, configuration);
+
+        PackageRepositories repositories = goConfigService.getConfigForEditing().getPackageRepositories();
+        PackageRepository repository = repositories.find(repoId);
+        repository.addPackage(packageDefinition);
+        repositories.removePackageRepository(repoId);
+        repositories.add(repository);
+        goConfigService.getConfigForEditing().setPackageRepositories(repositories);
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
+        expectedResult.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", "package definition", packageDefinition.getId()));
+
+        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().find(repoId).getPackages().find(packageUuid), is(packageDefinition));
+        service.deletePackage(packageDefinition, user, result);
+
+        assertThat(result, is(expectedResult));
+        assertNull(goConfigService.getConfigForEditing().getPackageRepositories().find(repoId).getPackages().find(packageUuid));
+    }
+}

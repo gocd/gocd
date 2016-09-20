@@ -393,12 +393,12 @@ describe ApiV1::Admin::EnvironmentsController do
         login_as_admin
 
         @environment_config_service.should_receive(:deleteEnvironment).with(@environment_config, an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)) do |envConfig, user, result|
-          result.setMessage(LocalizedMessage.string('ENVIRONMENT_DELETE_SUCCESSFUL', @environment_config.name))
+          result.setMessage(LocalizedMessage.string('RESOURCE_DELETE_SUCCESSFUL', 'environment', @environment_config.name))
         end
         controller.request.env['HTTP_IF_MATCH'] = "\"#{Digest::MD5.hexdigest('latest-etag')}\""
 
         delete_with_api_header :destroy, name: @environment_name
-        expect(response).to have_api_message_response(200, "Environment 'foo-environment' was deleted successfully.")
+        expect(response).to have_api_message_response(200, "The environment 'foo-environment' was deleted successfully.")
       end
 
       it 'should render 404 when a environment does not exist' do
@@ -491,11 +491,11 @@ describe ApiV1::Admin::EnvironmentsController do
         login_as_admin
 
         @environment_config_service.should_receive(:createEnvironment).with(@environment_config, an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)) do |env, user, result|
-          result.conflict(LocalizedMessage.string("CANNOT_ADD_ENV_ALREADY_EXISTS", env.name));
+          result.conflict(LocalizedMessage.string("RESOURCE_ALREADY_EXISTS", 'environment', env.name));
         end
 
         post_with_api_header :create, :environment => {name: @environment_name, pipelines: [], agents: [], environment_variables: []}
-        expect(response).to have_api_message_response(409, 'Failed to add environment. Environment \'foo-environment\' already exists.')
+        expect(response).to have_api_message_response(409, "Failed to add environment. The environment 'foo-environment' already exists.")
       end
     end
 

@@ -266,6 +266,8 @@
                 /api/admin/pipelines=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR
                 /api/admin/pipelines/*=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR
                 /api/admin/scms/**=ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR
+                /api/admin/repositories/**=ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR
+                /api/admin/packages/**=ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR
                 /api/admin/plugin_info/**=ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR
                 /api/admin/agents=ROLE_SUPERVISOR
                 /api/elastic/profiles/**=ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR

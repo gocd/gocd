@@ -168,7 +168,7 @@ public class EnvironmentConfigService implements ConfigChangedListener {
             EnvironmentConfig env = config.getEnvironments().named(new CaseInsensitiveString(environmentName));
             edit = new ConfigElementForEdit<>(cloner.deepClone(env), config.getMd5());
         } catch (NoSuchEnvironmentException e) {
-            result.badRequest(LocalizedMessage.string("ENV_NOT_FOUND", environmentName));
+            result.badRequest(LocalizedMessage.string("RESOURCE_NOT_FOUND", "Environment", environmentName));
         }
         return edit;
     }
@@ -238,7 +238,7 @@ public class EnvironmentConfigService implements ConfigChangedListener {
         DeleteEnvironmentCommand deleteEnvironmentCommand = new DeleteEnvironmentCommand(goConfigService, environmentConfig, username, actionFailed, result);
         update(deleteEnvironmentCommand, environmentConfig, username, result, actionFailed);
         if (result.isSuccessful()) {
-            result.setMessage(LocalizedMessage.string("ENVIRONMENT_DELETE_SUCCESSFUL", environmentName));
+            result.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", "environment", environmentName));
         }
     }
 

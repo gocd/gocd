@@ -49,7 +49,7 @@ public class DeleteTemplateConfigCommand extends TemplateConfigCommand {
     public boolean isValid(CruiseConfig preprocessedConfig) {
         List<CaseInsensitiveString> pipelinesAssociatedWithTemplate = preprocessedConfig.pipelinesAssociatedWithTemplate(templateConfig.name());
         if (!pipelinesAssociatedWithTemplate.isEmpty()) {
-            result.unprocessableEntity(LocalizedMessage.string("CANNOT_DELETE_TEMPLATE", templateConfig.name(), pipelinesAssociatedWithTemplate));
+            result.unprocessableEntity(LocalizedMessage.string("CANNOT_DELETE_RESOURCE_REFERENCED_BY_PIPELINES", "template", templateConfig.name(), pipelinesAssociatedWithTemplate));
             throw new GoConfigInvalidException(preprocessedConfig, String.format("The template '%s' is being referenced by pipeline(s): %s", templateConfig.name(), pipelinesAssociatedWithTemplate));
         }
         return true;

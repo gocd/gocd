@@ -416,7 +416,7 @@ public class ChangesetServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         changesetService.revisionsBetween("Pipeline_Not_Found", 1, 3, new Username(new CaseInsensitiveString("some_loser")), result, true, false);
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(localizer), is("Pipeline 'Pipeline_Not_Found' not found."));
+        assertThat(result.message(localizer), is("pipeline 'Pipeline_Not_Found' not found."));
         assertThat(result.httpCode(), is(404));
     }
 

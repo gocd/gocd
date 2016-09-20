@@ -88,7 +88,7 @@ describe Gadgets::PipelineController do
       get :content, :pipeline_name => "pipeline1", :no_layout => true
 
       expect(response.code).to eq("404")
-      expect(response.body).to eq("Pipeline 'pipeline1' not found.\n")
+      expect(response.body).to eq("pipeline '[\"pipeline1\"]' not found.\n")
       expect(assigns[:pipeline]).to be_nil
     end
 

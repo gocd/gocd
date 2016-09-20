@@ -138,7 +138,7 @@ describe Admin::PipelineGroupsController do
 
       it "should show an error when new pipeline group could not be created" do
         stub_save_for_validation_error @config do |result, config, node|
-          result.badRequest(LocalizedMessage.string("PIPELINE_NOT_FOUND", ["foo"].to_java(java.lang.String)))
+          result.badRequest(LocalizedMessage.string("RESOURCE_NOT_FOUND", 'pipeline', ["foo"].to_java(java.lang.String)))
         end
 
         post :create, :config_md5 => "1234abcd", :group => { :group => "name"}
@@ -227,7 +227,7 @@ describe Admin::PipelineGroupsController do
 
       it "should return 400 when the pipeline is not found" do
         stub_save_for_validation_error(@config) do |result, config, node|
-          result.badRequest(LocalizedMessage.string("PIPELINE_NOT_FOUND", []))
+          result.badRequest(LocalizedMessage.string("RESOURCE_NOT_FOUND", 'pipeline', []))
         end
 
         delete :destroy, :pipeline_name => "pipeline_1", :group_name => "group1", :config_md5 => "1234abcd"

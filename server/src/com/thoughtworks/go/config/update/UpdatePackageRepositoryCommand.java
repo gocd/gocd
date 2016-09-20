@@ -45,24 +45,23 @@ public class UpdatePackageRepositoryCommand extends PackageRepositoryCommand {
     }
 
     @Override
-    public void update(CruiseConfig preprocessedConfig) throws Exception {
-        PackageRepository oldRepo = preprocessedConfig.getPackageRepositories().find(newRepo.getRepoId());
+    public void update(CruiseConfig modifiedConfig) throws Exception {
+        PackageRepository oldRepo = modifiedConfig.getPackageRepositories().find(newRepo.getRepoId());
         this.newRepo.setPackages(oldRepo.getPackages());
-        PackageRepositories repositories = preprocessedConfig.getPackageRepositories();
-        repositories.removePackageRepository(oldRepo.getId());
-        repositories.add(this.newRepo);
-        preprocessedConfig.setPackageRepositories(repositories);
+        PackageRepositories repositories = modifiedConfig.getPackageRepositories();
+        repositories.replace(oldRepo, newRepo);
+        modifiedConfig.setPackageRepositories(repositories);
     }
 
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
-        return super.canContinue(cruiseConfig) && isRequestFresh() && isIdSame();
+        return super.canContinue(cruiseConfig) && isIdSame() && isRequestFresh();
     }
 
     private boolean isIdSame() {
         boolean isRepoIdSame = newRepo.getRepoId().equals(oldRepoId);
         if(!isRepoIdSame) {
-            result.unprocessableEntity(LocalizedMessage.string("Changing the repository id is not supported by this API."));
+            result.unprocessableEntity(LocalizedMessage.string("PACKAGE_REPOSITORY_ID_CHANGED", "repository"));
         }
         return isRepoIdSame;
     }

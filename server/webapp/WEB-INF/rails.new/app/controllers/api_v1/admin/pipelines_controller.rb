@@ -100,7 +100,7 @@ module ApiV1
       def check_if_pipeline_by_same_name_already_exists
         if (!pipeline_config_service.getPipelineConfig(params[:pipeline][:name]).nil?)
           result = HttpLocalizedOperationResult.new
-          result.unprocessableEntity(LocalizedMessage::string("CANNOT_CREATE_PIPELINE_ALREADY_EXISTS", params[:pipeline][:name]))
+          result.unprocessableEntity(LocalizedMessage::string("RESOURCE_ALREADY_EXISTS", 'pipeline', params[:pipeline][:name]))
           render_http_operation_result(result)
         end
       end

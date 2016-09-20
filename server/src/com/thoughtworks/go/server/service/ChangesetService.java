@@ -87,7 +87,7 @@ public class ChangesetService {
         }
 
         if (!goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
-            result.notFound(LocalizedMessage.string("PIPELINE_NOT_FOUND", pipelineName), HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
+            result.notFound(LocalizedMessage.string("RESOURCE_NOT_FOUND", "pipeline", pipelineName), HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
             return new ArrayList<>();
         }
 

@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
+import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
@@ -53,6 +54,7 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         goConfigService.register(new EnvironmentConfigListener());
         goConfigService.register(new PackageRepositoryChangeListener());
         goConfigService.register(new ElasticAgentProfileConfigListener());
+        goConfigService.register(new PackageListener());
     }
 
     @Override
@@ -86,6 +88,11 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
     }
 
     public String md5ForEntity(ElasticProfile config) {
+        String cacheKey = cacheKey(config, config.getId());
+        return getFromCache(config, cacheKey);
+    }
+
+    public String md5ForEntity(PackageDefinition config) {
         String cacheKey = cacheKey(config, config.getId());
         return getFromCache(config, cacheKey);
     }
@@ -171,6 +178,13 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         @Override
         public void onEntityConfigChange(ElasticProfile profile) {
             removeFromCache(profile, profile.getId());
+        }
+    }
+
+    private class PackageListener extends EntityConfigChangedListener<PackageDefinition>{
+        @Override
+        public void onEntityConfigChange(PackageDefinition entity) {
+            removeFromCache(entity, entity.getId());
         }
     }
 }

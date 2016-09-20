@@ -28,6 +28,7 @@ import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfi
 import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -52,6 +53,8 @@ public class PackageDefinitionServiceTest {
     @Mock
     private GoConfigService goConfigService;
     @Mock
+    private EntityHashingService entityHashingService;
+    @Mock
     private SecurityService securityService;
     @Mock
     private Localizer localizer;
@@ -66,7 +69,7 @@ public class PackageDefinitionServiceTest {
     public void setUp() throws Exception {
         initMocks(this);
         when(localizer.localize(eq("MANDATORY_CONFIGURATION_FIELD_WITH_NAME"), anyString())).thenReturn("mandatory field");
-        service = new PackageDefinitionService(packageAsRepositoryExtension, localizer);
+        service = new PackageDefinitionService(packageAsRepositoryExtension, localizer, entityHashingService, goConfigService);
 
         PackageConfigurations configurations = new PackageConfigurations();
         configurations.add(new PackageConfiguration("required").with(PackageConfiguration.REQUIRED, true));
@@ -134,7 +137,7 @@ public class PackageDefinitionServiceTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
 
-        PackageDefinitionService service = new PackageDefinitionService(packageAsRepositoryExtension, localizer);
+        PackageDefinitionService service = new PackageDefinitionService(packageAsRepositoryExtension, localizer, entityHashingService, goConfigService);
 
         ArgumentCaptor<com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration> packageConfigurationsCaptor = ArgumentCaptor.forClass(com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration.class);
         ArgumentCaptor<RepositoryConfiguration> packageRepositoryConfigurationsCaptor = ArgumentCaptor.forClass(RepositoryConfiguration.class);
@@ -166,7 +169,7 @@ public class PackageDefinitionServiceTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
 
-        PackageDefinitionService service = new PackageDefinitionService(packageAsRepositoryExtension, localizer);
+        PackageDefinitionService service = new PackageDefinitionService(packageAsRepositoryExtension, localizer, entityHashingService, goConfigService);
         ArgumentCaptor<com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration> packageConfigurationsCaptor = ArgumentCaptor.forClass(com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration.class);
         ArgumentCaptor<RepositoryConfiguration> packageRepositoryConfigurationsCaptor = ArgumentCaptor.forClass(RepositoryConfiguration.class);
 
@@ -197,7 +200,7 @@ public class PackageDefinitionServiceTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
 
-        PackageDefinitionService service = new PackageDefinitionService(packageAsRepositoryExtension, localizer);
+        PackageDefinitionService service = new PackageDefinitionService(packageAsRepositoryExtension, localizer, entityHashingService, goConfigService);
 
 
         ArgumentCaptor<com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration> packageConfigurationsCaptor = ArgumentCaptor.forClass(com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration.class);

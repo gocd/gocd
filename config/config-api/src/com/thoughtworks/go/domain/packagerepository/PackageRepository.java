@@ -79,6 +79,7 @@ public class PackageRepository implements Serializable, Validatable {
     public static final String NAME = "name";
     public static final String REPO_ID = "repoId";
     public static final String PLUGIN_CONFIGURATION = "pluginConfiguration";
+    public static final String CONFIGURATION = "repoConfiguration";
 
     public PackageRepository() {
     }

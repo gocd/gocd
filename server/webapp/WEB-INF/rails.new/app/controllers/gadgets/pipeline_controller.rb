@@ -37,7 +37,7 @@ module Gadgets
       end
 
       if (!go_config_service.hasPipelineNamed(CaseInsensitiveString.new(pipeline_name)))
-        render_error_response(l.string("PIPELINE_NOT_FOUND", [pipeline_name]), 404, true)
+        render_error_response(l.string("RESOURCE_NOT_FOUND", 'pipeline', [pipeline_name]), 404, true)
         return
       end
 

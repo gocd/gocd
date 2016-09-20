@@ -153,7 +153,6 @@
     <entry key="NO_PERMISSION_TO_UPDATE_ENVIRONMENT">Failed to update environment ''{0}''. User ''{1}'' does not have permission to update environments</entry>
     <entry key="NO_PERMISSION_TO_DELETE_ENVIRONMENT">Failed to delete environment ''{0}''. User ''{1}'' does not have permission to update environments</entry>
     <entry key="ADD_THIS_ENVIRONMENT">Add this environment</entry>
-    <entry key="CANNOT_ADD_ENV_ALREADY_EXISTS">Failed to add environment. Environment ''{0}'' already exists.</entry>
     <entry key="ADD_ENVIRONMENT_SUCCESS">Added environment ''{0}''</entry>
     <entry key="UPDATE_ENVIRONMENT_SUCCESS">Updated environment ''{0}''.</entry>
     <entry key="ENV_ADD_FAILED">Failed to add environment. {0}</entry>
@@ -174,7 +173,6 @@
     <entry key="SELECT">Select</entry>
     <entry key="SOURCE">Source</entry>
     <entry key="USER_SUCCESSFULLY_ADDED">User ''{0}'' successfully added.</entry>
-    <entry key="USER_ALREADY_EXISTS">Failed to add user. User ''{0}'' already exists.</entry>
     <entry key="USER_DOES_NOT_EXIST_IN_DB">User ''{0}'' does not exist in the database.</entry>
     <entry key="LDAP_ERROR">Ldap search failed, please contact the administrator.</entry>
     <entry key="INVALID_LDAP_ERROR">There was an error authenticating you. Please check the go server logs, or contact the go server administrator</entry>
@@ -185,7 +183,6 @@
     <entry key="GADGET_NAME_PIPELINE_STATUS">Pipeline Status</entry>
     <entry key="GADGET_NAME_DEPENDENCY_REVISIONS">Dependency Revisions</entry>
     <entry key="AUTHORIZE_GADGET">Authorize the gadget to fetch ''{0}'' from Go</entry>
-    <entry key="PIPELINE_NOT_FOUND">Pipeline ''{0}'' not found.</entry>
     <entry key="GADGET_PIPELINE_NAME_MISSING">Request does not have parameter ''{0}'' set. Please specify the name of the pipeline.</entry>
     <entry key="GADGET_PIPELINE_NAME_EMPTY">Parameter ''{0}'' is empty. Please specify the name of the pipeline.</entry>
     <entry key="GO">Go</entry>
@@ -277,7 +274,6 @@
     <entry key="FINISH_BUTTON">Finish</entry>
     <entry key="NAME_CANNOT_BE_EMPTY">Name cannot be empty</entry>
     <entry key="NAME_SHOULD_NOT_BE_REPEATED">A variable with this name has already been defined</entry>
-    <entry key="ENV_NOT_FOUND">Environment named ''{0}'' not found.</entry>
     <entry key="SHOW_ENVIRONMENT_PAGE_TITLE">{0} - Environment</entry>
     <entry key="SHOW_UNAVAILABLE_PIPELINES">Unavailable pipelines (Already associated with environments)</entry>
     <entry key="SHOW_UNAVAILABLE_REMOTE_PIPELINES">Pipelines associated with this environment in configuration repository</entry>
@@ -539,7 +535,6 @@
     <entry key="ENTITY_ATTRIBUTE_NULL">The {0} config is invalid. Attribute ''{1}'' cannot be null.</entry>
     <entry key="DELETE_TEMPLATE">Delete this template</entry>
     <entry key="UNAUTHORIZED_TO_ADMINISTER">Unauthorized to edit configuration</entry>
-    <entry key="TEMPLATE_NOT_FOUND">Template ''{0}'' not found</entry>
     <entry key="TRACKING_TOOL">Tracking Tool</entry>
     <entry key="MINGLE">Mingle</entry>
     <entry key="NONE">None</entry>
@@ -748,11 +743,10 @@
     <entry key="VSM_INTERNAL_SERVER_ERROR">Value Stream Map of pipeline ''{0}'' with counter ''{1}'' can not be rendered. Please check the server log for details.</entry>
     <entry key="VSM_INTERNAL_SERVER_ERROR_FOR_MATERIAL">Value Stream Map of material with fingerprint ''{0}'' with revision ''{1}'' can not be rendered. Please check the server log for details.</entry>
     <entry key="VSM_WARNING">Built from incompatible revisions.</entry>
-    <entry key="USER_DELETE_SUCCESSFUL">User ''{0}'' was deleted successfully.</entry>
-    <entry key="USER_NOT_FOUND">User ''{0}'' not found.</entry>
     <entry key="USER_NOT_DISABLED">User ''{0}'' is not disabled.</entry>
-    <entry key="ENVIRONMENT_DELETE_SUCCESSFUL">Environment ''{0}'' was deleted successfully.</entry>
     <entry key="RESOURCE_NOT_FOUND">{0} ''{1}'' not found.</entry>
+    <entry key="RESOURCE_ALREADY_EXISTS">Failed to add {0}. The {0} ''{1}'' already exists.</entry>
+    <entry key="CANNOT_DELETE_RESOURCE_REFERENCED_BY_PIPELINES">Cannot delete the {0} ''{1}'' as it is used by pipeline(s): ''{2}''</entry>
     <entry key="VIEW">View</entry>
     <entry key="ADD_NEW_REPOSITORY">Add New Repository</entry>
     <entry key="MANDATORY_CONFIGURATION_FIELD">This field is required</entry>
@@ -783,7 +777,9 @@
     <entry key="PIPELINES_CURRENTLY_ASSOCIATED_WITH_PACKAGE">Pipelines currently associated with this package</entry>
     <entry key="CANNOT_DELETE_REPOSITORY">One or more packages in this repository are being used by pipeline(s). Cannot delete repository.</entry>
     <entry key="DELETE_REPOSITORY">Delete this repository.</entry>
+    <entry key="PACKAGE_REPOSITORY_ID_CHANGED">Changing the {0} id is not supported by this API.</entry>
     <entry key="PACKAGE_NOT_FOUND">Could not find package id ''{0}'' under repository with id ''{1}''. It might have been deleted.</entry>
+    <entry key="PACKAGE_ID_NOT_PROVIDED">Please provide the configuration property PACKAGE_ID.</entry>
     <entry key="TRACKBACK">Trackback: </entry>
     <entry key="COMMENT">Comment: </entry>
     <entry key="CREATOR">Creator: </entry>
@@ -800,11 +796,6 @@
     <entry key="STALE_RESOURCE_CONFIG">Someone has modified the configuration for {0} ''{1}''. Please update your copy of the config with the changes.</entry>
     <entry key="ENTITY_CONFIG_VALIDATION_FAILED">Validations failed for {0} ''{1}''. Error(s): [{2}]. Please correct and resubmit.</entry>
     <entry key="RENAMING_NOT_ALLOWED">Renaming the {0} resource is not supported by this API.</entry>
-    <entry key="CANNOT_DELETE_ELASTIC_AGENT_PROFILE">Cannot delete the elastic agent profile ''{0}'' as it is used by pipeline(s) ''{1}'' and template(s) ''{''</entry>
-    <entry key="CANNOT_CREATE_PIPELINE_ALREADY_EXISTS">Failed to create pipeline ''{0}'' as another pipeline by the same name already exists.</entry>
-    <entry key="PIPELINE_DELETE_SUCCESSFUL">Pipeline ''{0}'' was deleted successfully.</entry>
-    <entry key="PACKAGE_REPOSITORY_DELETE_SUCCESSFUL">Package Repository with id ''{0}'' was deleted successfully.</entry>
-    <entry key="PACKAGE_REPOSITORY_DELETE_FAILED">Can not Delete Package Repository with id ''{0}'' as it used as a Material in Pipeline(s).</entry>
     <entry key="UNAUTHORIZED_TO_DELETE_PIPELINE">Unauthorized to delete pipeline.</entry>
     <entry key="PIPELINE_GROUP_MANDATORY_FOR_PIPELINE_CREATE">Pipeline group must be specified for creating a pipeline.</entry>
     <entry key="UNAUTHORIZED_TO_OPERATE">You are not authorized to perform this operation.</entry>

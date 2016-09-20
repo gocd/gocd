@@ -95,13 +95,31 @@ public class DeletePackageRepositoryCommandTest {
     @Test
     public void shouldNotContinueIfTheUserIsNotAdmin() throws Exception {
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_OPERATE"), HealthStateType.unauthorised());
-        when(goConfigService.isAdministrator(currentUser.getUsername())).thenReturn(false);
+        expectedResult.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
+        when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
         DeletePackageRepositoryCommand command = new DeletePackageRepositoryCommand(goConfigService, packageRepository, currentUser, result);
 
-        boolean canContinue = command.canContinue(cruiseConfig);
-
-        assertFalse(canContinue);
+        assertFalse(command.canContinue(cruiseConfig));
         assertThat(result, is(expectedResult));
+    }
+
+    @Test
+    public void shouldContinueWithConfigSaveIfUserIsAdmin() {
+        when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
+        when(goConfigService.isGroupAdministrator(currentUser.getUsername())).thenReturn(false);
+
+        DeletePackageRepositoryCommand command = new DeletePackageRepositoryCommand(goConfigService, packageRepository, currentUser, result);
+
+        assertThat(command.canContinue(cruiseConfig), is(true));
+    }
+
+    @Test
+    public void shouldContinueWithConfigSaveIfUserIsGroupAdmin() {
+        when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
+        when(goConfigService.isGroupAdministrator(currentUser.getUsername())).thenReturn(true);
+
+        DeletePackageRepositoryCommand command = new DeletePackageRepositoryCommand(goConfigService, packageRepository, currentUser, result);
+
+        assertThat(command.canContinue(cruiseConfig), is(true));
     }
 }

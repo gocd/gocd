@@ -92,7 +92,7 @@ public class AgentsEntityConfigUpdateCommand implements EntityConfigUpdateComman
         for (String environment : environmentsToOperate) {
             CaseInsensitiveString environmentName = new CaseInsensitiveString(environment);
             if (!allEnvironmentNames.contains(environmentName)) {
-                result.badRequest(LocalizedMessage.string("ENV_NOT_FOUND", environmentName));
+                result.badRequest(LocalizedMessage.string("RESOURCE_NOT_FOUND", "Environment", environmentName));
                 throw new NoSuchEnvironmentException(environmentName);
             }
         }

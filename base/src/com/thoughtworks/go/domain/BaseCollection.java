@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,6 +46,27 @@ public class BaseCollection<T> extends ArrayList<T> {
             return null;
         }
         return this.get(this.size() - 1);
+    }
+
+    public void replace(T oldItem, T newItem) {
+        if (this.isEmpty()) {
+            return;
+        }
+
+        int indexOfOldItem = this.indexOf(oldItem);
+        replace(indexOfOldItem, newItem);
+    }
+
+    public void replace(int indexOfOldItem, T newItem) {
+        if (this.isEmpty()) {
+            return;
+        }
+
+        if(indexOfOldItem < 0 || indexOfOldItem >= this.size()) {
+            throw new IndexOutOfBoundsException(String.format("There is no object at index '%s' in this collection of %s", indexOfOldItem, this.first().getClass().getName()));
+        }
+
+        this.set(indexOfOldItem, newItem);
     }
 
 }

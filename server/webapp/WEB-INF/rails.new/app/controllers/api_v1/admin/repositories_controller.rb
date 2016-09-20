@@ -17,7 +17,7 @@
 module ApiV1
   module Admin
     class RepositoriesController < ApiV1::BaseController
-      before_action :check_admin_user_and_401
+      before_action :check_admin_user_or_group_admin_user_and_401
       before_action :load_package_repository, only: [:show, :destroy, :update]
       before_action :check_for_stale_request, only: [:update]
 
@@ -33,6 +33,7 @@ module ApiV1
       def create
         result = HttpLocalizedOperationResult.new
         @package_repo_config = ApiV1::Config::PackageRepositoryRepresenter.new(PackageRepository.new).from_hash(params[:repository])
+        @package_repo_config.ensureIdExists
         package_repository_service.createPackageRepository(@package_repo_config, current_user, result)
         handle_config_save_result(result, @package_repo_config)
       end

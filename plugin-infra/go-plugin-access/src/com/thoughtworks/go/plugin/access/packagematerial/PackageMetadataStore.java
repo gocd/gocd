@@ -26,4 +26,13 @@ public final class PackageMetadataStore extends AbstractMetaDataStore {
     public static PackageMetadataStore getInstance() {
         return packageMetadataStore;
     }
+
+    public com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration getPackageMetadata(String pluginId) {
+
+        PackageConfigurations metadata = packageMetadataStore.getMetadata(pluginId);
+        if (metadata != null) {
+            return metadata.getPackageConfiguration();
+        }
+        return null;
+    }
 }

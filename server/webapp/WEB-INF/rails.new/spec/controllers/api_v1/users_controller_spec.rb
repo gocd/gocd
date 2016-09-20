@@ -166,12 +166,12 @@ describe ApiV1::UsersController do
         login_as_admin
 
         @user_service.should_receive(:deleteUser).with(@john.name, an_instance_of(HttpLocalizedOperationResult)) do |username, result|
-          result.setMessage(LocalizedMessage.string("USER_DELETE_SUCCESSFUL", [username].to_java(java.lang.String)))
+          result.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", "user", username))
         end
 
         delete_with_api_header :destroy, login_name: @john.name
         expect(response).to be_ok
-        expect(response).to have_api_message_response(200, "User 'jdoe' was deleted successfully.")
+        expect(response).to have_api_message_response(200, "The user 'jdoe' was deleted successfully.")
       end
 
       it 'should render 404 when a user does not exist' do

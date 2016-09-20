@@ -16,18 +16,21 @@
 
 module ApiV1
   module Config
-    class PackageRepositoriesRepresenter < ApiV1::BaseRepresenter
-      alias_method :package_repositories, :represented
-
+    class PackagesRepresenter < ApiV1::BaseRepresenter
       link :self do |opts|
-        opts[:url_builder].apiv1_admin_repositories_url
+        opts[:url_builder].apiv1_admin_packages_url
       end
 
       link :doc do
-        'https://api.go.cd/#package-repositories'
+        'https://api.go.cd/#packages'
       end
 
-      collection :package_repositories, embedded: true, exec_context: :decorator, decorator: PackageRepositoryRepresenter
+      collection :packages, embedded: true, exec_context: :decorator, decorator: PackageRepresenter
+
+      def packages
+        represented.map {|package| {package: package}}
+      end
+
     end
   end
 end

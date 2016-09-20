@@ -512,7 +512,7 @@ describe ApiV2::Admin::PipelinesController do
         expect(response.code).to eq("422")
 
         json = JSON.parse(response.body).deep_symbolize_keys
-        expect(json[:message]).to eq("Failed to create pipeline '#{@pipeline_name}' as another pipeline by the same name already exists.")
+        expect(json[:message]).to eq("Failed to add pipeline. The pipeline '#{@pipeline_name}' already exists.")
       end
 
       it "should fail if group is blank" do
@@ -591,13 +591,13 @@ describe ApiV2::Admin::PipelinesController do
 
       it "should delete pipeline config for an admin" do
         @pipeline_config_service.should_receive(:deletePipelineConfig).with(anything(), @pipeline, an_instance_of(HttpLocalizedOperationResult)) do |username, pipeline, result|
-          result.setMessage(LocalizedMessage.string("PIPELINE_DELETE_SUCCESSFUL", pipeline.name.to_s))
+          result.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", 'pipeline', pipeline.name.to_s))
         end
 
         put_with_api_header :destroy, pipeline_name: @pipeline_name
 
         expect(response.code).to eq("200")
-        expect(actual_response).to eq({ :message => "Pipeline 'pipeline1' was deleted successfully." })
+        expect(actual_response).to eq({ :message => "The pipeline 'pipeline1' was deleted successfully." })
       end
 
 

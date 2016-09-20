@@ -21,20 +21,6 @@ define(["jquery", "mithril", "lodash", 'models/agents/agents', "views/agents/but
 
     var $root = $('#mithril-mount-point'), root = $root.get(0);
 
-    var vm = {
-      agentsCheckedState: {}
-    };
-
-    vm.dropdown = {
-      reset:  m.prop(true),
-      states: {},
-      add:    function () {
-      }
-    };
-
-    vm.dropdown.states['environment'] = m.prop(false);
-    vm.dropdown.states['resource']    = m.prop(false);
-
     var selectedAgents     = function () {
     };
     var disableAgents      = function () {
@@ -49,25 +35,14 @@ define(["jquery", "mithril", "lodash", 'models/agents/agents', "views/agents/but
     };
 
     beforeAll(function () {
-      jasmine.Ajax.install();
-      jasmine.Ajax.stubRequest(/\/api\/admin\/internal\/resources/).andReturn({
-        "responseText": JSON.stringify(["Firefox", "Linux"]),
-        "status":       200
-      });
-      jasmine.Ajax.stubRequest(/\/api\/admin\/internal\/environments/).andReturn({
-        "responseText": JSON.stringify(["Dev", "Test"]),
-        "status":       200
-      });
-
       agents        = m.prop();
       var allAgents = Agents.fromJSON(json());
       agents(allAgents);
       var isAnyAgentSelected = m.prop(false);
-      mount(vm, isAnyAgentSelected);
+      mount(isAnyAgentSelected);
     });
 
     afterAll(function () {
-      jasmine.Ajax.uninstall();
       unmount();
     });
 
@@ -107,7 +82,7 @@ define(["jquery", "mithril", "lodash", 'models/agents/agents', "views/agents/but
 
       it('should enable the buttons if at least one agent is selected', function () {
         var isAnyAgentSelected = m.prop(true);
-        mount(vm, isAnyAgentSelected);
+        mount(isAnyAgentSelected);
         var rowElements = $root.find('.agent-button-group button');
 
         expect(rowElements[0]).not.toBeDisabled();
@@ -119,20 +94,19 @@ define(["jquery", "mithril", "lodash", 'models/agents/agents', "views/agents/but
 
     });
 
-    var mount = function (vm, isAnyAgentSelected) {
+    var mount = function (isAnyAgentSelected) {
       m.mount(root,
           m.component(ButtonRowWidget,
             {
               isAnyAgentSelected:     isAnyAgentSelected,
-              dropdown:               vm.dropdown,
               toggleDropDownState:    toggleDropDownState,
               dropDownState:          dropDownState,
-              'selectedAgents':       selectedAgents,
-              'onDisable':            disableAgents,
-              'onEnable':             enableAgents,
-              'onDelete':             deleteAgents,
-              'onResourcesUpdate':    updateResources,
-              'onEnvironmentsUpdate': updateEnvironments
+              selectedAgents:       selectedAgents,
+              onDisable:            disableAgents,
+              onEnable:             enableAgents,
+              onDelete:             deleteAgents,
+              onResourcesUpdate:    updateResources,
+              onEnvironmentsUpdate: updateEnvironments
             })
       );
       m.redraw(true);

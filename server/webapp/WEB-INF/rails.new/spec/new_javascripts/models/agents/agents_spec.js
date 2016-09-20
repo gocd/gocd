@@ -70,7 +70,6 @@ define([
       });
     });
 
-
     it("should give the freeSpace in human readable format", function () {
       expect(new Agents.Agent({freeSpace: 1024}).readableFreeSpace()).toBe('1 KB');
       expect(new Agents.Agent({freeSpace: 2048526}).readableFreeSpace()).toBe('1.95 MB');
@@ -137,7 +136,6 @@ define([
         expect(agent.matches("10.12.2.201")).toBe(true);
         expect(agent.matches("linux")).toBe(true);
         expect(agent.matches("perf")).toBe(true);
-
         expect(agent.matches("invalid-search")).toBe(false);
       });
     });
@@ -146,79 +144,65 @@ define([
       it("should sort based on OS", function () {
         var agents       = Agents.all();
         var sortedAgents = agents().sortBy('operatingSystem', 'asc');
-        expect(sortedAgents.toJSON()[0].uuid()).toBe("uuid-1");
-        expect(sortedAgents.toJSON()[1].uuid()).toBe("uuid-5");
+
+        var operatingSystemsOfSortedAgents = sortedAgents.collectAgentProperty('operatingSystem');
+        expect(operatingSystemsOfSortedAgents).toEqual(agents().collectAgentProperty('operatingSystem').sort());
       });
 
       it('should sort based on hostname', function () {
-        var agents                  = Agents.all();
-        var sortedAgents            = agents().sortBy('hostname');
+        var agents       = Agents.all();
+        var sortedAgents = agents().sortBy('hostname', 'asc');
+
         var hostnamesOfSortedAgents = sortedAgents.collectAgentProperty('hostname');
-        expect(hostnamesOfSortedAgents).toEqual(['host-0', 'host-1', 'host-10', 'host-11', 'host-12', 'host-13', 'host-14', 'host-2', 'host-4']);
+        expect(hostnamesOfSortedAgents).toEqual(agents().collectAgentProperty('hostname').sort());
       });
 
       it("should sort based on agent location", function () {
         var agents       = Agents.all();
         var sortedAgents = agents().sortBy('sandbox', 'asc');
-        expect(sortedAgents.toJSON()[0].uuid()).toBe("uuid-2");
-        expect(sortedAgents.toJSON()[1].uuid()).toBe("uuid-9");
+
+        var sandboxesOfSortedAgents = sortedAgents.collectAgentProperty('sandbox');
+        expect(sandboxesOfSortedAgents).toEqual(agents().collectAgentProperty('sandbox').sort());
       });
 
       it("should sort based on agent ip address", function () {
         var agents       = Agents.all();
         var sortedAgents = agents().sortBy('ipAddress', 'asc');
-        expect(sortedAgents.toJSON()[0].uuid()).toBe("uuid-2");
-        expect(sortedAgents.toJSON()[1].uuid()).toBe("uuid-1");
+
+        var ipAddressesOfSortedAgents = sortedAgents.collectAgentProperty('ipAddress');
+        expect(ipAddressesOfSortedAgents).toEqual(agents().collectAgentProperty('ipAddress').sort());
       });
 
       it("should sort based on agent status", function () {
         var agents       = Agents.all();
         var sortedAgents = agents().sortBy('agentState', 'asc');
-        expect(sortedAgents.toJSON()[0].uuid()).toBe("uuid-2");
-        expect(sortedAgents.toJSON()[1].uuid()).toBe("uuid-4");
-        expect(sortedAgents.toJSON()[2].uuid()).toBe("uuid-3");
-        expect(sortedAgents.toJSON()[3].uuid()).toBe("uuid-1");
-        expect(sortedAgents.toJSON()[4].uuid()).toBe("uuid-7");
-        expect(sortedAgents.toJSON()[5].uuid()).toBe("uuid-6");
-        expect(sortedAgents.toJSON()[6].uuid()).toBe("uuid-8");
-        expect(sortedAgents.toJSON()[7].uuid()).toBe("uuid-5");
-        expect(sortedAgents.toJSON()[8].uuid()).toBe("uuid-9");
+
+        var statesOfSortedAgents = sortedAgents.collectAgentProperty('status');
+        expect(statesOfSortedAgents).toEqual(["Pending", "LostContact", "Missing", "Building", "Building (Cancelled)", "Idle", "Disabled (Building)", "Disabled (Cancelled)", "Disabled"]);
       });
 
       it("should sort based on agent's free space", function () {
         var agents       = Agents.all();
         var sortedAgents = agents().sortBy('freeSpace', 'asc');
-        expect(sortedAgents.toJSON()[0].uuid()).toBe("uuid-3");
-        expect(sortedAgents.toJSON()[1].uuid()).toBe("uuid-1");
-        expect(sortedAgents.toJSON()[2].uuid()).toBe("uuid-2");
+
+        var freeSpacesOfSortedAgents = sortedAgents.collectAgentProperty('freeSpace');
+        expect(freeSpacesOfSortedAgents).toEqual(agents().collectAgentProperty('freeSpace').sort());
       });
 
       it("should sort based on agent's resources", function () {
         var agents       = Agents.all();
         var sortedAgents = agents().sortBy('resources', 'asc');
-        expect(sortedAgents.toJSON()[0].uuid()).toBe("uuid-4");
-        expect(sortedAgents.toJSON()[1].uuid()).toBe("uuid-5");
-        expect(sortedAgents.toJSON()[2].uuid()).toBe("uuid-6");
-        expect(sortedAgents.toJSON()[3].uuid()).toBe("uuid-7");
-        expect(sortedAgents.toJSON()[4].uuid()).toBe("uuid-8");
-        expect(sortedAgents.toJSON()[5].uuid()).toBe("uuid-2");
-        expect(sortedAgents.toJSON()[6].uuid()).toBe("uuid-9");
-        expect(sortedAgents.toJSON()[7].uuid()).toBe("uuid-1");
-        expect(sortedAgents.toJSON()[8].uuid()).toBe("uuid-3");
+
+        var resourcesOfSortedAgents = sortedAgents.collectAgentProperty('resources');
+        expect(resourcesOfSortedAgents).toEqual(agents().collectAgentProperty('resources').sort());
       });
 
       it("should sort based on agent's environments", function () {
         var agents       = Agents.all();
         var sortedAgents = agents().sortBy('environments', 'asc');
-        expect(sortedAgents.toJSON()[0].uuid()).toBe("uuid-2");
-        expect(sortedAgents.toJSON()[1].uuid()).toBe("uuid-5");
-        expect(sortedAgents.toJSON()[2].uuid()).toBe("uuid-6");
-        expect(sortedAgents.toJSON()[3].uuid()).toBe("uuid-7");
-        expect(sortedAgents.toJSON()[4].uuid()).toBe("uuid-8");
-        expect(sortedAgents.toJSON()[5].uuid()).toBe("uuid-9");
-        expect(sortedAgents.toJSON()[6].uuid()).toBe("uuid-4");
-        expect(sortedAgents.toJSON()[7].uuid()).toBe("uuid-3");
-        expect(sortedAgents.toJSON()[8].uuid()).toBe("uuid-1");
+
+        var environmentsOfSortedAgents = sortedAgents.collectAgentProperty('environments');
+        expect(environmentsOfSortedAgents).toEqual(agents().collectAgentProperty('environments').sort());
       });
     });
 
@@ -250,12 +234,12 @@ define([
         "environments":       [
           "staging", "perf"
         ],
-        "build_details": {
-          "_links": {
-            "job": {
+        "build_details":      {
+          "_links":   {
+            "job":      {
               "href": "http://localhost:8153/go/tab/build/detail/up42/2/up42_stage/1/up42_job"
             },
-            "stage": {
+            "stage":    {
               "href": "http://localhost:8153/go/pipelines/up42/2/up42_stage/1"
             },
             "pipeline": {
@@ -263,8 +247,8 @@ define([
             }
           },
           "pipeline": "up42",
-          "stage": "up42_stage",
-          "job": "up42_job"
+          "stage":    "up42_stage",
+          "job":      "up42_job"
         }
       },
       {
@@ -284,7 +268,7 @@ define([
         "ip_address":         "10.12.2.200",
         "sandbox":            "/var/lib/go-agent-1",
         "operating_system":   "Windows",
-        "free_space":         "Unknown",
+        "free_space":         "unknown",
         "agent_config_state": "Pending",
         "agent_state":        "Missing",
         "build_state":        "Unknown",
@@ -428,7 +412,7 @@ define([
         "ip_address":         "10.12.2.204",
         "sandbox":            "/var/lib/go-agent-5",
         "operating_system":   "Mac OS X",
-        "free_space":         "unknown",
+        "free_space":         "unnknown",
         "agent_config_state": "Disabled",
         "agent_state":        "Building",
         "build_state":        "Building",
@@ -452,14 +436,13 @@ define([
         "ip_address":         "10.12.2.220",
         "sandbox":            "/var/lib/go-agent-10",
         "operating_system":   "Windows",
-        "free_space":         "Unknown",
+        "free_space":         "unknown",
         "agent_config_state": "Disabled",
         "agent_state":        "Missing",
         "build_state":        "Unknown",
         "resources":          ["1111", "2222", "3333"],
         "environments":       []
-      },
-
+      }
     ];
   });
 });

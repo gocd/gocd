@@ -17,6 +17,28 @@
 define(['mithril', 'lodash', 'string-plus',
   'models/model_mixins', 'filesize',
   'helpers/mrequest', 'js-routes', 'lodash-inflection'], function (m, _, s, Mixins, filesize, mrequest, Routes) {
+  var statusComparator = _.memoize(function (agent) {
+    var rank = {
+      "Pending":              1,
+      "LostContact":          2,
+      "Missing":              3,
+      "Building":             4,
+      "Building (Cancelled)": 5,
+      "Idle":                 6,
+      "Disabled (Building)":  7,
+      "Disabled (Cancelled)": 8,
+      "Disabled":             9
+    };
+    return rank[agent.status()];
+  });
+
+  var sortByAttrName = function (attrName) {
+    return function (agent) {
+      return _.toLower(agent[attrName]());
+    };
+  };
+
+
   var Agents = function (data) {
 
     this.disableAgents = function (uuids) {
@@ -107,32 +129,14 @@ define(['mithril', 'lodash', 'string-plus',
     };
 
     this.sortBy = function (attrName, order) {
+      var sortedAgents;
 
-      var sortByStatus = function () {
-        return this.sortByAgents(function (agent) {
-          var rank = {
-            "Pending":              1,
-            "LostContact":          2,
-            "Missing":              3,
-            "Building":             4,
-            "Building (Cancelled)": 5,
-            "Idle":                 6,
-            "Disabled (Building)":  7,
-            "Disabled (Cancelled)": 8,
-            "Disabled":             9
-          };
-          return rank[agent['status']()];
-        });
-      };
+      if (attrName === 'agentState') {
+        sortedAgents = this.sortByAgents(statusComparator);
+      } else {
+        sortedAgents = this.sortByAgents(sortByAttrName(attrName));
+      }
 
-      var sortByAlphaNumeric = function () {
-        return this.sortByAgents(function (agent) {
-          return _.toLower(agent[attrName]());
-        });
-      };
-
-
-      var sortedAgents = _.isEqual(attrName, 'agentState') ? sortByStatus.bind(this)() : sortByAlphaNumeric.bind(this)();
       if (order === 'desc') {
         sortedAgents = _.reverse(sortedAgents);
       }

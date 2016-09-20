@@ -19,7 +19,7 @@ define(["jquery", "mithril", 'lodash', 'models/agents/agents', "views/agents/age
 
     var $root = $('#mithril-mount-point'), root = $root.get(0);
 
-    var agentsVM = new AgentsVM;
+    var agentsVM = new AgentsVM();
     var route = function () {
       m.route.mode = "hash";
       m.route(root, '',
@@ -75,15 +75,15 @@ define(["jquery", "mithril", 'lodash', 'models/agents/agents', "views/agents/age
       var agentInfo      = $root.find('table tbody tr')[0];
       var firstAgentInfo = $(agentInfo).find('td');
       expect(firstAgentInfo).toHaveLength(9);
-      expect($(firstAgentInfo[0]).html()).toBe('<input type="checkbox">');
-      expect($(firstAgentInfo[1])).toHaveText('host-1');
-      expect($(firstAgentInfo[2])).toHaveText('usr/local/foo');
-      expect($(firstAgentInfo[3])).toHaveText('Linux');
-      expect($(firstAgentInfo[4])).toHaveText('10.12.2.200');
-      expect($(firstAgentInfo[5])).toHaveText('Disabled');
-      expect($(firstAgentInfo[6])).toHaveText('Unknown');
-      expect($(firstAgentInfo[7])).toHaveText('Firefox');
-      expect($(firstAgentInfo[8])).toHaveText('Dev, Test');
+      expect(firstAgentInfo[0]).toHaveHtml('<input type="checkbox">');
+      expect(firstAgentInfo[1]).toHaveText('host-1');
+      expect(firstAgentInfo[2]).toHaveText('usr/local/foo');
+      expect(firstAgentInfo[3]).toHaveText('Linux');
+      expect(firstAgentInfo[4]).toHaveText('10.12.2.200');
+      expect(firstAgentInfo[5]).toHaveText('Disabled');
+      expect(firstAgentInfo[6]).toHaveText('Unknown');
+      expect(firstAgentInfo[7]).toHaveText('Firefox');
+      expect(firstAgentInfo[8]).toHaveText('Dev, Test');
     });
 
     it('should select all the agents when selectAll checkbox is checked', function () {
@@ -97,7 +97,6 @@ define(["jquery", "mithril", 'lodash', 'models/agents/agents', "views/agents/age
       $(selectAllCheckbox).click();
       m.redraw(true);
 
-      expect(selectAllCheckbox[0]).toBeChecked();
       expect(allBoxes[0]).toBeChecked();
       expect(allBoxes[1]).toBeChecked();
 
@@ -116,8 +115,6 @@ define(["jquery", "mithril", 'lodash', 'models/agents/agents', "views/agents/age
       m.redraw(true);
 
       expect(selectAllCheckbox[0]).toBeChecked();
-      expect(allBoxes[0]).toBeChecked();
-      expect(allBoxes[1]).toBeChecked();
       unclickAllAgents();
     });
 
@@ -356,17 +353,17 @@ define(["jquery", "mithril", 'lodash', 'models/agents/agents', "views/agents/age
 
       var environmentButton = $root.find("button:contains('Environments')");
       var resourcesButton   = $root.find("button:contains('Resources')");
-      var dropdown         = $root.find("button:contains('Resources')").parent()[0];
+      var resourcesDropdown         = $root.find("button:contains('Resources')").parent()[0];
 
       resourcesButton.click();
       m.redraw(true);
 
-      expect(dropdown.classList).toContain('is-open');
+      expect(resourcesDropdown.classList).toContain('is-open');
 
       environmentButton.click();
       m.redraw(true);
 
-      expect(dropdown.classList).not.toContain('is-open');
+      expect(resourcesDropdown.classList).not.toContain('is-open');
 
       unclickAllAgents();
       hideAllDropDowns();
@@ -376,17 +373,17 @@ define(["jquery", "mithril", 'lodash', 'models/agents/agents', "views/agents/age
       clickAllAgents();
       var environmentButton = $root.find("button:contains('Environments')");
       var resourcesButton   = $root.find("button:contains('Resources')");
-      var dropdown          = $root.find("button:contains('Environments')").parent()[0];
+      var environmentsDropdown          = $root.find("button:contains('Environments')").parent()[0];
 
       environmentButton.click();
       m.redraw(true);
 
-      expect(dropdown.classList).toContain('is-open');
+      expect(environmentsDropdown.classList).toContain('is-open');
 
       resourcesButton.click();
       m.redraw(true);
 
-      expect(dropdown.classList).not.toContain('is-open');
+      expect(environmentsDropdown.classList).not.toContain('is-open');
 
       hideAllDropDowns();
       unclickAllAgents();
@@ -410,6 +407,7 @@ define(["jquery", "mithril", 'lodash', 'models/agents/agents', "views/agents/age
 
     var hideAllDropDowns = function () {
       agentsVM.dropdown.hideAllDropDowns();
+      m.redraw(true);
     };
 
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash'], function (m, _) {
+define([], function () {
   var AgentStateCountWidget = {
     view: function (ctrl, args) {
       return (

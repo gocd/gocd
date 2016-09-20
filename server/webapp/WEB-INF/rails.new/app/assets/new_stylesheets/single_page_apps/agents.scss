@@ -112,13 +112,13 @@ span.info {
         outline:          0;
       }
       &.btn-apply {
-        font-size:     14px;
-        padding:       7px 20px;
-        border-radius: $global-border-radius;
-        margin-right:  1px;
-        color:         $go-white;
-        height:        auto;
-        line-height:   normal;
+        font-size:        14px;
+        padding:          7px 20px;
+        border-radius:    $global-border-radius;
+        margin-right:     1px;
+        color:            $go-white;
+        height:           auto;
+        line-height:      normal;
         background-color: $go-primary;
         &:hover,
         &:focus {
@@ -332,19 +332,19 @@ $arrow-color: #000;
   border:        0;
   margin:        0;
 
-  $columnWidths: (
-                     "1": 2%,
-                     "2": 13%,
-                     "3": 7%,
-                     "4": 10%,
-                     "5": 10%,
-                     "6": 7%,
-                     "7": 11%,
-                     "8": 22%,
-                     "9": 18%,
+  $column-widths: (
+                   "1": 2%,
+                   "2": 13%,
+                   "3": 7%,
+                   "4": 10%,
+                   "5": 10%,
+                   "6": 7%,
+                   "7": 11%,
+                   "8": 22%,
+                   "9": 18%,
                  );
 
-  @each $key, $val in $columnWidths {
+  @each $key, $val in $column-widths {
     td:nth-child(#{$key}), th:nth-child(#{$key}) {
       width: $val;
     }
@@ -382,56 +382,57 @@ $arrow-color: #000;
   thead {
     tr {
       background: $go-tertiary;
-      th{
+      th {
         color: $dark-grey;
       }
     }
   }
 }
+
 .agents-table-header {
-  cursor: pointer;
-  display:inline-block;
+  cursor:  pointer;
+  display: inline-block;
 }
 
 .sort {
-  display: inline-block;
-  width: 10px;
-  height: 14px;
-  position: relative;
-  top: 3px;
+  display:     inline-block;
+  width:       10px;
+  height:      14px;
+  position:    relative;
+  top:         3px;
   margin-left: 5px;
   .up {
-    position: absolute;
-    top: 0;
-    width: 0;
-    height: 0;
+    position:     absolute;
+    top:          0;
+    width:        0;
+    height:       0;
     border-style: solid;
     border-width: 0 4px 6px 4px;
     border-color: transparent transparent $arrow-color transparent;
-    transition: all 0.3s ease-in-out;
+    transition:   all 0.3s ease-in-out;
   }
   .down {
-    position: absolute;
-    bottom: 0;
-    width: 0;
-    height: 0;
+    position:     absolute;
+    bottom:       0;
+    width:        0;
+    height:       0;
     border-style: solid;
     border-width: 6px 4px 0 4px;
     border-color: $arrow-color transparent transparent transparent;
-    transition: all 0.3s ease-in-out;
+    transition:   all 0.3s ease-in-out;
   }
   &.desc {
     .down {
       display: none;
     }
     .up {
-      top: 3px;
+      top:        3px;
       transition: all 0.3s ease-in-out;
     }
   }
   &.asc {
     .down {
-      top: 5px;
+      top:        5px;
       transition: all 0.3s ease-in-out;
     }
     .up {

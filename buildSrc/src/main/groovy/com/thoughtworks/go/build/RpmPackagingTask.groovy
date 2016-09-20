@@ -35,6 +35,7 @@ class RpmPackagingTask extends LinuxPackagingTask {
     cmd += ['-t', packageType()]
     cmd += ['--rpm-defattrfile', '0440']
     cmd += ['--rpm-defattrdir', '0440']
+    cmd += ['--rpm-os', 'linux']
 
     directories.each {
       dirName, permissions ->

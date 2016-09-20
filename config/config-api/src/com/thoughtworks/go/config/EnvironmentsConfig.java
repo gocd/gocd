@@ -178,6 +178,10 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
         return null;
     }
 
+    public EnvironmentConfig find(String envName) {
+        return find(new CaseInsensitiveString(envName));
+    }
+
     public List<CaseInsensitiveString> names() {
         ArrayList<CaseInsensitiveString> names = new ArrayList<>();
         for (EnvironmentConfig environment : this) {

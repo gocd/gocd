@@ -18,6 +18,7 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
@@ -50,10 +51,8 @@ public class UpdateEnvironmentCommand extends EnvironmentCommand implements Enti
     @Override
     public void update(CruiseConfig preprocessedConfig) throws Exception {
         EnvironmentsConfig environments = preprocessedConfig.getEnvironments();
-        EnvironmentConfig oldEnvironmentConfig = preprocessedConfig.getEnvironments().find(new CaseInsensitiveString(oldEnvironmentName));
-        int index = environments.indexOf(oldEnvironmentConfig);
-        environments.remove(index);
-        environments.add(index, newEnvironmentConfig);
+        EnvironmentConfig oldEnvironmentConfig = preprocessedConfig.getEnvironments().find(oldEnvironmentName);
+        environments.replace(oldEnvironmentConfig, newEnvironmentConfig);
     }
 
     @Override
@@ -68,7 +67,7 @@ public class UpdateEnvironmentCommand extends EnvironmentCommand implements Enti
         EnvironmentConfig config = cruiseConfig.getEnvironments().find(new CaseInsensitiveString(oldEnvironmentName));
         boolean freshRequest =  hashingService.md5ForEntity(config).equals(md5);
         if (!freshRequest) {
-            result.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", "Environment", oldEnvironmentName));
+            result.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", "environment", oldEnvironmentName));
         }
         return freshRequest;
     }

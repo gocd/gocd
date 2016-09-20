@@ -138,7 +138,7 @@ public class UpdateEnvironmentCommandTest {
         when(entityHashingService.md5ForEntity(oldEnvironmentConfig)).thenReturn("foo");
         assertThat(command.canContinue(cruiseConfig), is(false));
         HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
-        expectResult.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", "Environment", oldEnvironmentName.toString()));
+        expectResult.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", "environment", oldEnvironmentName.toString()));
         assertThat(result, is(expectResult));
     }
 }

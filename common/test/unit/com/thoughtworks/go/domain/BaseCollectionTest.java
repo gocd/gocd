@@ -25,6 +25,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 
+import java.util.NoSuchElementException;
+
 public class BaseCollectionTest {
 
     @Rule
@@ -108,6 +110,3 @@ public class BaseCollectionTest {
     }
 
 }
-
-
-

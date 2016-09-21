@@ -24,7 +24,7 @@ define(["jquery", "mithril", "models/pipeline_configs/tasks", "views/pipeline_co
         task = new Tasks.Task.Ant({
           buildFile:        'build-moduleA.xml',
           target:           'clean',
-          workingDirectory: 'moduleA',
+          working_directory: 'moduleA',
           onCancelTask: {
             type: "nant",
             attributes: {
@@ -50,7 +50,7 @@ define(["jquery", "mithril", "models/pipeline_configs/tasks", "views/pipeline_co
       });
 
       it('should bind build file', function () {
-        expect($root.find("input[data-prop-name='workingDirectory']").val()).toBe(task.onCancelTask.workingDirectory());
+        expect($root.find("input[data-prop-name='working_directory']").val()).toBe(task.onCancelTask.working_directory());
       });
 
       it('should bind nant path', function () {
@@ -69,10 +69,12 @@ define(["jquery", "mithril", "models/pipeline_configs/tasks", "views/pipeline_co
     describe('view task without onCancel task', function () {
       it('should render only checkbox to enable onCancel task', function () {
         var task = new Tasks.Task.Ant({
+          /* eslint-disable camelcase */
           buildFile:        'build-moduleA.xml',
           target:           'clean',
-          workingDirectory: 'moduleA',
+          working_directory: 'moduleA',
           onCancelTask:     null
+          /* eslint-enable camelcase */
         });
 
         mount(task);
@@ -87,10 +89,12 @@ define(["jquery", "mithril", "models/pipeline_configs/tasks", "views/pipeline_co
     describe('view on selection of onCancel', function () {
       it('should render exec task on selection', function () {
         var task = new Tasks.Task.Ant({
+          /* eslint-disable camelcase */
           buildFile:        'build-moduleA.xml',
           target:           'clean',
-          workingDirectory: 'moduleA',
+          working_directory: 'moduleA',
           onCancelTask:      null
+          /* eslint-enable camelcase */
         });
 
         mount(task);
@@ -110,7 +114,7 @@ define(["jquery", "mithril", "models/pipeline_configs/tasks", "views/pipeline_co
         var task = new Tasks.Task.Ant({
           buildFile:        'build-moduleA.xml',
           target:           'clean',
-          workingDirectory: 'moduleA',
+          working_directory: 'moduleA',
           onCancelTask: {
             type: "nant",
             attributes: {

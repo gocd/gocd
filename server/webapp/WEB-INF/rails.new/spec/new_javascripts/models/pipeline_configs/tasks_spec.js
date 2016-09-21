@@ -21,10 +21,12 @@ define(['lodash', "models/pipeline_configs/tasks", "string-plus", 'models/pipeli
       describe("Ant", function () {
         beforeAll(function () {
           task = new Tasks.Task.Ant({
+            /* eslint-disable camelcase */
             buildFile:        'build-moduleA.xml',
             target:           "clean",
-            workingDirectory: "moduleA",
+            working_directory: "moduleA",
             runIf:            ['any']
+            /* eslint-enable camelcase */
           });
         });
 
@@ -36,8 +38,8 @@ define(['lodash', "models/pipeline_configs/tasks", "string-plus", 'models/pipeli
           expect(task.target()).toBe("clean");
         });
 
-        it("should initialize task model with workingDirectory", function () {
-          expect(task.workingDirectory()).toBe("moduleA");
+        it("should initialize task model with working_directory", function () {
+          expect(task.working_directory()).toBe("moduleA");
         });
 
         it("should initialize task model with runIfConditions", function () {
@@ -79,7 +81,7 @@ define(['lodash', "models/pipeline_configs/tasks", "string-plus", 'models/pipeli
           it("should de-serialize from JSON", function () {
             expect(task.type()).toBe("ant");
             expect(task.target()).toBe('clean');
-            expect(task.workingDirectory()).toBe("moduleA");
+            expect(task.working_directory()).toBe("moduleA");
             expect(task.runIf().data()).toEqual(['any']);
             expect(task.onCancelTask.type()).toBe('nant');
           });
@@ -118,11 +120,13 @@ define(['lodash', "models/pipeline_configs/tasks", "string-plus", 'models/pipeli
       describe("NAnt", function () {
         beforeAll(function () {
           task = new Tasks.Task.NAnt({
+            /* eslint-disable camelcase */
             buildFile:        'build-moduleA.xml',
             target:           "clean",
-            workingDirectory: "moduleA",
+            working_directory: "moduleA",
             nantPath:         'C:\\NAnt',
             runIf:            ['any']
+            /* eslint-enable camelcase */
           });
         });
 
@@ -134,8 +138,8 @@ define(['lodash', "models/pipeline_configs/tasks", "string-plus", 'models/pipeli
           expect(task.target()).toBe("clean");
         });
 
-        it("should initialize task model with workingDirectory", function () {
-          expect(task.workingDirectory()).toBe("moduleA");
+        it("should initialize task model with working_directory", function () {
+          expect(task.working_directory()).toBe("moduleA");
         });
 
         it("should initialize task model with buildFile", function () {
@@ -179,7 +183,7 @@ define(['lodash', "models/pipeline_configs/tasks", "string-plus", 'models/pipeli
           it("should de-serialize from JSON", function () {
             expect(task.type()).toBe("nant");
             expect(task.target()).toBe('clean');
-            expect(task.workingDirectory()).toBe("moduleA");
+            expect(task.working_directory()).toBe("moduleA");
             expect(task.nantPath()).toBe("C:\\NAnt");
             expect(task.runIf().data()).toEqual(['any']);
           });
@@ -221,9 +225,11 @@ define(['lodash', "models/pipeline_configs/tasks", "string-plus", 'models/pipeli
           var taskJSON, task;
           beforeAll(function(){
             taskJSON = {
+              /* eslint-disable camelcase */
               command:          'bash',
-              workingDirectory: 'moduleA',
+              working_directory: 'moduleA',
               runIf:            ['any']
+              /* eslint-enable camelcase */
             };
 
             task = new Tasks.Task.Exec(taskJSON);
@@ -233,8 +239,8 @@ define(['lodash', "models/pipeline_configs/tasks", "string-plus", 'models/pipeli
             expect(task.type()).toBe("exec");
           });
 
-          it("should initialize task model with workingDirectory", function () {
-            expect(task.workingDirectory()).toBe("moduleA");
+          it("should initialize task model with working_directory", function () {
+            expect(task.working_directory()).toBe("moduleA");
           });
 
           it("should initialize task model with args as list", function () {
@@ -353,10 +359,12 @@ define(['lodash', "models/pipeline_configs/tasks", "string-plus", 'models/pipeli
       describe("Rake", function () {
         beforeAll(function () {
           task = new Tasks.Task.Rake({
+            /* eslint-disable camelcase */
             buildFile:        'foo.rake',
             target:           "clean",
-            workingDirectory: "moduleA",
+            working_directory: "moduleA",
             runIf:            ['any']
+            /* eslint-enable camelcase */
           });
         });
 
@@ -368,8 +376,8 @@ define(['lodash', "models/pipeline_configs/tasks", "string-plus", 'models/pipeli
           expect(task.target()).toBe("clean");
         });
 
-        it("should initialize task model with workingDirectory", function () {
-          expect(task.workingDirectory()).toBe("moduleA");
+        it("should initialize task model with working_directory", function () {
+          expect(task.working_directory()).toBe("moduleA");
         });
 
         it("should initialize task model with buildFile", function () {
@@ -410,7 +418,7 @@ define(['lodash', "models/pipeline_configs/tasks", "string-plus", 'models/pipeli
           it("should de-serialize from json", function () {
             expect(task.type()).toBe("rake");
             expect(task.target()).toBe('clean');
-            expect(task.workingDirectory()).toBe("moduleA");
+            expect(task.working_directory()).toBe("moduleA");
             expect(task.runIf().data()).toEqual(['any']);
           });
 

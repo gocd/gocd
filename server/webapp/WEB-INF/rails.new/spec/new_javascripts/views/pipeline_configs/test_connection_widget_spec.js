@@ -30,7 +30,7 @@ define(['jquery', "mithril", "lodash", "models/pipeline_configs/materials", "vie
       it("should render test connection button", function () {
         mount(material);
 
-        expect($($root.find("button")[0]).text()).toBe('Test Connection');
+        expect($($root.find("button")[0])).toHaveText('Test Connection');
       });
 
       it("should render with test connection failure message", function () {
@@ -40,7 +40,7 @@ define(['jquery', "mithril", "lodash", "models/pipeline_configs/materials", "vie
 
         mount(material, {connectionState: state});
 
-        expect($($root.find(".callout")[0]).text()).toBe('Test Connection Failed');
+        expect($($root.find(".callout")[0])).toHaveText('Test Connection Failed');
       });
 
       function mount(material, vm) {
@@ -49,6 +49,11 @@ define(['jquery', "mithril", "lodash", "models/pipeline_configs/materials", "vie
         );
         m.redraw(true);
       }
+
+      afterEach(function () {
+        m.mount(root, null);
+        m.redraw(true);
+      });
     });
 
 

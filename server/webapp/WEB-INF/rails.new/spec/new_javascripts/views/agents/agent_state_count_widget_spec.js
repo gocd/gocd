@@ -30,7 +30,7 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agent_state_c
 
     it('should contain the agents state count information', function () {
       var children = $root.find('.search-summary').children();
-      expect(children.length).toBe(4);
+      expect(children).toHaveLength(4);
       expect(children[0]).toContainText('Total');
       expect(children[0]).toContainText('1');
     });

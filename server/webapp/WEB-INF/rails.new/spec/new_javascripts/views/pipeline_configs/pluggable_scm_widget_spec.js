@@ -46,35 +46,35 @@ define(["jquery", "mithril", "models/pipeline_configs/materials", "models/pipeli
         });
 
         afterAll(function () {
-          m.mount(root, null);
+          unmount();
         });
 
         it('should bind name', function () {
-          expect($root.find(".pluggable-scm li:nth-child(1)>label").text()).toBe('Name');
-          expect($root.find(".pluggable-scm li:nth-child(1)>span").text()).toBe(github.name());
+          expect($root.find(".pluggable-scm li:nth-child(1)>label")).toHaveText('Name');
+          expect($root.find(".pluggable-scm li:nth-child(1)>span")).toHaveText(github.name());
         });
 
         it('should bind auto update field', function () {
-          expect($root.find(".pluggable-scm li:nth-child(2)>label").text()).toBe('AutoUpdate');
+          expect($root.find(".pluggable-scm li:nth-child(2)>label")).toHaveText('AutoUpdate');
           expect(Boolean($root.find(".pluggable-scm li:nth-child(2)>span").text())).toBe(github.autoUpdate());
         });
 
         it('should bind url configuration', function () {
-          expect($root.find(".pluggable-scm li:nth-child(3)>label").text()).toBe('Url');
-          expect($root.find(".pluggable-scm li:nth-child(3)>span").text()).toBe('path/to/repo');
+          expect($root.find(".pluggable-scm li:nth-child(3)>label")).toHaveText('Url');
+          expect($root.find(".pluggable-scm li:nth-child(3)>span")).toHaveText('path/to/repo');
         });
 
         it('should bind username configuration', function () {
-          expect($root.find(".pluggable-scm li:nth-child(4)>label").text()).toBe('Username');
-          expect($root.find(".pluggable-scm li:nth-child(4)>span").text()).toBe('some_name');
+          expect($root.find(".pluggable-scm li:nth-child(4)>label")).toHaveText('Username');
+          expect($root.find(".pluggable-scm li:nth-child(4)>span")).toHaveText('some_name');
         });
 
         it('should bind the ignore fields', function () {
-          expect($root.find("input[data-prop-name='ignore']").val()).toBe('*.doc');
+          expect($root.find("input[data-prop-name='ignore']")).toHaveValue('*.doc');
         });
 
         it('should bind destination', function () {
-          expect($root.find("input[data-prop-name='destination']").val()).toBe(pluggableMaterial.destination());
+          expect($root.find("input[data-prop-name='destination']")).toHaveValue(pluggableMaterial.destination());
         });
       });
 
@@ -108,9 +108,11 @@ define(["jquery", "mithril", "models/pipeline_configs/materials", "models/pipeli
             pluginInfo:  new PluginInfos.PluginInfo({id: 'github.pr'})
           }));
 
-          expect($('.scm-selector select option').length).toBe(1);
-          expect($('.scm-selector select option').text()).toBe('material_1');
-          expect($('.scm-selector select option').val()).toBe('plugin_id_1');
+          expect($('.scm-selector select option')).toHaveLength(1);
+          expect($('.scm-selector select option')).toHaveText('material_1');
+          expect($('.scm-selector select option')).toHaveValue('plugin_id_1');
+
+          unmount();
         });
 
         it('should not have a dropdown in absence of matching scms', function () {
@@ -119,7 +121,9 @@ define(["jquery", "mithril", "models/pipeline_configs/materials", "models/pipeli
             pluginInfo:  new PluginInfos.PluginInfo({id: 'unkown'})
           }));
 
-          expect($('.scm-selector select option').length).toBe(0);
+          expect($('.scm-selector select option')).toHaveLength(0);
+
+          unmount();
         });
       });
 
@@ -129,5 +133,11 @@ define(["jquery", "mithril", "models/pipeline_configs/materials", "models/pipeli
         );
         m.redraw(true);
       }
+
+      var unmount = function () {
+        m.mount(root, null);
+        m.redraw(true);
+      };
+
     });
   });

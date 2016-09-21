@@ -34,6 +34,11 @@ define(["jquery", "mithril", 'lodash', "models/pipeline_configs/tracking_tool", 
       m.redraw(true);
     });
 
+    afterEach(function () {
+      m.mount(root, null);
+      m.redraw(true);
+    });
+
     it("should select none tracking tool when none is selected", function () {
       expect($root.find('#tracking-tool-none')).toBeChecked();
     });

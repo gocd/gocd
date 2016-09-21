@@ -44,13 +44,18 @@ define(["jquery", "mithril", "models/pipeline_configs/environment_variables", "v
       m.redraw(true);
     });
 
+    afterEach(function () {
+      m.mount(root, null);
+      m.redraw(true);
+    });
+
     it("should display environment variables", function () {
       var environmentVariableFields = $root.find('.environment-variables div.environment-variable[data-variable-name=COMMAND]');
-      var variableName              = environmentVariableFields.find("input[data-prop-name=name]").val();
-      var variableValue             = environmentVariableFields.find("input[data-prop-name=value]").val();
+      var variableName              = environmentVariableFields.find("input[data-prop-name=name]");
+      var variableValue             = environmentVariableFields.find("input[data-prop-name=value]");
 
-      expect(variableName).toBe("COMMAND");
-      expect(variableValue).toBe("echo");
+      expect(variableName).toHaveValue("COMMAND");
+      expect(variableValue).toHaveValue("echo");
     });
 
     it("should display normal text field for non-secure variables", function () {
@@ -64,7 +69,7 @@ define(["jquery", "mithril", "models/pipeline_configs/environment_variables", "v
       var environmentVariableField = $root.find('.environment-variables div.environment-variable[data-variable-type=secure][data-variable-name=PASSWORD]');
       var editLink                 = environmentVariableField.find("a.edit-secure-variable");
 
-      expect(editLink.text()).toBe('Edit');
+      expect(editLink).toHaveText('Edit');
 
       var evObj = document.createEvent('MouseEvents');
       evObj.initEvent('click', true, false);
@@ -72,7 +77,7 @@ define(["jquery", "mithril", "models/pipeline_configs/environment_variables", "v
       m.redraw(true);
 
       editLink = environmentVariableField.find("a.edit-secure-variable");
-      expect(editLink.length).toBe(0);
+      expect(editLink).toHaveLength(0);
     });
   });
 });

@@ -35,13 +35,18 @@ define(["jquery", "mithril", "models/pipeline_configs/parameters", "views/pipeli
       m.redraw(true);
     });
 
+    afterEach(function () {
+      m.mount(root, null);
+      m.redraw(true);
+    });
+
     it("should display parameters", function () {
       var paramField = $root.find('.parameters div.parameter[data-parameter-name=COMMAND]');
-      var paramName  = paramField.find("input[data-prop-name=name]").val();
-      var paramValue = paramField.find("input[data-prop-name=value]").val();
+      var paramName  = paramField.find("input[data-prop-name=name]");
+      var paramValue = paramField.find("input[data-prop-name=value]");
 
-      expect(paramName).toBe("COMMAND");
-      expect(paramValue).toBe("echo");
+      expect(paramName).toHaveValue("COMMAND");
+      expect(paramValue).toHaveValue("echo");
     });
 
   });

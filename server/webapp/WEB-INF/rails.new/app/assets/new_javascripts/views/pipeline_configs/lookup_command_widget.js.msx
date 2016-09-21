@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', 'helpers/form_helper',
+define(['mithril', 'lodash', 'jquery', 'string-plus', 'helpers/form_helper',
     'helpers/mithril_component_mixins', 'js-routes', 'models/pipeline_configs/argument', 'helpers/pipeline_configs/tooltips',
     'jquery.textcomplete'
   ],
-  function (m, _, s, f, ComponentMixins, Routes, Argument, tt) {
+  function (m, _, $, s, f, ComponentMixins, Routes, Argument, tt) {
     var LookupCommandWidget = {
       Command: {
         textComplete: function (attrName, selectSnippet, searchSnippets) {
@@ -78,7 +78,7 @@ define(['mithril', 'lodash', 'string-plus', 'helpers/form_helper',
 
           self.findByName = function (name) {
             return _.find(self.list, function (snippet) {
-              return name == snippet.name();
+              return name === snippet.name();
             })
           };
 

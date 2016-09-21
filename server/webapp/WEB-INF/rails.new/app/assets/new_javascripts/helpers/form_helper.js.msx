@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'es6shim'], function (m, _, s, Mixin) {
+define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es6shim'], function (m, $, _, s, Mixin) {
 
   var deleteKeyAndReturnValue = function (object, key, defaultValue) {
     var value = object[key];
@@ -57,7 +57,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'es6shim'], f
 
         return (
           <div class={compactClasses(args, 'columns', 'medium-' + size, 'large-' + largeSize, end)}
-            {...args}>
+               {...args}>
             {children}
           </div>
         );
@@ -116,7 +116,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'es6shim'], f
     },
 
     inputWithLabel: {
-      controller: function (args) {
+      controller: function () {
         this.onInput = function (model, attrName, callback, e) {
           var currentTarget = (e || event).currentTarget;
           var newValue      = currentTarget.value || currentTarget.getAttribute('value');
@@ -187,7 +187,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'es6shim'], f
     },
 
     textareaWithLabel: {
-      controller: function (args) {
+      controller: function () {
         this.onInput = function (model, attrName, callback, e) {
           var currentTarget = (e || event).currentTarget;
           var newValue      = currentTarget.value || "";

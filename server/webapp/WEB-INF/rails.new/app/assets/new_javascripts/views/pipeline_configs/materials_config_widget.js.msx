@@ -24,7 +24,7 @@ define([
              PluggableSCMWidget, MaterialFilterWidget, PluginInfos) {
 
   var PasswordField = {
-    view: function (ctrl, args, children) {
+    view: function (ctrl, args) {
       var model               = args.model;
       var attrName            = args.attrName;
       var capitalizedAttrName = _.upperFirst(attrName);
@@ -130,7 +130,7 @@ define([
   };
 
   var TestConnection = {
-    controller: function (args) {
+    controller: function () {
       ComponentMixins.HasViewModel.call(this);
     },
 
@@ -372,7 +372,6 @@ define([
 
     package: {
       view: function (ctrl, args) {
-        var material = args.material;
         return (
           <MaterialViews.base {...args}>
             <f.info>Package materials edit is not yet supported, click <f.link href={["/go/admin/pipelines/",  args.pipelineName(), "/materials?current_tab=materials"].join('')}>here</f.link> to edit.</f.info>
@@ -384,7 +383,7 @@ define([
   };
 
   var MaterialTypeSelector = {
-    controller: function (args) {
+    controller: function () {
       this.selected       = m.prop('git');
     },
 

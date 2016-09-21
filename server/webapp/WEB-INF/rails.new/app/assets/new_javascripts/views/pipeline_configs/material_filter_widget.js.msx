@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'helpers/form_helper'],
-  function (m, _, f) {
+define([
+  'mithril', 'lodash', 'helpers/form_helper'
+], function (m, _, f) {
   var MaterialFilterWidget = {
     view: function (ctrl, args) {
       // TODO: make this an 'intelligent' text component that maps to an array.

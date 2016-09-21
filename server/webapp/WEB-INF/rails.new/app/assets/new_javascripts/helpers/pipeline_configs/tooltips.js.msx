@@ -65,11 +65,11 @@ define(['mithril', 'lodash', 'helpers/form_helper'], function (m, _, f) {
           <ExampleTable tableTitle='Allowed substitutions'
                         firstColumnWidth='260px'
                         examples={{
-                      '${COUNT}': 'The pipeline counter (starts at 1).',
-                      '${<material-name>}': 'The revision of the material named "material-name". The "material-name" can be the name of an SCM material, or a pipeline material.',
-                      '${<material-name>[:<length>]}': 'The first "length" characters of revision of the material named "material-name".',
-                      '#{<parameter-name>}': 'Substitute the value of the parameter named "parameter-name".'
-                    }}/>
+                          '${COUNT}': 'The pipeline counter (starts at 1).',
+                          '${<material-name>}': 'The revision of the material named "material-name". The "material-name" can be the name of an SCM material, or a pipeline material.',
+                          '${<material-name>[:<length>]}': 'The first "length" characters of revision of the material named "material-name".',
+                          '#{<parameter-name>}': 'Substitute the value of the parameter named "parameter-name".'
+                        }}/>
 
         </div>
       );
@@ -165,7 +165,7 @@ define(['mithril', 'lodash', 'helpers/form_helper'], function (m, _, f) {
   };
 
   var trackingToolMingleProjectIdentifier = {
-    view: function (ctrl, args) {
+    view: function () {
       return (
         <div>
           <p>
@@ -360,11 +360,11 @@ define(['mithril', 'lodash', 'helpers/form_helper'], function (m, _, f) {
 
           <ExampleTable callback={args.callback}
                         examples={{
-                    '0 0 0/4 * * ?': 'Run every 4th hour',
-                    '0 0 1 * * ?': 'Run at 1:00 AM everyday',
-                    '0 43 2 * * sat': 'Run at 2:43 AM every saturday',
-                    '0 15 10 3 * ?	': 'Run at 10:15am on the 3rd day of every month'
-                  }}/>
+                          '0 0 0/4 * * ?': 'Run every 4th hour',
+                          '0 0 1 * * ?': 'Run at 1:00 AM everyday',
+                          '0 43 2 * * sat': 'Run at 2:43 AM every saturday',
+                          '0 15 10 3 * ?	': 'Run at 10:15am on the 3rd day of every month'
+                        }}/>
 
 
         </div>

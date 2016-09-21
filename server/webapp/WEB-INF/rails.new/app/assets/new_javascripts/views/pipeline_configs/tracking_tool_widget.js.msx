@@ -125,7 +125,7 @@ define([
 
     view: function (ctrl, args) {
       var isChecked = function (type) {
-        if (type == 'none' && !args.trackingTool()) {
+        if (type === 'none' && !args.trackingTool()) {
           return true;
         }
 

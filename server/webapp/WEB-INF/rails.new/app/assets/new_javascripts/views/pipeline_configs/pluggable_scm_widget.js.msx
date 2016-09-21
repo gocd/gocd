@@ -112,7 +112,7 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'helpers/pipeline_configs/to
           ctrl.modal.destroy();
         };
 
-        var items = _.transform(ctrl.scms(), function (result, value, key) {
+        var items = _.transform(ctrl.scms(), function (result, value) {
           result[value.id()] = value.name();
         }, {});
 

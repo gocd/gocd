@@ -16,6 +16,7 @@
 
 task scssLint {
   description "Run scss-lint"
+  dependsOn ':tools:prepareJRuby'
   doFirst {
     project.exec {
 
@@ -37,6 +38,7 @@ task scssLint {
 
 task jsLint {
   description "Run ESLint"
+  dependsOn ':tools:prepareNodeJS'
   doFirst {
     def binary = isWindows() ? project.file('node_modules/.bin/eslint.cmd') : project.file('node_modules/.bin/eslint')
 
@@ -51,7 +53,7 @@ task jsLint {
       standardOutput = System.out
       errorOutput = System.err
       commandLine = commonCommandLine
-      commandLine += ["${project.findProject(':server').railsRoot}/app/assets/new_javascripts"]
+      commandLine += project.fileTree(dir: "${project.findProject(':server').railsRoot}/app/assets/new_javascripts").files
       println commandLine.join(" ")
     }
 

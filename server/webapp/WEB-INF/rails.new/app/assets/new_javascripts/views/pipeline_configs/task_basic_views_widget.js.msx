@@ -256,7 +256,7 @@ define([
       }
     },
 
-    pluggable_task: {
+    pluggable_task: { //eslint-disable-line camelcase
       controller: function (args) {
         var self              = this;
         var ctrl              = self;
@@ -290,7 +290,9 @@ define([
             var ajaxValidator = _.debounce(function (configuration, config, newValue) {
               configuration.setConfiguration(config.key, newValue);
               var req = {
-                url: Routes.apiInternalPluggableTaskValidationPath({plugin_id: ctrl.task.pluginId()}),
+                url: Routes.apiInternalPluggableTaskValidationPath({
+                  plugin_id: ctrl.task.pluginId()//eslint-disable-line camelcase
+                }),
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
@@ -317,7 +319,7 @@ define([
               var configuration = ctrl.task.configuration();
               $scope[config.key] = configuration.valueFor(config.key);
 
-              $scope.$watch(config.key, function (newValue, oldValue) {
+              $scope.$watch(config.key, function (newValue) {
                 configuration.setConfiguration(config.key, newValue);
                 ajaxValidator(configuration, config, newValue);
               });

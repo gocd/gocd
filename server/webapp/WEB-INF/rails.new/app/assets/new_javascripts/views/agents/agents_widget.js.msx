@@ -215,7 +215,7 @@ define([
 
         findAgent: function (uuid) {
           return this.allAgents().findAgent(function (agent) {
-            return agent.uuid() == uuid;
+            return agent.uuid() === uuid;
           });
         },
 

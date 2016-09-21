@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'jquery', 'string-plus', 'helpers/form_helper', 'jquery.textcomplete'],
-  function (m, _, $, s, f) {
+define(['mithril', 'lodash', 'jquery', 'string-plus', 'jquery.textcomplete'],
+  function (m, _, $, s) {
     var PipelineStageFieldWidget = {
       textComplete: function (attrName, values) {
         return function (elem, isInitialized) {

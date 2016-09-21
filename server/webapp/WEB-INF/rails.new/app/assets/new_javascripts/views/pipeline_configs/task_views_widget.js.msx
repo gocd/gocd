@@ -144,7 +144,7 @@ define([
       }
     },
 
-    pluggable_task: {
+    pluggable_task: { //eslint-disable-line camelcase
       view: function (ctrl, args) {
         return (
           <TaskViews.base {...args}>

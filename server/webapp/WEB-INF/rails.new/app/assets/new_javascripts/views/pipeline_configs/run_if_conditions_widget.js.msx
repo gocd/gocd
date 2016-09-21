@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', 'helpers/form_helper'],
-  function (m, _, s, f) {
+define([
+  'mithril', 'lodash', 'string-plus', 'helpers/form_helper'
+  ], function (m, _, s, f) {
     var RunIfConditionsWidget = {
       view: function (ctrl, args) {
         var task = args.task;

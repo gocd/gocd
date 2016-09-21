@@ -15,8 +15,8 @@
  */
 
 define([
-  'mithril', 'string-plus', 'helpers/form_helper', 'helpers/mithril_component_mixins', 'helpers/pipeline_configs/tooltips'
-], function (m, s, f, ComponentMixins, tt) {
+  'mithril', 'lodash', 'string-plus', 'helpers/form_helper', 'helpers/mithril_component_mixins', 'helpers/pipeline_configs/tooltips'
+], function (m, _, s, f, ComponentMixins, tt) {
 
   var EnvironmentVariableWidget = {
     base: {
@@ -48,7 +48,7 @@ define([
     },
 
     plain: {
-      view: function (ctrl, args, children) {
+      view: function (ctrl, args) {
         return (
           <EnvironmentVariableWidget.base {...args}>
             <f.input model={args.variable}
@@ -123,7 +123,7 @@ define([
         });
       },
 
-      view: function (ctrl, args) {
+      view: function (ctrl) {
         return (
           <div>
             {ctrl.map(function (variable) {
@@ -160,7 +160,7 @@ define([
         });
       },
 
-      view: function (ctrl, args) {
+      view: function (ctrl) {
         return (
           <div>
             {ctrl.map(function (variable) {

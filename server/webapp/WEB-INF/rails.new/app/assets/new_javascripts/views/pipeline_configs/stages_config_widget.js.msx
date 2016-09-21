@@ -115,10 +115,10 @@ define([
               </f.row>
               <label>Stage Type
                 <f.tooltip tooltip={{
-                            content: tt.stage.stageType,
-                            direction: 'bottom',
-                            size: 'small'
-                           }}/>
+                  content: tt.stage.stageType,
+                  direction: 'bottom',
+                  size: 'small'
+                }}/>
               </label>
               <f.row>
                 <f.column size={6} largeSize={6}>
@@ -147,20 +147,20 @@ define([
                             attrName='fetchMaterials'
                             size={12}
                             tooltip={{
-                                  content: tt.stage.fetchMaterials,
-                                  direction: 'bottom',
-                                  size: 'small'
-                                }}/>
+                              content: tt.stage.fetchMaterials,
+                              direction: 'bottom',
+                              size: 'small'
+                            }}/>
               </f.row>
               <f.row>
                 <f.checkBox model={stage}
                             attrName='neverCleanupArtifacts'
                             size={12}
                             tooltip={{
-                                  content: tt.stage.neverCleanupArtifacts,
-                                  direction: 'bottom',
-                                  size: 'small'
-                                }}/>
+                              content: tt.stage.neverCleanupArtifacts,
+                              direction: 'bottom',
+                              size: 'small'
+                            }}/>
               </f.row>
               <f.row>
                 <f.checkBox model={stage}
@@ -168,16 +168,16 @@ define([
                             label='Delete working directory on every build'
                             size={12}
                             tooltip={{
-                                  content: tt.stage.cleanWorkingDirectory,
-                                  direction: 'bottom',
-                                  size: 'small'
-                                }}
+                              content: tt.stage.cleanWorkingDirectory,
+                              direction: 'bottom',
+                              size: 'small'
+                            }}
                             end={true}/>
               </f.row>
             </f.column>
           </f.row>
         </f.accordion>
-      )
+      );
     }
   };
 

@@ -86,7 +86,7 @@ define(['mithril', 'lodash', 'jquery', 'string-plus', 'jquery.textcomplete'],
 
         this.errorsForDisplay = function () {
           return !_.isEmpty(this.errors) ? this.errors : _.values(this.material.errors().errors()).join(". ");
-        }
+        };
       },
 
       controller: function (args) {
@@ -95,11 +95,11 @@ define(['mithril', 'lodash', 'jquery', 'string-plus', 'jquery.textcomplete'],
 
         this.pipelineStages = function() {
           var data = _.map(this.pipelines(), function (pipeline) {
-              return _.map(pipeline.stages, function (stage) {
-                  return _.join([pipeline.name, ' ', '[', stage.name, ']'], '');
-                }
-              );
+            return _.map(pipeline.stages, function (stage) {
+              return _.join([pipeline.name, ' ', '[', stage.name, ']'], '');
             }
+              );
+          }
           );
           return _.flattenDeep(data);
         };

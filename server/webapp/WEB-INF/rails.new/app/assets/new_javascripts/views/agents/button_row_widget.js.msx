@@ -112,5 +112,5 @@ define(['mithril', 'lodash',
       );
     }
   };
-  return ButtonRowWidget
+  return ButtonRowWidget;
 });

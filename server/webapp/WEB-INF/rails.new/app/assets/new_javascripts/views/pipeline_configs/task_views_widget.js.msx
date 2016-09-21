@@ -27,10 +27,10 @@ define([
       return (
         <ul class='task-type'>
           {_.map(args.task.summary(), function (v, k) {
-            return !s.isBlank(v) ? (<li><label class={_.toLower(k)}>{_.startCase(k)}</label> < span > {v}</span></li>) : undefined
+            return !s.isBlank(v) ? (<li><label class={_.toLower(k)}>{_.startCase(k)}</label> < span > {v}</span></li>) : undefined;
           })}
         </ul>
-      )
+      );
     }
   };
 

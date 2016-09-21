@@ -62,7 +62,7 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'views/pipeline_configs/scm_
         self.parentView.onClose(function () {
           self.scmForEdit.reInitialize(pluginMetadata);
           self.vm.reset();
-        })
+        });
       },
 
       view: function (ctrl) {

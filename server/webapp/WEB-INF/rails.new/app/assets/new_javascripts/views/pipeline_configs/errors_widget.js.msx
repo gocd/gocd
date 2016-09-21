@@ -26,7 +26,7 @@ define(['mithril', 'lodash'], function (m, _) {
             })}
           </ul>
         </div>
-      )
+      );
     }
   };
 

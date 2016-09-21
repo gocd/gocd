@@ -33,9 +33,9 @@ define([
       return (
         <f.accordion accordionTitles={[
                         (
-                          <span>Tabs<f.tooltip tooltip={{content: tt.tabs.main, size:'small'}}/></span>
+          <span>Tabs<f.tooltip tooltip={{content: tt.tabs.main, size:'small'}}/></span>
                         )
-                     ]}
+        ]}
                      accordionKeys={['job-tabs']}
                      selectedIndex={ctrl.vmState('tabsSelected', m.prop(-1))}
                      class="accordion-inner">
@@ -51,10 +51,10 @@ define([
                            size={3}
                            largeSize={3}
                            tooltip={{
-                                       content: tt.tabs.name,
-                                       direction: 'bottom',
-                                       size: 'small'
-                                        }}/>
+                             content: tt.tabs.name,
+                             direction: 'bottom',
+                             size: 'small'
+                           }}/>
                   <f.input model={tab}
                            attrName='path'
                            placeholder='Path of artifact'
@@ -63,10 +63,10 @@ define([
                            size={3}
                            largeSize={3}
                            tooltip={{
-                                       content: tt.tabs.path,
-                                       direction: 'bottom',
-                                       size: 'medium'
-                                        }}/>
+                             content: tt.tabs.path,
+                             direction: 'bottom',
+                             size: 'medium'
+                           }}/>
                   <f.column size={3} end={true}>
                     {ctrl.removeLink.call(ctrl, tab)}
                   </f.column>

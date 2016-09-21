@@ -66,8 +66,8 @@ define([
     secure: {
       view: function (ctrl, args) {
         var variable = args.variable,
-            content,
-            removeChildPreContent;
+          content,
+          removeChildPreContent;
 
         if (variable.isEditingValue()) {
           content = [
@@ -188,9 +188,9 @@ define([
       return (
         <f.accordion accordionTitles={[
                         (
-                          <span>{ctrl.args.title}<f.tooltip tooltip={{content: tt.environmentVariables.main}} model={ctrl.args.variables()}/></span>
+          <span>{ctrl.args.title}<f.tooltip tooltip={{content: tt.environmentVariables.main}} model={ctrl.args.variables()}/></span>
                         )
-                     ]}
+        ]}
                      accordionKeys={['environment-variables']}
                      selectedIndex={ctrl.vmState('environmentVariablesSelected', m.prop(-1))}
                      class='environment-variables accordion-inner'>

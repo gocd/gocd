@@ -23,12 +23,12 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'helpers/pipeline_configs/to
       controller: function (args) {
         this.material = args.material;
         this.modal    = new Modal({
-                                    subView: {
-                                      component: SCMConfigEditWidget,
-                                      args: {material: args.material}
-                                    },
-                                    title: _.join(['EDIT', '-', args.material.scm().name()], ' ')
-                                  });
+          subView: {
+            component: SCMConfigEditWidget,
+            args: {material: args.material}
+          },
+          title: _.join(['EDIT', '-', args.material.scm().name()], ' ')
+        });
 
         this.isPluginMissing = function () {
           return _.isNil(PluginInfos.findById(this.material.scm().pluginMetadata().id()));
@@ -78,10 +78,10 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'helpers/pipeline_configs/to
                                 model={ctrl.material}
                                 validate={true}
                                 tooltip={{
-                                    content: tt.material.destination,
-                                    direction: 'bottom',
-                                    size: 'small'
-                                   }}/>
+                                  content: tt.material.destination,
+                                  direction: 'bottom',
+                                  size: 'small'
+                                }}/>
             </f.row>
             <MaterialFilterWidget material={ctrl.material}/>
             {ctrl.modalView()}
@@ -104,7 +104,7 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'helpers/pipeline_configs/to
           SCMs.findById(id).then(function(scm) {
             self.material.scm(scm);
           });
-        }
+        };
       },
 
       view: function (ctrl) {
@@ -136,7 +136,7 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'helpers/pipeline_configs/to
               </f.column>
               {ctrl.modal.view()}
             </f.row>
-          )
+          );
         } else {
           return (
             <f.row class='scm-selector'>
@@ -147,7 +147,7 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'helpers/pipeline_configs/to
               </f.column>
               {ctrl.modal.view()}
             </f.row>
-          )
+          );
         }
       }
     };

@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-define(['mithril'], function (m) {
+define(['mithril', 'lodash', 'string-plus'], function (m, _, s) {
 
   var SortHeaderWidget = {
-
     view: function (ctrl, args) {
       return (
-        <label class="agents-table-header" onclick={args.toggleSortingOrder.bind(ctrl, args.attribute)}>{args.attrName}
-          <div class={"sort " + args.sortOrder(args.attribute)}>
+        <label class="agents-table-header" onclick={args.toggleSortingOrder.bind(ctrl, args.attrName)}>{args.attrLabel}
+          <div class={"sort " + args.sortClass(args.attrName)}>
             <span class="up"/>
             <span class="down"/>
           </div>
         </label>
-      )
+      );
     }
   };
 
@@ -34,26 +33,33 @@ define(['mithril'], function (m) {
 
     controller: function (args) {
 
-      var sortType = function () {
-        return m.route.param('sortBy');
+      var currentlySortedOn = function () {
+        return s.defaultToIfBlank(m.route.param('sortBy'), 'agentState');
       };
 
-      var orderType = function () {
-        return m.route.param('orderBy')
+      var currentlyOrderdOn = function () {
+        return s.defaultToIfBlank(m.route.param('orderBy'), 'asc');
       };
+
+      function tableSortedOnAttribute(attrName) {
+        return currentlySortedOn() === attrName;
+      }
 
       return {
-        sortOrder: function (sortBy) {
-          var attrName = sortType() || 'agentState';
-          var orderBy  = orderType() || 'asc';
-          return _.isEqual(attrName, sortBy) ? orderBy : '';
+        sortClass: function (attrName) {
+          return tableSortedOnAttribute(attrName) ? currentlyOrderdOn() : '';
         },
 
-        toggleSortingOrder: function (sortBy) {
-          var sortingOrder = _.isEqual(sortBy, sortType()) ? (_.isEqual(orderType(), 'asc') ? 'desc' : 'asc') : 'asc';
-          args.sortBy(sortBy, sortingOrder);
+        toggleSortingOrder: function (attrName) {
+          var sortingOrder = 'asc';
+
+          if (tableSortedOnAttribute(attrName) && currentlyOrderdOn() === 'asc') {
+            sortingOrder = 'desc';
+          }
+
+          args.sortBy(attrName, sortingOrder);
         }
-      }
+      };
     },
 
     view: function (ctrl, args) {
@@ -67,42 +73,43 @@ define(['mithril'], function (m) {
             />
           </th>
           <th>
-            <SortHeaderWidget attribute={'hostname'} attrName={'Agent Name'} sortBy={args.sortBy}
-                              sortOrder={ctrl.sortOrder}
+            <SortHeaderWidget attrName='hostname' attrLabel='Agent Name' sortBy={args.sortBy}
+                              sortClass={ctrl.sortClass}
                               toggleSortingOrder={ctrl.toggleSortingOrder}/>
           </th>
           <th>
-            <SortHeaderWidget attribute={'sandbox'} attrName={'Sandbox'} sortBy={args.sortBy} sortOrder={ctrl.sortOrder}
+            <SortHeaderWidget attrName='sandbox' attrLabel='Sandbox' sortBy={args.sortBy}
+                              sortClass={ctrl.sortClass}
                               toggleSortingOrder={ctrl.toggleSortingOrder}/>
           </th>
           <th>
-            <SortHeaderWidget attribute={'operatingSystem'} attrName={'OS'} sortBy={args.sortBy}
-                              sortOrder={ctrl.sortOrder}
+            <SortHeaderWidget attrName='operatingSystem' attrLabel='OS' sortBy={args.sortBy}
+                              sortClass={ctrl.sortClass}
                               toggleSortingOrder={ctrl.toggleSortingOrder}/>
           </th>
           <th>
-            <SortHeaderWidget attribute={'ipAddress'} attrName={'IP Address'} sortBy={args.sortBy}
-                              sortOrder={ctrl.sortOrder}
+            <SortHeaderWidget attrName='ipAddress' attrLabel='IP Address' sortBy={args.sortBy}
+                              sortClass={ctrl.sortClass}
                               toggleSortingOrder={ctrl.toggleSortingOrder}/>
           </th>
           <th>
-            <SortHeaderWidget attribute={'agentState'} attrName={'Status'} sortBy={args.sortBy}
-                              sortOrder={ctrl.sortOrder}
+            <SortHeaderWidget attrName='agentState' attrLabel='Status' sortBy={args.sortBy}
+                              sortClass={ctrl.sortClass}
                               toggleSortingOrder={ctrl.toggleSortingOrder}/>
           </th>
           <th>
-            <SortHeaderWidget attribute={'freeSpace'} attrName={'Free Space'} sortBy={args.sortBy}
-                              sortOrder={ctrl.sortOrder}
+            <SortHeaderWidget attrName='freeSpace' attrLabel='Free Space' sortBy={args.sortBy}
+                              sortClass={ctrl.sortClass}
                               toggleSortingOrder={ctrl.toggleSortingOrder}/>
           </th>
           <th>
-            <SortHeaderWidget attribute={'resources'} attrName={'Resources'} sortBy={args.sortBy}
-                              sortOrder={ctrl.sortOrder}
+            <SortHeaderWidget attrName='resources' attrLabel='Resources' sortBy={args.sortBy}
+                              sortClass={ctrl.sortClass}
                               toggleSortingOrder={ctrl.toggleSortingOrder}/>
           </th>
           <th>
-            <SortHeaderWidget attribute={'environments'} attrName={'Environments'} sortBy={args.sortBy}
-                              sortOrder={ctrl.sortOrder}
+            <SortHeaderWidget attrName='environments' attrLabel='Environments' sortBy={args.sortBy}
+                              sortClass={ctrl.sortClass}
                               toggleSortingOrder={ctrl.toggleSortingOrder}/>
           </th>
         </tr>

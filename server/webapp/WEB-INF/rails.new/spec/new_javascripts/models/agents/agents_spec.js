@@ -48,15 +48,15 @@ define([
       expect(agent.ipAddress()).toBe('10.12.2.201');
       expect(agent.sandbox()).toBe('/var/lib/go-agent-2');
       expect(agent.operatingSystem()).toBe('Linux');
-      expect(agent.freeSpace()).toBe('111902543872');
+      expect(agent.freeSpace()).toBe(111902543872);
       expect(agent.agentConfigState()).toBe('Enabled');
       expect(agent.agentState()).toBe('Building');
       expect(agent.buildState()).toBe('Unknown');
       expect(agent.resources()).toEqual(['linux', 'java']);
       expect(agent.environments()).toEqual(['staging', 'perf']);
-      expect(agent.buildDetails().pipeline()).toEqual("http://localhost:8153/go/tab/pipeline/history/up42");
-      expect(agent.buildDetails().stage()).toEqual("http://localhost:8153/go/pipelines/up42/2/up42_stage/1");
-      expect(agent.buildDetails().job()).toEqual("http://localhost:8153/go/tab/build/detail/up42/2/up42_stage/1/up42_job");
+      expect(agent.buildDetails().pipelineUrl()).toEqual("http://localhost:8153/go/tab/pipeline/history/up42");
+      expect(agent.buildDetails().stageUrl()).toEqual("http://localhost:8153/go/pipelines/up42/2/up42_stage/1");
+      expect(agent.buildDetails().jobUrl()).toEqual("http://localhost:8153/go/tab/build/detail/up42/2/up42_stage/1/up42_job");
     });
 
     it("should serialize to JSON", function () {
@@ -224,7 +224,7 @@ define([
         "ip_address":         "10.12.2.201",
         "sandbox":            "/var/lib/go-agent-2",
         "operating_system":   "Linux",
-        "free_space":         "111902543872",
+        "free_space":         111902543872,
         "agent_config_state": "Enabled",
         "agent_state":        "Building",
         "build_state":        "Unknown",
@@ -292,7 +292,7 @@ define([
         "ip_address":         "10.12.2.202",
         "sandbox":            "/var/lib/go-agent-3",
         "operating_system":   "Windows",
-        "free_space":         "0",
+        "free_space":         0,
         "agent_config_state": "Enabled",
         "agent_state":        "Missing",
         "build_state":        "Unknown",
@@ -340,7 +340,7 @@ define([
         "ip_address":         "10.12.2.204",
         "sandbox":            "/var/lib/go-agent-5",
         "operating_system":   "Mac OS X",
-        "free_space":         "unknown",
+        "free_space":         10,
         "agent_config_state": "Disabled",
         "agent_state":        "Idle",
         "build_state":        "Cancelled",
@@ -412,7 +412,7 @@ define([
         "ip_address":         "10.12.2.204",
         "sandbox":            "/var/lib/go-agent-5",
         "operating_system":   "Mac OS X",
-        "free_space":         "unnknown",
+        "free_space":         "unknown",
         "agent_config_state": "Disabled",
         "agent_state":        "Building",
         "build_state":        "Building",

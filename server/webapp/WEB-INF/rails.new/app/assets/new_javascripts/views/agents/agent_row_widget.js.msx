@@ -30,14 +30,20 @@ define(['mithril', 'lodash'], function (m, _) {
 
   var joinOrNoneSpecified = _.memoize(joinFunction, cacheKey);
 
+  var agentJobHistoryPath = function (uuid) {
+    return "/go/agents/" + uuid + "/job_run_history";
+  };
+
   var AgentRowWidget = {
     view: function (ctrl, args) {
       var agent        = args.agent;
       var resources    = joinOrNoneSpecified(agent.resources());
       var environments = joinOrNoneSpecified(agent.environments());
-      var agentJobHistoryPath = function (uuid) {
-        return "/go/agents/" + uuid + "/job_run_history";
-      };
+      var agentStatus  = agent.status();
+
+      if (!agent.buildDetails().isEmpty()) {
+        agentStatus = <a href={agent.buildDetails().jobUrl()}>{agent.status()}</a>;
+      }
 
       return (
         <tr key={agent.uuid()} class={agent.status().toLowerCase()}>
@@ -50,7 +56,7 @@ define(['mithril', 'lodash'], function (m, _) {
           <td key="sandbox">{agent.sandbox()}</td>
           <td key="operatingSystem">{agent.operatingSystem()}</td>
           <td key="ipAddress">{agent.ipAddress()}</td>
-          <td key="status">{!_.isEmpty(agent.buildDetails().job()) ? <a href={agent.buildDetails().job()}>{agent.status()}</a> : agent.status()}</td>
+          <td key="status">{agentStatus}</td>
           <td key="readableFreeSpace">{agent.readableFreeSpace()}</td>
           <td key="resources">{resources}</td>
           <td key="environments">{environments}</td>

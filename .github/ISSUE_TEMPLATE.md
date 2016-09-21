@@ -15,7 +15,7 @@
 
 <!--- 
 Describe the environment in which you encountered this issue.
-Details of the environment GoCD is running in can be fetched from the GoCD support api - http://<go-server-host>/api/go/support.
+Details of the environment GoCD is running in can be fetched from the GoCD support api - http://<go-server-host>/go/api/support.
 If you are pasting plain text, please surround it with 3 backticks on each side
 
 ```plain
@@ -30,7 +30,7 @@ to prevent formatting
 
 * Go Version: `Available in the footer`
 * JAVA Version: `Available from http://<go-server-host>/api/go/about`
-* OS: `Available from http://<go-server-host>/api/go/about`
+* OS: `Available from http://<go-server-host>/go/about`
 * Browser vendor and version (if relevant): `Hopefully not Internet Explorer 7 :)`
 
 ###### Additional Environment Details

@@ -38,9 +38,7 @@ define(['mithril', 'lodash', 'string-plus',
     };
   };
 
-
   var Agents = function (data) {
-
     this.disableAgents = function (uuids) {
       var json = {
         uuids:              uuids,
@@ -238,22 +236,35 @@ define(['mithril', 'lodash', 'string-plus',
     };
   };
 
+  Agents.Agent.BuildDetails = function (data) {
+    this.isEmpty = m.prop(_.isNil(data));
+    if (this.isEmpty()) {
+      return;
+    }
+    this.pipelineName = m.prop(data.pipelineName);
+    this.pipelineUrl  = m.prop(data.pipelineUrl);
+    this.stageName    = m.prop(data.stageName);
+    this.stageUrl     = m.prop(data.stageUrl);
+    this.jobName      = m.prop(data.jobName);
+    this.jobUrl       = m.prop(data.jobUrl);
+  };
+
+  Agents.Agent.BuildDetails.fromJSON = function (data) {
+    if (!data) {
+      return new Agents.Agent.BuildDetails();
+    } else {
+      return new Agents.Agent.BuildDetails({
+        pipelineName: data.pipeline_name,
+        stageName:    data.stage_name,
+        jobName:      data.job_name,
+        pipelineUrl:  data._links.pipeline.href,
+        stageUrl:     data._links.stage.href,
+        jobUrl:       data._links.job.href,
+      });
+    }
+  };
+
   Agents.Agent.fromJSON = function (data) {
-
-    var setToDefaultIfNotPresent = function (data, attribute) {
-      var buildDetails = data.build_details;
-      if (buildDetails) {
-        return buildDetails['_links'][attribute]['href'];
-      }
-      return "";
-    };
-
-    var BuildDetails = function (data) {
-      this.pipeline = m.prop(setToDefaultIfNotPresent(data, 'pipeline'));
-      this.stage    = m.prop(setToDefaultIfNotPresent(data, 'stage'));
-      this.job      = m.prop(setToDefaultIfNotPresent(data, 'job'));
-    };
-
     return new Agents.Agent({
       uuid:             data.uuid,
       hostname:         data.hostname,
@@ -266,7 +277,7 @@ define(['mithril', 'lodash', 'string-plus',
       buildState:       data.build_state,
       resources:        data.resources,
       environments:     data.environments,
-      buildDetails:     new BuildDetails(data)
+      buildDetails:     Agents.Agent.BuildDetails.fromJSON(data.build_details)
     });
   };
 

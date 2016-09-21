@@ -17,7 +17,6 @@
 module ApiV4
   class AgentsController < ApiV4::BaseController
 
-    before_action :set_cache_control
     before_action :check_user_and_404
     before_action :check_admin_user_and_401, except: [:index, :show]
     before_action :set_default_values_if_not_present, only: [:bulk_update]
@@ -92,10 +91,6 @@ module ApiV4
       else
         obj
       end
-    end
-
-    def set_cache_control
-      response.headers['Cache-Control'] = 'private, must-revalidate'
     end
 
     private

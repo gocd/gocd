@@ -16,27 +16,95 @@
 
 define(['mithril'], function (m) {
 
-  var AgentsTableHeader = {
+  var SortHeaderWidget = {
+
     view: function (ctrl, args) {
       return (
-        <thead>
+        <label class="agents-table-header" onclick={args.toggleSortingOrder.bind(ctrl, args.attribute)}>{args.attrName}
+          <div class={"sort " + args.sortOrder(args.attribute)}>
+            <span class="up"/>
+            <span class="down"/>
+          </div>
+        </label>
+      )
+    }
+  };
+
+  var AgentsTableHeader = {
+
+    controller: function (args) {
+
+      var sortType = function () {
+        return m.route.param('sortBy');
+      };
+
+      var orderType = function () {
+        return m.route.param('orderBy')
+      };
+
+      return {
+        sortOrder: function (sortBy) {
+          var attrName = sortType() || 'agentState';
+          var orderBy  = orderType() || 'asc';
+          return _.isEqual(attrName, sortBy) ? orderBy : '';
+        },
+
+        toggleSortingOrder: function (sortBy) {
+          var sortingOrder = _.isEqual(sortBy, sortType()) ? (_.isEqual(orderType(), 'asc') ? 'desc' : 'asc') : 'asc';
+          args.sortBy(sortBy, sortingOrder);
+        }
+      }
+    },
+
+    view: function (ctrl, args) {
+      return (
+        <thead style={args.style}>
         <tr>
-          <td width="2%">
+          <th>
             <input type="checkbox"
                    checked={args.checkboxValue()}
-                   onclick={m.withAttr('checked', function(value) {
-                      args.onCheckboxClick(value);
-                   })}
+                   onclick={m.withAttr('checked', args.onCheckboxClick)}
             />
-          </td>
-          <td width="13%">Agent Name</td>
-          <td width="5%">Sandbox</td>
-          <td width="12%">OS</td>
-          <td width="10%">IP Address</td>
-          <td width="5%">Status</td>
-          <td width="8%">Free Space</td>
-          <td width="25%">Resources</td>
-          <td width="20%">Environments</td>
+          </th>
+          <th>
+            <SortHeaderWidget attribute={'hostname'} attrName={'Agent Name'} sortBy={args.sortBy}
+                              sortOrder={ctrl.sortOrder}
+                              toggleSortingOrder={ctrl.toggleSortingOrder}/>
+          </th>
+          <th>
+            <SortHeaderWidget attribute={'sandbox'} attrName={'Sandbox'} sortBy={args.sortBy} sortOrder={ctrl.sortOrder}
+                              toggleSortingOrder={ctrl.toggleSortingOrder}/>
+          </th>
+          <th>
+            <SortHeaderWidget attribute={'operatingSystem'} attrName={'OS'} sortBy={args.sortBy}
+                              sortOrder={ctrl.sortOrder}
+                              toggleSortingOrder={ctrl.toggleSortingOrder}/>
+          </th>
+          <th>
+            <SortHeaderWidget attribute={'ipAddress'} attrName={'IP Address'} sortBy={args.sortBy}
+                              sortOrder={ctrl.sortOrder}
+                              toggleSortingOrder={ctrl.toggleSortingOrder}/>
+          </th>
+          <th>
+            <SortHeaderWidget attribute={'agentState'} attrName={'Status'} sortBy={args.sortBy}
+                              sortOrder={ctrl.sortOrder}
+                              toggleSortingOrder={ctrl.toggleSortingOrder}/>
+          </th>
+          <th>
+            <SortHeaderWidget attribute={'freeSpace'} attrName={'Free Space'} sortBy={args.sortBy}
+                              sortOrder={ctrl.sortOrder}
+                              toggleSortingOrder={ctrl.toggleSortingOrder}/>
+          </th>
+          <th>
+            <SortHeaderWidget attribute={'resources'} attrName={'Resources'} sortBy={args.sortBy}
+                              sortOrder={ctrl.sortOrder}
+                              toggleSortingOrder={ctrl.toggleSortingOrder}/>
+          </th>
+          <th>
+            <SortHeaderWidget attribute={'environments'} attrName={'Environments'} sortBy={args.sortBy}
+                              sortOrder={ctrl.sortOrder}
+                              toggleSortingOrder={ctrl.toggleSortingOrder}/>
+          </th>
         </tr>
         </thead>
       );

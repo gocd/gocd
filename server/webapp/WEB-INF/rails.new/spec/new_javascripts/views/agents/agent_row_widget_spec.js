@@ -23,6 +23,10 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agent_row_wid
       allAgents = Agents.fromJSON(json());
     });
 
+    afterAll(function () {
+      unmount();
+    });
+
     it('should contain the agent information', function () {
       agents(allAgents);
       var model = m.prop(true);
@@ -31,15 +35,15 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agent_row_wid
       var row         = $root.find('tr')[0];
       var checkbox    = $(row).find('input');
       var information = row.children;
-      expect($(information[1]).text()).toBe('in-john.local');
-      expect($(information[2]).text()).toBe('/var/lib/go-agent');
-      expect($(information[3]).text()).toBe('Linux');
-      expect($(information[4]).text()).toBe('10.12.2.200');
-      expect($(information[5]).text()).toBe('Missing');
-      expect($(information[6]).text()).toBe('Unknown');
-      expect($(information[7]).text()).toBe('firefox');
-      expect($(information[8]).text()).toBe('Dev');
-      expect($(checkbox).prop('checked')).toBe(true);
+      expect(information[1]).toHaveText('in-john.local');
+      expect(information[2]).toHaveText('/var/lib/go-agent');
+      expect(information[3]).toHaveText('Linux');
+      expect(information[4]).toHaveText('10.12.2.200');
+      expect(information[5]).toHaveText('Missing');
+      expect(information[6]).toHaveText('Unknown');
+      expect(information[7]).toHaveText('firefox');
+      expect(information[8]).toHaveText('Dev');
+      expect(checkbox).toBeChecked();
     });
 
     it('should check the value based on the checkbox model', function () {
@@ -56,7 +60,7 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agent_row_wid
       mount(agents(), model);
       var row         = $root.find('tr')[0];
       var information = row.children;
-      expect($(information[7]).text()).toBe('none specified');
+      expect(information[7]).toHaveText('none specified');
     });
 
     it('should show none specified if agent has no environment', function () {
@@ -64,7 +68,7 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agent_row_wid
       mount(agents(), model);
       var row         = $root.find('tr')[0];
       var information = row.children;
-      expect($(information[8]).text()).toBe('none specified');
+      expect(information[8]).toHaveText('none specified');
     });
 
     it('should set the class based on the status of the agent', function () {
@@ -94,6 +98,11 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agent_row_wid
             'checkBoxModel': model
           })
       );
+      m.redraw(true);
+    };
+
+    var unmount = function () {
+      m.mount(root, null);
       m.redraw(true);
     };
 

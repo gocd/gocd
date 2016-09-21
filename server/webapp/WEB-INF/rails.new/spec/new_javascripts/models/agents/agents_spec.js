@@ -17,7 +17,7 @@
 define([
   'mithril', 'lodash', 'string-plus',
   'models/model_mixins',
-  'models/agents/agents',
+  'models/agents/agents'
 ], function (m, _, s, Mixin, Agents) {
   describe('Agent Model', function () {
 
@@ -25,7 +25,7 @@ define([
       jasmine.Ajax.stubRequest(/\/api\/agents/).andReturn({
         "responseText": JSON.stringify({
           "_embedded": {
-            "agents": [agentData]
+            "agents": agentData
           }
         }),
         "status":       200
@@ -42,37 +42,53 @@ define([
     });
 
     it("should deserialize from json", function () {
-      var agent = Agents.Agent.fromJSON(agentData);
-      expect(agent.uuid()).toBe('5fd3ac27-11bb-4fa2-95eb-7924040cb907');
-      expect(agent.hostname()).toBe('Johnpkr.local');
-      expect(agent.ipAddress()).toBe('127.0.0.1');
-      expect(agent.sandbox()).toBe('/Users/bob/projects/gocd/gocd-master/agent');
-      expect(agent.operatingSystem()).toBe('Mac OS X');
-      expect(agent.freeSpace()).toBe(111902543872);
+      var agent = Agents.Agent.fromJSON(agentData[0]);
+      expect(agent.uuid()).toBe('uuid-1');
+      expect(agent.hostname()).toBe('host-1');
+      expect(agent.ipAddress()).toBe('10.12.2.201');
+      expect(agent.sandbox()).toBe('/var/lib/go-agent-2');
+      expect(agent.operatingSystem()).toBe('Linux');
+      expect(agent.freeSpace()).toBe('111902543872');
       expect(agent.agentConfigState()).toBe('Enabled');
-      expect(agent.agentState()).toBe('LostContact');
+      expect(agent.agentState()).toBe('Building');
       expect(agent.buildState()).toBe('Unknown');
       expect(agent.resources()).toEqual(['linux', 'java']);
       expect(agent.environments()).toEqual(['staging', 'perf']);
+      expect(agent.buildDetails().pipeline()).toEqual("http://localhost:8153/go/tab/pipeline/history/up42");
+      expect(agent.buildDetails().stage()).toEqual("http://localhost:8153/go/pipelines/up42/2/up42_stage/1");
+      expect(agent.buildDetails().job()).toEqual("http://localhost:8153/go/tab/build/detail/up42/2/up42_stage/1/up42_job");
     });
 
     it("should serialize to JSON", function () {
-      var agent = Agents.Agent.fromJSON(agentData);
+      var agent = Agents.Agent.fromJSON(agentData[0]);
 
       expect(JSON.parse(JSON.stringify(agent, s.snakeCaser))).toEqual({
-        hostname:           'Johnpkr.local',
+        hostname:           'host-1',
         resources:          ['linux', 'java'],
         environments:       ['staging', 'perf'],
         agent_config_state: 'Enabled' // eslint-disable-line camelcase
       });
     });
 
-
     it("should give the freeSpace in human readable format", function () {
       expect(new Agents.Agent({freeSpace: 1024}).readableFreeSpace()).toBe('1 KB');
       expect(new Agents.Agent({freeSpace: 2048526}).readableFreeSpace()).toBe('1.95 MB');
       expect(new Agents.Agent({freeSpace: 2199023255552}).readableFreeSpace()).toBe('2 TB');
       expect(new Agents.Agent({freeSpace: 'snafu'}).readableFreeSpace()).toBe('Unknown');
+    });
+
+    it("should count agents with specific state", function () {
+      var agents = new Agents(
+        [
+          new Agents.Agent({agentConfigState: 'Pending'}),
+          new Agents.Agent({agentConfigState: 'Disabled'}),
+          new Agents.Agent({agentConfigState: 'Enabled'}),
+        ]
+      );
+
+      expect(agents.countDisabledAgents()).toBe(1);
+      expect(agents.countPendingAgents()).toBe(1);
+      expect(agents.countEnabledAgents()).toBe(1);
     });
 
     describe("agent status", function () {
@@ -109,52 +125,324 @@ define([
 
     it('should give the agents object', function () {
       var agents = Agents.all();
-      expect(agents().countAgent()).toBe(1);
+      expect(agents().countAgent()).toBe(9);
     });
 
     describe('agent matches', function () {
       it("should tell whether the specified string matches the agent's information", function () {
-        var agent = Agents.Agent.fromJSON(agentData);
-        expect(agent.matches('Johnpkr')).toBe(true);
-        expect(agent.matches("Mac OS X")).toBe(true);
-        expect(agent.matches("127.0.0.1")).toBe(true);
+        var agent = Agents.Agent.fromJSON(agentData[0]);
+        expect(agent.matches('host-1')).toBe(true);
+        expect(agent.matches("Linux")).toBe(true);
+        expect(agent.matches("10.12.2.201")).toBe(true);
         expect(agent.matches("linux")).toBe(true);
         expect(agent.matches("perf")).toBe(true);
-
         expect(agent.matches("invalid-search")).toBe(false);
       });
     });
 
-    var agentData = {
-      "_links":             {
-        "self": {
-          "href": "http://localhost:8153/go/api/agents/5fd3ac27-11bb-4fa2-95eb-7924040cb907"
+    describe('sort the agents', function () {
+      it("should sort based on OS", function () {
+        var agents       = Agents.all();
+        var sortedAgents = agents().sortBy('operatingSystem', 'asc');
+
+        var operatingSystemsOfSortedAgents = sortedAgents.collectAgentProperty('operatingSystem');
+        expect(operatingSystemsOfSortedAgents).toEqual(agents().collectAgentProperty('operatingSystem').sort());
+      });
+
+      it('should sort based on hostname', function () {
+        var agents       = Agents.all();
+        var sortedAgents = agents().sortBy('hostname', 'asc');
+
+        var hostnamesOfSortedAgents = sortedAgents.collectAgentProperty('hostname');
+        expect(hostnamesOfSortedAgents).toEqual(agents().collectAgentProperty('hostname').sort());
+      });
+
+      it("should sort based on agent location", function () {
+        var agents       = Agents.all();
+        var sortedAgents = agents().sortBy('sandbox', 'asc');
+
+        var sandboxesOfSortedAgents = sortedAgents.collectAgentProperty('sandbox');
+        expect(sandboxesOfSortedAgents).toEqual(agents().collectAgentProperty('sandbox').sort());
+      });
+
+      it("should sort based on agent ip address", function () {
+        var agents       = Agents.all();
+        var sortedAgents = agents().sortBy('ipAddress', 'asc');
+
+        var ipAddressesOfSortedAgents = sortedAgents.collectAgentProperty('ipAddress');
+        expect(ipAddressesOfSortedAgents).toEqual(agents().collectAgentProperty('ipAddress').sort());
+      });
+
+      it("should sort based on agent status", function () {
+        var agents       = Agents.all();
+        var sortedAgents = agents().sortBy('agentState', 'asc');
+
+        var statesOfSortedAgents = sortedAgents.collectAgentProperty('status');
+        expect(statesOfSortedAgents).toEqual(["Pending", "LostContact", "Missing", "Building", "Building (Cancelled)", "Idle", "Disabled (Building)", "Disabled (Cancelled)", "Disabled"]);
+      });
+
+      it("should sort based on agent's free space", function () {
+        var agents       = Agents.all();
+        var sortedAgents = agents().sortBy('freeSpace', 'asc');
+
+        var freeSpacesOfSortedAgents = sortedAgents.collectAgentProperty('freeSpace');
+        expect(freeSpacesOfSortedAgents).toEqual(agents().collectAgentProperty('freeSpace').sort());
+      });
+
+      it("should sort based on agent's resources", function () {
+        var agents       = Agents.all();
+        var sortedAgents = agents().sortBy('resources', 'asc');
+
+        var resourcesOfSortedAgents = sortedAgents.collectAgentProperty('resources');
+        expect(resourcesOfSortedAgents).toEqual(agents().collectAgentProperty('resources').sort());
+      });
+
+      it("should sort based on agent's environments", function () {
+        var agents       = Agents.all();
+        var sortedAgents = agents().sortBy('environments', 'asc');
+
+        var environmentsOfSortedAgents = sortedAgents.collectAgentProperty('environments');
+        expect(environmentsOfSortedAgents).toEqual(agents().collectAgentProperty('environments').sort());
+      });
+    });
+
+    var agentData = [
+      {
+        "_links":             {
+          "self": {
+            "href": "https://ci.example.com/go/api/agents/dfdbe0b1-4521-4a52-ac2f-ca0cf6bdaa3e"
+          },
+          "doc":  {
+            "href": "http://api.go.cd/#agents"
+          },
+          "find": {
+            "href": "https://ci.example.com/go/api/agents/:uuid"
+          }
         },
-        "doc":  {
-          "href": "http://api.go.cd/#agents"
-        },
-        "find": {
-          "href": "http://localhost:8153/go/api/agents/:uuid"
+        "uuid":               'uuid-1',
+        "hostname":           "host-1",
+        "ip_address":         "10.12.2.201",
+        "sandbox":            "/var/lib/go-agent-2",
+        "operating_system":   "Linux",
+        "free_space":         "111902543872",
+        "agent_config_state": "Enabled",
+        "agent_state":        "Building",
+        "build_state":        "Unknown",
+        "resources":          [
+          "linux", "java"
+        ],
+        "environments":       [
+          "staging", "perf"
+        ],
+        "build_details":      {
+          "_links":   {
+            "job":      {
+              "href": "http://localhost:8153/go/tab/build/detail/up42/2/up42_stage/1/up42_job"
+            },
+            "stage":    {
+              "href": "http://localhost:8153/go/pipelines/up42/2/up42_stage/1"
+            },
+            "pipeline": {
+              "href": "http://localhost:8153/go/tab/pipeline/history/up42"
+            }
+          },
+          "pipeline": "up42",
+          "stage":    "up42_stage",
+          "job":      "up42_job"
         }
       },
-      "uuid":               "5fd3ac27-11bb-4fa2-95eb-7924040cb907",
-      "hostname":           "Johnpkr.local",
-      "ip_address":         "127.0.0.1",
-      "sandbox":            "/Users/bob/projects/gocd/gocd-master/agent",
-      "operating_system":   "Mac OS X",
-      "free_space":         111902543872,
-      "agent_config_state": "Enabled",
-      "agent_state":        "LostContact",
-      "build_state":        "Unknown",
-      "resources":          [
-        'linux',
-        'java'
-      ],
-      "environments":       [
-        'staging',
-        'perf'
-      ]
-    };
-
+      {
+        "_links":             {
+          "self": {
+            "href": "https://ci.example.com/go/api/agents/dfdbe0b1-4521-4a52-ac2f-ca0cf6bdaa3e"
+          },
+          "doc":  {
+            "href": "http://api.go.cd/#agents"
+          },
+          "find": {
+            "href": "https://ci.example.com/go/api/agents/:uuid"
+          }
+        },
+        "uuid":               'uuid-2',
+        "hostname":           "host-4",
+        "ip_address":         "10.12.2.200",
+        "sandbox":            "/var/lib/go-agent-1",
+        "operating_system":   "Windows",
+        "free_space":         "unknown",
+        "agent_config_state": "Pending",
+        "agent_state":        "Missing",
+        "build_state":        "Unknown",
+        "resources":          ["1111", "2222", "3333"],
+        "environments":       []
+      },
+      {
+        "_links":             {
+          "self": {
+            "href": "https://ci.example.com/go/api/agents/dfdbe0b1-4521-4a52-ac2f-ca0cf6bdaa3e"
+          },
+          "doc":  {
+            "href": "http://api.go.cd/#agents"
+          },
+          "find": {
+            "href": "https://ci.example.com/go/api/agents/:uuid"
+          }
+        },
+        "uuid":               'uuid-3',
+        "hostname":           "host-2",
+        "ip_address":         "10.12.2.202",
+        "sandbox":            "/var/lib/go-agent-3",
+        "operating_system":   "Windows",
+        "free_space":         "0",
+        "agent_config_state": "Enabled",
+        "agent_state":        "Missing",
+        "build_state":        "Unknown",
+        "resources":          ["zzzz"],
+        "environments":       ['prod']
+      },
+      {
+        "_links":             {
+          "self": {
+            "href": "https://ci.example.com/go/api/agents/dfdbe0b1-4521-4a52-ac2f-ca0cf6bdaa3e"
+          },
+          "doc":  {
+            "href": "http://api.go.cd/#agents"
+          },
+          "find": {
+            "href": "https://ci.example.com/go/api/agents/:uuid"
+          }
+        },
+        "uuid":               'uuid-4',
+        "hostname":           "host-0",
+        "ip_address":         "10.12.2.203",
+        "sandbox":            "/var/lib/go-agent-4",
+        "operating_system":   "Windows",
+        "free_space":         "unknown",
+        "agent_config_state": "Enabled",
+        "agent_state":        "LostContact",
+        "build_state":        "Unknown",
+        "resources":          [],
+        "environments":       ['ci']
+      },
+      {
+        "_links":             {
+          "self": {
+            "href": "https://ci.example.com/go/api/agents/dfdbe0b1-4521-4a52-ac2f-ca0cf6bdaa3e"
+          },
+          "doc":  {
+            "href": "http://api.go.cd/#agents"
+          },
+          "find": {
+            "href": "https://ci.example.com/go/api/agents/:uuid"
+          }
+        },
+        "uuid":               'uuid-5',
+        "hostname":           "host-10",
+        "ip_address":         "10.12.2.204",
+        "sandbox":            "/var/lib/go-agent-5",
+        "operating_system":   "Mac OS X",
+        "free_space":         "unknown",
+        "agent_config_state": "Disabled",
+        "agent_state":        "Idle",
+        "build_state":        "Cancelled",
+        "resources":          [],
+        "environments":       []
+      },
+      {
+        "_links":             {
+          "self": {
+            "href": "https://ci.example.com/go/api/agents/dfdbe0b1-4521-4a52-ac2f-ca0cf6bdaa3e"
+          },
+          "doc":  {
+            "href": "http://api.go.cd/#agents"
+          },
+          "find": {
+            "href": "https://ci.example.com/go/api/agents/:uuid"
+          }
+        },
+        "uuid":               'uuid-6',
+        "hostname":           "host-11",
+        "ip_address":         "10.12.2.204",
+        "sandbox":            "/var/lib/go-agent-5",
+        "operating_system":   "Mac OS X",
+        "free_space":         "unknown",
+        "agent_config_state": "Enabled",
+        "agent_state":        "Idle",
+        "build_state":        "Unknown",
+        "resources":          [],
+        "environments":       []
+      },
+      {
+        "_links":             {
+          "self": {
+            "href": "https://ci.example.com/go/api/agents/dfdbe0b1-4521-4a52-ac2f-ca0cf6bdaa3e"
+          },
+          "doc":  {
+            "href": "http://api.go.cd/#agents"
+          },
+          "find": {
+            "href": "https://ci.example.com/go/api/agents/:uuid"
+          }
+        },
+        "uuid":               'uuid-7',
+        "hostname":           "host-12",
+        "ip_address":         "10.12.2.204",
+        "sandbox":            "/var/lib/go-agent-5",
+        "operating_system":   "Mac OS X",
+        "free_space":         "unknown",
+        "agent_config_state": "Enabled",
+        "agent_state":        "Building",
+        "build_state":        "Cancelled",
+        "resources":          [],
+        "environments":       []
+      },
+      {
+        "_links":             {
+          "self": {
+            "href": "https://ci.example.com/go/api/agents/dfdbe0b1-4521-4a52-ac2f-ca0cf6bdaa3e"
+          },
+          "doc":  {
+            "href": "http://api.go.cd/#agents"
+          },
+          "find": {
+            "href": "https://ci.example.com/go/api/agents/:uuid"
+          }
+        },
+        "uuid":               'uuid-8',
+        "hostname":           "host-13",
+        "ip_address":         "10.12.2.204",
+        "sandbox":            "/var/lib/go-agent-5",
+        "operating_system":   "Mac OS X",
+        "free_space":         "unnknown",
+        "agent_config_state": "Disabled",
+        "agent_state":        "Building",
+        "build_state":        "Building",
+        "resources":          [],
+        "environments":       []
+      },
+      {
+        "_links":             {
+          "self": {
+            "href": "https://ci.example.com/go/api/agents/dfdbe0b1-4521-4a52-ac2f-ca0cf6bdaa3e"
+          },
+          "doc":  {
+            "href": "http://api.go.cd/#agents"
+          },
+          "find": {
+            "href": "https://ci.example.com/go/api/agents/:uuid"
+          }
+        },
+        "uuid":               'uuid-9',
+        "hostname":           "host-14",
+        "ip_address":         "10.12.2.220",
+        "sandbox":            "/var/lib/go-agent-10",
+        "operating_system":   "Windows",
+        "free_space":         "unknown",
+        "agent_config_state": "Disabled",
+        "agent_state":        "Missing",
+        "build_state":        "Unknown",
+        "resources":          ["1111", "2222", "3333"],
+        "environments":       []
+      }
+    ];
   });
 });

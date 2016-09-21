@@ -69,52 +69,53 @@ define(["jquery", "mithril", 'models/agents/agents', 'models/agents/resources', 
 
     afterAll(function () {
       jasmine.Ajax.uninstall();
+      unmount();
     });
 
     it('should contain all the resources checkbox', function () {
       var allResources = $.find('.resources-items :checkbox');
-      expect(allResources.length).toBe(4);
-      expect(allResources[0].value).toBe('Linux');
-      expect(allResources[1].value).toBe('Gauge');
-      expect(allResources[2].value).toBe('Java');
-      expect(allResources[3].value).toBe('Windows');
+      expect(allResources).toHaveLength(4);
+      expect(allResources[0]).toHaveValue('Linux');
+      expect(allResources[1]).toHaveValue('Gauge');
+      expect(allResources[2]).toHaveValue('Java');
+      expect(allResources[3]).toHaveValue('Windows');
     });
 
     it('should check resources that are present on all the agents', function () {
       var allResources = $.find('.resources-items :checkbox');
-      expect(allResources[2].value).toBe('Java');
-      expect(allResources[2].checked).toBe(true);
+      expect(allResources[2]).toHaveValue('Java');
+      expect(allResources[2]).toBeChecked();
     });
 
     it('should select resources as indeterminate that are present on some of the agents', function () {
       var allResources = $.find('.resources-items :checkbox');
-      expect(allResources[0].value).toBe('Linux');
+      expect(allResources[0]).toHaveValue('Linux');
       expect(allResources[0].indeterminate).toBe(true);
 
-      expect(allResources[1].value).toBe('Gauge');
+      expect(allResources[1]).toHaveValue('Gauge');
       expect(allResources[1].indeterminate).toBe(true);
     });
 
     it('should uncheck resources that are not present on any the agents', function () {
       var allResources = $.find('.resources-items :checkbox');
-      expect(allResources[3].value).toBe('Windows');
-      expect(allResources[3].checked).toBe(false);
+      expect(allResources[3]).toHaveValue('Windows');
+      expect(allResources[3]).not.toBeChecked();
       expect(allResources[3].indeterminate).toBe(false);
     });
 
     it('should have button to add resources', function () {
       var addButton = $root.find('.add-resource :button')[0];
-      expect(addButton.textContent).toBe("Add");
+      expect(addButton).toHaveText("Add");
     });
 
     it('should have button to apply resources', function () {
       var applyButton = $root.find('.add-resource :button')[1];
-      expect(applyButton.textContent).toBe("Apply");
+      expect(applyButton).toHaveText("Apply");
     });
 
     it('should add resource after invoking add button', function () {
       var allResources = $root.find('.resources-items :checkbox');
-      expect(allResources.length).toBe(4);
+      expect(allResources).toHaveLength(4);
 
       var inputBox = $root.find('.add-resource :text')[0];
       $(inputBox).val('Chrome').trigger('input');
@@ -125,7 +126,7 @@ define(["jquery", "mithril", 'models/agents/agents', 'models/agents/resources', 
       m.redraw(true);
 
       allResources = $root.find('.resources-items :checkbox');
-      expect(allResources.length).toBe(5);
+      expect(allResources).toHaveLength(5);
     });
 
 
@@ -133,19 +134,19 @@ define(["jquery", "mithril", 'models/agents/agents', 'models/agents/resources', 
       var inputBox = $root.find('.add-resource input');
       $(inputBox).val('Chrome').trigger('change');
 
-      expect(inputBox.val()).toBe('Chrome');
+      expect(inputBox).toHaveValue('Chrome');
       var addButton = $root.find('.add-resource button')[0];
       addButton.click();
       m.redraw(true);
 
       inputBox = $root.find('.add-resource input');
-      expect(inputBox.val()).toBe('');
+      expect(inputBox).toHaveValue('');
     });
 
     it('should not add duplicate resources', function () {
       var allResources = $root.find('.resources-items input[type="Checkbox"]');
-      expect(allResources.length).toBe(4);
-      expect(allResources[0].value).toBe('Linux');
+      expect(allResources).toHaveLength(4);
+      expect(allResources[0]).toHaveValue('Linux');
 
       var inputBox = $root.find('.add-resource :input')[0];
       $(inputBox).val('Linux').trigger('change');
@@ -155,16 +156,28 @@ define(["jquery", "mithril", 'models/agents/agents', 'models/agents/resources', 
       m.redraw(true);
 
       allResources = $root.find('.resources-items input[type="Checkbox"]');
-      expect(allResources.length).toBe(4);
+      expect(allResources).toHaveLength(4);
     });
 
     var mount = function () {
       m.mount(root,
         m.component(ResourcesListWidget, {
-          'dropDownState':     vm.dropdown,
+          'hideDropDown':      hideDropDown,
+          'dropDownReset':     dropDownReset,
           'onResourcesUpdate': m.prop()
         })
       );
+      m.redraw(true);
+    };
+
+    var hideDropDown = function () {
+    };
+
+    var dropDownReset = function () {
+    };
+
+    var unmount = function () {
+      m.mount(root, null);
       m.redraw(true);
     };
 

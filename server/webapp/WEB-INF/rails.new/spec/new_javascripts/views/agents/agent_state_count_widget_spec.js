@@ -20,39 +20,48 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agent_state_c
     beforeAll(function () {
       var agents    = m.prop();
       var allAgents = Agents.fromJSON(json());
-      agents(allAgents.toJSON());
+      agents(allAgents);
       mount(agents);
+    });
+
+    afterAll(function () {
+      unmount();
     });
 
     it('should contain the agents state count information', function () {
       var children = $root.find('.search-summary').children();
       expect(children.length).toBe(4);
-      expect($(children[0]).text()).toContain('Total');
-      expect($(children[0]).text()).toContain('1');
+      expect(children[0]).toContainText('Total');
+      expect(children[0]).toContainText('1');
     });
 
     it('should contain the agents Pending count information', function () {
       var children = $root.find('.search-summary').children();
-      expect($(children[1]).text()).toContain('Pending');
-      expect($(children[1]).text()).toContain('0');
+      expect(children[1]).toContainText('Pending');
+      expect(children[1]).toContainText('0');
     });
 
     it('should contain the agents Enabled count information', function () {
       var children = $root.find('.search-summary').children();
-      expect($(children[2]).text()).toContain('Enabled');
-      expect($(children[2]).text()).toContain('1');
+      expect(children[2]).toContainText('Enabled');
+      expect(children[2]).toContainText('1');
     });
 
     it('should contain the agents Disabled count information', function () {
       var children = $root.find('.search-summary').children();
-      expect($(children[3]).text()).toContain('Disabled');
-      expect($(children[3]).text()).toContain('0');
+      expect(children[3]).toContainText('Disabled');
+      expect(children[3]).toContainText('0');
     });
 
     var mount = function (agents) {
       m.mount(root,
         m.component(AgentStateCountWidget, {agents: agents})
       );
+      m.redraw(true);
+    };
+
+    var unmount = function () {
+      m.mount(root, null);
       m.redraw(true);
     };
 

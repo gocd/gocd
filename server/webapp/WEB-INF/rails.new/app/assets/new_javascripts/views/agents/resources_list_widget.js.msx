@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', 'jquery', 'helpers/form_helper',
+define(['mithril', 'lodash', 'string-plus', 'helpers/form_helper',
   'views/agents/tri_state_checkbox_widget', 'models/agents/resources', 'models/agents/tri_state_checkbox'
-], function (m, _, s, $, f, TriStateCheckboxWidget, Resources, TriStateCheckbox) {
+], function (m, _, s, f, TriStateCheckboxWidget, Resources, TriStateCheckbox) {
 
   var NewResourceVM = {
     newResource: m.prop(''),
@@ -50,39 +50,41 @@ define(['mithril', 'lodash', 'string-plus', 'jquery', 'helpers/form_helper',
           }
         },
 
-        updateResources: function () {
-          var hideResourcesDropDown = function () {
-            args.dropDownState.hide('resource');
-          };
+        updateResource: function (callback) {
+          args.hideDropDown('resource');
 
-          hideResourcesDropDown();
-          var resourcesToBeAdded   = [];
-          var resourcesToBeRemoved = [];
-
-          _.each(Resources.list(), function (resource) {
-            if (resource.isIndeterminate()) {
-              return;
-            }
-
-            if (resource.isChecked()) {
-              resourcesToBeAdded.push(resource.name());
-            } else {
-              resourcesToBeRemoved.push(resource.name());
-            }
+          var resourcesToBeAdded = _.filter(Resources.list(), function (resource) {
+            return resource.isChecked()
+          }).map(function (resource) {
+            return resource.name()
           });
 
-          args.onResourcesUpdate(resourcesToBeAdded, resourcesToBeRemoved);
-          NewResourceVM.newResource('');
-        }
+          var resourcesToBeRemoved = _.filter(Resources.list(), function (resource) {
+            return !resource.isIndeterminate() && !resource.isChecked()
+          }).map(function (resource) {
+            return resource.name()
+          });
 
+
+          callback(resourcesToBeAdded, resourcesToBeRemoved);
+
+          NewResourceVM.newResource('');
+        },
+
+        closeDropdown:   function () {
+          args.dropDownReset(false);
+        },
+
+        newResourceInputValue: function (value) {
+          NewResourceVM.newResource(value);
+          NewResourceVM.error('');
+        }
       }
     },
 
     view: function (ctrl, args) {
       return (
-        <div class="agent-button-group-dropdown resource-dropdown" onclick={function() {
-          args.dropDownState.reset(false);
-        }}>
+        <div class="agent-button-group-dropdown resource-dropdown" onclick={ctrl.closeDropdown}>
           <ul class="resources-items">
 
             {
@@ -96,11 +98,7 @@ define(['mithril', 'lodash', 'string-plus', 'jquery', 'helpers/form_helper',
               {_.isEqual('', NewResourceVM.error()) ? "" : <span class="resource-error">{NewResourceVM.error()}</span> }
               <div class="small-9 columns">
                 <input type="text"
-                       oninput={m.withAttr("value", function(value){
-                      NewResourceVM.newResource(value);
-                      NewResourceVM.error('');
-                     })
-                     }
+                       oninput={m.withAttr("value", ctrl.newResourceInputValue)}
                        value={NewResourceVM.newResource()}
                        placeholder="Add resource"/>
               </div>
@@ -112,9 +110,10 @@ define(['mithril', 'lodash', 'string-plus', 'jquery', 'helpers/form_helper',
               </div>
 
             </div>
-            <f.button onclick={ctrl.updateResources.bind(ctrl)}
-                      class="btn-apply tiny"
-                      data-toggle="resources-list">
+            <f.button
+              onclick={ ctrl.updateResource.bind(ctrl, args.onResourcesUpdate) }
+              class="btn-apply tiny"
+              data-toggle="resources-list">
               Apply
             </f.button>
           </div>

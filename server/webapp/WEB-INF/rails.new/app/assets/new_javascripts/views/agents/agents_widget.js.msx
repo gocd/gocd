@@ -111,7 +111,7 @@ define([
           };
           var onError             = function () {
             if (!request.isAbortedByGoCD) {
-              this.refreshAfterInterval()
+              this.refreshAfterInterval();
             }
           };
           requestPromise.then(onSuccess.bind(this), onError.bind(this));
@@ -149,10 +149,10 @@ define([
 
         selectedAgentsUuids: function () {
           return _.compact(_.map(args.vm.agentsCheckedState, function (boxSate, agentId) {
-              if (boxSate()) {
-                return agentId;
-              }
+            if (boxSate()) {
+              return agentId;
             }
+          }
           ));
         },
 
@@ -341,7 +341,7 @@ define([
                                       key={uuid}
                                       checkBoxModel={checkboxModel}
                                       show={agent.matches(filterText)}/>
-                    )
+                    );
 
                   })
                 }

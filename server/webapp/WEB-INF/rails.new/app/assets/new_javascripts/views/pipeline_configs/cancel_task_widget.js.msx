@@ -73,7 +73,7 @@ define([
                 }
               </div>
             </f.row>
-          )
+          );
         }
       };
 
@@ -91,7 +91,7 @@ define([
                         size={3}
                         largeSize={3}
                         end="true"/>
-          )
+          );
         }
       };
 

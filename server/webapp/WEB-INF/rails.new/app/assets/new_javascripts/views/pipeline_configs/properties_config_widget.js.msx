@@ -34,9 +34,9 @@ define([
       return (
         <f.accordion accordionTitles={[
                         (
-                          <span>Properties</span>
+          <span>Properties</span>
                         )
-                     ]}
+        ]}
                      accordionKeys={['properties-tabs']}
                      selectedIndex={ctrl.vmState('propertiesSelected', m.prop(-1))}
                      class="accordion-inner">

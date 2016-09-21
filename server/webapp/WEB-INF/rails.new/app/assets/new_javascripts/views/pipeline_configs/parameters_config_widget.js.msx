@@ -37,9 +37,9 @@ define([
       return (
         <f.accordion accordionTitles={[
                         (
-                          <span>Parameters<f.tooltip tooltip={{content: tt.pipeline.parameters.main}}/></span>
+          <span>Parameters<f.tooltip tooltip={{content: tt.pipeline.parameters.main}}/></span>
                         )
-                     ]}
+        ]}
                      accordionKeys={['parameters']}
                      selectedIndex={ctrl.vmState('parametersSelected', m.prop(-1))}
                      class='parameters accordion-inner'>

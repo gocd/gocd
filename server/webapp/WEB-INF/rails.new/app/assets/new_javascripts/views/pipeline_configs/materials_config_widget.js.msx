@@ -64,7 +64,7 @@ define([
                           validate={true}
                           isRequired={true}
                           model={args.material}/>
-      )
+      );
     }
   };
 
@@ -85,10 +85,10 @@ define([
                           model={args.material}
                           validate={true}
                           tooltip={{
-                                    content: tt.material.destination,
-                                    direction: 'bottom',
-                                    size: 'small'
-                                   }}/>
+                            content: tt.material.destination,
+                            direction: 'bottom',
+                            size: 'small'
+                          }}/>
       );
     }
   };
@@ -101,10 +101,10 @@ define([
                           validate={true}
                           model={args.material}
                           tooltip={{
-                                    content: tt.material.name,
-                                    direction: 'bottom',
-                                    size: 'small'
-                                   }}/>
+                            content: tt.material.name,
+                            direction: 'bottom',
+                            size: 'small'
+                          }}/>
       );
     }
   };
@@ -143,7 +143,7 @@ define([
                                   vm={ctrl.vmState('testConnection')}/>
           </f.column>
         </f.row>
-      )
+      );
     }
   };
 
@@ -428,8 +428,8 @@ define([
                                                             : materials().createMaterial({type: type(), pluginInfo: PluginInfos.findById(type())});
 
           var indexOfMaterial = materials().indexOfMaterial(newMaterial);
-          self.vmState('material-' + indexOfMaterial, {selectedMaterialIndex: m.prop(0)})
-        }
+          self.vmState('material-' + indexOfMaterial, {selectedMaterialIndex: m.prop(0)});
+        };
       };
     },
 
@@ -437,9 +437,9 @@ define([
       return (
         <f.accordion accordionTitles={[
                         (
-                          <span>Materials</span>
+          <span>Materials</span>
                         )
-                     ]}
+        ]}
                      accordionKeys={['materials']}
                      class='materials'
                      selectedIndex={ctrl.vmState('materialsSelected', m.prop(-1))}>

@@ -60,7 +60,7 @@ define([
       var radioName = 'radio-' + job.uuid() + '-timeout';
       var errors    = job.validate(), timeoutError;
       if (errors.errors('timeout')) {
-        timeoutError = (<small class='form-error is-visible'>{errors.errorsForDisplay('timeout')}</small>)
+        timeoutError = (<small class='form-error is-visible'>{errors.errorsForDisplay('timeout')}</small>);
       }
       return (
         <div>
@@ -69,10 +69,10 @@ define([
               <label>
                 Timeout
                 <f.tooltip tooltip={{
-                          content: tt.job.timeout,
-                          size: 'small',
-                          direction: 'bottom'
-                        }}
+                  content: tt.job.timeout,
+                  size: 'small',
+                  direction: 'bottom'
+                }}
                            model={job}
                            attrName='timeout'/>
               </label>
@@ -129,7 +129,7 @@ define([
       var errors    = job.validate(), runInstanceCounteError;
 
       if (errors.errors('runInstanceCount')) {
-        runInstanceCounteError = (<small class='form-error is-visible'>{errors.errorsForDisplay('runInstanceCount')}</small>)
+        runInstanceCounteError = (<small class='form-error is-visible'>{errors.errorsForDisplay('runInstanceCount')}</small>);
       }
 
       return (
@@ -139,10 +139,10 @@ define([
               <label>
                 Number of jobs
                 <f.tooltip tooltip={{
-                          content: tt.job.runInstanceCount.main,
-                          size: 'small',
-                          direction: 'bottom'
-                        }}
+                  content: tt.job.runInstanceCount.main,
+                  size: 'small',
+                  direction: 'bottom'
+                }}
                            model={job}
                            attrName='runInstanceCount'/>
               </label>
@@ -202,7 +202,7 @@ define([
         var previousJobIndex =  args.jobs().indexOfJob(job) - 1;
         this.vmState('selectedJobIndex')(previousJobIndex !== -1 ? previousJobIndex : 0);
         this.remove(job);
-      }
+      };
     },
 
     view: function (ctrl, args) {
@@ -234,9 +234,9 @@ define([
                   <f.removeButton onclick={ctrl.removeJob.bind(ctrl, job)} class='remove-job'/>
                   <f.accordion accordionTitles={[
                         (
-                          <span>Job Settings</span>
+                    <span>Job Settings</span>
                         )
-                     ]}
+                  ]}
                                accordionKeys={['job-settings']}
                                selectedIndex={ctrl.vmState('jobSettingsSelected' + jobIndex, m.prop(s.isBlank(job.name()) ? 0 : -1))}
                                class="accordion-inner">
@@ -254,10 +254,10 @@ define([
                           attrName='resources'
                           model={job}
                           tooltip={{
-                              content: tt.job.resources,
-                              direction: 'bottom',
-                              size: 'small'
-                            }}
+                            content: tt.job.resources,
+                            direction: 'bottom',
+                            size: 'small'
+                          }}
                           size={4}
                           largeSize={4}
                           end={true}/>

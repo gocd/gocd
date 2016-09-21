@@ -31,9 +31,9 @@ define(['mithril', 'helpers/form_helper', 'helpers/mithril_component_mixins', 'h
       return (
         <f.accordion accordionTitles={[
                         (
-                          <span>Artifacts<f.tooltip tooltip={{content: tt.artifacts.main, size:'small'}}/></span>
+          <span>Artifacts<f.tooltip tooltip={{content: tt.artifacts.main, size:'small'}}/></span>
                         )
-                     ]}
+        ]}
                      accordionKeys={['job-artifacts']}
                      selectedIndex={ctrl.vmState('artifactsSelected', m.prop(-1))}
                      class="accordion-inner">
@@ -49,10 +49,10 @@ define(['mithril', 'helpers/form_helper', 'helpers/mithril_component_mixins', 'h
                            size={3}
                            largeSize={3}
                            tooltip={{
-                                          content: tt.artifacts.source,
-                                          direction: 'bottom',
-                                          size: 'medium'
-                                        }}/>
+                             content: tt.artifacts.source,
+                             direction: 'bottom',
+                             size: 'medium'
+                           }}/>
                   <f.input model={artifact}
                            attrName='destination'
                            placeholder='Destination'
@@ -61,22 +61,22 @@ define(['mithril', 'helpers/form_helper', 'helpers/mithril_component_mixins', 'h
                            size={3}
                            largeSize={3}
                            tooltip={{
-                                          content: tt.artifacts.destination,
-                                          direction: 'bottom',
-                                          size: 'medium'
-                                        }}/>
+                             content: tt.artifacts.destination,
+                             direction: 'bottom',
+                             size: 'medium'
+                           }}/>
                   <f.select value={artifact.type}
                             class='inline'
                             items={{
-                            build: 'build',
-                            test: 'test'
-                          }}
+                              build: 'build',
+                              test: 'test'
+                            }}
                             size={2}
                             tooltip={{
-                                          content: tt.artifacts.type,
-                                          direction: 'bottom',
-                                          size: 'medium'
-                                        }}/>
+                              content: tt.artifacts.type,
+                              direction: 'bottom',
+                              size: 'medium'
+                            }}/>
                   <f.column size={1} end={true}>
                     {ctrl.removeLink.call(ctrl, artifact)}
                   </f.column>

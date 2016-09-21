@@ -62,7 +62,7 @@ define(['mithril', 'lodash', 'jquery', 'helpers/form_helper', 'string-plus', 'he
                 $scope[config.key] = self.scm.configuration().valueFor(config.key);
               });
 
-              $scope.$apply()
+              $scope.$apply();
             });
           }]);
         });

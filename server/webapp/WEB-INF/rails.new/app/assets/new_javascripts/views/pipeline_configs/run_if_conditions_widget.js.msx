@@ -16,11 +16,11 @@
 
 define([
   'mithril', 'lodash', 'string-plus', 'helpers/form_helper'
-  ], function (m, _, s, f) {
-    var RunIfConditionsWidget = {
-      view: function (ctrl, args) {
-        var task = args.task;
-        return (
+], function (m, _, s, f) {
+  var RunIfConditionsWidget = {
+    view: function (ctrl, args) {
+      var task = args.task;
+      return (
           <div class='runif'>
             <f.row>
               <f.column>
@@ -48,9 +48,9 @@ define([
                                    end={true}/>
             </f.row>
           </div>
-        )
-      }
-    };
-    return RunIfConditionsWidget;
-  }
+        );
+    }
+  };
+  return RunIfConditionsWidget;
+}
 );

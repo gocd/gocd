@@ -37,10 +37,10 @@ define([
                               validate={true}
                               isRequired={true}
                               tooltip={{
-                                          content: <tt.trackingTool.mingle.baseUrl callback={trackingTool().baseUrl}/>,
-                                          direction: 'bottom',
-                                          size: 'medium'
-                                        }}
+                                content: <tt.trackingTool.mingle.baseUrl callback={trackingTool().baseUrl}/>,
+                                direction: 'bottom',
+                                size: 'medium'
+                              }}
                               size={8}
                               largeSize={6}/>
           </f.row>
@@ -51,10 +51,10 @@ define([
                               validate={true}
                               isRequired={true}
                               tooltip={{
-                                          content: <tt.trackingTool.mingle.projectIdentifier callback={trackingTool().projectIdentifier}/>,
-                                          direction: 'bottom',
-                                          size: 'medium'
-                                        }}
+                                content: <tt.trackingTool.mingle.projectIdentifier callback={trackingTool().projectIdentifier}/>,
+                                direction: 'bottom',
+                                size: 'medium'
+                              }}
                               size={8}
                               largeSize={6}/>
           </f.row>
@@ -64,10 +64,10 @@ define([
                               attrName='mqlGroupingConditions'
                               validate={true}
                               tooltip={{
-                                          content: <tt.trackingTool.mingle.mqlGroupingConditions callback={trackingTool().mqlGroupingConditions}/>,
-                                          direction: 'bottom',
-                                          size: 'medium'
-                                        }}
+                                content: <tt.trackingTool.mingle.mqlGroupingConditions callback={trackingTool().mqlGroupingConditions}/>,
+                                direction: 'bottom',
+                                size: 'medium'
+                              }}
                               size={8}
                               largeSize={6}/>
           </f.row>
@@ -85,10 +85,10 @@ define([
                               validate={true}
                               isRequired={true}
                               tooltip={{
-                                          content: <tt.trackingTool.generic.regex callback={trackingTool().regex}/>,
-                                          direction: 'bottom',
-                                          size: 'large'
-                                        }}
+                                content: <tt.trackingTool.generic.regex callback={trackingTool().regex}/>,
+                                direction: 'bottom',
+                                size: 'large'
+                              }}
                               size={8}
                               largeSize={6}/>
           </f.row>
@@ -100,10 +100,10 @@ define([
                               validate={true}
                               isRequired={true}
                               tooltip={{
-                                          content: <tt.trackingTool.generic.urlPattern callback={trackingTool().urlPattern}/>,
-                                          direction: 'bottom',
-                                          size: 'large'
-                                        }}
+                                content: <tt.trackingTool.generic.urlPattern callback={trackingTool().urlPattern}/>,
+                                direction: 'bottom',
+                                size: 'large'
+                              }}
                               size={8}
                               largeSize={6}/>
           </f.row>
@@ -137,9 +137,9 @@ define([
       return (
         <f.accordion accordionTitles={[
                         (
-                          <span>Tracking Tool<f.tooltip tooltip={{content: tt.trackingTool.main}}/></span>
+          <span>Tracking Tool<f.tooltip tooltip={{content: tt.trackingTool.main}}/></span>
                         )
-                     ]}
+        ]}
                      accordionKeys={['tracking-tool']}
                      selectedIndex={ctrl.vmState('trackingToolSelected', m.prop(-1))}
                      class="tracking-tool accordion-inner">

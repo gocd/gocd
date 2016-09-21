@@ -43,19 +43,19 @@ define([
                                 validate={true}
                                 isRequired={true}
                                 tooltip={{
-                                          content: <tt.pipeline.labelTemplate callback={pipeline.labelTemplate}/>,
-                                          direction: 'bottom',
-                                          size: 'large'
-                                        }}/>
+                                  content: <tt.pipeline.labelTemplate callback={pipeline.labelTemplate}/>,
+                                  direction: 'bottom',
+                                  size: 'large'
+                                }}/>
               <f.checkBox model={pipeline}
                           attrName='enablePipelineLocking'
                           class="large-4 end"
                           addPadding={true}
                           tooltip={{
-                                    content: tt.pipeline.enablePipelineLocking,
-                                    direction: 'bottom',
-                                    class: 'tooltip-spacing'
-                                  }}/>
+                            content: tt.pipeline.enablePipelineLocking,
+                            direction: 'bottom',
+                            class: 'tooltip-spacing'
+                          }}/>
 
             </f.row>
             <f.row>
@@ -64,10 +64,10 @@ define([
                                 label='Cron timer specification'
                                 validate={false}
                                 tooltip={{
-                                          content: <tt.pipeline.timer.spec callback={pipeline.timer().spec}/>,
-                                          direction: 'bottom',
-                                          size: 'large'
-                                        }}/>
+                                  content: <tt.pipeline.timer.spec callback={pipeline.timer().spec}/>,
+                                  direction: 'bottom',
+                                  size: 'large'
+                                }}/>
 
               <f.checkBox model={pipeline.timer()}
                           class="end"
@@ -76,10 +76,10 @@ define([
                           label='Run only on new material'
                           disabled={s.isBlank(pipeline.timer().spec())}
                           tooltip={{
-                                    content: tt.pipeline.timer.onlyOnChanges,
-                                    direction: 'bottom',
-                                    class: 'tooltip-spacing'
-                                   }}/>
+                            content: tt.pipeline.timer.onlyOnChanges,
+                            direction: 'bottom',
+                            class: 'tooltip-spacing'
+                          }}/>
 
             </f.row>
            <f.row>
@@ -96,7 +96,7 @@ define([
              </f.row>
           </div>
         </f.accordion>
-      )
+      );
     }
   };
   return PipelineSettingsWidget;

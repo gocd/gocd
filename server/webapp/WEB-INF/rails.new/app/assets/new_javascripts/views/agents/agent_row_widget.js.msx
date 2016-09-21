@@ -24,7 +24,7 @@ define(['mithril', 'lodash'], function (m, _) {
     if (things.length === 0) {
       return (<em>none specified</em>);
     } else {
-      return things.join(', ')
+      return things.join(', ');
     }
   };
 

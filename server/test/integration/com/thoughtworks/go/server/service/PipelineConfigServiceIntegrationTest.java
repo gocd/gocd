@@ -398,34 +398,6 @@ public class PipelineConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldShowPipelineConfigErrorMessageWhenPipelineConfigHasApprovalRelatedErrors() {
-        PipelineConfig pipeline = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), new DependencyMaterialConfig(pipelineConfig.name(), pipelineConfig.first().name()));
-        StageConfig stageConfig= pipeline.get(0);
-        stageConfig.setApproval(new Approval(new AuthConfig(new AdminRole(new CaseInsensitiveString("non-existent-role")))));
-
-        pipelineConfigService.createPipelineConfig(user, pipeline, result, groupName);
-
-        assertThat(result.toString(), result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(422));
-        assertThat(stageConfig.getApproval().getAuthConfig().errors().firstError(), is("Role \"non-existent-role\" does not exist."));
-    }
-
-    @Test
-    public void shouldShowPipelineConfigErrorMessageWhenPipelineConfigHasApprovalTypeErrors() {
-        PipelineConfig pipeline = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), new DependencyMaterialConfig(pipelineConfig.name(), pipelineConfig.first().name()));
-        StageConfig stageConfig= pipeline.get(0);
-        Approval approval = new Approval();
-        approval.setType("not-success-or-manual");
-        stageConfig.setApproval(approval);
-
-        pipelineConfigService.createPipelineConfig(user, pipeline, result, groupName);
-
-        assertThat(result.toString(), result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(422));
-        assertThat(stageConfig.getApproval().errors().firstError(), is("You have defined approval type as 'not-success-or-manual'. Approval can only be of the type 'manual' or 'success'."));
-    }
-
-    @Test
     public void shouldShowThePipelineConfigErrorMessageWhenPipelineBeingCreatedHasErrorsOnProperties() throws GitAPIException {
         PipelineConfig pipeline = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), new DependencyMaterialConfig(pipelineConfig.name(), pipelineConfig.first().name()));
         JobConfig jobConfig = pipeline.get(0).getJobs().get(0);

@@ -45,8 +45,6 @@ public class PipelineConfigErrorCopier {
             StageConfig fromStage = from.findBy(toStage.name());
             copy(fromStage, toStage);
             copyCollectionErrors(fromStage.getVariables(), toStage.getVariables());
-            copy(fromStage.getApproval(), toStage.getApproval());
-            copyCollectionErrors(fromStage.getApproval().getAuthConfig(), toStage.getApproval().getAuthConfig());
 
             for (JobConfig toJob : toStage.getJobs()) {
                 JobConfig fromJob = fromStage.jobConfigByConfigName(toJob.name());

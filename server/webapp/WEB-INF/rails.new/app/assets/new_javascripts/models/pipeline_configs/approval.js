@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/validatable_mixin'], function (m, _, s, Mixins, Validatable) {
+define(['mithril', 'lodash', 'string-plus', 'models/model_mixins'], function (m, _, s, Mixins) {
 
   var Approval = function (data) {
     this.constructor.modelType = 'approval';
@@ -43,14 +43,13 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/valid
   Approval.AuthConfig = function (data) {
     this.constructor.modelType = 'approvalAuthorization';
     Mixins.HasUUID.call(this);
-    Validatable.call(this, data);
 
     this.roles = s.withNewJSONImpl(m.prop(s.defaultToIfBlank(data.roles, '')), s.stringToArray);
     this.users = s.withNewJSONImpl(m.prop(s.defaultToIfBlank(data.users, '')), s.stringToArray);
   };
 
   Approval.AuthConfig.fromJSON = function (data) {
-    return new Approval.AuthConfig({roles: data.roles, users: data.users, errors: data.errors});
+    return new Approval.AuthConfig({roles: data.roles, users: data.users});
   };
 
   Approval.fromJSON = function (data) {

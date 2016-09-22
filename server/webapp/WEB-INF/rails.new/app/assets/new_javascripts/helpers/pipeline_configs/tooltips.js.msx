@@ -440,6 +440,14 @@ define(['mithril', 'lodash', 'helpers/form_helper'], function (m, _, f) {
     </div>
   );
 
+  var jobElasticProfile = (
+    <div>
+      <p>
+        Jobs associated with an elastic profile id will only run on elastic agents matching the elastic profile.
+      </p>
+    </div>
+  );
+
   var jobTimeout = (
     <div>
       <p>If this job is inactive for more than the specified period (in minutes), Go will cancel it.</p>
@@ -707,6 +715,7 @@ define(['mithril', 'lodash', 'helpers/form_helper'], function (m, _, f) {
 
     job: {
       resources:        jobResources,
+      elasticProfile:   jobElasticProfile,
       timeout:          jobTimeout,
       runInstanceCount: {
         main: jobRunOnAgents,

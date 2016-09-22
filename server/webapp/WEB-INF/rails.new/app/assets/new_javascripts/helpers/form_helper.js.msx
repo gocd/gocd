@@ -83,7 +83,8 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
           placeholder = deleteKeyAndReturnValue(args, 'placeholder', ''),
           modelType   = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
           validate    = deleteKeyAndReturnValue(args, 'validate', false),
-          tooltip     = deleteKeyAndReturnValue(args, 'tooltip');
+          tooltip     = deleteKeyAndReturnValue(args, 'tooltip'),
+          onChange    = deleteKeyAndReturnValue(args, 'onChange');
 
         args.size      = args.size || 6;
         args.largeSize = args.largeSize || 4;
@@ -106,7 +107,7 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
               type={type}
               placeholder={placeholder}
               class={propertyError ? 'is-invalid-input' : ''}
-              oninput={ctrl.onInput.bind(ctrl, model, attrName, onchange)}
+              oninput={ctrl.onInput.bind(ctrl, model, attrName, onChange)}
               onblur={validate ? model.validate.bind(model, validationAttr) : undefined}/>
             <f.tooltip tooltip={tooltip} model={model} attrName={attrName}/>
             {propertyError}
@@ -133,7 +134,7 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
           type        = deleteKeyAndReturnValue(args, 'type', 'text'),
           placeholder = deleteKeyAndReturnValue(args, 'placeholder', ''),
           labelText   = deleteKeyAndReturnValue(args, 'label'),
-          onchange    = deleteKeyAndReturnValue(args, 'onchange'),
+          onChange    = deleteKeyAndReturnValue(args, 'onChange'),
           tooltip     = deleteKeyAndReturnValue(args, 'tooltip'),
           modelType   = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
           validate    = deleteKeyAndReturnValue(args, 'validate', false),
@@ -177,7 +178,7 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
               type={type}
               placeholder={placeholder}
               class={propertyError ? 'is-invalid-input' : ''}
-              oninput={ctrl.onInput.bind(ctrl, model, attrName, onchange)}
+              oninput={ctrl.onInput.bind(ctrl, model, attrName, onChange)}
               onblur={validate ? model.validate.bind(model, validationAttr) : undefined}/>
             {resetButton()}
             {propertyError}
@@ -203,7 +204,7 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
           attrName    = deleteKeyAndReturnValue(args, 'attrName'),
           placeholder = deleteKeyAndReturnValue(args, 'placeholder', ''),
           labelText   = deleteKeyAndReturnValue(args, 'label'),
-          onchange    = deleteKeyAndReturnValue(args, 'onchange'),
+          onChange    = deleteKeyAndReturnValue(args, 'onChange'),
           tooltip     = deleteKeyAndReturnValue(args, 'tooltip'),
           modelType   = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
           validate    = deleteKeyAndReturnValue(args, 'validate', false);
@@ -229,7 +230,7 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
               spellcheck="off"
               placeholder={placeholder}
               class={propertyError ? 'error' : ''}
-              oninput={ctrl.onInput.bind(ctrl, model, attrName, onchange)}
+              oninput={ctrl.onInput.bind(ctrl, model, attrName, onChange)}
               onblur={validate ? model.validate.bind(model, validationAttr) : undefined}>
               {model[attrName]()}
               </textarea>
@@ -582,7 +583,7 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
                data-toggle={tooltipId}
                class='tooltip-question-mark'/>
             <div id={tooltipId}
-                 class={_.compact(['f-dropdown', 'dropdown-pane', 'content', 'tooltip-content', size]).join(' ')}
+                 class={_.compact(['f-dropdown', 'dropdown-pane', 'content', 'tooltip-content', size, direction]).join(' ')}
                  data-dropdown
                  data-hover='true'
                  data-hover-pane='true'

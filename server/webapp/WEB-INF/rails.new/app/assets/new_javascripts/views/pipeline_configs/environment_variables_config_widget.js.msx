@@ -30,7 +30,7 @@ define([
               <f.input model={variable}
                        attrName='name'
                        placeholder='Name'
-                       onchange={args.onChange}
+                       onChange={args.onChange}
                        validate={true}
                        end={true}
                        size={5}
@@ -54,7 +54,7 @@ define([
             <f.input model={args.variable}
                      attrName='value'
                      placeholder='Value'
-                     onchange={args.onChange}
+                     onChange={args.onChange}
                      validate={'all'}
                      size={5}
                      largeSize={4}/>
@@ -74,7 +74,7 @@ define([
             (<f.input model={variable}
                       attrName='value'
                       placeholder='Value'
-                      onchange={args.onChange}
+                      onChange={args.onChange}
                       type={variable.isSecureValue() ? 'password' : 'text'}/>
             )
           ];

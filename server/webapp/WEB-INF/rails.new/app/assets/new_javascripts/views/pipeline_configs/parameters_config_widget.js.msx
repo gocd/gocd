@@ -51,11 +51,11 @@ define([
                            attrName='name'
                            placeholder='Name'
                            validate={true}
-                           onchange={ctrl.changed.bind(ctrl)}/>
+                           onChange={ctrl.changed.bind(ctrl)}/>
                   <f.input model={parameter}
                            attrName='value'
                            placeholder='Value'
-                           onchange={ctrl.changed.bind(ctrl)}/>
+                           onChange={ctrl.changed.bind(ctrl)}/>
                   <f.column size={1} end={true}>
                     {ctrl.removeLink.call(ctrl, parameter)}
                   </f.column>

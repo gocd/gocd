@@ -36,7 +36,7 @@ define(['mithril', 'lodash', 'jquery', 'helpers/form_helper', 'string-plus', 'he
           self.templateHTML = template(plugin.viewTemplate());
           self.defaultConfig = plugin.configurations();
 
-          self.ngController = angular.module(self.appName, []).controller(self.ngControllerName, ['$scope', '$http', function ($scope, $http) {
+          self.ngController = angular.module(self.appName, []).controller(self.ngControllerName, ['$scope', '$http', function ($scope) {
             $scope.addError = function (field) {
               $scope.GOINPUTNAME[field.key] = {$error: {}};
               $scope.GOINPUTNAME[field.key].$error[_.toLower(field.key)] = field.errors.join();

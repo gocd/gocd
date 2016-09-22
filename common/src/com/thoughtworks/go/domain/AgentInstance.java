@@ -295,7 +295,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
     }
 
     private boolean isElasticAndLaunchedBySamePluginAsConfiguredForJob(JobPlan jobPlan) {
-        return isElastic() && jobPlan.requiresElasticAgent() && jobPlan.getJobAgentConfig().getPluginId().equals(agentConfig.getElasticPluginId());
+        return isElastic() && jobPlan.requiresElasticAgent() && jobPlan.getElasticProfile().getPluginId().equals(agentConfig.getElasticPluginId());
     }
 
     public String getBuildLocator() {

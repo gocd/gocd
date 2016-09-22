@@ -17,7 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.google.common.collect.Sets;
-import com.thoughtworks.go.config.JobAgentConfig;
+import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobPlan;
 import com.thoughtworks.go.plugin.access.elastic.AgentMetadata;
@@ -132,7 +132,7 @@ public class ElasticAgentPluginService implements JobStatusListener {
             for (JobPlan plan : plansThatRequireElasticAgent) {
                 String environment = environmentConfigService.envForPipeline(plan.getPipelineName());
                 map.put(plan.getJobId(), timeProvider.currentTimeMillis());
-                createAgentQueue.post(new CreateAgentMessage(serverConfigService.getAutoregisterKey(), environment, plan.getJobAgentConfig()));
+                createAgentQueue.post(new CreateAgentMessage(serverConfigService.getAutoregisterKey(), environment, plan.getElasticProfile()));
             }
         } else {
             if (!plansThatRequireElasticAgent.isEmpty()) {
@@ -152,8 +152,8 @@ public class ElasticAgentPluginService implements JobStatusListener {
         };
     }
 
-    public boolean shouldAssignWork(ElasticAgentMetadata metadata, String environment, JobAgentConfig jobAgentConfig) {
-        return elasticAgentPluginRegistry.shouldAssignWork(pluginManager.getPluginDescriptorFor(metadata.elasticPluginId()), toAgentMetadata(metadata), environment, jobAgentConfig.getConfigurationAsMap(true));
+    public boolean shouldAssignWork(ElasticAgentMetadata metadata, String environment, ElasticProfile elasticProfile) {
+        return elasticAgentPluginRegistry.shouldAssignWork(pluginManager.getPluginDescriptorFor(metadata.elasticPluginId()), toAgentMetadata(metadata), environment, elasticProfile.getConfigurationAsMap(true));
     }
 
     @Override

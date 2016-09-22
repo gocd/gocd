@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.util.Clock;
@@ -62,13 +63,13 @@ public class InstanceFactory {
     private JobInstances createJobInstances(StageConfig stageConfig, SchedulingContext context, Clock clock) {
         JobInstances instances = new JobInstances();
         for (JobConfig jobConfig : stageConfig.getJobs()) {
-			JobType.JobNameGenerator nameGenerator = null;
-			if (jobConfig.isRunOnAllAgents()) {
-				nameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(jobConfig.name()));
-			} else if (jobConfig.isRunMultipleInstanceType()) {
-				nameGenerator = new RunMultipleInstance.CounterBasedJobNameGenerator(CaseInsensitiveString.str(jobConfig.name()));
-			}
-			JobInstances configInstances = createJobInstance(stageConfig.name(), jobConfig, context, clock, nameGenerator);
+            JobType.JobNameGenerator nameGenerator = null;
+            if (jobConfig.isRunOnAllAgents()) {
+                nameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(jobConfig.name()));
+            } else if (jobConfig.isRunMultipleInstanceType()) {
+                nameGenerator = new RunMultipleInstance.CounterBasedJobNameGenerator(CaseInsensitiveString.str(jobConfig.name()));
+            }
+            JobInstances configInstances = createJobInstance(stageConfig.name(), jobConfig, context, clock, nameGenerator);
             instances.addAll(configInstances);
         }
         return instances;
@@ -83,27 +84,32 @@ public class InstanceFactory {
         }
     }
 
-	private JobType createJobType(boolean runOnAllAgents, boolean runMultipleInstances) {
-		if (runOnAllAgents) {
-			return new RunOnAllAgents();
-		}
-		if (runMultipleInstances) {
-			return new RunMultipleInstance();
-		}
-		return new SingleJobInstance();
-	}
+    private JobType createJobType(boolean runOnAllAgents, boolean runMultipleInstances) {
+        if (runOnAllAgents) {
+            return new RunOnAllAgents();
+        }
+        if (runMultipleInstances) {
+            return new RunMultipleInstance();
+        }
+        return new SingleJobInstance();
+    }
 
     public void reallyCreateJobInstance(JobConfig config, JobInstances jobs, String uuid, String jobName, boolean runOnAllAgents, boolean runMultipleInstance, SchedulingContext context, final Clock clock) {
         JobInstance instance = new JobInstance(jobName, clock);
         instance.setPlan(createJobPlan(config, context));
         instance.setAgentUuid(uuid);
         instance.setRunOnAllAgents(runOnAllAgents);
-		instance.setRunMultipleInstance(runMultipleInstance);
+        instance.setRunMultipleInstance(runMultipleInstance);
         jobs.add(instance);
     }
 
     public JobPlan createJobPlan(JobConfig config, SchedulingContext context) {
         JobIdentifier identifier = new JobIdentifier();
-        return new DefaultJobPlan(config.resources(), config.artifactPlans(), config.getProperties(), -1, identifier, null, context.overrideEnvironmentVariables(config.getVariables()).getEnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), config.getJobAgentConfig());
+        String elasticProfileId = config.getElasticProfileId();
+        ElasticProfile elasticProfile = null;
+        if (elasticProfileId != null) {
+            elasticProfile = context.getElasticProfile(elasticProfileId);
+        }
+        return new DefaultJobPlan(config.resources(), config.artifactPlans(), config.getProperties(), -1, identifier, null, context.overrideEnvironmentVariables(config.getVariables()).getEnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), elasticProfile);
     }
 }

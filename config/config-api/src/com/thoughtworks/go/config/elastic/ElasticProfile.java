@@ -14,51 +14,54 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.config;
+package com.thoughtworks.go.config.elastic;
 
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
-import com.thoughtworks.go.util.StringUtil;
 
 import java.util.Collection;
 
-import static java.lang.String.format;
+import static org.apache.commons.lang.StringUtils.isBlank;
 
-@ConfigTag("agentConfig")
+@ConfigTag("profile")
 @ConfigCollection(value = ConfigurationProperty.class)
-public class JobAgentConfig extends Configuration implements Validatable {
-
+public class ElasticProfile extends Configuration implements Validatable {
+    public static final String ID = "id";
     public static final String PLUGIN_ID = "pluginId";
+
     private final ConfigErrors errors = new ConfigErrors();
+
+    @ConfigAttribute(value = "id", optional = false)
+    private String id;
 
     @ConfigAttribute(value = "pluginId", allowNull = false)
     private String pluginId;
 
-    public JobAgentConfig() {
-
+    public ElasticProfile() {
     }
 
-    JobAgentConfig(String pluginId, ConfigurationProperty... configurationProperties) {
-        super(configurationProperties);
+    public ElasticProfile(String id, String pluginId, ConfigurationProperty... props) {
+        super(props);
+        this.id = id;
         this.pluginId = pluginId;
     }
 
-    public JobAgentConfig(String pluginId, Collection<ConfigurationProperty> configProperties) {
-        this(pluginId, configProperties.toArray(new ConfigurationProperty[0]));
+    public ElasticProfile(String id, String pluginId, Collection<ConfigurationProperty> configProperties) {
+        this(id, pluginId, configProperties.toArray(new ConfigurationProperty[0]));
     }
 
-    @Override
-    public void validate(ValidationContext validationContext) {
-        super.validateUniqueness(format("agent config of job '%s::%s::%s'", validationContext.getPipeline().name(), validationContext.getStage().name(), validationContext.getJob().name()));
-        if (StringUtil.isBlank(pluginId)) {
-            addError(PLUGIN_ID,
-                    format("Agent config on job '%s::%s::%s' cannot have a blank plugin id.",
-                            validationContext.getPipeline().name(),
-                            validationContext.getStage().name(),
-                            validationContext.getJob().name())
-            );
-        }
+    public ElasticProfile(ElasticProfile profile) {
+        this(profile.getId(), profile.getPluginId(), profile);
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getPluginId() {
+        return pluginId;
     }
 
     @Override
@@ -71,8 +74,17 @@ public class JobAgentConfig extends Configuration implements Validatable {
         errors().add(fieldName, message);
     }
 
-    public String getPluginId() {
-        return pluginId;
+    @Override
+    public void validate(ValidationContext validationContext) {
+        super.validateUniqueness("elastic profile " + (isBlank(id) ? "(noname)" : "'" + id + "'"));
+
+        if (isBlank(id)) {
+            addError(ID, "Elastic profile cannot have a blank id.");
+        }
+
+        if (isBlank(pluginId)) {
+            addError(PLUGIN_ID, "Elastic profile cannot have a blank plugin id.");
+        }
     }
 
     @Override
@@ -81,9 +93,9 @@ public class JobAgentConfig extends Configuration implements Validatable {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
 
-        JobAgentConfig that = (JobAgentConfig) o;
+        ElasticProfile that = (ElasticProfile) o;
 
-        if (errors != null ? !errors.equals(that.errors) : that.errors != null) return false;
+        if (id != null ? !id.equals(that.id) : that.id != null) return false;
         return pluginId != null ? pluginId.equals(that.pluginId) : that.pluginId == null;
 
     }
@@ -91,7 +103,7 @@ public class JobAgentConfig extends Configuration implements Validatable {
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + (errors != null ? errors.hashCode() : 0);
+        result = 31 * result + (id != null ? id.hashCode() : 0);
         result = 31 * result + (pluginId != null ? pluginId.hashCode() : 0);
         return result;
     }

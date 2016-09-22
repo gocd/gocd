@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.dao;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
@@ -735,24 +736,24 @@ public class JobInstanceSqlMapDaoTest {
     public void shouldSaveJobAgentMetadata() throws Exception {
         JobInstance instance = jobInstanceDao.save(stageId, new JobInstance(JOB_NAME));
         instance.setIdentifier(new JobIdentifier(savedPipeline, savedStage, instance));
-        JobAgentConfig jobAgentConfig = new JobAgentConfig("cd.go.elastic-agent:docker", Arrays.asList(new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value"))));
-        JobPlan plan = new DefaultJobPlan(new Resources("something"), new ArtifactPlans(), new ArtifactPropertiesGenerators(), instance.getId(), instance.getIdentifier(), null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), jobAgentConfig);
+        ElasticProfile elasticProfile = new ElasticProfile("foo", "cd.go.elastic-agent:docker", Arrays.asList(new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value"))));
+        JobPlan plan = new DefaultJobPlan(new Resources("something"), new ArtifactPlans(), new ArtifactPropertiesGenerators(), instance.getId(), instance.getIdentifier(), null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), elasticProfile);
         jobInstanceDao.save(instance.getId(), plan);
 
         JobPlan retrieved = jobInstanceDao.loadPlan(plan.getJobId());
-        assertThat(retrieved.getJobAgentConfig(), is(jobAgentConfig));
+        assertThat(retrieved.getElasticProfile(), is(elasticProfile));
     }
 
     @Test
     public void shouldNotThrowUpWhenJobAgentMetadataIsNull() throws Exception {
         JobInstance instance = jobInstanceDao.save(stageId, new JobInstance(JOB_NAME));
         instance.setIdentifier(new JobIdentifier(savedPipeline, savedStage, instance));
-        JobAgentConfig jobAgentConfig = null;
-        JobPlan plan = new DefaultJobPlan(new Resources("something"), new ArtifactPlans(), new ArtifactPropertiesGenerators(), instance.getId(), instance.getIdentifier(), null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), jobAgentConfig);
+        ElasticProfile elasticProfile = null;
+        JobPlan plan = new DefaultJobPlan(new Resources("something"), new ArtifactPlans(), new ArtifactPropertiesGenerators(), instance.getId(), instance.getIdentifier(), null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), elasticProfile);
         jobInstanceDao.save(instance.getId(), plan);
 
         JobPlan retrieved = jobInstanceDao.loadPlan(plan.getJobId());
-        assertThat(retrieved.getJobAgentConfig(), is(jobAgentConfig));
+        assertThat(retrieved.getElasticProfile(), is(elasticProfile));
     }
 
     @Test

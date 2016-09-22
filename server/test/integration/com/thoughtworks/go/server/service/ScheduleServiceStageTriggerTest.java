@@ -266,7 +266,7 @@ public class ScheduleServiceStageTriggerTest {
         SchedulingPerformanceLogger schedulingPerformanceLogger = mock(SchedulingPerformanceLogger.class);
         scheduleService = new ScheduleService(goConfigService, pipelineService, stageService, schedulingCheckerService, pipelineScheduledTopic, pipelineDao, stageDao,
                 stageOrderService, securityService, pipelineScheduleQueue, this.jobInstanceService, jobInstanceDao, agentAssignment, environmentConfigService, pipelineLockService, serverHealthService,
-                transactionTemplate, null, transactionSynchronizationManager, null, null, null, null, schedulingPerformanceLogger);
+                transactionTemplate, null, transactionSynchronizationManager, null, null, null, null, schedulingPerformanceLogger, null);
 
         try {
             scheduleService.cancelAndTriggerRelevantStages(stage.getId(), null, null);
@@ -306,7 +306,7 @@ public class ScheduleServiceStageTriggerTest {
         SchedulingPerformanceLogger schedulingPerformanceLogger = mock(SchedulingPerformanceLogger.class);
         scheduleService = new ScheduleService(goConfigService, pipelineService, stageService, schedulingCheckerService, pipelineScheduledTopic, pipelineDao, stageDao,
                 stageOrderService, securityService, pipelineScheduleQueue, this.jobInstanceService, jobInstanceDao, agentAssignment, environmentConfigService, pipelineLockService, serverHealthService,
-                transactionTemplate, null, transactionSynchronizationManager, null, null, null, null, schedulingPerformanceLogger);
+                transactionTemplate, null, transactionSynchronizationManager, null, null, null, null, schedulingPerformanceLogger, null);
 
         try {
             transactionTemplate.executeWithExceptionHandling(new TransactionCallback() {

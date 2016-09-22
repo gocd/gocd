@@ -24,7 +24,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import com.thoughtworks.go.config.elastic.ElasticProfile;
+import com.thoughtworks.go.config.elastic.ElasticProfiles;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
@@ -33,9 +36,7 @@ import com.thoughtworks.go.config.server.security.ldap.BasesConfig;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.domain.Task;
-import com.thoughtworks.go.domain.config.Configuration;
-import com.thoughtworks.go.domain.config.ConfigurationProperty;
-import com.thoughtworks.go.domain.config.PluginConfiguration;
+import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
@@ -1214,6 +1215,256 @@ public class GoConfigMigrationIntegrationTest {
         assertThat(variables.getSecureVariables().first().getName(), is("PATH"));
         // encrypted value for "abcd" is "trMHp15AjUE=" for the cipher "269298bc31c44620"
         assertThat(variables.getSecureVariables().first().getValue(), is("abcd"));
+    }
+
+    @Test
+    public void shouldCreateProfilesFromAgentConfig_asPartOfMigration86And87() throws Exception {
+        String configXml = "<cruise schemaVersion='85'>"
+                +"  <server serverId='dev-id'>"
+                +"  </server>"
+                +"  <pipelines group='first'>"
+                +"    <pipeline name='up42'>"
+                +"      <materials>"
+                +"        <hg url='../manual-testing/ant_hg/dummy' />"
+                +"      </materials>"
+                + "  <stage name='dist'>"
+                + "    <jobs>"
+                + "      <job name='test'>"
+                + "       <agentConfig pluginId='docker'>"
+                + "         <property>"
+                + "           <key>instance-type</key>"
+                + "           <value>m1.small</value>"
+                + "         </property>"
+                + "       </agentConfig>"
+                + "      </job>"
+                + "    </jobs>"
+                + "  </stage>"
+                + "   </pipeline>"
+                + "  </pipelines>"
+                +"</cruise>";
+
+        CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml, 85);
+        PipelineConfig pipelineConfig = migratedConfig.pipelineConfigByName(new CaseInsensitiveString("up42"));
+        JobConfig jobConfig = pipelineConfig.getStages().get(0).getJobs().get(0);
+
+        assertThat(migratedConfig.schemaVersion(), is(87));
+
+        ElasticProfiles profiles = migratedConfig.server().getElasticConfig().getProfiles();
+        assertThat(profiles.size(), is(1));
+
+        ElasticProfile expectedProfile = new ElasticProfile(jobConfig.getElasticProfileId(), "docker",
+                new ConfigurationProperty(new ConfigurationKey("instance-type"), new ConfigurationValue("m1.small")));
+
+        ElasticProfile elasticProfile = profiles.get(0);
+        assertThat(elasticProfile, is(expectedProfile));
+    }
+
+    @Test
+    public void shouldCreateProfilesFromMultipleAgentConfigs_asPartOfMigration86And87() throws Exception {
+        String configXml = "<cruise schemaVersion='85'>"
+                +"  <server serverId='dev-id'>"
+                +"  </server>"
+                +"  <pipelines group='first'>"
+                +"    <pipeline name='up42'>"
+                +"      <materials>"
+                +"        <hg url='../manual-testing/ant_hg/dummy' />"
+                +"      </materials>"
+                + "  <stage name='dist'>"
+                + "    <jobs>"
+                + "      <job name='test1'>"
+                + "       <agentConfig pluginId='docker'>"
+                + "         <property>"
+                + "           <key>instance-type</key>"
+                + "           <value>m1.small</value>"
+                + "         </property>"
+                + "       </agentConfig>"
+                + "      </job>"
+                + "      <job name='test2'>"
+                + "       <agentConfig pluginId='aws'>"
+                + "         <property>"
+                + "           <key>ami</key>"
+                + "           <value>some.ami</value>"
+                + "         </property>"
+                + "         <property>"
+                + "           <key>ram</key>"
+                + "           <value>1024</value>"
+                + "         </property>"
+                + "         <property>"
+                + "           <key>diskSpace</key>"
+                + "           <value>10G</value>"
+                + "         </property>"
+                + "       </agentConfig>"
+                + "      </job>"
+                + "    </jobs>"
+                + "  </stage>"
+                + "   </pipeline>"
+                + "  </pipelines>"
+                +"</cruise>";
+
+        CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml, 85);
+        PipelineConfig pipelineConfig = migratedConfig.pipelineConfigByName(new CaseInsensitiveString("up42"));
+        JobConfigs jobs = pipelineConfig.getStages().get(0).getJobs();
+
+        ElasticProfiles profiles = migratedConfig.server().getElasticConfig().getProfiles();
+        assertThat(profiles.size(), is(2));
+
+        ElasticProfile expectedDockerProfile = new ElasticProfile(jobs.get(0).getElasticProfileId(), "docker",
+                new ConfigurationProperty(new ConfigurationKey("instance-type"), new ConfigurationValue("m1.small")));
+        assertThat(profiles.get(0), is(expectedDockerProfile));
+
+        ElasticProfile expectedAWSProfile = new ElasticProfile(jobs.get(1).getElasticProfileId(), "aws",
+                new ConfigurationProperty(new ConfigurationKey("ami"), new ConfigurationValue("some.ami")),
+                new ConfigurationProperty(new ConfigurationKey("ram"), new ConfigurationValue("1024")),
+                new ConfigurationProperty(new ConfigurationKey("diskSpace"), new ConfigurationValue("10G")));
+        assertThat(profiles.get(1), is(expectedAWSProfile));
+    }
+
+    @Test
+    public void shouldCreateProfilesFromMultipleAgentConfigsAcrossStages_asPartOfMigration86And87() throws Exception {
+        String configXml = "<cruise schemaVersion='85'>"
+                + " <server serverId='dev-id'>"
+                + " </server>"
+                + " <pipelines group='first'>"
+                + "   <pipeline name='up42'>"
+                + "     <materials>"
+                + "       <hg url='../manual-testing/ant_hg/dummy' />"
+                + "     </materials>"
+                + "  <stage name='build'>"
+                + "    <jobs>"
+                + "      <job name='test1'>"
+                + "       <agentConfig pluginId='docker'>"
+                + "         <property>"
+                + "           <key>instance-type</key>"
+                + "           <value>m1.small</value>"
+                + "         </property>"
+                + "       </agentConfig>"
+                + "      </job>"
+                + "      <job name='test2'>"
+                + "       <agentConfig pluginId='aws'>"
+                + "         <property>"
+                + "           <key>ami</key>"
+                + "           <value>some.ami</value>"
+                + "         </property>"
+                + "         <property>"
+                + "           <key>ram</key>"
+                + "           <value>1024</value>"
+                + "         </property>"
+                + "         <property>"
+                + "           <key>diskSpace</key>"
+                + "           <value>10G</value>"
+                + "         </property>"
+                + "       </agentConfig>"
+                + "      </job>"
+                + "    </jobs>"
+                + "  </stage>"
+                + "  <stage name='dist'>"
+                + "    <jobs>"
+                + "      <job name='package'>"
+                + "       <agentConfig pluginId='docker'>"
+                + "         <property>"
+                + "           <key>instance-type</key>"
+                + "           <value>m1.small</value>"
+                + "         </property>"
+                + "       </agentConfig>"
+                + "      </job>"
+                + "    </jobs>"
+                + "  </stage>"
+                + "   </pipeline>"
+                + "  </pipelines>"
+                + "</cruise>";
+
+        CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml, 85);
+        PipelineConfig pipelineConfig = migratedConfig.pipelineConfigByName(new CaseInsensitiveString("up42"));
+        JobConfigs buildJobs = pipelineConfig.getStages().get(0).getJobs();
+        JobConfigs distJobs = pipelineConfig.getStages().get(1).getJobs();
+
+        ElasticProfiles profiles = migratedConfig.server().getElasticConfig().getProfiles();
+        assertThat(profiles.size(), is(3));
+
+        ElasticProfile expectedDockerProfile = new ElasticProfile(buildJobs.get(0).getElasticProfileId(), "docker",
+                new ConfigurationProperty(new ConfigurationKey("instance-type"), new ConfigurationValue("m1.small")));
+        assertThat(profiles.get(0), is(expectedDockerProfile));
+
+        ElasticProfile expectedAWSProfile = new ElasticProfile(buildJobs.get(1).getElasticProfileId(), "aws",
+                new ConfigurationProperty(new ConfigurationKey("ami"), new ConfigurationValue("some.ami")),
+                new ConfigurationProperty(new ConfigurationKey("ram"), new ConfigurationValue("1024")),
+                new ConfigurationProperty(new ConfigurationKey("diskSpace"), new ConfigurationValue("10G")));
+        assertThat(profiles.get(1), is(expectedAWSProfile));
+
+        ElasticProfile expectedSecondDockerProfile = new ElasticProfile(distJobs.get(0).getElasticProfileId(), "docker",
+                new ConfigurationProperty(new ConfigurationKey("instance-type"), new ConfigurationValue("m1.small")));
+        assertThat(profiles.get(2), is(expectedSecondDockerProfile));
+    }
+
+    @Test
+    public void shouldCreateProfilesFromMultipleAgentConfigsAcrossPipelines_asPartOfMigration86And87() throws Exception {
+        String configXml = "<cruise schemaVersion='85'>"
+                + " <server serverId='dev-id'>"
+                + " </server>"
+                + " <pipelines group='first'>"
+                + "   <pipeline name='up42'>"
+                + "     <materials>"
+                + "       <hg url='../manual-testing/ant_hg/dummy' />"
+                + "     </materials>"
+                + "  <stage name='build'>"
+                + "    <jobs>"
+                + "      <job name='test1'>"
+                + "       <agentConfig pluginId='docker'>"
+                + "         <property>"
+                + "           <key>instance-type</key>"
+                + "           <value>m1.small</value>"
+                + "         </property>"
+                + "       </agentConfig>"
+                + "      </job>"
+                + "    </jobs>"
+                + "  </stage>"
+                + "   </pipeline>"
+                + "   <pipeline name='up43'>"
+                + "     <materials>"
+                + "       <hg url='../manual-testing/ant_hg/dummy' />"
+                + "     </materials>"
+                + "  <stage name='build'>"
+                + "    <jobs>"
+                + "      <job name='test2'>"
+                + "       <agentConfig pluginId='aws'>"
+                + "         <property>"
+                + "           <key>ami</key>"
+                + "           <value>some.ami</value>"
+                + "         </property>"
+                + "         <property>"
+                + "           <key>ram</key>"
+                + "           <value>1024</value>"
+                + "         </property>"
+                + "         <property>"
+                + "           <key>diskSpace</key>"
+                + "           <value>10G</value>"
+                + "         </property>"
+                + "       </agentConfig>"
+                + "      </job>"
+                + "    </jobs>"
+                + "  </stage>"
+                + "   </pipeline>"
+                + "  </pipelines>"
+                + "</cruise>";
+
+        CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml, 85);
+        PipelineConfig up42 = migratedConfig.pipelineConfigByName(new CaseInsensitiveString("up42"));
+        PipelineConfig up43 = migratedConfig.pipelineConfigByName(new CaseInsensitiveString("up43"));
+        JobConfigs up42Jobs = up42.getStages().get(0).getJobs();
+        JobConfigs up43Jobs = up43.getStages().get(0).getJobs();
+
+        ElasticProfiles profiles = migratedConfig.server().getElasticConfig().getProfiles();
+        assertThat(profiles.size(), is(2));
+
+        ElasticProfile expectedDockerProfile = new ElasticProfile(up42Jobs.get(0).getElasticProfileId(), "docker",
+                new ConfigurationProperty(new ConfigurationKey("instance-type"), new ConfigurationValue("m1.small")));
+        assertThat(profiles.get(0), is(expectedDockerProfile));
+
+        ElasticProfile expectedAWSProfile = new ElasticProfile(up43Jobs.get(0).getElasticProfileId(), "aws",
+                new ConfigurationProperty(new ConfigurationKey("ami"), new ConfigurationValue("some.ami")),
+                new ConfigurationProperty(new ConfigurationKey("ram"), new ConfigurationValue("1024")),
+                new ConfigurationProperty(new ConfigurationKey("diskSpace"), new ConfigurationValue("10G")));
+        assertThat(profiles.get(1), is(expectedAWSProfile));
     }
 
     private void assertStringsIgnoringCarriageReturnAreEqual(String expected, String actual) {

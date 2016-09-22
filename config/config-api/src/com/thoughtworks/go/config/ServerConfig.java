@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.elastic.ElasticConfig;
 import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.ServerSiteUrlConfig;
@@ -102,6 +103,10 @@ public class ServerConfig implements Validatable {
     public ServerConfig(String artifacts, SecurityConfig securityConfig, int purgeStart, int purgeUpto, String jobTimeout, String agentAutoRegisterKey) {
         this(artifacts, securityConfig, purgeStart, purgeUpto, jobTimeout);
         this.agentAutoRegisterKey = agentAutoRegisterKey;
+    }
+
+    public ServerConfig(ElasticConfig elasticConfig) {
+        this.elasticConfig = elasticConfig;
     }
 
     public String artifactsDir() {

@@ -204,6 +204,41 @@ public class JobConfigTest {
     }
 
     @Test
+    public void shouldValidateAgainstPresenceOfBothResourcesAndElasticProfileId() {
+        PipelineConfig pipelineConfig=PipelineConfigMother.createPipelineConfigWithJobConfigs("pipeline1");
+        JobConfig jobConfig = JobConfigMother.createJobConfigWithJobNameAndEmptyResources();
+        ValidationContext validationContext=mock(ValidationContext.class);
+        jobConfig.setElasticProfileId("docker.unit-test");
+
+        when(validationContext.getPipeline()).thenReturn(pipelineConfig);
+        when(validationContext.getStage()).thenReturn(pipelineConfig.getFirstStageConfig());
+
+        jobConfig.validate(validationContext);
+
+        assertThat(jobConfig.errors().isEmpty(), is(false));
+        assertThat(jobConfig.errors().on(JobConfig.ELASTIC_PROFILE_ID), is("Job cannot have both `resource` and `elasticProfileId`"));
+        assertThat(jobConfig.errors().on(JobConfig.RESOURCES), is("Job cannot have both `resource` and `elasticProfileId`"));
+    }
+
+    @Test
+    public void shouldValidateElasticProfileId() {
+        PipelineConfig pipelineConfig=PipelineConfigMother.createPipelineConfigWithJobConfigs("pipeline1");
+        JobConfig jobConfig = JobConfigMother.createJobConfigWithJobNameAndEmptyResources();
+        ValidationContext validationContext=mock(ValidationContext.class);
+        jobConfig.setResources(new Resources());
+        jobConfig.setElasticProfileId("non-existent-profile-id");
+
+        when(validationContext.getPipeline()).thenReturn(pipelineConfig);
+        when(validationContext.getStage()).thenReturn(pipelineConfig.getFirstStageConfig());
+        when(validationContext.isValidProfileId("non-existent-profile-id")).thenReturn(false);
+
+        jobConfig.validate(validationContext);
+
+        assertThat(jobConfig.errors().isEmpty(), is(false));
+        assertThat(jobConfig.errors().on(JobConfig.ELASTIC_PROFILE_ID), is("No profile defined corresponding to profile_id 'non-existent-profile-id'"));
+    }
+
+    @Test
     public void shouldErrorOutIfTwoJobsHaveSameName() {
         HashMap<String, JobConfig> visitedConfigs = new HashMap<String, JobConfig>();
         visitedConfigs.put("defaultJob".toLowerCase(), new JobConfig("defaultJob"));

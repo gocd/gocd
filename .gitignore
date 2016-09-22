@@ -84,6 +84,7 @@ common/*.log
 common/target/
 config/config-api/target/
 config/config-server/target/
+config/config-server/config/cipher
 db/target/
 development-utility/development-agent/target/
 development-utility/development-server/target/
@@ -102,6 +103,7 @@ server/agent.jar
 server/agent-launcher.jar
 server/artifactsDir/
 server/config/agentkeystore
+server/config/cruise-config.xml.*
 server/config/gadget_truststore.jks
 server/config/keystore
 server/config/truststore

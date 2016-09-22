@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.server.messaging.elasticagents;
 
-import com.thoughtworks.go.config.JobAgentConfig;
+import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
@@ -27,13 +27,13 @@ import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 
 public class CreateAgentMessageTest {
     @Test
     public void shouldGetPluginId() {
         List<ConfigurationProperty> properties = Arrays.asList(new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value")));
-        JobAgentConfig jobAgentConfig = new JobAgentConfig("plugin-id", properties);
+        ElasticProfile jobAgentConfig = new ElasticProfile("foo", "plugin-id", properties);
         CreateAgentMessage message = new CreateAgentMessage("key", "env", jobAgentConfig);
         assertThat(message.pluginId(), is(jobAgentConfig.getPluginId()));
         Map<String, String> configurationAsMap = jobAgentConfig.getConfigurationAsMap(true);

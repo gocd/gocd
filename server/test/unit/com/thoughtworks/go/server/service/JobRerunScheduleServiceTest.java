@@ -68,6 +68,7 @@ public class JobRerunScheduleServiceTest {
     private TimeProvider timeProvider;
     private InstanceFactory instanceFactory;
     private SchedulingPerformanceLogger schedulingPerformanceLogger;
+    private ElasticProfileService elasticProfileService;
 
     @Before
     public void setup() {
@@ -86,11 +87,12 @@ public class JobRerunScheduleServiceTest {
         timeProvider = new TimeProvider();
         instanceFactory = mock(InstanceFactory.class);
         schedulingPerformanceLogger = mock(SchedulingPerformanceLogger.class);
+        elasticProfileService = mock(ElasticProfileService.class);
 
         service = new ScheduleService(goConfigService, pipelineService, stageService, schedulingChecker, mock(PipelineScheduledTopic.class), mock(PipelineDao.class),
                 mock(StageDao.class), mock(StageOrderService.class), securityService, pipelineScheduleQueue, jobInstanceService, mock(JobInstanceDao.class), mock(AgentAssignment.class),
                 environmentConfigService, lockService, serverHealthService, txnTemplate, mock(AgentService.class), synchronizationManager, timeProvider, null, null, instanceFactory,
-                schedulingPerformanceLogger);
+                schedulingPerformanceLogger, elasticProfileService);
     }
 
     @Test
@@ -136,7 +138,8 @@ public class JobRerunScheduleServiceTest {
 
         service = new ScheduleService(goConfigService, pipelineService, stageService, schedulingChecker, mock(PipelineScheduledTopic.class), mock(PipelineDao.class),
                 mock(StageDao.class), mock(StageOrderService.class), securityService, pipelineScheduleQueue, jobInstanceService, mock(JobInstanceDao.class), mock(AgentAssignment.class),
-                environmentConfigService, lockService, serverHealthService, txnTemplate, mock(AgentService.class), null, null, null, null, null, schedulingPerformanceLogger
+                environmentConfigService, lockService, serverHealthService, txnTemplate, mock(AgentService.class), null, null, null, null, null, schedulingPerformanceLogger,
+                null
         );
 
         HttpOperationResult result = new HttpOperationResult();
@@ -256,7 +259,7 @@ public class JobRerunScheduleServiceTest {
         service = new ScheduleService(goConfigService, pipelineService, stageService, schedulingChecker, mock(PipelineScheduledTopic.class), mock(PipelineDao.class),
                 mock(StageDao.class), mock(StageOrderService.class), securityService, pipelineScheduleQueue, jobInstanceService, mock(JobInstanceDao.class), mock(AgentAssignment.class),
                 environmentConfigService, lockService, serverHealthService, template, mock(AgentService.class), null, timeProvider, null, null, mock(InstanceFactory.class),
-                schedulingPerformanceLogger) {
+                schedulingPerformanceLogger, elasticProfileService) {
             @Override
             public Stage scheduleStage(Pipeline pipeline, String stageName, String username, StageInstanceCreator creator,
                                        ErrorConditionHandler errorHandler) {

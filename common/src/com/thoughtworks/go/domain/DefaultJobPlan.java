@@ -17,6 +17,7 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;
@@ -37,7 +38,7 @@ public class DefaultJobPlan implements JobPlan {
     private String agentUuid;
     private EnvironmentVariablesConfig variables;
     private EnvironmentVariablesConfig triggerVariables;
-    private JobAgentConfig jobAgentConfig;
+    private ElasticProfile elasticProfile;
     private boolean fetchMaterials = StageConfig.DEFAULT_FETCH_MATERIALS;
     private boolean cleanWorkingDir = StageConfig.DEFAULT_CLEAN_WORKING_DIR;
 
@@ -48,7 +49,7 @@ public class DefaultJobPlan implements JobPlan {
 
     public DefaultJobPlan(Resources resources, ArtifactPlans plans,
                           ArtifactPropertiesGenerators generators, long jobId,
-                          JobIdentifier identifier, String agentUuid, EnvironmentVariablesConfig variables, EnvironmentVariablesConfig triggerTimeVariables, JobAgentConfig jobAgentConfig) {
+                          JobIdentifier identifier, String agentUuid, EnvironmentVariablesConfig variables, EnvironmentVariablesConfig triggerTimeVariables, ElasticProfile elasticProfile) {
         this.jobId = jobId;
         this.identifier = identifier;
         this.resources = resources;
@@ -57,7 +58,7 @@ public class DefaultJobPlan implements JobPlan {
         this.agentUuid = agentUuid;
         this.variables = variables;
         this.triggerVariables = triggerTimeVariables;
-        this.jobAgentConfig = jobAgentConfig;
+        this.elasticProfile = elasticProfile;
     }
 
     public String getPipelineName() {
@@ -254,17 +255,17 @@ public class DefaultJobPlan implements JobPlan {
         return cleanWorkingDir;
     }
 
-    public JobAgentConfig getJobAgentConfig() {
-        return jobAgentConfig;
+    public ElasticProfile getElasticProfile() {
+        return elasticProfile;
     }
 
     @Override
     public boolean requiresElasticAgent() {
-        return jobAgentConfig != null;
+        return elasticProfile != null;
     }
 
-    public void setJobAgentConfig(JobAgentConfig jobAgentConfig) {
-        this.jobAgentConfig = jobAgentConfig;
+    public void setElasticProfile(ElasticProfile elasticProfile) {
+        this.elasticProfile = elasticProfile;
     }
 
     @Override

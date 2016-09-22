@@ -76,7 +76,6 @@ define([
                                 model={args.approval().authorization()}/>
               <f.inputWithLabel config={autoComplete(Roles.list, args.approval().authorization(), 'roles')}
                                 attrName='roles'
-                                validate={true}
                                 model={args.approval().authorization()} end/>
 
             </f.row>

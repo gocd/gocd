@@ -4,6 +4,7 @@
 <%= yield :before_stylesheets %>
 <%= stylesheet_link_tag "application", {media: "all", debug: Rails.env.development? && params[:debug_assets]} %>
 <%= stylesheet_link_tag "patterns/application", {media: "all", debug: Rails.env.development? && params[:debug_assets]} %>
+<%= stylesheet_link_tag "new-theme", {media: "all", debug: Rails.env.development? && params[:debug_assets]} %>
 
 <%= javascript_include_tag "application", debug: Rails.env.development? && params[:debug_assets] %>
 <![if !IE]>

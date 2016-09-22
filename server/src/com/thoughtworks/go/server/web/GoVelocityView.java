@@ -46,6 +46,7 @@ public class GoVelocityView extends VelocityToolboxView {
     public static final String CONCATENATED_APPLICATION_CSS_FILE_PATH = "concatenatedApplicationCssFilePath";
     public static final String CONCATENATED_VM_APPLICATION_CSS_FILE_PATH = "concatenatedVmApplicationCssFilePath";
     public static final String CONCATENATED_CSS_APPLICATION_CSS_FILE_PATH = "concatenatedCssApplicationCssFilePath";
+    public static final String CONCATENATED_NEW_THEME_CSS_FILE_PATH = "concatenatedNewThemeCssFilePath";
     public static final String CONCATENATED_STAGE_BAR_CANCELLED_ICON_FILE_PATH = "concatenatedStageBarCancelledIconFilePath";
     public static final String CONCATENATED_SPINNER_ICON_FILE_PATH = "concatenatedSpinnerIconFilePath";
     public static final String CONCATENATED_CRUISE_ICON_FILE_PATH = "concatenatedCruiseIconFilePath";
@@ -85,6 +86,7 @@ public class GoVelocityView extends VelocityToolboxView {
         velocityContext.put(CONCATENATED_APPLICATION_CSS_FILE_PATH, railsAssetsService.getAssetPath("application.css"));
         velocityContext.put(CONCATENATED_VM_APPLICATION_CSS_FILE_PATH, railsAssetsService.getAssetPath("vm/application.css"));
         velocityContext.put(CONCATENATED_CSS_APPLICATION_CSS_FILE_PATH, railsAssetsService.getAssetPath("css/application.css"));
+        velocityContext.put(CONCATENATED_NEW_THEME_CSS_FILE_PATH, railsAssetsService.getAssetPath("new-theme.css"));
         velocityContext.put(CONCATENATED_STAGE_BAR_CANCELLED_ICON_FILE_PATH, railsAssetsService.getAssetPath("g9/stage_bar_cancelled_icon.png"));
         velocityContext.put(CONCATENATED_SPINNER_ICON_FILE_PATH, railsAssetsService.getAssetPath("spinner.gif"));
         velocityContext.put(CONCATENATED_CRUISE_ICON_FILE_PATH, railsAssetsService.getAssetPath("cruise.ico"));

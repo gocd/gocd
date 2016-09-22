@@ -206,6 +206,28 @@ define([
       });
     });
 
+    describe('elastic agent properties', function () {
+
+      it("should have elastic agent id and elastic plugin id", function () {
+        var elasticAgentData = agentData[7];
+        var agent = Agents.Agent.fromJSON(elasticAgentData);
+        expect(agent.elasticAgentId()).toBe('0039ddc8-38a0-4f7b-be15-522fcb6f8649');
+        expect(agent.elasticPluginId()).toBe('cd.go.contrib.elastic-agent.docker');
+      });
+
+      it("should be able to say elastic agent or not", function () {
+        var elasticAgentData = agentData[7];
+        var agent = Agents.Agent.fromJSON(elasticAgentData);
+        expect(agent.isElasticAgent()).toBeTruthy();
+      });
+
+      it("should default resource to be empty if no resource provided", function () {
+        var elasticAgentData = agentData[7];
+        var agent = Agents.Agent.fromJSON(elasticAgentData);
+        expect(agent.resources()).toEqual([]);
+      });
+    });
+
     var agentData = [
       {
         "_links":             {
@@ -410,13 +432,14 @@ define([
         "uuid":               'uuid-8',
         "hostname":           "host-13",
         "ip_address":         "10.12.2.204",
+        "elastic_agent_id":   "0039ddc8-38a0-4f7b-be15-522fcb6f8649",
+        "elastic_plugin_id":  "cd.go.contrib.elastic-agent.docker",
         "sandbox":            "/var/lib/go-agent-5",
         "operating_system":   "Mac OS X",
         "free_space":         "unknown",
         "agent_config_state": "Disabled",
         "agent_state":        "Building",
         "build_state":        "Building",
-        "resources":          [],
         "environments":       []
       },
       {

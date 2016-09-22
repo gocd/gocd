@@ -167,8 +167,7 @@ define([
         },
 
         displayErrorMessage: function (errors) {
-          var count = this.selectedAgentsCount();
-          this.message(errors.message + count + ' ' + _('agent').pluralize(count));
+          this.message(errors.message);
           this.type('warning');
         },
 
@@ -261,6 +260,7 @@ define([
 
       };
 
+      m.redraw(true);     //freezes rendering of the page until the ajax call to agents completes
       ctrl.refresh();
 
       return ctrl;

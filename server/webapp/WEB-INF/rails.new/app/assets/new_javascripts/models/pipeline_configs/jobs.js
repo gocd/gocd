@@ -56,7 +56,7 @@ define([
     this.artifacts            = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.artifacts, new Artifacts())));
     this.tabs                 = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.tabs, new Tabs())));
     this.properties           = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.properties, new Properties())));
-    this.elasticProfileId     = m.prop(data.elasticProfileId);
+    this.elasticProfileId     = m.prop(s.defaultToIfBlank(data.elasticProfileId, null));
 
     this.isRunOnAllAgents = function () {
       return this.runInstanceCount() === 'all';

@@ -18,11 +18,10 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.ArtifactPlans;
 import com.thoughtworks.go.config.EnvironmentVariablesConfig;
-import com.thoughtworks.go.config.JobAgentConfig;
+import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.DefaultJobPlan;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobPlan;
-import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginRegistry;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.infra.PluginManager;
@@ -124,8 +123,8 @@ public class ElasticAgentPluginServiceTest {
         verify(createAgentQueue).post(captor.capture());
         CreateAgentMessage createAgentMessage = captor.getValue();
         assertThat(createAgentMessage.autoregisterKey(), is(autoRegisterKey));
-        assertThat(createAgentMessage.pluginId(), is(plan2.getJobAgentConfig().getPluginId()));
-        assertThat(createAgentMessage.configuration(), is(plan2.getJobAgentConfig().getConfigurationAsMap(true)));
+        assertThat(createAgentMessage.pluginId(), is(plan2.getElasticProfile().getPluginId()));
+        assertThat(createAgentMessage.configuration(), is(plan2.getElasticProfile().getConfigurationAsMap(true)));
         assertThat(createAgentMessage.environment(), is("env-2"));
 
         verify(serverHealthService).update(captorForHealthState.capture());
@@ -147,8 +146,8 @@ public class ElasticAgentPluginServiceTest {
         verify(createAgentQueue, times(2)).post(captor.capture());
         CreateAgentMessage createAgentMessage = captor.getValue();
         assertThat(createAgentMessage.autoregisterKey(), is(autoRegisterKey));
-        assertThat(createAgentMessage.pluginId(), is(plan1.getJobAgentConfig().getPluginId()));
-        assertThat(createAgentMessage.configuration(), is(plan1.getJobAgentConfig().getConfigurationAsMap(true)));
+        assertThat(createAgentMessage.pluginId(), is(plan1.getElasticProfile().getPluginId()));
+        assertThat(createAgentMessage.configuration(), is(plan1.getElasticProfile().getConfigurationAsMap(true)));
         verifyNoMoreInteractions(createAgentQueue);
         verify(serverHealthService, times(2)).update(captorForHealthState.capture());
         ServerHealthState serverHealthState = captorForHealthState.getValue();
@@ -157,8 +156,8 @@ public class ElasticAgentPluginServiceTest {
     }
 
     private JobPlan plan(int jobId) {
-        JobAgentConfig jobAgentConfig = new JobAgentConfig("p-id", new ArrayList<ConfigurationProperty>());
+        ElasticProfile elasticProfile = new ElasticProfile("id", "docker");
         JobIdentifier identifier = new JobIdentifier("pipeline-" + jobId, 1, "1", "stage", "1", "job");
-        return new DefaultJobPlan(null, new ArtifactPlans(), null, jobId, identifier, null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), jobAgentConfig);
+        return new DefaultJobPlan(null, new ArtifactPlans(), null, jobId, identifier, null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), elasticProfile);
     }
 }

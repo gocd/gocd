@@ -16,6 +16,9 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.elastic.ElasticConfig;
+import com.thoughtworks.go.config.elastic.ElasticProfile;
+import com.thoughtworks.go.config.elastic.ElasticProfiles;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.domain.PipelineGroups;
@@ -28,8 +31,10 @@ import org.hamcrest.MatcherAssert;
 import org.junit.Before;
 import org.junit.Test;
 
+import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 
 public class ConfigSaveValidationContextTest {
@@ -130,4 +135,33 @@ public class ConfigSaveValidationContextTest {
         MatcherAssert.assertThat(context.findPackageById("package-id").getId(), is("repo-id"));
     }
 
+    @Test
+    public void isValidProfileIdShouldBeValidInPresenceOfElasticProfile() {
+        BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
+        ElasticConfig elasticConfig = new ElasticConfig();
+        elasticConfig.setProfiles(new ElasticProfiles(new ElasticProfile("docker.unit-test", "docker")));
+        cruiseConfig.setServerConfig(new ServerConfig(elasticConfig));
+        ValidationContext context = ConfigSaveValidationContext.forChain(cruiseConfig);
+
+        assertTrue(context.isValidProfileId("docker.unit-test"));
+    }
+
+    @Test
+    public void isValidProfileIdShouldBeInValidInAbsenceOfElasticProfileForTheGivenId() {
+        BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
+        ElasticConfig elasticConfig = new ElasticConfig();
+        elasticConfig.setProfiles(new ElasticProfiles(new ElasticProfile("docker.unit-test", "docker")));
+        cruiseConfig.setServerConfig(new ServerConfig(elasticConfig));
+        ValidationContext context = ConfigSaveValidationContext.forChain(cruiseConfig);
+
+        assertFalse(context.isValidProfileId("invalid.profile-id"));
+    }
+
+    @Test
+    public void isValidProfileIdShouldBeInValidInAbsenceOfElasticProfiles() {
+        BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
+        ValidationContext context = ConfigSaveValidationContext.forChain(cruiseConfig);
+
+        assertFalse(context.isValidProfileId("docker.unit-test"));
+    }
 }

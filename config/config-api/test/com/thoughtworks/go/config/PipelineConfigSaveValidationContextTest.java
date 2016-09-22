@@ -16,6 +16,9 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.elastic.ElasticConfig;
+import com.thoughtworks.go.config.elastic.ElasticProfile;
+import com.thoughtworks.go.config.elastic.ElasticProfiles;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
@@ -30,10 +33,14 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
+
+import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.mock;
 
 public class PipelineConfigSaveValidationContextTest {
@@ -185,4 +192,33 @@ public class PipelineConfigSaveValidationContextTest {
         MatcherAssert.assertThat(context.findPackageById("package-id").getId(), is("repo-id"));
     }
 
+    @Test
+    public void isValidProfileIdShouldBeValidInPresenceOfElasticProfile() {
+        BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
+        ElasticConfig elasticConfig = new ElasticConfig();
+        elasticConfig.setProfiles(new ElasticProfiles(new ElasticProfile("docker.unit-test", "docker")));
+        cruiseConfig.setServerConfig(new ServerConfig(elasticConfig));
+        ValidationContext context = PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig, new PipelineConfig());
+
+        assertTrue(context.isValidProfileId("docker.unit-test"));
+    }
+
+    @Test
+    public void isValidProfileIdShouldBeInValidInAbsenceOfElasticProfileForTheGivenId() {
+        BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
+        ElasticConfig elasticConfig = new ElasticConfig();
+        elasticConfig.setProfiles(new ElasticProfiles(new ElasticProfile("docker.unit-test", "docker")));
+        cruiseConfig.setServerConfig(new ServerConfig(elasticConfig));
+        ValidationContext context = PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig, new PipelineConfig());
+
+        assertFalse(context.isValidProfileId("invalid.profile-id"));
+    }
+
+    @Test
+    public void isValidProfileIdShouldBeInValidInAbsenceOfElasticProfiles() {
+        BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
+        ValidationContext context = PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig, new PipelineConfig());
+
+        assertFalse(context.isValidProfileId("docker.unit-test"));
+    }
 }

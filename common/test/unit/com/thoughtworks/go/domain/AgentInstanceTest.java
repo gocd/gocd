@@ -17,7 +17,7 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.security.Registration;
@@ -576,7 +576,7 @@ public class AgentInstanceTest {
         agentConfig.setElasticPluginId(elasticPluginId);
         AgentInstance agentInstance = new AgentInstance(agentConfig, REMOTE, mock(SystemEnvironment.class));
         DefaultJobPlan jobPlan1 = new DefaultJobPlan();
-        jobPlan1.setJobAgentConfig(new JobAgentConfig(elasticPluginId, new ArrayList<ConfigurationProperty>()));
+        jobPlan1.setElasticProfile(new ElasticProfile("foo", elasticPluginId));
         List<JobPlan> jobPlans = asList(jobPlan1, (JobPlan)new DefaultJobPlan());
 
         assertThat(agentInstance.firstMatching(jobPlans), Is.<JobPlan>is(jobPlan1));
@@ -590,7 +590,7 @@ public class AgentInstanceTest {
         agentConfig.setElasticPluginId(elasticPluginId);
         AgentInstance agentInstance = new AgentInstance(agentConfig, REMOTE, mock(SystemEnvironment.class));
         DefaultJobPlan jobPlan1 = new DefaultJobPlan();
-        jobPlan1.setJobAgentConfig(new JobAgentConfig("elastic-plugin-id-2", new ArrayList<ConfigurationProperty>()));
+        jobPlan1.setElasticProfile(new ElasticProfile("foo", "elastic-plugin-id-2"));
         List<JobPlan> jobPlans = asList(jobPlan1, (JobPlan)new DefaultJobPlan());
 
         assertThat(agentInstance.firstMatching(jobPlans), is(nullValue()));

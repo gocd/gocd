@@ -77,7 +77,7 @@
                     </xsd:unique>
                 </xsd:element>
             </xsd:sequence>
-            <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="85"/>
+            <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="87"/>
         </xsd:complexType>
         <xsd:unique name="uniquePipelines">
             <xsd:selector xpath="pipelines"/>
@@ -221,8 +221,25 @@
         <xsd:attribute name="admin" type="emailType" use="required"/>
     </xsd:complexType>
     <xsd:complexType name="serverElasticConfigType">
+        <xsd:sequence>
+            <xsd:element name="profiles" type="elasticAgentProfilesType" minOccurs="0" maxOccurs="1"/>
+        </xsd:sequence>
         <xsd:attribute name="jobStarvationTimeout" type="xsd:long"/>
     </xsd:complexType>
+    <xsd:complexType name="elasticAgentProfilesType">
+        <xsd:sequence>
+            <xsd:element minOccurs="0" maxOccurs="unbounded" name="profile" type="elasticAgentProfileType"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="elasticAgentProfileType">
+        <xsd:sequence>
+            <xsd:element name="property" minOccurs="0" maxOccurs="unbounded" type="pluginPropertyType"/>
+        </xsd:sequence>
+        <xsd:attribute type="nameType" name="pluginId" use="required"/>
+        <xsd:attribute type="nameType" name="id" use="required"/>
+    </xsd:complexType>
+
     <xsd:simpleType name="emailType">
         <xsd:restriction base="xsd:string">
             <xsd:pattern value=".*@.*"/>
@@ -449,7 +466,7 @@
             <xsd:element ref="environmentvariables" minOccurs="0" maxOccurs="1"/>
             <xsd:element minOccurs="0" name="tasks" type="tasksType"/>
             <xsd:element minOccurs="0" name="artifacts" type="artifactsType"/>
-            <xsd:element minOccurs="0" ref="jobAgentOrResourceConfigType" />
+            <xsd:element minOccurs="0" name="resources" type="resourcesType"/>
             <xsd:element minOccurs="0" name="tabs" type="tabsType">
                 <xsd:unique name="uniqueTabsName">
                     <xsd:selector xpath="tab"/>
@@ -467,26 +484,8 @@
         <xsd:attribute name="runOnAllAgents" type="xsd:boolean" use="optional" default="false"/>
         <xsd:attribute name="runInstanceCount" type="xsd:positiveInteger" use="optional"/>
         <xsd:attribute name="timeout" type="xsd:double" use="optional"/>
+        <xsd:attribute name="elasticProfileId" type="xsd:string" use="optional"/>
     </xsd:complexType>
-
-    <xsd:element name="jobAgentOrResourceConfigType" abstract="true"/>
-
-    <xsd:element name="agentConfig" substitutionGroup="jobAgentOrResourceConfigType">
-        <xsd:complexType>
-            <xsd:sequence>
-                <xsd:element name="property" minOccurs="0" maxOccurs="unbounded" type="pluginPropertyType"/>
-            </xsd:sequence>
-            <xsd:attribute type="xsd:string" name="pluginId" use="required"/>
-        </xsd:complexType>
-    </xsd:element>
-
-    <xsd:element name="resources" substitutionGroup="jobAgentOrResourceConfigType">
-        <xsd:complexType>
-            <xsd:sequence>
-                <xsd:element minOccurs="0" maxOccurs="unbounded" name="resource" type="xsd:string"/>
-            </xsd:sequence>
-        </xsd:complexType>
-    </xsd:element>
 
     <xsd:complexType name="resourcesType">
         <xsd:sequence>

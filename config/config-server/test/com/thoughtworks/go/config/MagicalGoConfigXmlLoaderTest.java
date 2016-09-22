@@ -18,6 +18,7 @@ package com.thoughtworks.go.config;
 
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
+import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.materials.*;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
@@ -96,6 +97,7 @@ import static java.util.Arrays.asList;
 import static org.apache.commons.collections.CollectionUtils.collect;
 import static org.apache.commons.io.IOUtils.toInputStream;
 import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
@@ -328,7 +330,6 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldLoadNAntBuilder() throws Exception {
-
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(toInputStream(
                 CONFIG_WITH_NANT_AND_EXEC_BUILDER)).config;
         JobConfig plan = cruiseConfig.jobConfigByName("pipeline1", "mingle", "cardlist", true);
@@ -3594,9 +3595,21 @@ public class MagicalGoConfigXmlLoaderTest {
     }
 
     @Test
-    public void shouldSerializeJobAgentConfig() throws Exception {
-        String configWithJobAgentConfig =
+    public void shouldSerializeJobElasticProfileId() throws Exception {
+        String configWithJobElasticProfileId =
                 "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
+                        + "<server>\n"
+                        + "  <elastic jobStarvationTimeout=\"10\">\n"
+                        + "    <profiles>\n"
+                        + "      <profile id='unit-test' pluginId='aws'>\n"
+                        + "        <property>\n"
+                        + "          <key>instance-type</key>\n"
+                        + "          <value>m1.small</value>\n"
+                        + "        </property>\n"
+                        + "      </profile>\n"
+                        + "    </profiles>\n"
+                        + "  </elastic>\n"
+                        + "</server>\n"
                         + "<pipelines group=\"first\">\n"
                         + "<pipeline name=\"pipeline\">\n"
                         + "  <materials>\n"
@@ -3604,13 +3617,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "  </materials>\n"
                         + "  <stage name=\"mingle\">\n"
                         + "    <jobs>\n"
-                        + "      <job name=\"functional\">\n"
-                        + "        <agentConfig pluginId=\"cd.go-contrib.elastic-agent.docker\">\n"
-                        + "          <property>\n"
-                        + "           <key>USERNAME</key>\n"
-                        + "           <value>bob</value>\n"
-                        + "          </property>\n"
-                        + "        </agentConfig>\n"
+                        + "      <job name=\"functional\" elasticProfileId=\"unit-test\">\n"
                         + "      </job>\n"
                         + "    </jobs>\n"
                         + "  </stage>\n"
@@ -3618,17 +3625,46 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "</pipelines>\n"
                         + "</cruise>\n";
 
-        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(configWithJobAgentConfig).configForEdit;
+        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(configWithJobElasticProfileId).configForEdit;
 
-        JobAgentConfig jobAgentConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline")).getStage("mingle").jobConfigByConfigName("functional").getJobAgentConfig();
+        String elasticProfileId = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline")).getStage("mingle").jobConfigByConfigName("functional").getElasticProfileId();
 
-        assertThat(jobAgentConfig.getPluginId(), is("cd.go-contrib.elastic-agent.docker"));
-        assertThat(jobAgentConfig.getProperty("USERNAME").getValue(), is("bob"));
+        assertThat(elasticProfileId, is("unit-test"));
     }
 
     @Test
-    public void shouldNotAllowJobAgentConfigAndResourcesTogether() throws Exception {
-        String configWithJobAgentConfig =
+    public void shouldSerializeElasticAgentProfiles() throws Exception {
+        String configWithElasticProfile =
+                "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
+                        + "<server artifactsdir='artifacts'>\n"
+                        + "  <elastic jobStarvationTimeout=\"2\">\n"
+                        + "    <profiles>\n"
+                        + "      <profile id=\"foo\" pluginId=\"docker\">\n"
+                        + "          <property>\n"
+                        + "           <key>USERNAME</key>\n"
+                        + "           <value>bob</value>\n"
+                        + "          </property>\n"
+                        + "      </profile>\n"
+                        + "    </profiles>\n"
+                        + "  </elastic>\n"
+                        + "</server>\n"
+                        + "</cruise>\n";
+
+        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(configWithElasticProfile).configForEdit;
+
+        assertThat(cruiseConfig.server().getElasticConfig().getJobStarvationTimeout(), is(120000L));
+        assertThat(cruiseConfig.server().getElasticConfig().getProfiles().size(), is(1));
+
+        ElasticProfile elasticProfile = cruiseConfig.server().getElasticConfig().getProfiles().find("foo");
+        assertThat(elasticProfile, is(notNullValue()));
+        assertThat(elasticProfile.getPluginId(), is("docker"));
+        assertThat(elasticProfile.size(), is(1));
+        assertThat(elasticProfile.getProperty("USERNAME").getValue(), is("bob"));
+    }
+
+    @Test
+    public void shouldNotAllowJobElasticProfileIdAndResourcesTogether() throws Exception {
+        String configWithJobElasticProfile =
                 "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
                         + "<pipelines group=\"first\">\n"
                         + "<pipeline name=\"pipeline\">\n"
@@ -3637,13 +3673,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "  </materials>\n"
                         + "  <stage name=\"mingle\">\n"
                         + "    <jobs>\n"
-                        + "      <job name=\"functional\">\n"
-                        + "        <agentConfig pluginId=\"cd.go-contrib.elastic-agent.docker\">\n"
-                        + "          <property>\n"
-                        + "           <key>USERNAME</key>\n"
-                        + "           <value>bob</value>\n"
-                        + "          </property>\n"
-                        + "        </agentConfig>\n"
+                        + "      <job name=\"functional\" elasticProfileId=\"docker.unit-test\">\n"
                         + "        <resources>\n"
                         + "          <resource>foo</resource>\n"
                         + "        </resources>\n"
@@ -3654,11 +3684,11 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "</pipelines>\n"
                         + "</cruise>\n";
         try {
-            CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(configWithJobAgentConfig).configForEdit;
+            CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(configWithJobElasticProfile).configForEdit;
             fail("expected exception!");
         } catch (Exception e) {
-            assertThat(e.getCause().getCause(), instanceOf(XsdValidationException.class));
-            assertThat(e.getCause().getCause().getMessage(), is("Invalid content was found starting with element 'resources'. One of '{environmentvariables, tasks, artifacts, tabs, properties}' is expected."));
+            assertThat(e.getCause().getCause(), instanceOf(GoConfigInvalidException.class));
+            assertThat(e.getCause().getCause().getMessage(), is("Job cannot have both `resource` and `elasticProfileId`, No profile defined corresponding to profile_id 'docker.unit-test', Job cannot have both `resource` and `elasticProfileId`"));
         }
 
     }

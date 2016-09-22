@@ -198,7 +198,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         environmentVariableDao.save(jobId, EnvironmentVariableSqlMapDao.EnvironmentVariableType.Job, plan.getVariables());
 
         if (plan.requiresElasticAgent()){
-            jobAgentMetadataDao.save(new JobAgentMetadata(jobId, plan.getJobAgentConfig()));
+            jobAgentMetadataDao.save(new JobAgentMetadata(jobId, plan.getElasticProfile()));
         }
     }
 
@@ -216,7 +216,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         plan.setTriggerVariables(environmentVariableDao.load(plan.getPipelineId(), EnvironmentVariableSqlMapDao.EnvironmentVariableType.Trigger));
         JobAgentMetadata jobAgentMetadata = jobAgentMetadataDao.load(plan.getJobId());
         if (jobAgentMetadata != null){
-            plan.setJobAgentConfig(jobAgentMetadata.jobAgentConfig());
+            plan.setElasticProfile(jobAgentMetadata.elasticProfile());
         }
     }
 

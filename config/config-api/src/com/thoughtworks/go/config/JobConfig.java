@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,12 +22,13 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.NullTask;
 import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.service.TaskFactory;
-import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.XmlUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.Map;
 import java.util.regex.Pattern;
+
+import static org.apache.commons.lang.StringUtils.isBlank;
 
 /**
  * @understands configuratin for a job
@@ -51,12 +52,11 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
     private ArtifactPlans artifactPlans = new ArtifactPlans();
     @ConfigSubtag
     private ArtifactPropertiesGenerators artifactPropertiesGenerators = new ArtifactPropertiesGenerators();
-    @ConfigSubtag
-    private JobAgentConfig jobAgentConfig;
 
     @ConfigAttribute(value = "runOnAllAgents", optional = true) private boolean runOnAllAgents = false;
     @ConfigAttribute(value = "runInstanceCount", optional = true, allowNull = true) private String runInstanceCount;
     @ConfigAttribute(value = "timeout", optional = true, allowNull = true) private String timeout;
+    @ConfigAttribute(value = "elasticProfileId", optional = true, allowNull = true) private String elasticProfileId;
 
     private ConfigErrors errors = new ConfigErrors();
     public static final String NAME = "name";
@@ -75,6 +75,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
 	public static final String RUN_ON_ALL_AGENTS = "runOnAllAgents";
 	public static final String RUN_MULTIPLE_INSTANCE = "runMultipleInstance";
 	public static final String RUN_INSTANCE_COUNT = "runInstanceCount";
+	public static final String ELASTIC_PROFILE_ID = "elasticProfileId";
 	private static final String JOB_NAME_PATTERN = "[a-zA-Z0-9_\\-.]+";
     private static final Pattern JOB_NAME_PATTERN_REGEX = Pattern.compile(String.format("^(%s)$", JOB_NAME_PATTERN));
 
@@ -152,7 +153,8 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         if (runInstanceCount != null ? !runInstanceCount.equals(jobConfig.runInstanceCount) : jobConfig.runInstanceCount != null)
             return false;
         if (timeout != null ? !timeout.equals(jobConfig.timeout) : jobConfig.timeout != null) return false;
-        return true;
+        return elasticProfileId != null ? elasticProfileId.equals(jobConfig.elasticProfileId) : jobConfig.elasticProfileId == null;
+
     }
 
     @Override
@@ -167,6 +169,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         result = 31 * result + (runOnAllAgents ? 1 : 0);
         result = 31 * result + (runInstanceCount != null ? runInstanceCount.hashCode() : 0);
         result = 31 * result + (timeout != null ? timeout.hashCode() : 0);
+        result = 31 * result + (elasticProfileId != null ? elasticProfileId.hashCode() : 0);
         return result;
     }
 
@@ -328,7 +331,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
 
     public void validate(ValidationContext validationContext) {
 
-        if (StringUtil.isBlank(CaseInsensitiveString.str(jobName))) {
+        if (isBlank(CaseInsensitiveString.str(jobName))) {
             errors.add(NAME, "Name is a required field");
         } else {
             if ((CaseInsensitiveString.str(jobName).length() > 255 || XmlUtils.doesNotMatchUsingXsdRegex(JOB_NAME_PATTERN_REGEX, CaseInsensitiveString.str(jobName)))) {
@@ -364,6 +367,15 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
                 }
             } catch (NumberFormatException e) {
                 errors().add(TIMEOUT, "Timeout should be a valid number as it represents number of minutes");
+            }
+        }
+        if (!resources.isEmpty() && !isBlank(elasticProfileId)) {
+            errors().add(RESOURCES, "Job cannot have both `resource` and `elasticProfileId`");
+            errors().add(ELASTIC_PROFILE_ID, "Job cannot have both `resource` and `elasticProfileId`");
+        }
+        if(!isBlank(elasticProfileId)) {
+            if(!validationContext.isValidProfileId(elasticProfileId)) {
+                errors().add(ELASTIC_PROFILE_ID, String.format("No profile defined corresponding to profile_id '%s'", elasticProfileId));
             }
         }
         for (Resource resource : resources) {
@@ -420,7 +432,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
             }
             if (OVERRIDE_TIMEOUT.equals(timeoutType)) {
                 String timeout = (String) attributesMap.get(TIMEOUT);
-                if (StringUtil.isBlank(timeout)) {
+                if (isBlank(timeout)) {
                     this.timeout = null;
                 } else {
                     this.timeout = timeout;
@@ -439,7 +451,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
 				this.runOnAllAgents = true;
 			} else if (RUN_MULTIPLE_INSTANCE.equals(jobRunType)) {
 				String runInstanceCount = (String) attributesMap.get(RUN_INSTANCE_COUNT);
-				if (StringUtil.isBlank(runInstanceCount)) {
+				if (isBlank(runInstanceCount)) {
 					this.runInstanceCount = null;
 				} else {
 					this.runInstanceCount = runInstanceCount;
@@ -449,7 +461,7 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
 	}
 
     public void validateNameUniqueness(Map<String, JobConfig> visitedConfigs) {
-        if (StringUtil.isBlank(CaseInsensitiveString.str(name()))) return;
+        if (isBlank(CaseInsensitiveString.str(name()))) return;
 
         String currentJob = name().toLower();
         if (visitedConfigs.containsKey(CaseInsensitiveString.str(name())) || visitedConfigs.containsKey(currentJob)) {
@@ -493,7 +505,11 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         this.tasks = tasks;
     }
 
-    public JobAgentConfig getJobAgentConfig() {
-        return jobAgentConfig;
+    public String getElasticProfileId() {
+        return elasticProfileId;
+    }
+
+    public void setElasticProfileId(String elasticProfileId) {
+        this.elasticProfileId = elasticProfileId;
     }
 }

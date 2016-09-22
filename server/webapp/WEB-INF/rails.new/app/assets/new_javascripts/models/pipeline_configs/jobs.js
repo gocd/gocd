@@ -56,6 +56,7 @@ define([
     this.artifacts            = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.artifacts, new Artifacts())));
     this.tabs                 = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.tabs, new Tabs())));
     this.properties           = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.properties, new Properties())));
+    this.elasticProfileId     = m.prop(data.elasticProfileId);
 
     this.isRunOnAllAgents = function () {
       return this.runInstanceCount() === 'all';
@@ -119,6 +120,7 @@ define([
       artifacts:            Artifacts.fromJSON(data.artifacts),
       tabs:                 Tabs.fromJSON(data.tabs),
       properties:           Properties.fromJSON(data.properties),
+      elasticProfileId:     data.elastic_profile_id,
       errors:               data.errors
     });
   };

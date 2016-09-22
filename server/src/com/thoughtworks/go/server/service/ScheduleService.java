@@ -89,6 +89,7 @@ public class ScheduleService {
     private PipelinePauseService pipelinePauseService;
     private InstanceFactory instanceFactory;
     private SchedulingPerformanceLogger schedulingPerformanceLogger;
+    private ElasticProfileService elasticProfileService;
 
     protected ScheduleService() {
     }
@@ -117,7 +118,8 @@ public class ScheduleService {
                            ConsoleActivityMonitor consoleActivityMonitor,
                            PipelinePauseService pipelinePauseService,
                            InstanceFactory instanceFactory,
-                           SchedulingPerformanceLogger schedulingPerformanceLogger
+                           SchedulingPerformanceLogger schedulingPerformanceLogger,
+                           ElasticProfileService elasticProfileService
     ) {
         this.goConfigService = goConfigService;
         this.pipelineService = pipelineService;
@@ -143,6 +145,7 @@ public class ScheduleService {
         this.pipelinePauseService = pipelinePauseService;
         this.instanceFactory = instanceFactory;
         this.schedulingPerformanceLogger = schedulingPerformanceLogger;
+        this.elasticProfileService = elasticProfileService;
     }
 
     //Note: This is called from a Spring timer
@@ -245,7 +248,7 @@ public class ScheduleService {
 
     private SchedulingContext schedulingContext(String username, PipelineConfig pipelineConfig, StageConfig stageConfig) {
         Agents availableAgents = environmentConfigService.agentsForPipeline(pipelineConfig.name());
-        SchedulingContext context = new DefaultSchedulingContext(username, availableAgents);
+        SchedulingContext context = new DefaultSchedulingContext(username, availableAgents, elasticProfileService.allProfiles());
         context = context.overrideEnvironmentVariables(pipelineConfig.getVariables());
         context = context.overrideEnvironmentVariables(stageConfig.getVariables());
         return context;

@@ -45,7 +45,8 @@ public class ScheduleServiceRescheduleHungJobsTest {
         consoleActivityMonitor = mock(ConsoleActivityMonitor.class);
         SchedulingPerformanceLogger schedulingPerformanceLogger = mock(SchedulingPerformanceLogger.class);
         scheduleService = new ScheduleService(null, null, null, null, null, null, null, null, null, null, jobInstanceService,
-                null, null, null, null, null, null, agentService, null, null, consoleActivityMonitor, null, null, schedulingPerformanceLogger
+                null, null, null, null, null, null, agentService, null, null, consoleActivityMonitor, null, null, schedulingPerformanceLogger,
+                null
         );
     }
 

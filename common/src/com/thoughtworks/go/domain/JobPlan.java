@@ -16,7 +16,11 @@
 
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.ArtifactPlan;
+import com.thoughtworks.go.config.ArtifactPropertiesGenerator;
+import com.thoughtworks.go.config.EnvironmentVariablesConfig;
+import com.thoughtworks.go.config.Resource;
+import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 
@@ -69,7 +73,7 @@ public interface JobPlan extends Serializable {
 
     boolean shouldCleanWorkingDir();
 
-    JobAgentConfig getJobAgentConfig();
+    ElasticProfile getElasticProfile();
 
     boolean requiresElasticAgent();
 

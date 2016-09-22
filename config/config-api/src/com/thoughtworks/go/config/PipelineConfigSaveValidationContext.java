@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.elastic.ElasticConfig;
+import com.thoughtworks.go.config.elastic.ElasticProfiles;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.domain.PipelineGroups;
@@ -251,4 +253,8 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
         }
     }
 
+    @Override
+    public boolean isValidProfileId(String profileId) {
+        return this.cruiseConfig.server().getElasticConfig().getProfiles().find(profileId) != null;
+    }
 }

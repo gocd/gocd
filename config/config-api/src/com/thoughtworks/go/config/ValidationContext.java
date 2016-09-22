@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.elastic.ElasticProfiles;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
@@ -57,5 +58,7 @@ public interface ValidationContext {
     PackageRepository findPackageById(String packageId);
 
     ValidationContext withParent(Validatable validatable);
+
+    boolean isValidProfileId(String profileId);
 }
 

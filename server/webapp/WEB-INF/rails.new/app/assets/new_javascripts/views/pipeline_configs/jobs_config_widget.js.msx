@@ -247,8 +247,10 @@ define([
                           model={job}
                           validate={true}
                           isRequired={true}
-                          size={6}
+                          size={4}
                           largeSize={4}/>
+                      </f.row>
+                      <f.row>
                         <f.inputWithLabel
                           config={autoComplete(Resources.list, job, 'resources')}
                           attrName='resources'
@@ -258,6 +260,17 @@ define([
                             direction: 'bottom',
                             size: 'small'
                           }}
+                          size={4}
+                          largeSize={4}/>
+                        <f.inputWithLabel
+                          attrName='elasticProfileId'
+                          label='Elastic Profile Id'
+                          model={job}
+                          tooltip={{
+                              content: tt.job.elasticProfile,
+                              direction: 'bottom',
+                              size: 'small'
+                            }}
                           size={4}
                           largeSize={4}
                           end={true}/>

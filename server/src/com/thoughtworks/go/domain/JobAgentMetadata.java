@@ -17,7 +17,7 @@
 package com.thoughtworks.go.domain;
 
 import com.google.gson.Gson;
-import com.thoughtworks.go.config.JobAgentConfig;
+import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
@@ -37,16 +37,17 @@ public class JobAgentMetadata extends PersistentObject {
 
     }
 
-    public JobAgentMetadata(long jobId, JobAgentConfig config) {
+    public JobAgentMetadata(long jobId, ElasticProfile profile) {
         this.jobId = jobId;
-        this.metadata = toJSON(config);
+        this.metadata = toJSON(profile);
         this.metadataVersion = "1.0";
     }
 
-    public JobAgentConfig jobAgentConfig() {
+    public ElasticProfile elasticProfile() {
         Gson gson = new Gson();
         Map map = gson.fromJson(metadata, LinkedHashMap.class);
         String pluginId = (String) map.get("pluginId");
+        String id = (String) map.get("id");
         Map<String, String> properties = (Map<String, String>) map.get("properties");
 
         Collection<ConfigurationProperty> configProperties = MapUtil.collect(properties, new ListUtil.Transformer<Map.Entry<String, String>, ConfigurationProperty>() {
@@ -56,14 +57,15 @@ public class JobAgentMetadata extends PersistentObject {
             }
         });
 
-        return new JobAgentConfig(pluginId, configProperties);
+        return new ElasticProfile(id, pluginId, configProperties);
     }
 
-    private static String toJSON(JobAgentConfig agentConfig) {
+    private static String toJSON(ElasticProfile elasticProfile) {
         Gson gson = new Gson();
         Map<String, Object> map = new LinkedHashMap<>();
-        map.put("pluginId", agentConfig.getPluginId());
-        map.put("properties", agentConfig.getConfigurationAsMap(true));
+        map.put("pluginId", elasticProfile.getPluginId());
+        map.put("id", elasticProfile.getId());
+        map.put("properties", elasticProfile.getConfigurationAsMap(true));
         return gson.toJson(map);
     }
 

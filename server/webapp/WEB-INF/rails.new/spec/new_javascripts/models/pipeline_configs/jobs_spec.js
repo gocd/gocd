@@ -26,7 +26,8 @@ define(['lodash', "models/pipeline_configs/jobs", "string-plus"], function (_, J
       resources:            ['java', 'firefox'],
       tasks:                ['ant', 'mvn'],
       artifacts:            ['pkgs', 'logs'],
-      tabs:                 ['twist', 'junit']
+      tabs:                 ['twist', 'junit'],
+      elasticProfileId:     'docker.unit-test'
     });
   });
 
@@ -61,6 +62,10 @@ define(['lodash', "models/pipeline_configs/jobs", "string-plus"], function (_, J
 
     it("should initialize job model with tabs", function () {
       expect(job.tabs()).toEqual(['twist', 'junit']);
+    });
+
+    it("should initialize job model with elasticProfileId", function () {
+      expect(job.elasticProfileId()).toEqual('docker.unit-test');
     });
 
     describe("validations", function () {

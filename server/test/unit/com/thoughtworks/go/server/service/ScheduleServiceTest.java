@@ -74,6 +74,7 @@ public class ScheduleServiceTest {
     private TimeProvider timeProvider;
     private InstanceFactory instanceFactory = null;
     private SchedulingPerformanceLogger schedulingPerformanceLogger;
+    private ElasticProfileService elasticProfileService;
 
     @Before
     public void setup() {
@@ -92,11 +93,12 @@ public class ScheduleServiceTest {
         localizer = mock(Localizer.class);
         timeProvider = new TimeProvider();
         schedulingPerformanceLogger = mock(SchedulingPerformanceLogger.class);
+        elasticProfileService = mock(ElasticProfileService.class);
         service = new ScheduleService(goConfigService, pipelineService, stageService, schedulingChecker, mock(
                 PipelineScheduledTopic.class), mock(PipelineDao.class), mock(StageDao.class), mock(StageOrderService.class), securityService, pipelineScheduleQueue,
                 jobInstanceService, mock(JobInstanceDao.class), mock(AgentAssignment.class), environmentConfigService, mock(PipelineLockService.class), serverHealthService,
                 new TestTransactionTemplate(synchronizationManager),
-                mock(AgentService.class), synchronizationManager, timeProvider, consoleActivityMonitor, pipelinePauseService, instanceFactory, schedulingPerformanceLogger);
+                mock(AgentService.class), synchronizationManager, timeProvider, consoleActivityMonitor, pipelinePauseService, instanceFactory, schedulingPerformanceLogger, elasticProfileService);
     }
 
     @Test
@@ -282,7 +284,7 @@ public class ScheduleServiceTest {
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
         StubPipelineScheduleTopic stubTopic = new StubPipelineScheduleTopic();
         service = new ScheduleService(goConfigService, null, null, schedulingChecker, stubTopic, null, null, null, null, pipelineScheduleQueue,
-                jobInstanceService, null, null, environmentConfigService, null, serverHealthService, null, null, null, timeProvider, null, null, null, schedulingPerformanceLogger);
+                jobInstanceService, null, null, environmentConfigService, null, serverHealthService, null, null, null, timeProvider, null, null, null, schedulingPerformanceLogger, elasticProfileService);
 
         PipelineConfig mingleConfig = PipelineConfigMother.createPipelineConfig("mingle", "build", "unit", "functional");
         PipelineConfig evolveConfig = PipelineConfigMother.createPipelineConfig("evolve", "build", "unit");

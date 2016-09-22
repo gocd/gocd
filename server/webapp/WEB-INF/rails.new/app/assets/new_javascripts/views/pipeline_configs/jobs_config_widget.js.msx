@@ -267,10 +267,10 @@ define([
                           label='Elastic Profile Id'
                           model={job}
                           tooltip={{
-                              content: tt.job.elasticProfile,
-                              direction: 'bottom',
-                              size: 'small'
-                            }}
+                            content: tt.job.elasticProfile,
+                            direction: 'bottom',
+                            size: 'small'
+                          }}
                           size={4}
                           largeSize={4}
                           end={true}/>

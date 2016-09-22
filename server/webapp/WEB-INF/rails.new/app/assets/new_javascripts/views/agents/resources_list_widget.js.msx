@@ -54,15 +54,15 @@ define(['mithril', 'lodash', 'string-plus', 'helpers/form_helper',
           args.hideDropDown('resource');
 
           var resourcesToBeAdded = _.filter(Resources.list(), function (resource) {
-            return resource.isChecked()
+            return resource.isChecked();
           }).map(function (resource) {
-            return resource.name()
+            return resource.name();
           });
 
           var resourcesToBeRemoved = _.filter(Resources.list(), function (resource) {
-            return !resource.isIndeterminate() && !resource.isChecked()
+            return !resource.isIndeterminate() && !resource.isChecked();
           }).map(function (resource) {
-            return resource.name()
+            return resource.name();
           });
 
 
@@ -79,7 +79,7 @@ define(['mithril', 'lodash', 'string-plus', 'helpers/form_helper',
           NewResourceVM.newResource(value);
           NewResourceVM.error('');
         }
-      }
+      };
     },
 
     view: function (ctrl, args) {
@@ -89,7 +89,7 @@ define(['mithril', 'lodash', 'string-plus', 'helpers/form_helper',
 
             {
               _.map(Resources.list(), function (resource, index) {
-                return <TriStateCheckboxWidget triStateCheckbox={resource} index={index} key={resource.name()}/>
+                return <TriStateCheckboxWidget triStateCheckbox={resource} index={index} key={resource.name()}/>;
               })
             }
           </ul>

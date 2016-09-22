@@ -32,7 +32,7 @@ define(['mithril', 'lodash'], function (m, _) {
           </label>
 
         </li>
-      )
+      );
     }
   };
 

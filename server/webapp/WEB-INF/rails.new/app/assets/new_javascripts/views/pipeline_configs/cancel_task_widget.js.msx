@@ -54,7 +54,6 @@ define([
 
     view: function (ctrl) {
       var task = ctrl.task;
-      var id = s.uuid();
 
       var cancelTask = function () {
         if (task.hasOnCancelTask()) {
@@ -74,14 +73,14 @@ define([
                 }
               </div>
             </f.row>
-          )
+          );
         }
       };
 
       var taskSelector = function () {
         if (task.hasOnCancelTask()) {
           var items = _.transform(_.merge({}, Tasks.Types, PluggableTasks.Types), function (result, value, key) {
-            if (key != 'fetchartifact') {
+            if (key !== 'fetchartifact') {
               result[key] = value.description;
             }
           });
@@ -92,7 +91,7 @@ define([
                         size={3}
                         largeSize={3}
                         end="true"/>
-          )
+          );
         }
       };
 

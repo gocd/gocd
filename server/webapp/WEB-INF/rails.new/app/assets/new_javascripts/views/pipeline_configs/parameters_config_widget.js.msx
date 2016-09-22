@@ -37,9 +37,9 @@ define([
       return (
         <f.accordion accordionTitles={[
                         (
-                          <span>Parameters<f.tooltip tooltip={{content: tt.pipeline.parameters.main}}/></span>
+          <span>Parameters<f.tooltip tooltip={{content: tt.pipeline.parameters.main}}/></span>
                         )
-                     ]}
+        ]}
                      accordionKeys={['parameters']}
                      selectedIndex={ctrl.vmState('parametersSelected', m.prop(-1))}
                      class='parameters accordion-inner'>
@@ -51,11 +51,11 @@ define([
                            attrName='name'
                            placeholder='Name'
                            validate={true}
-                           onchange={ctrl.changed.bind(ctrl)}/>
+                           onChange={ctrl.changed.bind(ctrl)}/>
                   <f.input model={parameter}
                            attrName='value'
                            placeholder='Value'
-                           onchange={ctrl.changed.bind(ctrl)}/>
+                           onChange={ctrl.changed.bind(ctrl)}/>
                   <f.column size={1} end={true}>
                     {ctrl.removeLink.call(ctrl, parameter)}
                   </f.column>

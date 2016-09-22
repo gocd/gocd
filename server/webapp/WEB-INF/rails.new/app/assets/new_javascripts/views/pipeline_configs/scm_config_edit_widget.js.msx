@@ -46,7 +46,7 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'views/pipeline_configs/scm_
 
         this.showAssociatedPipelines = function () {
           fetchDependentPipelines(self.scm.id()).then(self.dependentPipelines);
-        }
+        };
       },
 
       view: function (ctrl) {
@@ -66,7 +66,7 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'views/pipeline_configs/scm_
               </f.column>
             </f.row>
           </div>
-        )
+        );
       }
     };
 
@@ -97,7 +97,7 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'views/pipeline_configs/scm_
         self.parentView.onClose(function () {
           self.scmForEdit.reInitialize(JSON.parse(JSON.stringify(args.material.scm())));
           self.vm.reset();
-        })
+        });
       },
 
       view: function (ctrl) {

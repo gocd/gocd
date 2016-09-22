@@ -24,7 +24,7 @@ define([
              PluggableSCMWidget, MaterialFilterWidget, PluginInfos) {
 
   var PasswordField = {
-    view: function (ctrl, args, children) {
+    view: function (ctrl, args) {
       var model               = args.model;
       var attrName            = args.attrName;
       var capitalizedAttrName = _.upperFirst(attrName);
@@ -64,7 +64,7 @@ define([
                           validate={true}
                           isRequired={true}
                           model={args.material}/>
-      )
+      );
     }
   };
 
@@ -85,10 +85,10 @@ define([
                           model={args.material}
                           validate={true}
                           tooltip={{
-                                    content: tt.material.destination,
-                                    direction: 'bottom',
-                                    size: 'small'
-                                   }}/>
+                            content: tt.material.destination,
+                            direction: 'bottom',
+                            size: 'small'
+                          }}/>
       );
     }
   };
@@ -101,10 +101,10 @@ define([
                           validate={true}
                           model={args.material}
                           tooltip={{
-                                    content: tt.material.name,
-                                    direction: 'bottom',
-                                    size: 'small'
-                                   }}/>
+                            content: tt.material.name,
+                            direction: 'bottom',
+                            size: 'small'
+                          }}/>
       );
     }
   };
@@ -130,7 +130,7 @@ define([
   };
 
   var TestConnection = {
-    controller: function (args) {
+    controller: function () {
       ComponentMixins.HasViewModel.call(this);
     },
 
@@ -143,7 +143,7 @@ define([
                                   vm={ctrl.vmState('testConnection')}/>
           </f.column>
         </f.row>
-      )
+      );
     }
   };
 
@@ -272,7 +272,7 @@ define([
                                 model={material}
                                 validate={true}
                                 isRequired={true}
-                                onchange={m.withAttr('value', material.port)}/>
+                                onChange={m.withAttr('value', material.port)}/>
               <AutoUpdateField material={material}/>
             </f.row>
             <f.row>
@@ -372,7 +372,6 @@ define([
 
     package: {
       view: function (ctrl, args) {
-        var material = args.material;
         return (
           <MaterialViews.base {...args}>
             <f.info>Package materials edit is not yet supported, click <f.link href={["/go/admin/pipelines/",  args.pipelineName(), "/materials?current_tab=materials"].join('')}>here</f.link> to edit.</f.info>
@@ -384,7 +383,7 @@ define([
   };
 
   var MaterialTypeSelector = {
-    controller: function (args) {
+    controller: function () {
       this.selected       = m.prop('git');
     },
 
@@ -429,8 +428,8 @@ define([
                                                             : materials().createMaterial({type: type(), pluginInfo: PluginInfos.findById(type())});
 
           var indexOfMaterial = materials().indexOfMaterial(newMaterial);
-          self.vmState('material-' + indexOfMaterial, {selectedMaterialIndex: m.prop(0)})
-        }
+          self.vmState('material-' + indexOfMaterial, {selectedMaterialIndex: m.prop(0)});
+        };
       };
     },
 
@@ -438,9 +437,9 @@ define([
       return (
         <f.accordion accordionTitles={[
                         (
-                          <span>Materials</span>
+          <span>Materials</span>
                         )
-                     ]}
+        ]}
                      accordionKeys={['materials']}
                      class='materials'
                      selectedIndex={ctrl.vmState('materialsSelected', m.prop(-1))}>

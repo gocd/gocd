@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'es6shim'], function (m, _, s, Mixin) {
+define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es6shim'], function (m, $, _, s, Mixin) {
 
   var deleteKeyAndReturnValue = function (object, key, defaultValue) {
     var value = object[key];
@@ -52,12 +52,12 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'es6shim'], f
     column: {
       view: function (ctrl, args, children) {
         var end       = deleteKeyAndReturnValue(args, 'end') ? 'end' : null,
-            size      = deleteKeyAndReturnValue(args, 'size', 6),
-            largeSize = deleteKeyAndReturnValue(args, 'largeSize', size);
+          size      = deleteKeyAndReturnValue(args, 'size', 6),
+          largeSize = deleteKeyAndReturnValue(args, 'largeSize', size);
 
         return (
           <div class={compactClasses(args, 'columns', 'medium-' + size, 'large-' + largeSize, end)}
-            {...args}>
+               {...args}>
             {children}
           </div>
         );
@@ -78,12 +78,13 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'es6shim'], f
 
       view: function (ctrl, args) {
         var model       = deleteKeyAndReturnValue(args, 'model'),
-            attrName    = deleteKeyAndReturnValue(args, 'attrName'),
-            type        = deleteKeyAndReturnValue(args, 'type', 'text'),
-            placeholder = deleteKeyAndReturnValue(args, 'placeholder', ''),
-            modelType   = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
-            validate    = deleteKeyAndReturnValue(args, 'validate', false),
-            tooltip     = deleteKeyAndReturnValue(args, 'tooltip');
+          attrName    = deleteKeyAndReturnValue(args, 'attrName'),
+          type        = deleteKeyAndReturnValue(args, 'type', 'text'),
+          placeholder = deleteKeyAndReturnValue(args, 'placeholder', ''),
+          modelType   = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
+          validate    = deleteKeyAndReturnValue(args, 'validate', false),
+          tooltip     = deleteKeyAndReturnValue(args, 'tooltip'),
+          onChange    = deleteKeyAndReturnValue(args, 'onChange');
 
         args.size      = args.size || 6;
         args.largeSize = args.largeSize || 4;
@@ -106,7 +107,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'es6shim'], f
               type={type}
               placeholder={placeholder}
               class={propertyError ? 'is-invalid-input' : ''}
-              oninput={ctrl.onInput.bind(ctrl, model, attrName, onchange)}
+              oninput={ctrl.onInput.bind(ctrl, model, attrName, onChange)}
               onblur={validate ? model.validate.bind(model, validationAttr) : undefined}/>
             <f.tooltip tooltip={tooltip} model={model} attrName={attrName}/>
             {propertyError}
@@ -116,7 +117,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'es6shim'], f
     },
 
     inputWithLabel: {
-      controller: function (args) {
+      controller: function () {
         this.onInput = function (model, attrName, callback, e) {
           var currentTarget = (e || event).currentTarget;
           var newValue      = currentTarget.value || currentTarget.getAttribute('value');
@@ -129,15 +130,15 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'es6shim'], f
 
       view: function (ctrl, args) {
         var model       = deleteKeyAndReturnValue(args, 'model'),
-            attrName    = deleteKeyAndReturnValue(args, 'attrName'),
-            type        = deleteKeyAndReturnValue(args, 'type', 'text'),
-            placeholder = deleteKeyAndReturnValue(args, 'placeholder', ''),
-            labelText   = deleteKeyAndReturnValue(args, 'label'),
-            onchange    = deleteKeyAndReturnValue(args, 'onchange'),
-            tooltip     = deleteKeyAndReturnValue(args, 'tooltip'),
-            modelType   = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
-            validate    = deleteKeyAndReturnValue(args, 'validate', false),
-            isRequired  = deleteKeyAndReturnValue(args, 'isRequired', false);
+          attrName    = deleteKeyAndReturnValue(args, 'attrName'),
+          type        = deleteKeyAndReturnValue(args, 'type', 'text'),
+          placeholder = deleteKeyAndReturnValue(args, 'placeholder', ''),
+          labelText   = deleteKeyAndReturnValue(args, 'label'),
+          onChange    = deleteKeyAndReturnValue(args, 'onChange'),
+          tooltip     = deleteKeyAndReturnValue(args, 'tooltip'),
+          modelType   = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
+          validate    = deleteKeyAndReturnValue(args, 'validate', false),
+          isRequired  = deleteKeyAndReturnValue(args, 'isRequired', false);
 
         args.size      = args.size || 6;
         args.largeSize = args.largeSize || 4;
@@ -149,10 +150,10 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'es6shim'], f
 
         var resetButton = function () {
           if (args.withReset && model[attrName]()) {
-            var capitalizedAttrName = _.upperFirst(attrName)
+            var capitalizedAttrName = _.upperFirst(attrName);
             return (
               <f.resetButton onclick={model['resetToOriginal' + capitalizedAttrName].bind(model)}/>
-            )
+            );
           }
         };
 
@@ -177,7 +178,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'es6shim'], f
               type={type}
               placeholder={placeholder}
               class={propertyError ? 'is-invalid-input' : ''}
-              oninput={ctrl.onInput.bind(ctrl, model, attrName, onchange)}
+              oninput={ctrl.onInput.bind(ctrl, model, attrName, onChange)}
               onblur={validate ? model.validate.bind(model, validationAttr) : undefined}/>
             {resetButton()}
             {propertyError}
@@ -187,7 +188,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'es6shim'], f
     },
 
     textareaWithLabel: {
-      controller: function (args) {
+      controller: function () {
         this.onInput = function (model, attrName, callback, e) {
           var currentTarget = (e || event).currentTarget;
           var newValue      = currentTarget.value || "";
@@ -200,13 +201,13 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'es6shim'], f
 
       view: function (ctrl, args) {
         var model       = deleteKeyAndReturnValue(args, 'model'),
-            attrName    = deleteKeyAndReturnValue(args, 'attrName'),
-            placeholder = deleteKeyAndReturnValue(args, 'placeholder', ''),
-            labelText   = deleteKeyAndReturnValue(args, 'label'),
-            onchange    = deleteKeyAndReturnValue(args, 'onchange'),
-            tooltip     = deleteKeyAndReturnValue(args, 'tooltip'),
-            modelType   = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
-            validate    = deleteKeyAndReturnValue(args, 'validate', false);
+          attrName    = deleteKeyAndReturnValue(args, 'attrName'),
+          placeholder = deleteKeyAndReturnValue(args, 'placeholder', ''),
+          labelText   = deleteKeyAndReturnValue(args, 'label'),
+          onChange    = deleteKeyAndReturnValue(args, 'onChange'),
+          tooltip     = deleteKeyAndReturnValue(args, 'tooltip'),
+          modelType   = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
+          validate    = deleteKeyAndReturnValue(args, 'validate', false);
 
         args.size = args.size || 3;
 
@@ -229,7 +230,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'es6shim'], f
               spellcheck="off"
               placeholder={placeholder}
               class={propertyError ? 'error' : ''}
-              oninput={ctrl.onInput.bind(ctrl, model, attrName, onchange)}
+              oninput={ctrl.onInput.bind(ctrl, model, attrName, onChange)}
               onblur={validate ? model.validate.bind(model, validationAttr) : undefined}>
               {model[attrName]()}
               </textarea>
@@ -242,13 +243,13 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'es6shim'], f
     checkBox: {
       view: function (ctrl, args) {
         var model      = deleteKeyAndReturnValue(args, 'model'),
-            attrName   = deleteKeyAndReturnValue(args, 'attrName'),
-            labelText  = deleteKeyAndReturnValue(args, 'label'),
-            disabled   = deleteKeyAndReturnValue(args, 'disabled'),
-            tooltip    = deleteKeyAndReturnValue(args, 'tooltip'),
-            addPadding = deleteKeyAndReturnValue(args, 'addPadding'),
-            id         = s.uuid(),
-            modelType  = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null));
+          attrName   = deleteKeyAndReturnValue(args, 'attrName'),
+          labelText  = deleteKeyAndReturnValue(args, 'label'),
+          disabled   = deleteKeyAndReturnValue(args, 'disabled'),
+          tooltip    = deleteKeyAndReturnValue(args, 'tooltip'),
+          addPadding = deleteKeyAndReturnValue(args, 'addPadding'),
+          id         = s.uuid(),
+          modelType  = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null));
 
         if (!args.size) {
           args.size = 3;
@@ -288,24 +289,24 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'es6shim'], f
           var currentTarget = (e || event).currentTarget;
 
           currentTarget.checked ? this.attr().push(currentTarget.value)
-            : this.attr().pop(currentTarget.value)
+            : this.attr().pop(currentTarget.value);
         };
 
         this.isChecked = function (value) {
           return _.includes(this.attr().data(), value);
-        }
+        };
       },
 
       view: function (ctrl, args) {
         var model      = deleteKeyAndReturnValue(args, 'model'),
-            attrName   = deleteKeyAndReturnValue(args, 'attrName'),
-            value      = deleteKeyAndReturnValue(args, 'value'),
-            labelText  = deleteKeyAndReturnValue(args, 'label'),
-            disabled   = deleteKeyAndReturnValue(args, 'disabled'),
-            tooltip    = deleteKeyAndReturnValue(args, 'tooltip'),
-            addPadding = deleteKeyAndReturnValue(args, 'addPadding'),
-            id         = s.uuid(),
-            modelType  = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null));
+          attrName   = deleteKeyAndReturnValue(args, 'attrName'),
+          value      = deleteKeyAndReturnValue(args, 'value'),
+          labelText  = deleteKeyAndReturnValue(args, 'label'),
+          disabled   = deleteKeyAndReturnValue(args, 'disabled'),
+          tooltip    = deleteKeyAndReturnValue(args, 'tooltip'),
+          addPadding = deleteKeyAndReturnValue(args, 'addPadding'),
+          id         = s.uuid(),
+          modelType  = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null));
 
         if (!args.size) {
           args.size = 3;
@@ -435,9 +436,9 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'es6shim'], f
 
       view: function (ctrl, args) {
         var items   = deleteKeyAndReturnValue(args, 'items', {}),
-            label   = deleteKeyAndReturnValue(args, 'label'),
-            value   = s.coerceToMprop(deleteKeyAndReturnValue(args, 'value'), ''),
-            tooltip = deleteKeyAndReturnValue(args, 'tooltip');
+          label   = deleteKeyAndReturnValue(args, 'label'),
+          value   = s.coerceToMprop(deleteKeyAndReturnValue(args, 'value'), ''),
+          tooltip = deleteKeyAndReturnValue(args, 'tooltip');
 
         if (!args.size) {
           args.size = 3;
@@ -484,7 +485,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'es6shim'], f
 
         this.classNameForAccordionContent = function (tabIndex) {
           return this.selectedIndex() === tabIndex ? 'show' : 'hide';
-        }
+        };
       },
 
       view: function (ctrl, args, children) {
@@ -565,10 +566,10 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'es6shim'], f
         }
 
         var direction = deleteKeyAndReturnValue(args.tooltip, 'direction', 'bottom'),
-            size      = deleteKeyAndReturnValue(args.tooltip, 'size', 'medium'),
-            content   = deleteKeyAndReturnValue(args.tooltip, 'content', children),
-            clazz     = deleteKeyAndReturnValue(args.tooltip, 'class', null),
-            tooltipId = 'help-tooltip-';
+          size      = deleteKeyAndReturnValue(args.tooltip, 'size', 'medium'),
+          content   = deleteKeyAndReturnValue(args.tooltip, 'content', children),
+          clazz     = deleteKeyAndReturnValue(args.tooltip, 'class', null),
+          tooltipId = 'help-tooltip-';
 
         if (args.model && args.model.uuid) {
           tooltipId += (args.model.uuid() + '-' + args.attrName);
@@ -582,7 +583,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'es6shim'], f
                data-toggle={tooltipId}
                class='tooltip-question-mark'/>
             <div id={tooltipId}
-                 class={_.compact(['f-dropdown', 'dropdown-pane', 'content', 'tooltip-content', size]).join(' ')}
+                 class={_.compact(['f-dropdown', 'dropdown-pane', 'content', 'tooltip-content', size, direction]).join(' ')}
                  data-dropdown
                  data-hover='true'
                  data-hover-pane='true'

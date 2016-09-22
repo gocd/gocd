@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', 'helpers/form_helper'],
-  function (m, _, s, f) {
-    var RunIfConditionsWidget = {
-      view: function (ctrl, args) {
-        var task = args.task;
-        return (
+define([
+  'mithril', 'lodash', 'string-plus', 'helpers/form_helper'
+], function (m, _, s, f) {
+  var RunIfConditionsWidget = {
+    view: function (ctrl, args) {
+      var task = args.task;
+      return (
           <div class='runif'>
             <f.row>
               <f.column>
@@ -47,9 +48,9 @@ define(['mithril', 'lodash', 'string-plus', 'helpers/form_helper'],
                                    end={true}/>
             </f.row>
           </div>
-        )
-      }
-    };
-    return RunIfConditionsWidget;
-  }
+        );
+    }
+  };
+  return RunIfConditionsWidget;
+}
 );

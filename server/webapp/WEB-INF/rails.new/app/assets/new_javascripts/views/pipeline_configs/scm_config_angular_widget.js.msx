@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'helpers/form_helper', 'string-plus', 'helpers/mithril_component_mixins', 'models/pipeline_configs/plugin_infos'],
-  function (m, _, f, s, ComponentMixins, PluginInfos) {
+define(['mithril', 'lodash', 'jquery', 'helpers/form_helper', 'string-plus', 'helpers/mithril_component_mixins', 'models/pipeline_configs/plugin_infos'],
+  function (m, _, $, f, s, ComponentMixins, PluginInfos) {
     var SCMConfigAngularWidget = {
       controller: function (args) {
         var self              = this;
@@ -36,7 +36,7 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'string-plus', 'helpers/mith
           self.templateHTML = template(plugin.viewTemplate());
           self.defaultConfig = plugin.configurations();
 
-          self.ngController = angular.module(self.appName, []).controller(self.ngControllerName, ['$scope', '$http', function ($scope, $http) {
+          self.ngController = angular.module(self.appName, []).controller(self.ngControllerName, ['$scope', '$http', function ($scope) {
             $scope.addError = function (field) {
               $scope.GOINPUTNAME[field.key] = {$error: {}};
               $scope.GOINPUTNAME[field.key].$error[_.toLower(field.key)] = field.errors.join();
@@ -52,7 +52,7 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'string-plus', 'helpers/mith
             _.map(self.defaultConfig, function (config) {
               $scope[config.key] = self.scm.configuration().valueFor(config.key);
 
-              $scope.$watch(config.key, function (newValue, oldValue) {
+              $scope.$watch(config.key, function (newValue) {
                 self.scm.configuration().setConfiguration(config.key, newValue);
               });
             });
@@ -62,13 +62,13 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'string-plus', 'helpers/mith
                 $scope[config.key] = self.scm.configuration().valueFor(config.key);
               });
 
-              $scope.$apply()
+              $scope.$apply();
             });
           }]);
         });
       },
 
-      view: function (ctrl, args) {
+      view: function (ctrl) {
         var config = function (elem, isInitialized) {
           if (!isInitialized) {
             var pluginTaskTemplateElement = $('#pluggable-scm-template-' + ctrl.uuid);

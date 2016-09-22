@@ -21,10 +21,10 @@ define(['mithril', 'lodash'], function (m, _) {
   };
 
   var joinFunction = function (things) {
-    if (things.length == 0) {
+    if (things.length === 0) {
       return (<em>none specified</em>);
     } else {
-      return things.join(', ')
+      return things.join(', ');
     }
   };
 

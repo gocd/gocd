@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'jquery', 'string-plus', 'helpers/form_helper', 'jquery.textcomplete'],
-  function (m, _, $, s, f) {
+define(['mithril', 'lodash', 'jquery', 'string-plus', 'jquery.textcomplete'],
+  function (m, _, $, s) {
     var PipelineStageFieldWidget = {
       textComplete: function (attrName, values) {
         return function (elem, isInitialized) {
@@ -86,7 +86,7 @@ define(['mithril', 'lodash', 'jquery', 'string-plus', 'helpers/form_helper', 'jq
 
         this.errorsForDisplay = function () {
           return !_.isEmpty(this.errors) ? this.errors : _.values(this.material.errors().errors()).join(". ");
-        }
+        };
       },
 
       controller: function (args) {
@@ -95,11 +95,11 @@ define(['mithril', 'lodash', 'jquery', 'string-plus', 'helpers/form_helper', 'jq
 
         this.pipelineStages = function() {
           var data = _.map(this.pipelines(), function (pipeline) {
-              return _.map(pipeline.stages, function (stage) {
-                  return _.join([pipeline.name, ' ', '[', stage.name, ']'], '');
-                }
-              );
+            return _.map(pipeline.stages, function (stage) {
+              return _.join([pipeline.name, ' ', '[', stage.name, ']'], '');
             }
+              );
+          }
           );
           return _.flattenDeep(data);
         };

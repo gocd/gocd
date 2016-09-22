@@ -18,9 +18,9 @@ define(['mithril', 'lodash', 'jquery', 'string-plus', 'foundation.reveal'], func
   var init = function(uuid) {
     return function (elem, isInitialized) {
       if (!isInitialized) {
-        new Foundation.Reveal($("#modal-" + uuid));
+        new Foundation.Reveal($("#modal-" + uuid)); //eslint-disable-line no-undef
       }
-    }
+    };
   };
 
   var Modal = function (options) {
@@ -39,7 +39,7 @@ define(['mithril', 'lodash', 'jquery', 'string-plus', 'foundation.reveal'], func
           </button>
           {m.component(this.subView.component, subViewArgs)}
         </div>
-      )
+      );
     };
 
     this.close = function () {
@@ -58,7 +58,7 @@ define(['mithril', 'lodash', 'jquery', 'string-plus', 'foundation.reveal'], func
 
     this.onClose = function(callback) {
       $("#modal-" + this.uuid).on('closed.zf.reveal', callback);
-    }
+    };
   };
 
   return Modal;

@@ -31,7 +31,7 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'views/pipeline_configs/scm_
 
       controller: function (args) {
         var pluginMetadata = {
-          plugin_metadata: {
+          plugin_metadata: { //eslint-disable-line camelcase
             id:      args.material.pluginInfo().id(),
             version: args.material.pluginInfo().version()
           }
@@ -62,7 +62,7 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'views/pipeline_configs/scm_
         self.parentView.onClose(function () {
           self.scmForEdit.reInitialize(pluginMetadata);
           self.vm.reset();
-        })
+        });
       },
 
       view: function (ctrl) {

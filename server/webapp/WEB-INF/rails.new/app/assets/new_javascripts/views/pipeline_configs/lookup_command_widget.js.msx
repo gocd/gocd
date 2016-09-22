@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', 'helpers/form_helper',
+define(['mithril', 'lodash', 'jquery', 'string-plus', 'helpers/form_helper',
     'helpers/mithril_component_mixins', 'js-routes', 'models/pipeline_configs/argument', 'helpers/pipeline_configs/tooltips',
     'jquery.textcomplete'
   ],
-  function (m, _, s, f, ComponentMixins, Routes, Argument, tt) {
+  function (m, _, $, s, f, ComponentMixins, Routes, Argument, tt) {
     var LookupCommandWidget = {
       Command: {
         textComplete: function (attrName, selectSnippet, searchSnippets) {
@@ -78,14 +78,14 @@ define(['mithril', 'lodash', 'string-plus', 'helpers/form_helper',
 
           self.findByName = function (name) {
             return _.find(self.list, function (snippet) {
-              return name == snippet.name();
-            })
+              return name === snippet.name();
+            });
           };
 
           self.allNames = function () {
             return _.map(self.list, function (snippet) {
-              return snippet.name()
-            })
+              return snippet.name();
+            });
           };
         }
       },
@@ -114,7 +114,7 @@ define(['mithril', 'lodash', 'string-plus', 'helpers/form_helper',
             function () {
               textComplete([]);
             });
-        }
+        };
       },
 
       view: function (ctrl) {
@@ -147,9 +147,9 @@ define(['mithril', 'lodash', 'string-plus', 'helpers/form_helper',
                            autocomplete="false"
                            autocapitalize="off"
                            autocorrect="off"
-                           spellcheck="off"/>)
+                           spellcheck="off"/>);
           }
-          return (<input type="text" disabled="disabled"/>)
+          return (<input type="text" disabled="disabled"/>);
         };
 
         var lookupDisabledMessage = function() {
@@ -159,7 +159,7 @@ define(['mithril', 'lodash', 'string-plus', 'helpers/form_helper',
                    href="http://www.go.cd/documentation/user/current/advanced_usage/command_repository.html#args-style-commands"
                    target="_blank">
                   new style</a> of custom commands.</label>
-            )
+            );
           }
         };
 
@@ -171,10 +171,10 @@ define(['mithril', 'lodash', 'string-plus', 'helpers/form_helper',
                 size={4}>
                 <label>Look up
                   <f.tooltip tooltip={{
-                            content: tt.task.lookup,
-                            direction: 'bottom',
-                            size: 'small'
-                           }}/>
+                    content: tt.task.lookup,
+                    direction: 'bottom',
+                    size: 'small'
+                  }}/>
                 </label>
                 {lookUpTextBox()}
                 {lookupDisabledMessage()}

@@ -60,9 +60,9 @@ define([
       return (
         <f.accordion accordionTitles={[
                         (
-                          <span>Stages</span>
+          <span>Stages</span>
                         )
-                     ]}
+        ]}
                      selectedIndex={ctrl.vmState('pipelineFlowSelected', m.prop(0))}
                      accordionKeys={['stages']}
                      class='stages'>

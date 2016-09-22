@@ -16,6 +16,7 @@
 
 task scssLint {
   description "Run scss-lint"
+  dependsOn ':tools:prepareJRuby'
   doFirst {
     project.exec {
 
@@ -37,6 +38,7 @@ task scssLint {
 
 task jsLint {
   description "Run ESLint"
+  dependsOn ':tools:prepareNodeJS'
   doFirst {
     def binary = isWindows() ? project.file('node_modules/.bin/eslint.cmd') : project.file('node_modules/.bin/eslint')
 
@@ -44,38 +46,29 @@ task jsLint {
       binary,
       '--config', project.file('.eslintrc.json'),
       '--color',
+      '--ext', '.js',
+      '--ext', '.msx',
       '--format', project.hasProperty('jsLintFormat') ? project.jsLintFormat : 'stylish'
     ]
 
     project.exec {
       standardOutput = System.out
       errorOutput = System.err
+      workingDir = "${project.findProject(':server').railsRoot}/app/assets/new_javascripts"
       commandLine = commonCommandLine
-      commandLine += ["${project.findProject(':server').railsRoot}/app/assets/new_javascripts"]
-      println commandLine.join(" ")
+      commandLine += ['.']
+      println "[${workingDir}]\$ ${executable} ${args.join(' ')}"
     }
 
     project.exec {
       standardOutput = System.out
       errorOutput = System.err
       commandLine = commonCommandLine
-      commandLine += [
-        'it',
-        'describe',
-        'expect',
-        'beforeEach',
-        'afterEach',
-        'afterAll',
-        'beforeAll',
-        'xit',
-        'spyOn',
-        'jasmine',
-        'angular'
-      ].collect { "--global=${it}" }
+      workingDir = "${project.findProject(':server').railsRoot}/spec/new_javascripts"
 
-      commandLine += project.fileTree(dir: "${project.findProject(':server').railsRoot}/spec/new_javascripts", excludes: ["helpers/*", "*.html.*"]).files
-
-      println commandLine.join(" ")
+      commandLine += ['--ignore-pattern', "helpers/"]
+      commandLine += ['.']
+      println "[${workingDir}]\$ ${executable} ${args.join(' ')}"
     }
   }
 }

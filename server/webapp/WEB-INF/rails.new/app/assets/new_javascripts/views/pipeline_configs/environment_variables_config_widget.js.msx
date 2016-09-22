@@ -15,8 +15,8 @@
  */
 
 define([
-  'mithril', 'string-plus', 'helpers/form_helper', 'helpers/mithril_component_mixins', 'helpers/pipeline_configs/tooltips'
-], function (m, s, f, ComponentMixins, tt) {
+  'mithril', 'lodash', 'string-plus', 'helpers/form_helper', 'helpers/mithril_component_mixins', 'helpers/pipeline_configs/tooltips'
+], function (m, _, s, f, ComponentMixins, tt) {
 
   var EnvironmentVariableWidget = {
     base: {
@@ -30,7 +30,7 @@ define([
               <f.input model={variable}
                        attrName='name'
                        placeholder='Name'
-                       onchange={args.onChange}
+                       onChange={args.onChange}
                        validate={true}
                        end={true}
                        size={5}
@@ -48,13 +48,13 @@ define([
     },
 
     plain: {
-      view: function (ctrl, args, children) {
+      view: function (ctrl, args) {
         return (
           <EnvironmentVariableWidget.base {...args}>
             <f.input model={args.variable}
                      attrName='value'
                      placeholder='Value'
-                     onchange={args.onChange}
+                     onChange={args.onChange}
                      validate={'all'}
                      size={5}
                      largeSize={4}/>
@@ -66,15 +66,15 @@ define([
     secure: {
       view: function (ctrl, args) {
         var variable = args.variable,
-            content,
-            removeChildPreContent;
+          content,
+          removeChildPreContent;
 
         if (variable.isEditingValue()) {
           content = [
             (<f.input model={variable}
                       attrName='value'
                       placeholder='Value'
-                      onchange={args.onChange}
+                      onChange={args.onChange}
                       type={variable.isSecureValue() ? 'password' : 'text'}/>
             )
           ];
@@ -123,7 +123,7 @@ define([
         });
       },
 
-      view: function (ctrl, args) {
+      view: function (ctrl) {
         return (
           <div>
             {ctrl.map(function (variable) {
@@ -160,7 +160,7 @@ define([
         });
       },
 
-      view: function (ctrl, args) {
+      view: function (ctrl) {
         return (
           <div>
             {ctrl.map(function (variable) {
@@ -188,9 +188,9 @@ define([
       return (
         <f.accordion accordionTitles={[
                         (
-                          <span>{ctrl.args.title}<f.tooltip tooltip={{content: tt.environmentVariables.main}} model={ctrl.args.variables()}/></span>
+          <span>{ctrl.args.title}<f.tooltip tooltip={{content: tt.environmentVariables.main}} model={ctrl.args.variables()}/></span>
                         )
-                     ]}
+        ]}
                      accordionKeys={['environment-variables']}
                      selectedIndex={ctrl.vmState('environmentVariablesSelected', m.prop(-1))}
                      class='environment-variables accordion-inner'>

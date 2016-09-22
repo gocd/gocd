@@ -20,8 +20,8 @@
   $standard-margin: nth($fieldset-margin, 1);
 
   .heading {
-    margin-bottom: 20px;
-    @include linear-gradient(#fff, #ccc);
+    margin-bottom:    20px;
+    background:$page-header-bg;
     h1 {
       font-size: rem-calc(20px);
       margin:    10px 0;
@@ -178,15 +178,19 @@
 .toggle-old-view {
   display:       inline-block;
   margin:        0 0 0 10px;
-  background:    $primary-color;
-  color:         #fff;
   position:      relative;
-  padding:       4px 10px;
-  font-size:     13px;
-  border-radius: 5px;
+  background:    $go-white;
+  padding:       3px 7px;
+  border-radius: $global-border-radius;
+  border:        1px solid $border-color;
+  font-weight:   normal !important;
+  font-size:     rem-calc(11px);
+  color:         $txt-color;
+  background:    $btn-bg;
   top:           -2px;
   &:hover, &:active, &:focus {
-    color: #fff;
+    background: $btn-bg-hover;
+    color:      $btn-bg-hover-txt;
   }
 }
 

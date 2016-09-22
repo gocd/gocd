@@ -14,6 +14,15 @@
  * limitations under the License.
  */
 
+$border: #ccc;
+$accordion-bg: #ffffff;
+$active-accordion-bg: #E0F7FA;
+$accordion-bg-hover: #c8deec;
+$accordion-border-radius: 5px;
+
+$inner-accordion-bg: #FFC107;
+
+
 .accordion {
   border-radius: $accordion-border-radius;
   margin-bottom: 10px;
@@ -22,6 +31,7 @@
   }
   .accordion-content {
     border-radius: $accordion-border-radius;
+    background:$accordion-bg;
   }
   &.accordion-inner {
     background:   $white;
@@ -60,6 +70,9 @@
     @include icon-only(caret-down);
     left: 14px;
   }
+  .is-active &{
+    background:$active-accordion-bg;
+  }
 
   .accordion-inner & {
     background:  $white;
@@ -73,11 +86,13 @@
   }
 }
 
-.accordion-inner {
+.accordion.accordion-inner {
+  border:0;
   .is-active {
     .accordion-title {
+      background:$inner-accordion-bg;
       border-bottom-left-radius:  0;
-      border-bottom:              1px solid $border;
+      border-bottom:              0;
       border-bottom-right-radius: 0;
       &::before {
         left: 11px;

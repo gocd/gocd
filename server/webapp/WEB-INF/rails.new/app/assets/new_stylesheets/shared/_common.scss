@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@import "go-variables";
+
 //z-index
 
 $app-header-top-line: 11;
@@ -24,7 +26,7 @@ $header-panel-z-index: 3;
 $build-details-dropdown-arrow-z-index: 1;
 
 body {
-  background: image-url('bg-texture-dark.png') repeat 0 0;
+  background: $body-background;
 }
 
 .main-container {
@@ -100,17 +102,16 @@ html, body {
 }
 
 .page-header {
-  background:      image-url('bg_agents_page_header.jpg') no-repeat 0 0;
+  background:      $page-header-bg;
   background-size: cover;
   padding:         10px 0;
   position:        relative;
   h1 {
-    font-size:      20px;
-    margin:         0;
-    color:          #fff;
-    text-transform: uppercase;
-    display:        inline-block;
-    font-weight:    600;
+    font-size:   rem-calc(18px);
+    font-weight: 400;
+    margin:      0;
+    display:     inline-block;
+    font-weight: 500;
   }
 }
 
@@ -136,20 +137,18 @@ html, body {
     position:    relative;
     z-index:     $agents-filters;
     .button {
-      background-color: $go-secondary;
+      background-color: $agent-header-button-bg;
       color:            #333;
       border:           0;
-      border-radius: 0;
-
       font-size:        rem-calc(13px);
       font-weight:      600;
       margin:           0;
       border-radius:    0;
-      padding:          0 7px;
+      padding:          0 10px;
       line-height:      30px;
       &:hover,
       &:focus {
-        background-color: lighten($go-secondary, 20%);
+        background-color: $agents-btn-hover;
         outline:          0;
       }
       &.btn-apply {
@@ -161,11 +160,13 @@ html, body {
         height:           auto;
         line-height:      normal;
         background-color: $go-primary;
+        border:0;
         &:hover,
         &:focus {
-          background-color: lighten($go-primary, 2%);
           outline:          0;
           color:            $go-white;
+          border:0;
+          background-color: $go-primary;
         }
       }
     }
@@ -173,14 +174,12 @@ html, body {
     &:first-child {
       margin-left: 0;
       > .button {
-        border-top-left-radius: $global-border-radius;
-        border-bottom-left-radius: $global-border-radius;
+        border-radius: $global-border-radius 0 0 $global-border-radius;
       }
     }
     &:last-child {
       > .button {
-        border-top-right-radius: $global-border-radius;
-        border-bottom-right-radius: $global-border-radius;
+        border-radius: 0 $global-border-radius $global-border-radius 0;
       }
     }
 
@@ -190,7 +189,7 @@ html, body {
 
     &.is-open {
       > .button {
-        background-color:           lighten($go-secondary, 20%);
+        background-color:           $agents-btn-hover;
         border-bottom-right-radius: 0;
         &:before {
           content:      "";
@@ -203,7 +202,7 @@ html, body {
           height:       0;
           border-style: solid;
           border-width: 10px 10px 0 10px;
-          border-color: lighten($go-secondary, 20%) transparent transparent transparent;
+          border-color: $agents-btn-hover transparent transparent transparent;
         }
       }
     }

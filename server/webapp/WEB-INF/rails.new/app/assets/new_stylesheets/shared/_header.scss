@@ -21,22 +21,9 @@ $menu-hover: #3e3d3d;
 $header-height: 50px;
 
 .app-header {
-  position:   fixed;
-  background: $grey;
-  top:        0;
+  position:   relative;
+  background: $header-bg;
   height:     $header-height;
-  width:      100%;
-  z-index:    $app-header-z-index;
-
-  &:before {
-    content:    "";
-    width:      100%;
-    height:     2px;
-    position:   absolute;
-    top:        0;
-    background: linear-gradient(to right, #94399e, #40d9da, #f5a623, #94399e, #40d9da, #f5a623);
-    z-index:    $app-header-top-line;
-  }
 }
 
 .logo {
@@ -66,6 +53,7 @@ $menu-hover-bg: $dark-grey;
       font-size:      rem-calc(13px);
       padding:        0 1rem;
       line-height:    $header-height;
+      font-weight: 600;
     }
   }
   .is-dropdown-submenu {
@@ -129,9 +117,17 @@ $menu-hover-bg: $dark-grey;
         top:       12px;
         font-size: 16px;
       }
+      a{
+        text-transform: none;
+      }
     }
     &.current {
       background: $go-primary;
+    }
+  }
+  &.current-user{
+    a{
+      text-transform: none;
     }
   }
 }

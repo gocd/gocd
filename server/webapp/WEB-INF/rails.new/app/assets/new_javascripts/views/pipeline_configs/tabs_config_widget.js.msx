@@ -46,7 +46,7 @@ define([
                   <f.input model={tab}
                            attrName='name'
                            placeholder='Tab name'
-                           onchange={ctrl.changed.bind(ctrl)}
+                           onChange={ctrl.changed.bind(ctrl)}
                            validate={true}
                            size={3}
                            largeSize={3}
@@ -58,7 +58,7 @@ define([
                   <f.input model={tab}
                            attrName='path'
                            placeholder='Path of artifact'
-                           onchange={ctrl.changed.bind(ctrl)}
+                           onChange={ctrl.changed.bind(ctrl)}
                            validate={'all'}
                            size={3}
                            largeSize={3}

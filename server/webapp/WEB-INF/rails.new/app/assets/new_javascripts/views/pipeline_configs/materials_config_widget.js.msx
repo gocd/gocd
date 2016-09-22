@@ -272,7 +272,7 @@ define([
                                 model={material}
                                 validate={true}
                                 isRequired={true}
-                                onchange={m.withAttr('value', material.port)}/>
+                                onChange={m.withAttr('value', material.port)}/>
               <AutoUpdateField material={material}/>
             </f.row>
             <f.row>

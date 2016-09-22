@@ -44,7 +44,7 @@ define(['mithril', 'helpers/form_helper', 'helpers/mithril_component_mixins', 'h
                   <f.input model={artifact}
                            attrName='source'
                            placeholder='Source'
-                           onchange={ctrl.changed.bind(ctrl)}
+                           onChange={ctrl.changed.bind(ctrl)}
                            validate={true}
                            size={3}
                            largeSize={3}
@@ -56,7 +56,7 @@ define(['mithril', 'helpers/form_helper', 'helpers/mithril_component_mixins', 'h
                   <f.input model={artifact}
                            attrName='destination'
                            placeholder='Destination'
-                           onchange={ctrl.changed.bind(ctrl)}
+                           onChange={ctrl.changed.bind(ctrl)}
                            validate={'all'}
                            size={3}
                            largeSize={3}

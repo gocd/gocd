@@ -309,8 +309,6 @@ define([
                     _.each(response.data, $scope.addError, $scope);
                   } else if (response.status === 520) {
                     $scope.pluggableTaskGenericError = response.data.error;
-                  } else {
-                    console.log('Something went wrong, we do not know what!');
                   }
                 });
               }, 250);

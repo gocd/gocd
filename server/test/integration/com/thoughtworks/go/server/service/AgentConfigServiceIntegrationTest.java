@@ -18,6 +18,8 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.AgentInstance;
+import com.thoughtworks.go.helper.AgentMother;
+import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.GoConfigFileHelper;
@@ -33,6 +35,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -298,6 +301,27 @@ public class AgentConfigServiceIntegrationTest {
         assertThat(result.toString(), result.httpCode(), is(400));
         assertTrue(result.toString(), result.toString().contains("AGENTS_WITH_UUIDS_NOT_FOUND"));
         assertTrue(result.toString(), result.toString().contains("invalid-uuid"));
+    }
+
+    @Test
+    public void shouldNotUpdateResourcesOnElasticAgents() throws Exception {
+        AgentConfig elasticAgent = AgentMother.elasticAgent();
+        agentConfigService.addAgent(elasticAgent, Username.ANONYMOUS);
+        CruiseConfig cruiseConfig = goConfigDao.load();
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        List<String> uuids = Arrays.asList(elasticAgent.getUuid());
+        List<String> resourcesToAdd = Arrays.asList("resource");
+
+        assertTrue(cruiseConfig.agents().getAgentByUuid(elasticAgent.getUuid()).getResources().isEmpty());
+        agentConfigService.bulkUpdateAgentAttributes(Username.ANONYMOUS, result, uuids, resourcesToAdd, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), TriState.FALSE);
+        cruiseConfig = goConfigDao.load();
+
+        HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
+        expectedResult.badRequest(LocalizedMessage.string("CAN_NOT_UPDATE_RESOURCES_ON_ELASTIC_AGENT", uuids));
+
+        assertThat(result, is(expectedResult));
+        assertTrue(cruiseConfig.agents().getAgentByUuid(elasticAgent.getUuid()).getResources().isEmpty());
     }
 
     @Test

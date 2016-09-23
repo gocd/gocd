@@ -241,7 +241,8 @@ public class AgentConfigService {
                 result.setMessage(LocalizedMessage.string("BULK_AGENT_UPDATE_SUCESSFUL", StringUtils.join(uuids, ", ")));
             }
         } catch (Exception e) {
-            if (e.getMessage() == null) {
+            LOGGER.error("There was an error bulk updating agents", e);
+            if (!result.hasMessage()) {
                 result.internalServerError(LocalizedMessage.string("INTERNAL_SERVER_ERROR"));
             }
         }

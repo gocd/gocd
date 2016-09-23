@@ -26,6 +26,14 @@ import java.util.UUID;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public class AgentMother {
+
+    public static AgentConfig elasticAgent() {
+        AgentConfig agentConfig = new AgentConfig(UUID.randomUUID().toString(), UUID.randomUUID().toString(), "127.0.0.1");
+        agentConfig.setElasticAgentId(UUID.randomUUID().toString());
+        agentConfig.setElasticPluginId(UUID.randomUUID().toString());
+        return agentConfig;
+    }
+
     public static AgentConfig localhost() {
         return new AgentConfig("1234", "localhost", "10.10.1.1");
     }

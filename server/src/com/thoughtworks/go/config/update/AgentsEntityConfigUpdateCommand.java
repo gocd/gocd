@@ -18,6 +18,7 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.exceptions.ElasticAgentsResourceUpdateException;
 import com.thoughtworks.go.config.exceptions.NoSuchAgentException;
 import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
 import com.thoughtworks.go.i18n.LocalizedMessage;
@@ -100,6 +101,7 @@ public class AgentsEntityConfigUpdateCommand implements EntityConfigUpdateComman
     @Override
     public void update(CruiseConfig preprocessedConfig) throws Exception {
         List<AgentConfig> goodAgents = getValidAgents(uuids, result, preprocessedConfig.agents());
+        checkElasticAgentsResourceUpdated(goodAgents, resourcesToAdd, resourcesToRemove);
 
         Set<CaseInsensitiveString> allEnvironmentNames = new HashSet<>(goConfigService.getEnvironments().names());
 
@@ -125,7 +127,7 @@ public class AgentsEntityConfigUpdateCommand implements EntityConfigUpdateComman
 
             for (String environment : environmentsToAdd) {
                 EnvironmentConfig environmentConfig = preprocessedConfig.getEnvironments().find(new CaseInsensitiveString(environment));
-                if (environmentConfig != null){
+                if (environmentConfig != null) {
                     environmentConfig.addAgentIfNew(agentConfig.getUuid());
                 }
             }
@@ -137,6 +139,31 @@ public class AgentsEntityConfigUpdateCommand implements EntityConfigUpdateComman
                 }
             }
         }
+    }
+
+    private void checkElasticAgentsResourceUpdated(List<AgentConfig> uuids, List<String> resourcesToAdd, List<String> resourcesToRemove) throws ElasticAgentsResourceUpdateException {
+        ArrayList<String> elasticAgentUUIDs = findAllElasticAgentUuids(uuids);
+
+        if (elasticAgentUUIDs.isEmpty()) {
+            return;
+        }
+
+        if (resourcesToAdd.isEmpty() && resourcesToRemove.isEmpty()) {
+            return;
+        }
+
+        result.badRequest(LocalizedMessage.string("CAN_NOT_UPDATE_RESOURCES_ON_ELASTIC_AGENT", elasticAgentUUIDs));
+        throw new ElasticAgentsResourceUpdateException(elasticAgentUUIDs);
+    }
+
+    private ArrayList<String> findAllElasticAgentUuids(List<AgentConfig> uuids) {
+        ArrayList<String> elasticAgentUUIDs = new ArrayList<>();
+        for (AgentConfig agent : uuids) {
+            if (agent.isElastic()) {
+                elasticAgentUUIDs.add(agent.getUuid());
+            }
+        }
+        return elasticAgentUUIDs;
     }
 
     @Override

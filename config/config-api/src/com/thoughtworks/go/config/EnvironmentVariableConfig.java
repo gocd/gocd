@@ -32,7 +32,9 @@ import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.bouncycastle.crypto.DataLengthException;
 import org.bouncycastle.crypto.InvalidCipherTextException;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import java.io.Serializable;
@@ -61,6 +63,7 @@ public class EnvironmentVariableConfig extends PersistentObject implements Seria
 
     private final ConfigErrors configErrors = new ConfigErrors();
 
+    private org.slf4j.Logger LOG = LoggerFactory.getLogger(EnvironmentVariableConfig.class);
     public static final String NAME = "name";
     public static final String VALUE = "valueForDisplay";
     public static final String ENCRYPTEDVALUE = "encryptedValue";
@@ -224,7 +227,11 @@ public class EnvironmentVariableConfig extends PersistentObject implements Seria
         try {
             getValue();
         } catch (Exception e) {
-            errors().add(VALUE, String.format("Encrypted value for variable named '%s' is invalid. This usually happens when the cipher text is modified to have an invalid value.", getName()));
+            if (e instanceof DataLengthException) {
+                errors().add(VALUE, String.format("Encrypted value for variable named '%s' is invalid", getName()));
+            }
+            LOG.error(String.format("An error occurred while validating environment variable '%s'. May be the encrypted value or the cipher text is invalid.", getName()), e);
+            errors().add(VALUE, String.format("Please check the log for error details while validating environment variable '%s'.", getName()));
         }
     }
 
@@ -276,6 +283,7 @@ public class EnvironmentVariableConfig extends PersistentObject implements Seria
             try {
                 return goCipher.decrypt(encryptedValue.getValue());
             } catch (InvalidCipherTextException e) {
+                errors().add(VALUE, String.format("Encrypted value for variable named '%s' is invalid", getName()));
                 throw new RuntimeException(String.format("Could not decrypt secure environment variable value for name %s", getName()), e);
             }
         } else {

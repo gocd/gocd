@@ -36,4 +36,18 @@ public class ElasticProfilesTest {
         ElasticProfile profile = new ElasticProfile("foo", "docker");
         assertThat(new ElasticProfiles(profile).find("foo"), is(not(sameInstance(profile))));
     }
+
+    @Test
+    public void shouldNotAllowMultipleProfilesWithSameId() throws Exception {
+        ElasticProfile profile1 = new ElasticProfile("foo", null);
+        ElasticProfile profile2 = new ElasticProfile("foo", null);
+        ElasticProfiles profiles = new ElasticProfiles(profile1, profile2);
+        profiles.validate(null);
+
+        assertThat(profile1.errors().size(), is(1));
+        assertThat(profile1.errors().asString(), is("Elastic agent profile id 'foo' is not unique"));
+
+        assertThat(profile2.errors().size(), is(1));
+        assertThat(profile2.errors().asString(), is("Elastic agent profile id 'foo' is not unique"));
+    }
 }

@@ -15,8 +15,8 @@
  */
 
 define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipeline_configs/environment_variables', 'models/pipeline_configs/parameters',
-  'models/pipeline_configs/materials', 'models/pipeline_configs/tracking_tool', 'models/pipeline_configs/stages', 'helpers/mrequest', 'models/validatable_mixin', 'js-routes'
-], function (m, _, s, Mixins, EnvironmentVariables, Parameters, Materials, TrackingTool, Stages, mrequest, Validatable, Routes) {
+  'models/pipeline_configs/materials', 'models/pipeline_configs/tracking_tool', 'models/pipeline_configs/stages', 'models/pipeline_configs/approval', 'helpers/mrequest', 'models/validatable_mixin', 'js-routes'
+], function (m, _, s, Mixins, EnvironmentVariables, Parameters, Materials, TrackingTool, Stages, Approval, mrequest, Validatable, Routes) {
   var Pipeline = function (data) {
     this.constructor.modelType = 'pipeline';
     Mixins.HasUUID.call(this);
@@ -76,6 +76,10 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
         extract: extract,
         data:    JSON.parse(JSON.stringify(this, s.snakeCaser))
       });
+    };
+
+    this.isFirstStageAutoTriggered = function () {
+      return this.stages().countStage() === 0 ? true : this.stages().firstStage().approval().isSuccess();
     };
   };
 

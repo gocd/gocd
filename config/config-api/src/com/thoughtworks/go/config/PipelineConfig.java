@@ -248,6 +248,10 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         return errors;
     }
 
+    public List<ConfigErrors> getAllErrors() {
+        return ErrorCollector.getAllErrors(this);
+    }
+
     public List<StageConfig> getStages() {
         return this;
     }

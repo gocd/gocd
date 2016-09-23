@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,6 +65,15 @@ public class ExecTaskTest {
         assertThat(execTask.errors().isEmpty(), is(false));
         assertThat(execTask.errors().on(ExecTask.ARGS), is(ExecTask.EXEC_CONFIG_ERROR));
         assertThat(execTask.errors().on(ExecTask.ARG_LIST_STRING), is(ExecTask.EXEC_CONFIG_ERROR));
+    }
+
+    @Test
+    public void shouldAddErrorsOfEachArgumentToTheParent() {
+        Argument argument = new Argument("invalid-argument");
+        argument.addError(ExecTask.ARG_LIST_STRING, "Invalid argument");
+        ExecTask execTask = new ExecTask("echo", new Arguments(argument), null);
+        execTask.validate(ConfigSaveValidationContext.forChain(new BasicCruiseConfig()));
+        assertThat(execTask.errors().on(ExecTask.ARG_LIST_STRING), is("Invalid argument"));
     }
 
     @Test

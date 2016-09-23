@@ -19,6 +19,7 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.domain.BaseCollection;
+import com.thoughtworks.go.domain.Task;
 
 public class PipelineConfigErrorCopier {
     private static void copy(Validatable from, Validatable to) {
@@ -54,6 +55,18 @@ public class PipelineConfigErrorCopier {
                 copyCollectionErrors(fromJob.getTabs(), toJob.getTabs());
                 copyCollectionErrors(fromJob.getProperties(), toJob.getProperties());
                 copyCollectionErrors(fromJob.getVariables(), toJob.getVariables());
+                Tasks toTasks = toJob.getTasks();
+                Tasks fromTasks = fromJob.getTasks();
+                copyCollectionErrors(fromTasks, toTasks);
+                for (int i = 0; i < toTasks.size(); i++) {
+                    Task fromTask = fromTasks.get(i);
+                    Task toTask = toTasks.get(i);
+                    copy(fromTask, toTask);
+                    copyCollectionErrors(fromTask.getConditions(), toTask.getConditions());
+                    if (toTask instanceof ExecTask) {
+                        copyCollectionErrors(((ExecTask) fromTask).getArgList(), ((ExecTask) toTask).getArgList());
+                    }
+                }
             }
         }
     }

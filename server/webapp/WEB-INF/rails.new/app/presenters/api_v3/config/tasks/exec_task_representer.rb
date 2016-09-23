@@ -24,7 +24,8 @@ module ApiV3
           "buildFile"        => "build_file",
           "onCancelConfig"   => "on_cancel",
           "runIf"            => "run_if",
-          "nantPath"         => "nant_path"
+          "nantPath"         => "nant_path",
+          "argListString"    => "arguments"
         }
 
         property :command

@@ -193,9 +193,11 @@ define(['mithril', 'lodash', 'string-plus',
     this.agentConfigState  = m.prop(data.agentConfigState);
     this.agentState        = m.prop(data.agentState);
     this.buildState        = m.prop(data.buildState);
-    this.resources         = m.prop(data.resources);
+    this.resources         = m.prop(s.defaultToIfBlank(data.resources, []));
     this.environments      = m.prop(data.environments);
     this.buildDetails      = m.prop(data.buildDetails);
+    this.elasticAgentId    = m.prop(data.elasticAgentId);
+    this.elasticPluginId   = m.prop(data.elasticPluginId);
     this.parent            = Mixins.GetterSetter();
 
     this.status = function () {
@@ -224,6 +226,10 @@ define(['mithril', 'lodash', 'string-plus',
         var agentInfo = self[field]().toString().toLowerCase();
         return s.include(agentInfo, filterText);
       });
+    };
+
+    this.isElasticAgent = function () {
+      return !_.isNil(self.elasticAgentId());
     };
 
     this.toJSON = function () {
@@ -277,7 +283,9 @@ define(['mithril', 'lodash', 'string-plus',
       buildState:       data.build_state,
       resources:        data.resources,
       environments:     data.environments,
-      buildDetails:     Agents.Agent.BuildDetails.fromJSON(data.build_details)
+      buildDetails:     Agents.Agent.BuildDetails.fromJSON(data.build_details),
+      elasticAgentId:   data.elastic_agent_id,
+      elasticPluginId:  data.elastic_plugin_id
     });
   };
 

@@ -388,6 +388,23 @@ define(["jquery", "mithril", 'lodash', 'models/agents/agents', "views/agents/age
       hideAllDropDowns();
       unclickAllAgents();
     });
+
+    it('should show error message for elastic agent resource update', function () {
+      clickAllAgents();
+      var resourceButton = $root.find("button:contains('Resources')");
+      $(resourceButton).click();
+      m.redraw(true);
+
+      var resource = $root.find('.add-resource');
+      var applyResource  = resource.find('button')[1];
+
+      mockAjaxCalWithErrorOnUpdatingElasticAgentResource();
+
+      applyResource.click();
+
+      var message = $root.find('.callout');
+      expect(message).toHaveText('Resources on elastic agents with uuids [uuid] can not be updated.');
+    });
     
     var unclickAllAgents = function () {
       agentsVM.agents.all.selected(false);
@@ -408,6 +425,13 @@ define(["jquery", "mithril", 'lodash', 'models/agents/agents', "views/agents/age
     var hideAllDropDowns = function () {
       agentsVM.dropdown.hideAllDropDowns();
       m.redraw(true);
+    };
+
+    var mockAjaxCalWithErrorOnUpdatingElasticAgentResource = function () {
+      jasmine.Ajax.stubRequest(/\/api\/agents/).andReturn({
+        "responseText": JSON.stringify({"message": "Resources on elastic agents with uuids [uuid] can not be updated."}),
+        "status":       400
+      });
     };
 
 

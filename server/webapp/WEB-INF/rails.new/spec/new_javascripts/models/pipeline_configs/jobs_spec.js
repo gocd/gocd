@@ -271,6 +271,7 @@ define(['lodash', "models/pipeline_configs/jobs", "string-plus"], function (_, J
         run_instance_count:    10,
         timeout:               20,
         resources:             ["jdk5", "tomcat"],
+        elastic_profile_id:    null,
         environment_variables: [
           {
             name:   "MULTIPLE_LINES",

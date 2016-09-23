@@ -76,8 +76,10 @@ h3.entity_title {
   color: #fff;
   padding: 5px 10px;
   border-radius: 5px;
+  &:hover {
+    color:      #fff;
+  }
 }
-
 
 /**
  * =! MISC NEEDS MIGRATION

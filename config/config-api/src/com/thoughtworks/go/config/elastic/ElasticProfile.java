@@ -22,6 +22,8 @@ import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 import static org.apache.commons.lang.StringUtils.isBlank;
 
@@ -60,8 +62,16 @@ public class ElasticProfile extends Configuration implements Validatable {
         return id;
     }
 
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public String getPluginId() {
         return pluginId;
+    }
+
+    public void setPluginId(String pluginId) {
+        this.pluginId = pluginId;
     }
 
     @Override
@@ -106,5 +116,28 @@ public class ElasticProfile extends Configuration implements Validatable {
         result = 31 * result + (id != null ? id.hashCode() : 0);
         result = 31 * result + (pluginId != null ? pluginId.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "ElasticProfile{" +
+                "id='" + id + '\'' +
+                ", pluginId='" + pluginId + '\'' +
+                ", properties='" + super.toString() + '\'' +
+                '}';
+    }
+
+    void validateIdUniquness(Map<String, ElasticProfile> profiles) {
+        ElasticProfile profileWithSameId = profiles.get(id);
+        if (profileWithSameId == null) {
+            profiles.put(id, this);
+        } else {
+            profileWithSameId.addError(ID, String.format("Elastic agent profile id '%s' is not unique", id));
+            this.addError(ID, String.format("Elastic agent profile id '%s' is not unique", id));
+        }
+    }
+
+    public List<ConfigErrors> getAllErrors() {
+        return ErrorCollector.getAllErrors(this);
     }
 }

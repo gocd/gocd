@@ -67,7 +67,7 @@ public class AgentStatusReportingIntegrationTest {
     public void shouldReportCancelledWhenAgentCancelledBuildWork() throws Exception {
         Work work = BuildWorkTest.getWork(WILL_PASS, BuildWorkTest.PIPELINE_NAME);
         work.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, agentRuntimeInfo, systemEnvironment, null, null, null);
-        work.cancel(environmentVariableContext, agentRuntimeInfo);
+        work.cancel(environmentVariableContext, agentRuntimeInfo, systemEnvironment);
 
         assertThat(agentRuntimeInfo, is(expectedAgentRuntimeInfo()));
     }

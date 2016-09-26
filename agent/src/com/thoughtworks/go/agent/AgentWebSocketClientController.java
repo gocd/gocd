@@ -212,7 +212,7 @@ public class AgentWebSocketClientController extends AgentController {
             return;
         }
         LOG.info("Cancel running job");
-        runner.handleInstruction(new AgentInstruction(true), getAgentRuntimeInfo());
+        runner.handleInstruction(new AgentInstruction(true), getSystemEnvironment(), getAgentRuntimeInfo());
         runner.waitUntilDone(30);
         if (runner.isRunning()) {
             LOG.error("Waited 30 seconds for canceling job finish, but the job is still running. Maybe canceling job does not work as expected, here is running job details: " + runner);

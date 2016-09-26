@@ -129,7 +129,7 @@ public class LongWorkCreator implements WorkCreator {
         }
 
         public void build(BuildLogElement buildLogElement, DefaultGoPublisher publisher,
-                          EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension) {
+                          EnvironmentVariableContext environmentVariableContext, SystemEnvironment systemEnvironment, TaskExtension taskExtension) {
             try {
                 Thread.sleep(10000);
             } catch (InterruptedException e) {

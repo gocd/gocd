@@ -43,7 +43,7 @@ public class DeniedAgentWork implements Work {
         return String.format("No builds for denied agent [%s]", uuid);
     }
 
-    public void cancel(EnvironmentVariableContext environmentVariableContext, AgentRuntimeInfo agentruntimeInfo) {
+    public void cancel(EnvironmentVariableContext environmentVariableContext, AgentRuntimeInfo agentruntimeInfo, SystemEnvironment systemEnvironment) {
         agentruntimeInfo.idle();
     }
 }

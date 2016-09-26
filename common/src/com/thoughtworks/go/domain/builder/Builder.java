@@ -24,6 +24,7 @@ import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.domain.BuildLogElement;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.CruiseControlException;
@@ -42,19 +43,19 @@ public abstract class Builder implements Serializable {
     }
 
     public void build(BuildLogElement buildLogElement, RunIfConfig currentStatus, DefaultGoPublisher publisher,
-                      EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension)
+                      EnvironmentVariableContext environmentVariableContext, SystemEnvironment systemEnvironment, TaskExtension taskExtension)
             throws CruiseControlException {
         if (conditions.match(currentStatus)) {
             String statusMessage = format("Current job status: %s.\n", currentStatus);
             String executeMessage = format("Start to execute task: %s.", getDescription());
             publisher.consumeLineWithPrefix(statusMessage);
             publisher.consumeLineWithPrefix(executeMessage);
-            build(buildLogElement, publisher, environmentVariableContext, taskExtension);
+            build(buildLogElement, publisher, environmentVariableContext, systemEnvironment, taskExtension);
         }
     }
 
     public abstract void build(BuildLogElement buildLogElement, DefaultGoPublisher publisher,
-                               EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension)
+                               EnvironmentVariableContext environmentVariableContext, SystemEnvironment systemEnvironment, TaskExtension taskExtension)
             throws CruiseControlException;
 
     public String getDescription() {
@@ -100,10 +101,10 @@ public abstract class Builder implements Serializable {
         return result;
     }
 
-    public void cancel(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension) {
+    public void cancel(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, SystemEnvironment systemEnvironment, TaskExtension taskExtension) {
         publisher.consumeLineWithPrefix("Start to execute cancel task: " + cancelBuilder.getDescription());
         try {
-            cancelBuilder.build(new BuildLogElement(), publisher, environmentVariableContext, taskExtension);
+            cancelBuilder.build(new BuildLogElement(), publisher, environmentVariableContext, systemEnvironment, taskExtension);
             publisher.consumeLineWithPrefix("Task is cancelled");
         } catch (Exception e) {
             LOGGER.error("", e);

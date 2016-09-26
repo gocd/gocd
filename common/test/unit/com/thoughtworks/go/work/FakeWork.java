@@ -39,7 +39,7 @@ public class FakeWork implements Work {
         return null;
     }
 
-    public void cancel(EnvironmentVariableContext environmentVariableContext, AgentRuntimeInfo agentruntimeInfo) {
+    public void cancel(EnvironmentVariableContext environmentVariableContext, AgentRuntimeInfo agentruntimeInfo, SystemEnvironment systemEnvironment) {
         callCount++;
     }
 

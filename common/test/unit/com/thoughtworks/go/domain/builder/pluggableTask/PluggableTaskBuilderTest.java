@@ -30,6 +30,7 @@ import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.PluginManagerReference;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.ReflectionUtil;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.CruiseControlException;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;
@@ -63,6 +64,7 @@ public class PluggableTaskBuilderTest {
     @Mock private DefaultGoPublisher goPublisher;
     @Mock private BuildLogElement buildLogElement;
     @Mock private GoPluginDescriptor pluginDescriptor;
+    @Mock private SystemEnvironment systemEnvironment;
     private TaskExtension taskExtension;
 
     @Before
@@ -93,7 +95,7 @@ public class PluggableTaskBuilderTest {
             }
         };
 
-        taskBuilder.build(buildLogElement, goPublisher, variableContext, taskExtension);
+        taskBuilder.build(buildLogElement, goPublisher, variableContext, systemEnvironment, taskExtension);
 
         assertThat(executeTaskCalled[0], is(1));
     }
@@ -252,7 +254,7 @@ public class PluggableTaskBuilderTest {
         });
 
         try {
-            taskBuilder.build(buildLogElement, goPublisher, variableContext, taskExtension);
+            taskBuilder.build(buildLogElement, goPublisher, variableContext, systemEnvironment, taskExtension);
             fail("expected exception to be thrown");
         } catch (Exception e) {
             ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
@@ -282,7 +284,7 @@ public class PluggableTaskBuilderTest {
         });
 
         try {
-            taskBuilder.build(buildLogElement, goPublisher, variableContext, taskExtension);
+            taskBuilder.build(buildLogElement, goPublisher, variableContext, systemEnvironment, taskExtension);
             fail("expected exception to be thrown");
         } catch (Exception e) {
             ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
@@ -298,7 +300,7 @@ public class PluggableTaskBuilderTest {
         taskExtension = mock(TaskExtension.class);
         when(taskExtension.execute(eq(TEST_PLUGIN_ID), any(ActionWithReturn.class))).thenReturn(ExecutionResult.success("yay"));
 
-        builder.build(buildLogElement, goPublisher, variableContext, taskExtension);
+        builder.build(buildLogElement, goPublisher, variableContext, systemEnvironment, taskExtension);
         assertThat(ReflectionUtil.getStaticField(JobConsoleLogger.class, "context"), is(nullValue()));
     }
 
@@ -310,7 +312,7 @@ public class PluggableTaskBuilderTest {
         when(taskExtension.execute(eq(TEST_PLUGIN_ID), any(ActionWithReturn.class))).thenReturn(ExecutionResult.failure("oh no"));
 
         try {
-            builder.build(buildLogElement, goPublisher, variableContext, taskExtension);
+            builder.build(buildLogElement, goPublisher, variableContext, systemEnvironment, taskExtension);
             fail("should throw exception");
         } catch (Exception e) {
             assertThat(ReflectionUtil.getStaticField(JobConsoleLogger.class, "context"), is(nullValue()));
@@ -325,7 +327,7 @@ public class PluggableTaskBuilderTest {
 
         when(taskExtension.execute(eq(TEST_PLUGIN_ID), any(ActionWithReturn.class))).thenThrow(new RuntimeException("something"));
         try {
-            builder.build(buildLogElement, goPublisher, variableContext, taskExtension);
+            builder.build(buildLogElement, goPublisher, variableContext, systemEnvironment, taskExtension);
             fail("should throw exception");
         } catch (Exception e) {
             assertThat(ReflectionUtil.getStaticField(JobConsoleLogger.class, "context"), is(nullValue()));

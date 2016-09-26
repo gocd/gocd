@@ -38,5 +38,5 @@ public interface Work extends Serializable {
 
     String description();
 
-    void cancel(EnvironmentVariableContext environmentVariableContext, AgentRuntimeInfo agentruntimeInfo);
+    void cancel(EnvironmentVariableContext environmentVariableContext, AgentRuntimeInfo agentruntimeInfo, SystemEnvironment systemEnvironment);
 }

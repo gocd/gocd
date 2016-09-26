@@ -24,6 +24,7 @@ import com.thoughtworks.go.domain.GoControlLog;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.builder.CommandBuilder;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.CruiseControlException;
 
 import static com.thoughtworks.go.config.RunIfConfig.FAILED;
@@ -38,10 +39,12 @@ import org.junit.Test;
 
 public class BuildersTest {
     private EnvironmentVariableContext environmentVariableContext;
+    private SystemEnvironment systemEnvironment;
 
     @Before
     public void setUp() throws Exception {
         environmentVariableContext = new EnvironmentVariableContext();
+        systemEnvironment = new SystemEnvironment();
     }
 
     @Test
@@ -50,7 +53,7 @@ public class BuildersTest {
         Builders builders = new Builders(Arrays.asList(builder), null, null, null);
 
         builders.setIsCancelled(true);
-        builders.build(environmentVariableContext);
+        builders.build(environmentVariableContext, systemEnvironment);
 
         Builders expected = new Builders(Arrays.asList(builder), null, null, null);
         expected.setIsCancelled(true);
@@ -62,8 +65,8 @@ public class BuildersTest {
     public void shouldNotCancelAnythingIfAllBuildersHaveRun() throws CruiseControlException {
         Builder builder = new StubBuilder();
         Builders builders = new Builders(Arrays.asList(builder), null, new GoControlLog(), null);
-        builders.build(environmentVariableContext);
-        builders.cancel(environmentVariableContext);
+        builders.build(environmentVariableContext, systemEnvironment);
+        builders.cancel(environmentVariableContext, systemEnvironment);
     }
 
     private class StubBuilder extends Builder {
@@ -72,7 +75,7 @@ public class BuildersTest {
         }
 
         public void build(BuildLogElement buildLogElement, DefaultGoPublisher publisher,
-                          EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension) throws CruiseControlException {
+                          EnvironmentVariableContext environmentVariableContext, SystemEnvironment systemEnvironment, TaskExtension taskExtension) throws CruiseControlException {
         }
 
         public void cancel(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext) {

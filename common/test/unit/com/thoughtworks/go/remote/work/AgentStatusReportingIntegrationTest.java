@@ -68,7 +68,7 @@ public class AgentStatusReportingIntegrationTest {
     @Test
     public void shouldReportIdleWhenAgentCancelledNoWork() {
         NoWork work = new NoWork();
-        work.cancel(environmentVariableContext, agentRuntimeInfo);
+        work.cancel(environmentVariableContext, agentRuntimeInfo, systemEnvironment);
         assertThat(agentRuntimeInfo, is(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false)));
     }
 
@@ -82,7 +82,7 @@ public class AgentStatusReportingIntegrationTest {
     @Test
     public void shouldReportIdleWhenAgentCancelledDeniedWork() {
         Work work = new DeniedAgentWork("uuid");
-        work.cancel(environmentVariableContext, agentRuntimeInfo);
+        work.cancel(environmentVariableContext, agentRuntimeInfo, systemEnvironment);
         assertThat(agentRuntimeInfo, is(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false)));
     }
 
@@ -100,7 +100,7 @@ public class AgentStatusReportingIntegrationTest {
     public void shouldNotChangeIdleWhenAgentCancelledUnregisteredAgentWork() {
         Work work = new UnregisteredAgentWork("uuid");
         try {
-            work.cancel(environmentVariableContext, agentRuntimeInfo);
+            work.cancel(environmentVariableContext, agentRuntimeInfo, systemEnvironment);
         } catch (Exception e) {
         }
         assertThat(agentRuntimeInfo, is(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false)));

@@ -46,7 +46,7 @@ public class UnregisteredAgentWork implements Work {
         throw new UnregisteredAgentException(message, uuid);
     }
 
-    public void cancel(EnvironmentVariableContext environmentVariableContext, AgentRuntimeInfo agentruntimeInfo) {
+    public void cancel(EnvironmentVariableContext environmentVariableContext, AgentRuntimeInfo agentruntimeInfo, SystemEnvironment systemEnvironment) {
         throw new UnregisteredAgentException(message, uuid);
     }
 }

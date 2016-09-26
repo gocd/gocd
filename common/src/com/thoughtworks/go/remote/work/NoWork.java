@@ -40,7 +40,7 @@ public class NoWork implements Work {
         return "No builds currently available for this agent...";
     }
 
-    public void cancel(EnvironmentVariableContext environmentVariableContext, AgentRuntimeInfo agentruntimeInfo) {
+    public void cancel(EnvironmentVariableContext environmentVariableContext, AgentRuntimeInfo agentruntimeInfo, SystemEnvironment systemEnvironment) {
         agentruntimeInfo.idle();
     }
 

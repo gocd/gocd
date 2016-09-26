@@ -39,16 +39,16 @@ public class JobRunner {
     private Work work;
     private EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
 
-    public void handleInstruction(AgentInstruction instruction, AgentRuntimeInfo agentStatus) {
+    public void handleInstruction(AgentInstruction instruction, SystemEnvironment systemEnvironment, AgentRuntimeInfo agentStatus) {
         if (instruction.isShouldCancelJob() && !handled) {
-            cancelJob(agentStatus);
+            cancelJob(agentStatus, systemEnvironment);
         }
     }
 
-    private void cancelJob(AgentRuntimeInfo agentRuntimeInfo) {
+    private void cancelJob(AgentRuntimeInfo agentRuntimeInfo, SystemEnvironment systemEnvironment) {
         isJobCancelled = true;
         if (work != null) {
-            work.cancel(environmentVariableContext, agentRuntimeInfo);
+            work.cancel(environmentVariableContext, agentRuntimeInfo, systemEnvironment);
         }
         handled = true;
     }

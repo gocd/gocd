@@ -88,7 +88,7 @@ public class AgentHTTPClientController extends AgentController {
     @Override
     public void execute() {
         if (runner != null) {
-            runner.handleInstruction(agentInstruction, getAgentRuntimeInfo());
+            runner.handleInstruction(agentInstruction, getSystemEnvironment(), getAgentRuntimeInfo());
         }
     }
 

@@ -67,7 +67,7 @@ public class SleepWork implements Work {
     }
 
     @Override
-    public void cancel(EnvironmentVariableContext environmentVariableContext, AgentRuntimeInfo agentruntimeInfo) {
+    public void cancel(EnvironmentVariableContext environmentVariableContext, AgentRuntimeInfo agentruntimeInfo, SystemEnvironment systemEnvironment) {
         agentruntimeInfo.cancel();
         cancelLatch.countDown();
     }

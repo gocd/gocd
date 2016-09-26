@@ -53,6 +53,7 @@ import java.sql.SQLException;
 import java.util.*;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+import static com.thoughtworks.go.util.SystemEnvironment.CHECK_AND_REMOVE_DUPLICATE_MODIFICATIONS;
 import static org.hibernate.criterion.Restrictions.eq;
 import static org.hibernate.criterion.Restrictions.isNull;
 
@@ -66,17 +67,25 @@ public class MaterialRepository extends HibernateDaoSupport {
     private final TransactionSynchronizationManager transactionSynchronizationManager;
     private final MaterialConfigConverter materialConfigConverter;
     private final QueryExtensions queryExtensions;
+    private final SystemEnvironment systemEnvironment;
     private int latestModificationsCacheLimit;
     private MaterialExpansionService materialExpansionService;
 
-    public MaterialRepository(SessionFactory sessionFactory, GoCache goCache, int latestModificationsCacheLimit, TransactionSynchronizationManager transactionSynchronizationManager,
-                              MaterialConfigConverter materialConfigConverter, MaterialExpansionService materialExpansionService, Database databaseStrategy) {
+    public MaterialRepository(SessionFactory sessionFactory,
+                              GoCache goCache,
+                              int latestModificationsCacheLimit,
+                              TransactionSynchronizationManager transactionSynchronizationManager,
+                              MaterialConfigConverter materialConfigConverter,
+                              MaterialExpansionService materialExpansionService,
+                              Database databaseStrategy,
+                              SystemEnvironment systemEnvironment) {
         this.goCache = goCache;
         this.latestModificationsCacheLimit = latestModificationsCacheLimit;
         this.transactionSynchronizationManager = transactionSynchronizationManager;
         this.materialConfigConverter = materialConfigConverter;
         this.materialExpansionService = materialExpansionService;
         this.queryExtensions = databaseStrategy.getQueryExtensions();
+        this.systemEnvironment = systemEnvironment;
         setSessionFactory(sessionFactory);
     }
 
@@ -827,7 +836,7 @@ public class MaterialRepository extends HibernateDaoSupport {
     }
 
     private void checkAndRemoveDuplicates(MaterialInstance materialInstance, List<Modification> newChanges, ArrayList<Modification> list) {
-        if (!new SystemEnvironment().get(SystemEnvironment.CHECK_AND_REMOVE_DUPLICATE_MODIFICATIONS)) {
+        if (!systemEnvironment.get(SystemEnvironment.CHECK_AND_REMOVE_DUPLICATE_MODIFICATIONS)) {
             return;
         }
         DetachedCriteria criteria = DetachedCriteria.forClass(Modification.class);
@@ -1093,7 +1102,7 @@ public class MaterialRepository extends HibernateDaoSupport {
 
     public File folderFor(Material material) {
         MaterialInstance materialInstance = this.findOrCreateFrom(material);
-        return new File(new File("pipelines", "flyweight"), materialInstance.getFlyweightName());
+        return new File(new File(systemEnvironment.get(SystemEnvironment.SERVER_FLYWEIGHT_DIR)), materialInstance.getFlyweightName());
     }
 
 }

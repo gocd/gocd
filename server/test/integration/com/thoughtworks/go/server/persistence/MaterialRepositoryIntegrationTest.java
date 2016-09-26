@@ -114,6 +114,7 @@ public class MaterialRepositoryIntegrationTest {
     @Autowired private MaterialConfigConverter materialConfigConverter;
     @Autowired private MaterialExpansionService materialExpansionService;
     @Autowired private DatabaseStrategy databaseStrategy;
+    @Autowired private SystemEnvironment systemEnvironment;
 
     private HibernateTemplate originalTemplate;
     private String md5 = "md5-test";
@@ -210,7 +211,8 @@ public class MaterialRepositoryIntegrationTest {
         MaterialRevision second = saveOneScmModification(material, "user2", "file2");
 
         goCache.clear();
-        repo = new MaterialRepository(sessionFactory, goCache, 1, transactionSynchronizationManager, materialConfigConverter, materialExpansionService, databaseStrategy);
+        repo = new MaterialRepository(sessionFactory, goCache, 1, transactionSynchronizationManager,
+                materialConfigConverter, materialExpansionService, databaseStrategy, systemEnvironment);
 
         repo.findModificationsSince(material, first);
         assertThat(repo.cachedModifications(repo.findMaterialInstance(material)), is(nullValue()));
@@ -235,7 +237,8 @@ public class MaterialRepositoryIntegrationTest {
                 TestUtils.sleepQuietly(200); // sleep so we can have multiple threads enter the critical section
                 return value;
             }
-        }, 200, transactionSynchronizationManager, materialConfigConverter, materialExpansionService, databaseStrategy);
+        }, 200, transactionSynchronizationManager, materialConfigConverter,
+                materialExpansionService, databaseStrategy, systemEnvironment);
 
         Thread thread1 = new Thread(new Runnable() {
             public void run() {
@@ -347,7 +350,8 @@ public class MaterialRepositoryIntegrationTest {
         final Material svn = MaterialsMother.svnMaterial("url", null, "username", "password", false, null);
 
         HibernateTemplate mockTemplate = mock(HibernateTemplate.class);
-        repo = new MaterialRepository(repo.getSessionFactory(), goCache, 200, transactionSynchronizationManager, materialConfigConverter, materialExpansionService, databaseStrategy) {
+        repo = new MaterialRepository(repo.getSessionFactory(), goCache, 200, transactionSynchronizationManager,
+                materialConfigConverter, materialExpansionService, databaseStrategy, systemEnvironment) {
             @Override
             public MaterialInstance findMaterialInstance(Material material) {
                 MaterialInstance result = super.findMaterialInstance(material);
@@ -632,7 +636,8 @@ public class MaterialRepositoryIntegrationTest {
         GoCache spyGoCache = spy(goCache);
         when(spyGoCache.get(any(String.class))).thenCallRealMethod();
         Mockito.doCallRealMethod().when(spyGoCache).put(any(String.class), any(Object.class));
-        repo = new MaterialRepository(sessionFactory, spyGoCache, 2, transactionSynchronizationManager, materialConfigConverter, materialExpansionService, databaseStrategy);
+        repo = new MaterialRepository(sessionFactory, spyGoCache, 2, transactionSynchronizationManager,
+                materialConfigConverter, materialExpansionService, databaseStrategy, systemEnvironment);
 
         pipelineSqlMapDao.save(pipeline);
 

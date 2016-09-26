@@ -132,6 +132,7 @@ public class PackageRepositoryServiceIntegrationTest {
         PackageRepository npmRepo = new PackageRepository();
         PluginConfiguration pluginConfiguration = new PluginConfiguration();
         pluginConfiguration.setId("npm");
+        pluginConfiguration.setVersion("1");
         npmRepo.setPluginConfiguration(pluginConfiguration);
         npmRepo.setId(repoId);
         npmRepo.setName(repoId);
@@ -183,6 +184,7 @@ public class PackageRepositoryServiceIntegrationTest {
 
         PluginConfiguration pluginConfiguration = new PluginConfiguration();
         pluginConfiguration.setId("npm");
+        pluginConfiguration.setVersion("1");
 
         npmRepo.setPluginConfiguration(pluginConfiguration);
         npmRepo.setId(repoId);

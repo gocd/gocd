@@ -85,6 +85,19 @@ public class CreatePackageRepositoryCommandTest {
     }
 
     @Test
+    public void shouldNotCreatePackageRepositoryIfTheSpecifiedPluginTypeWithVersionIsInvalid() throws Exception {
+        when(pluginManager.getPluginDescriptorFor(pluginId)).thenReturn(new GoPluginDescriptor(pluginId, "4", null, null, null, false));
+        CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, packageRepository, currentUser, pluginManager, result);
+        assertThat(cruiseConfig.getPackageRepositories().size(), is(0));
+        assertNull(cruiseConfig.getPackageRepositories().find(repoId));
+        command.update(cruiseConfig);
+        HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
+        expectedResult.unprocessableEntity(LocalizedMessage.string("INVALID_PLUGIN_VERSION", packageRepository.getPluginConfiguration().getVersion(), pluginId));
+        assertFalse(command.isValid(cruiseConfig));
+        assertThat(result, is(expectedResult));
+    }
+
+    @Test
     public void shouldNotCreatePackageRepositoryIfTheSpecifiedPluginTypeIsInvalid() throws Exception {
         CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, packageRepository, currentUser, pluginManager, result);
         assertThat(cruiseConfig.getPackageRepositories().size(), is(0));

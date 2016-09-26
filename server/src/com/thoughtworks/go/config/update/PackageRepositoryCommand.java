@@ -58,9 +58,12 @@ public class PackageRepositoryCommand {
 
     private void isValidPlugin(PluginConfiguration pluginConfiguration) {
         String pluginId = pluginConfiguration.getId();
+        String pluginVersion = pluginConfiguration.getVersion();
         GoPluginDescriptor pluginDescriptor = this.pluginManager.getPluginDescriptorFor(pluginId);
-        if(pluginDescriptor == null){
+        if (pluginDescriptor == null) {
             result.unprocessableEntity(LocalizedMessage.string("INVALID_PLUGIN_TYPE", pluginId));
+        } else if (!pluginDescriptor.version().equals(pluginVersion)) {
+            result.unprocessableEntity(LocalizedMessage.string("INVALID_PLUGIN_VERSION", pluginVersion, pluginId));
         }
     }
 

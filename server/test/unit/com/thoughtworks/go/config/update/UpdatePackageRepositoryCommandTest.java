@@ -141,6 +141,21 @@ public class UpdatePackageRepositoryCommandTest {
         assertThat(result, is(expectedResult));
     }
 
+
+    @Test
+    public void shouldNotCreatePackageRepositoryIfTheSpecifiedPluginTypeWithVersionIsInvalid() throws Exception {
+        when(pluginManager.getPluginDescriptorFor(pluginId)).thenReturn(new GoPluginDescriptor(pluginId, "4", null, null, null, false));
+        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, oldRepoId, newPackageRepo, currentUser, pluginManager, md5, entityHashingService, result);
+        assertThat(cruiseConfig.getPackageRepositories().size(), is(1));
+        assertThat(cruiseConfig.getPackageRepositories().find(oldRepoId), is(oldPackageRepo));
+        assertNull(cruiseConfig.getPackageRepositories().find(newRepoId));
+        command.update(cruiseConfig);
+        HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
+        expectedResult.unprocessableEntity(LocalizedMessage.string("INVALID_PLUGIN_VERSION", newPackageRepo.getPluginConfiguration().getVersion(), pluginId));
+        assertFalse(command.isValid(cruiseConfig));
+        assertThat(result, is(expectedResult));
+    }
+
     @Test
     public void shouldNotUpdatePackageRepositoryWhenRepositoryWithSpecifiedNameAlreadyExists() throws Exception {
         cruiseConfig.getPackageRepositories().add(newPackageRepo);

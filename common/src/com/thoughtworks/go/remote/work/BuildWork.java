@@ -78,7 +78,7 @@ public class BuildWork implements Work {
         plan = assignment.getPlan();
         agentRuntimeInfo.busy(new AgentBuildingInfo(plan.getIdentifier().buildLocatorForDisplay(),
                 plan.getIdentifier().buildLocator()));
-        workingDirectory = assignment.getWorkingDirectory();
+        workingDirectory = systemEnvironment.resolveAgentWorkingDirectory(assignment.getWorkingDirectory());
         materialRevisions = assignment.materialRevisions();
         buildLog = new GoControlLog(this.workingDirectory + "/cruise-output");
         goPublisher = new DefaultGoPublisher(goArtifactsManipulator, plan.getIdentifier(),
@@ -140,7 +140,7 @@ public class BuildWork implements Work {
 
         prepareJob(agentIdentifier, packageRepositoryExtension, scmExtension);
 
-        setupEnvrionmentContext(environmentVariableContext);
+        setupEnvrionmentContext(environmentVariableContext, systemEnvironment);
         plan.applyTo(environmentVariableContext);
         dumpEnvironmentVariables(environmentVariableContext);
 
@@ -198,8 +198,8 @@ public class BuildWork implements Work {
         return new ProcessOutputStreamConsumer<>(goPublisher, goPublisher);
     }
 
-    private EnvironmentVariableContext setupEnvrionmentContext(EnvironmentVariableContext context) {
-        context.setProperty("GO_SERVER_URL", new SystemEnvironment().getPropertyImpl("serviceUrl"), false);
+    private EnvironmentVariableContext setupEnvrionmentContext(EnvironmentVariableContext context, SystemEnvironment systemEnvironment) {
+        context.setProperty("GO_SERVER_URL", systemEnvironment.getPropertyImpl("serviceUrl"), false);
         context.setProperty("GO_TRIGGER_USER", assignment.getBuildApprover() , false);
         plan.getIdentifier().populateEnvironmentVariables(context);
         materialRevisions.populateEnvironmentVariables(context, workingDirectory);

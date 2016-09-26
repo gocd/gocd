@@ -58,6 +58,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class BuildWorkArtifactUploadingTest {
@@ -89,14 +90,15 @@ public class BuildWorkArtifactUploadingTest {
 
         PipelineConfigMother.createPipelineConfig(PIPELINE_NAME, STAGE_NAME, JOB_NAME);
         svnMaterial = SvnMaterial.createSvnMaterialWithMock(command);
-        new SystemEnvironment().setProperty("serviceUrl", "some_random_place");
+
+        when(systemEnvironment.resolveAgentWorkingDirectory(buildWorkingDirectory)).thenReturn(buildWorkingDirectory);
+        when(systemEnvironment.getPropertyImpl("serviceUrl")).thenReturn("some_random_place");
     }
 
     @After
     public void teardown() throws Exception {
         TestRepo.internalTearDown();
         FileUtil.deleteFolder(buildWorkingDirectory);
-        new SystemEnvironment().clearProperty("serviceUrl");
     }
 
     @Test

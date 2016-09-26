@@ -52,7 +52,7 @@ public class CommandBuilderTest {
     public void commandWithArgsList_shouldAddCmdBeforeAWindowsCommand() {
         String[] args = {"some thing"};
         CommandBuilderWithArgList commandBuilderWithArgList = new CommandBuilderWithArgList("echo", args, tempWorkDir, null, null, "some desc");
-        CommandLine commandLine = commandBuilderWithArgList.buildCommandLine();
+        CommandLine commandLine = commandBuilderWithArgList.buildCommandLine(tempWorkDir);
         assertThat(commandLine.toStringForDisplay(), is("cmd /c echo some thing"));
     }
 
@@ -60,7 +60,7 @@ public class CommandBuilderTest {
     @RunIf(value = EnhancedOSChecker.class, arguments = {EnhancedOSChecker.WINDOWS})
     public void commandWithArgs_shouldAddCmdBeforeAWindowsCommand() {
         CommandBuilder commandBuilder = new CommandBuilder("echo", "some thing", tempWorkDir, null, null, "some desc");
-        CommandLine commandLine = commandBuilder.buildCommandLine();
+        CommandLine commandLine = commandBuilder.buildCommandLine(tempWorkDir);
         assertThat(commandLine.toStringForDisplay(), is("cmd /c echo some thing"));
     }
 }

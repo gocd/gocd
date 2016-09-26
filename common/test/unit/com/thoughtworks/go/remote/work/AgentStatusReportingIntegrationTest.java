@@ -53,11 +53,6 @@ public class AgentStatusReportingIntegrationTest {
         this.agentRuntimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
     }
 
-    @After
-    public void tearDown() {
-        new SystemEnvironment().clearProperty("serviceUrl");
-    }
-
     @Test
     public void shouldReportIdleWhenAgentRunningNoWork() {
         NoWork work = new NoWork();

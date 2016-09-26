@@ -198,7 +198,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoSystemProperty<Boolean> CHECK_AND_REMOVE_DUPLICATE_MODIFICATIONS = new GoBooleanSystemProperty("go.modifications.removeDuplicates", true);
     public static GoSystemProperty<String> GO_AGENT_KEYSTORE_PASSWORD = new GoStringSystemProperty("go.agent.keystore.password", "agent5s0repa55w0rd");
     private static final GoSystemProperty<Boolean> GO_AGENT_USE_SSL_CONTEXT = new GoBooleanSystemProperty("go.agent.reuse.ssl.context", true);
-    public static final GoSystemProperty<? extends Boolean> ENABLE_BUILD_COMMAND_PROTOCOL = new GoBooleanSystemProperty("go.agent.enableBuildCommandProtocol", false);
+    public static final GoSystemProperty<Boolean> ENABLE_BUILD_COMMAND_PROTOCOL = new GoBooleanSystemProperty("go.agent.enableBuildCommandProtocol", false);
     public static final GoSystemProperty<? extends Boolean> GO_DIAGNOSTICS_MODE = new GoBooleanSystemProperty("go.diagnostics.mode", false);
 
     public static GoIntSystemProperty DEPENDENCY_MATERIAL_UPDATE_LISTENERS = new GoIntSystemProperty("dependency.material.check.threads", 3);
@@ -820,6 +820,10 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public long getReAuthenticationTimeInterval() {
         return REAUTHENTICATION_TIME_INTERVAL.getValue();
+    }
+
+    public File resolveAgentWorkingDirectory(File workingDir) {
+        return workingDir;
     }
 
     public static abstract class GoSystemProperty<T> {

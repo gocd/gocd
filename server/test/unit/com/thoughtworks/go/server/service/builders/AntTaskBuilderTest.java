@@ -40,15 +40,14 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.internal.stubbing.answers.ReturnsArgumentAt;
 
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(JunitExtRunner.class)
 public class AntTaskBuilderTest {
@@ -102,8 +101,11 @@ public class AntTaskBuilderTest {
         String buildXml = "./build.xml";
         antTask.setBuildFile(buildXml);
         antTask.setTarget(target);
-        Builder builder = antTaskBuilder.createBuilder(builderFactory, antTask, TasksTest.pipelineStub(PIPELINE_LABEL, "."), resolver);
+        Pipeline pipeline = TasksTest.pipelineStub(PIPELINE_LABEL, ".");
+        Builder builder = antTaskBuilder.createBuilder(builderFactory, antTask, pipeline, resolver);
         BuildLogElement element = new BuildLogElement();
+
+        doAnswer(new ReturnsArgumentAt(0)).when(systemEnvironment).resolveAgentWorkingDirectory(any(File.class));
 
         try {
             builder.build(element, RunIfConfig.PASSED, new StubGoPublisher(), new EnvironmentVariableContext(), systemEnvironment, taskEntension);

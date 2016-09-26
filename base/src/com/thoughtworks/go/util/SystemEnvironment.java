@@ -779,6 +779,9 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return GO_AGENT_USE_SSL_CONTEXT.getValue();
     }
 
+    public boolean isBuildCommandProtocolEnabled() {
+        return Boolean.valueOf(get(SystemEnvironment.ENABLE_BUILD_COMMAND_PROTOCOL));
+    }
 
     public static abstract class GoSystemProperty<T> {
         private String propertyName;

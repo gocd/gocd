@@ -15,7 +15,6 @@
  * ************************GO-LICENSE-END***********************************/
 package com.thoughtworks.go.agent;
 
-import com.thoughtworks.go.agent.service.AgentWebsocketService;
 import com.thoughtworks.go.buildsession.BuildStateReporter;
 import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.domain.JobState;
@@ -26,28 +25,28 @@ import com.thoughtworks.go.websocket.MessageEncoding;
 import com.thoughtworks.go.websocket.Report;
 
 public class DefaultBuildStateReporter implements BuildStateReporter {
-    private final AgentWebsocketService websocketService;
+    private final WebSocketAgentController controller;
     private final AgentRuntimeInfo agentRuntimeInfo;
 
-    public DefaultBuildStateReporter(AgentWebsocketService websocketService, AgentRuntimeInfo agentRuntimeInfo) {
-        this.websocketService = websocketService;
+    public DefaultBuildStateReporter(WebSocketAgentController controller, AgentRuntimeInfo agentRuntimeInfo) {
+        this.controller = controller;
         this.agentRuntimeInfo = agentRuntimeInfo;
     }
 
     @Override
     public void reportBuildStatus(String buildId, JobState buildState) {
-        websocketService.sendAndWaitForAck(new Message(Action.reportCurrentStatus, MessageEncoding.encodeData(new Report(agentRuntimeInfo, buildId, buildState, null))));
+        controller.sendAndWaitForAck(new Message(Action.reportCurrentStatus, MessageEncoding.encodeData(new Report(agentRuntimeInfo, buildId, buildState, null))));
     }
 
     @Override
     public void reportCompleted(String buildId, JobResult buildResult) {
         Report report = new Report(agentRuntimeInfo, buildId, null, buildResult);
-        websocketService.sendAndWaitForAck(new Message(Action.reportCompleted, MessageEncoding.encodeData(report)));
+        controller.sendAndWaitForAck(new Message(Action.reportCompleted, MessageEncoding.encodeData(report)));
     }
 
     @Override
     public void reportCompleting(String buildId, JobResult buildResult) {
         Report report = new Report(agentRuntimeInfo, buildId, null, buildResult);
-        websocketService.sendAndWaitForAck(new Message(Action.reportCompleting, MessageEncoding.encodeData(report)));
+        controller.sendAndWaitForAck(new Message(Action.reportCompleting, MessageEncoding.encodeData(report)));
     }
 }

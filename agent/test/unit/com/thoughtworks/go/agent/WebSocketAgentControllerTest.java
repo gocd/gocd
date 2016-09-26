@@ -17,17 +17,12 @@
 package com.thoughtworks.go.agent;
 
 import com.thoughtworks.go.agent.service.AgentUpgradeService;
-import com.thoughtworks.go.agent.service.AgentWebsocketService;
+import com.thoughtworks.go.agent.service.AgentWebSocketService;
 import com.thoughtworks.go.agent.service.SslInfrastructureService;
 import com.thoughtworks.go.buildsession.BuildSessionBasedTestCase;
 import com.thoughtworks.go.config.AgentRegistry;
 import com.thoughtworks.go.config.GuidService;
-import com.thoughtworks.go.domain.AgentRuntimeStatus;
-import com.thoughtworks.go.domain.BuildCommand;
-import com.thoughtworks.go.domain.BuildSettings;
-import com.thoughtworks.go.domain.JobResult;
-import com.thoughtworks.go.domain.JobState;
-import com.thoughtworks.go.domain.Property;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
@@ -43,11 +38,7 @@ import com.thoughtworks.go.util.HttpService;
 import com.thoughtworks.go.util.SubprocessLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import com.thoughtworks.go.websocket.Action;
-import com.thoughtworks.go.websocket.Message;
-import com.thoughtworks.go.websocket.MessageCallback;
-import com.thoughtworks.go.websocket.MessageEncoding;
-import com.thoughtworks.go.websocket.Report;
+import com.thoughtworks.go.websocket.*;
 import com.thoughtworks.go.work.SleepWork;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPut;
@@ -72,21 +63,11 @@ import static com.thoughtworks.go.util.SystemUtil.getFirstLocalNonLoopbackIpAddr
 import static com.thoughtworks.go.util.SystemUtil.getLocalhostName;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class AgentControllerTest {
+public class WebSocketAgentControllerTest {
     private static final int MAX_WAIT_IN_TEST = 10000;
 
     @Rule
@@ -116,14 +97,14 @@ public class AgentControllerTest {
     @Mock
     private TaskExtension taskExtension;
     @Mock
-    private AgentWebsocketService agentWebsocketService;
+    private AgentWebSocketService agentWebSocketService;
     @Mock
     private HttpService httpService;
     @Mock
     private HttpClient httpClient;
     private String agentUuid = "uuid";
     private AgentIdentifier agentIdentifier;
-    private AgentController agentController;
+    private WebSocketAgentController agentController;
 
     @Before
     public void setUp() throws Exception {
@@ -133,48 +114,6 @@ public class AgentControllerTest {
     @After
     public void tearDown() {
         GuidService.deleteGuid();
-    }
-
-    @Test
-    public void shouldSetPluginManagerReference() throws Exception {
-        agentController = createAgentController();
-        assertThat(PluginManagerReference.reference().getPluginManager(), is(pluginManager));
-    }
-
-    @Test
-    public void shouldRetrieveWorkFromServerAndDoIt() throws Exception {
-        when(loopServer.getWork(any(AgentRuntimeInfo.class))).thenReturn(work);
-        when(agentRegistry.uuid()).thenReturn(agentUuid);
-        agentController = createAgentController();
-        agentController.init();
-        agentController.ping();
-        agentController.retrieveWork();
-        verify(work).doWork(eq(agentIdentifier), eq(loopServer), eq(artifactsManipulator), any(EnvironmentVariableContext.class), any(AgentRuntimeInfo.class), eq(packageAsRepositoryExtension), eq(scmExtension), eq(taskExtension));
-        verify(sslInfrastructureService).createSslInfrastructure();
-    }
-
-    @Test
-    public void shouldRetrieveCookieIfNotPresent() throws Exception {
-        agentController = createAgentController();
-        agentController.init();
-
-        when(loopServer.getCookie(any(AgentIdentifier.class), eq(agentController.getAgentRuntimeInfo().getLocation()))).thenReturn("cookie");
-        when(sslInfrastructureService.isRegistered()).thenReturn(true);
-        when(loopServer.getWork(agentController.getAgentRuntimeInfo())).thenReturn(work);
-        when(agentRegistry.uuid()).thenReturn(agentUuid);
-        agentController.loop();
-        verify(work).doWork(eq(agentIdentifier), eq(loopServer), eq(artifactsManipulator), any(EnvironmentVariableContext.class), eq(agentController.getAgentRuntimeInfo()), eq(packageAsRepositoryExtension), eq(scmExtension), eq(taskExtension));
-    }
-
-    @Test
-    public void shouldNotTellServerWorkIsCompletedWhenThereIsNoWork() throws Exception {
-        when(loopServer.getWork(any(AgentRuntimeInfo.class))).thenReturn(work);
-        when(agentRegistry.uuid()).thenReturn(agentUuid);
-        agentController = createAgentController();
-        agentController.init();
-        agentController.retrieveWork();
-        verify(work).doWork(eq(agentIdentifier), eq(loopServer), eq(artifactsManipulator), any(EnvironmentVariableContext.class), any(AgentRuntimeInfo.class), eq(packageAsRepositoryExtension), eq(scmExtension), eq(taskExtension));
-        verify(sslInfrastructureService).createSslInfrastructure();
     }
 
     @Test
@@ -198,15 +137,6 @@ public class AgentControllerTest {
         agentController.init();
         assertFalse(agentController.isCausedBySecurity(exception));
         verify(sslInfrastructureService).createSslInfrastructure();
-    }
-
-    @Test
-    public void shouldRegisterSubprocessLoggerAtExit() throws Exception {
-        SslInfrastructureService sslInfrastructureService = mock(SslInfrastructureService.class);
-        AgentRegistry agentRegistry = mock(AgentRegistry.class);
-        agentController = new AgentController(loopServer, artifactsManipulator, sslInfrastructureService, agentRegistry, agentUpgradeService, subprocessLogger, systemEnvironment, pluginManager, packageAsRepositoryExtension, scmExtension, taskExtension, agentWebsocketService, mock(HttpService.class));
-        agentController.init();
-        verify(subprocessLogger).registerAsExitHook("Following processes were alive at shutdown: ");
     }
 
     @Test
@@ -243,7 +173,7 @@ public class AgentControllerTest {
     @Test
     public void websocketPing() throws Exception {
         when(systemEnvironment.isWebsocketEnabled()).thenReturn(true);
-        when(agentWebsocketService.isRunning()).thenReturn(false);
+        when(agentWebSocketService.isRunning()).thenReturn(false);
         when(sslInfrastructureService.isRegistered()).thenReturn(true);
 
         agentController = createAgentController();
@@ -253,8 +183,8 @@ public class AgentControllerTest {
 
         verify(agentUpgradeService).checkForUpgrade();
         verify(sslInfrastructureService).registerIfNecessary(agentController.getAgentAutoRegistrationProperties());
-        verify(agentWebsocketService).start();
-        verify(agentWebsocketService).sendAndWaitForAck(new Message(Action.ping, MessageEncoding.encodeData(agentController.getAgentRuntimeInfo())));
+        verify(agentWebSocketService).start(agentController);
+//        verify(agentController).sendAndWaitForAck(new Message(Action.ping, MessageEncoding.encodeData(agentController.getAgentRuntimeInfo())));
     }
 
     @Test
@@ -262,8 +192,8 @@ public class AgentControllerTest {
         when(systemEnvironment.isWebsocketEnabled()).thenReturn(true);
         when(sslInfrastructureService.isRegistered()).thenReturn(true);
 
-        when(agentWebsocketService.isRunning()).thenReturn(false);
-        doThrow(new GeneralSecurityException()).when(agentWebsocketService).start();
+        when(agentWebSocketService.isRunning()).thenReturn(false);
+        doThrow(new GeneralSecurityException()).when(agentWebSocketService).start(agentController);
 
         agentController = createAgentController();
         agentController.init();
@@ -292,7 +222,7 @@ public class AgentControllerTest {
         agentController.init();
         agentController.process(new Message(Action.assignWork, MessageEncoding.encodeWork(new SleepWork("work1", 0))));
         assertThat(agentController.getAgentRuntimeInfo().getRuntimeStatus(), is(AgentRuntimeStatus.Idle));
-        verify(agentWebsocketService).sendAndWaitForAck(new Message(Action.ping, MessageEncoding.encodeData(agentController.getAgentRuntimeInfo())));
+//        verify(agentWebSocketService).sendAndWaitForAck(new Message(Action.ping, MessageEncoding.encodeData(agentController.getAgentRuntimeInfo())));
         verify(artifactsManipulator).setProperty(null, new Property("work1_result", "done"));
     }
 
@@ -317,8 +247,8 @@ public class AgentControllerTest {
 
         AgentRuntimeInfo agentRuntimeInfo = cloneAgentRuntimeInfo(agentController.getAgentRuntimeInfo());
         agentRuntimeInfo.busy(new AgentBuildingInfo("build1ForDisplay", "build1"));
-        verify(agentWebsocketService).sendAndWaitForAck(new Message(Action.reportCurrentStatus, MessageEncoding.encodeData(new Report(agentRuntimeInfo, "b001", JobState.Building, null))));
-        verify(agentWebsocketService).sendAndWaitForAck(new Message(Action.reportCompleted, MessageEncoding.encodeData(new Report(agentRuntimeInfo, "b001", null, JobResult.Passed))));
+//        verify(agentWebSocketService).sendAndWaitForAck(new Message(Action.reportCurrentStatus, MessageEncoding.encodeData(new Report(agentRuntimeInfo, "b001", JobState.Building, null))));
+//        verify(agentWebSocketService).sendAndWaitForAck(new Message(Action.reportCompleted, MessageEncoding.encodeData(new Report(agentRuntimeInfo, "b001", null, JobResult.Passed))));
 
 
         ArgumentCaptor<HttpPut> putMethodArg = ArgumentCaptor.forClass(HttpPut.class);
@@ -371,7 +301,7 @@ public class AgentControllerTest {
         agentRuntimeInfo.busy(new AgentBuildingInfo("build1ForDisplay", "build1"));
         agentRuntimeInfo.cancel();
 
-        verify(agentWebsocketService).sendAndWaitForAck(new Message(Action.reportCompleted, MessageEncoding.encodeData(new Report(agentRuntimeInfo, "b001", null, JobResult.Cancelled))));
+//        verify(agentWebSocketService).sendAndWaitForAck(new Message(Action.reportCompleted, MessageEncoding.encodeData(new Report(agentRuntimeInfo, "b001", null, JobResult.Cancelled))));
 
         assertThat(agentController.getAgentRuntimeInfo().getRuntimeStatus(), is(AgentRuntimeStatus.Idle));
     }
@@ -425,7 +355,7 @@ public class AgentControllerTest {
         agentController.process(new Message(Action.reregister));
 
         verify(sslInfrastructureService).invalidateAgentCertificate();
-        verify(agentWebsocketService).stop();
+        verify(agentWebSocketService).stop();
     }
 
     @Test
@@ -471,7 +401,19 @@ public class AgentControllerTest {
         assertTrue(callbackIsCalled.get());
     }
 
-    private AgentController createAgentController() {
-        return new AgentController(loopServer, artifactsManipulator, sslInfrastructureService, agentRegistry, agentUpgradeService, subprocessLogger, systemEnvironment, pluginManager, packageAsRepositoryExtension, scmExtension, taskExtension, agentWebsocketService, httpService);
+    private WebSocketAgentController createAgentController() {
+        return new WebSocketAgentController(agentUpgradeService,
+                sslInfrastructureService,
+                systemEnvironment,
+                agentWebSocketService,
+                agentRegistry,
+                subprocessLogger,
+                packageAsRepositoryExtension,
+                httpService,
+                artifactsManipulator,
+                scmExtension,
+                taskExtension,
+                loopServer
+        );
     }
 }

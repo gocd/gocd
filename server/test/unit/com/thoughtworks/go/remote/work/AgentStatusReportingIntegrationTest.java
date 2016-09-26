@@ -37,6 +37,7 @@ public class AgentStatusReportingIntegrationTest {
     private GoArtifactsManipulatorStub artifactManipulator;
     private com.thoughtworks.go.remote.work.BuildRepositoryRemoteStub buildRepository;
     private AgentRuntimeInfo agentRuntimeInfo;
+    private SystemEnvironment systemEnvironment;
 
     @Before
     public void before() {
@@ -44,6 +45,7 @@ public class AgentStatusReportingIntegrationTest {
         environmentVariableContext = new EnvironmentVariableContext();
         artifactManipulator = new GoArtifactsManipulatorStub();
         buildRepository = new com.thoughtworks.go.remote.work.BuildRepositoryRemoteStub();
+        systemEnvironment = new SystemEnvironment();
         this.agentRuntimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
     }
 
@@ -55,7 +57,7 @@ public class AgentStatusReportingIntegrationTest {
     @Test
     public void shouldReportBuildingWhenAgentRunningBuildWork() throws Exception {
         Work work = BuildWorkTest.getWork(WILL_PASS, BuildWorkTest.PIPELINE_NAME);
-        work.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, agentRuntimeInfo, null, null, null);
+        work.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, agentRuntimeInfo, systemEnvironment, null, null, null);
         AgentRuntimeInfo agentRuntimeInfo1 = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
         agentRuntimeInfo1.busy(new AgentBuildingInfo("pipeline1/100/mingle/100/run-ant", "pipeline1/100/mingle/100/run-ant"));
         assertThat(agentRuntimeInfo, is(agentRuntimeInfo1));
@@ -64,7 +66,7 @@ public class AgentStatusReportingIntegrationTest {
     @Test
     public void shouldReportCancelledWhenAgentCancelledBuildWork() throws Exception {
         Work work = BuildWorkTest.getWork(WILL_PASS, BuildWorkTest.PIPELINE_NAME);
-        work.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, agentRuntimeInfo, null, null, null);
+        work.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, agentRuntimeInfo, systemEnvironment, null, null, null);
         work.cancel(environmentVariableContext, agentRuntimeInfo);
 
         assertThat(agentRuntimeInfo, is(expectedAgentRuntimeInfo()));

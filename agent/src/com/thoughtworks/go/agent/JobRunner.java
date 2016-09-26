@@ -58,7 +58,7 @@ public class JobRunner {
         running = true;
         this.work = work;
         try {
-            work.doWork(agentIdentifier, server, manipulator, environmentVariableContext, agentRuntimeInfo, packageRepositoryExtension, scmExtension, taskExtension);
+            work.doWork(agentIdentifier, server, manipulator, environmentVariableContext, agentRuntimeInfo, systemEnvironment, packageRepositoryExtension, scmExtension, taskExtension);
         } finally {
             running = false;
             doneSignal.countDown();

@@ -105,7 +105,7 @@ public class AgentHTTPClientControllerTest {
         agentController.ping();
         agentController.retrieveWork();
         verify(work).doWork(eq(agentIdentifier), eq(loopServer), eq(artifactsManipulator),
-                any(EnvironmentVariableContext.class), any(AgentRuntimeInfo.class), eq(packageRepositoryExtension),
+                any(EnvironmentVariableContext.class), any(AgentRuntimeInfo.class), eq(systemEnvironment), eq(packageRepositoryExtension),
                 eq(scmExtension), eq(taskExtension));
         verify(sslInfrastructureService).createSslInfrastructure();
     }
@@ -122,7 +122,7 @@ public class AgentHTTPClientControllerTest {
         agentController.loop();
         verify(work).doWork(eq(agentIdentifier), eq(loopServer), eq(artifactsManipulator),
                 any(EnvironmentVariableContext.class), eq(agentController.getAgentRuntimeInfo()),
-                eq(packageRepositoryExtension), eq(scmExtension), eq(taskExtension));
+                eq(systemEnvironment), eq(packageRepositoryExtension), eq(scmExtension), eq(taskExtension));
     }
 
     @Test
@@ -132,7 +132,7 @@ public class AgentHTTPClientControllerTest {
         agentController = createAgentController();
         agentController.init();
         agentController.retrieveWork();
-        verify(work).doWork(eq(agentIdentifier), eq(loopServer), eq(artifactsManipulator), any(EnvironmentVariableContext.class), any(AgentRuntimeInfo.class), eq(packageRepositoryExtension), eq(scmExtension), eq(taskExtension));
+        verify(work).doWork(eq(agentIdentifier), eq(loopServer), eq(artifactsManipulator), any(EnvironmentVariableContext.class), any(AgentRuntimeInfo.class), eq(systemEnvironment), eq(packageRepositoryExtension), eq(scmExtension), eq(taskExtension));
         verify(sslInfrastructureService).createSslInfrastructure();
     }
 

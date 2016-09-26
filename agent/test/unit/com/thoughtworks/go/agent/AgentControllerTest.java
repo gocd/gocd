@@ -92,7 +92,6 @@ public class AgentControllerTest {
         agentIdentifier = new AgentIdentifier(getLocalhostName(), getFirstLocalNonLoopbackIpAddress(), agentUuid);
     }
 
-
     @Test
     public void shouldReturnTrueIfCausedBySecurity() throws Exception {
         Exception exception = new Exception(new RuntimeException(new GeneralSecurityException()));

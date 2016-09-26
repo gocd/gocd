@@ -89,7 +89,7 @@ public class BuildWork implements Work {
 
     public void doWork(AgentIdentifier agentIdentifier, BuildRepositoryRemote remoteBuildRepository, GoArtifactsManipulator goArtifactsManipulator,
                        EnvironmentVariableContext environmentVariableContext, AgentRuntimeInfo agentRuntimeInfo,
-                       PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension, TaskExtension taskExtension) {
+                       SystemEnvironment systemEnvironment, PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension, TaskExtension taskExtension) {
         initialize(remoteBuildRepository, goArtifactsManipulator, agentRuntimeInfo, taskExtension);
         environmentVariableContext.addAll(assignment.initialEnvironmentVariableContext());
         try {

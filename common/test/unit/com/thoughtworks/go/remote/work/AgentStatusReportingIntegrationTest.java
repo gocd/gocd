@@ -41,6 +41,7 @@ public class AgentStatusReportingIntegrationTest {
     private PackageRepositoryExtension packageRepositoryExtension;
     private SCMExtension scmExtension;
     private TaskExtension taskExtension;
+    private SystemEnvironment systemEnvironment;
 
     @Before
     public void before() {
@@ -48,6 +49,7 @@ public class AgentStatusReportingIntegrationTest {
         environmentVariableContext = new EnvironmentVariableContext();
         artifactManipulator = new GoArtifactsManipulatorStub();
         buildRepository = new BuildRepositoryRemoteStub();
+        systemEnvironment = new SystemEnvironment();
         this.agentRuntimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
     }
 
@@ -59,7 +61,7 @@ public class AgentStatusReportingIntegrationTest {
     @Test
     public void shouldReportIdleWhenAgentRunningNoWork() {
         NoWork work = new NoWork();
-        work.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, agentRuntimeInfo, packageRepositoryExtension, scmExtension, taskExtension);
+        work.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, agentRuntimeInfo, systemEnvironment, packageRepositoryExtension, scmExtension, taskExtension);
         assertThat(agentRuntimeInfo, is(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false)));
     }
 
@@ -73,7 +75,7 @@ public class AgentStatusReportingIntegrationTest {
     @Test
     public void shouldReportIdleWhenAgentRunningDeniedWork() {
         Work work = new DeniedAgentWork("uuid");
-        work.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, agentRuntimeInfo, packageRepositoryExtension, scmExtension, taskExtension);
+        work.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, agentRuntimeInfo, systemEnvironment, packageRepositoryExtension, scmExtension, taskExtension);
         assertThat(agentRuntimeInfo, is(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false)));
     }
 
@@ -88,7 +90,7 @@ public class AgentStatusReportingIntegrationTest {
     public void shouldNotChangeWhenAgentRunningUnregisteredAgentWork() {
         Work work = new UnregisteredAgentWork("uuid");
         try {
-            work.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, agentRuntimeInfo, packageRepositoryExtension, scmExtension, taskExtension);
+            work.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, agentRuntimeInfo, systemEnvironment, packageRepositoryExtension, scmExtension, taskExtension);
         } catch (Exception e) {
         }
         assertThat(agentRuntimeInfo, is(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false)));

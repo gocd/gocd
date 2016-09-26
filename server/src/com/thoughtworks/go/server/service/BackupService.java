@@ -49,11 +49,10 @@ import com.thoughtworks.go.util.VoidThrowingFn;
 import org.apache.commons.io.DirectoryWalker;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StopWatch;
 
 /**
  * @understands backing up db and config
@@ -61,7 +60,7 @@ import org.springframework.util.StopWatch;
 @Service
 public class BackupService implements BackupStatusProvider {
 
-    private org.slf4j.Logger LOGGER = LoggerFactory.getLogger(BackupService.class);
+    private static final Logger LOGGER = Logger.getLogger(BackupService.class);
 
     public static final String BACKUP = "backup_";
     private final DataSource dataSource;
@@ -108,7 +107,6 @@ public class BackupService implements BackupStatusProvider {
         }
         synchronized (BACKUP_MUTEX) {
             DateTime now = timeProvider.currentDateTime();
-            LOGGER.info(String.format("Backup started at %s by user '%s'", now, username.getDisplayName()));
             final File destDir = new File(backupLocation(), BACKUP + now.toString("YYYYMMdd-HHmmss"));
             if (!destDir.mkdirs()) {
                 result.badRequest(LocalizedMessage.string("BACKUP_UNSUCCESSFUL", "Could not create the backup directory."));
@@ -116,34 +114,16 @@ public class BackupService implements BackupStatusProvider {
             }
 
             try {
-                StopWatch stopWatch = new StopWatch("stop watch");
                 backupRunningSince = now;
                 backupStartedBy = username.getUsername().toString();
-                LOGGER.info("Backing up GoCD version file.");
-                stopWatch.start("GoCD version file");
                 backupVersion(destDir);
-                stopWatch.stop();
-                System.out.println(stopWatch.getLastTaskName());
-                LOGGER.info("Finished backing up {}. Took {} ms.", stopWatch.getLastTaskName(), stopWatch.getLastTaskTimeMillis());
-                LOGGER.info("Backing up config directory.");
-                stopWatch.start("config directory");
                 backupConfig(destDir);
-                stopWatch.stop();
-                LOGGER.info("Finished backing up {}. Took {} ms.", stopWatch.getLastTaskName(), stopWatch.getLastTaskTimeMillis());
-                LOGGER.info("Backing up config.git repository");
-                stopWatch.start("config.git repository");
                 configRepository.doLocked(new VoidThrowingFn<IOException>() {
                     @Override public void run() throws IOException {
                         backupConfigRepository(destDir);
                     }
                 });
-                stopWatch.stop();
-                LOGGER.info("Finished backing up {}. Took {} ms.", stopWatch.getLastTaskName(), stopWatch.getLastTaskTimeMillis());
-                LOGGER.info("Backing up the database.");
-                stopWatch.start("database");
                 backupDb(destDir);
-                stopWatch.stop();
-                LOGGER.info("Finished backing up {}. Took {} ms.", stopWatch.getLastTaskName(), stopWatch.getLastTaskTimeMillis());
                 ServerBackup serverBackup = new ServerBackup(destDir.getAbsolutePath(), now.toDate(), username.getUsername().toString());
                 serverBackupRepository.save(serverBackup);
                 mailSender.send(EmailMessageDrafter.backupSuccessfullyCompletedMessage(destDir.getAbsolutePath(), goConfigService.adminEmail(), username));

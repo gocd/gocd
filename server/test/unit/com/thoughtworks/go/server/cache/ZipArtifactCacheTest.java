@@ -1,5 +1,5 @@
-/*
- * Copyright 2016 ThoughtWorks, Inc.
+/*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,22 +12,20 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *************************GO-LICENSE-END***********************************/
 
 package com.thoughtworks.go.server.cache;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.FileAlreadyExistsException;
 import java.util.ArrayList;
-import java.util.Set;
-import java.util.concurrent.CountDownLatch;
 
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.server.service.ArtifactsDirHolder;
 import com.thoughtworks.go.server.web.ArtifactFolder;
-import com.thoughtworks.go.util.*;
-import org.apache.log4j.Level;
+import com.thoughtworks.go.util.ClassMockery;
+import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.TestFileUtil;
+import com.thoughtworks.go.util.ZipUtil;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 import org.jmock.Expectations;
@@ -38,12 +36,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static com.thoughtworks.go.matchers.FileExistsMatcher.exists;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 
 @RunWith(JMock.class)
 public class ZipArtifactCacheTest {
@@ -56,7 +53,6 @@ public class ZipArtifactCacheTest {
     private File folder;
     private ArtifactFolder artifactFolder;
     private ArtifactsDirHolder artifactsDirHolder;
-    private LogFixture logFixture;
 
     @Before public void setUp() throws Exception {
         folder = TestFileUtil.createTempFolder("ZipArtifactCacheTest-" + System.currentTimeMillis());
@@ -72,12 +68,10 @@ public class ZipArtifactCacheTest {
         }});
         zipArtifactCache = new ZipArtifactCache(this.artifactsDirHolder, new ZipUtil());
         artifactFolder = new ArtifactFolder(JOB_IDENTIFIER, new File(artifact, "dir"), "dir");
-        logFixture = LogFixture.startListening(Level.ALL);
     }
 
     @After public void tearDown() throws Exception {
         FileUtil.deleteFolder(folder);
-        logFixture.stopListening();
     }
 
     @Test public void shouldKnowWhenCacheAlreadyCreated() throws Exception {
@@ -111,18 +105,6 @@ public class ZipArtifactCacheTest {
         }
     }
 
-    @Test
-    public void shouldLogWhenExceptionIsThrownWhileCreatingCacheFile() throws Exception {
-        ZipArtifactCache zipArtifactCache1 = spy(zipArtifactCache);
-        doThrow(FileAlreadyExistsException.class).when(zipArtifactCache1).createCachedFile(artifactFolder);
-        long threadId = zipArtifactCache1.startCacheCreationThread(artifactFolder);
-        waitForCacheFileCreation(threadId);
-        assertThat(logFixture.allLogs(), containsString("An error occurred while trying to create the artifact zip file of directory"));
-        assertThat(logFixture.allLogs(), containsString("FileAlreadyExistsException"));
-    }
-
-
-
     @Test public void shouldRecoverFromOldZipTmpFile() throws Exception {
         File cacheDir = new File(folder, "cache/artifacts/" + JOB_FOLDERS);
         cacheDir.mkdirs();
@@ -141,15 +123,6 @@ public class ZipArtifactCacheTest {
             timesTried--;
         }
         if (timesTried <= 0) { fail("Timeout creating cache"); }
-    }
-
-    private void waitForCacheFileCreation(long threadId) throws Exception {
-        Set<Thread> threads = Thread.getAllStackTraces().keySet();
-        for(Thread thread : threads) {
-            if(thread.getId()== threadId){
-                thread.join();
-            }
-        }
     }
 
     private class FileCheckerThread extends Thread {

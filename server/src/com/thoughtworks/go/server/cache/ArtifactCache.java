@@ -1,5 +1,5 @@
-/*
- * Copyright 2016 ThoughtWorks, Inc.
+/*************************GO-LICENSE-START*********************************
+ * Copyright 2014 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *************************GO-LICENSE-END***********************************/
 
 package com.thoughtworks.go.server.cache;
 
@@ -24,13 +24,11 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 import com.thoughtworks.go.server.service.ArtifactsDirHolder;
-import org.slf4j.LoggerFactory;
 
 /**
  * @understands serving prepared artifacts and preparing artifact offline
  */
 public abstract class ArtifactCache<T> {
-    private org.slf4j.Logger LOG = LoggerFactory.getLogger(ArtifactCache.class);
     protected final ArtifactsDirHolder artifactsDirHolder;
     protected ConcurrentSkipListSet<T> pendingCacheFiles = new ConcurrentSkipListSet<>();
     protected ConcurrentMap<T, Exception> pendingExceptions = new ConcurrentHashMap<>();
@@ -68,24 +66,22 @@ public abstract class ArtifactCache<T> {
         return pendingCacheFiles.contains(artifactLocation);
     }
 
-    protected long startCacheCreationThread(final T artifactLocation) throws InterruptedException {
+    protected void startCacheCreationThread(final T artifactLocation) {
         boolean inserted = pendingCacheFiles.add(artifactLocation);
-        Thread cacheCreatorThread = new Thread("cache-creator-thread-" + UUID.randomUUID().toString()) {
-            public void run() {
-                try {
-                    createCachedFile(artifactLocation);
-                } catch (Exception e) {
-                    LOG.error("An error occurred while trying to create the artifact zip file of directory {}", artifactLocation, e);
-                    pendingExceptions.putIfAbsent(artifactLocation, e);
-                } finally {
-                    pendingCacheFiles.remove(artifactLocation);
-                }
-            }
-        };
         if (inserted) {
+            Thread cacheCreatorThread = new Thread("cache-creator-thread-" + UUID.randomUUID().toString()) {
+                public void run() {
+                    try {
+                        createCachedFile(artifactLocation);
+                    } catch (Exception e) {
+                        pendingExceptions.putIfAbsent(artifactLocation, e);
+                    } finally {
+                        pendingCacheFiles.remove(artifactLocation);
+                    }
+                }
+            };
             cacheCreatorThread.start();
         }
-        return cacheCreatorThread.getId();
     }
 
     public abstract File cachedFile(T artifactLocation);

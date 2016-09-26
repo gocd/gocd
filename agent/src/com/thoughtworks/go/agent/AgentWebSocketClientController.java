@@ -128,7 +128,7 @@ public class AgentWebSocketClientController extends AgentController {
                 try {
                     runner.run(work, agentIdentifier(),
                             new BuildRepositoryRemoteAdapter(runner, webSocketSessionHandler),
-                            manipulator, getAgentRuntimeInfo(),
+                            manipulator, getAgentRuntimeInfo(), getSystemEnvironment(),
                             packageRepositoryExtension, scmExtension,
                             taskExtension);
                 } finally {

@@ -137,6 +137,7 @@ public class UpdatePackageRepositoryCommandTest {
         command.update(cruiseConfig);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         expectedResult.unprocessableEntity(LocalizedMessage.string("INVALID_PLUGIN_TYPE", pluginId));
+        assertFalse(command.isValid(cruiseConfig));
         assertThat(result, is(expectedResult));
     }
 

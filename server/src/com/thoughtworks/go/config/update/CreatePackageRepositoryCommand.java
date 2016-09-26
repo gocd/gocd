@@ -52,7 +52,6 @@ public class CreatePackageRepositoryCommand extends PackageRepositoryCommand imp
 
     @Override
     public void update(CruiseConfig preprocessedConfig) throws Exception {
-        this.repository.setPluginConfiguration(getPluginCofiguration(this.repository));
         PackageRepositories repositories = preprocessedConfig.getPackageRepositories();
         repositories.add(this.repository);
         preprocessedConfig.setPackageRepositories(repositories);

@@ -55,7 +55,6 @@ public class UpdatePackageRepositoryCommand extends PackageRepositoryCommand imp
     public void update(CruiseConfig preprocessedConfig) throws Exception {
         PackageRepository oldRepo = preprocessedConfig.getPackageRepositories().find(oldRepoId);
         this.newRepo.setPackages(oldRepo.getPackages());
-        this.newRepo.setPluginConfiguration(getPluginCofiguration(this.newRepo));
         PackageRepositories repositories = preprocessedConfig.getPackageRepositories();
         repositories.removePackageRepository(oldRepo.getId());
         repositories.add(this.newRepo);

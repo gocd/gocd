@@ -47,25 +47,21 @@ public class PackageRepositoryCommand {
         this.result = result;
     }
 
-    public PluginConfiguration getPluginCofiguration(PackageRepository repository) {
-        PluginConfiguration pluginConfiguration = new PluginConfiguration();
-        String pluginId = repository.getPluginConfiguration().getId();
-        GoPluginDescriptor pluginDescriptor = this.pluginManager.getPluginDescriptorFor(pluginId);
-        if(pluginDescriptor != null){
-            pluginConfiguration.setId(pluginDescriptor.id());
-            pluginConfiguration.setVersion(pluginDescriptor.version());
-        }else{
-            result.unprocessableEntity(LocalizedMessage.string("INVALID_PLUGIN_TYPE", pluginId));
-        }
-        return pluginConfiguration;
-    }
-
     public boolean isValid(CruiseConfig preprocessedConfig) {
         preprocessedConfig.getPackageRepositories().validate(new ConfigSaveValidationContext(preprocessedConfig));
         PackageRepository packageRepository = preprocessedConfig.getPackageRepositories().find(this.repository.getRepoId());
         packageRepository.validate(new ConfigSaveValidationContext(preprocessedConfig.getPackageRepositories()));
+        isValidPlugin(packageRepository.getPluginConfiguration());
         BasicCruiseConfig.copyErrors(packageRepository, this.repository);
-        return getAllErrors(this.repository).isEmpty();
+        return getAllErrors(this.repository).isEmpty() && result.isSuccessful();
+    }
+
+    private void isValidPlugin(PluginConfiguration pluginConfiguration) {
+        String pluginId = pluginConfiguration.getId();
+        GoPluginDescriptor pluginDescriptor = this.pluginManager.getPluginDescriptorFor(pluginId);
+        if(pluginDescriptor == null){
+            result.unprocessableEntity(LocalizedMessage.string("INVALID_PLUGIN_TYPE", pluginId));
+        }
     }
 
     public void clearErrors() {

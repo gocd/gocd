@@ -381,7 +381,6 @@ clean.doFirst {
   delete 'go-shine.log'
   delete 'go-server.log'
   delete 'cce_server.log'
-  delete rootProject.file('tools/jruby')
   cleanDb.execute()
   cleanRails.execute()
 }
@@ -411,7 +410,11 @@ task inlinePartials {
         standardOutput = System.out
         errorOutput = System.err
 
-        setExecutable project.findProject(':tools').file("rails/bin/jruby")
+        if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
+          setExecutable = project.findProject(':tools').file("rails/bin/jruby.bat")
+        } else {
+          setExecutable = project.findProject(':tools').file("rails/bin/jruby")
+        }
 
         environment += [
           'INPUT_DIR': inlinedPartialsDir

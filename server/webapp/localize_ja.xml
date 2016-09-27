@@ -796,4 +796,5 @@
     <entry key="UNAUTHORIZED_TO_OPERATE">You are not authorized to perform this operation.</entry>
     <entry key="BULK_AGENT_UPDATE_SUCESSFUL">Updated agent(s) with uuid(s): [{0}].</entry>
     <entry key="CAN_NOT_UPDATE_RESOURCES_ON_ELASTIC_AGENT">Resources on elastic agents with uuids [{0}] can not be updated.</entry>
+    <entry key="PENDING_AGENT_INVALID_OPERATION">Invalid operation performed on pending agents [{0}].</entry>
 </properties>

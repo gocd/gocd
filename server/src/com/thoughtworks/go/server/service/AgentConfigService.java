@@ -25,6 +25,7 @@ import com.thoughtworks.go.config.update.AgentsUpdateCommand;
 import com.thoughtworks.go.config.update.ModifyEnvironmentCommand;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.ConfigErrors;
+import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.listener.AgentChangeListener;
 import com.thoughtworks.go.presentation.TriStateSelection;
@@ -232,13 +233,13 @@ public class AgentConfigService {
         }
     }
 
-    public void bulkUpdateAgentAttributes(final Username username, final LocalizedOperationResult result, final List<String> uuids, final List<String> resourcesToAdd, final List<String> resourcesToRemove, final List<String> environmentsToAdd, final List<String> environmentsToRemove, final TriState enable) {
-        EntityConfigUpdateCommand<Agents> agentsEntityConfigUpdateCommand = new AgentsEntityConfigUpdateCommand(username, result, uuids, environmentsToAdd, environmentsToRemove, enable, resourcesToAdd, resourcesToRemove, goConfigService);
-
+    public void bulkUpdateAgentAttributes(AgentInstances agentInstances, final Username username, final LocalizedOperationResult result, final List<String> uuids, final List<String> resourcesToAdd, final List<String> resourcesToRemove, final List<String> environmentsToAdd, final List<String> environmentsToRemove, final TriState enable) {
+        Localizable.CurryableLocalizable successMessage = LocalizedMessage.string("BULK_AGENT_UPDATE_SUCESSFUL", StringUtils.join(uuids, ", "));
+        EntityConfigUpdateCommand<Agents> agentsEntityConfigUpdateCommand = new AgentsEntityConfigUpdateCommand(agentInstances, username, result, uuids, environmentsToAdd, environmentsToRemove, enable, resourcesToAdd, resourcesToRemove, goConfigService);
         try {
             goConfigService.updateConfig(agentsEntityConfigUpdateCommand, username);
             if(result.isSuccessful()){
-                result.setMessage(LocalizedMessage.string("BULK_AGENT_UPDATE_SUCESSFUL", StringUtils.join(uuids, ", ")));
+                result.setMessage(successMessage);
             }
         } catch (Exception e) {
             LOGGER.error("There was an error bulk updating agents", e);

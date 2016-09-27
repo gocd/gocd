@@ -411,9 +411,9 @@ task inlinePartials {
         errorOutput = System.err
 
         if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
-          setExecutable = project.findProject(':tools').file("rails/bin/jruby.bat")
+          executable = project.findProject(':tools').file("rails/bin/jruby.bat")
         } else {
-          setExecutable = project.findProject(':tools').file("rails/bin/jruby")
+          executable = project.findProject(':tools').file("rails/bin/jruby")
         }
 
         environment += [

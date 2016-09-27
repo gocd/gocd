@@ -1,6 +1,11 @@
 apply plugin: "groovy"
 
+repositories {
+  jcenter()
+}
+
 dependencies {
   compile localGroovy()
   compile gradleApi()
+  compile 'de.undercouch:gradle-download-task:3.1.1'
 }

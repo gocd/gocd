@@ -16,7 +16,9 @@
 
 package com.thoughtworks.go.build
 
+import de.undercouch.gradle.tasks.download.DownloadAction
 import org.gradle.api.DefaultTask
+import org.gradle.api.GradleException
 import org.gradle.api.Task
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
@@ -44,8 +46,12 @@ class WindowsPackagingTask extends DefaultTask {
     buildPackage()
   }
 
+  def winRootDir() {
+    project.file("${project.buildDir}/${packageName}/win")
+  }
+
   def buildRoot() {
-    project.file("${project.buildDir}/${packageName}/win/BUILD_ROOT")
+    project.file("${winRootDir()}/BUILD_ROOT")
   }
 
   def versionedDir() {
@@ -58,13 +64,25 @@ class WindowsPackagingTask extends DefaultTask {
       buildRoot().mkdirs()
       project.convention.plugins.get("base").distsDir.mkdirs()
 
-      project.exec {
-        commandLine "bash", "-c", "set -o pipefail; curl --silent --fail ${jreLocation()} | tar -zxf - -C ${buildRoot()}"
-        workingDir buildRoot()
+      File jreDownloadDir = project.file("${winRootDir()}/jre-download")
 
-        standardOutput = System.out
-        errorOutput = System.err
+      jreDownloadDir.deleteDir()
+      jreDownloadDir.mkdirs()
+
+      def downloadAction = new DownloadAction(project)
+      downloadAction.src(jreLocation())
+      downloadAction.dest("${winRootDir()}/jre-download")
+      if ((defaultJreLocation() == jreLocation()) && oracleLicenseAccepted()) {
+        downloadAction.headers(Cookie: 'oraclelicense=accept-securebackup-cookie')
       }
+      downloadAction.execute()
+
+      project.copy {
+        from project.tarTree(project.fileTree("${winRootDir()}/jre-download").include("*").singleFile)
+        into buildRoot()
+      }
+
+      jreDownloadDir.deleteDir()
     }
 
     doLast {
@@ -72,14 +90,27 @@ class WindowsPackagingTask extends DefaultTask {
     }
   }
 
-  String jreLocation() {
-    if (!System.getenv('WINDOWS_JRE_URL')) {
-      throw new RuntimeException("Please specify environment variable WINDOWS_JRE_URL")
+  static String jreLocation() {
+    if (jreLocationSpecified()) {
+      System.getenv('WINDOWS_JRE_URL')
+    } else if (oracleLicenseAccepted()) {
+      defaultJreLocation()
+    } else {
+      throw new GradleException("Please specify environment variable WINDOWS_JRE_URL to point to a windows JRE location, or specify the environment `ORACLE_JRE_LICENSE_AGREE=Y' and the build script will download it on your behalf.")
     }
-
-    System.getenv('WINDOWS_JRE_URL')
   }
 
+  static def oracleLicenseAccepted() {
+    System.getenv("ORACLE_JRE_LICENSE_AGREE") == "Y"
+  }
+
+  static def defaultJreLocation() {
+    "http://download.oracle.com/otn-pub/java/jdk/7u79-b15/jre-7u79-windows-i586.tar.gz"
+  }
+
+  static def jreLocationSpecified() {
+    System.getenv('WINDOWS_JRE_URL') != null
+  }
 
   def buildPackage() {
     doLast {

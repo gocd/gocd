@@ -131,7 +131,7 @@ describe ApiV3::Config::Tasks::TaskRepresenter do
           attributes: { run_if: [], on_cancel: nil, command: "", working_directory: "../outside"},
           errors: {
             command: ["Command cannot be empty"],
-            working_directory: ["The path of the working directory for the custom command in job 'dev' in stage 'stage' of pipeline 'this_pipeline' is outside the agent sandbox."]
+            workingDirectory: ["The path of the working directory for the custom command in job 'dev' in stage 'stage' of pipeline 'this_pipeline' is outside the agent sandbox."]
           }
       }
     end
@@ -183,7 +183,7 @@ describe ApiV3::Config::Tasks::TaskRepresenter do
           type:       'ant',
           attributes: { run_if: [], on_cancel: nil, working_directory: "../outside", build_file: nil, target: nil},
           errors: {
-            working_directory: ["Task of job 'dev' in stage 'stage' of pipeline 'this_pipeline' has path '../outside' which is outside the working directory."]
+            workingDirectory: ["Task of job 'dev' in stage 'stage' of pipeline 'this_pipeline' has path '../outside' which is outside the working directory."]
           }
       }
     end
@@ -236,7 +236,7 @@ describe ApiV3::Config::Tasks::TaskRepresenter do
           type:       'nant',
           attributes: { run_if: [], on_cancel: nil, working_directory: "../outside", build_file: nil, target: nil, nant_path:nil},
           errors: {
-            working_directory: ["Task of job 'dev' in stage 'stage' of pipeline 'this_pipeline' has path '../outside' which is outside the working directory."]
+            workingDirectory: ["Task of job 'dev' in stage 'stage' of pipeline 'this_pipeline' has path '../outside' which is outside the working directory."]
           }
       }
     end
@@ -288,7 +288,7 @@ describe ApiV3::Config::Tasks::TaskRepresenter do
           type:       'rake',
           attributes: {run_if: [], on_cancel: nil, working_directory: "../outside", build_file: nil, target: nil},
           errors: {
-            working_directory: ["Task of job 'dev' in stage 'stage' of pipeline 'this_pipeline' has path '../outside' which is outside the working directory."]
+            workingDirectory: ["Task of job 'dev' in stage 'stage' of pipeline 'this_pipeline' has path '../outside' which is outside the working directory."]
           }
 
       }

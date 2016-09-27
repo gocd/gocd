@@ -44,6 +44,7 @@ define([
               <f.inputWithLabel attrName='workingDirectory'
                                 model={task}
                                 end={true}
+                                validate={true}
                                 tooltip={{
                                   content: tt.task.ant.workingDirectory,
                                   direction: 'bottom',
@@ -78,6 +79,7 @@ define([
               <f.inputWithLabel attrName='workingDirectory'
                                 model={task}
                                 end={true}
+                                validate={true}
                                 tooltip={{
                                   content: tt.task.nant.workingDirectory,
                                   direction: 'bottom',
@@ -143,6 +145,7 @@ define([
                   <f.inputWithLabel attrName='workingDirectory'
                                     model={task}
                                     end={true}
+                                    validate={true}
                                     size={12}
                                     largeSize={12}
                                     tooltip={{
@@ -183,6 +186,7 @@ define([
               <f.inputWithLabel attrName='workingDirectory'
                                 model={task}
                                 end={true}
+                                validate={true}
                                 tooltip={{
                                   content: tt.task.rake.workingDirectory,
                                   direction: 'bottom',

@@ -64,8 +64,8 @@ ext.partitionFiles = { Collection originalFiles ->
   allPartitions[currentWorkerIndex - 1]
 }
 
-def GO_VERSION = '16.10.0'
-def GO_VERSION_PREVIOUS = '16.9.0'
+def GO_VERSION = '16.11.0'
+def GO_VERSION_PREVIOUS = '16.10.0'
 def DIST_VERSION = releaseRevision()
 def GIT_REVISION = gitRevision()
 

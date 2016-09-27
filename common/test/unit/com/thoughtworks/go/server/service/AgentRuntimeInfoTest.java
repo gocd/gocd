@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.websocket.MessageEncoding;
@@ -46,7 +47,7 @@ public class AgentRuntimeInfoTest {
 
     @Before
     public void setup() throws Exception {
-        pipelinesFolder = new File("pipelines");
+        pipelinesFolder = new File(CruiseConfig.WORKING_BASE_DIR);
         pipelinesFolder.mkdirs();
     }
 

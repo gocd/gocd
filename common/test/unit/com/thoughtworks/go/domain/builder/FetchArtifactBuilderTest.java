@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.Deflater;
 
+import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.util.HttpService;
 import com.thoughtworks.go.util.TestFileUtil;
@@ -118,7 +119,7 @@ public class FetchArtifactBuilderTest {
     @Test
     public void shouldReturnURLWithoutSHA1WhenFileDoesNotExist() throws Exception {
         String src = "cruise-output/console.log";
-        File destOnAgent = new File("pipelines" + '/' + "cruise" + '/' + dest);
+        File destOnAgent = new File(CruiseConfig.WORKING_BASE_DIR + "cruise" + '/' + dest);
         File consolelog = new File(destOnAgent, "console.log");
         consolelog.delete();
 
@@ -143,7 +144,7 @@ public class FetchArtifactBuilderTest {
     @Test
     public void shouldReturnURLWithSHA1WhenFileExists() throws Exception {
         String src = "cruise-output/console.log";
-        File destOnAgent = new File("pipelines" + '/' + "cruise" + '/' + dest);
+        File destOnAgent = new File(CruiseConfig.WORKING_BASE_DIR + "cruise" + '/' + dest);
         File consolelog = new File(destOnAgent, "console.log");
         consolelog.getParentFile().mkdirs();
         consolelog.createNewFile();

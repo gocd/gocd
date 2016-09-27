@@ -822,8 +822,8 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return REAUTHENTICATION_TIME_INTERVAL.getValue();
     }
 
-    public File resolveAgentWorkingDirectory(File workingDir) {
-        return workingDir;
+    public File resolveAgentWorkingDirectory(File path) {
+        return path;
     }
 
     public static abstract class GoSystemProperty<T> {

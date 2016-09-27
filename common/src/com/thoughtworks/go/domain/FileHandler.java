@@ -17,6 +17,7 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.util.StringUtil;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.validation.ChecksumValidator;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.io.FileUtils;
@@ -32,8 +33,7 @@ import static com.thoughtworks.go.util.MapBuilder.map;
 import static java.lang.String.format;
 
 public class FileHandler implements FetchHandler {
-
-    private final File artifact;
+    private File artifact;
     private final String srcFile;
     private static final Logger LOG = Logger.getLogger(FileHandler.class);
     private ArtifactMd5Checksums artifactMd5Checksums;
@@ -43,6 +43,11 @@ public class FileHandler implements FetchHandler {
         this.artifact = artifact;
         this.srcFile = srcFile;
         checksumValidationPublisher = new ChecksumValidationPublisher();
+    }
+
+    @Override
+    public void updateDestinationForAgent(SystemEnvironment systemEnvironment) {
+        this.artifact = systemEnvironment.resolveAgentWorkingDirectory(artifact);
     }
 
     public String url(String remoteHost, String workingUrl) throws IOException {

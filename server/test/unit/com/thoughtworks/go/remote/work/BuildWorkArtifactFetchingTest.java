@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.remote.work;
 
+import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.domain.DirHandler;
 import com.thoughtworks.go.helper.PipelineConfigMother;
@@ -43,13 +44,12 @@ import static org.junit.Assert.assertThat;
 
 public class BuildWorkArtifactFetchingTest {
     public static final String PIPELINE_NAME = "pipeline1";
-    public static final String PIPELINE_LABEL = "100";
     public static final String STAGE_NAME = "mingle";
     public static final String JOB_NAME = "run-ant";
     private static final String DEST = "lib";
 
     private static final String AGENT_UUID = "uuid";
-    File buildWorkingDirectory;
+    private File buildWorkingDirectory;
 
     private static final String WITH_FETCH_FILE =
                       "<job name=\"" + JOB_NAME + "\">\n"
@@ -119,12 +119,13 @@ public class BuildWorkArtifactFetchingTest {
     }
 
     @Test
-    public void shouldFetchFolder() throws Exception {
+    public void shouldFetchAnArtifactWhichIsAFolderIntoResolvedAgentWorkingDirectory() throws Exception {
         buildWork = (BuildWork) BuildWorkTest.getWork(WITH_FETCH_FOLDER, PIPELINE_NAME);
         GoArtifactsManipulatorStub stubManipulator = new GoArtifactsManipulatorStub();
         buildWork.doWork(agentIdentifier, buildRepository, stubManipulator, environmentVariableContext,
                 new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), systemEnvironment, null, null, null);
 
-        assertThat(stubManipulator.artifact().get(0), is(new DirHandler("lib",new File("pipelines" + File.separator + PIPELINE_NAME + File.separator + DEST))));
+        File expectedDestination = systemEnvironment.resolveAgentWorkingDirectory(new File(CruiseConfig.WORKING_BASE_DIR + PIPELINE_NAME + File.separator + DEST));
+        assertThat(stubManipulator.artifact().get(0), is(new DirHandler("lib", expectedDestination)));
     }
 }

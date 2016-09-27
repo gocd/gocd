@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.thoughtworks.go.util.ArtifactLogUtil;
 import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.log4j.Logger;
 
@@ -29,11 +30,16 @@ import static org.apache.commons.io.FileUtils.deleteQuietly;
 
 public class ChecksumFileHandler implements FetchHandler {
 
-    private final File checksumFile;
+    private File checksumFile;
     private static final Logger LOG = Logger.getLogger(ChecksumFileHandler.class);
 
     public ChecksumFileHandler(File destination) {
         checksumFile = destination;
+    }
+
+    @Override
+    public void updateDestinationForAgent(SystemEnvironment systemEnvironment) {
+        this.checksumFile = systemEnvironment.resolveAgentWorkingDirectory(checksumFile);
     }
 
     public String url(String remoteHost, String workingUrl) throws IOException {

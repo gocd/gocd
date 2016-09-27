@@ -44,6 +44,7 @@ public class FetchArtifactBuilder extends Builder {
     }
 
     public void build(BuildLogElement buildLogElement, DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, SystemEnvironment systemEnvironment, TaskExtension taskExtension) throws CruiseControlException {
+        handler.updateDestinationForAgent(systemEnvironment);
         publisher.fetch(this);
     }
 
@@ -62,8 +63,8 @@ public class FetchArtifactBuilder extends Builder {
         pullArtifact(downloadAction, checksumUrl, checksumFileHandler);
     }
 
-    private void pullArtifact(DownloadAction downloadAction, String url, final FetchHandler checksumFileHandler) throws Exception {
-        downloadAction.perform(url, checksumFileHandler);
+    private void pullArtifact(DownloadAction downloadAction, String url, final FetchHandler fetchHandler) throws Exception {
+        downloadAction.perform(url, fetchHandler);
     }
 
     public String artifactLocator() {

@@ -17,6 +17,7 @@
 package com.thoughtworks.go.domain.builder;
 
 import com.thoughtworks.go.buildsession.BuildSessionBasedTestCase;
+import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.util.*;
 import org.junit.Before;
@@ -137,7 +138,7 @@ public class FetchArtifactBuilderBuildCommandTest extends BuildSessionBasedTestC
     }
 
     private File checksumFile(JobIdentifier jobIdentifier, String srcdir, String dest) {
-        File destOnAgent = new File("pipelines" + '/' + jobIdentifier.getPipelineName() + '/' + dest);
+        File destOnAgent = new File(CruiseConfig.WORKING_BASE_DIR + jobIdentifier.getPipelineName() + '/' + dest);
         return new File(destOnAgent, String.format("%s_%s_%s_md5.checksum", jobIdentifier.getPipelineName(), jobIdentifier.getStageName(), jobIdentifier.getBuildName()));
     }
 

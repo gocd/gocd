@@ -29,7 +29,7 @@ to prevent formatting
 <!--- We recommend providing the for us to reproduce the issue quicker -->
 
 * Go Version: `Available in the footer`
-* JAVA Version: `Available from http://<go-server-host>/api/go/about`
+* JAVA Version: `Available from http://<go-server-host>/go/about`
 * OS: `Available from http://<go-server-host>/go/about`
 * Browser vendor and version (if relevant): `Hopefully not Internet Explorer 7 :)`
 

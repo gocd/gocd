@@ -27,15 +27,15 @@ import com.thoughtworks.go.plugin.infra.PluginManagerReference;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.SubprocessLogger;
+import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.SystemUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-
-import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 
 public abstract class AgentController {
     private static final Logger LOG = LoggerFactory.getLogger(AgentController.class);
@@ -159,7 +159,7 @@ public abstract class AgentController {
     }
 
     private void initPipelinesFolder() {
-        File pipelines = new File(currentWorkingDirectory(), "pipelines");
+        File pipelines = systemEnvironment.resolveAgentWorkingDirectory(new File("pipelines"));
         if (!pipelines.exists()) {
             pipelines.mkdirs();
         }

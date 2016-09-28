@@ -27,7 +27,6 @@ import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExte
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.plugin.infra.PluginManager;
-import com.thoughtworks.go.plugin.infra.PluginManagerReference;
 import com.thoughtworks.go.publishers.GoArtifactsManipulator;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
@@ -37,7 +36,6 @@ import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.HttpService;
 import com.thoughtworks.go.util.SubprocessLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.websocket.*;
 import com.thoughtworks.go.work.SleepWork;
 import org.apache.http.client.HttpClient;
@@ -151,17 +149,6 @@ public class WebSocketAgentControllerTest {
     }
 
     @Test
-    public void shouldPingIfAfterRegistered() throws Exception {
-        when(agentRegistry.uuid()).thenReturn(agentUuid);
-        when(sslInfrastructureService.isRegistered()).thenReturn(true);
-        agentController = createAgentController();
-        agentController.init();
-        agentController.ping();
-        verify(sslInfrastructureService).createSslInfrastructure();
-        verify(loopServer).ping(any(AgentRuntimeInfo.class));
-    }
-
-    @Test
     public void shouldUpgradeAgentBeforeAgentRegistration() throws Exception {
         agentController = createAgentController();
         InOrder inOrder = inOrder(agentUpgradeService, sslInfrastructureService);
@@ -192,10 +179,10 @@ public class WebSocketAgentControllerTest {
         when(systemEnvironment.isWebsocketEnabled()).thenReturn(true);
         when(sslInfrastructureService.isRegistered()).thenReturn(true);
 
+        agentController = createAgentController();
         when(agentWebSocketService.isRunning()).thenReturn(false);
         doThrow(new GeneralSecurityException()).when(agentWebSocketService).start(agentController);
 
-        agentController = createAgentController();
         agentController.init();
 
         agentController.loop();
@@ -402,18 +389,19 @@ public class WebSocketAgentControllerTest {
     }
 
     private WebSocketAgentController createAgentController() {
-        return new WebSocketAgentController(agentUpgradeService,
-                sslInfrastructureService,
-                systemEnvironment,
-                agentWebSocketService,
-                agentRegistry,
-                subprocessLogger,
-                packageAsRepositoryExtension,
-                httpService,
+        return new WebSocketAgentController(
+                loopServer,
                 artifactsManipulator,
+                sslInfrastructureService,
+                agentRegistry,
+                agentUpgradeService,
+                subprocessLogger,
+                systemEnvironment,
+                pluginManager,
+                packageAsRepositoryExtension,
                 scmExtension,
                 taskExtension,
-                loopServer
-        );
+                agentWebSocketService,
+                httpService);
     }
 }

@@ -27,6 +27,7 @@ import com.thoughtworks.go.domain.BuildSettings;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
+import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.publishers.GoArtifactsManipulator;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.AgentInstruction;
@@ -45,6 +46,7 @@ import org.eclipse.jetty.websocket.api.annotations.*;
 import org.eclipse.jetty.websocket.api.extensions.Frame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import java.io.File;
 import java.io.InputStream;
@@ -57,7 +59,6 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 @WebSocket
 public class WebSocketAgentController extends AgentController {
     private static final Logger LOG = LoggerFactory.getLogger(WebSocketAgentController.class);
-    private final AgentAutoRegistrationPropertiesImpl agentAutoRegistrationProperties;
     private final AgentUpgradeService agentUpgradeService;
     private final SslInfrastructureService sslInfrastructureService;
     private final AgentWebSocketService agentWebSocketService;
@@ -71,54 +72,32 @@ public class WebSocketAgentController extends AgentController {
     private TaskExtension taskExtension;
     private BuildRepositoryRemote server;
 
-    public WebSocketAgentController(AgentUpgradeService agentUpgradeService,
-                                    SslInfrastructureService sslInfrastructureService,
-                                    SystemEnvironment systemEnvironment,
-                                    AgentWebSocketService agentWebSocketService,
-                                    AgentRegistry agentRegistry,
-                                    SubprocessLogger subprocessLogger,
-                                    PackageAsRepositoryExtension packageAsRepositoryExtension,
-                                    HttpService httpService,
-                                    GoArtifactsManipulator manipulator,
-                                    SCMExtension scmExtension,
-                                    TaskExtension taskExtension,
-                                    BuildRepositoryRemote server) {
-        super(sslInfrastructureService, systemEnvironment, agentRegistry, subprocessLogger);
+
+    public WebSocketAgentController(BuildRepositoryRemote server, GoArtifactsManipulator manipulator,
+                                    SslInfrastructureService sslInfrastructureService, AgentRegistry agentRegistry,
+                                    AgentUpgradeService agentUpgradeService, SubprocessLogger subprocessLogger,
+                                    SystemEnvironment systemEnvironment, PluginManager pluginManager,
+                                    PackageAsRepositoryExtension packageAsRepositoryExtension, SCMExtension scmExtension,
+                                    TaskExtension taskExtension, AgentWebSocketService agentWebSocketService, HttpService httpService) {
+        super(sslInfrastructureService, systemEnvironment, agentRegistry, pluginManager, subprocessLogger);
+        this.server = server;
+        this.manipulator = manipulator;
         this.packageAsRepositoryExtension = packageAsRepositoryExtension;
         this.scmExtension = scmExtension;
         this.taskExtension = taskExtension;
-        this.server = server;
-        this.agentAutoRegistrationProperties = new AgentAutoRegistrationPropertiesImpl(new File("config", "autoregister.properties"));
         this.agentUpgradeService = agentUpgradeService;
         this.sslInfrastructureService = sslInfrastructureService;
         this.agentWebSocketService = agentWebSocketService;
         this.httpService = httpService;
-        this.manipulator = manipulator;
     }
 
     @Override
     public void ping() {
-        try {
-            agentUpgradeService.checkForUpgrade();
-            sslInfrastructureService.registerIfNecessary(agentAutoRegistrationProperties);
-            if (sslInfrastructureService.isRegistered()) {
-                if (!agentWebSocketService.isRunning()) {
-                    callbacks.clear();
-                    agentWebSocketService.start(this);
-                }
-                updateServerAgentRuntimeInfo();
-            }
-        } catch (Exception e) {
-            if (isCausedBySecurity(e)) {
-                handleIfSecurityException(e);
-            } else {
-                LOG.error("Error occurred when agent tried to ping server: ", e);
-            }
-        }
+        // Do nothing
     }
 
     @Override
-    void execute() {
+    public void execute() {
         // Do nothing
     }
 
@@ -136,10 +115,26 @@ public class WebSocketAgentController extends AgentController {
 
     @Override
     public void loop() {
-
+        try {
+            agentUpgradeService.checkForUpgrade();
+            sslInfrastructureService.registerIfNecessary(getAgentAutoRegistrationProperties());
+            if (sslInfrastructureService.isRegistered()) {
+                if (!agentWebSocketService.isRunning()) {
+                    callbacks.clear();
+                    agentWebSocketService.start(this);
+                }
+                updateServerAgentRuntimeInfo();
+            }
+        } catch (Exception e) {
+            if (isCausedBySecurity(e)) {
+                handleIfSecurityException(e);
+            } else {
+                LOG.error("Error occurred when agent tried to ping server: ", e);
+            }
+        }
     }
 
-    public void process(Message message) throws InterruptedException {
+    void process(Message message) throws InterruptedException {
         switch (message.getAction()) {
             case cancelBuild:
                 cancelJobIfThereIsOneRunning();

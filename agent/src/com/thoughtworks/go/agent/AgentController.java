@@ -17,6 +17,7 @@
 package com.thoughtworks.go.agent;
 
 import com.thoughtworks.go.agent.service.AgentUpgradeService;
+import com.thoughtworks.go.agent.service.AgentWebSocketService;
 import com.thoughtworks.go.agent.service.SslInfrastructureService;
 import com.thoughtworks.go.config.AgentAutoRegistrationProperties;
 import com.thoughtworks.go.config.AgentRegistry;
@@ -26,11 +27,13 @@ import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExte
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.plugin.infra.PluginManager;
+import com.thoughtworks.go.plugin.infra.PluginManagerReference;
 import com.thoughtworks.go.publishers.GoArtifactsManipulator;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo;
+import com.thoughtworks.go.util.HttpService;
 import com.thoughtworks.go.util.SubprocessLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.SystemUtil;
@@ -46,33 +49,42 @@ public abstract class AgentController {
     private AgentAutoRegistrationProperties agentAutoRegistrationProperties;
     private AgentIdentifier identifier;
     private SslInfrastructureService sslInfrastructureService;
-
-    public SystemEnvironment getSystemEnvironment() {
-        return systemEnvironment;
-    }
-
     private SystemEnvironment systemEnvironment;
-
     private AgentRegistry agentRegistry;
-
     private SubprocessLogger subprocessLogger;
 
-    abstract void ping();
+    public AgentController(SslInfrastructureService sslInfrastructureService, SystemEnvironment systemEnvironment, AgentRegistry agentRegistry, PluginManager pluginManager, SubprocessLogger subprocessLogger) {
+        this.sslInfrastructureService = sslInfrastructureService;
+        this.systemEnvironment = systemEnvironment;
+        this.agentRegistry = agentRegistry;
+        this.subprocessLogger = subprocessLogger;
+        PluginManagerReference.reference().setPluginManager(pluginManager);
+    }
 
-    abstract void execute();
+    public abstract void ping();
 
-    abstract void loop();
+    public abstract void execute();
 
-    public AgentRegistry getAgentRegistry() {
+    public abstract void loop();
+
+    protected AgentRegistry getAgentRegistry() {
         return agentRegistry;
     }
 
-    public AgentAutoRegistrationProperties getAgentAutoRegistrationProperties() {
+    protected AgentAutoRegistrationProperties getAgentAutoRegistrationProperties() {
         return agentAutoRegistrationProperties;
     }
 
-    public AgentIdentifier getIdentifier() {
+    protected SystemEnvironment getSystemEnvironment() {
+        return systemEnvironment;
+    }
+
+    protected AgentIdentifier getIdentifier() {
         return identifier;
+    }
+
+    protected AgentRuntimeInfo getAgentRuntimeInfo() {
+        return agentRuntimeInfo;
     }
 
     boolean isCausedBySecurity(Throwable e) {
@@ -80,17 +92,6 @@ public abstract class AgentController {
             return false;
         }
         return (e instanceof GeneralSecurityException) || isCausedBySecurity(e.getCause());
-    }
-
-    public AgentController(SslInfrastructureService sslInfrastructureService, SystemEnvironment systemEnvironment, AgentRegistry agentRegistry, SubprocessLogger subprocessLogger) {
-        this.sslInfrastructureService = sslInfrastructureService;
-        this.systemEnvironment = systemEnvironment;
-        this.agentRegistry = agentRegistry;
-        this.subprocessLogger = subprocessLogger;
-    }
-
-    AgentRuntimeInfo getAgentRuntimeInfo() {
-        return agentRuntimeInfo;
     }
 
     // Executed when Spring initializes this bean
@@ -143,19 +144,37 @@ public abstract class AgentController {
             SubprocessLogger subprocessLogger,
             PackageAsRepositoryExtension packageAsRepositoryExtension,
             SCMExtension scmExtension,
-            TaskExtension taskExtension
-            ) {
-        return new HTTPAgentController(
-                server,
-                manipulator,
-                sslInfrastructureService,
-                agentRegistry,
-                agentUpgradeService,
-                subprocessLogger,
-                systemEnvironment,
-                pluginManager,
-                packageAsRepositoryExtension,
-                scmExtension,
-                taskExtension);
+            TaskExtension taskExtension,
+            AgentWebSocketService agentWebSocketService,
+            HttpService httpService) {
+        if (systemEnvironment.isWebsocketEnabled()) {
+            return new WebSocketAgentController(
+                    server,
+                    manipulator,
+                    sslInfrastructureService,
+                    agentRegistry,
+                    agentUpgradeService,
+                    subprocessLogger,
+                    systemEnvironment,
+                    pluginManager,
+                    packageAsRepositoryExtension,
+                    scmExtension,
+                    taskExtension,
+                    agentWebSocketService,
+                    httpService);
+        } else {
+            return new HTTPAgentController(
+                    server,
+                    manipulator,
+                    sslInfrastructureService,
+                    agentRegistry,
+                    agentUpgradeService,
+                    subprocessLogger,
+                    systemEnvironment,
+                    pluginManager,
+                    packageAsRepositoryExtension,
+                    scmExtension,
+                    taskExtension);
+        }
     }
 }

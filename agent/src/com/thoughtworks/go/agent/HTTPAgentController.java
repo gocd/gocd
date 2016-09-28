@@ -24,21 +24,17 @@ import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExte
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.plugin.infra.PluginManager;
-import com.thoughtworks.go.plugin.infra.PluginManagerReference;
 import com.thoughtworks.go.publishers.GoArtifactsManipulator;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.AgentInstruction;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.remote.work.NoWork;
 import com.thoughtworks.go.remote.work.Work;
-import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.SubprocessLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataRetrievalFailureException;
-import org.springframework.stereotype.Component;
 
 public class HTTPAgentController extends AgentController {
     private static final Logger LOG = LoggerFactory.getLogger(HTTPAgentController.class);
@@ -65,7 +61,7 @@ public class HTTPAgentController extends AgentController {
                                PackageAsRepositoryExtension packageAsRepositoryExtension,
                                SCMExtension scmExtension,
                                TaskExtension taskExtension) {
-        super(sslInfrastructureService, systemEnvironment, agentRegistry, subprocessLogger);
+        super(sslInfrastructureService, systemEnvironment, agentRegistry, pluginManager, subprocessLogger);
         this.agentUpgradeService = agentUpgradeService;
         this.packageAsRepositoryExtension = packageAsRepositoryExtension;
         this.scmExtension = scmExtension;
@@ -73,7 +69,6 @@ public class HTTPAgentController extends AgentController {
         this.server = server;
         this.manipulator = manipulator;
         this.sslInfrastructureService = sslInfrastructureService;
-        PluginManagerReference.reference().setPluginManager(pluginManager);
     }
 
     @Override
@@ -94,7 +89,7 @@ public class HTTPAgentController extends AgentController {
     }
 
     @Override
-    void execute() {
+    public void execute() {
         if (runner != null) {
             runner.handleInstruction(agentInstruction, getAgentRuntimeInfo());
         }

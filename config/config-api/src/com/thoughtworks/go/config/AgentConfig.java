@@ -145,6 +145,10 @@ public class AgentConfig implements Validatable {
         return Boolean.TRUE.equals(isDisabled);
     }
 
+    public boolean isEnabled() {
+        return Boolean.FALSE.equals(isDisabled);
+    }
+
     public void setDisabled(Boolean disabled) {
         isDisabled = disabled;
     }

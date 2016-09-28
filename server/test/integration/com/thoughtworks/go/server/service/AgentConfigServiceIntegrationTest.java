@@ -250,7 +250,25 @@ public class AgentConfigServiceIntegrationTest {
         assertTrue(result.isSuccessful());
         assertTrue(result.toString(), result.toString().contains("BULK_AGENT_UPDATE_SUCESSFUL"));
         CruiseConfig cruiseConfig = goConfigDao.load();
-        assertThat(cruiseConfig.agents().getAgentByUuid(pendingAgent.getUuid()).isDisabled(), is(false));
+        assertThat(cruiseConfig.agents().getAgentByUuid(pendingAgent.getUuid()).isEnabled(), is(true));
+    }
+
+    @Test
+    public void shouldDisablePendingAgents() throws Exception {
+        AgentInstance pendingAgent = AgentInstanceMother.pending();
+        agentInstances.add(pendingAgent);
+        assertThat(pendingAgent.isRegistered(), is(false));
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        ArrayList<String> uuids = new ArrayList<>();
+        uuids.add(pendingAgent.getUuid());
+
+        agentConfigService.bulkUpdateAgentAttributes(agentInstances, Username.ANONYMOUS, result, uuids, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), TriState.FALSE);
+
+        assertTrue(result.isSuccessful());
+        assertTrue(result.toString(), result.toString().contains("BULK_AGENT_UPDATE_SUCESSFUL"));
+        CruiseConfig cruiseConfig = goConfigDao.load();
+        assertThat(cruiseConfig.agents().getAgentByUuid(pendingAgent.getUuid()).isDisabled(), is(true));
     }
 
     @Test
@@ -302,24 +320,6 @@ public class AgentConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotAllowDisablingPendingAgents() throws Exception {
-        AgentInstance pendingAgent = AgentInstanceMother.pending();
-        agentInstances.add(pendingAgent);
-        assertThat(pendingAgent.isRegistered(), is(false));
-
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        ArrayList<String> uuids = new ArrayList<>();
-        uuids.add(pendingAgent.getUuid());
-
-        agentConfigService.bulkUpdateAgentAttributes(agentInstances, Username.ANONYMOUS, result, uuids, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), TriState.FALSE);
-
-        HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.badRequest(LocalizedMessage.string("PENDING_AGENT_INVALID_OPERATION", uuids));
-
-        assertThat(result, is(expectedResult));
-    }
-
-    @Test
     public void shouldAllowEnablingPendingAndDisabledAgentsTogether() throws Exception {
         AgentInstance pendingAgent = AgentInstanceMother.pending();
         agentInstances.add(pendingAgent);
@@ -340,8 +340,8 @@ public class AgentConfigServiceIntegrationTest {
         assertTrue(result.isSuccessful());
         assertTrue(result.toString(), result.toString().contains("BULK_AGENT_UPDATE_SUCESSFUL"));
         cruiseConfig = goConfigDao.load();
-        assertThat(cruiseConfig.agents().getAgentByUuid(pendingAgent.getUuid()).isDisabled(), is(false));
-        assertThat(cruiseConfig.agents().getAgentByUuid(agentConfig.getUuid()).isDisabled(), is(false));
+        assertThat(cruiseConfig.agents().getAgentByUuid(pendingAgent.getUuid()).isEnabled(), is(true));
+        assertThat(cruiseConfig.agents().getAgentByUuid(agentConfig.getUuid()).isEnabled(), is(true));
     }
 
     @Test

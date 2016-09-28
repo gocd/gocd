@@ -107,9 +107,9 @@ public class AgentsEntityConfigUpdateCommand implements EntityConfigUpdateComman
 
     @Override
     public void update(CruiseConfig preprocessedConfig) throws Exception {
-        ArrayList<String> allPendingAgentUuids = getAllPendingAgentUuids(agentInstances);
-        if(isPendingAgentUpdated(uuids, allPendingAgentUuids)){
-            handlePendingAgentsUpdate(allPendingAgentUuids,  result, agentInstances, preprocessedConfig);
+        ArrayList<String> allPendingAgentUuids = getAllPendingAgentUuids();
+        if(isPendingAgentUpdated(allPendingAgentUuids)){
+            handlePendingAgentsUpdate(allPendingAgentUuids, preprocessedConfig);
             uuids.removeAll(allPendingAgentUuids);
         }
 
@@ -154,7 +154,7 @@ public class AgentsEntityConfigUpdateCommand implements EntityConfigUpdateComman
         }
     }
 
-    public boolean isPendingAgentUpdated(List<String> uuids, ArrayList<String> allPendingAgentUUIDs) {
+    private boolean isPendingAgentUpdated(ArrayList<String> allPendingAgentUUIDs) {
         for (String uuid : uuids) {
             if (allPendingAgentUUIDs.contains(uuid)) {
                 return true;
@@ -163,23 +163,30 @@ public class AgentsEntityConfigUpdateCommand implements EntityConfigUpdateComman
         return false;
     }
 
-    public boolean isInvalidOperationRequested() {
-        return !(resourcesToAdd.isEmpty() && resourcesToRemove.isEmpty() && environmentsToAdd.isEmpty() && environmentsToRemove.isEmpty() && state.isTrue());
+    private boolean isInvalidOperationRequested() {
+        return !(resourcesToAdd.isEmpty() && resourcesToRemove.isEmpty() && environmentsToAdd.isEmpty() && environmentsToRemove.isEmpty());
     }
 
-    private void handlePendingAgentsUpdate(ArrayList<String> allPendingAgentUuids, LocalizedOperationResult result, AgentInstances agentInstances, CruiseConfig preprocessedConfig) throws InvalidPendingAgentOperationException {
+    private void handlePendingAgentsUpdate(ArrayList<String> allPendingAgentUuids, CruiseConfig preprocessedConfig) throws InvalidPendingAgentOperationException {
         if (isInvalidOperationRequested()) {
             result.badRequest(LocalizedMessage.string("PENDING_AGENT_INVALID_OPERATION", allPendingAgentUuids));
             throw new InvalidPendingAgentOperationException(allPendingAgentUuids);
         }
         for (String agentUuid : allPendingAgentUuids) {
-            AgentInstance agent = agentInstances.findAgent(agentUuid);
-            agent.enable();
-            preprocessedConfig.agents().add(agent.agentConfig());
+            AgentConfig agent = agentInstances.findAgent(agentUuid).agentConfig();
+            if (state.isFalse()) {
+                agent.disable();
+            }
+
+            if (state.isTrue()) {
+                agent.enable();
+            }
+
+            preprocessedConfig.agents().add(agent);
         }
     }
 
-    private ArrayList<String> getAllPendingAgentUuids(AgentInstances agentInstances) {
+    private ArrayList<String> getAllPendingAgentUuids() {
         ArrayList<String> pendingAgentUUIDs = new ArrayList<>();
         for (AgentInstance agentInstance : agentInstances) {
             if (!agentInstance.isRegistered()) {

@@ -150,10 +150,11 @@ public abstract class AgentController {
         Boolean buildCommandProtocolEnabled = systemEnvironment.isBuildCommandProtocolEnabled();
         agentAutoRegistrationProperties = new AgentAutoRegistrationPropertiesImpl(new File("config", "autoregister.properties"));
 
+        String agentWorkDir = systemEnvironment.resolveAgentWorkingDirectory(new File(".")).getAbsolutePath();
         if (agentAutoRegistrationProperties.isElastic()) {
-            agentRuntimeInfo = ElasticAgentRuntimeInfo.fromAgent(identifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), agentAutoRegistrationProperties.agentAutoRegisterElasticAgentId(), agentAutoRegistrationProperties.agentAutoRegisterElasticPluginId());
+            agentRuntimeInfo = ElasticAgentRuntimeInfo.fromAgent(identifier, AgentRuntimeStatus.Idle, agentWorkDir, agentAutoRegistrationProperties.agentAutoRegisterElasticAgentId(), agentAutoRegistrationProperties.agentAutoRegisterElasticPluginId());
         } else {
-            agentRuntimeInfo = AgentRuntimeInfo.fromAgent(identifier, AgentStatus.Idle.getRuntimeStatus(), currentWorkingDirectory(), buildCommandProtocolEnabled);
+            agentRuntimeInfo = AgentRuntimeInfo.fromAgent(identifier, AgentStatus.Idle.getRuntimeStatus(), agentWorkDir, buildCommandProtocolEnabled);
         }
     }
 

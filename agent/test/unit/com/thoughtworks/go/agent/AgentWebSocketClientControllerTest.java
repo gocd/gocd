@@ -44,6 +44,7 @@ import org.apache.http.client.methods.HttpPut;
 import org.eclipse.jetty.util.IO;
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -52,6 +53,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.security.GeneralSecurityException;
@@ -104,7 +106,12 @@ public class AgentWebSocketClientControllerTest {
     @Mock
     private WebSocketSessionHandler webSocketSessionHandler;
     private String agentUuid = "uuid";
+    public static final File RESOLVED_FILE = new File("resolved-path").getAbsoluteFile();
 
+    @Before
+    public void setUp() throws Exception {
+        when(systemEnvironment.resolveAgentWorkingDirectory(new File("."))).thenReturn(RESOLVED_FILE);
+    }
 
     @After
     public void tearDown() {
@@ -346,6 +353,15 @@ public class AgentWebSocketClientControllerTest {
 
         verify(artifactsManipulator).setProperty(null, new Property("work1_result", "done_canceled"));
         verify(artifactsManipulator).setProperty(null, new Property("work2_result", "done"));
+    }
+
+    @Test
+    public void shouldHaveRuntimeInfoWithProperlyResolvedAgentDir() throws Exception {
+        agentController = createAgentController();
+        agentController.init();
+
+        AgentRuntimeInfo agentRuntimeInfo = agentController.getAgentRuntimeInfo();
+        assertThat(agentRuntimeInfo.getLocation(), is(RESOLVED_FILE.getPath()));
     }
 
     private AgentWebSocketClientController createAgentController() {

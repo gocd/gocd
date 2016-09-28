@@ -35,7 +35,7 @@ public class StubGoPublisher extends DefaultGoPublisher {
     }
 
     public StubGoPublisher(boolean shouldFail) {
-        super(null, null, null, AgentRuntimeInfo.initialState(NullAgent.createNullAgent()));
+        super(null, null, null, AgentRuntimeInfo.initialState(NullAgent.createNullAgent()), new File("working-dir"));
         this.shouldFail = shouldFail;
     }
 

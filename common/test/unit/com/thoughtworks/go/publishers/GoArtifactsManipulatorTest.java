@@ -61,7 +61,7 @@ public class GoArtifactsManipulatorTest {
         goArtifactsManipulatorStub = new GoArtifactsManipulatorStub(httpService);
         jobIdentifier = new JobIdentifier("pipeline1", 1, "label-1", "stage1", "1", "job1");
         AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(new AgentIdentifier("h", "1", "u"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), null, false);
-        goPublisher = new DefaultGoPublisher(goArtifactsManipulatorStub, jobIdentifier, new BuildRepositoryRemoteStub(), agentRuntimeInfo);
+        goPublisher = new DefaultGoPublisher(goArtifactsManipulatorStub, jobIdentifier, new BuildRepositoryRemoteStub(), agentRuntimeInfo, new File("working-dir"));
     }
 
     @After

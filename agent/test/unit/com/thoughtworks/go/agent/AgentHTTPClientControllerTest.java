@@ -42,6 +42,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.io.File;
+
 import static com.thoughtworks.go.util.SystemUtil.getFirstLocalNonLoopbackIpAddress;
 import static com.thoughtworks.go.util.SystemUtil.getLocalhostName;
 import static org.hamcrest.Matchers.is;
@@ -77,12 +79,14 @@ public class AgentHTTPClientControllerTest {
     @Mock
     private TaskExtension taskExtension;
     private String agentUuid = "uuid";
+    public static final File RESOLVED_FILE = new File("resolved-path").getAbsoluteFile();
     private AgentIdentifier agentIdentifier;
     private AgentHTTPClientController agentController;
 
     @Before
     public void setUp() throws Exception {
         agentIdentifier = new AgentIdentifier(getLocalhostName(), getFirstLocalNonLoopbackIpAddress(), agentUuid);
+        when(systemEnvironment.resolveAgentWorkingDirectory(new File("."))).thenReturn(RESOLVED_FILE);
     }
 
     @After
@@ -165,6 +169,15 @@ public class AgentHTTPClientControllerTest {
         agentController.ping();
         verify(sslInfrastructureService).createSslInfrastructure();
         verify(loopServer).ping(any(AgentRuntimeInfo.class));
+    }
+
+    @Test
+    public void shouldHaveRuntimeInfoWithProperlyResolvedAgentDir() throws Exception {
+        agentController = createAgentController();
+        agentController.init();
+
+        AgentRuntimeInfo agentRuntimeInfo = agentController.getAgentRuntimeInfo();
+        assertThat(agentRuntimeInfo.getLocation(), is(RESOLVED_FILE.getPath()));
     }
 
     private AgentHTTPClientController createAgentController() {

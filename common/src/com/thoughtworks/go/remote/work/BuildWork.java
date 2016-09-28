@@ -82,7 +82,7 @@ public class BuildWork implements Work {
         materialRevisions = assignment.materialRevisions();
         buildLog = new GoControlLog(this.workingDirectory + "/cruise-output");
         goPublisher = new DefaultGoPublisher(goArtifactsManipulator, plan.getIdentifier(),
-                remoteBuildRepository, agentRuntimeInfo);
+                remoteBuildRepository, agentRuntimeInfo, workingDirectory);
 
         builders = new Builders(assignment.getBuilders(), goPublisher, buildLog, taskExtension);
     }

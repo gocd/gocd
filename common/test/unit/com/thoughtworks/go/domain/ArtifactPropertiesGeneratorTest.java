@@ -175,7 +175,7 @@ public class ArtifactPropertiesGeneratorTest {
                                                                                AgentIdentifier agentIdentifier) {
                     return null;
                 }
-            }, new JobIdentifier(), null, AgentRuntimeInfo.initialState(NullAgent.createNullAgent()));
+            }, new JobIdentifier(), null, AgentRuntimeInfo.initialState(NullAgent.createNullAgent()), new File("working-dir"));
             this.sentContents = sentContents;
             this.sentErrors = sentErrors;
         }

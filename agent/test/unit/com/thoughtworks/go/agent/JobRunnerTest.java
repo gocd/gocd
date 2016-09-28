@@ -121,7 +121,7 @@ public class JobRunnerTest {
 
         List<Builder> builder = BuilderMother.createBuildersAssumingAllExecTasks(config, pipelineName, stageName, JOB_PLAN_NAME);
 
-        BuildAssignment buildAssignment = BuildAssignment.create(jobPlan, BuildCause.createWithEmptyModifications(), builder, new File(CruiseConfig.WORKING_BASE_DIR + pipelineName));
+        BuildAssignment buildAssignment = BuildAssignment.create(jobPlan, BuildCause.createWithEmptyModifications(), builder, new File(pipelineName));
         return new BuildWork(buildAssignment);
     }
 

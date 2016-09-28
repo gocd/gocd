@@ -49,19 +49,19 @@ public class FetchArtifactBuilderBuildCommandTest extends BuildSessionBasedTestC
     public void shouldUnzipWhenFetchingFolder() throws Exception {
         httpService.setupDownload(format("%s/remoting/files/cruise/1/dev/1/windows/log.zip", new URLService().baseRemoteURL()), zip);
 
-        FetchArtifactBuilder builder = getBuilder(new JobIdentifier("cruise", -10, "1", "dev", "1", "windows", 1L), "log", "dest", new DirHandler("log", new File("pipelines/cruise/dest")));
+        FetchArtifactBuilder builder = getBuilder(new JobIdentifier("cruise", -10, "1", "dev", "1", "windows", 1L), "log", "dest", new DirHandler("log", new File("cruise/dest")));
         runBuilder(builder, JobResult.Passed);
-        assertDownloaded(new File(sandbox, "pipelines/cruise/dest"));
+        assertDownloaded(new File(sandbox, "cruise/dest"));
     }
 
     @Test
     public void shouldGiveWarningWhenMd5FileNotExists() throws Exception {
         httpService.setupDownload(format("%s/remoting/files/cruise/1/dev/1/windows/a.jar", new URLService().baseRemoteURL()), "some content");
 
-        FetchArtifactBuilder builder = getBuilder(new JobIdentifier("cruise", -1, "1", "dev", "1", "windows", 1L), "a.jar", "foo", new FileHandler(new File("pipelines/cruise/foo/a.jar"), "a.jar"));
+        FetchArtifactBuilder builder = getBuilder(new JobIdentifier("cruise", -1, "1", "dev", "1", "windows", 1L), "a.jar", "foo", new FileHandler(new File("cruise/foo/a.jar"), "a.jar"));
 
         runBuilder(builder, JobResult.Passed);
-        assertThat(new File(sandbox, "pipelines/cruise/foo/a.jar").isFile(), is(true));
+        assertThat(new File(sandbox, "cruise/foo/a.jar").isFile(), is(true));
         assertThat(console.output(), containsString("[WARN] The md5checksum property file was not found"));
     }
 
@@ -70,10 +70,10 @@ public class FetchArtifactBuilderBuildCommandTest extends BuildSessionBasedTestC
         httpService.setupDownload(format("%s/remoting/files/cruise/1/dev/1/windows/cruise-output/md5.checksum", new URLService().baseRemoteURL()), "a.jar=invalid-checksum");
         httpService.setupDownload(format("%s/remoting/files/cruise/1/dev/1/windows/a.jar", new URLService().baseRemoteURL()), "some content");
 
-        FetchArtifactBuilder builder = getBuilder(new JobIdentifier("cruise", -1, "1", "dev", "1", "windows", 1L), "a.jar", "foo", new FileHandler(new File("pipelines/cruise/foo/a.jar"), "a.jar"));
+        FetchArtifactBuilder builder = getBuilder(new JobIdentifier("cruise", -1, "1", "dev", "1", "windows", 1L), "a.jar", "foo", new FileHandler(new File("cruise/foo/a.jar"), "a.jar"));
         runBuilder(builder, JobResult.Failed);
         assertThat(console.output(), containsString("[ERROR] Verification of the integrity of the artifact [a.jar] failed"));
-        assertThat(new File(sandbox, "pipelines/cruise/foo/a.jar").isFile(), is(true));
+        assertThat(new File(sandbox, "cruise/foo/a.jar").isFile(), is(true));
     }
 
     @Test
@@ -81,14 +81,14 @@ public class FetchArtifactBuilderBuildCommandTest extends BuildSessionBasedTestC
         httpService.setupDownload(format("%s/remoting/files/cruise/1/dev/1/windows/cruise-output/md5.checksum", new URLService().baseRemoteURL()), "a.jar=9893532233caff98cd083a116b013c0b");
         httpService.setupDownload(format("%s/remoting/files/cruise/1/dev/1/windows/a.jar", new URLService().baseRemoteURL()), "some content");
 
-        FetchArtifactBuilder builder = getBuilder(new JobIdentifier("cruise", -1, "1", "dev", "1", "windows", 1L), "a.jar", "foo", new FileHandler(new File("pipelines/cruise/foo/a.jar"), "a.jar"));
+        FetchArtifactBuilder builder = getBuilder(new JobIdentifier("cruise", -1, "1", "dev", "1", "windows", 1L), "a.jar", "foo", new FileHandler(new File("cruise/foo/a.jar"), "a.jar"));
         runBuilder(builder, JobResult.Passed);
-        assertThat(console.output(), containsString(format("Saved artifact to [%s] after verifying the integrity of its contents", new File(sandbox, "pipelines/cruise/foo/a.jar").getPath())));
+        assertThat(console.output(), containsString(format("Saved artifact to [%s] after verifying the integrity of its contents", new File(sandbox, "cruise/foo/a.jar").getPath())));
     }
 
     @Test
     public void shouldFailBuildAndPrintErrorMessageToConsoleWhenArtifactNotExisit() throws Exception {
-        FetchArtifactBuilder builder = getBuilder(new JobIdentifier("cruise", -1, "1", "dev", "1", "windows", 1L), "a.jar", "foo", new FileHandler(new File("pipelines/cruise/foo/a.jar"), "a.jar"));
+        FetchArtifactBuilder builder = getBuilder(new JobIdentifier("cruise", -1, "1", "dev", "1", "windows", 1L), "a.jar", "foo", new FileHandler(new File("cruise/foo/a.jar"), "a.jar"));
         runBuilder(builder, JobResult.Failed);
         assertThat(console.output(), not(containsString("Saved artifact")));
         assertThat(console.output(), containsString("Could not fetch artifact"));
@@ -96,8 +96,8 @@ public class FetchArtifactBuilderBuildCommandTest extends BuildSessionBasedTestC
 
     @Test
     public void shouldDownloadWithURLContainsSHA1WhenFileExists() throws Exception {
-        File artifactOnAgent = new File(sandbox, "pipelines/cruise/foo/a.jar");
-        new File(sandbox, "pipelines/cruise/foo").mkdirs();
+        File artifactOnAgent = new File(sandbox, "cruise/foo/a.jar");
+        new File(sandbox, "cruise/foo").mkdirs();
         FileUtil.writeContentToFile("foobar", artifactOnAgent);
         String sha1 = java.net.URLEncoder.encode(StringUtil.sha1Digest(artifactOnAgent), "UTF-8");
 
@@ -106,7 +106,7 @@ public class FetchArtifactBuilderBuildCommandTest extends BuildSessionBasedTestC
         httpService.setupDownload(format("%s/remoting/files/cruise/1/dev/1/windows/a.jar?sha1=%s", new URLService().baseRemoteURL(), sha1), "content for url with sha1");
 
 
-        FetchArtifactBuilder builder = getBuilder(new JobIdentifier("cruise", -1, "1", "dev", "1", "windows", 1L), "a.jar", "foo", new FileHandler(new File("pipelines/cruise/foo/a.jar"), "a.jar"));
+        FetchArtifactBuilder builder = getBuilder(new JobIdentifier("cruise", -1, "1", "dev", "1", "windows", 1L), "a.jar", "foo", new FileHandler(new File("cruise/foo/a.jar"), "a.jar"));
 
         runBuilder(builder, JobResult.Passed);
         assertThat(artifactOnAgent.isFile(), is(true));
@@ -138,7 +138,7 @@ public class FetchArtifactBuilderBuildCommandTest extends BuildSessionBasedTestC
     }
 
     private File checksumFile(JobIdentifier jobIdentifier, String srcdir, String dest) {
-        File destOnAgent = new File(CruiseConfig.WORKING_BASE_DIR + jobIdentifier.getPipelineName() + '/' + dest);
+        File destOnAgent = new File(jobIdentifier.getPipelineName() + '/' + dest);
         return new File(destOnAgent, String.format("%s_%s_%s_md5.checksum", jobIdentifier.getPipelineName(), jobIdentifier.getStageName(), jobIdentifier.getBuildName()));
     }
 

@@ -69,7 +69,7 @@ public class MessageTest {
 
     @Test
     public void encodeAndDecodeAssignWorkWithDifferentBuilders() throws Exception {
-        File workingDir = new File(CruiseConfig.WORKING_BASE_DIR + "pipelineName");
+        File workingDir = new File("pipelineName");
         Materials materials = MaterialsMother.defaultMaterials();
         MaterialRevisions revisions = ModificationsMother.modifyOneFile(materials, ModificationsMother.nextRevision());
         BuildCause buildCause = BuildCause.createWithModifications(revisions, "");

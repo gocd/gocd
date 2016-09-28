@@ -39,7 +39,6 @@ import com.thoughtworks.go.server.service.builders.*;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.SystemUtil;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.websocket.MessageEncoding;
 import org.apache.commons.io.FileUtils;
@@ -52,6 +51,8 @@ import org.mockito.Mock;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -197,8 +198,9 @@ public class BuildWorkTest {
     private SCMExtension scmExtension;
     @Mock
     private TaskExtension taskExtension;
-    @Mock
     private SystemEnvironment systemEnvironment;
+
+    private List<File> directoriesWhichNeedToBeCleanedUp;
 
     private static String willUpload(String file) {
         return "<job name=\"" + JOB_PLAN_NAME + "\">\n"
@@ -235,7 +237,11 @@ public class BuildWorkTest {
         agentIdentifier = new AgentIdentifier("localhost", "127.0.0.1", "uuid");
         environmentVariableContext = new EnvironmentVariableContext();
         artifactManipulator = new GoArtifactsManipulatorStub();
-        new SystemEnvironment().setProperty("serviceUrl", SERVER_URL);
+
+        systemEnvironment = new SystemEnvironment();
+        systemEnvironment.setProperty("serviceUrl", SERVER_URL); /* UrlService instantiates SystemEnvironment :( */
+
+        directoriesWhichNeedToBeCleanedUp = new ArrayList<>();
         buildRepository = new com.thoughtworks.go.remote.work.BuildRepositoryRemoteStub();
     }
 
@@ -243,6 +249,10 @@ public class BuildWorkTest {
     public void tearDown() {
         new SystemEnvironment().clearProperty("serviceUrl");
         verifyNoMoreInteractions(resolver);
+
+        for (File dir : directoriesWhichNeedToBeCleanedUp) {
+            FileUtil.deleteFolder(dir);
+        }
     }
 
     @Test
@@ -332,7 +342,7 @@ public class BuildWorkTest {
 
         String actual = artifactManipulator.consoleOut();
         artifactManipulator.printConsoleOut();
-        File basedir = new File("pipelines/pipeline1");
+        File basedir = ensureWorkingDirectoryDoesNotExistFor("pipeline1");
 
         assertThat(actual.toLowerCase(), containsString(("Uploading artifacts from " + new File(basedir, "cruise-output/log.xml").getCanonicalPath()).toLowerCase()));
 
@@ -352,7 +362,7 @@ public class BuildWorkTest {
 
         String actual = artifactManipulator.consoleOut();
 
-        File basedir = new File("pipelines/pipeline1");
+        File basedir = ensureWorkingDirectoryDoesNotExistFor("pipeline1");
         assertThat(actual, printedUploadingFailure(new File(basedir, "cruise-output/log.xml")));
         assertThat(buildRepository.results, containsResult(Failed));
     }
@@ -501,11 +511,7 @@ public class BuildWorkTest {
     @Test
     public void shouldCreateAgentWorkingDirectoryIfNotExist() throws Exception {
         String pipelineName = "pipeline" + UUID.randomUUID();
-        File workingdir = new File("pipelines/" + pipelineName);
-        if (workingdir.exists()) {
-            FileUtils.deleteDirectory(workingdir);
-        }
-        assertThat(workingdir.exists(), is(false));
+        File workingdir = ensureWorkingDirectoryDoesNotExistFor(pipelineName);
         buildWork = (BuildWork) getWork(WILL_PASS, pipelineName);
 
         buildWork.doWork(agentIdentifier,
@@ -521,11 +527,7 @@ public class BuildWorkTest {
     @Test
     public void shouldNotBombWhenCreatingWorkingDirectoryIfCleanWorkingDirectoryFlagIsTrue() throws Exception {
         String pipelineName = "pipeline" + UUID.randomUUID();
-        File workingdir = new File("pipelines/" + pipelineName);
-        if (workingdir.exists()) {
-            FileUtils.deleteDirectory(workingdir);
-        }
-        assertThat(workingdir.exists(), is(false));
+        File workingdir = ensureWorkingDirectoryDoesNotExistFor(pipelineName);
         buildWork = (BuildWork) getWork(WILL_PASS, pipelineName, true, true);
 
         buildWork.doWork(agentIdentifier,
@@ -540,49 +542,87 @@ public class BuildWorkTest {
     @Test
     public void shouldCreateAgentWorkingDirectoryIfNotExistWhenFetchMaterialsIsFalse() throws Exception {
         String pipelineName = "pipeline" + UUID.randomUUID();
-        File workingdir = new File("pipelines/" + pipelineName);
-        if (workingdir.exists()) {
-            FileUtils.deleteDirectory(workingdir);
-        }
-        assertThat(workingdir.exists(), is(false));
+        File workingDir = ensureWorkingDirectoryDoesNotExistFor(pipelineName);
         buildWork = (BuildWork) getWork(WILL_PASS, pipelineName, false, false);
 
         buildWork.doWork(agentIdentifier,
                 buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), systemEnvironment, packageRepositoryExtension, scmExtension, taskExtension);
-        assertThat(artifactManipulator.consoleOut(), not(containsString("Working directory \"" + workingdir.getAbsolutePath() + "\" is not a directory")));
+        assertThat(artifactManipulator.consoleOut(), not(containsString("Working directory \"" + workingDir.getAbsolutePath() + "\" is not a directory")));
         assertThat(buildRepository.results.contains(Passed), is(true));
-        assertThat(workingdir.exists(), is(true));
+        assertThat(workingDir.exists(), is(true));
     }
 
     @Test
     public void shouldCleanAgentWorkingDirectoryIfExistsWhenCleanWorkingDirIsTrue() throws Exception {
         String pipelineName = "pipeline" + UUID.randomUUID();
-        File workingdir = new File("pipelines/" + pipelineName);
-        if (workingdir.exists()) {
-            FileUtils.deleteDirectory(workingdir);
-        }
-        workingdir.mkdirs();
-        createDummyFilesAndDirectories(workingdir);
-        assertThat(workingdir.listFiles().length, is(2));
+        File workingDir = ensureWorkingDirectoryDoesNotExistFor(pipelineName);
+        workingDir.mkdirs();
+        createDummyFilesAndDirectories(workingDir);
+        assertThat(workingDir.listFiles().length, is(2));
 
         buildWork = (BuildWork) getWork(WILL_PASS, pipelineName, false, true);
 
         buildWork.doWork(agentIdentifier,
                 buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), systemEnvironment, packageRepositoryExtension, scmExtension, taskExtension);
-        assertThat(artifactManipulator.consoleOut(), containsString("Cleaning working directory \"" + workingdir.getAbsolutePath()));
+        assertThat(artifactManipulator.consoleOut(), containsString("Cleaning working directory \"" + workingDir.getAbsolutePath()));
         assertThat(buildRepository.results.contains(Passed), is(true));
-        assertThat(workingdir.exists(), is(true));
-        assertThat(workingdir.listFiles().length, is(1));
+        assertThat(workingDir.exists(), is(true));
+        assertThat(workingDir.listFiles().length, is(1));
     }
 
     @Test
-    public void shouldReportCurrentWorkingDirectory() throws Exception {
+    public void shouldReportTheAgentsWorkingDirectory() throws Exception {
         buildWork = (BuildWork) getWork(WILL_PASS, PIPELINE_NAME);
+        String expectedWorkDir = ensureWorkingDirectoryDoesNotExistFor(PIPELINE_NAME).getAbsolutePath();
 
         buildWork.doWork(agentIdentifier,
                 buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), systemEnvironment, packageRepositoryExtension, scmExtension, taskExtension);
         assertThat(artifactManipulator.consoleOut(),
-                containsString("[" + SystemUtil.currentWorkingDirectory() + "]"));
+                containsString("[" + expectedWorkDir + "]"));
+    }
+
+
+    @Test
+    public void shouldReportEnvironmentVariables() throws Exception {
+        buildWork = (BuildWork) getWork(WITH_ENV_VAR, PIPELINE_NAME);
+
+        buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), systemEnvironment, packageRepositoryExtension, scmExtension, taskExtension);
+
+        String consoleOut = artifactManipulator.consoleOut();
+
+
+        assertThat(consoleOut, matches("'GO_SERVER_URL' (to|with) value '" + SERVER_URL));
+        assertThat(consoleOut, matches("'GO_PIPELINE_LABEL' (to|with) value '" + PIPELINE_LABEL));
+        assertThat(consoleOut, matches("'GO_PIPELINE_NAME' (to|with) value '" + PIPELINE_NAME));
+        assertThat(consoleOut, matches("'GO_STAGE_NAME' (to|with) value '" + STAGE_NAME));
+        assertThat(consoleOut, matches("'GO_STAGE_COUNTER' (to|with) value '" + STAGE_COUNTER));
+        assertThat(consoleOut, matches("'GO_JOB_NAME' (to|with) value '" + JOB_PLAN_NAME));
+
+        assertThat(consoleOut, containsString("[go] setting environment variable 'JOB_ENV' to value 'foobar'"));
+        if (isWindows()) {
+            assertThat(consoleOut, containsString("[go] overriding environment variable 'Path' with value '/tmp'"));
+        } else {
+            assertThat(consoleOut, containsString("[go] overriding environment variable 'PATH' with value '/tmp'"));
+        }
+    }
+
+    @Test
+    public void shouldMaskSecretInEnvironmentVarialbeReport() throws Exception {
+        buildWork = (BuildWork) getWork(WITH_SECRET_ENV_VAR, PIPELINE_NAME);
+
+        buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), systemEnvironment, packageRepositoryExtension, scmExtension, taskExtension);
+
+        String consoleOut = artifactManipulator.consoleOut();
+        assertThat(consoleOut, containsString("[go] setting environment variable 'foo' to value 'foo(******)'"));
+        assertThat(consoleOut, containsString("[go] setting environment variable 'bar' to value '********'"));
+        assertThat(consoleOut, not(containsString("i am a secret")));
+    }
+
+    @Test
+    public void encodeAndDecodeBuildWorkAsMessageData() throws Exception {
+        Work original = getWork(WILL_FAIL, PIPELINE_NAME);
+        Work clone = MessageEncoding.decodeWork(MessageEncoding.encodeWork(original));
+        assertThat(clone, is(original));
     }
 
     private void createDummyFilesAndDirectories(File workingdir) {
@@ -636,46 +676,13 @@ public class BuildWorkTest {
         buildWork = new BuildWork(buildAssignment);
     }
 
-    @Test
-    public void shouldReportEnvironmentVariables() throws Exception {
-        buildWork = (BuildWork) getWork(WITH_ENV_VAR, PIPELINE_NAME);
-
-        buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), systemEnvironment, packageRepositoryExtension, scmExtension, taskExtension);
-
-        String consoleOut = artifactManipulator.consoleOut();
-
-
-        assertThat(consoleOut, matches("'GO_SERVER_URL' (to|with) value '" + SERVER_URL));
-        assertThat(consoleOut, matches("'GO_PIPELINE_LABEL' (to|with) value '" + PIPELINE_LABEL));
-        assertThat(consoleOut, matches("'GO_PIPELINE_NAME' (to|with) value '" + PIPELINE_NAME));
-        assertThat(consoleOut, matches("'GO_STAGE_NAME' (to|with) value '" + STAGE_NAME));
-        assertThat(consoleOut, matches("'GO_STAGE_COUNTER' (to|with) value '" + STAGE_COUNTER));
-        assertThat(consoleOut, matches("'GO_JOB_NAME' (to|with) value '" + JOB_PLAN_NAME));
-
-        assertThat(consoleOut, containsString("[go] setting environment variable 'JOB_ENV' to value 'foobar'"));
-        if (isWindows()) {
-            assertThat(consoleOut, containsString("[go] overriding environment variable 'Path' with value '/tmp'"));
-        } else {
-            assertThat(consoleOut, containsString("[go] overriding environment variable 'PATH' with value '/tmp'"));
+    private File ensureWorkingDirectoryDoesNotExistFor(String pipelineName) throws IOException {
+        File workingDir = systemEnvironment.resolveAgentWorkingDirectory(new File(pipelineName));
+        if (workingDir.exists()) {
+            FileUtils.deleteDirectory(workingDir);
         }
-    }
-
-    @Test
-    public void shouldMaskSecretInEnvironmentVarialbeReport() throws Exception {
-        buildWork = (BuildWork) getWork(WITH_SECRET_ENV_VAR, PIPELINE_NAME);
-
-        buildWork.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), systemEnvironment, packageRepositoryExtension, scmExtension, taskExtension);
-
-        String consoleOut = artifactManipulator.consoleOut();
-        assertThat(consoleOut, containsString("[go] setting environment variable 'foo' to value 'foo(******)'"));
-        assertThat(consoleOut, containsString("[go] setting environment variable 'bar' to value '********'"));
-        assertThat(consoleOut, not(containsString("i am a secret")));
-    }
-
-    @Test
-    public void encodeAndDecodeBuildWorkAsMessageData() throws Exception {
-        Work original = getWork(WILL_FAIL, PIPELINE_NAME);
-        Work clone = MessageEncoding.decodeWork(MessageEncoding.encodeWork(original));
-        assertThat(clone, is(original));
+        assertThat(workingDir.exists(), is(false));
+        directoriesWhichNeedToBeCleanedUp.add(workingDir);
+        return workingDir;
     }
 }

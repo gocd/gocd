@@ -47,7 +47,7 @@ public class AgentRuntimeInfoTest {
 
     @Before
     public void setup() throws Exception {
-        pipelinesFolder = new File(CruiseConfig.WORKING_BASE_DIR);
+        pipelinesFolder = new File("pipelines");
         pipelinesFolder.mkdirs();
     }
 

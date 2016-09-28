@@ -125,7 +125,7 @@ public class BuildWorkArtifactFetchingTest {
         buildWork.doWork(agentIdentifier, buildRepository, stubManipulator, environmentVariableContext,
                 new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), systemEnvironment, null, null, null);
 
-        File expectedDestination = systemEnvironment.resolveAgentWorkingDirectory(new File(CruiseConfig.WORKING_BASE_DIR + PIPELINE_NAME + File.separator + DEST));
+        File expectedDestination = systemEnvironment.resolveAgentWorkingDirectory(new File(PIPELINE_NAME + File.separator + DEST));
         assertThat(stubManipulator.artifact().get(0), is(new DirHandler("lib", expectedDestination)));
     }
 }

@@ -89,7 +89,7 @@ public class FetchArtifactBuilderTest {
         ChecksumFileHandler checksumFileHandler = mock(ChecksumFileHandler.class);
         when(checksumFileHandler.handleResult(SC_OK, publisher)).thenReturn(true);
 
-        File destOnAgent = new File("pipelines/cruise/", dest.getPath());
+        File destOnAgent = new File("cruise/", dest.getPath());
         FetchArtifactBuilder builder = getBuilder(new JobIdentifier("cruise", -10, "1", "dev", "1", "windows", 1L), "log", dest.getPath(), new DirHandler("log",destOnAgent), checksumFileHandler);
 
         builder.fetch(new DownloadAction(new StubFetchZipHttpService(), publisher, clock), new StubURLService());
@@ -102,7 +102,7 @@ public class FetchArtifactBuilderTest {
         ChecksumFileHandler checksumFileHandler = mock(ChecksumFileHandler.class);
         when(checksumFileHandler.handleResult(SC_OK, publisher)).thenReturn(true);
 
-        File artifactOnAgent = new File("pipelines/cruise/a.jar");
+        File artifactOnAgent = new File("cruise/a.jar");
         toClean.add(artifactOnAgent);
 
         FetchArtifactBuilder builder = getBuilder(new JobIdentifier("cruise", -1, "1", "dev", "1", "windows", 1L), "log", "some where do download", new FileHandler(artifactOnAgent, getSrc()), checksumFileHandler);
@@ -119,7 +119,7 @@ public class FetchArtifactBuilderTest {
     @Test
     public void shouldReturnURLWithoutSHA1WhenFileDoesNotExist() throws Exception {
         String src = "cruise-output/console.log";
-        File destOnAgent = new File(CruiseConfig.WORKING_BASE_DIR + "cruise" + '/' + dest);
+        File destOnAgent = new File("cruise" + '/' + dest);
         File consolelog = new File(destOnAgent, "console.log");
         consolelog.delete();
 
@@ -144,7 +144,7 @@ public class FetchArtifactBuilderTest {
     @Test
     public void shouldReturnURLWithSHA1WhenFileExists() throws Exception {
         String src = "cruise-output/console.log";
-        File destOnAgent = new File(CruiseConfig.WORKING_BASE_DIR + "cruise" + '/' + dest);
+        File destOnAgent = new File("cruise" + '/' + dest);
         File consolelog = new File(destOnAgent, "console.log");
         consolelog.getParentFile().mkdirs();
         consolelog.createNewFile();
@@ -171,7 +171,7 @@ public class FetchArtifactBuilderTest {
     @Test
     public void shouldReturnURLEndsWithDotZipWhenRequestingFolder() throws Exception {
         String src = "cruise-output";
-        File destOnAgent = new File("pipelines/cruise/", dest.getPath());
+        File destOnAgent = new File("cruise/", dest.getPath());
 
         FetchArtifactBuilder builder = getBuilder(new JobIdentifier("foo", -1, "label-1", "dev", "1", "linux", 1L),
                 src, "lib/a.jar",

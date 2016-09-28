@@ -59,7 +59,7 @@ public class Pipeline extends PersistentObject implements PipelineInfo {
     }
 
     public File defaultWorkingFolder() {
-        return new File(CruiseConfig.WORKING_BASE_DIR + pipelineName);
+        return new File(pipelineName);
     }
 
     public String getName() {

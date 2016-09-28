@@ -622,7 +622,7 @@ public class FetchTaskTest {
     public void shouldCreateArtifactDest() {
         FetchTask fetchTask = new FetchTask(new CaseInsensitiveString("up-pipeline"), new CaseInsensitiveString("bar-stage"), new CaseInsensitiveString("baz-job"), "quux.c", "dest-dir");
         File artifactDest = fetchTask.artifactDest("foo-pipeline", "file-name-in-dest");
-        assertThat(artifactDest, is(new File("pipelines/foo-pipeline/dest-dir/file-name-in-dest")));
+        assertThat(artifactDest, is(new File("foo-pipeline/dest-dir/file-name-in-dest")));
     }
 
     @Test

@@ -16,13 +16,20 @@
 
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.BasicCruiseConfig;
-import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.google.gson.Gson;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.config.*;
-import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.i18n.LocalizedMessage;
+import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
+import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialProvider;
+import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
+import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
+import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
+import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
+import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.infra.ActionWithReturn;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.domain.Username;
@@ -32,10 +39,15 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 
+import java.util.Arrays;
+
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Matchers.any;
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -72,7 +84,7 @@ public class CreatePackageRepositoryCommandTest {
 
     @Test
     public void shouldCreatePackageRepository() throws Exception {
-        CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, packageRepository, currentUser, pluginManager, result);
+        CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, service, packageRepository, currentUser, pluginManager, result);
         when(pluginManager.getPluginDescriptorFor(pluginId)).thenReturn(new GoPluginDescriptor(pluginId, "1", null, null, null, false));
 
         assertThat(cruiseConfig.getPackageRepositories().size(), is(0));
@@ -86,8 +98,12 @@ public class CreatePackageRepositoryCommandTest {
 
     @Test
     public void shouldNotCreatePackageRepositoryIfTheSpecifiedPluginTypeWithVersionIsInvalid() throws Exception {
+        when(pluginManager.isPluginOfType("package-repository", pluginId)).thenReturn(true);
+        when(pluginManager.resolveExtensionVersion(pluginId, Arrays.asList("1.0"))).thenReturn("1.0");
+        when(pluginManager.submitTo(any(String.class), any(GoPluginApiRequest.class)))
+                .thenReturn(new DefaultGoPluginApiResponse(DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE));
         when(pluginManager.getPluginDescriptorFor(pluginId)).thenReturn(new GoPluginDescriptor(pluginId, "4", null, null, null, false));
-        CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, packageRepository, currentUser, pluginManager, result);
+        CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, service, packageRepository, currentUser, pluginManager, result);
         assertThat(cruiseConfig.getPackageRepositories().size(), is(0));
         assertNull(cruiseConfig.getPackageRepositories().find(repoId));
         command.update(cruiseConfig);
@@ -99,7 +115,11 @@ public class CreatePackageRepositoryCommandTest {
 
     @Test
     public void shouldNotCreatePackageRepositoryIfTheSpecifiedPluginTypeIsInvalid() throws Exception {
-        CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, packageRepository, currentUser, pluginManager, result);
+        when(pluginManager.isPluginOfType("package-repository", pluginId)).thenReturn(true);
+        when(pluginManager.resolveExtensionVersion(pluginId, Arrays.asList("1.0"))).thenReturn("1.0");
+        when(pluginManager.submitTo(any(String.class), any(GoPluginApiRequest.class)))
+                .thenReturn(new DefaultGoPluginApiResponse(DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE));
+        CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, service, packageRepository, currentUser, pluginManager, result);
         assertThat(cruiseConfig.getPackageRepositories().size(), is(0));
         assertNull(cruiseConfig.getPackageRepositories().find(repoId));
         command.update(cruiseConfig);
@@ -111,9 +131,13 @@ public class CreatePackageRepositoryCommandTest {
 
     @Test
     public void shouldNotCreatePackageRepositoryWhenRepositoryWithSpecifiedNameAlreadyExists() throws Exception {
+        when(pluginManager.isPluginOfType("package-repository", pluginId)).thenReturn(true);
+        when(pluginManager.resolveExtensionVersion(pluginId, Arrays.asList("1.0"))).thenReturn("1.0");
+        when(pluginManager.submitTo(any(String.class), any(GoPluginApiRequest.class)))
+                .thenReturn(new DefaultGoPluginApiResponse(DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE));
         cruiseConfig.getPackageRepositories().add(packageRepository);
         when(pluginManager.getPluginDescriptorFor(pluginId)).thenReturn(new GoPluginDescriptor(pluginId, "1", null, null, null, false));
-        CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, packageRepository, currentUser, pluginManager, result);
+        CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, service, packageRepository, currentUser, pluginManager, result);
         command.update(cruiseConfig);
         assertFalse(command.isValid(cruiseConfig));
         assertThat(packageRepository.errors().firstError(), is("You have defined multiple repositories called 'npmOrg'. Repository names are case-insensitive and must be unique."));
@@ -121,13 +145,17 @@ public class CreatePackageRepositoryCommandTest {
 
     @Test
     public void shouldNotCreatePackageRepositoryWhenRepositoryHasDuplicateConfigurationProperties() throws Exception {
+        when(pluginManager.isPluginOfType("package-repository", pluginId)).thenReturn(true);
+        when(pluginManager.resolveExtensionVersion(pluginId, Arrays.asList("1.0"))).thenReturn("1.0");
+        when(pluginManager.submitTo(any(String.class), any(GoPluginApiRequest.class)))
+                .thenReturn(new DefaultGoPluginApiResponse(DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE));
         Configuration configuration = new Configuration();
         ConfigurationProperty property = new ConfigurationProperty(new ConfigurationKey("foo"), new ConfigurationValue("bar"));
         configuration.add(property);
         configuration.add(property);
         packageRepository.setConfiguration(configuration);
         when(pluginManager.getPluginDescriptorFor(pluginId)).thenReturn(new GoPluginDescriptor(pluginId, "1", null, null, null, false));
-        CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, packageRepository, currentUser, pluginManager, result);
+        CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, service, packageRepository, currentUser, pluginManager, result);
         command.update(cruiseConfig);
         assertFalse(command.isValid(cruiseConfig));
         assertThat(property.errors().firstError(), is("Duplicate key 'foo' found for Repository 'npmOrg'"));
@@ -135,18 +163,36 @@ public class CreatePackageRepositoryCommandTest {
 
     @Test
     public void shouldNotCreatePackageRepositoryWhenRepositoryHasInvalidName() throws Exception {
+        when(pluginManager.isPluginOfType("package-repository", pluginId)).thenReturn(true);
+        when(pluginManager.resolveExtensionVersion(pluginId, Arrays.asList("1.0"))).thenReturn("1.0");
+        when(pluginManager.submitTo(any(String.class), any(GoPluginApiRequest.class)))
+                .thenReturn(new DefaultGoPluginApiResponse(DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE));
         packageRepository.setName("~!@#$%^&*(");
         when(pluginManager.getPluginDescriptorFor(pluginId)).thenReturn(new GoPluginDescriptor(pluginId, "1", null, null, null, false));
-        CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, packageRepository, currentUser, pluginManager, result);
+        CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, service, packageRepository, currentUser, pluginManager, result);
         command.update(cruiseConfig);
         assertFalse(command.isValid(cruiseConfig));
         assertThat(packageRepository.errors().firstError(), is("Invalid PackageRepository name '~!@#$%^&*('. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
     }
 
     @Test
+    public void shouldNotCreatePackageRepositoryWhenRepositoryHasInvalidConfiguration() throws Exception {
+        when(pluginManager.isPluginOfType("package-repository", pluginId)).thenReturn(true);
+        when(pluginManager.resolveExtensionVersion(pluginId, Arrays.asList("1.0"))).thenReturn("1.0");
+        when(pluginManager.hasReferenceFor(PackageMaterialProvider.class, pluginId)).thenReturn(true);
+        ValidationResult result = new ValidationResult();
+        result.addError(new ValidationError("REPO_URL", "Repository url not specified"));
+        when(pluginManager.doOn(eq(PackageMaterialProvider.class), any(String.class), any(ActionWithReturn.class))).thenReturn(result);
+        CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, service, packageRepository, currentUser, pluginManager, this.result);
+        command.update(cruiseConfig);
+        assertFalse(command.isValid(cruiseConfig));
+        assertThat(com.thoughtworks.go.config.ErrorCollector.getAllErrors(packageRepository).get(0).firstError(), is("Repository url not specified"));
+    }
+
+    @Test
     public void shouldNotContinueIfTheUserDontHavePermissionsToOperateOnPackageRepositories() throws Exception {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
-        CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, packageRepository, currentUser, pluginManager, result);
+        CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, service, packageRepository, currentUser, pluginManager, result);
 
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         expectedResult.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_OPERATE"), HealthStateType.unauthorised());

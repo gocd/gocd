@@ -297,6 +297,7 @@ public class PackageRepository implements Serializable, Validatable {
     }
 
     public void validateNameUniqueness(HashMap<String, PackageRepository> nameMap) {
+        if(name == null) return;
         String errorMessageForDuplicateName = String.format("You have defined multiple repositories called '%s'. Repository names are case-insensitive and must be unique.", name);
         PackageRepository repoWithSameFieldValue = nameMap.get(name.toLowerCase());
         if (repoWithSameFieldValue == null) {

@@ -26,6 +26,7 @@ import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.materials.PackageRepositoryService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 
@@ -34,18 +35,16 @@ public class UpdatePackageRepositoryCommand extends PackageRepositoryCommand imp
     private String oldRepoId;
     private final PackageRepository newRepo;
     private final Username username;
-    private final PluginManager pluginManager;
     private final String md5;
     private final EntityHashingService entityHashingService;
     private final HttpLocalizedOperationResult result;
 
-    public UpdatePackageRepositoryCommand(GoConfigService goConfigService, String oldRepoId, PackageRepository newRepo, Username username, PluginManager pluginManager, String md5, EntityHashingService entityHashingService, HttpLocalizedOperationResult result) {
-        super(goConfigService, newRepo, username, pluginManager, result);
+    public UpdatePackageRepositoryCommand(GoConfigService goConfigService, PackageRepositoryService packageRepositoryService, String oldRepoId, PackageRepository newRepo, Username username, PluginManager pluginManager, String md5, EntityHashingService entityHashingService, HttpLocalizedOperationResult result) {
+        super(packageRepositoryService, newRepo, pluginManager, result);
         this.goConfigService = goConfigService;
         this.oldRepoId = oldRepoId;
         this.newRepo = newRepo;
         this.username = username;
-        this.pluginManager = pluginManager;
         this.md5 = md5;
         this.entityHashingService = entityHashingService;
         this.result = result;

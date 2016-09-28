@@ -19,44 +19,77 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.domain.config.PluginConfiguration;
+import com.thoughtworks.go.domain.config.*;
+import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
-import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
+import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
+import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialProperty;
+import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
+import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
+import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.materials.PackageRepositoryService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 
 import static com.thoughtworks.go.config.ErrorCollector.getAllErrors;
 
 public class PackageRepositoryCommand {
-    private final GoConfigService goConfigService;
+    private PackageRepositoryService packageRepositoryService;
     private final PackageRepository repository;
-    private final Username username;
     private final PluginManager pluginManager;
     private final HttpLocalizedOperationResult result;
+    private PackageRepository preprocessedRepository;
 
-    public PackageRepositoryCommand(GoConfigService goConfigService, PackageRepository repository, Username username, PluginManager pluginManager, HttpLocalizedOperationResult result) {
-        this.goConfigService = goConfigService;
+    public PackageRepositoryCommand(PackageRepositoryService packageRepositoryService, PackageRepository repository, PluginManager pluginManager, HttpLocalizedOperationResult result) {
+        this.packageRepositoryService = packageRepositoryService;
         this.repository = repository;
-        this.username = username;
         this.pluginManager = pluginManager;
         this.result = result;
     }
 
     public boolean isValid(CruiseConfig preprocessedConfig) {
-        preprocessedConfig.getPackageRepositories().validate(new ConfigSaveValidationContext(preprocessedConfig));
-        PackageRepository packageRepository = preprocessedConfig.getPackageRepositories().find(this.repository.getRepoId());
-        packageRepository.validate(new ConfigSaveValidationContext(preprocessedConfig.getPackageRepositories()));
-        isValidPlugin(packageRepository.getPluginConfiguration());
-        BasicCruiseConfig.copyErrors(packageRepository, this.repository);
+        PackageRepositories repositories = preprocessedConfig.getPackageRepositories();
+        this.preprocessedRepository = repositories.find(this.repository.getRepoId());
+        preprocessedRepository.validate(new ConfigSaveValidationContext(repositories));
+        repositories.validate(new ConfigSaveValidationContext(preprocessedConfig));
+        validatePluginConfiguration(preprocessedRepository.getPluginConfiguration());
+        ValidateRepositoryConfiguration();
+        BasicCruiseConfig.copyErrors(preprocessedRepository, this.repository);
         return getAllErrors(this.repository).isEmpty() && result.isSuccessful();
     }
 
-    private void isValidPlugin(PluginConfiguration pluginConfiguration) {
+    private void ValidateRepositoryConfiguration() {
+        PackageAsRepositoryExtension extension = new PackageAsRepositoryExtension(this.pluginManager);
+        String pluginId = preprocessedRepository.getPluginConfiguration().getId();
+        RepositoryConfiguration repoConfig = getRepoConfiguration(preprocessedRepository.getConfiguration());
+        ValidationResult validationResult = extension.isRepositoryConfigurationValid(pluginId, repoConfig);
+        Configuration repoConfiguration = this.repository.getConfiguration();
+        for (ValidationError error : validationResult.getErrors()) {
+            if (!repoConfiguration.listOfConfigKeys().contains(error.getKey())) {
+                addConfigProperty(this.repository, error.getKey(), null);
+            }
+            this.repository.addConfigurationErrorFor(error.getKey(), error.getMessage());
+        }
+    }
+
+    private void addConfigProperty(PackageRepository repository, String key, String value) {
+        Configuration configuration = repository.getConfiguration();
+        configuration.add(new ConfigurationProperty(new ConfigurationKey(key), new ConfigurationValue(value)));
+        repository.setConfiguration(configuration);
+    }
+
+    private RepositoryConfiguration getRepoConfiguration(Configuration configuration) {
+        RepositoryConfiguration repoConfig = new RepositoryConfiguration();
+        for (ConfigurationProperty configurationProperty : configuration) {
+            String value = configurationProperty.getValue();
+            repoConfig.add(new PackageMaterialProperty(configurationProperty.getConfigurationKey().getName(), value));
+        }
+        return repoConfig;
+    }
+
+    private void validatePluginConfiguration(PluginConfiguration pluginConfiguration) {
         String pluginId = pluginConfiguration.getId();
         String pluginVersion = pluginConfiguration.getVersion();
         GoPluginDescriptor pluginDescriptor = this.pluginManager.getPluginDescriptorFor(pluginId);
@@ -68,10 +101,10 @@ public class PackageRepositoryCommand {
     }
 
     public void clearErrors() {
-        BasicCruiseConfig.clearErrors(this.repository);
+        BasicCruiseConfig.clearErrors(this.preprocessedRepository);
     }
 
     public PackageRepository getPreprocessedEntityConfig() {
-        return this.repository;
+        return this.preprocessedRepository;
     }
 }

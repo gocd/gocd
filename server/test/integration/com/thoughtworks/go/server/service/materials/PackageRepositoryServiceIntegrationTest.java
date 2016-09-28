@@ -24,6 +24,8 @@ import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.i18n.LocalizedMessage;
+import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
+import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.presentation.TriStateSelection;
@@ -42,9 +44,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.Arrays;
+
 import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -140,6 +145,10 @@ public class PackageRepositoryServiceIntegrationTest {
         configuration.add(new ConfigurationProperty(new ConfigurationKey("foo"), new ConfigurationValue("bar")));
         npmRepo.setConfiguration(configuration);
         when(pluginManager.getPluginDescriptorFor("npm")).thenReturn(new GoPluginDescriptor("npm", "1", null, null, null, false));
+        when(pluginManager.isPluginOfType("package-repository", "npm")).thenReturn(true);
+        when(pluginManager.resolveExtensionVersion("npm", Arrays.asList("1.0"))).thenReturn("1.0");
+        when(pluginManager.submitTo(any(String.class), any(GoPluginApiRequest.class)))
+                .thenReturn(new DefaultGoPluginApiResponse(DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE));
 
         assertThat(goConfigService.getConfigForEditing().getPackageRepositories().size(), is(0));
         assertNull(goConfigService.getConfigForEditing().getPackageRepositories().find(repoId));
@@ -196,6 +205,11 @@ public class PackageRepositoryServiceIntegrationTest {
         npmRepo.setConfiguration(configuration);
 
         when(pluginManager.getPluginDescriptorFor("npm")).thenReturn(new GoPluginDescriptor("npm", "1", null, null, null, false));
+        when(pluginManager.isPluginOfType("package-repository", "npm")).thenReturn(true);
+        when(pluginManager.resolveExtensionVersion("npm", Arrays.asList("1.0"))).thenReturn("1.0");
+        when(pluginManager.submitTo(any(String.class), any(GoPluginApiRequest.class)))
+                .thenReturn(new DefaultGoPluginApiResponse(DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE));
+
         service.createPackageRepository(npmRepo, username, result);
 
         PackageRepository newNpmRepo = new PackageRepository();

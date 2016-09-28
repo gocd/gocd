@@ -18,35 +18,30 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
-import com.thoughtworks.go.domain.Plugin;
-import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.plugin.infra.PluginManager;
-import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.PluginService;
+import com.thoughtworks.go.server.service.materials.PackageRepositoryService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 
-import static com.thoughtworks.go.config.ErrorCollector.*;
-
 public class CreatePackageRepositoryCommand extends PackageRepositoryCommand implements EntityConfigUpdateCommand<PackageRepository>{
     private final GoConfigService goConfigService;
+    private PackageRepositoryService packageRepositoryService;
     private final PackageRepository repository;
     private final Username username;
-    private PluginManager pluginManager;
     private final HttpLocalizedOperationResult result;
 
-    public CreatePackageRepositoryCommand(GoConfigService goConfigService, PackageRepository repository, Username username, PluginManager pluginManager, HttpLocalizedOperationResult result) {
-        super(goConfigService, repository, username, pluginManager, result);
+    public CreatePackageRepositoryCommand(GoConfigService goConfigService, PackageRepositoryService packageRepositoryService, PackageRepository repository, Username username, PluginManager pluginManager, HttpLocalizedOperationResult result) {
+        super(packageRepositoryService, repository, pluginManager, result);
         this.goConfigService = goConfigService;
+        this.packageRepositoryService = packageRepositoryService;
         this.repository = repository;
         this.username = username;
-        this.pluginManager = pluginManager;
         this.result = result;
     }
 

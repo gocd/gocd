@@ -239,12 +239,12 @@ public class PackageRepositoryService {
     }
 
     public void createPackageRepository(PackageRepository repository, Username username, HttpLocalizedOperationResult result){
-        CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, repository, username, this.pluginManager, result);
+        CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, this, repository, username, this.pluginManager, result);
         update(username, repository, result, command);
     }
 
     public void updatePackageRepository(String oldRepoId,PackageRepository newRepo, Username username, String md5, HttpLocalizedOperationResult result){
-        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, oldRepoId, newRepo, username, this.pluginManager, md5, entityHashingService, result);
+        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, this, oldRepoId, newRepo, username, this.pluginManager, md5, entityHashingService, result);
         update(username, newRepo, result, command);
     }
 

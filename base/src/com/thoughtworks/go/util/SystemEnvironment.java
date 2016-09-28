@@ -126,6 +126,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoSystemProperty<String> AVAILABLE_FEATURE_TOGGLES_FILE_PATH = new GoStringSystemProperty("available.toggles.path", "/available.toggles");
     public static GoSystemProperty<String> USER_FEATURE_TOGGLES_FILE_PATH_RELATIVE_TO_CONFIG_DIR = new GoStringSystemProperty("user.toggles.path", "go.feature.toggles");
     public static GoSystemProperty<String> SERVER_FLYWEIGHT_DIR = new GoStringSystemProperty("server.flyweight.dir", new File("pipelines", "flyweight").getPath());
+    public static GoSystemProperty<String> AGENT_WORK_DIR = new GoStringSystemProperty("agent.work.dir", ".");
 
     public static GoSystemProperty<String> DEFAULT_COMMAND_SNIPPETS_ZIP = new CachedProperty<>(
             new GoStringSystemProperty("default.command.snippets.zip.location", "/defaultFiles/defaultCommandSnippets.zip"));
@@ -823,7 +824,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     }
 
     public File resolveAgentWorkingDirectory(File path) {
-        return path;
+        return SystemUtil.getFileWithFullPath(new File(get(AGENT_WORK_DIR), path.getPath()));
     }
 
     public static abstract class GoSystemProperty<T> {

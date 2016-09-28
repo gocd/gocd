@@ -185,6 +185,14 @@ public class SystemUtil {
         return location;
     }
 
+    public static File getFileWithFullPath(File file) {
+        try {
+            return file.getCanonicalFile();
+        } catch (IOException e) {
+            return file.getAbsoluteFile();
+        }
+    }
+
     public static int getIntProperty(String propertyName, int defaultValue) {
         try {
             return Integer.parseInt(System.getProperty(propertyName));

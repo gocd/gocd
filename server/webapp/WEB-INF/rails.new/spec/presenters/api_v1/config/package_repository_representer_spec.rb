@@ -68,7 +68,7 @@ describe ApiV1::Config::PackageRepositoryRepresenter do
     {
       name: 'NodeJS',
       repo_id: 'npm.org',
-      plugin_configuration: {
+      plugin_metadata: {
         id: "npm",
         version: "1"
       },

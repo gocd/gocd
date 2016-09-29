@@ -37,6 +37,7 @@ module ApiV1
       property :name
 
       property :plugin_configuration,
+               as: :plugin_metadata,
                decorator: ApiV1::Config::PluginConfigurationRepresenter,
                class: com.thoughtworks.go.domain.config.PluginConfiguration
 

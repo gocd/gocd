@@ -14,6 +14,8 @@ REM See the License for the specific language governing permissions and
 REM limitations under the License.
 REM *************************GO-LICENSE-END**********************************
 
+cd /d "%~dp0"
+
 IF "%DAEMON%"=="N" (
 	START "go agent - %CD%" /WAIT agent.cmd
 ) ELSE	(

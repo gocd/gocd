@@ -36,6 +36,7 @@ import com.thoughtworks.go.util.command.CruiseControlException;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.Map;
 
@@ -66,13 +67,15 @@ public class PluggableTaskBuilder extends Builder implements Serializable {
 
     @Override
     public void build(final BuildLogElement buildLogElement, final DefaultGoPublisher publisher,
-                      final EnvironmentVariableContext environmentVariableContext, SystemEnvironment systemEnvironment, TaskExtension taskExtension) throws CruiseControlException {
+                      final EnvironmentVariableContext environmentVariableContext,
+                      final SystemEnvironment systemEnvironment,
+                      TaskExtension taskExtension) throws CruiseControlException {
         ExecutionResult executionResult = null;
         try {
             executionResult = taskExtension.execute(pluginId, new ActionWithReturn<Task, ExecutionResult>() {
                 @Override
                 public ExecutionResult execute(Task task, GoPluginDescriptor pluginDescriptor) {
-                    return executeTask(task, buildLogElement, publisher, environmentVariableContext);
+                    return executeTask(task, buildLogElement, publisher, environmentVariableContext, systemEnvironment);
                 }
             });
         } catch (Exception e) {
@@ -90,8 +93,8 @@ public class PluggableTaskBuilder extends Builder implements Serializable {
 
     protected ExecutionResult executeTask(Task task, BuildLogElement buildLogElement,
                                           DefaultGoPublisher publisher,
-                                          EnvironmentVariableContext environmentVariableContext) {
-        final TaskExecutionContext taskExecutionContext = buildTaskContext(buildLogElement, publisher, environmentVariableContext);
+                                          EnvironmentVariableContext environmentVariableContext, SystemEnvironment systemEnvironment) {
+        final TaskExecutionContext taskExecutionContext = buildTaskContext(buildLogElement, publisher, environmentVariableContext, systemEnvironment);
         JobConsoleLoggerInternal.setContext(taskExecutionContext);
 
         TaskConfig config = buildTaskConfig(task.config());
@@ -100,8 +103,9 @@ public class PluggableTaskBuilder extends Builder implements Serializable {
 
     protected TaskExecutionContext buildTaskContext(BuildLogElement buildLogElement,
                                                     DefaultGoPublisher publisher,
-                                                    EnvironmentVariableContext environmentVariableContext) {
-        return new PluggableTaskContext(buildLogElement, publisher, environmentVariableContext, workingDir);
+                                                    EnvironmentVariableContext environmentVariableContext, SystemEnvironment systemEnvironment) {
+        String resolvedWorkingDir = systemEnvironment.resolveAgentWorkingDirectory(new File(workingDir)).getAbsolutePath();
+        return new PluggableTaskContext(buildLogElement, publisher, environmentVariableContext, resolvedWorkingDir);
     }
 
     protected TaskConfig buildTaskConfig(TaskConfig config) {

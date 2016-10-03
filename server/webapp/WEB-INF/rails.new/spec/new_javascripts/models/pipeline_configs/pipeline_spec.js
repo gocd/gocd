@@ -217,13 +217,14 @@ define(['lodash', "models/pipeline_configs/pipeline", 'models/pipeline_configs/t
         materials:               [{
           type:       "svn",
           attributes: {
-            name:        "materialA",
-            auto_update: false,
-            filter:      null,
-            destination: "dest_folder",
-            url:         "http://your-svn/",
-            username:    "",
-            password:    ""
+            name:          "materialA",
+            auto_update:   false,
+            filter:        null,
+            invert_filter: false,
+            destination:   "dest_folder",
+            url:           "http://your-svn/",
+            username:      "",
+            password:      ""
           }
         }],
         tracking_tool:           {

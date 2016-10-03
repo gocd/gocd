@@ -36,7 +36,8 @@ define(["jquery", "mithril", "models/pipeline_configs/materials", "views/pipelin
           destination:    "projectA",
           name:           "svn-repo",
           autoUpdate:     true,
-          filter:         new Materials.Filter({ignore: ['*.doc']})
+          filter:         new Materials.Filter({ignore: ['*.doc']}),
+          invertFilter:  true
         });
 
         mount(materials);
@@ -71,8 +72,16 @@ define(["jquery", "mithril", "models/pipeline_configs/materials", "views/pipelin
         expect($root.find("input[data-prop-name='ignore']").val()).toBe('*.doc');
       });
 
+      it('should bind invertFilter', function () {
+        expect($root.find("input[data-prop-name='invertFilter']")).toBeChecked();
+      });
+
+      it('should show tooltip message based on invertFilter', function () {
+        expect($root.html()).toContain('(Optional) Enter the paths to be included while triggering pipelines. Separate multiple entries with a comma.');
+      });
+
       it('should bind autoUpdate value', function () {
-        expect($root.find("input[data-prop-name='autoUpdate']").val()).toBe('on');
+        expect($root.find("input[data-prop-name='autoUpdate']")).toBeChecked();
       });
     });
 
@@ -86,7 +95,7 @@ define(["jquery", "mithril", "models/pipeline_configs/materials", "views/pipelin
           branch:       "release-1.2",
           destination:  "projectA",
           name:         "git-repo",
-          autoUpdate:   true,
+          autoUpdate:   false,
           filter:       new Materials.Filter({ignore: ['*.doc']}),
           shallowClone: true
         });
@@ -115,12 +124,20 @@ define(["jquery", "mithril", "models/pipeline_configs/materials", "views/pipelin
         expect($root.find("input[data-prop-name='ignore']").val()).toBe('*.doc');
       });
 
+      it('should bind invertFilter', function () {
+        expect($root.find("input[data-prop-name='invertFilter']")).not.toBeChecked();
+      });
+
       it('should bind autoUpdate value', function () {
-        expect($root.find("input[data-prop-name='autoUpdate']").val()).toBe('on');
+        expect($root.find("input[data-prop-name='autoUpdate']")).not.toBeChecked();
+      });
+
+      it('should show tooltip message based on invertFilter', function () {
+        expect($root.html()).toContain('(Optional) Enter the paths to be excluded while triggering pipelines. Separate multiple entries with a comma.');
       });
 
       it('should bind shallow clone value', function () {
-        expect($root.find("input[data-prop-name='shallowClone']").val()).toBe('on');
+        expect($root.find("input[data-prop-name='shallowClone']")).toBeChecked();
       });
     });
 
@@ -157,8 +174,16 @@ define(["jquery", "mithril", "models/pipeline_configs/materials", "views/pipelin
         expect($root.find("input[data-prop-name='ignore']").val()).toBe('*.doc');
       });
 
+      it('should bind invertFilter', function () {
+        expect($root.find("input[data-prop-name='invertFilter']")).not.toBeChecked();
+      });
+
+      it('should show tooltip message based on invertFilter', function () {
+        expect($root.html()).toContain('(Optional) Enter the paths to be excluded while triggering pipelines. Separate multiple entries with a comma.');
+      });
+
       it('should bind autoUpdate value', function () {
-        expect($root.find("input[data-prop-name='autoUpdate']").val()).toBe('on');
+        expect($root.find("input[data-prop-name='autoUpdate']")).toBeChecked();
       });
     });
 
@@ -167,16 +192,17 @@ define(["jquery", "mithril", "models/pipeline_configs/materials", "views/pipelin
       beforeAll(function () {
         var materials = new Materials();
         material = materials.createMaterial({
-          type:        'p4',
-          port:        "p4.example.com:1666",
-          username:    "bob",
-          password:    "p@ssw0rd",
-          useTickets:  true,
-          destination: "projectA",
-          view:        "//depot/dev/source...          //anything/source/",
-          name:        "perforce-repo",
-          autoUpdate:  true,
-          filter:      new Materials.Filter({ignore: ['*.doc']})
+          type:          'p4',
+          port:          "p4.example.com:1666",
+          username:      "bob",
+          password:      "p@ssw0rd",
+          useTickets:    true,
+          destination:   "projectA",
+          view:          "//depot/dev/source...          //anything/source/",
+          name:          "perforce-repo",
+          autoUpdate:    true,
+          filter:        new Materials.Filter({ignore: ['*.doc']}),
+          invertFilter: true
         });
 
         mount(materials);
@@ -215,8 +241,16 @@ define(["jquery", "mithril", "models/pipeline_configs/materials", "views/pipelin
         expect($root.find("input[data-prop-name='ignore']").val()).toBe('*.doc');
       });
 
+      it('should bind invertFilter', function () {
+        expect($root.find("input[data-prop-name='invertFilter']")).toBeChecked();
+      });
+
+      it('should show tooltip message based on invertFilter', function () {
+        expect($root.html()).toContain('(Optional) Enter the paths to be included while triggering pipelines. Separate multiple entries with a comma.');
+      });
+
       it('should bind autoUpdate value', function () {
-        expect($root.find("input[data-prop-name='autoUpdate']").val()).toBe('on');
+        expect($root.find("input[data-prop-name='autoUpdate']")).toBeChecked();
       });
     });
 
@@ -234,7 +268,8 @@ define(["jquery", "mithril", "models/pipeline_configs/materials", "views/pipelin
           projectPath: "$/webApp",
           name:        "tfs-repo",
           autoUpdate:  true,
-          filter:      new Materials.Filter({ignore: ['*.doc']})
+          filter:      new Materials.Filter({ignore: ['*.doc']}),
+          invertFilter: true
         });
 
         mount(materials);
@@ -273,8 +308,16 @@ define(["jquery", "mithril", "models/pipeline_configs/materials", "views/pipelin
         expect($root.find("input[data-prop-name='ignore']").val()).toBe('*.doc');
       });
 
+      it('should bind invertFilter', function () {
+        expect($root.find("input[data-prop-name='invertFilter']")).toBeChecked();
+      });
+
+      it('should show tooltip message based on invertFilter', function () {
+        expect($root.html()).toContain('(Optional) Enter the paths to be included while triggering pipelines. Separate multiple entries with a comma.');
+      });
+
       it('should bind autoUpdate value', function () {
-        expect($root.find("input[data-prop-name='autoUpdate']").val()).toBe('on');
+        expect($root.find("input[data-prop-name='autoUpdate']")).toBeChecked();
       });
     });
 

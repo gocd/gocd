@@ -62,10 +62,8 @@ module ApiV1
         package_repository.getConfiguration()
       end
 
-      def configuration=(config)
-        configuration = com.thoughtworks.go.domain.config.Configuration.new
-        configuration.addAll(config)
-        package_repository.setConfiguration(configuration)
+      def configuration=(value)
+        package_repository.addConfigurations(value)
       end
 
     end

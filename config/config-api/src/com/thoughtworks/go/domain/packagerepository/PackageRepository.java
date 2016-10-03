@@ -31,6 +31,7 @@ import com.thoughtworks.go.config.ConfigSubtag;
 import com.thoughtworks.go.config.ConfigTag;
 import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.ValidationContext;
+import com.thoughtworks.go.config.builder.ConfigurationPropertyBuilder;
 import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.ConfigurationDisplayUtil;
@@ -38,6 +39,8 @@ import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.SecureKeyInfoProvider;
+import com.thoughtworks.go.plugin.api.config.Property;
+import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.plugin.access.packagematerial.AbstractMetaDataStore;
 import com.thoughtworks.go.plugin.access.packagematerial.RepositoryMetadataStore;
@@ -115,6 +118,28 @@ public class PackageRepository implements Serializable, Validatable {
 
     public void setConfiguration(Configuration configuration) {
         this.configuration = configuration;
+    }
+
+    public void addConfigurations(List<ConfigurationProperty> configurations) {
+        ConfigurationPropertyBuilder builder = new ConfigurationPropertyBuilder();
+        for (ConfigurationProperty property : configurations) {
+            RepositoryConfiguration repositoryMetadata = RepositoryMetadataStore.getInstance().getRepositoryMetadata(pluginConfiguration.getId());
+            if (isValidPluginConfiguration(property.getConfigKeyName(), repositoryMetadata)) {
+                configuration.add(builder.create(property.getConfigKeyName(), property.getConfigValue(), property.getEncryptedValue(),
+                        repositoryPropertyFor(property.getConfigKeyName(), repositoryMetadata).getOption(Property.SECURE)));
+            }
+            else {
+                configuration.add(property);
+            }
+        }
+    }
+
+    private boolean isValidPluginConfiguration(String configKeyName, RepositoryConfiguration repositoryMetadata) {
+        return doesPluginExist() && repositoryPropertyFor(configKeyName, repositoryMetadata) != null;
+    }
+
+    private Property repositoryPropertyFor(String configKey, RepositoryConfiguration repositoryMetadata) {
+        return repositoryMetadata.get(configKey);
     }
 
     public Packages getPackages() {

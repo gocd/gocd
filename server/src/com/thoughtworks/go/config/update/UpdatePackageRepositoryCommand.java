@@ -17,7 +17,6 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.i18n.Localizable;
@@ -30,7 +29,7 @@ import com.thoughtworks.go.server.service.materials.PackageRepositoryService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 
-public class UpdatePackageRepositoryCommand extends PackageRepositoryCommand implements EntityConfigUpdateCommand<PackageRepository> {
+public class UpdatePackageRepositoryCommand extends PackageRepositoryCommand {
     private final GoConfigService goConfigService;
     private String oldRepoId;
     private final PackageRepository newRepo;
@@ -40,7 +39,7 @@ public class UpdatePackageRepositoryCommand extends PackageRepositoryCommand imp
     private final HttpLocalizedOperationResult result;
 
     public UpdatePackageRepositoryCommand(GoConfigService goConfigService, PackageRepositoryService packageRepositoryService, String oldRepoId, PackageRepository newRepo, Username username, PluginManager pluginManager, String md5, EntityHashingService entityHashingService, HttpLocalizedOperationResult result) {
-        super(packageRepositoryService, newRepo, pluginManager, result);
+        super(packageRepositoryService, newRepo, result, goConfigService, username);
         this.goConfigService = goConfigService;
         this.oldRepoId = oldRepoId;
         this.newRepo = newRepo;
@@ -62,24 +61,15 @@ public class UpdatePackageRepositoryCommand extends PackageRepositoryCommand imp
 
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
-        return isAuthorized(cruiseConfig) && isRequestFresh(cruiseConfig);
+        return super.canContinue(cruiseConfig) && isRequestFresh();
     }
 
-    private boolean isRequestFresh(CruiseConfig cruiseConfig) {
+    private boolean isRequestFresh() {
         PackageRepository oldRepo = goConfigService.getPackageRepository(oldRepoId);
         boolean freshRequest = entityHashingService.md5ForEntity(oldRepo).equals(md5);
         if (!freshRequest) {
             result.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", "Package Repository", oldRepoId));
         }
         return freshRequest;
-    }
-
-    private boolean isAuthorized(CruiseConfig cruiseConfig) {
-        if (!goConfigService.isAdministrator(username.getUsername())) {
-            Localizable noPermission = LocalizedMessage.string("UNAUTHORIZED_TO_OPERATE");
-            result.unauthorized(noPermission, HealthStateType.unauthorised());
-            return false;
-        }
-        return true;
     }
 }

@@ -29,20 +29,12 @@ import com.thoughtworks.go.server.service.materials.PackageRepositoryService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 
-public class CreatePackageRepositoryCommand extends PackageRepositoryCommand implements EntityConfigUpdateCommand<PackageRepository>{
-    private final GoConfigService goConfigService;
-    private PackageRepositoryService packageRepositoryService;
+public class CreatePackageRepositoryCommand extends PackageRepositoryCommand{
     private final PackageRepository repository;
-    private final Username username;
-    private final HttpLocalizedOperationResult result;
 
     public CreatePackageRepositoryCommand(GoConfigService goConfigService, PackageRepositoryService packageRepositoryService, PackageRepository repository, Username username, PluginManager pluginManager, HttpLocalizedOperationResult result) {
-        super(packageRepositoryService, repository, pluginManager, result);
-        this.goConfigService = goConfigService;
-        this.packageRepositoryService = packageRepositoryService;
+        super(packageRepositoryService, repository, result, goConfigService, username);
         this.repository = repository;
-        this.username = username;
-        this.result = result;
     }
 
     @Override
@@ -51,15 +43,4 @@ public class CreatePackageRepositoryCommand extends PackageRepositoryCommand imp
         repositories.add(this.repository);
         preprocessedConfig.setPackageRepositories(repositories);
     }
-
-    public boolean canContinue(CruiseConfig cruiseConfig) {
-        if (!goConfigService.isAdministrator(username.getUsername())) {
-            Localizable noPermission = LocalizedMessage.string("UNAUTHORIZED_TO_OPERATE");
-            result.unauthorized(noPermission, HealthStateType.unauthorised());
-            return false;
-        }
-        return true;
-    }
-
-
 }

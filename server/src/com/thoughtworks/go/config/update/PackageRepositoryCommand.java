@@ -17,36 +17,34 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
-import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.domain.config.*;
+import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
+import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
-import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
-import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialProperty;
-import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
-import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
-import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
-import com.thoughtworks.go.plugin.infra.PluginManager;
-import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.materials.PackageRepositoryService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import com.thoughtworks.go.serverhealth.HealthStateType;
 
 import static com.thoughtworks.go.config.ErrorCollector.getAllErrors;
 
-public class PackageRepositoryCommand {
+public abstract class PackageRepositoryCommand implements EntityConfigUpdateCommand<PackageRepository> {
     private PackageRepositoryService packageRepositoryService;
+    private GoConfigService goConfigService;
+    private Username username;
     private final PackageRepository repository;
-    private final PluginManager pluginManager;
     private final HttpLocalizedOperationResult result;
     private PackageRepository preprocessedRepository;
 
-    public PackageRepositoryCommand(PackageRepositoryService packageRepositoryService, PackageRepository repository, PluginManager pluginManager, HttpLocalizedOperationResult result) {
+    public PackageRepositoryCommand(PackageRepositoryService packageRepositoryService, PackageRepository repository, HttpLocalizedOperationResult result, GoConfigService goConfigService, Username username) {
         this.packageRepositoryService = packageRepositoryService;
         this.repository = repository;
-        this.pluginManager = pluginManager;
         this.result = result;
+        this.goConfigService = goConfigService;
+        this.username = username;
     }
 
     public boolean isValid(CruiseConfig preprocessedConfig) {
@@ -66,5 +64,14 @@ public class PackageRepositoryCommand {
 
     public PackageRepository getPreprocessedEntityConfig() {
         return this.preprocessedRepository;
+    }
+
+    public boolean canContinue(CruiseConfig cruiseConfig) {
+        if (!goConfigService.isAdministrator(username.getUsername())) {
+            Localizable noPermission = LocalizedMessage.string("UNAUTHORIZED_TO_OPERATE");
+            result.unauthorized(noPermission, HealthStateType.unauthorised());
+            return false;
+        }
+        return true;
     }
 }

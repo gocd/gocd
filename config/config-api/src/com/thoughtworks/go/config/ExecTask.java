@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -139,6 +139,12 @@ public class ExecTask extends AbstractTask implements CommandTask {
                 errors.add(WORKING_DIR,
                         String.format("The path of the working directory for the custom command in job '%s' in stage '%s' of template '%s' is outside the agent sandbox.", ctx.getJob().name(),
                                 ctx.getStage().name(), ctx.getTemplate().name()));
+            }
+        }
+
+        for(Argument argument : getArgList()) {
+            if(!argument.errors().isEmpty()) {
+                errors.add(ARG_LIST_STRING, argument.errors().asString());
             }
         }
     }

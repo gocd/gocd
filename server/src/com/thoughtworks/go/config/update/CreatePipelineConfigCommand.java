@@ -51,7 +51,9 @@ public class CreatePipelineConfigCommand implements EntityConfigUpdateCommand<Pi
     @Override
     public boolean isValid(CruiseConfig preprocessedConfig) {
         preprocessedPipelineConfig = preprocessedConfig.getPipelineConfigByName(pipelineConfig.name());
-        boolean isValid = preprocessedPipelineConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, groupName, preprocessedConfig, preprocessedPipelineConfig));
+        boolean isValid = preprocessedPipelineConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, groupName, preprocessedConfig, preprocessedPipelineConfig))
+                && preprocessedPipelineConfig.getAllErrors().isEmpty();
+
         if (!isValid) {
             copyErrors(preprocessedPipelineConfig, pipelineConfig);
         }

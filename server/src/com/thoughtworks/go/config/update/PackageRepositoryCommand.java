@@ -54,50 +54,10 @@ public class PackageRepositoryCommand {
         this.preprocessedRepository = repositories.find(this.repository.getRepoId());
         preprocessedRepository.validate(null);
         repositories.validate(null);
-        validatePluginConfiguration(preprocessedRepository.getPluginConfiguration());
-        validateRepositoryConfiguration();
+        packageRepositoryService.validatePluginId(preprocessedRepository);
+        boolean isValidConfiguration = packageRepositoryService.validateRepositoryConfiguration(preprocessedRepository);
         BasicCruiseConfig.copyErrors(preprocessedRepository, this.repository);
-        return getAllErrors(this.repository).isEmpty() && result.isSuccessful();
-    }
-
-    private void validateRepositoryConfiguration() {
-        PackageAsRepositoryExtension extension = new PackageAsRepositoryExtension(this.pluginManager);
-        String pluginId = preprocessedRepository.getPluginConfiguration().getId();
-        RepositoryConfiguration repoConfig = getRepoConfiguration(preprocessedRepository.getConfiguration());
-        ValidationResult validationResult = extension.isRepositoryConfigurationValid(pluginId, repoConfig);
-        Configuration repoConfiguration = this.repository.getConfiguration();
-        for (ValidationError error : validationResult.getErrors()) {
-            if (!repoConfiguration.listOfConfigKeys().contains(error.getKey())) {
-                addConfigProperty(this.repository, error.getKey(), null);
-            }
-            this.repository.addConfigurationErrorFor(error.getKey(), error.getMessage());
-        }
-    }
-
-    private void addConfigProperty(PackageRepository repository, String key, String value) {
-        Configuration configuration = repository.getConfiguration();
-        configuration.add(new ConfigurationProperty(new ConfigurationKey(key), new ConfigurationValue(value)));
-        repository.setConfiguration(configuration);
-    }
-
-    private RepositoryConfiguration getRepoConfiguration(Configuration configuration) {
-        RepositoryConfiguration repoConfig = new RepositoryConfiguration();
-        for (ConfigurationProperty configurationProperty : configuration) {
-            String value = configurationProperty.getValue();
-            repoConfig.add(new PackageMaterialProperty(configurationProperty.getConfigurationKey().getName(), value));
-        }
-        return repoConfig;
-    }
-
-    private void validatePluginConfiguration(PluginConfiguration pluginConfiguration) {
-        String pluginId = pluginConfiguration.getId();
-        String pluginVersion = pluginConfiguration.getVersion();
-        GoPluginDescriptor pluginDescriptor = this.pluginManager.getPluginDescriptorFor(pluginId);
-        if (pluginDescriptor == null) {
-            result.unprocessableEntity(LocalizedMessage.string("INVALID_PLUGIN_TYPE", pluginId));
-        } else if (!pluginDescriptor.version().equals(pluginVersion)) {
-            result.unprocessableEntity(LocalizedMessage.string("INVALID_PLUGIN_VERSION", pluginVersion, pluginId));
-        }
+        return getAllErrors(this.repository).isEmpty() && isValidConfiguration && result.isSuccessful();
     }
 
     public void clearErrors() {

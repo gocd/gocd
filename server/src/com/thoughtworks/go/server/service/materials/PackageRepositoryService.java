@@ -48,6 +48,7 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
+import com.thoughtworks.go.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -135,7 +136,31 @@ public class PackageRepositoryService {
         }
     }
 
-    private boolean validatePluginId(PackageRepository packageRepository) {
+    public boolean validateRepositoryConfiguration(final PackageRepository packageRepository) {
+        if (!packageRepository.doesPluginExist()) {
+            throw new RuntimeException(String.format("Plugin with id '%s' is not found.", packageRepository.getPluginConfiguration().getId()));
+        }
+
+        ValidationResult validationResult = packageAsRepositoryExtension.isRepositoryConfigurationValid(packageRepository.getPluginConfiguration().getId(), populateConfiguration(packageRepository.getConfiguration()));
+        addErrorsToConfiguration(validationResult, packageRepository);
+
+        return validationResult.isSuccessful();
+    }
+
+    private void addErrorsToConfiguration(ValidationResult validationResult, PackageRepository packageRepository) {
+        for (ValidationError validationError : validationResult.getErrors()) {
+            ConfigurationProperty property = packageRepository.getConfiguration().getProperty(validationError.getKey());
+
+            if (property != null) {
+                property.addError(validationError.getKey(), validationError.getMessage());
+            } else {
+                String validationErrorKey = StringUtil.isBlank(validationError.getKey()) ? PackageRepository.PLUGIN_CONFIGURATION : validationError.getKey();
+                packageRepository.addError(validationErrorKey, validationError.getMessage());
+            }
+        }
+    }
+
+    public boolean validatePluginId(PackageRepository packageRepository) {
         String pluginId = packageRepository.getPluginConfiguration().getId();
         if (isEmpty(pluginId)) {
             packageRepository.getPluginConfiguration().errors().add(PluginConfiguration.ID, localizer.localize("PLUGIN_ID_REQUIRED"));

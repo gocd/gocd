@@ -800,8 +800,6 @@
     <entry key="PIPELINE_DELETE_SUCCESSFUL">Pipeline ''{0}'' was deleted successfully.</entry>
     <entry key="PACKAGE_REPOSITORY_DELETE_SUCCESSFUL">Package Repository with id ''{0}'' was deleted successfully.</entry>
     <entry key="PACKAGE_REPOSITORY_DELETE_FAILED">Can not Delete Package Repository with id ''{0}'' as it used as a Material in Pipeline(s).</entry>
-    <entry key="INVALID_PLUGIN_TYPE">Invalid plugin type ''{0}''.</entry>
-    <entry key="INVALID_PLUGIN_VERSION">Invalid plugin version ''{0}'' for plugin-type ''{1}''.</entry>
     <entry key="UNAUTHORIZED_TO_DELETE_PIPELINE">Unauthorized to delete pipeline.</entry>
     <entry key="PIPELINE_GROUP_MANDATORY_FOR_PIPELINE_CREATE">Pipeline group must be specified for creating a pipeline.</entry>
     <entry key="UNAUTHORIZED_TO_OPERATE">You are not authorized to perform this operation.</entry>

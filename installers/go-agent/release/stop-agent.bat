@@ -14,5 +14,7 @@ REM See the License for the specific language governing permissions and
 REM limitations under the License.
 REM *************************GO-LICENSE-END**********************************
 
+cd /d "%~dp0"
+
 FOR /F "tokens=2" %%I in ('TASKLIST /NH /FI "WINDOWTITLE eq go agent - %CD% - agent.cmd"' ) DO TASKKILL /F /T /PID %%I
 if exist .agent-bootstrapper.running del /Q .agent-bootstrapper.running

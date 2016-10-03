@@ -19,31 +19,24 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
-import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
-import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.materials.PackageRepositoryService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 
 public class UpdatePackageRepositoryCommand extends PackageRepositoryCommand {
     private final GoConfigService goConfigService;
-    private String oldRepoId;
     private final PackageRepository newRepo;
-    private final Username username;
     private final String md5;
     private final EntityHashingService entityHashingService;
     private final HttpLocalizedOperationResult result;
 
-    public UpdatePackageRepositoryCommand(GoConfigService goConfigService, PackageRepositoryService packageRepositoryService, String oldRepoId, PackageRepository newRepo, Username username, PluginManager pluginManager, String md5, EntityHashingService entityHashingService, HttpLocalizedOperationResult result) {
+    public UpdatePackageRepositoryCommand(GoConfigService goConfigService, PackageRepositoryService packageRepositoryService, PackageRepository newRepo, Username username, String md5, EntityHashingService entityHashingService, HttpLocalizedOperationResult result) {
         super(packageRepositoryService, newRepo, result, goConfigService, username);
         this.goConfigService = goConfigService;
-        this.oldRepoId = oldRepoId;
         this.newRepo = newRepo;
-        this.username = username;
         this.md5 = md5;
         this.entityHashingService = entityHashingService;
         this.result = result;
@@ -51,7 +44,7 @@ public class UpdatePackageRepositoryCommand extends PackageRepositoryCommand {
 
     @Override
     public void update(CruiseConfig preprocessedConfig) throws Exception {
-        PackageRepository oldRepo = preprocessedConfig.getPackageRepositories().find(oldRepoId);
+        PackageRepository oldRepo = preprocessedConfig.getPackageRepositories().find(newRepo.getRepoId());
         this.newRepo.setPackages(oldRepo.getPackages());
         PackageRepositories repositories = preprocessedConfig.getPackageRepositories();
         repositories.removePackageRepository(oldRepo.getId());
@@ -65,10 +58,10 @@ public class UpdatePackageRepositoryCommand extends PackageRepositoryCommand {
     }
 
     private boolean isRequestFresh() {
-        PackageRepository oldRepo = goConfigService.getPackageRepository(oldRepoId);
+        PackageRepository oldRepo = goConfigService.getPackageRepository(newRepo.getRepoId());
         boolean freshRequest = entityHashingService.md5ForEntity(oldRepo).equals(md5);
         if (!freshRequest) {
-            result.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", "Package Repository", oldRepoId));
+            result.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", "Package Repository", newRepo.getRepoId()));
         }
         return freshRequest;
     }

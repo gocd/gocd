@@ -19,7 +19,7 @@ module ApiV1
     class RepositoriesController < ApiV1::BaseController
       before_action :check_admin_user_and_401
       before_action :load_package_repository, only: [:show, :destroy, :update]
-      before_action :check_for_stale_request, only: [:update]
+      before_action :check_for_stale_request, :check_for_id_change, only: [:update]
 
       def show
         json = ApiV1::Config::PackageRepositoryRepresenter.new(@package_repo_config).to_hash(url_builder: self)
@@ -40,7 +40,7 @@ module ApiV1
       def update
         result = HttpLocalizedOperationResult.new
         get_package_repository_from_request
-        package_repository_service.updatePackageRepository(@package_repo_config.getId, @package_repo_from_request, current_user, get_etag_for_package_repository, result)
+        package_repository_service.updatePackageRepository(@package_repo_from_request, current_user, get_etag_for_package_repository, result)
         handle_config_save_result(result, @package_repo_from_request.getId())
       end
 
@@ -83,6 +83,12 @@ module ApiV1
           result = HttpLocalizedOperationResult.new
           result.stale(LocalizedMessage::string('STALE_RESOURCE_CONFIG', 'Package Repository', params[:repo_id]))
           render_http_operation_result(result)
+        end
+      end
+
+      def check_for_id_change
+        unless params[:repository][:repo_id] == params[:repo_id]
+          render_message('Changing the repository id is not supported by this API.', :unprocessable_entity)
         end
       end
     end

@@ -47,14 +47,6 @@ module ApiV1
       def key=(value)
         configuration_property.setConfigurationKey(ConfigurationKey.new(value))
       end
-
-      def errors
-        configuration_property.errors.addAll(configuration_property.getConfigurationKey.errors)
-        configuration_property.getConfigurationValue ?
-          configuration_property.errors.addAll(configuration_property.getConfigurationValue.errors) :
-          configuration_property.errors.addAll(configuration_property.getEncryptedConfigurationValue.errors)
-        configuration_property.errors
-      end
     end
   end
 end

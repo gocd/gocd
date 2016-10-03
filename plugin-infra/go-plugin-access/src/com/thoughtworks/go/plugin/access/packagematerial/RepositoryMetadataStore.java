@@ -30,6 +30,11 @@ public final class RepositoryMetadataStore extends AbstractMetaDataStore {
     }
 
     public RepositoryConfiguration getRepositoryMetadata(String pluginId) {
-        return repositoryMetadataStore.getMetadata(pluginId).getRepositoryConfiguration();
+
+        PackageConfigurations metadata = repositoryMetadataStore.getMetadata(pluginId);
+        if (metadata != null) {
+            return metadata.getRepositoryConfiguration();
+        }
+        return null;
     }
 }

@@ -16,12 +16,9 @@
 
 package com.thoughtworks.go.server.service.materials;
 
-import com.thoughtworks.go.config.ConfigTag;
 import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
-import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.update.*;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Configuration;
@@ -29,7 +26,6 @@ import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
-import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
@@ -239,7 +235,7 @@ public class PackageRepositoryService {
         return goConfigService.getConfigForEditing().getPackageRepositories();
     }
 
-    private void update(Username username, PackageRepository repository, HttpLocalizedOperationResult result, EntityConfigUpdateCommand command) {
+    private void update(Username username, HttpLocalizedOperationResult result, EntityConfigUpdateCommand command) {
         try {
             goConfigService.updateConfig(command, username);
         } catch (Exception e) {
@@ -257,20 +253,20 @@ public class PackageRepositoryService {
 
     public void deleteRepository(Username username, PackageRepository repository, HttpLocalizedOperationResult result) {
         DeletePackageRepositoryCommand command = new DeletePackageRepositoryCommand(goConfigService, repository, username, result);
-        update(username, repository, result, command);
+        update(username, result, command);
         if (result.isSuccessful()) {
             result.setMessage(LocalizedMessage.string("PACKAGE_REPOSITORY_DELETE_SUCCESSFUL", repository.getId()));
         }
     }
 
     public void createPackageRepository(PackageRepository repository, Username username, HttpLocalizedOperationResult result){
-        CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, this, repository, username, this.pluginManager, result);
-        update(username, repository, result, command);
+        CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, this, repository, username, result);
+        update(username, result, command);
     }
 
-    public void updatePackageRepository(String oldRepoId,PackageRepository newRepo, Username username, String md5, HttpLocalizedOperationResult result){
-        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, this, oldRepoId, newRepo, username, this.pluginManager, md5, entityHashingService, result);
-        update(username, newRepo, result, command);
+    public void updatePackageRepository(PackageRepository newRepo, Username username, String md5, HttpLocalizedOperationResult result){
+        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, this, newRepo, username, md5, entityHashingService, result);
+        update(username,result, command);
     }
 
     private RepositoryConfiguration populateConfiguration(Configuration configuration) {

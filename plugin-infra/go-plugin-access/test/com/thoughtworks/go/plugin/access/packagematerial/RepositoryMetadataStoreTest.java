@@ -21,6 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
 public class RepositoryMetadataStoreTest {
@@ -40,6 +41,16 @@ public class RepositoryMetadataStoreTest {
         RepositoryMetadataStore.getInstance().addMetadataFor("plugin-id", repositoryConfigurationPut);
 
         assertThat(RepositoryMetadataStore.getInstance().getMetadata("plugin-id"), is(repositoryConfigurationPut));
+    }
+
+    @Test
+    public void shouldReturnNullForMetadataIfPluginIdIsNotProvided() {
+        assertNull(RepositoryMetadataStore.getInstance().getMetadata(""));
+    }
+
+    @Test
+    public void shouldReturnNullForMetadataIfPluginIdIsNonExistent() {
+        assertNull(RepositoryMetadataStore.getInstance().getMetadata("non-existent-plugin-id"));
     }
 
     @Test

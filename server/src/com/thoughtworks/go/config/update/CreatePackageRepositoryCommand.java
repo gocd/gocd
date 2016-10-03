@@ -17,22 +17,17 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
-import com.thoughtworks.go.i18n.Localizable;
-import com.thoughtworks.go.i18n.LocalizedMessage;
-import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.materials.PackageRepositoryService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 
 public class CreatePackageRepositoryCommand extends PackageRepositoryCommand{
     private final PackageRepository repository;
 
-    public CreatePackageRepositoryCommand(GoConfigService goConfigService, PackageRepositoryService packageRepositoryService, PackageRepository repository, Username username, PluginManager pluginManager, HttpLocalizedOperationResult result) {
+    public CreatePackageRepositoryCommand(GoConfigService goConfigService, PackageRepositoryService packageRepositoryService, PackageRepository repository, Username username, HttpLocalizedOperationResult result) {
         super(packageRepositoryService, repository, result, goConfigService, username);
         this.repository = repository;
     }

@@ -131,37 +131,6 @@ public class PackageRepositoryServiceIntegrationTest {
     }
 
     @Test
-    public void shouldCreatePackageRepository() throws Exception {
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        String repoId = "npmOrg";
-        PackageRepository npmRepo = new PackageRepository();
-        PluginConfiguration pluginConfiguration = new PluginConfiguration();
-        pluginConfiguration.setId("npm");
-        pluginConfiguration.setVersion("1");
-        npmRepo.setPluginConfiguration(pluginConfiguration);
-        npmRepo.setId(repoId);
-        npmRepo.setName(repoId);
-        Configuration configuration = new Configuration();
-        configuration.add(new ConfigurationProperty(new ConfigurationKey("foo"), new ConfigurationValue("bar")));
-        npmRepo.setConfiguration(configuration);
-        when(pluginManager.getPluginDescriptorFor("npm")).thenReturn(new GoPluginDescriptor("npm", "1", null, null, null, false));
-        when(pluginManager.isPluginOfType("package-repository", "npm")).thenReturn(true);
-        when(pluginManager.resolveExtensionVersion("npm", Arrays.asList("1.0"))).thenReturn("1.0");
-        when(pluginManager.submitTo(any(String.class), any(GoPluginApiRequest.class)))
-                .thenReturn(new DefaultGoPluginApiResponse(DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE));
-
-        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().size(), is(0));
-        assertNull(goConfigService.getConfigForEditing().getPackageRepositories().find(repoId));
-
-        service.createPackageRepository(npmRepo, username, result);
-
-        HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        assertThat(result, is(expectedResult));
-        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().size(), is(1));
-        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().find(repoId), is(npmRepo));
-    }
-
-    @Test
     public void shouldReturnTheExactLocalizeMessageIfItFailsToCreatePackageRepository() throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         String repoId = "npm";
@@ -181,51 +150,6 @@ public class PackageRepositoryServiceIntegrationTest {
         assertThat(goConfigService.getConfigForEditing().getPackageRepositories().find(repoId), is(npmRepo));
     }
 
-    @Test
-    public void shouldUpdatePackageRepository() throws Exception {
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-
-        String repoId = "npmOrg";
-        String newRepoId = "npmFoo";
-
-        PackageRepository npmRepo = new PackageRepository();
-
-        PluginConfiguration pluginConfiguration = new PluginConfiguration();
-        pluginConfiguration.setId("npm");
-        pluginConfiguration.setVersion("1");
-
-        npmRepo.setPluginConfiguration(pluginConfiguration);
-        npmRepo.setId(repoId);
-        npmRepo.setName(repoId);
-
-        Configuration configuration = new Configuration();
-        configuration.add(new ConfigurationProperty(new ConfigurationKey("foo"), new ConfigurationValue("bar")));
-
-        npmRepo.setConfiguration(configuration);
-
-        when(pluginManager.getPluginDescriptorFor("npm")).thenReturn(new GoPluginDescriptor("npm", "1", null, null, null, false));
-        when(pluginManager.isPluginOfType("package-repository", "npm")).thenReturn(true);
-        when(pluginManager.resolveExtensionVersion("npm", Arrays.asList("1.0"))).thenReturn("1.0");
-        when(pluginManager.submitTo(any(String.class), any(GoPluginApiRequest.class)))
-                .thenReturn(new DefaultGoPluginApiResponse(DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE));
-
-        service.createPackageRepository(npmRepo, username, result);
-
-        PackageRepository newNpmRepo = new PackageRepository();
-        newNpmRepo.setPluginConfiguration(pluginConfiguration);
-        newNpmRepo.setId(newRepoId);
-        newNpmRepo.setName(newRepoId);
-        newNpmRepo.setConfiguration(configuration);
-
-        String md5 = entityHashingService.md5ForEntity(npmRepo);
-        service.updatePackageRepository(repoId, newNpmRepo, username, md5, result);
-
-        assertThat(result, is(expectedResult));
-        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().size(), is(1));
-        assertNull(goConfigService.getConfigForEditing().getPackageRepositories().find(repoId));
-        assertThat(goConfigService.getConfigForEditing().getPackageRepositories().find(newRepoId), is(newNpmRepo));
-    }
 
     @Test
     public void shouldReturnTheExactLocalizeMessageIfItFailsToUpdatePackageRepository() throws Exception {
@@ -256,7 +180,7 @@ public class PackageRepositoryServiceIntegrationTest {
         assertThat(goConfigService.getConfigForEditing().getPackageRepositories().size(), is(1));
         assertThat(goConfigService.getConfigForEditing().getPackageRepositories().find(oldRepoId), is(oldPackageRepo));
         assertNull(goConfigService.getConfigForEditing().getPackageRepositories().find(newRepoId));
-        service.updatePackageRepository(oldRepoId, newPackageRepo, new Username("UnauthorizedUser"), "md5", result);
+        service.updatePackageRepository(newPackageRepo, new Username("UnauthorizedUser"), "md5", result);
         assertThat(result, is(expectedResult));
         assertThat(goConfigService.getConfigForEditing().getPackageRepositories().size(), is(1));
         assertThat(goConfigService.getConfigForEditing().getPackageRepositories().find(oldRepoId), is(oldPackageRepo));

@@ -52,8 +52,7 @@ public abstract class PackageRepositoryCommand implements EntityConfigUpdateComm
         this.preprocessedRepository = repositories.find(this.repository.getRepoId());
         preprocessedRepository.validate(null);
         repositories.validate(null);
-        packageRepositoryService.validatePluginId(preprocessedRepository);
-        boolean isValidConfiguration = packageRepositoryService.validateRepositoryConfiguration(preprocessedRepository);
+        boolean isValidConfiguration = packageRepositoryService.validatePluginId(preprocessedRepository) && packageRepositoryService.validateRepositoryConfiguration(preprocessedRepository);
         BasicCruiseConfig.copyErrors(preprocessedRepository, this.repository);
         return getAllErrors(this.repository).isEmpty() && isValidConfiguration && result.isSuccessful();
     }

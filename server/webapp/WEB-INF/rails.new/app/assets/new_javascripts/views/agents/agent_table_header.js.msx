@@ -64,7 +64,7 @@ define(['mithril', 'lodash', 'string-plus'], function (m, _, s) {
 
     view: function (ctrl, args) {
       return (
-        <thead style={args.style}>
+        <thead>
         <tr>
           <th>
             <input type="checkbox"

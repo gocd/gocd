@@ -150,6 +150,12 @@ define(['mithril', 'lodash', 'string-plus',
       );
     };
 
+    this.findAgentByUuid = function (uuid) {
+      return this.findAgent(function (agent) {
+        return agent.uuid() === uuid;
+      });
+    };
+
     Mixins.HasMany.call(this, {factory: Agents.Agent.create, as: 'Agent', collection: data, uniqueOn: 'uuid'});
   };
 

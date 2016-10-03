@@ -51,16 +51,16 @@ define(['mithril', 'lodash', 'helpers/form_helper',
     },
 
     view: function (ctrl, args) {
-      var isEnvironmentsEmpty = function () {
-        return _.isEmpty(Environments.list);
-      };
 
-      var environmentDropDownClass = function () {
-        return "agent-button-group-dropdown env-dropdown " + (isEnvironmentsEmpty() ? "empty" : "");
-      };
+      var isEnvironmentsEmpty = _.isEmpty(Environments.list);
+      var environmentDropDownClass = "agent-button-group-dropdown env-dropdown ";
+
+      if(isEnvironmentsEmpty) {
+        environmentDropDownClass = environmentDropDownClass + "empty";
+      }
 
       return (
-        <div class={environmentDropDownClass()} onclick={ctrl.closeDropdown}>
+        <div class={environmentDropDownClass} onclick={ctrl.closeDropdown}>
           <ul class="resources-items">
             { _.map(Environments.list, function (environment, index) {
               return (<TriStateCheckboxWidget triStateCheckbox={environment} index={index} key={environment.name()}/>);
@@ -68,7 +68,7 @@ define(['mithril', 'lodash', 'helpers/form_helper',
             }
           </ul>
 
-          {isEnvironmentsEmpty() ? (<span class="no-environment">No environments are defined</span>) :
+          {isEnvironmentsEmpty ? (<span class="no-environment">No environments are defined</span>) :
             <f.button data-toggle="environments-list" class="btn-apply"
                       onclick={ctrl.updateEnvironments.bind(ctrl, args.onEnvironmentsUpdate)}>
               Apply

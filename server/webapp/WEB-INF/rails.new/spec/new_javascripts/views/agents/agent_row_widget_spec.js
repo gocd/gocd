@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-define(["jquery", "mithril", 'models/agents/agents', "views/agents/agent_row_widget"], function ($, m, Agents, AgentsRowWidget) {
+define(["jquery", "mithril", 'models/agents/agents', "views/agents/agent_row_widget", "views/agents/models/agents_widget_view_model"], function ($, m, Agents, AgentsRowWidget, AgentsVM) {
   describe("Agent Row Widget", function () {
-    var $root  = $('#mithril-mount-point'), root = $root.get(0);
-    var agents = m.prop();
+    var $root    = $('#mithril-mount-point'), root = $root.get(0);
+    var agents   = m.prop();
     var allAgents;
+    var agentsVM = new AgentsVM();
+
     beforeAll(function () {
       allAgents = Agents.fromJSON(json());
     });
@@ -90,12 +92,23 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agent_row_wid
       expect(model()).toBe(true);
     });
 
+    it('should have links to pipeline, stage and job as a part of build details dropdown', function () {
+      agents(allAgents.toJSON()[2]);
+      mount(agents(), model);
+      var buildDetailsLinks = $root.find('.build-details a').map(function (i, el) {
+        return $(el).attr('href');
+      });
+      var buildDetails      = agents().buildDetails();
+      expect(buildDetailsLinks).toEqual([buildDetails.pipelineUrl(), buildDetails.stageUrl(), buildDetails.jobUrl()]);
+    });
+
     var mount = function (agent, model) {
       m.mount(root,
         m.component(AgentsRowWidget,
           {
             'agent':         agent,
-            'checkBoxModel': model
+            'checkBoxModel': model,
+            'dropdown':      agentsVM.dropdown
           })
       );
       m.redraw(true);
@@ -161,6 +174,50 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agent_row_wid
           "build_state":        "Unknown",
           "resources":          [],
           "environments":       []
+        },
+        {
+          "_links":             {
+            "self": {
+              "href": "https://ci.example.com/go/api/agents/dfdbe0b1-4521-4a52-ac2f-ca0cf6bdaa3e"
+            },
+            "doc":  {
+              "href": "http://api.go.cd/#agents"
+            },
+            "find": {
+              "href": "https://ci.example.com/go/api/agents/:uuid"
+            }
+          },
+          "uuid":               'uuid-3',
+          "hostname":           "host-3",
+          "ip_address":         "10.12.2.201",
+          "sandbox":            "/var/lib/go-agent-3",
+          "operating_system":   "Linux",
+          "free_space":         111902543872,
+          "agent_config_state": "Enabled",
+          "agent_state":        "Building",
+          "build_state":        "Unknown",
+          "resources":          [
+            "linux", "java"
+          ],
+          "environments":       [
+            "staging", "perf"
+          ],
+          "build_details":      {
+            "_links":        {
+              "job":      {
+                "href": "http://localhost:8153/go/tab/build/detail/up42/2/up42_stage/1/up42_job"
+              },
+              "stage":    {
+                "href": "http://localhost:8153/go/pipelines/up42/2/up42_stage/1"
+              },
+              "pipeline": {
+                "href": "http://localhost:8153/go/tab/pipeline/history/up42"
+              }
+            },
+            "pipeline_name": "up42",
+            "stage_name":    "up42_stage",
+            "job_name":      "up42_job"
+          }
         }
       ];
     };

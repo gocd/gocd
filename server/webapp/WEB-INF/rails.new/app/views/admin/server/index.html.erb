@@ -31,8 +31,8 @@
 
             <div class="form_item required">
                 <div class="form_item checkbox_row">
-                    <%- html_options = {} %>
-                    <%- html_options = {:disabled => true, :title => l.string("CANNOT_TURN_OFF_AUTO_LOGIN")} unless @allow_user_to_turn_off_auto_login %>
+                    <%- html_options = { } %>
+                    <%- html_options = {:include_hidden => false, :disabled => true, :title => l.string("CANNOT_TURN_OFF_AUTO_LOGIN")} unless @allow_user_to_turn_off_auto_login %>
                     <%= form.check_box :allow_auto_login, html_options, "true", "false" %>
                     <label class="inline" for="server_configuration_form_allow_auto_login"><%= l.string("ALLOW_AUTO_LOGIN_MESSAGE") -%></label>
                 </div>

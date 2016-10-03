@@ -94,7 +94,7 @@ class ServerConfigurationForm
   end
 
   def should_allow_auto_login
-    allow_auto_login == "true"
+    allow_auto_login != "false"
   end
 
   def to_security

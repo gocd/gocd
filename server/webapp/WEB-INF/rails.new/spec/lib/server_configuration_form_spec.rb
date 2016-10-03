@@ -63,6 +63,12 @@ describe ServerConfigurationForm do
   end
 
   describe "allow_auto_login" do
+    it "should default it to true when a new instance is created without a value being provided for it" do
+      form = ServerConfigurationForm.new({})
+      expect(form.allow_auto_login).to eq nil
+      expect(form.should_allow_auto_login).to eq true
+    end
+
     it "should set it when a new instance is created" do
       form = ServerConfigurationForm.new({:allow_auto_login => "true"})
       expect(form.allow_auto_login).to eq "true"

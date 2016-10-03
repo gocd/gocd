@@ -28,6 +28,5 @@ describe ApiV2::Config::TemplatesConfigRepresenter do
     actual_json.delete(:_links)
 
     actual_json.fetch(:_embedded).should == {templates: [ApiV2::Config::TemplateSummaryRepresenter.new(template_with_pipelines).to_hash(url_builder: UrlBuilder.new)]}
-    # expect(actual_json).to eq(templates: [ApiV2::Config::TemplateSummaryRepresenter.new(template_with_pipelines).to_hash(url_builder: UrlBuilder.new)])
   end
 end

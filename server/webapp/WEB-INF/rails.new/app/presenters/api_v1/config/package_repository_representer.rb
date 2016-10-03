@@ -19,7 +19,7 @@ module ApiV1
     class PackageRepositoryRepresenter < ApiV1::BaseRepresenter
       alias_method :package_repository, :represented
 
-      error_representer({})
+      error_representer
 
       link :self do |opts|
         opts[:url_builder].apiv1_admin_repository_url(repo_id: package_repository.id)
@@ -44,13 +44,11 @@ module ApiV1
       collection :configuration,
                  exec_context: :decorator,
                  decorator:    ApiV1::Config::PluginConfigurationPropertyRepresenter,
-                 expect_hash:  true,
                  class: com.thoughtworks.go.domain.config.ConfigurationProperty
 
       collection :packages,
                  exec_context: :decorator,
                  decorator:    ApiV1::Config::PackageHalRepresenter,
-                 expect_hash:  true,
                  class:        com.thoughtworks.go.domain.packagerepository.PackageDefinition
 
       def packages

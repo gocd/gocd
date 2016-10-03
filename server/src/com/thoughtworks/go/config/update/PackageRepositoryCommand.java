@@ -52,15 +52,15 @@ public class PackageRepositoryCommand {
     public boolean isValid(CruiseConfig preprocessedConfig) {
         PackageRepositories repositories = preprocessedConfig.getPackageRepositories();
         this.preprocessedRepository = repositories.find(this.repository.getRepoId());
-        preprocessedRepository.validate(new ConfigSaveValidationContext(repositories));
-        repositories.validate(new ConfigSaveValidationContext(preprocessedConfig));
+        preprocessedRepository.validate(null);
+        repositories.validate(null);
         validatePluginConfiguration(preprocessedRepository.getPluginConfiguration());
-        ValidateRepositoryConfiguration();
+        validateRepositoryConfiguration();
         BasicCruiseConfig.copyErrors(preprocessedRepository, this.repository);
         return getAllErrors(this.repository).isEmpty() && result.isSuccessful();
     }
 
-    private void ValidateRepositoryConfiguration() {
+    private void validateRepositoryConfiguration() {
         PackageAsRepositoryExtension extension = new PackageAsRepositoryExtension(this.pluginManager);
         String pluginId = preprocessedRepository.getPluginConfiguration().getId();
         RepositoryConfiguration repoConfig = getRepoConfiguration(preprocessedRepository.getConfiguration());

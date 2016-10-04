@@ -46,7 +46,7 @@ class ServerConfigurationForm
     security_config, mail_host = server_config.security(),server_config.mailHost()
     ldap_config = security_config.ldapConfig()
     password_file_path = security_config.passwordFileConfig().path()
-    auto_login = (!security_config.isAllowOnlyKnownUsersToLogin()) ? "1" : "0"
+    auto_login = security_config.isAllowOnlyKnownUsersToLogin() ? "false" : "true"
 
     allow_auto_login = {:allow_auto_login => auto_login}
     mail_host_params= {:hostName => mail_host.getHostName(), :port => mail_host.getPort().to_s, :username => mail_host.getUserName(),
@@ -94,7 +94,7 @@ class ServerConfigurationForm
   end
 
   def should_allow_auto_login
-    allow_auto_login == "1"
+    allow_auto_login != "false"
   end
 
   def to_security

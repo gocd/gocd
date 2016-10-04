@@ -182,4 +182,56 @@ describe "admin/server/index.html.erb" do
       end
     end
   end
+
+  describe "allow auto login (allow_auto_login)" do
+    it "should disable the check box if changing it is not allowed (when no admins are enabled)" do
+      server_config_form = ServerConfigurationForm.new({:allow_auto_login => "true"})
+      assign(:server_configuration_form, server_config_form)
+      assign(:allow_user_to_turn_off_auto_login, false)
+
+      render
+
+      Capybara.string(response.body).find('#user_management').tap do |div|
+        expect(div).to have_selector("label[for='server_configuration_form_allow_auto_login']", :text => /Allow users that exist/)
+        expect(div).to_not have_selector("input[name='server_configuration_form[allow_auto_login]'][type='hidden']")
+        expect(div).to have_selector("input#server_configuration_form_allow_auto_login[name='server_configuration_form[allow_auto_login]'][disabled='disabled'][type='checkbox'][value='true']")
+      end
+    end
+
+    it "should enable the check box and set it to 'checked' when auto login is allowed" do
+      server_config_form = ServerConfigurationForm.new({:allow_auto_login => "true"})
+      assign(:server_configuration_form, server_config_form)
+      assign(:allow_user_to_turn_off_auto_login, true)
+
+      render
+
+      Capybara.string(response.body).find('#user_management').tap do |div|
+        div.find("input[name='server_configuration_form[allow_auto_login]'][type='hidden'][value='false']").tap do |hidden_value_for_checkbox|
+          expect(hidden_value_for_checkbox).to_not be_disabled
+        end
+        div.find("input#server_configuration_form_allow_auto_login[name='server_configuration_form[allow_auto_login]'][type='checkbox'][value='true']").tap do |checkbox|
+          expect(checkbox).to_not be_disabled
+          expect(checkbox).to be_checked
+        end
+      end
+    end
+
+    it "should enable the check box and set it to not be 'checked' when auto login is not allowed" do
+      server_config_form = ServerConfigurationForm.new({:allow_auto_login => "false"})
+      assign(:server_configuration_form, server_config_form)
+      assign(:allow_user_to_turn_off_auto_login, true)
+
+      render
+
+      Capybara.string(response.body).find('#user_management').tap do |div|
+        div.find("input[name='server_configuration_form[allow_auto_login]'][type='hidden'][value='false']").tap do |hidden_value_for_checkbox|
+          expect(hidden_value_for_checkbox).to_not be_disabled
+        end
+        div.find("input#server_configuration_form_allow_auto_login[name='server_configuration_form[allow_auto_login]'][type='checkbox'][value='true']").tap do |checkbox|
+          expect(checkbox).to_not be_disabled
+          expect(checkbox).to_not be_checked
+        end
+      end
+    end
+  end
 end

@@ -63,35 +63,41 @@ describe ServerConfigurationForm do
   end
 
   describe "allow_auto_login" do
+    it "should default it to true when a new instance is created without a value being provided for it" do
+      form = ServerConfigurationForm.new({})
+      expect(form.allow_auto_login).to eq nil
+      expect(form.should_allow_auto_login).to eq true
+    end
+
     it "should set it when a new instance is created" do
-      form = ServerConfigurationForm.new({:allow_auto_login => "1"})
-      expect(form.allow_auto_login).to eq "1"
+      form = ServerConfigurationForm.new({:allow_auto_login => "true"})
+      expect(form.allow_auto_login).to eq "true"
       expect(form.should_allow_auto_login).to eq true
 
-      form = ServerConfigurationForm.new({:allow_auto_login => "0"})
-      expect(form.allow_auto_login).to eq "0"
+      form = ServerConfigurationForm.new({:allow_auto_login => "false"})
+      expect(form.allow_auto_login).to eq "false"
       expect(form.should_allow_auto_login).to eq false
     end
 
-    it "should set allow_auto_login to 1 when form is being created from_server_config and isAllowOnlyKnownUsersToLogin is false" do
+    it "should set allow_auto_login to 'true' when form is being created from_server_config and isAllowOnlyKnownUsersToLogin is false" do
       @ldap_config = LdapConfig.new("ldap://test.com", "test", "password", @encrypted_password, true,BasesConfig.new([BaseConfig.new('base1'), BaseConfig.new('base2')].to_java(BaseConfig)), "searchFilter")
       @password_file_config = PasswordFileConfig.new("path")
       @security_config = SecurityConfig.new(@ldap_config, @password_file_config, false)
       @mail_host = MailHost.new("blrstdcrspair02", 9999, "pavan", "strong_password", true, true, "from@from.com", "admin@admin.com")
 
       form = ServerConfigurationForm.from_server_config(com.thoughtworks.go.config.ServerConfig.new(@security_config, @mail_host))
-      expect(form.allow_auto_login).to eq "1"
+      expect(form.allow_auto_login).to eq "true"
       expect(form.should_allow_auto_login).to eq true
     end
 
-    it "should set allow_auto_login to 0 when form is being created from_server_config and isAllowOnlyKnownUsersToLogin is true" do
+    it "should set allow_auto_login to 'false' when form is being created from_server_config and isAllowOnlyKnownUsersToLogin is true" do
       @ldap_config = LdapConfig.new("ldap://test.com", "test", "password", @encrypted_password, true,BasesConfig.new([BaseConfig.new('base1'), BaseConfig.new('base2')].to_java(BaseConfig)), "searchFilter")
       @password_file_config = PasswordFileConfig.new("path")
       @security_config = SecurityConfig.new(@ldap_config, @password_file_config, true)
       @mail_host = MailHost.new("blrstdcrspair02", 9999, "pavan", "strong_password", true, true, "from@from.com", "admin@admin.com")
 
       form = ServerConfigurationForm.from_server_config(com.thoughtworks.go.config.ServerConfig.new(@security_config, @mail_host))
-      expect(form.allow_auto_login).to eq "0"
+      expect(form.allow_auto_login).to eq "false"
       expect(form.should_allow_auto_login).to eq false
     end
   end

@@ -36,7 +36,7 @@ describe Admin::ServerController do
                           :ldap_search_base =>"base1\r\nbase2", :ldap_search_filter => "searchFilter"}
     @valid_ldap_not_changed_password_params = {:ldap_uri => "ldap://test.com", :ldap_username => "test", :ldap_password => "********", :ldap_encrypted_password => @encrypted_password, :ldap_password_changed => "false",
                           :ldap_search_base =>"base1\r\nbase2", :ldap_search_filter => "searchFilter"}
-    @valid_security_config_params = ({:allow_auto_login => (@should_allow_auto_login ? "1" : "0"), :password_file_path => "path"}).merge(@valid_ldap_params)
+    @valid_security_config_params = ({:allow_auto_login => (@should_allow_auto_login ? "true" : "false"), :password_file_path => "path"}).merge(@valid_ldap_params)
 
     @valid_artifacts_setting = {:artifactsDir => "newArtifactDir", :purgeStart => "10", :purgeUpto => "20", :purgeArtifacts => "Size"}
     @valid_server_params = @valid_mail_host_params.merge(@valid_security_config_params).merge(@valid_artifacts_setting)

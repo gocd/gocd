@@ -62,7 +62,7 @@ define([
               <f.inputWithLabel model={pipeline.timer()}
                                 attrName='spec'
                                 label='Cron timer specification'
-                                validate={false}
+                                validate={true}
                                 tooltip={{
                                   content: <tt.pipeline.timer.spec callback={pipeline.timer().spec}/>,
                                   direction: 'bottom',

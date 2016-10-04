@@ -61,6 +61,7 @@ import static com.thoughtworks.go.util.SystemUtil.getFirstLocalNonLoopbackIpAddr
 import static com.thoughtworks.go.util.SystemUtil.getLocalhostName;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -162,6 +163,9 @@ public class WebSocketAgentControllerTest {
         when(systemEnvironment.isWebsocketEnabled()).thenReturn(true);
         when(agentWebSocketService.isRunning()).thenReturn(false);
         when(sslInfrastructureService.isRegistered()).thenReturn(true);
+        ArgumentCaptor<Message> argumentCaptor = ArgumentCaptor.forClass(Message.class);
+        doNothing().when(agentWebSocketService).send(argumentCaptor.capture());
+
 
         agentController = createAgentController();
         agentController.init();
@@ -170,8 +174,12 @@ public class WebSocketAgentControllerTest {
 
         verify(agentUpgradeService).checkForUpgrade();
         verify(sslInfrastructureService).registerIfNecessary(agentController.getAgentAutoRegistrationProperties());
-        verify(agentWebSocketService).start(agentController);
-//        verify(agentController).sendAndWaitForAck(new Message(Action.ping, MessageEncoding.encodeData(agentController.getAgentRuntimeInfo())));
+        verify(agentWebSocketService).send(any(Message.class));
+
+        Message message = argumentCaptor.getValue();
+        assertThat(message.getAckId(), notNullValue());
+        assertThat(message.getAction(), is(Action.ping));
+        assertThat(message.getData(), is(MessageEncoding.encodeData(agentController.getAgentRuntimeInfo())));
     }
 
     @Test
@@ -204,15 +212,23 @@ public class WebSocketAgentControllerTest {
 
     @Test
     public void processAssignWorkAction() throws IOException, InterruptedException {
+        ArgumentCaptor<Message> argumentCaptor = ArgumentCaptor.forClass(Message.class);
+        doNothing().when(agentWebSocketService).send(argumentCaptor.capture());
+
         when(agentRegistry.uuid()).thenReturn(agentUuid);
         agentController = createAgentController();
         agentController.init();
         agentController.process(new Message(Action.assignWork, MessageEncoding.encodeWork(new SleepWork("work1", 0))));
         assertThat(agentController.getAgentRuntimeInfo().getRuntimeStatus(), is(AgentRuntimeStatus.Idle));
-//        verify(agentWebSocketService).sendAndWaitForAck(new Message(Action.ping, MessageEncoding.encodeData(agentController.getAgentRuntimeInfo())));
-        verify(artifactsManipulator).setProperty(null, new Property("work1_result", "done"));
-    }
 
+        verify(agentWebSocketService).send(any(Message.class));
+        verify(artifactsManipulator).setProperty(null, new Property("work1_result", "done"));
+
+        Message message = argumentCaptor.getValue();
+        assertThat(message.getAckId(), notNullValue());
+        assertThat(message.getAction(), is(Action.ping));
+        assertThat(message.getData(), is(MessageEncoding.encodeData(agentController.getAgentRuntimeInfo())));
+    }
 
     @Test
     public void processBuildCommand() throws Exception {
@@ -234,7 +250,7 @@ public class WebSocketAgentControllerTest {
 
         AgentRuntimeInfo agentRuntimeInfo = cloneAgentRuntimeInfo(agentController.getAgentRuntimeInfo());
         agentRuntimeInfo.busy(new AgentBuildingInfo("build1ForDisplay", "build1"));
-//        verify(agentWebSocketService).sendAndWaitForAck(new Message(Action.reportCurrentStatus, MessageEncoding.encodeData(new Report(agentRuntimeInfo, "b001", JobState.Building, null))));
+//        verify(agentWebSocketService).send(new Message(Action.reportCurrentStatus, MessageEncoding.encodeData(new Report(agentRuntimeInfo, "b001", JobState.Building, null))));
 //        verify(agentWebSocketService).sendAndWaitForAck(new Message(Action.reportCompleted, MessageEncoding.encodeData(new Report(agentRuntimeInfo, "b001", null, JobResult.Passed))));
 
 
@@ -251,6 +267,8 @@ public class WebSocketAgentControllerTest {
     @Test
     public void processCancelBuildCommandBuild() throws IOException, InterruptedException {
         when(agentRegistry.uuid()).thenReturn(agentUuid);
+        ArgumentCaptor<Message> argumentCaptor = ArgumentCaptor.forClass(Message.class);
+        doNothing().when(agentWebSocketService).send(argumentCaptor.capture());
 
         agentController = createAgentController();
         agentController.init();
@@ -288,9 +306,14 @@ public class WebSocketAgentControllerTest {
         agentRuntimeInfo.busy(new AgentBuildingInfo("build1ForDisplay", "build1"));
         agentRuntimeInfo.cancel();
 
-//        verify(agentWebSocketService).sendAndWaitForAck(new Message(Action.reportCompleted, MessageEncoding.encodeData(new Report(agentRuntimeInfo, "b001", null, JobResult.Cancelled))));
+        verify(agentWebSocketService).send(any(Message.class));
 
         assertThat(agentController.getAgentRuntimeInfo().getRuntimeStatus(), is(AgentRuntimeStatus.Idle));
+
+        Message message = argumentCaptor.getValue();
+        assertThat(message.getAckId(), notNullValue());
+        assertThat(message.getAction(), is(Action.reportCompleted));
+        assertThat(message.getData(), is(MessageEncoding.encodeData(new Report(agentRuntimeInfo, "b001", null, JobResult.Cancelled))));
     }
 
 

@@ -214,7 +214,6 @@
                 CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
                 PATTERN_TYPE_APACHE_ANT
                 /remoting/**=ROLE_AGENT
-                /agent-websocket/**=ROLE_AGENT
             ]]></value>
         </property>
     </bean>
@@ -302,7 +301,7 @@
                 /gadgets/pipeline/**=ROLE_OAUTH_USER,ROLE_USER
                 /gadgets/remote_materials.xml=IS_AUTHENTICATED_ANONYMOUSLY
                 /gadgets/remote_materials/**=ROLE_OAUTH_USER,ROLE_USER
-
+                /agent-websocket/**=IS_AUTHENTICATED_ANONYMOUSLY
                 /plugin/interact/**=IS_AUTHENTICATED_ANONYMOUSLY
 
                 /agents/*/job_run_history*=ROLE_SUPERVISOR

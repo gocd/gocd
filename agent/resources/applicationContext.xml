@@ -67,6 +67,13 @@
   <bean id="scmExtension" class="com.thoughtworks.go.plugin.access.scm.SCMExtension"/>
   <bean id="taskExtension" class="com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension"/>
   <bean id="httpClient" class="com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient">
+    <constructor-arg ref="httpClientBuilder"/>
+  </bean>
+  <bean id="httpClientBuilder" class="com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClientBuilder">
+    <constructor-arg ref="systemEnvironment"/>
+  </bean>
+
+  <bean id="webSocketClientBuilder" class="com.thoughtworks.go.agent.common.ssl.GoAgentServerWebSocketClientBuilder">
     <constructor-arg ref="systemEnvironment"/>
   </bean>
 

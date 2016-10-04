@@ -75,7 +75,7 @@ public class HTTPAgentController extends AgentController {
     public void ping() {
         try {
             if (sslInfrastructureService.isRegistered()) {
-                AgentIdentifier agent = getIdentifier();
+                AgentIdentifier agent = agentIdentifier();
                 LOG.trace("{} is pinging server [{}]", agent, server);
 
                 getAgentRuntimeInfo().refreshUsableSpace();
@@ -104,7 +104,6 @@ public class HTTPAgentController extends AgentController {
             retrieveCookieIfNecessary();
             retrieveWork();
             LOG.debug("[Agent Loop] Successfully retrieved work.");
-
         } catch (Exception e) {
             if (isCausedBySecurity(e)) {
                 handleIfSecurityException(e);
@@ -119,7 +118,7 @@ public class HTTPAgentController extends AgentController {
     private void retrieveCookieIfNecessary() {
         if (!getAgentRuntimeInfo().hasCookie() && sslInfrastructureService.isRegistered()) {
             LOG.info("About to get cookie from the server.");
-            String cookie = server.getCookie(getIdentifier(), getAgentRuntimeInfo().getLocation());
+            String cookie = server.getCookie(agentIdentifier(), getAgentRuntimeInfo().getLocation());
             getAgentRuntimeInfo().setCookie(cookie);
             LOG.info("Got cookie: {}", cookie);
         }
@@ -138,7 +137,7 @@ public class HTTPAgentController extends AgentController {
     }
 
     void retrieveWork() {
-        AgentIdentifier agentIdentifier = getIdentifier();
+        AgentIdentifier agentIdentifier = agentIdentifier();
         LOG.debug("[Agent Loop] {} is checking for work from Go", agentIdentifier);
         Work work;
         try {

@@ -17,24 +17,10 @@
 package com.thoughtworks.go.agent.service;
 
 import com.thoughtworks.go.agent.AgentController;
-import com.thoughtworks.go.agent.JobRunner;
-import com.thoughtworks.go.agent.WebSocketAgentController;
-import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClientBuilder;
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.JobResult;
-import com.thoughtworks.go.domain.JobState;
-import com.thoughtworks.go.remote.AgentIdentifier;
-import com.thoughtworks.go.remote.AgentInstruction;
-import com.thoughtworks.go.remote.BuildRepositoryRemote;
-import com.thoughtworks.go.remote.work.Work;
-import com.thoughtworks.go.server.service.AgentRuntimeInfo;
-import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.agent.common.ssl.GoAgentServerWebSocketClientBuilder;
 import com.thoughtworks.go.util.URLService;
-import com.thoughtworks.go.websocket.Action;
 import com.thoughtworks.go.websocket.Message;
 import com.thoughtworks.go.websocket.MessageEncoding;
-import com.thoughtworks.go.websocket.Report;
-import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
@@ -46,35 +32,24 @@ import org.springframework.stereotype.Component;
 import java.net.URI;
 import java.nio.ByteBuffer;
 
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
-
 @Component
 public class AgentWebSocketService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentWebSocketService.class);
     private Session session;
-    private final SystemEnvironment environment;
+    private GoAgentServerWebSocketClientBuilder builder;
     private URLService urlService;
     private WebSocketClient client;
 
     @Autowired
-    public AgentWebSocketService(SystemEnvironment environment, URLService urlService) {
-        this.environment = environment;
+    public AgentWebSocketService(GoAgentServerWebSocketClientBuilder builder, URLService urlService) {
+        this.builder = builder;
         this.urlService = urlService;
     }
 
     public synchronized void start(AgentController agentController) throws Exception {
-        GoAgentServerHttpClientBuilder builder = new GoAgentServerHttpClientBuilder(environment);
-        SslContextFactory sslContextFactory = new SslContextFactory();
-        sslContextFactory.setKeyStore(builder.agentKeystore());
-        sslContextFactory.setKeyStorePassword(builder.keystorePassword());
-        sslContextFactory.setKeyManagerPassword(builder.keystorePassword());
-        sslContextFactory.setTrustStore(builder.agentTruststore());
-        sslContextFactory.setTrustStorePassword(builder.keystorePassword());
-        sslContextFactory.setWantClientAuth(true);
         if (client == null || client.isStopped()) {
-            client = new WebSocketClient(sslContextFactory);
-            client.setMaxIdleTimeout(environment.getWebsocketMaxIdleTime());
+            client = builder.build();
             client.start();
         }
         if (session != null) {
@@ -106,6 +81,5 @@ public class AgentWebSocketService {
     private String sessionName() {
         return session == null ? "[No session initialized]" : "Session[" + session.getRemoteAddress() + "]";
     }
-
 
 }

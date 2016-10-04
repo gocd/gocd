@@ -79,8 +79,8 @@ public abstract class AgentController {
         return systemEnvironment;
     }
 
-    protected AgentIdentifier getIdentifier() {
-        return identifier;
+    protected AgentIdentifier agentIdentifier() {
+        return new AgentIdentifier(SystemUtil.getLocalhostNameOrRandomNameIfNotFound(), SystemUtil.getClientIp(systemEnvironment.getServiceUrl()), agentRegistry.uuid());
     }
 
     protected AgentRuntimeInfo getAgentRuntimeInfo() {
@@ -112,7 +112,7 @@ public abstract class AgentController {
     }
 
     private void initAgentIdentifier() {
-        identifier = new AgentIdentifier(SystemUtil.getLocalhostNameOrRandomNameIfNotFound(), SystemUtil.getClientIp(systemEnvironment.getServiceUrl()), agentRegistry.uuid());
+        identifier = agentIdentifier();
     }
 
     private void initRuntimeInfo() {

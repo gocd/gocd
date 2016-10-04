@@ -46,7 +46,6 @@ import org.eclipse.jetty.websocket.api.annotations.*;
 import org.eclipse.jetty.websocket.api.extensions.Frame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.Scheduled;
 
 import java.io.File;
 import java.io.InputStream;
@@ -126,7 +125,7 @@ public class WebSocketAgentController extends AgentController {
                 updateServerAgentRuntimeInfo();
             }
         } catch (Exception e) {
-            if (isCausedBySecurity(e)) {
+                if (isCausedBySecurity(e)) {
                 handleIfSecurityException(e);
             } else {
                 LOG.error("Error occurred when agent tried to ping server: ", e);
@@ -152,7 +151,7 @@ public class WebSocketAgentController extends AgentController {
                 getAgentRuntimeInfo().idle();
                 runner = new JobRunner();
                 try {
-                    runner.run(work, getIdentifier(),
+                    runner.run(work, agentIdentifier(),
                             new BuildRepositoryRemoteAdapter(runner, this),
                             manipulator, getAgentRuntimeInfo(),
                             packageAsRepositoryExtension, scmExtension,
@@ -246,7 +245,7 @@ public class WebSocketAgentController extends AgentController {
     }
 
     private void updateServerAgentRuntimeInfo() {
-        AgentIdentifier agent = getIdentifier();
+        AgentIdentifier agent = agentIdentifier();
         LOG.trace("{} is pinging server [{}]", agent, server);
         getAgentRuntimeInfo().refreshUsableSpace();
         sendAndWaitForAck(new Message(Action.ping, MessageEncoding.encodeData(getAgentRuntimeInfo())));

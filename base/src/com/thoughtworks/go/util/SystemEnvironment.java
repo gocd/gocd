@@ -783,6 +783,10 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return Boolean.valueOf(get(SystemEnvironment.ENABLE_BUILD_COMMAND_PROTOCOL));
     }
 
+    public String getAgentKeyStorePassword() {
+        return get(SystemEnvironment.GO_AGENT_KEYSTORE_PASSWORD);
+    }
+
     public static abstract class GoSystemProperty<T> {
         private String propertyName;
         private T defaultValue;

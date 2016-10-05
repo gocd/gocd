@@ -250,4 +250,5 @@ module JavaImports
   java_import com.thoughtworks.go.server.service.EntityHashingService unless defined? EntityHashingService
   java_import com.thoughtworks.go.config.EnvironmentAgentConfig unless defined? EnvironmentAgentConfig
   java_import com.thoughtworks.go.config.EnvironmentVariableConfig unless defined? EnvironmentVariableConfig
+  java_import com.thoughtworks.go.config.elastic.ElasticProfile unless defined? ElasticProfile
 end

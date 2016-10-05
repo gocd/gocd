@@ -41,6 +41,7 @@ public class ConfigurationPropertyBuilderTest {
 
         ConfigurationProperty property = new ConfigurationPropertyBuilder().create("key", null, null, true);
 
+        assertThat(property.errors().size(), is(0));
         assertThat(property.getConfigKeyName(), is("key"));
         assertNull(property.getEncryptedConfigurationValue());
         assertNull(property.getConfigurationValue());

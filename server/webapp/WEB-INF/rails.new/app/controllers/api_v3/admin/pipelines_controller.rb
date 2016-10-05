@@ -75,7 +75,7 @@ module ApiV3
       def check_for_attempted_pipeline_rename
         unless CaseInsensitiveString.new(params[:pipeline][:name]) == CaseInsensitiveString.new(params[:pipeline_name])
           result = HttpLocalizedOperationResult.new
-          result.notAcceptable(LocalizedMessage::string("PIPELINE_RENAMING_NOT_ALLOWED"))
+          result.notAcceptable(LocalizedMessage::string("RENAMING_NOT_ALLOWED", 'pipeline'))
           render_http_operation_result(result)
         end
       end

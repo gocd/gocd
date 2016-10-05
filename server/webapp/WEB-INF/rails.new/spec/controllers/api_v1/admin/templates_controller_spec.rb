@@ -457,7 +457,7 @@ describe ApiV1::Admin::TemplatesController do
         @template_config_service.should_receive(:loadForView).and_return(@template)
         result = HttpLocalizedOperationResult.new
         @template_config_service.stub(:deleteTemplateConfig).with(anything, an_instance_of(PipelineTemplateConfig), result) do |user, template, result|
-          result.setMessage(LocalizedMessage::string("TEMPLATE_DELETED_SUCCESSFUL", 'some-template'))
+          result.setMessage(LocalizedMessage::string("RESOURCE_DELETE_SUCCESSFUL", 'template', 'some-template'))
         end
         delete_with_api_header :destroy, template_name: 'some-template'
 

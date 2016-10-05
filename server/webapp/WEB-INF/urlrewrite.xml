@@ -89,6 +89,20 @@
     </rule>
 
     <rule>
+        <name>Rails Profiles API Index API</name>
+        <from>^/api/elastic/profiles$</from>
+        <to last="true">/rails/api/elastic/profiles</to>
+        <set name="rails_bound">true</set>
+    </rule>
+
+    <rule>
+        <name>Rails Profiles API</name>
+        <from>^/api/elastic/profiles/(.*)$</from>
+        <to last="true">/rails/api/elastic/profiles/${escape:$1}</to>
+        <set name="rails_bound">true</set>
+    </rule>
+
+    <rule>
         <name>Rails API</name>
         <from>^/(api/(?!admin/config).*)$</from>
         <to last="true">/rails/$1</to>

@@ -68,4 +68,17 @@ public abstract class SCMConfigCommand implements EntityConfigUpdateCommand<SCM>
     public void clearErrors() {
         BasicCruiseConfig.clearErrors(globalScmConfig);
     }
+
+    @Override
+    public boolean canContinue(CruiseConfig cruiseConfig) {
+        return isAuthorized();
+    }
+
+    private boolean isAuthorized() {
+        if (!(goConfigService.isUserAdmin(currentUser) || goConfigService.isGroupAdministrator(currentUser.getUsername()))) {
+            result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
+            return false;
+        }
+        return true;
+    }
 }

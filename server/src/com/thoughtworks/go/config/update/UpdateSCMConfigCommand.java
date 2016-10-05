@@ -50,7 +50,7 @@ public class UpdateSCMConfigCommand extends SCMConfigCommand {
 
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
-        return isUserAuthorized() && isRequestFresh(cruiseConfig);
+        return super.canContinue(cruiseConfig) && isRequestFresh(cruiseConfig);
     }
 
     private boolean isRequestFresh(CruiseConfig cruiseConfig) {
@@ -61,14 +61,6 @@ public class UpdateSCMConfigCommand extends SCMConfigCommand {
         }
 
         return freshRequest;
-    }
-
-    private boolean isUserAuthorized() {
-        if (!(goConfigService.isUserAdmin(currentUser)) || goConfigService.isGroupAdministrator(currentUser.getUsername())) {
-            result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
-            return false;
-        }
-        return true;
     }
 
     private SCM findSCM(CruiseConfig modifiedConfig) {

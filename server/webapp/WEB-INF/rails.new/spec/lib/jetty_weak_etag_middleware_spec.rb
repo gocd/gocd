@@ -14,25 +14,26 @@
 # limitations under the License.
 ##########################################################################
 
-class JettyWeakEtagMiddleware
-  def initialize(app)
-    @app = app
+require 'spec_helper'
+
+describe JettyWeakEtagMiddleware do
+  before(:each) do
+    @app = double('rack-app')
+    @middleware = JettyWeakEtagMiddleware.new(@app)
   end
 
-  MATCH_REGEX = /--(gzip|deflate)"$/
-  REPLACE_REGEX = /--(gzip|deflate)"?$/
+  %w(gzip deflate).each do |compression_type|
+    it "should remove --#{compression_type} suffix inserted by GzipFilter from jetty" do
+      env = {
+        'HTTP_IF_MATCH' => %Q{"foobar--#{compression_type}"},
+        'HTTP_IF_NONE_MATCH' => %Q{"foobar--#{compression_type}"}
+      }
 
-  def call(env)
-    # make weak etags sent by jetty strong see: http://stackoverflow.com/questions/18693718/weak-etags-in-rails
-    if env['HTTP_IF_MATCH'] =~ MATCH_REGEX
-      env['HTTP_IF_MATCH'] = env['HTTP_IF_MATCH'].gsub(REPLACE_REGEX, '"')
+      @app.should_receive(:call).with({
+                                        'HTTP_IF_MATCH' => '"foobar"',
+                                        'HTTP_IF_NONE_MATCH' => '"foobar"'
+                                      })
+      @middleware.call(env)
     end
-
-    if env['HTTP_IF_NONE_MATCH'] =~ MATCH_REGEX
-      env['HTTP_IF_NONE_MATCH'] = env['HTTP_IF_NONE_MATCH'].gsub(REPLACE_REGEX, '"')
-    end
-
-    status, headers, body = @app.call(env)
-    [status, headers, body]
   end
 end

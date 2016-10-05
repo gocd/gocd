@@ -16,22 +16,35 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.config.ConfigTag;
+import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfiles;
+import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
+import com.thoughtworks.go.config.update.ElasticAgentProfileCreateCommand;
+import com.thoughtworks.go.config.update.ElasticAgentProfileDeleteCommand;
+import com.thoughtworks.go.config.update.ElasticAgentProfileUpdateCommand;
+import com.thoughtworks.go.i18n.LocalizedMessage;
+import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Component
 public class ElasticProfileService {
+    private org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ElasticProfileService.class);
 
     private final GoConfigService goConfigService;
+    private final EntityHashingService hashingService;
 
     @Autowired
-    public ElasticProfileService(GoConfigService goConfigService) {
+    public ElasticProfileService(GoConfigService goConfigService, EntityHashingService hashingService) {
         this.goConfigService = goConfigService;
+        this.hashingService = hashingService;
     }
 
     public ElasticProfile findProfile(String id) {
@@ -42,11 +55,42 @@ public class ElasticProfileService {
     public Map<String, ElasticProfile> allProfiles() {
         ElasticProfiles profiles = goConfigService.serverConfig().getElasticConfig().getProfiles();
 
-        HashMap<String, ElasticProfile> result = new HashMap<>();
+        Map<String, ElasticProfile> result = new LinkedHashMap<>();
         for (ElasticProfile profile : profiles) {
             result.put(profile.getId(), new ElasticProfile(profile));
         }
 
         return result;
     }
+
+    public void update(Username currentUser, String md5, ElasticProfile newProfile, LocalizedOperationResult result) {
+        update(currentUser, newProfile, result, new ElasticAgentProfileUpdateCommand(goConfigService, hashingService, newProfile, md5, result, currentUser));
+    }
+
+    public void delete(Username currentUser, ElasticProfile elasticProfile, LocalizedOperationResult result) {
+        update(currentUser, elasticProfile, result, new ElasticAgentProfileDeleteCommand(elasticProfile, goConfigService, currentUser, result));
+        if (result.isSuccessful()) {
+            result.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", "elastic agent profile", elasticProfile.getId()));
+        }
+    }
+
+    public void create(Username currentUser, ElasticProfile elasticProfile, LocalizedOperationResult result) {
+        update(currentUser, elasticProfile, result, new ElasticAgentProfileCreateCommand(elasticProfile, goConfigService, currentUser, result));
+    }
+
+    private void update(Username currentUser, ElasticProfile elasticProfile, LocalizedOperationResult result, EntityConfigUpdateCommand<ElasticProfile> command) {
+        try {
+            goConfigService.updateConfig(command, currentUser);
+        } catch (Exception e) {
+            if (e instanceof GoConfigInvalidException) {
+                result.unprocessableEntity(LocalizedMessage.string("ENTITY_CONFIG_VALIDATION_FAILED", elasticProfile.getClass().getAnnotation(ConfigTag.class).value(), elasticProfile.getId(), e.getMessage()));
+            } else {
+                if (!result.hasMessage()) {
+                    LOGGER.error(e.getMessage(), e);
+                    result.internalServerError(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", "An error occurred while saving the template config. Please check the logs for more information."));
+                }
+            }
+        }
+    }
+
 }

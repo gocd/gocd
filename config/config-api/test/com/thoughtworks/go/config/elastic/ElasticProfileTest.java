@@ -36,6 +36,14 @@ public class ElasticProfileTest {
     }
 
     @Test
+    public void shouldValidateElasticPluginIdPattern() throws Exception {
+        ElasticProfile profile = new ElasticProfile("!123", "docker");
+        profile.validate(null);
+        assertThat(profile.errors().size(), is(1));
+        assertThat(profile.errors().on(ElasticProfile.ID), is("Invalid id '!123'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+    }
+
+    @Test
     public void shouldValidateConfigPropertyNameUniqueness() throws Exception {
         ConfigurationProperty prop1 = ConfigurationPropertyMother.create("USERNAME");
         ConfigurationProperty prop2 = ConfigurationPropertyMother.create("USERNAME");

@@ -16,10 +16,6 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
@@ -37,6 +33,10 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class TemplateConfigService {
@@ -78,7 +78,7 @@ public class TemplateConfigService {
         DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(templateConfig, result, goConfigService, currentUser);
         update(currentUser, result, command, templateConfig);
         if(result.isSuccessful()) {
-            result.setMessage(LocalizedMessage.string("TEMPLATE_DELETED_SUCCESSFUL", templateConfig.name().toString()));
+            result.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", "template", templateConfig.name().toString()));
         }
     }
 

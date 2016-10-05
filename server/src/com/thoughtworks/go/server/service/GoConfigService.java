@@ -37,7 +37,6 @@ import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.presentation.ConfigForEdit;
 import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.server.cache.GoCache;
-import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.PipelineConfigDependencyGraph;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.domain.user.PipelineSelections;
@@ -52,7 +51,6 @@ import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.ExceptionUtils;
 import com.thoughtworks.go.util.SystemTimeClock;
-import com.thoughtworks.go.util.TriState;
 import org.apache.log4j.Logger;
 import org.dom4j.DocumentFactory;
 import org.dom4j.Element;
@@ -801,6 +799,10 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
 
     public boolean isGroupAdministrator(final CaseInsensitiveString userName) {
         return getCurrentConfig().isGroupAdministrator(userName);
+    }
+
+    public boolean isGroupAdministrator(final Username userName) {
+        return getCurrentConfig().isGroupAdministrator(userName.getUsername());
     }
 
     public boolean hasEnvironmentNamed(final CaseInsensitiveString environmentName) {

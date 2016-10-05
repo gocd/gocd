@@ -349,7 +349,7 @@ describe ApiV3::Admin::PipelinesController do
         put_with_api_header :update, pipeline_name: @pipeline_name, :pipeline => pipeline("renamed_pipeline")
 
         expect(response.code).to eq("406")
-        expect(actual_response).to eq({ :message => "Renaming of pipeline is not supported by this API." })
+        expect(actual_response).to eq({ :message => "Renaming the pipeline resource is not supported by this API." })
       end
 
       it "should set package definition on to package material before save" do

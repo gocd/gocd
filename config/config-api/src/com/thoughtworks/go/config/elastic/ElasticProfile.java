@@ -17,6 +17,8 @@
 package com.thoughtworks.go.config.elastic;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.builder.ConfigurationPropertyBuilder;
+import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
@@ -94,6 +96,20 @@ public class ElasticProfile extends Configuration implements Validatable {
 
         if (isBlank(pluginId)) {
             addError(PLUGIN_ID, "Elastic profile cannot have a blank plugin id.");
+        }
+
+        if (new NameTypeValidator().isNameInvalid(id)) {
+            addError(ID, String.format("Invalid id '%s'. %s", id, NameTypeValidator.ERROR_MESSAGE));
+        }
+    }
+
+    public void addConfigurations(List<ConfigurationProperty> configurations) {
+        ConfigurationPropertyBuilder builder = new ConfigurationPropertyBuilder();
+        for (ConfigurationProperty property : configurations) {
+            add(builder.create(property.getConfigKeyName(),
+                    property.getConfigValue(),
+                    null,
+                    false));
         }
     }
 

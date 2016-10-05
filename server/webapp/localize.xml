@@ -6,7 +6,7 @@
   ~ you may not use this file except in compliance with the License.
   ~ You may obtain a copy of the License at
   ~
-  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~     http://www.apache.org/licenses/LICENSE-2.0
   ~
   ~ Unless required by applicable law or agreed to in writing, software
   ~ distributed under the License is distributed on an "AS IS" BASIS,
@@ -535,7 +535,7 @@
     <entry key="MORE_INFORMATION">More Information</entry>
     <entry key="NO_ENVIRONMENTS_CONFIGURED">No environments are displayed because either no environments have been set up or you are not authorized to view the pipelines within any of the environments.</entry>
     <entry key="CANNOT_DELETE_TEMPLATE">Cannot delete the template ''{0}'' as it is used by pipeline(s): ''{1}''</entry>
-    <entry key="TEMPLATE_DELETED_SUCCESSFUL">The template ''{0}'' was deleted successfully.</entry>
+    <entry key="RESOURCE_DELETE_SUCCESSFUL">The {0} ''{1}'' was deleted successfully.</entry>
     <entry key="TEMPLATE_NAME_CANNOT_BE_NULL">The template config is invalid. Template name cannot be null.</entry>
     <entry key="DELETE_TEMPLATE">Delete this template</entry>
     <entry key="UNAUTHORIZED_TO_ADMINISTER">Unauthorized to edit configuration</entry>
@@ -799,7 +799,8 @@
     <entry key="SCM_USED_IN_PIPELINES_LINK">Show pipelines using this SCM</entry>
     <entry key="STALE_RESOURCE_CONFIG">Someone has modified the configuration for {0} ''{1}''. Please update your copy of the config with the changes.</entry>
     <entry key="ENTITY_CONFIG_VALIDATION_FAILED">Validations failed for {0} ''{1}''. Error(s): [{2}]. Please correct and resubmit.</entry>
-    <entry key="PIPELINE_RENAMING_NOT_ALLOWED">Renaming of pipeline is not supported by this API.</entry>
+    <entry key="RENAMING_NOT_ALLOWED">Renaming the {0} resource is not supported by this API.</entry>
+    <entry key="CANNOT_DELETE_ELASTIC_AGENT_PROFILE">Cannot delete the elastic agent profile ''{0}'' as it is used by pipeline(s) ''{1}'' and template(s) ''{''</entry>
     <entry key="CANNOT_CREATE_PIPELINE_ALREADY_EXISTS">Failed to create pipeline ''{0}'' as another pipeline by the same name already exists.</entry>
     <entry key="PIPELINE_DELETE_SUCCESSFUL">Pipeline ''{0}'' was deleted successfully.</entry>
     <entry key="PACKAGE_REPOSITORY_DELETE_SUCCESSFUL">Package Repository with id ''{0}'' was deleted successfully.</entry>

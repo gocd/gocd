@@ -171,7 +171,7 @@ public class WebSocketAgentController extends AgentController {
                 agentWebSocketService.stop();
                 sslInfrastructureService.invalidateAgentCertificate();
                 break;
-            case ack:
+            case acknowledge:
                 callbacks.remove(MessageEncoding.decodeData(message.getData(), String.class)).call();
                 break;
             default:
@@ -248,11 +248,11 @@ public class WebSocketAgentController extends AgentController {
         AgentIdentifier agent = agentIdentifier();
         LOG.trace("{} is pinging server [{}]", agent, server);
         getAgentRuntimeInfo().refreshUsableSpace();
-        sendAndWaitForAck(new Message(Action.ping, MessageEncoding.encodeData(getAgentRuntimeInfo())));
+        sendAndWaitForAcknowledgement(new Message(Action.ping, MessageEncoding.encodeData(getAgentRuntimeInfo())));
         LOG.trace("{} pinged server [{}]", agent, server);
     }
 
-    public void sendAndWaitForAck(Message message) {
+    public void sendAndWaitForAcknowledgement(Message message) {
         final CountDownLatch wait = new CountDownLatch(1);
         sendWithCallback(message, new MessageCallback() {
             @Override
@@ -269,7 +269,7 @@ public class WebSocketAgentController extends AgentController {
 
     public void sendWithCallback(Message message, MessageCallback callback) {
         message.generateAckId();
-        callbacks.put(message.getAckId(), callback);
+        callbacks.put(message.getAcknowledgementId(), callback);
         agentWebSocketService.send(message);
     }
 

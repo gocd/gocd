@@ -27,7 +27,7 @@ public class Message {
     @Expose
     private final String data;
     @Expose
-    private String ackId;
+    private String acknowledgementId;
 
     public Message(Action action) {
         this(action, null);
@@ -37,10 +37,10 @@ public class Message {
         this(action, data, null);
     }
 
-    public Message(Action action, String data, String ackId) {
+    public Message(Action action, String data, String acknowledgementId) {
         this.action = action;
         this.data = data;
-        this.ackId = ackId;
+        this.acknowledgementId = acknowledgementId;
     }
 
 
@@ -52,8 +52,8 @@ public class Message {
         return data;
     }
 
-    public String getAckId() {
-        return ackId;
+    public String getAcknowledgementId() {
+        return acknowledgementId;
     }
 
     @Override
@@ -61,7 +61,7 @@ public class Message {
         return "Message{" +
                 "action=" + action +
                 ", data=" + data +
-                ", ackId=" + ackId +
+                ", acknowledgementId=" + acknowledgementId +
                 '}';
     }
 
@@ -74,7 +74,7 @@ public class Message {
 
         if (action != message.action) return false;
         if (data != null ? !data.equals(message.data) : message.data != null) return false;
-        return ackId != null ? ackId.equals(message.ackId) : message.ackId == null;
+        return acknowledgementId != null ? acknowledgementId.equals(message.acknowledgementId) : message.acknowledgementId == null;
 
     }
 
@@ -82,11 +82,11 @@ public class Message {
     public int hashCode() {
         int result = action.hashCode();
         result = 31 * result + (data != null ? data.hashCode() : 0);
-        result = 31 * result + (ackId != null ? ackId.hashCode() : 0);
+        result = 31 * result + (acknowledgementId != null ? acknowledgementId.hashCode() : 0);
         return result;
     }
 
     public void generateAckId() {
-        this.ackId = UUID.randomUUID().toString();
+        this.acknowledgementId = UUID.randomUUID().toString();
     }
 }

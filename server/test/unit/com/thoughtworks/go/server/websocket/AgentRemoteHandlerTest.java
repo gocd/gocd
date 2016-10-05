@@ -246,7 +246,7 @@ public class AgentRemoteHandlerTest {
         msg.generateAckId();
         handler.process(agent, msg);
         assertEquals(1, agent.messages.size());
-        assertEquals(Action.ack, agent.messages.get(0).getAction());
-        assertEquals(msg.getAckId(), MessageEncoding.decodeData(agent.messages.get(0).getData(), String.class));
+        assertEquals(Action.acknowledge, agent.messages.get(0).getAction());
+        assertEquals(msg.getAcknowledgementId(), MessageEncoding.decodeData(agent.messages.get(0).getData(), String.class));
     }
 }

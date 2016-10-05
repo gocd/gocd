@@ -35,19 +35,19 @@ class BuildRepositoryRemoteAdapter implements BuildRepositoryRemote {
     @Override
     public void reportCurrentStatus(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobIdentifier, JobState jobState) {
         Report report = new Report(agentRuntimeInfo, jobIdentifier, jobState);
-        controller.sendAndWaitForAck(new Message(Action.reportCurrentStatus, MessageEncoding.encodeData(report)));
+        controller.sendAndWaitForAcknowledgement(new Message(Action.reportCurrentStatus, MessageEncoding.encodeData(report)));
     }
 
     @Override
     public void reportCompleting(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobIdentifier, JobResult result) {
         Report report = new Report(agentRuntimeInfo, jobIdentifier, result);
-        controller.sendAndWaitForAck(new Message(Action.reportCompleting, MessageEncoding.encodeData(report)));
+        controller.sendAndWaitForAcknowledgement(new Message(Action.reportCompleting, MessageEncoding.encodeData(report)));
     }
 
     @Override
     public void reportCompleted(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobIdentifier, JobResult result) {
         Report report = new Report(agentRuntimeInfo, jobIdentifier, result);
-        controller.sendAndWaitForAck(new Message(Action.reportCompleted, MessageEncoding.encodeData(report)));
+        controller.sendAndWaitForAcknowledgement(new Message(Action.reportCompleted, MessageEncoding.encodeData(report)));
     }
 
     @Override

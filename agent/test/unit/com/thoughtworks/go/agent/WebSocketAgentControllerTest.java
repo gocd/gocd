@@ -177,7 +177,7 @@ public class WebSocketAgentControllerTest {
         verify(agentWebSocketService).send(any(Message.class));
 
         Message message = argumentCaptor.getValue();
-        assertThat(message.getAckId(), notNullValue());
+        assertThat(message.getAcknowledgementId(), notNullValue());
         assertThat(message.getAction(), is(Action.ping));
         assertThat(message.getData(), is(MessageEncoding.encodeData(agentController.getAgentRuntimeInfo())));
     }
@@ -225,7 +225,7 @@ public class WebSocketAgentControllerTest {
         verify(artifactsManipulator).setProperty(null, new Property("work1_result", "done"));
 
         Message message = argumentCaptor.getValue();
-        assertThat(message.getAckId(), notNullValue());
+        assertThat(message.getAcknowledgementId(), notNullValue());
         assertThat(message.getAction(), is(Action.ping));
         assertThat(message.getData(), is(MessageEncoding.encodeData(agentController.getAgentRuntimeInfo())));
     }
@@ -251,7 +251,7 @@ public class WebSocketAgentControllerTest {
         AgentRuntimeInfo agentRuntimeInfo = cloneAgentRuntimeInfo(agentController.getAgentRuntimeInfo());
         agentRuntimeInfo.busy(new AgentBuildingInfo("build1ForDisplay", "build1"));
 //        verify(agentWebSocketService).send(new Message(Action.reportCurrentStatus, MessageEncoding.encodeData(new Report(agentRuntimeInfo, "b001", JobState.Building, null))));
-//        verify(agentWebSocketService).sendAndWaitForAck(new Message(Action.reportCompleted, MessageEncoding.encodeData(new Report(agentRuntimeInfo, "b001", null, JobResult.Passed))));
+//        verify(agentWebSocketService).sendAndWaitForAcknowledgement(new Message(Action.reportCompleted, MessageEncoding.encodeData(new Report(agentRuntimeInfo, "b001", null, JobResult.Passed))));
 
 
         ArgumentCaptor<HttpPut> putMethodArg = ArgumentCaptor.forClass(HttpPut.class);
@@ -311,7 +311,7 @@ public class WebSocketAgentControllerTest {
         assertThat(agentController.getAgentRuntimeInfo().getRuntimeStatus(), is(AgentRuntimeStatus.Idle));
 
         Message message = argumentCaptor.getValue();
-        assertThat(message.getAckId(), notNullValue());
+        assertThat(message.getAcknowledgementId(), notNullValue());
         assertThat(message.getAction(), is(Action.reportCompleted));
         assertThat(message.getData(), is(MessageEncoding.encodeData(new Report(agentRuntimeInfo, "b001", null, JobResult.Cancelled))));
     }
@@ -399,15 +399,15 @@ public class WebSocketAgentControllerTest {
         agentController = createAgentController();
         agentController.init();
         final Message message = new Message(Action.reportCurrentStatus);
-        assertNull(message.getAckId());
+        assertNull(message.getAcknowledgementId());
         agentController.sendWithCallback(message, new MessageCallback() {
             @Override
             public void call() {
                 callbackIsCalled.set(true);
             }
         });
-        assertNotNull(message.getAckId());
-        agentController.process(new Message(Action.ack, MessageEncoding.encodeData(message.getAckId())));
+        assertNotNull(message.getAcknowledgementId());
+        agentController.process(new Message(Action.acknowledge, MessageEncoding.encodeData(message.getAcknowledgementId())));
         assertTrue(callbackIsCalled.get());
     }
 

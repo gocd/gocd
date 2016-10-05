@@ -19,7 +19,13 @@ module ApiV1
     class PluginConfigurationPropertyRepresenter < ApiV1::BaseRepresenter
       alias_method :configuration_property, :represented
 
-      error_representer
+      error_representer(
+        {
+          'encryptedValue' => 'encrypted_value',
+          'configurationValue' => 'configuration_value',
+          'configurationKey' => 'configuration_key'
+        }
+      )
       property :key, exec_context: :decorator
       property :value, skip_nil: true, exec_context: :decorator
       property :encrypted_value, skip_nil: true, exec_context: :decorator

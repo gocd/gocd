@@ -228,11 +228,11 @@ public class PackageRepositoryService {
     }
 
     public PackageRepository getPackageRepository(String repoId) {
-        return goConfigService.getConfigForEditing().getPackageRepositories().find(repoId);
+        return goConfigService.getPackageRepository(repoId);
     }
 
     public PackageRepositories getPackageRepositories() {
-        return goConfigService.getConfigForEditing().getPackageRepositories();
+        return goConfigService.getPackageRepositories();
     }
 
     private void update(Username username, HttpLocalizedOperationResult result, EntityConfigUpdateCommand command) {
@@ -264,8 +264,8 @@ public class PackageRepositoryService {
         update(username, result, command);
     }
 
-    public void updatePackageRepository(PackageRepository newRepo, Username username, String md5, HttpLocalizedOperationResult result){
-        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, this, newRepo, username, md5, entityHashingService, result);
+    public void updatePackageRepository(PackageRepository newRepo, Username username, String md5, HttpLocalizedOperationResult result, String oldRepoId){
+        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, this, newRepo, username, md5, entityHashingService, result, oldRepoId);
         update(username,result, command);
     }
 

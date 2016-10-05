@@ -54,51 +54,41 @@ public class CreatePackageRepositoryCommandTest {
     private PackageRepositoryService packageRepositoryService;
 
     @Mock
-    private PluginManager pluginManager;
-
-    @Mock
     private GoConfigService goConfigService;
-    private String pluginId;
 
     @Before
     public void setup() throws Exception {
         initMocks(this);
         currentUser = new Username(new CaseInsensitiveString("user"));
-        cruiseConfig = new GoConfigMother().defaultCruiseConfig();
-        packageRepository = new PackageRepository();
+        cruiseConfig = GoConfigMother.defaultCruiseConfig();
         repoId = "npmOrg";
-        pluginId = "npm";
-        packageRepository.setId(repoId);
-        packageRepository.setName(repoId);
-        packageRepository.setPluginConfiguration(new PluginConfiguration(pluginId, "1"));
+        packageRepository = new PackageRepository(repoId, repoId, new PluginConfiguration("npm", "1"), new Configuration());
         result = new HttpLocalizedOperationResult();
+        cruiseConfig.getPackageRepositories().add(packageRepository);
     }
 
     @Test
     public void shouldCreatePackageRepository() throws Exception {
-        CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, packageRepositoryService, packageRepository, currentUser, result);
-        when(pluginManager.getPluginDescriptorFor(pluginId)).thenReturn(new GoPluginDescriptor(pluginId, "1", null, null, null, false));
+        PackageRepository repository = new PackageRepository("id", "name", new PluginConfiguration(), new Configuration());
+        CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, packageRepositoryService, repository, currentUser, result);
 
-        assertThat(cruiseConfig.getPackageRepositories().size(), is(0));
-        assertNull(cruiseConfig.getPackageRepositories().find(repoId));
+        assertNull(cruiseConfig.getPackageRepositories().find("id"));
         command.update(cruiseConfig);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         assertThat(result, is(expectedResult));
-        assertThat(cruiseConfig.getPackageRepositories().size(), is(1));
-        assertThat(cruiseConfig.getPackageRepositories().find(repoId), is(packageRepository));
+        assertThat(cruiseConfig.getPackageRepositories().find("id"), is(repository));
     }
 
     @Test
     public void shouldNotCreatePackageRepositoryIfTheSpecifiedPluginTypeIsInvalid() throws Exception {
         when(packageRepositoryService.validatePluginId(packageRepository)).thenReturn(false);
+        when(packageRepositoryService.validateRepositoryConfiguration(packageRepository)).thenReturn(true);
         CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, packageRepositoryService, packageRepository, currentUser, result);
-        command.update(cruiseConfig);
         assertFalse(command.isValid(cruiseConfig));
     }
 
     @Test
     public void shouldNotCreatePackageRepositoryWhenRepositoryWithSpecifiedNameAlreadyExists() throws Exception {
-        cruiseConfig.getPackageRepositories().add(packageRepository);
         CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, packageRepositoryService, packageRepository, currentUser, result);
         command.update(cruiseConfig);
         assertFalse(command.isValid(cruiseConfig));
@@ -107,32 +97,19 @@ public class CreatePackageRepositoryCommandTest {
 
     @Test
     public void shouldNotCreatePackageRepositoryWhenRepositoryHasDuplicateConfigurationProperties() throws Exception {
-        when(pluginManager.isPluginOfType("package-repository", pluginId)).thenReturn(true);
-        when(pluginManager.resolveExtensionVersion(pluginId, Arrays.asList("1.0"))).thenReturn("1.0");
-        when(pluginManager.submitTo(any(String.class), any(GoPluginApiRequest.class)))
-                .thenReturn(new DefaultGoPluginApiResponse(DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE));
-        Configuration configuration = new Configuration();
         ConfigurationProperty property = new ConfigurationProperty(new ConfigurationKey("foo"), new ConfigurationValue("bar"));
-        configuration.add(property);
-        configuration.add(property);
+        Configuration configuration = new Configuration(property, property);
         packageRepository.setConfiguration(configuration);
-        when(pluginManager.getPluginDescriptorFor(pluginId)).thenReturn(new GoPluginDescriptor(pluginId, "1", null, null, null, false));
         CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, packageRepositoryService, packageRepository, currentUser, result);
-        command.update(cruiseConfig);
         assertFalse(command.isValid(cruiseConfig));
         assertThat(property.errors().firstError(), is("Duplicate key 'foo' found for Repository 'npmOrg'"));
     }
 
     @Test
     public void shouldNotCreatePackageRepositoryWhenRepositoryHasInvalidName() throws Exception {
-        when(pluginManager.isPluginOfType("package-repository", pluginId)).thenReturn(true);
-        when(pluginManager.resolveExtensionVersion(pluginId, Arrays.asList("1.0"))).thenReturn("1.0");
-        when(pluginManager.submitTo(any(String.class), any(GoPluginApiRequest.class)))
-                .thenReturn(new DefaultGoPluginApiResponse(DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE));
         packageRepository.setName("~!@#$%^&*(");
-        when(pluginManager.getPluginDescriptorFor(pluginId)).thenReturn(new GoPluginDescriptor(pluginId, "1", null, null, null, false));
         CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, packageRepositoryService, packageRepository, currentUser, result);
-        command.update(cruiseConfig);
+
         assertFalse(command.isValid(cruiseConfig));
         assertThat(packageRepository.errors().firstError(), is("Invalid PackageRepository name '~!@#$%^&*('. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
     }

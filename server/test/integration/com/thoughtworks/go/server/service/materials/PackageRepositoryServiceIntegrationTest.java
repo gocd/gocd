@@ -180,7 +180,7 @@ public class PackageRepositoryServiceIntegrationTest {
         assertThat(goConfigService.getConfigForEditing().getPackageRepositories().size(), is(1));
         assertThat(goConfigService.getConfigForEditing().getPackageRepositories().find(oldRepoId), is(oldPackageRepo));
         assertNull(goConfigService.getConfigForEditing().getPackageRepositories().find(newRepoId));
-        service.updatePackageRepository(newPackageRepo, new Username("UnauthorizedUser"), "md5", result);
+        service.updatePackageRepository(newPackageRepo, new Username("UnauthorizedUser"), "md5", result, oldRepoId);
         assertThat(result, is(expectedResult));
         assertThat(goConfigService.getConfigForEditing().getPackageRepositories().size(), is(1));
         assertThat(goConfigService.getConfigForEditing().getPackageRepositories().find(oldRepoId), is(oldPackageRepo));

@@ -1,5 +1,4 @@
-class PackageRepositoriesRepresenter
-end##########################################################################
+##########################################################################
 # Copyright 2016 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,6 +17,7 @@ end##########################################################################
 module ApiV1
   module Config
     class PackageRepositoriesRepresenter < ApiV1::BaseRepresenter
+      alias_method :package_repositories, :represented
 
       link :self do |opts|
         opts[:url_builder].apiv1_admin_repositories_url
@@ -28,10 +28,6 @@ module ApiV1
       end
 
       collection :package_repositories, embedded: true, exec_context: :decorator, decorator: PackageRepositoryRepresenter
-
-      def package_repositories
-        represented
-      end
     end
   end
 end

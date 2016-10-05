@@ -28,9 +28,10 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 
-public class DeletePackageRepositoryCommand implements EntityConfigUpdateCommand<PackageRepository>{
+public class DeletePackageRepositoryCommand implements EntityConfigUpdateCommand<PackageRepository> {
     private final GoConfigService goConfigService;
     private final PackageRepository repository;
+    private PackageRepository existingPackageRepository;
     private final Username username;
     private final HttpLocalizedOperationResult result;
     private Boolean canDeleteRepository = false;
@@ -43,20 +44,21 @@ public class DeletePackageRepositoryCommand implements EntityConfigUpdateCommand
     }
 
     @Override
-    public void update(CruiseConfig preprocessedConfig) throws Exception {
-        this.canDeleteRepository = preprocessedConfig.canDeletePackageRepository(this.repository);
-        if(this.canDeleteRepository){
-            PackageRepositories packageRepositories = preprocessedConfig.getPackageRepositories();
-            packageRepositories.removePackageRepository(this.repository.getId());
-            preprocessedConfig.setPackageRepositories(packageRepositories);
-        }else{
-            Localizable.CurryableLocalizable message = LocalizedMessage.string("PACKAGE_REPOSITORY_DELETE_FAILED", repository.getId());
-            this.result.unprocessableEntity(message);
-        }
+    public void update(CruiseConfig modifiedConfig) throws Exception {
+        existingPackageRepository = modifiedConfig.getPackageRepositories().find(repository.getRepoId());
+        PackageRepositories packageRepositories = modifiedConfig.getPackageRepositories();
+        packageRepositories.removePackageRepository(this.repository.getId());
+        modifiedConfig.setPackageRepositories(packageRepositories);
     }
 
     @Override
     public boolean isValid(CruiseConfig preprocessedConfig) {
+        canDeleteRepository = preprocessedConfig.canDeletePackageRepository(existingPackageRepository);
+        if (!canDeleteRepository) {
+
+            Localizable.CurryableLocalizable message = LocalizedMessage.string("PACKAGE_REPOSITORY_DELETE_FAILED", repository.getId());
+            this.result.unprocessableEntity(message);
+        }
         return this.canDeleteRepository;
     }
 

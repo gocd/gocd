@@ -51,15 +51,9 @@ module ApiV1
                  decorator:    ApiV1::Config::PackageHalRepresenter,
                  class:        com.thoughtworks.go.domain.packagerepository.PackageDefinition
 
-      def packages
-        package_repository.getPackages()
-      end
+      delegate :packages, :configuration, to: :package_repository
 
       def packages=(pkg)
-      end
-
-      def configuration
-        package_repository.getConfiguration()
       end
 
       def configuration=(value)

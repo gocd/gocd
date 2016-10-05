@@ -19,11 +19,11 @@ module ApiV1
     class RepositoriesController < ApiV1::BaseController
       before_action :check_admin_user_and_401
       before_action :load_package_repository, only: [:show, :destroy, :update]
-      before_action :check_for_stale_request, :check_for_id_change, only: [:update]
+      before_action :check_for_stale_request, only: [:update]
 
       def show
         json = ApiV1::Config::PackageRepositoryRepresenter.new(@package_repo_config).to_hash(url_builder: self)
-        render DEFAULT_FORMAT => json if stale?(etag: get_etag_for_package_repository)
+        render DEFAULT_FORMAT => json if stale?(etag: get_etag_for_package_repository(@package_repo_config))
       end
 
       def index
@@ -32,16 +32,16 @@ module ApiV1
 
       def create
         result = HttpLocalizedOperationResult.new
-        get_package_repository_from_request
-        package_repository_service.createPackageRepository(@package_repo_from_request, current_user, result)
-        handle_config_save_result(result, @package_repo_from_request.getId())
+        @package_repo_config = ApiV1::Config::PackageRepositoryRepresenter.new(PackageRepository.new).from_hash(params[:repository])
+        package_repository_service.createPackageRepository(@package_repo_config, current_user, result)
+        handle_config_save_result(result, @package_repo_config)
       end
 
       def update
         result = HttpLocalizedOperationResult.new
-        get_package_repository_from_request
-        package_repository_service.updatePackageRepository(@package_repo_from_request, current_user, get_etag_for_package_repository, result)
-        handle_config_save_result(result, @package_repo_from_request.getId())
+        updated_repository = ApiV1::Config::PackageRepositoryRepresenter.new(PackageRepository.new).from_hash(params[:repository])
+        package_repository_service.updatePackageRepository(updated_repository, current_user, get_etag_for_package_repository(@package_repo_config), result, params[:repo_id])
+        handle_config_save_result(result, updated_repository)
       end
 
       def destroy
@@ -56,39 +56,25 @@ module ApiV1
         raise RecordNotFound if @package_repo_config.nil?
       end
 
-      def get_package_repository_from_request
-        @package_repo_from_request ||= PackageRepository.new.tap do |config|
-          ApiV1::Config::PackageRepositoryRepresenter.new(config).from_hash(params[:repository])
-        end
-      end
-
-      def handle_config_save_result(result, repo_id)
+      def handle_config_save_result(result, updated_repository)
+        json = ApiV1::Config::PackageRepositoryRepresenter.new(updated_repository).to_hash(url_builder: self)
         if result.isSuccessful
-          load_package_repository(repo_id)
-          json = ApiV1::Config::PackageRepositoryRepresenter.new(@package_repo_config).to_hash(url_builder: self)
-          response.etag = [get_etag_for_package_repository]
+          response.etag = [get_etag_for_package_repository(updated_repository)]
           render DEFAULT_FORMAT => json
         else
-          json = ApiV1::Config::PackageRepositoryRepresenter.new(@package_repo_from_request).to_hash(url_builder: self)
           render_http_operation_result(result, {data: json})
         end
       end
 
-      def get_etag_for_package_repository
-        entity_hashing_service.md5ForEntity(@package_repo_config)
+      def get_etag_for_package_repository(package_repository)
+        entity_hashing_service.md5ForEntity(package_repository)
       end
 
       def check_for_stale_request
-        if request.env['HTTP_IF_MATCH'] != "\"#{Digest::MD5.hexdigest(get_etag_for_package_repository)}\""
+        if request.env['HTTP_IF_MATCH'] != %Q{"#{Digest::MD5.hexdigest(get_etag_for_package_repository(@package_repo_config))}"}
           result = HttpLocalizedOperationResult.new
           result.stale(LocalizedMessage::string('STALE_RESOURCE_CONFIG', 'Package Repository', params[:repo_id]))
           render_http_operation_result(result)
-        end
-      end
-
-      def check_for_id_change
-        unless params[:repository][:repo_id] == params[:repo_id]
-          render_message('Changing the repository id is not supported by this API.', :unprocessable_entity)
         end
       end
     end

@@ -89,8 +89,7 @@ public class DeletePackageRepositoryCommandTest {
         assertThat(cruiseConfig.getPackageRepositories().find(repoId), is(packageRepository));
         DeletePackageRepositoryCommand command = new DeletePackageRepositoryCommand(goConfigService, packageRepository, currentUser, result);
         command.update(cruiseConfig);
-        assertThat(cruiseConfig.getPackageRepositories().size(), is(1));
-        assertThat(cruiseConfig.getPackageRepositories().find(repoId), is(packageRepository));
+        assertFalse(command.isValid(cruiseConfig));
     }
 
     @Test

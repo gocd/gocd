@@ -32,14 +32,16 @@ public class UpdatePackageRepositoryCommand extends PackageRepositoryCommand {
     private final String md5;
     private final EntityHashingService entityHashingService;
     private final HttpLocalizedOperationResult result;
+    private String oldRepoId;
 
-    public UpdatePackageRepositoryCommand(GoConfigService goConfigService, PackageRepositoryService packageRepositoryService, PackageRepository newRepo, Username username, String md5, EntityHashingService entityHashingService, HttpLocalizedOperationResult result) {
+    public UpdatePackageRepositoryCommand(GoConfigService goConfigService, PackageRepositoryService packageRepositoryService, PackageRepository newRepo, Username username, String md5, EntityHashingService entityHashingService, HttpLocalizedOperationResult result, String oldRepoId) {
         super(packageRepositoryService, newRepo, result, goConfigService, username);
         this.goConfigService = goConfigService;
         this.newRepo = newRepo;
         this.md5 = md5;
         this.entityHashingService = entityHashingService;
         this.result = result;
+        this.oldRepoId = oldRepoId;
     }
 
     @Override
@@ -54,7 +56,15 @@ public class UpdatePackageRepositoryCommand extends PackageRepositoryCommand {
 
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
-        return super.canContinue(cruiseConfig) && isRequestFresh();
+        return super.canContinue(cruiseConfig) && isRequestFresh() && isIdSame();
+    }
+
+    private boolean isIdSame() {
+        boolean isRepoIdSame = newRepo.getRepoId().equals(oldRepoId);
+        if(!isRepoIdSame) {
+            result.unprocessableEntity(LocalizedMessage.string("Changing the repository id is not supported by this API."));
+        }
+        return isRepoIdSame;
     }
 
     private boolean isRequestFresh() {

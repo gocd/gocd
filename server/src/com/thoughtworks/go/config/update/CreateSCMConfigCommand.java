@@ -38,14 +38,4 @@ public class CreateSCMConfigCommand extends SCMConfigCommand {
         scms.add(globalScmConfig);
         modifiedConfig.setSCMs(scms);
     }
-
-    @Override
-    public boolean canContinue(CruiseConfig cruiseConfig) {
-        if (!(goConfigService.isUserAdmin(currentUser)) || goConfigService.isGroupAdministrator(currentUser.getUsername())) {
-            result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
-            return false;
-        }
-        return true;
-    }
-
 }

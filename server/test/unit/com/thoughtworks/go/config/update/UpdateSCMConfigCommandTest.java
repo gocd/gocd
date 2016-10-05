@@ -38,6 +38,7 @@ import org.mockito.Mock;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -105,6 +106,30 @@ public class UpdateSCMConfigCommandTest {
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result.toString(), containsString("UNAUTHORIZED_TO_EDIT"));
+    }
+
+    @Test
+    public void shouldContinueWithConfigSaveIfUserIsAdmin() {
+        when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
+        when(goConfigService.isGroupAdministrator(currentUser.getUsername())).thenReturn(false);
+        when(entityHashingService.md5ForEntity(any(SCM.class))).thenReturn("md5");
+
+        SCM updatedScm = new SCM("id", new PluginConfiguration("plugin-id", "1"), new Configuration(new ConfigurationProperty(new ConfigurationKey("key1"),new ConfigurationValue("value1"))));
+        UpdateSCMConfigCommand command = new UpdateSCMConfigCommand(updatedScm, pluggableScmService, goConfigService, currentUser, result, "md5", entityHashingService);
+
+        assertThat(command.canContinue(cruiseConfig), is(true));
+    }
+
+    @Test
+    public void shouldContinueWithConfigSaveIfUserIsGroupAdmin() {
+        when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
+        when(goConfigService.isGroupAdministrator(currentUser.getUsername())).thenReturn(true);
+        when(entityHashingService.md5ForEntity(any(SCM.class))).thenReturn("md5");
+
+        SCM updatedScm = new SCM("id", new PluginConfiguration("plugin-id", "1"), new Configuration(new ConfigurationProperty(new ConfigurationKey("key1"),new ConfigurationValue("value1"))));
+        UpdateSCMConfigCommand command = new UpdateSCMConfigCommand(updatedScm, pluggableScmService, goConfigService, currentUser, result, "md5", entityHashingService);
+
+        assertThat(command.canContinue(cruiseConfig), is(true));
     }
 
     @Test

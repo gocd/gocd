@@ -79,4 +79,24 @@ public class CreateSCMConfigCommandTest {
         assertThat(command.canContinue(cruiseConfig), is(false));
     }
 
+    @Test
+    public void shouldContinueWithConfigSaveIfUserIsAdmin() {
+        when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
+        when(goConfigService.isGroupAdministrator(currentUser.getUsername())).thenReturn(false);
+
+        CreateSCMConfigCommand command = new CreateSCMConfigCommand(scm, pluggableScmService, result, currentUser, goConfigService);
+
+        assertThat(command.canContinue(cruiseConfig), is(true));
+    }
+
+    @Test
+    public void shouldContinueWithConfigSaveIfUserIsGroupAdmin() {
+        when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
+        when(goConfigService.isGroupAdministrator(currentUser.getUsername())).thenReturn(true);
+
+        CreateSCMConfigCommand command = new CreateSCMConfigCommand(scm, pluggableScmService, result, currentUser, goConfigService);
+
+        assertThat(command.canContinue(cruiseConfig), is(true));
+    }
+
 }

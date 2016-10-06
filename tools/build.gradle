@@ -18,7 +18,7 @@ description = 'GoCD build tools'
 apply from: 'lint.gradle'
 
 repositories {
-  maven { url 'http://rubygems-proxy.torquebox.org/releases/' }
+  maven { url 'http://rubygems.lasagna.io/proxy/maven/releases/' }
 }
 
 configurations {

@@ -42,7 +42,7 @@ describe ApiV1::Config::PackageRepositoryRepresenter do
       expect(expected_repo.getName).to eq(package_repo.getName)
       expect(expected_repo.getConfiguration).to eq(package_repo.getConfiguration)
       expect(expected_repo.getPluginConfiguration).to eq(package_repo.getPluginConfiguration)
-      
+
       expect(package_repo.getPackages.isEmpty).to eq(true)
     end
   end
@@ -54,12 +54,7 @@ describe ApiV1::Config::PackageRepositoryRepresenter do
     packages = Packages.new(pkg)
     config_property = ConfigurationProperty.new(ConfigurationKey.new('foo'), ConfigurationValue.new('bar'))
     config = Configuration.new(config_property)
-    plugin_config = PluginConfiguration.new('npm', '1')
-    repo = PackageRepository.new
-    repo.setId('npm.org')
-    repo.setName('NodeJS')
-    repo.setConfiguration(config)
-    repo.setPluginConfiguration(plugin_config)
+    repo = PackageRepository.new('npm.org', 'NodeJS', PluginConfiguration.new('npm', '1'), config)
     repo.setPackages(packages)
     repo
   end
@@ -78,24 +73,26 @@ describe ApiV1::Config::PackageRepositoryRepresenter do
           value: 'bar'
         }
       ],
-      packages: [
-        {
-          _links: {
-            # TODO: Ganesh Patil did this
-            # self: {
-            #   href: "http://test.host/api/admin/repositories/prettyjson"
-            # },
-            doc: {
-              href: "https://api.go.cd/#packages"
-            }
-            # find: {
-            #   href: "http://test.host/api/admin/repositories/prettyjson"
-            # }
-          },
-          name: "prettyjson",
-          id: "prettyjson"
-        }
-      ]
+      _embedded: {
+        packages: [
+          {
+            _links: {
+              # TODO: Ganesh Patil did this
+              # self: {
+              #   href: "http://test.host/api/admin/repositories/prettyjson"
+              # },
+              doc: {
+                href: "https://api.go.cd/#packages"
+              }
+              # find: {
+              #   href: "http://test.host/api/admin/repositories/prettyjson"
+              # }
+            },
+            name: "prettyjson",
+            id: "prettyjson"
+          }
+        ]
+      }
     }
   end
 end

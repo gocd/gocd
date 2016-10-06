@@ -48,6 +48,7 @@ module ApiV1
 
       collection :packages,
                  exec_context: :decorator,
+                 embedded: true,
                  decorator:    ApiV1::Config::PackageHalRepresenter,
                  class:        com.thoughtworks.go.domain.packagerepository.PackageDefinition
 

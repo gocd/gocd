@@ -34,7 +34,6 @@ public class DeletePackageRepositoryCommand implements EntityConfigUpdateCommand
     private PackageRepository existingPackageRepository;
     private final Username username;
     private final HttpLocalizedOperationResult result;
-    private Boolean canDeleteRepository = false;
 
     public DeletePackageRepositoryCommand(GoConfigService goConfigService, PackageRepository repository, Username username, HttpLocalizedOperationResult result) {
         this.goConfigService = goConfigService;
@@ -53,13 +52,13 @@ public class DeletePackageRepositoryCommand implements EntityConfigUpdateCommand
 
     @Override
     public boolean isValid(CruiseConfig preprocessedConfig) {
-        canDeleteRepository = preprocessedConfig.canDeletePackageRepository(existingPackageRepository);
+        boolean canDeleteRepository = preprocessedConfig.canDeletePackageRepository(existingPackageRepository);
         if (!canDeleteRepository) {
 
             Localizable.CurryableLocalizable message = LocalizedMessage.string("PACKAGE_REPOSITORY_DELETE_FAILED", repository.getId());
             this.result.unprocessableEntity(message);
         }
-        return this.canDeleteRepository;
+        return canDeleteRepository;
     }
 
     @Override

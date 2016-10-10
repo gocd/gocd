@@ -802,6 +802,8 @@
     <entry key="PIPELINE_RENAMING_NOT_ALLOWED">Renaming of pipeline is not supported by this API.</entry>
     <entry key="CANNOT_CREATE_PIPELINE_ALREADY_EXISTS">Failed to create pipeline ''{0}'' as another pipeline by the same name already exists.</entry>
     <entry key="PIPELINE_DELETE_SUCCESSFUL">Pipeline ''{0}'' was deleted successfully.</entry>
+    <entry key="PACKAGE_REPOSITORY_DELETE_SUCCESSFUL">Package Repository with id ''{0}'' was deleted successfully.</entry>
+    <entry key="PACKAGE_REPOSITORY_DELETE_FAILED">Can not Delete Package Repository with id ''{0}'' as it used as a Material in Pipeline(s).</entry>
     <entry key="UNAUTHORIZED_TO_DELETE_PIPELINE">Unauthorized to delete pipeline.</entry>
     <entry key="PIPELINE_GROUP_MANDATORY_FOR_PIPELINE_CREATE">Pipeline group must be specified for creating a pipeline.</entry>
     <entry key="UNAUTHORIZED_TO_OPERATE">You are not authorized to perform this operation.</entry>

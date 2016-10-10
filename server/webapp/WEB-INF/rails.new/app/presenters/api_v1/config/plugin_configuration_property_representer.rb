@@ -21,9 +21,9 @@ module ApiV1
 
       error_representer(
         {
-          'encryptedValue'     => 'encrypted_value',
+          'encryptedValue' => 'encrypted_value',
           'configurationValue' => 'configuration_value',
-          'configurationKey'   => 'configuration_key'
+          'configurationKey' => 'configuration_key'
         }
       )
       property :key, exec_context: :decorator

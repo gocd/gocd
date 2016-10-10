@@ -28,6 +28,8 @@ import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
+import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
+import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.listener.BaseUrlChangeListener;
@@ -962,6 +964,14 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
 
     public boolean isAdministrator(CaseInsensitiveString username) {
         return isAdministrator(username.toString());
+    }
+
+    public PackageRepository getPackageRepository(String repoId) {
+        return cruiseConfig().getPackageRepositories().find(repoId);
+    }
+
+    public PackageRepositories getPackageRepositories() {
+        return cruiseConfig().getPackageRepositories();
     }
 
     public abstract class XmlPartialSaver<T> {

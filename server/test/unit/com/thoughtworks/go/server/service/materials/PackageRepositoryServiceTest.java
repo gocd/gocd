@@ -37,6 +37,7 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -69,12 +70,14 @@ public class PackageRepositoryServiceTest {
     private SecurityService securityService;
     @Mock
     private Localizer localizer;
+    @Mock
+    private EntityHashingService entityHashingService;
     private PackageRepositoryService service;
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        service = new PackageRepositoryService(pluginManager, packageAsRepositoryExtension, goConfigService, securityService, localizer);
+        service = new PackageRepositoryService(pluginManager, packageAsRepositoryExtension, goConfigService, securityService, entityHashingService, localizer);
     }
 
     @Test
@@ -240,7 +243,7 @@ public class PackageRepositoryServiceTest {
         when(pluginManager.getPluginDescriptorFor(pluginId)).thenReturn(new GoPluginDescriptor("yum", "1.0", null, null, null, true));
         when(packageAsRepositoryExtension.isRepositoryConfigurationValid(eq(pluginId), packageConfigurationsArgumentCaptor.capture())).thenReturn(expectedValidationResult);
 
-        service = new PackageRepositoryService(pluginManager, packageAsRepositoryExtension, goConfigService, securityService, mock(Localizer.class));
+        service = new PackageRepositoryService(pluginManager, packageAsRepositoryExtension, goConfigService, securityService, entityHashingService,mock(Localizer.class));
         service.performPluginValidationsFor(packageRepository);
         assertThat(packageRepository.getConfiguration().get(0).getConfigurationValue().errors().getAllOn("value"), is(Arrays.asList("url format incorrect")));
     }
@@ -281,7 +284,7 @@ public class PackageRepositoryServiceTest {
         PackageRepository packageRepository = packageRepository(pluginId);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        PackageRepositoryService service = new PackageRepositoryService(pluginManager, packageAsRepositoryExtension, goConfigService, securityService, localizer);
+        PackageRepositoryService service = new PackageRepositoryService(pluginManager, packageAsRepositoryExtension, goConfigService, securityService, entityHashingService, localizer);
 
         ArgumentCaptor<RepositoryConfiguration> argumentCaptor = ArgumentCaptor.forClass(RepositoryConfiguration.class);
         when(packageAsRepositoryExtension.checkConnectionToRepository(eq(pluginId), argumentCaptor.capture())).thenReturn(new Result().withSuccessMessages("Accessed Repo File!!!"));
@@ -302,7 +305,7 @@ public class PackageRepositoryServiceTest {
         PackageRepository packageRepository = packageRepository(pluginId);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        PackageRepositoryService service = new PackageRepositoryService(pluginManager, packageAsRepositoryExtension, goConfigService, securityService, localizer);
+        PackageRepositoryService service = new PackageRepositoryService(pluginManager, packageAsRepositoryExtension, goConfigService, securityService, entityHashingService, localizer);
 
         ArgumentCaptor<RepositoryConfiguration> argumentCaptor = ArgumentCaptor.forClass(RepositoryConfiguration.class);
         when(packageAsRepositoryExtension.checkConnectionToRepository(eq(pluginId),argumentCaptor.capture())).thenThrow(new RuntimeException("Check Connection not implemented!!"));
@@ -320,7 +323,7 @@ public class PackageRepositoryServiceTest {
         String pluginId = "yum";
         PackageRepository packageRepository = packageRepository(pluginId);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        PackageRepositoryService service = new PackageRepositoryService(pluginManager, packageAsRepositoryExtension, goConfigService, securityService, localizer);
+        PackageRepositoryService service = new PackageRepositoryService(pluginManager, packageAsRepositoryExtension, goConfigService, securityService, entityHashingService, localizer);
 
         ArgumentCaptor<RepositoryConfiguration> argumentCaptor = ArgumentCaptor.forClass(RepositoryConfiguration.class);
 

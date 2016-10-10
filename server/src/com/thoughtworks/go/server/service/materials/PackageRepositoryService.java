@@ -18,13 +18,13 @@ package com.thoughtworks.go.server.service.materials;
 
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.Validatable;
-import com.thoughtworks.go.config.update.ConfigUpdateAjaxResponse;
-import com.thoughtworks.go.config.update.ConfigUpdateResponse;
-import com.thoughtworks.go.config.update.UpdateConfigFromUI;
+import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.update.*;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
+import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.i18n.Localizer;
@@ -39,10 +39,12 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
+import com.thoughtworks.go.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -52,6 +54,7 @@ import java.util.List;
 
 import static com.thoughtworks.go.config.update.ErrorCollector.collectFieldErrors;
 import static com.thoughtworks.go.config.update.ErrorCollector.collectGlobalErrors;
+import static com.thoughtworks.go.server.service.ArtifactsService.LOGGER;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
 @Service
@@ -59,17 +62,19 @@ public class PackageRepositoryService {
     private PluginManager pluginManager;
     private GoConfigService goConfigService;
     private SecurityService securityService;
+    private EntityHashingService entityHashingService;
     private final Localizer localizer;
     private RepositoryMetadataStore repositoryMetadataStore;
     private PackageAsRepositoryExtension packageAsRepositoryExtension;
 
     @Autowired
     public PackageRepositoryService(PluginManager pluginManager, PackageAsRepositoryExtension packageAsRepositoryExtension, GoConfigService goConfigService, SecurityService securityService,
-                                    Localizer localizer) {
+                                    EntityHashingService entityHashingService, Localizer localizer) {
         this.pluginManager = pluginManager;
         this.packageAsRepositoryExtension = packageAsRepositoryExtension;
         this.goConfigService = goConfigService;
         this.securityService = securityService;
+        this.entityHashingService = entityHashingService;
         this.localizer = localizer;
         repositoryMetadataStore = RepositoryMetadataStore.getInstance();
     }
@@ -127,7 +132,31 @@ public class PackageRepositoryService {
         }
     }
 
-    private boolean validatePluginId(PackageRepository packageRepository) {
+    public boolean validateRepositoryConfiguration(final PackageRepository packageRepository) {
+        if (!packageRepository.doesPluginExist()) {
+            throw new RuntimeException(String.format("Plugin with id '%s' is not found.", packageRepository.getPluginConfiguration().getId()));
+        }
+
+        ValidationResult validationResult = packageAsRepositoryExtension.isRepositoryConfigurationValid(packageRepository.getPluginConfiguration().getId(), populateConfiguration(packageRepository.getConfiguration()));
+        addErrorsToConfiguration(validationResult, packageRepository);
+
+        return validationResult.isSuccessful();
+    }
+
+    private void addErrorsToConfiguration(ValidationResult validationResult, PackageRepository packageRepository) {
+        for (ValidationError validationError : validationResult.getErrors()) {
+            ConfigurationProperty property = packageRepository.getConfiguration().getProperty(validationError.getKey());
+
+            if (property != null) {
+                property.addError(validationError.getKey(), validationError.getMessage());
+            } else {
+                String validationErrorKey = StringUtil.isBlank(validationError.getKey()) ? PackageRepository.PLUGIN_CONFIGURATION : validationError.getKey();
+                packageRepository.addError(validationErrorKey, validationError.getMessage());
+            }
+        }
+    }
+
+    public boolean validatePluginId(PackageRepository packageRepository) {
         String pluginId = packageRepository.getPluginConfiguration().getId();
         if (isEmpty(pluginId)) {
             packageRepository.getPluginConfiguration().errors().add(PluginConfiguration.ID, localizer.localize("PLUGIN_ID_REQUIRED"));
@@ -196,6 +225,48 @@ public class PackageRepositoryService {
         ArrayList<String> globalErrors = new ArrayList<>();
         collectGlobalErrors(globalErrors, allErrorsExceptSubject);
         return globalErrors;
+    }
+
+    public PackageRepository getPackageRepository(String repoId) {
+        return goConfigService.getPackageRepository(repoId);
+    }
+
+    public PackageRepositories getPackageRepositories() {
+        return goConfigService.getPackageRepositories();
+    }
+
+    private void update(Username username, HttpLocalizedOperationResult result, EntityConfigUpdateCommand command) {
+        try {
+            goConfigService.updateConfig(command, username);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+            if (!result.hasMessage()) {
+                result.internalServerError(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", e.getMessage()));
+            }
+        }
+    }
+
+    //Used only in tests
+    public void setPluginManager(PluginManager pluginManager) {
+        this.pluginManager = pluginManager;
+    }
+
+    public void deleteRepository(Username username, PackageRepository repository, HttpLocalizedOperationResult result) {
+        DeletePackageRepositoryCommand command = new DeletePackageRepositoryCommand(goConfigService, repository, username, result);
+        update(username, result, command);
+        if (result.isSuccessful()) {
+            result.setMessage(LocalizedMessage.string("PACKAGE_REPOSITORY_DELETE_SUCCESSFUL", repository.getId()));
+        }
+    }
+
+    public void createPackageRepository(PackageRepository repository, Username username, HttpLocalizedOperationResult result){
+        CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, this, repository, username, result);
+        update(username, result, command);
+    }
+
+    public void updatePackageRepository(PackageRepository newRepo, Username username, String md5, HttpLocalizedOperationResult result, String oldRepoId){
+        UpdatePackageRepositoryCommand command = new UpdatePackageRepositoryCommand(goConfigService, this, newRepo, username, md5, entityHashingService, result, oldRepoId);
+        update(username,result, command);
     }
 
     private RepositoryConfiguration populateConfiguration(Configuration configuration) {

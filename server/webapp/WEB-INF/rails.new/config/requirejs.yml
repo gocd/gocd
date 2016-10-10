@@ -1,8 +1,10 @@
 waitSeconds: 5
 preserveLicenseComments: false
-optimize: 'none'
+optimize: 'uglify2'
 optimizeCss: 'none'
 normalizeDirDefines: 'all'
+generateSourceMaps: true
+useSourceUrl: true
 
 paths:
   es5shim: 'lib/es5-shim'

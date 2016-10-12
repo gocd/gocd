@@ -20,7 +20,7 @@
   $standard-margin: nth($fieldset-margin, 1);
 
   .heading {
-    margin-bottom:    20px;
+    margin-bottom: 20px;
     @include linear-gradient(#fff, #ccc);
     h1 {
       font-size: rem-calc(20px);
@@ -187,5 +187,15 @@
   top:           -2px;
   &:hover, &:active, &:focus {
     color: #fff;
+  }
+}
+
+.pipeline-schedule {
+  label {
+    font-weight: bold;
+    margin-top:  25px;
+  }
+  span {
+    margin-top: 25px;
   }
 }

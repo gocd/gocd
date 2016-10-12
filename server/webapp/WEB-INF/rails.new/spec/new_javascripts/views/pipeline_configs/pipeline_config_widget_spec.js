@@ -68,6 +68,14 @@ define([
       expect(pipeline.enablePipelineLocking()).toBe(true);
     });
 
+    it("should render the pipeline scheduling type in the pipeline settings view", function() {
+      expect($root.find('.pipeline-schedule')).toContainText('Automatically triggered');
+    });
+
+    it("should show tooltip message for automatic pipeline scheduling", function() {
+      expect($root.find('.pipeline-schedule')).toContainText("This pipeline is automatically triggered as the first stage of this pipeline is set to 'success'.");
+    });
+
     it("should toggle pipeline enablePipelineLocking attribute", function () {
       var lockedCheckBox = inputFieldFor('enablePipelineLocking').get(0);
       lockedCheckBox.click();

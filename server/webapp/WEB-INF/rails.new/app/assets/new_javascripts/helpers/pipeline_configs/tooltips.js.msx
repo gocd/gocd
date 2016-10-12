@@ -91,6 +91,22 @@ define(['mithril', 'lodash', 'helpers/form_helper'], function (m, _, f) {
     </div>
   );
 
+  var automaticPipelineScheduling = (
+    <div>
+      <p>
+        This pipeline is automatically triggered as the first stage of this pipeline is set to 'success'.
+      </p>
+    </div>
+  );
+
+  var manualPipelineScheduling = (
+    <div>
+      <p>
+        This pipeline is can only be scheduled in response to a Manual/API/Timer trigger as the first stage of this pipeline is set to 'manual'.
+      </p>
+    </div>
+  );
+
 
   var trackingToolGenericRegex = {
     view: function (ctrl, args) {
@@ -702,6 +718,8 @@ define(['mithril', 'lodash', 'helpers/form_helper'], function (m, _, f) {
     pipeline: {
       labelTemplate:         pipelineLabelTemplate,
       enablePipelineLocking: pipelineEnablePipelineLocking,
+      automaticPipelineScheduling: automaticPipelineScheduling,
+      manualPipelineScheduling: manualPipelineScheduling,
       timer:                 {
         spec:          pipelineTimerSpec,
         onlyOnChanges: pipelineTimerOnlyOnChanges

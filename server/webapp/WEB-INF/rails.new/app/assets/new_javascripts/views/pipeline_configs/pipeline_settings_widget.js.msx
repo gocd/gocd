@@ -31,6 +31,8 @@ define([
 
     view: function(ctrl, args) {
       var pipeline = args.pipeline();
+      var pipelineAutoScheduleMessage = pipeline.isFirstStageAutoTriggered() ? 'Automatically triggered' : 'Manually triggered';
+
       return(
         <f.accordion accordionTitles={[(<span>Pipeline Settings</span>)]}
                      accordionKeys={['pipeline-settings']}
@@ -42,6 +44,7 @@ define([
                                 attrName='labelTemplate'
                                 validate={true}
                                 isRequired={true}
+                                size={4}
                                 tooltip={{
                                   content: <tt.pipeline.labelTemplate callback={pipeline.labelTemplate}/>,
                                   direction: 'bottom',
@@ -49,14 +52,22 @@ define([
                                 }}/>
               <f.checkBox model={pipeline}
                           attrName='enablePipelineLocking'
-                          class="large-4 end"
                           addPadding={true}
+                          size={4}
+                          largeSize={3}
                           tooltip={{
                             content: tt.pipeline.enablePipelineLocking,
                             direction: 'bottom',
                             class: 'tooltip-spacing'
                           }}/>
 
+              <f.column size={4} largeSize={5} end={true} class="pipeline-schedule">
+                <label>{pipelineAutoScheduleMessage}</label>
+                <f.tooltip tooltip={{
+                  content: pipeline.isFirstStageAutoTriggered() ? tt.pipeline.automaticPipelineScheduling : tt.pipeline.manualPipelineScheduling,
+                  direction: 'bottom',
+                  size:'small'}}/>
+              </f.column>
             </f.row>
             <f.row>
               <f.inputWithLabel model={pipeline.timer()}

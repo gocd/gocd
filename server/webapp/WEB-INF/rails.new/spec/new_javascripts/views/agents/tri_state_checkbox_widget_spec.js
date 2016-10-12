@@ -19,7 +19,7 @@ define(["jquery", "mithril", "views/agents/tri_state_checkbox_widget", "models/a
     var $root     = $('#mithril-mount-point'), root = $root.get(0);
     var resources = [['Firefox'], ['Firefox', 'Chrome']];
 
-    afterAll(function () {
+    afterEach(function () {
       unmount();
     });
 

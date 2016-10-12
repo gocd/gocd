@@ -25,6 +25,11 @@ define(["jquery", "mithril", "lodash", "views/pipeline_configs/lookup_command_wi
       m.redraw(true);
     }
 
+    var unmount = function () {
+      m.mount(root, null);
+      m.redraw(true);
+    };
+
     describe("view", function() {
       var model, snippet, enableTextComplete;
 
@@ -52,22 +57,26 @@ define(["jquery", "mithril", "lodash", "views/pipeline_configs/lookup_command_wi
         mount(model, snippet);
       });
 
+      afterAll(function () {
+        unmount();
+      });
+
       it("should render a text box with textcomplete enabled", function () {
         expect($root.find("input[name=lookup]").size()).toBe(1);
         expect(enableTextComplete).toHaveBeenCalled();
       });
 
       it("should render the command snippet title", function () {
-        expect($root.find(".snippet>header>h5.snippet-title").text()).toBe(snippet.name());
+        expect($root.find(".snippet>header>h5.snippet-title")).toHaveText(snippet.name());
       });
 
       it("should render snippet description with more info", function () {
-        expect($root.find(".snippet>p").text()).toBe(snippet.description() + "more info");
+        expect($root.find(".snippet>p")).toHaveText(snippet.description() + "more info");
         expect($root.find(".snippet>p>a").attr('href')).toBe(snippet.moreInfo());
       });
 
       it("should render the snippet author info", function() {
-        expect($root.find(".snippet>header>div.author>a").text()).toBe(snippet.author());
+        expect($root.find(".snippet>header>div.author>a")).toHaveText(snippet.author());
         expect($root.find(".snippet>header>div.author>a").attr('href')).toBe(snippet.authorInfo());
       });
     });

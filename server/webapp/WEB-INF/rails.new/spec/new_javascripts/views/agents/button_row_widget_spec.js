@@ -60,7 +60,7 @@ define(["jquery", "mithril", "lodash", 'models/agents/agents', "views/agents/but
     describe('Button Group', function () {
       it('should contain the row elements', function () {
         var rowElements = $root.find('.agent-button-group button');
-        expect(rowElements.length).toBe(8);
+        expect(rowElements).toHaveLength(8);
         expect(rowElements[0]).toHaveText("Delete");
         expect(rowElements[1]).toHaveText("Disable");
         expect(rowElements[2]).toHaveText("Enable");

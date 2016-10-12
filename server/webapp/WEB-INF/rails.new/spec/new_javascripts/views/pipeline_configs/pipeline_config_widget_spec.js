@@ -49,6 +49,11 @@ define([
       reallyDone();
     });
 
+    afterAll(function () {
+      m.mount(root, null);
+      m.redraw(true);
+    });
+
     function inputFieldFor(propName, modelType) {
       modelType = s.defaultToIfBlank(modelType, 'pipeline');
       return $root.find('.pipeline input[data-model-type=' + modelType + '][data-prop-name=' + propName + ']');
@@ -70,7 +75,7 @@ define([
     });
 
     it("should render value of timer", function () {
-      expect(inputFieldFor('spec', 'pipelineTimer').val()).toEqual("0 0 22 ? * MON-FRI");
+      expect(inputFieldFor('spec', 'pipelineTimer')).toHaveValue("0 0 22 ? * MON-FRI");
     });
 
     it("should set the value of labelTemplate", function () {
@@ -78,11 +83,11 @@ define([
       var value         = "some-label-text";
       labelTextElem.val(value);
 
-      expect(labelTextElem.val()).toEqual(value);
+      expect(labelTextElem).toHaveValue(value);
     });
 
     it("should render the params (when clicked)", function () {
-      expect($root.find('.parameters .parameter').length).toBe(0);
+      expect('.parameters .parameter').not.toBeInDOM();
 
       var accordion = $root.find('.parameters.accordion .accordion-item > a').get(0);
 
@@ -91,7 +96,7 @@ define([
       accordion.onclick(evObj);
       m.redraw(true);
 
-      expect($root.find('.parameters .parameter').length).toBe(3);
+      expect($root.find('.parameters .parameter')).toHaveLength(3);
 
       expect($root.find('.parameter').map(function () {
         return $(this).attr('data-parameter-name');
@@ -100,7 +105,7 @@ define([
     });
 
     it("should render the environment variables", function () {
-      expect($root.find('.environment-variables .environment-variable').length).toBe(0);
+      expect('.environment-variables .environment-variable').not.toBeInDOM();
 
       var accordion = $root.find('.environment-variables.accordion .accordion-item > a').get(0);
 
@@ -109,8 +114,8 @@ define([
       accordion.onclick(evObj);
       m.redraw(true);
 
-      expect($root.find('.environment-variables .environment-variable[data-variable-type=plain]').length).toBe(2);
-      expect($root.find('.environment-variables .environment-variable[data-variable-type=secure]').length).toBe(2);
+      expect($root.find('.environment-variables .environment-variable[data-variable-type=plain]')).toHaveLength(2);
+      expect($root.find('.environment-variables .environment-variable[data-variable-type=secure]')).toHaveLength(2);
 
       expect($root.find('.environment-variable').map(function () {
         return $(this).attr('data-variable-name');
@@ -118,7 +123,7 @@ define([
     });
 
     it("should not render the template name if pipeline is not built from template", function () {
-      expect($root.find('input[name=template_name]').length).toBe(0);
+      expect('input[name=template_name]').not.toBeInDOM();
     });
   });
 

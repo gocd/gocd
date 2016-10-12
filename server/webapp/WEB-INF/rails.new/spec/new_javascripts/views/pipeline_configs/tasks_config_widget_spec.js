@@ -46,16 +46,20 @@ define(["jquery", "mithril", "lodash", "models/pipeline_configs/tasks", "views/p
         mount(tasks);
       });
 
+      afterAll(function () {
+        unmount();
+      });
+
       it('should bind target', function () {
-        expect($root.find("input[data-prop-name='target']").val()).toBe(task.target());
+        expect($root.find("input[data-prop-name='target']")).toHaveValue(task.target());
       });
 
       it('should bind build file', function () {
-        expect($root.find("input[data-prop-name='buildFile']").val()).toBe(task.buildFile());
+        expect($root.find("input[data-prop-name='buildFile']")).toHaveValue(task.buildFile());
       });
 
       it('should bind working directory', function () {
-        expect($root.find("input[data-prop-name='workingDirectory']").val()).toBe(task.workingDirectory());
+        expect($root.find("input[data-prop-name='workingDirectory']")).toHaveValue(task.workingDirectory());
       });
 
       it('should render run_if conditions', function () {
@@ -65,12 +69,12 @@ define(["jquery", "mithril", "lodash", "models/pipeline_configs/tasks", "views/p
       });
 
       it('should render onCancel task', function () {
-        expect($root.find("input[data-prop-name='target']").val()).toBe(task.onCancelTask.target());
-        expect($root.find("input[data-prop-name='buildFile']").val()).toBe(task.onCancelTask.buildFile());
-        expect($root.find("input[data-prop-name='workingDirectory']").val()).toBe(task.onCancelTask.workingDirectory());
-        expect($root.find("input[data-prop-name='nantPath']").val()).toBe(task.onCancelTask.nantPath());
-        expect($root.find("input[type=checkbox][data-prop-name=checked]").is(':checked')).toBe(true);
-        expect($root.find("select :checked").val()).toBe(task.onCancelTask.type());
+        expect($root.find("input[data-prop-name='target']")).toHaveValue(task.onCancelTask.target());
+        expect($root.find("input[data-prop-name='buildFile']")).toHaveValue(task.onCancelTask.buildFile());
+        expect($root.find("input[data-prop-name='workingDirectory']")).toHaveValue(task.onCancelTask.workingDirectory());
+        expect($root.find("input[data-prop-name='nantPath']")).toHaveValue(task.onCancelTask.nantPath());
+        expect($root.find("input[type=checkbox][data-prop-name=checked]")).toBeChecked();
+        expect($root.find("select :checked")).toHaveValue(task.onCancelTask.type());
       });
     });
 
@@ -91,20 +95,24 @@ define(["jquery", "mithril", "lodash", "models/pipeline_configs/tasks", "views/p
         mount(tasks);
       });
 
+      afterAll(function () {
+        unmount();
+      });
+
       it('should bind target', function () {
-        expect($root.find("input[data-prop-name='target']").val()).toBe(task.target());
+        expect($root.find("input[data-prop-name='target']")).toHaveValue(task.target());
       });
 
       it('should bind working directory', function () {
-        expect($root.find("input[data-prop-name='buildFile']").val()).toBe(task.buildFile());
+        expect($root.find("input[data-prop-name='buildFile']")).toHaveValue(task.buildFile());
       });
 
       it('should bind build file', function () {
-        expect($root.find("input[data-prop-name='workingDirectory']").val()).toBe(task.workingDirectory());
+        expect($root.find("input[data-prop-name='workingDirectory']")).toHaveValue(task.workingDirectory());
       });
 
       it('should bind nant path', function () {
-        expect($root.find("input[data-prop-name='nantPath']").val()).toBe(task.nantPath());
+        expect($root.find("input[data-prop-name='nantPath']")).toHaveValue(task.nantPath());
       });
 
       it('should render run_if conditions', function () {
@@ -114,7 +122,7 @@ define(["jquery", "mithril", "lodash", "models/pipeline_configs/tasks", "views/p
       });
 
       it('should not have onCancel task', function () {
-        expect($root.find("input[type=checkbox][data-prop-name=checked]").is(':checked')).toBe(false);
+        expect($root.find("input[type=checkbox][data-prop-name=checked]")).not.toBeChecked();
       });
     });
 
@@ -134,17 +142,21 @@ define(["jquery", "mithril", "lodash", "models/pipeline_configs/tasks", "views/p
         mount(tasks);
       });
 
+      afterAll(function () {
+        unmount();
+      });
+
       describe('render', function () {
         it('should bind the command', function () {
-          expect($root.find("input[data-prop-name='command']").val()).toBe(task.command());
+          expect($root.find("input[data-prop-name='command']")).toHaveValue(task.command());
         });
 
         it('should bind the working directory', function () {
-          expect($root.find("input[data-prop-name='workingDirectory']").val()).toBe(task.workingDirectory());
+          expect($root.find("input[data-prop-name='workingDirectory']")).toHaveValue(task.workingDirectory());
         });
 
         it('should bind the args', function () {
-          expect($root.find("textarea[data-prop-name='data']").val()).toBe(task.args().data().join('\n'));
+          expect($root.find("textarea[data-prop-name='data']")).toHaveValue(task.args().data().join('\n'));
         });
 
         it('should render run_if conditions', function () {
@@ -154,7 +166,7 @@ define(["jquery", "mithril", "lodash", "models/pipeline_configs/tasks", "views/p
         });
 
         it('should not have onCancel task', function () {
-          expect($root.find("input[type=checkbox][data-prop-name=checked]").is(':checked')).toBe(false);
+          expect($root.find("input[type=checkbox][data-prop-name=checked]")).not.toBeChecked();
         });
       });
     });
@@ -175,16 +187,20 @@ define(["jquery", "mithril", "lodash", "models/pipeline_configs/tasks", "views/p
         mount(tasks);
       });
 
+      afterAll(function () {
+        unmount();
+      });
+
       it('should bind target', function () {
-        expect($root.find("input[data-prop-name='target']").val()).toBe(task.target());
+        expect($root.find("input[data-prop-name='target']")).toHaveValue(task.target());
       });
 
       it('should bind working directory', function () {
-        expect($root.find("input[data-prop-name='buildFile']").val()).toBe(task.buildFile());
+        expect($root.find("input[data-prop-name='buildFile']")).toHaveValue(task.buildFile());
       });
 
       it('should bind build file', function () {
-        expect($root.find("input[data-prop-name='workingDirectory']").val()).toBe(task.workingDirectory());
+        expect($root.find("input[data-prop-name='workingDirectory']")).toHaveValue(task.workingDirectory());
       });
 
       it('should render run_if conditions', function () {
@@ -194,7 +210,7 @@ define(["jquery", "mithril", "lodash", "models/pipeline_configs/tasks", "views/p
       });
 
       it('should not have onCancel task', function () {
-        expect($root.find("input[type=checkbox][data-prop-name=checked]").is(':checked')).toBe(false);
+        expect($root.find("input[type=checkbox][data-prop-name=checked]")).not.toBeChecked();
       });
     });
 
@@ -217,24 +233,28 @@ define(["jquery", "mithril", "lodash", "models/pipeline_configs/tasks", "views/p
         mount(tasks);
       });
 
+      afterAll(function () {
+        unmount();
+      });
+
       it('should bind pipeline', function () {
-        expect($root.find("input[data-prop-name='pipeline']").val()).toBe(task.pipeline());
+        expect($root.find("input[data-prop-name='pipeline']")).toHaveValue(task.pipeline());
       });
 
       it('should bind stage', function () {
-        expect($root.find("input[data-prop-name='stage']").val()).toBe(task.stage());
+        expect($root.find("input[data-prop-name='stage']")).toHaveValue(task.stage());
       });
 
       it('should bind job', function () {
-        expect($root.find("input[data-prop-name='job']").val()).toBe(task.job());
+        expect($root.find("input[data-prop-name='job']")).toHaveValue(task.job());
       });
 
       it('should bind source', function () {
-        expect($root.find("input[data-prop-name='source']").val()).toBe(task.source());
+        expect($root.find("input[data-prop-name='source']")).toHaveValue(task.source());
       });
 
       it('should bind destination', function () {
-        expect($root.find("input[data-prop-name='destination']").val()).toBe(task.destination());
+        expect($root.find("input[data-prop-name='destination']")).toHaveValue(task.destination());
       });
 
       it('should bind source is a file ', function () {
@@ -248,7 +268,7 @@ define(["jquery", "mithril", "lodash", "models/pipeline_configs/tasks", "views/p
       });
 
       it('should not have onCancel task', function () {
-        expect($root.find("input[type=checkbox][data-prop-name=checked]").is(':checked')).toBe(false);
+        expect($root.find("input[type=checkbox][data-prop-name=checked]")).not.toBeChecked();
       });
     });
 
@@ -304,9 +324,13 @@ define(["jquery", "mithril", "lodash", "models/pipeline_configs/tasks", "views/p
         mount(tasks);
       });
 
+      afterEach(function () {
+        unmount();
+      });
+
       it("should add a new task", function () {
         expect(tasks().countTask()).toBe(5);
-        expect($root.find('.task-definition').length).toBe(5);
+        expect($root.find('.task-definition')).toHaveLength(5);
 
         var addTaskButton = $root.find('.add-button').get(0);
         var evObj = document.createEvent('MouseEvents');
@@ -315,7 +339,7 @@ define(["jquery", "mithril", "lodash", "models/pipeline_configs/tasks", "views/p
         m.redraw(true);
 
         expect(tasks().countTask()).toBe(6);
-        expect($root.find('.task-definition').length).toBe(6);
+        expect($root.find('.task-definition')).toHaveLength(6);
       });
     });
 
@@ -323,6 +347,11 @@ define(["jquery", "mithril", "lodash", "models/pipeline_configs/tasks", "views/p
       m.mount(root,
         m.component(TasksConfigWidget, {tasks: tasks})
       );
+      m.redraw(true);
+    };
+
+    var unmount = function () {
+      m.mount(root, null);
       m.redraw(true);
     };
 

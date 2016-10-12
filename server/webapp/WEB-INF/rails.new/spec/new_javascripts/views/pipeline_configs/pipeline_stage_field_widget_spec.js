@@ -27,7 +27,16 @@ define([
       m.redraw(true);
     }
 
+    var unmount = function () {
+      m.mount(root, null);
+      m.redraw(true);
+    };
+
     describe('view', function () {
+      afterEach(function() {
+        unmount();
+      });
+
       it('should render the pipeline stage field', function () {
         var material = Materials.create({
           type:     "dependency",
@@ -37,8 +46,8 @@ define([
 
         mount(material, Pipelines);
 
-        expect($root.find("input[name='pipeline-stage']").val()).toBe('p1 [first_stage]');
-        expect(_.isEmpty($root.find(".form-error"))).toBe(true);
+        expect($root.find("input[name='pipeline-stage']")).toHaveValue('p1 [first_stage]');
+        expect('.form-error').not.toBeInDOM();
       });
 
       it('should render a empty text box in absence of pipeline', function () {
@@ -47,8 +56,8 @@ define([
         });
 
         mount(material, Pipelines);
-
-        expect(_.isEmpty($root.find("input[name='pipeline-stage']").val())).toBe(true);
+        
+        expect($root.find("input[name='pipeline-stage']")).toHaveValue('');
       });
 
       it('should assign pipeline_stage value to model', function () {
@@ -79,8 +88,8 @@ define([
         $root.find("input[name='pipeline-stage']").blur();
         m.redraw(true);
 
-        expect($root.find("input[name='pipeline-stage']").val()).toBe('invalid-input');
-        expect($root.find(".form-error").text()).toBe("'invalid-input' should conform to the pattern 'pipeline [stage]'");
+        expect($root.find("input[name='pipeline-stage']")).toHaveValue('invalid-input');
+        expect($root.find(".form-error")).toHaveText("'invalid-input' should conform to the pattern 'pipeline [stage]'");
 
         expect(_.isEmpty(material.pipeline())).toBe(true);
         expect(_.isEmpty(material.stage())).toBe(true);
@@ -97,13 +106,13 @@ define([
         $root.find("input[name='pipeline-stage']").blur();
         m.redraw(true);
 
-        expect($root.find(".form-error").text()).toBe("'invalid-input' should conform to the pattern 'pipeline [stage]'");
+        expect($root.find(".form-error")).toHaveText("'invalid-input' should conform to the pattern 'pipeline [stage]'");
 
         $root.find("input[name='pipeline-stage']").val('pipeline [stage]');
         $root.find("input[name='pipeline-stage']").blur();
         m.redraw(true);
 
-        expect($root.find("input[name='pipeline-stage']").val()).toBe('pipeline [stage]');
+        expect($root.find("input[name='pipeline-stage']")).toHaveValue('pipeline [stage]');
         expect(_.isEmpty($root.find(".form-error"))).toBe(true);
       });
 
@@ -122,7 +131,7 @@ define([
 
         $root.find("input[name='pipeline-stage']").val('invalid-input');
 
-        expect($root.find(".form-error").text()).toBe("Pipeline with name 'a' does not exist. Stage with name 'b' does not exist");
+        expect($root.find(".form-error")).toHaveText("Pipeline with name 'a' does not exist. Stage with name 'b' does not exist");
       });
 
       it('should clear server side errors on valid input', function () {
@@ -140,13 +149,13 @@ define([
 
         $root.find("input[name='pipeline-stage']").val('invalid-input');
 
-        expect($root.find(".form-error").text()).toBe("Pipeline with name 'a' does not exist. Stage with name 'b' does not exist");
+        expect($root.find(".form-error")).toHaveText("Pipeline with name 'a' does not exist. Stage with name 'b' does not exist");
 
         $root.find("input[name='pipeline-stage']").val('pipeline [stage]');
         $root.find("input[name='pipeline-stage']").blur();
         m.redraw(true);
 
-        expect($root.find("input[name='pipeline-stage']").val()).toBe('pipeline [stage]');
+        expect($root.find("input[name='pipeline-stage']")).toHaveValue('pipeline [stage]');
         expect(_.isEmpty($root.find(".form-error"))).toBe(true);
       });
     });

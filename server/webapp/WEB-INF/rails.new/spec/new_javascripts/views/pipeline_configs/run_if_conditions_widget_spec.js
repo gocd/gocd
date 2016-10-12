@@ -25,7 +25,15 @@ define(['jquery', "mithril", "lodash", "views/pipeline_configs/run_if_conditions
       m.redraw(true);
     }
 
+    var unmount = function () {
+      m.mount(root, null);
+      m.redraw(true);
+    };
+
     describe("View", function() {
+      afterEach(function () {
+        unmount();
+      });
 
       it("should render checkbox for runIf conditions", function () {
         var task = new Tasks.Task.Exec({runIf: ['any']});
@@ -40,9 +48,9 @@ define(['jquery', "mithril", "lodash", "views/pipeline_configs/run_if_conditions
         var task = new Tasks.Task.Exec({runIf: ['passed', 'failed']});
         mount(task);
 
-        expect($root.find("input[type=checkbox][value=passed]").is(':checked')).toBe(true);
-        expect($root.find("input[type=checkbox][value=failed]").is(':checked')).toBe(true);
-        expect($root.find("input[type=checkbox][value=any]").is(':checked')).toBe(false);
+        expect($root.find("input[type=checkbox][value=passed]")).toBeChecked();
+        expect($root.find("input[type=checkbox][value=failed]")).toBeChecked();
+        expect($root.find("input[type=checkbox][value=any]")).not.toBeChecked();
       });
     });
 
@@ -51,17 +59,19 @@ define(['jquery', "mithril", "lodash", "views/pipeline_configs/run_if_conditions
         var task = new Tasks.Task.Exec({runIf: ['passed', 'failed']});
         mount(task);
 
-        expect($root.find("input[type=checkbox][value=passed]").is(':checked')).toBe(true);
-        expect($root.find("input[type=checkbox][value=failed]").is(':checked')).toBe(true);
-        expect($root.find("input[type=checkbox][value=any]").is(':checked')).toBe(false);
+        expect($root.find("input[type=checkbox][value=passed]")).toBeChecked();
+        expect($root.find("input[type=checkbox][value=failed]")).toBeChecked();
+        expect($root.find("input[type=checkbox][value=any]")).not.toBeChecked();
 
         $root.find("input[type=checkbox][value=any]").click();
         m.redraw(true);
 
-        expect($root.find("input[type=checkbox][value=passed]").is(':checked')).toBe(false);
-        expect($root.find("input[type=checkbox][value=failed]").is(':checked')).toBe(false);
-        expect($root.find("input[type=checkbox][value=any]").is(':checked')).toBe(true);
+        expect($root.find("input[type=checkbox][value=passed]")).not.toBeChecked();
+        expect($root.find("input[type=checkbox][value=failed]")).not.toBeChecked();
+        expect($root.find("input[type=checkbox][value=any]")).toBeChecked();
         expect(task.runIf().data()).toEqual(['any']);
+
+        unmount();
       });
     });
   });

@@ -23,7 +23,7 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agent_row_wid
       allAgents = Agents.fromJSON(json());
     });
 
-    afterAll(function () {
+    afterEach(function () {
       unmount();
     });
 

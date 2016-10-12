@@ -69,7 +69,7 @@ public class ElasticAgentProfileDeleteCommandTest {
         ElasticProfile elasticProfile = new ElasticProfile("foo", "docker");
 
         assertThat(cruiseConfig.server().getElasticConfig().getProfiles(), is(empty()));
-        ElasticAgentProfileDeleteCommand command = new ElasticAgentProfileDeleteCommand(elasticProfile, null, null, null);
+        ElasticAgentProfileDeleteCommand command = new ElasticAgentProfileDeleteCommand(elasticProfile, null, null, new HttpLocalizedOperationResult());
 
         thrown.expect(ElasticProfileNotFoundException.class);
         command.update(cruiseConfig);

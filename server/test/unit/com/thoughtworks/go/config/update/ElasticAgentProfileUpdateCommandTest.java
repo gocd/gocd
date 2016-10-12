@@ -50,9 +50,9 @@ public class ElasticAgentProfileUpdateCommandTest {
     }
 
     @Test
-    public void shouldRaiseErrorWhenUpdatingNonExistantProfile() throws Exception {
+    public void shouldRaiseErrorWhenUpdatingNonExistentProfile() throws Exception {
         cruiseConfig.server().getElasticConfig().getProfiles().clear();
-        ElasticAgentProfileUpdateCommand command = new ElasticAgentProfileUpdateCommand(null, null, new ElasticProfile("foo", "docker"), null, null, null);
+        ElasticAgentProfileUpdateCommand command = new ElasticAgentProfileUpdateCommand(null, null, new ElasticProfile("foo", "docker"), null, new HttpLocalizedOperationResult(), null);
         thrown.expect(ElasticProfileNotFoundException.class);
         command.update(cruiseConfig);
     }

@@ -18,12 +18,17 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
+import com.thoughtworks.go.domain.config.ConfigurationKey;
+import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -36,6 +41,10 @@ public class ElasticAgentProfileCommandTest {
     private Username currentUser;
     private GoConfigService goConfigService;
     private BasicCruiseConfig cruiseConfig;
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
 
     @Before
     public void setUp() throws Exception {
@@ -56,6 +65,16 @@ public class ElasticAgentProfileCommandTest {
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result.toString(), containsString("UNAUTHORIZED_TO_EDIT"));
+    }
+
+    @Test
+    public void shouldValidateIfElasticProfileIdIsNull() {
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        ElasticProfile profile = new ElasticProfile(null, "some-plugin", new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value")));
+        cruiseConfig.server().getElasticConfig().getProfiles().add(profile);
+        ElasticAgentProfileCommand command = new ElasticAgentProfileCreateCommand(profile, goConfigService, currentUser, result);
+        thrown.expectMessage("Elastic profile id cannot be null.");
+        command.isValid(cruiseConfig);
     }
 
 

@@ -56,10 +56,6 @@ public class ElasticProfile extends Configuration implements Validatable {
         this(id, pluginId, configProperties.toArray(new ConfigurationProperty[0]));
     }
 
-    public ElasticProfile(ElasticProfile profile) {
-        this(profile.getId(), profile.getPluginId(), profile);
-    }
-
     public String getId() {
         return id;
     }

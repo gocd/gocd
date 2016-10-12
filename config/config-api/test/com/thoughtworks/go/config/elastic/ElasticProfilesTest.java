@@ -32,12 +32,6 @@ public class ElasticProfilesTest {
     }
 
     @Test
-    public void returnsACopyOfProfile() throws Exception {
-        ElasticProfile profile = new ElasticProfile("foo", "docker");
-        assertThat(new ElasticProfiles(profile).find("foo"), is(not(sameInstance(profile))));
-    }
-
-    @Test
     public void shouldNotAllowMultipleProfilesWithSameId() throws Exception {
         ElasticProfile profile1 = new ElasticProfile("foo", null);
         ElasticProfile profile2 = new ElasticProfile("foo", null);

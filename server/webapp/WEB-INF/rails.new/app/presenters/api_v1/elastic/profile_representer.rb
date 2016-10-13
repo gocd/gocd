@@ -20,7 +20,7 @@ module ApiV1
       alias_method :profile, :represented
 
       link :self do |opts|
-        opts[:url_builder].apiv1_elastic_profile_url(profile_id: profile.id)
+        opts[:url_builder].apiv1_elastic_profile_url(profile_id: profile.id) unless profile.id.blank?
       end
 
       link :doc do |opts|
@@ -31,6 +31,11 @@ module ApiV1
         opts[:url_builder].apiv1_elastic_profile_url(profile_id: '__profile_id__').gsub('__profile_id__', ':profile_id')
       end
 
+      error_representer(
+        {
+          'pluginId'     => 'plugin_id'
+        }
+      )
       property :id
       property :plugin_id
 

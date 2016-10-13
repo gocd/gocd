@@ -19,7 +19,10 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.helper.GoConfigMother;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;

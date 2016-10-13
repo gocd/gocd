@@ -40,10 +40,6 @@ public class ElasticAgentProfileUpdateCommand extends ElasticAgentProfileCommand
     public void update(CruiseConfig preprocessedConfig) throws Exception {
         ElasticProfile existingProfile = findExistingProfile(preprocessedConfig);
 
-        if (existingProfile == null) {
-            throw new ElasticProfileNotFoundException();
-        }
-
         ElasticProfiles profiles = preprocessedConfig.server().getElasticConfig().getProfiles();
 
         profiles.set(profiles.indexOf(existingProfile), elasticProfile);
@@ -56,10 +52,6 @@ public class ElasticAgentProfileUpdateCommand extends ElasticAgentProfileCommand
 
     private boolean isRequestFresh(CruiseConfig cruiseConfig) {
         ElasticProfile existingProfile = findExistingProfile(cruiseConfig);
-
-        if (existingProfile == null) {
-            throw new ElasticProfileNotFoundException();
-        }
 
         boolean freshRequest = hashingService.md5ForEntity(existingProfile).equals(md5);
 

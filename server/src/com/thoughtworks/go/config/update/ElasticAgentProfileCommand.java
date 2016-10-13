@@ -23,9 +23,12 @@ import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfiles;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.ElasticProfileNotFoundException;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
+
+import static com.thoughtworks.go.util.StringUtil.isBlank;
 
 abstract class ElasticAgentProfileCommand implements EntityConfigUpdateCommand<ElasticProfile> {
 
@@ -82,6 +85,16 @@ abstract class ElasticAgentProfileCommand implements EntityConfigUpdateCommand<E
     }
 
     protected ElasticProfile findExistingProfile(CruiseConfig cruiseConfig) {
-        return cruiseConfig.server().getElasticConfig().getProfiles().find(elasticProfile.getId());
+        if (elasticProfile == null || isBlank(elasticProfile.getId())) {
+            result.unprocessableEntity(LocalizedMessage.string("ENTITY_ATTRIBUTE_NULL", "elastic agent profile", "id"));
+            throw new IllegalArgumentException("Elastic profile id cannot be null.");
+        } else {
+            ElasticProfile profile = cruiseConfig.server().getElasticConfig().getProfiles().find(elasticProfile.getId());
+            if (profile == null) {
+                result.notFound(LocalizedMessage.string("RESOURCE_NOT_FOUND", "profile", elasticProfile.getId()), HealthStateType.notFound());
+                throw new ElasticProfileNotFoundException();
+            }
+            return profile;
+        }
     }
 }

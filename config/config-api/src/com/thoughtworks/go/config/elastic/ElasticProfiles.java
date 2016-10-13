@@ -39,7 +39,7 @@ public class ElasticProfiles extends ArrayList<ElasticProfile> implements Valida
     public ElasticProfile find(String profileId) {
         for (ElasticProfile profile : this) {
             if (profile.getId().equals(profileId)) {
-                return new ElasticProfile(profile);
+                return profile;
             }
         }
         return null;

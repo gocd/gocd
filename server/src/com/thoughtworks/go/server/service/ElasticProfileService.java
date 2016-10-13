@@ -57,7 +57,7 @@ public class ElasticProfileService {
 
         Map<String, ElasticProfile> result = new LinkedHashMap<>();
         for (ElasticProfile profile : profiles) {
-            result.put(profile.getId(), new ElasticProfile(profile));
+            result.put(profile.getId(), profile);
         }
 
         return result;
@@ -87,7 +87,7 @@ public class ElasticProfileService {
             } else {
                 if (!result.hasMessage()) {
                     LOGGER.error(e.getMessage(), e);
-                    result.internalServerError(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", "An error occurred while saving the template config. Please check the logs for more information."));
+                    result.internalServerError(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", "An error occurred while saving the profile config. Please check the logs for more information."));
                 }
             }
         }

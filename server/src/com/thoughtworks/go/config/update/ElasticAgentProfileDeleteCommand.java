@@ -37,13 +37,13 @@ public class ElasticAgentProfileDeleteCommand extends ElasticAgentProfileCommand
 
     @Override
     public void update(CruiseConfig preprocessedConfig) throws Exception {
-        ElasticProfile existingProfile = findExistingProfile(preprocessedConfig);
+        preprocessedElasticProfile = findExistingProfile(preprocessedConfig);
 
-        if (existingProfile == null) {
+        if (preprocessedElasticProfile == null) {
             throw new ElasticProfileNotFoundException();
         }
 
-        preprocessedConfig.server().getElasticConfig().getProfiles().remove(existingProfile);
+        preprocessedConfig.server().getElasticConfig().getProfiles().remove(preprocessedElasticProfile);
     }
 
     @Override

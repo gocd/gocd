@@ -26,9 +26,9 @@ module ApiV2
           'runIf'            => 'run_if'
         }
 
-        property :working_directory
-        property :build_file
-        property :target
+        property :working_directory, skip_parse: SkipParseOnBlank
+        property :build_file, skip_parse: SkipParseOnBlank
+        property :target, skip_parse: SkipParseOnBlank
 
       end
     end

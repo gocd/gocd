@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2015 ThoughtWorks, Inc.
+# Copyright 2016 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,13 +23,12 @@ module ApiV1
           'workingDirectory' => 'working_directory',
           'buildFile'        => 'build_file',
           'onCancelConfig'   => 'on_cancel',
-          'runIf'            => 'run_if',
-          'nantPath'         => 'nant_path'
+          'runIf'            => 'run_if'
         }
 
-        property :working_directory
-        property :build_file
-        property :target
+        property :working_directory, skip_parse: SkipParseOnBlank
+        property :build_file, skip_parse: SkipParseOnBlank
+        property :target, skip_parse: SkipParseOnBlank
 
       end
     end

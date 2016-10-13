@@ -27,10 +27,10 @@ module ApiV2
           'nantPath'         => 'nant_path'
         }
 
-        property :working_directory
-        property :build_file
-        property :target
-        property :nant_path
+        property :working_directory, skip_parse: SkipParseOnBlank
+        property :build_file, skip_parse: SkipParseOnBlank
+        property :target, skip_parse: SkipParseOnBlank
+        property :nant_path, skip_parse: SkipParseOnBlank
 
 
       end

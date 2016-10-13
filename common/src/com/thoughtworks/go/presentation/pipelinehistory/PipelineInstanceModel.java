@@ -58,7 +58,6 @@ public class PipelineInstanceModel implements PipelineInfo {
         stageHistory = new StageInstanceModels();
     }
 
-
     public PipelineInstanceModel(String name, Integer counter, String label, BuildCause buildCause, StageInstanceModels stageHistory) {
         this(name, name, counter, label, buildCause, stageHistory);
     }
@@ -367,7 +366,6 @@ public class PipelineInstanceModel implements PipelineInfo {
     public static PipelineInstanceModel createEmptyModel() {
         return new PipelineInstanceModel();
     }
-
 
     public static PipelineInstanceModel createPreparingToSchedule(String name, StageInstanceModels stages) {
         return createPreparingToSchedule(name, name, stages);

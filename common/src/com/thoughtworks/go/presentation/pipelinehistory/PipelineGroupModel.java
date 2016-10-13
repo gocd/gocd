@@ -48,7 +48,6 @@ public class PipelineGroupModel {
         return new ArrayList<>(pipelineModels);
     }
 
-
     public PipelineModel pipelineModelForPipelineName(String pipelineName, boolean canForce, boolean canOperate, PipelinePauseInfo pipelinePauseInfo) {
         return pipelineModelForPipelineName(pipelineName, pipelineName, canForce, canOperate, pipelinePauseInfo);
     }

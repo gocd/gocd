@@ -58,7 +58,7 @@ public class RemoteRegistrationRequesterTest {
     public void setUp() throws Exception {
         initMocks(this);
         when(httpClient.execute(argThat(isA(HttpUriRequest.class)))).thenReturn(mock(CloseableHttpResponse.class));
-        when(systemEnvironment.resolveAgentWorkingDirectory(new File("."))).thenReturn(EXPECTED_WORKING_DIR);
+        when(systemEnvironment.resolveAgentWorkingDirectory()).thenReturn(EXPECTED_WORKING_DIR);
     }
 
     @Test

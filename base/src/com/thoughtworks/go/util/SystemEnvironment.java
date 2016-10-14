@@ -827,6 +827,10 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return SystemUtil.getFileWithFullPath(new File(get(AGENT_WORK_DIR), path.getPath()));
     }
 
+    public File resolveAgentWorkingDirectory() {
+        return resolveAgentWorkingDirectory(new File("."));
+    }
+
     public static abstract class GoSystemProperty<T> {
         private String propertyName;
         private T defaultValue;

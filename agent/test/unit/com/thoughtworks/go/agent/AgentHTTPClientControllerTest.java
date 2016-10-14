@@ -86,7 +86,7 @@ public class AgentHTTPClientControllerTest {
     @Before
     public void setUp() throws Exception {
         agentIdentifier = new AgentIdentifier(getLocalhostName(), getFirstLocalNonLoopbackIpAddress(), agentUuid);
-        when(systemEnvironment.resolveAgentWorkingDirectory(new File("."))).thenReturn(RESOLVED_FILE);
+        when(systemEnvironment.resolveAgentWorkingDirectory()).thenReturn(RESOLVED_FILE);
     }
 
     @After

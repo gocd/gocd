@@ -150,7 +150,7 @@ public abstract class AgentController {
         Boolean buildCommandProtocolEnabled = systemEnvironment.isBuildCommandProtocolEnabled();
         agentAutoRegistrationProperties = new AgentAutoRegistrationPropertiesImpl(new File("config", "autoregister.properties"));
 
-        String agentWorkDir = systemEnvironment.resolveAgentWorkingDirectory(new File(".")).getAbsolutePath();
+        String agentWorkDir = systemEnvironment.resolveAgentWorkingDirectory().getAbsolutePath();
         if (agentAutoRegistrationProperties.isElastic()) {
             agentRuntimeInfo = ElasticAgentRuntimeInfo.fromAgent(identifier, AgentRuntimeStatus.Idle, agentWorkDir, agentAutoRegistrationProperties.agentAutoRegisterElasticAgentId(), agentAutoRegistrationProperties.agentAutoRegisterElasticPluginId());
         } else {
@@ -159,7 +159,7 @@ public abstract class AgentController {
     }
 
     private void initPipelinesFolder() {
-        File pipelines = systemEnvironment.resolveAgentWorkingDirectory(new File("pipelines"));
+        File pipelines = systemEnvironment.resolveAgentWorkingDirectory();
         if (!pipelines.exists()) {
             pipelines.mkdirs();
         }

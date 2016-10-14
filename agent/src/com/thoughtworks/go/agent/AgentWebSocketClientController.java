@@ -177,7 +177,7 @@ public class AgentWebSocketClientController extends AgentController {
                 buildConsole,
                 buildVariables,
                 artifactsRepository,
-                httpService, clock, getSystemEnvironment().resolveAgentWorkingDirectory(new File(".")));
+                httpService, clock, getSystemEnvironment().resolveAgentWorkingDirectory());
 
         this.buildSession.set(build);
 

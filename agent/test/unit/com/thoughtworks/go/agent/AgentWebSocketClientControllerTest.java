@@ -110,7 +110,7 @@ public class AgentWebSocketClientControllerTest {
 
     @Before
     public void setUp() throws Exception {
-        when(systemEnvironment.resolveAgentWorkingDirectory(new File("."))).thenReturn(RESOLVED_FILE);
+        when(systemEnvironment.resolveAgentWorkingDirectory()).thenReturn(RESOLVED_FILE);
     }
 
     @After

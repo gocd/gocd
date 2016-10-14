@@ -168,7 +168,7 @@ public class SslInfrastructureService {
                 LOGGER.debug(String.format("[Agent Registration] Using URL %s to register.", serverUrl));
             }
 
-            String agentWorkDir = systemEnvironment.resolveAgentWorkingDirectory(new File(".")).getAbsolutePath();
+            String agentWorkDir = systemEnvironment.resolveAgentWorkingDirectory().getAbsolutePath();
             HttpRequestBase postMethod = (HttpRequestBase) RequestBuilder.post(serverUrl)
                     .addParameter("hostname", agentHostName)
                     .addParameter("uuid", agentRegistry.uuid())

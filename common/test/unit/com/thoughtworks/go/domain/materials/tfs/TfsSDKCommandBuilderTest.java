@@ -52,14 +52,14 @@ public class TfsSDKCommandBuilderTest {
 
     @Test
     public void shouldLoadTheCorrectImplementationOfSDKCommandViaTheNestedClassLoader() throws Exception {
-        when(mockSdkLoader.loadClass("com.thoughtworks.go.tfssdk10.TfsSDKCommandTCLAdapter")).thenThrow(new RuntimeException());
+        when(mockSdkLoader.loadClass("com.thoughtworks.go.tfssdk.TfsSDKCommandTCLAdapter")).thenThrow(new RuntimeException());
         try {
             builder.buildTFSSDKCommand(null,new UrlArgument("url"), DOMAIN, USERNAME, PASSWORD, computedWorkspaceName, "$/project");
             fail("should have failed to load class as we are not wiring any dependencies");
         } catch (Exception e) {
             //Do not worry about load class failing. We're only asserting that load class is invoked with the right FQN for TFSSDKCommand
         }
-        verify(mockSdkLoader, times(1)).loadClass("com.thoughtworks.go.tfssdk10.TfsSDKCommandTCLAdapter");
+        verify(mockSdkLoader, times(1)).loadClass("com.thoughtworks.go.tfssdk.TfsSDKCommandTCLAdapter");
     }
 
     @Test

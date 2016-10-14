@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.tfssdk14;
 
@@ -161,7 +161,7 @@ public class TfsSDKCommandTest {
         try {
             tfsCommandForInvalidCollection.init();
         } catch (RuntimeException e) {
-            assertThat(e.getMessage(), is("Unable to connect to TFS Collection invalid_url com.microsoft.tfs.core.config.IllegalConfigurationException: Unable to produce a server URI"));
+            assertThat(e.getMessage(), is("Unable to connect to TFS Collection invalid_url java.lang.RuntimeException: [TFS] Failed when converting the url string to a uri: invalid_url, Project Path: $/project_path, Username: username, Domain: domain"));
         }
     }
 

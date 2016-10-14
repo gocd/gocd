@@ -23,6 +23,7 @@ import com.thoughtworks.go.config.update.UpdateEnvironmentsCommand;
 import com.thoughtworks.go.config.update.UpdateResourceCommand;
 import com.thoughtworks.go.domain.AllConfigErrors;
 import com.thoughtworks.go.domain.ConfigErrors;
+import com.thoughtworks.go.domain.materials.tfs.TFSJarDetector;
 import com.thoughtworks.go.plugin.infra.commons.PluginsZip;
 import com.thoughtworks.go.security.Registration;
 import com.thoughtworks.go.security.RegistrationJSONizer;
@@ -63,6 +64,7 @@ public class AgentRegistrationController {
     private final AgentConfigService agentConfigService;
     private volatile String agentChecksum;
     private volatile String agentLauncherChecksum;
+    private volatile String tfsSdkChecksum;
 
     @Autowired
     public AgentRegistrationController(AgentService agentService, GoConfigService goConfigService, SystemEnvironment systemEnvironment, PluginsZip pluginsZip, AgentConfigService agentConfigService) {
@@ -77,10 +79,12 @@ public class AgentRegistrationController {
     public void checkAgentStatus(HttpServletResponse response) throws IOException {
         populateAgentChecksum();
         populateLauncherChecksum();
+        populateTFSSDKChecksum();
 
         response.setHeader(SystemEnvironment.AGENT_CONTENT_MD5_HEADER, agentChecksum);
         response.setHeader(SystemEnvironment.AGENT_LAUNCHER_CONTENT_MD5_HEADER, agentLauncherChecksum);
         response.setHeader(SystemEnvironment.AGENT_PLUGINS_ZIP_MD5_HEADER, pluginsZip.md5());
+        response.setHeader(SystemEnvironment.AGENT_TFS_SDK_MD5_HEADER, tfsSdkChecksum);
         setOtherHeaders(response);
     }
 
@@ -105,6 +109,20 @@ public class AgentRegistrationController {
         setOtherHeaders(response);
     }
 
+    @RequestMapping(value = "/admin/tfs-impl.jar", method = RequestMethod.HEAD)
+    public void checkTfsImplVersion(HttpServletResponse response) throws IOException {
+        populateTFSSDKChecksum();
+
+        response.setHeader("Content-MD5", tfsSdkChecksum);
+        setOtherHeaders(response);
+    }
+
+    @RequestMapping(value = "/admin/tfs-impl.jar", method = RequestMethod.GET)
+    public void downloadTfsImplJar(HttpServletResponse response) throws IOException {
+        checkTfsImplVersion(response);
+        sendFile(new TFSImplSrc(), response);
+    }
+
     @RequestMapping(value = "/admin/agent-plugins.zip", method = RequestMethod.HEAD)
     public void checkAgentPluginsZipStatus(HttpServletResponse response) throws IOException {
         response.setHeader("Content-MD5", pluginsZip.md5());
@@ -123,6 +141,14 @@ public class AgentRegistrationController {
         synchronized (this) {
             if (agentChecksum == null) {
                 agentChecksum = getChecksumFor(new AgentJarSrc());
+            }
+        }
+    }
+
+    private void populateTFSSDKChecksum() throws IOException {
+        synchronized (this) {
+            if (tfsSdkChecksum == null) {
+                tfsSdkChecksum = getChecksumFor(new TFSImplSrc());
             }
         }
     }
@@ -277,7 +303,7 @@ public class AgentRegistrationController {
     }
 
     public interface InputStreamSrc {
-        InputStream invoke() throws FileNotFoundException;
+        InputStream invoke() throws IOException;
     }
 
     private class AgentJarSrc implements InputStreamSrc {
@@ -298,5 +324,10 @@ public class AgentRegistrationController {
         }
     }
 
-
+    private class TFSImplSrc implements InputStreamSrc {
+        @Override
+        public InputStream invoke() throws IOException {
+            return TFSJarDetector.create(systemEnvironment).getJarURL().openStream();
+        }
+    }
 }

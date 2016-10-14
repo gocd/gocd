@@ -16,7 +16,11 @@
 
 package com.thoughtworks.go.server.controller;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.SecurityConfig;
+import com.thoughtworks.go.config.ServerConfig;
+import com.thoughtworks.go.config.UpdateConfigCommand;
+import com.thoughtworks.go.domain.materials.tfs.TFSJarDetector;
 import com.thoughtworks.go.plugin.infra.commons.PluginsZip;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.AgentConfigService;
@@ -29,6 +33,7 @@ import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TestFileUtil;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
@@ -40,21 +45,21 @@ import org.springframework.web.servlet.ModelAndView;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
 
+import static com.thoughtworks.go.util.FileDigester.md5DigestOfStream;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class AgentRegistrationControllerTest {
     private static final String AGENT_CHECKSUM_FIELD = "agentChecksum";
     private static final String AGENT_LAUNCHER_CHECKSUM_FIELD = "agentLauncherChecksum";
-    private static final String UUID = "uuid";
     private static final String EXPECTED = "test";
     private static final String EXPECTED_MD5 = "CY9rzUYh03PK3k6DJie09g==";
     private static final String EXPECTED_LAUNCHER = "test-launcher";
     private static final String EXPECTED_LAUNCHER_MD5 = "z3ouYEnfWUG8ewU/izre9g==";
-    private static final Username USERNAME = new Username(new CaseInsensitiveString("anonymous"));
     private final MockHttpServletRequest request = new MockHttpServletRequest();
     private final MockHttpServletResponse response = new MockHttpServletResponse();
     private AgentService agentService;
@@ -85,6 +90,7 @@ public class AgentRegistrationControllerTest {
         });
 
         when(systemEnvironment.getSslServerPort()).thenReturn(8443);
+        when(systemEnvironment.get(SystemEnvironment.TFS_SDK_10)).thenReturn(true);
         pluginsZip = mock(PluginsZip.class);
         controller = new AgentRegistrationController(agentService, goConfigService, systemEnvironment, pluginsZip, agentConfigService);
     }
@@ -191,6 +197,11 @@ public class AgentRegistrationControllerTest {
         when(pluginsZip.md5()).thenReturn("md5");
 
         controller.checkAgentStatus(response);
+
+        try (InputStream stream = new TFSJarDetector.DevelopmentServerTFSJarDetector(systemEnvironment).getJarURL().openStream()) {
+            assertEquals(md5DigestOfStream(stream), response.getHeader(SystemEnvironment.AGENT_TFS_SDK_MD5_HEADER));
+        }
+
         assertEquals("foo", response.getHeader(SystemEnvironment.AGENT_CONTENT_MD5_HEADER));
         assertEquals("bar", response.getHeader(SystemEnvironment.AGENT_LAUNCHER_CONTENT_MD5_HEADER));
         assertEquals("8443", response.getHeader("Cruise-Server-Ssl-Port"));
@@ -293,4 +304,24 @@ public class AgentRegistrationControllerTest {
         assertEquals("content", actual);
     }
 
+    @Test
+    public void shouldReturnChecksumOfTfsJar() throws Exception {
+        controller.checkTfsImplVersion(response);
+        try (InputStream stream = new TFSJarDetector.DevelopmentServerTFSJarDetector(systemEnvironment).getJarURL().openStream()) {
+            assertEquals(md5DigestOfStream(stream), response.getHeader("Content-MD5"));
+        }
+    }
+
+    @Test
+    public void shouldRenderTheTfsJar() throws Exception {
+        controller.downloadTfsImplJar(response);
+        assertEquals("application/octet-stream", response.getContentType());
+
+        try (InputStream stream = new TFSJarDetector.DevelopmentServerTFSJarDetector(systemEnvironment).getJarURL().openStream()) {
+            assertEquals(md5DigestOfStream(stream), response.getHeader("Content-MD5"));
+        }
+        try (InputStream is = new TFSJarDetector.DevelopmentServerTFSJarDetector(systemEnvironment).getJarURL().openStream()) {
+            assertTrue(Arrays.equals(IOUtils.toByteArray(is), response.getContentAsByteArray()));
+        }
+    }
 }

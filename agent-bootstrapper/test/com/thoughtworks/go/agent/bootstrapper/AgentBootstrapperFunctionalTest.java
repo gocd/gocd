@@ -23,6 +23,7 @@ import com.thoughtworks.go.agent.testhelper.FakeBootstrapperServer;
 import com.thoughtworks.go.util.FileUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.eclipse.jetty.util.resource.Resource;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -32,6 +33,8 @@ import org.junit.runner.RunWith;
 import java.io.*;
 import java.net.URL;
 
+import static com.thoughtworks.go.agent.common.util.Downloader.*;
+import static com.thoughtworks.go.agent.testhelper.FakeBootstrapperServer.TestResource.TEST_AGENT_LAUNCHER;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.*;
@@ -44,24 +47,27 @@ public class AgentBootstrapperFunctionalTest {
     @Before
     public void setUp() throws IOException {
         new File(".agent-bootstrapper.running").delete();
-        FileUtils.copyFile(new File("testdata", Downloader.AGENT_LAUNCHER), new File(Downloader.AGENT_LAUNCHER));
+        TEST_AGENT_LAUNCHER.copyTo(AGENT_LAUNCHER_JAR);
         System.setProperty(AgentBootstrapper.WAIT_TIME_BEFORE_RELAUNCH_IN_MS, "0");
     }
 
     @After
     public void tearDown() throws Exception {
-        FileUtils.deleteQuietly(new File(Downloader.AGENT_LAUNCHER));
+        FileUtils.deleteQuietly(AGENT_LAUNCHER_JAR);
+        FileUtils.deleteQuietly(AGENT_BINARY_JAR);
+        FileUtils.deleteQuietly(TFS_IMPL_JAR);
+        FileUtils.deleteQuietly(AGENT_PLUGINS_ZIP);
         System.clearProperty(AgentBootstrapper.WAIT_TIME_BEFORE_RELAUNCH_IN_MS);
     }
 
     @Test
     public void shouldCheckout_Bundled_agentLauncher() throws IOException {
         try {
-            new File(Downloader.AGENT_LAUNCHER).delete();
+            AGENT_LAUNCHER_JAR.delete();
             new AgentBootstrapper().validate();
-            assertEquals("agent launcher from default files", FileUtil.readToEnd(new File(Downloader.AGENT_LAUNCHER)));
+            assertEquals("agent launcher from default files", FileUtil.readToEnd(AGENT_LAUNCHER_JAR));
         } finally {
-            new File(Downloader.AGENT_LAUNCHER).delete();
+            AGENT_LAUNCHER_JAR.delete();
         }
     }
 

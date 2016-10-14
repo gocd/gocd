@@ -25,10 +25,10 @@ import com.thoughtworks.go.mothers.ServerUrlGeneratorMother;
 import com.thoughtworks.go.util.FileDigester;
 import com.thoughtworks.go.util.LogFixture;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,8 +36,11 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
+import static com.thoughtworks.go.agent.common.util.Downloader.*;
+import static com.thoughtworks.go.agent.testhelper.FakeBootstrapperServer.TestResource.*;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static java.lang.System.getProperty;
 import static org.hamcrest.Matchers.equalTo;
@@ -59,29 +62,42 @@ public class AgentProcessParentImplTest {
         System.setProperty("sleep.for.download", "10");
     }
 
+    @Before
+    public void setUp() throws Exception {
+        cleanup();
+    }
+
     @After
     public void tearDown() {
         System.clearProperty("sleep.for.download");
         FileUtils.deleteQuietly(stdoutLog);
         FileUtils.deleteQuietly(stderrLog);
-        FileUtils.deleteQuietly(new File(Downloader.AGENT_BINARY));
-        FileUtils.deleteQuietly(new File(Downloader.AGENT_PLUGINS));
+
+        cleanup();
+    }
+
+    private void cleanup() {
+        FileUtils.deleteQuietly(AGENT_BINARY_JAR);
+        FileUtils.deleteQuietly(AGENT_PLUGINS_ZIP);
+        FileUtils.deleteQuietly(AGENT_LAUNCHER_JAR);
+        FileUtils.deleteQuietly(TFS_IMPL_JAR);
     }
 
     @Test
     public void shouldStartSubprocessWithCommandLine() throws InterruptedException, IOException {
         final List<String> cmd = new ArrayList<>();
-        String expectedAgentMd5 = FileDigester.md5DigestOfFile(new File("testdata/test-agent.jar"));
-        String expectedAgentPluginsMd5 = FileDigester.md5DigestOfFile(new File("testdata/agent-plugins.zip"));
+        String expectedAgentMd5 = TEST_AGENT.getMd5();
+        String expectedAgentPluginsMd5 = TEST_AGENT_PLUGINS.getMd5();
+        String expectedTfsMd5 = TEST_TFS_IMPL.getMd5();
         AgentProcessParentImpl bootstrapper = createBootstrapper(cmd);
         int returnCode = bootstrapper.run("launcher_version", "bar", getURLGenerator(), new HashMap<String, String>(), context());
         assertThat(returnCode, is(42));
         assertThat(cmd.toArray(new String[]{}), equalTo(new String[]{
                 (getProperty("java.home") + getProperty("file.separator") + "bin" + getProperty("file.separator") + "java"),
-                "-Dagent.launcher.version=launcher_version",
                 "-Dagent.plugins.md5=" + expectedAgentPluginsMd5,
                 "-Dagent.binary.md5=" + expectedAgentMd5,
                 "-Dagent.launcher.md5=bar",
+                "-Dagent.tfs.md5=" + expectedTfsMd5,
                 "-jar",
                 "agent.jar",
                 "-serverUrl",
@@ -111,8 +127,10 @@ public class AgentProcessParentImplTest {
         final List<String> cmd = new ArrayList<>();
         AgentProcessParentImpl bootstrapper = createBootstrapper(cmd);
         int returnCode = bootstrapper.run("launcher_version", "bar", getURLGenerator(), m(AgentProcessParentImpl.AGENT_STARTUP_ARGS, "foo bar  baz with%20some%20space"), context());
-        String expectedAgentMd5 = FileDigester.md5DigestOfFile(new File("testdata/test-agent.jar"));
-        String expectedAgentPluginsMd5 = FileDigester.md5DigestOfFile(new File("testdata/agent-plugins.zip"));
+        String expectedAgentMd5 = TEST_AGENT.getMd5();
+        String expectedAgentPluginsMd5 = TEST_AGENT_PLUGINS.getMd5();
+        String expectedTfsMd5 = TEST_TFS_IMPL.getMd5();
+
         assertThat(returnCode, is(42));
         assertThat(cmd.toArray(new String[]{}), equalTo(new String[]{
                 (getProperty("java.home") + getProperty("file.separator") + "bin" + getProperty("file.separator") + "java"),
@@ -120,10 +138,10 @@ public class AgentProcessParentImplTest {
                 "bar",
                 "baz",
                 "with some space",
-                "-Dagent.launcher.version=launcher_version",
                 "-Dagent.plugins.md5=" + expectedAgentPluginsMd5,
                 "-Dagent.binary.md5=" + expectedAgentMd5,
                 "-Dagent.launcher.md5=bar",
+                "-Dagent.tfs.md5=" + expectedTfsMd5,
                 "-jar",
                 "agent.jar",
                 "-serverUrl",
@@ -239,59 +257,45 @@ public class AgentProcessParentImplTest {
     @Test
     public void shouldNotDownloadPluginsZipIfPresent() throws Exception {
         if (!OS_CHECKER.satisfy()) {
-            File pluginZip = null;
-            try {
-                FileUtils.copyFile(new File("testdata/agent-plugins.zip"), pluginZip = new File(Downloader.AGENT_PLUGINS));
-                pluginZip.setLastModified(System.currentTimeMillis() - 10 * 1000);
-                long expectedModifiedDate = pluginZip.lastModified();
-                AgentProcessParentImpl bootstrapper = createBootstrapper(new ArrayList<String>());
-                bootstrapper.run("launcher_version", "bar", getURLGenerator(), m(AgentProcessParentImpl.AGENT_STARTUP_ARGS, "foo bar  baz with%20some%20space"), context());
-                assertThat(new File(Downloader.AGENT_PLUGINS).lastModified(), is(expectedModifiedDate));
-            } finally {
-                delete(pluginZip);
-            }
+            TEST_AGENT_PLUGINS.copyTo(AGENT_PLUGINS_ZIP);
+            AGENT_PLUGINS_ZIP.setLastModified(System.currentTimeMillis() - 10 * 1000);
+
+            long expectedModifiedDate = AGENT_PLUGINS_ZIP.lastModified();
+            AgentProcessParentImpl bootstrapper = createBootstrapper(new ArrayList<String>());
+            bootstrapper.run("launcher_version", "bar", getURLGenerator(), m(AgentProcessParentImpl.AGENT_STARTUP_ARGS, "foo bar  baz with%20some%20space"), context());
+            assertThat(Downloader.AGENT_PLUGINS_ZIP.lastModified(), is(expectedModifiedDate));
         }
     }
 
     @Test
     public void shouldDownloadPluginsZipIfMissing() throws Exception {
         if (!OS_CHECKER.satisfy()) {
-            File stalePluginZip = null;
-            try {
-                stalePluginZip = randomFile("agent-plugins.zip");
-                long original = stalePluginZip.length();
+            File stalePluginZip = randomFile(AGENT_PLUGINS_ZIP);
+            long original = stalePluginZip.length();
 
-                AgentProcessParentImpl bootstrapper = createBootstrapper(new ArrayList<String>());
-                bootstrapper.run("launcher_version", "bar", getURLGenerator(), m(AgentProcessParentImpl.AGENT_STARTUP_ARGS, "foo bar  baz with%20some%20space"), context());
+            AgentProcessParentImpl bootstrapper = createBootstrapper(new ArrayList<String>());
+            bootstrapper.run("launcher_version", "bar", getURLGenerator(), m(AgentProcessParentImpl.AGENT_STARTUP_ARGS, "foo bar  baz with%20some%20space"), context());
 
-                assertThat(stalePluginZip.length(), not(original));
-            } finally {
-                delete(stalePluginZip);
-            }
+            assertThat(stalePluginZip.length(), not(original));
         }
     }
 
-    private File randomFile(final String pathname) {
-        File agentJar = new File(pathname);
-        agentJar.delete();
-        createRandomFile(agentJar, "some rubbish");
-        return agentJar;
-    }
+    @Test
+    public void shouldDownload_TfsImplJar_IfTheCurrentJarIsStale() throws Exception {
+        if (!OS_CHECKER.satisfy()) {
+            File staleFile = randomFile(TFS_IMPL_JAR);
+            long original = staleFile.length();
 
-    private void createRandomFile(File agentJar, final String data) {
-        try (FileOutputStream output = new FileOutputStream(agentJar)) {
-            IOUtils.write(data, output);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            AgentProcessParentImpl bootstrapper = createBootstrapper(new ArrayList<String>());
+            bootstrapper.run("launcher_version", "bar", getURLGenerator(), m(AgentProcessParentImpl.AGENT_STARTUP_ARGS, "foo bar  baz with%20some%20space"), context());
+
+            assertThat(staleFile.length(), not(original));
         }
     }
 
-    private void delete(File... files) {
-        for (File file : files) {
-            if (file != null) {
-                file.delete();
-            }
-        }
+    private File randomFile(final File pathname) throws IOException {
+        FileUtils.write(pathname, "some rubbish", StandardCharsets.UTF_8);
+        return pathname;
     }
 
     private ServerUrlGenerator getURLGenerator() {

@@ -86,7 +86,11 @@ public class FileDigester {
     }
 
     public static String md5DigestOfStream(InputStream stream) throws IOException {
-        return copyAndDigest(stream, new NullOutputStream());
+        try {
+            return copyAndDigest(stream, new NullOutputStream());
+        } finally {
+            IOUtils.closeQuietly(stream);
+        }
     }
 
     public static String copyAndDigest(InputStream inputStream, OutputStream outputStream) throws IOException {

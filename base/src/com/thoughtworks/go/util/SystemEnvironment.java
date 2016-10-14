@@ -62,6 +62,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static final String AGENT_LAUNCHER_CONTENT_MD5_HEADER = "Agent-Launcher-Content-MD5";
 
     public static final String AGENT_PLUGINS_ZIP_MD5_HEADER = "Agent-Plugins-Content-MD5";
+    public static final String AGENT_TFS_SDK_MD5_HEADER = "TFS-SDK-Content-MD5";
 
     public static final String EMPTY_STRING = "";
     public static final String BLANK_STRING = EMPTY_STRING;
@@ -461,6 +462,10 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return getPropertyImpl(GoConstants.AGENT_JAR_MD5, BLANK_STRING);
     }
 
+    public String getTfsImplMd5() {
+        return getPropertyImpl(GoConstants.TFS_IMPL_MD5, BLANK_STRING);
+    }
+
     public String getGivenAgentLauncherMd5() {
         return getPropertyImpl(GoConstants.GIVEN_AGENT_LAUNCHER_JAR_MD5, BLANK_STRING);
     }
@@ -775,6 +780,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public boolean useSslContext() {
         return GO_AGENT_USE_SSL_CONTEXT.getValue();
     }
+
 
     public static abstract class GoSystemProperty<T> {
         private String propertyName;

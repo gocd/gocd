@@ -16,8 +16,16 @@
 
 package com.thoughtworks.go.agent.common.util;
 
+import java.io.File;
+
 public interface Downloader {
     String AGENT_BINARY = "agent.jar";
     String AGENT_LAUNCHER = "agent-launcher.jar";
     String AGENT_PLUGINS = "agent-plugins.zip";
+    String TFS_IMPL = "tfs-impl.jar";
+
+    File AGENT_BINARY_JAR = new File(AGENT_BINARY);
+    File AGENT_LAUNCHER_JAR = new File(AGENT_LAUNCHER);
+    File AGENT_PLUGINS_ZIP = new File(AGENT_PLUGINS);
+    File TFS_IMPL_JAR = new File(TFS_IMPL);
 }

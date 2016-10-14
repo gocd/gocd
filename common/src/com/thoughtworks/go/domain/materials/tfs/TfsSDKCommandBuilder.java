@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain.materials.tfs;
 
@@ -21,6 +21,7 @@ import com.thoughtworks.go.util.NestedJarClassLoader;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.CommandArgument;
 import com.thoughtworks.go.util.command.UrlArgument;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
@@ -33,6 +34,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
+import java.util.Properties;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
@@ -52,7 +54,8 @@ class TfsSDKCommandBuilder {
     /*
      * Used in tests
      */
-    @Deprecated TfsSDKCommandBuilder(ClassLoader sdkLoader) {
+    @Deprecated
+    TfsSDKCommandBuilder(ClassLoader sdkLoader) {
         this.sdkLoader = sdkLoader;
     }
 
@@ -68,7 +71,7 @@ class TfsSDKCommandBuilder {
     }
 
     private TfsCommand instantitateAdapter(String materialFingerPrint, UrlArgument url, String domain, String userName, String password, String computedWorkspaceName, String projectPath)
-            throws NoSuchMethodException, ClassNotFoundException, InstantiationException, IllegalAccessException, InvocationTargetException {
+            throws NoSuchMethodException, ClassNotFoundException, InstantiationException, IllegalAccessException, InvocationTargetException, IOException {
         ClassLoader tcl = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(sdkLoader);
@@ -82,11 +85,7 @@ class TfsSDKCommandBuilder {
     }
 
     private String tfsSdkCommandTCLAdapterClassName() {
-        String className = "com.thoughtworks.go.tfssdk14.TfsSDKCommandTCLAdapter";
-        if (new SystemEnvironment().get(SystemEnvironment.TFS_SDK_10)){
-            className = "com.thoughtworks.go.tfssdk10.TfsSDKCommandTCLAdapter";
-        }
-        return className;
+        return "com.thoughtworks.go.tfssdk.TfsSDKCommandTCLAdapter";
     }
 
     static TfsSDKCommandBuilder getBuilder() throws IOException, URISyntaxException {
@@ -101,22 +100,21 @@ class TfsSDKCommandBuilder {
     }
 
     private ClassLoader initSdkLoader() throws URISyntaxException, IOException {
-        URL jarURL = urlForSDKJar(tfsImplJar());
-        URL expandedJarUrl = expandJarAndReturnURL(jarURL);
-        File tempFolder = FileUtil.createTempFolder();
-        tempFolder.deleteOnExit();
+        URL expandedJarUrl = expandJarAndReturnURL();
+
+        final File tempFolder = FileUtil.createTempFolder();
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                FileUtils.deleteQuietly(tempFolder);
+            }
+        });
+
+
         explodeNatives(expandedJarUrl, tempFolder);
         setNativePath(tempFolder);
         String useTheParentLog4jConfiguration = "log4j";
         return new NestedJarClassLoader(expandedJarUrl, useTheParentLog4jConfiguration);
-    }
-
-    private String tfsImplJar() {
-        String jarFile = "lib/tfs-impl-14.jar";
-        if (new SystemEnvironment().get(SystemEnvironment.TFS_SDK_10)){
-            jarFile = "lib/tfs-impl-10.jar";
-        }
-        return jarFile;
     }
 
     private void setNativePath(File tempFolder) {
@@ -130,7 +128,7 @@ class TfsSDKCommandBuilder {
         JarInputStream jarStream = new JarInputStream(urlOfJar.openStream());
         JarEntry entry;
         while ((entry = jarStream.getNextJarEntry()) != null) {
-            if (!entry.isDirectory() && entry.getName().contains("native")) {
+            if (!entry.isDirectory() && entry.getName().startsWith("tfssdk/native/")) {
                 expandFile(urlOfJar, entry, tempFolder);
             }
         }
@@ -153,23 +151,13 @@ class TfsSDKCommandBuilder {
 
     }
 
-    private URL expandJarAndReturnURL(URL urlOfJar) throws IOException {
-        File nestedJarFile = File.createTempFile(new File(urlOfJar.toExternalForm()).getName(), ".jar");
+    private URL expandJarAndReturnURL() throws IOException {
+        URL jarUrl = TFSJarDetector.create(new SystemEnvironment()).getJarURL();
+        File nestedJarFile = File.createTempFile(new File(jarUrl.toExternalForm()).getName(), ".jar");
         nestedJarFile.deleteOnExit();
-        FileOutputStream out = new FileOutputStream(nestedJarFile);
-        InputStream in = urlOfJar.openStream();
-        IOUtils.copy(in, out);
-        out.close();
-        in.close();
-        LOGGER.info(String.format("[TFS SDK] Exploded Jar %s from to %s", urlOfJar.toString(), nestedJarFile.toURI().toURL()));
+        FileUtils.copyURLToFile(jarUrl, nestedJarFile);
+
+        LOGGER.info(String.format("[TFS SDK] Exploded Jar %s from to %s", jarUrl.toString(), nestedJarFile.toURI().toURL()));
         return nestedJarFile.toURI().toURL();
-    }
-
-
-    private URL urlForSDKJar(String jarName) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("[TFS SDK] Searching the classpath for jar: " + jarName);
-        }
-        return this.getClass().getResource("/" + jarName);
     }
 }

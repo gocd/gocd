@@ -54,3 +54,17 @@ dependencies {
   compile group: 'org.eclipse.birt.runtime.3_7_1', name: 'org.mozilla.javascript', version: '1.7.2'
   compile group: 'org.apache.mina', name: 'mina-core', version: '2.0.0'
 }
+
+processResources {
+  dependsOn ':agent-launcher:fatJar', ':test-agent:jar', ':tfs-impl-14:fatJar'
+  from({
+    [
+      project(':agent-launcher').fatJar.archivePath,
+      project(':tfs-impl-14').fatJar.archivePath,
+      project(':test-agent').jar.archivePath
+    ]
+  }) {
+    into "testdata/gen"
+    rename "(.*)-${project.version}.jar", '$1.jar'
+  }
+}

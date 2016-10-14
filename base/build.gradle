@@ -33,3 +33,7 @@ dependencies {
   testCompile group: 'org.hamcrest', name: 'hamcrest-library', version: '1.3'
   testCompile group: 'org.mockito', name: 'mockito-core', version: '1.9.5'
 }
+
+processResources {
+  expand(project.rootProject.properties)
+}

@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.view.velocity;
 
+import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.domain.JobInstances;
@@ -48,9 +49,9 @@ public class BuildDetailPageVelocityTemplateTest {
     @Test
     public void shouldLoadBuildDetailPageTemplateWithoutAnException() throws Exception {
         HashMap<String, Object> data = new HashMap<>();
-
+        data.put("currentGoCDVersion", CurrentGoCDVersion.getInstance());
         Document actualDoc = Jsoup.parse(getBuildDetailVelocityView(data).render());
-        assertThat(actualDoc.select("#footer-new-foundation .copyright").first().html(), containsString("some-version"));
+        assertThat(actualDoc.select("#footer-new-foundation .copyright").first().html(), containsString(CurrentGoCDVersion.getInstance().formatted()));
     }
 
     @Test
@@ -108,7 +109,6 @@ public class BuildDetailPageVelocityTemplateTest {
         view.setupAdditionalRealTemplate("build_detail/_material_revisions_jstemplate.vm");
         view.setupAdditionalRealTemplate("build_detail/_build_detail_summary_jstemplate.vm");
 
-        view.setupAdditionalFakeTemplate("admin/admin_version.txt.vm", "some-version");
         return view;
     }
 }

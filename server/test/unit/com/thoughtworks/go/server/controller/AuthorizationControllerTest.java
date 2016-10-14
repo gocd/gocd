@@ -16,8 +16,10 @@
 
 package com.thoughtworks.go.server.controller;
 
+import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationPluginRegistry;
+import com.thoughtworks.go.server.web.GoVelocityView;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -69,6 +71,7 @@ public class AuthorizationControllerTest {
             put("login_error", false);
             put("l", localizer);
             put("authentication_plugin_registry", authenticationPluginRegistry);
+            put(GoVelocityView.CURRENT_GOCD_VERSION, CurrentGoCDVersion.getInstance());
         }};
 
         Map<String, Object> responseModelMap = responseModel.getModel();

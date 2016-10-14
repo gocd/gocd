@@ -47,7 +47,6 @@ public class MyCruisePreferencePageVelocityTemplateTest {
         view.setupAdditionalRealTemplate("shared/_page_intro_bottom.vm");
         view.setupAdditionalRealTemplate("mycruise/_notification.vm");
 
-        view.setupAdditionalFakeTemplate("admin/admin_version.txt.vm", "some-version");
 
         Document actualDoc = Jsoup.parse(view.render());
 

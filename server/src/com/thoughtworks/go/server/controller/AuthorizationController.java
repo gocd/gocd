@@ -16,8 +16,10 @@
 
 package com.thoughtworks.go.server.controller;
 
+import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationPluginRegistry;
+import com.thoughtworks.go.server.web.GoVelocityView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -51,6 +53,7 @@ public class AuthorizationController {
         model.put("login_error", loginError);
         model.put("l", localizer);
         model.put("authentication_plugin_registry", authenticationPluginRegistry);
+        model.put(GoVelocityView.CURRENT_GOCD_VERSION, CurrentGoCDVersion.getInstance());
         return new ModelAndView("auth/login", model);
     }
 

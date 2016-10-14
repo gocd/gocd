@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.util;
 import java.util.Locale;
 
 import com.jezhumble.javasysmon.JavaSysMon;
+import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.server.web.GoVelocityView;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
@@ -34,35 +35,8 @@ public class ServerVersion implements InitializingBean {
 
     private static final Logger LOG = Logger.getLogger(ServerVersion.class);
 
-    private static String goVersion = null;
-    private ViewResolver[] viewResolvers;
-    private static final String NOT_APPLICABLE = "N/A";
-
-    @Autowired
-    public ServerVersion(ViewResolver ...viewResolvers) {
-        this.viewResolvers = viewResolvers;
-    }
-
     public String version() {
-        if (goVersion == null) {
-            try {
-                if (viewResolvers.length != 0) {
-                    for (ViewResolver viewResolver : viewResolvers) {
-                        GoVelocityView view = (GoVelocityView) viewResolver.resolveViewName("admin/admin_version.txt", Locale.getDefault());
-                        if (view != null) {
-                            goVersion = view.getContentAsString();
-                            break;
-                        }
-                    }
-                } else {
-                    goVersion = NOT_APPLICABLE;
-                }
-            } catch (Exception e) {
-                LOG.error("Got an exception while computing the Go server version.", e);
-                goVersion = NOT_APPLICABLE;
-            }
-        }
-        return goVersion;
+        return CurrentGoCDVersion.getInstance().formatted();
     }
 
     public void afterPropertiesSet() throws Exception {
@@ -70,14 +44,6 @@ public class ServerVersion implements InitializingBean {
         LOG.info(String.format("[Startup] PID: %s", new JavaSysMon().currentPid()));
         LOG.info(String.format("[Startup] JVM properties: %s", System.getProperties()));
         LOG.info(String.format("[Startup] Environment Variables: %s", System.getenv()));
-    }
-
-    @Deprecated
-    /*
-        *   Used in tests to purge cached go version
-         */
-    protected static void resetCachedGoVersion() {
-        goVersion = null;
     }
 
 }

@@ -78,7 +78,7 @@ public class BuildWork implements Work {
         plan = assignment.getPlan();
         agentRuntimeInfo.busy(new AgentBuildingInfo(plan.getIdentifier().buildLocatorForDisplay(),
                 plan.getIdentifier().buildLocator()));
-        workingDirectory = systemEnvironment.resolveAgentWorkingDirectory(assignment.getWorkingDirectory());
+        workingDirectory = systemEnvironment.resolveAgentWorkingDirectory(assignment.getRelativeWorkingDirectory());
         materialRevisions = assignment.materialRevisions();
         buildLog = new GoControlLog(this.workingDirectory + "/cruise-output");
         goPublisher = new DefaultGoPublisher(goArtifactsManipulator, plan.getIdentifier(),

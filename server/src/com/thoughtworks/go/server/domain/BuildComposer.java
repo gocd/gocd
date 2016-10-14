@@ -192,7 +192,7 @@ public class BuildComposer {
     }
 
     private String workingDirectory() {
-        return assignment.getWorkingDirectory().getPath();
+        return assignment.getRelativeWorkingDirectory().getPath();
     }
 
     private JobIdentifier getJobIdentifier() {

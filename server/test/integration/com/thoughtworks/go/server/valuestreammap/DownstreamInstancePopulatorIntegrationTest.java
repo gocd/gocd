@@ -37,6 +37,7 @@ import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.ScheduleTestUtil;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -65,6 +66,10 @@ public class DownstreamInstancePopulatorIntegrationTest {
     private GoConfigFileHelper configHelper;
     private DownstreamInstancePopulator downstreamInstancePopulator;
 
+//  Hack to ignore MDU requests from MaterialUpdateService, as tests update the DB directly.
+    static {
+        new SystemEnvironment().setProperty("dependency.material.check.threads", "0");
+    }
 
     @Before
     public void setup() throws Exception {

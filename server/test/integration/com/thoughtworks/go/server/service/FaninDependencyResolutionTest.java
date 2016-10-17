@@ -92,6 +92,10 @@ public class FaninDependencyResolutionTest {
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private ScheduleTestUtil u;
 
+    static {
+        new SystemEnvironment().setProperty("dependency.material.check.threads", "0");
+    }
+
     @Before
     public void setUp() throws Exception {
         goCache.clear();

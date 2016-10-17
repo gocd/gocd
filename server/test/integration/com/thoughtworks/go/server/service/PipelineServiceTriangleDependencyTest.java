@@ -103,6 +103,10 @@ public class PipelineServiceTriangleDependencyTest {
     @Autowired private PluginManager pluginManager;
     @Autowired private MaterialConfigConverter materialConfigConverter;
 
+    static {
+        new SystemEnvironment().setProperty("dependency.material.check.threads", "0");
+    }
+
     @Before public void setUp() throws Exception {
         pipelineTimeline = mock(PipelineTimeline.class);
         pipelineDao = mock(PipelineSqlMapDao.class);

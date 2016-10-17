@@ -19,7 +19,7 @@ package com.thoughtworks.go.server.materials;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.GoConfigWatchList;
 import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.domain.PipelineGroups;
+import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.i18n.LocalizedMessage;
@@ -30,6 +30,7 @@ import com.thoughtworks.go.server.materials.postcommit.PostCommitHookImplementer
 import com.thoughtworks.go.server.materials.postcommit.PostCommitHookMaterialType;
 import com.thoughtworks.go.server.materials.postcommit.PostCommitHookMaterialTypeResolver;
 import com.thoughtworks.go.server.messaging.GoMessageListener;
+import com.thoughtworks.go.server.messaging.GoMessageQueue;
 import com.thoughtworks.go.server.perf.MDUPerformanceLogger;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
@@ -44,10 +45,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -64,29 +62,28 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
 
     private final MaterialUpdateQueue updateQueue;
     private final ConfigMaterialUpdateQueue configUpdateQueue;
+    private final DependencyMaterialUpdateQueue dependencyMaterialUpdateQueue;
     private final GoConfigWatchList watchList;
     private final GoConfigService goConfigService;
     private final SystemEnvironment systemEnvironment;
     private ServerHealthService serverHealthService;
 
     private ConcurrentMap<Material, Date> inProgress = new ConcurrentHashMap<>();
-    private ConcurrentMap<Material, Long> materialLastUpdateTimeMap = new ConcurrentHashMap<>();
 
     private final PostCommitHookMaterialTypeResolver postCommitHookMaterialType;
     private final MDUPerformanceLogger mduPerformanceLogger;
     private final MaterialConfigConverter materialConfigConverter;
+    private final Set<MaterialSource> materialSources = new HashSet<>();
+    private final Set<MaterialUpdateCompleteListener> materialUpdateCompleteListeners = new HashSet<>();
     public static final String TYPE = "post_commit_hook_material_type";
-    private final long materialUpdateInterval;
-    private Set<Material> schedulableMaterials;
 
     @Autowired
-    public MaterialUpdateService(MaterialUpdateQueue queue,ConfigMaterialUpdateQueue configUpdateQueue,
-                                 MaterialUpdateCompletedTopic completed,
-                                 GoConfigWatchList watchList,
-                                 GoConfigService goConfigService,
-                                 SystemEnvironment systemEnvironment, ServerHealthService serverHealthService,
-                                 PostCommitHookMaterialTypeResolver postCommitHookMaterialType,
-                                 MDUPerformanceLogger mduPerformanceLogger, MaterialConfigConverter materialConfigConverter) {
+    public MaterialUpdateService(MaterialUpdateQueue queue, ConfigMaterialUpdateQueue configUpdateQueue,
+                                 MaterialUpdateCompletedTopic completed, GoConfigWatchList watchList,
+                                 GoConfigService goConfigService, SystemEnvironment systemEnvironment,
+                                 ServerHealthService serverHealthService, PostCommitHookMaterialTypeResolver postCommitHookMaterialType,
+                                 MDUPerformanceLogger mduPerformanceLogger, MaterialConfigConverter materialConfigConverter,
+                                 DependencyMaterialUpdateQueue dependencyMaterialUpdateQueue) {
         this.watchList = watchList;
         this.goConfigService = goConfigService;
         this.systemEnvironment = systemEnvironment;
@@ -96,7 +93,7 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
         this.postCommitHookMaterialType = postCommitHookMaterialType;
         this.mduPerformanceLogger = mduPerformanceLogger;
         this.materialConfigConverter = materialConfigConverter;
-        this.materialUpdateInterval = systemEnvironment.getMaterialUpdateIdleInterval();
+        this.dependencyMaterialUpdateQueue = dependencyMaterialUpdateQueue;
         completed.addListener(this);
     }
 
@@ -105,23 +102,14 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
         goConfigService.register(pipelineConfigChangedListener());
     }
 
-    protected EntityConfigChangedListener<PipelineConfig> pipelineConfigChangedListener() {
-        final MaterialUpdateService materialUpdateService = this;
-        return new EntityConfigChangedListener<PipelineConfig>() {
-            @Override
-            public void onEntityConfigChange(PipelineConfig pipelineConfig) {
-                materialUpdateService.onConfigChange(goConfigService.getCurrentConfig());
-            }
-        };
-    }
-
     public void onTimer() {
-        updateSchedulableMaterials(false);
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(format("[Material Update] [On Timer] materials IN-PROGRESS: %s, ALL-MATERIALS: %s", inProgress, schedulableMaterials));
-        }
-        for (Material material : schedulableMaterials) {
-            if (hasUpdateIntervalElapsedForScmMaterial(material)) {
+        for (MaterialSource materialSource : materialSources) {
+            Set<Material> materialsForUpdate = materialSource.materialsForUpdate();
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(format("[Material Update] [On Timer] materials IN-PROGRESS: %s, ALL-MATERIALS: %s", inProgress, materialsForUpdate));
+            }
+
+            for (Material material : materialsForUpdate) {
                 updateMaterial(material);
             }
         }
@@ -159,18 +147,18 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
         }
     }
 
-    public void updateMaterial(Material material) {
+    public boolean updateMaterial(Material material) {
         Date inProgressSince = inProgress.putIfAbsent(material, new Date());
         if (inProgressSince == null || !material.isAutoUpdate()) {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(format("[Material Update] Updating material %s", material));
+                LOGGER.debug(format("[Material Update] Starting update of material %s", material));
             }
             try {
                 long trackingId = mduPerformanceLogger.materialSentToUpdateQueue(material);
-                if(isConfigMaterial(material))
-                    configUpdateQueue.post(new MaterialUpdateMessage(material, trackingId));
-                else
-                    updateQueue.post(new MaterialUpdateMessage(material, trackingId));
+                queueFor(material).post(new MaterialUpdateMessage(material, trackingId));
+
+                return true;
+
             } catch (RuntimeException e) {
                 inProgress.remove(material);
                 throw e;
@@ -185,15 +173,12 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
                         "Material update is currently running but has not shown any activity in the last " + idleTime / 60000 + " minute(s). This may be hung. Details - " + material.getLongDescription(),
                         general(scope)));
             }
+            return false;
         }
     }
 
-    private boolean isConfigMaterial(Material material) {
-        return watchList.hasConfigRepoWithFingerprint(material.getFingerprint());
-    }
-
-    private Long getMaterialUpdateInActiveTimeoutInMillis() {
-        return systemEnvironment.get(SystemEnvironment.MATERIAL_UPDATE_INACTIVE_TIMEOUT) * 60 * 1000L;
+    public void registerMaterialSources(MaterialSource materialSource) {
+        this.materialSources.add(materialSource);
     }
 
     public void onMessage(MaterialUpdateCompletedMessage message) {
@@ -201,12 +186,16 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(format("[Material Update] Material update completed for material %s", message.getMaterial()));
             }
-            updateLastUpdateTimeForScmMaterial(message.getMaterial());
+
             Date addedOn = inProgress.remove(message.getMaterial());
             serverHealthService.removeByScope(HealthStateScope.forMaterialUpdate(message.getMaterial()));
             if (addedOn == null) {
                 LOGGER.warn(format("[Material Update] Material %s was not removed from those inProgress. This might result in it's pipelines not getting scheduled. in-progress: %s",
                         message.getMaterial(), inProgress));
+            }
+
+            for (MaterialUpdateCompleteListener listener : materialUpdateCompleteListeners) {
+                listener.onMaterialUpdate(message.getMaterial());
             }
         } finally {
             mduPerformanceLogger.completionMessageForMaterialReceived(message.trackingId(), message.getMaterial());
@@ -214,7 +203,6 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
     }
 
     public void onConfigChange(CruiseConfig newCruiseConfig) {
-        updateSchedulableMaterials(true);
         Set<HealthStateScope> materialScopes = toHealthStateScopes(newCruiseConfig.getAllUniqueMaterials());
         for (ServerHealthState state : serverHealthService.getAllLogs()) {
             HealthStateScope currentScope = state.getType().getScope();
@@ -224,8 +212,14 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
         }
     }
 
-    ProcessManager getProcessManager() {
-        return ProcessManager.getInstance();
+    protected EntityConfigChangedListener<PipelineConfig> pipelineConfigChangedListener() {
+        final MaterialUpdateService self = this;
+        return new EntityConfigChangedListener<PipelineConfig>() {
+            @Override
+            public void onEntityConfigChange(PipelineConfig pipelineConfig) {
+                self.onConfigChange(goConfigService.getCurrentConfig());
+            }
+        };
     }
 
     private Set<HealthStateScope> toHealthStateScopes(Set<MaterialConfig> materialConfigs) {
@@ -236,26 +230,24 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
         return scopes;
     }
 
-    boolean hasUpdateIntervalElapsedForScmMaterial(Material material) {
-        if (materialLastUpdateTimeMap.containsKey(material)) {
-            Long lastMaterialUpdateTime = materialLastUpdateTimeMap.get(material);
-            boolean shouldUpdateMaterial = (System.currentTimeMillis() - lastMaterialUpdateTime) >= materialUpdateInterval;
-            if (LOGGER.isDebugEnabled() && !shouldUpdateMaterial) {
-                LOGGER.debug(format("[Material Update] Skipping update of material %s which has been last updated at %s", material, new Date(lastMaterialUpdateTime)));
-            }
-            return shouldUpdateMaterial;
-        }
-        return true;
+    private boolean isConfigMaterial(Material material) {
+        return watchList.hasConfigRepoWithFingerprint(material.getFingerprint());
     }
 
-    private void updateLastUpdateTimeForScmMaterial(Material material) {
-        materialLastUpdateTimeMap.put(material, System.currentTimeMillis());
+    private Long getMaterialUpdateInActiveTimeoutInMillis() {
+        return systemEnvironment.get(SystemEnvironment.MATERIAL_UPDATE_INACTIVE_TIMEOUT) * 60 * 1000L;
     }
 
-    private void updateSchedulableMaterials(boolean forceLoad) {
-        if (forceLoad || schedulableMaterials == null) {
-            schedulableMaterials = materialConfigConverter.toMaterials(goConfigService.getSchedulableMaterials());
+    private GoMessageQueue<MaterialUpdateMessage> queueFor(Material material) {
+        if (isConfigMaterial(material)) {
+            return configUpdateQueue;
         }
+
+        return (material instanceof DependencyMaterial) ? dependencyMaterialUpdateQueue : updateQueue;
+    }
+
+    ProcessManager getProcessManager() {
+        return ProcessManager.getInstance();
     }
 
     //used in tests
@@ -266,5 +258,9 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
                 return true;
         }
         return false;
+    }
+
+    public void registerMaterialUpdateCompleteListener(MaterialUpdateCompleteListener materialUpdateCompleteListener) {
+        this.materialUpdateCompleteListeners.add(materialUpdateCompleteListener);
     }
 }

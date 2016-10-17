@@ -31,6 +31,7 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.ReflectionUtil;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.httpclient.HttpStatus;
 import org.hamcrest.core.Is;
@@ -72,6 +73,11 @@ public class ValueStreamMapServiceIntegrationTest {
     private ScheduleTestUtil u;
     private HttpLocalizedOperationResult result;
     private Username username;
+
+    //  Hack to ignore MDU requests from MaterialUpdateService, as tests update the DB directly.
+    static {
+        new SystemEnvironment().setProperty("dependency.material.check.threads", "0");
+    }
 
     @Before
     public void setUp() throws Exception {

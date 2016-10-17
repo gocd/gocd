@@ -17,9 +17,7 @@
 package com.thoughtworks.go.server.materials;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
@@ -32,14 +30,12 @@ import com.thoughtworks.go.domain.StageResult;
 import com.thoughtworks.go.domain.Stages;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.DependencyMaterialSourceDao;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.MaterialExpansionService;
 import com.thoughtworks.go.server.service.MaterialService;
-import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
@@ -76,7 +72,6 @@ public class MaterialDatabaseDependencyUpdaterTest {
     @Autowired protected MaterialRepository materialRepository;
     @Autowired private GoCache goCache;
     @Autowired private TransactionTemplate transactionTemplate;
-    @Autowired private TransactionSynchronizationManager transactionSynchronizationManager;
     @Autowired private MaterialService materialService;
     @Autowired private LegacyMaterialChecker legacyMaterialChecker;
     @Autowired private SubprocessExecutionContext subprocessExecutionContext;
@@ -95,9 +90,9 @@ public class MaterialDatabaseDependencyUpdaterTest {
         goCache.clear();
         dependencyMaterialSourceDao = Mockito.mock(DependencyMaterialSourceDao.class);
         healthService = Mockito.mock(ServerHealthService.class);
-        dependencyMaterialUpdater = new DependencyMaterialUpdater(goCache, transactionSynchronizationManager, dependencyMaterialSourceDao, materialRepository, materialService);
+        dependencyMaterialUpdater = new DependencyMaterialUpdater(dependencyMaterialSourceDao, materialRepository);
         scmMaterialUpdater = new ScmMaterialUpdater(materialRepository, legacyMaterialChecker, subprocessExecutionContext, materialService);
-        updater = new MaterialDatabaseUpdater(materialRepository, healthService, transactionTemplate, goCache, dependencyMaterialUpdater, scmMaterialUpdater, null, null, materialExpansionService);
+        updater = new MaterialDatabaseUpdater(materialRepository, healthService, transactionTemplate, dependencyMaterialUpdater, scmMaterialUpdater, null, null, materialExpansionService);
     }
 
     @After
@@ -243,23 +238,6 @@ public class MaterialDatabaseDependencyUpdaterTest {
     }
 
     @Test
-    public void shouldCacheDependencyMaterialUpdatedStatusForAPipelineThatHasNeverRun() throws Exception {
-        DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
-        stubStageServiceGetHistory(null, stages(), stages());
-
-        // create the material instance
-        updater.updateMaterial(dependencyMaterial);
-
-        // update first time & should mark cache as updated
-        updater.updateMaterial(dependencyMaterial);
-        assertThat(goCache.get(DependencyMaterialUpdater.cacheKeyForDependencyMaterial(dependencyMaterial)), not(nullValue()));
-
-        // update subsequently should not hit the database
-        updater.updateMaterial(dependencyMaterial);
-        Mockito.verify(dependencyMaterialSourceDao, times(2)).getPassedStagesByName(any(DependencyMaterial.class), any(Pagination.class));
-    }
-
-    @Test
     public void shouldUpdateMaterialCorrectlyIfCaseOfPipelineNameIsDifferentInConfigurationOfDependencyMaterial() throws Exception {
 
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("PIPEline-name"), new CaseInsensitiveString("STAge-name"));
@@ -276,116 +254,11 @@ public class MaterialDatabaseDependencyUpdaterTest {
         Stage stage = stage(3);
         ReflectionUtil.setField(stage, "result", StageResult.Passed);
 
-        // stage status update should invalidate cache
-        dependencyMaterialUpdater.stageStatusChanged(stage);
-
         // update subsequently should hit database
         updater.updateMaterial(dependencyMaterial);
 
         Mockito.verify(dependencyMaterialSourceDao, times(2)).getPassedStagesAfter(any(String.class), any(DependencyMaterial.class), any(Pagination.class));
         Mockito.verify(dependencyMaterialSourceDao, times(2)).getPassedStagesByName(any(DependencyMaterial.class), any(Pagination.class));
-
-    }
-
-    @Test
-    public void shouldCacheDependencyMaterialUpdatedStatusWhenUpdatingNewerRevisions() throws Exception {
-        DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
-
-        stubStageServiceGetHistory(null, stages(1), stages(2));
-
-        // create the material instance
-        updater.updateMaterial(dependencyMaterial);
-
-        stubStageServiceGetHistory(null);
-
-        // insert newer modifications
-        updater.updateMaterial(dependencyMaterial);
-        assertThat(materialRepository.findModificationWithRevision(dependencyMaterial, "pipeline-name/2/stage-name/0"), not(nullValue()));
-
-        // update subsequently should not hit the database
-        updater.updateMaterial(dependencyMaterial);
-        Mockito.verify(dependencyMaterialSourceDao, times(3)).getPassedStagesByName(any(DependencyMaterial.class), (Pagination) any());
-        Mockito.verify(dependencyMaterialSourceDao, times(1)).getPassedStagesAfter(any(String.class), any(DependencyMaterial.class), (Pagination) any());
-    }
-
-    @Test
-    public void stageStatusChanged_shouldSynchronizeOnDependencyMaterialCacheKey() throws Exception {
-        final CountDownLatch latch = new CountDownLatch(1);
-        final boolean[] flag = new boolean[]{false};
-
-        updater = new MaterialDatabaseUpdater(materialRepository, healthService, transactionTemplate, goCache,
-                dependencyMaterialUpdater, scmMaterialUpdater, null, null, materialExpansionService) {
-            @Override
-            void updateMaterialWithNewRevisions(Material material) {
-                try {
-                    flag[0] = true;
-                    latch.countDown();
-                    Thread.sleep(5000);
-                    flag[0] = false;
-                } catch (InterruptedException e) {
-                    //ignore
-                }
-            }
-        };
-
-        dependencyMaterialUpdater = new DependencyMaterialUpdater(goCache, transactionSynchronizationManager, dependencyMaterialSourceDao, materialRepository, materialService) {
-            @Override
-            void removeCacheKey(String key) {
-                assertThat(flag[0], is(false));
-            }
-        };
-
-        final DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
-        Stages stages = stages(9, 10, 11);
-        stubStageServiceGetHistory(null, stages);
-
-        Thread updaterThread = new Thread(new Runnable() {
-            public void run() {
-                try {
-                    updater.updateMaterial(dependencyMaterial); // let it get created
-                    updater.updateMaterial(dependencyMaterial); // now update it
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }, "updaterthread");
-        updaterThread.start();
-
-        latch.await();
-
-        Thread thread = new Thread(new Runnable() {
-            public void run() {
-                dependencyMaterialUpdater.stageStatusChanged(StageMother.passedStageInstance("stage-name", "job-name", "pipeline-name"));
-            }
-        }, "otherthread");
-        thread.start();
-
-        updaterThread.join();
-        thread.join();
-    }
-
-    @Test
-    public void stageStatusChanged_shouldNotRemoveCacheKeyOnlyWhenStageHasNotPassed() throws Exception {
-        final DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
-
-        String key = DependencyMaterialUpdater.cacheKeyForDependencyMaterial(dependencyMaterial);
-        goCache.put(key, "foo");
-
-        dependencyMaterialUpdater.stageStatusChanged(StageMother.completedFailedStageInstance("pipeline-name", "stage-name", "job-name"));
-
-        assertThat((String) goCache.get(key), is("foo"));
-    }
-
-    @Test
-    public void stageStatusChanged_shouldRemoveCacheKeyOnlyWhenStageHasPassed() throws Exception {
-        final DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
-
-        String key = DependencyMaterialUpdater.cacheKeyForDependencyMaterial(dependencyMaterial);
-        goCache.put(key, "foo");
-
-        dependencyMaterialUpdater.stageStatusChanged(StageMother.createPassedStage("pipeline-name", 1, "stage-name", 1, "job-name", new Date()));
-
-        assertThat(goCache.get(key), is(nullValue()));
     }
 
     private Stages stages(int... pipelineCounters) {
@@ -402,13 +275,13 @@ public class MaterialDatabaseDependencyUpdaterTest {
         return stage;
     }
 
-    private void stubStageServiceGetHistory(DependencyMaterial dependencyMaterial, Stages... stageses) {
+    private void stubStageServiceGetHistory(DependencyMaterial dependencyMaterial, Stages... stages) {
         if(material == null) {
             dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
         }
-        for (int i = 0; i < stageses.length; i++) {
+        for (int i = 0; i < stages.length; i++) {
             ArrayList<Modification> mods = new ArrayList<Modification>();
-            for (Stage stage : stageses[i]) {
+            for (Stage stage : stages[i]) {
                 StageIdentifier id = stage.getIdentifier();
                 mods.add(new Modification(stage.completedDate(), id.stageLocator(), id.getPipelineLabel(), stage.getPipelineId()));
             }
@@ -417,7 +290,7 @@ public class MaterialDatabaseDependencyUpdaterTest {
                     .thenReturn(mods);
         }
         Mockito.when(dependencyMaterialSourceDao.getPassedStagesByName(dependencyMaterial,
-                Pagination.pageStartingAt(MaterialDatabaseUpdater.STAGES_PER_PAGE * stageses.length, null, MaterialDatabaseUpdater.STAGES_PER_PAGE)
+                Pagination.pageStartingAt(MaterialDatabaseUpdater.STAGES_PER_PAGE * stages.length, null, MaterialDatabaseUpdater.STAGES_PER_PAGE)
         )).thenReturn(new ArrayList<Modification>());
     }
 }

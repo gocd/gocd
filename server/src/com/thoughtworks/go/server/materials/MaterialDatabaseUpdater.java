@@ -24,7 +24,6 @@ import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modifications;
-import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.MaterialExpansionService;
 import com.thoughtworks.go.server.transaction.TransactionCallback;
@@ -45,13 +44,13 @@ import java.io.File;
  */
 @Component
 public class MaterialDatabaseUpdater {
+    public static final String MATERIALS_MUTEX_FORMAT = MaterialDatabaseUpdater.class.getName() + "_MaterialMutex_%s_%s";
     private static final Logger LOGGER = Logger.getLogger(MaterialDatabaseUpdater.class);
     static final int STAGES_PER_PAGE = 100;
 
     private final MaterialRepository materialRepository;
     private final ServerHealthService healthService;
     private TransactionTemplate transactionTemplate;
-    private final GoCache goCache;
     private final DependencyMaterialUpdater dependencyMaterialUpdater;
     private final ScmMaterialUpdater scmMaterialUpdater;
     private MaterialExpansionService materialExpansionService;
@@ -60,12 +59,11 @@ public class MaterialDatabaseUpdater {
 
     @Autowired
     public MaterialDatabaseUpdater(MaterialRepository materialRepository, ServerHealthService healthService, TransactionTemplate transactionTemplate,
-                                   GoCache goCache, DependencyMaterialUpdater dependencyMaterialUpdater, ScmMaterialUpdater scmMaterialUpdater, PackageMaterialUpdater packageMaterialUpdater,
+                                   DependencyMaterialUpdater dependencyMaterialUpdater, ScmMaterialUpdater scmMaterialUpdater, PackageMaterialUpdater packageMaterialUpdater,
                                    PluggableSCMMaterialUpdater pluggableSCMMaterialUpdater, MaterialExpansionService materialExpansionService) {
         this.materialRepository = materialRepository;
         this.healthService = healthService;
         this.transactionTemplate = transactionTemplate;
-        this.goCache = goCache;
         this.dependencyMaterialUpdater = dependencyMaterialUpdater;
         this.scmMaterialUpdater = scmMaterialUpdater;
         this.packageMaterialUpdater = packageMaterialUpdater;
@@ -74,11 +72,7 @@ public class MaterialDatabaseUpdater {
     }
 
     public void updateMaterial(final Material material) throws Exception {
-        String cacheKeyForMaterial = DependencyMaterialUpdater.cacheKeyForDependencyMaterial(material);
-        if (thisDependencyMaterialHasAlreadyBeenProcessed(material, cacheKeyForMaterial)) {
-            return;
-        }
-
+        String materialMutex = mutexForMaterial(material);
         HealthStateScope scope = HealthStateScope.forMaterial(material);
         try {
             MaterialInstance materialInstance = materialRepository.findMaterialInstance(material);
@@ -87,7 +81,7 @@ public class MaterialDatabaseUpdater {
                     LOGGER.debug(String.format("[Material Update] Material repository not found, creating with latest revision from %s", material));
                 }
 
-                synchronized (cacheKeyForMaterial) {
+                synchronized (materialMutex) {
                     if (materialRepository.findMaterialInstance(material) == null) {
                         transactionTemplate.executeWithExceptionHandling(new TransactionCallback() {
                             @Override
@@ -103,7 +97,7 @@ public class MaterialDatabaseUpdater {
                     LOGGER.debug(String.format("[Material Update] Existing material repository, fetching new revisions from %s in flyweight %s", material, materialInstance.getFlyweightName()));
                 }
 
-                synchronized (cacheKeyForMaterial) {
+                synchronized (materialMutex) {
                     transactionTemplate.executeWithExceptionHandling(new TransactionCallback() {
                         @Override
                         public Object doInTransaction(TransactionStatus status) throws Exception {
@@ -121,10 +115,6 @@ public class MaterialDatabaseUpdater {
             LOGGER.warn(String.format("[Material Update] %s", message), e);
             throw e;
         }
-    }
-
-    private boolean thisDependencyMaterialHasAlreadyBeenProcessed(Material material, String cacheKeyForMaterial) {
-        return material instanceof DependencyMaterial && goCache.isKeyInCache(cacheKeyForMaterial);
     }
 
     private void initializeMaterialWithLatestRevision(Material material) {
@@ -168,12 +158,20 @@ public class MaterialDatabaseUpdater {
         return scmMaterialUpdater;
     }
 
-
     private File folderFor(Material material) {
         return this.materialRepository.folderFor(material);
     }
 
     private void addNewMaterialWithModifications(File folder, Material expanded, MaterialUpdater updater) {
         updater.addNewMaterialWithModifications(expanded, folder);
+    }
+
+    private String mutexForMaterial(Material material) {
+        if (material instanceof DependencyMaterial) {
+            DependencyMaterial dep = ((DependencyMaterial) material);
+            return String.format(MATERIALS_MUTEX_FORMAT, dep.getPipelineName().toLower(), dep.getStageName().toLower()).intern();
+        } else {
+            return String.format(MATERIALS_MUTEX_FORMAT, material.getFingerprint(), "-this-lock-should-not-be-acquired-by-anyone-else-inadvertently").intern();
+        }
     }
 }

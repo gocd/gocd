@@ -21,7 +21,9 @@ import com.thoughtworks.go.config.exceptions.ConfigFileHasChangedException;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.exceptions.PipelineGroupNotFoundException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
+import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
+import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
@@ -69,6 +71,7 @@ import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
 import static com.thoughtworks.go.helper.PipelineTemplateConfigMother.createTemplate;
 import static java.lang.String.format;
+import static junit.framework.TestCase.assertTrue;
 import static org.apache.commons.httpclient.HttpStatus.SC_BAD_REQUEST;
 import static org.apache.commons.httpclient.HttpStatus.SC_INTERNAL_SERVER_ERROR;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -1200,6 +1203,41 @@ public class GoConfigServiceTest {
         expectLoad(mock(BasicCruiseConfig.class));
         goConfigService.isAdministrator(user.getUsername());
         verify(goConfigDao.load()).isAdministrator(user.getUsername().toString());
+    }
+
+    @Test
+    public void shouldBeAbleToListAllDependencyMaterialConfigs() {
+        BasicCruiseConfig config = mock(BasicCruiseConfig.class);
+        DependencyMaterialConfig dependencyMaterialConfig = MaterialConfigsMother.dependencyMaterialConfig();
+        SvnMaterialConfig svnMaterialConfig = MaterialConfigsMother.svnMaterialConfig();
+        PluggableSCMMaterialConfig pluggableSCMMaterialConfig = MaterialConfigsMother.pluggableSCMMaterialConfig();
+        HashSet<MaterialConfig> materialConfigs = new HashSet<MaterialConfig>(Arrays.asList(dependencyMaterialConfig, svnMaterialConfig, pluggableSCMMaterialConfig));
+
+        when(goConfigService.getCurrentConfig()).thenReturn(config);
+        when(config.getAllUniqueMaterialsBelongingToAutoPipelinesAndConfigRepos()).thenReturn(materialConfigs);
+
+        Set<MaterialConfig> schedulableDependencyMaterials = goConfigService.getSchedulableDependencyMaterials();
+
+        assertThat(schedulableDependencyMaterials.size(), is(1));
+        assertTrue(schedulableDependencyMaterials.contains(dependencyMaterialConfig));
+    }
+
+    @Test
+    public void shouldBeAbleToListAllSCMMaterialConfigs() {
+        BasicCruiseConfig config = mock(BasicCruiseConfig.class);
+        DependencyMaterialConfig dependencyMaterialConfig = MaterialConfigsMother.dependencyMaterialConfig();
+        SvnMaterialConfig svnMaterialConfig = MaterialConfigsMother.svnMaterialConfig();
+        PluggableSCMMaterialConfig pluggableSCMMaterialConfig = MaterialConfigsMother.pluggableSCMMaterialConfig();
+        HashSet<MaterialConfig> materialConfigs = new HashSet<MaterialConfig>(Arrays.asList(dependencyMaterialConfig, svnMaterialConfig, pluggableSCMMaterialConfig));
+
+        when(goConfigService.getCurrentConfig()).thenReturn(config);
+        when(config.getAllUniqueMaterialsBelongingToAutoPipelinesAndConfigRepos()).thenReturn(materialConfigs);
+
+        Set<MaterialConfig> schedulableDependencyMaterials = goConfigService.getSchedulableSCMMaterials();
+
+        assertThat(schedulableDependencyMaterials.size(), is(2));
+        assertTrue(schedulableDependencyMaterials.contains(svnMaterialConfig));
+        assertTrue(schedulableDependencyMaterials.contains(pluggableSCMMaterialConfig));
     }
 
     private PipelineConfig createPipelineConfig(String pipelineName, String stageName, String... buildNames) {

@@ -60,6 +60,7 @@ public class MaterialUpdateListenerFactoryTest {
     @Mock private TransactionTemplate transactionTemplate;
     @Mock private MaterialExpansionService materialExpansionService;
     @Mock private MDUPerformanceLogger mduPerformanceLogger;
+    @Mock private DependencyMaterialUpdateQueue dependencyMaterialQueue;
 
     @Before
     public void setUp() throws Exception {
@@ -72,8 +73,9 @@ public class MaterialUpdateListenerFactoryTest {
 
         MaterialUpdateListenerFactory factory = new MaterialUpdateListenerFactory(topic,configTopic, queue, configQueue,
                 materialRepository, systemEnvironment, healthService, diskSpaceMonitor,
-                transactionTemplate, goCache, dependencyMaterialUpdater, scmMaterialUpdater,
-                packageMaterialUpdater, pluggableSCMMaterialUpdater, materialExpansionService, mduPerformanceLogger);
+                transactionTemplate, dependencyMaterialUpdater, scmMaterialUpdater,
+                packageMaterialUpdater, pluggableSCMMaterialUpdater, materialExpansionService, mduPerformanceLogger,
+                dependencyMaterialQueue);
         factory.init();
 
         verify(queue, new Times(NUMBER_OF_CONSUMERS)).addListener(any(GoMessageListener.class));
@@ -85,10 +87,27 @@ public class MaterialUpdateListenerFactoryTest {
 
         MaterialUpdateListenerFactory factory = new MaterialUpdateListenerFactory(topic,configTopic, queue, configQueue,
                 materialRepository, systemEnvironment, healthService, diskSpaceMonitor,
-                transactionTemplate, goCache, dependencyMaterialUpdater, scmMaterialUpdater,
-                packageMaterialUpdater, pluggableSCMMaterialUpdater, materialExpansionService, mduPerformanceLogger);
+                transactionTemplate, dependencyMaterialUpdater, scmMaterialUpdater,
+                packageMaterialUpdater, pluggableSCMMaterialUpdater, materialExpansionService, mduPerformanceLogger,
+                dependencyMaterialQueue);
         factory.init();
 
         verify(configQueue, new Times(NUMBER_OF_CONFIG_CONSUMERS)).addListener(any(GoMessageListener.class));
+    }
+
+    @Test
+    public void shouldCreateCompetingConsumersForSuppliedDependencyMaterialQueue() throws Exception {
+        int noOfDependencyMaterialCheckListeners = 3;
+
+        when(systemEnvironment.getNumberOfDependencyMaterialCheckListener()).thenReturn(noOfDependencyMaterialCheckListeners);
+
+        MaterialUpdateListenerFactory factory = new MaterialUpdateListenerFactory(topic,configTopic, queue, configQueue,
+                materialRepository, systemEnvironment, healthService, diskSpaceMonitor,
+                transactionTemplate, dependencyMaterialUpdater, scmMaterialUpdater,
+                packageMaterialUpdater, pluggableSCMMaterialUpdater, materialExpansionService, mduPerformanceLogger,
+                dependencyMaterialQueue);
+        factory.init();
+
+        verify(dependencyMaterialQueue, new Times(noOfDependencyMaterialCheckListeners)).addListener(any(GoMessageListener.class));
     }
 }

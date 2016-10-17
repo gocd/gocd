@@ -728,7 +728,7 @@ Graph_Renderer = function (container) {
         }
 
         $j('#vsm-container').find('.show-more a').click(function (event) {
-            currentExpanded = $j('.expanded').not($j(this).closest('.vsm-entity'));
+            currentExpanded = $j('#vsm-container .expanded').not($j(this).closest('.vsm-entity'));
             if (currentExpanded.length > 0) {
                 currentExpandedLink = currentExpanded.find('.show-more a');
                 currentExpandedLink.html(currentExpandedLink.html().replace('less', 'more'));

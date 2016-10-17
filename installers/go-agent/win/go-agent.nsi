@@ -81,7 +81,6 @@ Function CleanUpUnnecessaryStuffOfOldInstallations
     upgrade:
         IfFileExists $INSTDIR\jdk 0 done
         RMDir /r $INSTDIR\jdk
-
     done:
 
 FunctionEnd

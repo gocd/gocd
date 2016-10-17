@@ -23,7 +23,7 @@ MiscButtonText "< &Back" "&Next >" "&Cancel" "&Finish"
 Name "Go $%NAME% $%VERSION%"
 
 ; The file to write
-OutFile "$%OUTDIR%\go-$%MODULE%-$%VERSION%-setup.exe"
+OutFile "$%OUTFILE%"
 
 ; The default installation directory
 InstallDir "$PROGRAMFILES\Go $%NAME%"
@@ -282,6 +282,7 @@ Section "Install"
 
     upgrade:
         ; Don't do anything special anymore - upgrade logic is now in code. Do the same as we would for an install.
+    RMDir /r $INSTDIR\lib
 
     install:
         SetOverWrite on

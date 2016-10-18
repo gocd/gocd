@@ -139,6 +139,16 @@ public class AgentInstances implements Iterable<AgentInstance> {
         return agentInstances;
     }
 
+    public AgentInstances findPendingAgents() {
+        AgentInstances agentInstances = new AgentInstances(changeListener);
+        for (AgentInstance agentInstance : currentInstances()) {
+            if (!agentInstance.isRegistered()) {
+                agentInstances.add(agentInstance);
+            }
+        }
+        return agentInstances;
+    }
+
     public Iterator<AgentInstance> iterator() {
         return currentInstances().iterator();
     }

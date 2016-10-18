@@ -272,7 +272,7 @@ public class AgentConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotAllowResourceUpdateOperationOnPendingAgents() throws Exception {
+    public void shouldNotAllowAnyUpdateOperationOnPendingAgentsIfConfigStateIsNotProvided() throws Exception {
         AgentInstance pendingAgent = AgentInstanceMother.pending();
         agentInstances.add(pendingAgent);
         assertThat(pendingAgent.isRegistered(), is(false));
@@ -287,7 +287,7 @@ public class AgentConfigServiceIntegrationTest {
         ArrayList<String> resourcesToRemove = new ArrayList<>();
         resourcesToRemove.add("Gauge");
 
-        agentConfigService.bulkUpdateAgentAttributes(agentInstances, Username.ANONYMOUS, result, uuids, resourcesToAdd, resourcesToRemove, new ArrayList<String>(), new ArrayList<String>(), TriState.TRUE);
+        agentConfigService.bulkUpdateAgentAttributes(agentInstances, Username.ANONYMOUS, result, uuids, resourcesToAdd, resourcesToRemove, new ArrayList<String>(), new ArrayList<String>(), TriState.UNSET);
 
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         expectedResult.badRequest(LocalizedMessage.string("PENDING_AGENT_INVALID_OPERATION", uuids));
@@ -296,31 +296,27 @@ public class AgentConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotAllowEnvironmentsUpdateOperationOnPendingAgents() throws Exception {
+    public void shouldThrowBadRequestIfNoOperationsProvidedOnBulkUpdateAgents() throws Exception {
         AgentInstance pendingAgent = AgentInstanceMother.pending();
+        AgentInstance registeredAgent = AgentInstanceMother.disabled();
         agentInstances.add(pendingAgent);
-        assertThat(pendingAgent.isRegistered(), is(false));
+        agentInstances.add(registeredAgent);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         ArrayList<String> uuids = new ArrayList<>();
         uuids.add(pendingAgent.getUuid());
+        uuids.add(registeredAgent.getUuid());
 
-        ArrayList<String> environmentsToAdd = new ArrayList<>();
-        environmentsToAdd.add("Dev");
-
-        ArrayList<String> environmentsToRemove = new ArrayList<>();
-        environmentsToRemove.add("Testing");
-
-        agentConfigService.bulkUpdateAgentAttributes(agentInstances, Username.ANONYMOUS, result, uuids, new ArrayList<String>(), new ArrayList<String>(), environmentsToAdd, environmentsToRemove, TriState.TRUE);
+        agentConfigService.bulkUpdateAgentAttributes(agentInstances, Username.ANONYMOUS, result, uuids, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), TriState.UNSET);
 
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.badRequest(LocalizedMessage.string("PENDING_AGENT_INVALID_OPERATION", uuids));
+        expectedResult.badRequest(LocalizedMessage.string("NO_OPERATION_PERFORMED_ON_AGENTS"));
 
         assertThat(result, is(expectedResult));
     }
 
     @Test
-    public void shouldAllowEnablingPendingAndDisabledAgentsTogether() throws Exception {
+    public void shouldAllowEnablingThePendingAndDisabledAgentsTogether() throws Exception {
         AgentInstance pendingAgent = AgentInstanceMother.pending();
         agentInstances.add(pendingAgent);
         assertThat(pendingAgent.isRegistered(), is(false));
@@ -365,32 +361,6 @@ public class AgentConfigServiceIntegrationTest {
         assertTrue(result.isSuccessful());
         assertTrue(result.toString(), result.toString().contains("BULK_AGENT_UPDATE_SUCESSFUL"));
         assertTrue(cruiseConfig.agents().getAgentByUuid(agentConfig1.getUuid()).isDisabled());
-        assertTrue(cruiseConfig.agents().getAgentByUuid(agentConfig2.getUuid()).isDisabled());
-    }
-
-    @Test
-    public void shouldNotDisableOrEnableIfTheStateOfAgentIsNotChanged() throws Exception {
-        AgentConfig agentConfig1 = new AgentConfig(UUID.randomUUID().toString(), "remote-host1", "50.40.30.21");
-        AgentConfig agentConfig2 = new AgentConfig(UUID.randomUUID().toString(), "remote-host2", "50.40.30.22");
-        agentConfig1.enable();
-        agentConfig2.disable();
-        agentConfigService.addAgent(agentConfig1, Username.ANONYMOUS);
-        agentConfigService.addAgent(agentConfig2, Username.ANONYMOUS);
-        CruiseConfig cruiseConfig = goConfigDao.load();
-        assertThat(cruiseConfig.agents().getAgentByUuid(agentConfig1.getUuid()).isDisabled(), is(false));
-        assertThat(cruiseConfig.agents().getAgentByUuid(agentConfig2.getUuid()).isDisabled(), is(true));
-
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        ArrayList<String> uuids = new ArrayList<>();
-        uuids.add(agentConfig1.getUuid());
-        uuids.add(agentConfig2.getUuid());
-
-        agentConfigService.bulkUpdateAgentAttributes(agentInstances, Username.ANONYMOUS, result, uuids, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), TriState.UNSET);
-
-        cruiseConfig = goConfigDao.load();
-        assertTrue(result.isSuccessful());
-        assertTrue(result.toString(), result.toString().contains("BULK_AGENT_UPDATE_SUCESSFUL"));
-        assertFalse(cruiseConfig.agents().getAgentByUuid(agentConfig1.getUuid()).isDisabled());
         assertTrue(cruiseConfig.agents().getAgentByUuid(agentConfig2.getUuid()).isDisabled());
     }
 

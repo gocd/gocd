@@ -797,4 +797,5 @@
     <entry key="BULK_AGENT_UPDATE_SUCESSFUL">Updated agent(s) with uuid(s): [{0}].</entry>
     <entry key="CAN_NOT_UPDATE_RESOURCES_ON_ELASTIC_AGENT">Resources on elastic agents with uuids [{0}] can not be updated.</entry>
     <entry key="PENDING_AGENT_INVALID_OPERATION">Invalid operation performed on pending agents [{0}].</entry>
+    <entry key="NO_OPERATION_PERFORMED_ON_AGENTS">No Operation performed on agents.</entry>
 </properties>

@@ -141,7 +141,7 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'helpers/pipeline_configs/to
           return (
             <f.row class='scm-selector'>
               <f.column class='no-scm' size={4} largeSize={6} end>
-                <label>No existing SCM's for <b>{ctrl.material.pluginInfo().displayName()}</b></label>
+                <label>No existing SCMs for <b>{ctrl.material.pluginInfo().displayName()}</b></label>
                 <a class='add-button button' href="javascript:void(0)"
                    onclick={ctrl.modal.open.bind(ctrl.modal)}>Create New</a>
               </f.column>

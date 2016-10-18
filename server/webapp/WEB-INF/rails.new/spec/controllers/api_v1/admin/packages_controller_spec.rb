@@ -17,6 +17,8 @@
 require 'spec_helper'
 
 describe ApiV1::Admin::PackagesController do
+  include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
+
   before :each do
     @package_id = SecureRandom.hex
     @package_name = "prettyjson"
@@ -81,17 +83,14 @@ describe ApiV1::Admin::PackagesController do
 
     describe :route do
       describe :with_header do
-        before :each do
-          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v1+json"
-        end
-        after :each do
-          Rack::MockRequest::DEFAULT_ENV = {}
-        end
         it 'should route to index action of packages controller' do
           expect(:get => 'api/admin/packages').to route_to(action: 'index', controller: 'api_v1/admin/packages')
         end
       end
       describe :without_header do
+        before :each do
+          teardown_header
+        end
         it 'should not route to index action of packages controller without header' do
           expect(:get => 'api/admin/packages').to_not route_to(action: 'index', controller: 'api_v1/admin/packages')
           expect(:get => 'api/admin/packages').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/packages')
@@ -155,17 +154,14 @@ describe ApiV1::Admin::PackagesController do
 
     describe :route do
       describe :with_header do
-        before :each do
-          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v1+json"
-        end
-        after :each do
-          Rack::MockRequest::DEFAULT_ENV = {}
-        end
         it 'should route to show action of packages controller for specified package id' do
           expect(:get => 'api/admin/packages/foo').to route_to(action: 'show', controller: 'api_v1/admin/packages', package_id: 'foo')
         end
       end
       describe :without_header do
+        before :each do
+          teardown_header
+        end
         it 'should not route to show action of packages controller without header' do
           expect(:get => 'api/admin/packages/foo').to_not route_to(action: 'show', controller: 'api_v1/admin/packages')
           expect(:get => 'api/admin/packages/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/packages/foo')
@@ -232,17 +228,14 @@ describe ApiV1::Admin::PackagesController do
 
     describe :route do
       describe :with_header do
-        before :each do
-          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v1+json"
-        end
-        after :each do
-          Rack::MockRequest::DEFAULT_ENV = {}
-        end
         it 'should route to destroy action of packages controller for specified package id' do
           expect(:delete => 'api/admin/packages/foo').to route_to(action: 'destroy', controller: 'api_v1/admin/packages', package_id: 'foo')
         end
       end
       describe :without_header do
+        before :each do
+          teardown_header
+        end
         it 'should not route to destroy action of packages controller without header' do
           expect(:delete => 'api/admin/packages/foo').to_not route_to(action: 'destroy', controller: 'api_v1/admin/packages')
           expect(:delete => 'api/admin/packages/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/packages/foo')
@@ -330,17 +323,14 @@ describe ApiV1::Admin::PackagesController do
 
     describe :route do
       describe :with_header do
-        before :each do
-          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v1+json"
-        end
-        after :each do
-          Rack::MockRequest::DEFAULT_ENV = {}
-        end
         it 'should route to create action of packages controller' do
           expect(:post => 'api/admin/packages').to route_to(action: 'create', controller: 'api_v1/admin/packages')
         end
       end
       describe :without_header do
+        before :each do
+          teardown_header
+        end
         it 'should not route to create action of packages controller without header' do
           expect(:post => 'api/admin/packages').to_not route_to(action: 'create', controller: 'api_v1/admin/packages')
           expect(:post => 'api/admin/packages').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/packages')
@@ -452,17 +442,14 @@ describe ApiV1::Admin::PackagesController do
 
     describe :route do
       describe :with_header do
-        before :each do
-          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v1+json"
-        end
-        after :each do
-          Rack::MockRequest::DEFAULT_ENV = {}
-        end
         it 'should route to update action of package controller for specified package id' do
           expect(:put => 'api/admin/packages/foo123').to route_to(action: 'update', controller: 'api_v1/admin/packages', package_id: 'foo123')
         end
       end
       describe :without_header do
+        before :each do
+          teardown_header
+        end
         it 'should not route to update action of packages controller without header' do
           expect(:put => 'api/admin/packages/foo').to_not route_to(put: 'update', controller: 'api_v1/admin/packages')
           expect(:put => 'api/admin/packages/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/packages/foo')

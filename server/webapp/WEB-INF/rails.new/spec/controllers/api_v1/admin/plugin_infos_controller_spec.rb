@@ -17,6 +17,8 @@
 require 'spec_helper'
 
 describe ApiV1::Admin::PluginInfosController do
+  include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
+
   before(:each) do
     @plugin_service = double('plugin_service')
     controller.stub('plugin_service').and_return(@plugin_service)
@@ -109,19 +111,15 @@ describe ApiV1::Admin::PluginInfosController do
 
     describe :route do
       describe :with_header do
-        before :each do
-          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v1+json"
-        end
-        after :each do
-          Rack::MockRequest::DEFAULT_ENV = {}
-        end
-
         it 'should route to the index action of plugin_infos controller' do
           expect(:get => 'api/admin/plugin_info').to route_to(action: 'index', controller: 'api_v1/admin/plugin_infos')
         end
       end
 
       describe :without_header do
+        before :each do
+          teardown_header
+        end
         it 'should not route to index action of plugin_infos controller without header' do
           expect(:get => 'api/admin/plugin_info').to_not route_to(action: 'index', controller: 'api_v1/admin/plugin_infos')
           expect(:get => 'api/admin/plugin_info').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/plugin_info')
@@ -158,12 +156,6 @@ describe ApiV1::Admin::PluginInfosController do
 
     describe :route do
       describe :with_header do
-        before :each do
-          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v1+json"
-        end
-        after :each do
-          Rack::MockRequest::DEFAULT_ENV = {}
-        end
 
         it 'should route to the show action of plugin_infos controller for alphanumeric plugin id' do
           expect(:get => 'api/admin/plugin_info/foo123bar').to route_to(action: 'show', controller: 'api_v1/admin/plugin_infos', id: 'foo123bar')
@@ -187,6 +179,9 @@ describe ApiV1::Admin::PluginInfosController do
       end
 
       describe :without_header do
+        before :each do
+          teardown_header
+        end
         it 'should not route to show action of plugin_infos controller without header' do
           expect(:get => 'api/admin/plugin_info/abc').to_not route_to(action: 'show', controller: 'api_v1/admin/plugin_infos')
           expect(:get => 'api/admin/plugin_info/abc').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/plugin_info/abc')

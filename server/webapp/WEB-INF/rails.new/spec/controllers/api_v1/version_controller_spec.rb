@@ -17,6 +17,8 @@
 require 'spec_helper'
 
 describe ApiV1::VersionController do
+  include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
+
   describe :show do
     it 'should render the current gocd server version for admins' do
       actual_json = {go_version: '16.6.0', go_build_number: '235', git_sha: '69ef4921709a84831913d9fa7e750fbf840f213c'}
@@ -30,17 +32,14 @@ describe ApiV1::VersionController do
 
   describe :routing do
     describe 'with header' do
-      before :each do
-        Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v1+json"
-      end
-      after :each do
-        Rack::MockRequest::DEFAULT_ENV = {}
-      end
       it 'should route to show action of version controller' do
         expect(:get => 'api/version').to route_to(action: 'show', controller: 'api_v1/version')
       end
     end
     describe 'without header' do
+      before :each do
+        teardown_header
+      end
       it 'should not route to show action of version controller' do
         expect(:get => 'api/version').to_not route_to(action: 'show', controller: 'api_v1/version')
         expect(:get => 'api/version').to route_to(controller: 'application', action: 'unresolved', url: 'api/version')

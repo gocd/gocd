@@ -17,6 +17,8 @@
 require 'spec_helper'
 
 describe ApiV1::Admin::PluggableScmsController do
+  include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
+
   before :each do
     @scm = SCM.new("1", PluginConfiguration.new("some-plugin", "1"),
                    Configuration.new(ConfigurationProperty.new(ConfigurationKey.new("url"), ConfigurationValue.new("some-url"))))
@@ -76,17 +78,14 @@ describe ApiV1::Admin::PluggableScmsController do
     end
     describe :route do
       describe :with_header do
-        before :each do
-          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v1+json"
-        end
-        after :each do
-          Rack::MockRequest::DEFAULT_ENV = {}
-        end
         it 'should route to index action of pluggable_scms controller' do
           expect(:get => 'api/admin/scms').to route_to(action: 'index', controller: 'api_v1/admin/pluggable_scms')
         end
       end
       describe :without_header do
+        before :each do
+          teardown_header
+        end
         it 'should not route to index action of pluggable_scms controller without header' do
           expect(:get => 'api/admin/scms').to_not route_to(action: 'index', controller: 'api_v1/admin/pluggable_scms')
           expect(:get => 'api/admin/scms').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/scms')
@@ -158,17 +157,14 @@ describe ApiV1::Admin::PluggableScmsController do
     end
     describe :route do
       describe :with_header do
-        before :each do
-          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v1+json"
-        end
-        after :each do
-          Rack::MockRequest::DEFAULT_ENV = {}
-        end
         it 'should route to show action of pluggable_scms controller for material name with dots' do
           expect(:get => 'api/admin/scms/foo.bar').to route_to(action: 'show', controller: 'api_v1/admin/pluggable_scms', material_name: 'foo.bar')
         end
       end
       describe :without_header do
+        before :each do
+          teardown_header
+        end
         it 'should not route to show action of pluggable_scms controller without header' do
           expect(:get => 'api/admin/scms/foo').to_not route_to(action: 'show', controller: 'api_v1/admin/pluggable_scms')
           expect(:get => 'api/admin/scms/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/scms/foo')
@@ -258,17 +254,14 @@ describe ApiV1::Admin::PluggableScmsController do
 
     describe :route do
       describe :with_header do
-        before :each do
-          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v1+json"
-        end
-        after :each do
-          Rack::MockRequest::DEFAULT_ENV = {}
-        end
         it 'should route to create action of pluggable_scms controller' do
           expect(:post => 'api/admin/scms').to route_to(action: 'create', controller: 'api_v1/admin/pluggable_scms')
         end
       end
       describe :without_header do
+        before :each do
+          teardown_header
+        end
         it 'should not route to create action of pluggable_scms controller without header' do
           expect(:post => 'api/admin/scms').to_not route_to(action: 'create', controller: 'api_v1/admin/pluggable_scms')
           expect(:post => 'api/admin/scms').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/scms')
@@ -399,17 +392,14 @@ describe ApiV1::Admin::PluggableScmsController do
     end
     describe :route do
       describe :with_header do
-        before :each do
-          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v1+json"
-        end
-        after :each do
-          Rack::MockRequest::DEFAULT_ENV = {}
-        end
         it 'should route to update action of pluggable_scms controller for material name with dots' do
           expect(:put => 'api/admin/scms/foo.bar').to route_to(action: 'update', controller: 'api_v1/admin/pluggable_scms', material_name: 'foo.bar')
         end
       end
       describe :without_header do
+        before :each do
+          teardown_header
+        end
         it 'should not route to update action of pluggable_scms controller without header' do
           expect(:put => 'api/admin/scms/foo').to_not route_to(action: 'update', controller: 'api_v1/admin/pluggable_scms')
           expect(:put => 'api/admin/scms/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/scms/foo')

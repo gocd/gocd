@@ -27,6 +27,9 @@ Dir[Rails.root.join("spec/support/**/*.rb")].each { |f| require f }
 
 Dir["#{File.dirname(__FILE__)}/util/*.rb"].each { |f| load f }
 
+# make sure that we capture the default headers before any tests mess it up.
+$rack_default_headers = Rack::MockRequest::DEFAULT_ENV.dup
+
 RSpec.configure do |config|
   # Use color not only in STDOUT but also in pagers and files
   config.tty   = true

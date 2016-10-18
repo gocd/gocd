@@ -17,6 +17,8 @@
 require 'spec_helper'
 
 describe ApiV1::Admin::Internal::CommandSnippetsController do
+  include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
+
   describe :index do
     describe :authorization do
       it 'should allow all with security disabled' do
@@ -67,18 +69,14 @@ describe ApiV1::Admin::Internal::CommandSnippetsController do
 
     describe :route do
       describe :with_header do
-        before :each do
-          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v1+json"
-        end
-        after :each do
-          Rack::MockRequest::DEFAULT_ENV = {}
-        end
-
         it 'should route to index action of the internal command_snippets controller' do
           expect(:get => 'api/admin/internal/command_snippets').to route_to(action: 'index', controller: 'api_v1/admin/internal/command_snippets')
         end
       end
       describe :without_header do
+        before :each do
+          teardown_header
+        end
         it 'should not route to index action of internal command_snippets controller without header' do
           expect(:get => 'api/admin/internal/command_snippets').to_not route_to(action: 'index', controller: 'api_v1/admin/internal/command_snippets')
           expect(:get => 'api/admin/internal/command_snippets').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/internal/command_snippets')

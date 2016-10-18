@@ -17,6 +17,7 @@
 require 'spec_helper'
 
 describe ApiV1::StagesController do
+  include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
 
   describe :show do
     describe :security do
@@ -63,12 +64,6 @@ describe ApiV1::StagesController do
 
     describe :route do
       describe :with_header do
-        before :each do
-          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v1+json"
-        end
-        after :each do
-          Rack::MockRequest::DEFAULT_ENV = {}
-        end
 
         describe :with_pipeline_name_contraint do
           it 'should route to show action of stages controller having dots in pipeline name' do
@@ -140,6 +135,9 @@ describe ApiV1::StagesController do
       end
 
       describe :without_header do
+        before :each do
+          teardown_header
+        end
         it 'should not route to show action of stages controller without header' do
           expect(:get => 'api/stages/foo/1/bar/1').to_not route_to(action: 'show', controller: 'api_v1/stages')
           expect(:get => 'api/stages/foo/bar').to route_to(controller: 'application', action: 'unresolved', url: 'api/stages/foo/bar')
@@ -194,12 +192,6 @@ describe ApiV1::StagesController do
 
     describe :route do
       describe :with_header do
-        before :each do
-          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v1+json"
-        end
-        after :each do
-          Rack::MockRequest::DEFAULT_ENV = {}
-        end
 
         describe :with_pipeline_name_contraint do
           it 'should route to history action of stages controller having dots in pipeline name' do
@@ -259,6 +251,9 @@ describe ApiV1::StagesController do
       end
 
       describe :without_header do
+        before :each do
+          teardown_header
+        end
         it 'should not route to history of stages controller without header' do
           expect(:get => 'api/stages/foo/bar').to_not route_to(action: 'history', controller: 'api_v1/stages')
           expect(:get => 'api/stages/foo/bar').to route_to(controller: 'application', action: 'unresolved', url: 'api/stages/foo/bar')

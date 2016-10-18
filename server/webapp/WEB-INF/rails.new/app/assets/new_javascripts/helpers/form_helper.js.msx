@@ -57,7 +57,7 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
 
         return (
           <div class={compactClasses(args, 'columns', 'medium-' + size, 'large-' + largeSize, end)}
-               {...args}>
+            {...args}>
             {children}
           </div>
         );
@@ -77,7 +77,7 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
       },
 
       view: function (ctrl, args) {
-        var model       = deleteKeyAndReturnValue(args, 'model'),
+        var model = deleteKeyAndReturnValue(args, 'model'),
           attrName    = deleteKeyAndReturnValue(args, 'attrName'),
           type        = deleteKeyAndReturnValue(args, 'type', 'text'),
           placeholder = deleteKeyAndReturnValue(args, 'placeholder', ''),
@@ -138,7 +138,9 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
           tooltip     = deleteKeyAndReturnValue(args, 'tooltip'),
           modelType   = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
           validate    = deleteKeyAndReturnValue(args, 'validate', false),
-          isRequired  = deleteKeyAndReturnValue(args, 'isRequired', false);
+          isRequired  = deleteKeyAndReturnValue(args, 'isRequired', false),
+          disabled    = deleteKeyAndReturnValue(args, 'disabled', false),
+          message     = deleteKeyAndReturnValue(args, 'message', '');
 
         args.size      = args.size || 6;
         args.largeSize = args.largeSize || 4;
@@ -147,6 +149,11 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
 
         var propertyError = (validate && model.errors().hasErrors(attrName)) ? (
           <span class='form-error is-visible'>{model.errors().errorsForDisplay(attrName)}</span>) : undefined;
+
+        var propertyMessage;
+        if (message) {
+          propertyMessage = <f.infoToolTip content={message}/>;
+        }
 
         var resetButton = function () {
           if (args.withReset && model[attrName]()) {
@@ -166,6 +173,7 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
             </label>
 
             <f.tooltip tooltip={tooltip} model={model} attrName={attrName}/>
+            {propertyMessage}
 
             <input
               autocomplete="off"
@@ -178,6 +186,7 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
               type={type}
               placeholder={placeholder}
               class={propertyError ? 'is-invalid-input' : ''}
+              disabled={disabled}
               oninput={ctrl.onInput.bind(ctrl, model, attrName, onChange)}
               onblur={validate ? model.validate.bind(model, validationAttr) : undefined}/>
             {resetButton()}
@@ -621,6 +630,28 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
           <div class='info callout'>
             <p>{children}</p>
           </div>
+        );
+      }
+    },
+
+    infoToolTip: {
+      view: function (ctrl, args) {
+        var content   = deleteKeyAndReturnValue(args, 'content'),
+          tooltipId = 'info-tooltip-' + s.uuid();
+        return (
+          <span class={_.compact(['info-wrapper']).join(' ')}>
+            <a href='javascript:void(0)'
+               data-toggle={tooltipId}
+               class='tooltip-info'/>
+            <div id={tooltipId}
+                 class={_.compact(['f-dropdown', 'dropdown-pane', 'content', 'tooltip-content']).join(' ')}
+                 data-dropdown
+                 data-hover='true'
+                 data-hover-pane='true'
+                 config={foundationReflow()}>
+              {content}
+            </div>
+          </span>
         );
       }
     }

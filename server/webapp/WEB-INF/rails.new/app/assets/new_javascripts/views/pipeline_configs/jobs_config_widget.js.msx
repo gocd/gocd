@@ -121,15 +121,22 @@ define([
     }
   };
 
+
   var RunOnAgent = {
     view: function (ctrl, args) {
       var job       = args.job;
       window.job    = job;
       var radioName = 'radio-' + job.uuid() + '-runInstanceCount';
       var errors    = job.validate(), runInstanceCounteError;
+      var isAssignedToElasticAgent = job.isAssignedToElasticAgent();
+      var runOnAllAgentsMessage;
 
       if (errors.errors('runInstanceCount')) {
         runInstanceCounteError = (<small class='form-error is-visible'>{errors.errorsForDisplay('runInstanceCount')}</small>);
+      }
+
+      if (isAssignedToElasticAgent) {
+        runOnAllAgentsMessage = (<f.infoToolTip content='Run on all agents not applicable for job assigned to elastic agents. Please clear "Elastic Profile Id" input box.'/>);
       }
 
       return (
@@ -160,10 +167,15 @@ define([
 
               <input type='radio'
                      name={radioName}
+                     class={isAssignedToElasticAgent ? 'disabled-radio' : ''}
                      id={radioName + '-all'}
+                     disabled={isAssignedToElasticAgent}
                      checked={job.isRunOnAllAgents()}
                      onchange={job.runInstanceCount.bind(job, 'all')}/>
-              <label for={radioName + '-all'}>Run on all agents</label>
+              <label for={radioName + '-all'}>
+                Run on all agents
+                {runOnAllAgentsMessage}
+              </label>
 
               <input type='radio'
                      name={radioName}
@@ -228,6 +240,12 @@ define([
                 selectedIndex={ctrl.vmState('selectedJobIndex', m.prop(0))}>
           {ctrl.map(function (job) {
             var jobIndex = args.jobs().indexOfJob(job);
+            var isRunOnAllAgents = job.isRunOnAllAgents();
+            var elasticProfileIdMessage;
+            if (isRunOnAllAgents) {
+              elasticProfileIdMessage = 'Elastic profile id not allowed to set for a job with "Run on all agents". Please select one of "Run on one agent" or "Run instances of job".';
+            }
+
             return (
               <f.row class='job-definition' key={job.uuid()}>
                 <f.column size={12}>
@@ -265,6 +283,8 @@ define([
                         <f.inputWithLabel
                           attrName='elasticProfileId'
                           label='Elastic Profile Id'
+                          disabled={isRunOnAllAgents}
+                          message={elasticProfileIdMessage}
                           model={job}
                           tooltip={{
                             content: tt.job.elasticProfile,

@@ -386,6 +386,9 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
                 errors.add(RESOURCES, message);
             }
         }
+        if (isRunOnAllAgents() && !isBlank(elasticProfileId)) {
+            errors.add(RUN_TYPE, "Job cannot be set to 'run on all agents' when assigned to an elastic agent");
+        }
     }
 
     public ConfigErrors errors() {

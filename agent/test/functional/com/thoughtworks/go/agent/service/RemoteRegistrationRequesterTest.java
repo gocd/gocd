@@ -19,7 +19,6 @@ package com.thoughtworks.go.agent.service;
 import com.thoughtworks.go.agent.AgentAutoRegistrationPropertiesImpl;
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient;
 import com.thoughtworks.go.config.DefaultAgentRegistry;
-import com.thoughtworks.go.security.Registration;
 import com.thoughtworks.go.util.SystemUtil;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -32,7 +31,6 @@ import org.hamcrest.TypeSafeMatcher;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
 
@@ -125,10 +123,6 @@ public class RemoteRegistrationRequesterTest {
 
     private SslInfrastructureService.RemoteRegistrationRequester remoteRegistryRequester(final String url, final GoAgentServerHttpClient httpClient, final DefaultAgentRegistry defaultAgentRegistry) {
         return new SslInfrastructureService.RemoteRegistrationRequester(url, defaultAgentRegistry, httpClient) {
-            @Override
-            protected Registration readResponse(InputStream is) throws IOException, ClassNotFoundException {
-                return null;
-            }
         };
     }
 

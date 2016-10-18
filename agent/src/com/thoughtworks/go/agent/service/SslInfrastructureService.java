@@ -40,10 +40,12 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 import static com.thoughtworks.go.security.CertificateUtil.md5Fingerprint;
 import static com.thoughtworks.go.security.SelfSignedCertificateX509TrustManager.CRUISE_SERVER;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+import static org.apache.http.HttpStatus.SC_ACCEPTED;
 
 @Service
 public class SslInfrastructureService {
@@ -83,11 +85,11 @@ public class SslInfrastructureService {
         registered = keyStoreManager.hasCertificates(CHAIN_ALIAS, GoAgentServerHttpClientBuilder.AGENT_CERTIFICATE_FILE,
                 httpClientBuilder().keystorePassword()) && GuidService.guidPresent();
         if (!registered) {
-            LOGGER.info("[Agent Registration] Starting to register agent");
+            LOGGER.info("[Agent Registration] Starting to register agent.");
             register(agentAutoRegistrationProperties);
             createSslInfrastructure();
             registered = true;
-            LOGGER.info("[Agent Registration] Successfully registered agent");
+            LOGGER.info("[Agent Registration] Successfully registered agent.");
         }
     }
 
@@ -106,7 +108,7 @@ public class SslInfrastructureService {
                 throw e;
             }
 
-            if((!keyEntry.isValid())) {
+            if ((!keyEntry.isValid())) {
                 try {
                     LOGGER.debug("[Agent Registration] Retrieved agent key from Go server is not valid.");
                     Thread.sleep(REGISTER_RETRY_INTERVAL);
@@ -178,16 +180,26 @@ public class SslInfrastructureService {
 
             try {
                 CloseableHttpResponse response = httpClient.execute(postMethod);
+                if (response.getStatusLine().getStatusCode() == SC_ACCEPTED) {
+                    LOGGER.debug("The server has accepted the registration request.");
+                    return Registration.createNullPrivateKeyEntry();
+                }
+
                 try (InputStream is = response.getEntity() == null ? new NullInputStream(0) : response.getEntity().getContent()) {
-                    return readResponse(is);
+                    String responseBody = IOUtils.toString(is, StandardCharsets.UTF_8);
+
+                    if (response.getStatusLine().getStatusCode() == 200) {
+                        LOGGER.info("This agent is now approved by the server.");
+                        return RegistrationJSONizer.fromJson(responseBody);
+                    } else {
+                        LOGGER.warn(String.format("The server sent a response that we could not understand. The HTTP status was %s. The response body was:\n%s", response.getStatusLine(), responseBody));
+                        return Registration.createNullPrivateKeyEntry();
+                    }
                 }
             } finally {
                 postMethod.releaseConnection();
             }
         }
 
-        protected Registration readResponse(InputStream is) throws IOException, ClassNotFoundException {
-            return RegistrationJSONizer.fromJson(IOUtils.toString(is));
-        }
     }
 }

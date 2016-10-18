@@ -1,5 +1,6 @@
 import com.thoughtworks.go.build.VerifyJarTask
 import groovy.json.JsonOutput
+import org.jruby.Ruby
 
 /*
  * Copyright 2016 ThoughtWorks, Inc.
@@ -205,44 +206,6 @@ dependencies {
   compileOnly group: 'org.eclipse.jetty.websocket', name: 'websocket-server', version: versions.jetty
 }
 
-
-task createVersionJsonFile {
-  def versionFile = file("${project.buildDir}/server_version.json")
-  inputs.property('goVersion', rootProject.goVersion)
-  inputs.property('distVersion', rootProject.distVersion)
-  inputs.property('gitRevision', rootProject.gitRevision)
-
-  outputs.file versionFile
-
-  doLast {
-    versionFile.getParentFile().mkdirs()
-    versionFile.withWriter { out ->
-      out.write(JsonOutput.prettyPrint(JsonOutput.toJson([
-        version     : rootProject.goVersion,
-        build_number: rootProject.distVersion,
-        git_sha     : rootProject.gitRevision,
-      ])))
-    }
-  }
-
-}
-
-task createVersionFile {
-  def versionFile = file("${project.buildDir}/admin_version.txt.vm")
-  inputs.property('version', rootProject.version)
-  inputs.property('distVersion', rootProject.distVersion)
-  inputs.property('gitRevision', rootProject.gitRevision)
-
-  outputs.file versionFile
-
-  doLast {
-    versionFile.getParentFile().mkdirs()
-    versionFile.withWriter { out ->
-      out.write("${rootProject.goVersion} (${rootProject.distVersion}-${rootProject.gitRevision})")
-    }
-  }
-}
-
 jar {
   classifier = 'classes'
   exclude '**/*/log4j.properties'
@@ -255,9 +218,9 @@ def findGemsToNotPack = {
   }
 
   def gems = []
-  org.jruby.Ruby ruby
+  Ruby ruby
   try {
-    ruby = org.jruby.Ruby.newInstance()
+    ruby = Ruby.newInstance()
     gems = ruby.evalScriptlet(
       """
           Dir.chdir('${project.railsRoot}') do
@@ -427,7 +390,7 @@ task inlinePartials {
 }
 
 task war(type: Jar) {
-  dependsOn ':server:jar', ':server:createVersionFile', ':server:createVersionJsonFile', ':server:compileAssets', ':server:inlinePartials'
+  dependsOn ':server:jar', ':server:compileAssets', ':server:inlinePartials'
   baseName = 'cruise'
   extension 'war'
 
@@ -435,9 +398,6 @@ task war(type: Jar) {
   doFirst {
     exclude '**/*/log4j.properties'
     exclude 'log4j.properties'
-
-    from(createVersionFile) { into 'WEB-INF/vm/admin' }
-    from(createVersionJsonFile) { into 'WEB-INF' }
 
     // exclude app-server because it causes class cast exceptions (loaded by different classloaders)
     def classpath = project.configurations.compile.minus(project(':app-server').jar.archivePath)

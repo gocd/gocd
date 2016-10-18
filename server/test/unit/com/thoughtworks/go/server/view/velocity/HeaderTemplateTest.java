@@ -36,7 +36,6 @@ public class HeaderTemplateTest {
         data.put("l", mock(Localizer.class));
 
         TestVelocityView view = new TestVelocityView(TEMPLATE_PATH, data);
-        view.setupAdditionalFakeTemplate("admin/admin_version.txt.vm", "some_version");
 
         Document actualOutput = Jsoup.parse(view.render());
 
@@ -49,7 +48,6 @@ public class HeaderTemplateTest {
         data.put("l", null);
 
         TestVelocityView view = new TestVelocityView(TEMPLATE_PATH, data);
-        view.setupAdditionalFakeTemplate("admin/admin_version.txt.vm", "some_version");
 
         Document actualOutput = Jsoup.parse(view.render());
 
@@ -61,7 +59,6 @@ public class HeaderTemplateTest {
         HashMap<String, Object> data = new HashMap<String, Object>();
 
         TestVelocityView view = new TestVelocityView(TEMPLATE_PATH, data);
-        view.setupAdditionalFakeTemplate("admin/admin_version.txt.vm", "some_version");
 
         Document actualOutput = Jsoup.parse(view.render());
 
@@ -74,7 +71,6 @@ public class HeaderTemplateTest {
         data.put("l", null);
 
         TestVelocityView view = new TestVelocityView(TEMPLATE_PATH, data);
-        view.setupAdditionalFakeTemplate("admin/admin_version.txt.vm", "some_version");
 
         Document actualOutput = Jsoup.parse(view.render());
 

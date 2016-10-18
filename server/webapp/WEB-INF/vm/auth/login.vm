@@ -20,7 +20,7 @@
 <head>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8"></meta>
 
-  <link href="$req.getContextPath()/$concatenatedCruiseIconFilePath?#include("admin/admin_version.txt.vm")"
+  <link href="$req.getContextPath()/$concatenatedCruiseIconFilePath"
         rel="shortcut icon"/>
   <link rel="stylesheet" type="text/css" href="$req.getContextPath()/$concatenatedApplicationCssFilePath" media="all"/>
   <link rel="stylesheet" type="text/css" href="$req.getContextPath()/$concatenatedCssApplicationCssFilePath"

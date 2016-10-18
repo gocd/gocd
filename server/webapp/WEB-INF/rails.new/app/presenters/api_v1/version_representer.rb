@@ -38,12 +38,13 @@ module ApiV1
       end
 
       def version
-        @@version ||= begin
-          json = JSON.parse(File.read(Rails.root.join('..', 'server_version.json')), symbolize_names: true)
-          json[:full_version] = "#{json[:version]} (#{json[:build_number]}-#{json[:git_sha]})"
-          json[:commit_url] = "https://github.com/gocd/gocd/commit/#{json[:git_sha]}"
-          OpenStruct.new(json)
-        end
+        @@version ||= OpenStruct.new({
+                                       version: com.thoughtworks.go.CurrentGoCDVersion.getInstance().goVersion(),
+                                       build_number: com.thoughtworks.go.CurrentGoCDVersion.getInstance().distVersion(),
+                                       git_sha: com.thoughtworks.go.CurrentGoCDVersion.getInstance().gitRevision(),
+                                       full_version: com.thoughtworks.go.CurrentGoCDVersion.getInstance().formatted(),
+                                       commit_url: "https://github.com/gocd/gocd/commit/#{com.thoughtworks.go.CurrentGoCDVersion.getInstance().gitRevision()}"
+                                     })
       end
     end
 

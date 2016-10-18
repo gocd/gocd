@@ -6,7 +6,7 @@
                     <a href="https://www.thoughtworks.com/products" target="_blank">ThoughtWorks, Inc.</a>
                     Licensed under <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License, Version 2.0</a>.<br>
                     Go includes <a href="/go/NOTICE/cruise_notice_file.pdf" target="_blank">third-party software</a>.
-                    Go Version: #include("admin/admin_version.txt.vm").
+                    Go Version: ${currentGoCDVersion.formatted()}.
                 </p>
 
             </div>

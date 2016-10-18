@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.config.exceptions.ConfigFileHasChangedException;
 import com.thoughtworks.go.config.exceptions.ConfigMergeException;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
@@ -170,7 +171,7 @@ public class GoFileConfigDataSourceTest {
         String expectedMd5 = afterFirstSave.config.getMd5();
         GoConfigRevision firstRev = configRepository.getRevision(expectedMd5);
         assertThat(firstRev.getUsername(), is("loser"));
-        assertThat(firstRev.getGoVersion(), is("N/A"));
+        assertThat(firstRev.getGoVersion(), is(CurrentGoCDVersion.getInstance().formatted()));
         assertThat(firstRev.getMd5(), is(expectedMd5));
         assertThat(firstRev.getTime(), is(loserChangedAt));
         assertThat(firstRev.getSchemaVersion(), is(GoConstants.CONFIG_SCHEMA_VERSION));
@@ -181,7 +182,7 @@ public class GoFileConfigDataSourceTest {
         expectedMd5 = config.getMd5();
         GoConfigRevision secondRev = configRepository.getRevision(expectedMd5);
         assertThat(secondRev.getUsername(), is("bigger_loser"));
-        assertThat(secondRev.getGoVersion(), is("N/A"));
+        assertThat(secondRev.getGoVersion(), is(CurrentGoCDVersion.getInstance().formatted()));
         assertThat(secondRev.getMd5(), is(expectedMd5));
         assertThat(secondRev.getTime(), is(biggerLoserChangedAt));
         assertThat(secondRev.getSchemaVersion(), is(GoConstants.CONFIG_SCHEMA_VERSION));

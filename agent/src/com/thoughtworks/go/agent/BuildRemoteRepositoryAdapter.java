@@ -15,11 +15,11 @@ import com.thoughtworks.go.websocket.Report;
 
 class BuildRepositoryRemoteAdapter implements BuildRepositoryRemote {
     private JobRunner runner;
-    private WebSocketAgentController controller;
+    private WebSocketSessionHandler webSocketSessionHandler;
 
-    public BuildRepositoryRemoteAdapter(JobRunner runner, WebSocketAgentController controller) {
+    public BuildRepositoryRemoteAdapter(JobRunner runner, WebSocketSessionHandler webSocketSessionHandler) {
         this.runner = runner;
-        this.controller = controller;
+        this.webSocketSessionHandler = webSocketSessionHandler;
     }
 
     @Override
@@ -35,19 +35,19 @@ class BuildRepositoryRemoteAdapter implements BuildRepositoryRemote {
     @Override
     public void reportCurrentStatus(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobIdentifier, JobState jobState) {
         Report report = new Report(agentRuntimeInfo, jobIdentifier, jobState);
-        controller.sendAndWaitForAcknowledgement(new Message(Action.reportCurrentStatus, MessageEncoding.encodeData(report)));
+        webSocketSessionHandler.sendAndWaitForAcknowledgement(new Message(Action.reportCurrentStatus, MessageEncoding.encodeData(report)));
     }
 
     @Override
     public void reportCompleting(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobIdentifier, JobResult result) {
         Report report = new Report(agentRuntimeInfo, jobIdentifier, result);
-        controller.sendAndWaitForAcknowledgement(new Message(Action.reportCompleting, MessageEncoding.encodeData(report)));
+        webSocketSessionHandler.sendAndWaitForAcknowledgement(new Message(Action.reportCompleting, MessageEncoding.encodeData(report)));
     }
 
     @Override
     public void reportCompleted(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobIdentifier, JobResult result) {
         Report report = new Report(agentRuntimeInfo, jobIdentifier, result);
-        controller.sendAndWaitForAcknowledgement(new Message(Action.reportCompleted, MessageEncoding.encodeData(report)));
+        webSocketSessionHandler.sendAndWaitForAcknowledgement(new Message(Action.reportCompleted, MessageEncoding.encodeData(report)));
     }
 
     @Override

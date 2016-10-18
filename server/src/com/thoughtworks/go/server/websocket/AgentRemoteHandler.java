@@ -63,9 +63,7 @@ public class AgentRemoteHandler {
         try {
             processWithoutAcknowledgement(agent, msg);
         } finally {
-            if (msg.getAcknowledgementId() != null) {
-                agent.send(new Message(Action.acknowledge, MessageEncoding.encodeData(msg.getAcknowledgementId())));
-            }
+            agent.send(new Message(Action.acknowledge, MessageEncoding.encodeData(msg.getAcknowledgementId())));
         }
     }
 

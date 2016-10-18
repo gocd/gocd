@@ -34,35 +34,32 @@ import com.thoughtworks.go.util.SubprocessLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataRetrievalFailureException;
 
-public class HTTPAgentController extends AgentController {
-    private static final Logger LOG = LoggerFactory.getLogger(HTTPAgentController.class);
+public class AgentHTTPClientController extends AgentController {
+    private static final Logger LOG = LoggerFactory.getLogger(AgentHTTPClientController.class);
 
     private BuildRepositoryRemote server;
     private GoArtifactsManipulator manipulator;
     private SslInfrastructureService sslInfrastructureService;
 
     private JobRunner runner;
-    private AgentUpgradeService agentUpgradeService;
     private PackageAsRepositoryExtension packageAsRepositoryExtension;
     private SCMExtension scmExtension;
     private TaskExtension taskExtension;
     private AgentInstruction agentInstruction = new AgentInstruction(false);
 
-    public HTTPAgentController(BuildRepositoryRemote server,
-                               GoArtifactsManipulator manipulator,
-                               SslInfrastructureService sslInfrastructureService,
-                               AgentRegistry agentRegistry,
-                               AgentUpgradeService agentUpgradeService,
-                               SubprocessLogger subprocessLogger,
-                               SystemEnvironment systemEnvironment,
-                               PluginManager pluginManager,
-                               PackageAsRepositoryExtension packageAsRepositoryExtension,
-                               SCMExtension scmExtension,
-                               TaskExtension taskExtension) {
-        super(sslInfrastructureService, systemEnvironment, agentRegistry, pluginManager, subprocessLogger);
-        this.agentUpgradeService = agentUpgradeService;
+    public AgentHTTPClientController(BuildRepositoryRemote server,
+                                     GoArtifactsManipulator manipulator,
+                                     SslInfrastructureService sslInfrastructureService,
+                                     AgentRegistry agentRegistry,
+                                     AgentUpgradeService agentUpgradeService,
+                                     SubprocessLogger subprocessLogger,
+                                     SystemEnvironment systemEnvironment,
+                                     PluginManager pluginManager,
+                                     PackageAsRepositoryExtension packageAsRepositoryExtension,
+                                     SCMExtension scmExtension,
+                                     TaskExtension taskExtension) {
+        super(sslInfrastructureService, systemEnvironment, agentRegistry, pluginManager, subprocessLogger, agentUpgradeService);
         this.packageAsRepositoryExtension = packageAsRepositoryExtension;
         this.scmExtension = scmExtension;
         this.taskExtension = taskExtension;
@@ -96,23 +93,11 @@ public class HTTPAgentController extends AgentController {
     }
 
     @Override
-    public void loop() {
-        try {
-            LOG.debug("[Agent Loop] Trying to retrieve work.");
-            agentUpgradeService.checkForUpgrade();
-            sslInfrastructureService.registerIfNecessary(getAgentAutoRegistrationProperties());
-            retrieveCookieIfNecessary();
-            retrieveWork();
-            LOG.debug("[Agent Loop] Successfully retrieved work.");
-        } catch (Exception e) {
-            if (isCausedBySecurity(e)) {
-                handleIfSecurityException(e);
-            } else if (e instanceof DataRetrievalFailureException) {
-                LOG.debug("[Agent Loop] Error occurred during loop: ", e);
-            } else {
-                LOG.error("[Agent Loop] Error occurred during loop: ", e);
-            }
-        }
+    public void work() throws Exception {
+        LOG.debug("[Agent Loop] Trying to retrieve work.");
+        retrieveCookieIfNecessary();
+        retrieveWork();
+        LOG.debug("[Agent Loop] Successfully retrieved work.");
     }
 
     private void retrieveCookieIfNecessary() {
@@ -122,18 +107,6 @@ public class HTTPAgentController extends AgentController {
             getAgentRuntimeInfo().setCookie(cookie);
             LOG.info("Got cookie: {}", cookie);
         }
-    }
-
-    private void handleIfSecurityException(Exception e) {
-        if (!isCausedBySecurity(e)) {
-            return;
-        }
-        sslInfrastructureService.invalidateAgentCertificate();
-        LOG.error("There has been a problem with one of Go's SSL certificates." +
-                        " This can be caused by a man-in-the-middle attack, or by pointing the agent to a new e, or by" +
-                        " deleting and re-installing Go Server. Go will ask for a new certificate. If this" +
-                        " fails to solve the problem, try deleting config/trust.jks in Go Agent's home directory.",
-                e);
     }
 
     void retrieveWork() {
@@ -155,6 +128,5 @@ public class HTTPAgentController extends AgentController {
             getAgentRuntimeInfo().idle();
         }
     }
-
 
 }

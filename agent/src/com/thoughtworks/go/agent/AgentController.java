@@ -17,7 +17,6 @@
 package com.thoughtworks.go.agent;
 
 import com.thoughtworks.go.agent.service.AgentUpgradeService;
-import com.thoughtworks.go.agent.service.AgentWebSocketService;
 import com.thoughtworks.go.agent.service.SslInfrastructureService;
 import com.thoughtworks.go.config.AgentAutoRegistrationProperties;
 import com.thoughtworks.go.config.AgentRegistry;
@@ -33,10 +32,9 @@ import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo;
-import com.thoughtworks.go.util.HttpService;
-import com.thoughtworks.go.util.SubprocessLogger;
-import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.SystemUtil;
+import com.thoughtworks.go.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,6 +43,8 @@ import java.security.GeneralSecurityException;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 
 public abstract class AgentController {
+    private static final Logger LOG = LoggerFactory.getLogger(AgentController.class);
+
     private AgentRuntimeInfo agentRuntimeInfo;
     private AgentAutoRegistrationProperties agentAutoRegistrationProperties;
     private AgentIdentifier identifier;
@@ -52,12 +52,18 @@ public abstract class AgentController {
     private SystemEnvironment systemEnvironment;
     private AgentRegistry agentRegistry;
     private SubprocessLogger subprocessLogger;
+    private AgentUpgradeService agentUpgradeService;
 
-    public AgentController(SslInfrastructureService sslInfrastructureService, SystemEnvironment systemEnvironment, AgentRegistry agentRegistry, PluginManager pluginManager, SubprocessLogger subprocessLogger) {
+    public AgentController(SslInfrastructureService sslInfrastructureService,
+                           SystemEnvironment systemEnvironment,
+                           AgentRegistry agentRegistry,
+                           PluginManager pluginManager,
+                           SubprocessLogger subprocessLogger, AgentUpgradeService agentUpgradeService) {
         this.sslInfrastructureService = sslInfrastructureService;
         this.systemEnvironment = systemEnvironment;
         this.agentRegistry = agentRegistry;
         this.subprocessLogger = subprocessLogger;
+        this.agentUpgradeService = agentUpgradeService;
         PluginManagerReference.reference().setPluginManager(pluginManager);
     }
 
@@ -65,7 +71,33 @@ public abstract class AgentController {
 
     public abstract void execute();
 
-    public abstract void loop();
+    public final void loop() {
+        try {
+            LOG.debug("[Agent Loop] Trying to retrieve work.");
+            agentUpgradeService.checkForUpgrade();
+            sslInfrastructureService.registerIfNecessary(getAgentAutoRegistrationProperties());
+            work();
+            LOG.debug("[Agent Loop] Successfully retrieved work.");
+        } catch (Exception e) {
+            if (isCausedBySecurity(e)) {
+                handleSecurityException(e);
+            } else {
+                LOG.error("[Agent Loop] Error occurred during loop: ", e);
+            }
+        }
+
+    }
+
+    private void handleSecurityException(Exception e) {
+        sslInfrastructureService.invalidateAgentCertificate();
+        LOG.error("There has been a problem with one of Go's SSL certificates." +
+                        " This can be caused by a man-in-the-middle attack, or by pointing the agent to a new e, or by" +
+                        " deleting and re-installing Go Server. Go will ask for a new certificate. If this" +
+                        " fails to solve the problem, try deleting config/trust.jks in Go Agent's home directory.",
+                e);
+    }
+
+    protected abstract void work() throws Exception;
 
     protected AgentRegistry getAgentRegistry() {
         return agentRegistry;
@@ -145,10 +177,10 @@ public abstract class AgentController {
             PackageAsRepositoryExtension packageAsRepositoryExtension,
             SCMExtension scmExtension,
             TaskExtension taskExtension,
-            AgentWebSocketService agentWebSocketService,
-            HttpService httpService) {
+            HttpService httpService,
+            WebSocketClientHandler webSocketClientHandler, WebSocketSessionHandler sessionHandler) {
         if (systemEnvironment.isWebsocketEnabled()) {
-            return new WebSocketAgentController(
+            return new AgentWebSocketClientController(
                     server,
                     manipulator,
                     sslInfrastructureService,
@@ -160,10 +192,9 @@ public abstract class AgentController {
                     packageAsRepositoryExtension,
                     scmExtension,
                     taskExtension,
-                    agentWebSocketService,
-                    httpService);
+                    httpService, webSocketClientHandler, sessionHandler);
         } else {
-            return new HTTPAgentController(
+            return new AgentHTTPClientController(
                     server,
                     manipulator,
                     sslInfrastructureService,

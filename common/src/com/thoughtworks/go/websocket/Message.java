@@ -27,22 +27,17 @@ public class Message {
     @Expose
     private final String data;
     @Expose
-    private String acknowledgementId;
+    private final String acknowledgementId;
 
     public Message(Action action) {
         this(action, null);
     }
 
     public Message(Action action, String data) {
-        this(action, data, null);
-    }
-
-    public Message(Action action, String data, String acknowledgementId) {
         this.action = action;
         this.data = data;
-        this.acknowledgementId = acknowledgementId;
+        this.acknowledgementId = UUID.randomUUID().toString();
     }
-
 
     public Action getAction() {
         return action;
@@ -86,7 +81,4 @@ public class Message {
         return result;
     }
 
-    public void generateAckId() {
-        this.acknowledgementId = UUID.randomUUID().toString();
-    }
 }

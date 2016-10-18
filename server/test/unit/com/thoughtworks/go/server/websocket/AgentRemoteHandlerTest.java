@@ -59,7 +59,7 @@ public class AgentRemoteHandlerTest {
         verify(remote).ping(info);
         assertEquals(1, handler.connectedAgents().size());
         assertEquals(agent, handler.connectedAgents().get(instance.getUuid()));
-        assertTrue(agent.messages.isEmpty());
+        assertEquals(agent.messages.get(0).getAction(), Action.acknowledge);
     }
 
     @Test
@@ -75,8 +75,9 @@ public class AgentRemoteHandlerTest {
         assertEquals(1, handler.connectedAgents().size());
         assertEquals(agent, handler.connectedAgents().get("uuid"));
 
-        assertEquals(1, agent.messages.size());
+        assertEquals(2, agent.messages.size());
         assertEquals(agent.messages.get(0).getAction(), Action.cancelBuild);
+        assertEquals(agent.messages.get(1).getAction(), Action.acknowledge);
     }
 
     @Test
@@ -92,8 +93,9 @@ public class AgentRemoteHandlerTest {
         assertEquals(1, handler.connectedAgents().size());
         assertEquals(agent, handler.connectedAgents().get("uuid"));
 
-        assertEquals(1, agent.messages.size());
+        assertEquals(2, agent.messages.size());
         assertEquals(agent.messages.get(0).getAction(), Action.cancelBuild);
+        assertEquals(agent.messages.get(1).getAction(), Action.acknowledge);
     }
 
     @Test
@@ -107,8 +109,9 @@ public class AgentRemoteHandlerTest {
         handler.process(agent, new Message(Action.ping, MessageEncoding.encodeData(info)));
 
         verify(remote).ping(withCookie(info, "new cookie"));
-        assertEquals(1, agent.messages.size());
+        assertEquals(2, agent.messages.size());
         assertEquals(agent.messages.get(0).getAction(), Action.setCookie);
+        assertEquals(agent.messages.get(1).getAction(), Action.acknowledge);
         assertEquals(MessageEncoding.decodeData(agent.messages.get(0).getData(), String.class), "new cookie");
     }
 
@@ -123,10 +126,11 @@ public class AgentRemoteHandlerTest {
         handler.process(agent, new Message(Action.ping, MessageEncoding.encodeData(info)));
 
         verify(remote).ping(withCookie(info, "new cookie"));
-        assertEquals(2, agent.messages.size());
+        assertEquals(3, agent.messages.size());
         assertEquals(agent.messages.get(0).getAction(), Action.setCookie);
         assertEquals(MessageEncoding.decodeData(agent.messages.get(0).getData(), String.class), "new cookie");
         assertEquals(agent.messages.get(1).getAction(), Action.cancelBuild);
+        assertEquals(agent.messages.get(2).getAction(), Action.acknowledge);
     }
 
     private AgentRuntimeInfo withCookie(AgentRuntimeInfo info, String cookie) {
@@ -235,7 +239,7 @@ public class AgentRemoteHandlerTest {
     }
 
     @Test
-    public void shouldSendBackAnAckMessageIfMessageHasAckId() {
+    public void shouldSendBackAnAcknowledgementMessageIfMessageHasAcknowledgementId() {
         AgentInstance instance = AgentInstanceMother.idle();
         AgentRuntimeInfo info = new AgentRuntimeInfo(instance.getAgentIdentifier(), AgentRuntimeStatus.Idle, null, null, false);
         info.setCookie("cookie");
@@ -243,7 +247,6 @@ public class AgentRemoteHandlerTest {
         when(agentService.findAgent(instance.getUuid())).thenReturn(instance);
 
         Message msg = new Message(Action.ping, MessageEncoding.encodeData(info));
-        msg.generateAckId();
         handler.process(agent, msg);
         assertEquals(1, agent.messages.size());
         assertEquals(Action.acknowledge, agent.messages.get(0).getAction());

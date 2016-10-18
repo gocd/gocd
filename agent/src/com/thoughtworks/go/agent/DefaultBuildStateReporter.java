@@ -25,28 +25,28 @@ import com.thoughtworks.go.websocket.MessageEncoding;
 import com.thoughtworks.go.websocket.Report;
 
 public class DefaultBuildStateReporter implements BuildStateReporter {
-    private final WebSocketAgentController controller;
+    private final WebSocketSessionHandler webSocketSessionHandler;
     private final AgentRuntimeInfo agentRuntimeInfo;
 
-    public DefaultBuildStateReporter(WebSocketAgentController controller, AgentRuntimeInfo agentRuntimeInfo) {
-        this.controller = controller;
+    public DefaultBuildStateReporter(WebSocketSessionHandler webSocketSessionHandler, AgentRuntimeInfo agentRuntimeInfo) {
+        this.webSocketSessionHandler = webSocketSessionHandler;
         this.agentRuntimeInfo = agentRuntimeInfo;
     }
 
     @Override
     public void reportBuildStatus(String buildId, JobState buildState) {
-        controller.sendAndWaitForAcknowledgement(new Message(Action.reportCurrentStatus, MessageEncoding.encodeData(new Report(agentRuntimeInfo, buildId, buildState, null))));
+        webSocketSessionHandler.sendAndWaitForAcknowledgement(new Message(Action.reportCurrentStatus, MessageEncoding.encodeData(new Report(agentRuntimeInfo, buildId, buildState, null))));
     }
 
     @Override
     public void reportCompleted(String buildId, JobResult buildResult) {
         Report report = new Report(agentRuntimeInfo, buildId, null, buildResult);
-        controller.sendAndWaitForAcknowledgement(new Message(Action.reportCompleted, MessageEncoding.encodeData(report)));
+        webSocketSessionHandler.sendAndWaitForAcknowledgement(new Message(Action.reportCompleted, MessageEncoding.encodeData(report)));
     }
 
     @Override
     public void reportCompleting(String buildId, JobResult buildResult) {
         Report report = new Report(agentRuntimeInfo, buildId, null, buildResult);
-        controller.sendAndWaitForAcknowledgement(new Message(Action.reportCompleting, MessageEncoding.encodeData(report)));
+        webSocketSessionHandler.sendAndWaitForAcknowledgement(new Message(Action.reportCompleting, MessageEncoding.encodeData(report)));
     }
 }

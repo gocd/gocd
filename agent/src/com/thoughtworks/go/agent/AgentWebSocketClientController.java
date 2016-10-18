@@ -17,7 +17,6 @@
 package com.thoughtworks.go.agent;
 
 import com.thoughtworks.go.agent.service.AgentUpgradeService;
-import com.thoughtworks.go.agent.service.AgentWebSocketService;
 import com.thoughtworks.go.agent.service.SslInfrastructureService;
 import com.thoughtworks.go.buildsession.ArtifactsRepository;
 import com.thoughtworks.go.buildsession.BuildSession;
@@ -39,7 +38,6 @@ import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.websocket.Action;
 import com.thoughtworks.go.websocket.Message;
-import com.thoughtworks.go.websocket.MessageCallback;
 import com.thoughtworks.go.websocket.MessageEncoding;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
@@ -49,21 +47,19 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.InputStream;
-import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
-
 @WebSocket
-public class WebSocketAgentController extends AgentController {
-    private static final Logger LOG = LoggerFactory.getLogger(WebSocketAgentController.class);
-    private final AgentUpgradeService agentUpgradeService;
+public class AgentWebSocketClientController extends AgentController {
+    private static final Logger LOG = LoggerFactory.getLogger(AgentWebSocketClientController.class);
     private final SslInfrastructureService sslInfrastructureService;
-    private final AgentWebSocketService agentWebSocketService;
     private final GoArtifactsManipulator manipulator;
     private HttpService httpService;
-    private final Map<String, MessageCallback> callbacks = new ConcurrentHashMap<>();
+    private WebSocketClientHandler webSocketClientHandler;
+    private WebSocketSessionHandler webSocketSessionHandler;
     private AtomicReference<BuildSession> buildSession = new AtomicReference<>();
     private JobRunner runner;
     private PackageAsRepositoryExtension packageAsRepositoryExtension;
@@ -71,23 +67,23 @@ public class WebSocketAgentController extends AgentController {
     private TaskExtension taskExtension;
     private BuildRepositoryRemote server;
 
-
-    public WebSocketAgentController(BuildRepositoryRemote server, GoArtifactsManipulator manipulator,
-                                    SslInfrastructureService sslInfrastructureService, AgentRegistry agentRegistry,
-                                    AgentUpgradeService agentUpgradeService, SubprocessLogger subprocessLogger,
-                                    SystemEnvironment systemEnvironment, PluginManager pluginManager,
-                                    PackageAsRepositoryExtension packageAsRepositoryExtension, SCMExtension scmExtension,
-                                    TaskExtension taskExtension, AgentWebSocketService agentWebSocketService, HttpService httpService) {
-        super(sslInfrastructureService, systemEnvironment, agentRegistry, pluginManager, subprocessLogger);
+    public AgentWebSocketClientController(BuildRepositoryRemote server, GoArtifactsManipulator manipulator,
+                                          SslInfrastructureService sslInfrastructureService, AgentRegistry agentRegistry,
+                                          AgentUpgradeService agentUpgradeService, SubprocessLogger subprocessLogger,
+                                          SystemEnvironment systemEnvironment, PluginManager pluginManager,
+                                          PackageAsRepositoryExtension packageAsRepositoryExtension, SCMExtension scmExtension,
+                                          TaskExtension taskExtension, HttpService httpService,
+                                          WebSocketClientHandler webSocketClientHandler, WebSocketSessionHandler webSocketSessionHandler) {
+        super(sslInfrastructureService, systemEnvironment, agentRegistry, pluginManager, subprocessLogger, agentUpgradeService);
         this.server = server;
         this.manipulator = manipulator;
         this.packageAsRepositoryExtension = packageAsRepositoryExtension;
         this.scmExtension = scmExtension;
         this.taskExtension = taskExtension;
-        this.agentUpgradeService = agentUpgradeService;
         this.sslInfrastructureService = sslInfrastructureService;
-        this.agentWebSocketService = agentWebSocketService;
         this.httpService = httpService;
+        this.webSocketClientHandler = webSocketClientHandler;
+        this.webSocketSessionHandler = webSocketSessionHandler;
     }
 
     @Override
@@ -100,38 +96,19 @@ public class WebSocketAgentController extends AgentController {
         // Do nothing
     }
 
-    private void handleIfSecurityException(Exception e) {
-        if (!isCausedBySecurity(e)) {
-            return;
+    @Override
+    public void work() throws Exception {
+        if (sslInfrastructureService.isRegistered()) {
+            if (webSocketSessionHandler.isNotRunning()) {
+                webSocketSessionHandler.clearCallBacks();
+                synchronized (this) {
+                    webSocketSessionHandler.setSession(webSocketClientHandler.connect(this));
+                }
+            }
+            updateServerAgentRuntimeInfo();
         }
-        sslInfrastructureService.invalidateAgentCertificate();
-        LOG.error("There has been a problem with one of Go's SSL certificates." +
-                        " This can be caused by a man-in-the-middle attack, or by pointing the agent to a new server, or by" +
-                        " deleting and re-installing Go Server. Go will ask for a new certificate. If this" +
-                        " fails to solve the problem, try deleting config/trust.jks in Go Agent's home directory.",
-                e);
     }
 
-    @Override
-    public void loop() {
-        try {
-            agentUpgradeService.checkForUpgrade();
-            sslInfrastructureService.registerIfNecessary(getAgentAutoRegistrationProperties());
-            if (sslInfrastructureService.isRegistered()) {
-                if (!agentWebSocketService.isRunning()) {
-                    callbacks.clear();
-                    agentWebSocketService.start(this);
-                }
-                updateServerAgentRuntimeInfo();
-            }
-        } catch (Exception e) {
-                if (isCausedBySecurity(e)) {
-                handleIfSecurityException(e);
-            } else {
-                LOG.error("Error occurred when agent tried to ping server: ", e);
-            }
-        }
-    }
 
     void process(Message message) throws InterruptedException {
         switch (message.getAction()) {
@@ -152,7 +129,7 @@ public class WebSocketAgentController extends AgentController {
                 runner = new JobRunner();
                 try {
                     runner.run(work, agentIdentifier(),
-                            new BuildRepositoryRemoteAdapter(runner, this),
+                            new BuildRepositoryRemoteAdapter(runner, webSocketSessionHandler),
                             manipulator, getAgentRuntimeInfo(),
                             packageAsRepositoryExtension, scmExtension,
                             taskExtension);
@@ -167,12 +144,12 @@ public class WebSocketAgentController extends AgentController {
                 runBuild(buildSettings);
                 break;
             case reregister:
-                LOG.warn("Reregister: invalidate current agent certificate fingerprint {} and stop websocket client.", getAgentRegistry().uuid());
-                agentWebSocketService.stop();
+                LOG.warn("Reregister: invalidate current agent certificate fingerprint {} and stop websocket webSocketClient.", getAgentRegistry().uuid());
+                webSocketSessionHandler.stop();
                 sslInfrastructureService.invalidateAgentCertificate();
                 break;
             case acknowledge:
-                callbacks.remove(MessageEncoding.decodeData(message.getData(), String.class)).call();
+                webSocketSessionHandler.acknowledge(message);
                 break;
             default:
                 throw new RuntimeException("Unknown action: " + message.getAction());
@@ -192,7 +169,7 @@ public class WebSocketAgentController extends AgentController {
                 urlService.prefixPartialUrl(buildSettings.getPropertyBaseUrl()),
                 new ZipUtil());
 
-        DefaultBuildStateReporter buildStateReporter = new DefaultBuildStateReporter(this, getAgentRuntimeInfo());
+        DefaultBuildStateReporter buildStateReporter = new DefaultBuildStateReporter(webSocketSessionHandler, getAgentRuntimeInfo());
 
         TimeProvider clock = new TimeProvider();
         BuildVariables buildVariables = new BuildVariables(getAgentRuntimeInfo(), clock);
@@ -206,7 +183,7 @@ public class WebSocketAgentController extends AgentController {
 
         this.buildSession.set(build);
 
-        build.setEnv("GO_SERVER_URL", new SystemEnvironment().getPropertyImpl("serviceUrl"));
+        build.setEnv("GO_SERVER_URL", getSystemEnvironment().getServiceUrl());
         getAgentRuntimeInfo().idle();
         try {
             getAgentRuntimeInfo().busy(new AgentBuildingInfo(buildSettings.getBuildLocatorForDisplay(), buildSettings.getBuildLocator()));
@@ -248,51 +225,26 @@ public class WebSocketAgentController extends AgentController {
         AgentIdentifier agent = agentIdentifier();
         LOG.trace("{} is pinging server [{}]", agent, server);
         getAgentRuntimeInfo().refreshUsableSpace();
-        sendAndWaitForAcknowledgement(new Message(Action.ping, MessageEncoding.encodeData(getAgentRuntimeInfo())));
+        webSocketSessionHandler.sendAndWaitForAcknowledgement(new Message(Action.ping, MessageEncoding.encodeData(getAgentRuntimeInfo())));
         LOG.trace("{} pinged server [{}]", agent, server);
     }
 
-    public void sendAndWaitForAcknowledgement(Message message) {
-        final CountDownLatch wait = new CountDownLatch(1);
-        sendWithCallback(message, new MessageCallback() {
-            @Override
-            public void call() {
-                wait.countDown();
-            }
-        });
-        try {
-            wait.await(getSystemEnvironment().getWebsocketAckMessageTimeout(), TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-            bomb(e);
-        }
-    }
-
-    public void sendWithCallback(Message message, MessageCallback callback) {
-        message.generateAckId();
-        callbacks.put(message.getAcknowledgementId(), callback);
-        agentWebSocketService.send(message);
-    }
-
-    private String sessionName;
     private Executor executor = Executors.newFixedThreadPool(5);
 
     @OnWebSocketConnect
     public void onConnect(Session session) {
         LOG.info(session + " connected.");
-        this.sessionName = "[" + session.getRemoteAddress() + "]";
     }
 
     @OnWebSocketMessage
     public void onMessage(InputStream raw) {
         final Message msg = MessageEncoding.decodeMessage(raw);
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(getSessionName() + " message: " + msg);
-        }
+        LOG.debug("{} message: {}", webSocketSessionHandler.getSessionName(), msg);
         executor.execute(new Runnable() {
             @Override
             public void run() {
                 try {
-                    WebSocketAgentController.this.process(msg);
+                    process(msg);
                 } catch (InterruptedException e) {
                     LOG.error("Process message[" + msg + "] is interruptted.", e);
                 } catch (RuntimeException e) {
@@ -304,21 +256,17 @@ public class WebSocketAgentController extends AgentController {
 
     @OnWebSocketClose
     public void onClose(int closeCode, String closeReason) {
-        LOG.debug("{} closed. code: {}, reason: {}", getSessionName(), closeCode, closeReason);
+        LOG.debug("{} closed. code: {}, reason: {}", webSocketSessionHandler.getSessionName(), closeCode, closeReason);
     }
 
     @OnWebSocketError
     public void onError(Throwable error) {
-        LOG.error(getSessionName() + " error", error);
+        LOG.error(webSocketSessionHandler.getSessionName() + " error", error);
     }
 
     @OnWebSocketFrame
     public void onFrame(Frame frame) {
-        LOG.debug("{} receive frame: {}", getSessionName(), frame.getPayloadLength());
-    }
-
-    private String getSessionName() {
-        return sessionName;
+        LOG.debug("{} receive frame: {}", webSocketSessionHandler.getSessionName(), frame.getPayloadLength());
     }
 
 }

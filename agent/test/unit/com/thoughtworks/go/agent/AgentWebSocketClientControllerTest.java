@@ -17,7 +17,6 @@
 package com.thoughtworks.go.agent;
 
 import com.thoughtworks.go.agent.service.AgentUpgradeService;
-import com.thoughtworks.go.agent.service.AgentWebSocketService;
 import com.thoughtworks.go.agent.service.SslInfrastructureService;
 import com.thoughtworks.go.buildsession.BuildSessionBasedTestCase;
 import com.thoughtworks.go.config.AgentRegistry;
@@ -28,7 +27,6 @@ import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.publishers.GoArtifactsManipulator;
-import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
@@ -36,37 +34,36 @@ import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.HttpService;
 import com.thoughtworks.go.util.SubprocessLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.websocket.*;
+import com.thoughtworks.go.websocket.Action;
+import com.thoughtworks.go.websocket.Message;
+import com.thoughtworks.go.websocket.MessageEncoding;
+import com.thoughtworks.go.websocket.Report;
 import com.thoughtworks.go.work.SleepWork;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPut;
 import org.eclipse.jetty.util.IO;
+import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.net.URI;
 import java.security.GeneralSecurityException;
-import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.thoughtworks.go.util.SystemUtil.getFirstLocalNonLoopbackIpAddress;
-import static com.thoughtworks.go.util.SystemUtil.getLocalhostName;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class WebSocketAgentControllerTest {
+public class AgentWebSocketClientControllerTest {
     private static final int MAX_WAIT_IN_TEST = 10000;
 
     @Rule
@@ -96,19 +93,18 @@ public class WebSocketAgentControllerTest {
     @Mock
     private TaskExtension taskExtension;
     @Mock
-    private AgentWebSocketService agentWebSocketService;
-    @Mock
     private HttpService httpService;
     @Mock
     private HttpClient httpClient;
+    private AgentWebSocketClientController agentController;
+    @Mock
+    private RemoteEndpoint remoteEndpoint;
+    @Mock
+    private WebSocketClientHandler webSocketClientHandler;
+    @Mock
+    private WebSocketSessionHandler webSocketSessionHandler;
     private String agentUuid = "uuid";
-    private AgentIdentifier agentIdentifier;
-    private WebSocketAgentController agentController;
 
-    @Before
-    public void setUp() throws Exception {
-        agentIdentifier = new AgentIdentifier(getLocalhostName(), getFirstLocalNonLoopbackIpAddress(), agentUuid);
-    }
 
     @After
     public void tearDown() {
@@ -116,65 +112,17 @@ public class WebSocketAgentControllerTest {
     }
 
     @Test
-    public void shouldReturnTrueIfCausedBySecurity() throws Exception {
-        Exception exception = new Exception(new RuntimeException(new GeneralSecurityException()));
-        when(agentRegistry.uuid()).thenReturn(agentUuid);
-
-        agentController = createAgentController();
-        agentController.init();
-        assertTrue(agentController.isCausedBySecurity(exception));
-        verify(sslInfrastructureService).createSslInfrastructure();
-    }
-
-    @Test
-    public void shouldReturnFalseIfNotCausedBySecurity() throws Exception {
-        Exception exception = new Exception(new IOException());
-        when(agentRegistry.uuid()).thenReturn(agentUuid);
-
-
-        agentController = createAgentController();
-        agentController.init();
-        assertFalse(agentController.isCausedBySecurity(exception));
-        verify(sslInfrastructureService).createSslInfrastructure();
-    }
-
-    @Test
-    public void shouldNotPingIfNotRegisteredYet() throws Exception {
-        when(agentRegistry.uuid()).thenReturn(agentUuid);
-        when(sslInfrastructureService.isRegistered()).thenReturn(false);
-
-        agentController = createAgentController();
-        agentController.init();
-        agentController.ping();
-        verify(sslInfrastructureService).createSslInfrastructure();
-    }
-
-    @Test
-    public void shouldUpgradeAgentBeforeAgentRegistration() throws Exception {
-        agentController = createAgentController();
-        InOrder inOrder = inOrder(agentUpgradeService, sslInfrastructureService);
-        agentController.loop();
-        inOrder.verify(agentUpgradeService).checkForUpgrade();
-        inOrder.verify(sslInfrastructureService).registerIfNecessary(agentController.getAgentAutoRegistrationProperties());
-    }
-
-    @Test
-    public void websocketPing() throws Exception {
-        when(systemEnvironment.isWebsocketEnabled()).thenReturn(true);
-        when(agentWebSocketService.isRunning()).thenReturn(false);
+    public void shouldSendAgentRuntimeInfoWhenWorkIsCalled() throws Exception {
         when(sslInfrastructureService.isRegistered()).thenReturn(true);
+        when(webSocketSessionHandler.isNotRunning()).thenReturn(false);
         ArgumentCaptor<Message> argumentCaptor = ArgumentCaptor.forClass(Message.class);
-        doNothing().when(agentWebSocketService).send(argumentCaptor.capture());
-
 
         agentController = createAgentController();
         agentController.init();
 
-        agentController.loop();
+        agentController.work();
 
-        verify(agentUpgradeService).checkForUpgrade();
-        verify(sslInfrastructureService).registerIfNecessary(agentController.getAgentAutoRegistrationProperties());
-        verify(agentWebSocketService).send(any(Message.class));
+        verify(webSocketSessionHandler).sendAndWaitForAcknowledgement(argumentCaptor.capture());
 
         Message message = argumentCaptor.getValue();
         assertThat(message.getAcknowledgementId(), notNullValue());
@@ -183,13 +131,12 @@ public class WebSocketAgentControllerTest {
     }
 
     @Test
-    public void shouldHandleSecurityErrorWhenOpenningWebsocketFailed() throws Exception {
-        when(systemEnvironment.isWebsocketEnabled()).thenReturn(true);
+    public void shouldHandleSecurityErrorWhenOpeningWebSocketFails() throws Exception {
         when(sslInfrastructureService.isRegistered()).thenReturn(true);
 
         agentController = createAgentController();
-        when(agentWebSocketService.isRunning()).thenReturn(false);
-        doThrow(new GeneralSecurityException()).when(agentWebSocketService).start(agentController);
+        when(webSocketSessionHandler.isNotRunning()).thenReturn(true);
+        doThrow(new GeneralSecurityException()).when(webSocketClientHandler).connect(agentController);
 
         agentController.init();
 
@@ -213,15 +160,12 @@ public class WebSocketAgentControllerTest {
     @Test
     public void processAssignWorkAction() throws IOException, InterruptedException {
         ArgumentCaptor<Message> argumentCaptor = ArgumentCaptor.forClass(Message.class);
-        doNothing().when(agentWebSocketService).send(argumentCaptor.capture());
-
-        when(agentRegistry.uuid()).thenReturn(agentUuid);
         agentController = createAgentController();
         agentController.init();
         agentController.process(new Message(Action.assignWork, MessageEncoding.encodeWork(new SleepWork("work1", 0))));
         assertThat(agentController.getAgentRuntimeInfo().getRuntimeStatus(), is(AgentRuntimeStatus.Idle));
 
-        verify(agentWebSocketService).send(any(Message.class));
+        verify(webSocketSessionHandler).sendAndWaitForAcknowledgement(argumentCaptor.capture());
         verify(artifactsManipulator).setProperty(null, new Property("work1_result", "done"));
 
         Message message = argumentCaptor.getValue();
@@ -232,7 +176,9 @@ public class WebSocketAgentControllerTest {
 
     @Test
     public void processBuildCommand() throws Exception {
+        ArgumentCaptor<Message> currentStatusMessageCaptor = ArgumentCaptor.forClass(Message.class);
         when(agentRegistry.uuid()).thenReturn(agentUuid);
+
         agentController = createAgentController();
         agentController.init();
         BuildSettings build = new BuildSettings();
@@ -245,19 +191,30 @@ public class WebSocketAgentControllerTest {
         build.setBuildCommand(BuildCommand.compose(
                 BuildCommand.echo("building"),
                 BuildCommand.reportCurrentStatus(JobState.Building)));
+
         agentController.process(new Message(Action.build, MessageEncoding.encodeData(build)));
+
         assertThat(agentController.getAgentRuntimeInfo().getRuntimeStatus(), is(AgentRuntimeStatus.Idle));
 
         AgentRuntimeInfo agentRuntimeInfo = cloneAgentRuntimeInfo(agentController.getAgentRuntimeInfo());
         agentRuntimeInfo.busy(new AgentBuildingInfo("build1ForDisplay", "build1"));
-//        verify(agentWebSocketService).send(new Message(Action.reportCurrentStatus, MessageEncoding.encodeData(new Report(agentRuntimeInfo, "b001", JobState.Building, null))));
-//        verify(agentWebSocketService).sendAndWaitForAcknowledgement(new Message(Action.reportCompleted, MessageEncoding.encodeData(new Report(agentRuntimeInfo, "b001", null, JobResult.Passed))));
 
+        verify(webSocketSessionHandler, times(2)).sendAndWaitForAcknowledgement(currentStatusMessageCaptor.capture());
 
         ArgumentCaptor<HttpPut> putMethodArg = ArgumentCaptor.forClass(HttpPut.class);
         verify(httpService).execute(putMethodArg.capture());
         assertThat(putMethodArg.getValue().getURI(), is(new URI("http://foo.bar/console")));
         assertThat(IO.toString(putMethodArg.getValue().getEntity().getContent()), containsString("building"));
+
+        Message message = currentStatusMessageCaptor.getAllValues().get(0);
+        assertThat(message.getAcknowledgementId(), notNullValue());
+        assertThat(message.getAction(), is(Action.reportCurrentStatus));
+        assertThat(message.getData(), is(MessageEncoding.encodeData(new Report(agentRuntimeInfo, "b001", JobState.Building, null))));
+
+        Message jobCompletedMessage = currentStatusMessageCaptor.getAllValues().get(1);
+        assertThat(jobCompletedMessage.getAcknowledgementId(), notNullValue());
+        assertThat(jobCompletedMessage.getAction(), is(Action.reportCompleted));
+        assertThat(jobCompletedMessage.getData(), is(MessageEncoding.encodeData(new Report(agentRuntimeInfo, "b001", null, JobResult.Passed))));
     }
 
     private AgentRuntimeInfo cloneAgentRuntimeInfo(AgentRuntimeInfo agentRuntimeInfo) {
@@ -266,9 +223,7 @@ public class WebSocketAgentControllerTest {
 
     @Test
     public void processCancelBuildCommandBuild() throws IOException, InterruptedException {
-        when(agentRegistry.uuid()).thenReturn(agentUuid);
         ArgumentCaptor<Message> argumentCaptor = ArgumentCaptor.forClass(Message.class);
-        doNothing().when(agentWebSocketService).send(argumentCaptor.capture());
 
         agentController = createAgentController();
         agentController.init();
@@ -306,7 +261,7 @@ public class WebSocketAgentControllerTest {
         agentRuntimeInfo.busy(new AgentBuildingInfo("build1ForDisplay", "build1"));
         agentRuntimeInfo.cancel();
 
-        verify(agentWebSocketService).send(any(Message.class));
+        verify(webSocketSessionHandler).sendAndWaitForAcknowledgement(argumentCaptor.capture());
 
         assertThat(agentController.getAgentRuntimeInfo().getRuntimeStatus(), is(AgentRuntimeStatus.Idle));
 
@@ -365,7 +320,7 @@ public class WebSocketAgentControllerTest {
         agentController.process(new Message(Action.reregister));
 
         verify(sslInfrastructureService).invalidateAgentCertificate();
-        verify(agentWebSocketService).stop();
+        verify(webSocketSessionHandler).stop();
     }
 
     @Test
@@ -393,26 +348,8 @@ public class WebSocketAgentControllerTest {
         verify(artifactsManipulator).setProperty(null, new Property("work2_result", "done"));
     }
 
-    @Test
-    public void sendWithCallback() throws Exception {
-        final AtomicBoolean callbackIsCalled = new AtomicBoolean(false);
-        agentController = createAgentController();
-        agentController.init();
-        final Message message = new Message(Action.reportCurrentStatus);
-        assertNull(message.getAcknowledgementId());
-        agentController.sendWithCallback(message, new MessageCallback() {
-            @Override
-            public void call() {
-                callbackIsCalled.set(true);
-            }
-        });
-        assertNotNull(message.getAcknowledgementId());
-        agentController.process(new Message(Action.acknowledge, MessageEncoding.encodeData(message.getAcknowledgementId())));
-        assertTrue(callbackIsCalled.get());
-    }
-
-    private WebSocketAgentController createAgentController() {
-        return new WebSocketAgentController(
+    private AgentWebSocketClientController createAgentController() {
+        AgentWebSocketClientController controller = new AgentWebSocketClientController(
                 loopServer,
                 artifactsManipulator,
                 sslInfrastructureService,
@@ -424,7 +361,8 @@ public class WebSocketAgentControllerTest {
                 packageAsRepositoryExtension,
                 scmExtension,
                 taskExtension,
-                agentWebSocketService,
-                httpService);
+                httpService,
+                webSocketClientHandler, webSocketSessionHandler);
+        return controller;
     }
 }

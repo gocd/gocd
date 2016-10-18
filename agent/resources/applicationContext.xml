@@ -59,7 +59,6 @@
   <bean id="sslInfrastructureService" class="com.thoughtworks.go.agent.service.SslInfrastructureService"/>
   <bean id="agentUpgradeService" class="com.thoughtworks.go.agent.service.AgentUpgradeService"/>
   <bean id="agentRegistry" class="com.thoughtworks.go.config.DefaultAgentRegistry"/>
-  <bean id="agentWebsocketService" class="com.thoughtworks.go.agent.service.AgentWebSocketService"/>
   <bean id="subprocessLogger" class="com.thoughtworks.go.util.SubprocessLogger"/>
   <bean id="agentPluginsInitializer" class="com.thoughtworks.go.agent.AgentPluginsInitializer"/>
   <bean id="packageAsRepositoryExtension"
@@ -77,6 +76,9 @@
     <constructor-arg ref="systemEnvironment"/>
   </bean>
 
+  <bean id="webSocketClientHandler" class="com.thoughtworks.go.agent.WebSocketClientHandler"/>
+  <bean id="webSocketSessionHandler" class="com.thoughtworks.go.agent.WebSocketSessionHandler"/>
+
   <bean id="agentController" class="com.thoughtworks.go.agent.AgentController" factory-method="createInstance">
     <constructor-arg ref="buildLoopServer"/>
     <constructor-arg ref="artifactsManipulator"/>
@@ -89,8 +91,9 @@
     <constructor-arg ref="packageAsRepositoryExtension"/>
     <constructor-arg ref="scmExtension"/>
     <constructor-arg ref="taskExtension"/>
-    <constructor-arg ref="agentWebsocketService"/>
     <constructor-arg ref="httpService"/>
+    <constructor-arg ref="webSocketClientHandler"/>
+    <constructor-arg ref="webSocketSessionHandler"/>
   </bean>
 
   <task:scheduled-tasks>

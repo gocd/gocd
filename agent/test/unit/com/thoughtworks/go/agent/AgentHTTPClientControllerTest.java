@@ -39,21 +39,17 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
-import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.io.IOException;
-import java.security.GeneralSecurityException;
 
 import static com.thoughtworks.go.util.SystemUtil.getFirstLocalNonLoopbackIpAddress;
 import static com.thoughtworks.go.util.SystemUtil.getLocalhostName;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class HTTPAgentControllerTest {
+public class AgentHTTPClientControllerTest {
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
     @Mock
@@ -82,7 +78,7 @@ public class HTTPAgentControllerTest {
     private TaskExtension taskExtension;
     private String agentUuid = "uuid";
     private AgentIdentifier agentIdentifier;
-    private HTTPAgentController agentController;
+    private AgentHTTPClientController agentController;
 
     @Before
     public void setUp() throws Exception {
@@ -142,33 +138,10 @@ public class HTTPAgentControllerTest {
     }
 
     @Test
-    public void shouldReturnTrueIfCausedBySecurity() throws Exception {
-        Exception exception = new Exception(new RuntimeException(new GeneralSecurityException()));
-        when(agentRegistry.uuid()).thenReturn(agentUuid);
-
-        agentController = createAgentController();
-        agentController.init();
-        assertTrue(agentController.isCausedBySecurity(exception));
-        verify(sslInfrastructureService).createSslInfrastructure();
-    }
-
-    @Test
-    public void shouldReturnFalseIfNotCausedBySecurity() throws Exception {
-        Exception exception = new Exception(new IOException());
-        when(agentRegistry.uuid()).thenReturn(agentUuid);
-
-
-        agentController = createAgentController();
-        agentController.init();
-        assertFalse(agentController.isCausedBySecurity(exception));
-        verify(sslInfrastructureService).createSslInfrastructure();
-    }
-
-    @Test
     public void shouldRegisterSubprocessLoggerAtExit() throws Exception {
         SslInfrastructureService sslInfrastructureService = mock(SslInfrastructureService.class);
         AgentRegistry agentRegistry = mock(AgentRegistry.class);
-        agentController = new HTTPAgentController(loopServer, artifactsManipulator, sslInfrastructureService, agentRegistry, agentUpgradeService, subprocessLogger, systemEnvironment, pluginManager, packageAsRepositoryExtension, scmExtension, taskExtension);
+        agentController = new AgentHTTPClientController(loopServer, artifactsManipulator, sslInfrastructureService, agentRegistry, agentUpgradeService, subprocessLogger, systemEnvironment, pluginManager, packageAsRepositoryExtension, scmExtension, taskExtension);
         agentController.init();
         verify(subprocessLogger).registerAsExitHook("Following processes were alive at shutdown: ");
     }
@@ -195,17 +168,8 @@ public class HTTPAgentControllerTest {
         verify(loopServer).ping(any(AgentRuntimeInfo.class));
     }
 
-    @Test
-    public void shouldUpgradeAgentBeforeAgentRegistration() throws Exception {
-        agentController = createAgentController();
-        InOrder inOrder = inOrder(agentUpgradeService, sslInfrastructureService);
-        agentController.loop();
-        inOrder.verify(agentUpgradeService).checkForUpgrade();
-        inOrder.verify(sslInfrastructureService).registerIfNecessary(agentController.getAgentAutoRegistrationProperties());
-    }
-
-    private HTTPAgentController createAgentController() {
-        return new HTTPAgentController(
+    private AgentHTTPClientController createAgentController() {
+        return new AgentHTTPClientController(
                 loopServer,
                 artifactsManipulator,
                 sslInfrastructureService,

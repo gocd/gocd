@@ -17,49 +17,122 @@
 define(['mithril', 'lodash'], function (m, _) {
 
   var VM = function () {
+    var dropdownStates     = {};
+    var agentCheckedStates = {};
+    var allAgentsSelected  = m.prop(false);
 
-    this.dropdown = {
-      states: {},
+    var viewModel = {
+      dropdown: {
+        reset: m.prop(true),
 
-      reset: m.prop(true),
-
-      add: function (name) {
-        if (!this.states[name]) {
-          this.states[name] = m.prop(false);
-        }
-      },
-
-      hide: function (name) {
-        this.states[name](false);
-      },
-
-      hideAllDropDowns: function () {
-        if (this.reset()) {
-          for (var item in this.states) {
-            this.states[item](false);
+        create: function (dropDownName) {
+          if (!dropdownStates[dropDownName]) {
+            dropdownStates[dropDownName] = m.prop(false);
           }
+
+          return dropdownStates[dropDownName];
+        },
+
+        hide: function (dropDownName) {
+          viewModel.dropdown.create(dropDownName)(false);
+        },
+
+        hideAllDropDowns: function () {
+          if (this.reset()) {
+            for (var item in dropdownStates) {
+              dropdownStates[item](false);
+            }
+          }
+          this.reset(true);
+        },
+
+        hideOtherDropdowns: function (dropDownName) {
+          for (var item in dropdownStates) {
+            if (item !== dropDownName) {
+              this.hide(item);
+            }
+          }
+        },
+
+        toggleDropDownState: function (dropDownName) {
+          this.reset(false);
+          dropdownStates[dropDownName](!dropdownStates[dropDownName]());
+          this.hideOtherDropdowns(dropDownName);
+        },
+
+        isDropDownOpen: function (dropDownName) {
+          return this.create(dropDownName)();
         }
-        this.reset(true);
       },
 
-      hideOtherDropdowns: function (name) {
-        for (var item in this.states) {
-          if (!_.isEqual(item, name)) {
-            this.states[item](false);
-          }
+      filterText: m.prop(''),
+
+      agents: {
+        isAnyAgentSelected: function () {
+          return _.some(agentCheckedStates, function (boxState) {
+            return boxState();
+          });
+        },
+
+        checkboxFor: function (uuid) {
+          return agentCheckedStates[uuid];
+        },
+
+        clearAllCheckboxes: function () {
+          _.each(agentCheckedStates, function (boxState) {
+            boxState(false);
+          });
+        },
+
+        selectedAgentsUuids: function () {
+          return _.compact(_.map(agentCheckedStates, function (boxSate, agentId) {
+            if (boxSate()) {
+              return agentId;
+            }
+          }));
+        },
+
+        areAllAgentsSelected: function (allAgents) {
+          var filterText = viewModel.filterText();
+
+          var isChecked = allAgents().filterBy(filterText).everyAgent(function (agent) {
+            var agentsCheckedState = agentCheckedStates[agent.uuid()];
+            if (agentsCheckedState) {
+              return agentsCheckedState();
+            }
+          });
+
+          allAgentsSelected(isChecked);
+          return isChecked;
+        },
+
+        selectAllAgents: function (allAgents) {
+          var isChecked  = allAgentsSelected(!allAgentsSelected());
+          var filterText = viewModel.filterText();
+
+          allAgents().filterBy(filterText).eachAgent(function (agent) {
+            agentCheckedStates[agent.uuid()](isChecked);
+          });
         }
+      },
+
+      initializeWith: function (newAgents) {
+        var newAgentUUIDs             = newAgents.collectAgentProperty('uuid');
+        var agentUUIDsKnownToVM       = _.keysIn(agentCheckedStates);
+        var agentUUIDsToRemoveFromVM  = _.difference(agentUUIDsKnownToVM, newAgentUUIDs);
+        var newAgentUUIDsNotKnownToVM = _.difference(newAgentUUIDs, agentUUIDsKnownToVM);
+
+        _.each(agentUUIDsToRemoveFromVM, function (uuid) {
+          delete agentCheckedStates[uuid];
+          delete dropdownStates[uuid];
+        });
+
+        _.each(newAgentUUIDsNotKnownToVM, function (uuid) {
+          agentCheckedStates[uuid] = m.prop();
+        });
       }
     };
-
-    this.agents = {
-      all: {
-        selected: m.prop(false)
-      }
-    };
-
-    this.filterText = m.prop('');
-
-    this.agentsCheckedState = {};
+    return viewModel;
   };
   return VM;
 });

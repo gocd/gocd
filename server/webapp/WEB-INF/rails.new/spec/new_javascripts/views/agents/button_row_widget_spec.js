@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(["jquery", "mithril", "lodash", 'models/agents/agents', "views/agents/button_row_widget"], function ($, m, _, Agents, ButtonRowWidget) {
+define(["jquery", "mithril", "lodash", 'models/agents/agents', "views/agents/button_row_widget", "views/agents/models/agents_widget_view_model"], function ($, m, _, Agents, ButtonRowWidget, AgentsVM) {
   describe("Button Row Widget", function () {
 
     var agents;
@@ -33,6 +33,8 @@ define(["jquery", "mithril", "lodash", 'models/agents/agents', "views/agents/but
     };
     var updateEnvironments = function () {
     };
+
+    var agentsVM = new AgentsVM();
 
     beforeAll(function () {
       agents        = m.prop();
@@ -96,18 +98,17 @@ define(["jquery", "mithril", "lodash", 'models/agents/agents', "views/agents/but
 
     var mount = function (isAnyAgentSelected) {
       m.mount(root,
-          m.component(ButtonRowWidget,
-            {
-              isAnyAgentSelected:     isAnyAgentSelected,
-              toggleDropDownState:    toggleDropDownState,
-              dropDownState:          dropDownState,
-              selectedAgents:       selectedAgents,
-              onDisable:            disableAgents,
-              onEnable:             enableAgents,
-              onDelete:             deleteAgents,
-              onResourcesUpdate:    updateResources,
-              onEnvironmentsUpdate: updateEnvironments
-            })
+        m.component(ButtonRowWidget,
+          {
+            isAnyAgentSelected:   isAnyAgentSelected,
+            dropdown:             agentsVM.dropdown,
+            selectedAgents:       selectedAgents,
+            onDisable:            disableAgents,
+            onEnable:             enableAgents,
+            onDelete:             deleteAgents,
+            onResourcesUpdate:    updateResources,
+            onEnvironmentsUpdate: updateEnvironments
+          })
       );
       m.redraw(true);
     };
@@ -116,13 +117,7 @@ define(["jquery", "mithril", "lodash", 'models/agents/agents', "views/agents/but
       m.mount(root, null);
       m.redraw(true);
     };
-
-    var toggleDropDownState = function () {};
-
-    var dropDownState = function () {
-      return false;
-    };
-
+    
     var json = function () {
       return [
         {

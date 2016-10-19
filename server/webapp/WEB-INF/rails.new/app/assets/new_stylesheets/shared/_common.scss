@@ -18,21 +18,23 @@
 
 $app-header-top-line: 11;
 $main-navigation: 10;
+$app-header-z-index: 12;
 $agents-filters: 2;
+$agent-header-panel-z-index: 3;
 
 body {
   background: image-url('bg-texture-dark.png') repeat 0 0;
+}
+
+.main-container {
+  margin-top: 50px;
 }
 
 .container {
   overflow:      hidden;
   background:    #fff;
   padding:       0;
-  border-radius: 5px;
   margin:        0 10px;
-  #agents & {
-    margin-bottom: 30px;
-  }
 }
 
 @media only screen and (min-width: 1600px) {

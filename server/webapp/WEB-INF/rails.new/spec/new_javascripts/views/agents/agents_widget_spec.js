@@ -16,16 +16,18 @@
 
 define(["jquery", "mithril", 'lodash', 'models/agents/agents', "views/agents/agents_widget", "views/agents/models/agents_widget_view_model"], function ($, m, _, Agents, AgentsWidget, AgentsVM) {
   describe("Agents Widget", function () {
-
     var $root = $('#mithril-mount-point'), root = $root.get(0);
 
-    var agentsVM = new AgentsVM();
+    var agentsVM;
+    var agents;
+
     var route = function () {
       m.route.mode = "hash";
+
       m.route(root, '',
         {
-          '':                  m.component(AgentsWidget, {vm: agentsVM, allAgents: m.prop(new Agents())}),
-          '/:sortBy/:orderBy': m.component(AgentsWidget, {vm: agentsVM, allAgents: m.prop(new Agents())})
+          '':                  m.component(AgentsWidget, {vm: agentsVM, allAgents: agents}),
+          '/:sortBy/:orderBy': m.component(AgentsWidget, {vm: agentsVM, allAgents: agents})
         }
       );
       m.route('');
@@ -39,7 +41,10 @@ define(["jquery", "mithril", 'lodash', 'models/agents/agents', "views/agents/age
       m.redraw(true);
     };
 
-    beforeAll(function () {
+    beforeEach(function () {
+      agentsVM = new AgentsVM();
+      agents   = m.prop(new Agents());
+
       jasmine.Ajax.install();
       jasmine.Ajax.stubRequest(/\/api\/agents/).andReturn({
         "responseText": JSON.stringify(agentsData),
@@ -56,14 +61,9 @@ define(["jquery", "mithril", 'lodash', 'models/agents/agents', "views/agents/age
       route();
     });
 
-    afterAll(function () {
+    afterEach(function () {
       unmount();
       jasmine.Ajax.uninstall();
-    });
-    
-    beforeEach(function () {
-      m.route('');
-      m.redraw(true);
     });
 
     it('should contain the agent rows equal to the number of agents', function () {
@@ -80,7 +80,7 @@ define(["jquery", "mithril", 'lodash', 'models/agents/agents', "views/agents/age
       expect(firstAgentInfo[2]).toHaveText('usr/local/foo');
       expect(firstAgentInfo[3]).toHaveText('Linux');
       expect(firstAgentInfo[4]).toHaveText('10.12.2.200');
-      expect(firstAgentInfo[5]).toHaveText('Disabled');
+      expect(firstAgentInfo[5]).toContainText('Disabled (Building)');
       expect(firstAgentInfo[6]).toHaveText('Unknown');
       expect(firstAgentInfo[7]).toHaveText('Firefox');
       expect(firstAgentInfo[8]).toHaveText('Dev, Test');
@@ -100,7 +100,6 @@ define(["jquery", "mithril", 'lodash', 'models/agents/agents', "views/agents/age
       expect(allBoxes[0]).toBeChecked();
       expect(allBoxes[1]).toBeChecked();
 
-      unclickAllAgents();
     });
 
     it('should check select all checkbox on selecting all the checkboxes', function () {
@@ -115,7 +114,6 @@ define(["jquery", "mithril", 'lodash', 'models/agents/agents', "views/agents/age
       m.redraw(true);
 
       expect(selectAllCheckbox[0]).toBeChecked();
-      unclickAllAgents();
     });
 
     it('should hide all dropdown on click of the body', function () {
@@ -132,7 +130,6 @@ define(["jquery", "mithril", 'lodash', 'models/agents/agents', "views/agents/age
       m.redraw(true);
 
       expect($(resourceButton).parent().attr('class')).not.toContain('is-open');
-      unclickAllAgents();
     });
 
     it('should not hide dropdown on click of dropdown list', function () {
@@ -147,7 +144,6 @@ define(["jquery", "mithril", 'lodash', 'models/agents/agents', "views/agents/age
       $(resourceButton).parent().click();
 
       expect($(resourceButton).parent().attr('class')).toContain('is-open');
-      unclickAllAgents();
     });
 
     it('should show message after disabling the agents', function () {
@@ -167,7 +163,7 @@ define(["jquery", "mithril", 'lodash', 'models/agents/agents', "views/agents/age
       m.redraw(true);
 
       var enableButton = $root.find("button:contains('Enable')");
-      var message = $root.find('.callout');
+      var message      = $root.find('.callout');
 
       expect(message).toHaveLength(0);
       $(enableButton).click();
@@ -178,7 +174,7 @@ define(["jquery", "mithril", 'lodash', 'models/agents/agents', "views/agents/age
 
     it('should show message after deleting the agents', function () {
       clickAllAgents();
-      var deleteButton   = $root.find("button:contains('Delete')");
+      var deleteButton = $root.find("button:contains('Delete')");
 
       expect(deleteButton).not.toBeDisabled();
       $(deleteButton).click();
@@ -194,8 +190,8 @@ define(["jquery", "mithril", 'lodash', 'models/agents/agents', "views/agents/age
       $(resourceButton).click();
       m.redraw(true);
 
-      var resource = $root.find('.add-resource');
-      var applyResource  = resource.find('button')[1];
+      var resource      = $root.find('.add-resource');
+      var applyResource = resource.find('button')[1];
 
       applyResource.click();
 
@@ -213,7 +209,7 @@ define(["jquery", "mithril", 'lodash', 'models/agents/agents', "views/agents/age
       var applyEnvironment = environment.find('button');
 
       applyEnvironment.click();
-      
+
       var message = $root.find('.callout');
       expect(message).toHaveText('Environments modified on 2 agents');
     });
@@ -289,7 +285,7 @@ define(["jquery", "mithril", 'lodash', 'models/agents/agents', "views/agents/age
         return $(cell).text();
       }).toArray();
 
-      expect(hostNames).toEqual(_.map(agents, 'hostname').sort());
+      expect(hostNames).toEqual(_.map(allAgentsJSON, 'hostname').sort());
     });
 
     it('should sort the agents in descending order based on hostname', function () {
@@ -306,7 +302,7 @@ define(["jquery", "mithril", 'lodash', 'models/agents/agents', "views/agents/age
         return $(cell).text();
       }).toArray();
 
-      expect(hostNames).toEqual(_.reverse(_.map(agents, 'hostname').sort()));
+      expect(hostNames).toEqual(_.reverse(_.map(allAgentsJSON, 'hostname').sort()));
     });
 
     it('should toggle the resources list on click of the resources button', function () {
@@ -319,14 +315,12 @@ define(["jquery", "mithril", 'lodash', 'models/agents/agents', "views/agents/age
       $(resourceButton).click();
       m.redraw(true);
 
-      resourcesList  = $root.find('.has-dropdown')[0];
+      resourcesList = $root.find('.has-dropdown')[0];
       expect(resourcesList.classList).toContain('is-open');
 
       resourceButton.click();
       m.redraw(true);
       expect(resourcesList.classList).not.toContain('is-open');
-
-      unclickAllAgents();
     });
 
     it('should toggle the environments list on click of the environments button', function () {
@@ -338,14 +332,12 @@ define(["jquery", "mithril", 'lodash', 'models/agents/agents', "views/agents/age
 
       $(environmentButton).click();
       m.redraw(true);
-      environmentsList  = $root.find('.has-dropdown')[1];
+      environmentsList = $root.find('.has-dropdown')[1];
       expect(environmentsList.classList).toContain('is-open');
 
       environmentButton.click();
       m.redraw(true);
       expect(environmentsList.classList).not.toContain('is-open');
-
-      unclickAllAgents();
     });
 
     it('should hide the resources list on click of the environments button', function () {
@@ -353,7 +345,7 @@ define(["jquery", "mithril", 'lodash', 'models/agents/agents', "views/agents/age
 
       var environmentButton = $root.find("button:contains('Environments')");
       var resourcesButton   = $root.find("button:contains('Resources')");
-      var resourcesDropdown         = $root.find("button:contains('Resources')").parent()[0];
+      var resourcesDropdown = $root.find("button:contains('Resources')").parent()[0];
 
       resourcesButton.click();
       m.redraw(true);
@@ -365,15 +357,14 @@ define(["jquery", "mithril", 'lodash', 'models/agents/agents', "views/agents/age
 
       expect(resourcesDropdown.classList).not.toContain('is-open');
 
-      unclickAllAgents();
       hideAllDropDowns();
     });
 
     it('should hide the environment list on click of the resource button', function () {
       clickAllAgents();
-      var environmentButton = $root.find("button:contains('Environments')");
-      var resourcesButton   = $root.find("button:contains('Resources')");
-      var environmentsDropdown          = $root.find("button:contains('Environments')").parent()[0];
+      var environmentButton    = $root.find("button:contains('Environments')");
+      var resourcesButton      = $root.find("button:contains('Resources')");
+      var environmentsDropdown = $root.find("button:contains('Environments')").parent()[0];
 
       environmentButton.click();
       m.redraw(true);
@@ -386,7 +377,6 @@ define(["jquery", "mithril", 'lodash', 'models/agents/agents', "views/agents/age
       expect(environmentsDropdown.classList).not.toContain('is-open');
 
       hideAllDropDowns();
-      unclickAllAgents();
     });
 
     it('should show error message for elastic agent resource update', function () {
@@ -395,8 +385,8 @@ define(["jquery", "mithril", 'lodash', 'models/agents/agents', "views/agents/age
       $(resourceButton).click();
       m.redraw(true);
 
-      var resource = $root.find('.add-resource');
-      var applyResource  = resource.find('button')[1];
+      var resource      = $root.find('.add-resource');
+      var applyResource = resource.find('button')[1];
 
       mockAjaxCalWithErrorOnUpdatingElasticAgentResource();
 
@@ -405,19 +395,23 @@ define(["jquery", "mithril", 'lodash', 'models/agents/agents', "views/agents/age
       var message = $root.find('.callout');
       expect(message).toHaveText('Resources on elastic agents with uuids [uuid] can not be updated.');
     });
-    
-    var unclickAllAgents = function () {
-      agentsVM.agents.all.selected(false);
-      _.forEach(agentsVM.agentsCheckedState, function(agent, key) {
-        agentsVM.agentsCheckedState[key](false);
-      });
+
+    it('should show build details dropdown for building agent', function () {
+      var buildingAgentStatus = $root.find(".agents-table tbody td:nth-child(6)")[0];
+      expect(buildingAgentStatus).not.toHaveClass('is-open');
+      var buildingDetailsLink = $(buildingAgentStatus).find('.has-build-details-drop-down')[0];
+
+      $(buildingDetailsLink).click();
       m.redraw(true);
-    };
+
+      buildingAgentStatus = $root.find(".agents-table tbody td:nth-child(6)")[0];
+      expect(buildingAgentStatus).toHaveClass('is-open');
+    });
 
     var clickAllAgents = function () {
-      agentsVM.agents.all.selected(true);
-      _.forEach(agentsVM.agentsCheckedState, function(agent, key) {
-        agentsVM.agentsCheckedState[key](true);
+      var uuids = agents().collectAgentProperty('uuid');
+      _.forEach(uuids, function (uuid) {
+        agentsVM.agents.checkboxFor(uuid)(true);
       });
       m.redraw(true);
     };
@@ -434,9 +428,8 @@ define(["jquery", "mithril", 'lodash', 'models/agents/agents', "views/agents/age
       });
     };
 
-
     /* eslint-disable camelcase */
-    var agents = [
+    var allAgentsJSON = [
       {
         "_links":             {
           "self": {
@@ -457,14 +450,30 @@ define(["jquery", "mithril", 'lodash', 'models/agents/agents', "views/agents/age
         "free_space":         "unknown",
         "agent_config_state": "Disabled",
         "agent_state":        "Missing",
-        "build_state":        "Unknown",
+        "build_state":        "Building",
         "resources":          [
           "Firefox"
         ],
         "environments":       [
           "Dev",
           "Test"
-        ]
+        ],
+        "build_details":      {
+          "_links":   {
+            "job":      {
+              "href": "http://localhost:8153/go/tab/build/detail/up42/2/up42_stage/1/up42_job"
+            },
+            "stage":    {
+              "href": "http://localhost:8153/go/pipelines/up42/2/up42_stage/1"
+            },
+            "pipeline": {
+              "href": "http://localhost:8153/go/tab/pipeline/history/up42"
+            }
+          },
+          "pipeline": "up42",
+          "stage":    "up42_stage",
+          "job":      "up42_job"
+        }
       },
       {
         "_links":             {
@@ -498,7 +507,7 @@ define(["jquery", "mithril", 'lodash', 'models/agents/agents', "views/agents/age
 
     var agentsData = {
       "_embedded": {
-        "agents": agents
+        "agents": allAgentsJSON
       }
     };
 

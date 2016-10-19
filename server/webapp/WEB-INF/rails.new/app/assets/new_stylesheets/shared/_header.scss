@@ -21,9 +21,12 @@ $menu-hover: #3e3d3d;
 $header-height: 50px;
 
 .app-header {
-  position:   relative;
+  position:   fixed;
   background: $grey;
+  top:        0;
   height:     $header-height;
+  width:      100%;
+  z-index:    $app-header-z-index;
 
   &:before {
     content:    "";

@@ -15,13 +15,15 @@
  */
 
 define([
-  'mithril', 'lodash', 'helpers/form_helper',
+  'mithril', 'lodash', 'string-plus',
+  'helpers/form_helper',
   'views/agents/agent_state_count_widget',
   'views/agents/agent_row_widget',
   'views/agents/agent_table_header',
   'views/agents/button_row_widget',
   'models/agents/agents'
-], function (m, _, f,
+], function (m, _, s,
+             f,
              AgentStateCountWidget,
              AgentRowWidget,
              AgentTableHeader,
@@ -30,14 +32,8 @@ define([
   var AgentsWidget = {
     controller: function (args) {
 
-      var toggleAllAgentsSelected = function () {
-        return args.vm.agents.all.selected(!args.vm.agents.all.selected());
-      };
-
       var clearAllCheckboxes = function () {
-        _.each(args.vm.agentsCheckedState, function (boxState) {
-          boxState(false);
-        });
+        args.vm.agents.clearAllCheckboxes();
       };
 
       var timeoutID         = m.prop();
@@ -89,7 +85,7 @@ define([
 
         refreshAfterInterval: function () {
           this.cancelRefreshTimeout();
-          timeoutID(window.setTimeout(ctrl.refresh.bind(ctrl), 10000));
+          timeoutID(window.setTimeout(this.refresh.bind(this), 10000));
         },
 
         cancelRefresh: function () {
@@ -107,6 +103,7 @@ define([
           request.isAbortedByGoCD = false;
           var onSuccess           = function (data) {
             this.allAgents(data);
+            args.vm.initializeWith(data);
             this.refreshAfterInterval();
           };
           var onError             = function () {
@@ -118,42 +115,15 @@ define([
         },
 
         selectAllAgents: function () {
-          var isChecked  = toggleAllAgentsSelected();
-          var filterText = args.vm.filterText();
-
-          var filteredAgents = this.allAgents().filterAgent(function (agent) {
-            return agent.matches(filterText);
-          });
-
-          _.each(filteredAgents, function (agent) {
-            args.vm.agentsCheckedState[agent.uuid()](isChecked);
-          });
+          args.vm.agents.selectAllAgents(this.allAgents);
         },
 
         areAllAgentsSelected: function () {
-          var filterText     = args.vm.filterText();
-          var filteredAgents = this.allAgents().filterAgent(function (agent) {
-            return agent.matches(filterText);
-          });
-
-          var isChecked = _.every(filteredAgents, function (agent) {
-            var agentsCheckedState = args.vm.agentsCheckedState[agent.uuid()];
-            if (agentsCheckedState) {
-              return agentsCheckedState();
-            }
-          });
-
-          args.vm.agents.all.selected(isChecked);
-          return isChecked;
+          return args.vm.agents.areAllAgentsSelected(this.allAgents);
         },
 
         selectedAgentsUuids: function () {
-          return _.compact(_.map(args.vm.agentsCheckedState, function (boxSate, agentId) {
-            if (boxSate()) {
-              return agentId;
-            }
-          }
-          ));
+          return args.vm.agents.selectedAgentsUuids();
         },
 
         selectedAgentsCount: function () {
@@ -179,7 +149,7 @@ define([
 
         disableAgents: function () {
           this.performingUpdate();
-          ctrl.allAgents().disableAgents(ctrl.selectedAgentsUuids())
+          this.allAgents().disableAgents(this.selectedAgentsUuids())
             .then(this.displaySuccessMessage.bind(this, 'Disabled'), ctrl.displayErrorMessage.bind(ctrl))
             .then(this.donePerformingUpdate.bind(this));
         },
@@ -213,9 +183,7 @@ define([
         },
 
         findAgent: function (uuid) {
-          return this.allAgents().findAgent(function (agent) {
-            return agent.uuid() === uuid;
-          });
+          return this.allAgents().findAgentByUuid(uuid);
         },
 
         selectedAgents: function () {
@@ -232,32 +200,9 @@ define([
           m.route('/' + sortBy + '/' + orderBy);
         },
 
-        toggleDropDownState: function (dropDownName) {
-          var dropdown = args.vm.dropdown;
-          dropdown.reset(false);
-          dropdown.states[dropDownName](!dropdown.states[dropDownName]());
-          dropdown.hideOtherDropdowns(dropDownName);
-        },
-
-        dropDownState: function (dropDownName) {
-          args.vm.dropdown.add(dropDownName);
-          return args.vm.dropdown.states[dropDownName]();
-        },
-
         isAnyAgentSelected: function () {
-          return _.some(args.vm.agentsCheckedState, function (boxState) {
-            return boxState();
-          });
-        },
-
-        hideDropDown: function (dropDownName) {
-          args.vm.dropdown.hide(dropDownName);
-        },
-
-        dropDownReset: function (resetValue) {
-          args.vm.dropdown.reset(resetValue);
+          return args.vm.agents.isAnyAgentSelected();
         }
-
       };
 
       m.redraw(true);     //freezes rendering of the page until the ajax call to agents completes
@@ -269,78 +214,83 @@ define([
     view: function (ctrl, args) {
       var filterText     = args.vm.filterText();
       var filteredAgents = ctrl.filteredAndSortedAgents();
+      var message = ctrl.message();
+      var maxCharsToBeDisplayedInMessage = 150;
 
-      var updateMessage = function () {
-        if (_.isEmpty(ctrl.message())) {
-          return <div></div>;
-        } else {
-          return (
-            <f.row>
-              <div data-alert class={"callout radius "+ ctrl.type()}>
-                {ctrl.message()}
-                <a href="#" class="close"></a>
-              </div>
-            </f.row>
-          );
-        }
-      };
+      var updateMessage;
+
+      if(!s.isBlank(message)) {
+        updateMessage = (
+          <f.row class="message">
+            <div data-alert class={"callout radius "+ ctrl.type()} title={message}>
+
+              {_.truncate(message, {'length': maxCharsToBeDisplayedInMessage})}
+              <a href="#" class="close"></a>
+            </div>
+          </f.row>
+        );
+      }
 
       return (
         <div onclick={ctrl.hideDropDownsAndMessage.bind(ctrl)}>
-          <ButtonRowWidget isAnyAgentSelected={ ctrl.isAnyAgentSelected.bind(ctrl) }
-                           hideDropDown={ ctrl.hideDropDown.bind(ctrl) }
-                           dropDownReset={ ctrl.dropDownReset.bind(ctrl) }
-                           toggleDropDownState={ ctrl.toggleDropDownState.bind(ctrl) }
-                           dropDownState={ ctrl.dropDownState.bind(ctrl) }
-                           selectedAgents={ ctrl.selectedAgents.bind(ctrl) }
-                           onDisable={ ctrl.disableAgents.bind(ctrl) }
-                           onEnable={ ctrl.enableAgents.bind(ctrl) }
-                           onDelete={ ctrl.deleteAgents.bind(ctrl) }
-                           onResourcesUpdate={ ctrl.updateResources.bind(ctrl) }
-                           onEnvironmentsUpdate={ ctrl.updateEnvironments.bind(ctrl) }
-                           isUpdateInProgress={ctrl.isUpdateInProgress}/>
+          <div class="agent-header-panel">
+            <ButtonRowWidget isAnyAgentSelected={ ctrl.isAnyAgentSelected.bind(ctrl) }
+                             dropdown={args.vm.dropdown}
+                             selectedAgents={ ctrl.selectedAgents.bind(ctrl) }
+                             onDisable={ ctrl.disableAgents.bind(ctrl) }
+                             onEnable={ ctrl.enableAgents.bind(ctrl) }
+                             onDelete={ ctrl.deleteAgents.bind(ctrl) }
+                             onResourcesUpdate={ ctrl.updateResources.bind(ctrl) }
+                             onEnvironmentsUpdate={ ctrl.updateEnvironments.bind(ctrl) }
+                             isUpdateInProgress={ctrl.isUpdateInProgress}/>
 
-          <div class="search-panel">
+            <div class="search-panel">
+              <f.row>
+                <f.column size={6} largeSize={3}>
+                  <div class="search-bar">
+                    <input type="text"
+                           oninput={m.withAttr("value", args.vm.filterText)}
+                           value={filterText}
+                           placeholder="Filter Agents"
+                           id="filter-agent"/>
+                  </div>
+                </f.column>
+
+                <f.column size={6} largeSize={8}>
+                  <AgentStateCountWidget agents={ctrl.filteredAndSortedAgents.bind(ctrl)}/>
+                </f.column>
+
+              </f.row>
+            </div>
+            {updateMessage}
             <f.row>
-              <f.column size={6} largeSize={3}>
-                <div class="search-bar">
-                  <input type="text"
-                         oninput={m.withAttr("value", args.vm.filterText)}
-                         value={filterText}
-                         placeholder="Filter Agents"
-                         id="filter-agent"/>
-                </div>
-              </f.column>
-
-              <f.column size={6} largeSize={8}>
-                <AgentStateCountWidget agents={ctrl.filteredAndSortedAgents.bind(ctrl)}/>
-              </f.column>
-
+              <div class="container">
+                <table class="go-table agents-table">
+                  <AgentTableHeader
+                    onCheckboxClick={ctrl.selectAllAgents.bind(ctrl)}
+                    checkboxValue={ctrl.areAllAgentsSelected.bind(ctrl)}
+                    sortBy={ctrl.sortBy}/>
+                </table>
+              </div>
             </f.row>
           </div>
-          {updateMessage()}
-          <f.row>
+          <f.row class="agents-table-body" style={!s.isBlank(message) ? "margin-top: 284px;" : ''}>
             <div class="container">
               <table class="go-table agents-table">
-                <AgentTableHeader
-                  onCheckboxClick={ctrl.selectAllAgents.bind(ctrl)}
-                  checkboxValue={ctrl.areAllAgentsSelected.bind(ctrl)}
-                  sortBy={ctrl.sortBy}/>
                 <tbody>
                 {
                   filteredAgents.mapAgents(function (agent) {
                     var uuid          = agent.uuid();
-                    var checkboxModel = args.vm.agentsCheckedState[uuid];
-
-                    if (!checkboxModel) {
-                      checkboxModel = args.vm.agentsCheckedState[uuid] = m.prop();
-                    }
+                    var checkboxModel = args.vm.agents.checkboxFor(uuid);
 
                     return (
                       <AgentRowWidget agent={agent}
                                       key={uuid}
                                       checkBoxModel={checkboxModel}
-                                      show={agent.matches(filterText)}/>
+                                      show={agent.matches(filterText)}
+                                      dropdown={args.vm.dropdown}
+
+                      />
                     );
 
                   })

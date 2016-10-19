@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash'], function (m, _) {
+define(['mithril', 'lodash', 'helpers/form_helper', 'views/agents/build_details_widget'], function (m, _, f, BuildDetailsWidget) {
 
   var cacheKey = function (things) {
     return things.join(', ');
@@ -34,15 +34,39 @@ define(['mithril', 'lodash'], function (m, _) {
     return "/go/agents/" + uuid + "/job_run_history";
   };
 
-  var AgentRowWidget = {
-    view: function (ctrl, args) {
-      var agent        = args.agent;
-      var resources    = joinOrNoneSpecified(agent.resources());
-      var environments = joinOrNoneSpecified(agent.environments());
-      var agentStatus  = agent.status();
+  var createBuildDetailsDropDown = function (agent, args) {
+    return (
+      <BuildDetailsWidget agent={agent}
+                          dropdown={args.dropdown}/>
+    );
+  };
 
-      if (!agent.buildDetails().isEmpty()) {
-        agentStatus = <a href={agent.buildDetails().jobUrl()}>{agent.status()}</a>;
+  var AgentRowWidget = {
+    controller: function (args) {
+      var ctrl = {
+
+        buildDetailsClicked: function (name) {
+          args.dropdown.create(name);
+          args.dropdown.toggleDropDownState(name);
+        },
+
+        dropdownClass : function (name) {
+          return args.dropdown.isDropDownOpen(name) ? "is-open" : '';
+        }
+      };
+      return ctrl;
+    },
+
+    view: function (ctrl, args) {
+      var agent           = args.agent;
+      var resources       = joinOrNoneSpecified(agent.resources());
+      var environments    = joinOrNoneSpecified(agent.environments());
+      var agentStatus     = agent.status();
+      var isBuildingAgent = !agent.buildDetails().isEmpty();
+
+      if (isBuildingAgent) {
+        agentStatus = <f.link onclick={ctrl.buildDetailsClicked.bind(ctrl, agent.uuid())}
+                              class="has-build-details-drop-down">{agent.status()}</f.link>;
       }
 
       return (
@@ -56,7 +80,10 @@ define(['mithril', 'lodash'], function (m, _) {
           <td key="sandbox">{agent.sandbox()}</td>
           <td key="operatingSystem">{agent.operatingSystem()}</td>
           <td key="ipAddress">{agent.ipAddress()}</td>
-          <td key="status">{agentStatus}</td>
+          <td key="status" class={ctrl.dropdownClass(agent.uuid())}>
+            {agentStatus}
+            {isBuildingAgent ? createBuildDetailsDropDown(agent, args) : ''}
+          </td>
           <td key="readableFreeSpace">{agent.readableFreeSpace()}</td>
           <td key="resources">{resources}</td>
           <td key="environments">{environments}</td>

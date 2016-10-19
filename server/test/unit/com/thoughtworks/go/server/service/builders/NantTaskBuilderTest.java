@@ -42,7 +42,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @RunWith(JunitExtRunner.class)
 public class NantTaskBuilderTest {
-    Pipeline pipeline = new NullPipeline();
+    Pipeline pipeline = new NullPipeline("");
     private UpstreamPipelineResolver resolver;
     private NantTaskBuilder nantTaskBuilder;
     private BuilderFactory builderFactory;

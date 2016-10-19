@@ -42,7 +42,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @RunWith(JunitExtRunner.class)
 public class ExecTaskBuilderTest {
-    Pipeline pipeline = new NullPipeline();
+    Pipeline pipeline = new NullPipeline("");
     private UpstreamPipelineResolver resolver;
     private ExecTaskBuilder execTaskBuilder;
     private BuilderFactory builderFactory;

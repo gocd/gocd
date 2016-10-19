@@ -35,7 +35,7 @@ import static org.mockito.Mockito.when;
 
 public class TasksTest {
 
-    Pipeline pipeline = new NullPipeline();
+    Pipeline pipeline = new NullPipeline("");
 
     @Test
     public void shouldReturnEmptyTasks() throws Exception {
@@ -157,7 +157,7 @@ public class TasksTest {
     }
 
     public static Pipeline pipelineStub(final String label, final String defaultWorkingFolder) {
-        return new NullPipeline() {
+        return new NullPipeline("") {
             @Override
             public String getLabel() {
                 return label;

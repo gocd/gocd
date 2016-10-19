@@ -103,10 +103,13 @@ public class WebSocketSessionHandler {
     }
 
     void acknowledge(Message message) {
-        callbacks.remove(MessageEncoding.decodeData(message.getData(), String.class)).call();
+        String acknowledgementId = MessageEncoding.decodeData(message.getData(), String.class);
+        LOG.debug("Acknowledging {}", acknowledgementId);
+        callbacks.remove(acknowledgementId).call();
     }
 
     void clearCallBacks() {
+        LOG.debug("Clearing {} ignored messages", callbacks.size());
         callbacks.clear();
     }
 }

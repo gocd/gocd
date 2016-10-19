@@ -54,7 +54,6 @@ public class GoConstants {
     public static final String CRUISE_JOB_DURATION = "cruise_job_duration";
     public static final String CRUISE_JOB_ID = "cruise_job_id";
     public static final String CRUISE_TIMESTAMP = "cruise_timestamp_";
-    public static final String THOUGHTWORKS_LICENSE_URL = "http://www.thoughtworks.com/products/go-continuous-delivery/compare";
 
     public static final String PRODUCT_NAME = "go";
 

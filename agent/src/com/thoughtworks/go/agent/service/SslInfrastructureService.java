@@ -180,7 +180,7 @@ public class SslInfrastructureService {
 
             try {
                 CloseableHttpResponse response = httpClient.execute(postMethod);
-                if (response.getStatusLine().getStatusCode() == SC_ACCEPTED) {
+                if (getStatusCode(response) == SC_ACCEPTED) {
                     LOGGER.debug("The server has accepted the registration request.");
                     return Registration.createNullPrivateKeyEntry();
                 }
@@ -188,9 +188,9 @@ public class SslInfrastructureService {
                 try (InputStream is = response.getEntity() == null ? new NullInputStream(0) : response.getEntity().getContent()) {
                     String responseBody = IOUtils.toString(is, StandardCharsets.UTF_8);
 
-                    if (response.getStatusLine().getStatusCode() == 200) {
+                    if (getStatusCode(response) == 200) {
                         LOGGER.info("This agent is now approved by the server.");
-                        return RegistrationJSONizer.fromJson(responseBody);
+                        return readResponse(responseBody);
                     } else {
                         LOGGER.warn(String.format("The server sent a response that we could not understand. The HTTP status was %s. The response body was:\n%s", response.getStatusLine(), responseBody));
                         return Registration.createNullPrivateKeyEntry();
@@ -199,6 +199,14 @@ public class SslInfrastructureService {
             } finally {
                 postMethod.releaseConnection();
             }
+        }
+
+        protected Registration readResponse(String responseBody) {
+            return RegistrationJSONizer.fromJson(responseBody);
+        }
+
+        protected int getStatusCode(CloseableHttpResponse response) {
+            return response.getStatusLine().getStatusCode();
         }
 
     }

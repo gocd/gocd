@@ -41,6 +41,7 @@ import org.hibernate.*;
 import org.hibernate.criterion.*;
 import org.hibernate.type.LongType;
 import org.hibernate.type.StringType;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
@@ -59,7 +60,7 @@ import static org.hibernate.criterion.Restrictions.isNull;
  * @understands how to store and retrieve Materials from the database
  */
 public class MaterialRepository extends HibernateDaoSupport {
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(MaterialRepository.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(MaterialRepository.class.getName());
 
     private final GoCache goCache;
     private final TransactionSynchronizationManager transactionSynchronizationManager;
@@ -849,7 +850,7 @@ public class MaterialRepository extends HibernateDaoSupport {
             }
         }
         if (!newChanges.isEmpty() && list.isEmpty()) {
-            throw new RuntimeException("All modifications already exist in db: " + revisions);
+            LOGGER.debug("All modifications already exist in db [{}]", revisions);
         }
         if (!matchingRevisionsFromDb.isEmpty()) {
             LOGGER.info("Saving revisions for material [{}] after removing the following duplicates {}",

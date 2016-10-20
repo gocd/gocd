@@ -88,7 +88,6 @@ public class DevelopmentServer {
         systemEnvironment.set(SystemEnvironment.GO_CONFIG_REPO_PERIODIC_GC, true);
         systemEnvironment.set(SystemEnvironment.GO_CONFIG_REPO_GC_AGGRESSIVE, true);
         systemEnvironment.setProperty("go.config.repo.gc.cron", "0 0/1 * 1/1 * ?");
-        systemEnvironment.setProperty("go.config.repo.gc.min.interval", "10000");
         systemEnvironment.setProperty("go.config.repo.gc.check.interval", "10000");
     }
 

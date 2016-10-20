@@ -30,7 +30,7 @@
     <import resource="propertyConfigurer.xml"/>
 
     <task:scheduled-tasks>
-        <task:scheduled ref="configRepository" method="garbageCollect" cron="${go.config.repo.gc.cron}" fixed-delay="${go.config.repo.gc.min.interval}" />
+        <task:scheduled ref="configRepository" method="garbageCollect" cron="${go.config.repo.gc.cron}" />
         <task:scheduled ref="configRepositoryGCWarningService" method="checkRepoAndAddWarningIfRequired" fixed-delay="${go.config.repo.gc.check.interval}"/>
     </task:scheduled-tasks>
 

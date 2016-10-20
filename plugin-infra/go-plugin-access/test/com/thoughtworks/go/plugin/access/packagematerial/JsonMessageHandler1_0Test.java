@@ -183,6 +183,13 @@ public class JsonMessageHandler1_0Test {
     }
 
     @Test
+    public void shouldThrowExceptionWhenAttemptingToGetLatestRevisionFromEmptyResponse(){
+        assertThat(getErrorMessageFromLatestRevision(""), is("Empty response body"));
+        assertThat(getErrorMessageFromLatestRevision("{}"), is("Empty response body"));
+        assertThat(getErrorMessageFromLatestRevision(null), is("Empty response body"));
+    }
+
+    @Test
     public void shouldBuildRequestBodyForLatestRevisionSinceRequest() throws Exception {
         Date timestamp = new SimpleDateFormat(DATE_FORMAT).parse("2011-07-13T19:43:37.100Z");
         Map data = new LinkedHashMap();
@@ -208,6 +215,7 @@ public class JsonMessageHandler1_0Test {
     public void shouldBuildNullPackageRevisionFromLatestRevisionSinceWhenEmptyResponse() throws Exception {
         assertThat(messageHandler.responseMessageForLatestRevisionSince(""), nullValue());
         assertThat(messageHandler.responseMessageForLatestRevisionSince(null), nullValue());
+        assertThat(messageHandler.responseMessageForLatestRevisionSince("{}"), nullValue());
     }
 
     @Test
@@ -269,7 +277,6 @@ public class JsonMessageHandler1_0Test {
 
     @Test
     public void shouldValidateIncorrectJsonForPackageRevision() {
-        assertThat(errorMessageForPackageRevision(""), is("Unable to de-serialize json response. Empty response body"));
         assertThat(errorMessageForPackageRevision("[{\"revision\":\"abc.rpm\"}]"), is("Unable to de-serialize json response. Package revision should be returned as a map"));
         assertThat(errorMessageForPackageRevision("{\"revision\":{}}"), is("Unable to de-serialize json response. Package revision should be of type string"));
         assertThat(errorMessageForPackageRevision("{\"revisionComment\":{}}"), is("Unable to de-serialize json response. Package revision comment should be of type string"));
@@ -342,5 +349,14 @@ public class JsonMessageHandler1_0Test {
             return e.getMessage();
         }
         return null;
+    }
+
+    private String getErrorMessageFromLatestRevision(String responseBody) {
+        try{
+            messageHandler.responseMessageForLatestRevision(responseBody);
+            fail("Should throw exception");
+        } catch( RuntimeException e){
+            return e.getMessage();
+        } return null;
     }
 }

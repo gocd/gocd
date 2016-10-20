@@ -159,7 +159,10 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
 
     @Override
     public PackageRevision responseMessageForLatestRevision(String responseBody) {
-        return toPackageRevision(responseBody);
+        PackageRevision packageRevision = toPackageRevision(responseBody);
+        if( packageRevision == null) {
+            throw new RuntimeException("Empty response body");
+        } else return packageRevision;
     }
 
     @Override
@@ -173,7 +176,6 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
 
     @Override
     public PackageRevision responseMessageForLatestRevisionSince(String responseBody) {
-        if (isEmpty(responseBody)) return null;
         return toPackageRevision(responseBody);
     }
 
@@ -270,8 +272,9 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
                 throw new RuntimeException("Package revision should be returned as a map");
             }
             if (map == null || map.isEmpty()) {
-                throw new RuntimeException("Empty response body");
+                return null;
             }
+
 
             String revision;
             try {

@@ -160,7 +160,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
     @Override
     public PackageRevision responseMessageForLatestRevision(String responseBody) {
         PackageRevision packageRevision = toPackageRevision(responseBody);
-        if( packageRevision == null) {
+        if (packageRevision == null) {
             throw new RuntimeException("Empty response body");
         } else return packageRevision;
     }

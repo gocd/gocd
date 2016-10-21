@@ -27,6 +27,8 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 
+import static org.hibernate.cfg.Environment.GENERATE_STATISTICS;
+
 /**
  * @understands how to run a local development mode webserver so we can develop live
  * Set the following before running the main method:
@@ -51,6 +53,8 @@ public class DevelopmentServer {
         if (chosenAppServer == null || chosenAppServer.trim().isEmpty()) {
             systemEnvironment.set(SystemEnvironment.APP_SERVER, SystemEnvironment.JETTY9);
         }
+
+        systemEnvironment.setProperty(GENERATE_STATISTICS, "true");
 
         systemEnvironment.setProperty(SystemEnvironment.PARENT_LOADER_PRIORITY, "true");
         systemEnvironment.setProperty(SystemEnvironment.CRUISE_SERVER_WAR_PROPERTY, webApp.getAbsolutePath());

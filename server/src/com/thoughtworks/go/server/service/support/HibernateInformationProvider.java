@@ -44,7 +44,6 @@ public class HibernateInformationProvider implements ServerInfoProvider {
     public void appendInformation(InformationStringBuilder builder) {
         builder.addSection(name());
         Statistics statistics = sessionFactory.getStatistics();
-        statistics.setStatisticsEnabled(true);
         builder.append(statistics);
     }
 

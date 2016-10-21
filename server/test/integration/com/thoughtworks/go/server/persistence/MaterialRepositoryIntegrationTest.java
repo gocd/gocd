@@ -1204,7 +1204,7 @@ public class MaterialRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldReportErrorIfAnAttemptIsMadeToInsertOnlyDuplicateModificationsForAGivenMaterial() {
+    public void shouldNotBlowUpReportErrorIfAnAttemptIsMadeToInsertOnlyDuplicateModificationsForAGivenMaterial() {
         final MaterialInstance materialInstance = repo.findOrCreateFrom(new GitMaterial(UUID.randomUUID().toString(), "branch"));
         final ArrayList<Modification> firstSetOfModifications = getModifications(3);
         transactionTemplate.execute(new TransactionCallback() {
@@ -1220,8 +1220,6 @@ public class MaterialRepositoryIntegrationTest {
         }
 
         final ArrayList<Modification> secondSetOfModificationsContainingAllDuplicateRevisions = getModifications(3);
-        thrown.expect(RuntimeException.class);
-        thrown.expectMessage("All modifications already exist in db: [r0, r1, r2]");
         transactionTemplate.execute(new TransactionCallback() {
             public Object doInTransaction(TransactionStatus status) {
                 repo.saveModifications(materialInstance, secondSetOfModificationsContainingAllDuplicateRevisions);

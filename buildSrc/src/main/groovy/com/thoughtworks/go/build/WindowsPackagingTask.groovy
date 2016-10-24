@@ -32,12 +32,14 @@ class WindowsPackagingTask extends DefaultTask {
   String version
   @Input
   String distVersion
+  @Input
+  Boolean is32Bit = false
 
   Closure<Task> beforePackage
 
   @OutputFile
   public File getOutputFile() {
-    project.file("${project.convention.plugins.get("base").distsDir}/win/${packageName}-${version}-${distVersion}.exe")
+    project.file("${project.convention.plugins.get("base").distsDir}/win/${packageName}-${version}-${distVersion}-jre-${flavour()}-setup.exe")
   }
 
   WindowsPackagingTask() {
@@ -90,26 +92,30 @@ class WindowsPackagingTask extends DefaultTask {
     }
   }
 
-  static String jreLocation() {
-    if (jreLocationSpecified()) {
-      System.getenv('WINDOWS_JRE_URL')
+  String jreLocation() {
+    if (specifiedJreLocation() != null) {
+      specifiedJreLocation()
     } else if (oracleLicenseAccepted()) {
       defaultJreLocation()
     } else {
-      throw new GradleException("Please specify environment variable WINDOWS_JRE_URL to point to a windows JRE location, or specify the environment `ORACLE_JRE_LICENSE_AGREE=Y' and the build script will download it on your behalf.")
+      throw new GradleException("Please specify environment variable WINDOWS_${flavour().toUpperCase()}_JRE_URL to point to a windows JRE location, or specify the environment `ORACLE_JRE_LICENSE_AGREE=Y' and the build script will download it on your behalf.")
     }
   }
 
-  static def oracleLicenseAccepted() {
+  def oracleLicenseAccepted() {
     System.getenv("ORACLE_JRE_LICENSE_AGREE") == "Y"
   }
 
-  static def defaultJreLocation() {
-    "http://download.oracle.com/otn-pub/java/jdk/7u79-b15/jre-7u79-windows-i586.tar.gz"
+  def defaultJreLocation() {
+    is32Bit ? "http://download.oracle.com/otn-pub/java/jdk/8u102-b14/jre-8u102-windows-i586.tar.gz" : "http://download.oracle.com/otn-pub/java/jdk/8u102-b14/jre-8u102-windows-x64.tar.gz"
   }
 
-  static def jreLocationSpecified() {
-    System.getenv('WINDOWS_JRE_URL') != null
+  def specifiedJreLocation() {
+    System.getenv("WINDOWS_${flavour().toUpperCase()}_JRE_URL")
+  }
+
+  def flavour() {
+    is32Bit ? "32bit" : "64bit"
   }
 
   def buildPackage() {
@@ -129,7 +135,8 @@ class WindowsPackagingTask extends DefaultTask {
           'JAVA'             : 'jre',
           'JAVASRC'          : jreDir,
           'DISABLE_LOGGING'  : System.getenv('DISABLE_WIN_INSTALLER_LOGGING') ?: false,
-          'OUTDIR'           : "${project.convention.plugins.get("base").distsDir}/win"
+          'OUTFILE'           : getOutputFile(),
+          'FLAVOUR'           : "${flavour()}"
       ]
 
       project.exec {

@@ -31,6 +31,8 @@ import com.thoughtworks.go.util.TestFileUtil;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
@@ -69,8 +71,18 @@ public class AgentRegistrationControllerTest {
         systemEnvironment = mock(SystemEnvironment.class);
         goConfigService = mock(GoConfigService.class);
 
-        when(agentService.agentJarInputStream()).thenReturn(new ByteArrayInputStream(EXPECTED.getBytes()));
-        when(agentService.agentLauncherJarInputStream()).thenReturn(new ByteArrayInputStream(EXPECTED_LAUNCHER.getBytes()));
+        when(agentService.agentJarInputStream()).thenAnswer(new Answer<ByteArrayInputStream>() {
+            @Override
+            public ByteArrayInputStream answer(InvocationOnMock invocation) throws Throwable {
+                return new ByteArrayInputStream(EXPECTED.getBytes());
+            }
+        });
+        when(agentService.agentLauncherJarInputStream()).thenAnswer(new Answer<ByteArrayInputStream>() {
+            @Override
+            public ByteArrayInputStream answer(InvocationOnMock invocation) throws Throwable {
+                return new ByteArrayInputStream(EXPECTED_LAUNCHER.getBytes());
+            }
+        });
 
         when(systemEnvironment.getSslServerPort()).thenReturn(8443);
         pluginsZip = mock(PluginsZip.class);
@@ -139,16 +151,15 @@ public class AgentRegistrationControllerTest {
 
     @Test
     public void shouldReturnAgentJarWhenRequested() throws Exception {
-        ModelAndView modelAndView = controller.downloadAgent();
-        modelAndView.getView().render(null, request, response);
+        controller.downloadAgent(response);
         String actual = response.getContentAsString();
         assertEquals(EXPECTED, actual);
     }
 
     @Test
     public void shouldReturnCorrectContentType() throws Exception {
-        ModelAndView modelAndView = controller.downloadAgent();
-        assertEquals("application/octet-stream", modelAndView.getView().getContentType());
+        controller.downloadAgent(response);
+        assertEquals("application/octet-stream", response.getContentType());
     }
 
     @Test
@@ -240,16 +251,14 @@ public class AgentRegistrationControllerTest {
 
     @Test
     public void contentShouldIncludeMd5Checksum_forAgent() throws Exception {
-        ModelAndView modelAndView = controller.downloadAgent();
-        modelAndView.getView().render(null, request, response);
+        controller.downloadAgent(response);
         String actual = response.getHeader("Content-MD5");
         assertEquals(StringUtil.md5Digest(EXPECTED.getBytes()), actual);
     }
 
     @Test
     public void contentShouldIncludeMd5Checksum_forAgentLauncher() throws Exception {
-        ModelAndView modelAndView = controller.downloadAgentLauncher();
-        modelAndView.getView().render(null, request, response);
+        controller.downloadAgentLauncher(response);
         String actual = response.getHeader("Content-MD5");
         assertEquals(StringUtil.md5Digest(EXPECTED_LAUNCHER.getBytes()), actual);
     }
@@ -274,13 +283,13 @@ public class AgentRegistrationControllerTest {
     public void shouldReturnAgentPluginsZipWhenRequested() throws Exception {
         File pluginZipFile = TestFileUtil.createTempFile("plugins.zip");
         FileUtils.writeStringToFile(pluginZipFile, "content");
+        when(pluginsZip.md5()).thenReturn("md5");
         when(systemEnvironment.get(SystemEnvironment.ALL_PLUGINS_ZIP_PATH)).thenReturn(pluginZipFile.getAbsolutePath());
 
-        ModelAndView modelAndView = controller.downloadPluginsZip();
+        controller.downloadPluginsZip(response);
 
-        modelAndView.getView().render(null, request, response);
         String actual = response.getContentAsString();
-        assertEquals("application/octet-stream", modelAndView.getView().getContentType());
+        assertEquals("application/octet-stream", response.getContentType());
         assertEquals("content", actual);
     }
 

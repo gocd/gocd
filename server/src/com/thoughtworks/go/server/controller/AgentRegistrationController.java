@@ -42,11 +42,13 @@ import org.springframework.web.servlet.View;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
-import static com.thoughtworks.go.util.FileDigester.copyAndDigest;
 import static com.thoughtworks.go.util.FileDigester.md5DigestOfStream;
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
@@ -74,8 +76,9 @@ public class AgentRegistrationController {
     @RequestMapping(value = "/admin/latest-agent.status", method = RequestMethod.HEAD)
     public void checkAgentStatus(HttpServletResponse response) throws IOException {
         populateAgentChecksum();
-        response.setHeader(SystemEnvironment.AGENT_CONTENT_MD5_HEADER, agentChecksum);
         populateLauncherChecksum();
+
+        response.setHeader(SystemEnvironment.AGENT_CONTENT_MD5_HEADER, agentChecksum);
         response.setHeader(SystemEnvironment.AGENT_LAUNCHER_CONTENT_MD5_HEADER, agentLauncherChecksum);
         response.setHeader(SystemEnvironment.AGENT_PLUGINS_ZIP_MD5_HEADER, pluginsZip.md5());
         setOtherHeaders(response);
@@ -89,6 +92,7 @@ public class AgentRegistrationController {
     @RequestMapping(value = "/admin/agent", method = RequestMethod.HEAD)
     public void checkAgentVersion(HttpServletResponse response) throws IOException {
         populateAgentChecksum();
+
         response.setHeader("Content-MD5", agentChecksum);
         setOtherHeaders(response);
     }
@@ -96,6 +100,7 @@ public class AgentRegistrationController {
     @RequestMapping(value = "/admin/agent-launcher.jar", method = RequestMethod.HEAD)
     public void checkAgentLauncherVersion(HttpServletResponse response) throws IOException {
         populateLauncherChecksum();
+
         response.setHeader("Content-MD5", agentLauncherChecksum);
         setOtherHeaders(response);
     }
@@ -107,14 +112,18 @@ public class AgentRegistrationController {
     }
 
     private void populateLauncherChecksum() throws IOException {
-        if (agentLauncherChecksum == null) {
-            agentLauncherChecksum = getChecksumFor(new AgentLauncherSrc());
+        synchronized (this) {
+            if (agentLauncherChecksum == null) {
+                agentLauncherChecksum = getChecksumFor(new AgentLauncherSrc());
+            }
         }
     }
 
     private void populateAgentChecksum() throws IOException {
-        if (agentChecksum == null) {
-            agentChecksum = getChecksumFor(new AgentJarSrc());
+        synchronized (this) {
+            if (agentChecksum == null) {
+                agentChecksum = getChecksumFor(new AgentJarSrc());
+            }
         }
     }
 
@@ -136,46 +145,25 @@ public class AgentRegistrationController {
     }
 
     @RequestMapping(value = "/admin/agent", method = RequestMethod.GET)
-    public ModelAndView downloadAgent() throws IOException {
-        return getDownload(new AgentJarSrc());
+    public void downloadAgent(HttpServletResponse response) throws IOException {
+        checkAgentVersion(response);
+
+        sendFile(new AgentJarSrc(), response);
     }
 
     @RequestMapping(value = "/admin/agent-launcher.jar", method = RequestMethod.GET)
-    public ModelAndView downloadAgentLauncher() throws IOException {
-        return getDownload(new AgentLauncherSrc());
+    public void downloadAgentLauncher(HttpServletResponse response) throws IOException {
+        checkAgentLauncherVersion(response);
+
+        sendFile(new AgentLauncherSrc(), response);
+
     }
 
     @RequestMapping(value = "/admin/agent-plugins.zip", method = RequestMethod.GET)
-    public ModelAndView downloadPluginsZip() throws IOException {
-        return getDownload(new AgentPluginsZipSrc());
-    }
+    public void downloadPluginsZip(HttpServletResponse response) throws IOException {
+        checkAgentPluginsZipStatus(response);
 
-    private ModelAndView getDownload(final InputStreamSrc inStreamSrc) throws FileNotFoundException {
-        return new ModelAndView(new View() {
-            public String getContentType() {
-                return "application/octet-stream";
-            }
-
-            public void render(Map model, HttpServletRequest request, HttpServletResponse response) throws IOException {
-                InputStream rawIS = null;
-                BufferedInputStream is = null;
-                BufferedOutputStream os = null;
-                try {
-                    rawIS = inStreamSrc.invoke();
-                    is = new BufferedInputStream(rawIS);
-                    os = new BufferedOutputStream(response.getOutputStream());
-
-                    String md5 = copyAndDigest(is, os);
-                    response.setHeader("Content-MD5", md5);
-                    setOtherHeaders(response);
-                    os.flush();
-                } finally {
-                    IOUtils.closeQuietly(is);
-                    IOUtils.closeQuietly(os);
-                    IOUtils.closeQuietly(rawIS);
-                }
-            }
-        });
+        sendFile(new AgentPluginsZipSrc(), response);
     }
 
     @RequestMapping(value = "/admin/agent", method = RequestMethod.POST)
@@ -267,6 +255,13 @@ public class AgentRegistrationController {
                 response.getWriter().print(RegistrationJSONizer.toJson(registration));
             }
         });
+    }
+
+    private void sendFile(InputStreamSrc input, HttpServletResponse response) throws IOException {
+        response.setContentType("application/octet-stream");
+        try (InputStream in = input.invoke()) {
+            IOUtils.copy(in, response.getOutputStream());
+        }
     }
 
     private boolean partialElasticAgentAutoregistrationInfo(String elasticAgentId, String elasticPluginId) {

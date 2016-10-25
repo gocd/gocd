@@ -510,6 +510,19 @@ public class SystemEnvironmentTest {
     }
 
     @Test
+    public void shouldReturnTheDefaultGCExpireTimeInMilliSeconds() {
+        assertThat(SystemEnvironment.GO_CONFIG_REPO_GC_EXPIRE.propertyName(), is("go.config.repo.gc.expire"));
+        assertThat(systemEnvironment.getConfigGitGCExpireTime(), is(24*60*60*1000L));
+    }
+
+    @Test
+    public void shouldReturnTHeGCExpireTimeInMilliSeconds() {
+        assertThat(systemEnvironment.getConfigGitGCExpireTime(), is(24*60*60*1000L));
+        System.setProperty("go.config.repo.gc.expire", "1");
+        assertThat(systemEnvironment.getConfigGitGCExpireTime(), is(60*60*1000L));
+    }
+
+    @Test
     public void shouldReturnFalseWhenShineEnabledIsNotSet() {
         assertFalse(systemEnvironment.isShineEnabled());
     }

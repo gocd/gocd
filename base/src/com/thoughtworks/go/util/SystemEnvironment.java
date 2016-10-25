@@ -170,6 +170,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoSystemProperty<String[]> GO_SSL_EXCLUDE_PROTOCOLS = new GoStringArraySystemProperty("go.ssl.protocols.exclude", null);
     public static GoSystemProperty<Boolean> GO_SSL_RENEGOTIATION_ALLOWED = new GoBooleanSystemProperty("go.ssl.renegotiation.allowed", true);
     public static GoSystemProperty<Boolean> GO_CONFIG_REPO_GC_AGGRESSIVE = new GoBooleanSystemProperty("go.config.repo.gc.aggressive", true);
+    public static GoSystemProperty<Long> GO_CONFIG_REPO_GC_EXPIRE = new GoLongSystemProperty("go.config.repo.gc.expire", 24L);
     public static GoSystemProperty<Long> GO_CONFIG_REPO_GC_LOOSE_OBJECT_WARNING_THRESHOLD = new GoLongSystemProperty("go.config.repo.gc.warning.looseobject.threshold", 10000L);
     public static GoSystemProperty<Boolean> GO_CONFIG_REPO_PERIODIC_GC = new GoBooleanSystemProperty("go.config.repo.gc.periodic", false);
 
@@ -763,6 +764,11 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public Long getWebsocketAckMessageTimeout() {
         return GO_WEBSOCKET_ACK_MESSAGE_TIMEOUT.getValue();
+    }
+
+    public Long getConfigGitGCExpireTime() {
+        Long hour = GO_CONFIG_REPO_GC_EXPIRE.getValue();
+        return hour * 60 * 60 * 1000;
     }
 
     public boolean isApiSafeModeEnabled() {

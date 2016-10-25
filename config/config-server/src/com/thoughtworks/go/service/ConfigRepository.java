@@ -41,6 +41,7 @@ import org.springframework.stereotype.Component;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
@@ -391,7 +392,10 @@ public class ConfigRepository {
             public void run() throws Exception {
                 try {
                     LOGGER.info("Before GC: {}", git.gc().getStatistics());
-                    git.gc().setAggressive(systemEnvironment.get(SystemEnvironment.GO_CONFIG_REPO_GC_AGGRESSIVE)).call();
+                    long date = systemEnvironment.getConfigGitGCExpireTime();
+                    git.gc().setAggressive(systemEnvironment.get(SystemEnvironment.GO_CONFIG_REPO_GC_AGGRESSIVE))
+                            .setExpire(new Date(date))
+                            .call();
                     LOGGER.info("After GC: {}", git.gc().getStatistics());
                 } catch (GitAPIException e) {
                     LOGGER.error("Could not perform GC", e);

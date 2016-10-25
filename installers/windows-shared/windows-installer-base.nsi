@@ -95,7 +95,7 @@ Function .onInit
       TURN_OFF_LOGGING:
 
    ; If we get an error then the key does not exist and we're doing a clean install
-    IfErrors Go_not_found
+    IfErrors done
         ReadRegStr $1 HKLM "Software\ThoughtWorks Studios\Go $%NAME%" "Ver"
         ReadRegStr $2 HKLM "Software\ThoughtWorks Studios\Go $%NAME%" "Version"
         IntCmp $1 $%REGVER% issame isnewer isolder
@@ -137,33 +137,6 @@ Function .onInit
             StrCpy $IsUpgrading $UPGRADING
             ExecWait 'net stop "Go $%NAME%"'
     Goto done
-
-    Go_not_found:
-    ; Check if cruise exists - if it exists no errors
-    ClearErrors
-    ReadRegStr $0 HKLM "Software\ThoughtWorks Studios\Cruise $%NAME%" "Install_Dir"
-
-    ; If we get an error then the key does not exist and we're doing a clean install
-    IfErrors done
-        ReadRegStr $1 HKLM "Software\ThoughtWorks Studios\Cruise $%NAME%" "Ver"
-        ReadRegStr $2 HKLM "Software\ThoughtWorks Studios\Cruise $%NAME%" "Version"
-        IntCmp $1 $%REGVER% isCruise
-
-        isCruise:
-            IfSilent IsCruiseSilentLabel IsCruiseNonSilentLabel
-            IsCruiseSilentLabel:
-                ${LogText} "Go $%NAME% upgrade from $2 to $%VERSION%"
-                Goto upgradeToGo
-            IsCruiseNonSilentLabel:
-                MessageBox MB_YESNO "This will upgrade Go $%NAME% from $2 to $%VERSION%.$\r$\nMake sure you have backups before doing this!$\r$\nDo you want to continue?" IDYES upgradeToGo IDNO dontupgradeToGo
-
-        dontupgradeToGo:
-            Quit
-
-        upgradeToGo:
-            StrCpy $IsUpgrading $UPGRADING
-            ExecWait 'net stop "Cruise $%NAME%"'
-
     done:
         Call CustomOnInit
 FunctionEnd
@@ -175,49 +148,11 @@ Function skipDirectoryOnUpgrade
     ReadRegStr $0 HKLM "Software\ThoughtWorks Studios\Go $%NAME%" "Install_Dir"
 
     ; If we get an error then the key does not exist and we're doing a clean install
-    IfErrors Go_not_found
+    IfErrors done
         ; If not we simply hard code the directory and skip the directory selection page
         StrCpy $INSTDIR $0
         Abort
     Goto done
-
-    Go_not_found:
-        ; check if cruise is already installed
-        ClearErrors
-        ReadRegStr $0 HKLM "Software\ThoughtWorks Studios\Cruise $%NAME%" "Install_Dir"
-
-        ; If we get an error then the key does not exist and we're doing a clean install
-        IfErrors done
-            ; If not we simply hard code the directory and skip the directory selection page
-            StrCpy $INSTDIR $0
-            ; Uninstall the old version
-            ; Stop and remove
-            ExecWait '"$INSTDIR\cruisewrapper.exe" --remove "$INSTDIR\config\wrapper-$%NAME%.conf"'
-
-            ; Remove registry keys
-            DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Cruise $%NAME%"
-            DeleteRegKey HKLM "SOFTWARE\ThoughtWorks Studios\Cruise $%NAME%"
-
-            ; Remove Env Vars
-            DeleteRegValue HKLM "SYSTEM\CurrentControlSet\Control\Session Manager\Environment" "CRUISE_SERVER_DIR"
-
-            SimpleFC::RemovePort 8153 6
-            SimpleFC::RemovePort 8154 6
-
-            Sleep 10000
-
-            ; Remove files and uninstaller
-            Delete $INSTDIR\uninstall.exe
-
-            ; Remove directories used
-            RMDir /r $INSTDIR\apache-ant-1.7.0
-            RMDir /r $INSTDIR\jre
-            RMDir /r $INSTDIR\lib
-            Delete $INSTDIR\*.*
-
-            RMDir /r "$SMPROGRAMS\Cruise $%NAME%"
-            Delete "$DESKTOP\Cruise $%NAME%.url"
-            Abort
     done:
 
 FunctionEnd

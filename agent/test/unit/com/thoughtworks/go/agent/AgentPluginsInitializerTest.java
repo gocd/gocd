@@ -60,14 +60,14 @@ public class AgentPluginsInitializerTest {
     @Test
     public void shouldExtractPluginZip() throws Exception {
         agentPluginsInitializer.onApplicationEvent(null);
-        verify(zipUtil).unzip(new File(DownloadableFile.AGENT_PLUGINS.getLocalFileName()), new File(SystemEnvironment.PLUGINS_PATH));
+        verify(zipUtil).unzip(DownloadableFile.AGENT_PLUGINS.getLocalFile(), new File(SystemEnvironment.PLUGINS_PATH));
     }
 
     @Test
     public void shouldInitializePluginJarLocationMonitorAndStartPluginInfrastructureAfterPluginZipExtracted() throws Exception {
         InOrder inOrder = inOrder(zipUtil, pluginManager, pluginJarLocationMonitor);
         agentPluginsInitializer.onApplicationEvent(null);
-        inOrder.verify(zipUtil).unzip(new File(DownloadableFile.AGENT_PLUGINS.getLocalFileName()), new File(SystemEnvironment.PLUGINS_PATH));
+        inOrder.verify(zipUtil).unzip(DownloadableFile.AGENT_PLUGINS.getLocalFile(), new File(SystemEnvironment.PLUGINS_PATH));
         inOrder.verify(pluginJarLocationMonitor).initialize();
         inOrder.verify(pluginManager).startInfrastructure();
         verify(pluginManager, never()).registerPluginsFolderChangeListener();
@@ -75,7 +75,7 @@ public class AgentPluginsInitializerTest {
 
     @Test
     public void shouldHandleIOExceptionQuietly() throws Exception {
-        doThrow(new IOException()).when(zipUtil).unzip(new File(DownloadableFile.AGENT_PLUGINS.getLocalFileName()), new File(SystemEnvironment.PLUGINS_PATH));
+        doThrow(new IOException()).when(zipUtil).unzip(DownloadableFile.AGENT_PLUGINS.getLocalFile(), new File(SystemEnvironment.PLUGINS_PATH));
         try {
             agentPluginsInitializer.onApplicationEvent(null);
         } catch (Exception e) {
@@ -85,7 +85,7 @@ public class AgentPluginsInitializerTest {
 
     @Test
     public void shouldAllExceptionsExceptionQuietly() throws Exception {
-        doThrow(new IOException()).when(zipUtil).unzip(new File(DownloadableFile.AGENT_PLUGINS.getLocalFileName()), new File(SystemEnvironment.PLUGINS_PATH));
+        doThrow(new IOException()).when(zipUtil).unzip(DownloadableFile.AGENT_PLUGINS.getLocalFile(), new File(SystemEnvironment.PLUGINS_PATH));
         try {
             doThrow(new RuntimeException("message")).when(pluginJarLocationMonitor).initialize();
             agentPluginsInitializer.onApplicationEvent(null);

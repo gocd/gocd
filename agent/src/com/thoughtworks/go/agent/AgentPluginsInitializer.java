@@ -52,13 +52,12 @@ public class AgentPluginsInitializer implements ApplicationListener<ContextRefre
     @Override
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
         try {
-            File agentPluginsZip = new File(DownloadableFile.AGENT_PLUGINS.getLocalFileName());
             File pluginsFolder = new File(systemEnvironment.get(SystemEnvironment.AGENT_PLUGINS_PATH));
 
             if (pluginsFolder.exists()) {
                 FileUtils.forceDelete(pluginsFolder);
             }
-            zipUtil.unzip(agentPluginsZip, pluginsFolder);
+            zipUtil.unzip(DownloadableFile.AGENT_PLUGINS.getLocalFile(), pluginsFolder);
             defaultPluginJarLocationMonitor.initialize();
             pluginManager.startInfrastructure();
         } catch (IOException e) {

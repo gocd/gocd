@@ -17,161 +17,134 @@
 package com.thoughtworks.go.agent.launcher;
 
 import com.thoughtworks.go.agent.ServerUrlGenerator;
+import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClientBuilder;
 import com.thoughtworks.go.agent.common.util.Downloader;
-import com.thoughtworks.go.util.FileDigester;
 import com.thoughtworks.go.util.PerfTimer;
 import com.thoughtworks.go.util.SslVerificationMode;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
 
 import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
-import static java.lang.String.format;
+import java.util.Timer;
 
 public class ServerBinaryDownloader implements Downloader {
 
-    private final ServerCall serverCall = new ServerCall();
-
     private static final Log LOG = LogFactory.getLog(ServerBinaryDownloader.class);
+    private final ServerUrlGenerator urlGenerator;
+    private String md5 = null;
+    private String sslPort;
+
     private static final String MD5_HEADER = "Content-MD5";
     @Deprecated // for backward compatibility
     private static final String SSL_PORT_HEADER = "Cruise-Server-Ssl-Port";
-    private final ServerUrlGenerator urlGenerator;
-    private File rootCertFile;
-    private String md5 = null;
-    private DownloadableFile downloadableFile;
-    private SslVerificationMode sslVerificationMode;
-    private String sslPort;
+    private static final int HTTP_TIMEOUT_IN_MILLISECONDS = 5000;
+    private HttpClientBuilder httpClientBuilder;
 
-    public static final class DownloadResult {
-        public final boolean performedDownload;
-
-        public DownloadResult(boolean performedDownload) {
-            this.performedDownload = performedDownload;
-        }
-
+    public ServerBinaryDownloader(ServerUrlGenerator urlGenerator, File rootCertFile, SslVerificationMode sslVerificationMode) throws Exception {
+        this(new GoAgentServerHttpClientBuilder(rootCertFile, sslVerificationMode).httpClientBuilder(HttpClients.custom()), urlGenerator, new Timer(false));
     }
 
-    public ServerBinaryDownloader(ServerUrlGenerator urlGenerator, final DownloadableFile downloadableFile, File rootCertFile, SslVerificationMode sslVerificationMode) {
-        this.rootCertFile = rootCertFile;
+    protected ServerBinaryDownloader(HttpClientBuilder httpClientBuilder, ServerUrlGenerator urlGenerator, Timer timer) {
+        this.httpClientBuilder = httpClientBuilder;
         this.urlGenerator = urlGenerator;
-        this.downloadableFile = downloadableFile;
-        this.sslVerificationMode = sslVerificationMode;
     }
 
-    public String md5() {
+    public String getMd5() {
         return md5;
     }
 
-    public String sslPort() {
+    public String getSslPort() {
         return sslPort;
     }
 
-    public DownloadResult downloadAlways() {
+    public boolean downloadIfNecessary(final DownloadableFile downloadableFile) {
+        boolean updated = false;
         boolean downloaded = false;
-        synchronized (downloadableFile.mutex()) {
-            while (!downloaded) {
-                try {
+        while (!updated) {
+            try {
+                fetchUpdateCheckHeaders(downloadableFile);
+                if (downloadableFile.doesNotExist() || !downloadableFile.isChecksumEquals(getMd5())) {
                     PerfTimer timer = PerfTimer.start("Downloading new " + downloadableFile + " with md5 signature: " + md5);
-                    downloaded = download();
+                    downloaded = download(downloadableFile);
                     timer.stop();
-                } catch (Exception e) {
-                    LOG.error("Couldn't update " + downloadableFile + ". Sleeping for 1m. Error: " + e.toString());
-                    try {
-                        int period = Integer.parseInt(System.getProperty("sleep.for.download", "60000"));
-                        Thread.sleep(period);
-                    } catch (InterruptedException ie) { /* we don't care. Stupid checked exception.*/ }
                 }
-            }
-        }
-        return new DownloadResult(downloaded);
-    }
-
-    public boolean downloadIfNecessary() {
-        synchronized (downloadableFile.mutex()) {
-            Map<String, String> headers = new HashMap<>();
-            boolean updated = false;
-            boolean downloaded = false;
-            while (!updated) {
+                updated = true;
+            } catch (Exception e) {
+                LOG.error("Couldn't update " + downloadableFile + ". Sleeping for 1m. Error: ", e);
                 try {
-                    headers = headers();
-                    File localFile = new File(downloadableFile.getLocalFileName());
-                    md5 = headers.get(MD5_HEADER);
-                    sslPort = headers.get(SSL_PORT_HEADER);
-                    if (!localFile.exists() || !checksOut(localFile, md5)) {
-                        PerfTimer timer = PerfTimer.start("Downloading new " + downloadableFile + " with md5 signature: " + md5);
-                        downloaded = download();
-                        timer.stop();
-                    }
-                    updated = true;
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    LOG.error("Couldn't update " + downloadableFile + ". Sleeping for 1m. Error: " + e.toString());
-                    try {
-                        int period = Integer.parseInt(System.getProperty("sleep.for.download", "60000"));
-                        Thread.sleep(period);
-                    } catch (InterruptedException ie) { /* we don't care. Stupid checked exception.*/ }
-                }
+                    int period = Integer.parseInt(System.getProperty("sleep.for.download", "60000"));
+                    Thread.sleep(period);
+                } catch (InterruptedException ie) { /* we don't care. Stupid checked exception.*/ }
             }
-            return downloaded;
+        }
+        return downloaded;
+    }
+
+    void fetchUpdateCheckHeaders(DownloadableFile downloadableFile) throws Exception {
+        String url = downloadableFile.validatedUrl(urlGenerator);
+        final HttpRequestBase request = new HttpHead(url);
+        request.setConfig(RequestConfig.custom().setConnectTimeout(HTTP_TIMEOUT_IN_MILLISECONDS).build());
+
+        try (
+                CloseableHttpClient httpClient = httpClientBuilder.build();
+                CloseableHttpResponse response = httpClient.execute(request)
+        ) {
+            handleInvalidResponse(response, url);
+            this.md5 = response.getFirstHeader(MD5_HEADER).getValue();
+            this.sslPort = response.getFirstHeader(SSL_PORT_HEADER).getValue();
         }
     }
 
-    Map<String, String> headers() throws Exception {
-        Map<String, String> headers = serverCall.invoke(new HttpHead(checkUrl()), rootCertFile, sslVerificationMode).headers;
-        if (!headers.containsKey(MD5_HEADER)) {
-            LOG.error(format("Contacted server at URL %s but the server did not send back a response containing the header %s", downloadableFile.url(urlGenerator), MD5_HEADER));
-        }
-        return headers;
-    }
-
-    private String checkUrl() {
+    protected boolean download(final DownloadableFile downloadableFile) throws Exception {
+        File toDownload = downloadableFile.getLocalFile();
+        LOG.info("download of " + toDownload + " started at " + new Date());
         String url = downloadableFile.url(urlGenerator);
-        try {
-            new URL(url);
-        } catch (MalformedURLException mue) {
-            throw new RuntimeException(
-                    "URL you provided to access Go Server: " + downloadableFile.url(urlGenerator) + " is not valid");
-        }
-        return url;
-    }
+        final HttpRequestBase request = new HttpGet(url);
+        request.setConfig(RequestConfig.custom().setConnectTimeout(HTTP_TIMEOUT_IN_MILLISECONDS).build());
 
-    private static boolean checksOut(File file, String expectedSignature) {
-        try (FileInputStream input = new FileInputStream(file)) {
-            FileDigester fileDigester = new FileDigester(input, new NullOutputStream());
-            fileDigester.copy();
-            return expectedSignature.equals(fileDigester.md5());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private boolean download() throws Exception {
-        InputStream body = null;
-        File toDownload = new File(downloadableFile.getLocalFileName());
-        try (OutputStream outputFile = new BufferedOutputStream(new FileOutputStream(toDownload))) {
-            LOG.info("download of " + toDownload + " started at " + new Date());
-            ServerCall.ServerResponseWrapper invoke = serverCall.invoke(new HttpGet(checkUrl()), rootCertFile, sslVerificationMode);
-            body = invoke.body;
+        try (CloseableHttpClient httpClient = httpClientBuilder.build();
+             CloseableHttpResponse response = httpClient.execute(request)) {
             LOG.info("got server response at " + new Date());
-            IOUtils.copy(body, outputFile);
-            LOG.info("pipe the stream to " + downloadableFile + " at " + new Date());
-            return true;
-        } catch (Exception e) {
-            String message = "Couldn't access Go Server with base url: " + downloadableFile.url(urlGenerator) + ": " + e.toString();
-            LOG.error(message);
-            throw new Exception(message, e);
-        } finally {
-            IOUtils.closeQuietly(body);
+            handleInvalidResponse(response, url);
+            response.getEntity().writeTo(new FileOutputStream(downloadableFile.getLocalFile()));
+            LOG.info("piped the stream to " + downloadableFile + " at " + new Date());
+        }
+        return true;
+    }
+
+    private void handleInvalidResponse(HttpResponse response, String url) throws IOException {
+        try (StringWriter sw = new StringWriter();
+             PrintWriter out = new PrintWriter(sw)
+        ) {
+            out.print("Problem accessing server at ");
+            out.println(url);
+            if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+                LOG.info("Response code: " + response.getStatusLine().getStatusCode());
+                out.println("Few Possible Causes: ");
+                out.println("1. Your Go Server is down or not accessible.");
+                out.println("2. This agent might be incompatible with your Go Server. Please fix the version mismatch between Go Server and Go Agent.");
+
+                throw new ClientProtocolException(sw.toString());
+            } else if (response.getFirstHeader(MD5_HEADER) == null || response.getFirstHeader(SSL_PORT_HEADER) == null) {
+                out.print("Missing required headers '");
+                out.print(MD5_HEADER);
+                out.print("' and '");
+                out.print(SSL_PORT_HEADER);
+                out.println("' in response.");
+                throw new ClientProtocolException(sw.toString());
+            }
         }
     }
 }

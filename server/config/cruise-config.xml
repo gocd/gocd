@@ -22,7 +22,133 @@
     </authorization>
     <pipeline name="up42">
       <materials>
-        <hg url="../manual-testing/ant_hg/dummy" dest="dest_dir" materialName="dummyhg" />
+        <git url="https://github.com/zabil/listhandling" dest="gocd" materialName="git" />
+      </materials>
+      <stage name="up42_stage">
+        <jobs>
+          <job name="up42_job">
+            <tasks>
+              <exec command="ls" />
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+    </pipeline>
+    <pipeline name="up60">
+      <materials>
+        <git url="https://github.com/zabil/listhandling" dest="gocd" materialName="git" />
+      </materials>
+      <stage name="up42_stage">
+        <jobs>
+          <job name="up42_job">
+            <tasks>
+              <exec command="ls" />
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+    </pipeline>
+    <pipeline name="up43">
+      <materials>
+        <git url="https://github.com/zabil/listhandling" dest="gocd" materialName="git" />
+      </materials>
+      <stage name="up42_stage">
+        <jobs>
+          <job name="up42_job">
+            <tasks>
+              <exec command="ls" />
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+    </pipeline>
+    <pipeline name="up44">
+      <materials>
+        <git url="https://github.com/zabil/listhandling" dest="gocd" materialName="git" />
+      </materials>
+      <stage name="up42_stage">
+        <jobs>
+          <job name="up42_job">
+            <tasks>
+              <exec command="ls" />
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+    </pipeline>
+    <pipeline name="up45">
+      <materials>
+        <git url="https://github.com/zabil/listhandling" dest="gocd" materialName="git" />
+      </materials>
+      <stage name="up42_stage">
+        <jobs>
+          <job name="up42_job">
+            <tasks>
+              <exec command="ls" />
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+    </pipeline>
+    <pipeline name="up46">
+      <materials>
+        <git url="https://github.com/zabil/listhandling" dest="gocd" materialName="git" />
+      </materials>
+      <stage name="up42_stage">
+        <jobs>
+          <job name="up42_job">
+            <tasks>
+              <exec command="ls" />
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+    </pipeline>
+    <pipeline name="up47">
+      <materials>
+        <git url="https://github.com/zabil/listhandling" dest="gocd" materialName="git" />
+      </materials>
+      <stage name="up42_stage">
+        <jobs>
+          <job name="up42_job">
+            <tasks>
+              <exec command="ls" />
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+    </pipeline>
+    <pipeline name="up48">
+      <materials>
+        <git url="https://github.com/zabil/listhandling" dest="gocd" materialName="git" />
+      </materials>
+      <stage name="up42_stage">
+        <jobs>
+          <job name="up42_job">
+            <tasks>
+              <exec command="ls" />
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+    </pipeline>
+    <pipeline name="up49">
+      <materials>
+        <git url="https://github.com/zabil/listhandling" dest="gocd" materialName="git" />
+      </materials>
+      <stage name="up42_stage">
+        <jobs>
+          <job name="up42_job">
+            <tasks>
+              <exec command="ls" />
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+    </pipeline>
+    <pipeline name="up50">
+      <materials>
+        <git url="https://github.com/zabil/listhandling" dest="gocd" materialName="git" />
       </materials>
       <stage name="up42_stage">
         <jobs>
@@ -35,5 +161,8 @@
       </stage>
     </pipeline>
   </pipelines>
+  <agents>
+    <agent hostname="ok-computer.local" ipaddress="127.0.0.1" uuid="eeda3641-6393-4c23-962c-449f3b72bbe4" />
+  </agents>
 </cruise>
 

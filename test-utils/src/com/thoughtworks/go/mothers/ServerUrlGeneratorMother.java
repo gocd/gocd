@@ -27,6 +27,7 @@ public class ServerUrlGeneratorMother {
             }
         };
     }
+
     public static ServerUrlGenerator generatorFor(final String serverUrl) {
         return new ServerUrlGenerator() {
             @Override
@@ -35,6 +36,15 @@ public class ServerUrlGeneratorMother {
                     return serverUrl;
                 }
                 return serverUrl + "/" + subPath;
+            }
+        };
+    }
+
+    public static ServerUrlGenerator generatorWithoutSubPathFor(final String serverUrl) {
+        return new ServerUrlGenerator() {
+            @Override
+            public String serverUrlFor(String subPath) {
+                return serverUrl;
             }
         };
     }

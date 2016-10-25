@@ -1,11 +1,11 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,13 @@ package com.thoughtworks.go.agent.launcher;
 
 import com.thoughtworks.go.agent.ServerUrlGenerator;
 import com.thoughtworks.go.agent.common.util.Downloader;
+import com.thoughtworks.go.util.FileDigester;
+import org.apache.commons.io.output.NullOutputStream;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 public enum DownloadableFile {
     AGENT("admin/agent", Downloader.AGENT_BINARY),
@@ -28,7 +35,7 @@ public enum DownloadableFile {
     private final String subPath;
     private final String localFileName;
 
-    private DownloadableFile(String subPath, String localFileName) {
+    DownloadableFile(String subPath, String localFileName) {
         this.subPath = subPath;
         this.localFileName = localFileName;
     }
@@ -37,7 +44,19 @@ public enum DownloadableFile {
         return urlGenerator.serverUrlFor(subPath);
     }
 
-    @Override public String toString() {
+    public String validatedUrl(ServerUrlGenerator urlGenerator) {
+        String url = url(urlGenerator);
+        try {
+            new URL(url);
+        } catch (MalformedURLException mue) {
+            throw new RuntimeException(
+                    "URL you provided to access Go Server: " + url(urlGenerator) + " is not valid");
+        }
+        return url;
+    }
+
+    @Override
+    public String toString() {
         return subPath;
     }
 
@@ -45,7 +64,25 @@ public enum DownloadableFile {
         return localFileName.intern();
     }
 
-    public String getLocalFileName() {
-        return localFileName;
+    protected static boolean matchChecksum(File localFile, String expectedSignature) {
+        try (FileInputStream input = new FileInputStream(localFile)) {
+            FileDigester fileDigester = new FileDigester(input, new NullOutputStream());
+            fileDigester.copy();
+            return expectedSignature.equals(fileDigester.md5());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public boolean isChecksumEquals(String expectedSignature) {
+        return matchChecksum(getLocalFile(), expectedSignature);
+    }
+
+    public boolean doesNotExist() {
+        return !new File(localFileName).exists();
+    }
+
+    public File getLocalFile() {
+        return new File(localFileName);
     }
 }

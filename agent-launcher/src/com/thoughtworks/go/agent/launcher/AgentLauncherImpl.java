@@ -74,15 +74,15 @@ public class AgentLauncherImpl implements AgentLauncher {
             File rootCertFile = backwardCompatibility.rootCertFile();
             SslVerificationMode sslVerificationMode = backwardCompatibility.sslVerificationMode();
 
-            ServerBinaryDownloader launcherDownloader = new ServerBinaryDownloader(urlGenerator, DownloadableFile.LAUNCHER, rootCertFile, sslVerificationMode);
-            if (launcherDownloader.downloadIfNecessary()) {
+            ServerBinaryDownloader launcherDownloader = new ServerBinaryDownloader(urlGenerator, rootCertFile, sslVerificationMode);
+            if (launcherDownloader.downloadIfNecessary(DownloadableFile.LAUNCHER)) {
                 return LAUNCHER_NOT_UP_TO_DATE;
             }
 
-            ServerBinaryDownloader agentDownloader = new ServerBinaryDownloader(urlGenerator, DownloadableFile.AGENT, rootCertFile, sslVerificationMode);
-            agentDownloader.downloadIfNecessary();
+            ServerBinaryDownloader agentDownloader = new ServerBinaryDownloader(urlGenerator, rootCertFile, sslVerificationMode);
+            agentDownloader.downloadIfNecessary(DownloadableFile.AGENT);
 
-            returnValue = agentProcessParentRunner.run(getLauncherVersion(), launcherDownloader.md5(), urlGenerator, System.getenv(), context);
+            returnValue = agentProcessParentRunner.run(getLauncherVersion(), launcherDownloader.getMd5(), urlGenerator, System.getenv(), context);
 
             try {
                 // Sleep a bit so that if there are problems we don't spin

@@ -6,15 +6,17 @@ Gem::Specification.new do |s|
   s.version = "0.0.13"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
+  s.require_paths = ["lib"]
   s.authors = ["Nick Sutterer"]
   s.date = "2015-01-14"
   s.description = "A gem-authoring framework."
   s.email = ["apotonick@gmail.com"]
   s.homepage = "https://github.com/apotonick/uber"
   s.licenses = ["MIT"]
-  s.require_paths = ["lib"]
-  s.rubygems_version = "2.1.9"
+  s.rubygems_version = "2.4.8"
   s.summary = "Gem-authoring tools like class method inheritance in modules, dynamic options and more."
+
+  s.installed_by_version = "2.4.8" if s.respond_to? :installed_by_version
 
   if s.respond_to? :specification_version then
     s.specification_version = 4

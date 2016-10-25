@@ -1,6 +1,8 @@
 import com.thoughtworks.go.build.VerifyJarTask
 import groovy.json.JsonOutput
 import org.jruby.Ruby
+import org.jruby.CompatVersion
+import org.jruby.RubyInstanceConfig
 
 /*
  * Copyright 2016 ThoughtWorks, Inc.
@@ -26,7 +28,7 @@ buildscript {
   }
 
   dependencies {
-    classpath group: 'org.jruby', name: 'jruby-complete', version: '1.7.11'
+    classpath group: 'org.jruby', name: 'jruby-complete', version: '1.7.26'
     classpath 'org.owasp:dependency-check-gradle:+'
   }
 }
@@ -119,7 +121,7 @@ dependencies {
     exclude(module: 'org.osgi.core')
     exclude(module: 'commons-logging')
   }
-  compile group: 'org.jruby', name: 'jruby-complete', version: '1.7.11'
+  compile group: 'org.jruby', name: 'jruby-complete', version: '1.7.26'
   compile group: 'org.jruby.rack', name: 'jruby-rack', version: '1.1.14'
   compile group: 'org.openrdf', name: 'sesame-onejar', version: '2.3.1'
   compile group: 'org.springframework', name: 'spring-web', version: '3.1.3.RELEASE'
@@ -220,7 +222,13 @@ def findGemsToNotPack = {
   def gems = []
   Ruby ruby
   try {
-    ruby = Ruby.newInstance()
+    def config = new RubyInstanceConfig()
+    config.compatVersion = CompatVersion.RUBY2_0
+    config.output = System.out
+    config.error = System.err
+    config.compileMode = RubyInstanceConfig.CompileMode.OFF
+
+    ruby = Ruby.newInstance(config)
     gems = ruby.evalScriptlet(
       """
           Dir.chdir('${project.railsRoot}') do
@@ -537,7 +545,7 @@ task verifyWar(type: VerifyJarTask) {
       "jettison-1.2.jar",
       "joda-time-2.3.jar",
       "jolt-core-0.0.20.jar",
-      "jruby-complete-1.7.11.jar",
+      "jruby-complete-1.7.26.jar",
       "jruby-rack-1.1.14.jar",
       "jsch-0.1.53.jar",
       "json-20070829.jar",

@@ -6,6 +6,7 @@ Gem::Specification.new do |s|
   s.version = "0.3.4"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
+  s.require_paths = ["lib"]
   s.authors = ["Clifford Heath"]
   s.date = "2014-02-18"
   s.description = "\nThe Polyglot library allows a Ruby module to register a loader\nfor the file type associated with a filename extension, and it\naugments 'require' to find and load matching files."
@@ -14,7 +15,8 @@ Gem::Specification.new do |s|
   s.files = ["README.txt"]
   s.homepage = "http://github.com/cjheath/polyglot"
   s.licenses = ["MIT"]
-  s.require_paths = ["lib"]
-  s.rubygems_version = "2.1.9"
+  s.rubygems_version = "2.4.8"
   s.summary = "Augment 'require' to load non-Ruby file types"
+
+  s.installed_by_version = "2.4.8" if s.respond_to? :installed_by_version
 end

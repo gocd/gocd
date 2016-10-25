@@ -6,6 +6,7 @@ Gem::Specification.new do |s|
   s.version = "2.14.6"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
+  s.require_paths = ["lib"]
   s.authors = ["Steven Baker", "David Chelimsky"]
   s.date = "2014-02-20"
   s.description = "RSpec's 'test double' framework, with support for stubbing and mocking"
@@ -13,10 +14,11 @@ Gem::Specification.new do |s|
   s.homepage = "http://github.com/rspec/rspec-mocks"
   s.licenses = ["MIT"]
   s.rdoc_options = ["--charset=UTF-8"]
-  s.require_paths = ["lib"]
   s.rubyforge_project = "rspec"
-  s.rubygems_version = "2.1.9"
+  s.rubygems_version = "2.4.8"
   s.summary = "rspec-mocks-2.14.6"
+
+  s.installed_by_version = "2.4.8" if s.respond_to? :installed_by_version
 
   if s.respond_to? :specification_version then
     s.specification_version = 4

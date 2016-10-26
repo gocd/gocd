@@ -56,7 +56,6 @@ import static java.lang.String.format;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
-import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
@@ -844,7 +843,7 @@ public class AgentServiceIntegrationTest {
         assertThat(disabledAgentOperationResult.message(), is("Deleted 1 agent(s)."));
 
         assertThat(enabledAgentOperationResult.httpCode(), is(406));
-        assertThat(enabledAgentOperationResult.message(), is("Deleted 0 agent(s). Failed to delete 1 agent(s), as agent(s) might not be disabled or are still building."));
+        assertThat(enabledAgentOperationResult.message(), is("Failed to delete 1 agent(s), as agent(s) might not be disabled or are still building."));
 
         assertThat(agentService.agents().size(), is(1));
         assertThat(agentService.agents().get(0).getUuid(), is(UUID2));
@@ -862,7 +861,7 @@ public class AgentServiceIntegrationTest {
         agentService.deleteAgents(USERNAME, operationResult, Arrays.asList(disabledButBuildingAgent.getUuid()));
 
         assertThat(operationResult.httpCode(), is(406));
-        assertThat(operationResult.message(), is("Deleted 0 agent(s). Failed to delete 1 agent(s), as agent(s) might not be disabled or are still building."));
+        assertThat(operationResult.message(), is("Failed to delete 1 agent(s), as agent(s) might not be disabled or are still building."));
 
         assertThat(agentService.agents().size(), is(1));
         assertThat(agentService.agents().get(0).getUuid(), is(UUID));
@@ -906,25 +905,23 @@ public class AgentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNOTDeleteAgentsThatAreNotDisabledGivenListOfUUIDs() throws Exception {
-        AgentConfig disabledAgent1 = createDisabledAndIdleAgent(UUID);
-        AgentConfig disabledAgent2 = createDisabledAndIdleAgent(UUID2);
-        AgentConfig enabledAgent1 = createEnabledAgent(UUID3);
-        AgentConfig enabledAgent2 = createEnabledAgent("uuid4");
+    public void shouldNOTDeleteAnyAgentIfAtLeastOneOfTheRequestedAgentIsNotDisabled() throws Exception {
+        AgentConfig disabledAgent = createDisabledAndIdleAgent(UUID);
+        AgentConfig enabledAgent = createEnabledAgent(UUID2);
 
         goConfigDao.load();
-        assertThat(agentService.agents().size(), is(4));
+        assertThat(agentService.agents().size(), is(2));
 
         HttpOperationResult operationResult = new HttpOperationResult();
 
-        agentService.deleteAgents(USERNAME, operationResult, Arrays.asList(disabledAgent1.getUuid(), disabledAgent2.getUuid(), enabledAgent1.getUuid(), enabledAgent2.getUuid()));
+        agentService.deleteAgents(USERNAME, operationResult, Arrays.asList(disabledAgent.getUuid(), enabledAgent.getUuid()));
 
         assertThat(operationResult.httpCode(), is(406));
-        assertThat(operationResult.message(), is("Deleted 2 agent(s). Failed to delete 2 agent(s), as agent(s) might not be disabled or are still building."));
+        assertThat(operationResult.message(), is("Failed to delete 2 agent(s), as agent(s) might not be disabled or are still building."));
 
         assertThat(agentService.agents().size(), is(2));
-        assertThat(agentService.agents().get(0).getUuid(), is(UUID3));
-        assertThat(agentService.agents().get(1).getUuid(), is("uuid4"));
+        assertThat(agentService.agents().get(0).getUuid(), is(UUID));
+        assertThat(agentService.agents().get(1).getUuid(), is(UUID2));
     }
 
     @Test
@@ -1132,7 +1129,7 @@ public class AgentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNOTDeleteDisabledAgentsThatIsBuildingGivenListOfUUIDs() throws Exception {
+    public void shouldNOTDeleteAgentsIfAtLeastOneAgentIsBuildingGivenListOfUUIDs() throws Exception {
         AgentConfig disabledButBuildingAgent = createDisabledAgent(UUID);
         AgentConfig disabledAgent1 = createDisabledAndIdleAgent(UUID2);
 
@@ -1144,10 +1141,11 @@ public class AgentServiceIntegrationTest {
         agentService.deleteAgents(USERNAME, operationResult, Arrays.asList(disabledAgent1.getUuid(), disabledButBuildingAgent.getUuid()));
 
         assertThat(operationResult.httpCode(), is(406));
-        assertThat(operationResult.message(), is("Deleted 1 agent(s). Failed to delete 1 agent(s), as agent(s) might not be disabled or are still building."));
+        assertThat(operationResult.message(), is("Failed to delete 2 agent(s), as agent(s) might not be disabled or are still building."));
 
-        assertThat(agentService.agents().size(), is(1));
+        assertThat(agentService.agents().size(), is(2));
         assertThat(agentService.agents().get(0).getUuid(), is(UUID));
+        assertThat(agentService.agents().get(1).getUuid(), is(UUID2));
     }
 
     private void createEnvironment(String... environmentNames) throws Exception {

@@ -19,6 +19,7 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.ElasticAgentsResourceUpdateException;
+import com.thoughtworks.go.config.exceptions.InvalidPendingAgentOperationException;
 import com.thoughtworks.go.config.exceptions.NoSuchAgentException;
 import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
 import com.thoughtworks.go.domain.AgentInstance;
@@ -48,7 +49,6 @@ public class AgentsEntityConfigUpdateCommand implements EntityConfigUpdateComman
     private final List<String> resourcesToRemove;
     private GoConfigService goConfigService;
     public Agents agents;
-    private List<String> registeredAgentsUuids;
 
     public AgentsEntityConfigUpdateCommand(AgentInstances agentInstances, Username username, LocalizedOperationResult result, List<String> uuids, List<String> environmentsToAdd, List<String> environmentsToRemove, TriState state, List<String> resourcesToAdd, List<String> resourcesToRemove, GoConfigService goConfigService) {
         this.agentInstances = agentInstances;
@@ -65,69 +65,38 @@ public class AgentsEntityConfigUpdateCommand implements EntityConfigUpdateComman
 
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
-        if (!goConfigService.isAdministrator(username.getUsername())) {
-            result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_OPERATE_AGENTS"), HealthStateType.unauthorised());
+        if (!isAuthorized()) {
             return false;
         }
 
         if (isAnyOperationPerformedOnAgents()) {
             return true;
         }
+
         result.badRequest(LocalizedMessage.string("NO_OPERATION_PERFORMED_ON_AGENTS"));
         return false;
     }
 
-    private List<AgentConfig> getValidAgents(List<String> uuids, LocalizedOperationResult result, Agents agents) throws NoSuchAgentException {
-        List<AgentConfig> goodAgents = new ArrayList<>();
-        List<String> unknownAgents = new ArrayList<>();
-
-        for (String uuid : uuids) {
-            AgentConfig agent = agents.getAgentByUuid(uuid);
-            if (!agent.isNull()) {
-                goodAgents.add(agent);
-            } else {
-                unknownAgents.add(uuid);
-            }
-        }
-        if (!unknownAgents.isEmpty()) {
-            result.badRequest(LocalizedMessage.string("AGENTS_WITH_UUIDS_NOT_FOUND", unknownAgents));
-            throw new NoSuchAgentException(unknownAgents);
-        }
-
-        return goodAgents;
-    }
-
-    private void validateEnvironment(Set<CaseInsensitiveString> allEnvironmentNames, List<String> environmentsToOperate, LocalizedOperationResult result) throws NoSuchEnvironmentException {
-        for (String environment : environmentsToOperate) {
-            CaseInsensitiveString environmentName = new CaseInsensitiveString(environment);
-            if (!allEnvironmentNames.contains(environmentName)) {
-                result.badRequest(LocalizedMessage.string("RESOURCE_NOT_FOUND", "Environment", environmentName));
-                throw new NoSuchEnvironmentException(environmentName);
-            }
-        }
-    }
-
     @Override
     public void update(CruiseConfig preprocessedConfig) throws Exception {
-
         Set<CaseInsensitiveString> allEnvironmentNames = new HashSet<>(goConfigService.getEnvironments().names());
-        validateEnvironment(allEnvironmentNames, environmentsToAdd, result);
-        validateEnvironment(allEnvironmentNames, environmentsToRemove, result);
 
-        List<AgentConfig> pendingAgents = getAllPendingAgents();
-        List<String> pendingAgentUuids = getPendingAgentUuids(pendingAgents);
-        registeredAgentsUuids = getRegisteredAgentUuids(pendingAgentUuids);
+        // validate all inputs
+        validateEnvironmentNames(allEnvironmentNames, environmentsToAdd);
+        validateEnvironmentNames(allEnvironmentNames, environmentsToRemove);
 
-        List<AgentConfig> goodAgents = getValidAgents(registeredAgentsUuids, result, preprocessedConfig.agents());
-        checkElasticAgentsResourceUpdated(goodAgents, resourcesToAdd, resourcesToRemove);
+        validateAgentUUIDs();
+        checkIfResourcesAreBeingUpdatedOnElasticAgents();
 
-        if (hasValidOperationOnPendingAgent(pendingAgents)) {
-            preprocessedConfig.agents().addAll(pendingAgents);
-            registeredAgentsUuids.addAll(pendingAgentUuids);
-            goodAgents.addAll(pendingAgents);
-        }
+        List<AgentConfig> pendingAgents = findPendingAgents();
+        validateOperationOnPendingAgents(pendingAgents);
 
-        for (AgentConfig agentConfig : goodAgents) {
+        // add pending agents to the config
+        preprocessedConfig.agents().addAll(pendingAgents);
+
+        // update all agents specified by uuids
+        Agents agents = preprocessedConfig.agents().filter(uuids);
+        for (AgentConfig agentConfig : agents) {
             if (state.isFalse()) {
                 agentConfig.disable();
             }
@@ -160,10 +129,36 @@ public class AgentsEntityConfigUpdateCommand implements EntityConfigUpdateComman
         }
     }
 
-    private List<String> getRegisteredAgentUuids(List<String> pendingAgentUuids) {
-        List<String> agents = new ArrayList<>(uuids);
-        agents.removeAll(pendingAgentUuids);
-        return agents;
+    private void validateAgentUUIDs() throws NoSuchAgentException {
+        List<String> unknownUUIDs = new ArrayList<>();
+
+        for (String uuid : uuids) {
+            if (agentInstances.findAgent(uuid).isNullAgent()) {
+                unknownUUIDs.add(uuid);
+            }
+        }
+        if (!unknownUUIDs.isEmpty()) {
+            result.badRequest(LocalizedMessage.string("RESOURCE_NOT_FOUND", "Agents", unknownUUIDs));
+            throw new NoSuchAgentException(unknownUUIDs);
+        }
+    }
+
+    private void validateEnvironmentNames(Set<CaseInsensitiveString> allEnvironmentNames, List<String> environmentsToOperate) throws NoSuchEnvironmentException {
+        for (String environment : environmentsToOperate) {
+            CaseInsensitiveString environmentName = new CaseInsensitiveString(environment);
+            if (!allEnvironmentNames.contains(environmentName)) {
+                result.badRequest(LocalizedMessage.string("RESOURCE_NOT_FOUND", "Environment", environmentName));
+                throw new NoSuchEnvironmentException(environmentName);
+            }
+        }
+    }
+
+    private boolean isAuthorized() {
+        if (goConfigService.isAdministrator(username.getUsername())) {
+            return true;
+        }
+        result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
+        return false;
     }
 
     private boolean isAnyOperationPerformedOnAgents() {
@@ -171,45 +166,45 @@ public class AgentsEntityConfigUpdateCommand implements EntityConfigUpdateComman
                 || !environmentsToRemove.isEmpty() || state.isTrue() || state.isFalse();
     }
 
-    private List<AgentConfig> getAllPendingAgents() {
-        ArrayList<AgentConfig> pendingAgents = new ArrayList<>();
-        for (AgentInstance agentInstance : agentInstances.findPendingAgents()) {
-            if (uuids.contains(agentInstance.getUuid())) {
-                pendingAgents.add(agentInstance.agentConfig());
+
+    private List<AgentConfig> findPendingAgents() {
+        List<AgentConfig> pendingAgents = new ArrayList<>();
+        for (String uuid : uuids) {
+            AgentInstance agent = agentInstances.findAgent(uuid);
+            if (agent.isPending()) {
+                pendingAgents.add(agent.agentConfig().deepClone());
             }
         }
         return pendingAgents;
     }
 
-    private boolean hasValidOperationOnPendingAgent(List<AgentConfig> pendingAgents) {
-        ArrayList<String> pendingAgentUuids = getPendingAgentUuids(pendingAgents);
-        return !pendingAgents.isEmpty() && isRequestedActionValidOnPendingAgent(pendingAgentUuids);
-    }
-
-    private boolean isRequestedActionValidOnPendingAgent(ArrayList<String> pendingAgentUuids) {
-        if (state.isTrue() || state.isFalse()) {
-            return true;
-        }
-        result.badRequest(LocalizedMessage.string("PENDING_AGENT_INVALID_OPERATION", pendingAgentUuids));
-        return false;
-    }
-
-    private ArrayList<String> getPendingAgentUuids(List<AgentConfig> pendingAgents) {
-        ArrayList<String> pendingAgentUUIDs = new ArrayList<>();
-        for (AgentConfig agentConfig : pendingAgents) {
-            pendingAgentUUIDs.add(agentConfig.getUuid());
-        }
-        return pendingAgentUUIDs;
-    }
-
-    private void checkElasticAgentsResourceUpdated(List<AgentConfig> uuids, List<String> resourcesToAdd, List<String> resourcesToRemove) throws ElasticAgentsResourceUpdateException {
-        ArrayList<String> elasticAgentUUIDs = findAllElasticAgentUuids(uuids);
-
-        if (elasticAgentUUIDs.isEmpty()) {
+    private void validateOperationOnPendingAgents(List<AgentConfig> pendingAgents) throws InvalidPendingAgentOperationException {
+        if (pendingAgents.isEmpty()) {
             return;
         }
 
+        List<String> pendingAgentUuids = getPendingAgentUuids(pendingAgents);
+        if (!(state.isTrue() || state.isFalse())) {
+            result.badRequest(LocalizedMessage.string("PENDING_AGENT_INVALID_OPERATION", pendingAgentUuids));
+            throw new InvalidPendingAgentOperationException(pendingAgentUuids);
+        }
+    }
+
+    private List<String> getPendingAgentUuids(List<AgentConfig> pendingAgents) {
+        List<String> pendingAgentUuids = new ArrayList<>();
+        for (AgentConfig pendingAgent : pendingAgents) {
+            pendingAgentUuids.add(pendingAgent.getUuid());
+        }
+        return pendingAgentUuids;
+    }
+
+    private void checkIfResourcesAreBeingUpdatedOnElasticAgents() throws ElasticAgentsResourceUpdateException {
         if (resourcesToAdd.isEmpty() && resourcesToRemove.isEmpty()) {
+            return;
+        }
+
+        List<String> elasticAgentUUIDs = findAllElasticAgentUuids(uuids);
+        if (elasticAgentUUIDs.isEmpty()) {
             return;
         }
 
@@ -217,11 +212,11 @@ public class AgentsEntityConfigUpdateCommand implements EntityConfigUpdateComman
         throw new ElasticAgentsResourceUpdateException(elasticAgentUUIDs);
     }
 
-    private ArrayList<String> findAllElasticAgentUuids(List<AgentConfig> uuids) {
+    private List<String> findAllElasticAgentUuids(List<String> uuids) {
         ArrayList<String> elasticAgentUUIDs = new ArrayList<>();
-        for (AgentConfig agent : uuids) {
-            if (agent.isElastic()) {
-                elasticAgentUUIDs.add(agent.getUuid());
+        for (String uuid : uuids) {
+            if (agentInstances.findAgent(uuid).isElastic()) {
+                elasticAgentUUIDs.add(uuid);
             }
         }
         return elasticAgentUUIDs;
@@ -230,7 +225,7 @@ public class AgentsEntityConfigUpdateCommand implements EntityConfigUpdateComman
     @Override
     public boolean isValid(CruiseConfig preprocessedConfig) {
         agents = preprocessedConfig.agents();
-        AgentConfigsUpdateValidator validator = new AgentConfigsUpdateValidator(registeredAgentsUuids);
+        AgentConfigsUpdateValidator validator = new AgentConfigsUpdateValidator(uuids);
         return validator.isValid(preprocessedConfig);
     }
 

@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config;
 
+import com.rits.cloning.Cloner;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.IpAddress;
 import com.thoughtworks.go.remote.AgentIdentifier;
@@ -167,6 +168,10 @@ public class AgentConfig implements Validatable {
 
     public boolean isNull() {
         return false;
+    }
+
+    public AgentConfig deepClone() {
+        return new Cloner().deepClone(this);
     }
 
     public boolean isFromLocalHost() {

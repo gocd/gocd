@@ -20,8 +20,8 @@ import org.apache.commons.lang.StringUtils;
 
 import java.util.List;
 
-public class ElasticAgentsResourceUpdateException extends Exception {
-    public ElasticAgentsResourceUpdateException(List<String> elasticAgents) {
-        super(String.format("Can not update resources on Elastic Agents [%s]", StringUtils.join(elasticAgents, ", ")));
+public class InvalidPendingAgentOperationException extends Exception{
+    public InvalidPendingAgentOperationException(List<String> allPendingAgents) {
+        super(String.format("Invalid operation performed on pending agents: [%s]", StringUtils.join(allPendingAgents, ", ")));
     }
 }

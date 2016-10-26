@@ -110,15 +110,6 @@ public class AgentInstancesTest {
     }
 
     @Test
-    public void shouldFindPendingAgents() {
-        AgentInstances agentInstances = sample();
-
-        AgentInstances pendingAgents = agentInstances.findPendingAgents();
-        assertThat(pendingAgents.size(), is(1));
-        assertThat(pendingAgents.findAgentAndRefreshStatus("uuid4"), is(pending));
-    }
-
-    @Test
     public void shouldFindAgentsByItHostName() throws Exception {
         AgentInstance idle = AgentInstanceMother.idle(new Date(), "ghost-name");
         AgentInstances agentInstances = new AgentInstances(null, systemEnvironment, idle, AgentInstanceMother.building());

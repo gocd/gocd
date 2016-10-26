@@ -531,6 +531,19 @@ public class JobConfigTest {
         verify(variables).validateTree(childContext);
     }
 
+    @Test
+    public void shouldValidateAgainstSettingRunOnAllAgentsForAJobAssignedToElasticAgent() {
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test"));
+        jobConfig.setRunOnAllAgents(true);
+        jobConfig.setElasticProfileId("ubuntu-dev");
+
+        jobConfig.validate(ConfigSaveValidationContext.forChain(new BasicCruiseConfig()));
+
+        ConfigErrors configErrors = jobConfig.errors();
+        assertThat(configErrors.isEmpty(), is(false));
+        assertThat(configErrors.on(JobConfig.RUN_TYPE), is("Job cannot be set to 'run on all agents' when assigned to an elastic agent"));
+    }
+
     private JobConfig createJobAndValidate(final String name) {
         JobConfig jobConfig = new JobConfig(name);
         jobConfig.validate(ConfigSaveValidationContext.forChain(new BasicCruiseConfig()));

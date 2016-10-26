@@ -68,6 +68,18 @@ define(['lodash', "models/pipeline_configs/jobs", "string-plus"], function (_, J
       expect(job.elasticProfileId()).toEqual('docker.unit-test');
     });
 
+    it('should be assigned to elastic agent', function () {
+      expect(job.isAssignedToElasticAgent()).toBe(true);
+    });
+
+    it('should not be assigned to elastic agent', function () {
+      job  = jobs.createJob({
+        name:                 "UnitTest",
+        tasks:                ['ant', 'mvn']
+      });
+      expect(job.isAssignedToElasticAgent()).toBe(false);
+    });
+
     describe("validations", function () {
       it("should not allow blank job names", function () {
         var errors = job.validate();

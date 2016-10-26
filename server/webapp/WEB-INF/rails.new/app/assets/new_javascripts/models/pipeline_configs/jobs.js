@@ -97,6 +97,9 @@ define([
     this.validateAssociated('artifacts');
     this.validateAssociated('tabs');
     this.validateAssociated('properties');
+    this.isAssignedToElasticAgent = function () {
+      return !_.isNil(this.elasticProfileId());
+    };
   };
 
   Jobs.Job.create = function (data) {

@@ -17,7 +17,6 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.Task;
 
@@ -49,7 +48,7 @@ public class PipelineConfigErrorCopier {
 
             for (JobConfig toJob : toStage.getJobs()) {
                 JobConfig fromJob = fromStage.jobConfigByConfigName(toJob.name());
-                copy(toJob, fromJob);
+                copy(fromJob, toJob);
                 copyCollectionErrors(fromJob.getTasks(), toJob.getTasks());
                 copyCollectionErrors(fromJob.artifactPlans(), toJob.artifactPlans());
                 copyCollectionErrors(fromJob.getTabs(), toJob.getTabs());

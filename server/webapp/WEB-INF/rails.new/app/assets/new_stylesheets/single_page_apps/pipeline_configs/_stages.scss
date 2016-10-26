@@ -378,3 +378,25 @@ $active-job: $lighter-gray;
     }
   }
 }
+
+.disabled-radio:disabled {
+  position: relative;
+}
+
+.disabled-radio:disabled:before {
+  content:       "";
+  width:         20px;
+  height:        20px;
+  border-radius: 50%;
+  background:    #ddd;
+  display:       inline-block;
+  position:      absolute;
+  left:          -2px;
+  top:           -2px;
+}
+
+.job-settings {
+  [type='radio'] + label {
+    margin-right: 40px;
+  }
+}

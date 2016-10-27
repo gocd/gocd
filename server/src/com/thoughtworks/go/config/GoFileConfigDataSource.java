@@ -460,7 +460,9 @@ public class GoFileConfigDataSource {
 
     private void checkinConfigToGitRepo(List<PartialConfig> partials, CruiseConfig config, String configAsXml, String md5, String currentUser) throws Exception {
         reloadStrategy.latestState(config);
+        LOGGER.debug("[Config Save] === Checking in the valid XML to config.git");
         configRepository.checkin(new GoConfigRevision(configAsXml, md5, currentUser, serverVersion.version(), timeProvider));
+        LOGGER.debug("[Config Save] === Done checking in to config.git");
         cachedGoPartials.markAsValid(partials);
     }
 

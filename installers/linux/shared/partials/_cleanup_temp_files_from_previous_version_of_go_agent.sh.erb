@@ -16,9 +16,4 @@
 #########################################################################
 -%>
 
-<% if name == 'go-server' -%>
-    # Start the service
-    /etc/init.d/go-server start
-<% else -%>
-  <%= ERB.new(File.read(File.join(install_scripts_dir, 'shared', 'partials', '_cleanup_temp_files_from_previous_version_of_go_agent.sh.erb')), nil, '-', "_#{SecureRandom.hex}").result(binding) %>
-<% end -%>
+rm -rf /var/lib/go-agent/{agent-launcher.jar,agent.jar,tfs-impl.jar,agent-plugins.zip} /var/lib/go-agent/*agent-launcher.jar

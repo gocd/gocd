@@ -48,7 +48,7 @@ Function SilentCustomUseInput
 FunctionEnd
 
 Function CustomInstallBits
-    Call CleanUpUnnecessaryStuffOfOldInstallations
+    Call CleanUpTempFilesFromOlderInstallations
     StrCmp $GO_AGENT_JAVA_HOME "" 0 +2
         StrCpy $GO_AGENT_JAVA_HOME "$INSTDIR\jre"
 
@@ -75,14 +75,17 @@ Function CustomInstallBits
     DONE:
 FunctionEnd
 
-Function CleanUpUnnecessaryStuffOfOldInstallations
+Function CleanUpTempFilesFromOlderInstallations
     StrCmp $IsUpgrading $UPGRADING upgrade done
-
     upgrade:
-        IfFileExists $INSTDIR\jdk 0 done
-        RMDir /r $INSTDIR\jdk
+        DELETE $INSTDIR\*agent-launcher.jar
+        IfFileExists $INSTDIR\agent.jar 0 +2
+        DELETE $INSTDIR\agent.jar
+        IfFileExists $INSTDIR\tfs-impl.jar 0 +2
+        DELETE $INSTDIR\tfs-impl.jar
+        IfFileExists $INSTDIR\agent-plugins.zip 0 +2
+        DELETE $INSTDIR\agent-plugins.zip
     done:
-
 FunctionEnd
 
 ; Silent Installer Service Creation Section

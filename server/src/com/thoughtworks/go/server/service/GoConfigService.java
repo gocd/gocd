@@ -552,12 +552,12 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return scmMaterials;
     }
 
-    public Set<MaterialConfig> getSchedulableDependencyMaterials() {
-        HashSet<MaterialConfig> dependencyMaterials = new HashSet<>();
+    public Set<DependencyMaterialConfig> getSchedulableDependencyMaterials() {
+        HashSet<DependencyMaterialConfig> dependencyMaterials = new HashSet<>();
 
         for (MaterialConfig materialConfig : getSchedulableMaterials()) {
             if (materialConfig instanceof DependencyMaterialConfig) {
-                dependencyMaterials.add(materialConfig);
+                dependencyMaterials.add((DependencyMaterialConfig) materialConfig);
             }
         }
 

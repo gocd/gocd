@@ -1216,7 +1216,7 @@ public class GoConfigServiceTest {
         when(goConfigService.getCurrentConfig()).thenReturn(config);
         when(config.getAllUniqueMaterialsBelongingToAutoPipelinesAndConfigRepos()).thenReturn(materialConfigs);
 
-        Set<MaterialConfig> schedulableDependencyMaterials = goConfigService.getSchedulableDependencyMaterials();
+        Set<DependencyMaterialConfig> schedulableDependencyMaterials = goConfigService.getSchedulableDependencyMaterials();
 
         assertThat(schedulableDependencyMaterials.size(), is(1));
         assertTrue(schedulableDependencyMaterials.contains(dependencyMaterialConfig));

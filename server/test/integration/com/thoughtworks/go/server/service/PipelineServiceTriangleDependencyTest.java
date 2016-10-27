@@ -48,6 +48,7 @@ import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.domain.StageStatusListener;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.functional.helpers.MaterialRevisionBuilder;
+import com.thoughtworks.go.server.materials.DependencyMaterialUpdateNotifier;
 import com.thoughtworks.go.server.messaging.JobResultTopic;
 import com.thoughtworks.go.server.messaging.StageStatusTopic;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
@@ -102,10 +103,7 @@ public class PipelineServiceTriangleDependencyTest {
     @Autowired private SystemEnvironment systemEnvironment;
     @Autowired private PluginManager pluginManager;
     @Autowired private MaterialConfigConverter materialConfigConverter;
-
-    static {
-        new SystemEnvironment().setProperty("dependency.material.check.threads", "0");
-    }
+    @Autowired private DependencyMaterialUpdateNotifier notifier;
 
     @Before public void setUp() throws Exception {
         pipelineTimeline = mock(PipelineTimeline.class);
@@ -121,6 +119,11 @@ public class PipelineServiceTriangleDependencyTest {
         first.setId(1);
         third.setId(3);
         second.setId(2);
+        notifier.disableUpdates();
+    }
+
+    public void teardown() {
+        notifier.enableUpdates();
     }
 
     @Test

@@ -38,6 +38,7 @@ import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.PipelineConfigDependencyGraph;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
+import com.thoughtworks.go.server.materials.DependencyMaterialUpdateNotifier;
 import com.thoughtworks.go.server.materials.MaterialChecker;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.dd.MaxBackTrackLimitReachedException;
@@ -86,13 +87,10 @@ public class AutoTriggerDependencyResolutionTest {
     @Autowired private MaterialChecker materialChecker;
     @Autowired private PipelineTimeline pipelineTimeline;
     @Autowired private ServerHealthService serverHealthService;
+    @Autowired private DependencyMaterialUpdateNotifier notifier;
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private ScheduleTestUtil u;
-
-    static {
-        new SystemEnvironment().setProperty("dependency.material.check.threads", "0");
-    }
 
     @Before
     public void setUp() throws Exception {
@@ -102,6 +100,7 @@ public class AutoTriggerDependencyResolutionTest {
 
         dbHelper.onSetUp();
         u = new ScheduleTestUtil(transactionTemplate, materialRepository, dbHelper, configHelper);
+        notifier.disableUpdates();
     }
 
     @After
@@ -109,6 +108,7 @@ public class AutoTriggerDependencyResolutionTest {
         systemEnvironment.reset(SystemEnvironment.RESOLVE_FANIN_MAX_BACK_TRACK_LIMIT);
         dbHelper.onTearDown();
         configHelper.onTearDown();
+        notifier.enableUpdates();
     }
 
     @Ignore("run PipelineDependencyDiamond.scn: this checks for natural-order schedule-order confusion -jj")

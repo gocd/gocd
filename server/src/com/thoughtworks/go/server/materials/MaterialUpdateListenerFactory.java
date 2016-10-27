@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.materials;
 
-import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.cronjob.GoDiskSpaceMonitor;
 import com.thoughtworks.go.server.messaging.GoMessageQueue;
 import com.thoughtworks.go.server.messaging.GoMessageTopic;
@@ -86,7 +85,7 @@ public class MaterialUpdateListenerFactory {
     public void init(){
         int numberOfStandardMaterialListeners = systemEnvironment.getNumberOfMaterialCheckListener();
         int numberOfConfigListeners = systemEnvironment.getNumberOfConfigMaterialCheckListener();
-        int numberOfDependencyMaterialCheckListener = systemEnvironment.getNumberOfDependencyMaterialCheckListener();
+        int numberOfDependencyMaterialCheckListeners = systemEnvironment.getNumberOfDependencyMaterialUpdateListeners();
 
         for (int i = 0; i < numberOfStandardMaterialListeners; i++) {
             createWorker(this.queue, this.topic);
@@ -96,7 +95,7 @@ public class MaterialUpdateListenerFactory {
             createWorker(this.configQueue, this.configTopic);
         }
 
-        for (int i = 0; i < numberOfDependencyMaterialCheckListener; i++) {
+        for (int i = 0; i < numberOfDependencyMaterialCheckListeners; i++) {
             createWorker(this.dependencyMaterialQueue, this.topic);
         }
     }

@@ -33,6 +33,7 @@ import com.thoughtworks.go.domain.valuestreammap.ValueStreamMap;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.PipelineDao;
+import com.thoughtworks.go.server.materials.DependencyMaterialUpdateNotifier;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.ScheduleTestUtil;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
@@ -63,13 +64,9 @@ public class DownstreamInstancePopulatorIntegrationTest {
     @Autowired private TransactionTemplate transactionTemplate;
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private PipelineDao pipelineDao;
+    @Autowired private DependencyMaterialUpdateNotifier notifier;
     private GoConfigFileHelper configHelper;
     private DownstreamInstancePopulator downstreamInstancePopulator;
-
-//  Hack to ignore MDU requests from MaterialUpdateService, as tests update the DB directly.
-    static {
-        new SystemEnvironment().setProperty("dependency.material.check.threads", "0");
-    }
 
     @Before
     public void setup() throws Exception {
@@ -80,6 +77,7 @@ public class DownstreamInstancePopulatorIntegrationTest {
         dbHelper.onSetUp();
         u = new ScheduleTestUtil(transactionTemplate, materialRepository, dbHelper, configHelper);
         downstreamInstancePopulator = new DownstreamInstancePopulator(pipelineDao);
+        notifier.disableUpdates();
     }
 
 
@@ -87,6 +85,7 @@ public class DownstreamInstancePopulatorIntegrationTest {
     public void tearDown() throws Exception {
         dbHelper.onTearDown();
         configHelper.onTearDown();
+        notifier.enableUpdates();
     }
 
 

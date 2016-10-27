@@ -38,6 +38,10 @@ import java.util.concurrent.ConcurrentMap;
 
 import static java.lang.String.format;
 
+/**
+ * Provides a list of unique SCMMaterials to be updated which will be consumed by MaterialUpdateService
+ */
+
 @Component
 public class SCMMaterialSource implements ConfigChangedListener, MaterialSource, MaterialUpdateCompleteListener {
     private static final Logger LOGGER = Logger.getLogger(SCMMaterialSource.class);
@@ -87,7 +91,7 @@ public class SCMMaterialSource implements ConfigChangedListener, MaterialSource,
         return new EntityConfigChangedListener<PipelineConfig>() {
             @Override
             public void onEntityConfigChange(PipelineConfig pipelineConfig) {
-                self.onConfigChange(goConfigService.getCurrentConfig());
+                self.onConfigChange(null);
             }
         };
     }
@@ -107,8 +111,8 @@ public class SCMMaterialSource implements ConfigChangedListener, MaterialSource,
         Long lastMaterialUpdateTime = materialLastUpdateTimeMap.get(material);
         if (lastMaterialUpdateTime != null) {
             boolean shouldUpdateMaterial = (DateTimeUtils.currentTimeMillis() - lastMaterialUpdateTime) >= materialUpdateInterval;
-            if (!shouldUpdateMaterial) {
-                LOGGER.info(format("[Material Update] Skipping update of material %s which has been last updated at %s", material, new Date(lastMaterialUpdateTime)));
+            if (LOGGER.isDebugEnabled() && !shouldUpdateMaterial) {
+                LOGGER.debug(format("[Material Update] Skipping update of material %s which has been last updated at %s", material, new Date(lastMaterialUpdateTime)));
             }
             return shouldUpdateMaterial;
         }

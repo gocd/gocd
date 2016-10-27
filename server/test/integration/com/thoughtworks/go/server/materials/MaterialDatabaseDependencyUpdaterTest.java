@@ -275,13 +275,13 @@ public class MaterialDatabaseDependencyUpdaterTest {
         return stage;
     }
 
-    private void stubStageServiceGetHistory(DependencyMaterial dependencyMaterial, Stages... stages) {
+    private void stubStageServiceGetHistory(DependencyMaterial dependencyMaterial, Stages... stageses) {
         if(material == null) {
             dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name"));
         }
-        for (int i = 0; i < stages.length; i++) {
+        for (int i = 0; i < stageses.length; i++) {
             ArrayList<Modification> mods = new ArrayList<Modification>();
-            for (Stage stage : stages[i]) {
+            for (Stage stage : stageses[i]) {
                 StageIdentifier id = stage.getIdentifier();
                 mods.add(new Modification(stage.completedDate(), id.stageLocator(), id.getPipelineLabel(), stage.getPipelineId()));
             }
@@ -290,7 +290,7 @@ public class MaterialDatabaseDependencyUpdaterTest {
                     .thenReturn(mods);
         }
         Mockito.when(dependencyMaterialSourceDao.getPassedStagesByName(dependencyMaterial,
-                Pagination.pageStartingAt(MaterialDatabaseUpdater.STAGES_PER_PAGE * stages.length, null, MaterialDatabaseUpdater.STAGES_PER_PAGE)
+                Pagination.pageStartingAt(MaterialDatabaseUpdater.STAGES_PER_PAGE * stageses.length, null, MaterialDatabaseUpdater.STAGES_PER_PAGE)
         )).thenReturn(new ArrayList<Modification>());
     }
 }

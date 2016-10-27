@@ -24,7 +24,6 @@ import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.StageResult;
 import com.thoughtworks.go.domain.materials.Material;
-import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.domain.StageStatusListener;
@@ -40,14 +39,19 @@ import java.util.*;
 
 import static java.lang.String.format;
 
+/**
+ * Listens to Stage/Config changes and notifies MaterialUpdateService to update DependencyMaterial
+ */
+
 @Component
 public class DependencyMaterialUpdateNotifier implements StageStatusListener, ConfigChangedListener, Initializer, MaterialUpdateCompleteListener {
     private static final Logger LOGGER = Logger.getLogger(DependencyMaterialUpdateNotifier.class);
     private final GoConfigService goConfigService;
     private final MaterialConfigConverter materialConfigConverter;
     private final MaterialUpdateService materialUpdateService;
+    private boolean skipUpdate = false;
 
-    private Map<String, Material> dependencyMaterials;
+    private volatile Map<String, Material> dependencyMaterials;
     private Set<Material> retryQueue = Collections.synchronizedSet(new HashSet<Material>());
 
     @Autowired
@@ -59,7 +63,7 @@ public class DependencyMaterialUpdateNotifier implements StageStatusListener, Co
     }
 
     public void initialize() {
-        loadDependencyMaterials();
+        this.dependencyMaterials = dependencyMaterials();
 
         goConfigService.register(this);
         goConfigService.register(pipelineConfigChangedListener());
@@ -83,6 +87,7 @@ public class DependencyMaterialUpdateNotifier implements StageStatusListener, Co
     public void stageStatusChanged(Stage stage) {
         if (StageResult.Passed == stage.getResult()) {
             Material material = dependencyMaterials.get(stageIdentifier(stage.getIdentifier().getPipelineName(), stage.getName()));
+
             if (material != null) {
                 updateMaterial(material);
             }
@@ -91,7 +96,7 @@ public class DependencyMaterialUpdateNotifier implements StageStatusListener, Co
 
     @Override
     public void onConfigChange(CruiseConfig newCruiseConfig) {
-        scheduleNewMaterialsForUpdate();
+        scheduleRecentlyAddedMaterialsForUpdate();
     }
 
     protected EntityConfigChangedListener<PipelineConfig> pipelineConfigChangedListener() {
@@ -100,17 +105,31 @@ public class DependencyMaterialUpdateNotifier implements StageStatusListener, Co
         return new EntityConfigChangedListener<PipelineConfig>() {
             @Override
             public void onEntityConfigChange(PipelineConfig pipelineConfig) {
-                self.scheduleNewMaterialsForUpdate();
+                self.scheduleRecentlyAddedMaterialsForUpdate();
             }
         };
     }
 
+    //    for integration tests
+    public void disableUpdates() {
+        this.skipUpdate = true;
+    }
+
+    //    for integration tests
+    public void enableUpdates() {
+        this.skipUpdate = false;
+    }
+
     private void updateMaterial(Material material) {
+        if(skipUpdate) return;
+
         try {
             if (!materialUpdateService.updateMaterial(material)) {
                 retryQueue.add(material);
             }
         } catch (Exception e) {
+            //TODO: ServerHealthCheck
+            LOGGER.error(format("[Material Update] Error updating dependency material %s", material), e);
             retryQueue.add(material);
         }
     }
@@ -121,26 +140,30 @@ public class DependencyMaterialUpdateNotifier implements StageStatusListener, Co
         }
     }
 
-    private void scheduleNewMaterialsForUpdate() {
-        Collection<Material> materialsBeforeConfigChange = dependencyMaterials.values();
-
-        loadDependencyMaterials();
-
-        Collection<Material> materialsAfterConfigChange = dependencyMaterials.values();
-
-        Collection newMaterials = CollectionUtils.subtract(materialsAfterConfigChange, materialsBeforeConfigChange);
-
-        for(Object material : newMaterials) {
+    private void scheduleRecentlyAddedMaterialsForUpdate() {
+        for (Object material : newDependencyMaterials()) {
             updateMaterial((Material) material);
         }
     }
 
-    private void loadDependencyMaterials() {
-        this.dependencyMaterials = new HashMap<>();
-        for (MaterialConfig materialConfig : goConfigService.getSchedulableDependencyMaterials()) {
-            String stageIdentifier = stageIdentifier(((DependencyMaterialConfig) materialConfig).getPipelineName().toString(), ((DependencyMaterialConfig) materialConfig).getStageName().toString());
-            this.dependencyMaterials.put(stageIdentifier, materialConfigConverter.toMaterial(materialConfig));
+    private Collection newDependencyMaterials() {
+        Collection<Material> materialsBeforeConfigChange = dependencyMaterials.values();
+
+        this.dependencyMaterials = dependencyMaterials();
+
+        Collection<Material> materialsAfterConfigChange = dependencyMaterials.values();
+
+        return CollectionUtils.subtract(materialsAfterConfigChange, materialsBeforeConfigChange);
+    }
+
+
+    private HashMap<String, Material> dependencyMaterials() {
+        HashMap<String, Material> map = new HashMap<>();
+        for (DependencyMaterialConfig materialConfig : goConfigService.getSchedulableDependencyMaterials()) {
+            String stageIdentifier = stageIdentifier(materialConfig.getPipelineName().toString(), materialConfig.getStageName().toString());
+            map.put(stageIdentifier, materialConfigConverter.toMaterial(materialConfig));
         }
+        return map;
     }
 
     private String stageIdentifier(String pipelineName, String stageName) {

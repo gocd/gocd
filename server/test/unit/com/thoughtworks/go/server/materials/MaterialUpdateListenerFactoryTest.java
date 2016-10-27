@@ -99,7 +99,7 @@ public class MaterialUpdateListenerFactoryTest {
     public void shouldCreateCompetingConsumersForSuppliedDependencyMaterialQueue() throws Exception {
         int noOfDependencyMaterialCheckListeners = 3;
 
-        when(systemEnvironment.getNumberOfDependencyMaterialCheckListener()).thenReturn(noOfDependencyMaterialCheckListeners);
+        when(systemEnvironment.getNumberOfDependencyMaterialUpdateListeners()).thenReturn(noOfDependencyMaterialCheckListeners);
 
         MaterialUpdateListenerFactory factory = new MaterialUpdateListenerFactory(topic,configTopic, queue, configQueue,
                 materialRepository, systemEnvironment, healthService, diskSpaceMonitor,

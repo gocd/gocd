@@ -25,6 +25,7 @@ import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.materials.DependencyMaterialUpdateNotifier;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.presentation.models.ValueStreamMapPresentationModel;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -68,16 +69,12 @@ public class ValueStreamMapServiceIntegrationTest {
     @Autowired private MaterialRepository materialRepository;
     @Autowired private TransactionTemplate transactionTemplate;
     @Autowired private Localizer localizer;
+    @Autowired private DependencyMaterialUpdateNotifier notifier;
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private ScheduleTestUtil u;
     private HttpLocalizedOperationResult result;
     private Username username;
-
-    //  Hack to ignore MDU requests from MaterialUpdateService, as tests update the DB directly.
-    static {
-        new SystemEnvironment().setProperty("dependency.material.check.threads", "0");
-    }
 
     @Before
     public void setUp() throws Exception {
@@ -92,13 +89,14 @@ public class ValueStreamMapServiceIntegrationTest {
         result = new HttpLocalizedOperationResult();
 
         username = new Username(new CaseInsensitiveString("admin"));
-
+        notifier.disableUpdates();
     }
 
     @After
     public void teardown() throws Exception {
         dbHelper.onTearDown();
         configHelper.onTearDown();
+        notifier.enableUpdates();
     }
 
     @Test // Scenario: #7192

@@ -199,6 +199,8 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     private static final GoSystemProperty<Boolean> GO_AGENT_USE_SSL_CONTEXT = new GoBooleanSystemProperty("go.agent.reuse.ssl.context", true);
     public static final GoSystemProperty<? extends Boolean> ENABLE_BUILD_COMMAND_PROTOCOL = new GoBooleanSystemProperty("go.agent.enableBuildCommandProtocol", false);
 
+    public static GoIntSystemProperty DEPENDENCY_MATERIAL_UPDATE_LISTENERS = new GoIntSystemProperty("dependency.material.check.threads", 3);
+
     private final static Map<String, String> GIT_ALLOW_PROTOCOL;
 
     static {
@@ -450,8 +452,8 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return Integer.parseInt(getPropertyImpl("material.config.check.threads", "2"));
     }
 
-    public int getNumberOfDependencyMaterialCheckListener() {
-        return Integer.parseInt(getPropertyImpl("dependency.material.check.threads", "3"));
+    public int getNumberOfDependencyMaterialUpdateListeners() {
+        return DEPENDENCY_MATERIAL_UPDATE_LISTENERS.getValue();
     }
 
     public int getNumberOfPluginNotificationListener() {

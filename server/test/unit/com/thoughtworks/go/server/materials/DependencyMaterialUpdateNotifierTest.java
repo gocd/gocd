@@ -81,7 +81,7 @@ public class DependencyMaterialUpdateNotifierTest {
         notifier = new DependencyMaterialUpdateNotifier(goConfigService, materialConfigConverter, materialUpdateService);
         notifier.initialize();
 
-        Set<MaterialConfig> schedulableMaterialConfigs = new HashSet<>(Arrays.asList(dependencyMaterial.config()));
+        Set<DependencyMaterialConfig> schedulableMaterialConfigs = new HashSet<>(Arrays.asList((DependencyMaterialConfig) dependencyMaterial.config()));
         when(goConfigService.getSchedulableDependencyMaterials()).thenReturn(schedulableMaterialConfigs);
         when(materialConfigConverter.toMaterial(dependencyMaterial.config())).thenReturn(dependencyMaterial);
 
@@ -93,7 +93,7 @@ public class DependencyMaterialUpdateNotifierTest {
     @Test
     public void shouldScheduleOnlyNewDepenedencyMaterialsForUpdateOnSubsequentConfigChanges() {
         DependencyMaterial dependencyMaterialForP1S1 = MaterialsMother.dependencyMaterial("p1", "s1");
-        Set<MaterialConfig> schedulableMaterialConfigs = new HashSet<>(Arrays.asList(dependencyMaterialForP1S1.config()));
+        Set<DependencyMaterialConfig> schedulableMaterialConfigs = new HashSet<>(Arrays.asList((DependencyMaterialConfig) dependencyMaterialForP1S1.config()));
         when(goConfigService.getSchedulableDependencyMaterials()).thenReturn(schedulableMaterialConfigs);
         when(materialConfigConverter.toMaterial(dependencyMaterialForP1S1.config())).thenReturn(dependencyMaterialForP1S1);
 
@@ -101,7 +101,7 @@ public class DependencyMaterialUpdateNotifierTest {
         notifier.initialize();
 
         DependencyMaterial dependencyMaterialForP2S2 = MaterialsMother.dependencyMaterial("p2", "s2");
-        schedulableMaterialConfigs = new HashSet<>(Arrays.asList(dependencyMaterialForP2S2.config()));
+        schedulableMaterialConfigs = new HashSet<>(Arrays.asList((DependencyMaterialConfig) dependencyMaterialForP2S2.config()));
         when(goConfigService.getSchedulableDependencyMaterials()).thenReturn(schedulableMaterialConfigs);
         when(materialConfigConverter.toMaterial(dependencyMaterialForP2S2.config())).thenReturn(dependencyMaterialForP2S2);
 
@@ -110,8 +110,8 @@ public class DependencyMaterialUpdateNotifierTest {
     }
 
     @Test
-    public void shouldDoNothingIfOnConfigChangeIfNewDependencyMaterialsAreNotAdded() {
-        Set<MaterialConfig> schedulableMaterialConfigs = new HashSet<>(Arrays.asList(dependencyMaterial.config()));
+    public void shouldDoNothingIfNewDependencyMaterialsAreNotAddedOnConfigChange() {
+        Set<DependencyMaterialConfig> schedulableMaterialConfigs = new HashSet<>(Arrays.asList((DependencyMaterialConfig) dependencyMaterial.config()));
 
         when(goConfigService.getSchedulableDependencyMaterials()).thenReturn(schedulableMaterialConfigs);
         when(materialConfigConverter.toMaterial(dependencyMaterial.config())).thenReturn(dependencyMaterial);
@@ -129,7 +129,7 @@ public class DependencyMaterialUpdateNotifierTest {
     public void shouldUpdateMaterialOnStageChange() {
         Stage stage = StageMother.passedStageInstance("Stage1", "plan", "Pipeline1");
         DependencyMaterial dependencyMaterial = MaterialsMother.dependencyMaterial(stage.getIdentifier().getPipelineName(), stage.getName());
-        Set<MaterialConfig> schedulableMaterialConfigs = new HashSet<>(Arrays.asList(dependencyMaterial.config()));
+        Set<DependencyMaterialConfig> schedulableMaterialConfigs = new HashSet<>(Arrays.asList((DependencyMaterialConfig) dependencyMaterial.config()));
 
         when(goConfigService.getSchedulableDependencyMaterials()).thenReturn(schedulableMaterialConfigs);
         when(materialConfigConverter.toMaterial(dependencyMaterial.config())).thenReturn(dependencyMaterial);
@@ -157,7 +157,7 @@ public class DependencyMaterialUpdateNotifierTest {
     public void shouldNotUpdateMaterialUnlessStageResultIsPassedOnStageChange() {
         Stage stage = StageMother.scheduledStage("Pipeline1", 1, "Stage1", 1, "buildName");
         DependencyMaterial dependencyMaterial = MaterialsMother.dependencyMaterial(stage.getIdentifier().getPipelineName(), stage.getName());
-        Set<MaterialConfig> schedulableMaterialConfigs = new HashSet<>(Arrays.asList(dependencyMaterial.config()));
+        Set<DependencyMaterialConfig> schedulableMaterialConfigs = new HashSet<>(Arrays.asList((DependencyMaterialConfig) dependencyMaterial.config()));
 
         when(goConfigService.getSchedulableDependencyMaterials()).thenReturn(schedulableMaterialConfigs);
         when(materialConfigConverter.toMaterial(dependencyMaterial.config())).thenReturn(dependencyMaterial);
@@ -175,7 +175,7 @@ public class DependencyMaterialUpdateNotifierTest {
     public void shouldRetryUpdatingMaterialsPreviouslyInProgress_OnMaterialUpdate() {
         Stage stage = StageMother.passedStageInstance("Stage1", "plan", "Pipeline1");
         DependencyMaterial dependencyMaterial = MaterialsMother.dependencyMaterial(stage.getIdentifier().getPipelineName(), stage.getName());
-        Set<MaterialConfig> schedulableMaterialConfigs = new HashSet<>(Arrays.asList(dependencyMaterial.config()));
+        Set<DependencyMaterialConfig> schedulableMaterialConfigs = new HashSet<>(Arrays.asList((DependencyMaterialConfig) dependencyMaterial.config()));
 
         when(goConfigService.getSchedulableDependencyMaterials()).thenReturn(schedulableMaterialConfigs);
         when(materialConfigConverter.toMaterial(dependencyMaterial.config())).thenReturn(dependencyMaterial);
@@ -195,7 +195,7 @@ public class DependencyMaterialUpdateNotifierTest {
     public void shouldRetryUpdatingMaterialsIfPreviouslyUpdatesFailed_OnMaterialUpdate() {
         Stage stage = StageMother.passedStageInstance("Stage1", "plan", "Pipeline1");
         DependencyMaterial dependencyMaterial = MaterialsMother.dependencyMaterial(stage.getIdentifier().getPipelineName(), stage.getName());
-        Set<MaterialConfig> schedulableMaterialConfigs = new HashSet<>(Arrays.asList(dependencyMaterial.config()));
+        Set<DependencyMaterialConfig> schedulableMaterialConfigs = new HashSet<>(Arrays.asList((DependencyMaterialConfig) dependencyMaterial.config()));
 
         when(goConfigService.getSchedulableDependencyMaterials()).thenReturn(schedulableMaterialConfigs);
         when(materialConfigConverter.toMaterial(dependencyMaterial.config())).thenReturn(dependencyMaterial);
@@ -207,5 +207,23 @@ public class DependencyMaterialUpdateNotifierTest {
         notifier.onMaterialUpdate(dependencyMaterial);
 
         verify(materialUpdateService, atMost(2)).updateMaterial(dependencyMaterial);
+    }
+
+    @Test
+    public void shouldDoNothingIfMaterialUpdateIsDisabled() {
+        Stage stage = StageMother.passedStageInstance("Stage1", "plan", "Pipeline1");
+        DependencyMaterial dependencyMaterial = MaterialsMother.dependencyMaterial(stage.getIdentifier().getPipelineName(), stage.getName());
+        Set<DependencyMaterialConfig> schedulableMaterialConfigs = new HashSet<>(Arrays.asList((DependencyMaterialConfig) dependencyMaterial.config()));
+
+        when(goConfigService.getSchedulableDependencyMaterials()).thenReturn(schedulableMaterialConfigs);
+        when(materialConfigConverter.toMaterial(dependencyMaterial.config())).thenReturn(dependencyMaterial);
+
+        notifier = new DependencyMaterialUpdateNotifier(goConfigService, materialConfigConverter, materialUpdateService);
+        notifier.disableUpdates();
+        notifier.initialize();
+
+        notifier.stageStatusChanged(stage);
+
+        verify(materialUpdateService, never()).updateMaterial(dependencyMaterial);
     }
 }

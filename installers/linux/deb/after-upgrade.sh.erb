@@ -18,7 +18,4 @@
 
 <%= ERB.new(File.read(File.join(install_scripts_dir, 'shared', 'partials', '_set-debian-permissions.sh.erb')), nil, '-', "_#{SecureRandom.hex}").result(binding) %>
 
-<% if name == 'go-server' -%>
-    # Start the service
-    /etc/init.d/go-server start
-<% end -%>
+    /etc/init.d/<%= name %> start

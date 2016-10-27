@@ -16,7 +16,4 @@
 #########################################################################
 -%>
 
-<% if name == 'go-server' -%>
-    # Start the service
-    /etc/init.d/go-server start
-<% end -%>
+    /etc/init.d/<%= name %> start

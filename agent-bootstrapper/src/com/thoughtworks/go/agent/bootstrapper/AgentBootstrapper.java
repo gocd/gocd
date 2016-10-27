@@ -20,12 +20,16 @@ import com.thoughtworks.cruise.agent.common.launcher.AgentLauncher;
 import com.thoughtworks.go.agent.common.AgentBootstrapperArgs;
 import com.thoughtworks.go.agent.common.AgentCLI;
 import com.thoughtworks.go.agent.common.util.Downloader;
+import com.thoughtworks.go.agent.common.util.JarUtil;
 import com.thoughtworks.go.util.SystemUtil;
 import com.thoughtworks.go.util.validators.FileValidator;
 import com.thoughtworks.go.util.validators.Validation;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.NDC;
+
+import java.io.File;
 
 public class AgentBootstrapper {
 
@@ -59,6 +63,7 @@ public class AgentBootstrapper {
         launcherThread = Thread.currentThread();
 
         validate();
+        cleanupTempFiles();
 
         int returnValue = 0;
         DefaultAgentLaunchDescriptorImpl descriptor = new DefaultAgentLaunchDescriptorImpl(bootstrapperArgs, this);
@@ -91,6 +96,11 @@ public class AgentBootstrapper {
         LOG.info("Agent Bootstrapper stopped");
 
         jvmExit(returnValue);
+    }
+
+    private void cleanupTempFiles() {
+        FileUtils.deleteQuietly(new File(JarUtil.EXPLODED_DEPENDENCIES_DIR_NAME));
+        FileUtils.deleteQuietly(new File(LauncherTempFileHandler.LAUNCHER_TMP_FILE_LIST));
     }
 
     void waitForRelaunchTime() {

@@ -38,7 +38,7 @@ import org.apache.commons.logging.LogFactory;
 public class JarUtil {
     private static final Log LOG = LogFactory.getLog(JarUtil.class);
     public static final String GO_VERSION = "Go-Version";
-    private static final String EXPLODED_DEPENDENCIES_DIR_NAME = "exploded_agent_launcher_dependencies";
+    public static final String EXPLODED_DEPENDENCIES_DIR_NAME = "exploded_agent_launcher_dependencies";
 
     public static String getGoVersion(String jar) {
         String version = getManifestKey(jar, GO_VERSION);

@@ -420,6 +420,7 @@ $arrow-color: #000;
   border:        1px solid #ccc;
   border-radius: 3px;
   display:       none;
+  z-index:       $build-details-dropdown-arrow-z-index;
 
   .is-open & {
     display: block;
@@ -491,10 +492,8 @@ a.has-build-details-drop-down {
   &:after {
     content:      "";
     position:     absolute;
-    right:        -12px;
-    top:          8px;
-    width:        0;
-    height:       0;
+    bottom:       0;
+    margin:       0 0 4px 4px;
     border-style: solid;
     border-width: 5px 3px 0 3px;
     border-color: #717171 transparent transparent transparent;

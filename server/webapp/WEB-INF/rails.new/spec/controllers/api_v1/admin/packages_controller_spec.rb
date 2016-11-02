@@ -441,12 +441,12 @@ describe ApiV1::Admin::PackagesController do
 
       it 'should allow admin users, with security enabled' do
         login_as_admin
-        expect(controller).to allow_action(:put, :update)
+        expect(controller).to allow_action(:put, :update, package_id: @package_id)
       end
 
       it 'should allow pipeline group admin users, with security enabled' do
         login_as_group_admin
-        expect(controller).to allow_action(:put, :update)
+        expect(controller).to allow_action(:put, :update, package_id: @package_id)
       end
     end
 

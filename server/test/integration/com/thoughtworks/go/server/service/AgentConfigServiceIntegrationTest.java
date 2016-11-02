@@ -215,6 +215,12 @@ public class AgentConfigServiceIntegrationTest {
         AgentConfig agentConfig2 = new AgentConfig(UUID.randomUUID().toString(), "remote-host2", "50.40.30.22");
         agentConfig1.disable();
         agentConfig2.disable();
+
+        AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment());
+        AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment());
+        agentInstances.add(agentInstance1);
+        agentInstances.add(agentInstance2);
+
         agentConfigService.addAgent(agentConfig1, Username.ANONYMOUS);
         agentConfigService.addAgent(agentConfig2, Username.ANONYMOUS);
         CruiseConfig cruiseConfig = goConfigDao.load();
@@ -322,6 +328,10 @@ public class AgentConfigServiceIntegrationTest {
         assertThat(pendingAgent.isRegistered(), is(false));
         AgentConfig agentConfig = new AgentConfig(UUID.randomUUID().toString(), "remote-host1", "50.40.30.21");
         agentConfig.disable();
+
+        AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig, new SystemEnvironment());
+        agentInstances.add(agentInstance);
+
         agentConfigService.addAgent(agentConfig, Username.ANONYMOUS);
         CruiseConfig cruiseConfig = goConfigDao.load();
         assertThat(cruiseConfig.agents().getAgentByUuid(agentConfig.getUuid()).isDisabled(), is(true));
@@ -344,6 +354,12 @@ public class AgentConfigServiceIntegrationTest {
     public void shouldDisableTheProvidedAgents() throws Exception {
         AgentConfig agentConfig1 = new AgentConfig(UUID.randomUUID().toString(), "remote-host1", "50.40.30.21");
         AgentConfig agentConfig2 = new AgentConfig(UUID.randomUUID().toString(), "remote-host2", "50.40.30.22");
+
+        AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment());
+        AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment());
+        agentInstances.add(agentInstance1);
+        agentInstances.add(agentInstance2);
+
         agentConfigService.addAgent(agentConfig1, Username.ANONYMOUS);
         agentConfigService.addAgent(agentConfig2, Username.ANONYMOUS);
         CruiseConfig cruiseConfig = goConfigDao.load();
@@ -368,6 +384,12 @@ public class AgentConfigServiceIntegrationTest {
     public void shouldNotDisableAgentsWhenInvalidAgentUUIDIsprovided() throws Exception {
         AgentConfig agentConfig1 = new AgentConfig(UUID.randomUUID().toString(), "remote-host1", "50.40.30.21");
         AgentConfig agentConfig2 = new AgentConfig(UUID.randomUUID().toString(), "remote-host2", "50.40.30.22");
+
+        AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment());
+        AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment());
+        agentInstances.add(agentInstance1);
+        agentInstances.add(agentInstance2);
+
         agentConfigService.addAgent(agentConfig1, Username.ANONYMOUS);
         agentConfigService.addAgent(agentConfig2, Username.ANONYMOUS);
         CruiseConfig cruiseConfig = goConfigDao.load();
@@ -388,13 +410,17 @@ public class AgentConfigServiceIntegrationTest {
 
         assertFalse(result.isSuccessful());
         assertThat(result.toString(), result.httpCode(), is(400));
-        assertTrue(result.toString(), result.toString().contains("AGENTS_WITH_UUIDS_NOT_FOUND"));
+        assertTrue(result.toString(), result.toString().contains("RESOURCE_NOT_FOUND"));
         assertTrue(result.toString(), result.toString().contains("invalid-uuid"));
     }
 
     @Test
     public void shouldNotUpdateResourcesOnElasticAgents() throws Exception {
         AgentConfig elasticAgent = AgentMother.elasticAgent();
+
+        AgentInstance agentInstance = AgentInstance.createFromConfig(elasticAgent, new SystemEnvironment());
+        agentInstances.add(agentInstance);
+
         agentConfigService.addAgent(elasticAgent, Username.ANONYMOUS);
         CruiseConfig cruiseConfig = goConfigDao.load();
 
@@ -417,6 +443,12 @@ public class AgentConfigServiceIntegrationTest {
     public void shouldNotEnableAgentsWhenInvalidAgentUUIDIsprovided() throws Exception {
         AgentConfig agentConfig1 = new AgentConfig(UUID.randomUUID().toString(), "remote-host1", "50.40.30.21");
         AgentConfig agentConfig2 = new AgentConfig(UUID.randomUUID().toString(), "remote-host2", "50.40.30.22");
+
+        AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment());
+        AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment());
+        agentInstances.add(agentInstance1);
+        agentInstances.add(agentInstance2);
+
         agentConfigService.addAgent(agentConfig1, Username.ANONYMOUS);
         agentConfigService.addAgent(agentConfig2, Username.ANONYMOUS);
         CruiseConfig cruiseConfig = goConfigDao.load();
@@ -437,7 +469,7 @@ public class AgentConfigServiceIntegrationTest {
 
         assertFalse(result.isSuccessful());
         assertThat(result.toString(), result.httpCode(), is(400));
-        assertTrue(result.toString(), result.toString().contains("AGENTS_WITH_UUIDS_NOT_FOUND"));
+        assertTrue(result.toString(), result.toString().contains("RESOURCE_NOT_FOUND"));
         assertTrue(result.toString(), result.toString().contains("invalid-uuid"));
     }
 
@@ -445,6 +477,12 @@ public class AgentConfigServiceIntegrationTest {
     public void shouldAddResourcestoTheSpecifiedAgents() throws Exception {
         AgentConfig agentConfig1 = new AgentConfig(UUID.randomUUID().toString(), "remote-host1", "50.40.30.21");
         AgentConfig agentConfig2 = new AgentConfig(UUID.randomUUID().toString(), "remote-host2", "50.40.30.22");
+
+        AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment());
+        AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment());
+        agentInstances.add(agentInstance1);
+        agentInstances.add(agentInstance2);
+
         agentConfigService.addAgent(agentConfig1, Username.ANONYMOUS);
         agentConfigService.addAgent(agentConfig2, Username.ANONYMOUS);
         CruiseConfig cruiseConfig = goConfigDao.load();
@@ -475,9 +513,16 @@ public class AgentConfigServiceIntegrationTest {
     public void shouldRemoveResourcesFromTheSpecifiedAgents() throws Exception {
         AgentConfig agentConfig1 = new AgentConfig(UUID.randomUUID().toString(), "remote-host1", "50.40.30.21");
         AgentConfig agentConfig2 = new AgentConfig(UUID.randomUUID().toString(), "remote-host2", "50.40.30.22");
+
+        AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment());
+        AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment());
+        agentInstances.add(agentInstance1);
+        agentInstances.add(agentInstance2);
+
         agentConfig1.addResource(new Resource("resource-1"));
         agentConfig1.addResource(new Resource("resource-2"));
         agentConfig2.addResource(new Resource("resource-2"));
+
         agentConfigService.addAgent(agentConfig1, Username.ANONYMOUS);
         agentConfigService.addAgent(agentConfig2, Username.ANONYMOUS);
         CruiseConfig cruiseConfig = goConfigDao.load();
@@ -508,6 +553,12 @@ public class AgentConfigServiceIntegrationTest {
     public void shouldAddProvidedAgentsToTheSpecifiedEnvironments() throws Exception {
         AgentConfig agentConfig1 = new AgentConfig(UUID.randomUUID().toString(), "remote-host1", "50.40.30.21");
         AgentConfig agentConfig2 = new AgentConfig(UUID.randomUUID().toString(), "remote-host2", "50.40.30.22");
+
+        AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment());
+        AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment());
+        agentInstances.add(agentInstance1);
+        agentInstances.add(agentInstance2);
+
         agentConfigService.addAgent(agentConfig1, Username.ANONYMOUS);
         agentConfigService.addAgent(agentConfig2, Username.ANONYMOUS);
 
@@ -536,6 +587,12 @@ public class AgentConfigServiceIntegrationTest {
     public void shouldRemoveProvidedAgentsFromTheSpecifiedEnvironments() throws Exception {
         AgentConfig agentConfig1 = new AgentConfig(UUID.randomUUID().toString(), "remote-host1", "50.40.30.21");
         AgentConfig agentConfig2 = new AgentConfig(UUID.randomUUID().toString(), "remote-host2", "50.40.30.22");
+
+        AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment());
+        AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment());
+        agentInstances.add(agentInstance1);
+        agentInstances.add(agentInstance2);
+
         agentConfigService.addAgent(agentConfig1, Username.ANONYMOUS);
         agentConfigService.addAgent(agentConfig2, Username.ANONYMOUS);
 
@@ -570,6 +627,12 @@ public class AgentConfigServiceIntegrationTest {
     public void shouldNotAddAgentToNonExistingEnvironment() throws Exception {
         AgentConfig agentConfig1 = new AgentConfig(UUID.randomUUID().toString(), "remote-host1", "50.40.30.21");
         AgentConfig agentConfig2 = new AgentConfig(UUID.randomUUID().toString(), "remote-host2", "50.40.30.22");
+
+        AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment());
+        AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment());
+        agentInstances.add(agentInstance1);
+        agentInstances.add(agentInstance2);
+
         agentConfigService.addAgent(agentConfig1, Username.ANONYMOUS);
         agentConfigService.addAgent(agentConfig2, Username.ANONYMOUS);
 
@@ -594,6 +657,12 @@ public class AgentConfigServiceIntegrationTest {
     public void shouldNotRemoveAgentFromNonExistingEnvironment() throws Exception {
         AgentConfig agentConfig1 = new AgentConfig(UUID.randomUUID().toString(), "remote-host1", "50.40.30.21");
         AgentConfig agentConfig2 = new AgentConfig(UUID.randomUUID().toString(), "remote-host2", "50.40.30.22");
+
+        AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment());
+        AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment());
+        agentInstances.add(agentInstance1);
+        agentInstances.add(agentInstance2);
+
         agentConfigService.addAgent(agentConfig1, Username.ANONYMOUS);
         agentConfigService.addAgent(agentConfig2, Username.ANONYMOUS);
 
@@ -618,6 +687,12 @@ public class AgentConfigServiceIntegrationTest {
     public void shouldUpdateResourcesEnvironmentsAndAgentStateOfTheProvidedStatesAllTogether() throws Exception {
         AgentConfig agentConfig1 = new AgentConfig(UUID.randomUUID().toString(), "remote-host1", "50.40.30.21");
         AgentConfig agentConfig2 = new AgentConfig(UUID.randomUUID().toString(), "remote-host2", "50.40.30.22");
+
+        AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment());
+        AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment());
+        agentInstances.add(agentInstance1);
+        agentInstances.add(agentInstance2);
+
         agentConfigService.addAgent(agentConfig1, Username.ANONYMOUS);
         agentConfigService.addAgent(agentConfig2, Username.ANONYMOUS);
 

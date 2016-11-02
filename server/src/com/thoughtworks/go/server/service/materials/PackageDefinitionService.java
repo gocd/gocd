@@ -153,7 +153,7 @@ public class PackageDefinitionService {
         try {
             goConfigService.updateConfig(command, username);
         } catch (Exception e) {
-            if (e instanceof GoConfigInvalidException) {
+            if (e instanceof GoConfigInvalidException && !result.hasMessage()) {
                 result.unprocessableEntity(LocalizedMessage.string("ENTITY_CONFIG_VALIDATION_FAILED", packageDeinition.getClass().getAnnotation(ConfigTag.class).value(), packageDeinition.getId(), e.getMessage()));
             } else {
                 if (!result.hasMessage()) {

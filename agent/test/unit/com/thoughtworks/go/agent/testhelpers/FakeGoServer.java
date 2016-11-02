@@ -106,7 +106,6 @@ public class FakeGoServer {
 		sslContextFactory.setWantClientAuth(true);
 
 		ServerConnector https = new ServerConnector(server, new SslConnectionFactory(sslContextFactory, "http/1.1"), new HttpConnectionFactory(httpsConfig));
-		// https.setHost(host);
 		https.setPort(sslPort);
 		https.setIdleTimeout(MAX_IDLE_TIME);
 
@@ -130,6 +129,3 @@ public class FakeGoServer {
     }
 
 }
-
-
-

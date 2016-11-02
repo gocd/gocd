@@ -21,12 +21,17 @@ import com.thoughtworks.go.agent.testhelper.FakeBootstrapperServer;
 import com.thoughtworks.go.mothers.ServerUrlGeneratorMother;
 import com.thoughtworks.go.util.SslVerificationMode;
 import org.apache.commons.io.FileUtils;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.net.UnknownHostException;
@@ -34,6 +39,9 @@ import java.net.UnknownHostException;
 import static com.thoughtworks.go.util.FileDigester.md5DigestOfStream;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(FakeBootstrapperServer.class)
 public class ServerBinaryDownloaderTest {
@@ -51,7 +59,10 @@ public class ServerBinaryDownloaderTest {
     public void shouldSetMd5AndSSLPortHeaders() throws Exception {
         ServerBinaryDownloader downloader = new ServerBinaryDownloader(ServerUrlGeneratorMother.generatorFor("localhost", 9090), null, SslVerificationMode.NONE);
         downloader.downloadIfNecessary(DownloadableFile.AGENT);
-        assertThat(downloader.getMd5(), is(md5DigestOfStream(new FileInputStream(DownloadableFile.AGENT.getLocalFile()))));
+
+        try(BufferedInputStream stream = new BufferedInputStream(new FileInputStream(DownloadableFile.AGENT.getLocalFile()))) {
+            assertThat(downloader.getMd5(), is(md5DigestOfStream(stream)));
+        }
         assertThat(downloader.getSslPort(), is("9091"));
     }
 
@@ -122,5 +133,16 @@ public class ServerBinaryDownloaderTest {
         ServerBinaryDownloader downloader = new ServerBinaryDownloader(ServerUrlGeneratorMother.generatorWithoutSubPathFor("https://localhost:9091/go/not-found"), null,
                 SslVerificationMode.NONE);
         downloader.download(DownloadableFile.AGENT);
+    }
+
+    @Test
+    public void shouldReturnFalseIfTheServerDoesNotRespondWithEntity() throws Exception {
+        HttpClientBuilder builder = mock(HttpClientBuilder.class);
+        CloseableHttpClient closeableHttpClient = mock(CloseableHttpClient.class);
+        when(builder.build()).thenReturn(closeableHttpClient);
+        CloseableHttpResponse httpResponse = mock(CloseableHttpResponse.class);
+        when(closeableHttpClient.execute(any(HttpRequestBase.class))).thenReturn(httpResponse);
+        ServerBinaryDownloader downloader = new ServerBinaryDownloader(builder, ServerUrlGeneratorMother.generatorFor("localhost", 9090));
+        assertThat(downloader.download(DownloadableFile.AGENT), is(false));
     }
 }

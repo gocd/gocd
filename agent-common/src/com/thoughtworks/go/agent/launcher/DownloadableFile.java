@@ -60,10 +60,6 @@ public enum DownloadableFile {
         return subPath;
     }
 
-    public String mutex() {
-        return localFileName.intern();
-    }
-
     protected static boolean matchChecksum(File localFile, String expectedSignature) {
         try (FileInputStream input = new FileInputStream(localFile)) {
             FileDigester fileDigester = new FileDigester(input, new NullOutputStream());

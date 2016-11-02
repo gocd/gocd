@@ -36,8 +36,6 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 
 import java.io.*;
-import java.util.Date;
-import java.util.Timer;
 
 public class ServerBinaryDownloader implements Downloader {
 
@@ -53,10 +51,10 @@ public class ServerBinaryDownloader implements Downloader {
     private HttpClientBuilder httpClientBuilder;
 
     public ServerBinaryDownloader(ServerUrlGenerator urlGenerator, File rootCertFile, SslVerificationMode sslVerificationMode) throws Exception {
-        this(new GoAgentServerHttpClientBuilder(rootCertFile, sslVerificationMode).httpClientBuilder(HttpClients.custom()), urlGenerator, new Timer(false));
+        this(new GoAgentServerHttpClientBuilder(rootCertFile, sslVerificationMode).httpClientBuilder(HttpClients.custom()), urlGenerator);
     }
 
-    protected ServerBinaryDownloader(HttpClientBuilder httpClientBuilder, ServerUrlGenerator urlGenerator, Timer timer) {
+    protected ServerBinaryDownloader(HttpClientBuilder httpClientBuilder, ServerUrlGenerator urlGenerator) {
         this.httpClientBuilder = httpClientBuilder;
         this.urlGenerator = urlGenerator;
     }
@@ -107,27 +105,32 @@ public class ServerBinaryDownloader implements Downloader {
         }
     }
 
-    protected boolean download(final DownloadableFile downloadableFile) throws Exception {
+    protected synchronized boolean download(final DownloadableFile downloadableFile) throws Exception {
         File toDownload = downloadableFile.getLocalFile();
-        LOG.info("download of " + toDownload + " started at " + new Date());
+        LOG.info("Downloading " + toDownload);
         String url = downloadableFile.url(urlGenerator);
         final HttpRequestBase request = new HttpGet(url);
         request.setConfig(RequestConfig.custom().setConnectTimeout(HTTP_TIMEOUT_IN_MILLISECONDS).build());
 
         try (CloseableHttpClient httpClient = httpClientBuilder.build();
              CloseableHttpResponse response = httpClient.execute(request)) {
-            LOG.info("got server response at " + new Date());
+            LOG.info("Got server response");
+            if (response.getEntity() == null) {
+                LOG.error("Unable to read file from the server response");
+                return false;
+            }
             handleInvalidResponse(response, url);
-            response.getEntity().writeTo(new FileOutputStream(downloadableFile.getLocalFile()));
-            LOG.info("piped the stream to " + downloadableFile + " at " + new Date());
+            try (BufferedOutputStream outStream = new BufferedOutputStream(new FileOutputStream(downloadableFile.getLocalFile()))) {
+                response.getEntity().writeTo(outStream);
+                LOG.info("Piped the stream to " + downloadableFile);
+            }
         }
         return true;
     }
 
     private void handleInvalidResponse(HttpResponse response, String url) throws IOException {
-        try (StringWriter sw = new StringWriter();
-             PrintWriter out = new PrintWriter(sw)
-        ) {
+        StringWriter sw = new StringWriter();
+        try (PrintWriter out = new PrintWriter(sw)) {
             out.print("Problem accessing server at ");
             out.println(url);
             if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {

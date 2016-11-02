@@ -101,9 +101,7 @@ public class AgentWebSocketClientController extends AgentController {
         if (sslInfrastructureService.isRegistered()) {
             if (webSocketSessionHandler.isNotRunning()) {
                 webSocketSessionHandler.clearCallBacks();
-                synchronized (this) {
-                    webSocketSessionHandler.setSession(webSocketClientHandler.connect(this));
-                }
+                webSocketSessionHandler.setSession(webSocketClientHandler.connect(this));
             }
             updateServerAgentRuntimeInfo();
         }

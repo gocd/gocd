@@ -53,6 +53,8 @@ public abstract class AgentController {
     private AgentRegistry agentRegistry;
     private SubprocessLogger subprocessLogger;
     private AgentUpgradeService agentUpgradeService;
+    private final String hostName;
+    private final String ipAddress;
 
     public AgentController(SslInfrastructureService sslInfrastructureService,
                            SystemEnvironment systemEnvironment,
@@ -65,6 +67,8 @@ public abstract class AgentController {
         this.subprocessLogger = subprocessLogger;
         this.agentUpgradeService = agentUpgradeService;
         PluginManagerReference.reference().setPluginManager(pluginManager);
+        hostName = SystemUtil.getLocalhostNameOrRandomNameIfNotFound();
+        ipAddress = SystemUtil.getClientIp(systemEnvironment.getServiceUrl());
     }
 
     public abstract void ping();
@@ -91,7 +95,7 @@ public abstract class AgentController {
     private void handleSecurityException(Exception e) {
         sslInfrastructureService.invalidateAgentCertificate();
         LOG.error("There has been a problem with one of Go's SSL certificates." +
-                        " This can be caused by a man-in-the-middle attack, or by pointing the agent to a new e, or by" +
+                        " This can be caused by a man-in-the-middle attack, or by pointing the agent to a new server, or by" +
                         " deleting and re-installing Go Server. Go will ask for a new certificate. If this" +
                         " fails to solve the problem, try deleting config/trust.jks in Go Agent's home directory.",
                 e);
@@ -112,7 +116,7 @@ public abstract class AgentController {
     }
 
     protected AgentIdentifier agentIdentifier() {
-        return new AgentIdentifier(SystemUtil.getLocalhostNameOrRandomNameIfNotFound(), SystemUtil.getClientIp(systemEnvironment.getServiceUrl()), agentRegistry.uuid());
+        return new AgentIdentifier(hostName, ipAddress, agentRegistry.uuid());
     }
 
     protected AgentRuntimeInfo getAgentRuntimeInfo() {

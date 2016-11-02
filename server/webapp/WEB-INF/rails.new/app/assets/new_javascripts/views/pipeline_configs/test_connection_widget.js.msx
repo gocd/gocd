@@ -14,70 +14,68 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', 'helpers/form_helper',
-  'helpers/mithril_component_mixins'],
-  function (m, _, s, f, ComponentMixins) {
-    var TestConnectionWidget = {
-      Connection: {
-        State: function () {
-          var self = this;
-          this.status = m.prop('');
-          this.errorMessage = m.prop('');
+define(['mithril', 'lodash', 'string-plus', 'helpers/form_helper', 'helpers/mithril_component_mixins'], function (m, _, s, f, ComponentMixins) {
+  var TestConnectionWidget = {
+    Connection: {
+      State: function () {
+        var self = this;
+        this.status = m.prop('');
+        this.errorMessage = m.prop('');
 
-          this.markSuccess = function () {
-            self.status('Success');
-          };
+        this.markSuccess = function () {
+          self.status('Success');
+        };
 
-          this.markFailure = function (message) {
-            self.status('Error');
-            self.errorMessage(message);
-          };
+        this.markFailure = function (message) {
+          self.status('Error');
+          self.errorMessage(message);
+        };
 
-          this.markInProgress = function () {
-            self.status('InProgress');
-          };
+        this.markInProgress = function () {
+          self.status('InProgress');
+        };
 
-          this.hasFailed = function () {
-            return self.status() === 'Error';
-          };
-        }
-      },
+        this.hasFailed = function () {
+          return self.status() === 'Error';
+        };
+      }
+    },
 
-      controller: function (args) {
-        this.args            = args;
-        this.material        = args.material;
-        this.pipelineName    = args.pipelineName;
-        this.connectionState = new TestConnectionWidget.Connection.State();
-        ComponentMixins.HasViewModel.call(this);
-        this.vmState('connectionState', this.connectionState);
+    controller: function (args) {
+      this.args            = args;
+      this.material        = args.material;
+      this.pipelineName    = args.pipelineName;
+      this.connectionState = new TestConnectionWidget.Connection.State();
+      ComponentMixins.HasViewModel.call(this);
+      this.vmState('connectionState', this.connectionState);
 
-        this.testConnection = function() {
-          var connectionState = this.vmState('connectionState');
+      this.testConnection = function() {
+        var connectionState = this.vmState('connectionState');
 
-          connectionState.markInProgress();
-          m.redraw();
+        connectionState.markInProgress();
+        m.redraw();
 
-          this.material.testConnection(this.pipelineName)
+        this.material.testConnection(this.pipelineName)
           .then(connectionState.markSuccess, connectionState.markFailure);
-        };
-      },
+      };
+    },
 
-      view: function (ctrl) {
-        var connectionState      = ctrl.vmState('connectionState');
-        var testConnectionStatus = connectionState.status();
-        var connectionStatusToCSSClass = {
-          InProgress: 'in-progress disabled',
-          Error: 'alert',
-          Success: 'success'
-        };
+    view: function (ctrl) {
+      var connectionState      = ctrl.vmState('connectionState');
+      var testConnectionStatus = connectionState.status();
+      var connectionStatusToCSSClass = {
+        InProgress: 'in-progress disabled',
+        Error: 'alert',
+        Success: 'success'
+      };
 
-        var showFailureMessage = function (state) {
-          if (state.hasFailed()) {
-            return (<f.alert>{state.errorMessage()}</f.alert>);
-          }
-        };
+      var showFailureMessage = function (state) {
+        if (state.hasFailed()) {
+          return (<f.alert>{state.errorMessage()}</f.alert>);
+        }
+      };
 
-        return (
+      return (
         <div>
           <f.button
             onclick={ctrl.testConnection.bind(ctrl)}
@@ -88,7 +86,7 @@ define(['mithril', 'lodash', 'string-plus', 'helpers/form_helper',
           {showFailureMessage(connectionState)}
         </div>
       );
-      }
-    };
-    return TestConnectionWidget;
-  });
+    }
+  };
+  return TestConnectionWidget;
+});

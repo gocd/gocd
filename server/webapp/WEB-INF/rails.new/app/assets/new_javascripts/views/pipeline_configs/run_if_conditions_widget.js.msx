@@ -48,7 +48,7 @@ define([
                                    end={true}/>
             </f.row>
           </div>
-        );
+      );
     }
   };
   return RunIfConditionsWidget;

@@ -17,7 +17,8 @@
 define([
   'mithril', 'lodash', 'jquery', 'angular', 'helpers/form_helper', 'helpers/dragula_config', 'models/pipeline_configs/tasks',
   'models/pipeline_configs/pluggable_tasks', 'js-routes', 'views/pipeline_configs/lookup_command_widget', 'models/pipeline_configs/argument',
-  'helpers/mithril_component_mixins', 'views/pipeline_configs/task_views_widget', 'models/pipeline_configs/plugin_infos'],
+  'helpers/mithril_component_mixins', 'views/pipeline_configs/task_views_widget', 'models/pipeline_configs/plugin_infos'
+],
   function (m, _, $, angular, f, dragulaConfig, Tasks, PluggableTasks, Routes, LookupCommandWidget, Argument,
             ComponentMixins, TaskViews, PluginInfos) {
 
@@ -51,7 +52,7 @@ define([
             <a class='button add-button' href="javascript:void(0)" onclick={ctrl.addTask.bind(ctrl, ctrl.selected)}>Add</a>
           </f.column>
         </f.row>
-      );
+        );
       }
     };
 
@@ -119,7 +120,7 @@ define([
             <TaskTypeSelector tasks={args.tasks} key="task-type-selector"/>
           </div>
         </f.accordion>
-      );
+        );
       }
     };
 

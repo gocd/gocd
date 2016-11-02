@@ -17,14 +17,14 @@
 define([
   'mithril', 'lodash', 'jquery', 'angular', 'helpers/form_helper', 'models/pipeline_configs/pluggable_tasks', 'js-routes',
   'models/pipeline_configs/argument', 'views/pipeline_configs/lookup_command_widget', 'models/pipeline_configs/plugin_infos',
-  'helpers/pipeline_configs/tooltips'],
-  function (m, _, $, angular, f, PluggableTasks, Routes, Argument, LookupCommandWidget, PluginInfos, tt) {
+  'helpers/pipeline_configs/tooltips'
+], function (m, _, $, angular, f, PluggableTasks, Routes, Argument, LookupCommandWidget, PluginInfos, tt) {
 
-    var TaskBasicViews = {
-      ant: {
-        view: function (ctrl, args) {
-          var task = args.task;
-          return (
+  var TaskBasicViews = {
+    ant: {
+      view: function (ctrl, args) {
+        var task = args.task;
+        return (
           <div class="task-basic">
             <f.row>
               <f.inputWithLabel attrName='buildFile'
@@ -53,13 +53,13 @@ define([
             </f.row>
           </div>
         );
-        }
-      },
+      }
+    },
 
-      nant: {
-        view: function (ctrl, args) {
-          var task = args.task;
-          return (
+    nant: {
+      view: function (ctrl, args) {
+        var task = args.task;
+        return (
           <div class="task-basic">
             <f.row>
               <f.inputWithLabel attrName='buildFile'
@@ -99,24 +99,24 @@ define([
             </f.row>
           </div>
         );
-        }
-      },
+      }
+    },
 
-      exec: {
-        view: function (ctrl, args) {
-          var task = args.task;
-          var vm = Argument.vm(task.args());
-          var arguments = function () {
-            if (task.args().isList()) {
-              return (
+    exec: {
+      view: function (ctrl, args) {
+        var task = args.task;
+        var vm = Argument.vm(task.args());
+        var arguments = function () {
+          if (task.args().isList()) {
+            return (
               <f.column size={8}>
                 <f.textareaWithLabel attrName="data"
                                      model={vm}
                                      label="Args"
                                      size={12}/>
               </f.column>);
-            }
-            return (
+          }
+          return (
             <f.column size={8}>
               <f.inputWithLabel attrName='data'
                                 model={vm}
@@ -124,9 +124,9 @@ define([
                                 size={12}
                                 largeSize={12}/>
             </f.column>);
-          };
+        };
 
-          return (
+        return (
           <div class="task-basic">
             <f.row collapse>
               <f.column size={4}>
@@ -160,13 +160,13 @@ define([
             <LookupCommandWidget model={args.task}/>
           </div>
         );
-        }
-      },
+      }
+    },
 
-      rake: {
-        view: function (ctrl, args) {
-          var task = args.task;
-          return (
+    rake: {
+      view: function (ctrl, args) {
+        var task = args.task;
+        return (
           <div class="task-basic">
             <f.row>
               <f.inputWithLabel attrName='buildFile'
@@ -195,13 +195,13 @@ define([
             </f.row>
           </div>
         );
-        }
-      },
+      }
+    },
 
-      fetch: {
-        view: function (ctrl, args) {
-          var task = args.task;
-          return (
+    fetch: {
+      view: function (ctrl, args) {
+        var task = args.task;
+        return (
           <div class="task-basic">
             <f.row>
               <f.inputWithLabel attrName='pipeline'
@@ -257,56 +257,56 @@ define([
             </f.row>
           </div>
         );
-        }
-      },
+      }
+    },
 
-      pluggable_task: { //eslint-disable-line camelcase
-        controller: function (args) {
-          var self              = this;
-          var ctrl              = self;
-          self.task             = args.task;
-          self.ngControllerName = 'controller-' + self.task.uuid();
-          self.appName          = 'app-' + self.task.uuid();
+    pluggable_task: { //eslint-disable-line camelcase
+      controller: function (args) {
+        var self              = this;
+        var ctrl              = self;
+        self.task             = args.task;
+        self.ngControllerName = 'controller-' + self.task.uuid();
+        self.appName          = 'app-' + self.task.uuid();
 
-          var template = function (template) {
-            return $('<div></div>').html(template.replace(/GOINPUTNAME\[([^\]]*)\]/g, function (match, name) {
-              return "GOINPUTNAME['" + name + "']";
-            })).html();
-          };
+        var template = function (template) {
+          return $('<div></div>').html(template.replace(/GOINPUTNAME\[([^\]]*)\]/g, function (match, name) {
+            return "GOINPUTNAME['" + name + "']";
+          })).html();
+        };
 
-          PluginInfos.PluginInfo.byId(this.task.pluginId()).then(function (plugin) {
-            self.templateHTML = template(plugin.viewTemplate());
-            self.defaultTaskConfig = plugin.configurations();
+        PluginInfos.PluginInfo.byId(this.task.pluginId()).then(function (plugin) {
+          self.templateHTML = template(plugin.viewTemplate());
+          self.defaultTaskConfig = plugin.configurations();
 
-            self.ngController = angular.module(self.appName, []).controller(self.ngControllerName, ['$scope', '$http', function ($scope, $http) {
-              $scope.addError = function (field) {
-                $scope.GOINPUTNAME[field.key] = {$error: {}};
-                $scope.GOINPUTNAME[field.key].$error[_.toLower(field.key)] = field.errors.join();
+          self.ngController = angular.module(self.appName, []).controller(self.ngControllerName, ['$scope', '$http', function ($scope, $http) {
+            $scope.addError = function (field) {
+              $scope.GOINPUTNAME[field.key] = {$error: {}};
+              $scope.GOINPUTNAME[field.key].$error[_.toLower(field.key)] = field.errors.join();
+            };
+
+            $scope.clearErrors = function () {
+              $scope.GOINPUTNAME = {};
+              $scope.pluggableTaskGenericError = null;
+            };
+
+            $scope.clearErrors();
+
+            var ajaxValidator = _.debounce(function (configuration, config, newValue) {
+              configuration.setConfiguration(config.key, newValue);
+              var req = {
+                url: Routes.apiInternalPluggableTaskValidationPath({
+                  plugin_id: ctrl.task.pluginId()//eslint-disable-line camelcase
+                }),
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Confirm': true,
+                  'X-CSRF-Token': $('meta[name=csrf-token]').attr('content')
+                },
+                data: JSON.stringify(configuration)
               };
 
-              $scope.clearErrors = function () {
-                $scope.GOINPUTNAME = {};
-                $scope.pluggableTaskGenericError = null;
-              };
-
-              $scope.clearErrors();
-
-              var ajaxValidator = _.debounce(function (configuration, config, newValue) {
-                configuration.setConfiguration(config.key, newValue);
-                var req = {
-                  url: Routes.apiInternalPluggableTaskValidationPath({
-                    plugin_id: ctrl.task.pluginId()//eslint-disable-line camelcase
-                  }),
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'Confirm': true,
-                    'X-CSRF-Token': $('meta[name=csrf-token]').attr('content')
-                  },
-                  data: JSON.stringify(configuration)
-                };
-
-                $http(req).then(
+              $http(req).then(
                 $scope.clearErrors.bind($scope),
                 function (response) {
                   if (response.status === 422) {
@@ -315,30 +315,30 @@ define([
                     $scope.pluggableTaskGenericError = response.data.error;
                   }
                 });
-              }, 250);
+            }, 250);
 
-              _.map(self.defaultTaskConfig, function (config) {
-                var configuration = ctrl.task.configuration();
-                $scope[config.key] = configuration.valueFor(config.key);
+            _.map(self.defaultTaskConfig, function (config) {
+              var configuration = ctrl.task.configuration();
+              $scope[config.key] = configuration.valueFor(config.key);
 
-                $scope.$watch(config.key, function (newValue) {
-                  configuration.setConfiguration(config.key, newValue);
-                  ajaxValidator(configuration, config, newValue);
-                });
+              $scope.$watch(config.key, function (newValue) {
+                configuration.setConfiguration(config.key, newValue);
+                ajaxValidator(configuration, config, newValue);
               });
-            }]);
-          });
-        },
+            });
+          }]);
+        });
+      },
 
-        view: function (ctrl) {
-          var config = function (elem, isInitialized) {
-            if (!isInitialized) {
-              var pluginTaskTemplateElement = $('#pluggable-task-template-' + ctrl.task.uuid());
-              angular.bootstrap(pluginTaskTemplateElement.get(0), [ctrl.appName]);
-            }
-          };
+      view: function (ctrl) {
+        var config = function (elem, isInitialized) {
+          if (!isInitialized) {
+            var pluginTaskTemplateElement = $('#pluggable-task-template-' + ctrl.task.uuid());
+            angular.bootstrap(pluginTaskTemplateElement.get(0), [ctrl.appName]);
+          }
+        };
 
-          return (
+        return (
           <div id={'pluggable-task-template-' + ctrl.task.uuid()} ng-controller={ctrl.ngControllerName} class='task-basic' config={config}>
             <div class="callout alert"
                  ng-show="pluggableTaskGenericError">{'{{pluggableTaskGenericError}}'}</div>
@@ -347,8 +347,8 @@ define([
             </div>
           </div>
         );
-        }
       }
-    };
-    return TaskBasicViews;
-  });
+    }
+  };
+  return TaskBasicViews;
+});

@@ -27,9 +27,13 @@ import org.apache.http.message.BasicStatusLine;
 import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -45,13 +49,15 @@ public class AgentUpgradeServiceTest {
     private AgentUpgradeService agentUpgradeService;
     private HttpGet httpMethod;
     private CloseableHttpResponse closeableHttpResponse;
+    private AgentUpgradeService.JvmExitter jvmExitter;
 
     @Before
     public void setUp() throws Exception {
         systemEnvironment = mock(SystemEnvironment.class);
         urlService = mock(URLService.class);
         GoAgentServerHttpClient httpClient = mock(GoAgentServerHttpClient.class);
-        agentUpgradeService = spy(new AgentUpgradeService(urlService, httpClient, systemEnvironment));
+        jvmExitter = mock(AgentUpgradeService.JvmExitter.class);
+        agentUpgradeService = spy(new AgentUpgradeService(urlService, httpClient, systemEnvironment, jvmExitter));
 
         httpMethod = mock(HttpGet.class);
         doReturn(httpMethod).when(agentUpgradeService).getAgentLatestStatusGetMethod();
@@ -61,79 +67,108 @@ public class AgentUpgradeServiceTest {
     }
 
     @Test
+    public void checkForUpgradeShouldNotKillAgentIfAllDownloadsAreCompatible() throws Exception {
+        when(systemEnvironment.getAgentMd5()).thenReturn("latest-md5");
+        when(systemEnvironment.getGivenAgentLauncherMd5()).thenReturn("latest-md5");
+        when(systemEnvironment.getAgentPluginsMd5()).thenReturn("latest-md5");
+        when(systemEnvironment.getTfsImplMd5()).thenReturn("latest-md5");
+
+        expectHeaderValue(SystemEnvironment.AGENT_CONTENT_MD5_HEADER, "latest-md5");
+        expectHeaderValue(SystemEnvironment.AGENT_LAUNCHER_CONTENT_MD5_HEADER, "latest-md5");
+        expectHeaderValue(SystemEnvironment.AGENT_PLUGINS_ZIP_MD5_HEADER, "latest-md5");
+        expectHeaderValue(SystemEnvironment.AGENT_TFS_SDK_MD5_HEADER, "latest-md5");
+
+        agentUpgradeService.checkForUpgrade();
+    }
+
+    @Test
     public void checkForUpgradeShouldKillAgentIfAgentMD5doesNotMatch() throws Exception {
-        when(systemEnvironment.getAgentMd5()).thenReturn("old-md5");
+        when(systemEnvironment.getAgentMd5()).thenReturn("old-agent-md5");
+        expectHeaderValue(SystemEnvironment.AGENT_CONTENT_MD5_HEADER, "new-agent-md5");
 
-        expectHeaderValue(SystemEnvironment.AGENT_CONTENT_MD5_HEADER, "new-md5");
-
-        doThrow(new RuntimeException("Agent md5 mismatch")).when(agentUpgradeService).jvmExit();
+        RuntimeException toBeThrown = new RuntimeException("Boo!");
+        doThrow(toBeThrown).when(jvmExitter).jvmExit(anyString(), anyString(), anyString());
 
         try {
             agentUpgradeService.checkForUpgrade();
             fail("should have done jvm exit");
-        } catch (RuntimeException e) {
-            assertThat(e.getMessage(), Is.is("Agent md5 mismatch"));
+        } catch (Exception e) {
+            assertSame(e, toBeThrown);
         }
-        verify(closeableHttpResponse, never()).getHeaders(SystemEnvironment.AGENT_LAUNCHER_CONTENT_MD5_HEADER);
 
+        verify(jvmExitter).jvmExit("itself", "old-agent-md5", "new-agent-md5");
     }
 
     @Test
     public void checkForUpgradeShouldKillAgentIfLauncherMD5doesNotMatch() throws Exception {
-        when(systemEnvironment.getAgentMd5()).thenReturn("latest-md5");
-        when(systemEnvironment.getGivenAgentLauncherMd5()).thenReturn("old-md5");
+        when(systemEnvironment.getAgentMd5()).thenReturn("not-changing");
+        expectHeaderValue(SystemEnvironment.AGENT_CONTENT_MD5_HEADER, "not-changing");
 
-        expectHeaderValue(SystemEnvironment.AGENT_CONTENT_MD5_HEADER, "latest-md5");
-        expectHeaderValue(SystemEnvironment.AGENT_LAUNCHER_CONTENT_MD5_HEADER, "new-md5");
+        when(systemEnvironment.getGivenAgentLauncherMd5()).thenReturn("old-launcher-md5");
+        expectHeaderValue(SystemEnvironment.AGENT_LAUNCHER_CONTENT_MD5_HEADER, "new-launcher-md5");
 
-        doThrow(new RuntimeException("Agent Launcher md5 mismatch")).when(agentUpgradeService).jvmExit();
+        RuntimeException toBeThrown = new RuntimeException("Boo!");
+        doThrow(toBeThrown).when(jvmExitter).jvmExit(anyString(), anyString(), anyString());
 
         try {
             agentUpgradeService.checkForUpgrade();
             fail("should have done jvm exit");
-        } catch (RuntimeException e) {
-            assertThat(e.getMessage(), Is.is("Agent Launcher md5 mismatch"));
-        }
-    }
-
-    @Test
-    public void checkForUpgradeShouldNotKillAgentIfServerVersionsAreCompatible() throws Exception {
-        when(systemEnvironment.getAgentMd5()).thenReturn("latest-md5");
-        when(systemEnvironment.getGivenAgentLauncherMd5()).thenReturn("latest-md5");
-        when(systemEnvironment.getAgentPluginsMd5()).thenReturn("latest-md5");
-
-        expectHeaderValue(SystemEnvironment.AGENT_CONTENT_MD5_HEADER, "latest-md5");
-        expectHeaderValue(SystemEnvironment.AGENT_LAUNCHER_CONTENT_MD5_HEADER, "latest-md5");
-        expectHeaderValue(SystemEnvironment.AGENT_PLUGINS_ZIP_MD5_HEADER, "latest-md5");
-
-        doThrow(new RuntimeException("Agent Launcher md5 mismatch")).when(agentUpgradeService).jvmExit();
-
-        try {
-            agentUpgradeService.checkForUpgrade();
         } catch (Exception e) {
-            fail("should not have done jvm exit");
+            assertSame(e, toBeThrown);
         }
+
+        verify(jvmExitter).jvmExit("launcher", "old-launcher-md5", "new-launcher-md5");
     }
 
     @Test
     public void checkForUpgradeShouldKillAgentIfPluginZipMd5doesNotMatch() throws Exception {
-        when(systemEnvironment.getAgentMd5()).thenReturn("latest-md5");
-        when(systemEnvironment.getGivenAgentLauncherMd5()).thenReturn("latest-md5");
-        when(systemEnvironment.getAgentPluginsMd5()).thenReturn("old-md5");
+        when(systemEnvironment.getAgentMd5()).thenReturn("not-changing");
+        expectHeaderValue(SystemEnvironment.AGENT_CONTENT_MD5_HEADER, "not-changing");
 
-        expectHeaderValue(SystemEnvironment.AGENT_CONTENT_MD5_HEADER, "latest-md5");
-        expectHeaderValue(SystemEnvironment.AGENT_LAUNCHER_CONTENT_MD5_HEADER, "latest-md5");
-        expectHeaderValue(SystemEnvironment.AGENT_PLUGINS_ZIP_MD5_HEADER, "latest-md5");
+        when(systemEnvironment.getGivenAgentLauncherMd5()).thenReturn("not-changing");
+        expectHeaderValue(SystemEnvironment.AGENT_LAUNCHER_CONTENT_MD5_HEADER, "not-changing");
 
+        when(systemEnvironment.getAgentPluginsMd5()).thenReturn("old-plugins-md5");
+        expectHeaderValue(SystemEnvironment.AGENT_PLUGINS_ZIP_MD5_HEADER, "new-plugins-md5");
 
-        doThrow(new RuntimeException("Agent Plugins md5 mismatch")).when(agentUpgradeService).jvmExit();
+        RuntimeException toBeThrown = new RuntimeException("Boo!");
+        doThrow(toBeThrown).when(jvmExitter).jvmExit(anyString(), anyString(), anyString());
 
         try {
             agentUpgradeService.checkForUpgrade();
             fail("should have done jvm exit");
-        } catch (RuntimeException e) {
-            assertThat(e.getMessage(), Is.is("Agent Plugins md5 mismatch"));
+        } catch (Exception e) {
+            assertSame(e, toBeThrown);
         }
+
+        verify(jvmExitter).jvmExit("plugins", "old-plugins-md5", "new-plugins-md5");
+    }
+
+    @Test
+    public void checkForUpgradeShouldKillAgentIfTfsMd5doesNotMatch() throws Exception {
+        when(systemEnvironment.getAgentMd5()).thenReturn("not-changing");
+        expectHeaderValue(SystemEnvironment.AGENT_CONTENT_MD5_HEADER, "not-changing");
+
+        when(systemEnvironment.getGivenAgentLauncherMd5()).thenReturn("not-changing");
+        expectHeaderValue(SystemEnvironment.AGENT_LAUNCHER_CONTENT_MD5_HEADER, "not-changing");
+
+        when(systemEnvironment.getAgentPluginsMd5()).thenReturn("not-changing");
+        expectHeaderValue(SystemEnvironment.AGENT_PLUGINS_ZIP_MD5_HEADER, "not-changing");
+
+        when(systemEnvironment.getTfsImplMd5()).thenReturn("old-tfs-md5");
+        expectHeaderValue(SystemEnvironment.AGENT_TFS_SDK_MD5_HEADER, "new-tfs-md5");
+
+        RuntimeException toBeThrown = new RuntimeException("Boo!");
+        doThrow(toBeThrown).when(jvmExitter).jvmExit(anyString(), anyString(), anyString());
+
+        try {
+            agentUpgradeService.checkForUpgrade();
+            fail("should have done jvm exit");
+        } catch (Exception e) {
+            assertSame(e, toBeThrown);
+        }
+
+        verify(jvmExitter).jvmExit("tfs-impl jar", "old-tfs-md5", "new-tfs-md5");
     }
 
     private void expectHeaderValue(final String headerName, final String headerValue) {

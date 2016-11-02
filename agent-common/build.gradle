@@ -21,17 +21,3 @@ dependencies {
   compile group: 'com.beust', name: 'jcommander', version: '1.48'
   testCompile project(':test-utils')
 }
-
-task prepare(dependsOn: [':agent-launcher:fatJar', ':test-agent:jar']) {
-  doFirst {
-    project.copy {
-      from { project(':test-agent').jar.archivePath }
-      into "testdata"
-      rename "(.*)-${project.version}.jar", '$1.jar'
-    }
-  }
-}
-
-test {
-  dependsOn prepare
-}

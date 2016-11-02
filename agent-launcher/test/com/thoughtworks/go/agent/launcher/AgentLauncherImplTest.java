@@ -19,33 +19,29 @@ package com.thoughtworks.go.agent.launcher;
 import com.googlecode.junit.ext.checkers.OSChecker;
 import com.thoughtworks.cruise.agent.common.launcher.AgentLaunchDescriptor;
 import com.thoughtworks.cruise.agent.common.launcher.AgentLauncher;
+import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.agent.ServerUrlGenerator;
 import com.thoughtworks.go.agent.common.AgentBootstrapperArgs;
-import com.thoughtworks.go.agent.common.util.Downloader;
-import com.thoughtworks.go.agent.common.util.JarUtil;
 import com.thoughtworks.go.agent.testhelper.FakeBootstrapperServer;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.jar.Attributes;
-import java.util.jar.JarOutputStream;
-import java.util.jar.Manifest;
 
+import static com.thoughtworks.go.agent.common.util.Downloader.*;
+import static com.thoughtworks.go.agent.testhelper.FakeBootstrapperServer.TestResource.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -56,22 +52,25 @@ public class AgentLauncherImplTest {
 
     @Before
     public void setUp() throws IOException {
-        createLauncherFile(new File("testdata/agent-launcher.jar"));
-        new Lockfile(new File(AgentLauncherImpl.AGENT_BOOTSTRAPPER_LOCK_FILE)).delete();
+        cleanup();
     }
 
     @After
     public void tearDown() {
-        FileUtils.deleteQuietly(new File("testdata/agent-launcher.jar"));
-        FileUtils.deleteQuietly(new File(Downloader.AGENT_BINARY));
-        FileUtils.deleteQuietly(new File(Downloader.AGENT_LAUNCHER));
+        cleanup();
+    }
+
+    private void cleanup() {
+        FileUtils.deleteQuietly(new File("go-agent-launcher.log"));
+        FileUtils.deleteQuietly(AGENT_PLUGINS_ZIP);
+        FileUtils.deleteQuietly(AGENT_BINARY_JAR);
+        FileUtils.deleteQuietly(AGENT_LAUNCHER_JAR);
+        FileUtils.deleteQuietly(TFS_IMPL_JAR);
         new Lockfile(new File(AgentLauncherImpl.AGENT_BOOTSTRAPPER_LOCK_FILE)).delete();
     }
 
     @Test
     public void shouldPassLauncherVersionToAgent() throws InterruptedException, IOException {
-        File agentLauncher = null;
-        final String version = "12.3";
         final List<String> actualVersion = new ArrayList<String>();
         final AgentLauncher launcher = new AgentLauncherImpl(new AgentLauncherImpl.AgentProcessParentRunner() {
             public int run(String launcherVersion, String launcherMd5, ServerUrlGenerator urlConstructor, Map<String, String> environmentVariables, Map context) {
@@ -79,19 +78,15 @@ public class AgentLauncherImplTest {
                 return 0;
             }
         });
-        try {
-            FileUtils.copyFile(new File("testdata/agent-launcher.jar"), agentLauncher = new File(Downloader.AGENT_LAUNCHER));
-            launcher.launch(launchDescriptor());
-        } finally {
-            delete(agentLauncher);
-        }
+        TEST_AGENT_LAUNCHER.copyTo(AGENT_LAUNCHER_JAR);
+        launcher.launch(launchDescriptor());
 
         assertThat(actualVersion.size(), is(1));
-        assertThat(actualVersion.get(0), is(version));
+        assertThat(actualVersion.get(0), is(CurrentGoCDVersion.getInstance().fullVersion()));
     }
 
     @Test
-    public void shouldNotThrowException_insteedReturnAppropriateErrorCode_whenSomethingGoesWrongInLaunch() {
+    public void shouldNotThrowException_instedReturnAppropriateErrorCode_whenSomethingGoesWrongInLaunch() {
         AgentLaunchDescriptor launchDesc = mock(AgentLaunchDescriptor.class);
         when((String) launchDesc.context().get(AgentBootstrapperArgs.SERVER_URL)).thenThrow(new RuntimeException("Ouch!"));
         try {
@@ -110,109 +105,65 @@ public class AgentLauncherImplTest {
         return launchDescriptor;
     }
 
-    private void createLauncherFile(File file) throws IOException {
-        Manifest manifest = new Manifest();
-        manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
-        manifest.getMainAttributes().put(new Attributes.Name(JarUtil.GO_VERSION), "12.3");
-        JarOutputStream out = new JarOutputStream(new FileOutputStream(file), manifest);
-        IOUtils.closeQuietly(out);
-    }
-
     @Test
-    public void shouldDownloadLauncherJarIfLocalCopyIsStale() {
+    public void shouldDownloadLauncherJarIfLocalCopyIsStale() throws IOException {
         //because new invocation will take care of pulling latest agent down, and will then operate on it with the latest launcher -jj
-        File agentFile = null;
-        File launcher = null;
-        try {
-            launcher = randomFile("agent-launcher.jar");
-            long original = launcher.length();
-            new AgentLauncherImpl().launch(launchDescriptor());
-            assertThat(launcher.length(), not(original));
-        } finally {
-            delete(agentFile, launcher);
-        }
+        File staleJar = randomFile(AGENT_LAUNCHER_JAR);
+        long original = staleJar.length();
+        new AgentLauncherImpl().launch(launchDescriptor());
+        assertThat(staleJar.length(), not(original));
     }
 
     @Test
     public void shouldDownload_AgentJar_IfTheCurrentJarIsStale() throws Exception {
         if (!OS_CHECKER.satisfy()) {
-            File staleAgentJar = null;
-            File agentLauncher = null;
-            try {
-                FileUtils.copyFile(new File("testdata/agent-launcher.jar"), agentLauncher = new File(Downloader.AGENT_LAUNCHER));
-                staleAgentJar = randomFile("agent.jar");
-                long original = staleAgentJar.length();
-                new AgentLauncherImpl().launch(launchDescriptor());
-                assertThat(staleAgentJar.length(), not(original));
-            } finally {
-                delete(staleAgentJar, agentLauncher);
-            }
+            TEST_AGENT_LAUNCHER.copyTo(AGENT_LAUNCHER_JAR);
+            File staleJar = randomFile(AGENT_BINARY_JAR);
+            long original = staleJar.length();
+            new AgentLauncherImpl().launch(launchDescriptor());
+            assertThat(staleJar.length(), not(original));
         }
     }
 
     @Test
     public void should_NOT_Download_AgentJar_IfTheCurrentJarIsUpToDate() throws Exception {
         if (!OS_CHECKER.satisfy()) {
-            File agentJar = null;
-            File agentLauncher = null;
-            try {
-                agentLauncher = new File(Downloader.AGENT_LAUNCHER);
-                FileUtils.copyFile(new File("testdata/agent-launcher.jar"), agentLauncher);
-                FileUtils.copyFile(new File("testdata/test-agent.jar"), new File(Downloader.AGENT_BINARY));
-                new File(Downloader.AGENT_BINARY).setLastModified(System.currentTimeMillis() - 10 * 1000);//10 seconds ago
-                long lastModifiedAt = new File(Downloader.AGENT_BINARY).lastModified();
-                agentJar = new File(Downloader.AGENT_BINARY);
-                new AgentLauncherImpl().launch(launchDescriptor());
-                assertThat(agentJar.lastModified(), is(lastModifiedAt));
-            } finally {
-                delete(agentJar, agentLauncher);
-            }
-        }
+            TEST_AGENT_LAUNCHER.copyTo(AGENT_LAUNCHER_JAR);
+            TEST_AGENT.copyTo(AGENT_BINARY_JAR);
 
+            assertTrue(AGENT_BINARY_JAR.setLastModified(0));
+            new AgentLauncherImpl().launch(launchDescriptor());
+            assertThat(AGENT_BINARY_JAR.lastModified(), is(0L));
+        }
     }
 
     @Test
-    public void shouldDownloadLauncherJarIfLocalCopyIsStale_butShouldReturnWithoutDownloadingOrLaunchingAgent() {
-        //because new invocation will take care of pulling latest agent down, and will then operate on it with the latest launcher -jj
-        File agentFile = null;
-        File launcher = null;
-        try {
-            launcher = randomFile("agent-launcher.jar");
-            long original = launcher.length();
-            agentFile = randomFile("agent.jar");
-            long originalAgentLength = agentFile.length();
+    public void should_NOT_Download_TfsImplJar_IfTheCurrentJarIsUpToDate() throws Exception {
+        if (!OS_CHECKER.satisfy()) {
+            TEST_AGENT_LAUNCHER.copyTo(AGENT_LAUNCHER_JAR);
+            TEST_AGENT.copyTo(AGENT_BINARY_JAR);
+            TEST_TFS_IMPL.copyTo(TFS_IMPL_JAR);
+
+            assertTrue(TFS_IMPL_JAR.setLastModified(0));
             new AgentLauncherImpl().launch(launchDescriptor());
-            assertThat(launcher.length(), not(original));
-            assertThat(agentFile.length(), is(originalAgentLength));
-        } finally {
-            delete(agentFile, launcher);
+            assertThat(TFS_IMPL_JAR.lastModified(), is(0L));
         }
     }
 
-    private File randomFile(final String pathname) {
-        File agentJar = new File(pathname);
-        agentJar.delete();
-        createRandomFile(agentJar, "some rubbish");
-        return agentJar;
+    @Test
+    public void shouldDownloadLauncherJarIfLocalCopyIsStale_butShouldReturnWithoutDownloadingOrLaunchingAgent() throws Exception {
+        File launcher = randomFile(AGENT_LAUNCHER_JAR);
+        long original = launcher.length();
+        File agentFile = randomFile(AGENT_BINARY_JAR);
+        long originalAgentLength = agentFile.length();
+        new AgentLauncherImpl().launch(launchDescriptor());
+
+        assertThat(launcher.length(), not(original));
+        assertThat(agentFile.length(), is(originalAgentLength));
     }
 
-    private void createRandomFile(File agentJar, final String data) {
-        FileOutputStream output = null;
-        try {
-            output = new FileOutputStream(agentJar);
-            IOUtils.write(data, output);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            IOUtils.closeQuietly(output);
-        }
-    }
-
-    private void delete(File... files) {
-        for (File file : files) {
-            if (file != null) {
-                file.delete();
-            }
-        }
+    private File randomFile(final File pathname) throws IOException {
+        FileUtils.write(pathname, "some rubbish", StandardCharsets.UTF_8);
+        return pathname;
     }
 }

@@ -62,6 +62,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static final String AGENT_LAUNCHER_CONTENT_MD5_HEADER = "Agent-Launcher-Content-MD5";
 
     public static final String AGENT_PLUGINS_ZIP_MD5_HEADER = "Agent-Plugins-Content-MD5";
+    public static final String AGENT_TFS_SDK_MD5_HEADER = "TFS-SDK-Content-MD5";
 
     public static final String EMPTY_STRING = "";
     public static final String BLANK_STRING = EMPTY_STRING;
@@ -158,6 +159,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public static final String JETTY9 = "com.thoughtworks.go.server.Jetty9Server";
     public static GoSystemProperty<String> APP_SERVER = new CachedProperty<>(new GoStringSystemProperty("app.server", JETTY9));
+    public static GoSystemProperty<Boolean> TFS_SDK_10 = new CachedProperty<>(new GoBooleanSystemProperty("tfs.sdk.old", false));
     public static GoSystemProperty<String> GO_SERVER_STATE = new GoStringSystemProperty("go.server.state", "active");
     public static GoSystemProperty<String> GO_LANDING_PAGE = new GoStringSystemProperty("go.landing.page", "/pipelines");
 
@@ -458,6 +460,10 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public String getAgentMd5() {
         return getPropertyImpl(GoConstants.AGENT_JAR_MD5, BLANK_STRING);
+    }
+
+    public String getTfsImplMd5() {
+        return getPropertyImpl(GoConstants.TFS_IMPL_MD5, BLANK_STRING);
     }
 
     public String getGivenAgentLauncherMd5() {
@@ -774,6 +780,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public boolean useSslContext() {
         return GO_AGENT_USE_SSL_CONTEXT.getValue();
     }
+
 
     public static abstract class GoSystemProperty<T> {
         private String propertyName;

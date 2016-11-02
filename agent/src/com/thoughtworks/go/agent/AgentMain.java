@@ -29,6 +29,7 @@ public final class AgentMain {
 
         LoggingHelper.configureLoggerIfNoneExists("go-agent.log", "go-agent-log4j.properties");
 
+        new SystemEnvironment().setProperty("go.process.type", "agent");
         new SystemEnvironment().setProperty(SystemEnvironment.SERVICE_URL, args.getServerUrl().toString());
         new SystemEnvironment().setProperty(SystemEnvironment.AGENT_SSL_VERIFICATION_MODE, args.getSslMode().toString());
 

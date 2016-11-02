@@ -23,13 +23,15 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 
+import static com.thoughtworks.go.agent.testhelper.FakeBootstrapperServer.TestResource.TEST_AGENT;
+
 public class JarUtilTest {
 
   private static final String PATH_WITH_HASHES = "#hashes#in#path/";
 
   @Before
   public void setUp() throws IOException {
-      FileUtils.copyFile(new File("testdata/test-agent.jar"), new File(PATH_WITH_HASHES + "test-agent.jar"));
+      TEST_AGENT.copyTo(new File(PATH_WITH_HASHES + "test-agent.jar"));
   }
 
   @After

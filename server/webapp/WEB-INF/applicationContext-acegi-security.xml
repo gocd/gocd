@@ -246,6 +246,7 @@
                 /admin/agent=IS_AUTHENTICATED_ANONYMOUSLY
                 /admin/latest-agent.status=IS_AUTHENTICATED_ANONYMOUSLY
                 /admin/agent-launcher.jar=IS_AUTHENTICATED_ANONYMOUSLY
+                /admin/tfs-impl.jar=IS_AUTHENTICATED_ANONYMOUSLY
                 /admin/agent-plugins.zip=IS_AUTHENTICATED_ANONYMOUSLY
                 /admin/configuration/file/**=ROLE_SUPERVISOR
                 /admin/configuration/**=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR

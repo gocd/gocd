@@ -16,9 +16,12 @@
 
 package com.thoughtworks.go.agent.testhelper;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.poi.util.IOUtils;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.junit.runner.notification.Failure;
@@ -30,13 +33,46 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.EnumSet;
 import java.util.Properties;
 
+import static com.thoughtworks.go.agent.testhelper.FakeBootstrapperServer.TestResource.*;
+import static com.thoughtworks.go.util.FileDigester.md5DigestOfStream;
+
 public class FakeBootstrapperServer extends BlockJUnit4ClassRunner {
+    public enum TestResource {
+        TEST_AGENT(Resource.newClassPathResource("testdata/gen/test-agent.jar")),
+        TEST_AGENT_LAUNCHER(Resource.newClassPathResource("testdata/gen/agent-launcher.jar")),
+        TEST_AGENT_PLUGINS(Resource.newClassPathResource("testdata/agent-plugins.zip")),
+        TEST_TFS_IMPL(Resource.newClassPathResource("testdata/gen/tfs-impl-14.jar")),;
+
+        private final Resource source;
+
+        TestResource(Resource source) {
+            this.source = source;
+        }
+
+        public String getMd5() throws IOException {
+            try (InputStream in = source.getInputStream()) {
+                return md5DigestOfStream(in);
+            }
+        }
+
+        public void copyTo(OutputStream outputStream) throws IOException {
+            try (InputStream in = source.getInputStream()) {
+                IOUtils.copy(in, outputStream);
+            }
+        }
+
+        // Because the resource can be a jarresource, which extracts to dir instead of a simple copy.
+        public void copyTo(File output) throws IOException {
+            try (InputStream in = source.getInputStream()) {
+                FileUtils.copyToFile(in, output);
+            }
+        }
+    }
+
     private Server server;
 
     public FakeBootstrapperServer(Class<?> testClass) throws InitializationError {
@@ -70,7 +106,7 @@ public class FakeBootstrapperServer extends BlockJUnit4ClassRunner {
 
         SslContextFactory sslContextFactory = new SslContextFactory();
         sslContextFactory.setCertAlias("cruise");
-        sslContextFactory.setKeyStorePath("testdata/keystore");
+        sslContextFactory.setKeyStoreResource(Resource.newClassPathResource("testdata/fake-server-keystore"));
         sslContextFactory.setKeyStorePassword("serverKeystorepa55w0rd");
 
         ServerConnector secureConnnector = new ServerConnector(server,
@@ -82,16 +118,17 @@ public class FakeBootstrapperServer extends BlockJUnit4ClassRunner {
 
         WebAppContext wac = new WebAppContext(".", "/go");
         ServletHolder holder = new ServletHolder();
-        holder.setServlet(new HttpServlet(){
+        holder.setServlet(new HttpServlet() {
             @Override
             protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
                 resp.getOutputStream().println("Hello");
             }
         });
         wac.addServlet(holder, "/hello");
-        addFakeAgentBinaryServlet(wac, "/admin/agent", new File("testdata/test-agent.jar"));
-        addFakeAgentBinaryServlet(wac, "/admin/agent-launcher.jar", new File("testdata/agent-launcher.jar"));
-        addFakeAgentBinaryServlet(wac, "/admin/agent-plugins.zip", new File("testdata/agent-plugins.zip"));
+        addFakeAgentBinaryServlet(wac, "/admin/agent", TEST_AGENT);
+        addFakeAgentBinaryServlet(wac, "/admin/agent-launcher.jar", TEST_AGENT_LAUNCHER);
+        addFakeAgentBinaryServlet(wac, "/admin/agent-plugins.zip", TEST_AGENT_PLUGINS);
+        addFakeAgentBinaryServlet(wac, "/admin/tfs-impl.jar", TEST_TFS_IMPL);
         addlatestAgentStatusCall(wac);
         addDefaultServlet(wac);
         server.setHandler(wac);
@@ -138,9 +175,9 @@ public class FakeBootstrapperServer extends BlockJUnit4ClassRunner {
         wac.addFilter(BreakpointFriendlyFilter.class, "*", EnumSet.of(DispatcherType.REQUEST));
     }
 
-    private static void addFakeAgentBinaryServlet(WebAppContext wac, final String pathSpec, final File file) {
+    private static void addFakeAgentBinaryServlet(WebAppContext wac, final String pathSpec, final TestResource resource) {
         ServletHolder holder = new ServletHolder();
-        holder.setServlet(new AgentBinariesServlet(file));
+        holder.setServlet(new AgentBinariesServlet(resource));
         wac.addServlet(holder, pathSpec);
     }
 

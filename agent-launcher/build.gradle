@@ -64,21 +64,6 @@ task verifyJar(type: VerifyJarTask) {
   ]
 }
 
-
-task prepare(dependsOn: [':test-agent:jar']) {
-  doFirst {
-    project.copy {
-      from { project(':test-agent').jar.archivePath }
-      into "testdata"
-      rename "(.*)-${project.version}.jar", '$1.jar'
-    }
-  }
-}
-
-test {
-  dependsOn prepare
-}
-
 artifacts {
   fatJarConfig fatJar
 }

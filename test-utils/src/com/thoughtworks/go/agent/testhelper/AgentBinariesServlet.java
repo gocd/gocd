@@ -16,38 +16,24 @@
 
 package com.thoughtworks.go.agent.testhelper;
 
-import org.apache.commons.io.IOUtils;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-
-import static com.thoughtworks.go.util.FileDigester.md5DigestOfStream;
 
 public class AgentBinariesServlet extends HttpServlet {
 
-    private File file;
+    private FakeBootstrapperServer.TestResource resource;
 
-    public AgentBinariesServlet(final File file) {
-        this.file = file;
-    }
-
-    private byte[] getAgentAsByteStream() {
-        try {
-            return IOUtils.toByteArray(new FileInputStream(file));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public AgentBinariesServlet(final FakeBootstrapperServer.TestResource resource) {
+        this.resource = resource;
     }
 
     protected void doHead(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            response.setHeader("Content-MD5", md5DigestOfStream(new FileInputStream(file)));
+            response.setHeader("Content-MD5", resource.getMd5());
             response.setHeader("Cruise-Server-Ssl-Port", "9091");
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -57,6 +43,6 @@ public class AgentBinariesServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         doHead(request, response);
-        response.getOutputStream().write(getAgentAsByteStream());
+        resource.copyTo(response.getOutputStream());
     }
 }

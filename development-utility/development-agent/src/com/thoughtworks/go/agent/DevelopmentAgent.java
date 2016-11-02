@@ -35,7 +35,8 @@ import java.io.IOException;
 
 public class DevelopmentAgent {
     public static void main(String[] args) throws Exception {
-        new ProcessRunner().command("curl", "http://localhost:8153/go/admin/agent-plugins.zip", "-o", "agent-plugins.zip").failOnError(false).run();
+        new ProcessRunner().command("curl", "http://localhost:8153/go/admin/agent-plugins.zip", "--fail", "--silent", "--output", "agent-plugins.zip").failOnError(false).run();
+        new ProcessRunner().command("curl", "http://localhost:8153/go/admin/tfs-impl.jar", "--fail", "--silent", "--output", "tfs-impl.jar").failOnError(false).run();
         copyActivatorJarToClassPath();
         AgentMain.main("-serverUrl", "https://localhost:8154/go");
     }

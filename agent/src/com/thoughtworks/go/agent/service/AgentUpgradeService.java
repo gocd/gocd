@@ -34,30 +34,49 @@ public class AgentUpgradeService {
     private final GoAgentServerHttpClient httpClient;
     private final SystemEnvironment systemEnvironment;
     private URLService urlService;
+    private JvmExitter jvmExitter;
+
+    interface JvmExitter {
+        void jvmExit(String type, String oldChecksum, String newChecksum);
+    }
+
+    static class DefaultJvmExitter implements JvmExitter {
+        @Override
+        public void jvmExit(String type, String oldChecksum, String newChecksum) {
+            LOGGER.fatal(String.format("[Agent Upgrade] Agent needs to upgrade %s. Currently has md5 [%s] but server version has md5 [%s]. Exiting.", type, oldChecksum, newChecksum));
+            System.exit(0);
+        }
+    }
 
     @Autowired
-    public AgentUpgradeService(URLService urlService, GoAgentServerHttpClient httpClient, SystemEnvironment systemEnvironment) throws Exception {
+    AgentUpgradeService(URLService urlService, GoAgentServerHttpClient httpClient, SystemEnvironment systemEnvironment) throws Exception {
+        this(urlService, httpClient, systemEnvironment, new DefaultJvmExitter());
+    }
+
+    AgentUpgradeService(URLService urlService, GoAgentServerHttpClient httpClient, SystemEnvironment systemEnvironment, JvmExitter jvmExitter) throws Exception {
         this.httpClient = httpClient;
         this.systemEnvironment = systemEnvironment;
         this.urlService = urlService;
+        this.jvmExitter = jvmExitter;
     }
 
     public void checkForUpgrade() throws Exception {
         if (!"".equals(systemEnvironment.getAgentMd5())) {
-            checkForUpgrade(systemEnvironment.getAgentMd5(), systemEnvironment.getGivenAgentLauncherMd5(), systemEnvironment.getAgentPluginsMd5());
+            checkForUpgrade(systemEnvironment.getAgentMd5(), systemEnvironment.getGivenAgentLauncherMd5(), systemEnvironment.getAgentPluginsMd5(), systemEnvironment.getTfsImplMd5());
         }
     }
 
-    void checkForUpgrade(String md5, String launcherMd5, String agentPluginsMd5) throws Exception {
+    void checkForUpgrade(String agentMd5, String launcherMd5, String agentPluginsMd5, String tfsImplMd5) throws Exception {
         HttpGet method = getAgentLatestStatusGetMethod();
         try (final CloseableHttpResponse response = httpClient.execute(method)) {
             if (response.getStatusLine().getStatusCode() != 200) {
                 LOGGER.error(String.format("[Agent Upgrade] Got status %d %s from Go", response.getStatusLine().getStatusCode(), response.getStatusLine()));
                 return;
             }
-            validateIfLatestAgent(md5, response);
-            validateIfLatestLauncher(launcherMd5, response);
-            validateIfLatestPluginZipAvailable(agentPluginsMd5, response);
+            validateMd5(agentMd5, response, SystemEnvironment.AGENT_CONTENT_MD5_HEADER, "itself");
+            validateMd5(launcherMd5, response, SystemEnvironment.AGENT_LAUNCHER_CONTENT_MD5_HEADER, "launcher");
+            validateMd5(agentPluginsMd5, response, SystemEnvironment.AGENT_PLUGINS_ZIP_MD5_HEADER, "plugins");
+            validateMd5(tfsImplMd5, response, SystemEnvironment.AGENT_TFS_SDK_MD5_HEADER, "tfs-impl jar");
         } catch (IOException ioe) {
             String message = String.format("[Agent Upgrade] Couldn't connect to: %s: %s", urlService.getAgentLatestStatusUrl(), ioe.toString());
             LOGGER.error(message);
@@ -68,36 +87,12 @@ public class AgentUpgradeService {
         }
     }
 
-    private void validateIfLatestPluginZipAvailable(String agentPluginsMd5, CloseableHttpResponse response) {
-        final Header newLauncherMd5 = response.getFirstHeader(SystemEnvironment.AGENT_PLUGINS_ZIP_MD5_HEADER);
-        if (!"".equals(agentPluginsMd5)) {
-            if (!agentPluginsMd5.equals(newLauncherMd5.getValue())) {
-                LOGGER.fatal(
-                        String.format("[Agent Launcher Upgrade] Agent needs to upgrade its plugins. Currently agents plugins has md5 [%s] but server's latest plugins md5 has md5 [%s]. Exiting.",
-                                agentPluginsMd5,
-                                newLauncherMd5));
-                jvmExit();
+    private void validateMd5(String currentMd5, CloseableHttpResponse response, String agentContentMd5Header, String what) {
+        final Header md5Header = response.getFirstHeader(agentContentMd5Header);
+        if (!"".equals(currentMd5)) {
+            if (!currentMd5.equals(md5Header.getValue())) {
+                jvmExitter.jvmExit(what, currentMd5, md5Header.getValue());
             }
-        }
-    }
-
-    private void validateIfLatestLauncher(String launcherMd5, CloseableHttpResponse response) {
-        final Header newLauncherMd5 = response.getFirstHeader(SystemEnvironment.AGENT_LAUNCHER_CONTENT_MD5_HEADER);
-        if (!"".equals(launcherMd5)) {
-            if (!launcherMd5.equals(newLauncherMd5.getValue())) {
-                LOGGER.fatal(
-                        String.format("[Agent Launcher Upgrade] Agent needs to upgrade its launcher. Currently launcher has md5 [%s] but server's latest launcher has md5 [%s]. Exiting.", launcherMd5,
-                                newLauncherMd5));
-                jvmExit();
-            }
-        }
-    }
-
-    private void validateIfLatestAgent(String md5, CloseableHttpResponse response) {
-        final Header newAgentMd5 = response.getFirstHeader(SystemEnvironment.AGENT_CONTENT_MD5_HEADER);
-        if (!md5.equals(newAgentMd5.getValue())) {
-            LOGGER.fatal(String.format("[Agent Upgrade] Agent needs to upgrade itself. Currently has md5 [%s] but server version has md5 [%s]. Exiting.", md5, newAgentMd5));
-            jvmExit();
         }
     }
 
@@ -105,7 +100,4 @@ public class AgentUpgradeService {
         return new HttpGet(urlService.getAgentLatestStatusUrl());
     }
 
-    void jvmExit() {
-        System.exit(0);
-    }
 }

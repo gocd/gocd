@@ -37,7 +37,6 @@ $table-header-border:#A5D6A7;
 //header
 
 $header-bg: #33364e;
-
 $page-header-bg: $go-white;
 $input-btn-bg:#cccccc;
 $input-btn-bg-hover:#666666;
@@ -66,18 +65,22 @@ $modal-header-bg: #fff;
 
 //tabs
 
-$tab-header-bg: #FFC107;
-$tab-header-bg-hover:darken($tab-header-bg, 2%);
-$current-tab-border:darken($tab-header-bg, 80%);
-$current-tab-bg :transparent;
+$tab-header-bg: #D1C4E9;
+$tab-header-bg-hover:lighten($tab-header-bg, 8%);
+$current-tab-bg :#fff;
+$tab-bg :lighten($tab-header-bg, 5%);
 
 //main navigation
 
+$top-bar-bg: transparent;
+$menu-link: $go-white;
+$menu-hover-bg:  $go-white;
+
 $main-nav-height: 40px;
-$main-nav-link-bg: rgba(0, 0, 0, 0.20);
+$main-nav-link-bg-hover: rgba(0, 0, 0, 0.20);
 $main-nav-link-color: $go-white;
 $drop-down-link-color :#333;
-
+$drop-down-menu-bg :$go-white;
 $dropdown-arrow-icon-color: rgba(255, 255, 255, 0.43);
 $dropdown-arrow-icon-color-hover-bg:   rgba(0, 0, 0, 0.20);
 $dropdown-arrow-icon-color-active: rgba(0, 0, 0, 1);
@@ -95,3 +98,9 @@ $user-link-bg : $go-white;
 $btn-bg :#fff;
 $btn-bg-hover : #666666;
 $btn-bg-hover-txt : #fff;
+
+
+//config ui
+
+$pipeline-page-header-bg : $go-white;
+

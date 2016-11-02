@@ -19,6 +19,9 @@
 
   $standard-margin: nth($fieldset-margin, 1);
 
+  .pipeline-page-header{
+    background:$pipeline-page-header-bg;
+  }
   .heading {
     margin-bottom:    20px;
     background:$page-header-bg;

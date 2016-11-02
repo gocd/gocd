@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-$border: #ccc;
+
 $accordion-bg: #ffffff;
-$active-accordion-bg: #E0F7FA;
+$active-accordion-bg: #CFD8DC;
 $accordion-bg-hover: #c8deec;
 $accordion-border-radius: 5px;
-
-$inner-accordion-bg: #FFC107;
+$accordion-border-color :#eaeaea;
+$inner-accordion-bg: #E0F7FA ;
 
 
 .accordion {
@@ -35,7 +35,7 @@ $inner-accordion-bg: #FFC107;
   }
   &.accordion-inner {
     background:   $white;
-    border:       1px solid $border;
+    border:       1px solid $accordion-border-color;
     margin-left:  15px;
     margin-right: 15px;
     .accordion-content {
@@ -87,7 +87,7 @@ $inner-accordion-bg: #FFC107;
 }
 
 .accordion.accordion-inner {
-  border:0;
+  //border:0;
   .is-active {
     .accordion-title {
       background:$inner-accordion-bg;

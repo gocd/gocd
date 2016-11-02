@@ -30,7 +30,7 @@ body {
 }
 
 .main-container {
-  margin-top: 50px;
+  margin-top: 40px;
 }
 
 .container {
@@ -91,13 +91,13 @@ html, body {
 
 .header-panel {
   position:  fixed;
-  top:       50px;
+  top:       $main-nav-height;
   transform: translateX(-50%);
   left:      50%;
   width:     100%;
   z-index:   $header-panel-z-index;
   .message {
-    background-color: #333;
+    background-color: $body-background;
   }
 }
 

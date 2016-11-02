@@ -18,27 +18,25 @@
 @import "common";
 
 $menu-hover: #3e3d3d;
-$header-height: 50px;
 
 .app-header {
-  position:   relative;
+  position:   fixed;
   background: $header-bg;
-  height:     $header-height;
+  height:     $main-nav-height;
+  width:      100%;
+  top:        0;
+  z-index:    $app-header-z-index;
 }
 
 .logo {
   display:    inline-block;
   background: image-url('go_logo.svg') no-repeat 0 0;
-  height:     calc(#{$header-height} / 2);
+  height:     calc(#{$main-nav-height} / 2);
   width:      60px;
 
 }
 
 //override for top-bar.scss, menu.scss , drop-down.scss
-
-$top-bar-bg: transparent;
-$menu-link: #fff;
-$menu-hover-bg: $dark-grey;
 
 .top-bar {
   background: $top-bar-bg;
@@ -50,21 +48,24 @@ $menu-hover-bg: $dark-grey;
     border:     0;
     a {
       text-transform: uppercase;
-      font-size:      rem-calc(13px);
+      font-size:      rem-calc(12px);
       padding:        0 1rem;
-      line-height:    $header-height;
-      font-weight: 600;
+      line-height:    $main-nav-height;
+      font-weight:    600;
     }
   }
   .is-dropdown-submenu {
-    background: $dark-grey;
+    background:$drop-down-menu-bg ;
+    box-shadow:    1px 2px 2px 0px rgba(0, 0, 0, 0.2);
+    //min-width:120px;
     li {
       a {
         font-size:      rem-calc(13px);
-        font-weight:    700;
+        font-weight:    400;
         line-height:    normal;
         text-transform: none;
-        padding:        0.5rem 1rem;
+        padding:        10px 17px;
+        color:$txt-color;
       }
     }
   }
@@ -76,12 +77,13 @@ $menu-hover-bg: $dark-grey;
       width:               0;
       height:              0;
       border:              inset 4px;
-      border-color:        rgba(255, 255, 255, 0.43) transparent transparent;
+      border-color:        $dropdown-arrow-icon-color transparent transparent;
       border-top-style:    solid;
       border-bottom-width: 0;
       right:               5px;
       margin-top:          -2px;
     }
+
   }
 
 }
@@ -101,10 +103,16 @@ $menu-hover-bg: $dark-grey;
       }
     }
     &:hover {
-      background: darken($grey, 5%);
+      background:$main-nav-link-bg-hover;
     }
     &.is-active {
       background: $menu-hover-bg;
+      a {
+        color: $txt-color;
+        &:after {
+          border-color: $dropdown-arrow-icon-color-hover-bg transparent transparent;
+        }
+      }
     }
 
     &.current-user {
@@ -114,19 +122,22 @@ $menu-hover-bg: $dark-grey;
         position:  absolute;
         left:      7px;
         color:     #cacaca;
-        top:       12px;
+        top:       7px;
         font-size: 16px;
       }
-      a{
+      a {
         text-transform: none;
+      }
+      .is-dropdown-submenu{
+        min-width:120px;
       }
     }
     &.current {
       background: $go-primary;
     }
   }
-  &.current-user{
-    a{
+  &.current-user {
+    a {
       text-transform: none;
     }
   }

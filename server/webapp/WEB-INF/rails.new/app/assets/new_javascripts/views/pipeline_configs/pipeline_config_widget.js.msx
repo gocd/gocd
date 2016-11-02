@@ -115,7 +115,7 @@ define([
 
         var header = function () {
           return (
-            <header>
+            <header class="pipeline-page-header">
               <f.row class="heading">
                 <f.column size={10} largeSize={10}>
                   <h1>

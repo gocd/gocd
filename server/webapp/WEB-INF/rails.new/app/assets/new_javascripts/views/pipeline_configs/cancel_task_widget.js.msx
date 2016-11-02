@@ -105,9 +105,9 @@ define([
                         size={3}
                         largeSize={3}
                         tooltip={{content: tt.onCancelTask,
-                            direction: 'bottom',
-                            size: 'small'
-                           }}/>
+                          direction: 'bottom',
+                          size: 'small'
+                        }}/>
             {taskSelector()}
           </f.row>
           {cancelTask()}

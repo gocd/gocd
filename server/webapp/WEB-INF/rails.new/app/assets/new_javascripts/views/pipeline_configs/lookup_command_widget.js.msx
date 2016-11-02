@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'jquery', 'string-plus', 'helpers/form_helper',
-    'helpers/mithril_component_mixins', 'js-routes', 'models/pipeline_configs/argument', 'helpers/pipeline_configs/tooltips',
-    'jquery.textcomplete'
-  ],
+define([
+  'mithril', 'lodash', 'jquery', 'string-plus', 'helpers/form_helper', 'helpers/mithril_component_mixins', 'js-routes',
+  'models/pipeline_configs/argument', 'helpers/pipeline_configs/tooltips', 'jquery.textcomplete'
+],
   function (m, _, $, s, f, ComponentMixins, Routes, Argument, tt) {
     var LookupCommandWidget = {
       Command: {

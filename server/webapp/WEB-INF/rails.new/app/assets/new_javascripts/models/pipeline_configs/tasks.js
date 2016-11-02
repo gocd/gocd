@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipeline_configs/argument', 'models/pipeline_configs/run_if_conditions',
-    'models/validatable_mixin'], function (m, _, s, Mixins, Argument, RunIfConditions, Validatable) {
+define([
+  'mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipeline_configs/argument',
+  'models/pipeline_configs/run_if_conditions', 'models/validatable_mixin'
+], function (m, _, s, Mixins, Argument, RunIfConditions, Validatable) {
 
   var Tasks = function (data) {
     Mixins.HasMany.call(this, {factory: Tasks.createByType, as: 'Task', collection: data});

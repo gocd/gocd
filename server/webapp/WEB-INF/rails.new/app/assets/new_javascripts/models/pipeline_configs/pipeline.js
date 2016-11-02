@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipeline_configs/environment_variables', 'models/pipeline_configs/parameters',
-  'models/pipeline_configs/materials', 'models/pipeline_configs/tracking_tool', 'models/pipeline_configs/stages', 'models/pipeline_configs/approval', 'helpers/mrequest', 'models/validatable_mixin', 'js-routes'
+define([
+  'mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipeline_configs/environment_variables', 'models/pipeline_configs/parameters',
+  'models/pipeline_configs/materials', 'models/pipeline_configs/tracking_tool', 'models/pipeline_configs/stages', 'models/pipeline_configs/approval',
+  'helpers/mrequest', 'models/validatable_mixin', 'js-routes'
 ], function (m, _, s, Mixins, EnvironmentVariables, Parameters, Materials, TrackingTool, Stages, Approval, mrequest, Validatable, Routes) {
   var Pipeline = function (data) {
     this.constructor.modelType = 'pipeline';
@@ -52,8 +54,10 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     this.stages                = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.stages, new Stages())));
 
     this.validatePresenceOf('labelTemplate');
-    this.validateFormatOf('labelTemplate', {format: /(([a-zA-Z0-9_\-.!~*'()#:])*[$#]\{[a-zA-Z0-9_\-.!~*'()#:]+(\[:(\d+)])?}([a-zA-Z0-9_\-.!~*'()#:])*)+/,
-                                            message: "Label should be composed of alphanumeric text, it may contain the build number as ${COUNT}, it may contain a material revision as ${<material-name>} or ${<material-name>[:<length>]}, or use params as #{<param-name>}"});
+    this.validateFormatOf('labelTemplate', {
+      format: /(([a-zA-Z0-9_\-.!~*'()#:])*[$#]\{[a-zA-Z0-9_\-.!~*'()#:]+(\[:(\d+)])?}([a-zA-Z0-9_\-.!~*'()#:])*)+/,
+      message: "Label should be composed of alphanumeric text, it may contain the build number as ${COUNT}, it may contain a material revision as ${<material-name>} or ${<material-name>[:<length>]}, or use params as #{<param-name>}"
+    });
     this.validateAssociated('materials');
     this.validateAssociated('environmentVariables');
     this.validateAssociated('parameters');

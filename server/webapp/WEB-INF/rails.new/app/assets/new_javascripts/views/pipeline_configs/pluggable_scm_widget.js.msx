@@ -14,49 +14,50 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'helpers/form_helper', 'helpers/pipeline_configs/tooltips', 'helpers/mithril_component_mixins', 'views/shared/modal',
+define([
+  'mithril', 'lodash', 'helpers/form_helper', 'helpers/pipeline_configs/tooltips', 'helpers/mithril_component_mixins', 'views/shared/modal',
   'views/pipeline_configs/scm_config_edit_widget', 'views/pipeline_configs/scm_config_new_widget', 'views/pipeline_configs/material_filter_widget',
-  'models/pipeline_configs/scms', 'models/pipeline_configs/plugin_infos'],
-  function (m, _, f, tt, ComponentMixins, Modal, SCMConfigEditWidget, SCMConfigNewWidget, MaterialFilterWidget, SCMs, PluginInfos) {
+  'models/pipeline_configs/scms', 'models/pipeline_configs/plugin_infos'
+], function (m, _, f, tt, ComponentMixins, Modal, SCMConfigEditWidget, SCMConfigNewWidget, MaterialFilterWidget, SCMs, PluginInfos) {
 
-    var EditPluggableSCMWidget = {
-      controller: function (args) {
-        this.material = args.material;
-        this.modal    = new Modal({
-          subView: {
-            component: SCMConfigEditWidget,
-            args: {material: args.material}
-          },
-          title: _.join(['EDIT', '-', args.material.scm().name()], ' ')
-        });
+  var EditPluggableSCMWidget = {
+    controller: function (args) {
+      this.material = args.material;
+      this.modal    = new Modal({
+        subView: {
+          component: SCMConfigEditWidget,
+          args: {material: args.material}
+        },
+        title: _.join(['EDIT', '-', args.material.scm().name()], ' ')
+      });
 
-        this.isPluginMissing = function () {
-          return _.isNil(PluginInfos.findById(this.material.scm().pluginMetadata().id()));
-        };
+      this.isPluginMissing = function () {
+        return _.isNil(PluginInfos.findById(this.material.scm().pluginMetadata().id()));
+      };
 
-        this.modalView = function () {
-          if(!this.isPluginMissing()) {
-            return this.modal.view();
-          }
-        };
-      },
+      this.modalView = function () {
+        if(!this.isPluginMissing()) {
+          return this.modal.view();
+        }
+      };
+    },
 
-      view: function (ctrl) {
-        ctrl.onunload = function() {
-          ctrl.modal.destroy();
-        };
+    view: function (ctrl) {
+      ctrl.onunload = function() {
+        ctrl.modal.destroy();
+      };
 
-        var scm  = ctrl.material.scm();
-        var data = {Name: scm.name(), AutoUpdate: scm.autoUpdate()};
+      var scm  = ctrl.material.scm();
+      var data = {Name: scm.name(), AutoUpdate: scm.autoUpdate()};
 
-        scm.configuration().mapConfigurations(function (conf) {
-          data[_.capitalize(conf.key())] = conf.isSecureValue() ? "***********" : conf.value();
-        });
+      scm.configuration().mapConfigurations(function (conf) {
+        data[_.capitalize(conf.key())] = conf.isSecureValue() ? "***********" : conf.value();
+      });
 
-        var editButton = ctrl.isPluginMissing() ? (<f.alert><b>{scm.pluginMetadata().id()}</b> plugin seems to be removed.</f.alert>)
+      var editButton = ctrl.isPluginMissing() ? (<f.alert><b>{scm.pluginMetadata().id()}</b> plugin seems to be removed.</f.alert>)
                                                 : (<f.editButton class={null}  onclick={ctrl.modal.open.bind(ctrl.modal)}/>);
 
-        return (
+      return (
           <div>
             <div class='pluggable-scm'>
               {editButton}
@@ -86,39 +87,39 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'helpers/pipeline_configs/to
             <MaterialFilterWidget material={ctrl.material}/>
             {ctrl.modalView()}
           </div>
-        );
-      }
-    };
+      );
+    }
+  };
 
-    var NewPluggabelSCMWidget = {
-      controller: function (args) {
-        var self      = this;
-        self.material = args.material;
-        self.scms     = m.prop(SCMs.filterByPluginId(self.material.pluginInfo().id()));
-        self.selected = _.isEmpty(self.scms()) ?  m.prop('default') : m.prop(_.head(self.scms()).id());
-        self.modal    = new Modal({title:   'ADD',
-                                   subView: {component: SCMConfigNewWidget, args:{material: self.material}}
-                                  });
+  var NewPluggabelSCMWidget = {
+    controller: function (args) {
+      var self      = this;
+      self.material = args.material;
+      self.scms     = m.prop(SCMs.filterByPluginId(self.material.pluginInfo().id()));
+      self.selected = _.isEmpty(self.scms()) ?  m.prop('default') : m.prop(_.head(self.scms()).id());
+      self.modal    = new Modal({title:   'ADD',
+        subView: {component: SCMConfigNewWidget, args:{material: self.material}}
+      });
 
-        self.selectSCM = function(id) {
-          SCMs.findById(id).then(function(scm) {
-            self.material.scm(scm);
-          });
-        };
-      },
+      self.selectSCM = function(id) {
+        SCMs.findById(id).then(function(scm) {
+          self.material.scm(scm);
+        });
+      };
+    },
 
-      view: function (ctrl) {
-        ctrl.onunload = function() {
-          ctrl.modal.destroy();
-        };
+    view: function (ctrl) {
+      ctrl.onunload = function() {
+        ctrl.modal.destroy();
+      };
 
-        var items = _.transform(ctrl.scms(), function (result, value) {
-          result[value.id()] = value.name();
-        }, {});
+      var items = _.transform(ctrl.scms(), function (result, value) {
+        result[value.id()] = value.name();
+      }, {});
 
 
-        if (!_.isEmpty(items)) {
-          return (
+      if (!_.isEmpty(items)) {
+        return (
             <f.row class='scm-selector'>
               <f.select
                 value={ctrl.selected}
@@ -136,9 +137,9 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'helpers/pipeline_configs/to
               </f.column>
               {ctrl.modal.view()}
             </f.row>
-          );
-        } else {
-          return (
+        );
+      } else {
+        return (
             <f.row class='scm-selector'>
               <f.column class='no-scm' size={4} largeSize={6} end>
                 <label>No existing SCMs for <b>{ctrl.material.pluginInfo().displayName()}</b></label>
@@ -147,17 +148,17 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'helpers/pipeline_configs/to
               </f.column>
               {ctrl.modal.view()}
             </f.row>
-          );
-        }
+        );
       }
-    };
+    }
+  };
 
-    var PluggableSCMWidget = {
-      view: function (ctrl, args) {
-        return _.isNil(args.material.scm()) ? m.component(NewPluggabelSCMWidget, args)
+  var PluggableSCMWidget = {
+    view: function (ctrl, args) {
+      return _.isNil(args.material.scm()) ? m.component(NewPluggabelSCMWidget, args)
                                             : m.component(EditPluggableSCMWidget, args);
-      }
-    };
+    }
+  };
 
-    return PluggableSCMWidget;
-  });
+  return PluggableSCMWidget;
+});

@@ -28,6 +28,7 @@ import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
+import com.thoughtworks.go.serverhealth.ServerHealthService;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -44,6 +45,7 @@ public class DependencyMaterialUpdateNotifierTest {
     private GoConfigService goConfigService;
     private MaterialConfigConverter materialConfigConverter;
     private MaterialUpdateService materialUpdateService;
+    private ServerHealthService serverHealthService;
     private Material dependencyMaterial = MaterialsMother.dependencyMaterial();
 
     @Before
@@ -51,12 +53,13 @@ public class DependencyMaterialUpdateNotifierTest {
         goConfigService = mock(GoConfigService.class);
         materialConfigConverter = mock(MaterialConfigConverter.class);
         materialUpdateService = mock(MaterialUpdateService.class);
+        serverHealthService = mock(ServerHealthService.class);
     }
 
     @Test
     public void shouldListenToConfigChange() {
         EntityConfigChangedListener entityConfigChangedListener = mock(EntityConfigChangedListener.class);
-        notifier = new DependencyMaterialUpdateNotifier(goConfigService, materialConfigConverter, materialUpdateService);
+        notifier = new DependencyMaterialUpdateNotifier(goConfigService, materialConfigConverter, materialUpdateService, serverHealthService);
         notifier = spy(notifier);
 
         stub(notifier.pipelineConfigChangedListener()).toReturn(entityConfigChangedListener);
@@ -69,7 +72,7 @@ public class DependencyMaterialUpdateNotifierTest {
 
     @Test
     public void shouldListenToMaterialUpdateMessage() {
-        notifier = new DependencyMaterialUpdateNotifier(goConfigService, materialConfigConverter, materialUpdateService);
+        notifier = new DependencyMaterialUpdateNotifier(goConfigService, materialConfigConverter, materialUpdateService, serverHealthService);
 
         notifier.initialize();
 
@@ -78,7 +81,7 @@ public class DependencyMaterialUpdateNotifierTest {
 
     @Test
     public void configLoadShouldScheduleAllDependencyMaterialsForUpdateThrough_onConfigChangeCallback() {
-        notifier = new DependencyMaterialUpdateNotifier(goConfigService, materialConfigConverter, materialUpdateService);
+        notifier = new DependencyMaterialUpdateNotifier(goConfigService, materialConfigConverter, materialUpdateService, serverHealthService);
         notifier.initialize();
 
         Set<DependencyMaterialConfig> schedulableMaterialConfigs = new HashSet<>(Arrays.asList((DependencyMaterialConfig) dependencyMaterial.config()));
@@ -97,7 +100,7 @@ public class DependencyMaterialUpdateNotifierTest {
         when(goConfigService.getSchedulableDependencyMaterials()).thenReturn(schedulableMaterialConfigs);
         when(materialConfigConverter.toMaterial(dependencyMaterialForP1S1.config())).thenReturn(dependencyMaterialForP1S1);
 
-        notifier = new DependencyMaterialUpdateNotifier(goConfigService, materialConfigConverter, materialUpdateService);
+        notifier = new DependencyMaterialUpdateNotifier(goConfigService, materialConfigConverter, materialUpdateService, serverHealthService);
         notifier.initialize();
 
         DependencyMaterial dependencyMaterialForP2S2 = MaterialsMother.dependencyMaterial("p2", "s2");
@@ -116,7 +119,7 @@ public class DependencyMaterialUpdateNotifierTest {
         when(goConfigService.getSchedulableDependencyMaterials()).thenReturn(schedulableMaterialConfigs);
         when(materialConfigConverter.toMaterial(dependencyMaterial.config())).thenReturn(dependencyMaterial);
 
-        notifier = new DependencyMaterialUpdateNotifier(goConfigService, materialConfigConverter, materialUpdateService);
+        notifier = new DependencyMaterialUpdateNotifier(goConfigService, materialConfigConverter, materialUpdateService, serverHealthService);
         notifier.initialize();
 
         notifier.onConfigChange(mock(CruiseConfig.class));
@@ -134,7 +137,7 @@ public class DependencyMaterialUpdateNotifierTest {
         when(goConfigService.getSchedulableDependencyMaterials()).thenReturn(schedulableMaterialConfigs);
         when(materialConfigConverter.toMaterial(dependencyMaterial.config())).thenReturn(dependencyMaterial);
 
-        notifier = new DependencyMaterialUpdateNotifier(goConfigService, materialConfigConverter, materialUpdateService);
+        notifier = new DependencyMaterialUpdateNotifier(goConfigService, materialConfigConverter, materialUpdateService, serverHealthService);
         notifier.initialize();
 
         notifier.stageStatusChanged(stage);
@@ -144,7 +147,7 @@ public class DependencyMaterialUpdateNotifierTest {
 
     @Test
     public void shouldDoNothingOnStageChangeIfStageDoesNotRepresentADependencyMaterial() {
-        notifier = new DependencyMaterialUpdateNotifier(goConfigService, materialConfigConverter, materialUpdateService);
+        notifier = new DependencyMaterialUpdateNotifier(goConfigService, materialConfigConverter, materialUpdateService, serverHealthService);
         notifier.initialize();
 
         Stage pipeline2Stage2 = StageMother.passedStageInstance("Stage2", "plan", "Pipeline2");
@@ -162,7 +165,7 @@ public class DependencyMaterialUpdateNotifierTest {
         when(goConfigService.getSchedulableDependencyMaterials()).thenReturn(schedulableMaterialConfigs);
         when(materialConfigConverter.toMaterial(dependencyMaterial.config())).thenReturn(dependencyMaterial);
 
-        notifier = new DependencyMaterialUpdateNotifier(goConfigService, materialConfigConverter, materialUpdateService);
+        notifier = new DependencyMaterialUpdateNotifier(goConfigService, materialConfigConverter, materialUpdateService, serverHealthService);
         notifier.initialize();
 
         notifier.stageStatusChanged(stage);
@@ -181,7 +184,7 @@ public class DependencyMaterialUpdateNotifierTest {
         when(materialConfigConverter.toMaterial(dependencyMaterial.config())).thenReturn(dependencyMaterial);
         when(materialUpdateService.updateMaterial(dependencyMaterial)).thenReturn(true, false);
 
-        notifier = new DependencyMaterialUpdateNotifier(goConfigService, materialConfigConverter, materialUpdateService);
+        notifier = new DependencyMaterialUpdateNotifier(goConfigService, materialConfigConverter, materialUpdateService, serverHealthService);
         notifier.initialize();
 
         notifier.stageStatusChanged(stage);
@@ -199,9 +202,9 @@ public class DependencyMaterialUpdateNotifierTest {
 
         when(goConfigService.getSchedulableDependencyMaterials()).thenReturn(schedulableMaterialConfigs);
         when(materialConfigConverter.toMaterial(dependencyMaterial.config())).thenReturn(dependencyMaterial);
-        when(materialUpdateService.updateMaterial(dependencyMaterial)).thenThrow(Exception.class).thenReturn(true);
+        when(materialUpdateService.updateMaterial(dependencyMaterial)).thenThrow(new RuntimeException("some error")).thenReturn(true);
 
-        notifier = new DependencyMaterialUpdateNotifier(goConfigService, materialConfigConverter, materialUpdateService);
+        notifier = new DependencyMaterialUpdateNotifier(goConfigService, materialConfigConverter, materialUpdateService, serverHealthService);
         notifier.initialize();
 
         notifier.onMaterialUpdate(dependencyMaterial);
@@ -218,7 +221,7 @@ public class DependencyMaterialUpdateNotifierTest {
         when(goConfigService.getSchedulableDependencyMaterials()).thenReturn(schedulableMaterialConfigs);
         when(materialConfigConverter.toMaterial(dependencyMaterial.config())).thenReturn(dependencyMaterial);
 
-        notifier = new DependencyMaterialUpdateNotifier(goConfigService, materialConfigConverter, materialUpdateService);
+        notifier = new DependencyMaterialUpdateNotifier(goConfigService, materialConfigConverter, materialUpdateService, serverHealthService);
         notifier.disableUpdates();
         notifier.initialize();
 

@@ -94,9 +94,9 @@ public class ValueStreamMapServiceIntegrationTest {
 
     @After
     public void teardown() throws Exception {
+        notifier.enableUpdates();
         dbHelper.onTearDown();
         configHelper.onTearDown();
-        notifier.enableUpdates();
     }
 
     @Test // Scenario: #7192

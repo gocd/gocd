@@ -105,10 +105,10 @@ public class AutoTriggerDependencyResolutionTest {
 
     @After
     public void teardown() throws Exception {
+        notifier.enableUpdates();
         systemEnvironment.reset(SystemEnvironment.RESOLVE_FANIN_MAX_BACK_TRACK_LIMIT);
         dbHelper.onTearDown();
         configHelper.onTearDown();
-        notifier.enableUpdates();
     }
 
     @Ignore("run PipelineDependencyDiamond.scn: this checks for natural-order schedule-order confusion -jj")

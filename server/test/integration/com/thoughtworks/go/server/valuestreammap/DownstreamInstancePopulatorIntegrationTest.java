@@ -83,9 +83,9 @@ public class DownstreamInstancePopulatorIntegrationTest {
 
     @After
     public void tearDown() throws Exception {
+        notifier.enableUpdates();
         dbHelper.onTearDown();
         configHelper.onTearDown();
-        notifier.enableUpdates();
     }
 
 

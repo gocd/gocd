@@ -27,6 +27,7 @@ import com.thoughtworks.go.domain.materials.ModifiedAction;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
+import com.thoughtworks.go.server.materials.DependencyMaterialUpdateNotifier;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.scheduling.BuildCauseProducerService;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
@@ -67,6 +68,7 @@ public class BuildCauseProducerServiceIntegrationTimerTest {
     @Autowired private SystemEnvironment systemEnvironment;
     @Autowired private PipelineTimeline pipelineTimeline;
     @Autowired private PipelineScheduleQueue piplineScheduleQueue;
+    @Autowired private DependencyMaterialUpdateNotifier notifier;
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private ScheduleTestUtil u;
@@ -81,10 +83,12 @@ public class BuildCauseProducerServiceIntegrationTimerTest {
         dbHelper.onSetUp();
         u = new ScheduleTestUtil(transactionTemplate, materialRepository, dbHelper, configHelper);
         logFixture = LogFixture.startListening();
+        notifier.disableUpdates();
     }
 
     @After
     public void teardown() throws Exception {
+        notifier.enableUpdates();
         systemEnvironment.reset(SystemEnvironment.RESOLVE_FANIN_MAX_BACK_TRACK_LIMIT);
         dbHelper.onTearDown();
         configHelper.onTearDown();

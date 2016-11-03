@@ -30,6 +30,8 @@ import com.thoughtworks.go.server.domain.StageStatusListener;
 import com.thoughtworks.go.server.initializers.Initializer;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
+import com.thoughtworks.go.serverhealth.HealthStateScope;
+import com.thoughtworks.go.serverhealth.ServerHealthService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +39,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 
+import static com.thoughtworks.go.serverhealth.HealthStateType.general;
+import static com.thoughtworks.go.serverhealth.ServerHealthState.error;
 import static java.lang.String.format;
 
 /**
@@ -49,6 +53,7 @@ public class DependencyMaterialUpdateNotifier implements StageStatusListener, Co
     private final GoConfigService goConfigService;
     private final MaterialConfigConverter materialConfigConverter;
     private final MaterialUpdateService materialUpdateService;
+    private ServerHealthService serverHealthService;
     private boolean skipUpdate = false;
 
     private volatile Map<String, Material> dependencyMaterials;
@@ -56,10 +61,11 @@ public class DependencyMaterialUpdateNotifier implements StageStatusListener, Co
 
     @Autowired
     public DependencyMaterialUpdateNotifier(GoConfigService goConfigService, MaterialConfigConverter materialConfigConverter,
-                                            MaterialUpdateService materialUpdateService) {
+                                            MaterialUpdateService materialUpdateService, ServerHealthService serverHealthService) {
         this.goConfigService = goConfigService;
         this.materialConfigConverter = materialConfigConverter;
         this.materialUpdateService = materialUpdateService;
+        this.serverHealthService = serverHealthService;
     }
 
     public void initialize() {
@@ -128,8 +134,8 @@ public class DependencyMaterialUpdateNotifier implements StageStatusListener, Co
                 retryQueue.add(material);
             }
         } catch (Exception e) {
-            //TODO: ServerHealthCheck
-            LOGGER.error(format("[Material Update] Error updating dependency material %s", material), e);
+            HealthStateScope scope = HealthStateScope.forMaterialUpdate(material);
+            serverHealthService.update(error(format("Error updating Dependency Material %s", material.getUriForDisplay()), e.getMessage(), general(scope)));
             retryQueue.add(material);
         }
     }
@@ -141,21 +147,18 @@ public class DependencyMaterialUpdateNotifier implements StageStatusListener, Co
     }
 
     private void scheduleRecentlyAddedMaterialsForUpdate() {
-        for (Object material : newDependencyMaterials()) {
-            updateMaterial((Material) material);
-        }
-    }
-
-    private Collection newDependencyMaterials() {
         Collection<Material> materialsBeforeConfigChange = dependencyMaterials.values();
 
         this.dependencyMaterials = dependencyMaterials();
 
         Collection<Material> materialsAfterConfigChange = dependencyMaterials.values();
 
-        return CollectionUtils.subtract(materialsAfterConfigChange, materialsBeforeConfigChange);
-    }
+        Collection newMaterials = CollectionUtils.subtract(materialsAfterConfigChange, materialsBeforeConfigChange);
 
+        for (Object material : newMaterials) {
+            updateMaterial((Material) material);
+        }
+    }
 
     private HashMap<String, Material> dependencyMaterials() {
         HashMap<String, Material> map = new HashMap<>();

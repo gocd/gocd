@@ -108,10 +108,10 @@ public class FaninDependencyResolutionTest {
 
     @After
     public void teardown() throws Exception {
+        notifier.enableUpdates();
         systemEnvironment.reset(RESOLVE_FANIN_MAX_BACK_TRACK_LIMIT);
         dbHelper.onTearDown();
         configHelper.onTearDown();
-        notifier.enableUpdates();
     }
 
     private void setMaxBackTrackLimit(int limit) {

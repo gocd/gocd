@@ -17,6 +17,7 @@
 require 'spec_helper'
 
 describe ApiV2::AgentsController do
+  include ApiHeaderSetupTeardown, ApiV2::ApiVersionHelper
 
   before do
     controller.stub(:agent_service).and_return(@agent_service = double('agent-service'))
@@ -70,18 +71,14 @@ describe ApiV2::AgentsController do
 
     describe :route do
       describe :with_header do
-        before :each do
-          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v2+json"
-        end
-        after :each do
-          Rack::MockRequest::DEFAULT_ENV = {}
-        end
-
         it 'should route to index action of the agents controller' do
           expect(:get => 'api/agents').to route_to(action: 'index', controller: 'api_v2/agents')
         end
       end
       describe :without_header do
+        before :each do
+          teardown_header
+        end
         it 'should not route to index action of the agents controller without header' do
           expect(:get => 'api/agents').to_not route_to(action: 'index', controller: 'api_v2/agents')
           expect(:get => 'api/agents').to route_to(controller: 'application', action: 'unresolved', url: 'api/agents')
@@ -139,13 +136,6 @@ describe ApiV2::AgentsController do
 
     describe :route do
       describe :with_header do
-        before :each do
-          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v2+json"
-        end
-        after :each do
-          Rack::MockRequest::DEFAULT_ENV = {}
-        end
-
         it 'should route to show action of the agents controller for uuid with hyphen' do
           expect(:get => 'api/agents/uuid-123').to route_to(action: 'show', controller: 'api_v2/agents', uuid: 'uuid-123')
         end
@@ -159,6 +149,9 @@ describe ApiV2::AgentsController do
         end
       end
       describe :without_header do
+        before :each do
+          teardown_header
+        end
         it 'should not route to show action of the agents controller without header' do
           expect(:get => 'api/agents/uuid').to_not route_to(action: 'show', controller: 'api_v2/agents')
           expect(:get => 'api/agents/uuid').to route_to(controller: 'application', action: 'unresolved', url: 'api/agents/uuid')
@@ -225,13 +218,6 @@ describe ApiV2::AgentsController do
 
     describe :route do
       describe :with_header do
-        before :each do
-          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v2+json"
-        end
-        after :each do
-          Rack::MockRequest::DEFAULT_ENV = {}
-        end
-
         it 'should route to destoy action of the agents controller for uuid with hyphen' do
           expect(:delete => 'api/agents/uuid-123').to route_to(action: 'destroy', controller: 'api_v2/agents', uuid: 'uuid-123')
         end
@@ -245,6 +231,9 @@ describe ApiV2::AgentsController do
         end
       end
       describe :without_header do
+        before :each do
+          teardown_header
+        end
         it 'should not route to destroy action of the agents controller without header' do
           expect(:delete => 'api/agents/uuid').to_not route_to(action: 'destroy', controller: 'api_v2/agents')
           expect(:delete => 'api/agents/uuid').to route_to(controller: 'application', action: 'unresolved', url: 'api/agents/uuid')
@@ -409,13 +398,6 @@ describe ApiV2::AgentsController do
 
     describe :route do
       describe :with_header do
-        before :each do
-          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v2+json"
-        end
-        after :each do
-          Rack::MockRequest::DEFAULT_ENV = {}
-        end
-
         it 'should route to update action of the agents controller for uuid with hyphen' do
           expect(:patch => 'api/agents/uuid-123').to route_to(action: 'update', controller: 'api_v2/agents', uuid: 'uuid-123')
         end
@@ -429,6 +411,9 @@ describe ApiV2::AgentsController do
         end
       end
       describe :without_header do
+        before :each do
+          teardown_header
+        end
         it 'should not route to update action of the agents controller without header' do
           expect(:patch => 'api/agents/uuid').to_not route_to(action: 'update', controller: 'api_v2/agents')
           expect(:patch => 'api/agents/uuid').to route_to(controller: 'application', action: 'unresolved', url: 'api/agents/uuid')
@@ -498,18 +483,14 @@ describe ApiV2::AgentsController do
 
     describe :route do
       describe :with_header do
-        before :each do
-          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v2+json"
-        end
-        after :each do
-          Rack::MockRequest::DEFAULT_ENV = {}
-        end
-
         it 'should route to bulk_destroy action of the agents controller' do
           expect(:delete => 'api/agents').to route_to(action: 'bulk_destroy', controller: 'api_v2/agents')
         end
       end
       describe :without_header do
+        before :each do
+          teardown_header
+        end
         it 'should not route to bulk_destroy action of the agents controller without header' do
           expect(:delete => 'api/agents').to_not route_to(action: 'bulk_destroy', controller: 'api_v2/agents')
           expect(:delete => 'api/agents').to route_to(controller: 'application', action: 'unresolved', url: 'api/agents')
@@ -571,18 +552,15 @@ describe ApiV2::AgentsController do
 
     describe :route do
       describe :with_header do
-        before :each do
-          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v2+json"
-        end
-        after :each do
-          Rack::MockRequest::DEFAULT_ENV = {}
-        end
 
         it 'should route to bulk_update action of the agents controller' do
           expect(:patch => 'api/agents').to route_to(action: 'bulk_update', controller: 'api_v2/agents')
         end
       end
       describe :without_header do
+        before :each do
+          teardown_header
+        end
         it 'should not route to bulk_update action of the agents controller without header' do
           expect(:patch => 'api/agents').to_not route_to(action: 'bulk_update', controller: 'api_v2/agents')
           expect(:patch => 'api/agents').to route_to(controller: 'application', action: 'unresolved', url: 'api/agents')

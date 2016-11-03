@@ -17,6 +17,7 @@
 require 'spec_helper'
 
 describe ApiV1::DashboardController do
+  include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
 
   before do
     @user                  = Username.new(CaseInsensitiveString.new("foo"))
@@ -49,18 +50,15 @@ describe ApiV1::DashboardController do
 
     describe :route do
       describe :with_header do
-        before :each do
-          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v1+json"
-        end
-        after :each do
-          Rack::MockRequest::DEFAULT_ENV = {}
-        end
 
         it 'should route to dashboard action of the dashboard controller' do
           expect(:get => 'api/dashboard').to route_to(action: 'dashboard', controller: 'api_v1/dashboard')
         end
       end
       describe :without_header do
+        before :each do
+          teardown_header
+        end
         it 'should not route to dashboard action of dashboard controller without header' do
           expect(:get => 'api/dashboard').to_not route_to(action: 'dashboard', controller: 'api_v1/dashboard')
           expect(:get => 'api/dashboard').to route_to(controller: 'application', action: 'unresolved', url: 'api/dashboard')

@@ -17,6 +17,8 @@
 require 'spec_helper'
 
 describe ApiV1::Admin::Internal::PipelinesController do
+  include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
+
   before(:each) do
     @pipeline_config_service = double('pipeline_config_service')
     controller.stub('pipeline_config_service').and_return(@pipeline_config_service)
@@ -72,18 +74,14 @@ describe ApiV1::Admin::Internal::PipelinesController do
       end
       describe :route do
         describe :with_header do
-          before :each do
-            Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v1+json"
-          end
-          after :each do
-            Rack::MockRequest::DEFAULT_ENV = {}
-          end
-
           it 'should route to index action of the internal pipelines controller' do
             expect(:get => 'api/admin/internal/pipelines').to route_to(action: 'index', controller: 'api_v1/admin/internal/pipelines')
           end
         end
         describe :without_header do
+          before :each do
+            teardown_header
+          end
           it 'should not route to index action of internal pipelines controller without header' do
             expect(:get => 'api/admin/internal/pipelines').to_not route_to(action: 'index', controller: 'api_v1/admin/internal/pipelines')
             expect(:get => 'api/admin/internal/pipelines').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/internal/pipelines')

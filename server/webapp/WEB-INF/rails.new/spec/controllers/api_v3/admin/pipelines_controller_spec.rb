@@ -17,6 +17,8 @@
 require 'spec_helper'
 
 describe ApiV3::Admin::PipelinesController do
+  include ApiHeaderSetupTeardown, ApiV3::ApiVersionHelper
+
   before(:each) do
     @pipeline_md5 = 'md5'
     @group = "group"
@@ -227,12 +229,6 @@ describe ApiV3::Admin::PipelinesController do
 
       describe :route do
         describe :with_header do
-          before :each do
-            Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v3+json"
-          end
-          after :each do
-            Rack::MockRequest::DEFAULT_ENV = {}
-          end
           it 'should route to show action of pipelines controller for alphanumeric pipeline name' do
             expect(:get => 'api/admin/pipelines/foo123').to route_to(action: 'show', controller: 'api_v3/admin/pipelines', pipeline_name: 'foo123')
           end
@@ -254,6 +250,9 @@ describe ApiV3::Admin::PipelinesController do
           end
         end
         describe :without_header do
+          before :each do
+            teardown_header
+          end
           it 'should not route to show action of pipelines controller without header' do
             expect(:get => 'api/admin/pipelines/foo').to_not route_to(action: 'show', controller: 'api_v3/admin/pipelines')
             expect(:get => 'api/admin/pipelines/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/pipelines/foo')
@@ -379,12 +378,6 @@ describe ApiV3::Admin::PipelinesController do
 
       describe :route do
         describe :with_header do
-          before :each do
-            Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v3+json"
-          end
-          after :each do
-            Rack::MockRequest::DEFAULT_ENV = {}
-          end
           it 'should route to update action of pipelines controller for alphanumeric pipeline name' do
             expect(:put => 'api/admin/pipelines/foo123').to route_to(action: 'update', controller: 'api_v3/admin/pipelines', pipeline_name: 'foo123')
           end
@@ -406,6 +399,10 @@ describe ApiV3::Admin::PipelinesController do
           end
         end
         describe :without_header do
+          before :each do
+            teardown_header
+          end
+
           it 'should not route to update action of pipelines controller without header' do
             expect(:put => 'api/admin/pipelines/foo').to_not route_to(action: 'update', controller: 'api_v3/admin/pipelines')
             expect(:put => 'api/admin/pipelines/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/pipelines/foo')
@@ -563,17 +560,16 @@ describe ApiV3::Admin::PipelinesController do
 
       describe :route do
         describe :with_header do
-          before :each do
-            Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v3+json"
-          end
-          after :each do
-            Rack::MockRequest::DEFAULT_ENV = {}
-          end
+
           it 'should route to create action of pipelines controller' do
             expect(:post => 'api/admin/pipelines/').to route_to(action: 'create', controller: 'api_v3/admin/pipelines')
           end
         end
         describe :without_header do
+          before :each do
+            teardown_header
+          end
+
           it 'should not route to create action of pipelines controller without header' do
             expect(:post => 'api/admin/pipelines').to_not route_to(action: 'create', controller: 'api_v3/admin/pipelines')
             expect(:post => 'api/admin/pipelines').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/pipelines')
@@ -613,12 +609,7 @@ describe ApiV3::Admin::PipelinesController do
 
       describe :route do
         describe :with_header do
-          before :each do
-            Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v3+json"
-          end
-          after :each do
-            Rack::MockRequest::DEFAULT_ENV = {}
-          end
+
           it 'should route to destroy action of pipelines controller for alphanumeric pipeline name' do
             expect(:delete => 'api/admin/pipelines/foo123').to route_to(action: 'destroy', controller: 'api_v3/admin/pipelines', pipeline_name: 'foo123')
           end
@@ -640,6 +631,9 @@ describe ApiV3::Admin::PipelinesController do
           end
         end
         describe :without_header do
+          before :each do
+            teardown_header
+          end
           it 'should not route to destroy action of pipelines controller without header' do
             expect(:delete => 'api/admin/pipelines/foo').to_not route_to(action: 'destroy', controller: 'api_v3/admin/pipelines')
             expect(:delete => 'api/admin/pipelines/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/pipelines/foo')

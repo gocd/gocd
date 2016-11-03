@@ -17,6 +17,7 @@
 require 'spec_helper'
 
 describe ApiV1::Elastic::ProfilesController do
+  include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
 
   before :each do
     @elastic_profile_service = double('elastic_profile_service')
@@ -78,19 +79,16 @@ describe ApiV1::Elastic::ProfilesController do
     describe :route do
       describe :with_header do
 
-        before :each do
-          Rack::MockRequest::DEFAULT_ENV['HTTP_ACCEPT'] = controller.class::DEFAULT_ACCEPTS_HEADER
-        end
-
-        after :each do
-          Rack::MockRequest::DEFAULT_ENV = {}
-        end
-
         it 'should route to index action of controller' do
           expect(:get => 'api/elastic/profiles').to route_to(action: 'index', controller: 'api_v1/elastic/profiles')
         end
       end
       describe :without_header do
+
+        before :each do
+          teardown_header
+        end
+
         it 'should not route to index action of controller without header' do
           expect(:get => 'api/elastic/profiles').to_not route_to(action: 'index', controller: 'api_v1/elastic/profiles')
           expect(:get => 'api/elastic/profiles').to route_to(controller: 'application', action: 'unresolved', url: 'api/elastic/profiles')
@@ -167,12 +165,6 @@ describe ApiV1::Elastic::ProfilesController do
 
     describe :route do
       describe :with_header do
-        before :each do
-          Rack::MockRequest::DEFAULT_ENV['HTTP_ACCEPT'] = controller.class::DEFAULT_ACCEPTS_HEADER
-        end
-        after :each do
-          Rack::MockRequest::DEFAULT_ENV = {}
-        end
 
         it 'should route to show action of controller for alphanumeric identifier' do
           expect(:get => 'api/elastic/profiles/foo123').to route_to(action: 'show', controller: 'api_v1/elastic/profiles', profile_id: 'foo123')
@@ -195,6 +187,9 @@ describe ApiV1::Elastic::ProfilesController do
         end
       end
       describe :without_header do
+        before :each do
+          teardown_header
+        end
         it 'should not route to show action of controller without header' do
           expect(:get => 'api/elastic/profiles/foo').to_not route_to(action: 'show', controller: 'api_v1/elastic/profiles')
           expect(:get => 'api/elastic/profiles/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/elastic/profiles/foo')
@@ -269,17 +264,14 @@ describe ApiV1::Elastic::ProfilesController do
     end
     describe :route do
       describe :with_header do
-        before :each do
-          Rack::MockRequest::DEFAULT_ENV['HTTP_ACCEPT'] = controller.class::DEFAULT_ACCEPTS_HEADER
-        end
-        after :each do
-          Rack::MockRequest::DEFAULT_ENV = {}
-        end
         it 'should route to create action of controller' do
           expect(:post => 'api/elastic/profiles').to route_to(action: 'create', controller: 'api_v1/elastic/profiles')
         end
       end
       describe :without_header do
+        before :each do
+          teardown_header
+        end
         it 'should not route to create action of controller without header' do
           expect(:post => 'api/elastic/profiles').to_not route_to(action: 'create', controller: 'api_v1/elastic/profiles')
           expect(:post => 'api/elastic/profiles').to route_to(controller: 'application', action: 'unresolved', url: 'api/elastic/profiles')
@@ -372,12 +364,6 @@ describe ApiV1::Elastic::ProfilesController do
 
     describe :route do
       describe :with_header do
-        before :each do
-          Rack::MockRequest::DEFAULT_ENV['HTTP_ACCEPT'] = controller.class::DEFAULT_ACCEPTS_HEADER
-        end
-        after :each do
-          Rack::MockRequest::DEFAULT_ENV = {}
-        end
         it 'should route to update action of controller for alphanumeric identifier' do
           expect(:put => 'api/elastic/profiles/foo123').to route_to(action: 'update', controller: 'api_v1/elastic/profiles', profile_id: 'foo123')
         end
@@ -399,6 +385,9 @@ describe ApiV1::Elastic::ProfilesController do
         end
       end
       describe :without_header do
+        before :each do
+          teardown_header
+        end
         it 'should not route to update action of controller without header' do
           expect(:put => 'api/elastic/profiles/foo').to_not route_to(action: 'update', controller: 'api_v1/elastic/profiles')
           expect(:put => 'api/elastic/profiles/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/elastic/profiles/foo')
@@ -485,12 +474,6 @@ describe ApiV1::Elastic::ProfilesController do
 
     describe :route do
       describe :with_header do
-        before :each do
-          Rack::MockRequest::DEFAULT_ENV['HTTP_ACCEPT'] = controller.class::DEFAULT_ACCEPTS_HEADER
-        end
-        after :each do
-          Rack::MockRequest::DEFAULT_ENV = {}
-        end
 
         it 'should route to destroy action of controller for alphanumeric identifier' do
           expect(:delete => 'api/elastic/profiles/foo123').to route_to(action: 'destroy', controller: 'api_v1/elastic/profiles', profile_id: 'foo123')
@@ -514,6 +497,9 @@ describe ApiV1::Elastic::ProfilesController do
       end
 
       describe :without_header do
+        before :each do
+          teardown_header
+        end
         it 'should not route to destroy action of controller without header' do
           expect(:delete => 'api/elastic/profiles/foo').to_not route_to(action: 'destroy', controller: 'api_v1/elastic/profiles')
           expect(:delete => 'api/elastic/profiles/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/elastic/profiles/foo')

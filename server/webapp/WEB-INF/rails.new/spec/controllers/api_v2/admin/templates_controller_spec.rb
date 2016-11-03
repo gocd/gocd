@@ -17,6 +17,8 @@
 require 'spec_helper'
 
 describe ApiV2::Admin::TemplatesController do
+  include ApiHeaderSetupTeardown, ApiV2::ApiVersionHelper
+
   before :each do
     @template = PipelineTemplateConfig.new(CaseInsensitiveString.new('some-template'), StageConfig.new(CaseInsensitiveString.new('stage'), JobConfigs.new(JobConfig.new(CaseInsensitiveString.new('job')))))
     @template_config_service = double('template_config_service')
@@ -71,17 +73,14 @@ describe ApiV2::Admin::TemplatesController do
     end
     describe :route do
       describe :with_header do
-        before :each do
-          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v2+json"
-        end
-        after :each do
-          Rack::MockRequest::DEFAULT_ENV = {}
-        end
         it 'should route to index action of templates controller' do
           expect(:get => 'api/admin/templates').to route_to(action: 'index', controller: 'api_v2/admin/templates')
         end
       end
       describe :without_header do
+        before :each do
+          teardown_header
+        end
         it 'should not route to index action of templates controller without header' do
           expect(:get => 'api/admin/templates').to_not route_to(action: 'index', controller: 'api_v2/admin/templates')
           expect(:get => 'api/admin/templates').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/templates')
@@ -152,13 +151,6 @@ describe ApiV2::Admin::TemplatesController do
     end
     describe :route do
       describe :with_header do
-        before :each do
-          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v2+json"
-        end
-        after :each do
-          Rack::MockRequest::DEFAULT_ENV = {}
-        end
-
         it 'should route to show action of templates controller for alphanumeric template name' do
           expect(:get => 'api/admin/templates/foo123').to route_to(action: 'show', controller: 'api_v2/admin/templates', template_name: 'foo123')
         end
@@ -180,6 +172,9 @@ describe ApiV2::Admin::TemplatesController do
         end
       end
       describe :without_header do
+        before :each do
+          teardown_header
+        end
         it 'should not route to show action of templates controller without header' do
           expect(:get => 'api/admin/templates/foo').to_not route_to(action: 'show', controller: 'api_v2/admin/templates')
           expect(:get => 'api/admin/templates/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/templates/foo')
@@ -248,17 +243,14 @@ describe ApiV2::Admin::TemplatesController do
     end
     describe :route do
       describe :with_header do
-        before :each do
-          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v2+json"
-        end
-        after :each do
-          Rack::MockRequest::DEFAULT_ENV = {}
-        end
         it 'should route to create action of templates controller' do
           expect(:post => 'api/admin/templates').to route_to(action: 'create', controller: 'api_v2/admin/templates')
         end
       end
       describe :without_header do
+        before :each do
+          teardown_header
+        end
         it 'should not route to create action of templates controller without header' do
           expect(:post => 'api/admin/templates').to_not route_to(action: 'create', controller: 'api_v2/admin/templates')
           expect(:post => 'api/admin/templates').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/templates')
@@ -372,12 +364,6 @@ describe ApiV2::Admin::TemplatesController do
     end
     describe :route do
       describe :with_header do
-        before :each do
-          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v2+json"
-        end
-        after :each do
-          Rack::MockRequest::DEFAULT_ENV = {}
-        end
         it 'should route to update action of templates controller for alphanumeric template name' do
           expect(:put => 'api/admin/templates/foo123').to route_to(action: 'update', controller: 'api_v2/admin/templates', template_name: 'foo123')
         end
@@ -399,6 +385,9 @@ describe ApiV2::Admin::TemplatesController do
         end
       end
       describe :without_header do
+        before :each do
+          teardown_header
+        end
         it 'should not route to update action of templates controller without header' do
           expect(:put => 'api/admin/templates/foo').to_not route_to(action: 'update', controller: 'api_v2/admin/templates')
           expect(:put => 'api/admin/templates/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/templates/foo')
@@ -477,12 +466,6 @@ describe ApiV2::Admin::TemplatesController do
     end
     describe :route do
       describe :with_header do
-        before :each do
-          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v2+json"
-        end
-        after :each do
-          Rack::MockRequest::DEFAULT_ENV = {}
-        end
         it 'should route to destroy action of templates controller for alphanumeric template name' do
           expect(:delete => 'api/admin/templates/foo123').to route_to(action: 'destroy', controller: 'api_v2/admin/templates', template_name: 'foo123')
         end
@@ -504,6 +487,9 @@ describe ApiV2::Admin::TemplatesController do
         end
       end
       describe :without_header do
+        before :each do
+          teardown_header
+        end
         it 'should not route to destroy action of templates controller without header' do
           expect(:delete => 'api/admin/templates/foo').to_not route_to(action: 'destroy', controller: 'api_v2/admin/templates')
           expect(:delete => 'api/admin/templates/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/templates/foo')

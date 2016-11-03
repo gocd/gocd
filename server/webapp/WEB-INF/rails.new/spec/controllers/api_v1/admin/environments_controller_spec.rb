@@ -17,6 +17,7 @@
 require 'spec_helper'
 
 describe ApiV1::Admin::EnvironmentsController do
+  include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
 
   describe :index do
     describe :for_admins do
@@ -57,17 +58,14 @@ describe ApiV1::Admin::EnvironmentsController do
 
     describe :route do
       describe :with_header do
-        before :each do
-          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v1+json"
-        end
-        after :each do
-          Rack::MockRequest::DEFAULT_ENV = {}
-        end
         it 'should route to index action of environments controller' do
           expect(:get => 'api/admin/environments').to route_to(action: 'index', controller: 'api_v1/admin/environments')
         end
       end
       describe :without_header do
+        before :each do
+          teardown_header
+        end
         it 'should not route to index action of environments controller without header' do
           expect(:get => 'api/admin/environments').to_not route_to(action: 'index', controller: 'api_v1/admin/environments')
           expect(:get => 'api/admin/environments').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/environments')
@@ -124,12 +122,6 @@ describe ApiV1::Admin::EnvironmentsController do
 
     describe :route do
       describe :with_header do
-        before :each do
-          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v1+json"
-        end
-        after :each do
-          Rack::MockRequest::DEFAULT_ENV = {}
-        end
         it 'should route to show action of environments controller for alphanumeric environment name' do
           expect(:get => 'api/admin/environments/foo123').to route_to(action: 'show', controller: 'api_v1/admin/environments', name: 'foo123')
         end
@@ -151,6 +143,9 @@ describe ApiV1::Admin::EnvironmentsController do
         end
       end
       describe :without_header do
+        before :each do
+          teardown_header
+        end
         it 'should not route to show action of environments controller without header' do
           expect(:get => 'api/admin/environments/foo').to_not route_to(action: 'show', controller: 'api_v1/admin/environments')
           expect(:get => 'api/admin/environments/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/environments/foo')
@@ -239,12 +234,6 @@ describe ApiV1::Admin::EnvironmentsController do
 
     describe :route do
       describe :with_header do
-        before :each do
-          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v1+json"
-        end
-        after :each do
-          Rack::MockRequest::DEFAULT_ENV = {}
-        end
         it 'should route to put action of environments controller for alphanumeric environment name' do
           expect(:put => 'api/admin/environments/foo123').to route_to(action: 'put', controller: 'api_v1/admin/environments', name: 'foo123')
         end
@@ -266,6 +255,9 @@ describe ApiV1::Admin::EnvironmentsController do
         end
       end
       describe :without_header do
+        before :each do
+          teardown_header
+        end
         it 'should not route to put action of environments controller without header' do
           expect(:put => 'api/admin/environments/foo').to_not route_to(action: 'put', controller: 'api_v1/admin/environments')
           expect(:put => 'api/admin/environments/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/environments/foo')
@@ -344,12 +336,6 @@ describe ApiV1::Admin::EnvironmentsController do
 
     describe :route do
       describe :with_header do
-        before :each do
-          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v1+json"
-        end
-        after :each do
-          Rack::MockRequest::DEFAULT_ENV = {}
-        end
         it 'should route to patch action of environments controller for alphanumeric environment name' do
           expect(:patch => 'api/admin/environments/foo123').to route_to(action: 'patch', controller: 'api_v1/admin/environments', name: 'foo123')
         end
@@ -371,6 +357,9 @@ describe ApiV1::Admin::EnvironmentsController do
         end
       end
       describe :without_header do
+        before :each do
+          teardown_header
+        end
         it 'should not route to put action of environments controller without header' do
           expect(:patch => 'api/admin/environments/foo').to_not route_to(action: 'put', controller: 'api_v1/admin/environments')
           expect(:patch => 'api/admin/environments/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/environments/foo')
@@ -431,12 +420,6 @@ describe ApiV1::Admin::EnvironmentsController do
 
     describe :route do
       describe :with_header do
-        before :each do
-          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v1+json"
-        end
-        after :each do
-          Rack::MockRequest::DEFAULT_ENV = {}
-        end
         it 'should route to destroy action of environments controller for alphanumeric environment name' do
           expect(:delete => 'api/admin/environments/foo123').to route_to(action: 'destroy', controller: 'api_v1/admin/environments', name: 'foo123')
         end
@@ -458,6 +441,9 @@ describe ApiV1::Admin::EnvironmentsController do
         end
       end
       describe :without_header do
+        before :each do
+          teardown_header
+        end
         it 'should not route to destroy action of environments controller without header' do
           expect(:delete => 'api/admin/environments/foo').to_not route_to(action: 'destroy', controller: 'api_v1/admin/environments')
           expect(:delete => 'api/admin/environments/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/environments/foo')
@@ -519,17 +505,14 @@ describe ApiV1::Admin::EnvironmentsController do
 
     describe :route do
       describe :with_header do
-        before :each do
-          Rack::MockRequest::DEFAULT_ENV["HTTP_ACCEPT"] = "application/vnd.go.cd.v1+json"
-        end
-        after :each do
-          Rack::MockRequest::DEFAULT_ENV = {}
-        end
         it 'should route to create action of environments controller' do
           expect(:post => 'api/admin/environments/').to route_to(action: 'create', controller: 'api_v1/admin/environments')
         end
       end
       describe :without_header do
+        before :each do
+          teardown_header
+        end
         it 'should not route to create action of environments controller without header' do
           expect(:post => 'api/admin/environments').to_not route_to(action: 'create', controller: 'api_v1/admin/environments')
           expect(:post => 'api/admin/environments').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/environments')

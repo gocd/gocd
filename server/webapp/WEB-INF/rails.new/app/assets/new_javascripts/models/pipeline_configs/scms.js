@@ -35,7 +35,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
       this.init = function (data) {
         this.id             = m.prop(s.defaultToIfBlank(data.id));
         this.name           = m.prop(s.defaultToIfBlank(data.name, ''));
-        this.autoUpdate     = m.prop(s.defaultToIfBlank(data.auto_update));
+        this.autoUpdate     = m.prop(s.defaultToIfBlank(data.auto_update, true));
         this.pluginMetadata = m.prop(new SCMs.SCM.PluginMetadata(data.plugin_metadata || {}));
         this.configuration  = s.collectionToJSON(m.prop(SCMs.SCM.Configurations.fromJSON(data.configuration || {})));
         this.errors         = m.prop(new Errors(data.errors));

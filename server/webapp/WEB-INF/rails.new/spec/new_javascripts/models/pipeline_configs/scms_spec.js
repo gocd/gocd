@@ -183,7 +183,7 @@ define(['jquery', 'mithril', 'lodash', 'models/pipeline_configs/scms'],
               /* eslint-disable camelcase */
               id:              '43c45e0b-1b0c-46f3-a60a-2bbc5cec069c',
               name:            'material_name',
-              auto_update:     true,
+              auto_update:     false,
               plugin_metadata: {id: 'github.pr', version: '1.1'},
               configuration:   [{key: 'url', value: 'path/to/repo'}, {key: 'username', value: 'some_name'}]
               /* eslint-enable camelcase */
@@ -199,7 +199,7 @@ define(['jquery', 'mithril', 'lodash', 'models/pipeline_configs/scms'],
           });
 
           it('should initialize model with auto_update', function () {
-            expect(scm.autoUpdate()).toBe(true);
+            expect(scm.autoUpdate()).toBe(false);
           });
 
           it('should initialize model with plugin_metadata', function () {
@@ -210,6 +210,18 @@ define(['jquery', 'mithril', 'lodash', 'models/pipeline_configs/scms'],
           it('should initialize model with configuration', function () {
             expect(scm.configuration().collectConfigurationProperty('key')).toEqual(['url', 'username']);
             expect(scm.configuration().collectConfigurationProperty('value')).toEqual(['path/to/repo', 'some_name']);
+          });
+
+          it('should default auto_update to true if not provided', function() {
+            var pluggableScm = new SCMs.SCM({
+              /* eslint-disable camelcase */
+              id:              '43c45e0b-1b0c-46f3-a60a-2bbc5cec069c',
+              name:            'material_name',
+              plugin_metadata: {id: 'github.pr', version: '1.1'},
+              configuration:   [{key: 'url', value: 'path/to/repo'}, {key: 'username', value: 'some_name'}]
+              /* eslint-enable camelcase */
+            });
+            expect(pluggableScm.autoUpdate()).toBe(true);
           });
         });
 

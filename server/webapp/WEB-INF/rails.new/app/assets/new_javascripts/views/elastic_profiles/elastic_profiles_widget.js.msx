@@ -1,0 +1,111 @@
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+define([
+  'mithril', 'lodash',
+  'helpers/form_helper',
+  'models/elastic_profiles/elastic_profiles'
+], function (m, _,
+             f,
+             ElasticProfiles) {
+
+  var ElasticProfileWidget  = {
+    controller: function (args) {
+      this.update = function (profile) {
+        profile.update();
+      }
+
+    },
+
+    view: function (ctrl, args) {
+      var profile = args.profile;
+      return (
+        <div>
+          <f.row>
+            <f.inputWithLabel
+              model={profile}
+              isRequired="true"
+              attrName="id"
+              labelText="Id"
+              size="3"
+              largeSize="3"
+            />
+            <f.inputWithLabel
+              model={profile}
+              isRequired="true"
+              attrName="pluginId"
+              labelText="Plugin Id"
+              size="3"
+              largeSize="3"
+              end="true"
+            />
+          </f.row>
+          <f.row>
+            <f.column size="12">
+              {profile.properties().mapConfigurations(function (property) {
+                return (
+                  <f.row>
+                    <f.input model={property} attrName="key"/>
+                    <f.input model={property} attrName="value" end="true"/>
+                  </f.row>
+                );
+              })}
+            </f.column>
+          </f.row>
+          <f.row>
+            <f.button onclick={ctrl.update.bind(ctrl, profile)}>Update</f.button>
+          </f.row>
+        </div>
+      );
+    }
+  }
+  var ElasticProfilesWidget = {
+    controller: function () {
+      this.profiles   = ElasticProfiles.all();
+      window.profiles = this.profiles;
+      this.foo        = function (profile) {
+        console.log('foo', profile.id());
+      }
+      this.delete        = function (profile) {
+        profile.delete();
+      }
+    },
+
+    view: function (ctrl) {
+      return (
+        <f.row>
+          {ctrl.profiles().mapProfiles(function (profile) {
+            return (
+              <f.column size="12">
+                <f.row>
+                  <div><span>ID: </span>{profile.id()}</div>
+                  <div><span>Plugin ID: </span>{profile.pluginId()}</div>
+                  <div>
+                    <f.link onclick={ctrl.foo.bind(ctrl, profile)}>EDIT</f.link>
+                    <f.link onclick={ctrl.delete.bind(ctrl, profile)}>DELETE</f.link>
+                  </div>
+                </f.row>
+                <ElasticProfileWidget profile={profile}/>
+              </f.column>
+            );
+          })}
+        </f.row>
+      );
+    }
+  };
+
+  return ElasticProfilesWidget;
+});

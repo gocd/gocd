@@ -243,8 +243,13 @@ public class AgentConfigService {
             }
         } catch (Exception e) {
             LOGGER.error("There was an error bulk updating agents", e);
-            if (!result.hasMessage()) {
-                result.internalServerError(LocalizedMessage.string("INTERNAL_SERVER_ERROR"));
+            if(e instanceof GoConfigInvalidException) {
+                result.unprocessableEntity(LocalizedMessage.string("ENTITY_CONFIG_VALIDATION_FAILED", Agents.class.getAnnotation(ConfigTag.class).value(), uuids, e.getMessage()));
+            }
+            else {
+                if (!result.hasMessage()) {
+                    result.internalServerError(LocalizedMessage.string("INTERNAL_SERVER_ERROR"));
+                }
             }
         }
     }

@@ -78,24 +78,24 @@ public class AgentsEntityConfigUpdateCommand implements EntityConfigUpdateComman
     }
 
     @Override
-    public void update(CruiseConfig preprocessedConfig) throws Exception {
+    public void update(CruiseConfig modifiedConfig) throws Exception {
         Set<CaseInsensitiveString> allEnvironmentNames = new HashSet<>(goConfigService.getEnvironments().names());
 
         // validate all inputs
-        validateEnvironmentNames(allEnvironmentNames, environmentsToAdd);
-        validateEnvironmentNames(allEnvironmentNames, environmentsToRemove);
+        validatePresenceOfEnvironments(allEnvironmentNames, environmentsToAdd);
+        validatePresenceOfEnvironments(allEnvironmentNames, environmentsToRemove);
 
-        validateAgentUUIDs();
+        validatePresenceOfAgentUuidsInConfig();
         checkIfResourcesAreBeingUpdatedOnElasticAgents();
 
         List<AgentConfig> pendingAgents = findPendingAgents();
         validateOperationOnPendingAgents(pendingAgents);
 
         // add pending agents to the config
-        preprocessedConfig.agents().addAll(pendingAgents);
+        modifiedConfig.agents().addAll(pendingAgents);
 
         // update all agents specified by uuids
-        Agents agents = preprocessedConfig.agents().filter(uuids);
+        Agents agents = modifiedConfig.agents().filter(uuids);
         for (AgentConfig agentConfig : agents) {
             if (state.isFalse()) {
                 agentConfig.disable();
@@ -114,14 +114,14 @@ public class AgentsEntityConfigUpdateCommand implements EntityConfigUpdateComman
             }
 
             for (String environment : environmentsToAdd) {
-                EnvironmentConfig environmentConfig = preprocessedConfig.getEnvironments().find(new CaseInsensitiveString(environment));
+                EnvironmentConfig environmentConfig = modifiedConfig.getEnvironments().find(new CaseInsensitiveString(environment));
                 if (environmentConfig != null) {
                     environmentConfig.addAgentIfNew(agentConfig.getUuid());
                 }
             }
 
             for (String environment : environmentsToRemove) {
-                EnvironmentConfig environmentConfig = preprocessedConfig.getEnvironments().find(new CaseInsensitiveString(environment));
+                EnvironmentConfig environmentConfig = modifiedConfig.getEnvironments().find(new CaseInsensitiveString(environment));
                 if (environmentConfig != null) {
                     environmentConfig.removeAgent(agentConfig.getUuid());
                 }
@@ -129,7 +129,7 @@ public class AgentsEntityConfigUpdateCommand implements EntityConfigUpdateComman
         }
     }
 
-    private void validateAgentUUIDs() throws NoSuchAgentException {
+    private void validatePresenceOfAgentUuidsInConfig() throws NoSuchAgentException {
         List<String> unknownUUIDs = new ArrayList<>();
 
         for (String uuid : uuids) {
@@ -143,7 +143,7 @@ public class AgentsEntityConfigUpdateCommand implements EntityConfigUpdateComman
         }
     }
 
-    private void validateEnvironmentNames(Set<CaseInsensitiveString> allEnvironmentNames, List<String> environmentsToOperate) throws NoSuchEnvironmentException {
+    private void validatePresenceOfEnvironments(Set<CaseInsensitiveString> allEnvironmentNames, List<String> environmentsToOperate) throws NoSuchEnvironmentException {
         for (String environment : environmentsToOperate) {
             CaseInsensitiveString environmentName = new CaseInsensitiveString(environment);
             if (!allEnvironmentNames.contains(environmentName)) {

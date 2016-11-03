@@ -57,12 +57,12 @@ public class AgentsEntityConfigUpdateCommandTest {
     private BasicCruiseConfig cruiseConfig;
     private GoConfigService goConfigService;
     private AgentInstances agentInstances;
-    List<String> uuids;
-    List<String> environmentsToAdd;
-    List<String> environmentsToRemove;
-    List<String> resourcesToAdd;
-    List<String> resourcesToRemove;
-    TriState triState;
+    private List<String> uuids;
+    private List<String> environmentsToAdd;
+    private List<String> environmentsToRemove;
+    private List<String> resourcesToAdd;
+    private List<String> resourcesToRemove;
+    private TriState triState;
 
     @Before
     public void setUp() throws Exception {

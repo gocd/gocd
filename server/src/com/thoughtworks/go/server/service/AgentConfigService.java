@@ -45,8 +45,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
@@ -243,13 +245,11 @@ public class AgentConfigService {
             }
         } catch (Exception e) {
             LOGGER.error("There was an error bulk updating agents", e);
-            if(e instanceof GoConfigInvalidException) {
+            if(e instanceof GoConfigInvalidException && !result.hasMessage()) {
                 result.unprocessableEntity(LocalizedMessage.string("ENTITY_CONFIG_VALIDATION_FAILED", Agents.class.getAnnotation(ConfigTag.class).value(), uuids, e.getMessage()));
             }
-            else {
-                if (!result.hasMessage()) {
-                    result.internalServerError(LocalizedMessage.string("INTERNAL_SERVER_ERROR"));
-                }
+            else if(!result.hasMessage()) {
+                result.internalServerError(LocalizedMessage.string("INTERNAL_SERVER_ERROR"));
             }
         }
     }

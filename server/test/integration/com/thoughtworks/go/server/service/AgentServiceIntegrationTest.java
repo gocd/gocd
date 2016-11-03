@@ -918,10 +918,7 @@ public class AgentServiceIntegrationTest {
 
         assertThat(operationResult.httpCode(), is(406));
         assertThat(operationResult.message(), is("Failed to delete 2 agent(s), as agent(s) might not be disabled or are still building."));
-
         assertThat(agentService.agents().size(), is(2));
-        assertThat(agentService.agents().get(0).getUuid(), is(UUID));
-        assertThat(agentService.agents().get(1).getUuid(), is(UUID2));
     }
 
     @Test
@@ -1144,8 +1141,6 @@ public class AgentServiceIntegrationTest {
         assertThat(operationResult.message(), is("Failed to delete 2 agent(s), as agent(s) might not be disabled or are still building."));
 
         assertThat(agentService.agents().size(), is(2));
-        assertThat(agentService.agents().get(0).getUuid(), is(UUID));
-        assertThat(agentService.agents().get(1).getUuid(), is(UUID2));
     }
 
     private void createEnvironment(String... environmentNames) throws Exception {

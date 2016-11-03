@@ -795,6 +795,7 @@
     <entry key="PIPELINE_GROUP_MANDATORY_FOR_PIPELINE_CREATE">Pipeline group must be specified for creating a pipeline.</entry>
     <entry key="UNAUTHORIZED_TO_OPERATE">You are not authorized to perform this operation.</entry>
     <entry key="BULK_AGENT_UPDATE_SUCESSFUL">Updated agent(s) with uuid(s): [{0}].</entry>
+    <entry key="BULK_AGENT_UPDATE_FAILED">Validations failed for bulk update of agents. Error(s): {0}</entry>
     <entry key="CAN_NOT_UPDATE_RESOURCES_ON_ELASTIC_AGENT">Resources on elastic agents with uuids [{0}] can not be updated.</entry>
     <entry key="PENDING_AGENT_INVALID_OPERATION">Pending agents [{0}] must be explicitly enabled or disabled when performing any operations on them</entry>
     <entry key="NO_OPERATION_PERFORMED_ON_AGENTS">No Operation performed on agents.</entry>

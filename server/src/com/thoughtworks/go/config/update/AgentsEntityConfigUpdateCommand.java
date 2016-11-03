@@ -226,7 +226,11 @@ public class AgentsEntityConfigUpdateCommand implements EntityConfigUpdateComman
     public boolean isValid(CruiseConfig preprocessedConfig) {
         agents = preprocessedConfig.agents();
         AgentConfigsUpdateValidator validator = new AgentConfigsUpdateValidator(uuids);
-        return validator.isValid(preprocessedConfig);
+        boolean isValid = validator.isValid(preprocessedConfig);
+        if (!isValid) {
+           result.unprocessableEntity(LocalizedMessage.string("BULK_AGENT_UPDATE_FAILED", agents.getAllErrors()));
+        }
+        return isValid;
     }
 
     @Override

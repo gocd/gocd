@@ -21,8 +21,14 @@ import com.thoughtworks.go.websocket.Action;
 import com.thoughtworks.go.websocket.Message;
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.api.extensions.OutgoingFrames;
+import org.eclipse.jetty.websocket.common.LogicalConnection;
+import org.eclipse.jetty.websocket.common.WebSocketRemoteEndpoint;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.nio.ByteBuffer;
+import java.util.concurrent.Future;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -37,14 +43,19 @@ public class WebSocketSessionHandlerTest {
     public void setUp() throws Exception {
         handler = new WebSocketSessionHandler(new SystemEnvironment());
         session = mock(Session.class);
-        RemoteEndpoint remoteEndpoint = mock(RemoteEndpoint.class);
-        when(session.getRemote()).thenReturn(remoteEndpoint);
         handler.setSession(session);
     }
 
     @Test
     public void shouldWaitForAcknowledgementWhileSendingMessages() throws Exception {
         final Message message = new Message(Action.reportCurrentStatus);
+
+        when(session.getRemote()).thenReturn(new FakeWebSocketEndpoint(new Runnable() {
+            @Override
+            public void run() {
+                handler.acknowledge(new Message(Action.acknowledge, message.getAcknowledgementId()));
+            }
+        }));
 
         Thread sendThread = new Thread(new Runnable() {
             @Override
@@ -54,8 +65,6 @@ public class WebSocketSessionHandlerTest {
         });
         sendThread.start();
         assertThat(sendThread.isAlive(), is(true));
-
-        handler.acknowledge(new Message(Action.acknowledge, message.getAcknowledgementId()));
 
         sendThread.join();
         assertThat(sendThread.isAlive(), is(false));
@@ -87,5 +96,20 @@ public class WebSocketSessionHandlerTest {
         handler.stop();
         verify(session).close();
         assertThat(handler.isNotRunning(), is(true));
+    }
+
+    class FakeWebSocketEndpoint extends WebSocketRemoteEndpoint {
+        private Runnable runnable;
+
+        public FakeWebSocketEndpoint(Runnable runnable) {
+            super(mock(LogicalConnection.class), mock(OutgoingFrames.class));
+            this.runnable = runnable;
+        }
+
+        @Override
+        public Future<Void> sendBytesByFuture(ByteBuffer data) {
+            runnable.run();
+            return null;
+        }
     }
 }

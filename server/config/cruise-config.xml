@@ -1,15 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="87">
   <server artifactsdir="logs" agentAutoRegisterKey="041b5c7e-dab2-11e5-a908-13f95f3c6ef6" commandRepositoryLocation="default" serverId="dev-id">
-    <security>
-      <passwordFile path="../manual-testing/ant_hg/password.properties" />
-      <roles>
-        <role name="xyz" />
-      </roles>
-      <admins>
-        <user>admin</user>
-      </admins>
-    </security>
+    <elastic jobStarvationTimeout="1">
+      <profiles>
+        <profile id="docker-gocd-dev-build" pluginId="cd.go.contrib.elastic-agent.docker-swarm">
+          <property>
+            <key>Image</key>
+            <value>gocdcontrib/gocd-dev-build:v1.0.0</value>
+          </property>
+          <property>
+            <key>ReservedMemory</key>
+            <value>3GB</value>
+          </property>
+          <property>
+            <key>MaxMemory</key>
+            <value>3GB</value>
+          </property>
+        </profile>
+        <profile id="docker-gocd-OOM-tests" pluginId="cd.go.contrib.elastic-agent.docker-swarm">
+          <property>
+            <key>Image</key>
+            <value>gocdcontrib/gocd-dev-build:v1.0.0</value>
+          </property>
+          <property>
+            <key>ReservedMemory</key>
+            <value>4GB</value>
+          </property>
+          <property>
+            <key>MaxMemory</key>
+            <value>4GB</value>
+          </property>
+        </profile>
+      </profiles>
+    </elastic>
   </server>
   <pipelines group="first">
     <authorization>

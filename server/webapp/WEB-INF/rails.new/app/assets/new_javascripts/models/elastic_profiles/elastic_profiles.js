@@ -25,41 +25,52 @@ define([
       collection: data,
       uniqueOn:   'id'
     });
-
   };
 
   ElasticProfiles.Profile = function (data) {
     this.id         = m.prop(data.id);
     this.pluginId   = m.prop(data.pluginId);
-    this.properties = s.collectionToJSON(m.prop(data.
-      properties));
+    this.properties = s.collectionToJSON(m.prop(data.properties));
 
     this.parent = Mixins.GetterSetter();
 
     this.update = function () {
       return m.request({
-        method: "PUT",
-        url: Routes.apiv1ElasticProfilePath(this.id()),
-        data: JSON.parse(JSON.stringify(this, s.snakeCaser)),
-        config:        function (xhr) {
-          mrequest.xhrConfig.v1(xhr);
-        },
-        unwrapSuccess: function(){
-          console.log("yay");
-        }
+        method: 'PUT',
+        url:    Routes.apiv1ElasticProfilePath(this.id()),
+        config: mrequest.xhrConfig.v1,
+        data:   JSON.parse(JSON.stringify(this, s.snakeCaser)),
       });
     };
-    this.delete = function(){
+
+    this.delete = function () {
       return m.request({
         method: "DELETE",
-        url: Routes.apiv1ElasticProfilePath(this.id()),
-        config:        function (xhr) {
-          mrequest.xhrConfig.v1(xhr);
-        }
+        url:    Routes.apiv1ElasticProfilePath(this.id()),
+        config: mrequest.xhrConfig.v1,
       });
-    }
+    };
+
+    this.create = function () {
+      return m.request({
+        method: 'POST',
+        url:    Routes.apiv1ElasticProfilesPath(),
+        config: mrequest.xhrConfig.v1,
+        data:   JSON.parse(JSON.stringify(this, s.snakeCaser)),
+      });
+    };
   };
 
+  ElasticProfiles.Profile.find   = function (id) {
+    return m.request({
+      method:        'GET',
+      url:           Routes.apiv1ElasticProfilePath(id),
+      config:        mrequest.xhrConfig.v1,
+      unwrapSuccess: function (data) {
+        return ElasticProfiles.Profile.fromJSON(data);
+      }
+    });
+  };
   ElasticProfiles.Profile.create = function (data) {
     return new ElasticProfiles.Profile(data);
   };
@@ -76,9 +87,7 @@ define([
     return m.request({
       method:        "GET",
       url:           Routes.apiv1ElasticProfilesPath(),
-      config:        function (xhr) {
-        mrequest.xhrConfig.v1(xhr);
-      },
+      config:        mrequest.xhrConfig.v1,
       unwrapSuccess: function (data) {
         return ElasticProfiles.fromJSON(data['_embedded']['profiles']);
       }

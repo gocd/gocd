@@ -17,49 +17,28 @@
 define([
   'mithril', 'lodash', 'string-plus',
   'models/model_mixins',
-  'models/elastic_profiles/elastic_profiles'
-], function (m, _, s, Mixin, ElasticProfiles) {
+  'models/elastic_profiles/elastic_profiles',
+  'js-routes'
+], function (m, _, s, Mixin, ElasticProfiles, Routes) {
   describe('Elastic Agent Profile', function () {
 
-    function ajaxCall(data) {
-      jasmine.Ajax.stubRequest(/\/api\/elastic\/profiles/).andReturn({
-        "responseText": JSON.stringify({
-          "_embedded": {
-            "profiles": data
-          }
-        }),
-        "status":       200
-      });
-    }
-
-
-    beforeAll(function () {
-      jasmine.Ajax.install();
-      ajaxCall([json]);
-    });
-
-    afterAll(function () {
-      jasmine.Ajax.uninstall();
-    });
-
-    var json = {
-      "id": "unit-tests",
-      "plugin_id": "cd.go.contrib.elastic-agent.docker",
+    var agentJSON = {
+      "id":         "unit-tests",
+      "plugin_id":  "cd.go.contrib.elastic-agent.docker",
       "properties": [
         {
-          "key": "Image",
+          "key":   "Image",
           "value": "gocdcontrib/gocd-dev-build"
         },
         {
-          "key": "Environment",
+          "key":   "Environment",
           "value": "JAVA_HOME=/opt/java\nMAKE_OPTS=-j8"
         }
       ]
     };
 
     it('should deserialize a profile from JSON', function () {
-
-      var profile = ElasticProfiles.Profile.fromJSON(json);
+      var profile = ElasticProfiles.Profile.fromJSON(agentJSON);
       expect(profile.id()).toBe("unit-tests");
       expect(profile.pluginId()).toBe("cd.go.contrib.elastic-agent.docker");
       expect(profile.properties().collectConfigurationProperty('key')).toEqual(['Image', 'Environment']);
@@ -67,21 +46,87 @@ define([
     });
 
     it('should serialize a profile to JSON', function () {
-      var profile = ElasticProfiles.Profile.fromJSON(json);
-      expect(JSON.parse(JSON.stringify(profile, s.snakeCaser))).toEqual(json);
+      var profile = ElasticProfiles.Profile.fromJSON(agentJSON);
+      expect(JSON.parse(JSON.stringify(profile, s.snakeCaser))).toEqual(agentJSON);
     });
 
-    it('should get all elastic profiles', function(){
-      var profiles = ElasticProfiles.all();
-      expect(profiles().countProfile()).toBe(1);
-      expect(profiles().firstProfile().id()).toBe("unit-tests");
-      expect(profiles().firstProfile().pluginId()).toBe("cd.go.contrib.elastic-agent.docker");
+    it('should get all elastic profiles', function () {
+      jasmine.Ajax.withMock(function () {
+
+        jasmine.Ajax.stubRequest('/go/api/elastic/profiles').andReturn({
+          "responseText": JSON.stringify({
+            "_embedded": {
+              "profiles": [agentJSON]
+            }
+          }),
+          "status":       200
+        });
+
+        var profiles = ElasticProfiles.all();
+        expect(profiles().countProfile()).toBe(1);
+        expect(profiles().firstProfile().id()).toBe("unit-tests");
+        expect(profiles().firstProfile().pluginId()).toBe("cd.go.contrib.elastic-agent.docker");
+      });
     });
 
     it('should update a profile', function () {
-      var profile = ElasticProfiles.Profile.fromJSON(json);
-      profile.update();
+      var profile = ElasticProfiles.Profile.fromJSON(agentJSON);
 
+      jasmine.Ajax.withMock(function () {
+        profile.update();
+
+        expect(jasmine.Ajax.requests.count()).toBe(1);
+
+        var request = jasmine.Ajax.requests.mostRecent();
+
+        expect(request.method).toBe('PUT');
+        expect(request.url).toBe('/go/api/elastic/profiles/' + profile.id());
+        expect(request.requestHeaders['Content-Type']).toContain('application/json');
+        expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
+        expect(JSON.parse(request.params)).toEqual(agentJSON);
+      });
+    });
+
+    it('should create a profile', function () {
+      var profile = ElasticProfiles.Profile.fromJSON(agentJSON);
+
+      jasmine.Ajax.withMock(function () {
+        profile.create();
+
+        expect(jasmine.Ajax.requests.count()).toBe(1);
+
+        var request = jasmine.Ajax.requests.mostRecent();
+
+        expect(request.method).toBe('POST');
+        expect(request.url).toBe('/go/api/elastic/profiles');
+        expect(request.requestHeaders['Content-Type']).toContain('application/json');
+        expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
+        expect(JSON.parse(request.params)).toEqual(agentJSON);
+      });
+    });
+
+    it('should find a profile', function () {
+      jasmine.Ajax.withMock(function () {
+        jasmine.Ajax.stubRequest('/go/api/elastic/profiles/' + agentJSON['id']).andReturn({
+          "responseText": JSON.stringify(agentJSON),
+          "status":       200
+        });
+
+        var profile = ElasticProfiles.Profile.find(agentJSON['id'])();
+        
+        expect(profile.id()).toBe("unit-tests");
+        expect(profile.pluginId()).toBe("cd.go.contrib.elastic-agent.docker");
+        expect(profile.properties().collectConfigurationProperty('key')).toEqual(['Image', 'Environment']);
+        expect(profile.properties().collectConfigurationProperty('value')).toEqual(['gocdcontrib/gocd-dev-build', 'JAVA_HOME=/opt/java\nMAKE_OPTS=-j8']);
+
+        expect(jasmine.Ajax.requests.count()).toBe(1);
+
+        var request = jasmine.Ajax.requests.mostRecent();
+
+        expect(request.method).toBe('GET');
+        expect(request.url).toBe('/go/api/elastic/profiles/' + profile.id());
+        expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
+      });
     });
   });
 });

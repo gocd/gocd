@@ -12,10 +12,11 @@
         require_config = YAML.load(File.read(Rails.root.join("config/requirejs.yml")))
         require_config['baseUrl'] = 'assets'
         require_config['paths'].merge!(
-          'jasmine'       =>      'jasmine',
-          'jasmine-html'  => 'jasmine-html',
-          'jasmine-boot'  => 'boot',
-          'jasmine-mock-ajax' => 'helpers/mock-ajax'
+          'jasmine'             => 'jasmine',
+          'jasmine-html'        => 'jasmine-html',
+          'jasmine-boot'        => 'boot',
+          'jasmine-mock-ajax'   => 'helpers/mock-ajax',
+          'jasmine-spec-helper' => 'helpers/spec_helper'
         )
         require_config['shim'].merge!({
           'jasmine-html'=>   {
@@ -47,7 +48,7 @@
 
   <!--If you make any edits here, make the same edits in `run.html.erb' -->
   <script>
-    require(['jasmine-boot', 'jasmine-jquery', 'jasmine-mock-ajax', 'foundation.util.mediaQuery'], function () {
+    require(['jasmine-boot', 'jasmine-jquery', 'jasmine-mock-ajax', 'jasmine-spec-helper', 'foundation.util.mediaQuery'], function () {
       require(<%= raw Dir[Rails.root.join("spec/new_javascripts/**/*_spec.js")].collect {|f| f.gsub(Rails.root.join("spec/new_javascripts/").to_s, "assets/") } %>, function () {
         window.onload();
       });

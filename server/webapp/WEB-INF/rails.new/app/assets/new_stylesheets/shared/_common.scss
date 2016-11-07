@@ -20,7 +20,7 @@ $app-header-top-line: 11;
 $main-navigation: 10;
 $app-header-z-index: 12;
 $agents-filters: 2;
-$agent-header-panel-z-index: 3;
+$header-panel-z-index: 3;
 $build-details-dropdown-arrow-z-index: 1;
 
 body {
@@ -32,14 +32,13 @@ body {
 }
 
 .container {
-  overflow:      hidden;
-  background:    #fff;
-  padding:       0;
-  margin:        0 10px;
+  overflow:   hidden;
+  background: #fff;
+  padding:    0;
+  margin:     0 10px;
 }
 
 @media only screen and (min-width: 1600px) {
-
   .row.expanded {
     max-width: 1400px;
   }
@@ -88,6 +87,33 @@ html, body {
   height: $app-footer-height;
 }
 
+.header-panel {
+  position:  fixed;
+  top:       50px;
+  transform: translateX(-50%);
+  left:      50%;
+  width:     100%;
+  z-index:   $header-panel-z-index;
+  .message {
+    background-color: #333;
+  }
+}
+
+.page-header {
+  background:      image-url('bg_agents_page_header.jpg') no-repeat 0 0;
+  background-size: cover;
+  padding:         10px 0;
+  position:        relative;
+  h1 {
+    font-size:      20px;
+    margin:         0;
+    color:          #fff;
+    text-transform: uppercase;
+    display:        inline-block;
+    font-weight:    600;
+  }
+}
+
 .page-spinner {
   position:      absolute;
   top:           50%;
@@ -99,4 +125,101 @@ html, body {
   height:        100px;
   margin:        -50px 0 0 -50px;
   animation:     spin 2s linear infinite;
+}
+
+.header-panel-button-group {
+  margin-bottom: 0;
+  float:         right;
+  > li {
+    margin-left: 1px;
+    display:     inline-block;
+    position:    relative;
+    z-index:     $agents-filters;
+    .button {
+      background-color: $go-secondary;
+      color:            #333;
+      border:           0;
+      border-radius: 0;
+
+      font-size:        rem-calc(13px);
+      font-weight:      600;
+      margin:           0;
+      border-radius:    0;
+      padding:          0 7px;
+      line-height:      30px;
+      &:hover,
+      &:focus {
+        background-color: lighten($go-secondary, 20%);
+        outline:          0;
+      }
+      &.btn-apply {
+        font-size:        14px;
+        padding:          7px 20px;
+        border-radius:    $global-border-radius;
+        margin-right:     1px;
+        color:            $go-white;
+        height:           auto;
+        line-height:      normal;
+        background-color: $go-primary;
+        &:hover,
+        &:focus {
+          background-color: lighten($go-primary, 2%);
+          outline:          0;
+          color:            $go-white;
+        }
+      }
+    }
+
+    &:first-child {
+      margin-left: 0;
+      > .button {
+        border-top-left-radius: $global-border-radius;
+        border-bottom-left-radius: $global-border-radius;
+      }
+    }
+    &:last-child {
+      > .button {
+        border-top-right-radius: $global-border-radius;
+        border-bottom-right-radius: $global-border-radius;
+      }
+    }
+
+    > .button:not(:last-child) {
+      border-right: 0;
+    }
+
+    &.is-open {
+      > .button {
+        background-color:           lighten($go-secondary, 20%);
+        border-bottom-right-radius: 0;
+        &:before {
+          content:      "";
+          position:     absolute;
+          z-index:      1;
+          bottom:       -9px;
+          left:         50%;
+          transform:    translateX(-50%);
+          width:        0;
+          height:       0;
+          border-style: solid;
+          border-width: 10px 10px 0 10px;
+          border-color: lighten($go-secondary, 20%) transparent transparent transparent;
+        }
+      }
+    }
+  }
+  > li {
+    .button.disabled,
+    .button[disabled] {
+      opacity:          1;
+      cursor:           not-allowed;
+      background-color: #c7c7c7;
+      color:            #a9a9a9;
+      transition:       all 0.3s ease-in-out;
+      &:hover {
+        background-color: #c7c7c7;
+        color:            #a9a9a9;
+      }
+    }
+  }
 }

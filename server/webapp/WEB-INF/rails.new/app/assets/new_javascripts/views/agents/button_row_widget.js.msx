@@ -56,34 +56,30 @@ define(['mithril', 'lodash',
             </f.column>
 
             <f.column size={7}>
-              <ul class="button-group agent-button-group">
+              <ul class="button-group header-panel-button-group">
                 <li>
-                  <f.button class="button"
-                            onclick={args.onDelete}
+                  <f.button onclick={args.onDelete}
                             disabled={!args.isAnyAgentSelected()}>
                     Delete
                   </f.button>
                 </li>
 
                 <li>
-                  <f.button class="button"
-                            onclick={args.onDisable}
+                  <f.button onclick={args.onDisable}
                             disabled={!args.isAnyAgentSelected()}>
                     Disable
                   </f.button>
                 </li>
 
                 <li>
-                  <f.button class="button"
-                            onclick={args.onEnable}
+                  <f.button onclick={args.onEnable}
                             disabled={!args.isAnyAgentSelected()}>
                     Enable
                   </f.button>
                 </li>
 
                 <li class={ ctrl.dropdownClass('resource') }>
-                  <f.button class="button"
-                            onclick={ctrl.resourcesButtonClicked}
+                  <f.button onclick={ctrl.resourcesButtonClicked}
                             disabled={!args.isAnyAgentSelected()}>
                     Resources
                   </f.button>
@@ -95,8 +91,7 @@ define(['mithril', 'lodash',
                 </li>
 
                 <li class={ctrl.dropdownClass('environment')}>
-                  <f.button class="button"
-                            onclick={ctrl.environmentsButtonClicked}
+                  <f.button onclick={ctrl.environmentsButtonClicked}
                             disabled={!args.isAnyAgentSelected()}>
                     Environments
                   </f.button>

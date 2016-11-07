@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 @import 'shared/mixins';
 @import 'shared/autocomplete';
 @import 'shared/common';
@@ -22,5 +21,8 @@
 @import 'shared/alert';
 
 .profiles {
+  margin-top:       100px;
   background-color: $accordion-bg;
+  overflow:         auto;
+
 }

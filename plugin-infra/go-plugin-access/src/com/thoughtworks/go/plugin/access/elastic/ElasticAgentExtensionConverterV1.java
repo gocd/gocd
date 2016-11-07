@@ -18,11 +18,12 @@ package com.thoughtworks.go.plugin.access.elastic;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
+import com.thoughtworks.go.plugin.api.config.Configuration;
+import com.thoughtworks.go.plugin.api.config.Property;
+import org.apache.commons.lang.StringUtils;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 
 public class ElasticAgentExtensionConverterV1 implements ElasticAgentMessageConverter {
 
@@ -72,6 +73,45 @@ public class ElasticAgentExtensionConverterV1 implements ElasticAgentMessageConv
         }.getType();
         Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
         return gson.fromJson(requestBody, AGENT_METADATA_LIST_TYPE);
+    }
+
+    @Override
+    public Configuration getProfileMetadataResponseFromBody(String responseBody) {
+        List<Map<String, Object>> list = new Gson().fromJson(responseBody, List.class);
+
+        Configuration configuration = new Configuration();
+        for (Map<String, Object> map : list) {
+            String key = (String) map.get("key");
+            Property property = new Property(key);
+
+            Map<String, Boolean> metadata = (Map<String, Boolean>) map.get("metadata");
+            if (metadata == null) {
+                metadata = new HashMap<>();
+            }
+            if (metadata.containsKey("required") && metadata.get("required")) {
+                property.with(Property.REQUIRED, true);
+            } else {
+                property.with(Property.REQUIRED, false);
+            }
+
+            if (metadata.containsKey("secure") && metadata.get("secure")) {
+                property.with(Property.SECURE, true);
+            } else {
+                property.with(Property.SECURE, false);
+            }
+            configuration.add(property);
+        }
+
+        return configuration;
+    }
+
+    @Override
+    public String getProfileViewResponseFromBody(String responseBody) {
+        String template = (String) new Gson().fromJson(responseBody, Map.class).get("template");
+        if (StringUtils.isBlank(template)) {
+            throw new RuntimeException("Template was blank!");
+        }
+        return template;
     }
 
     @Override

@@ -16,10 +16,10 @@
 
 package com.thoughtworks.go.server.service.plugins.builder;
 
-import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfiguration;
 import com.thoughtworks.go.plugin.access.elastic.Constants;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginRegistry;
+import com.thoughtworks.go.plugin.api.config.Configuration;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.infra.PluginManager;
@@ -27,6 +27,8 @@ import com.thoughtworks.go.server.ui.plugins.PluggableInstanceSettings;
 import com.thoughtworks.go.server.ui.plugins.PluginConfiguration;
 import com.thoughtworks.go.server.ui.plugins.PluginInfo;
 import com.thoughtworks.go.server.ui.plugins.PluginView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 
 class ElasticAgentViewViewModelBuilder implements ViewModelBuilder {
+    private static final Logger LOG = LoggerFactory.getLogger(ElasticAgentViewViewModelBuilder.class);
     private final PluginManager pluginManager;
     private final ElasticAgentPluginRegistry registry;
 
@@ -61,18 +64,24 @@ class ElasticAgentViewViewModelBuilder implements ViewModelBuilder {
             return null;
         }
 
-        PluginSettingsConfiguration config = new ElasticAgentExtension(pluginManager).getPluginSettingsConfiguration(pluginId);
+        Configuration config = new ElasticAgentExtension(pluginManager).getProfileMetadata(pluginId);
 
         ArrayList<PluginConfiguration> pluginConfigurations = getPluginConfigurations(config);
 
-        PluginView pluginView = new PluginView(new ElasticAgentExtension(pluginManager).getPluginSettingsView(pluginId));
+        PluginView pluginView = null;
+        try {
+            pluginView = new PluginView(new ElasticAgentExtension(pluginManager).getProfileView(pluginId));
+        } catch (Exception e) {
+            LOG.warn("There was an error loading the profile view for plugin " + pluginId, e);
+        }
+
         PluggableInstanceSettings settings = new PluggableInstanceSettings(pluginConfigurations, pluginView);
         return new PluginInfo(plugin, Constants.EXTENSION_NAME, null, settings);
     }
 
-    private ArrayList<PluginConfiguration> getPluginConfigurations(PluginSettingsConfiguration config) {
+    private ArrayList<PluginConfiguration> getPluginConfigurations(Configuration config) {
         ArrayList<PluginConfiguration> pluginConfigurations = new ArrayList<>();
-        for(Property property: config.list()) {
+        for (Property property : config.list()) {
             Map<String, Object> metaData = new HashMap<>();
             metaData.put(REQUIRED_OPTION, property.getOption(Property.REQUIRED));
             metaData.put(SECURE_OPTION, property.getOption(Property.SECURE));

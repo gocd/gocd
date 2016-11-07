@@ -18,12 +18,16 @@ require([
   'jquery', 'mithril',
   'js-routes',
   'views/elastic_profiles/elastic_profiles_widget',
+  'models/pipeline_configs/plugin_infos',
   'foundation.util.mediaQuery', 'foundation.dropdownMenu', 'foundation.responsiveToggle', 'foundation.dropdown'
 ], function ($, m, JsRoutes,
-             ElasticProfilesWidget) {
+             ElasticProfilesWidget, PluginInfos) {
 
   $(function () {
     $(document).foundation();
-    m.mount($("#elastic-profiles").get(0), ElasticProfilesWidget);
+
+    m.sync([PluginInfos.init('elastic-agent')]).then(function () {
+      m.mount($("#elastic-profiles").get(0), ElasticProfilesWidget);
+    });
   });
 });

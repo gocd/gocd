@@ -15,16 +15,47 @@
  */
 
 define([
-  'mithril', 'lodash', 'helpers/form_helper', 'views/shared/modal', 'helpers/mithril_component_mixins', 'models/elastic_profiles/elastic_profiles'
-], function (m, _, f, Modal, ComponentMixins, ElasticProfiles) {
+  'mithril', 'lodash', 'jquery', 'helpers/form_helper', 'views/shared/modal', 'helpers/mithril_component_mixins',
+  'models/elastic_profiles/elastic_profiles',
+  'models/pipeline_configs/plugin_infos',
+  'jquery.textcomplete'
+], function (m, _, $, f, Modal, ComponentMixins, ElasticProfiles, PluginInfos) {
+
+  var autoComplete = function (model, attrName) {
+    return function (elem, isInitialized) {
+      if (!isInitialized) {
+        var $inputElem = $($(elem).find("input[data-prop-name='" + attrName + "']"));
+        var values     = _.map(PluginInfos(), function (pi) {
+          return pi.id();
+        });
+
+        $inputElem.textcomplete([
+          {
+            words:   values, //the list of auto-completes
+            match:   /(^|,)\s*([^,]+)$/,
+            index:   2, // use the second match in the regex to extract the search term
+            search:  function (term, callback) {
+              term = term.toLowerCase();
+              callback($.map(this.words, function (word) {
+                return word.toLowerCase().indexOf(term) >= 0 ? word : null;
+              }));
+            },
+            replace: function (word) {
+              return '$1' + word;
+            }
+          }
+        ], {
+          zIndex: '10000'
+        });
+
+        $inputElem.on('textComplete:select', function () {
+          model[attrName]($inputElem.val());
+        });
+      }
+    };
+  };
 
   var ElasticProfileEditModal = {
-    controller: function () {
-      this.update = function (profile) {
-        profile.update();
-      };
-    },
-
     view: function (ctrl, args) {
       var profile = args.profile;
 
@@ -35,23 +66,16 @@ define([
       return (
         <div>
           <f.row>
-            <f.inputWithLabel
-              model={profile}
-              isRequired="true"
-              attrName="id"
-              labelText="Id"
-              size="3"
-              largeSize="3"
-            />
-            <f.inputWithLabel
-              model={profile}
-              isRequired="true"
-              attrName="pluginId"
-              labelText="Plugin Id"
-              size="3"
-              largeSize="3"
-              end="true"
-            />
+            <f.inputWithLabel model={profile}
+                              attrName="id"
+                              isRequired="true"
+                              label="Id"/>
+            <f.inputWithLabel model={profile}
+                              attrName="pluginId"
+                              isRequired="true"
+                              label="Plugin Id"
+                              config={autoComplete(profile, 'pluginId')}
+                              end="true"/>
           </f.row>
 
           <h4>Properties</h4>
@@ -66,7 +90,7 @@ define([
           })}
 
           <f.row>
-            <f.button onclick={ctrl.update.bind(ctrl, profile)}>Update</f.button>
+            <f.button onclick={args.onUpdate}>Update</f.button>
           </f.row>
         </div>
       );
@@ -74,73 +98,109 @@ define([
   };
 
   var ElasticProfileWidget = {
-    controller: function (args) {
-      this.modal = new Modal({
-        subView: {
-          component: ElasticProfileEditModal,
-          args:      {}
-        },
-        title:   'Edit profile ' + args.profile.id(),
-      });
-
-      this.modal.onClose(function () {
-        console.log('closed', arguments);
-      });
-
-      this.edit = function (profile) {
-        var modal = this.modal;
-        modal.open();
-        m.redraw(true);
-        ElasticProfiles.Profile.get(profile.id()).then(function (profile) {
-          modal.subView.args.profile = profile;
-        });
-      };
-
-      this.delete = function (profile) {
-        profile.delete();
-      };
-
-    },
-
     view: function (ctrl, args) {
       var profile = args.profile;
       return (
-        <f.column size="12">
-          <f.row>
-            <div><span>ID: </span>{profile.id()}</div>
-            <div><span>Plugin ID: </span>{profile.pluginId()}</div>
-            <div>
-              <f.link onclick={ctrl.edit.bind(ctrl, profile)}>Edit</f.link>
-              <f.link onclick={ctrl.delete.bind(ctrl, profile)}>Delete</f.link>
-            </div>
-            {ctrl.modal.view()}
-          </f.row>
-        </f.column>
+        <f.row>
+          <f.column size="1">
+            <div class="plugin-icon"></div>
+          </f.column>
+          <f.column size="11" end="true">
+            <f.row>
+              <div><span>ID: </span>{profile.id()}</div>
+              <div><span>Plugin ID: </span>{profile.pluginId()}</div>
+              <div>
+                <f.link onclick={args.onEdit}>Edit</f.link>
+                <f.link onclick={args.onDelete}>Delete</f.link>
+              </div>
+            </f.row>
+          </f.column>
+        </f.row>
       );
     }
   };
 
   var ElasticProfilesWidget = {
     controller: function () {
-      this.profiles = ElasticProfiles.all();
+      var ctrl = this;
       ComponentMixins.ManagesCollection.call(this, {as: 'Profile'});
-      window.profiles = this.profiles;
+
+      this.editModal = new Modal({
+        subView: {
+          component: ElasticProfileEditModal,
+          args:      {}
+        },
+        size:    'large'
+      });
+
+      this.reloadPage = function () {
+        this.profiles   = ElasticProfiles.all();
+        window.profiles = this.profiles;
+      };
+
+      this.reloadPage();
+
+      this.edit = function (profile) {
+        this.editModal.title = 'Editing Profile ' + profile.id();
+        this.editModal.open();
+        ElasticProfiles.Profile.get(profile.id()).then(function (newProfile) {
+          ctrl.editModal.subView.args.profile  = newProfile;
+          ctrl.editModal.subView.args.onUpdate = function () {
+            newProfile.update()
+              .then(ctrl.editModal.close.bind(ctrl.editModal))
+              .then(ctrl.reloadPage.bind(ctrl));
+          };
+        });
+      };
+
+      this.delete = function (profile) {
+        profile.delete().then(this.reloadPage.bind(this));
+      };
+
+      this.add = function () {
+        this.editModal.title                = 'Create new profile';
+        ctrl.editModal.subView.args.profile = new ElasticProfiles.Profile({id: null, pluginId: null});
+        this.editModal.open();
+      };
+
     },
 
     view: function (ctrl) {
       return (
         <div>
-          <f.row class="page-header">
-            <f.column size="12">
-              <h1>Showing all elastic agent profiles</h1>
-            </f.column>
-          </f.row>
+          <div class="header-panel">
+            <header class="page-header">
+              <f.row>
+                <f.column size={5}>
+                  <h1>Elastic Agent Profiles</h1>
+                </f.column>
 
-          <f.row class="profiles">
+                <f.column size={7}>
+                  <ul class="button-group header-panel-button-group">
+                    <li>
+                      <f.button onclick={ctrl.add.bind(ctrl)}>
+                        Add
+                      </f.button>
+                    </li>
+                  </ul>
+                </f.column>
+              </f.row>
+            </header>
+          </div>
+
+          <div class="profiles">
             {ctrl.profiles().mapProfiles(function (profile) {
-              return (<ElasticProfileWidget profile={profile}/>);
+              return (
+                <ElasticProfileWidget
+                  profile={profile}
+                  onEdit={ctrl.edit.bind(ctrl, profile)}
+                  onDelete={ctrl.delete.bind(ctrl, profile)}
+                />
+              );
             })}
-          </f.row>
+          </div>
+
+          {ctrl.editModal.view()}
         </div>
       );
     }

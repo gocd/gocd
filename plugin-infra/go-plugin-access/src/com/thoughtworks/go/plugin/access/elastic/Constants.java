@@ -31,6 +31,9 @@ public class Constants {
     public static final String REQUEST_SERVER_PING = REQUEST_PREFIX + ".server-ping";
     public static final String REQUEST_SHOULD_ASSIGN_WORK = REQUEST_PREFIX + ".should-assign-work";
 
+    public static final String REQUEST_GET_PROFILE_METADATA = REQUEST_PREFIX + ".get-profile-metadata";
+    public static final String REQUEST_GET_PROFILE_VIEW = REQUEST_PREFIX + ".get-profile-view";
+
     public static final String PROCESS_DISABLE_AGENTS = PROCESSOR_PREFIX + ".disable-agents";
     public static final String PROCESS_DELETE_AGENTS = PROCESSOR_PREFIX + ".delete-agents";
     public static final String REQUEST_SERVER_LIST_AGENTS = PROCESSOR_PREFIX + ".list-agents";

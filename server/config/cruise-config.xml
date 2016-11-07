@@ -17,18 +17,18 @@
             <value>3GB</value>
           </property>
         </profile>
-        <profile id="docker-gocd-OOM-tests" pluginId="cd.go.contrib.elastic-agent.docker-swarm">
+        <profile id="foo" pluginId="cd.go.contrib.elastic-agent.docker-swarm">
           <property>
             <key>Image</key>
             <value>gocdcontrib/gocd-dev-build:v1.0.0</value>
           </property>
           <property>
             <key>ReservedMemory</key>
-            <value>4GB</value>
+            <value>5GB</value>
           </property>
           <property>
             <key>MaxMemory</key>
-            <value>4GB</value>
+            <value>5GB</value>
           </property>
         </profile>
       </profiles>
@@ -58,5 +58,12 @@
       </stage>
     </pipeline>
   </pipelines>
+  <agents>
+    <agent hostname="ketanpkr.local" ipaddress="127.0.0.1" uuid="d9f97827-f41f-46ca-b3d6-6fa3b4d31fea">
+      <resources>
+        <resource>asdfasdf</resource>
+      </resources>
+    </agent>
+  </agents>
 </cruise>
 

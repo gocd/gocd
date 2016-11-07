@@ -61,6 +61,7 @@ import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.domain.user.PipelineSelections;
+import com.thoughtworks.go.server.materials.DependencyMaterialUpdateNotifier;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.persistence.PipelineRepository;
 import com.thoughtworks.go.server.scheduling.TriggerMonitor;
@@ -111,6 +112,7 @@ public class PipelineHistoryServiceIntegrationTest {
     @Autowired private PipelinePauseService pipelinePauseService;
     @Autowired private Localizer localizer;
     @Autowired private FeatureToggleService featureToggleService;
+    @Autowired private DependencyMaterialUpdateNotifier notifier;
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private PipelineWithMultipleStages pipelineOne;
@@ -144,10 +146,12 @@ public class PipelineHistoryServiceIntegrationTest {
 
         pipelineCommentFeatureToggleState = featureToggleService.isToggleOn(Toggles.PIPELINE_COMMENT_FEATURE_TOGGLE_KEY);
         featureToggleService.changeValueOfToggle(Toggles.PIPELINE_COMMENT_FEATURE_TOGGLE_KEY, true);
+        notifier.disableUpdates();
     }
 
     @After
     public void tearDown() throws Exception {
+        notifier.enableUpdates();
         diskIsFull.onTearDown();
         dbHelper.onTearDown();
         pipelineOne.onTearDown();

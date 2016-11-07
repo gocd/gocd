@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.materials;
 
-import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.cronjob.GoDiskSpaceMonitor;
 import com.thoughtworks.go.server.messaging.GoMessageQueue;
 import com.thoughtworks.go.server.messaging.GoMessageTopic;
@@ -36,11 +35,11 @@ public class MaterialUpdateListenerFactory {
     private final MaterialRepository materialRepository;
     private MaterialUpdateQueue queue;
     private ConfigMaterialUpdateQueue configQueue;
+    private DependencyMaterialUpdateQueue dependencyMaterialQueue;
     private SystemEnvironment systemEnvironment;
     private final ServerHealthService serverHealthService;
     private final GoDiskSpaceMonitor diskSpaceMonitor;
     private TransactionTemplate transactionTemplate;
-    private GoCache goCache;
     private final DependencyMaterialUpdater dependencyMaterialUpdater;
     private final ScmMaterialUpdater scmMaterialUpdater;
     private final PackageMaterialUpdater packageMaterialUpdater;
@@ -58,10 +57,13 @@ public class MaterialUpdateListenerFactory {
                                          ServerHealthService serverHealthService,
                                          GoDiskSpaceMonitor diskSpaceMonitor,
                                          TransactionTemplate transactionTemplate,
-                                         GoCache goCache,
                                          DependencyMaterialUpdater dependencyMaterialUpdater,
                                          ScmMaterialUpdater scmMaterialUpdater,
-                                         PackageMaterialUpdater packageMaterialUpdater, PluggableSCMMaterialUpdater pluggableSCMMaterialUpdater, MaterialExpansionService materialExpansionService, MDUPerformanceLogger mduPerformanceLogger) {
+                                         PackageMaterialUpdater packageMaterialUpdater,
+                                         PluggableSCMMaterialUpdater pluggableSCMMaterialUpdater,
+                                         MaterialExpansionService materialExpansionService,
+                                         MDUPerformanceLogger mduPerformanceLogger,
+                                         DependencyMaterialUpdateQueue dependencyMaterialQueue) {
         this.topic = topic;
         this.configTopic = configTopic;
         this.queue = queue;
@@ -71,29 +73,35 @@ public class MaterialUpdateListenerFactory {
         this.serverHealthService = serverHealthService;
         this.diskSpaceMonitor = diskSpaceMonitor;
         this.transactionTemplate = transactionTemplate;
-        this.goCache = goCache;
         this.dependencyMaterialUpdater = dependencyMaterialUpdater;
         this.scmMaterialUpdater = scmMaterialUpdater;
         this.packageMaterialUpdater = packageMaterialUpdater;
         this.pluggableSCMMaterialUpdater = pluggableSCMMaterialUpdater;
         this.materialExpansionService = materialExpansionService;
         this.mduPerformanceLogger = mduPerformanceLogger;
+        this.dependencyMaterialQueue = dependencyMaterialQueue;
     }
 
     public void init(){
         int numberOfStandardMaterialListeners = systemEnvironment.getNumberOfMaterialCheckListener();
         int numberOfConfigListeners = systemEnvironment.getNumberOfConfigMaterialCheckListener();
+        int numberOfDependencyMaterialCheckListeners = systemEnvironment.getNumberOfDependencyMaterialUpdateListeners();
 
         for (int i = 0; i < numberOfStandardMaterialListeners; i++) {
             createWorker(this.queue, this.topic);
         }
+
         for (int i = 0; i < numberOfConfigListeners; i++) {
-            createWorker(this.configQueue,this.configTopic);
+            createWorker(this.configQueue, this.configTopic);
+        }
+
+        for (int i = 0; i < numberOfDependencyMaterialCheckListeners; i++) {
+            createWorker(this.dependencyMaterialQueue, this.topic);
         }
     }
 
     private void createWorker(GoMessageQueue<MaterialUpdateMessage> queue, GoMessageTopic<MaterialUpdateCompletedMessage> topic) {
-        MaterialDatabaseUpdater updater = new MaterialDatabaseUpdater(materialRepository, serverHealthService, transactionTemplate, goCache, dependencyMaterialUpdater, scmMaterialUpdater,
+        MaterialDatabaseUpdater updater = new MaterialDatabaseUpdater(materialRepository, serverHealthService, transactionTemplate, dependencyMaterialUpdater, scmMaterialUpdater,
                 packageMaterialUpdater, pluggableSCMMaterialUpdater, materialExpansionService);
         queue.addListener(new MaterialUpdateListener(topic, updater, mduPerformanceLogger, diskSpaceMonitor));
     }

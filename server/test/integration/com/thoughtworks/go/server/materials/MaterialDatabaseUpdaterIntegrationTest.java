@@ -16,10 +16,6 @@
 
 package com.thoughtworks.go.server.materials;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
@@ -28,7 +24,6 @@ import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.git.GitTestRepo;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
-import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -46,6 +41,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -60,14 +59,11 @@ public class MaterialDatabaseUpdaterIntegrationTest {
     @Autowired protected MaterialRepository materialRepository;
     @Autowired protected ServerHealthService serverHealthService;
     @Autowired private TransactionTemplate transactionTemplate;
-    @Autowired private GoCache goCache;
     @Autowired private DependencyMaterialUpdater dependencyMaterialUpdater;
     @Autowired private PackageMaterialUpdater packageMaterialUpdater;
     @Autowired private PluggableSCMMaterialUpdater pluggableSCMMaterialUpdater;
     @Autowired private MaterialExpansionService materialExpansionService;
-    @Autowired private LegacyMaterialChecker materialChecker;
     @Autowired private SubprocessExecutionContext subprocessExecutionContext;
-    @Autowired private MaterialService materialService;
     @Autowired private GoConfigService goConfigService;
     @Autowired private SecurityService securityService;
     @Autowired private PackageAsRepositoryExtension packageAsRepositoryExtension;
@@ -85,7 +81,7 @@ public class MaterialDatabaseUpdaterIntegrationTest {
         LegacyMaterialChecker materialChecker = new LegacyMaterialChecker(slowMaterialService, subprocessExecutionContext);
         ScmMaterialUpdater scmMaterialUpdater = new ScmMaterialUpdater(materialRepository, materialChecker, subprocessExecutionContext, slowMaterialService);
         transactionTemplateWithInvocationCount = new TransactionTemplateWithInvocationCount(transactionTemplate);
-        updater = new MaterialDatabaseUpdater(materialRepository, serverHealthService, transactionTemplateWithInvocationCount, goCache, dependencyMaterialUpdater,
+        updater = new MaterialDatabaseUpdater(materialRepository, serverHealthService, transactionTemplateWithInvocationCount, dependencyMaterialUpdater,
                 scmMaterialUpdater, packageMaterialUpdater, pluggableSCMMaterialUpdater, materialExpansionService);
     }
 

@@ -27,7 +27,9 @@ import com.thoughtworks.go.plugin.infra.monitor.DefaultPluginJarLocationMonitor;
 import com.thoughtworks.go.server.cronjob.GoDiskSpaceMonitor;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
+import com.thoughtworks.go.server.materials.DependencyMaterialUpdateNotifier;
 import com.thoughtworks.go.server.materials.MaterialUpdateService;
+import com.thoughtworks.go.server.materials.SCMMaterialSource;
 import com.thoughtworks.go.server.persistence.OauthTokenSweeper;
 import com.thoughtworks.go.server.security.GoCasServiceProperties;
 import com.thoughtworks.go.server.security.LdapContextFactory;
@@ -82,6 +84,8 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
     @Autowired private CcTrayActivityListener ccTrayActivityListener;
     @Autowired private ServerVersionInfoManager serverVersionInfoManager;
     @Autowired private EntityHashingService entityHashingService;
+    @Autowired private DependencyMaterialUpdateNotifier dependencyMaterialUpdateNotifier;
+    @Autowired private SCMMaterialSource scmMaterialSource;
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
@@ -138,6 +142,9 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
             // initialize static accessors
             Toggles.initializeWith(featureToggleService);
             serverVersionInfoManager.initialize();
+
+            dependencyMaterialUpdateNotifier.initialize();
+            scmMaterialSource.initialize();
         } catch (Throwable throwable) {
             throw new RuntimeException(throwable);
         }

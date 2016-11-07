@@ -34,6 +34,7 @@ import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
+import com.thoughtworks.go.server.materials.DependencyMaterialUpdateNotifier;
 import com.thoughtworks.go.server.materials.MaterialChecker;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
@@ -88,6 +89,8 @@ public class FaninDependencyResolutionTest {
     private PipelineTimeline pipelineTimeline;
     @Autowired
     private ServerHealthService serverHealthService;
+    @Autowired
+    private DependencyMaterialUpdateNotifier notifier;
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private ScheduleTestUtil u;
@@ -100,10 +103,12 @@ public class FaninDependencyResolutionTest {
 
         dbHelper.onSetUp();
         u = new ScheduleTestUtil(transactionTemplate, materialRepository, dbHelper, configHelper);
+        notifier.disableUpdates();
     }
 
     @After
     public void teardown() throws Exception {
+        notifier.enableUpdates();
         systemEnvironment.reset(RESOLVE_FANIN_MAX_BACK_TRACK_LIMIT);
         dbHelper.onTearDown();
         configHelper.onTearDown();

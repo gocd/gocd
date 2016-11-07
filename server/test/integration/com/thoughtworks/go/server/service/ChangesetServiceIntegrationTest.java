@@ -56,6 +56,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import static com.thoughtworks.go.helper.ModificationsMother.checkinWithComment;
+import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -1077,12 +1078,22 @@ public class ChangesetServiceIntegrationTest {
 
     private void assertMaterialRevisions(List<MaterialRevision> expected, List<MaterialRevision> actual) {
         assertThat(actual.size(), is(expected.size()));
-        for (int i = 0, size = expected.size(); i < size; i++) {
-            MaterialRevision expectedRevision = expected.get(i);
-            MaterialRevision actualRevision = actual.get(i);
+        for (MaterialRevision expectedRevision : expected) {
+            MaterialRevision actualRevision = revisionFor(expectedRevision.getMaterial().getFingerprint(), actual);
+
             assertEquals(expectedRevision.getMaterial().createMaterialInstance(), actualRevision.getMaterial().createMaterialInstance());
             assertEquals(expectedRevision.getModifications(), actualRevision.getModifications());
+
         }
+    }
+
+    private MaterialRevision revisionFor(String fingerprint, List<MaterialRevision> in) {
+        for(MaterialRevision revision: in) {
+            if(revision.getMaterial().getFingerprint().equals(fingerprint)) {
+                return revision;
+            }
+        }
+        return null;
     }
 
     private List<MaterialRevision> groupByMaterial(List<MaterialRevision>... toBeGrouped) {

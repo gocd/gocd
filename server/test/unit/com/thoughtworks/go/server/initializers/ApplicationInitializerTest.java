@@ -27,7 +27,9 @@ import com.thoughtworks.go.plugin.infra.monitor.DefaultPluginJarLocationMonitor;
 import com.thoughtworks.go.server.cronjob.GoDiskSpaceMonitor;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
+import com.thoughtworks.go.server.materials.DependencyMaterialUpdateNotifier;
 import com.thoughtworks.go.server.materials.MaterialUpdateService;
+import com.thoughtworks.go.server.materials.SCMMaterialSource;
 import com.thoughtworks.go.server.persistence.OauthTokenSweeper;
 import com.thoughtworks.go.server.security.GoCasServiceProperties;
 import com.thoughtworks.go.server.security.LdapContextFactory;
@@ -130,7 +132,10 @@ public class ApplicationInitializerTest {
     private ConfigCipherUpdater configCipherUpdater;
     @Mock
     private EntityHashingService entityHashingService;
-
+    @Mock
+    private DependencyMaterialUpdateNotifier dependencyMaterialUpdateNotifier;
+    @Mock
+    private SCMMaterialSource scmMaterialSource;
     @InjectMocks
     ApplicationInitializer initializer = new ApplicationInitializer();
 

@@ -66,7 +66,7 @@ public abstract class TestBaseForDatabaseUpdater {
 
     @Before public void setUp() throws Exception {
         dbHelper.onSetUp();
-        updater = new MaterialDatabaseUpdater(materialRepository, serverHealthService, transactionTemplate, goCache, dependencyMaterialUpdater, scmMaterialUpdater, null, null, materialExpansionService);
+        updater = new MaterialDatabaseUpdater(materialRepository, serverHealthService, transactionTemplate, dependencyMaterialUpdater, scmMaterialUpdater, null, null, materialExpansionService);
         testRepo = repo();
         material = material();
         testRepo.onSetup();

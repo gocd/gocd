@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.materials;
 
-import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.helper.MaterialsMother;
@@ -35,10 +34,7 @@ import org.mockito.Mock;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -58,22 +54,8 @@ public class MaterialDatabaseUpdaterTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        materialDatabaseUpdater = new MaterialDatabaseUpdater(materialRepository, healthService, transactionTemplate, goCache, dependencyMaterialUpdater, scmMaterialUpdater,
+        materialDatabaseUpdater = new MaterialDatabaseUpdater(materialRepository, healthService, transactionTemplate, dependencyMaterialUpdater, scmMaterialUpdater,
                 packageMaterialUpdater, pluggableSCMMaterialUpdater, materialExpansionService);
-    }
-
-    @Test
-    public void shouldNotRunAnUpdateOnADependencyMaterialWhichHasAlreadyBeenSeen() throws Exception {
-        DependencyMaterial material = MaterialsMother.dependencyMaterial("pipeline1", "stage1");
-
-        String expectedKeyToCheck = DependencyMaterialUpdater.cacheKeyForDependencyMaterial(material);
-        when(goCache.isKeyInCache(expectedKeyToCheck)).thenReturn(true);
-
-        materialDatabaseUpdater.updateMaterial(material);
-
-        verifyZeroInteractions(materialRepository, healthService, transactionTemplate, dependencyMaterialUpdater, scmMaterialUpdater);
-        verify(goCache, times(1)).isKeyInCache(expectedKeyToCheck);
-        verifyNoMoreInteractions(goCache);
     }
 
     @Test

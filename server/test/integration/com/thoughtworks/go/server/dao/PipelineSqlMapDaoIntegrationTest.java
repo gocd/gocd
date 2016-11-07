@@ -55,6 +55,7 @@ import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.database.DatabaseStrategy;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.materials.DependencyMaterialUpdateNotifier;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.InstanceFactory;
 import com.thoughtworks.go.server.service.PipelinePauseService;
@@ -132,6 +133,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     @Autowired private InstanceFactory instanceFactory;
     @Autowired private SystemEnvironment systemEnvironment;
     @Autowired private DatabaseStrategy database;
+    @Autowired private DependencyMaterialUpdateNotifier notifier;
 
     private String md5 = "md5-test";
     private ScheduleTestUtil u;
@@ -143,10 +145,12 @@ public class PipelineSqlMapDaoIntegrationTest {
         GoConfigFileHelper configHelper = new GoConfigFileHelper();
         configHelper.usingCruiseConfigDao(goConfigDao);
         u = new ScheduleTestUtil(transactionTemplate, materialRepository, dbHelper, configHelper);
+        notifier.disableUpdates();
     }
 
     @After
     public void teardown() throws Exception {
+        notifier.enableUpdates();
         dbHelper.onTearDown();
 
     }

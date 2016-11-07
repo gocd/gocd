@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
+import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.update.*;
@@ -537,6 +538,30 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
 
     public Set<MaterialConfig> getSchedulableMaterials() {
         return getCurrentConfig().getAllUniqueMaterialsBelongingToAutoPipelinesAndConfigRepos();
+    }
+
+    public Set<MaterialConfig> getSchedulableSCMMaterials() {
+        HashSet<MaterialConfig> scmMaterials = new HashSet<>();
+
+        for (MaterialConfig materialConfig : getSchedulableMaterials()) {
+            if (!(materialConfig instanceof DependencyMaterialConfig)) {
+                scmMaterials.add(materialConfig);
+            }
+        }
+
+        return scmMaterials;
+    }
+
+    public Set<DependencyMaterialConfig> getSchedulableDependencyMaterials() {
+        HashSet<DependencyMaterialConfig> dependencyMaterials = new HashSet<>();
+
+        for (MaterialConfig materialConfig : getSchedulableMaterials()) {
+            if (materialConfig instanceof DependencyMaterialConfig) {
+                dependencyMaterials.add((DependencyMaterialConfig) materialConfig);
+            }
+        }
+
+        return dependencyMaterials;
     }
 
     public Stage scheduleStage(String pipelineName, String stageName, SchedulingContext context) {

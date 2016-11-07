@@ -25,12 +25,14 @@ import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.materials.DependencyMaterialUpdateNotifier;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.presentation.models.ValueStreamMapPresentationModel;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.ReflectionUtil;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.httpclient.HttpStatus;
 import org.hamcrest.core.Is;
@@ -67,6 +69,7 @@ public class ValueStreamMapServiceIntegrationTest {
     @Autowired private MaterialRepository materialRepository;
     @Autowired private TransactionTemplate transactionTemplate;
     @Autowired private Localizer localizer;
+    @Autowired private DependencyMaterialUpdateNotifier notifier;
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private ScheduleTestUtil u;
@@ -86,11 +89,12 @@ public class ValueStreamMapServiceIntegrationTest {
         result = new HttpLocalizedOperationResult();
 
         username = new Username(new CaseInsensitiveString("admin"));
-
+        notifier.disableUpdates();
     }
 
     @After
     public void teardown() throws Exception {
+        notifier.enableUpdates();
         dbHelper.onTearDown();
         configHelper.onTearDown();
     }

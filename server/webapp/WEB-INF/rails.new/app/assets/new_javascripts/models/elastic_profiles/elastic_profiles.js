@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-
 define([
   'mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/shared/plugin_configurations', 'helpers/mrequest', 'js-routes',
 ], function (m, _, s, Mixins, PluginConfigurations, mrequest, Routes) {
+
   var ElasticProfiles = function (data) {
     Mixins.HasMany.call(this, {
       factory:    ElasticProfiles.Profile.create,
@@ -34,12 +34,18 @@ define([
 
     this.parent = Mixins.GetterSetter();
 
+    this.etag = Mixins.GetterSetter();
+
     this.update = function () {
+      var profile = this;
       return m.request({
         method: 'PUT',
         url:    Routes.apiv1ElasticProfilePath(this.id()),
-        config: mrequest.xhrConfig.v1,
-        data:   JSON.parse(JSON.stringify(this, s.snakeCaser)),
+        config: function (xhr) {
+          mrequest.xhrConfig.v1(xhr);
+          xhr.setRequestHeader('If-Match', profile.etag());
+        },
+        data:   JSON.parse(JSON.stringify(profile, s.snakeCaser)),
       });
     };
 
@@ -61,16 +67,19 @@ define([
     };
   };
 
-  ElasticProfiles.Profile.find   = function (id) {
+  ElasticProfiles.Profile.get = function (id) {
     return m.request({
       method:        'GET',
       url:           Routes.apiv1ElasticProfilePath(id),
       config:        mrequest.xhrConfig.v1,
-      unwrapSuccess: function (data) {
-        return ElasticProfiles.Profile.fromJSON(data);
-      }
+      unwrapSuccess: function (data, xhr) {
+        var profile = ElasticProfiles.Profile.fromJSON(data);
+        profile.etag(xhr.getResponseHeader('ETag'));
+        return profile;
+      },
     });
   };
+
   ElasticProfiles.Profile.create = function (data) {
     return new ElasticProfiles.Profile(data);
   };

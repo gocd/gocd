@@ -76,6 +76,7 @@ sourceSets {
 
     resources {
       srcDirs += ['properties/test', 'webapp', 'test/data']
+      exclude 'WEB-INF/rails.new'
     }
   }
 }

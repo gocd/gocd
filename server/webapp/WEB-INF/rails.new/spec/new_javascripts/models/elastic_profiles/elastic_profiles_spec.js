@@ -19,7 +19,7 @@ define([
   'models/model_mixins',
   'models/elastic_profiles/elastic_profiles',
   'js-routes'
-], function (m, _, s, Mixin, ElasticProfiles, Routes) {
+], function (m, _, s, Mixin, ElasticProfiles) {
   describe('Elastic Agent Profile', function () {
 
     var agentJSON = {
@@ -54,12 +54,12 @@ define([
       jasmine.Ajax.withMock(function () {
 
         jasmine.Ajax.stubRequest('/go/api/elastic/profiles').andReturn({
-          "responseText": JSON.stringify({
+          responseText: JSON.stringify({
             "_embedded": {
               "profiles": [agentJSON]
             }
           }),
-          "status":       200
+          status:       200
         });
 
         var profiles = ElasticProfiles.all();
@@ -71,6 +71,7 @@ define([
 
     it('should update a profile', function () {
       var profile = ElasticProfiles.Profile.fromJSON(agentJSON);
+      profile.etag("some-etag");
 
       jasmine.Ajax.withMock(function () {
         profile.update();
@@ -108,16 +109,20 @@ define([
     it('should find a profile', function () {
       jasmine.Ajax.withMock(function () {
         jasmine.Ajax.stubRequest('/go/api/elastic/profiles/' + agentJSON['id']).andReturn({
-          "responseText": JSON.stringify(agentJSON),
-          "status":       200
+          responseText:    JSON.stringify(agentJSON),
+          responseHeaders: {
+            ETag: 'foo'
+          },
+          status:          200
         });
 
-        var profile = ElasticProfiles.Profile.find(agentJSON['id'])();
-        
+        var profile = ElasticProfiles.Profile.get(agentJSON['id'])();
+
         expect(profile.id()).toBe("unit-tests");
         expect(profile.pluginId()).toBe("cd.go.contrib.elastic-agent.docker");
         expect(profile.properties().collectConfigurationProperty('key')).toEqual(['Image', 'Environment']);
         expect(profile.properties().collectConfigurationProperty('value')).toEqual(['gocdcontrib/gocd-dev-build', 'JAVA_HOME=/opt/java\nMAKE_OPTS=-j8']);
+        expect(profile.etag()).toBe("foo");
 
         expect(jasmine.Ajax.requests.count()).toBe(1);
 

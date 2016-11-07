@@ -15,23 +15,23 @@
  */
 
 define([
-  'mithril', 'lodash',
-  'helpers/form_helper',
-  'models/elastic_profiles/elastic_profiles'
-], function (m, _,
-             f,
-             ElasticProfiles) {
+  'mithril', 'lodash', 'helpers/form_helper', 'views/shared/modal', 'helpers/mithril_component_mixins', 'models/elastic_profiles/elastic_profiles'
+], function (m, _, f, Modal, ComponentMixins, ElasticProfiles) {
 
-  var ElasticProfileWidget  = {
-    controller: function (args) {
+  var ElasticProfileEditModal = {
+    controller: function () {
       this.update = function (profile) {
         profile.update();
-      }
-
+      };
     },
 
     view: function (ctrl, args) {
       var profile = args.profile;
+
+      if (!profile) {
+        return <f.modalSpinner/>;
+      }
+
       return (
         <div>
           <f.row>
@@ -53,56 +53,95 @@ define([
               end="true"
             />
           </f.row>
-          <f.row>
-            <f.column size="12">
-              {profile.properties().mapConfigurations(function (property) {
-                return (
-                  <f.row>
-                    <f.input model={property} attrName="key"/>
-                    <f.input model={property} attrName="value" end="true"/>
-                  </f.row>
-                );
-              })}
-            </f.column>
-          </f.row>
+
+          <h4>Properties</h4>
+
+          {profile.properties().mapConfigurations(function (property) {
+            return (
+              <f.row>
+                <f.input model={property} attrName="key" size="3"/>
+                <f.input model={property} attrName="value" end="true" size="3"/>
+              </f.row>
+            );
+          })}
+
           <f.row>
             <f.button onclick={ctrl.update.bind(ctrl, profile)}>Update</f.button>
           </f.row>
         </div>
       );
     }
-  }
+  };
+
+  var ElasticProfileWidget = {
+    controller: function (args) {
+      this.modal = new Modal({
+        subView: {
+          component: ElasticProfileEditModal,
+          args:      {}
+        },
+        title:   'Edit profile ' + args.profile.id(),
+      });
+
+      this.modal.onClose(function () {
+        console.log('closed', arguments);
+      });
+
+      this.edit = function (profile) {
+        var modal = this.modal;
+        modal.open();
+        m.redraw(true);
+        ElasticProfiles.Profile.get(profile.id()).then(function (profile) {
+          modal.subView.args.profile = profile;
+        });
+      };
+
+      this.delete = function (profile) {
+        profile.delete();
+      };
+
+    },
+
+    view: function (ctrl, args) {
+      var profile = args.profile;
+      return (
+        <f.column size="12">
+          <f.row>
+            <div><span>ID: </span>{profile.id()}</div>
+            <div><span>Plugin ID: </span>{profile.pluginId()}</div>
+            <div>
+              <f.link onclick={ctrl.edit.bind(ctrl, profile)}>Edit</f.link>
+              <f.link onclick={ctrl.delete.bind(ctrl, profile)}>Delete</f.link>
+            </div>
+            {ctrl.modal.view()}
+          </f.row>
+        </f.column>
+      );
+    }
+  };
+
   var ElasticProfilesWidget = {
     controller: function () {
-      this.profiles   = ElasticProfiles.all();
+      this.profiles = ElasticProfiles.all();
+      ComponentMixins.ManagesCollection.call(this, {as: 'Profile'});
       window.profiles = this.profiles;
-      this.foo        = function (profile) {
-        console.log('foo', profile.id());
-      }
-      this.delete        = function (profile) {
-        profile.delete();
-      }
     },
 
     view: function (ctrl) {
       return (
-        <f.row>
-          {ctrl.profiles().mapProfiles(function (profile) {
-            return (
-              <f.column size="12">
-                <f.row>
-                  <div><span>ID: </span>{profile.id()}</div>
-                  <div><span>Plugin ID: </span>{profile.pluginId()}</div>
-                  <div>
-                    <f.link onclick={ctrl.foo.bind(ctrl, profile)}>EDIT</f.link>
-                    <f.link onclick={ctrl.delete.bind(ctrl, profile)}>DELETE</f.link>
-                  </div>
-                </f.row>
-                <ElasticProfileWidget profile={profile}/>
-              </f.column>
-            );
-          })}
-        </f.row>
+        <div>
+          <f.row class="page-header">
+            <f.column size="12">
+              <h1>Showing all elastic agent profiles</h1>
+            </f.column>
+          </f.row>
+
+          <f.row class="profiles">
+            {ctrl.profiles().mapProfiles(function (profile) {
+              return (<ElasticProfileWidget profile={profile}/>);
+            })}
+          </f.row>
+        </div>
       );
     }
   };

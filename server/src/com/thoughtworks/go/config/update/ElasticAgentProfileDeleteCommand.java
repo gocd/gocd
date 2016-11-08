@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.domain.JobConfigIdentifier;
 import com.thoughtworks.go.i18n.LocalizedMessage;
+import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.ElasticProfileNotFoundException;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -31,8 +32,8 @@ import java.util.List;
 
 public class ElasticAgentProfileDeleteCommand extends ElasticAgentProfileCommand {
 
-    public ElasticAgentProfileDeleteCommand(ElasticProfile elasticProfile, GoConfigService goConfigService, Username currentUser, LocalizedOperationResult result) {
-        super(elasticProfile, goConfigService, currentUser, result);
+    public ElasticAgentProfileDeleteCommand(ElasticProfile elasticProfile, GoConfigService goConfigService, Username currentUser, LocalizedOperationResult result, ElasticAgentExtension elasticAgentExtension) {
+        super(elasticProfile, goConfigService, elasticAgentExtension, currentUser, result);
     }
 
     @Override

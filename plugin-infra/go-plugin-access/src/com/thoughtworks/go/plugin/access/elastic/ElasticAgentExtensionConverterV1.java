@@ -18,8 +18,10 @@ package com.thoughtworks.go.plugin.access.elastic;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
+import com.thoughtworks.go.plugin.access.common.handler.JSONResultMessageHandler;
 import com.thoughtworks.go.plugin.api.config.Configuration;
 import com.thoughtworks.go.plugin.api.config.Property;
+import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import org.apache.commons.lang.StringUtils;
 
 import java.lang.reflect.Type;
@@ -112,6 +114,20 @@ public class ElasticAgentExtensionConverterV1 implements ElasticAgentMessageConv
             throw new RuntimeException("Template was blank!");
         }
         return template;
+    }
+
+    @Override
+    public ValidationResult getValidationResultResponseFromBody(String responseBody) {
+        return new JSONResultMessageHandler().toValidationResult(responseBody);
+    }
+
+    @Override
+    public String validateRequestBody(Map<String, String> configuration) {
+        JsonObject properties = new JsonObject();
+        for (Map.Entry<String, String> entry : configuration.entrySet()) {
+            properties.addProperty(entry.getKey(), entry.getValue());
+        }
+        return new GsonBuilder().serializeNulls().create().toJson(properties);
     }
 
     @Override

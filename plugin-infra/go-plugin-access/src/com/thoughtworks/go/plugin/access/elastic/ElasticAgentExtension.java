@@ -22,6 +22,7 @@ import com.thoughtworks.go.plugin.access.common.settings.AbstractExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.api.config.Configuration;
+import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -90,6 +91,20 @@ public class ElasticAgentExtension extends AbstractExtension {
             @Override
             public String onSuccess(String responseBody, String resolvedExtensionVersion) {
                 return getElasticAgentMessageConverter(resolvedExtensionVersion).getProfileViewResponseFromBody(responseBody);
+            }
+        });
+    }
+
+    public ValidationResult validate(final String pluginId, final Map<String, String> configuration) {
+        return pluginRequestHelper.submitRequest(pluginId, Constants.REQUEST_VALIDATE_PROFILE, new DefaultPluginInteractionCallback<ValidationResult>() {
+            @Override
+            public String requestBody(String resolvedExtensionVersion) {
+                return getElasticAgentMessageConverter(resolvedExtensionVersion).validateRequestBody(configuration);
+            }
+
+            @Override
+            public ValidationResult onSuccess(String responseBody, String resolvedExtensionVersion) {
+                return getElasticAgentMessageConverter(resolvedExtensionVersion).getValidationResultResponseFromBody(responseBody);
             }
         });
     }

@@ -17,6 +17,7 @@
 package com.thoughtworks.go.plugin.access.elastic;
 
 import com.thoughtworks.go.plugin.api.config.Configuration;
+import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 
 import java.util.Collection;
 import java.util.Map;
@@ -38,4 +39,8 @@ public interface ElasticAgentMessageConverter {
     Configuration getProfileMetadataResponseFromBody(String responseBody);
 
     String getProfileViewResponseFromBody(String responseBody);
+
+    ValidationResult getValidationResultResponseFromBody(String responseBody);
+
+    String validateRequestBody(Map<String, String> configuration);
 }

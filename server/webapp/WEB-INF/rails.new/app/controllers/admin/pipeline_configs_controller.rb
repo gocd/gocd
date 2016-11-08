@@ -20,7 +20,7 @@ module Admin
 
     layout 'single_page_app'
     before_action :check_feature_toggle
-    before_action :check_admin_user_and_401
+    before_action :check_pipeline_group_admin_user_and_401
     before_action :load_pipeline
 
     def edit

@@ -26,7 +26,6 @@ import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo;
-import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.lang.StringUtils;
@@ -236,7 +235,11 @@ public class AgentInstance implements Comparable<AgentInstance> {
     }
 
     public boolean isRegistered() {
-        return agentConfigStatus != AgentConfigStatus.Pending;
+        return !isPending();
+    }
+
+    public boolean isPending() {
+        return agentConfigStatus == AgentConfigStatus.Pending;
     }
 
     public boolean isDisabled() {

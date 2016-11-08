@@ -99,4 +99,8 @@ public class Agents extends ArrayList<AgentConfig> implements Validatable {
         errors.add(fieldName, message);
     }
 
+    public List<ConfigErrors> getAllErrors() {
+        return ErrorCollector.getAllErrors(this);
+    }
+
 }

@@ -18,8 +18,11 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.AgentInstance;
+import com.thoughtworks.go.domain.AgentRuntimeStatus;
+import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.helper.AgentMother;
 import com.thoughtworks.go.i18n.LocalizedMessage;
+import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.GoConfigFileHelper;
@@ -54,9 +57,16 @@ public class AgentConfigServiceIntegrationTest {
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private GoConfigService goConfigService;
     private GoConfigFileHelper configHelper;
+    private AgentInstances agentInstances;
 
     @Before
     public void setup() throws Exception {
+        agentInstances = new AgentInstances(new AgentRuntimeStatus.ChangeListener() {
+            @Override
+            public void statusUpdateRequested(AgentRuntimeInfo runtimeInfo, AgentRuntimeStatus newStatus) {
+            }
+        });
+
         configHelper = new GoConfigFileHelper();
         configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
         configHelper.onSetUp();
@@ -205,6 +215,12 @@ public class AgentConfigServiceIntegrationTest {
         AgentConfig agentConfig2 = new AgentConfig(UUID.randomUUID().toString(), "remote-host2", "50.40.30.22");
         agentConfig1.disable();
         agentConfig2.disable();
+
+        AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment());
+        AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment());
+        agentInstances.add(agentInstance1);
+        agentInstances.add(agentInstance2);
+
         agentConfigService.addAgent(agentConfig1, Username.ANONYMOUS);
         agentConfigService.addAgent(agentConfig2, Username.ANONYMOUS);
         CruiseConfig cruiseConfig = goConfigDao.load();
@@ -216,7 +232,7 @@ public class AgentConfigServiceIntegrationTest {
         uuids.add(agentConfig1.getUuid());
         uuids.add(agentConfig2.getUuid());
 
-        agentConfigService.bulkUpdateAgentAttributes(Username.ANONYMOUS, result, uuids, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), TriState.TRUE);
+        agentConfigService.bulkUpdateAgentAttributes(agentInstances, Username.ANONYMOUS, result, uuids, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), TriState.TRUE);
 
         cruiseConfig = goConfigDao.load();
         assertTrue(result.isSuccessful());
@@ -226,9 +242,124 @@ public class AgentConfigServiceIntegrationTest {
     }
 
     @Test
+    public void shouldEnablePendingAgents() throws Exception {
+        AgentInstance pendingAgent = AgentInstanceMother.pending();
+        agentInstances.add(pendingAgent);
+        assertThat(pendingAgent.isRegistered(), is(false));
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        ArrayList<String> uuids = new ArrayList<>();
+        uuids.add(pendingAgent.getUuid());
+
+        agentConfigService.bulkUpdateAgentAttributes(agentInstances, Username.ANONYMOUS, result, uuids, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), TriState.TRUE);
+
+        assertTrue(result.isSuccessful());
+        assertTrue(result.toString(), result.toString().contains("BULK_AGENT_UPDATE_SUCESSFUL"));
+        CruiseConfig cruiseConfig = goConfigDao.load();
+        assertThat(cruiseConfig.agents().getAgentByUuid(pendingAgent.getUuid()).isEnabled(), is(true));
+    }
+
+    @Test
+    public void shouldDisablePendingAgents() throws Exception {
+        AgentInstance pendingAgent = AgentInstanceMother.pending();
+        agentInstances.add(pendingAgent);
+        assertThat(pendingAgent.isRegistered(), is(false));
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        ArrayList<String> uuids = new ArrayList<>();
+        uuids.add(pendingAgent.getUuid());
+
+        agentConfigService.bulkUpdateAgentAttributes(agentInstances, Username.ANONYMOUS, result, uuids, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), TriState.FALSE);
+
+        assertTrue(result.isSuccessful());
+        assertTrue(result.toString(), result.toString().contains("BULK_AGENT_UPDATE_SUCESSFUL"));
+        CruiseConfig cruiseConfig = goConfigDao.load();
+        assertThat(cruiseConfig.agents().getAgentByUuid(pendingAgent.getUuid()).isDisabled(), is(true));
+    }
+
+    @Test
+    public void shouldNotAllowAnyUpdateOperationOnPendingAgentsIfConfigStateIsNotProvided() throws Exception {
+        AgentInstance pendingAgent = AgentInstanceMother.pending();
+        agentInstances.add(pendingAgent);
+        assertThat(pendingAgent.isRegistered(), is(false));
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        ArrayList<String> uuids = new ArrayList<>();
+        uuids.add(pendingAgent.getUuid());
+
+        ArrayList<String> resourcesToAdd = new ArrayList<>();
+        resourcesToAdd.add("Linux");
+
+        ArrayList<String> resourcesToRemove = new ArrayList<>();
+        resourcesToRemove.add("Gauge");
+
+        agentConfigService.bulkUpdateAgentAttributes(agentInstances, Username.ANONYMOUS, result, uuids, resourcesToAdd, resourcesToRemove, new ArrayList<String>(), new ArrayList<String>(), TriState.UNSET);
+
+        HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
+        expectedResult.badRequest(LocalizedMessage.string("PENDING_AGENT_INVALID_OPERATION", uuids));
+
+        assertThat(result, is(expectedResult));
+    }
+
+    @Test
+    public void shouldThrowBadRequestIfNoOperationsProvidedOnBulkUpdateAgents() throws Exception {
+        AgentInstance pendingAgent = AgentInstanceMother.pending();
+        AgentInstance registeredAgent = AgentInstanceMother.disabled();
+        agentInstances.add(pendingAgent);
+        agentInstances.add(registeredAgent);
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        ArrayList<String> uuids = new ArrayList<>();
+        uuids.add(pendingAgent.getUuid());
+        uuids.add(registeredAgent.getUuid());
+
+        agentConfigService.bulkUpdateAgentAttributes(agentInstances, Username.ANONYMOUS, result, uuids, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), TriState.UNSET);
+
+        HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
+        expectedResult.badRequest(LocalizedMessage.string("NO_OPERATION_PERFORMED_ON_AGENTS"));
+
+        assertThat(result, is(expectedResult));
+    }
+
+    @Test
+    public void shouldAllowEnablingThePendingAndDisabledAgentsTogether() throws Exception {
+        AgentInstance pendingAgent = AgentInstanceMother.pending();
+        agentInstances.add(pendingAgent);
+        assertThat(pendingAgent.isRegistered(), is(false));
+        AgentConfig agentConfig = new AgentConfig(UUID.randomUUID().toString(), "remote-host1", "50.40.30.21");
+        agentConfig.disable();
+
+        AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig, new SystemEnvironment());
+        agentInstances.add(agentInstance);
+
+        agentConfigService.addAgent(agentConfig, Username.ANONYMOUS);
+        CruiseConfig cruiseConfig = goConfigDao.load();
+        assertThat(cruiseConfig.agents().getAgentByUuid(agentConfig.getUuid()).isDisabled(), is(true));
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        ArrayList<String> uuids = new ArrayList<>();
+        uuids.add(pendingAgent.getUuid());
+        uuids.add(agentConfig.getUuid());
+
+        agentConfigService.bulkUpdateAgentAttributes(agentInstances, Username.ANONYMOUS, result, uuids, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), TriState.TRUE);
+
+        assertTrue(result.isSuccessful());
+        assertTrue(result.toString(), result.toString().contains("BULK_AGENT_UPDATE_SUCESSFUL"));
+        cruiseConfig = goConfigDao.load();
+        assertThat(cruiseConfig.agents().getAgentByUuid(pendingAgent.getUuid()).isEnabled(), is(true));
+        assertThat(cruiseConfig.agents().getAgentByUuid(agentConfig.getUuid()).isEnabled(), is(true));
+    }
+
+    @Test
     public void shouldDisableTheProvidedAgents() throws Exception {
         AgentConfig agentConfig1 = new AgentConfig(UUID.randomUUID().toString(), "remote-host1", "50.40.30.21");
         AgentConfig agentConfig2 = new AgentConfig(UUID.randomUUID().toString(), "remote-host2", "50.40.30.22");
+
+        AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment());
+        AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment());
+        agentInstances.add(agentInstance1);
+        agentInstances.add(agentInstance2);
+
         agentConfigService.addAgent(agentConfig1, Username.ANONYMOUS);
         agentConfigService.addAgent(agentConfig2, Username.ANONYMOUS);
         CruiseConfig cruiseConfig = goConfigDao.load();
@@ -240,7 +371,7 @@ public class AgentConfigServiceIntegrationTest {
         uuids.add(agentConfig1.getUuid());
         uuids.add(agentConfig2.getUuid());
 
-        agentConfigService.bulkUpdateAgentAttributes(Username.ANONYMOUS, result, uuids, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), TriState.FALSE);
+        agentConfigService.bulkUpdateAgentAttributes(agentInstances, Username.ANONYMOUS, result, uuids, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), TriState.FALSE);
 
         cruiseConfig = goConfigDao.load();
         assertTrue(result.isSuccessful());
@@ -250,35 +381,15 @@ public class AgentConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotDisableOrEnableIfTheStateOfAgentIsNotChanged() throws Exception {
-        AgentConfig agentConfig1 = new AgentConfig(UUID.randomUUID().toString(), "remote-host1", "50.40.30.21");
-        AgentConfig agentConfig2 = new AgentConfig(UUID.randomUUID().toString(), "remote-host2", "50.40.30.22");
-        agentConfig1.enable();
-        agentConfig2.disable();
-        agentConfigService.addAgent(agentConfig1, Username.ANONYMOUS);
-        agentConfigService.addAgent(agentConfig2, Username.ANONYMOUS);
-        CruiseConfig cruiseConfig = goConfigDao.load();
-        assertThat(cruiseConfig.agents().getAgentByUuid(agentConfig1.getUuid()).isDisabled(), is(false));
-        assertThat(cruiseConfig.agents().getAgentByUuid(agentConfig2.getUuid()).isDisabled(), is(true));
-
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        ArrayList<String> uuids = new ArrayList<>();
-        uuids.add(agentConfig1.getUuid());
-        uuids.add(agentConfig2.getUuid());
-
-        agentConfigService.bulkUpdateAgentAttributes(Username.ANONYMOUS, result, uuids, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), TriState.UNSET);
-
-        cruiseConfig = goConfigDao.load();
-        assertTrue(result.isSuccessful());
-        assertTrue(result.toString(), result.toString().contains("BULK_AGENT_UPDATE_SUCESSFUL"));
-        assertFalse(cruiseConfig.agents().getAgentByUuid(agentConfig1.getUuid()).isDisabled());
-        assertTrue(cruiseConfig.agents().getAgentByUuid(agentConfig2.getUuid()).isDisabled());
-    }
-
-    @Test
     public void shouldNotDisableAgentsWhenInvalidAgentUUIDIsprovided() throws Exception {
         AgentConfig agentConfig1 = new AgentConfig(UUID.randomUUID().toString(), "remote-host1", "50.40.30.21");
         AgentConfig agentConfig2 = new AgentConfig(UUID.randomUUID().toString(), "remote-host2", "50.40.30.22");
+
+        AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment());
+        AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment());
+        agentInstances.add(agentInstance1);
+        agentInstances.add(agentInstance2);
+
         agentConfigService.addAgent(agentConfig1, Username.ANONYMOUS);
         agentConfigService.addAgent(agentConfig2, Username.ANONYMOUS);
         CruiseConfig cruiseConfig = goConfigDao.load();
@@ -291,7 +402,7 @@ public class AgentConfigServiceIntegrationTest {
         uuids.add(agentConfig2.getUuid());
         uuids.add("invalid-uuid");
 
-        agentConfigService.bulkUpdateAgentAttributes(Username.ANONYMOUS, result, uuids, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), TriState.FALSE);
+        agentConfigService.bulkUpdateAgentAttributes(agentInstances, Username.ANONYMOUS, result, uuids, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), TriState.FALSE);
 
         cruiseConfig = goConfigDao.load();
         assertFalse(cruiseConfig.agents().getAgentByUuid(agentConfig1.getUuid()).isDisabled());
@@ -299,13 +410,17 @@ public class AgentConfigServiceIntegrationTest {
 
         assertFalse(result.isSuccessful());
         assertThat(result.toString(), result.httpCode(), is(400));
-        assertTrue(result.toString(), result.toString().contains("AGENTS_WITH_UUIDS_NOT_FOUND"));
+        assertTrue(result.toString(), result.toString().contains("RESOURCE_NOT_FOUND"));
         assertTrue(result.toString(), result.toString().contains("invalid-uuid"));
     }
 
     @Test
     public void shouldNotUpdateResourcesOnElasticAgents() throws Exception {
         AgentConfig elasticAgent = AgentMother.elasticAgent();
+
+        AgentInstance agentInstance = AgentInstance.createFromConfig(elasticAgent, new SystemEnvironment());
+        agentInstances.add(agentInstance);
+
         agentConfigService.addAgent(elasticAgent, Username.ANONYMOUS);
         CruiseConfig cruiseConfig = goConfigDao.load();
 
@@ -314,7 +429,7 @@ public class AgentConfigServiceIntegrationTest {
         List<String> resourcesToAdd = Arrays.asList("resource");
 
         assertTrue(cruiseConfig.agents().getAgentByUuid(elasticAgent.getUuid()).getResources().isEmpty());
-        agentConfigService.bulkUpdateAgentAttributes(Username.ANONYMOUS, result, uuids, resourcesToAdd, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), TriState.FALSE);
+        agentConfigService.bulkUpdateAgentAttributes(agentInstances, Username.ANONYMOUS, result, uuids, resourcesToAdd, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), TriState.FALSE);
         cruiseConfig = goConfigDao.load();
 
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
@@ -328,6 +443,12 @@ public class AgentConfigServiceIntegrationTest {
     public void shouldNotEnableAgentsWhenInvalidAgentUUIDIsprovided() throws Exception {
         AgentConfig agentConfig1 = new AgentConfig(UUID.randomUUID().toString(), "remote-host1", "50.40.30.21");
         AgentConfig agentConfig2 = new AgentConfig(UUID.randomUUID().toString(), "remote-host2", "50.40.30.22");
+
+        AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment());
+        AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment());
+        agentInstances.add(agentInstance1);
+        agentInstances.add(agentInstance2);
+
         agentConfigService.addAgent(agentConfig1, Username.ANONYMOUS);
         agentConfigService.addAgent(agentConfig2, Username.ANONYMOUS);
         CruiseConfig cruiseConfig = goConfigDao.load();
@@ -340,7 +461,7 @@ public class AgentConfigServiceIntegrationTest {
         uuids.add(agentConfig2.getUuid());
         uuids.add("invalid-uuid");
 
-        agentConfigService.bulkUpdateAgentAttributes(Username.ANONYMOUS, result, uuids, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), TriState.TRUE);
+        agentConfigService.bulkUpdateAgentAttributes(agentInstances, Username.ANONYMOUS, result, uuids, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), TriState.TRUE);
 
         cruiseConfig = goConfigDao.load();
         assertThat(cruiseConfig.agents().getAgentByUuid(agentConfig1.getUuid()).isDisabled(), is(false));
@@ -348,7 +469,7 @@ public class AgentConfigServiceIntegrationTest {
 
         assertFalse(result.isSuccessful());
         assertThat(result.toString(), result.httpCode(), is(400));
-        assertTrue(result.toString(), result.toString().contains("AGENTS_WITH_UUIDS_NOT_FOUND"));
+        assertTrue(result.toString(), result.toString().contains("RESOURCE_NOT_FOUND"));
         assertTrue(result.toString(), result.toString().contains("invalid-uuid"));
     }
 
@@ -356,6 +477,12 @@ public class AgentConfigServiceIntegrationTest {
     public void shouldAddResourcestoTheSpecifiedAgents() throws Exception {
         AgentConfig agentConfig1 = new AgentConfig(UUID.randomUUID().toString(), "remote-host1", "50.40.30.21");
         AgentConfig agentConfig2 = new AgentConfig(UUID.randomUUID().toString(), "remote-host2", "50.40.30.22");
+
+        AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment());
+        AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment());
+        agentInstances.add(agentInstance1);
+        agentInstances.add(agentInstance2);
+
         agentConfigService.addAgent(agentConfig1, Username.ANONYMOUS);
         agentConfigService.addAgent(agentConfig2, Username.ANONYMOUS);
         CruiseConfig cruiseConfig = goConfigDao.load();
@@ -372,7 +499,7 @@ public class AgentConfigServiceIntegrationTest {
         resources.add("resource1");
         resources.add("resource2");
 
-        agentConfigService.bulkUpdateAgentAttributes(Username.ANONYMOUS, result, uuids, resources, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), TriState.FALSE);
+        agentConfigService.bulkUpdateAgentAttributes(agentInstances, Username.ANONYMOUS, result, uuids, resources, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), TriState.FALSE);
 
         cruiseConfig = goConfigDao.load();
 
@@ -386,9 +513,16 @@ public class AgentConfigServiceIntegrationTest {
     public void shouldRemoveResourcesFromTheSpecifiedAgents() throws Exception {
         AgentConfig agentConfig1 = new AgentConfig(UUID.randomUUID().toString(), "remote-host1", "50.40.30.21");
         AgentConfig agentConfig2 = new AgentConfig(UUID.randomUUID().toString(), "remote-host2", "50.40.30.22");
+
+        AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment());
+        AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment());
+        agentInstances.add(agentInstance1);
+        agentInstances.add(agentInstance2);
+
         agentConfig1.addResource(new Resource("resource-1"));
         agentConfig1.addResource(new Resource("resource-2"));
         agentConfig2.addResource(new Resource("resource-2"));
+
         agentConfigService.addAgent(agentConfig1, Username.ANONYMOUS);
         agentConfigService.addAgent(agentConfig2, Username.ANONYMOUS);
         CruiseConfig cruiseConfig = goConfigDao.load();
@@ -404,7 +538,7 @@ public class AgentConfigServiceIntegrationTest {
         ArrayList<String> resources = new ArrayList<>();
         resources.add("resource-2");
 
-        agentConfigService.bulkUpdateAgentAttributes(Username.ANONYMOUS, result, uuids, new ArrayList<String>(), resources, new ArrayList<String>(), new ArrayList<String>(), TriState.FALSE);
+        agentConfigService.bulkUpdateAgentAttributes(agentInstances, Username.ANONYMOUS, result, uuids, new ArrayList<String>(), resources, new ArrayList<String>(), new ArrayList<String>(), TriState.FALSE);
 
         cruiseConfig = goConfigDao.load();
 
@@ -419,6 +553,12 @@ public class AgentConfigServiceIntegrationTest {
     public void shouldAddProvidedAgentsToTheSpecifiedEnvironments() throws Exception {
         AgentConfig agentConfig1 = new AgentConfig(UUID.randomUUID().toString(), "remote-host1", "50.40.30.21");
         AgentConfig agentConfig2 = new AgentConfig(UUID.randomUUID().toString(), "remote-host2", "50.40.30.22");
+
+        AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment());
+        AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment());
+        agentInstances.add(agentInstance1);
+        agentInstances.add(agentInstance2);
+
         agentConfigService.addAgent(agentConfig1, Username.ANONYMOUS);
         agentConfigService.addAgent(agentConfig2, Username.ANONYMOUS);
 
@@ -436,7 +576,7 @@ public class AgentConfigServiceIntegrationTest {
         ArrayList<String> environmentsToAdd = new ArrayList<>();
         environmentsToAdd.add("Dev");
 
-        agentConfigService.bulkUpdateAgentAttributes(Username.ANONYMOUS, result, uuids, new ArrayList<String>(), new ArrayList<String>(), environmentsToAdd, new ArrayList<String>(), TriState.TRUE);
+        agentConfigService.bulkUpdateAgentAttributes(agentInstances, Username.ANONYMOUS, result, uuids, new ArrayList<String>(), new ArrayList<String>(), environmentsToAdd, new ArrayList<String>(), TriState.TRUE);
 
         assertTrue(result.isSuccessful());
         assertThat(result.toString(), containsString("BULK_AGENT_UPDATE_SUCESSFUL"));
@@ -447,6 +587,12 @@ public class AgentConfigServiceIntegrationTest {
     public void shouldRemoveProvidedAgentsFromTheSpecifiedEnvironments() throws Exception {
         AgentConfig agentConfig1 = new AgentConfig(UUID.randomUUID().toString(), "remote-host1", "50.40.30.21");
         AgentConfig agentConfig2 = new AgentConfig(UUID.randomUUID().toString(), "remote-host2", "50.40.30.22");
+
+        AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment());
+        AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment());
+        agentInstances.add(agentInstance1);
+        agentInstances.add(agentInstance2);
+
         agentConfigService.addAgent(agentConfig1, Username.ANONYMOUS);
         agentConfigService.addAgent(agentConfig2, Username.ANONYMOUS);
 
@@ -469,7 +615,7 @@ public class AgentConfigServiceIntegrationTest {
         ArrayList<String> environmentsToRemove = new ArrayList<>();
         environmentsToRemove.add("Dev");
 
-        agentConfigService.bulkUpdateAgentAttributes(Username.ANONYMOUS, result, uuids, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), environmentsToRemove, TriState.TRUE);
+        agentConfigService.bulkUpdateAgentAttributes(agentInstances, Username.ANONYMOUS, result, uuids, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), environmentsToRemove, TriState.TRUE);
 
         assertTrue(result.isSuccessful());
         assertThat(result.toString(), containsString("BULK_AGENT_UPDATE_SUCESSFUL"));
@@ -481,6 +627,12 @@ public class AgentConfigServiceIntegrationTest {
     public void shouldNotAddAgentToNonExistingEnvironment() throws Exception {
         AgentConfig agentConfig1 = new AgentConfig(UUID.randomUUID().toString(), "remote-host1", "50.40.30.21");
         AgentConfig agentConfig2 = new AgentConfig(UUID.randomUUID().toString(), "remote-host2", "50.40.30.22");
+
+        AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment());
+        AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment());
+        agentInstances.add(agentInstance1);
+        agentInstances.add(agentInstance2);
+
         agentConfigService.addAgent(agentConfig1, Username.ANONYMOUS);
         agentConfigService.addAgent(agentConfig2, Username.ANONYMOUS);
 
@@ -493,7 +645,7 @@ public class AgentConfigServiceIntegrationTest {
         ArrayList<String> environmentsToAdd = new ArrayList<>();
         environmentsToAdd.add("Non-Existing-Environment");
 
-        agentConfigService.bulkUpdateAgentAttributes(Username.ANONYMOUS, result, uuids, new ArrayList<String>(), new ArrayList<String>(), environmentsToAdd, new ArrayList<String>(), TriState.TRUE);
+        agentConfigService.bulkUpdateAgentAttributes(agentInstances, Username.ANONYMOUS, result, uuids, new ArrayList<String>(), new ArrayList<String>(), environmentsToAdd, new ArrayList<String>(), TriState.TRUE);
 
         assertFalse(result.isSuccessful());
         assertThat(result.toString(), result.httpCode(), is(400));
@@ -505,6 +657,12 @@ public class AgentConfigServiceIntegrationTest {
     public void shouldNotRemoveAgentFromNonExistingEnvironment() throws Exception {
         AgentConfig agentConfig1 = new AgentConfig(UUID.randomUUID().toString(), "remote-host1", "50.40.30.21");
         AgentConfig agentConfig2 = new AgentConfig(UUID.randomUUID().toString(), "remote-host2", "50.40.30.22");
+
+        AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment());
+        AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment());
+        agentInstances.add(agentInstance1);
+        agentInstances.add(agentInstance2);
+
         agentConfigService.addAgent(agentConfig1, Username.ANONYMOUS);
         agentConfigService.addAgent(agentConfig2, Username.ANONYMOUS);
 
@@ -517,7 +675,7 @@ public class AgentConfigServiceIntegrationTest {
         ArrayList<String> environmentsToRemove = new ArrayList<>();
         environmentsToRemove.add("NonExistingEnvironment");
 
-        agentConfigService.bulkUpdateAgentAttributes(Username.ANONYMOUS, result, uuids, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), environmentsToRemove, TriState.TRUE);
+        agentConfigService.bulkUpdateAgentAttributes(agentInstances, Username.ANONYMOUS, result, uuids, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), environmentsToRemove, TriState.TRUE);
 
         assertFalse(result.isSuccessful());
         assertThat(result.toString(), result.httpCode(), is(400));
@@ -529,6 +687,12 @@ public class AgentConfigServiceIntegrationTest {
     public void shouldUpdateResourcesEnvironmentsAndAgentStateOfTheProvidedStatesAllTogether() throws Exception {
         AgentConfig agentConfig1 = new AgentConfig(UUID.randomUUID().toString(), "remote-host1", "50.40.30.21");
         AgentConfig agentConfig2 = new AgentConfig(UUID.randomUUID().toString(), "remote-host2", "50.40.30.22");
+
+        AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment());
+        AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment());
+        agentInstances.add(agentInstance1);
+        agentInstances.add(agentInstance2);
+
         agentConfigService.addAgent(agentConfig1, Username.ANONYMOUS);
         agentConfigService.addAgent(agentConfig2, Username.ANONYMOUS);
 
@@ -551,7 +715,7 @@ public class AgentConfigServiceIntegrationTest {
         ArrayList<String> environmentsToAdd = new ArrayList<>();
         environmentsToAdd.add("Dev");
 
-        agentConfigService.bulkUpdateAgentAttributes(Username.ANONYMOUS, result, uuids, resources, new ArrayList<String>(), environmentsToAdd, new ArrayList<String>(), TriState.FALSE);
+        agentConfigService.bulkUpdateAgentAttributes(agentInstances, Username.ANONYMOUS, result, uuids, resources, new ArrayList<String>(), environmentsToAdd, new ArrayList<String>(), TriState.FALSE);
 
         cruiseConfig = goConfigDao.load();
         assertTrue(result.isSuccessful());

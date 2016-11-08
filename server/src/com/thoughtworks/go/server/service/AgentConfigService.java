@@ -25,6 +25,7 @@ import com.thoughtworks.go.config.update.AgentsUpdateCommand;
 import com.thoughtworks.go.config.update.ModifyEnvironmentCommand;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.ConfigErrors;
+import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.listener.AgentChangeListener;
 import com.thoughtworks.go.presentation.TriStateSelection;
@@ -44,8 +45,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
@@ -232,17 +235,20 @@ public class AgentConfigService {
         }
     }
 
-    public void bulkUpdateAgentAttributes(final Username username, final LocalizedOperationResult result, final List<String> uuids, final List<String> resourcesToAdd, final List<String> resourcesToRemove, final List<String> environmentsToAdd, final List<String> environmentsToRemove, final TriState enable) {
-        EntityConfigUpdateCommand<Agents> agentsEntityConfigUpdateCommand = new AgentsEntityConfigUpdateCommand(username, result, uuids, environmentsToAdd, environmentsToRemove, enable, resourcesToAdd, resourcesToRemove, goConfigService);
-
+    public void bulkUpdateAgentAttributes(AgentInstances agentInstances, final Username username, final LocalizedOperationResult result, final List<String> uuids, final List<String> resourcesToAdd, final List<String> resourcesToRemove, final List<String> environmentsToAdd, final List<String> environmentsToRemove, final TriState enable) {
+        Localizable.CurryableLocalizable successMessage = LocalizedMessage.string("BULK_AGENT_UPDATE_SUCESSFUL", StringUtils.join(uuids, ", "));
+        EntityConfigUpdateCommand<Agents> agentsEntityConfigUpdateCommand = new AgentsEntityConfigUpdateCommand(agentInstances, username, result, uuids, environmentsToAdd, environmentsToRemove, enable, resourcesToAdd, resourcesToRemove, goConfigService);
         try {
             goConfigService.updateConfig(agentsEntityConfigUpdateCommand, username);
             if(result.isSuccessful()){
-                result.setMessage(LocalizedMessage.string("BULK_AGENT_UPDATE_SUCESSFUL", StringUtils.join(uuids, ", ")));
+                result.setMessage(successMessage);
             }
         } catch (Exception e) {
             LOGGER.error("There was an error bulk updating agents", e);
-            if (!result.hasMessage()) {
+            if(e instanceof GoConfigInvalidException && !result.hasMessage()) {
+                result.unprocessableEntity(LocalizedMessage.string("ENTITY_CONFIG_VALIDATION_FAILED", Agents.class.getAnnotation(ConfigTag.class).value(), uuids, e.getMessage()));
+            }
+            else if(!result.hasMessage()) {
                 result.internalServerError(LocalizedMessage.string("INTERNAL_SERVER_ERROR"));
             }
         }

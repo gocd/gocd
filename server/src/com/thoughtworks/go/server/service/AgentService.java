@@ -186,7 +186,7 @@ public class AgentService {
     }
 
     public void bulkUpdateAgentAttributes(Username username, LocalizedOperationResult result, List<String> uuids, List<String> resourcesToAdd, List<String> resourcesToRemove, List<String> environmentsToAdd, List<String> environmentsToRemove, TriState enable) {
-        agentConfigService.bulkUpdateAgentAttributes(username, result, uuids, resourcesToAdd, resourcesToRemove, environmentsToAdd, environmentsToRemove, enable);
+        agentConfigService.bulkUpdateAgentAttributes(agentInstances, username, result, uuids, resourcesToAdd, resourcesToRemove, environmentsToAdd, environmentsToRemove, enable);
     }
 
     public void enableAgents(Username username, OperationResult operationResult, List<String> uuids) {
@@ -241,24 +241,17 @@ public class AgentService {
             return;
         }
 
-        List<AgentInstance> failedToDeleteAgents = new ArrayList<>();
         for (AgentInstance agentInstance : agents) {
             if (!agentInstance.canBeDeleted()) {
-                failedToDeleteAgents.add(agentInstance);
+                operationResult.notAcceptable(String.format("Failed to delete %s agent(s), as agent(s) might not be disabled or are still building.", agents.size()),
+                        HealthStateType.general(HealthStateScope.GLOBAL));
+                return;
             }
         }
 
-        agents.removeAll(failedToDeleteAgents);
-
         try {
             agentConfigService.deleteAgents(username, agents.toArray(new AgentInstance[0]));
-
-            if (failedToDeleteAgents.isEmpty()) {
-                operationResult.ok(String.format("Deleted %s agent(s).", agents.size()));
-            } else {
-                operationResult.notAcceptable(String.format("Deleted %s agent(s). Failed to delete %s agent(s), as agent(s) might not be disabled or are still building.", agents.size(), failedToDeleteAgents.size()),
-                        HealthStateType.general(HealthStateScope.GLOBAL));
-            }
+            operationResult.ok(String.format("Deleted %s agent(s).", agents.size()));
         } catch (Exception e) {
             operationResult.internalServerError("Deleting agents failed:" + e.getMessage(), HealthStateType.general(HealthStateScope.GLOBAL));
         }

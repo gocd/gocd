@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.websocket;
 
+import com.thoughtworks.go.websocket.Action;
 import com.thoughtworks.go.websocket.Message;
 
 import java.util.ArrayList;
@@ -23,9 +24,18 @@ import java.util.List;
 
 public class AgentStub implements Agent {
     public List<Message> messages = new ArrayList<>();
+    private boolean ignoreAcknowledgements = true;
 
     @Override
     public void send(Message msg) {
+        // Ignore acknowledgements
+        if(ignoreAcknowledgements && Action.acknowledge.equals(msg.getAction())) {
+            return;
+        }
         messages.add(msg);
+    }
+
+    public void setIgnoreAcknowledgements(boolean ignoreAcknowledgements) {
+        this.ignoreAcknowledgements = ignoreAcknowledgements;
     }
 }

@@ -60,6 +60,12 @@ describe Admin::PipelineConfigsController do
 
         expect(controller).to allow_action(:get, :edit)
       end
+
+      it 'should allow pipeline group admin users, with security enabled' do
+        login_as_group_admin
+
+        expect(controller).to allow_action(:get, :edit)
+      end
     end
   end
 

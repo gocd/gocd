@@ -157,6 +157,9 @@ describe ApiV1::Admin::PackagesController do
         it 'should route to show action of packages controller for specified package id' do
           expect(:get => 'api/admin/packages/foo').to route_to(action: 'show', controller: 'api_v1/admin/packages', package_id: 'foo')
         end
+        it 'should route to show action of packages controller for package_id with dots' do
+          expect(:get => 'api/admin/packages/foo.bar').to route_to(action: 'show', controller: 'api_v1/admin/packages', package_id: 'foo.bar')
+        end
       end
       describe :without_header do
         before :each do
@@ -230,6 +233,10 @@ describe ApiV1::Admin::PackagesController do
       describe :with_header do
         it 'should route to destroy action of packages controller for specified package id' do
           expect(:delete => 'api/admin/packages/foo').to route_to(action: 'destroy', controller: 'api_v1/admin/packages', package_id: 'foo')
+        end
+
+        it 'should route to delete action of packages controller for package_id with dots' do
+          expect(:delete => 'api/admin/packages/foo.bar').to route_to(action: 'destroy', controller: 'api_v1/admin/packages', package_id: 'foo.bar')
         end
       end
       describe :without_header do
@@ -444,6 +451,9 @@ describe ApiV1::Admin::PackagesController do
       describe :with_header do
         it 'should route to update action of package controller for specified package id' do
           expect(:put => 'api/admin/packages/foo123').to route_to(action: 'update', controller: 'api_v1/admin/packages', package_id: 'foo123')
+        end
+        it 'should route to update action of packages controller for package_id with dots' do
+          expect(:put => 'api/admin/packages/foo.bar').to route_to(action: 'update', controller: 'api_v1/admin/packages', package_id: 'foo.bar')
         end
       end
       describe :without_header do

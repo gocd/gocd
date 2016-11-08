@@ -146,6 +146,10 @@ describe ApiV1::Admin::RepositoriesController do
         it 'should route to show action of package repositories controller for specified package repository id' do
           expect(:get => 'api/admin/repositories/foo123').to route_to(action: 'show', controller: 'api_v1/admin/repositories', repo_id: 'foo123')
         end
+
+        it 'should route to show action of repositories controller for repo_id with dots' do
+          expect(:get => 'api/admin/repositories/foo.bar').to route_to(action: 'show', controller: 'api_v1/admin/repositories', repo_id: 'foo.bar')
+        end
       end
       describe :without_header do
         before :each do
@@ -222,6 +226,9 @@ describe ApiV1::Admin::RepositoriesController do
       describe :with_header do
         it 'should route to destroy action of package repository controller for specified package repository id' do
           expect(:delete => 'api/admin/repositories/foo123').to route_to(action: 'destroy', controller: 'api_v1/admin/repositories', repo_id: 'foo123')
+        end
+        it 'should route to destroy action of repositories controller for repo_id with dots' do
+          expect(:delete => 'api/admin/repositories/foo.bar').to route_to(action: 'destroy', controller: 'api_v1/admin/repositories', repo_id: 'foo.bar')
         end
       end
       describe :without_header do
@@ -412,6 +419,9 @@ describe ApiV1::Admin::RepositoriesController do
 
         it 'should route to update action of repositories controller for specified package repository id' do
           expect(:put => 'api/admin/repositories/foo123').to route_to(action: 'update', controller: 'api_v1/admin/repositories', repo_id: 'foo123')
+        end
+        it 'should route to update action of repositories controller for repo_id with dots' do
+          expect(:put => 'api/admin/repositories/foo.bar').to route_to(action: 'update', controller: 'api_v1/admin/repositories', repo_id: 'foo.bar')
         end
       end
       describe :without_header do

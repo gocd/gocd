@@ -19,6 +19,7 @@ package com.thoughtworks.go.plugin.access.elastic;
 import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.common.settings.AbstractExtension;
+import com.thoughtworks.go.plugin.access.common.settings.Image;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.api.config.Configuration;
@@ -27,7 +28,8 @@ import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class ElasticAgentExtension extends AbstractExtension {
@@ -105,6 +107,15 @@ public class ElasticAgentExtension extends AbstractExtension {
             @Override
             public ValidationResult onSuccess(String responseBody, String resolvedExtensionVersion) {
                 return getElasticAgentMessageConverter(resolvedExtensionVersion).getValidationResultResponseFromBody(responseBody);
+            }
+        });
+    }
+
+    public Image getIcon(String pluginId) {
+        return pluginRequestHelper.submitRequest(pluginId, Constants.REQUEST_GET_PLUGIN_SETTINGS_ICON, new DefaultPluginInteractionCallback<Image>() {
+            @Override
+            public Image onSuccess(String responseBody, String resolvedExtensionVersion) {
+                return getElasticAgentMessageConverter(resolvedExtensionVersion).getImageResponseFromBody(responseBody);
             }
         });
     }

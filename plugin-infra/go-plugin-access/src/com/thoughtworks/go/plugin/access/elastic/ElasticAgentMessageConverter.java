@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.elastic;
 
+import com.thoughtworks.go.plugin.access.common.settings.Image;
 import com.thoughtworks.go.plugin.api.config.Configuration;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 
@@ -43,4 +44,6 @@ public interface ElasticAgentMessageConverter {
     ValidationResult getValidationResultResponseFromBody(String responseBody);
 
     String validateRequestBody(Map<String, String> configuration);
+
+    Image getImageResponseFromBody(String responseBody);
 }

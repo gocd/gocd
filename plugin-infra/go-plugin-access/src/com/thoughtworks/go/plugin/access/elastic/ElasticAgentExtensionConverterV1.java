@@ -19,6 +19,7 @@ package com.thoughtworks.go.plugin.access.elastic;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import com.thoughtworks.go.plugin.access.common.handler.JSONResultMessageHandler;
+import com.thoughtworks.go.plugin.access.common.settings.Image;
 import com.thoughtworks.go.plugin.api.config.Configuration;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
@@ -114,6 +115,15 @@ public class ElasticAgentExtensionConverterV1 implements ElasticAgentMessageConv
             throw new RuntimeException("Template was blank!");
         }
         return template;
+    }
+
+    @Override
+    public Image getImageResponseFromBody(String responseBody) {
+        Map<String, String> json = new Gson().fromJson(responseBody, Map.class);
+        if (json != null && json.containsKey("content-type") && json.containsKey("data")) {
+            return new Image(json.get("content-type"), json.get("data"));
+        }
+        return null;
     }
 
     @Override

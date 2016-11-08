@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service.plugins.builder;
 
+import com.thoughtworks.go.plugin.access.common.settings.Image;
 import com.thoughtworks.go.plugin.access.elastic.Constants;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginRegistry;
@@ -64,19 +65,22 @@ class ElasticAgentViewViewModelBuilder implements ViewModelBuilder {
             return null;
         }
 
-        Configuration config = new ElasticAgentExtension(pluginManager).getProfileMetadata(pluginId);
+        ElasticAgentExtension extension = new ElasticAgentExtension(pluginManager);
+        Configuration config = extension.getProfileMetadata(pluginId);
+
+        Image icon = extension.getIcon(pluginId);
 
         ArrayList<PluginConfiguration> pluginConfigurations = getPluginConfigurations(config);
 
         PluginView pluginView = null;
         try {
-            pluginView = new PluginView(new ElasticAgentExtension(pluginManager).getProfileView(pluginId));
+            pluginView = new PluginView(extension.getProfileView(pluginId));
         } catch (Exception e) {
             LOG.warn("There was an error loading the profile view for plugin " + pluginId, e);
         }
 
         PluggableInstanceSettings settings = new PluggableInstanceSettings(pluginConfigurations, pluginView);
-        return new PluginInfo(plugin, Constants.EXTENSION_NAME, null, settings);
+        return new PluginInfo(plugin, Constants.EXTENSION_NAME, null, settings, icon);
     }
 
     private ArrayList<PluginConfiguration> getPluginConfigurations(Configuration config) {

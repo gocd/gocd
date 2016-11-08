@@ -34,6 +34,7 @@ public class Constants {
     public static final String REQUEST_GET_PROFILE_METADATA = REQUEST_PREFIX + ".get-profile-metadata";
     public static final String REQUEST_GET_PROFILE_VIEW = REQUEST_PREFIX + ".get-profile-view";
     public static final String REQUEST_VALIDATE_PROFILE = REQUEST_PREFIX + ".validate-profile";
+    public static final String REQUEST_GET_PLUGIN_SETTINGS_ICON = REQUEST_PREFIX + ".get-icon";
 
     public static final String PROCESS_DISABLE_AGENTS = PROCESSOR_PREFIX + ".disable-agents";
     public static final String PROCESS_DELETE_AGENTS = PROCESSOR_PREFIX + ".delete-agents";

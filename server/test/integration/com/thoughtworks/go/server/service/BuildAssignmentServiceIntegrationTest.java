@@ -47,6 +47,7 @@ import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.materials.DependencyMaterialUpdateNotifier;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.scheduling.ScheduleHelper;
 import com.thoughtworks.go.server.service.builders.BuilderFactory;
@@ -115,6 +116,7 @@ public class BuildAssignmentServiceIntegrationTest {
     @Autowired private PipelineConfigService pipelineConfigService;
     @Autowired private EntityHashingService entityHashingService;
     @Autowired private ElasticAgentPluginService elasticAgentPluginService;
+    @Autowired private DependencyMaterialUpdateNotifier notifier;
 
     private PipelineConfig evolveConfig;
     private static final String STAGE_NAME = "dev";
@@ -161,10 +163,12 @@ public class BuildAssignmentServiceIntegrationTest {
         u = new ScheduleTestUtil(transactionTemplate, materialRepository, dbHelper, configHelper);
 
         agent = new AgentStub();
+        notifier.disableUpdates();
     }
 
     @After
     public void teardown() throws Exception {
+        notifier.enableUpdates();
         goCache.clear();
         agentService.clearAll();
         fixture.onTearDown();

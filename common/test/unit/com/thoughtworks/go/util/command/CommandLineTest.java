@@ -140,10 +140,9 @@ public class CommandLineTest {
     @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, OSChecker.WINDOWS})
     public void shouldNotLogPasswordsFromStream() {
         LogFixture logFixture = LogFixture.startListening();
-        LogFixture.enableDebug();
         CommandLine line = CommandLine.createCommandLine("/bin/echo").withArg("=>").withArg(new PasswordArgument("secret"));
         line.runOrBomb(null);
-
+        System.out.println(ArrayUtil.join(logFixture.getMessages()));
         assertThat(ArrayUtil.join(logFixture.getMessages()), not(containsString("secret")));
         assertThat(ArrayUtil.join(logFixture.getMessages()), containsString("=> ******"));
         logFixture.stopListening();

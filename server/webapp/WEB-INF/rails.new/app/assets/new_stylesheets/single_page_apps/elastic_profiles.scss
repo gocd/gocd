@@ -24,5 +24,23 @@
   margin-top:       100px;
   background-color: $accordion-bg;
   overflow:         auto;
+}
 
+.edit-profile {
+  @include icon-before($type: pencil-square-o, $color: $dark-gray);
+  &:hover {
+    &:before {
+      color: $black;
+    }
+  }
+}
+
+
+.delete-profile {
+  @include icon-before($type: trash, $color: $dark-gray);
+  &:hover {
+    &:before {
+      color: $black;
+    }
+  }
 }

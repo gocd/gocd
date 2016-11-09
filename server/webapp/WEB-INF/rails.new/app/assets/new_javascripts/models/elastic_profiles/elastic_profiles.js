@@ -28,8 +28,8 @@ define([
   };
 
   ElasticProfiles.Profile = function (data) {
-    this.id         = m.prop(data.id);
-    this.pluginId   = m.prop(data.pluginId);
+    this.id         = m.prop(s.defaultToIfBlank(data.id, ''));
+    this.pluginId   = m.prop(s.defaultToIfBlank(data.pluginId, ''));
     this.properties = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.properties, new PluginConfigurations())));
 
     this.parent = Mixins.GetterSetter();

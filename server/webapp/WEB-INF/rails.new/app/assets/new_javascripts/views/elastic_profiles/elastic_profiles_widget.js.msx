@@ -15,13 +15,13 @@
  */
 
 define([
-  'mithril', 'lodash', 'jquery', 'helpers/form_helper', 'views/shared/modal', 'helpers/mithril_component_mixins',
+  'mithril', 'lodash', 'string-plus', 'jquery', 'angular', 'helpers/form_helper', 'views/shared/modal', 'helpers/mithril_component_mixins',
   'models/elastic_profiles/elastic_profiles',
   'models/pipeline_configs/plugin_infos',
   'jquery.textcomplete'
-], function (m, _, $, f, Modal, ComponentMixins, ElasticProfiles, PluginInfos) {
+], function (m, _, s, $, angular, f, Modal, ComponentMixins, ElasticProfiles, PluginInfos) {
 
-  var autoComplete = function (model, attrName) {
+  var autoComplete = function (model, attrName, selectCb) {
     return function (elem, isInitialized) {
       if (!isInitialized) {
         var $inputElem = $($(elem).find("input[data-prop-name='" + attrName + "']"));
@@ -50,18 +50,188 @@ define([
 
         $inputElem.on('textComplete:select', function () {
           model[attrName]($inputElem.val());
+          if (selectCb) {
+            selectCb($inputElem.val());
+          }
         });
       }
     };
   };
 
+  var template = function (template) {
+    return $('<div></div>').html(template.replace(/GOINPUTNAME\[([^\]]*)\]/g, function (match, name) {
+      return "GOINPUTNAME['" + name + "']";
+    })).html();
+  };
+
+  var ElasticProfileNewModal = {
+    controller: function (args) {
+      var ctrl = this;
+
+      this.pluginInfo       = null;
+      this.ngControllerName = null;
+
+      this.pluginTemplate = function () {
+        if (this.pluginInfo) {
+          return m.trust(template(this.pluginInfo.viewTemplate()));
+        }
+      };
+
+      this.selectPluginId = function () {
+        this.redrawProperties();
+      };
+
+      ctrl.uuid             = null;
+      ctrl.appName          = null;
+      ctrl.defaultConfig    = null;
+      ctrl.ngControllerName = null;
+
+      var resetAngularController = function (newPluginInfo) {
+        ctrl.pluginInfo       = newPluginInfo;
+        ctrl.uuid             = s.uuid();
+        ctrl.appName          = 'app-' + ctrl.uuid;
+        ctrl.defaultConfig    = ctrl.pluginInfo.configurations();
+        ctrl.ngControllerName = 'controller-' + ctrl.uuid;
+      };
+
+
+      this.redrawProperties = function () {
+        var pluginInfo = _.find(PluginInfos(), function (pi) {
+          return pi.id() === args.profile.pluginId();
+        });
+
+        if (!pluginInfo) {
+          return;
+        }
+
+        PluginInfos.PluginInfo.byId(pluginInfo.id()).then(resetAngularController);
+      };
+    },
+
+    view: function (ctrl, args) {
+      var profile = args.profile;
+      var config  = function (elem, isInitialized) {
+        if (!isInitialized) {
+
+          ctrl.ngController = angular.module(ctrl.appName, []).controller(ctrl.ngControllerName, ['$scope', '$http', function ($scope) {
+            $scope.addError = function (field) {
+              $scope.GOINPUTNAME[field.key]                              = {$error: {}};
+              $scope.GOINPUTNAME[field.key].$error[_.toLower(field.key)] = field.errors.join();
+            };
+
+            $scope.clearErrors = function () {
+              $scope.GOINPUTNAME               = {};
+              $scope.pluggableTaskGenericError = null;
+            };
+
+            $scope.clearErrors();
+
+            _.map(ctrl.defaultConfig, function (config) {
+              $scope[config.key] = args.profile.properties().valueFor(config.key);
+
+              $scope.$watch(config.key, function (newValue) {
+                args.profile.properties().setConfiguration(config.key, newValue);
+              });
+            });
+          }]);
+
+          angular.bootstrap(elem, [ctrl.appName]);
+        }
+      };
+
+      var pluginView = function () {
+        if (!ctrl.pluginInfo) {
+          return;
+        }
+
+        return (
+          <div>
+            <h4>Properties</h4>
+            <div class='plugin-view' ng-controller={ctrl.ngControllerName}
+                 config={config}>
+              {ctrl.pluginTemplate()}
+            </div>
+            <f.row>
+              <f.button onclick={args.onSave}>Save</f.button>
+            </f.row>
+          </div>
+        );
+      };
+
+      return (
+        <div>
+          <f.row>
+            <f.inputWithLabel model={profile}
+                              attrName="id"
+                              isRequired="true"
+                              label="Id"/>
+            <f.inputWithLabel model={profile}
+                              attrName="pluginId"
+                              isRequired="true"
+                              label="Plugin Id"
+                              onChange={ctrl.redrawProperties.bind(ctrl)}
+                              config={autoComplete(profile, 'pluginId', ctrl.selectPluginId.bind(ctrl))}
+                              end="true"/>
+          </f.row>
+
+          {pluginView()}
+        </div>
+      );
+    }
+  };
+
   var ElasticProfileEditModal = {
+    controller: function (args) {
+      this.pluginTemplate = function () {
+        return m.trust(template(args.pluginInfo.viewTemplate()));
+      };
+
+      var ctrl              = this;
+      this.uuid             = s.uuid();
+      this.ngControllerName = 'controller-' + this.uuid;
+      this.appName          = 'app-' + this.uuid;
+      this.profile          = args.profile;
+
+      this.defaultConfig = args.pluginInfo.configurations();
+
+      this.ngController = angular.module(this.appName, []).controller(this.ngControllerName, ['$scope', '$http', function ($scope) {
+        $scope.addError = function (field) {
+          $scope.GOINPUTNAME[field.key]                              = {$error: {}};
+          $scope.GOINPUTNAME[field.key].$error[_.toLower(field.key)] = field.errors.join();
+        };
+
+        $scope.clearErrors = function () {
+          $scope.GOINPUTNAME               = {};
+          $scope.pluggableTaskGenericError = null;
+        };
+
+        $scope.clearErrors();
+
+        _.map(ctrl.defaultConfig, function (config) {
+          $scope[config.key] = args.profile.properties().valueFor(config.key);
+
+          $scope.$watch(config.key, function (newValue) {
+            args.profile.properties().setConfiguration(config.key, newValue);
+          });
+        });
+
+      }]);
+    },
+
     view: function (ctrl, args) {
       var profile = args.profile;
 
       if (!profile) {
         return <f.modalSpinner/>;
       }
+
+      var config = function (elem, isInitialized) {
+        if (!isInitialized) {
+          var pluginTaskTemplateElement = $('#elastic-profile-' + ctrl.uuid);
+          angular.bootstrap(pluginTaskTemplateElement.get(0), [ctrl.appName]);
+        }
+      };
+
 
       return (
         <div>
@@ -80,14 +250,10 @@ define([
 
           <h4>Properties</h4>
 
-          {profile.properties().mapConfigurations(function (property) {
-            return (
-              <f.row>
-                <f.input model={property} attrName="key" size="3"/>
-                <f.input model={property} attrName="value" end="true" size="3"/>
-              </f.row>
-            );
-          })}
+          <div class='plugin-view' id={'elastic-profile-' + ctrl.uuid} ng-controller={ctrl.ngControllerName}
+               config={config}>
+            {ctrl.pluginTemplate()}
+          </div>
 
           <f.row>
             <f.button onclick={args.onUpdate}>Update</f.button>
@@ -110,8 +276,8 @@ define([
               <div><span>ID: </span>{profile.id()}</div>
               <div><span>Plugin ID: </span>{profile.pluginId()}</div>
               <div>
-                <f.link onclick={args.onEdit}>Edit</f.link>
-                <f.link onclick={args.onDelete}>Delete</f.link>
+                <f.link class='edit-profile' onclick={args.onEdit}/>
+                <f.link class='delete-profile' onclick={args.onDelete}/>
               </div>
             </f.row>
           </f.column>
@@ -125,13 +291,7 @@ define([
       var ctrl = this;
       ComponentMixins.ManagesCollection.call(this, {as: 'Profile'});
 
-      this.editModal = new Modal({
-        subView: {
-          component: ElasticProfileEditModal,
-          args:      {}
-        },
-        size:    'large'
-      });
+      this.modal = null;
 
       this.reloadPage = function () {
         this.profiles   = ElasticProfiles.all();
@@ -141,15 +301,34 @@ define([
       this.reloadPage();
 
       this.edit = function (profile) {
-        this.editModal.title = 'Editing Profile ' + profile.id();
-        this.editModal.open();
-        ElasticProfiles.Profile.get(profile.id()).then(function (newProfile) {
-          ctrl.editModal.subView.args.profile  = newProfile;
-          ctrl.editModal.subView.args.onUpdate = function () {
-            newProfile.update()
-              .then(ctrl.editModal.close.bind(ctrl.editModal))
-              .then(ctrl.reloadPage.bind(ctrl));
-          };
+        m.sync([
+          ElasticProfiles.Profile.get(profile.id()), PluginInfos.PluginInfo.byId(profile.pluginId())
+        ]).then(function (args) {
+          var newProfile = args[0];
+          var pluginInfo = args[1];
+
+          ctrl.modal = new Modal({
+            subView: {
+              component: ElasticProfileEditModal,
+              args:      {
+                profile:    newProfile,
+                pluginInfo: pluginInfo,
+                onUpdate:   function () {
+                  newProfile.update().then(function () {
+                    ctrl.modal.destroy();
+                    ctrl.modal = null;
+                    ctrl.reloadPage();
+                  });
+                }
+              }
+            },
+            size:    'large',
+            title:   'Editing Profile ' + profile.id()
+          });
+
+          m.redraw(true);
+
+          ctrl.modal.open();
         });
       };
 
@@ -158,9 +337,34 @@ define([
       };
 
       this.add = function () {
-        this.editModal.title                = 'Create new profile';
-        ctrl.editModal.subView.args.profile = new ElasticProfiles.Profile({id: null, pluginId: null});
-        this.editModal.open();
+        var newProfile = new ElasticProfiles.Profile({});
+
+        ctrl.modal = new Modal({
+          subView: {
+            component: ElasticProfileNewModal,
+            args:      {
+              profile: newProfile,
+              onSave:  function () {
+                newProfile.update().then(function () {
+                  ctrl.modal.destroy();
+                  ctrl.modal = null;
+                  ctrl.reloadPage();
+                });
+              }
+            }
+          },
+          size:    'large',
+          title:   'Add a new profile'
+        });
+
+        m.redraw(true);
+
+        ctrl.modal.onClose(function () {
+          //ctrl.modal.destroy();
+          //ctrl.modal = null;
+        });
+
+        ctrl.modal.open();
       };
 
     },
@@ -200,7 +404,7 @@ define([
             })}
           </div>
 
-          {ctrl.editModal.view()}
+          {ctrl.modal ? ctrl.modal.view() : undefined}
         </div>
       );
     }

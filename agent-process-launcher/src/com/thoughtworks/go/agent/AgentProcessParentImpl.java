@@ -57,16 +57,16 @@ public class AgentProcessParentImpl implements AgentProcessParent {
             File rootCertFile = backwardCompatibility.rootCertFile();
             SslVerificationMode sslVerificationMode = backwardCompatibility.sslVerificationMode();
 
-            ServerBinaryDownloader agentDownloader = new ServerBinaryDownloader(urlGenerator, DownloadableFile.AGENT, rootCertFile, sslVerificationMode);
-            agentDownloader.downloadIfNecessary();
+            ServerBinaryDownloader agentDownloader = new ServerBinaryDownloader(urlGenerator, rootCertFile, sslVerificationMode);
+            agentDownloader.downloadIfNecessary(DownloadableFile.AGENT);
 
-            ServerBinaryDownloader pluginZipDownloader = new ServerBinaryDownloader(urlGenerator, DownloadableFile.AGENT_PLUGINS, rootCertFile, sslVerificationMode);
-            pluginZipDownloader.downloadIfNecessary();
+            ServerBinaryDownloader pluginZipDownloader = new ServerBinaryDownloader(urlGenerator, rootCertFile, sslVerificationMode);
+            pluginZipDownloader.downloadIfNecessary(DownloadableFile.AGENT_PLUGINS);
 
-            ServerBinaryDownloader tfsImplDownloader = new ServerBinaryDownloader(urlGenerator, DownloadableFile.TFS_IMPL, rootCertFile, sslVerificationMode);
-            tfsImplDownloader.downloadIfNecessary();
+            ServerBinaryDownloader tfsImplDownloader = new ServerBinaryDownloader(urlGenerator, rootCertFile, sslVerificationMode);
+            tfsImplDownloader.downloadIfNecessary(DownloadableFile.TFS_IMPL);
 
-            command = agentInvocationCommand(agentDownloader.md5(), launcherMd5, pluginZipDownloader.md5(), tfsImplDownloader.md5(), env, context, agentDownloader.sslPort());
+            command = agentInvocationCommand(agentDownloader.getMd5(), launcherMd5, pluginZipDownloader.getMd5(), tfsImplDownloader.getMd5(), env, context, agentDownloader.getSslPort());
             LOG.info("Launching Agent with command: " + join(command, " "));
 
             Process agent = invoke(command);

@@ -137,12 +137,11 @@ public class AgentPluginsInitializerIntegrationTest {
     }
 
     private SetupOfAgentPluginsFile setupAgentsPluginFile() throws IOException {
-        return new SetupOfAgentPluginsFile(new File(AGENT_PLUGINS.getLocalFileName()));
+        return new SetupOfAgentPluginsFile(AGENT_PLUGINS.getLocalFile());
     }
 
     private void cleanupAgentPluginsFile() throws IOException {
-        File pluginsFile = new File(AGENT_PLUGINS.getLocalFileName());
-        FileUtils.deleteQuietly(pluginsFile);
+        FileUtils.deleteQuietly(AGENT_PLUGINS.getLocalFile());
     }
 
     private class SetupOfAgentPluginsFile {

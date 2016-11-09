@@ -80,7 +80,6 @@ public class AgentBootstrapper {
                 if (returnValue == AgentLauncher.IRRECOVERABLE_ERROR) {
                     loop = false;
                 }
-                launcher = null;
             } catch (Exception e) {
                 LOG.error("Error starting launcher", e);
             } finally {

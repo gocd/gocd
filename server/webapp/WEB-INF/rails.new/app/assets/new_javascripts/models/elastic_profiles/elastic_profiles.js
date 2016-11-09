@@ -15,8 +15,8 @@
  */
 
 define([
-  'mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/shared/plugin_configurations', 'helpers/mrequest', 'js-routes',
-], function (m, _, s, Mixins, PluginConfigurations, mrequest, Routes) {
+  'mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/shared/plugin_configurations', 'helpers/mrequest', 'js-routes', 'models/validatable_mixin'
+], function (m, _, s, Mixins, PluginConfigurations, mrequest, Routes, Validatable) {
 
   var ElasticProfiles = function (data) {
     Mixins.HasMany.call(this, {
@@ -31,6 +31,10 @@ define([
     this.id         = m.prop(s.defaultToIfBlank(data.id, ''));
     this.pluginId   = m.prop(s.defaultToIfBlank(data.pluginId, ''));
     this.properties = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.properties, new PluginConfigurations())));
+    Validatable.call(this, data);
+
+    this.validatePresenceOf('id');
+    this.validatePresenceOf('pluginId');
 
     this.parent = Mixins.GetterSetter();
 
@@ -88,6 +92,7 @@ define([
     return new ElasticProfiles.Profile({
       id:         data.id,
       pluginId:   data.plugin_id,
+      errors:     data.errors,
       properties: PluginConfigurations.fromJSON(data.properties)
     });
   };

@@ -15,249 +15,103 @@
  */
 
 define([
-  'mithril', 'lodash', 'string-plus', 'jquery', 'angular', 'helpers/form_helper', 'views/shared/modal', 'helpers/mithril_component_mixins',
+  'mithril', 'lodash', 'string-plus', 'jquery', 'angular', 'helpers/form_helper', 'views/shared/new_modal', 'views/shared/angular_plugin', 'helpers/mithril_component_mixins',
   'models/elastic_profiles/elastic_profiles',
   'models/pipeline_configs/plugin_infos',
   'jquery.textcomplete'
-], function (m, _, s, $, angular, f, Modal, ComponentMixins, ElasticProfiles, PluginInfos) {
+], function (m, _, s, $, angular, f, Modal, AngularPlugin, ComponentMixins, ElasticProfiles, PluginInfos) {
 
   var autoComplete = function (model, attrName, selectCb) {
     return function (elem, isInitialized) {
-      if (!isInitialized) {
-        var $inputElem = $($(elem).find("input[data-prop-name='" + attrName + "']"));
-        var values     = _.map(PluginInfos(), function (pi) {
-          return pi.id();
-        });
-
-        $inputElem.textcomplete([
-          {
-            words:   values, //the list of auto-completes
-            match:   /(^|,)\s*([^,]+)$/,
-            index:   2, // use the second match in the regex to extract the search term
-            search:  function (term, callback) {
-              term = term.toLowerCase();
-              callback($.map(this.words, function (word) {
-                return word.toLowerCase().indexOf(term) >= 0 ? word : null;
-              }));
-            },
-            replace: function (word) {
-              return '$1' + word;
-            }
-          }
-        ], {
-          zIndex: '10000'
-        });
-
-        $inputElem.on('textComplete:select', function () {
-          model[attrName]($inputElem.val());
-          if (selectCb) {
-            selectCb($inputElem.val());
-          }
-        });
+      if (isInitialized) {
+        return;
       }
+
+      var $inputElem = $($(elem).find("input[data-prop-name='" + attrName + "']"));
+      var values     = _.map(PluginInfos(), function (pi) {
+        return pi.id();
+      });
+
+      $inputElem.textcomplete([
+        {
+          words:   values, //the list of auto-completes
+          match:   /(^|,)\s*([^,]+)$/,
+          index:   2, // use the second match in the regex to extract the search term
+          search:  function (term, callback) {
+            term = term.toLowerCase();
+            callback($.map(this.words, function (word) {
+              return word.toLowerCase().indexOf(term) >= 0 ? word : null;
+            }));
+          },
+          replace: function (word) {
+            return '$1' + word;
+          }
+        }
+      ], {
+        zIndex: '10000'
+      });
+
+      $inputElem.on('textComplete:select', function () {
+        model[attrName]($inputElem.val());
+        if (selectCb) {
+          selectCb($inputElem.val());
+        }
+      });
     };
   };
 
-  var template = function (template) {
-    return $('<div></div>').html(template.replace(/GOINPUTNAME\[([^\]]*)\]/g, function (match, name) {
-      return "GOINPUTNAME['" + name + "']";
-    })).html();
-  };
-
-  var ElasticProfileNewModal = {
+  var ElasticProfileModalBody = {
     controller: function (args) {
-      var ctrl = this;
-
-      this.pluginInfo       = null;
-      this.ngControllerName = null;
-
-      this.pluginTemplate = function () {
-        if (this.pluginInfo) {
-          return m.trust(template(this.pluginInfo.viewTemplate()));
-        }
+      var setPluginInfo = function (pluginInfo) {
+        args.pluginInfo(pluginInfo);
+        args.saveDisabled(!pluginInfo);
       };
+
+      setPluginInfo(args.pluginInfo());
 
       this.selectPluginId = function () {
-        this.redrawProperties();
-      };
-
-      ctrl.uuid             = null;
-      ctrl.appName          = null;
-      ctrl.defaultConfig    = null;
-      ctrl.ngControllerName = null;
-
-      var resetAngularController = function (newPluginInfo) {
-        ctrl.pluginInfo       = newPluginInfo;
-        ctrl.uuid             = s.uuid();
-        ctrl.appName          = 'app-' + ctrl.uuid;
-        ctrl.defaultConfig    = ctrl.pluginInfo.configurations();
-        ctrl.ngControllerName = 'controller-' + ctrl.uuid;
-      };
-
-
-      this.redrawProperties = function () {
         var pluginInfo = _.find(PluginInfos(), function (pi) {
-          return pi.id() === args.profile.pluginId();
+          return pi.id() === args.profile().pluginId();
         });
+
+        setPluginInfo(pluginInfo);
 
         if (!pluginInfo) {
           return;
         }
 
-        PluginInfos.PluginInfo.byId(pluginInfo.id()).then(resetAngularController);
+        PluginInfos.PluginInfo.byId(pluginInfo.id()).then(function (pluginInfo) {
+          setPluginInfo(pluginInfo);
+          args.profile(new ElasticProfiles.Profile({id: args.profile().id(), pluginId: pluginInfo.id()}));
+        });
       };
     },
 
     view: function (ctrl, args) {
-      var profile = args.profile;
-      var config  = function (elem, isInitialized) {
-        if (!isInitialized) {
-
-          ctrl.ngController = angular.module(ctrl.appName, []).controller(ctrl.ngControllerName, ['$scope', '$http', function ($scope) {
-            $scope.addError = function (field) {
-              $scope.GOINPUTNAME[field.key]                              = {$error: {}};
-              $scope.GOINPUTNAME[field.key].$error[_.toLower(field.key)] = field.errors.join();
-            };
-
-            $scope.clearErrors = function () {
-              $scope.GOINPUTNAME               = {};
-              $scope.pluggableTaskGenericError = null;
-            };
-
-            $scope.clearErrors();
-
-            _.map(ctrl.defaultConfig, function (config) {
-              $scope[config.key] = args.profile.properties().valueFor(config.key);
-
-              $scope.$watch(config.key, function (newValue) {
-                args.profile.properties().setConfiguration(config.key, newValue);
-              });
-            });
-          }]);
-
-          angular.bootstrap(elem, [ctrl.appName]);
-        }
-      };
-
-      var pluginView = function () {
-        if (!ctrl.pluginInfo) {
-          return;
-        }
-
-        return (
-          <div>
-            <h4>Properties</h4>
-            <div class='plugin-view' ng-controller={ctrl.ngControllerName}
-                 config={config}>
-              {ctrl.pluginTemplate()}
-            </div>
-            <f.row>
-              <f.button onclick={args.onSave}>Save</f.button>
-            </f.row>
-          </div>
-        );
-      };
-
+      var profile = args.profile();
       return (
         <div>
-          <f.row>
+          <f.row key="static-stuff">
             <f.inputWithLabel model={profile}
                               attrName="id"
+                              validate="true"
                               isRequired="true"
-                              label="Id"/>
+                              label="Id"
+                              key="profile-id"/>
             <f.inputWithLabel model={profile}
+                              key="plugin-id-autocomplete"
+                              validate="true"
                               attrName="pluginId"
                               isRequired="true"
                               label="Plugin Id"
-                              onChange={ctrl.redrawProperties.bind(ctrl)}
+                              onChange={ctrl.selectPluginId.bind(ctrl)}
                               config={autoComplete(profile, 'pluginId', ctrl.selectPluginId.bind(ctrl))}
                               end="true"/>
           </f.row>
 
-          {pluginView()}
-        </div>
-      );
-    }
-  };
-
-  var ElasticProfileEditModal = {
-    controller: function (args) {
-      this.pluginTemplate = function () {
-        return m.trust(template(args.pluginInfo.viewTemplate()));
-      };
-
-      var ctrl              = this;
-      this.uuid             = s.uuid();
-      this.ngControllerName = 'controller-' + this.uuid;
-      this.appName          = 'app-' + this.uuid;
-      this.profile          = args.profile;
-
-      this.defaultConfig = args.pluginInfo.configurations();
-
-      this.ngController = angular.module(this.appName, []).controller(this.ngControllerName, ['$scope', '$http', function ($scope) {
-        $scope.addError = function (field) {
-          $scope.GOINPUTNAME[field.key]                              = {$error: {}};
-          $scope.GOINPUTNAME[field.key].$error[_.toLower(field.key)] = field.errors.join();
-        };
-
-        $scope.clearErrors = function () {
-          $scope.GOINPUTNAME               = {};
-          $scope.pluggableTaskGenericError = null;
-        };
-
-        $scope.clearErrors();
-
-        _.map(ctrl.defaultConfig, function (config) {
-          $scope[config.key] = args.profile.properties().valueFor(config.key);
-
-          $scope.$watch(config.key, function (newValue) {
-            args.profile.properties().setConfiguration(config.key, newValue);
-          });
-        });
-
-      }]);
-    },
-
-    view: function (ctrl, args) {
-      var profile = args.profile;
-
-      if (!profile) {
-        return <f.modalSpinner/>;
-      }
-
-      var config = function (elem, isInitialized) {
-        if (!isInitialized) {
-          var pluginTaskTemplateElement = $('#elastic-profile-' + ctrl.uuid);
-          angular.bootstrap(pluginTaskTemplateElement.get(0), [ctrl.appName]);
-        }
-      };
-
-
-      return (
-        <div>
-          <f.row>
-            <f.inputWithLabel model={profile}
-                              attrName="id"
-                              isRequired="true"
-                              label="Id"/>
-            <f.inputWithLabel model={profile}
-                              attrName="pluginId"
-                              isRequired="true"
-                              label="Plugin Id"
-                              config={autoComplete(profile, 'pluginId')}
-                              end="true"/>
-          </f.row>
-
-          <h4>Properties</h4>
-
-          <div class='plugin-view' id={'elastic-profile-' + ctrl.uuid} ng-controller={ctrl.ngControllerName}
-               config={config}>
-            {ctrl.pluginTemplate()}
-          </div>
-
-          <f.row>
-            <f.button onclick={args.onUpdate}>Update</f.button>
-          </f.row>
+          <AngularPlugin pluginInfo={args.pluginInfo}
+                         configuration={profile.properties()}
+                         key={args.pluginInfo() ? args.pluginInfo().id() : 'no-plugin'}/>
         </div>
       );
     }
@@ -304,31 +158,37 @@ define([
         m.sync([
           ElasticProfiles.Profile.get(profile.id()), PluginInfos.PluginInfo.byId(profile.pluginId())
         ]).then(function (args) {
-          var newProfile = args[0];
-          var pluginInfo = args[1];
+          var newProfile   = m.prop(args[0]);
+          var pluginInfo   = m.prop(args[1]);
+          var saveDisabled = m.prop(false);
 
-          ctrl.modal = new Modal({
-            subView: {
-              component: ElasticProfileEditModal,
-              args:      {
-                profile:    newProfile,
-                pluginInfo: pluginInfo,
-                onUpdate:   function () {
-                  newProfile.update().then(function () {
-                    ctrl.modal.destroy();
-                    ctrl.modal = null;
-                    ctrl.reloadPage();
-                  });
-                }
-              }
-            },
+          var modal = new Modal({
             size:    'large',
-            title:   'Editing Profile ' + profile.id()
+            title:   'Edit profile ' + newProfile().id(),
+            body:    (<ElasticProfileModalBody profile={newProfile}
+                                               pluginInfo={pluginInfo}
+                                               saveDisabled={saveDisabled}/>),
+            onclose: function () {
+              modal.destroy();
+            },
+            buttons: [
+              {
+                text:     'Save',
+                onclick:  function () {
+                  var onFulfilled = function () {
+                    modal.destroy();
+                    ctrl.reloadPage();
+                  };
+                  var onRejected  = function () {
+                    debugger;
+                  };
+                  newProfile().update().then(onFulfilled, onRejected);
+                },
+                disabled: saveDisabled
+              }
+            ]
           });
-
-          m.redraw(true);
-
-          ctrl.modal.open();
+          modal.render();
         });
       };
 
@@ -337,34 +197,37 @@ define([
       };
 
       this.add = function () {
-        var newProfile = new ElasticProfiles.Profile({});
+        var newProfile    = m.prop(new ElasticProfiles.Profile({}));
+        var newPluginInfo = m.prop(null);
+        var saveDisabled  = m.prop(true);
 
-        ctrl.modal = new Modal({
-          subView: {
-            component: ElasticProfileNewModal,
-            args:      {
-              profile: newProfile,
-              onSave:  function () {
-                newProfile.update().then(function () {
-                  ctrl.modal.destroy();
-                  ctrl.modal = null;
-                  ctrl.reloadPage();
-                });
-              }
-            }
-          },
+        var modal = new Modal({
           size:    'large',
-          title:   'Add a new profile'
+          title:   'Add a new profile',
+          body:    (<ElasticProfileModalBody profile={newProfile}
+                                             pluginInfo={newPluginInfo}
+                                             saveDisabled={saveDisabled}/>),
+          onclose: function () {
+            modal.destroy();
+          },
+          buttons: [
+            {
+              text:     'Save',
+              onclick:  function () {
+                var onFulfilled = function () {
+                  modal.destroy();
+                  ctrl.reloadPage();
+                };
+                var onRejected  = function (profileWithErrors) {
+                  newProfile(new ElasticProfiles.Profile.fromJSON(profileWithErrors));
+                };
+                newProfile().create().then(onFulfilled, onRejected);
+              },
+              disabled: saveDisabled
+            }
+          ]
         });
-
-        m.redraw(true);
-
-        ctrl.modal.onClose(function () {
-          //ctrl.modal.destroy();
-          //ctrl.modal = null;
-        });
-
-        ctrl.modal.open();
+        modal.render();
       };
 
     },
@@ -403,8 +266,6 @@ define([
               );
             })}
           </div>
-
-          {ctrl.modal ? ctrl.modal.view() : undefined}
         </div>
       );
     }

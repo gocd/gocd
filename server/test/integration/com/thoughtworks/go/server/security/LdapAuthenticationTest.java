@@ -54,7 +54,7 @@ import static org.junit.Assert.fail;
 public class LdapAuthenticationTest {
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private LdapAuthenticationProvider ldapAuthenticationProvider;
-    private static GoConfigFileHelper CONFIG_HELPER;
+    private GoConfigFileHelper CONFIG_HELPER;
     private InMemoryLdapServerForTests ldapServer;
     private LDIFRecord employeesOrgUnit;
 

@@ -54,7 +54,7 @@ import static org.junit.Assert.fail;
 public class LdapAuthenticationTest {
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private LdapAuthenticationProvider ldapAuthenticationProvider;
-    private static final GoConfigFileHelper CONFIG_HELPER = new GoConfigFileHelper();
+    private static GoConfigFileHelper CONFIG_HELPER;
     private InMemoryLdapServerForTests ldapServer;
     private LDIFRecord employeesOrgUnit;
 
@@ -68,6 +68,7 @@ public class LdapAuthenticationTest {
 
     @Before
     public void setUp() throws Exception {
+        CONFIG_HELPER = new GoConfigFileHelper();
         CONFIG_HELPER.usingCruiseConfigDao(goConfigDao);
         CONFIG_HELPER.initializeConfigFile();
         CONFIG_HELPER.addLdapSecurity(LDAP_URL, MANAGER_DN, MANAGER_PASSWORD, SEARCH_BASE, SEARCH_FILTER);

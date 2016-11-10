@@ -37,8 +37,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     private static final String CRUISE_DATABASE_PORT = "cruise.database.port";
     public static final String CRUISE_SERVER_PORT = "cruise.server.port";
     public static final String CRUISE_SERVER_SSL_PORT = "cruise.server.ssl.port";
-    public static final String AGENT_JAR_PATH = "agent.jar";
-    public static final String AGENT_LAUNCHER_JAR_PATH = "agent-launcher.jar";
     static final String AGENT_CONNECTION_TIMEOUT_IN_SECONDS = "agent.connection.timeout";
     private static final String JETTY_XML = "jetty.xml";
     public static final String CRUISE_SERVER_WAR_PROPERTY = "cruise.server.war";
@@ -53,9 +51,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static final String ACTIVEMQ_USE_JMX = "activemq.use.jmx";
     public static final String ACTIVEMQ_QUEUE_PREFETCH = "activemq.queue.prefetch";
     private static final String ACTIVEMQ_CONNECTOR_PORT = "activemq.conn.port";
-    public static final int NUMBER_OF_DAYS_TO_EXPIRY = 30;
 
-    public static final String NUMBER_OF_DAYS_TO_EXPIRY_PROPERTY = "number.of.days.to.expiry";
     public static final String PARENT_LOADER_PRIORITY = "parent.loader.priority";
     public static final String AGENT_CONTENT_MD5_HEADER = "Agent-Content-MD5";
 
@@ -458,10 +454,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public int getNumberOfPluginNotificationListener() {
         return PLUGIN_NOTIFICATION_LISTENER_COUNT.getValue();
-    }
-
-    public File getAgentJarFile() {
-        return new File(AGENT_JAR_PATH);
     }
 
     public String getAgentMd5() {

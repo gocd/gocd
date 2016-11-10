@@ -39,7 +39,6 @@ public class GoServer {
     }
 
     private static final Logger LOG = Logger.getLogger(GoServer.class);
-    public static final String GO_FORCE_LOAD_PAGE_HEADER = "X-GO-FORCE-LOAD-PAGE";
 
     private SystemEnvironment systemEnvironment;
     private SSLSocketFactory sslSocketFactory;
@@ -137,9 +136,6 @@ public class GoServer {
         validators.add(new ServerPortValidator(systemEnvironment.getServerPort()));
         validators.add(new ServerPortValidator(systemEnvironment.getSslServerPort()));
         validators.add(new ServerPortValidator(systemEnvironment.getDatabaseSeverPort()));
-        validators.add(FileValidator.defaultFile("agent-bootstrapper.jar"));
-        validators.add(FileValidator.defaultFile("agent.jar"));
-        validators.add(FileValidator.defaultFile("agent-launcher.jar"));
         validators.add(FileValidator.defaultFile("cruise.war"));
         validators.add(FileValidator.defaultFile("historical_jars/h2-1.2.127.jar"));
         validators.add(FileValidator.configFile("cruise-config.xml", systemEnvironment));

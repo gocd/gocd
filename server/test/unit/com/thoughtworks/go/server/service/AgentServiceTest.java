@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,14 +32,12 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
-import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.utils.Timeout;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
@@ -134,26 +132,6 @@ public class AgentServiceTest {
         AgentViewModel view2 = new AgentViewModel(instance3);
         assertThat(agents, is(new AgentsViewModel(view1, view2)));
         verify(agentInstances).filter(Arrays.asList("uuid-1", "uuid-3"));
-    }
-
-    @Test
-    public void shouldGetAgentJarInputStream() throws IOException {
-        try {
-            writeToFile(SystemEnvironment.AGENT_JAR_PATH);
-            assertThat(FileUtil.readToEnd(agentService.agentJarInputStream()), is(SystemEnvironment.AGENT_JAR_PATH));
-        } finally {
-            new File(SystemEnvironment.AGENT_JAR_PATH).delete();
-        }
-    }
-
-    @Test
-    public void shouldGetAgentLauncherJarInputStream() throws IOException {
-        try {
-            writeToFile(SystemEnvironment.AGENT_LAUNCHER_JAR_PATH);
-            assertThat(FileUtil.readToEnd(agentService.agentLauncherJarInputStream()), is(SystemEnvironment.AGENT_LAUNCHER_JAR_PATH));
-        } finally {
-            new File(SystemEnvironment.AGENT_LAUNCHER_JAR_PATH).delete();
-        }
     }
 
     @Test

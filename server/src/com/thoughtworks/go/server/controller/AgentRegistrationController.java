@@ -75,7 +75,7 @@ public class AgentRegistrationController {
         this.agentConfigService = agentConfigService;
     }
 
-    @RequestMapping(value = "/admin/latest-agent.status", method = RequestMethod.HEAD)
+    @RequestMapping(value = "/admin/latest-agent.status", method = {RequestMethod.HEAD, RequestMethod.GET})
     public void checkAgentStatus(HttpServletResponse response) throws IOException {
         populateAgentChecksum();
         populateLauncherChecksum();
@@ -86,11 +86,6 @@ public class AgentRegistrationController {
         response.setHeader(SystemEnvironment.AGENT_PLUGINS_ZIP_MD5_HEADER, pluginsZip.md5());
         response.setHeader(SystemEnvironment.AGENT_TFS_SDK_MD5_HEADER, tfsSdkChecksum);
         setOtherHeaders(response);
-    }
-
-    @RequestMapping(value = "/admin/latest-agent.status", method = RequestMethod.GET)
-    public void latestAgentStatus(HttpServletResponse response) throws IOException {
-        checkAgentStatus(response);
     }
 
     @RequestMapping(value = "/admin/agent", method = RequestMethod.HEAD)
@@ -307,14 +302,14 @@ public class AgentRegistrationController {
     }
 
     private class AgentJarSrc implements InputStreamSrc {
-        public InputStream invoke() throws FileNotFoundException {
-            return agentService.agentJarInputStream();
+        public InputStream invoke() throws IOException {
+            return JarDetector.create(systemEnvironment, "agent.jar");
         }
     }
 
     private class AgentLauncherSrc implements InputStreamSrc {
-        public InputStream invoke() throws FileNotFoundException {
-            return agentService.agentLauncherJarInputStream();
+        public InputStream invoke() throws IOException {
+            return JarDetector.create(systemEnvironment, "agent-launcher.jar");
         }
     }
 

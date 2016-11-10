@@ -28,23 +28,17 @@ import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
-import com.thoughtworks.go.util.ReflectionUtil;
-import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TestFileUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 
@@ -54,12 +48,6 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class AgentRegistrationControllerTest {
-    private static final String AGENT_CHECKSUM_FIELD = "agentChecksum";
-    private static final String AGENT_LAUNCHER_CHECKSUM_FIELD = "agentLauncherChecksum";
-    private static final String EXPECTED = "test";
-    private static final String EXPECTED_MD5 = "CY9rzUYh03PK3k6DJie09g==";
-    private static final String EXPECTED_LAUNCHER = "test-launcher";
-    private static final String EXPECTED_LAUNCHER_MD5 = "z3ouYEnfWUG8ewU/izre9g==";
     private final MockHttpServletRequest request = new MockHttpServletRequest();
     private final MockHttpServletResponse response = new MockHttpServletResponse();
     private AgentService agentService;
@@ -75,19 +63,6 @@ public class AgentRegistrationControllerTest {
         agentConfigService = mock(AgentConfigService.class);
         systemEnvironment = mock(SystemEnvironment.class);
         goConfigService = mock(GoConfigService.class);
-
-        when(agentService.agentJarInputStream()).thenAnswer(new Answer<ByteArrayInputStream>() {
-            @Override
-            public ByteArrayInputStream answer(InvocationOnMock invocation) throws Throwable {
-                return new ByteArrayInputStream(EXPECTED.getBytes());
-            }
-        });
-        when(agentService.agentLauncherJarInputStream()).thenAnswer(new Answer<ByteArrayInputStream>() {
-            @Override
-            public ByteArrayInputStream answer(InvocationOnMock invocation) throws Throwable {
-                return new ByteArrayInputStream(EXPECTED_LAUNCHER.getBytes());
-            }
-        });
 
         when(systemEnvironment.getSslServerPort()).thenReturn(8443);
         when(systemEnvironment.get(SystemEnvironment.TFS_SDK_10)).thenReturn(true);
@@ -156,45 +131,8 @@ public class AgentRegistrationControllerTest {
     }
 
     @Test
-    public void shouldReturnAgentJarWhenRequested() throws Exception {
-        controller.downloadAgent(response);
-        String actual = response.getContentAsString();
-        assertEquals(EXPECTED, actual);
-    }
-
-    @Test
-    public void shouldReturnCorrectContentType() throws Exception {
-        controller.downloadAgent(response);
-        assertEquals("application/octet-stream", response.getContentType());
-    }
-
-    @Test
-    public void headShouldIncludeMd5Checksum_forAgent_whenCached() throws Exception {
-        ReflectionUtil.setField(controller, AGENT_CHECKSUM_FIELD, EXPECTED_MD5);
-
-        controller.checkAgentVersion(response);
-        assertEquals(EXPECTED_MD5, response.getHeader("Content-MD5"));
-    }
-
-    @Test
-    public void checkAgentStatusShouldIncludeMd5Checksum_forAgent_forLauncher_whenChecksumsAreNotCached() throws Exception {
-        ReflectionUtil.setField(controller, AGENT_CHECKSUM_FIELD, null);
-        ReflectionUtil.setField(controller, AGENT_LAUNCHER_CHECKSUM_FIELD, null);
-
-        when(pluginsZip.md5()).thenReturn("md5");
-
-        controller.checkAgentStatus(response);
-        assertEquals(EXPECTED_MD5, response.getHeader(SystemEnvironment.AGENT_CONTENT_MD5_HEADER));
-        assertEquals(EXPECTED_LAUNCHER_MD5, response.getHeader(SystemEnvironment.AGENT_LAUNCHER_CONTENT_MD5_HEADER));
-        assertEquals("8443", response.getHeader("Cruise-Server-Ssl-Port"));
-    }
-
-    @Test
     public void checkAgentStatusShouldIncludeMd5Checksum_forAgent_forLauncher_whenChecksumsAreCached() throws Exception {
-        ReflectionUtil.setField(controller, AGENT_CHECKSUM_FIELD, "foo");
-        ReflectionUtil.setField(controller, AGENT_LAUNCHER_CHECKSUM_FIELD, "bar");
-
-        when(pluginsZip.md5()).thenReturn("md5");
+        when(pluginsZip.md5()).thenReturn("plugins-zip-md5");
 
         controller.checkAgentStatus(response);
 
@@ -202,90 +140,72 @@ public class AgentRegistrationControllerTest {
             assertEquals(md5DigestOfStream(stream), response.getHeader(SystemEnvironment.AGENT_TFS_SDK_MD5_HEADER));
         }
 
-        assertEquals("foo", response.getHeader(SystemEnvironment.AGENT_CONTENT_MD5_HEADER));
-        assertEquals("bar", response.getHeader(SystemEnvironment.AGENT_LAUNCHER_CONTENT_MD5_HEADER));
+        try (InputStream stream = JarDetector.create(systemEnvironment, "agent-launcher.jar")) {
+            assertEquals(md5DigestOfStream(stream), response.getHeader(SystemEnvironment.AGENT_LAUNCHER_CONTENT_MD5_HEADER));
+        }
+
+        try (InputStream stream = JarDetector.create(systemEnvironment, "agent.jar")) {
+            assertEquals(md5DigestOfStream(stream), response.getHeader(SystemEnvironment.AGENT_CONTENT_MD5_HEADER));
+        }
+
+        assertEquals("plugins-zip-md5", response.getHeader(SystemEnvironment.AGENT_PLUGINS_ZIP_MD5_HEADER));
         assertEquals("8443", response.getHeader("Cruise-Server-Ssl-Port"));
     }
 
     @Test
-    public void checkAgentStatusShouldIncludeComponentVersionsOnServer() throws IOException {
-        ReflectionUtil.setField(controller, AGENT_CHECKSUM_FIELD, "foo");
-        ReflectionUtil.setField(controller, AGENT_LAUNCHER_CHECKSUM_FIELD, "bar");
-
-        when(pluginsZip.md5()).thenReturn("md5");
-        controller.latestAgentStatus(response);
-
-        assertEquals("foo", response.getHeader(SystemEnvironment.AGENT_CONTENT_MD5_HEADER));
-        assertEquals("bar", response.getHeader(SystemEnvironment.AGENT_LAUNCHER_CONTENT_MD5_HEADER));
-        assertEquals("8443", response.getHeader("Cruise-Server-Ssl-Port"));
-    }
-
-    @Test
-    public void headShouldIncludeMd5Checksum_forAgent_whenNotCached() throws Exception {
-        ReflectionUtil.setField(controller, AGENT_CHECKSUM_FIELD, null);
-
-        controller.checkAgentVersion(response);
-        assertEquals(EXPECTED_MD5, response.getHeader("Content-MD5"));
-    }
-
-    @Test
-    public void headShouldIncludeServerUrl_forAgent() throws Exception {
-        ReflectionUtil.setField(controller, AGENT_CHECKSUM_FIELD, EXPECTED_MD5);
-
+    public void headShouldIncludeMd5ChecksumAndServerUrl_forAgent() throws Exception {
         controller.checkAgentVersion(response);
         assertEquals("8443", response.getHeader("Cruise-Server-Ssl-Port"));
+
+        try (InputStream stream = JarDetector.create(systemEnvironment, "agent.jar")) {
+            assertEquals(md5DigestOfStream(stream), response.getHeader("Content-MD5"));
+        }
     }
 
     @Test
-    public void headShouldIncludeMd5Checksum_forAgentLauncher_whenCached() throws Exception {
-        ReflectionUtil.setField(controller, AGENT_LAUNCHER_CHECKSUM_FIELD, EXPECTED_LAUNCHER_MD5);
-
-        controller.checkAgentLauncherVersion(response);
-        assertEquals(EXPECTED_LAUNCHER_MD5, response.getHeader("Content-MD5"));
-    }
-
-    @Test
-    public void headShouldIncludeMd5Checksum_forAgentLauncher_whenNotCached() throws Exception {
-        ReflectionUtil.setField(controller, AGENT_LAUNCHER_CHECKSUM_FIELD, null);
-
-        controller.checkAgentLauncherVersion(response);
-        assertEquals(EXPECTED_LAUNCHER_MD5, response.getHeader("Content-MD5"));
-    }
-
-    @Test
-    public void headShouldIncludeServerUrl_forAgentLauncher() throws Exception {
-        ReflectionUtil.setField(controller, AGENT_CHECKSUM_FIELD, EXPECTED_MD5);
-
+    public void headShouldIncludeMd5ChecksumAndServerUrl_forAgentLauncher() throws Exception {
         controller.checkAgentLauncherVersion(response);
         assertEquals("8443", response.getHeader("Cruise-Server-Ssl-Port"));
+
+        try (InputStream stream = JarDetector.create(systemEnvironment, "agent-launcher.jar")) {
+            assertEquals(md5DigestOfStream(stream), response.getHeader("Content-MD5"));
+        }
     }
 
     @Test
     public void contentShouldIncludeMd5Checksum_forAgent() throws Exception {
         controller.downloadAgent(response);
-        String actual = response.getHeader("Content-MD5");
-        assertEquals(StringUtil.md5Digest(EXPECTED.getBytes()), actual);
+        assertEquals("8443", response.getHeader("Cruise-Server-Ssl-Port"));
+        assertEquals("application/octet-stream", response.getContentType());
+
+        try (InputStream stream = JarDetector.create(systemEnvironment, "agent.jar")) {
+            assertEquals(md5DigestOfStream(stream), response.getHeader("Content-MD5"));
+        }
+        try (InputStream is = JarDetector.create(systemEnvironment, "agent.jar")) {
+            assertTrue(Arrays.equals(IOUtils.toByteArray(is), response.getContentAsByteArray()));
+        }
     }
 
     @Test
     public void contentShouldIncludeMd5Checksum_forAgentLauncher() throws Exception {
         controller.downloadAgentLauncher(response);
-        String actual = response.getHeader("Content-MD5");
-        assertEquals(StringUtil.md5Digest(EXPECTED_LAUNCHER.getBytes()), actual);
-    }
+        assertEquals("8443", response.getHeader("Cruise-Server-Ssl-Port"));
+        assertEquals("application/octet-stream", response.getContentType());
 
-    @Test
-    public void checkAgentStatusShouldIncludeMd5Checksum_forAllPlugins() throws Exception {
-        when(pluginsZip.md5()).thenReturn("md5");
-        controller.checkAgentStatus(response);
-        assertThat(response.getHeader(SystemEnvironment.AGENT_PLUGINS_ZIP_MD5_HEADER), is("md5"));
-        verify(pluginsZip).md5();
+        try (InputStream stream = JarDetector.create(systemEnvironment, "agent-launcher.jar")) {
+            assertEquals(md5DigestOfStream(stream), response.getHeader("Content-MD5"));
+        }
+        try (InputStream is = JarDetector.create(systemEnvironment, "agent-launcher.jar")) {
+            assertTrue(Arrays.equals(IOUtils.toByteArray(is), response.getContentAsByteArray()));
+        }
     }
 
     @Test
     public void headShouldIncludeMd5Checksum_forPluginsZip() throws Exception {
         when(pluginsZip.md5()).thenReturn("md5");
         controller.checkAgentPluginsZipStatus(response);
+
+        assertEquals("8443", response.getHeader("Cruise-Server-Ssl-Port"));
         assertEquals("md5", response.getHeader("Content-MD5"));
         verify(pluginsZip).md5();
     }

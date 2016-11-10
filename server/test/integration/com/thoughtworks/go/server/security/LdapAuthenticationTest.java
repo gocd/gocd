@@ -54,7 +54,7 @@ import static org.junit.Assert.fail;
 public class LdapAuthenticationTest {
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private LdapAuthenticationProvider ldapAuthenticationProvider;
-    private static final GoConfigFileHelper CONFIG_HELPER = new GoConfigFileHelper();
+    private GoConfigFileHelper configFileHelper;
     private InMemoryLdapServerForTests ldapServer;
     private LDIFRecord employeesOrgUnit;
 
@@ -68,9 +68,10 @@ public class LdapAuthenticationTest {
 
     @Before
     public void setUp() throws Exception {
-        CONFIG_HELPER.usingCruiseConfigDao(goConfigDao);
-        CONFIG_HELPER.initializeConfigFile();
-        CONFIG_HELPER.addLdapSecurity(LDAP_URL, MANAGER_DN, MANAGER_PASSWORD, SEARCH_BASE, SEARCH_FILTER);
+        configFileHelper = new GoConfigFileHelper();
+        configFileHelper.usingCruiseConfigDao(goConfigDao);
+        configFileHelper.initializeConfigFile();
+        configFileHelper.addLdapSecurity(LDAP_URL, MANAGER_DN, MANAGER_PASSWORD, SEARCH_BASE, SEARCH_FILTER);
 
         ldapServer = new InMemoryLdapServerForTests(BASE_DN, MANAGER_DN, MANAGER_PASSWORD).start(PORT);
         ldapServer.addOrganizationalUnit("Principal", "ou=Principal," + BASE_DN);
@@ -90,7 +91,7 @@ public class LdapAuthenticationTest {
 
     @Test
     public void shouldNotSupportAuthenticationIfNoLdapConfig() throws IOException {
-        CONFIG_HELPER.initializeConfigFile();
+        configFileHelper.initializeConfigFile();
         assertThat(ldapAuthenticationProvider.supports(UsernamePasswordAuthenticationToken.class), is(false));
     }
 
@@ -108,8 +109,8 @@ public class LdapAuthenticationTest {
 
     @Test
     public void shouldReturnAdministratorRoleForSpecifiedLdapUser() throws Exception {
-        CONFIG_HELPER.initializeConfigFile();
-        CONFIG_HELPER.addLdapSecurityWithAdmin(LDAP_URL, MANAGER_DN, MANAGER_PASSWORD, SEARCH_BASE, SEARCH_FILTER, "foleys");
+        configFileHelper.initializeConfigFile();
+        configFileHelper.addLdapSecurityWithAdmin(LDAP_URL, MANAGER_DN, MANAGER_PASSWORD, SEARCH_BASE, SEARCH_FILTER, "foleys");
 
         shouldAuthenticateValidUser();
     }
@@ -118,8 +119,8 @@ public class LdapAuthenticationTest {
     public void commonLdapUserShouldOnlyHaveAuthorityOfUserAndNotAdmin() throws Exception {
         ldapServer.addUser(employeesOrgUnit, "foleys", "some-password", "Shilpa Foley", "foleys@somecompany.com");
 
-        CONFIG_HELPER.initializeConfigFile();
-        CONFIG_HELPER.addLdapSecurityWithAdmin(LDAP_URL, MANAGER_DN, MANAGER_PASSWORD, SEARCH_BASE, SEARCH_FILTER, "another_admin");
+        configFileHelper.initializeConfigFile();
+        configFileHelper.addLdapSecurityWithAdmin(LDAP_URL, MANAGER_DN, MANAGER_PASSWORD, SEARCH_BASE, SEARCH_FILTER, "another_admin");
 
         Authentication authentication = new UsernamePasswordAuthenticationToken("foleys", "some-password");
         Authentication result = ldapAuthenticationProvider.authenticate(authentication);

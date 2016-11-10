@@ -39,6 +39,7 @@ import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.materials.DependencyMaterialUpdateNotifier;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
@@ -83,7 +84,8 @@ public class ChangesetServiceIntegrationTest {
     private DatabaseAccessHelper dbHelper;
     @Autowired
     private TransactionTemplate transactionTemplate;
-
+    @Autowired
+    private DependencyMaterialUpdateNotifier notifier;
     private PipelineConfig pipelineConfigWithTwoMaterials;
     private PipelineConfig pipelineConfig;
     private PipelineConfig pipelineConfigWithSvn;
@@ -107,10 +109,12 @@ public class ChangesetServiceIntegrationTest {
         pipelineConfig = configHelper.addPipeline("foo-bar", "stage", new MaterialConfigs(hg.config()), "build");
         pipelineConfigWithTwoMaterials = configHelper.addPipeline("foo", "stage", new MaterialConfigs(git.config(), hg.config()), "build");
         pipelineConfigWithSvn = configHelper.addPipeline("bar", "stage", new MaterialConfigs(svn.config()), "build");
+        notifier.disableUpdates();
     }
 
     @After
     public void tearDown() throws Exception {
+        notifier.enableUpdates();
         dbHelper.onTearDown();
         configHelper.onTearDown();
     }

@@ -59,7 +59,7 @@ public class TfsSDKCommand extends AbstractTfsCommand {
         this.collection = collection;
     }
 
-    @Override protected void unMap() throws IOException {
+    @Override protected void unMap(File workDir) throws IOException {
         GoTfsWorkspace workspace = client.queryWorkspace(getWorkspace(), getUserName());
         if (workspace == null) {
             return;

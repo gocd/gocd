@@ -18,11 +18,7 @@ package com.thoughtworks.go.tfssdk14;
 
 import com.microsoft.tfs.core.TFSTeamProjectCollection;
 import com.microsoft.tfs.core.clients.versioncontrol.GetOptions;
-import com.microsoft.tfs.core.clients.versioncontrol.soapextensions.GetRequest;
-import com.microsoft.tfs.core.clients.versioncontrol.soapextensions.RecursionType;
-import com.microsoft.tfs.core.clients.versioncontrol.soapextensions.WorkingFolder;
-import com.microsoft.tfs.core.clients.versioncontrol.soapextensions.Changeset;
-import com.microsoft.tfs.core.clients.versioncontrol.soapextensions.Change;
+import com.microsoft.tfs.core.clients.versioncontrol.soapextensions.*;
 import com.microsoft.tfs.core.clients.versioncontrol.specs.ItemSpec;
 import com.microsoft.tfs.core.clients.versioncontrol.specs.version.ChangesetVersionSpec;
 import com.microsoft.tfs.core.clients.versioncontrol.specs.version.LatestVersionSpec;
@@ -65,12 +61,16 @@ public class TfsSDKCommand extends AbstractTfsCommand {
     }
 
     @Override
-    protected void unMap() throws IOException {
-        GoTfsWorkspace workspace = client.queryWorkspace(getWorkspace(), getUserName());
-        if (workspace == null) {
-            return;
+    protected void unMap(File workDir) throws IOException {
+        GoTfsWorkspace localWorkspace = client.findLocalWorkspace(workDir);
+        if (localWorkspace != null) {
+            localWorkspace.deleteWorkingFolder(new WorkingFolder(getProjectPath(), workDir.toString()));
         }
-        workspace.deleteWorkingFolder(new WorkingFolder(getProjectPath(), null));
+
+        GoTfsWorkspace remoteWorkspace = client.queryWorkspace(getWorkspace(), getUserName());
+        if (remoteWorkspace != null) {
+            client.deleteWorkspace(remoteWorkspace);
+        }
     }
 
     @Override

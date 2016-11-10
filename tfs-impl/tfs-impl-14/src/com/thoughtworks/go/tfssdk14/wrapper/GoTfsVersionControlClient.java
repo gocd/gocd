@@ -23,6 +23,7 @@ import com.microsoft.tfs.core.clients.versioncontrol.soapextensions.Workspace;
 import com.microsoft.tfs.core.clients.versioncontrol.specs.version.ChangesetVersionSpec;
 import com.microsoft.tfs.core.clients.versioncontrol.specs.version.LatestVersionSpec;
 
+import java.io.File;
 import java.util.ArrayList;
 
 public class GoTfsVersionControlClient {
@@ -32,8 +33,14 @@ public class GoTfsVersionControlClient {
         this.client = client;
     }
 
-    public GoTfsWorkspace queryWorkspace(String workspace, String userName) {
-        return new GoTfsWorkspace(client.queryWorkspace(workspace, userName));
+    public GoTfsWorkspace queryWorkspace(String workspaceName, String userName) {
+        Workspace workspace = client.queryWorkspace(workspaceName, userName);
+        return workspace == null ? null : new GoTfsWorkspace(workspace);
+    }
+
+    public GoTfsWorkspace findLocalWorkspace(File workDir) {
+        Workspace workspace = client.getLocalWorkspace(workDir.getAbsolutePath(), false);
+        return workspace == null ? null : new GoTfsWorkspace(workspace);
     }
 
     public void deleteWorkspace(GoTfsWorkspace workspace) {
@@ -41,7 +48,7 @@ public class GoTfsVersionControlClient {
     }
 
     public GoTfsWorkspace[] queryWorkspaces(String workspaceName, String userName) {
-        ArrayList<GoTfsWorkspace> goTfsWorkspaces = new ArrayList<GoTfsWorkspace>();
+        ArrayList<GoTfsWorkspace> goTfsWorkspaces = new ArrayList<>();
         Workspace[] workspaces = client.queryWorkspaces(workspaceName, userName, null);
         for (Workspace workspace : workspaces) {
             goTfsWorkspaces.add(new GoTfsWorkspace(workspace));
@@ -61,4 +68,5 @@ public class GoTfsVersionControlClient {
     public void close() {
         client.close();
     }
+
 }

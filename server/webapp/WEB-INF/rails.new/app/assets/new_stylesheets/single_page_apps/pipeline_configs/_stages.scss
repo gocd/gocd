@@ -23,6 +23,11 @@ $no-shadow: 0 0 5px 0 rgba(0, 0, 0, 0);
 $inactive-job: $light-gray;
 $active-job: $lighter-gray;
 
+$task-header-bg :#C5E1A5;
+//$task-header-bg :#a5d6a7;
+$task-summary-bg :#F1F8E9;
+$task-summary-border :#DCEDC8;
+
 .stage-boxes {
   @include clearfix;
   position: relative;
@@ -198,7 +203,7 @@ $active-job: $lighter-gray;
 
 .task-definition {
   position:      relative;
-  border:        1px solid #ccc;
+  border:        1px solid $task-summary-border;
   margin-bottom: 10px;
 
   textarea {
@@ -218,7 +223,7 @@ $active-job: $lighter-gray;
 
   .on-cancel {
     padding-left: 20px;
-    background:   #f5f5f5;
+    background:   $task-summary-bg;
     padding-top:  10px;
     .check {
       padding-top: 9px;
@@ -254,7 +259,7 @@ $active-job: $lighter-gray;
 .task-header {
   padding:       5px 15px;
   margin-bottom: 5px;
-  background: #c6c6c6;
+  background: $task-header-bg;
   color: #333;
   font-weight:   600;
   font-size:     rem-calc(16px);
@@ -265,7 +270,7 @@ $active-job: $lighter-gray;
   padding:     0 15px;
   height:      30px;
   line-height: 30px;
-  background:  $lighter-gray;
+  background:  $task-summary-bg;
   cursor:      move;
   overflow:    hidden;
 

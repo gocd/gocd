@@ -23,26 +23,25 @@ $grey: #535353;
 $dark-grey: #1e1e1e;
 $txt-color: #333;
 $border-color: #ccc;
-$go-links :#0277BD;
-
+$go-links: #0277bd;
 
 $global-border-radius: 3px;
 
 //table
 
-$table-header-bg: #B9F6CA;
+$table-header-bg: #b9f6ca;
 $body-background: #efefef;
-$table-header-border:#A5D6A7;
+$table-header-border: #a5d6a7;
 
 //header
 
 $header-bg: #33364e;
 $page-header-bg: $go-white;
-$input-btn-bg:#cccccc;
-$input-btn-bg-hover:#666666;
+$input-btn-bg: #ccc;
+$input-btn-bg-hover: #666;
 $page-header-title: $txt-color;
-$personalize-header-bg :#cccccc;
-$agent-filter-button :#cccccc;
+$personalize-header-bg: #ccc;
+$agent-filter-button: #ccc;
 
 //pipeline
 
@@ -51,13 +50,13 @@ $unpause-btn-bg: #f16c6c;
 $operate-btn-bg: #f5f5f5;
 $operate-with-optn-btn-bg: #f5f5f5;
 $pause-btn-bg: #f5f5f5;
-$passed: #64DD17;
-$btn-hover :#666666;
+$passed: #64dd17;
+$btn-hover: #666;
 
 // agents
 
-$agent-header-button-bg: #B9F6CA;
-$agents-btn-hover : #69F0AE;
+$agent-header-button-bg: #b9f6ca;
+$agents-btn-hover: #69f0ae;
 
 //modal
 
@@ -65,42 +64,50 @@ $modal-header-bg: #fff;
 
 //tabs
 
-$tab-header-bg: #D1C4E9;
-$tab-header-bg-hover:lighten($tab-header-bg, 8%);
-$current-tab-bg :#fff;
-$tab-bg :lighten($tab-header-bg, 5%);
+$tab-header-bg: #d1c4e9;
+$tab-header-bg-hover: lighten($tab-header-bg, 8%);
+$current-tab-bg: #fff;
+$tab-bg: lighten($tab-header-bg, 5%);
 
 //main navigation
 
 $top-bar-bg: transparent;
 $menu-link: $go-white;
-$menu-hover-bg:  $go-white;
+$menu-hover-bg: $go-white;
 
 $main-nav-height: 40px;
 $main-nav-link-bg-hover: rgba(0, 0, 0, 0.20);
 $main-nav-link-color: $go-white;
-$drop-down-link-color :#333;
-$drop-down-menu-bg :$go-white;
+$drop-down-link-color: #333;
+$drop-down-menu-bg: $go-white;
 $dropdown-arrow-icon-color: rgba(255, 255, 255, 0.43);
-$dropdown-arrow-icon-color-hover-bg:   rgba(0, 0, 0, 0.20);
+$dropdown-arrow-icon-color-hover-bg: rgba(0, 0, 0, 0.20);
 $dropdown-arrow-icon-color-active: rgba(0, 0, 0, 1);
 
-$current-page-sel-bg: transparent;
+$current-link: $go-primary;
+$current-page-sel-bg: $go-primary;
 $current-page-sel-border: $go-primary;
 $current-page-sel-txt: $go-white;
 
-$dropdown-menu-hover-bg :#efefef;
-$user-dropdown-bg : $go-white;
-$user-link-bg : $go-white;
+$dropdown-menu-hover-bg: #efefef;
+$user-dropdown-bg: $go-white;
+$user-link-bg: $go-white;
 
 //small no-bg buttons
 
-$btn-bg :#fff;
-$btn-bg-hover : #666666;
-$btn-bg-hover-txt : #fff;
-
+$btn-bg: #fff;
+$btn-bg-hover: #666;
+$btn-bg-hover-txt: #fff;
 
 //config ui
 
-$pipeline-page-header-bg : $go-white;
+$pipeline-page-header-bg: $go-white;
 
+//z-index
+
+$app-header-top-line: 11;
+$main-navigation: 10;
+$app-header-z-index: 12;
+$agents-filters: 2;
+$header-panel-z-index: 3;
+$build-details-dropdown-arrow-z-index: 1;

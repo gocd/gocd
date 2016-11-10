@@ -14,24 +14,25 @@
  * limitations under the License.
  */
 
-
-$accordion-bg: #ffffff;
+$accordion-backg: #B0BEC5;
 $active-accordion-bg: #CFD8DC;
-$accordion-bg-hover: #c8deec;
-$accordion-border-radius: 5px;
+$accordion-backg-hover: #c8deec;
+$accordion-br-radius: 5px;
 $accordion-border-color :#eaeaea;
-$inner-accordion-bg: #E0F7FA ;
+$inner-accordion-bg: #CFD8DC ;
+
+//$inner-accordion-bg: #C5CAE9 ;
 
 
 .accordion {
-  border-radius: $accordion-border-radius;
+  border-radius: $accordion-br-radius;
   margin-bottom: 10px;
   .show {
     display: inherit !important;
   }
   .accordion-content {
-    border-radius: $accordion-border-radius;
-    background:$accordion-bg;
+    border-radius: $accordion-br-radius;
+    background:$go-white;
   }
   &.accordion-inner {
     background:   $white;
@@ -48,16 +49,16 @@ $inner-accordion-bg: #E0F7FA ;
 .accordion-title {
   font-size:      rem-calc(14);
   text-transform: uppercase;
-  background:     $accordion-bg;
+  background:     $accordion-backg;
   padding:        0 35px;
   height:         40px;
   line-height:    40px;
   color:          $black;
-  border-radius:  $accordion-border-radius;
+  border-radius:  $accordion-br-radius;
 
   &:hover, &:focus {
     color:      $black;
-    background: $accordion-bg;
+    background: $accordion-backg;
   }
 
   &:before {

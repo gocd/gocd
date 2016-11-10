@@ -28,6 +28,7 @@ body {
   -webkit-font-smoothing:  antialiased;
   -moz-osx-font-smoothing: grayscale;
   background:              $body-background;
+  padding-top:             $main-nav-height;
 }
 
 a, a:hover, a:visited {
@@ -42,6 +43,10 @@ a, a:hover, a:visited {
 h1, h2, h3, h4 {
   font-family: "Open Sans", Arial, Helvetica, sans-serif !important;
   font-weight: 500;
+}
+
+h4 {
+  font-size: 18px;
 }
 
 #header {
@@ -118,18 +123,7 @@ h1, h2, h3, h4 {
           position:         relative;
           border-left:      1px solid rgba(0, 0, 0, 0.08);
           border-right:     1px solid rgba(0, 0, 0, 0.08);
-          &:after {
-            content:    "";
-            position:   absolute;
-            width:      100%;
-            height:     4px;
-            background: $current-page-sel-border;
-            top:        auto;
-            bottom:     0;
-            left:       0;
-            border:     0;
 
-          }
           &:hover {
             background-color: $current-page-sel-bg !important;
             box-shadow:       none;
@@ -137,10 +131,10 @@ h1, h2, h3, h4 {
 
           }
         }
-        a {
-          background: $go-primary;
+        > a {
+          background: $current-link;
           &:hover {
-            background: $go-primary !important;
+            background: $current-link !important;
           }
         }
       }
@@ -350,7 +344,6 @@ h1, h2, h3, h4 {
 
 #pipelines {
   h2.entity_title {
-    //color:          #fff;
     font-weight:    600;
     text-transform: uppercase;
   }
@@ -367,7 +360,7 @@ h1, h2, h3, h4 {
   background:      $page-header-bg;
   background-size: cover;
   position:        static;
-  margin-top:      $main-nav-height;
+  //margin-top:      $main-nav-height;
   box-shadow:      0 0 0 #000;
   border:          0;
   height:          auto !important;
@@ -462,7 +455,7 @@ h1.entity_title {
     box-shadow:    none;
     border-radius: $global-border-radius;
     box-shadow:    0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-    transition:    all 0.3s cubic-bezier(.25, .8, .25, 1);
+    //transition:    all 0.3s cubic-bezier(.25, .8, .25, 1);
     &:hover {
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25), 0 0px 4px rgba(0, 0, 0, 0.22);
     }
@@ -513,10 +506,6 @@ h1.entity_title {
   }
 }
 
-.compare_pipeline a {
-  background: image-url('icon_compare_16.png') transparent no-repeat 0 -1px;
-}
-
 .pipeline .stages .last_run_stage {
   border-bottom: 6px solid #ccc;
 }
@@ -560,15 +549,6 @@ h1.entity_title {
   background:  none;
 }
 
-.container-in-body {
-  padding: 0;
-}
-
-#content_wrapper_outer_pipeline_history #content_wrapper_inner_pipeline_history {
-  padding: 0;
-  margin:  0;
-}
-
 h1#page-title {
   color:       #333 !important;
   font-weight: 400 !important;
@@ -606,12 +586,8 @@ ul.entity_title li {
 
 //css arrows
 
-// Colors
 $arrow-border-color: lighten(#000, 75%);
 $arrow-border-active-color: lighten(#000, 50%);
-* {
-  box-sizing: border-box;
-}
 
 .arrow {
   display:         inline-block;
@@ -713,7 +689,7 @@ table.pipeline-history-group {
 }
 
 .pages, .yui-t7 #yui-main .yui-b, #pipeline-history, .admin-rounded-container, #yui-main .content_wrapper_inner, .my-cruise-rounded-container, #server-page .rounded-corner-for-pipeline, #intro {
-  background: none;
+  //background: none;
 }
 
 table.pipeline-history-group td, table.pipeline-history-group th {
@@ -824,6 +800,12 @@ div#tab_container {
   box-shadow: none;
   border:     none;
   font-size:  rem-calc(13px);
+  thead {
+    tr {
+      border-left:  3px solid $table-header-bg;
+      border-right: 3px solid $table-header-bg;
+    }
+  }
   tr.agent_header {
     border-bottom: 3px solid $table-header-border;
   }
@@ -849,18 +831,6 @@ div#tab_container {
   border-radius: 3px;
 }
 
-//
-//h3.title.entity_title {
-//  color: #fff;
-//  margin:0;
-//  background-position: -12px -7px;
-//  a{
-//    color:#fff;
-//    &:hover{
-//      text-decoration: underline;
-//    }
-//  }
-//}
 .admin_workspace h3 {
   display:       block;
   margin:        10px 20px;
@@ -915,12 +885,14 @@ ul#pipeline_config_tree {
 #pipeline_edit_form .form_buttons .submit, #stage_edit_form .form_buttons .submit, #job_edit_form .form_buttons .submit, #template_edit_form .form_buttons .submit, #group_edit_form .form_buttons .submit, #pipeline_edit_form .form_buttons .reset_button, #stage_edit_form .form_buttons .reset_button, #job_edit_form .form_buttons .reset_button, #template_edit_form .form_buttons .reset_button, #group_edit_form .form_buttons .reset_button, #stage_permissions_edit_form .form_buttons .reset_button, #pipeline_snippet_view #view_group .link_as_button, #pipeline_snippet_edit #edit_group .form_buttons .link_as_button, button.submit {
   background: #ccc;
   color:      #333;
-  //height: 30px;
-  //padding: 0px 10px!important;
-  //line-height: 30px;
   font-size:  rem-calc(13px);
   border:     0;
   min-width:  inherit;
+  &:hover {
+    background: #666;
+    color:      #fff;
+
+  }
 }
 
 #pipeline_edit_form .form_buttons .reset_button,
@@ -958,40 +930,12 @@ ul#pipeline_config_tree {
 }
 
 .environment_variables_section #add_variables {
-  float:      none;
-  margin:     10px 0 0 0;
-  background: image-url('icon_add_16.png') no-repeat 1px 0px;
-  height:     16px;
-  padding:    0 0 0 24px;
-  display:    inline-block;
-}
-
-.edit_panel button.submit, .edit_panel a.link_as_button {
-  background:    $agent-header-button-bg;
-  height:        30px;
-  line-height:   30px;
-  padding:       0 10px;
-  display:       block;
-  border-radius: 3px;
-  margin:        0 0 0 1px;
-  box-shadow:    none;
-  float:         left;
-  border:        0;
-  &:first-child {
-    border-radius: 3px 0 0 3px;
-  }
-  &:hover {
-    background:  $agent-header-button-bg !important;
-    height:      30px;
-    line-height: 30px;
-    box-shadow:  none;
-    border:      0;
-
-  }
-  &:focus, &:active {
-    outline: 0;
-  }
-
+  float:               none;
+  margin:              10px 0 0 0;
+  background-position: 3px 0px;
+  height:              16px;
+  padding:             0 0 0 24px;
+  display:             inline-block;
 }
 
 .enhanced_dropdown {
@@ -1081,6 +1025,9 @@ button#confirm-pause-up42 {
 }
 
 .icon16.setting {
+  margin-right: 12px;
+  padding:      0;
+
   &:hover {
     animation-name:            rotate;
     animation-duration:        2s;
@@ -1121,8 +1068,19 @@ button#confirm-pause-up42 {
   border-radius: 3px;
   background:    #fff;
   .fieldset {
-    padding: 0;
+    padding:     0;
+    margin-left: 20px;
   }
+  form#pipeline_edit_form {
+    padding: 0 20px;
+    .fieldset {
+      margin-left: 0;
+    }
+    h3 {
+      margin-left: 0;
+    }
+  }
+
 }
 
 #environments h2.entity_title, #pipelines h2.entity_title {
@@ -1174,6 +1132,8 @@ input.new_resource {
   margin-top:       -31px;
   right:            98px;
   background-color: $go-primary;
+  color:            $go-white !important;
+  min-width:        60px;
 }
 
 .form_buttons {
@@ -1264,9 +1224,13 @@ button.primary, a.primary_link_as_button {
   background-color: $go-primary !important;
   font-size:        rem-calc(14px);
   font-weight:      700;
+  border:           1px solid $go-primary;
   &:hover {
-    background-color: darken($go-primary, 2%) !important;
+    background-color: darken($go-primary, 7%) !important;
     background-image: none;
+  }
+  &:focus, &:active {
+    outline: 0;
   }
 }
 
@@ -1302,20 +1266,25 @@ input[type='submit'], input[type='submit']:hover, button.submit, button.submit:h
   color:          #333 !important;
   text-transform: uppercase;
   &:hover {
-    background: $btn-bg-hover
+    background: $btn-bg-hover;
+    color:      #fff !important;
+    span {
+      color: #fff !important;
+
+    }
   }
 }
 
-button.submit, a.link_as_button span {
-  color: #333;
-  &:hover {
-    color: #333 !important;
-  }
-}
+//button.submit, a.link_as_button span {
+//  color: #333;
+//  &:hover {
+//    color: #333 !important;
+//  }
+//}
 
-button.submit:hover span, button.submit_hover span, a.link_as_button:hover span, a.link_as_button_hover span {
-  color: #fff;
-}
+//button.submit:hover span, button.submit_hover span, a.link_as_button:hover span, a.link_as_button_hover span {
+//  color: #fff;
+//}
 
 .Passed {
   background-image: none;
@@ -1327,8 +1296,16 @@ button.submit.primary span {
   color:     #fff;
 }
 
-button.submit span, a.link_as_button span {
-  color: #333;
+button.submit, a.link_as_button {
+  span {
+    color: #333;
+  }
+  &:hover {
+    background: #ddd;
+    span {
+      color: #333;
+    }
+  }
 }
 
 #build_detail_summary_container h3 {
@@ -1360,12 +1337,8 @@ a:link#link-to-this-page, a:visited#link-to-this-page {
 
 }
 
-form#pipeline_edit_form {
-  padding: 0 20px;
-}
-
 .ui-dialog-buttonpane {
-  button.submit {
+  button.submit.primary {
     color: #fff !important;
   }
 }
@@ -1551,6 +1524,155 @@ form#notification_form fieldset {
 
 .select_all_none_panel {
   a.link_as_button:hover {
+    color: $go-white !important;
+  }
+}
+
+#config_editor_form .buttons-group {
+  padding:  10px;
+  height:   45px;
+  clear:    both;
+  position: relative;
+}
+
+#admin-holder-for-admin-config-source-xml .buttons-group #cancel_edit {
+  margin-right: 0px;
+  right:        0;
+  min-width:    75px;
+}
+
+#admin-holder-for-admin-config-source-xml .buttons-group #save_config {
+  right:      105px;
+  background: $go-primary;
+  color:      $go-white !important;
+  height:     27px;
+  min-width:  75px;
+  &:hover {
+    color: darken($go-primary, 10%);
+  }
+}
+
+#graphic-dialog-container {
+  position:   absolute;
+  text-align: center;
+  transform:  translate(-50%, -80%);
+  top:        50%;
+  left:       50%;
+}
+
+button#signin2 {
+  min-width:        75px;
+  border:           0;
+  background-image: none !important;
+  padding:          6px 9px;
+  height:           30px;
+
+}
+
+button#signin2 span {
+  color: #fff;
+}
+
+#MB_content {
+  .change_materials {
+    .sub_tab_container {
+      height: 336px;
+    }
+  }
+}
+
+#pipeline-history .pipeline-buttons a.link_as_button span {
+  &:hover {
     color: #fff !important;
   }
+}
+
+.label-filter-group {
+  top:     53px;
+  z-index: 12;
+}
+
+.admin_workspace.has_tree_view {
+  margin-left: 225px;
+}
+
+.admin_workspace.has_tree_view {
+  .instructions {
+    margin: 0px 0 10px 20px;
+  }
+}
+
+#environments .content_wrapper_inner, #pipelines .content_wrapper_inner {
+  border: 0;
+}
+
+.admin_templates {
+  .admin_workspace h3.title.entity_title {
+    padding-left: 40px;
+  }
+}
+
+.flash {
+  position: absolute;
+  width:    100%;
+  .messaging_wrapper & {
+    position: static;
+  }
+}
+
+.ui-dialog-title, #MB_caption {
+  color: #333;
+}
+
+.template_group {
+  h2.entity_title {
+    border: 0;
+  }
+}
+
+#tab-content-of-templates .template .title_action_wrapper {
+  float:      left;
+  margin-top: 5px;
+}
+
+.fieldset .form_item {
+  border-bottom: 0;
+}
+
+#users_form .add_new_users a {
+  color: #333 !important;
+}
+
+.edit_panel button.submit, .edit_panel a.link_as_button {
+  background:    $agent-header-button-bg;
+  height:        30px;
+  line-height:   30px;
+  padding:       0 10px;
+  display:       block;
+  border-radius: 3px;
+  margin:        0 0 0 1px;
+  box-shadow:    none;
+  float:         left;
+  border:        0;
+  color:         #333 !important;
+  &:first-child {
+    border-radius: 3px 0 0 3px;
+  }
+  &:hover {
+    background:  $agent-header-button-bg !important;
+    height:      30px;
+    line-height: 30px;
+    box-shadow:  none;
+    border:      0;
+    color:       #333 !important;
+    span {
+      color: #333 !important;
+
+    }
+
+  }
+  &:focus, &:active {
+    outline: 0;
+  }
+
 }

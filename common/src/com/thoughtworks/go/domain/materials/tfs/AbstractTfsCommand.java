@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain.materials.tfs;
 
@@ -97,7 +97,7 @@ public abstract class AbstractTfsCommand extends SCMCommand implements TfsComman
                     domain, e.getMessage());
             throw new RuntimeException(exceptionMessage, e);
         } finally {
-            clearMapping();
+            clearMapping(workDir);
         }
     }
 
@@ -160,18 +160,18 @@ public abstract class AbstractTfsCommand extends SCMCommand implements TfsComman
     }
 
 
-    private void clearMapping() {
+    private void clearMapping(File workDir) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(String.format("[TFS] Unmapping Project Path %s for Workspace %s, User %s ", projectPath, workspace, userName));
         }
         try {
-            unMap();
+            unMap(workDir);
         } catch (Exception e) {
             LOGGER.warn(String.format("[TFS] Unmapping Project Path %s failed for Workspace %s, User %s", projectPath, workspace, userName), e);
         }
     }
 
-    protected abstract void unMap() throws IOException;
+    protected abstract void unMap(File workDir) throws IOException;
 
     private List<Modification> modificationsSinceRevInHistory(Revision revision) {
         Modification latest = latestInHistory().get(0);

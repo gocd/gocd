@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain.materials.tfs;
 
@@ -58,7 +58,7 @@ public class AbstractTfsCommandTest {
                                              final String workspace, final String projectPath) {
         return spy(new AbstractTfsCommand(materialFingerprint, urlArgument, domain, user, password,
                 workspace, projectPath) {
-            @Override protected void unMap() throws IOException {
+            @Override protected void unMap(File workDir) throws IOException {
             }
 
             @Override protected List<Modification> history(String beforeRevision, long revsToLoad) {
@@ -75,7 +75,7 @@ public class AbstractTfsCommandTest {
 
     public void verifyMocks() throws IOException {
         verify(tfsCommand, times(1)).initializeWorkspace(workDir);
-        verify(tfsCommand, times(1)).unMap();
+        verify(tfsCommand, times(1)).unMap(workDir);
     }
 
     @Test

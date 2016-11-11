@@ -46,10 +46,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.util.*;
 
 import static java.lang.String.format;
@@ -338,18 +334,6 @@ public class AgentService {
     public void approve(String uuid) {
         AgentInstance agentInstance = findAgentAndRefreshStatus(uuid);
         agentConfigService.approvePendingAgent(agentInstance);
-    }
-
-    public File agentJarFile() {
-        return systemEnvironment.getAgentJarFile();
-    }
-
-    public InputStream agentJarInputStream() throws FileNotFoundException {
-        return new FileInputStream(agentJarFile());
-    }
-
-    public InputStream agentLauncherJarInputStream() throws FileNotFoundException {
-        return new FileInputStream(SystemEnvironment.AGENT_LAUNCHER_JAR_PATH);
     }
 
     public void notifyJobCancelledEvent(String agentId) {

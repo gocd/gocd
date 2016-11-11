@@ -394,10 +394,6 @@ $arrow-color: #000;
   }
 }
 
-.agents-table-body {
-  margin-top: 218px;
-}
-
 .agents-table {
   thead {
     tr {
@@ -498,4 +494,8 @@ a.has-build-details-drop-down {
     border-width: 5px 3px 0 3px;
     border-color: #717171 transparent transparent transparent;
   }
+}
+
+.extra-div-to-replace-sticky-header-height {
+  height: 220px;
 }

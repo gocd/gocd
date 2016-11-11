@@ -233,6 +233,7 @@ define([
 
       return (
         <div onclick={ctrl.hideDropDownsAndMessage.bind(ctrl)}>
+          <div class="extra-div-to-replace-sticky-header-height" style={!s.isBlank(message) ? "height:284px;" : ''}></div>
           <div class="agent-header-panel">
             <ButtonRowWidget isAnyAgentSelected={ ctrl.isAnyAgentSelected.bind(ctrl) }
                              dropdown={args.vm.dropdown}
@@ -274,7 +275,7 @@ define([
               </div>
             </f.row>
           </div>
-          <f.row class="agents-table-body" style={!s.isBlank(message) ? "margin-top: 284px;" : ''}>
+          <f.row>
             <div class="container">
               <table class="go-table agents-table">
                 <tbody>

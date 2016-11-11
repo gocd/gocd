@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.agent.launcher;
 
+import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClientBuilder;
 import com.thoughtworks.go.agent.common.util.Downloader;
 import com.thoughtworks.go.agent.testhelper.FakeBootstrapperServer;
 import com.thoughtworks.go.mothers.ServerUrlGeneratorMother;
@@ -117,7 +118,7 @@ public class ServerBinaryDownloaderTest {
     @Test
     public void shouldFailIfServerIsNotAvailable() throws Exception {
         exception.expect(UnknownHostException.class);
-        exception.expectMessage("invalidserver: unknown error");
+        exception.expectMessage("invalidserver: Name or service not known");
 
         ServerBinaryDownloader downloader = new ServerBinaryDownloader(ServerUrlGeneratorMother.generatorWithoutSubPathFor("https://invalidserver:9091/go/hello"), null,
                 SslVerificationMode.NONE);
@@ -137,7 +138,7 @@ public class ServerBinaryDownloaderTest {
 
     @Test
     public void shouldReturnFalseIfTheServerDoesNotRespondWithEntity() throws Exception {
-        HttpClientBuilder builder = mock(HttpClientBuilder.class);
+        GoAgentServerHttpClientBuilder builder = mock(GoAgentServerHttpClientBuilder.class);
         CloseableHttpClient closeableHttpClient = mock(CloseableHttpClient.class);
         when(builder.build()).thenReturn(closeableHttpClient);
         CloseableHttpResponse httpResponse = mock(CloseableHttpResponse.class);

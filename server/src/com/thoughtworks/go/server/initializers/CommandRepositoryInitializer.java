@@ -30,6 +30,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.zip.ZipInputStream;
 
 import static com.thoughtworks.go.util.SystemEnvironment.DEFAULT_COMMAND_SNIPPETS_ZIP;
@@ -93,7 +94,13 @@ public class CommandRepositoryInitializer implements Initializer {
     }
 
     ZipInputStream getPackagedRepositoryZipStream() {
-        return new ZipInputStream(this.getClass().getResourceAsStream(systemEnvironment.get(DEFAULT_COMMAND_SNIPPETS_ZIP)));
+        String snippetsZip = systemEnvironment.get(DEFAULT_COMMAND_SNIPPETS_ZIP);
+        InputStream is = this.getClass().getResourceAsStream(snippetsZip);
+        if (is == null) {
+            // throwing RuntimeException as no other suitable type is found in the code. Otherwise NPE is thrown
+            throw new RuntimeException("Failed to find " + snippetsZip);
+        }
+        return new ZipInputStream(is);
     }
 
 }

@@ -18,10 +18,10 @@ define([
   'mithril', 'lodash', 'string-plus',
   'helpers/form_helper', 'helpers/pipeline_configs/tooltips', 'helpers/mithril_component_mixins', 'models/pipeline_configs/materials',
   'views/pipeline_configs/test_connection_widget', 'views/pipeline_configs/pipeline_stage_field_widget', 'models/pipeline_configs/pipelines',
-  'models/pipeline_configs/pluggable_scms', 'views/pipeline_configs/pluggable_scm_widget', 'views/pipeline_configs/material_filter_widget',
+  'models/pipeline_configs/pluggable_scms', 'models/pipeline_configs/package_repositories', 'views/pipeline_configs/pluggable_scm_widget', 'views/pipeline_configs/repository_config_widget', 'views/pipeline_configs/material_filter_widget',
   'models/pipeline_configs/plugin_infos'
-], function (m, _, s, f, tt, ComponentMixins, Materials, TestConnectionWidget, PipelineStageField, Pipelines, PluggableSCMs,
-             PluggableSCMWidget, MaterialFilterWidget, PluginInfos) {
+], function (m, _, s, f, tt, ComponentMixins, Materials, TestConnectionWidget, PipelineStageField, Pipelines, PluggableSCMs, PackageRepositories,
+             PluggableSCMWidget, RepositoryWidget, MaterialFilterWidget, PluginInfos) {
 
   var PasswordField = {
     view: function (_ctrl, args) {
@@ -372,10 +372,15 @@ define([
     },
 
     package: {
+<<<<<<< 541f5545dcc864cb5c0b0219f7519de4a19d661b
       view: function (_ctrl, args) {
+=======
+      view: function (ctrl, args) {
+        var material = args.material;
+>>>>>>> New Modal.
         return (
           <MaterialViews.base {...args}>
-            <f.info>Package materials edit is not yet supported, click <f.link href={["/go/admin/pipelines/",  args.pipelineName(), "/materials?current_tab=materials"].join('')}>here</f.link> to edit.</f.info>
+            <RepositoryWidget material={material}/>
           </MaterialViews.base>
         );
       }
@@ -389,7 +394,7 @@ define([
     },
 
     view: function (ctrl, args) {
-      var items = _.reduce(_.merge({}, Materials.Types, PluggableSCMs.Types), function (accumulator, value, key) {
+      var items = _.reduce(_.merge({}, Materials.Types, PluggableSCMs.Types, PackageRepositories.Types), function (accumulator, value, key) {
         accumulator.push({id: key, text: value.description});
         return accumulator;
       }, []);
@@ -428,6 +433,7 @@ define([
       self.createMaterial = function (materials) {
         return function (type) {
           var newMaterial = Materials.isBuiltInType(type()) ? materials().createMaterial({type: type()})
+                                                            : type() === 'package' ? materials().createMaterial({type: type()})
                                                             : materials().createMaterial({type: type(), pluginInfo: PluginInfos.findById(type())});
 
           var indexOfMaterial = materials().indexOfMaterial(newMaterial);

@@ -68,7 +68,7 @@
   margin-bottom: 10px;
 }
 
-.pluggable-scm {
+.pluggable-scm, .repository {
   position: relative;
   border:   1px solid $border-color;
   display:  inline-block;
@@ -108,7 +108,7 @@
   }
 }
 
-.scm-selector {
+.scm-selector, .repo-selector {
   .or {
     margin:   0 40px 0;
     position: relative;
@@ -116,7 +116,7 @@
   }
 }
 
-.no-scm {
+.no-scm, .no-repo {
   .add-button {
     margin-top: 13px;
   }

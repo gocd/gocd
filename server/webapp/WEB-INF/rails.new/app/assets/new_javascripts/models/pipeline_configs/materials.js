@@ -32,7 +32,8 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
 
   Materials.create = function (data) {
     return Materials.isBuiltInType(data.type) ? new Materials.Types[data.type].type(data)
-                                              : new Materials.Material.PluggableMaterial(data);
+                                              : data.type === 'package' ? new Materials.Material.PackageMaterial(data)
+                                              : new Materials.Material.PluggableMaterial(data) ;
   };
 
   Materials.Filter = function (data) {
@@ -438,6 +439,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
   Materials.Material.PackageMaterial = function (data) {
     Materials.Material.call(this, "package", true, data);
     this.name = m.prop(''); //TODO: This needs to be removed, added to pass base validation.
+    this.repository = m.prop(data.repository);
     this.ref  = m.prop(data.ref);
 
     this._attributesToJSON = function () {

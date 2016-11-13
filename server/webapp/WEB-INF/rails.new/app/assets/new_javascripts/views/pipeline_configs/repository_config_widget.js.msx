@@ -1,0 +1,152 @@
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+define([
+  'mithril', 'lodash', 'helpers/form_helper', 'helpers/pipeline_configs/tooltips', 'helpers/mithril_component_mixins', 'views/shared/modal',
+  'views/pipeline_configs/repository_config_edit_widget', 'views/pipeline_configs/repository_config_new_widget',
+  'models/pipeline_configs/repositories', 'models/pipeline_configs/plugin_infos'
+], function (m, _, f, tt, ComponentMixins, Modal, RepositoryConfigEditWidget, RepositoryConfigNewWidget, Repositories, PluginInfos) {
+
+  var EditRepositoryWidget = {
+    controller: function (args) {
+      this.material = args.material;
+      this.modal    = new Modal({
+        subView: {
+          component: RepositoryConfigEditWidget,
+          args:      {material: args.material}
+        },
+        title:   _.join(['EDIT', '-', args.material.repository().name()], ' ')
+      });
+
+      this.isPluginMissing = function () {
+        return _.isNil(PluginInfos.findById(this.material.repository().pluginMetadata().id()));
+      };
+
+      this.modalView = function () {
+        if (!this.isPluginMissing()) {
+          return this.modal.view();
+        }
+      };
+    },
+
+    view: function (ctrl) {
+      ctrl.onunload = function () {
+        ctrl.modal.destroy();
+      };
+
+      var repository  = ctrl.material.repository();
+      var data = {Name: repository.name(), AutoUpdate: repository.autoUpdate(), Plugin: PluginInfos.findById(repository.pluginMetadata().id()).name()};
+
+      repository.configuration().mapConfigurations(function (conf) {
+        data[_.capitalize(conf.key())] = conf.isSecureValue() ? "***********" : conf.value();
+      });
+
+      var editButton = ctrl.isPluginMissing() ? (
+        <f.alert><b>{repository.pluginMetadata().id()}</b> plugin seems to be removed.</f.alert>)
+        : (<f.editButton class={null} onclick={ctrl.modal.open.bind(ctrl.modal)}/>);
+
+      return (
+        <div>
+          <div class='repository'>
+            {editButton}
+            <f.row>
+              <ul>
+                {_.map(data, function (v, k) {
+                  return (
+                    <li>
+                      <label class={_.toLower(k)}>{k}</label><span>{v}</span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </f.row>
+          </div>
+          {ctrl.modalView()}
+        </div>
+      );
+    }
+  };
+
+  var NewRepositoryWidget = {
+    controller: function (args) {
+      var self      = this;
+      self.material = args.material;
+      self.repositories     = Repositories;
+      self.selected = _.isEmpty(self.repositories()) ?  m.prop('default') : m.prop(_.head(self.repositories()).id());
+      self.modal    = new Modal({title:   'Add repository',
+        subView: {component: RepositoryConfigNewWidget, args:{material: self.material}}
+      });
+
+      self.selectRepository = function(id) {
+        Repositories.findById(id).then(function(repository) {
+          self.material.repository(repository);
+        });
+      };
+    },
+
+    view: function (ctrl) {
+      ctrl.onunload = function() {
+        ctrl.modal.destroy();
+      };
+
+      var items = _.transform(ctrl.repositories(), function (result, value) {
+        result[value.id()] = value.name();
+      }, {});
+
+      if (!_.isEmpty(items)) {
+        return (
+          <f.row class='repo-selector'>
+            <f.select
+              value={ctrl.selected}
+              label='Select an existing repository'
+              items={items}
+              size={4}
+              largeSize={2}
+            />
+            <f.column size={6} largeSize={6} end>
+              <a class='add-button button' href="javascript:void(0)"
+                 onclick={ctrl.selectRepository.bind(ctrl, ctrl.selected())}>Add</a>
+              <label class='or'>Or</label>
+              <a class='add-button button' href="javascript:void(0)"
+                 onclick={ctrl.modal.open.bind(ctrl.modal)}>Create New</a>
+            </f.column>
+            {ctrl.modal.view()}
+          </f.row>
+        );
+      } else {
+        return (
+          <f.row class='repo-selector'>
+            <f.column class='no-repo' size={4} largeSize={6} end>
+              <label>No repositories available.</label>
+              <a class='add-button button' href="javascript:void(0)"
+                 onclick={ctrl.modal.open.bind(ctrl.modal)}>Create</a>
+            </f.column>
+            {ctrl.modal.view()}
+          </f.row>
+        );
+      }
+    }
+  };
+
+  var RepositoryWidget = {
+    view: function (ctrl, args) {
+      return _.isNil(args.material.repository()) ? m.component(NewRepositoryWidget, args)
+        : m.component(EditRepositoryWidget, args);
+    }
+  };
+
+  return RepositoryWidget;
+});

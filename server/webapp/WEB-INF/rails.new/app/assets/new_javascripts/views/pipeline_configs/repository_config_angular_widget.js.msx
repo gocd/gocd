@@ -14,47 +14,53 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'jquery', 'string-plus', 'models/pipeline_configs/plugin_infos', 'views/shared/angular_plugin'],
-  function (m, _, $, s, PluginInfos, AngularPlugin) {
-    var SCMConfigAngularWidget = {
+define(['mithril', 'lodash', 'jquery', 'helpers/form_helper', 'string-plus', 'helpers/mithril_component_mixins', 'models/pipeline_configs/plugin_infos'],
+  function (m, _, $, f, s, ComponentMixins, PluginInfos) {
+    var RepositoryConfigAngularWidget = {
       controller: function (args) {
+        debugger;
         var self              = this;
-        self.scm              = args.scm;
-        self.plugin           = args.plugin;
-        self.pluginId         = args.scm.pluginMetadata().id();
+        self.repository       = args.repository;
+        self.pluginId         = args.repository.pluginMetadata().id();
         self.uuid             = s.uuid();
         self.ngControllerName = 'controller-' + self.uuid;
         self.appName          = 'app-' + self.uuid;
 
-        PluginInfos.PluginInfo.get(self.pluginId).then(function (plugin) {
+        var template = function (template) {
+          return $('<div></div>').html(template.replace(/GOINPUTNAME\[([^\]]*)\]/g, function (match, name) {
+            return "GOINPUTNAME['" + name + "']";
+          })).html();
+        };
 
-          self.templateHTML = AngularPlugin.template(plugin.viewTemplate());
+        PluginInfos.PluginInfo.byId('deb').then(function (plugin) {
+          debugger;
+          self.templateHTML  = template(plugin.viewTemplate());
           self.defaultConfig = plugin.configurations();
 
           self.ngController = angular.module(self.appName, []).controller(self.ngControllerName, ['$scope', '$http', function ($scope) {
             $scope.addError = function (field) {
-              $scope.GOINPUTNAME[field.key] = {$error: {}};
+              $scope.GOINPUTNAME[field.key]                              = {$error: {}};
               $scope.GOINPUTNAME[field.key].$error[_.toLower(field.key)] = field.errors.join();
             };
 
             $scope.clearErrors = function () {
-              $scope.GOINPUTNAME = {};
+              $scope.GOINPUTNAME               = {};
               $scope.pluggableTaskGenericError = null;
             };
 
             $scope.clearErrors();
 
             _.map(self.defaultConfig, function (config) {
-              $scope[config.key] = self.scm.configuration().valueFor(config.key);
+              $scope[config.key] = self.repository.configuration().valueFor(config.key);
 
               $scope.$watch(config.key, function (newValue) {
-                self.scm.configuration().setConfiguration(config.key, newValue);
+                self.repository.configuration().setConfiguration(config.key, newValue);
               });
             });
 
             args.parentView.onClose(function () {
               _.map(self.defaultConfig, function (config) {
-                $scope[config.key] = self.scm.configuration().valueFor(config.key);
+                $scope[config.key] = self.repository.configuration().valueFor(config.key);
               });
 
               $scope.$apply();
@@ -64,16 +70,17 @@ define(['mithril', 'lodash', 'jquery', 'string-plus', 'models/pipeline_configs/p
       },
 
       view: function (ctrl) {
-        var config = function (_elem, isInitialized) {
-
+        var config = function (elem, isInitialized) {
+          debugger;
           if (!isInitialized) {
-            var pluginTaskTemplateElement = $('#pluggable-scm-template-' + ctrl.uuid);
+            var pluginTaskTemplateElement = $('#repository-template-' + ctrl.uuid);
             angular.bootstrap(pluginTaskTemplateElement.get(0), [ctrl.appName]);
           }
         };
 
         return (
-          <div class='plugin-view' id={'pluggable-scm-template-' + ctrl.uuid} ng-controller={ctrl.ngControllerName} config={config}>
+          <div class='plugin-view' id={'repository-template-' + ctrl.uuid} ng-controller={ctrl.ngControllerName}
+               config={config}>
             <div class="callout alert"
                  ng-show="pluggableTaskGenericError">{'{{pluggableTaskGenericError}}'}</div>
             {m.trust(ctrl.templateHTML)}
@@ -82,6 +89,6 @@ define(['mithril', 'lodash', 'jquery', 'string-plus', 'models/pipeline_configs/p
       }
     };
 
-    return SCMConfigAngularWidget;
+    return RepositoryConfigAngularWidget;
   }
 );

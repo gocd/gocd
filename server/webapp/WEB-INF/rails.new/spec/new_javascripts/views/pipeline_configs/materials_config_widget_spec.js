@@ -92,6 +92,10 @@ define(["jquery", "mithril", "models/pipeline_configs/materials", "views/pipelin
       it('should bind autoUpdate value', function () {
         expect($root.find("input[data-prop-name='autoUpdate']")).toBeChecked();
       });
+
+      it('should show have material name in the header', function() {
+        expect($root.find(".material-definitions li")).toContainText("svn-repo");
+      });
     });
 
     describe('Git View', function () {
@@ -152,6 +156,10 @@ define(["jquery", "mithril", "models/pipeline_configs/materials", "views/pipelin
       it('should bind shallow clone value', function () {
         expect($root.find("input[data-prop-name='shallowClone']")).toBeChecked();
       });
+
+      it('should show have material name in the header', function() {
+        expect($root.find(".material-definitions li")).toContainText("git-repo");
+      });
     });
 
     describe('Mercurial View', function () {
@@ -201,6 +209,10 @@ define(["jquery", "mithril", "models/pipeline_configs/materials", "views/pipelin
 
       it('should bind autoUpdate value', function () {
         expect($root.find("input[data-prop-name='autoUpdate']")).toBeChecked();
+      });
+
+      it('should show have material name in the header', function() {
+        expect($root.find(".material-definitions li")).toContainText("hg-repo");
       });
     });
 
@@ -273,6 +285,10 @@ define(["jquery", "mithril", "models/pipeline_configs/materials", "views/pipelin
       it('should bind autoUpdate value', function () {
         expect($root.find("input[data-prop-name='autoUpdate']")).toBeChecked();
       });
+
+      it('should show have material name in the header', function() {
+        expect($root.find(".material-definitions li")).toContainText("perforce-repo");
+      });
     });
 
     describe('TFS View', function () {
@@ -344,6 +360,10 @@ define(["jquery", "mithril", "models/pipeline_configs/materials", "views/pipelin
       it('should bind autoUpdate value', function () {
         expect($root.find("input[data-prop-name='autoUpdate']")).toBeChecked();
       });
+
+      it('should show have material name in the header', function() {
+        expect($root.find(".material-definitions li")).toContainText("tfs-repo");
+      });
     });
 
     describe('Dependency View', function () {
@@ -372,6 +392,10 @@ define(["jquery", "mithril", "models/pipeline_configs/materials", "views/pipelin
 
       it('should bind pipeline and stage', function () {
         expect($root.find("input[name='pipeline-stage']")).toHaveValue('pipeline1 [stage1]');
+      });
+
+      it('should show have material name in the header', function() {
+        expect($root.find(".material-definitions li")).toContainText("dependencyMaterial");
       });
     });
 

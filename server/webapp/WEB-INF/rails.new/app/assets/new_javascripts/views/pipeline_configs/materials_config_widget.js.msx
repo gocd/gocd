@@ -159,7 +159,7 @@ define([
           if(Materials.isBuiltInType(args.material.type())) {
             return [args.material.type(), '-', args.material.name()].join(' ');
           }
-          if(_.isEqual(args.material.type, 'scm')) {
+          if(args.material.type() === 'plugin') {
             return [args.material.type(), '-', args.material.scm() ? args.material.scm().name() : ''].join(' ');
           } else {
             return args.material.type();

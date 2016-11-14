@@ -114,6 +114,12 @@ h4 {
           }
         }
       }
+      span{
+        color: #666;
+        line-height: 40px;
+        font-size: 0.75rem;
+        font-weight: 700;
+      }
       &.current {
         a.dropdown-arrow-icon {
           background-color: $current-page-sel-bg;
@@ -1675,4 +1681,6 @@ button#signin2 span {
     outline: 0;
   }
 
-}
+}#tab-content-of-pipeline-groups .group_pipelines .group .actions li {
+   margin-right: 30px;
+ }

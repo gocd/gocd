@@ -121,7 +121,7 @@ public class ExecCommandExecutorTest extends BuildSessionBasedTestCase {
 
     @Test
     public void shouldNotLeakSecretsToLog() {
-        try (LogFixture logFixture = new LogFixture(BuildSession.class, Level.DEBUG)) {
+        try (LogFixture logFixture = new LogFixture(ExecCommandExecutor.class, Level.DEBUG)) {
             runBuild(compose(secret("topsecret"),
                     exec("not-not-not-exist", "topsecret")), Failed);
             String logs = ArrayUtil.join(logFixture.getMessages());

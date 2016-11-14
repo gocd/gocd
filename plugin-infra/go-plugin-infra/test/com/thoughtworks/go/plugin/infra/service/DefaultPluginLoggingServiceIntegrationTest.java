@@ -30,6 +30,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.File;
+import java.nio.charset.Charset;
 import java.util.*;
 
 import static com.thoughtworks.go.plugin.infra.service.DefaultPluginLoggingService.pluginLogFileName;
@@ -46,7 +47,7 @@ public class DefaultPluginLoggingServiceIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        this.plugins = new HashMap<Integer, String>();
+        this.plugins = new HashMap<>();
 
         systemEnvironment = mock(SystemEnvironment.class);
         when(systemEnvironment.pluginLoggingLevel(any(String.class))).thenReturn(Level.INFO);
@@ -64,7 +65,7 @@ public class DefaultPluginLoggingServiceIntegrationTest {
 
     @Test
     public void shouldNotLogPluginMessagesToRootLogger() throws Exception {
-        try (LogFixture fixture = new LogFixture(Logger.getRootLogger(), Level.ALL)) {
+        try (LogFixture fixture = new LogFixture(Logger.getRootLogger(), Level.INFO)) {
             DefaultPluginLoggingService service = new DefaultPluginLoggingService(systemEnvironment);
             service.info(pluginID(1), "LoggingClass", "this-message-should-not-go-to-root-logger");
 
@@ -103,7 +104,7 @@ public class DefaultPluginLoggingServiceIntegrationTest {
     public void shouldNotLogDebugMessagesByDefaultSinceTheDefaultLoggingLevelIsInfo() throws Exception {
         pluginLoggingService.debug(pluginID(1), "LoggingClass", "message");
 
-        assertThat(FileUtils.readFileToString(pluginLog(1)), is(""));
+        assertThat(FileUtils.readFileToString(pluginLog(1), Charset.defaultCharset()), is(""));
     }
 
     @Test
@@ -203,7 +204,7 @@ public class DefaultPluginLoggingServiceIntegrationTest {
     }
 
     private void assertMessageInLog(File pluginLogFile, String expectedLoggingLevel, String loggerName, String expectedLogMessage) throws Exception {
-        List linesInLog = FileUtils.readLines(pluginLogFile);
+        List linesInLog = FileUtils.readLines(pluginLogFile, Charset.defaultCharset());
         for (Object line : linesInLog) {
             if (((String) line).matches(String.format("^.*%s \\[%s\\] %s:.* - %s$", expectedLoggingLevel, Thread.currentThread().getName(), loggerName, expectedLogMessage))) {
                 return;
@@ -213,7 +214,7 @@ public class DefaultPluginLoggingServiceIntegrationTest {
     }
 
     private void assertMessageInLog(File pluginLogFile, String loggingLevel, String loggerName, String message, String stackTracePattern) throws Exception {
-        String fileContent = FileUtils.readFileToString(pluginLogFile);
+        String fileContent = FileUtils.readFileToString(pluginLogFile, Charset.defaultCharset());
         if (fileContent.matches(String.format("^.*%s\\s\\[%s\\]\\s%s:.*\\s-\\s%s[\\s\\S]*%s", loggingLevel, Thread.currentThread().getName(), loggerName, message, stackTracePattern))) {
             return;
         }
@@ -222,7 +223,7 @@ public class DefaultPluginLoggingServiceIntegrationTest {
     }
 
     private void assertNumberOfMessagesInLog(File pluginLogFile, int size) throws Exception {
-        assertThat(FileUtils.readLines(pluginLogFile).size(), is(size));
+        assertThat(FileUtils.readLines(pluginLogFile, Charset.defaultCharset()).size(), is(size));
     }
 
     private String pluginID(int pluginIndex) {

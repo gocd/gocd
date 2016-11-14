@@ -17,6 +17,7 @@
 package com.thoughtworks.go.domain.materials.perforce;
 
 import java.io.StringWriter;
+import java.nio.charset.Charset;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -113,7 +114,7 @@ public class P4OutputParserTest {
     @Test
     public void shouldParseChangesWithLotsOfFilesWithoutError() throws Exception {
         final StringWriter writer = new StringWriter();
-        IOUtils.copy(new ClassPathResource("/data/BIG_P4_OUTPUT.txt").getInputStream(), writer);
+        IOUtils.copy(new ClassPathResource("/data/BIG_P4_OUTPUT.txt").getInputStream(), writer, Charset.defaultCharset());
         String output = writer.toString();
         Modification modification = parser.modificationFromDescription(output, new ConsoleResult(0, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<CommandArgument>(), new ArrayList<SecretString>()));
         assertThat(modification.getModifiedFiles().size(), is(1304));
@@ -279,7 +280,7 @@ public class P4OutputParserTest {
 
     @Test
     public void shouldIgnoreBadLinesAndLogThem() throws ParseException {
-        try (LogFixture logging = new LogFixture(LogFixture.class, Level.DEBUG)) {
+        try (LogFixture logging = new LogFixture(P4OutputParser.class, Level.DEBUG)) {
             final String output = "Change 539921 on 2008/09/24 "
                     + "by abc@SomeRefinery_abc_sa1-sgr-xyz-001 'more work in progress on MDC un'\n";
             final String description = "Change that I cannot parse :-(\n";

@@ -120,7 +120,7 @@ public class CommandLineTest {
 
     @Test
     public void shouldLogPasswordsOnTheLogAsStars() {
-        try (LogFixture logFixture = new LogFixture(CommandLine.class, Level.DEBUG)) {
+        try (LogFixture logFixture = new LogFixture(ProcessManager.class, Level.DEBUG)) {
             CommandLine line = CommandLine.createCommandLine("notexist").withArg(new PasswordArgument("secret"));
             try {
                 line.runOrBomb(null);
@@ -135,7 +135,6 @@ public class CommandLineTest {
     @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, OSChecker.WINDOWS})
     public void shouldNotLogPasswordsFromStream() {
         try (LogFixture logFixture = new LogFixture(CommandLine.class, Level.DEBUG)) {
-            Logger.getLogger(CommandLine.class).setLevel(Level.DEBUG);
             CommandLine line = CommandLine.createCommandLine("/bin/echo").withArg("=>").withArg(new PasswordArgument("secret"));
             line.runOrBomb(null);
             System.out.println(ArrayUtil.join(logFixture.getMessages()));
@@ -203,7 +202,7 @@ public class CommandLineTest {
 
     @Test
     public void shouldShowPasswordsInDescribeAsStars() throws IOException {
-        HashMap<String, String> map = new HashMap<String, String>();
+        HashMap<String, String> map = new HashMap<>();
         map.put("password1", "secret");
         map.put("password2", "secret");
         CommandLine line = CommandLine.createCommandLine("echo")

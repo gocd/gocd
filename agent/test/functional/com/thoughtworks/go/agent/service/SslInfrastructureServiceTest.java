@@ -17,6 +17,7 @@
 package com.thoughtworks.go.agent.service;
 
 import com.thoughtworks.go.agent.AgentAutoRegistrationPropertiesImpl;
+import com.thoughtworks.go.agent.common.ssl.GoAgentServerClientBuilder;
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient;
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClientBuilder;
 import com.thoughtworks.go.agent.testhelpers.AgentCertificateMother;
@@ -57,8 +58,8 @@ public class SslInfrastructureServiceTest {
     @Before
     public void setup() throws Exception {
         remoteCalled = false;
-        GoAgentServerHttpClientBuilder.AGENT_CERTIFICATE_FILE.delete();
-        GoAgentServerHttpClientBuilder.AGENT_CERTIFICATE_FILE.deleteOnExit();
+        GoAgentServerClientBuilder.AGENT_CERTIFICATE_FILE.delete();
+        GoAgentServerClientBuilder.AGENT_CERTIFICATE_FILE.deleteOnExit();
         Registration registration = createRegistration();
         sslInfrastructureService = new SslInfrastructureService(requesterStub(registration), httpClientStub());
         GuidService.storeGuid("uuid");
@@ -67,8 +68,8 @@ public class SslInfrastructureServiceTest {
     @After
     public void teardown() throws Exception {
         GuidService.deleteGuid();
-        GoAgentServerHttpClientBuilder.AGENT_CERTIFICATE_FILE.delete();
-        GoAgentServerHttpClientBuilder.AGENT_TRUST_FILE.delete();
+        GoAgentServerClientBuilder.AGENT_CERTIFICATE_FILE.delete();
+        GoAgentServerClientBuilder.AGENT_TRUST_FILE.delete();
     }
 
     @Test
@@ -79,7 +80,7 @@ public class SslInfrastructureServiceTest {
         shouldCreateSslInfrastucture();
 
         sslInfrastructureService.registerIfNecessary(new AgentAutoRegistrationPropertiesImpl(configFile));
-        assertThat(GoAgentServerHttpClientBuilder.AGENT_CERTIFICATE_FILE, exists());
+        assertThat(GoAgentServerClientBuilder.AGENT_CERTIFICATE_FILE, exists());
         assertRemoteCalled();
 
         sslInfrastructureService.registerIfNecessary(new AgentAutoRegistrationPropertiesImpl(configFile));
@@ -113,7 +114,8 @@ public class SslInfrastructureServiceTest {
 
     private SslInfrastructureService.RemoteRegistrationRequester requesterStub(final Registration registration) {
         final SslInfrastructureServiceTest me = this;
-        return new SslInfrastructureService.RemoteRegistrationRequester(null, agentRegistryStub(), new GoAgentServerHttpClient(new SystemEnvironment())) {
+        final SystemEnvironment systemEnvironment = new SystemEnvironment();
+        return new SslInfrastructureService.RemoteRegistrationRequester(null, agentRegistryStub(), new GoAgentServerHttpClient(new GoAgentServerHttpClientBuilder(systemEnvironment))) {
             protected Registration requestRegistration(String agentHostName, AgentAutoRegistrationProperties agentAutoRegisterProperties)
                     throws IOException, ClassNotFoundException {
                 LOGGER.debug("Requesting remote registration");

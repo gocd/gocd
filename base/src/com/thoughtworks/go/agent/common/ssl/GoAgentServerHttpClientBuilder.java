@@ -28,46 +28,23 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContextBuilder;
 
 import javax.net.ssl.HostnameVerifier;
-import javax.security.auth.x500.X500Principal;
 import java.io.*;
 import java.security.*;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.util.List;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
-public class GoAgentServerHttpClientBuilder {
-
-    public static final File AGENT_CERTIFICATE_FILE = new File("config", "agent.jks");
-    @Deprecated
-    public static final File AGENT_TRUST_FILE = new File("config", "trust.jks");
-
-    private final File rootCertFile;
-    private final File keyStoreFile;
-    private final SslVerificationMode sslVerificationMode;
-    private final SystemEnvironment systemEnvironment;
+public class GoAgentServerHttpClientBuilder extends GoAgentServerClientBuilder<CloseableHttpClient> {
 
     public GoAgentServerHttpClientBuilder(File rootCertFile, SslVerificationMode sslVerificationMode) {
-        this(rootCertFile, AGENT_CERTIFICATE_FILE, sslVerificationMode, new SystemEnvironment());
+        super(new SystemEnvironment(), rootCertFile, AGENT_CERTIFICATE_FILE, sslVerificationMode);
     }
 
     public GoAgentServerHttpClientBuilder(SystemEnvironment systemEnvironment) {
-        this(systemEnvironment.getRootCertFile(), AGENT_CERTIFICATE_FILE, systemEnvironment.getAgentSslVerificationMode(), systemEnvironment);
+        super(systemEnvironment);
     }
 
-    private GoAgentServerHttpClientBuilder(File rootCertFile, File keyStoreFile, SslVerificationMode sslVerificationMode, SystemEnvironment systemEnvironment) {
-        this.rootCertFile = rootCertFile;
-        this.keyStoreFile = keyStoreFile;
-        this.sslVerificationMode = sslVerificationMode;
-        this.systemEnvironment = systemEnvironment;
-    }
-
-    public CloseableHttpClient httpClient() throws Exception {
-        return httpClientBuilder(HttpClients.custom()).build();
-    }
-
-    public HttpClientBuilder httpClientBuilder(HttpClientBuilder builder) throws IOException, KeyStoreException, CertificateException, NoSuchAlgorithmException, KeyManagementException, UnrecoverableKeyException {
+    public CloseableHttpClient build() throws Exception {
+        HttpClientBuilder builder = HttpClients.custom();
         builder
                 .setDefaultSocketConfig(SocketConfig.custom()
                         .setTcpNoDelay(true)
@@ -90,60 +67,9 @@ public class GoAgentServerHttpClientBuilder {
 
         sslContextBuilder.loadKeyMaterial(agentKeystore(), keystorePassword().toCharArray());
 
-        SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslContextBuilder.build(), hostnameVerifier);
-        builder.setSSLSocketFactory(sslsf);
-        return builder;
+        SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContextBuilder.build(), hostnameVerifier);
+        builder.setSSLSocketFactory(sslConnectionSocketFactory);
+        return builder.build();
     }
 
-    public void initialize() {
-        File parentFile = GoAgentServerHttpClientBuilder.AGENT_TRUST_FILE.getParentFile();
-
-        if (!(parentFile.exists() || parentFile.mkdirs())) {
-            bomb("Unable to create folder " + parentFile.getAbsolutePath());
-        }
-    }
-
-    public KeyStore agentTruststore() throws IOException, CertificateException, KeyStoreException, NoSuchAlgorithmException {
-        KeyStore trustStore = null;
-
-        List<X509Certificate> certificates = new CertificateFileParser().certificates(rootCertFile);
-
-        for (X509Certificate certificate : certificates) {
-            if (trustStore == null) {
-                trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
-                trustStore.load(null, null);
-            }
-            trustStore.setCertificateEntry(certificate.getSubjectX500Principal().getName(), certificate);
-        }
-
-        return trustStore;
-    }
-
-    public KeyStore agentKeystore() throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException {
-        KeyStore keyStore = KeyStore.getInstance("JKS");
-        try (InputStream is = keyStoreInputStream()) {
-            keyStore.load(is, keystorePassword().toCharArray());
-        }
-        return keyStore;
-    }
-
-    public String keystorePassword() {
-        return systemEnvironment.get(SystemEnvironment.GO_AGENT_KEYSTORE_PASSWORD);
-    }
-
-    private InputStream keyStoreInputStream() throws FileNotFoundException {
-        return !keyStoreFile.exists() ? null : new FileInputStream(keyStoreFile);
-    }
-
-    public X500Principal principal() {
-        try {
-            KeyStore keyStore = agentKeystore();
-            if (keyStore.containsAlias("agent")) {
-                return ((X509Certificate) keyStore.getCertificate("agent")).getSubjectX500Principal();
-            }
-        } catch (Exception e) {
-            // ignore
-        }
-        return null;
-    }
 }

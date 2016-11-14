@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.util;
 
@@ -20,13 +20,18 @@ import com.jezhumble.javasysmon.JavaSysMon;
 import com.jezhumble.javasysmon.OsProcess;
 import com.jezhumble.javasysmon.ProcessInfo;
 import com.jezhumble.javasysmon.ProcessVisitor;
+
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 
+import org.apache.log4j.Level;
 import org.junit.After;
+
 import static org.junit.Assert.assertThat;
+
 import org.junit.Test;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -42,29 +47,32 @@ public class SubprocessLoggerTest {
     public void shouldNotLogAnythingWhenNoChildProcessesFound() {
         JavaSysMon sysMon = mock(JavaSysMon.class);
         logger = new SubprocessLogger(sysMon);
-        LogFixture log = LogFixture.startListening();
-        logger.run();
-        assertThat(log.allLogs(), is(""));
+        try (LogFixture log = new LogFixture(SubprocessLogger.class, Level.ALL)) {
+            logger.run();
+            assertThat(log.allLogs(), is(""));
+        }
     }
 
     @Test
     public void shouldLogDefaultMessageWhenNoMessageGiven() {
         logger = new SubprocessLogger(stubSysMon());
-        LogFixture log = LogFixture.startListening();
-        logger.run();
-        String allLogs = log.allLogs();
-        log.stopListening();
+        String allLogs;
+        try (LogFixture log = new LogFixture(SubprocessLogger.class, Level.ALL)) {
+            logger.run();
+            allLogs = log.allLogs();
+        }
         assertThat(allLogs, containsString("Logged all subprocesses."));
     }
 
     @Test
     public void shouldLogAllTheRunningChildProcesses() {
         logger = new SubprocessLogger(stubSysMon());
-        LogFixture log = LogFixture.startListening();
-        logger.registerAsExitHook("foo bar baz");
-        logger.run();
-        String allLogs = log.allLogs();
-        log.stopListening();
+        String allLogs;
+        try (LogFixture log = new LogFixture(SubprocessLogger.class, Level.ALL)) {
+            logger.registerAsExitHook("foo bar baz");
+            logger.run();
+            allLogs = log.allLogs();
+        }
         assertThat(allLogs, containsString("foo bar baz\n\tPID: 101\tname: name-1\towner: owner-1\tcommand: command-1\n\tPID: 103\tname: name-1a\towner: owner-1\tcommand: command-1a"));
         assertThat(allLogs, not(containsString("PID: 102")));
     }
@@ -77,13 +85,15 @@ public class SubprocessLoggerTest {
         final OsProcess process2 = mock(OsProcess.class);
         when(process2.processInfo()).thenReturn(new ProcessInfo(102, 101, "command-2", "name-2", "owner-1", 150, 250, 450, 850));
         JavaSysMon sysMon = new JavaSysMon() {
-            @Override public void visitProcessTree(int pid, ProcessVisitor processVisitor) {
+            @Override
+            public void visitProcessTree(int pid, ProcessVisitor processVisitor) {
                 processVisitor.visit(process2, 2);
                 processVisitor.visit(process1, 1);
                 processVisitor.visit(process1a, 1);
             }
 
-            @Override public int currentPid() {
+            @Override
+            public int currentPid() {
                 return 100;
             }
         };

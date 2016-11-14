@@ -31,6 +31,7 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.LogFixture;
+import org.apache.log4j.Level;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,6 +46,7 @@ import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
@@ -52,14 +54,21 @@ import static org.junit.Assert.assertThat;
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
 })
 public class UpdateAgentStatusTest {
-    @Autowired private AgentService agentService;
-    @Autowired private GoConfigDao goConfigDao;
-    @Autowired private DataSource dataSource;
-    @Autowired private DatabaseAccessHelper dbHelper;
-    @Autowired private ConfigRepository configRepo;
-    @Autowired private TransactionTemplate transactionTemplate;
+    @Autowired
+    private AgentService agentService;
+    @Autowired
+    private GoConfigDao goConfigDao;
+    @Autowired
+    private DataSource dataSource;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
+    @Autowired
+    private ConfigRepository configRepo;
+    @Autowired
+    private TransactionTemplate transactionTemplate;
 
-    @Autowired private MaterialRepository materialRepository;
+    @Autowired
+    private MaterialRepository materialRepository;
     private PipelineWithTwoStages preCondition;
     private String agentId = "uuid";
     private static GoConfigFileHelper configHelper = new GoConfigFileHelper();
@@ -120,11 +129,11 @@ public class UpdateAgentStatusTest {
         agentRuntimeInfo1.busy(new AgentBuildingInfo("building", "buildLocator"));
         agentRuntimeInfo1.setLocation("/myDirectory");
 
-        LogFixture logging = LogFixture.startListening();
-        agentService.updateRuntimeInfo(agentRuntimeInfo1);
-        assertThat(logging.getLog(),
-                containsString("Agent with UUID [uuid] changed IP Address from [10.81.2.1] to [10.18.3.95]"));
-        logging.stopListening();
+        try (LogFixture logging = new LogFixture(AgentService.class, Level.DEBUG)) {
+            agentService.updateRuntimeInfo(agentRuntimeInfo1);
+            assertThat(logging.getLog(),
+                    containsString("Agent with UUID [uuid] changed IP Address from [10.81.2.1] to [10.18.3.95]"));
+        }
     }
 
     public JobIdentifier jobIdentifier(long id) {

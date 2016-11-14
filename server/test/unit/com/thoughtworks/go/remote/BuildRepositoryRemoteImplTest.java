@@ -56,13 +56,13 @@ public class BuildRepositoryRemoteImplTest {
         agentService = mock(AgentService.class);
         jobStatusTopic = mock(JobStatusTopic.class);
         buildRepository = new BuildRepositoryRemoteImpl(repositoryService, agentService, jobStatusTopic);
-        logFixture = LogFixture.startListening(Level.TRACE);
+        logFixture = new LogFixture(BuildRepositoryRemote.class, Level.DEBUG);
         info = new AgentRuntimeInfo(new AgentIdentifier("host", "192.168.1.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
     }
 
     @After
-    public void tearDown() {
-        logFixture.stopListening();
+    public void tearDown() throws Exception {
+        logFixture.close();
     }
 
     @Test

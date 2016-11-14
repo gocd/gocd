@@ -372,15 +372,13 @@ public class JobInstanceSqlMapDaoTest {
 
     @Test
     public void shouldLogStatusUpdatesOfCompletedJobs() throws Exception {
-        LogFixture logFixture = LogFixture.startListening(Level.WARN);
-
-        JobInstance instance = runningJob("1");
-        completeJobs(instance);
-        instance.schedule();
-        jobInstanceDao.updateStateAndResult(instance);
-        assertThat(logFixture.getLog(), logFixture.contains(Level.WARN, "State change for a completed Job is not allowed."), is(true));
-
-        logFixture.stopListening();
+        try (LogFixture logFixture = new LogFixture(JobInstanceDao.class, Level.DEBUG)) {
+            JobInstance instance = runningJob("1");
+            completeJobs(instance);
+            instance.schedule();
+            jobInstanceDao.updateStateAndResult(instance);
+            assertThat(logFixture.getLog(), logFixture.contains(Level.WARN, "State change for a completed Job is not allowed."), is(true));
+        }
     }
 
     private JobInstance[] completeJobs(JobInstance... instances) {
@@ -388,20 +386,6 @@ public class JobInstanceSqlMapDaoTest {
             complete(instance);
         }
         return instances;
-    }
-
-    private long createNewStage() {
-        PipelineConfig anotherConfig = PipelineMother.withSingleStageWithMaterials("hatred", "hatedChild", BuildPlanMother.withBuildPlans(JOB_NAME, OTHER_JOB_NAME));
-        Pipeline anotherPipeline = instanceFactory.createPipelineInstance(anotherConfig, modifySomeFiles(anotherConfig), new DefaultSchedulingContext(DEFAULT_APPROVED_BY), "md5-test", new TimeProvider());
-
-        dbHelper.savePipelineWithStagesAndMaterials(anotherPipeline);
-
-        return anotherPipeline.getFirstStage().getId();
-    }
-
-    private JobInstance saveJob() {
-        String jobName = "Baboon";
-        return saveJob(jobName);
     }
 
     private JobInstance saveJob(String jobName) {
@@ -412,12 +396,6 @@ public class JobInstanceSqlMapDaoTest {
 
     private JobInstance runningJob(final String name) {
         JobInstance jobInstance = JobInstanceMother.buildingInstance("pipeline", "stage", name, "1");
-        jobInstanceDao.save(stageId, jobInstance);
-        return jobInstance;
-    }
-
-    private JobInstance runningJob(String pipeline, String stage, String job, long stageId) {
-        JobInstance jobInstance = JobInstanceMother.buildingInstance(pipeline, stage, job, "1");
         jobInstanceDao.save(stageId, jobInstance);
         return jobInstance;
     }

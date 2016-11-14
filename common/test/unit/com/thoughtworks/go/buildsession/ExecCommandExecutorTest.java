@@ -22,6 +22,7 @@ import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.util.ArrayUtil;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.SystemUtil;
+import org.apache.log4j.Level;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -120,19 +121,14 @@ public class ExecCommandExecutorTest extends BuildSessionBasedTestCase {
 
     @Test
     public void shouldNotLeakSecretsToLog() {
-        LogFixture logFixture = LogFixture.startListening();
-        try {
-            LogFixture.enableDebug();
+        try (LogFixture logFixture = new LogFixture(BuildSession.class, Level.DEBUG)) {
             runBuild(compose(secret("topsecret"),
                     exec("not-not-not-exist", "topsecret")), Failed);
             String logs = ArrayUtil.join(logFixture.getMessages());
             assertThat(logs, containsString("not-not-not-exist ******"));
             assertThat(logs, not(containsString("topsecret")));
-        } finally {
-            logFixture.stopListening();
         }
     }
-
 
     private BuildCommand execEchoEnv(final String envname) {
         if (SystemUtil.isWindows()) {

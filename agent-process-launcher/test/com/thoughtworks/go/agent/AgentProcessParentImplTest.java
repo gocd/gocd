@@ -22,7 +22,6 @@ import com.thoughtworks.go.agent.common.util.Downloader;
 import com.thoughtworks.go.agent.common.util.LoggingHelper;
 import com.thoughtworks.go.agent.testhelper.FakeBootstrapperServer;
 import com.thoughtworks.go.mothers.ServerUrlGeneratorMother;
-import com.thoughtworks.go.util.FileDigester;
 import com.thoughtworks.go.util.LogFixture;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -179,8 +178,7 @@ public class AgentProcessParentImplTest {
     @Test
     public void shouldLogInterruptOnAgentProcess() throws InterruptedException {
         final List<String> cmd = new ArrayList<>();
-        LogFixture logFixture = LogFixture.startListening();
-        try {
+        try (LogFixture logFixture = new LogFixture(AgentProcessParentImpl.class, Level.DEBUG)) {
             Process subProcess = mockProcess();
             when(subProcess.waitFor()).thenThrow(new InterruptedException("bang bang!"));
             AgentProcessParentImpl bootstrapper = createBootstrapper(cmd, subProcess);
@@ -188,8 +186,6 @@ public class AgentProcessParentImplTest {
             assertThat(returnCode, is(0));
             assertThat(logFixture.contains(Level.ERROR, "Agent was interrupted. Terminating agent and respawning. java.lang.InterruptedException: bang bang!"), is(true));
             verify(subProcess).destroy();
-        } finally {
-            logFixture.stopListening();
         }
     }
 
@@ -216,8 +212,8 @@ public class AgentProcessParentImplTest {
     @Test
     public void shouldLogFailureToStartSubprocess() throws InterruptedException {
         final List<String> cmd = new ArrayList<>();
-        LogFixture logFixture = LogFixture.startListening();
-        try {
+
+        try (LogFixture logFixture = new LogFixture(AgentProcessParentImpl.class, Level.DEBUG)) {
             AgentProcessParentImpl bootstrapper = new AgentProcessParentImpl() {
                 @Override
                 Process invoke(String[] command) throws IOException {
@@ -228,30 +224,23 @@ public class AgentProcessParentImplTest {
             int returnCode = bootstrapper.run("bootstrapper_version", "bar", getURLGenerator(), new HashMap<String, String>(), context());
             assertThat(returnCode, is(-373));
             assertThat(logFixture.contains(Level.ERROR, "Exception while executing command: " + StringUtils.join(cmd, " ") + " - java.lang.RuntimeException: something failed!"), is(true));
-        } finally {
-            logFixture.stopListening();
         }
     }
 
     @Test
     public void shouldClose_STDIN_and_STDOUT_ofSubprocess() throws InterruptedException {
         final List<String> cmd = new ArrayList<>();
-        LogFixture logFixture = LogFixture.startListening();
-        try {
-            final OutputStream stdin = mock(OutputStream.class);
-            Process subProcess = mockProcess(new ByteArrayInputStream(new byte[0]), new ByteArrayInputStream(new byte[0]), stdin);
-            when(subProcess.waitFor()).thenAnswer(new Answer<Object>() {
-                public Object answer(InvocationOnMock invocation) throws Throwable {
-                    verify(stdin).close();
-                    return 21;
-                }
-            });
-            AgentProcessParentImpl bootstrapper = createBootstrapper(cmd, subProcess);
-            int returnCode = bootstrapper.run("bootstrapper_version", "bar", getURLGenerator(), new HashMap<String, String>(), context());
-            assertThat(returnCode, is(21));
-        } finally {
-            logFixture.stopListening();
-        }
+        final OutputStream stdin = mock(OutputStream.class);
+        Process subProcess = mockProcess(new ByteArrayInputStream(new byte[0]), new ByteArrayInputStream(new byte[0]), stdin);
+        when(subProcess.waitFor()).thenAnswer(new Answer<Object>() {
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                verify(stdin).close();
+                return 21;
+            }
+        });
+        AgentProcessParentImpl bootstrapper = createBootstrapper(cmd, subProcess);
+        int returnCode = bootstrapper.run("bootstrapper_version", "bar", getURLGenerator(), new HashMap<String, String>(), context());
+        assertThat(returnCode, is(21));
     }
 
     @Test

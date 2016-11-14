@@ -49,7 +49,6 @@ public class CcTrayActivityListenerTest {
     private StubCcTrayStageStatusChangeHandler stageStatusChangeHandler;
     private StubCcTrayConfigChangeHandler configChangeHandler;
     private GoConfigService goConfigService;
-    private LogFixture logFixture;
 
     @Before
     public void setUp() throws Exception {
@@ -57,12 +56,6 @@ public class CcTrayActivityListenerTest {
         stageStatusChangeHandler = new StubCcTrayStageStatusChangeHandler();
         configChangeHandler = new StubCcTrayConfigChangeHandler();
         goConfigService = mock(GoConfigService.class);
-        logFixture = LogFixture.startListening(Level.WARN);
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        logFixture.stopListening();
     }
 
     @Test
@@ -120,31 +113,34 @@ public class CcTrayActivityListenerTest {
         CcTrayJobStatusChangeHandler failingJobStatusChangeHandler = mock(CcTrayJobStatusChangeHandler.class);
         doThrow(new RuntimeException("Ouch. Failed.")).when(failingJobStatusChangeHandler).call(any(JobInstance.class));
 
-        CcTrayActivityListener listener = new CcTrayActivityListener(goConfigService, failingJobStatusChangeHandler, normalStageStatusChangeHandler, configChangeHandler);
-        listener.initialize();
-        listener.jobStatusChanged(JobInstanceMother.passed("some-job-this-should-fail"));
-        listener.stageStatusChanged(StageMother.unrunStage("some-stage"));
+        try (LogFixture logFixture = new LogFixture(CcTrayActivityListener.class, Level.DEBUG)) {
+            CcTrayActivityListener listener = new CcTrayActivityListener(goConfigService, failingJobStatusChangeHandler, normalStageStatusChangeHandler, configChangeHandler);
+            listener.initialize();
+            listener.jobStatusChanged(JobInstanceMother.passed("some-job-this-should-fail"));
+            listener.stageStatusChanged(StageMother.unrunStage("some-stage"));
 
-        waitForProcessingToHappen();
+            waitForProcessingToHappen();
 
-        assertThat(logFixture.contains(Level.WARN, "Failed to handle action in CCTray queue"), is(true));
+            assertThat(logFixture.contains(Level.WARN, "Failed to handle action in CCTray queue"), is(true));
+        }
+
         verify(normalStageStatusChangeHandler).call(StageMother.unrunStage("some-stage"));
     }
 
     @Test
     public void shouldInvokeConfigChangeHandlerWhenPipelineConfigChanges() throws InterruptedException {
-        PipelineConfig pipelineConfig=mock(PipelineConfig.class);
+        PipelineConfig pipelineConfig = mock(PipelineConfig.class);
         CaseInsensitiveString p1 = new CaseInsensitiveString("p1");
         when(pipelineConfig.name()).thenReturn(p1);
         CcTrayConfigChangeHandler ccTrayConfigChangeHandler = mock(CcTrayConfigChangeHandler.class);
         ArgumentCaptor<ConfigChangedListener> captor = ArgumentCaptor.forClass(ConfigChangedListener.class);
         doNothing().when(goConfigService).register(captor.capture());
         when(goConfigService.findGroupNameByPipeline(p1)).thenReturn("group1");
-        CcTrayActivityListener listener = new CcTrayActivityListener(goConfigService, mock(CcTrayJobStatusChangeHandler.class),  mock(CcTrayStageStatusChangeHandler.class), ccTrayConfigChangeHandler);
+        CcTrayActivityListener listener = new CcTrayActivityListener(goConfigService, mock(CcTrayJobStatusChangeHandler.class), mock(CcTrayStageStatusChangeHandler.class), ccTrayConfigChangeHandler);
         listener.initialize();
         List<ConfigChangedListener> listeners = captor.getAllValues();
         assertThat(listeners.get(1) instanceof EntityConfigChangedListener, is(true));
-        EntityConfigChangedListener<PipelineConfig> pipelineConfigChangeListener= (EntityConfigChangedListener<PipelineConfig>) listeners.get(1);
+        EntityConfigChangedListener<PipelineConfig> pipelineConfigChangeListener = (EntityConfigChangedListener<PipelineConfig>) listeners.get(1);
 
         pipelineConfigChangeListener.onEntityConfigChange(pipelineConfig);
         waitForProcessingToHappen();

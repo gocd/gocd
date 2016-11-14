@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.plugin.infra.service;
 
@@ -64,14 +64,13 @@ public class DefaultPluginLoggingServiceIntegrationTest {
 
     @Test
     public void shouldNotLogPluginMessagesToRootLogger() throws Exception {
-        LogFixture appender = LogFixture.startListening(Level.INFO);
-        Logger.getRootLogger().addAppender(appender);
+        try (LogFixture fixture = new LogFixture(Logger.getRootLogger(), Level.ALL)) {
+            DefaultPluginLoggingService service = new DefaultPluginLoggingService(systemEnvironment);
+            service.info(pluginID(1), "LoggingClass", "this-message-should-not-go-to-root-logger");
 
-        DefaultPluginLoggingService service = new DefaultPluginLoggingService(systemEnvironment);
-        service.info(pluginID(1), "LoggingClass", "this-message-should-not-go-to-root-logger");
-
-        String failureMessage = "Expected no messages to be logged to root logger. Found: " + Arrays.toString(appender.getMessages());
-        assertThat(failureMessage, appender.getMessages().length, is(0));
+            String failureMessage = "Expected no messages to be logged to root logger. Found: " + Arrays.toString(fixture.getMessages());
+            assertThat(failureMessage, fixture.getMessages().length, is(0));
+        }
     }
 
     @Test
@@ -206,7 +205,7 @@ public class DefaultPluginLoggingServiceIntegrationTest {
     private void assertMessageInLog(File pluginLogFile, String expectedLoggingLevel, String loggerName, String expectedLogMessage) throws Exception {
         List linesInLog = FileUtils.readLines(pluginLogFile);
         for (Object line : linesInLog) {
-            if (((String)line).matches(String.format("^.*%s \\[%s\\] %s:.* - %s$", expectedLoggingLevel, Thread.currentThread().getName(), loggerName, expectedLogMessage))) {
+            if (((String) line).matches(String.format("^.*%s \\[%s\\] %s:.* - %s$", expectedLoggingLevel, Thread.currentThread().getName(), loggerName, expectedLogMessage))) {
                 return;
             }
         }

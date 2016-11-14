@@ -35,6 +35,7 @@ import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.utils.Timeout;
+import org.apache.log4j.Level;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -52,9 +53,7 @@ import static org.mockito.Mockito.*;
 
 public class AgentServiceTest {
     private AgentService agentService;
-    private LogFixture logFixture;
     private AgentInstances agentInstances;
-    private AgentConfig config;
     private AgentDao agentDao;
     private AgentIdentifier agentIdentifier;
     private UuidGenerator uuidGenerator;
@@ -63,13 +62,12 @@ public class AgentServiceTest {
     @Before
     public void setUp() {
         agentInstances = mock(AgentInstances.class);
-        config = new AgentConfig("uuid", "host", "192.168.1.1");
+        AgentConfig config = new AgentConfig("uuid", "host", "192.168.1.1");
         when(agentInstances.findAgentAndRefreshStatus("uuid")).thenReturn(AgentInstance.createFromConfig(config, new SystemEnvironment()));
         agentDao = mock(AgentDao.class);
         uuidGenerator = mock(UuidGenerator.class);
         agentService = new AgentService(mock(AgentConfigService.class), new SystemEnvironment(), agentInstances, mock(EnvironmentConfigService.class),
                 mock(GoConfigService.class), mock(SecurityService.class), agentDao, uuidGenerator, serverHealthService = mock(ServerHealthService.class));
-        logFixture = LogFixture.startListening();
         agentIdentifier = config.getAgentIdentifier();
         when(agentDao.cookieFor(agentIdentifier)).thenReturn("cookie");
     }
@@ -85,14 +83,18 @@ public class AgentServiceTest {
     @Test
     public void shouldThrowExceptionWhenAgentWithNoCookieTriesToUpdateStatus() throws Exception {
         AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), null, false);
-        try {
-            agentService.updateRuntimeInfo(runtimeInfo);
-            fail("should throw exception when no cookie is set");
-        } catch (Exception e) {
-            assertThat(e, instanceOf(AgentNoCookieSetException.class));
-            assertThat(e.getMessage(), is(format("Agent [%s] has no cookie set", runtimeInfo.agentInfoDebugString())));
-            assertThat(Arrays.asList(logFixture.getMessages()), hasItem(format("Agent [%s] has no cookie set", runtimeInfo.agentInfoDebugString())));
+
+        try (LogFixture logFixture = new LogFixture(ArtifactsService.class, Level.DEBUG)) {
+            try {
+                agentService.updateRuntimeInfo(runtimeInfo);
+                fail("should throw exception when no cookie is set");
+            } catch (Exception e) {
+                assertThat(e, instanceOf(AgentNoCookieSetException.class));
+                assertThat(e.getMessage(), is(format("Agent [%s] has no cookie set", runtimeInfo.agentInfoDebugString())));
+                assertThat(Arrays.asList(logFixture.getMessages()), hasItem(format("Agent [%s] has no cookie set", runtimeInfo.agentInfoDebugString())));
+            }
         }
+
     }
 
     @Test
@@ -100,17 +102,21 @@ public class AgentServiceTest {
         AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), null, false);
         runtimeInfo.setCookie("invalid_cookie");
         AgentInstance original = AgentInstance.createFromLiveAgent(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), null, false), new SystemEnvironment());
-        try {
-            when(agentService.findAgentAndRefreshStatus(runtimeInfo.getUUId())).thenReturn(original);
-            agentService.updateRuntimeInfo(runtimeInfo);
-            fail("should throw exception when cookie mismatched");
-        } catch (Exception e) {
-            assertThat(e.getMessage(), is(format("Agent [%s] has invalid cookie", runtimeInfo.agentInfoDebugString())));
-            assertThat(Arrays.asList(logFixture.getMessages()), hasItem(format("Found agent [%s] with duplicate uuid. Please check the agent installation.", runtimeInfo.agentInfoDebugString())));
-            verify(serverHealthService).update(ServerHealthState.warning(format("[%s] has duplicate unique identifier which conflicts with [%s]", runtimeInfo.agentInfoForDisplay(), original.agentInfoForDisplay()),
-                            "Please check the agent installation. Click <a href='http://www.go.cd/documentation/user/current/faq/agent_guid_issue.html' target='_blank'>here</a> for more info.",
-                            HealthStateType.duplicateAgent(HealthStateScope.forAgent(runtimeInfo.getCookie())), Timeout.THIRTY_SECONDS));
+
+        try (LogFixture logFixture = new LogFixture(ArtifactsService.class, Level.DEBUG)) {
+            try {
+                when(agentService.findAgentAndRefreshStatus(runtimeInfo.getUUId())).thenReturn(original);
+                agentService.updateRuntimeInfo(runtimeInfo);
+                fail("should throw exception when cookie mismatched");
+            } catch (Exception e) {
+                assertThat(e.getMessage(), is(format("Agent [%s] has invalid cookie", runtimeInfo.agentInfoDebugString())));
+                assertThat(Arrays.asList(logFixture.getMessages()), hasItem(format("Found agent [%s] with duplicate uuid. Please check the agent installation.", runtimeInfo.agentInfoDebugString())));
+                verify(serverHealthService).update(ServerHealthState.warning(format("[%s] has duplicate unique identifier which conflicts with [%s]", runtimeInfo.agentInfoForDisplay(), original.agentInfoForDisplay()),
+                        "Please check the agent installation. Click <a href='http://www.go.cd/documentation/user/current/faq/agent_guid_issue.html' target='_blank'>here</a> for more info.",
+                        HealthStateType.duplicateAgent(HealthStateScope.forAgent(runtimeInfo.getCookie())), Timeout.THIRTY_SECONDS));
+            }
         }
+
         verify(agentInstances).findAgentAndRefreshStatus(runtimeInfo.getUUId());
         verifyNoMoreInteractions(agentInstances);
     }

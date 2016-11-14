@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.util.command;
 
@@ -21,15 +21,18 @@ import com.googlecode.junit.ext.RunIf;
 import com.googlecode.junit.ext.checkers.OSChecker;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.util.*;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
@@ -47,29 +50,22 @@ public class CommandLineTest {
     private static final String ARG_SPACES_NOQUOTES = "arg1='spaced single quoted value'";
     private static final String ARG_NOSPACES = "arg2=value2";
     private static final String ARG_SPACES = "arg3=value for 3";
-
-    private final ArrayList<File> toDelete = new ArrayList<File>();
-    private File tempFolder;
     private File subFolder;
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Before
     public void setUp() throws Exception {
-        tempFolder = TestFileUtil.createTempFolder("tempCommandLineTestFolder-" + System.currentTimeMillis());
-        toDelete.add(tempFolder);
-
-        subFolder = new File(tempFolder, "subFolder");
-        subFolder.mkdirs();
-        File file = new File("./originalCommand");
-        file.createNewFile();
+        // Have to call this as it uses another Junit runner which overrides the rule
+        temporaryFolder.create();
+        subFolder = temporaryFolder.newFolder("subFolder");
+        File file = temporaryFolder.newFile("./originalCommand");
         file.setExecutable(true);
-        toDelete.add(file);
     }
 
     @After
     public void tearDown() throws Exception {
-        for (File folder : toDelete) {
-            FileUtil.deleteFolder(folder);
-        }
+        temporaryFolder.delete();
     }
 
     @Test
@@ -124,28 +120,28 @@ public class CommandLineTest {
 
     @Test
     public void shouldLogPasswordsOnTheLogAsStars() {
-        LogFixture logFixture = LogFixture.startListening();
-        LogFixture.enableDebug();
-        CommandLine line = CommandLine.createCommandLine("notexist").withArg(new PasswordArgument("secret"));
-        try {
-            line.runOrBomb(null);
-        } catch (Exception e) {
-            //ignored
+        try (LogFixture logFixture = new LogFixture(CommandLine.class, Level.DEBUG)) {
+            CommandLine line = CommandLine.createCommandLine("notexist").withArg(new PasswordArgument("secret"));
+            try {
+                line.runOrBomb(null);
+            } catch (Exception e) {
+                //ignored
+            }
+            assertThat(ArrayUtil.join(logFixture.getMessages()), containsString("notexist ******"));
         }
-        assertThat(ArrayUtil.join(logFixture.getMessages()), containsString("notexist ******"));
-        logFixture.stopListening();
     }
 
     @Test
     @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, OSChecker.WINDOWS})
     public void shouldNotLogPasswordsFromStream() {
-        LogFixture logFixture = LogFixture.startListening();
-        CommandLine line = CommandLine.createCommandLine("/bin/echo").withArg("=>").withArg(new PasswordArgument("secret"));
-        line.runOrBomb(null);
-        System.out.println(ArrayUtil.join(logFixture.getMessages()));
-        assertThat(ArrayUtil.join(logFixture.getMessages()), not(containsString("secret")));
-        assertThat(ArrayUtil.join(logFixture.getMessages()), containsString("=> ******"));
-        logFixture.stopListening();
+        try (LogFixture logFixture = new LogFixture(CommandLine.class, Level.DEBUG)) {
+            Logger.getLogger(CommandLine.class).setLevel(Level.DEBUG);
+            CommandLine line = CommandLine.createCommandLine("/bin/echo").withArg("=>").withArg(new PasswordArgument("secret"));
+            line.runOrBomb(null);
+            System.out.println(ArrayUtil.join(logFixture.getMessages()));
+            assertThat(ArrayUtil.join(logFixture.getMessages()), not(containsString("secret")));
+            assertThat(ArrayUtil.join(logFixture.getMessages()), containsString("=> ******"));
+        }
     }
 
     @Test
@@ -277,7 +273,7 @@ public class CommandLineTest {
         File shellScript = createScript("hello-world.sh", "echo 'Hello World!'");
         assertThat(shellScript.setExecutable(true), is(true));
 
-        CommandLine line = CommandLine.createCommandLine("subFolder/hello-world.sh").withWorkingDir(tempFolder);
+        CommandLine line = CommandLine.createCommandLine("subFolder/hello-world.sh").withWorkingDir(temporaryFolder.getRoot());
 
         InMemoryStreamConsumer out = new InMemoryStreamConsumer();
         line.execute(out, new EnvironmentVariableContext(), null).waitForExit();
@@ -303,7 +299,8 @@ public class CommandLineTest {
     @Test
     @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, OSChecker.WINDOWS})
     public void shouldBeAbleToRunCommandsFromRelativeDirectories() throws IOException {
-        File shellScript = new File(tempFolder, "hello-world.sh");
+        File shellScript = temporaryFolder.newFile("hello-world.sh");
+
         FileUtil.writeContentToFile("echo ${PWD}", shellScript);
         assertThat(shellScript.setExecutable(true), is(true));
 
@@ -322,7 +319,8 @@ public class CommandLineTest {
         return shellScript;
     }
 
-    @Test public void shouldReturnEchoResult() throws Exception {
+    @Test
+    public void shouldReturnEchoResult() throws Exception {
         if (SystemUtil.isWindows()) {
             ConsoleResult result = CommandLine.createCommandLine("cmd").runOrBomb(null);
             assertThat(result.outputAsString(), containsString("Windows"));

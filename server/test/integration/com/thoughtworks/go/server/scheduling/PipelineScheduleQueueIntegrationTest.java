@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.scheduling;
 
@@ -39,6 +39,7 @@ import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.TimeProvider;
+import org.apache.log4j.Level;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.After;
@@ -63,6 +64,7 @@ import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
@@ -70,14 +72,22 @@ import static org.hamcrest.CoreMatchers.containsString;
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
 })
 public class PipelineScheduleQueueIntegrationTest {
-    @Autowired private GoConfigService goConfigService;
-    @Autowired private GoConfigDao goConfigDao;
-    @Autowired private PipelineScheduleQueue queue;
-    @Autowired private JobInstanceService jobService;
-    @Autowired private PipelineDao pipelineDao;
-    @Autowired private DatabaseAccessHelper dbHelper;
-    @Autowired private MaterialRepository materialRepository;
-    @Autowired private TransactionTemplate transactionTemplate;
+    @Autowired
+    private GoConfigService goConfigService;
+    @Autowired
+    private GoConfigDao goConfigDao;
+    @Autowired
+    private PipelineScheduleQueue queue;
+    @Autowired
+    private JobInstanceService jobService;
+    @Autowired
+    private PipelineDao pipelineDao;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
+    @Autowired
+    private MaterialRepository materialRepository;
+    @Autowired
+    private TransactionTemplate transactionTemplate;
 
     private GoConfigFileHelper configFileEditor;
 
@@ -195,13 +205,15 @@ public class PipelineScheduleQueueIntegrationTest {
 
     private void saveRev(final BuildCause cause) {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override protected void doInTransactionWithoutResult(TransactionStatus status) {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
                 materialRepository.save(cause.getMaterialRevisions());
             }
         });
     }
 
-    @Test public void shouldCreateStageWithApproverFromBuildCauseForCreatePipeline() throws Exception {
+    @Test
+    public void shouldCreateStageWithApproverFromBuildCauseForCreatePipeline() throws Exception {
         PipelineConfig pipelineConfig = fixture.pipelineConfig();
         BuildCause cause = modifySomeFilesAndTriggerAs(pipelineConfig, "cruise-developer");
         saveRev(cause);
@@ -222,7 +234,8 @@ public class PipelineScheduleQueueIntegrationTest {
         assertThat(queue.createPipeline(cause, pipelineConfig, new DefaultSchedulingContext(cause.getApprover(), new Agents()), "md5-test", new TimeProvider()), is(nullValue()));
     }
 
-    @Test public void shouldBeCanceledWhenSameBuildCause() throws Exception {
+    @Test
+    public void shouldBeCanceledWhenSameBuildCause() throws Exception {
         PipelineConfig pipelineConfig = fixture.pipelineConfig();
         BuildCause cause = modifySomeFiles(pipelineConfig, ModificationsMother.currentRevision());
         queue.finishSchedule(fixture.pipelineName, cause, cause);
@@ -233,7 +246,8 @@ public class PipelineScheduleQueueIntegrationTest {
         assertThat(fixture.pipelineName, is(not(scheduledOn(queue))));
     }
 
-    @Test public void shouldFinishSchedule() throws Exception {
+    @Test
+    public void shouldFinishSchedule() throws Exception {
         PipelineConfig pipelineConfig = fixture.pipelineConfig();
         BuildCause cause = modifySomeFiles(pipelineConfig, ModificationsMother.currentRevision());
         queue.schedule(fixture.pipelineName, cause);
@@ -245,7 +259,8 @@ public class PipelineScheduleQueueIntegrationTest {
         assertThat(queue.mostRecentScheduled(fixture.pipelineName), is(newCause));
     }
 
-    @Test public void shouldNotBeCanceledWhenForcingBuildTwice() throws Exception {
+    @Test
+    public void shouldNotBeCanceledWhenForcingBuildTwice() throws Exception {
         PipelineConfig pipelineConfig = fixture.pipelineConfig();
         BuildCause cause = forceBuild(pipelineConfig);
         saveRev(cause);
@@ -258,7 +273,7 @@ public class PipelineScheduleQueueIntegrationTest {
         assertThat(fixture.pipelineName, is(scheduledOn(queue)));
         assertThat(queue.createPipeline(cause, pipelineConfig, new DefaultSchedulingContext(cause.getApprover(), new Agents()), "md5-test", new TimeProvider()), is(not(nullValue())));
         assertThat(pipelineDao.mostRecentLabel(fixture.pipelineName), is("label-1"));
-   }
+    }
 
     private TypeSafeMatcher<String> scheduledOn(final PipelineScheduleQueue queue) {
         return new TypeSafeMatcher<String>() {
@@ -297,34 +312,33 @@ public class PipelineScheduleQueueIntegrationTest {
         List<JobPlan> plans = jobService.orderedScheduledBuilds();
         JobPlan plan = plans.get(0);
         assertThat(plan.getName(), is("test-job"));
-        assertThat(plan.getArtifactPlans(), is((List<ArtifactPlan>)artifactPlans));
-        assertThat(plan.getPropertyGenerators(), is((List<ArtifactPropertiesGenerator>)generators));
-        assertThat(plan.getResources(), is((List<Resource>)resources));
+        assertThat(plan.getArtifactPlans(), is((List<ArtifactPlan>) artifactPlans));
+        assertThat(plan.getPropertyGenerators(), is((List<ArtifactPropertiesGenerator>) generators));
+        assertThat(plan.getResources(), is((List<Resource>) resources));
     }
 
     @Test
     public void shouldLogWithInfoIfPipelineISScheduled() throws Exception {
-        LogFixture logging = LogFixture.startListening();
+        try (LogFixture logging = new LogFixture(PipelineScheduleQueue.class, Level.DEBUG)) {
+            JobConfigs jobConfigs = new JobConfigs();
+            Resources resources = new Resources(new Resource("resource1"));
+            ArtifactPlans artifactPlans = new ArtifactPlans();
+            ArtifactPropertiesGenerators generators = new ArtifactPropertiesGenerators();
+            generators.add(new ArtifactPropertiesGenerator("property-name", "artifact-path", "artifact-xpath"));
+            JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test-job"), resources, artifactPlans, generators);
+            jobConfigs.add(jobConfig);
 
-        JobConfigs jobConfigs = new JobConfigs();
-        Resources resources = new Resources(new Resource("resource1"));
-        ArtifactPlans artifactPlans = new ArtifactPlans();
-        ArtifactPropertiesGenerators generators = new ArtifactPropertiesGenerators();
-        generators.add(new ArtifactPropertiesGenerator("property-name", "artifact-path", "artifact-xpath"));
-        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test-job"), resources, artifactPlans, generators);
-        jobConfigs.add(jobConfig);
+            StageConfig stage = new StageConfig(new CaseInsensitiveString("test-stage"), jobConfigs);
+            MaterialConfigs materialConfigs = new MaterialConfigs(MaterialConfigsMother.dependencyMaterialConfig());
+            PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("test-pipeline"), materialConfigs, stage);
+            configFileEditor.addPipeline(CaseInsensitiveString.str(pipelineConfig.name()), CaseInsensitiveString.str(stage.name()));
+            BuildCause cause = modifySomeFiles(pipelineConfig, ModificationsMother.nextRevision());
+            saveRev(cause);
 
-        StageConfig stage = new StageConfig(new CaseInsensitiveString("test-stage"), jobConfigs);
-        MaterialConfigs materialConfigs = new MaterialConfigs(MaterialConfigsMother.dependencyMaterialConfig());
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("test-pipeline"), materialConfigs, stage);
-        configFileEditor.addPipeline(CaseInsensitiveString.str(pipelineConfig.name()), CaseInsensitiveString.str(stage.name()));
-        BuildCause cause = modifySomeFiles(pipelineConfig, ModificationsMother.nextRevision());
-        saveRev(cause);
+            queue.createPipeline(cause, pipelineConfig, new DefaultSchedulingContext(cause.getApprover(), new Agents()), "md5-test", new TimeProvider());
 
-        queue.createPipeline(cause, pipelineConfig, new DefaultSchedulingContext(cause.getApprover(), new Agents()), "md5-test", new TimeProvider());
-
-        assertThat(logging.getLog(), containsString("[Pipeline Schedule] Successfully scheduled pipeline test-pipeline, buildCause:[ModificationBuildCause: triggered by " + cause.getMaterialRevisions().latestRevision() +"]"));
-        logging.stopListening();
+            assertThat(logging.getLog(), containsString("[Pipeline Schedule] Successfully scheduled pipeline test-pipeline, buildCause:[ModificationBuildCause: triggered by " + cause.getMaterialRevisions().latestRevision() + "]"));
+        }
     }
 
     @Test
@@ -359,36 +373,36 @@ public class PipelineScheduleQueueIntegrationTest {
         assertThat(plans.size(), is(3));
     }
 
-	@Test
-	public void shouldCreateMultipleJobsIfRunMultipleInstanceIsSet() throws Exception {
-		JobConfigs jobConfigs = new JobConfigs();
-		ArtifactPropertiesGenerators generators = new ArtifactPropertiesGenerators();
-		generators.add(new ArtifactPropertiesGenerator("property-name", "artifact-path", "artifact-xpath"));
-		JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test-job"), new Resources(), new ArtifactPlans(), generators);
-		jobConfig.setRunInstanceCount(3);
-		jobConfigs.add(jobConfig);
+    @Test
+    public void shouldCreateMultipleJobsIfRunMultipleInstanceIsSet() throws Exception {
+        JobConfigs jobConfigs = new JobConfigs();
+        ArtifactPropertiesGenerators generators = new ArtifactPropertiesGenerators();
+        generators.add(new ArtifactPropertiesGenerator("property-name", "artifact-path", "artifact-xpath"));
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test-job"), new Resources(), new ArtifactPlans(), generators);
+        jobConfig.setRunInstanceCount(3);
+        jobConfigs.add(jobConfig);
 
-		StageConfig stage = new StageConfig(new CaseInsensitiveString("test-stage"), jobConfigs);
-		MaterialConfigs materialConfigs = new MaterialConfigs(MaterialConfigsMother.dependencyMaterialConfig());
-		PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("test-pipeline"), materialConfigs, stage);
-		BuildCause cause = modifySomeFiles(pipelineConfig, ModificationsMother.nextRevision());
-		saveRev(cause);
+        StageConfig stage = new StageConfig(new CaseInsensitiveString("test-stage"), jobConfigs);
+        MaterialConfigs materialConfigs = new MaterialConfigs(MaterialConfigsMother.dependencyMaterialConfig());
+        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("test-pipeline"), materialConfigs, stage);
+        BuildCause cause = modifySomeFiles(pipelineConfig, ModificationsMother.nextRevision());
+        saveRev(cause);
 
-		configFileEditor.addPipeline(CaseInsensitiveString.str(pipelineConfig.name()), CaseInsensitiveString.str(stage.name()));
+        configFileEditor.addPipeline(CaseInsensitiveString.str(pipelineConfig.name()), CaseInsensitiveString.str(stage.name()));
 
-		queue.createPipeline(cause, pipelineConfig, new DefaultSchedulingContext(cause.getApprover(), configFileEditor.currentConfig().agents()), "md5-test", new TimeProvider());
+        queue.createPipeline(cause, pipelineConfig, new DefaultSchedulingContext(cause.getApprover(), configFileEditor.currentConfig().agents()), "md5-test", new TimeProvider());
 
-		List<JobPlan> plans = jobService.orderedScheduledBuilds();
-		assertThat(plans.size(), is(3));
-		assertThat(plans.toArray(), hasItemInArray(hasProperty("name", is(RunMultipleInstance.CounterBasedJobNameGenerator.appendMarker("test-job", 1)))));
-		assertThat(plans.toArray(), hasItemInArray(hasProperty("name", is(RunMultipleInstance.CounterBasedJobNameGenerator.appendMarker("test-job", 2)))));
-		assertThat(plans.toArray(), hasItemInArray(hasProperty("name", is(RunMultipleInstance.CounterBasedJobNameGenerator.appendMarker("test-job", 3)))));
-	}
+        List<JobPlan> plans = jobService.orderedScheduledBuilds();
+        assertThat(plans.size(), is(3));
+        assertThat(plans.toArray(), hasItemInArray(hasProperty("name", is(RunMultipleInstance.CounterBasedJobNameGenerator.appendMarker("test-job", 1)))));
+        assertThat(plans.toArray(), hasItemInArray(hasProperty("name", is(RunMultipleInstance.CounterBasedJobNameGenerator.appendMarker("test-job", 2)))));
+        assertThat(plans.toArray(), hasItemInArray(hasProperty("name", is(RunMultipleInstance.CounterBasedJobNameGenerator.appendMarker("test-job", 3)))));
+    }
 
     @Test
     public void shouldPersistTriggerTimeEnvironmentVariable() {
         PipelineConfig pipelineConfig = fixture.pipelineConfig();
-        pipelineConfig.setVariables(env("blahVariable","blahValue"));
+        pipelineConfig.setVariables(env("blahVariable", "blahValue"));
         BuildCause cause = modifySomeFilesAndTriggerAs(pipelineConfig, "cruise-developer");
         EnvironmentVariablesConfig environmentVariablesConfig = new EnvironmentVariablesConfig();
         environmentVariablesConfig.add(new EnvironmentVariableConfig("blahVariable", "blahOverride"));
@@ -396,7 +410,7 @@ public class PipelineScheduleQueueIntegrationTest {
         saveRev(cause);
         queue.schedule(fixture.pipelineName, cause);
         Pipeline pipeline = queue.createPipeline(cause, pipelineConfig, new DefaultSchedulingContext(cause.getApprover(), new Agents()), "md5-test", new TimeProvider());
-        assertThat(pipeline.scheduleTimeVariables(),is(env("blahVariable","blahOverride")));
+        assertThat(pipeline.scheduleTimeVariables(), is(env("blahVariable", "blahOverride")));
     }
 
     @Test
@@ -418,12 +432,12 @@ public class PipelineScheduleQueueIntegrationTest {
         PipelineConfig pipelineConfig = fixture.pipelineConfig();
         BuildCause cause = modifySomeFilesAndTriggerAs(pipelineConfig, "cruise-developer");
         MaterialConfig materialConfig = pipelineConfig.materialConfigs().first();
-        MaterialRevision causeRevision = cause.getMaterialRevisions().findRevisionFor(materialConfig);
+        cause.getMaterialRevisions().findRevisionFor(materialConfig);
         pipelineConfig.setOrigins(new RepoConfigOrigin(
-                new ConfigRepoConfig(materialConfig,"123"),"plug"));
+                new ConfigRepoConfig(materialConfig, "123"), "plug"));
         saveRev(cause);
         queue.schedule(fixture.pipelineName, cause);
         Pipeline pipeline = queue.createPipeline(cause, pipelineConfig, new DefaultSchedulingContext(cause.getApprover(), new Agents()), "md5-test", new TimeProvider());
-        assertThat(pipeline,is(nullValue()));
+        assertThat(pipeline, is(nullValue()));
     }
 }

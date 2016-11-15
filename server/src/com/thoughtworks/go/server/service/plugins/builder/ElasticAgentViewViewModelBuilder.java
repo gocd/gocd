@@ -16,13 +16,12 @@
 
 package com.thoughtworks.go.server.service.plugins.builder;
 
-import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfiguration;
+import com.thoughtworks.go.plugin.access.common.settings.Image;
 import com.thoughtworks.go.plugin.access.elastic.Constants;
-import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginRegistry;
+import com.thoughtworks.go.plugin.api.config.Configuration;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
-import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.server.ui.plugins.PluggableInstanceSettings;
 import com.thoughtworks.go.server.ui.plugins.PluginConfiguration;
 import com.thoughtworks.go.server.ui.plugins.PluginInfo;
@@ -34,11 +33,9 @@ import java.util.List;
 import java.util.Map;
 
 class ElasticAgentViewViewModelBuilder implements ViewModelBuilder {
-    private final PluginManager pluginManager;
     private final ElasticAgentPluginRegistry registry;
 
-    ElasticAgentViewViewModelBuilder(PluginManager pluginManager, ElasticAgentPluginRegistry registry) {
-        this.pluginManager = pluginManager;
+    ElasticAgentViewViewModelBuilder(ElasticAgentPluginRegistry registry) {
         this.registry = registry;
     }
 
@@ -47,7 +44,8 @@ class ElasticAgentViewViewModelBuilder implements ViewModelBuilder {
         List<PluginInfo> pluginInfos = new ArrayList<>();
 
         for (PluginDescriptor descriptor : registry.getPlugins()) {
-            pluginInfos.add(new PluginInfo(descriptor, Constants.EXTENSION_NAME, null, null));
+            Image icon = registry.getIcon(descriptor.id());
+            pluginInfos.add(new PluginInfo(descriptor, Constants.EXTENSION_NAME, null, null, icon));
         }
 
         return pluginInfos;
@@ -61,18 +59,19 @@ class ElasticAgentViewViewModelBuilder implements ViewModelBuilder {
             return null;
         }
 
-        PluginSettingsConfiguration config = new ElasticAgentExtension(pluginManager).getPluginSettingsConfiguration(pluginId);
+        Image icon = registry.getIcon(pluginId);
 
-        ArrayList<PluginConfiguration> pluginConfigurations = getPluginConfigurations(config);
+        ArrayList<PluginConfiguration> pluginConfigurations = getPluginConfigurations(registry.getProfileMetadata(pluginId));
 
-        PluginView pluginView = new PluginView(new ElasticAgentExtension(pluginManager).getPluginSettingsView(pluginId));
+        PluginView pluginView = new PluginView(registry.getProfileView(pluginId));
+
         PluggableInstanceSettings settings = new PluggableInstanceSettings(pluginConfigurations, pluginView);
-        return new PluginInfo(plugin, Constants.EXTENSION_NAME, null, settings);
+        return new PluginInfo(plugin, Constants.EXTENSION_NAME, null, settings, icon);
     }
 
-    private ArrayList<PluginConfiguration> getPluginConfigurations(PluginSettingsConfiguration config) {
+    private ArrayList<PluginConfiguration> getPluginConfigurations(Configuration config) {
         ArrayList<PluginConfiguration> pluginConfigurations = new ArrayList<>();
-        for(Property property: config.list()) {
+        for (Property property : config.list()) {
             Map<String, Object> metaData = new HashMap<>();
             metaData.put(REQUIRED_OPTION, property.getOption(Property.REQUIRED));
             metaData.put(SECURE_OPTION, property.getOption(Property.SECURE));

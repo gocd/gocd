@@ -31,8 +31,6 @@ import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentMessage;
 import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentQueueHandler;
 import com.thoughtworks.go.server.messaging.elasticagents.ServerPingMessage;
 import com.thoughtworks.go.server.messaging.elasticagents.ServerPingQueueHandler;
-import com.thoughtworks.go.serverhealth.HealthStateLevel;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.TimeProvider;
@@ -97,20 +95,6 @@ public class ElasticAgentPluginServiceTest {
     }
 
     @Test
-    public void shouldNotCreateAgentIfAutoRegisterIsNotSetup() {
-        JobPlan plan = plan(1);
-        when(serverConfigService.hasAutoregisterKey()).thenReturn(false);
-        ArgumentCaptor<ServerHealthState> captor = ArgumentCaptor.forClass(ServerHealthState.class);
-
-        service.createAgentsFor(new ArrayList<JobPlan>(), Arrays.asList(plan));
-        verify(serverHealthService).update(captor.capture());
-        ServerHealthState serverHealthState = captor.getValue();
-        assertThat(serverHealthState.getLogLevel(), is(HealthStateLevel.ERROR));
-        assertThat(serverHealthState.getType(), is(HealthStateType.autoregisterKeyRequired()));
-        verifyZeroInteractions(createAgentQueue);
-    }
-
-    @Test
     public void shouldCreateAgentForNewlyAddedJobPlansOnly() {
         when(serverConfigService.hasAutoregisterKey()).thenReturn(true);
         JobPlan plan1 = plan(1);
@@ -126,19 +110,12 @@ public class ElasticAgentPluginServiceTest {
         assertThat(createAgentMessage.pluginId(), is(plan2.getElasticProfile().getPluginId()));
         assertThat(createAgentMessage.configuration(), is(plan2.getElasticProfile().getConfigurationAsMap(true)));
         assertThat(createAgentMessage.environment(), is("env-2"));
-
-        verify(serverHealthService).update(captorForHealthState.capture());
-        ServerHealthState serverHealthState = captorForHealthState.getValue();
-        assertThat(serverHealthState.getLogLevel(), is(HealthStateLevel.OK));
-        assertThat(serverHealthState.getType(), is(HealthStateType.autoregisterKeyRequired()));
     }
 
     @Test
     public void shouldRetryCreateAgentForJobThatHasBeenWaitingForAnAgentForALongTime() {
-        when(serverConfigService.hasAutoregisterKey()).thenReturn(true);
         when(serverConfigService.elasticJobStarvationThreshold()).thenReturn(0L);
         JobPlan plan1 = plan(1);
-        ArgumentCaptor<ServerHealthState> captorForHealthState = ArgumentCaptor.forClass(ServerHealthState.class);
         ArgumentCaptor<CreateAgentMessage> captor = ArgumentCaptor.forClass(CreateAgentMessage.class);
         service.createAgentsFor(new ArrayList<JobPlan>(), Arrays.asList(plan1));
         service.createAgentsFor(Arrays.asList(plan1), Arrays.asList(plan1));//invoke create again
@@ -149,10 +126,6 @@ public class ElasticAgentPluginServiceTest {
         assertThat(createAgentMessage.pluginId(), is(plan1.getElasticProfile().getPluginId()));
         assertThat(createAgentMessage.configuration(), is(plan1.getElasticProfile().getConfigurationAsMap(true)));
         verifyNoMoreInteractions(createAgentQueue);
-        verify(serverHealthService, times(2)).update(captorForHealthState.capture());
-        ServerHealthState serverHealthState = captorForHealthState.getValue();
-        assertThat(serverHealthState.getLogLevel(), is(HealthStateLevel.OK));
-        assertThat(serverHealthState.getType(), is(HealthStateType.autoregisterKeyRequired()));
     }
 
     private JobPlan plan(int jobId) {

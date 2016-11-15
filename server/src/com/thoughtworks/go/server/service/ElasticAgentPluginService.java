@@ -30,6 +30,7 @@ import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentMessage;
 import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentQueueHandler;
 import com.thoughtworks.go.server.messaging.elasticagents.ServerPingMessage;
 import com.thoughtworks.go.server.messaging.elasticagents.ServerPingQueueHandler;
+import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
@@ -87,6 +88,7 @@ public class ElasticAgentPluginService implements JobStatusListener {
         for (PluginDescriptor descriptor : elasticAgentPluginRegistry.getPlugins()) {
             serverPingQueue.post(new ServerPingMessage(descriptor.id()));
             elasticAgentsOfMissingPlugins.remove(descriptor.id());
+            serverHealthService.removeByScope(scope(descriptor.id()));
         }
 
         if (!elasticAgentsOfMissingPlugins.isEmpty()) {
@@ -97,9 +99,15 @@ public class ElasticAgentPluginService implements JobStatusListener {
                         return input.uuid();
                     }
                 });
-                LOGGER.warn("Elastic agent plugin with identifier {} has gone missing, but left behind {} agent(s) with UUIDs {}.", pluginId, elasticAgentsOfMissingPlugins.get(pluginId).size(), uuids);
+                String description = String.format("Elastic agent plugin with identifier %s has gone missing, but left behind %s agent(s) with UUIDs %s.", pluginId, elasticAgentsOfMissingPlugins.get(pluginId).size(), uuids);
+                serverHealthService.update(ServerHealthState.warning("Elastic agents with no matching plugins", description, HealthStateType.general(scope(pluginId))));
+                LOGGER.warn(description);
             }
         }
+    }
+
+    private HealthStateScope scope(String pluginId) {
+        return HealthStateScope.forPlugin(pluginId, "missingPlugin");
     }
 
     public static AgentMetadata toAgentMetadata(ElasticAgentMetadata obj) {
@@ -126,20 +134,10 @@ public class ElasticAgentPluginService implements JobStatusListener {
 
         ArrayList<JobPlan> plansThatRequireElasticAgent = ListUtil.filterInto(new ArrayList<JobPlan>(), jobsThatRequireAgent, isElasticAgent());
 
-        if (serverConfigService.hasAutoregisterKey()) {
-            serverHealthService.update(ServerHealthState.success(HealthStateType.autoregisterKeyRequired()));
-
-            for (JobPlan plan : plansThatRequireElasticAgent) {
-                String environment = environmentConfigService.envForPipeline(plan.getPipelineName());
-                map.put(plan.getJobId(), timeProvider.currentTimeMillis());
-                createAgentQueue.post(new CreateAgentMessage(serverConfigService.getAutoregisterKey(), environment, plan.getElasticProfile()));
-            }
-        } else {
-            if (!plansThatRequireElasticAgent.isEmpty()) {
-                String description = "Auto-register agent key needs to be setup for elastic agent feature to work.";
-                serverHealthService.update(ServerHealthState.error("Auto-register agent key is not setup", description, HealthStateType.autoregisterKeyRequired()));
-                LOGGER.warn(description);
-            }
+        for (JobPlan plan : plansThatRequireElasticAgent) {
+            String environment = environmentConfigService.envForPipeline(plan.getPipelineName());
+            map.put(plan.getJobId(), timeProvider.currentTimeMillis());
+            createAgentQueue.post(new CreateAgentMessage(serverConfigService.getAutoregisterKey(), environment, plan.getElasticProfile()));
         }
     }
 

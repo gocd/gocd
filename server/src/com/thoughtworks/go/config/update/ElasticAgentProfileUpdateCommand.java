@@ -20,8 +20,8 @@ import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfiles;
 import com.thoughtworks.go.i18n.LocalizedMessage;
+import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.ElasticProfileNotFoundException;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
@@ -30,8 +30,8 @@ public class ElasticAgentProfileUpdateCommand extends ElasticAgentProfileCommand
     private final EntityHashingService hashingService;
     private final String md5;
 
-    public ElasticAgentProfileUpdateCommand(GoConfigService goConfigService, EntityHashingService hashingService, ElasticProfile newProfile, String md5, LocalizedOperationResult result, Username currentUser) {
-        super(newProfile, goConfigService, currentUser, result);
+    public ElasticAgentProfileUpdateCommand(GoConfigService goConfigService, EntityHashingService hashingService, ElasticProfile newProfile, String md5, LocalizedOperationResult result, Username currentUser, ElasticAgentExtension elasticAgentExtension) {
+        super(newProfile, goConfigService, elasticAgentExtension, currentUser, result);
         this.hashingService = hashingService;
         this.md5 = md5;
     }

@@ -161,6 +161,10 @@ public class HealthStateScope implements Comparable<HealthStateScope> {
         return new HealthStateScope(ScopeType.PLUGIN, symbolicName);
     }
 
+    public static HealthStateScope forPlugin(String symbolicName, String operation) {
+        return new HealthStateScope(ScopeType.PLUGIN, symbolicName + operation);
+    }
+
     public Set<String> getPipelineNames(CruiseConfig config) {
         HashSet<String> pipelineNames = new HashSet<>();
         switch (type) {

@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.ui.plugins;
 
+import com.thoughtworks.go.plugin.access.common.settings.Image;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 
 public class PluginInfo {
@@ -25,22 +26,32 @@ public class PluginInfo {
     private final String type;
     private final String displayName;
     private final PluggableInstanceSettings pluggableInstanceSettings;
+    private final Image image;
 
     public PluginInfo(String id, String name, String version, String type, String displayName, PluggableInstanceSettings settings) {
+        this(id, name, version, type, displayName, settings, null);
+    }
+
+    public PluginInfo(String id, String name, String version, String type, String displayName, PluggableInstanceSettings settings, Image image) {
         this.id = id;
         this.name = name;
         this.version = version;
         this.type = type;
         this.displayName = displayName;
         this.pluggableInstanceSettings = settings;
+        this.image = image;
     }
 
     public PluginInfo(PluginDescriptor descriptor, String type, String displayName, PluggableInstanceSettings settings) {
-        this(descriptor.id(), descriptor.about().name(), descriptor.about().version(), type, displayName, settings);
+        this(descriptor, type, displayName, settings, null);
     }
 
     public PluginInfo(String id, String name, String version, String type, String displayName) {
-        this(id, name, version, type, displayName, null);
+        this(id, name, version, type, displayName, null, null);
+    }
+
+    public PluginInfo(PluginDescriptor descriptor, String type, String displayName, PluggableInstanceSettings settings, Image icon) {
+        this(descriptor.id(), descriptor.about().name(), descriptor.about().version(), type, displayName, settings, icon);
     }
 
     public String getId() {
@@ -63,6 +74,11 @@ public class PluginInfo {
         return pluggableInstanceSettings;
     }
 
+
+    public Image getImage() {
+        return image;
+    }
+
     public String getDisplayName() {
         return displayName;
     }
@@ -79,7 +95,9 @@ public class PluginInfo {
         if (version != null ? !version.equals(that.version) : that.version != null) return false;
         if (type != null ? !type.equals(that.type) : that.type != null) return false;
         if (displayName != null ? !displayName.equals(that.displayName) : that.displayName != null) return false;
-        return pluggableInstanceSettings != null ? pluggableInstanceSettings.equals(that.pluggableInstanceSettings) : that.pluggableInstanceSettings == null;
+        if (pluggableInstanceSettings != null ? !pluggableInstanceSettings.equals(that.pluggableInstanceSettings) : that.pluggableInstanceSettings != null)
+            return false;
+        return image != null ? image.equals(that.image) : that.image == null;
     }
 
     @Override
@@ -90,6 +108,7 @@ public class PluginInfo {
         result = 31 * result + (type != null ? type.hashCode() : 0);
         result = 31 * result + (displayName != null ? displayName.hashCode() : 0);
         result = 31 * result + (pluggableInstanceSettings != null ? pluggableInstanceSettings.hashCode() : 0);
+        result = 31 * result + (image != null ? image.hashCode() : 0);
         return result;
     }
 }

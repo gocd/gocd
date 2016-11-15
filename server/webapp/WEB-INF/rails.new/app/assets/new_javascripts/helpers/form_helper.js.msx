@@ -52,12 +52,12 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
     column: {
       view: function (ctrl, args, children) {
         var end       = deleteKeyAndReturnValue(args, 'end') ? 'end' : null,
-          size      = deleteKeyAndReturnValue(args, 'size', 6),
-          largeSize = deleteKeyAndReturnValue(args, 'largeSize', size);
+            size      = deleteKeyAndReturnValue(args, 'size', 6),
+            largeSize = deleteKeyAndReturnValue(args, 'largeSize', size);
 
         return (
           <div class={compactClasses(args, 'columns', 'medium-' + size, 'large-' + largeSize, end)}
-            {...args}>
+               {...args}>
             {children}
           </div>
         );
@@ -77,14 +77,14 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
       },
 
       view: function (ctrl, args) {
-        var model = deleteKeyAndReturnValue(args, 'model'),
-          attrName    = deleteKeyAndReturnValue(args, 'attrName'),
-          type        = deleteKeyAndReturnValue(args, 'type', 'text'),
-          placeholder = deleteKeyAndReturnValue(args, 'placeholder', ''),
-          modelType   = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
-          validate    = deleteKeyAndReturnValue(args, 'validate', false),
-          tooltip     = deleteKeyAndReturnValue(args, 'tooltip'),
-          onChange    = deleteKeyAndReturnValue(args, 'onChange');
+        var model       = deleteKeyAndReturnValue(args, 'model'),
+            attrName    = deleteKeyAndReturnValue(args, 'attrName'),
+            type        = deleteKeyAndReturnValue(args, 'type', 'text'),
+            placeholder = deleteKeyAndReturnValue(args, 'placeholder', ''),
+            modelType   = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
+            validate    = deleteKeyAndReturnValue(args, 'validate', false),
+            tooltip     = deleteKeyAndReturnValue(args, 'tooltip'),
+            onChange    = deleteKeyAndReturnValue(args, 'onChange');
 
         args.size      = args.size || 6;
         args.largeSize = args.largeSize || 4;
@@ -130,17 +130,17 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
 
       view: function (ctrl, args) {
         var model       = deleteKeyAndReturnValue(args, 'model'),
-          attrName    = deleteKeyAndReturnValue(args, 'attrName'),
-          type        = deleteKeyAndReturnValue(args, 'type', 'text'),
-          placeholder = deleteKeyAndReturnValue(args, 'placeholder', ''),
-          labelText   = deleteKeyAndReturnValue(args, 'label'),
-          onChange    = deleteKeyAndReturnValue(args, 'onChange'),
-          tooltip     = deleteKeyAndReturnValue(args, 'tooltip'),
-          modelType   = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
-          validate    = deleteKeyAndReturnValue(args, 'validate', false),
-          isRequired  = deleteKeyAndReturnValue(args, 'isRequired', false),
-          disabled    = deleteKeyAndReturnValue(args, 'disabled', false),
-          message     = deleteKeyAndReturnValue(args, 'message', '');
+            attrName    = deleteKeyAndReturnValue(args, 'attrName'),
+            type        = deleteKeyAndReturnValue(args, 'type', 'text'),
+            placeholder = deleteKeyAndReturnValue(args, 'placeholder', ''),
+            labelText   = deleteKeyAndReturnValue(args, 'label'),
+            onChange    = deleteKeyAndReturnValue(args, 'onChange'),
+            tooltip     = deleteKeyAndReturnValue(args, 'tooltip'),
+            modelType   = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
+            validate    = deleteKeyAndReturnValue(args, 'validate', false),
+            isRequired  = deleteKeyAndReturnValue(args, 'isRequired', false),
+            disabled    = deleteKeyAndReturnValue(args, 'disabled', false),
+            message     = deleteKeyAndReturnValue(args, 'message', '');
 
         args.size      = args.size || 6;
         args.largeSize = args.largeSize || 4;
@@ -210,13 +210,13 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
 
       view: function (ctrl, args) {
         var model       = deleteKeyAndReturnValue(args, 'model'),
-          attrName    = deleteKeyAndReturnValue(args, 'attrName'),
-          placeholder = deleteKeyAndReturnValue(args, 'placeholder', ''),
-          labelText   = deleteKeyAndReturnValue(args, 'label'),
-          onChange    = deleteKeyAndReturnValue(args, 'onChange'),
-          tooltip     = deleteKeyAndReturnValue(args, 'tooltip'),
-          modelType   = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
-          validate    = deleteKeyAndReturnValue(args, 'validate', false);
+            attrName    = deleteKeyAndReturnValue(args, 'attrName'),
+            placeholder = deleteKeyAndReturnValue(args, 'placeholder', ''),
+            labelText   = deleteKeyAndReturnValue(args, 'label'),
+            onChange    = deleteKeyAndReturnValue(args, 'onChange'),
+            tooltip     = deleteKeyAndReturnValue(args, 'tooltip'),
+            modelType   = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
+            validate    = deleteKeyAndReturnValue(args, 'validate', false);
 
         args.size = args.size || 3;
 
@@ -252,13 +252,13 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
     checkBox: {
       view: function (ctrl, args) {
         var model      = deleteKeyAndReturnValue(args, 'model'),
-          attrName   = deleteKeyAndReturnValue(args, 'attrName'),
-          labelText  = deleteKeyAndReturnValue(args, 'label'),
-          disabled   = deleteKeyAndReturnValue(args, 'disabled'),
-          tooltip    = deleteKeyAndReturnValue(args, 'tooltip'),
-          addPadding = deleteKeyAndReturnValue(args, 'addPadding'),
-          id         = s.uuid(),
-          modelType  = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null));
+            attrName   = deleteKeyAndReturnValue(args, 'attrName'),
+            labelText  = deleteKeyAndReturnValue(args, 'label'),
+            disabled   = deleteKeyAndReturnValue(args, 'disabled'),
+            tooltip    = deleteKeyAndReturnValue(args, 'tooltip'),
+            addPadding = deleteKeyAndReturnValue(args, 'addPadding'),
+            id         = s.uuid(),
+            modelType  = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null));
 
         if (!args.size) {
           args.size = 3;
@@ -308,14 +308,14 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
 
       view: function (ctrl, args) {
         var model      = deleteKeyAndReturnValue(args, 'model'),
-          attrName   = deleteKeyAndReturnValue(args, 'attrName'),
-          value      = deleteKeyAndReturnValue(args, 'value'),
-          labelText  = deleteKeyAndReturnValue(args, 'label'),
-          disabled   = deleteKeyAndReturnValue(args, 'disabled'),
-          tooltip    = deleteKeyAndReturnValue(args, 'tooltip'),
-          addPadding = deleteKeyAndReturnValue(args, 'addPadding'),
-          id         = s.uuid(),
-          modelType  = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null));
+            attrName   = deleteKeyAndReturnValue(args, 'attrName'),
+            value      = deleteKeyAndReturnValue(args, 'value'),
+            labelText  = deleteKeyAndReturnValue(args, 'label'),
+            disabled   = deleteKeyAndReturnValue(args, 'disabled'),
+            tooltip    = deleteKeyAndReturnValue(args, 'tooltip'),
+            addPadding = deleteKeyAndReturnValue(args, 'addPadding'),
+            id         = s.uuid(),
+            modelType  = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null));
 
         if (!args.size) {
           args.size = 3;
@@ -367,7 +367,7 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
 
       view: function (ctrl, args, children) {
         var tabs = (
-          <ul class={_.compact(['tabs', args.isVertical ? 'vertical': undefined]).join(' ')}>
+          <ul class={_.compact(['tabs', args.isVertical ? 'vertical' : undefined]).join(' ')}>
             {_.map(args.tabTitles, function (tabTitle, tabIndex) {
 
               var tabTitleElem;
@@ -395,7 +395,7 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
 
         var tabsContent = (
           <div
-            class={_.compact([args.isVertical ? 'vertical': undefined, 'tabs-content', 'tabs-content-container', ctrl.prefixedClass('tabs-content-container')]).join(' ')}>
+            class={_.compact([args.isVertical ? 'vertical' : undefined, 'tabs-content', 'tabs-content-container', ctrl.prefixedClass('tabs-content-container')]).join(' ')}>
             {_.map(_.flatten(children), function (child, tabIndex) {
 
               var renderedChild;
@@ -445,9 +445,9 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
 
       view: function (ctrl, args) {
         var items   = deleteKeyAndReturnValue(args, 'items', {}),
-          label   = deleteKeyAndReturnValue(args, 'label'),
-          value   = s.coerceToMprop(deleteKeyAndReturnValue(args, 'value'), ''),
-          tooltip = deleteKeyAndReturnValue(args, 'tooltip');
+            label   = deleteKeyAndReturnValue(args, 'label'),
+            value   = s.coerceToMprop(deleteKeyAndReturnValue(args, 'value'), ''),
+            tooltip = deleteKeyAndReturnValue(args, 'tooltip');
 
         if (!args.size) {
           args.size = 3;
@@ -554,6 +554,16 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
       }
     },
 
+    modalSpinner: {
+      view: function () {
+        return (
+          <div class="modal-spinner-container">
+            <div class="modal-spinner"/>
+          </div>
+        );
+      }
+    },
+
     button: {
       view: function (ctrl, args, children) {
         return (
@@ -575,10 +585,10 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
         }
 
         var direction = deleteKeyAndReturnValue(args.tooltip, 'direction', 'bottom'),
-          size      = deleteKeyAndReturnValue(args.tooltip, 'size', 'medium'),
-          content   = deleteKeyAndReturnValue(args.tooltip, 'content', children),
-          clazz     = deleteKeyAndReturnValue(args.tooltip, 'class', null),
-          tooltipId = 'help-tooltip-';
+            size      = deleteKeyAndReturnValue(args.tooltip, 'size', 'medium'),
+            content   = deleteKeyAndReturnValue(args.tooltip, 'content', children),
+            clazz     = deleteKeyAndReturnValue(args.tooltip, 'class', null),
+            tooltipId = 'help-tooltip-';
 
         if (args.model && args.model.uuid) {
           tooltipId += (args.model.uuid() + '-' + args.attrName);
@@ -604,40 +614,35 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
       }
     },
 
+    callout: {
+      view: function (ctrl, args, children) {
+        var type = deleteKeyAndReturnValue(args, 'type');
+        return (<div class={'callout ' + type} {...args}>{children}</div>);
+      }
+    },
+
     alert: {
       view: function (ctrl, args, children) {
-        return (
-          <div>
-            <span class="callout alert">{children}</span>
-          </div>
-        );
+        return (<f.callout type="alert" {...args}>{children}</f.callout>);
       }
     },
 
     warning: {
       view: function (ctrl, args, children) {
-        return (
-          <div class='warning callout'>
-            <p>{children}</p>
-          </div>
-        );
+        return (<f.callout type="warning" {...args}>{children}</f.callout>)
       }
     },
 
     info: {
       view: function (ctrl, args, children) {
-        return (
-          <div class='info callout'>
-            <p>{children}</p>
-          </div>
-        );
+        return (<f.callout type="info" {...args}>{children}</f.callout>);
       }
     },
 
     infoToolTip: {
       view: function (ctrl, args) {
         var content   = deleteKeyAndReturnValue(args, 'content'),
-          tooltipId = 'info-tooltip-' + s.uuid();
+            tooltipId = 'info-tooltip-' + s.uuid();
         return (
           <span class={_.compact(['info-wrapper']).join(' ')}>
             <a href='javascript:void(0)'

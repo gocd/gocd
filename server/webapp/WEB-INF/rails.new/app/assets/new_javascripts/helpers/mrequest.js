@@ -14,10 +14,14 @@
  * limitations under the License.
  */
 
-define([], function () {
+define(['jquery'], function ($) {
   var setHeaders = function (xhr, version) {
     xhr.setRequestHeader("Content-Type", "application/json");
     xhr.setRequestHeader("Accept", "application/vnd.go.cd." + version + "+json");
+    var csrfToken = $('meta[name=csrf-token]').attr('content');
+    if (csrfToken) {
+      xhr.setRequestHeader('X-CSRF-Token', csrfToken);
+    }
   };
 
   return {

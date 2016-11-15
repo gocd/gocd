@@ -29,10 +29,11 @@
     require_config['waitSeconds'] = 30 if ENV['GO_SERVER_URL']
     require_config['baseUrl'] = 'assets'
     require_config['paths'].merge!(
-      'jasmine'           => '/__jasmine__/jasmine',
-      'jasmine-html'      => '/__jasmine__/jasmine-html',
-      'jasmine-boot'      => '../__boot__/boot',
-      'jasmine-mock-ajax' => '/__spec__/helpers/mock-ajax'
+      'jasmine'             => '/__jasmine__/jasmine',
+      'jasmine-html'        => '/__jasmine__/jasmine-html',
+      'jasmine-boot'        => '../__boot__/boot',
+      'jasmine-mock-ajax'   => '/__spec__/helpers/mock-ajax',
+      'jasmine-spec-helper' => '/__spec__/helpers/spec_helper'
     )
     require_config['shim'].merge!({
       'jasmine' => {
@@ -55,7 +56,7 @@
   require.config(<%= JSON.pretty_generate(require_config) %>);
 </script>
 <script>
-  require(['jasmine-boot', 'jasmine-jquery', 'jasmine-mock-ajax', 'foundation.util.mediaQuery'], function () {
+  require(['jasmine-boot', 'jasmine-jquery', 'jasmine-mock-ajax', 'jasmine-spec-helper', 'foundation.util.mediaQuery'], function () {
     if (window.callPhantom) {
 
       function PhantomReporter() {

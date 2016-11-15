@@ -25,6 +25,7 @@ import com.thoughtworks.go.config.update.ElasticAgentProfileCreateCommand;
 import com.thoughtworks.go.config.update.ElasticAgentProfileDeleteCommand;
 import com.thoughtworks.go.config.update.ElasticAgentProfileUpdateCommand;
 import com.thoughtworks.go.i18n.LocalizedMessage;
+import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import org.slf4j.LoggerFactory;
@@ -40,11 +41,13 @@ public class ElasticProfileService {
 
     private final GoConfigService goConfigService;
     private final EntityHashingService hashingService;
+    private final ElasticAgentExtension elasticAgentExtension;
 
     @Autowired
-    public ElasticProfileService(GoConfigService goConfigService, EntityHashingService hashingService) {
+    public ElasticProfileService(GoConfigService goConfigService, EntityHashingService hashingService, ElasticAgentExtension elasticAgentExtension) {
         this.goConfigService = goConfigService;
         this.hashingService = hashingService;
+        this.elasticAgentExtension = elasticAgentExtension;
     }
 
     public ElasticProfile findProfile(String id) {
@@ -64,18 +67,18 @@ public class ElasticProfileService {
     }
 
     public void update(Username currentUser, String md5, ElasticProfile newProfile, LocalizedOperationResult result) {
-        update(currentUser, newProfile, result, new ElasticAgentProfileUpdateCommand(goConfigService, hashingService, newProfile, md5, result, currentUser));
+        update(currentUser, newProfile, result, new ElasticAgentProfileUpdateCommand(goConfigService, hashingService, newProfile, md5, result, currentUser, elasticAgentExtension));
     }
 
     public void delete(Username currentUser, ElasticProfile elasticProfile, LocalizedOperationResult result) {
-        update(currentUser, elasticProfile, result, new ElasticAgentProfileDeleteCommand(elasticProfile, goConfigService, currentUser, result));
+        update(currentUser, elasticProfile, result, new ElasticAgentProfileDeleteCommand(elasticProfile, goConfigService, currentUser, result, elasticAgentExtension));
         if (result.isSuccessful()) {
             result.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", "elastic agent profile", elasticProfile.getId()));
         }
     }
 
     public void create(Username currentUser, ElasticProfile elasticProfile, LocalizedOperationResult result) {
-        update(currentUser, elasticProfile, result, new ElasticAgentProfileCreateCommand(elasticProfile, goConfigService, currentUser, result));
+        update(currentUser, elasticProfile, result, new ElasticAgentProfileCreateCommand(elasticProfile, goConfigService, elasticAgentExtension, currentUser, result));
     }
 
     private void update(Username currentUser, ElasticProfile elasticProfile, LocalizedOperationResult result, EntityConfigUpdateCommand<ElasticProfile> command) {

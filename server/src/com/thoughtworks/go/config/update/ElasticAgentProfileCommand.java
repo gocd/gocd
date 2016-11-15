@@ -21,12 +21,18 @@ import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfiles;
+import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.i18n.LocalizedMessage;
+import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
+import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
+import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.ElasticProfileNotFoundException;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
+import com.thoughtworks.go.util.StringUtil;
 
 import static com.thoughtworks.go.util.StringUtil.isBlank;
 
@@ -35,12 +41,14 @@ abstract class ElasticAgentProfileCommand implements EntityConfigUpdateCommand<E
     protected ElasticProfile preprocessedElasticProfile;
     protected final ElasticProfile elasticProfile;
     protected final GoConfigService goConfigService;
+    private final ElasticAgentExtension elasticAgentExtension;
     protected final Username currentUser;
     protected final LocalizedOperationResult result;
 
-    public ElasticAgentProfileCommand(ElasticProfile elasticProfile, GoConfigService goConfigService, Username currentUser, LocalizedOperationResult result) {
+    public ElasticAgentProfileCommand(ElasticProfile elasticProfile, GoConfigService goConfigService, ElasticAgentExtension elasticAgentExtension, Username currentUser, LocalizedOperationResult result) {
         this.elasticProfile = elasticProfile;
         this.goConfigService = goConfigService;
+        this.elasticAgentExtension = elasticAgentExtension;
         this.currentUser = currentUser;
         this.result = result;
     }
@@ -64,7 +72,15 @@ abstract class ElasticAgentProfileCommand implements EntityConfigUpdateCommand<E
     public boolean isValid(CruiseConfig preprocessedConfig) {
         preprocessedElasticProfile = findExistingProfile(preprocessedConfig);
         preprocessedElasticProfile.validate(null);
-
+        ValidationResult result = elasticAgentExtension.validate(preprocessedElasticProfile.getPluginId(), elasticProfile.getConfigurationAsMap(true));
+        if (!result.isSuccessful()) {
+            for (ValidationError validationError : result.getErrors()) {
+                ConfigurationProperty property = preprocessedElasticProfile.getProperty(validationError.getKey());
+                if (property != null) {
+                    property.addError(validationError.getKey(), validationError.getMessage());
+                }
+            }
+        }
         if (preprocessedElasticProfile.errors().isEmpty()) {
             ElasticProfiles profiles = preprocessedConfig.server().getElasticConfig().getProfiles();
             profiles.validate(null);

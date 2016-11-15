@@ -77,6 +77,6 @@ public class JobConfigIdentifier {
     }
 
     @Override public String toString() {
-        return "JobConfigIdentifier[" + pipelineName + ":" + stageName + ":" + jobName + "]";
+        return pipelineName + "::" + stageName + "::" + jobName;
     }
 }

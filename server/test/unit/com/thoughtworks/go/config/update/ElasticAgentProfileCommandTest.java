@@ -22,6 +22,7 @@ import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.helper.GoConfigMother;
+import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -44,12 +45,14 @@ public class ElasticAgentProfileCommandTest {
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
+    private ElasticAgentExtension elasticAgentExtension;
 
 
     @Before
     public void setUp() throws Exception {
         currentUser = new Username("bob");
         goConfigService = mock(GoConfigService.class);
+        elasticAgentExtension = mock(ElasticAgentExtension.class);
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
     }
 
@@ -60,7 +63,7 @@ public class ElasticAgentProfileCommandTest {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        ElasticAgentProfileCreateCommand command = new ElasticAgentProfileCreateCommand(elasticProfile, goConfigService, currentUser, result);
+        ElasticAgentProfileCreateCommand command = new ElasticAgentProfileCreateCommand(elasticProfile, goConfigService, elasticAgentExtension, currentUser, result);
         assertThat(cruiseConfig.server().getElasticConfig().getProfiles().find("foo"), nullValue());
 
         assertThat(command.canContinue(cruiseConfig), is(false));
@@ -72,7 +75,7 @@ public class ElasticAgentProfileCommandTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         ElasticProfile profile = new ElasticProfile(null, "some-plugin", new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value")));
         cruiseConfig.server().getElasticConfig().getProfiles().add(profile);
-        ElasticAgentProfileCommand command = new ElasticAgentProfileCreateCommand(profile, goConfigService, currentUser, result);
+        ElasticAgentProfileCommand command = new ElasticAgentProfileCreateCommand(profile, goConfigService, elasticAgentExtension, currentUser, result);
         thrown.expectMessage("Elastic profile id cannot be null.");
         command.isValid(cruiseConfig);
     }
@@ -85,7 +88,7 @@ public class ElasticAgentProfileCommandTest {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        ElasticAgentProfileCreateCommand command = new ElasticAgentProfileCreateCommand(elasticProfile, goConfigService, currentUser, result);
+        ElasticAgentProfileCreateCommand command = new ElasticAgentProfileCreateCommand(elasticProfile, goConfigService, elasticAgentExtension, currentUser, result);
         assertThat(cruiseConfig.server().getElasticConfig().getProfiles().find("foo"), nullValue());
 
         assertThat(command.canContinue(cruiseConfig), is(true));
@@ -99,7 +102,7 @@ public class ElasticAgentProfileCommandTest {
         when(goConfigService.isGroupAdministrator(currentUser.getUsername())).thenReturn(true);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        ElasticAgentProfileCreateCommand command = new ElasticAgentProfileCreateCommand(elasticProfile, goConfigService, currentUser, result);
+        ElasticAgentProfileCreateCommand command = new ElasticAgentProfileCreateCommand(elasticProfile, goConfigService, elasticAgentExtension, currentUser, result);
         assertThat(cruiseConfig.server().getElasticConfig().getProfiles().find("foo"), nullValue());
 
         assertThat(command.canContinue(cruiseConfig), is(true));

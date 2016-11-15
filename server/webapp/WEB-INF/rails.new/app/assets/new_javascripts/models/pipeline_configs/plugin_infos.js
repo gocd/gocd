@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', 'helpers/mrequest', 'js-routes'], function (m, _, s, mrequest, Routes) {
+define(['mithril', 'lodash', 'string-plus', 'helpers/mrequest', 'models/shared/image', 'js-routes'], function (m, _, s, mrequest, Image, Routes) {
   var PluginInfos = m.prop([]);
 
-  PluginInfos.init = function () {
+  PluginInfos.init = function (type) {
     var unwrap = function (response) {
       return response._embedded.plugin_info;
     };
 
     return m.request({
       method:        'GET',
-      url:           Routes.apiv1AdminPluginInfoIndexPath(),
+      url:           Routes.apiv1AdminPluginInfoIndexPath({'type': type}),
       background:    true,
       config:        mrequest.xhrConfig.v1,
       unwrapSuccess: unwrap,
@@ -55,9 +55,13 @@ define(['mithril', 'lodash', 'string-plus', 'helpers/mrequest', 'js-routes'], fu
     this.version        = m.prop(data.version);
     this.type           = m.prop(data.type);
     this.configurations = data.pluggable_instance_settings ?
-                            m.prop(s.defaultToIfBlank(data.pluggable_instance_settings.configurations, {})) :
-                            m.prop({});
+      m.prop(s.defaultToIfBlank(data.pluggable_instance_settings.configurations, {})) :
+      m.prop({});
     this.viewTemplate   = m.prop(s.defaultToIfBlank(view(data.pluggable_instance_settings).template, ''));
+
+    if (data.image) {
+      this.image = m.prop(new Image(data.image.content_type, data.image.data));
+    }
   };
 
   PluginInfos.PluginInfo.byId = function (id) {

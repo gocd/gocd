@@ -63,6 +63,13 @@
     </rule>
 
     <rule>
+        <name>Rails Profiles UI</name>
+        <from>^/admin/elastic_profiles$</from>
+        <to last="true">/rails/admin/elastic_profiles</to>
+        <set name="rails_bound">true</set>
+    </rule>
+
+    <rule>
         <name>Rails UI</name>
         <note>
             Prepends 'rails/' to Rails urls, so that the request does not go through Java at all

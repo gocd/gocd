@@ -23,8 +23,12 @@ import com.thoughtworks.go.util.URLService;
 import com.thoughtworks.go.util.command.CruiseControlException;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;
+import org.apache.log4j.Logger;
 
 public class FetchArtifactBuilder extends Builder {
+    public static Logger LOG = Logger.getLogger(FetchArtifactBuilder.class);
+
+
     private final JobIdentifier jobIdentifier;
     private String srcdir;
     private final String dest;
@@ -91,9 +95,9 @@ public class FetchArtifactBuilder extends Builder {
 
     @Override
     public BuildCommand buildCommand() {
-        String checksumUrl = String.format("/remoting/files/%s/%s/%s", jobIdentifier.buildLocator(), ArtifactLogUtil.CRUISE_OUTPUT_FOLDER, ArtifactLogUtil.MD5_CHECKSUM_FILENAME);
-        return BuildCommand.compose(
-                BuildCommand.echoWithPrefix(String.format("Fetching artifact [%s] from [%s]", getSrc(), jobLocatorForDisplay())),
-                handler.toDownloadCommand(artifactLocator(), checksumUrl, checksumFileHandler.getChecksumFile()));
+            String checksumUrl = String.format("/remoting/files/%s/%s/%s", jobIdentifier.buildLocator(), ArtifactLogUtil.CRUISE_OUTPUT_FOLDER, ArtifactLogUtil.MD5_CHECKSUM_FILENAME);
+            return BuildCommand.compose(
+                    BuildCommand.echoWithPrefix(String.format("Fetching artifact [%s] from [%s]", getSrc(), jobLocatorForDisplay())),
+                    handler.toDownloadCommand(artifactLocator(), checksumUrl, checksumFileHandler.getChecksumFile()));
     }
 }

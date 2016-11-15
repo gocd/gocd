@@ -32,6 +32,8 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
 
 import java.io.*;
 
@@ -46,13 +48,13 @@ public class ServerBinaryDownloader implements Downloader {
     @Deprecated // for backward compatibility
     private static final String SSL_PORT_HEADER = "Cruise-Server-Ssl-Port";
     private static final int HTTP_TIMEOUT_IN_MILLISECONDS = 5000;
-    private GoAgentServerHttpClientBuilder httpClientBuilder;
+    private HttpClientBuilder httpClientBuilder;
 
     public ServerBinaryDownloader(ServerUrlGenerator urlGenerator, File rootCertFile, SslVerificationMode sslVerificationMode) throws Exception {
-        this(new GoAgentServerHttpClientBuilder(rootCertFile, sslVerificationMode), urlGenerator);
+        this(new GoAgentServerHttpClientBuilder(rootCertFile, sslVerificationMode).httpClientBuilder(HttpClients.custom()), urlGenerator);
     }
 
-    protected ServerBinaryDownloader(GoAgentServerHttpClientBuilder httpClientBuilder, ServerUrlGenerator urlGenerator) {
+    protected ServerBinaryDownloader(HttpClientBuilder httpClientBuilder, ServerUrlGenerator urlGenerator) {
         this.httpClientBuilder = httpClientBuilder;
         this.urlGenerator = urlGenerator;
     }

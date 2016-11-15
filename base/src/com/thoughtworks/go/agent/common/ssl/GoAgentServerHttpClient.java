@@ -31,17 +31,18 @@ import java.io.IOException;
 public class GoAgentServerHttpClient implements Closeable {
     private static final Log LOG = LogFactory.getLog(GoAgentServerHttpClient.class);
 
+    private final SystemEnvironment systemEnvironment;
     private CloseableHttpClient client;
     private X500Principal principal;
-    private GoAgentServerHttpClientBuilder builder;
 
-    public GoAgentServerHttpClient(GoAgentServerHttpClientBuilder builder) {
-        this.builder = builder;
+    public GoAgentServerHttpClient(SystemEnvironment systemEnvironment) {
+        this.systemEnvironment = systemEnvironment;
     }
 
     // called by spring
     public void init() throws Exception {
-        this.client = builder.build();
+        GoAgentServerHttpClientBuilder builder = new GoAgentServerHttpClientBuilder(systemEnvironment);
+        this.client = builder.httpClient();
         this.principal = builder.principal();
     }
 

@@ -61,13 +61,15 @@ public class AgentRemoteHandler {
 
     public void process(Agent agent, Message msg) {
         try {
-            processWithoutAcknowledgement(agent, msg);
+            processWithoutAck(agent, msg);
         } finally {
-            agent.send(new Message(Action.acknowledge, MessageEncoding.encodeData(msg.getAcknowledgementId())));
+            if (msg.getAckId() != null) {
+                agent.send(new Message(Action.ack, MessageEncoding.encodeData(msg.getAckId())));
+            }
         }
     }
 
-    public void processWithoutAcknowledgement(Agent agent, Message msg) {
+    public void processWithoutAck(Agent agent, Message msg) {
         switch (msg.getAction()) {
             case ping:
                 AgentRuntimeInfo info = MessageEncoding.decodeData(msg.getData(), AgentRuntimeInfo.class);

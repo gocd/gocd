@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.agent.service;
 
-import com.thoughtworks.go.agent.common.ssl.GoAgentServerClientBuilder;
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient;
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClientBuilder;
 import com.thoughtworks.go.config.AgentAutoRegistrationProperties;
@@ -70,7 +69,7 @@ public class SslInfrastructureService {
         this.remoteRegistrationRequester = requester;
         this.httpClient = httpClient;
         this.keyStoreManager = new KeyStoreManager();
-        this.keyStoreManager.preload(GoAgentServerClientBuilder.AGENT_CERTIFICATE_FILE, httpClientBuilder().keystorePassword());
+        this.keyStoreManager.preload(GoAgentServerHttpClientBuilder.AGENT_CERTIFICATE_FILE, httpClientBuilder().keystorePassword());
     }
 
     private GoAgentServerHttpClientBuilder httpClientBuilder() {
@@ -83,7 +82,7 @@ public class SslInfrastructureService {
     }
 
     public void registerIfNecessary(AgentAutoRegistrationProperties agentAutoRegistrationProperties) throws Exception {
-        registered = keyStoreManager.hasCertificates(CHAIN_ALIAS, GoAgentServerClientBuilder.AGENT_CERTIFICATE_FILE,
+        registered = keyStoreManager.hasCertificates(CHAIN_ALIAS, GoAgentServerHttpClientBuilder.AGENT_CERTIFICATE_FILE,
                 httpClientBuilder().keystorePassword()) && GuidService.guidPresent();
         if (!registered) {
             LOGGER.info("[Agent Registration] Starting to register agent.");
@@ -125,7 +124,7 @@ public class SslInfrastructureService {
 
     private void storeChainIntoAgentStore(Registration keyEntry) {
         try {
-            keyStoreManager.storeCertificate(CHAIN_ALIAS, GoAgentServerClientBuilder.AGENT_CERTIFICATE_FILE, httpClientBuilder().keystorePassword(), keyEntry);
+            keyStoreManager.storeCertificate(CHAIN_ALIAS, GoAgentServerHttpClientBuilder.AGENT_CERTIFICATE_FILE, httpClientBuilder().keystorePassword(), keyEntry);
             LOGGER.info(String.format("[Agent Registration] Stored registration for cert with hash code: %s not valid before: %s", md5Fingerprint(keyEntry.getFirstCertificate()),
                     keyEntry.getCertificateNotBeforeDate()));
         } catch (Exception e) {
@@ -136,8 +135,8 @@ public class SslInfrastructureService {
     public void invalidateAgentCertificate() {
         try {
             httpClient.reset();
-            keyStoreManager.deleteEntry(CHAIN_ALIAS, GoAgentServerClientBuilder.AGENT_CERTIFICATE_FILE, httpClientBuilder().keystorePassword());
-            keyStoreManager.deleteEntry(CRUISE_SERVER, GoAgentServerClientBuilder.AGENT_TRUST_FILE, httpClientBuilder().keystorePassword());
+            keyStoreManager.deleteEntry(CHAIN_ALIAS, GoAgentServerHttpClientBuilder.AGENT_CERTIFICATE_FILE, httpClientBuilder().keystorePassword());
+            keyStoreManager.deleteEntry(CRUISE_SERVER, GoAgentServerHttpClientBuilder.AGENT_TRUST_FILE, httpClientBuilder().keystorePassword());
         } catch (Exception e) {
             LOGGER.fatal("[Agent Registration] Error while deleting key from key store", e);
             deleteKeyStores();
@@ -145,8 +144,8 @@ public class SslInfrastructureService {
     }
 
     private void deleteKeyStores() {
-        FileUtils.deleteQuietly(GoAgentServerClientBuilder.AGENT_CERTIFICATE_FILE);
-        FileUtils.deleteQuietly(GoAgentServerClientBuilder.AGENT_TRUST_FILE);
+        FileUtils.deleteQuietly(GoAgentServerHttpClientBuilder.AGENT_CERTIFICATE_FILE);
+        FileUtils.deleteQuietly(GoAgentServerHttpClientBuilder.AGENT_TRUST_FILE);
     }
 
     public static class RemoteRegistrationRequester {

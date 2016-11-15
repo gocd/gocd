@@ -17,7 +17,6 @@
 package com.thoughtworks.go.util;
 
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient;
-import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClientBuilder;
 import com.thoughtworks.go.domain.FetchHandler;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
@@ -37,6 +36,7 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Properties;
 
@@ -47,7 +47,7 @@ public class HttpService {
     public static final String GO_ARTIFACT_PAYLOAD_SIZE = "X-GO-ARTIFACT-SIZE";
 
     public HttpService() {
-        this(new GoAgentServerHttpClient(new GoAgentServerHttpClientBuilder(new SystemEnvironment())));
+        this(new GoAgentServerHttpClient(new SystemEnvironment()));
     }
 
     @Autowired(required = false)

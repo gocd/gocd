@@ -58,7 +58,7 @@ public class AgentAutoRegistrationPropertiesImpl implements AgentAutoRegistratio
         return configFile.exists();
     }
 
-    public boolean isElastic() {
+    boolean isElastic() {
         return exist() && !isBlank(agentAutoRegisterElasticPluginId());
     }
 

@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.agent.functional;
 
-import com.thoughtworks.go.agent.common.ssl.GoAgentServerClientBuilder;
+import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClientBuilder;
 import com.thoughtworks.go.agent.testhelpers.GoServerRunner;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.BeforeClass;
@@ -48,8 +48,8 @@ public class AgentFunctionalTest {
     @BeforeClass
     public static void systemProperties() throws Exception {
         new SystemEnvironment().setProperty("serviceUrl", SERVER_URL);
-        GoAgentServerClientBuilder.AGENT_CERTIFICATE_FILE.delete();
-        GoAgentServerClientBuilder.AGENT_TRUST_FILE.delete();
+        GoAgentServerHttpClientBuilder.AGENT_CERTIFICATE_FILE.delete();
+        GoAgentServerHttpClientBuilder.AGENT_TRUST_FILE.delete();
     }
 
     @Test

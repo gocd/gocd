@@ -235,18 +235,18 @@ public class AgentRemoteHandlerTest {
     }
 
     @Test
-    public void shouldSendBackAnAcknowledgementMessageIfMessageHasAcknowledgementId() {
+    public void shouldSendBackAnAckMessageIfMessageHasAckId() {
         AgentInstance instance = AgentInstanceMother.idle();
         AgentRuntimeInfo info = new AgentRuntimeInfo(instance.getAgentIdentifier(), AgentRuntimeStatus.Idle, null, null, false);
         info.setCookie("cookie");
-        agent.setIgnoreAcknowledgements(false);
         when(remote.ping(info)).thenReturn(new AgentInstruction(false));
         when(agentService.findAgent(instance.getUuid())).thenReturn(instance);
 
         Message msg = new Message(Action.ping, MessageEncoding.encodeData(info));
+        msg.generateAckId();
         handler.process(agent, msg);
         assertEquals(1, agent.messages.size());
-        assertEquals(Action.acknowledge, agent.messages.get(0).getAction());
-        assertEquals(msg.getAcknowledgementId(), MessageEncoding.decodeData(agent.messages.get(0).getData(), String.class));
+        assertEquals(Action.ack, agent.messages.get(0).getAction());
+        assertEquals(msg.getAckId(), MessageEncoding.decodeData(agent.messages.get(0).getData(), String.class));
     }
 }

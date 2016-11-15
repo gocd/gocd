@@ -1,0 +1,98 @@
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+define(['mithril', 'lodash', 'jquery', 'string-plus', 'helpers/form_helper', 'foundation.reveal'], function (m, _, $, s, f) {
+  var $body = $('body');
+
+  var defaultOptions = {
+    title:   'This is the title',
+    body:    (<small>This is the body</small>),
+    size:    'tiny',
+    buttons: [
+      {
+        text:     'OK',
+        onclick:  _.noop(),
+        disabled: _.identity(false)
+      },
+    ],
+    onclose: _.noop()
+  };
+
+  var Modal = function (options) {
+    var $revelElem;
+    var $modalParent;
+    var modalId = 'modal-' + s.uuid();
+
+    options = _.assign({}, defaultOptions, options);
+
+    var config = function (elem, isInitialized) {
+      if (isInitialized) {
+        return;
+      }
+
+      $revelElem = $(elem);
+      new Foundation.Reveal($revelElem); //eslint-disable-line no-undef
+      $revelElem.on('closed.zf.reveal', options.onclose);
+      $revelElem.foundation('open');
+    };
+
+
+    var modalDialog = {
+      controller: function () {
+        this.onunload = function () {
+          window.setTimeout(function () {
+            $revelElem.foundation('destroy');
+            $revelElem.remove();
+          }, 100);
+          $modalParent.remove();
+        };
+      },
+      view:       function () {
+        return (
+          <div class={'reveal ' + (options.size ? options.size : '')} id={modalId} data-reveal config={config}>
+
+            <h4 class='modal-title'>{options.title}</h4>
+
+            <div class="modal-body">
+              {options.body}
+            </div>
+
+            <button class="close-button" data-close={modalId} aria-label="Close modal" type="button">
+              <span aria-hidden="true">&times;</span>
+            </button>
+
+            <f.row>
+              {_.map(options.buttons, function (button) {
+                return (<f.button disabled={button.disabled ? button.disabled() : false} onclick={button.onclick}>{button.text}</f.button>);
+              })}
+            </f.row>
+          </div>
+        );
+      }
+    };
+
+    this.render = function () {
+      $modalParent = $('<div class="modal-parent"/>').appendTo($body);
+      m.mount($modalParent.get(0), modalDialog);
+    };
+
+    this.destroy = function () {
+      m.mount($modalParent.get(0), null);
+    };
+  };
+
+  return Modal;
+});

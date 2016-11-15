@@ -14,19 +14,23 @@
 # limitations under the License.
 ##########################################################################
 
-module ApiV1
+module ApiV2
   module Plugin
-    class PluginConfigurationRepresenter < BaseRepresenter
-      property :key
-      property :type, skip_nil: true
-      property :metadata,
-               exec_context: :decorator,
-               expect_hash: true,
-               decorator: ApiV1::Plugin::PluginMetadataRepresenter
+    class PluggableInstanceSettingsRepresenter < BaseRepresenter
 
-      def metadata
-        represented.metadata.to_hash
-      end
+      collection :configurations,
+                 skip_nil: true,
+                 expect_hash: true,
+                 inherit: false,
+                 class: com.thoughtworks.go.server.ui.plugins.PluginConfiguration,
+                 decorator: ApiV2::Plugin::PluginConfigurationRepresenter
+
+      property :view,
+               skip_nil: true,
+               expect_hash: true,
+               inherit: false,
+               class: com.thoughtworks.go.server.ui.plugins.PluginView,
+               decorator: ApiV2::Plugin::PluginViewRepresenter
     end
   end
 end

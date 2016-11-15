@@ -111,6 +111,8 @@ public class PackageViewModelBuilderTest {
             put("required",true);
             put("secure",false);
             put("part_of_identity",true);
+            put("display_order", 0);
+            put("display_name", "");
         }};
 
         List<PluginConfiguration> configurations = pluginInfo.getPluggableInstanceSettings().getConfigurations();

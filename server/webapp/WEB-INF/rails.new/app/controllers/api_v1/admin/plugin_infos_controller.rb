@@ -21,7 +21,7 @@ module ApiV1
 
       def index
         plugin_infos = plugin_service.pluginInfos(params[:type])
-        render json_hal_v1: ApiV1::Plugin::PluginInfosRepresenter.new(plugin_infos).to_hash(url_builder: self)
+        render DEFAULT_FORMAT => ApiV1::Plugin::PluginInfosRepresenter.new(plugin_infos).to_hash(url_builder: self)
       rescue InvalidPluginTypeException
         raise ApiV1::UnprocessableEntity, "Invalid plugins type - `#{params[:type]}` !"
       end
@@ -31,7 +31,7 @@ module ApiV1
 
         raise RecordNotFound unless plugin
 
-        render json_hal_v1: ApiV1::Plugin::PluginInfoRepresenter.new(plugin).to_hash(url_builder: self)
+        render DEFAULT_FORMAT => ApiV1::Plugin::PluginInfoRepresenter.new(plugin).to_hash(url_builder: self)
       end
     end
   end

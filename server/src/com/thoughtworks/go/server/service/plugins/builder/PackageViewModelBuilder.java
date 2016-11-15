@@ -79,6 +79,8 @@ class PackageViewModelBuilder implements ViewModelBuilder {
             metaData.put(REQUIRED_OPTION, configuration.getOption(Property.REQUIRED));
             metaData.put(SECURE_OPTION, configuration.getOption(Property.SECURE));
             metaData.put(PART_OF_IDENTITY_OPTION, configuration.getOption(Property.PART_OF_IDENTITY));
+            metaData.put(DISPLAY_NAME_OPTION, configuration.getOption(Property.DISPLAY_NAME));
+            metaData.put(DISPLAY_ORDER_OPTION, configuration.getOption(Property.DISPLAY_ORDER));
 
             pluginConfigurations.add(new PluginConfiguration(configuration.getKey(), metaData, type));
         }

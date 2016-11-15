@@ -14,19 +14,23 @@
 # limitations under the License.
 ##########################################################################
 
-module ApiV1
+module ApiV2
   module Plugin
-    class PluginConfigurationRepresenter < BaseRepresenter
-      property :key
-      property :type, skip_nil: true
-      property :metadata,
-               exec_context: :decorator,
-               expect_hash: true,
-               decorator: ApiV1::Plugin::PluginMetadataRepresenter
+    class PluginInfosRepresenter < BaseRepresenter
+      alias_method :plugin_info, :represented
 
-      def metadata
-        represented.metadata.to_hash
+      link :self do |opts|
+        opts[:url_builder].apiv2_admin_plugin_info_index_url
       end
+
+      link :doc do
+        'https://api.go.cd/#plugin-info'
+      end
+
+      collection :plugin_info,
+                 embedded: true,
+                 exec_context: :decorator,
+                 decorator: PluginInfoRepresenter
     end
   end
 end

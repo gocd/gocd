@@ -14,18 +14,24 @@
 # limitations under the License.
 ##########################################################################
 
-module ApiV1
-  module Plugin
-    class PluginConfigurationRepresenter < BaseRepresenter
-      property :key
-      property :type, skip_nil: true
-      property :metadata,
-               exec_context: :decorator,
-               expect_hash: true,
-               decorator: ApiV1::Plugin::PluginMetadataRepresenter
+module ApiV2
+  module Admin
+    class PluginInfosController < ApiV2::BaseController
+      before_action :check_admin_user_or_group_admin_user_and_401
 
-      def metadata
-        represented.metadata.to_hash
+      def index
+        plugin_infos = plugin_service.pluginInfos(params[:type])
+        render DEFAULT_FORMAT => ApiV2::Plugin::PluginInfosRepresenter.new(plugin_infos).to_hash(url_builder: self)
+      rescue InvalidPluginTypeException
+        raise ApiV2::UnprocessableEntity, "Invalid plugins type - `#{params[:type]}` !"
+      end
+
+      def show
+        plugin = plugin_service.pluginInfo(params[:id])
+
+        raise RecordNotFound unless plugin
+
+        render DEFAULT_FORMAT => ApiV2::Plugin::PluginInfoRepresenter.new(plugin).to_hash(url_builder: self)
       end
     end
   end

@@ -16,16 +16,16 @@
 
 require 'spec_helper'
 
-describe ApiV1::Plugin::PluginInfosRepresenter do
+describe ApiV2::Plugin::PluginInfosRepresenter do
   it 'renders all plugin_infos with hal representation' do
     plugin_info = PluginInfo.new('plugin_id', 'plugin_name', 'plugin_version', 'plugin_type', 'plugin_display_name', nil)
 
-    actual_json = ApiV1::Plugin::PluginInfosRepresenter.new([plugin_info]).to_hash(url_builder: UrlBuilder.new)
+    actual_json = ApiV2::Plugin::PluginInfosRepresenter.new([plugin_info]).to_hash(url_builder: UrlBuilder.new)
 
     expect(actual_json).to have_links(:self, :doc)
     expect(actual_json).to have_link(:self).with_url('http://test.host/api/admin/plugin_info')
     expect(actual_json).to have_link(:doc).with_url('https://api.go.cd/#plugin-info')
     actual_json.delete(:_links)
-    actual_json.fetch(:_embedded).should == {plugin_info: [ApiV1::Plugin::PluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)]}
+    actual_json.fetch(:_embedded).should == {plugin_info: [ApiV2::Plugin::PluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)]}
   end
 end

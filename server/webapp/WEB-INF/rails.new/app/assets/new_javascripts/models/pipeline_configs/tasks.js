@@ -16,8 +16,8 @@
 
 define([
   'mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipeline_configs/argument',
-  'models/pipeline_configs/run_if_conditions', 'models/validatable_mixin'
-], function (m, _, s, Mixins, Argument, RunIfConditions, Validatable) {
+  'models/pipeline_configs/run_if_conditions', 'models/shared/plugin_configurations', 'models/validatable_mixin'
+], function (m, _, s, Mixins, Argument, RunIfConditions, PluginConfigurations, Validatable) {
 
   var Tasks = function (data) {
     Mixins.HasMany.call(this, {factory: Tasks.createByType, as: 'Task', collection: data});
@@ -397,57 +397,7 @@ define([
     });
   };
 
-  Tasks.Task.PluginTask.Configurations = function (data) {
-    Mixins.HasMany.call(this, {
-      factory:    Tasks.Task.PluginTask.Configurations.create,
-      as:         'Configuration',
-      collection: data
-    });
-
-    function configForKey(key) {
-      return this.findConfiguration(function (config) {
-        return config.key() === key;
-      });
-    }
-
-    this.valueFor = function (key) {
-      var config = configForKey.call(this, key);
-      if (config) {
-        return config.value();
-      }
-    };
-
-    this.setConfiguration = function (key, value) {
-      var existingConfig = configForKey.call(this, key);
-
-      if (!existingConfig) {
-        this.createConfiguration({key: key, value: value});
-      } else {
-        existingConfig.value(value);
-      }
-    };
-  };
-
-  Tasks.Task.PluginTask.Configurations.create = function (data) {
-    return new Tasks.Task.PluginTask.Configurations.Configuration(data);
-  };
-
-  Tasks.Task.PluginTask.Configurations.Configuration = function (data) {
-    this.parent = Mixins.GetterSetter();
-
-    this.key  = m.prop(s.defaultToIfBlank(data.key, ''));
-    this.value = m.prop(s.defaultToIfBlank(data.value, ''));
-  };
-
-  Tasks.Task.PluginTask.Configurations.Configuration.fromJSON = function (data) {
-    return new Tasks.Task.PluginTask.Configurations.Configuration(data);
-  };
-
-  Mixins.fromJSONCollection({
-    parentType: Tasks.Task.PluginTask.Configurations,
-    childType:  Tasks.Task.PluginTask.Configurations.Configuration,
-    via:        'addConfiguration'
-  });
+  Tasks.Task.PluginTask.Configurations = PluginConfigurations;
 
   Tasks.BuiltInTypes = {
     exec:  {type: Tasks.Task.Exec, description: "Custom Command"},

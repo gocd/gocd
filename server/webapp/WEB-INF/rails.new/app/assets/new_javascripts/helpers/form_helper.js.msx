@@ -614,33 +614,28 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
       }
     },
 
+    callout: {
+      view: function (ctrl, args, children) {
+        var type = deleteKeyAndReturnValue(args, 'type');
+        return (<div class={'callout ' + type} {...args}>{children}</div>);
+      }
+    },
+
     alert: {
       view: function (ctrl, args, children) {
-        return (
-          <div>
-            <span class="callout alert">{children}</span>
-          </div>
-        );
+        return (<f.callout type="alert" {...args}>{children}</f.callout>);
       }
     },
 
     warning: {
       view: function (ctrl, args, children) {
-        return (
-          <div class='warning callout'>
-            <p>{children}</p>
-          </div>
-        );
+        return (<f.callout type="warning" {...args}>{children}</f.callout>)
       }
     },
 
     info: {
       view: function (ctrl, args, children) {
-        return (
-          <div class='info callout'>
-            <p>{children}</p>
-          </div>
-        );
+        return (<f.callout type="info" {...args}>{children}</f.callout>);
       }
     },
 

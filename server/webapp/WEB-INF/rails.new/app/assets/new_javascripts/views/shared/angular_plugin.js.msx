@@ -37,6 +37,8 @@ define(['mithril', 'lodash', 'jquery', 'string-plus', 'angular'], function (m, _
         this.appName          = 'app-' + this.uuid;
         this.ngControllerName = 'controller-' + this.uuid;
       }
+
+      this.$scope = undefined;
     },
 
     view: function (ctrl, args) {
@@ -47,14 +49,18 @@ define(['mithril', 'lodash', 'jquery', 'string-plus', 'angular'], function (m, _
       var config = function (elem, isInitialized) {
         if (!isInitialized) {
           angular.module(ctrl.appName, []).controller(ctrl.ngControllerName, ['$scope', '$http', function ($scope) {
+            ctrl.$scope = $scope;
+
             $scope.addError = function (field) {
-              $scope.GOINPUTNAME[field.key]                              = {$error: {}};
-              $scope.GOINPUTNAME[field.key].$error[_.toLower(field.key)] = field.errors.join();
+              $scope.GOINPUTNAME[field.key] = {
+                $error: {
+                  server: field.errors.join()
+                }
+              };
             };
 
             $scope.clearErrors = function () {
-              $scope.GOINPUTNAME               = {};
-              $scope.pluggableTaskGenericError = null;
+              $scope.GOINPUTNAME = {};
             };
 
             $scope.clearErrors();
@@ -71,6 +77,23 @@ define(['mithril', 'lodash', 'jquery', 'string-plus', 'angular'], function (m, _
           angular.bootstrap(elem, [ctrl.appName]);
         }
       };
+
+
+      if (ctrl.$scope) {
+        ctrl.$scope.clearErrors();
+
+        _.map(ctrl.defaultConfig, function (config) {
+          var matchingConfig = args.configuration.findConfiguration(function (eachConfig) {
+            return eachConfig.key() === config.key;
+          });
+
+          if (matchingConfig.errors().hasErrors(config.key)) {
+            ctrl.$scope.addError({key: config.key, errors: matchingConfig.errors().errors(config.key)});
+          }
+
+        });
+        ctrl.$scope.$apply();
+      }
 
       return (
         <div class='plugin-view'

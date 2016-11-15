@@ -20,27 +20,83 @@
 @import 'shared/header';
 @import 'shared/alert';
 
-.profiles {
+.elastic-profiles {
   margin-top:       100px;
   background-color: $accordion-bg;
   overflow:         auto;
 }
 
+.elastic-profile {
+  @include callout;
+  margin: 10px;
+}
+
 .edit-profile {
   @include icon-before($type: pencil-square-o, $color: $dark-gray);
-  &:hover {
-    &:before {
-      color: $black;
+  &:not(.disabled) {
+    &:hover {
+      &:before {
+        color: $black;
+      }
     }
   }
 }
 
-
 .delete-profile {
   @include icon-before($type: trash, $color: $dark-gray);
-  &:hover {
-    &:before {
-      color: $black;
+  &:not(.disabled) {
+    &:hover {
+      &:before {
+        color: $black;
+      }
     }
   }
+}
+
+$elastic-profile-plugin-icon-size: 50px;
+$elastic-profile-icon-text-padding: 20px;
+
+.plugin-icon {
+  width:          $elastic-profile-plugin-icon-size;
+  height:         $elastic-profile-plugin-icon-size;
+  display:        inline-block;
+  vertical-align: middle;
+}
+
+.plugin-description {
+  display:        inline-block;
+  vertical-align: middle;
+  padding-left:   $elastic-profile-icon-text-padding;
+  width:          calc(100% - #{$elastic-profile-plugin-icon-size});
+
+  .plugin-id, .profile-id {
+    display:   inline-block;
+    min-width: 300px;
+  }
+
+  .plugin-actions {
+    float: right;
+  }
+}
+
+.plugin-config-read-only {
+  margin-left: $elastic-profile-plugin-icon-size + $elastic-profile-icon-text-padding;
+  margin-top:  10px;
+  width:       50%;
+
+  tr td:first-child {
+    text-align: right;
+  }
+
+  tr td:last-child pre {
+    font-family: $body-font-family;
+  }
+}
+
+.unknown-plugin-icon {
+  @include icon-before($type: question, $size: $elastic-profile-plugin-icon-size, $color: $light-gray);
+}
+
+.modal-body .id-and-plugin-id-wrapper .columns:first-child {
+  padding-left: 0;
 }

@@ -50,8 +50,11 @@ class ElasticAgentViewViewModelBuilder implements ViewModelBuilder {
     public List<PluginInfo> allPluginInfos() {
         List<PluginInfo> pluginInfos = new ArrayList<>();
 
+        ElasticAgentExtension extension = new ElasticAgentExtension(pluginManager);
+
         for (PluginDescriptor descriptor : registry.getPlugins()) {
-            pluginInfos.add(new PluginInfo(descriptor, Constants.EXTENSION_NAME, null, null));
+            Image icon = extension.getIcon(descriptor.id());
+            pluginInfos.add(new PluginInfo(descriptor, Constants.EXTENSION_NAME, null, null, icon));
         }
 
         return pluginInfos;

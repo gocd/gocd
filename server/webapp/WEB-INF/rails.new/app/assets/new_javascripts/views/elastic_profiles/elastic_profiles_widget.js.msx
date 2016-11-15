@@ -52,7 +52,7 @@ define([
       });
 
       $inputElem.on('textComplete:select', function () {
-        model[attrName]($inputElem.val());
+        model()[attrName]($inputElem.val());
         if (selectCb) {
           selectCb($inputElem.val());
         }
@@ -88,54 +88,107 @@ define([
     },
 
     view: function (ctrl, args) {
-      var profile = args.profile();
       return (
         <div>
-          <f.row key="static-stuff">
-            <f.inputWithLabel model={profile}
+          <f.row key="static-stuff" class="id-and-plugin-id-wrapper">
+            <f.inputWithLabel model={args.profile()}
                               attrName="id"
                               validate="true"
                               isRequired="true"
                               label="Id"
                               key="profile-id"/>
-            <f.inputWithLabel model={profile}
+            <f.inputWithLabel model={args.profile()}
                               key="plugin-id-autocomplete"
                               validate="true"
                               attrName="pluginId"
                               isRequired="true"
                               label="Plugin Id"
                               onChange={ctrl.selectPluginId.bind(ctrl)}
-                              config={autoComplete(profile, 'pluginId', ctrl.selectPluginId.bind(ctrl))}
+                              config={autoComplete(args.profile, 'pluginId', ctrl.selectPluginId.bind(ctrl))}
                               end="true"/>
           </f.row>
 
-          <AngularPlugin pluginInfo={args.pluginInfo}
-                         configuration={profile.properties()}
-                         key={args.pluginInfo() ? args.pluginInfo().id() : 'no-plugin'}/>
+          <f.row>
+            <AngularPlugin pluginInfo={args.pluginInfo}
+                           configuration={args.profile().properties()}
+                           key={args.pluginInfo() ? args.pluginInfo().id() : 'no-plugin'}/>
+          </f.row>
         </div>
       );
     }
   };
 
   var ElasticProfileWidget = {
+    controller: function (args) {
+      ComponentMixins.HasViewModel.call(this);
+
+      var vmStateKey = 'show-' + args.profile.id();
+
+      this.vmState(vmStateKey, m.prop(false));
+
+      this.toggleHide = function () {
+        this.vmState(vmStateKey)(!this.vmState(vmStateKey)());
+      };
+
+      this.showState = function () {
+        return this.vmState(vmStateKey)() ? 'show' : 'hide';
+      };
+    },
+
     view: function (ctrl, args) {
       var profile = args.profile;
+      var image;
+      var actionIcons;
+
+      if (args.pluginInfo) {
+        image       = (<img src={args.pluginInfo.image().toDataURI()}/>);
+        actionIcons = (
+          <div class="plugin-actions">
+            <f.link class='edit-profile' onclick={args.onEdit}/>
+            <f.link class='delete-profile' onclick={args.onDelete}/>
+          </div>
+        );
+      } else {
+        image       = (<span class="unknown-plugin-icon" title="Plugin not found"/>);
+        actionIcons = (
+          <div class="plugin-actions">
+            <f.link class='edit-profile disabled' title="Plugin not found"/>
+            <f.link class='delete-profile disabled' title="Plugin not found"/>
+          </div>
+        );
+      }
       return (
-        <f.row>
-          <f.column size="1">
-            <div class="plugin-icon"></div>
-          </f.column>
-          <f.column size="11" end="true">
-            <f.row>
-              <div><span>ID: </span>{profile.id()}</div>
-              <div><span>Plugin ID: </span>{profile.pluginId()}</div>
-              <div>
-                <f.link class='edit-profile' onclick={args.onEdit}/>
-                <f.link class='delete-profile' onclick={args.onDelete}/>
-              </div>
-            </f.row>
-          </f.column>
-        </f.row>
+        <div class="elastic-profile">
+          <div class="plugin-icon">
+            {image}
+          </div>
+          <div class="plugin-description">
+            <div class="profile-id">
+              Id:
+              &nbsp;
+              <f.link onclick={ctrl.toggleHide.bind(ctrl)}>{profile.id()}</f.link>
+            </div>
+            <div class="plugin-id">Plugin ID: {profile.pluginId()}</div>
+            {actionIcons}
+          </div>
+
+          <div class={'plugin-config-read-only ' + ctrl.showState()}>
+            <table class="table">
+              <tbody>
+              {profile.properties().mapConfigurations(function (configuration) {
+                return (
+                  <tr>
+                    <td>{configuration.key()}</td>
+                    <td>
+                      <pre>{configuration.value()}</pre>
+                    </td>
+                  </tr>
+                );
+              })}
+              </tbody>
+            </table>
+          </div>
+        </div>
       );
     }
   };
@@ -144,8 +197,15 @@ define([
     controller: function () {
       var ctrl = this;
       ComponentMixins.ManagesCollection.call(this, {as: 'Profile'});
+      ComponentMixins.HasViewModel.call(this);
 
       this.modal = null;
+
+      this.message = m.prop({type: undefined, message: undefined});
+
+      this.clearMessage = function () {
+        this.message({});
+      };
 
       this.reloadPage = function () {
         this.profiles   = ElasticProfiles.all();
@@ -193,7 +253,16 @@ define([
       };
 
       this.delete = function (profile) {
-        profile.delete().then(this.reloadPage.bind(this));
+        var onSuccess = function (message) {
+          ctrl.reloadPage();
+          ctrl.message({type: 'success', message: message});
+        };
+
+        var onFailure = function (message) {
+          ctrl.message({type: 'alert', message: message});
+        };
+
+        profile.delete().then(onSuccess, onFailure);
       };
 
       this.add = function () {
@@ -216,10 +285,14 @@ define([
               onclick:  function () {
                 var onFulfilled = function () {
                   modal.destroy();
+                  ctrl.message({
+                    type:    'success',
+                    message: 'The profile ' + newProfile().id() + ' was created successfully.'
+                  });
                   ctrl.reloadPage();
                 };
                 var onRejected  = function (profileWithErrors) {
-                  newProfile(new ElasticProfiles.Profile.fromJSON(profileWithErrors));
+                  newProfile(new ElasticProfiles.Profile.fromJSON(profileWithErrors.data));
                 };
                 newProfile().create().then(onFulfilled, onRejected);
               },
@@ -233,6 +306,25 @@ define([
     },
 
     view: function (ctrl) {
+
+      var message;
+
+      if (ctrl.message().message) {
+        message = (
+          <f.row>
+            <f.callout type={ctrl.message().type}>
+              {ctrl.message().message}
+
+              <button class="close-button" aria-label="Dismiss alert" type="button"
+                      onclick={ctrl.clearMessage.bind(ctrl)}>
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </f.callout>
+          </f.row>
+        );
+      }
+
+
       return (
         <div>
           <div class="header-panel">
@@ -255,16 +347,26 @@ define([
             </header>
           </div>
 
-          <div class="profiles">
-            {ctrl.profiles().mapProfiles(function (profile) {
-              return (
-                <ElasticProfileWidget
-                  profile={profile}
-                  onEdit={ctrl.edit.bind(ctrl, profile)}
-                  onDelete={ctrl.delete.bind(ctrl, profile)}
-                />
-              );
-            })}
+
+          <div class="elastic-profiles">
+            {message}
+            <f.row>
+              {ctrl.profiles().mapProfiles(function (profile) {
+                var pluginInfo = _.find(PluginInfos(), function (pi) {
+                  return pi.id() === profile.pluginId();
+                });
+
+                return (
+                  <ElasticProfileWidget
+                    profile={profile}
+                    pluginInfo={pluginInfo}
+                    key={profile.id()}
+                    vm={ctrl.vmState('expanded-' + profile.id())}
+                    onEdit={ctrl.edit.bind(ctrl, profile)}
+                    onDelete={ctrl.delete.bind(ctrl, profile)}/>
+                );
+              })}
+            </f.row>
           </div>
         </div>
       );

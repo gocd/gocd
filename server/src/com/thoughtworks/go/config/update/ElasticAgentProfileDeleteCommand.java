@@ -26,6 +26,7 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.ElasticProfileNotFoundException;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +60,7 @@ public class ElasticAgentProfileDeleteCommand extends ElasticAgentProfileCommand
 
         if (!usedByPipelines.isEmpty()) {
             result.unprocessableEntity(LocalizedMessage.string("CANNOT_DELETE_RESOURCE_REFERENCED_BY_PIPELINES", "elastic agent profile", elasticProfile.getId(), usedByPipelines));
-            throw new GoConfigInvalidException(preprocessedConfig, String.format("The elastic agent profile '%s' is being referenced by pipeline(s): %s.", elasticProfile.getId(), usedByPipelines));
+            throw new GoConfigInvalidException(preprocessedConfig, String.format("The elastic agent profile '%s' is being referenced by pipeline(s): %s.", elasticProfile.getId(), StringUtils.join(usedByPipelines, ", ")));
         }
         return true;
     }

@@ -55,9 +55,21 @@ define([
 
     this.delete = function () {
       return m.request({
-        method: "DELETE",
-        url:    Routes.apiv1ElasticProfilePath(this.id()),
-        config: mrequest.xhrConfig.v1,
+        method:        "DELETE",
+        url:           Routes.apiv1ElasticProfilePath(this.id()),
+        config:        mrequest.xhrConfig.v1,
+        unwrapSuccess: function (data, xhr) {
+          if (xhr.status === 200) {
+            return data.message;
+          }
+        },
+        unwrapError:   function (data, xhr) {
+          if (xhr.status === 422 || xhr.status === 404 || xhr.status === 401) {
+            return data.message;
+          } else {
+            return "There was an unknown error attempting to delete the profile, please try again in some time.";
+          }
+        }
       });
     };
 

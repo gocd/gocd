@@ -4,6 +4,12 @@ end %>
 
 <div class="entity_status_wrapper page_header <%= scope[:entity_wrapper_class] %>">
     <%= render :partial => "shared/pipeline_breadcrumb.html", :locals => {:scope => {:pipeline => @pipeline, :third => {:link => url_for_pipeline_value_stream_map(@pipeline), :text => @pipeline.getLabel()}, :fourth => @stage.getName()}} %>
+
+    <% if @has_permission_to_view_settings %>
+    <div class="stage_detail_setting">
+      <%= link_to '', pipeline_edit_path(pipeline_name: @pipeline.getName(), current_tab: 'general'), class: 'icon16 setting' %>
+    </div>
+    <% end %>
     <% if @lockedPipeline %>
         <% if @pipeline.hasStage(@lockedPipeline) %>
             <% if @pipeline.canUnlock() %>

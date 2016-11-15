@@ -1,5 +1,5 @@
-##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+##########################################################################
+# Copyright 2016 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-##########################GO-LICENSE-END##################################
+##########################################################################
 
 class StagesController < ApplicationController
   include ApplicationHelper
@@ -46,10 +46,10 @@ class StagesController < ApplicationController
   def stats
     page_number = params[:page_number].nil? ? 1 : params[:page_number].to_i
     stage_summary_models = stage_service.findStageHistoryForChart(@stage.getPipelineName(), @stage.getName(), page_number, STAGE_DURATION_RANGE, current_user)
-    stage_summary_models.sort! {|s1,s2| s1.getPipelineCounter() <=> s2.getPipelineCounter()}
+    stage_summary_models.sort! { |s1, s2| s1.getPipelineCounter() <=> s2.getPipelineCounter() }
     @no_chart_to_render = false
     if (stage_summary_models.size() > 0)
-      @chart_stage_duration_passed, @chart_tooltip_data_passed, @chart_stage_duration_failed, @chart_tooltip_data_failed, @pagination, @start_end_dates  = load_chart_parameters(stage_summary_models)
+      @chart_stage_duration_passed, @chart_tooltip_data_passed, @chart_stage_duration_failed, @chart_tooltip_data_failed, @pagination, @start_end_dates = load_chart_parameters(stage_summary_models)
     else
       @no_chart_to_render = true
     end
@@ -152,7 +152,7 @@ class StagesController < ApplicationController
     respond_to do |format|
       format.html { render action: 'stage', status: status }
       format.json { render action: 'stage', status: status }
-      format.xml { redirect_to stage_path(:id => @stage.getId())}
+      format.xml { redirect_to stage_path(:id => @stage.getId()) }
     end
   end
 
@@ -160,6 +160,7 @@ class StagesController < ApplicationController
     pipeline_name = params[:pipeline_name]
     stage_identifier = StageIdentifier.new(pipeline_name, params[:pipeline_counter].to_i, params[:stage_name], params[:stage_counter])
 
+    @has_permission_to_view_settings = has_permission_to_view_settings
     pipeline_history_service.validate(pipeline_name, current_user, result = HttpOperationResult.new)
     return unless can_continue result
 
@@ -198,7 +199,7 @@ class StagesController < ApplicationController
     total_durations[passed_duration_array.length..total-1].each_with_index do |duration, index|
       chart_data_failed[index]["y"] = duration
     end
-    return chart_data_passed.to_json , tooltip_passed.to_json, chart_data_failed.to_json, tooltip_failed.to_json, stage_summary_models.getPagination(), date_range(stage_summary_models)
+    return chart_data_passed.to_json, tooltip_passed.to_json, chart_data_failed.to_json, tooltip_failed.to_json, stage_summary_models.getPagination(), date_range(stage_summary_models)
   end
 
   def date_range(stage_summary_models)
@@ -235,12 +236,17 @@ class StagesController < ApplicationController
     one_minute = 60.0
     highest_time = duration_array.sort.last
     if (highest_time > minute_threshold_in_secs)
-      stage_duration_array = duration_array.map {|x| x/one_minute}
+      stage_duration_array = duration_array.map { |x| x/one_minute }
       @chart_scale = "mins"
     else
       stage_duration_array = duration_array
       @chart_scale = "secs"
     end
     stage_duration_array
+  end
+
+  def has_permission_to_view_settings
+    group_name = go_config_service.findGroupNameByPipeline(CaseInsensitiveString.new(params[:pipeline_name]))
+    !group_name.blank? && security_service.isUserAdminOfGroup(current_user.getUsername, group_name)
   end
 end

@@ -34,6 +34,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 /**
  * Composite of many EnvironmentConfig instances. Hides elementary environment configurations.
  */
+@ConfigTag("environment")
 public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig>  implements EnvironmentConfig {
 
     private final ConfigErrors configErrors = new ConfigErrors();

@@ -454,10 +454,6 @@ module ApplicationHelper
     Toggles.isToggleOn(Toggles.PIPELINE_CONFIG_SINGLE_PAGE_APP)
   end
 
-  def is_agents_spa_enabled?
-    Toggles.isToggleOn(Toggles.AGENTS_SINGLE_PAGE_APP);
-  end
-
   private
   def form_remote_tag(options = {})
     options[:form] = true

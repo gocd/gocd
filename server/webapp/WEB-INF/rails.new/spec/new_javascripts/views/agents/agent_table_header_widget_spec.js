@@ -19,19 +19,19 @@ define(["jquery", "mithril", "views/agents/agent_table_header"], function ($, m,
     var $root = $('#mithril-mount-point'), root = $root.get(0);
 
     beforeEach(function () {
-      route();
+      route(true);
     });
 
     afterEach(function () {
       unmount();
     });
 
-    var route = function () {
+    var route = function (isUserAdmin) {
       m.route.mode = "hash";
       m.route(root, '',
         {
-          '':                  agentTableHeaderComponent(),
-          '/:sortBy/:orderBy': agentTableHeaderComponent()
+          '':                  agentTableHeaderComponent(isUserAdmin),
+          '/:sortBy/:orderBy': agentTableHeaderComponent(isUserAdmin)
         }
       );
       m.route('');
@@ -51,6 +51,11 @@ define(["jquery", "mithril", "views/agents/agent_table_header"], function ($, m,
       expect(checkbox.checked).toBe(checkboxValue());
     });
 
+    it('should not display checkbox for non-admin user', function() {
+      route(false);
+      expect('thead input').not.toBeInDOM();
+    });
+
 
     it('should add the ascending css class to table header cell attribute when table is sorted ascending on the corresponding attribute', function () {
       m.route('/agentState/asc');
@@ -67,12 +72,13 @@ define(["jquery", "mithril", "views/agents/agent_table_header"], function ($, m,
       expect(headerAttribute).toHaveClass('desc');
     });
 
-    var agentTableHeaderComponent = function () {
+    var agentTableHeaderComponent = function (isUserAdmin) {
       return m.component(AgentsTableHeader,
         {
           onCheckboxClick: onCheckboxClick,
           checkboxValue:   checkboxValue,
-          sortBy:          sortBy
+          sortBy:          sortBy,
+          isUserAdmin: isUserAdmin
         });
     };
 

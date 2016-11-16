@@ -17,7 +17,7 @@
 require 'spec_helper'
 
 
-describe "/agents/index.json.erb" do
+describe "/old_agents/index.json.erb" do
   before do
     view.stub(:can_view_admin_page?).and_return(true)
     view.stub(:has_operate_permission_for_agents?).and_return(true)
@@ -25,9 +25,9 @@ describe "/agents/index.json.erb" do
 
   it "should return json of partials" do
     assign(:agents, :agents_collection)
-    allow(view).to receive(:render_json).with(:partial=>'agents_header.html.erb', :locals => {:scope => {}}).and_return("\"header\"")
-    allow(view).to receive(:render_json).with(:partial=>'agents_table.html.erb', :locals => {:scope => {}}).and_return("\"table\"")
-    allow(view).to receive(:render_json).with(:partial=>'agents/hidden_selectors.html', :locals => {:scope => {:agents => :agents_collection}}).and_return("\"hidden_checkboxes\"")
+    allow(view).to receive(:render_json).with(:partial=>'old_agents/agents_header.html.erb', :locals => {:scope => {}}).and_return("\"header\"")
+    allow(view).to receive(:render_json).with(:partial=>'old_agents/agents_table.html.erb', :locals => {:scope => {}}).and_return("\"table\"")
+    allow(view).to receive(:render_json).with(:partial=>'old_agents/hidden_selectors.html', :locals => {:scope => {:agents => :agents_collection}}).and_return("\"hidden_checkboxes\"")
 
     render
     json = JSON.parse(response.body)

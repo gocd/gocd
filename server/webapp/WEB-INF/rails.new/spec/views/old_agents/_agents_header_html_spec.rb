@@ -22,7 +22,7 @@ describe "/agents/index" do
     assign(:agents_enabled, 10)
     assign(:agents_disabled, 9)
     assign(:agents_pending, 8)
-    render :partial => 'agents/agents_header'
+    render :partial => 'old_agents/agents_header'
 
     Capybara.string(response.body).find("ul.agent_counts").tap do |ul|
       expect(ul).to have_selector("li.enabled", :text=> "Enabled: 10")

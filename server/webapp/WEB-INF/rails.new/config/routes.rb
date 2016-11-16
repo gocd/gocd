@@ -310,7 +310,6 @@ Go::Application.routes.draw do
 
   namespace :admin do
     resources :pipelines, only: [:edit], controller: :pipeline_configs, param: :pipeline_name, as: :pipeline_config, constraints: {pipeline_name: PIPELINE_NAME_FORMAT}
-    resources :agents, only: [:index], controller: :agents, as: :agents
     resources :elastic_profiles, only: [:index], controller: :elastic_profiles, as: :elastic_profiles
   end
 
@@ -418,9 +417,11 @@ Go::Application.routes.draw do
 
   get "/run/:pipeline_name/:pipeline_counter/:stage_name", :controller => "null", :action => "null", as: :run_stage, constraints: {:pipeline_name => PIPELINE_NAME_FORMAT, :pipeline_counter => PIPELINE_COUNTER_FORMAT, :stage_name => STAGE_NAME_FORMAT}
 
-  resources :agents, :only => [:index], :defaults => {:format => "html"}
-  post "agents/edit_agents", :controller => 'agents', :action => :edit_agents, as: :edit_agents
-  post "agents/:action", :controller => 'agents', constraints: {action: /(resource|environment)_selector/}, as: :agent_grouping_data
+  resources :old_agents, :only => [:index], :defaults => {:format => "html"}
+  post "old_agents/edit_agents", :controller => 'old_agents', :action => :edit_agents, as: :edit_agents
+  post "old_agents/:action", :controller => 'old_agents', constraints: {action: /(resource|environment)_selector/}, as: :agent_grouping_data
+
+  resources :agents, only: [:index], controller: :agents, as: :agents
 
   scope 'admin/users', module: 'admin' do
     defaults :no_layout => true do

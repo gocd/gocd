@@ -61,7 +61,7 @@ define(["jquery", "mithril", "lodash", 'models/agents/agents', "views/agents/but
 
     describe('Button Group', function () {
       it('should contain the row elements', function () {
-        var rowElements = $root.find('.agent-button-group button');
+        var rowElements = $root.find('.header-panel-button-group button');
         expect(rowElements).toHaveLength(8);
         expect(rowElements[0]).toHaveText("Delete");
         expect(rowElements[1]).toHaveText("Disable");
@@ -74,7 +74,7 @@ define(["jquery", "mithril", "lodash", 'models/agents/agents', "views/agents/but
       });
 
       it('should disable the buttons if agents are not selected', function () {
-        var rowElements = $root.find('.agent-button-group button');
+        var rowElements = $root.find('.header-panel-button-group button');
         expect(rowElements[0]).toBeDisabled();
         expect(rowElements[1]).toBeDisabled();
         expect(rowElements[2]).toBeDisabled();
@@ -85,7 +85,7 @@ define(["jquery", "mithril", "lodash", 'models/agents/agents', "views/agents/but
       it('should enable the buttons if at least one agent is selected', function () {
         var isAnyAgentSelected = m.prop(true);
         mount(isAnyAgentSelected);
-        var rowElements = $root.find('.agent-button-group button');
+        var rowElements = $root.find('.header-panel-button-group button');
 
         expect(rowElements[0]).not.toBeDisabled();
         expect(rowElements[1]).not.toBeDisabled();
@@ -117,7 +117,7 @@ define(["jquery", "mithril", "lodash", 'models/agents/agents', "views/agents/but
       m.mount(root, null);
       m.redraw(true);
     };
-    
+
     var json = function () {
       return [
         {

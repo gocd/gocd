@@ -1,4 +1,4 @@
-/*
+/*!
  * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,31 +25,7 @@
   }
 }
 
-.agent-header-panel {
-  position:  fixed;
-  top:       50px;
-  transform: translateX(-50%);
-  left:      50%;
-  width:     100%;
-  z-index:   $agent-header-panel-z-index;
-  .message {
-    background-color: #333;
-  }
-}
-
 .page-header {
-  background:      image-url('bg_agents_page_header.jpg') no-repeat 0 0;
-  background-size: cover;
-  padding:         10px 0;
-  position:        relative;
-  h1 {
-    font-size:      20px;
-    margin:         0;
-    color:          #fff;
-    text-transform: uppercase;
-    display:        inline-block;
-    font-weight:    600;
-  }
   .old-agents-page {
     color:           #fff;
     background:      $dark-grey;
@@ -86,82 +62,6 @@ span.info {
   &:hover,
   &:focus {
     outline: 0;
-  }
-}
-
-.agent-button-group {
-  margin-bottom: 0;
-  float:         right;
-  > li {
-    margin-left: 1px;
-    display:     inline-block;
-    position:    relative;
-    z-index:     $agents-filters;
-    &:first-child {
-      margin-left: 0;
-      > .button {
-        border-radius: $global-border-radius 0 0 $global-border-radius;
-      }
-    }
-    &:last-child {
-      > .button {
-        border-radius: 0 $global-border-radius $global-border-radius 0;
-      }
-    }
-    .button {
-      background-color: $go-secondary;
-      color:            #333;
-      border:           0;
-      font-size:        rem-calc(13px);
-      font-weight:      600;
-      margin:           0;
-      border-radius:    0;
-      padding:          0 7px;
-      line-height:      30px;
-      &:hover,
-      &:focus {
-        background-color: lighten($go-secondary, 20%);
-        outline:          0;
-      }
-      &.btn-apply {
-        font-size:        14px;
-        padding:          7px 20px;
-        border-radius:    $global-border-radius;
-        margin-right:     1px;
-        color:            $go-white;
-        height:           auto;
-        line-height:      normal;
-        background-color: $go-primary;
-        &:hover,
-        &:focus {
-          background-color: lighten($go-primary, 2%);
-          outline:          0;
-          color:            $go-white;
-        }
-      }
-    }
-    > .button:not(:last-child) {
-      border-right: 0;
-    }
-    &.is-open {
-      > .button {
-        background-color:           lighten($go-secondary, 20%);
-        border-bottom-right-radius: 0;
-        &:before {
-          content:      "";
-          position:     absolute;
-          z-index:      1;
-          bottom:       -9px;
-          left:         50%;
-          transform:    translateX(-50%);
-          width:        0;
-          height:       0;
-          border-style: solid;
-          border-width: 10px 10px 0 10px;
-          border-color: lighten($go-secondary, 20%) transparent transparent transparent;
-        }
-      }
-    }
   }
 }
 
@@ -219,7 +119,7 @@ span.info {
   }
 }
 
-.agent-button-group > li {
+.header-panel-button-group > li {
   .add-resource {
     input[type="text"] {
       border-radius:             0;
@@ -245,19 +145,6 @@ span.info {
         outline:          0;
         color:            #fff;
       }
-    }
-  }
-
-  .button.disabled,
-  .button[disabled] {
-    opacity:          1;
-    cursor:           not-allowed;
-    background-color: #c7c7c7;
-    color:            #a9a9a9;
-    transition:       all 0.3s ease-in-out;
-    &:hover {
-      background-color: #c7c7c7;
-      color:            #a9a9a9;
     }
   }
 }

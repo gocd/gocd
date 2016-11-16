@@ -1,0 +1,94 @@
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+define(["mithril", 'helpers/form_helper', 'helpers/mithril_component_mixins'], function (m, f, ComponentMixins) {
+  var ElasticProfileWidget = {
+    controller: function (args) {
+      ComponentMixins.HasViewModel.call(this);
+
+      var vmStateKey = `show-${args.profile.id()}`;
+
+      this.vmState(vmStateKey, m.prop(false));
+
+      this.toggleHide = function () {
+        this.vmState(vmStateKey)(!this.vmState(vmStateKey)());
+      };
+
+      this.showState = function () {
+        return `${this.vmState(vmStateKey)() ? 'show' : 'hide'}`;
+      };
+    },
+
+    view: function (ctrl, args) {
+      var profile = args.profile;
+      var image;
+      var actionIcons;
+
+      if (args.pluginInfo) {
+        image       = (<img src={args.pluginInfo.image().toDataURI()}/>);
+        actionIcons = (
+          <div class="plugin-actions">
+            <f.link class='edit-profile' onclick={args.onEdit}/>
+            <f.link class='delete-profile' onclick={args.onDelete}/>
+          </div>
+        );
+      } else {
+        image       = (<span class="unknown-plugin-icon" title="Plugin not found"/>);
+        actionIcons = (
+          <div class="plugin-actions">
+            <f.link class='edit-profile disabled' title="Plugin not found"/>
+            <f.link class='delete-profile disabled' title="Plugin not found"/>
+          </div>
+        );
+      }
+      return (
+        <div class="elastic-profile">
+          <div class="plugin-icon">
+            {image}
+          </div>
+          <div class="plugin-description">
+            <div class="profile-id">
+              Id:
+              &nbsp;
+              <f.link onclick={ctrl.toggleHide.bind(ctrl)}>{profile.id()}</f.link>
+            </div>
+            <div class="plugin-id">Plugin ID: {profile.pluginId()}</div>
+            {actionIcons}
+          </div>
+
+          <div class={`plugin-config-read-only ${ctrl.showState()}`}>
+            <table class="table">
+              <tbody>
+              {profile.properties().mapConfigurations(function (configuration) {
+                return (
+                  <tr>
+                    <td>{configuration.key()}</td>
+                    <td>
+                      <pre>{configuration.value()}</pre>
+                    </td>
+                  </tr>
+                );
+              })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      );
+    }
+  };
+
+  return ElasticProfileWidget;
+});

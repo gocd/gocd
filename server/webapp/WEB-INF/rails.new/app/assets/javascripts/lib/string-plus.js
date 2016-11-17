@@ -79,6 +79,14 @@ define(['string', 'lodash', 'mithril'], function (s, _, m) {
 
       return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
         s4() + '-' + s4() + s4() + s4();
+    },
+
+    terminateWithPeriod: function (str) {
+      if (s.endsWith(str, '.')) {
+        return str;
+      } else {
+        return `${str}.`;
+      }
     }
   };
 

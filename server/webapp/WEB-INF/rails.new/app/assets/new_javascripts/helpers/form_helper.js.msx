@@ -57,7 +57,7 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
 
         return (
           <div class={compactClasses(args, 'columns', 'medium-' + size, 'large-' + largeSize, end)}
-            {...args}>
+               {...args}>
             {children}
           </div>
         );
@@ -77,7 +77,7 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
       },
 
       view: function (ctrl, args) {
-        var model = deleteKeyAndReturnValue(args, 'model'),
+        var model       = deleteKeyAndReturnValue(args, 'model'),
           attrName    = deleteKeyAndReturnValue(args, 'attrName'),
           type        = deleteKeyAndReturnValue(args, 'type', 'text'),
           placeholder = deleteKeyAndReturnValue(args, 'placeholder', ''),
@@ -367,7 +367,7 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
 
       view: function (ctrl, args, children) {
         var tabs = (
-          <ul class={_.compact(['tabs', args.isVertical ? 'vertical': undefined]).join(' ')}>
+          <ul class={_.compact(['tabs', args.isVertical ? 'vertical' : undefined]).join(' ')}>
             {_.map(args.tabTitles, function (tabTitle, tabIndex) {
 
               var tabTitleElem;
@@ -395,7 +395,7 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
 
         var tabsContent = (
           <div
-            class={_.compact([args.isVertical ? 'vertical': undefined, 'tabs-content', 'tabs-content-container', ctrl.prefixedClass('tabs-content-container')]).join(' ')}>
+            class={_.compact([args.isVertical ? 'vertical' : undefined, 'tabs-content', 'tabs-content-container', ctrl.prefixedClass('tabs-content-container')]).join(' ')}>
             {_.map(_.flatten(children), function (child, tabIndex) {
 
               var renderedChild;
@@ -604,33 +604,28 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
       }
     },
 
+    callout: {
+      view: function (ctrl, args, children) {
+        var type = deleteKeyAndReturnValue(args, 'type');
+        return (<div class={'callout ' + type} {...args}>{children}</div>);
+      }
+    },
+
     alert: {
       view: function (ctrl, args, children) {
-        return (
-          <div>
-            <span class="callout alert">{children}</span>
-          </div>
-        );
+        return (<f.callout type="alert" {...args}>{children}</f.callout>);
       }
     },
 
     warning: {
       view: function (ctrl, args, children) {
-        return (
-          <div class='warning callout'>
-            <p>{children}</p>
-          </div>
-        );
+        return (<f.callout type="warning" {...args}>{children}</f.callout>);
       }
     },
 
     info: {
       view: function (ctrl, args, children) {
-        return (
-          <div class='info callout'>
-            <p>{children}</p>
-          </div>
-        );
+        return (<f.callout type="info" {...args}>{children}</f.callout>);
       }
     },
 

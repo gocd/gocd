@@ -233,7 +233,7 @@ define([
 
       return (
         <div onclick={ctrl.hideDropDownsAndMessage.bind(ctrl)}>
-          <div class="agent-header-panel">
+          <div class="header-panel">
             <ButtonRowWidget isAnyAgentSelected={ ctrl.isAnyAgentSelected.bind(ctrl) }
                              dropdown={args.vm.dropdown}
                              selectedAgents={ ctrl.selectedAgents.bind(ctrl) }

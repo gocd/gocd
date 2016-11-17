@@ -208,3 +208,4 @@ shim:
 modules:
   - name: "single_page_apps/pipeline_configs"
   - name: "single_page_apps/agents"
+  - name: "single_page_apps/elastic_profiles"

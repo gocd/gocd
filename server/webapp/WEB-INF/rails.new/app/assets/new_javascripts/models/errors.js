@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash'], function (m, _) {
+define(['mithril', 'lodash', 'string-plus'], function (m, _, s) {
   var Errors = function (errors) {
     errors = errors || {};
 
@@ -40,9 +40,7 @@ define(['mithril', 'lodash'], function (m, _) {
     };
 
     this.errorsForDisplay = function (attrName) {
-      return _.map(errors[attrName] || [], function (message) {
-        return message + ".";
-      }).join(" ");
+      return _.map(errors[attrName] || [], s.terminateWithPeriod).join(" ");
     };
   };
 

@@ -14,10 +14,14 @@
  * limitations under the License.
  */
 
-define([], function () {
+define(['jquery'], function ($) {
   var setHeaders = function (xhr, version) {
     xhr.setRequestHeader("Content-Type", "application/json");
     xhr.setRequestHeader("Accept", "application/vnd.go.cd." + version + "+json");
+    var csrfToken = $('meta[name=csrf-token]').attr('content');
+    if (csrfToken) {
+      xhr.setRequestHeader('X-CSRF-Token', csrfToken);
+    }
   };
 
   return {
@@ -33,6 +37,14 @@ define([], function () {
       },
       v4: function (xhr) {
         setHeaders(xhr, 'v4');
+      }
+    },
+
+    unwrapErrorExtractMessage: function (data) {
+      if (data.message) {
+        return data.message;
+      } else {
+        return "There was an unknown error performing the operation";
       }
     }
   };

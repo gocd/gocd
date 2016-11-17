@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(["jquery", "mithril", 'lodash', "models/pipeline_configs/tracking_tool", "views/pipeline_configs/tracking_tool_widget"], function ($, m, _, TrackingTool, TrackingToolWidget) {
+define(["jquery", "mithril", 'lodash', "views/pipeline_configs/tracking_tool_widget"], function ($, m, _, TrackingToolWidget) {
   describe("Tracking Tool Widget", function () {
     var $root = $('#mithril-mount-point'), root = $root.get(0);
     var trackingToolProp;

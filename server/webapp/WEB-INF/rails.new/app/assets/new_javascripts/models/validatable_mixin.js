@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['lodash', 'string-plus', 'mithril', 'models/errors', 'models/model_mixins'], function (_, s, m, Errors, Mixins) {
+define(['lodash', 'string-plus', 'models/errors', 'models/model_mixins'], function (_, s, Errors, Mixins) {
   var PresenceValidator = function (options) {
     this.validate = function (entity, attr) {
       if (options.condition && (!options.condition(entity))) {

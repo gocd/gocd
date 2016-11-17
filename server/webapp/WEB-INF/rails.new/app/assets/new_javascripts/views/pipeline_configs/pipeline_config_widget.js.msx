@@ -15,12 +15,13 @@
  */
 
 define([
-  'mithril', 'jquery', 'string-plus', 'lodash', 'helpers/form_helper', 'helpers/pipeline_configs/tooltips', 'helpers/mithril_component_mixins',
-  'models/pipeline_configs/pipeline', 'models/pipeline_configs/tasks', 'views/pipeline_configs/pipeline_settings_widget',
-  'views/pipeline_configs/materials_config_widget', 'views/pipeline_configs/pipeline_flow_widget', 'views/pipeline_configs/errors_widget', 'views/shared/modal'], function (m, $, s, _, f, tt, ComponentMixins, Pipeline, Tasks, PipelineSettingsWidget, MaterialsConfigWidget, PipelineFlowWidget, ErrorsWidget, Modal) {
+  'mithril', 'string-plus', 'helpers/form_helper', 'helpers/mithril_component_mixins',
+  'models/pipeline_configs/pipeline', 'views/pipeline_configs/pipeline_settings_widget',
+  'views/pipeline_configs/materials_config_widget', 'views/pipeline_configs/pipeline_flow_widget', 'views/pipeline_configs/errors_widget', 'views/shared/modal'
+], function (m, s, f, ComponentMixins, Pipeline, PipelineSettingsWidget, MaterialsConfigWidget, PipelineFlowWidget, ErrorsWidget, Modal) {
 
   var ToggleViewWarning = {
-    view: function (ctrl, args) {
+    view: function (_ctrl, args) {
       return (
         <div class='modal-content'>
           <p> 'Proceed' will discard any unsaved data.</p>

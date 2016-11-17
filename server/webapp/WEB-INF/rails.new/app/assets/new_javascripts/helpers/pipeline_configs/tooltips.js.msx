@@ -17,13 +17,13 @@
 define(['mithril', 'lodash', 'helpers/form_helper'], function (m, _, f) {
 
   var UseThis = {
-    view: function (ctrl, args) {
+    view: function (_ctrl, args) {
       return (<a title='Use this' onclick={_.wrap(args.toShow, args.callback)}>{args.toShow}</a>);
     }
   };
 
   var ExampleTable = {
-    view: function (ctrl, args) {
+    view: function (_ctrl, args) {
       return (
         <table>
           <caption>{args.tableTitle || 'Some Examples'}</caption>
@@ -46,7 +46,7 @@ define(['mithril', 'lodash', 'helpers/form_helper'], function (m, _, f) {
   };
 
   var pipelineLabelTemplate = {
-    view: function (ctrl, args) {
+    view: function (_ctrl, args) {
       return (
         <div>
           <p>
@@ -109,7 +109,7 @@ define(['mithril', 'lodash', 'helpers/form_helper'], function (m, _, f) {
 
 
   var trackingToolGenericRegex = {
-    view: function (ctrl, args) {
+    view: function (_ctrl, args) {
       return (
         <div>
           <p>
@@ -141,7 +141,7 @@ define(['mithril', 'lodash', 'helpers/form_helper'], function (m, _, f) {
 
 
   var trackingToolGenericUrlPattern = {
-    view: function (ctrl, args) {
+    view: function (_ctrl, args) {
       return (
         <div>
           <p>
@@ -163,7 +163,7 @@ define(['mithril', 'lodash', 'helpers/form_helper'], function (m, _, f) {
   };
 
   var trackingToolMingleBaseUrl = {
-    view: function (ctrl, args) {
+    view: function (_ctrl, args) {
       return (
         <div>
           <p>
@@ -194,7 +194,7 @@ define(['mithril', 'lodash', 'helpers/form_helper'], function (m, _, f) {
   };
 
   var trackingToolMingleGroupingConditions = {
-    view: function (ctrl, args) {
+    view: function (_ctrl, args) {
       return (
         <div>
           <p>
@@ -260,7 +260,7 @@ define(['mithril', 'lodash', 'helpers/form_helper'], function (m, _, f) {
   };
 
   var pipelineTimerSpec          = {
-    view: function (ctrl, args) {
+    view: function (_ctrl, args) {
       return (
         <div class='cron-tooltip'>
           <p>

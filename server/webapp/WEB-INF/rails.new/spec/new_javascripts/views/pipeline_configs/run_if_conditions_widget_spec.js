@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['jquery', "mithril", "lodash", "views/pipeline_configs/run_if_conditions_widget", "models/pipeline_configs/tasks"], function ($, m, _, RunIfConditionsWidget, Tasks) {
+define(['jquery', "mithril", "views/pipeline_configs/run_if_conditions_widget", "models/pipeline_configs/tasks"], function ($, m, RunIfConditionsWidget, Tasks) {
   describe("RunIfConditions Widget", function() {
     var $root = $('#mithril-mount-point'), root = $root.get(0);
 

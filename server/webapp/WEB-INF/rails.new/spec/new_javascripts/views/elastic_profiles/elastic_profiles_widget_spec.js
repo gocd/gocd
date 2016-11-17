@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(["jquery", "mithril", "lodash", "views/elastic_profiles/elastic_profiles_widget", 'models/pipeline_configs/plugin_infos'], function ($, m, _, ElasticProfilesWidget, PluginInfos) {
+define(["jquery", "mithril", "views/elastic_profiles/elastic_profiles_widget", 'models/pipeline_configs/plugin_infos'], function ($, m, ElasticProfilesWidget, PluginInfos) {
 
   describe("ElasticProfilesWidget", function () {
     var $root = $('#mithril-mount-point'), root = $root.get(0);
@@ -96,6 +96,12 @@ define(["jquery", "mithril", "lodash", "views/elastic_profiles/elastic_profiles_
       }
     };
 
+    var removeModal = function () {
+      $('.modal-parent').each(function (_i, elem) {
+        $(elem).data('modal').destroy();
+      });
+    };
+
     beforeEach(function () {
       jasmine.Ajax.install();
       jasmine.Ajax.stubRequest('/go/api/elastic/profiles', undefined, 'GET').andReturn({
@@ -147,11 +153,7 @@ define(["jquery", "mithril", "lodash", "views/elastic_profiles/elastic_profiles_
     });
 
     describe("add a new profile", function () {
-      afterEach(function () {
-        $('.modal-parent').each(function (i, elem) {
-          $(elem).data('modal').destroy();
-        });
-      });
+      afterEach(removeModal);
 
       it("should popup a new modal to allow adding a profile", function () {
         expect($root.find('.reveal')).not.toBeInDOM();
@@ -228,12 +230,7 @@ define(["jquery", "mithril", "lodash", "views/elastic_profiles/elastic_profiles_
     });
 
     describe("edit an existing profile", function () {
-
-      afterEach(function () {
-        $('.modal-parent').each(function (i, elem) {
-          $(elem).data('modal').destroy();
-        });
-      });
+      afterEach(removeModal);
 
       it("should popup a new modal to allow edditing a profile", function () {
         jasmine.Ajax.stubRequest('/go/api/elastic/profiles/' + profileJSON.id, undefined, 'GET').andReturn({
@@ -283,5 +280,7 @@ define(["jquery", "mithril", "lodash", "views/elastic_profiles/elastic_profiles_
         expect($('.alert')).toContainText('Boom!');
       });
     });
+
+
   });
 });

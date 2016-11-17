@@ -95,7 +95,7 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agent_row_wid
     it('should have links to pipeline, stage and job as a part of build details dropdown', function () {
       agents(allAgents.toJSON()[2]);
       mount(agents(), model);
-      var buildDetailsLinks = $root.find('.build-details a').map(function (i, el) {
+      var buildDetailsLinks = $root.find('.build-details a').map(function (_i, el) {
         return $(el).attr('href');
       });
       var buildDetails      = agents().buildDetails();

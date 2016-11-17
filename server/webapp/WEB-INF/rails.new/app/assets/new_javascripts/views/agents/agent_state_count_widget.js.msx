@@ -16,7 +16,7 @@
 
 define(['mithril'], function (m) {
   var AgentStateCountWidget = {
-    view: function (ctrl, args) {
+    view: function (_ctrl, args) {
       return (
 
         <ul class="search-summary">

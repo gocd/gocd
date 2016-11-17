@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(["jquery", "mithril", 'models/agents/agents', 'models/agents/resources', "views/agents/resources_list_widget", "foundation.dropdown"], function ($, m, Agents, Resources, ResourcesListWidget) {
+define(["jquery", "mithril", 'models/agents/resources', "views/agents/resources_list_widget", "foundation.dropdown"], function ($, m, Resources, ResourcesListWidget) {
   describe("Resources List Widget", function () {
 
     var $root = $('#mithril-mount-point'), root = $root.get(0);

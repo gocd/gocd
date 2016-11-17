@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(["jquery", "mithril", "lodash", "views/pipeline_configs/lookup_command_widget", "models/pipeline_configs/tasks"], function ($, m, _, LookupCommandWidget, Tasks) {
+define(["jquery", "mithril", "views/pipeline_configs/lookup_command_widget", "models/pipeline_configs/tasks"], function ($, m, LookupCommandWidget, Tasks) {
   describe("Lookup Command Widget", function () {
     var $root = $('#mithril-mount-point'), root = $root.get(0);
 

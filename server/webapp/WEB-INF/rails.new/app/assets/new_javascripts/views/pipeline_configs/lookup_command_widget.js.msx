@@ -15,10 +15,10 @@
  */
 
 define([
-  'mithril', 'lodash', 'jquery', 'string-plus', 'helpers/form_helper', 'helpers/mithril_component_mixins', 'js-routes',
-  'models/pipeline_configs/argument', 'helpers/pipeline_configs/tooltips', 'jquery.textcomplete'
+  'mithril', 'lodash', 'jquery', 'helpers/form_helper', 'js-routes',
+  'helpers/pipeline_configs/tooltips', 'jquery.textcomplete'
 ],
-  function (m, _, $, s, f, ComponentMixins, Routes, Argument, tt) {
+  function (m, _, $, f, Routes, tt) {
     var LookupCommandWidget = {
       Command: {
         textComplete: function (attrName, selectSnippet, searchSnippets) {
@@ -96,7 +96,7 @@ define([
         self.snippet  = args.snippet || new LookupCommandWidget.Command.Snippet({});
         self.snippets = args.snippets || new LookupCommandWidget.Command.Snippets([]);
 
-        self.selectSnippet = function (e, command) {
+        self.selectSnippet = function (_e, command) {
           self.snippet = self.snippets.findByName(command);
 
           self.task.args().data(self.snippet.arguments());

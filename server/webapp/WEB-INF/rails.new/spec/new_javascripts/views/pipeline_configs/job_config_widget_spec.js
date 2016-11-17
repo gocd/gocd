@@ -15,8 +15,8 @@
  */
 
 define([
-  "jquery", "mithril", "lodash", "views/pipeline_configs/jobs_config_widget", "models/pipeline_configs/jobs"
-], function ($, m, _, JobsConfigWidget, Jobs) {
+  "jquery", "mithril", "views/pipeline_configs/jobs_config_widget", "models/pipeline_configs/jobs"
+], function ($, m, JobsConfigWidget, Jobs) {
   describe("JobsConfig Widget", function () {
     var $root = $('#mithril-mount-point'), root = $root.get(0);
     var jobs;

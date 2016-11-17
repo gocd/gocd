@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-define(['jquery', 'mithril', 'lodash', 'models/pipeline_configs/scms'],
-  function ($, m, _, SCMs) {
+define(['jquery', 'mithril', 'models/pipeline_configs/scms'],
+  function ($, m, SCMs) {
     describe('SCMs', function () {
       describe('init', function () {
         var requestArgs;

@@ -281,7 +281,7 @@ define(["jquery", "mithril", 'lodash', 'models/agents/agents', "views/agents/age
 
       var hostnameCells = $root.find(".go-table tbody td:nth-child(2)");
 
-      var hostNames = hostnameCells.map(function (i, cell) {
+      var hostNames = hostnameCells.map(function (_i, cell) {
         return $(cell).text();
       }).toArray();
 
@@ -298,7 +298,7 @@ define(["jquery", "mithril", 'lodash', 'models/agents/agents', "views/agents/age
 
       var hostnameCells = $root.find(".go-table tbody td:nth-child(2)");
 
-      var hostNames = hostnameCells.map(function (i, cell) {
+      var hostNames = hostnameCells.map(function (_i, cell) {
         return $(cell).text();
       }).toArray();
 

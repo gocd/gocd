@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-define(['jquery', 'mithril', 'lodash', "models/pipeline_configs/pipelines"],
-  function ($, m, _, Pipelines) {
+define(['jquery', 'mithril', "models/pipeline_configs/pipelines"],
+  function ($, m, Pipelines) {
     describe('Pipelines', function () {
       describe('init', function () {
         var requestArgs;

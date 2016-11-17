@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'jquery', 'helpers/form_helper', 'string-plus', 'helpers/mithril_component_mixins', 'models/pipeline_configs/plugin_infos'],
-  function (m, _, $, f, s, ComponentMixins, PluginInfos) {
+define(['mithril', 'lodash', 'jquery', 'string-plus', 'models/pipeline_configs/plugin_infos', 'views/shared/angular_plugin'],
+  function (m, _, $, s, PluginInfos, AngularPlugin) {
     var SCMConfigAngularWidget = {
       controller: function (args) {
         var self              = this;
@@ -26,14 +26,8 @@ define(['mithril', 'lodash', 'jquery', 'helpers/form_helper', 'string-plus', 'he
         self.ngControllerName = 'controller-' + self.uuid;
         self.appName          = 'app-' + self.uuid;
 
-        var template = function (template) {
-          return $('<div></div>').html(template.replace(/GOINPUTNAME\[([^\]]*)\]/g, function (match, name) {
-            return "GOINPUTNAME['" + name + "']";
-          })).html();
-        };
-
         PluginInfos.PluginInfo.byId(self.pluginId).then(function (plugin) {
-          self.templateHTML = template(plugin.viewTemplate());
+          self.templateHTML = AngularPlugin.template(plugin.viewTemplate());
           self.defaultConfig = plugin.configurations();
 
           self.ngController = angular.module(self.appName, []).controller(self.ngControllerName, ['$scope', '$http', function ($scope) {
@@ -69,7 +63,7 @@ define(['mithril', 'lodash', 'jquery', 'helpers/form_helper', 'string-plus', 'he
       },
 
       view: function (ctrl) {
-        var config = function (elem, isInitialized) {
+        var config = function (_elem, isInitialized) {
           if (!isInitialized) {
             var pluginTaskTemplateElement = $('#pluggable-scm-template-' + ctrl.uuid);
             angular.bootstrap(pluginTaskTemplateElement.get(0), [ctrl.appName]);

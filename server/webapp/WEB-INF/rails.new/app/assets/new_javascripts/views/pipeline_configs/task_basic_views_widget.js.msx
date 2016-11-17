@@ -15,14 +15,15 @@
  */
 
 define([
-  'mithril', 'lodash', 'jquery', 'angular', 'helpers/form_helper', 'models/pipeline_configs/pluggable_tasks', 'js-routes',
+  'mithril', 'lodash', 'jquery', 'angular', 'helpers/form_helper', 'js-routes',
   'models/pipeline_configs/argument', 'views/pipeline_configs/lookup_command_widget', 'models/pipeline_configs/plugin_infos',
+  'views/shared/angular_plugin',
   'helpers/pipeline_configs/tooltips'
-], function (m, _, $, angular, f, PluggableTasks, Routes, Argument, LookupCommandWidget, PluginInfos, tt) {
+], function (m, _, $, angular, f, Routes, Argument, LookupCommandWidget, PluginInfos, AngularPlugin, tt) {
 
   var TaskBasicViews = {
     ant: {
-      view: function (ctrl, args) {
+      view: function (_ctrl, args) {
         var task = args.task;
         return (
           <div class="task-basic">
@@ -57,7 +58,7 @@ define([
     },
 
     nant: {
-      view: function (ctrl, args) {
+      view: function (_ctrl, args) {
         var task = args.task;
         return (
           <div class="task-basic">
@@ -103,7 +104,7 @@ define([
     },
 
     exec: {
-      view: function (ctrl, args) {
+      view: function (_ctrl, args) {
         var task = args.task;
         var vm = Argument.vm(task.args());
         var arguments = function () {
@@ -164,7 +165,7 @@ define([
     },
 
     rake: {
-      view: function (ctrl, args) {
+      view: function (_ctrl, args) {
         var task = args.task;
         return (
           <div class="task-basic">
@@ -199,7 +200,7 @@ define([
     },
 
     fetch: {
-      view: function (ctrl, args) {
+      view: function (_ctrl, args) {
         var task = args.task;
         return (
           <div class="task-basic">
@@ -268,14 +269,8 @@ define([
         self.ngControllerName = 'controller-' + self.task.uuid();
         self.appName          = 'app-' + self.task.uuid();
 
-        var template = function (template) {
-          return $('<div></div>').html(template.replace(/GOINPUTNAME\[([^\]]*)\]/g, function (match, name) {
-            return "GOINPUTNAME['" + name + "']";
-          })).html();
-        };
-
         PluginInfos.PluginInfo.byId(this.task.pluginId()).then(function (plugin) {
-          self.templateHTML = template(plugin.viewTemplate());
+          self.templateHTML = AngularPlugin.template(plugin.viewTemplate());
           self.defaultTaskConfig = plugin.configurations();
 
           self.ngController = angular.module(self.appName, []).controller(self.ngControllerName, ['$scope', '$http', function ($scope, $http) {
@@ -331,7 +326,7 @@ define([
       },
 
       view: function (ctrl) {
-        var config = function (elem, isInitialized) {
+        var config = function (_elem, isInitialized) {
           if (!isInitialized) {
             var pluginTaskTemplateElement = $('#pluggable-task-template-' + ctrl.task.uuid());
             angular.bootstrap(pluginTaskTemplateElement.get(0), [ctrl.appName]);

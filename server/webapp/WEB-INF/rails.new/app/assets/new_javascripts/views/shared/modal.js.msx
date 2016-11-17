@@ -16,7 +16,7 @@
 
 define(['mithril', 'lodash', 'jquery', 'string-plus', 'foundation.reveal'], function (m, _, $, s) {
   var init = function(uuid) {
-    return function (elem, isInitialized) {
+    return function (_elem, isInitialized) {
       if (!isInitialized) {
         new Foundation.Reveal($("#modal-" + uuid)); //eslint-disable-line no-undef
       }

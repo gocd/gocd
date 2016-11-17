@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['lodash', 'models/pipeline_configs/argument'], function (_, Argument) {
+define(['models/pipeline_configs/argument'], function (Argument) {
   describe('Argument create', function () {
     it('should create from a list of arguments', function () {
       var arguments = ['arg1', 'arg2'];

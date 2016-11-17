@@ -15,8 +15,8 @@
  */
 
 define([
-  'mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/shared/plugin_configurations', 'helpers/mrequest', 'js-routes', 'models/validatable_mixin'
-], function (m, _, s, Mixins, PluginConfigurations, mrequest, Routes, Validatable) {
+  'mithril', 'string-plus', 'models/model_mixins', 'models/shared/plugin_configurations', 'helpers/mrequest', 'js-routes', 'models/validatable_mixin'
+], function (m, s, Mixins, PluginConfigurations, mrequest, Routes, Validatable) {
 
   var unwrapMessageOrProfile = function (data, xhr) {
     if (xhr.status === 422) {

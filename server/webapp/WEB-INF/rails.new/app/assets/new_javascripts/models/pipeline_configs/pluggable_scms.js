@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-
-define(['mithril', 'lodash', 'jquery', 'models/pipeline_configs/materials', 'models/pipeline_configs/plugin_infos'],
-  function (m, _, $, Materials, PluginInfos) {
+define(['lodash', 'models/pipeline_configs/materials', 'models/pipeline_configs/plugin_infos'],
+  function (_, Materials, PluginInfos) {
     var PluggableSCMs = {};
 
     PluggableSCMs.init = function () {
       _.each(PluginInfos.filterByType('scm'), function (pluginInfo) {
         PluggableSCMs.Types[pluginInfo.id()] = {
-          type: Materials.Material.PluggableMaterial,
+          type:        Materials.Material.PluggableMaterial,
           description: pluginInfo.displayName()
         };
       });

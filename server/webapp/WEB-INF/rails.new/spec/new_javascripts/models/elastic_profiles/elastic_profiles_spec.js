@@ -15,11 +15,9 @@
  */
 
 define([
-  'mithril', 'lodash', 'string-plus',
-  'models/model_mixins',
+  'lodash', 'string-plus',
   'models/elastic_profiles/elastic_profiles',
-  'js-routes'
-], function (m, _, s, Mixin, ElasticProfiles) {
+], function (_, s, ElasticProfiles) {
   describe('Elastic Agent Profile', function () {
 
     var profileJSON = {

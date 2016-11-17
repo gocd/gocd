@@ -15,10 +15,10 @@
  */
 
 define([
-  'mithril', 'lodash', 'helpers/form_helper', 'helpers/pipeline_configs/tooltips', 'helpers/mithril_component_mixins', 'views/shared/modal',
+  'mithril', 'lodash', 'helpers/form_helper', 'helpers/pipeline_configs/tooltips', 'views/shared/modal',
   'views/pipeline_configs/scm_config_edit_widget', 'views/pipeline_configs/scm_config_new_widget', 'views/pipeline_configs/material_filter_widget',
   'models/pipeline_configs/scms', 'models/pipeline_configs/plugin_infos'
-], function (m, _, f, tt, ComponentMixins, Modal, SCMConfigEditWidget, SCMConfigNewWidget, MaterialFilterWidget, SCMs, PluginInfos) {
+], function (m, _, f, tt, Modal, SCMConfigEditWidget, SCMConfigNewWidget, MaterialFilterWidget, SCMs, PluginInfos) {
 
   var EditPluggableSCMWidget = {
     controller: function (args) {
@@ -154,7 +154,7 @@ define([
   };
 
   var PluggableSCMWidget = {
-    view: function (ctrl, args) {
+    view: function (_ctrl, args) {
       return _.isNil(args.material.scm()) ? m.component(NewPluggabelSCMWidget, args)
                                             : m.component(EditPluggableSCMWidget, args);
     }

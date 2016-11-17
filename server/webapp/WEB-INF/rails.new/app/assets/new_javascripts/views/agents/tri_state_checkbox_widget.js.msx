@@ -16,7 +16,7 @@
 
 define(['mithril', 'lodash'], function (m, _) {
   var TriStateCheckboxWidget = {
-    view: function (ctrl, args) {
+    view: function (_ctrl, args) {
       return (
         <li>
           <input type="checkbox"

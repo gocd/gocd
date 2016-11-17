@@ -15,10 +15,10 @@
  */
 
 
-define(['mithril', 'lodash', 'helpers/form_helper', 'helpers/pipeline_configs/tooltips'],
-  function (m, _, f, tt) {
+define(['mithril', 'helpers/form_helper', 'helpers/pipeline_configs/tooltips'],
+  function (m, f, tt) {
     var MaterialFilterWidget = {
-      view: function (ctrl, args) {
+      view: function (_ctrl, args) {
         // TODO: make this an 'intelligent' text component that maps to an array.
         return (
           <div class='ignore-pattern'>

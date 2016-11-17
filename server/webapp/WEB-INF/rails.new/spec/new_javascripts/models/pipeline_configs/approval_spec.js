@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['lodash', "models/pipeline_configs/approval", "string-plus"], function (_, Approval, s) {
+define(["models/pipeline_configs/approval", "string-plus"], function (Approval, s) {
 
   describe("Stage Approval Model", function () {
     var approval;

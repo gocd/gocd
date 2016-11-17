@@ -15,13 +15,13 @@
  */
 
 define([
-  'mithril', 'jquery', 'string-plus', 'lodash',
+  'mithril', 'string-plus', 'lodash',
   'helpers/form_helper', 'helpers/pipeline_configs/tooltips', 'helpers/mithril_component_mixins',
-  'models/pipeline_configs/pipeline', 'models/pipeline_configs/tasks', 'views/pipeline_configs/parameters_config_widget',
+  'views/pipeline_configs/parameters_config_widget',
   'views/pipeline_configs/tracking_tool_widget', 'views/pipeline_configs/environment_variables_config_widget'
-], function (m, $, s, _,
+], function (m, s, _,
              f, tt, ComponentMixins,
-             Pipeline, Tasks, ParametersConfigWidget, TrackingToolWidget, EnvironmentVariablesConfigWidget) {
+             ParametersConfigWidget, TrackingToolWidget, EnvironmentVariablesConfigWidget) {
 
   var PipelineSettingsWidget = {
     controller: function(args) {

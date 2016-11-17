@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['lodash', 'models/pipeline_configs/run_if_conditions'], function (_, RunIfConditions) {
+define(['models/pipeline_configs/run_if_conditions'], function (RunIfConditions) {
   describe('RunIfConditions create', function () {
     it('should create runIfConditions', function () {
       var runIf = ['passed', 'failed'];

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['lodash', 'string-plus', 'models/pipeline_configs/tabs'], function (_, s, Tabs) {
+define(['models/pipeline_configs/tabs'], function (Tabs) {
   describe("Tabs Model", function () {
     var tabs, tab;
     beforeEach(function () {

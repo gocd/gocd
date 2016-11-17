@@ -16,15 +16,13 @@
 
 require([
   'jquery', 'mithril',
-  'js-routes',
   'models/agents/agents',
   'models/agents/resources',
   'models/agents/environments',
   'views/agents/agents_widget',
   'views/agents/models/agents_widget_view_model',
   'foundation.util.mediaQuery', 'foundation.dropdownMenu', 'foundation.responsiveToggle', 'foundation.dropdown'
-], function ($, m, JsRoutes,
-             Agents, Resources, Environments, AgentsWidget, AgentsVM) {
+], function ($, m, Agents, Resources, Environments, AgentsWidget, AgentsVM) {
 
   $(function () {
 

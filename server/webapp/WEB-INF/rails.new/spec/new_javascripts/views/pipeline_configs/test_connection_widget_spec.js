@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['jquery', "mithril", "lodash", "models/pipeline_configs/materials", "views/pipeline_configs/test_connection_widget"], function ($, m, _, Materials, TestConnectionWidget) {
+define(['jquery', "mithril", "models/pipeline_configs/materials", "views/pipeline_configs/test_connection_widget"], function ($, m, Materials, TestConnectionWidget) {
   describe("Test Connection Widget", function () {
     describe('view', function() {
       var $root = $('#mithril-mount-point'), root = $root.get(0);

@@ -22,6 +22,7 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.ServerSiteUrlConfig;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.StringUtil;
+import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.PostConstruct;
 import java.util.UUID;
@@ -75,7 +76,7 @@ public class ServerConfig implements Validatable {
 
     @PostConstruct
     public void ensureAgentAutoregisterKeyExists() {
-        if (agentAutoRegisterKey == null) {
+        if (StringUtils.isBlank(agentAutoRegisterKey)) {
             agentAutoRegisterKey = UUID.randomUUID().toString();
         }
     }

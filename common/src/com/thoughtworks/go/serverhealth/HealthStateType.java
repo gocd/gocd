@@ -87,10 +87,6 @@ public class HealthStateType implements Comparable<HealthStateType> {
         return new HealthStateType("ARTIFACTS_DIR_CHANGED", 406, HealthStateScope.GLOBAL);
     }
 
-    public static HealthStateType autoregisterKeyRequired() {
-        return new HealthStateType("AUTO_REGISTER_KEY_REQUIRED", 406, HealthStateScope.GLOBAL);
-    }
-
     public static HealthStateType commandRepositoryAccessibilityIssue() {
         return new HealthStateType("COMMAND_REPOSITORY_ERROR", 406, HealthStateScope.GLOBAL);
     }

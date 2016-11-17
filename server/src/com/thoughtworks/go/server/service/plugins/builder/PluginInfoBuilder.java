@@ -51,7 +51,7 @@ public class PluginInfoBuilder {
         pluginExtensionToBuilder.put(JsonBasedPackageRepositoryExtension.EXTENSION_NAME, new PackageViewModelBuilder(pluginManager));
         pluginExtensionToBuilder.put(JsonBasedTaskExtension.TASK_EXTENSION, new PluggableTaskViewModelBuilder(pluginManager));
         pluginExtensionToBuilder.put(SCMExtension.EXTENSION_NAME, new SCMViewModelBuilder(pluginManager));
-        pluginExtensionToBuilder.put(Constants.EXTENSION_NAME, new ElasticAgentViewViewModelBuilder(pluginManager, elasticAgentPluginRegistry));
+        pluginExtensionToBuilder.put(Constants.EXTENSION_NAME, new ElasticAgentViewViewModelBuilder(elasticAgentPluginRegistry));
     }
 
     public List<PluginInfo> allPluginInfos(String type) {

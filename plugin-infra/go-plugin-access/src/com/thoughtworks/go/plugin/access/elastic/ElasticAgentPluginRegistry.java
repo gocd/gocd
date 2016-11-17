@@ -16,7 +16,9 @@
 
 package com.thoughtworks.go.plugin.access.elastic;
 
+import com.thoughtworks.go.plugin.access.common.settings.Image;
 import com.thoughtworks.go.plugin.api.GoPlugin;
+import com.thoughtworks.go.plugin.api.config.Configuration;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.infra.PluginChangeListener;
 import com.thoughtworks.go.plugin.infra.PluginManager;
@@ -97,5 +99,17 @@ public class ElasticAgentPluginRegistry implements PluginChangeListener {
                 return pluginDescriptor.id().equals(pluginId);
             }
         });
+    }
+
+    public Image getIcon(String pluginId) {
+        return elasticAgentExtension.getIcon(pluginId);
+    }
+
+    public Configuration getProfileMetadata(String pluginId) {
+        return elasticAgentExtension.getProfileMetadata(pluginId);
+    }
+
+    public String getProfileView(String pluginId) {
+        return elasticAgentExtension.getProfileView(pluginId);
     }
 }

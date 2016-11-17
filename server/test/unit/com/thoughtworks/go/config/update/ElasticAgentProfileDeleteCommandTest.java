@@ -58,7 +58,7 @@ public class ElasticAgentProfileDeleteCommandTest {
         ElasticProfile elasticProfile = new ElasticProfile("foo", "docker");
         cruiseConfig.server().getElasticConfig().getProfiles().add(elasticProfile);
 
-        ElasticAgentProfileDeleteCommand command = new ElasticAgentProfileDeleteCommand(elasticProfile, null, null, null);
+        ElasticAgentProfileDeleteCommand command = new ElasticAgentProfileDeleteCommand(elasticProfile, null, null, null, null);
         command.update(cruiseConfig);
 
         assertThat(cruiseConfig.server().getElasticConfig().getProfiles(), is(empty()));
@@ -69,7 +69,7 @@ public class ElasticAgentProfileDeleteCommandTest {
         ElasticProfile elasticProfile = new ElasticProfile("foo", "docker");
 
         assertThat(cruiseConfig.server().getElasticConfig().getProfiles(), is(empty()));
-        ElasticAgentProfileDeleteCommand command = new ElasticAgentProfileDeleteCommand(elasticProfile, null, null, new HttpLocalizedOperationResult());
+        ElasticAgentProfileDeleteCommand command = new ElasticAgentProfileDeleteCommand(elasticProfile, null, null, new HttpLocalizedOperationResult(), null);
 
         thrown.expect(ElasticProfileNotFoundException.class);
         command.update(cruiseConfig);
@@ -84,7 +84,7 @@ public class ElasticAgentProfileDeleteCommandTest {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        ElasticAgentProfileDeleteCommand command = new ElasticAgentProfileDeleteCommand(elasticProfile, goConfigService, currentUser, result);
+        ElasticAgentProfileDeleteCommand command = new ElasticAgentProfileDeleteCommand(elasticProfile, goConfigService, currentUser, result, null);
         assertThat(cruiseConfig.server().getElasticConfig().getProfiles().find("foo"), nullValue());
 
         assertThat(command.canContinue(cruiseConfig), is(false));
@@ -101,9 +101,9 @@ public class ElasticAgentProfileDeleteCommandTest {
         cruiseConfig.addPipeline("all", pipelineConfig);
 
         assertThat(cruiseConfig.server().getElasticConfig().getProfiles(), is(empty()));
-        ElasticAgentProfileDeleteCommand command = new ElasticAgentProfileDeleteCommand(elasticProfile, null, null, new HttpLocalizedOperationResult());
+        ElasticAgentProfileDeleteCommand command = new ElasticAgentProfileDeleteCommand(elasticProfile, null, null, new HttpLocalizedOperationResult(), null);
         thrown.expect(GoConfigInvalidException.class);
-        thrown.expectMessage("The elastic agent profile 'foo' is being referenced by pipeline(s): [JobConfigIdentifier[build-linux:mingle:defaultJob]].");
+        thrown.expectMessage("The elastic agent profile 'foo' is being referenced by pipeline(s): JobConfigIdentifier[build-linux:mingle:defaultJob].");
         command.isValid(cruiseConfig);
     }
 
@@ -112,7 +112,7 @@ public class ElasticAgentProfileDeleteCommandTest {
         ElasticProfile elasticProfile = new ElasticProfile("foo", "docker");
 
         assertThat(cruiseConfig.server().getElasticConfig().getProfiles(), is(empty()));
-        ElasticAgentProfileDeleteCommand command = new ElasticAgentProfileDeleteCommand(elasticProfile, null, null, new HttpLocalizedOperationResult());
+        ElasticAgentProfileDeleteCommand command = new ElasticAgentProfileDeleteCommand(elasticProfile, null, null, new HttpLocalizedOperationResult(), null);
         assertTrue(command.isValid(cruiseConfig));
     }
 }

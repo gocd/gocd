@@ -16,20 +16,24 @@
 
 package com.thoughtworks.go.server.service.plugins.builder;
 
+import com.thoughtworks.go.plugin.access.common.settings.Image;
 import com.thoughtworks.go.plugin.access.elastic.Constants;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginRegistry;
+import com.thoughtworks.go.plugin.api.config.Configuration;
+import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
-import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+import com.thoughtworks.go.server.ui.plugins.PluginConfiguration;
 import com.thoughtworks.go.server.ui.plugins.PluginInfo;
+import com.thoughtworks.go.server.ui.plugins.PluginView;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
+import static com.thoughtworks.go.server.service.plugins.builder.ViewModelBuilder.REQUIRED_OPTION;
+import static com.thoughtworks.go.server.service.plugins.builder.ViewModelBuilder.SECURE_OPTION;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -40,9 +44,6 @@ public class ElasticAgentViewViewModelBuilderTest {
     @Mock
     private ElasticAgentPluginRegistry registry;
 
-    @Mock
-    private PluginManager manager;
-
     private ElasticAgentViewViewModelBuilder builder;
     private GoPluginDescriptor dockerPlugin;
     private GoPluginDescriptor awsPlugin;
@@ -50,7 +51,7 @@ public class ElasticAgentViewViewModelBuilderTest {
     @Before
     public void setUp() {
         initMocks(this);
-        builder = new ElasticAgentViewViewModelBuilder(manager, registry);
+        builder = new ElasticAgentViewViewModelBuilder(registry);
 
         dockerPlugin = new GoPluginDescriptor("cd.go.elastic-agent.docker", "1.0",
                 new GoPluginDescriptor.About("GoCD Docker Elastic Agent Plugin", "1.0", null, null, null, null),
@@ -74,5 +75,28 @@ public class ElasticAgentViewViewModelBuilderTest {
 
         assertEquals(new PluginInfo(dockerPlugin, Constants.EXTENSION_NAME, null, null), dockerPluginInfo);
         assertEquals(new PluginInfo(awsPlugin, Constants.EXTENSION_NAME, null, null), awsPluginInfo);
+    }
+
+    @Test
+    public void shouldBeAbleToFetchPluginInfoForSinglePlugin() throws Exception {
+        when(registry.findPlugin(dockerPlugin.id())).thenReturn(dockerPlugin);
+        Image image = new Image("foo", "bar");
+        when(registry.getIcon(dockerPlugin.id())).thenReturn(image);
+        when(registry.getProfileView(dockerPlugin.id())).thenReturn("html");
+        Configuration configuration = new Configuration();
+        Property property = new Property("foo", "bar", "defaultValue");
+        property.with(Property.REQUIRED, true);
+        property.with(Property.SECURE, true);
+        configuration.add(property);
+        when(registry.getProfileMetadata(dockerPlugin.id())).thenReturn(configuration);
+
+        PluginInfo pluginInfo = builder.pluginInfoFor(dockerPlugin.id());
+
+        assertThat(pluginInfo.getImage(), is(image));
+        assertThat(pluginInfo.getPluggableInstanceSettings().getView(), is(new PluginView("html")));
+        Map<String, Object> metadata = new HashMap<>();
+        metadata.put(REQUIRED_OPTION, true);
+        metadata.put(SECURE_OPTION, true);
+        assertEquals(pluginInfo.getPluggableInstanceSettings().getConfigurations(), Arrays.asList(new PluginConfiguration("foo", metadata, null)));
     }
 }

@@ -25,7 +25,7 @@ define([
         return;
       }
 
-      var $inputElem = $($(elem).find(`input[data-prop-name='${attrName}']`));
+      var $inputElem = $($(elem).find("input[data-prop-name='" + attrName + "']"));
       var values     = _.map(PluginInfos(), function (pi) {
         return pi.id();
       });
@@ -109,7 +109,7 @@ define([
           <f.row>
             <AngularPlugin pluginInfo={args.pluginInfo}
                            configuration={args.profile().properties()}
-                           key={`${args.pluginInfo() ? args.pluginInfo().id() : 'no-plugin'}`}/>
+                           key={args.pluginInfo() ? args.pluginInfo().id() : 'no-plugin'}/>
           </f.row>
         </div>
       );

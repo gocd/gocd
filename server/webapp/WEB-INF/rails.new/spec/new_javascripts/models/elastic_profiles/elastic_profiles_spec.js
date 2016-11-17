@@ -94,7 +94,7 @@ define([
         profile.etag("some-etag");
 
         jasmine.Ajax.withMock(function () {
-          jasmine.Ajax.stubRequest(`/go/api/elastic/profiles/${profile.id()}`, undefined, 'PUT').andReturn({
+          jasmine.Ajax.stubRequest('/go/api/elastic/profiles/' + profile.id(), undefined, 'PUT').andReturn({
             responseText: JSON.stringify({foo: 123}),
             status:       200
           });
@@ -111,7 +111,7 @@ define([
           var request = jasmine.Ajax.requests.mostRecent();
 
           expect(request.method).toBe('PUT');
-          expect(request.url).toBe(`/go/api/elastic/profiles/${profile.id()}`);
+          expect(request.url).toBe('/go/api/elastic/profiles/' + profile.id());
           expect(request.requestHeaders['Content-Type']).toContain('application/json');
           expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
           expect(request.requestHeaders['If-Match']).toBe('some-etag');
@@ -124,7 +124,7 @@ define([
         profile.etag("some-etag");
 
         jasmine.Ajax.withMock(function () {
-          jasmine.Ajax.stubRequest(`/go/api/elastic/profiles/${profile.id()}`, undefined, 'PUT').andReturn({
+          jasmine.Ajax.stubRequest('/go/api/elastic/profiles/' + profile.id(), undefined, 'PUT').andReturn({
             responseText: JSON.stringify({message: 'Boom!'}),
             status:       401
           });
@@ -140,7 +140,7 @@ define([
           var request = jasmine.Ajax.requests.mostRecent();
 
           expect(request.method).toBe('PUT');
-          expect(request.url).toBe(`/go/api/elastic/profiles/${profile.id()}`);
+          expect(request.url).toBe('/go/api/elastic/profiles/' + profile.id());
           expect(request.requestHeaders['Content-Type']).toContain('application/json');
           expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
           expect(request.requestHeaders['If-Match']).toBe('some-etag');
@@ -242,7 +242,7 @@ define([
     describe("find a profile", function () {
       it('should find a profile and call the success callback', function () {
         jasmine.Ajax.withMock(function () {
-          jasmine.Ajax.stubRequest(`/go/api/elastic/profiles/${profileJSON['id']}`, undefined, 'GET').andReturn({
+          jasmine.Ajax.stubRequest('/go/api/elastic/profiles/' + profileJSON['id'], undefined, 'GET').andReturn({
             responseText:    JSON.stringify(profileJSON),
             responseHeaders: {
               ETag: 'foo'
@@ -265,14 +265,14 @@ define([
           expect(jasmine.Ajax.requests.count()).toBe(1);
           var request = jasmine.Ajax.requests.mostRecent();
           expect(request.method).toBe('GET');
-          expect(request.url).toBe(`/go/api/elastic/profiles/${profileJSON['id']}`);
+          expect(request.url).toBe('/go/api/elastic/profiles/' + profileJSON['id']);
           expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
         });
       });
 
       it("should find a profile and call the error callback on error", function () {
         jasmine.Ajax.withMock(function () {
-          jasmine.Ajax.stubRequest(`/go/api/elastic/profiles/${profileJSON['id']}`, undefined, 'GET').andReturn({
+          jasmine.Ajax.stubRequest('/go/api/elastic/profiles/' + profileJSON['id'], undefined, 'GET').andReturn({
             responseText: JSON.stringify({message: 'Boom!'}),
             status:       401
           });
@@ -287,7 +287,7 @@ define([
           expect(jasmine.Ajax.requests.count()).toBe(1);
           var request = jasmine.Ajax.requests.mostRecent();
           expect(request.method).toBe('GET');
-          expect(request.url).toBe(`/go/api/elastic/profiles/${profileJSON['id']}`);
+          expect(request.url).toBe('/go/api/elastic/profiles/' + profileJSON['id']);
           expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
         });
       });
@@ -310,14 +310,14 @@ define([
           expect(jasmine.Ajax.requests.count()).toBe(1);
           var request = jasmine.Ajax.requests.mostRecent();
           expect(request.method).toBe('DELETE');
-          expect(request.url).toBe(`/go/api/elastic/profiles/${profile.id()}`);
+          expect(request.url).toBe('/go/api/elastic/profiles/' + profile.id());
         });
       });
 
       it("should call the error callback with the message", function () {
         var profile = ElasticProfiles.Profile.fromJSON(profileJSON);
         jasmine.Ajax.withMock(function () {
-          jasmine.Ajax.stubRequest(`/go/api/elastic/profiles/${profile.id()}`).andReturn({
+          jasmine.Ajax.stubRequest('/go/api/elastic/profiles/' + profile.id()).andReturn({
             responseText: JSON.stringify({message: 'Boom!'}),
             status:       422
           });
@@ -330,7 +330,7 @@ define([
           expect(jasmine.Ajax.requests.count()).toBe(1);
           var request = jasmine.Ajax.requests.mostRecent();
           expect(request.method).toBe('DELETE');
-          expect(request.url).toBe(`/go/api/elastic/profiles/${profile.id()}`);
+          expect(request.url).toBe('/go/api/elastic/profiles/' + profile.id());
         });
       });
     });

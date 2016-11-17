@@ -19,7 +19,7 @@ define(["mithril", 'helpers/form_helper', 'helpers/mithril_component_mixins'], f
     controller: function (args) {
       ComponentMixins.HasViewModel.call(this);
 
-      var vmStateKey = `show-${args.profile.id()}`;
+      var vmStateKey = 'show-' + args.profile.id();
 
       this.vmState(vmStateKey, m.prop(false));
 
@@ -28,7 +28,7 @@ define(["mithril", 'helpers/form_helper', 'helpers/mithril_component_mixins'], f
       };
 
       this.showState = function () {
-        return `${this.vmState(vmStateKey)() ? 'show' : 'hide'}`;
+        return this.vmState(vmStateKey)() ? 'show' : 'hide';
       };
     },
 
@@ -69,7 +69,7 @@ define(["mithril", 'helpers/form_helper', 'helpers/mithril_component_mixins'], f
             {actionIcons}
           </div>
 
-          <div class={`plugin-config-read-only ${ctrl.showState()}`}>
+          <div class={'plugin-config-read-only '+ ctrl.showState()}>
             <table class="table">
               <tbody>
               {profile.properties().mapConfigurations(function (configuration) {

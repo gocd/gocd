@@ -108,7 +108,7 @@ define(["jquery", "mithril", "lodash", "views/elastic_profiles/elastic_profiles_
         status:       200
       });
 
-      jasmine.Ajax.stubRequest(`/go/api/admin/plugin_info/${dockerPluginInfoJSON.id}`, undefined, 'GET').andReturn({
+      jasmine.Ajax.stubRequest('/go/api/admin/plugin_info/' + dockerPluginInfoJSON.id, undefined, 'GET').andReturn({
         responseText: JSON.stringify(dockerPluginInfoJSON),
         status:       200
       });
@@ -188,7 +188,7 @@ define(["jquery", "mithril", "lodash", "views/elastic_profiles/elastic_profiles_
         m.redraw(true);
 
         var request = jasmine.Ajax.requests.at(jasmine.Ajax.requests.count() - 2);
-        expect(request.url).toBe(`/go/api/elastic/profiles`);
+        expect(request.url).toBe('/go/api/elastic/profiles');
         expect(request.method).toBe('POST');
 
         expect($('.success')).toContainText('The profile unit-test was created successfully');
@@ -220,7 +220,7 @@ define(["jquery", "mithril", "lodash", "views/elastic_profiles/elastic_profiles_
         m.redraw(true);
 
         var request = jasmine.Ajax.requests.at(jasmine.Ajax.requests.count() - 1);
-        expect(request.url).toBe(`/go/api/elastic/profiles`);
+        expect(request.url).toBe('/go/api/elastic/profiles');
         expect(request.method).toBe('POST');
 
         expect($('.alert')).toContainText('Boom!');
@@ -236,7 +236,7 @@ define(["jquery", "mithril", "lodash", "views/elastic_profiles/elastic_profiles_
       });
 
       it("should popup a new modal to allow edditing a profile", function () {
-        jasmine.Ajax.stubRequest(`/go/api/elastic/profiles/${profileJSON.id}`, undefined, 'GET').andReturn({
+        jasmine.Ajax.stubRequest('/go/api/elastic/profiles/' + profileJSON.id, undefined, 'GET').andReturn({
           responseText: JSON.stringify(profileJSON),
           status:       200
         });
@@ -248,7 +248,7 @@ define(["jquery", "mithril", "lodash", "views/elastic_profiles/elastic_profiles_
       });
 
       it("should display error message if fetching a profile fails", function () {
-        jasmine.Ajax.stubRequest(`/go/api/elastic/profiles/${profileJSON.id}`, undefined, 'GET').andReturn({
+        jasmine.Ajax.stubRequest('/go/api/elastic/profiles/' + profileJSON.id, undefined, 'GET').andReturn({
           responseText: JSON.stringify({message: 'Boom!'}),
           status:       401
         });
@@ -262,7 +262,7 @@ define(["jquery", "mithril", "lodash", "views/elastic_profiles/elastic_profiles_
 
     describe("delete an existing profile", function () {
       it("should show success message when profile is deleted", function () {
-        jasmine.Ajax.stubRequest(`/go/api/elastic/profiles/${profileJSON.id}`, undefined, 'DELETE').andReturn({
+        jasmine.Ajax.stubRequest('/go/api/elastic/profiles/' + profileJSON.id, undefined, 'DELETE').andReturn({
           responseText: JSON.stringify({message: 'Success!'}),
           status:       200
         });
@@ -273,7 +273,7 @@ define(["jquery", "mithril", "lodash", "views/elastic_profiles/elastic_profiles_
       });
 
       it("should show error message when deleting profile fails", function () {
-        jasmine.Ajax.stubRequest(`/go/api/elastic/profiles/${profileJSON.id}`, undefined, 'DELETE').andReturn({
+        jasmine.Ajax.stubRequest('/go/api/elastic/profiles/' + profileJSON.id, undefined, 'DELETE').andReturn({
           responseText: JSON.stringify({message: 'Boom!'}),
           status:       401
         });

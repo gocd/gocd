@@ -85,7 +85,7 @@ define(['string', 'lodash', 'mithril'], function (s, _, m) {
       if (s.endsWith(str, '.')) {
         return str;
       } else {
-        return `${str}.`;
+        return str + '.';
       }
     }
   };

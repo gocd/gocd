@@ -80,7 +80,7 @@ define([
 
           var modal = new Modal({
             size:    'large',
-            title:   `Edit profile ${newProfile().id()}`,
+            title:   'Edit profile ' + newProfile().id(),
             body:    (<ElasticProfileModalBody profile={newProfile}
                                                pluginInfo={pluginInfo}
                                                saveDisabled={saveDisabled}/>),
@@ -92,7 +92,7 @@ define([
                 text:     'Save',
                 class:    'save primary',
                 onclick:  function () {
-                  newProfile().update().then(showSuccess(modal, ctrl, `The profile ${newProfile().id()} was updated successfully.`), showErrors(modal, ctrl, newProfile));
+                  newProfile().update().then(showSuccess(modal, ctrl, 'The profile ' + newProfile().id() + ' was updated successfully.'), showErrors(modal, ctrl, newProfile));
                 },
                 disabled: saveDisabled
               }
@@ -133,7 +133,7 @@ define([
               text:     'Save',
               class:    'save primary',
               onclick:  function () {
-                newProfile().create().then(showSuccess(modal, ctrl, `The profile ${newProfile().id()} was created successfully.`), showErrors(modal, ctrl, newProfile));
+                newProfile().create().then(showSuccess(modal, ctrl, 'The profile ' + newProfile().id() + ' was created successfully.'), showErrors(modal, ctrl, newProfile));
               },
               disabled: saveDisabled
             }
@@ -212,7 +212,7 @@ define([
                     profile={profile}
                     pluginInfo={pluginInfo}
                     key={profile.id()}
-                    vm={ctrl.vmState(`expanded-${profile.id()}`)}
+                    vm={ctrl.vmState('expanded-' + profile.id())}
                     onEdit={ctrl.edit.bind(ctrl, profile)}
                     onDelete={ctrl.delete.bind(ctrl, profile)}/>
                 );

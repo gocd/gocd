@@ -29,6 +29,9 @@ body {
 
 .main-container {
   margin-top: 50px;
+  #agents-page & {
+    margin-top:0;
+  }
 }
 
 .container {

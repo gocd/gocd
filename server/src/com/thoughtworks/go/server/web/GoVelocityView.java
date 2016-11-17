@@ -43,6 +43,7 @@ public class GoVelocityView extends VelocityToolboxView {
     public static final String VIEW_ADMINISTRATOR_RIGHTS = "userHasViewAdministratorRights";
     public static final String GROUP_ADMINISTRATOR = "userHasGroupAdministratorRights";
     public static final String USE_COMPRESS_JS = "useCompressJS";
+    public static final String GADGET_RENDERING_SERVER_ENABLED = "gadgetRenderingServerEnabled";
     public static final String CONCATENATED_JAVASCRIPT_FILE_PATH = "concatenatedJavascriptFilePath";
     public static final String CONCATENATED_APPLICATION_CSS_FILE_PATH = "concatenatedApplicationCssFilePath";
     public static final String CURRENT_GOCD_VERSION = "currentGoCDVersion";
@@ -80,6 +81,7 @@ public class GoVelocityView extends VelocityToolboxView {
         velocityContext.put(TEMPLATE_ADMINISTRATOR, true);
         velocityContext.put(VIEW_ADMINISTRATOR_RIGHTS, true);
         velocityContext.put(USE_COMPRESS_JS, systemEnvironment.useCompressedJs());
+        velocityContext.put(GADGET_RENDERING_SERVER_ENABLED, "Y".equals(java.lang.System.getProperty("go.gadgets.rendering.enable")));
 
         velocityContext.put(Toggles.PIPELINE_COMMENT_FEATURE_TOGGLE_KEY, Toggles.isToggleOn(Toggles.PIPELINE_COMMENT_FEATURE_TOGGLE_KEY));
 

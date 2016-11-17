@@ -16,6 +16,7 @@
 
 require 'spec_helper'
 
+if Gadgets.enabled?
 describe Gadgets::PipelineController do
   before :each do
     controller.stub(:current_user).and_return(@user = Username.new(CaseInsensitiveString.new("user")))
@@ -133,4 +134,5 @@ describe Gadgets::PipelineController do
       assert_template layout: false
     end
   end
+end
 end

@@ -154,14 +154,14 @@ public class DefaultPluginManagerTest {
         String pluginJarFile = "descriptor-aware-test-plugin.should.be.deleted.jar";
         copyPluginToTheDirectory(BUNDLE_DIR, pluginJarFile);
 
-        new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, null, pluginWriter, pluginValidator, systemEnvironment, pluginsZipUpdater, pluginsListListener).startInfrastructure();
+        new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, null, pluginWriter, pluginValidator, systemEnvironment, pluginsZipUpdater, pluginsListListener).startInfrastructure(true);
 
         assertThat(BUNDLE_DIR.exists(), is(false));
     }
 
     @Test
     public void shouldStartOSGiFrameworkBeforeStartingMonitor() throws Exception {
-        new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, null, pluginWriter, pluginValidator, systemEnvironment, pluginsZipUpdater, pluginsListListener).startInfrastructure();
+        new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, null, pluginWriter, pluginValidator, systemEnvironment, pluginsZipUpdater, pluginsListListener).startInfrastructure(true);
         InOrder inOrder = inOrder(goPluginOSGiFramework, monitor);
 
         inOrder.verify(goPluginOSGiFramework).start();
@@ -432,7 +432,7 @@ public class DefaultPluginManagerTest {
     @Test
     public void shouldAddPluginChangeListener() throws Exception {
         DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, mock(GoPluginOSGiFramework.class), jarChangeListener, pluginRequestProcessorRegistry, pluginWriter, pluginValidator, systemEnvironment, pluginsZipUpdater, pluginsListListener);
-        pluginManager.startInfrastructure();
+        pluginManager.startInfrastructure(true);
 
         InOrder inOrder = inOrder(monitor);
 

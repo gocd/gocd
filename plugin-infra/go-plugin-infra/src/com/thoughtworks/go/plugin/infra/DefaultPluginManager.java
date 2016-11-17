@@ -127,7 +127,7 @@ public class DefaultPluginManager implements PluginManager {
     }
 
     @Override
-    public void startInfrastructure() {
+    public void startInfrastructure(boolean shouldPoll) {
         if (!systemEnvironment.get(PLUGIN_FRAMEWORK_ENABLED)) {
             return;
         }
@@ -150,7 +150,11 @@ public class DefaultPluginManager implements PluginManager {
         });
 
         monitor.addPluginJarChangeListener(defaultPluginJarChangeListener);
-        monitor.start();
+        if (shouldPoll) {
+            monitor.start();
+        } else {
+            monitor.oneShot();
+        }
     }
 
     @Override

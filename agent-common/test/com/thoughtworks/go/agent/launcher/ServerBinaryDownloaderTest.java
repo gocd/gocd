@@ -117,7 +117,7 @@ public class ServerBinaryDownloaderTest {
     @Test
     public void shouldFailIfServerIsNotAvailable() throws Exception {
         exception.expect(UnknownHostException.class);
-        exception.expectMessage("invalidserver: unknown error");
+        exception.expectMessage("invalidserver");
 
         ServerBinaryDownloader downloader = new ServerBinaryDownloader(ServerUrlGeneratorMother.generatorWithoutSubPathFor("https://invalidserver:9091/go/hello"), null,
                 SslVerificationMode.NONE);

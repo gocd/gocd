@@ -34,7 +34,6 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
       this.init = function (data) {
         this.id             = m.prop(s.defaultToIfBlank(data.repo_id));
         this.name           = m.prop(s.defaultToIfBlank(data.name, ''));
-        this.autoUpdate     = m.prop(s.defaultToIfBlank(data.auto_update, true));
         this.pluginMetadata = m.prop(new Repositories.Repository.PluginMetadata(data.plugin_metadata || {}));
         this.configuration  = s.collectionToJSON(m.prop(Repositories.Repository.Configurations.fromJSON(data.configuration || {})));
         this.errors         = m.prop(new Errors(data.errors));
@@ -55,7 +54,6 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
         return {
           repo_id:         this.id(),
           name:            this.name(),
-          auto_update:     this.autoUpdate(),
           plugin_metadata: this.pluginMetadata().toJSON(),
           configuration:   this.configuration
         };
@@ -92,7 +90,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
       this.create = function () {
         var extract = function (xhr) {
           if (xhr.status === 200) {
-            Repositories.repoIdToEtag[JSON.parse(xhr.responseText).id] = xhr.getResponseHeader('ETag');
+            Repositories.repoIdToEtag[JSON.parse(xhr.responseText).repo_id] = xhr.getResponseHeader('ETag');
           }
           return xhr.responseText;
         };

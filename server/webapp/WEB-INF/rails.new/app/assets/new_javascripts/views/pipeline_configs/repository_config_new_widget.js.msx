@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/repositories', 'views/pipeline_configs/errors_widget', 'models/pipeline_configs/plugin_infos'],
-  function (m, _, f, Repositories, ErrorsWidget, PluginInfos) {
+define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/repositories', 'views/pipeline_configs/errors_widget', 'models/pipeline_configs/plugin_infos', 'views/pipeline_configs/repository_configuration_widget'],
+  function (m, _, f, Repositories, ErrorsWidget, PluginInfos, RepositoryConfigurationWidget) {
     //This has to be done to get around mithril's controller caching
 
 
@@ -25,29 +25,7 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
      be retained. To achieve this behaviour the widget works with a clonened copy of scm.
      */
 
-    var RepositoryConfigurationWidget = {
-      view: function (ctrl, args) {
-        var inputType = 'text';
-        var configuration = args.configuration;
-        if (configuration.key().toLowerCase() === 'password') {
-          inputType = 'password';
-        }
-        configuration.becomeUnSecureValue();
-        return (
-          <f.row>
-            <f.inputWithLabel attrName='value'
-                              class='align'
-                              size={12}
-                              label={configuration.key()}
-                              largeSize={12}
-                              isRequired={true}
-                              type={inputType}
-                              model={configuration}/>
 
-          </f.row>
-        )
-      }
-    };
 
     var RepositoryConfigNewWidget = {
 
@@ -118,6 +96,9 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
           vm:           new Repositories.vm(),
           selectPlugin: function (id) {
             this.repoForEdit    = repositoryConfigurations(id);
+          },
+          checkRepositoryConnection: function () {
+          //TODO : Have an API for checking the repository connection and make the request from here.
           }
         };
 
@@ -147,13 +128,6 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
                                   isRequired={true}
                                   model={ctrl.repoForEdit()}/>
               </f.row>
-              <f.row>
-                <f.checkBox model={ctrl.repoForEdit()}
-                            attrName='autoUpdate'
-                            class='align'
-                            size={6}
-                            end={true}/>
-              </f.row>
 
               <f.row class='repo-selector'>
                 <f.select
@@ -169,6 +143,10 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
               {ctrl.repoForEdit().configuration().mapConfigurations(function(configuration) {
                 return (<RepositoryConfigurationWidget configuration={configuration} />);
               }, this)}
+
+              <f.row>
+                <f.button onclick={ctrl.checkRepositoryConnection}>Check Repository Connection</f.button>
+              </f.row>
 
               <f.row>
                 <f.button onclick={ctrl.create.bind(ctrl)}

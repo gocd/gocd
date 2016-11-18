@@ -48,7 +48,7 @@ define([
       };
 
       var repository  = ctrl.material.repository();
-      var data = {Name: repository.name(), AutoUpdate: repository.autoUpdate(), Plugin: PluginInfos.findById(repository.pluginMetadata().id()).name()};
+      var data = {Name: repository.name(), Plugin: PluginInfos.findById(repository.pluginMetadata().id()).name()};
 
       repository.configuration().mapConfigurations(function (conf) {
         data[_.capitalize(conf.key())] = conf.isSecureValue() ? "***********" : conf.value();
@@ -111,17 +111,13 @@ define([
           <f.row class='repo-selector'>
             <f.select
               value={ctrl.selected}
-              label='Select an existing repository'
               items={items}
-              size={4}
+              size={6}
               largeSize={2}
             />
             <f.column size={6} largeSize={6} end>
               <a class='add-button button' href="javascript:void(0)"
-                 onclick={ctrl.selectRepository.bind(ctrl, ctrl.selected())}>Add</a>
-              <label class='or'>Or</label>
-              <a class='add-button button' href="javascript:void(0)"
-                 onclick={ctrl.modal.open.bind(ctrl.modal)}>Create New</a>
+                 onclick={ctrl.modal.open.bind(ctrl.modal)}>Create New Repository</a>
             </f.column>
             {ctrl.modal.view()}
           </f.row>

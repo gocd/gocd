@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'helpers/form_helper', 'views/pipeline_configs/repository_config_angular_widget', 'models/pipeline_configs/repositories', 'views/pipeline_configs/errors_widget'],
-  function (m, _, f, RepositoryConfigAngularWidget, Repositories, ErrorsWidget) {
+define(['mithril', 'lodash', 'helpers/form_helper', 'views/pipeline_configs/repository_config_angular_widget', 'models/pipeline_configs/repositories', 'views/pipeline_configs/errors_widget', 'views/pipeline_configs/repository_configuration_widget'],
+  function (m, _, f, RepositoryConfigAngularWidget, Repositories, ErrorsWidget, RepositoryConfigurationWidget) {
     //This has to be done to get around mithril's controller caching
     var submodule = function (module, args) {
       return module.view.bind(module, new module.controller(args));
@@ -29,16 +29,16 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'views/pipeline_configs/repo
 
     var RepositoryConfigEditWidget = {
       controller: function (args) {
-        var self           = this;
-        self.parentView    = args.parentView;
-        self.material      = args.material;
-        self.repoForEdit   = args.material.repository().clone();
-        self.angularModule = submodule(RepositoryConfigAngularWidget, {
-          repository: self.repoForEdit,
-          parentView: self.parentView
+        var self         = this;
+        self.parentView  = args.parentView;
+        self.material    = args.material;
+        self.repoForEdit = args.material.repository().clone();
 
-        });
-        self.vm            = new Repositories.vm();
+        self.vm = new Repositories.vm();
+
+        self.checkRepositoryConnection = function () {
+          //TODO : Have an API for checking the repository connection and make the request from here.
+        };
 
         self.update = function () {
           self.vm.startUpdating();
@@ -67,17 +67,30 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'views/pipeline_configs/repo
         return (
           <div class='modal-content'>
             <div class='modal-body'>
-              <div class='key-value' size={6}>
-                <label>Name</label><span>{ctrl.repoForEdit.name()}</span>
-              </div>
               <f.row>
-                <f.checkBox model={ctrl.repoForEdit}
-                            attrName='autoUpdate'
-                            class='align'
-                            size={6}
-                            end={true}/>
+                <f.inputWithLabel attrName='name'
+                                  class='align'
+                                  size={12}
+                                  label="Name"
+                                  largeSize={12}
+                                  validate={true}
+                                  isRequired={true}
+                                  model={ctrl.repoForEdit}/>
               </f.row>
-              {ctrl.angularModule()}
+
+              <f.row class='key-value' size={6}>
+                <label>Type of plugin</label>
+                <span>{ctrl.repoForEdit.pluginMetadata().id()}</span>
+              </f.row>
+
+              {ctrl.repoForEdit.configuration().mapConfigurations(function(configuration) {
+                return (<RepositoryConfigurationWidget configuration={configuration} />);
+              }, this)}
+
+              <f.row>
+                <f.button onclick={ctrl.checkRepositoryConnection}>Check Repository Connection</f.button>
+              </f.row>
+
               <f.row>
                 <f.button onclick={ctrl.update.bind(ctrl)}
                           class={'save-pipeline ' + ctrl.vm.saveState()}>

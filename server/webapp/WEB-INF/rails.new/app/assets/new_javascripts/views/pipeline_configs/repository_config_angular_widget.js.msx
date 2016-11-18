@@ -33,7 +33,6 @@ define(['mithril', 'lodash', 'jquery', 'helpers/form_helper', 'string-plus', 'he
         };
 
         PluginInfos.PluginInfo.byId('deb').then(function (plugin) {
-          debugger;
           self.templateHTML  = template(plugin.viewTemplate());
           self.defaultConfig = plugin.configurations();
 

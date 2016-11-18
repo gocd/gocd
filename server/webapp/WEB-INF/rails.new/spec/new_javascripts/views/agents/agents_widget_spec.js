@@ -21,13 +21,13 @@ define(["jquery", "mithril", 'lodash', 'models/agents/agents', "views/agents/age
     var agentsVM;
     var agents;
 
-    var route = function () {
+    var route = function (isUserAdmin) {
       m.route.mode = "hash";
 
       m.route(root, '',
         {
-          '':                  m.component(AgentsWidget, {vm: agentsVM, allAgents: agents}),
-          '/:sortBy/:orderBy': m.component(AgentsWidget, {vm: agentsVM, allAgents: agents})
+          '':                  m.component(AgentsWidget, {vm: agentsVM, allAgents: agents, isUserAdmin: isUserAdmin}),
+          '/:sortBy/:orderBy': m.component(AgentsWidget, {vm: agentsVM, allAgents: agents, isUserAdmin: isUserAdmin})
         }
       );
       m.route('');
@@ -58,7 +58,7 @@ define(["jquery", "mithril", 'lodash', 'models/agents/agents', "views/agents/age
         "responseText": JSON.stringify(['Dev', 'Build', 'Testing', 'Deploy']),
         "status":       200
       });
-      route();
+      route(true);
     });
 
     afterEach(function () {
@@ -144,6 +144,13 @@ define(["jquery", "mithril", 'lodash', 'models/agents/agents', "views/agents/age
       $(resourceButton).parent().click();
 
       expect($(resourceButton).parent().attr('class')).toContain('is-open');
+    });
+
+    it('should not allow operations when user is non-admin', function() {
+      route(false);
+      clickAllAgents();
+      var sampleButton = $root.find("button:contains('Resources')");
+      expect(sampleButton).toBeDisabled();
     });
 
     it('should show message after disabling the agents', function () {

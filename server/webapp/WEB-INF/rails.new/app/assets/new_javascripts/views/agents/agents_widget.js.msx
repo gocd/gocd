@@ -41,6 +41,10 @@ define([
 
       var isUpdateInProgress = m.prop(false);
 
+      var isUserAdmin = function () {
+       return args.isUserAdmin
+      };
+
       var ctrl = {
         message: m.prop(),
 
@@ -200,8 +204,8 @@ define([
           m.route('/' + sortBy + '/' + orderBy);
         },
 
-        isAnyAgentSelected: function () {
-          return args.vm.agents.isAnyAgentSelected();
+        areOperationsAllowed: function () {
+          return args.vm.agents.isAnyAgentSelected() && isUserAdmin();
         }
       };
 
@@ -234,7 +238,7 @@ define([
       return (
         <div onclick={ctrl.hideDropDownsAndMessage.bind(ctrl)}>
           <div class="header-panel">
-            <ButtonRowWidget isAnyAgentSelected={ ctrl.isAnyAgentSelected.bind(ctrl) }
+            <ButtonRowWidget areOperationsAllowed={ ctrl.areOperationsAllowed.bind(ctrl) }
                              dropdown={args.vm.dropdown}
                              selectedAgents={ ctrl.selectedAgents.bind(ctrl) }
                              onDisable={ ctrl.disableAgents.bind(ctrl) }
@@ -269,7 +273,9 @@ define([
                   <AgentTableHeader
                     onCheckboxClick={ctrl.selectAllAgents.bind(ctrl)}
                     checkboxValue={ctrl.areAllAgentsSelected.bind(ctrl)}
-                    sortBy={ctrl.sortBy}/>
+                    sortBy={ctrl.sortBy}
+                    isUserAdmin={args.isUserAdmin} />
+
                 </table>
               </div>
             </f.row>
@@ -289,6 +295,7 @@ define([
                                       checkBoxModel={checkboxModel}
                                       show={agent.matches(filterText)}
                                       dropdown={args.vm.dropdown}
+                                      isUserAdmin={args.isUserAdmin}
 
                       />
                     );

@@ -63,14 +63,19 @@ define(['mithril', 'lodash', 'string-plus'], function (m, _, s) {
     },
 
     view: function (ctrl, args) {
+      var selectAllAgentsCheckbox;
+      if (args.isUserAdmin) {
+        selectAllAgentsCheckbox = (
+          <input type="checkbox"
+                 checked={args.checkboxValue()}
+                 onclick={m.withAttr('checked', args.onCheckboxClick)}/>
+        )
+      }
       return (
         <thead>
         <tr>
           <th>
-            <input type="checkbox"
-                   checked={args.checkboxValue()}
-                   onclick={m.withAttr('checked', args.onCheckboxClick)}
-            />
+            {selectAllAgentsCheckbox}
           </th>
           <th>
             <SortHeaderWidget attrName='hostname' attrLabel='Agent Name' sortBy={args.sortBy}

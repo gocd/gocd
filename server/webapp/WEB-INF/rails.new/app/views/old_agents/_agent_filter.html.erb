@@ -1,5 +1,5 @@
 <div class="filter_agents">
-    <%= form_tag(agents_path, :id => 'agents_filter_form', :method => :get) -%>
+    <%= form_tag(old_agents_path, :id => 'agents_filter_form', :method => :get) -%>
         <div id="filter_help" class="enhanced_dropdown hidden">
             <div class="filter_help_instructions">
                 <p class='heading'>Available tags</p>
@@ -26,7 +26,7 @@
 
         <%= text_field_tag :filter, params[:filter], :placeholder => "tag: value", :id => "filter_text" -%>
         <button type="submit" class="submit primary"><%= l.string("FILTER") -%></button>
-        <%= link_to l.string("CLEAR"), agents_path(:filter => '', :column => params[:column], :order => params[:order]), :id => "clear_filter", :class => "link_as_button" -%>
+        <%= link_to l.string("CLEAR"), old_agents_path(:filter => '', :column => params[:column], :order => params[:order]), :id => "clear_filter", :class => "link_as_button" -%>
     <%= end_form_tag %>
 </div>
 

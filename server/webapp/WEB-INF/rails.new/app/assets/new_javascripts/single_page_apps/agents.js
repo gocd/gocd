@@ -28,8 +28,9 @@ require([
 
   $(function () {
 
-    Resources.init();
-    Environments.init();
+    var agentsDOMElement = document.getElementById('agents');
+
+    var isUserAdmin = JSON.parse($(agentsDOMElement).attr('is-current-user-an-admin'));
 
     $(document).foundation();
 
@@ -38,10 +39,9 @@ require([
     var agents = m.prop(new Agents());
 
     var agentsViewModel = new AgentsVM();
-
-    m.route(document.getElementById('agents'), '', {
-      '':                  m.component(AgentsWidget, {vm: agentsViewModel, allAgents: agents}),
-      '/:sortBy/:orderBy': m.component(AgentsWidget, {vm: agentsViewModel, allAgents: agents})
+    m.route(agentsDOMElement, '', {
+      '':                  m.component(AgentsWidget, {vm: agentsViewModel, allAgents: agents, isUserAdmin: isUserAdmin}),
+      '/:sortBy/:orderBy': m.component(AgentsWidget, {vm: agentsViewModel, allAgents: agents, isUserAdmin: isUserAdmin})
     });
   });
 });

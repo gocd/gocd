@@ -40,8 +40,8 @@ define(["jquery", "mithril", "lodash", 'models/agents/agents', "views/agents/but
       agents        = m.prop();
       var allAgents = Agents.fromJSON(json());
       agents(allAgents);
-      var isAnyAgentSelected = m.prop(false);
-      mount(isAnyAgentSelected);
+      var areOperationsAllowed = m.prop(false);
+      mount(areOperationsAllowed);
     });
 
     afterAll(function () {
@@ -83,8 +83,8 @@ define(["jquery", "mithril", "lodash", 'models/agents/agents', "views/agents/but
       });
 
       it('should enable the buttons if at least one agent is selected', function () {
-        var isAnyAgentSelected = m.prop(true);
-        mount(isAnyAgentSelected);
+        var areOperationsAllowed = m.prop(true);
+        mount(areOperationsAllowed);
         var rowElements = $root.find('.header-panel-button-group button');
 
         expect(rowElements[0]).not.toBeDisabled();
@@ -96,11 +96,11 @@ define(["jquery", "mithril", "lodash", 'models/agents/agents', "views/agents/but
 
     });
 
-    var mount = function (isAnyAgentSelected) {
+    var mount = function (areOperationsAllowed) {
       m.mount(root,
         m.component(ButtonRowWidget,
           {
-            isAnyAgentSelected:   isAnyAgentSelected,
+            areOperationsAllowed: areOperationsAllowed,
             dropdown:             agentsVM.dropdown,
             selectedAgents:       selectedAgents,
             onDisable:            disableAgents,

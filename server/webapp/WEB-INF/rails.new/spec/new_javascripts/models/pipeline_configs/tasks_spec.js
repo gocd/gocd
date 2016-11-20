@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-define(['lodash', "models/pipeline_configs/tasks", "string-plus", 'models/pipeline_configs/plugin_infos'],
-  function (_, Tasks, s, PluginInfos) {
+define(["models/pipeline_configs/tasks", "string-plus", 'models/pipeline_configs/plugin_infos'],
+  function (Tasks, s, PluginInfos) {
     describe("Task Model", function () {
       var task;
       describe("Ant", function () {

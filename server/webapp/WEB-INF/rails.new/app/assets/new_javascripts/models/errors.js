@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus'], function (m, _, s) {
+define(['lodash', 'string-plus'], function (_, s) {
   var Errors = function (errors) {
     errors = errors || {};
 

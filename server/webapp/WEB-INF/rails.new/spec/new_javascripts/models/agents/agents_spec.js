@@ -15,10 +15,9 @@
  */
 
 define([
-  'mithril', 'lodash', 'string-plus',
-  'models/model_mixins',
+  'string-plus',
   'models/agents/agents'
-], function (m, _, s, Mixin, Agents) {
+], function (s, Agents) {
   describe('Agent Model', function () {
 
     function ajaxCall(agentData) {

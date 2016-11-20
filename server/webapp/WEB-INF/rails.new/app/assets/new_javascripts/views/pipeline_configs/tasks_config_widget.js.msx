@@ -15,11 +15,11 @@
  */
 
 define([
-  'mithril', 'lodash', 'jquery', 'angular', 'helpers/form_helper', 'helpers/dragula_config', 'models/pipeline_configs/tasks',
-  'models/pipeline_configs/pluggable_tasks', 'js-routes', 'views/pipeline_configs/lookup_command_widget', 'models/pipeline_configs/argument',
+  'mithril', 'lodash', 'jquery', 'helpers/form_helper', 'helpers/dragula_config', 'models/pipeline_configs/tasks',
+  'models/pipeline_configs/pluggable_tasks',
   'helpers/mithril_component_mixins', 'views/pipeline_configs/task_views_widget', 'models/pipeline_configs/plugin_infos'
 ],
-  function (m, _, $, angular, f, dragulaConfig, Tasks, PluggableTasks, Routes, LookupCommandWidget, Argument,
+  function (m, _, $, f, dragulaConfig, Tasks, PluggableTasks,
             ComponentMixins, TaskViews, PluginInfos) {
 
     var TaskTypeSelector = {
@@ -73,7 +73,7 @@ define([
               args.tasks().setTasks(reorderedTasks);
             };
 
-            var disableDrag = function (el, h) {
+            var disableDrag = function (_el, h) {
               return !($('.task-summary').has(h).length > 0);
             };
 

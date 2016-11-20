@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'helpers/form_helper', 'views/pipeline_configs/scm_config_angular_widget', 'models/pipeline_configs/scms', 'views/pipeline_configs/errors_widget'],
-  function (m, _, f, SCMConfigAngularWidget, SCMs, ErrorsWidget) {
+define(['mithril', 'helpers/form_helper', 'views/pipeline_configs/scm_config_angular_widget', 'models/pipeline_configs/scms', 'views/pipeline_configs/errors_widget'],
+  function (m, f, SCMConfigAngularWidget, SCMs, ErrorsWidget) {
     //This has to be done to get around mithril's controller caching
     var submodule = function (module, args) {
       return module.view.bind(this, new module.controller(args));

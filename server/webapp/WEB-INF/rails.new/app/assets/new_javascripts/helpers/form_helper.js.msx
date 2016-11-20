@@ -37,7 +37,7 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
 
   var f = {
     row: {
-      view: function (ctrl, args, children) {
+      view: function (_ctrl, args, children) {
         var collapse = deleteKeyAndReturnValue(args, 'collapse') ? 'collapse' : null;
         return (
           <div
@@ -50,7 +50,7 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
     },
 
     column: {
-      view: function (ctrl, args, children) {
+      view: function (_ctrl, args, children) {
         var end       = deleteKeyAndReturnValue(args, 'end') ? 'end' : null,
           size      = deleteKeyAndReturnValue(args, 'size', 6),
           largeSize = deleteKeyAndReturnValue(args, 'largeSize', size);
@@ -250,7 +250,7 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
     },
 
     checkBox: {
-      view: function (ctrl, args) {
+      view: function (_ctrl, args) {
         var model      = deleteKeyAndReturnValue(args, 'model'),
           attrName   = deleteKeyAndReturnValue(args, 'attrName'),
           labelText  = deleteKeyAndReturnValue(args, 'label'),
@@ -443,7 +443,7 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
         this.value = s.coerceToMprop(args.value, '');
       },
 
-      view: function (ctrl, args) {
+      view: function (_ctrl, args) {
         var items   = deleteKeyAndReturnValue(args, 'items', {}),
           label   = deleteKeyAndReturnValue(args, 'label'),
           value   = s.coerceToMprop(deleteKeyAndReturnValue(args, 'value'), ''),
@@ -527,7 +527,7 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
     },
 
     removeButton: {
-      view: function (ctrl, args, children) {
+      view: function (_ctrl, args, children) {
         return (
           <button type={deleteKeyAndReturnValue(args, 'type', 'button')} class={compactClasses(args, 'remove')}
                   title='Remove' {...args}>{children}</button>
@@ -537,7 +537,7 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
     },
 
     editButton: {
-      view: function (ctrl, args, children) {
+      view: function (_ctrl, args, children) {
         return (
           <button type={deleteKeyAndReturnValue(args, 'type', 'button')} class={compactClasses(args, 'edit')}
                   title='Edit' {...args}>{children}</button>
@@ -546,7 +546,7 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
     },
 
     resetButton: {
-      view: function (ctrl, args, children) {
+      view: function (_ctrl, args, children) {
         return (
           <button type={deleteKeyAndReturnValue(args, 'type', 'button')} class={compactClasses(args, 'reset')}
                   title='Reset' {...args}>{children}</button>
@@ -555,7 +555,7 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
     },
 
     button: {
-      view: function (ctrl, args, children) {
+      view: function (_ctrl, args, children) {
         return (
           <button type="button" class={compactClasses(args, 'button')} {...args}>{children}</button>
         );
@@ -563,13 +563,13 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
     },
 
     link: {
-      view: function (ctrl, args, children) {
+      view: function (_ctrl, args, children) {
         return (<a href="javascript:void(0)" class={compactClasses(args)} {...args}>{children}</a>);
       }
     },
 
     tooltip: {
-      view: function (ctrl, args, children) {
+      view: function (_ctrl, args, children) {
         if (!args.tooltip && _.isEmpty(children)) {
           return <noscript/>;
         }
@@ -605,32 +605,32 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
     },
 
     callout: {
-      view: function (ctrl, args, children) {
+      view: function (_ctrl, args, children) {
         var type = deleteKeyAndReturnValue(args, 'type');
         return (<div class={'callout ' + type} {...args}>{children}</div>);
       }
     },
 
     alert: {
-      view: function (ctrl, args, children) {
+      view: function (_ctrl, args, children) {
         return (<f.callout type="alert" {...args}>{children}</f.callout>);
       }
     },
 
     warning: {
-      view: function (ctrl, args, children) {
+      view: function (_ctrl, args, children) {
         return (<f.callout type="warning" {...args}>{children}</f.callout>);
       }
     },
 
     info: {
-      view: function (ctrl, args, children) {
+      view: function (_ctrl, args, children) {
         return (<f.callout type="info" {...args}>{children}</f.callout>);
       }
     },
 
     infoToolTip: {
-      view: function (ctrl, args) {
+      view: function (_ctrl, args) {
         var content   = deleteKeyAndReturnValue(args, 'content'),
           tooltipId = 'info-tooltip-' + s.uuid();
         return (

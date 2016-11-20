@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['lodash', "models/pipeline_configs/jobs", "string-plus"], function (_, Jobs, s) {
+define(["models/pipeline_configs/jobs", "string-plus"], function (Jobs, s) {
   var jobs, job;
   beforeEach(function () {
     jobs = new Jobs();

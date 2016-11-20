@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', 'helpers/form_helper',
+define(['mithril', 'lodash', 'helpers/form_helper',
   'views/agents/tri_state_checkbox_widget', 'models/agents/resources', 'models/agents/tri_state_checkbox'
-], function (m, _, s, f, TriStateCheckboxWidget, Resources, TriStateCheckbox) {
+], function (m, _, f, TriStateCheckboxWidget, Resources, TriStateCheckbox) {
 
   var NewResourceVM = {
     newResource: m.prop(''),

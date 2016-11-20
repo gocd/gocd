@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'models/model_mixins'], function (m, _, Mixin) {
+define(['mithril', 'models/model_mixins'], function (m, Mixin) {
   describe("Model Mixins", function () {
 
     describe("TogglingGetterSetter", function () {

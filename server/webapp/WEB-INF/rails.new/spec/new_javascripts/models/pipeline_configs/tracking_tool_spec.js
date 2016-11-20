@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['lodash', "models/pipeline_configs/tracking_tool", 'string-plus'], function (_, TrackingTool, s) {
+define(["models/pipeline_configs/tracking_tool", 'string-plus'], function (TrackingTool, s) {
   describe("TrackingTool Model", function () {
     var trackingTool;
     describe("Generic", function () {

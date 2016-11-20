@@ -15,10 +15,10 @@
  */
 
 define([
-  'mithril', 'lodash', 'string-plus', 'helpers/form_helper'
-], function (m, _, s, f) {
+  'mithril', 'helpers/form_helper'
+], function (m, f) {
   var RunIfConditionsWidget = {
-    view: function (ctrl, args) {
+    view: function (_ctrl, args) {
       var task = args.task;
       return (
           <div class='runif'>
@@ -52,5 +52,4 @@ define([
     }
   };
   return RunIfConditionsWidget;
-}
-);
+});

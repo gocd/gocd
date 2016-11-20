@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(["jquery", "mithril", "lodash", 'models/agents/agents', "views/agents/button_row_widget", "views/agents/models/agents_widget_view_model"], function ($, m, _, Agents, ButtonRowWidget, AgentsVM) {
+define(["jquery", "mithril", 'models/agents/agents', "views/agents/button_row_widget", "views/agents/models/agents_widget_view_model"], function ($, m, Agents, ButtonRowWidget, AgentsVM) {
   describe("Button Row Widget", function () {
 
     var agents;

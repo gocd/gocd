@@ -17,17 +17,16 @@
 
 define(['mithril', 'lodash', 'jquery', 'string-plus', 'angular'], function (m, _, $, s, angular) {
 
-  var template = function (template) {
-    return $('<div></div>').html(template.replace(/GOINPUTNAME\[([^\]]*)\]/g, function (match, name) {
-      return "GOINPUTNAME['" + name + "']";
-    })).html();
-  };
-
   var AngularPlugin = {
+    template:   function (template) {
+      return $('<div></div>').html(template.replace(/GOINPUTNAME\[([^\]]*)\]/g, function (_match, name) {
+        return "GOINPUTNAME['" + name + "']";
+      })).html();
+    },
     controller: function (args) {
       this.pluginTemplate = function () {
         if (args.pluginInfo()) {
-          return m.trust(template(args.pluginInfo().viewTemplate()));
+          return m.trust(AngularPlugin.template(args.pluginInfo().viewTemplate()));
         }
       };
 

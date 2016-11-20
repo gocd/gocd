@@ -1,11 +1,17 @@
 {
-  "extends": ["eslint:recommended", "plugin:react/recommended"],
+  "extends": [
+    "eslint:recommended",
+    "plugin:react/recommended"
+  ],
   "env": {
     "browser": true,
     "amd": true,
     "es6": true
   },
-  "plugins": ["react", "requirejs"],
+  "plugins": [
+    "react",
+    "requirejs"
+  ],
   "settings": {
     "react": {
       "createClass": "createClass",
@@ -53,6 +59,14 @@
     "semi": [
       "error",
       "always"
+    ],
+    "no-unused-vars": [
+      "error",
+      {
+        "args": "all",
+        "vars": "all",
+        "argsIgnorePattern": "^_."
+      }
     ],
     "react/display-name": [
       "off"

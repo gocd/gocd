@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-
-define(['mithril', 'lodash', 'jquery', 'models/pipeline_configs/tasks', 'models/pipeline_configs/plugin_infos'],
-  function (m, _, $, Tasks, PluginInfos) {
+define(['lodash', 'models/pipeline_configs/tasks', 'models/pipeline_configs/plugin_infos'],
+  function (_, Tasks, PluginInfos) {
     var PluggableTasks = {};
 
     PluggableTasks.init = function () {

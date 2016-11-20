@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash',
+define(['mithril',
   'helpers/form_helper',
   'views/agents/resources_list_widget',
   'views/agents/environments_list_widget',
   'models/agents/resources', 'models/agents/environments'
-], function (m, _, f,
+], function (m, f,
              ResourcesListWidget,
              EnvironmentsListWidget,
              Resources, Environments) {

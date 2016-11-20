@@ -15,15 +15,15 @@
  */
 
 define([
-  'mithril', 'lodash', 'string-plus', 'jquery',
+  'mithril', 'string-plus', 'jquery',
   'helpers/form_helper', 'helpers/pipeline_configs/tooltips', 'helpers/mithril_component_mixins',
   'models/pipeline_configs/users', 'models/pipeline_configs/roles',
-  'views/pipeline_configs/materials_config_widget', 'views/pipeline_configs/environment_variables_config_widget', 'views/pipeline_configs/jobs_config_widget',
+  'views/pipeline_configs/environment_variables_config_widget', 'views/pipeline_configs/jobs_config_widget',
   'jquery.textcomplete'
-], function (m, _, s, $,
+], function (m, s, $,
              f, tt, ComponentMixins,
              Users, Roles,
-             MaterialsConfigWidget, EnvironmentVariablesConfigWidget, JobsConfigWidget) {
+             EnvironmentVariablesConfigWidget, JobsConfigWidget) {
 
   var autoComplete = function (values, model, attrName) {
     return function (elem, isInitialized) {

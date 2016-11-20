@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', 'models/model_mixins'], function (m, _, s, Mixins) {
+define(['mithril', 'string-plus', 'models/model_mixins'], function (m, s, Mixins) {
 
   var Approval = function (data) {
     this.constructor.modelType = 'approval';

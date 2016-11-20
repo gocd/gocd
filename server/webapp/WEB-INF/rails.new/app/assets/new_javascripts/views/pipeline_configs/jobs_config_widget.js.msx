@@ -55,7 +55,7 @@ define([
   };
 
   var JobTimeout = {
-    view: function (ctrl, args) {
+    view: function (_ctrl, args) {
       var job       = args.job;
       var radioName = 'radio-' + job.uuid() + '-timeout';
       var errors    = job.validate(), timeoutError;
@@ -123,7 +123,7 @@ define([
 
 
   var RunOnAgent = {
-    view: function (ctrl, args) {
+    view: function (_ctrl, args) {
       var job       = args.job;
       window.job    = job;
       var radioName = 'radio-' + job.uuid() + '-runInstanceCount';

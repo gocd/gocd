@@ -16,12 +16,10 @@
 
 require([
   'jquery', 'mithril',
-  'js-routes',
   'views/elastic_profiles/elastic_profiles_widget',
   'models/pipeline_configs/plugin_infos',
   'foundation.util.mediaQuery', 'foundation.dropdownMenu', 'foundation.responsiveToggle', 'foundation.dropdown'
-], function ($, m, JsRoutes,
-             ElasticProfilesWidget, PluginInfos) {
+], function ($, m, ElasticProfilesWidget, PluginInfos) {
 
   $(function () {
     $(document).foundation();

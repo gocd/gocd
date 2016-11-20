@@ -15,9 +15,9 @@
  */
 
 define([
-  'mithril', 'lodash', 'string-plus', 'helpers/form_helper', 'helpers/pipeline_configs/tooltips',
+  'mithril', 'lodash', 'helpers/form_helper', 'helpers/pipeline_configs/tooltips',
   'models/pipeline_configs/tasks', 'models/pipeline_configs/pluggable_tasks', 'views/pipeline_configs/task_basic_views_widget', 'models/pipeline_configs/plugin_infos'
-], function (m, _, s, f, tt, Tasks, PluggableTasks, TaskBasicViews, PluginInfos) {
+], function (m, _, f, tt, Tasks, PluggableTasks, TaskBasicViews, PluginInfos) {
   var CancelTaskWidget = {
     controller: function (args) {
       var self = this;

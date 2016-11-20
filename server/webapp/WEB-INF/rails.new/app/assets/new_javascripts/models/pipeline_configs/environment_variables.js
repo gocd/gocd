@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipeline_configs/encrypted_value', 'models/validatable_mixin'],
-  function (m, _, s, Mixins, EncryptedValue, Validatable) {
+define(['mithril', 'string-plus', 'models/model_mixins', 'models/pipeline_configs/encrypted_value', 'models/validatable_mixin'],
+  function (m, s, Mixins, EncryptedValue, Validatable) {
 
     var EnvironmentVariables = function (data) {
       Mixins.HasMany.call(this, {
@@ -85,7 +85,11 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
         return s.isBlank(this.name()) && s.isBlank(this.value());
       };
 
-      this.validatePresenceOf('name', {condition: function(property) {return (!s.isBlank(property.value()));}});
+      this.validatePresenceOf('name', {
+        condition: function (property) {
+          return (!s.isBlank(property.value()));
+        }
+      });
       this.validateUniquenessOf('name');
     };
 

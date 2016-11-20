@@ -15,12 +15,12 @@
  */
 
 define([
-  'mithril', 'lodash', 'string-plus', 'helpers/form_helper', 'helpers/mithril_component_mixins', 'helpers/pipeline_configs/tooltips'
-], function (m, _, s, f, ComponentMixins, tt) {
+  'mithril', 'lodash', 'helpers/form_helper', 'helpers/mithril_component_mixins', 'helpers/pipeline_configs/tooltips'
+], function (m, _, f, ComponentMixins, tt) {
 
   var EnvironmentVariableWidget = {
     base: {
-      view: function (ctrl, args, children) {
+      view: function (_ctrl, args, children) {
         var variable = args.variable;
 
         return (
@@ -48,7 +48,7 @@ define([
     },
 
     plain: {
-      view: function (ctrl, args) {
+      view: function (_ctrl, args) {
         return (
           <EnvironmentVariableWidget.base {...args}>
             <f.input model={args.variable}
@@ -64,7 +64,7 @@ define([
     },
 
     secure: {
-      view: function (ctrl, args) {
+      view: function (_ctrl, args) {
         var variable = args.variable,
           content,
           removeChildPreContent;

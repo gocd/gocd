@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus'], function (m, _, s) {
+define(['mithril', 'string-plus'], function (m, s) {
 
   var SortHeaderWidget = {
     view: function (ctrl, args) {

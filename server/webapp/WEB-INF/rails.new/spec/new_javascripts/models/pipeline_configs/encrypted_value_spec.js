@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['lodash', 'string-plus', 'models/pipeline_configs/encrypted_value'], function (_, s, EncryptedValue) {
+define(['models/pipeline_configs/encrypted_value'], function (EncryptedValue) {
   describe("EncryptedValue", function () {
     it("should be able to initialize itself from a clear text value", function () {
       var encryptedValue = new EncryptedValue({clearText: 'password'});

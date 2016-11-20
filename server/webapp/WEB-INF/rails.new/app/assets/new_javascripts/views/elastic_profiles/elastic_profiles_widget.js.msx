@@ -15,13 +15,13 @@
  */
 
 define([
-  'mithril', 'lodash', 'string-plus', 'jquery', 'angular', 'helpers/form_helper', 'views/shared/new_modal', 'helpers/mithril_component_mixins',
+  'mithril', 'lodash', 'string-plus', 'helpers/form_helper', 'views/shared/new_modal', 'helpers/mithril_component_mixins',
   'models/elastic_profiles/elastic_profiles',
   'models/pipeline_configs/plugin_infos',
   'views/elastic_profiles/elastic_profile_widget',
   'views/elastic_profiles/elastic_profile_modal_body',
   'jquery.textcomplete'
-], function (m, _, s, $, angular, f, Modal, ComponentMixins, ElasticProfiles, PluginInfos, ElasticProfileWidget, ElasticProfileModalBody) {
+], function (m, _, s, f, Modal, ComponentMixins, ElasticProfiles, PluginInfos, ElasticProfileWidget, ElasticProfileModalBody) {
 
   function showErrors(modal, ctrl, newProfile) {
     return function (errorMessageOrProfileWithErrors) {

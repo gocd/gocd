@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['lodash', "models/pipeline_configs/stages", 'models/pipeline_configs/approval', "string-plus"], function (_, Stages, Approval, s) {
+define(["models/pipeline_configs/stages", 'models/pipeline_configs/approval', "string-plus"], function (Stages, Approval, s) {
   describe("Stages Model", function () {
     var stages, stage;
     beforeEach(function () {

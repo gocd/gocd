@@ -15,8 +15,8 @@
  */
 
 define([
-  'mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/validatable_mixin'
-], function (m, _, s, Mixins, Validatable) {
+  'mithril', 'string-plus', 'models/model_mixins', 'models/validatable_mixin'
+], function (m, s, Mixins, Validatable) {
 
   var PluginConfigurations = function (data) {
     Mixins.HasMany.call(this, {

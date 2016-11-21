@@ -274,7 +274,7 @@ define([
               </div>
             </f.row>
           </div>
-          <f.row class="agents-table-body" style={!s.isBlank(message) ? "margin-top: 284px;" : ''}>
+          <f.row class="agents-table-body" style={!s.isBlank(message) ? "margin-top: 234px;" : ''}>
             <div class="container">
               <table class="go-table agents-table">
                 <tbody>

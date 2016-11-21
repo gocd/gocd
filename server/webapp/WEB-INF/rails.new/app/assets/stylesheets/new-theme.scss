@@ -28,7 +28,7 @@ body {
   -webkit-font-smoothing:  antialiased;
   -moz-osx-font-smoothing: grayscale;
   background:              $body-background;
-  padding-top:             $main-nav-height;
+  //padding-top:             $main-nav-height;
 }
 
 a, a:hover, a:visited {
@@ -114,15 +114,15 @@ h4 {
           }
         }
       }
-      span{
-        color: #666;
+      span {
+        color:       #666;
         line-height: 40px;
-        font-size: 0.75rem;
+        font-size:   0.75rem;
         font-weight: 700;
       }
       &.current {
         a.dropdown-arrow-icon {
-          background-color: $current-page-sel-bg;
+          background-color: transparent;
           box-shadow:       none;
           border-radius:    0;
           color:            $current-page-sel-txt;
@@ -131,16 +131,28 @@ h4 {
           border-right:     1px solid rgba(0, 0, 0, 0.08);
 
           &:hover {
-            background-color: $current-page-sel-bg !important;
+            background-color: $main-nav-link-bg-hover !important;
             box-shadow:       none;
             border-radius:    0;
 
           }
         }
         > a {
-          background: $current-link;
+          background: transparent;
+          position:   relative;
+          &:after {
+            content:    "";
+            position:   absolute;
+            width:      100%;
+            height:     4px;
+            background: $current-page-sel-border;
+            top:        auto;
+            bottom:     0;
+            left:       0;
+            border:     0;
+          }
           &:hover {
-            background: $current-link !important;
+            background: $main-nav-link-bg-hover !important;
           }
         }
       }
@@ -156,6 +168,9 @@ h4 {
           }
           &:hover {
             background: $go-white !important;
+          }
+          &:after {
+            background: $go-white;
           }
         }
       }
@@ -309,7 +324,8 @@ h4 {
     font-weight: 700 !important;
     border:      0;
     &:hover {
-      color: $go-white;
+      color:  $go-white;
+      border: 0;
 
     }
   }
@@ -350,8 +366,7 @@ h4 {
 
 #pipelines {
   h2.entity_title {
-    font-weight:    600;
-    text-transform: uppercase;
+    font-weight: 600;
   }
 }
 
@@ -365,8 +380,8 @@ h4 {
 .page_header {
   background:      $page-header-bg;
   background-size: cover;
-  position:        static;
-  //margin-top:      $main-nav-height;
+  position:        relative;
+  top:             0;
   box-shadow:      0 0 0 #000;
   border:          0;
   height:          auto !important;
@@ -402,7 +417,7 @@ h1.entity_title {
         margin-left:      10px;
         margin-right:     10px;
         width:            auto;
-        background-color: #94399e !important;
+        background-color: $go-primary !important;
       }
     }
     .search-with-clear {
@@ -450,6 +465,7 @@ h1.entity_title {
     span {
       line-height:    20px;
       text-transform: none;
+      font-weight:normal;
     }
   }
 }
@@ -471,6 +487,11 @@ h1.entity_title {
     background: $pipeline-header-bg;
     border:     0;
 
+  }
+  .list_table {
+    th, td {
+      font-size: 10.5px !important;
+    }
   }
 }
 
@@ -629,7 +650,7 @@ ul.entity_title li {
   line-height:   normal;
   &:after {
     content:    "";
-    background: image-url('icon_breadcrumb_arrow.svg') no-repeat scroll 0 0 transparent;
+    background: image_url("g9/backgrounds/icon_breadcrumb_arrow.png") no-repeat scroll 0 0 transparent;
     display:    inline-block;
     margin:     0 6px;
     width:      10px;
@@ -662,6 +683,7 @@ ul.entity_title li {
         background:    #fff;
         padding:       10px 30px;
         border-radius: 3px 3px 0 0;
+        box-sizing:    border-box;
       }
     }
   }
@@ -750,7 +772,7 @@ input.pipeline-comment-button {
     overflow:   hidden;
     padding:    5px 20px 0;
     background: $tab-header-bg;
-
+    border-radius: $global-border-radius $global-border-radius 0 0;
     li {
 
       position: relative;
@@ -821,7 +843,7 @@ div#tab_container {
     border-bottom:    1px solid #ddd;
     white-space:      nowrap;
     font-size:        rem-calc(13px) !important;
-    padding:          10px !important;
+    padding:          5px 10px !important;
     background-image: none !important;
   }
   tbody {
@@ -890,37 +912,26 @@ ul#pipeline_config_tree {
 
 #pipeline_edit_form .form_buttons .submit, #stage_edit_form .form_buttons .submit, #job_edit_form .form_buttons .submit, #template_edit_form .form_buttons .submit, #group_edit_form .form_buttons .submit, #pipeline_edit_form .form_buttons .reset_button, #stage_edit_form .form_buttons .reset_button, #job_edit_form .form_buttons .reset_button, #template_edit_form .form_buttons .reset_button, #group_edit_form .form_buttons .reset_button, #stage_permissions_edit_form .form_buttons .reset_button, #pipeline_snippet_view #view_group .link_as_button, #pipeline_snippet_edit #edit_group .form_buttons .link_as_button, button.submit {
   background: #ccc;
-  color:      #333;
+  color:      #333 !important;
   font-size:  rem-calc(13px);
   border:     0;
   min-width:  inherit;
   &:hover {
     background: #666;
-    color:      #fff;
+    color:      #fff!important;
 
   }
-}
-
-#pipeline_edit_form .form_buttons .reset_button,
-#stage_edit_form .form_buttons .reset_button,
-#job_edit_form .form_buttons .reset_button,
-#template_edit_form .form_buttons .reset_button,
-#group_edit_form .form_buttons .reset_button,
-#stage_permissions_edit_form .form_buttons .reset_button {
-  //height: 35px;
 }
 
 .pipeline_header .toggle-new-view, .page_header a.agents-toggle-new-view {
   display:       inline-block;
   margin-left:   10px;
-  background:    $go-white;
+  background:    $btn-bg;
+  color:         $btn-txt;
   padding:       3px 7px;
   border-radius: $global-border-radius;
-  border:        1px solid $border-color;
-  font-weight:   normal !important;
-  font-size:     rem-calc(11px);
-  color:         $txt-color;
-  background:    $btn-bg;
+  font-weight:   600;
+  font-size:     rem-calc(12px);
   &:hover {
     background: $btn-bg-hover;
     color:      $btn-bg-hover-txt;
@@ -948,6 +959,7 @@ ul#pipeline_config_tree {
   box-shadow:          none;
   border-bottom-color: #ccc;
   border-right-color:  #ccc;
+  margin-top:-37px;
 }
 
 .filter_agents {
@@ -967,10 +979,13 @@ ul#pipeline_config_tree {
     font-size:     rem-calc(11px);
     height:        30px;
     box-shadow:    none;
+    border:        0;
+    color:         $txt-color !important;
+    font-weight: normal;
     &:hover {
       font-size:  rem-calc(11px);
-      color:      $go-white !important;
-      background: #333 !important;
+      color:      $txt-color !important;
+      background: $agent-filter-button !important;
     }
   }
 }
@@ -995,10 +1010,6 @@ ul#pipeline_config_tree {
   }
 }
 
-.vsm-entity.pipeline.current .actions {
-  width: 215px;
-}
-
 .action_icon {
   padding-top: 0px;
 }
@@ -1010,6 +1021,7 @@ ul#pipeline_config_tree {
     padding:       0 !important;
     border-radius: $global-border-radius;
     box-shadow:    none;
+    border:        0;
     &:hover {
       border-radius: $global-border-radius;
 
@@ -1135,7 +1147,7 @@ input.new_resource {
 }
 
 #admin-holder-for-admin-config-source-xml .buttons-group #edit_config {
-  margin-top:       -31px;
+  margin-top:       -21px;
   right:            98px;
   background-color: $go-primary;
   color:            $go-white !important;
@@ -1162,14 +1174,10 @@ input.new_resource {
 
 //modal
 
-.ui-dialog-titlebar, #MB_header {
-  background: $modal-header-bg;
-
-}
-
 #MB_caption {
-  color:   #000;
-  padding: 15px 20px;
+  padding:     10px 20px;
+  font-size:   16px;
+  font-weight: 600;
 }
 
 .ui-dialog, #MB_frame_content {
@@ -1205,16 +1213,6 @@ input.new_resource {
   border:      0;
 }
 
-.pipeline_header .toggle-new-view {
-  display:       inline-block;
-  margin-left:   10px;
-  background:    $btn-bg;
-  color:         #333;
-  padding:       3px 8px;
-  border-radius: 3px;
-
-}
-
 //forms
 
 input[type="text"], input[type="password"], input[type="file"], input[type="url"], textarea {
@@ -1232,7 +1230,7 @@ button.primary, a.primary_link_as_button {
   font-weight:      700;
   border:           1px solid $go-primary;
   &:hover {
-    background-color: darken($go-primary, 7%) !important;
+    background-color: darken($go-primary, 4%) !important;
     background-image: none;
   }
   &:focus, &:active {
@@ -1245,10 +1243,9 @@ button.primary, a.primary_link_as_button {
 }
 
 #pipelines .dashboard_build_cause_like_microcontent_popups .enhanced_dropdown, #stages .dashboard_build_cause_like_microcontent_popups.fbh_microcontent_popup .enhanced_dropdown {
-  background-color: #fff;
-  color:            #333;
-  border-radius:    3px;
-  box-shadow:       0 0 5px rgba(152, 152, 152, 0.5);
+
+  border-radius: 3px;
+  box-shadow:    0 0 5px rgba(152, 152, 152, 0.5);
 }
 
 #tiptip_content a, .dashboard_build_cause_like_microcontent_popups .changes table.list_table tbody td a {
@@ -1265,17 +1262,16 @@ button.primary, a.primary_link_as_button {
 }
 
 input[type='submit'], input[type='submit']:hover, button.submit, button.submit:hover, button.submit_hover, button.submit.header_submit, button.submit.header_submit:hover, button.submit_hover.header_submit, button.ui-state-default, button.ui-state-default:hover, a.link_as_button, a.link_as_button:hover, a.link_as_button_hover, a.link_as_header_button, a.link_as_header_button:hover, a.link_as_header_button_hover, button.submit.disabled, button.submit.disabled:hover, button.submit.disabled_hover, button.submit.header_submit.disabled, button.submit.header_submit.disabled:hover, button.submit.header_submit.disabled_hover, input.submit, input.submit:hover, input.submit_hover, input.submit.disabled, input.submit.disabled:hover, input.submit.disabled_hover, a.link_as_button.disabled, a.link_as_button.disabled:hover, a.link_as_button_hover.disabled a.link_as_header_button.disabled, a.link_as_header_button.disabled:hover, a.link_as_header_button_hover.disabled {
-  background:     #fff;
+  background:     $btn-bg;
   box-shadow:     none !important;
   font-size:      11px;
-  border:         1px solid #ccc;
-  color:          #333 !important;
+  color:          $btn-txt !important;
   text-transform: uppercase;
   &:hover {
     background: $btn-bg-hover;
-    color:      #fff !important;
+    color:      $btn-txt !important;
     span {
-      color: #fff !important;
+      color: $btn-txt !important;
 
     }
   }
@@ -1304,12 +1300,14 @@ button.submit.primary span {
 
 button.submit, a.link_as_button {
   span {
-    color: #333;
+    color:       $btn-txt;
+    font-weight: bold;
   }
   &:hover {
-    background: #ddd;
+    background: #666;
     span {
-      color: #333;
+      color: $btn-txt;
+
     }
   }
 }
@@ -1336,13 +1334,25 @@ a:link#link-to-this-page, a:visited#link-to-this-page {
 
 #tab-content-of-tests, #tab-content-of-failures, #tab-content-of-artifacts, #tab-content-of-materials, #tab-content-of-properties, #tab-content-of-junit-time {
   padding: 20px;
+  font-size:14px;
 }
 
 .sidebar_history #build_history_holder {
   padding: 15px 0px 0 !important;
-
+  box-shadow: none!important;
+}
+.sidebar_history .passed .color_code_small {
+  background-image: none;
+  background-color:$passed;
+}
+#buildlist-container .buildlist li.current a, #buildlist-container .buildlist li.current a:hover {
+  box-shadow: none!important;
+  background: #fff !important;
 }
 
+#buildlist-container .buildlist li a {
+  background: linear-gradient(to bottom, #f5f5f5 0%, #f5f5f5 100%)!important;
+}
 .ui-dialog-buttonpane {
   button.submit.primary {
     color: #fff !important;
@@ -1360,8 +1370,9 @@ a:link#link-to-this-page, a:visited#link-to-this-page {
 }
 
 .ui-dialog-titlebar, #MB_header {
-  background:    #eeeee9;
   border-bottom: 2px solid #ccc;
+  background:    $modal-header-bg;
+  //margin-bottom: 25px;
 }
 
 .permissions .instructions {
@@ -1545,16 +1556,23 @@ form#notification_form fieldset {
   margin-right: 0px;
   right:        0;
   min-width:    75px;
+  background:   #ccc;
+  color:        #333!important;
+
+  &:hover {
+    background: #666;
+    color:      #fff!important;
+  }
 }
 
 #admin-holder-for-admin-config-source-xml .buttons-group #save_config {
-  right:      105px;
+  right:      100px;
   background: $go-primary;
   color:      $go-white !important;
   height:     27px;
   min-width:  75px;
   &:hover {
-    color: darken($go-primary, 10%);
+    color: darken($go-primary, 4%);
   }
 }
 
@@ -1567,16 +1585,26 @@ form#notification_form fieldset {
 }
 
 button#signin2 {
-  min-width:        75px;
-  border:           0;
-  background-image: none !important;
+  min-width:        100px;
   padding:          6px 9px;
-  height:           30px;
-
+  background-color: #f6f6f6;
+  border:           0;
+  background-image: none;
+  color:            #fff !important;
+  height:           35px;
+  span {
+    font-size: 12px !important;
+    color:     #fff;
+  }
+}
+#graphic-dialog-input #user_login, #graphic-dialog-input #user_password {
+  padding: 5px 10px;
+  height:  30px;
 }
 
-button#signin2 span {
-  color: #fff;
+a:link.help, a:visited.help {
+  margin-top: 9px;
+  color:#fff;
 }
 
 #MB_content {
@@ -1646,7 +1674,7 @@ button#signin2 span {
 }
 
 #users_form .add_new_users a {
-  color: #333 !important;
+  color: #fff !important;
 }
 
 .edit_panel button.submit, .edit_panel a.link_as_button {
@@ -1660,19 +1688,30 @@ button#signin2 span {
   box-shadow:    none;
   float:         left;
   border:        0;
-  color:         #333 !important;
-  &:first-child {
-    border-radius: 3px 0 0 3px;
+  color:         $go-white !important;
+  span {
+    color:       $go-white !important;
+    font-weight: 600;
+
   }
+  .apply_resources {
+    span {
+      color: $txt-color !important;
+    }
+  }
+
+  //&:first-child {
+  //  border-radius: 3px 0 0 3px;
+  //}
   &:hover {
     background:  $agent-header-button-bg !important;
     height:      30px;
     line-height: 30px;
     box-shadow:  none;
     border:      0;
-    color:       #333 !important;
+    color:       $go-white !important;
     span {
-      color: #333 !important;
+      color: $go-white !important;
 
     }
 
@@ -1681,6 +1720,200 @@ button#signin2 span {
     outline: 0;
   }
 
-}#tab-content-of-pipeline-groups .group_pipelines .group .actions li {
-   margin-right: 30px;
- }
+}
+
+#tab-content-of-pipeline-groups .group_pipelines .group .actions li {
+  margin-right: 30px;
+}
+
+.material_options label {
+  margin-top: 2px;
+}
+
+.change_materials {
+  h3 {
+    margin-left: 15px;
+  }
+}
+
+#admin-holder-for-admin-config-source-xml .buttons-group > * {
+  margin-left: 2px;
+}
+
+#show_resources_panel, #show_environments_panel, .show_panel {
+  position:      relative;
+  padding-right: 25px !important;
+  &:after {
+    content:      "";
+    position:     absolute;
+    top:          12px;
+    width:        0;
+    height:       0;
+    border-style: solid;
+    border-width: 6px 4px 0 4px;
+    border-color: #fff transparent transparent transparent;
+    transition:   all 0.3s ease-in-out;
+    right:        10px;
+  }
+  span {
+    img {
+      display: none;
+    }
+  }
+}
+
+.show_panel {
+  position:      relative;
+  padding-right: 25px !important;
+  &:after {
+    content:      "";
+    position:     absolute;
+    top:          12px;
+    width:        0;
+    height:       0;
+    border-style: solid;
+    border-width: 6px 4px 0 4px;
+    border-color: #fff transparent transparent transparent;
+    transition:   all 0.3s ease-in-out;
+    right:        10px;
+  }
+  span {
+    img {
+      display: none;
+    }
+  }
+}
+
+.agent_edit_popup {
+  &:before {
+    content:      "";
+    position:     absolute;
+    z-index:      1;
+    top:          -1px;
+    left:         37px;
+    width:        0;
+    height:       0;
+    border-style: solid;
+    border-width: 6px 6px 0 6px;
+    border-color: $go-primary transparent transparent transparent;
+  }
+  &.environments_panel {
+    &:before {
+      left: 50px;
+    }
+  }
+
+  &.resources_panel {
+    &:before {
+      left:         24px;
+      border-width: 6px 6px 0 6px;
+    }
+  }
+
+}
+
+.admin_templates {
+  .ui-dialog-titlebar, #MB_header {
+    margin-bottom: 0;
+  }
+}
+
+#dd_users_ajax_float {
+  button.submit {
+
+  }
+}
+
+.variable label, .secure_variables label {
+  text-transform: uppercase;
+  position:       relative;
+  top:            5px;
+  font-weight:    600;
+}
+
+.variables, .secure_variables {
+  .content_wrapper_inner {
+    > span {
+      display:       block;
+      margin-bottom: 20px;
+    }
+  }
+}
+
+input.compare_pipeline_input {
+  background-color: #fff;
+  background-position: calc(100% - 9px) center;
+  padding-right: 30px;
+}
+
+.modal_timeline .form_buttons button, .modal_timeline .form_buttons a.link_as_button.primary_link_as_button {
+
+  color: #fff !important;
+}
+
+.password_file_settings, .ldap_settings {
+  border: none;
+
+}
+
+.form_buttons {
+  button.submit,
+  button[type="reset"].submit {
+    background:   #ccc !important;
+    color:        #333 !important;
+    border-color: $border-color;
+    span {
+      color: #333 !important;
+    }
+  }
+  button.submit.primary {
+    background:   $go-primary !important;
+    color:        #fff !important;
+    border-color: $go-primary;
+    span {
+      color: #fff !important;
+    }
+  }
+}
+
+.unpause_wrapper button.primary {
+  background-color: #666666 !important;
+  height: 22px;
+  border: 1px solid #666;
+  &:hover{
+    background-color: #666666 !important;
+  }
+}
+
+.pause_wrapper button.submit {
+  background-color: #f6f6f6 !important;
+  height: 22px;
+  border: 1px solid #cccccc;
+  &:hover{
+    background-color: #666666 !important;
+  }
+}
+
+
+  #stages .build_cause .modified_files div {
+    padding: 2px 5px 5px 20px;
+  }
+.show_panel.submit_small.dashboard_build_cause_button{
+  padding-right: 16px!important;
+  background-position: right 5px!important;
+}
+
+.pipeline_bundle .pipeline_operations{
+  .pause_wrapper button.submit{
+    border:0;
+  }
+}
+
+#new-pipeline-history .passed-stage {
+  background-image: none;
+  background-color: #64dd17;
+}
+
+#pipeline_navigator .selected .stage_bar_wrapper, #pipeline_status_bar .pipeline .stages .selected .stage_bar_wrapper {
+  background-repeat:repeat-x;
+}

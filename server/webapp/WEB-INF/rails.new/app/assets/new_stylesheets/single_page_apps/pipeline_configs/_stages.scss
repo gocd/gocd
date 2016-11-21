@@ -16,17 +16,17 @@
 
 $standard-margin: nth($fieldset-margin, 1);
 $pipeline-flow-box-bg: $white;
-$active-stage: #35c0e1;
+$active-stage: $go-primary;
 $shadow: 0 0 5px 0 rgba(0, 0, 0, 0.30);
 $no-shadow: 0 0 5px 0 rgba(0, 0, 0, 0);
 
 $inactive-job: $light-gray;
 $active-job: $lighter-gray;
 
-$task-header-bg :#C5E1A5;
-//$task-header-bg :#a5d6a7;
-$task-summary-bg :#F1F8E9;
-$task-summary-border :#DCEDC8;
+$task-header-bg: #b9f6ca;
+$task-summary-bg: #fff;
+$on-cancel-bg: #f5f5f5;
+$task-body-bg: #f5f5f5;
 
 .stage-boxes {
   @include clearfix;
@@ -50,8 +50,8 @@ $task-summary-border :#DCEDC8;
   position:      relative;
   float:         left;
   background:    $pipeline-flow-box-bg;
-  box-shadow:    $shadow;
-  border:        1px solid rgba(204, 204, 204, 0);
+  border:        1px solid $border-color;
+  border-radius: $global-border-radius;
   transition:    all 0.2s ease-in-out;
 
   .label {
@@ -95,12 +95,14 @@ $task-summary-border :#DCEDC8;
   }
 
   &.active {
-    background: $active-stage;
-    box-shadow: $no-shadow;
-    position:   relative;
+    background:   $active-stage;
+    box-shadow:   $no-shadow;
+    position:     relative;
+    border-color: $go-primary;
 
     .label {
-      color: $white;
+      color:       $go-white;
+      font-weight: 600;
     }
 
     .drag-handle {
@@ -119,6 +121,11 @@ $task-summary-border :#DCEDC8;
       left:         50%;
       transform:    translateX(-50%);
     }
+    &:hover {
+      .drag-handle {
+        color: $white;
+      }
+    }
   }
   & ~ .pipeline-flow-box {
     margin-left: 30px;
@@ -135,13 +142,14 @@ $task-summary-border :#DCEDC8;
     padding: 2px;
 
     .label {
-      border:      1px dashed #8a8a8a;
-      width:       100%;
-      color:       #444;
-      display:     inline-block;
+      border:        1px dashed $border-color;
+      border-radius: $global-border-radius;
+      width:         100%;
+      color:         #444;
+      display:       inline-block;
       @include icon-before($type: plus-circle);
-      height:      auto;
-      line-height: 32px;
+      height:        auto;
+      line-height:   32px;
     }
 
     &:active {
@@ -202,10 +210,10 @@ $task-summary-border :#DCEDC8;
 }
 
 .task-definition {
-  position:      relative;
-  border:        1px solid $task-summary-border;
-  margin-bottom: 10px;
-
+  position:   relative;
+  border:     1px dotted $border-color;
+  padding:    5px 0;
+  border-top: 0;
   textarea {
     min-height: 98px;
   }
@@ -213,18 +221,18 @@ $task-summary-border :#DCEDC8;
   .lookup {
     background: #f5f5f5;
     padding:    10px 20px;
-    margin:     0 15px 30px;
+    margin:     0 15px;
   }
 
   .runif {
-    padding-left:  20px;
-    margin-bottom: 20px;
+    padding-left: 20px;
   }
 
   .on-cancel {
-    padding-left: 20px;
-    background:   $task-summary-bg;
-    padding-top:  10px;
+    padding-left:  20px;
+    background:    $on-cancel-bg;
+    padding-top:   10px;
+    margin-bottom: -5px;
     .check {
       padding-top: 9px;
     }
@@ -237,14 +245,35 @@ $task-summary-border :#DCEDC8;
   }
 }
 
+.task-body {
+  background: $task-body-bg;
+}
+
 .stage-definition {
   position: relative;
 
   a.add-job {
     @include icon-before($type: plus-circle);
-    position:   relative;
-    text-align: center;
-    margin-top: 10px;
+    position:      relative;
+    text-align:    center;
+    margin-top:    10px;
+    background:    #fefefe;
+    border:        1px solid $border-color;
+    border-radius: 3px;
+    transition:    all 0.2s ease-in-out;
+    padding:       5px 15px;
+    &:after {
+      position: absolute;
+      content:  "";
+      width:    97%;
+      height:   29px;
+      border:   1px dashed $border-color;
+      left:     3px;
+      top:      3px;
+    }
+    &:hover {
+      background: none;
+    }
   }
 }
 
@@ -257,27 +286,25 @@ $task-summary-border :#DCEDC8;
 //tasks
 
 .task-header {
-  padding:       5px 15px;
-  margin-bottom: 5px;
+  padding:    2px 15px;
   background: $task-header-bg;
-  color: #333;
-  font-weight:   600;
-  font-size:     rem-calc(16px);
+  color:      #333;
+  font-size:  rem-calc(14px);
 }
 
 .task-summary {
   @include icon-before($type: ellipsis-v, $margin: 0 12px 0 0);
-  padding:     0 15px;
+  padding:     0px 15px;
   height:      30px;
   line-height: 30px;
   background:  $task-summary-bg;
   cursor:      move;
   overflow:    hidden;
-
   &:before {
     left:     14px;
-    top:      8px;
+    top:      13px;
     position: absolute;
+    color:    #999;
   }
 
   > .columns {
@@ -292,13 +319,13 @@ $task-summary-border :#DCEDC8;
     font-size:   rem-calc(13px);
     @include ellipsis();
     margin:      0;
+    pdding:      0;
     list-style:  none;
     line-height: 30px;
 
     li {
-      float:         left;
-      list-style:    none;
-      margin-bottom: 5px;
+      float:      left;
+      list-style: none;
     }
 
     span {
@@ -309,7 +336,6 @@ $task-summary-border :#DCEDC8;
       display:      inline-block;
       margin-right: 5px;
       font-size:    rem-calc(13px);
-      font-weight:  600;
       position:     relative;
       &:after {
         content:  ":";
@@ -322,7 +348,7 @@ $task-summary-border :#DCEDC8;
   .actions {
     position: absolute;
     right:    10px;
-    top:      2px;
+    top:      9px;
     .edit {
       position: relative;
       top:      -3px;
@@ -332,6 +358,10 @@ $task-summary-border :#DCEDC8;
   .remove-task {
     float: right;
   }
+}
+
+.task-selector {
+  padding-top: 15px;
 }
 
 .task-basic {

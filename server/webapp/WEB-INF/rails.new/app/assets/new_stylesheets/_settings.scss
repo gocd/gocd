@@ -1,3 +1,5 @@
+@import "../new_stylesheets/shared/go-variables";
+
 // Since it's a 3rd party file, we ignore all lint errors
 // scss-lint:disable all
 
@@ -52,7 +54,7 @@ $global-font-size: 100%;
 $global-width: rem-calc(1200);
 $global-lineheight: 1.5;
 $foundation-palette: (
-  primary: #86569A, //custom
+  primary: $go-primary, //custom
   secondary: #777,
   success: #3adb76,
   warning: #ffae00,
@@ -237,7 +239,7 @@ $breadcrumbs-item-slash: true;
 // 11. Button
 // ----------
 
-$button-padding: 0.80em 1em; //custom
+$button-padding: 0.5em 1em; //custom
 $button-margin: 0 0 $global-margin 0;
 $button-fill: solid;
 $button-background: $primary-color;

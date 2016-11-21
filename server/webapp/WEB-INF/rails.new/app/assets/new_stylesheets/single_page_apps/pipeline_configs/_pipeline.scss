@@ -33,9 +33,10 @@
   }
 
   .save-pipeline {
-    margin:     4px 0 0 0;
+    margin:     8px 0 0 0;
     position:   relative;
     transition: all 0.5s ease-in-out;
+    float: right;
 
     &.in-progress {
       padding-left: 40px;
@@ -182,14 +183,13 @@
   display:       inline-block;
   margin:        0 0 0 10px;
   position:      relative;
-  background:    $go-white;
   padding:       3px 7px;
   border-radius: $global-border-radius;
   border:        1px solid $border-color;
-  font-weight:   normal !important;
-  font-size:     rem-calc(11px);
-  color:         $txt-color;
   background:    $btn-bg;
+  font-weight:   600 !important;
+  color:         $btn-txt;
+  font-size:     rem-calc(11px);
   top:           -2px;
   &:hover, &:active, &:focus {
     background: $btn-bg-hover;

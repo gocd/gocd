@@ -16,10 +16,11 @@
 
 
 select {
-  height: rem-calc(40);
+  height: rem-calc(32);
+  padding: 0 0.5rem;
 }
 
 [type='text'], [type='password'], [type='date'], [type='datetime'], [type='datetime-local'], [type='month'], [type='week'], [type='email'], [type='number'], [type='search'], [type='tel'], [type='time'], [type='url'], [type='color'],
 textarea {
-  height: rem-calc(40);
+  height: rem-calc(32);
 }

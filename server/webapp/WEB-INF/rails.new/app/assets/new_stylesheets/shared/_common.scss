@@ -20,10 +20,6 @@ body {
   background: $body-background;
 }
 
-.main-container {
-  margin-top: 40px;
-}
-
 .container {
   overflow:   hidden;
   background: #fff;
@@ -69,6 +65,11 @@ html, body {
 .page-wrap {
   min-height:    100%;
   margin-bottom: -$app-footer-height;
+  &:before {
+    content: "";
+    display: block;
+    height: 40px;
+  }
 }
 
 .page-wrap:after {

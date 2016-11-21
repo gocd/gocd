@@ -27,20 +27,19 @@
 
 .page-header {
   .old-agents-page {
-    color:           $txt-color;
     font-size:       rem-calc(12px);
-    font-weight:     500;
     position:        relative;
     margin:          0 10px;
     text-decoration: none;
     top:             -1px;
     padding:         3px 7px;
     border-radius:   $global-border-radius;
-    border:          1px solid $border-color;
+    background:    $btn-bg;
+    color:         $btn-txt;
+    font-weight:   600;
     &:hover {
-      background: $btn-bg-hover;
-      color:      $btn-bg-hover-txt;
-      border:     0;
+      background:    $btn-bg;
+      color:         $btn-txt;
     }
   }
 }
@@ -277,7 +276,7 @@ $arrow-color: #000;
 }
 
 .agents-table-body {
-  margin-top: 218px;
+  margin-top: 169px;
 }
 
 .agents-table {
@@ -287,6 +286,7 @@ $arrow-color: #000;
       border-bottom: 3px solid #a5d6a7;
       th {
         color: $dark-grey;
+        padding:5px 10px !important
       }
     }
   }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-$go-primary: #94399e;
+$go-primary: #b66fc2;
 $go-secondary: #00bfa5;
 $go-tertiary: #ffd54f;
 $go-white: #fff;
@@ -55,12 +55,14 @@ $btn-hover: #666;
 
 // agents
 
-$agent-header-button-bg: #b9f6ca;
-$agents-btn-hover: #69f0ae;
+//$agent-header-button-bg: #b9f6ca;
+$agent-header-button-bg: $go-primary;
+$agents-btn-hover: darken($go-primary , 4%);
+//$agents-btn-hover:#69f0ae;
 
 //modal
 
-$modal-header-bg: #fff;
+$modal-header-bg: #eeeee9;
 
 //tabs
 
@@ -93,9 +95,11 @@ $dropdown-menu-hover-bg: #efefef;
 $user-dropdown-bg: $go-white;
 $user-link-bg: $go-white;
 
-//small no-bg buttons
+//small  buttons
 
-$btn-bg: #fff;
+$btn-bg: #666;
+$btn-txt: #fff;
+
 $btn-bg-hover: #666;
 $btn-bg-hover-txt: #fff;
 

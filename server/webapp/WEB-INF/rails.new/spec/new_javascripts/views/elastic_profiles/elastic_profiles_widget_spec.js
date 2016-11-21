@@ -258,14 +258,25 @@ define(["jquery", "mithril", "views/elastic_profiles/elastic_profiles_widget", '
     });
 
     describe("delete an existing profile", function () {
+      afterEach(removeModal);
+
+      it("should show confirm modal when deleting a profile", function() {
+        $('.delete-profile-confirm').click();
+        m.redraw(true);
+        expect($('.reveal:visible .modal-title')).toHaveText('Are you sure?');
+      });
+
       it("should show success message when profile is deleted", function () {
         jasmine.Ajax.stubRequest('/go/api/elastic/profiles/' + profileJSON.id, undefined, 'DELETE').andReturn({
           responseText: JSON.stringify({message: 'Success!'}),
           status:       200
         });
 
-        $('.delete-profile').click();
+        $('.delete-profile-confirm').click();
         m.redraw(true);
+        $('.reveal:visible .delete-profile').click();
+        m.redraw(true);
+
         expect($('.success')).toContainText('Success!');
       });
 
@@ -275,8 +286,11 @@ define(["jquery", "mithril", "views/elastic_profiles/elastic_profiles_widget", '
           status:       401
         });
 
-        $('.delete-profile').click();
+        $('.delete-profile-confirm').click();
         m.redraw(true);
+        $('.reveal:visible .delete-profile').click();
+        m.redraw(true);
+
         expect($('.alert')).toContainText('Boom!');
       });
     });

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(["mithril", 'helpers/form_helper', 'helpers/mithril_component_mixins'], function (m, f, ComponentMixins) {
+define(["mithril", 'helpers/form_helper', 'helpers/mithril_component_mixins', 'views/shared/new_modal'], function (m, f, ComponentMixins, Modal) {
   var ElasticProfileWidget = {
     controller: function (args) {
       ComponentMixins.HasViewModel.call(this);
@@ -30,6 +30,27 @@ define(["mithril", 'helpers/form_helper', 'helpers/mithril_component_mixins'], f
       this.showState = function () {
         return this.vmState(vmStateKey)() ? 'show' : 'hide';
       };
+
+      this.deleteConfirm = function (profile, onDelete) {
+        var modal = new Modal({
+          title:    'Are you sure?',
+          body:     (<div>Are you sure you want to delete the profile <strong>{profile.id()}</strong>?</div>),
+          oncancel: function () {
+            modal.destroy();
+          },
+          buttons:  [
+            {
+              text:    'Delete',
+              class:   'delete-profile',
+              onclick: function () {
+                onDelete();
+                modal.destroy();
+              }
+            }
+          ]
+        });
+        modal.render();
+      };
     },
 
     view: function (ctrl, args) {
@@ -42,7 +63,7 @@ define(["mithril", 'helpers/form_helper', 'helpers/mithril_component_mixins'], f
         actionIcons = (
           <div class="plugin-actions">
             <f.link class='edit-profile' onclick={args.onEdit}/>
-            <f.link class='delete-profile' onclick={args.onDelete}/>
+            <f.link class='delete-profile-confirm' onclick={ctrl.deleteConfirm.bind(ctrl, profile, args.onDelete)}/>
           </div>
         );
       } else {
@@ -50,7 +71,7 @@ define(["mithril", 'helpers/form_helper', 'helpers/mithril_component_mixins'], f
         actionIcons = (
           <div class="plugin-actions">
             <f.link class='edit-profile disabled' title="Plugin not found"/>
-            <f.link class='delete-profile disabled' title="Plugin not found"/>
+            <f.link class='delete-profile-confirm disabled' title="Plugin not found"/>
           </div>
         );
       }
@@ -69,7 +90,7 @@ define(["mithril", 'helpers/form_helper', 'helpers/mithril_component_mixins'], f
             {actionIcons}
           </div>
 
-          <div class={'plugin-config-read-only '+ ctrl.showState()}>
+          <div class={'plugin-config-read-only ' + ctrl.showState()}>
             <table class="table">
               <tbody>
               {profile.properties().mapConfigurations(function (configuration) {

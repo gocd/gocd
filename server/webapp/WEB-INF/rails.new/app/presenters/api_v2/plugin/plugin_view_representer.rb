@@ -14,19 +14,12 @@
 # limitations under the License.
 ##########################################################################
 
-module ApiV1
+module ApiV2
   module Plugin
-    class PluginConfigurationRepresenter < BaseRepresenter
-      property :key
-      property :type, skip_nil: true
-      property :metadata,
-               exec_context: :decorator,
-               expect_hash: true,
-               decorator: ApiV1::Plugin::PluginMetadataRepresenter
+    class PluginViewRepresenter < BaseRepresenter
+      alias_method :view, :represented
 
-      def metadata
-        represented.metadata.to_hash
-      end
+      property :template
     end
   end
 end

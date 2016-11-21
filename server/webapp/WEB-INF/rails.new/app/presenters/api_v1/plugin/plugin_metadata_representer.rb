@@ -12,20 +12,29 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-##########################################################################
-
+###########################################################
 module ApiV1
   module Plugin
-    class PluginConfigurationRepresenter < BaseRepresenter
-      property :key
-      property :type, skip_nil: true
-      property :metadata,
-               exec_context: :decorator,
-               expect_hash: true,
-               decorator: ApiV1::Plugin::PluginMetadataRepresenter
+    class PluginMetadataRepresenter < BaseRepresenter
+      property :secure,
+               exec_context: :decorator
 
-      def metadata
-        represented.metadata.to_hash
+      property :required,
+               exec_context: :decorator
+
+      property :part_of_identity,
+               exec_context: :decorator
+
+      def secure
+        represented['secure']
+      end
+
+      def required
+        represented['required']
+      end
+
+      def part_of_identity
+        represented['part_of_identity']
       end
     end
   end

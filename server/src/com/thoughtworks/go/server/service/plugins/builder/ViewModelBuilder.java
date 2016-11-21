@@ -24,6 +24,8 @@ interface ViewModelBuilder {
     String REQUIRED_OPTION = "required";
     String SECURE_OPTION = "secure";
     String PART_OF_IDENTITY_OPTION = "part_of_identity";
+    String DISPLAY_NAME_OPTION = "display_name";
+    String DISPLAY_ORDER_OPTION = "display_order";
 
     List<PluginInfo> allPluginInfos();
 

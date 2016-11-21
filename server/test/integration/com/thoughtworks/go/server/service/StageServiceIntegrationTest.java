@@ -44,6 +44,7 @@ import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.domain.StageIdentity;
 import com.thoughtworks.go.server.domain.StageStatusListener;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.materials.DependencyMaterialUpdateNotifier;
 import com.thoughtworks.go.server.messaging.GoMessageListener;
 import com.thoughtworks.go.server.messaging.JobResultMessage;
 import com.thoughtworks.go.server.messaging.JobResultTopic;
@@ -117,6 +118,7 @@ public class StageServiceIntegrationTest {
     @Autowired private ChangesetService changesetService;
     @Autowired private GoCache goCache;
     @Autowired private InstanceFactory instanceFactory;
+    @Autowired private DependencyMaterialUpdateNotifier notifier;
 
     private static final String PIPELINE_NAME = "mingle";
     private static final String STAGE_NAME = "dev";
@@ -151,6 +153,7 @@ public class StageServiceIntegrationTest {
         receivedState = null;
         receivedResult = null;
         receivedStageResult = null;
+        notifier.disableUpdates();
     }
 
     @After
@@ -160,6 +163,7 @@ public class StageServiceIntegrationTest {
         }
         dbHelper.onTearDown();
         configFileHelper.onTearDown();
+        notifier.enableUpdates();
     }
 
     @Test

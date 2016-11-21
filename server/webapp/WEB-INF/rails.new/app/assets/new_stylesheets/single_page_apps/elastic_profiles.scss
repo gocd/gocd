@@ -42,7 +42,7 @@
   }
 }
 
-.delete-profile {
+.delete-profile-confirm {
   @include icon-before($type: trash, $color: $dark-gray);
   &:not(.disabled) {
     &:hover {
@@ -51,6 +51,10 @@
       }
     }
   }
+}
+
+.reveal .delete-profile {
+  @include icon-before($type: trash, $color: $white, $margin: 0 5px 0 0);
 }
 
 $elastic-profile-plugin-icon-size: 50px;

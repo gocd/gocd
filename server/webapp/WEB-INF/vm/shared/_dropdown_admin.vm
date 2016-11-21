@@ -19,6 +19,9 @@
 </li>
 #parse("shared/_dropdown_template_admin.vm")
 <li role="presentation">
+    <a href="$req.getContextPath()/admin/elastic_profiles">Elastic Agent Profiles</a>
+</li>
+<li role="presentation">
     <a href="$req.getContextPath()/admin/config_xml">$l.localize("PIPELINES_SNIPPET")</a>
 </li>
 <li role="presentation">

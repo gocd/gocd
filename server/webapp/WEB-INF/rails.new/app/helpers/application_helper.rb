@@ -24,8 +24,8 @@ module ApplicationHelper
   GO_MESSAGE_KEYS = [:error, :notice, :success]
 
   def url_for_path(java_path, options = {})
-    path        = java_path.sub(/^\//, "")
-    url         = ((options[:only_path] == false) ? main_app.root_url : main_app.root_path)
+    path = java_path.sub(/^\//, "")
+    url = ((options[:only_path] == false) ? main_app.root_url : main_app.root_path)
     url, params = url.split("?")
     url = "#{url.gsub(/\/$/, "")}/#{path}"
     if params
@@ -57,10 +57,10 @@ module ApplicationHelper
 
   def path_for_stage(stage_identifier)
     stage_identifier = stage_identifier.getIdentifier() if stage_identifier.respond_to? :getIdentifier
-    stage_detail_tab_path pipeline_name:    stage_identifier.getPipelineName(),
+    stage_detail_tab_path pipeline_name: stage_identifier.getPipelineName(),
                           pipeline_counter: stage_identifier.getPipelineCounter(),
-                          stage_name:       stage_identifier.getStageName(),
-                          stage_counter:    stage_identifier.getStageCounter()
+                          stage_name: stage_identifier.getStageName(),
+                          stage_counter: stage_identifier.getStageCounter()
   end
 
   def stage_identifier_for_locator(stage_locator_string)
@@ -145,8 +145,8 @@ module ApplicationHelper
 
   def select_button name, options
     options[:class] = add_class(options[:class], 'select')
-    options[:type]  = "button"
-    image_url       = 'g9/button_select_icon.png'
+    options[:type] = "button"
+    image_url = 'g9/button_select_icon.png'
     if options[:text_color] == 'dark'
       image_url = 'g9/button_select_icon_dark.png'
     end
@@ -155,13 +155,13 @@ module ApplicationHelper
 
   def header_select_button name, options
     options[:class] = add_class(options[:class], 'header_submit')
-    options[:type]  = "button"
+    options[:type] = "button"
     content_tag(:button, button_content(name), button_options(options), false)
   end
 
   def image_button name, options
     options[:class] = add_class(options[:class], 'image')
-    options[:type]  = "submit"
+    options[:type] = "submit"
     options[:title] = name
     content_tag(:button, content_tag(:span, ' ', title: name), button_options(options), false)
   end
@@ -281,7 +281,7 @@ module ApplicationHelper
     options[:form] = true
     options[:html] ||= {}
     options[:html][:onsubmit] =
-        (options[:html][:onsubmit] ? options[:html][:onsubmit] + "; " : "")
+      (options[:html][:onsubmit] ? options[:html][:onsubmit] + "; " : "")
     form_tag(options[:html].delete(:action) || url_for(options[:url]), options[:html])
   end
 
@@ -302,7 +302,7 @@ module ApplicationHelper
   end
 
   def blocking_link_to_remote_new(options = {})
-    [:name, :url, :update, :html, :before].each {|key| raise "Expected key: #{key}. Didn't find it. Found: #{options.keys.inspect}" unless options.key?(key)}
+    [:name, :url, :update, :html, :before].each { |key| raise "Expected key: #{key}. Didn't find it. Found: #{options.keys.inspect}" unless options.key?(key) }
     merge_block_options(options)
     options[:method] = "post"
 
@@ -315,17 +315,17 @@ module ApplicationHelper
 
     update = ''
     if options[:update] && options[:update].is_a?(Hash)
-      update  = []
+      update = []
       update << "success:'#{options[:update][:success]}'" if options[:update][:success]
       update << "failure:'#{options[:update][:failure]}'" if options[:update][:failure]
-      update  = '{' + update.join(',') + '}'
+      update = '{' + update.join(',') + '}'
     elsif options[:update]
       update << "'#{options[:update]}'"
     end
 
     function = update.empty? ?
-        "new Ajax.Request(" :
-        "new Ajax.Updater(#{update}, "
+      "new Ajax.Request(" :
+      "new Ajax.Updater(#{update}, "
 
     url_options = options[:url]
     url_options = url_options.merge(escape: false) if url_options.is_a?(Hash)
@@ -333,7 +333,7 @@ module ApplicationHelper
     function << ", #{javascript_options})"
 
     function = "#{options[:before]}; #{function}" if options[:before]
-    function = "#{function}; #{options[:after]}"  if options[:after]
+    function = "#{function}; #{options[:after]}" if options[:after]
     function = "if (#{options[:condition]}) { #{function}; }" if options[:condition]
     function = "if (confirm('#{escape_javascript(options[:confirm])}')) { #{function}; }" if options[:confirm]
 
@@ -342,7 +342,7 @@ module ApplicationHelper
 
   def link_to_remote_new(name, options = {}, html_options = nil)
     raise "Expected link name. Didn't find it." unless name
-    [:method, :url].each {|key| raise "Expected key: #{key}. Didn't find it. Found: #{options.keys.inspect}" unless options.key?(key)}
+    [:method, :url].each { |key| raise "Expected key: #{key}. Didn't find it. Found: #{options.keys.inspect}" unless options.key?(key) }
 
     %Q|<a href="#" #{tag_options(html_options) unless html_options.nil?} onclick="new Ajax.Request('#{options[:url]}', {asynchronous:true, evalScripts:true, method:'#{options[:method]}', onSuccess:function(request){#{options[:success]}}}); return false;">#{name}</a>|
   end
@@ -351,10 +351,10 @@ module ApplicationHelper
     "</form>".html_safe
   end
 
-  def check_for_cancelled_contents(state, options={} )
+  def check_for_cancelled_contents(state, options={})
     # DESIGN TODO: this is used to see if an X should be placed inside an element (usually a status bar, or color_code block)
     if state.to_s == 'Cancelled'
-      contents =  "<img src='#{image_path('g9/stage_bar_cancelled_icon.png')}' alt='' />"
+      contents = "<img src='#{image_path('g9/stage_bar_cancelled_icon.png')}' alt='' />"
     else
       contents = ""
     end
@@ -421,7 +421,7 @@ module ApplicationHelper
   def render_pluggable_template(task_view_model, options = {})
     # The view is self here since this method will be called only from views.
     options.merge!(view: self)
-    options.reject{|key, val| key.is_a?(String)}.map{|key, val| options[key.to_s] = val}
+    options.reject { |key, val| key.is_a?(String) }.map { |key, val| options[key.to_s] = val }
     view_rendering_service.render(task_view_model, options)
   end
 
@@ -454,31 +454,27 @@ module ApplicationHelper
     Toggles.isToggleOn(Toggles.PIPELINE_CONFIG_SINGLE_PAGE_APP)
   end
 
-  def is_agents_spa_enabled?
-    Toggles.isToggleOn(Toggles.AGENTS_SINGLE_PAGE_APP);
-  end
-
   private
   def form_remote_tag(options = {})
     options[:form] = true
 
     options[:html] ||= {}
     options[:html][:onsubmit] =
-        ((options[:html][:onsubmit] ? options[:html][:onsubmit] + "; " : "") +
-            "#{remote_function(options)}; return false;").html_safe
+      ((options[:html][:onsubmit] ? options[:html][:onsubmit] + "; " : "") +
+        "#{remote_function(options)}; return false;").html_safe
 
     form_tag(options[:html].delete(:action) || url_for(options[:url]), options[:html])
   end
 
   # This method used to be in Rails 2.3. Was removed in Rails 3 or so. So, this is needed for compatibility.
   def remote_function options
-    update =  options[:update]
+    update = options[:update]
     url = escape_javascript(url_for(options[:url]))
     retry_section = options.key?(202) ? "on202:function(request){#{options[202]}}, " : ""
     success_section = options.key?(:success) ? "onSuccess:function(request){#{options[:success]}}, " : ""
-    complete_section = options.key?(:complete)? "onComplete:function(request){#{options[:complete]}}, "  : ""
-    failure_section = options.key?(:failure)? "onFailure:function(request){#{options[:failure]}}, "  : ""
-    before_section = options.key?(:before)? "#{options[:before]} "  : ""
+    complete_section = options.key?(:complete) ? "onComplete:function(request){#{options[:complete]}}, " : ""
+    failure_section = options.key?(:failure) ? "onFailure:function(request){#{options[:failure]}}, " : ""
+    before_section = options.key?(:before) ? "#{options[:before]} " : ""
     if update.nil? || update.empty? then
       %Q|#{options[:before]}; new Ajax.Request('#{url}', {asynchronous:true, evalScripts:true, #{retry_section}on401:function(request){#{options[401]}}, onComplete:function(request){#{options[:complete]}}, #{success_section}parameters:Form.serialize(this)})|
     else

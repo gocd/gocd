@@ -50,9 +50,7 @@ describe Admin::PipelineConfigsController do
         enable_security
         login_as_user
 
-        get :edit, :pipeline_name => 'pipeline1'
-
-        expect(response.status).to eq(401)
+        expect(controller).to disallow_action(:get, :edit, pipeline_name: 'pipeline')
       end
 
       it 'should allow admin users, with security enabled' do

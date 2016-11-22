@@ -112,7 +112,7 @@ define([
           ctrl.message({type: 'alert', message: messages});
         };
 
-        m.sync([ElasticProfiles.Profile.get(profile.id()), PluginInfos.PluginInfo.byId(profile.pluginId())]).then(showModal, showError);
+        m.sync([ElasticProfiles.Profile.get(profile.id()), PluginInfos.PluginInfo.get(profile.pluginId())]).then(showModal, showError);
       };
 
       this.add = function () {

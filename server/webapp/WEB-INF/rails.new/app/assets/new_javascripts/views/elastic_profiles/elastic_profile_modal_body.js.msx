@@ -77,7 +77,7 @@ define([
           return;
         }
 
-        PluginInfos.PluginInfo.byId(pluginInfo.id()).then(function (pluginInfo) {
+        PluginInfos.PluginInfo.get(pluginInfo.id()).then(function (pluginInfo) {
           setPluginInfo(pluginInfo);
           args.profile(new ElasticProfiles.Profile({id: args.profile().id(), pluginId: pluginInfo.id()}));
         });

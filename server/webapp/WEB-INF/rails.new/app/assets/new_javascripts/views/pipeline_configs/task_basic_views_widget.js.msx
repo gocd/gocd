@@ -269,7 +269,7 @@ define([
         self.ngControllerName = 'controller-' + self.task.uuid();
         self.appName          = 'app-' + self.task.uuid();
 
-        PluginInfos.PluginInfo.byId(this.task.pluginId()).then(function (plugin) {
+        PluginInfos.PluginInfo.get(this.task.pluginId()).then(function (plugin) {
           self.templateHTML = AngularPlugin.template(plugin.viewTemplate());
           self.defaultTaskConfig = plugin.configurations();
 

@@ -69,7 +69,7 @@ define(['mithril', 'lodash', 'string-plus', 'helpers/mrequest', 'models/shared/i
     }
   };
 
-  PluginInfos.PluginInfo.byId = function (id) {
+  PluginInfos.PluginInfo.get = function (id) {
     return m.request({
       method:      'GET',
       url:         Routes.apiv1AdminPluginInfoPath({id: id}),

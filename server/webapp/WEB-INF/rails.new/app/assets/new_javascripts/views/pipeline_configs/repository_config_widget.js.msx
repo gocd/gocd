@@ -47,8 +47,8 @@ define([
         ctrl.modal.destroy();
       };
 
-      var repository  = ctrl.material.repository();
-      var data = {Name: repository.name(), Plugin: PluginInfos.findById(repository.pluginMetadata().id()).name()};
+      var repository = ctrl.material.repository();
+      var data       = {Name: repository.name(), Plugin: PluginInfos.findById(repository.pluginMetadata().id()).name()};
 
       repository.configuration().mapConfigurations(function (conf) {
         data[_.capitalize(conf.key())] = conf.isSecureValue() ? "***********" : conf.value();
@@ -82,67 +82,82 @@ define([
 
   var NewRepositoryWidget = {
     controller: function (args) {
-      var self      = this;
-      self.material = args.material;
-      self.repositories     = Repositories;
-      self.selected = _.isEmpty(self.repositories()) ?  m.prop('default') : m.prop(_.head(self.repositories()).id());
-      self.modal    = new Modal({title:   'Add repository',
-        subView: {component: RepositoryConfigNewWidget, args:{material: self.material}}
+      var self          = this;
+      self.material     = args.material;
+      self.repositories = Repositories;
+      self.modal        = new Modal({
+        title:   'Add repository',
+        subView: {component: RepositoryConfigNewWidget, args: {material: self.material}}
       });
-
-      self.selectRepository = function(id) {
-        Repositories.findById(id).then(function(repository) {
-          self.material.repository(repository);
-        });
-      };
     },
 
-    view: function (ctrl) {
-      ctrl.onunload = function() {
+    view: function (ctrl, args) {
+      ctrl.onunload = function () {
         ctrl.modal.destroy();
       };
 
-      var items = _.transform(ctrl.repositories(), function (result, value) {
+      return (
+        <f.row class='repo-selector'>
+          <f.column class='no-repo' size={4} largeSize={6} end>
+            {_.isNil(args.material.repository()) ? <label>No repositories available.</label> : ''}
+            <a class='add-button button' href="javascript:void(0)"
+               onclick={ctrl.modal.open.bind(ctrl.modal)}>Create New Repository</a>
+          </f.column>
+          {ctrl.modal.view()}
+        </f.row>
+      );
+    }
+  };
+
+  var SelectRepositoryWidget = {
+    controller: function (args) {
+
+      Repositories.findById(_.head(Repositories()).id()).then(function (repository) {
+        args.material.repository(repository);
+      });
+
+      var ctrl = {
+        selected:         m.prop(_.head(Repositories()).id()),
+        selectRepository: function (id) {
+          Repositories.findById(id).then(function (repository) {
+            args.material.repository(repository);
+          });
+        }
+      };
+      return ctrl;
+    },
+
+    view: function (ctrl, args) {
+      var items = _.transform(Repositories(), function (result, value) {
         result[value.id()] = value.name();
       }, {});
 
-      if (!_.isEmpty(items)) {
-        return (
-          <f.row class='repo-selector'>
-            <f.select
-              value={ctrl.selected}
-              items={items}
-              size={6}
-              largeSize={2}
-            />
-            <f.column size={6} largeSize={6} end>
-              <a class='add-button button' href="javascript:void(0)"
-                 onclick={ctrl.modal.open.bind(ctrl.modal)}>Create New Repository</a>
-            </f.column>
-            {ctrl.modal.view()}
-          </f.row>
-        );
-      } else {
-        return (
-          <f.row class='repo-selector'>
-            <f.column class='no-repo' size={4} largeSize={6} end>
-              <label>No repositories available.</label>
-              <a class='add-button button' href="javascript:void(0)"
-                 onclick={ctrl.modal.open.bind(ctrl.modal)}>Create</a>
-            </f.column>
-            {ctrl.modal.view()}
-          </f.row>
-        );
-      }
+      return (
+        <f.row class='repo-selector'>
+          <f.select
+            value={ctrl.selected}
+            items={items}
+            size={6}
+            largeSize={2}
+            onchange={ctrl.selectRepository.bind(ctrl, ctrl.selected())}
+          />
+        </f.row>
+      )
     }
   };
 
   var RepositoryWidget = {
-    view: function (ctrl, args) {
-      return _.isNil(args.material.repository()) ? m.component(NewRepositoryWidget, args)
-        : m.component(EditRepositoryWidget, args);
+    view:       function (_ctrl, args) {
+      debugger;
+      //var defaultRepoId = _.isNil(args.material.repository()) ? _.head(Repositories()).id() : args.material.repository().id();
+      return (
+        <div>
+          <NewRepositoryWidget material={args.material}/>
+          {_.isEmpty(Repositories()) ? '' : <SelectRepositoryWidget material={args.material} />}
+          {_.isNil(args.material.repository()) ? '' : <EditRepositoryWidget material={args.material}/>}
+        </div>
+      );
     }
   };
-
   return RepositoryWidget;
 });

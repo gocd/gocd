@@ -86,7 +86,7 @@ define([
 
     view: function (ctrl, args) {
       var profileIdDisabledMessage;
-      if (args.newProfile) {
+      if (!args.newProfile) {
         profileIdDisabledMessage = (<div>Editing of profile ID is disabled</div>);
       }
 
@@ -112,11 +112,11 @@ define([
                               end="true"/>
           </f.row>
 
-          <f.row>
+          <div class="row collapse">
             <AngularPlugin pluginInfo={args.pluginInfo}
-                           configuration={args.profile().properties()}
+                           configuration={args.profile().properties}
                            key={args.pluginInfo() ? args.pluginInfo().id() : 'no-plugin'}/>
-          </f.row>
+          </div>
         </div>
       );
     }

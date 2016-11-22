@@ -37,13 +37,15 @@ define([
       },
 
       view: function (ctrl) {
-        var items = _.transform(_.merge({}, Tasks.Types, PluggableTasks.Types), function (result, value, key) {
-          result[key] = value.description;
-        });
+        var items = _.reduce(_.merge({}, Tasks.Types, PluggableTasks.Types), function (accumulator, value, key) {
+          accumulator.push({id: key, text: value.description});
+          return accumulator;
+        }, []);
 
         return (
         <f.row class='task-selector'>
-          <f.select value={ctrl.selected}
+          <f.select model={ctrl}
+                    attrName='selected'
                     class='inline'
                     label='Add task of type'
                     items={items}

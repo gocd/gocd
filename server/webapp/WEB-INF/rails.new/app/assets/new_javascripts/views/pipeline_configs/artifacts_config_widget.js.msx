@@ -65,12 +65,16 @@ define(['mithril', 'helpers/form_helper', 'helpers/mithril_component_mixins', 'h
                              direction: 'bottom',
                              size: 'medium'
                            }}/>
-                  <f.select value={artifact.type}
+                  <f.select model={artifact}
+                            attrName='type'
                             class='inline'
-                            items={{
-                              build: 'build',
-                              test: 'test'
-                            }}
+                            items={[
+                              {
+                                id: 'build', text: 'build'
+                              }, {
+                                id: 'test', text: 'test'
+                              }
+                            ]}
                             size={2}
                             tooltip={{
                               content: tt.artifacts.type,

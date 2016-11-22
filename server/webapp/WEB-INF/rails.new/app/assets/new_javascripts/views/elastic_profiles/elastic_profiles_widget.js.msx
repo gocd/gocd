@@ -146,6 +146,7 @@ define([
 
       this.delete = function (profile) {
         var onSuccess = function (message) {
+          ctrl.deleteVm(profile.id());
           ctrl.reloadPage();
           ctrl.message({type: 'success', message: message});
         };
@@ -214,7 +215,7 @@ define([
                     profile={profile}
                     pluginInfo={pluginInfo}
                     key={profile.id()}
-                    vm={ctrl.vmState('expanded-' + profile.id())}
+                    vm={ctrl.vmState(profile.id())}
                     onEdit={ctrl.edit.bind(ctrl, profile)}
                     onDelete={ctrl.delete.bind(ctrl, profile)}/>
                 );

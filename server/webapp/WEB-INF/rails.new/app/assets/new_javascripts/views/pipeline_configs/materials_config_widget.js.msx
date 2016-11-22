@@ -388,14 +388,16 @@ define([
     },
 
     view: function (ctrl, args) {
-      var items = _.transform(_.merge({}, Materials.Types, PluggableSCMs.Types), function (result, value, key) {
-        result[key] = value.description;
-      });
+      var items = _.reduce(_.merge({}, Materials.Types, PluggableSCMs.Types), function (accumulator, value, key) {
+        accumulator.push({id: key, text: value.description});
+        return accumulator;
+      }, []);
 
       return (
         <f.row class='material-selector'>
           <f.select
-            value={ctrl.selected}
+            model={ctrl}
+            attrName='selected'
             class='inline'
             label='Add a new material of type'
             items={items}

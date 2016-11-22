@@ -373,8 +373,8 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
             errors().add(RESOURCES, "Job cannot have both `resource` and `elasticProfileId`");
             errors().add(ELASTIC_PROFILE_ID, "Job cannot have both `resource` and `elasticProfileId`");
         }
-        if(!isBlank(elasticProfileId)) {
-            if(!validationContext.isValidProfileId(elasticProfileId)) {
+        if (!isBlank(elasticProfileId)) {
+            if (!validationContext.isWithinTemplates() && !validationContext.isValidProfileId(elasticProfileId)) {
                 errors().add(ELASTIC_PROFILE_ID, String.format("No profile defined corresponding to profile_id '%s'", elasticProfileId));
             }
         }

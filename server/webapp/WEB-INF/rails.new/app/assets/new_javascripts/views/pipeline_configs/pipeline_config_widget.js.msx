@@ -35,7 +35,7 @@ define([
     }
   };
 
-  var PipelineConfigWidget = function (url, callback) {
+  var PipelineConfigWidget = function (options) {
     return {
       controller: function () {
         var ctrl              = this;
@@ -43,8 +43,11 @@ define([
         self.pipeline         = m.prop();
         self.currentSelection = m.prop();
         self.etag             = m.prop();
-        self.url              = url;
+        self.url              = options.url;
+        self.callback         = options.callback;
+        self.elasticProfiles  = options.elasticProfiles;
         self.vm               = new Pipeline.vm();
+
         ComponentMixins.HasViewModel.call(this);
 
         self.modal    = new Modal({
@@ -77,10 +80,10 @@ define([
           return xhr.responseText;
         };
 
-        Pipeline.find(url, extractEtag).then(function (data) {
+        Pipeline.find(self.url(), extractEtag).then(function (data) {
           self.setPipelineAndPreserveSelection(Pipeline.fromJSON(data));
-          if (callback) {
-            callback(ctrl);
+          if (self.callback) {
+            self.callback(ctrl);
           }
         });
 
@@ -143,6 +146,7 @@ define([
 
           return (
             <PipelineFlowWidget pipeline={ctrl.pipeline}
+                                elasticProfiles={ctrl.elasticProfiles}
                                 currentSelection={ctrl.currentSelection}
                                 vm={ctrl.vmState('pipelineFlowConfig')}/>
           );

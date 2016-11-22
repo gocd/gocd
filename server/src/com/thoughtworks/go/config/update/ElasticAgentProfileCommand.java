@@ -22,7 +22,6 @@ import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfiles;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
-import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
@@ -32,7 +31,6 @@ import com.thoughtworks.go.server.service.ElasticProfileNotFoundException;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
-import com.thoughtworks.go.util.StringUtil;
 
 import static com.thoughtworks.go.util.StringUtil.isBlank;
 
@@ -76,9 +74,12 @@ abstract class ElasticAgentProfileCommand implements EntityConfigUpdateCommand<E
         if (!result.isSuccessful()) {
             for (ValidationError validationError : result.getErrors()) {
                 ConfigurationProperty property = preprocessedElasticProfile.getProperty(validationError.getKey());
-                if (property != null) {
-                    property.addError(validationError.getKey(), validationError.getMessage());
+                if (property == null) {
+                    elasticProfile.addNewConfiguration(validationError.getKey(), false);
+                    preprocessedElasticProfile.addNewConfiguration(validationError.getKey(), false);
+                    property = preprocessedElasticProfile.getProperty(validationError.getKey());
                 }
+                property.addError(validationError.getKey(), validationError.getMessage());
             }
         }
         if (preprocessedElasticProfile.errors().isEmpty()) {
@@ -102,6 +103,9 @@ abstract class ElasticAgentProfileCommand implements EntityConfigUpdateCommand<E
 
     protected ElasticProfile findExistingProfile(CruiseConfig cruiseConfig) {
         if (elasticProfile == null || isBlank(elasticProfile.getId())) {
+            if (elasticProfile != null) {
+                elasticProfile.addError("id", "Elastic profile cannot have a blank id.");
+            }
             result.unprocessableEntity(LocalizedMessage.string("ENTITY_ATTRIBUTE_NULL", "elastic agent profile", "id"));
             throw new IllegalArgumentException("Elastic profile id cannot be null.");
         } else {

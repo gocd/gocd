@@ -206,6 +206,7 @@ define([
           <f.row>
             <f.column size={12} end={true}>
               <JobsConfigWidget jobs={stage.jobs}
+                                elasticProfiles={args.elasticProfiles}
                                 key={stage.jobs().uuid()}
                                 vm={ctrl.vmState('jobsWidgetConfig-'+ stageIndex)}/>
             </f.column>
@@ -233,6 +234,7 @@ define([
       return (
         <div class='stage-definition-container'>
           <StageConfigDefinitionWidget stage={args.currentSelection()}
+                                       elasticProfiles={args.elasticProfiles}
                                        pipeline={args.pipeline}
                                        onRemove={ctrl.removeStage.bind(ctrl, args.pipeline, args.currentSelection())}
                                        vm={ctrl.vmState('stageDefinitionConfigs')}/>

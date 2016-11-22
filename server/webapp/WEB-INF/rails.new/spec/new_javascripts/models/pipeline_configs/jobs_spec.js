@@ -68,8 +68,18 @@ define(["models/pipeline_configs/jobs", "string-plus"], function (Jobs, s) {
       expect(job.elasticProfileId()).toEqual('docker.unit-test');
     });
 
+    it("should handle setting a null or undefined string on elasticProfileId", function() {
+      job.elasticProfileId('foo');
+      job.elasticProfileId('null');
+      expect(job.elasticProfileId()).toBeNull();
+
+      job.elasticProfileId('foo');
+      job.elasticProfileId('undefined');
+      expect(job.elasticProfileId()).toBeNull();
+    });
+
     it('should be assigned to elastic agent', function () {
-      expect(job.isAssignedToElasticAgent()).toBe(true);
+      expect(job.requiresElasticAgent()).toBe(true);
     });
 
     it('should not be assigned to elastic agent', function () {
@@ -77,7 +87,7 @@ define(["models/pipeline_configs/jobs", "string-plus"], function (Jobs, s) {
         name:                 "UnitTest",
         tasks:                ['ant', 'mvn']
       });
-      expect(job.isAssignedToElasticAgent()).toBe(false);
+      expect(job.requiresElasticAgent()).toBe(false);
     });
 
     describe("validations", function () {

@@ -19,6 +19,8 @@ define([
 ], function (m, s, Mixins, Validatable) {
 
   var PluginConfigurations = function (data) {
+    this.constructor.modelType = 'plugin-configurations';
+
     Mixins.HasMany.call(this, {
       factory:    PluginConfigurations.Configuration.create,
       as:         'Configuration',
@@ -51,6 +53,7 @@ define([
 
   PluginConfigurations.Configuration = function (data) {
     this.parent = Mixins.GetterSetter();
+    this.constructor.modelType = 'plugin-configuration';
 
     this.key   = m.prop(s.defaultToIfBlank(data.key, ''));
     this.value = m.prop(s.defaultToIfBlank(data.value, ''));

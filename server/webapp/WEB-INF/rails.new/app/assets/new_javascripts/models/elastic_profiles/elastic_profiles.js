@@ -18,12 +18,16 @@ define([
   'mithril', 'string-plus', 'models/model_mixins', 'models/shared/plugin_configurations', 'helpers/mrequest', 'js-routes', 'models/validatable_mixin'
 ], function (m, s, Mixins, PluginConfigurations, mrequest, Routes, Validatable) {
 
-  var unwrapMessageOrProfile = function (data, xhr) {
-    if (xhr.status === 422) {
-      return new ElasticProfiles.Profile.fromJSON(data.data);
-    } else {
-      return mrequest.unwrapErrorExtractMessage(data, xhr);
-    }
+  var unwrapMessageOrProfile = function (originalEtag) {
+    return function (data, xhr) {
+      if (xhr.status === 422) {
+        var fromJSON = new ElasticProfiles.Profile.fromJSON(data.data);
+        fromJSON.etag(originalEtag);
+        return fromJSON;
+      } else {
+        return mrequest.unwrapErrorExtractMessage(data, xhr);
+      }
+    };
   };
 
   var ElasticProfiles = function (data) {
@@ -53,6 +57,7 @@ define([
     this.properties = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.properties, new PluginConfigurations())));
     this.parent     = Mixins.GetterSetter();
     this.etag       = Mixins.GetterSetter();
+    Mixins.HasUUID.call(this);
 
     Validatable.call(this, data);
 
@@ -69,7 +74,7 @@ define([
           xhr.setRequestHeader('If-Match', profile.etag());
         },
         data:        JSON.parse(JSON.stringify(profile, s.snakeCaser)),
-        unwrapError: unwrapMessageOrProfile
+        unwrapError: unwrapMessageOrProfile(profile.etag())
       });
     };
 
@@ -93,7 +98,7 @@ define([
         url:         Routes.apiv1ElasticProfilesPath(),
         config:      mrequest.xhrConfig.v1,
         data:        JSON.parse(JSON.stringify(this, s.snakeCaser)),
-        unwrapError: unwrapMessageOrProfile
+        unwrapError: unwrapMessageOrProfile()
       });
     };
   };

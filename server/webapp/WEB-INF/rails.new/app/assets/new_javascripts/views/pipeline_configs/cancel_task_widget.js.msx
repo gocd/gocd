@@ -79,14 +79,16 @@ define([
 
       var taskSelector = function () {
         if (task.hasOnCancelTask()) {
-          var items = _.transform(_.merge({}, Tasks.Types, PluggableTasks.Types), function (result, value, key) {
+          var items = _.reduce(_.merge({}, Tasks.Types, PluggableTasks.Types), function (accumulator, value, key) {
             if (key !== 'fetchartifact') {
-              result[key] = value.description;
+              accumulator.push({id: key, text: value.description});
             }
-          });
+            return accumulator;
+          }, []);
 
           return (
-              <f.select value={ctrl.selected}
+              <f.select model={ctrl}
+                        attrName='selected'
                         items={items}
                         size={3}
                         largeSize={3}

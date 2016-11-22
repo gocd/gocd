@@ -15,17 +15,14 @@
  */
 
 define([
-  'mithril', 'lodash', 'string-plus', 'jquery',
-  'helpers/form_helper', 'helpers/pipeline_configs/tooltips', 'helpers/mithril_component_mixins',
-  'models/pipeline_configs/resources',
-  'views/pipeline_configs/environment_variables_config_widget', 'views/pipeline_configs/tasks_config_widget', 'views/pipeline_configs/artifacts_config_widget', 'views/pipeline_configs/properties_config_widget', 'views/pipeline_configs/tabs_config_widget',
-  'jquery.textcomplete'
-], function (m, _, s, $,
-             f, tt, ComponentMixins,
-             Resources,
-             EnvironmentVariablesConfigWidget, TasksConfigWidget, ArtifactsConfigWidget, PropertiesConfigWidget, TabsConfigWidget) {
+  'mithril', 'lodash', 'string-plus', 'jquery', 'helpers/form_helper', 'helpers/pipeline_configs/tooltips', 'helpers/mithril_component_mixins',
+  'models/pipeline_configs/resources', 'views/pipeline_configs/environment_variables_config_widget', 'views/pipeline_configs/tasks_config_widget',
+  'views/pipeline_configs/artifacts_config_widget', 'views/pipeline_configs/properties_config_widget', 'views/pipeline_configs/tabs_config_widget',
+  'models/elastic_profiles/elastic_profiles', 'jquery.textcomplete'
+], function (m, _, s, $, f, tt, ComponentMixins, Resources, EnvironmentVariablesConfigWidget, TasksConfigWidget, ArtifactsConfigWidget,
+             PropertiesConfigWidget, TabsConfigWidget, ElasticProfiles) {
 
-  var autoComplete = function (values, model, attrName) {
+  var autoComplete = function (values, model, attrName, replaceFunc) {
     return function (elem, isInitialized) {
       if (!isInitialized) {
         var $inputElem = $($(elem).find("input[data-prop-name='" + attrName + "']"));
@@ -41,9 +38,7 @@ define([
                 return word.toLowerCase().indexOf(term) === 0 ? word : null;
               }));
             },
-            replace: function (word) {
-              return '$1' + word + ', ';
-            }
+            replace: replaceFunc
           }
         ]);
 
@@ -207,9 +202,16 @@ define([
 
   var JobsConfigWidget = {
     controller: function (args) {
+      var self = this;
       this.args = args;
+      this.profileIds = m.prop([]);
       ComponentMixins.HasViewModel.call(this);
       ComponentMixins.ManagesCollection.call(this, {as: 'Job'});
+
+      ElasticProfiles.all().then(function (profiles) {
+        self.profileIds(profiles.collectProfileProperty('id'))
+      });
+
       this.removeJob = function (job) {
         var previousJobIndex =  args.jobs().indexOfJob(job) - 1;
         this.vmState('selectedJobIndex')(previousJobIndex !== -1 ? previousJobIndex : 0);
@@ -270,7 +272,7 @@ define([
                       </f.row>
                       <f.row>
                         <f.inputWithLabel
-                          config={autoComplete(Resources.list, job, 'resources')}
+                          config={autoComplete(Resources.list, job, 'resources', function (word) { return '$1' + word + ', ';})}
                           attrName='resources'
                           model={job}
                           tooltip={{
@@ -281,6 +283,7 @@ define([
                           size={4}
                           largeSize={4}/>
                         <f.inputWithLabel
+                          config={autoComplete(ctrl.profileIds(), job, 'elasticProfileId', function (word) { return word; })}
                           attrName='elasticProfileId'
                           label='Elastic Profile Id'
                           disabled={isRunOnAllAgents}

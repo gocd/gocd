@@ -378,6 +378,9 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
                 errors().add(ELASTIC_PROFILE_ID, String.format("No profile defined corresponding to profile_id '%s'", elasticProfileId));
             }
         }
+        if (elasticProfileId != null && isBlank(elasticProfileId)){
+            errors().add(ELASTIC_PROFILE_ID, "Must not be a blank string");
+        }
         for (Resource resource : resources) {
             if (StringUtils.isEmpty(resource.getName())) {
                 CaseInsensitiveString pipelineName = validationContext.getPipeline().name();
@@ -405,6 +408,11 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
             String nameString = (String) attributesMap.get(NAME);
             jobName = nameString == null ? null : new CaseInsensitiveString(nameString);
         }
+        if (attributesMap.containsKey("elasticProfileId")) {
+            String elasticProfileId = (String) attributesMap.get("elasticProfileId");
+            setElasticProfileId(StringUtils.isBlank(elasticProfileId) ? null : elasticProfileId);
+        }
+
         if (attributesMap.containsKey(TASKS)) {
             tasks.setConfigAttributes(attributesMap.get(TASKS), taskFactory);
         }

@@ -20,6 +20,14 @@
                 <%= l.string('INSTRUCTION_RESOURCES') -%>
             </div>
         </div>
+        <div class="form_item_block">
+            <%= scope[:form].label "elasticProfileId", "Elastic Profile Id" %>
+            <div>
+                <%= scope[:form].text_field "elasticProfileId", :class => 'elastic_profile_id', :value => scope[:job].getElasticProfileId() %>
+                <div class="contextual_help has_go_tip_right" title="Elastic Profile that this job requires to run.<br/><a href='<%= admin_elastic_profiles_path %>' target='_blank'>Click here</a> to see and manage all elastic profiles."></div>
+                <%= error_message_on(scope[:job], "elasticProfileId", :css_class => "form_error") %>
+            </div>
+         </div>
         <div class="form_item">
             <%= scope[:form].label com.thoughtworks.go.config.JobConfig::TIMEOUT, l.string("JOB_TIMEOUT"), :class => "before_tip" %>
             <div class="contextual_help has_go_tip_right" title="<%=l.string("TOOLTIP_JOB_TIMEOUT")-%>"></div>
@@ -29,7 +37,7 @@
                 <%= scope[:form].radio_button 'timeoutType', com.thoughtworks.go.config.JobConfig::NEVER_TIMEOUT, :id => "jobTimeout_never" -%>
                 <%= label_tag "jobTimeout_never", l.string("NEVER_TIMEOUT") -%>
             </div>
-            
+
             <div class="checkbox_row">
                 <%= scope[:form].radio_button 'timeoutType', com.thoughtworks.go.config.JobConfig::DEFAULT_TIMEOUT, :id => "jobTimeout_default" -%>
                 <%= label_tag "jobTimeout_default", "#{l.string("DEFAULT_TIMEOUT")} (#{default_job_timeout_for_display(scope[:cruise_config])})"-%>
@@ -83,8 +91,15 @@
                 selectFirst: false,
                 multipleSeparator: ", ",
                 width: 248});
+
+            jQuery(".elastic_profile_id").autocomplete(<%== @elastic_profile_ids %>, {
+                multiple: false,
+                minChars: 0,
+                matchContains: true,
+                selectFirst: false,
+                width: 248});
         };
-        
+
         hookupResourcesAutoComplete();
 
     });

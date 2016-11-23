@@ -52,29 +52,6 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
         };
 
         var pluginInfo = _.head(PluginInfos.filterByType('package-repository'));
-        var parentView = args.parentView;
-        var material   = args.material;
-
-        parentView.onClose(function () {
-          ctrl.plugin(pluginInfo.id());
-          //ctrl.repoForEdit().reInitialize({});
-          ctrl.repoForEdit = repositoryConfigurations(pluginInfo.id());
-          ctrl.vm.reset();
-        });
-
-        var createRepositoryOnSuccess = function (repository) {
-          ctrl.vm.saveSuccess();
-          material.repository(repository);
-          parentView.close();
-          Repositories.init();
-        };
-
-        var createRepositoryOnFailure = function (data) {
-          ctrl.vm.saveFailed(data);
-          if (data.data) {
-            ctrl.repoForEdit().reInitialize(data.data);
-          }
-        };
 
         var configProperties = function(configurations) {
           var config = [];
@@ -84,18 +61,15 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
           return config;
         };
 
+        args.repoForEdit(repositoryConfigurations(pluginInfo.id()));
+
 
 
         var ctrl = {
           plugin:       m.prop(pluginInfo.id()),
-          repoForEdit:  repositoryConfigurations(pluginInfo.id()),
-          create:       function () {
-            this.vm.startUpdating();
-            this.repoForEdit().create().then(createRepositoryOnSuccess, createRepositoryOnFailure);
-          },
-          vm:           new Repositories.vm(),
+          vm:           args.vm,
           selectPlugin: function (id) {
-            this.repoForEdit    = repositoryConfigurations(id);
+            args.repoForEdit (repositoryConfigurations(id));
           },
           checkRepositoryConnection: function () {
           //TODO : Have an API for checking the repository connection and make the request from here.
@@ -105,7 +79,7 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
         return ctrl;
       },
 
-      view: function (ctrl) {
+      view: function (ctrl, args) {
         var errors = ctrl.vm.hasErrors() ? (<ErrorsWidget errors={ctrl.vm.errors()}/>) : undefined;
 
         var items = {};
@@ -126,7 +100,7 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
                                   largeSize={12}
                                   validate={true}
                                   isRequired={true}
-                                  model={ctrl.repoForEdit()}/>
+                                  model={args.repoForEdit()()}/>
               </f.row>
 
               <f.row class='repo-selector'>
@@ -140,7 +114,7 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
                 />
               </f.row>
 
-              {ctrl.repoForEdit().configuration().mapConfigurations(function(configuration) {
+              {args.repoForEdit()().configuration().mapConfigurations(function(configuration) {
                 return (<RepositoryConfigurationWidget configuration={configuration} />);
               }, this)}
 
@@ -148,13 +122,6 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
                 <f.button onclick={ctrl.checkRepositoryConnection}>Check Repository Connection</f.button>
               </f.row>
 
-              <f.row>
-                <f.button onclick={ctrl.create.bind(ctrl)}
-                          class={'save-pipeline ' + ctrl.vm.saveState()}>
-                  <span class={'save-state ' + ctrl.vm.saveState()}/>
-                  Save
-                </f.button>
-              </f.row>
             </div>
           </div>
         );

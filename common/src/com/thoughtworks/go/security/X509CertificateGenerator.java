@@ -63,8 +63,13 @@ public class X509CertificateGenerator {
 
     public void createAndStoreX509Certificates(File keystore, File truststore, File agentKeystore,
                                       String password, String principalDn) {
-        storeX509Certificate(keystore, password, createCertificateWithDn(principalDn));
-        storeX509Certificate(truststore, password, createAndStoreCACertificates(agentKeystore));
+        if (!keystore.exists()) {
+            storeX509Certificate(keystore, password, createCertificateWithDn(principalDn));
+        }
+
+        if (!(truststore.exists() || agentKeystore.exists())) {
+            storeX509Certificate(truststore, password, createAndStoreCACertificates(agentKeystore));
+        }
     }
 
     private void storeX509Certificate(File file, String passwd, Registration entry) {

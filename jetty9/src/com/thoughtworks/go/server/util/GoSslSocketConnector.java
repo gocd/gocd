@@ -52,9 +52,7 @@ public class GoSslSocketConnector implements GoSocketConnector {
     }
 
     private Connector sslConnector(Server server) {
-        if (!keystore.exists()) {
-            storeX509Certificate();
-        }
+        ensureX509Certificates();
 
         HttpConfiguration httpsConfig = new HttpConfiguration();
         httpsConfig.setOutputBufferSize(systemEnvironment.get(SystemEnvironment.RESPONSE_BUFFER_SIZE));
@@ -88,7 +86,7 @@ public class GoSslSocketConnector implements GoSocketConnector {
         return https;
     }
 
-    private void storeX509Certificate() {
+    private void ensureX509Certificates() {
         String principalDn = "ou=Cruise server webserver certificate, cn=" + getHostname();
 
         X509CertificateGenerator generator = new X509CertificateGenerator();

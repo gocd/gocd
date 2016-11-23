@@ -83,6 +83,7 @@ define([
             title:   'Edit profile ' + newProfile().id(),
             body:    (<ElasticProfileModalBody profile={newProfile}
                                                pluginInfo={pluginInfo}
+                                               newProfile={false}
                                                saveDisabled={saveDisabled}/>),
             onclose: function () {
               modal.destroy();
@@ -123,6 +124,7 @@ define([
           size:    'large',
           title:   'Add a new profile',
           body:    (<ElasticProfileModalBody profile={newProfile}
+                                             newProfile={true}
                                              pluginInfo={newPluginInfo}
                                              saveDisabled={saveDisabled}/>),
           onclose: function () {

@@ -24,57 +24,54 @@
 @import 'fonts';
 @import 'footer';
 
-form {
+.tooltip-question-mark {
+  @include icon-after(question-circle, $size: $form-label-font-size, $color: $form-label-color, $margin: 0, $line-height: $form-label-line-height) {
+    margin-left:  10px;
+    margin-right: 10px;
+  }
+}
 
-  .tooltip-question-mark {
-    @include icon-after(question-circle, $size: $form-label-font-size, $color: $form-label-color, $margin: 0, $line-height: $form-label-line-height) {
-      margin-left:  10px;
-      margin-right: 10px;
+label {
+  display: inline-block;
+}
+
+.tooltip-info {
+  @include icon-after(info-circle, $size: $form-label-font-size, $color: $form-label-color, $margin: 0, $line-height: $form-label-line-height) {
+    margin-left:  10px;
+    margin-right: 10px;
+  }
+}
+
+.tooltip-content {
+  font-family:    $body-font-family;
+  cursor:         auto;
+  font-size:      rem-calc(13px);
+  text-transform: none;
+  * {
+    font-size: rem-calc(13px);
+  }
+}
+
+.f-dropdown {
+  > *:only-child {
+    > *:first-child {
+      margin-top: 0;
+    }
+    > *:last-child {
+      margin-bottom: 0;
     }
   }
 
-  label {
-    display: inline-block;
+  &.tiny {
+    width: 200px;
   }
-
-  .tooltip-info {
-    @include icon-after(info-circle, $size: $form-label-font-size, $color: $form-label-color, $margin: 0, $line-height: $form-label-line-height) {
-      margin-left:  10px;
-      margin-right: 10px;
-    }
+  &.small {
+    width: 300px;
   }
-
-  .tooltip-content {
-    font-family:    $body-font-family;
-    cursor:         auto;
-    font-size:      rem-calc(13px);
-    text-transform: none;
-    * {
-      font-size: rem-calc(13px);
-    }
+  &.medium {
+    width: 500px;
   }
-
-  .f-dropdown {
-    > *:only-child {
-      > *:first-child {
-        margin-top: 0;
-      }
-      > *:last-child {
-        margin-bottom: 0;
-      }
-    }
-
-    &.tiny {
-      width: 200px;
-    }
-    &.small {
-      width: 300px;
-    }
-    &.medium {
-      width: 500px;
-    }
-    &.large {
-      width: 800px;
-    }
+  &.large {
+    width: 800px;
   }
 }

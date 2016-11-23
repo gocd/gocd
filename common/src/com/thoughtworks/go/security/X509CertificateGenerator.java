@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.security;
 
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.IOUtils;
 import org.bouncycastle.asn1.x509.BasicConstraints;
 import org.bouncycastle.asn1.x509.X509Extensions;
@@ -43,6 +44,8 @@ import java.util.Date;
 
 import static com.thoughtworks.go.security.X509PrincipalGenerator.*;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+import static com.thoughtworks.go.util.SystemEnvironment.GO_SSL_CERTS_ALGORITHM;
+import static com.thoughtworks.go.util.SystemEnvironment.GO_SSL_CERTS_PUBLIC_KEY_ALGORITHM;
 
 @Component
 public class X509CertificateGenerator {
@@ -101,7 +104,7 @@ public class X509CertificateGenerator {
         certGen.setNotAfter(now.plusYears(YEARS).toDate());
         certGen.setSubjectDN(principal);                       // note: same as issuer
         certGen.setPublicKey(keyPair.getPublic());
-        certGen.setSignatureAlgorithm("SHA512WITHRSA");
+        certGen.setSignatureAlgorithm(new SystemEnvironment().get(GO_SSL_CERTS_ALGORITHM));
 
         try {
             return certGen.generate(keyPair.getPrivate(), "BC");
@@ -273,7 +276,7 @@ public class X509CertificateGenerator {
                                           PublicKey publicKey, BigInteger serialNumber) {
             X509V3CertificateGenerator gen = new X509V3CertificateGenerator();
             gen.reset();
-            gen.setSignatureAlgorithm("SHA256WithRSAEncryption");
+            gen.setSignatureAlgorithm(new SystemEnvironment().get(GO_SSL_CERTS_PUBLIC_KEY_ALGORITHM));
             gen.setNotBefore(startDate);
             DateTime now = new DateTime(new Date());
             gen.setNotAfter(now.plusYears(YEARS).toDate());

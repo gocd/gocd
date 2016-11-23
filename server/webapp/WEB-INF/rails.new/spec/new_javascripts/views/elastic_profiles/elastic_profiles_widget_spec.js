@@ -156,10 +156,12 @@ define(["jquery", "mithril", "views/elastic_profiles/elastic_profiles_widget", '
       afterEach(removeModal);
 
       it("should popup a new modal to allow adding a profile", function () {
-        expect($root.find('.reveal')).not.toBeInDOM();
+        expect($root.find('.reveal:visible')).not.toBeInDOM();
         $root.find('.add-profile').click();
         m.redraw(true);
-        expect($('.reveal')).toBeInDOM();
+        expect($('.reveal:visible')).toBeInDOM();
+        expect($('.reveal:visible input[data-prop-name]')).not.toBeDisabled();
+
       });
 
       it("should not allow saving a profile if plugin id is not entered", function () {
@@ -237,11 +239,12 @@ define(["jquery", "mithril", "views/elastic_profiles/elastic_profiles_widget", '
           responseText: JSON.stringify(profileJSON),
           status:       200
         });
-        expect($root.find('.reveal')).not.toBeInDOM();
+        expect($root.find('.reveal:visible')).not.toBeInDOM();
 
         $root.find('.edit-profile').click();
         m.redraw(true);
-        expect($('.reveal')).toBeInDOM();
+        expect($('.reveal:visible')).toBeInDOM();
+        expect($('.reveal:visible input[data-prop-name]')).toBeDisabled();
       });
 
       it("should display error message if fetching a profile fails", function () {

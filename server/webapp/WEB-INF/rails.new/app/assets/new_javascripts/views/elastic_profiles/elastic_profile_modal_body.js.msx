@@ -85,6 +85,10 @@ define([
     },
 
     view: function (ctrl, args) {
+      var profileIdDisabledMessage;
+      if (args.newProfile) {
+        profileIdDisabledMessage = (<div>Editing of profile ID is disabled</div>);
+      }
 
       return (
         <div>
@@ -93,6 +97,8 @@ define([
                               attrName="id"
                               validate="true"
                               isRequired="true"
+                              disabled={!args.newProfile}
+                              message={profileIdDisabledMessage}
                               label="Id"
                               key="profile-id"/>
             <f.inputWithLabel model={args.profile()}

@@ -26,6 +26,8 @@ import com.thoughtworks.go.server.ui.plugins.PluggableInstanceSettings;
 import com.thoughtworks.go.server.ui.plugins.PluginConfiguration;
 import com.thoughtworks.go.server.ui.plugins.PluginInfo;
 import com.thoughtworks.go.server.ui.plugins.PluginView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 
 class ElasticAgentViewViewModelBuilder implements ViewModelBuilder {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ElasticAgentViewViewModelBuilder.class);
     private final ElasticAgentPluginRegistry registry;
 
     ElasticAgentViewViewModelBuilder(ElasticAgentPluginRegistry registry) {
@@ -44,8 +47,12 @@ class ElasticAgentViewViewModelBuilder implements ViewModelBuilder {
         List<PluginInfo> pluginInfos = new ArrayList<>();
 
         for (PluginDescriptor descriptor : registry.getPlugins()) {
-            Image icon = registry.getIcon(descriptor.id());
-            pluginInfos.add(new PluginInfo(descriptor, Constants.EXTENSION_NAME, null, null, icon));
+            try {
+                Image icon = registry.getIcon(descriptor.id());
+                pluginInfos.add(new PluginInfo(descriptor, Constants.EXTENSION_NAME, null, null, icon));
+            } catch (Exception e) {
+                LOGGER.error("Failed to load plugin info for {}", descriptor.id(), e);
+            }
         }
 
         return pluginInfos;

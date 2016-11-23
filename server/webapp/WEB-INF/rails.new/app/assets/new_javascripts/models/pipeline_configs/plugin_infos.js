@@ -18,6 +18,11 @@ define(['mithril', 'lodash', 'string-plus', 'helpers/mrequest', 'models/shared/i
   var PluginInfos = m.prop([]);
 
   PluginInfos.init = function (type) {
+    return PluginInfos.all(type).then(PluginInfos);
+  };
+
+
+  PluginInfos.all = function (type) {
     var unwrap = function (response) {
       return response._embedded.plugin_info;
     };
@@ -29,7 +34,7 @@ define(['mithril', 'lodash', 'string-plus', 'helpers/mrequest', 'models/shared/i
       config:        mrequest.xhrConfig.v1,
       unwrapSuccess: unwrap,
       type:          PluginInfos.PluginInfo
-    }).then(PluginInfos);
+    });
   };
 
   PluginInfos.findById = function (id) {

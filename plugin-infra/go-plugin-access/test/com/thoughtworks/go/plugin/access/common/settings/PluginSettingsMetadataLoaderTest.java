@@ -37,8 +37,8 @@ import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class PluginSettingsMetadataLoaderTest {
@@ -86,6 +86,7 @@ public class PluginSettingsMetadataLoaderTest {
             pluginDescriptor = new GoPluginDescriptor(UUID.randomUUID().toString(), "1.0", null, null, null, true);
 
             when(extension.canHandlePlugin(pluginDescriptor.id())).thenReturn(true);
+            when(extension.extensionName()).thenReturn("extension-name");
             when(extension.getPluginSettingsConfiguration(pluginDescriptor.id())).thenReturn(configuration);
             when(extension.getPluginSettingsView(pluginDescriptor.id())).thenReturn("template");
 
@@ -93,6 +94,24 @@ public class PluginSettingsMetadataLoaderTest {
 
             verifyMetadataForPlugin(pluginDescriptor.id());
         }
+    }
+
+    @Test
+    public void shouldNotFetchPluginSettingsMetadataForTaskPlugin() throws Exception {
+        PluginSettingsConfiguration configuration = new PluginSettingsConfiguration();
+        configuration.add(new PluginSettingsProperty("k1").with(Property.REQUIRED, true).with(Property.SECURE, false));
+
+        pluginDescriptor = new GoPluginDescriptor(UUID.randomUUID().toString(), "1.0", null, null, null, true);
+
+        when(taskExtension.canHandlePlugin(pluginDescriptor.id())).thenReturn(true);
+        when(taskExtension.extensionName()).thenReturn("task");
+        when(taskExtension.getPluginSettingsView(pluginDescriptor.id())).thenReturn("template");
+
+        metadataLoader.fetchPluginSettingsMetaData(pluginDescriptor);
+
+        verify(taskExtension, never()).getPluginSettingsConfiguration(pluginDescriptor.id());
+        PluginSettingsConfiguration configurationInStore = PluginSettingsMetadataStore.getInstance().configuration(pluginDescriptor.id());
+        assertNull(configurationInStore);
     }
 
     @Test

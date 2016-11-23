@@ -22,6 +22,8 @@ public interface GoPluginExtension {
 
     boolean canHandlePlugin(String pluginId);
 
+    String extensionName();
+
     PluginSettingsConfiguration getPluginSettingsConfiguration(String pluginId);
 
     String getPluginSettingsView(String pluginId);

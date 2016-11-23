@@ -98,4 +98,9 @@ public class TaskExtension implements TaskExtensionContract, GoPluginExtension {
     public boolean canHandlePlugin(String pluginId) {
         return pluginManager.hasReferenceFor(Task.class, pluginId) || pluginManager.isPluginOfType(JsonBasedTaskExtension.TASK_EXTENSION, pluginId);
     }
+
+    @Override
+    public String extensionName() {
+        return JsonBasedTaskExtension.TASK_EXTENSION;
+    }
 }

@@ -20,6 +20,7 @@ import com.thoughtworks.go.plugin.access.authentication.AuthenticationExtension;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
 import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
+import com.thoughtworks.go.plugin.access.pluggabletask.JsonBasedTaskExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.plugin.api.GoPlugin;
@@ -27,6 +28,7 @@ import com.thoughtworks.go.plugin.infra.PluginChangeListener;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.access.BootstrapException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -62,14 +64,19 @@ public class PluginSettingsMetadataLoader implements PluginChangeListener {
         try {
             PluginSettingsConfiguration configuration = null;
             String view = null;
+            Boolean isTaskPlugin = false;
 
             for (GoPluginExtension extension : extensions) {
                 if (extension.canHandlePlugin(pluginId)) {
-                    configuration = extension.getPluginSettingsConfiguration(pluginId);
-                    view = extension.getPluginSettingsView(pluginId);
+                    if (extension.extensionName().equals(JsonBasedTaskExtension.TASK_EXTENSION)) {
+                        isTaskPlugin = true;
+                    } else {
+                        configuration = extension.getPluginSettingsConfiguration(pluginId);
+                        view = extension.getPluginSettingsView(pluginId);
+                    }
                 }
             }
-            if (configuration == null || view == null) {
+            if ((configuration == null || view == null) && !isTaskPlugin) {
                 throw new RuntimeException("Plugin Settings - Configuration or View cannot be null");
             }
             metadataStore.addMetadataFor(pluginId, configuration, view);

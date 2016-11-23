@@ -47,7 +47,6 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 @Component
 public class X509CertificateGenerator {
     private static final int YEARS = 10;
-    private static final String SIGNATURE_ALGORITHM = "SHA1WITHRSA";
     private static final String PASSWORD = "Crui3CertSigningPassword";
     @Deprecated private static final char[] PASSWORD_AS_CHAR_ARRAY = PASSWORD.toCharArray();
     public static final String AGENT_CERT_OU = "Cruise agent certificate";
@@ -97,7 +96,7 @@ public class X509CertificateGenerator {
         certGen.setNotAfter(now.plusYears(YEARS).toDate());
         certGen.setSubjectDN(principal);                       // note: same as issuer
         certGen.setPublicKey(keyPair.getPublic());
-        certGen.setSignatureAlgorithm(SIGNATURE_ALGORITHM);
+        certGen.setSignatureAlgorithm("SHA512WITHRSA");
 
         try {
             return certGen.generate(keyPair.getPrivate(), "BC");
@@ -269,7 +268,7 @@ public class X509CertificateGenerator {
                                           PublicKey publicKey, BigInteger serialNumber) {
             X509V3CertificateGenerator gen = new X509V3CertificateGenerator();
             gen.reset();
-            gen.setSignatureAlgorithm("SHA1WithRSAEncryption");
+            gen.setSignatureAlgorithm("SHA256WithRSAEncryption");
             gen.setNotBefore(startDate);
             DateTime now = new DateTime(new Date());
             gen.setNotAfter(now.plusYears(YEARS).toDate());

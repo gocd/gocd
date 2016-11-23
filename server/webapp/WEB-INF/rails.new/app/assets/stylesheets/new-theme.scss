@@ -23,12 +23,11 @@ body {
   margin:                  0;
   font-family:             "Open Sans", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif !important;
   font-weight:             normal;
-  line-height:             1.5;
   color:                   #0a0a0a;
   -webkit-font-smoothing:  antialiased;
   -moz-osx-font-smoothing: grayscale;
   background:              $body-background;
-  //padding-top:             $main-nav-height;
+
 }
 
 a, a:hover, a:visited {
@@ -465,59 +464,65 @@ h1.entity_title {
     span {
       line-height:    20px;
       text-transform: none;
-      font-weight:normal;
+      font-weight:    normal;
     }
   }
 }
 
-.pipelines {
-  .pipeline {
-    padding:       0;
-    border:        0;
-    box-shadow:    none;
-    border-radius: $global-border-radius;
-    box-shadow:    0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-    //transition:    all 0.3s cubic-bezier(.25, .8, .25, 1);
-    &:hover {
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25), 0 0px 4px rgba(0, 0, 0, 0.22);
-    }
+//.pipelines {
+//  .pipeline {
+//    padding:       0;
+//    border:        0;
+//    box-shadow:    none;
+//    border-radius: $global-border-radius;
+//    box-shadow:    0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+//    //transition:    all 0.3s cubic-bezier(.25, .8, .25, 1);
+//    &:hover {
+//      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25), 0 0px 4px rgba(0, 0, 0, 0.22);
+//    }
+//  }
+//  .pipeline_header {
+//    padding:    0px 0 0 15px;
+//    background: $pipeline-header-bg;
+//    border:     0;
+//
+//  }
+//  .list_table {
+//    th, td {
+//      font-size: 10.5px !important;
+//    }
+//  }
+//}
+
+//#pipelines .pipelines_selector {
+//  position: relative;
+//}
+//
+//.pipeline_header .pipeline_name_link .title.entity_title a {
+//  font-weight: 400;
+//
+//}
+//
+//.pipeline_bundle div.pipeline .pipeline_instance {
+//  padding: 0px 15px;
+//  clear:   both;
+//}
+
+//.pipeline_header h3.entity_title {
+//  background-image: none;
+//  padding:          10px 10px 5px 0px;
+//}
+//
+//.pipeline_header .pipeline_actions {
+//  float:   right;
+//  padding: 0;
+//  margin:  15px 15px 0 0;
+//}
+
+.pipeline {
+  h3.title.entity_title {
+    font-weight: 600;
   }
-  .pipeline_header {
-    padding:    0px 0 0 15px;
-    background: $pipeline-header-bg;
-    border:     0;
-
-  }
-  .list_table {
-    th, td {
-      font-size: 10.5px !important;
-    }
-  }
-}
-
-#pipelines .pipelines_selector {
-  position: relative;
-}
-
-.pipeline_header .pipeline_name_link .title.entity_title a {
-  font-weight: 400;
-
-}
-
-.pipeline_bundle div.pipeline .pipeline_instance {
-  padding: 0px 15px;
-  clear:   both;
-}
-
-.pipeline_header h3.entity_title {
-  background-image: none;
-  padding:          10px 10px 5px 0px;
-}
-
-.pipeline_header .pipeline_actions {
-  float:   right;
-  padding: 0;
-  margin:  15px 15px 0 0;
 }
 
 .stage_bar.Passed {
@@ -737,15 +742,6 @@ input.pipeline-comment-button {
   }
 }
 
-.sub_tabs_container {
-  background: none;
-  padding:    0;
-  margin:     0;
-  .clear {
-    display: none;
-  }
-}
-
 .sub_tabs_container li.current_tab a, .sub_tabs_container li.current_tab a:hover, .sub_tabs_container li.current a, .sub_tabs_container li.current a:hover {
   background:  $current-tab-bg;
   font-size:   rem-calc(13px);
@@ -767,11 +763,17 @@ input.pipeline-comment-button {
 }
 
 .sub_tabs_container {
+  background: none;
+  padding:    0;
+  margin:     0;
+  .clear {
+    display: none;
+  }
   ul {
-    float:      none;
-    overflow:   hidden;
-    padding:    5px 20px 0;
-    background: $tab-header-bg;
+    float:         none;
+    overflow:      hidden;
+    padding:       5px 20px 0;
+    background:    $tab-header-bg;
     border-radius: $global-border-radius $global-border-radius 0 0;
     li {
 
@@ -780,9 +782,11 @@ input.pipeline-comment-button {
         background:    $tab-bg;
         padding:       7px 15px;
         line-height:   19px;
-
+        font-size:     13px;
         border-radius: 3px 3px 0 0;
         font-weight:   600;
+        color:         #333;
+
       }
 
       a:hover {
@@ -810,28 +814,49 @@ div#tab_container {
   padding:       20px;
 }
 
-.sub_tabs_container {
-  background: none;
-  //margin-bottom: 30px;
-  li {
-    a {
-      background:  #e2e2e2;
-      color:       #333;
-      font-weight: 400;
-      font-size:   13px;
+.definition_view {
+  .nav-tabs {
+    overflow:      hidden;
+    padding:       5px 20px 0;
+    background:    $tab-header-bg;
+    border-radius: $global-border-radius $global-border-radius 0 0;
+    box-sizing:    border-box;
+    border:        0;
+    li {
+      position: relative;
+      border:   0;
+      margin:   0 5px 0 0;
+      a {
+        background:    $tab-bg;
+        padding:       7px 15px;
+        line-height:   19px;
+        font-size:     13px;
+        border-radius: 3px 3px 0 0;
+        font-weight:   600;
+        color:         #333;
+      }
+      &.active {
+        a {
+          background: $current-tab-bg;
+        }
+      }
     }
   }
-
 }
 
 .list_table, .simple, .filters {
-  box-shadow: none;
-  border:     none;
-  font-size:  rem-calc(13px);
+  box-shadow:    none;
+  border:        none;
+  font-size:     rem-calc(13px);
+  border-bottom: 2px solid #ccc;
+  background:    transparent;
+  margin:        0;
   thead {
+    border: 0;
     tr {
-      border-left:  3px solid $table-header-bg;
-      border-right: 3px solid $table-header-bg;
+      background: $table-header-bg;
+      color:      $txt-color;
+      font-size:  rem-calc(14px);
     }
   }
   tr.agent_header {
@@ -847,10 +872,20 @@ div#tab_container {
     background-image: none !important;
   }
   tbody {
+    background: #fff;
     tr {
       border-right: 1px dotted #ddd;
       border-left:  1px dotted #ddd;
+      font-size:    rem-calc(13px);
+      &:nth-child(even) {
+        background-color: #f1f1f1;
+      }
     }
+  }
+
+  tr.user_header {
+    border:        0;
+    border-bottom: 3px solid $table-header-border;
   }
 }
 
@@ -918,7 +953,7 @@ ul#pipeline_config_tree {
   min-width:  inherit;
   &:hover {
     background: #666;
-    color:      #fff!important;
+    color:      #fff !important;
 
   }
 }
@@ -959,7 +994,11 @@ ul#pipeline_config_tree {
   box-shadow:          none;
   border-bottom-color: #ccc;
   border-right-color:  #ccc;
-  margin-top:-37px;
+  margin-top:          -37px;
+
+  &.agent_edit_popup {
+    margin-top: auto;
+  }
 }
 
 .filter_agents {
@@ -981,7 +1020,7 @@ ul#pipeline_config_tree {
     box-shadow:    none;
     border:        0;
     color:         $txt-color !important;
-    font-weight: normal;
+    font-weight:   normal;
     &:hover {
       font-size:  rem-calc(11px);
       color:      $txt-color !important;
@@ -1123,7 +1162,10 @@ input.new_resource {
       border-radius: 0 3px 3px 0;
       width:         50px;
       background:    $input-btn-bg !important;
-      color:         $txt-color !important;
+      span {
+        color: $txt-color !important;
+
+      }
     }
     input[type="text"] {
       border-radius: 3px 0 0 3px;
@@ -1224,7 +1266,7 @@ input[type="text"], input[type="password"], input[type="file"], input[type="url"
   box-shadow:    none;
 }
 
-button.primary, a.primary_link_as_button {
+button.primary, a.primary_link_as_button, .link_as_button.primary {
   background-color: $go-primary !important;
   font-size:        rem-calc(14px);
   font-weight:      700;
@@ -1232,6 +1274,7 @@ button.primary, a.primary_link_as_button {
   &:hover {
     background-color: darken($go-primary, 4%) !important;
     background-image: none;
+    font-size:        rem-calc(14px);
   }
   &:focus, &:active {
     outline: 0;
@@ -1264,8 +1307,9 @@ button.primary, a.primary_link_as_button {
 input[type='submit'], input[type='submit']:hover, button.submit, button.submit:hover, button.submit_hover, button.submit.header_submit, button.submit.header_submit:hover, button.submit_hover.header_submit, button.ui-state-default, button.ui-state-default:hover, a.link_as_button, a.link_as_button:hover, a.link_as_button_hover, a.link_as_header_button, a.link_as_header_button:hover, a.link_as_header_button_hover, button.submit.disabled, button.submit.disabled:hover, button.submit.disabled_hover, button.submit.header_submit.disabled, button.submit.header_submit.disabled:hover, button.submit.header_submit.disabled_hover, input.submit, input.submit:hover, input.submit_hover, input.submit.disabled, input.submit.disabled:hover, input.submit.disabled_hover, a.link_as_button.disabled, a.link_as_button.disabled:hover, a.link_as_button_hover.disabled a.link_as_header_button.disabled, a.link_as_header_button.disabled:hover, a.link_as_header_button_hover.disabled {
   background:     $btn-bg;
   box-shadow:     none !important;
-  font-size:      11px;
+  font-size:      rem-calc(14px);
   color:          $btn-txt !important;
+  padding:        7px 10px;
   text-transform: uppercase;
   &:hover {
     background: $btn-bg-hover;
@@ -1333,26 +1377,29 @@ a:link#link-to-this-page, a:visited#link-to-this-page {
 }
 
 #tab-content-of-tests, #tab-content-of-failures, #tab-content-of-artifacts, #tab-content-of-materials, #tab-content-of-properties, #tab-content-of-junit-time {
-  padding: 20px;
-  font-size:14px;
+  padding:   20px;
+  font-size: 14px;
 }
 
 .sidebar_history #build_history_holder {
-  padding: 15px 0px 0 !important;
-  box-shadow: none!important;
+  padding:    15px 0px 0 !important;
+  box-shadow: none !important;
 }
+
 .sidebar_history .passed .color_code_small {
   background-image: none;
-  background-color:$passed;
+  background-color: $passed;
 }
+
 #buildlist-container .buildlist li.current a, #buildlist-container .buildlist li.current a:hover {
-  box-shadow: none!important;
+  box-shadow: none !important;
   background: #fff !important;
 }
 
 #buildlist-container .buildlist li a {
-  background: linear-gradient(to bottom, #f5f5f5 0%, #f5f5f5 100%)!important;
+  background: linear-gradient(to bottom, #f5f5f5 0%, #f5f5f5 100%) !important;
 }
+
 .ui-dialog-buttonpane {
   button.submit.primary {
     color: #fff !important;
@@ -1405,6 +1452,13 @@ a:link#link-to-this-page, a:visited#link-to-this-page {
 .edit_panel {
   button.submit:hover span, button.submit_hover span, a.link_as_button:hover span, a.link_as_button_hover span {
     color: #333;
+  }
+  .add_panel {
+    .add_panel {
+      span {
+        color: #333 !important;
+      }
+    }
   }
 
 }
@@ -1557,11 +1611,11 @@ form#notification_form fieldset {
   right:        0;
   min-width:    75px;
   background:   #ccc;
-  color:        #333!important;
+  color:        #333 !important;
 
   &:hover {
     background: #666;
-    color:      #fff!important;
+    color:      #fff !important;
   }
 }
 
@@ -1597,6 +1651,7 @@ button#signin2 {
     color:     #fff;
   }
 }
+
 #graphic-dialog-input #user_login, #graphic-dialog-input #user_password {
   padding: 5px 10px;
   height:  30px;
@@ -1604,7 +1659,7 @@ button#signin2 {
 
 a:link.help, a:visited.help {
   margin-top: 9px;
-  color:#fff;
+  color:      #fff;
 }
 
 #MB_content {
@@ -1841,9 +1896,9 @@ a:link.help, a:visited.help {
 }
 
 input.compare_pipeline_input {
-  background-color: #fff;
+  background-color:    #fff;
   background-position: calc(100% - 9px) center;
-  padding-right: 30px;
+  padding-right:       30px;
 }
 
 .modal_timeline .form_buttons button, .modal_timeline .form_buttons a.link_as_button.primary_link_as_button {
@@ -1877,35 +1932,35 @@ input.compare_pipeline_input {
 }
 
 .unpause_wrapper button.primary {
-  background-color: #666666 !important;
-  height: 22px;
-  border: 1px solid #666;
-  &:hover{
-    background-color: #666666 !important;
+  background-color: #666 !important;
+  height:           22px;
+  border:           1px solid #666;
+  &:hover {
+    background-color: #666 !important;
   }
 }
 
 .pause_wrapper button.submit {
   background-color: #f6f6f6 !important;
-  height: 22px;
-  border: 1px solid #cccccc;
-  &:hover{
-    background-color: #666666 !important;
+  height:           22px;
+  border:           1px solid #ccc;
+  &:hover {
+    background-color: #666 !important;
   }
 }
 
-
-  #stages .build_cause .modified_files div {
-    padding: 2px 5px 5px 20px;
-  }
-.show_panel.submit_small.dashboard_build_cause_button{
-  padding-right: 16px!important;
-  background-position: right 5px!important;
+#stages .build_cause .modified_files div {
+  padding: 2px 5px 5px 20px;
 }
 
-.pipeline_bundle .pipeline_operations{
-  .pause_wrapper button.submit{
-    border:0;
+.show_panel.submit_small.dashboard_build_cause_button {
+  padding-right:       16px !important;
+  background-position: right 5px !important;
+}
+
+.pipeline_bundle .pipeline_operations {
+  .pause_wrapper button.submit {
+    border: 0;
   }
 }
 
@@ -1915,5 +1970,80 @@ input.compare_pipeline_input {
 }
 
 #pipeline_navigator .selected .stage_bar_wrapper, #pipeline_status_bar .pipeline .stages .selected .stage_bar_wrapper {
-  background-repeat:repeat-x;
+  background-repeat: repeat-x;
 }
+
+.form_content.exec_task_editor {
+  .gist_panel {
+
+    min-height:    75px;
+    max-height:    290px;
+    padding:       10px 0 0 10px;
+    background:    #f5f5f5;
+    border-radius: 3px;
+    border:        1px #ccc solid;
+  }
+}
+
+.user_permissions_for_group, .role_permissions_for_group {
+  .action_icon {
+    margin-top: 10px;
+  }
+}
+
+.checkbox_row div.contextual_help {
+  position: relative;
+  top:      9px;
+}
+
+//plugins
+
+ul.plugins .plugin {
+  padding:    20px;
+  border-top: 1px dotted #ccc;
+  .plugin-details {
+    margin-bottom: 10px;
+  }
+  .plugin-logo {
+    background-color: transparent;
+  }
+  .description {
+    font-size: 14px;
+  }
+  .key {
+    color:        #6b6b6b;
+    font-weight:  500;
+    margin-right: 10px;
+  }
+  .more-info-detail {
+    font-size: 13px;
+  }
+  .plugin-messages li {
+    font-size:   12px;
+    line-height: 18px;
+  }
+}
+
+//add user & modal
+
+span#add_error_message {
+  display: block;
+  margin:  0 15px 10px;
+}
+
+input#search_id {
+  background-position: calc(100% - 8px) center;
+}
+
+button.check_connection + .connection_test_message pre {
+  background: #000;
+  color:      #fff;
+  padding:    15px 20px;
+}
+
+.Building, .Active {
+  background-color: $building;
+  background-image: none;
+
+}
+

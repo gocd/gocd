@@ -130,7 +130,7 @@ html, body {
     z-index:     $agents-filters;
     .button {
       background-color: $agent-header-button-bg;
-      color:            #333;
+      color:            #fff;
       border:           0;
       font-size:        rem-calc(13px);
       font-weight:      600;
@@ -187,13 +187,13 @@ html, body {
           content:      "";
           position:     absolute;
           z-index:      1;
-          bottom:       -9px;
+          bottom:       -6px;
           left:         50%;
           transform:    translateX(-50%);
           width:        0;
           height:       0;
           border-style: solid;
-          border-width: 10px 10px 0 10px;
+          border-width: 6px 6px 0 6px;
           border-color: $agents-btn-hover transparent transparent transparent;
         }
       }

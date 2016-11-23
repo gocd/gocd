@@ -137,13 +137,38 @@ span.info {
       &:hover,
       &:focus {
         transition:       all 0.3s ease-in-out;
-        background-color: $btn-bg-hover;
+        background-color: $btn-bg;
         outline:          0;
-        color:            #fff;
-        border:           1px solid $btn-bg-hover;
+        color:             $txt-color;;
+        border:           1px solid $input-btn-bg;
+      }
+
+    }
+  }
+  &.has-dropdown{
+    > .button {
+      padding-right:30px;
+      &:after {
+        content:      "";
+        position:     absolute;
+        top:          12px;
+        width:        0;
+        height:       0;
+        border-style: solid;
+        border-width: 6px 4px 0 4px;
+        border-color: #fff transparent transparent transparent;
+        transition:   all 0.3s ease-in-out;
+        right:        10px;
+      }
+      &.disabled , &[disabled]{
+        &:after{
+          border-color:#b3b3b3 transparent transparent transparent;
+        }
       }
     }
   }
+
+
 }
 
 // search panel
@@ -250,13 +275,14 @@ $arrow-color: #000;
       background: $table-header-bg;
       color:      $txt-color;
       font-size:  rem-calc(14px);
-
     }
   }
   tbody {
     border: 0;
     tr {
       font-size: rem-calc(13px);
+      border-right: 1px dotted #ddd;
+      border-left: 1px dotted #ddd;
       &.building {
         background:    #ffeda0;
         border-bottom: 1px solid #fff;
@@ -269,6 +295,7 @@ $arrow-color: #000;
   }
   td {
     word-break: break-all;
+    border-bottom: 1px dotted #DDD;
   }
   input[type="checkbox"] {
     margin: 0;
@@ -276,7 +303,7 @@ $arrow-color: #000;
 }
 
 .agents-table-body {
-  margin-top: 169px;
+  margin-top: 166px;
 }
 
 .agents-table {

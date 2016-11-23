@@ -45,19 +45,20 @@ $agent-filter-button: #ccc;
 
 //pipeline
 
-$pipeline-header-bg: transparent; //#ffd54f;
+$pipeline-header-bg: transparent;
 $unpause-btn-bg: #f16c6c;
 $operate-btn-bg: #f5f5f5;
 $operate-with-optn-btn-bg: #f5f5f5;
 $pause-btn-bg: #f5f5f5;
 $passed: #64dd17;
 $btn-hover: #666;
+$building: #ffc11b;
 
 // agents
 
 //$agent-header-button-bg: #b9f6ca;
 $agent-header-button-bg: $go-primary;
-$agents-btn-hover: darken($go-primary , 4%);
+$agents-btn-hover: darken($go-primary, 4%);
 //$agents-btn-hover:#69f0ae;
 
 //modal
@@ -116,4 +117,4 @@ $agents-filters: 2;
 $header-panel-z-index: 3;
 $build-details-dropdown-arrow-z-index: 1;
 $agent-header-panel-z-index: 3;
-$build-details-dropdown-arrow-z-index :2;
+$build-details-dropdown-arrow-z-index: 2;

@@ -24,8 +24,17 @@ require([
   $(function () {
     $(document).foundation();
 
-    m.sync([PluginInfos.init('elastic-agent')]).then(function () {
+    var onSuccess = function () {
       m.mount($("#elastic-profiles").get(0), ElasticProfilesWidget);
-    });
+    };
+
+    var onFailure = function(){
+      $("#elastic-profiles").html($('<div class="alert callout">')
+        .append('<h5>There was a problem fetching the elastic profiles</h5>')
+        .append('<p>Refresh <a href="javascript: window.location.reload()">this page</a> in some time, and if the problem persists, check the server logs.</p>')
+      );
+    };
+
+    m.sync([PluginInfos.init('elastic-agent')]).then(onSuccess, onFailure);
   });
 });

@@ -58,7 +58,7 @@ define(['mithril', 'lodash', 'jquery', 'string-plus', 'helpers/form_helper', 'fo
             $revelElem.remove();
           }, 100);
 
-          $revelElem.hide();
+          $revelElem.foundation('close');
           $modalParent.remove();
         };
       },

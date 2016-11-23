@@ -26,7 +26,7 @@ define(['mithril', 'lodash', 'jquery', 'string-plus', 'models/pipeline_configs/p
         self.ngControllerName = 'controller-' + self.uuid;
         self.appName          = 'app-' + self.uuid;
 
-        PluginInfos.PluginInfo.byId(self.pluginId).then(function (plugin) {
+        PluginInfos.PluginInfo.get(self.pluginId).then(function (plugin) {
           self.templateHTML = AngularPlugin.template(plugin.viewTemplate());
           self.defaultConfig = plugin.configurations();
 

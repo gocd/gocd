@@ -134,14 +134,14 @@ define(['jquery', 'mithril', "models/pipeline_configs/plugin_infos"], function (
       });
     });
 
-    describe('PluginInfo.byId', function () {
+    describe('PluginInfo.get', function () {
       var requestArgs, deferred;
 
       beforeAll(function () {
         deferred = $.Deferred();
         spyOn(m, 'request').and.returnValue(deferred.promise());
 
-        PluginInfos.PluginInfo.byId("plugin_id");
+        PluginInfos.PluginInfo.get("plugin_id");
 
         requestArgs = m.request.calls.mostRecent().args[0];
       });

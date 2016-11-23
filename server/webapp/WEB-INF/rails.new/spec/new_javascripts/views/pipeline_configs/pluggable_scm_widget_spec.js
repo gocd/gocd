@@ -40,7 +40,7 @@ define(["jquery", "mithril", "models/pipeline_configs/materials", "models/pipeli
         });
 
         beforeAll(function () {
-          spyOn(PluginInfos.PluginInfo, 'byId').and.returnValue($.Deferred().promise());
+          spyOn(PluginInfos.PluginInfo, 'get').and.returnValue($.Deferred().promise());
           spyOn(angular, 'bootstrap');
           mount(pluggableMaterial);
         });
@@ -94,7 +94,7 @@ define(["jquery", "mithril", "models/pipeline_configs/materials", "models/pipeli
             })
           ]);
 
-          spyOn(PluginInfos.PluginInfo, 'byId').and.returnValue($.Deferred().promise());
+          spyOn(PluginInfos.PluginInfo, 'get').and.returnValue($.Deferred().promise());
           spyOn(angular, 'bootstrap');
         });
 

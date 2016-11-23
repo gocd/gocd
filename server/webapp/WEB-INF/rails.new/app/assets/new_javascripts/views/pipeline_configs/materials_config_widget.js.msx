@@ -372,12 +372,8 @@ define([
     },
 
     package: {
-<<<<<<< 541f5545dcc864cb5c0b0219f7519de4a19d661b
       view: function (_ctrl, args) {
-=======
-      view: function (ctrl, args) {
         var material = args.material;
->>>>>>> New Modal.
         return (
           <MaterialViews.base {...args}>
             <RepositoryWidget material={material}/>

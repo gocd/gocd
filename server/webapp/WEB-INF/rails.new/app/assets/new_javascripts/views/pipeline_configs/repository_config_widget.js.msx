@@ -28,7 +28,7 @@ define([
           component: RepositoryConfigEditWidget,
           args:      {material: args.material}
         },
-        title:   _.join(['EDIT', '-', args.material.repository().name()], ' ')
+        title:   'Edit Repository'
       });
 
       this.isPluginMissing = function () {
@@ -99,9 +99,13 @@ define([
       return (
         <f.row class='repo-selector'>
           <f.column class='no-repo' size={4} largeSize={6} end>
-            {_.isNil(args.material.repository()) ? <label>No repositories available.</label> : ''}
-            <a class='add-button button' href="javascript:void(0)"
-               onclick={ctrl.modal.open.bind(ctrl.modal)}>Create New Repository</a>
+            {_.isEmpty(Repositories()) ?
+                <div>
+                <label>No repositories available.</label> <a class='add-button button' href="javascript:void(0)"
+                                                             onclick={ctrl.modal.open.bind(ctrl.modal)}>Create New Repository</a> </div>
+                : <a class='add-button button' href="javascript:void(0)"
+                onclick={ctrl.modal.open.bind(ctrl.modal)} />}
+
           </f.column>
           {ctrl.modal.view()}
         </f.row>
@@ -112,12 +116,11 @@ define([
   var SelectRepositoryWidget = {
     controller: function (args) {
 
-      Repositories.findById(_.head(Repositories()).id()).then(function (repository) {
+      Repositories.findById(args.defaultRepoId()).then(function (repository) {
         args.material.repository(repository);
       });
 
       var ctrl = {
-        selected:         m.prop(_.head(Repositories()).id()),
         selectRepository: function (id) {
           Repositories.findById(id).then(function (repository) {
             args.material.repository(repository);
@@ -135,11 +138,11 @@ define([
       return (
         <f.row class='repo-selector'>
           <f.select
-            value={ctrl.selected}
+            value={args.defaultRepoId}
             items={items}
             size={6}
             largeSize={2}
-            onchange={ctrl.selectRepository.bind(ctrl, ctrl.selected())}
+            onchange={ctrl.selectRepository.bind(ctrl, args.defaultRepoId())}
           />
         </f.row>
       )
@@ -147,13 +150,19 @@ define([
   };
 
   var RepositoryWidget = {
-    view:       function (_ctrl, args) {
+    controller: function (args) {
+      return {
+          defaultRepoId : function () {
+              return _.isNil(args.material.repository()) ? _.head(Repositories()).id : args.material.repository().id;
+          }
+      };
+    },
+    view:       function (ctrl, args) {
       debugger;
-      //var defaultRepoId = _.isNil(args.material.repository()) ? _.head(Repositories()).id() : args.material.repository().id();
       return (
         <div>
           <NewRepositoryWidget material={args.material}/>
-          {_.isEmpty(Repositories()) ? '' : <SelectRepositoryWidget material={args.material} />}
+            {!_.isNil(args.material.repository()) || !_.isEmpty(Repositories())  ?  <SelectRepositoryWidget material={args.material} defaultRepoId={ctrl.defaultRepoId()}/> : ''}
           {_.isNil(args.material.repository()) ? '' : <EditRepositoryWidget material={args.material}/>}
         </div>
       );

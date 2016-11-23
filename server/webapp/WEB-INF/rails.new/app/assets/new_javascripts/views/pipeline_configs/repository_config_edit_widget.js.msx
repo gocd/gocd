@@ -44,6 +44,7 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'views/pipeline_configs/repo
           self.vm.startUpdating();
 
           self.repoForEdit.update().then(function (repository) {
+            Repositories.init();
             self.vm.saveSuccess();
             self.material.repository().reInitialize(JSON.parse(JSON.stringify(repository)));
             self.parentView.close();

@@ -73,9 +73,9 @@ define(['jquery', 'mithril', 'lodash', 'models/pipeline_configs/repositories'],
               /* eslint-disable camelcase */
               repo_id:         'repositoryId',
               name:            'repo',
-              auto_update:     false,
               plugin_metadata: {id: 'deb', version: '1.1'},
-              configuration:   [{key: 'REPO_URL', value: 'path/to/repo'}, {key: 'username', value: 'some_name'}]
+              configuration:   [{key: 'REPO_URL', value: 'path/to/repo'}, {key: 'username', value: 'some_name'}],
+              _embedded: {packages: []}
               /* eslint-enable camelcase */
             });
           });
@@ -88,10 +88,6 @@ define(['jquery', 'mithril', 'lodash', 'models/pipeline_configs/repositories'],
             expect(repository.name()).toBe('repo');
           });
 
-          it('should initialize model with auto_update', function () {
-            expect(repository.autoUpdate()).toBe(false);
-          });
-
           it('should initialize model with plugin_metadata', function () {
             expect(repository.pluginMetadata().id()).toBe('deb');
             expect(repository.pluginMetadata().version()).toBe('1.1');
@@ -102,24 +98,14 @@ define(['jquery', 'mithril', 'lodash', 'models/pipeline_configs/repositories'],
             expect(repository.configuration().collectConfigurationProperty('value')).toEqual(['path/to/repo', 'some_name']);
           });
 
-          it('should default auto_update to true if not provided', function () {
-            var repo = new Repositories.Repository({
-              /* eslint-disable camelcase */
-              repo_id:         '43c45e0b-1b0c-46f3-a60a-2bbc5cec069c',
-              name:            'repo',
-              plugin_metadata: {id: 'deb', version: '1.1'},
-              configuration:   [{key: 'REPO_URL', value: 'path/to/repo'}]
-              /* eslint-enable camelcase */
-            });
-            expect(repo.autoUpdate()).toBe(true);
-          });
 
           it('should not default repo_id of not provided', function () {
             var repo = new Repositories.Repository({
               /* eslint-disable camelcase */
               name:            'repo',
               plugin_metadata: {id: 'deb', version: '1.1'},
-              configuration:   [{key: 'REPO_URL', value: 'path/to/repo'}]
+              configuration:   [{key: 'REPO_URL', value: 'path/to/repo'}],
+              _embedded: {packages: []}
               /* eslint-enable camelcase */
             });
             expect(repo.id()).toBe(undefined);
@@ -132,9 +118,9 @@ define(['jquery', 'mithril', 'lodash', 'models/pipeline_configs/repositories'],
 
           repository = new Repositories.Repository({
             name:            'repo',
-            auto_update:     true, //eslint-disable-line camelcase
             plugin_metadata: {id: 'deb', version: '1.1'}, //eslint-disable-line camelcase
-            configuration:   [{key: 'REPO_URL', value: 'path/to/repo'}, {key: 'username', value: 'some_name'}]
+            configuration:   [{key: 'REPO_URL', value: 'path/to/repo'}, {key: 'username', value: 'some_name'}],
+            _embedded: {packages: []}
           });
 
           beforeAll(function () {
@@ -166,7 +152,6 @@ define(['jquery', 'mithril', 'lodash', 'models/pipeline_configs/repositories'],
             expect(JSON.stringify(requestArgs.data)).toBe(JSON.stringify({
               /* eslint-disable camelcase */
               name:            'repo',
-              auto_update:     true,
               plugin_metadata: {id: 'deb', version: '1.1'},
               configuration:   [{key: 'REPO_URL', value: 'path/to/repo'}, {key: 'username', value: 'some_name'}]
               /* eslint-enable camelcase */
@@ -177,7 +162,7 @@ define(['jquery', 'mithril', 'lodash', 'models/pipeline_configs/repositories'],
             var xhr = {
               status:            200,
               getResponseHeader: m.prop(),
-              responseText:      JSON.stringify({id: 'new_id'})
+              responseText:      JSON.stringify({repo_id: 'new_id'})
             };
 
             spyOn(xhr, 'getResponseHeader').and.returnValue('etag_for_repo');
@@ -190,48 +175,6 @@ define(['jquery', 'mithril', 'lodash', 'models/pipeline_configs/repositories'],
           });
         });
 
-        describe('reInitialize', function () {
-          it('should re-initilaize with provided data', function () {
-            /* eslint-disable camelcase */
-            var repo = new Repositories.Repository({
-              repo_id:         '43c45e0b-1b0c-46f3-a60a-2bbc5cec069c',
-              name:            'repo',
-              auto_update:     true,
-              plugin_metadata: {id: 'deb', version: '1.1'},
-              configuration:   [{key: 'REPO_URL', value: 'path/to/repo'}, {key: 'username', value: 'some_name'}]
-            });
-
-            var newRepo = {
-              repo_id:         '1ada7306-d028-415c-960b-1242abcd4834',
-              name:            'new_name',
-              auto_update:     false,
-              plugin_metadata: {id: 'deb', version: '1.1'},
-              configuration:   [{key: 'REPO_URL', value: 'path/to/new/repo'}, {key: 'username', value: 'new_name'}]
-            };
-            /* eslint-enable camelcase */
-
-            repo.reInitialize(newRepo);
-
-            expect(JSON.stringify(newRepo)).toEqual(JSON.stringify(repo));
-          });
-        });
-
-        describe('clone', function () {
-          it('should return a copy of the repository object', function () {
-            /* eslint-disable camelcase */
-            var repo = new Repositories.Repository({
-              repo_id:         '43c45e0b-1b0c-46f3-a60a-2bbc5cec069c',
-              name:            'repo_name',
-              auto_update:     true,
-              plugin_metadata: {id: 'deb', version: '1.1'},
-              configuration:   [{key: 'REPO_URL', value: 'path/to/repo'}, {key: 'username', value: 'some_name'}]
-            });
-            /* eslint-enable camelcase */
-
-            expect(JSON.stringify(repo.clone())).toEqual(JSON.stringify(repo));
-          });
-        });
-
         describe('update', function () {
           var repository, requestArgs, deferred;
 
@@ -239,9 +182,9 @@ define(['jquery', 'mithril', 'lodash', 'models/pipeline_configs/repositories'],
             /* eslint-disable camelcase */
             repo_id:         '43c45e0b-1b0c-46f3-a60a-2bbc5cec069c',
             name:            'repo',
-            auto_update:     true,
             plugin_metadata: {id: 'deb', version: '1.1'},
-            configuration:   [{key: 'REPO_URL', value: 'path/to/repo'}, {key: 'username', value: 'some_name'}]
+            configuration:   [{key: 'REPO_URL', value: 'path/to/repo'}, {key: 'username', value: 'some_name'}],
+            _embedded: {packages: []}
             /* eslint-enable camelcase */
           });
 
@@ -278,9 +221,8 @@ define(['jquery', 'mithril', 'lodash', 'models/pipeline_configs/repositories'],
               /* eslint-disable camelcase */
               repo_id:         '43c45e0b-1b0c-46f3-a60a-2bbc5cec069c',
               name:            'repo',
-              auto_update:     true,
               plugin_metadata: {id: 'deb', version: '1.1'},
-              configuration:   [{key: 'REPO_URL', value: 'path/to/repo'}, {key: 'username', value: 'some_name'}]
+              configuration:   [{key: 'REPO_URL', value: 'path/to/repo'}, {key: 'username', value: 'some_name'}],
               /* eslint-enable camelcase */
             }));
           });
@@ -312,13 +254,15 @@ define(['jquery', 'mithril', 'lodash', 'models/pipeline_configs/repositories'],
             new Repositories.Repository({
               repo_id:         'repo_id_1',
               name:            'repo_1',
-              plugin_metadata: {id: 'deb', version: '1.1'} //eslint-disable-line camelcase
+              plugin_metadata: {id: 'deb', version: '1.1'}, //eslint-disable-line camelcase
+              _embedded: {packages: []}
 
             }),
             new Repositories.Repository({
               repo_id:         'repo_id_2',
               name:            'repo_2',
               plugin_metadata: {id: 'npm', version: '1.1'}, //eslint-disable-line camelcase
+              _embedded: {packages: []}
             })
           ]);
 
@@ -390,16 +334,19 @@ define(['jquery', 'mithril', 'lodash', 'models/pipeline_configs/repositories'],
           Repositories([
             new Repositories.Repository({
               repo_id:              'repo_id_1',
-              plugin_metadata: {id: 'deb', version: '1.1'} //eslint-disable-line camelcase
+              plugin_metadata: {id: 'deb', version: '1.1'}, //eslint-disable-line camelcase
+              _embedded: {packages: []}
 
             }),
             new Repositories.Repository({
               repo_id:              'repo_id_2',
-              plugin_metadata: {id: 'npm', version: '1.1'} //eslint-disable-line camelcase
+              plugin_metadata: {id: 'npm', version: '1.1'}, //eslint-disable-line camelcase
+              _embedded: {packages: []}
             }),
             new Repositories.Repository({
               repo_id:              'repo_id_3',
-              plugin_metadata: {id: 'deb', version: '1.1'} //eslint-disable-line camelcase
+              plugin_metadata: {id: 'deb', version: '1.1'}, //eslint-disable-line camelcase
+              _embedded: {packages: []}
             })
           ]);
         });

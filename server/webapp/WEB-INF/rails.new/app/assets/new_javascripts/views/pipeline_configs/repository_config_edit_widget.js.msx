@@ -14,59 +14,28 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'helpers/form_helper', 'views/pipeline_configs/repository_config_angular_widget', 'models/pipeline_configs/repositories', 'views/pipeline_configs/errors_widget', 'views/pipeline_configs/repository_configuration_widget'],
-  function (m, _, f, RepositoryConfigAngularWidget, Repositories, ErrorsWidget, RepositoryConfigurationWidget) {
+define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/repositories', 'views/pipeline_configs/errors_widget', 'views/pipeline_configs/repository_configuration_widget'],
+  function (m, _, f, Repositories, ErrorsWidget, RepositoryConfigurationWidget) {
     //This has to be done to get around mithril's controller caching
-    var submodule = function (module, args) {
-      return module.view.bind(module, new module.controller(args));
-    };
-
-    /*
-     'scmForEdit' is a cloned copy of the actual SCM, this is required since SCMConfigEditWidget is rendered in a modal. There might be scenarios
-     wherein a user can make changes to the scm but not save it and close the modal, in this scenario the changes should not
-     be retained. To achieve this behaviour the widget works with a cloned copy of scm.
-     */
 
     var RepositoryConfigEditWidget = {
       controller: function (args) {
-        var self         = this;
-        self.parentView  = args.parentView;
-        self.material    = args.material;
-        self.repoForEdit = args.material.repository().clone();
-
-        self.vm = new Repositories.vm();
-
-        self.checkRepositoryConnection = function () {
-          //TODO : Have an API for checking the repository connection and make the request from here.
-        };
-
-        self.update = function () {
-          self.vm.startUpdating();
-
-          self.repoForEdit.update().then(function (repository) {
-            Repositories.init();
-            self.vm.saveSuccess();
-            self.material.repository().reInitialize(JSON.parse(JSON.stringify(repository)));
-            self.parentView.close();
-          }, function (data) {
-            self.vm.saveFailed(data);
-            if (data.data) {
-              self.repoForEdit.reInitialize(data.data);
-            }
-          });
-        };
-
-        self.parentView.onClose(function () {
-          self.repoForEdit.reInitialize(JSON.parse(JSON.stringify(args.material.repository())));
-          self.vm.reset();
-        });
+        return {
+          checkRepositoryConnection: function () {
+            //TODO : Have an API for checking the repository connection and make the request from here.
+          }
+        }
       },
 
-      view: function (ctrl) {
-        var errors = ctrl.vm.hasErrors() ? (<ErrorsWidget errors={ctrl.vm.errors()}/>) : undefined;
+      view: function (ctrl, args) {
+        debugger;
+        var errors = args.vm.hasErrors() ? (<ErrorsWidget errors={args.vm.errors()}/>) : undefined;
 
         return (
           <div class='modal-content'>
+            <div class='modal-header'>
+              {errors}
+            </div>
             <div class='modal-body'>
               <f.row>
                 <f.inputWithLabel attrName='name'
@@ -76,15 +45,15 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'views/pipeline_configs/repo
                                   largeSize={12}
                                   validate={true}
                                   isRequired={true}
-                                  model={ctrl.repoForEdit}/>
+                                  model={args.repoForEdit()}/>
               </f.row>
 
               <f.row class='key-value' size={6}>
                 <label>Type of plugin</label>
-                <span>{ctrl.repoForEdit.pluginMetadata().id()}</span>
+                <span>{args.repoForEdit().pluginMetadata().id()}</span>
               </f.row>
 
-              {ctrl.repoForEdit.configuration().mapConfigurations(function(configuration) {
+              {args.repoForEdit().configuration().mapConfigurations(function(configuration) {
                 return (<RepositoryConfigurationWidget configuration={configuration} />);
               }, this)}
 
@@ -92,13 +61,6 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'views/pipeline_configs/repo
                 <f.button onclick={ctrl.checkRepositoryConnection}>Check Repository Connection</f.button>
               </f.row>
 
-              <f.row>
-                <f.button onclick={ctrl.update.bind(ctrl)}
-                          class={'save-pipeline ' + ctrl.vm.saveState()}>
-                  <span class={'save-state ' + ctrl.vm.saveState()}/>
-                  Save
-                </f.button>
-              </f.row>
             </div>
           </div>
         );

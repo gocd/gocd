@@ -20,34 +20,60 @@ define([
   'models/pipeline_configs/repositories', 'models/pipeline_configs/plugin_infos'
 ], function (m, _, f, tt, ComponentMixins, Modal, RepositoryConfigEditWidget, RepositoryConfigNewWidget, Repositories, PluginInfos) {
 
+  var onSuccessOfRepoAPI = function (vm, modal, material, data) {
+    vm.saveSuccess();
+    modal.destroy();
+    material.repository(data);
+    Repositories.init();
+  };
+
+  var onFailureOfRepoAPI = function (vm, data) {
+    vm.saveFailed(data);
+  };
+
   var EditRepositoryWidget = {
     controller: function (args) {
-      this.material = args.material;
-      this.modal    = new Modal({
-        subView: {
-          component: RepositoryConfigEditWidget,
-          args:      {material: args.material}
+
+      var ctrl = {
+
+        isPluginMissing: function () {
+          return _.isNil(PluginInfos.findById(args.material.repository().pluginMetadata().id()));
         },
-        title:   'Edit Repository'
-      });
 
-      this.isPluginMissing = function () {
-        return _.isNil(PluginInfos.findById(this.material.repository().pluginMetadata().id()));
-      };
+        update: function () {
+          var repoForEdit = m.prop(args.material.repository());
+          var vm          = new Repositories.vm();
 
-      this.modalView = function () {
-        if (!this.isPluginMissing()) {
-          return this.modal.view();
+          var modal = new Modal({
+            size:    'small',
+            title:   'Edit Repository',
+            body:    (<RepositoryConfigEditWidget repoForEdit={repoForEdit}
+                                                  vm={vm}/>),
+            onclose: function () {
+              vm.reset();
+              modal.destroy();
+            },
+            buttons: [
+              {
+                text:    'Save',
+                class:   'save primary',
+                onclick: function () {
+                  vm.startUpdating();
+                  repoForEdit().update().then(onSuccessOfRepoAPI.bind(this, vm, modal, args.material), onFailureOfRepoAPI.bind(this, vm));
+                }
+              }
+            ]
+          });
+          modal.render();
+
         }
       };
+      return ctrl;
     },
 
-    view: function (ctrl) {
-      ctrl.onunload = function () {
-        ctrl.modal.destroy();
-      };
+    view: function (ctrl, args) {
 
-      var repository = ctrl.material.repository();
+      var repository = args.material.repository();
       var data       = {Name: repository.name(), Plugin: PluginInfos.findById(repository.pluginMetadata().id()).name()};
 
       repository.configuration().mapConfigurations(function (conf) {
@@ -56,7 +82,7 @@ define([
 
       var editButton = ctrl.isPluginMissing() ? (
         <f.alert><b>{repository.pluginMetadata().id()}</b> plugin seems to be removed.</f.alert>)
-        : (<f.editButton class={null} onclick={ctrl.modal.open.bind(ctrl.modal)}/>);
+        : (<f.editButton class={null} onclick={ctrl.update}/>);
 
       return (
         <div>
@@ -74,7 +100,6 @@ define([
               </ul>
             </f.row>
           </div>
-          {ctrl.modalView()}
         </div>
       );
     }
@@ -82,16 +107,6 @@ define([
 
   var NewRepositoryWidget = {
     controller: function (args) {
-      var createRepositoryOnSuccess = function (vm, modal, data) {
-        vm.saveSuccess();
-        modal.destroy();
-        args.material.repository(data);
-        Repositories.init();
-      };
-
-      var createRepositoryOnFailure = function (vm, repoForEdit, data) {
-        vm.saveFailed(data);
-      };
 
       var ctrl = {
             material: args.material,
@@ -114,7 +129,7 @@ define([
                     class:   'save primary',
                     onclick: function () {
                       vm.startUpdating();
-                      repoForEdit()().create().then(createRepositoryOnSuccess.bind(this, vm, modal), createRepositoryOnFailure.bind(this, vm, repoForEdit));
+                      repoForEdit()().create().then(onSuccessOfRepoAPI.bind(this, vm, modal, args.material), onFailureOfRepoAPI.bind(this, vm));
                     }
                   }
                 ]
@@ -189,12 +204,21 @@ define([
       };
     },
     view:       function (ctrl, args) {
+      debugger;
+      var noPackagesInfo;
+      if(!_.isNil(args.material.repository()) && _.isEmpty(args.material.repository().packages())) {
+        noPackagesInfo = (<div>
+          <label>No packages available in this repository.</label>
+          <a class='add-button button' href="javascript:void(0)">Create New Package</a>
+        </div>)
+      }
       return (
         <div>
           <NewRepositoryWidget material={args.material}/>
           {!_.isNil(args.material.repository()) || !_.isEmpty(Repositories()) ?
             <SelectRepositoryWidget material={args.material} defaultRepoId={ctrl.defaultRepoId()}/> : ''}
-          {_.isNil(args.material.repository()) ? '' : ''}
+          {_.isNil(args.material.repository()) ? '' : <EditRepositoryWidget material={args.material}/> }
+          {noPackagesInfo}
         </div>
       );
     }

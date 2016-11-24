@@ -64,7 +64,7 @@ define(['mithril', 'lodash', 'jquery', 'string-plus', 'helpers/form_helper', 'fo
       },
       view:       function () {
         return (
-          <div class={'reveal ' + (options.size ? options.size : '')} id={modalId} data-reveal config={config}>
+          <div class={'reveal ' + (options.size ? options.size : '')} id={modalId} data-reveal data-close-on-click='false' data-close-on-esc='false' config={config}>
 
             <h4 class='modal-title'>{options.title}</h4>
 

@@ -22,6 +22,7 @@
     border-top-left-radius:  5px;
     background:              #e0dfdf;
     border-top-right-radius: 5px;
+    font-size:               rem-calc(16px);
   }
 
   thead th, thead td, tfoot th, tfoot td, tbody th, tbody td {
@@ -33,5 +34,8 @@
     .button {
       margin-right: 1rem;
     }
+  }
+  .button {
+    margin-right: 10px;
   }
 }

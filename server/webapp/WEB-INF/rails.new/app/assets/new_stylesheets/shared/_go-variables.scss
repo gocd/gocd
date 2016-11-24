@@ -51,6 +51,7 @@ $operate-btn-bg: #f5f5f5;
 $operate-with-optn-btn-bg: #f5f5f5;
 $pause-btn-bg: #f5f5f5;
 $passed: #64dd17;
+$failed: #fa2d2d;
 $btn-hover: #666;
 $building: #ffc11b;
 
@@ -118,3 +119,8 @@ $header-panel-z-index: 3;
 $build-details-dropdown-arrow-z-index: 1;
 $agent-header-panel-z-index: 3;
 $build-details-dropdown-arrow-z-index: 2;
+
+//stage history table
+
+$stage-history-head-bg: #d1c4e9;
+$stage-history-pagination-bg: #dcdcdc;

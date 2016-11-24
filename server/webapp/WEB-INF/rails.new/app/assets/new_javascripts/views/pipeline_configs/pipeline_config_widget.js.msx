@@ -26,9 +26,9 @@ define([
         <div class='modal-content'>
           <p> 'Proceed' will discard any unsaved data.</p>
           <div class='actions'>
-            <a class='toggle-old-view' href="javascript:void(0)"
+            <a class='button secondary' href="javascript:void(0)"
                onclick={args.parentView.close.bind(args.parentView)}>Cancel</a>
-            <a class='toggle-old-view' href={['/go/admin/pipelines/', args.pipeline().name(), '/general'].join('')}>Proceed</a>
+            <a class='button primary' href={['/go/admin/pipelines/', args.pipeline().name(), '/general'].join('')}>Proceed</a>
           </div>
         </div>
       );

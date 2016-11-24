@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 @import "go-variables";
 
 body {
@@ -68,7 +67,7 @@ html, body {
   &:before {
     content: "";
     display: block;
-    height: 40px;
+    height:  40px;
   }
 }
 
@@ -152,12 +151,12 @@ html, body {
         height:           auto;
         line-height:      normal;
         background-color: $go-primary;
-        border:0;
+        border:           0;
         &:hover,
         &:focus {
           outline:          0;
           color:            $go-white;
-          border:0;
+          border:           0;
           background-color: $go-primary;
         }
       }
@@ -213,4 +212,8 @@ html, body {
       }
     }
   }
+}
+
+select {
+  background-position: calc(100% - 2px) 13px;
 }

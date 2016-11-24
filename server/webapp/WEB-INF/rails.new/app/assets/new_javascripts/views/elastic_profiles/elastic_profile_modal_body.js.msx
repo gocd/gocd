@@ -83,7 +83,9 @@ define([
 
         PluginInfos.PluginInfo.get(pluginInfo.id()).then(function (pluginInfo) {
           setPluginInfo(pluginInfo);
-          args.profile(new ElasticProfiles.Profile({id: args.profile().id(), pluginId: pluginInfo.id()}));
+          var newProfile = new ElasticProfiles.Profile({id: args.profile().id(), pluginId: pluginInfo.id()});
+          newProfile.etag(args.profile().etag());
+          args.profile(newProfile);
         });
       };
     },

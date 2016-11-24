@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,17 +44,16 @@ public class JobControllerTest {
     private GoConfigService jobConfigService;
     private StageService stageService;
     private MockHttpServletResponse response;
-    private ScheduleService scheduleService;
-
+    private SecurityService securityService;
     @Before
     public void setUp() throws Exception {
         jobInstanceService = mock(JobInstanceService.class);
         jobDetailService = mock(JobDetailService.class);
         jobConfigService = mock(GoConfigService.class);
-        scheduleService = mock(ScheduleService.class);
+        securityService = mock(SecurityService.class);
         stageService = mock(StageService.class);
         response = new MockHttpServletResponse();
-        jobController = new JobController(jobInstanceService, jobDetailService,jobConfigService,null,null,null,null,stageService,null);
+        jobController = new JobController(jobInstanceService, jobDetailService,jobConfigService,null,null,null,null,stageService,null, securityService);
     }
 
     @Test

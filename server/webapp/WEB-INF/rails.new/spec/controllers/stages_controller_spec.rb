@@ -50,6 +50,7 @@ describe StagesController do
     controller.stub(:go_config_service).and_return(@go_config_service)
     controller.stub(:populate_config_validity)
 
+    @go_config_service.stub(:findGroupNameByPipeline).and_return(nil)
     @pim = PipelineHistoryMother.singlePipeline("pipline-name", StageInstanceModels.new)
     controller.stub(:pipeline_history_service).and_return(@pipeline_history_service=double())
     controller.stub(:pipeline_lock_service).and_return(@pipieline_lock_service=double())
@@ -172,8 +173,8 @@ describe StagesController do
     end
 
     it "should json url for stage" do
-      expect(:get => "/pipelines/pipeline_name/10/stage_name/2.json").to route_to({:controller => "stages", :action => "overview", :pipeline_name => "pipeline_name", :stage_name => "stage_name", :pipeline_counter => "10", :stage_counter => "2", :format=>"json"})
-      expect(controller.send(:stage_detail_tab_path, :pipeline_name => "pipeline_name", :stage_name => "stage_name", :pipeline_counter => "10", :stage_counter => "2", :format=>"json")).to eq("/pipelines/pipeline_name/10/stage_name/2.json")
+      expect(:get => "/pipelines/pipeline_name/10/stage_name/2.json").to route_to({:controller => "stages", :action => "overview", :pipeline_name => "pipeline_name", :stage_name => "stage_name", :pipeline_counter => "10", :stage_counter => "2", :format => "json"})
+      expect(controller.send(:stage_detail_tab_path, :pipeline_name => "pipeline_name", :stage_name => "stage_name", :pipeline_counter => "10", :stage_counter => "2", :format => "json")).to eq("/pipelines/pipeline_name/10/stage_name/2.json")
     end
 
     it "should resolve 'rerun jobs' action" do
@@ -186,7 +187,7 @@ describe StagesController do
       expect(controller.send(:stage_detail_tab_path, :pipeline_name => "pipeline_name", :stage_name => "stage_name", :pipeline_counter => 10, :stage_counter => 2, :action => 'jobs', :format => 'json')).to eq("/pipelines/pipeline_name/10/stage_name/2/jobs.json")
       expect(controller.send(:stage_detail_tab_path, :pipeline_name => "pipeline_name", :stage_name => "stage_name", :pipeline_counter => 10, :stage_counter => 2, :action => 'overview')).to eq("/pipelines/pipeline_name/10/stage_name/2")
       expect(controller.send(:stage_detail_tab_path, :pipeline_name => "pipeline_name", :stage_name => "stage_name", :pipeline_counter => 10, :stage_counter => 2, :action => 'overview', :format => 'json')).to eq("/pipelines/pipeline_name/10/stage_name/2.json")
-      expect(:get => "/pipelines/pipeline_name/10/stage_name/5/jobs").to route_to({:controller=>"stages", :pipeline_name=>"pipeline_name", :pipeline_counter=>"10", :stage_name=>"stage_name", :stage_counter=>"5", :action=>"jobs"})
+      expect(:get => "/pipelines/pipeline_name/10/stage_name/5/jobs").to route_to({:controller => "stages", :pipeline_name => "pipeline_name", :pipeline_counter => "10", :stage_name => "stage_name", :stage_counter => "5", :action => "jobs"})
     end
 
     it "should render action api/stages/index for :format xml" do
@@ -268,6 +269,7 @@ describe StagesController do
       before :each do
         @security_service = double('security_service')
         controller.stub(:security_service).and_return(@security_service)
+        controller.stub(:get_stage_detail_link).and_return(nil)
       end
 
       it "should get the job instance models from the stage" do
@@ -318,7 +320,7 @@ describe StagesController do
         down1 = PipelineHistoryMother.singlePipeline("down1", StageInstanceModels.new)
         down2 = PipelineHistoryMother.singlePipeline("down2", StageInstanceModels.new)
         graph = PipelineDependencyGraphOld.new(@pim, PipelineInstanceModels.createPipelineInstanceModels([down1, down2]))
-        @pipeline_history_service.should_receive(:pipelineDependencyGraph).with("pipeline", 99,  @user, @status).and_return(graph)
+        @pipeline_history_service.should_receive(:pipelineDependencyGraph).with("pipeline", 99, @user, @status).and_return(graph)
         get :pipeline, :pipeline_name => "pipeline", :pipeline_counter => "99", :stage_name => "stage", :stage_counter => "3"
         expect(assigns(:graph)).to eq graph
       end
@@ -326,7 +328,7 @@ describe StagesController do
       it "should render op result if graph retrival fails" do
         stub_current_config
         controller.stub(:result_for_graph).and_return(result=double("result"))
-        @pipeline_history_service.should_receive(:pipelineDependencyGraph).with("pipeline", 99,  @user, result).and_return(:doesnt_matter)
+        @pipeline_history_service.should_receive(:pipelineDependencyGraph).with("pipeline", 99, @user, result).and_return(:doesnt_matter)
         result.should_receive(:canContinue).and_return(false)
         result.stub(:detailedMessage).and_return("no view permission")
         result.stub(:httpCode).and_return(401)
@@ -483,7 +485,7 @@ describe StagesController do
     end
 
     it "should load the duration of last 10 stages in seconds along with start-end dates and chart scale" do
-      scheduledTime = org.joda.time.DateTime.new(2008, 2, 22, 10, 21, 23, 0, org.joda.time.DateTimeZone.forOffsetHoursMinutes(5,30))
+      scheduledTime = org.joda.time.DateTime.new(2008, 2, 22, 10, 21, 23, 0, org.joda.time.DateTimeZone.forOffsetHoursMinutes(5, 30))
       stage1 = StageMother.createPassedStageWithFakeDuration("pipeline-name", 1, "stage", 1, "dev", scheduledTime, scheduledTime.plus_seconds(10))
       stage1.setPipelineId(100)
       stage2 = StageMother.createPassedStageWithFakeDuration("pipeline-name", 2, "stage", 1, "dev", scheduledTime, scheduledTime.plus_seconds(20))
@@ -497,18 +499,18 @@ describe StagesController do
       setup_stubs(stage_summary_model1, stage_summary_model2, stage_summary_model3)
       get :stats, :pipeline_name => "pipeline-name", :pipeline_counter => "1", :stage_name => "stage", :stage_counter => "1", :page_number => "2"
 
-      expect(assigns(:chart_stage_duration_passed)).to eq ([{"link"=> "/pipelines/pipeline-name/1/stage/1/jobs","x" => 1, "key"=> "1_10", "y"=>10}, {"link" => "/pipelines/pipeline-name/2/stage/1/jobs", "x"=>2, "key"=> "2_20",  "y" => 20}]).to_json
-      expect(assigns(:chart_tooltip_data_passed)).to eq ({"1_10" => ["00:00:10","22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-1"], "2_20" => ["00:00:20","22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-2"]}).to_json
-      expect(assigns(:chart_stage_duration_failed)).to eq ([{"link"=> "/pipelines/pipeline-name/3/stage/1/jobs","x" => 3, "key"=> "3_30", "y"=>30}]).to_json
-      expect(assigns(:chart_tooltip_data_failed)).to eq ({"3_30" => ["00:00:30","22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-3"]}).to_json
+      expect(assigns(:chart_stage_duration_passed)).to eq ([{"link" => "/pipelines/pipeline-name/1/stage/1/jobs", "x" => 1, "key" => "1_10", "y" => 10}, {"link" => "/pipelines/pipeline-name/2/stage/1/jobs", "x" => 2, "key" => "2_20", "y" => 20}]).to_json
+      expect(assigns(:chart_tooltip_data_passed)).to eq ({"1_10" => ["00:00:10", "22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-1"], "2_20" => ["00:00:20", "22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-2"]}).to_json
+      expect(assigns(:chart_stage_duration_failed)).to eq ([{"link" => "/pipelines/pipeline-name/3/stage/1/jobs", "x" => 3, "key" => "3_30", "y" => 30}]).to_json
+      expect(assigns(:chart_tooltip_data_failed)).to eq ({"3_30" => ["00:00:30", "22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-3"]}).to_json
       expect(assigns(:chart_scale)).to eq "secs"
-      expect(assigns(:pagination)).to eq Pagination.pageStartingAt(12,200,10)
+      expect(assigns(:pagination)).to eq Pagination.pageStartingAt(12, 200, 10)
       expect(assigns(:start_end_dates)).to eq ["22 Feb 2008", "22 Feb 2008"]
-       expect(assigns(:no_chart_to_render)).to eq false
+      expect(assigns(:no_chart_to_render)).to eq false
     end
 
     it "should load the duration of last 10 stages in minutes" do
-      scheduledTime = org.joda.time.DateTime.new(2008, 2, 22, 10, 21, 23, 0, org.joda.time.DateTimeZone.forOffsetHoursMinutes(5,30))
+      scheduledTime = org.joda.time.DateTime.new(2008, 2, 22, 10, 21, 23, 0, org.joda.time.DateTimeZone.forOffsetHoursMinutes(5, 30))
       stage1 = StageMother.createPassedStageWithFakeDuration("pipeline-name", 1, "stage", 1, "dev", scheduledTime, scheduledTime.plus_minutes(10))
       stage1.setPipelineId(100)
       stage2 = StageMother.createPassedStageWithFakeDuration("pipeline-name", 2, "stage", 1, "dev", scheduledTime, scheduledTime.plus_minutes(20))
@@ -519,14 +521,14 @@ describe StagesController do
       setup_stubs(stage_summary_model1, stage_summary_model2)
       get :stats, :pipeline_name => "pipeline-name", :pipeline_counter => "1", :stage_name => "stage", :stage_counter => "1", :page_number => "2"
 
-      expect(assigns(:chart_stage_duration_passed)).to eq ([{"link"=> "/pipelines/pipeline-name/1/stage/1/jobs", "x" => 1, "key"=> "1_600", "y"=>10.0}, {"link" => "/pipelines/pipeline-name/2/stage/1/jobs", "x" => 2, "key"=> "2_1200", "y"=>20.0}]).to_json
-      expect(assigns(:chart_tooltip_data_passed)).to eq ({"1_600" => ["00:10:00","22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-1"], "2_1200" => ["00:20:00","22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-2"]}).to_json
+      expect(assigns(:chart_stage_duration_passed)).to eq ([{"link" => "/pipelines/pipeline-name/1/stage/1/jobs", "x" => 1, "key" => "1_600", "y" => 10.0}, {"link" => "/pipelines/pipeline-name/2/stage/1/jobs", "x" => 2, "key" => "2_1200", "y" => 20.0}]).to_json
+      expect(assigns(:chart_tooltip_data_passed)).to eq ({"1_600" => ["00:10:00", "22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-1"], "2_1200" => ["00:20:00", "22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-2"]}).to_json
       expect(assigns(:chart_scale)).to eq "mins"
       expect(assigns(:start_end_dates)).to eq ["22 Feb 2008", "22 Feb 2008"]
     end
 
     it "should load data in ascending order of pipeline counters" do
-      scheduledTime = org.joda.time.DateTime.new(2008, 2, 22, 10, 21, 23, 0, org.joda.time.DateTimeZone.forOffsetHoursMinutes(5,30))
+      scheduledTime = org.joda.time.DateTime.new(2008, 2, 22, 10, 21, 23, 0, org.joda.time.DateTimeZone.forOffsetHoursMinutes(5, 30))
       stage1 = StageMother.createPassedStageWithFakeDuration("pipeline-name", 1, "stage", 1, "dev", scheduledTime, scheduledTime.plus_minutes(10))
       stage1.setPipelineId(100)
       stage2 = StageMother.createPassedStageWithFakeDuration("pipeline-name", 2, "stage", 1, "dev", scheduledTime, scheduledTime.plus_minutes(20))
@@ -541,13 +543,13 @@ describe StagesController do
 
       get :stats, :pipeline_name => "pipeline-name", :pipeline_counter => "1", :stage_name => "stage", :stage_counter => "1", :page_number => "2"
 
-      expect(assigns(:chart_stage_duration_passed)).to eq ([{"link"=> "/pipelines/pipeline-name/1/stage/1/jobs", "x" => 1, "key"=> "1_600", "y"=>10.0},
-                                                       {"link" => "/pipelines/pipeline-name/2/stage/1/jobs", "x" => 2, "key"=> "2_1200", "y"=>20.0},
-                                                       {"link" => "/pipelines/pipeline-name/3/stage/1/jobs", "x" => 3, "key"=> "3_1200", "y"=>20.0}]).to_json
+      expect(assigns(:chart_stage_duration_passed)).to eq ([{"link" => "/pipelines/pipeline-name/1/stage/1/jobs", "x" => 1, "key" => "1_600", "y" => 10.0},
+                                                            {"link" => "/pipelines/pipeline-name/2/stage/1/jobs", "x" => 2, "key" => "2_1200", "y" => 20.0},
+                                                            {"link" => "/pipelines/pipeline-name/3/stage/1/jobs", "x" => 3, "key" => "3_1200", "y" => 20.0}]).to_json
     end
 
     it "should load the correct pipeline label depending on stage run" do
-      scheduledTime = org.joda.time.DateTime.new(2008, 2, 22, 10, 21, 23, 0, org.joda.time.DateTimeZone.forOffsetHoursMinutes(5,30))
+      scheduledTime = org.joda.time.DateTime.new(2008, 2, 22, 10, 21, 23, 0, org.joda.time.DateTimeZone.forOffsetHoursMinutes(5, 30))
       stage1 = StageMother.createPassedStageWithFakeDuration("pipeline-name", 1, "stage", 1, "dev", scheduledTime, scheduledTime.plus_minutes(10))
       stage1.setPipelineId(100)
       stage2 = StageMother.createPassedStageWithFakeDuration("pipeline-name", 1, "stage", 2, "dev", scheduledTime, scheduledTime.plus_minutes(20))
@@ -558,7 +560,7 @@ describe StagesController do
       setup_stubs(stage_summary_model1, stage_summary_model2)
       get :stats, :pipeline_name => "pipeline-name", :pipeline_counter => "1", :stage_name => "stage", :stage_counter => "1", :page_number => "2"
 
-      expect(assigns(:chart_tooltip_data_passed)).to eq ({"1_600" => ["00:10:00","22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-1"], "1_1200" => ["00:20:00","22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-1 (run 2)"]}).to_json
+      expect(assigns(:chart_tooltip_data_passed)).to eq ({"1_600" => ["00:10:00", "22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-1"], "1_1200" => ["00:20:00", "22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-1 (run 2)"]}).to_json
     end
 
     it "should set the message when there is no stage history" do
@@ -579,7 +581,7 @@ describe StagesController do
     end
 
     it "should deal with stages when there are only failed stages" do
-      scheduledTime = org.joda.time.DateTime.new(2008, 2, 22, 10, 21, 23, 0, org.joda.time.DateTimeZone.forOffsetHoursMinutes(5,30))
+      scheduledTime = org.joda.time.DateTime.new(2008, 2, 22, 10, 21, 23, 0, org.joda.time.DateTimeZone.forOffsetHoursMinutes(5, 30))
       stage1 = StageMother.createFailedStageWithFakeDuration("pipeline-name", 1, "stage", 1, "dev", scheduledTime, scheduledTime.plus_minutes(10))
       stage1.setPipelineId(100)
       stage2 = StageMother.createFailedStageWithFakeDuration("pipeline-name", 2, "stage", 1, "dev", scheduledTime, scheduledTime.plus_minutes(20))
@@ -592,8 +594,8 @@ describe StagesController do
 
       expect(assigns(:chart_stage_duration_passed)).to eq [].to_json
       expect(assigns(:chart_tooltip_data_passed)).to eq ({}).to_json
-      expect(assigns(:chart_stage_duration_failed)).to eq ([{"link"=> "/pipelines/pipeline-name/1/stage/1/jobs", "x" => 1, "key"=> "1_600", "y"=>10.0}, {"link" => "/pipelines/pipeline-name/2/stage/1/jobs", "x" => 2, "key"=> "2_1200", "y"=>20.0}]).to_json
-      expect(assigns(:chart_tooltip_data_failed)).to eq ({"1_600" => ["00:10:00","22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-1"], "2_1200" => ["00:20:00","22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-2"]}).to_json
+      expect(assigns(:chart_stage_duration_failed)).to eq ([{"link" => "/pipelines/pipeline-name/1/stage/1/jobs", "x" => 1, "key" => "1_600", "y" => 10.0}, {"link" => "/pipelines/pipeline-name/2/stage/1/jobs", "x" => 2, "key" => "2_1200", "y" => 20.0}]).to_json
+      expect(assigns(:chart_tooltip_data_failed)).to eq ({"1_600" => ["00:10:00", "22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-1"], "2_1200" => ["00:20:00", "22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-2"]}).to_json
       expect(assigns(:chart_scale)).to eq "mins"
       expect(assigns(:start_end_dates)).to eq ["22 Feb 2008", "22 Feb 2008"]
     end
@@ -601,7 +603,7 @@ describe StagesController do
     def setup_stubs(*stage_summary_models)
       models = StageSummaryModels.new
       models.addAll(stage_summary_models)
-      models.setPagination(Pagination.pageStartingAt(12,200,10))
+      models.setPagination(Pagination.pageStartingAt(12, 200, 10))
       @pipieline_lock_service.should_receive(:lockedPipeline).with("pipeline-name").and_return("")
       stage_iden = stage_summary_models[0].getStage().getIdentifier()
       @stage_service.should_receive(:findStageSummaryByIdentifier).with(stage_iden, @user, @localized_result).and_return(stage_summary_models[0])
@@ -615,7 +617,7 @@ describe StagesController do
 
   describe :config_tab do
     before do
-      scheduledTime = org.joda.time.DateTime.new(2008, 2, 22, 10, 21, 23, 0, org.joda.time.DateTimeZone.forOffsetHoursMinutes(5,30))
+      scheduledTime = org.joda.time.DateTime.new(2008, 2, 22, 10, 21, 23, 0, org.joda.time.DateTimeZone.forOffsetHoursMinutes(5, 30))
       stage = StageMother.createPassedStageWithFakeDuration("pipeline-name", 1, "stage", 1, "dev", scheduledTime, scheduledTime.plus_minutes(10))
       stage.setPipelineId(100)
       stage.setConfigVersion("some-config-md5")
@@ -639,6 +641,39 @@ describe StagesController do
       @status.stub(:canContinue).and_return(true)
       controller.should_receive(:load_stage_history).with().and_return()
       @go_config_service.should_receive(:getConfigAtVersion).with("some-config-md5").and_return(:some_cruise_config_revision)
+    end
+  end
+
+  describe :stage_settings_link do
+    before :each do
+      @pipeline_history_service.should_receive(:validate).and_return(nil)
+      @security_service = double('stage service')
+      controller.stub(:security_service).and_return(@security_service)
+
+      controller.stub(:can_continue).and_return(nil)
+      controller.stub(:load_stage_history).and_return(nil)
+      controller.stub(:load_current_config_version).and_return(nil)
+    end
+    it 'should return false for normal users' do
+      login_as_user
+
+      @go_config_service.should_receive(:findGroupNameByPipeline).and_return('group')
+      @security_service.should_receive(:isUserAdminOfGroup).with(anything, 'group').and_return(false)
+
+      get :overview, pipeline_name: "pipeline", pipeline_counter: "2", stage_name: "stage", stage_counter: "3"
+
+      expect(controller.instance_variable_get(:@has_permission_to_view_settings)).to eq(false)
+    end
+
+    it 'should return true for admin users' do
+      login_as_user
+
+      @go_config_service.should_receive(:findGroupNameByPipeline).and_return('group')
+      @security_service.should_receive(:isUserAdminOfGroup).with(anything, 'group').and_return(true)
+
+      get :overview, pipeline_name: "pipeline", pipeline_counter: "2", stage_name: "stage", stage_counter: "3"
+
+      expect(controller.instance_variable_get(:@has_permission_to_view_settings)).to eq(true)
     end
   end
 

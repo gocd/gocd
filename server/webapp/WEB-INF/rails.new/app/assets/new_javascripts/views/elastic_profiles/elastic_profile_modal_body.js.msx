@@ -20,7 +20,7 @@ define([
 ], function (m, _, $, f, PluginInfos, ElasticProfiles, AngularPlugin) {
 
   var autoComplete = function (model, attrName, selectCb) {
-    return function (elem, isInitialized) {
+    return function (elem, isInitialized, context) {
       if (isInitialized) {
         return;
       }
@@ -29,6 +29,10 @@ define([
       var values     = _.map(PluginInfos(), function (pi) {
         return pi.id();
       });
+
+      context.onunload = function() {
+        $inputElem.textcomplete('destroy');
+      };
 
       $inputElem.textcomplete([
         {

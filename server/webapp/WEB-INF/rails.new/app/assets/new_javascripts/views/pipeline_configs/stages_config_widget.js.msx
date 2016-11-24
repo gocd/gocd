@@ -26,9 +26,13 @@ define([
              EnvironmentVariablesConfigWidget, JobsConfigWidget) {
 
   var autoComplete = function (values, model, attrName) {
-    return function (elem, isInitialized) {
+    return function (elem, isInitialized, context) {
       if (!isInitialized) {
         var $inputElem = $($(elem).find("input[data-prop-name='" + attrName + "']"));
+
+        context.onunload = function() {
+          $inputElem.textcomplete('destroy');
+        };
 
         $inputElem.textcomplete([
           {

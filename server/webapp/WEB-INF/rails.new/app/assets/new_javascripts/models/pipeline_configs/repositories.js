@@ -44,7 +44,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
         this.name           = m.prop(s.defaultToIfBlank(data.name, ''));
         this.pluginMetadata = m.prop(new Repositories.Repository.PluginMetadata(data.plugin_metadata || {}));
         this.configuration  = s.collectionToJSON(m.prop(Repositories.Repository.Configurations.fromJSON(data.configuration || {})));
-        this.packages       = s.collectionToJSON(m.prop(Repositories.Repository.Package(embeddedPackages(data))));
+        this.packages       = m.prop(Repositories.Repository.Packages.fromJSON(embeddedPackages(data)));
         this.errors         = m.prop(new Errors(data.errors));
       };
 
@@ -116,8 +116,24 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
       };
     };
 
+    Repositories.Repository.Packages = function (data) {
+      Mixins.HasMany.call(this, {
+        factory:    Repositories.Repository.Packages.Package,
+        as:         'Configuration',
+        collection: data
+      });
+    };
 
-    Repositories.Repository.Package = function(data) {
+    Repositories.Repository.Packages.fromJSON = function (data) {
+      var packages = _.map(data, function (d) {
+        return new Repositories.Repository.Packages.Package(d);
+      });
+
+      return new Repositories.Repository.Packages(packages);
+    };
+
+
+    Repositories.Repository.Packages.Package = function(data) {
       this.id = m.prop(s.defaultToIfBlank(data.id, ''));
       this.name = m.prop(s.defaultToIfBlank(data.name, ''));
     };

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/repositories', 'views/pipeline_configs/errors_widget', 'views/pipeline_configs/repository_configuration_widget'],
+define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/repositories', 'views/pipeline_configs/errors_widget', 'views/pipeline_configs/package_repositories/repository_configuration_widget'],
   function (m, _, f, Repositories, ErrorsWidget, RepositoryConfigurationWidget) {
     //This has to be done to get around mithril's controller caching
 

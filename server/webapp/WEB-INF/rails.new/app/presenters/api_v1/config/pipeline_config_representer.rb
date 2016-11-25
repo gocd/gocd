@@ -27,7 +27,7 @@ module ApiV1
                         })
 
       link :self do |opts|
-        opts[:url_builder].apiv1_admin_pipeline_url(pipeline_name: pipeline.name)
+        opts[:url_builder].apiv3_admin_pipeline_url(pipeline_name: pipeline.name)
       end
 
       link :doc do |opts|
@@ -35,7 +35,7 @@ module ApiV1
       end
 
       link :find do |opts|
-        opts[:url_builder].apiv1_admin_pipeline_url(pipeline_name: '__pipeline_name__').gsub(/__pipeline_name__/, ':pipeline_name')
+        opts[:url_builder].apiv3_admin_pipeline_url(pipeline_name: '__pipeline_name__').gsub(/__pipeline_name__/, ':pipeline_name')
       end
 
       property :label_template

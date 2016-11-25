@@ -229,7 +229,6 @@ Go::Application.routes.draw do
       end
 
       namespace :admin do
-        resources :pipelines, param: :pipeline_name, only: [:show, :update, :create, :destroy], constraints: {pipeline_name: PIPELINE_NAME_FORMAT}
         resources :templates, param: :template_name, only: [:show, :index, :update, :create, :destroy], constraints: {template_name: TEMPLATE_NAME_FORMAT}
         resources :repositories, param: :repo_id, only: [:show, :index, :destroy, :create, :update], constraints: {repo_id: ALLOW_DOTS}
         resources :environments, param: :name, only: [:show, :destroy, :create, :update, :index], constraints: {:name => ENVIRONMENT_NAME_FORMAT} do

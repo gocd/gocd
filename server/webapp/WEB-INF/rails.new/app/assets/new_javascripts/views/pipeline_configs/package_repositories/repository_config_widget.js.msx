@@ -129,14 +129,13 @@ define([
                     class:   'save primary',
                     onclick: function () {
                       vm.startUpdating();
-                      repoForEdit()().create().then(onSuccessOfRepoAPI.bind(this, vm, modal, args.material), onFailureOfRepoAPI.bind(this, vm));
+                      repoForEdit().create().then(onSuccessOfRepoAPI.bind(this, vm, modal, args.material), onFailureOfRepoAPI.bind(this, vm));
                     }
                   }
                 ]
               });
               modal.render();
             }
-
           }
         ;
       return ctrl;
@@ -177,14 +176,20 @@ define([
     },
 
     view: function (ctrl, args) {
-      var items = _.transform(Repositories(), function (result, value) {
-        result[value.id()] = value.name();
-      }, {});
+      var items = [];
+      _.each(Repositories(), function (repository) {
+        var item = {};
+        item['id'] = repository.id();
+        item['text'] = repository.name();
+        items.push(item);
+      });
 
       return (
         <f.row class='repo-selector'>
           <f.select
             value={args.defaultRepoId}
+            model={args}
+            attrName="defaultRepoId"
             items={items}
             size={6}
             largeSize={2}
@@ -204,9 +209,9 @@ define([
       };
     },
     view:       function (ctrl, args) {
-      debugger;
       var noPackagesInfo;
-      if(!_.isNil(args.material.repository()) && _.isEmpty(args.material.repository().packages())) {
+      var repository = args.material.repository;
+      if(!_.isNil(repository()) && _.isEmpty(repository().packages())) {
         noPackagesInfo = (<div>
           <label>No packages available in this repository.</label>
           <a class='add-button button' href="javascript:void(0)">Create New Package</a>
@@ -215,11 +220,11 @@ define([
       return (
         <div>
           <NewRepositoryWidget material={args.material}/>
-          {!_.isNil(args.material.repository()) || !_.isEmpty(Repositories()) ?
+          {!_.isNil(repository()) || !_.isEmpty(Repositories()) ?
             <SelectRepositoryWidget material={args.material} defaultRepoId={ctrl.defaultRepoId()}/> : ''}
-          {_.isNil(args.material.repository()) ? '' : <EditRepositoryWidget material={args.material}/> }
+          {_.isNil(repository()) ? '' : <EditRepositoryWidget material={args.material}/> }
           {noPackagesInfo}
-          <PackageWidget material={args.material}/>
+          {!_.isNil(repository()) && !_.isEmpty(repository().packages()) ? <PackageWidget material={args.material}/> : ''}
         </div>
       );
     }

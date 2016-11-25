@@ -19,26 +19,66 @@ define([
   'models/pipeline_configs/packages', 'models/pipeline_configs/plugin_infos'
 ], function (m, _, f, tt, ComponentMixins, Modal, Packages, PluginInfos) {
 
+  var onSuccessOfPackageApi = function(vm, modal, material, data) {
+    vm.saveSuccess();
+    material.ref(data.id());
+    material.repository().addPackage(data)
+    modal.destroy();
+  };
+
+  var onFailureOfPackageApi = function (vm, data) {
+    vm.saveFailed(data);
+  };
 
   var NewPackageWidget = {
     controller: function (args) {
+      Packages.init(args.material.repository().id());
+      var ctrl = {
+        create : function () {
+          var packageForEdit = m.prop(new Packages.Package({}));
+          var vm          = new Packages.vm();
+
+          var modal = new Modal({
+            size:    'small',
+            title:   'Add Package',
+            body:    (<PackageConfigNewWidget packageForEdit={packageForEdit}
+                                                 vm={vm}/>),
+            onclose: function () {
+              vm.reset();
+              modal.destroy();
+            },
+            buttons: [
+              {
+                text:    'Save',
+                class:   'save primary',
+                onclick: function () {
+                  vm.startUpdating();
+                  packageForEdit()().create().then(onSuccessOfPackageApi.bind(this, vm, modal, args.material), onFailureOfPackageApi.bind(this, vm));
+                }
+              }
+            ]
+          });
+          modal.render();
+        }
+      };
+      return ctrl;
 
     },
 
     view: function (ctrl, args) {
+      debugger;
       return (
-        //<f.row class='repo-selector'>
-        //  <f.column class='no-repo' size={4} largeSize={6} end>
-        //    {_.isEmpty(Packages()) ?
-        //      <div>
-        //        <label>No packages available.</label> <a class='add-button button' href="javascript:void(0)"
-        //                                                     onclick={ctrl.create}>Create New Repository</a></div>
-        //      : <a class='add-button button' href="javascript:void(0)"
-        //           onclick={ctrl.create}/>}
-        //
-        //  </f.column>
-        //</f.row>
-        <div></div>
+        <f.row>
+          <f.column class='no-repo' size={4} largeSize={6} end>
+            {_.isEmpty(Packages()) ?
+              <div>
+                <label>No packages available.</label> <a class='add-button button' href="javascript:void(0)"
+                                                             onclick={ctrl.create}>Create New Package</a></div>
+              : <a class='add-button button' href="javascript:void(0)"
+                   onclick={ctrl.create}/>}
+
+          </f.column>
+        </f.row>
       );
     }
   };

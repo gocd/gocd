@@ -31,45 +31,27 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
 
       controller: function (args) {
 
-        var repositoryConfigurations = function (pluginId) {
-          return PluginInfos.PluginInfo.byId(pluginId).then(function (pluginInfo) {
+
+        var initializeRepository = function (pluginId) {
+          PluginInfos.PluginInfo.get(pluginId).then(function (pluginInfo) {
             var allConfigurations = pluginInfo.configurations();
             var repositoryConfigurations = _.filter(allConfigurations, function (configuration) {
               return configuration.type === 'repository';
             });
-            return initializeRepository(pluginInfo, repositoryConfigurations);
-          });
-        };
-
-        var initializeRepository = function(pluginInfo, configurations) {
-          return new Repositories.Repository({
-            plugin_metadata: {
-              id:      pluginInfo.id(),
-              version: pluginInfo.version()
-            },
-            configuration: configProperties(configurations)
+            var repository = Repositories.Repository.initialize(pluginInfo, repositoryConfigurations);
+            args.repoForEdit(repository);
           });
         };
 
         var pluginInfo = _.head(PluginInfos.filterByType('package-repository'));
 
-        var configProperties = function(configurations) {
-          var config = [];
-          _.map(configurations, function(configuration) {
-            return config.push({key: configuration.key});
-          });
-          return config;
-        };
-
-        args.repoForEdit(repositoryConfigurations(pluginInfo.id()));
-
-
+        initializeRepository(pluginInfo.id());
 
         var ctrl = {
           plugin:       m.prop(pluginInfo.id()),
           vm:           args.vm,
           selectPlugin: function (id) {
-            args.repoForEdit (repositoryConfigurations(id));
+            initializeRepository(id);
           },
           checkRepositoryConnection: function () {
           //TODO : Have an API for checking the repository connection and make the request from here.
@@ -81,10 +63,14 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
 
       view: function (ctrl, args) {
         var errors = ctrl.vm.hasErrors() ? (<ErrorsWidget errors={ctrl.vm.errors()}/>) : undefined;
+        var repoForEdit = args.repoForEdit;
 
-        var items = {};
+        var items = [];
         _.each(PluginInfos.filterByType('package-repository'), function (pluginInfo) {
-          items[pluginInfo.id()] = pluginInfo.name();
+          var item = {};
+          item['id'] = pluginInfo.id();
+          item['text'] = pluginInfo.name();
+          items.push(item);
         });
         
         return (
@@ -100,7 +86,7 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
                                   largeSize={12}
                                   validate={true}
                                   isRequired={true}
-                                  model={args.repoForEdit()()}/>
+                                  model={repoForEdit()}/>
               </f.row>
 
               <f.row class='repo-selector'>
@@ -110,11 +96,13 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
                   items={items}
                   size={12}
                   largeSize={12}
+                  attrName="plugin"
+                  model={ctrl}
                   onchange={ctrl.selectPlugin.bind(ctrl, ctrl.plugin())}
                 />
               </f.row>
 
-              {args.repoForEdit()().configuration().mapConfigurations(function(configuration) {
+              {repoForEdit().configuration().mapConfigurations(function(configuration) {
                 return (<RepositoryConfigurationWidget configuration={configuration} />);
               }, this)}
 

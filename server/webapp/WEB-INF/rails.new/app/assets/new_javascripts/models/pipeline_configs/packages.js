@@ -121,18 +121,24 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
     };
 
     Packages.init = function (repoId) {
-      var repository = Repositories.findById(repoId);
-      Packages(repository.packages());
+      Repositories.findById(repoId).then(function (repository) {
+
+        var packagesFromRepository = repository.packages().mapPackages(function (packageMaterial) {
+          return new Packages.Package({id: packageMaterial.id(), name: packageMaterial.name()});
+        });
+        Packages(packagesFromRepository);
+
+      });
     };
 
     Packages.findById = function (id) {
-      var packageMaterial = _.find(Packages(), function (packageMaterial) {
-        return _.isEqual(packageMaterial.id(), id);
-      });
-
-      if (_.isNil(packageMaterial)) {
-        return null;
-      }
+      //var packageMaterial = _.find(Packages(), function (packageMaterial) {
+      //  return _.isEqual(packageMaterial.id(), id);
+      //});
+      //
+      //if (_.isNil(packageMaterial)) {
+      //  return null;
+      //}
 
       var extract = function (xhr) {
         Packages.packageIdToEtag[packageMaterial.id()] = xhr.getResponseHeader('ETag');
@@ -141,7 +147,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
 
       return m.request({
         method:     'GET',
-        url:        Routes.apiv1AdminPackagePath({package_id: packageMaterial.id()}),  //eslint-disable-line camelcase
+        url:        Routes.apiv1AdminPackagePath({package_id: id}),  //eslint-disable-line camelcase
         background: false,
         config:     mrequest.xhrConfig.v1,
         extract:    extract,

@@ -116,10 +116,28 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
       };
     };
 
+    Repositories.Repository.initialize = function(pluginInfo, configurations) {
+      return new Repositories.Repository({
+        plugin_metadata: {
+          id:      pluginInfo.id(),
+          version: pluginInfo.version()
+        },
+        configuration: configProperties(configurations)
+      });
+    };
+
+    var configProperties = function(configurations) {
+      var config = [];
+      _.map(configurations, function(configuration) {
+        return config.push({key: configuration.key});
+      });
+      return config;
+    };
+
     Repositories.Repository.Packages = function (data) {
       Mixins.HasMany.call(this, {
-        factory:    Repositories.Repository.Packages.Package,
-        as:         'Configuration',
+        factory:    Repositories.Repository.Packages,
+        as:         'Package',
         collection: data
       });
     };
@@ -218,7 +236,6 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
     };
 
     Repositories.init = function () {
-      debugger;
       return m.request({
         method:        'GET',
         url:           Routes.apiv1AdminRepositoriesPath(),

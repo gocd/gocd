@@ -267,18 +267,7 @@ Go::Application.routes.draw do
         resources :pipelines, param: :pipeline_name, only: [:show, :update, :create, :destroy], constraints: {pipeline_name: PIPELINE_NAME_FORMAT}
         resources :templates, param: :template_name, only: [:show, :index, :update, :create, :destroy], constraints: {template_name: TEMPLATE_NAME_FORMAT}
         resources :plugin_info, controller: 'plugin_infos', param: :id, only: [:index, :show], constraints: {id: PLUGIN_ID_FORMAT}
-
       end
-
-
-      resources :agents, param: :uuid, only: [:show, :destroy], constraints: {uuid: ALLOW_DOTS} do
-        patch :update, on: :member
-      end
-
-      # for some reasons using the constraints breaks route specs for routes that don't use constraints, so an ugly hax
-      get 'agents', action: :index, controller: 'agents'
-      patch 'agents', action: :bulk_update, controller: 'agents'
-      delete 'agents', action: :bulk_destroy, controller: 'agents'
 
       match '*url', via: :all, to: 'errors#not_found'
     end
@@ -290,16 +279,6 @@ Go::Application.routes.draw do
         resources :pipelines, param: :pipeline_name, only: [:show, :update, :create, :destroy], constraints: {pipeline_name: PIPELINE_NAME_FORMAT}
         resources :templates, param: :template_name, only: [:index, :show, :update, :create, :destroy], constraints: {template_name: TEMPLATE_NAME_FORMAT}
       end
-
-
-      resources :agents, param: :uuid, only: [:show, :destroy], constraints: {uuid: ALLOW_DOTS} do
-        patch :update, on: :member
-      end
-
-      # for some reasons using the constraints breaks route specs for routes that don't use constraints, so an ugly hax
-      get 'agents', action: :index, controller: 'agents'
-      patch 'agents', action: :bulk_update, controller: 'agents'
-      delete 'agents', action: :bulk_destroy, controller: 'agents'
 
       match '*url', via: :all, to: 'errors#not_found'
     end

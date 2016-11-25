@@ -19,7 +19,7 @@ module ApiV1
     alias_method :agent, :represented
 
     link :self do |opts|
-      opts[:url_builder].apiv2_agent_url(agent.getUuid())
+      opts[:url_builder].apiv4_agent_url(agent.getUuid())
     end
 
     link :doc do |opts|
@@ -27,7 +27,7 @@ module ApiV1
     end
 
     link :find do |opts|
-      opts[:url_builder].apiv2_agent_url(':uuid')
+      opts[:url_builder].apiv4_agent_url(':uuid')
     end
 
     property :uuid

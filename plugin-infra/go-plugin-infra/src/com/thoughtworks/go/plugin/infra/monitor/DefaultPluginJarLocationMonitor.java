@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2015 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.plugin.infra.monitor;
 
@@ -85,12 +85,23 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
 
     @Override
     public void start() {
+        initializeMonitorThread();
+        monitorThread.start();
+    }
+
+
+    private void initializeMonitorThread(){
         if (monitorThread != null) {
             throw new IllegalStateException("Cannot start the monitor multiple times.");
         }
         monitorThread = new PluginLocationMonitorThread(bundledPluginDirectory, externalPluginDirectory, pluginJarChangeListener, pluginsFolderChangeListener, systemEnvironment);
         monitorThread.setDaemon(true);
-        monitorThread.start();
+    }
+
+    @Override
+    public void oneShot() {
+        initializeMonitorThread();
+        monitorThread.oneShot();
     }
 
     @Override
@@ -180,8 +191,7 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
         @Override
         public void run() {
             do {
-                knownBundledPluginFileDetails = loadAndNotifyPluginsFrom(bundledPluginDirectory, knownBundledPluginFileDetails, true);
-                knownExternalPluginFileDetails = loadAndNotifyPluginsFrom(externalPluginDirectory, knownExternalPluginFileDetails, false);
+                oneShot();
 
                 int interval = systemEnvironment.get(PLUGIN_LOCATION_MONITOR_INTERVAL_IN_SECONDS);
                 if (interval <= 0) {
@@ -189,6 +199,11 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
                 }
                 waitForMonitorInterval(interval);
             } while (!Thread.currentThread().isInterrupted());
+        }
+
+        public void oneShot() {
+            knownBundledPluginFileDetails = loadAndNotifyPluginsFrom(bundledPluginDirectory, knownBundledPluginFileDetails, true);
+            knownExternalPluginFileDetails = loadAndNotifyPluginsFrom(externalPluginDirectory, knownExternalPluginFileDetails, false);
         }
 
         private Set<PluginFileDetails> loadAndNotifyPluginsFrom(File pluginDirectory, Set<PluginFileDetails> knownPluginFiles, boolean isBundledPluginsLocation) {

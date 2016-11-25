@@ -60,7 +60,7 @@ public abstract class FakePluginManager implements PluginManager {
     }
 
     @Override
-    public void startInfrastructure() {
+    public void startInfrastructure(boolean shouldPoll) {
         throw new RuntimeException("Not implemented yet");
     }
 

@@ -25,4 +25,6 @@ public interface PluginJarLocationMonitor {
     void start();
 
     void stop();
+
+    void oneShot();
 }

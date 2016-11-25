@@ -327,7 +327,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
 
     public ElasticAgentMetadata elasticAgentMetadata() {
         ElasticAgentRuntimeInfo runtimeInfo = (ElasticAgentRuntimeInfo) this.agentRuntimeInfo;
-        return new ElasticAgentMetadata(getUuid(), runtimeInfo.getElasticAgentId(), runtimeInfo.getElasticPluginId(), this.agentRuntimeInfo.getRuntimeStatus(), getAgentConfigStatus());
+        return new ElasticAgentMetadata(getUuid(), runtimeInfo.getElasticAgentId(), runtimeInfo.getElasticPluginId(), runtimeInfo.getRuntimeStatus(), getAgentConfigStatus(), getResources());
     }
 
     public boolean canBeDeleted() {

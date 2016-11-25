@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.service.plugins.processor.elasticagent;
 
 import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.Resources;
 import com.thoughtworks.go.domain.AgentConfigStatus;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
@@ -53,13 +54,13 @@ public class ElasticAgentRequestProcessorTest {
     @Test
     public void shouldProcessListAgentRequest() throws Exception {
         LinkedMultiValueMap<String, ElasticAgentMetadata> allAgents = new LinkedMultiValueMap<>();
-        ElasticAgentMetadata agent = new ElasticAgentMetadata("foo", "bar", "docker", AgentRuntimeStatus.Building, AgentConfigStatus.Disabled);
+        ElasticAgentMetadata agent = new ElasticAgentMetadata("foo", "bar", "docker", AgentRuntimeStatus.Building, AgentConfigStatus.Disabled, new Resources());
         allAgents.put("docker", Arrays.asList(agent));
 
         when(agentService.allElasticAgents()).thenReturn(allAgents);
-        GoApiResponse response = processor.process(pluginDescriptor, new DefaultGoApiRequest(REQUEST_SERVER_LIST_AGENTS, "1.0", pluginIdentifier));
+        GoApiResponse response = processor.process(pluginDescriptor, new DefaultGoApiRequest(REQUEST_SERVER_LIST_ELASTIC_AGENTS, "1.0", pluginIdentifier));
 
-        JSONAssert.assertEquals("[{\"agent_id\":\"bar\",\"agent_state\":\"Building\",\"build_state\":\"Building\",\"config_state\":\"Disabled\"}]", response.responseBody(), true);
+        JSONAssert.assertEquals("[{\"agent_id\":\"bar\",\"agent_state\":\"Building\",\"build_state\":\"Building\",\"config_state\":\"Disabled\",\"environments\":[],\"resources\":[]}]", response.responseBody(), true);
     }
 
     @Test

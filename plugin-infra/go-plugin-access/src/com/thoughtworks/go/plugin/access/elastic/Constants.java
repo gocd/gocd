@@ -38,6 +38,8 @@ public class Constants {
 
     public static final String PROCESS_DISABLE_AGENTS = PROCESSOR_PREFIX + ".disable-agents";
     public static final String PROCESS_DELETE_AGENTS = PROCESSOR_PREFIX + ".delete-agents";
-    public static final String REQUEST_SERVER_LIST_AGENTS = PROCESSOR_PREFIX + ".list-agents";
+    public static final String REQUEST_SERVER_LIST_ELASTIC_AGENTS = PROCESSOR_PREFIX + ".list-agents";
+    public static final String REQUEST_SERVER_LIST_ALL_AGENTS = PROCESSOR_PREFIX + ".list-all-agents";
+    public static final String REQUEST_SERVER_LIST_ALL_JOBS = PROCESSOR_PREFIX + ".list-all-jobs";
 
 }

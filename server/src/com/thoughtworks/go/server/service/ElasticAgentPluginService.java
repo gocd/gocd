@@ -114,6 +114,10 @@ public class ElasticAgentPluginService implements JobStatusListener {
         return new AgentMetadata(obj.elasticAgentId(), obj.agentState().toString(), obj.buildState().toString(), obj.configStatus().toString());
     }
 
+    public static AgentMetadata toAgentMetadata(ElasticAgentMetadata eam, Collection<String> environments) {
+        return new AgentMetadata(eam.elasticAgentId(), eam.agentState().toString(), eam.buildState().toString(), eam.configStatus().toString(), eam.resources().resourceNames(), environments);
+    }
+
     public void createAgentsFor(List<JobPlan> old, List<JobPlan> newPlan) {
         Collection<JobPlan> starvingJobs = new ArrayList<>();
         for (JobPlan jobPlan : newPlan) {

@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.domain;
 
+import com.thoughtworks.go.config.Resources;
 import com.thoughtworks.go.domain.AgentConfigStatus;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
@@ -29,13 +30,15 @@ public class ElasticAgentMetadata {
     private final String elasticPluginId;
     private final AgentRuntimeStatus status;
     private final AgentConfigStatus configStatus;
+    private final Resources resources;
 
-    public ElasticAgentMetadata(String uuid, String elasticAgentId, String elasticPluginId, AgentRuntimeStatus status, AgentConfigStatus configStatus) {
+    public ElasticAgentMetadata(String uuid, String elasticAgentId, String elasticPluginId, AgentRuntimeStatus status, AgentConfigStatus configStatus, Resources resources) {
         this.uuid = uuid;
         this.elasticAgentId = elasticAgentId;
         this.elasticPluginId = elasticPluginId;
         this.status = status;
         this.configStatus = configStatus;
+        this.resources = resources;
     }
 
     public AgentRuntimeStatus agentState() {
@@ -48,6 +51,10 @@ public class ElasticAgentMetadata {
 
     public AgentConfigStatus configStatus() {
         return configStatus;
+    }
+
+    public Resources resources() {
+        return resources;
     }
 
     public String elasticAgentId() {
@@ -79,6 +86,7 @@ public class ElasticAgentMetadata {
                 ", elasticPluginId='" + elasticPluginId + '\'' +
                 ", status=" + status +
                 ", configStatus=" + configStatus +
+                ", resources=" + resources +
                 '}';
     }
 }

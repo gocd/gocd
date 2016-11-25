@@ -21,6 +21,8 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.Collections;
 
 public class AgentMetadata implements Serializable {
 
@@ -42,12 +44,29 @@ public class AgentMetadata implements Serializable {
     @Expose
     @SerializedName("config_state")
     private final String configState;
+    @Expose
+    @SerializedName("resources")
+    private final Collection<String> resources;
+    @Expose
+    @SerializedName("environments")
+    private final Collection<String> environments;
 
     public AgentMetadata(String elasticAgentId, String agentState, String buildState, String configState) {
         this.elasticAgentId = elasticAgentId;
         this.agentState = agentState;
         this.buildState = buildState;
         this.configState = configState;
+        this.resources = Collections.emptyList();
+        this.environments = Collections.emptyList();
+    }
+
+    public AgentMetadata(String elasticAgentId, String agentState, String buildState, String configState, Collection<String> resources, Collection<String> environments) {
+        this.elasticAgentId = elasticAgentId;
+        this.agentState = agentState;
+        this.buildState = buildState;
+        this.configState = configState;
+        this.resources = resources;
+        this.environments = environments;
     }
 
     public String elasticAgentId() {

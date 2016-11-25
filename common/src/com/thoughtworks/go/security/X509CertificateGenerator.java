@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.security;
 
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.IOUtils;
 import org.bouncycastle.asn1.x509.BasicConstraints;
 import org.bouncycastle.asn1.x509.X509Extensions;
@@ -43,11 +44,12 @@ import java.util.Date;
 
 import static com.thoughtworks.go.security.X509PrincipalGenerator.*;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
+import static com.thoughtworks.go.util.SystemEnvironment.GO_SSL_CERTS_ALGORITHM;
+import static com.thoughtworks.go.util.SystemEnvironment.GO_SSL_CERTS_PUBLIC_KEY_ALGORITHM;
 
 @Component
 public class X509CertificateGenerator {
     private static final int YEARS = 10;
-    private static final String SIGNATURE_ALGORITHM = "SHA1WITHRSA";
     private static final String PASSWORD = "Crui3CertSigningPassword";
     @Deprecated private static final char[] PASSWORD_AS_CHAR_ARRAY = PASSWORD.toCharArray();
     public static final String AGENT_CERT_OU = "Cruise agent certificate";
@@ -64,8 +66,13 @@ public class X509CertificateGenerator {
 
     public void createAndStoreX509Certificates(File keystore, File truststore, File agentKeystore,
                                       String password, String principalDn) {
-        storeX509Certificate(keystore, password, createCertificateWithDn(principalDn));
-        storeX509Certificate(truststore, password, createAndStoreCACertificates(agentKeystore));
+        if (!keystore.exists()) {
+            storeX509Certificate(keystore, password, createCertificateWithDn(principalDn));
+        }
+
+        if (!(truststore.exists() || agentKeystore.exists())) {
+            storeX509Certificate(truststore, password, createAndStoreCACertificates(agentKeystore));
+        }
     }
 
     private void storeX509Certificate(File file, String passwd, Registration entry) {
@@ -97,7 +104,7 @@ public class X509CertificateGenerator {
         certGen.setNotAfter(now.plusYears(YEARS).toDate());
         certGen.setSubjectDN(principal);                       // note: same as issuer
         certGen.setPublicKey(keyPair.getPublic());
-        certGen.setSignatureAlgorithm(SIGNATURE_ALGORITHM);
+        certGen.setSignatureAlgorithm(new SystemEnvironment().get(GO_SSL_CERTS_ALGORITHM));
 
         try {
             return certGen.generate(keyPair.getPrivate(), "BC");
@@ -269,7 +276,7 @@ public class X509CertificateGenerator {
                                           PublicKey publicKey, BigInteger serialNumber) {
             X509V3CertificateGenerator gen = new X509V3CertificateGenerator();
             gen.reset();
-            gen.setSignatureAlgorithm("SHA1WithRSAEncryption");
+            gen.setSignatureAlgorithm(new SystemEnvironment().get(GO_SSL_CERTS_PUBLIC_KEY_ALGORITHM));
             gen.setNotBefore(startDate);
             DateTime now = new DateTime(new Date());
             gen.setNotAfter(now.plusYears(YEARS).toDate());

@@ -86,6 +86,7 @@ define([
               </div>
 
             <StagesConfigWidget pipeline={args.pipeline}
+                                elasticProfiles={args.elasticProfiles}
                                 currentSelection={ctrl.currentSelection}
                                 vm={ctrl.vmState('stagesConfig')}/>
           </div>

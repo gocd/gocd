@@ -39,10 +39,10 @@ define([
         done();
       });
 
-      var component = PipelineConfigWidget('/pipeline.json', function (controller) {
+      var component = PipelineConfigWidget({url: m.prop('/pipeline.json'), callback: function (controller) {
         pipeline = controller.pipeline();
         reallyDone();
-      });
+      }});
 
       m.mount(root, component);
 

@@ -22,9 +22,13 @@ define([
     var LookupCommandWidget = {
       Command: {
         textComplete: function (attrName, selectSnippet, searchSnippets) {
-          return function (elem, isInitialized) {
+          return function (elem, isInitialized, context) {
             if (!isInitialized) {
               var $inputElem = $(elem).find("input[name='" + attrName + "']");
+
+              context.onunload = function() {
+                $inputElem.textcomplete('destroy');
+              };
 
               $inputElem.textcomplete([
                 {

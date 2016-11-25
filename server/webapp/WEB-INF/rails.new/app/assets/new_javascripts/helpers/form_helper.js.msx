@@ -444,21 +444,33 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
       },
 
       view: function (_ctrl, args) {
-        var items   = deleteKeyAndReturnValue(args, 'items', {}),
-          label   = deleteKeyAndReturnValue(args, 'label'),
-          value   = s.coerceToMprop(deleteKeyAndReturnValue(args, 'value'), ''),
-          tooltip = deleteKeyAndReturnValue(args, 'tooltip');
+        var items     = deleteKeyAndReturnValue(args, 'items', [{}]),
+          label     = deleteKeyAndReturnValue(args, 'label'),
+          model     = deleteKeyAndReturnValue(args, 'model'),
+          modelType = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
+          attrName  = deleteKeyAndReturnValue(args, 'attrName'),
+          tooltip   = deleteKeyAndReturnValue(args, 'tooltip'),
+          disabled  = deleteKeyAndReturnValue(args, 'disabled', false),
+          message   = deleteKeyAndReturnValue(args, 'message', '');
 
         if (!args.size) {
           args.size = 3;
         }
 
+        var propertyMessage;
+        if (message) {
+          propertyMessage = <f.infoToolTip content={message}/>;
+        }
+
         var selectElem = (
-          <select value={value()}
-                  onchange={m.withAttr('value', value)}>
-            {_.map(items, function (text, item) {
+          <select value={model[attrName]()}
+                  disabled={disabled}
+                  data-prop-name={attrName}
+                  data-model-type={modelType}
+                  onchange={m.withAttr('value', model[attrName])}>
+            {_.map(items, function (item) {
               return (
-                <option value={item} selected={item === value()}>{text}</option>
+                <option value={item.id} selected={item.id === model[attrName]()}>{item.text}</option>
               );
             })}
           </select>
@@ -467,8 +479,9 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
         if (s.isBlank(label)) {
           return (
             <f.column {...args}>
-              {selectElem}
               <f.tooltip tooltip={tooltip}/>
+              {propertyMessage}
+              {selectElem}
             </f.column>);
         } else {
           return (
@@ -476,8 +489,9 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
               <label>
                 {label}
               </label>
-              {selectElem}
               <f.tooltip tooltip={tooltip}/>
+              {propertyMessage}
+              {selectElem}
             </f.column>
           );
         }

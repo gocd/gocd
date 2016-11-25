@@ -56,7 +56,21 @@ define([
     this.artifacts            = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.artifacts, new Artifacts())));
     this.tabs                 = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.tabs, new Tabs())));
     this.properties           = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.properties, new Properties())));
-    this.elasticProfileId     = m.prop(s.defaultToIfBlank(data.elasticProfileId, null));
+    var _elasticProfileId     = m.prop(s.defaultToIfBlank(data.elasticProfileId, null));
+    this.elasticProfileId     = function () {
+      if (arguments.length === 1) {
+        // setter
+        if (arguments[0] === 'null' || arguments[0] === 'undefined') {
+          return _elasticProfileId(null);
+        }
+        return _elasticProfileId(arguments[0]);
+      } else {
+        // getter
+        return _elasticProfileId();
+      }
+    };
+
+    this.elasticProfileId.toJSON = _elasticProfileId.toJSON;
 
     this.isRunOnAllAgents = function () {
       return this.runInstanceCount() === 'all';
@@ -97,7 +111,7 @@ define([
     this.validateAssociated('artifacts');
     this.validateAssociated('tabs');
     this.validateAssociated('properties');
-    this.isAssignedToElasticAgent = function () {
+    this.requiresElasticAgent = function () {
       return !_.isNil(this.elasticProfileId());
     };
   };

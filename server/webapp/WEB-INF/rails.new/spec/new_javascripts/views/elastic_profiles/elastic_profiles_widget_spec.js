@@ -233,7 +233,6 @@ define(["jquery", "mithril", "views/elastic_profiles/elastic_profiles_widget", '
 
     describe("edit an existing profile", function () {
       afterEach(removeModal);
-
       it("should popup a new modal to allow edditing a profile", function () {
         jasmine.Ajax.stubRequest('/go/api/elastic/profiles/' + profileJSON.id, undefined, 'GET').andReturn({
           responseText: JSON.stringify(profileJSON),
@@ -258,12 +257,32 @@ define(["jquery", "mithril", "views/elastic_profiles/elastic_profiles_widget", '
 
         expect($('.alert')).toContainText('Boom!');
       });
+
+
+      it("should keep the profile expanded while edit modal is open", function () {
+        jasmine.Ajax.stubRequest('/go/api/elastic/profiles/' + profileJSON.id, undefined, 'GET').andReturn({
+          responseText: JSON.stringify(profileJSON),
+          status:       200
+        });
+
+        expect($root.find('.plugin-config-read-only')).not.toHaveClass('show');
+        $root.find('.profile-id a').click();
+        m.redraw(true);
+        expect($root.find('.plugin-config-read-only')).toHaveClass('show');
+
+        $root.find('.edit-profile').click();
+        m.redraw(true);
+
+        $root.find('.reveal:visible .close-button span').click();
+        m.redraw(true);
+        expect($root.find('.plugin-config-read-only')).toHaveClass('show');
+      });
     });
 
     describe("delete an existing profile", function () {
       afterEach(removeModal);
 
-      it("should show confirm modal when deleting a profile", function() {
+      it("should show confirm modal when deleting a profile", function () {
         $('.delete-profile-confirm').click();
         m.redraw(true);
         expect($('.reveal:visible .modal-title')).toHaveText('Are you sure?');

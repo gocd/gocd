@@ -18,9 +18,13 @@ define(['mithril', 'lodash', 'jquery', 'string-plus', 'jquery.textcomplete'],
   function (m, _, $, s) {
     var PipelineStageFieldWidget = {
       textComplete: function (attrName, values) {
-        return function (elem, isInitialized) {
+        return function (elem, isInitialized, context) {
           if (!isInitialized) {
             var $inputElem = $(elem).find("input[name='" + attrName + "']");
+
+            context.onunload = function() {
+              $inputElem.textcomplete('destroy');
+            };
 
             $inputElem.textcomplete([
               {

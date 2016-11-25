@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'helpers/form_helper'], function (m, _, f) {
+define(['mithril', 'lodash', 'helpers/form_helper', 'js-routes'], function (m, _, f, Routes) {
 
   var UseThis = {
     view: function (_ctrl, args) {
@@ -471,7 +471,8 @@ define(['mithril', 'lodash', 'helpers/form_helper'], function (m, _, f) {
   var jobElasticProfile = (
     <div>
       <p>
-        Jobs associated with an elastic profile id will only run on elastic agents matching the elastic profile.
+        Jobs associated with an elastic profile id will only run on elastic agents matching the elastic profile. <a
+        href={Routes.adminElasticProfilesPath()} target="_blank">Click here</a> to see and manage all elastic profiles.
       </p>
     </div>
   );

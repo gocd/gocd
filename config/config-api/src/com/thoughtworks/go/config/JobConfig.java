@@ -373,10 +373,13 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
             errors().add(RESOURCES, "Job cannot have both `resource` and `elasticProfileId`");
             errors().add(ELASTIC_PROFILE_ID, "Job cannot have both `resource` and `elasticProfileId`");
         }
-        if(!isBlank(elasticProfileId)) {
-            if(!validationContext.isValidProfileId(elasticProfileId)) {
+        if (!isBlank(elasticProfileId)) {
+            if (!validationContext.isWithinTemplates() && !validationContext.isValidProfileId(elasticProfileId)) {
                 errors().add(ELASTIC_PROFILE_ID, String.format("No profile defined corresponding to profile_id '%s'", elasticProfileId));
             }
+        }
+        if (elasticProfileId != null && isBlank(elasticProfileId)){
+            errors().add(ELASTIC_PROFILE_ID, "Must not be a blank string");
         }
         for (Resource resource : resources) {
             if (StringUtils.isEmpty(resource.getName())) {
@@ -405,6 +408,11 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
             String nameString = (String) attributesMap.get(NAME);
             jobName = nameString == null ? null : new CaseInsensitiveString(nameString);
         }
+        if (attributesMap.containsKey("elasticProfileId")) {
+            String elasticProfileId = (String) attributesMap.get("elasticProfileId");
+            setElasticProfileId(StringUtils.isBlank(elasticProfileId) ? null : elasticProfileId);
+        }
+
         if (attributesMap.containsKey(TASKS)) {
             tasks.setConfigAttributes(attributesMap.get(TASKS), taskFactory);
         }

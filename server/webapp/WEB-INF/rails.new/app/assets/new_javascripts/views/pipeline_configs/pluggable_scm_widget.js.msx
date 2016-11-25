@@ -113,16 +113,18 @@ define([
         ctrl.modal.destroy();
       };
 
-      var items = _.transform(ctrl.scms(), function (result, value) {
-        result[value.id()] = value.name();
-      }, {});
+      var items = _.reduce(ctrl.scms(), function (accumulator, value) {
+        accumulator.push({id: value.id(), text: value.name()});
+        return accumulator;
+      }, []);
 
 
       if (!_.isEmpty(items)) {
         return (
             <f.row class='scm-selector'>
               <f.select
-                value={ctrl.selected}
+                model={ctrl}
+                attrName='selected'
                 label='Select an existing SCM'
                 items={items}
                 size={4}

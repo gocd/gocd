@@ -15,14 +15,16 @@
  */
 
 define([
-  "jquery", "mithril", "views/pipeline_configs/jobs_config_widget", "models/pipeline_configs/jobs"
-], function ($, m, JobsConfigWidget, Jobs) {
+  "jquery", "mithril", "views/pipeline_configs/jobs_config_widget", "models/pipeline_configs/jobs", 'models/elastic_profiles/elastic_profiles'
+], function ($, m, JobsConfigWidget, Jobs, ElasticProfiles) {
   describe("JobsConfig Widget", function () {
     var $root = $('#mithril-mount-point'), root = $root.get(0);
     var jobs;
+    var elasticProfiles;
 
     beforeEach(function () {
       jobs = m.prop(Jobs.fromJSON(data.jobs));
+      elasticProfiles = m.prop(new ElasticProfiles());
     });
 
     afterEach(function () {
@@ -56,7 +58,7 @@ define([
 
     function mount() {
       m.mount(root,
-        m.component(JobsConfigWidget, {jobs: jobs, key: jobs().uuid()})
+        m.component(JobsConfigWidget, {jobs: jobs, key: jobs().uuid(), elasticProfiles: elasticProfiles})
       );
       m.redraw(true);
     }

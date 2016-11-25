@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'jquery', 'string-plus', 'helpers/form_helper', 'foundation.reveal'], function (m, _, $, s, f) {
+define(['mithril', 'lodash', 'jquery', 'helpers/form_helper'], function (m, _, $, f) {
   var $body = $('body');
 
   var defaultOptions = {
@@ -32,59 +32,52 @@ define(['mithril', 'lodash', 'jquery', 'string-plus', 'helpers/form_helper', 'fo
   };
 
   var Modal = function (options) {
-    var $revelElem;
     var $modalParent;
-    var modalId = 'modal-' + s.uuid();
 
     options = _.assign({}, defaultOptions, options);
 
-    var config = function (elem, isInitialized) {
-      if (isInitialized) {
-        return;
-      }
-
-      $revelElem = $(elem);
-      new Foundation.Reveal($revelElem); //eslint-disable-line no-undef
-      $revelElem.on('closed.zf.reveal', options.onclose);
-      $revelElem.foundation('open');
-    };
-
-
     var modalDialog = {
       controller: function () {
-        this.onunload = function () {
-          window.setTimeout(function () {
-            $revelElem.foundation('destroy');
-            $revelElem.remove();
-          }, 100);
+        this.close = function (onclose, destroy, e) {
+          if (onclose) {
+            onclose(e);
+          }
 
-          $revelElem.foundation('close');
-          $modalParent.remove();
+          if (!e.defaultPrevented) {
+            destroy();
+          }
         };
       },
-      view:       function () {
+
+      view: function (ctrl, args) {
         return (
-          <div class={'reveal ' + (options.size ? options.size : '')} id={modalId} data-reveal config={config}>
+          <div class="reveal-overlay" style={{display: 'block'}}>
+            <div class={'reveal ' + (options.size ? options.size : '')}
+                 style={{display: 'block'}}>
 
-            <h4 class='modal-title'>{options.title}</h4>
+              <h4 class='modal-title'>{options.title}</h4>
 
-            <div class="modal-body">
-              {options.body}
+              <div class="modal-body">
+                {options.body}
+              </div>
+
+              <button class="close-button"
+                      aria-label="Close modal"
+                      type="button"
+                      onclick={ctrl.close.bind(ctrl, options.onclose, args.destroy)}>
+                <span aria-hidden="true">&times;</span>
+              </button>
+
+              <f.row class="modal-buttons">
+                {_.map(options.buttons, function (button) {
+                  return (
+                    <f.button disabled={button.disabled ? button.disabled() : false}
+                              onclick={button.onclick}
+                              class={button.class}>{button.text}</f.button>
+                  );
+                })}
+              </f.row>
             </div>
-
-            <button class="close-button" data-close={modalId} aria-label="Close modal" type="button">
-              <span aria-hidden="true">&times;</span>
-            </button>
-
-            <f.row class="modal-buttons">
-              {_.map(options.buttons, function (button) {
-                return (
-                  <f.button disabled={button.disabled ? button.disabled() : false}
-                            onclick={button.onclick}
-                            class={button.class}>{button.text}</f.button>
-                );
-              })}
-            </f.row>
           </div>
         );
       }
@@ -94,11 +87,12 @@ define(['mithril', 'lodash', 'jquery', 'string-plus', 'helpers/form_helper', 'fo
       $modalParent = $('<div class="modal-parent"/>').appendTo($body);
       // so you can directly access the modal in tests via `$('.modal-parent').data('modal')`
       $modalParent.data('modal', this);
-      m.mount($modalParent.get(0), modalDialog);
+      m.mount($modalParent.get(0), m.component(modalDialog, {destroy: this.destroy}));
     };
 
     this.destroy = function () {
       m.mount($modalParent.get(0), null);
+      $modalParent.remove();
     };
   };
 

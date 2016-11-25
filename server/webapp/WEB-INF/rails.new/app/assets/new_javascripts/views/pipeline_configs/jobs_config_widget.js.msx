@@ -25,25 +25,35 @@ define([
              Resources,
              EnvironmentVariablesConfigWidget, TasksConfigWidget, ArtifactsConfigWidget, PropertiesConfigWidget, TabsConfigWidget) {
 
-  var autoComplete = function (values, model, attrName) {
-    return function (elem, isInitialized) {
+
+  var resourceReplaceFunc = function (word) {
+    return '$1' + word + ', ';
+  };
+
+  var profileIdReplaceFunc = function (word) {
+    return word;
+  };
+
+  var autoComplete = function (values, model, attrName, match, matchIndex, replaceFunc) {
+    return function (elem, isInitialized, context) {
       if (!isInitialized) {
         var $inputElem = $($(elem).find("input[data-prop-name='" + attrName + "']"));
 
+        context.onunload = function() {
+          $inputElem.textcomplete('destroy');
+        };
+
         $inputElem.textcomplete([
           {
-            words:   values, //the list of auto-completes
-            match:   /(^|,)\s*([^,]+)$/,
-            index:   2, // use the second match in the regex to extract the search term
+            match:   match,
+            index:   matchIndex, // use the second match in the regex to extract the search term
             search:  function (term, callback) {
               term = term.toLowerCase();
-              callback($.map(this.words, function (word) {
+              callback($.map(values, function (word) {
                 return word.toLowerCase().indexOf(term) === 0 ? word : null;
               }));
             },
-            replace: function (word) {
-              return '$1' + word + ', ';
-            }
+            replace: replaceFunc
           }
         ]);
 
@@ -69,8 +79,8 @@ define([
               <label>
                 Timeout
                 <f.tooltip tooltip={{
-                  content: tt.job.timeout,
-                  size: 'small',
+                  content:   tt.job.timeout,
+                  size:      'small',
                   direction: 'bottom'
                 }}
                            model={job}
@@ -97,7 +107,7 @@ define([
               <input type='radio'
                      name={radioName}
                      id={radioName + '-custom'}
-                     checked={!(job.isTimeoutNever()|| job.isTimeoutDefault())}
+                     checked={!(job.isTimeoutNever() || job.isTimeoutDefault())}
                      onchange={job.timeout.bind(job, '')}/>
               <label for={radioName + '-custom'}>
                 Cancel after
@@ -124,19 +134,21 @@ define([
 
   var RunOnAgent = {
     view: function (_ctrl, args) {
-      var job       = args.job;
-      window.job    = job;
-      var radioName = 'radio-' + job.uuid() + '-runInstanceCount';
-      var errors    = job.validate(), runInstanceCounteError;
-      var isAssignedToElasticAgent = job.isAssignedToElasticAgent();
+      var job                  = args.job;
+      window.job               = job;
+      var radioName            = 'radio-' + job.uuid() + '-runInstanceCount';
+      var errors               = job.validate(), runInstanceCounteError;
+      var requiresElasticAgent = job.requiresElasticAgent();
       var runOnAllAgentsMessage;
 
       if (errors.errors('runInstanceCount')) {
-        runInstanceCounteError = (<small class='form-error is-visible'>{errors.errorsForDisplay('runInstanceCount')}</small>);
+        runInstanceCounteError = (
+          <small class='form-error is-visible'>{errors.errorsForDisplay('runInstanceCount')}</small>);
       }
 
-      if (isAssignedToElasticAgent) {
-        runOnAllAgentsMessage = (<f.infoToolTip content='Run on all agents not applicable for job assigned to elastic agents. Please clear "Elastic Profile Id" input box.'/>);
+      if (requiresElasticAgent) {
+        runOnAllAgentsMessage = (<f.infoToolTip
+          content='Run on all agents not applicable for job assigned to elastic agents. Please clear "Elastic Profile Id" input box.'/>);
       }
 
       return (
@@ -146,8 +158,8 @@ define([
               <label>
                 Number of jobs
                 <f.tooltip tooltip={{
-                  content: tt.job.runInstanceCount.main,
-                  size: 'small',
+                  content:   tt.job.runInstanceCount.main,
+                  size:      'small',
                   direction: 'bottom'
                 }}
                            model={job}
@@ -167,9 +179,9 @@ define([
 
               <input type='radio'
                      name={radioName}
-                     class={isAssignedToElasticAgent ? 'disabled-radio' : ''}
+                     class={requiresElasticAgent ? 'disabled-radio' : ''}
                      id={radioName + '-all'}
-                     disabled={isAssignedToElasticAgent}
+                     disabled={requiresElasticAgent}
                      checked={job.isRunOnAllAgents()}
                      onchange={job.runInstanceCount.bind(job, 'all')}/>
               <label for={radioName + '-all'}>
@@ -211,7 +223,7 @@ define([
       ComponentMixins.HasViewModel.call(this);
       ComponentMixins.ManagesCollection.call(this, {as: 'Job'});
       this.removeJob = function (job) {
-        var previousJobIndex =  args.jobs().indexOfJob(job) - 1;
+        var previousJobIndex = args.jobs().indexOfJob(job) - 1;
         this.vmState('selectedJobIndex')(previousJobIndex !== -1 ? previousJobIndex : 0);
         this.remove(job);
       };
@@ -239,22 +251,32 @@ define([
                 isVertical={true}
                 selectedIndex={ctrl.vmState('selectedJobIndex', m.prop(0))}>
           {ctrl.map(function (job) {
-            var jobIndex = args.jobs().indexOfJob(job);
-            var isRunOnAllAgents = job.isRunOnAllAgents();
-            var elasticProfileIdMessage;
-            if (isRunOnAllAgents) {
-              elasticProfileIdMessage = 'Elastic profile id not allowed to set for a job with "Run on all agents". Please select one of "Run on one agent" or "Run instances of job".';
+            var jobIndex                       = args.jobs().indexOfJob(job);
+            var disableElasticProfileSelection = job.isRunOnAllAgents() || !s.isBlank(job.resources());
+            var elasticProfileIdDisabledMessage;
+            if (disableElasticProfileSelection) {
+              elasticProfileIdDisabledMessage = (
+                <div>
+                  Elastic profile id cannot be set for a job if:
+                  <ul>
+                    <li>"Run on all agents" option is selected</li>
+                    <li>job uses "Resources"</li>
+                  </ul>
+                </div>
+              );
+            }
+
+            var disableResourceTextbox = job.requiresElasticAgent();
+            var resourcesDisabledMessage;
+            if (disableResourceTextbox) {
+              resourcesDisabledMessage = (<div>Resources cannot be set on a job if "Elastic Profile Id" is set.</div>);
             }
 
             return (
               <f.row class='job-definition' key={job.uuid()}>
                 <f.column size={12}>
                   <f.removeButton onclick={ctrl.removeJob.bind(ctrl, job)} class='remove-job'/>
-                  <f.accordion accordionTitles={[
-                        (
-                    <span>Job Settings</span>
-                        )
-                  ]}
+                  <f.accordion accordionTitles={[(<span>Job Settings</span>)]}
                                accordionKeys={['job-settings']}
                                selectedIndex={ctrl.vmState('jobSettingsSelected' + jobIndex, m.prop(s.isBlank(job.name()) ? 0 : -1))}
                                class="accordion-inner">
@@ -270,26 +292,29 @@ define([
                       </f.row>
                       <f.row>
                         <f.inputWithLabel
-                          config={autoComplete(Resources.list, job, 'resources')}
+                          config={autoComplete(Resources.list, job, 'resources', /(^|,)\s*([^,]+)$/, 2, resourceReplaceFunc)}
                           attrName='resources'
                           model={job}
+                          disabled={disableResourceTextbox}
+                          message={resourcesDisabledMessage}
                           tooltip={{
-                            content: tt.job.resources,
+                            content:   tt.job.resources,
                             direction: 'bottom',
-                            size: 'small'
+                            size:      'small'
                           }}
                           size={4}
                           largeSize={4}/>
                         <f.inputWithLabel
+                          config={autoComplete(args.elasticProfiles().collectProfileProperty('id'), job, 'elasticProfileId', /(.*)$/, 1, profileIdReplaceFunc)}
+                          model={job}
                           attrName='elasticProfileId'
                           label='Elastic Profile Id'
-                          disabled={isRunOnAllAgents}
-                          message={elasticProfileIdMessage}
-                          model={job}
+                          disabled={disableElasticProfileSelection}
+                          message={elasticProfileIdDisabledMessage}
                           tooltip={{
-                            content: tt.job.elasticProfile,
+                            content:   tt.job.elasticProfile,
                             direction: 'bottom',
-                            size: 'small'
+                            size:      'small'
                           }}
                           size={4}
                           largeSize={4}
@@ -311,19 +336,19 @@ define([
                   </f.row>
                   <f.row>
                     <TasksConfigWidget tasks={job.tasks}
-                                       vm={ctrl.vmState('tasksConfig-' + jobIndex)} />
+                                       vm={ctrl.vmState('tasksConfig-' + jobIndex)}/>
                   </f.row>
 
                   <f.row>
-                      <ArtifactsConfigWidget artifacts={job.artifacts}
-                                             keys={job.artifacts().uuid()}
-                                             vm={ctrl.vmState('artifactsConfig-' + jobIndex)}/>
-                      <TabsConfigWidget tabs={job.tabs}
-                                        keys={job.tabs().uuid()}
-                                        vm={ctrl.vmState('tabsConfig-' + jobIndex)}/>
-                      <PropertiesConfigWidget properties={job.properties}
-                                              keys={job.properties().uuid()}
-                                              vm={ctrl.vmState('propertiesConfig-' + jobIndex)}/>
+                    <ArtifactsConfigWidget artifacts={job.artifacts}
+                                           keys={job.artifacts().uuid()}
+                                           vm={ctrl.vmState('artifactsConfig-' + jobIndex)}/>
+                    <TabsConfigWidget tabs={job.tabs}
+                                      keys={job.tabs().uuid()}
+                                      vm={ctrl.vmState('tabsConfig-' + jobIndex)}/>
+                    <PropertiesConfigWidget properties={job.properties}
+                                            keys={job.properties().uuid()}
+                                            vm={ctrl.vmState('propertiesConfig-' + jobIndex)}/>
                   </f.row>
                 </f.column>
               </f.row>

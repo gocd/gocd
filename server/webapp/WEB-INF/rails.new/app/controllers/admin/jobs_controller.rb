@@ -30,13 +30,13 @@ module Admin
 
     def new
       assert_load :task_view_models, task_view_service.getTaskViewModels()
-      load_resources_for_autocomplete
+      load_resources_and_elastic_profile_ids_for_autocomplete
       assert_load :job, JobConfig.new(CaseInsensitiveString.new(""), Resources.new, ArtifactPlans.new, com.thoughtworks.go.config.Tasks.new([AntTask.new].to_java(Task)))
       render layout: false
     end
 
     def edit
-      load_resources_for_autocomplete
+      load_resources_and_elastic_profile_ids_for_autocomplete
       assert_load :job, @jobs.getJob(CaseInsensitiveString.new(params[:job_name]))
       render with_layout(:action => params[:current_tab]) unless @error_rendered
     end
@@ -122,15 +122,16 @@ module Admin
       options.merge(:layout => "#{params[:stage_parent]}/#{layout_name}")
     end
 
-    def load_resources_for_autocomplete
+    def load_resources_and_elastic_profile_ids_for_autocomplete
       assert_load :autocomplete_resources, @processed_cruise_config.getAllResources().map(&:getName).sort.to_json
+      assert_load :elastic_profile_ids, elastic_profile_service.allProfiles().keys.sort.to_json
     end
 
     def failure_handler(render_options)
       proc do |update_result, all_errors_on_other_objects|
         load_pipeline_and_stage
         assert_load :processed_cruise_config, @config_after
-        load_resources_for_autocomplete
+        load_resources_and_elastic_profile_ids_for_autocomplete
         render_error(update_result, all_errors_on_other_objects, render_options)
       end
     end

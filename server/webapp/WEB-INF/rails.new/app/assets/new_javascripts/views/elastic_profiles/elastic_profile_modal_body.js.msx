@@ -20,7 +20,7 @@ define([
 ], function (m, _, $, f, PluginInfos, ElasticProfiles, AngularPlugin) {
 
   var autoComplete = function (model, attrName, selectCb) {
-    return function (elem, isInitialized) {
+    return function (elem, isInitialized, context) {
       if (isInitialized) {
         return;
       }
@@ -29,6 +29,10 @@ define([
       var values     = _.map(PluginInfos(), function (pi) {
         return pi.id();
       });
+
+      context.onunload = function() {
+        $inputElem.textcomplete('destroy');
+      };
 
       $inputElem.textcomplete([
         {
@@ -79,14 +83,16 @@ define([
 
         PluginInfos.PluginInfo.get(pluginInfo.id()).then(function (pluginInfo) {
           setPluginInfo(pluginInfo);
-          args.profile(new ElasticProfiles.Profile({id: args.profile().id(), pluginId: pluginInfo.id()}));
+          var newProfile = new ElasticProfiles.Profile({id: args.profile().id(), pluginId: pluginInfo.id()});
+          newProfile.etag(args.profile().etag());
+          args.profile(newProfile);
         });
       };
     },
 
     view: function (ctrl, args) {
       var profileIdDisabledMessage;
-      if (args.newProfile) {
+      if (!args.newProfile) {
         profileIdDisabledMessage = (<div>Editing of profile ID is disabled</div>);
       }
 
@@ -112,11 +118,11 @@ define([
                               end="true"/>
           </f.row>
 
-          <f.row>
+          <div class="row collapse">
             <AngularPlugin pluginInfo={args.pluginInfo}
-                           configuration={args.profile().properties()}
+                           configuration={args.profile().properties}
                            key={args.pluginInfo() ? args.pluginInfo().id() : 'no-plugin'}/>
-          </f.row>
+          </div>
         </div>
       );
     }

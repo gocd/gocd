@@ -33,6 +33,10 @@ define(['string-plus', 'mithril', 'lodash', 'helpers/form_helper'], function (s,
       }
       return (vm[key] = vm[key] || value || {});
     };
+
+    this.deleteVm = function(key){
+      delete vm[key];
+    };
   };
 
   ComponentMixins.ManagesCollection = function (options) {

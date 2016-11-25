@@ -18,5 +18,6 @@ JsRoutes.setup do |config|
   config.include    = [
     /^api_internal/,
     /^apiv\d/,
+    /^admin_elastic_profile/,
   ]
 end

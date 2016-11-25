@@ -17,6 +17,7 @@
 define(["mithril", 'helpers/form_helper', 'helpers/mithril_component_mixins', 'views/shared/new_modal'], function (m, f, ComponentMixins, Modal) {
   var ElasticProfileWidget = {
     controller: function (args) {
+      this.args = args;
       ComponentMixins.HasViewModel.call(this);
 
       var vmStateKey = 'show-' + args.profile.id();

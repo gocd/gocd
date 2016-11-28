@@ -392,9 +392,9 @@ public class ConfigRepository {
             public void run() throws Exception {
                 try {
                     LOGGER.info("Before GC: {}", git.gc().getStatistics());
-                    long date = systemEnvironment.getConfigGitGCExpireTime();
+                    long expireTimeInMs = systemEnvironment.getConfigGitGCExpireTime();
                     git.gc().setAggressive(systemEnvironment.get(SystemEnvironment.GO_CONFIG_REPO_GC_AGGRESSIVE))
-                            .setExpire(new Date(date))
+                            .setExpire(new Date(System.currentTimeMillis() - expireTimeInMs))
                             .call();
                     LOGGER.info("After GC: {}", git.gc().getStatistics());
                 } catch (GitAPIException e) {

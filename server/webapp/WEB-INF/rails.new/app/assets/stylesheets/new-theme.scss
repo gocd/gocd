@@ -13,9 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 //new theme for old pages in go.cd app
-
 @import "../new_stylesheets/shared/go-variables";
 @import "../new_stylesheets/shared/mixins";
 @import "../new_stylesheets/shared/go-variables";
@@ -387,6 +385,7 @@ h4 {
   background:      $page-header-bg;
   background-size: cover;
   position:        relative;
+  z-index:         $page-header;
   top:             0;
   box-shadow:      0 0 0 #000;
   border:          0;
@@ -526,11 +525,6 @@ span.pipeline-buttons a.link_as_button {
   &:hover {
     color: #333;
   }
-}
-
-.label-filter-group {
-  top:     41px;
-  z-index: 12;
 }
 
 #labelFilterField {
@@ -725,6 +719,7 @@ ul.entity_title li {
 #new-pipeline-history {
   .page_header {
     margin-bottom: 0px;
+    z-index:       $page-header;
   }
 
   #content_wrapper_outer_pipeline_history {
@@ -905,9 +900,9 @@ div#tab_container {
 }
 
 .admin_workspace h3 {
-  display:       block;
-  margin:        10px 20px;
-  border-bottom: 1px dotted #ccc;
+  display:       inline-block;
+  margin:        10px 10px 10px 20px;
+  border-bottom: none;
 
 }
 
@@ -1010,6 +1005,7 @@ ul#pipeline_config_tree {
   margin:              10px 0 0 0;
   background-position: 3px 0px;
   height:              16px;
+  line-height:         16px;
   padding:             0 0 0 24px;
   display:             inline-block;
 }
@@ -1023,6 +1019,16 @@ ul#pipeline_config_tree {
   &.agent_edit_popup {
     margin-top: auto;
   }
+  .scrollable_panel {
+    padding: 10px;
+    .selectors {
+      padding: 10px 0;
+    }
+  }
+}
+
+input.new_resource {
+  width: 135px;
 }
 
 .filter_agents {
@@ -1184,7 +1190,7 @@ input.new_resource {
     button.primary {
       margin-left:   0;
       border-radius: 0 3px 3px 0;
-      width:         50px;
+      width:         66px;
       background:    $input-btn-bg !important;
       span {
         color: $txt-color !important;
@@ -1195,6 +1201,11 @@ input.new_resource {
       border-radius: 3px 0 0 3px;
     }
   }
+  .selectors {
+    font-size:     13px;
+    border-bottom: 1px dotted $border-color;
+  }
+
 }
 
 #agents .filter_agents {
@@ -1740,7 +1751,11 @@ a:link.help, a:visited.help {
 
 .label-filter-group {
   top:     45px;
-  z-index: 100000;
+  z-index: $label-filter-group;
+
+  .filter-clear-icon {
+    top: 14px;
+  }
 }
 
 .admin_workspace.has_tree_view {
@@ -2230,28 +2245,28 @@ button.check_connection + .connection_test_message pre {
   }
 
   > span:after {
-    animation:                  move 2s linear infinite;
-    content:                    "";
-    position:                   absolute;
-    top:                        0;
-    left:                       0;
-    bottom:                     0;
-    right:                      0;
-    background-image:           linear-gradient(
-                                    -45deg,
-                                    rgba(255, 255, 255, .2) 25%,
-                                    transparent 25%,
-                                    transparent 50%,
-                                    rgba(255, 255, 255, .2) 50%,
-                                    rgba(255, 255, 255, .2) 75%,
-                                    transparent 75%,
-                                    transparent
-                                );
-    z-index:                    1;
-    background-size:            50px 50px;
-    animation:                  move 2s linear infinite;
-    border-radius:20px 8px 8px 20px;
-    overflow:                   hidden;
+    animation:        move 2s linear infinite;
+    content:          "";
+    position:         absolute;
+    top:              0;
+    left:             0;
+    bottom:           0;
+    right:            0;
+    background-image: linear-gradient(
+                          -45deg,
+                          rgba(255, 255, 255, .2) 25%,
+                          transparent 25%,
+                          transparent 50%,
+                          rgba(255, 255, 255, .2) 50%,
+                          rgba(255, 255, 255, .2) 75%,
+                          transparent 75%,
+                          transparent
+                      );
+    z-index:          1;
+    background-size:  50px 50px;
+    animation:        move 2s linear infinite;
+    border-radius:    20px 8px 8px 20px;
+    overflow:         hidden;
   }
 }
 
@@ -2279,10 +2294,6 @@ button.check_connection + .connection_test_message pre {
 
 }
 
-#users_form .edit_panel {
-
-}
-
 #users_form .isFixed {
   box-shadow:       0 4px 5px rgba(102, 102, 102, 0.36);
   top:              40px;
@@ -2293,4 +2304,38 @@ button.check_connection + .connection_test_message pre {
 
 #filter_help {
   margin-top: 0px;
+}
+
+.tristate {
+  background-position: 0 5px;
+}
+
+.promote_button {
+  background-color: transparent;
+  .promote_up {
+    background-color: transparent;
+
+  }
+}
+
+table.variables th {
+  font-size:      14px;
+  padding-bottom: 5px;
+}
+
+.has_tree_view #form_parent {
+  padding: 20px 0;
+}
+
+.action_icon {
+  line-height: 16px;
+}
+
+.artifacts_plan_section {
+  table.artifact {
+    margin-bottom: 10px;
+    h4 {
+      margin-bottom: 10px;
+    }
+  }
 }

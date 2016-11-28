@@ -88,7 +88,6 @@ $inner-accordion-active-bg: $active-accordion-bg ;
 }
 
 .accordion.accordion-inner {
-  //border:0;
   .is-active {
     .accordion-title {
       background:$inner-accordion-active-bg;

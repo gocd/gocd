@@ -27,10 +27,10 @@ $go-links: #0277bd;
 
 $global-border-radius: 3px;
 
-//table
+$page-body-background: #efefef;
 
+//table
 $table-header-bg: #b9f6ca;
-$body-background: #efefef;
 $table-header-border: #a5d6a7;
 
 //header
@@ -57,10 +57,8 @@ $building: #ffc11b;
 
 // agents
 
-//$agent-header-button-bg: #b9f6ca;
 $agent-header-button-bg: $go-primary;
 $agents-btn-hover: darken($go-primary, 4%);
-//$agents-btn-hover:#69f0ae;
 
 //modal
 
@@ -116,7 +114,6 @@ $main-navigation: 10;
 $app-header-z-index: 12;
 $agents-filters: 2;
 $header-panel-z-index: 3;
-$build-details-dropdown-arrow-z-index: 1;
 $agent-header-panel-z-index: 3;
 $build-details-dropdown-arrow-z-index: 2;
 $label-filter-group: 11;

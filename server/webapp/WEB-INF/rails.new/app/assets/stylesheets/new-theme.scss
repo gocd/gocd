@@ -26,7 +26,7 @@ body {
   color:                   #0a0a0a;
   -webkit-font-smoothing:  antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background:              $body-background;
+  background:              $page-body-background;
 
 }
 
@@ -1296,6 +1296,7 @@ input[type="text"], input[type="password"], input[type="file"], input[type="url"
 
   font-size:     13px;
   line-height:   30px;
+  height:        30px;
   border-radius: 3px;
   padding:       0 10px;
   box-shadow:    none;

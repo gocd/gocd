@@ -224,6 +224,8 @@ span.info {
     }
     label {
       font-size: 14px;
+      display:inline-block;
+      margin-right:5px;
     }
     .value {
       font-size: 20px;
@@ -304,6 +306,9 @@ $arrow-color: #000;
 
 .agents-table-body {
   margin-top: 166px;
+  &.has-message {
+    margin-top: 234px;
+  }
 }
 
 .agents-table {

@@ -48,6 +48,7 @@ import org.springframework.transaction.support.TransactionSynchronizationAdapter
 import java.io.IOException;
 import java.util.Arrays;
 
+import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
@@ -111,7 +112,7 @@ public class GoCacheTest {
         NullUser user = new NullUser();
         goCache.put("loser_user", user);
         assertThat((NullUser) goCache.get("loser_user"), is(user));
-        try (LogFixture logFixture = new LogFixture(GoCache.class, Level.DEBUG)) {
+        try (LogFixture logFixture = logFixtureFor(GoCache.class, Level.DEBUG)) {
             String allLogs = logFixture.allLogs();
             assertThat(allLogs, not(containsString("added to cache without an id.")));
             assertThat(allLogs, not(containsString("without an id served out of cache.")));

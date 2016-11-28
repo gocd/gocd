@@ -34,6 +34,7 @@ import java.nio.charset.Charset;
 import java.util.*;
 
 import static com.thoughtworks.go.plugin.infra.service.DefaultPluginLoggingService.pluginLogFileName;
+import static com.thoughtworks.go.util.LogFixture.logFixtureForRootLogger;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
@@ -65,7 +66,7 @@ public class DefaultPluginLoggingServiceIntegrationTest {
 
     @Test
     public void shouldNotLogPluginMessagesToRootLogger() throws Exception {
-        try (LogFixture fixture = new LogFixture(Logger.getRootLogger(), Level.INFO)) {
+        try (LogFixture fixture = logFixtureForRootLogger(Level.INFO)) {
             DefaultPluginLoggingService service = new DefaultPluginLoggingService(systemEnvironment);
             service.info(pluginID(1), "LoggingClass", "this-message-should-not-go-to-root-logger");
 

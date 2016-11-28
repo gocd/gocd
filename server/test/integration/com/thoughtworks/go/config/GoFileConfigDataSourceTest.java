@@ -61,6 +61,7 @@ import java.util.*;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.VALID_XML_3169;
 import static com.thoughtworks.go.util.GoConfigFileHelper.loadAndMigrate;
+import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.any;
 import static org.hamcrest.Matchers.not;
@@ -284,7 +285,7 @@ public class GoFileConfigDataSourceTest {
 
     @Test
     public void shouldNotReloadIfConfigDoesNotChange() throws Exception {
-        try (LogFixture log = new LogFixture(GoFileConfigDataSource.class, Level.DEBUG)) {
+        try (LogFixture log = logFixtureFor(GoFileConfigDataSource.class, Level.DEBUG)) {
             dataSource.reloadIfModified();
             GoConfigHolder loadedConfig = dataSource.load();
             assertThat(log.getLog(), containsString("Config file changed at"));

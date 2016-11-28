@@ -18,15 +18,14 @@ package com.thoughtworks.go.helper;
 
 import com.thoughtworks.go.util.LogFixture;
 
+import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 
 import org.apache.log4j.Level;
-import org.junit.After;
 
 import static org.junit.Assert.assertThat;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.containsString;
@@ -41,7 +40,7 @@ public class RandomPortTest {
 
     @Test
     public void shouldLogPortsAllocated() {
-        try (LogFixture logFixture = new LogFixture(RandomPort.class, Level.DEBUG)) {
+        try (LogFixture logFixture = logFixtureFor(RandomPort.class, Level.DEBUG)) {
             int port = RandomPort.find("foo");
             assertThat(logFixture.getLog(), containsString("RandomPort: Allocating port " + port + " for 'foo'"));
         }

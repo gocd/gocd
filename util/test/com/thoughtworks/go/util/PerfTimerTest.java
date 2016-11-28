@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.util;
 
+import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
@@ -57,7 +58,7 @@ public class PerfTimerTest {
 
         clock.addSeconds(1);
 
-        try (LogFixture fixture = new LogFixture(PerfTimer.class, Level.INFO)) {
+        try (LogFixture fixture = logFixtureFor(PerfTimer.class, Level.INFO)) {
             timer.stop();
             assertThat(fixture.getLog(), containsString("Performance: Message took 1000ms"));
         }

@@ -20,12 +20,12 @@ describe "Log4jLogger" do
   before(:each) do
     @message = 'A debug message'
     @integer_message = 12345
-    @test_appender = LogFixture.startListening
+    @test_appender = LogFixture.logFixtureForRails
     @logger = Log4jLogger.new
   end
 
   after(:each) do
-    @test_appender.stopListening
+    @test_appender.close
   end
 
   it "test_should_log_debugging_message_when_debugging" do

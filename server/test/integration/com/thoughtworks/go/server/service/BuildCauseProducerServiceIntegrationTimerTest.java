@@ -47,6 +47,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Date;
 
+import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
@@ -148,7 +149,7 @@ public class BuildCauseProducerServiceIntegrationTimerTest {
         String up1_2 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(up1, u.d(i++), "g11");
         piplineScheduleQueue.finishSchedule(pipelineName, buildCause, buildCause);
 
-        try (LogFixture logFixture = new LogFixture(TimedBuild.class, Level.INFO)) {
+        try (LogFixture logFixture = logFixtureFor(TimedBuild.class, Level.INFO)) {
             // Timer time comes around again. Will rerun since the new flag (runOnlyOnNewMaterials) is not ON.
             buildCauseProducerService.timerSchedulePipeline(p1.config, new ServerHealthStateOperationResult());
 
@@ -179,7 +180,7 @@ public class BuildCauseProducerServiceIntegrationTimerTest {
         BuildCause buildCause = piplineScheduleQueue.toBeScheduled().get(pipelineName);
         piplineScheduleQueue.finishSchedule(pipelineName, buildCause, buildCause);
 
-        try (LogFixture logFixture = new LogFixture(TimedBuild.class, Level.INFO)) {
+        try (LogFixture logFixture = logFixtureFor(TimedBuild.class, Level.INFO)) {
             // Timer time comes around again. Will NOT rerun since the new flag (runOnlyOnNewMaterials) is ON.
             buildCauseProducerService.timerSchedulePipeline(p1.config, new ServerHealthStateOperationResult());
 
@@ -218,7 +219,7 @@ public class BuildCauseProducerServiceIntegrationTimerTest {
         u.checkinFile(git2, "g22", TestFileUtil.createTempFile("blah_g22"), ModifiedAction.added);
         String p1_2 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p1, mduTimeOfG11, "g11");
         pipelineTimeline.update();
-        try (LogFixture logFixture = new LogFixture(TimedBuild.class, Level.INFO)) {
+        try (LogFixture logFixture = logFixtureFor(TimedBuild.class, Level.INFO)) {
             buildCauseProducerService.timerSchedulePipeline(p2.config, new ServerHealthStateOperationResult());
 
             assertThat(piplineScheduleQueue.toBeScheduled().size(), is(1));

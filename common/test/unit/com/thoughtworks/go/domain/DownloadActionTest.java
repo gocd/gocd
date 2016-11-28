@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.SocketException;
 
+import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static javax.servlet.http.HttpServletResponse.*;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
@@ -66,7 +67,7 @@ public class DownloadActionTest {
     @Test
     public void shouldRetryThreeTimesWhenDownloadFails() throws Exception {
         when(fetchHandler.handleResult(200, publisher)).thenReturn(true);
-        try (LogFixture logging = new LogFixture(DownloadAction.class, Level.DEBUG)) {
+        try (LogFixture logging = logFixtureFor(DownloadAction.class, Level.DEBUG)) {
             FailSometimesHttpService httpService = new FailSometimesHttpService(3);
             DownloadAction downloadAction = new DownloadAction(httpService, publisher, clock);
             downloadAction.perform("foo", fetchHandler);
@@ -85,7 +86,7 @@ public class DownloadActionTest {
 
     @Test
     public void shouldFailAfterFourthTryWhenDownloadFails() throws Exception {
-        try (LogFixture logging = new LogFixture(DownloadAction.class, Level.DEBUG)) {
+        try (LogFixture logging = logFixtureFor(DownloadAction.class, Level.DEBUG)) {
             FailSometimesHttpService httpService = new FailSometimesHttpService(99);
             try {
                 new DownloadAction(httpService, new StubGoPublisher(), clock).perform("foo", fetchHandler);

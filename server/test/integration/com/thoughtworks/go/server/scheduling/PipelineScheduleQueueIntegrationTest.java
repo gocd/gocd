@@ -57,6 +57,7 @@ import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFilesAndTriggerAs;
 import static com.thoughtworks.go.helper.ModificationsMother.multipleModifications;
 import static com.thoughtworks.go.util.GoConfigFileHelper.env;
+import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static org.hamcrest.Matchers.hasItemInArray;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.core.Is.is;
@@ -319,7 +320,7 @@ public class PipelineScheduleQueueIntegrationTest {
 
     @Test
     public void shouldLogWithInfoIfPipelineISScheduled() throws Exception {
-        try (LogFixture logging = new LogFixture(PipelineScheduleQueue.class, Level.DEBUG)) {
+        try (LogFixture logging = logFixtureFor(PipelineScheduleQueue.class, Level.DEBUG)) {
             JobConfigs jobConfigs = new JobConfigs();
             Resources resources = new Resources(new Resource("resource1"));
             ArtifactPlans artifactPlans = new ArtifactPlans();

@@ -22,7 +22,6 @@ import com.googlecode.junit.ext.checkers.OSChecker;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.util.*;
 import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -36,6 +35,7 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
+import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -120,7 +120,7 @@ public class CommandLineTest {
 
     @Test
     public void shouldLogPasswordsOnTheLogAsStars() {
-        try (LogFixture logFixture = new LogFixture(ProcessManager.class, Level.DEBUG)) {
+        try (LogFixture logFixture = logFixtureFor(ProcessManager.class, Level.DEBUG)) {
             CommandLine line = CommandLine.createCommandLine("notexist").withArg(new PasswordArgument("secret"));
             try {
                 line.runOrBomb(null);
@@ -134,7 +134,7 @@ public class CommandLineTest {
     @Test
     @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, OSChecker.WINDOWS})
     public void shouldNotLogPasswordsFromStream() {
-        try (LogFixture logFixture = new LogFixture(CommandLine.class, Level.DEBUG)) {
+        try (LogFixture logFixture = logFixtureFor(CommandLine.class, Level.DEBUG)) {
             CommandLine line = CommandLine.createCommandLine("/bin/echo").withArg("=>").withArg(new PasswordArgument("secret"));
             line.runOrBomb(null);
             System.out.println(ArrayUtil.join(logFixture.getMessages()));

@@ -41,6 +41,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.core.io.ClassPathResource;
 
+import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
@@ -280,7 +281,7 @@ public class P4OutputParserTest {
 
     @Test
     public void shouldIgnoreBadLinesAndLogThem() throws ParseException {
-        try (LogFixture logging = new LogFixture(P4OutputParser.class, Level.DEBUG)) {
+        try (LogFixture logging = logFixtureFor(P4OutputParser.class, Level.DEBUG)) {
             final String output = "Change 539921 on 2008/09/24 "
                     + "by abc@SomeRefinery_abc_sa1-sgr-xyz-001 'more work in progress on MDC un'\n";
             final String description = "Change that I cannot parse :-(\n";

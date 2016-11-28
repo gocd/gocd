@@ -36,6 +36,7 @@ import org.mockito.ArgumentCaptor;
 
 import java.util.List;
 
+import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
@@ -113,7 +114,7 @@ public class CcTrayActivityListenerTest {
         CcTrayJobStatusChangeHandler failingJobStatusChangeHandler = mock(CcTrayJobStatusChangeHandler.class);
         doThrow(new RuntimeException("Ouch. Failed.")).when(failingJobStatusChangeHandler).call(any(JobInstance.class));
 
-        try (LogFixture logFixture = new LogFixture(CcTrayActivityListener.class, Level.DEBUG)) {
+        try (LogFixture logFixture = logFixtureFor(CcTrayActivityListener.class, Level.DEBUG)) {
             CcTrayActivityListener listener = new CcTrayActivityListener(goConfigService, failingJobStatusChangeHandler, normalStageStatusChangeHandler, configChangeHandler);
             listener.initialize();
             listener.jobStatusChanged(JobInstanceMother.passed("some-job-this-should-fail"));

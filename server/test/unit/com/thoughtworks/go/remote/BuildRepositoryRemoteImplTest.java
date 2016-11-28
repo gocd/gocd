@@ -34,6 +34,7 @@ import org.springframework.remoting.RemoteAccessException;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.sameInstance;
@@ -56,7 +57,7 @@ public class BuildRepositoryRemoteImplTest {
         agentService = mock(AgentService.class);
         jobStatusTopic = mock(JobStatusTopic.class);
         buildRepository = new BuildRepositoryRemoteImpl(repositoryService, agentService, jobStatusTopic);
-        logFixture = new LogFixture(BuildRepositoryRemote.class, Level.DEBUG);
+        logFixture = logFixtureFor(BuildRepositoryRemoteImpl.class, Level.TRACE);
         info = new AgentRuntimeInfo(new AgentIdentifier("host", "192.168.1.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
     }
 

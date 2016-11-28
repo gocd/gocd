@@ -50,6 +50,7 @@ import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
 import static com.thoughtworks.go.server.service.ArtifactsService.LOG_XML_NAME;
 import static com.thoughtworks.go.util.GoConstants.PUBLISH_MAX_RETRIES;
+import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -170,7 +171,7 @@ public class ArtifactsServiceTest {
         assumeArtifactsRoot(logsDir);
         doThrow(ioException).when(zipUtil).unzip(Mockito.any(ZipInputStream.class), Mockito.any(File.class));
 
-        try (LogFixture logFixture = new LogFixture(ArtifactsService.class, Level.DEBUG)) {
+        try (LogFixture logFixture = logFixtureFor(ArtifactsService.class, Level.DEBUG)) {
             ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService);
             artifactsService.saveFile(destFile, stream, true, 1);
             assertThat(logFixture.allLogs(), containsString("Failed to save the file to:"));
@@ -188,7 +189,7 @@ public class ArtifactsServiceTest {
 
         Mockito.doThrow(ioException).when(zipUtil).unzip(any(ZipInputStream.class), any(File.class));
 
-        try (LogFixture logFixture = new LogFixture(ArtifactsService.class, Level.DEBUG)) {
+        try (LogFixture logFixture = logFixtureFor(ArtifactsService.class, Level.DEBUG)) {
             ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService);
             artifactsService.saveFile(destFile, stream, true, PUBLISH_MAX_RETRIES);
             assertThat(logFixture.allLogs(), containsString("Failed to save the file to:"));
@@ -366,9 +367,8 @@ public class ArtifactsServiceTest {
         when(chooser.findArtifact(any(LocatableEntity.class), eq(""))).thenThrow(new IllegalArtifactLocationException("holy cow!"));
 
 
-        artifactsService.purgeArtifactsForStage(stage);
-
-        try (LogFixture logFixture = new LogFixture(ArtifactsService.class, Level.DEBUG)) {
+        try (LogFixture logFixture = logFixtureFor(ArtifactsService.class, Level.DEBUG)) {
+            artifactsService.purgeArtifactsForStage(stage);
             assertThat(logFixture.contains(Level.ERROR, "Error occurred while clearing artifacts for 'pipeline/10/stage/20'. Error: 'holy cow!'"), is(true));
         }
         verify(stageService).markArtifactsDeletedFor(stage);

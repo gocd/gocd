@@ -17,6 +17,7 @@ package com.thoughtworks.go.buildsession;
 
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
+import com.googlecode.junit.ext.checkers.OSChecker;
 import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.util.ArrayUtil;
@@ -35,6 +36,7 @@ import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
 import static com.thoughtworks.go.matchers.ConsoleOutMatcher.printedAppsMissingInfoOnUnix;
 import static com.thoughtworks.go.matchers.ConsoleOutMatcher.printedAppsMissingInfoOnWindows;
+import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.not;
@@ -110,18 +112,19 @@ public class ExecCommandExecutorTest extends BuildSessionBasedTestCase {
         assertThat(console.output(), printedAppsMissingInfoOnWindows("not-not-not-exist"));
     }
 
+    @Test
+    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, OSChecker.WINDOWS})
     public void shouldNotLeakSecretsToConsoleLog() {
         runBuild(compose(secret("topsecret"),
                 exec("not-not-not-exist", "topsecret")), Failed);
-        if (!SystemUtil.isWindows()) {
-            assertThat(console.output(), containsString("not-not-not-exist ******"));
-        }
+        assertThat(console.output(), containsString("not-not-not-exist ******"));
         assertThat(console.output(), not(containsString("topsecret")));
     }
 
     @Test
+    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, OSChecker.WINDOWS})
     public void shouldNotLeakSecretsToLog() {
-        try (LogFixture logFixture = new LogFixture(ExecCommandExecutor.class, Level.DEBUG)) {
+        try (LogFixture logFixture = logFixtureFor(ExecCommandExecutor.class, Level.DEBUG)) {
             runBuild(compose(secret("topsecret"),
                     exec("not-not-not-exist", "topsecret")), Failed);
             String logs = ArrayUtil.join(logFixture.getMessages());

@@ -43,6 +43,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
+import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static java.lang.String.format;
 import static org.hamcrest.CoreMatchers.*;
@@ -84,7 +85,7 @@ public class AgentServiceTest {
     public void shouldThrowExceptionWhenAgentWithNoCookieTriesToUpdateStatus() throws Exception {
         AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), null, false);
 
-        try (LogFixture logFixture = new LogFixture(ArtifactsService.class, Level.DEBUG)) {
+        try (LogFixture logFixture = logFixtureFor(AgentService.class, Level.DEBUG)) {
             try {
                 agentService.updateRuntimeInfo(runtimeInfo);
                 fail("should throw exception when no cookie is set");
@@ -103,7 +104,7 @@ public class AgentServiceTest {
         runtimeInfo.setCookie("invalid_cookie");
         AgentInstance original = AgentInstance.createFromLiveAgent(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), null, false), new SystemEnvironment());
 
-        try (LogFixture logFixture = new LogFixture(ArtifactsService.class, Level.DEBUG)) {
+        try (LogFixture logFixture = logFixtureFor(AgentService.class, Level.DEBUG)) {
             try {
                 when(agentService.findAgentAndRefreshStatus(runtimeInfo.getUUId())).thenReturn(original);
                 agentService.updateRuntimeInfo(runtimeInfo);

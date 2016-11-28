@@ -31,14 +31,26 @@ public class LogFixture extends AppenderSkeleton implements Closeable {
     private List<LoggingEvent> events = new ArrayList<>();
     private Logger logger;
 
-    public LogFixture(Class aClass, Level level) {
+    private LogFixture(Class aClass, Level level) {
         this(Logger.getLogger(aClass), level);
     }
 
-    public LogFixture(Logger logger, Level level) {
+    private LogFixture(Logger logger, Level level) {
         this.logger = logger;
         logger.addAppender(this);
         logger.setLevel(level);
+    }
+
+    public static LogFixture logFixtureFor(Class aClass, Level level) {
+        return new LogFixture(aClass, level);
+    }
+
+    public static LogFixture logFixtureForRootLogger(Level level) {
+        return new LogFixture(Logger.getRootLogger(), level);
+    }
+
+    public static LogFixture logFixtureForRails() {
+        return new LogFixture(Logger.getLogger("com.thoughtworks.go.server.Rails"), Level.ALL);
     }
 
     public void close() {
@@ -88,4 +100,5 @@ public class LogFixture extends AppenderSkeleton implements Closeable {
         }
         return builder.toString();
     }
+
 }

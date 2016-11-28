@@ -41,6 +41,7 @@ import java.util.*;
 import static com.thoughtworks.go.agent.common.util.Downloader.*;
 import static com.thoughtworks.go.agent.testhelper.FakeBootstrapperServer.TestResource.*;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
+import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static java.lang.System.getProperty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.core.Is.is;
@@ -178,7 +179,7 @@ public class AgentProcessParentImplTest {
     @Test
     public void shouldLogInterruptOnAgentProcess() throws InterruptedException {
         final List<String> cmd = new ArrayList<>();
-        try (LogFixture logFixture = new LogFixture(AgentProcessParentImpl.class, Level.DEBUG)) {
+        try (LogFixture logFixture = logFixtureFor(AgentProcessParentImpl.class, Level.DEBUG)) {
             Process subProcess = mockProcess();
             when(subProcess.waitFor()).thenThrow(new InterruptedException("bang bang!"));
             AgentProcessParentImpl bootstrapper = createBootstrapper(cmd, subProcess);
@@ -213,7 +214,7 @@ public class AgentProcessParentImplTest {
     public void shouldLogFailureToStartSubprocess() throws InterruptedException {
         final List<String> cmd = new ArrayList<>();
 
-        try (LogFixture logFixture = new LogFixture(AgentProcessParentImpl.class, Level.DEBUG)) {
+        try (LogFixture logFixture = logFixtureFor(AgentProcessParentImpl.class, Level.DEBUG)) {
             AgentProcessParentImpl bootstrapper = new AgentProcessParentImpl() {
                 @Override
                 Process invoke(String[] command) throws IOException {

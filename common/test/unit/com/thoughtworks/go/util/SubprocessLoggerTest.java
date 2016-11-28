@@ -21,6 +21,7 @@ import com.jezhumble.javasysmon.OsProcess;
 import com.jezhumble.javasysmon.ProcessInfo;
 import com.jezhumble.javasysmon.ProcessVisitor;
 
+import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
@@ -47,7 +48,7 @@ public class SubprocessLoggerTest {
     public void shouldNotLogAnythingWhenNoChildProcessesFound() {
         JavaSysMon sysMon = mock(JavaSysMon.class);
         logger = new SubprocessLogger(sysMon);
-        try (LogFixture log = new LogFixture(SubprocessLogger.class, Level.ALL)) {
+        try (LogFixture log = logFixtureFor(SubprocessLogger.class, Level.ALL)) {
             logger.run();
             assertThat(log.allLogs(), is(""));
         }
@@ -57,7 +58,7 @@ public class SubprocessLoggerTest {
     public void shouldLogDefaultMessageWhenNoMessageGiven() {
         logger = new SubprocessLogger(stubSysMon());
         String allLogs;
-        try (LogFixture log = new LogFixture(SubprocessLogger.class, Level.ALL)) {
+        try (LogFixture log = logFixtureFor(SubprocessLogger.class, Level.ALL)) {
             logger.run();
             allLogs = log.allLogs();
         }
@@ -68,7 +69,7 @@ public class SubprocessLoggerTest {
     public void shouldLogAllTheRunningChildProcesses() {
         logger = new SubprocessLogger(stubSysMon());
         String allLogs;
-        try (LogFixture log = new LogFixture(SubprocessLogger.class, Level.ALL)) {
+        try (LogFixture log = logFixtureFor(SubprocessLogger.class, Level.ALL)) {
             logger.registerAsExitHook("foo bar baz");
             logger.run();
             allLogs = log.allLogs();

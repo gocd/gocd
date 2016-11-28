@@ -59,6 +59,7 @@ import static com.thoughtworks.go.server.dao.PersistentObjectMatchers.hasSameId;
 import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
+import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static com.thoughtworks.go.util.TestUtils.sizeIs;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.sameInstance;
@@ -372,7 +373,7 @@ public class JobInstanceSqlMapDaoTest {
 
     @Test
     public void shouldLogStatusUpdatesOfCompletedJobs() throws Exception {
-        try (LogFixture logFixture = new LogFixture(JobInstanceDao.class, Level.DEBUG)) {
+        try (LogFixture logFixture = logFixtureFor(JobInstanceSqlMapDao.class, Level.DEBUG)) {
             JobInstance instance = runningJob("1");
             completeJobs(instance);
             instance.schedule();

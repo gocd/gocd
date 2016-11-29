@@ -1,0 +1,814 @@
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+//new theme for old pages in go.cd app
+@import "../new_stylesheets/shared/go-variables";
+@import "../new_stylesheets/shared/mixins";
+@import "../new_stylesheets/shared/go-variables";
+
+body {
+  padding:                 0;
+  margin:                  0;
+  font-family:             "OpenSansRegular", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+  font-weight:             normal;
+  line-height:             1.5;
+  color:                   #0a0a0a;
+  -webkit-font-smoothing:  antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+
+
+button.primary, a.primary_link_as_button {
+  background-color: $go-primary !important;
+  &:hover{
+    background-color: $go-primary !important;
+  }
+}
+#header {
+  background: #535353;
+  padding:    0;
+  &:before {
+    content: "";
+    width: 100%;
+    height: 2px;
+    position: absolute;
+    top: 0;
+    background: linear-gradient(to right, #94399e, #40d9da, #f5a623, #94399e, #40d9da, #f5a623);
+    z-index: 11;
+  }
+  .header {
+    background: #535353;
+    padding:    0;
+  }
+  #application_logo {
+    float:      left;
+    background: url(/go/assets/go_logo.svg) no-repeat 0 0;
+    height:     calc(50px / 2);
+    width:      60px;
+    margin:     15px 15px 0 16px;
+  }
+}
+
+.application_nav {
+  .tabs {
+    margin-top: 0px;
+    li {
+      margin-left: 0;
+      a {
+        line-height:   50px;
+        font-weight:   700;
+        box-shadow:    inset 0 0 5px rgba(0, 0, 0, 0);
+        border-radius: 0;
+        color:         $go-white;
+        &:hover {
+          background:    darken($grey, 5%) !important;
+          box-shadow:    inset 0 0 5px rgba(0, 0, 0, 0);
+          border-radius: 0;
+
+        }
+        &.dropdown-arrow-icon {
+          position:   relative;
+          background: none;
+          &:after {
+            content:             '';
+            display:             inline-block;
+            width:               0;
+            height:              0;
+            border:              inset 4px;
+            border-color:        rgba(255, 255, 255, 0.43) transparent transparent;
+            border-top-style:    solid;
+            border-bottom-width: 0;
+            right:               8px;
+            top:                 24px;
+            position:            absolute;
+          }
+
+          &:focus, &:active, &:hover {
+            background: $dark-grey !important;
+          }
+        }
+      }
+      &.current {
+        a {
+          background-color: $go-primary;
+          box-shadow:       inset 0 0 5px rgba(0, 0, 0, 0);
+          border-radius:    0;
+          &:hover {
+            background-color: $go-primary !important;
+            box-shadow:       inset 0 0 5px rgba(0, 0, 0, 0);
+            border-radius:    0;
+
+          }
+        }
+      }
+    }
+  }
+  .dropdown-menu {
+    border-radius: 0;
+    padding:       0;
+    li {
+      a {
+
+        border-radius:  0 !important;
+        font-size:      rem-calc(13px);
+        font-weight:    700;
+        line-height:    normal;
+        text-transform: none;
+        padding:        0.5rem 1rem !important;
+      }
+    }
+  }
+
+  .user {
+    margin: 0;
+    li {
+      margin: 0;
+      &:hover {
+        background:    darken($grey, 5%) !important;
+        box-shadow:    inset 0 0 5px rgba(0, 0, 0, 0);
+        border-radius: 0;
+
+      }
+      &.help {
+        margin: 0;
+      }
+      &.current_user.icon {
+        background: none;
+        position:   relative;
+        &:before {
+          font-family:            'FontAwesome';
+          content:                "\f007";
+          font-weight:            normal;
+          font-style:             normal;
+          display:                inline-block;
+          text-decoration:        inherit;
+          line-height:            1em;
+          font-size:              20px;
+          position:               absolute;
+          margin:                 0;
+          left:                   8px;
+          -webkit-font-smoothing: antialiased;
+          top:                    13px;
+        }
+        .current_user_name {
+          border-radius: 0;
+          display:       block;
+          font-size:     12px;
+          font-weight:   700;
+          line-height:   normal;
+          padding:       0;
+          color:         #fff;
+          line-height:   50px;
+          background:    none;
+        }
+        .dropdown-arrow-icon {
+          position:   relative;
+          background: none;
+          &:after {
+            content:             '';
+            display:             inline-block;
+            width:               0;
+            height:              0;
+            border:              inset 4px;
+            border-color:        rgba(255, 255, 255, 0.43) transparent transparent;
+            border-top-style:    solid;
+            border-bottom-width: 0;
+            right:               8px;
+            top:                 24px;
+            position:            absolute;
+          }
+
+        }
+        &:focus, &:active, &:hover {
+          background: $dark-grey !important;
+        }
+        .enhanced_dropdown {
+          left:          auto !important;
+          right:         0;
+          border-radius: 0 !important;
+          padding:       0 !important;
+
+          li {
+            border-radius: 0 !important;
+            border:        0 !important;
+            a {
+              border-radius:  0 !important;
+              font-size:      rem-calc(13px);
+              font-weight:    700;
+              line-height:    normal;
+              text-transform: none;
+              padding:        0.5rem 1rem !important;
+            }
+          }
+        }
+      }
+      a {
+        line-height: 50px;
+        padding:     0 10px;
+      }
+
+    }
+  }
+
+}
+
+//pipelines
+
+//@media only screen and (min-width: 1600px) {
+//
+// #pipeline_groups_container{
+//  max-width: 1400px;
+//  margin:0 auto;
+//}
+//}
+
+#environments #body_content, #pipelines #body_content {
+  background-color: transparent;
+}
+
+.content_wrapper_inner {
+  padding: 15px;
+  margin:  0 15px;
+}
+#pipelines {
+  h2.entity_title {
+    color:          #fff;
+    font-weight:    700;
+    text-transform: uppercase;
+  }
+}
+#body_content {
+  position:   relative;
+  padding:    0;
+  background: transparent;
+  //margin-top: 50px;
+}
+
+.page_header {
+  background:      url("/go/assets/bg_agents_page_header.jpg") no-repeat 0 0;
+  background-size: cover;
+  position:        static;
+  margin-top:      50px;
+  box-shadow:      0 0 0 #000;
+  border:          0;
+  height:          auto;
+}
+
+h1.entity_title {
+  color: #fff !important;
+}
+
+#pipelines {
+  .pipelines_selector {
+    .enhanced_dropdown {
+      right: 30px !important;
+      left:  auto !important;
+      top:   50px !important;
+      box-shadow: 1px 1px 1px #1d1d1d;
+
+      .select_all_none_panel {
+        background: $go-secondary;
+      }
+     .select_all_none_panel #select_text {
+        color: #333;
+      }
+      .select_all_none_panel #show_new_pipelines_container {
+        margin: 3px 10px;
+      }
+      .add_panel button.primary {
+        margin-left: 10px;
+        margin-right: 10px;
+        width: auto;
+        background-color: #94399e!important;
+      }
+    }
+    .search-with-clear {
+      #pipeline-search {
+
+        margin-right:  0px;
+        border-radius: 3px;
+        height:        30px;
+        border-radius: 3px 0px 0 3px;
+
+      }
+    }
+  }
+  button.submit.header_submit {
+    color:            #000;
+    height:           30px;
+    background-color: $go-secondary;
+    background-image: none;
+    border-radius:    0 3px 3px 0;
+    margin:           0;
+
+    &:hover {
+      color:            #000;
+      height:           30px;
+      background-color: $go-secondary;
+    }
+    &:active, &:focus {
+      color:   #000;
+      outline: 0;
+    }
+    span {
+      line-height: 21px;
+    }
+  }
+}
+
+//pipeline history
+
+#bd {
+  border:      0;
+  margin:      0;
+  padding-top: 0;
+  min-width:   auto !important;
+  background:  none;
+}
+
+.container-in-body {
+  padding: 0;
+}
+
+#content_wrapper_outer_pipeline_history #content_wrapper_inner_pipeline_history {
+  padding: 0;
+  margin:  0;
+}
+
+h1#page-title {
+  color:       #fff !important;
+  font-weight: 700 !important;
+}
+
+span.pipeline-buttons a.link_as_button {
+  margin:    5px 0 0 15px;
+  min-width: 40px;
+}
+
+.label-filter-group {
+  top:     54px;
+  z-index: 12;
+}
+
+#labelFilterField {
+  border-radius: $global-border-radius;
+
+}
+
+
+ul.entity_title li {
+  padding-right: 20px;
+  a {
+    font-size: 20px;
+    color:     #fff !important;
+  }
+  &.last {
+    > * {
+      color:       #fff !important;
+      font-weight: 700 !important;
+    }
+  }
+}
+
+//css arrows
+
+// Colors
+$border-color: lighten(#000, 75%);
+$border-active-color: lighten(#000, 50%);
+* {
+  box-sizing: border-box;
+}
+
+.arrow {
+  display:         inline-block;
+  width:           10px;
+  height:          10px;
+  background:      transparent;
+  text-decoration: none;
+  color:           transparent;
+  &:before {
+    display: block;
+    content: "";
+    width:   10px;
+    height:  10px;
+    border: {
+      top:  2px solid $border-color;
+      left: 2px solid $border-color;
+    }
+  }
+  &.prev {
+    transform: rotate(-45deg);
+    left:      0;
+  }
+  &.next {
+    transform: rotate(135deg);
+    right:     0;
+  }
+}
+
+ul.entity_title li {
+  background:    none;
+  padding-right: 0;
+  margin-right:  0;
+  line-height:   normal;
+  &:after {
+    content:    "";
+    background: url(/go/assets/g9/icon_breadcrumb_arrow.svg) no-repeat scroll 0 0 transparent;
+    display:    inline-block;
+    margin:     0 6px;
+    width:      10px;
+    height:     10px;
+    display:    inline-block;
+
+  }
+
+  a {
+    &:hover {
+      text-decoration: underline;
+    }
+
+  }
+  &.last {
+    &:after {
+      display: none;
+    }
+  }
+}
+
+#pipeline_header .feed {
+  margin-top: 6px;
+}
+
+.stages {
+  .pipeline_flow {
+    .pipeline {
+      .stages {
+        background:    #fff;
+        padding:       10px 30px;
+        border-radius: 3px 3px 0 0;
+      }
+    }
+  }
+  .page_title_bar {
+    background:    #fff;
+    padding:       10px 30px;
+    border-radius: 0 0 3px 3px;
+  }
+}
+
+table.pipeline-history-group {
+  width:      auto !important;
+  background: #fff;
+  position:   relative;
+
+}
+
+.pages, .yui-t7 #yui-main .yui-b, #pipeline-history, .admin-rounded-container, #yui-main .content_wrapper_inner, .my-cruise-rounded-container, #server-page .rounded-corner-for-pipeline, #intro {
+  background: none;
+}
+
+table.pipeline-history-group td, table.pipeline-history-group th {
+  vertical-align: middle!important;
+}
+
+input.pipeline-comment-button {
+  background-image: none;
+}
+
+.sub_tabs_container {
+  background: none;
+  border-bottom: 5px solid $go-tertiary;
+  padding: 0;
+  margin:0;
+}
+.sub_tabs_container li.current_tab a, .sub_tabs_container li.current_tab a:hover, .sub_tabs_container li.current a, .sub_tabs_container li.current a:hover {
+  background: #f5a623;
+}
+.sub_tabs_container li a:hover {
+  background-color: #ccc;
+  color: #333;
+}
+
+div#tab_container {
+  overflow: hidden;
+  background: #fff;
+  border-radius:0 0 3px 3px;
+  padding: 20px;
+}
+
+.sub_tabs_container {
+  background: none;
+  li {
+    a {
+      background:  #E2E2E2;
+      color:       #333;
+      font-weight: 400;
+      font-size:   13px;
+    }
+  }
+}
+
+.list_table{
+  box-shadow:none;
+  border:none;
+  font-size: rem-calc(13px);
+  th {
+    background-color:$table-header-bg;
+    background-image:none;
+    border-bottom: 1px solid #DDD;
+    white-space: nowrap;
+  }
+}
+
+.two_col .rail {
+  box-shadow: none;
+  border-radius: 3px;
+}
+
+
+  //
+  //h3.title.entity_title {
+  //  color: #fff;
+  //  margin:0;
+  //  background-position: -12px -7px;
+  //  a{
+  //    color:#fff;
+  //    &:hover{
+  //      text-decoration: underline;
+  //    }
+  //  }
+  //}
+  .admin_workspace h3 {
+    display: inline-block;
+    //color: #fff;
+    margin: 10px 0;
+  }
+span.contextual_help {
+  background: url(/go/assets/g9/icons/icon_help_16_inactive.svg) no-repeat center center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  display: inline-block;
+}
+.admin_sidebar.general {
+  background:    #fff;
+  padding:       10px;
+  border-radius: 3px;
+}
+ul#pipeline_config_tree {
+  width: auto;
+}
+
+.instructions {
+  color: #fff;
+  font-size: rem-calc(13px);
+  margin-top:-10px;
+}
+
+.general li#general a, .project_management li#project_management a, .materials li#materials a, .stages li#stages a, .environment_variables li#environment_variables a, .parameters li#parameters a, .permissions li#permissions a, .stage li#stage a, .jobs li#jobs a, .stage_variables li#stage_variables a, .stage_permissions li#stage_permissions a, .settings li#settings a, .tasks li#tasks a, .artifacts li#artifacts a, .jobs_variables li#jobs_variables a, .tabs li#tabs a, .jobs_permissions li#jobs_permissions a {
+  color: BLACK;
+  background: $go-tertiary;
+}
+.admin_wrapper .form_buttons {
+  margin: 10px 0 0 0;
+  background: none;
+}
+#pipeline_edit_form .form_buttons .submit, #stage_edit_form .form_buttons .submit, #job_edit_form .form_buttons .submit, #template_edit_form .form_buttons .submit, #group_edit_form .form_buttons .submit, #pipeline_edit_form .form_buttons .reset_button, #stage_edit_form .form_buttons .reset_button, #job_edit_form .form_buttons .reset_button, #template_edit_form .form_buttons .reset_button, #group_edit_form .form_buttons .reset_button, #stage_permissions_edit_form .form_buttons .reset_button, #pipeline_snippet_view #view_group .link_as_button, #pipeline_snippet_edit #edit_group .form_buttons .link_as_button, button.submit{
+  background: #CCC;
+  color: #333;
+  //height: 35px;
+  //padding: 0px 10px!important;
+  //line-height: 35px;
+  font-size: rem-calc(13px);
+}
+#pipeline_edit_form .form_buttons .reset_button,
+#stage_edit_form .form_buttons .reset_button,
+#job_edit_form .form_buttons .reset_button,
+#template_edit_form .form_buttons .reset_button,
+#group_edit_form .form_buttons .reset_button,
+#stage_permissions_edit_form .form_buttons .reset_button {
+   //height: 35px;
+}
+
+#agents_form {
+   margin-top: 3px;
+}
+.environment_variables_section #add_variables {
+  float: none;
+  margin: 10px 0 0 0;
+  background: url(/go/assets/g9/icon_add_16.png) no-repeat 1px 0px;
+  height: 16px;
+  padding: 0 0 0 24px;
+  display: inline-block;
+}
+.list_aggregation li {
+  color: #fff;
+}
+.edit_panel button.submit, .edit_panel a.link_as_button {
+  background:$go-tertiary;
+  height: 30px;
+  line-height: 30px;
+  padding: 0 10px;
+  display: block;
+  border-radius: 0;
+  margin: 0 0 0 1px;
+  box-shadow: none;
+  float: left;
+  &:first-child{
+    border-radius: 3px 0 0 3px;
+  }
+  &:hover{
+    background:$go-tertiary;
+    height:30px;
+    line-height:30px;box-shadow: none;
+
+  }
+  &:focus , &:active{
+    outline:0;
+  }
+
+}
+
+.enhanced_dropdown {
+  box-shadow: none;
+}
+
+.filter_agents button.submit.primary {
+  height: 30px;
+
+}
+.filter_agents{
+  input[type="text"]{
+    height:30px;
+    margin:0;
+    border-radius: 3px 0 0 3px ;
+    float:left;
+
+  }
+  button.submit.primary {
+    background: #40d9da !important;
+    border-radius: 0 3px 3px 0;
+    margin: 0;
+    font-size: rem-calc(12px);
+    &:hover{
+      font-size: rem-calc(12px);
+      color:#fff;
+    }
+  }
+}
+#agents .entity_title {
+  float: left;
+  margin-top: 5px;
+}
+.page_header a.new_agents_page {
+  font-size: 13px;
+  color: #fff;
+  text-decoration: none;
+  margin: 6px 0 0 10px;
+  display: inline-block;
+  font-weight: normal;
+  background: #333;
+  border-radius: 3px;
+  padding: 3px 5px;
+  &:hover{
+    text-decoration: none;
+  }
+}
+
+.pipeline_header{
+  .pipeline_name_link {
+  .title.entity_title{
+    a{
+      color:#1F66BD;
+    }
+    }
+  }
+}
+
+.vsm-entity.pipeline.current .actions {
+  width: 215px;
+}
+
+.action_icon {
+  padding-top: 0px;
+}
+.pipeline_operations{
+  button.submit{
+    line-height:normal;
+    height:auto;
+    padding:0!important;
+  }
+}
+.enhanced_dropdown .add_panel {
+  background: none;
+  overflow:hidden;
+}
+button#confirm-pause-up42 {
+  height: auto;
+  line-height: normal;
+  padding: 0!important;
+  margin-left:10px;
+}
+
+.icon16.setting{
+  &:hover {
+    animation-name: rotate;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+  }
+
+  @keyframes rotate {
+    from {transform: rotate(0deg);}
+    to {transform: rotate(360deg);}
+  }
+}
+
+.add_link {
+  padding: 0px 5px 0px 20px;
+}
+.sub_tab_container_content {
+  background: #fff;
+  padding: 20px 30px;
+}
+
+.pipeline_group h2.entity_title {
+
+  color: #333;
+}
+
+.steps_wrapper.sub_tabs_container {
+  background-color: $go-secondary !important;
+  background-image: none!important;
+}
+.steps_panes .form_buttons {
+  background: none;
+}
+
+.admin_workspace.has_tree_view {
+  padding: 20px;
+  border-radius: 3px;
+  background: #fff;
+}
+
+#environments h2.entity_title, #pipelines h2.entity_title {
+  a{
+  color:#fff;
+  &:hover{
+    text-decoration: underline;
+  }
+}
+}
+.environment .pipeline .deploy button.submit {
+  height: auto;
+  padding: 0!important;
+}
+
+input.new_resource {
+  height: 30px;
+}
+#resources_panel{
+.add_panel button.primary{
+  margin-left:0;
+  border-radius:0 3px 3px 0;
+  width: 50px;
+}
+}
+#agents .filter_agents {
+
+  margin-top: 3px;
+}
+.page_header a.new_agents_page:before{
+display:none;
+}
+.agent_details_pane , .job_history_table{
+  margin-top:0;
+  padding: 20px 30px;
+  background: #fff;
+}
+#admin-holder-for-admin-config-source-xml .buttons-group #edit_config {
+  margin-top: -31px;
+  right: 98px;
+  background-color:$go-primary;
+}
+.form_buttons {
+  background: none;
+}
+
+#comment-button {
+
+  color: #fff;
+}

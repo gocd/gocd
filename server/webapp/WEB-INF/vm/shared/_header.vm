@@ -23,6 +23,7 @@
     <link rel="stylesheet" type="text/css" href="$req.getContextPath()/$concatenatedApplicationCssFilePath" media="all" />
     <link rel="stylesheet" type="text/css" href="$req.getContextPath()/$concatenatedCssApplicationCssFilePath" media="all" />
     <link rel="stylesheet" type="text/css" href="$req.getContextPath()/$concatenatedVmApplicationCssFilePath" media="all" />
+    <link rel="stylesheet" type="text/css" href="$req.getContextPath()/$concatenatedNewThemeCssFilePath" media="all" />
 
     ## Some VM pages specify extra CSS files they need.
     #if($extra_css_list)

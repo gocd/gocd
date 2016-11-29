@@ -15,13 +15,14 @@
  */
 
 $go-primary: #94399e;
-$go-secondary: #40d9da;
+$go-secondary: #52BFC3;
 $go-tertiary: #f5a623;
-$go-white: #fff;
+$go-white :#ffffff;
 $light-grey: #e2e2e2;
 $grey: #535353;
 $dark-grey: #1e1e1e;
 
 $border-color: #ccc;
+$table-header-bg :lighten($go-secondary, 20%);
 
 $global-border-radius: 3px;

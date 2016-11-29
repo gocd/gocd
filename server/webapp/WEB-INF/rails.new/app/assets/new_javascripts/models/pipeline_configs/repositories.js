@@ -262,6 +262,12 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
         return null;
       }
 
+      var config = function (xhr) {
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.setRequestHeader("Accept", "application/vnd.go.cd.v1+json");
+        xhr.setRequestHeader( 'Cache-Control', "no-cache");
+      };
+
       var extract = function (xhr) {
         Repositories.repoIdToEtag[repository.id()] = xhr.getResponseHeader('ETag');
         return xhr.responseText;
@@ -270,7 +276,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
       return m.request({
         method:     'GET',
         url:        Routes.apiv1AdminRepositoryPath({repo_id: repository.id()}),  //eslint-disable-line camelcase
-        config:     mrequest.xhrConfig.v1,
+        config:     config,
         extract:    extract,
         type:       Repositories.Repository
       });

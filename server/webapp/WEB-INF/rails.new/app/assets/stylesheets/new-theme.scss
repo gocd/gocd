@@ -1880,9 +1880,9 @@ a:link.help, a:visited.help {
     margin-left: 15px;
   }
   .variables .variable {
-    clear: both;
+    clear:         both;
     margin-bottom: 10px;
-    float: left;
+    float:         left;
   }
 }
 
@@ -2356,4 +2356,8 @@ table.variables th {
       margin-bottom: 10px;
     }
   }
+}
+
+.back_to_top {
+  border-radius: 50%;
 }

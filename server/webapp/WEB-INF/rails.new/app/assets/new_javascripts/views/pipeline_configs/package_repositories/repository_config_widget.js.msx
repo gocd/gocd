@@ -15,10 +15,10 @@
  */
 
 define([
-  'mithril', 'lodash', 'helpers/form_helper', 'helpers/pipeline_configs/tooltips', 'helpers/mithril_component_mixins', 'views/shared/new_modal',
+  'mithril', 'lodash', 'helpers/form_helper', 'helpers/mithril_component_mixins', 'views/shared/new_modal',
   'views/pipeline_configs/package_repositories/repository_config_edit_widget', 'views/pipeline_configs/package_repositories/repository_config_new_widget', 'views/pipeline_configs/package_repositories/package_widget',
   'models/pipeline_configs/repositories', 'models/pipeline_configs/plugin_infos'
-], function (m, _, f, tt, ComponentMixins, Modal, RepositoryConfigEditWidget, RepositoryConfigNewWidget, PackageWidget, Repositories, PluginInfos) {
+], function (m, _, f, ComponentMixins, Modal, RepositoryConfigEditWidget, RepositoryConfigNewWidget, PackageWidget, Repositories, PluginInfos) {
 
   var onSuccessOfRepoAPI = function (vm, modal, material, data) {
     vm.saveSuccess();
@@ -109,39 +109,38 @@ define([
     controller: function (args) {
 
       var ctrl = {
-            material: args.material,
-            create:   function () {
-              var repoForEdit = m.prop(new Repositories.Repository({}));
-              var vm          = new Repositories.vm();
+        material: args.material,
+        create:   function () {
+          var repoForEdit = m.prop(new Repositories.Repository({}));
+          var vm          = new Repositories.vm();
 
-              var modal = new Modal({
-                size:    'small',
-                title:   'Add Repository',
-                body:    (<RepositoryConfigNewWidget repoForEdit={repoForEdit}
+          var modal = new Modal({
+            size:    'small',
+            title:   'Add Repository',
+            body:    (<RepositoryConfigNewWidget repoForEdit={repoForEdit}
                                                      vm={vm}/>),
-                onclose: function () {
-                  vm.reset();
-                  modal.destroy();
-                },
-                buttons: [
-                  {
-                    text:    'Save',
-                    class:   'save primary',
-                    onclick: function () {
-                      vm.startUpdating();
-                      repoForEdit().create().then(onSuccessOfRepoAPI.bind(this, vm, modal, args.material), onFailureOfRepoAPI.bind(this, vm));
-                    }
-                  }
-                ]
-              });
-              modal.render();
-            }
-          }
-        ;
+            onclose: function () {
+              vm.reset();
+              modal.destroy();
+            },
+            buttons: [
+              {
+                text:    'Save',
+                class:   'save primary',
+                onclick: function () {
+                  vm.startUpdating();
+                  repoForEdit().create().then(onSuccessOfRepoAPI.bind(this, vm, modal, args.material), onFailureOfRepoAPI.bind(this, vm));
+                }
+              }
+            ]
+          });
+          modal.render();
+        }
+      };
       return ctrl;
     },
 
-    view: function (ctrl, args) {
+    view: function (ctrl) {
       return (
         <f.row class='repo-selector'>
           <f.column class='no-repo' size={4} largeSize={6} end>
@@ -178,8 +177,8 @@ define([
     view: function (ctrl, args) {
       var items = [];
       _.each(Repositories(), function (repository) {
-        var item = {};
-        item['id'] = repository.id();
+        var item     = {};
+        item['id']   = repository.id();
         item['text'] = repository.name();
         items.push(item);
       });
@@ -196,7 +195,7 @@ define([
             onchange={ctrl.selectRepository.bind(ctrl, args.defaultRepoId())}
           />
         </f.row>
-      )
+      );
     }
   };
 
@@ -209,22 +208,15 @@ define([
       };
     },
     view:       function (ctrl, args) {
-      var noPackagesInfo;
       var repository = args.material.repository;
-      if(!_.isNil(repository()) && _.isEmpty(repository().packages())) {
-        noPackagesInfo = (<div>
-          <label>No packages available in this repository.</label>
-          <a class='add-button button' href="javascript:void(0)">Create New Package</a>
-        </div>)
-      }
+
       return (
         <div>
           <NewRepositoryWidget material={args.material}/>
           {!_.isNil(repository()) || !_.isEmpty(Repositories()) ?
             <SelectRepositoryWidget material={args.material} defaultRepoId={ctrl.defaultRepoId()}/> : ''}
           {_.isNil(repository()) ? '' : <EditRepositoryWidget material={args.material}/> }
-          {noPackagesInfo}
-          {!_.isNil(repository()) && !_.isEmpty(repository().packages()) ? <PackageWidget material={args.material}/> : ''}
+          {!_.isNil(repository()) ? <PackageWidget material={args.material}/> : ''}
         </div>
       );
     }

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/repositories', 'views/pipeline_configs/errors_widget', 'views/pipeline_configs/package_repositories/repository_configuration_widget'],
-  function (m, _, f, Repositories, ErrorsWidget, RepositoryConfigurationWidget) {
+define(['mithril', 'helpers/form_helper', 'views/pipeline_configs/errors_widget', 'views/pipeline_configs/package_repositories/repository_configuration_widget'],
+  function (m, f, ErrorsWidget, RepositoryConfigurationWidget) {
     //This has to be done to get around mithril's controller caching
 
     var RepositoryConfigEditWidget = {
@@ -24,11 +24,10 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
           checkRepositoryConnection: function () {
             //TODO : Have an API for checking the repository connection and make the request from here.
           }
-        }
+        };
       },
 
       view: function (ctrl, args) {
-        debugger;
         var errors = args.vm.hasErrors() ? (<ErrorsWidget errors={args.vm.errors()}/>) : undefined;
 
         return (

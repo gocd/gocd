@@ -33,7 +33,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
 
       var embeddedPackages = function (data) {
         var getPackages = function(embedded) {
-          return embedded.packages ? embedded.packages : ''
+          return embedded.packages ? embedded.packages : '';
         };
         return data._embedded ? getPackages(data._embedded) : '';
       };
@@ -270,7 +270,6 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
       return m.request({
         method:     'GET',
         url:        Routes.apiv1AdminRepositoryPath({repo_id: repository.id()}),  //eslint-disable-line camelcase
-        background: false,
         config:     mrequest.xhrConfig.v1,
         extract:    extract,
         type:       Repositories.Repository

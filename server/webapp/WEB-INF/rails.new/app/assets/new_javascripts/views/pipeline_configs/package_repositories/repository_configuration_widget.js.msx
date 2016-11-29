@@ -16,7 +16,7 @@
 
 define(['mithril', 'helpers/form_helper'], function (m, f) {
   var RepositoryConfigurationWidget = {
-    view: function (ctrl, args) {
+    view: function (_ctrl, args) {
       var inputType     = 'text';
       var configuration = args.configuration;
       if (configuration.key().toLowerCase() === 'password') {
@@ -35,7 +35,7 @@ define(['mithril', 'helpers/form_helper'], function (m, f) {
                             model={configuration}/>
 
         </f.row>
-      )
+      );
     }
   };
 

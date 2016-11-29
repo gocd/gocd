@@ -15,8 +15,8 @@
  */
 
 
-define(['mithril', 'lodash', 'jquery', 'models/pipeline_configs/materials', 'models/pipeline_configs/plugin_infos'],
-  function (m, _, $, Materials, PluginInfos) {
+define(['lodash', 'models/pipeline_configs/materials', 'models/pipeline_configs/plugin_infos'],
+  function (_, Materials, PluginInfos) {
     var PackageRepositories = {};
 
     PackageRepositories.init = function () {

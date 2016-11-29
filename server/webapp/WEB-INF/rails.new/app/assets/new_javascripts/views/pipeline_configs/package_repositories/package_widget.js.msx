@@ -15,14 +15,17 @@
  */
 
 define([
-  'mithril', 'lodash', 'helpers/form_helper', 'helpers/pipeline_configs/tooltips', 'helpers/mithril_component_mixins', 'views/shared/new_modal',
-  'models/pipeline_configs/packages', 'models/pipeline_configs/plugin_infos'
-], function (m, _, f, tt, ComponentMixins, Modal, Packages, PluginInfos) {
+  'mithril', 'lodash', 'helpers/form_helper', 'helpers/mithril_component_mixins', 'views/shared/new_modal',
+  'models/pipeline_configs/packages', 'models/pipeline_configs/repositories', 'models/pipeline_configs/plugin_infos', 'views/pipeline_configs/package_repositories/package_config_new_widget',
+  'views/pipeline_configs/package_repositories/package_config_edit_widget'
+], function (m, _, f, ComponentMixins, Modal, Packages, Repositories, PluginInfos, PackageConfigNewWidget, PackageConfigEditWidget) {
 
-  var onSuccessOfPackageApi = function(vm, modal, material, data) {
+  var onSuccessOfPackageApi = function (vm, modal, material, data) {
     vm.saveSuccess();
     material.ref(data.id());
-    material.repository().addPackage(data)
+    Repositories.findById(material.repository().id()).then(function (repository) {
+      material.repository(repository);
+    });
     modal.destroy();
   };
 
@@ -30,19 +33,23 @@ define([
     vm.saveFailed(data);
   };
 
-  var NewPackageWidget = {
+  var EditPackageWidget = {
     controller: function (args) {
-      Packages.init(args.material.repository().id());
       var ctrl = {
-        create : function () {
-          var packageForEdit = m.prop(new Packages.Package({}));
-          var vm          = new Packages.vm();
+        isPluginMissing: function () {
+          return _.isNil(PluginInfos.findById(args.material.repository().pluginMetadata().id()));
+        },
 
+        update:         function () {
+
+          var vm = new Packages.vm();
+          var packageForEdit = args.getPackageForEdit(args.material.ref());
           var modal = new Modal({
             size:    'small',
-            title:   'Add Package',
-            body:    (<PackageConfigNewWidget packageForEdit={packageForEdit}
-                                                 vm={vm}/>),
+            title:   'Edit Package',
+            body:    (<PackageConfigEditWidget packageForEdit={packageForEdit}
+                                               repository={args.material.repository()}
+                                               vm={vm}/>),
             onclose: function () {
               vm.reset();
               modal.destroy();
@@ -53,7 +60,74 @@ define([
                 class:   'save primary',
                 onclick: function () {
                   vm.startUpdating();
-                  packageForEdit()().create().then(onSuccessOfPackageApi.bind(this, vm, modal, args.material), onFailureOfPackageApi.bind(this, vm));
+                  packageForEdit().update().then(onSuccessOfPackageApi.bind(this, vm, modal, args.material), onFailureOfPackageApi.bind(this, vm));
+                }
+              }
+            ]
+          });
+          modal.render();
+        }
+      };
+      return ctrl;
+    },
+
+    view: function (ctrl, args) {
+      var packageForEdit = args.getPackageForEdit(args.material.ref())();
+      var data           = {Name: packageForEdit.name()};
+
+      packageForEdit.configuration().mapConfigurations(function (conf) {
+        data[_.capitalize(conf.key())] = conf.isSecureValue() ? "***********" : conf.value();
+      });
+
+      var editButton = ctrl.isPluginMissing() ? (
+        <f.alert><b>{args.material.repository().pluginMetadata().id()}</b> plugin seems to be removed.</f.alert>)
+        : (<f.editButton class={null} onclick={ctrl.update}/>);
+
+      return (
+        <div>
+          <div class='repository'>
+            {editButton}
+            <f.row>
+              <ul>
+                {_.map(data, function (v, k) {
+                  return (
+                    <li>
+                      <label class={_.toLower(k)}>{k}</label><span>{v}</span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </f.row>
+          </div>
+        </div>
+      );
+    }
+  };
+
+
+  var NewPackageWidget = {
+    controller: function (args) {
+      var ctrl = {
+        create: function () {
+          var vm             = new Packages.vm();
+
+          var modal = new Modal({
+            size:    'small',
+            title:   'Add Package',
+            body:    (<PackageConfigNewWidget packageForEdit={args.packageForEdit}
+                                              repository={args.material.repository()}
+                                              vm={vm}/>),
+            onclose: function () {
+              vm.reset();
+              modal.destroy();
+            },
+            buttons: [
+              {
+                text:    'Save',
+                class:   'save primary',
+                onclick: function () {
+                  vm.startUpdating();
+                  args.packageForEdit().create().then(onSuccessOfPackageApi.bind(this, vm, modal, args.material), onFailureOfPackageApi.bind(this, vm));
                 }
               }
             ]
@@ -66,14 +140,15 @@ define([
     },
 
     view: function (ctrl, args) {
-      debugger;
       return (
         <f.row>
           <f.column class='no-repo' size={4} largeSize={6} end>
-            {_.isEmpty(Packages()) ?
+            {args.material.repository().packages().countPackage() === 0 ?
               <div>
-                <label>No packages available.</label> <a class='add-button button' href="javascript:void(0)"
-                                                             onclick={ctrl.create}>Create New Package</a></div>
+                <label>No packages available in this repository.</label> <a class='add-button button'
+                                                                            href="javascript:void(0)"
+                                                                            onclick={ctrl.create}>Create New Package</a>
+              </div>
               : <a class='add-button button' href="javascript:void(0)"
                    onclick={ctrl.create}/>}
 
@@ -83,29 +158,31 @@ define([
     }
   };
 
-  var EditPackageWidget = {
+  var PackageWidget = {
     controller: function (args) {
+      var ctrl = {
+        packageForEdit: m.prop(new Packages.Package({})),
 
+        getPackageForEdit: function (packageId) {
+          var packageForEdit = this.packageForEdit;
+          if(packageId) {
+            Packages.getPackage(packageId, packageForEdit);
+          }
+          return this.packageForEdit;
+        }
+      };
+      return ctrl;
     },
-
-    view: function (ctrl, args) {
+    view:       function (ctrl, args) {
       return (
-        <div></div>
-      )
-    }
-  };
-
-  var PackageWidget= {
-    controller: function (args) {
-
-    },
-    view: function (ctrl, args) {
-      return (
-       <div>
-         <NewPackageWidget material={args.material}/>
-         <EditPackageWidget material={args.material}/>
-       </div>
-      )
+        <div>
+          <NewPackageWidget material={args.material}
+                            packageForEdit={ctrl.packageForEdit}
+                            getPackageForEdit={ctrl.getPackageForEdit}/>
+          {_.isNil(args.material.ref()) ? '' : <EditPackageWidget getPackageForEdit={ctrl.getPackageForEdit.bind(ctrl)}
+                                                                  material={args.material}/>}
+        </div>
+      );
     }
   };
   return PackageWidget;

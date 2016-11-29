@@ -37,6 +37,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
         this.autoUpdate    = m.prop(s.defaultToIfBlank(data.auto_update, true));
         this.configuration = s.collectionToJSON(m.prop(Packages.Package.Configurations.fromJSON(data.configuration || {})));
         this.packageRepo   = m.prop(new Packages.Package.PackageRepository(data.package_repo || {}));
+        this.errors         = m.prop(new Errors(data.errors));
       };
 
       this.init(data);
@@ -108,6 +109,24 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
       };
     };
 
+    Packages.Package.initialize = function (repository, configurations) {
+      return new Packages.Package({
+        configuration: configProperties(configurations),
+        package_repo: {
+          id: repository.id(),
+          name: repository.name()
+        }
+      });
+    };
+
+    var configProperties = function(configurations) {
+      var config = [];
+      _.map(configurations, function(configuration) {
+        return config.push({key: configuration.key});
+      });
+      return config;
+    };
+
     Packages.Package.PackageRepository = function (data) {
       this.id   = m.prop(s.defaultToIfBlank(data.id, ''));
       this.name = m.prop(s.defaultToIfBlank(data.name, ''));
@@ -116,8 +135,8 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
         return {
           id: this.id(),
           name: this.name()
-        }
-      }
+        };
+      };
     };
 
     Packages.init = function (repoId) {
@@ -127,21 +146,13 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
           return new Packages.Package({id: packageMaterial.id(), name: packageMaterial.name()});
         });
         Packages(packagesFromRepository);
-
       });
     };
 
     Packages.findById = function (id) {
-      //var packageMaterial = _.find(Packages(), function (packageMaterial) {
-      //  return _.isEqual(packageMaterial.id(), id);
-      //});
-      //
-      //if (_.isNil(packageMaterial)) {
-      //  return null;
-      //}
 
       var extract = function (xhr) {
-        Packages.packageIdToEtag[packageMaterial.id()] = xhr.getResponseHeader('ETag');
+        Packages.packageIdToEtag[id] = xhr.getResponseHeader('ETag');
         return xhr.responseText;
       };
 
@@ -152,6 +163,12 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
         config:     mrequest.xhrConfig.v1,
         extract:    extract,
         type:       Packages.Package
+      });
+    };
+
+    Packages.getPackage = function (packageId, packageForEdit) {
+      Packages.findById(packageId).then(function (packageMaterial) {
+        packageForEdit(packageMaterial);
       });
     };
 

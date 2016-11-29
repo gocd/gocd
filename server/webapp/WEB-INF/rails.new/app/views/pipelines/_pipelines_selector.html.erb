@@ -1,6 +1,11 @@
-
+<div class="pipeline_search_toggle">
+    <%= select_tag("pipelineSearchToggle", options_for_select([["Pipeline", 1], ["Revision", 2]], 1), {:class=>"select_button search_toggle_selector", autocomplete:"off"}) %>
+</div>
 <input title='Search for Pipeline' placeholder='Search for Pipeline' id='pipeline-search' type="text"/>
-
+<div style="float: left; position: relative">
+    <input title='Search for Revision' placeholder='Search for Revision' id='revision-search' type="text"/>
+    <div id="revision-search-empty">No matches found</div>
+</div>
 <%= submit_button("Personalize", :id => "show_pipelines_selector", :type => "header_select") %>
 
 
@@ -31,5 +36,26 @@
     Util.on_load(function() {
         PipelineFilter.initialize();
         PipelineSearch.initialize('#pipeline-search');
+
+        RevisionSearch.initialize("#revision-search","#revision-search-empty");
+        jQuery("#pipelineSearchToggle").val(1);
+        jQuery("#revision-search").blur(function () {
+            jQuery("#revision-search-empty").hide();
+        }).parent().hide();
+        jQuery("#pipelineSearchToggle").change(function () {
+            if (this.value == 2) {
+                // Revision search
+                PipelineFilter.close();
+                jQuery("#revision-search-empty").hide();
+                jQuery("#pipeline-search").val("").trigger("keyup").focus().parent().hide();
+                jQuery("#show_pipelines_selector").hide();
+                jQuery("#revision-search").parent().show();
+            } else {
+                // Pipeline search
+                jQuery("#revision-search").val("").parent().hide();
+                jQuery("#pipeline-search").parent().show();
+                jQuery("#show_pipelines_selector").show();
+            }
+        });
     });
 </script>

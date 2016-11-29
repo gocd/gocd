@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.dao;
 
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
+import com.thoughtworks.go.presentation.pipelinehistory.MatchedPipelineRevision;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
 
@@ -98,4 +99,6 @@ public interface PipelineDao {
     List<PipelineIdentifier> getPipelineInstancesTriggeredWithDependencyMaterial(String pipelineName, PipelineIdentifier revision);
 
     List<PipelineIdentifier> getPipelineInstancesTriggeredWithDependencyMaterial(String pipelineName, MaterialInstance materialInstance, String revision);
+
+    List<MatchedPipelineRevision> findPipelineVSMByRevision(String revision, int limit);
 }

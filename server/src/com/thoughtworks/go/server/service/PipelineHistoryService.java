@@ -579,6 +579,10 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
         return instanceModels;
     }
 
+    public List<MatchedPipelineRevision>  findPipelineInstancesByRevision(String revision, int limit) {
+        return pipelineDao.findPipelineVSMByRevision(revision, limit);
+    }
+
     public PipelineInstanceModels findMatchingPipelineInstances(String pipelineName, String pattern, int limit, Username userName, HttpLocalizedOperationResult result) {
         pattern = escapeWildCardsAndTrim(pattern.trim());
         if (!securityService.hasViewPermissionForPipeline(userName, pipelineName)) {

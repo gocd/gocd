@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineNotFoundException;
 import com.thoughtworks.go.domain.PipelinePauseInfo;
 import com.thoughtworks.go.i18n.Localizer;
+import com.thoughtworks.go.presentation.pipelinehistory.MatchedPipelineRevision;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
 import com.thoughtworks.go.server.presentation.models.PipelineHistoryJsonPresentationModel;
 import com.thoughtworks.go.server.service.*;
@@ -39,8 +40,10 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.server.controller.actions.JsonAction.jsonFound;
@@ -123,6 +126,20 @@ public class PipelineHistoryController {
                 pagination, canForce(pipelineConfig, username),
                 hasForcedBuildCause, hasBuildCauseInBuffer, canPause(pipelineConfig, username));
         return jsonFound(historyJsonPresenter.toJson()).respond(response);
+    }
+
+    @RequestMapping(value = "/**/revisionsearch.json", method = RequestMethod.GET)
+    public ModelAndView revisionSearchJson(@RequestParam("revision") String revision,
+                                           @RequestParam(value = "limit", required = false) Integer limit,
+                                           HttpServletResponse response, HttpServletRequest request) throws Exception {
+        limit = (limit == null || limit <= 0) ? 5 : limit;
+        List<MatchedPipelineRevision> revisions = pipelineHistoryService.findPipelineInstancesByRevision(revision, limit);
+        List<Map> jsonList = new ArrayList<>(revisions.size());
+        for(MatchedPipelineRevision rev : revisions) {
+            if(securityService.hasViewPermissionForPipeline(UserHelper.getUserName(),rev.getPipelineName()))
+                jsonList.add(rev.toJson());
+        }
+        return jsonFound(jsonList).respond(response);
     }
 
     private boolean canPause(PipelineConfig pipelineConfig, String username) {

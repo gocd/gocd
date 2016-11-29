@@ -166,6 +166,7 @@ public class PluggableSCMMaterial extends AbstractMaterial {
         jsonMap.put("location", getUriForDisplay());
         jsonMap.put("folder", getFolder());
         jsonMap.put("action", "Modified");
+        jsonMap.put("fingerprint", getFingerprint());
     }
 
     // most of the material such as git, hg, p4 all print the file from the root without '/'. but svn print it with '/', we standardize it here.

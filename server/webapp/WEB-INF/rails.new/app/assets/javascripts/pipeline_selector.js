@@ -89,4 +89,47 @@ PipelineFilter = function() {
     };
 }();
 
+RevisionSearch = function() {
+    function initialize(searchInput, emptySearchMessage) {
+        var $searchInput = jQuery(searchInput);
+        var $emptySearchMessage = jQuery(emptySearchMessage);
+        $searchInput.autocomplete("/go/revisionsearch.json", {
+            formatItem: function (item) {
+                if (!item.pipelineName || !item.pipelineLabel)
+                    return item.revision;
+                return item.revision + " - " + item.pipelineName + " - " + item.pipelineLabel;
+            },
+            formatResult: function (item) {
+                return item.revision;
+            },
+            formatMatch: function (item) {
+                return item.revision;
+            },
+            extraParams: {
+                revision: function () {
+                    return $searchInput.val().trim();
+                }
+            },
+            parse: function (data) {
+                if (data.length == 0)
+                    $emptySearchMessage.show();
+                else
+                    $emptySearchMessage.hide();
+                var items = [];
+                for (var i = 0; i < data.length; i++)
+                    items[i] = {data: data[i], value: data[i].revision, result: data[i].revision};
+                return items;
+            },
+            highlight: function (value, term) {
+                return value.replace(new RegExp("(?![^&;]+;)(?!<[^<>]*)(" + term.replace(/([\^\$\(\)\[\]\{\}\*\.\+\?\|\\])/gi, "\\$1") + ")(?![^<>]*>)(?![^&;]+;)", "gi"), "<strong style='font-weight: bold'>$1</strong>");
+            },
+            dataType: "json", cacheLength: 1
+        }).result(function (event, item) {
+            window.location.href = "/go/materials/value_stream_map/" + item.fingerprint + "/" + item.revision;
+        });
+    }
 
+    return {
+        initialize: initialize
+    };
+}();

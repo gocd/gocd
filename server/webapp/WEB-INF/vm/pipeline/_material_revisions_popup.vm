@@ -20,7 +20,11 @@
         {for material in materials.all}
         <tbody>
         <tr>
-            <th colspan="3" class="last highlight-${%material.changed%}">${% material.name() %}</th>
+            <th colspan="3" class="last highlight-${%material.changed%}">${% material.name() %}
+                {if material.shouldRenderModifications() && material.fingerprint}
+                    <p><a href="$req.getContextPath()/materials/value_stream_map/${% material.fingerprint %}/${% material.revision %}">View Material in Value Stream Map</a></p>
+                {/if}
+            </th>
         </tr>
         {for modification in material.modifications}
         {if material.shouldRenderModifications()}

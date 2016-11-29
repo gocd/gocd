@@ -79,6 +79,13 @@
         <result property="stageCounter" column="stageCounter"/>
     </resultMap>
 
+    <resultMap id="select-pipeline-vsm" class="com.thoughtworks.go.presentation.pipelinehistory.MatchedPipelineRevision">
+        <result property="revision" column="revision"/>
+        <result property="fingerprint" column="fingerprint"/>
+        <result property="pipelineName" column="name"/>
+        <result property="pipelineLabel" column="label"/>
+    </resultMap>
+
     <parameterMap id="insert-pipeline" class="com.thoughtworks.go.domain.Pipeline">
         <parameter property="name"/>
         <parameter property="counter"/>
@@ -285,6 +292,14 @@
         AND pipelines.id &lt;= #to#
         AND pipelines.name = #pipelineName#
         ORDER BY pipelines.id DESC, stages.orderId ASC
+    </select>
+
+    <select id="getPipelineVSMByRevision" resultMap="select-pipeline-vsm">
+        SELECT mods.REVISION, mats.FINGERPRINT, pipes.NAME, pipes.LABEL  FROM MODIFICATIONS AS mods
+        INNER JOIN MATERIALS AS mats ON mods.MATERIALID = mats.ID
+        LEFT JOIN PIPELINEMATERIALREVISIONS AS pmr ON pmr.MATERIALID = mats.ID AND pmr.TOREVISIONID = mods.ID
+        LEFT JOIN PIPELINES AS pipes ON pipes.ID = pmr.PIPELINEID
+        WHERE mods.REVISION LIKE #revision# ORDER BY mods.REVISION ASC LIMIT #limit#
     </select>
 
     <select id="getPipelineHistoryForIds" resultMap="select-pipeline-history">

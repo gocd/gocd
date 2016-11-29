@@ -73,6 +73,7 @@ public abstract class ScmMaterial extends AbstractMaterial {
             json.put("materialName", CaseInsensitiveString.str(getName()));
         }
         json.put("action", "Modified");
+        json.put("fingerprint", getFingerprint());
     }
 
     //most of the material such as hg, git, p4 all print the file from the root without '/'

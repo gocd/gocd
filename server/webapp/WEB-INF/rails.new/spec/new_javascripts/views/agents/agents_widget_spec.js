@@ -75,7 +75,7 @@ define(["jquery", "mithril", 'lodash', 'models/agents/agents', "views/agents/age
       var agentInfo      = $root.find('table tbody tr')[0];
       var firstAgentInfo = $(agentInfo).find('td');
       expect(firstAgentInfo).toHaveLength(9);
-      expect(firstAgentInfo[0]).toHaveHtml('<input type="checkbox">');
+      expect($(firstAgentInfo[0]).find(':checkbox')).toExist();
       expect(firstAgentInfo[1]).toHaveText('host-1');
       expect(firstAgentInfo[2]).toHaveText('usr/local/foo');
       expect(firstAgentInfo[3]).toHaveText('Linux');

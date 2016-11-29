@@ -231,7 +231,7 @@ define([
           </f.row>
         );
 
-        classForTableBody = classForTableBody + " has-message"
+        classForTableBody = classForTableBody + " has-message";
       }
 
 

@@ -128,7 +128,7 @@ $task-body-bg: #f5f5f5;
     }
   }
 
-  & ~ .pipeline-flow-box {
+  ~ .pipeline-flow-box {
     margin-left: 30px;
     @include icon-before($type: angle-right, $size: 2em) {
       position: absolute;

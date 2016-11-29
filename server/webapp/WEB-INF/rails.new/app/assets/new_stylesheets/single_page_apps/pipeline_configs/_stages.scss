@@ -33,10 +33,10 @@ $task-body-bg: #f5f5f5;
   position: relative;
 
   .stages-wrapper {
+    @include clearfix;
     float:       left;
     display:     inline-block;
     margin-left: 20px;
-    @include clearfix;
   }
 }
 
@@ -127,6 +127,7 @@ $task-body-bg: #f5f5f5;
       }
     }
   }
+
   & ~ .pipeline-flow-box {
     margin-left: 30px;
     @include icon-before($type: angle-right, $size: 2em) {
@@ -142,12 +143,12 @@ $task-body-bg: #f5f5f5;
     padding: 2px;
 
     .label {
+      @include icon-before($type: plus-circle);
       border:        1px dashed $border-color;
       border-radius: $global-border-radius;
       width:         100%;
       color:         #444;
       display:       inline-block;
-      @include icon-before($type: plus-circle);
       height:        auto;
       line-height:   32px;
     }
@@ -252,7 +253,7 @@ $task-body-bg: #f5f5f5;
 .stage-definition {
   position: relative;
 
-  a.add-job {
+  .add-job {
     @include icon-before($type: plus-circle);
     position:      relative;
     text-align:    center;
@@ -294,7 +295,7 @@ $task-body-bg: #f5f5f5;
 
 .task-summary {
   @include icon-before($type: ellipsis-v, $margin: 0 12px 0 0);
-  padding:     0px 15px;
+  padding:     0 15px;
   height:      30px;
   line-height: 30px;
   background:  $task-summary-bg;
@@ -316,10 +317,10 @@ $task-body-bg: #f5f5f5;
   }
 
   .task-type {
-    font-size:   rem-calc(13px);
     @include ellipsis();
+    font-size:   rem-calc(13px);
     margin:      0;
-    padding:      0;
+    padding:     0;
     list-style:  none;
     line-height: 30px;
 

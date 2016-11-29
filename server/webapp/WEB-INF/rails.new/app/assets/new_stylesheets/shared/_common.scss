@@ -15,10 +15,6 @@
  */
 @import "go-variables";
 
-body {
-  background: $body-background;
-}
-
 .container {
   overflow:   hidden;
   background: #fff;
@@ -99,7 +95,6 @@ html, body {
   position:        relative;
   h1 {
     font-size:   rem-calc(18px);
-    font-weight: 400;
     margin:      0;
     display:     inline-block;
     font-weight: 500;
@@ -150,15 +145,26 @@ html, body {
         color:            $go-white;
         height:           auto;
         line-height:      normal;
-        background-color: $go-primary;
+        background-color: $agent-header-button-bg;
         border:           0;
         &:hover,
         &:focus {
-          outline:          0;
           color:            $go-white;
           border:           0;
-          background-color: $go-primary;
+          background-color: $agents-btn-hover;
         }
+      }
+    }
+    .button.disabled,
+    .button[disabled] {
+      opacity:          1;
+      cursor:           not-allowed;
+      background-color: #c7c7c7;
+      color:            #a9a9a9;
+      transition:       all 0.3s ease-in-out;
+      &:hover {
+        background-color: #c7c7c7;
+        color:            #a9a9a9;
       }
     }
 
@@ -198,22 +204,19 @@ html, body {
       }
     }
   }
-  > li {
-    .button.disabled,
-    .button[disabled] {
-      opacity:          1;
-      cursor:           not-allowed;
-      background-color: #c7c7c7;
-      color:            #a9a9a9;
-      transition:       all 0.3s ease-in-out;
-      &:hover {
-        background-color: #c7c7c7;
-        color:            #a9a9a9;
-      }
-    }
-  }
 }
 
 select {
   background-position: calc(100% - 2px) 13px;
 }
+
+[type='text'], [type='password'], [type='date'], [type='datetime'], [type='datetime-local'], [type='month'], [type='week'], [type='email'], [type='number'], [type='search'], [type='tel'], [type='time'], [type='url'], [type='color'], textarea {
+  transition: all 0.3s ease-in-out;
+  &:focus {
+    background-color: rgba(182, 111, 194, 0.14);
+    box-shadow:       none;
+    border-color:     $border-color;
+    transition:       all 0.3s ease-in-out;
+  }
+}
+

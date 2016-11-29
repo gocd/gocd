@@ -256,7 +256,9 @@ define([
                            oninput={m.withAttr("value", args.vm.filterText)}
                            value={filterText}
                            placeholder="Filter Agents"
-                           id="filter-agent"/>
+                           id="filter-agent"
+                           class="filter-agent"
+                    />
                   </div>
                 </f.column>
 

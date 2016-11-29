@@ -73,6 +73,7 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'views/agents/build_details_
         <tr key={agent.uuid()} class={agent.status().toLowerCase()}>
           <td key="checkbox">
             <input type="checkbox"
+                   class="select-agent"
                    checked={args.checkBoxModel()}
                    onclick={m.withAttr('checked', args.checkBoxModel)}/>
           </td>

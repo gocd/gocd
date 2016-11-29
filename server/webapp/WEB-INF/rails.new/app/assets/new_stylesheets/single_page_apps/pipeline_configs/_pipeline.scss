@@ -19,12 +19,12 @@
 
   $standard-margin: nth($fieldset-margin, 1);
 
-  .pipeline-page-header{
-    background:$pipeline-page-header-bg;
+  .pipeline-page-header {
+    background: $pipeline-page-header-bg;
   }
   .heading {
-    margin-bottom:    20px;
-    background:$page-header-bg;
+    margin-bottom: 20px;
+    background:    $page-header-bg;
     h1 {
       font-size: rem-calc(20px);
       margin:    10px 0;
@@ -36,7 +36,7 @@
     margin:     8px 0 0 0;
     position:   relative;
     transition: all 0.5s ease-in-out;
-    float: right;
+    float:      right;
 
     &.in-progress {
       padding-left: 40px;
@@ -187,7 +187,7 @@
   border-radius: $global-border-radius;
   border:        1px solid $border-color;
   background:    $btn-bg;
-  font-weight:   600 !important;
+  font-weight:   600;
   color:         $btn-txt;
   font-size:     rem-calc(11px);
   top:           -2px;

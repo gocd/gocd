@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@import 'shared/mixins';
-@import 'shared/autocomplete';
-@import 'shared/common';
-@import 'shared/modal';
-@import 'shared/header';
-@import 'shared/alert';
+@import '../shared/mixins';
+@import '../shared/autocomplete';
+@import '../shared/common';
+@import '../shared/modal';
+@import '../shared/header';
+@import '../shared/alert';
 
 .elastic-profiles {
   margin-top:       100px;

@@ -18,7 +18,7 @@
 @import '../shared/header';
 @import '../shared/alert';
 
-#agents {
+.agents {
   transition: all 0.3s ease-in-out;
   .container {
     background: transparent;
@@ -34,17 +34,17 @@
     top:             -1px;
     padding:         3px 7px;
     border-radius:   $global-border-radius;
-    background:    $btn-bg;
-    color:         $btn-txt;
-    font-weight:   600;
+    background:      $btn-bg;
+    color:           $btn-txt;
+    font-weight:     600;
     &:hover {
-      background:    $btn-bg;
-      color:         $btn-txt;
+      background: $btn-bg;
+      color:      $btn-txt;
     }
   }
 }
 
-span.info {
+.info {
   color:         #fff;
   clear:         right;
   position:      absolute;
@@ -109,7 +109,7 @@ span.info {
     border-bottom:  1px dotted $border-color;
     padding-bottom: 5px;
     margin-bottom:  5px;
-    input[type=checkbox] {
+    .select-resource {
       margin-bottom: 0;
     }
   }
@@ -117,37 +117,24 @@ span.info {
 
 .header-panel-button-group > li {
   .add-resource {
-    input[type="text"] {
-      border-radius:             0;
-      border-top-left-radius:    $global-border-radius;
-      border-bottom-left-radius: $global-border-radius;
-      height:                    35px;
+    .add-resource-input {
+      border-radius: 5px 0 0 5px;
     }
-    button {
-      border-radius:              0;
-      border-top-right-radius:    5px;
-      border-bottom-right-radius: 5px;
-      border:                     1px solid $input-btn-bg;
-      background:                 $input-btn-bg;
-      margin-right:               1px;
-      font-size:                  15px;
-      color:                      $txt-color;
-      height:                     35px;
-      transition:                 all 0.3s ease-in-out;
-      &:hover,
-      &:focus {
-        transition:       all 0.3s ease-in-out;
-        background-color: $btn-bg;
-        outline:          0;
-        color:             $txt-color;;
-        border:           1px solid $input-btn-bg;
+    .add-resource-btn {
+      border-radius:    0 3px 3px 0;
+      background-color: $btn-light-bg;
+      color:            $txt-color;
+      height:           32px;
+      &:hover {
+        background-color: $btn-light-bg-hover;
+        color:            $go-white;
       }
-
     }
+
   }
-  &.has-dropdown{
+  &.has-dropdown {
     > .button {
-      padding-right:30px;
+      padding-right: 30px;
       &:after {
         content:      "";
         position:     absolute;
@@ -160,27 +147,27 @@ span.info {
         transition:   all 0.3s ease-in-out;
         right:        10px;
       }
-      &.disabled , &[disabled]{
-        &:after{
-          border-color:#b3b3b3 transparent transparent transparent;
+      &.disabled, &[disabled] {
+        &:after {
+          border-color: #b3b3b3 transparent transparent transparent;
         }
       }
     }
   }
 
-
 }
 
 // search panel
+
 .search-panel {
   padding:          10px 0;
   background-color: $body-background;
 }
 
 .search-bar {
+  @include icon-before($type: search);
   position:   relative;
   margin-top: 8px;
-  @include icon-before($type: search);
   &:before {
     position:  absolute;
     left:      7px;
@@ -189,14 +176,11 @@ span.info {
     font-size: 18px;
   }
 
-  input[type="text"] {
-
+  .filter-agent {
     border-radius: $global-border-radius;
     padding-left:  40px;
     margin-bottom: 0;
     height:        35px;
-    background:    #fff;
-
   }
   .fa {
     position:  absolute;
@@ -223,9 +207,9 @@ span.info {
       border: 0;
     }
     label {
-      font-size: 14px;
-      display:inline-block;
-      margin-right:5px;
+      font-size:    14px;
+      display:      inline-block;
+      margin-right: 5px;
     }
     .value {
       font-size: 20px;
@@ -282,9 +266,9 @@ $arrow-color: #000;
   tbody {
     border: 0;
     tr {
-      font-size: rem-calc(13px);
+      font-size:    rem-calc(13px);
       border-right: 1px dotted #ddd;
-      border-left: 1px dotted #ddd;
+      border-left:  1px dotted #ddd;
       &.building {
         background:    #ffeda0;
         border-bottom: 1px solid #fff;
@@ -296,10 +280,10 @@ $arrow-color: #000;
     }
   }
   td {
-    word-break: break-all;
-    border-bottom: 1px dotted #DDD;
+    word-break:    break-all;
+    border-bottom: 1px dotted #ddd;
   }
-  input[type="checkbox"] {
+  .select-agent {
     margin: 0;
   }
 }
@@ -317,8 +301,8 @@ $arrow-color: #000;
       background:    $table-header-bg;
       border-bottom: 3px solid #a5d6a7;
       th {
-        color: $dark-grey;
-        padding:5px 10px !important
+        color:   $dark-grey;
+        padding: 5px 10px;
       }
     }
   }
@@ -402,7 +386,7 @@ $arrow-color: #000;
   }
 }
 
-a.has-build-details-drop-down {
+.has-build-details-drop-down {
   position: relative;
   &:after {
     content:      "";

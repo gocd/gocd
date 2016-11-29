@@ -15,11 +15,11 @@
  */
 
 .dropdown-menu.textcomplete-dropdown {
+  @include menu-base;
+  @include menu-direction(vertical);
   min-width:  $dropdownmenu-min-width;
   background: $dropdownmenu-background;
   border:     $dropdownmenu-border;
-  @include menu-base;
-  @include menu-direction(vertical);
 
   li {
     &.active {

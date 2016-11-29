@@ -816,6 +816,14 @@ input.pipeline-comment-button {
       }
     }
   }
+  &.project_management,
+  &.general,
+  &.materials,
+  &.stages,
+  &.environment_variables,
+  &.parameters {
+    margin-bottom: 20px;
+  }
 }
 
 div#tab_container {
@@ -1191,10 +1199,14 @@ input.new_resource {
       margin-left:   0;
       border-radius: 0 3px 3px 0;
       width:         66px;
-      background:    $input-btn-bg !important;
+      background:    $btn-light-bg !important;
       span {
         color: $txt-color !important;
 
+      }
+      &:hover {
+        background-color: $btn-light-bg-hover !important;
+        color:            $go-white !important;
       }
     }
     input[type="text"] {
@@ -1866,6 +1878,11 @@ a:link.help, a:visited.help {
 .change_materials {
   h3 {
     margin-left: 15px;
+  }
+  .variables .variable {
+    clear: both;
+    margin-bottom: 10px;
+    float: left;
   }
 }
 

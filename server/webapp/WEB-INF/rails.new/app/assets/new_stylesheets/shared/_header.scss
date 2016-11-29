@@ -55,9 +55,8 @@ $menu-hover: #3e3d3d;
     }
   }
   .is-dropdown-submenu {
-    background:$drop-down-menu-bg ;
-    box-shadow:    1px 2px 2px 0px rgba(0, 0, 0, 0.2);
-    //min-width:120px;
+    background: $drop-down-menu-bg;
+    box-shadow: 1px 2px 2px 0 rgba(0, 0, 0, 0.2);
     li {
       a {
         font-size:      rem-calc(13px);
@@ -65,7 +64,7 @@ $menu-hover: #3e3d3d;
         line-height:    normal;
         text-transform: none;
         padding:        10px 17px;
-        color:$txt-color;
+        color:          $txt-color;
       }
     }
   }
@@ -103,7 +102,7 @@ $menu-hover: #3e3d3d;
       }
     }
     &:hover {
-      background:$main-nav-link-bg-hover;
+      background: $main-nav-link-bg-hover;
     }
     &.is-active {
       background: $menu-hover-bg;
@@ -116,8 +115,8 @@ $menu-hover: #3e3d3d;
     }
 
     &.current-user {
-      padding-left: 10px;
       @include icon-before($type: user);
+      padding-left: 10px;
       &:before {
         position:  absolute;
         left:      7px;
@@ -128,8 +127,8 @@ $menu-hover: #3e3d3d;
       a {
         text-transform: none;
       }
-      .is-dropdown-submenu{
-        min-width:120px;
+      .is-dropdown-submenu {
+        min-width: 120px;
       }
     }
     &.current {

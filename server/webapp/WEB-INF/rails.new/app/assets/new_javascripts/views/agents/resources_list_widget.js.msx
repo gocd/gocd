@@ -100,11 +100,11 @@ define(['mithril', 'lodash', 'helpers/form_helper',
                 <input type="text"
                        oninput={m.withAttr("value", ctrl.newResourceInputValue)}
                        value={NewResourceVM.newResource()}
-                       placeholder="Add resource"/>
+                       placeholder="Add resource" class="add-resource-input"/>
               </div>
               <div class="small-3 columns">
                 <f.button onclick={ctrl.addNewResource.bind(ctrl)}
-                          href="#">
+                          href="#" class="add-resource-btn">
                   Add
                 </f.button>
               </div>

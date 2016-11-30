@@ -184,18 +184,14 @@ define([
           <div class="header-panel">
             <header class="page-header">
               <f.row>
-                <f.column size={5}>
+                <f.column size={6}>
                   <h1>Elastic Agent Profiles</h1>
                 </f.column>
 
-                <f.column size={7}>
-                  <ul class="button-group header-panel-button-group">
-                    <li>
-                      <f.button onclick={ctrl.add.bind(ctrl)} class="add-profile">
-                        Add
-                      </f.button>
-                    </li>
-                  </ul>
+                <f.column size={6}>
+                  <f.button onclick={ctrl.add.bind(ctrl)} class="add-profile">
+                    Add
+                  </f.button>
                 </f.column>
               </f.row>
             </header>
@@ -205,19 +201,20 @@ define([
           <div class="elastic-profiles">
             {message}
             <f.row>
+
               {ctrl.profiles().mapProfiles(function (profile) {
                 var pluginInfo = _.find(PluginInfos(), function (pi) {
                   return pi.id() === profile.pluginId();
                 });
 
                 return (
-                  <ElasticProfileWidget
-                    profile={profile}
-                    pluginInfo={pluginInfo}
-                    key={profile.id()}
-                    vm={ctrl.vmState(profile.id())}
-                    onEdit={ctrl.edit.bind(ctrl, profile)}
-                    onDelete={ctrl.delete.bind(ctrl, profile)}/>
+                <ElasticProfileWidget
+                  profile={profile}
+                  pluginInfo={pluginInfo}
+                  key={profile.id()}
+                  vm={ctrl.vmState(profile.id())}
+                  onEdit={ctrl.edit.bind(ctrl, profile)}
+                  onDelete={ctrl.delete.bind(ctrl, profile)}/>
                 );
               })}
             </f.row>

@@ -75,7 +75,7 @@ define([
 
       return m.request({
         method: 'PATCH',
-        url:     Routes.apiv1AdminPipelinePath({pipeline_name: self.name()}), //eslint-disable-line camelcase
+        url:     Routes.apiv3AdminPipelinePath({pipeline_name: self.name()}), //eslint-disable-line camelcase
         config:  config,
         extract: extract,
         data:    JSON.parse(JSON.stringify(this, s.snakeCaser))

@@ -25,7 +25,6 @@ import com.thoughtworks.go.plugin.api.response.GoApiResponse;
 import com.thoughtworks.go.plugin.infra.GoPluginApiRequestProcessor;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.AgentConfigService;
 import com.thoughtworks.go.server.service.AgentService;
@@ -63,7 +62,7 @@ public class ElasticAgentRequestProcessor implements GoPluginApiRequestProcessor
         registry.registerProcessorFor(PROCESS_DELETE_AGENTS, this);
         registry.registerProcessorFor(REQUEST_SERVER_LIST_ELASTIC_AGENTS, this);
         registry.registerProcessorFor(REQUEST_SERVER_LIST_ALL_AGENTS, this);
-        registry.registerProcessorFor(REQUEST_SERVER_LIST_ALL_JOBS, this);
+//        registry.registerProcessorFor(REQUEST_SERVER_LIST_ALL_JOBS, this);
     }
 
     @Override
@@ -94,15 +93,15 @@ public class ElasticAgentRequestProcessor implements GoPluginApiRequestProcessor
 
     private GoApiResponse processListElasticAgents(GoPluginDescriptor pluginDescriptor, GoApiRequest goPluginApiRequest) {
         LOGGER.debug("Listing elastic agents for plugin {}", pluginDescriptor.id());
-        List<ElasticAgentMetadata> elasticAgents = agentService.allElasticAgents().get(pluginDescriptor.id());
+        List<AgentInstance> elasticAgents = agentService.allElasticAgents().get(pluginDescriptor.id());
 
         Collection<AgentMetadata> metadata;
         if (elasticAgents == null) {
             metadata = new ArrayList<>();
         } else {
-            metadata = ListUtil.map(elasticAgents, new ListUtil.Transformer<ElasticAgentMetadata, AgentMetadata>() {
+            metadata = ListUtil.map(elasticAgents, new ListUtil.Transformer<AgentInstance, AgentMetadata>() {
                 @Override
-                public AgentMetadata transform(ElasticAgentMetadata obj) {
+                public AgentMetadata transform(AgentInstance obj) {
                     return toAgentMetadata(obj);
                 }
             });
@@ -123,7 +122,7 @@ public class ElasticAgentRequestProcessor implements GoPluginApiRequestProcessor
             metadata = ListUtil.map(agentEnvironmentMap.keySet(), new ListUtil.Transformer<AgentInstance, AgentMetadata>() {
                 @Override
                 public AgentMetadata transform(AgentInstance obj) {
-                    return toAgentMetadata(obj.elasticAgentMetadata(), agentEnvironmentMap.get(obj));
+                    return toAgentMetadata(obj, agentEnvironmentMap.get(obj));
                 }
             });
         }

@@ -18,13 +18,13 @@ package com.thoughtworks.go.server.service;
 
 import com.google.common.collect.Sets;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
+import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobPlan;
 import com.thoughtworks.go.plugin.access.elastic.AgentMetadata;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginRegistry;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.infra.PluginManager;
-import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.domain.JobStatusListener;
 import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentMessage;
 import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentQueueHandler;
@@ -83,7 +83,7 @@ public class ElasticAgentPluginService implements JobStatusListener {
     }
 
     public void heartbeat() {
-        LinkedMultiValueMap<String, ElasticAgentMetadata> elasticAgentsOfMissingPlugins = agentService.allElasticAgents();
+        LinkedMultiValueMap<String, AgentInstance> elasticAgentsOfMissingPlugins = agentService.allElasticAgents();
 
         for (PluginDescriptor descriptor : elasticAgentPluginRegistry.getPlugins()) {
             serverPingQueue.post(new ServerPingMessage(descriptor.id()));
@@ -93,10 +93,10 @@ public class ElasticAgentPluginService implements JobStatusListener {
 
         if (!elasticAgentsOfMissingPlugins.isEmpty()) {
             for (String pluginId : elasticAgentsOfMissingPlugins.keySet()) {
-                Collection<String> uuids = ListUtil.map(elasticAgentsOfMissingPlugins.get(pluginId), new ListUtil.Transformer<ElasticAgentMetadata, String>() {
+                Collection<String> uuids = ListUtil.map(elasticAgentsOfMissingPlugins.get(pluginId), new ListUtil.Transformer<AgentInstance, String>() {
                     @Override
-                    public String transform(ElasticAgentMetadata input) {
-                        return input.uuid();
+                    public String transform(AgentInstance input) {
+                        return input.getUuid();
                     }
                 });
                 String description = String.format("Elastic agent plugin with identifier %s has gone missing, but left behind %s agent(s) with UUIDs %s.", pluginId, elasticAgentsOfMissingPlugins.get(pluginId).size(), uuids);
@@ -110,12 +110,12 @@ public class ElasticAgentPluginService implements JobStatusListener {
         return HealthStateScope.forPlugin(pluginId, "missingPlugin");
     }
 
-    public static AgentMetadata toAgentMetadata(ElasticAgentMetadata obj) {
-        return new AgentMetadata(obj.elasticAgentId(), obj.agentState().toString(), obj.buildState().toString(), obj.configStatus().toString());
+    public static AgentMetadata toAgentMetadata(AgentInstance eam) {
+        return new AgentMetadata(eam.elasticAgentId(), eam.getRuntimeStatus().agentState().toString(), eam.getRuntimeStatus().buildState().toString(), eam.getAgentConfigStatus().toString());
     }
 
-    public static AgentMetadata toAgentMetadata(ElasticAgentMetadata eam, Collection<String> environments) {
-        return new AgentMetadata(eam.elasticAgentId(), eam.agentState().toString(), eam.buildState().toString(), eam.configStatus().toString(), eam.resources().resourceNames(), environments);
+    public static AgentMetadata toAgentMetadata(AgentInstance eam, Collection<String> environments) {
+        return new AgentMetadata(eam.elasticAgentId(), eam.getRuntimeStatus().agentState().toString(), eam.getRuntimeStatus().buildState().toString(), eam.getAgentConfigStatus().toString(), eam.getResources().resourceNames(), environments);
     }
 
     public void createAgentsFor(List<JobPlan> old, List<JobPlan> newPlan) {
@@ -154,8 +154,8 @@ public class ElasticAgentPluginService implements JobStatusListener {
         };
     }
 
-    public boolean shouldAssignWork(ElasticAgentMetadata metadata, String environment, ElasticProfile elasticProfile) {
-        return elasticAgentPluginRegistry.shouldAssignWork(pluginManager.getPluginDescriptorFor(metadata.elasticPluginId()), toAgentMetadata(metadata), environment, elasticProfile.getConfigurationAsMap(true));
+    public boolean shouldAssignWork(AgentInstance agent, String environment, ElasticProfile elasticProfile) {
+        return elasticAgentPluginRegistry.shouldAssignWork(pluginManager.getPluginDescriptorFor(agent.elasticPluginId()), toAgentMetadata(agent), environment, elasticProfile.getConfigurationAsMap(true));
     }
 
     @Override

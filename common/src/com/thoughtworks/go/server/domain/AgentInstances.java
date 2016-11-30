@@ -276,14 +276,13 @@ public class AgentInstances implements Iterable<AgentInstance> {
         return osList;
     }
 
-    public LinkedMultiValueMap<String, ElasticAgentMetadata> allElasticAgentsGroupedByPluginId() {
-        LinkedMultiValueMap<String, ElasticAgentMetadata> map = new LinkedMultiValueMap<>();
+    public LinkedMultiValueMap<String, AgentInstance> allElasticAgentsGroupedByPluginId() {
+        LinkedMultiValueMap<String, AgentInstance> map = new LinkedMultiValueMap<>();
 
         for (Map.Entry<String, AgentInstance> entry : agentInstances.entrySet()) {
             AgentInstance agentInstance = entry.getValue();
             if (agentInstance.isElastic()) {
-                ElasticAgentMetadata metadata = agentInstance.elasticAgentMetadata();
-                map.add(metadata.elasticPluginId(), metadata);
+                map.add(agentInstance.elasticPluginId(), agentInstance);
             }
         }
 
@@ -297,8 +296,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
                     return false;
                 }
 
-                ElasticAgentMetadata elasticAgentMetadata = agentInstance.elasticAgentMetadata();
-                return elasticAgentMetadata.elasticAgentId().equals(elasticAgentId) && elasticAgentMetadata.elasticPluginId().equals(elasticPluginId);
+                return agentInstance.elasticAgentId().equals(elasticAgentId) && agentInstance.elasticPluginId().equals(elasticPluginId);
 
             }
         });

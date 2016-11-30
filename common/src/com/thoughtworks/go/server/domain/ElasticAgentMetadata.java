@@ -20,9 +20,12 @@ import com.thoughtworks.go.config.Resources;
 import com.thoughtworks.go.domain.AgentConfigStatus;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
+import com.thoughtworks.go.util.Filter;
 import com.thoughtworks.go.util.ListUtil;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 public class ElasticAgentMetadata {
     private final String uuid;
@@ -70,13 +73,24 @@ public class ElasticAgentMetadata {
     }
 
     public static Collection<ElasticAgentMetadata> from(Collection<AgentInstance> agents) {
-        return ListUtil.map(agents, new ListUtil.Transformer<AgentInstance, ElasticAgentMetadata>() {
+        List<AgentInstance> elasticAgents = ListUtil.filterInto(new ArrayList<AgentInstance>(), agents, new Filter<AgentInstance>() {
+            @Override
+            public boolean matches(AgentInstance element) {
+                return element.isElastic();
+            }
+        });
+        return ListUtil.map(elasticAgents, new ListUtil.Transformer<AgentInstance, ElasticAgentMetadata>() {
             @Override
             public ElasticAgentMetadata transform(AgentInstance obj) {
-                return obj.elasticAgentMetadata();
+                return from(obj);
             }
         });
     }
+
+    public static ElasticAgentMetadata from(AgentInstance agent) {
+        return new ElasticAgentMetadata(agent.getUuid(), agent.elasticAgentId(), agent.elasticPluginId(), agent.getRuntimeStatus(), agent.getAgentConfigStatus(), agent.getResources());
+    }
+
 
     @Override
     public String toString() {

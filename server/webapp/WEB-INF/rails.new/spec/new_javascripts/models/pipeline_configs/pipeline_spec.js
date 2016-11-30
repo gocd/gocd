@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(["models/pipeline_configs/pipeline", 'models/pipeline_configs/tracking_tool', "string-plus"], function (Pipeline, TrackingTool, s) {
+define(['mithril', 'jquery', "models/pipeline_configs/pipeline", 'models/pipeline_configs/tracking_tool', "string-plus"], function (m, $, Pipeline, TrackingTool, s) {
   describe("Pipeline Model", function () {
     var pipeline, timer;
     beforeEach(function () {
@@ -198,6 +198,31 @@ define(["models/pipeline_configs/pipeline", 'models/pipeline_configs/tracking_to
         expect(expectedParamNames).toEqual(['COMMAND', 'WORKING_DIR']);
         expect(expectedEnvironmentVarNames).toEqual(['MULTIPLE_LINES', 'COMPLEX']);
         expect(expectedMaterialNames).toEqual(['materialA']);
+      });
+    });
+
+    describe('update', function () {
+      var deferred, requestArgs;
+      beforeAll(function () {
+        deferred = $.Deferred();
+        spyOn(m, 'request').and.returnValue(deferred.promise());
+
+        pipeline.update();
+
+        requestArgs = m.request.calls.mostRecent().args[0];
+      });
+      it('should post required headers', function () {
+        var xhr = jasmine.createSpyObj(xhr, ['setRequestHeader']);
+
+        requestArgs.config(xhr);
+
+        expect(xhr.setRequestHeader).toHaveBeenCalledWith("Content-Type", "application/json");
+        expect(xhr.setRequestHeader).toHaveBeenCalledWith("Accept", "application/vnd.go.cd.v3+json");
+      });
+
+      it('should patch to pipeline endpoint', function () {
+        expect(requestArgs.method).toBe('PATCH');
+        expect(requestArgs.url).toBe('/go/api/admin/pipelines/BuildRailsApp');
       });
     });
 

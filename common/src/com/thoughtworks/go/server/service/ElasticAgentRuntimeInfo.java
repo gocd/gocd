@@ -52,8 +52,8 @@ public class ElasticAgentRuntimeInfo extends AgentRuntimeInfo implements Seriali
     @Override
     public void updateSelf(AgentRuntimeInfo newRuntimeInfo) {
         super.updateSelf(newRuntimeInfo);
-        this.elasticAgentId = ((ElasticAgentRuntimeInfo) newRuntimeInfo).getElasticAgentId();
-        this.elasticPluginId = ((ElasticAgentRuntimeInfo) newRuntimeInfo).getElasticPluginId();
+        this.elasticAgentId = newRuntimeInfo.getElasticAgentId();
+        this.elasticPluginId = newRuntimeInfo.getElasticPluginId();
     }
 
     @Override
@@ -61,10 +61,12 @@ public class ElasticAgentRuntimeInfo extends AgentRuntimeInfo implements Seriali
         return true;
     }
 
+    @Override
     public String getElasticAgentId() {
         return elasticAgentId;
     }
 
+    @Override
     public String getElasticPluginId() {
         return elasticPluginId;
     }

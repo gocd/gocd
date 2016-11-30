@@ -325,11 +325,11 @@ public class AgentInstance implements Comparable<AgentInstance> {
     }
 
     public String elasticPluginId() {
-        return isElastic() ? ((ElasticAgentRuntimeInfo)agentRuntimeInfo).getElasticPluginId() : "";
+        return agentRuntimeInfo.getElasticPluginId();
     }
 
     public String elasticAgentId() {
-        return isElastic() ? ((ElasticAgentRuntimeInfo)agentRuntimeInfo).getElasticAgentId() : "";
+        return agentRuntimeInfo.getElasticAgentId();
     }
 
     public boolean canBeDeleted() {

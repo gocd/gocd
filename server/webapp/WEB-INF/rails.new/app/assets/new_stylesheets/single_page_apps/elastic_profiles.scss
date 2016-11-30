@@ -20,15 +20,34 @@
 @import '../shared/header';
 @import '../shared/alert';
 
+
+$elastic-profile-plugin-icon-size: 30px;
+$elastic-profile-icon-text-padding: 20px;
+
+
+.add-profile {
+  float:         right;
+  margin-bottom: 0;
+}
+
+.delete-profile {
+  margin-top: 20px;
+}
+
 .elastic-profiles {
-  margin-top:       100px;
+  margin-top:       60px;
   background-color: $accordion-bg;
   overflow:         auto;
 }
 
 .elastic-profile {
-  @include callout;
-  margin: 10px;
+  background:    $go-white;
+  position:      relative;
+  margin:        10px;
+  border:        0;
+  border-radius: $global-border-radius;
+  padding:       10px;
+  cursor:        pointer;
 }
 
 .edit-profile {
@@ -57,9 +76,6 @@
   @include icon-before($type: trash, $color: $white, $margin: 0 5px 0 0);
 }
 
-$elastic-profile-plugin-icon-size: 50px;
-$elastic-profile-icon-text-padding: 20px;
-
 .plugin-icon {
   width:          $elastic-profile-plugin-icon-size;
   height:         $elastic-profile-plugin-icon-size;
@@ -77,28 +93,30 @@ $elastic-profile-icon-text-padding: 20px;
     display:   inline-block;
     min-width: 300px;
   }
-
-  .plugin-actions {
-    float: right;
+  .key {
+    font-weight: 600;
+    font-size:   rem-calc(13px);
   }
 }
 
+.plugin-actions {
+  position: absolute;
+  right:    10px;
+  top:      13px;
+}
+
 .plugin-config-read-only {
-  margin-left: $elastic-profile-plugin-icon-size + $elastic-profile-icon-text-padding;
-  margin-top:  10px;
-  width:       50%;
-
-  tr td:first-child {
-    text-align: right;
-  }
-
-  tr td:last-child pre {
-    font-family: $body-font-family;
-  }
+  padding-left: $elastic-profile-plugin-icon-size + $elastic-profile-icon-text-padding;
+  width:        95%;
+  box-sizing:   border-box;
+  margin:       20px 0 10px 0;
 }
 
 .unknown-plugin-icon {
   @include icon-before($type: question, $size: $elastic-profile-plugin-icon-size, $color: $light-gray);
+  &:before {
+    margin: 0;
+  }
 }
 
 .modal-body .id-and-plugin-id-wrapper .columns:first-child {

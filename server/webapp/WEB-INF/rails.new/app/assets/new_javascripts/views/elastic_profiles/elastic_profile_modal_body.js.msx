@@ -30,7 +30,7 @@ define([
         return pi.id();
       });
 
-      context.onunload = function() {
+      context.onunload = function () {
         $inputElem.textcomplete('destroy');
       };
 

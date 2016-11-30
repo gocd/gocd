@@ -266,7 +266,7 @@ define(["jquery", "mithril", "views/elastic_profiles/elastic_profiles_widget", '
         });
 
         expect($root.find('.plugin-config-read-only')).not.toHaveClass('show');
-        $root.find('.profile-id a').click();
+        $root.find('.elastic-profile-header').click();
         m.redraw(true);
         expect($root.find('.plugin-config-read-only')).toHaveClass('show');
 

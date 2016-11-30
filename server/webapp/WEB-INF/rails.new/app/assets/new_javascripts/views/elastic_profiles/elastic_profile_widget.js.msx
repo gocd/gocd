@@ -78,35 +78,30 @@ define(["mithril", 'helpers/form_helper', 'helpers/mithril_component_mixins', 'v
       }
       return (
         <div class="elastic-profile">
-          <div class="plugin-icon">
-            {image}
-          </div>
-          <div class="plugin-description">
-            <div class="profile-id">
-              Id:
-              &nbsp;
-              <f.link onclick={ctrl.toggleHide.bind(ctrl)}>{profile.id()}</f.link>
+          <div class="elastic-profile-header" onclick={ctrl.toggleHide.bind(ctrl)}>
+            <span class="plugin-icon">
+              {image}
+            </span>
+            <div class="plugin-description">
+              <div  class="profile-id"><span  class="key">Id: </span><span class="value">{profile.id()}</span></div>
+              <div class="plugin-id"><span class="key">Plugin ID:</span> <span class="value">{profile.pluginId()}</span></div>
             </div>
-            <div class="plugin-id">Plugin ID: {profile.pluginId()}</div>
-            {actionIcons}
-          </div>
 
-          <div class={'plugin-config-read-only ' + ctrl.showState()}>
-            <table class="table">
-              <tbody>
-              {profile.properties().mapConfigurations(function (configuration) {
-                return (
-                  <tr>
-                    <td>{configuration.key()}</td>
-                    <td>
-                      <pre>{configuration.value()}</pre>
-                    </td>
-                  </tr>
-                );
-              })}
-              </tbody>
-            </table>
           </div>
+          <div class={'plugin-config-read-only ' + ctrl.showState()}>
+            <dl class="key-value-pair">
+
+              {profile.properties().mapConfigurations(function (configuration) {
+                return [
+                  (<dt>{configuration.key()}</dt>),
+                  (<dd>
+                    <pre>{configuration.value()}</pre>
+                  </dd>)
+                ];
+              })}
+            </dl>
+          </div>
+          {actionIcons}
         </div>
       );
     }

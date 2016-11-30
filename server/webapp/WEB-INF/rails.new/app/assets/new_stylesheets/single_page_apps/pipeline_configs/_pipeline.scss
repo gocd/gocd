@@ -19,9 +19,12 @@
 
   $standard-margin: nth($fieldset-margin, 1);
 
+  .pipeline-page-header {
+    background: $pipeline-page-header-bg;
+  }
   .heading {
     margin-bottom: 20px;
-    @include linear-gradient(#fff, #ccc);
+    background:    $page-header-bg;
     h1 {
       font-size: rem-calc(20px);
       margin:    10px 0;
@@ -30,9 +33,10 @@
   }
 
   .save-pipeline {
-    margin:     4px 0 0 0;
+    margin:     8px 0 0 0;
     position:   relative;
     transition: all 0.5s ease-in-out;
+    float:      right;
 
     &.in-progress {
       padding-left: 40px;
@@ -178,15 +182,18 @@
 .toggle-old-view {
   display:       inline-block;
   margin:        0 0 0 10px;
-  background:    $primary-color;
-  color:         #fff;
   position:      relative;
-  padding:       4px 10px;
-  font-size:     13px;
-  border-radius: 5px;
+  padding:       3px 7px;
+  border-radius: $global-border-radius;
+  border:        1px solid $border-color;
+  background:    $btn-bg;
+  font-weight:   600;
+  color:         $btn-txt;
+  font-size:     rem-calc(11px);
   top:           -2px;
   &:hover, &:active, &:focus {
-    color: #fff;
+    background: $btn-bg-hover;
+    color:      $btn-bg-hover-txt;
   }
 }
 

@@ -14,14 +14,117 @@
  * limitations under the License.
  */
 
-$go-primary: #94399e;
-$go-secondary: #40d9da;
-$go-tertiary: #f5a623;
+$go-primary: #b66fc2;
+$go-secondary: #00bfa5;
+$go-tertiary: #ffd54f;
 $go-white: #fff;
 $light-grey: #e2e2e2;
 $grey: #535353;
 $dark-grey: #1e1e1e;
-
+$txt-color: #333;
 $border-color: #ccc;
+$go-links: #0277bd;
 
 $global-border-radius: 3px;
+
+$page-body-background: #efefef;
+
+//table
+$table-header-bg: #b9f6ca;
+$table-header-border: #a5d6a7;
+
+//header
+
+$header-bg: #33364e;
+$page-header-bg: $go-white;
+$input-btn-bg: #ccc;
+$input-btn-bg-hover: #666;
+$page-header-title: $txt-color;
+$personalize-header-bg: #ccc;
+$agent-filter-button: #ccc;
+
+//pipeline
+
+$pipeline-header-bg: transparent;
+$unpause-btn-bg: #f16c6c;
+$operate-btn-bg: #f5f5f5;
+$operate-with-optn-btn-bg: #f5f5f5;
+$pause-btn-bg: #f5f5f5;
+$passed: #64dd17;
+$failed: #fa2d2d;
+$btn-hover: #666;
+$building: #ffc11b;
+
+// agents
+
+$agent-header-button-bg: $go-primary;
+$agents-btn-hover: darken($go-primary, 4%);
+
+//modal
+
+$modal-header-bg: #eeeee9;
+
+//tabs
+
+$tab-header-bg: #d1c4e9;
+$tab-header-bg-hover: lighten($tab-header-bg, 8%);
+$current-tab-bg: #fff;
+$tab-bg: lighten($tab-header-bg, 5%);
+
+//main navigation
+
+$top-bar-bg: transparent;
+$menu-link: $go-white;
+$menu-hover-bg: $go-white;
+
+$main-nav-height: 40px;
+$main-nav-link-bg-hover: rgba(0, 0, 0, 0.20);
+$main-nav-link-color: $go-white;
+$drop-down-link-color: #333;
+$drop-down-menu-bg: $go-white;
+$dropdown-arrow-icon-color: rgba(255, 255, 255, 0.43);
+$dropdown-arrow-icon-color-hover-bg: rgba(0, 0, 0, 0.20);
+$dropdown-arrow-icon-color-active: rgba(0, 0, 0, 1);
+
+$current-link: $go-primary;
+$current-page-sel-bg: $go-primary;
+$current-page-sel-border: $go-primary;
+$current-page-sel-txt: $go-white;
+
+$dropdown-menu-hover-bg: #efefef;
+$user-dropdown-bg: $go-white;
+$user-link-bg: $go-white;
+
+//small  buttons
+
+$btn-bg: #666;
+$btn-txt: #fff;
+
+$btn-bg-hover: #666;
+$btn-bg-hover-txt: #fff;
+
+//light button
+
+$btn-light-bg: #ccc;
+$btn-light-bg-hover: #666;
+
+//config ui
+
+$pipeline-page-header-bg: $go-white;
+
+//z-index
+
+$app-header-top-line: 11;
+$main-navigation: 10;
+$app-header-z-index: 12;
+$agents-filters: 2;
+$header-panel-z-index: 3;
+$agent-header-panel-z-index: 3;
+$build-details-dropdown-arrow-z-index: 2;
+$label-filter-group: 11;
+$page-header: 10;
+
+//stage history table
+
+$stage-history-head-bg: #d1c4e9;
+$stage-history-pagination-bg: #dcdcdc;

@@ -13,23 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-//z-index
-
-$app-header-top-line: 11;
-$main-navigation: 10;
-$app-header-z-index: 12;
-$agents-filters: 2;
-$header-panel-z-index: 3;
-$build-details-dropdown-arrow-z-index: 1;
-
-body {
-  background: image-url('bg-texture-dark.png') repeat 0 0;
-}
-
-.main-container {
-  margin-top: 50px;
-}
+@import "go-variables";
 
 .container {
   overflow:   hidden;
@@ -76,6 +60,11 @@ html, body {
 .page-wrap {
   min-height:    100%;
   margin-bottom: -$app-footer-height;
+  &:before {
+    content: "";
+    display: block;
+    height:  40px;
+  }
 }
 
 .page-wrap:after {
@@ -89,28 +78,26 @@ html, body {
 
 .header-panel {
   position:  fixed;
-  top:       50px;
+  top:       $main-nav-height;
   transform: translateX(-50%);
   left:      50%;
   width:     100%;
   z-index:   $header-panel-z-index;
   .message {
-    background-color: #333;
+    background-color: $body-background;
   }
 }
 
 .page-header {
-  background:      image-url('bg_agents_page_header.jpg') no-repeat 0 0;
+  background:      $page-header-bg;
   background-size: cover;
   padding:         10px 0;
   position:        relative;
   h1 {
-    font-size:      20px;
-    margin:         0;
-    color:          #fff;
-    text-transform: uppercase;
-    display:        inline-block;
-    font-weight:    600;
+    font-size:   rem-calc(18px);
+    margin:      0;
+    display:     inline-block;
+    font-weight: 500;
   }
 }
 
@@ -136,20 +123,18 @@ html, body {
     position:    relative;
     z-index:     $agents-filters;
     .button {
-      background-color: $go-secondary;
-      color:            #333;
+      background-color: $agent-header-button-bg;
+      color:            #fff;
       border:           0;
-      border-radius: 0;
-
       font-size:        rem-calc(13px);
       font-weight:      600;
       margin:           0;
       border-radius:    0;
-      padding:          0 7px;
+      padding:          0 10px;
       line-height:      30px;
       &:hover,
       &:focus {
-        background-color: lighten($go-secondary, 20%);
+        background-color: $agents-btn-hover;
         outline:          0;
       }
       &.btn-apply {
@@ -160,55 +145,16 @@ html, body {
         color:            $go-white;
         height:           auto;
         line-height:      normal;
-        background-color: $go-primary;
+        background-color: $agent-header-button-bg;
+        border:           0;
         &:hover,
         &:focus {
-          background-color: lighten($go-primary, 2%);
-          outline:          0;
           color:            $go-white;
+          border:           0;
+          background-color: $agents-btn-hover;
         }
       }
     }
-
-    &:first-child {
-      margin-left: 0;
-      > .button {
-        border-top-left-radius: $global-border-radius;
-        border-bottom-left-radius: $global-border-radius;
-      }
-    }
-    &:last-child {
-      > .button {
-        border-top-right-radius: $global-border-radius;
-        border-bottom-right-radius: $global-border-radius;
-      }
-    }
-
-    > .button:not(:last-child) {
-      border-right: 0;
-    }
-
-    &.is-open {
-      > .button {
-        background-color:           lighten($go-secondary, 20%);
-        border-bottom-right-radius: 0;
-        &:before {
-          content:      "";
-          position:     absolute;
-          z-index:      1;
-          bottom:       -9px;
-          left:         50%;
-          transform:    translateX(-50%);
-          width:        0;
-          height:       0;
-          border-style: solid;
-          border-width: 10px 10px 0 10px;
-          border-color: lighten($go-secondary, 20%) transparent transparent transparent;
-        }
-      }
-    }
-  }
-  > li {
     .button.disabled,
     .button[disabled] {
       opacity:          1;
@@ -221,5 +167,56 @@ html, body {
         color:            #a9a9a9;
       }
     }
+
+    &:first-child {
+      margin-left: 0;
+      > .button {
+        border-radius: $global-border-radius 0 0 $global-border-radius;
+      }
+    }
+    &:last-child {
+      > .button {
+        border-radius: 0 $global-border-radius $global-border-radius 0;
+      }
+    }
+
+    > .button:not(:last-child) {
+      border-right: 0;
+    }
+
+    &.is-open {
+      > .button {
+        background-color:           $agents-btn-hover;
+        border-bottom-right-radius: 0;
+        &:before {
+          content:      "";
+          position:     absolute;
+          z-index:      1;
+          bottom:       -6px;
+          left:         50%;
+          transform:    translateX(-50%);
+          width:        0;
+          height:       0;
+          border-style: solid;
+          border-width: 6px 6px 0 6px;
+          border-color: $agents-btn-hover transparent transparent transparent;
+        }
+      }
+    }
   }
 }
+
+select {
+  background-position: calc(100% - 2px) 13px;
+}
+
+[type='text'], [type='password'], [type='date'], [type='datetime'], [type='datetime-local'], [type='month'], [type='week'], [type='email'], [type='number'], [type='search'], [type='tel'], [type='time'], [type='url'], [type='color'], textarea {
+  transition: all 0.3s ease-in-out;
+  &:focus {
+    background-color: rgba(182, 111, 194, 0.14);
+    box-shadow:       none;
+    border-color:     $border-color;
+    transition:       all 0.3s ease-in-out;
+  }
+}
+

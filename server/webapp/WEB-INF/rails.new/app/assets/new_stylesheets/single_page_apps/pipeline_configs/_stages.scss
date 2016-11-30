@@ -16,22 +16,27 @@
 
 $standard-margin: nth($fieldset-margin, 1);
 $pipeline-flow-box-bg: $white;
-$active-stage: #35c0e1;
+$active-stage: $go-primary;
 $shadow: 0 0 5px 0 rgba(0, 0, 0, 0.30);
 $no-shadow: 0 0 5px 0 rgba(0, 0, 0, 0);
 
 $inactive-job: $light-gray;
 $active-job: $lighter-gray;
 
+$task-header-bg: #b9f6ca;
+$task-summary-bg: #fff;
+$on-cancel-bg: #f5f5f5;
+$task-body-bg: #f5f5f5;
+
 .stage-boxes {
   @include clearfix;
   position: relative;
 
   .stages-wrapper {
+    @include clearfix;
     float:       left;
     display:     inline-block;
     margin-left: 20px;
-    @include clearfix;
   }
 }
 
@@ -45,8 +50,8 @@ $active-job: $lighter-gray;
   position:      relative;
   float:         left;
   background:    $pipeline-flow-box-bg;
-  box-shadow:    $shadow;
-  border:        1px solid rgba(204, 204, 204, 0);
+  border:        1px solid $border-color;
+  border-radius: $global-border-radius;
   transition:    all 0.2s ease-in-out;
 
   .label {
@@ -90,12 +95,14 @@ $active-job: $lighter-gray;
   }
 
   &.active {
-    background: $active-stage;
-    box-shadow: $no-shadow;
-    position:   relative;
+    background:   $active-stage;
+    box-shadow:   $no-shadow;
+    position:     relative;
+    border-color: $go-primary;
 
     .label {
-      color: $white;
+      color:       $go-white;
+      font-weight: 600;
     }
 
     .drag-handle {
@@ -114,8 +121,14 @@ $active-job: $lighter-gray;
       left:         50%;
       transform:    translateX(-50%);
     }
+    &:hover {
+      .drag-handle {
+        color: $white;
+      }
+    }
   }
-  & ~ .pipeline-flow-box {
+
+  ~ .pipeline-flow-box {
     margin-left: 30px;
     @include icon-before($type: angle-right, $size: 2em) {
       position: absolute;
@@ -130,13 +143,14 @@ $active-job: $lighter-gray;
     padding: 2px;
 
     .label {
-      border:      1px dashed #8a8a8a;
-      width:       100%;
-      color:       #444;
-      display:     inline-block;
       @include icon-before($type: plus-circle);
-      height:      auto;
-      line-height: 32px;
+      border:        1px dashed $border-color;
+      border-radius: $global-border-radius;
+      width:         100%;
+      color:         #444;
+      display:       inline-block;
+      height:        auto;
+      line-height:   32px;
     }
 
     &:active {
@@ -197,10 +211,10 @@ $active-job: $lighter-gray;
 }
 
 .task-definition {
-  position:      relative;
-  border:        1px solid #ccc;
-  margin-bottom: 10px;
-
+  position:   relative;
+  border:     1px dotted $border-color;
+  padding:    5px 0;
+  border-top: 0;
   textarea {
     min-height: 98px;
   }
@@ -208,18 +222,18 @@ $active-job: $lighter-gray;
   .lookup {
     background: #f5f5f5;
     padding:    10px 20px;
-    margin:     0 15px 30px;
+    margin:     0 15px;
   }
 
   .runif {
-    padding-left:  20px;
-    margin-bottom: 20px;
+    padding-left: 20px;
   }
 
   .on-cancel {
-    padding-left: 20px;
-    background:   #f5f5f5;
-    padding-top:  10px;
+    padding-left:  20px;
+    background:    $on-cancel-bg;
+    padding-top:   10px;
+    margin-bottom: -5px;
     .check {
       padding-top: 9px;
     }
@@ -232,14 +246,35 @@ $active-job: $lighter-gray;
   }
 }
 
+.task-body {
+  background: $task-body-bg;
+}
+
 .stage-definition {
   position: relative;
 
-  a.add-job {
+  .add-job {
     @include icon-before($type: plus-circle);
-    position:   relative;
-    text-align: center;
-    margin-top: 10px;
+    position:      relative;
+    text-align:    center;
+    margin-top:    10px;
+    background:    #fefefe;
+    border:        1px solid $border-color;
+    border-radius: 3px;
+    transition:    all 0.2s ease-in-out;
+    padding:       5px 15px;
+    &:after {
+      position: absolute;
+      content:  "";
+      width:    97%;
+      height:   29px;
+      border:   1px dashed $border-color;
+      left:     3px;
+      top:      3px;
+    }
+    &:hover {
+      background: none;
+    }
   }
 }
 
@@ -252,12 +287,10 @@ $active-job: $lighter-gray;
 //tasks
 
 .task-header {
-  padding:       5px 15px;
-  margin-bottom: 5px;
-  background:    $dark-gray;
-  color:         #fefefe;
-  font-weight:   600;
-  font-size:     rem-calc(16px);
+  padding:    2px 15px;
+  background: $task-header-bg;
+  color:      #333;
+  font-size:  rem-calc(14px);
 }
 
 .task-summary {
@@ -265,14 +298,14 @@ $active-job: $lighter-gray;
   padding:     0 15px;
   height:      30px;
   line-height: 30px;
-  background:  $lighter-gray;
+  background:  $task-summary-bg;
   cursor:      move;
   overflow:    hidden;
-
   &:before {
     left:     14px;
-    top:      8px;
+    top:      13px;
     position: absolute;
+    color:    #999;
   }
 
   > .columns {
@@ -284,16 +317,16 @@ $active-job: $lighter-gray;
   }
 
   .task-type {
-    font-size:   rem-calc(13px);
     @include ellipsis();
+    font-size:   rem-calc(13px);
     margin:      0;
+    padding:     0;
     list-style:  none;
     line-height: 30px;
 
     li {
-      float:         left;
-      list-style:    none;
-      margin-bottom: 5px;
+      float:      left;
+      list-style: none;
     }
 
     span {
@@ -304,7 +337,6 @@ $active-job: $lighter-gray;
       display:      inline-block;
       margin-right: 5px;
       font-size:    rem-calc(13px);
-      font-weight:  600;
       position:     relative;
       &:after {
         content:  ":";
@@ -317,7 +349,7 @@ $active-job: $lighter-gray;
   .actions {
     position: absolute;
     right:    10px;
-    top:      2px;
+    top:      9px;
     .edit {
       position: relative;
       top:      -3px;
@@ -327,6 +359,10 @@ $active-job: $lighter-gray;
   .remove-task {
     float: right;
   }
+}
+
+.task-selector {
+  padding-top: 15px;
 }
 
 .task-basic {

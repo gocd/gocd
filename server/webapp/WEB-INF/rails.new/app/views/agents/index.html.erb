@@ -3,7 +3,7 @@
     <h1 class="entity_title">Agents</h1>
 
   <% if is_agents_spa_enabled? %>
-      <%= link_to "Check out the new agents page", admin_agents_path, :class => 'agents-toggle-new-view', :style =>"margin-top: 2px;" %>
+      <%= link_to "Check out the new agents page", admin_agents_path, :class => 'agents-toggle-new-view' %>
   <% end %>
 
   <%= render :partial => "agents/agent_filter.html" -%>

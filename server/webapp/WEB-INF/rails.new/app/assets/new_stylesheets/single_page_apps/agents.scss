@@ -18,7 +18,7 @@
 @import '../shared/header';
 @import '../shared/alert';
 
-#agents {
+.agents {
   transition: all 0.3s ease-in-out;
   .container {
     background: transparent;
@@ -27,24 +27,24 @@
 
 .page-header {
   .old-agents-page {
-    color:           #fff;
-    background:      $dark-grey;
-    font-size:       rem-calc(13px);
-    font-weight:     600;
+    font-size:       rem-calc(12px);
     position:        relative;
     margin:          0 10px;
     text-decoration: none;
     top:             -1px;
     padding:         3px 7px;
     border-radius:   $global-border-radius;
+    background:      $btn-bg;
+    color:           $btn-txt;
+    font-weight:     600;
     &:hover {
-      background: #fff;
-      color:      #333;
+      background: $btn-bg;
+      color:      $btn-txt;
     }
   }
 }
 
-span.info {
+.info {
   color:         #fff;
   clear:         right;
   position:      absolute;
@@ -70,7 +70,7 @@ span.info {
   position:   absolute;
   right:      0;
   top:        102%;
-  background: #535353;
+  background: $go-white;
   padding:    20px;
   width:      300px;
   box-shadow: 0 3px 3px 0 rgba(0, 0, 0, 0.34);
@@ -91,7 +91,6 @@ span.info {
       display: none;
     }
     .no-environment {
-      color:       #fff;
       font-weight: 700;
       margin:      0;
       font-size:   rem-calc(13px);
@@ -107,75 +106,81 @@ span.info {
   max-height:      190px;
   overflow-y:      auto;
   li {
-    border-bottom:  1px dotted #717171;
+    border-bottom:  1px dotted $border-color;
     padding-bottom: 5px;
     margin-bottom:  5px;
-    input[type=checkbox] {
+    .select-resource {
       margin-bottom: 0;
-    }
-    label {
-      color: #fff;
     }
   }
 }
 
 .header-panel-button-group > li {
   .add-resource {
-    input[type="text"] {
-      border-radius:             0;
-      border-top-left-radius:    $global-border-radius;
-      border-bottom-left-radius: $global-border-radius;
-      height:                    35px;
+    .add-resource-input {
+      border-radius: 5px 0 0 5px;
     }
-    button {
-      border-radius:              0;
-      border-top-right-radius:    5px;
-      border-bottom-right-radius: 5px;
-      border:                     1px solid $go-primary;
-      background:                 $go-primary;
-      margin-right:               1px;
-      font-size:                  15px;
-      color:                      $go-white;
-      height:                     35px;
-      transition:                 all 0.3s ease-in-out;
-      &:hover,
-      &:focus {
-        transition:       all 0.3s ease-in-out;
-        background-color: lighten($go-primary, 2%);
-        outline:          0;
-        color:            #fff;
+    .add-resource-btn {
+      border-radius:    0 3px 3px 0;
+      background-color: $btn-light-bg;
+      color:            $txt-color;
+      height:           32px;
+      &:hover {
+        background-color: $btn-light-bg-hover;
+        color:            $go-white;
+      }
+    }
+
+  }
+  &.has-dropdown {
+    > .button {
+      padding-right: 30px;
+      &:after {
+        content:      "";
+        position:     absolute;
+        top:          12px;
+        width:        0;
+        height:       0;
+        border-style: solid;
+        border-width: 6px 4px 0 4px;
+        border-color: #fff transparent transparent transparent;
+        transition:   all 0.3s ease-in-out;
+        right:        10px;
+      }
+      &.disabled, &[disabled] {
+        &:after {
+          border-color: #b3b3b3 transparent transparent transparent;
+        }
       }
     }
   }
+
 }
 
 // search panel
+
 .search-panel {
   padding:          10px 0;
-  background-color: #333;
+  background-color: $body-background;
 }
 
 .search-bar {
+  @include icon-before($type: search);
   position:   relative;
   margin-top: 8px;
-  @include icon-before($type: search);
   &:before {
     position:  absolute;
     left:      7px;
-    color:     $go-tertiary;
+    color:     $border-color;
     top:       3px;
     font-size: 18px;
   }
 
-  input[type="text"] {
-
+  .filter-agent {
     border-radius: $global-border-radius;
     padding-left:  40px;
     margin-bottom: 0;
     height:        35px;
-    background:    transparent;
-    color:         #fff;
-
   }
   .fa {
     position:  absolute;
@@ -202,12 +207,12 @@ span.info {
       border: 0;
     }
     label {
-      color:     #fff;
-      font-size: 14px;
+      font-size:    14px;
+      display:      inline-block;
+      margin-right: 5px;
     }
     .value {
       font-size: 20px;
-      color:     #fff;
     }
     &.enabled {
       .value {
@@ -233,16 +238,16 @@ $arrow-color: #000;
   margin:        0;
 
   $column-widths: (
-                   "1": 2%,
-                   "2": 13%,
-                   "3": 7%,
-                   "4": 10%,
-                   "5": 10%,
-                   "6": 7%,
-                   "7": 11%,
-                   "8": 22%,
-                   "9": 18%,
-                 );
+                    "1": 2%,
+                    "2": 13%,
+                    "3": 7%,
+                    "4": 10%,
+                    "5": 10%,
+                    "6": 7%,
+                    "7": 11%,
+                    "8": 22%,
+                    "9": 18%,
+                  );
 
   @each $key, $val in $column-widths {
     td:nth-child(#{$key}), th:nth-child(#{$key}) {
@@ -253,16 +258,17 @@ $arrow-color: #000;
   thead {
     border: 0;
     tr {
-      background: $go-tertiary;
-      color:      $grey;
+      background: $table-header-bg;
+      color:      $txt-color;
       font-size:  rem-calc(14px);
-
     }
   }
   tbody {
     border: 0;
     tr {
-      font-size: rem-calc(13px);
+      font-size:    rem-calc(13px);
+      border-right: 1px dotted #ddd;
+      border-left:  1px dotted #ddd;
       &.building {
         background:    #ffeda0;
         border-bottom: 1px solid #fff;
@@ -274,23 +280,29 @@ $arrow-color: #000;
     }
   }
   td {
-    word-break: break-all;
+    word-break:    break-all;
+    border-bottom: 1px dotted #ddd;
   }
-  input[type="checkbox"] {
+  .select-agent {
     margin: 0;
   }
 }
 
 .agents-table-body {
-  margin-top: 218px;
+  margin-top: 166px;
+  &.has-message {
+    margin-top: 234px;
+  }
 }
 
 .agents-table {
   thead {
     tr {
-      background: $go-tertiary;
+      background:    $table-header-bg;
+      border-bottom: 3px solid #a5d6a7;
       th {
-        color: $dark-grey;
+        color:   $dark-grey;
+        padding: 5px 10px;
       }
     }
   }
@@ -374,7 +386,7 @@ $arrow-color: #000;
   }
 }
 
-a.has-build-details-drop-down {
+.has-build-details-drop-down {
   position: relative;
   &:after {
     content:      "";

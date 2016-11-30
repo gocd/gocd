@@ -216,6 +216,7 @@ define([
       var filteredAgents = ctrl.filteredAndSortedAgents();
       var message = ctrl.message();
       var maxCharsToBeDisplayedInMessage = 150;
+      var classForTableBody = "agents-table-body";
 
       var updateMessage;
 
@@ -229,7 +230,10 @@ define([
             </div>
           </f.row>
         );
+
+        classForTableBody = classForTableBody + " has-message";
       }
+
 
       return (
         <div onclick={ctrl.hideDropDownsAndMessage.bind(ctrl)}>
@@ -252,7 +256,9 @@ define([
                            oninput={m.withAttr("value", args.vm.filterText)}
                            value={filterText}
                            placeholder="Filter Agents"
-                           id="filter-agent"/>
+                           id="filter-agent"
+                           class="filter-agent"
+                    />
                   </div>
                 </f.column>
 
@@ -274,7 +280,7 @@ define([
               </div>
             </f.row>
           </div>
-          <f.row class="agents-table-body" style={!s.isBlank(message) ? "margin-top: 284px;" : ''}>
+          <f.row class={classForTableBody}>
             <div class="container">
               <table class="go-table agents-table">
                 <tbody>

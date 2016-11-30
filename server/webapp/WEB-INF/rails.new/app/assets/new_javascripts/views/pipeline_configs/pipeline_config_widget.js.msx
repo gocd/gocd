@@ -26,9 +26,9 @@ define([
         <div class='modal-content'>
           <p> 'Proceed' will discard any unsaved data.</p>
           <div class='actions'>
-            <a class='toggle-old-view' href="javascript:void(0)"
+            <a class='button secondary' href="javascript:void(0)"
                onclick={args.parentView.close.bind(args.parentView)}>Cancel</a>
-            <a class='toggle-old-view' href={['/go/admin/pipelines/', args.pipeline().name(), '/general'].join('')}>Proceed</a>
+            <a class='button primary' href={['/go/admin/pipelines/', args.pipeline().name(), '/general'].join('')}>Proceed</a>
           </div>
         </div>
       );
@@ -115,24 +115,26 @@ define([
 
         var header = function () {
           return (
-            <f.row class="heading">
-              <f.column size={10} largeSize={10}>
-                <h1>
-                  Pipeline configuation for pipeline
-                  {' '}
-                  {pipeline.name()}
-                </h1>
-                <a class='toggle-old-view' href="javascript:void(0)"
-                   onclick={ctrl.modal.open.bind(ctrl.modal)}>Normal Edit</a>
-              </f.column>
-              <f.column size={1}>
-                <f.button onclick={ctrl.onSavePipeline.bind(ctrl)}
-                          class={'save-pipeline ' + ctrl.vm.saveState()}>
-                  <span class={'save-state ' + ctrl.vm.saveState()}/>
-                  Save
-                </f.button>
-              </f.column>
-            </f.row>
+            <header class="pipeline-page-header">
+              <f.row class="heading">
+                <f.column size={10} largeSize={10}>
+                  <h1>
+                    Pipeline configuation for pipeline
+                    {' '}
+                    {pipeline.name()}
+                  </h1>
+                  <a class='toggle-old-view' href="javascript:void(0)"
+                     onclick={ctrl.modal.open.bind(ctrl.modal)}>Normal Edit</a>
+                </f.column>
+                <f.column size={1}>
+                  <f.button onclick={ctrl.onSavePipeline.bind(ctrl)}
+                            class={'save-pipeline ' + ctrl.vm.saveState()}>
+                    <span class={'save-state ' + ctrl.vm.saveState()}/>
+                    Save
+                  </f.button>
+                </f.column>
+              </f.row>
+            </header>
           );
         };
 

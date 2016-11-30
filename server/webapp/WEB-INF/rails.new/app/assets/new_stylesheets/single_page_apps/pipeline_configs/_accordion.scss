@@ -14,23 +14,47 @@
  * limitations under the License.
  */
 
+$accordion-backg: #cfd8dc;
+$active-accordion-bg: #d1c4e9;
+$accordion-backg-hover: #c8deec;
+$accordion-br-radius: 5px;
+$accordion-border-color: #eaeaea;
+$inner-accordion-active-bg: $active-accordion-bg;
+
 .accordion {
-  border-radius: $accordion-border-radius;
+  border-radius: $accordion-br-radius;
   margin-bottom: 10px;
   .show {
-    display: inherit !important;
+    display: inherit;
   }
   .accordion-content {
-    border-radius: $accordion-border-radius;
+    border-radius: $accordion-br-radius;
+    background:    $go-white;
   }
   &.accordion-inner {
     background:   $white;
-    border:       1px solid $border;
+    border:       1px solid $accordion-border-color;
     margin-left:  15px;
     margin-right: 15px;
     .accordion-content {
       background:  $white;
       padding-top: 20px;
+    }
+    .is-active {
+      .accordion-title {
+        background:                 $inner-accordion-active-bg;
+        border-bottom-left-radius:  0;
+        border-bottom:              0;
+        border-bottom-right-radius: 0;
+        &::before {
+          left: 11px;
+        }
+      }
+    }
+    .sub-header {
+      font-size:     15px;
+      margin-left:   10px;
+      margin-bottom: 15px;
     }
   }
 }
@@ -38,16 +62,16 @@
 .accordion-title {
   font-size:      rem-calc(14);
   text-transform: uppercase;
-  background:     $accordion-bg;
+  background:     $accordion-backg;
   padding:        0 35px;
   height:         40px;
   line-height:    40px;
   color:          $black;
-  border-radius:  $accordion-border-radius;
+  border-radius:  $accordion-br-radius;
 
   &:hover, &:focus {
     color:      $black;
-    background: $accordion-bg;
+    background: $accordion-backg;
   }
 
   &:before {
@@ -59,6 +83,9 @@
   .is-active > &::before {
     @include icon-only(caret-down);
     left: 14px;
+  }
+  .is-active & {
+    background: $active-accordion-bg;
   }
 
   .accordion-inner & {
@@ -72,25 +99,6 @@
     }
   }
 }
-
-.accordion-inner {
-  .is-active {
-    .accordion-title {
-      border-bottom-left-radius:  0;
-      border-bottom:              1px solid $border;
-      border-bottom-right-radius: 0;
-      &::before {
-        left: 11px;
-      }
-    }
-  }
-  .sub-header {
-    font-size:     15px;
-    margin-left:   10px;
-    margin-bottom: 15px;
-  }
-}
-
 .pipeline :last-child:not(.is-active) > .accordion-title {
   border-radius: 5px;
 }

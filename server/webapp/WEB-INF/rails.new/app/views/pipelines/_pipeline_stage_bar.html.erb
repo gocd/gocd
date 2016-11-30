@@ -39,7 +39,7 @@
     <% else %>
         <a href="<%= stage_bar_url(scope[:stage_in_status_bar], scope[:stage_details_action]) -%>" <%= scope[:stage_bar_html_options] -%>>
             <%= check_for_cancelled_contents(scope[:stage_in_status_bar].getState()) %>
-        </a>
+        <span><span></span></span></a>
     <% end %>
 </div>
 <% if scope[:idx_in_status_bar] > 0 %>

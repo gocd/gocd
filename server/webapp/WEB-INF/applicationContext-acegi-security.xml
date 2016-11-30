@@ -277,6 +277,7 @@
                 /api/admin/**=ROLE_SUPERVISOR
                 /api/config-repository.git/**=ROLE_SUPERVISOR
                 /api/jobs/scheduled.xml=ROLE_SUPERVISOR
+                /admin/agents=ROLE_USER
                 /admin/**=ROLE_SUPERVISOR
                 /**/addresources.json=ROLE_SUPERVISOR
                 /**/registeragent.json=ROLE_SUPERVISOR
@@ -306,6 +307,8 @@
 
                 /plugin/interact/**=IS_AUTHENTICATED_ANONYMOUSLY
 
+                /old_agents/**=ROLE_USER
+                /agents=ROLE_USER
                 /agents/*/job_run_history*=ROLE_SUPERVISOR
                 /agents/*/job_run_history/*=ROLE_SUPERVISOR
                 /config_view/templates/*=ROLE_GROUP_SUPERVISOR, ROLE_SUPERVISOR

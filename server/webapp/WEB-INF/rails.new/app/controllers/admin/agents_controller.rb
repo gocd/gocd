@@ -19,22 +19,16 @@ module Admin
     include ApiV1::AuthenticationHelper
 
     layout 'single_page_app'
-    before_action :check_admin_user_and_401
-    before_action :check_feature_toggle
+    before_action :check_user_and_401
 
     def index
       @view_title = 'Agents'
+      @is_user_admin = security_service.isUserAdmin(current_user)
     end
 
     private
 
     helper_method :plugin_templates
-
-    def check_feature_toggle
-      unless Toggles.isToggleOn(Toggles.AGENTS_SINGLE_PAGE_APP)
-        render :text => 'This feature is not enabled!'
-      end
-    end
 
   end
 

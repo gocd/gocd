@@ -32,10 +32,10 @@ describe AgentsController do
     end
 
     it "should answer for /agents" do
-      expect(:get => "/agents").to route_to({:controller => "agents", :action => 'index',:format => "html"})
-      expect(:get => "/agents.html").to route_to({:controller => "agents", :action => 'index', :format => "html"})
-      expect(:get => "/agents.json").to route_to({:controller => "agents", :action => 'index', :format => "json"})
-      expect(controller.send(:agents_path)).to eq("/agents")
+      expect(:get => "/old_agents").to route_to({:controller => "agents", :action => 'index',:format => "html"})
+      expect(:get => "/old_agents.html").to route_to({:controller => "agents", :action => 'index', :format => "html"})
+      expect(:get => "/old_agents.json").to route_to({:controller => "agents", :action => 'index', :format => "json"})
+      expect(controller.send(:old_agents_path)).to eq("/old_agents")
     end
 
     it "should filter agents based on parameters" do
@@ -127,8 +127,8 @@ describe AgentsController do
   describe :edit_agents do
 
     it "should resolve routes" do
-      expect(:post => "agents/edit_agents").to route_to({:controller => "agents", :action => 'edit_agents'})
-      expect(controller.send(:edit_agents_path)).to eq("/agents/edit_agents")
+      expect(:post => "old_agents/edit_agents").to route_to({:controller => "agents", :action => 'edit_agents'})
+      expect(controller.send(:edit_agents_path)).to eq("/old_agents/edit_agents")
     end
 
     it "should redirect to :index maintaining sort" do
@@ -138,7 +138,7 @@ describe AgentsController do
       bulk_edit_result.stub(:message).and_return("successfuly managed to edit")
       bulk_edit_result.stub(:canContinue).and_return(false)
       get :edit_agents, :column => "foo", :order => "bar", :filter => "criteria"
-      expect(response).to redirect_to("/agents?column=foo&filter=criteria&order=bar")
+      expect(response).to redirect_to("/old_agents?column=foo&filter=criteria&order=bar")
     end
   end
 
@@ -150,8 +150,8 @@ describe AgentsController do
     end
 
     it "should resolve routes" do
-      expect(controller.send(:agent_grouping_data_path, {:action => "resource_selector"})).to eq("/agents/resource_selector")
-      expect(:post => "/agents/resource_selector").to route_to({:controller => "agents", :action => 'resource_selector'})
+      expect(controller.send(:agent_grouping_data_path, {:action => "resource_selector"})).to eq("/old_agents/resource_selector")
+      expect(:post => "/old_agents/resource_selector").to route_to({:controller => "agents", :action => 'resource_selector'})
     end
 
     it "should load all resources" do
@@ -181,8 +181,8 @@ describe AgentsController do
     end
 
     it "should resolve routes" do
-      expect(controller.send(:agent_grouping_data_path, {:action => "environment_selector"})).to eq("/agents/environment_selector")
-      expect(:post => "/agents/environment_selector").to route_to({:controller => "agents", :action => 'environment_selector'})
+      expect(controller.send(:agent_grouping_data_path, {:action => "environment_selector"})).to eq("/old_agents/environment_selector")
+      expect(:post => "/old_agents/environment_selector").to route_to({:controller => "agents", :action => 'environment_selector'})
     end
 
     it "should load all environments" do

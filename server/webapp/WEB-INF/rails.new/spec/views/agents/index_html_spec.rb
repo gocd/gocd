@@ -54,7 +54,7 @@ describe "/agents/index.html.erb" do
 
     render
     page = Capybara::Node::Simple.new(response.body)
-    expect(page).to have_xpath("//form[@id='agents_form' and @action='/agents/edit_agents?column=status&filter=foobar&order=DESC']")
+    expect(page).to have_xpath("//form[@id='agents_form' and @action='/old_agents/edit_agents?column=status&filter=foobar&order=DESC']")
   end
 
   describe "agents page has filtering capability" do
@@ -81,14 +81,14 @@ describe "/agents/index.html.erb" do
     it "should maintain sorting order with filtering" do
       render
       Capybara.string(response.body).find("table#agent_details").tap do |table|
-        expect(table).to have_selector("th.hostname a[href='/agents?column=hostname&filter=foo%3Abar%2C+moo%3Aboo&order=ASC']")
-        expect(table).to have_selector("th.location a[href='/agents?column=location&filter=foo%3Abar%2C+moo%3Aboo&order=ASC']")
-        expect(table).to have_selector("th.operating_system a[href='/agents?column=operating_system&filter=foo%3Abar%2C+moo%3Aboo&order=ASC']")
-        expect(table).to have_selector("th.ip_address a[href='/agents?column=ip_address&filter=foo%3Abar%2C+moo%3Aboo&order=ASC']")
-        expect(table).to have_selector("th.status a[href='/agents?column=status&filter=foo%3Abar%2C+moo%3Aboo&order=DESC']")
-        expect(table).to have_selector("th.usable_space a[href='/agents?column=usable_space&filter=foo%3Abar%2C+moo%3Aboo&order=ASC']")
-        expect(table).to have_selector("th.resources a[href='/agents?column=resources&filter=foo%3Abar%2C+moo%3Aboo&order=ASC']")
-        expect(table).to have_selector("th.environments a[href='/agents?column=environments&filter=foo%3Abar%2C+moo%3Aboo&order=ASC']")
+        expect(table).to have_selector("th.hostname a[href='/old_agents?column=hostname&filter=foo%3Abar%2C+moo%3Aboo&order=ASC']")
+        expect(table).to have_selector("th.location a[href='/old_agents?column=location&filter=foo%3Abar%2C+moo%3Aboo&order=ASC']")
+        expect(table).to have_selector("th.operating_system a[href='/old_agents?column=operating_system&filter=foo%3Abar%2C+moo%3Aboo&order=ASC']")
+        expect(table).to have_selector("th.ip_address a[href='/old_agents?column=ip_address&filter=foo%3Abar%2C+moo%3Aboo&order=ASC']")
+        expect(table).to have_selector("th.status a[href='/old_agents?column=status&filter=foo%3Abar%2C+moo%3Aboo&order=DESC']")
+        expect(table).to have_selector("th.usable_space a[href='/old_agents?column=usable_space&filter=foo%3Abar%2C+moo%3Aboo&order=ASC']")
+        expect(table).to have_selector("th.resources a[href='/old_agents?column=resources&filter=foo%3Abar%2C+moo%3Aboo&order=ASC']")
+        expect(table).to have_selector("th.environments a[href='/old_agents?column=environments&filter=foo%3Abar%2C+moo%3Aboo&order=ASC']")
       end
     end
 
@@ -181,14 +181,14 @@ describe "/agents/index.html.erb" do
 
       Capybara.string(response.body).find("table.agents tr.agent_header").tap do |f|
         expect(f).to have_selector("th.selector")
-        expect(f).to have_selector("th.hostname a[href='/agents?column=hostname&order=DESC']")
-        expect(f).to have_selector("th.location a[href='/agents?column=location&order=ASC']")
-        expect(f).to have_selector("th.status a[href='/agents?column=status&order=ASC']")
-        expect(f).to have_selector("th.usable_space a[href='/agents?column=usable_space&order=ASC']")
-        expect(f).to have_selector("th.resources a[href='/agents?column=resources&order=ASC']")
-        expect(f).to have_selector("th.ip_address a[href='/agents?column=ip_address&order=ASC']")
-        expect(f).to have_selector("th.operating_system a[href='/agents?column=operating_system&order=ASC']")
-        expect(f).to have_selector("th.environments a[href='/agents?column=environments&order=ASC']")
+        expect(f).to have_selector("th.hostname a[href='/old_agents?column=hostname&order=DESC']")
+        expect(f).to have_selector("th.location a[href='/old_agents?column=location&order=ASC']")
+        expect(f).to have_selector("th.status a[href='/old_agents?column=status&order=ASC']")
+        expect(f).to have_selector("th.usable_space a[href='/old_agents?column=usable_space&order=ASC']")
+        expect(f).to have_selector("th.resources a[href='/old_agents?column=resources&order=ASC']")
+        expect(f).to have_selector("th.ip_address a[href='/old_agents?column=ip_address&order=ASC']")
+        expect(f).to have_selector("th.operating_system a[href='/old_agents?column=operating_system&order=ASC']")
+        expect(f).to have_selector("th.environments a[href='/old_agents?column=environments&order=ASC']")
       end
     end
 
@@ -312,7 +312,7 @@ describe "/agents/index.html.erb" do
       params[:foo] = "bar"
       render
       Capybara.string(response.body).find("div.edit_panel").tap do |div|
-        div.find("form[action='/agents/edit_agents?column=pavan&order=shilpa']").tap do |f|
+        div.find("form[action='/old_agents/edit_agents?column=pavan&order=shilpa']").tap do |f|
           expect(f).to have_selector("input[type='hidden'][name='operation'][id='agent_edit_operation']")
           expect(f).to have_selector("button[type='submit'][value='Enable']")
           expect(f).to have_selector("button[type='submit'][value='Disable']")
@@ -328,7 +328,7 @@ describe "/agents/index.html.erb" do
     it "should allow adding new resources to selected agents" do
       render
 
-      Capybara.string(response.body).find("form[action='/agents/edit_agents']").tap do |form|
+      Capybara.string(response.body).find("form[action='/old_agents/edit_agents']").tap do |form|
         form.find("div#resources_panel").tap do |f|
           expect(f).to have_selector("input[type='text'][name='add_resource']")
           expect(f).to have_selector("button[type='submit'][name='resource_operation'][value='Add']")

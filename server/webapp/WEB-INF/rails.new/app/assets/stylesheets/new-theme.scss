@@ -1027,12 +1027,6 @@ ul#pipeline_config_tree {
   &.agent_edit_popup {
     margin-top: auto;
   }
-  .scrollable_panel {
-    padding: 10px;
-    .selectors {
-      padding: 10px 0;
-    }
-  }
 }
 
 input.new_resource {
@@ -1212,10 +1206,6 @@ input.new_resource {
     input[type="text"] {
       border-radius: 3px 0 0 3px;
     }
-  }
-  .selectors {
-    font-size:     13px;
-    border-bottom: 1px dotted $border-color;
   }
 
 }
@@ -1957,6 +1947,15 @@ a:link.help, a:visited.help {
     &:before {
       left:         24px;
       border-width: 6px 6px 0 6px;
+    }
+  }
+
+  .scrollable_panel {
+    padding: 10px;
+    .selectors {
+      padding:       10px 0;
+      font-size:     13px;
+      border-bottom: 1px dotted $border-color;
     }
   }
 

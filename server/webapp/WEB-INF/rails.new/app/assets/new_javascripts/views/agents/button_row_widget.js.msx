@@ -52,35 +52,35 @@ define(['mithril',
           <f.row>
             <f.column size={5}>
               <h1>Agents</h1>
-              <a href="/go/agents" class="old-agents-page">Switch back to old view</a>
+              <a href="/go/old_agents" class="old-agents-page">Switch back to old view</a>
             </f.column>
 
             <f.column size={7}>
               <ul class="button-group header-panel-button-group">
                 <li>
                   <f.button onclick={args.onDelete}
-                            disabled={!args.isAnyAgentSelected()}>
+                            disabled={!args.areOperationsAllowed()}>
                     Delete
                   </f.button>
                 </li>
 
                 <li>
                   <f.button onclick={args.onDisable}
-                            disabled={!args.isAnyAgentSelected()}>
+                            disabled={!args.areOperationsAllowed()}>
                     Disable
                   </f.button>
                 </li>
 
                 <li>
                   <f.button onclick={args.onEnable}
-                            disabled={!args.isAnyAgentSelected()}>
+                            disabled={!args.areOperationsAllowed()}>
                     Enable
                   </f.button>
                 </li>
 
                 <li class={ ctrl.dropdownClass('resource') }>
                   <f.button onclick={ctrl.resourcesButtonClicked}
-                            disabled={!args.isAnyAgentSelected()}>
+                            disabled={!args.areOperationsAllowed()}>
                     Resources
                   </f.button>
 
@@ -92,7 +92,7 @@ define(['mithril',
 
                 <li class={ctrl.dropdownClass('environment')}>
                   <f.button onclick={ctrl.environmentsButtonClicked}
-                            disabled={!args.isAnyAgentSelected()}>
+                            disabled={!args.areOperationsAllowed()}>
                     Environments
                   </f.button>
 

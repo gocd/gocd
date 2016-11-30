@@ -17,17 +17,16 @@
 require([
   'jquery', 'mithril',
   'models/agents/agents',
-  'models/agents/resources',
-  'models/agents/environments',
   'views/agents/agents_widget',
   'views/agents/models/agents_widget_view_model',
   'foundation.util.mediaQuery', 'foundation.dropdownMenu', 'foundation.responsiveToggle', 'foundation.dropdown'
-], function ($, m, Agents, Resources, Environments, AgentsWidget, AgentsVM) {
+], function ($, m, Agents, AgentsWidget, AgentsVM) {
 
   $(function () {
 
-    Resources.init();
-    Environments.init();
+    var agentsDOMElement = document.getElementById('agents');
+
+    var isUserAdmin = JSON.parse($(agentsDOMElement).attr('is-current-user-an-admin'));
 
     $(document).foundation();
 
@@ -36,10 +35,9 @@ require([
     var agents = m.prop(new Agents());
 
     var agentsViewModel = new AgentsVM();
-
-    m.route(document.getElementById('agents'), '', {
-      '':                  m.component(AgentsWidget, {vm: agentsViewModel, allAgents: agents}),
-      '/:sortBy/:orderBy': m.component(AgentsWidget, {vm: agentsViewModel, allAgents: agents})
+    m.route(agentsDOMElement, '', {
+      '':                  m.component(AgentsWidget, {vm: agentsViewModel, allAgents: agents, isUserAdmin: isUserAdmin}),
+      '/:sortBy/:orderBy': m.component(AgentsWidget, {vm: agentsViewModel, allAgents: agents, isUserAdmin: isUserAdmin})
     });
   });
 });

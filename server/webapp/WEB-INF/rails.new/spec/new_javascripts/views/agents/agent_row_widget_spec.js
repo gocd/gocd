@@ -32,12 +32,13 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agent_row_wid
     it('should contain the agent information', function () {
       agents(allAgents);
       var model = m.prop(true);
-      mount(agents().firstAgent(), model);
+      mount(agents().firstAgent(), model, true);
 
       var row         = $root.find('tr')[0];
       var checkbox    = $(row).find('input');
       var information = row.children;
       expect(information[1]).toHaveText('in-john.local');
+      expect(information[1]).toContainElement('a');
       expect(information[2]).toHaveText('/var/lib/go-agent');
       expect(information[3]).toHaveText('Linux');
       expect(information[4]).toHaveText('10.12.2.200');
@@ -48,18 +49,34 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agent_row_wid
       expect(checkbox).toBeChecked();
     });
 
+    it('should not contain link to job run history for non-admin user', function () {
+      agents(allAgents);
+      var model = m.prop(true);
+      mount(agents().firstAgent(), model, false);
+
+      var row         = $root.find('tr')[0];
+      var information = row.children;
+      expect(information[1]).toHaveText('in-john.local');
+      expect(information[1]).not.toContainElement('a');
+    });
+
     it('should check the value based on the checkbox model', function () {
       agents(allAgents);
       var model = m.prop(true);
-      mount(agents().firstAgent(), model);
+      mount(agents().firstAgent(), model, true);
 
       var checkbox = $root.find('input')[0];
       expect(checkbox.checked).toBe(model());
     });
 
+    it('should not display checkbox for non-admin user', function() {
+      mount(agents().firstAgent(), model, false);
+      expect('tr input').not.toBeInDOM();
+    });
+
     it('should show none specified if agent has no resource', function () {
       agents(allAgents.toJSON()[1]);
-      mount(agents(), model);
+      mount(agents(), model, true);
       var row         = $root.find('tr')[0];
       var information = row.children;
       expect(information[7]).toHaveText('none specified');
@@ -67,7 +84,7 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agent_row_wid
 
     it('should show none specified if agent has no environment', function () {
       agents(allAgents.toJSON()[1]);
-      mount(agents(), model);
+      mount(agents(), model, true);
       var row         = $root.find('tr')[0];
       var information = row.children;
       expect(information[8]).toHaveText('none specified');
@@ -75,7 +92,7 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agent_row_wid
 
     it('should set the class based on the status of the agent', function () {
       agents(allAgents);
-      mount(agents().firstAgent(), model);
+      mount(agents().firstAgent(), model, true);
       var row = $root.find('tr')[0];
       expect(row.classList).toContain(agents().firstAgent().status().toLowerCase());
     });
@@ -83,7 +100,7 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agent_row_wid
     it('should change the checkbox model when checkbox is clicked', function () {
       agents(allAgents);
       var model = m.prop(false);
-      mount(agents().firstAgent(), model);
+      mount(agents().firstAgent(), model, true);
       var row      = $root.find('tr')[0];
       var checkbox = $(row).find('input');
       expect(model()).toBe(false);
@@ -94,7 +111,7 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agent_row_wid
 
     it('should have links to pipeline, stage and job as a part of build details dropdown', function () {
       agents(allAgents.toJSON()[2]);
-      mount(agents(), model);
+      mount(agents(), model, true);
       var buildDetailsLinks = $root.find('.build-details a').map(function (_i, el) {
         return $(el).attr('href');
       });
@@ -102,13 +119,14 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agent_row_wid
       expect(buildDetailsLinks).toEqual([buildDetails.pipelineUrl(), buildDetails.stageUrl(), buildDetails.jobUrl()]);
     });
 
-    var mount = function (agent, model) {
+    var mount = function (agent, model, isUserAdmin) {
       m.mount(root,
         m.component(AgentsRowWidget,
           {
             'agent':         agent,
             'checkBoxModel': model,
-            'dropdown':      agentsVM.dropdown
+            'dropdown':      agentsVM.dropdown,
+            'isUserAdmin': isUserAdmin
           })
       );
       m.redraw(true);

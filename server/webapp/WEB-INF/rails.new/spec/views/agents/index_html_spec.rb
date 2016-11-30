@@ -74,7 +74,7 @@ describe "/agents/index.html.erb" do
         expect(div).to have_selector("input[type='hidden'][name='order'][value='ASC']")
         expect(div).to have_selector("input[type='hidden'][name='autoRefresh'][value='false']")
         expect(div).to have_selector("button[type='submit']")
-        expect(div).to have_selector("a[href='/agents?column=status&filter=&order=ASC'][id='clear_filter']", "Clear")
+        expect(div).to have_selector("a[href='/old_agents?column=status&filter=&order=ASC'][id='clear_filter']", "Clear")
       end
     end
 

@@ -40,6 +40,10 @@ describe Admin::PipelineConfigsController do
   end
 
   describe :security do
+    before :each do
+      controller.stub(:check_feature_toggle).and_return(nil)
+      controller.stub(:load_pipeline).and_return(nil)
+    end
     describe :edit do
       it 'should allow anyone, with security disabled' do
         disable_security

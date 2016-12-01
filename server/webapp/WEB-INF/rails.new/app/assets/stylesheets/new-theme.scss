@@ -327,10 +327,9 @@ h4 {
 
 .page_header {
   a.link_as_header_button {
-    background:  $go-primary !important;
-    color:       $go-white !important;
-    font-weight: 700 !important;
-    border:      0;
+    background: $go-primary !important;
+    color:      $go-white !important;
+    border:     0;
     &:hover {
       color:  $go-white;
       border: 0;
@@ -339,13 +338,12 @@ h4 {
   }
 }
 
-.environment .pipeline .deployed_revisions {
-  padding: 5px 15px;
+.environment .pipeline .deployed_revisions .materials th, .environment .pipeline .deployed_revisions .materials td {
+  font-size: 11px !important;
 }
 
 .environment .pipeline .deploy {
   margin-top: 10px;
-  padding:    0 15px;
 }
 
 .pipeline_bundle .pipeline .alert {
@@ -542,7 +540,7 @@ ul.entity_title li {
       font-weight: 500 !important;
       font-size:   16px !important;
       font-weight: 400 !important;
-      margin:      5px 10px 0 0;
+      margin:      5px 10px 0 0 !important;
     }
   }
 }
@@ -1088,7 +1086,7 @@ input.new_resource {
 .pipeline_operations {
   button.submit {
     line-height:   normal;
-    height:        auto;
+    height:        22px;
     padding:       0 !important;
     border-radius: $global-border-radius;
     box-shadow:    none;
@@ -1304,6 +1302,12 @@ input[type="text"], input[type="password"], input[type="file"], input[type="url"
   box-shadow:    none;
 }
 
+textarea {
+  min-height: 100px;
+  max-height: 200px;
+  width:250px;
+}
+
 button.primary, a.primary_link_as_button, .link_as_button.primary {
   background-color: $go-primary !important;
   font-size:        rem-calc(13px) !important;
@@ -1414,6 +1418,12 @@ input[type='submit'], input[type='submit']:hover, button.submit, button.submit:h
   }
 }
 
+tr.Cancelled, tr.cancelled-stage {
+  &after {
+    background-image: none;
+  }
+}
+
 .Cancelled img {
   border-radius: 50%;
 }
@@ -1449,11 +1459,11 @@ a:link#link-to-this-page, a:visited#link-to-this-page {
   color:    #333;
 }
 
-#tab-content-of-console.ansi-color-toggle {
+.sub_tab_container_content .ansi-color-toggle {
   margin-top: 0px !important;
 }
 
-#tab-content-of-tests, #tab-content-of-failures, #tab-content-of-artifacts, #tab-content-of-properties, #tab-content-of-junit-time {
+#tab-content-of-tests, #tab-content-of-failures, #tab-content-of-artifacts, #tab-content-of-properties, #tab-content-of-junit-time, #tab-content-of-console, #tab-content-of-gaugereport {
   padding:   20px;
   font-size: 14px;
 }
@@ -1492,6 +1502,13 @@ a:link#link-to-this-page, a:visited#link-to-this-page {
 
   border-radius: 3px;
   overflow:      hidden;
+
+  .page-wrap {
+    &:before {
+      height: 0;
+
+    }
+  }
 }
 
 #MB_content .sub_tab_container, #MB_content .form_content, #MB_content .new_form_content {
@@ -2125,12 +2142,8 @@ input.compare_pipeline_input {
 }
 
 .pause_wrapper button.submit {
-  background-color: #f6f6f6 !important;
-  height:           22px;
-  border:           1px solid #ccc;
-  &:hover {
-    background-color: #666 !important;
-  }
+  height: 22px;
+  border: 1px solid #ccc;
 }
 
 #stages .build_cause .modified_files div {
@@ -2359,4 +2372,47 @@ table.variables th {
 
 .back_to_top {
   border-radius: 50%;
+}
+
+.overview_widget .job .elapsed_time {
+  white-space: normal;
+}
+
+.ansi-color-toggle {
+  margin-top: 0 !important;
+}
+
+#buildlist-container .buildlist li {
+  a {
+    position: relative;
+    padding:  10px 10px 10px 30px !important;;
+  }
+  .color_code_small {
+    position: absolute;
+    left:     10px;
+    top:      15px;
+  }
+}
+
+.build_detail .sidebar_history .time_ago {
+  margin-left: 0 !important;
+}
+
+.changes_button_wrapper button.submit, .operate button.submit, .deploy button.submit, .pause_wrapper button.submit {
+  background-color: #dedede;
+}
+
+#error-container {
+  margin-top: -40px;
+}
+
+#graphic-dialog {
+  margin: 0 auto;
+}
+
+.exec_task_editor {
+  label.inline {
+    display:       inline-block;
+    margin-bottom: 5px;
+  }
 }

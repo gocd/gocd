@@ -18,15 +18,16 @@ module ApiV2
   module Config
     module Materials
       class TfsMaterialRepresenter < ScmMaterialRepresenter
+        include ApiV2::Config::Materials::EncryptedPasswordSupport
+
         property :domain
         property :user_name, as: :username
         property :password,
                  skip_render: true,
                  skip_nil: true,
-                 setter:      lambda { |value, options|
-                   self.setCleartextPassword(value)
-                 }
-        property :encrypted_password, skip_nil: true
+                 skip_parse: true
+
+        property :encrypted_password, skip_nil: true, skip_parse: true
 
         property :project_path
 

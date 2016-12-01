@@ -18,17 +18,16 @@ module ApiV2
   module Config
     module Materials
       class SvnMaterialRepresenter < ScmMaterialRepresenter
-        property :check_externals, exec_context: :decorator
+        include ApiV2::Config::Materials::EncryptedPasswordSupport
+
+        property :check_externals
         property :user_name, as: :username
         property :password,
                  skip_render: true,
                  skip_nil: true,
-                 setter:      lambda { |value, options|
-                   self.setCleartextPassword(value)
-                 }
-        property :encrypted_password, skip_nil: true
+                 skip_parse: true
 
-        delegate :check_externals, :check_externals=, to: :material_config
+        property :encrypted_password, skip_nil: true, skip_parse: true
       end
 
     end

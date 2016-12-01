@@ -190,11 +190,6 @@ public class P4MaterialConfig extends ScmMaterialConfig implements ParamsAttribu
         resetPassword(password);
     }
 
-    public void setCleartextPassword(String password) {
-        this.password = password;
-    }
-
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {

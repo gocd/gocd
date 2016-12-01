@@ -13,7 +13,7 @@ public class CRJob extends CRBase {
     private Collection<String> resources = new ArrayList<>();
     private Collection<CRArtifact> artifacts = new ArrayList<>();
     private Collection<CRPropertyGenerator> properties = new ArrayList<>();
-
+    private String elastic_profile_id;
     private String run_instance_count;
     private Integer timeout;
 
@@ -28,10 +28,11 @@ public class CRJob extends CRBase {
         this.tasks = Arrays.asList(tasks);
     }
     public CRJob(String name, Collection<CREnvironmentVariable> environmentVariables, Collection<CRTab> tabs,
-                 Collection<String> resources, Collection<CRArtifact> artifacts,
+                 Collection<String> resources, String elasticProfileId, Collection<CRArtifact> artifacts,
                  Collection<CRPropertyGenerator> artifactPropertiesGenerators,
                  String runInstanceCount, int timeout, List<CRTask> tasks) {
         this.name = name;
+        this.elastic_profile_id = elasticProfileId;
         this.environment_variables = environmentVariables;
         this.tabs = tabs;
         this.resources = resources;
@@ -42,10 +43,11 @@ public class CRJob extends CRBase {
         this.tasks = tasks;
     }
     public CRJob(String name, Collection<CREnvironmentVariable> environmentVariables, Collection<CRTab> tabs,
-                 Collection<String> resources, Collection<CRArtifact> artifacts,
+                 Collection<String> resources, String elasticProfileId, Collection<CRArtifact> artifacts,
                  Collection<CRPropertyGenerator> artifactPropertiesGenerators,
                  boolean runOnAllAgents, int runInstanceCount, int timeout, List<CRTask> tasks) {
         this.name = name;
+        this.elastic_profile_id = elasticProfileId;
         this.environment_variables = environmentVariables;
         this.tabs = tabs;
         this.resources = resources;
@@ -67,6 +69,16 @@ public class CRJob extends CRBase {
         validateArtifacts(errors,location);
         validateProperties(errors,location);
         validateTasks(errors,location);
+        validateElasticProfile(errors,location);
+    }
+
+    private void validateElasticProfile(ErrorCollection errors, String location) {
+        if(elastic_profile_id != null)
+        {
+            if(this.resources != null && this.resources.size() > 0) {
+                errors.addError(location,"elastic_profile_id cannot be specified together with resources");
+            }
+        }
     }
 
     private void validateTasks(ErrorCollection errors, String location) {
@@ -128,7 +140,9 @@ public class CRJob extends CRBase {
         if (name != null ? !name.equals(that.getName()) : that.getName() != null) {
             return false;
         }
-
+        if (elastic_profile_id != null ? !elastic_profile_id.equals(that.elastic_profile_id) : that.elastic_profile_id != null) {
+            return false;
+        }
         if (environment_variables != null ? !CollectionUtils.isEqualCollection(this.environment_variables, that.environment_variables) : that.environment_variables != null) {
             return false;
         }
@@ -294,5 +308,13 @@ public class CRJob extends CRBase {
         String myLocation = getLocation() == null ? parent : getLocation();
         String stage = getName() == null ? "unknown name" : getName();
         return String.format("%s; Job (%s)",myLocation,stage);
+    }
+
+    public String getElasticProfileId() {
+        return elastic_profile_id;
+    }
+
+    public void setElasticProfileId(String elastic_profile_id) {
+        this.elastic_profile_id = elastic_profile_id;
     }
 }

@@ -21,6 +21,7 @@ public class CRJobTest extends CRBaseTest<CRJob> {
     private final CRJob jobWithTab;
     private final CRJob jobWithProp;
     private final CRJob invalidJobNoName;
+    private final CRJob invalidJobResourcesAndElasticProfile;
 
     public CRJobTest()
     {
@@ -40,6 +41,10 @@ public class CRJobTest extends CRBaseTest<CRJob> {
         jobWithProp.addProperty(new CRPropertyGenerator("perf","test.xml","substring-before(//report/data/all/coverage[starts-with(@type,'class')]/@value, '%')"));
 
         invalidJobNoName = new CRJob();
+
+        invalidJobResourcesAndElasticProfile = new CRJob("build",rakeTask);
+        invalidJobResourcesAndElasticProfile.addResource("linux");
+        invalidJobResourcesAndElasticProfile.setElasticProfileId("profile");
     }
 
     @Override
@@ -55,6 +60,7 @@ public class CRJobTest extends CRBaseTest<CRJob> {
     @Override
     public void addBadExamples(Map<String, CRJob> examples) {
         examples.put("invalidJobNoName",invalidJobNoName);
+        examples.put("invalidJobResourcesAndElasticProfile",invalidJobResourcesAndElasticProfile);
     }
 
 

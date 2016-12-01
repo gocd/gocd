@@ -102,7 +102,7 @@ public class ConfigConverterTest {
                 "upstream", "stage", "job", "src", "dest", false));
 
         jobs.add(new CRJob("name",environmentVariables, tabs,
-                resources, artifacts, artifactPropertiesGenerators,
+                resources,null, artifacts, artifactPropertiesGenerators,
                 true, 5, 120, tasks));
 
         authorizedUsers.add("authUser");
@@ -729,7 +729,7 @@ public class ConfigConverterTest {
     public void shouldConvertJob()
     {
         CRJob crJob = new CRJob("name",environmentVariables, tabs,
-                 resources, artifacts, artifactPropertiesGenerators,
+                 resources, null, artifacts, artifactPropertiesGenerators,
                 false, 5, 120, tasks);
 
         JobConfig jobConfig = configConverter.toJobConfig(crJob);
@@ -745,11 +745,25 @@ public class ConfigConverterTest {
         assertThat(jobConfig.getTimeout(),is("120"));
         assertThat(jobConfig.getTasks().size(),is(1));
     }
+
+    @Test
+    public void shouldConvertJobWhenHasElasticProfileId()
+    {
+        CRJob crJob = new CRJob("name",environmentVariables, tabs,
+                null, "myprofile", artifacts, artifactPropertiesGenerators,
+                false, 5, 120, tasks);
+
+        JobConfig jobConfig = configConverter.toJobConfig(crJob);
+
+        assertThat(jobConfig.getElasticProfileId(),is("myprofile"));
+        assertThat(jobConfig.resources().size(),is(0));
+    }
+
     @Test
     public void shouldConvertJobWhenRunInstanceCountIsNotSpecified()
     {
         CRJob crJob = new CRJob("name",environmentVariables, tabs,
-                resources, artifacts, artifactPropertiesGenerators,
+                resources, null, artifacts, artifactPropertiesGenerators,
                 null, 120, tasks);
 
         JobConfig jobConfig = configConverter.toJobConfig(crJob);
@@ -763,7 +777,7 @@ public class ConfigConverterTest {
     public void shouldConvertJobWhenRunInstanceCountIsAll()
     {
         CRJob crJob = new CRJob("name",environmentVariables, tabs,
-                resources, artifacts, artifactPropertiesGenerators,
+                resources, null, artifacts, artifactPropertiesGenerators,
                 "all", 120, tasks);
 
         JobConfig jobConfig = configConverter.toJobConfig(crJob);

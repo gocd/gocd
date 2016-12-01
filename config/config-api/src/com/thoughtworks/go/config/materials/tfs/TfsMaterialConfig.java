@@ -125,10 +125,6 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
         resetPassword(password);
     }
 
-    public void setCleartextPassword(String password) {
-        this.password = password;
-    }
-
     @Override
     public String getPassword() {
         try {

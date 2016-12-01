@@ -124,10 +124,6 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
         resetPassword(password);
     }
 
-    public void setCleartextPassword(String password) {
-        this.password = password;
-    }
-
     private void resetPassword(String passwordToSet) {
         if (StringUtil.isBlank(passwordToSet)) {
             encryptedPassword = null;

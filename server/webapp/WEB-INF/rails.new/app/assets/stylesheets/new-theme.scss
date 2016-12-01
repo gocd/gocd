@@ -2421,10 +2421,16 @@ table.variables th {
 
 #plugin_settings_angular_plugin_settings {
   textarea {
-    resize: both;
-    height: inherit;
+    resize:      both;
+    height:      inherit;
     font-family: "courier new", monospace !important;
-    font-size: 14px;
+    font-size:   14px;
     line-height: 1.25em;
+  }
+}
+
+.vsm-entity.pipeline ul.instances {
+  .message {
+    padding: 0px 7px;
   }
 }

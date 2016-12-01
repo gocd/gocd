@@ -16,6 +16,7 @@
  */
 @import "font-awesome-sprockets";
 @import "font-awesome/variables";
+@import 'css3/animation';
 
 <%
   variables = {}
@@ -28,7 +29,7 @@
 
 $fa-font-icons: (
                 <% variables.each do |name, unicode| %>
-                    fa-var-<%= name %>: '<%= unicode %>',
+                  fa-var-<%= name %>: '<%= unicode %>',
                 <% end %>
                 );
 
@@ -81,16 +82,33 @@ $fa-font-icons: (
   -webkit-font-smoothing: antialiased;
 }
 
-@mixin icon-before($type, $size: auto, $margin: 5px, $line-height: 1em, $color: auto, $top: auto, $shadow: none, $font: 'font-awesome') {
+@mixin in-progress-spinner($type: spinner, $font: 'font-awesome') {
+  @include icon-only($type: $type, $font: $font);
+  @include animation(spin 1s linear infinite);
+}
+
+@mixin icon-before($type, $size: auto, $margin: 5px, $line-height: 1em, $color: auto, $top: auto, $shadow: none, $font: 'font-awesome', $progress-spinner: false) {
   &:before {
     @include icon($type, $size, $margin, $line-height, $color, $top, $shadow, $font: $font);
     @content;
   }
+
+  @if $progress-spinner == true {
+    &.in-progress:before {
+      @include in-progress-spinner;
+    }
+  }
 }
 
-@mixin icon-after($type, $size: auto, $margin: 5px, $line-height: 1em, $color: auto, $top: auto, $shadow: none, $font: 'font-awesome') {
+@mixin icon-after($type, $size: auto, $margin: 5px, $line-height: 1em, $color: auto, $top: auto, $shadow: none, $font: 'font-awesome', $progress-spinner: false) {
   &:after {
     @include icon($type, $size, $margin, $line-height, $color, $top, $shadow, $font: $font);
     @content;
+  }
+
+  @if $progress-spinner == true {
+    &.in-progress:after {
+      @include in-progress-spinner;
+    }
   }
 }

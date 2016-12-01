@@ -38,4 +38,14 @@
   .button {
     margin-right: 10px;
   }
+
+  .modal-spinner {
+    border:        16px solid #f3f3f3;
+    border-top:    16px solid #963fb7;
+    border-radius: 50%;
+    width:         100px;
+    height:        100px;
+    margin:        50px auto;
+    animation:     spin 2s linear infinite;
+  }
 }

@@ -82,6 +82,7 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
     input: {
       controller: function () {
         this.onInput = function (model, attrName, callback, e) {
+          debugger;
           var currentTarget = (e || event).currentTarget;
           var newValue      = currentTarget.value || currentTarget.getAttribute('value');
           model[attrName](newValue);
@@ -134,7 +135,7 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
     inputWithLabel: {
       controller: function () {
         this.onInput = function (model, attrName, callback, e) {
-          var currentTarget = (e || event).currentTarget;
+          var currentTarget = (e || event).target; //for 1 input box, the target and currentTarget will be the same.
           var newValue      = currentTarget.value || currentTarget.getAttribute('value');
           model[attrName](newValue);
           if (callback) {

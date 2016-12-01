@@ -40,32 +40,12 @@ define([
           return _.isNil(PluginInfos.findById(args.material.repository().pluginMetadata().id()));
         },
 
-        update:         function () {
+        editPackage:     function (vm, modal) {
+          args.packageForEdit().update().then(onSuccessOfPackageApi.bind(this, vm, modal, args.material), onFailureOfPackageApi.bind(this, vm));
+        },
 
-          var vm = new Packages.vm();
-          //var packageForEdit = args.getPackageForEdit(args.material.ref());
-          var modal = new Modal({
-            size:    'small',
-            title:   'Edit Package',
-            body:    (<PackageConfigEditWidget packageForEdit={args.packageForEdit}
-                                               repository={args.material.repository()}
-                                               vm={vm}/>),
-            onclose: function () {
-              vm.reset();
-              modal.destroy();
-            },
-            buttons: [
-              {
-                text:    'Save',
-                class:   'save primary',
-                onclick: function () {
-                  vm.startUpdating();
-                  args.packageForEdit().update().then(onSuccessOfPackageApi.bind(this, vm, modal, args.material), onFailureOfPackageApi.bind(this, vm));
-                }
-              }
-            ]
-          });
-          modal.render();
+        update:         function () {
+          args.create(args.packageForEdit, args.material.repository, PackageConfigEditWidget, 'Edit Package', ctrl.editPackage);
         }
       };
       return ctrl;
@@ -73,7 +53,7 @@ define([
 
     view: function (ctrl, args) {
       var packageForEdit = args.packageForEdit();
-      var data           = {Name: packageForEdit.name()};
+      var data           = {Name: packageForEdit.name(), Auto_update: packageForEdit.autoUpdate()};
 
       packageForEdit.configuration().mapConfigurations(function (conf) {
         data[_.capitalize(conf.key())] = conf.isSecureValue() ? "***********" : conf.value();
@@ -85,7 +65,7 @@ define([
 
       return (
         <div>
-          <div class='repository'>
+          <div class='package'>
             {editButton}
             <f.row>
               <ul>
@@ -108,31 +88,11 @@ define([
   var NewPackageWidget = {
     controller: function (args) {
       var ctrl = {
-        create: function () {
-          var vm             = new Packages.vm();
-
-          var modal = new Modal({
-            size:    'small',
-            title:   'Add Package',
-            body:    (<PackageConfigNewWidget packageForEdit={args.packageForEdit}
-                                              repository={args.material.repository()}
-                                              vm={vm}/>),
-            onclose: function () {
-              vm.reset();
-              modal.destroy();
-            },
-            buttons: [
-              {
-                text:    'Save',
-                class:   'save primary',
-                onclick: function () {
-                  vm.startUpdating();
-                  args.packageForEdit().create().then(onSuccessOfPackageApi.bind(this, vm, modal, args.material), onFailureOfPackageApi.bind(this, vm));
-                }
-              }
-            ]
-          });
-          modal.render();
+        createPackage: function (vm, modal) {
+          args.packageForEdit().create().then(onSuccessOfPackageApi.bind(this, vm, modal, args.material), onFailureOfPackageApi.bind(this, vm));
+        },
+        create:        function () {
+          args.create(args.packageForEdit, args.material.repository, PackageConfigNewWidget, 'Add Package', ctrl.createPackage);
         }
       };
       return ctrl;
@@ -142,7 +102,7 @@ define([
     view: function (ctrl, args) {
       return (
         <f.row>
-          <f.column class='no-repo' size={4} largeSize={6} end>
+          <f.column class='no-package' size={4} largeSize={6} end>
             {args.material.repository().packages().countPackage() === 0 ?
               <div>
                 <label>No packages available in this repository.</label> <a class='add-button button'
@@ -161,6 +121,7 @@ define([
   var SelectPackageWidget = {
     controller: function (args) {
       args.getPackageForEdit(args.defaultPackageId());
+      args.material.ref(args.defaultPackageId());
       return {
         selectPackage: function () {
           var packageId = args.defaultPackageId();
@@ -180,7 +141,7 @@ define([
       });
 
       return (
-        <f.row class='repo-selector'>
+        <f.row class='package-selector'>
           <f.select
             model={args}
             attrName="defaultPackageId"
@@ -196,7 +157,7 @@ define([
 
   var PackageWidget = {
     controller: function (args) {
-      var temp = function () {
+      var getMaterialReference = function () {
         if(args.material.repository().packages().countPackage() === 0) {
           return args.material.ref();
         }
@@ -216,7 +177,34 @@ define([
           return this.packageForEdit;
         },
 
-        defaultPackageId: m.prop(temp()),
+        defaultPackageId: m.prop(getMaterialReference()),
+
+        create: function (packageForEdit, repository, PackageConfigurationWidget, modalTitle, performOperation) {
+          var vm             = new Packages.vm();
+
+          var modal = new Modal({
+            size:    'small',
+            title:   modalTitle,
+            body:    (<PackageConfigurationWidget packageForEdit={packageForEdit}
+                                              repository={repository()}
+                                              vm={vm}/>),
+            onclose: function () {
+              vm.reset();
+              modal.destroy();
+            },
+            buttons: [
+              {
+                text:    'Save',
+                class:   'save primary',
+                onclick: function () {
+                  vm.startUpdating();
+                  performOperation(vm, modal);
+                }
+              }
+            ]
+          });
+          modal.render();
+        }
 
       };
       return ctrl;
@@ -231,11 +219,11 @@ define([
 
           <NewPackageWidget material={args.material}
                             packageForEdit={ctrl.packageForEdit}
-                            getPackageForEdit={ctrl.getPackageForEdit}/>
+                            create={ctrl.create}/>
 
-          {args.material.repository().packages().countPackage() === 0 ? '' : <EditPackageWidget getPackageForEdit={ctrl.getPackageForEdit.bind(ctrl)}
-                                                                  packageForEdit={ctrl.packageForEdit}
-                                                                  material={args.material}/>}
+          {args.material.repository().packages().countPackage() === 0 ? '' : <EditPackageWidget packageForEdit={ctrl.packageForEdit}
+                                                                                                material={args.material}
+                                                                                                create={ctrl.create}/>}
         </div>
       );
     }

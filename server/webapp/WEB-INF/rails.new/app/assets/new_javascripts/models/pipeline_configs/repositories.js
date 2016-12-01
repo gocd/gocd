@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mrequest', 'models/errors', 'models/pipeline_configs/encrypted_value', 'models/validatable_mixin', 'js-routes'],
-  function (m, _, s, Mixins, mrequest, Errors, EncryptedValue, Validatable, Routes) {
+define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mrequest', 'models/errors', 'models/pipeline_configs/encrypted_value',  'models/pipeline_configs/plugin_infos', 'models/validatable_mixin', 'js-routes'],
+  function (m, _, s, Mixins, mrequest, Errors, EncryptedValue, PluginInfos, Validatable, Routes) {
 
     var Repositories          = m.prop([]);
     Repositories.repoIdToEtag = {};
@@ -32,7 +32,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
       Validatable.call(this, data);
 
       var embeddedPackages = function (data) {
-        var getPackages = function(embedded) {
+        var getPackages = function (embedded) {
           return embedded.packages ? embedded.packages : '';
         };
         return data._embedded ? getPackages(data._embedded) : '';
@@ -116,19 +116,30 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
       };
     };
 
-    Repositories.Repository.initialize = function(pluginInfo, configurations) {
+    Repositories.Repository.initialize = function (pluginInfo, configurations) {
       return new Repositories.Repository({
         plugin_metadata: {
           id:      pluginInfo.id(),
           version: pluginInfo.version()
         },
-        configuration: configProperties(configurations)
+        configuration:   configProperties(configurations)
       });
     };
 
-    var configProperties = function(configurations) {
+    Repositories.Repository.setRepositoryForEdit = function (repoForEdit, pluginId) {
+      PluginInfos.PluginInfo.get(pluginId).then(function (pluginInfo) {
+        var allConfigurations        = pluginInfo.configurations();
+        var repositoryConfigurations = _.filter(allConfigurations, function (configuration) {
+          return configuration.type === 'repository';
+        });
+        var repository               = Repositories.Repository.initialize(pluginInfo, repositoryConfigurations);
+        repoForEdit(repository);
+      })
+    };
+
+    var configProperties = function (configurations) {
       var config = [];
-      _.map(configurations, function(configuration) {
+      _.map(configurations, function (configuration) {
         return config.push({key: configuration.key});
       });
       return config;
@@ -151,8 +162,8 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
     };
 
 
-    Repositories.Repository.Packages.Package = function(data) {
-      this.id = m.prop(s.defaultToIfBlank(data.id, ''));
+    Repositories.Repository.Packages.Package = function (data) {
+      this.id   = m.prop(s.defaultToIfBlank(data.id, ''));
       this.name = m.prop(s.defaultToIfBlank(data.name, ''));
     };
 
@@ -265,7 +276,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
       var config = function (xhr) {
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.setRequestHeader("Accept", "application/vnd.go.cd.v1+json");
-        xhr.setRequestHeader( 'Cache-Control', "no-cache");
+        xhr.setRequestHeader('Cache-Control', "no-cache");
       };
 
       var extract = function (xhr) {
@@ -274,11 +285,11 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
       };
 
       return m.request({
-        method:     'GET',
-        url:        Routes.apiv1AdminRepositoryPath({repo_id: repository.id()}),  //eslint-disable-line camelcase
-        config:     config,
-        extract:    extract,
-        type:       Repositories.Repository
+        method:  'GET',
+        url:     Routes.apiv1AdminRepositoryPath({repo_id: repository.id()}),  //eslint-disable-line camelcase
+        config:  config,
+        extract: extract,
+        type:    Repositories.Repository
       });
     };
 

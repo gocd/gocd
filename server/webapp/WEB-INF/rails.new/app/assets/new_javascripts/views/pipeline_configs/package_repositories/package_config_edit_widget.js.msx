@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/packages', 'views/pipeline_configs/errors_widget', 'models/pipeline_configs/plugin_infos', 'views/pipeline_configs/package_repositories/repository_configuration_widget'],
-  function (m, _, f, Packages, ErrorsWidget, PluginInfos, RepositoryConfigurationWidget) {
+define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/packages', 'views/pipeline_configs/errors_widget', 'models/pipeline_configs/plugin_infos', 'views/pipeline_configs/package_repositories/configuration_widget'],
+  function (m, _, f, Packages, ErrorsWidget, PluginInfos, PackageConfigurationWidget) {
     //This has to be done to get around mithril's controller caching
 
 
@@ -27,24 +27,9 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/pac
 
 
 
-    var RepositoryConfigEditWidget = {
+    var PackageConfigEditWidget = {
 
       controller: function (args) {
-
-        //var initializePackage = function (pluginId) {
-        //  PluginInfos.PluginInfo.get(pluginId).then(function (pluginInfo) {
-        //    var allConfigurations = pluginInfo.configurations();
-        //    var packageConfigurations = _.filter(allConfigurations, function (configuration) {
-        //      return configuration.type === 'package';
-        //    });
-        //    var packageMaterial = Packages.Package.initialize(args.repository, packageConfigurations);
-        //    args.packageForEdit(packageMaterial);
-        //  });
-        //};
-        //
-        //var pluginInfo = _.head(PluginInfos.filterByType('package-repository'));
-        //
-        //initializePackage(args.repository.pluginMetadata().id());
 
         var ctrl = {
           vm:           args.vm,
@@ -83,7 +68,7 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/pac
               </f.row>
 
               {args.packageForEdit().configuration().mapConfigurations(function(configuration) {
-                return (<RepositoryConfigurationWidget configuration={configuration} />);
+                return (<PackageConfigurationWidget configuration={configuration} />);
               })}
 
               <f.row>
@@ -96,5 +81,5 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/pac
       }
     };
 
-    return RepositoryConfigEditWidget;
+    return PackageConfigEditWidget;
   });

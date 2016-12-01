@@ -14,18 +14,8 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/repositories', 'views/pipeline_configs/errors_widget', 'models/pipeline_configs/plugin_infos', 'views/pipeline_configs/package_repositories/repository_configuration_widget'],
+define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/repositories', 'views/pipeline_configs/errors_widget', 'models/pipeline_configs/plugin_infos', 'views/pipeline_configs/package_repositories/configuration_widget'],
   function (m, _, f, Repositories, ErrorsWidget, PluginInfos, RepositoryConfigurationWidget) {
-    //This has to be done to get around mithril's controller caching
-
-
-    /*
-     'scmForEdit' is a cloned copy of the actual SCM, this is required since SCMConfigEditWidget is rendered in a modal. There might be scenarios
-     wherein a user can make changes to the scm but not save it and close the modal, in this scenario the changes should not
-     be retained. To achieve this behaviour the widget works with a clonened copy of scm.
-     */
-
-
 
     var RepositoryConfigNewWidget = {
 
@@ -33,14 +23,7 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
 
 
         var initializeRepository = function (pluginId) {
-          PluginInfos.PluginInfo.get(pluginId).then(function (pluginInfo) {
-            var allConfigurations = pluginInfo.configurations();
-            var repositoryConfigurations = _.filter(allConfigurations, function (configuration) {
-              return configuration.type === 'repository';
-            });
-            var repository = Repositories.Repository.initialize(pluginInfo, repositoryConfigurations);
-            args.repoForEdit(repository);
-          });
+          Repositories.Repository.setRepositoryForEdit(args.repoForEdit, pluginId);
         };
 
         var pluginInfo = _.head(PluginInfos.filterByType('package-repository'));
@@ -52,9 +35,6 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
           vm:           args.vm,
           selectPlugin: function (id) {
             initializeRepository(id);
-          },
-          checkRepositoryConnection: function () {
-          //TODO : Have an API for checking the repository connection and make the request from here.
           }
         };
 
@@ -62,17 +42,17 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
       },
 
       view: function (ctrl, args) {
-        var errors = ctrl.vm.hasErrors() ? (<ErrorsWidget errors={ctrl.vm.errors()}/>) : undefined;
+        var errors      = ctrl.vm.hasErrors() ? (<ErrorsWidget errors={ctrl.vm.errors()}/>) : undefined;
         var repoForEdit = args.repoForEdit;
 
         var items = [];
         _.each(PluginInfos.filterByType('package-repository'), function (pluginInfo) {
-          var item = {};
-          item['id'] = pluginInfo.id();
+          var item     = {};
+          item['id']   = pluginInfo.id();
           item['text'] = pluginInfo.name();
           items.push(item);
         });
-        
+
         return (
           <div class='modal-content'>
             <div class='modal-header'>
@@ -102,13 +82,9 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
                 />
               </f.row>
 
-              {repoForEdit().configuration().mapConfigurations(function(configuration) {
-                return (<RepositoryConfigurationWidget configuration={configuration} />);
+              {repoForEdit().configuration().mapConfigurations(function (configuration) {
+                return (<RepositoryConfigurationWidget configuration={configuration}/>);
               }, this)}
-
-              <f.row>
-                <f.button onclick={ctrl.checkRepositoryConnection}>Check Repository Connection</f.button>
-              </f.row>
 
             </div>
           </div>

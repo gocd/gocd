@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mrequest', 'models/errors', 'models/pipeline_configs/encrypted_value', 'models/validatable_mixin', 'js-routes', 'models/pipeline_configs/repositories'],
-  function (m, _, s, Mixins, mrequest, Errors, EncryptedValue, Validatable, Routes, Repositories) {
+define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mrequest', 'models/errors', 'models/pipeline_configs/encrypted_value', 'models/validatable_mixin', 'js-routes', 'models/pipeline_configs/repositories', 'models/pipeline_configs/plugin_infos'],
+  function (m, _, s, Mixins, mrequest, Errors, EncryptedValue, Validatable, Routes, Repositories, PluginInfos) {
 
     var Packages             = m.prop([]);
     Packages.packageIdToEtag = {};
@@ -37,7 +37,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
         this.autoUpdate    = m.prop(s.defaultToIfBlank(data.auto_update, true));
         this.configuration = s.collectionToJSON(m.prop(Packages.Package.Configurations.fromJSON(data.configuration || {})));
         this.packageRepo   = m.prop(new Packages.Package.PackageRepository(data.package_repo || {}));
-        this.errors         = m.prop(new Errors(data.errors));
+        this.errors        = m.prop(new Errors(data.errors));
       };
 
       this.init(data);
@@ -53,11 +53,11 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
       this.toJSON = function () {
         /* eslint-disable camelcase */
         return {
-          id:              this.id(),
-          name:            this.name(),
-          auto_update:      this.autoUpdate(),
-          package_repo:    this.packageRepo.toJSON(),
-          configuration:   this.configuration
+          id:            this.id(),
+          name:          this.name(),
+          auto_update:   this.autoUpdate(),
+          package_repo:  this.packageRepo.toJSON(),
+          configuration: this.configuration
         };
         /* eslint-enable camelcase */
       };
@@ -112,16 +112,27 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
     Packages.Package.initialize = function (repository, configurations) {
       return new Packages.Package({
         configuration: configProperties(configurations),
-        package_repo: {
-          id: repository.id(),
+        package_repo:  {
+          id:   repository.id(),
           name: repository.name()
         }
       });
     };
 
-    var configProperties = function(configurations) {
+    Packages.Package.setPackageForEdit = function (packageForEdit, pluginId, repository) {
+      PluginInfos.PluginInfo.get(pluginId).then(function (pluginInfo) {
+        var allConfigurations     = pluginInfo.configurations();
+        var packageConfigurations = _.filter(allConfigurations, function (configuration) {
+          return configuration.type === 'package';
+        });
+        var packageMaterial       = Packages.Package.initialize(repository, packageConfigurations);
+        packageForEdit(packageMaterial);
+      });
+    };
+
+    var configProperties = function (configurations) {
       var config = [];
-      _.map(configurations, function(configuration) {
+      _.map(configurations, function (configuration) {
         return config.push({key: configuration.key});
       });
       return config;
@@ -133,7 +144,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
 
       this.toJSON = function () {
         return {
-          id: this.id(),
+          id:   this.id(),
           name: this.name()
         };
       };

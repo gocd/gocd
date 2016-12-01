@@ -15,7 +15,7 @@
  */
 
 define(['mithril', 'helpers/form_helper'], function (m, f) {
-  var RepositoryConfigurationWidget = {
+  var ConfigurationWidget = {
     view: function (_ctrl, args) {
       var inputType     = 'text';
       var configuration = args.configuration;
@@ -39,5 +39,5 @@ define(['mithril', 'helpers/form_helper'], function (m, f) {
     }
   };
 
-  return RepositoryConfigurationWidget;
+  return ConfigurationWidget;
 });

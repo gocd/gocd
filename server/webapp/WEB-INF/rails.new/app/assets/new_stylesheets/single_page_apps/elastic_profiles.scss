@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@import '../shared/mixins';
-@import '../shared/autocomplete';
-@import '../shared/common';
-@import '../shared/modal';
-@import '../shared/header';
-@import '../shared/alert';
+@import 'shared/mixins';
+@import 'shared/autocomplete';
+@import 'shared/common';
+@import 'shared/modal';
+@import 'shared/header';
+@import 'shared/alert';
 
 
 $elastic-profile-plugin-icon-size: 30px;
@@ -73,7 +73,7 @@ $elastic-profile-icon-text-padding: 20px;
 }
 
 .reveal .delete-profile {
-  @include icon-before($type: trash, $color: $white, $margin: 0 5px 0 0);
+  @include icon-before($type: trash, $color: $white, $margin: 0 5px 0 0, $progress-spinner: true);
 }
 
 .plugin-icon {

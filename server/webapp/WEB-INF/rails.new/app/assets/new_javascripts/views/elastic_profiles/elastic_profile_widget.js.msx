@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(["mithril", 'helpers/form_helper', 'helpers/mithril_component_mixins', 'views/shared/new_modal'], function (m, f, ComponentMixins, Modal) {
+define(["mithril", 'helpers/form_helper', 'helpers/mithril_component_mixins'], function (m, f, ComponentMixins) {
   var ElasticProfileWidget = {
     controller: function (args) {
       this.args = args;
@@ -31,27 +31,6 @@ define(["mithril", 'helpers/form_helper', 'helpers/mithril_component_mixins', 'v
       this.showState = function () {
         return this.vmState(vmStateKey)() ? 'show' : 'hide';
       };
-
-      this.deleteConfirm = function (profile, onDelete) {
-        var modal = new Modal({
-          title:    'Are you sure?',
-          body:     (<div>Are you sure you want to delete the profile <strong>{profile.id()}</strong>?</div>),
-          oncancel: function () {
-            modal.destroy();
-          },
-          buttons:  [
-            {
-              text:    'Delete',
-              class:   'delete-profile',
-              onclick: function () {
-                onDelete();
-                modal.destroy();
-              }
-            }
-          ]
-        });
-        modal.render();
-      };
     },
 
     view: function (ctrl, args) {
@@ -64,7 +43,8 @@ define(["mithril", 'helpers/form_helper', 'helpers/mithril_component_mixins', 'v
         actionIcons = (
           <div class="plugin-actions">
             <f.link class='edit-profile' onclick={args.onEdit}/>
-            <f.link class='delete-profile-confirm' onclick={ctrl.deleteConfirm.bind(ctrl, profile, args.onDelete)}/>
+            {/*<f.link class='delete-profile-confirm' onclick={ctrl.deleteConfirm.bind(ctrl, profile, args.onDelete)}/>*/}
+            <f.link class='delete-profile-confirm' onclick={args.onDelete}/>
           </div>
         );
       } else {

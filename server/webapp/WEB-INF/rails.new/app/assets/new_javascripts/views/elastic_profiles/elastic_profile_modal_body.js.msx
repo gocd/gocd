@@ -68,8 +68,6 @@ define([
         args.saveDisabled(!pluginInfo);
       };
 
-      setPluginInfo(args.pluginInfo());
-
       this.selectPluginId = function () {
         var pluginInfo = _.find(PluginInfos(), function (pi) {
           return pi.id() === args.profile().pluginId();
@@ -92,6 +90,19 @@ define([
 
     view: function (ctrl, args) {
       var profileIdDisabledMessage;
+
+      if (args.errorMessage && args.errorMessage()) {
+        return (
+          <f.alert>{args.errorMessage()}</f.alert>
+        );
+      }
+
+      if (!args.profile()) {
+        return (
+          <div class="modal-spinner"/>
+        );
+      }
+
       if (!args.newProfile) {
         profileIdDisabledMessage = (<div>Editing of profile ID is disabled</div>);
       }

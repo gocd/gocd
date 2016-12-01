@@ -69,7 +69,7 @@ define(['mithril', 'lodash', 'jquery', 'helpers/form_helper'], function (m, _, $
               </button>
 
               <f.row class="modal-buttons">
-                {_.map(options.buttons, function (button) {
+                {_.map(_.isFunction(options.buttons) ? options.buttons() : options.buttons, function (button) {
                   return (
                     <f.button disabled={button.disabled ? button.disabled() : false}
                               onclick={button.onclick}

@@ -72,23 +72,29 @@ define([
       this.reloadPage();
 
       this.edit = function (profile) {
-        var showModal = function (args) {
-          var newProfile   = m.prop(args[0]);
-          var pluginInfo   = m.prop(args[1]);
-          var saveDisabled = m.prop(false);
-          ctrl.clearMessage();
+        var newProfile   = m.prop();
+        var pluginInfo   = m.prop();
+        var saveDisabled = m.prop(false);
+        var errorMessage = m.prop();
 
-          var modal = new Modal({
-            size:    'large',
-            title:   'Edit profile ' + newProfile().id(),
-            body:    (<ElasticProfileModalBody profile={newProfile}
-                                               pluginInfo={pluginInfo}
-                                               newProfile={false}
-                                               saveDisabled={saveDisabled}/>),
-            onclose: function () {
-              modal.destroy();
-            },
-            buttons: [
+        ctrl.clearMessage();
+
+        var modal = new Modal({
+          size:    'large',
+          title:   'Edit profile ' + profile.id(),
+          body:    (<ElasticProfileModalBody profile={newProfile}
+                                             pluginInfo={pluginInfo}
+                                             newProfile={false}
+                                             errorMessage={errorMessage}
+                                             saveDisabled={saveDisabled}/>),
+          onclose: function () {
+            modal.destroy();
+          },
+          buttons: function () {
+            if (!newProfile()) {
+              return [];
+            }
+            return [
               {
                 text:     'Save',
                 class:    'save primary',
@@ -97,10 +103,9 @@ define([
                 },
                 disabled: saveDisabled
               }
-            ]
-          });
-          modal.render();
-        };
+            ];
+          }
+        });
 
         var showError = function (args) {
           var messages = _.chain(args).map(function (arg) {
@@ -109,10 +114,19 @@ define([
             }
           }).compact().uniq().join(' ').value();
 
-          ctrl.message({type: 'alert', message: messages});
+          errorMessage(messages);
         };
 
-        m.sync([ElasticProfiles.Profile.get(profile.id()), PluginInfos.PluginInfo.get(profile.pluginId())]).then(showModal, showError);
+        var onFulfilled = function (args) {
+          newProfile(args[0]);
+          pluginInfo(args[1]);
+          errorMessage(null);
+        };
+
+        modal.render();
+        m.redraw(true);
+
+        m.sync([ElasticProfiles.Profile.get(profile.id()), PluginInfos.PluginInfo.get(profile.pluginId())]).then(onFulfilled, showError);
       };
 
       this.add = function () {
@@ -144,26 +158,53 @@ define([
         modal.render();
       };
 
-      this.delete = function (profile) {
+      var deleteInProgress = m.prop(false);
+
+      var performDelete = function (modal, profile) {
         var onSuccess = function (message) {
+          modal.destroy();
           ctrl.deleteVm(profile.id());
           ctrl.reloadPage();
           ctrl.message({type: 'success', message: message});
+          deleteInProgress(false);
         };
 
         var onFailure = function (message) {
+          modal.destroy();
           ctrl.message({type: 'alert', message: message});
+          deleteInProgress(false);
         };
 
+        deleteInProgress(true);
+        m.redraw(true);
         profile.delete().then(onSuccess, onFailure);
       };
 
+      this.deleteConfirm = function (profile) {
+        var modal = new Modal({
+          title:    'Are you sure?',
+          body:     (<div>Are you sure you want to delete the profile <strong>{profile.id()}</strong>?</div>),
+          oncancel: function () {
+            modal.destroy();
+          },
+          buttons:  function () {
+            return [
+              {
+                text:    'Delete',
+                class:   deleteInProgress() ? 'delete-profile in-progress' : 'delete-profile',
+                onclick: function () {
+                  performDelete(modal, profile);
+                }
+              }
+            ];
+          }
+        });
+        modal.render();
+      };
     },
 
     view: function (ctrl) {
-
       var message;
-
       if (ctrl.message().message) {
         message = (
           <f.row>
@@ -208,13 +249,13 @@ define([
                 });
 
                 return (
-                <ElasticProfileWidget
-                  profile={profile}
-                  pluginInfo={pluginInfo}
-                  key={profile.id()}
-                  vm={ctrl.vmState(profile.id())}
-                  onEdit={ctrl.edit.bind(ctrl, profile)}
-                  onDelete={ctrl.delete.bind(ctrl, profile)}/>
+                  <ElasticProfileWidget
+                    profile={profile}
+                    pluginInfo={pluginInfo}
+                    key={profile.id()}
+                    vm={ctrl.vmState(profile.id())}
+                    onEdit={ctrl.edit.bind(ctrl, profile)}
+                    onDelete={ctrl.deleteConfirm.bind(ctrl, profile)}/>
                 );
               })}
             </f.row>

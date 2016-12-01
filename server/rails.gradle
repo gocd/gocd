@@ -31,6 +31,8 @@ task pathingJar(type: Jar) {
 
 task dependencyClassPath {
   outputs.upToDateWhen { false }
+  dependsOn ':server:prepare'
+  dependsOn ':server:cleanRails'
   dependsOn ':server:jar'
   dependsOn ':server:testJar'
 

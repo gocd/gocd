@@ -285,7 +285,7 @@ task prepareDb(dependsOn: [':server:cleanDb']) {
   }
 }
 
-task prepare(dependsOn: [cleanDb, prepareDb, dependencyClassPath, ':tools:prepareJRuby', ':agent-launcher:fatJar', ':test-agent:jar', ':go-plugin-activator:jar', ':agent:fatJar', ':tfs-impl-10:fatJar', ':tfs-impl-14:fatJar']) {
+task prepare(dependsOn: [cleanDb, prepareDb, ':tools:prepareJRuby', ':agent-launcher:fatJar', ':test-agent:jar', ':go-plugin-activator:jar', ':agent:fatJar', ':tfs-impl-10:fatJar', ':tfs-impl-14:fatJar']) {
   doFirst {
     project.copy {
       from { project(':test-agent').jar.archivePath }

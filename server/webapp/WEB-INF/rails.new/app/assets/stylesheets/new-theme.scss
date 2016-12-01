@@ -668,6 +668,13 @@ $arrow-border-active-color: lighten(#000, 50%);
   }
 }
 
+
+.job_details.entity_title.page_header {
+  .last {
+    padding-top: 5px;
+  }
+}
+
 ul.entity_title li {
   background:    none;
   padding-right: 0;

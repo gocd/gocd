@@ -197,12 +197,11 @@
   margin:          0;
   padding:         0;
   float:           right;
-  width:           350px;
   li {
-    width:       25%;
     border-left: 1px solid rgba(255, 255, 255, 0.12);
     text-align:  center;
     font-weight: 600;
+    margin-left: 10px;
     &:first-child {
       border: 0;
     }

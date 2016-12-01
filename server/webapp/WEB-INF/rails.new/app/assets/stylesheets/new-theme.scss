@@ -666,6 +666,12 @@ $arrow-border-active-color: lighten(#000, 50%);
   }
 }
 
+.job_details.entity_title.page_header {
+  .last {
+    padding-top: 5px;
+  }
+}
+
 ul.entity_title li {
   background:    none;
   padding-right: 0;
@@ -1133,7 +1139,8 @@ button#confirm-pause-up42 {
 }
 
 .add_link {
-  padding: 0px 5px 0px 20px;
+  padding:     0px 5px 0px 20px;
+  line-height: 16px;
 }
 
 .sub_tab_container_content {
@@ -2190,8 +2197,83 @@ input.compare_pipeline_input {
 
 .checkbox_row div.contextual_help {
   position: relative;
-  top:      9px;
 }
+
+@mixin new-theme-changes-table {
+  td.user, td.modified_by {
+    max-width: 20em;
+    width:     20em;
+  }
+
+  td.comment {
+    word-wrap:  break-word;
+    word-break: keep-all;
+  }
+
+  td.revision {
+    overflow:      hidden;
+    max-width:     12em;
+    width:         12em;
+    font-family:   "courier new", monospace !important;
+    font-style:    normal;
+    white-space:   nowrap;
+    text-overflow: ellipsis;
+    overflow:      hidden;
+  }
+}
+
+#new-pipeline-history #content_wrapper_inner_pipeline_history {
+  .popup {
+    max-width: 900px;
+    width:     900px;
+    .build-cause-summary-container {
+      table {
+        @include new-theme-changes-table;
+      }
+    }
+  }
+}
+
+#pipelines .enhanced_dropdown, #stages .fbh_microcontent_popup .enhanced_dropdown, #pipelines .enhanced_dropdown .scrollable_panel {
+  max-width: 80%;
+  z-index:   2 !important;
+
+  .build_cause.list_table {
+    .change {
+      @include new-theme-changes-table;
+      td.revision {
+        span.wrapped_word {
+          vertical-align: text-bottom;
+          font-family:    "courier new", monospace !important;
+          font-style:     normal;
+          max-width:      12em;
+          display:        inline-block;
+          white-space:    nowrap;
+          text-overflow:  ellipsis;
+          overflow:       hidden;
+        }
+      }
+    }
+  }
+}
+
+#plugin_settings_angular_plugin_settings {
+  textarea {
+    resize: both;
+    height: inherit;
+    font-family: "courier new", monospace !important;
+    font-size: 14px;
+    line-height: 1.25em;
+  }
+}
+
+.vsm-entity.pipeline ul.instances {
+  .message {
+    padding: 0 7px;
+  }
+}
+
+
 
 //plugins
 

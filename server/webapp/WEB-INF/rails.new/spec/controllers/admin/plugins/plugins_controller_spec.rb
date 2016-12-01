@@ -217,4 +217,51 @@ describe Admin::Plugins::PluginsController do
       URI.parse(response.location).path.should == plugins_listing_path
     end
   end
+
+  describe :can_edit_plugin_settings? do
+    before :each do
+      @meta_data_store = double('meta_data_store')
+      @secuity_service = double('security_service')
+      @user = 'user'
+
+      controller.stub(:meta_data_store) { @meta_data_store }
+      controller.stub(:security_service) { @secuity_service }
+      controller.stub(:current_user) { @user }
+    end
+
+    it 'should be editable for admin user if metadata store has plugin settings with a view template' do
+      preference = double('preference')
+
+      @secuity_service.should_receive(:isUserAdmin).with(@user).and_return(true)
+      @meta_data_store.should_receive(:hasPlugin).with('plugin_id').and_return(true)
+      @meta_data_store.should_receive(:preferenceFor).with('plugin_id').and_return(preference)
+      preference.should_receive(:getTemplate).and_return('view_template')
+
+      expect(controller.can_edit_plugin_settings?('plugin_id')).to be_true
+    end
+
+    it 'should not be editable in absence of plugin settings in store' do
+      @meta_data_store.should_receive(:hasPlugin).with('plugin_id').and_return(false)
+
+      expect(controller.can_edit_plugin_settings?('plugin_id')).to be_false
+    end
+
+    it 'should not be editable for a non admin user' do
+      @secuity_service.should_receive(:isUserAdmin).with(@user).and_return(false)
+      @meta_data_store.should_receive(:hasPlugin).with('plugin_id').and_return(true)
+
+      expect(controller.can_edit_plugin_settings?('plugin_id')).to be_false
+    end
+
+    it 'should not be editable in absence of template in plugin settings' do
+      preference = double('preference')
+
+      @secuity_service.should_receive(:isUserAdmin).with(@user).and_return(true)
+      @meta_data_store.should_receive(:hasPlugin).with('plugin_id').and_return(true)
+      @meta_data_store.should_receive(:preferenceFor).with('plugin_id').and_return(preference)
+      preference.should_receive(:getTemplate).and_return(nil)
+
+      expect(controller.can_edit_plugin_settings?('plugin_id')).to be_false
+    end
+  end
 end

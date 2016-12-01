@@ -31,7 +31,7 @@
 
                 <div class="plugin-data">
                     <div class="plugin-details">
-                        <% if @meta_data_store.hasPlugin(descriptor.id()) && is_user_an_admin? %>
+                        <% if can_edit_plugin_settings?(descriptor.id()) %>
                             <span class="settings"><%= link_to '', '#', :onclick => "Modalbox.show('#{edit_settings_path(:plugin_id => descriptor.id())}', {overlayClose: false, title: 'Plugin Settings'})", :class => 'icon16 setting-left' -%></span>
                         <% end %>
                         <span class="name"><%= about.name() %></span>

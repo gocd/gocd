@@ -47,6 +47,18 @@ public class ElasticAgentExtensionConverterV1 implements ElasticAgentMessageConv
     }
 
     @Override
+    public String jobStatusChangeRequestBody(String jobIdentifier, String state, String agentUuid, String environment, List<String> resources) {
+        Gson gson = new Gson();
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("job_id", jobIdentifier);
+        jsonObject.addProperty("state", state);
+        jsonObject.addProperty("agent_uuid", agentUuid);
+        jsonObject.addProperty("environment", environment);
+        jsonObject.addProperty("resources", gson.toJson(resources));
+        return gson.toJson(jsonObject);
+    }
+
+    @Override
     public String shouldAssignWorkRequestBody(AgentMetadata elasticAgent, String environment, Map<String, String> configuration) {
         Gson gson = new Gson();
         JsonObject jsonObject = new JsonObject();

@@ -131,6 +131,16 @@ public class ElasticAgentRequestProcessor implements GoPluginApiRequestProcessor
         return DefaultGoApiResponse.success(responseBody);
     }
 
+/*
+    private GoApiResponse processListAllJobs(GoPluginDescriptor pluginDescriptor, GoApiRequest goPluginApiRequest) {
+        LOGGER.debug("Listing all jobs for plugin {}", pluginDescriptor.id());
+        final Map<AgentInstance, Collection<String>> jobs = agentService.agentEnvironmentMap();
+
+//        String responseBody = elasticAgentExtension.getElasticAgentMessageConverter(goPluginApiRequest.apiVersion()).listJobsResponseBody(jobs);
+        return DefaultGoApiResponse.success(""); //success(responseBody);
+    }
+*/
+
     private GoApiResponse processDeleteAgent(GoPluginDescriptor pluginDescriptor, GoApiRequest goPluginApiRequest) {
         Collection<AgentInstance> agentInstances = getAgentInstances(pluginDescriptor, goPluginApiRequest);
 

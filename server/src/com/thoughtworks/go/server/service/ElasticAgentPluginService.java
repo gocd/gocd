@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.google.common.collect.Sets;
+import com.thoughtworks.go.config.Resource;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.JobInstance;
@@ -30,6 +31,8 @@ import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentMessage;
 import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentQueueHandler;
 import com.thoughtworks.go.server.messaging.elasticagents.ServerPingMessage;
 import com.thoughtworks.go.server.messaging.elasticagents.ServerPingQueueHandler;
+import com.thoughtworks.go.server.messaging.elasticagents.JobStatusPluginMessage;
+import com.thoughtworks.go.server.messaging.elasticagents.JobStatusPluginQueueHandler;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
@@ -45,6 +48,7 @@ import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -59,6 +63,7 @@ public class ElasticAgentPluginService implements JobStatusListener {
     private final EnvironmentConfigService environmentConfigService;
     private final CreateAgentQueueHandler createAgentQueue;
     private final ServerPingQueueHandler serverPingQueue;
+    private final JobStatusPluginQueueHandler jobStatusPluginQueue;
     private final ServerConfigService serverConfigService;
     private final TimeProvider timeProvider;
     private final ServerHealthService serverHealthService;
@@ -70,6 +75,7 @@ public class ElasticAgentPluginService implements JobStatusListener {
             AgentService agentService, EnvironmentConfigService environmentConfigService,
             CreateAgentQueueHandler createAgentQueue,
             ServerPingQueueHandler serverPingQueue,
+            JobStatusPluginQueueHandler jobStatusPluginQueue,
             ServerConfigService serverConfigService, TimeProvider timeProvider, ServerHealthService serverHealthService) {
         this.pluginManager = pluginManager;
         this.elasticAgentPluginRegistry = elasticAgentPluginRegistry;
@@ -77,6 +83,7 @@ public class ElasticAgentPluginService implements JobStatusListener {
         this.environmentConfigService = environmentConfigService;
         this.createAgentQueue = createAgentQueue;
         this.serverPingQueue = serverPingQueue;
+        this.jobStatusPluginQueue = jobStatusPluginQueue;
         this.serverConfigService = serverConfigService;
         this.timeProvider = timeProvider;
         this.serverHealthService = serverHealthService;
@@ -160,8 +167,30 @@ public class ElasticAgentPluginService implements JobStatusListener {
 
     @Override
     public void jobStatusChanged(JobInstance job) {
+        postToJobStatusPluginQueue(job);
         if (job.isAssignedToAgent()) {
             map.remove(job.getId());
+        }
+    }
+
+    private void postToJobStatusPluginQueue(JobInstance job) {
+        String environment = environmentConfigService.envForPipeline(job.getPipelineName());
+        List<String> resources;
+        if (!job.isCompleted()) {
+            resources = ListUtil.map(job.getPlan().getResources(), new ListUtil.Transformer<Resource, String>() {
+                @Override
+                public String transform(Resource obj) {
+                    return obj.getName();
+                }
+            });
+        } else {
+            resources = Collections.emptyList();
+        }
+
+        LOGGER.info(String.format("jobStatusChanged(%s) for environment %s with resources %s", job.toString(), environment, ListUtil.join(resources)));
+        for (PluginDescriptor descriptor : elasticAgentPluginRegistry.getPlugins()) {
+            JobStatusPluginMessage message = new JobStatusPluginMessage(job.getIdentifier(), job.getState(), job.getAgentUuid(), descriptor.id(), environment, resources);
+            jobStatusPluginQueue.post(message);
         }
     }
 }

@@ -31,10 +31,13 @@ import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentMessage;
 import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentQueueHandler;
 import com.thoughtworks.go.server.messaging.elasticagents.ServerPingMessage;
 import com.thoughtworks.go.server.messaging.elasticagents.ServerPingQueueHandler;
+import com.thoughtworks.go.server.messaging.elasticagents.JobStatusPluginMessage;
+import com.thoughtworks.go.server.messaging.elasticagents.JobStatusPluginQueueHandler;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.TimeProvider;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -61,6 +64,8 @@ public class ElasticAgentPluginServiceTest {
     @Mock
     private ServerPingQueueHandler serverPingQueue;
     @Mock
+    private JobStatusPluginQueueHandler jobStatusPluginQueue;
+    @Mock
     private ServerHealthService serverHealthService;
     @Mock
     private ServerConfigService serverConfigService;
@@ -79,7 +84,7 @@ public class ElasticAgentPluginServiceTest {
         when(registry.getPlugins()).thenReturn(plugins);
         when(agentService.allElasticAgents()).thenReturn(new LinkedMultiValueMap<String, AgentInstance>());
         timeProvider = new TimeProvider();
-        service = new ElasticAgentPluginService(pluginManager, registry, agentService, environmentConfigService, createAgentQueue, serverPingQueue, serverConfigService, timeProvider, serverHealthService);
+        service = new ElasticAgentPluginService(pluginManager, registry, agentService, environmentConfigService, createAgentQueue, serverPingQueue, jobStatusPluginQueue, serverConfigService, timeProvider, serverHealthService);
         when(serverConfigService.getAutoregisterKey()).thenReturn(autoRegisterKey);
     }
 
@@ -133,4 +138,8 @@ public class ElasticAgentPluginServiceTest {
         JobIdentifier identifier = new JobIdentifier("pipeline-" + jobId, 1, "1", "stage", "1", "job");
         return new DefaultJobPlan(null, new ArtifactPlans(), null, jobId, identifier, null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), elasticProfile);
     }
+
+    @Ignore
+    @Test
+    public void shouldSendJobStatusToAllPlugins() {}
 }

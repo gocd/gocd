@@ -30,6 +30,7 @@ public class Constants {
     public static final String REQUEST_CREATE_AGENT = REQUEST_PREFIX + ".create-agent";
     public static final String REQUEST_SERVER_PING = REQUEST_PREFIX + ".server-ping";
     public static final String REQUEST_SHOULD_ASSIGN_WORK = REQUEST_PREFIX + ".should-assign-work";
+    public static final String REQUEST_JOB_STATUS = REQUEST_PREFIX + ".job-status";
 
     public static final String REQUEST_GET_PROFILE_METADATA = REQUEST_PREFIX + ".get-profile-metadata";
     public static final String REQUEST_GET_PROFILE_VIEW = REQUEST_PREFIX + ".get-profile-view";
@@ -40,6 +41,6 @@ public class Constants {
     public static final String PROCESS_DELETE_AGENTS = PROCESSOR_PREFIX + ".delete-agents";
     public static final String REQUEST_SERVER_LIST_ELASTIC_AGENTS = PROCESSOR_PREFIX + ".list-agents";
     public static final String REQUEST_SERVER_LIST_ALL_AGENTS = PROCESSOR_PREFIX + ".list-all-agents";
-    public static final String REQUEST_SERVER_LIST_ALL_JOBS = PROCESSOR_PREFIX + ".list-all-jobs";
+//    public static final String REQUEST_SERVER_LIST_ALL_JOBS = PROCESSOR_PREFIX + ".list-all-jobs";
 
 }

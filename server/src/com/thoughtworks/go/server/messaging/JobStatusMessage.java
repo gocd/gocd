@@ -39,6 +39,10 @@ public class JobStatusMessage implements GoMessage {
         return state;
     }
 
+    public String getAgentUuid() {
+        return agentUuid;
+    }
+
     public String toString() {
         return String.format("[JobStatusMessage: %s %s %s]", agentUuid, jobIdentifier, state);
     }

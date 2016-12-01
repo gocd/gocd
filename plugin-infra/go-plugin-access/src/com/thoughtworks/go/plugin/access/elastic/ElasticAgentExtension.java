@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -58,6 +59,15 @@ public class ElasticAgentExtension extends AbstractExtension {
 
     public void serverPing(final String pluginId) {
         pluginRequestHelper.submitRequest(pluginId, Constants.REQUEST_SERVER_PING, new DefaultPluginInteractionCallback<Void>());
+    }
+
+    public void jobStatusChange(String pluginId, final String jobIdentifier, final String state, final String agentUuid, final String environment, final List<String> resources) {
+        pluginRequestHelper.submitRequest(pluginId, Constants.REQUEST_JOB_STATUS, new DefaultPluginInteractionCallback<Void>() {
+            @Override
+            public String requestBody(String resolvedExtensionVersion) {
+                return getElasticAgentMessageConverter(resolvedExtensionVersion).jobStatusChangeRequestBody(jobIdentifier, state, agentUuid, environment, resources);
+            }
+        });
     }
 
     public boolean shouldAssignWork(String pluginId, final AgentMetadata agent, final String environment, final Map<String, String> configuration) {

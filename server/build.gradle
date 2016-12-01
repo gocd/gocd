@@ -1,7 +1,6 @@
 import com.thoughtworks.go.build.VerifyJarTask
-import groovy.json.JsonOutput
-import org.jruby.Ruby
 import org.jruby.CompatVersion
+import org.jruby.Ruby
 import org.jruby.RubyInstanceConfig
 
 /*
@@ -76,6 +75,7 @@ sourceSets {
 
     resources {
       srcDirs += ['properties/test', 'webapp', 'test/data']
+      exclude "WEB-INF/rails.new/"
     }
   }
 }
@@ -285,7 +285,7 @@ task prepareDb(dependsOn: [':server:cleanDb']) {
   }
 }
 
-task prepare(dependsOn: [cleanDb, prepareDb, ':tools:prepareJRuby', ':agent-launcher:fatJar', ':test-agent:jar', ':go-plugin-activator:jar', ':agent:fatJar', ':tfs-impl-10:fatJar', ':tfs-impl-14:fatJar']) {
+task prepare(dependsOn: [cleanDb, prepareDb, dependencyClassPath, ':tools:prepareJRuby', ':agent-launcher:fatJar', ':test-agent:jar', ':go-plugin-activator:jar', ':agent:fatJar', ':tfs-impl-10:fatJar', ':tfs-impl-14:fatJar']) {
   doFirst {
     project.copy {
       from { project(':test-agent').jar.archivePath }

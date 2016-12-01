@@ -143,6 +143,7 @@ h4 {
         > a {
           background: transparent;
           position:   relative;
+          box-shadow: none;
           &:before {
             content:    "";
             position:   absolute;
@@ -327,10 +328,9 @@ h4 {
 
 .page_header {
   a.link_as_header_button {
-    background:  $go-primary !important;
-    color:       $go-white !important;
-    font-weight: 700 !important;
-    border:      0;
+    background: $go-primary !important;
+    color:      $go-white !important;
+    border:     0;
     &:hover {
       color:  $go-white;
       border: 0;
@@ -339,13 +339,12 @@ h4 {
   }
 }
 
-.environment .pipeline .deployed_revisions {
-  padding: 5px 15px;
+.environment .pipeline .deployed_revisions .materials th, .environment .pipeline .deployed_revisions .materials td {
+  font-size: 11px !important;
 }
 
 .environment .pipeline .deploy {
   margin-top: 10px;
-  padding:    0 15px;
 }
 
 .pipeline_bundle .pipeline .alert {
@@ -356,6 +355,10 @@ h4 {
 .ui-dialog-buttonpane, #MB_content .actions {
   background-image: none;
   border:           0;
+  position:         absolute;
+  bottom:           0;
+  left:             0;
+  right:            0;
 }
 
 //pipelines
@@ -517,6 +520,7 @@ h1.entity_title {
 h1#page-title {
   color:       #333 !important;
   font-weight: 400 !important;
+  margin-top:  0 !important;
 }
 
 span.pipeline-buttons a.link_as_button {
@@ -530,21 +534,6 @@ span.pipeline-buttons a.link_as_button {
 #labelFilterField {
   border-radius: $global-border-radius;
 
-}
-
-ul.entity_title li {
-  padding-right: 20px;
-  a {
-    font-size: rem-calc(18px);
-  }
-  &.last {
-    > * {
-      font-weight: 500 !important;
-      font-size:   16px !important;
-      font-weight: 400 !important;
-      margin:      5px 10px 0 0;
-    }
-  }
 }
 
 //stage history
@@ -670,9 +659,9 @@ $arrow-border-active-color: lighten(#000, 50%);
 
 ul.entity_title li {
   background:    none;
-  padding-right: 0;
   margin-right:  0;
   line-height:   normal;
+  padding-right: 0;
   &:after {
     content:    "";
     background: image_url("g9/backgrounds/icon_breadcrumb_arrow.png") no-repeat scroll 0 0 transparent;
@@ -682,6 +671,8 @@ ul.entity_title li {
     height:     10px;
   }
   a {
+    font-size:   rem-calc(16px);
+    font-weight: 600 !important;
     &:hover {
       text-decoration: underline;
     }
@@ -690,6 +681,14 @@ ul.entity_title li {
   &.last {
     &:after {
       display: none;
+    }
+    > * {
+      font-size:   16px !important;
+      font-weight: 400 !important;
+      margin:      0 10px 0 0 !important;
+    }
+    h1 {
+      margin-top: 3px !important;
     }
   }
 }
@@ -700,7 +699,13 @@ ul.entity_title li {
 
 .stages {
   .pipeline_flow {
+    padding-bottom: 0;
     .pipeline {
+      border:        1px solid $border-color;
+      border-bottom: 0;
+      border-radius: $global-border-radius $global-border-radius 0 0;
+      overflow:      hidden;
+
       .stages {
         background:    #fff;
         padding:       10px 30px;
@@ -712,7 +717,10 @@ ul.entity_title li {
   .page_title_bar {
     background:    #fff;
     padding:       10px 30px;
-    border-radius: 0 0 3px 3px;
+    border:        1px solid $border-color;
+    border-top:    0;
+    border-radius: 0 0 $global-border-radius $global-border-radius;
+    overflow:      hidden;
   }
 }
 
@@ -1088,7 +1096,7 @@ input.new_resource {
 .pipeline_operations {
   button.submit {
     line-height:   normal;
-    height:        auto;
+    height:        22px;
     padding:       0 !important;
     border-radius: $global-border-radius;
     box-shadow:    none;
@@ -1135,12 +1143,16 @@ button#confirm-pause-up42 {
 }
 
 .add_link {
-  padding: 0px 5px 0px 20px;
+  padding:     0px 5px 0px 20px;
+  line-height: 16px;
 }
 
 .sub_tab_container_content {
   background: #fff;
   padding:    20px 30px;
+  #tab-content-of-configuration-xml & {
+    padding: 20px 0;
+  }
 }
 
 .pipeline_group h2.entity_title {
@@ -1227,7 +1239,7 @@ input.new_resource {
 
 #admin-holder-for-admin-config-source-xml .buttons-group #edit_config {
   margin-top:       -21px;
-  right:            98px;
+  right:            82px;
   background-color: $go-primary;
   color:            $go-white !important;
   min-width:        60px;
@@ -1302,6 +1314,29 @@ input[type="text"], input[type="password"], input[type="file"], input[type="url"
   border-radius: 3px;
   padding:       0 10px;
   box-shadow:    none;
+}
+
+textarea {
+  min-height:  100px;
+  max-height:  200px;
+  min-width:   250px;
+  line-height: normal !important;
+
+  #stage_job_form & {
+    width:       400px;
+    height:      auto;
+    line-height: normal;
+  }
+}
+
+#new_material {
+  .change_materials {
+    textarea {
+      height:        30px;
+      min-height:    30px;
+      margin-bottom: 10px;
+    }
+  }
 }
 
 button.primary, a.primary_link_as_button, .link_as_button.primary {
@@ -1414,6 +1449,12 @@ input[type='submit'], input[type='submit']:hover, button.submit, button.submit:h
   }
 }
 
+tr.Cancelled, tr.cancelled-stage {
+  &after {
+    background-image: none;
+  }
+}
+
 .Cancelled img {
   border-radius: 50%;
 }
@@ -1433,8 +1474,8 @@ input[type='submit'], input[type='submit']:hover, button.submit, button.submit:h
 
 #build_detail_summary_container h3 {
   background-image: none !important;
-  font-size:        16px;
-  font-weight:      600;
+  font-size:        14px !important;
+  font-weight:      600 !important;
 }
 
 .job_details_content .sub_tabs_container {
@@ -1449,11 +1490,11 @@ a:link#link-to-this-page, a:visited#link-to-this-page {
   color:    #333;
 }
 
-#tab-content-of-console.ansi-color-toggle {
+.sub_tab_container_content .ansi-color-toggle {
   margin-top: 0px !important;
 }
 
-#tab-content-of-tests, #tab-content-of-failures, #tab-content-of-artifacts, #tab-content-of-properties, #tab-content-of-junit-time {
+#tab-content-of-tests, #tab-content-of-failures, #tab-content-of-artifacts, #tab-content-of-properties, #tab-content-of-junit-time, #tab-content-of-console, #tab-content-of-gaugereport {
   padding:   20px;
   font-size: 14px;
 }
@@ -1479,6 +1520,8 @@ a:link#link-to-this-page, a:visited#link-to-this-page {
 }
 
 #buildlist-container .buildlist li a {
+  word-break: break-all;
+  word-wrap:  break-word;
   background: linear-gradient(to bottom, #f5f5f5 0%, #f5f5f5 100%) !important;
 }
 
@@ -1491,7 +1534,20 @@ a:link#link-to-this-page, a:visited#link-to-this-page {
 #MB_window {
 
   border-radius: 3px;
-  overflow:      hidden;
+  overflow:      visible;
+  @include clearfix;
+  .page-wrap {
+    &:before {
+      height: 0;
+
+    }
+  }
+}
+
+#MB_content {
+  overflow:       visible !important;
+  padding-bottom: 51px;
+  box-sizing:     border-box;
 }
 
 #MB_content .sub_tab_container, #MB_content .form_content, #MB_content .new_form_content {
@@ -1603,11 +1659,21 @@ form#package_repositories_edit_form {
 }
 
 .pipeline_history, .yui-b .Job, .yui-b .Server, #admin-page .Administration, #my-cruise-page .Preferences {
+
   overflow:   hidden;
   position:   static;
   height:     auto;
   background: #fff;
-  padding:    15px 20px;
+  box-shadow: none;
+  border:     0;
+  padding:    10px 15px;
+
+  h2.entity_title {
+    color:       #333 !important;
+    font-weight: 400 !important;
+    font-size:   18px !important;
+  }
+
 }
 
 .steps_wrapper .tabs li.current_tab a {
@@ -1627,8 +1693,8 @@ form#package_repositories_edit_form {
 }
 
 #yui-main .content_wrapper_outer, #yui-main .content_wrapper_inner {
-  margin:     10px 30px;
-  padding:    0;
+  margin:     15px 0;
+  padding:    0 15px;
   background: transparent;
 }
 
@@ -2125,12 +2191,8 @@ input.compare_pipeline_input {
 }
 
 .pause_wrapper button.submit {
-  background-color: #f6f6f6 !important;
-  height:           22px;
-  border:           1px solid #ccc;
-  &:hover {
-    background-color: #666 !important;
-  }
+  height: 22px;
+  border: 1px solid #ccc;
 }
 
 #stages .build_cause .modified_files div {
@@ -2177,7 +2239,80 @@ input.compare_pipeline_input {
 
 .checkbox_row div.contextual_help {
   position: relative;
-  top:      9px;
+}
+
+@mixin new-theme-changes-table {
+  td.user, td.modified_by {
+    max-width: 20em;
+    width:     20em;
+  }
+
+  td.comment {
+    word-wrap:  break-word;
+    word-break: keep-all;
+  }
+
+  td.revision {
+    overflow:      hidden;
+    max-width:     12em;
+    width:         12em;
+    font-family:   "courier new", monospace !important;
+    font-style:    normal;
+    white-space:   nowrap;
+    text-overflow: ellipsis;
+    overflow:      hidden;
+  }
+}
+
+#new-pipeline-history #content_wrapper_inner_pipeline_history {
+  .popup {
+    max-width: 900px;
+    width:     900px;
+    .build-cause-summary-container {
+      table {
+        @include new-theme-changes-table;
+      }
+    }
+  }
+}
+
+#pipelines .enhanced_dropdown, #stages .fbh_microcontent_popup .enhanced_dropdown, #pipelines .enhanced_dropdown .scrollable_panel {
+  max-width: 80%;
+  z-index:   2 !important;
+
+  .build_cause.list_table {
+    .change {
+      @include new-theme-changes-table;
+      td.revision {
+        span.wrapped_word {
+          vertical-align: text-bottom;
+          font-family:    "courier new", monospace !important;
+          font-style:     normal;
+          max-width:      12em;
+          display:        inline-block;
+          white-space:    nowrap;
+          text-overflow:  ellipsis;
+          overflow:       hidden;
+        }
+      }
+    }
+  }
+}
+
+#plugin_settings_angular_plugin_settings {
+  textarea {
+    resize:      both;
+    height:      inherit;
+    font-family: "courier new", monospace !important;
+    font-size:   14px;
+    line-height: 1.25em;
+  }
+}
+
+.vsm-entity.pipeline ul.instances {
+  .message {
+    padding: 0 7px;
+  }
 }
 
 //plugins
@@ -2359,4 +2494,84 @@ table.variables th {
 
 .back_to_top {
   border-radius: 50%;
+}
+
+.overview_widget .job .elapsed_time {
+  white-space: normal;
+}
+
+.ansi-color-toggle {
+  margin-top: 0 !important;
+}
+
+#buildlist-container .buildlist li {
+  a {
+    position: relative;
+    padding:  10px 10px 10px 30px !important;;
+  }
+  .color_code_small {
+    position: absolute;
+    left:     10px;
+    top:      15px;
+  }
+}
+
+.build_detail .sidebar_history .time_ago {
+  margin-left: 0 !important;
+}
+
+.changes_button_wrapper button.submit, .operate button.submit, .deploy button.submit, .pause_wrapper button.submit {
+  background-color: #dedede;
+}
+
+#error-container {
+  margin-top: -40px;
+}
+
+#graphic-dialog {
+  margin: 0 auto;
+}
+
+.exec_task_editor {
+  label.inline {
+    display:       inline-block;
+    margin-bottom: 5px;
+  }
+}
+
+.change_materials .smartfill_content .user {
+  white-space: normal;
+}
+
+#content_area textarea {
+  width:      100%;
+  max-height: 620px;
+}
+
+.console-action-bar div, .console-footer-action-bar div {
+  width: 420px !important;
+}
+
+pre, code, #admin-holder-for-admin-config-source-xml textarea {
+  overflow-x: auto !important;
+}
+
+.add-filter p.mycheckin {
+  padding-top: 25px !important;
+}
+
+.admin-rounded-container, #yui-main .content_wrapper_inner, .my-cruise-rounded-container, #server-page .rounded-corner-for-pipeline {
+  padding: 0 15px;
+}
+
+.buildoutput_pre {
+  width:      100%;
+  box-sizing: border-box;
+  padding:    10px;
+}
+
+#pipeline-history .pipeline-buttons {
+  margin-top: 0;
+  position: relative;
+  top: -7px;
 }

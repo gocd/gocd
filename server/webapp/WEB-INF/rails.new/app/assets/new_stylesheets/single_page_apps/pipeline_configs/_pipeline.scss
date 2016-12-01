@@ -26,25 +26,25 @@
     margin-bottom: 20px;
     background:    $page-header-bg;
     h1 {
-      font-size: rem-calc(20px);
+      font-size: rem-calc(16px);
       margin:    10px 0;
       display:   inline-block;
     }
   }
 
   .save-pipeline {
-    margin:     8px 0 0 0;
+    margin:     6px 0 0 0;
     position:   relative;
     transition: all 0.5s ease-in-out;
     float:      right;
 
     &.in-progress {
-      padding-left: 40px;
+      padding-left: 30px;
       transition:   all 0.5s ease-in-out;
     }
 
     &.alert {
-      padding-left: 40px;
+      padding-left: 30px;
       transition:   all 0.5s ease-in-out;
     }
 
@@ -62,17 +62,31 @@
       &.in-progress {
         @include icon-before($type: spinner, $margin: 0);
         @include animation(spin 1s ease-in);
+        left: 9px;
+        top: 3px;
+        &:before {
+          font-size: rem-calc(15px);
+        }
       }
 
       &.alert {
         @include icon-before($type: exclamation, $margin: 0);
         @include animation(fadeIn 1s ease-in);
-        left: 17px;
+        left: 11px;
+        top:  3px;
+        &:before {
+          font-size: rem-calc(15px);
+        }
       }
 
       &.success {
         @include icon-before($type: check, $margin: 0);
         @include animation(fadeIn 1s ease-in);
+        left: 9px;
+        top: 3px;
+        &:before {
+          font-size: rem-calc(15px);
+        }
       }
     }
   }
@@ -185,7 +199,7 @@
   position:      relative;
   padding:       3px 7px;
   border-radius: $global-border-radius;
-  border:        1px solid $border-color;
+  //border:        1px solid $border-color;
   background:    $btn-bg;
   font-weight:   600;
   color:         $btn-txt;

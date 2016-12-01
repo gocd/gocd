@@ -16,11 +16,57 @@
 @import "font-awesome/path";
 @import 'css3/font-face';
 
-$opensans-variants: (Bold, BoldItalic, ExtraBold, ExtraBoldItalic, Italic, Light, LightItalic, Regular, Semibold, SemiboldItalic);
+$opensans-variants: (
+                      Light:(
+                        font-weight: 300,
+                        font-style: normal,
+                      ),
+                      LightItalic:(
+                        font-weight: 300,
+                        font-style: italic,
+                      ),
+                      Regular:(
+                        font-weight: normal,
+                        font-style: normal,
+                      ),
+                      Italic:(
+                        font-weight: normal,
+                        font-style: italic,
+                      ),
+                      Semibold:(
+                        font-weight: 600,
+                        font-style: normal,
+                      ),
+                      SemiboldItalic:(
+                        font-weight: 600,
+                        font-style: italic,
+                      ),
+                      Bold:(
+                        font-weight: bold,
+                        font-style: normal,
+                      ),
+                      BoldItalic:(
+                        font-weight: bold,
+                        font-style: italic,
+                      ),
+                      ExtraBold:(
+                        font-weight: 800,
+                        font-style: normal,
+                      ),
+                      ExtraBoldItalic:(
+                        font-weight: 800,
+                        font-style: italic,
+                      ),
+                    );
 
-@each $variant in $opensans-variants {
-  @include font-face($font-family: 'OpenSans#{$variant}',
-                     $file-path: 'opensans/OpenSans-#{$variant}-webfont',
-                     $asset-pipeline: true,
-                     $file-formats: eot woff ttf svg);
+@each $variant-name in map-keys($opensans-variants) {
+  $variant: map-get($opensans-variants, $variant-name);
+  @include font-face($font-family: 'Open Sans',
+                     $file-path: 'opensans/OpenSans-#{$variant-name}-webfont',
+                     $weight: map-get($variant, 'font-weight'),
+                     $style: map-get($variant, 'font-style'),
+                     $file-formats: eot woff ttf,
+                     $asset-pipeline: true
+  );
+
 }

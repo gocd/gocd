@@ -446,6 +446,9 @@ public class ConfigConverter {
                 resources.add(new Resource(crResource));
             }
 
+        if(crJob.getElasticProfileId() != null)
+            jobConfig.setElasticProfileId(crJob.getElasticProfileId());
+
         ArtifactPlans artifactPlans = jobConfig.artifactPlans();
         if (crJob.getArtifacts() != null)
             for (CRArtifact crArtifact : crJob.getArtifacts()) {

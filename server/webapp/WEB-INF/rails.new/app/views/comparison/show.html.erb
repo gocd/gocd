@@ -1,12 +1,13 @@
 <%- scope = {} -%>
-<script src="/go/gadgets/js/rpc.js?v=1.1-beta5" type="text/javascript"></script>
-<script type="text/javascript">
-    Util.on_load(function() {
-        tw_gadget.init('<%=gadget_rendering_path %>');
-    });
-</script>
-<% if @mingle_config %>
-    <script type="text/javascript">
+<% if @mingle_config && Gadgets.enabled? %>
+  <script src="/go/gadgets/js/rpc.js?v=1.1-beta5" type="text/javascript"></script>
+  <script type="text/javascript">
+      Util.on_load(function() {
+          tw_gadget.init('<%=gadget_rendering_path %>');
+      });
+  </script>
+
+  <script type="text/javascript">
         Util.on_load(function() {
             card_activity_gadget_url = '<%= @mingle_config.urlFor('/gadgets/card_activity.xml') -%>';
             card_activity_gadget_options = {
@@ -30,13 +31,16 @@
                 <a class="tab_button_body_match_text">checkins</a>
                 <a><%= (l.string("CHANGES")).capitalize -%></a>
             </li>
+            <% if Gadgets.enabled? %>
             <li class="card_activity">
                 <a class="tab_button_body_match_text">card_activity</a>
                 <a><%= l.string("CARD_ACTIVITY") -%></a>
             </li>
+            <% end %>
         </ul>
     </div>
     <div class="sub_tab_container_content">
+      <% if Gadgets.enabled? %>
         <div id="tab-content-of-card_activity">
             <%= render :partial => "bisect_warning.html", :locals => {:scope => {:to_pipeline => @to_pipeline, :from_pipeline => @from_pipeline}} -%>
             <div id="card_activity_gadget" class="gadget-container">
@@ -46,6 +50,7 @@
                 <!-- gadget goes here -->
             </div>
         </div>
+        <% end %>
         <div id="tab-content-of-checkins" class="material_revision_diff">
             <%= render :partial => "bisect_warning.html", :locals => {:scope => {:to_pipeline => @to_pipeline, :from_pipeline => @from_pipeline}} -%>
             <div style="padding: 1em;">

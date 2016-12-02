@@ -27,6 +27,7 @@ import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.bouncycastle.crypto.InvalidCipherTextException;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import java.io.Serializable;
@@ -55,6 +56,7 @@ public class EnvironmentVariableConfig extends PersistentObject implements Seria
 
     private final ConfigErrors configErrors = new ConfigErrors();
 
+    private org.slf4j.Logger LOG = LoggerFactory.getLogger(EnvironmentVariableConfig.class);
     public static final String NAME = "name";
     public static final String VALUE = "valueForDisplay";
     public static final String ENCRYPTEDVALUE = "encryptedValue";
@@ -93,7 +95,7 @@ public class EnvironmentVariableConfig extends PersistentObject implements Seria
         try {
             return goCipher.encrypt(value);
         } catch (InvalidCipherTextException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(String.format("Could not decrypt secure environment variable named '%s'", getName(), e));
         }
     }
 
@@ -215,10 +217,14 @@ public class EnvironmentVariableConfig extends PersistentObject implements Seria
     }
 
     public void validate(ValidationContext validationContext) {
-        try {
-            getValue();
-        } catch (Exception e) {
-            errors().add(VALUE, String.format("Encrypted value for variable named '%s' is invalid. This usually happens when the cipher text is modified to have an invalid value.", getName()));
+        if (value == null && encryptedValue == null) {
+            errors().add("value", String.format("Either value or encrypted value must be specified for variable '%s'", getName()));
+        } else {
+            try {
+                getValue();
+            } catch (Exception e) {
+                errors().add(VALUE, String.format("Encrypted value for variable named '%s' is invalid. This usually happens when the cipher text is modified to have an invalid value.", getName()));
+            }
         }
     }
 
@@ -273,7 +279,11 @@ public class EnvironmentVariableConfig extends PersistentObject implements Seria
                 throw new RuntimeException(String.format("Could not decrypt secure environment variable value for name %s", getName()), e);
             }
         } else {
-            return value.getValue();
+            if (value != null) {
+                return value.getValue();
+            } else {
+                return null;
+            }
         }
     }
 
@@ -283,7 +293,11 @@ public class EnvironmentVariableConfig extends PersistentObject implements Seria
     }
 
     public String getEncryptedValue() {
-        return encryptedValue.getValue();
+        if (encryptedValue != null) {
+            return encryptedValue.getValue();
+        } else {
+            return null;
+        }
     }
 
     public void setConfigAttributes(Object attributes) {

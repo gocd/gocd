@@ -64,9 +64,18 @@ describe Admin::PipelineConfigsController do
       end
 
       it 'should allow pipeline group admin users, with security enabled' do
+        @go_config_service = double("go config service")
+        controller.stub(:go_config_service).and_return(@go_config_service)
+        controller.stub(:populate_config_validity).and_return(true)
+        
         login_as_group_admin
 
-        expect(controller).to allow_action(:get, :edit)
+        groups = PipelineGroups.new
+        groups.addPipelineWithoutValidation('group', PipelineConfig.new)
+        @go_config_service.should_receive(:findGroupNameByPipeline).with(CaseInsensitiveString.new('pipeline')).and_return('group')
+        @go_config_service.should_receive(:groups).and_return(groups)
+
+        expect(controller).to allow_action(:get, :edit, pipeline_name: 'pipeline')
       end
     end
   end

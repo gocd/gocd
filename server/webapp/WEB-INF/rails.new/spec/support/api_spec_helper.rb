@@ -88,6 +88,7 @@ module ApiSpecHelper
     controller.stub(:current_user).and_return(@user = Username.new(CaseInsensitiveString.new(SecureRandom.hex)))
     @security_service.stub(:isUserAdmin).with(@user).and_return(false)
     @security_service.stub(:isUserGroupAdmin).with(@user).and_return(true)
+    @security_service.stub(:isUserAdminOfGroup).with(anything, anything).and_return(true)
   end
 
   def login_as_anonymous

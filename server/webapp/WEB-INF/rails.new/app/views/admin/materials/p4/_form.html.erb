@@ -54,7 +54,7 @@
                 </div>
 
                 <%= render :partial => 'admin/materials/shared/dest_folder', :locals => {:scope => {:form => f}} %>
-                <%= render :partial => 'admin/materials/shared/check_connection', :locals => {:scope => {:username => ".username", :password => ".password", :url => ".url", :type => "p4", :encrypted_password => ".encrypted_password", :password_changed => ".password_changed", :view => ".view"}} %>
+                <%= render :partial => 'admin/materials/shared/check_connection', :locals => {:scope => {:username => ".username", :password => ".password", :port => ".url", :type => "p4", :encrypted_password => ".encrypted_password", :password_changed => ".password_changed", :view => ".view"}} %>
 
                 <div class="clear"></div>
             </div>

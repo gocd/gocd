@@ -20,7 +20,7 @@ var CheckConnection = function() {
         return jQuery(selector).val();
     }
 
-    function _hookupCheckConnection(id, pipelineName, materialType, materialUrl, username, password, encryptedPassword, isChanged, projectPath, domain, view, branch) {
+    function _hookupCheckConnection(id, pipelineName, materialType, materialUrl, username, password, encryptedPassword, isChanged, projectPath, domain, view, branch, port) {
         jQuery(id).click(function() {
             var isEncrypted = false;
             var finalPass = '';
@@ -32,7 +32,7 @@ var CheckConnection = function() {
                     isEncrypted = true;
                 }
             }
-            WizardPage.checkConnection(pipelineName, valueOf(username), finalPass, valueOf(materialUrl), materialType, isEncrypted, valueOf(projectPath), valueOf(domain), valueOf(view), valueOf(branch));
+            WizardPage.checkConnection(pipelineName, valueOf(username), finalPass, valueOf(materialUrl), materialType, isEncrypted, valueOf(projectPath), valueOf(domain), valueOf(view), valueOf(branch), valueOf(port));
         });
     }
 

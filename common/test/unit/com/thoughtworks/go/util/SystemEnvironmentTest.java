@@ -495,6 +495,18 @@ public class SystemEnvironmentTest {
     }
 
     @Test
+    public void shouldDisableTemplateAutoSuggestByDefault() {
+        assertThat(SystemEnvironment.GO_FETCH_ARTIFACT_TEMPLATE_AUTO_SUGGEST.propertyName(), is("go.fetch-artifact.template.auto-suggest"));
+        assertFalse(systemEnvironment.isFetchArtifactTemplateAutoSuggestEnabled());
+    }
+
+    @Test
+    public void shouldEnableTemplateAutoSuggest() {
+        System.setProperty("go.template.auto-suggest", "true");
+        assertTrue(systemEnvironment.isFetchArtifactTemplateAutoSuggestEnabled());
+    }
+
+    @Test
     public void shouldReturnTheDefaultGCExpireTimeInMilliSeconds() {
         assertThat(SystemEnvironment.GO_CONFIG_REPO_GC_EXPIRE.propertyName(), is("go.config.repo.gc.expire"));
         assertThat(systemEnvironment.getConfigGitGCExpireTime(), is(24*60*60*1000L));

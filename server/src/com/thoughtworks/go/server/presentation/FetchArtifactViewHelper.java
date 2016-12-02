@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.presentation;
 
@@ -22,6 +22,7 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.util.SystemEnvironment;
 
 import java.util.*;
+
 
 public class FetchArtifactViewHelper {
     private SystemEnvironment systemEnvironment;
@@ -40,12 +41,12 @@ public class FetchArtifactViewHelper {
         this.template = template;
     }
 
-    private static final class JobHirarchyQueueEntry {
+    private static final class JobHierarchyQueueEntry {
         final String pathFromNode;
         final CaseInsensitiveString stageName;
         final CaseInsensitiveString pipelineName;
 
-        private JobHirarchyQueueEntry(String pathFromNode, CaseInsensitiveString pipelineName, CaseInsensitiveString stageName) {
+        private JobHierarchyQueueEntry(String pathFromNode, CaseInsensitiveString pipelineName, CaseInsensitiveString stageName) {
             this.pathFromNode = pathFromNode;
             this.pipelineName = pipelineName;
             this.stageName = stageName;
@@ -56,8 +57,8 @@ public class FetchArtifactViewHelper {
         }
     }
 
-    private static final class FetchSuggestionHirarchy extends HashMap<CaseInsensitiveString, Map<CaseInsensitiveString, List<CaseInsensitiveString>>> {
-        private void addStagesToHirarchy(CaseInsensitiveString pipelineName, List<StageConfig> currentPipelineStages) {
+    private static final class FetchSuggestionHierarchy extends HashMap<CaseInsensitiveString, Map<CaseInsensitiveString, List<CaseInsensitiveString>>> {
+        private void addStagesToHierarchy(CaseInsensitiveString pipelineName, List<StageConfig> currentPipelineStages) {
             Map<CaseInsensitiveString, List<CaseInsensitiveString>> stageMap = new HashMap<>();
             for (StageConfig stg : currentPipelineStages) {
                 stageMap.put(stg.name(), stg.getJobs().names());
@@ -65,9 +66,9 @@ public class FetchArtifactViewHelper {
             put(pipelineName, stageMap);
         }
 
-        private void populateFetchableJobHirarchyFor(Queue<JobHirarchyQueueEntry> bfsQueue, CruiseConfig cruiseConfig) {
+        private void populateFetchableJobHierarchyFor(Queue<JobHierarchyQueueEntry> bfsQueue, CruiseConfig cruiseConfig) {
             while (!bfsQueue.isEmpty()) {
-                JobHirarchyQueueEntry entry = bfsQueue.remove();
+                JobHierarchyQueueEntry entry = bfsQueue.remove();
                 CaseInsensitiveString pipelineName = entry.pipelineName;
                 PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(pipelineName);
                 List<StageConfig> fetchableStages = new ArrayList<>();
@@ -77,15 +78,18 @@ public class FetchArtifactViewHelper {
                         break;
                     }
                 }
-                addStagesToHirarchy(new CaseInsensitiveString(entry.pathFromAncestor()), fetchableStages);
+                addStagesToHierarchy(new CaseInsensitiveString(entry.pathFromAncestor()), fetchableStages);
                 addMaterialsToQueue(bfsQueue, pipelineConfig, entry.pathFromAncestor());
             }
         }
     }
 
-    public FetchSuggestionHirarchy autosuggestMap() {
+    public FetchSuggestionHierarchy autosuggestMap() {
         if (!systemEnvironment.get(SystemEnvironment.FETCH_ARTIFACT_AUTO_SUGGEST)) {
-            return new FetchSuggestionHirarchy();
+            return new FetchSuggestionHierarchy();
+        }
+        if(template && !systemEnvironment.isFetchArtifactTemplateAutoSuggestEnabled()) {
+            return new FetchSuggestionHierarchy();
         }
         return fetchArtifactSuggestionsForPipeline(template ? createPipelineConfigForTemplate() : cruiseConfig.pipelineConfigByName(pipelineName));
     }
@@ -106,31 +110,31 @@ public class FetchArtifactViewHelper {
         return dummyPipeline;
     }
 
-    private FetchSuggestionHirarchy fetchArtifactSuggestionsForPipeline(PipelineConfig pipelineConfig) {
-        FetchSuggestionHirarchy hirarchy = new FetchSuggestionHirarchy();
-        Queue<JobHirarchyQueueEntry> bfsQueue = new ArrayDeque<>();
-        addLocalUpstreamStages(hirarchy, pipelineConfig);
+    private FetchSuggestionHierarchy fetchArtifactSuggestionsForPipeline(PipelineConfig pipelineConfig) {
+        FetchSuggestionHierarchy hierarchy = new FetchSuggestionHierarchy();
+        Queue<JobHierarchyQueueEntry> bfsQueue = new ArrayDeque<>();
+        addLocalUpstreamStages(hierarchy, pipelineConfig);
         HashSet<DependencyMaterialConfig> handled = new HashSet<>();
         addMaterialsToQueue(bfsQueue, pipelineConfig, "");
-        hirarchy.populateFetchableJobHirarchyFor(bfsQueue, cruiseConfig);
-        return hirarchy;
+        hierarchy.populateFetchableJobHierarchyFor(bfsQueue, cruiseConfig);
+        return hierarchy;
     }
 
-    private void addLocalUpstreamStages(FetchSuggestionHirarchy hirarchy, PipelineConfig pipelineConfig) {
+    private void addLocalUpstreamStages(FetchSuggestionHierarchy hierarchy, PipelineConfig pipelineConfig) {
         List<StageConfig> currentPipelineStages = pipelineConfig.allStagesBefore(stageName);
         if (!currentPipelineStages.isEmpty()) {
             if (!template) {
-                hirarchy.addStagesToHirarchy(pipelineName, currentPipelineStages);
+                hierarchy.addStagesToHierarchy(pipelineName, currentPipelineStages);
             }
-            hirarchy.addStagesToHirarchy(new CaseInsensitiveString(NULL_STR), currentPipelineStages);
+            hierarchy.addStagesToHierarchy(new CaseInsensitiveString(NULL_STR), currentPipelineStages);
         }
     }
 
-    private static void addMaterialsToQueue(Queue<JobHirarchyQueueEntry> bfsQueue, PipelineConfig pipelineConfig, String pathFromThisPipeline) {
+    private static void addMaterialsToQueue(Queue<JobHierarchyQueueEntry> bfsQueue, PipelineConfig pipelineConfig, String pathFromThisPipeline) {
         for (MaterialConfig mat : pipelineConfig.materialConfigs()) {
             if (mat instanceof DependencyMaterialConfig) {
                 DependencyMaterialConfig depMat = (DependencyMaterialConfig) mat;
-                bfsQueue.add(new JobHirarchyQueueEntry(pathFromThisPipeline, depMat.getPipelineName(), depMat.getStageName()));
+                bfsQueue.add(new JobHierarchyQueueEntry(pathFromThisPipeline, depMat.getPipelineName(), depMat.getStageName()));
             }
         }
     }

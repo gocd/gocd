@@ -160,6 +160,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoSystemProperty<String> GO_LANDING_PAGE = new GoStringSystemProperty("go.landing.page", "/pipelines");
 
     public static GoSystemProperty<Boolean> FETCH_ARTIFACT_AUTO_SUGGEST = new GoBooleanSystemProperty("go.fetch-artifact.auto-suggest", true);
+    public static GoSystemProperty<Boolean> GO_FETCH_ARTIFACT_TEMPLATE_AUTO_SUGGEST = new GoBooleanSystemProperty("go.fetch-artifact.template.auto-suggest", true);
     public static GoSystemProperty<String> GO_SSL_TRANSPORT_PROTOCOL_TO_BE_USED_BY_AGENT = new GoStringSystemProperty("go.ssl.agent.protocol", "TLSv1.2");
     public static GoSystemProperty<String> GO_SSL_CERTS_ALGORITHM = new GoStringSystemProperty("go.ssl.cert.algorithm", "SHA512WITHRSA");
     public static GoSystemProperty<String> GO_SSL_CERTS_PUBLIC_KEY_ALGORITHM = new GoStringSystemProperty("go.ssl.cert.public-key.algorithm", "SHA256WithRSAEncryption");
@@ -742,6 +743,10 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public boolean isGOUpdateCheckEnabled() {
         return GO_CHECK_UPDATES.getValue();
+    }
+
+    public boolean isFetchArtifactTemplateAutoSuggestEnabled() {
+        return GO_FETCH_ARTIFACT_TEMPLATE_AUTO_SUGGEST.getValue();
     }
 
     public String getUpdateServerUrl() {

@@ -260,7 +260,7 @@
                 /admin/materials/**=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR
                 /admin/package_repositories/**=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR
                 /admin/package_definitions/**=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR
-                /api/admin/material_test=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR
+                /api/admin/internal/material_test=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR
                 /api/admin/internal/pipelines=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR
                 /api/admin/internal/resources=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR
                 /api/admin/internal/environments=ROLE_SUPERVISOR
@@ -289,7 +289,6 @@
                 /api/pipelines/*/*.xml=ROLE_USER,ROLE_OAUTH_USER
                 /api/agents/**=ROLE_USER
                 /api/users/**=ROLE_USER
-                /api/material_test/**=ROLE_USER
                 /api/version_infos/**=ROLE_USER
                 /*/environments/*=ROLE_SUPERVISOR
 

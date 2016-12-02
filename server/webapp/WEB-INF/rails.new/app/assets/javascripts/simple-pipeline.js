@@ -53,7 +53,7 @@ var WizardPage = new (Class.create({
     }
 
     jQuery.ajax({
-      url:     Routes.apiv1AdminMaterialTestPath(),
+      url:     Routes.apiv1AdminInternalMaterialTestPath(),
       type:    'POST',
       cache:   false,
       headers: {

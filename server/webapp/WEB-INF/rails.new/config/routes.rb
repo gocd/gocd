@@ -236,8 +236,8 @@ Go::Application.routes.draw do
           put on: :member, action: :put
         end
         resources :packages, param: :package_id, only: [:show, :destroy, :index, :create, :update], constraints: {package_id: ALLOW_DOTS}
-        post :material_test, controller: :material_test, action: :test, as: :material_test
         namespace :internal do
+          post :material_test, controller: :material_test, action: :test, as: :material_test
           resources :pipelines, only: [:index]
           resources :resources, only: [:index]
           resources :environments, only: [:index]

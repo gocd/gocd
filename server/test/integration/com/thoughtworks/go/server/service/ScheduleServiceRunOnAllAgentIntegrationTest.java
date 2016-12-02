@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
@@ -34,6 +34,7 @@ import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.materials.DependencyMaterialUpdateNotifier;
 import com.thoughtworks.go.server.scheduling.ScheduleOptions;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
@@ -72,6 +73,7 @@ public class ScheduleServiceRunOnAllAgentIntegrationTest {
     @Autowired private PipelineScheduleQueue pipelineScheduleQueue;
     @Autowired private AgentAssignment agentAssignment;
     @Autowired private GoCache goCache;
+    @Autowired private DependencyMaterialUpdateNotifier notifier;
 
     @Autowired private DatabaseAccessHelper dbHelper;
     private GoConfigFileHelper CONFIG_HELPER;
@@ -102,12 +104,14 @@ public class ScheduleServiceRunOnAllAgentIntegrationTest {
 
         CONFIG_HELPER.addPipeline("blahPipeline", "blahStage", MaterialConfigsMother.hgMaterialConfig("file:///home/cruise/projects/cruisen/manual-testing/ant_hg/dummy"), "job1", "job2");
         CONFIG_HELPER.makeJobRunOnAllAgents("blahPipeline", "blahStage", "job2");
+        notifier.disableUpdates();
 
     }
 
     @After
     public void teardown() throws Exception {
         dbHelper.onTearDown();
+        notifier.enableUpdates();
         FileUtil.deleteFolder(goConfigService.artifactsDir());
         pipelineScheduleQueue.clear();
         agentAssignment.clear();

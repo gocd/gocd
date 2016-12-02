@@ -115,7 +115,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
       };
 
       return m.request({
-        url:         Routes.apiv1AdminMaterialTestPath(),
+        url:         Routes.apiv1AdminInternalMaterialTestPath(),
         method:      'POST',
         config:      xhrConfig,
         data:        payload(),

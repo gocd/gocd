@@ -33,7 +33,6 @@ import org.springframework.security.providers.UsernamePasswordAuthenticationToke
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
@@ -49,11 +48,13 @@ import static org.junit.Assert.fail;
         "classpath:WEB-INF/applicationContext-global.xml",
         "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
-        }
+}
 )
 public class LdapAuthenticationTest {
-    @Autowired private GoConfigDao goConfigDao;
-    @Autowired private LdapAuthenticationProvider ldapAuthenticationProvider;
+    @Autowired
+    private GoConfigDao goConfigDao;
+    @Autowired
+    private LdapAuthenticationProvider ldapAuthenticationProvider;
     private GoConfigFileHelper configFileHelper;
     private InMemoryLdapServerForTests ldapServer;
     private LDIFRecord employeesOrgUnit;
@@ -87,12 +88,6 @@ public class LdapAuthenticationTest {
     @Test
     public void shouldSupportAuthenticationIfLdapConfigExist() {
         assertThat(ldapAuthenticationProvider.supports(UsernamePasswordAuthenticationToken.class), is(true));
-    }
-
-    @Test
-    public void shouldNotSupportAuthenticationIfNoLdapConfig() throws IOException {
-        configFileHelper.initializeConfigFile();
-        assertThat(ldapAuthenticationProvider.supports(UsernamePasswordAuthenticationToken.class), is(false));
     }
 
     @Test

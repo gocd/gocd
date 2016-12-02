@@ -16,7 +16,7 @@
 
 var WizardPage = new (Class.create({
 
-  checkConnection: function (pipelineName, username, password, url, scm, isEncrypted, projectPath, domain, view, branch) {
+  checkConnection: function (pipelineName, username, password, url, scm, isEncrypted, projectPath, domain, view, branch, port) {
 
     // copied verbatim from string-plus.js
     var snakeCaser = function (key, value) {
@@ -40,6 +40,7 @@ var WizardPage = new (Class.create({
       attributes: {
         username: username,
         url: url,
+        port: port,
         branch : branch,
         domain: domain,
         project_path: projectPath,

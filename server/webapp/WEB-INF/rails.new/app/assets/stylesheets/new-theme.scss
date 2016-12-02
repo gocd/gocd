@@ -516,6 +516,7 @@ h1.entity_title {
 h1#page-title {
   color:       #333 !important;
   font-weight: 400 !important;
+  margin-top:  0 !important;
 }
 
 span.pipeline-buttons a.link_as_button {
@@ -529,24 +530,6 @@ span.pipeline-buttons a.link_as_button {
 #labelFilterField {
   border-radius: $global-border-radius;
 
-}
-
-ul.entity_title li {
-  padding-right: 20px;
-  a {
-    font-size:   rem-calc(16px);
-    font-weight: 600 !important;
-  }
-  &.last {
-    > * {
-      font-size:   16px !important;
-      font-weight: 400 !important;
-      margin:      0 10px 0 0 !important;
-    }
-    h1 {
-      margin-top: 3px !important;
-    }
-  }
 }
 
 //stage history
@@ -670,17 +653,11 @@ $arrow-border-active-color: lighten(#000, 50%);
   }
 }
 
-.job_details.entity_title.page_header {
-  .last {
-    padding-top: 5px;
-  }
-}
-
 ul.entity_title li {
   background:    none;
-  padding-right: 0;
   margin-right:  0;
   line-height:   normal;
+  padding-right: 0;
   &:after {
     content:    "";
     background: image_url("g9/backgrounds/icon_breadcrumb_arrow.png") no-repeat scroll 0 0 transparent;
@@ -690,6 +667,8 @@ ul.entity_title li {
     height:     10px;
   }
   a {
+    font-size:   rem-calc(16px);
+    font-weight: 600 !important;
     &:hover {
       text-decoration: underline;
     }
@@ -698,6 +677,14 @@ ul.entity_title li {
   &.last {
     &:after {
       display: none;
+    }
+    > * {
+      font-size:   16px !important;
+      font-weight: 400 !important;
+      margin:      0 10px 0 0 !important;
+    }
+    h1 {
+      margin-top: 3px !important;
     }
   }
 }
@@ -1323,9 +1310,10 @@ input[type="text"], input[type="password"], input[type="file"], input[type="url"
 }
 
 textarea {
-  min-height: 100px;
-  max-height: 200px;
-  width:      250px;
+  min-height:  100px;
+  max-height:  200px;
+  width:       250px;
+  line-height: normal !important;
 }
 
 button.primary, a.primary_link_as_button, .link_as_button.primary {
@@ -1642,11 +1630,21 @@ form#package_repositories_edit_form {
 }
 
 .pipeline_history, .yui-b .Job, .yui-b .Server, #admin-page .Administration, #my-cruise-page .Preferences {
+
   overflow:   hidden;
   position:   static;
   height:     auto;
   background: #fff;
-  padding:    15px 20px;
+  box-shadow: none;
+  border:     0;
+  padding:    10px 15px;
+
+  h2.entity_title {
+    color:       #333 !important;
+    font-weight: 400 !important;
+    font-size:   18px !important;
+  }
+
 }
 
 .steps_wrapper .tabs li.current_tab a {
@@ -2514,4 +2512,24 @@ table.variables th {
 
 .change_materials .smartfill_content .user {
   white-space: normal;
+}
+
+#content_area textarea {
+  width:      100%;
+  max-height: 620px;
+}
+
+.console-action-bar div, .console-footer-action-bar div {
+  width: 420px !important;
+}
+
+pre, code, #admin-holder-for-admin-config-source-xml textarea {
+  overflow-x: auto !important;
+}
+
+.add-filter p.mycheckin {
+  padding-top: 25px!important;
+}
+.admin-rounded-container, #yui-main .content_wrapper_inner, .my-cruise-rounded-container, #server-page .rounded-corner-for-pipeline {
+  padding: 15px;
 }

@@ -495,15 +495,15 @@ public class SystemEnvironmentTest {
     }
 
     @Test
-    public void shouldDisableTemplateAutoSuggestByDefault() {
+    public void shouldEnableTemplateAutoSuggestByDefault() {
         assertThat(SystemEnvironment.GO_FETCH_ARTIFACT_TEMPLATE_AUTO_SUGGEST.propertyName(), is("go.fetch-artifact.template.auto-suggest"));
-        assertFalse(systemEnvironment.isFetchArtifactTemplateAutoSuggestEnabled());
+        assertTrue(systemEnvironment.isFetchArtifactTemplateAutoSuggestEnabled());
     }
 
     @Test
-    public void shouldEnableTemplateAutoSuggest() {
-        System.setProperty("go.template.auto-suggest", "true");
-        assertTrue(systemEnvironment.isFetchArtifactTemplateAutoSuggestEnabled());
+    public void shouldDisableTemplateAutoSuggest() {
+        System.setProperty("go.fetch-artifact.template.auto-suggest", "false");
+        assertFalse(systemEnvironment.isFetchArtifactTemplateAutoSuggestEnabled());
     }
 
     @Test

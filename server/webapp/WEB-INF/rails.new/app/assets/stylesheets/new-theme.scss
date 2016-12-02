@@ -143,6 +143,7 @@ h4 {
         > a {
           background: transparent;
           position:   relative;
+          box-shadow: none;
           &:before {
             content:    "";
             position:   absolute;
@@ -533,14 +534,17 @@ span.pipeline-buttons a.link_as_button {
 ul.entity_title li {
   padding-right: 20px;
   a {
-    font-size: rem-calc(18px);
+    font-size:   rem-calc(16px);
+    font-weight: 600 !important;
   }
   &.last {
     > * {
-      font-weight: 500 !important;
       font-size:   16px !important;
       font-weight: 400 !important;
-      margin:      5px 10px 0 0 !important;
+      margin:      0 10px 0 0 !important;
+    }
+    h1 {
+      margin-top: 3px !important;
     }
   }
 }
@@ -704,7 +708,13 @@ ul.entity_title li {
 
 .stages {
   .pipeline_flow {
+    padding-bottom: 0;
     .pipeline {
+      border:        1px solid $border-color;
+      border-bottom: 0;
+      border-radius: $global-border-radius $global-border-radius 0 0;
+      overflow:      hidden;
+
       .stages {
         background:    #fff;
         padding:       10px 30px;
@@ -716,7 +726,10 @@ ul.entity_title li {
   .page_title_bar {
     background:    #fff;
     padding:       10px 30px;
-    border-radius: 0 0 3px 3px;
+    border:        1px solid $border-color;
+    border-top:    0;
+    border-radius: 0 0 $global-border-radius $global-border-radius;
+    overflow:      hidden;
   }
 }
 
@@ -1312,7 +1325,7 @@ input[type="text"], input[type="password"], input[type="file"], input[type="url"
 textarea {
   min-height: 100px;
   max-height: 200px;
-  width:250px;
+  width:      250px;
 }
 
 button.primary, a.primary_link_as_button, .link_as_button.primary {
@@ -1450,8 +1463,8 @@ tr.Cancelled, tr.cancelled-stage {
 
 #build_detail_summary_container h3 {
   background-image: none !important;
-  font-size:        16px;
-  font-weight:      600;
+  font-size:        14px !important;
+  font-weight:      600 !important;
 }
 
 .job_details_content .sub_tabs_container {
@@ -1496,6 +1509,8 @@ a:link#link-to-this-page, a:visited#link-to-this-page {
 }
 
 #buildlist-container .buildlist li a {
+  word-break: break-all;
+  word-wrap:  break-word;
   background: linear-gradient(to bottom, #f5f5f5 0%, #f5f5f5 100%) !important;
 }
 
@@ -1651,8 +1666,8 @@ form#package_repositories_edit_form {
 }
 
 #yui-main .content_wrapper_outer, #yui-main .content_wrapper_inner {
-  margin:     10px 30px;
-  padding:    0;
+  margin:     15px 0;
+  padding:    0 15px;
   background: transparent;
 }
 
@@ -2259,10 +2274,10 @@ input.compare_pipeline_input {
 
 #plugin_settings_angular_plugin_settings {
   textarea {
-    resize: both;
-    height: inherit;
+    resize:      both;
+    height:      inherit;
     font-family: "courier new", monospace !important;
-    font-size: 14px;
+    font-size:   14px;
     line-height: 1.25em;
   }
 }
@@ -2272,8 +2287,6 @@ input.compare_pipeline_input {
     padding: 0 7px;
   }
 }
-
-
 
 //plugins
 
@@ -2497,4 +2510,8 @@ table.variables th {
     display:       inline-block;
     margin-bottom: 5px;
   }
+}
+
+.change_materials .smartfill_content .user {
+  white-space: normal;
 }

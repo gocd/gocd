@@ -198,6 +198,7 @@
   padding:         0;
   float:           right;
   li {
+    padding:     0 10px;
     border-left: 1px solid rgba(255, 255, 255, 0.12);
     text-align:  center;
     font-weight: 600;
@@ -288,7 +289,7 @@ $arrow-color: #000;
 }
 
 .agents-table-body {
-  margin-top: 166px;
+  margin-top: 153px;
   &.has-message {
     margin-top: 234px;
   }
@@ -386,14 +387,11 @@ $arrow-color: #000;
 }
 
 .has-build-details-drop-down {
+  @include icon-after($type: caret-down, $color: $dark-gray);
   position: relative;
   &:after {
-    content:      "";
-    position:     absolute;
-    bottom:       0;
-    margin:       0 0 4px 4px;
-    border-style: solid;
-    border-width: 5px 3px 0 3px;
-    border-color: #717171 transparent transparent transparent;
+    font-size: 10px;
+    color:     #5d5b5b;
+
   }
 }

@@ -26,9 +26,10 @@
     margin-bottom: 20px;
     background:    $page-header-bg;
     h1 {
-      font-size: rem-calc(20px);
-      margin:    10px 0;
-      display:   inline-block;
+      font-size:   rem-calc(16px);
+      font-weight: 600;
+      margin:      10px 0;
+      display:     inline-block;
     }
   }
 

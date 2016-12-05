@@ -30,10 +30,6 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'views/agents/build_details_
 
   var joinOrNoneSpecified = _.memoize(joinFunction, cacheKey);
 
-  var agentJobHistoryPath = function (uuid) {
-    return "/go/agents/" + uuid + "/job_run_history";
-  };
-
   var createBuildDetailsDropDown = function (agent, args) {
     return (
       <BuildDetailsWidget agent={agent}
@@ -50,7 +46,7 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'views/agents/build_details_
           args.dropdown.toggleDropDownState(name);
         },
 
-        dropdownClass : function (name) {
+        dropdownClass: function (name) {
           return args.dropdown.isDropDownOpen(name) ? "is-open" : '';
         }
       };
@@ -64,7 +60,7 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'views/agents/build_details_
       var agentStatus     = agent.status();
       var isBuildingAgent = !agent.buildDetails().isEmpty();
       var selectAgentCheckbox;
-      var hostnameLink = <span>{agent.hostname()}</span>;
+      var hostname        = <span>{agent.hostname()}</span>;
 
       if (isBuildingAgent) {
         agentStatus = <f.link onclick={ctrl.buildDetailsClicked.bind(ctrl, agent.uuid())}
@@ -78,8 +74,12 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'views/agents/build_details_
                  checked={args.checkBoxModel()}
                  onclick={m.withAttr('checked', args.checkBoxModel)}/>
         );
-        hostnameLink = (
-          <a href={agentJobHistoryPath(agent.uuid())}>{agent.hostname()}</a>
+      }
+
+      if (args.isUserAdmin && !agent.isElasticAgent()) {
+        var agentJobHistoryPath = "/go/agents/" + agent.uuid() + "/job_run_history";
+        hostname                = (
+          <a href={agentJobHistoryPath}>{agent.hostname()}</a>
         );
       }
 
@@ -89,7 +89,7 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'views/agents/build_details_
             {selectAgentCheckbox}
           </td>
           <td key="hostname">
-            {hostnameLink}
+            {hostname}
           </td>
           <td key="sandbox">{agent.sandbox()}</td>
           <td key="operatingSystem">{agent.operatingSystem()}</td>

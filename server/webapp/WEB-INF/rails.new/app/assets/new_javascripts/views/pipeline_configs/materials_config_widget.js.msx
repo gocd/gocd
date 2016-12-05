@@ -36,7 +36,7 @@ define([
                               attrName={attrName}
                               label={['Password ']}
                               placeholder="Password"
-                              type={model['isSecure' + capitalizedAttrName]() ? 'password' : 'text'}
+                              type='password'
                               withReset={true}/>
           </div>
         );

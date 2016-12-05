@@ -29,8 +29,8 @@ public class LdapConfigTest {
 
     @Test
     public void shouldConsiderTwoLdapConfigsWithDifferentPasswordsUnequal() {
-        LdapConfig ldapConfig1 = new LdapConfig("uri", "managerDn", "password-1", null, true, new BasesConfig(new BaseConfig("blah")), "blah");
-        LdapConfig ldapConfig2 = new LdapConfig("uri", "managerDn", "password-2", null, true, new BasesConfig(new BaseConfig("blah")), "blah");
+        LdapConfig ldapConfig1 = new LdapConfig("uri", "managerDn", "password-1", null, true, new BasesConfig(new BaseConfig("blah")), "blah", "blah");
+        LdapConfig ldapConfig2 = new LdapConfig("uri", "managerDn", "password-2", null, true, new BasesConfig(new BaseConfig("blah")), "blah", "blah");
 
         assertThat(ldapConfig1, is(Matchers.not(ldapConfig2)));
         assertThat(ldapConfig1.hashCode(), is(Matchers.not(ldapConfig2.hashCode())));
@@ -38,26 +38,27 @@ public class LdapConfigTest {
 
     @Test
     public void shouldReturnEmptyStringWhenThePasswordIsNotChangedAndTheEncryptedPasswordIsNull() {
-        LdapConfig ldapConfig1 = new LdapConfig("uri", "managerDn", "password-1", "", false, new BasesConfig(new BaseConfig("blah")), "blah");
-        LdapConfig ldapConfig2 = new LdapConfig("uri", "managerDn", "password-2", null, false, new BasesConfig(new BaseConfig("blah")), "blah");
+        LdapConfig ldapConfig1 = new LdapConfig("uri", "managerDn", "password-1", "", false, new BasesConfig(new BaseConfig("blah")), "blah", "blah");
+        LdapConfig ldapConfig2 = new LdapConfig("uri", "managerDn", "password-2", null, false, new BasesConfig(new BaseConfig("blah")), "blah", "blah");
 
         assertThat(ldapConfig2.currentManagerPassword(), is(""));
         assertThat(ldapConfig1.currentManagerPassword(), is(""));
     }
 
     @Test
-    public void shouldConvertNullAttributesToEmptyStringUponConstruct(){
-        LdapConfig ldapConfig = new LdapConfig(null, null, null, null, false, new BasesConfig(), null);
+    public void shouldConvertNullAttributesToEmptyStringUponConstruct() {
+        LdapConfig ldapConfig = new LdapConfig(null, null, null, null, false, new BasesConfig(), null, null);
         assertThat(ldapConfig.uri(), is(""));
         assertThat(ldapConfig.searchFilter(), is(""));
         assertThat(ldapConfig.currentManagerPassword(), is(""));
         assertThat(ldapConfig.isEnabled(), is(false));
+        assertThat(ldapConfig.displayNameAttribute(), is(""));
     }
 
     @Test
-    public void shouldUpdateSearchBaseWithNewLdapConfig(){
-        LdapConfig ldapConfig = new LdapConfig("uri", "managerDn", "password-1", "", false, new BasesConfig(new BaseConfig("old_base")), "blah");
-        LdapConfig newLdapConfig = new LdapConfig("uri", "managerDn", "password-2", null, false, new BasesConfig(new BaseConfig("new_base")), "blah");
+    public void shouldUpdateSearchBaseWithNewLdapConfig() {
+        LdapConfig ldapConfig = new LdapConfig("uri", "managerDn", "password-1", "", false, new BasesConfig(new BaseConfig("old_base")), "blah", "blah");
+        LdapConfig newLdapConfig = new LdapConfig("uri", "managerDn", "password-2", null, false, new BasesConfig(new BaseConfig("new_base")), "blah", "blah");
 
         ldapConfig.updateWithNew(newLdapConfig);
         assertThat(ldapConfig.getBasesConfig().size(), is(1));
@@ -66,8 +67,8 @@ public class LdapConfigTest {
 
     @Test
     public void shouldNotEquateTwoLdapConfigsWithDifferentSearchBases() {
-        LdapConfig ldapConfig1 = new LdapConfig("uri", "managerDn", "password-1", "", false, new BasesConfig(new BaseConfig("old_base1")), "blah");
-        LdapConfig ldapConfig2 = new LdapConfig("uri", "managerDn", "password-1", "", false, new BasesConfig(new BaseConfig("old_base2")), "blah");
+        LdapConfig ldapConfig1 = new LdapConfig("uri", "managerDn", "password-1", "", false, new BasesConfig(new BaseConfig("old_base1")), "blah", "blahgst");
+        LdapConfig ldapConfig2 = new LdapConfig("uri", "managerDn", "password-1", "", false, new BasesConfig(new BaseConfig("old_base2")), "blah", "blah");
         assertThat(ldapConfig1, is(not(ldapConfig2)));
     }
 }

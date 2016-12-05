@@ -34,15 +34,18 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
         "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
 })
-public class LdapUserSearchIntegrationTest  {
-    @Autowired private LdapUserSearch ldapUserSearch;
-    @Autowired private GoConfigDao goConfigDao;
+public class LdapUserSearchIntegrationTest {
+    @Autowired
+    private LdapUserSearch ldapUserSearch;
+    @Autowired
+    private GoConfigDao goConfigDao;
 
     private static final GoConfigFileHelper CONFIG_HELPER = new GoConfigFileHelper();
     private InMemoryLdapServerForTests ldapServer;
@@ -55,12 +58,13 @@ public class LdapUserSearchIntegrationTest  {
     private static final String MANAGER_PASSWORD = "some-password";
     private static final String SEARCH_BASE = "ou=Employees,ou=Company,ou=Principal," + BASE_DN;
     private static final String SEARCH_FILTER = "(sAMAccountName={0})";
+    private static final String DISPLAY_NAME = "uid";
 
     @Before
     public void setUp() throws Exception {
         CONFIG_HELPER.usingCruiseConfigDao(goConfigDao);
         CONFIG_HELPER.initializeConfigFile();
-        CONFIG_HELPER.addLdapSecurity(LDAP_URL, MANAGER_DN, MANAGER_PASSWORD, SEARCH_BASE, SEARCH_FILTER);
+        CONFIG_HELPER.addLdapSecurity(LDAP_URL, MANAGER_DN, MANAGER_PASSWORD, SEARCH_BASE, SEARCH_FILTER, DISPLAY_NAME);
 
         ldapServer = new InMemoryLdapServerForTests(BASE_DN, MANAGER_DN, MANAGER_PASSWORD).start(PORT);
         ldapServer.addOrganizationalUnit("Principal", "ou=Principal," + BASE_DN);

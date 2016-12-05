@@ -145,13 +145,12 @@ public class MagicalGoConfigXmlWriterTest {
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(IOUtils.toInputStream(xml)).config;
         PartialConfig remotePart = PartialConfigMother.withPipeline("some-pipe");
         remotePart.setOrigin(new RepoConfigOrigin());
-        BasicCruiseConfig merged = new BasicCruiseConfig((BasicCruiseConfig)cruiseConfig,remotePart);
+        BasicCruiseConfig merged = new BasicCruiseConfig((BasicCruiseConfig) cruiseConfig, remotePart);
         try {
             xmlWriter.write(merged, output, true);
-        }
-        catch(GoConfigInvalidException ex) {
+        } catch (GoConfigInvalidException ex) {
             // ok
-            assertThat(ex.getMessage(),is("Attempted to save merged configuration with patials"));
+            assertThat(ex.getMessage(), is("Attempted to save merged configuration with patials"));
             return;
         }
         fail("should have thrown when saving merged configuration");
@@ -165,6 +164,7 @@ public class MagicalGoConfigXmlWriterTest {
         xmlWriter.write(cruiseConfig, output, false);
         assertXmlEquals(xml, output.toString());
     }
+
     @Test
     public void shouldNotWriteDuplicatedPipelines() throws Exception {
         String xml = ConfigFileFixture.TWO_PIPELINES;
@@ -186,6 +186,7 @@ public class MagicalGoConfigXmlWriterTest {
         xmlWriter.write(config, output, false);
         assertThat(output.toString(), containsString("<server"));
     }
+
     @Test
     public void shouldWriteConfigRepos() throws Exception {
         CruiseConfig config = GoConfigMother.configWithConfigRepo();
@@ -371,7 +372,7 @@ public class MagicalGoConfigXmlWriterTest {
     }
 
     @Test
-    public void shouldBeAValidXSD() throws  Exception {
+    public void shouldBeAValidXSD() throws Exception {
         SchemaFactory factory = SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
         factory.newSchema(new StreamSource(getClass().getResourceAsStream("/cruise-config.xsd")));
     }
@@ -817,7 +818,7 @@ public class MagicalGoConfigXmlWriterTest {
         BaseConfig base1 = new BaseConfig("base1");
         BaseConfig base2 = new BaseConfig("base2");
         BasesConfig basesConfig = new BasesConfig(base1, base2);
-        LdapConfig ldapConfig = new LdapConfig("url", "managerDn", "managerPassword", "managerPassword", false, basesConfig, "filter");
+        LdapConfig ldapConfig = new LdapConfig("url", "managerDn", "managerPassword", "managerPassword", false, basesConfig, "filter", "displayName");
         SecurityConfig securityConfig = new SecurityConfig(ldapConfig, new PasswordFileConfig("some_path"), false);
         ServerConfig serverConfig = new ServerConfig(securityConfig, new MailHost(new GoCipher()));
         CruiseConfig cruiseConfig = new BasicCruiseConfig();

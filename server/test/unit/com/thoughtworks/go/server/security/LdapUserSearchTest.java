@@ -253,7 +253,7 @@ public class LdapUserSearchTest {
     @Test
     public void shouldFilterForMatchingUsernamesInSearchBase() throws Exception {
         ldapUserSearch.search("username", ldapConfig(new BasesConfig(new BaseConfig("base1"))));
-        verify(ldapTemplate).search(argThat(is("base1")),anyString(),any(SearchControls.class),any(AttributesMapperCallbackHandler.class));
+        verify(ldapTemplate).search(argThat(is("base1")), anyString(), any(SearchControls.class), any(AttributesMapperCallbackHandler.class));
     }
 
     @Test
@@ -270,7 +270,7 @@ public class LdapUserSearchTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenSearchingIfBaseSearchIsEmpty(){
+    public void shouldThrowExceptionWhenSearchingIfBaseSearchIsEmpty() {
         setLdapConfig(new BasesConfig());
         thrown.expect(RuntimeException.class);
         thrown.expectMessage(is("Atleast one Search Base needs to be configured."));
@@ -286,7 +286,7 @@ public class LdapUserSearchTest {
     }
 
     private LdapConfig ldapConfig(BasesConfig basesConfig) {
-        return new LdapConfig("url", "managerDN", "managerPassword", "encrypted", false, basesConfig, "searchFilter");
+        return new LdapConfig("url", "managerDN", "managerPassword", "encrypted", false, basesConfig, "searchFilter", "displayName");
     }
 
 }

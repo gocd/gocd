@@ -49,11 +49,13 @@ import static org.junit.Assert.fail;
         "classpath:WEB-INF/applicationContext-global.xml",
         "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
-        }
+}
 )
 public class LdapAuthenticationTest {
-    @Autowired private GoConfigDao goConfigDao;
-    @Autowired private LdapAuthenticationProvider ldapAuthenticationProvider;
+    @Autowired
+    private GoConfigDao goConfigDao;
+    @Autowired
+    private LdapAuthenticationProvider ldapAuthenticationProvider;
     private GoConfigFileHelper configFileHelper;
     private InMemoryLdapServerForTests ldapServer;
     private LDIFRecord employeesOrgUnit;
@@ -65,13 +67,14 @@ public class LdapAuthenticationTest {
     private static final String MANAGER_PASSWORD = "some-password";
     private static final String SEARCH_BASE = "ou=Employees,ou=Company,ou=Principal," + BASE_DN;
     private static final String SEARCH_FILTER = "(sAMAccountName={0})";
+    private static final String DISPLAY_NAME = "uid";
 
     @Before
     public void setUp() throws Exception {
         configFileHelper = new GoConfigFileHelper();
         configFileHelper.usingCruiseConfigDao(goConfigDao);
         configFileHelper.initializeConfigFile();
-        configFileHelper.addLdapSecurity(LDAP_URL, MANAGER_DN, MANAGER_PASSWORD, SEARCH_BASE, SEARCH_FILTER);
+        configFileHelper.addLdapSecurity(LDAP_URL, MANAGER_DN, MANAGER_PASSWORD, SEARCH_BASE, SEARCH_FILTER, DISPLAY_NAME);
 
         ldapServer = new InMemoryLdapServerForTests(BASE_DN, MANAGER_DN, MANAGER_PASSWORD).start(PORT);
         ldapServer.addOrganizationalUnit("Principal", "ou=Principal," + BASE_DN);
@@ -110,7 +113,7 @@ public class LdapAuthenticationTest {
     @Test
     public void shouldReturnAdministratorRoleForSpecifiedLdapUser() throws Exception {
         configFileHelper.initializeConfigFile();
-        configFileHelper.addLdapSecurityWithAdmin(LDAP_URL, MANAGER_DN, MANAGER_PASSWORD, SEARCH_BASE, SEARCH_FILTER, "foleys");
+        configFileHelper.addLdapSecurityWithAdmin(LDAP_URL, MANAGER_DN, MANAGER_PASSWORD, SEARCH_BASE, SEARCH_FILTER, "foleys", DISPLAY_NAME);
 
         shouldAuthenticateValidUser();
     }
@@ -120,7 +123,7 @@ public class LdapAuthenticationTest {
         ldapServer.addUser(employeesOrgUnit, "foleys", "some-password", "Shilpa Foley", "foleys@somecompany.com");
 
         configFileHelper.initializeConfigFile();
-        configFileHelper.addLdapSecurityWithAdmin(LDAP_URL, MANAGER_DN, MANAGER_PASSWORD, SEARCH_BASE, SEARCH_FILTER, "another_admin");
+        configFileHelper.addLdapSecurityWithAdmin(LDAP_URL, MANAGER_DN, MANAGER_PASSWORD, SEARCH_BASE, SEARCH_FILTER, "another_admin", DISPLAY_NAME);
 
         Authentication authentication = new UsernamePasswordAuthenticationToken("foleys", "some-password");
         Authentication result = ldapAuthenticationProvider.authenticate(authentication);

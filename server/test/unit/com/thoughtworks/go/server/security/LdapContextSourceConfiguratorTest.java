@@ -24,15 +24,13 @@ import org.junit.Test;
 import org.springframework.ldap.core.support.AbstractContextSource;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 public class LdapContextSourceConfiguratorTest {
     @Test
     public void shouldSet_ManagerDnAndPassword_OnContextSource() {
         LdapContextSourceConfigurator configurator = new LdapContextSourceConfigurator(new LdapConfig("uri", "managerDn", "managerPass", null, true, new BasesConfig(new BaseConfig("searchBase")),
-                "searchFilter"));
+                "searchFilter", "displayName"));
         AbstractContextSource ctxSrc = mock(AbstractContextSource.class);
         configurator.configure(ctxSrc);
         verify(ctxSrc).setPassword("managerPass");

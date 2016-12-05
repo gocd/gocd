@@ -83,6 +83,11 @@
                         <label for="server_configuration_form_ldap_search_filter"><%= l.string("SEARCH_FILTER") -%></label>
                         <%= form.text_field :ldap_search_filter, {:size => 30} %>
                     </div>
+
+                    <div class="form_item">
+                      <label for="server_configuration_form_ldap_display_name_attribute">Display name attribute</label>
+                      <%= form.text_field :ldap_display_name_attribute, {:size => 30} %>
+                    </div>
                 </div>
                 <div class="password_file_settings">
                     <h3><%= l.string("Password File Settings") -%></h3>

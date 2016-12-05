@@ -355,6 +355,10 @@ h4 {
 .ui-dialog-buttonpane, #MB_content .actions {
   background-image: none;
   border:           0;
+  position:         absolute;
+  bottom:           0;
+  left:             0;
+  right:            0;
 }
 
 //pipelines
@@ -1146,6 +1150,9 @@ button#confirm-pause-up42 {
 .sub_tab_container_content {
   background: #fff;
   padding:    20px 30px;
+  #tab-content-of-configuration-xml & {
+    padding: 20px 0;
+  }
 }
 
 .pipeline_group h2.entity_title {
@@ -1232,7 +1239,7 @@ input.new_resource {
 
 #admin-holder-for-admin-config-source-xml .buttons-group #edit_config {
   margin-top:       -21px;
-  right:            98px;
+  right:            82px;
   background-color: $go-primary;
   color:            $go-white !important;
   min-width:        60px;
@@ -1312,8 +1319,24 @@ input[type="text"], input[type="password"], input[type="file"], input[type="url"
 textarea {
   min-height:  100px;
   max-height:  200px;
-  width:       250px;
+  min-width:   250px;
   line-height: normal !important;
+
+  #stage_job_form & {
+    width:       400px;
+    height:      auto;
+    line-height: normal;
+  }
+}
+
+#new_material {
+  .change_materials {
+    textarea {
+      height:        30px;
+      min-height:    30px;
+      margin-bottom: 10px;
+    }
+  }
 }
 
 button.primary, a.primary_link_as_button, .link_as_button.primary {
@@ -1511,14 +1534,20 @@ a:link#link-to-this-page, a:visited#link-to-this-page {
 #MB_window {
 
   border-radius: 3px;
-  overflow:      hidden;
-
+  overflow:      visible;
+  @include clearfix;
   .page-wrap {
     &:before {
       height: 0;
 
     }
   }
+}
+
+#MB_content {
+  overflow:       visible !important;
+  padding-bottom: 51px;
+  box-sizing:     border-box;
 }
 
 #MB_content .sub_tab_container, #MB_content .form_content, #MB_content .new_form_content {
@@ -2528,8 +2557,21 @@ pre, code, #admin-holder-for-admin-config-source-xml textarea {
 }
 
 .add-filter p.mycheckin {
-  padding-top: 25px!important;
+  padding-top: 25px !important;
 }
+
 .admin-rounded-container, #yui-main .content_wrapper_inner, .my-cruise-rounded-container, #server-page .rounded-corner-for-pipeline {
-  padding: 15px;
+  padding: 0 15px;
+}
+
+.buildoutput_pre {
+  width:      100%;
+  box-sizing: border-box;
+  padding:    10px;
+}
+
+#pipeline-history .pipeline-buttons {
+  margin-top: 0;
+  position: relative;
+  top: -7px;
 }

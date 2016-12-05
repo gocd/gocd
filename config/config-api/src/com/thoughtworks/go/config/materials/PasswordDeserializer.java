@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
 
 import static com.thoughtworks.go.config.materials.ScmMaterialConfig.ENCRYPTED_PASSWORD;
 import static com.thoughtworks.go.config.materials.ScmMaterialConfig.PASSWORD;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 @Component
 public class PasswordDeserializer {
@@ -33,18 +34,18 @@ public class PasswordDeserializer {
 
     public String deserialize(String password, String encryptedPassword, AbstractMaterialConfig materialConfig) {
         String pass = null;
-        if (password != null && encryptedPassword != null) {
+        if (isNotBlank(password) && isNotBlank(encryptedPassword)) {
             materialConfig.addError(PASSWORD, "You may only specify `password` or `encrypted_password`, not both!");
             materialConfig.addError(ScmMaterialConfig.ENCRYPTED_PASSWORD, "You may only specify `password` or `encrypted_password`, not both!");
         }
 
-        if (password != null) {
+        if (isNotBlank(password)) {
             try {
                 pass = goCipher.encrypt(password);
             } catch (InvalidCipherTextException e) {
                 materialConfig.addError(PASSWORD, "Could not encrypt the password. This usually happens when the cipher text is invalid");
             }
-        } else if (encryptedPassword != null) {
+        } else if (isNotBlank(encryptedPassword)) {
             try {
                 goCipher.decrypt(encryptedPassword);
             } catch (Exception e) {

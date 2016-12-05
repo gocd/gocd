@@ -67,10 +67,26 @@ public class PasswordDeserializerTest {
     }
 
     @Test
-    public void shouldReturnNullIfBithPasswordAndEncryptedPasswordAreNull() {
+    public void shouldReturnNullIfBothPasswordAndEncryptedPasswordAreNull() {
         SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig();
         PasswordDeserializer passwordDeserializer = new PasswordDeserializer();
         String encrypted = passwordDeserializer.deserialize(null, null, svnMaterialConfig);
+        assertNull(encrypted);
+    }
+
+    @Test
+    public void shouldReturnNullIfBothPasswordAndEncryptedPasswordAreBlank() {
+        SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig();
+        PasswordDeserializer passwordDeserializer = new PasswordDeserializer();
+        String encrypted = passwordDeserializer.deserialize("", "", svnMaterialConfig);
+        assertNull(encrypted);
+    }
+
+    @Test
+    public void shouldNotValidateEncryptedPasswordIfBlank() {
+        SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig();
+        PasswordDeserializer passwordDeserializer = new PasswordDeserializer();
+        String encrypted = passwordDeserializer.deserialize(null, "", svnMaterialConfig);
         assertNull(encrypted);
     }
 

@@ -16,25 +16,21 @@
 
 package com.thoughtworks.go.domain.materials.tfs;
 
-import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.NestedJarClassLoader;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.CommandArgument;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
-import java.util.Properties;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
@@ -43,7 +39,8 @@ import java.util.jar.JarInputStream;
  */
 class TfsSDKCommandBuilder {
 
-    private static final Logger LOGGER = Logger.getLogger(TfsSDKCommandBuilder.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TfsSDKCommandBuilder.class);
+    private final File tempFolder = new File("data/tfs-sdk");
     private final ClassLoader sdkLoader;
     private static TfsSDKCommandBuilder ME;
 
@@ -100,9 +97,9 @@ class TfsSDKCommandBuilder {
     }
 
     private ClassLoader initSdkLoader() throws URISyntaxException, IOException {
-        URL expandedJarUrl = expandJarAndReturnURL();
+        FileUtils.deleteQuietly(tempFolder);
+        tempFolder.mkdirs();
 
-        final File tempFolder = FileUtil.createTempFolder();
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
@@ -110,54 +107,36 @@ class TfsSDKCommandBuilder {
             }
         });
 
-
-        explodeNatives(expandedJarUrl, tempFolder);
+        explodeNatives();
         setNativePath(tempFolder);
         String useTheParentLog4jConfiguration = "log4j";
-        return new NestedJarClassLoader(expandedJarUrl, useTheParentLog4jConfiguration);
+        return new NestedJarClassLoader(getJarURL(), useTheParentLog4jConfiguration);
     }
 
     private void setNativePath(File tempFolder) {
         String sdkNativePath = Paths.get(tempFolder.getAbsolutePath(), "tfssdk", "native").toString();
-        LOGGER.info("[TFS SDK] Setting native lib path, com.microsoft.tfs.jni.native.base-directory=" + sdkNativePath);
+        LOGGER.info("[TFS SDK] Setting native lib path, com.microsoft.tfs.jni.native.base-directory={}", sdkNativePath);
         System.setProperty("com.microsoft.tfs.jni.native.base-directory", sdkNativePath);
     }
 
-    private void explodeNatives(URL urlOfJar, File tempFolder) throws IOException {
-        LOGGER.info(String.format("[TFS SDK] Exploding natives from %s to folder %s", urlOfJar.toString(), tempFolder.getAbsolutePath()));
+    private void explodeNatives() throws IOException {
+        URL urlOfJar = getJarURL();
+        LOGGER.info("[TFS SDK] Exploding natives from {} to folder {}", urlOfJar.toString(), tempFolder.getAbsolutePath());
         JarInputStream jarStream = new JarInputStream(urlOfJar.openStream());
         JarEntry entry;
         while ((entry = jarStream.getNextJarEntry()) != null) {
             if (!entry.isDirectory() && entry.getName().startsWith("tfssdk/native/")) {
-                expandFile(urlOfJar, entry, tempFolder);
+                File newFile = new File(tempFolder, entry.getName());
+                newFile.getParentFile().mkdirs();
+                LOGGER.info("[TFS SDK] Extract {} -> {}", entry.getName(), newFile);
+                try (OutputStream fos = new FileOutputStream(newFile)) {
+                    IOUtils.copy(jarStream, fos);
+                }
             }
         }
     }
 
-    private void expandFile(URL urlOfJar, JarEntry entry, File tempFolder) throws IOException {
-        LOGGER.info(String.format("[TFS SDK] Exploding File %s from %s to folder %s", entry.getName(), urlOfJar.toString(), tempFolder.getAbsolutePath()));
-        File f = new File(tempFolder + File.separator + entry.getName());
-        f.getParentFile().mkdirs();
-        FileOutputStream out = null;
-        InputStream in = null;
-        try {
-            out = new FileOutputStream(f);
-            in = new URL("jar:file:" + urlOfJar.getFile() + "!/" + entry).openStream();
-            IOUtils.copy(in, out);
-        } finally {
-            IOUtils.closeQuietly(in);
-            IOUtils.closeQuietly(out);
-        }
-
-    }
-
-    private URL expandJarAndReturnURL() throws IOException {
-        URL jarUrl = TFSJarDetector.create(new SystemEnvironment()).getJarURL();
-        File nestedJarFile = File.createTempFile(new File(jarUrl.toExternalForm()).getName(), ".jar");
-        nestedJarFile.deleteOnExit();
-        FileUtils.copyURLToFile(jarUrl, nestedJarFile);
-
-        LOGGER.info(String.format("[TFS SDK] Exploded Jar %s from to %s", jarUrl.toString(), nestedJarFile.toURI().toURL()));
-        return nestedJarFile.toURI().toURL();
+    private URL getJarURL() throws IOException {
+        return TFSJarDetector.create(new SystemEnvironment()).getJarURL();
     }
 }

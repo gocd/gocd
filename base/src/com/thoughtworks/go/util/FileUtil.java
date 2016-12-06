@@ -1,10 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc. *
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -414,22 +415,12 @@ public class FileUtil {
     }
 
     public static File createTempFolder() {
-        File tempDir = new File(tempFolderPath(), CRUISE_TMP_FOLDER);
+        File tempDir = new File("data", CRUISE_TMP_FOLDER);
         File dir = new File(tempDir, UUID.randomUUID().toString());
         boolean ret = dir.mkdirs();
         if (!ret) {
             throw new RuntimeException("FileUtil#createTempFolder - Could not create temp folder");
         }
-        return dir;
-    }
-
-    public static String tempFolderPath() {
-        return System.getProperty("java.io.tmpdir");
-    }
-
-    public static File createTempFolder(String subFolder) {
-        File dir = new File(tempFolderPath(), subFolder);
-        dir.mkdirs();
         return dir;
     }
 

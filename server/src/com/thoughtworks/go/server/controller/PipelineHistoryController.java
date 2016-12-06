@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,9 +90,9 @@ public class PipelineHistoryController {
     }
 
     @RequestMapping(value = "/**/pipelineHistory.json", method = RequestMethod.GET)
-    public ModelAndView list(@RequestParam("pipelineName")String pipelineName,
-                             @RequestParam(value = "perPage", required = false)Integer perPageParam,
-                             @RequestParam(value = "start", required = false)Integer startParam,
+    public ModelAndView list(@RequestParam("pipelineName") String pipelineName,
+                             @RequestParam(value = "perPage", required = false) Integer perPageParam,
+                             @RequestParam(value = "start", required = false) Integer startParam,
                              @RequestParam(value = "labelFilter", required = false) String labelFilter,
                              HttpServletResponse response, HttpServletRequest request) throws NamingException {
         PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));

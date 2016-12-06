@@ -54,12 +54,11 @@ public class JobDetailPresentationModel {
     private final Tabs customizedTabs;
     private StageIdentifier stageIdentifier;
     private Stage stage;
-    private String jobDetailLink;
 
     public JobDetailPresentationModel(JobInstance job, JobInstances recent25,
                                       AgentConfig buildingAgentConfig, Pipeline pipeline, Tabs customizedTabs,
                                       TrackingTool trackingTool, ArtifactsService artifactsService,
-                                      Properties properties, Stage stage, String jobDetailLink) {
+                                      Properties properties, Stage stage) {
         this.pipeline = pipeline;
         this.customizedTabs = customizedTabs;
         this.job = job;
@@ -72,7 +71,6 @@ public class JobDetailPresentationModel {
         this.buildingAgentConfig = buildingAgentConfig;
         jobIdentifier = this.job.getIdentifier();
         stageIdentifier = jobIdentifier.getStageIdentifier();
-        this.jobDetailLink = jobDetailLink;
     }
 
     public String getConsoleoutLocator() {
@@ -246,9 +244,5 @@ public class JobDetailPresentationModel {
 
     public Stage getStage() {
         return stage;
-    }
-
-    public String getJobEditLink() {
-        return jobDetailLink;
     }
 }

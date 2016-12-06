@@ -44,16 +44,15 @@ public class JobControllerTest {
     private GoConfigService jobConfigService;
     private StageService stageService;
     private MockHttpServletResponse response;
-    private SecurityService securityService;
+
     @Before
     public void setUp() throws Exception {
         jobInstanceService = mock(JobInstanceService.class);
         jobDetailService = mock(JobDetailService.class);
         jobConfigService = mock(GoConfigService.class);
-        securityService = mock(SecurityService.class);
         stageService = mock(StageService.class);
         response = new MockHttpServletResponse();
-        jobController = new JobController(jobInstanceService, jobDetailService,jobConfigService,null,null,null,null,stageService,null, securityService);
+        jobController = new JobController(jobInstanceService, jobDetailService, jobConfigService, null, null, null, null, stageService, null);
     }
 
     @Test

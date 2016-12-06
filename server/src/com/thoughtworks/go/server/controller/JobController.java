@@ -23,12 +23,10 @@ import com.thoughtworks.go.config.TrackingTool;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.Properties;
 import com.thoughtworks.go.i18n.Localizer;
-import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.presentation.models.JobDetailPresentationModel;
 import com.thoughtworks.go.server.presentation.models.JobStatusJsonPresentationModel;
 import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.util.ErrorHandler;
-import com.thoughtworks.go.server.util.UserHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +43,6 @@ import java.util.*;
 import static com.thoughtworks.go.server.controller.actions.JsonAction.jsonFound;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.GoConstants.ERROR_FOR_PAGE;
-import static com.thoughtworks.go.util.StringUtil.isBlank;
 import static com.thoughtworks.go.util.json.JsonHelper.addDeveloperErrorMessage;
 
 /*
@@ -55,16 +52,24 @@ import static com.thoughtworks.go.util.json.JsonHelper.addDeveloperErrorMessage;
 public class JobController {
 
     private static final Log LOGGER = LogFactory.getLog(JobController.class);
-    @Autowired private JobInstanceService jobInstanceService;
-    @Autowired private JobDetailService jobDetailService;
-    @Autowired private GoConfigService goConfigService;
-    @Autowired private PipelineService pipelineService;
-    @Autowired private RestfulService restfulService;
-    @Autowired private ArtifactsService artifactService;
-    @Autowired private PropertiesService propertiesService;
-    @Autowired private StageService stageService;
-    @Autowired private Localizer localizer;
-    @Autowired private SecurityService securityService;
+    @Autowired
+    private JobInstanceService jobInstanceService;
+    @Autowired
+    private JobDetailService jobDetailService;
+    @Autowired
+    private GoConfigService goConfigService;
+    @Autowired
+    private PipelineService pipelineService;
+    @Autowired
+    private RestfulService restfulService;
+    @Autowired
+    private ArtifactsService artifactService;
+    @Autowired
+    private PropertiesService propertiesService;
+    @Autowired
+    private StageService stageService;
+    @Autowired
+    private Localizer localizer;
 
     public JobController() {
     }
@@ -72,7 +77,7 @@ public class JobController {
     JobController(
             JobInstanceService jobInstanceService, JobDetailService jobDetailService,
             GoConfigService goConfigService, PipelineService pipelineService, RestfulService restfulService,
-            ArtifactsService artifactService, PropertiesService propertiesService, StageService stageService, Localizer localizer, SecurityService securityService) {
+            ArtifactsService artifactService, PropertiesService propertiesService, StageService stageService, Localizer localizer) {
         this.jobInstanceService = jobInstanceService;
         this.jobDetailService = jobDetailService;
         this.goConfigService = goConfigService;
@@ -82,7 +87,6 @@ public class JobController {
         this.propertiesService = propertiesService;
         this.stageService = stageService;
         this.localizer = localizer;
-        this.securityService = securityService;
     }
 
     @RequestMapping(value = "/tab/build/recent", method = RequestMethod.GET)
@@ -132,22 +136,13 @@ public class JobController {
                 new CaseInsensitiveString(pipelineWithOneBuild.getName())).trackingTool();
         Properties properties = propertiesService.getPropertiesForJob(current.getId());
         Stage stage = stageService.getStageByBuild(current);
-        return new JobDetailPresentationModel(current, recent25, agentConfig, pipelineWithOneBuild, customizedTabs, trackingTool, artifactService, properties, stage, getJobDetailLink(pipelineName));
+        return new JobDetailPresentationModel(current, recent25, agentConfig, pipelineWithOneBuild, customizedTabs, trackingTool, artifactService, properties, stage);
     }
 
-    private String getJobDetailLink(String pipelineName) {
-        Username userName = UserHelper.getUserName();
-        String jobDetailLink = null;
-        String groupName = goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName));
-        if (!isBlank(groupName) && securityService.isUserAdminOfGroup(userName.getUsername(), groupName)) {
-            jobDetailLink = "admin/pipelines/" + pipelineName + "/general";
-        }
-        return jobDetailLink;
-    }
     @RequestMapping(value = "/**/jobStatus.json", method = RequestMethod.GET)
-    public ModelAndView handleRequest(@RequestParam(value = "pipelineName")String pipelineName,
-                                      @RequestParam(value = "stageName")String stageName,
-                                      @RequestParam(value = "jobId")long jobId,
+    public ModelAndView handleRequest(@RequestParam(value = "pipelineName") String pipelineName,
+                                      @RequestParam(value = "stageName") String stageName,
+                                      @RequestParam(value = "jobId") long jobId,
                                       HttpServletResponse response) {
         Object json;
         try {

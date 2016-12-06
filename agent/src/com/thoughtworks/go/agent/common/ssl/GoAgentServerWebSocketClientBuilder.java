@@ -16,12 +16,12 @@
 
 package com.thoughtworks.go.agent.common.ssl;
 
+import com.thoughtworks.go.util.SslVerificationMode;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
 
 import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 import java.security.KeyStore;
 import java.security.cert.CRL;
 import java.util.Collection;
@@ -29,14 +29,21 @@ import java.util.Collection;
 public class GoAgentServerWebSocketClientBuilder extends GoAgentServerClientBuilder<WebSocketClient> {
     @Override
     public WebSocketClient build() throws Exception {
-        SslContextFactory sslContextFactory = sslVerificationMode.NONE.equals(sslVerificationMode) ?
-                new TrustAllSSLContextFactory() : new SslContextFactory();
+        SslContextFactory sslContextFactory = sslVerificationMode == SslVerificationMode.NONE ? new TrustAllSSLContextFactory() : new SslContextFactory();
+        sslContextFactory.setNeedClientAuth(true);
+
         sslContextFactory.setKeyStore(agentKeystore());
         sslContextFactory.setKeyStorePassword(keystorePassword());
         sslContextFactory.setKeyManagerPassword(keystorePassword());
-        sslContextFactory.setTrustStore(agentTruststore());
-        sslContextFactory.setTrustStorePassword(keystorePassword());
-        sslContextFactory.setNeedClientAuth(true);
+
+        if (rootCertFile != null) {
+            sslContextFactory.setTrustStore(agentTruststore());
+            sslContextFactory.setTrustStorePassword(keystorePassword());
+        }
+
+        if (sslVerificationMode == SslVerificationMode.NO_VERIFY_HOST) {
+            sslContextFactory.setEndpointIdentificationAlgorithm(null);
+        }
 
         WebSocketClient client = new WebSocketClient(sslContextFactory);
         client.setMaxIdleTimeout(systemEnvironment.getWebsocketMaxIdleTime());
@@ -46,21 +53,12 @@ public class GoAgentServerWebSocketClientBuilder extends GoAgentServerClientBuil
     public GoAgentServerWebSocketClientBuilder(SystemEnvironment systemEnvironment) {
         super(systemEnvironment);
     }
-}
 
-class TrustAllSSLContextFactory extends SslContextFactory {
-    @Override
-    protected TrustManager[] getTrustManagers(KeyStore trustStore, Collection<? extends CRL> crls) throws Exception {
-        return new X509TrustManager[]{new X509TrustManager() {
-            public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                return new java.security.cert.X509Certificate[]{};
-            }
-
-            public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType) {
-            }
-
-            public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) {
-            }
-        }};
+    private class TrustAllSSLContextFactory extends SslContextFactory {
+        @Override
+        protected TrustManager[] getTrustManagers(KeyStore trustStore, Collection<? extends CRL> crls) throws Exception {
+            return TRUST_ALL_CERTS;
+        }
     }
 }
+

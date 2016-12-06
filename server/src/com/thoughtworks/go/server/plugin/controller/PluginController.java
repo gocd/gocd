@@ -22,24 +22,22 @@ import com.thoughtworks.go.plugin.api.request.DefaultGoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoApiResponse;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.infra.PluginManager;
-import com.thoughtworks.go.server.web.ResponseCodeView;
-import com.thoughtworks.go.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.View;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 @Controller
 public class PluginController {
@@ -47,11 +45,11 @@ public class PluginController {
 
     private PluginManager pluginManager;
     private static final Set<String> BLACK_LISTED_REQUESTS = Sets.newHashSet("go.plugin-settings.get-configuration",
-                        "go.plugin-settings.get-view",
-                        "go.plugin-settings.validate-configuration",
-                        "go.authentication.plugin-configuration",
-                        "go.authentication.authenticate-user",
-                        "go.authentication.search-user");
+            "go.plugin-settings.get-view",
+            "go.plugin-settings.validate-configuration",
+            "go.authentication.plugin-configuration",
+            "go.authentication.authenticate-user",
+            "go.authentication.search-user");
 
     @Autowired
     public PluginController(PluginManager pluginManager) {
@@ -59,17 +57,21 @@ public class PluginController {
     }
 
     @RequestMapping(value = "/plugin/interact/{pluginId}/{requestName}", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE})
-    public ModelAndView handlePluginInteractRequest(
+    public void handlePluginInteractRequest(
             @PathVariable String pluginId,
             @PathVariable String requestName,
-            HttpServletRequest request) {
+            HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        if(!isAuthPlugin(pluginId)) {
-            return ResponseCodeView.create(SC_FORBIDDEN, "Plugin interact endpoint is enabled only for Authentication Plugins");
+        if (!isAuthPlugin(pluginId)) {
+            response.setStatus(SC_FORBIDDEN);
+            response.getWriter().println("Plugin interact endpoint is enabled only for Authentication Plugins");
+            return;
         }
 
-        if(isRestrictedRequestName(requestName)) {
-            return ResponseCodeView.create(SC_FORBIDDEN, String.format("Plugin interact for '%s' requestName is disallowed.", requestName));
+        if (isRestrictedRequestName(requestName)) {
+            response.setStatus(SC_FORBIDDEN);
+            response.getWriter().println(String.format("Plugin interact for '%s' requestName is disallowed.", requestName));
+            return;
         }
 
         DefaultGoPluginApiRequest apiRequest = new DefaultGoPluginApiRequest(null, null, requestName);
@@ -77,17 +79,19 @@ public class PluginController {
         addRequestHeaders(request, apiRequest);
 
         try {
-            GoPluginApiResponse response = pluginManager.submitTo(pluginId, apiRequest);
+            GoPluginApiResponse pluginApiResponse = pluginManager.submitTo(pluginId, apiRequest);
 
-            if (DefaultGoApiResponse.SUCCESS_RESPONSE_CODE == response.responseCode()) {
-                return renderPluginResponse(response);
+            if (DefaultGoApiResponse.SUCCESS_RESPONSE_CODE == pluginApiResponse.responseCode()) {
+                renderPluginResponse(pluginApiResponse, response);
+                return;
             }
-            if (DefaultGoApiResponse.REDIRECT_RESPONSE_CODE == response.responseCode()) {
+            if (DefaultGoApiResponse.REDIRECT_RESPONSE_CODE == pluginApiResponse.responseCode()) {
                 String location = "";
-                if (hasValueFor(response, "Location")) {
-                    location = response.responseHeaders().get("Location");
+                if (hasValueFor(pluginApiResponse, "Location")) {
+                    location = pluginApiResponse.responseHeaders().get("Location");
                 }
-                return new ModelAndView("redirect:" + location);
+                response.sendRedirect(location);
+                return;
             }
         } catch (Exception e) {
             // handle
@@ -126,25 +130,17 @@ public class PluginController {
         }
     }
 
-    private ModelAndView renderPluginResponse(final GoPluginApiResponse response) {
-        return new ModelAndView(new View() {
-            @Override
-            public String getContentType() {
-                String contentType = CONTENT_TYPE_HTML;
-                if (hasValueFor(response, "Content-Type")) {
-                    contentType = response.responseHeaders().get("Content-Type");
-                }
-                return contentType;
-            }
+    private void renderPluginResponse(final GoPluginApiResponse response, HttpServletResponse httpServletResponse) throws IOException {
+        String contentType = CONTENT_TYPE_HTML;
+        if (hasValueFor(response, "Content-Type")) {
+            contentType = response.responseHeaders().get("Content-Type");
+        }
 
-            @Override
-            public void render(Map<String, ?> map, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws Exception {
-                httpServletResponse.getWriter().write(response.responseBody());
-            }
-        });
+        httpServletResponse.setHeader("Content-Type", contentType);
+        httpServletResponse.getWriter().write(response.responseBody());
     }
 
     private boolean hasValueFor(GoPluginApiResponse response, String header) {
-        return response.responseHeaders() != null && !StringUtil.isBlank(response.responseHeaders().get(header));
+        return response.responseHeaders() != null && isNotBlank(response.responseHeaders().get(header));
     }
 }

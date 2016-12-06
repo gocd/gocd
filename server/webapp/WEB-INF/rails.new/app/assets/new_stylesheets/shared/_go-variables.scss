@@ -15,7 +15,7 @@
  */
 
 $go-primary: #b66fc2;
-$go-secondary: #00bfa5;
+$go-secondary: #d1c4e9;
 $go-tertiary: #ffd54f;
 $go-white: #fff;
 $light-grey: #e2e2e2;
@@ -26,8 +26,8 @@ $border-color: #ccc;
 $go-links: #0277bd;
 
 $global-border-radius: 3px;
-
 $page-body-background: #efefef;
+$general-panel-header-bg :$go-secondary;
 
 //table
 $table-header-bg: #b9f6ca;
@@ -66,7 +66,7 @@ $modal-header-bg: #eeeee9;
 
 //tabs
 
-$tab-header-bg: #d1c4e9;
+$tab-header-bg: $go-secondary;
 $tab-header-bg-hover: lighten($tab-header-bg, 8%);
 $current-tab-bg: #fff;
 $tab-bg: lighten($tab-header-bg, 5%);
@@ -126,5 +126,5 @@ $page-header: 10;
 
 //stage history table
 
-$stage-history-head-bg: #d1c4e9;
+$stage-history-head-bg: $go-secondary;
 $stage-history-pagination-bg: #dcdcdc;

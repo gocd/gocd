@@ -30,6 +30,14 @@ body {
 
 }
 
+@media only screen and (min-width: 1600px) {
+  .row {
+    margin-left:  auto;
+    margin-right: auto;
+    max-width:    1400px;
+  }
+}
+
 a, a:hover, a:visited {
   color: $go-links;
 }
@@ -42,6 +50,7 @@ a, a:hover, a:visited {
 h1, h2, h3, h4 {
   font-family: "Open Sans", Arial, Helvetica, sans-serif !important;
   font-weight: 500;
+
 }
 
 h4 {
@@ -406,37 +415,32 @@ h1.entity_title {
 #pipelines {
   .pipelines_selector {
     .enhanced_dropdown {
-      right:      30px !important;
+      right:      33px !important;
       left:       auto !important;
       top:        $main-nav-height !important;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
       transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
       margin-top: 1px;
-
-      .select_all_none_panel {
-        background: $personalize-header-bg;
-      }
-      .select_all_none_panel #select_text {
-        color: #333;
-      }
-      .select_all_none_panel #show_new_pipelines_container {
-        margin: 3px 10px;
-      }
+      width:      25em;
       .add_panel button.primary {
         margin-left:      10px;
         margin-right:     10px;
         width:            auto;
         background-color: $go-primary !important;
       }
+      .select_all_none_panel {
+        background: $personalize-header-bg;
+      }
+      .selector_pipeline .label {
+        font-size: rem-calc(13px);
+      }
     }
     .search-with-clear {
       #pipeline-search {
-
         margin-right:  0px;
         height:        30px;
         box-shadow:    none;
         border-radius: 3px 0px 0 3px;
-        border:        0;
         padding-left:  10px;
         border:        1px solid $border-color;
 
@@ -450,7 +454,9 @@ h1.entity_title {
       right: 9px;
       top:   9px;
     }
+
   }
+
   button.submit.header_submit {
     color:            #000;
     height:           30px;
@@ -472,11 +478,48 @@ h1.entity_title {
       outline: 0;
     }
     span {
-      line-height:    20px;
+      line-height:    16px;
       text-transform: none;
       font-weight:    normal;
       font-size:      12px !important;
     }
+  }
+}
+
+.select_all_none_panel {
+  #select_text {
+    color:       #333 !important;
+    margin:      2px 0 0 10px;
+    font-size:   rem-calc(12px);
+    font-weight: normal !important;
+  }
+  #show_new_pipelines_container {
+    margin: 3px 10px;
+  }
+  .link_as_button {
+    font-size:  11px !important;
+    margin:     2px 0 0 0;
+    padding:    4px 7px;
+    background: $btn-bg;
+    color:      $btn-txt !important;
+    &:hover {
+      margin:     2px 0 0 0;
+      font-size:  11px !important;
+      padding:    4px 7px;
+      background: $btn-bg-hover;
+      color:      $btn-bg-hover-txt !important;
+    }
+    &#select_all_pipelines {
+      border-radius: $global-border-radius 0 0 $global-border-radius;
+      margin-right:  1px;
+    }
+    &#select_no_pipelines {
+      border-radius: 0 $global-border-radius $global-border-radius 0;
+    }
+  }
+  #show_new_pipelines_container {
+    float: left !important;
+    clear: both;
   }
 }
 
@@ -491,11 +534,24 @@ h1.entity_title {
   background-color: $passed;
 }
 
-.pipeline_bundle .pipeline .status .label {
-  font-size: 12px;
-  margin:    3px 10px 4px 0;
-  a {
-    font-weight: 700;
+.pipeline_bundle {
+  .pipeline {
+    border:     0;
+    box-shadow: none;
+    &:hover {
+      box-shadow: 0 0 6px 0px rgba(0, 0, 0, 0.41);
+      border:     0;
+    }
+    .status {
+      .label {
+        font-size: 12px;
+        margin:    3px 10px 4px 0;
+        a {
+          font-weight: 700;
+        }
+      }
+    }
+
   }
 }
 
@@ -505,6 +561,24 @@ h1.entity_title {
 
 .pipeline_bundle .pipeline_operations {
   padding: 10px 15px;
+}
+
+.pipeline_bundle .pipeline .status, .pipeline_bundle .pipeline .stages {
+  margin-top: 4px;
+}
+
+.selector_header {
+  margin:         0 10px 10px 10px;
+  padding-bottom: 5px;
+  border-bottom:  1px dotted $border-color;
+}
+
+.selector_group input {
+  margin-top: 1px;
+}
+
+.selector_pipeline input {
+  margin-top: 0;
 }
 
 //pipeline history
@@ -534,6 +608,51 @@ span.pipeline-buttons a.link_as_button {
 #labelFilterField {
   border-radius: $global-border-radius;
 
+}
+
+ul.entity_title li {
+  padding-right: 20px;
+  a {
+    font-size: rem-calc(18px);
+  }
+  &.last {
+    > * {
+
+      font-size:   16px !important;
+      font-weight: 400 !important;
+      margin:      5px 10px 0 0 !important;
+    }
+  }
+}
+
+.pipeline_history, .yui-b .Job, .yui-b .Server, #admin-page .Administration, #my-cruise-page .Preferences {
+
+  overflow:   hidden;
+  position:   static;
+  height:     auto;
+  background: #fff;
+  box-shadow: none;
+  border:     0;
+  padding:    10px 15px;
+
+  h2.entity_title {
+    color:       #333 !important;
+    font-weight: 400 !important;
+    font-size:   18px !important;
+  }
+
+}
+
+#pipeline-history .pipeline-buttons a.link_as_button span {
+  &:hover {
+    color: #fff !important;
+  }
+}
+
+#pipeline-history .pipeline-buttons {
+  margin-top: 0;
+  position:   relative;
+  top:        -7px;
 }
 
 //stage history
@@ -1411,7 +1530,7 @@ input[type='submit'], input[type='submit']:hover, button.submit, button.submit:h
   box-shadow:     none !important;
   font-size:      rem-calc(13px) !important;
   color:          $btn-txt !important;
-  padding:        7px 10px;
+  padding:        6px 10px;
   text-transform: uppercase;
   &:hover {
     background: $btn-bg-hover;
@@ -1470,6 +1589,12 @@ tr.Cancelled, tr.cancelled-stage {
 .Building, .Active {
   background-color: $building;
   background-image: none;
+}
+
+.vsm-entity.pipeline .stages li {
+  &.Building, &.building-stage {
+    background-color: $building;
+  }
 }
 
 #build_detail_summary_container h3 {
@@ -1532,14 +1657,12 @@ a:link#link-to-this-page, a:visited#link-to-this-page {
 }
 
 #MB_window {
-
   border-radius: 3px;
   overflow:      visible;
   @include clearfix;
   .page-wrap {
     &:before {
       height: 0;
-
     }
   }
 }
@@ -1656,24 +1779,6 @@ form#package_repositories_edit_form {
 .steps_wrapper .tabs a, .steps_wrapper .tabs a.current {
   padding: 10px 15px;
   margin:  0px 5px 0;
-}
-
-.pipeline_history, .yui-b .Job, .yui-b .Server, #admin-page .Administration, #my-cruise-page .Preferences {
-
-  overflow:   hidden;
-  position:   static;
-  height:     auto;
-  background: #fff;
-  box-shadow: none;
-  border:     0;
-  padding:    10px 15px;
-
-  h2.entity_title {
-    color:       #333 !important;
-    font-weight: 400 !important;
-    font-size:   18px !important;
-  }
-
 }
 
 .steps_wrapper .tabs li.current_tab a {
@@ -1809,12 +1914,6 @@ a:link.help, a:visited.help {
     .sub_tab_container {
       height: 336px;
     }
-  }
-}
-
-#pipeline-history .pipeline-buttons a.link_as_button span {
-  &:hover {
-    color: #fff !important;
   }
 }
 
@@ -2570,8 +2669,11 @@ pre, code, #admin-holder-for-admin-config-source-xml textarea {
   padding:    10px;
 }
 
-#pipeline-history .pipeline-buttons {
-  margin-top: 0;
-  position: relative;
-  top: -7px;
+.old-agent-button-group {
+  li {
+    position: static;
+    .button {
+      border-radius: 0;
+    }
+  }
 }

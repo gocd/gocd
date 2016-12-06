@@ -1,22 +1,23 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain.materials.perforce;
 
 import java.io.StringWriter;
+import java.nio.charset.Charset;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -32,14 +33,15 @@ import com.thoughtworks.go.util.command.CommandArgument;
 import com.thoughtworks.go.util.command.ConsoleResult;
 import com.thoughtworks.go.util.command.SecretString;
 import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Level;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JMock;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.core.io.ClassPathResource;
 
+import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
@@ -51,23 +53,16 @@ public class P4OutputParserTest {
     private static final SimpleDateFormat DESCRIPTION_FORMAT = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
     private ClassMockery context;
     private P4Client p4Client;
-    public LogFixture logging;
 
     @Before
     public void setUp() throws Exception {
         context = new ClassMockery();
         p4Client = context.mock(P4Client.class);
         parser = new P4OutputParser(p4Client);
-        logging = LogFixture.startListening();
     }
 
-    @After
-    public void tearDown() {
-        logging.stopListening();
-    }
-
-
-    @Test public void shouldRetrieveRevisionFromChangesOutput() throws Exception {
+    @Test
+    public void shouldRetrieveRevisionFromChangesOutput() throws Exception {
         String output = "Change 2 on 2008/08/19 by cceuser@connect4 'some modification message'";
         long revision = parser.revisionFromChange(output);
         assertThat(revision, is(2L));
@@ -86,7 +81,8 @@ public class P4OutputParserTest {
         }
     }
 
-    @Test public void shouldRetrieveModificationFromDescription() throws Exception {
+    @Test
+    public void shouldRetrieveModificationFromDescription() throws Exception {
         String output =
                 "Change 2 by cce123user@connect4_10.18.2.31 on 2008/08/19 15:04:43\n"
                         + "\n"
@@ -116,9 +112,10 @@ public class P4OutputParserTest {
      * This test reproduces a problem we saw at a customer's installation, where the changelist was really really large
      * It caused a frequent StackOverflow in the java regex library.
      */
-    @Test public void shouldParseChangesWithLotsOfFilesWithoutError() throws Exception {
+    @Test
+    public void shouldParseChangesWithLotsOfFilesWithoutError() throws Exception {
         final StringWriter writer = new StringWriter();
-        IOUtils.copy(new ClassPathResource("/data/BIG_P4_OUTPUT.txt").getInputStream(), writer);
+        IOUtils.copy(new ClassPathResource("/data/BIG_P4_OUTPUT.txt").getInputStream(), writer, Charset.defaultCharset());
         String output = writer.toString();
         Modification modification = parser.modificationFromDescription(output, new ConsoleResult(0, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<CommandArgument>(), new ArrayList<SecretString>()));
         assertThat(modification.getModifiedFiles().size(), is(1304));
@@ -127,7 +124,8 @@ public class P4OutputParserTest {
     }
 
 
-    @Test public void shouldThrowExceptionWhenCannotParseChanges() {
+    @Test
+    public void shouldThrowExceptionWhenCannotParseChanges() {
         String line = "Some line I don't understand";
         try {
             parser.modificationFromDescription(line, new ConsoleResult(0, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<CommandArgument>(), new ArrayList<SecretString>()));
@@ -137,34 +135,35 @@ public class P4OutputParserTest {
         }
     }
 
-    @Test public void shouldParseDescriptionProperly_Bug2456() throws P4OutputParseException {
+    @Test
+    public void shouldParseDescriptionProperly_Bug2456() throws P4OutputParseException {
         String description =
-        "Change 570548 by michael@michael_AB2-ENV-WXP-000_ABcore on 2009/01/12 14:47:04\n"
-        + "\n"
-        + "\tAdd a WCF CrossDomainPolicyService and CrossDomain.xml.\n"
-        + "\tUpdate service reference.\n"
-        + "\tUpdate app.config and template config files.\n"
-        + "\n"
-        + "Affected files ...\n"
-        + "\n"
-        + "... //APP/AB/Core/Somemv.Core/Somemv.Core.Security.ServiceContracts/ICrossDomainPolicyService.cs#1 add\n"
-        + "... //APP/AB/Core/Somemv.Core/Somemv.Core.Security.ServiceContracts/Somemv.Core.Security.ServiceContracts.csproj#3"
-        + " edit\n"
-        + "... //APP/AB/Core/Somemv.Core/Somemv.Core.Security.Services/CrossDomainPolicyService.cs#1 add\n"
-        + "... //APP/AB/Core/Somemv.Core/Somemv.Core.Security.Services/Somemv.Core.Security.Services.csproj#4 edit\n"
-        + "... //APP/AB/Core/Somemv.Core/Somemv.Core.ServiceReferences/Somemv.Core.ServiceReferences.csproj#44 edit\n"
-        + "... //APP/AB/Core/Somemv.Core/Somemv.Core.ServiceReferences/Service References/SecurityService/"
-        + "SecurityService33.xsd#2 edit\n"
-        + "... //APP/AB/Core/Somemv.Core/Somemv.Core.ServiceReferences/app.config#30 edit\n"
-        + "... //APP/AB/Core/Somemv.Simulation/Somemv.Simulation.Coordinator.Services/Analysis/AnalysisServiceAdapter.cs#30"
-        + " edit\n"
-        + "... //APP/AB/Core/Somemv.Simulation/Somemv.Simulation.Services/ManageableService.cs#4 edit\n"
-        + "... //APP/AB/Core/Products/Somemv.RemotingService/App.config#102 edit\n"
-        + "... //APP/AB/Core/Products/Somemv.RemotingService/CrossDomain.xml#1 add\n"
-        + "... //APP/AB/Core/Products/Somemv.RemotingService/Somemv.RemotingService.csproj#53 edit\n"
-        + "... //APP/AB/Core/Templates/Somemv.RemotingService/app_template.config#69 edit\n"
-        + "... //APP/AB/Core/Templates/Somemv.RemotingService/coordinator_template.config#69 edit\n"
-        + "";
+                "Change 570548 by michael@michael_AB2-ENV-WXP-000_ABcore on 2009/01/12 14:47:04\n"
+                        + "\n"
+                        + "\tAdd a WCF CrossDomainPolicyService and CrossDomain.xml.\n"
+                        + "\tUpdate service reference.\n"
+                        + "\tUpdate app.config and template config files.\n"
+                        + "\n"
+                        + "Affected files ...\n"
+                        + "\n"
+                        + "... //APP/AB/Core/Somemv.Core/Somemv.Core.Security.ServiceContracts/ICrossDomainPolicyService.cs#1 add\n"
+                        + "... //APP/AB/Core/Somemv.Core/Somemv.Core.Security.ServiceContracts/Somemv.Core.Security.ServiceContracts.csproj#3"
+                        + " edit\n"
+                        + "... //APP/AB/Core/Somemv.Core/Somemv.Core.Security.Services/CrossDomainPolicyService.cs#1 add\n"
+                        + "... //APP/AB/Core/Somemv.Core/Somemv.Core.Security.Services/Somemv.Core.Security.Services.csproj#4 edit\n"
+                        + "... //APP/AB/Core/Somemv.Core/Somemv.Core.ServiceReferences/Somemv.Core.ServiceReferences.csproj#44 edit\n"
+                        + "... //APP/AB/Core/Somemv.Core/Somemv.Core.ServiceReferences/Service References/SecurityService/"
+                        + "SecurityService33.xsd#2 edit\n"
+                        + "... //APP/AB/Core/Somemv.Core/Somemv.Core.ServiceReferences/app.config#30 edit\n"
+                        + "... //APP/AB/Core/Somemv.Simulation/Somemv.Simulation.Coordinator.Services/Analysis/AnalysisServiceAdapter.cs#30"
+                        + " edit\n"
+                        + "... //APP/AB/Core/Somemv.Simulation/Somemv.Simulation.Services/ManageableService.cs#4 edit\n"
+                        + "... //APP/AB/Core/Products/Somemv.RemotingService/App.config#102 edit\n"
+                        + "... //APP/AB/Core/Products/Somemv.RemotingService/CrossDomain.xml#1 add\n"
+                        + "... //APP/AB/Core/Products/Somemv.RemotingService/Somemv.RemotingService.csproj#53 edit\n"
+                        + "... //APP/AB/Core/Templates/Somemv.RemotingService/app_template.config#69 edit\n"
+                        + "... //APP/AB/Core/Templates/Somemv.RemotingService/coordinator_template.config#69 edit\n"
+                        + "";
 
         Modification modification = parser.modificationFromDescription(description, new ConsoleResult(0, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<CommandArgument>(), new ArrayList<SecretString>()));
         assertThat(modification.getComment(), is(
@@ -177,15 +176,15 @@ public class P4OutputParserTest {
     @Test
     public void shouldParseCommentWithAffectedFilesCorrectly() throws P4OutputParseException {
         String description =
-        "Change 5 by cceuser@CceDev01 on 2009/08/06 14:21:30\n"
-                + "\n"
-                + "\tAffected files ...\n"
-                + "\t\n"
-                + "\t... //DEPOT/FILE#943 edit\n"
-                + "\n"
-                + "Affected files ...\n"
-                + "\n"
-                + "... //depot/file#5 edit";
+                "Change 5 by cceuser@CceDev01 on 2009/08/06 14:21:30\n"
+                        + "\n"
+                        + "\tAffected files ...\n"
+                        + "\t\n"
+                        + "\t... //DEPOT/FILE#943 edit\n"
+                        + "\n"
+                        + "Affected files ...\n"
+                        + "\n"
+                        + "... //depot/file#5 edit";
 
         Modification modification = parser.modificationFromDescription(description, new ConsoleResult(0, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<CommandArgument>(), new ArrayList<SecretString>()));
         assertThat(modification.getComment(), is(
@@ -282,19 +281,21 @@ public class P4OutputParserTest {
 
     @Test
     public void shouldIgnoreBadLinesAndLogThem() throws ParseException {
-        final String output = "Change 539921 on 2008/09/24 "
-                        + "by abc@SomeRefinery_abc_sa1-sgr-xyz-001 'more work in progress on MDC un'\n";
-        final String description = "Change that I cannot parse :-(\n";
+        try (LogFixture logging = logFixtureFor(P4OutputParser.class, Level.DEBUG)) {
+            final String output = "Change 539921 on 2008/09/24 "
+                    + "by abc@SomeRefinery_abc_sa1-sgr-xyz-001 'more work in progress on MDC un'\n";
+            final String description = "Change that I cannot parse :-(\n";
 
-        context.checking(new Expectations() {
-            {
-                allowing(p4Client).describe(with(any(Long.class)));
-                will(returnValue(description));
-            }
-        });
+            context.checking(new Expectations() {
+                {
+                    allowing(p4Client).describe(with(any(Long.class)));
+                    will(returnValue(description));
+                }
+            });
 
-        List<Modification> modifications = parser.modifications(new ConsoleResult(0, Arrays.asList(output.split("\n")), new ArrayList<String>(), new ArrayList<CommandArgument>(), new ArrayList<SecretString>()));
-        assertThat(modifications.size(), is(0));
-        assertThat(logging.getLog(), containsString(description));
+            List<Modification> modifications = parser.modifications(new ConsoleResult(0, Arrays.asList(output.split("\n")), new ArrayList<String>(), new ArrayList<CommandArgument>(), new ArrayList<SecretString>()));
+            assertThat(modifications.size(), is(0));
+            assertThat(logging.getLog(), containsString(description));
+        }
     }
 }

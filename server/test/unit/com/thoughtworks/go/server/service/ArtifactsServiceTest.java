@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2015 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
@@ -50,6 +50,7 @@ import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
 import static com.thoughtworks.go.server.service.ArtifactsService.LOG_XML_NAME;
 import static com.thoughtworks.go.util.GoConstants.PUBLISH_MAX_RETRIES;
+import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -65,7 +66,6 @@ public class ArtifactsServiceTest {
     private File fakeRoot;
     private JobResolverService resolverService;
     private StageDao stageService;
-    private LogFixture logFixture;
 
     @Before
     public void setUp() {
@@ -76,7 +76,6 @@ public class ArtifactsServiceTest {
         stageService = mock(StageDao.class);
 
         fakeRoot = TestFileUtil.createTempFolder("ArtifactsServiceTest");
-        logFixture = LogFixture.startListening();
     }
 
     @After
@@ -84,7 +83,6 @@ public class ArtifactsServiceTest {
         for (File resource : resourcesToBeCleanedOnTeardown) {
             FileUtils.deleteQuietly(resource);
         }
-        logFixture.stopListening();
     }
 
     @Test
@@ -155,7 +153,6 @@ public class ArtifactsServiceTest {
                 buildInstanceId + File.separator + "generated" + File.separator + LOG_XML_NAME);
         assumeArtifactsRoot(logsDir);
 
-        String fileName = "generated" + File.separator + LOG_XML_NAME;
         ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService);
         artifactsService.saveFile(destFile, stream, false, 1);
 
@@ -174,11 +171,11 @@ public class ArtifactsServiceTest {
         assumeArtifactsRoot(logsDir);
         doThrow(ioException).when(zipUtil).unzip(Mockito.any(ZipInputStream.class), Mockito.any(File.class));
 
-        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService);
-
-        artifactsService.saveFile(destFile, stream, true, 1);
-
-        assertThat(logFixture.allLogs(), containsString("Failed to save the file to:"));
+        try (LogFixture logFixture = logFixtureFor(ArtifactsService.class, Level.DEBUG)) {
+            ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService);
+            artifactsService.saveFile(destFile, stream, true, 1);
+            assertThat(logFixture.allLogs(), containsString("Failed to save the file to:"));
+        }
     }
 
     @Test
@@ -192,11 +189,11 @@ public class ArtifactsServiceTest {
 
         Mockito.doThrow(ioException).when(zipUtil).unzip(any(ZipInputStream.class), any(File.class));
 
-        ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService);
-
-        artifactsService.saveFile(destFile, stream, true, PUBLISH_MAX_RETRIES);
-
-        assertThat(logFixture.allLogs(), containsString("Failed to save the file to:"));
+        try (LogFixture logFixture = logFixtureFor(ArtifactsService.class, Level.DEBUG)) {
+            ArtifactsService artifactsService = new ArtifactsService(resolverService, stageService, artifactsDirHolder, zipUtil, systemService);
+            artifactsService.saveFile(destFile, stream, true, PUBLISH_MAX_RETRIES);
+            assertThat(logFixture.allLogs(), containsString("Failed to save the file to:"));
+        }
     }
 
     @Test
@@ -369,10 +366,11 @@ public class ArtifactsServiceTest {
 
         when(chooser.findArtifact(any(LocatableEntity.class), eq(""))).thenThrow(new IllegalArtifactLocationException("holy cow!"));
 
-        artifactsService.purgeArtifactsForStage(stage);
 
-        assertThat(logFixture.contains(Level.ERROR, "Error occurred while clearing artifacts for 'pipeline/10/stage/20'. Error: 'holy cow!'"), is(true));
-
+        try (LogFixture logFixture = logFixtureFor(ArtifactsService.class, Level.DEBUG)) {
+            artifactsService.purgeArtifactsForStage(stage);
+            assertThat(logFixture.contains(Level.ERROR, "Error occurred while clearing artifacts for 'pipeline/10/stage/20'. Error: 'holy cow!'"), is(true));
+        }
         verify(stageService).markArtifactsDeletedFor(stage);
     }
 

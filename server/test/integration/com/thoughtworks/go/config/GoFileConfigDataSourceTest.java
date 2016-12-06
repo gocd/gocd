@@ -23,7 +23,6 @@ import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
-import com.thoughtworks.go.config.preprocessor.ConfigRepoPartialPreprocessor;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.registry.NoPluginsInstalled;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
@@ -39,6 +38,7 @@ import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Level;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.hamcrest.core.Is;
 import org.joda.time.DateTime;
@@ -61,6 +61,7 @@ import java.util.*;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.VALID_XML_3169;
 import static com.thoughtworks.go.util.GoConfigFileHelper.loadAndMigrate;
+import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.any;
 import static org.hamcrest.Matchers.not;
@@ -101,7 +102,7 @@ public class GoFileConfigDataSourceTest {
                 throw new RuntimeException(e);
             }
         }, configRepository, new TimeProvider(), configCache, registry),
-                configRepository, systemEnvironment, timeProvider, configCache, serverVersion, registry,  mock(ServerHealthService.class), cachedGoPartials);
+                configRepository, systemEnvironment, timeProvider, configCache, serverVersion, registry, mock(ServerHealthService.class), cachedGoPartials);
         dataSource.upgradeIfNecessary();
         CachedGoConfig cachedGoConfig = new CachedGoConfig(serverHealthService, dataSource, mock(CachedGoPartials.class));
         cachedGoConfig.loadConfigIfNull();
@@ -284,16 +285,17 @@ public class GoFileConfigDataSourceTest {
 
     @Test
     public void shouldNotReloadIfConfigDoesNotChange() throws Exception {
-        LogFixture log = LogFixture.startListening();
-        dataSource.reloadIfModified();
-        GoConfigHolder loadedConfig = dataSource.load();
-        assertThat(log.getLog(), containsString("Config file changed at"));
-        assertThat(loadedConfig, not(nullValue()));
-        log.clear();
+        try (LogFixture log = logFixtureFor(GoFileConfigDataSource.class, Level.DEBUG)) {
+            dataSource.reloadIfModified();
+            GoConfigHolder loadedConfig = dataSource.load();
+            assertThat(log.getLog(), containsString("Config file changed at"));
+            assertThat(loadedConfig, not(nullValue()));
+            log.clear();
 
-        loadedConfig = dataSource.load();
-        assertThat(log.getLog(), not(containsString("Config file changed at")));
-        assertThat(loadedConfig, is(nullValue()));
+            loadedConfig = dataSource.load();
+            assertThat(log.getLog(), not(containsString("Config file changed at")));
+            assertThat(loadedConfig, is(nullValue()));
+        }
     }
 
     @Test

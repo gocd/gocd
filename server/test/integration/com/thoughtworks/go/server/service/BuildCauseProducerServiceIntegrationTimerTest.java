@@ -1,24 +1,21 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
-import java.util.Date;
-
-import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.MaterialRevisions;
@@ -48,8 +45,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.Date;
+
+import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
@@ -58,21 +59,29 @@ import static org.hamcrest.core.Is.is;
 })
 public class BuildCauseProducerServiceIntegrationTimerTest {
     public static final String STAGE_NAME = "s";
-    public static final Cloner CLONER = new Cloner();
-    @Autowired private DatabaseAccessHelper dbHelper;
-    @Autowired private GoCache goCache;
-    @Autowired private GoConfigDao goConfigDao;
-    @Autowired private BuildCauseProducerService buildCauseProducerService;
-    @Autowired private MaterialRepository materialRepository;
-    @Autowired private TransactionTemplate transactionTemplate;
-    @Autowired private SystemEnvironment systemEnvironment;
-    @Autowired private PipelineTimeline pipelineTimeline;
-    @Autowired private PipelineScheduleQueue piplineScheduleQueue;
-    @Autowired private DependencyMaterialUpdateNotifier notifier;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
+    @Autowired
+    private GoCache goCache;
+    @Autowired
+    private GoConfigDao goConfigDao;
+    @Autowired
+    private BuildCauseProducerService buildCauseProducerService;
+    @Autowired
+    private MaterialRepository materialRepository;
+    @Autowired
+    private TransactionTemplate transactionTemplate;
+    @Autowired
+    private SystemEnvironment systemEnvironment;
+    @Autowired
+    private PipelineTimeline pipelineTimeline;
+    @Autowired
+    private PipelineScheduleQueue piplineScheduleQueue;
+    @Autowired
+    private DependencyMaterialUpdateNotifier notifier;
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private ScheduleTestUtil u;
-    private LogFixture logFixture;
 
     @Before
     public void setUp() throws Exception {
@@ -82,7 +91,6 @@ public class BuildCauseProducerServiceIntegrationTimerTest {
 
         dbHelper.onSetUp();
         u = new ScheduleTestUtil(transactionTemplate, materialRepository, dbHelper, configHelper);
-        logFixture = LogFixture.startListening();
         notifier.disableUpdates();
     }
 
@@ -93,7 +101,6 @@ public class BuildCauseProducerServiceIntegrationTimerTest {
         dbHelper.onTearDown();
         configHelper.onTearDown();
         piplineScheduleQueue.clear();
-        logFixture.stopListening();
     }
 
     @Test
@@ -142,18 +149,20 @@ public class BuildCauseProducerServiceIntegrationTimerTest {
         String up1_2 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(up1, u.d(i++), "g11");
         piplineScheduleQueue.finishSchedule(pipelineName, buildCause, buildCause);
 
-        // Timer time comes around again. Will rerun since the new flag (runOnlyOnNewMaterials) is not ON.
-        buildCauseProducerService.timerSchedulePipeline(p1.config, new ServerHealthStateOperationResult());
+        try (LogFixture logFixture = logFixtureFor(TimedBuild.class, Level.INFO)) {
+            // Timer time comes around again. Will rerun since the new flag (runOnlyOnNewMaterials) is not ON.
+            buildCauseProducerService.timerSchedulePipeline(p1.config, new ServerHealthStateOperationResult());
 
-        assertThat(piplineScheduleQueue.toBeScheduled().size(), is(1));
-        assertThat(piplineScheduleQueue.toBeScheduled().get(pipelineName).getMaterialRevisions(), is(u.mrs(u.mr(git1, false, "g11"), u.mr(up1, false, up1_2))));
-        assertThat(logFixture.contains(Level.INFO, "Skipping scheduling of timer-triggered pipeline 'p1' as it has previously run with the latest material(s)."), is(false));
+            assertThat(piplineScheduleQueue.toBeScheduled().size(), is(1));
+            assertThat(piplineScheduleQueue.toBeScheduled().get(pipelineName).getMaterialRevisions(), is(u.mrs(u.mr(git1, false, "g11"), u.mr(up1, false, up1_2))));
+            assertThat(logFixture.contains(Level.INFO, "Skipping scheduling of timer-triggered pipeline 'p1' as it has previously run with the latest material(s)."), is(false));
+        }
     }
 
     @Test
     public void pipelineWithTimerShouldNotRerunWhenItHasAlreadyRunWithLatestMaterials_GivenTimerIsSetToTriggerOnlyForNewMaterials() throws Exception {
-        int i = 1;
         String pipelineName = "p1";
+
         GitMaterial git1 = u.wf(new GitMaterial("git1"), "folder1");
         GitMaterial git2 = u.wf(new GitMaterial("git2"), "folder2");
 
@@ -171,11 +180,13 @@ public class BuildCauseProducerServiceIntegrationTimerTest {
         BuildCause buildCause = piplineScheduleQueue.toBeScheduled().get(pipelineName);
         piplineScheduleQueue.finishSchedule(pipelineName, buildCause, buildCause);
 
-        // Timer time comes around again. Will NOT rerun since the new flag (runOnlyOnNewMaterials) is ON.
-        buildCauseProducerService.timerSchedulePipeline(p1.config, new ServerHealthStateOperationResult());
+        try (LogFixture logFixture = logFixtureFor(TimedBuild.class, Level.INFO)) {
+            // Timer time comes around again. Will NOT rerun since the new flag (runOnlyOnNewMaterials) is ON.
+            buildCauseProducerService.timerSchedulePipeline(p1.config, new ServerHealthStateOperationResult());
 
-        assertThat(piplineScheduleQueue.toBeScheduled().size(), is(0));
-        assertThat(logFixture.contains(Level.INFO, "Skipping scheduling of timer-triggered pipeline 'p1' as it has previously run with the latest material(s)."), is(true));
+            assertThat(piplineScheduleQueue.toBeScheduled().size(), is(0));
+            assertThat(logFixture.contains(Level.INFO, "Skipping scheduling of timer-triggered pipeline 'p1' as it has previously run with the latest material(s)."), is(true));
+        }
     }
 
     @Test
@@ -208,11 +219,13 @@ public class BuildCauseProducerServiceIntegrationTimerTest {
         u.checkinFile(git2, "g22", TestFileUtil.createTempFile("blah_g22"), ModifiedAction.added);
         String p1_2 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p1, mduTimeOfG11, "g11");
         pipelineTimeline.update();
-        buildCauseProducerService.timerSchedulePipeline(p2.config, new ServerHealthStateOperationResult());
+        try (LogFixture logFixture = logFixtureFor(TimedBuild.class, Level.INFO)) {
+            buildCauseProducerService.timerSchedulePipeline(p2.config, new ServerHealthStateOperationResult());
 
-        assertThat(piplineScheduleQueue.toBeScheduled().size(), is(1));
-        assertThat(piplineScheduleQueue.toBeScheduled().get(pipelineName).getMaterialRevisions(), isSameMaterialRevisionsAs(u.mrs(u.mr(git1, false, "g11"), u.mr(git2, true, "g22"), u.mr(p1, true, p1_2))));
-        assertThat(logFixture.contains(Level.INFO, "Skipping scheduling of timer-triggered pipeline 'p1' as it has previously run with the latest material(s)."), is(false));
+            assertThat(piplineScheduleQueue.toBeScheduled().size(), is(1));
+            assertThat(piplineScheduleQueue.toBeScheduled().get(pipelineName).getMaterialRevisions(), isSameMaterialRevisionsAs(u.mrs(u.mr(git1, false, "g11"), u.mr(git2, true, "g22"), u.mr(p1, true, p1_2))));
+            assertThat(logFixture.contains(Level.INFO, "Skipping scheduling of timer-triggered pipeline 'p1' as it has previously run with the latest material(s)."), is(false));
+        }
     }
 
     private Matcher<? super MaterialRevisions> isSameMaterialRevisionsAs(final MaterialRevisions expectedRevisions) {

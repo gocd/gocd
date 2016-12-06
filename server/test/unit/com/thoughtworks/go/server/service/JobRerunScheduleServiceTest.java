@@ -44,6 +44,7 @@ import java.util.Date;
 import java.util.concurrent.Semaphore;
 
 import static com.thoughtworks.go.util.DataStructureUtils.a;
+import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -143,14 +144,15 @@ public class JobRerunScheduleServiceTest {
         );
 
         HttpOperationResult result = new HttpOperationResult();
-        LogFixture logFixture = LogFixture.startListening();
-        Stage stage = service.rerunJobs(firstStage, a("unit"), result);
-        assertThat(logFixture.contains(Level.ERROR, "Job rerun request for job(s) [unit] could not be completed because of unexpected failure. Cause: The whole world is a big null."), is(true));
-        logFixture.stopListening();
 
-        assertThat(stage, is(nullValue()));
-        assertThat(result.httpCode(), is(400));
-        assertThat(result.message(), is("Job rerun request for job(s) [unit] could not be completed because of unexpected failure. Cause: The whole world is a big null."));
+        try (LogFixture logFixture = logFixtureFor(ScheduleService.class, Level.DEBUG)) {
+            Stage stage = service.rerunJobs(firstStage, a("unit"), result);
+            assertThat(logFixture.contains(Level.ERROR, "Job rerun request for job(s) [unit] could not be completed because of unexpected failure. Cause: The whole world is a big null."), is(true));
+            assertThat(stage, is(nullValue()));
+            assertThat(result.httpCode(), is(400));
+            assertThat(result.message(), is("Job rerun request for job(s) [unit] could not be completed because of unexpected failure. Cause: The whole world is a big null."));
+        }
+
     }
 
     @Test
@@ -219,7 +221,7 @@ public class JobRerunScheduleServiceTest {
         final Semaphore sem = new Semaphore(1);
         sem.acquire();
 
-        final ThreadLocal<Integer> requestNumber = new ThreadLocal<Integer>();
+        final ThreadLocal<Integer> requestNumber = new ThreadLocal<>();
 
         final boolean[] firstRequestFinished = new boolean[]{false};
 

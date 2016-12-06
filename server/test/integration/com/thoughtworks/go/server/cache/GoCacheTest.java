@@ -33,6 +33,7 @@ import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.log4j.Level;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,6 +48,7 @@ import org.springframework.transaction.support.TransactionSynchronizationAdapter
 import java.io.IOException;
 import java.util.Arrays;
 
+import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
@@ -80,7 +82,6 @@ public class GoCacheTest {
     private DatabaseStrategy databaseStrategy;
 
     private static String largeObject;
-    private LogFixture logFixture;
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private int originalMaxElementsInMemory;
     private long originalTimeToLiveSeconds;
@@ -95,7 +96,6 @@ public class GoCacheTest {
         configHelper.onSetUp();
         dbHelper.onSetUp();
         goCache.clear();
-        logFixture = LogFixture.startListening();
     }
 
     @After
@@ -112,9 +112,11 @@ public class GoCacheTest {
         NullUser user = new NullUser();
         goCache.put("loser_user", user);
         assertThat((NullUser) goCache.get("loser_user"), is(user));
-        String allLogs = logFixture.allLogs();
-        assertThat(allLogs, not(containsString("added to cache without an id.")));
-        assertThat(allLogs, not(containsString("without an id served out of cache.")));
+        try (LogFixture logFixture = logFixtureFor(GoCache.class, Level.DEBUG)) {
+            String allLogs = logFixture.allLogs();
+            assertThat(allLogs, not(containsString("added to cache without an id.")));
+            assertThat(allLogs, not(containsString("without an id served out of cache.")));
+        }
     }
 
     @Test

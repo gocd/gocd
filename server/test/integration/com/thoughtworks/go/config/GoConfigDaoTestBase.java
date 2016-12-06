@@ -32,6 +32,7 @@ import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.Procedure;
 import com.thoughtworks.go.util.ReflectionUtil;
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Level;
 import org.junit.Test;
 
 import java.io.File;
@@ -39,6 +40,7 @@ import java.io.File;
 import static com.thoughtworks.go.config.PipelineConfigs.DEFAULT_GROUP;
 import static com.thoughtworks.go.helper.ConfigFileFixture.*;
 import static com.thoughtworks.go.util.DataStructureUtils.a;
+import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static com.thoughtworks.go.util.TestUtils.assertContains;
 import static com.thoughtworks.go.util.TestUtils.sizeIs;
 import static org.hamcrest.Matchers.*;
@@ -53,7 +55,6 @@ public abstract class GoConfigDaoTestBase {
     protected GoConfigFileHelper configHelper;
     protected GoConfigDao goConfigDao;
     protected CachedGoConfig cachedGoConfig;
-    protected LogFixture logger;
 
     @Test
     public void shouldCreateCruiseConfigFromBasicConfigFile() throws Exception {
@@ -68,7 +69,6 @@ public abstract class GoConfigDaoTestBase {
         final JobConfig cardList = stageConfig.jobConfigByInstanceName("cardlist", true);
         assertThat(cardList.name(), is(new CaseInsensitiveString("cardlist")));
         assertThat(stageConfig.jobConfigByInstanceName("bluemonkeybutt", true).name(), is(new CaseInsensitiveString("bluemonkeybutt")));
-
         assertThat(cardList.tasks(), sizeIs(1));
         assertThat(cardList.tasks().first(), instanceOf(NullTask.class));
     }
@@ -388,16 +388,17 @@ public abstract class GoConfigDaoTestBase {
         }
     }
 
-
     @Test
     public void shouldLogAnyErrorMessageIncludingTheValidationError() throws Exception {
-        try {
-            cachedGoConfig.save(INVALID_CONFIG_WITH_TYPE_FOR_ARTIFACT, false);
-            fail();
-        } catch (Exception e) {
-            assertThat(logger.getLog(),
-                    containsString(
-                            "'type' is not allowed to appear in element 'test'."));
+        try (LogFixture logger = logFixtureFor(GoFileConfigDataSource.class, Level.DEBUG)) {
+            try {
+                cachedGoConfig.save(INVALID_CONFIG_WITH_TYPE_FOR_ARTIFACT, false);
+                fail();
+            } catch (Exception e) {
+                assertThat(logger.getLog(),
+                        containsString(
+                                "'type' is not allowed to appear in element 'test'."));
+            }
         }
     }
 

@@ -55,6 +55,7 @@
 }
 
 .agent-button-group-dropdown {
+  @extend %boxshadow;
   display:    none;
   position:   absolute;
   right:      0;
@@ -62,7 +63,6 @@
   background: $go-white;
   padding:    20px;
   width:      300px;
-  @extend %boxshadow;
   transition: all 0.3s ease-in-out;
   .is-open & {
     display:    block;

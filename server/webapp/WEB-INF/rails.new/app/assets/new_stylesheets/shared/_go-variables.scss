@@ -27,7 +27,7 @@ $go-links: #0277bd;
 
 $global-border-radius: 3px;
 $page-body-background: #efefef;
-$general-panel-header-bg :$go-secondary;
+$general-panel-header-bg: $go-secondary;
 
 //table
 $table-header-bg: #b9f6ca;
@@ -129,4 +129,4 @@ $page-header: 10;
 $stage-history-head-bg: $go-secondary;
 $stage-history-pagination-bg: #dcdcdc;
 
-$max-breakpoint :1600px;
+$max-breakpoint: 1600px;

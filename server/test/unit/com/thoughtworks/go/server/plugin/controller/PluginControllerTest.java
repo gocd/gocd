@@ -19,32 +19,26 @@ package com.thoughtworks.go.server.plugin.controller;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.infra.PluginManager;
-import com.thoughtworks.go.server.web.ResponseCodeView;
 import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class PluginControllerTest {
@@ -62,14 +56,20 @@ public class PluginControllerTest {
 
     private PluginController pluginController;
     private ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor;
+    private ArgumentCaptor<Integer> responseCodeArgumentCaptor;
+    private ArgumentCaptor<String> contentTypeArgument;
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
 
         requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
+        responseCodeArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
+        contentTypeArgument = ArgumentCaptor.forClass(String.class);
 
         when(servletResponse.getWriter()).thenReturn(writer);
+        doNothing().when(servletResponse).setStatus(responseCodeArgumentCaptor.capture());
+        doNothing().when(servletResponse).setHeader(anyString(), contentTypeArgument.capture());
 
         pluginController = new PluginController(pluginManager);
     }
@@ -92,7 +92,7 @@ public class PluginControllerTest {
         when(servletRequest.getHeader("h3")).thenReturn(null);
         when(servletRequest.getHeaderNames()).thenReturn(getMockEnumeration(elements));
 
-        pluginController.handlePluginInteractRequest(PLUGIN_ID, REQUEST_NAME, servletRequest);
+        pluginController.handlePluginInteractRequest(PLUGIN_ID, REQUEST_NAME, servletRequest, servletResponse);
 
         Map<String, String> requestParameters = new HashMap<String, String>();
         requestParameters.put("k1", "v1");
@@ -117,10 +117,9 @@ public class PluginControllerTest {
         when(servletRequest.getParameterMap()).thenReturn(new HashMap<String, String[]>());
         when(servletRequest.getHeaderNames()).thenReturn(getMockEnumeration(new ArrayList<String>()));
 
-        ModelAndView modelAndView = pluginController.handlePluginInteractRequest(PLUGIN_ID, REQUEST_NAME, servletRequest);
-        modelAndView.getView().render(null, servletRequest, servletResponse);
+        pluginController.handlePluginInteractRequest(PLUGIN_ID, REQUEST_NAME, servletRequest, servletResponse);
 
-        assertThat(modelAndView.getView().getContentType(), is(PluginController.CONTENT_TYPE_HTML));
+        assertThat(contentTypeArgument.getValue(), is(PluginController.CONTENT_TYPE_HTML));
         verify(writer).write(responseBody);
         assertRequest(requestArgumentCaptor.getValue(), REQUEST_NAME, new HashMap<String, String>(), new HashMap<String, String>());
     }
@@ -138,10 +137,9 @@ public class PluginControllerTest {
         when(servletRequest.getParameterMap()).thenReturn(new HashMap<String, String[]>());
         when(servletRequest.getHeaderNames()).thenReturn(getMockEnumeration(new ArrayList<String>()));
 
-        ModelAndView modelAndView = pluginController.handlePluginInteractRequest(PLUGIN_ID, REQUEST_NAME, servletRequest);
-        modelAndView.getView().render(null, servletRequest, servletResponse);
+        pluginController.handlePluginInteractRequest(PLUGIN_ID, REQUEST_NAME, servletRequest, servletResponse);
 
-        assertThat(modelAndView.getView().getContentType(), is(contentType));
+        assertThat(contentTypeArgument.getValue(), is(contentType));
         verify(writer).write(responseBody);
     }
 
@@ -156,38 +154,35 @@ public class PluginControllerTest {
         when(servletRequest.getParameterMap()).thenReturn(new HashMap<String, String[]>());
         when(servletRequest.getHeaderNames()).thenReturn(getMockEnumeration(new ArrayList<String>()));
 
-        ModelAndView modelAndView = pluginController.handlePluginInteractRequest(PLUGIN_ID, REQUEST_NAME, servletRequest);
+        pluginController.handlePluginInteractRequest(PLUGIN_ID, REQUEST_NAME, servletRequest, servletResponse);
 
-
-        assertThat(modelAndView.getViewName(), is("redirect:" + redirectLocation));
+        verify(servletResponse, times(1)).sendRedirect(anyString());
     }
 
     @Test
-    public void shouldAllowInteractionOnlyForAuthPlugins() {
+    public void shouldAllowInteractionOnlyForAuthPlugins() throws IOException {
         when(pluginManager.isPluginOfType("authentication", "github.pr")).thenReturn(false);
 
-        ModelAndView modelAndView = pluginController.handlePluginInteractRequest(PLUGIN_ID, REQUEST_NAME, servletRequest);
-        ResponseCodeView view = (ResponseCodeView) modelAndView.getView();
+        pluginController.handlePluginInteractRequest(PLUGIN_ID, REQUEST_NAME, servletRequest, servletResponse);
 
-        assertThat(view.getStatusCode(), is(403));
+        assertThat(responseCodeArgumentCaptor.getValue(), is(403));
     }
 
     @Test
-    public void shouldDisallowRequestsWhichNeedAuthentication() {
+    public void shouldDisallowRequestsWhichNeedAuthentication() throws IOException {
         when(pluginManager.isPluginOfType(any(String.class), any(String.class))).thenReturn(true);
 
         List<String> restrictedRequests = Arrays.asList("go.plugin-settings.get-configuration",
-                                                        "go.plugin-settings.get-view",
-                                                        "go.plugin-settings.validate-configuration",
-                                                        "go.authentication.plugin-configuration",
-                                                        "go.authentication.authenticate-user",
-                                                        "go.authentication.search-user");
+                "go.plugin-settings.get-view",
+                "go.plugin-settings.validate-configuration",
+                "go.authentication.plugin-configuration",
+                "go.authentication.authenticate-user",
+                "go.authentication.search-user");
 
         for (String requestName : restrictedRequests) {
-            ModelAndView modelAndView = pluginController.handlePluginInteractRequest(PLUGIN_ID, requestName, servletRequest);
-            ResponseCodeView view = (ResponseCodeView) modelAndView.getView();
+            pluginController.handlePluginInteractRequest(PLUGIN_ID, requestName, servletRequest, servletResponse);
 
-            assertThat(view.getStatusCode(), is(403));
+            assertThat(responseCodeArgumentCaptor.getValue(), is(403));
         }
     }
 

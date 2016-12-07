@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.command.*;
+import org.apache.commons.lang.math.NumberUtils;
 
 import java.io.File;
 import java.util.*;
@@ -39,6 +40,8 @@ import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMem
 public class GitCommand extends SCMCommand {
     private static final Pattern GIT_SUBMODULE_STATUS_PATTERN = Pattern.compile("^.[0-9a-fA-F]{40} (.+?)( \\(.+\\))?$");
     private static final Pattern GIT_SUBMODULE_URL_PATTERN = Pattern.compile("^submodule\\.(.+)\\.url (.+)$");
+    private static final Pattern GIT_VERSION_PATTERN = Pattern.compile(".*\\s+(\\d(\\.\\d)+).*");
+
     private static final Pattern GIT_DIFF_TREE_PATTERN = Pattern.compile("^(.)\\s+(.+)$");
 
     private final File workingDir;
@@ -49,7 +52,7 @@ public class GitCommand extends SCMCommand {
     public GitCommand(String materialFingerprint, File workingDir, String branch, boolean isSubmodule, Map<String, String> environment) {
         super(materialFingerprint);
         this.workingDir = workingDir;
-        this.branch = StringUtil.isBlank(branch)? GitMaterialConfig.DEFAULT_BRANCH : branch ;
+        this.branch = StringUtil.isBlank(branch) ? GitMaterialConfig.DEFAULT_BRANCH : branch;
         this.isSubmodule = isSubmodule;
         this.environment = environment;
     }
@@ -69,14 +72,45 @@ public class GitCommand extends SCMCommand {
     // Clone repository from url with specified depth.
     // Special depth 2147483647 (Integer.MAX_VALUE) are treated as full clone
     public int clone(ProcessOutputStreamConsumer outputStreamConsumer, String url, Integer depth) {
+        CommandLine gitClone = getGitCloneCommand(outputStreamConsumer, url, depth);
+        return run(gitClone, outputStreamConsumer);
+    }
+
+    protected CommandLine getGitCloneCommand(ProcessOutputStreamConsumer outputStreamConsumer, String url, Integer depth) {
         CommandLine gitClone = cloneCommand();
 
-        if(depth < Integer.MAX_VALUE) {
+        if (depth < Integer.MAX_VALUE) {
             gitClone.withArg(String.format("--depth=%s", depth));
+            if (isSubModuleShallowCloneSupported()) {
+                outputStreamConsumer.stdOutput("[GIT] Recursively shallow cloning submodule repositories");
+                gitClone.withArg("--recursive").withArg("--recurse-submodules").withArg("--shallow-submodules");
+            }
         }
         gitClone.withArg(new UrlArgument(url)).withArg(workingDir.getAbsolutePath());
+        return gitClone;
+    }
 
-        return run(gitClone, outputStreamConsumer);
+    protected boolean isSubModuleShallowCloneSupported() {
+        String version = GitCommand.version(new HashMap<String, String>());
+        //--shallow-submodules flag is supported from git version 2.9.0
+        return isVersionEqualToOrHigherThan(version, 2.9f);
+    }
+
+    public static boolean isVersionEqualToOrHigherThan(String gitVersionOutput, float version) {
+        String gitVersion = parseGitVersion(gitVersionOutput);
+        Float aFloat = NumberUtils.createFloat(gitVersion.subSequence(0, 3).toString());
+        return aFloat >= version;
+    }
+
+    private static String parseGitVersion(String hgOut) {
+        String[] lines = hgOut.split("\n");
+        String firstLine = lines[0];
+        Matcher m = GIT_VERSION_PATTERN.matcher(firstLine);
+        if (m.matches()) {
+            return m.group(1);
+        } else {
+            throw bomb("can not parse hgout : " + hgOut);
+        }
     }
 
     private CommandLine cloneCommand() {
@@ -249,7 +283,7 @@ public class GitCommand extends SCMCommand {
     public static void checkConnection(UrlArgument repoUrl, String branch, Map<String, String> environment) {
         CommandLine commandLine = git(environment).withArgs("ls-remote").withArg(repoUrl).withArg("refs/heads/" + branch);
         ConsoleResult result = commandLine.runOrBomb(repoUrl.forDisplay());
-        if(!hasOnlyOneMatchingBranch(result)){
+        if (!hasOnlyOneMatchingBranch(result)) {
             throw new CommandLineException(String.format("The branch %s could not be found.", branch));
         }
     }

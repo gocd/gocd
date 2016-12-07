@@ -64,7 +64,6 @@ public class GitMaterial extends ScmMaterial {
 
     //TODO: use iBatis to set the type for us, and we can get rid of this field.
     public static final String TYPE = "GitMaterial";
-    private static final Pattern GIT_VERSION_PATTERN = Pattern.compile(".*\\s+(\\d(\\.\\d)+).*");
     private static final String ERR_GIT_NOT_FOUND = "Failed to find 'git' on your PATH. Please ensure 'git' is executable by the Go Server and on the Go Agents where this material will be used.";
     public static final String ERR_GIT_OLD_VERSION = "Please install Git-core 1.6 or above. ";
 
@@ -175,30 +174,13 @@ public class GitMaterial extends ScmMaterial {
     public ValidationBean handleException(Exception e, String gitVersionConsoleOut) {
         ValidationBean defaultResponse = ValidationBean.notValid(e.getMessage());
         try {
-            if (!isVersionOnedotSixOrHigher(gitVersionConsoleOut)) {
+            if (!GitCommand.isVersionEqualToOrHigherThan(gitVersionConsoleOut, 1.6f)) {
                 return ValidationBean.notValid(ERR_GIT_OLD_VERSION + gitVersionConsoleOut);
             } else {
                 return defaultResponse;
             }
         } catch (Exception ex) {
             return defaultResponse;
-        }
-    }
-
-    boolean isVersionOnedotSixOrHigher(String hgout) {
-        String hgVersion = parseGitVersion(hgout);
-        Float aFloat = NumberUtils.createFloat(hgVersion.subSequence(0, 3).toString());
-        return aFloat >= 1.6;
-    }
-
-    private String parseGitVersion(String hgOut) {
-        String[] lines = hgOut.split("\n");
-        String firstLine = lines[0];
-        Matcher m = GIT_VERSION_PATTERN.matcher(firstLine);
-        if (m.matches()) {
-            return m.group(1);
-        } else {
-            throw bomb("can not parse hgout : " + hgOut);
         }
     }
 

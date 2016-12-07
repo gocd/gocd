@@ -26,75 +26,91 @@
 #parse("shared/_header.vm")
 
 <style type="text/css">
-    .pipeline-history-group .wrapper .onHover .detail,
-    .pipeline-history-group .wrapper .onHover .rerun,
-    .pipeline-history-group .wrapper .onHover .disabled-rerun {
-        display: block;
-        zoom: 1;
-    }
+  .pipeline-history-group .wrapper .onHover .detail,
+  .pipeline-history-group .wrapper .onHover .rerun,
+  .pipeline-history-group .wrapper .onHover .disabled-rerun {
+    display: block;
+    zoom:    1;
+  }
 </style>
 <![endif]-->
 <textarea rows="0" cols="0" id='pipeline-history-list-template' style="display: none;">
-#parse('pipeline/_pipeline_history_list_jstemplate.vm')
+    #parse('pipeline/_pipeline_history_list_jstemplate.vm')
 </textarea>
 <div id="yui-main">
-
-    <!-- Pipeline Label Filter -->
-    <div class="label-filter-group">
+<div class="label-filter-group-container">
+  <div class="row">
+      <div class="label-filter-group">
         <button title="Clear" class="filter-clear-icon" style="display: block;" id="labelFilterClear"></button>
         <input type="text" id="labelFilterField" placeholder='Filter history...'>
-    </div>
+      </div>
+  </div>
+</div>
+
+
+
+    <!-- Pipeline Label Filter -->
+
 
     <div class="yui-b">
-        <!-- breadcrumbs -->
+      <!-- breadcrumbs -->
         #set($current_page="pipeline_history")
-        <!-- /breadcrumbs -->
+      <!-- /breadcrumbs -->
 
         #parse("shared/_page_intro_top.vm")
-        <p>This view shows you all build activity that has occured in your pipeline over time.
-            Click on a stage in the configuration panel to view activity only within that stage.
-            You can also manually approve stages from this screen to force the next stage to run.
-            <a class="more" target="_blank" title="Learn more from help documentation" href="http://www.go.cd/documentation/user/current/navigation/pipeline_activity_page.html">more...</a>
-        </p>
+      <p>This view shows you all build activity that has occured in your pipeline over time.
+        Click on a stage in the configuration panel to view activity only within that stage.
+        You can also manually approve stages from this screen to force the next stage to run.
+        <a class="more" target="_blank" title="Learn more from help documentation"
+           href="http://www.go.cd/documentation/user/current/navigation/pipeline_activity_page.html">more...</a>
+      </p>
         #parse("shared/_page_intro_bottom.vm")
-        <!-- pipeline start -->
+      <!-- pipeline start -->
 
-        <div id="pipeline-history">
-            Loading...
-            <img src="$req.getContextPath()/$concatenatedSpinnerIconFilePath" alt="loading..."/>
-        </div>
+      <div id="pipeline-history">
+        <div class="row">
+        Loading...
+        <img src="$req.getContextPath()/$concatenatedSpinnerIconFilePath" alt="loading..."/>
+      </div>
+      </div>
 
-        <p id="search-message"></p>
+      <p id="search-message"></p>
 
-        #set($previousPage = "pipelineHistoryPage.switchToPage('$pipelineName', paginator.currentPage - 1)")
-        #set($nextPage = "pipelineHistoryPage.switchToPage('$pipelineName', paginator.currentPage + 1)")
-        #set($page = "pipelineHistoryPage.switchToPage('$pipelineName', ${% page.pageNumber %})")
-        #parse("shared/_pagination_jstemplate.vm")
-        <!-- pipeline end -->
+
+      <!-- pipeline end -->
     </div>
-</div>
+  </div>
 </div>
 
+
+<div class="pagination">
+  <div class="row">
+    #set($previousPage = "pipelineHistoryPage.switchToPage('$pipelineName', paginator.currentPage - 1)")
+    #set($nextPage = "pipelineHistoryPage.switchToPage('$pipelineName', paginator.currentPage + 1)")
+    #set($page = "pipelineHistoryPage.switchToPage('$pipelineName', ${% page.pageNumber %})")
+    #parse("shared/_pagination_jstemplate.vm")
+  </div>
+</div>
 <!-- end bd -->
 #parse("shared/_flash_message.vm")
 
 <script type="text/javascript">
-    var pipelineHistoryPage = new PipelineHistoryPage();
-    var pipelineActions = new PipelineActions();
-    var stageActions = new StageActions();
-    var paginator = new Paginator();
+  var pipelineHistoryPage = new PipelineHistoryPage();
+  var pipelineActions = new PipelineActions();
+  var stageActions = new StageActions();
+  var paginator = new Paginator();
 
-    var dashboard_periodical_executer = new DashboardPeriodicalExecuter('pipelineHistory.json?pipelineName=$pipelineName');
-    var pipelineHistoryObserver = new PipelineHistoryObserver('history');
-    dashboard_periodical_executer.register(pipelineHistoryObserver);
+  var dashboard_periodical_executer = new DashboardPeriodicalExecuter('pipelineHistory.json?pipelineName=$pipelineName');
+  var pipelineHistoryObserver = new PipelineHistoryObserver('history');
+  dashboard_periodical_executer.register(pipelineHistoryObserver);
 
-    dashboard_periodical_executer.start();
+  dashboard_periodical_executer.start();
 
-    #if($pipeline_comment_feature_toggle_key)
-    var PipelineHistoryComment = initPipelineHistoryComment(jQuery, Modalbox, dashboard_periodical_executer);
-    #end
+      #if($pipeline_comment_feature_toggle_key)
+      var PipelineHistoryComment = initPipelineHistoryComment(jQuery, Modalbox, dashboard_periodical_executer);
+      #end
 
-    var pipelineName = "$pipelineName";
+  var pipelineName = "$pipelineName";
 </script>
 
 #parse("shared/_footer.vm")

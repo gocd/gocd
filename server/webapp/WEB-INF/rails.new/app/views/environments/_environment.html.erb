@@ -2,6 +2,7 @@
 <div class="pipeline_bundle environment">
     <div class="pipelines">
         <%= content_wrapper_tag %>
+      <div class="row">
         <h2 class="entity_title">
             <% if scope[:show_edit_environments] %>
                 <%= link_to scope[:environment].name(), environment_show_path(:name => scope[:environment].name())%>
@@ -24,6 +25,7 @@
                 <div class="divider"></div>
             <% end %>
         <% end %>
+      </div>
         <%= end_content_wrapper %>
     </div>
 </div>

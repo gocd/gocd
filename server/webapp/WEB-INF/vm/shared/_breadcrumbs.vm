@@ -15,9 +15,11 @@
  *************************GO-LICENSE-END***********************************#
 
 #if($_page_title)
-<div class="$_page_title $current_page">
-<h2 id="page-title" class="entity_title">
+<div class="$_page_title $current_page page-header">
+  <div class="row">
+    <h2 id="page-title" class="entity_title">
         $_page_title
-</h2>
+    </h2>
+  </div>
 </div>
 #end

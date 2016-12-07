@@ -1,6 +1,7 @@
 <%- @view_title = l.string("SHOW_ENVIRONMENT_PAGE_TITLE", [@environment.name()]) -%>
 <%- @show_environment_breadcrumb = true %>
 <%= content_wrapper_tag %>
+<div class="row">
 <div class="environment show_environment">
     <div>
         <div class="added_item added_pipelines">
@@ -51,6 +52,7 @@
         </div>
 
     </div>
+</div>
 </div>
 <%= end_content_wrapper %>
 <script type="text/javascript">

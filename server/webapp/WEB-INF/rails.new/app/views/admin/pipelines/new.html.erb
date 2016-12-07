@@ -2,6 +2,7 @@
 <% @page_header = "<h1 id=\"page-title\" class=\"entity_title\">#{l.string("ADD_PIPELINE")}</h1>" -%>
 
 <div class="content_wrapper_inner">
+  <div class="row">
     <%= render :partial => "admin/shared/global_errors.html", :locals => {:scope => {}} -%>
 
     <%= form_for @pipeline_group, :as => :pipeline_group, :url => pipeline_create_path, :html => {"novalidate"=> "novalidate", :method => :post, :name => "pipeline_edit_form", :id => "pipeline_edit_form"} do |f| %>
@@ -45,7 +46,7 @@
         </div>
     <% end %>
 </div>
-
+</div>
 <script type="text/javascript">
     Util.on_load(function() {
         jQuery.validator.defaults.onsubmit = false;

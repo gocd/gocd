@@ -8,57 +8,60 @@
 <body id="<%= page_name %>" class="<%= page_name %> admin_templates">
 <div class="page-wrap">
 <div id="body_bg">
-    <div id="header">
-        <%= render :partial => "shared/header" %>
-    </div>
+  <div id="header">
+    <%= render :partial => "shared/header" %>
+  </div>
 
     <div id='body_content'>
-        <div class="messaging_wrapper" id="messaging_wrapper">
-            <%= render :partial => "shared/flash_message" %>
-            <%= render :partial => "shared/config_save_actions", :locals => {:scope => {}} -%>
+      <div class="messaging_wrapper" id="messaging_wrapper">
+        <div class="row">
+        <%= render :partial => "shared/flash_message" %>
+        <%= render :partial => "shared/config_save_actions", :locals => {:scope => {}} -%>
         </div>
+      </div>
 
-        <%= render :partial => 'layouts/templates/breadcrumb_top' %>
+      <%= render :partial => 'layouts/templates/breadcrumb_top' %>
 
-        <%= content_wrapper_tag %>
+      <%= content_wrapper_tag %>
+      <div class="row">
         <div class="admin_wrapper">
-            <div class="admin_sidebar general">
-                <%= render :partial => "admin/shared/pipeline_tree.html", :locals=> {:scope=> {:pipeline => @pipeline}} %>
-            </div>
-            <div class="admin_workspace has_tree_view">
-                <div class="pipeline_header">
-                    <h3 class="title entity_title">
-                        <%= link_to @pipeline.name(), template_edit_path(:stage_parent => "templates", :current_tab => 'general'), :class => 'wrapped_word' %> &raquo; <%= @stage.name() -%>
-                    </h3>
-                </div>
-
-                <div class="sub_tabs_container <%= params[:current_tab] -%>">
-                    <ul>
-                        <li id="settings"><%= link_to l.string('STAGE_SETTINGS'), admin_stage_edit_path(:current_tab => "settings") %></li>
-                        <li id="jobs"><%= link_to "#{l.string('JOBS')}", admin_job_listing_path(:current_tab => "jobs") %></li>
-                        <li id="environment_variables"><%= link_to l.string("ENVIRONMENT_VARIABLES"), admin_stage_edit_path(:current_tab => "environment_variables") %></li>
-                        <li id="permissions"><%= link_to l.string("PERMISSIONS"), admin_stage_edit_path(:current_tab => "permissions") %></li>
-                    </ul>
-                </div>
-
-                <div id="form_parent">
-                    <%= render :partial => "admin/shared/global_errors.html", :locals => {:scope => {}} -%>
-                    <%= yield %>
-                </div>
+          <div class="admin_sidebar general">
+            <%= render :partial => "admin/shared/pipeline_tree.html", :locals => {:scope => {:pipeline => @pipeline}} %>
+          </div>
+          <div class="admin_workspace has_tree_view">
+            <div class="pipeline_header">
+              <h3 class="title entity_title">
+                <%= link_to @pipeline.name(), template_edit_path(:stage_parent => "templates", :current_tab => 'general'), :class => 'wrapped_word' %> &raquo; <%= @stage.name() -%>
+              </h3>
             </div>
 
-            <%= render :partial => "admin/shared/dirty_form", :locals => {:scope => {:form_id => 'stage_edit_form', :reset_id => "reset_form"}} %>
+            <div class="sub_tabs_container <%= params[:current_tab] -%>">
+              <ul>
+                <li id="settings"><%= link_to l.string('STAGE_SETTINGS'), admin_stage_edit_path(:current_tab => "settings") %></li>
+                <li id="jobs"><%= link_to "#{l.string('JOBS')}", admin_job_listing_path(:current_tab => "jobs") %></li>
+                <li id="environment_variables"><%= link_to l.string("ENVIRONMENT_VARIABLES"), admin_stage_edit_path(:current_tab => "environment_variables") %></li>
+                <li id="permissions"><%= link_to l.string("PERMISSIONS"), admin_stage_edit_path(:current_tab => "permissions") %></li>
+              </ul>
+            </div>
 
-            <%= end_content_wrapper %>
+            <div id="form_parent">
+              <%= render :partial => "admin/shared/global_errors.html", :locals => {:scope => {}} -%>
+              <%= yield %>
+            </div>
+          </div>
+
+          <%= render :partial => "admin/shared/dirty_form", :locals => {:scope => {:form_id => 'stage_edit_form', :reset_id => "reset_form"}} %>
         </div>
+        <%= end_content_wrapper %>
+      </div>
 
 
     </div>
-</div>
-</div>
-  <div id='footer-new-foundation'>
-    <%= render :partial => 'navigation_elements/footer' %>
   </div>
+</div>
+<div id='footer-new-foundation'>
+  <%= render :partial => 'navigation_elements/footer' %>
+</div>
 
 </body>
 </html>

@@ -272,6 +272,7 @@ define([
                                 model={material}
                                 validate={true}
                                 isRequired={true}
+                                label="Server and Port"
                                 onChange={m.withAttr('value', material.port)}/>
               <AutoUpdateField material={material}/>
             </f.row>

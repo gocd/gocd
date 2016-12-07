@@ -50,14 +50,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class PipelineRepository extends HibernateDaoSupport {
     private static final Logger LOGGER = Logger.getLogger(PipelineRepository.class);
-    private final SystemEnvironment systemEnvironment;
     private final QueryExtensions queryExtensions;
     private GoCache goCache;
 
     @Autowired
-    public PipelineRepository(SessionFactory sessionFactory, GoCache goCache, SystemEnvironment systemEnvironment, Database databaseStrategy) {
+    public PipelineRepository(SessionFactory sessionFactory, GoCache goCache, Database databaseStrategy) {
         this.goCache = goCache;
-        this.systemEnvironment = systemEnvironment;
         this.queryExtensions = databaseStrategy.getQueryExtensions();
         setSessionFactory(sessionFactory);
     }
@@ -71,8 +69,8 @@ public class PipelineRepository extends HibernateDaoSupport {
     }
 
     @SuppressWarnings({"unchecked"})
-    public List<PipelineTimelineEntry> updatePipelineTimeline(final PipelineTimeline pipelineTimeline) {
-        return (List<PipelineTimelineEntry>) getHibernateTemplate().execute(new HibernateCallback() {
+    public void updatePipelineTimeline(final PipelineTimeline pipelineTimeline, final List<PipelineTimelineEntry> tempEntriesForRollback) {
+        getHibernateTemplate().execute(new HibernateCallback() {
             private static final int PIPELINE_NAME = 0;
             private static final int ID = 1;
             private static final int COUNTER = 2;
@@ -88,9 +86,11 @@ public class PipelineRepository extends HibernateDaoSupport {
                 LOGGER.info("Start updating pipeline timeline");
                 List<Object[]> matches = retrieveTimeline(session, pipelineTimeline);
                 List<PipelineTimelineEntry> newPipelines = populateFrom(matches);
+                addEntriesToPipelineTimeline(newPipelines, pipelineTimeline, tempEntriesForRollback);
+
                 updateNaturalOrdering(session, newPipelines);
                 LOGGER.info("Pipeline timeline updated");
-                return newPipelines;
+                return null;
             }
 
             private void updateNaturalOrdering(Session session, List<PipelineTimelineEntry> pipelines) {
@@ -173,7 +173,6 @@ public class PipelineRepository extends HibernateDaoSupport {
                             nextI == matches.size())) {//this is the last record, so capture it
                         entry = new PipelineTimelineEntry(name, curId, counter, revisions, naturalOrder);
                         newPipelines.add(entry);
-                        pipelineTimeline.add(entry);
                     }
                 }
                 return newPipelines;
@@ -223,6 +222,13 @@ public class PipelineRepository extends HibernateDaoSupport {
                 return ((BigInteger) first[ID]).longValue();
             }
         });
+    }
+
+    private void addEntriesToPipelineTimeline(List<PipelineTimelineEntry> newEntries, PipelineTimeline pipelineTimeline, List<PipelineTimelineEntry> tempEntriesForRollback) {
+        for (PipelineTimelineEntry newEntry : newEntries) {
+            tempEntriesForRollback.add(newEntry);
+            pipelineTimeline.add(newEntry);
+        }
     }
 
     public long saveSelectedPipelines(PipelineSelections pipelineSelections) {

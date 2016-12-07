@@ -107,18 +107,18 @@ public class PipelineTimeline {
             final long maximumIdBeforeUpdate = maximumId;
             transactionTemplate.execute(new TransactionCallback() {
                 public Object doInTransaction(TransactionStatus transactionStatus) {
-                    final List<PipelineTimelineEntry>[] tempEntries = new List[1];
+                    final List<PipelineTimelineEntry> newlyAddedEntries = new ArrayList<>();
                     transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
                         @Override public void afterCompletion(int status) {
                             if (STATUS_ROLLED_BACK == status) {
                                 rollbackTempEntries();
                             } else if (STATUS_COMMITTED == status) {
-                                notifyListeners(tempEntries[0]);
+                                notifyListeners(newlyAddedEntries);
                             }
                         }
 
                         private void rollbackTempEntries() {
-                            for (PipelineTimelineEntry entry : tempEntries[0]) {
+                            for (PipelineTimelineEntry entry : newlyAddedEntries) {
                                 rollbackNewEntryFor(entry);
                             }
                             maximumId = maximumIdBeforeUpdate;
@@ -132,7 +132,7 @@ public class PipelineTimeline {
 
 
                     });
-                    tempEntries[0] = pipelineRepository.updatePipelineTimeline(PipelineTimeline.this);
+                    pipelineRepository.updatePipelineTimeline(PipelineTimeline.this, newlyAddedEntries);
                     return null;
                 }
             });
@@ -183,7 +183,7 @@ public class PipelineTimeline {
     public void updateTimelineOnInit() {
         acquireAllWriteLocks();
         try {
-            pipelineRepository.updatePipelineTimeline(this);
+            pipelineRepository.updatePipelineTimeline(this, new ArrayList<PipelineTimelineEntry>());
         } finally {
             releaseAllWriteLocks();
         }

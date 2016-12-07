@@ -14,12 +14,35 @@
  * limitations under the License.
  */
 @import "go-variables";
+//@extend %page-title
+%page-title {
+  color:       #333 !important;
+  margin-top:  4px;
+  font-size:   18px !important;
+  font-weight: 600 !important;
+}
+
+%page-title-new-pages {
+  color:       #333 !important;
+  margin-top:  1px;
+  font-size:   18px !important;
+  font-weight: 600 !important;
+}
+
+%boxshadow {
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
+}
+
+.button{
+  border:0;
+  font-weight:600;
+}
 
 .container {
   overflow:   hidden;
   background: #fff;
   padding:    0;
-  margin:     0 10px;
+  margin:     0 15px;
 }
 
 @media only screen and (min-width: 1600px) {
@@ -63,7 +86,7 @@ html, body {
   &:before {
     content: "";
     display: block;
-    height:  40px;
+    height:  41px;
   }
 }
 
@@ -93,11 +116,12 @@ html, body {
   background-size: cover;
   padding:         10px 0;
   position:        relative;
+  height:          50px;
+  box-sizing:      border-box;
   h1 {
-    font-size:   rem-calc(18px);
-    margin:      0;
-    display:     inline-block;
-    font-weight: 500;
+    @extend %page-title-new-pages;
+    display:       inline-block;
+    margin-bottom: 0;
   }
 }
 
@@ -132,6 +156,7 @@ html, body {
       border-radius:    0;
       padding:          0 10px;
       line-height:      30px;
+      text-transform:   uppercase;
       &:hover,
       &:focus {
         background-color: $agents-btn-hover;

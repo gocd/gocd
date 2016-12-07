@@ -1,36 +1,37 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.util;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
 
 /**
  * Loads the classes from the given jars.
@@ -41,6 +42,17 @@ public class NestedJarClassLoader extends ClassLoader {
     private final ClassLoader jarClassLoader;
     private final ClassLoader parentClassLoader;
     private final String[] excludes;
+    private final File jarDir;
+    private static final File TEMP_DIR = new File("data/njcl");
+
+    static {
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                FileUtils.deleteQuietly(TEMP_DIR);
+            }
+        });
+    }
 
     public NestedJarClassLoader(URL jarURL, String... excludes) {
         this(jarURL, NestedJarClassLoader.class.getClassLoader(), excludes);
@@ -48,9 +60,16 @@ public class NestedJarClassLoader extends ClassLoader {
 
     NestedJarClassLoader(URL jarURL, ClassLoader parentClassLoader, String... excludes) {
         super(null);
+        this.jarDir = new File(TEMP_DIR, UUID.randomUUID().toString());
         this.parentClassLoader = parentClassLoader;
         this.jarClassLoader = createLoaderForJar(jarURL);
         this.excludes = excludes;
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                FileUtils.deleteQuietly(jarDir);
+            }
+        });
     }
 
     private ClassLoader createLoaderForJar(URL jarURL) {
@@ -75,7 +94,7 @@ public class NestedJarClassLoader extends ClassLoader {
             JarEntry entry;
             while ((entry = jarStream.getNextJarEntry()) != null) {
                 if (!entry.isDirectory() && entry.getName().endsWith(".jar")) {
-                    urls.add(expandJarAndReturnURL(urlOfJar, entry));
+                    urls.add(expandJarAndReturnURL(jarStream, entry));
                 }
             }
         } catch (IOException e) {
@@ -84,40 +103,40 @@ public class NestedJarClassLoader extends ClassLoader {
         return urls.toArray(new URL[0]);
     }
 
-    private URL expandJarAndReturnURL(URL urlOfJar, JarEntry entry) throws IOException {
-        File nestedJarFile = File.createTempFile(new File(entry.getName()).getName(), ".jar");
-        nestedJarFile.deleteOnExit();
-        FileOutputStream out = new FileOutputStream(nestedJarFile);
-        InputStream in = new URL("jar:file:" + urlOfJar.getFile() + "!/" + entry).openStream();
-        IOUtils.copy(in, out);
-        out.close();
-        in.close();
-        LOGGER.info(String.format("Exploded Entry %s from to %s", entry.getName(), nestedJarFile.toURI().toURL()));
+    private URL expandJarAndReturnURL(JarInputStream jarStream, JarEntry entry) throws IOException {
+        File nestedJarFile = new File(jarDir, entry.getName());
+        nestedJarFile.getParentFile().mkdirs();
+        try (FileOutputStream out = new FileOutputStream(nestedJarFile)) {
+            IOUtils.copy(jarStream, out);
+        }
+        LOGGER.info(String.format("Exploded Entry %s from to %s", entry.getName(), nestedJarFile));
         return nestedJarFile.toURI().toURL();
     }
 
 
-    @Override public Class<?> loadClass(String name) throws ClassNotFoundException {
+    @Override
+    public Class<?> loadClass(String name) throws ClassNotFoundException {
         if (existsInTfsJar(name)) {
             return jarClassLoader.loadClass(name);
         }
         return parentClassLoader.loadClass(name);
     }
 
-    @Override protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+    @Override
+    protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
         if (existsInTfsJar(name)) {
             throw new ClassNotFoundException(name);
         }
         return invokeParentClassloader(name, resolve);
     }
 
-    private Class<?> invokeParentClassloader(String name, Boolean resolve) throws ClassNotFoundException {
+    private Class<?> invokeParentClassloader(String name, boolean resolve) throws ClassNotFoundException {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(String.format("Invoking parent classloader for %s with resolve %s", name, resolve));
         }
         try {
             Method loadClass = findNonPublicMethod("loadClass", parentClassLoader.getClass(), String.class, boolean.class);
-            return (Class<?>) loadClass.invoke(parentClassLoader, name, (Boolean) resolve);
+            return (Class<?>) loadClass.invoke(parentClassLoader, name, resolve);
         } catch (InvocationTargetException e) {
             handleClassNotFound(e);
             throw new RuntimeException("Failed to invoke parent classloader", e);
@@ -157,7 +176,8 @@ public class NestedJarClassLoader extends ClassLoader {
         return url != null;
     }
 
-    @Override public URL getResource(String name) {
+    @Override
+    public URL getResource(String name) {
         if (isExcluded(name)) {
             return parentClassLoader.getResource(name);
         }

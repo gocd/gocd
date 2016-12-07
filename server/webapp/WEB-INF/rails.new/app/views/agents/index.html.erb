@@ -1,5 +1,6 @@
 <%- @view_title = "Agents" -%>
 <div class="page_header" style='overflow:inherit;'>
+  <div class="row">
   <h1 class="entity_title">Agents</h1>
 
   <%= link_to "Check out the new agents page", agents_path, :class => 'agents-toggle-new-view' %>
@@ -59,8 +60,11 @@
         <%= end_form_tag %>
       </div>
   <% end %>
+
+</div>
 </div>
 <%= content_wrapper_tag %>
+<div class="row">
 <% if has_operate_permission_for_agents? %>
     <div id="agents_form_container">
       <div id="ajax_agents_header" class="clear_float">
@@ -85,7 +89,9 @@
 <div id="ajax_agents_table" class='agents_table'>
   <%= render :partial => "agents_table", :locals => {:scope => {}} %>
 </div>
+</div>
 <%= end_content_wrapper %>
+
 <script type="text/javascript">
 
   Util.on_load(function () {

@@ -16,18 +16,22 @@
 
 #if($_page_title)
 <div class="job_details entity_title page_header">
-  <ul class="entity_title">
-    <li class="name"><a href="$req.getContextPath()/tab/pipeline/history/$presenter.pipelineName"
-                        title="View this pipeline's activity">$presenter.pipelineName</a></li>
-    <li class="pipeline_label"><a
-      href="$req.getContextPath()/pipelines/value_stream_map/$presenter.pipelineName/$presenter.pipelineCounter"
-      title="View this stage's jobs summary">$presenter.pipelineLabel</a></li>
-    <li class="stage_name"><a href="$req.getContextPath()/pipelines/$presenter.stageLocator"
-                              title="View this stage's details">$presenter.stageName / $presenter.stageCounter</a></li>
-    <li class='last'><h1>$presenter.buildName</h1></li>
-  </ul>
-  #if($presenter.jobEditLink)
-  <div class="job_detail_setting"><a href="$req.getContextPath()/$presenter.jobEditLink" class="icon16 setting"></a></div>
-  #end
+  <div class="row">
+    <ul class="entity_title">
+      <li class="name"><a href="$req.getContextPath()/tab/pipeline/history/$presenter.pipelineName"
+                          title="View this pipeline's activity">$presenter.pipelineName</a></li>
+      <li class="pipeline_label"><a
+        href="$req.getContextPath()/pipelines/value_stream_map/$presenter.pipelineName/$presenter.pipelineCounter"
+        title="View this stage's jobs summary">$presenter.pipelineLabel</a></li>
+      <li class="stage_name"><a href="$req.getContextPath()/pipelines/$presenter.stageLocator"
+                                title="View this stage's details">$presenter.stageName / $presenter.stageCounter</a>
+      </li>
+      <li class='last'><h1>$presenter.buildName</h1></li>
+    </ul>
+      #if($presenter.jobEditLink)
+        <div class="job_detail_setting"><a href="$req.getContextPath()/$presenter.jobEditLink"
+                                           class="icon16 setting"></a></div>
+      #end
+  </div>
 </div>
 #end

@@ -12,7 +12,7 @@
 
     <div class="form_item_block">
         <div>
-            <%= label_tag scope[:arguments_id] = random_dom_id('arguments_'), l.string('ARGUMENTS'), :class => "inline" -%>
+            <%= label_tag scope[:arguments_id] = random_dom_id('arguments_'), l.string('ARGUMENTS') -%>
         </div>
         <% if !scope[:task].getArgs().empty? %>
             <%= scope[:form].text_field com.thoughtworks.go.config.ExecTask::ARGS, {:class => "form_input", :id => scope[:arguments_id]} -%>

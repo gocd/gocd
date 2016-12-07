@@ -16,166 +16,178 @@
 
 ## layout level variable
 #set ($title = "$presenter.buildName Job Details - Go")
-#set($extra_css_list = ['build_common', 'build_detail_summary','build_detail', 'sub_tab', 'toolkit', 'transparent_message'])
+#set($extra_css_list = ['build_common', 'build_detail_summary','build_detail', 'sub_tab', 'toolkit',
+    'transparent_message'])
 #set($current_tab='build')
 ## page level variable
 #set($_page_title="Job Details for ${presenter.buildLocatorForDisplay}")
 #parse("shared/_header.vm")
 
 #parse("build_detail/_build_detail_summary_jstemplate.vm")
-    <div id="yui-main">
-        <div class="yui-b">
-            <!-- breadcrumbs -->
-            #set($current_page="build_detail")
-            #set($pipelineName=$presenter.pipelineName)
-            #set($stageLocator=$presenter.stageLocator)
+<div id="yui-main">
+  <div class="yui-b">
+    <!-- breadcrumbs -->
+      #set($current_page="build_detail")
+      #set($pipelineName=$presenter.pipelineName)
+      #set($stageLocator=$presenter.stageLocator)
 
-            #parse("shared/_job_details_breadcrumbs.vm")
-            <!-- /breadcrumbs -->
+      #parse("shared/_job_details_breadcrumbs.vm")
+    <!-- /breadcrumbs -->
 
-            #parse("shared/_page_intro_top.vm")
-            <p>This view shows the highest level of detail available in Go for a specific job run.
-                It shows the console output of the job, failure information if relevant, modifications, artifacts, properties, and any custom tabs
-                you've configured from your artifacts.
-                <a href="http://www.go.cd/documentation/user/current/navigations/job_details_page.html" target="_blank" title="Learn more from help documentation" class="more">more...</a>
-            </p>
-            #parse("shared/_page_intro_bottom.vm")
+      #parse("shared/_page_intro_top.vm")
+    <p>This view shows the highest level of detail available in Go for a specific job run.
+      It shows the console output of the job, failure information if relevant, modifications, artifacts, properties, and
+      any custom tabs
+      you've configured from your artifacts.
+      <a href="http://www.go.cd/documentation/user/current/navigations/job_details_page.html" target="_blank"
+         title="Learn more from help documentation" class="more">more...</a>
+    </p>
+      #parse("shared/_page_intro_bottom.vm")
 
-            <div class="content_wrapper_outer"><div class="content_wrapper_inner">
-                <div id="build-status-panel" class="bd-container rounded-corner-for-pipeline">
+    <div class="content_wrapper_outer">
+      <div class="row">
+        <div class="content_wrapper_inner">
+          <div id="build-status-panel" class="bd-container rounded-corner-for-pipeline">
 
-                    <div class="maincol build_detail">
-                        #parse("shared/_flash_message.vm")
-                        #set($jobConfigName = $presenter.buildName)
-                        <div id="build_detail_summary_container" class="build_detail_summary">
-                            <h3>$presenter.buildLocatorForDisplay job <span id="build_name_status">Status loading...</span></h3>
-                            <ul id="build-detail-summary" class="summary">
-                                <li><span class="header">Scheduled on: </span><span id="build_scheduled_date">Loading...</span></li>
-                                <li><span class="header">Completed on: </span><span id="build_completed_date">Loading...</span><a href="#tab-properties" class ="more" onclick="new TabsManager('properties')">more...</a></li>
-                                <li class="timer_area">
-                                    <div class="progress-info">
-                                        <div id="${presenter.buildName}_progress_bar" class="progress-bar" style="display: none;">
-                                            <div id="${presenter.buildName}_progress" class="progress"></div>
-                                        </div>
-                                        <div class="progress-eta">
-                                            <span class="header" id="${presenter.buildName}_time_remaining_label"></span>
-                                            <span id="${presenter.buildName}_time_remaining">&nbsp;</span>
-                                        </div>
-                                    </div>
-                                </li>
-                                <li><span class="header">Agent: </span><span id="agent_name">Loading...</span></li>
-                                <li><span class="header">Build cause: </span><span id="stage-${presenter.id}-buildCause">$esc.html($presenter.buildCauseMessage)</span></li>
-                            </ul>
-                            <div class="clear"></div>
-                        </div>
-
-
-
-                        <div class="sidebar_history">
-                            #parse("sidebar/_sidebar_build_list.vm")
-                        </div>
-                        <div class="job_details_content">
-                            <div class="sub_tabs_container">
-                                <ul>
-                                    <li class="current_tab" id="build_console">
-                                        <a class="tab_button_body_match_text">console</a>
-                                        <a>Console</a>
-                                    </li>
-                                    <li>
-                                        <a class="tab_button_body_match_text">tests</a>
-                                        <a>Tests</a>
-                                    </li>
-                                    <li id="failures_console">
-                                        <a class="tab_button_body_match_text">failures</a>
-                                        <a>Failures</a>
-                                    </li>
-                                    <li>
-                                        <a class="tab_button_body_match_text">artifacts</a>
-                                        <a>Artifacts</a>
-                                    </li>
-                                    <li>
-                                        <a class="tab_button_body_match_text">materials</a>
-                                        <a>Materials</a>
-                                    </li>
-                                    <li>
-                                        <a class="tab_button_body_match_text">properties</a>
-                                        <a>Properties</a>
-                                    </li>
-                                    #foreach( $tab in $presenter.customizedTabs )
-                                        <li>
-                                            <a class="tab_button_body_match_text">$tab.name.toLowerCase()</a>
-                                            <a>$tab.name</a>
-                                        </li>
-                                    #end
-                                </ul>
-                                <a href="#" id="link-to-this-page" title="The permanent link of this tab, you can share this url with other team members.">Link to this tab</a>
-                                <div class="clear"></div>
-                            </div>
-                            <div class="build_detail_container sub_tab_container rounded-corner-for-tab-container">
-
-
-                                <div class="sub_tab_container_content">
-                                    <div class="clear"></div>
-
-                                    #set($buildoutput_extra_attrs="")
-                                    #parse("build_detail/_buildoutput.vm")
-
-                                    #set($tests_extra_attrs="style='display:none'")
-                                    #parse("build_detail/_tests.vm")
-
-                                    #set($errors_extra_attrs="style='display:none'")
-                                    #parse("build_detail/_failures.vm")
-
-                                    #set($artifacts_extra_attrs="style='display:none'")
-                                    #parse("build_detail/_artifacts.vm")
-
-                                    #set($modification_extra_attrs="style='display:none'")
-                                    #parse("build_detail/_materials.vm")
-
-                                    #set($properties_extra_attrs="style='display:none'")
-                                    #parse("build_detail/_properties.vm")
-
-                                    #foreach( $tab in $presenter.customizedTabs )
-                                        #set($customized_name=$tab.name)
-                                        #set($customized_path=$tab.path)
-                                        #parse("build_detail/_customized.vm")
-                                    #end
-                                </div>
-                            </div>
-                        </div>
+            <div class="maincol build_detail">
+                #parse("shared/_flash_message.vm")
+                #set($jobConfigName = $presenter.buildName)
+              <div id="build_detail_summary_container" class="build_detail_summary">
+                <h3>$presenter.buildLocatorForDisplay job <span id="build_name_status">Status loading...</span></h3>
+                <ul id="build-detail-summary" class="summary">
+                  <li><span class="header">Scheduled on: </span><span id="build_scheduled_date">Loading...</span></li>
+                  <li><span class="header">Completed on: </span><span id="build_completed_date">Loading...</span><a
+                    href="#tab-properties" class="more" onclick="new TabsManager('properties')">more...</a></li>
+                  <li class="timer_area">
+                    <div class="progress-info">
+                      <div id="${presenter.buildName}_progress_bar" class="progress-bar" style="display: none;">
+                        <div id="${presenter.buildName}_progress" class="progress"></div>
+                      </div>
+                      <div class="progress-eta">
+                        <span class="header" id="${presenter.buildName}_time_remaining_label"></span>
+                        <span id="${presenter.buildName}_time_remaining">&nbsp;</span>
+                      </div>
                     </div>
+                  </li>
+                  <li><span class="header">Agent: </span><span id="agent_name">Loading...</span></li>
+                  <li><span class="header">Build cause: </span><span
+                    id="stage-${presenter.id}-buildCause">$esc.html($presenter.buildCauseMessage)</span></li>
+                </ul>
+                <div class="clear"></div>
+              </div>
+
+
+              <div class="sidebar_history">
+                  #parse("sidebar/_sidebar_build_list.vm")
+              </div>
+              <div class="job_details_content">
+                <div class="sub_tabs_container">
+                  <ul>
+                    <li class="current_tab" id="build_console">
+                      <a class="tab_button_body_match_text">console</a>
+                      <a>Console</a>
+                    </li>
+                    <li>
+                      <a class="tab_button_body_match_text">tests</a>
+                      <a>Tests</a>
+                    </li>
+                    <li id="failures_console">
+                      <a class="tab_button_body_match_text">failures</a>
+                      <a>Failures</a>
+                    </li>
+                    <li>
+                      <a class="tab_button_body_match_text">artifacts</a>
+                      <a>Artifacts</a>
+                    </li>
+                    <li>
+                      <a class="tab_button_body_match_text">materials</a>
+                      <a>Materials</a>
+                    </li>
+                    <li>
+                      <a class="tab_button_body_match_text">properties</a>
+                      <a>Properties</a>
+                    </li>
+                      #foreach( $tab in $presenter.customizedTabs )
+                        <li>
+                          <a class="tab_button_body_match_text">$tab.name.toLowerCase()</a>
+                          <a>$tab.name</a>
+                        </li>
+                      #end
+                  </ul>
+                  <a href="#" id="link-to-this-page"
+                     title="The permanent link of this tab, you can share this url with other team members.">Link to
+                    this
+                    tab</a>
+
+                  <div class="clear"></div>
                 </div>
-            </div></div>
+                <div class="build_detail_container sub_tab_container rounded-corner-for-tab-container">
+
+
+                  <div class="sub_tab_container_content">
+                    <div class="clear"></div>
+
+                      #set($buildoutput_extra_attrs="")
+                      #parse("build_detail/_buildoutput.vm")
+
+                      #set($tests_extra_attrs="style='display:none'")
+                      #parse("build_detail/_tests.vm")
+
+                      #set($errors_extra_attrs="style='display:none'")
+                      #parse("build_detail/_failures.vm")
+
+                      #set($artifacts_extra_attrs="style='display:none'")
+                      #parse("build_detail/_artifacts.vm")
+
+                      #set($modification_extra_attrs="style='display:none'")
+                      #parse("build_detail/_materials.vm")
+
+                      #set($properties_extra_attrs="style='display:none'")
+                      #parse("build_detail/_properties.vm")
+
+                      #foreach( $tab in $presenter.customizedTabs )
+                          #set($customized_name=$tab.name)
+                          #set($customized_path=$tab.path)
+                          #parse("build_detail/_customized.vm")
+                      #end
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
-    <!-- project summary -->
+  </div>
+</div>
+<!-- project summary -->
 ##    <div id="sidebar" class="yui-b">
 ##        #parse("sidebar/_sidebar_build_list.vm")
 ##    </div>
-    <!-- end project summary -->
- </div>
+<!-- end project summary -->
+</div>
 <script type="text/javascript">
-    var cruise_stage_or_build_detail_page_status = '$presenter.result';
-    var subtab_callback_map = {
-        'console' : new SubTabs($$('.sub_tabs_container')[0].down('ul').select('#build_console')[0]),
-        'failures' : new SubTabs($$('.sub_tabs_container')[0].down('ul').select('#failures_console')[0])
-    };
-    var tabsManager = new TabsManager(undefined, 'build', '${presenter.pipelineName}-${presenter.stageName}-${presenter.buildName}', 'console', subtab_callback_map);
+  var cruise_stage_or_build_detail_page_status = '$presenter.result';
+  var subtab_callback_map = {
+    'console':  new SubTabs($$('.sub_tabs_container')[0].down('ul').select('#build_console')[0]),
+    'failures': new SubTabs($$('.sub_tabs_container')[0].down('ul').select('#failures_console')[0])
+  };
+  var tabsManager = new TabsManager(undefined, 'build', '${presenter.pipelineName}-${presenter.stageName}-${presenter.buildName}', 'console', subtab_callback_map);
 
-    var dashboard_periodical_executer = new DashboardPeriodicalExecuter('jobStatus.json?pipelineName=${presenter.pipelineName}&stageName=${presenter.stageName}&jobId=${presenter.id}', function(jobstatus_json_array){
-        return jobstatus_json_array[0].building_info.is_completed.toString()  == "true"
+  var dashboard_periodical_executer = new DashboardPeriodicalExecuter('jobStatus.json?pipelineName=${presenter.pipelineName}&stageName=${presenter.stageName}&jobId=${presenter.id}', function (jobstatus_json_array) {
+    return jobstatus_json_array[0].building_info.is_completed.toString() == "true"
+  });
+  var observer = new BuildOutputObserver('${presenter.consoleoutLocator}', '${presenter.buildName}');
+  dashboard_periodical_executer.register(observer, new TimerObserver("$esc.javascript(${presenter.buildName})"));
+  dashboard_periodical_executer.start();
+
+  observer.update_live_output();
+
+  jQuery(function () {
+    jQuery(document).on('click.changeTheme', '.change-theme', function (evt) {
+      jQuery('.sub_tab_container_content').toggleClass('white-theme')
     });
-    var observer = new BuildOutputObserver('${presenter.consoleoutLocator}', '${presenter.buildName}');
-    dashboard_periodical_executer.register(observer, new TimerObserver("$esc.javascript(${presenter.buildName})"));
-    dashboard_periodical_executer.start();
-
-    observer.update_live_output();
-
-    jQuery(function(){
-        jQuery(document).on('click.changeTheme', '.change-theme', function(evt){
-            jQuery('.sub_tab_container_content').toggleClass('white-theme')
-        });
-    });
+  });
 
 </script>
- #parse("shared/_footer.vm")
+#parse("shared/_footer.vm")

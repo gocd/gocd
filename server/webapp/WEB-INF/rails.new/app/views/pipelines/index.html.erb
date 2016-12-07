@@ -2,57 +2,59 @@
 <% @page_header = '<h1 class="entity_title">Pipelines</h1>'
    @show_pipeline_selector = true -%>
 
+<div class="row">
+  <div class="dashboard_microcontent_popup dashboard_build_cause_like_microcontent_popups">
+    <div class="hidden changes enhanced_dropdown" id="dashboard_build_cause_content">&nbsp;</div>
+  </div>
 
-    <div class="dashboard_microcontent_popup dashboard_build_cause_like_microcontent_popups">
-        <div class="hidden changes enhanced_dropdown" id="dashboard_build_cause_content">&nbsp;</div>
-    </div>
 
-
-<div id="pipeline_groups_container">
+  <div id="pipeline_groups_container">
     <% @pipeline_groups.each do |pipeline_group| -%>
         <% unless pipeline_group.getPipelineModels().isEmpty() -%>
             <div id="<%= pipelines_dom_id(pipeline_group.getName()) %>">
-                <%= render :partial => 'pipeline_group.html', :locals => {:scope => {:pipeline_group => pipeline_group}} -%>
+              <%= render :partial => 'pipeline_group.html', :locals => {:scope => {:pipeline_group => pipeline_group}} -%>
             </div>
         <% end -%>
     <% end -%>
+  </div>
+
 </div>
-
-
 <script type="text/javascript">
-    Util.on_load(function() {
+  Util.on_load(function () {
     <% if auto_refresh? %>
-        var dashboard_ajax_refresher = new DashboardAjaxRefresher('<%= pipeline_dashboard_path(:action => 'index', :format=>"json") %>', {redirectUrl: '<%= url_for_login %>', className: '.pipeline_group', refreshCompleted: function(isPartialRefresh) {
-            if (!isPartialRefresh) {
-                Util.enable('show_pipelines_selector');
-            }
-            jQuery('span.time').each(function() {
-                Util.convert_to_timeago(this);
-            });
+    var dashboard_ajax_refresher = new DashboardAjaxRefresher('<%= pipeline_dashboard_path(:action => 'index', :format=>"json") %>', {
+      redirectUrl: '<%= url_for_login %>', className: '.pipeline_group', refreshCompleted: function (isPartialRefresh) {
+        if (!isPartialRefresh) {
+          Util.enable('show_pipelines_selector');
+        }
+        jQuery('span.time').each(function () {
+          Util.convert_to_timeago(this);
+        });
 
-            jQuery(document).trigger("dashboard-refresh-completed", isPartialRefresh);
-        }});
-        AjaxRefreshers.addRefresher(dashboard_ajax_refresher, true);
+        jQuery(document).trigger("dashboard-refresh-completed", isPartialRefresh);
+      }
+    });
+    AjaxRefreshers.addRefresher(dashboard_ajax_refresher, true);
 
     <% else %>
-        jQuery('span.time').each(function() {
-            Util.convert_to_timeago_on_timer(this)();
-        });
-    <% end %>
-        jQuery('span.time').each(function() {
-            Util.convert_to_timeago(this);
-        });
-        ElementAligner.hookupAlignEvents();
-        var content_box = jQuery('#dashboard_build_cause_content');
-        var popup = new MicroContentPopup('dashboard_build_cause_content', new ContextualAjaxPopupHandler(content_box.get(0),
-                function(event) {
-                    return event.target.getAttribute("href");
-                }));
-        var popupShower = new MicroContentPopup.LiveShower(popup);
-
-        jQuery('.dashboard_build_cause_button').live('click', function(event) {
-            popupShower.toggle_popup(event, this);
-        });
-        PipelineErrors.initialize();
+    jQuery('span.time').each(function () {
+      Util.convert_to_timeago_on_timer(this)();
     });
+    <% end %>
+    jQuery('span.time').each(function () {
+      Util.convert_to_timeago(this);
+    });
+    ElementAligner.hookupAlignEvents();
+    var content_box = jQuery('#dashboard_build_cause_content');
+    var popup       = new MicroContentPopup('dashboard_build_cause_content', new ContextualAjaxPopupHandler(content_box.get(0),
+      function (event) {
+        return event.target.getAttribute("href");
+      }));
+    var popupShower = new MicroContentPopup.LiveShower(popup);
+
+    jQuery('.dashboard_build_cause_button').live('click', function (event) {
+      popupShower.toggle_popup(event, this);
+    });
+    PipelineErrors.initialize();
+  });
 </script>

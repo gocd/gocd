@@ -1,4 +1,5 @@
 <div class="content_wrapper_outer">
+  <div class="row">
   <div class="content_wrapper_inner">
     <%= form_for(@client, url: oauth_engine.authorize_authorize_path, method: :post, html: {id: 'oauth_authorize_form'}) do |f| -%>
       <div class="label">Do you wish to allow the service named '<%= @client.name %>' to access this application on your behalf?</div>
@@ -14,4 +15,5 @@
       <input type="hidden" name="state" id="state" value="<%= params[:state] %>" />
     <% end -%>
   </div>
+</div>
 </div>

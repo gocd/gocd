@@ -1,7 +1,8 @@
 <span id="add_error_message"></span>
 <div class="environment">
     <%= content_wrapper_tag %>
-    <%= form_for(scope[:environment], {as: :environment, url: scope[:form_action], html: {method: scope[:form_method]}}) do |f| %>
+  <div class="row">
+  <%= form_for(scope[:environment], {as: :environment, url: scope[:form_action], html: {method: scope[:form_method]}}) do |f| %>
     <div id="add_new_environment">
         <div class="wizard_form">
 
@@ -77,6 +78,7 @@
         </div>
     </div>
     <% end %>
+  </div>
     <%= end_content_wrapper %>
 </div>
 <script type="text/javascript">

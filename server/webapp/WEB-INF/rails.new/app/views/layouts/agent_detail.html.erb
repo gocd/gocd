@@ -1,35 +1,40 @@
 <!DOCTYPE HTML>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <%- @view_title ||= "Agents" -%>
-    <%= render :partial => "shared/head" %>
+  <%- @view_title ||= "Agents" -%>
+  <%= render :partial => "shared/head" %>
 </head>
 <body id="<%= page_name %>" class="<%= page_name %>">
 <div class="page-wrap">
-<div id="body_bg">
+  <div id="body_bg">
     <div id="header">
-        <%= render :partial => "shared/header" %>
+      <%= render :partial => "shared/header" %>
     </div>
     <div id='body_content'>
-        <div class="messaging_wrapper" id="messaging_wrapper">
-            <%= render :partial => "shared/flash_message" %>
+      <div class="messaging_wrapper" id="messaging_wrapper">
+        <div class="row">
+        <%= render :partial => "shared/flash_message" %>
         </div>
-        <div class="page_header">
-            <ul class="entity_title">
-                <!--<li class="name"><%= link_to l.string("AGENTS_POPUP_TITLE"), url_for(:controller => "agents", :action => "index") -%> </li>-->
-                <li class="last"><h1><%= @agent.getHostname() -%></h1></li>
-            </ul>
-
+      </div>
+      <div class="page_header">
+        <div class="row">
+          <ul class="entity_title">
+            <!--<li class="name"><%= link_to l.string("AGENTS_POPUP_TITLE"), url_for(:controller => "agents", :action => "index") -%> </li>-->
+            <li class="last"><h1><%= @agent.getHostname() -%></h1></li>
+          </ul>
         </div>
-        <%= content_wrapper_tag %>
+      </div>
+      <%= content_wrapper_tag %>
+      <div class="row">
         <%= yield %>
-        <%= end_content_wrapper %>
+      </div>
+      <%= end_content_wrapper %>
     </div>
-</div>
-</div>
-  <div id='footer-new-foundation'>
-    <%= render :partial => 'navigation_elements/footer' %>
   </div>
+</div>
+<div id='footer-new-foundation'>
+  <%= render :partial => 'navigation_elements/footer' %>
+</div>
 
 </body>
 </html>

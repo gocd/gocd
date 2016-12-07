@@ -14,14 +14,16 @@
 
     <div id='body_content'>
         <div class="messaging_wrapper" id="messaging_wrapper">
+          <div class="row">
             <%= render :partial => "shared/flash_message" %>
             <%= render :partial => "shared/config_save_actions", :locals => {:scope => {}} -%>
+          </div>
         </div>
 
         <%= render :partial => 'layouts/templates/breadcrumb_top' %>
 
         <%= content_wrapper_tag %>
-
+<div class="row">
         <div class="admin_wrapper">
             <div class="admin_sidebar general">
                 <%= render :partial => "admin/shared/pipeline_tree.html", :locals=> {:scope=> {:pipeline => @pipeline}} %>
@@ -45,7 +47,7 @@
         </div>
 
         <%= render :partial => "admin/shared/dirty_form", :locals => {:scope => {:form_id => 'job_edit_form', :reset_id => "reset_form"}} %>
-
+</div>
         <%= end_content_wrapper %>
 
 

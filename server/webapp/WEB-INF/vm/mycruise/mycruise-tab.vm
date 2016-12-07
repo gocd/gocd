@@ -20,56 +20,62 @@
 #set($_hide_collapse-sidebar-button = true)
 #parse("shared/_header.vm")
 <script type="text/javascript">
-    Event.observe(window, 'load', function() {
-        window.tabsManager = new TabsManager(undefined, 'user-config', 'my-go');
-    });
+  Event.observe(window, 'load', function () {
+    window.tabsManager = new TabsManager(undefined, 'user-config', 'my-go');
+  });
 </script>
 <div id="yui-main">
-    <div class="yui-b" id="my-cruise-page">
-        <!-- breadcrumbs -->
-        #set($current_page="no-crumbs")
-        #parse("shared/_breadcrumbs.vm")
-        <!-- /breadcrumbs -->
+  <div class="yui-b" id="my-cruise-page">
+    <!-- breadcrumbs -->
 
-        #parse("shared/_page_intro_top.vm")
-            <p>This page gives users the ability to set up email notifications for different events (failure, build break, build fixed etc) for each stage that they have view permission.
-                <a href="http://www.go.cd/documentation/user/current/configuration/dev_notifications.html" target="_blank" title="Learn more from help documentation" class="more">more...</a>
-            </p>
-            #parse("shared/_page_intro_bottom.vm")
-        
-        #if(${success_message})
-            #parse('shared/_flash_success.vm')
-        #end
+      #set($current_page="no-crumbs")
+      #parse("shared/_breadcrumbs.vm")
+    <!-- /breadcrumbs -->
+<div class="row">
+      #parse("shared/_page_intro_top.vm")
+    <p>This page gives users the ability to set up email notifications for different events (failure, build break, build
+      fixed etc) for each stage that they have view permission.
+      <a href="http://www.go.cd/documentation/user/current/configuration/dev_notifications.html" target="_blank"
+         title="Learn more from help documentation" class="more">more...</a>
+    </p>
+      #parse("shared/_page_intro_bottom.vm")
 
-        <div class="bd-container rounded-corner-for-pipeline my-cruise-rounded-container">
-            <b class="c1"></b><b class="c2"></b><b class="c3"></b><b class="c4"></b>
-            <div class="sub_tab_container rounded-corner-for-tab-container">
-                <b class="c1"></b><b class="c2"></b><b class="c3"></b><b class="c4"></b>
-                <div class="sub_tabs_container">
-                    <ul>
-                        <li id="notifications-sub-tab-button" class="current_tab">
-                            <a class="tab_button_body_match_text">notifications</a>
-                            <a>$l.localize("NOTIFICATIONS_LOWER")</a>
-                        </li>
+      #if(${success_message})
+          #parse('shared/_flash_success.vm')
+      #end
 
-                        <li id="tokens-sub-tab-button" class="external_pointing" onclick="location.href = '/go/oauth/user_tokens';">
-                            <a class="tab_button_body_match_text">oauth-tokens</a>
-                            <a>$l.localize("OAUTH_ACCESS_TOKENS")</a>
-                        </li>
-                    </ul>
-                    <div class="clear"></div>
-                </div>
-                <div class="sub_tab_container_content">
-                    #parse("mycruise/_notification.vm")
-                </div>
-            </div>
+    <div class="bd-container rounded-corner-for-pipeline my-cruise-rounded-container">
+      <b class="c1"></b><b class="c2"></b><b class="c3"></b><b class="c4"></b>
+
+      <div class="sub_tab_container rounded-corner-for-tab-container">
+        <b class="c1"></b><b class="c2"></b><b class="c3"></b><b class="c4"></b>
+
+        <div class="sub_tabs_container">
+          <ul>
+            <li id="notifications-sub-tab-button" class="current_tab">
+              <a class="tab_button_body_match_text">notifications</a>
+              <a>$l.localize("NOTIFICATIONS_LOWER")</a>
+            </li>
+
+            <li id="tokens-sub-tab-button" class="external_pointing" onclick="location.href = '/go/oauth/user_tokens';">
+              <a class="tab_button_body_match_text">oauth-tokens</a>
+              <a>$l.localize("OAUTH_ACCESS_TOKENS")</a>
+            </li>
+          </ul>
+          <div class="clear"></div>
         </div>
+        <div class="sub_tab_container_content">
+            #parse("mycruise/_notification.vm")
+        </div>
+      </div>
     </div>
-    <!-- end yui-b -->
+  </div>
+  </div>
+  <!-- end yui-b -->
 </div>
 </div>
 <!-- end bd -->
 <script type="text/javascript">
-    var adminPage = new AdminPage();
+  var adminPage = new AdminPage();
 </script>
 #parse("shared/_footer.vm")

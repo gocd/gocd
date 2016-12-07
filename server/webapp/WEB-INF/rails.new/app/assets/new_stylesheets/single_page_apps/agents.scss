@@ -27,20 +27,9 @@
 
 .page-header {
   .old-agents-page {
-    font-size:       rem-calc(12px);
-    position:        relative;
-    margin:          0 10px;
-    text-decoration: none;
-    top:             -1px;
-    padding:         3px 7px;
-    border-radius:   $global-border-radius;
-    background:      $btn-bg;
-    color:           $btn-txt;
-    font-weight:     600;
-    &:hover {
-      background: $btn-bg;
-      color:      $btn-txt;
-    }
+    position: relative;
+    margin:   0 10px;
+    top:      -1px;
   }
 }
 
@@ -73,7 +62,7 @@
   background: $go-white;
   padding:    20px;
   width:      300px;
-  box-shadow: 0 3px 3px 0 rgba(0, 0, 0, 0.34);
+  @extend %boxshadow;
   transition: all 0.3s ease-in-out;
   .is-open & {
     display:    block;
@@ -167,7 +156,7 @@
 .search-bar {
   @include icon-before($type: search);
   position:   relative;
-  margin-top: 8px;
+  margin-top: 3px;
   &:before {
     position:  absolute;
     left:      7px;
@@ -210,6 +199,8 @@
       font-size:    14px;
       display:      inline-block;
       margin-right: 5px;
+      position:     relative;
+      top:          -2px;
     }
     .value {
       font-size: 20px;
@@ -289,9 +280,9 @@ $arrow-color: #000;
 }
 
 .agents-table-body {
-  margin-top: 153px;
+  margin-top: 148px;
   &.has-message {
-    margin-top: 234px;
+    margin-top: 212px;
   }
 }
 

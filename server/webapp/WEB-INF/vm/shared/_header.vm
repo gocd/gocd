@@ -17,124 +17,137 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang='en'>
 
 <head>
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
 
-    <link href="$req.getContextPath()/$concatenatedCruiseIconFilePath" rel="shortcut icon" />
-    <link rel="stylesheet" type="text/css" href="$req.getContextPath()/$concatenatedApplicationCssFilePath" media="all" />
-    <link rel="stylesheet" type="text/css" href="$req.getContextPath()/$concatenatedCssApplicationCssFilePath" media="all" />
-    <link rel="stylesheet" type="text/css" href="$req.getContextPath()/$concatenatedVmApplicationCssFilePath" media="all" />
-    <link rel="stylesheet" type="text/css" href="$req.getContextPath()/$concatenatedNewThemeCssFilePath" media="all" />
+  <link href="$req.getContextPath()/$concatenatedCruiseIconFilePath" rel="shortcut icon"/>
+  <link rel="stylesheet" type="text/css" href="$req.getContextPath()/$concatenatedApplicationCssFilePath" media="all"/>
+  <link rel="stylesheet" type="text/css" href="$req.getContextPath()/$concatenatedCssApplicationCssFilePath"
+        media="all"/>
+  <link rel="stylesheet" type="text/css" href="$req.getContextPath()/$concatenatedVmApplicationCssFilePath"
+        media="all"/>
+  <link rel="stylesheet" type="text/css" href="$req.getContextPath()/$concatenatedNewThemeCssFilePath" media="all"/>
 
-    ## Some VM pages specify extra CSS files they need.
+## Some VM pages specify extra CSS files they need.
     #if($extra_css_list)
         #foreach($css_name in $extra_css_list)
-            <link href="$req.getContextPath()/$pathResolver.getAssetPath("css/${css_name}.css")" rel="stylesheet" type="text/css"/>
+          <link href="$req.getContextPath()/$pathResolver.getAssetPath("css/${css_name}.css")" rel="stylesheet"
+                type="text/css"/>
         #end
     #end
 
-        <script type="text/javascript" src="$req.getContextPath()/$concatenatedJavascriptFilePath"></script>
+  <script type="text/javascript" src="$req.getContextPath()/$concatenatedJavascriptFilePath"></script>
 
-    <script type="text/javascript"> var contextPath = "$req.getContextPath()"; </script>
-    <title>
-        #if($title)
-        $title
-        #else
-        $currentTab.name - Go
-        #end
-    </title>
+  <script type="text/javascript"> var contextPath = "$req.getContextPath()"; </script>
+  <title>
+      #if($title)
+          $title
+      #else
+          $currentTab.name - Go
+      #end
+  </title>
 </head>
-#if(!$current_tab && $currentTab.name)
-#set($current_tab = $currentTab.name)
-#end
+    #if(!$current_tab && $currentTab.name)
+        #set($current_tab = $currentTab.name)
+    #end
 <body>
 <div class="page-wrap">
-<div id="body_bg"><div id="body_bg_highlight"><div id="body_wrapper">
+  <div id="body_bg">
+    <div id="body_bg_highlight">
+      <div id="body_wrapper">
 
-##    #if($_hide_collapse-sidebar-button)
+      ##    #if($_hide_collapse-sidebar-button)
         <div id="doc3" class="yui-t7">
-##    #else
-##        <div id="doc3" class="yui-t6">
-##    #end
+        ##    #else
+        ##        <div id="doc3" class="yui-t6">
+        ##    #end
 
 
-        <div id="header">
-            <div class="header">
-            <a href="$req.getContextPath()/pipelines" id="application_logo"></a>
-            #if ($l)
-            <div class="application_nav">
-
-                    #if ($principal)
-                    <ul class="user">
-                        <li class="help">
-                            <a href="https://go.cd/help" target="_blank">$l.localize("HELP_SMALL")</a>
-                        </li>
-                        <li class="current_user icon">
-                            <a href="#" class="current_user_name dropdown-arrow-icon icon">$principal</a>
+          <div id="header">
+            <div class="row">
+              <div class="header">
+                <a href="$req.getContextPath()/pipelines" id="application_logo"></a>
+                  #if ($l)
+                    <div class="application_nav">
+                      <div class="medium-6">
+                          #if ($principal)
+                            <ul class="user">
+                              <li class="help">
+                                <a href="https://go.cd/help" target="_blank">$l.localize("HELP_SMALL")</a>
+                              </li>
+                              <li class="current_user icon">
+                                <a href="#" class="current_user_name dropdown-arrow-icon icon">$principal</a>
                                 <ul class="enhanced_dropdown hidden">
-                                    <li>
-                                        <a href="$req.getContextPath()/tab/mycruise/user">$l.localize("PREFERENCES_LOWER")</a>
-                                    </li>
-                                    <li class="logout">
-                                        <a id="nav-logout" class="sign_out" href="/go/auth/logout">$l.localize("SIGN_OUT")</a>
-                                    </li>
-                              </ul>
-                        </li>
-                    </ul>
-                    #else
-                    <ul class="user">
-                        <li class="help">
-                          <a href="https://go.cd/help" target="_blank">$l.localize("HELP_SMALL")</a>
-                        </li>
-                    </ul>
-                    #end
+                                  <li>
+                                    <a href="$req.getContextPath()/tab/mycruise/user">$l.localize(
+                                        "PREFERENCES_LOWER")</a>
+                                  </li>
+                                  <li class="logout">
+                                    <a id="nav-logout" class="sign_out" href="/go/auth/logout">$l.localize(
+                                        "SIGN_OUT")</a>
+                                  </li>
+                                </ul>
+                              </li>
+                            </ul>
+                          #else
+                            <ul class="user">
+                              <li class="help">
+                                <a href="https://go.cd/help" target="_blank">$l.localize("HELP_SMALL")</a>
+                              </li>
+                            </ul>
+                          #end
 
-                    #if( $goUpdateCheckEnabled && $goUpdate)
-                        <div class="notifications">
-                            <span class="bell"></span>
-                            <div class="hover-container">
+                          #if( $goUpdateCheckEnabled && $goUpdate)
+                            <div class="notifications">
+                              <span class="bell"></span>
+
+                              <div class="hover-container">
                                 <div class="hover">
-                                    <span>A new release of GoCD - <a href="http://www.go.cd/download/" target="_blank">$goUpdate</a> is available.</span>
+                                <span>A new release of GoCD - <a href="http://www.go.cd/download/"
+                                                                 target="_blank">$goUpdate</a> is available.</span>
                                 </div>
+                              </div>
                             </div>
-                        </div>
-                    #end
-
-                    <ul class="tabs">
+                          #end
+                      </div>
+                      <div class="medium-6"></div>
+                      <ul class="tabs">
                         <li id="cruise-header-tab-recent-activity"
                             class="#if($current_tab == 'pipeline' || $current_tab == 'Current Activity') current #end">
-                            <a href="$req.getContextPath()/pipelines">$l.localize("PIPELINES")</a>
+                          <a href="$req.getContextPath()/pipelines">$l.localize("PIPELINES")</a>
                         </li>
                         <li id="cruise-header-tab-environments">
-                            <a href="$req.getContextPath()/environments">$l.localize("ENVIRONMENTS_CAPS")</a>
+                          <a href="$req.getContextPath()/environments">$l.localize("ENVIRONMENTS_CAPS")</a>
                         </li>
                         <li id="cruise-header-tab-agents" class="#if($current_tab == 'Agents') current #end">
-                            <a href="$req.getContextPath()/agents">$l.localize("AGENTS")</a>
+                          <a href="$req.getContextPath()/agents">$l.localize("AGENTS")</a>
                         </li>
 
                         <li id="cruise-header-tab-admin"
-                            class="#if($current_tab == 'Administration') current #end #if(!$userHasViewAdministratorRights) disabled-when-no-admin-rights #end admin">
+                            class="#if($current_tab ==
+                                'Administration') current #end #if(!$userHasViewAdministratorRights) disabled-when-no-admin-rights #end admin">
                             #if(!$userHasViewAdministratorRights)
-                                <span>$l.localize("ADMIN")</span>
+                              <span>$l.localize("ADMIN")</span>
                             #else
-                                <a class="dropdown-arrow-icon" href="#" data-toggle="dropdown">$l.localize("ADMIN")</a>
-                                <ul class="dropdown-menu" role="menu">
-                                    #if($userHasAdministratorRights)
+                              <a class="dropdown-arrow-icon" href="#" data-toggle="dropdown">$l.localize("ADMIN")</a>
+                              <ul class="dropdown-menu" role="menu">
+                                  #if($userHasAdministratorRights)
                                         #parse("shared/_dropdown_admin.vm")
                                     #elseif($userHasGroupAdministratorRights)
-                                        #parse("shared/_dropdown_pipeline_group_admin.vm")
-                                    #elseif($userHasTemplateAdministratorRights)
-                                        #parse("shared/_dropdown_template_admin.vm")
-                                    #end
-                                </ul>
+                                      #parse("shared/_dropdown_pipeline_group_admin.vm")
+                                  #elseif($userHasTemplateAdministratorRights)
+                                      #parse("shared/_dropdown_template_admin.vm")
+                                  #end
+                              </ul>
                             #end
                         </li>
-                    </ul>
-                    <div id="cruise_message_counts" class="cruise_messages"></div>
-                    <div id="cruise_message_body" style="display:none;" class="cruise_message_body"></div>
-                </div>
-            #end
+                      </ul>
+                      <div id="cruise_message_counts" class="cruise_messages"></div>
+                      <div id="cruise_message_body" style="display:none;" class="cruise_message_body"></div>
+                    </div>
+                  #end
+              </div>
             </div>
-        </div>
+          </div>
 
-        <div id="bd">
+          <div id="bd">
 

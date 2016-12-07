@@ -17,6 +17,14 @@
 @import "../new_stylesheets/shared/go-variables";
 @import "../new_stylesheets/shared/mixins";
 @import "../new_stylesheets/shared/go-variables";
+@import '../new_stylesheets/shared/common';
+
+%page-title {
+  color:       #333 !important;
+  margin-top:  4px;
+  font-size:   18px !important;
+  font-weight: 600 !important;
+}
 
 body {
   padding:                 0;
@@ -30,12 +38,25 @@ body {
 
 }
 
-@media only screen and (min-width: 1600px) {
-  .row {
-    margin-left:  auto;
-    margin-right: auto;
-    max-width:    1400px;
+.row {
+  margin-left:  auto;
+  margin-right: auto;
+  @include clearfix;
+  @media only screen and (max-width: 1600px) {
+    max-width: 100%;
   }
+  @media only screen and (min-width: $max-breakpoint) {
+    max-width: 1400px;
+  }
+
+}
+
+.container {
+  padding-left:  0.9375rem;
+  padding-right: 0.9375rem;
+  margin:        0;
+  overflow:      visible;
+  @include clearfix;
 }
 
 a, a:hover, a:visited {
@@ -72,21 +93,28 @@ h4 {
   #application_logo {
     float:      left;
     background: image-url('go_logo.svg') no-repeat 0 0;
-    height:     calc(50px / 2);
+    height:     calc(40px / 2);
     width:      60px;
-    margin:     8px 15px 0 16px;
+    margin:     12px 15px 0 18px;
+    @media only screen and (min-width: 1388px) {
+      //margin: 8px 15px 0 0px;
+    }
+    @media only screen and (min-width: $max-breakpoint) {
+      margin: 8px 15px 0 0px;
+    }
   }
 }
 
 .application_nav {
   .tabs {
-    margin-top: 0px;
+    margin-top:    0px;
+    margin-bottom: 0;
     li {
       margin-left: 0;
       a {
         line-height:   $main-nav-height;
         font-size:     rem-calc(12px);
-        font-weight:   700;
+        font-weight:   600;
         box-shadow:    none;
         border-radius: 0;
         color:         $menu-link;
@@ -197,7 +225,7 @@ h4 {
     padding:       0;
     top:           40px;
     background:    $drop-down-menu-bg;
-    box-shadow:    1px 2px 2px 0px rgba(0, 0, 0, 0.2);
+    @extend %boxshadow;
     li {
       a {
 
@@ -220,6 +248,7 @@ h4 {
     margin: 0;
     li {
       margin: 0;
+      border: 0;
       &:hover {
         box-shadow:    none;
         border-radius: 0;
@@ -289,8 +318,8 @@ h4 {
           border-radius: 0 !important;
           padding:       0 !important;
           background:    $user-dropdown-bg !important;
-          box-shadow:    none;
           border:        0;
+          @extend %boxshadow;
 
           li {
             border-radius: 0 !important;
@@ -348,6 +377,11 @@ h4 {
   }
 }
 
+.environments .add_new_environment.add_new_environment {
+  padding: 0;
+  margin:  5px 0 0 0;
+}
+
 .environment .pipeline .deployed_revisions .materials th, .environment .pipeline .deployed_revisions .materials td {
   font-size: 11px !important;
 }
@@ -378,12 +412,21 @@ h4 {
 
 .content_wrapper_inner {
   padding: 15px;
-  margin:  0 15px;
+  margin:  0;
 }
 
 #pipelines {
   h2.entity_title {
     font-weight: 600;
+    margin:      10px 0 0;
+    a {
+      font-weight: 600;
+    }
+  }
+  .pipelines_selector {
+    width:      auto;
+    position:   relative;
+    margin-top: 3px;
   }
 }
 
@@ -401,13 +444,17 @@ h4 {
   top:             0;
   box-shadow:      0 0 0 #000;
   border:          0;
-  height:          auto !important;
-  padding:         10px 15px;
+  height:          50px !important;
+  box-sizing:      border-box;
+  padding:         7px 15px;
+  h1 {
+    display: inline-block;
+  }
 }
 
 h1.entity_title {
   color:       $page-header-title !important;
-  margin-top:  4px;
+  margin-top:  7px;
   font-size:   18px !important;
   font-weight: 600 !important;
 }
@@ -415,11 +462,10 @@ h1.entity_title {
 #pipelines {
   .pipelines_selector {
     .enhanced_dropdown {
-      right:      33px !important;
+      right:      0 !important;
       left:       auto !important;
-      top:        $main-nav-height !important;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-      transition: all 0.3s cubic-bezier(.25, .8, .25, 1);
+      top:        31px !important;
+      @extend %boxshadow;
       margin-top: 1px;
       width:      25em;
       .add_panel button.primary {
@@ -583,6 +629,26 @@ h1.entity_title {
 
 //pipeline history
 
+#pipeline-history {
+  background-color: transparent;
+}
+
+.container-in-body {
+  padding: 0 !important;
+}
+
+#content_wrapper_outer_pipeline_history #content_wrapper_inner_pipeline_history {
+  padding: 0;
+}
+
+.pipeline_history_table_container {
+  margin-top:    15px;
+  padding:       20px;
+  background:    $go-white;
+  box-sizing:    border-box;
+  border-radius: $global-border-radius;
+}
+
 #bd {
   border:      0;
   margin:      0;
@@ -591,18 +657,24 @@ h1.entity_title {
   background:  none;
 }
 
-h1#page-title {
-  color:       #333 !important;
-  font-weight: 400 !important;
-  margin-top:  0 !important;
-}
-
 span.pipeline-buttons a.link_as_button {
-  margin:    5px 0 0 15px;
+  margin:    0;
   min-width: 40px;
   &:hover {
     color: #333;
   }
+}
+
+#pipeline-history .pipeline-buttons a.link_as_button span {
+  &:hover {
+    color: #fff !important;
+  }
+}
+
+#pipeline-history .pipeline-buttons {
+  margin-top: 0;
+  position:   relative;
+  top:        5px;
 }
 
 #labelFilterField {
@@ -610,19 +682,57 @@ span.pipeline-buttons a.link_as_button {
 
 }
 
-ul.entity_title li {
-  padding-right: 20px;
-  a {
-    font-size: rem-calc(18px);
-  }
-  &.last {
-    > * {
+ul.entity_title {
+  @extend %page-title;
+  li {
+    background:    none;
+    margin-right:  0;
+    line-height:   normal;
+    padding-right: 0px;
+    &:after {
+      content:    "";
+      background: image_url("g9/backgrounds/icon_breadcrumb_arrow.png") no-repeat scroll 0 0 transparent;
+      display:    inline-block;
+      margin:     0 6px;
+      width:      10px;
+      height:     10px;
+    }
+    a {
+      font-size:   rem-calc(18px);
+      font-weight: 600 !important;
+      line-height: normal;
+      &:hover {
+        text-decoration: underline;
+      }
 
-      font-size:   16px !important;
-      font-weight: 400 !important;
-      margin:      5px 10px 0 0 !important;
+    }
+    &.last {
+      &:after {
+        display: none;
+      }
+      > * {
+        margin:      0 10px 0 0 !important;
+        color:       #333 !important;
+        font-size:   18px !important;
+        font-weight: 600 !important;
+        line-height: normal;
+      }
+      h1 {
+        //margin-top: 3px !important;
+      }
     }
   }
+}
+
+#body_content .stage_detail_setting, .job_details .job_detail_setting {
+  margin: 8px 0 0 10px;
+}
+
+.admin_pause_info_and_controls {
+  float:       left;
+  margin-top:  7px;
+  min-width:   300px;
+  margin-left: 0;
 }
 
 .pipeline_history, .yui-b .Job, .yui-b .Server, #admin-page .Administration, #my-cruise-page .Preferences {
@@ -641,18 +751,6 @@ ul.entity_title li {
     font-size:   18px !important;
   }
 
-}
-
-#pipeline-history .pipeline-buttons a.link_as_button span {
-  &:hover {
-    color: #fff !important;
-  }
-}
-
-#pipeline-history .pipeline-buttons {
-  margin-top: 0;
-  position:   relative;
-  top:        -7px;
 }
 
 //stage history
@@ -776,42 +874,6 @@ $arrow-border-active-color: lighten(#000, 50%);
   }
 }
 
-ul.entity_title li {
-  background:    none;
-  margin-right:  0;
-  line-height:   normal;
-  padding-right: 0;
-  &:after {
-    content:    "";
-    background: image_url("g9/backgrounds/icon_breadcrumb_arrow.png") no-repeat scroll 0 0 transparent;
-    display:    inline-block;
-    margin:     0 6px;
-    width:      10px;
-    height:     10px;
-  }
-  a {
-    font-size:   rem-calc(16px);
-    font-weight: 600 !important;
-    &:hover {
-      text-decoration: underline;
-    }
-
-  }
-  &.last {
-    &:after {
-      display: none;
-    }
-    > * {
-      font-size:   16px !important;
-      font-weight: 400 !important;
-      margin:      0 10px 0 0 !important;
-    }
-    h1 {
-      margin-top: 3px !important;
-    }
-  }
-}
-
 #pipeline_header .feed {
   margin-top: 6px;
 }
@@ -847,6 +909,7 @@ ul.entity_title li {
   .page_header {
     margin-bottom: 0px;
     z-index:       $page-header;
+    height:        50px;
   }
 
   #content_wrapper_outer_pipeline_history {
@@ -859,6 +922,11 @@ table.pipeline-history-group {
   background: #fff;
   position:   relative;
   margin:     0 !important;
+  thead {
+    th {
+      border: 0;
+    }
+  }
 }
 
 .pipeline-history-group .column-header {
@@ -1113,17 +1181,24 @@ ul#pipeline_config_tree {
 }
 
 .pipeline_header .toggle-new-view, .page_header a.agents-toggle-new-view {
-  display:       inline-block;
-  margin-left:   10px;
-  background:    $btn-bg;
-  color:         $btn-txt;
-  padding:       3px 7px;
-  border-radius: $global-border-radius;
-  font-weight:   600;
-  font-size:     rem-calc(12px);
+  display:          inline-block;
+  text-align:       center;
+  line-height:      1;
+  cursor:           pointer;
+  transition:       background-color 0.25s ease-out, color 0.25s ease-out;
+  vertical-align:   middle;
+  border:           0;
+  border-radius:    3px;
+  padding:          0.5em 1em;
+  background-color: $go-primary;;
+  color:            #fefefe;
+  font-size:        0.75rem;
+  position:         relative;
+  margin:           0 10px;
+  top:              -1px;
   &:hover {
-    background: $btn-bg-hover;
-    color:      $btn-bg-hover-txt;
+    background-color: #a64fb4;
+    color:            #fefefe;
   }
 }
 
@@ -1146,10 +1221,10 @@ ul#pipeline_config_tree {
 }
 
 .enhanced_dropdown {
-  box-shadow:          none;
   border-bottom-color: #ccc;
   border-right-color:  #ccc;
   margin-top:          -37px;
+  @extend %boxshadow;
 
   &.agent_edit_popup {
     margin-top: auto;
@@ -1189,8 +1264,7 @@ input.new_resource {
 }
 
 #agents .entity_title {
-  float:      left;
-  margin-top: 5px;
+
 }
 
 .page_header a.new_agents_page {
@@ -1303,7 +1377,7 @@ button#confirm-pause-up42 {
 
 }
 
-#environments h2.entity_title, #pipelines h2.entity_title {
+#environments h2.entity_title {
   a {
     font-weight: 700;
   }
@@ -1332,6 +1406,10 @@ input.new_resource {
       &:hover {
         background-color: $btn-light-bg-hover !important;
         color:            $go-white !important;
+        span {
+          color: $go-white !important;
+
+        }
       }
     }
     input[type="text"] {
@@ -1356,12 +1434,22 @@ input.new_resource {
   background: #fff;
 }
 
-#admin-holder-for-admin-config-source-xml .buttons-group #edit_config {
-  margin-top:       -21px;
-  right:            82px;
-  background-color: $go-primary;
-  color:            $go-white !important;
-  min-width:        60px;
+.form_heading {
+  position: relative;
+
+  #edit_config {
+    margin-top:       -21px;
+    right:            0 !important;
+    background-color: $go-primary;
+    color:            $go-white !important;
+    min-width:        60px;
+  }
+}
+
+#config_editor_form .buttons-group {
+  padding:  10px;
+  clear:    both;
+  position: relative;
 }
 
 .form_buttons {
@@ -1485,7 +1573,7 @@ button.submit, a.link_as_button {
   span {
     color:       $btn-txt;
     font-weight: bold;
-    font-size:   rem-calc(13px) !important;
+    font-size:   rem-calc(13px);
   }
   &:hover {
     background: #666;
@@ -1620,7 +1708,7 @@ a:link#link-to-this-page, a:visited#link-to-this-page {
 }
 
 #tab-content-of-tests, #tab-content-of-failures, #tab-content-of-artifacts, #tab-content-of-properties, #tab-content-of-junit-time, #tab-content-of-console, #tab-content-of-gaugereport {
-  padding:   20px;
+  padding:   20px !important;
   font-size: 14px;
 }
 
@@ -1799,7 +1887,7 @@ form#package_repositories_edit_form {
 
 #yui-main .content_wrapper_outer, #yui-main .content_wrapper_inner {
   margin:     15px 0;
-  padding:    0 15px;
+  padding:    0;
   background: transparent;
 }
 
@@ -1824,6 +1912,7 @@ form#notification_form fieldset {
   border:        0;
   padding:       30px 20px;
   margin-bottom: 0;
+  box-sizing:    border-box;
 }
 
 .notification caption, .notification legend {
@@ -1844,13 +1933,6 @@ form#notification_form fieldset {
   a.link_as_button:hover {
     color: $go-white !important;
   }
-}
-
-#config_editor_form .buttons-group {
-  padding:  10px;
-  height:   45px;
-  clear:    both;
-  position: relative;
 }
 
 #admin-holder-for-admin-config-source-xml .buttons-group #cancel_edit {
@@ -1917,9 +1999,18 @@ a:link.help, a:visited.help {
   }
 }
 
+.label-filter-group-container {
+  .row {
+    position: relative;
+  }
+}
+
 .label-filter-group {
-  top:     45px;
-  z-index: $label-filter-group;
+  position: absolute;
+  top:      10px;
+  right:    10px;
+  padding:  0;
+  z-index:  $label-filter-group;
 
   .filter-clear-icon {
     top: 14px;
@@ -1940,8 +2031,11 @@ a:link.help, a:visited.help {
   border: 0;
 }
 
-#pipelines .content_wrapper_inner {
+#environments #body_content .content_wrapper_inner, #pipelines #body_content .content_wrapper_inner {
   padding: 20px;
+  @media only screen and (min-width: $max-breakpoint) {
+    padding: 15px 0 !important
+  }
 }
 
 .admin_templates {
@@ -2090,6 +2184,7 @@ a:link.help, a:visited.help {
 }
 
 .agent_edit_popup {
+  @extend %boxshadow;
   &:before {
     content:      "";
     position:     absolute;
@@ -2101,6 +2196,7 @@ a:link.help, a:visited.help {
     border-style: solid;
     border-width: 6px 6px 0 6px;
     border-color: $go-primary transparent transparent transparent;
+
   }
   &.environments_panel {
     &:before {
@@ -2263,11 +2359,18 @@ input.compare_pipeline_input {
 .form_buttons {
   button.submit,
   button[type="reset"].submit {
-    background:   #ccc !important;
+    background:   $btn-light-bg !important;;
     color:        #333 !important;
     border-color: $border-color;
     span {
       color: #333 !important;
+    }
+    &:hover {
+      background: $btn-light-bg-hover !important;
+
+      span {
+        color: #fff !important;
+      }
     }
   }
   button.submit.primary {
@@ -2277,6 +2380,10 @@ input.compare_pipeline_input {
     span {
       color: #fff !important;
     }
+  }
+  button.submit.primary[disabled] {
+    background: $btn-light-bg !important;
+    border:     1px solid $btn-light-bg !important;
   }
 }
 
@@ -2659,10 +2766,6 @@ pre, code, #admin-holder-for-admin-config-source-xml textarea {
   padding-top: 25px !important;
 }
 
-.admin-rounded-container, #yui-main .content_wrapper_inner, .my-cruise-rounded-container, #server-page .rounded-corner-for-pipeline {
-  padding: 0 15px;
-}
-
 .buildoutput_pre {
   width:      100%;
   box-sizing: border-box;
@@ -2675,5 +2778,98 @@ pre, code, #admin-holder-for-admin-config-source-xml textarea {
     .button {
       border-radius: 0;
     }
+  }
+}
+
+.pagination {
+  border: 0;
+  .pages {
+    border-radius: 3px;
+  }
+}
+
+.wizard .aside {
+  padding: 0 0 0 20px;
+}
+
+.wizard .section {
+  box-sizing: border-box;
+  padding:    20px;
+}
+
+.admin-rounded-container, #yui-main .content_wrapper_inner, .my-cruise-rounded-container, #server-page .rounded-corner-for-pipeline {
+  padding: 15px 0;
+}
+
+.my-cruise-rounded-container {
+  margin: 0 15px;
+}
+
+.content_wrapper_inner {
+  .admin-rounded-container {
+    padding: 0;
+  }
+}
+
+#filters-settings {
+
+}
+
+.environment.show_environment {
+  @include clearfix;
+  background: #fff;
+  margin-top: 15px;
+  padding:    20px;
+  box-sizing: border-box;
+
+  h3 {
+    margin:         10px 0 20px;
+    border-bottom:  1px dotted #ccc;
+    padding-bottom: 10px;
+  }
+  .added_item ul {
+    margin-left: 23px;
+    li {
+      margin-top: 10px;
+      font-size:  rem-calc(13px);
+    }
+  }
+}
+
+button.edit-environment {
+  float:        none;
+  margin-right: 0;
+}
+
+#footer-new-foundation .row.expanded {
+  max-width: 1400px;
+}
+
+#footer-new-foundation .row.expanded {
+  max-width: 1400px;
+}
+
+.buildoutput_pre * {
+  font-family: Monaco, Consolas, Inconsolata, "Liberation Mono", "Courier New", monospace !important;
+  font-size:   13px !important;
+  line-height: 19px !important;
+}
+
+.template_group h2.entity_title {
+  background-position: -12px -15px;
+  font-size:           18px;
+  margin-top:          7px;
+  font-weight:         400;
+}
+
+#admin_pipeline_groups .content_wrapper_inner h1 {
+  font-weight:   400;
+  margin-bottom: 14px;
+  font-size:     21px;
+}
+
+#oauth_page {
+  h1 {
+    margin-bottom: 20px;
   }
 }

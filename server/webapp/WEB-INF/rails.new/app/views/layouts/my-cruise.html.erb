@@ -1,56 +1,60 @@
 <!DOCTYPE HTML>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <%- @view_title = l.string("PREFERENCES_LOWER") -%>
-    <%= render :partial => "shared/head" %>
-    <%= stylesheet_link_tag "vm/jef_override_for_old_ui" %>
+  <%- @view_title = l.string("PREFERENCES_LOWER") -%>
+  <%= render :partial => "shared/head" %>
+  <%= stylesheet_link_tag "vm/jef_override_for_old_ui" %>
 </head>
 <body id="<%= page_name %>" class="<%= page_name %>">
 <div class="page-wrap">
   <div id="body_bg">
 
     <div id="header">
-        <%= render :partial => "shared/header" %>
+      <%= render :partial => "shared/header" %>
     </div>
 
     <div id='body_content'>
-        <div class="messaging_wrapper" id="messaging_wrapper">
-            <%= render :partial => "shared/flash_message" %>
+      <div class="messaging_wrapper" id="messaging_wrapper">
+        <div class="row">
+        <%= render :partial => "shared/flash_message" %>
         </div>
+      </div>
 
-        <div class="page_header">
-            <h1 class="entity_title"><%= l.string("PREFERENCES_LOWER") %></h1>
+      <div class="page_header">
+        <div class="row">
+        <h1 class="entity_title"><%= l.string("PREFERENCES_LOWER") %></h1>
+      </div>
+    </div>
+
+    <div class="bd-container rounded-corner-for-pipeline admin-rounded-container">
+      <b class="c1"></b><b class="c2"></b><b class="c3"></b><b class="c4"></b>
+
+      <div class="sub_tab_container rounded-corner-for-tab-container">
+        <b class="c1"></b><b class="c2"></b><b class="c3"></b><b class="c4"></b>
+
+        <div class="sub_tabs_container">
+          <ul>
+            <li>
+              <%= link_to l.string("NOTIFICATIONS_LOWER"), system_environment.pathFor("/tab/mycruise/user") %>
+            </li>
+            <li class="current_tab">
+              <%= link_to l.string("OAUTH_ACCESS_TOKENS"), url_for(:controller => 'user_tokens', :action => :index) %>
+            </li>
+          </ul>
+          <div class="clear"></div>
         </div>
-
-        <div class="bd-container rounded-corner-for-pipeline admin-rounded-container">
-            <b class="c1"></b><b class="c2"></b><b class="c3"></b><b class="c4"></b>
-
-            <div class="sub_tab_container rounded-corner-for-tab-container">
-                <b class="c1"></b><b class="c2"></b><b class="c3"></b><b class="c4"></b>
-
-                <div class="sub_tabs_container">
-                    <ul>
-                        <li>
-                            <%= link_to l.string("NOTIFICATIONS_LOWER"), system_environment.pathFor("/tab/mycruise/user") %>
-                        </li>
-                        <li class="current_tab">
-                            <%= link_to l.string("OAUTH_ACCESS_TOKENS"), url_for(:controller => 'user_tokens', :action => :index) %>
-                        </li>
-                    </ul>
-                    <div class="clear"></div>
-                </div>
-                <div class="sub_tab_container_content">
-                    <div id="tab-content" class="wizard" style="">
-                        <%= yield %>
-                    </div>
-                </div>
-            </div>
+        <div class="sub_tab_container_content">
+          <div id="tab-content" class="wizard" style="">
+            <%= yield %>
+          </div>
         </div>
+      </div>
     </div>
   </div>
 </div>
-    <div id='footer-new-foundation'>
-      <%= render :partial => 'navigation_elements/footer' %>
-    </div>
+</div>
+<div id='footer-new-foundation'>
+  <%= render :partial => 'navigation_elements/footer' %>
+</div>
 </body>
 </html>

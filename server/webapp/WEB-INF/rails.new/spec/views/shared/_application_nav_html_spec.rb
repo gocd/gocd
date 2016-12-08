@@ -181,9 +181,8 @@ describe "/shared/_application_nav.html.erb" do
 
       Capybara.string(response.body).find("li#cruise-header-tab-admin").tap do |ul_tabs_li|
         ul_tabs_li.all("li[role='presentation']").tap do |li|
-          expect(li.size).to be(2)
+          expect(li.size).to be(1)
           expect(li.first).to have_selector("a[href='#{templates_path}']", text: 'Templates')
-          expect(li.last).to have_selector("a[href='#{admin_elastic_profiles_path}']", text: 'Elastic Agent Profiles')
         end
       end
     end
@@ -195,7 +194,7 @@ describe "/shared/_application_nav.html.erb" do
 
       render :partial => partial_page
 
-      assert_values_there = {"Pipelines" => pipeline_groups_path, "Config XML" => pipelines_snippet_path, "Plugins" => plugins_listing_path, "Package Repositories" => package_repositories_new_path}
+      assert_values_there = {"Pipelines" => pipeline_groups_path, "Config XML" => pipelines_snippet_path, "Plugins" => plugins_listing_path, "Package Repositories" => package_repositories_new_path, "Elastic Agent Profiles" => admin_elastic_profiles_path}
 
       Capybara.string(response.body).find("li#cruise-header-tab-admin").tap do |ul_tabs_li|
         expect(ul_tabs_li.all("li").size).to be(assert_values_there.length)

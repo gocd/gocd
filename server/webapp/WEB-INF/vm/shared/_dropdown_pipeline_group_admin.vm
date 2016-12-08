@@ -1,5 +1,5 @@
 #*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,9 @@
 #if($userHasTemplateAdministratorRights)
     #parse("shared/_dropdown_template_admin.vm")
 #end
+<li role="presentation">
+  <a href="$req.getContextPath()/admin/elastic_profiles">Elastic Agent Profiles</a>
+</li>
 <li role="presentation">
     <a href="$req.getContextPath()/admin/pipelines/snippet">$l.localize("PIPELINES_SNIPPET")</a>
 </li>

@@ -14,28 +14,14 @@
  * limitations under the License.
  */
 @import "go-variables";
-//@extend %page-title
-%page-title {
-  color:       #333 !important;
-  margin-top:  4px;
-  font-size:   18px !important;
-  font-weight: 600 !important;
-}
-
-%page-title-new-pages {
-  color:       #333 !important;
-  margin-top:  1px;
-  font-size:   18px !important;
-  font-weight: 600 !important;
-}
 
 %boxshadow {
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
 }
 
-.button{
-  border:0;
-  font-weight:600;
+.button {
+  border:      0;
+  font-weight: 600;
 }
 
 .container {
@@ -119,9 +105,12 @@ html, body {
   height:          50px;
   box-sizing:      border-box;
   h1 {
-    @extend %page-title-new-pages;
     display:       inline-block;
     margin-bottom: 0;
+    color:       #333;
+    margin-top:  1px;
+    font-size:   18px;
+    font-weight: 600;
   }
 }
 

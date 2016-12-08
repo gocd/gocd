@@ -117,7 +117,7 @@ $menu-hover: #3e3d3d;
     &.current-user {
       @include icon-before($type: user);
       padding-left: 10px;
-      position: relative;
+      position:     relative;
       &:before {
         position:  absolute;
         left:      7px;

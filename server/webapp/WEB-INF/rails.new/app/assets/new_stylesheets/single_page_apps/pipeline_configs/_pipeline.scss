@@ -63,7 +63,7 @@
         @include icon-before($type: spinner, $margin: 0);
         @include animation(spin 1s ease-in);
         left: 9px;
-        top: 3px;
+        top:  3px;
         &:before {
           font-size: rem-calc(15px);
         }
@@ -83,7 +83,7 @@
         @include icon-before($type: check, $margin: 0);
         @include animation(fadeIn 1s ease-in);
         left: 9px;
-        top: 3px;
+        top:  3px;
         &:before {
           font-size: rem-calc(15px);
         }

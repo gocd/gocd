@@ -40,6 +40,20 @@ module ApiV2
       end
     end
 
+    def check_admin_or_template_admin_and_401
+      template_name = params[:template_name]
+      return unless security_service.isSecurityEnabled
+
+      if template_name.blank? && !(security_service.isUserAdmin(current_user) || security_service.isAuthorizedToViewAndEditTemplates(current_user))
+        Rails.logger.info("User '#{current_user.getUsername}' attempted to perform an unauthorized action!")
+        render_unauthorized_error
+      end
+      if !template_name.blank? && !security_service.isAuthorizedToEditTemplate(template_name, current_user)
+        Rails.logger.info("User '#{current_user.getUsername}' attempted to perform an unauthorized action!")
+        render_unauthorized_error
+      end
+    end
+
     def check_pipeline_group_admin_user_and_401
       groupName = params[:group] || go_config_service.findGroupNameByPipeline(com.thoughtworks.go.config.CaseInsensitiveString.new(params[:pipeline_name]))
       return unless security_service.isSecurityEnabled()

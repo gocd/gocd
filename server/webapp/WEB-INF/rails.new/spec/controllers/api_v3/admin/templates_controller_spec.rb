@@ -23,8 +23,10 @@ describe ApiV3::Admin::TemplatesController do
     @template = PipelineTemplateConfig.new(CaseInsensitiveString.new('some-template'), StageConfig.new(CaseInsensitiveString.new('stage'), JobConfigs.new(JobConfig.new(CaseInsensitiveString.new('job')))))
     @template_config_service = double('template_config_service')
     @entity_hashing_service = double('entity_hashing_service')
+    @security_service = double('security_service')
     controller.stub(:entity_hashing_service).and_return(@entity_hashing_service)
     controller.stub(:template_config_service).and_return(@template_config_service)
+    controller.stub(:security_service).and_return(@security_service)
   end
 
   describe :index do
@@ -52,6 +54,12 @@ describe ApiV3::Admin::TemplatesController do
       it 'should allow admin, with security enabled' do
         enable_security
         login_as_admin
+
+        expect(controller).to allow_action(:get, :index)
+      end
+
+      it 'show allow template admin, with security enabled' do
+        login_as_template_admin
 
         expect(controller).to allow_action(:get, :index)
       end
@@ -121,12 +129,19 @@ describe ApiV3::Admin::TemplatesController do
 
         expect(controller).to allow_action(:get, :show)
       end
+
+      it 'show allow template admin, with security enabled' do
+        login_as_template_admin
+
+        expect(controller).to allow_action(:get, :show, template_name: 'foo')
+      end
     end
     describe 'admin' do
 
       before(:each) do
         enable_security
         login_as_admin
+        @security_service.should_receive(:isAuthorizedToEditTemplate).with(anything, anything).and_return(true)
         @result =HttpLocalizedOperationResult.new
       end
 
@@ -212,6 +227,12 @@ describe ApiV3::Admin::TemplatesController do
 
         expect(controller).to allow_action(:post, :create)
       end
+
+      it 'show disallow template admin, with security enabled' do
+        login_as_template_admin
+
+        expect(controller).to disallow_action(:post, :create)
+      end
     end
     describe 'admin' do
       before(:each) do
@@ -292,11 +313,18 @@ describe ApiV3::Admin::TemplatesController do
 
         expect(controller).to allow_action(:put, :update)
       end
+
+      it 'show allow template admin, with security enabled' do
+        login_as_template_admin
+
+        expect(controller).to allow_action(:put, :update, template_name: 'foo')
+      end
     end
     describe 'admin' do
       before(:each) do
         enable_security
         login_as_admin
+        @security_service.should_receive(:isAuthorizedToEditTemplate).with(anything, anything).and_return(true)
       end
 
       it 'should deserialize template from given parameters' do
@@ -427,11 +455,18 @@ describe ApiV3::Admin::TemplatesController do
 
         expect(controller).to allow_action(:delete, :destroy)
       end
+
+      it 'show allow template admin, with security enabled' do
+        login_as_template_admin
+
+        expect(controller).to allow_action(:delete, :destroy, template_name: 'foo')
+      end
     end
     describe 'admin' do
       before(:each) do
         enable_security
         login_as_admin
+        @security_service.should_receive(:isAuthorizedToEditTemplate).with(anything, anything).and_return(true)
       end
 
       it 'should raise an error if template is not found' do

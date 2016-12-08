@@ -3,7 +3,6 @@
 <head>
   <%- @view_title = l.string("PREFERENCES_LOWER") -%>
   <%= render :partial => "shared/head" %>
-  <%= stylesheet_link_tag "vm/jef_override_for_old_ui" %>
 </head>
 <body id="<%= page_name %>" class="<%= page_name %>">
 <div class="page-wrap">
@@ -26,7 +25,7 @@
       </div>
     </div>
 
-    <div class="bd-container rounded-corner-for-pipeline admin-rounded-container">
+    <div class="bd-container rounded-corner-for-pipeline admin-rounded-container row">
       <b class="c1"></b><b class="c2"></b><b class="c3"></b><b class="c4"></b>
 
       <div class="sub_tab_container rounded-corner-for-tab-container">

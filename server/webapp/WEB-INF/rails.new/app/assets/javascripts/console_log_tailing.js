@@ -46,6 +46,13 @@
         activeTab                 = failuresTab;
       }
 
+      globalBackToTopButton.toggleClass('back_to_top', !hideGlobalBackToTopButton);
+      if (hideGlobalBackToTopButton){
+        globalBackToTopButton.hide();
+      } else {
+        globalBackToTopButton.show();
+      }
+
       if (!activeTab) {
         return;
       }
@@ -71,8 +78,6 @@
       } else {
         return;
       }
-
-      globalBackToTopButton.toggleClass('back_to_top', !hideGlobalBackToTopButton);
     }
 
     maybeHideGlobalBackToTopButton();

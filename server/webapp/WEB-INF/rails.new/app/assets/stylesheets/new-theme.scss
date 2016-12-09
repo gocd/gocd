@@ -1767,7 +1767,7 @@ a:link#link-to-this-page, a:visited#link-to-this-page {
 .ui-dialog-titlebar, #MB_header {
   border-bottom: 2px solid #ccc;
   background:    $modal-header-bg;
-  //margin-bottom: 25px;
+                 //margin-bottom: 25px;
 }
 
 .permissions .instructions {
@@ -2882,4 +2882,12 @@ button.edit-environment {
   h1 {
     margin-bottom: 20px;
   }
+}
+
+#build-status-panel {
+  padding: 0 15px;
+}
+
+.job_details_content .build_detail_container #tab-content-of-materials .material_revision {
+  padding: 0px 20px !important;
 }

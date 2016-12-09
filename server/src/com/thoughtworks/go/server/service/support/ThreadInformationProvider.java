@@ -29,53 +29,6 @@ public class ThreadInformationProvider implements ServerInfoProvider {
         return 11.0;
     }
 
-    @Override
-    public void appendInformation(InformationStringBuilder builder) {
-        ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
-        builder.addSection("Thread information");
-
-        builder.append(String.format("Current: %s, Total: %s, Daemon: %s, Peak: %s\n", threadMXBean.getThreadCount(), threadMXBean.getTotalStartedThreadCount(), threadMXBean.getDaemonThreadCount(),
-                threadMXBean.getPeakThreadCount()));
-        long[] deadlockedThreads = threadMXBean.findDeadlockedThreads();
-        if (deadlockedThreads != null && deadlockedThreads.length > 0) {
-            builder.append(String.format("Found %s dead locked threads. Here is there information.\n", deadlockedThreads.length));
-            for (long deadlockedThread : deadlockedThreads) {
-                ThreadInfo threadInfo = threadMXBean.getThreadInfo(deadlockedThread);
-                LockInfo lockInfo = threadInfo.getLockInfo();
-                if (lockInfo != null) {
-                    builder.append(String.format("LockInfo: %s", lockInfo));
-                } else {
-                    builder.append("This thread is not waiting for any locks\n");
-                }
-                builder.append(String.format("Monitor Info - Stack Frame where locks were taken.\n"));
-                MonitorInfo[] lockedMonitors = threadInfo.getLockedMonitors();
-                for (MonitorInfo lockedMonitor : lockedMonitors) {
-                    builder.append(String.format("Monitor for class '%s' taken at stack frame '%s'.", lockedMonitor.getClassName(), lockedMonitor.getLockedStackFrame()));
-                }
-                builder.append("The stack trace of the deadlocked thread\n");
-                builder.append(Arrays.toString(threadInfo.getStackTrace()));
-            }
-        }
-        builder.addSubSection("All thread stacktraces");
-        ThreadInfo[] threadInfos = threadMXBean.dumpAllThreads(true, true);
-        for (ThreadInfo threadInfo : threadInfos) {
-            builder.append(String.format("%s, %s, %s\n", threadInfo.getThreadId(), threadInfo.getThreadName(), threadInfo.getThreadState()));
-            MonitorInfo[] lockedMonitors = threadInfo.getLockedMonitors();
-            builder.append("Locked Monitors:\n");
-            for (MonitorInfo lockedMonitor : lockedMonitors) {
-                builder.append(String.format("%s at %s", lockedMonitor, lockedMonitor.getLockedStackFrame()));
-            }
-            LockInfo[] lockedSynchronizers = threadInfo.getLockedSynchronizers();
-            builder.append("Locked Synchronizers:\n");
-            for (LockInfo lockedSynchronizer : lockedSynchronizers) {
-                builder.append(lockedSynchronizer);
-            }
-            builder.append("Stacktrace:\n  ");
-            builder.append(StringUtils.join(threadInfo.getStackTrace(), "\n  "));
-            builder.append("\n\n");
-        }
-    }
-
     private Map<String, Object> getThreadCount(ThreadMXBean threadMXBean) {
         LinkedHashMap<String, Object> count = new LinkedHashMap<>();
         count.put("Current", threadMXBean.getThreadCount());

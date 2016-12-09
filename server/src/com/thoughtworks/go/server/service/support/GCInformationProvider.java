@@ -33,15 +33,6 @@ public class GCInformationProvider implements ServerInfoProvider {
     }
 
     @Override
-    public void appendInformation(InformationStringBuilder builder) {
-        List<GarbageCollectorMXBean> garbageCollectorMXBeans = ManagementFactory.getGarbageCollectorMXBeans();
-        builder.addSection("GC information");
-        for (GarbageCollectorMXBean gcBean : garbageCollectorMXBeans) {
-            builder.append(String.format("%s %s %s : %s (Count : Time)\n", gcBean.getName(), Arrays.toString(gcBean.getMemoryPoolNames()), gcBean.getCollectionCount(), gcBean.getCollectionTime()));
-        }
-    }
-
-    @Override
     public Map<String, Object> asJson() {
         List<GarbageCollectorMXBean> garbageCollectorMXBeans = ManagementFactory.getGarbageCollectorMXBeans();
         LinkedHashMap<String, Object> json = new LinkedHashMap<>();

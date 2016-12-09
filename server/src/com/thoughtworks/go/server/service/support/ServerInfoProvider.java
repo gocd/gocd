@@ -24,8 +24,7 @@ import java.util.Map;
 public interface ServerInfoProvider {
     double priority();
 
-    void appendInformation(InformationStringBuilder infoCollector);
-
     Map<String, Object> asJson();
+
     String name();
 }

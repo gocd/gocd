@@ -29,13 +29,4 @@ public abstract class AbstractMemoryInformationProvider {
         json.put("max", heapMemoryUsage.getMax());
         return json;
     }
-
-    String format(MemoryUsage memoryUsage) {
-        long init = memoryUsage.getInit();
-        long used = memoryUsage.getUsed();
-        long committed = memoryUsage.getCommitted();
-        long max = memoryUsage.getMax();
-
-        return String.format("  init:      %s\n  used:      %s\n  committed: %s\n  max:       %s\n", init, used, committed, max);
-    }
 }

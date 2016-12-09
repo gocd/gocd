@@ -31,15 +31,6 @@ public class MemoryInformationProvider extends AbstractMemoryInformationProvider
     }
 
     @Override
-    public void appendInformation(InformationStringBuilder builder) {
-        MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
-        builder.addSection("Memory information");
-
-        builder.append(String.format("Heap:\n%s\nNon-Heap:\n%s\nPending Finalization: %s\n", format(memoryMXBean.getHeapMemoryUsage()), format(memoryMXBean.getNonHeapMemoryUsage()),
-                memoryMXBean.getObjectPendingFinalizationCount()));
-    }
-
-    @Override
     public Map<String, Object> asJson() {
         MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
         LinkedHashMap<String, Object> json = new LinkedHashMap<>();

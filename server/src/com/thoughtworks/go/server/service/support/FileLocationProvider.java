@@ -42,13 +42,6 @@ public class FileLocationProvider implements ServerInfoProvider {
     }
 
     @Override
-    public void appendInformation(InformationStringBuilder infoCollector) {
-        infoCollector.addSection("Config file locations");
-        infoCollector.append("loc.config.dir: ").append(systemEnvironment.configDir().getAbsolutePath()).append("\n");
-        populateLogFileInfo(infoCollector);
-    }
-
-    @Override
     public Map<String, Object> asJson() {
         LinkedHashMap<String, Object> json = new LinkedHashMap<>();
         json.put("loc.config.dir", systemEnvironment.configDir().getAbsolutePath());
@@ -82,32 +75,6 @@ public class FileLocationProvider implements ServerInfoProvider {
     @Override
     public String name() {
         return "Config file locations";
-    }
-
-    private void populateLogFileInfo(InformationStringBuilder infoCollector) {
-        List<Logger> loggers = new ArrayList<>();
-        Logger rootLogger = Logger.getRootLogger();
-        loggers.add(rootLogger);
-        Enumeration currentLoggers = rootLogger.getLoggerRepository().getCurrentLoggers();
-        while (currentLoggers.hasMoreElements()) {
-            loggers.add((Logger) currentLoggers.nextElement());
-        }
-
-        int index = 0;
-        for (Logger logger : loggers) {
-            Enumeration appenders = logger.getAllAppenders();
-            while (appenders.hasMoreElements()) {
-                Appender appender = (Appender) appenders.nextElement();
-                if (!isFileAppender(appender)) {
-                    continue;
-                }
-                FileAppender fileAppender = (FileAppender) appender;
-                File logFile = new File(fileAppender.getFile());
-                infoCollector.append("loc.log.root.").append(index).append(": ").append(new File(logFile.getAbsolutePath()).getParent()).append("\n");
-                infoCollector.append("loc.log.basename.").append(index).append(": ").append(logFile.getName()).append("\n");
-                ++index;
-            }
-        }
     }
 
     private boolean isFileAppender(Appender appender) {

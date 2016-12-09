@@ -48,14 +48,6 @@ public class ServerStatusService {
         });
     }
 
-    public String captureServerInfo(Username username, LocalizedOperationResult result) throws IOException {
-        if (!securityService.isUserAdmin(username)) {
-            result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_ADMINISTER"), HealthStateType.unauthorised());
-            return null;
-        }
-        return serverInfo();
-    }
-
     public Map<String, Object> asJson(Username username, LocalizedOperationResult result) {
         if (!securityService.isUserAdmin(username)) {
             result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_ADMINISTER"), HealthStateType.unauthorised());
@@ -76,22 +68,4 @@ public class ServerStatusService {
         return json;
 
     }
-
-    private String serverInfo() {
-        InformationStringBuilder infoCollector = new InformationStringBuilder(new StringBuilder());
-
-        infoCollector.append("\n\nTimestamp:\n==========\n");
-        infoCollector.append(new Date().toString()).append("\n");
-        for (ServerInfoProvider provider : providers) {
-            try {
-                provider.appendInformation(infoCollector);
-            } catch (Exception e) {
-                infoCollector.append(String.format("Provider %s threw an exception: %s", provider.getClass(), e.getMessage()));
-                LOGGER.warn("An API support page provider failed.", e);
-            }
-        }
-
-        return infoCollector.value();
-    }
-
 }

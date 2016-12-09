@@ -31,6 +31,10 @@ module Go
     # Replacement for "helper :all", used to make all helper methods available to controllers.
     config.action_controller.include_all_helpers = true
 
+    #Set up rate limiting
+    require "encryption_api_rate_limiter"
+    config.middleware.use EncryptionApiRateLimiter, {max_per_minute: com.thoughtworks.go.util.SystemEnvironment.new.getMaxEncryptionAPIRequestsPerMinute()}
+
     # Add catch-all route, after all Rails routes and Engine routes are initialized.
     initializer :add_catch_all_route, :after => :add_routing_paths do |app|
       app.routes.append do

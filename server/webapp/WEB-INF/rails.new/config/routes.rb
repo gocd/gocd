@@ -235,6 +235,8 @@ Go::Application.routes.draw do
           patch on: :member, action: :patch
           put on: :member, action: :put
         end
+
+        post 'encrypt', controller: :encryption, action: :encrypt_value
         resources :packages, param: :package_id, only: [:show, :destroy, :index, :create, :update], constraints: {package_id: ALLOW_DOTS}
         namespace :internal do
           post :material_test, controller: :material_test, action: :test, as: :material_test

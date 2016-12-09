@@ -16,18 +16,16 @@
 
 package com.thoughtworks.go.server.service.plugins.builder;
 
-import com.thoughtworks.go.plugin.access.common.settings.Image;
-import com.thoughtworks.go.plugin.access.elastic.Constants;
-import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginRegistry;
-import com.thoughtworks.go.plugin.api.config.Configuration;
-import com.thoughtworks.go.plugin.api.config.Property;
+import com.thoughtworks.go.plugin.access.common.models.Image;
+import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKey;
+import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKeys;
+import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginConstants;
+import com.thoughtworks.go.plugin.access.elastic.ElasticPluginConfigMetadataStore;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.server.ui.plugins.PluggableInstanceSettings;
 import com.thoughtworks.go.server.ui.plugins.PluginConfiguration;
 import com.thoughtworks.go.server.ui.plugins.PluginInfo;
 import com.thoughtworks.go.server.ui.plugins.PluginView;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,24 +33,19 @@ import java.util.List;
 import java.util.Map;
 
 class ElasticAgentViewViewModelBuilder implements ViewModelBuilder {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ElasticAgentViewViewModelBuilder.class);
-    private final ElasticAgentPluginRegistry registry;
+    private ElasticPluginConfigMetadataStore elasticPluginConfigMetadataStore;
 
-    ElasticAgentViewViewModelBuilder(ElasticAgentPluginRegistry registry) {
-        this.registry = registry;
+    ElasticAgentViewViewModelBuilder(ElasticPluginConfigMetadataStore elasticPluginConfigMetadataStore) {
+        this.elasticPluginConfigMetadataStore = elasticPluginConfigMetadataStore;
     }
 
     @Override
     public List<PluginInfo> allPluginInfos() {
         List<PluginInfo> pluginInfos = new ArrayList<>();
 
-        for (PluginDescriptor descriptor : registry.getPlugins()) {
-            try {
-                Image icon = registry.getIcon(descriptor.id());
-                pluginInfos.add(new PluginInfo(descriptor, Constants.EXTENSION_NAME, null, null, icon));
-            } catch (Exception e) {
-                LOGGER.error("Failed to load plugin info for {}", descriptor.id(), e);
-            }
+        for (PluginDescriptor descriptor : elasticPluginConfigMetadataStore.getPlugins()) {
+            Image icon = elasticPluginConfigMetadataStore.getIcon(descriptor);
+            pluginInfos.add(new PluginInfo(descriptor, ElasticAgentPluginConstants.EXTENSION_NAME, null, null, icon));
         }
 
         return pluginInfos;
@@ -60,28 +53,27 @@ class ElasticAgentViewViewModelBuilder implements ViewModelBuilder {
 
     @Override
     public PluginInfo pluginInfoFor(String pluginId) {
-        PluginDescriptor plugin = registry.findPlugin(pluginId);
+        PluginDescriptor descriptor = elasticPluginConfigMetadataStore.find(pluginId);
 
-        if (plugin == null) {
+        if (descriptor == null) {
             return null;
         }
 
-        Image icon = registry.getIcon(pluginId);
+        Image icon = elasticPluginConfigMetadataStore.getIcon(descriptor);
+        ArrayList<PluginConfiguration> pluginConfigurations = getPluginConfigurations(elasticPluginConfigMetadataStore.getProfileMetadata(descriptor));
 
-        ArrayList<PluginConfiguration> pluginConfigurations = getPluginConfigurations(registry.getProfileMetadata(pluginId));
-
-        PluginView pluginView = new PluginView(registry.getProfileView(pluginId));
-
+        PluginView pluginView = new PluginView(elasticPluginConfigMetadataStore.getProfileView(descriptor));
         PluggableInstanceSettings settings = new PluggableInstanceSettings(pluginConfigurations, pluginView);
-        return new PluginInfo(plugin, Constants.EXTENSION_NAME, null, settings, icon);
+
+        return new PluginInfo(descriptor, ElasticAgentPluginConstants.EXTENSION_NAME, null, settings, icon);
     }
 
-    private ArrayList<PluginConfiguration> getPluginConfigurations(Configuration config) {
+    private ArrayList<PluginConfiguration> getPluginConfigurations(PluginProfileMetadataKeys config) {
         ArrayList<PluginConfiguration> pluginConfigurations = new ArrayList<>();
-        for (Property property : config.list()) {
+        for (PluginProfileMetadataKey property : config) {
             Map<String, Object> metaData = new HashMap<>();
-            metaData.put(REQUIRED_OPTION, property.getOption(Property.REQUIRED));
-            metaData.put(SECURE_OPTION, property.getOption(Property.SECURE));
+            metaData.put(REQUIRED_OPTION, property.getMetadata().isRequired());
+            metaData.put(SECURE_OPTION, property.getMetadata().isSecure());
 
             pluginConfigurations.add(new PluginConfiguration(property.getKey(), metaData));
         }

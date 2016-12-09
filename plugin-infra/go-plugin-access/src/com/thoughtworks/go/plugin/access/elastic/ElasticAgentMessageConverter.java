@@ -16,8 +16,9 @@
 
 package com.thoughtworks.go.plugin.access.elastic;
 
-import com.thoughtworks.go.plugin.access.common.settings.Image;
-import com.thoughtworks.go.plugin.api.config.Configuration;
+import com.thoughtworks.go.plugin.access.common.models.Image;
+import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKeys;
+import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 
 import java.util.Collection;
@@ -37,7 +38,7 @@ public interface ElasticAgentMessageConverter {
 
     Collection<AgentMetadata> deleteAndDisableAgentRequestBody(String requestBody);
 
-    Configuration getProfileMetadataResponseFromBody(String responseBody);
+    PluginProfileMetadataKeys getProfileMetadataResponseFromBody(String responseBody);
 
     String getProfileViewResponseFromBody(String responseBody);
 

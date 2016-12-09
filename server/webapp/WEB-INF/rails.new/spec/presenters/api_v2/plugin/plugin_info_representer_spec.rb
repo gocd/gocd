@@ -72,7 +72,7 @@ describe ApiV2::Plugin::PluginInfoRepresenter do
   end
 
   it 'should render image when available' do
-    image = com.thoughtworks.go.plugin.access.common.settings.Image.new('foo', 'bar')
+    image = com.thoughtworks.go.plugin.access.common.models.Image.new('foo', 'bar')
     plugin_info = PluginInfo.new('plugin_id', 'plugin_name', 'plugin_version', 'plugin_type', nil, nil, image)
     actual_json = ApiV2::Plugin::PluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
 

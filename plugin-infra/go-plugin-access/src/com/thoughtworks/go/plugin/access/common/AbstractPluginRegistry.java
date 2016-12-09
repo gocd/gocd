@@ -1,0 +1,76 @@
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.thoughtworks.go.plugin.access.common;
+
+import com.thoughtworks.go.plugin.api.GoPlugin;
+import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
+import com.thoughtworks.go.plugin.infra.PluginChangeListener;
+import com.thoughtworks.go.plugin.infra.PluginManager;
+import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+import com.thoughtworks.go.util.ListUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Predicate;
+
+public class AbstractPluginRegistry<Extension extends AbstractExtension, MetadataStore extends PluginConfigMetadataStore> implements PluginChangeListener {
+    protected final Extension extension;
+    protected final List<PluginDescriptor> plugins;
+    protected MetadataStore store;
+
+    protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
+
+
+    public AbstractPluginRegistry(PluginManager pluginManager, Extension extension, MetadataStore store) {
+        this.extension = extension;
+        this.store = store;
+        this.plugins = new ArrayList<>();
+        pluginManager.addPluginChangeListener(this, GoPlugin.class);
+    }
+
+    @Override
+    public void pluginLoaded(GoPluginDescriptor pluginDescriptor) {
+        if (extension.canHandlePlugin(pluginDescriptor.id())) {
+            plugins.add(pluginDescriptor);
+            store.add(pluginDescriptor, this);
+        }
+    }
+
+    @Override
+    public void pluginUnLoaded(GoPluginDescriptor pluginDescriptor) {
+        if (extension.canHandlePlugin(pluginDescriptor.id())) {
+            plugins.remove(pluginDescriptor);
+            store.remove(pluginDescriptor);
+        }
+    }
+
+    public List<PluginDescriptor> getPlugins() {
+        return Collections.unmodifiableList(plugins);
+    }
+
+    public PluginDescriptor findPlugin(final String pluginId) {
+        return ListUtil.find(plugins, new Predicate<PluginDescriptor>() {
+            @Override
+            public boolean test(PluginDescriptor descriptor) {
+                return descriptor.id().equals(pluginId);
+            }
+        });
+    }
+}

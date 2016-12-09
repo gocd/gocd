@@ -16,11 +16,8 @@
 
 package com.thoughtworks.go.util;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
+import java.util.function.Predicate;
 
 import static java.util.Arrays.asList;
 
@@ -49,6 +46,16 @@ public final class ListUtil {
                 return item;
             }
         }
+        return null;
+    }
+
+    public static <T> T find(Collection<T> c, Predicate<T> predicate) {
+        for (T item : c) {
+            if (predicate.test(item)) {
+                return item;
+            }
+        }
+
         return null;
     }
 

@@ -31,8 +31,8 @@ public class ElasticProfileTest {
 
         profile.validate(null);
         assertThat(profile.errors().size(), is(2));
-        assertThat(profile.errors().on(ElasticProfile.PLUGIN_ID), is("Elastic profile cannot have a blank plugin id."));
-        assertThat(profile.errors().on(ElasticProfile.ID), is("Elastic profile cannot have a blank id."));
+        assertThat(profile.errors().on(ElasticProfile.PLUGIN_ID), is("Elastic agent profile cannot have a blank plugin id."));
+        assertThat(profile.errors().on(ElasticProfile.ID), is("Elastic agent profile cannot have a blank id."));
     }
 
     @Test
@@ -56,8 +56,8 @@ public class ElasticProfileTest {
         assertThat(prop1.errors().size(), is(1));
         assertThat(prop2.errors().size(), is(1));
 
-        assertThat(prop1.errors().on(ConfigurationProperty.CONFIGURATION_KEY), is("Duplicate key 'USERNAME' found for elastic profile 'docker.unit-test'"));
-        assertThat(prop2.errors().on(ConfigurationProperty.CONFIGURATION_KEY), is("Duplicate key 'USERNAME' found for elastic profile 'docker.unit-test'"));
+        assertThat(prop1.errors().on(ConfigurationProperty.CONFIGURATION_KEY), is("Duplicate key 'USERNAME' found for Elastic agent profile 'docker.unit-test'"));
+        assertThat(prop2.errors().on(ConfigurationProperty.CONFIGURATION_KEY), is("Duplicate key 'USERNAME' found for Elastic agent profile 'docker.unit-test'"));
     }
 
 }

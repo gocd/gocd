@@ -16,11 +16,12 @@
 
 package com.thoughtworks.go.server.service.plugins.builder;
 
-import com.thoughtworks.go.plugin.access.common.settings.Image;
-import com.thoughtworks.go.plugin.access.elastic.Constants;
-import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginRegistry;
-import com.thoughtworks.go.plugin.api.config.Configuration;
-import com.thoughtworks.go.plugin.api.config.Property;
+import com.thoughtworks.go.plugin.access.common.models.Image;
+import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadata;
+import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKey;
+import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKeys;
+import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginConstants;
+import com.thoughtworks.go.plugin.access.elastic.ElasticPluginConfigMetadataStore;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.ui.plugins.PluginConfiguration;
@@ -42,7 +43,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 public class ElasticAgentViewViewModelBuilderTest {
     @Mock
-    private ElasticAgentPluginRegistry registry;
+    private ElasticPluginConfigMetadataStore elasticPluginConfigMetadataStore;
 
     private ElasticAgentViewViewModelBuilder builder;
     private GoPluginDescriptor dockerPlugin;
@@ -51,7 +52,7 @@ public class ElasticAgentViewViewModelBuilderTest {
     @Before
     public void setUp() {
         initMocks(this);
-        builder = new ElasticAgentViewViewModelBuilder(registry);
+        builder = new ElasticAgentViewViewModelBuilder(elasticPluginConfigMetadataStore);
 
         dockerPlugin = new GoPluginDescriptor("cd.go.elastic-agent.docker", "1.0",
                 new GoPluginDescriptor.About("GoCD Docker Elastic Agent Plugin", "1.0", null, null, null, null),
@@ -65,7 +66,7 @@ public class ElasticAgentViewViewModelBuilderTest {
 
     @Test
     public void shouldBeAbleToFetchAllPluginInfos() throws Exception {
-        when(registry.getPlugins()).thenReturn(new ArrayList<PluginDescriptor>(Arrays.asList(dockerPlugin, awsPlugin)));
+        when(elasticPluginConfigMetadataStore.getPlugins()).thenReturn(new ArrayList<PluginDescriptor>(Arrays.asList(dockerPlugin, awsPlugin)));
         List<PluginInfo> pluginInfos = builder.allPluginInfos();
 
         assertThat(pluginInfos.size(), is(2));
@@ -73,22 +74,20 @@ public class ElasticAgentViewViewModelBuilderTest {
         PluginInfo dockerPluginInfo = pluginInfos.get(0);
         PluginInfo awsPluginInfo = pluginInfos.get(1);
 
-        assertEquals(new PluginInfo(dockerPlugin, Constants.EXTENSION_NAME, null, null), dockerPluginInfo);
-        assertEquals(new PluginInfo(awsPlugin, Constants.EXTENSION_NAME, null, null), awsPluginInfo);
+        assertEquals(new PluginInfo(dockerPlugin, ElasticAgentPluginConstants.EXTENSION_NAME, null, null), dockerPluginInfo);
+        assertEquals(new PluginInfo(awsPlugin, ElasticAgentPluginConstants.EXTENSION_NAME, null, null), awsPluginInfo);
     }
 
     @Test
     public void shouldBeAbleToFetchPluginInfoForSinglePlugin() throws Exception {
-        when(registry.findPlugin(dockerPlugin.id())).thenReturn(dockerPlugin);
+        when(elasticPluginConfigMetadataStore.find(dockerPlugin.id())).thenReturn(dockerPlugin);
         Image image = new Image("foo", "bar");
-        when(registry.getIcon(dockerPlugin.id())).thenReturn(image);
-        when(registry.getProfileView(dockerPlugin.id())).thenReturn("html");
-        Configuration configuration = new Configuration();
-        Property property = new Property("foo", "bar", "defaultValue");
-        property.with(Property.REQUIRED, true);
-        property.with(Property.SECURE, true);
-        configuration.add(property);
-        when(registry.getProfileMetadata(dockerPlugin.id())).thenReturn(configuration);
+        when(elasticPluginConfigMetadataStore.getIcon(dockerPlugin)).thenReturn(image);
+        when(elasticPluginConfigMetadataStore.getProfileView(dockerPlugin)).thenReturn("html");
+
+        PluginProfileMetadataKey pluginProfileMetadataKey = new PluginProfileMetadataKey("foo", new PluginProfileMetadata(true, true));
+        PluginProfileMetadataKeys pluginProfileMetadataKeys = new PluginProfileMetadataKeys(Collections.singletonList(pluginProfileMetadataKey));
+        when(elasticPluginConfigMetadataStore.getProfileMetadata(dockerPlugin)).thenReturn(pluginProfileMetadataKeys);
 
         PluginInfo pluginInfo = builder.pluginInfoFor(dockerPlugin.id());
 

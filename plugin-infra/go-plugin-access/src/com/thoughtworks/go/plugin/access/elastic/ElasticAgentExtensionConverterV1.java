@@ -19,14 +19,16 @@ package com.thoughtworks.go.plugin.access.elastic;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import com.thoughtworks.go.plugin.access.common.handler.JSONResultMessageHandler;
-import com.thoughtworks.go.plugin.access.common.settings.Image;
-import com.thoughtworks.go.plugin.api.config.Configuration;
-import com.thoughtworks.go.plugin.api.config.Property;
+import com.thoughtworks.go.plugin.access.common.models.Image;
+import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKeys;
+import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import org.apache.commons.lang.StringUtils;
 
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
 
 public class ElasticAgentExtensionConverterV1 implements ElasticAgentMessageConverter {
 
@@ -79,33 +81,8 @@ public class ElasticAgentExtensionConverterV1 implements ElasticAgentMessageConv
     }
 
     @Override
-    public Configuration getProfileMetadataResponseFromBody(String responseBody) {
-        List<Map<String, Object>> list = new Gson().fromJson(responseBody, List.class);
-
-        Configuration configuration = new Configuration();
-        for (Map<String, Object> map : list) {
-            String key = (String) map.get("key");
-            Property property = new Property(key);
-
-            Map<String, Boolean> metadata = (Map<String, Boolean>) map.get("metadata");
-            if (metadata == null) {
-                metadata = new HashMap<>();
-            }
-            if (metadata.containsKey("required") && metadata.get("required")) {
-                property.with(Property.REQUIRED, true);
-            } else {
-                property.with(Property.REQUIRED, false);
-            }
-
-            if (metadata.containsKey("secure") && metadata.get("secure")) {
-                property.with(Property.SECURE, true);
-            } else {
-                property.with(Property.SECURE, false);
-            }
-            configuration.add(property);
-        }
-
-        return configuration;
+    public PluginProfileMetadataKeys getProfileMetadataResponseFromBody(String responseBody) {
+        return PluginProfileMetadataKeys.fromJSON(responseBody);
     }
 
     @Override
@@ -119,11 +96,7 @@ public class ElasticAgentExtensionConverterV1 implements ElasticAgentMessageConv
 
     @Override
     public Image getImageResponseFromBody(String responseBody) {
-        Map<String, String> json = new Gson().fromJson(responseBody, Map.class);
-        if (json != null && json.containsKey("content_type") && json.containsKey("data")) {
-            return new Image(json.get("content_type"), json.get("data"));
-        }
-        return null;
+        return Image.fromJSON(responseBody);
     }
 
     @Override

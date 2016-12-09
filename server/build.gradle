@@ -60,6 +60,7 @@ project.ext.testSystemProperties = props
 
 apply from: 'rails.gradle'
 apply from: 'jasmine.gradle'
+apply from: 'helpers.gradle'
 
 sourceSets {
   main {

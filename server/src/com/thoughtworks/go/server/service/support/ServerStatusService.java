@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.server.service.support;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.SecurityService;
@@ -46,6 +48,16 @@ public class ServerStatusService {
                 return Double.compare(oneProvider.priority(), anotherProvider.priority());
             }
         });
+        Runtime.getRuntime().addShutdownHook(logServerInfo());
+    }
+
+    private Thread logServerInfo() {
+        return new Thread(new Runnable() {
+            @Override
+            public void run() {
+                LOGGER.info(new GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(serverInfoAsJson()));
+            }
+        });
     }
 
     public Map<String, Object> asJson(Username username, LocalizedOperationResult result) {
@@ -54,6 +66,11 @@ public class ServerStatusService {
             return null;
         }
 
+        return serverInfoAsJson();
+
+    }
+
+    private Map<String, Object> serverInfoAsJson() {
         LinkedHashMap<String, Object> json = new LinkedHashMap<>();
         json.put("Timestamp", DateUtils.formatISO8601(new Date()));
 
@@ -66,6 +83,5 @@ public class ServerStatusService {
             }
         }
         return json;
-
     }
 }

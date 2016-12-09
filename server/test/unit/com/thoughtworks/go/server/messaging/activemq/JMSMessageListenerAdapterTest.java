@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.messaging.activemq;
 
 import javax.jms.MessageConsumer;
 
+import com.thoughtworks.go.server.service.support.DaemonThreadStatsCollector;
 import com.thoughtworks.go.server.messaging.GoMessage;
 import com.thoughtworks.go.server.messaging.GoMessageListener;
 import static org.junit.Assert.fail;
@@ -39,7 +40,7 @@ public class JMSMessageListenerAdapterTest {
                 return "test-listener";
             }
         };
-        JMSMessageListenerAdapter listenerAdapter = JMSMessageListenerAdapter.startListening(consumer, mockListener);
+        JMSMessageListenerAdapter listenerAdapter = JMSMessageListenerAdapter.startListening(consumer, mockListener, mock(DaemonThreadStatsCollector.class));
         try {
             listenerAdapter.runImpl();
         } catch (Exception e) {

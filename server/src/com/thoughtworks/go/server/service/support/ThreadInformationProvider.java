@@ -16,14 +16,23 @@
 
 package com.thoughtworks.go.server.service.support;
 
-import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.lang.management.*;
+import java.lang.management.ThreadInfo;
+import java.lang.management.ThreadMXBean;
 import java.util.*;
 
 @Component
 public class ThreadInformationProvider implements ServerInfoProvider {
+    private final DaemonThreadStatsCollector daemonThreadStatsCollector;
+
+    @Autowired
+    public ThreadInformationProvider(DaemonThreadStatsCollector daemonThreadStatsCollector) {
+        this.daemonThreadStatsCollector = daemonThreadStatsCollector;
+    }
+
     @Override
     public double priority() {
         return 11.0;
@@ -68,7 +77,7 @@ public class ThreadInformationProvider implements ServerInfoProvider {
         return json;
     }
 
-    private TreeMap<Long, Map<String, Object>> getStackTraceInformation(ThreadMXBean threadMXBean) {
+    private TreeMap<Long, Map<String, Object>> getThreadInformation(ThreadMXBean threadMXBean) {
         TreeMap<Long, Map<String, Object>> traces = new TreeMap<>();
         ThreadInfo[] threadInfos = threadMXBean.dumpAllThreads(true, true);
         for (ThreadInfo threadInfo : threadInfos) {
@@ -76,7 +85,13 @@ public class ThreadInformationProvider implements ServerInfoProvider {
             threadStackTrace.put("Id", threadInfo.getThreadId());
             threadStackTrace.put("Name", threadInfo.getThreadName());
             threadStackTrace.put("State", threadInfo.getThreadState());
-
+            threadStackTrace.put("UserTime(nanoseconds)", threadMXBean.getThreadUserTime(threadInfo.getThreadId()));
+            threadStackTrace.put("CPUTime(nanoseconds)", threadMXBean.getThreadCpuTime(threadInfo.getThreadId()));
+            threadStackTrace.put("DaemonThreadInfo", daemonThreadStatsCollector.statsFor(threadInfo.getThreadId()));
+            if (threadMXBean instanceof com.sun.management.ThreadMXBean) {
+                com.sun.management.ThreadMXBean mxBean = (com.sun.management.ThreadMXBean) threadMXBean;
+                threadStackTrace.put("AllocatedMemory(Bytes)", mxBean.getThreadAllocatedBytes(threadInfo.getThreadId()));
+            }
             LinkedHashMap<String, Object> lockMonitorInfo = new LinkedHashMap<>();
             MonitorInfo[] lockedMonitors = threadInfo.getLockedMonitors();
             ArrayList<Map<String, Object>> lockedMonitorsJson = new ArrayList<>();
@@ -95,19 +110,19 @@ public class ThreadInformationProvider implements ServerInfoProvider {
             threadStackTrace.put("Lock Monitor Info", lockMonitorInfo);
 
             LinkedHashMap<String, Object> blockedInfo = new LinkedHashMap<>();
-            blockedInfo.put("Blocked Time", threadInfo.getBlockedTime() == -1 ? null : threadInfo.getBlockedTime());
+            blockedInfo.put("Blocked Time(ms)", threadInfo.getBlockedTime());
             blockedInfo.put("Blocked Count", threadInfo.getBlockedCount());
             threadStackTrace.put("Blocked Info", blockedInfo);
 
             LinkedHashMap<String, Object> timeInfo = new LinkedHashMap<>();
-            timeInfo.put("Waited Time", threadInfo.getWaitedTime() == -1 ? null : threadInfo.getWaitedTime());
+            timeInfo.put("Waited Time(ms)", threadInfo.getWaitedTime());
             timeInfo.put("Waited Count", threadInfo.getWaitedCount());
             threadStackTrace.put("Time Info", timeInfo);
 
             LinkedHashMap<String, Object> lockInfoMap = new LinkedHashMap<>();
             LockInfo lockInfo = threadInfo.getLockInfo();
             lockInfoMap.put("Locked On", asJSON(lockInfo));
-            lockInfoMap.put("Lock Owner Thread Id", threadInfo.getLockOwnerId() == -1 ? null : threadInfo.getLockOwnerId());
+            lockInfoMap.put("Lock Owner Thread Id", threadInfo.getLockOwnerId());
             lockInfoMap.put("Lock Owner Thread Name", threadInfo.getLockOwnerName());
             threadStackTrace.put("Lock Info", lockInfoMap);
 
@@ -156,7 +171,7 @@ public class ThreadInformationProvider implements ServerInfoProvider {
         LinkedHashMap<String, Object> json = new LinkedHashMap<>();
         json.put("Thread Count", getThreadCount(threadMXBean));
         json.put("DeadLock Threads", getDeadLockThreadInformation(threadMXBean));
-        json.put("Stack Trace", getStackTraceInformation(threadMXBean));
+        json.put("Stack Trace", getThreadInformation(threadMXBean));
         return json;
     }
 

@@ -21,6 +21,7 @@ import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.ObjectMessage;
 
+import com.thoughtworks.go.server.service.support.DaemonThreadStatsCollector;
 import com.thoughtworks.go.server.messaging.GoMessage;
 import com.thoughtworks.go.server.messaging.GoMessageListener;
 import org.apache.commons.logging.Log;
@@ -31,11 +32,13 @@ public class JMSMessageListenerAdapter implements Runnable {
 
     private final MessageConsumer consumer;
     private final GoMessageListener listener;
+    private final DaemonThreadStatsCollector daemonThreadStatsCollector;
     public Thread thread;
 
-    private JMSMessageListenerAdapter(MessageConsumer consumer, GoMessageListener listener) throws JMSException {
+    private JMSMessageListenerAdapter(MessageConsumer consumer, GoMessageListener listener, DaemonThreadStatsCollector daemonThreadStatsCollector) throws JMSException {
         this.consumer = consumer;
         this.listener = listener;
+        this.daemonThreadStatsCollector = daemonThreadStatsCollector;
 
 
         thread = new Thread(this);
@@ -66,19 +69,21 @@ public class JMSMessageListenerAdapter implements Runnable {
             }
 
             ObjectMessage omessage = (ObjectMessage) message;
+            daemonThreadStatsCollector.captureStats(thread.getId());
             listener.onMessage((GoMessage) omessage.getObject());
-
         } catch (JMSException e) {
             LOG.warn("Error receiving message. Message receiving will continue despite this error.", e);
         } catch (Exception e) {
             LOG.error("Exception thrown in message handling by listener " + listener, e);
+        }finally {
+            daemonThreadStatsCollector.clearStats(thread.getId());
         }
         return false;
     }
 
-    public static JMSMessageListenerAdapter startListening(MessageConsumer consumer, GoMessageListener listener)
+    public static JMSMessageListenerAdapter startListening(MessageConsumer consumer, GoMessageListener listener, DaemonThreadStatsCollector daemonThreadStatsCollector)
             throws JMSException {
-        return new JMSMessageListenerAdapter(consumer, listener);
+        return new JMSMessageListenerAdapter(consumer, listener, daemonThreadStatsCollector);
     }
 
 }

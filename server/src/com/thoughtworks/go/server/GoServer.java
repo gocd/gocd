@@ -69,7 +69,6 @@ public class GoServer {
     protected void startServer() throws Exception {
         server = configureServer();
         server.start();
-
         Throwable exceptionAtServerStart = server.getUnavailableException();
         if (exceptionAtServerStart != null) {
             server.stop();

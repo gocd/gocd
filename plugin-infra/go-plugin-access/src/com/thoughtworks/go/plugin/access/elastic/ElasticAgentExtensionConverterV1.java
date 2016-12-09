@@ -120,8 +120,8 @@ public class ElasticAgentExtensionConverterV1 implements ElasticAgentMessageConv
     @Override
     public Image getImageResponseFromBody(String responseBody) {
         Map<String, String> json = new Gson().fromJson(responseBody, Map.class);
-        if (json != null && json.containsKey("content-type") && json.containsKey("data")) {
-            return new Image(json.get("content-type"), json.get("data"));
+        if (json != null && json.containsKey("content_type") && json.containsKey("data")) {
+            return new Image(json.get("content_type"), json.get("data"));
         }
         return null;
     }

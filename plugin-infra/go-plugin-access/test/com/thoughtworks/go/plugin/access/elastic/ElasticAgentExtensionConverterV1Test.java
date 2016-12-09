@@ -123,7 +123,7 @@ public class ElasticAgentExtensionConverterV1Test {
 
     @Test
     public void shouldUnJSONizeGetImageResponseFromBody() throws Exception {
-        Image image = new ElasticAgentExtensionConverterV1().getImageResponseFromBody("{\"content-type\":\"foo\", \"data\":\"bar\"}");
+        Image image = new ElasticAgentExtensionConverterV1().getImageResponseFromBody("{\"content_type\":\"foo\", \"data\":\"bar\"}");
         assertThat(image.getContentType(), is("foo"));
         assertThat(image.getData(), is("bar"));
     }
@@ -133,7 +133,7 @@ public class ElasticAgentExtensionConverterV1Test {
         Image image = new ElasticAgentExtensionConverterV1().getImageResponseFromBody("");
         assertThat(image, is(nullValue()));
 
-        image = new ElasticAgentExtensionConverterV1().getImageResponseFromBody("{\"content-type\":\"foo\"}");
+        image = new ElasticAgentExtensionConverterV1().getImageResponseFromBody("{\"content_type\":\"foo\"}");
         assertThat(image, is(nullValue()));
 
         image = new ElasticAgentExtensionConverterV1().getImageResponseFromBody("{\"data\":\"foo\"}");

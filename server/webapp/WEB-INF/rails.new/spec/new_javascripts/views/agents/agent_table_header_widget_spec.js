@@ -28,12 +28,10 @@ define(["jquery", "mithril", "views/agents/agent_table_header"], function ($, m,
 
     var route = function (isUserAdmin) {
       m.route.mode = "hash";
-      m.route(root, '',
-        {
-          '':                  agentTableHeaderComponent(isUserAdmin),
-          '/:sortBy/:orderBy': agentTableHeaderComponent(isUserAdmin)
-        }
-      );
+      m.route(root, '', {
+        '':                  agentTableHeaderComponent(isUserAdmin),
+        '/:sortBy/:orderBy': agentTableHeaderComponent(isUserAdmin)
+      });
       m.route('');
       m.redraw(true);
     };
@@ -51,7 +49,7 @@ define(["jquery", "mithril", "views/agents/agent_table_header"], function ($, m,
       expect(checkbox.checked).toBe(checkboxValue());
     });
 
-    it('should not display checkbox for non-admin user', function() {
+    it('should not display checkbox for non-admin user', function () {
       route(false);
       expect('thead input').not.toBeInDOM();
     });
@@ -73,13 +71,12 @@ define(["jquery", "mithril", "views/agents/agent_table_header"], function ($, m,
     });
 
     var agentTableHeaderComponent = function (isUserAdmin) {
-      return m.component(AgentsTableHeader,
-        {
-          onCheckboxClick: onCheckboxClick,
-          checkboxValue:   checkboxValue,
-          sortBy:          sortBy,
-          isUserAdmin: isUserAdmin
-        });
+      return m.component(AgentsTableHeader, {
+        onCheckboxClick: onCheckboxClick,
+        checkboxValue:   checkboxValue,
+        sortBy:          sortBy,
+        isUserAdmin:     isUserAdmin
+      });
     };
 
     var onCheckboxClick = function () {

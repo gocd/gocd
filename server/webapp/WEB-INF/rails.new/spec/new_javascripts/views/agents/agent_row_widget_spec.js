@@ -69,7 +69,7 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agent_row_wid
       expect(checkbox.checked).toBe(model());
     });
 
-    it('should not display checkbox for non-admin user', function() {
+    it('should not display checkbox for non-admin user', function () {
       mount(agents().firstAgent(), model, false);
       expect('tr input').not.toBeInDOM();
     });
@@ -121,13 +121,12 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agent_row_wid
 
     var mount = function (agent, model, isUserAdmin) {
       m.mount(root,
-        m.component(AgentsRowWidget,
-          {
-            'agent':         agent,
-            'checkBoxModel': model,
-            'dropdown':      agentsVM.dropdown,
-            'isUserAdmin': isUserAdmin
-          })
+        m.component(AgentsRowWidget, {
+          'agent':         agent,
+          'checkBoxModel': model,
+          'dropdown':      agentsVM.dropdown,
+          'isUserAdmin':   isUserAdmin
+        })
       );
       m.redraw(true);
     };

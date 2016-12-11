@@ -38,7 +38,7 @@ define(['jquery', 'mithril', "models/pipeline_configs/plugin_infos"], function (
         requestArgs.config(xhr);
 
         expect(xhr.setRequestHeader).toHaveBeenCalledWith("Content-Type", "application/json");
-        expect(xhr.setRequestHeader).toHaveBeenCalledWith("Accept", "application/vnd.go.cd.v1+json");
+        expect(xhr.setRequestHeader).toHaveBeenCalledWith("Accept", "application/vnd.go.cd.v2+json");
       });
 
       it('should not stop page redraw', function() {
@@ -156,7 +156,7 @@ define(['jquery', 'mithril', "models/pipeline_configs/plugin_infos"], function (
         requestArgs.config(xhr);
 
         expect(xhr.setRequestHeader).toHaveBeenCalledWith("Content-Type", "application/json");
-        expect(xhr.setRequestHeader).toHaveBeenCalledWith("Accept", "application/vnd.go.cd.v1+json");
+        expect(xhr.setRequestHeader).toHaveBeenCalledWith("Accept", "application/vnd.go.cd.v2+json");
       });
 
       it('should deserialize to Plugin object', function() {

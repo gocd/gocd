@@ -29,9 +29,9 @@ define(['mithril', 'lodash', 'string-plus', 'helpers/mrequest', 'models/shared/i
 
     return m.request({
       method:        'GET',
-      url:           Routes.apiv1AdminPluginInfoIndexPath({'type': type}),
+      url:           Routes.apiv2AdminPluginInfoIndexPath({'type': type}),
       background:    true,
-      config:        mrequest.xhrConfig.v1,
+      config:        mrequest.xhrConfig.v2,
       unwrapSuccess: unwrap,
       type:          PluginInfos.PluginInfo
     });
@@ -72,8 +72,8 @@ define(['mithril', 'lodash', 'string-plus', 'helpers/mrequest', 'models/shared/i
   PluginInfos.PluginInfo.get = function (id) {
     return m.request({
       method:      'GET',
-      url:         Routes.apiv1AdminPluginInfoPath({id: id}),
-      config:      mrequest.xhrConfig.v1,
+      url:         Routes.apiv2AdminPluginInfoPath({id: id}),
+      config:      mrequest.xhrConfig.v2,
       type:        PluginInfos.PluginInfo,
       unwrapError: mrequest.unwrapErrorExtractMessage
     });

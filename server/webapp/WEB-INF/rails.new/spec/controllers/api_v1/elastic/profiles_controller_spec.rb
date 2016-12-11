@@ -356,7 +356,6 @@ describe ApiV1::Elastic::ProfilesController do
 
         put_with_api_header :update, profile_id: 'unit-test.docker', profile: profile_hash
 
-        puts response.body
         expect(response).to be_ok
         expect(actual_response).to eq(expected_response(profile, ApiV1::Elastic::ProfileRepresenter))
       end

@@ -148,8 +148,8 @@ describe ApiV4::AgentsController do
           expect(:get => 'api/agents/uuid_123').to route_to(action: 'show', controller: 'api_v4/agents', uuid: 'uuid_123')
         end
 
-        it 'should not route to show action of the agents controller for uuid with dots' do
-          expect(:get => 'api/agents/uuid.123').to_not route_to(action: 'show', controller: 'api_v4/agents', uuid: 'uuid.123')
+        it 'should route to show action of the agents controller for uuid with dots' do
+          expect(:get => 'api/agents/uuid.123').to route_to(action: 'show', controller: 'api_v4/agents', uuid: 'uuid.123')
         end
       end
       describe :without_header do
@@ -229,8 +229,8 @@ describe ApiV4::AgentsController do
           expect(:delete => 'api/agents/uuid_123').to route_to(action: 'destroy', controller: 'api_v4/agents', uuid: 'uuid_123')
         end
 
-        it 'should not route to destroy action of the agents controller for uuid with dots' do
-          expect(:delete => 'api/agents/uuid.123').to_not route_to(action: 'destroy', controller: 'api_v4/agents', uuid: 'uuid.123')
+        it 'should route to destroy action of the agents controller for uuid with dots' do
+          expect(:delete => 'api/agents/uuid.123').to route_to(action: 'destroy', controller: 'api_v4/agents', uuid: 'uuid.123')
         end
       end
       describe :without_header do
@@ -386,8 +386,8 @@ describe ApiV4::AgentsController do
           expect(:patch => 'api/agents/uuid_123').to route_to(action: 'update', controller: 'api_v4/agents', uuid: 'uuid_123')
         end
 
-        it 'should not route to update action of the agents controller for uuid with dots' do
-          expect(:patch => 'api/agents/uuid.123').to_not route_to(action: 'update', controller: 'api_v4/agents', uuid: 'uuid.123')
+        it 'should route to update action of the agents controller for uuid with dots' do
+          expect(:patch => 'api/agents/uuid.123').to route_to(action: 'update', controller: 'api_v4/agents', uuid: 'uuid.123')
         end
       end
       describe :without_header do

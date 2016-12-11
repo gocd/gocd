@@ -27,6 +27,10 @@ module ApiV2
         'https://api.go.cd/#plugin-info'
       end
 
+      link :image do |opts|
+        plugin.image.try(:toDataURI)
+      end
+
       link :find do |opts|
         opts[:url_builder].apiv2_admin_plugin_info_url(id: '__plugin_id__').gsub(/__plugin_id__/, ':id')
       end
@@ -43,6 +47,11 @@ module ApiV2
                inherit: false,
                class: PluggableInstanceSettings,
                decorator: ApiV2::Plugin::PluggableInstanceSettingsRepresenter
+
+      property :image, skip_nil: true do
+        property :content_type
+        property :data
+      end
     end
   end
 end

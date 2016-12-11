@@ -70,4 +70,22 @@ describe ApiV2::Plugin::PluginInfoRepresenter do
                                type:    'plugin_type'
                               })
   end
+
+  it 'should render image when available' do
+    image = com.thoughtworks.go.plugin.access.common.settings.Image.new('foo', 'bar')
+    plugin_info = PluginInfo.new('plugin_id', 'plugin_name', 'plugin_version', 'plugin_type', nil, nil, image)
+    actual_json = ApiV2::Plugin::PluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
+
+    expect(actual_json).to have_link(:image).with_url(image.toDataURI)
+    actual_json.delete(:_links)
+    expect(actual_json).to eq({id:      'plugin_id',
+                               name:    'plugin_name',
+                               version: 'plugin_version',
+                               type:    'plugin_type',
+                               image: {
+                                 content_type: image.getContentType,
+                                 data:         image.data
+                               }
+                              })
+  end
 end

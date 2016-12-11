@@ -270,11 +270,15 @@ Go::Application.routes.draw do
 
       end
 
-      resources :agents, param: :uuid, except: [:new, :create, :edit, :update] do
+
+      resources :agents, param: :uuid, only: [:show, :destroy], constraints: {uuid: ALLOW_DOTS} do
         patch :update, on: :member
-        patch on: :collection, action: :bulk_update
-        delete on: :collection, action: :bulk_destroy
       end
+
+      # for some reasons using the constraints breaks route specs for routes that don't use constraints, so an ugly hax
+      get 'agents', action: :index, controller: 'agents'
+      patch 'agents', action: :bulk_update, controller: 'agents'
+      delete 'agents', action: :bulk_destroy, controller: 'agents'
 
       match '*url', via: :all, to: 'errors#not_found'
     end
@@ -287,11 +291,15 @@ Go::Application.routes.draw do
         resources :templates, param: :template_name, only: [:index, :show, :update, :create, :destroy], constraints: {template_name: TEMPLATE_NAME_FORMAT}
       end
 
-      resources :agents, param: :uuid, except: [:new, :create, :edit, :update] do
+
+      resources :agents, param: :uuid, only: [:show, :destroy], constraints: {uuid: ALLOW_DOTS} do
         patch :update, on: :member
-        patch on: :collection, action: :bulk_update
-        delete on: :collection, action: :bulk_destroy
       end
+
+      # for some reasons using the constraints breaks route specs for routes that don't use constraints, so an ugly hax
+      get 'agents', action: :index, controller: 'agents'
+      patch 'agents', action: :bulk_update, controller: 'agents'
+      delete 'agents', action: :bulk_destroy, controller: 'agents'
 
       match '*url', via: :all, to: 'errors#not_found'
     end
@@ -299,11 +307,15 @@ Go::Application.routes.draw do
 
   scope :api, as: :apiv4, format: false do
     api_version(:module => 'ApiV4', header: {name: 'Accept', value: 'application/vnd.go.cd.v4+json'}) do
-      resources :agents, param: :uuid, except: [:new, :create, :edit, :update] do
+
+      resources :agents, param: :uuid, only: [:show, :destroy], constraints: {uuid: ALLOW_DOTS} do
         patch :update, on: :member
-        patch on: :collection, action: :bulk_update
-        delete on: :collection, action: :bulk_destroy
       end
+
+      # for some reasons using the constraints breaks route specs for routes that don't use constraints, so an ugly hax
+      get 'agents', action: :index, controller: 'agents'
+      patch 'agents', action: :bulk_update, controller: 'agents'
+      delete 'agents', action: :bulk_destroy, controller: 'agents'
 
       match '*url', via: :all, to: 'errors#not_found'
     end
@@ -331,7 +343,7 @@ Go::Application.routes.draw do
       get 'pipelines/:pipeline_name/history/(:offset)' => 'pipelines#history', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, defaults: {:offset => '0'}, as: :pipeline_history
       get 'stages/:pipeline_name/:stage_name/history/(:offset)' => 'stages#history', constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_name: STAGE_NAME_FORMAT}, defaults: {:offset => '0'}, as: :stage_history_api
       get 'jobs/:pipeline_name/:stage_name/:job_name/history/(:offset)' => 'jobs#history', constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_name: STAGE_NAME_FORMAT, job_name: JOB_NAME_FORMAT}, defaults: {:offset => '0'}, as: :job_history_api
-      get "agents/:uuid/job_run_history/(:offset)" => 'agents#job_run_history', defaults: {:offset => '0'}, as: :agent_job_run_history_api
+      get "agents/:uuid/job_run_history/(:offset)" => 'agents#job_run_history', defaults: {:offset => '0'}, as: :agent_job_run_history_api, constraints: {uuid: ALLOW_DOTS}
       get "materials/:fingerprint/modifications/(:offset)" => 'materials#modifications', defaults: {:offset => '0'}, as: :material_modifications_api
 
       # instance
@@ -437,8 +449,8 @@ Go::Application.routes.draw do
     get '' => 'users#users', as: :user_listing
   end
 
-  get "agents/:uuid" => 'agent_details#show', as: :agent_detail
-  get "agents/:uuid/job_run_history" => 'agent_details#job_run_history', as: :job_run_history_on_agent
+  get "agents/:uuid" => 'agent_details#show', as: :agent_detail, constraints: {uuid: ALLOW_DOTS}
+  get "agents/:uuid/job_run_history" => 'agent_details#job_run_history', as: :job_run_history_on_agent, constraints: {uuid: ALLOW_DOTS}
 
   get "cas_errors/user_disabled" => 'cas_errors#user_disabled', as: :user_disabled_cas_error
   get "cas_errors/user_unknown" => 'cas_errors#user_unknown', as: :user_unknown_cas_error

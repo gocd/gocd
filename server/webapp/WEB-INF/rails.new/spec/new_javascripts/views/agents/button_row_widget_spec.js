@@ -98,17 +98,16 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/button_row_wi
 
     var mount = function (areOperationsAllowed) {
       m.mount(root,
-        m.component(ButtonRowWidget,
-          {
-            areOperationsAllowed: areOperationsAllowed,
-            dropdown:             agentsVM.dropdown,
-            selectedAgents:       selectedAgents,
-            onDisable:            disableAgents,
-            onEnable:             enableAgents,
-            onDelete:             deleteAgents,
-            onResourcesUpdate:    updateResources,
-            onEnvironmentsUpdate: updateEnvironments
-          })
+        m.component(ButtonRowWidget, {
+          areOperationsAllowed: areOperationsAllowed,
+          dropdown:             agentsVM.dropdown,
+          selectedAgents:       selectedAgents,
+          onDisable:            disableAgents,
+          onEnable:             enableAgents,
+          onDelete:             deleteAgents,
+          onResourcesUpdate:    updateResources,
+          onEnvironmentsUpdate: updateEnvironments
+        })
       );
       m.redraw(true);
     };

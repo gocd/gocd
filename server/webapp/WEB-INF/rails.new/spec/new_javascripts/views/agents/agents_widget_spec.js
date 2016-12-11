@@ -24,12 +24,10 @@ define(["jquery", "mithril", 'lodash', 'models/agents/agents', "views/agents/age
     var route = function (isUserAdmin) {
       m.route.mode = "hash";
 
-      m.route(root, '',
-        {
-          '':                  m.component(AgentsWidget, {vm: agentsVM, allAgents: agents, isUserAdmin: isUserAdmin}),
-          '/:sortBy/:orderBy': m.component(AgentsWidget, {vm: agentsVM, allAgents: agents, isUserAdmin: isUserAdmin})
-        }
-      );
+      m.route(root, '', {
+        '':                  m.component(AgentsWidget, {vm: agentsVM, allAgents: agents, isUserAdmin: isUserAdmin}),
+        '/:sortBy/:orderBy': m.component(AgentsWidget, {vm: agentsVM, allAgents: agents, isUserAdmin: isUserAdmin})
+      });
       m.route('');
       m.redraw(true);
     };
@@ -146,7 +144,7 @@ define(["jquery", "mithril", 'lodash', 'models/agents/agents', "views/agents/age
       expect($(resourceButton).parent().attr('class')).toContain('is-open');
     });
 
-    it('should not allow operations when user is non-admin', function() {
+    it('should not allow operations when user is non-admin', function () {
       route(false);
       clickAllAgents();
       var sampleButton = $root.find("button:contains('Resources')");

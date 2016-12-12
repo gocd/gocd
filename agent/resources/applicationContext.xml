@@ -77,22 +77,8 @@
   <bean id="webSocketClientHandler" class="com.thoughtworks.go.agent.WebSocketClientHandler"/>
   <bean id="webSocketSessionHandler" class="com.thoughtworks.go.agent.WebSocketSessionHandler"/>
 
-  <bean id="agentController" class="com.thoughtworks.go.agent.AgentController" factory-method="createInstance">
-    <constructor-arg ref="buildLoopServer"/>
-    <constructor-arg ref="artifactsManipulator"/>
-    <constructor-arg ref="agentUpgradeService"/>
-    <constructor-arg ref="defaultPluginManager"/>
-    <constructor-arg ref="sslInfrastructureService"/>
-    <constructor-arg ref="systemEnvironment"/>
-    <constructor-arg ref="agentRegistry"/>
-    <constructor-arg ref="subprocessLogger"/>
-    <constructor-arg ref="packageAsRepositoryExtension"/>
-    <constructor-arg ref="scmExtension"/>
-    <constructor-arg ref="taskExtension"/>
-    <constructor-arg ref="httpService"/>
-    <constructor-arg ref="webSocketClientHandler"/>
-    <constructor-arg ref="webSocketSessionHandler"/>
-  </bean>
+  <bean id="agentControllerFactory" class="com.thoughtworks.go.agent.AgentControllerFactory" />
+  <bean id="agentController" class="com.thoughtworks.go.agent.AgentController" factory-bean="agentControllerFactory" factory-method="createInstance" />
 
   <bean id="agentControllerLooper" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean"
         p:targetObject-ref="agentController"

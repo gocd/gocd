@@ -168,48 +168,4 @@ public abstract class AgentController {
             pipelines.mkdirs();
         }
     }
-
-    public static AgentController createInstance(
-            BuildRepositoryRemote server,
-            GoArtifactsManipulator manipulator,
-            AgentUpgradeService agentUpgradeService,
-            PluginManager pluginManager,
-            SslInfrastructureService sslInfrastructureService,
-            SystemEnvironment systemEnvironment,
-            AgentRegistry agentRegistry,
-            SubprocessLogger subprocessLogger,
-            PackageAsRepositoryExtension packageAsRepositoryExtension,
-            SCMExtension scmExtension,
-            TaskExtension taskExtension,
-            HttpService httpService,
-            WebSocketClientHandler webSocketClientHandler, WebSocketSessionHandler sessionHandler) {
-        if (systemEnvironment.isWebsocketEnabled()) {
-            return new AgentWebSocketClientController(
-                    server,
-                    manipulator,
-                    sslInfrastructureService,
-                    agentRegistry,
-                    agentUpgradeService,
-                    subprocessLogger,
-                    systemEnvironment,
-                    pluginManager,
-                    packageAsRepositoryExtension,
-                    scmExtension,
-                    taskExtension,
-                    httpService, webSocketClientHandler, sessionHandler);
-        } else {
-            return new AgentHTTPClientController(
-                    server,
-                    manipulator,
-                    sslInfrastructureService,
-                    agentRegistry,
-                    agentUpgradeService,
-                    subprocessLogger,
-                    systemEnvironment,
-                    pluginManager,
-                    packageAsRepositoryExtension,
-                    scmExtension,
-                    taskExtension);
-        }
-    }
 }

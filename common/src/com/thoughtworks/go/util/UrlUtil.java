@@ -124,7 +124,9 @@ public class UrlUtil {
             String[] split = query.split(QUERY_SEPERATOR);
             for (String queryFrag : split) {
                 String[] queryFragmentSplit = queryFrag.split(QUERY_KEY_VAL_SEPERATOR);
-                parsed.add(new QueryTuple(queryFragmentSplit[0], decode(queryFragmentSplit[1])));
+                if (queryFragmentSplit.length == 2) {
+                    parsed.add(new QueryTuple(queryFragmentSplit[0], decode(queryFragmentSplit[1])));
+                }
             }
             return parsed;
         }

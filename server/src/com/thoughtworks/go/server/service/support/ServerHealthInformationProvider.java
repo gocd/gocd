@@ -47,16 +47,6 @@ public class ServerHealthInformationProvider implements ServerInfoProvider {
     }
 
     @Override
-    public void appendInformation(InformationStringBuilder infoCollector) {
-        infoCollector.addSection("Server health information");
-        ServerHealthStates allLogs = service.getAllLogs();
-        infoCollector.append(String.format("Server Health Messages: [%d messages]\n", allLogs.size()));
-        for (ServerHealthState log : allLogs) {
-            infoCollector.append(String.format("%s\n", render(log.asJson())));
-        }
-    }
-
-    @Override
     public Map<String, Object> asJson() {
         LinkedHashMap<String, Object> json = new LinkedHashMap<>();
         ServerHealthStates allLogs = service.getAllLogs();

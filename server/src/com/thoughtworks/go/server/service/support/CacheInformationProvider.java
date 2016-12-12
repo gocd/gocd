@@ -43,14 +43,6 @@ public class CacheInformationProvider implements ServerInfoProvider {
     }
 
     @Override
-    public void appendInformation(InformationStringBuilder infoCollector) {
-        infoCollector.addSection("Cache information");
-
-        appendCacheConfigurationInformation(infoCollector, goCache);
-        appendLiveCacheStatisticsInformation(infoCollector, goCache);
-    }
-
-    @Override
     public Map<String, Object> asJson() {
         LinkedHashMap<String, Object> json = new LinkedHashMap<>();
         json.put("Cache configuration information", getCacheConfigurationInformationAsJson());
@@ -61,31 +53,6 @@ public class CacheInformationProvider implements ServerInfoProvider {
     @Override
     public String name() {
         return "Cache Information";
-    }
-
-    private void appendCacheConfigurationInformation(InformationStringBuilder infoCollector, GoCache cache) {
-        CacheConfiguration configuration = cache.configuration();
-
-        infoCollector.addSubSection("Cache configuration information");
-        infoCollector.append(reflectionToString(configuration, ToStringStyle.MULTI_LINE_STYLE)).append("\n");
-    }
-
-    private void appendLiveCacheStatisticsInformation(InformationStringBuilder infoCollector, GoCache cache) {
-        LiveCacheStatistics statistics = cache.statistics();
-
-        infoCollector.addSubSection("Cache runtime information");
-        infoCollector.append(String.format("Statistics enabled? %s\n", statistics.isStatisticsEnabled()));
-        infoCollector.append(String.format("Average get time in milliseconds: %s [Min: %s, Max: %s]\n", statistics.getAverageGetTimeMillis(),
-                statistics.getMinGetTimeMillis(), statistics.getMaxGetTimeMillis()));
-        infoCollector.append(String.format("Cache size: %s (Accuracy: %s)\n", statistics.getSize(), statistics.getStatisticsAccuracyDescription()));
-        infoCollector.append(String.format("Cache counts: [Hits: %s, Miss: %s, Expired: %s, Eviction: %s, Put: %s, Remove: %s]\n\n",
-                statistics.getCacheHitCount(), statistics.getCacheMissCount(), statistics.getExpiredCount(), statistics.getEvictedCount(),
-                statistics.getPutCount(), statistics.getRemovedCount()));
-
-        infoCollector.append(String.format("Cache size (in-memory): %s\n", statistics.getInMemorySize()));
-        infoCollector.append(String.format("Cache hit count (in-memory): %s\n", statistics.getInMemoryHitCount()));
-        infoCollector.append(String.format("Cache size (disk): %s\n", statistics.getOnDiskSize()));
-        infoCollector.append(String.format("Cache hit count (disk): %s\n", statistics.getOnDiskHitCount()));
     }
 
     public Map<String, Object> getCacheRuntimeInformationAsJson() {

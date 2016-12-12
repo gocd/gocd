@@ -32,16 +32,6 @@ public class MemoryPoolInformationProvider extends AbstractMemoryInformationProv
     }
 
     @Override
-    public void appendInformation(InformationStringBuilder builder) {
-        builder.addSection("Memory pool information");
-
-        List<MemoryPoolMXBean> memoryPoolMXBeans = ManagementFactory.getMemoryPoolMXBeans();
-        for (MemoryPoolMXBean memoryPoolMXBean : memoryPoolMXBeans) {
-            builder.append(String.format("Name: %s, Type: %s\n%s\n", memoryPoolMXBean.getName(), memoryPoolMXBean.getType(), format(memoryPoolMXBean.getUsage())));
-        }
-    }
-
-    @Override
     public Map<String, Object> asJson() {
         LinkedHashMap<String, Object> json = new LinkedHashMap<>();
         List<MemoryPoolMXBean> memoryPoolMXBeans = ManagementFactory.getMemoryPoolMXBeans();

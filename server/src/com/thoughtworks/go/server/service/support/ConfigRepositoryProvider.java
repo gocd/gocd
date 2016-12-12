@@ -42,19 +42,6 @@ public class ConfigRepositoryProvider implements ServerInfoProvider {
     }
 
     @Override
-    public void appendInformation(InformationStringBuilder infoCollector) {
-        infoCollector.addSection(name());
-        try {
-            infoCollector.append("Number of commits :" + configRepository.commitCountOnMaster()).append("\n");
-
-            infoCollector.addSubSection("GC Statistics");
-            infoCollector.append(configRepository.getStatistics().toString());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
     public Map<String, Object> asJson() {
         LinkedHashMap<String, Object> json = new LinkedHashMap<>();
         try {

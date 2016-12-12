@@ -41,29 +41,6 @@ public class ConfigInfoProvider implements ServerInfoProvider {
     }
 
     @Override
-    public void appendInformation(InformationStringBuilder infoCollector) {
-        infoCollector.addSection("Config Statistics");
-        GoConfigValidity goConfigValidity = service.checkConfigFileValid();
-        if (!goConfigValidity.isValid()) {
-            infoCollector.append(String.format("Config is invalid. Reason: %s", goConfigValidity.errorMessage()));
-        } else {
-            infoCollector.append("Valid Config.\n");
-        }
-        infoCollector.append("Number of pipelines: ").append(service.getAllPipelineConfigs().size())
-                .append("\n").append("Number of agents: ").append(service.agents().size()).append("\n");
-
-        CruiseConfig currentConfig = service.getCurrentConfig();
-        infoCollector.append(String.format("Number of environments: %s\n", currentConfig.getEnvironments().size()));
-        infoCollector.append(String.format("Number of unique materials: %s\n", currentConfig.getAllUniqueMaterials().size()));
-        infoCollector.append(String.format("Number of schedulable materials: %s\n", service.getSchedulableMaterials().size()));
-
-        boolean ldapEnabled = service.security().ldapConfig().isEnabled();
-        boolean passwordEnabled = service.security().passwordFileConfig().isEnabled();
-
-        infoCollector.append(String.format("Security:\nLDAP: %s, Password: %s\n", ldapEnabled, passwordEnabled));
-    }
-
-    @Override
     public Map<String, Object> asJson() {
         LinkedHashMap<String, Object> json = new LinkedHashMap<>();
         CruiseConfig currentConfig = service.getCurrentConfig();

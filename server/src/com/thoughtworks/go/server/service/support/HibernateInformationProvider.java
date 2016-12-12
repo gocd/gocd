@@ -41,13 +41,6 @@ public class HibernateInformationProvider implements ServerInfoProvider {
     }
 
     @Override
-    public void appendInformation(InformationStringBuilder builder) {
-        builder.addSection(name());
-        Statistics statistics = sessionFactory.getStatistics();
-        builder.append(statistics);
-    }
-
-    @Override
     public Map<String, Object> asJson() {
         LinkedHashMap<String, Object> json = new LinkedHashMap<>();
         Statistics statistics = sessionFactory.getStatistics();

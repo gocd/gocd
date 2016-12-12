@@ -38,13 +38,6 @@ public class ServerBasicInfoProvider implements ServerInfoProvider {
     }
 
     @Override
-    public void appendInformation(InformationStringBuilder infoCollector) {
-        infoCollector.addSection("Go Server Version");
-        infoCollector.append(serverVersion.version());
-        infoCollector.append("\n");
-    }
-
-    @Override
     public Map<String, Object> asJson() {
         LinkedHashMap<String, Object> json = new LinkedHashMap<>();
         json.put("Version", serverVersion.version());

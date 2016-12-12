@@ -101,8 +101,8 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
                 protected void failed(Throwable e, Description description) {
                     if (e.getMessage().contains("test timed out") || e instanceof TimeoutException) {
                         try {
-                            fail("Test timed out, possible deadlock. Thread Dump:" + serverStatusService.captureServerInfo(Username.ANONYMOUS, new HttpLocalizedOperationResult()));
-                        } catch (IOException e1) {
+                            fail("Test timed out, possible deadlock. Thread Dump:" + serverStatusService.asJson(Username.ANONYMOUS, new HttpLocalizedOperationResult()));
+                        } catch (Exception e1) {
                             throw new RuntimeException(e1);
                         }
                     }

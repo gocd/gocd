@@ -31,14 +31,6 @@ public class OSInformationProvider implements ServerInfoProvider {
     }
 
     @Override
-    public void appendInformation(InformationStringBuilder builder) {
-        OperatingSystemMXBean operatingSystemMXBean = ManagementFactory.getOperatingSystemMXBean();
-        builder.addSection("OS information");
-        builder.append(String.format("%s, %s, %s, %s, %s\n", operatingSystemMXBean.getName(), operatingSystemMXBean.getArch(), operatingSystemMXBean.getVersion(),
-                operatingSystemMXBean.getAvailableProcessors(), operatingSystemMXBean.getSystemLoadAverage()));
-    }
-
-    @Override
     public Map<String, Object> asJson() {
         OperatingSystemMXBean operatingSystemMXBean = ManagementFactory.getOperatingSystemMXBean();
         LinkedHashMap<String, Object> json = new LinkedHashMap<>();

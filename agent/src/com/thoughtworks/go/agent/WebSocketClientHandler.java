@@ -43,7 +43,9 @@ public class WebSocketClientHandler {
     public Session connect(AgentWebSocketClientController controller)
             throws Exception {
         if (webSocketClient == null || !webSocketClient.isRunning()) {
-            webSocketClient.stop();
+            if (webSocketClient != null) {
+                webSocketClient.stop();
+            }
             webSocketClient = builder.build();
             webSocketClient.start();
         }

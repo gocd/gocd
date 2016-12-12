@@ -434,9 +434,12 @@ Go::Application.routes.draw do
 
   get "/run/:pipeline_name/:pipeline_counter/:stage_name", :controller => "null", :action => "null", as: :run_stage, constraints: {:pipeline_name => PIPELINE_NAME_FORMAT, :pipeline_counter => PIPELINE_COUNTER_FORMAT, :stage_name => STAGE_NAME_FORMAT}
 
-  resources :old_agents, controller: :agents, :only => [:index], :defaults => {:format => "html"}, as: :old_agents
-  post "old_agents/edit_agents", :controller => 'agents', :action => :edit_agents, as: :edit_agents
-  post "old_agents/:action", :controller => 'agents', constraints: {action: /(resource|environment)_selector/}, as: :agent_grouping_data
+  if java.lang.System.property['enable.old.agents'].to_s =~ /^(true|y)$/
+    resources :old_agents, controller: :agents, :only => [:index], :defaults => {:format => "html"}, as: :old_agents
+    post "old_agents/edit_agents", :controller => 'agents', :action => :edit_agents, as: :edit_agents
+    post "old_agents/:action", :controller => 'agents', constraints: {action: /(resource|environment)_selector/}, as: :agent_grouping_data
+  end
+
 
   scope 'admin/users', module: 'admin' do
     defaults :no_layout => true do

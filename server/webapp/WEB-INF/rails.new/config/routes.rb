@@ -258,6 +258,8 @@ Go::Application.routes.draw do
             post :package_check_connection, [action: :package_check_connection]
           end
           resources :pipelines, only: [:index]
+          resources :non_template_pipelines, only: [:index]
+          resources :extract_templates, only: [:create]
           resources :resources, only: [:index]
           resources :environments, only: [:index]
           resources :command_snippets, only: [:index]
@@ -351,6 +353,7 @@ Go::Application.routes.draw do
       resources :roles, only: [:index], controller: :roles, as: :roles
     end
 
+    resources :new_templates, only: [:index], controller: :new_templates, as: :new_templates
     get 'agents', to: redirect('/go/agents')
   end
 

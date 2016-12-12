@@ -1,0 +1,147 @@
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+define([
+  'mithril', 'string-plus', 'helpers/form_helper', 'helpers/mithril_component_mixins', 'models/template_configs/templates',
+  'views/template_configs/template_row_widget', 'views/shared/new_modal'
+], function (m, s, f, ComponentMixins, Templates, TemplateRowWidget, Modal) {
+
+  var TemplatesConfigWidget = {
+    controller: function () {
+      var self = this;
+      ComponentMixins.ManagesCollection.call(this, {as: 'Template'});
+      ComponentMixins.HasViewModel.call(this);
+      self.modal     = null;
+      self.templates = m.prop(new Templates());
+      self.vmState   = m.prop();
+      self.message   = m.prop({type: undefined, message: undefined});
+
+      self.clearMessage = function () {
+        self.message({});
+      };
+
+      self.reloadPage = function () {
+        Templates.all().then(function (templates) {
+          self.templates(templates);
+        }, function (message) {
+          self.message({type: 'alert', message: message});
+        });
+      };
+
+      self.reloadPage();
+
+      self.addNewTemplate = function () {
+        m.route('/:new');
+      };
+
+      self.deleteTemplate = function (modal, template) {
+        var onSuccess = function (response) {
+          modal.destroy();
+          self.deleteVm(template.name());
+          self.reloadPage();
+          self.message({type: 'success', message: response.message});
+        };
+
+        var onFailure = function (response) {
+          modal.destroy();
+          self.message({type: 'alert', message: response.message});
+        };
+
+        template.delete().then(onSuccess, onFailure);
+      };
+
+      self.deleteConfirm = function (template) {
+        var modal = new Modal({
+          title:    'Are you sure?',
+          body:     (<div>Are you sure you want to delete the template <strong>{template.name()}</strong>?</div>),
+          oncancel: function () {
+            modal.destroy();
+          },
+          buttons:  function () {
+            return [
+              {
+                text:    'Delete',
+                class:   'delete-template',
+                onclick: function () {
+                  self.deleteTemplate(modal, template);
+                }
+              }
+            ];
+          }
+        });
+        modal.render();
+      };
+    },
+
+    view: function (ctrl, args) {
+      var message;
+      if (ctrl.message().message) {
+        message = (
+          <f.row>
+            <f.callout type={ctrl.message().type}>
+              {ctrl.message().message}
+
+              <button class="close-button" aria-label="Dismiss alert" type="button"
+                      onclick={ctrl.clearMessage.bind(ctrl)}>
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </f.callout>
+          </f.row>
+        );
+      }
+
+      return (
+        <div>
+          <div class="header-panel">
+            <header class="page-header">
+              <f.row>
+                <f.column size={6}>
+                  <h1>Templates</h1>
+                </f.column>
+                <f.column size={6}>
+                  <f.button onclick={ctrl.addNewTemplate.bind(ctrl)}
+                            class="add-template"
+                            disabled={!args.isUserAdmin}>
+                    New Template
+                  </f.button>
+                </f.column>
+              </f.row>
+            </header>
+          </div>
+
+          <div class="template-container">
+            {message}
+            <f.row>
+              {
+                ctrl.templates().mapTemplates(function (template) {
+                  return (
+                    <TemplateRowWidget template={template}
+                                       deleteConfirm={ctrl.deleteConfirm}
+                                       isUserAdmin={args.isUserAdmin}
+                    />
+                  );
+                })
+              }
+            </f.row>
+          </div>
+
+        </div>
+      );
+    }
+  };
+
+  return TemplatesConfigWidget;
+});

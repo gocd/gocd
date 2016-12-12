@@ -868,6 +868,19 @@ public class BasicCruiseConfig implements CruiseConfig {
         return groups.findPipeline(groupName, pipelineIndex);
     }
 
+    @Override
+    public PipelineConfig find(String pipelineName) {
+        CaseInsensitiveString name = new CaseInsensitiveString(pipelineName);
+
+        for (PipelineConfigs group : groups) {
+            PipelineConfig pipelineConfig = group.findBy(name);
+            if(pipelineConfig != null){
+                return pipelineConfig;
+            }
+        }
+        return null;
+    }
+
     //only for test
 
     @Override

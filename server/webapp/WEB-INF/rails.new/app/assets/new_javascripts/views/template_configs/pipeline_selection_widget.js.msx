@@ -1,0 +1,81 @@
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+define([
+  'mithril', 'string-plus', 'jquery', 'helpers/form_helper', 'helpers/pipeline_configs/tooltips',
+  'helpers/mithril_component_mixins'
+], function (m, s, $, f, tt, ComponentMixins) {
+
+  var PipelineSelectionWidget = {
+    controller: function (args) {
+      var self = this;
+      ComponentMixins.HasViewModel.call(this);
+      self.pipelines = m.prop([]);
+      self.args      = args;
+
+      self.reloadPipelines = function () {
+        Template.getPipelinesForNewTemplate().then(function (response) {
+          var pipelines = response.map(function (pipeline) {
+            return {id: pipeline, text: pipeline};
+          });
+          self.pipelines(pipelines);
+        });
+      };
+
+      self.reloadPipelines();
+    },
+
+    view: function (ctrl, args) {
+      var arePipelinesAvailable = (ctrl.pipelines().length > 0);
+
+      var selectPipelineSection = (
+        <f.info>
+          There are no Pipelines available to extract a new Template.
+        </f.info>
+      );
+
+      if (arePipelinesAvailable) {
+        var template = args.template();
+        template.pipeline(ctrl.pipelines()[0].text);
+
+        selectPipelineSection = (<f.row class='pipeline-selector'>
+            <f.select
+              model={template}
+              attrName='pipeline'
+              class='inline'
+              label='Select a pipeline to extract new Template'
+              items={ctrl.pipelines()}
+              size={4}
+              largeSize={4}/>
+          </f.row>
+        );
+      }
+
+      return (
+        <f.accordion accordionTitles={[(<span>Select Pipeline</span>)]}
+                     accordionKeys={['templatePipeline']}
+                     selectedIndex={ctrl.vmState('templatePipelineSelected', m.prop(0))}
+                     class='accordion select-pipeline'>
+          <div>
+            {selectPipelineSection}
+          </div>
+        </f.accordion>
+      );
+    }
+  };
+
+  return PipelineSelectionWidget;
+});

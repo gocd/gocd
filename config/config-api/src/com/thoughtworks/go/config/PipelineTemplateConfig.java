@@ -69,6 +69,12 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
         this.authorization = authorization;
     }
 
+    public PipelineTemplateConfig(String templateName, Authorization auth, PipelineConfig stages) {
+        super(stages);
+        this.name = new CaseInsensitiveString(templateName);
+        this.authorization = auth;
+    }
+
     public CaseInsensitiveString name() {
         return name;
     }

@@ -1,0 +1,95 @@
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+@import 'pipeline_configs';
+@import 'pipeline_configs/pipeline-edit';
+
+#templates {
+  margin-top: 60px;
+}
+
+.template-main{
+  @extend .pipeline;
+}
+
+.template-body {
+  @extend .pipeline-body;
+}
+
+.template-page-header {
+  @extend .pipeline-page-header;
+}
+
+.save-template {
+  @extend .save-pipeline;
+}
+
+.delete-template {
+  margin-top: 20px;
+}
+
+.template-link {
+  background:    $go-white;
+  position:      relative;
+  margin:        10px;
+  border:        0;
+  border-radius: $global-border-radius;
+  padding:       10px;
+  cursor:        pointer;
+}
+
+.edit-template {
+  @include icon-before($type: pencil-square-o, $color: $dark-gray);
+  &:not(.disabled) {
+    &:hover {
+      &:before {
+        color: $black;
+      }
+    }
+  }
+}
+
+.delete-template-confirm {
+  @include icon-before($type: trash, $color: $dark-gray);
+  &:not(.disabled) {
+    &:hover {
+      &:before {
+        color: $black;
+      }
+    }
+  }
+}
+
+.template-used-by-pipelines {
+  width:        95%;
+  box-sizing:   border-box;
+  margin:       20px 0 10px 0;
+}
+
+.template-actions {
+  position: absolute;
+  right:    10px;
+  top:      13px;
+}
+
+.disabled {
+  color: $breadcrumbs-item-color-disabled;
+  pointer-events: none;
+}
+
+.add-template {
+  float:         right;
+  margin-bottom: 0;
+}

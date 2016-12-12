@@ -122,6 +122,8 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
 
     PipelineConfig find(String groupName, int pipelineIndex);
 
+    PipelineConfig find(String pipelineName);
+
     int numberOfPipelines();
 
     int numbersOfPipeline(String groupName);

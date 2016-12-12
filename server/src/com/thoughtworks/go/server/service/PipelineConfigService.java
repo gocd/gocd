@@ -152,6 +152,20 @@ public class PipelineConfigService {
         return list;
     }
 
+    public List<String> pipelinesNotFromTemplate(Username username) {
+        ArrayList<String> list = new ArrayList<>();
+        List<PipelineConfigs> allGroups = viewableOrOperatableGroupsFor(username);
+        for (PipelineConfigs pipelineConfigs : allGroups) {
+            for (PipelineConfig pipeline : pipelineConfigs) {
+                if(!pipeline.hasTemplate()){
+                    list.add(pipeline.name().toString());
+                }
+            }
+        }
+
+        return list;
+    }
+
     public void createPipelineConfig(final Username currentUser, final PipelineConfig pipelineConfig, final LocalizedOperationResult result, final String groupName) {
         validatePluggableTasks(pipelineConfig);
         CreatePipelineConfigCommand createPipelineConfigCommand = new CreatePipelineConfigCommand(goConfigService, pipelineConfig, currentUser, result, groupName);

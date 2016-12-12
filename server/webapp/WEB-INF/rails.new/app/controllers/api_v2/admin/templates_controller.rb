@@ -55,11 +55,11 @@ module ApiV2
       def load_template(template_name = params[:template_name])
         result = HttpLocalizedOperationResult.new
         @template = template_config_service.loadForView(template_name, result)
-        raise RecordNotFound if @template.nil?
+        raise RecordNotFound unless @template
       end
 
       def check_for_stale_request
-        if request.env["HTTP_IF_MATCH"] != "\"#{Digest::MD5.hexdigest(get_etag_for_template(@template))}\""
+        if request.env["HTTP_IF_MATCH"] != %Q{"#{Digest::MD5.hexdigest(get_etag_for_template(@template))}"}
           result = HttpLocalizedOperationResult.new
           result.stale(LocalizedMessage::string('STALE_RESOURCE_CONFIG', 'Template', params[:template][:name]))
           render_http_operation_result(result)

@@ -14,34 +14,34 @@
 # limitations under the License.
 ##########################################################################
 
-module ApiV1
+module ApiV4
   module Admin
-    class TemplatesController < ApiV1::BaseController
+    class TemplatesController < ApiV4::BaseController
       before_action :check_admin_user_and_401
       before_action :load_template, only: [:show, :update, :destroy]
       before_action :check_for_stale_request, :check_for_attempted_template_rename, only: [:update]
 
       def index
         templates = template_config_service.templatesWithPipelinesForUser(current_user.getUsername.toString)
-        json = ApiV1::Config::TemplatesConfigRepresenter.new(templates).to_hash(url_builder: self)
+        json = ApiV4::Config::TemplatesConfigRepresenter.new(templates).to_hash(url_builder: self)
         render DEFAULT_FORMAT => json
       end
 
       def show
-        json = ApiV1::Config::TemplateConfigRepresenter.new(@template).to_hash(url_builder: self)
+        json = ApiV4::Config::TemplateConfigRepresenter.new(@template).to_hash(url_builder: self)
         render DEFAULT_FORMAT => json if stale?(etag: get_etag_for_template(@template))
       end
 
       def create
         result = HttpLocalizedOperationResult.new
-        @template = ApiV1::Config::TemplateConfigRepresenter.new(PipelineTemplateConfig.new).from_hash(params[:template])
+        @template = ApiV4::Config::TemplateConfigRepresenter.new(PipelineTemplateConfig.new).from_hash(params[:template])
         template_config_service.createTemplateConfig(current_user, @template, result)
         handle_create_or_update_response(result, @template)
       end
 
       def update
         result = HttpLocalizedOperationResult.new
-        updated_template = ApiV1::Config::TemplateConfigRepresenter.new(PipelineTemplateConfig.new).from_hash(params[:template])
+        updated_template = ApiV4::Config::TemplateConfigRepresenter.new(PipelineTemplateConfig.new).from_hash(params[:template])
         template_config_service.updateTemplateConfig(current_user, updated_template, result, get_etag_for_template(@template))
         handle_create_or_update_response(result, updated_template)
       end
@@ -73,7 +73,7 @@ module ApiV1
       end
 
       def handle_create_or_update_response(result, updated_template)
-        json = ApiV1::Config::TemplateConfigRepresenter.new(updated_template).to_hash(url_builder: self)
+        json = ApiV4::Config::TemplateConfigRepresenter.new(updated_template).to_hash(url_builder: self)
         if result.isSuccessful
           response.etag = [get_etag_for_template(updated_template)]
           render DEFAULT_FORMAT => json

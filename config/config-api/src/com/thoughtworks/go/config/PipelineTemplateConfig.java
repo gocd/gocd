@@ -231,6 +231,10 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
         return authorization;
     }
 
+    public void setAuthorization(Authorization authorization) {
+        this.authorization = authorization;
+    }
+
     public List<ConfigErrors> getAllErrors() {
         return ErrorCollector.getAllErrors(this);
     }

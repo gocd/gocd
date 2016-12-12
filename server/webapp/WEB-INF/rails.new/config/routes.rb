@@ -229,7 +229,7 @@ Go::Application.routes.draw do
       end
 
       namespace :admin do
-        resources :templates, param: :template_name, only: [:show, :index, :update, :create, :destroy], constraints: {template_name: TEMPLATE_NAME_FORMAT}
+        resources :templates, param: :template_name, except: [:new, :edit], constraints: {template_name: TEMPLATE_NAME_FORMAT}
         resources :repositories, param: :repo_id, only: [:show, :index, :destroy, :create, :update], constraints: {repo_id: ALLOW_DOTS}
         resources :environments, param: :name, only: [:show, :destroy, :create, :update, :index], constraints: {:name => ENVIRONMENT_NAME_FORMAT} do
           patch on: :member, action: :patch
@@ -265,7 +265,7 @@ Go::Application.routes.draw do
     api_version(:module => 'ApiV2', header: {name: 'Accept', value: 'application/vnd.go.cd.v2+json'}) do
       namespace :admin do
         resources :pipelines, param: :pipeline_name, only: [:show, :update, :create, :destroy], constraints: {pipeline_name: PIPELINE_NAME_FORMAT}
-        resources :templates, param: :template_name, only: [:show, :index, :update, :create, :destroy], constraints: {template_name: TEMPLATE_NAME_FORMAT}
+        resources :templates, param: :template_name, except: [:new, :edit], constraints: {template_name: TEMPLATE_NAME_FORMAT}
         resources :plugin_info, controller: 'plugin_infos', param: :id, only: [:index, :show], constraints: {id: PLUGIN_ID_FORMAT}
       end
 
@@ -277,7 +277,7 @@ Go::Application.routes.draw do
     api_version(:module => 'ApiV3', header: {name: 'Accept', value: 'application/vnd.go.cd.v3+json'}) do
       namespace :admin do
         resources :pipelines, param: :pipeline_name, only: [:show, :update, :create, :destroy], constraints: {pipeline_name: PIPELINE_NAME_FORMAT}
-        resources :templates, param: :template_name, only: [:index, :show, :update, :create, :destroy], constraints: {template_name: TEMPLATE_NAME_FORMAT}
+        resources :templates, param: :template_name, except: [:new, :edit], constraints: {template_name: TEMPLATE_NAME_FORMAT}
       end
 
       match '*url', via: :all, to: 'errors#not_found'
@@ -290,12 +290,15 @@ Go::Application.routes.draw do
       resources :agents, param: :uuid, only: [:show, :destroy], constraints: {uuid: ALLOW_DOTS} do
         patch :update, on: :member
       end
-
       # for some reasons using the constraints breaks route specs for routes that don't use constraints, so an ugly hax
       get 'agents', action: :index, controller: 'agents'
       patch 'agents', action: :bulk_update, controller: 'agents'
       delete 'agents', action: :bulk_destroy, controller: 'agents'
 
+      namespace :admin do
+        resources :templates, param: :template_name, except: [:new, :edit], constraints: {template_name: TEMPLATE_NAME_FORMAT}
+      end
+      
       match '*url', via: :all, to: 'errors#not_found'
     end
   end

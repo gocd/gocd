@@ -85,7 +85,7 @@ public class UpdateTemplateConfigCommandTest {
 
     @Test
     public void shouldNotContinueWithConfigSaveIfUserIsUnauthorized() {
-        when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
+        when(goConfigService.isAuthorizedToEditTemplate("template", currentUser)).thenReturn(false);
 
         UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(pipelineTemplateConfig, currentUser, goConfigService, result, "md5", entityHashingService);
 
@@ -94,9 +94,20 @@ public class UpdateTemplateConfigCommandTest {
     }
 
     @Test
+    public void shouldContinueWithConfigSaveifUserIsAuthorized() {
+        cruiseConfig.addTemplate(pipelineTemplateConfig);
+        when(goConfigService.isAuthorizedToEditTemplate("template", currentUser)).thenReturn(true);
+        when(entityHashingService.md5ForEntity(pipelineTemplateConfig)).thenReturn("md5");
+
+        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(pipelineTemplateConfig, currentUser, goConfigService, result, "md5", entityHashingService);
+
+        assertThat(command.canContinue(cruiseConfig), is(true));
+    }
+
+    @Test
     public void shouldNotContinueWithConfigSaveIfRequestIsNotFresh() {
         cruiseConfig.addTemplate(pipelineTemplateConfig);
-        when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
+        when(goConfigService.isAuthorizedToEditTemplate("template", currentUser)).thenReturn(true);
         when(entityHashingService.md5ForEntity(pipelineTemplateConfig)).thenReturn("another-md5");
 
         UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(pipelineTemplateConfig, currentUser, goConfigService, result, "md5", entityHashingService);
@@ -107,7 +118,7 @@ public class UpdateTemplateConfigCommandTest {
 
     @Test
     public void shouldNotContinueWithConfigSaveIfObjectIsNotFound() {
-        when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
+        when(goConfigService.isAuthorizedToEditTemplate("template", currentUser)).thenReturn(true);
 
         UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(pipelineTemplateConfig, currentUser, goConfigService, result, "md5", entityHashingService);
 

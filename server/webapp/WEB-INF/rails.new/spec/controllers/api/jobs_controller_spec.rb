@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe Api::JobsController do
 
@@ -22,9 +22,8 @@ describe Api::JobsController do
 
   before do
     @job_instance_service = double('job_instance_service')
-    controller.stub(:job_instance_service).and_return(@job_instance_service)
-    controller.stub(:set_locale)
-    controller.stub(:populate_config_validity)
+    allow(controller).to receive(:job_instance_service).and_return(@job_instance_service)
+    allow(controller).to receive(:populate_config_validity)
   end
 
   it "should return a 404 HTTP response when id is not a number" do
@@ -34,8 +33,8 @@ describe Api::JobsController do
 
   it "should return a 404 HTTP response when job cannot be loaded" do
     job_instance_service = double()
-    job_instance_service.should_receive(:buildById).with(99).and_throw(Exception.new("foo"))
-    controller.stub(:job_instance_service).and_return(job_instance_service)
+    expect(job_instance_service).to receive(:buildById).with(99).and_throw(Exception.new("foo"))
+    allow(controller).to receive(:job_instance_service).and_return(job_instance_service)
     get 'index', :id => "99", :format => "xml", :no_layout => true
     expect(response.status).to eq(404)
   end
@@ -47,11 +46,11 @@ describe Api::JobsController do
   it "should load job and properties based on passed on id param" do
     job = job_instance('job')
 
-    controller.stub(:xml_api_service).and_return(xml_api_service = double(":xml_api_service"))
-    xml_api_service.stub(:write).with(JobXmlViewModel.new(job), "http://test.host/go").and_return(:dom)
+    allow(controller).to receive(:xml_api_service).and_return(xml_api_service = double(":xml_api_service"))
+    allow(xml_api_service).to receive(:write).with(JobXmlViewModel.new(job), "http://test.host/go").and_return(:dom)
 
-    controller.stub(:job_instance_service).and_return(job_instance_service = double(":job_api_service"))
-    job_instance_service.should_receive(:buildById).with(1).and_return(job)
+    allow(controller).to receive(:job_instance_service).and_return(job_instance_service = double(":job_api_service"))
+    expect(job_instance_service).to receive(:buildById).with(1).and_return(job)
     fake_template_presence 'api/jobs/index', 'some data'
 
     get 'index', :id => "1", :format => "xml", :no_layout => true
@@ -74,8 +73,8 @@ describe Api::JobsController do
     waitingJobPlans.add(WaitingJobPlan.new(jobPlan2, nil))
     waitingJobPlans.add(WaitingJobPlan.new(jobPlan3, "env1"))
 
-    controller.stub(:job_instance_service).and_return(job_instance_service = double(":job_instance_service"))
-    job_instance_service.stub(:waitingJobPlans).and_return(waitingJobPlans)
+    allow(controller).to receive(:job_instance_service).and_return(job_instance_service = double(":job_instance_service"))
+    allow(job_instance_service).to receive(:waitingJobPlans).and_return(waitingJobPlans)
     fake_template_presence 'api/jobs/scheduled', 'some data'
 
     get :scheduled, :format => "xml", :no_layout => true
@@ -84,14 +83,14 @@ describe Api::JobsController do
     expect(assigns[:doc].asXML()).to eq(JobPlanXmlViewModel.new(waitingJobPlans).toXml(context).asXML())
   end
 
-  describe :history do
+  describe 'history' do
     include APIModelMother
 
     it "should render history json" do
       loser = Username.new(CaseInsensitiveString.new("loser"))
-      controller.should_receive(:current_user).and_return(loser)
-      @job_instance_service.should_receive(:getJobHistoryCount).and_return(10)
-      @job_instance_service.should_receive(:findJobHistoryPage).with('pipeline', 'stage', 'job', anything, "loser", anything).and_return([create_job_model])
+      expect(controller).to receive(:current_user).and_return(loser)
+      expect(@job_instance_service).to receive(:getJobHistoryCount).and_return(10)
+      expect(@job_instance_service).to receive(:findJobHistoryPage).with('pipeline', 'stage', 'job', anything, "loser", anything).and_return([create_job_model])
 
       get :history, :pipeline_name => 'pipeline', :stage_name => 'stage', :job_name => 'job', :offset => '5', :no_layout => true
 
@@ -100,9 +99,9 @@ describe Api::JobsController do
 
     it "should render error correctly" do
       loser = Username.new(CaseInsensitiveString.new("loser"))
-      controller.should_receive(:current_user).and_return(loser)
-      @job_instance_service.should_receive(:getJobHistoryCount).and_return(10)
-      @job_instance_service.should_receive(:findJobHistoryPage).with('pipeline', 'stage', 'job', anything, "loser", anything) do |pipeline_name, stage_name, job_name, pagination, username, result|
+      expect(controller).to receive(:current_user).and_return(loser)
+      expect(@job_instance_service).to receive(:getJobHistoryCount).and_return(10)
+      expect(@job_instance_service).to receive(:findJobHistoryPage).with('pipeline', 'stage', 'job', anything, "loser", anything) do |pipeline_name, stage_name, job_name, pagination, username, result|
         result.notAcceptable("Not Acceptable", HealthStateType.general(HealthStateScope::GLOBAL))
       end
 
@@ -112,13 +111,13 @@ describe Api::JobsController do
       expect(response.body).to eq("Not Acceptable\n")
     end
 
-    describe :route do
+    describe 'route' do
       it "should route to history" do
         expect(:get => "/api/jobs/pipeline/stage/job/history").to route_to(:controller => 'api/jobs', :action => "history", :pipeline_name => "pipeline", :stage_name => "stage", :job_name => "job", :offset => "0", :no_layout => true)
         expect(:get => "/api/jobs/pipeline/stage/job/history/1").to route_to(:controller => 'api/jobs', :action => "history", :pipeline_name => "pipeline", :stage_name => "stage", :job_name => "job", :offset => "1", :no_layout => true)
       end
 
-      describe :with_pipeline_name_contraint do
+      describe 'with_pipeline_name_contraint' do
         it 'should route to history action of stages controller having dots in pipeline name' do
           expect(:get => 'api/jobs/some.thing/bar/jobName/history').to route_to(no_layout: true, controller: 'api/jobs', action: 'history', pipeline_name: 'some.thing', stage_name: 'bar', job_name: 'jobName', offset: '0')
         end
@@ -144,7 +143,7 @@ describe Api::JobsController do
         end
       end
 
-      describe :with_stage_name_constraint do
+      describe 'with_stage_name_constraint' do
         it 'should route to history action of stages controller having dots in stage name' do
           expect(:get => 'api/jobs/foo/some.thing/jobName/history').to route_to(no_layout: true, controller: 'api/jobs', action: 'history', pipeline_name: 'foo', stage_name: 'some.thing', job_name: 'jobName', offset: '0')
         end
@@ -170,7 +169,7 @@ describe Api::JobsController do
         end
       end
 
-      describe :with_job_name_constraint do
+      describe 'with_job_name_constraint' do
         it 'should route to history action of stages controller having dots in stage name' do
           expect(:get => 'api/jobs/foo/bar/some.thing/history').to route_to(no_layout: true, controller: 'api/jobs', action: 'history', pipeline_name: 'foo', stage_name: 'bar', job_name: 'some.thing',  offset: '0')
         end

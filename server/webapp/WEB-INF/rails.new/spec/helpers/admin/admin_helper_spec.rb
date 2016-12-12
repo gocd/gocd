@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe Admin::AdminHelper do
   include Admin::AdminHelper
@@ -23,21 +23,21 @@ describe Admin::AdminHelper do
     @cruise_config = BasicCruiseConfig.new
     @pipeline = GoConfigMother.new.addPipelineWithTemplate(@cruise_config, "pipeline", "template", "stage", ["job"].to_java(java.lang.String))
     stage = first_stage_of_template(@cruise_config, @pipeline.getTemplateName())
-    stage.name().to_s.should == 'stage'
+    expect(stage.name().to_s).to eq('stage')
   end
 
   it "should return true when postgresql is used" do
     system_environment = double("system environment")
     allow(self).to receive(:system_environment).and_return(system_environment)
-    system_environment.should_receive(:isDefaultDbProvider).and_return(false)
-    external_db?.should == true
+    expect(system_environment).to receive(:isDefaultDbProvider).and_return(false)
+    expect(external_db?).to eq(true)
   end
 
   it "should return false when postgresql is not used" do
     system_environment = double("system environment")
     allow(self).to receive(:system_environment).and_return(system_environment)
-    system_environment.should_receive(:isDefaultDbProvider).and_return(true)
-    external_db?.should == false
+    expect(system_environment).to receive(:isDefaultDbProvider).and_return(true)
+    expect(external_db?).to eq(false)
   end
 
 end

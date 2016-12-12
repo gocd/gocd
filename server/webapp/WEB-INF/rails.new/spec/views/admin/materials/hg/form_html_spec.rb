@@ -14,10 +14,12 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "_form.html.erb" do
-  include GoUtil, FormUI
+  include GoUtil
+
+  include FormUI
 
   before(:each) do
     @material_config = HgMaterialConfig.new("hg://foo", "dest")

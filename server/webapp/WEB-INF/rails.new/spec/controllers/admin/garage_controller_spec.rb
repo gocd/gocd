@@ -14,63 +14,63 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe Admin::GarageController do
-  describe :route do
+  describe 'route' do
     it "should resolve index" do
-      {:get => "/admin/garage"}.should route_to(:controller => "admin/garage", :action => "index")
-      garage_index_path.should == "/admin/garage"
+      expect({:get => "/admin/garage"}).to route_to(:controller => "admin/garage", :action => "index")
+      expect(garage_index_path).to eq("/admin/garage")
     end
 
     it "should resolve gc" do
-      {:post => "/admin/garage/gc"}.should route_to(:controller => "admin/garage", :action => "gc")
-      garage_gc_path.should == "/admin/garage/gc"
+      expect({:post => "/admin/garage/gc"}).to route_to(:controller => "admin/garage", :action => "gc")
+      expect(garage_gc_path).to eq("/admin/garage/gc")
     end
   end
 
-  describe :index do
+  describe 'index' do
     before :each do
       @garage_service = double('garage service')
-      @controller.stub(:garage_service).and_return(@garage_service)
+      allow(@controller).to receive(:garage_service).and_return(@garage_service)
     end
 
     it 'should query garage service for data' do
-      @garage_service.should_receive(:getData).and_return('data')
+      expect(@garage_service).to receive(:getData).and_return('data')
 
       get :index
 
-      assigns[:garage_data].should == 'data'
+      expect(assigns[:garage_data]).to eq('data')
       assert_template layout: false
     end
   end
 
-  describe :gc do
+  describe 'gc' do
     before :each do
       @garage_service = double('garage service')
-      @controller.stub(:garage_service).and_return(@garage_service)
+      allow(@controller).to receive(:garage_service).and_return(@garage_service)
       @result = stub_localized_result
     end
 
     it 'should successfully call garage service to perform gc' do
-      @result.should_receive(:isSuccessful).and_return(true)
-      @result.should_receive(:message).and_return('message')
-      @garage_service.should_receive(:gc).with(@result)
+      expect(@result).to receive(:isSuccessful).and_return(true)
+      expect(@result).to receive(:message).and_return('message')
+      expect(@garage_service).to receive(:gc).with(@result)
 
       post :gc
 
-      flash[:notice][:gc].should == 'message'
+      expect(flash[:notice][:gc]).to eq('message')
       assert_redirect garage_index_path
     end
 
     it 'should populate error when gc fails' do
-      @result.should_receive(:isSuccessful).and_return(false)
-      @result.should_receive(:message).and_return('message')
-      @garage_service.should_receive(:gc).with(@result)
+      expect(@result).to receive(:isSuccessful).and_return(false)
+      expect(@result).to receive(:message).and_return('message')
+      expect(@garage_service).to receive(:gc).with(@result)
 
       post :gc
 
-      flash[:error][:gc].should == 'message'
+      expect(flash[:error][:gc]).to eq('message')
       assert_redirect garage_index_path
     end
   end

@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "admin/pipeline_groups/index.html.erb" do
 
@@ -23,9 +23,9 @@ describe "admin/pipeline_groups/index.html.erb" do
   before(:each) do
     assign(:groups, groups("group_foo", "group_bar", "group_quux"))
     assign(:user, Username.new(CaseInsensitiveString.new("loser")))
-    view.stub(:tab_with_display_name).and_return("tab_link")
-    view.stub(:mycruise_available?).and_return(false)
-    view.stub(:can_view_admin_page?).and_return(true)
+    allow(view).to receive(:tab_with_display_name).and_return("tab_link")
+    allow(view).to receive(:mycruise_available?).and_return(false)
+    allow(view).to receive(:can_view_admin_page?).and_return(true)
     assign(:cruise_config, cruise_config = BasicCruiseConfig.new)
     set(cruise_config, "md5", "abcd1234")
     assign(:pipeline_to_can_delete, {CaseInsensitiveString.new("pipeline_in_group_foo") => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
@@ -38,7 +38,7 @@ describe "admin/pipeline_groups/index.html.erb" do
                                         CaseInsensitiveString.new("pipeline_2_in_group_quux") => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE")),
                                         CaseInsensitiveString.new("pipeline_with_template_in_group_quux") => CanDeleteResult.new(true, LocalizedMessage.string("CAN_DELETE_PIPELINE"))
     })
-    view.stub(:is_user_an_admin?).and_return(true)
+    allow(view).to receive(:is_user_an_admin?).and_return(true)
   end
 
   def groups(*named)
@@ -53,7 +53,7 @@ describe "admin/pipeline_groups/index.html.erb" do
   it "should set tab and page title" do
     render
 
-    view.instance_variable_get('@tab_name').should == "pipeline-groups"
+    expect(view.instance_variable_get('@tab_name')).to eq("pipeline-groups")
   end
 
   it "should display a message if the pipeline group is empty" do
@@ -75,7 +75,7 @@ describe "admin/pipeline_groups/index.html.erb" do
 
   describe "create new group" do
     it "should remove the add new group for anyone other than super admin" do
-      view.stub(:is_user_an_admin?).and_return(false)
+      allow(view).to receive(:is_user_an_admin?).and_return(false)
 
       render
 
@@ -141,7 +141,7 @@ describe "admin/pipeline_groups/index.html.erb" do
 
     it "should not display delete link if user is group admin" do
       assign(:groups, [BasicPipelineConfigs.new("empty_group", Authorization.new, [].to_java(PipelineConfig))])
-      view.stub(:is_user_an_admin?).and_return(false)
+      allow(view).to receive(:is_user_an_admin?).and_return(false)
 
       render
 
@@ -163,7 +163,7 @@ describe "admin/pipeline_groups/index.html.erb" do
     end
 
     it "should have unique random id for delete pipeline link" do
-      view.stub(:random_dom_id).and_return("some_random_id")
+      allow(view).to receive(:random_dom_id).and_return("some_random_id")
 
       render
 
@@ -323,7 +323,7 @@ describe "admin/pipeline_groups/index.html.erb" do
 
   describe "extract template" do
     it "should have extract template button for each pipeline" do
-      view.stub(:is_user_an_admin?).and_return(true)
+      allow(view).to receive(:is_user_an_admin?).and_return(true)
 
       render
 
@@ -338,7 +338,7 @@ describe "admin/pipeline_groups/index.html.erb" do
     end
 
     it "should not show extract template link if user is not admin" do
-      view.stub(:is_user_an_admin?).and_return(false)
+      allow(view).to receive(:is_user_an_admin?).and_return(false)
 
       render
 

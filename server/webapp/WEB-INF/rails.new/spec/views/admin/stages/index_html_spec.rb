@@ -14,14 +14,14 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "admin/stages/index.html.erb" do
   include GoUtil
   include FormUI
 
   before(:each) do
-    view.stub(:is_user_an_admin?).and_return(true)
+    allow(view).to receive(:is_user_an_admin?).and_return(true)
     @pipeline = PipelineConfigMother.createPipelineConfigWithStages("pipeline-name", ["dev", "acceptance"].to_java(:string))
     assign(:pipeline, @pipeline)
 
@@ -54,9 +54,9 @@ describe "admin/stages/index.html.erb" do
   it "should display stages of templated pipeline with trigger type when template is selected" do
     @pipeline = PipelineConfigMother.pipelineConfigWithTemplate("pipeline-name", "template-name")
     test_template = PipelineTemplateConfigMother.createTemplate("template-name")
-    @cruise_config.stub(:getTemplateByName).and_return(test_template)
+    allow(@cruise_config).to receive(:getTemplateByName).and_return(test_template)
     assign(:processed_cruise_config, @processed_cruise_config = BasicCruiseConfig.new)
-    @processed_cruise_config.stub(:pipelineConfigByName).and_return(PipelineConfigMother.createPipelineConfigWithStage("pipeline-name", test_template.first().name().toString()))
+    allow(@processed_cruise_config).to receive(:pipelineConfigByName).and_return(PipelineConfigMother.createPipelineConfigWithStage("pipeline-name", test_template.first().name().toString()))
     assign(:pipeline, @pipeline)
 
     render
@@ -122,7 +122,7 @@ describe "admin/stages/index.html.erb" do
   end
 
   it "should submit a form on deletion and prompt on deletion" do
-    view.stub(:random_dom_id).and_return("delete_stage_random_id")
+    allow(view).to receive(:random_dom_id).and_return("delete_stage_random_id")
 
     render
 

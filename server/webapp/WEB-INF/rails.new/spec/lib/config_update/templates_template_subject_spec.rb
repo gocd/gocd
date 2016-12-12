@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ConfigUpdate::TemplatesTemplateSubject do
   include ::ConfigUpdate::TemplatesTemplateSubject
@@ -30,6 +30,6 @@ describe ConfigUpdate::TemplatesTemplateSubject do
     templates.add(expectedTemplate)
     templates.add(PipelineTemplateConfig.new(CaseInsensitiveString.new("template2"), [com.thoughtworks.go.helper.StageConfigMother.manual_stage("some_stage")].to_java(StageConfig)))
     actualTemplate = subject(templates)
-    actualTemplate.should == expectedTemplate
+    expect(actualTemplate).to eq(expectedTemplate)
   end
 end

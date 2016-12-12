@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe PackageViewModel do
   before(:each) do
@@ -31,43 +31,43 @@ describe PackageViewModel do
 
   it "should create package view model from metadata and package configuration" do
     model = PackageViewModel.new @metadata, @package
-    model.name.should == "package-name"
-    model.properties.size.should == 3
-    model.properties[0].display_name.should == "Key 1"
-    model.properties[0].value.should == "value1"
-    model.properties[1].display_name.should == "Key 2"
-    model.properties[1].value.should == "value2"
-    model.properties[2].display_name.should == "Key 3 Secure"
-    model.properties[2].value.should == "secure"
+    expect(model.name).to eq("package-name")
+    expect(model.properties.size).to eq(3)
+    expect(model.properties[0].display_name).to eq("Key 1")
+    expect(model.properties[0].value).to eq("value1")
+    expect(model.properties[1].display_name).to eq("Key 2")
+    expect(model.properties[1].value).to eq("value2")
+    expect(model.properties[2].display_name).to eq("Key 3 Secure")
+    expect(model.properties[2].value).to eq("secure")
   end
 
   it "should create package view model from metadata" do
     model = PackageViewModel.new @metadata, PackageDefinition.new
-    model.name.should == nil
-    model.properties.size.should == 3
-    model.properties[0].display_name.should == "Key 1"
-    model.properties[0].value.should == nil
-    model.properties[1].display_name.should == "Key 2"
-    model.properties[1].value.should == nil
-    model.properties[2].display_name.should == "Key 3 Secure"
-    model.properties[2].value.should == nil
+    expect(model.name).to eq(nil)
+    expect(model.properties.size).to eq(3)
+    expect(model.properties[0].display_name).to eq("Key 1")
+    expect(model.properties[0].value).to eq(nil)
+    expect(model.properties[1].display_name).to eq("Key 2")
+    expect(model.properties[1].value).to eq(nil)
+    expect(model.properties[2].display_name).to eq("Key 3 Secure")
+    expect(model.properties[2].value).to eq(nil)
   end
 
   it "should filter secure properties" do
     model = PackageViewModel.new @metadata, @package
-    model.name.should == "package-name"
-    model.properties.size.should == 3
+    expect(model.name).to eq("package-name")
+    expect(model.properties.size).to eq(3)
     model.filterSecureProperties!
-    model.properties.size.should == 2
-    model.properties[0].display_name.should == "Key 1"
-    model.properties[0].value.should == "value1"
-    model.properties[1].display_name.should == "Key 2"
-    model.properties[1].value.should == "value2"
+    expect(model.properties.size).to eq(2)
+    expect(model.properties[0].display_name).to eq("Key 1")
+    expect(model.properties[0].value).to eq("value1")
+    expect(model.properties[1].display_name).to eq("Key 2")
+    expect(model.properties[1].value).to eq("value2")
   end
 
   it "should create empty package view model with just name if metadata is nil (plugin not found scenario)" do
     model = PackageViewModel.new nil, @package
-    model.name.should == @package.name
-    model.properties.size.should == 0
+    expect(model.name).to eq(@package.name)
+    expect(model.properties.size).to eq(0)
   end
 end

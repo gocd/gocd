@@ -15,6 +15,7 @@
 ##########################GO-LICENSE-END##################################
 
 module JavaSpecImports
+  include JavaImports
   java_import java.util.HashSet unless defined? HashSet
   java_import java.util.ArrayList unless defined? ArrayList
   java_import java.util.Arrays unless defined? Arrays

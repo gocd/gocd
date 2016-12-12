@@ -14,13 +14,13 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe Api::ServerStateController do
 
   before :each do
     @system_environment = double('system_environment')
-    controller.stub(:system_environment).and_return(@system_environment)
+    allow(controller).to receive(:system_environment).and_return(@system_environment)
   end
 
   it 'should answer to /api/state/status' do
@@ -38,30 +38,30 @@ describe Api::ServerStateController do
   end
 
   it 'should return server state status as active' do
-    @system_environment.should_receive(:isServerActive).and_return(true)
+    expect(@system_environment).to receive(:isServerActive).and_return(true)
     get :status
     expected_state('active')
     expect_content_type_json
   end
 
   it 'should return server state status as passive' do
-    @system_environment.should_receive(:isServerActive).and_return(false)
+    expect(@system_environment).to receive(:isServerActive).and_return(false)
     get :status
     expected_state('passive')
     expect_content_type_json
   end
 
   it 'should update server state to passive' do
-    @system_environment.should_receive(:isServerActive).and_return(false)
-    @system_environment.should_receive(:switchToPassiveState)
+    expect(@system_environment).to receive(:isServerActive).and_return(false)
+    expect(@system_environment).to receive(:switchToPassiveState)
     post :to_passive
     expected_state('passive')
     expect_content_type_json
   end
 
   it 'should update server state to active' do
-    @system_environment.should_receive(:isServerActive).and_return(true)
-    @system_environment.should_receive(:switchToActiveState)
+    expect(@system_environment).to receive(:isServerActive).and_return(true)
+    expect(@system_environment).to receive(:switchToActiveState)
     post :to_active
     expected_state('active')
     expect_content_type_json

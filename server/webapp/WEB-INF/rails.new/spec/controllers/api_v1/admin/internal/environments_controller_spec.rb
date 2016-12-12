@@ -14,18 +14,20 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV1::Admin::Internal::EnvironmentsController do
-  include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
+  include ApiHeaderSetupTeardown
+
+  include ApiV1::ApiVersionHelper
 
   before(:each) do
     @environment_config_service = double("environment_config_service")
-    controller.stub("environment_config_service").and_return(@environment_config_service)
+    allow(controller).to receive("environment_config_service").and_return(@environment_config_service)
   end
 
-  describe :security do
-    describe :index do
+  describe 'security' do
+    describe 'index' do
 
       it 'should allow anyone, with security disabled' do
         disable_security
@@ -48,16 +50,16 @@ describe ApiV1::Admin::Internal::EnvironmentsController do
     end
   end
 
-  describe :action do
+  describe 'action' do
     before :each do
       enable_security
     end
 
-    describe :index do
+    describe 'index' do
       it 'should fetch all the environments' do
         login_as_admin
         environments_list = %w(dev production)
-        @environment_config_service.should_receive(:environmentNames).and_return(environments_list)
+        expect(@environment_config_service).to receive(:environmentNames).and_return(environments_list)
 
         get_with_api_header :index
 
@@ -68,7 +70,7 @@ describe ApiV1::Admin::Internal::EnvironmentsController do
       it 'should not recompute the environments list when not modified and etag provided' do
         login_as_admin
         environments_list = %w(dev production).sort
-        @environment_config_service.should_receive(:environmentNames).and_return(environments_list)
+        expect(@environment_config_service).to receive(:environmentNames).and_return(environments_list)
         controller.request.env['HTTP_IF_NONE_MATCH'] = Digest::MD5.hexdigest(environments_list.join('/'))
 
         get_with_api_header :index
@@ -80,7 +82,7 @@ describe ApiV1::Admin::Internal::EnvironmentsController do
       it 'should recompute the environments list when it is modified and stale etag provided' do
         login_as_admin
         environments_list = %w(dev production)
-        @environment_config_service.should_receive(:environmentNames).and_return(environments_list)
+        expect(@environment_config_service).to receive(:environmentNames).and_return(environments_list)
 
         controller.request.env['HTTP_IF_NONE_MATCH'] = 'stale-etag'
 
@@ -90,13 +92,13 @@ describe ApiV1::Admin::Internal::EnvironmentsController do
         expect(JSON.parse(response.body)).to eq(environments_list)
       end
 
-      describe :route do
-        describe :with_header do
+      describe 'route' do
+        describe 'with_header' do
           it 'should route to index action of the internal environments controller' do
             expect(:get => 'api/admin/internal/environments').to route_to(action: 'index', controller: 'api_v1/admin/internal/environments')
           end
         end
-        describe :without_header do
+        describe 'without_header' do
           before :each do
             teardown_header
           end

@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe StageHistoryAPIModel do
   include APIModelMother
@@ -25,34 +25,34 @@ describe StageHistoryAPIModel do
       @stage_view_model = [create_stage_model]
       stage_history_api_model = StageHistoryAPIModel.new(@pagination_view_model, @stage_view_model)
 
-      stage_history_api_model.pagination.page_size.should == 10
-      stage_history_api_model.pagination.offset.should == 1
-      stage_history_api_model.pagination.total.should == 100
+      expect(stage_history_api_model.pagination.page_size).to eq(10)
+      expect(stage_history_api_model.pagination.offset).to eq(1)
+      expect(stage_history_api_model.pagination.total).to eq(100)
 
       stage_instance_api_model = stage_history_api_model.stages[0]
-      stage_instance_api_model.id.should == 456
-      stage_instance_api_model.name.should == 'stage name'
-      stage_instance_api_model.counter.should == '1'
-      stage_instance_api_model.approval_type.should == 'manual'
-      stage_instance_api_model.approved_by.should == 'me'
-      stage_instance_api_model.result.should == 'passed'
-      stage_instance_api_model.rerun_of_counter.should == 1
-      stage_instance_api_model.pipeline_name.should == 'pipeline'
-      stage_instance_api_model.pipeline_counter.should == 1
+      expect(stage_instance_api_model.id).to eq(456)
+      expect(stage_instance_api_model.name).to eq('stage name')
+      expect(stage_instance_api_model.counter).to eq('1')
+      expect(stage_instance_api_model.approval_type).to eq('manual')
+      expect(stage_instance_api_model.approved_by).to eq('me')
+      expect(stage_instance_api_model.result).to eq('passed')
+      expect(stage_instance_api_model.rerun_of_counter).to eq(1)
+      expect(stage_instance_api_model.pipeline_name).to eq('pipeline')
+      expect(stage_instance_api_model.pipeline_counter).to eq(1)
 
       job_history_item_api_model = stage_instance_api_model.jobs[0]
-      job_history_item_api_model.id.should == 543
-      job_history_item_api_model.name.should == 'job name'
-      job_history_item_api_model.state.should == 'state'
-      job_history_item_api_model.result.should == 'result'
-      job_history_item_api_model.scheduled_date.should == 12345678
-      job_history_item_api_model.rerun.should == nil
-      job_history_item_api_model.original_job_id.should == nil
-      job_history_item_api_model.agent_uuid.should == nil
-      job_history_item_api_model.pipeline_name.should == nil
-      job_history_item_api_model.pipeline_counter.should == nil
-      job_history_item_api_model.stage_name.should == nil
-      job_history_item_api_model.stage_counter.should == nil
+      expect(job_history_item_api_model.id).to eq(543)
+      expect(job_history_item_api_model.name).to eq('job name')
+      expect(job_history_item_api_model.state).to eq('state')
+      expect(job_history_item_api_model.result).to eq('result')
+      expect(job_history_item_api_model.scheduled_date).to eq(12345678)
+      expect(job_history_item_api_model.rerun).to eq(nil)
+      expect(job_history_item_api_model.original_job_id).to eq(nil)
+      expect(job_history_item_api_model.agent_uuid).to eq(nil)
+      expect(job_history_item_api_model.pipeline_name).to eq(nil)
+      expect(job_history_item_api_model.pipeline_counter).to eq(nil)
+      expect(job_history_item_api_model.stage_name).to eq(nil)
+      expect(job_history_item_api_model.stage_counter).to eq(nil)
     end
 
     it "should handle empty data" do
@@ -60,34 +60,34 @@ describe StageHistoryAPIModel do
       @stage_view_model = [create_empty_stage_model]
       stage_history_api_model = StageHistoryAPIModel.new(@pagination_view_model, @stage_view_model)
 
-      stage_history_api_model.pagination.page_size.should == nil
-      stage_history_api_model.pagination.offset.should == nil
-      stage_history_api_model.pagination.total.should == nil
+      expect(stage_history_api_model.pagination.page_size).to eq(nil)
+      expect(stage_history_api_model.pagination.offset).to eq(nil)
+      expect(stage_history_api_model.pagination.total).to eq(nil)
 
       stage_instance_api_model = stage_history_api_model.stages[0]
-      stage_instance_api_model.id.should == nil
-      stage_instance_api_model.name.should == nil
-      stage_instance_api_model.counter.should == nil
-      stage_instance_api_model.approval_type.should == nil
-      stage_instance_api_model.approved_by.should == nil
-      stage_instance_api_model.result.should == nil
-      stage_instance_api_model.rerun_of_counter.should == nil
-      stage_instance_api_model.pipeline_name.should == nil
-      stage_instance_api_model.pipeline_counter.should == nil
+      expect(stage_instance_api_model.id).to eq(nil)
+      expect(stage_instance_api_model.name).to eq(nil)
+      expect(stage_instance_api_model.counter).to eq(nil)
+      expect(stage_instance_api_model.approval_type).to eq(nil)
+      expect(stage_instance_api_model.approved_by).to eq(nil)
+      expect(stage_instance_api_model.result).to eq(nil)
+      expect(stage_instance_api_model.rerun_of_counter).to eq(nil)
+      expect(stage_instance_api_model.pipeline_name).to eq(nil)
+      expect(stage_instance_api_model.pipeline_counter).to eq(nil)
 
       job_history_item_api_model = stage_instance_api_model.jobs[0]
-      job_history_item_api_model.id.should == nil
-      job_history_item_api_model.name.should == nil
-      job_history_item_api_model.state.should == nil
-      job_history_item_api_model.result.should == nil
-      job_history_item_api_model.scheduled_date.should == nil
-      job_history_item_api_model.rerun.should == nil
-      job_history_item_api_model.original_job_id.should == nil
-      job_history_item_api_model.agent_uuid.should == nil
-      job_history_item_api_model.pipeline_name.should == nil
-      job_history_item_api_model.pipeline_counter.should == nil
-      job_history_item_api_model.stage_name.should == nil
-      job_history_item_api_model.stage_counter.should == nil
+      expect(job_history_item_api_model.id).to eq(nil)
+      expect(job_history_item_api_model.name).to eq(nil)
+      expect(job_history_item_api_model.state).to eq(nil)
+      expect(job_history_item_api_model.result).to eq(nil)
+      expect(job_history_item_api_model.scheduled_date).to eq(nil)
+      expect(job_history_item_api_model.rerun).to eq(nil)
+      expect(job_history_item_api_model.original_job_id).to eq(nil)
+      expect(job_history_item_api_model.agent_uuid).to eq(nil)
+      expect(job_history_item_api_model.pipeline_name).to eq(nil)
+      expect(job_history_item_api_model.pipeline_counter).to eq(nil)
+      expect(job_history_item_api_model.stage_name).to eq(nil)
+      expect(job_history_item_api_model.stage_counter).to eq(nil)
     end
   end
 end

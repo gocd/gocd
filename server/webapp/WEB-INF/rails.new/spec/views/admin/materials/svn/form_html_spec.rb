@@ -14,10 +14,15 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "_form.html.erb" do
-  include GoUtil, FormUI, ReflectiveUtil
+  include GoUtil
+
+  include FormUI
+
+
+  include ReflectiveUtil
 
   before(:each) do
     @material_config = SvnMaterialConfig.new("svn://foo", "loser", "secret", true, "dest")

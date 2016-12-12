@@ -14,10 +14,12 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "admin/pipeline_groups/edit.html.erb" do
-  include GoUtil, ReflectiveUtil
+  include GoUtil
+
+  include ReflectiveUtil
 
   before(:each) do
     @cruise_config = BasicCruiseConfig.new

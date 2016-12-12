@@ -14,39 +14,39 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe Admin::UsersController do
   include MockRegistryModule
   before :each do
     @user_service = double('user_service')
-    controller.stub(:user_service).and_return(@user_service)
-    controller.stub(:current_user).and_return(@user = Username.new(CaseInsensitiveString.new("root")))
-    controller.stub(:current_user_entity_id).and_return(@user_id = 1)
-    controller.stub(:set_current_user)
+    allow(controller).to receive(:user_service).and_return(@user_service)
+    allow(controller).to receive(:current_user).and_return(@user = Username.new(CaseInsensitiveString.new("root")))
+    allow(controller).to receive(:current_user_entity_id).and_return(@user_id = 1)
+    allow(controller).to receive(:set_current_user)
   end
 
   describe "users" do
     it "should load users and aggregations" do
-      @user_service.should_receive(:allUsersForDisplay).with(UserService::SortableColumn::USERNAME, UserService::SortDirection::ASC).and_return(['user', 'loser'])
-      @user_service.should_receive(:enabledUserCount).and_return(1)
-      @user_service.should_receive(:disabledUserCount).and_return(1)
+      expect(@user_service).to receive(:allUsersForDisplay).with(UserService::SortableColumn::USERNAME, UserService::SortDirection::ASC).and_return(['user', 'loser'])
+      expect(@user_service).to receive(:enabledUserCount).and_return(1)
+      expect(@user_service).to receive(:disabledUserCount).and_return(1)
       get :users
       assert_template layout: :admin
-      assigns[:users].should == ['user', 'loser']
-      assigns[:total_enabled_users].should == 1
-      assigns[:total_disabled_users].should == 1
+      expect(assigns[:users]).to eq(['user', 'loser'])
+      expect(assigns[:total_enabled_users]).to eq(1)
+      expect(assigns[:total_disabled_users]).to eq(1)
     end
 
     it "should honor column and direction requested" do
-      @user_service.should_receive(:allUsersForDisplay).with(UserService::SortableColumn::EMAIL, UserService::SortDirection::DESC).and_return(['user', 'loser'])
-      @user_service.should_receive(:enabledUserCount).and_return(1)
-      @user_service.should_receive(:disabledUserCount).and_return(1)
+      expect(@user_service).to receive(:allUsersForDisplay).with(UserService::SortableColumn::EMAIL, UserService::SortDirection::DESC).and_return(['user', 'loser'])
+      expect(@user_service).to receive(:enabledUserCount).and_return(1)
+      expect(@user_service).to receive(:disabledUserCount).and_return(1)
       get :users, :column => "email", :order => 'DESC'
 
-      assigns[:users].should == ['user', 'loser']
-      assigns[:total_enabled_users].should == 1
-      assigns[:total_disabled_users].should == 1
+      expect(assigns[:users]).to eq(['user', 'loser'])
+      expect(assigns[:total_enabled_users]).to eq(1)
+      expect(assigns[:total_disabled_users]).to eq(1)
     end
   end
 
@@ -67,13 +67,13 @@ describe Admin::UsersController do
     end
 
     it "should enable users through UserService and redirect to user listing" do
-      @user_service.should_receive(:enable).with(users = ["user-1"], an_instance_of(HttpLocalizedOperationResult))
+      expect(@user_service).to receive(:enable).with(users = ["user-1"], an_instance_of(HttpLocalizedOperationResult))
       post :operate, :operation => "Enable", :selected => users
       assert_redirected_with_flash("/admin/users", "Enabled 1 user(s) successfully.", 'success')
     end
 
     it "should enable users through UserService and redirect to user listing while retaining the column sort order" do
-      @user_service.should_receive(:enable).with(users = ["user-1"], an_instance_of(HttpLocalizedOperationResult))
+      expect(@user_service).to receive(:enable).with(users = ["user-1"], an_instance_of(HttpLocalizedOperationResult))
       post :operate, :operation => "Enable", :selected => users, :order => "order", :column => "column"
       assert_redirected_with_flash("/admin/users", "Enabled 1 user(s) successfully.", 'success', ["order=order","column=column"])
     end
@@ -81,7 +81,7 @@ describe Admin::UsersController do
     it "should show errors if operation does not succeed" do
       users = [UserModel.new(User.new("user-1", ["Foo", "fOO", "FoO"], "foo@cruise.go", true), ["user", "loser"], false),
                  UserModel.new(User.new("loser-1", ["baR", "bAR", "BaR"], "bar@cruise.com", false), ["loser"], true)]
-      @user_service.should_receive(:enable).with(users = ["user-1"], an_instance_of(HttpLocalizedOperationResult)) do |u, r|
+      expect(@user_service).to receive(:enable).with(users = ["user-1"], an_instance_of(HttpLocalizedOperationResult)) do |u, r|
         r.badRequest(LocalizedMessage.string("SELECT_AT_LEAST_ONE_USER"))
       end
       post :operate, :operation => "Enable", :selected => users
@@ -96,27 +96,27 @@ describe Admin::UsersController do
     end
 
     it "should disable users through UserService" do
-      @user_service.should_receive(:disable).with(users = ["user-1"], an_instance_of(HttpLocalizedOperationResult))
+      expect(@user_service).to receive(:disable).with(users = ["user-1"], an_instance_of(HttpLocalizedOperationResult))
       post :operate, :operation => "Disable", :selected => users
     end
 
     it "should modify roles through UserService" do
       selections = [TriStateSelection.new("admin", "add")]
-      @user_service.should_receive(:modifyRolesAndUserAdminPrivileges).with(users = ["user-1"], TriStateSelection.new(com.thoughtworks.go.domain.config.Admin::GO_SYSTEM_ADMIN, TriStateSelection::Action.remove), selections, an_instance_of(HttpLocalizedOperationResult))
+      expect(@user_service).to receive(:modifyRolesAndUserAdminPrivileges).with(users = ["user-1"], TriStateSelection.new(com.thoughtworks.go.domain.config.Admin::GO_SYSTEM_ADMIN, TriStateSelection::Action.remove), selections, an_instance_of(HttpLocalizedOperationResult))
       post :operate, :operation => "apply_roles", :selected => users, :selections => {"admin" => TriStateSelection::Action.add.to_s}, :admin => {com.thoughtworks.go.domain.config.Admin::GO_SYSTEM_ADMIN => TriStateSelection::Action.remove.to_s}
       assert_redirected_with_flash("/admin/users", "Role(s)/Admin-Privilege modified for 1 user(s) successfully.", 'success')
     end
 
     it "should not modify admin-privileges when not submitted" do
       selections = [TriStateSelection.new("admin", "add")]
-      @user_service.should_receive(:modifyRolesAndUserAdminPrivileges).with(users = ["user-1"], TriStateSelection.new(com.thoughtworks.go.domain.config.Admin::GO_SYSTEM_ADMIN, TriStateSelection::Action.nochange), selections, an_instance_of(HttpLocalizedOperationResult))
+      expect(@user_service).to receive(:modifyRolesAndUserAdminPrivileges).with(users = ["user-1"], TriStateSelection.new(com.thoughtworks.go.domain.config.Admin::GO_SYSTEM_ADMIN, TriStateSelection::Action.nochange), selections, an_instance_of(HttpLocalizedOperationResult))
       post :operate, :operation => "apply_roles", :selected => users, :selections => {"admin" => TriStateSelection::Action.add.to_s}
       assert_redirected_with_flash("/admin/users", "Role(s)/Admin-Privilege modified for 1 user(s) successfully.", 'success')
     end
 
     it "should add a new role to users through UserService" do
       selections = [TriStateSelection.new("admin", TriStateSelection::Action.add.to_s)]
-      @user_service.should_receive(:modifyRolesAndUserAdminPrivileges).with( users = ["user-1"], TriStateSelection.new(com.thoughtworks.go.domain.config.Admin::GO_SYSTEM_ADMIN, TriStateSelection::Action.nochange), selections, an_instance_of(HttpLocalizedOperationResult))
+      expect(@user_service).to receive(:modifyRolesAndUserAdminPrivileges).with( users = ["user-1"], TriStateSelection.new(com.thoughtworks.go.domain.config.Admin::GO_SYSTEM_ADMIN, TriStateSelection::Action.nochange), selections, an_instance_of(HttpLocalizedOperationResult))
       post :operate, :operation => "add_role", :selected => users, :new_role => "admin"
       assert_redirected_with_flash("/admin/users", "New role assigned to 1 user(s) successfully.", 'success')
     end
@@ -138,14 +138,14 @@ describe Admin::UsersController do
 
   end
 
-  describe :roles do
+  describe 'roles' do
     it "should load all roles" do
       roles = [ TriStateSelection.new('admin', 'remove') ]
       go_admin = TriStateSelection.new('Go Admin', 'add')
-      @user_service.should_receive(:getAdminAndRoleSelections).with(["tom"]).and_return(UserService::AdminAndRoleSelections.new(go_admin, roles))
+      expect(@user_service).to receive(:getAdminAndRoleSelections).with(["tom"]).and_return(UserService::AdminAndRoleSelections.new(go_admin, roles))
       post :roles, :selected => ["tom"], :no_layout => true
-      assigns[:selections].should == roles
-      assigns[:admin_selection].should == go_admin
+      expect(assigns[:selections]).to eq(roles)
+      expect(assigns[:admin_selection]).to eq(go_admin)
     end
   end
 
@@ -154,8 +154,8 @@ describe Admin::UsersController do
       @user_search_service = Object.new
       @result = HttpLocalizedOperationResult.new
 
-      HttpLocalizedOperationResult.stub(:new).and_return(@result)
-      controller.stub(:user_search_service).and_return(@user_search_service)
+      allow(HttpLocalizedOperationResult).to receive(:new).and_return(@result)
+      allow(controller).to receive(:user_search_service).and_return(@user_search_service)
     end
 
     it "should match /users/search to" do
@@ -165,45 +165,45 @@ describe Admin::UsersController do
 
     it "should search for a user" do
       current_user_name = com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('admin_user'))
-      controller.stub(:current_user).and_return(current_user_name)
+      allow(controller).to receive(:current_user).and_return(current_user_name)
 
       search_text = "foo"
       user_search_models = [UserSearchModel.new(User.new("foo", "Mr Foo", "foo@cruise.go")),
                             UserSearchModel.new(User.new("Bar", "Mr Bar", "bar@cruise.com"))]
-      @user_search_service.should_receive(:search).with(search_text, @result).and_return(user_search_models)
+      expect(@user_search_service).to receive(:search).with(search_text, @result).and_return(user_search_models)
 
       post :search, :no_layout => true, :search_text => search_text
 
-      assigns[:users].should ==  user_search_models
+      expect(assigns[:users]).to eq(user_search_models)
     end
 
     it "should search for a user" do
       current_user_name = com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('admin_user'))
-      controller.stub(:current_user).and_return(current_user_name)
+      allow(controller).to receive(:current_user).and_return(current_user_name)
 
       search_text = "foo"
       user_search_models = [UserSearchModel.new(User.new("foo", "Mr Foo", "foo@cruise.go")),
                             UserSearchModel.new(User.new("Bar", "Mr Bar", "bar@cruise.com"))]
-      @user_search_service.should_receive(:search).with(search_text, @result).and_return(user_search_models)
+      expect(@user_search_service).to receive(:search).with(search_text, @result).and_return(user_search_models)
 
       post :search, :no_layout => true, :search_text => search_text
 
-      assigns[:users].should ==  user_search_models
+      expect(assigns[:users]).to eq(user_search_models)
     end
 
     it "should warn user if search results in warnings and show the results" do
       @result.conflict(LocalizedMessage.string("LDAP_ERROR"))
 
       current_user_name = com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('admin_user'))
-      controller.stub(:current_user).and_return(current_user_name)
+      allow(controller).to receive(:current_user).and_return(current_user_name)
 
       search_text = "foo"
       user_search_models = [UserSearchModel.new(User.new("foo", "Mr Foo", "foo@cruise.go")),
                             UserSearchModel.new(User.new("Bar", "Mr Bar", "bar@cruise.com"))]
-      @user_search_service.should_receive(:search).with(search_text, @result).and_return(user_search_models)
+      expect(@user_search_service).to receive(:search).with(search_text, @result).and_return(user_search_models)
       post :search, :no_layout => true, :search_text => search_text
 
-      assigns[:users].should ==  user_search_models
+      expect(assigns[:users]).to eq(user_search_models)
       assigns[:warning_message] = "Ldap search failed, please contact the administrator."
     end
   end
@@ -216,19 +216,19 @@ describe Admin::UsersController do
 
     it "should create a new user" do
       user_service = double('user_service')
-      controller.stub(:user_service).and_return(user_service)
+      allow(controller).to receive(:user_service).and_return(user_service)
 
       params_selections = [{"name"=>"foo", "full_name"=>"Mr Foo", "email"=>"foo@cruise.com"},{"name"=>"Bar", "full_name"=>"Mr Bar", "email"=>"bar@cruise.com"}]
 
       user_search_models = [UserSearchModel.new(User.new("foo", "Mr Foo", "foo@cruise.com"), UserSourceType::PASSWORD_FILE),
                             UserSearchModel.new(User.new("Bar", "Mr Bar", "bar@cruise.com"), UserSourceType::PASSWORD_FILE)]
       result = Object.new
-      HttpLocalizedOperationResult.stub(:new).and_return(result)
-      user_service.should_receive(:create).with(user_search_models, result)
-      user_service.should_receive(:allUsersForDisplay).with(UserService::SortableColumn::USERNAME, UserService::SortDirection::ASC).and_return(['foo', 'Bar'])
-      user_service.should_receive(:enabledUserCount).and_return(1)
-      user_service.should_receive(:disabledUserCount).and_return(1)
-      result.should_receive(:isSuccessful).and_return(true)
+      allow(HttpLocalizedOperationResult).to receive(:new).and_return(result)
+      expect(user_service).to receive(:create).with(user_search_models, result)
+      expect(user_service).to receive(:allUsersForDisplay).with(UserService::SortableColumn::USERNAME, UserService::SortDirection::ASC).and_return(['foo', 'Bar'])
+      expect(user_service).to receive(:enabledUserCount).and_return(1)
+      expect(user_service).to receive(:disabledUserCount).and_return(1)
+      expect(result).to receive(:isSuccessful).and_return(true)
 
       post :create, :no_layout => true, :selections => params_selections
 
@@ -237,42 +237,42 @@ describe Admin::UsersController do
 
     it "should handle no user selections" do
       user_service = Object.new
-      controller.stub(:user_service).and_return(user_service)
+      allow(controller).to receive(:user_service).and_return(user_service)
 
       result = Object.new
-      HttpLocalizedOperationResult.stub(:new).and_return(result)
-      result.should_receive(:isSuccessful).and_return(false)
+      allow(HttpLocalizedOperationResult).to receive(:new).and_return(result)
+      expect(result).to receive(:isSuccessful).and_return(false)
 
-      user_service.should_receive(:create).with([], result)
+      expect(user_service).to receive(:create).with([], result)
 
 
-      result.should_receive(:httpCode).and_return(400)
-      result.should_receive(:message).and_return("Failed to add user")
+      expect(result).to receive(:httpCode).and_return(400)
+      expect(result).to receive(:message).and_return("Failed to add user")
 
       post :create, :no_layout => true
 
-      response.body.should == "Failed to add user\n"
+      expect(response.body).to eq("Failed to add user\n")
     end
 
     it "should render error message when user is not created" do
       user_service = Object.new
-      controller.stub(:user_service).and_return(user_service)
+      allow(controller).to receive(:user_service).and_return(user_service)
 
       params_selections = []
       user_search_models = []
       result = Object.new
-      HttpLocalizedOperationResult.stub(:new).and_return(result)
+      allow(HttpLocalizedOperationResult).to receive(:new).and_return(result)
 
-      user_service.should_receive(:create).with(user_search_models, result)
+      expect(user_service).to receive(:create).with(user_search_models, result)
 
-      result.should_receive(:isSuccessful).and_return(false)
+      expect(result).to receive(:isSuccessful).and_return(false)
 
-      result.should_receive(:httpCode).and_return(400)
-      result.should_receive(:message).and_return("Failed to add user")
+      expect(result).to receive(:httpCode).and_return(400)
+      expect(result).to receive(:message).and_return("Failed to add user")
 
       post :create, :no_layout => true, :selections => params_selections
 
-      response.body.should == "Failed to add user\n"
+      expect(response.body).to eq("Failed to add user\n")
     end
 
   end

@@ -14,20 +14,22 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV1::UsersController do
-  include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
+  include ApiHeaderSetupTeardown
 
-  describe :index do
-    describe :for_admins do
+  include ApiV1::ApiVersionHelper
+
+  describe 'index' do
+    describe 'for_admins' do
       it 'should render a list of users, for admins' do
         login_as_admin
         john = User.new('jdoe', 'Jon Doe', ['jdoe', 'jdoe@example.com'].to_java(:string), 'jdoe@example.com', true)
 
         @user_service = double('user service')
-        controller.stub(:user_service).and_return(@user_service)
-        @user_service.should_receive(:allUsers).and_return([john])
+        allow(controller).to receive(:user_service).and_return(@user_service)
+        expect(@user_service).to receive(:allUsers).and_return([john])
 
         get_with_api_header :index
         expect(response).to be_ok
@@ -35,7 +37,7 @@ describe ApiV1::UsersController do
       end
     end
 
-    describe :security do
+    describe 'security' do
       it 'should allow anyone, with security disabled' do
         disable_security
         expect(controller).to allow_action(:get, :index)
@@ -53,13 +55,13 @@ describe ApiV1::UsersController do
       end
     end
 
-    describe :route do
-      describe :with_header do
+    describe 'route' do
+      describe 'with_header' do
         it 'should route to index action of users controller' do
           expect(:get => 'api/users').to route_to(action: 'index', controller: 'api_v1/users')
         end
       end
-      describe :without_header do
+      describe 'without_header' do
         before :each do
           teardown_header
         end
@@ -71,16 +73,16 @@ describe ApiV1::UsersController do
     end
   end
 
-  describe :show do
+  describe 'show' do
     before(:each) do
       @john = User.new('jdoe', 'Jon Doe', ['jdoe', 'jdoe@example.com'].to_java(:string), 'jdoe@example.com', true)
 
       @user_service = double('user service')
-      controller.stub(:user_service).and_return(@user_service)
-      @user_service.stub(:findUserByName).with(@john.name).and_return(@john)
+      allow(controller).to receive(:user_service).and_return(@user_service)
+      allow(@user_service).to receive(:findUserByName).with(@john.name).and_return(@john)
     end
 
-    describe :for_admins do
+    describe 'for_admins' do
       it 'should render the user' do
         login_as_admin
 
@@ -93,13 +95,13 @@ describe ApiV1::UsersController do
         login_as_admin
 
         login_name = SecureRandom.hex
-        @user_service.stub(:findUserByName).with(login_name).and_return(com.thoughtworks.go.domain.NullUser.new)
+        allow(@user_service).to receive(:findUserByName).with(login_name).and_return(com.thoughtworks.go.domain.NullUser.new)
         get_with_api_header :show, login_name: login_name
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end
     end
 
-    describe :security do
+    describe 'security' do
       it 'should allow anyone, with security disabled' do
         disable_security
         expect(controller).to allow_action(:get, :show, login_name: @john.name)
@@ -116,8 +118,8 @@ describe ApiV1::UsersController do
         expect(controller).to disallow_action(:get, :show, login_name: @john.name).with(401, 'You are not authorized to perform this action.')
       end
     end
-    describe :route do
-      describe :with_header do
+    describe 'route' do
+      describe 'with_header' do
         it 'should route to show action of users controller for alphanumeric login name' do
           expect(:get => 'api/users/foo123').to route_to(action: 'show', controller: 'api_v1/users', login_name: 'foo123')
         end
@@ -134,7 +136,7 @@ describe ApiV1::UsersController do
           expect(:get => 'api/users/foo#%$').not_to be_routable
         end
       end
-      describe :without_header do
+      describe 'without_header' do
         before :each do
           teardown_header
         end
@@ -146,21 +148,21 @@ describe ApiV1::UsersController do
     end
   end
 
-  describe :destroy do
+  describe 'destroy' do
     before(:each) do
       @john = User.new('jdoe', 'Jon Doe', ['jdoe', 'jdoe@example.com'].to_java(:string), 'jdoe@example.com', true)
 
       @user_service = double('user service')
-      controller.stub(:user_service).and_return(@user_service)
-      @user_service.stub(:findUserByName).with(@john.name).and_return(@john)
-      @user_service.stub(:deleteUser).with(@john.name, anything()).and_return(@john)
+      allow(controller).to receive(:user_service).and_return(@user_service)
+      allow(@user_service).to receive(:findUserByName).with(@john.name).and_return(@john)
+      allow(@user_service).to receive(:deleteUser).with(@john.name, anything()).and_return(@john)
     end
 
-    describe :for_admins do
+    describe 'for_admins' do
       it 'should allow deleting users' do
         login_as_admin
 
-        @user_service.should_receive(:deleteUser).with(@john.name, an_instance_of(HttpLocalizedOperationResult)) do |username, result|
+        expect(@user_service).to receive(:deleteUser).with(@john.name, an_instance_of(HttpLocalizedOperationResult)) do |username, result|
           result.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", "user", username))
         end
 
@@ -173,13 +175,13 @@ describe ApiV1::UsersController do
         login_as_admin
 
         login_name = SecureRandom.hex
-        @user_service.stub(:findUserByName).with(login_name).and_return(com.thoughtworks.go.domain.NullUser.new)
+        allow(@user_service).to receive(:findUserByName).with(login_name).and_return(com.thoughtworks.go.domain.NullUser.new)
         delete_with_api_header :destroy, login_name: login_name
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end
     end
 
-    describe :security do
+    describe 'security' do
       it 'should allow anyone, with security disabled' do
         disable_security
         expect(controller).to allow_action(:delete, :destroy, login_name: @john.name)
@@ -197,8 +199,8 @@ describe ApiV1::UsersController do
       end
     end
 
-    describe :route do
-      describe :with_header do
+    describe 'route' do
+      describe 'with_header' do
         it 'should route to destroy action of users controller for alphanumeric login name' do
           expect(:delete => 'api/users/foo123').to route_to(action: 'destroy', controller: 'api_v1/users', login_name: 'foo123')
         end
@@ -215,7 +217,7 @@ describe ApiV1::UsersController do
           expect(:delete => 'api/users/foo#%$').not_to be_routable
         end
       end
-      describe :without_header do
+      describe 'without_header' do
         before :each do
           teardown_header
         end
@@ -227,19 +229,19 @@ describe ApiV1::UsersController do
     end
   end
 
-  describe :update do
+  describe 'update' do
     before(:each) do
       @john = User.new('jdoe', 'Jon Doe', ['jdoe', 'jdoe@example.com'].to_java(:string), 'jdoe@example.com', true)
 
       @user_service = double('user service')
-      controller.stub(:user_service).and_return(@user_service)
-      @user_service.stub(:findUserByName).with(@john.name).and_return(@john)
+      allow(controller).to receive(:user_service).and_return(@user_service)
+      allow(@user_service).to receive(:findUserByName).with(@john.name).and_return(@john)
     end
 
-    describe :for_admins do
+    describe 'for_admins' do
       it 'should allow patching users' do
         login_as_admin
-        @user_service.should_receive(:save).with(@john, TriState.TRUE, TriState.FALSE, 'foo@example.com', 'foo, bar', an_instance_of(HttpLocalizedOperationResult)).and_return(@john)
+        expect(@user_service).to receive(:save).with(@john, TriState.TRUE, TriState.FALSE, 'foo@example.com', 'foo, bar', an_instance_of(HttpLocalizedOperationResult)).and_return(@john)
 
         patch_with_api_header :update, login_name: @john.name, enabled: true, email_me: false, email: 'foo@example.com', checkin_aliases: 'foo, bar'
         expect(response).to be_ok
@@ -250,13 +252,13 @@ describe ApiV1::UsersController do
         login_as_admin
 
         login_name = SecureRandom.hex
-        @user_service.stub(:findUserByName).with(login_name).and_return(com.thoughtworks.go.domain.NullUser.new)
+        allow(@user_service).to receive(:findUserByName).with(login_name).and_return(com.thoughtworks.go.domain.NullUser.new)
         patch_with_api_header :update, login_name: login_name
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end
     end
 
-    describe :security do
+    describe 'security' do
       it 'should allow anyone, with security disabled' do
         disable_security
         expect(controller).to allow_action(:patch, :update, login_name: @john.name)
@@ -274,8 +276,8 @@ describe ApiV1::UsersController do
       end
     end
 
-    describe :route do
-      describe :with_header do
+    describe 'route' do
+      describe 'with_header' do
         it 'should route to update action of users controller for alphanumeric login name' do
           expect(:patch => 'api/users/foo123').to route_to(action: 'update', controller: 'api_v1/users', login_name: 'foo123')
         end
@@ -292,7 +294,7 @@ describe ApiV1::UsersController do
           expect(:patch => 'api/users/foo#%$').not_to be_routable
         end
       end
-      describe :without_header do
+      describe 'without_header' do
         before :each do
           teardown_header
         end
@@ -304,22 +306,22 @@ describe ApiV1::UsersController do
     end
   end
 
-  describe :create do
+  describe 'create' do
     before(:each) do
       @john = User.new('jdoe')
 
       @user_service = double('user service')
-      controller.stub(:user_service).and_return(@user_service)
-      @user_service.stub(:findUserByName).with(anything()).and_return(com.thoughtworks.go.domain.NullUser.new)
+      allow(controller).to receive(:user_service).and_return(@user_service)
+      allow(@user_service).to receive(:findUserByName).with(anything()).and_return(com.thoughtworks.go.domain.NullUser.new)
     end
 
-    describe :for_admins do
+    describe 'for_admins' do
       it 'should render 201 created when user is created' do
         login_as_admin
 
-        @user_service.should_receive(:withEnableUserMutex).and_yield
+        expect(@user_service).to receive(:withEnableUserMutex).and_yield
 
-        @user_service.should_receive(:save).with(@john, TriState.TRUE, TriState.FALSE, 'foo@example.com', 'foo, bar', an_instance_of(HttpLocalizedOperationResult)).and_return(@john)
+        expect(@user_service).to receive(:save).with(@john, TriState.TRUE, TriState.FALSE, 'foo@example.com', 'foo, bar', an_instance_of(HttpLocalizedOperationResult)).and_return(@john)
 
         post_with_api_header :create, login_name: @john.name, enabled: true, email_me: false, email: 'foo@example.com', checkin_aliases: 'foo, bar'
         expect(response.status).to be(201)
@@ -330,17 +332,17 @@ describe ApiV1::UsersController do
         login_as_admin
 
         login_name = SecureRandom.hex
-        @user_service.should_receive(:withEnableUserMutex).and_yield
-        @user_service.stub(:findUserByName).with(login_name).and_return(User.new(login_name))
+        expect(@user_service).to receive(:withEnableUserMutex).and_yield
+        allow(@user_service).to receive(:findUserByName).with(login_name).and_return(User.new(login_name))
         post_with_api_header :create, login_name: login_name
         expect(response).to have_api_message_response(409, "The user `#{login_name}` already exists.")
       end
     end
 
-    describe :security do
+    describe 'security' do
       it 'should allow anyone, with security disabled' do
         disable_security
-        expect(controller).to allow_action(:create, :create)
+        expect(controller).to allow_action(:post, :create)
       end
 
       it 'should disallow anonymous users, with security enabled' do
@@ -355,13 +357,13 @@ describe ApiV1::UsersController do
       end
     end
 
-    describe :route do
-      describe :with_header do
+    describe 'route' do
+      describe 'with_header' do
         it 'should route to create action of users controller' do
           expect(:post => 'api/users').to route_to(action: 'create', controller: 'api_v1/users')
         end
       end
-      describe :without_header do
+      describe 'without_header' do
         before :each do
           teardown_header
         end

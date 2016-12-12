@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 describe ApiV1::Config::ErrorRepresenter do
 
   it "should represent an error" do

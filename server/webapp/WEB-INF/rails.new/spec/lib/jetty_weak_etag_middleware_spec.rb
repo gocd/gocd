@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe JettyWeakEtagMiddleware do
   before(:each) do
@@ -29,7 +29,7 @@ describe JettyWeakEtagMiddleware do
         'HTTP_IF_NONE_MATCH' => %Q{"foobar--#{compression_type}"}
       }
 
-      @app.should_receive(:call).with({
+      expect(@app).to receive(:call).with({
                                         'HTTP_IF_MATCH' => '"foobar"',
                                         'HTTP_IF_NONE_MATCH' => '"foobar"'
                                       })

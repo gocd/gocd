@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 load File.expand_path(File.dirname(__FILE__) + '/../auto_refresh_examples.rb')
 
@@ -46,7 +46,7 @@ describe 'environments/index.html.erb' do
     expect(response).to have_selector("div.unused_feature a[href='http://www.go.cd/documentation/user/current/configuration/managing_environments.html']", :text => "More Information")
   end
 
-  describe :auto_refresh do
+  describe 'auto_refresh' do
     before do
       @partial = 'environments/index.html.erb'
       @ajax_refresher = /DashboardAjaxRefresher/

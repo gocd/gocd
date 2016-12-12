@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 def schedule_options(specified_revisions, variables, secure_variables = {})
   ScheduleOptions.new(HashMap.new(specified_revisions), HashMap.new(variables), HashMap.new(secure_variables))
@@ -23,9 +23,9 @@ end
 describe Api::PipelineGroupsController do
   include APIModelMother
 
-  describe :list_pipeline_group_configs do
+  describe 'list_pipeline_group_configs' do
     before :each do
-      controller.stub(:pipeline_configs_service).and_return(@pipeline_configs_service = double('pipeline_configs_service'))
+      allow(controller).to receive(:pipeline_configs_service).and_return(@pipeline_configs_service = double('pipeline_configs_service'))
     end
 
     it "should resolve" do
@@ -34,8 +34,8 @@ describe Api::PipelineGroupsController do
 
     it "should render pipeline group list json" do
       loser = Username.new(CaseInsensitiveString.new("loser"))
-      controller.should_receive(:current_user).and_return(loser)
-      @pipeline_configs_service.should_receive(:getGroupsForUser).with("loser").and_return([create_pipeline_group_config_model])
+      expect(controller).to receive(:current_user).and_return(loser)
+      expect(@pipeline_configs_service).to receive(:getGroupsForUser).with("loser").and_return([create_pipeline_group_config_model])
 
       get :list_configs, :no_layout => true
 

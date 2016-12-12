@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 def params
   {:pipeline_group => 'pipeline_group_stuff', :plugin_stuff => "other", :other_go_stuff => "also_incl"}

@@ -14,23 +14,22 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe Api::StagesController do
   render_views
 
   before :each do
     controller.go_cache.clear
-    controller.stub(:stage_service).and_return(@stage_service = double())
-    controller.stub(:set_locale)
-    controller.stub(:populate_config_validity)
+    allow(controller).to receive(:stage_service).and_return(@stage_service = double())
+    allow(controller).to receive(:populate_config_validity)
 
   end
 
   it "should load stage data" do
     stage = StageMother.create_passed_stage("pipeline_name", 30, "stage_name", 2, "dev", java.util.Date.new())
     stage.setPipelineId(120)
-    @stage_service.should_receive(:stageById).with(99).and_return(stage)
+    expect(@stage_service).to receive(:stageById).with(99).and_return(stage)
     get 'index', :id => "99", :format => "xml", :no_layout => true
 
     doc = Nokogiri::XML(response.body)

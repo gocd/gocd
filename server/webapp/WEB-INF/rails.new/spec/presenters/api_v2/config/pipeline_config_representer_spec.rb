@@ -14,11 +14,11 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV2::Config::PipelineConfigRepresenter do
 
-  describe :serialize do
+  describe 'serialize' do
     it 'renders a pipeline with hal representation' do
       presenter   = ApiV2::Config::PipelineConfigRepresenter.new(get_pipeline_config)
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
@@ -61,7 +61,7 @@ describe ApiV2::Config::PipelineConfigRepresenter do
     end
   end
 
-  describe :deserialise do
+  describe 'deserialise' do
 
     it "should convert from minimal json to PipelineConfig" do
       pipeline_config = PipelineConfig.new
@@ -115,7 +115,7 @@ describe ApiV2::Config::PipelineConfigRepresenter do
       }
     end
 
-    describe :pipeline_with_environment_varibales do
+    describe 'pipeline_with_environment_varibales' do
       it "should convert pipeline hash with environment variables  to PipelineConfig" do
         pipeline_config = PipelineConfig.new
 
@@ -143,7 +143,7 @@ describe ApiV2::Config::PipelineConfigRepresenter do
       end
     end
 
-    describe :pipeline_with_parmas do
+    describe 'pipeline_with_parmas' do
       it "should convert pipeline hash with parameters to PipelineConfig" do
         pipeline_config = PipelineConfig.new
         ApiV2::Config::PipelineConfigRepresenter.new(pipeline_config).from_hash({ parameters: [{
@@ -163,7 +163,7 @@ describe ApiV2::Config::PipelineConfigRepresenter do
       end
     end
 
-    describe :pipeline_with_materials do
+    describe 'pipeline_with_materials' do
       it "should convert pipeline hash with materials  to PipelineConfig" do
         pipeline_config = PipelineConfig.new
         ApiV2::Config::PipelineConfigRepresenter.new(pipeline_config).from_hash({ materials: [
@@ -220,7 +220,7 @@ describe ApiV2::Config::PipelineConfigRepresenter do
 
     end
 
-    describe :pipeline_with_stages do
+    describe 'pipeline_with_stages' do
       it "should convert pipeline hash with stages  to PipelineConfig" do
         pipeline_config = PipelineConfig.new
         stages          =[{
@@ -270,7 +270,7 @@ describe ApiV2::Config::PipelineConfigRepresenter do
 
     end
 
-    describe :pipeline_with_tracking_tool do
+    describe 'pipeline_with_tracking_tool' do
       it "should convert pipeline hash with tracking tool  to PipelineConfig" do
         pipeline_config = PipelineConfig.new
         ApiV2::Config::PipelineConfigRepresenter.new(pipeline_config).from_hash({ tracking_tool: {
@@ -308,7 +308,7 @@ describe ApiV2::Config::PipelineConfigRepresenter do
     end
 
 
-    describe :pipeline_with_timer do
+    describe 'pipeline_with_timer' do
       it "should convert pipeline hash with timer  to PipelineConfig" do
         pipeline_config = PipelineConfig.new
         ApiV2::Config::PipelineConfigRepresenter.new(pipeline_config).from_hash({ timer: { spec: "0 0 22 ? * MON-FRI", only_on_changes: true } })

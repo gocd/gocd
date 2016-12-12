@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV1::Dashboard::StageRepresenter do
   it 'renders stages and previous stage with hal representation' do

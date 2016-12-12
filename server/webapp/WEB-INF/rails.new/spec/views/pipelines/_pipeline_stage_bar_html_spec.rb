@@ -14,27 +14,32 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 require File.join(File.dirname(__FILE__), "..", "auto_refresh_examples")
 
 describe 'pipelines/_pipeline_stage_bar.html.erb' do
-  include JobMother, GoUtil, ReflectiveUtil
+  include JobMother
+
+  include GoUtil
+
+
+  include ReflectiveUtil
 
   before :each do
     @sim = double('stage_instance_model')
   end
 
   it "should show cancel button" do
-    @sim.stub(:isRunning).and_return(true)
-    @sim.stub(:canRun).and_return(false)
-    @sim.stub(:getState).and_return(StageState::Building)
-    @sim.stub(:getName).and_return("stage_name")
-    @sim.stub(:getIdentifier).and_return(StageIdentifier.new)
-    @sim.stub(:isScheduled).and_return(false)
-    @sim.stub(:hasOperatePermission).and_return(true)
-    @sim.stub(:getId).and_return(42)
-    @sim.stub(:getApprovedBy).and_return("admin")
-    @sim.stub(:isAutoApproved).and_return(true)
+    allow(@sim).to receive(:isRunning).and_return(true)
+    allow(@sim).to receive(:canRun).and_return(false)
+    allow(@sim).to receive(:getState).and_return(StageState::Building)
+    allow(@sim).to receive(:getName).and_return("stage_name")
+    allow(@sim).to receive(:getIdentifier).and_return(StageIdentifier.new)
+    allow(@sim).to receive(:isScheduled).and_return(false)
+    allow(@sim).to receive(:hasOperatePermission).and_return(true)
+    allow(@sim).to receive(:getId).and_return(42)
+    allow(@sim).to receive(:getApprovedBy).and_return("admin")
+    allow(@sim).to receive(:isAutoApproved).and_return(true)
 
     render :partial => 'pipelines/pipeline_stage_bar', :locals => {:scope => {:stage_in_status_bar => @sim, :idx_in_status_bar => 1, :stage_name => 'stage_name'}}
     Capybara.string(response.body).find("#operate_stage_name").tap do |f|

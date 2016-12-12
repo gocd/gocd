@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV1::CommandSnippetsRepresenter do
   it 'renders multiple command snippets with hal representation' do
@@ -26,6 +26,6 @@ describe ApiV1::CommandSnippetsRepresenter do
     expect(actual_json).to have_link(:self).with_url(UrlBuilder.new.apiv1_admin_internal_command_snippets_url(:prefix => 'sc'))
     actual_json.delete(:_links)
 
-    actual_json.fetch(:_embedded).should == { :command_snippets => [ApiV1::CommandSnippetRepresenter.new(snippet).to_hash(url_builder: UrlBuilder.new)] }
+    expect(actual_json.fetch(:_embedded)).to eq({ :command_snippets => [ApiV1::CommandSnippetRepresenter.new(snippet).to_hash(url_builder: UrlBuilder.new)] })
   end
 end

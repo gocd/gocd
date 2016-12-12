@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ComparisonController, "view" do
   include StageModelMother
@@ -22,9 +22,9 @@ describe ComparisonController, "view" do
   render_views
 
   before do
-    controller.stub(:pipeline_history_service).and_return(@phs = double('PipelineHistoryService'))
-    controller.stub(:current_user).and_return(@loser = Username.new(CaseInsensitiveString.new("loser")))
-    controller.stub(:populate_config_validity)
+    allow(controller).to receive(:pipeline_history_service).and_return(@phs = double('PipelineHistoryService'))
+    allow(controller).to receive(:current_user).and_return(@loser = Username.new(CaseInsensitiveString.new("loser")))
+    allow(controller).to receive(:populate_config_validity)
     @pipeline_instances = PipelineInstanceModels.createPipelineInstanceModels()
     @pipeline_instances.setPagination(Pagination.pageStartingAt(51, 100, 10))
     (1..10).each do |i|
@@ -38,16 +38,16 @@ describe ComparisonController, "view" do
       @result = HttpOperationResult.new
       @other_result = HttpOperationResult.new
 
-      HttpOperationResult.stub(:new).and_return(@result)
+      allow(HttpOperationResult).to receive(:new).and_return(@result)
 
       @from_pipeline = PipelineInstanceModel.createPipeline("some_pipeline", 10, "some-label", BuildCause.createWithEmptyModifications(), stage_history_for("dev", "prod"))
-      @phs.stub(:findPipelineInstance).with("some_pipeline", 10, @loser, @result).and_return(@from_pipeline)
+      allow(@phs).to receive(:findPipelineInstance).with("some_pipeline", 10, @loser, @result).and_return(@from_pipeline)
 
       @to_pipeline = PipelineInstanceModel.createPipeline("some_pipeline", 17, "some-label", BuildCause.createWithEmptyModifications(), stage_history_for("dev", "prod"))
-      @phs.stub(:findPipelineInstance).with("some_pipeline", 17, @loser, @result).and_return(@to_pipeline)
+      allow(@phs).to receive(:findPipelineInstance).with("some_pipeline", 17, @loser, @result).and_return(@to_pipeline)
 
-      @phs.stub(:findPipelineInstances).with(17, "some_pipeline", 10, @loser.getUsername()).and_return(@pipeline_instances)
-      @phs.stub(:findPipelineInstances).with(10, "some_pipeline", 10, @loser.getUsername()).and_return(@pipeline_instances)
+      allow(@phs).to receive(:findPipelineInstances).with(17, "some_pipeline", 10, @loser.getUsername()).and_return(@pipeline_instances)
+      allow(@phs).to receive(:findPipelineInstances).with(10, "some_pipeline", 10, @loser.getUsername()).and_return(@pipeline_instances)
 
       @modification = Modification.new(@date=java.util.Date.new, "1234", "label-1", nil)
       @modification.setUserName("username")
@@ -69,14 +69,14 @@ describe ComparisonController, "view" do
     end
 
     it "should load mingle config for given pipeline" do
-      controller.stub(:current_user).and_return(loser = Username.new(CaseInsensitiveString.new('loser')))
-      controller.should_receive(:mingle_config_service).and_return(service = double('MingleConfigService'))
+      allow(controller).to receive(:current_user).and_return(loser = Username.new(CaseInsensitiveString.new('loser')))
+      expect(controller).to receive(:mingle_config_service).and_return(service = double('MingleConfigService'))
       result = HttpLocalizedOperationResult.new
-      HttpLocalizedOperationResult.stub(:new).and_return(result)
+      allow(HttpLocalizedOperationResult).to receive(:new).and_return(result)
       mingle_config = MingleConfig.new("https://some_host/path", "foo_bar_project", "mql != not(mql)")
-      service.should_receive(:mingleConfigForPipelineNamed).with('some_pipeline', loser, result).and_return(mingle_config)
-      controller.should_receive(:changeset_service).and_return(changeset_service = double('ChangesetService'))
-      changeset_service.should_receive(:revisionsBetween).with('some_pipeline', 10, 17, loser, result, true, false).and_return(@revisions.getRevisions())
+      expect(service).to receive(:mingleConfigForPipelineNamed).with('some_pipeline', loser, result).and_return(mingle_config)
+      expect(controller).to receive(:changeset_service).and_return(changeset_service = double('ChangesetService'))
+      expect(changeset_service).to receive(:revisionsBetween).with('some_pipeline', 10, 17, loser, result, true, false).and_return(@revisions.getRevisions())
       stub_go_config_service
 
       get :show, :pipeline_name => "some_pipeline", :from_counter => "10", :to_counter => '17'
@@ -87,20 +87,20 @@ describe ComparisonController, "view" do
 
     def stub_go_config_service
       go_config_service = stub_service(:go_config_service)
-      go_config_service.stub(:isSecurityEnabled).and_return(true)
-      go_config_service.stub(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid())
-      go_config_service.stub(:getCommentRendererFor).with("some_pipeline").and_return(com.thoughtworks.go.config.TrackingTool.new())
+      allow(go_config_service).to receive(:isSecurityEnabled).and_return(true)
+      allow(go_config_service).to receive(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid())
+      allow(go_config_service).to receive(:getCommentRendererFor).with("some_pipeline").and_return(com.thoughtworks.go.config.TrackingTool.new())
       mother = GoConfigMother.new
-      go_config_service.stub(:getCurrentConfig).and_return(mother.cruiseConfigWithPipelineUsingTwoMaterials())
+      allow(go_config_service).to receive(:getCurrentConfig).and_return(mother.cruiseConfigWithPipelineUsingTwoMaterials())
     end
 
     it "should not fail if mingle not configured for given pipeline" do
-      controller.stub(:current_user).and_return(loser = Username.new(CaseInsensitiveString.new('loser')))
+      allow(controller).to receive(:current_user).and_return(loser = Username.new(CaseInsensitiveString.new('loser')))
       service = stub_service(:mingle_config_service)
       result = stub_localized_result()
-      service.should_receive(:mingleConfigForPipelineNamed).with('some_pipeline', loser, result).and_return(nil)
+      expect(service).to receive(:mingleConfigForPipelineNamed).with('some_pipeline', loser, result).and_return(nil)
       changeset_service = stub_service(:changeset_service)
-      changeset_service.should_receive(:revisionsBetween).with('some_pipeline', 10, 17, loser, result, true, false).and_return(@revisions.getRevisions())
+      expect(changeset_service).to receive(:revisionsBetween).with('some_pipeline', 10, 17, loser, result, true, false).and_return(@revisions.getRevisions())
       stub_go_config_service
 
 
@@ -116,12 +116,12 @@ describe ComparisonController, "view" do
     end
 
     it "should render error page when user doesn't have view access to pipeline" do
-      controller.should_receive(:mingle_config_service).and_return(service = double('MingleConfigService'))
+      expect(controller).to receive(:mingle_config_service).and_return(service = double('MingleConfigService'))
       result = HttpLocalizedOperationResult.new
-      HttpLocalizedOperationResult.stub(:new).and_return(result)
+      allow(HttpLocalizedOperationResult).to receive(:new).and_return(result)
       result.unauthorized(LocalizedMessage.cannotViewPipeline("some_pipeline"), HealthStateType.unauthorisedForPipeline("some_pipeline"))
 
-      service.should_receive(:mingleConfigForPipelineNamed).with('some_pipeline', @loser, result).and_return(nil)
+      expect(service).to receive(:mingleConfigForPipelineNamed).with('some_pipeline', @loser, result).and_return(nil)
 
       get :show, :pipeline_name => "some_pipeline", :from_counter => "10", :to_counter => 17
 
@@ -138,12 +138,12 @@ describe ComparisonController, "view" do
     end
 
     it "should show error if pipelines don't exist" do
-      controller.stub(:pipeline_history_service).and_return(phs = double('PipelineHistoryService'))
+      allow(controller).to receive(:pipeline_history_service).and_return(phs = double('PipelineHistoryService'))
 
       @result.unauthorized("You do not have view permissions for pipeline 'admin_only'.", "too bad for you!", HealthStateType.unauthorisedForPipeline("admin_only"))
 
-      HttpOperationResult.should_receive(:new).and_return(@result)
-      phs.should_receive(:findPipelineInstance).with("admin_only", 17, @loser, @result).and_return(nil)
+      expect(HttpOperationResult).to receive(:new).and_return(@result)
+      expect(phs).to receive(:findPipelineInstance).with("admin_only", 17, @loser, @result).and_return(nil)
 
       get :show, :pipeline_name => "admin_only", :from_counter => "10", :to_counter => "17"
 
@@ -161,15 +161,15 @@ describe ComparisonController, "view" do
     end
 
     it "should render Card Activity and Checkins as tabs" do
-      controller.stub(:current_user).and_return(loser = Username.new(CaseInsensitiveString.new("loser")))
-      controller.should_receive(:mingle_config_service).and_return(service = double('MingleConfigService'))
+      allow(controller).to receive(:current_user).and_return(loser = Username.new(CaseInsensitiveString.new("loser")))
+      expect(controller).to receive(:mingle_config_service).and_return(service = double('MingleConfigService'))
       result = HttpLocalizedOperationResult.new
-      HttpLocalizedOperationResult.stub(:new).and_return(result)
+      allow(HttpLocalizedOperationResult).to receive(:new).and_return(result)
       mingle_config = MingleConfig.new("https://some_host/path", "foo_bar_project", "mql != not(mql)")
-      service.should_receive(:mingleConfigForPipelineNamed).with('some_pipeline', loser, result).and_return(mingle_config)
+      expect(service).to receive(:mingleConfigForPipelineNamed).with('some_pipeline', loser, result).and_return(mingle_config)
 
-      controller.should_receive(:changeset_service).and_return(changeset_service = double('ChangesetService'))
-      changeset_service.should_receive(:revisionsBetween).with('some_pipeline', 10, 17, loser, result, true, false).and_return(@revisions.getRevisions())
+      expect(controller).to receive(:changeset_service).and_return(changeset_service = double('ChangesetService'))
+      expect(changeset_service).to receive(:revisionsBetween).with('some_pipeline', 10, 17, loser, result, true, false).and_return(@revisions.getRevisions())
 
       stub_go_config_service
       get :show, :pipeline_name => "some_pipeline", :from_counter => "10", :to_counter => "17"
@@ -187,23 +187,23 @@ describe ComparisonController, "view" do
     end
 
     it "should render Checkins between the given pipeline instances" do
-      controller.stub(:current_user).and_return(loser = Username.new(CaseInsensitiveString.new("loser")))
-      controller.should_receive(:mingle_config_service).and_return(service = double('MingleConfigService'))
+      allow(controller).to receive(:current_user).and_return(loser = Username.new(CaseInsensitiveString.new("loser")))
+      expect(controller).to receive(:mingle_config_service).and_return(service = double('MingleConfigService'))
       result = HttpLocalizedOperationResult.new
 
-      HttpLocalizedOperationResult.stub(:new).and_return(result)
+      allow(HttpLocalizedOperationResult).to receive(:new).and_return(result)
       mingle_config = MingleConfig.new("https://some_host/path", "foo_bar_project", "mql != not(mql)")
-      service.should_receive(:mingleConfigForPipelineNamed).with('some_pipeline', loser, result).and_return(mingle_config)
+      expect(service).to receive(:mingleConfigForPipelineNamed).with('some_pipeline', loser, result).and_return(mingle_config)
 
-      controller.should_receive(:changeset_service).and_return(changeset_service = double('ChangesetService'))
-      changeset_service.should_receive(:revisionsBetween).with('some_pipeline', 10, 17, loser, result, true, true).and_return(@revisions.getRevisions())
+      expect(controller).to receive(:changeset_service).and_return(changeset_service = double('ChangesetService'))
+      expect(changeset_service).to receive(:revisionsBetween).with('some_pipeline', 10, 17, loser, result, true, true).and_return(@revisions.getRevisions())
 
       stub_go_config_service
 
       get :show, :pipeline_name => "some_pipeline", :from_counter => "10", :to_counter => '17', :show_bisect => 'true'
 
-      assigns[:material_revisions].size.should == 2
-      assigns[:dependency_material_revisions].size.should == 1
+      expect(assigns[:material_revisions].size).to eq(2)
+      expect(assigns[:dependency_material_revisions].size).to eq(1)
 
       assert_scm_modification_shown(@hg_revisions.getRevisions().get(0).getModifications().get(0), 1, 0)
       assert_scm_modification_shown(@hg_revisions.getRevisions().get(0).getModifications().get(1), 1, 1)
@@ -235,17 +235,17 @@ describe ComparisonController, "view" do
 
     it "should render errors when Checkins return an error" do
       config_service = stub_service(:go_config_service)
-      config_service.should_receive(:getCurrentConfig).and_return(new_config = BasicCruiseConfig.new)
-      controller.stub(:current_user).and_return(loser = Username.new(CaseInsensitiveString.new("loser")))
-      controller.should_receive(:mingle_config_service).and_return(service = double('MingleConfigService'))
-      controller.should_receive(:changeset_service).and_return(changeset_service = double('ChangesetService'))
+      expect(config_service).to receive(:getCurrentConfig).and_return(new_config = BasicCruiseConfig.new)
+      allow(controller).to receive(:current_user).and_return(loser = Username.new(CaseInsensitiveString.new("loser")))
+      expect(controller).to receive(:mingle_config_service).and_return(service = double('MingleConfigService'))
+      expect(controller).to receive(:changeset_service).and_return(changeset_service = double('ChangesetService'))
 
       result = HttpLocalizedOperationResult.new
-      HttpLocalizedOperationResult.stub(:new).and_return(result)
+      allow(HttpLocalizedOperationResult).to receive(:new).and_return(result)
       mingle_config = MingleConfig.new("https://some_host/path", "foo_bar_project", "mql != not(mql)")
-      service.should_receive(:mingleConfigForPipelineNamed).with('some_pipeline', loser, result).and_return(mingle_config)
+      expect(service).to receive(:mingleConfigForPipelineNamed).with('some_pipeline', loser, result).and_return(mingle_config)
 
-      changeset_service.should_receive(:revisionsBetween).with('some_pipeline', 10, 17, loser, an_instance_of(HttpLocalizedOperationResult), true, false) do |name, from, to, loser, result|
+      expect(changeset_service).to receive(:revisionsBetween).with('some_pipeline', 10, 17, loser, an_instance_of(HttpLocalizedOperationResult), true, false) do |name, from, to, loser, result|
         result.notFound(LocalizedMessage.string("RESOURCE_NOT_FOUND", 'pipleine', ['some_pipeline']), HealthStateType.general(HealthStateScope.forPipeline('foo')))
       end
 
@@ -258,7 +258,7 @@ describe ComparisonController, "view" do
   describe "timeline_view" do
 
     it "should render timeline view" do
-      @phs.should_receive(:findPipelineInstancesByPageNumber).with("some_pipeline", 1, 10, "loser").and_return(@pipeline_instances)
+      expect(@phs).to receive(:findPipelineInstancesByPageNumber).with("some_pipeline", 1, 10, "loser").and_return(@pipeline_instances)
 
       get :timeline, :pipeline_name => "some_pipeline", :page => "1", :other_pipeline_counter => "3", :suffix => "from"
 
@@ -286,7 +286,7 @@ describe ComparisonController, "view" do
     end
 
     it "should generate comparison paths for 'to' pipeline" do
-      @phs.should_receive(:findPipelineInstancesByPageNumber).with("some_pipeline", 1, 10, "loser").and_return(@pipeline_instances)
+      expect(@phs).to receive(:findPipelineInstancesByPageNumber).with("some_pipeline", 1, 10, "loser").and_return(@pipeline_instances)
 
       get :timeline, :pipeline_name => "some_pipeline", :page => "1", :other_pipeline_counter => "3", :suffix => "to"
 
@@ -299,7 +299,7 @@ describe ComparisonController, "view" do
     end
 
     it "should not render timeline page links when there is only one page" do
-      @phs.should_receive(:findPipelineInstancesByPageNumber).with("some_pipeline", 1, 10, "loser").and_return(@pipeline_instances)
+      expect(@phs).to receive(:findPipelineInstancesByPageNumber).with("some_pipeline", 1, 10, "loser").and_return(@pipeline_instances)
       @pipeline_instances.setPagination(Pagination.pageStartingAt(0, 10, 20))
 
       get :timeline, :pipeline_name => "some_pipeline", :page => "1"
@@ -309,7 +309,7 @@ describe ComparisonController, "view" do
 
     it "should render timeline page links" do
       @pipeline_instances.setPagination(Pagination.pageByNumber(3, 10, 2))
-      @phs.should_receive(:findPipelineInstancesByPageNumber).with("some_pipeline", 3, 10, "loser").and_return(@pipeline_instances)
+      expect(@phs).to receive(:findPipelineInstancesByPageNumber).with("some_pipeline", 3, 10, "loser").and_return(@pipeline_instances)
 
       get :timeline, :pipeline_name => "some_pipeline", :page => "3"
 

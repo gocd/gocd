@@ -14,15 +14,14 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe Api::StagesController do
 
   describe "index" do
     before :each do
-      controller.stub(:stage_service).and_return(@stage_service = double('stage_service'))
-      controller.stub(:set_locale)
-      controller.stub(:populate_config_validity)
+      allow(controller).to receive(:stage_service).and_return(@stage_service = double('stage_service'))
+      allow(controller).to receive(:populate_config_validity)
     end
 
     it "should return a 404 HTTP response when id is not a number" do
@@ -31,7 +30,7 @@ describe Api::StagesController do
     end
 
     it "should return a 404 HTTP response when stage cannot be loaded" do
-      @stage_service.should_receive(:stageById).with(99).and_throw(Exception.new("foo"))
+      expect(@stage_service).to receive(:stageById).with(99).and_throw(Exception.new("foo"))
       get 'index', :id => "99", :format => "xml", :no_layout => true
       expect(response.status).to eq(404)
     end
@@ -39,18 +38,18 @@ describe Api::StagesController do
     it "should load stage data" do
       updated_date = java.util.Date.new
       stage = StageMother.create_passed_stage("pipeline_name", 100, "blah-stage", 12, "dev", updated_date)
-      @stage_service.should_receive(:stageById).with(99).and_return(stage)
+      expect(@stage_service).to receive(:stageById).with(99).and_return(stage)
       get 'index', :id => "99", :format => "xml", :no_layout => true
 
       context = XmlWriterContext.new("http://test.host/go", nil, nil, nil, nil)
-      assigns[:doc].asXML().should == StageXmlViewModel.new(stage).toXml(context).asXML()
+      expect(assigns[:doc].asXML()).to eq(StageXmlViewModel.new(stage).toXml(context).asXML())
     end
   end
 
   describe "cancel" do
     before :each do
       @schedule_service = double('schedule_service')
-      controller.stub(:schedule_service).and_return(@schedule_service)
+      allow(controller).to receive(:schedule_service).and_return(@schedule_service)
     end
 
     it "should resolve route to cancel" do
@@ -65,8 +64,8 @@ describe Api::StagesController do
 
     it "should cancel stage" do
       user = Username.new(CaseInsensitiveString.new("sriki"))
-      @controller.stub(:current_user).and_return(user)
-      @schedule_service.should_receive(:cancelAndTriggerRelevantStages).with(42, user, an_instance_of(HttpLocalizedOperationResult))
+      allow(@controller).to receive(:current_user).and_return(user)
+      expect(@schedule_service).to receive(:cancelAndTriggerRelevantStages).with(42, user, an_instance_of(HttpLocalizedOperationResult))
       post :cancel, {:id => "42", :no_layout => true}
     end
   end
@@ -74,18 +73,18 @@ describe Api::StagesController do
   describe "cancel_stage_using_pipeline_stage_name" do
     before :each do
       @schedule_service = double('schedule_service')
-      controller.stub(:schedule_service).and_return(@schedule_service)
+      allow(controller).to receive(:schedule_service).and_return(@schedule_service)
     end
 
     it "should cancel stage" do
       user = Username.new(CaseInsensitiveString.new("sriki"))
-      @controller.stub(:current_user).and_return(user)
-      @schedule_service.should_receive(:cancelAndTriggerRelevantStages).with("blah_pipeline", "blah_stage", user, an_instance_of(HttpLocalizedOperationResult))
+      allow(@controller).to receive(:current_user).and_return(user)
+      expect(@schedule_service).to receive(:cancelAndTriggerRelevantStages).with("blah_pipeline", "blah_stage", user, an_instance_of(HttpLocalizedOperationResult))
       post :cancel_stage_using_pipeline_stage_name, {:pipeline_name => "blah_pipeline", :stage_name => "blah_stage", :no_layout => true}
     end
 
-    describe :route do
-      describe :with_header do
+    describe 'route' do
+      describe 'with_header' do
         before :each do
           allow_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(true)
         end
@@ -94,7 +93,7 @@ describe Api::StagesController do
                                                                                      :action => "cancel_stage_using_pipeline_stage_name",
                                                                                      :no_layout => true, :pipeline_name => "blah_pipeline", :stage_name => "blah_stage")
         end
-        describe :with_pipeline_name_constraints do
+        describe 'with_pipeline_name_constraints' do
           it 'should route to cancel_stage_using_pipeline_stage_name action of stages controller having dots in pipeline name' do
             expect(:post => '/api/stages/some.thing/bar/cancel').to route_to(:no_layout => true, controller: 'api/stages', action: 'cancel_stage_using_pipeline_stage_name', pipeline_name: 'some.thing', stage_name: 'bar')
           end
@@ -120,7 +119,7 @@ describe Api::StagesController do
           end
         end
 
-        describe :with_stage_name_constraints do
+        describe 'with_stage_name_constraints' do
           it 'should route to cancel_stage_using_pipeline_stage_name action of stages controller' do
             expect(:post => '/api/stages/foo/bar/cancel').to route_to(:no_layout => true, controller: 'api/stages', action: 'cancel_stage_using_pipeline_stage_name', pipeline_name: 'foo', stage_name: 'bar')
           end
@@ -151,7 +150,7 @@ describe Api::StagesController do
         end
       end
 
-      describe :without_header do
+      describe 'without_header' do
         it "should not resolve route to cancel_stage_using_pipeline_stage_name when constraint is not met" do
           allow_any_instance_of(HeaderConstraint).to receive(:matches?).with(any_args).and_return(false)
           expect(:post => '/api/stages/blah_pipeline/blah_stage/cancel').to_not route_to(:controller => "api/stages",
@@ -162,18 +161,18 @@ describe Api::StagesController do
     end
   end
 
-  describe :history do
+  describe 'history' do
     include APIModelMother
 
     before :each do
-      controller.stub(:stage_service).and_return(@stage_service = double('stage_service'))
+      allow(controller).to receive(:stage_service).and_return(@stage_service = double('stage_service'))
     end
 
     it "should render history json" do
       loser = Username.new(CaseInsensitiveString.new("loser"))
-      controller.should_receive(:current_user).and_return(loser)
-      @stage_service.should_receive(:getCount).and_return(10)
-      @stage_service.should_receive(:findDetailedStageHistoryByOffset).with('pipeline', 'stage', anything, "loser", anything).and_return([create_stage_model])
+      expect(controller).to receive(:current_user).and_return(loser)
+      expect(@stage_service).to receive(:getCount).and_return(10)
+      expect(@stage_service).to receive(:findDetailedStageHistoryByOffset).with('pipeline', 'stage', anything, "loser", anything).and_return([create_stage_model])
 
       get :history, :pipeline_name => 'pipeline', :stage_name => 'stage', :offset => '5', :no_layout => true
 
@@ -182,9 +181,9 @@ describe Api::StagesController do
 
     it "should render error correctly" do
       loser = Username.new(CaseInsensitiveString.new("loser"))
-      controller.should_receive(:current_user).and_return(loser)
-      @stage_service.should_receive(:getCount).and_return(10)
-      @stage_service.should_receive(:findDetailedStageHistoryByOffset).with('pipeline', 'stage', anything, "loser", anything) do |pipeline_name, stage_name, pagination, username, result|
+      expect(controller).to receive(:current_user).and_return(loser)
+      expect(@stage_service).to receive(:getCount).and_return(10)
+      expect(@stage_service).to receive(:findDetailedStageHistoryByOffset).with('pipeline', 'stage', anything, "loser", anything) do |pipeline_name, stage_name, pagination, username, result|
         result.notAcceptable("Not Acceptable", HealthStateType.general(HealthStateScope::GLOBAL))
       end
 
@@ -194,13 +193,13 @@ describe Api::StagesController do
       expect(response.body).to eq("Not Acceptable\n")
     end
 
-    describe :route do
+    describe 'route' do
       it "should route to history" do
         expect(:get => "/api/stages/pipeline/stage/history").to route_to(:controller => 'api/stages', :action => "history", :pipeline_name => "pipeline", :stage_name => "stage", :offset => "0", :no_layout => true)
         expect(:get => "/api/stages/pipeline/stage/history/1").to route_to(:controller => 'api/stages', :action => "history", :pipeline_name => "pipeline", :stage_name => "stage", :offset => "1", :no_layout => true)
       end
 
-      describe :with_pipeline_name_contraint do
+      describe 'with_pipeline_name_contraint' do
         it 'should route to history action of stages controller having dots in pipeline name' do
           expect(:get => 'api/stages/some.thing/bar/history').to route_to(no_layout: true, controller: 'api/stages', action: 'history', pipeline_name: 'some.thing', stage_name: 'bar', offset: '0')
         end
@@ -226,7 +225,7 @@ describe Api::StagesController do
         end
       end
 
-      describe :with_stage_name_constraint do
+      describe 'with_stage_name_constraint' do
         it 'should route to history action of stages controller having dots in stage name' do
           expect(:get => 'api/stages/foo/some.thing/history').to route_to(no_layout: true, controller: 'api/stages', action: 'history', pipeline_name: 'foo', stage_name: 'some.thing', offset: '0')
         end
@@ -255,11 +254,11 @@ describe Api::StagesController do
     end
   end
 
-  describe :instance_by_counter do
+  describe 'instance_by_counter' do
     include APIModelMother
 
     before :each do
-      controller.stub(:stage_service).and_return(@stage_service = double('stage_service'))
+      allow(controller).to receive(:stage_service).and_return(@stage_service = double('stage_service'))
     end
 
     it "should route to history" do
@@ -268,8 +267,8 @@ describe Api::StagesController do
 
     it "should render instance json" do
       loser = Username.new(CaseInsensitiveString.new("loser"))
-      controller.should_receive(:current_user).and_return(loser)
-      @stage_service.should_receive(:findStageWithIdentifier).with('pipeline', 1, 'stage', '1', "loser", anything).and_return(create_stage_model_for_instance)
+      expect(controller).to receive(:current_user).and_return(loser)
+      expect(@stage_service).to receive(:findStageWithIdentifier).with('pipeline', 1, 'stage', '1', "loser", anything).and_return(create_stage_model_for_instance)
 
       get :instance_by_counter, :pipeline_name => 'pipeline', :stage_name => 'stage', :pipeline_counter => '1', :stage_counter => '1', :no_layout => true
 
@@ -278,8 +277,8 @@ describe Api::StagesController do
 
     it "should render error correctly" do
       loser = Username.new(CaseInsensitiveString.new("loser"))
-      controller.should_receive(:current_user).and_return(loser)
-      @stage_service.should_receive(:findStageWithIdentifier).with('pipeline', 1, 'stage', '1', "loser", anything) do |pipeline_name, pipeline_counter, stage_name, stage_counter, username, result|
+      expect(controller).to receive(:current_user).and_return(loser)
+      expect(@stage_service).to receive(:findStageWithIdentifier).with('pipeline', 1, 'stage', '1', "loser", anything) do |pipeline_name, pipeline_counter, stage_name, stage_counter, username, result|
         result.notAcceptable("Not Acceptable", HealthStateType.general(HealthStateScope::GLOBAL))
       end
 
@@ -289,8 +288,8 @@ describe Api::StagesController do
       expect(response.body).to eq("Not Acceptable\n")
     end
 
-    describe :route do
-      describe :with_pipeline_name_contraint do
+    describe 'route' do
+      describe 'with_pipeline_name_contraint' do
         it 'should route to instance_by_counter action of stages controller having dots in pipeline name' do
           expect(:get => 'api/stages/some.thing/bar/instance/1/2').to route_to(no_layout: true, controller: 'api/stages', action: 'instance_by_counter', pipeline_name: 'some.thing', stage_name: 'bar', pipeline_counter: '1', stage_counter: '2')
         end
@@ -316,7 +315,7 @@ describe Api::StagesController do
         end
       end
 
-      describe :with_stage_name_constraint do
+      describe 'with_stage_name_constraint' do
         it 'should route to instance_by_counter action of stages controller having dots in stage name' do
           expect(:get => 'api/stages/foo/some.thing/instance/1/2').to route_to(no_layout: true, controller: 'api/stages', action: 'instance_by_counter', pipeline_name: 'foo', stage_name: 'some.thing', pipeline_counter: '1', stage_counter: '2')
         end
@@ -342,13 +341,13 @@ describe Api::StagesController do
         end
       end
 
-      describe :with_pipeline_counter_constraint do
+      describe 'with_pipeline_counter_constraint' do
         it 'should not route to instance_by_counter action of stages controller for invalid pipeline counter' do
           expect(:get => 'api/stages/some.thing/bar/instance/fo$%#@6/2').to_not be_routable
         end
       end
 
-      describe :with_stage_counter_constraint do
+      describe 'with_stage_counter_constraint' do
         it 'should not route to instance_by_counter action of stages controller for invalid stage counter' do
           expect(:get => 'api/stages/some.thing/bar/instance/1/fo$%#@6').to_not be_routable
         end

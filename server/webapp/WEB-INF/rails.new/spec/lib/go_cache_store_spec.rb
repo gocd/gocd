@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe GoCacheStore do
   before :each do
@@ -68,18 +68,18 @@ describe GoCacheStore do
 
   it "should understand if key exists in cruise cache" do
     @go_cache.put("key", ActiveSupport::Cache::Entry.new("value"))
-    expect(@store.exist?("key")).to be_true
+    expect(@store.exist?("key")).to be_truthy
     @go_cache.remove("key")
-    expect(@store.exist?("key")).to be_false
-    expect(@store.exist?("nokey")).to be_false
+    expect(@store.exist?("key")).to be_falsey
+    expect(@store.exist?("nokey")).to be_falsey
   end
 
   it "should understand if key, subkey combination exists in cruise cache" do
     @go_cache.put("key", "sub", ActiveSupport::Cache::Entry.new("value"))
-    expect(@store.exist?("key", :subkey => "sub")).to be_true
+    expect(@store.exist?("key", :subkey => "sub")).to be_truthy
     @go_cache.remove("key", "sub")
-    expect(@store.exist?("key", :subkey => "sub")).to be_false
-    expect(@store.exist?("nokey", :subkey => "sub")).to be_false
+    expect(@store.exist?("key", :subkey => "sub")).to be_falsey
+    expect(@store.exist?("nokey", :subkey => "sub")).to be_falsey
   end
 
   it "should clear cruise cache" do
@@ -91,30 +91,30 @@ describe GoCacheStore do
   it "should convert Ruby strings into Java strings for view fragments (name starting with view_)" do
     @store.write("view_a", "value")
 
-    expect(@store.fetch("view_a").is_a? java.lang.String).to be_true
+    expect(@store.fetch("view_a").is_a? java.lang.String).to be_truthy
     expect(@store.fetch("view_a")).to eq(java.lang.String.new("value"))
 
-    expect(@go_cache.get("view_a").value.is_a? java.lang.String).to be_true
+    expect(@go_cache.get("view_a").value.is_a? java.lang.String).to be_truthy
     expect(@go_cache.get("view_a").value).to eq(java.lang.String.new("value"))
   end
 
   it "should NOT convert objects which are not Ruby strings into Java string for view fragments (name starting with view_)" do
     @store.write("view_a", ["ABC", "DEF"])
 
-    expect(@store.fetch("view_a").is_a? java.lang.String).to be_false
+    expect(@store.fetch("view_a").is_a? java.lang.String).to be_falsey
     expect(@store.fetch("view_a")).to eq(["ABC", "DEF"])
 
-    expect(@go_cache.get("view_a").value.is_a? java.lang.String).to be_false
+    expect(@go_cache.get("view_a").value.is_a? java.lang.String).to be_falsey
     expect(@go_cache.get("view_a").value).to eq(["ABC", "DEF"])
   end
 
   it "should NOT convert Ruby strings into Java strings for non-view-fragments (name NOT starting with view_)" do
     @store.write("notview_a", "value")
 
-    expect(@store.fetch("notview_a").is_a? java.lang.String).to be_false
+    expect(@store.fetch("notview_a").is_a? java.lang.String).to be_falsey
     expect(@store.fetch("notview_a")).to eq("value")
 
-    expect(@go_cache.get("notview_a").value.is_a? java.lang.String).to be_false
+    expect(@go_cache.get("notview_a").value.is_a? java.lang.String).to be_falsey
     expect(@go_cache.get("notview_a").value).to eq("value")
   end
 end

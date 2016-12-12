@@ -14,14 +14,16 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe 'stages/stage.json.erb' do
-  include StageModelMother, PipelineModelMother
+  include StageModelMother
+
+  include PipelineModelMother
 
   before do
-    view.stub(:is_user_an_admin?).and_return(true)
-    view.stub(:config_change_path)
+    allow(view).to receive(:is_user_an_admin?).and_return(true)
+    allow(view).to receive(:config_change_path)
     assign :pipeline,  pipeline_model("pipeline_name", "blah_label", false, false, "working with agent", false).getLatestPipelineInstance()
     assign :stage_history_page, stage_history_page(10)
   end
@@ -30,7 +32,7 @@ describe 'stages/stage.json.erb' do
     params[:action] = 'overview'
     assign :pipeline,  pipeline_model("pipeline_name", "blah_label", false, false, "working with agent", false).getLatestPipelineInstance()
     assign :stage, stage_with_5_jobs
-    view.stub(:url_for)
+    allow(view).to receive(:url_for)
     render
     json = JSON.parse(response.body)
     expect(json["jobs_in_progress"]["html"]).to have_selector ".elapsed_time", /^Elapsed:\s+2 minutes.*/
@@ -40,7 +42,7 @@ describe 'stages/stage.json.erb' do
 
     before do
       assign :stage, stage_with_three_runs
-      view.stub(:render_json) do | options |
+      allow(view).to receive(:render_json) do | options |
         "\"#{options[:partial]}\""
       end
     end
@@ -116,11 +118,11 @@ describe 'stages/stage.json.erb' do
     before do
       assign :response_format, "json"
       assign :failing_tests, failing_tests = double(:failing_tests)
-      failing_tests.stub(:numberOfTests).and_return(0)
+      allow(failing_tests).to receive(:numberOfTests).and_return(0)
       params[:action] = "tests"
-      view.stub(:stage_history_url).and_return("history_url")
-      view.stub(:stage_history_path).and_return("history_path")
-      view.stub(:stage_bar_url).and_return("detail_tab_url")
+      allow(view).to receive(:stage_history_url).and_return("history_url")
+      allow(view).to receive(:stage_history_path).and_return("history_path")
+      allow(view).to receive(:stage_bar_url).and_return("detail_tab_url")
     end
 
     it "should cache fbh partial" do
@@ -143,10 +145,10 @@ describe 'stages/stage.json.erb' do
       failing_stage.calculateResult()
 
       assign :stage, stage_model_for(failing_stage)
-      view.stub(:view_cache_key).and_return(key = double('view_cache_key'))
-      key.should_receive(:forFbhOfStagesUnderPipeline).with(failing_stage.getIdentifier().pipelineIdentifier()).and_return("pipeline_id_based_key")
-      key.should_receive(:forFailedBuildHistoryStage).with(failing_stage, "json").and_return("stage_fbh_json_key")
-      view.should_receive(:cache).with("pipeline_id_based_key", {:subkey => "stage_fbh_json_key", :skip_digest=>true})
+      allow(view).to receive(:view_cache_key).and_return(key = double('view_cache_key'))
+      expect(key).to receive(:forFbhOfStagesUnderPipeline).with(failing_stage.getIdentifier().pipelineIdentifier()).and_return("pipeline_id_based_key")
+      expect(key).to receive(:forFailedBuildHistoryStage).with(failing_stage, "json").and_return("stage_fbh_json_key")
+      expect(view).to receive(:cache).with("pipeline_id_based_key", {:subkey => "stage_fbh_json_key", :skip_digest=>true})
       render
     end
   end

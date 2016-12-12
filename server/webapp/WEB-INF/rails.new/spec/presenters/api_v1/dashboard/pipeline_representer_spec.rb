@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV1::Dashboard::PipelineRepresenter do
   include PipelineModelMother
@@ -33,7 +33,7 @@ describe ApiV1::Dashboard::PipelineRepresenter do
     expect(actual_json).to have_link(:unpause).with_url('http://test.host/api/pipelines/pipeline_name/unpause')
     expect(actual_json).to have_link(:pause).with_url('http://test.host/api/pipelines/pipeline_name/pause')
     actual_json.delete(:_links)
-    actual_json.delete(:_embedded).should == {:instances => [expected_embedded_pipeline(presenter.instances.first)]}
+    expect(actual_json.delete(:_embedded)).to eq({:instances => [expected_embedded_pipeline(presenter.instances.first)]})
     expect(actual_json).to eq(pipelines_hash)
   end
 

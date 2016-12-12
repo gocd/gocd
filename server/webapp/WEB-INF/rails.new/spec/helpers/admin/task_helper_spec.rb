@@ -14,26 +14,26 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe Admin::TaskHelper do
   include Admin::TaskHelper
 
   it "should get css class names for each task" do
-    task_css_class("exec").should == "lookup_icon"
-    task_css_class("fetch").should == ""
-    task_css_class("ant").should == ""
-    task_css_class("nant").should == ""
-    task_css_class("rake").should == ""
+    expect(task_css_class("exec")).to eq("lookup_icon")
+    expect(task_css_class("fetch")).to eq("")
+    expect(task_css_class("ant")).to eq("")
+    expect(task_css_class("nant")).to eq("")
+    expect(task_css_class("rake")).to eq("")
   end
 
   it "should get all task options" do
     mock_task_view_service = double("task_view_service")
     allow(self).to receive(:task_view_service).and_return(mock_task_view_service)
-    mock_task_view_service.should_receive(:getTaskViewModels).and_return([tvm_of(ExecTask.new("ls", "-la", "Hello")), tvm_of(AntTask.new), tvm_of(NantTask.new), tvm_of(RakeTask.new)])
+    expect(mock_task_view_service).to receive(:getTaskViewModels).and_return([tvm_of(ExecTask.new("ls", "-la", "Hello")), tvm_of(AntTask.new), tvm_of(NantTask.new), tvm_of(RakeTask.new)])
 
     result = task_options
-    result.should == [["Ant", "ant"], ["NAnt", "nant"], ["Rake", "rake"], ["More...", "exec"]]
+    expect(result).to eq([["Ant", "ant"], ["NAnt", "nant"], ["Rake", "rake"], ["More...", "exec"]])
   end
 
   def tvm_of task

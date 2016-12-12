@@ -14,14 +14,14 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 load File.join(File.dirname(__FILE__), 'material_controller_examples.rb')
 
 describe Admin::Materials::DependencyController do
   include MockRegistryModule
   before do
-    controller.stub(:go_config_service).and_return(@go_config_service = Object.new)
-    @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
+    allow(controller).to receive(:go_config_service).and_return(@go_config_service = Object.new)
+    allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
   end
 
   describe "new,edit,create and destroy actions" do
@@ -56,7 +56,7 @@ describe Admin::Materials::DependencyController do
 
     def assert_successful_create
       dependency_material_config = DependencyMaterialConfig.new(CaseInsensitiveString.new("new-some-kinda-material"), CaseInsensitiveString.new("new-up-pipeline"), CaseInsensitiveString.new("new-up-stage"))
-      @pipeline.materialConfigs().get(1).should == dependency_material_config
+      expect(@pipeline.materialConfigs().get(1)).to eq(dependency_material_config)
     end
 
     def update_payload
@@ -64,8 +64,8 @@ describe Admin::Materials::DependencyController do
     end
 
     def assert_successful_update
-      @pipeline.materialConfigs().get(0).getPipelineName().should == CaseInsensitiveString.new("new-up-pipeline")
-      @pipeline.materialConfigs().get(0).getStageName().should == CaseInsensitiveString.new("new-up-stage")
+      expect(@pipeline.materialConfigs().get(0).getPipelineName()).to eq(CaseInsensitiveString.new("new-up-pipeline"))
+      expect(@pipeline.materialConfigs().get(0).getStageName()).to eq(CaseInsensitiveString.new("new-up-stage"))
     end
   end
 
@@ -78,11 +78,11 @@ describe Admin::Materials::DependencyController do
     end
 
     before(:each) do
-      controller.stub(:populate_config_validity)
+      allow(controller).to receive(:populate_config_validity)
       @go_config_service = double('Go Config Service')
-      controller.stub(:go_config_service).and_return(@go_config_service)
+      allow(controller).to receive(:go_config_service).and_return(@go_config_service)
       @pipeline_pause_service = double('Pipeline Pause Service')
-      controller.stub(:pipeline_pause_service).and_return(@pipeline_pause_service)
+      allow(controller).to receive(:pipeline_pause_service).and_return(@pipeline_pause_service)
 
       @cruise_config_mother = GoConfigMother.new
 
@@ -92,12 +92,12 @@ describe Admin::Materials::DependencyController do
 
       ReflectionUtil.setField(@cruise_config, "md5", "1234abcd")
       @user = Username.new(CaseInsensitiveString.new("loser"))
-      controller.stub(:current_user).and_return(@user)
+      allow(controller).to receive(:current_user).and_return(@user)
       @result = HttpLocalizedOperationResult.new
-      HttpLocalizedOperationResult.stub(:new).and_return(@result)
+      allow(HttpLocalizedOperationResult).to receive(:new).and_return(@result)
       pause_info = PipelinePauseInfo.paused("just for fun", "loser")
-      @pipeline_pause_service.should_receive(:pipelinePauseInfo).with("pipeline-name").and_return(pause_info)
-      @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
+      expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline-name").and_return(pause_info)
+      allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
     end
 
     it "should return pipeline [stage] json in alphabetical order" do
@@ -108,28 +108,28 @@ describe Admin::Materials::DependencyController do
 
       pipeline = @cruise_config_mother.addPipeline(@cruise_config, "pipeline-name", "stage-name", ["build-name"].to_java(java.lang.String))
       @pipeline_config_for_edit = ConfigForEdit.new(pipeline, @cruise_config, MagicalGoConfigXmlLoader.new(nil, nil).preprocessAndValidate(@cruise_config))
-      @go_config_service.should_receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
+      expect(@go_config_service).to receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
 
       get :new, :pipeline_name => "pipeline-name"
 
-      assigns[:pipeline_stages_json].should == "[{\"pipeline\":\"a\",\"stage\":\"b\"},{\"pipeline\":\"Ab\",\"stage\":\"stage-1\"},{\"pipeline\":\"pipeline1\",\"stage\":\"stage-1\"},{\"pipeline\":\"pipeline2\",\"stage\":\"stage-2\"},{\"pipeline\":\"pipeline3\",\"stage\":\"stage-3\"}]"
+      expect(assigns[:pipeline_stages_json]).to eq("[{\"pipeline\":\"a\",\"stage\":\"b\"},{\"pipeline\":\"Ab\",\"stage\":\"stage-1\"},{\"pipeline\":\"pipeline1\",\"stage\":\"stage-1\"},{\"pipeline\":\"pipeline2\",\"stage\":\"stage-2\"},{\"pipeline\":\"pipeline3\",\"stage\":\"stage-3\"}]")
     end
 
     it "should not return pipeline [stage] json for pipelines which the user has no view permissions for" do
       @cruise_config_mother.addPipeline(@cruise_config, "pipeline2", "stage-2", ["job-2"].to_java(java.lang.String))
       @cruise_config_mother.addPipeline(@cruise_config, "a", "b", ["job-1"].to_java(java.lang.String))
       @security_service = double('Security Service')
-      controller.stub(:security_service).and_return(@security_service)
-      @security_service.should_receive(:hasViewOrOperatePermissionForPipeline).with(@user, "pipeline2").and_return(false)
-      @security_service.should_receive(:hasViewOrOperatePermissionForPipeline).with(@user, "a").and_return(true)
-      @security_service.should_receive(:hasViewOrOperatePermissionForPipeline).with(@user, "pipeline3").and_return(true)
+      allow(controller).to receive(:security_service).and_return(@security_service)
+      expect(@security_service).to receive(:hasViewOrOperatePermissionForPipeline).with(@user, "pipeline2").and_return(false)
+      expect(@security_service).to receive(:hasViewOrOperatePermissionForPipeline).with(@user, "a").and_return(true)
+      expect(@security_service).to receive(:hasViewOrOperatePermissionForPipeline).with(@user, "pipeline3").and_return(true)
       pipeline = @cruise_config_mother.addPipeline(@cruise_config, "pipeline-name", "stage-name", ["build-name"].to_java(java.lang.String))
       @pipeline_config_for_edit = ConfigForEdit.new(pipeline, @cruise_config, MagicalGoConfigXmlLoader.new(nil, nil).preprocessAndValidate(@cruise_config))
-      @go_config_service.should_receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
+      expect(@go_config_service).to receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
 
       get :new, :pipeline_name => "pipeline-name"
 
-      assigns[:pipeline_stages_json].should == "[{\"pipeline\":\"a\",\"stage\":\"b\"},{\"pipeline\":\"pipeline3\",\"stage\":\"stage-3\"}]"
+      expect(assigns[:pipeline_stages_json]).to eq("[{\"pipeline\":\"a\",\"stage\":\"b\"},{\"pipeline\":\"pipeline3\",\"stage\":\"stage-3\"}]")
     end
 
     it "should return pipeline [stage] json for pipeline with template configured" do
@@ -137,12 +137,12 @@ describe Admin::Materials::DependencyController do
 
       pipeline = @cruise_config_mother.addPipeline(@cruise_config, "pipeline-name", "stage-name", ["build-name"].to_java(java.lang.String))
       @pipeline_config_for_edit = ConfigForEdit.new(pipeline, @cruise_config, MagicalGoConfigXmlLoader.new(nil, nil).preprocessAndValidate(@cruise_config))
-      @go_config_service.should_receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
+      expect(@go_config_service).to receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
 
       get :new, :pipeline_name => "pipeline-name"
 
       expect(response.response_code).to eq(200)
-      assigns[:pipeline_stages_json].should == "[{\"pipeline\":\"pipeline2\",\"stage\":\"stage-2\"},{\"pipeline\":\"pipeline3\",\"stage\":\"stage-3\"}]"
+      expect(assigns[:pipeline_stages_json]).to eq("[{\"pipeline\":\"pipeline2\",\"stage\":\"stage-2\"},{\"pipeline\":\"pipeline3\",\"stage\":\"stage-3\"}]")
     end
 
     it "should return pipeline [stage] json for pipeline with template configured" do
@@ -150,20 +150,20 @@ describe Admin::Materials::DependencyController do
 
       pipeline = @cruise_config_mother.addPipeline(@cruise_config, "pipeline-name", "stage-name", ["build-name"].to_java(java.lang.String))
       @pipeline_config_for_edit = ConfigForEdit.new(pipeline, @cruise_config, MagicalGoConfigXmlLoader.new(nil, nil).preprocessAndValidate(@cruise_config))
-      @go_config_service.should_receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
+      expect(@go_config_service).to receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
 
       valid_fingerprint = pipeline.materialConfigs().first.getPipelineUniqueFingerprint()
       get :edit, :pipeline_name => "pipeline-name", :finger_print => valid_fingerprint
 
       expect(response.response_code).to eq(200)
-      assigns[:pipeline_stages_json].should == "[{\"pipeline\":\"pipeline2\",\"stage\":\"stage-2\"},{\"pipeline\":\"pipeline3\",\"stage\":\"stage-3\"}]"
+      expect(assigns[:pipeline_stages_json]).to eq("[{\"pipeline\":\"pipeline2\",\"stage\":\"stage-2\"},{\"pipeline\":\"pipeline3\",\"stage\":\"stage-3\"}]")
     end
 
     it "should not try and render twice on failure to find material, while trying to load for edit" do
       pipeline = @cruise_config_mother.addPipeline(@cruise_config, "pipeline-name", "stage-name", ["build-name"].to_java(java.lang.String))
       pipeline_config_for_edit = ConfigForEdit.new(pipeline, @cruise_config, MagicalGoConfigXmlLoader.new(nil, nil).preprocessAndValidate(@cruise_config))
 
-      @go_config_service.should_receive(:loadForEdit).and_return(pipeline_config_for_edit)
+      expect(@go_config_service).to receive(:loadForEdit).and_return(pipeline_config_for_edit)
 
       get :edit, :pipeline_name => "pipeline-name", :finger_print => "invalid-fingerprint"
 

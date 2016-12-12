@@ -14,16 +14,21 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe PipelinesHelper do
-  include PipelinesHelper, PipelineModelMother, GoUtil
+  include PipelinesHelper
+
+  include PipelineModelMother
+
+
+  include GoUtil
 
   before do
     @now = org.joda.time.DateTime.new
   end
 
-  describe :stage_bar_url do
+  describe 'stage_bar_url' do
     before do
       @stages = PipelineHistoryMother.stagePerJob("stage", [PipelineHistoryMother.job(JobState::Completed, JobResult::Cancelled, @now.toDate())])
       @stages.add(NullStageHistoryItem.new('blah-stage'))
@@ -39,7 +44,7 @@ describe PipelinesHelper do
     end
   end
 
-  describe :run_stage_label do
+  describe 'run_stage_label' do
     it "should show Rerun for scheduled stage" do
       stages = PipelineHistoryMother.stagePerJob("stage_name", [PipelineHistoryMother.job(JobState::Completed, JobResult::Cancelled, @now.toDate())])
       stage = stages.get(0)
@@ -52,7 +57,7 @@ describe PipelinesHelper do
     end
   end
 
-  describe :stage_status_for_ui do
+  describe 'stage_status_for_ui' do
 
     before :each do
       @default_timezone = java.util.TimeZone.setDefault(java.util.TimeZone.getTimeZone("Asia/Colombo"))
@@ -77,7 +82,7 @@ describe PipelinesHelper do
 
       message = trigger_message(triggered_date.getTime(), pim)
 
-      expect(message.blank?).to be_true
+      expect(message.blank?).to be_truthy
     end
 
     it "should display the trigger message with the time and username" do

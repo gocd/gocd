@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 load File.join(File.dirname(__FILE__), 'layout_html_examples.rb')
 
 describe "/layouts/application" do
@@ -26,9 +26,9 @@ describe "/layouts/application" do
     assign(:user, @user = Object.new)
     assign(:error_count, 0)
     assign(:warning_count, 0)
-    @user.stub(:anonymous?).and_return(true)
-    view.stub(:can_view_admin_page?).and_return(true)
-    view.stub(:is_user_an_admin?).and_return(true)
+    allow(@user).to receive(:anonymous?).and_return(true)
+    allow(view).to receive(:can_view_admin_page?).and_return(true)
+    allow(view).to receive(:is_user_an_admin?).and_return(true)
     class << view
       def url_for_with_stub *args
         args.empty? ? "/go/" : url_for_without_stub(*args)

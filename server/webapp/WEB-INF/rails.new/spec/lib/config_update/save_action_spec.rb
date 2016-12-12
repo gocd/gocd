@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ConfigUpdate::SaveAction do
 
@@ -23,13 +23,13 @@ describe ConfigUpdate::SaveAction do
     security_service = Object.new
     save_action = ::ConfigUpdate::SaveAction.new(params, "loser", security_service)
 
-    save_action.params.should == params
-    save_action.instance_variable_get("@user").should == "loser"
-    save_action.instance_variable_get("@security_service").should == security_service
+    expect(save_action.params).to eq(params)
+    expect(save_action.instance_variable_get("@user")).to eq("loser")
+    expect(save_action.instance_variable_get("@security_service")).to eq(security_service)
   end
 
   it "should create ConfigUpdate command" do
     save_action = ::ConfigUpdate::SaveAction.new(nil, nil, nil)
-    save_action.java_kind_of?(com.thoughtworks.go.config.update.UpdateConfigFromUI).should be_true
+    expect(save_action.java_kind_of?(com.thoughtworks.go.config.update.UpdateConfigFromUI)).to be_truthy
   end
 end

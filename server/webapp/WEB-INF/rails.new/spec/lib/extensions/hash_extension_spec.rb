@@ -14,12 +14,12 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe Hash do
 
   it "should understand selecting only given keys" do
-    { :foo => "bar", :baz => "bang", :quux => "quux"}.only(:foo, :quux).should == { :foo => "bar", :quux => "quux"}
+    expect({ :foo => "bar", :baz => "bang", :quux => "quux"}.only(:foo, :quux)).to eq({ :foo => "bar", :quux => "quux"})
   end
 
   describe "for indifferent access" do
@@ -28,12 +28,12 @@ describe Hash do
     end
 
     it "should fetch entries indifferently" do
-      @hash[:foo].should == "bar"
-      @hash[:quux].should == "quux"
+      expect(@hash[:foo]).to eq("bar")
+      expect(@hash[:quux]).to eq("quux")
     end
 
     it "should be hash with indifferent access" do
-      @hash.class.should == HashWithIndifferentAccess
+      expect(@hash.class).to eq(HashWithIndifferentAccess)
     end
   end
 end

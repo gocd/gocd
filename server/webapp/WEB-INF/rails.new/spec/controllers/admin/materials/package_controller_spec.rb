@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 load File.join(File.dirname(__FILE__), 'material_controller_examples.rb')
 
 describe Admin::Materials::PackageController do
@@ -27,19 +27,19 @@ describe Admin::Materials::PackageController do
 
   it_should_behave_like :material_controller do
     def assert_material_is_initialized
-      assigns[:material].should_not == nil
-      assigns[:material].getType().should == 'PackageMaterial'
+      expect(assigns[:material]).not_to eq(nil)
+      expect(assigns[:material].getType()).to eq('PackageMaterial')
     end
 
     def controller_specific_assertion
-      assigns[:package_configuration].should_not == be_nil
-      assigns[:package_configuration].name.should == @material.getPackageDefinition().getName()
+      expect(assigns[:package_configuration]).not_to eq(be_nil)
+      expect(assigns[:package_configuration].name).to eq(@material.getPackageDefinition().getName())
     end
   end
 
-  describe :action do
+  describe 'action' do
     before :each do
-      controller.stub(:populate_config_validity)
+      allow(controller).to receive(:populate_config_validity)
 
       @cruise_config = BasicCruiseConfig.new()
       repository1 = PackageRepositoryMother.create("repo-id", "repo1-name", "pluginid", "version1.0", Configuration.new([ConfigurationPropertyMother.create("k1", false, "v1")].to_java(ConfigurationProperty)))
@@ -57,58 +57,58 @@ describe Admin::Materials::PackageController do
 
       ReflectionUtil.setField(@cruise_config, "md5", "1234abcd")
       @user = Username.new(CaseInsensitiveString.new("loser"))
-      controller.stub(:current_user).and_return(@user)
+      allow(controller).to receive(:current_user).and_return(@user)
       @result = stub_localized_result
 
       @go_config_service = stub_service(:go_config_service)
       @pipeline_pause_service = stub_service(:pipeline_pause_service)
       @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
-      @pipeline_pause_service.should_receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
-      @go_config_service.stub(:getCurrentConfig).and_return(@cruise_config)
-      @go_config_service.stub(:getConfigForEditing).and_return(@cruise_config)
+      expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
+      allow(@go_config_service).to receive(:getCurrentConfig).and_return(@cruise_config)
+      allow(@go_config_service).to receive(:getConfigForEditing).and_return(@cruise_config)
 
       setup_other_form_objects
-      @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
+      allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
       @repo_id = "repo-id"
     end
 
     describe "create" do
       it "should add new material with new package definition" do
-        controller.stub(:package_definition_service).with().and_return(StubPackageDefinitionService.new)
+        allow(controller).to receive(:package_definition_service).with(no_args).and_return(StubPackageDefinitionService.new)
         stub_save_for_success
-        controller.stub(:populate_config_validity)
+        allow(controller).to receive(:populate_config_validity)
 
-        @pipeline.materialConfigs().size.should == 1
+        expect(@pipeline.materialConfigs().size).to eq(1)
 
         post :create, :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :material => {:create_or_associate_pkg_def => "create", :package_definition => {:repositoryId => @repo_id, :name => "pkg-name", :configuration => {"0" => configuration_for("key1", "value1"), "1" => configuration_for("key2", "value2")}}}
 
-        @pipeline.materialConfigs().size.should == 2
-        @cruise_config.getAllErrors().size.should == 0
+        expect(@pipeline.materialConfigs().size).to eq(2)
+        expect(@cruise_config.getAllErrors().size).to eq(0)
         assert_successful_create
-        response.body.should == 'Saved successfully'
-        URI.parse(response.location).path.should == admin_material_index_path
+        expect(response.body).to eq('Saved successfully')
+        expect(URI.parse(response.location).path).to eq(admin_material_index_path)
       end
     end
 
     describe "update" do
       before :each do
-        @go_config_service.stub(:getConfigForEditing).and_return(@cruise_config)
+        allow(@go_config_service).to receive(:getConfigForEditing).and_return(@cruise_config)
       end
 
       it "should update existing material with new package definition" do
-        controller.stub(:package_definition_service).with().and_return(StubPackageDefinitionService.new)
+        allow(controller).to receive(:package_definition_service).with(no_args).and_return(StubPackageDefinitionService.new)
         stub_save_for_success
 
-        @pipeline.materialConfigs().size.should == 1
+        expect(@pipeline.materialConfigs().size).to eq(1)
 
         put :update, :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :material => {:create_or_associate_pkg_def => "create", :package_definition => {:repositoryId => @repo_id, :name => "pkg-name", :configuration => {"0" => configuration_for("key1", "value1"), "1" => configuration_for("key2", "value2")}}}, :finger_print => @material.getPipelineUniqueFingerprint()
 
-        @pipeline.materialConfigs().size.should == 1
-        @cruise_config.getAllErrors().size.should == 0
+        expect(@pipeline.materialConfigs().size).to eq(1)
+        expect(@cruise_config.getAllErrors().size).to eq(0)
         assert_successful_update
-        assigns[:material].should_not == nil
-        response.body.should == 'Saved successfully'
-        URI.parse(response.location).path.should == admin_material_index_path
+        expect(assigns[:material]).not_to eq(nil)
+        expect(response.body).to eq('Saved successfully')
+        expect(URI.parse(response.location).path).to eq(admin_material_index_path)
       end
     end
   end
@@ -135,9 +135,9 @@ describe Admin::Materials::PackageController do
 
   def setup_metadata
     metadata_store = double("PackageMetadataStore")
-    PackageMetadataStore.stub(:getInstance).and_return(metadata_store)
-    metadata_store.stub(:getMetadata).with("pluginid").and_return(PackageConfigurations.new)
-    metadata_store.stub(:getMetadata).with("invalid-pluginid").and_return(nil)
+    allow(PackageMetadataStore).to receive(:getInstance).and_return(metadata_store)
+    allow(metadata_store).to receive(:getMetadata).with("pluginid").and_return(PackageConfigurations.new)
+    allow(metadata_store).to receive(:getMetadata).with("invalid-pluginid").and_return(nil)
   end
 
   def setup_for_new_material
@@ -150,11 +150,11 @@ describe Admin::Materials::PackageController do
   end
 
   def assert_values(package_material)
-    package_material.getType().should == "PackageMaterial"
-    package_material.getPackageId().should_not be_nil
-    package_material.getPackageId().should == "pkg-id" if (controller.params[:material][:create_or_associate_pkg_def] == "associate")
-    package_material.getPackageDefinition().should_not be_nil
-    package_material.getPackageDefinition().getRepository().should_not be_nil
+    expect(package_material.getType()).to eq("PackageMaterial")
+    expect(package_material.getPackageId()).not_to be_nil
+    expect(package_material.getPackageId()).to eq("pkg-id") if (controller.params[:material][:create_or_associate_pkg_def] == "associate")
+    expect(package_material.getPackageDefinition()).not_to be_nil
+    expect(package_material.getPackageDefinition().getRepository()).not_to be_nil
   end
 
 end

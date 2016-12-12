@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV1::Config::PackagesRepresenter do
 
@@ -26,10 +26,10 @@ describe ApiV1::Config::PackagesRepresenter do
     presenter = ApiV1::Config::PackagesRepresenter.new(packages)
     actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
     expect(actual_json).to have_links(:self, :doc)
-    actual_json.fetch(:_embedded).should == {
+    expect(actual_json.fetch(:_embedded)).to eq({
       :packages => [ApiV1::Config::PackageRepresenter.new({package: pkg1}).to_hash(url_builder: UrlBuilder.new),
                     ApiV1::Config::PackageRepresenter.new({package: pkg2}).to_hash(url_builder: UrlBuilder.new)]
-    }
+    })
 
   end
 end

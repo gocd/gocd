@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "/admin/tasks/plugin/_task_entry.html.erb" do
 
@@ -23,24 +23,24 @@ describe "/admin/tasks/plugin/_task_entry.html.erb" do
     @tvm_of_cancel_task = double("tvm for cancel")
     @task_config_index = 1
     @task_config = double("config")
-    view.stub(:admin_task_decrement_index_path).and_return('admin_task_decrement_index_path')
-    view.stub(:admin_task_increment_index_path).and_return('admin_task_increment_index_path')
-    view.stub(:admin_task_edit_path).and_return('admin_task_edit_path')
-    view.stub(:admin_task_delete_path).and_return('admin_task_delete_path')
-    view.stub(:md5_field).and_return('md5')
+    allow(view).to receive(:admin_task_decrement_index_path).and_return('admin_task_decrement_index_path')
+    allow(view).to receive(:admin_task_increment_index_path).and_return('admin_task_increment_index_path')
+    allow(view).to receive(:admin_task_edit_path).and_return('admin_task_edit_path')
+    allow(view).to receive(:admin_task_delete_path).and_return('admin_task_delete_path')
+    allow(view).to receive(:md5_field).and_return('md5')
     assign(:tasks, [])
   end
 
   it 'should display plugin name in the header' do
-    @tvm.should_receive(:getTaskType).and_return("getTaskType")
-    @tvm.should_receive(:getTypeForDisplay).and_return("Some Type For Display")
-    view.stub(:render_pluggable_template) do |r, options|
+    expect(@tvm).to receive(:getTaskType).and_return("getTaskType")
+    expect(@tvm).to receive(:getTypeForDisplay).and_return("Some Type For Display")
+    allow(view).to receive(:render_pluggable_template) do |r, options|
       options[:modify_onclick_callback].inspect
     end
 
     render :partial => "admin/tasks/plugin/task_entry.html.erb",:locals => {:scope => {:tvm => @tvm, :tvm_of_cancel_task => @tvm_of_cancel_task,
                                                                                     :task_config_index => @task_config_index, :task_config => @task_config}}
 
-    response.body.should include("title: 'Edit Some Type For Display task'")
+    expect(response.body).to include("title: 'Edit Some Type For Display task'")
   end
 end

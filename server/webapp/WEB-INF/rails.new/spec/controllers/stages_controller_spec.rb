@@ -14,12 +14,12 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 def stub_current_config
   cruise_config = double("cruise config")
-  cruise_config.should_receive(:getMd5).and_return("current-md5")
-  @go_config_service.should_receive(:getCurrentConfig).and_return(cruise_config)
+  expect(cruise_config).to receive(:getMd5).and_return("current-md5")
+  expect(@go_config_service).to receive(:getCurrentConfig).and_return(cruise_config)
 end
 
 describe StagesController do
@@ -38,41 +38,41 @@ describe StagesController do
     @go_config_service = double("go config service")
     @user = Username.new(CaseInsensitiveString.new("foo"))
     @status = "status"
-    HttpOperationResult.stub(:new).and_return(@status)
+    allow(HttpOperationResult).to receive(:new).and_return(@status)
     @localized_result = HttpLocalizedOperationResult.new
     @subsection_result = SubsectionLocalizedOperationResult.new
-    HttpLocalizedOperationResult.stub(:new).and_return(@localized_result)
-    controller.stub(:current_user).and_return(@user)
-    controller.stub(:stage_service).and_return(@stage_service)
-    controller.stub(:shine_dao).and_return(@shine_dao)
-    controller.stub(:material_service).and_return(@material_service)
-    controller.stub(:job_presentation_service).and_return(@job_presentation_service)
-    controller.stub(:go_config_service).and_return(@go_config_service)
-    controller.stub(:populate_config_validity)
+    allow(HttpLocalizedOperationResult).to receive(:new).and_return(@localized_result)
+    allow(controller).to receive(:current_user).and_return(@user)
+    allow(controller).to receive(:stage_service).and_return(@stage_service)
+    allow(controller).to receive(:shine_dao).and_return(@shine_dao)
+    allow(controller).to receive(:material_service).and_return(@material_service)
+    allow(controller).to receive(:job_presentation_service).and_return(@job_presentation_service)
+    allow(controller).to receive(:go_config_service).and_return(@go_config_service)
+    allow(controller).to receive(:populate_config_validity)
 
-    @go_config_service.stub(:findGroupNameByPipeline).and_return(nil)
+    allow(@go_config_service).to receive(:findGroupNameByPipeline).and_return(nil)
     @pim = PipelineHistoryMother.singlePipeline("pipline-name", StageInstanceModels.new)
-    controller.stub(:pipeline_history_service).and_return(@pipeline_history_service=double())
-    controller.stub(:pipeline_lock_service).and_return(@pipieline_lock_service=double())
+    allow(controller).to receive(:pipeline_history_service).and_return(@pipeline_history_service=double())
+    allow(controller).to receive(:pipeline_lock_service).and_return(@pipieline_lock_service=double())
     @pipeline_identifier = PipelineIdentifier.new("blah", 1, "label")
   end
 
-  describe :stage do
+  describe 'stage' do
 
     before do
       @stage_summary_model = StageSummaryModel.new(stage = StageMother.passedStageInstance("stage", "dev", "pipeline-name"), nil, JobDurationStrategy::ALWAYS_ZERO, nil)
       stage.setPipelineId(100)
-      @stage_service.stub(:failingTests).and_return(StageTestRuns.new(12, 0, 0))
-      @stage_service.stub(:findStageSummaryByIdentifier).and_return(@stage_summary_model)
-      @stage_service.stub(:findLatestStage).and_return(:latest_stage)
-      @stage_service.stub(:findStageHistoryPage).and_return(@stage_history = stage_history_page(3))
-      @pipeline_history_service.stub(:validate).with("pipeline", @user, @status)
-      @pipeline_history_service.stub(:findPipelineInstance).and_return(:pim)
-      @pipieline_lock_service.stub(:lockedPipeline).and_return(@pipeline_identifier)
-      @status.stub(:canContinue).and_return(true)
+      allow(@stage_service).to receive(:failingTests).and_return(StageTestRuns.new(12, 0, 0))
+      allow(@stage_service).to receive(:findStageSummaryByIdentifier).and_return(@stage_summary_model)
+      allow(@stage_service).to receive(:findLatestStage).and_return(:latest_stage)
+      allow(@stage_service).to receive(:findStageHistoryPage).and_return(@stage_history = stage_history_page(3))
+      allow(@pipeline_history_service).to receive(:validate).with("pipeline", @user, @status)
+      allow(@pipeline_history_service).to receive(:findPipelineInstance).and_return(:pim)
+      allow(@pipieline_lock_service).to receive(:lockedPipeline).and_return(@pipeline_identifier)
+      allow(@status).to receive(:canContinue).and_return(true)
     end
 
-    describe :tabs do
+    describe 'tabs' do
       before do
         stub_current_config
       end
@@ -82,8 +82,8 @@ describe StagesController do
       end
 
       it "should assign appropriate tab" do
-        @go_config_service.should_receive(:stageExists).with("pipeline", "stage").and_return(true)
-        @go_config_service.should_receive(:stageHasTests).with("pipeline", "stage").and_return(false)
+        expect(@go_config_service).to receive(:stageExists).with("pipeline", "stage").and_return(true)
+        expect(@go_config_service).to receive(:stageHasTests).with("pipeline", "stage").and_return(false)
         get :tests, :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3"
         expect(controller.params[:action]).to eq "tests"
       end
@@ -93,27 +93,27 @@ describe StagesController do
     it "should load stage" do
       stub_current_config
       stage_identifier = StageIdentifier.new("pipeline", 2, "stage", "3")
-      @stage_service.should_receive(:findStageSummaryByIdentifier).with(stage_identifier, @user, @localized_result).and_return(@stage_summary_model)
-      @pipeline_history_service.should_receive(:findPipelineInstance).with("pipeline", 2, 100, @user, @status).and_return(:pim)
-      @pipieline_lock_service.should_receive(:lockedPipeline).with("pipeline").and_return(@pipeline_identifier)
-      @status.stub(:canContinue).and_return(true)
+      expect(@stage_service).to receive(:findStageSummaryByIdentifier).with(stage_identifier, @user, @localized_result).and_return(@stage_summary_model)
+      expect(@pipeline_history_service).to receive(:findPipelineInstance).with("pipeline", 2, 100, @user, @status).and_return(:pim)
+      expect(@pipieline_lock_service).to receive(:lockedPipeline).with("pipeline").and_return(@pipeline_identifier)
+      allow(@status).to receive(:canContinue).and_return(true)
 
       get :overview, :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3"
 
       expect(assigns(:stage)).to eq @stage_summary_model
     end
 
-    describe :rerun_jobs do
+    describe 'rerun_jobs' do
       before(:each) do
         stage_identifier = StageIdentifier.new("pipeline", 2, "stage", "3")
-        @stage_service.should_receive(:findStageSummaryByIdentifier).with(stage_identifier, @user, @localized_result).and_return(@stage_summary_model)
+        expect(@stage_service).to receive(:findStageSummaryByIdentifier).with(stage_identifier, @user, @localized_result).and_return(@stage_summary_model)
         @schedule_service = stub_service(:schedule_service)
         stub_current_config
       end
 
       it "should rerun jobs" do
         new_stage = StageMother.scheduledStage("pipeline_foo", 10, "stage_bar", 2, "con_job")
-        @schedule_service.should_receive(:rerunJobs).with(@stage_summary_model.getStage(), ["job_foo", "job_bar", "job_baz"], @status).and_return(new_stage)
+        expect(@schedule_service).to receive(:rerunJobs).with(@stage_summary_model.getStage(), ["job_foo", "job_bar", "job_baz"], @status).and_return(new_stage)
         post :rerun_jobs, :jobs => ["job_foo", "job_bar", "job_baz"], :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3", :tab => 'jobs'
         expect(response.status).to eq 302
         expect(response.location).to eq "http://test.host/pipelines/pipeline_foo/10/stage_bar/2/jobs"
@@ -121,20 +121,20 @@ describe StagesController do
 
       it "should rerun jobs and redirect to overview tab when tab name not given" do
         new_stage = StageMother.scheduledStage("pipeline_foo", 10, "stage_bar", 2, "con_job")
-        @schedule_service.should_receive(:rerunJobs).with(@stage_summary_model.getStage(), ["job_foo", "job_bar", "job_baz"], @status).and_return(new_stage)
+        expect(@schedule_service).to receive(:rerunJobs).with(@stage_summary_model.getStage(), ["job_foo", "job_bar", "job_baz"], @status).and_return(new_stage)
         post :rerun_jobs, :jobs => ["job_foo", "job_bar", "job_baz"], :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3"
         expect(response.status).to eq 302
         expect(response.location).to eq "http://test.host/pipelines/pipeline_foo/10/stage_bar/2"
       end
 
       it "should display error when rerun job fails" do
-        @schedule_service.should_receive(:rerunJobs).with(@stage_summary_model.getStage(), ["job_foo", "job_bar", "job_baz"], @status) do |*args|
-          @status.stub(:canContinue).and_return(false)
-          @status.stub(:httpCode).and_return(409)
-          @status.stub(:message).and_return("Dammit, it failed again")
+        expect(@schedule_service).to receive(:rerunJobs).with(@stage_summary_model.getStage(), ["job_foo", "job_bar", "job_baz"], @status) do |*args|
+          allow(@status).to receive(:canContinue).and_return(false)
+          allow(@status).to receive(:httpCode).and_return(409)
+          allow(@status).to receive(:message).and_return("Dammit, it failed again")
         end
         post :rerun_jobs, :jobs => ["job_foo", "job_bar", "job_baz"], :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3", :tab => "jobs"
-        response.location.should =~ /\/pipelines\/pipeline\/2\/stage\/3\/jobs\?fm=.+/
+        expect(response.location).to match(/\/pipelines\/pipeline\/2\/stage\/3\/jobs\?fm=.+/)
         expect(response.status).to eq 302
       end
     end
@@ -146,22 +146,22 @@ describe StagesController do
 
     it "should render response code returned by the api result" do
       stage_identifier = StageIdentifier.new("pipeline", 2, "stage", "3")
-      @stage_service.should_receive(:findStageSummaryByIdentifier).with(stage_identifier, @user, @localized_result).and_return(@stage_summary_model)
-      @status.should_receive(:canContinue).and_return(true)
-      @localized_result.should_receive(:isSuccessful).and_return(false)
-      @localized_result.stub(:httpCode).and_return(401)
-      @localized_result.stub(:message).and_return("no view permission")
+      expect(@stage_service).to receive(:findStageSummaryByIdentifier).with(stage_identifier, @user, @localized_result).and_return(@stage_summary_model)
+      expect(@status).to receive(:canContinue).and_return(true)
+      expect(@localized_result).to receive(:isSuccessful).and_return(false)
+      allow(@localized_result).to receive(:httpCode).and_return(401)
+      allow(@localized_result).to receive(:message).and_return("no view permission")
       get :overview, :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3"
       expect(response.status).to eq 401
     end
 
     it "should render response code returned by the api result" do
       stage_identifier = StageIdentifier.new("pipeline", 2, "stage", "3")
-      @pipeline_history_service.stub(:validate).with("pipeline", @user, @status)
+      allow(@pipeline_history_service).to receive(:validate).with("pipeline", @user, @status)
 
-      @status.should_receive(:canContinue).and_return(false)
-      @status.should_receive(:detailedMessage).and_return("Not Found")
-      @status.should_receive(:httpCode).and_return(404)
+      expect(@status).to receive(:canContinue).and_return(false)
+      expect(@status).to receive(:detailedMessage).and_return("Not Found")
+      expect(@status).to receive(:httpCode).and_return(404)
 
       get :overview, :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3"
       expect(response.status).to eq 404
@@ -194,10 +194,10 @@ describe StagesController do
       stub_current_config
       stage_identifier = StageIdentifier.new("pipeline", 2, "stage", "3")
 
-      @status.stub(:canContinue).and_return(true)
-      @stage_service.should_receive(:findStageSummaryByIdentifier).with(stage_identifier, @user, @localized_result).and_return(@stage_summary_model)
-      @pipeline_history_service.should_receive(:findPipelineInstance).with("pipeline", 2, 100, @user, @status).and_return(:pim)
-      @pipieline_lock_service.should_receive(:lockedPipeline).with("pipeline").and_return(@pipeline_identifier)
+      allow(@status).to receive(:canContinue).and_return(true)
+      expect(@stage_service).to receive(:findStageSummaryByIdentifier).with(stage_identifier, @user, @localized_result).and_return(@stage_summary_model)
+      expect(@pipeline_history_service).to receive(:findPipelineInstance).with("pipeline", 2, 100, @user, @status).and_return(:pim)
+      expect(@pipieline_lock_service).to receive(:lockedPipeline).with("pipeline").and_return(@pipeline_identifier)
       get :overview, :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3", :format => 'xml'
 
       expect(response).to redirect_to "/api/stages/#{@stage_summary_model.getId()}.xml"
@@ -214,13 +214,13 @@ describe StagesController do
       pim = PipelineHistoryMother.singlePipeline("pipline-name", PipelineHistoryMother.stagePerJob("stage-", [PipelineHistoryMother.job(JobState::Completed, JobResult::Cancelled, now.toDate()),
                                                                                                               PipelineHistoryMother.job(JobState::Completed, JobResult::Cancelled, now.plusDays(1).toDate())]))
       stage_summary_model=StageSummaryModel.new(stage_instance = StageMother.passedStageInstance("stage", "dev", "pipeline-name"), nil, JobDurationStrategy::ALWAYS_ZERO, nil)
-      @stage_service.should_receive(:findStageSummaryByIdentifier).with(StageIdentifier.new("blah-pipeline-name", 12, "stage-0", "3"), @user, @localized_result).and_return(stage_summary_model)
+      expect(@stage_service).to receive(:findStageSummaryByIdentifier).with(StageIdentifier.new("blah-pipeline-name", 12, "stage-0", "3"), @user, @localized_result).and_return(stage_summary_model)
       stage_instance.setPipelineId(100)
-      @pipeline_history_service.should_receive(:findPipelineInstance).with("blah-pipeline-name", 12, 100, @user, @status).and_return(pim)
-      @pipeline_history_service.stub(:validate).with("blah-pipeline-name", @user, @status)
-      @pipieline_lock_service.should_receive(:lockedPipeline).with("blah-pipeline-name").and_return(@pipeline_identifier)
-      @status.stub(:canContinue).and_return(true)
-      @localized_result.should_receive(:isSuccessful).and_return(true)
+      expect(@pipeline_history_service).to receive(:findPipelineInstance).with("blah-pipeline-name", 12, 100, @user, @status).and_return(pim)
+      allow(@pipeline_history_service).to receive(:validate).with("blah-pipeline-name", @user, @status)
+      expect(@pipieline_lock_service).to receive(:lockedPipeline).with("blah-pipeline-name").and_return(@pipeline_identifier)
+      allow(@status).to receive(:canContinue).and_return(true)
+      expect(@localized_result).to receive(:isSuccessful).and_return(true)
 
       get :overview, :pipeline_name => "blah-pipeline-name", :pipeline_counter => "12", :stage_name => "stage-0", :stage_counter => "3", :format => 'xml'
       expect(assigns(:stage)).to eq stage_summary_model
@@ -229,19 +229,19 @@ describe StagesController do
 
 
     it "should render response code returned by the api result for pipeline" do
-      @status.should_receive(:canContinue).and_return(false)
-      @status.stub(:httpCode).and_return(401)
-      @status.stub(:detailedMessage).and_return("no view permission")
+      expect(@status).to receive(:canContinue).and_return(false)
+      allow(@status).to receive(:httpCode).and_return(401)
+      allow(@status).to receive(:detailedMessage).and_return("no view permission")
       get :overview, :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3"
       expect(response.status).to eq 401
     end
 
     it "should assign locked instance" do
       stub_current_config
-      @stage_service.should_receive(:findStageSummaryByIdentifier).with(StageIdentifier.new("pipeline", 2, "stage", "3"), @user, @localized_result).and_return(@stage_summary_model)
-      @pipeline_history_service.should_receive(:findPipelineInstance).with("pipeline", 2, 100, @user, @status).and_return(:pim)
-      @pipieline_lock_service.should_receive(:lockedPipeline).with("pipeline").and_return(@pipeline_identifier)
-      @status.stub(:canContinue).and_return(true)
+      expect(@stage_service).to receive(:findStageSummaryByIdentifier).with(StageIdentifier.new("pipeline", 2, "stage", "3"), @user, @localized_result).and_return(@stage_summary_model)
+      expect(@pipeline_history_service).to receive(:findPipelineInstance).with("pipeline", 2, 100, @user, @status).and_return(:pim)
+      expect(@pipieline_lock_service).to receive(:lockedPipeline).with("pipeline").and_return(@pipeline_identifier)
+      allow(@status).to receive(:canContinue).and_return(true)
 
       get :overview, :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3"
       expect(assigns(:lockedPipeline)).to eq @pipeline_identifier
@@ -251,7 +251,7 @@ describe StagesController do
       it "should assign stage_history" do
         stub_current_config
         stage_identifier = StageIdentifier.new("pipeline", 2, "stage", "3")
-        @stage_service.should_receive(:findStageHistoryPage).with(@stage_summary_model.getStage(), StagesController::STAGE_HISTORY_PAGE_SIZE).and_return(stage_history = stage_history_page(2))
+        expect(@stage_service).to receive(:findStageHistoryPage).with(@stage_summary_model.getStage(), StagesController::STAGE_HISTORY_PAGE_SIZE).and_return(stage_history = stage_history_page(2))
         get :overview, :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3"
         expect(assigns(:stage_history_page)).to eq stage_history
       end
@@ -259,7 +259,7 @@ describe StagesController do
       it "should honour page number" do
         stub_current_config
         stage_identifier = StageIdentifier.new("pipeline", 2, "stage", "3")
-        @stage_service.should_receive(:findStageHistoryPageByNumber).with("pipeline", "stage", 5, StagesController::STAGE_HISTORY_PAGE_SIZE).and_return(stage_history = stage_history_page(4))
+        expect(@stage_service).to receive(:findStageHistoryPageByNumber).with("pipeline", "stage", 5, StagesController::STAGE_HISTORY_PAGE_SIZE).and_return(stage_history = stage_history_page(4))
         get :overview, :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3", "stage-history-page" => "5"
         expect(assigns(:stage_history_page)).to eq stage_history
       end
@@ -268,8 +268,8 @@ describe StagesController do
     describe "jobs tab" do
       before :each do
         @security_service = double('security_service')
-        controller.stub(:security_service).and_return(@security_service)
-        controller.stub(:get_stage_detail_link).and_return(nil)
+        allow(controller).to receive(:security_service).and_return(@security_service)
+        allow(controller).to receive(:get_stage_detail_link).and_return(nil)
       end
 
       it "should get the job instance models from the stage" do
@@ -278,9 +278,9 @@ describe StagesController do
         stage=StageMother.custom("pipeline", "stage", job_instances)
         stage.setPipelineId(1)
         stage_summary = StageSummaryModel.new(stage, Stages.new([stage]), JobDurationStrategy::ALWAYS_ZERO, nil)
-        @stage_service.should_receive(:findStageSummaryByIdentifier).with(StageIdentifier.new("pipeline", 2, "stage", "3"), @user, @localized_result).and_return(stage_summary)
-        @job_presentation_service.should_receive(:jobInstanceModelFor).with(job_instances).and_return(model = java.util.Arrays.asList([JobInstanceModel.new(nil, nil, nil)].to_java(JobInstanceModel)))
-        @security_service.should_receive(:hasOperatePermissionForStage).with('pipeline', 'stage', @user.getUsername().to_s).and_return(true)
+        expect(@stage_service).to receive(:findStageSummaryByIdentifier).with(StageIdentifier.new("pipeline", 2, "stage", "3"), @user, @localized_result).and_return(stage_summary)
+        expect(@job_presentation_service).to receive(:jobInstanceModelFor).with(job_instances).and_return(model = java.util.Arrays.asList([JobInstanceModel.new(nil, nil, nil)].to_java(JobInstanceModel)))
+        expect(@security_service).to receive(:hasOperatePermissionForStage).with('pipeline', 'stage', @user.getUsername().to_s).and_return(true)
         get :jobs, :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3"
         expect(assigns(:jobs)).to eq model
       end
@@ -291,9 +291,9 @@ describe StagesController do
         stage=StageMother.custom("pipeline", "stage", job_instances)
         stage.setPipelineId(1)
         stage_summary = StageSummaryModel.new(stage, Stages.new([stage]), JobDurationStrategy::ALWAYS_ZERO, nil)
-        @stage_service.should_receive(:findStageSummaryByIdentifier).with(StageIdentifier.new("pipeline", 2, "stage", "3"), @user, @localized_result).and_return(stage_summary)
-        @job_presentation_service.should_receive(:jobInstanceModelFor).with(job_instances).and_return(model = java.util.Arrays.asList([JobInstanceModel.new(nil, nil, nil)].to_java(JobInstanceModel)))
-        @security_service.should_receive(:hasOperatePermissionForStage).with('pipeline', 'stage', @user.getUsername().to_s).and_return(true)
+        expect(@stage_service).to receive(:findStageSummaryByIdentifier).with(StageIdentifier.new("pipeline", 2, "stage", "3"), @user, @localized_result).and_return(stage_summary)
+        expect(@job_presentation_service).to receive(:jobInstanceModelFor).with(job_instances).and_return(model = java.util.Arrays.asList([JobInstanceModel.new(nil, nil, nil)].to_java(JobInstanceModel)))
+        expect(@security_service).to receive(:hasOperatePermissionForStage).with('pipeline', 'stage', @user.getUsername().to_s).and_return(true)
         get :jobs, :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3"
         expect(assigns(:jobs)).to eq model
         expect(assigns(:has_operate_permissions)).to eq true
@@ -305,9 +305,9 @@ describe StagesController do
         stage=StageMother.custom("pipeline", "stage", job_instances)
         stage.setPipelineId(1)
         stage_summary = StageSummaryModel.new(stage, Stages.new([stage]), JobDurationStrategy::ALWAYS_ZERO, nil)
-        @stage_service.should_receive(:findStageSummaryByIdentifier).with(StageIdentifier.new("pipeline", 2, "stage", "3"), @user, @localized_result).and_return(stage_summary)
-        @job_presentation_service.should_receive(:jobInstanceModelFor).with(job_instances).and_return(model = java.util.Arrays.asList([JobInstanceModel.new(nil, nil, nil)].to_java(JobInstanceModel)))
-        @security_service.should_receive(:hasOperatePermissionForStage).with('pipeline', 'stage', @user.getUsername().to_s).and_return(false)
+        expect(@stage_service).to receive(:findStageSummaryByIdentifier).with(StageIdentifier.new("pipeline", 2, "stage", "3"), @user, @localized_result).and_return(stage_summary)
+        expect(@job_presentation_service).to receive(:jobInstanceModelFor).with(job_instances).and_return(model = java.util.Arrays.asList([JobInstanceModel.new(nil, nil, nil)].to_java(JobInstanceModel)))
+        expect(@security_service).to receive(:hasOperatePermissionForStage).with('pipeline', 'stage', @user.getUsername().to_s).and_return(false)
         get :jobs, :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3"
         expect(assigns(:jobs)).to eq model
         expect(assigns(:has_operate_permissions)).to eq false
@@ -320,18 +320,18 @@ describe StagesController do
         down1 = PipelineHistoryMother.singlePipeline("down1", StageInstanceModels.new)
         down2 = PipelineHistoryMother.singlePipeline("down2", StageInstanceModels.new)
         graph = PipelineDependencyGraphOld.new(@pim, PipelineInstanceModels.createPipelineInstanceModels([down1, down2]))
-        @pipeline_history_service.should_receive(:pipelineDependencyGraph).with("pipeline", 99, @user, @status).and_return(graph)
+        expect(@pipeline_history_service).to receive(:pipelineDependencyGraph).with("pipeline", 99, @user, @status).and_return(graph)
         get :pipeline, :pipeline_name => "pipeline", :pipeline_counter => "99", :stage_name => "stage", :stage_counter => "3"
         expect(assigns(:graph)).to eq graph
       end
 
       it "should render op result if graph retrival fails" do
         stub_current_config
-        controller.stub(:result_for_graph).and_return(result=double("result"))
-        @pipeline_history_service.should_receive(:pipelineDependencyGraph).with("pipeline", 99, @user, result).and_return(:doesnt_matter)
-        result.should_receive(:canContinue).and_return(false)
-        result.stub(:detailedMessage).and_return("no view permission")
-        result.stub(:httpCode).and_return(401)
+        allow(controller).to receive(:result_for_graph).and_return(result=double("result"))
+        expect(@pipeline_history_service).to receive(:pipelineDependencyGraph).with("pipeline", 99, @user, result).and_return(:doesnt_matter)
+        expect(result).to receive(:canContinue).and_return(false)
+        allow(result).to receive(:detailedMessage).and_return("no view permission")
+        allow(result).to receive(:httpCode).and_return(401)
         get :pipeline, :pipeline_name => "pipeline", :pipeline_counter => "99", :stage_name => "stage", :stage_counter => "3"
         expect(response.status).to eq 401
       end
@@ -347,25 +347,25 @@ describe StagesController do
         stage = StageMother.scheduledStage("pipeline", 2, "stage", 1, "job1")
         stage.setPipelineId(1)
         stage_summary = StageSummaryModel.new(stage, Stages.new([stage]), JobDurationStrategy::ALWAYS_ZERO, nil)
-        @stage_service.should_receive(:findStageSummaryByIdentifier).with(StageIdentifier.new("pipeline", 2, "stage", "3"), @user, @localized_result).and_return(stage_summary)
+        expect(@stage_service).to receive(:findStageSummaryByIdentifier).with(StageIdentifier.new("pipeline", 2, "stage", "3"), @user, @localized_result).and_return(stage_summary)
         get :tests, :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3"
         expect(assigns(:failing_tests_error_message)).to eq "Test Results will be generated when the stage completes."
       end
 
       it "should assign fbh when stage is completed" do
         stage_identifier = StageIdentifier.new("pipeline", 2, "stage", "3")
-        @shine_dao.should_receive(:failedBuildHistoryForStage).with(stage_identifier, @subsection_result).and_return(failing_tests = double('StageTestResuls'))
-        failing_tests.stub(:failingCounters).and_return([])
-        @go_config_service.should_receive(:stageExists).with("pipeline", "stage").and_return(true)
-        @go_config_service.should_receive(:stageHasTests).with("pipeline", "stage").and_return(true)
+        expect(@shine_dao).to receive(:failedBuildHistoryForStage).with(stage_identifier, @subsection_result).and_return(failing_tests = double('StageTestResuls'))
+        allow(failing_tests).to receive(:failingCounters).and_return([])
+        expect(@go_config_service).to receive(:stageExists).with("pipeline", "stage").and_return(true)
+        expect(@go_config_service).to receive(:stageHasTests).with("pipeline", "stage").and_return(true)
         get :tests, :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3"
         expect(assigns(:failing_tests)).to eq failing_tests
       end
 
       it "should assign fbh when stage does not exist in config" do
         stage_identifier = StageIdentifier.new("pipeline", 2, "stage", "3")
-        @shine_dao.should_receive(:failedBuildHistoryForStage).with(stage_identifier, @subsection_result).and_return(:failing_tests)
-        @go_config_service.should_receive(:stageExists).with("pipeline", "stage").and_return(false)
+        expect(@shine_dao).to receive(:failedBuildHistoryForStage).with(stage_identifier, @subsection_result).and_return(:failing_tests)
+        expect(@go_config_service).to receive(:stageExists).with("pipeline", "stage").and_return(false)
         get :tests, :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3"
         expect(assigns(:failing_tests)).to eq :failing_tests
       end
@@ -376,11 +376,11 @@ describe StagesController do
           stage.setPipelineId(1)
           stage.calculateResult
           stage_summary = StageSummaryModel.new(stage, Stages.new([stage]), JobDurationStrategy::ALWAYS_ZERO, nil)
-          @stage_service.should_receive(:findStageSummaryByIdentifier).with(StageIdentifier.new("pipeline", 2, "stage", "3"), @user, @localized_result).and_return(stage_summary)
+          expect(@stage_service).to receive(:findStageSummaryByIdentifier).with(StageIdentifier.new("pipeline", 2, "stage", "3"), @user, @localized_result).and_return(stage_summary)
           options = {:subkey => controller.view_cache_key.forFailedBuildHistoryStage(stage, "html")}
           view_cache_key = controller.view_cache_key.forFbhOfStagesUnderPipeline(stage.getIdentifier().pipelineIdentifier())
           ActionController::Base.cache_store.write(view_cache_key, "fbh", options)
-          @go_config_service.should_receive(:stageHasTests).never
+          expect(@go_config_service).to receive(:stageHasTests).never
           get :tests, :pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3", :format => "html"
           expect(assigns(:failing_tests_error_message)).to be_nil
           expect(assigns(:failing_tests)).to be_nil
@@ -390,16 +390,16 @@ describe StagesController do
     end
   end
 
-  describe :history do
+  describe 'history' do
     before do
-      @stage_service.stub(:findStageHistoryPageByNumber).and_return(:stage_history_page)
+      allow(@stage_service).to receive(:findStageHistoryPageByNumber).and_return(:stage_history_page)
     end
 
     it "should render without layout" do
-      @go_config_service.should_receive(:getCurrentConfig).and_return(@cruise_config)
+      expect(@go_config_service).to receive(:getCurrentConfig).and_return(@cruise_config)
       pim = PipelineHistoryMother.singlePipeline("pipeline", StageInstanceModels.new)
-      @stage_service.should_receive(:findStageHistoryPageByNumber).with('pipeline', 'stage', 3, 10).and_return(:stage_history_page)
-      @pipeline_history_service.should_receive(:findPipelineInstance).with("pipeline", 10, @user, @status).and_return(pim)
+      expect(@stage_service).to receive(:findStageHistoryPageByNumber).with('pipeline', 'stage', 3, 10).and_return(:stage_history_page)
+      expect(@pipeline_history_service).to receive(:findPipelineInstance).with("pipeline", 10, @user, @status).and_return(pim)
 
       get :history, page: '3', pipeline_name: 'pipeline', stage_name: 'stage', pipeline_counter: 10, stage_counter: 5, tab: 'jobs'
 
@@ -407,19 +407,19 @@ describe StagesController do
     end
 
     it "should load stage history page" do
-      @go_config_service.should_receive(:getCurrentConfig).and_return(@cruise_config)
+      expect(@go_config_service).to receive(:getCurrentConfig).and_return(@cruise_config)
       pim = PipelineHistoryMother.singlePipeline("pipeline", StageInstanceModels.new)
-      @stage_service.should_receive(:findStageHistoryPageByNumber).with('pipeline', 'stage', 3, 10).and_return(:stage_history_page)
-      @pipeline_history_service.should_receive(:findPipelineInstance).with("pipeline", 10, @user, @status).and_return(pim)
+      expect(@stage_service).to receive(:findStageHistoryPageByNumber).with('pipeline', 'stage', 3, 10).and_return(:stage_history_page)
+      expect(@pipeline_history_service).to receive(:findPipelineInstance).with("pipeline", 10, @user, @status).and_return(pim)
       get :history, :page => "3", :pipeline_name => 'pipeline', :stage_name => 'stage', :pipeline_counter => 10, :stage_counter => 5, :tab => 'jobs'
       expect(assigns(:stage_history_page)).to eq :stage_history_page
       expect(assigns(:pipeline)).to eq pim
     end
 
     it "should render stage history in response" do
-      @go_config_service.should_receive(:getCurrentConfig).and_return(@cruise_config)
+      expect(@go_config_service).to receive(:getCurrentConfig).and_return(@cruise_config)
       pim = PipelineHistoryMother.singlePipeline("pipeline", StageInstanceModels.new)
-      @pipeline_history_service.should_receive(:findPipelineInstance).with("pipeline", 10, @user, @status).and_return(pim)
+      expect(@pipeline_history_service).to receive(:findPipelineInstance).with("pipeline", 10, @user, @status).and_return(pim)
       get :history, :page => "3", :pipeline_name => 'pipeline', :stage_name => 'stage', :pipeline_counter => 10, :stage_counter => 5, :tab => 'tests'
 
       assert_template "history"
@@ -436,7 +436,7 @@ describe StagesController do
 
   end
 
-  describe :config_change do
+  describe 'config_change' do
 
     it "should route to action" do
       expect(:get => "/config_change/between/md5_value_2/and/md5_value_1").to route_to({:controller => "stages", :action => "config_change", :later_md5 => "md5_value_2", :earlier_md5 => "md5_value_1"})
@@ -449,31 +449,31 @@ describe StagesController do
 
     it "should assign config changes for given md5" do
       result = HttpLocalizedOperationResult.new
-      @go_config_service.should_receive(:configChangesFor).with("md5_value_2", "md5_value_1", result).and_return("changes_string")
+      expect(@go_config_service).to receive(:configChangesFor).with("md5_value_2", "md5_value_1", result).and_return("changes_string")
       get :config_change, :later_md5 => "md5_value_2", :earlier_md5 => "md5_value_1"
       expect(assigns(:changes)).to eq "changes_string"
     end
 
     it "should assign error message if getting config changes for given md5 fails" do
       result = HttpLocalizedOperationResult.new
-      @go_config_service.should_receive(:configChangesFor).with("md5_value_2", "md5_value_1", result)
-      result.should_receive(:isSuccessful).and_return(false)
-      result.stub(:httpCode).and_return(400)
-      result.stub(:message).and_return("no config version found")
+      expect(@go_config_service).to receive(:configChangesFor).with("md5_value_2", "md5_value_1", result)
+      expect(result).to receive(:isSuccessful).and_return(false)
+      allow(result).to receive(:httpCode).and_return(400)
+      allow(result).to receive(:message).and_return("no config version found")
       get :config_change, :later_md5 => "md5_value_2", :earlier_md5 => "md5_value_1"
       expect(assigns(:config_change_error_message)).to eq "no config version found"
     end
 
     it "should assign message if config changes is nil because given md5 is the first revision in repo" do
       result = HttpLocalizedOperationResult.new
-      @go_config_service.should_receive(:configChangesFor).with("md5_value_2", "md5_value_1", result).and_return(nil)
-      result.should_receive(:isSuccessful).and_return(true)
+      expect(@go_config_service).to receive(:configChangesFor).with("md5_value_2", "md5_value_1", result).and_return(nil)
+      expect(result).to receive(:isSuccessful).and_return(true)
       get :config_change, :later_md5 => "md5_value_2", :earlier_md5 => "md5_value_1"
       expect(assigns(:config_change_error_message)).to eq "This is the first entry in the config versioning. Please refer config tab to view complete configuration during this run."
     end
   end
 
-  describe :stage_duration_chart do
+  describe 'stage_duration_chart' do
 
     before :each do
       stub_current_config
@@ -567,13 +567,13 @@ describe StagesController do
       stage = StageMother.scheduledStage("pipeline-name", 1, "stage", 1, "dev")
       stage.setPipelineId(100)
       stage_summary_model = StageSummaryModel.new(stage, nil, JobDurationStrategy::ALWAYS_ZERO, nil)
-      @stage_service.should_receive(:findStageSummaryByIdentifier).with(stage.getIdentifier(), @user, @localized_result).and_return(stage_summary_model)
-      @pipeline_history_service.stub(:validate).with("pipeline-name", @user, @status)
-      @status.stub(:canContinue).and_return(true)
-      @pipeline_history_service.should_receive(:findPipelineInstance).with("pipeline-name", 1, 100, @user, @status).and_return(:pim)
-      @pipieline_lock_service.should_receive(:lockedPipeline).with("pipeline-name").and_return("")
-      controller.should_receive(:load_stage_history).with().and_return()
-      @stage_service.should_receive(:findStageHistoryForChart).with("pipeline-name", "stage", 2, StagesController::STAGE_DURATION_RANGE, current_user).and_return(models = StageSummaryModels.new)
+      expect(@stage_service).to receive(:findStageSummaryByIdentifier).with(stage.getIdentifier(), @user, @localized_result).and_return(stage_summary_model)
+      allow(@pipeline_history_service).to receive(:validate).with("pipeline-name", @user, @status)
+      allow(@status).to receive(:canContinue).and_return(true)
+      expect(@pipeline_history_service).to receive(:findPipelineInstance).with("pipeline-name", 1, 100, @user, @status).and_return(:pim)
+      expect(@pipieline_lock_service).to receive(:lockedPipeline).with("pipeline-name").and_return("")
+      expect(controller).to receive(:load_stage_history).with(no_args)
+      expect(@stage_service).to receive(:findStageHistoryForChart).with("pipeline-name", "stage", 2, StagesController::STAGE_DURATION_RANGE, current_user).and_return(models = StageSummaryModels.new)
 
       get :stats, :pipeline_name => "pipeline-name", :pipeline_counter => "1", :stage_name => "stage", :stage_counter => "1", :page_number => "2"
 
@@ -604,18 +604,18 @@ describe StagesController do
       models = StageSummaryModels.new
       models.addAll(stage_summary_models)
       models.setPagination(Pagination.pageStartingAt(12, 200, 10))
-      @pipieline_lock_service.should_receive(:lockedPipeline).with("pipeline-name").and_return("")
+      expect(@pipieline_lock_service).to receive(:lockedPipeline).with("pipeline-name").and_return("")
       stage_iden = stage_summary_models[0].getStage().getIdentifier()
-      @stage_service.should_receive(:findStageSummaryByIdentifier).with(stage_iden, @user, @localized_result).and_return(stage_summary_models[0])
-      @pipeline_history_service.stub(:validate).with("pipeline-name", @user, @status)
-      @pipeline_history_service.should_receive(:findPipelineInstance).with("pipeline-name", 1, 100, @user, @status).and_return(:pim)
-      @status.stub(:canContinue).and_return(true)
-      controller.should_receive(:load_stage_history).with().and_return()
-      @stage_service.should_receive(:findStageHistoryForChart).with(stage_iden.getPipelineName(), stage_iden.getStageName(), 2, StagesController::STAGE_DURATION_RANGE, current_user).and_return(models)
+      expect(@stage_service).to receive(:findStageSummaryByIdentifier).with(stage_iden, @user, @localized_result).and_return(stage_summary_models[0])
+      allow(@pipeline_history_service).to receive(:validate).with("pipeline-name", @user, @status)
+      expect(@pipeline_history_service).to receive(:findPipelineInstance).with("pipeline-name", 1, 100, @user, @status).and_return(:pim)
+      allow(@status).to receive(:canContinue).and_return(true)
+      expect(controller).to receive(:load_stage_history).with(no_args)
+      expect(@stage_service).to receive(:findStageHistoryForChart).with(stage_iden.getPipelineName(), stage_iden.getStageName(), 2, StagesController::STAGE_DURATION_RANGE, current_user).and_return(models)
     end
   end
 
-  describe :config_tab do
+  describe 'config_tab' do
     before do
       scheduledTime = org.joda.time.DateTime.new(2008, 2, 22, 10, 21, 23, 0, org.joda.time.DateTimeZone.forOffsetHoursMinutes(5, 30))
       stage = StageMother.createPassedStageWithFakeDuration("pipeline-name", 1, "stage", 1, "dev", scheduledTime, scheduledTime.plus_minutes(10))
@@ -634,31 +634,31 @@ describe StagesController do
     end
 
     def setup_stubs(stage_summary_model)
-      @pipieline_lock_service.should_receive(:lockedPipeline).with("pipeline-name").and_return("")
-      @stage_service.should_receive(:findStageSummaryByIdentifier).with(stage_summary_model.getStage().getIdentifier(), @user, @localized_result).and_return(stage_summary_model)
-      @pipeline_history_service.stub(:validate).with("pipeline-name", @user, @status)
-      @pipeline_history_service.should_receive(:findPipelineInstance).with("pipeline-name", 1, 100, @user, @status).and_return(:pim)
-      @status.stub(:canContinue).and_return(true)
-      controller.should_receive(:load_stage_history).with().and_return()
-      @go_config_service.should_receive(:getConfigAtVersion).with("some-config-md5").and_return(:some_cruise_config_revision)
+      expect(@pipieline_lock_service).to receive(:lockedPipeline).with("pipeline-name").and_return("")
+      expect(@stage_service).to receive(:findStageSummaryByIdentifier).with(stage_summary_model.getStage().getIdentifier(), @user, @localized_result).and_return(stage_summary_model)
+      allow(@pipeline_history_service).to receive(:validate).with("pipeline-name", @user, @status)
+      expect(@pipeline_history_service).to receive(:findPipelineInstance).with("pipeline-name", 1, 100, @user, @status).and_return(:pim)
+      allow(@status).to receive(:canContinue).and_return(true)
+      expect(controller).to receive(:load_stage_history).with(no_args)
+      expect(@go_config_service).to receive(:getConfigAtVersion).with("some-config-md5").and_return(:some_cruise_config_revision)
     end
   end
 
-  describe :stage_settings_link do
+  describe 'stage_settings_link' do
     before :each do
-      @pipeline_history_service.should_receive(:validate).and_return(nil)
+      expect(@pipeline_history_service).to receive(:validate).and_return(nil)
       @security_service = double('stage service')
-      controller.stub(:security_service).and_return(@security_service)
+      allow(controller).to receive(:security_service).and_return(@security_service)
 
-      controller.stub(:can_continue).and_return(nil)
-      controller.stub(:load_stage_history).and_return(nil)
-      controller.stub(:load_current_config_version).and_return(nil)
+      allow(controller).to receive(:can_continue).and_return(nil)
+      allow(controller).to receive(:load_stage_history).and_return(nil)
+      allow(controller).to receive(:load_current_config_version).and_return(nil)
     end
     it 'should return false for normal users' do
       login_as_user
 
-      @go_config_service.should_receive(:findGroupNameByPipeline).and_return('group')
-      @security_service.should_receive(:isUserAdminOfGroup).with(anything, 'group').and_return(false)
+      expect(@go_config_service).to receive(:findGroupNameByPipeline).and_return('group')
+      expect(@security_service).to receive(:isUserAdminOfGroup).with(anything, 'group').and_return(false)
 
       get :overview, pipeline_name: "pipeline", pipeline_counter: "2", stage_name: "stage", stage_counter: "3"
 
@@ -668,8 +668,8 @@ describe StagesController do
     it 'should return true for admin users' do
       login_as_user
 
-      @go_config_service.should_receive(:findGroupNameByPipeline).and_return('group')
-      @security_service.should_receive(:isUserAdminOfGroup).with(anything, 'group').and_return(true)
+      expect(@go_config_service).to receive(:findGroupNameByPipeline).and_return('group')
+      expect(@security_service).to receive(:isUserAdminOfGroup).with(anything, 'group').and_return(true)
 
       get :overview, pipeline_name: "pipeline", pipeline_counter: "2", stage_name: "stage", stage_counter: "3"
 

@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "/api/pipelines/pipeline_instance" do
   include GoUtil
@@ -136,9 +136,9 @@ describe "/api/pipelines/pipeline_instance" do
 
   it "should wrap fields with externaly fed data into ctags" do
     render :template => '/api/pipelines/pipeline_instance.xml.erb'
-    expect(response.body =~ cdata_wraped_regexp_for("user")).to be_true
-    expect(response.body =~ cdata_wraped_regexp_for("Comment")).to be_true
-    expect(response.body =~ cdata_wraped_regexp_for("changes")).to be_true
+    expect(response.body =~ cdata_wraped_regexp_for("user")).to be_truthy
+    expect(response.body =~ cdata_wraped_regexp_for("Comment")).to be_truthy
+    expect(response.body =~ cdata_wraped_regexp_for("changes")).to be_truthy
   end
 
   it "should have a self referencing link" do

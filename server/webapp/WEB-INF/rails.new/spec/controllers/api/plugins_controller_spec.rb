@@ -14,13 +14,13 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe Api::PluginsController do
 
   before :each do
     @system_environment = double('system_environment')
-    controller.stub(:system_environment).and_return(@system_environment)
+    allow(controller).to receive(:system_environment).and_return(@system_environment)
   end
 
   it "should answer to /api/plugins/status" do
@@ -28,18 +28,18 @@ describe Api::PluginsController do
   end
 
   it "should return plugin status as false when not set" do
-    @system_environment.should_receive(:pluginStatus).and_return(GoConstants::ENABLE_PLUGINS_RESPONSE_FALSE)
+    expect(@system_environment).to receive(:pluginStatus).and_return(GoConstants::ENABLE_PLUGINS_RESPONSE_FALSE)
     get :status, {:no_layout => true}
     expect(response.body).to eq("disabled")
     end
 
   it "should return plugin status as true when set" do
-    @system_environment.should_receive(:pluginStatus).and_return(GoConstants::ENABLE_PLUGINS_RESPONSE_TRUE)
+    expect(@system_environment).to receive(:pluginStatus).and_return(GoConstants::ENABLE_PLUGINS_RESPONSE_TRUE)
     get :status, {:no_layout => true}
     expect(response.body).to eq("enabled")
   end
 
-  describe :route do
+  describe 'route' do
     it 'should route to status action of the plugins controller' do
       expect(:get => 'api/plugins/status').to route_to(no_layout: true, controller: 'api/plugins', action: 'status')
     end

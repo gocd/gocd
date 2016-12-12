@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ##########################################################################
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV1::UsersRepresenter do
 
@@ -28,7 +28,7 @@ describe ApiV1::UsersRepresenter do
     expect(actual_json).to have_link(:self).with_url('http://test.host/api/users')
     expect(actual_json).to have_link(:doc).with_url('https://api.go.cd/#users')
 
-    actual_json.fetch(:_embedded).should == { :users => [ApiV1::UserRepresenter.new(user).to_hash(url_builder: UrlBuilder.new)] }
+    expect(actual_json.fetch(:_embedded)).to eq({ :users => [ApiV1::UserRepresenter.new(user).to_hash(url_builder: UrlBuilder.new)] })
   end
 
 end

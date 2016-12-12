@@ -14,10 +14,15 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "_form.html.erb" do
-  include GoUtil, FormUI, ReflectiveUtil
+  include GoUtil
+
+  include FormUI
+
+
+  include ReflectiveUtil
 
   before(:each) do
     @material_config = TfsMaterialConfig.new(GoCipher.new, UrlArgument.new("http://10.4.4.101:8080/tfs/Sample"), "loser", "domain" ,"passwd", "walk_this_path")

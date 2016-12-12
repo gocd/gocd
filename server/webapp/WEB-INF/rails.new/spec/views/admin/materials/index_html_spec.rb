@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "admin/materials/index.html.erb" do
 
@@ -153,7 +153,7 @@ describe "admin/materials/index.html.erb" do
     end
   end
 
-  describe :package_material do
+  describe 'package_material' do
     it "should list package material in the add new material dropdown" do
       render
 
@@ -166,7 +166,7 @@ describe "admin/materials/index.html.erb" do
     end
   end
 
-  describe :pluggable_scm_material do
+  describe 'pluggable_scm_material' do
     it "should list pluggable SCM material in the add new material dropdown" do
       render
 
@@ -191,8 +191,8 @@ describe "admin/materials/index.html.erb" do
     SCMMetadataStore.getInstance().clear()
 
     scm_view = double('SCMView')
-    scm_view.stub(:displayValue).and_return('Display Name')
-    scm_view.stub(:template).and_return('Plugin Template')
+    allow(scm_view).to receive(:displayValue).and_return('Display Name')
+    allow(scm_view).to receive(:template).and_return('Plugin Template')
     SCMMetadataStore.getInstance().addMetadataFor('plugin', SCMConfigurations.new, scm_view)
   end
 end

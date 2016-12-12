@@ -14,12 +14,14 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe Admin::PackageRepositoriesController do
-  include MockRegistryModule, ConfigSaveStubbing
+  include MockRegistryModule
 
-  describe :routes do
+  include ConfigSaveStubbing
+
+  describe 'routes' do
     it "should resolve route to the new package-repositories page" do
       expect({:get => "/admin/package_repositories/new"}).to route_to(:controller => "admin/package_repositories", :action => "new")
       expect(package_repositories_new_path).to eq("/admin/package_repositories/new")
@@ -77,26 +79,26 @@ describe Admin::PackageRepositoriesController do
     end
   end
 
-  describe :actions do
+  describe 'actions' do
 
     before :each do
       config_validity = double('config validity')
-      config_validity.should_receive(:isValid).and_return(true)
+      expect(config_validity).to receive(:isValid).and_return(true)
       @go_config_service = double('go config service')
-      controller.stub(:go_config_service).and_return(@go_config_service)
-      @go_config_service.should_receive(:checkConfigFileValid).and_return(config_validity)
-      @go_config_service.stub(:registry)
+      allow(controller).to receive(:go_config_service).and_return(@go_config_service)
+      expect(@go_config_service).to receive(:checkConfigFileValid).and_return(config_validity)
+      allow(@go_config_service).to receive(:registry)
 
       @cloner = double('cloner')
-      controller.stub(:get_cloner_instance).and_return(@cloner)
+      allow(controller).to receive(:get_cloner_instance).and_return(@cloner)
     end
 
     describe "new" do
       before(:each) do
-        controller.stub(:package_repository_service).with().and_return(@package_repository_service= double('Package Repository Service'))
+        allow(controller).to receive(:package_repository_service).with(no_args).and_return(@package_repository_service= double('Package Repository Service'))
         @cruise_config = BasicCruiseConfig.new
-        @go_config_service.should_receive(:getConfigForEditing).and_return(@cruise_config)
-        @cloner.should_receive(:deepClone).at_least(1).times.with(@cruise_config).and_return(@cruise_config)
+        expect(@go_config_service).to receive(:getConfigForEditing).and_return(@cruise_config)
+        expect(@cloner).to receive(:deepClone).at_least(1).times.with(@cruise_config).and_return(@cruise_config)
         @user = current_user
       end
 
@@ -116,10 +118,10 @@ describe Admin::PackageRepositoriesController do
 
     describe "list" do
       before(:each) do
-        controller.stub(:package_repository_service).with().and_return(@package_repository_service= double('Package Repository Service'))
+        allow(controller).to receive(:package_repository_service).with(no_args).and_return(@package_repository_service= double('Package Repository Service'))
         @cruise_config = BasicCruiseConfig.new
-        @cloner.should_receive(:deepClone).at_least(1).times.with(@cruise_config).and_return(@cruise_config)
-        @go_config_service.should_receive(:getConfigForEditing).and_return(@cruise_config)
+        expect(@cloner).to receive(:deepClone).at_least(1).times.with(@cruise_config).and_return(@cruise_config)
+        expect(@go_config_service).to receive(:getConfigForEditing).and_return(@cruise_config)
         @user = current_user
       end
 
@@ -140,8 +142,8 @@ describe Admin::PackageRepositoriesController do
     describe "config" do
       before(:each) do
         @cruise_config = BasicCruiseConfig.new
-        @go_config_service.should_receive(:getConfigForEditing).and_return(@cruise_config)
-        @cloner.should_receive(:deepClone).at_least(1).times.with(@cruise_config).and_return(@cruise_config)
+        expect(@go_config_service).to receive(:getConfigForEditing).and_return(@cruise_config)
+        expect(@cloner).to receive(:deepClone).at_least(1).times.with(@cruise_config).and_return(@cruise_config)
 
         repository1 = PackageRepositoryMother.create("repo1", "repo1-name", "pluginid", "version1.0", Configuration.new([ConfigurationPropertyMother.create("k1", false, "v1")].to_java(ConfigurationProperty)))
         repos = PackageRepositories.new
@@ -179,10 +181,10 @@ describe Admin::PackageRepositoriesController do
 
     describe "create" do
       before(:each) do
-        controller.stub(:package_repository_service).with().and_return(@package_repository_service= double('Package Repository Service'))
+        allow(controller).to receive(:package_repository_service).with(no_args).and_return(@package_repository_service= double('Package Repository Service'))
         @cruise_config = BasicCruiseConfig.new
-        @go_config_service.should_receive(:getConfigForEditing).and_return(@cruise_config)
-        @cloner.should_receive(:deepClone).at_least(1).times.with(@cruise_config).and_return(@cruise_config)
+        expect(@go_config_service).to receive(:getConfigForEditing).and_return(@cruise_config)
+        expect(@cloner).to receive(:deepClone).at_least(1).times.with(@cruise_config).and_return(@cruise_config)
 
         @user = current_user
       end
@@ -190,8 +192,8 @@ describe Admin::PackageRepositoriesController do
       it "should save package repository form" do
         package_repository = PackageRepository.new
         package_repository.setId("repo-id")
-        PackageRepository.stub(:new).and_return(package_repository)
-        @package_repository_service.should_receive(:savePackageRepositoryToConfig).with(package_repository, "1234abcd", @user).and_return(ConfigUpdateAjaxResponse::success("repo-id", 200,  "success"))
+        allow(PackageRepository).to receive(:new).and_return(package_repository)
+        expect(@package_repository_service).to receive(:savePackageRepositoryToConfig).with(package_repository, "1234abcd", @user).and_return(ConfigUpdateAjaxResponse::success("repo-id", 200,  "success"))
 
         post :create, :config_md5 => "1234abcd", :package_repository => {:name => "name", :pluginConfiguration => {:id => "yum"}, :configuration => {"0" => {:configurationKey => {:name => "key"}, :configurationValue => {:value => "value"}}}}
 
@@ -203,8 +205,8 @@ describe Admin::PackageRepositoriesController do
       end
       it "should not add flash message when create fails" do
         package_repository = PackageRepository.new
-        PackageRepository.stub(:new).and_return(package_repository)
-        @package_repository_service.should_receive(:savePackageRepositoryToConfig).with(package_repository, "1234abcd", @user).and_return(ConfigUpdateAjaxResponse::failure(nil, 500, "failed", nil, nil));
+        allow(PackageRepository).to receive(:new).and_return(package_repository)
+        expect(@package_repository_service).to receive(:savePackageRepositoryToConfig).with(package_repository, "1234abcd", @user).and_return(ConfigUpdateAjaxResponse::failure(nil, 500, "failed", nil, nil));
 
         post :create, :config_md5 => "1234abcd", :package_repository => {:name => "name", :pluginConfiguration => {:id => "yum"}, :configuration => {"0" => {:configurationKey => {:name => "key"}, :configurationValue => {:value => "value"}}}}
 
@@ -217,11 +219,11 @@ describe Admin::PackageRepositoriesController do
 
     describe "edit" do
       before(:each) do
-        controller.stub(:package_repository_service).with().and_return(@package_repository_service= double('Package Repository Service'))
+        allow(controller).to receive(:package_repository_service).with(no_args).and_return(@package_repository_service= double('Package Repository Service'))
         @cruise_config = BasicCruiseConfig.new
-        @cloner.should_receive(:deepClone).at_least(1).times.with(@cruise_config).and_return(@cruise_config)
+        expect(@cloner).to receive(:deepClone).at_least(1).times.with(@cruise_config).and_return(@cruise_config)
 
-        @go_config_service.should_receive(:getConfigForEditing).and_return(@cruise_config)
+        expect(@go_config_service).to receive(:getConfigForEditing).and_return(@cruise_config)
         @user = current_user
         @repository1 = PackageRepositoryMother.create("abcd-1234", "repo1-name", "pluginid", "version1.0", Configuration.new([ConfigurationPropertyMother.create("k1", false, "v1")].to_java(ConfigurationProperty)))
         @repository2 = PackageRepositoryMother.create("with-missing-plugin", "repo2-name", "missing", "version1.0", Configuration.new([ConfigurationPropertyMother.create("k1", false, "v1")].to_java(ConfigurationProperty)))
@@ -270,17 +272,17 @@ describe Admin::PackageRepositoriesController do
 
     describe "update" do
       before(:each) do
-        controller.stub(:package_repository_service).with().and_return(@package_repository_service= double('Package Repository Service'))
+        allow(controller).to receive(:package_repository_service).with(no_args).and_return(@package_repository_service= double('Package Repository Service'))
         @cruise_config = BasicCruiseConfig.new
-        @cloner.should_receive(:deepClone).at_least(1).times.with(@cruise_config).and_return(@cruise_config)
-        @go_config_service.should_receive(:getConfigForEditing).and_return(@cruise_config)
+        expect(@cloner).to receive(:deepClone).at_least(1).times.with(@cruise_config).and_return(@cruise_config)
+        expect(@go_config_service).to receive(:getConfigForEditing).and_return(@cruise_config)
         @user = current_user
       end
 
       it "should update package repository form" do
         package_repository = PackageRepository.new
-        PackageRepository.stub(:new).and_return(package_repository)
-        @package_repository_service.should_receive(:savePackageRepositoryToConfig).with(package_repository, "1234abcd", @user).and_return(ConfigUpdateAjaxResponse::success("id", 200, "success"))
+        allow(PackageRepository).to receive(:new).and_return(package_repository)
+        expect(@package_repository_service).to receive(:savePackageRepositoryToConfig).with(package_repository, "1234abcd", @user).and_return(ConfigUpdateAjaxResponse::success("id", 200, "success"))
 
         post :update, :config_md5 => "1234abcd", :id => "id", :package_repository => {:name => "name", :pluginConfiguration => {:id => "yum"}, :configuration => {"0" => {:configurationKey => {:name => "key"}, :configurationValue => {:value => "value"}}}}
 
@@ -293,13 +295,13 @@ describe Admin::PackageRepositoriesController do
 
       it "should not add flash message when update fails" do
         package_repository = PackageRepository.new
-        PackageRepository.stub(:new).and_return(package_repository)
+        allow(PackageRepository).to receive(:new).and_return(package_repository)
         fieldErrors = LinkedHashMap.new
         fieldErrors.put("field1", Arrays.asList(["error 1"].to_java(java.lang.String)))
         fieldErrors.put("field2", Arrays.asList(["error 2"].to_java(java.lang.String)))
         ajax_response = ConfigUpdateAjaxResponse::failure("id", 500, "failed", fieldErrors, Arrays.asList(["global1", "global2"].to_java(java.lang.String)))
 
-        @package_repository_service.should_receive(:savePackageRepositoryToConfig).with(package_repository, "1234abcd", @user).and_return(ajax_response)
+        expect(@package_repository_service).to receive(:savePackageRepositoryToConfig).with(package_repository, "1234abcd", @user).and_return(ajax_response)
 
         post :update, :config_md5 => "1234abcd", :id => "id", :package_repository => {:name => "name", :pluginConfiguration => {:id => "yum"}, :configuration => {"0" => {:configurationKey => {:name => "key"}, :configurationValue => {:value => "value"}}}}
 
@@ -315,16 +317,16 @@ describe Admin::PackageRepositoriesController do
     describe "check connection" do
 
       before(:each) do
-        controller.stub(:package_repository_service).with().and_return(@package_repository_service= double('Package Repository Service'))
+        allow(controller).to receive(:package_repository_service).with(no_args).and_return(@package_repository_service= double('Package Repository Service'))
         @result = HttpLocalizedOperationResult.new
-        HttpLocalizedOperationResult.stub(:new).and_return(@result)
+        allow(HttpLocalizedOperationResult).to receive(:new).and_return(@result)
       end
 
       it "should check connection for given package repository" do
         package_repository = PackageRepositoryMother.create("repo-id", "name", "yum", nil, Configuration.new([ConfigurationPropertyMother.create("key", false, "value")].to_java(ConfigurationProperty)))
-        @result.should_receive(:isSuccessful).and_return(true)
-        @result.should_receive(:message).with(anything).and_return("Connection OK from plugin.")
-        @package_repository_service.should_receive(:checkConnection).with(package_repository, @result)
+        expect(@result).to receive(:isSuccessful).and_return(true)
+        expect(@result).to receive(:message).with(anything).and_return("Connection OK from plugin.")
+        expect(@package_repository_service).to receive(:checkConnection).with(package_repository, @result)
 
         get :check_connection, :package_repository => {:name => "name", :repoId => "repo-id", :pluginConfiguration => {:id => "yum"}, :configuration => {"0" => {:configurationKey => {:name => "key"}, :configurationValue => {:value => "value"}}}}
 
@@ -335,9 +337,9 @@ describe Admin::PackageRepositoriesController do
 
       it "should show error when check connection fails for given package repository" do
         package_repository = PackageRepositoryMother.create("repo-id", "name", "yum", nil, Configuration.new([ConfigurationPropertyMother.create("key", false, "value")].to_java(ConfigurationProperty)))
-        @result.should_receive(:isSuccessful).and_return(false)
-        @result.should_receive(:message).twice.with(anything).and_return("Connection To Repo Failed. Bad Url")
-        @package_repository_service.should_receive(:checkConnection).with(package_repository, @result)
+        expect(@result).to receive(:isSuccessful).and_return(false)
+        expect(@result).to receive(:message).twice.with(anything).and_return("Connection To Repo Failed. Bad Url")
+        expect(@package_repository_service).to receive(:checkConnection).with(package_repository, @result)
 
         get :check_connection, :package_repository => {:name => "name", :repoId => "repo-id", :pluginConfiguration => {:id => "yum"}, :configuration => {"0" => {:configurationKey => {:name => "key"}, :configurationValue => {:value => "value"}}}}
 
@@ -347,25 +349,25 @@ describe Admin::PackageRepositoriesController do
       end
     end
 
-    describe :destroy do
+    describe 'destroy' do
 
       before :each do
         @cruise_config = double('cruise config')
-        @cloner.should_receive(:deepClone).at_least(1).times.with(@cruise_config).and_return(@cruise_config)
-        @go_config_service.should_receive(:getConfigForEditing).at_least(1).times.and_return(@cruise_config)
+        expect(@cloner).to receive(:deepClone).at_least(1).times.with(@cruise_config).and_return(@cruise_config)
+        expect(@go_config_service).to receive(:getConfigForEditing).at_least(1).times.and_return(@cruise_config)
         @config_md5 = "1234abcd"
 
         @update_response = double('update_response')
       end
 
       it "should delete repository successfully" do
-        @update_response.should_receive(:getCruiseConfig).and_return(@cruise_config)
-        @update_response.should_receive(:getNode).and_return(@cruise_config)
-        @update_response.should_receive(:getSubject).and_return(@cruise_config)
-        @update_response.should_receive(:configAfterUpdate).and_return(@cruise_config)
-        @update_response.should_receive(:wasMerged).and_return(false)
-        @go_config_service.should_receive(:updateConfigFromUI).with(anything, @config_md5, an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)).and_return(@update_response)
-        stub_service(:flash_message_service).should_receive(:add).with(FlashMessageModel.new("Saved successfully.", "success")).and_return("random-uuid")
+        expect(@update_response).to receive(:getCruiseConfig).and_return(@cruise_config)
+        expect(@update_response).to receive(:getNode).and_return(@cruise_config)
+        expect(@update_response).to receive(:getSubject).and_return(@cruise_config)
+        expect(@update_response).to receive(:configAfterUpdate).and_return(@cruise_config)
+        expect(@update_response).to receive(:wasMerged).and_return(false)
+        expect(@go_config_service).to receive(:updateConfigFromUI).with(anything, @config_md5, an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)).and_return(@update_response)
+        expect(stub_service(:flash_message_service)).to receive(:add).with(FlashMessageModel.new("Saved successfully.", "success")).and_return("random-uuid")
 
         delete :destroy, :id => "repo-id", :config_md5 => @config_md5
 
@@ -374,24 +376,24 @@ describe Admin::PackageRepositoriesController do
 
       it "should render error when repository can not be deleted" do
         repository_id = 'some_repository_id'
-        @update_response.should_receive(:getCruiseConfig).twice.and_return(@cruise_config)
-        @update_response.should_receive(:getNode).and_return(@cruise_config)
-        @update_response.should_receive(:getSubject).and_return(@cruise_config)
-        @update_response.should_receive(:configAfterUpdate).and_return(@cruise_config)
+        expect(@update_response).to receive(:getCruiseConfig).twice.and_return(@cruise_config)
+        expect(@update_response).to receive(:getNode).and_return(@cruise_config)
+        expect(@update_response).to receive(:getSubject).and_return(@cruise_config)
+        expect(@update_response).to receive(:configAfterUpdate).and_return(@cruise_config)
         plugin_configuration = double(PluginConfiguration)
-        plugin_configuration.should_receive(:getId).and_return(repository_id)
+        expect(plugin_configuration).to receive(:getId).and_return(repository_id)
         package_repository = double(PackageRepository)
-        package_repository.should_receive(:getPluginConfiguration).and_return(plugin_configuration)
+        expect(package_repository).to receive(:getPluginConfiguration).and_return(plugin_configuration)
         package_repositories = double(PackageRepositories)
-        package_repositories.should_receive(:find).with(repository_id).and_return(package_repository)
-        @cruise_config.should_receive(:getPackageRepositories).twice.and_return(package_repositories)
+        expect(package_repositories).to receive(:find).with(repository_id).and_return(package_repository)
+        expect(@cruise_config).to receive(:getPackageRepositories).twice.and_return(package_repositories)
         pipeline_groups = double(PipelineGroups)
-        pipeline_groups.should_receive(:getPackageUsageInPipelines).and_return(nil)
-        @cruise_config.should_receive(:getGroups).and_return(pipeline_groups)
-        @cruise_config.should_receive(:getAllErrorsExceptFor).and_return([])
-        @go_config_service.should_receive(:updateConfigFromUI).with(anything, @config_md5, an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)) do |action, md5, user, r|
+        expect(pipeline_groups).to receive(:getPackageUsageInPipelines).and_return(nil)
+        expect(@cruise_config).to receive(:getGroups).and_return(pipeline_groups)
+        expect(@cruise_config).to receive(:getAllErrorsExceptFor).and_return([])
+        expect(@go_config_service).to receive(:updateConfigFromUI).with(anything, @config_md5, an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)) { |action, md5, user, r|
           r.badRequest(LocalizedMessage.string("SAVE_FAILED"))
-        end.and_return(@update_response)
+        }.and_return(@update_response)
 
         delete :destroy, :id => repository_id, :config_md5 => @config_md5
 

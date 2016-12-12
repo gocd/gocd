@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe Api::CommandsController do
 
@@ -33,7 +33,7 @@ describe Api::CommandsController do
 
     describe "reload_cache" do
       it "should reload the cache" do
-        @command_repository_service.should_receive(:reloadCache)
+        expect(@command_repository_service).to receive(:reloadCache)
 
         post :reload_cache, :no_layout => true
 

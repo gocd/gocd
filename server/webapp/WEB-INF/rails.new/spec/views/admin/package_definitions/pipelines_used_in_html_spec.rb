@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 include GoUtil
 
 describe "admin/package_definitions/pipelines_used_in.html.erb" do

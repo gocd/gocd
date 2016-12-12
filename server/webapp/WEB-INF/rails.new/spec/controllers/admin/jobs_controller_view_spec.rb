@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 
 describe Admin::JobsController, "view" do
@@ -24,8 +24,8 @@ describe Admin::JobsController, "view" do
 
 
     before do
-      controller.stub(:populate_config_validity)
-      controller.stub(:checkConfigFileValid)
+      allow(controller).to receive(:populate_config_validity)
+      allow(controller).to receive(:checkConfigFileValid)
 
       @cruise_config = BasicCruiseConfig.new()
       cruise_config_mother = GoConfigMother.new
@@ -35,7 +35,7 @@ describe Admin::JobsController, "view" do
       @pipeline.get(0).getJobs().get(0).artifactPlans().add(@artifact1)
       @pipeline.get(0).getJobs().get(0).artifactPlans().add(@artifact2)
 
-      controller.should_receive(:load_pipeline) do
+      expect(controller).to receive(:load_pipeline) do
         controller.instance_variable_set('@processed_cruise_config', @cruise_config)
         controller.instance_variable_set('@cruise_config', @cruise_config)
         controller.instance_variable_set('@pipeline', @pipeline)

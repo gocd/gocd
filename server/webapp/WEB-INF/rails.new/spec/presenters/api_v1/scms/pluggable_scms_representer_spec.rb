@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV1::Scms::PluggableScmsRepresenter do
 
@@ -28,6 +28,6 @@ describe ApiV1::Scms::PluggableScmsRepresenter do
     expect(actual_json).to have_link(:doc).with_url('https://api.go.cd/#scms')
     actual_json.delete(:_links)
 
-    actual_json.fetch(:_embedded).should == { :scms => [ApiV1::Scms::PluggableScmSummaryRepresenter.new(scm).to_hash(url_builder: UrlBuilder.new)] }
+    expect(actual_json.fetch(:_embedded)).to eq({ :scms => [ApiV1::Scms::PluggableScmSummaryRepresenter.new(scm).to_hash(url_builder: UrlBuilder.new)] })
   end
 end

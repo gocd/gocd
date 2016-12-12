@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ConfigUpdate::CheckIsSuperAdmin do
   include ::ConfigUpdate::CheckIsSuperAdmin
@@ -28,24 +28,24 @@ describe ConfigUpdate::CheckIsSuperAdmin do
   it "should return unsuccessful result if user is not an admin" do
     cruise_config = GoConfigMother.configWithPipelines(["pipeline"].to_java(java.lang.String))
     result = HttpLocalizedOperationResult.new
-    @security_service.should_receive(:isUserAdmin).with("loser").and_return(false)
+    expect(@security_service).to receive(:isUserAdmin).with("loser").and_return(false)
 
     checkPermission(cruise_config, result)
 
-    result.isSuccessful().should be_false
-    result.httpCode().should == 401
-    result.message(Spring.bean("localizer")).should == "Unauthorized to edit configuration"
+    expect(result.isSuccessful()).to be_falsey
+    expect(result.httpCode()).to eq(401)
+    expect(result.message(Spring.bean("localizer"))).to eq("Unauthorized to edit configuration")
   end
 
   it "should return successful if user is an admin" do
     cruise_config = GoConfigMother.configWithPipelines(["pipeline"].to_java(java.lang.String))
     result = HttpLocalizedOperationResult.new
-    @security_service.should_receive(:isUserAdmin).with("loser").and_return(true)
+    expect(@security_service).to receive(:isUserAdmin).with("loser").and_return(true)
 
     checkPermission(cruise_config, result)
 
-    result.isSuccessful().should be_true
-    result.httpCode().should == 200
+    expect(result.isSuccessful()).to be_truthy
+    expect(result.httpCode()).to eq(200)
   end
 
 end

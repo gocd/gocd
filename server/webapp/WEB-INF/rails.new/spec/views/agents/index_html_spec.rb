@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 describe "/agents/index.html.erb" do
   include AgentsHelper
   include AgentMother

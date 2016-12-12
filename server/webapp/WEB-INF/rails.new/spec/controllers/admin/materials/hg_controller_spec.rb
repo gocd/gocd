@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 load File.join(File.dirname(__FILE__), 'material_controller_examples.rb')
 
 describe Admin::Materials::HgController do
@@ -33,7 +33,7 @@ describe Admin::Materials::HgController do
     hg_material_config = HgMaterialConfig.new("new-url", nil)
     hg_material_config.setName(CaseInsensitiveString.new('new-some-kinda-material'))
     hg_material_config.setConfigAttributes({HgMaterialConfig::FOLDER => "folder"})
-    @pipeline.materialConfigs().get(1).should == hg_material_config
+    expect(@pipeline.materialConfigs().get(1)).to eq(hg_material_config)
   end
 
   def update_payload
@@ -41,8 +41,8 @@ describe Admin::Materials::HgController do
   end
 
   def assert_successful_update
-    @pipeline.materialConfigs().get(0).getUrl().should == "new-url"
-    @pipeline.materialConfigs().get(0).getName().should == CaseInsensitiveString.new("new-some-kinda-material")
+    expect(@pipeline.materialConfigs().get(0).getUrl()).to eq("new-url")
+    expect(@pipeline.materialConfigs().get(0).getName()).to eq(CaseInsensitiveString.new("new-some-kinda-material"))
   end
 
   def setup_other_form_objects

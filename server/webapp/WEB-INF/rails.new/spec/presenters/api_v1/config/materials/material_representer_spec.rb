@@ -14,12 +14,12 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 default_branch = 'master'
 describe ApiV1::Config::Materials::MaterialRepresenter do
   shared_examples_for 'materials' do
 
-    describe :serialize do
+    describe 'serialize' do
       it 'should render material with hal representation' do
         presenter              = ApiV1::Config::Materials::MaterialRepresenter.new(existing_material)
         actual_json            = presenter.to_hash(url_builder: UrlBuilder.new)
@@ -35,7 +35,7 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
       end
     end
 
-    describe :deserialize do
+    describe 'deserialize' do
       it 'should convert hash to Material' do
         new_material = material_type.new
         presenter    = ApiV1::Config::Materials::MaterialRepresenter.new(new_material)
@@ -48,7 +48,7 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
 
   end
 
-  describe :git do
+  describe 'git' do
     it_should_behave_like 'materials'
 
     def existing_material
@@ -169,7 +169,7 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
 
   end
 
-  describe :svn do
+  describe 'svn' do
     it_should_behave_like 'materials'
 
     def existing_material
@@ -227,7 +227,7 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
     end
   end
 
-  describe :hg do
+  describe 'hg' do
     it_should_behave_like 'materials'
 
     def existing_material
@@ -280,7 +280,7 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
 
   end
 
-  describe :tfs do
+  describe 'tfs' do
     it_should_behave_like 'materials'
 
     def existing_material
@@ -340,7 +340,7 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
 
   end
 
-  describe :p4 do
+  describe 'p4' do
     it_should_behave_like 'materials'
 
     def existing_material
@@ -400,7 +400,7 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
 
   end
 
-  describe :dependency do
+  describe 'dependency' do
     it_should_behave_like 'materials'
 
     def existing_material
@@ -450,7 +450,7 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
 
   end
 
-  describe :package do
+  describe 'package' do
     it "should represent a package material" do
       presenter   = ApiV1::Config::Materials::MaterialRepresenter.prepare(MaterialConfigsMother.packageMaterialConfig())
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
@@ -511,7 +511,7 @@ describe ApiV1::Config::Materials::MaterialRepresenter do
     end
   end
 
-  describe :pluggable do
+  describe 'pluggable' do
     before :each do
       @go_config = BasicCruiseConfig.new
 

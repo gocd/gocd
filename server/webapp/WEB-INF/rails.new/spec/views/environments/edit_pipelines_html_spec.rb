@@ -14,17 +14,22 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "environments/edit_pipelines.html.erb" do
-  include GoUtil, FormUI, ReflectiveUtil
+  include GoUtil
+
+  include FormUI
+
+
+  include ReflectiveUtil
 
   before do
     @environment = EnvironmentConfigMother.environment("env")
     @environment.addEnvironmentVariable("plain_name", "plain_value")
     assign(:environment, @environment)
 
-    view.stub(:cruise_config_md5).and_return("foo_bar_baz")
+    allow(view).to receive(:cruise_config_md5).and_return("foo_bar_baz")
   end
 
   it "should have cruise_config_md5 as part of output" do

@@ -14,13 +14,15 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV1::Admin::Internal::MaterialTestController do
-  include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
+  include ApiHeaderSetupTeardown
 
-  describe :test do
-    describe :security do
+  include ApiV1::ApiVersionHelper
+
+  describe 'test' do
+    describe 'security' do
       it 'should allow anyone, with security disabled' do
         disable_security
         expect(controller).to allow_action(:post, :test)
@@ -54,14 +56,12 @@ describe ApiV1::Admin::Internal::MaterialTestController do
       end
 
       it 'renders OK if connection test passed' do
-        com.thoughtworks.go.config.materials.svn.SvnMaterial.
-          any_instance.
-          should_receive(:checkConnection).with(an_instance_of(CheckConnectionSubprocessExecutionContext)).
+        expect_any_instance_of(com.thoughtworks.go.config.materials.svn.SvnMaterial).
+          to receive(:checkConnection).with(an_instance_of(CheckConnectionSubprocessExecutionContext)).
           and_return(com.thoughtworks.go.domain.materials.ValidationBean.valid)
 
-        com.thoughtworks.go.config.materials.svn.SvnMaterialConfig.
-          any_instance.
-          should_receive(:ensureEncrypted)
+        expect_any_instance_of(com.thoughtworks.go.config.materials.svn.SvnMaterialConfig).
+          to receive(:ensureEncrypted)
 
         post_with_api_header :test, {
           type:       'svn',
@@ -88,9 +88,8 @@ describe ApiV1::Admin::Internal::MaterialTestController do
       end
 
       it 'renders error if connection test failed' do
-        com.thoughtworks.go.config.materials.git.GitMaterial.
-          any_instance.
-          should_receive(:checkConnection).with(an_instance_of(CheckConnectionSubprocessExecutionContext)).
+        expect_any_instance_of(com.thoughtworks.go.config.materials.git.GitMaterial).
+          to receive(:checkConnection).with(an_instance_of(CheckConnectionSubprocessExecutionContext)).
           and_return(com.thoughtworks.go.domain.materials.ValidationBean.notValid('boom!'))
 
         post_with_api_header :test, {
@@ -104,14 +103,13 @@ describe ApiV1::Admin::Internal::MaterialTestController do
       end
 
       it 'performs parameter expansion if pipeline_name param is specified' do
-        com.thoughtworks.go.config.materials.git.GitMaterial.
-          any_instance.
-          should_receive(:checkConnection).with(an_instance_of(CheckConnectionSubprocessExecutionContext)).
+        expect_any_instance_of(com.thoughtworks.go.config.materials.git.GitMaterial).
+          to receive(:checkConnection).with(an_instance_of(CheckConnectionSubprocessExecutionContext)).
           and_return(com.thoughtworks.go.domain.materials.ValidationBean.valid)
 
-        controller.go_config_service.should_receive(:pipelineConfigNamed).with(CaseInsensitiveString.new('BuildLinux')).and_return(PipelineConfigMother.createPipelineConfigWithJobConfigs('BuildLinux'))
+        expect(controller.go_config_service).to receive(:pipelineConfigNamed).with(CaseInsensitiveString.new('BuildLinux')).and_return(PipelineConfigMother.createPipelineConfigWithJobConfigs('BuildLinux'))
 
-        com.thoughtworks.go.config.preprocessor.ConfigParamPreprocessor.any_instance.should_receive(:process) do |pipeline_config|
+        expect_any_instance_of(com.thoughtworks.go.config.preprocessor.ConfigParamPreprocessor).to receive(:process) do |instance, pipeline_config|
           expect(pipeline_config.name).to eq(CaseInsensitiveString.new('BuildLinux'))
         end
 
@@ -127,9 +125,8 @@ describe ApiV1::Admin::Internal::MaterialTestController do
       end
 
       it 'does not perform parameter expansion if pipeline_name param is blank' do
-        com.thoughtworks.go.config.materials.git.GitMaterial.
-          any_instance.
-          should_receive(:checkConnection).with(an_instance_of(CheckConnectionSubprocessExecutionContext)).
+        expect_any_instance_of(com.thoughtworks.go.config.materials.git.GitMaterial).
+          to receive(:checkConnection).with(an_instance_of(CheckConnectionSubprocessExecutionContext)).
           and_return(com.thoughtworks.go.domain.materials.ValidationBean.valid)
 
         post_with_api_header :test, {
@@ -144,14 +141,14 @@ describe ApiV1::Admin::Internal::MaterialTestController do
       end
     end
 
-    describe :route do
-      describe :with_header do
+    describe 'route' do
+      describe 'with_header' do
 
         it 'should route to test action of the material_test controller' do
           expect(:post => 'api/admin/internal/material_test').to route_to(action: 'test', controller: 'api_v1/admin/internal/material_test')
         end
       end
-      describe :without_header do
+      describe 'without_header' do
         before :each do
           teardown_header
         end

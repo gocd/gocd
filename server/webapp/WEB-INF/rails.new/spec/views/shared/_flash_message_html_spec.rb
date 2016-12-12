@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "/shared/_flash_message.html.erb" do
   describe "flash message obtained from session" do
@@ -39,10 +39,10 @@ describe "/shared/_flash_message.html.erb" do
 
     it "should render help links next to flash message" do
       assign(:flash_message, 'flash_key')
-      flash = mock('flash')
-      flash.should_receive(:flashClass).and_return('error')
-      flash.should_receive(:to_s).and_return('some random message')
-      template.stub(:load_flash_message).with('flash_key').and_return(flash)
+      flash = double('flash')
+      expect(flash).to receive(:flashClass).and_return('error')
+      expect(flash).to receive(:to_s).and_return('some random message')
+      allow(view).to receive(:load_flash_message).with('flash_key').and_return(flash)
       assign(:flash_help_link, "<a href='foo'>Foo</a>")
 
       render :partial => "shared/flash_message.html.erb"
@@ -54,10 +54,10 @@ describe "/shared/_flash_message.html.erb" do
 
     it "should not bomb when no help link exists" do
       assign(:flash_message, 'flash_key')
-      flash = mock('flash')
-      flash.should_receive(:flashClass).and_return('error')
-      flash.should_receive(:to_s).and_return('some random message')
-      template.stub(:load_flash_message).with('flash_key').and_return(flash)
+      flash = double('flash')
+      expect(flash).to receive(:flashClass).and_return('error')
+      expect(flash).to receive(:to_s).and_return('some random message')
+      allow(view).to receive(:load_flash_message).with('flash_key').and_return(flash)
       assign(:flash_help_link, nil)
 
       render :partial => "shared/flash_message.html.erb"

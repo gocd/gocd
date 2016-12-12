@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV1::Config::EnvironmentsConfigRepresenter do
 
@@ -25,10 +25,10 @@ describe ApiV1::Config::EnvironmentsConfigRepresenter do
     presenter   = ApiV1::Config::EnvironmentsConfigRepresenter.new([environment_config_one, environment_config_two])
     actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
     expect(actual_json).to have_links(:self, :doc)
-    actual_json.fetch(:_embedded).should == {
+    expect(actual_json.fetch(:_embedded)).to eq({
       :environments => [ ApiV1::Config::EnvironmentConfigRepresenter.new(environment_config_one).to_hash(url_builder: UrlBuilder.new),
                          ApiV1::Config::EnvironmentConfigRepresenter.new(environment_config_two).to_hash(url_builder: UrlBuilder.new) ]
-    }
+    })
 
   end
 end

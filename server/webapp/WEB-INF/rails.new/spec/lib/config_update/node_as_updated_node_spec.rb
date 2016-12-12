@@ -14,13 +14,13 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
-describe ::ConfigUpdate::NodeAsUpdatedNode do
+describe ':ConfigUpdate::NodeAsUpdatedNode' do
   include ::ConfigUpdate::NodeAsUpdatedNode
 
   it "should return node as updated node" do
     should_receive(:node).with("config").and_return(:dummy_node)
-    updatedNode("config").should == :dummy_node
+    expect(updatedNode("config")).to eq(:dummy_node)
   end
 end

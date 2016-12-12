@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ConfigRevisionAPIModel do
   include APIModelMother
@@ -24,25 +24,25 @@ describe ConfigRevisionAPIModel do
       @config_revision_view_model = create_config_revision_model
       config_revision_api_model = ConfigRevisionAPIModel.new(@config_revision_view_model)
 
-      config_revision_api_model.md5.should == 'md5'
-      config_revision_api_model.username.should == 'user name'
-      config_revision_api_model.goVersion.should == 'version'
-      config_revision_api_model.time.should == 12345678
-      config_revision_api_model.schemaVersion.should == 'schema'
-      config_revision_api_model.commitSHA.should == 'commit'
+      expect(config_revision_api_model.md5).to eq('md5')
+      expect(config_revision_api_model.username).to eq('user name')
+      expect(config_revision_api_model.goVersion).to eq('version')
+      expect(config_revision_api_model.time).to eq(12345678)
+      expect(config_revision_api_model.schemaVersion).to eq('schema')
+      expect(config_revision_api_model.commitSHA).to eq('commit')
     end
 
     it "should should handle empty data" do
       @config_revision_view_model = create_empty_config_revision_model
       config_revision_api_model = ConfigRevisionAPIModel.new(@config_revision_view_model)
 
-      config_revision_api_model.md5.should == nil
-      config_revision_api_model.username.should == nil
-      config_revision_api_model.goVersion.should == nil
-      config_revision_api_model.goEdition.should == nil
-      config_revision_api_model.time.should == nil
-      config_revision_api_model.schemaVersion.should == nil
-      config_revision_api_model.commitSHA.should == nil
+      expect(config_revision_api_model.md5).to eq(nil)
+      expect(config_revision_api_model.username).to eq(nil)
+      expect(config_revision_api_model.goVersion).to eq(nil)
+      expect(config_revision_api_model.goEdition).to eq(nil)
+      expect(config_revision_api_model.time).to eq(nil)
+      expect(config_revision_api_model.schemaVersion).to eq(nil)
+      expect(config_revision_api_model.commitSHA).to eq(nil)
     end
   end
 end

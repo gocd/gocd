@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe Feed do
   describe "whent there are no stages" do
@@ -24,15 +24,15 @@ describe Feed do
     end
 
     it "should report now as updated date if there are no jobs" do
-      @feed.updated_date.should == Time.now.iso8601
+      expect(@feed.updated_date).to eq(Time.now.iso8601)
     end
 
     it "should have nil for first" do
-      @feed.first.should == nil
+      expect(@feed.first).to eq(nil)
     end
 
     it "should have nil for last" do
-      @feed.first.should == nil
+      expect(@feed.first).to eq(nil)
     end
   end
 
@@ -45,11 +45,11 @@ describe Feed do
     end
 
     it "should report updated_date as that of first job" do
-      @feed.updated_date.should == @date.iso8601
+      expect(@feed.updated_date).to eq(@date.iso8601)
     end
 
     it "should return a list of jobs" do
-      @feed.entries.should == FeedEntries.new([@job])
+      expect(@feed.entries).to eq(FeedEntries.new([@job]))
     end
 
   end
@@ -66,9 +66,9 @@ describe Feed do
 
     it "should return a list of jobs before the supplied one" do
       expected = FeedEntries.new([:some_job])
-      @jobInstanceService.should_receive(:feedBefore).with(Username.new(CaseInsensitiveString.new('poovan')), 10, @result).and_return( expected)
+      expect(@jobInstanceService).to receive(:feedBefore).with(Username.new(CaseInsensitiveString.new('poovan')), 10, @result).and_return( expected)
       job_feed = Feed.new(Username.new(CaseInsensitiveString.new('poovan')), @jobInstanceService, @result, :before => "10")
-      job_feed.entries.should == expected
+      expect(job_feed.entries).to eq(expected)
     end
   end
 end

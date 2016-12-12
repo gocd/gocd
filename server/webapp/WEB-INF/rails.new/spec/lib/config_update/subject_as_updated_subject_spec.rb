@@ -14,13 +14,13 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
-describe ::ConfigUpdate::SubjectAsUpdatedSubject do
+describe ':ConfigUpdate::SubjectAsUpdatedSubject' do
   include ::ConfigUpdate::SubjectAsUpdatedSubject
 
   it "should return node as updated node" do
     should_receive(:subject).with("node").and_return(:dummy_subject)
-    updatedSubject("node").should == :dummy_subject
+    expect(updatedSubject("node")).to eq(:dummy_subject)
   end
 end

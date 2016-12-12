@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 
 describe "/admin/users/users.html.erb" do
@@ -40,7 +40,7 @@ describe "/admin/users/users.html.erb" do
 
   it "should have title" do
     render
-    view.instance_variable_get('@view_title').should == "Administration"
+    expect(view.instance_variable_get('@view_title')).to eq("Administration")
   end
 
   it "should render user details" do

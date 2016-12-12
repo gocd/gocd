@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe RepoViewModel do
   before (:each) do
@@ -26,46 +26,46 @@ describe RepoViewModel do
   it "should create repo view model from metadata when repo is nil" do
 
     model = RepoViewModel.new @metadata, nil, "yum"
-    model.properties.size.should == 2
-    model.properties[0].name.should == "key1"
-    model.properties[0].display_name.should == "Key 1"
-    model.properties[0].value.should == nil
-    model.properties[0].is_mandatory.should == true
-    model.properties[0].is_secure.should == false
-    model.properties[1].name.should == "key2"
-    model.properties[1].display_name.should == "Key 2"
-    model.properties[1].value.should == nil
-    model.properties[1].is_mandatory.should == false
-    model.properties[1].is_secure.should == true
-    model.errors.isEmpty().should == true
+    expect(model.properties.size).to eq(2)
+    expect(model.properties[0].name).to eq("key1")
+    expect(model.properties[0].display_name).to eq("Key 1")
+    expect(model.properties[0].value).to eq(nil)
+    expect(model.properties[0].is_mandatory).to eq(true)
+    expect(model.properties[0].is_secure).to eq(false)
+    expect(model.properties[1].name).to eq("key2")
+    expect(model.properties[1].display_name).to eq("Key 2")
+    expect(model.properties[1].value).to eq(nil)
+    expect(model.properties[1].is_mandatory).to eq(false)
+    expect(model.properties[1].is_secure).to eq(true)
+    expect(model.errors.isEmpty()).to eq(true)
     end
 
   it "should create repo view model from metadata when repo is provided" do
     secure_property = ConfigurationPropertyMother.create("key2", true, "v2")
     repo = PackageRepositoryMother.create("repo1", "repo1-name", "pluginid", "version1.0", Configuration.new([ConfigurationPropertyMother.create("key1", false, "v1"), secure_property].to_java(ConfigurationProperty)))
     model = RepoViewModel.new @metadata, repo, "yum"
-    model.properties.size.should == 2
-    model.properties[0].display_name.should == "Key 1"
-    model.properties[0].value.should == "v1"
-    model.properties[1].display_name.should == "Key 2"
-    model.properties[1].value.should == secure_property.getEncryptedValue()
+    expect(model.properties.size).to eq(2)
+    expect(model.properties[0].display_name).to eq("Key 1")
+    expect(model.properties[0].value).to eq("v1")
+    expect(model.properties[1].display_name).to eq("Key 2")
+    expect(model.properties[1].value).to eq(secure_property.getEncryptedValue())
   end
 
   it "should create repo view model from metadata when repo doesn't have all configuration " do
     repo = PackageRepositoryMother.create("repo1", "repo1-name", "pluginid", "version1.0", Configuration.new([ConfigurationPropertyMother.create("key1", false, "v1")].to_java(ConfigurationProperty)))
     model = RepoViewModel.new @metadata, repo, "yum"
-    model.properties.size.should == 2
-    model.properties[0].display_name.should == "Key 1"
-    model.properties[0].value.should == "v1"
-    model.properties[1].display_name.should == "Key 2"
-    model.properties[1].value.should == nil
+    expect(model.properties.size).to eq(2)
+    expect(model.properties[0].display_name).to eq("Key 1")
+    expect(model.properties[0].value).to eq("v1")
+    expect(model.properties[1].display_name).to eq("Key 2")
+    expect(model.properties[1].value).to eq(nil)
   end
 
   it "should add error to model if plugin is missing" do
     repo = PackageRepositoryMother.create("repo1", "repo1-name", "pluginid", "version1.0", Configuration.new([ConfigurationPropertyMother.create("key1", false, "v1")].to_java(ConfigurationProperty)))
     model = RepoViewModel.new nil, repo, "yum"
-    model.properties.size.should == 0
-    model.errors.isEmpty().should == false
-    model.errors.on("pluginId").should == "Associated plugin 'yum' not found. Please contact the Go admin to install the plugin."
+    expect(model.properties.size).to eq(0)
+    expect(model.errors.isEmpty()).to eq(false)
+    expect(model.errors.on("pluginId")).to eq("Associated plugin 'yum' not found. Please contact the Go admin to install the plugin.")
   end
 end

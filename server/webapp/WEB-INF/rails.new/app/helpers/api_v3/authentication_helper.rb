@@ -44,10 +44,13 @@ module ApiV3
       template_name = params[:template_name]
       return unless security_service.isSecurityEnabled
 
-      if template_name.blank? && !(security_service.isUserAdmin(current_user) || security_service.isAuthorizedToViewAndEditTemplates(current_user))
+      return if security_service.isUserAdmin(current_user)
+
+      if template_name.blank? && !security_service.isAuthorizedToViewAndEditTemplates(current_user)
         Rails.logger.info("User '#{current_user.getUsername}' attempted to perform an unauthorized action!")
         render_unauthorized_error
       end
+
       if !template_name.blank? && !security_service.isAuthorizedToEditTemplate(template_name, current_user)
         Rails.logger.info("User '#{current_user.getUsername}' attempted to perform an unauthorized action!")
         render_unauthorized_error

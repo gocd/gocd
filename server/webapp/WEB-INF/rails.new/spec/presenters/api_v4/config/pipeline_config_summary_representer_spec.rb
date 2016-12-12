@@ -15,7 +15,7 @@
 ##########################################################################
 
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV4::Config::PipelineConfigSummaryRepresenter do
 

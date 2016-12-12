@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 load File.join(File.dirname(__FILE__), 'layout_html_examples.rb')
 
 describe "/layouts/agent_detail" do
@@ -24,7 +24,7 @@ describe "/layouts/agent_detail" do
   before do
     @layout_name = 'layouts/agent_detail'
     assign(:user, @user = Object.new)
-    @user.stub(:anonymous?).and_return(true)
+    allow(@user).to receive(:anonymous?).and_return(true)
 
     allow(view).to receive(:can_view_admin_page?).and_return(true)
     allow(view).to receive(:is_user_an_admin?).and_return(true)
@@ -39,7 +39,7 @@ describe "/layouts/agent_detail" do
     stub_context_path(view)
   end
 
-  describe :header do
+  describe 'header' do
 
     it "should set the page title" do
       assign(:agent, idle_agent(:hostname => 'Agent01', :location => '/var/lib/cruise-agent', :operating_system => "Linux", :uuid => "UUID_host1"))

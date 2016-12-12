@@ -14,9 +14,9 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
-describe ::ConfigUpdate::LoadConfig do
+describe ':ConfigUpdate::LoadConfig' do
   include ::ConfigUpdate::LoadConfig
 
   before(:each) do
@@ -27,15 +27,15 @@ describe ::ConfigUpdate::LoadConfig do
     @cruise_config.addTemplate(@template)
   end
 
-  describe :load_pipeline_group do
+  describe 'load_pipeline_group' do
     it "should load pipeline group for a given pipeline" do
       params[:pipeline_name] = "pipeline1"
-      load_pipeline_group(@cruise_config).should == "group1"
+      expect(load_pipeline_group(@cruise_config)).to eq("group1")
     end
 
     it "should load pipeline group for a given pipeline" do
       params[:group_name] = "group1"
-      load_pipeline_group(@cruise_config).should == "group1"
+      expect(load_pipeline_group(@cruise_config)).to eq("group1")
     end
 
     it "should fail when trying to load a group which does not exist" do
@@ -46,66 +46,66 @@ describe ::ConfigUpdate::LoadConfig do
 
   it "should load all pipeline groups" do
     groups = load_all_pipeline_groups(@cruise_config)
-    groups.size().should == 1
+    expect(groups.size()).to eq(1)
   end
 
   it "should load pipeline group" do
     params[:group_name] = "group1"
     group = load_pipeline_group_config(@cruise_config)
-    group.getGroup().should == "group1"
+    expect(group.getGroup()).to eq("group1")
   end
 
   it "should return nil if pipeline group not found" do
     params[:group_name] = "some_random_group"
     group = load_pipeline_group_config(@cruise_config)
-    group.should == nil
+    expect(group).to eq(nil)
   end
 
   it "should template when :stage_parent = templates" do
     @params.merge!(:stage_parent => "templates", :pipeline_name => "my_template")
-    load_pipeline_or_template(@cruise_config).should == @template
+    expect(load_pipeline_or_template(@cruise_config)).to eq(@template)
   end
 
   it "should load pipeline when :stage_parent = pipelines" do
     @params.merge!(:stage_parent => "pipelines", :pipeline_name => "pipeline1")
-    load_pipeline_or_template(@cruise_config).should_not be_nil
+    expect(load_pipeline_or_template(@cruise_config)).not_to be_nil
   end
 
   it "should return null when requested template is not found" do
     @params.merge!(:stage_parent => "templates", :pipeline_name => "foo_template")
-    load_pipeline_or_template(@cruise_config).should be_nil
+    expect(load_pipeline_or_template(@cruise_config)).to be_nil
   end
 
   it "should return null when requested pipeline is not found" do
     @params.merge!(:stage_parent => "pipelines", :pipeline_name => "foo_pipeline")
-    load_pipeline_or_template(@cruise_config).should be_nil
+    expect(load_pipeline_or_template(@cruise_config)).to be_nil
   end
 
   it "should return nil stage for nil pipeline/template" do
     @params.merge!(:stage_parent => "templates", :pipeline_name => "foo_template", :stage_name => "my_stage", :job_name => "my_job")
-    load_stage(@cruise_config).should be_nil
+    expect(load_stage(@cruise_config)).to be_nil
   end
 
   it "should return nil job for nil stage" do
     @params.merge!(:stage_parent => "templates", :pipeline_name => "foo_template", :stage_name => "my_stage", :job_name => "my_job")
-    load_job(@cruise_config).should be_nil
+    expect(load_job(@cruise_config)).to be_nil
   end
 
   it "should return nil task for nil job" do
     @params.merge!(:stage_parent => "templates", :pipeline_name => "foo_template", :stage_name => "my_stage", :job_name => "my_job")
-    load_task_of_job(@cruise_config, 1).should be_nil
+    expect(load_task_of_job(@cruise_config, 1)).to be_nil
   end
 
   it "should return nil material for nil pipeline" do
     @params.merge!(:stage_parent => "pipelines", :pipeline_name => "foo_pipeline", :finger_print => "abcd1234")
-    load_material_config_for_pipeline(@cruise_config).should be_nil
+    expect(load_material_config_for_pipeline(@cruise_config)).to be_nil
   end
 
   it "should load job from a given stage and job_name" do
     @params.merge!(:stage_parent => "pipelines", :pipeline_name => "pipeline1", :stage_name => "stage")
     stage = load_stage(@cruise_config)
-    stage.should_not be_nil
-    load_job_from_stage_named(stage, CaseInsensitiveString.new("job")).should_not be_nil
+    expect(stage).not_to be_nil
+    expect(load_job_from_stage_named(stage, CaseInsensitiveString.new("job"))).not_to be_nil
   end
 
 end

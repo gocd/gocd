@@ -14,14 +14,14 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe com.thoughtworks.go.config.CaseInsensitiveString do
   it "should exhibit usual string behaviour" do
-    CaseInsensitiveString.new("foo").length.should == 3
+    expect(CaseInsensitiveString.new("foo").length).to eq(3)
   end
 
   it "should allow cloning" do
-    CaseInsensitiveString.new("foo").clone.should == CaseInsensitiveString.new("foo")
+    expect(CaseInsensitiveString.new("foo").clone).to eq(CaseInsensitiveString.new("foo"))
   end
 end

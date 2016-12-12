@@ -17,9 +17,9 @@
 # Methods added to this helper will be available to all templates in the application.
 module ApplicationHelper
   include Services
-  include RailsLocalizer
   include JavaImports
   include PrototypeHelper
+  include RailsLocalizer
 
   GO_MESSAGE_KEYS = [:error, :notice, :success]
 

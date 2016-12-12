@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe NonApiController do
   before do
@@ -52,9 +52,9 @@ describe NonApiController do
     end
 
     it "should fail with double_render error when not rendering error" do
-      lambda do
+      expect do
         get :double_render_without_error
-      end.should raise_error
+      end.to raise_error
     end
   end
 
@@ -80,14 +80,14 @@ describe Api::TestController do
     draw_test_controller_route
   end
 
-  describe :disable_auto_refresh do
+  describe 'disable_auto_refresh' do
     it "should propagate autoRefresh=false" do
       get :auto_refresh, "autoRefresh" => "false"
       expect(response.body).to eq("http://test.host/?autoRefresh=false")
     end
   end
 
-  describe :render_operation_result do
+  describe 'render_operation_result' do
     it "should render 404 responses in error template" do
       get :not_found_action, :no_layout=>true
       expect(response.status).to eq(404)
@@ -101,7 +101,7 @@ describe Api::TestController do
     end
   end
 
-  describe :render_operation_result_if_failure do
+  describe 'render_operation_result_if_failure' do
     it "should render 404 responses in error template" do
       get :another_not_found_action, :no_layout => true
       expect(response.status).to eq(404)
@@ -127,13 +127,13 @@ describe Api::TestController do
     expect(response.body).to eq(" ")
   end
 
-  describe :unresolved do
+  describe 'unresolved' do
     it "should resolve as action for any unmatched url" do
       expect(:get => "/cruise/foo/bar/baz/quux/hell/yeah?random=junk").to route_to({:controller => 'application', :action => "unresolved", :url => "cruise/foo/bar/baz/quux/hell/yeah", :random => "junk"})
     end
 
     it "should render a pretty payload with message" do
-      @controller.stub(:url_for).and_return("foo/bar")
+      allow(@controller).to receive(:url_for).and_return("foo/bar")
       get :unresolved
       expect(response.body).to have_selector("h3", :text=>"The url you are trying to reach appears to be incorrect.")
     end
@@ -144,7 +144,7 @@ describe Api::TestController do
     end
 
     it "should show the status in the response" do
-      @controller.stub(:url_for).and_return("foo/bar")
+      allow(@controller).to receive(:url_for).and_return("foo/bar")
       get :unresolved
       expect(response.body).to have_selector("div.biggest", :text=>":(")
     end

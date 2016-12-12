@@ -14,13 +14,13 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe Gadgets::PipelineController do
   before :each do
-    controller.stub(:current_user).and_return(@user = Username.new(CaseInsensitiveString.new("user")))
-    UserHelper.stub(:getUserId).and_return(1)
-    controller.stub(:populate_config_validity)
+    allow(controller).to receive(:current_user).and_return(@user = Username.new(CaseInsensitiveString.new("user")))
+    allow(UserHelper).to receive(:getUserId).and_return(1)
+    allow(controller).to receive(:populate_config_validity)
   end
 
 
@@ -51,13 +51,13 @@ describe Gadgets::PipelineController do
     end
 
     it "should return the pipeline model by pipeline name" do
-      controller.stub(:go_config_service).and_return(@go_config_service=double())
-      @go_config_service.should_receive(:hasPipelineNamed).with(CaseInsensitiveString.new("first")).and_return(true)
+      allow(controller).to receive(:go_config_service).and_return(@go_config_service=double())
+      expect(@go_config_service).to receive(:hasPipelineNamed).with(CaseInsensitiveString.new("first")).and_return(true)
 
-      controller.stub(:security_service).and_return(@security_service=double())
-      @security_service.should_receive(:hasViewPermissionForPipeline).with(@user, "first").and_return(true)
+      allow(controller).to receive(:security_service).and_return(@security_service=double())
+      expect(@security_service).to receive(:hasViewPermissionForPipeline).with(@user, "first").and_return(true)
 
-      controller.stub(:pipeline_history_service).and_return(@pipeline_history_service=double())
+      allow(controller).to receive(:pipeline_history_service).and_return(@pipeline_history_service=double())
       pipeline_group_models = java.util.ArrayList.new
 
       group1 = PipelineGroupModel.new("firstGroup")
@@ -71,7 +71,7 @@ describe Gadgets::PipelineController do
       pipeline_group_models.add(group1)
       pipeline_group_models.add(group2)
 
-      @pipeline_history_service.should_receive(:getActivePipelineInstance).with(@user, "first").and_return(pipeline_group_models)
+      expect(@pipeline_history_service).to receive(:getActivePipelineInstance).with(@user, "first").and_return(pipeline_group_models)
 
       get :content, :pipeline_name => "first", :no_layout => true
 
@@ -79,11 +79,11 @@ describe Gadgets::PipelineController do
     end
 
     it "should respond with not found if the pipeline name is not found" do
-      controller.stub(:go_config_service).and_return(@go_config_service=double())
-      @go_config_service.should_receive(:hasPipelineNamed).with(CaseInsensitiveString.new("pipeline1")).and_return(false)
+      allow(controller).to receive(:go_config_service).and_return(@go_config_service=double())
+      expect(@go_config_service).to receive(:hasPipelineNamed).with(CaseInsensitiveString.new("pipeline1")).and_return(false)
 
-      controller.stub(:pipeline_history_service).and_return(@pipeline_history_service=double())
-      @pipeline_history_service.stub(:getActivePipelineInstance).with(@user, "pipeline1").and_return(:foo)
+      allow(controller).to receive(:pipeline_history_service).and_return(@pipeline_history_service=double())
+      allow(@pipeline_history_service).to receive(:getActivePipelineInstance).with(@user, "pipeline1").and_return(:foo)
 
       get :content, :pipeline_name => "pipeline1", :no_layout => true
 
@@ -93,8 +93,8 @@ describe Gadgets::PipelineController do
     end
 
     it "should respond with error if the pipeline name is nil" do
-      controller.stub(:pipeline_history_service).and_return(@pipeline_history_service=double())
-      @pipeline_history_service.stub(:getActivePipelineInstance).with(@user, "pipeline1").and_return(:foo)
+      allow(controller).to receive(:pipeline_history_service).and_return(@pipeline_history_service=double())
+      allow(@pipeline_history_service).to receive(:getActivePipelineInstance).with(@user, "pipeline1").and_return(:foo)
 
       get :content, :no_layout => true
 
@@ -104,8 +104,8 @@ describe Gadgets::PipelineController do
     end
 
     it "should respond with error if the pipeline name is empty" do
-      controller.stub(:pipeline_history_service).and_return(@pipeline_history_service=double())
-      @pipeline_history_service.stub(:getActivePipelineInstance).with(@user, "pipeline1").and_return(:foo)
+      allow(controller).to receive(:pipeline_history_service).and_return(@pipeline_history_service=double())
+      allow(@pipeline_history_service).to receive(:getActivePipelineInstance).with(@user, "pipeline1").and_return(:foo)
 
       get :content, :pipeline_name => "", :no_layout => true
 
@@ -116,14 +116,14 @@ describe Gadgets::PipelineController do
     end
 
     it "should respond with unauthorised if the user does not view permission on the pipeline" do
-      controller.stub(:go_config_service).and_return(@go_config_service=double())
-      @go_config_service.should_receive(:hasPipelineNamed).with(CaseInsensitiveString.new("pipeline1")).and_return(true)
+      allow(controller).to receive(:go_config_service).and_return(@go_config_service=double())
+      expect(@go_config_service).to receive(:hasPipelineNamed).with(CaseInsensitiveString.new("pipeline1")).and_return(true)
 
-      controller.stub(:pipeline_history_service).and_return(@pipeline_history_service=double())
-      @pipeline_history_service.stub(:getActivePipelineInstance).with(@user, "pipeline1").and_return(:foo)
+      allow(controller).to receive(:pipeline_history_service).and_return(@pipeline_history_service=double())
+      allow(@pipeline_history_service).to receive(:getActivePipelineInstance).with(@user, "pipeline1").and_return(:foo)
 
-      controller.stub(:security_service).and_return(@security_service=double())
-      @security_service.should_receive(:hasViewPermissionForPipeline).with(@user, "pipeline1").and_return(false)
+      allow(controller).to receive(:security_service).and_return(@security_service=double())
+      expect(@security_service).to receive(:hasViewPermissionForPipeline).with(@user, "pipeline1").and_return(false)
 
       get :content, :pipeline_name => "pipeline1", :no_layout => true
 

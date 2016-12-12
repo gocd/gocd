@@ -14,16 +14,18 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "admin/plugins/plugins/settings.html.erb" do
-  include GoUtil, FormUI
+  include GoUtil
+
+  include FormUI
 
   SETTINGS_PLUGIN_ID = 'my.scm.plugin'
   SETTINGS_PLUGIN_TEMPLATE = "<input ng-model=\"KEY1\" type=\"text\"><input ng-model=\"key2\" type=\"text\">"
 
   before :each do
-    view.stub(:update_settings_path).and_return('update_settings_path')
+    allow(view).to receive(:update_settings_path).and_return('update_settings_path')
 
     assign(:plugin_settings, @plugin_settings = PluginSettings.new(SETTINGS_PLUGIN_ID))
     assign(:meta_data_store, @meta_data_store = double('metadata store'))

@@ -14,9 +14,9 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
-describe ::ConfigUpdate::JobsNode do
+describe ':ConfigUpdate::JobsNode' do
   include ::ConfigUpdate::JobsNode
 
   before(:each) do
@@ -31,6 +31,6 @@ describe ::ConfigUpdate::JobsNode do
     @params[:pipeline_name] = "pipeline"
     @params[:stage_name] = "stage"
     @params[:job_name] = "bar"
-    node(@cruise_config).should == @jobs
+    expect(node(@cruise_config)).to eq(@jobs)
   end
 end

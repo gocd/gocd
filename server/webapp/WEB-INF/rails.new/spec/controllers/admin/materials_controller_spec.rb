@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe Admin::MaterialsController do
   include MockRegistryModule
@@ -22,36 +22,36 @@ describe Admin::MaterialsController do
 
   describe "routes" do
     it "should resolve index" do
-      {:get => "/admin/pipelines/pipeline.name/materials"}.should route_to(:controller => "admin/materials", :action => "index", :stage_parent => "pipelines", :pipeline_name => "pipeline.name")
+      expect({:get => "/admin/pipelines/pipeline.name/materials"}).to route_to(:controller => "admin/materials", :action => "index", :stage_parent => "pipelines", :pipeline_name => "pipeline.name")
     end
 
     it "should generate index" do
-      admin_material_index_path(:pipeline_name => "foo.bar").should == "/admin/pipelines/foo.bar/materials"
+      expect(admin_material_index_path(:pipeline_name => "foo.bar")).to eq("/admin/pipelines/foo.bar/materials")
     end
   end
 
-  describe :index do
+  describe 'index' do
     before :each do
       @go_config_service = stub_service(:go_config_service)
       @pipeline_pause_service = stub_service(:pipeline_pause_service)
       @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
       @pipeline_name = "pipeline-name"
-      @pipeline_pause_service.should_receive(:pipelinePauseInfo).with(@pipeline_name).and_return(@pause_info)
-      @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
-      @go_config_service.should_receive(:checkConfigFileValid).and_return(GoConfigValidity.valid)
+      expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with(@pipeline_name).and_return(@pause_info)
+      allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
+      expect(@go_config_service).to receive(:checkConfigFileValid).and_return(GoConfigValidity.valid)
       @cruise_config = double("Cruise Config")
-      @cruise_config.should_receive(:name).and_return(@pipeline_name)
+      expect(@cruise_config).to receive(:name).and_return(@pipeline_name)
       a = double('config wrapper')
-      a.should_receive(:getConfig).and_return(@cruise_config)
-      a.should_receive(:getCruiseConfig).and_return(@cruise_config)
-      a.should_receive(:getProcessedConfig).and_return(@cruise_config)
-      @go_config_service.should_receive(:loadForEdit).and_return(a)
+      expect(a).to receive(:getConfig).and_return(@cruise_config)
+      expect(a).to receive(:getCruiseConfig).and_return(@cruise_config)
+      expect(a).to receive(:getProcessedConfig).and_return(@cruise_config)
+      expect(@go_config_service).to receive(:loadForEdit).and_return(a)
     end
 
     it "should set current tab param" do
       get :index, {:stage_parent => "pipelines", :pipeline_name => @pipeline_name}
 
-      controller.params[:current_tab].should == 'materials'
+      expect(controller.params[:current_tab]).to eq('materials')
       assert_template layout: "pipelines/details"
     end
   end
@@ -59,7 +59,7 @@ describe Admin::MaterialsController do
   describe "delete" do
 
     before :each do
-      controller.stub(:populate_config_validity)
+      allow(controller).to receive(:populate_config_validity)
       @cruise_config = BasicCruiseConfig.new()
       @cruise_config_mother = GoConfigMother.new
       @material_config = GitMaterialConfig.new("http://git.thoughtworks.com")
@@ -70,27 +70,27 @@ describe Admin::MaterialsController do
 
       ReflectionUtil.setField(@cruise_config, "md5", "1234abcd")
       @user = Username.new(CaseInsensitiveString.new("loser"))
-      controller.stub(:current_user).and_return(@user)
+      allow(controller).to receive(:current_user).and_return(@user)
       @result = stub_localized_result
 
       @go_config_service = stub_service(:go_config_service)
       @pipeline_pause_service = stub_service(:pipeline_pause_service)
       @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
-      @pipeline_pause_service.should_receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
-      @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
+      expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
+      allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
     end
 
     it "should delete an existing material" do
       stub_save_for_success
 
       @pipeline.addMaterialConfig(hg = HgMaterialConfig.new("url", nil))
-      @pipeline.materialConfigs().size.should == 2
+      expect(@pipeline.materialConfigs().size).to eq(2)
 
       delete :destroy, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :finger_print => @material_config.getPipelineUniqueFingerprint()
 
-      @pipeline.materialConfigs().size.should == 1
-      @pipeline.materialConfigs().first.should == hg
-      @cruise_config.getAllErrors().size.should == 0
+      expect(@pipeline.materialConfigs().size).to eq(1)
+      expect(@pipeline.materialConfigs().first).to eq(hg)
+      expect(@cruise_config.getAllErrors().size).to eq(0)
     end
 
     it "should assign config_errors for display when delete fails due to validation errors" do
@@ -99,12 +99,12 @@ describe Admin::MaterialsController do
         result.badRequest(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["pipeline-name"]))
       end
 
-      @pipeline.materialConfigs().size.should == 1
+      expect(@pipeline.materialConfigs().size).to eq(1)
 
       delete :destroy, :stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :finger_print => @material_config.getPipelineUniqueFingerprint()
 
-      @cruise_config.getAllErrors().size.should == 1
-      response.status.should == 400
+      expect(@cruise_config.getAllErrors().size).to eq(1)
+      expect(response.status).to eq(400)
       assert_template layout: "pipelines/details"
     end
   end

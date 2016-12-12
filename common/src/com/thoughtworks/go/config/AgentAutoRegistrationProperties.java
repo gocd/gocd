@@ -30,4 +30,6 @@ public interface AgentAutoRegistrationProperties {
     String agentAutoRegisterHostname();
 
     void scrubRegistrationProperties();
+
+    boolean isElastic();
 }

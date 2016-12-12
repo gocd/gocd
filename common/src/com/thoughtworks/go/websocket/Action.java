@@ -21,5 +21,5 @@ public enum Action {
     cancelBuild,
     ping,
     reregister,
-    reportCurrentStatus, reportCompleted, reportCompleting, ack, build, setCookie
+    reportCurrentStatus, reportCompleted, reportCompleting, acknowledge, build, setCookie
 }

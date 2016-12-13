@@ -59,7 +59,7 @@ public class JobDetailPresentationModelTest {
         when(directoryReader.listEntries(any(File.class), any(String.class))).thenReturn(directoryEntries);
 
         JobDetailPresentationModel jobDetailPresentationModel = new JobDetailPresentationModel(jobInstance, null, null
-                , null, null, null, artifactsService, null, stage, null);
+                , null, null, null, artifactsService, null, stage);
         DirectoryEntries artifactFiles = jobDetailPresentationModel.getArtifactFiles(directoryReader);
 
         assertThat(artifactFiles.isArtifactsDeleted(), is(true));
@@ -69,7 +69,7 @@ public class JobDetailPresentationModelTest {
     public void shouldAddFakeConsoleOutputEntryIfJobIsNotCompleted() throws Exception {
         JobInstance job = building("job");
         JobDetailPresentationModel model = new JobDetailPresentationModel(job, null, null,
-                null, null, null, artifactsService, null, custom("stage"), null);
+                null, null, null, artifactsService, null, custom("stage"));
 
         when(artifactsService.findArtifact(job.getIdentifier(), "")).thenReturn(mock(File.class));
         when(artifactsService.findArtifactUrl(job.getIdentifier(), getConsoleOutputFolderAndFileName())).thenReturn("path/to/console");

@@ -69,16 +69,18 @@ public class JobDetailPresentationModelJMockTest {
 
         trackingTool = new TrackingTool();
         jobDetailPresenter = new JobDetailPresentationModel(stubJobInstance,
-                null, null, pipeline, new Tabs(), trackingTool, artifactService, new Properties(), null, null);
+                null, null, pipeline, new Tabs(), trackingTool, artifactService, new Properties(), null);
 
         testFolder = TestFileUtil.createTempFolder("testFiles");
     }
 
-    @After public void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         FileUtil.deleteFolder(testFolder);
     }
 
-    @Test public void hasBuildErrorShouldBeFalseWhenEmptyContent() throws Exception {
+    @Test
+    public void hasBuildErrorShouldBeFalseWhenEmptyContent() throws Exception {
         context.checking(new Expectations() {
             {
                 allowing(stubJobInstance).getBuildError();
@@ -89,7 +91,8 @@ public class JobDetailPresentationModelJMockTest {
 
     }
 
-    @Test public void hasFailedTestsShouldBeFalseWhenIndexPageURLIsNull() throws Exception {
+    @Test
+    public void hasFailedTestsShouldBeFalseWhenIndexPageURLIsNull() throws Exception {
         context.checking(new Expectations() {
             {
                 allowing(stubJobInstance).getTestIndexPage();
@@ -100,7 +103,8 @@ public class JobDetailPresentationModelJMockTest {
 
     }
 
-    @Test public void hasBuildErrorShouldBeTrueWhenNonEmptyContent() throws Exception {
+    @Test
+    public void hasBuildErrorShouldBeTrueWhenNonEmptyContent() throws Exception {
 
         context.checking(new Expectations() {
             {
@@ -111,7 +115,8 @@ public class JobDetailPresentationModelJMockTest {
         assertThat(jobDetailPresenter.hasBuildError(), is(true));
     }
 
-    @Test public void hasStackTraceShouldBeFalseWhenEmptyContent() throws Exception {
+    @Test
+    public void hasStackTraceShouldBeFalseWhenEmptyContent() throws Exception {
         context.checking(new Expectations() {
             {
                 allowing(stubJobInstance).getStacktrace();
@@ -122,7 +127,8 @@ public class JobDetailPresentationModelJMockTest {
         assertThat(jobDetailPresenter.hasStacktrace(), is(false));
     }
 
-    @Test public void hasStackTraceShouldBeTrueWhenNonEmptyContent() throws Exception {
+    @Test
+    public void hasStackTraceShouldBeTrueWhenNonEmptyContent() throws Exception {
         context.checking(new Expectations() {
             {
                 allowing(stubJobInstance).getStacktrace();
@@ -133,7 +139,8 @@ public class JobDetailPresentationModelJMockTest {
         assertThat(jobDetailPresenter.hasStacktrace(), is(true));
     }
 
-    @Test public void shouldIndexPage() throws Exception {
+    @Test
+    public void shouldIndexPage() throws Exception {
         context.checking(new Expectations() {
             {
                 allowing(stubJobInstance).getTestIndexPage();
@@ -144,7 +151,8 @@ public class JobDetailPresentationModelJMockTest {
         assertThat(path, is("files/pipeline/1/stageName/0/build/testoutput/result/index.html"));
     }
 
-    @Test public void shouldReturnEmptyStringForIndexPage() throws Exception {
+    @Test
+    public void shouldReturnEmptyStringForIndexPage() throws Exception {
         context.checking(new Expectations() {
             {
                 allowing(stubJobInstance).getTestIndexPage();
@@ -156,7 +164,8 @@ public class JobDetailPresentationModelJMockTest {
     }
 
 
-    @Test public void shouldGetServerFailurePage() throws Exception {
+    @Test
+    public void shouldGetServerFailurePage() throws Exception {
         final File file = new File(
                 "home" + File.separator + "user" + File.separator + ArtifactLogUtil.CRUISE_OUTPUT_FOLDER
                         + File.separator + ArtifactLogUtil.SERVER_FAILURE_PAGE);
@@ -171,7 +180,8 @@ public class JobDetailPresentationModelJMockTest {
     }
 
 
-    @Test public void shouldReturnEmptyStringForServerFailurePage() throws Exception {
+    @Test
+    public void shouldReturnEmptyStringForServerFailurePage() throws Exception {
         context.checking(new Expectations() {
             {
                 allowing(stubJobInstance).getServerFailurePage();
@@ -182,7 +192,8 @@ public class JobDetailPresentationModelJMockTest {
         assertThat(path, is(""));
     }
 
-    @Test public void shouldReturnBuildMessageFromPipeline() throws Exception {
+    @Test
+    public void shouldReturnBuildMessageFromPipeline() throws Exception {
         String message = jobDetailPresenter.getBuildCauseMessage();
         assertThat(message, is("Unknown"));
     }

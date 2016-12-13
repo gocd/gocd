@@ -57,20 +57,34 @@ public class JobControllerIntegrationTest {
     private JobController controller;
     private MockHttpServletResponse response;
     private MockHttpServletRequest request;
-    @Autowired private JobInstanceService jobInstanceService;
-    @Autowired private JobDetailService jobDetailService;
-    @Autowired private GoConfigService goConfigService;
-    @Autowired private PipelineService pipelineService;
-    @Autowired private RestfulService restfulService;
-    @Autowired private ArtifactsService artifactService;
-    @Autowired private PropertiesService propertiesService;
-    @Autowired private DatabaseAccessHelper dbHelper;
-    @Autowired private GoConfigDao goConfigDao;
-    @Autowired private MaterialRepository materialRepository;
-    @Autowired private StageService stageService;
-    @Autowired private Localizer localizer;
-    @Autowired private TransactionTemplate transactionTemplate;
-    @Autowired private SecurityService securityService;
+    @Autowired
+    private JobInstanceService jobInstanceService;
+    @Autowired
+    private JobDetailService jobDetailService;
+    @Autowired
+    private GoConfigService goConfigService;
+    @Autowired
+    private PipelineService pipelineService;
+    @Autowired
+    private RestfulService restfulService;
+    @Autowired
+    private ArtifactsService artifactService;
+    @Autowired
+    private PropertiesService propertiesService;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
+    @Autowired
+    private GoConfigDao goConfigDao;
+    @Autowired
+    private MaterialRepository materialRepository;
+    @Autowired
+    private StageService stageService;
+    @Autowired
+    private Localizer localizer;
+    @Autowired
+    private TransactionTemplate transactionTemplate;
+    @Autowired
+    private PipelineConfigService pipelineConfigService;
 
     private GoConfigFileHelper configHelper;
     private PipelineWithTwoStages fixture;
@@ -84,7 +98,7 @@ public class JobControllerIntegrationTest {
         fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate);
         fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
         controller = new JobController(jobInstanceService, jobDetailService, goConfigService,
-                pipelineService, restfulService, artifactService, propertiesService, stageService, localizer, securityService);
+                pipelineService, restfulService, artifactService, propertiesService, stageService, localizer);
     }
 
     @After
@@ -139,7 +153,7 @@ public class JobControllerIntegrationTest {
     @Test
     public void shouldCreateJobPresentationModelWithRightStage() throws Exception {
         controller = new JobController(jobInstanceService, jobDetailService, goConfigService,
-                pipelineService, restfulService, artifactService, propertiesService, stageService, localizer, securityService);
+                pipelineService, restfulService, artifactService, propertiesService, stageService, localizer);
         fixture.configLabelTemplateUsingMaterialRevision();
         Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
         Stage devStage = pipeline.getStages().byName("dev");

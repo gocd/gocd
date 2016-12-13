@@ -257,4 +257,9 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
     public boolean isValidProfileId(String profileId) {
         return this.cruiseConfig.server().getElasticConfig().getProfiles().find(profileId) != null;
     }
+
+    @Override
+    public boolean shouldNotCheckRole() {
+        return isWithinTemplates();
+    }
 }

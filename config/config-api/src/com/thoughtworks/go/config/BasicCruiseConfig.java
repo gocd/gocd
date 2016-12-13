@@ -1279,10 +1279,10 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public Map<CaseInsensitiveString, List<CaseInsensitiveString>> templatesWithPipelinesForUser(String username) {
+    public Map<CaseInsensitiveString, List<CaseInsensitiveString>> templatesWithPipelinesForUser(String username, List<Role> roles) {
         HashMap<CaseInsensitiveString, List<CaseInsensitiveString>> templateToPipelines = new HashMap<>();
         for (PipelineTemplateConfig template : getTemplates()) {
-            if (isAdministrator(username) || template.getAuthorization().getAdminsConfig().isAdmin(new AdminUser(new CaseInsensitiveString(username)), null)) {
+            if (isAdministrator(username) || template.getAuthorization().getAdminsConfig().isAdmin(new AdminUser(new CaseInsensitiveString(username)), roles)) {
                 templateToPipelines.put(template.name(), new ArrayList<CaseInsensitiveString>());
             }
         }

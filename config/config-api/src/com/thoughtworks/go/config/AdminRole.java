@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -88,7 +88,7 @@ public class AdminRole implements Admin {
     }
 
     public void validate(ValidationContext validationContext) {
-        if (validationContext.isWithinTemplates()) {
+        if (validationContext.shouldNotCheckRole()) {
             return;
         }
         SecurityConfig securityConfig = validationContext.getServerSecurityConfig();

@@ -54,7 +54,7 @@ public class TemplateConfigService {
     }
 
     public Map<CaseInsensitiveString, List<CaseInsensitiveString>> templatesWithPipelinesForUser(String username) {
-        return goConfigService.getCurrentConfig().templatesWithPipelinesForUser(username);
+        return goConfigService.getCurrentConfig().templatesWithPipelinesForUser(username, goConfigService.rolesForUser(new CaseInsensitiveString(username)));
     }
 
     public void removeTemplate(String templateName, CruiseConfig cruiseConfig, String md5, HttpLocalizedOperationResult result) {

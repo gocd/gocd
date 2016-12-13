@@ -46,7 +46,7 @@ public abstract class TemplateConfigCommand implements EntityConfigUpdateCommand
     public boolean isValid(CruiseConfig preprocessedConfig) {
         TemplatesConfig templatesConfig = preprocessedConfig.getTemplates();
         preprocessedTemplateConfig = findAddedTemplate(preprocessedConfig);
-        preprocessedTemplateConfig.validate(ConfigSaveValidationContext.forChain(preprocessedConfig));
+        preprocessedTemplateConfig.validate(ConfigSaveValidationContext.forChain(templatesConfig));
         if(preprocessedTemplateConfig.getAllErrors().isEmpty()) {
             templatesConfig.validate(null);
             BasicCruiseConfig.copyErrors(preprocessedTemplateConfig, templateConfig);

@@ -24,6 +24,7 @@ import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
 import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
+import com.thoughtworks.go.domain.config.Admin;
 
 import java.util.HashMap;
 import java.util.List;
@@ -70,7 +71,19 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
     public void validate(ValidationContext validationContext) {
         validateTemplateName();
         validateStageNameUniqueness();
+        validateTemplateAuth(new DelegatingValidationContext(validationContext) {
+            @Override
+            public boolean shouldNotCheckRole() {
+                return false;
+            }
+        });
         validateStageConfig(validationContext);
+    }
+
+    private void validateTemplateAuth(DelegatingValidationContext validationContextWhichChecksForRole) {
+        for (Admin admin : getAuthorization().getAdminsConfig()) {
+            admin.validate(validationContextWhichChecksForRole);
+        }
     }
 
     public void validateStageConfig(ValidationContext validationContext) {

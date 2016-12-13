@@ -190,7 +190,8 @@ public class PipelineRepositoryIntegrationTest {
 
         PipelineTimeline pipelineTimeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
 
-        List<PipelineTimelineEntry> entries = pipelineRepository.updatePipelineTimeline(pipelineTimeline);
+        ArrayList<PipelineTimelineEntry> entries = new ArrayList<>();
+        pipelineRepository.updatePipelineTimeline(pipelineTimeline, entries);
 
         assertThat(pipelineTimeline.getEntriesFor(PIPELINE_NAME).size(), is(2));
         assertThat(entries.size(), is(2));
@@ -207,7 +208,7 @@ public class PipelineRepositoryIntegrationTest {
 
         long thirdId = createPipeline(hgmaterial, pipelineConfig, 3, oneModifiedFile("30", date.plusDays(10).toDate()));
 
-        pipelineRepository.updatePipelineTimeline(pipelineTimeline);
+        pipelineRepository.updatePipelineTimeline(pipelineTimeline, new ArrayList<PipelineTimelineEntry>());
 
         assertThat(pipelineTimeline.getEntriesFor(PIPELINE_NAME).size(), is(3));
         assertThat(pipelineTimeline.getEntriesFor(PIPELINE_NAME), hasItem(expected(thirdId,
@@ -219,7 +220,7 @@ public class PipelineRepositoryIntegrationTest {
         assertThat(pipelineSqlMapDao.pipelineByIdWithMods(thirdId).getNaturalOrder(), is(2.0));
 
         PipelineTimeline pipelineTimeline2 = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
-        pipelineRepository.updatePipelineTimeline(pipelineTimeline2);
+        pipelineRepository.updatePipelineTimeline(pipelineTimeline2, new ArrayList<PipelineTimelineEntry>());
     }
 
     @Test
@@ -277,7 +278,7 @@ public class PipelineRepositoryIntegrationTest {
                         oneModifiedFile("25", date.plusDays(5).toDate())));
 
         PipelineTimeline pipelineTimeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
-        pipelineRepository.updatePipelineTimeline(pipelineTimeline);
+        pipelineRepository.updatePipelineTimeline(pipelineTimeline, new ArrayList<PipelineTimelineEntry>());
 
         Collection<PipelineTimelineEntry> modifications = pipelineTimeline.getEntriesFor(PIPELINE_NAME);
         assertThat(modifications.size(), is(2));

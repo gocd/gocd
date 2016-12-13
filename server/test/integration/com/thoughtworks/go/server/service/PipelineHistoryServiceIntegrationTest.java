@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -29,12 +30,7 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
-import com.thoughtworks.go.domain.MaterialRevision;
-import com.thoughtworks.go.domain.MaterialRevisions;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.PipelinePauseInfo;
-import com.thoughtworks.go.domain.StageResult;
-import com.thoughtworks.go.domain.StageState;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
@@ -185,7 +181,7 @@ public class PipelineHistoryServiceIntegrationTest {
         pipelineTwo.createPipelineWithFirstStagePassedAndSecondStageHasNotStarted();
         dbHelper.updateNaturalOrder(toRerun.getId(), 3);
         dbHelper.scheduleStage(toRerun, pipelineTwo.devStage());
-        pipelineRepository.updatePipelineTimeline(pipelineTimeline);
+        pipelineRepository.updatePipelineTimeline(pipelineTimeline, new ArrayList<PipelineTimelineEntry>());
 
         List<PipelineGroupModel> groupModels = pipelineHistoryService.allActivePipelineInstances(new Username(new CaseInsensitiveString("jez")), PipelineSelections.ALL);
         assertThat(groupModels.size(), is(2));

@@ -486,6 +486,16 @@ public class SystemEnvironmentTest {
     }
 
     @Test
+    public void shouldGetMaxNumberOfRequestsForEncryptionApi() {
+        assertThat(SystemEnvironment.GO_ENCRYPTION_API_MAX_REQUESTS.propertyName(), is("go.encryption.api.max.requests"));
+        assertThat(systemEnvironment.getMaxEncryptionAPIRequestsPerMinute(), is(30));
+
+        System.setProperty("go.encryption.api.max.requests", "50");
+
+        assertThat(systemEnvironment.getMaxEncryptionAPIRequestsPerMinute(), is(50));
+    }
+
+    @Test
     public void shouldCheckIfGOUpdatesIsEnabled() {
         assertThat(SystemEnvironment.GO_CHECK_UPDATES.propertyName(), is("go.check.updates"));
         assertTrue(systemEnvironment.isGOUpdateCheckEnabled());

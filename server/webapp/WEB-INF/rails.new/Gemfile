@@ -21,6 +21,7 @@ gem 'js-routes'
 gem 'oauth2_provider', '1.0.3', path: 'vendor/engines/oauth2_provider'
 gem 'versionist'
 gem 'roar'
+gem 'rack-throttle', '~> 0.4.2'
 
 group :development, :test do
   gem 'rails-dev-tweaks', '~> 1.1'

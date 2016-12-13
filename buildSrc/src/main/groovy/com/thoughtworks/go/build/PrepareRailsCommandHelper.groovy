@@ -25,7 +25,7 @@ class PrepareRailsCommandHelper {
 
   PrepareRailsCommandHelper(Project project) {
     this.project = project;
-    jrubyOpts += '-J-XX:MaxPermSize=400m'
+    jrubyOpts += '-J-XX:MaxMetaspaceSize=400m'
     systemProperties().each { k, v ->
       jrubyOpts += ["-J-D${k}=${v}"]
     }

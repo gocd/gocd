@@ -82,7 +82,7 @@ public class GoMacLauncher extends JFrame {
         arguments.add("-Xms" + startMem + "m");
         arguments.add("-Xmx" + maxMem + "m");
         arguments.add("-XX:PermSize=" + perm + "m");
-        arguments.add("-XX:MaxPermSize=" + maxPerm + "m");
+        arguments.add("-XX:MaxMetaspaceSize=" + maxPerm + "m");
         if (dbDebugMode) {
             arguments.add("-DDB_DEBUG_MODE=true");
         }

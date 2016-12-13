@@ -28,11 +28,7 @@ public class PluginInfo {
     private final PluggableInstanceSettings pluggableInstanceSettings;
     private final Image image;
 
-    public PluginInfo(String id, String name, String version, String type, String displayName, PluggableInstanceSettings settings) {
-        this(id, name, version, type, displayName, settings, null);
-    }
-
-    public PluginInfo(String id, String name, String version, String type, String displayName, PluggableInstanceSettings settings, Image image) {
+    private PluginInfo(String id, String name, String version, String type, String displayName, PluggableInstanceSettings settings, Image image) {
         this.id = id;
         this.name = name;
         this.version = version;
@@ -44,10 +40,6 @@ public class PluginInfo {
 
     public PluginInfo(PluginDescriptor descriptor, String type, String displayName, PluggableInstanceSettings settings) {
         this(descriptor, type, displayName, settings, null);
-    }
-
-    public PluginInfo(String id, String name, String version, String type, String displayName) {
-        this(id, name, version, type, displayName, null, null);
     }
 
     public PluginInfo(PluginDescriptor descriptor, String type, String displayName, PluggableInstanceSettings settings, Image icon) {
@@ -73,7 +65,6 @@ public class PluginInfo {
     public PluggableInstanceSettings getPluggableInstanceSettings() {
         return pluggableInstanceSettings;
     }
-
 
     public Image getImage() {
         return image;

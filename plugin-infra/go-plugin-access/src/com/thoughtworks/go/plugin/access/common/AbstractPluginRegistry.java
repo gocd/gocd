@@ -30,13 +30,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 
-public class AbstractPluginRegistry<Extension extends AbstractExtension, MetadataStore extends PluginConfigMetadataStore> implements PluginChangeListener {
+public abstract class AbstractPluginRegistry<Extension extends AbstractExtension, MetadataStore extends PluginConfigMetadataStore> implements PluginChangeListener {
     protected final Extension extension;
     protected final List<PluginDescriptor> plugins;
     protected MetadataStore store;
 
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
-
 
     public AbstractPluginRegistry(PluginManager pluginManager, Extension extension, MetadataStore store) {
         this.extension = extension;

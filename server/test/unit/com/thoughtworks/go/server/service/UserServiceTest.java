@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
@@ -109,12 +109,12 @@ public class UserServiceTest {
         User bar = new User("bar", Arrays.asList("bAR", "Bar"), "zooboo@go.com", true);
         User quux = new User("quux", Arrays.asList("qUUX", "Quux"), "quux@cruise.go", false);
         when(userDao.allUsers()).thenReturn(new Users(Arrays.asList(foo, bar, quux)));
-        when(goConfigService.rolesForUser(new CaseInsensitiveString("foo"))).thenReturn(Arrays.asList(new Role(new CaseInsensitiveString("loser")
-        ), new Role(new CaseInsensitiveString("boozer"))));
-        when(goConfigService.rolesForUser(new CaseInsensitiveString("bar"))).thenReturn(Arrays.asList(new Role(new CaseInsensitiveString("user")
-        ), new Role(new CaseInsensitiveString("boozer"))));
-        when(goConfigService.rolesForUser(new CaseInsensitiveString("quux"))).thenReturn(Arrays.asList(new Role(new CaseInsensitiveString("user")
-        ), new Role(new CaseInsensitiveString("loser"))));
+        when(goConfigService.rolesForUser(new CaseInsensitiveString("foo"))).thenReturn(Arrays.asList(new RoleConfig(new CaseInsensitiveString("loser")
+        ), new RoleConfig(new CaseInsensitiveString("boozer"))));
+        when(goConfigService.rolesForUser(new CaseInsensitiveString("bar"))).thenReturn(Arrays.asList(new RoleConfig(new CaseInsensitiveString("user")
+        ), new RoleConfig(new CaseInsensitiveString("boozer"))));
+        when(goConfigService.rolesForUser(new CaseInsensitiveString("quux"))).thenReturn(Arrays.asList(new RoleConfig(new CaseInsensitiveString("user")
+        ), new RoleConfig(new CaseInsensitiveString("loser"))));
 
         List<UserModel> models = userService.allUsersForDisplay(UserService.SortableColumn.ROLES, UserService.SortDirection.DESC);
         UserModel quuxModel = model(quux, Arrays.asList("user", "loser"), false);
@@ -210,10 +210,10 @@ public class UserServiceTest {
 
         when(userDao.allUsers()).thenReturn(new Users(Arrays.asList(foo, bar)));
         when(securityService.isUserAdmin(new Username(new CaseInsensitiveString("foo")))).thenReturn(true);
-        when(goConfigService.rolesForUser(new CaseInsensitiveString("foo"))).thenReturn(Arrays.asList(new Role(new CaseInsensitiveString("loser")
-        ), new Role(new CaseInsensitiveString("boozer"))));
-        when(goConfigService.rolesForUser(new CaseInsensitiveString("bar"))).thenReturn(Arrays.asList(new Role(new CaseInsensitiveString("user")
-        ), new Role(new CaseInsensitiveString("loser"))));
+        when(goConfigService.rolesForUser(new CaseInsensitiveString("foo"))).thenReturn(Arrays.asList(new RoleConfig(new CaseInsensitiveString("loser")
+        ), new RoleConfig(new CaseInsensitiveString("boozer"))));
+        when(goConfigService.rolesForUser(new CaseInsensitiveString("bar"))).thenReturn(Arrays.asList(new RoleConfig(new CaseInsensitiveString("user")
+        ), new RoleConfig(new CaseInsensitiveString("loser"))));
 
         List<UserModel> models = userService.allUsersForDisplay(UserService.SortableColumn.USERNAME, UserService.SortDirection.ASC);
         assertThat(models, is(Arrays.asList(model(bar, Arrays.asList("user", "loser"), false), model(foo, Arrays.asList("loser", "boozer"), true))));
@@ -320,11 +320,11 @@ public class UserServiceTest {
     public void shouldReturnUsersInSortedOrderFromPipelineGroupWhoHaveOperatePermissions() {
         CruiseConfig config = new BasicCruiseConfig();
         SecurityConfig securityConfig = new SecurityConfig(null, new PasswordFileConfig("path"), true, null);
-        securityConfig.addRole(new Role(new CaseInsensitiveString("role1"), new RoleUser(new CaseInsensitiveString("user1")), new RoleUser(new CaseInsensitiveString("user2")),
+        securityConfig.addRole(new RoleConfig(new CaseInsensitiveString("role1"), new RoleUser(new CaseInsensitiveString("user1")), new RoleUser(new CaseInsensitiveString("user2")),
                 new RoleUser(new CaseInsensitiveString("user3"))));
-        securityConfig.addRole(new Role(new CaseInsensitiveString("role2"), new RoleUser(new CaseInsensitiveString("user4")), new RoleUser(new CaseInsensitiveString("user5")),
+        securityConfig.addRole(new RoleConfig(new CaseInsensitiveString("role2"), new RoleUser(new CaseInsensitiveString("user4")), new RoleUser(new CaseInsensitiveString("user5")),
                 new RoleUser(new CaseInsensitiveString("user3"))));
-        securityConfig.addRole(new Role(new CaseInsensitiveString("role3"), new RoleUser(new CaseInsensitiveString("user4")), new RoleUser(new CaseInsensitiveString("user5")),
+        securityConfig.addRole(new RoleConfig(new CaseInsensitiveString("role3"), new RoleUser(new CaseInsensitiveString("user4")), new RoleUser(new CaseInsensitiveString("user5")),
                 new RoleUser(new CaseInsensitiveString("user2"))));
         config.setServerConfig(new ServerConfig(null, securityConfig));
 

@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.service.plugins.builder;
 
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationPluginRegistry;
+import com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConfigMetadataStore;
 import com.thoughtworks.go.plugin.access.elastic.ElasticPluginConfigMetadataStore;
 import com.thoughtworks.go.plugin.access.notification.NotificationPluginRegistry;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfigurations;
@@ -28,7 +29,6 @@ import com.thoughtworks.go.plugin.access.scm.SCMConfigurations;
 import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
 import com.thoughtworks.go.plugin.access.scm.SCMPreference;
 import com.thoughtworks.go.plugin.access.scm.SCMView;
-import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.api.task.TaskView;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
@@ -60,6 +60,9 @@ public class PluginInfoBuilderTest {
     ElasticPluginConfigMetadataStore elasticPluginConfigMetadataStore;
 
     @Mock
+    AuthorizationPluginConfigMetadataStore authorizationPluginConfigMetadataStore;
+
+    @Mock
     PluginManager manager;
 
     private GoPluginDescriptor githubDescriptor;
@@ -68,6 +71,7 @@ public class PluginInfoBuilderTest {
     private GoPluginDescriptor xunitConvertor;
     private GoPluginDescriptor githubPR;
     private GoPluginDescriptor dockerElasticAgentPlugin;
+    private GoPluginDescriptor ldapAuthPlugin;
     private PluginInfoBuilder pluginViewModelBuilder;
 
     @Before
@@ -93,6 +97,10 @@ public class PluginInfoBuilderTest {
                 new GoPluginDescriptor.About("GoCD Docker Elastic Agent Plugin", "1.0", null, null, null, null),
                 null, null, false);
 
+        ldapAuthPlugin = new GoPluginDescriptor("cd.go.authorization.ldap", "1.0",
+                new GoPluginDescriptor.About("GoCD LDAP Plugin", "1.0", null, null, null, null),
+                null, null, false);
+
         JsonBasedPluggableTask jsonBasedPluggableTask = mock(JsonBasedPluggableTask.class);
         TaskView taskView = new TaskView() {
             @Override
@@ -109,7 +117,8 @@ public class PluginInfoBuilderTest {
 
         when(authenticationPluginRegistry.getAuthenticationPlugins()).thenReturn(new HashSet<>(Arrays.asList("github.oauth")));
         when(notificationPluginRegistry.getNotificationPlugins()).thenReturn(new HashSet<>(Arrays.asList("email.notifier")));
-        when(elasticPluginConfigMetadataStore.getPlugins()).thenReturn(new ArrayList<PluginDescriptor>(Arrays.asList(dockerElasticAgentPlugin)));
+        when(elasticPluginConfigMetadataStore.getPlugins()).thenReturn(new ArrayList<>(Arrays.asList(dockerElasticAgentPlugin)));
+        when(authorizationPluginConfigMetadataStore.getPlugins()).thenReturn(new ArrayList<>(Arrays.asList(ldapAuthPlugin)));
         when(jsonBasedPluggableTask.view()).thenReturn(taskView);
 
         when(manager.getPluginDescriptorFor("github.oauth")).thenReturn(githubDescriptor);
@@ -118,18 +127,19 @@ public class PluginInfoBuilderTest {
         when(manager.getPluginDescriptorFor("xunit.convertor")).thenReturn(xunitConvertor);
         when(manager.getPluginDescriptorFor("github.pr")).thenReturn(githubPR);
         when(manager.getPluginDescriptorFor("cd.go.elastic-agent.docker")).thenReturn(dockerElasticAgentPlugin);
+        when(manager.getPluginDescriptorFor(ldapAuthPlugin.id())).thenReturn(ldapAuthPlugin);
 
         PackageMetadataStore.getInstance().addMetadataFor(yumPoller.id(), new PackageConfigurations());
         PluggableTaskConfigStore.store().setPreferenceFor("xunit.convertor", new TaskPreference(jsonBasedPluggableTask));
         SCMMetadataStore.getInstance().setPreferenceFor("github.pr", new SCMPreference(new SCMConfigurations(), mock(SCMView.class)));
-        pluginViewModelBuilder = new PluginInfoBuilder(authenticationPluginRegistry, notificationPluginRegistry, elasticPluginConfigMetadataStore, manager);
+        pluginViewModelBuilder = new PluginInfoBuilder(authenticationPluginRegistry, notificationPluginRegistry, elasticPluginConfigMetadataStore, authorizationPluginConfigMetadataStore, manager);
     }
 
     @Test
     public void shouldBeAbleToFetchAllPluginInfos() {
         List<PluginInfo> pluginInfos = pluginViewModelBuilder.allPluginInfos(null);
 
-        assertThat(pluginInfos.size(), is(6));
+        assertThat(pluginInfos.size(), is(7));
         List<String> expectedPlugins = new ArrayList<>();
         for (PluginInfo pluginInfo : pluginInfos) {
             expectedPlugins.add(pluginInfo.getId());
@@ -140,6 +150,7 @@ public class PluginInfoBuilderTest {
         assertTrue(expectedPlugins.contains(xunitConvertor.id()));
         assertTrue(expectedPlugins.contains(githubPR.id()));
         assertTrue(expectedPlugins.contains(dockerElasticAgentPlugin.id()));
+        assertTrue(expectedPlugins.contains(ldapAuthPlugin.id()));
     }
 
     @Test

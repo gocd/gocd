@@ -524,13 +524,13 @@ public class GoConfigMigrationIntegrationTest {
 
         RolesConfig roles = cruiseConfig.server().security().getRoles();
         assertThat(roles.size(), is(2));
-        assertThat(roles.get(0), is(new Role(new CaseInsensitiveString("bAr"),
+        assertThat(roles.get(0), is(new RoleConfig(new CaseInsensitiveString("bAr"),
                 new RoleUser(new CaseInsensitiveString("quux")),
                 new RoleUser(new CaseInsensitiveString("bang")),
                 new RoleUser(new CaseInsensitiveString("LoSeR")),
                 new RoleUser(new CaseInsensitiveString("baz")))));
 
-        assertThat(roles.get(1), is(new Role(new CaseInsensitiveString("Foo"),
+        assertThat(roles.get(1), is(new RoleConfig(new CaseInsensitiveString("Foo"),
                 new RoleUser(new CaseInsensitiveString("foo")),
                 new RoleUser(new CaseInsensitiveString("LoSeR")),
                 new RoleUser(new CaseInsensitiveString("bar")))));
@@ -619,8 +619,8 @@ public class GoConfigMigrationIntegrationTest {
         ServerConfig server = config.server();
         RolesConfig roles = server.security().getRoles();
         assertThat(roles,
-                hasItem(new Role(new CaseInsensitiveString("admins"), new RoleUser(new CaseInsensitiveString("admin_one")), new RoleUser(new CaseInsensitiveString("admin_two")))));
-        assertThat(roles, hasItem(new Role(new CaseInsensitiveString("devs"), new RoleUser(new CaseInsensitiveString("dev_one")), new RoleUser(new CaseInsensitiveString("dev_two")),
+                hasItem(new RoleConfig(new CaseInsensitiveString("admins"), new RoleUser(new CaseInsensitiveString("admin_one")), new RoleUser(new CaseInsensitiveString("admin_two")))));
+        assertThat(roles, hasItem(new RoleConfig(new CaseInsensitiveString("devs"), new RoleUser(new CaseInsensitiveString("dev_one")), new RoleUser(new CaseInsensitiveString("dev_two")),
                 new RoleUser(new CaseInsensitiveString("dev_three")))));
     }
 

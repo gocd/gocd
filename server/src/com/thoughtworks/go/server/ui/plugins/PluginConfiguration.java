@@ -16,6 +16,12 @@
 
 package com.thoughtworks.go.server.ui.plugins;
 
+import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKey;
+import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKeys;
+import com.thoughtworks.go.server.service.plugins.builder.ViewModelBuilder;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 public class PluginConfiguration {
@@ -31,6 +37,18 @@ public class PluginConfiguration {
 
     public PluginConfiguration(String key, Map<String, Object> metadata) {
         this(key, metadata, null);
+    }
+
+    public static ArrayList<PluginConfiguration> getPluginConfigurations(PluginProfileMetadataKeys config) {
+        ArrayList<PluginConfiguration> pluginConfigurations = new ArrayList<>();
+        for (PluginProfileMetadataKey property : config) {
+            Map<String, Object> metaData = new HashMap<>();
+            metaData.put(ViewModelBuilder.REQUIRED_OPTION, property.getMetadata().isRequired());
+            metaData.put(ViewModelBuilder.SECURE_OPTION, property.getMetadata().isSecure());
+
+            pluginConfigurations.add(new PluginConfiguration(property.getKey(), metaData));
+        }
+        return pluginConfigurations;
     }
 
     public String getKey() {

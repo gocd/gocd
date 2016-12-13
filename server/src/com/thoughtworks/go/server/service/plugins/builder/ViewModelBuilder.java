@@ -20,7 +20,7 @@ import com.thoughtworks.go.server.ui.plugins.PluginInfo;
 
 import java.util.List;
 
-interface ViewModelBuilder {
+public interface ViewModelBuilder {
     String REQUIRED_OPTION = "required";
     String SECURE_OPTION = "secure";
     String PART_OF_IDENTITY_OPTION = "part_of_identity";

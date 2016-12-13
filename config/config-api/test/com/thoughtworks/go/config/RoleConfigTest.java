@@ -18,11 +18,11 @@ package com.thoughtworks.go.config;
 
 import org.junit.Test;
 
-public class RoleTest {
+public class RoleConfigTest {
 
     @Test
     public void shouldBeInvalidIfRoleNameIsBlank(){
-        Role role = new Role(new CaseInsensitiveString(""));
+        Role role = new RoleConfig(new CaseInsensitiveString(""));
         role.validate(null);
     }
 

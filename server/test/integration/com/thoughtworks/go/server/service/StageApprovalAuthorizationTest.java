@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
@@ -23,7 +23,7 @@ import com.thoughtworks.go.config.AuthConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.Role;
+import com.thoughtworks.go.config.RoleConfig;
 import com.thoughtworks.go.config.RoleUser;
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.helper.StageConfigMother;
@@ -81,7 +81,7 @@ public class StageApprovalAuthorizationTest {
     @Test
     public void shouldAuthorizeIfRoleIsInApprovalList() throws Exception {
         CONFIG_HELPER.addSecurityWithAdminConfig();
-        CONFIG_HELPER.addRole(new Role(new CaseInsensitiveString("adminRole"), new RoleUser(new CaseInsensitiveString("tester"))));
+        CONFIG_HELPER.addRole(new RoleConfig(new CaseInsensitiveString("adminRole"), new RoleUser(new CaseInsensitiveString("tester"))));
 
         StageConfig stage = StageConfigMother.custom("test", authConfigWithAdminRole);
         PipelineConfig pipeline = CONFIG_HELPER.addStageToPipeline(PIPELINE_NAME, stage);

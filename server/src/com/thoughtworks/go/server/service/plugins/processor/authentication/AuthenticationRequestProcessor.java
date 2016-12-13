@@ -18,7 +18,7 @@ package com.thoughtworks.go.server.service.plugins.processor.authentication;
 
 import com.thoughtworks.go.plugin.access.authentication.JsonMessageHandler;
 import com.thoughtworks.go.plugin.access.authentication.JsonMessageHandler1_0;
-import com.thoughtworks.go.plugin.access.authentication.model.User;
+import com.thoughtworks.go.plugin.access.authentication.models.User;
 import com.thoughtworks.go.plugin.api.request.GoApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoApiResponse;
 import com.thoughtworks.go.plugin.api.response.GoApiResponse;

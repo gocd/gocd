@@ -18,8 +18,8 @@ package com.thoughtworks.go.plugin.access.authentication;
 
 import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
-import com.thoughtworks.go.plugin.access.authentication.model.AuthenticationPluginConfiguration;
-import com.thoughtworks.go.plugin.access.authentication.model.User;
+import com.thoughtworks.go.plugin.access.authentication.models.AuthenticationPluginConfiguration;
+import com.thoughtworks.go.plugin.access.authentication.models.User;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
@@ -34,6 +34,7 @@ import java.util.Map;
 import static java.util.Arrays.asList;
 
 @Component
+@Deprecated
 public class AuthenticationExtension extends AbstractExtension {
     public static final String EXTENSION_NAME = "authentication";
     private static final List<String> goSupportedVersions = asList("1.0");

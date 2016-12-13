@@ -48,8 +48,7 @@ class PluggableTaskViewModelBuilder implements ViewModelBuilder {
 
             TaskPreference taskPreference = PluggableTaskConfigStore.store().preferenceFor(pluginId);
 
-            pluginInfos.add(new PluginInfo(pluginId, descriptor.about().name(), descriptor.about().version(),
-                    JsonBasedTaskExtension.TASK_EXTENSION, taskPreference.getView().displayValue()));
+            pluginInfos.add(new PluginInfo(descriptor, JsonBasedTaskExtension.TASK_EXTENSION, taskPreference.getView().displayValue(), null, null));
         }
         return pluginInfos;
     }
@@ -65,8 +64,7 @@ class PluggableTaskViewModelBuilder implements ViewModelBuilder {
         List<PluginConfiguration> pluginConfigurations = configurations(taskPreference.getConfig());
         PluginView pluginView = new PluginView(taskPreference.getView().template());
 
-        return new PluginInfo(pluginId, descriptor.about().name(), descriptor.about().version(), JsonBasedTaskExtension.TASK_EXTENSION,
-                taskPreference.getView().displayValue(), new PluggableInstanceSettings(pluginConfigurations, pluginView));
+        return new PluginInfo(descriptor, JsonBasedTaskExtension.TASK_EXTENSION, taskPreference.getView().displayValue(), new PluggableInstanceSettings(pluginConfigurations, pluginView));
     }
 
     private List<PluginConfiguration> configurations(TaskConfig config) {

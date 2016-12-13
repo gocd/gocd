@@ -76,6 +76,6 @@ public class RolesConfigTest {
     }
 
     private Role role(String name, RoleUser... users) {
-        return new Role(new CaseInsensitiveString(name), users);
+        return new RoleConfig(new CaseInsensitiveString(name), users);
     }
 }

@@ -46,8 +46,7 @@ class PackageViewModelBuilder implements ViewModelBuilder {
         for(String pluginId : PackageMetadataStore.getInstance().pluginIds()) {
             GoPluginDescriptor descriptor = pluginManager.getPluginDescriptorFor(pluginId);
 
-            pluginInfos.add(new PluginInfo(pluginId, descriptor.about().name(), descriptor.about().version(),
-                    JsonBasedPackageRepositoryExtension.EXTENSION_NAME, null));
+            pluginInfos.add(new PluginInfo(descriptor, JsonBasedPackageRepositoryExtension.EXTENSION_NAME, null, null, null));
         }
         return pluginInfos;
     }
@@ -66,8 +65,7 @@ class PackageViewModelBuilder implements ViewModelBuilder {
         pluginConfigurations.addAll(configurations(PackageMetadataStore.getInstance().getMetadata(pluginId), PACKAGE_CONFIGRATION_TYPE));
         pluginConfigurations.addAll(configurations(RepositoryMetadataStore.getInstance().getMetadata(pluginId),  REPOSITORY_CONFIGRATION_TYPE));
 
-        return new PluginInfo(pluginId, descriptor.about().name(), descriptor.about().version(),
-                JsonBasedPackageRepositoryExtension.EXTENSION_NAME, null, new PluggableInstanceSettings(pluginConfigurations));
+        return new PluginInfo(descriptor, JsonBasedPackageRepositoryExtension.EXTENSION_NAME, null, new PluggableInstanceSettings(pluginConfigurations));
     }
 
     private List<PluginConfiguration> configurations(PackageConfigurations packageConfigurations, String type) {

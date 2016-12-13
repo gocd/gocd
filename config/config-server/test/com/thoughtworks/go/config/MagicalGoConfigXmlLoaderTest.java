@@ -1516,7 +1516,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 + "</cruise>";
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         assertThat(cruiseConfig.schemaVersion(), is(CONFIG_SCHEMA_VERSION));
-        assertThat(cruiseConfig.findGroup("first").isUserAnAdmin(new CaseInsensitiveString("foo"), new ArrayList<Role>()), is(true));
+        assertThat(cruiseConfig.findGroup("first").isUserAnAdmin(new CaseInsensitiveString("foo"), new ArrayList<>()), is(true));
     }
 
     @Test
@@ -1558,7 +1558,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 + "</cruise>";
         CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(content).config;
         assertThat(cruiseConfig.schemaVersion(), is(CONFIG_SCHEMA_VERSION));
-        assertThat(cruiseConfig.findGroup("first").isUserAnAdmin(new CaseInsensitiveString("foo"), asList(new Role(new CaseInsensitiveString("bar")))), is(true));
+        assertThat(cruiseConfig.findGroup("first").isUserAnAdmin(new CaseInsensitiveString("foo"), asList(new RoleConfig(new CaseInsensitiveString("bar")))), is(true));
     }
 
     @Test
@@ -2561,7 +2561,7 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     public void shouldAllowRoleWithParamsForStageInTemplate() throws Exception {
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
-        cruiseConfig.server().security().addRole(new Role(new CaseInsensitiveString("role")));
+        cruiseConfig.server().security().addRole(new RoleConfig(new CaseInsensitiveString("role")));
 
         cruiseConfig.addTemplate(new PipelineTemplateConfig(new CaseInsensitiveString("template"), stageWithAuth("#{ROLE}")));
 

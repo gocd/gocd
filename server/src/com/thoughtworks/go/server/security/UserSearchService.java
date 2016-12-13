@@ -1,25 +1,25 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.security;
 
 import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.i18n.LocalizedMessage;
-import com.thoughtworks.go.plugin.access.authentication.AuthenticationExtension;
-import com.thoughtworks.go.plugin.access.authentication.AuthenticationPluginRegistry;
+import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
+import com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConfigMetadataStore;
 import com.thoughtworks.go.presentation.UserSearchModel;
 import com.thoughtworks.go.presentation.UserSourceType;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -38,8 +38,8 @@ import java.util.List;
 public class UserSearchService {
     private final LdapUserSearch ldapUserSearch;
     private final PasswordFileUserSearch passwordFileUserSearch;
-    private AuthenticationPluginRegistry authenticationPluginRegistry;
-    private AuthenticationExtension authenticationExtension;
+    private final AuthorizationPluginConfigMetadataStore store;
+    private final AuthorizationExtension authorizationExtension;
     private GoConfigService goConfigService;
 
     private static final Logger LOGGER = Logger.getLogger(UserSearchService.class);
@@ -47,12 +47,12 @@ public class UserSearchService {
 
     @Autowired
     public UserSearchService(LdapUserSearch ldapUserSearch, PasswordFileUserSearch passwordFileUserSearch,
-                             AuthenticationPluginRegistry authenticationPluginRegistry, AuthenticationExtension authenticationExtension,
+                             AuthorizationPluginConfigMetadataStore store, AuthorizationExtension authorizationExtension,
                              GoConfigService goConfigService) {
         this.ldapUserSearch = ldapUserSearch;
         this.passwordFileUserSearch = passwordFileUserSearch;
-        this.authenticationPluginRegistry = authenticationPluginRegistry;
-        this.authenticationExtension = authenticationExtension;
+        this.store = store;
+        this.authorizationExtension = authorizationExtension;
         this.goConfigService = goConfigService;
     }
 
@@ -110,11 +110,11 @@ public class UserSearchService {
 
     private void searchUsingPlugins(String searchText, List<UserSearchModel> userSearchModels) {
         List<User> searchResults = new ArrayList<>();
-        for (final String pluginId : authenticationPluginRegistry.getAuthenticationPlugins()) {
+        for (final String pluginId : store.getPluginsThatSupportsUserSearch()) {
             try {
-                List<com.thoughtworks.go.plugin.access.authentication.model.User> users = authenticationExtension.searchUser(pluginId, searchText);
+                List<com.thoughtworks.go.plugin.access.authentication.models.User> users = authorizationExtension.searchUsers(pluginId, searchText);
                 if (users != null && !users.isEmpty()) {
-                    for (com.thoughtworks.go.plugin.access.authentication.model.User user : users) {
+                    for (com.thoughtworks.go.plugin.access.authentication.models.User user : users) {
                         String displayName = user.getDisplayName() == null ? "" : user.getDisplayName();
                         String emailId = user.getEmailId() == null ? "" : user.getEmailId();
                         searchResults.add(new User(user.getUsername(), displayName, emailId));

@@ -24,7 +24,6 @@ import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistrar;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.registry.NoPluginsInstalled;
-import com.thoughtworks.go.plugins.FakePluginManager;
 import com.thoughtworks.go.security.CipherProvider;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.FileUtil;
@@ -75,17 +74,7 @@ public class ConfigCipherUpdaterTest {
         });
         configCache = new ConfigCache();
         registry = new ConfigElementImplementationRegistry(new NoPluginsInstalled());
-        ConfigElementImplementationRegistrar registrar = new ConfigElementImplementationRegistrar(new FakePluginManager() {
-            @Override
-            public boolean hasReferenceFor(Class serviceReferenceClass, String pluginId) {
-                return false;
-            }
-
-            @Override
-            public boolean isPluginOfType(String extension, String pluginId) {
-                return false;
-            }
-        }, registry);
+        ConfigElementImplementationRegistrar registrar = new ConfigElementImplementationRegistrar(registry);
         registrar.initialize();
         magicalGoConfigXmlLoader = new MagicalGoConfigXmlLoader(configCache, registry);
         File configFileEncryptedWithFlawedCipher = new ClassPathResource("cruise-config-with-encrypted-with-flawed-cipher.xml").getFile();

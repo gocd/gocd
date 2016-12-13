@@ -40,8 +40,7 @@ class AuthenticationViewModelBuilder implements ViewModelBuilder {
         for(String pluginId : registry.getAuthenticationPlugins()) {
             GoPluginDescriptor descriptor = pluginManager.getPluginDescriptorFor(pluginId);
 
-            pluginInfos.add(new PluginInfo(pluginId, descriptor.about().name(), descriptor.about().version(),
-                    AuthenticationExtension.EXTENSION_NAME, null));
+            pluginInfos.add(new PluginInfo(descriptor, AuthenticationExtension.EXTENSION_NAME, null, null, null));
         }
         return pluginInfos;
     }
@@ -53,7 +52,6 @@ class AuthenticationViewModelBuilder implements ViewModelBuilder {
 
         GoPluginDescriptor descriptor = pluginManager.getPluginDescriptorFor(pluginId);
 
-        return new PluginInfo(pluginId, descriptor.about().name(), descriptor.about().version(),
-                AuthenticationExtension.EXTENSION_NAME, null, null);
+        return new PluginInfo(descriptor, AuthenticationExtension.EXTENSION_NAME, null, null);
     }
 }

@@ -70,7 +70,7 @@ public class ConfigElementImplementationRegistrarTest {
         when(pluginExtns.configTagImplementations()).thenReturn(new ArrayList<ConfigurationExtension>());
 
         registry = new ConfigElementImplementationRegistry(pluginExtns);
-        registrar = new ConfigElementImplementationRegistrar(pluginManager, registry);
+        registrar = new ConfigElementImplementationRegistrar(registry);
 
         registrar.initialize();
     }

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -35,8 +35,6 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 /**
  * @understands how to modify the cruise config sources
@@ -263,7 +261,7 @@ public class GoConfigDao {
             switch (roleSelection.getAction()) {
                 case add:
                     if (role == null) {
-                        role = new Role(new CaseInsensitiveString(roleName), new Users());
+                        role = new RoleConfig(new CaseInsensitiveString(roleName), new Users());
                         rolesConfig.add(role);
                     }
                     if (!role.hasMember(new CaseInsensitiveString(user))) {

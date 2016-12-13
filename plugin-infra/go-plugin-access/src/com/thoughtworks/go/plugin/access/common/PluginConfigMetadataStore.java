@@ -19,10 +19,14 @@ package com.thoughtworks.go.plugin.access.common;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.infra.PluginChangeListener;
 import com.thoughtworks.go.util.ListUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 
 public abstract class PluginConfigMetadataStore<T extends PluginChangeListener> {
+    protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
+
     public abstract void add(PluginDescriptor plugin, T extension);
 
     public abstract void remove(PluginDescriptor plugin);

@@ -1,30 +1,22 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config.registry;
 
-import com.thoughtworks.go.config.AdminRole;
-import com.thoughtworks.go.config.AdminUser;
-import com.thoughtworks.go.config.AntTask;
-import com.thoughtworks.go.config.ArtifactPlan;
-import com.thoughtworks.go.config.ExecTask;
-import com.thoughtworks.go.config.FetchTask;
-import com.thoughtworks.go.config.NantTask;
-import com.thoughtworks.go.config.RakeTask;
-import com.thoughtworks.go.config.TestArtifactPlan;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
@@ -42,18 +34,15 @@ import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.plugins.presentation.BuiltinTaskViewModelFactory;
 import com.thoughtworks.go.plugins.presentation.PluggableTaskViewModelFactory;
-import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ConfigElementImplementationRegistrar {
-    private PluginManager pluginManager;
     private ConfigElementImplementationRegistry registry;
 
     @Autowired
-    public ConfigElementImplementationRegistrar(PluginManager pluginManager, ConfigElementImplementationRegistry registry) {
-        this.pluginManager = pluginManager;
+    public ConfigElementImplementationRegistrar(ConfigElementImplementationRegistry registry) {
         this.registry = registry;
     }
 
@@ -63,6 +52,11 @@ public class ConfigElementImplementationRegistrar {
         registerBuiltinUserTypes();
         registerBuiltinConsoleOutputMatchers();
         registerBuiltinArtifactTypes();
+        registerRoleTypes();
+    }
+
+    private void registerRoleTypes() {
+        registry.registerImplementer(Role.class, RoleConfig.class, PluginRoleConfig.class);
     }
 
     private void registerBuiltinTasks() {

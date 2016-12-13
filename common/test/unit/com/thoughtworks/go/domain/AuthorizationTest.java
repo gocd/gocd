@@ -1,35 +1,28 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain;
+
+import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.domain.config.Admin;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import com.thoughtworks.go.config.AdminRole;
-import com.thoughtworks.go.config.AdminUser;
-import com.thoughtworks.go.config.AdminsConfig;
-import com.thoughtworks.go.config.Authorization;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.OperationConfig;
-import com.thoughtworks.go.config.Role;
-import com.thoughtworks.go.config.ViewConfig;
-import com.thoughtworks.go.domain.config.Admin;
-import org.junit.Test;
 
 import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static org.hamcrest.Matchers.is;
@@ -69,18 +62,18 @@ public class AuthorizationTest {
     @Test
     public void shouldReturnTrueIfAnUserIsAdmin() {
         Authorization authorization = new Authorization(new AdminsConfig(new AdminUser(new CaseInsensitiveString("foo"))));
-        assertThat(authorization.isUserAnAdmin(new CaseInsensitiveString("foo"), new ArrayList<Role>()), is(true));
-        assertThat(authorization.isUserAnAdmin(new CaseInsensitiveString("bar"), new ArrayList<Role>()), is(false));
+        assertThat(authorization.isUserAnAdmin(new CaseInsensitiveString("foo"), new ArrayList<>()), is(true));
+        assertThat(authorization.isUserAnAdmin(new CaseInsensitiveString("bar"), new ArrayList<>()), is(false));
     }
 
     @Test
     public void shouldReturnTrueIfAnUserBelongsToAnAdminRole() {
         Authorization authorization = new Authorization(new AdminsConfig(new AdminRole(new CaseInsensitiveString("bar1")), new AdminRole(new CaseInsensitiveString("bar2"))));
-        assertThat(authorization.isUserAnAdmin(new CaseInsensitiveString("foo1"), Arrays.asList(new Role(new CaseInsensitiveString("bar1")), new Role(new CaseInsensitiveString("bar1")
+        assertThat(authorization.isUserAnAdmin(new CaseInsensitiveString("foo1"), Arrays.asList(new RoleConfig(new CaseInsensitiveString("bar1")), new RoleConfig(new CaseInsensitiveString("bar1")
         ))), is(true));
-        assertThat(authorization.isUserAnAdmin(new CaseInsensitiveString("foo2"), Arrays.asList(new Role(new CaseInsensitiveString("bar2")))), is(true));
-        assertThat(authorization.isUserAnAdmin(new CaseInsensitiveString("foo3"), Arrays.asList(new Role(new CaseInsensitiveString("bar1")))), is(true));
-        assertThat(authorization.isUserAnAdmin(new CaseInsensitiveString("foo4"), new ArrayList<Role>()), is(false));
+        assertThat(authorization.isUserAnAdmin(new CaseInsensitiveString("foo2"), Arrays.asList(new RoleConfig(new CaseInsensitiveString("bar2")))), is(true));
+        assertThat(authorization.isUserAnAdmin(new CaseInsensitiveString("foo3"), Arrays.asList(new RoleConfig(new CaseInsensitiveString("bar1")))), is(true));
+        assertThat(authorization.isUserAnAdmin(new CaseInsensitiveString("foo4"), new ArrayList<>()), is(false));
     }
 
     @Test

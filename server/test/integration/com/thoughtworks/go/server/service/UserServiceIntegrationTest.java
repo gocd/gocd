@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
@@ -411,7 +411,7 @@ public class UserServiceIntegrationTest {
 
     @Test
     public void modifyRoles_shouldAddUserToExistingRole() throws Exception {
-        configFileHelper.addRole(new Role(new CaseInsensitiveString("dev")));
+        configFileHelper.addRole(new RoleConfig(new CaseInsensitiveString("dev")));
         addUser(new User("user-1"));
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("user-1"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), Arrays.asList(new TriStateSelection("dev", TriStateSelection.Action.add)), result);
@@ -486,7 +486,7 @@ public class UserServiceIntegrationTest {
 
     @Test
     public void shouldModifyRolesAndAdminPrivilegeAtTheSameTime() throws Exception {
-        configFileHelper.addRole(new Role(new CaseInsensitiveString("dev")));
+        configFileHelper.addRole(new RoleConfig(new CaseInsensitiveString("dev")));
         addUser(new User("user-1"));
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("user-1"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.add), Arrays.asList(new TriStateSelection("dev", TriStateSelection.Action.add)), result);
@@ -514,7 +514,7 @@ public class UserServiceIntegrationTest {
     @Test
     public void shouldRemoveUserLevelAdminPrivilegeFromMultipleUsers_withoutModifingRoleLevelPrvileges() throws Exception {
         configFileHelper.addAdmins("user", "boozer");
-        configFileHelper.addRole(new Role(new CaseInsensitiveString("mastersOfTheWorld"), new RoleUser(new CaseInsensitiveString("loser")), new RoleUser(new CaseInsensitiveString("boozer"))));
+        configFileHelper.addRole(new RoleConfig(new CaseInsensitiveString("mastersOfTheWorld"), new RoleUser(new CaseInsensitiveString("loser")), new RoleUser(new CaseInsensitiveString("boozer"))));
         configFileHelper.addAdminRoles("mastersOfTheWorld");
         addUser(new User("user"));
         addUser(new User("loser"));
@@ -546,7 +546,7 @@ public class UserServiceIntegrationTest {
     @Test
     public void shouldNotModifyAdminPrivilegesWhen_NoChange_requested() throws Exception {
         configFileHelper.addAdmins("user", "boozer");
-        configFileHelper.addRole(new Role(new CaseInsensitiveString("mastersOfTheWorld"), new RoleUser(new CaseInsensitiveString("loser")), new RoleUser(new CaseInsensitiveString("boozer"))));
+        configFileHelper.addRole(new RoleConfig(new CaseInsensitiveString("mastersOfTheWorld"), new RoleUser(new CaseInsensitiveString("loser")), new RoleUser(new CaseInsensitiveString("boozer"))));
         configFileHelper.addAdminRoles("mastersOfTheWorld");
         addUser(new User("user"));
         addUser(new User("loser"));
@@ -567,10 +567,10 @@ public class UserServiceIntegrationTest {
 
     @Test
     public void getRoleSelection() throws Exception {
-        configFileHelper.addRole(new Role(new CaseInsensitiveString("dev")));
-        configFileHelper.addRole(new Role(new CaseInsensitiveString("boy")));
-        configFileHelper.addRole(new Role(new CaseInsensitiveString("girl")));
-        configFileHelper.addRole(new Role(new CaseInsensitiveString("none")));
+        configFileHelper.addRole(new RoleConfig(new CaseInsensitiveString("dev")));
+        configFileHelper.addRole(new RoleConfig(new CaseInsensitiveString("boy")));
+        configFileHelper.addRole(new RoleConfig(new CaseInsensitiveString("girl")));
+        configFileHelper.addRole(new RoleConfig(new CaseInsensitiveString("none")));
         addUser(new User("yogi"));
         addUser(new User("shilpa"));
         addUser(new User("pavan"));
@@ -597,9 +597,9 @@ public class UserServiceIntegrationTest {
 
     @Test
     public void shouldDisableAdminSelectionWhenUserIsMemberOfAdminRole() throws Exception {
-        configFileHelper.addRole(new Role(new CaseInsensitiveString("foo-grp"), new RoleUser(new CaseInsensitiveString("foo")), new RoleUser(new CaseInsensitiveString("foo-one"))));
-        configFileHelper.addRole(new Role(new CaseInsensitiveString("quux-grp"), new RoleUser(new CaseInsensitiveString("quux"))));
-        configFileHelper.addRole(new Role(new CaseInsensitiveString("bar-grp"), new RoleUser(new CaseInsensitiveString("bar")), new RoleUser(new CaseInsensitiveString("bar-one"))));
+        configFileHelper.addRole(new RoleConfig(new CaseInsensitiveString("foo-grp"), new RoleUser(new CaseInsensitiveString("foo")), new RoleUser(new CaseInsensitiveString("foo-one"))));
+        configFileHelper.addRole(new RoleConfig(new CaseInsensitiveString("quux-grp"), new RoleUser(new CaseInsensitiveString("quux"))));
+        configFileHelper.addRole(new RoleConfig(new CaseInsensitiveString("bar-grp"), new RoleUser(new CaseInsensitiveString("bar")), new RoleUser(new CaseInsensitiveString("bar-one"))));
         configFileHelper.addAdminRoles("foo-grp", "quux-grp");
 
         assertThat(userService.getAdminAndRoleSelections(Arrays.asList("foo")).getAdminSelection(), is(new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.add, false)));

@@ -49,8 +49,7 @@ class SCMViewModelBuilder implements ViewModelBuilder {
 
             SCMPreference scmPreference = SCMMetadataStore.getInstance().preferenceFor(pluginId);
 
-            pluginInfos.add(new PluginInfo(pluginId, descriptor.about().name(), descriptor.about().version(),
-                    SCMExtension.EXTENSION_NAME, scmPreference.getScmView().displayValue()));
+            pluginInfos.add(new PluginInfo(descriptor, SCMExtension.EXTENSION_NAME, scmPreference.getScmView().displayValue(), null, null));
         }
         return pluginInfos;
     }
@@ -66,8 +65,7 @@ class SCMViewModelBuilder implements ViewModelBuilder {
         List<PluginConfiguration> pluginConfigurations = configurations(scmPreference.getScmConfigurations());
         PluginView pluginView = new PluginView(scmPreference.getScmView().template());
 
-        return new PluginInfo(pluginId, descriptor.about().name(), descriptor.about().version(), SCMExtension.EXTENSION_NAME,
-                scmPreference.getScmView().displayValue(), new PluggableInstanceSettings(pluginConfigurations, pluginView));
+        return new PluginInfo(descriptor, SCMExtension.EXTENSION_NAME, scmPreference.getScmView().displayValue(), new PluggableInstanceSettings(pluginConfigurations, pluginView));
     }
 
     private List<PluginConfiguration> configurations(SCMConfigurations scmConfigurations) {

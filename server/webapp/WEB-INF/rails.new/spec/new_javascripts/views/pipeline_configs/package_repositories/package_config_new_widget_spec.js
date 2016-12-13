@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-define(["jquery", "mithril", "views/pipeline_configs/package_repositories/package_config_new_widget", "models/pipeline_configs/materials",
-    'models/pipeline_configs/packages', 'models/pipeline_configs/repositories'],
-  function ($, m, PackageConfigNewWidget, Materials, Packages, Repositories) {
+define(["jquery", "mithril", "views/pipeline_configs/package_repositories/package_config_new_widget", 'models/pipeline_configs/packages', 'models/pipeline_configs/repositories'],
+  function ($, m, PackageConfigNewWidget, Packages, Repositories) {
 
     describe("PackageConfigNewWidget", function () {
       var packageMaterial;
       var $root = $('#mithril-mount-point'), root = $root.get(0);
 
       var repoConfig = {
+        /* eslint-disable camelcase */
         repo_id:         'repo-id',
         name:            'repoName',
         plugin_metadata: {
@@ -38,6 +38,7 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/packag
         _embedded:       {
           packages: []
         }
+        /* eslint-enable camelcase */
       };
 
 
@@ -84,7 +85,7 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/packag
         var inputForName = $root.find(".modal-content input[data-prop-name='name']");
         $(inputForName).val('newPackage').trigger('input');
         m.redraw(true);
-        expect(packageMaterial().name()).toBe('newPackage')
+        expect(packageMaterial().name()).toBe('newPackage');
       });
 
       it('should change the package model if auto update value is changed', function () {

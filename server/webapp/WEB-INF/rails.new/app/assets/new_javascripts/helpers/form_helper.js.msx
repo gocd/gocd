@@ -82,7 +82,6 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
     input: {
       controller: function () {
         this.onInput = function (model, attrName, callback, e) {
-          debugger;
           var currentTarget = (e || event).currentTarget;
           var newValue      = currentTarget.value || currentTarget.getAttribute('value');
           model[attrName](newValue);

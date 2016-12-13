@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-define(['jquery', 'mithril', 'lodash', 'models/pipeline_configs/repositories'],
-  function ($, m, _, Repositories) {
+define(['jquery', 'mithril', 'models/pipeline_configs/repositories'],
+  function ($, m, Repositories) {
     describe('Repositories', function () {
       describe('init', function () {
         var requestArgs;
@@ -159,11 +159,13 @@ define(['jquery', 'mithril', 'lodash', 'models/pipeline_configs/repositories'],
           });
 
           it('should update etag cache on success', function () {
+            /* eslint-disable camelcase */
             var xhr = {
               status:            200,
               getResponseHeader: m.prop(),
               responseText:      JSON.stringify({repo_id: 'new_id'})
             };
+            /* eslint-enable camelcase */
 
             spyOn(xhr, 'getResponseHeader').and.returnValue('etag_for_repo');
 
@@ -251,6 +253,7 @@ define(['jquery', 'mithril', 'lodash', 'models/pipeline_configs/repositories'],
 
         beforeAll(function () {
           Repositories([
+            /* eslint-disable camelcase */
             new Repositories.Repository({
               repo_id:         'repo_id_1',
               name:            'repo_1',
@@ -264,6 +267,7 @@ define(['jquery', 'mithril', 'lodash', 'models/pipeline_configs/repositories'],
               plugin_metadata: {id: 'npm', version: '1.1'}, //eslint-disable-line camelcase
               _embedded: {packages: []}
             })
+            /* eslint-enable camelcase */
           ]);
 
           deferred = $.Deferred();
@@ -308,10 +312,6 @@ define(['jquery', 'mithril', 'lodash', 'models/pipeline_configs/repositories'],
           expect(Repositories.findById('invalid_plugin_id')).toBe(null);
         });
 
-        it('should stop page redraw', function () {
-          //expect(requestArgs.background).toBe(false);
-        });
-
         it('should extract and cache etag for the repository', function () {
           var xhr = {
             getResponseHeader: m.prop()
@@ -332,6 +332,7 @@ define(['jquery', 'mithril', 'lodash', 'models/pipeline_configs/repositories'],
       describe('filterByPluginId', function () {
         beforeAll(function () {
           Repositories([
+            /* eslint-disable camelcase */
             new Repositories.Repository({
               repo_id:              'repo_id_1',
               plugin_metadata: {id: 'deb', version: '1.1'}, //eslint-disable-line camelcase
@@ -348,6 +349,7 @@ define(['jquery', 'mithril', 'lodash', 'models/pipeline_configs/repositories'],
               plugin_metadata: {id: 'deb', version: '1.1'}, //eslint-disable-line camelcase
               _embedded: {packages: []}
             })
+            /* eslint-enable camelcase */
           ]);
         });
 
@@ -361,86 +363,6 @@ define(['jquery', 'mithril', 'lodash', 'models/pipeline_configs/repositories'],
           expect(repositories.length).toBe(2);
           expect(repositories[0].id()).toBe('repo_id_1');
           expect(repositories[1].id()).toBe('repo_id_3');
-        });
-      });
-
-      describe('Repositories.Repository.Configurations', function () {
-        describe('fromJSON', function () {
-          it('should generate a list of configurations', function () {
-            var configurations = Repositories.Repository.Configurations.fromJSON([{key: 'url', value: 'path/to/repo'}, {key: 'username', value: 'some_name'}]);
-
-            expect(configurations.countConfiguration()).toBe(2);
-            expect(configurations.firstConfiguration().key()).toBe('url');
-            expect(configurations.firstConfiguration().value()).toBe('path/to/repo');
-            expect(configurations.lastConfiguration().key()).toBe('username');
-            expect(configurations.lastConfiguration().value()).toBe('some_name');
-          });
-
-          it('should handle secure configurations', function () {
-            var configurations = Repositories.Repository.Configurations.fromJSON([{key: 'username', value: 'some_name'}, {key: 'password', encrypted_value: 'adkfkk='}]); // eslint-disable-line camelcase
-
-            expect(configurations.countConfiguration()).toBe(2);
-            expect(configurations.firstConfiguration().isSecureValue()).toBe(false);
-            expect(configurations.lastConfiguration().isSecureValue()).toBe(true);
-          });
-        });
-
-        describe('toJSON', function () {
-          it('should serialize to JSON', function () {
-            var configurations = Repositories.Repository.Configurations.fromJSON([{key: 'url', value: 'path/to/repo'}, {key: 'username', value: 'some_name'}]);
-
-            expect(JSON.parse(JSON.stringify(configurations))).toEqual([{key: 'url', value: 'path/to/repo'}, {key: 'username', value: 'some_name'}]);
-          });
-
-          it('should handle secure configurations', function () {
-            var configurations = Repositories.Repository.Configurations.fromJSON([{key: 'username', value: 'some_name'}, {key: 'password', encrypted_value: 'adkfkk='}]); // eslint-disable-line camelcase
-
-            expect(JSON.parse(JSON.stringify(configurations))).toEqual([{key: 'username', value: 'some_name'}, {key: 'password', encrypted_value: 'adkfkk='}]); // eslint-disable-line camelcase
-          });
-        });
-
-        describe('setConfiguration', function () {
-          it('should add a configuration', function () {
-            var configurations = new Repositories.Repository.Configurations([]);
-
-            configurations.setConfiguration('key', 'val');
-
-            expect(configurations.countConfiguration()).toBe(1);
-            expect(configurations.firstConfiguration().key()).toBe('key');
-            expect(configurations.firstConfiguration().value()).toBe('val');
-          });
-
-          it('should update a configuration if present', function () {
-            var configurations = Repositories.Repository.Configurations.fromJSON([{key: 'url', value: 'path/to/repo'}]);
-
-            configurations.setConfiguration('url', 'new/path');
-
-            expect(configurations.countConfiguration()).toBe(1);
-            expect(configurations.firstConfiguration().key()).toBe('url');
-            expect(configurations.firstConfiguration().value()).toBe('new/path');
-          });
-
-          it('should change a secure configuration to unsecure on update', function () {
-            var configurations = Repositories.Repository.Configurations.fromJSON([{key: 'password', encrypted_value: 'jdbfj+='}]); //eslint-disable-line camelcase
-
-            expect(configurations.firstConfiguration().isSecureValue()).toBe(true);
-
-            configurations.setConfiguration('password', 'new_password');
-
-            expect(configurations.firstConfiguration().isSecureValue()).toBe(false);
-            expect(configurations.firstConfiguration().value()).toBe('new_password');
-          });
-
-          it('should not update a configuration if new value is same as old', function () {
-            var configurations = Repositories.Repository.Configurations.fromJSON([{key: 'password', encrypted_value: 'jdbfj+='}]); // eslint-disable-line camelcase
-
-            expect(configurations.firstConfiguration().isSecureValue()).toBe(true);
-
-            configurations.setConfiguration('password', 'jdbfj+=');
-
-            expect(configurations.firstConfiguration().isSecureValue()).toBe(true);
-            expect(configurations.firstConfiguration().value()).toBe('jdbfj+=');
-          });
         });
       });
     });

@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-define(["jquery", "mithril", "views/pipeline_configs/package_repositories/configuration_widget", "models/pipeline_configs/materials",
-    'models/pipeline_configs/repositories', 'models/pipeline_configs/plugin_infos'],
-  function ($, m, ConfigurationWidget, Materials, Repositories, PluginInfos) {
+define(["jquery", "mithril", "views/pipeline_configs/package_repositories/configuration_widget", 'models/shared/plugin_configurations'],
+  function ($, m, ConfigurationWidget, PluginConfigurations) {
 
     describe("ConfigurationWidget", function () {
       var $root = $('#mithril-mount-point'), root = $root.get(0);
@@ -36,19 +35,13 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/config
         m.redraw(true);
       };
 
-
-      beforeEach(function () {
-        var configuration = new Repositories.Repository.Configurations.Configuration(config);
-        mount(configuration);
-      });
-
       afterEach(function () {
         m.mount(root, null);
         m.redraw(true);
       });
 
       it("should have input for a configuration key", function () {
-        var configuration = new Repositories.Repository.Configurations.Configuration({'key': 'REPO_URL'});
+        var configuration = new PluginConfigurations.Configuration({'key': 'REPO_URL'});
         mount(configuration);
         var input = $root.find("input[data-prop-name='value']");
         expect(input).toHaveValue('');
@@ -57,7 +50,7 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/config
       });
 
       it('should contain input of type password for PASSWORD key', function () {
-        var configuration = new Repositories.Repository.Configurations.Configuration({'key': 'PASSWORD'});
+        var configuration = new PluginConfigurations.Configuration({'key': 'PASSWORD'});
         mount(configuration);
         expect($root).toContainElement("input[type='password']");
         var labels = $($root).find('label');
@@ -65,18 +58,20 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/config
       });
 
       it("should have prefilled input for a configuration key", function () {
+        var configuration = new PluginConfigurations.Configuration(config);
+        mount(configuration);
         var input = $root.find("input[data-prop-name='value']");
         expect(input).toHaveValue('http://repository');
       });
 
       it('should change the configuration model on changing input element', function () {
-        var configuration = new Repositories.Repository.Configurations.Configuration(config);
+        var configuration = new PluginConfigurations.Configuration(config);
         mount(configuration);
         var input = $root.find("input[data-prop-name='value']");
         $(input).val('http://newrepositoryvalue').trigger('input');
         m.redraw(true);
         expect(configuration.value()).toBe('http://newrepositoryvalue');
-      })
+      });
 
     });
   });

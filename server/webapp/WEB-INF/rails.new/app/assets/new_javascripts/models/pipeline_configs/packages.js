@@ -14,19 +14,11 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mrequest', 'models/errors', 'models/pipeline_configs/encrypted_value', 'models/validatable_mixin', 'js-routes', 'models/pipeline_configs/repositories', 'models/pipeline_configs/plugin_infos'],
-  function (m, _, s, Mixins, mrequest, Errors, EncryptedValue, Validatable, Routes, Repositories, PluginInfos) {
+define(['mithril', 'lodash', 'string-plus', 'helpers/mrequest', 'models/errors', 'models/validatable_mixin', 'js-routes', 'models/pipeline_configs/plugin_infos', 'models/shared/plugin_configurations'],
+  function (m, _, s, mrequest, Errors, Validatable, Routes, PluginInfos, PluginConfigurations) {
 
     var Packages             = m.prop([]);
     Packages.packageIdToEtag = {};
-
-    function plainOrCipherValue(data) {
-      if (data.encrypted_value) {
-        return new EncryptedValue({cipherText: s.defaultToIfBlank(data.encrypted_value, '')});
-      } else {
-        return new EncryptedValue({clearText: s.defaultToIfBlank(data.value, '')});
-      }
-    }
 
     Packages.Package = function (data) {
       Validatable.call(this, data);
@@ -35,7 +27,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
         this.id            = m.prop(s.defaultToIfBlank(data.id, ''));
         this.name          = m.prop(s.defaultToIfBlank(data.name, ''));
         this.autoUpdate    = m.prop(s.defaultToIfBlank(data.auto_update, true));
-        this.configuration = s.collectionToJSON(m.prop(Packages.Package.Configurations.fromJSON(data.configuration || {})));
+        this.configuration = s.collectionToJSON(m.prop(PluginConfigurations.fromJSON(data.configuration || {})));
         this.packageRepo   = m.prop(new Packages.Package.PackageRepository(data.package_repo || {}));
         this.errors        = m.prop(new Errors(data.errors));
       };
@@ -45,10 +37,6 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
       this.reInitialize = function (data) {
         this.init(data);
       };
-
-      //this.clone = function () {
-      //  return new Packages.Package(JSON.parse(JSON.stringify(this)));
-      //};
 
       this.toJSON = function () {
         /* eslint-disable camelcase */
@@ -111,11 +99,13 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
 
     Packages.Package.initialize = function (repository, configurations) {
       return new Packages.Package({
+        /* eslint-disable camelcase */
         configuration: configProperties(configurations),
         package_repo:  {
           id:   repository.id(),
           name: repository.name()
         }
+        /* eslint-enable camelcase */
       });
     };
 
@@ -148,16 +138,6 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
           name: this.name()
         };
       };
-    };
-
-    Packages.init = function (repoId) {
-      Repositories.findById(repoId).then(function (repository) {
-
-        var packagesFromRepository = repository.packages().mapPackages(function (packageMaterial) {
-          return new Packages.Package({id: packageMaterial.id(), name: packageMaterial.name()});
-        });
-        Packages(packagesFromRepository);
-      });
     };
 
     Packages.findById = function (id) {
@@ -229,71 +209,6 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mreq
 
       this.markClientSideErrors = function () {
         errors.push('There are errors on the page, fix them and save');
-      };
-    };
-
-    Packages.Package.Configurations = function (data) {
-      Mixins.HasMany.call(this, {
-        factory:    Packages.Package.Configurations.create,
-        as:         'Configuration',
-        collection: data
-      });
-
-      function configForKey(key) {
-        return this.findConfiguration(function (config) {
-          return _.isEqual(config.key(), key);
-        });
-      }
-
-      this.valueFor = function (key) {
-        var config = configForKey.call(this, key);
-
-        if (config) {
-          return config.value();
-        }
-      };
-
-      this.setConfiguration = function (key, value) {
-        var existingConfig = configForKey.call(this, key);
-
-        if (!existingConfig) {
-          return this.createConfiguration({key: key, value: value});
-        }
-
-        if (existingConfig.isSecureValue()) {
-          if (!_.isEqual(value, existingConfig.value())) {
-            existingConfig.becomeUnSecureValue();
-            existingConfig.value(value);
-          }
-        } else {
-          existingConfig.value(value);
-        }
-      };
-    };
-
-    Packages.Package.Configurations.create = function (data) {
-      return new Packages.Package.Configurations.Configuration(data);
-    };
-
-    Packages.Package.Configurations.fromJSON = function (data) {
-      var configurations = _.map(data, function (d) {
-        return new Packages.Package.Configurations.Configuration(d);
-      });
-
-      return new Packages.Package.Configurations(configurations);
-    };
-
-    Packages.Package.Configurations.Configuration = function (data) {
-      this.parent = Mixins.GetterSetter();
-      this.key    = m.prop(s.defaultToIfBlank(data.key, ''));
-      var _value  = m.prop(plainOrCipherValue(data));
-
-      Mixins.HasEncryptedAttribute.call(this, {attribute: _value, name: 'value'});
-
-      this.toJSON = function () {
-        var valueHash = this.isPlainValue() ? {value: this.value()} : {encrypted_value: this.value()};  //eslint-disable-line camelcase
-
-        return _.merge({key: this.key()}, valueHash);
       };
     };
 

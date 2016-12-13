@@ -14,17 +14,9 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/packages', 'views/pipeline_configs/errors_widget', 'models/pipeline_configs/plugin_infos', 'views/pipeline_configs/package_repositories/configuration_widget'],
-  function (m, _, f, Packages, ErrorsWidget, PluginInfos, PackageConfigurationWidget) {
+define(['mithril', 'helpers/form_helper', 'models/pipeline_configs/packages', 'views/pipeline_configs/errors_widget', 'views/pipeline_configs/package_repositories/configuration_widget'],
+  function (m, f, Packages, ErrorsWidget, PackageConfigurationWidget) {
     //This has to be done to get around mithril's controller caching
-
-
-    /*
-     'scmForEdit' is a cloned copy of the actual SCM, this is required since SCMConfigEditWidget is rendered in a modal. There might be scenarios
-     wherein a user can make changes to the scm but not save it and close the modal, in this scenario the changes should not
-     be retained. To achieve this behaviour the widget works with a clonened copy of scm.
-     */
-
 
     var PackageConfigNewWidget = {
 

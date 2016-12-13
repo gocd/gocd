@@ -14,66 +14,67 @@
  * limitations under the License.
  */
 
-define(["jquery", "mithril", "views/pipeline_configs/package_repositories/repository_config_edit_widget", "models/pipeline_configs/materials",
-    'models/pipeline_configs/repositories', 'models/pipeline_configs/plugin_infos'],
-  function ($, m, RepositoryConfigEditWidget, Materials, Repositories, PluginInfos) {
+define(["jquery", "mithril", "views/pipeline_configs/package_repositories/repository_config_edit_widget", 'models/pipeline_configs/repositories'
+], function ($, m, RepositoryConfigEditWidget, Repositories) {
 
-    describe("RepositoryConfigNewWidget", function () {
-      var repository;
-      var $root = $('#mithril-mount-point'), root = $root.get(0);
+  describe("RepositoryConfigNewWidget", function () {
+    var repository;
+    var $root = $('#mithril-mount-point'), root = $root.get(0);
 
-      var mount = function (repository) {
-        m.mount(root,
-          m.component(RepositoryConfigEditWidget,
-            {
-              'repoForEdit': repository,
-              'vm':          new Repositories.vm()
-            })
-        );
-        m.redraw(true);
-      };
+    var mount = function (repository) {
+      m.mount(root,
+        m.component(RepositoryConfigEditWidget,
+          {
+            'repoForEdit': repository,
+            'vm':          new Repositories.vm()
+          })
+      );
+      m.redraw(true);
+    };
 
 
-      beforeEach(function () {
-        repository = m.prop(new Repositories.Repository({
-          repo_id:         'repoId',
-          name:            'repoName',
-          plugin_metadata: {
-            id:      'deb',
-            version: '12.0'
-          },
-          configuration:   [{
-            key:   'REPO_URL',
-            value: 'http://foobar'
-          }]
-        }));
-        mount(repository);
+    beforeEach(function () {
+      repository = m.prop(new Repositories.Repository({
+        /* eslint-disable camelcase */
+        repo_id:         'repoId',
+        name:            'repoName',
+        plugin_metadata: {
+          id:      'deb',
+          version: '12.0'
+        },
+        configuration:   [{
+          key:   'REPO_URL',
+          value: 'http://foobar'
+        }]
+        /* eslint-enable camelcase */
+      }));
+      mount(repository);
+    });
+
+    afterEach(function () {
+      m.mount(root, null);
+      m.redraw(true);
+    });
+
+    describe("Repository Edit Widget", function () {
+      it("should have prefilled input for repository name", function () {
+        var modal = $root.find('.modal-content');
+        expect(modal).toContainElement("input[data-prop-name='name']");
+        expect($(modal).find("input[data-prop-name='name']")).toHaveValue('repoName');
       });
 
-      afterEach(function () {
-        m.mount(root, null);
-        m.redraw(true);
+      it("should show the repository plugin information", function () {
+        var typeOfPlugin = $root.find(".modal-body .key-value span");
+        expect(typeOfPlugin).toHaveText('deb');
       });
 
-      describe("Repository Edit Widget", function () {
-        it("should have prefilled input for repository name", function () {
-          var modal = $root.find('.modal-content');
-          expect(modal).toContainElement("input[data-prop-name='name']");
-          expect($(modal).find("input[data-prop-name='name']")).toHaveValue('repoName');
-        });
-
-        it("should show the repository plugin information", function () {
-          var typeOfPlugin = $root.find(".modal-body .key-value span");
-          expect(typeOfPlugin).toHaveText('deb');
-        });
-
-        it('should change the repository model on changing the repository name', function () {
-          var inputForName = $root.find(".modal-content input[data-prop-name='name']");
-          $(inputForName).val("updatedRepoName").trigger('input');
-          m.redraw(true);
-          expect(repository().name()).toEqual('updatedRepoName');
-          expect(inputForName).toHaveValue('updatedRepoName');
-        });
+      it('should change the repository model on changing the repository name', function () {
+        var inputForName = $root.find(".modal-content input[data-prop-name='name']");
+        $(inputForName).val("updatedRepoName").trigger('input');
+        m.redraw(true);
+        expect(repository().name()).toEqual('updatedRepoName');
+        expect(inputForName).toHaveValue('updatedRepoName');
       });
     });
   });
+});

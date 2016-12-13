@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-define(["jquery", "mithril", "views/pipeline_configs/package_repositories/package_config_edit_widget", "models/pipeline_configs/materials",
-    'models/pipeline_configs/packages', 'models/pipeline_configs/repositories'],
-  function ($, m, PackageConfigEditWidget, Materials, Packages, Repositories) {
+define(["jquery", "mithril", "views/pipeline_configs/package_repositories/package_config_edit_widget", 'models/pipeline_configs/packages', 'models/pipeline_configs/repositories'],
+  function ($, m, PackageConfigEditWidget, Packages, Repositories) {
 
     describe("PackageConfigEditWidget", function () {
       var packageMaterial, repository;
       var $root = $('#mithril-mount-point'), root = $root.get(0);
-
+      /* eslint-disable camelcase */
       var repoConfig = {
         repo_id:         'repo-id',
         name:            'repoName',
@@ -60,6 +59,7 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/packag
           name: 'repoName'
         }
       };
+      /* eslint-enable camelcase */
 
       var mount = function (packageForEdit, repository) {
         m.mount(root,
@@ -86,7 +86,7 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/packag
 
       it('should have prefilled input for package name', function () {
         var inputForName = $root.find(".modal-content input[data-prop-name='name']");
-        expect(inputForName).toHaveValue('packageName')
+        expect(inputForName).toHaveValue('packageName');
       });
 
       it('auto update checkbox should not be checked', function () {

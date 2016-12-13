@@ -15,10 +15,10 @@
  */
 
 define([
-  'mithril', 'lodash', 'helpers/form_helper', 'helpers/mithril_component_mixins', 'views/shared/new_modal',
+  'mithril', 'lodash', 'helpers/form_helper', 'views/shared/new_modal',
   'models/pipeline_configs/packages', 'models/pipeline_configs/repositories', 'models/pipeline_configs/plugin_infos', 'views/pipeline_configs/package_repositories/package_config_new_widget',
   'views/pipeline_configs/package_repositories/package_config_edit_widget'
-], function (m, _, f, ComponentMixins, Modal, Packages, Repositories, PluginInfos, PackageConfigNewWidget, PackageConfigEditWidget) {
+], function (m, _, f, Modal, Packages, Repositories, PluginInfos, PackageConfigNewWidget, PackageConfigEditWidget) {
 
   var onSuccessOfPackageApi = function (vm, modal, material, data) {
     vm.saveSuccess();
@@ -53,7 +53,7 @@ define([
 
     view: function (ctrl, args) {
       var packageForEdit = args.packageForEdit();
-      var data           = {Name: packageForEdit.name(), Auto_update: packageForEdit.autoUpdate()};
+      var data           = {Name: packageForEdit.name(), AutoUpdate: packageForEdit.autoUpdate()};
 
       packageForEdit.configuration().mapConfigurations(function (conf) {
         data[_.capitalize(conf.key())] = conf.isSecureValue() ? "***********" : conf.value();
@@ -128,7 +128,7 @@ define([
           args.material.ref(packageId);
           args.getPackageForEdit(packageId);
         }
-      }
+      };
     },
 
     view: function (ctrl, args) {

@@ -15,10 +15,10 @@
  */
 
 define([
-  'mithril', 'lodash', 'helpers/form_helper', 'helpers/mithril_component_mixins', 'views/shared/new_modal',
+  'mithril', 'lodash', 'helpers/form_helper', 'views/shared/new_modal',
   'views/pipeline_configs/package_repositories/repository_config_edit_widget', 'views/pipeline_configs/package_repositories/repository_config_new_widget', 'views/pipeline_configs/package_repositories/package_config_widget',
   'models/pipeline_configs/repositories', 'models/pipeline_configs/plugin_infos'
-], function (m, _, f, ComponentMixins, Modal, RepositoryConfigEditWidget, RepositoryConfigNewWidget, PackageConfigWidget, Repositories, PluginInfos) {
+], function (m, _, f, Modal, RepositoryConfigEditWidget, RepositoryConfigNewWidget, PackageConfigWidget, Repositories, PluginInfos) {
 
   var onSuccessOfRepoAPI = function (vm, modal, material, data) {
     vm.saveSuccess();

@@ -24,18 +24,17 @@ repositories {
 configurations {
   jrubyDist
   jrubyGems
-  jrubyGemsRuby2
 }
 
 dependencies {
   jrubyDist group: 'org.jruby', name: 'jruby-dist', version: '1.7.26', classifier: 'bin', ext: 'tar.gz'
   jrubyGems group: 'rubygems', name: 'bundler', version: '1.9.9'
 
-  jrubyGemsRuby2 group: 'rubygems', name: 'scss_lint', version: '0.50.1'
+  jrubyGems group: 'rubygems', name: 'scss_lint', version: '0.50.1'
 }
 
 task prepareJRuby {
-  inputs.files project.configurations.jrubyDist.files + project.configurations.jrubyGems.files + project.configurations.jrubyGemsRuby2.files
+  inputs.files project.configurations.jrubyDist.files + project.configurations.jrubyGems.files
   outputs.dir project.file('jruby')
 
   doFirst {
@@ -73,18 +72,6 @@ task prepareJRuby {
       args += project.configurations.jrubyGems.files
     }
 
-    exec {
-      standardOutput = System.out
-      errorOutput = System.err
-
-      if (isWindows()) {
-        setExecutable project.file("bin/jruby.bat")
-      } else {
-        setExecutable project.file("bin/jruby")
-      }
-      args = ['--2.0', '-S', 'gem', 'install', '--quiet', '--no-ri', '--no-rdoc', '--local', '--ignore-dependencies']
-      args += project.configurations.jrubyGemsRuby2.files
-    }
   }
 }
 

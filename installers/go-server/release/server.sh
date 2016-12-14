@@ -169,7 +169,7 @@ if [ "$USE_URANDOM" != "false" ] && [ -e "/dev/urandom" ]; then
     SERVER_STARTUP_ARGS+=("-Djava.security.egd=file:/dev/./urandom")
 fi
 
-SERVER_STARTUP_ARGS+=("-Xms$SERVER_MEM" "-Xmx$SERVER_MAX_MEM" "-XX:PermSize=$SERVER_MIN_PERM_GEN" "-XX:MaxPermSize=$SERVER_MAX_PERM_GEN")
+SERVER_STARTUP_ARGS+=("-Xms$SERVER_MEM" "-Xmx$SERVER_MAX_MEM" "-XX:PermSize=$SERVER_MIN_PERM_GEN" "-XX:MaxMetaspaceSize=$SERVER_MAX_PERM_GEN")
 SERVER_STARTUP_ARGS+=("${JVM_DEBUG[@]}" "${GC_LOG[@]}" "${GO_SERVER_SYSTEM_PROPERTIES[@]}")
 SERVER_STARTUP_ARGS+=("-Duser.language=en" "-Djruby.rack.request.size.threshold.bytes=30000000")
 SERVER_STARTUP_ARGS+=("-Duser.country=US" "-Dcruise.config.dir=$GO_CONFIG_DIR" "-Dcruise.config.file=$GO_CONFIG_DIR/cruise-config.xml")

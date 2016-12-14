@@ -21,7 +21,7 @@ describe Admin::Materials::DependencyController do
   include MockRegistryModule
   before do
     allow(controller).to receive(:go_config_service).and_return(@go_config_service = Object.new)
-    allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
+    allow(@go_config_service).to receive(:getRegistry).and_return(MockRegistryModule::MockRegistry.new)
   end
 
   describe "new,edit,create and destroy actions" do
@@ -97,7 +97,7 @@ describe Admin::Materials::DependencyController do
       allow(HttpLocalizedOperationResult).to receive(:new).and_return(@result)
       pause_info = PipelinePauseInfo.paused("just for fun", "loser")
       expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline-name").and_return(pause_info)
-      allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
+      allow(@go_config_service).to receive(:getRegistry).and_return(MockRegistryModule::MockRegistry.new)
     end
 
     it "should return pipeline [stage] json in alphabetical order" do

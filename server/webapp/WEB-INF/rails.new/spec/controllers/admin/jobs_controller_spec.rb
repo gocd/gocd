@@ -83,7 +83,7 @@ describe Admin::JobsController do
       allow(controller).to receive(:pipeline_pause_service).and_return(@pipeline_pause_service)
 
       @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
-      allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
+      allow(@go_config_service).to receive(:getRegistry).and_return(MockRegistryModule::MockRegistry.new)
     end
 
 
@@ -117,7 +117,7 @@ describe Admin::JobsController do
         add_resource("job-1", "linux")
         add_resource("job-2", "windows-xp")
         add_resource("job-2", "solaris")
-        allow(@go_config_service).to receive(:registry)
+        allow(@go_config_service).to receive(:getRegistry)
 
         get :new, :pipeline_name => "pipeline-name", :stage_name => "stage-name", :stage_parent => "pipelines"
 

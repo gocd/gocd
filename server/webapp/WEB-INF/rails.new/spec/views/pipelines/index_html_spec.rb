@@ -39,7 +39,6 @@ describe "pipelines/index.html.erb" do
     class << view
       include StagesHelper
     end
-    allow(view).to receive(:on_pipeline_dashboard?).and_return(true)
   end
 
   it "should render multiple groups" do

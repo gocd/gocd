@@ -55,7 +55,7 @@ shared_examples_for :material_controller do
 
       before do
         expect(@go_config_service).to receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
-        allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
+        allow(@go_config_service).to receive(:getRegistry).and_return(MockRegistryModule::MockRegistry.new)
       end
 
       it "should load new material" do
@@ -72,7 +72,7 @@ shared_examples_for :material_controller do
     describe "create" do
       before :each do
         setup_for_new_material
-        allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
+        allow(@go_config_service).to receive(:getRegistry).and_return(MockRegistryModule::MockRegistry.new)
       end
 
       it "should add new material" do
@@ -108,7 +108,7 @@ shared_examples_for :material_controller do
     describe "edit" do
       before do
         expect(@go_config_service).to receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
-        allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
+        allow(@go_config_service).to receive(:getRegistry).and_return(MockRegistryModule::MockRegistry.new)
       end
 
       it "should edit an existing material" do
@@ -127,7 +127,7 @@ shared_examples_for :material_controller do
 
       before :each do
         setup_other_form_objects
-        allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
+        allow(@go_config_service).to receive(:getRegistry).and_return(MockRegistryModule::MockRegistry.new)
         allow(@go_config_service).to receive(:getConfigForEditing).and_return(@cruise_config)
       end
 

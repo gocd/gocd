@@ -44,7 +44,7 @@ describe Admin::ServerController do
 
 
     allow(controller).to receive(:go_config_service).and_return(@go_config_service = Object.new)
-    allow(controller).to receive(:user_service).and_return(@user_service = Object.new)
+    allow(controller).to receive(:user_service).and_return(@user_service = double('user-service'))
     allow(controller).to receive(:system_service).and_return(@system_service = Object.new)
 
     allow(@user_service).to receive(:canUserTurnOffAutoLogin).and_return(true)
@@ -58,7 +58,7 @@ describe Admin::ServerController do
     allow(@go_config_service).to receive(:getConfigForEditing).and_return(@cruise_config)
 
     allow(controller).to receive(:populate_config_validity)
-    allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
+    allow(@go_config_service).to receive(:getRegistry).and_return(MockRegistryModule::MockRegistry.new)
 
     allow(controller).to receive(:l).and_return(localizer = Class.new do
       def method_missing method, *args

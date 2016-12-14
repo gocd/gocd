@@ -37,7 +37,7 @@ describe StagesController do
     @cruise_config = BasicCruiseConfig.new
     @go_config_service = double("go config service")
     @user = Username.new(CaseInsensitiveString.new("foo"))
-    @status = "status"
+    @status = double("status")
     allow(HttpOperationResult).to receive(:new).and_return(@status)
     @localized_result = HttpLocalizedOperationResult.new
     @subsection_result = SubsectionLocalizedOperationResult.new

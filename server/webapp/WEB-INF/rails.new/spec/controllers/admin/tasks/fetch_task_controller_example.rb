@@ -20,7 +20,7 @@ shared_examples_for :fetch_task_controller do
     before do
       expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with(@pipeline_name).and_return(@pause_info)
       form_load_expectation
-      allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
+      allow(@go_config_service).to receive(:getRegistry).and_return(MockRegistryModule::MockRegistry.new)
     end
 
     it "should load auto-suggest data for new fetch-form" do
@@ -40,7 +40,7 @@ shared_examples_for :fetch_task_controller do
     before do
       form_load_expectation
       expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with(@pipeline_name).and_return(@pause_info)
-      allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
+      allow(@go_config_service).to receive(:getRegistry).and_return(MockRegistryModule::MockRegistry.new)
     end
 
     it "should load auto-suggest(off updated config) data when updating fetch task" do

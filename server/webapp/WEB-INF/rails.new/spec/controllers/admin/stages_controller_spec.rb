@@ -129,7 +129,7 @@ describe Admin::StagesController do
       before do
         expect(@go_config_service).to receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
-        allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
+        allow(@go_config_service).to receive(:getRegistry).and_return(MockRegistryModule::MockRegistry.new)
       end
 
       it "should set current tab param" do
@@ -172,13 +172,13 @@ describe Admin::StagesController do
       before do
         expect(@go_config_service).to receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
-        allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
+        allow(@go_config_service).to receive(:getRegistry).and_return(MockRegistryModule::MockRegistry.new)
         expect(controller).to receive(:task_view_service).and_return(task_view_service = double("task_view_service"))
         expect(task_view_service).to receive(:getTaskViewModels).and_return(@tvms = [TaskViewModel.new(AntTask.new(), "new", "erb"), TaskViewModel.new(NantTask.new(), "new", "erb")].to_java(TaskViewModel))
       end
 
       it "should load a blank exec task in a blank job" do
-        allow(@go_config_service).to receive(:registry)
+        allow(@go_config_service).to receive(:getRegistry)
 
         get :new, :pipeline_name => "pipeline-name", :stage_parent => "pipelines"
 
@@ -205,7 +205,7 @@ describe Admin::StagesController do
       end
 
       before :each do
-        allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
+        allow(@go_config_service).to receive(:getRegistry).and_return(MockRegistryModule::MockRegistry.new)
         @pluggable_task_service = double('Pluggable_task_service')
         allow(controller).to receive(:pluggable_task_service).and_return(@pluggable_task_service)
       end
@@ -341,7 +341,7 @@ describe Admin::StagesController do
       before do
         expect(@go_config_service).to receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
-        allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
+        allow(@go_config_service).to receive(:getRegistry).and_return(MockRegistryModule::MockRegistry.new)
       end
 
       it "should render error page if stage does not exist" do
@@ -356,7 +356,7 @@ describe Admin::StagesController do
       before do
         expect(@go_config_service).to receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
-        allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
+        allow(@go_config_service).to receive(:getRegistry).and_return(MockRegistryModule::MockRegistry.new)
       end
 
       it "should load stage, pipeline_group, autocomplete_users and autocomplete_roles" do
@@ -383,7 +383,7 @@ describe Admin::StagesController do
         allow(controller).to receive(:template_config_service).and_return(@template_config_service)
         expect(@template_config_service).to receive(:loadForEdit).with("template-name", @user, @result).and_return(ConfigForEdit.new(@pipeline_template, @cruise_config, @cruise_config))
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("template-name").and_return(@pause_info)
-        allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
+        allow(@go_config_service).to receive(:getRegistry).and_return(MockRegistryModule::MockRegistry.new)
       end
 
       it "should assign all users and all roles when loading permissions autocomplete for a template" do
@@ -406,7 +406,7 @@ describe Admin::StagesController do
 
       before do
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
-        allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
+        allow(@go_config_service).to receive(:getRegistry).and_return(MockRegistryModule::MockRegistry.new)
       end
 
       it "should update stage instance with form fields and save it" do
@@ -481,7 +481,7 @@ describe Admin::StagesController do
 
       before do
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
-        allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
+        allow(@go_config_service).to receive(:getRegistry).and_return(MockRegistryModule::MockRegistry.new)
       end
 
       it "should delete the given stage" do
@@ -523,7 +523,7 @@ describe Admin::StagesController do
       before do
         expect(@go_config_service).to receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
         allow(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
-        allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
+        allow(@go_config_service).to receive(:getRegistry).and_return(MockRegistryModule::MockRegistry.new)
       end
 
       it "should use template" do

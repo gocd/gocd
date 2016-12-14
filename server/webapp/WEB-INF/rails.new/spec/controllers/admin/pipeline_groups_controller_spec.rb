@@ -103,7 +103,7 @@ describe Admin::PipelineGroupsController do
       @config = BasicCruiseConfig.new(@groups.to_a.to_java(PipelineConfigs))
       group_for_edit = ConfigForEdit.new(@groups.get(0), @config, @config)
       allow(@go_config_service).to receive(:loadGroupForEditing).and_return(group_for_edit)
-      allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
+      allow(@go_config_service).to receive(:getRegistry).and_return(MockRegistryModule::MockRegistry.new)
     end
 
     after(:each) do

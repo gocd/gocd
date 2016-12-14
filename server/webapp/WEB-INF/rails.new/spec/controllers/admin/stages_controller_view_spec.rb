@@ -45,7 +45,7 @@ describe Admin::StagesController, "view" do
         end
         @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
-        allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
+        allow(@go_config_service).to receive(:getRegistry).and_return(MockRegistryModule::MockRegistry.new)
       end
 
       it "should display 'fetch materials' & 'clean working directory' checkbox" do
@@ -144,7 +144,7 @@ describe Admin::StagesController, "view" do
           @result = stub_localized_result
           @user = current_user
           stub_save_for_success
-          allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
+          allow(@go_config_service).to receive(:getRegistry).and_return(MockRegistryModule::MockRegistry.new)
         end
 
         after do

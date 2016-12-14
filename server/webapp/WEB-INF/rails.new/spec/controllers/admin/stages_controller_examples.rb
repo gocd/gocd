@@ -20,7 +20,7 @@ shared_examples_for :stages_controller do
 
       before do
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
-        allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
+        allow(@go_config_service).to receive(:getRegistry).and_return(MockRegistryModule::MockRegistry.new)
       end
 
       it "should increment stage order" do
@@ -43,7 +43,7 @@ shared_examples_for :stages_controller do
 
       before do
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
-        allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
+        allow(@go_config_service).to receive(:getRegistry).and_return(MockRegistryModule::MockRegistry.new)
       end
 
       it "should decrement stage order" do

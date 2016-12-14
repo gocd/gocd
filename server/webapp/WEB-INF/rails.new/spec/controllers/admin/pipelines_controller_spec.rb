@@ -78,7 +78,7 @@ describe Admin::PipelinesController do
 
       expect(@go_config_service).to receive(:loadForEdit).with('HelloWorld', @user, @result).and_return(pipeline_config_for_edit)
       allow(@go_config_service).to receive(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid())
-      allow(@go_config_service).to receive(:registry)
+      allow(@go_config_service).to receive(:getRegistry)
 
       @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
       expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("HelloWorld").and_return(@pause_info)
@@ -104,7 +104,7 @@ describe Admin::PipelinesController do
       allow(HttpLocalizedOperationResult).to receive(:new).and_return(@result)
 
       allow(@go_config_service).to receive(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid())
-      allow(@go_config_service).to receive(:registry)
+      allow(@go_config_service).to receive(:getRegistry)
     end
 
     describe "for authorized user" do
@@ -169,7 +169,7 @@ describe Admin::PipelinesController do
       @pipeline_config_for_edit = ConfigForEdit.new(@pipeline, @cruise_config, @cruise_config)
 
       @go_config_service = stub_service(:go_config_service)
-      allow(@go_config_service).to receive(:registry)
+      allow(@go_config_service).to receive(:getRegistry)
     end
 
     describe "for authorized user" do
@@ -286,7 +286,7 @@ describe Admin::PipelinesController do
     before(:each) do
       allow(controller).to receive(:go_config_service).with(no_args).and_return(@go_config_service = double('Go Config Service'))
       allow(@go_config_service).to receive(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid())
-      allow(@go_config_service).to receive(:registry)
+      allow(@go_config_service).to receive(:getRegistry)
       @cruise_config = BasicCruiseConfig.new
       expect(@go_config_service).to receive(:getConfigForEditing).and_return(@cruise_config)
       @cruise_config_mother = GoConfigMother.new
@@ -394,7 +394,7 @@ describe Admin::PipelinesController do
       repos.add(@repository1)
       @cruise_config.setPackageRepositories(repos)
       expect(@go_config_service).to receive(:getConfigForEditing).and_return(Cloner.new().deepClone(@cruise_config))
-      allow(@go_config_service).to receive(:registry)
+      allow(@go_config_service).to receive(:getRegistry)
       ReflectionUtil.setField(@cruise_config, "md5", "1234abcd")
       @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
       allow(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("new-pip").and_return(@pause_info)
@@ -696,7 +696,7 @@ describe Admin::PipelinesController do
       @cruise_config.addPipeline("group1", @pipeline)
       expect(@go_config_service).to receive(:getConfigForEditing).and_return(@cruise_config)
       expect(@security_service).to receive(:modifiableGroupsForUser).with(@user).and_return(["group1", "group2"])
-      allow(@go_config_service).to receive(:registry)
+      allow(@go_config_service).to receive(:getRegistry)
     end
 
     describe "clone:get" do

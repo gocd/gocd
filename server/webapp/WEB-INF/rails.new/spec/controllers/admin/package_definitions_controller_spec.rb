@@ -68,7 +68,7 @@ describe Admin::PackageDefinitionsController do
       allow(controller).to receive(:populate_config_validity)
       @cruise_config = BasicCruiseConfig.new()
       @go_config_service = stub_service(:go_config_service)
-      allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
+      allow(@go_config_service).to receive(:getRegistry).and_return(MockRegistryModule::MockRegistry.new)
       allow(@go_config_service).to receive(:getConfigForEditing).and_return(@cruise_config)
       repository1 = PackageRepositoryMother.create("repo1", "repo1-name", "pluginid", "version1.0", Configuration.new([ConfigurationPropertyMother.create("k1", false, "v1")].to_java(ConfigurationProperty)))
       repository2 = PackageRepositoryMother.create("repo2", "repo2-name", "invalid-pluginid", "version1.0", Configuration.new)

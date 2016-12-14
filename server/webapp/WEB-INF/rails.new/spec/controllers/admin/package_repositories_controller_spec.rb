@@ -87,7 +87,7 @@ describe Admin::PackageRepositoriesController do
       @go_config_service = double('go config service')
       allow(controller).to receive(:go_config_service).and_return(@go_config_service)
       expect(@go_config_service).to receive(:checkConfigFileValid).and_return(config_validity)
-      allow(@go_config_service).to receive(:registry)
+      allow(@go_config_service).to receive(:getRegistry)
 
       @cloner = double('cloner')
       allow(controller).to receive(:get_cloner_instance).and_return(@cloner)

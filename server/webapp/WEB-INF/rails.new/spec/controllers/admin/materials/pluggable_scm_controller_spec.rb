@@ -71,7 +71,7 @@ describe Admin::Materials::PluggableScmController do
       setup_data
       setup_metadata
 
-      allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
+      allow(@go_config_service).to receive(:getRegistry).and_return(MockRegistryModule::MockRegistry.new)
 
       @pluggable_scm_service = stub_service(:pluggable_scm_service)
     end

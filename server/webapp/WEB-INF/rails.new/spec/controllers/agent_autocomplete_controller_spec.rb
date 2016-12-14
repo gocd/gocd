@@ -32,9 +32,9 @@ describe AgentAutocompleteController do
 
   describe 'actions' do
     before do
-      allow(controller).to receive(:go_config_service).and_return(@go_config_service = Object.new)
-      allow(controller).to receive(:environment_config_service).and_return(@environment_config_service = Object.new)
-      allow(controller).to receive(:agent_service).and_return(@agent_service = Object.new)
+      allow(controller).to receive(:go_config_service).and_return(@go_config_service = double('go-config-service'))
+      allow(controller).to receive(:environment_config_service).and_return(@environment_config_service = double('environment-config-service'))
+      allow(controller).to receive(:agent_service).and_return(@agent_service = double('agent-service'))
       allow(@go_config_service).to receive(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid())
     end
 

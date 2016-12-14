@@ -24,7 +24,7 @@ end
 describe EnvironmentsController do
   describe "index, create and update" do
     before do
-      @environment_service = Object.new
+      @environment_service = double('environment-service')
       allow(controller).to receive(:current_user).and_return('user_foo')
       allow(controller).to receive(:populate_config_validity)
     end
@@ -183,7 +183,7 @@ describe EnvironmentsController do
       @config_helper.onSetUp()
       @config_helper.using_cruise_config_dao(controller.go_config_dao)
       allow(controller).to receive(:current_user).and_return(com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('user_foo')))
-      allow(controller).to receive(:security_service).and_return(@security_service = Object.new)
+      allow(controller).to receive(:security_service).and_return(@security_service = double('security-service'))
       allow(@security_service).to receive(:canViewAdminPage).with(user).and_return(true)
       allow(@security_service).to receive(:isUserAdmin).with(user).and_return(true)
       setup_base_urls
@@ -362,7 +362,7 @@ describe EnvironmentsController do
       @config_helper.onSetUp()
       @config_helper.using_cruise_config_dao(controller.go_config_dao)
       allow(controller).to receive(:current_user).and_return(com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('user_foo')))
-      allow(controller).to receive(:security_service).and_return(@security_service = Object.new)
+      allow(controller).to receive(:security_service).and_return(@security_service = double('security-service'))
       allow(@security_service).to receive(:canViewAdminPage).with(user).and_return(true)
       @config_helper.addAdmins(["user_foo"].to_java(:string))
       @environment_name = "foo-environment"

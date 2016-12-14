@@ -23,7 +23,7 @@ describe "/layouts/admin" do
   before do
     @layout_name = 'layouts/admin'
     @admin_url = "/admin/pipelines"
-    @user = Object.new
+    @user = double('user')
     assign(:user, @user)
     assign(:error_count, 0)
     assign(:warning_count, 0)

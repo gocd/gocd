@@ -68,7 +68,7 @@ describe Admin::Materials::PackageController do
       allow(@go_config_service).to receive(:getConfigForEditing).and_return(@cruise_config)
 
       setup_other_form_objects
-      allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
+      allow(@go_config_service).to receive(:getRegistry).and_return(MockRegistryModule::MockRegistry.new)
       @repo_id = "repo-id"
     end
 

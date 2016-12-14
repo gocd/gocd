@@ -78,7 +78,7 @@ describe Admin::TemplatesController do
       @go_config_service = stub_service(:go_config_service)
 
       allow(@go_config_service).to receive(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid())
-      allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
+      allow(@go_config_service).to receive(:getRegistry).and_return(MockRegistryModule::MockRegistry.new)
     end
 
     describe "index" do
@@ -172,7 +172,7 @@ describe Admin::TemplatesController do
 
     describe "destroy" do
       before(:each) do
-        allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
+        allow(@go_config_service).to receive(:getRegistry).and_return(MockRegistryModule::MockRegistry.new)
         expect(@go_config_service).to receive(:loadCruiseConfigForEdit).with(@user, @result).and_return(@cruise_config)
       end
 

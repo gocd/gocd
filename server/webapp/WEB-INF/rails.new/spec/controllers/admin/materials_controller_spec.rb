@@ -37,7 +37,7 @@ describe Admin::MaterialsController do
       @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
       @pipeline_name = "pipeline-name"
       expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with(@pipeline_name).and_return(@pause_info)
-      allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
+      allow(@go_config_service).to receive(:getRegistry).and_return(MockRegistryModule::MockRegistry.new)
       expect(@go_config_service).to receive(:checkConfigFileValid).and_return(GoConfigValidity.valid)
       @cruise_config = double("Cruise Config")
       expect(@cruise_config).to receive(:name).and_return(@pipeline_name)
@@ -77,7 +77,7 @@ describe Admin::MaterialsController do
       @pipeline_pause_service = stub_service(:pipeline_pause_service)
       @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
       expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
-      allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
+      allow(@go_config_service).to receive(:getRegistry).and_return(MockRegistryModule::MockRegistry.new)
     end
 
     it "should delete an existing material" do

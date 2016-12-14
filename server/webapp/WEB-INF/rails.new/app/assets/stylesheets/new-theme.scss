@@ -18,6 +18,10 @@
 @import "../new_stylesheets/shared/mixins";
 @import '../new_stylesheets/shared/common';
 
+@include foundation-grid;
+@include foundation-typography;
+@include foundation-forms;
+
 %page-title {
   color:       #333 !important;
   margin-top:  4px;
@@ -35,6 +39,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background:              $page-body-background;
 
+}
+
+ul {
+  margin: 0;
 }
 
 .row {
@@ -404,6 +412,9 @@ h4 {
 }
 
 //pipelines
+.pipeline_bundle {
+  padding: 0 30px;
+}
 
 #environments #body_content, #pipelines #body_content {
   background-color: transparent;
@@ -577,6 +588,10 @@ h1.entity_title {
 .stage_bar.Passed {
   background-image: none;
   background-color: $passed;
+}
+#build_detail_summary_container.passed h3 {
+  background-color: $passed;
+
 }
 
 .pipeline_bundle {
@@ -980,7 +995,7 @@ input.pipeline-comment-button {
   ul {
     float:         none;
     overflow:      hidden;
-    padding:       5px 20px 0;
+    padding:       10px 20px 0;
     background:    $tab-header-bg;
     border-radius: $global-border-radius $global-border-radius 0 0;
     li {
@@ -1067,9 +1082,11 @@ div#tab_container {
   thead {
     border: 0;
     tr {
-      background: $table-header-bg;
-      color:      $txt-color;
-      font-size:  rem-calc(14px);
+      background:   $table-header-bg;
+      color:        $txt-color;
+      font-size:    rem-calc(14px);
+      border-left:  1px solid $table-header-bg;
+      border-right: 1px solid $table-header-bg;
     }
   }
   tr.agent_header {
@@ -1081,7 +1098,8 @@ div#tab_container {
     border-bottom:    1px solid #ddd;
     white-space:      nowrap;
     font-size:        rem-calc(13px) !important;
-    padding:          5px 10px !important;
+    padding:          10px !important;
+    font-weight:      600;
   }
   tbody {
     background: #fff;
@@ -1099,13 +1117,6 @@ div#tab_container {
     border:        0;
     border-bottom: 3px solid $table-header-border;
   }
-}
-
-.admin_workspace h3 {
-  display:       inline-block;
-  margin:        10px 10px 10px 20px;
-  border-bottom: none;
-
 }
 
 span.contextual_help {
@@ -1132,7 +1143,7 @@ span.contextual_help.stage_approval {
 
 .admin_sidebar.general {
   background:    #fff;
-  padding:       10px;
+  padding:       20px 10px;
   border-radius: 3px;
 }
 
@@ -1155,26 +1166,18 @@ ul#pipeline_config_tree {
 
 }
 
-.admin_wrapper {
-  .form_buttons {
-    margin:     10px 0 0 0;
-    background: none;
-  }
-  .list_table, .simple {
-    margin: 0 20px;
-    width:  97%;
-  }
-}
-
 #pipeline_edit_form .form_buttons .submit, #stage_edit_form .form_buttons .submit, #job_edit_form .form_buttons .submit, #template_edit_form .form_buttons .submit, #group_edit_form .form_buttons .submit, #pipeline_edit_form .form_buttons .reset_button, #stage_edit_form .form_buttons .reset_button, #job_edit_form .form_buttons .reset_button, #template_edit_form .form_buttons .reset_button, #group_edit_form .form_buttons .reset_button, #stage_permissions_edit_form .form_buttons .reset_button, #pipeline_snippet_view #view_group .link_as_button, #pipeline_snippet_edit #edit_group .form_buttons .link_as_button, button.submit {
-  background: #ccc;
-  color:      #333 !important;
-  font-size:  rem-calc(13px);
-  border:     0;
-  min-width:  inherit;
+  background:  #ccc;
+  color:       #333 !important;
+  font-size:   rem-calc(13px);
+  font-weight: 600;
+  border:      0;
+  min-width:   inherit;
+  transition:  background-color 0.25s ease-out, color 0.25s ease-out;
   &:hover {
     background: #666;
     color:      #fff !important;
+    transition: background-color 0.25s ease-out, color 0.25s ease-out;
 
   }
 }
@@ -1184,20 +1187,22 @@ ul#pipeline_config_tree {
   text-align:       center;
   line-height:      1;
   cursor:           pointer;
-  transition:       background-color 0.25s ease-out, color 0.25s ease-out;
+  transition:       all 0.3s ease-in-out;
   vertical-align:   middle;
   border:           0;
-  border-radius:    3px;
+  border-radius:    $global-border-radius;
   padding:          0.5em 1em;
-  background-color: $go-primary;;
-  color:            #fefefe;
-  font-size:        0.75rem;
+  background-color: $primary-btn-bg;
+  color:            $go-white;
+  font-size:        rem-calc(13px);
+  font-weight:      600;
   position:         relative;
   margin:           0 10px;
-  top:              -1px;
+  top:              -2px;
   &:hover {
-    background-color: #a64fb4;
-    color:            #fefefe;
+    transition:       all 0.3s ease-in-out;
+    background-color: $primary-btn-bg-hover;
+    color:            $go-white;
   }
 }
 
@@ -1209,24 +1214,27 @@ ul#pipeline_config_tree {
   margin-top: 3px;
 }
 
-.environment_variables_section #add_variables {
-  float:               none;
-  margin:              10px 0 0 0;
-  background-position: 3px 0px;
-  height:              16px;
-  line-height:         16px;
-  padding:             0 0 0 24px;
-  display:             inline-block;
-}
-
 .enhanced_dropdown {
   border-bottom-color: #ccc;
   border-right-color:  #ccc;
   margin-top:          -37px;
   @extend %boxshadow;
-
+  li:hover {
+    background-color:#efefef;
+  }
+  a.lookup_icon {
+    background-position: calc(100% - 10px) center;
+  }
   &.agent_edit_popup {
     margin-top: auto;
+  }
+
+  &#new_task_popup {
+    li {
+      a {
+        padding: 5px 10px;
+      }
+    }
   }
 }
 
@@ -1334,11 +1342,6 @@ button#confirm-pause-up42 {
   }
 }
 
-.add_link {
-  padding:     0px 5px 0px 20px;
-  line-height: 16px;
-}
-
 .sub_tab_container_content {
   background: #fff;
   padding:    20px 30px;
@@ -1354,26 +1357,6 @@ button#confirm-pause-up42 {
 
 .steps_panes .form_buttons {
   background: none;
-}
-
-.admin_workspace.has_tree_view {
-  padding:       20px;
-  border-radius: 3px;
-  background:    #fff;
-  .fieldset {
-    padding:     0;
-    margin-left: 20px;
-  }
-  form#pipeline_edit_form {
-    padding: 0 20px;
-    .fieldset {
-      margin-left: 0;
-    }
-    h3 {
-      margin-left: 0;
-    }
-  }
-
 }
 
 #environments h2.entity_title {
@@ -1462,11 +1445,11 @@ input.new_resource {
 
 .fieldset {
   clear:         none;
-  margin-bottom: 15px;
   box-shadow:    none;
   border-radius: 0;
   border:        0;
   background:    none;
+  margin:        0 0 20px 0;
 }
 
 //modal
@@ -1498,28 +1481,16 @@ input.new_resource {
   padding:  15px;
 }
 
-.admin_workspace .pipeline_header {
-  padding: 0 0 10px 0;
-}
-
-.admin_workspace h3.title.entity_title {
-  padding:     7px 0 7px 40px;;
-  display:     inline-block;
-  margin:      0;
-  font-weight: 600;
-  border:      0;
-}
-
 //forms
 
 input[type="text"], input[type="password"], input[type="file"], input[type="url"], textarea {
 
-  font-size:     13px;
-  line-height:   30px;
-  height:        30px;
+  font-size:     rem-calc(13px);
+  line-height:   37px;
   border-radius: 3px;
   padding:       0 10px;
   box-shadow:    none;
+  margin-bottom: 10px;
 }
 
 textarea {
@@ -1619,6 +1590,7 @@ input[type='submit'], input[type='submit']:hover, button.submit, button.submit:h
   color:          $btn-txt !important;
   padding:        6px 10px;
   text-transform: uppercase;
+  border-radius:  $global-border-radius;
   &:hover {
     background: $btn-bg-hover;
     color:      $btn-txt !important;
@@ -1767,7 +1739,7 @@ a:link#link-to-this-page, a:visited#link-to-this-page {
 .ui-dialog-titlebar, #MB_header {
   border-bottom: 2px solid #ccc;
   background:    $modal-header-bg;
-                 //margin-bottom: 25px;
+  //margin-bottom: 25px;
 }
 
 .permissions .instructions {
@@ -2016,13 +1988,17 @@ a:link.help, a:visited.help {
   }
 }
 
+.treeview .preview_icon_wobg {
+  top: 11px;
+}
+
 .admin_workspace.has_tree_view {
   margin-left: 225px;
 }
 
 .admin_workspace.has_tree_view {
   .instructions {
-    margin: 0px 0 10px 20px;
+    margin: 0px 0 10px 0px;
   }
 }
 
@@ -2034,12 +2010,6 @@ a:link.help, a:visited.help {
   padding: 20px;
   @media only screen and (min-width: $max-breakpoint) {
     padding: 15px 0 !important
-  }
-}
-
-.admin_templates {
-  .admin_workspace h3.title.entity_title {
-    padding-left: 40px;
   }
 }
 
@@ -2379,6 +2349,9 @@ input.compare_pipeline_input {
     span {
       color: #fff !important;
     }
+    &:hover {
+      background: $go-primary !important;
+    }
   }
   button.submit.primary[disabled] {
     background: $btn-light-bg !important;
@@ -2440,10 +2413,6 @@ input.compare_pipeline_input {
   .action_icon {
     margin-top: 10px;
   }
-}
-
-.checkbox_row div.contextual_help {
-  position: relative;
 }
 
 $new-theme-material-popup-user-width: 20em;
@@ -2891,3 +2860,270 @@ button.edit-environment {
 .job_details_content .build_detail_container #tab-content-of-materials .material_revision {
   padding: 0px 20px !important;
 }
+
+//icon replacements
+%iconstyles {
+  background:  none;
+  font-size:   rem-calc(14px);
+  transition:  all 0.1s ease-in-out;
+  color:       $icon-txt;
+  font-weight: 600;
+  &:before {
+    color:       $icon-color;
+    margin:      0 5px;
+    font-weight: 600;
+    transition:  all 0.1s ease-in-out;
+  }
+  &:visited {
+    color: $icon-txt;
+  }
+  &:hover {
+    color:      $icon-txt-hover;
+    transition: all 0.1s ease-in-out;
+    background: none;
+  }
+
+}
+
+.preview_icon {
+  @include icon-before($type: search);
+  @extend %iconstyles;
+
+}
+
+.edit_icon {
+  @include icon-before($type: edit);
+  @extend %iconstyles;
+}
+
+.delete_icon {
+  @include icon-before($type: remove);
+  @extend %iconstyles;
+}
+
+.delete_icon_disabled {
+  @include icon-before($type: remove);
+  background: none;
+  color:      #ccc;
+  font-size:  rem-calc(16px);
+  &:before {
+    color:     #ccc;
+    font-size: 16px;
+    margin:    0 5px;
+  }
+}
+
+.icon_remove {
+  @include icon-before($type: remove);
+  @extend %iconstyles;
+
+}
+
+.contextual_help, div.contextual_help, span.contextual_help {
+  @include icon-before($type: question-circle);
+  background: none;
+  height:     auto;
+  width:      auto;
+  margin:     0 0 0 5px;
+  &:before {
+    color:     $icon--secondary-color;
+    font-size: 16px;
+    margin:    0 5px;
+  }
+  &:hover {
+    background: none;
+  }
+}
+
+a.add_item {
+  padding:          0;
+  display:          block;
+  width:            55px;
+  margin:           10px 0;
+  text-decoration:  none;
+  background-image: none;
+  height:           auto;
+
+}
+
+.add_link, .add_icon, a.add_item {
+  @include icon-before($type: plus-circle, $size: rem-calc(16px), $color: $add-color);
+  background:  none;
+  font-size:   rem-calc(14px);
+  transition:  all 0.1s ease-in-out;
+  font-weight: 600;
+  color:       $icon-txt;
+  padding:     5px 0;
+  //background:$add-color;
+  //border-radius:$global-border-radius;
+  &:before {
+    margin:      0 5px;
+    font-weight: 600;
+    transition:  all 0.1s ease-in-out;
+  }
+  &:visited {
+    color: $icon-txt;
+  }
+  &:hover {
+    color:      $icon-txt;
+    transition: all 0.1s ease-in-out;
+    background: none;
+  }
+
+}
+
+.action_icon {
+  height: auto;
+}
+
+//config pages
+
+.admin_workspace .pipeline_header {
+  padding: 0 0 10px 0;
+  border:  0;
+}
+
+.admin_workspace h3.title.entity_title {
+  padding:     4px 0 7px 40px;;
+  display:     inline-block;
+  margin:      0;
+  font-weight: 600;
+  border:      0;
+  font-size:   rem-calc(18px);
+}
+
+.admin_workspace.has_tree_view {
+  padding:       20px;
+  border-radius: 3px;
+  background:    #fff;
+  .fieldset {
+    padding: 0;
+  }
+
+}
+
+.admin_workspace h3 {
+  display:       inline-block;
+  border-bottom: none;
+  margin-bottom: 20px;
+
+}
+
+.admin_wrapper #form_parent form, #admin_tasks table.reorderable_table {
+  margin-top: 0;
+}
+
+.config-container {
+  @include clearfix;
+  padding: 0 20px 30px;
+  label {
+    font-size: 14px;
+  }
+  .form_item_block {
+    padding-bottom: 0;
+  }
+  h3 {
+    font-weight: 600;
+  }
+  .checkbox_row {
+    margin-bottom: 20px;
+  }
+  .form_item {
+    margin-bottom: 30px;
+  }
+  .checkbox_label_wrapper {
+    margin-bottom: 5px;
+    .contextual_help {
+      top:  2px;
+      left: -16px;
+    }
+  }
+  .inline_instruction {
+    display:    block;
+    font-style: normal;
+    font-size:  rem-calc(12px);
+  }
+  .form_buttons {
+    margin:        20px 0 0 0;
+    padding:       0;
+    background:    none;
+    border-radius: $global-border-radius;
+    a.skip_dirty_stop {
+      margin-left: 0;
+    }
+  }
+
+}
+
+.warnings, .information {
+  margin: 10px 0;
+}
+
+.help-wrapper {
+  @include clearfix;
+  .contextual_help, div.contextual_help, span.contextual_help {
+    margin-top: 9px;
+  }
+  .checkbox_row & {
+    span.contextual_help {
+      margin-left: -10px;
+    }
+  }
+}
+
+#tiptip_content {
+  box-shadow:  none;
+  font-size:   rem-calc(13px);
+  line-height: 18px;
+  font-weight: 600;
+}
+
+.checkbox_row div.contextual_help {
+  margin-left: -10px;
+}
+
+.name_value_cell.icon_remove_cell {
+  vertical-align: top;
+}
+
+.config-materials {
+  .contextual_help, div.contextual_help, span.contextual_help {
+    position: relative;
+    top:      6px;
+  }
+}
+
+.config-general {
+  .contextual_help, div.contextual_help, span.contextual_help {
+    position: relative;
+    top:      5px;
+  }
+}
+
+.config-env-variables {
+
+}
+
+.config-job-settings {
+  .inline_instruction {
+    position: relative;
+    top:      -10px;
+  }
+  .checkbox_row {
+    margin-bottom: 0;
+  }
+  input#job_timeout {
+    float: none;
+  }
+
+}
+
+.form-section {
+  margin-bottom: 15px;
+}
+
+#new_material_popup {
+  margin-left: 0;
+}
+
+

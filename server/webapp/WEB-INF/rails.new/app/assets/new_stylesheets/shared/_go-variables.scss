@@ -50,7 +50,7 @@ $unpause-btn-bg: #f16c6c;
 $operate-btn-bg: #f5f5f5;
 $operate-with-optn-btn-bg: #f5f5f5;
 $pause-btn-bg: #f5f5f5;
-$passed: #64dd17;
+$passed: #00C853;
 $failed: #fa2d2d;
 $btn-hover: #666;
 $building: #ffc11b;
@@ -95,6 +95,11 @@ $dropdown-menu-hover-bg: #efefef;
 $user-dropdown-bg: $go-white;
 $user-link-bg: $go-white;
 
+//primary button
+
+$primary-btn-bg: $go-primary;
+$primary-btn-bg-hover: darken($go-primary, 10%);
+
 //small  buttons
 
 $btn-bg: #666;
@@ -130,3 +135,11 @@ $stage-history-head-bg: $go-secondary;
 $stage-history-pagination-bg: #dcdcdc;
 
 $max-breakpoint: 1600px;
+
+$icon-color: #999;
+$icon-color-hover: #666;
+$icon-txt: #666;
+$icon-txt-hover: #333;
+
+$icon--secondary-color: #666;
+$add-color: #00bfa5;

@@ -1,3 +1,4 @@
+<div class="config-container">
 <h3><%= l.string('STAGE_SETTINGS') %></h3>
 
 <%= form_for(@stage,
@@ -10,21 +11,19 @@
     <%= md5_field %>
     <%= render :partial => "admin/shared/global_errors.html", :locals => {:scope => {}} -%>
     <div class="fieldset">
-        <div class="form_item required">
+        <div class="form_item_block required">
             <%= required_label(f, :name, l.string("STAGE_NAME")) %>
             <%= f.text_field :name %>
             <%= error_message_on(@stage, "name", :css_class => "form_error") %>
         </div>
-        <div class="form_item checkbox_row">
+        <div class="form_item_block checkbox_row">
             <label><%= l.string('STAGE_TYPE') -%></label>
             <span class="stage_approval contextual_help has_go_tip_right"  title="<%= l.string("RADIO_BUTTON_TITLE_APPROVAL") -%>">&nbsp;</span>
             <%= f.fields_for com.thoughtworks.go.config.StageConfig::APPROVAL, @stage.approval do |approval| %>
-                <div class="checkbox_row">
+                <div>
                     <%= approval.radio_button com.thoughtworks.go.config.Approval::TYPE, com.thoughtworks.go.config.Approval::SUCCESS, :id => "auto" %>
                     <label for="auto"><%= l.string('AUTO') -%></label>
-                </div>
 
-                <div class="checkbox_row">
                     <%= approval.radio_button com.thoughtworks.go.config.Approval::TYPE, com.thoughtworks.go.config.Approval::MANUAL, :id => "manual" %>
                     <label for="manual"><%= l.string('MANUAL') -%></label>
                 </div>
@@ -35,19 +34,19 @@
                 <%= error_message_on(@stage.getApproval(), "type", :css_class => "form_error") %>
             <% end %>
         </div>
-        <div class="form_item checkbox_row fetch_materials">
+        <div class="form_item_block checkbox_row fetch_materials">
             <%= f.check_box :fetchMaterials %>
             <label for="stage_fetchMaterials"><%= l.string('FETCH_MATERIALS') -%></label>
             <span class="contextual_help has_go_tip_right"  title="<%= l.string("TOOLTIP_FETCH_MATERIALS")-%>">&nbsp;</span>
             <%= error_message_on(@stage.isFetchMaterials(), "type", :css_class => "form_error") %>
         </div>
-        <div class="form_item checkbox_row fetch_materials">
+        <div class="form_item_block checkbox_row fetch_materials">
             <%= f.check_box com.thoughtworks.go.config.StageConfig::ARTIFACT_CLEANUP_PROHIBITED %>
             <label for="stage_artifactCleanupProhibited"><%= l.string("ARTIFACT_CLEANUP_PROHIBITED") -%></label>
             <span class="contextual_help has_go_tip_right"  title="<%= l.string("TOOLTIP_ARTIFACT_CLEANUP_PROHIBITED")-%>">&nbsp;</span>
             <%= error_message_on(@stage.isArtifactCleanupProhibited(), "type", :css_class => "form_error") %>
         </div>
-        <div class="form_item checkbox_row clean_working_dir">
+        <div class="form_item_block checkbox_row clean_working_dir">
             <%= f.check_box :cleanWorkingDir %>
             <label for="stage_cleanWorkingDir"><%= l.string('CLEAN_WORKING_DIRECTORY') -%></label>
             <span class="contextual_help has_go_tip_right"  title="<%= l.string("TOOLTIP_CLEAN_WORKING_DIRECTORY")-%>">&nbsp;</span>
@@ -60,6 +59,7 @@
     <%= render :partial => "admin/shared/form_submit", :locals => {:scope => {:reset_url => admin_stage_edit_path(:current_tab => "settings")}} %>
 
 <% end %>
+</div>
 <script type="text/javascript">
         AjaxForm.error_box_selector = '#form_parent';
         jQuery(document).ready(function() {

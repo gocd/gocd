@@ -1,37 +1,41 @@
 <div class="fieldset">
-    <div class="form_item required">
+    <div class="form-section required">
         <div class="form_item_block">
             <%= required_label(scope[:form], :name, l.string("JOB_NAME")) %>
-            <div>
+
                 <%= scope[:form].text_field :name %>
                 <%= error_message_on(scope[:job], com.thoughtworks.go.config.JobConfig::NAME, :css_class => "form_error") %>
-            </div>
+
         </div>
         <div class="form_item_block">
             <%= scope[:form].label com.thoughtworks.go.config.JobConfig::RESOURCES, l.string("RESOURCES") %>
-            <div>
+
                 <%= scope[:form].text_field com.thoughtworks.go.config.JobConfig::RESOURCES, :class => "resources_auto_complete", :value => scope[:job].resources().exportToCsv() %>
                 <div class="contextual_help has_go_tip_right" title="<%= l.string("TOOLTIP_RESOURCES") -%>"></div>
                 <%- scope[:job].resources().each do |resource| -%>
                     <%= error_message_on(resource, com.thoughtworks.go.config.JobConfig::RESOURCES, :css_class => "form_error") -%>
                 <%- end -%>
-            </div>
+
             <div class="inline_instruction">
                 <%= l.string('INSTRUCTION_RESOURCES') -%>
             </div>
         </div>
         <div class="form_item_block">
             <%= scope[:form].label "elasticProfileId", "Elastic Profile Id" %>
-            <div>
+
                 <%= scope[:form].text_field "elasticProfileId", :class => 'elastic_profile_id', :value => scope[:job].getElasticProfileId() %>
                 <div class="contextual_help has_go_tip_right" title="Elastic Profile that this job requires to run.<br/><a href='<%= admin_elastic_profiles_path %>' target='_blank'>Click here</a> to see and manage all elastic profiles."></div>
                 <%= error_message_on(scope[:job], "elasticProfileId", :css_class => "form_error") %>
-            </div>
+
          </div>
-        <div class="form_item">
+         </div>
+  <div class="form-section">
+        <div class="form_item_block">
+          <div class="help-wrapper">
             <%= scope[:form].label com.thoughtworks.go.config.JobConfig::TIMEOUT, l.string("JOB_TIMEOUT"), :class => "before_tip" %>
             <div class="contextual_help has_go_tip_right" title="<%=l.string("TOOLTIP_JOB_TIMEOUT")-%>"></div>
-            <div class="clear"></div>
+          </div>
+
 
             <div class="checkbox_row">
                 <%= scope[:form].radio_button 'timeoutType', com.thoughtworks.go.config.JobConfig::NEVER_TIMEOUT, :id => "jobTimeout_never" -%>
@@ -50,7 +54,9 @@
                 <%= label_tag "jobTimeout_override", l.string("OVERRIDE_TIMEOUT_SUFFIX") -%>
             </div>
         </div>
-        <div class="form_item">
+        </div>
+
+        <div class="form-section">
             <%= scope[:form].label com.thoughtworks.go.config.JobConfig::RUN_TYPE, l.string("RUN_TYPE"), :class => "before_tip" %>
 
             <div class="clear"></div>
@@ -63,17 +69,22 @@
             </div>
 
             <div class="checkbox_row">
-                <%= scope[:form].radio_button 'runType', com.thoughtworks.go.config.JobConfig::RUN_ON_ALL_AGENTS, :id => "jobRunType_runOnAllAgents" -%>
+               <div class="help-wrapper">
+                 <%= scope[:form].radio_button 'runType', com.thoughtworks.go.config.JobConfig::RUN_ON_ALL_AGENTS, :id => "jobRunType_runOnAllAgents" -%>
                 <%= label_tag "jobRunType_runOnAllAgents", l.string("RUN_ON_ALL_AGENTS") -%>
                 <span class="contextual_help has_go_tip_right" title="<%= l.string("TOOLTIP_RUN_ON_ALL") -%>"></span>
+               </div>
             </div>
 
             <div class="override_timeout checkbox_row">
+              <div class="help-wrapper">
                 <%= scope[:form].radio_button 'runType', com.thoughtworks.go.config.JobConfig::RUN_MULTIPLE_INSTANCE, :id => "jobRunType_runMultipleInstances" -%>
                 <%= label_tag "jobRunType_runMultipleInstances", l.string("RUN_MULTIPLE_INSTANCES_PREFIX") -%>
+
                 <%= scope[:form].text_field com.thoughtworks.go.config.JobConfig::RUN_INSTANCE_COUNT, :class => "inline in_between_text small_text_field" %>
                 <%= label_tag "jobRunType_runMultipleInstances", l.string("RUN_MULTIPLE_INSTANCES_SUFFIX") -%>
                 <span class="contextual_help has_go_tip_right" title="<%= l.string("TOOLTIP_RUN_MULTIPLE_INSTANCE") -%>"></span>
+            </div>
             </div>
         </div>
     </div>

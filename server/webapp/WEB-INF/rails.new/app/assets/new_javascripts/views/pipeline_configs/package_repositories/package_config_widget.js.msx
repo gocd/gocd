@@ -40,8 +40,8 @@ define([
           return _.isNil(PluginInfos.findById(args.material.repository().pluginMetadata().id()));
         },
 
-        editPackage:     function (vm, modal) {
-          args.packageForEdit().update().then(onSuccessOfPackageApi.bind(this, vm, modal, args.material), onFailureOfPackageApi.bind(this, vm));
+        editPackage:     function (packageForEdit, vm, modal) {
+          packageForEdit().update().then(onSuccessOfPackageApi.bind(this, vm, modal, args.material), onFailureOfPackageApi.bind(this, vm));
         },
 
         update:         function () {
@@ -88,11 +88,12 @@ define([
   var NewPackageWidget = {
     controller: function (args) {
       var ctrl = {
-        createPackage: function (vm, modal) {
-          args.packageForEdit().create().then(onSuccessOfPackageApi.bind(this, vm, modal, args.material), onFailureOfPackageApi.bind(this, vm));
+        createPackage: function (packageForEdit, vm, modal) {
+          packageForEdit().create().then(onSuccessOfPackageApi.bind(this, vm, modal, args.material), onFailureOfPackageApi.bind(this, vm));
         },
         create:        function () {
-          args.create(args.packageForEdit, args.material.repository, PackageConfigNewWidget, 'Add Package', ctrl.createPackage);
+          var packageForEdit = m.prop(new Packages.Package({}));
+          args.create(packageForEdit, args.material.repository, PackageConfigNewWidget, 'Add Package', ctrl.createPackage);
         }
       };
       return ctrl;
@@ -120,12 +121,11 @@ define([
 
   var SelectPackageWidget = {
     controller: function (args) {
-      args.getPackageForEdit(args.defaultPackageId());
-      args.material.ref(args.defaultPackageId());
+
       return {
-        selectPackage: function () {
-          var packageId = args.defaultPackageId();
+        selectPackage: function (packageId) {
           args.material.ref(packageId);
+          args.vm.packageId(packageId);
           args.getPackageForEdit(packageId);
         }
       };
@@ -139,17 +139,19 @@ define([
         item['text'] = packageInfo.name();
         items.push(item);
       });
-
+      var material = args.material;
       return (
         <f.row class='package-selector'>
-          <f.select
-            model={args}
-            attrName="defaultPackageId"
-            items={items}
-            size={6}
-            largeSize={2}
-            onchange={ctrl.selectPackage}
-          />
+          <select disabled={false}
+                  data-prop-name={"defaultPackageId"}
+                  onchange={m.withAttr('value', ctrl.selectPackage)}>
+            {_.map(items, function (item) {
+              debugger;
+              return (
+                <option value={item.id} selected={item.id === args.material.ref()}>{item.text}</option>
+              );
+            })}
+          </select>
         </f.row>
       );
     }
@@ -167,17 +169,17 @@ define([
         return args.material.repository().packages().firstPackage().id();
       };
       var ctrl = {
-        packageForEdit: m.prop(new Packages.Package({})),
 
         getPackageForEdit: function (packageId) {
-          var packageForEdit = this.packageForEdit;
+          var packageForEdit = args.material.package;
           if(packageId) {
-            Packages.getPackage(packageId, packageForEdit);
+            debugger;
+            Packages.getPackage(packageId, packageForEdit, args.material.ref);
           }
-          return this.packageForEdit;
+          return packageForEdit;
         },
 
-        defaultPackageId: m.prop(getMaterialReference()),
+        defaultPackageId: m.prop(args.material.ref()),
 
         create: function (packageForEdit, repository, PackageConfigurationWidget, modalTitle, performOperation) {
           var vm             = new Packages.vm();
@@ -198,7 +200,7 @@ define([
                 class:   'save primary',
                 onclick: function () {
                   vm.startUpdating();
-                  performOperation(vm, modal);
+                  performOperation(packageForEdit, vm, modal);
                 }
               }
             ]
@@ -215,13 +217,13 @@ define([
           {args.material.repository().packages().countPackage() === 0 ? '' :
             <SelectPackageWidget material={args.material}
                                  defaultPackageId={ctrl.defaultPackageId}
+                                 vm={args.vm}
                                  getPackageForEdit={ctrl.getPackageForEdit.bind(ctrl)}/>}
 
           <NewPackageWidget material={args.material}
-                            packageForEdit={ctrl.packageForEdit}
                             create={ctrl.create}/>
 
-          {args.material.repository().packages().countPackage() === 0 ? '' : <EditPackageWidget packageForEdit={ctrl.packageForEdit}
+          {args.material.repository().packages().countPackage() === 0 ? '' : <EditPackageWidget packageForEdit={args.material.package}
                                                                                                 material={args.material}
                                                                                                 create={ctrl.create}/>}
         </div>

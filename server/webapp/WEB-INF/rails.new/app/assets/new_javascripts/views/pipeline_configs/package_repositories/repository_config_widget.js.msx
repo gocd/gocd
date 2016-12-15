@@ -17,8 +17,8 @@
 define([
   'mithril', 'lodash', 'helpers/form_helper', 'views/shared/new_modal',
   'views/pipeline_configs/package_repositories/repository_config_edit_widget', 'views/pipeline_configs/package_repositories/repository_config_new_widget', 'views/pipeline_configs/package_repositories/package_config_widget',
-  'models/pipeline_configs/repositories', 'models/pipeline_configs/plugin_infos'
-], function (m, _, f, Modal, RepositoryConfigEditWidget, RepositoryConfigNewWidget, PackageConfigWidget, Repositories, PluginInfos) {
+  'models/pipeline_configs/repositories', 'models/pipeline_configs/plugin_infos', 'models/pipeline_configs/packages'
+], function (m, _, f, Modal, RepositoryConfigEditWidget, RepositoryConfigNewWidget, PackageConfigWidget, Repositories, PluginInfos, Packages) {
 
   var onSuccessOfRepoAPI = function (vm, modal, material, data) {
     vm.saveSuccess();
@@ -118,18 +118,40 @@ define([
     }
   };
 
+  var vm = {
+    packageId : m.prop()
+  };
+
   var SelectRepositoryWidget = {
     controller: function (args) {
 
       Repositories.findById(args.defaultRepoId()).then(function (repository) {
         args.material.repository(repository);
+        if (!repository.packages().countPackage() == 0) {
+          var packageId = repository.packages().firstPackage().id();
+          if(vm.packageId()) {
+            packageId = vm.packageId();
+          }
+          Packages.getPackage(packageId, args.material.package, args.material.ref);
+        }
       });
+
 
       var ctrl = {
         selectRepository: function () {
+          debugger;
           var id = args.defaultRepoId();
           Repositories.findById(id).then(function (repository) {
             args.material.repository(repository);
+            if (!repository.packages().countPackage() == 0) {
+              debugger;
+              var packageId = repository.packages().firstPackage().id();
+              Packages.getPackage(packageId, args.material.package, args.material.ref);
+            }
+            else {
+              args.material.package(new Packages.Package({}));
+              args.material.ref(null);
+            }
           });
         }
       };
@@ -220,7 +242,8 @@ define([
             <SelectRepositoryWidget material={args.material} defaultRepoId={ctrl.defaultRepoId}/> : ''}
           {_.isNil(repository()) ? '' : <EditRepositoryWidget material={args.material}
                                                               create={ctrl.create}/> }
-          {!_.isNil(repository()) ? <PackageConfigWidget material={args.material}/> : ''}
+          {!_.isNil(repository()) ? <PackageConfigWidget material={args.material}
+                                                         vm={vm}/> : ''}
         </div>
       );
     }

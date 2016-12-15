@@ -157,9 +157,10 @@ define(['mithril', 'lodash', 'string-plus', 'helpers/mrequest', 'models/errors',
       });
     };
 
-    Packages.getPackage = function (packageId, packageForEdit) {
+    Packages.getPackage = function (packageId, packageForEdit, packageReference) {
       Packages.findById(packageId).then(function (packageMaterial) {
         packageForEdit(packageMaterial);
+        packageReference(packageId);
       });
     };
 

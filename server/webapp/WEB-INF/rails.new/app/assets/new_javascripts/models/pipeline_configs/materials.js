@@ -438,8 +438,9 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
 
   Materials.Material.PackageMaterial = function (data) {
     Materials.Material.call(this, "package", true, data);
-    this.name = m.prop(''); //TODO: This needs to be removed, added to pass base validation.
     this.repository = m.prop(data.repository);
+    this.name = m.prop('');
+    this.package = m.prop(data.package);
     this.ref  = m.prop(data.ref);
 
     this._attributesToJSON = function () {

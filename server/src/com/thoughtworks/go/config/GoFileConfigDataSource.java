@@ -22,6 +22,7 @@ import com.thoughtworks.go.config.exceptions.*;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
 import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.util.ServerVersion;
@@ -32,15 +33,12 @@ import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.*;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
@@ -69,20 +67,33 @@ public class GoFileConfigDataSource {
     private Cloner cloner = new Cloner();
     public static final String FILESYSTEM = "Filesystem";
     private ServerHealthService serverHealthService;
+    private ConfigElementImplementationRegistry configElementImplementationRegistry;
+    private final FullConfigSaveMergeFlow fullConfigSaveMergeFlow;
+    private final FullConfigSaveNormalFlow fullConfigSaveNormalFlow;
+    private GoConfigFileReader goConfigFileReader;
+    private GoConfigFileWriter goConfigFileWriter;
 
     /* Will only upgrade cruise config file on application startup. */
     @Autowired
-    public GoFileConfigDataSource(GoConfigMigration upgrader, ConfigRepository configRepository, SystemEnvironment systemEnvironment, TimeProvider timeProvider, ConfigCache configCache,
-                                  ServerVersion serverVersion, ConfigElementImplementationRegistry configElementImplementationRegistry,
-                                  ServerHealthService serverHealthService, CachedGoPartials cachedGoPartials) {
+    public GoFileConfigDataSource(GoConfigMigration upgrader, ConfigRepository configRepository, SystemEnvironment systemEnvironment,
+                                  TimeProvider timeProvider, ConfigCache configCache, ServerVersion serverVersion,
+                                  ConfigElementImplementationRegistry configElementImplementationRegistry,
+                                  ServerHealthService serverHealthService, CachedGoPartials cachedGoPartials,
+                                  FullConfigSaveMergeFlow fullConfigSaveMergeFlow, FullConfigSaveNormalFlow fullConfigSaveNormalFlow) {
         this(upgrader, configRepository, systemEnvironment, timeProvider, serverVersion,
                 new MagicalGoConfigXmlLoader(configCache, configElementImplementationRegistry),
-                new MagicalGoConfigXmlWriter(configCache, configElementImplementationRegistry), serverHealthService, cachedGoPartials);
+                new MagicalGoConfigXmlWriter(configCache, configElementImplementationRegistry), serverHealthService,
+                cachedGoPartials, configElementImplementationRegistry, fullConfigSaveMergeFlow, fullConfigSaveNormalFlow,
+                new GoConfigFileReader(systemEnvironment), new GoConfigFileWriter(systemEnvironment));
+        this.configElementImplementationRegistry = configElementImplementationRegistry;
     }
 
-    GoFileConfigDataSource(GoConfigMigration upgrader, ConfigRepository configRepository, SystemEnvironment systemEnvironment, TimeProvider timeProvider,
-                           ServerVersion serverVersion, MagicalGoConfigXmlLoader magicalGoConfigXmlLoader, MagicalGoConfigXmlWriter magicalGoConfigXmlWriter,
-                           ServerHealthService serverHealthService, CachedGoPartials cachedGoPartials) {
+    GoFileConfigDataSource(GoConfigMigration upgrader, ConfigRepository configRepository, SystemEnvironment systemEnvironment,
+                           TimeProvider timeProvider, ServerVersion serverVersion, MagicalGoConfigXmlLoader magicalGoConfigXmlLoader,
+                           MagicalGoConfigXmlWriter magicalGoConfigXmlWriter, ServerHealthService serverHealthService,
+                           CachedGoPartials cachedGoPartials, ConfigElementImplementationRegistry configElementImplementationRegistry,
+                           FullConfigSaveMergeFlow fullConfigSaveMergeFlow, FullConfigSaveNormalFlow fullConfigSaveNormalFlow,
+                           GoConfigFileReader goConfigFileReader, GoConfigFileWriter goConfigFileWriter) {
         this.configRepository = configRepository;
         this.systemEnvironment = systemEnvironment;
         this.upgrader = upgrader;
@@ -92,6 +103,11 @@ public class GoFileConfigDataSource {
         this.magicalGoConfigXmlWriter = magicalGoConfigXmlWriter;
         this.serverHealthService = serverHealthService;
         this.cachedGoPartials = cachedGoPartials;
+        this.fullConfigSaveMergeFlow = fullConfigSaveMergeFlow;
+        this.fullConfigSaveNormalFlow = fullConfigSaveNormalFlow;
+        this.goConfigFileReader = goConfigFileReader;
+        this.goConfigFileWriter = goConfigFileWriter;
+        this.reloadStrategy = reloadStrategy;
     }
 
     public GoFileConfigDataSource reloadEveryTime() {
@@ -128,9 +144,13 @@ public class GoFileConfigDataSource {
             LOGGER.info("Config file changed at " + result.modifiedTime);
             LOGGER.info("Reloading config file: " + configFile);
 
-            encryptPasswords(configFile);
-            LOGGER.debug("Detected change in config file.");
-            return forceLoad(configFile);
+            if(systemEnvironment.optimizeFullConfigSave()) {
+                return forceLoad();
+            } else {
+                encryptPasswords(configFile);
+                LOGGER.debug("Detected change in config file.");
+                return forceLoad(configFile);
+            }
         }
     }
 
@@ -143,6 +163,38 @@ public class GoFileConfigDataSource {
         if (!currentContent.equals(postEncryptContent)) {
             LOGGER.debug("[Encrypt] Writing config to file");
             FileUtils.writeStringToFile(configFile, postEncryptContent);
+        }
+    }
+
+    synchronized GoConfigHolder forceLoad() throws Exception {
+        File configFile = goConfigFileReader.fileLocation();
+
+        CruiseConfig cruiseConfig = this.magicalGoConfigXmlLoader.deserializeConfig(goConfigFileReader.configXml());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(String.format("Reloading config file: %s",configFile.getAbsolutePath()));
+        }
+
+        GoConfigHolder goConfigHolder;
+        try {
+            try {
+                goConfigHolder = fullConfigSaveNormalFlow.execute(new FullConfigUpdateCommand(cruiseConfig, null), cachedGoPartials.lastKnownPartials(), FILESYSTEM);
+            } catch (GoConfigInvalidException e) {
+                if (!canUpdateConfigWithLastValidPartials())
+                    throw e;
+
+                goConfigHolder = fullConfigSaveNormalFlow.execute(new FullConfigUpdateCommand(cruiseConfig, null), cachedGoPartials.lastValidPartials(), FILESYSTEM);
+            }
+            reloadStrategy.latestState(goConfigHolder.config);
+            return goConfigHolder;
+        } catch (Exception e) {
+            LOGGER.error(String.format("Unable to load config file: %s %s", configFile.getAbsolutePath(), e.getMessage()), e);
+            if (configFile.exists()) {
+                LOGGER.warn(String.format("--- %s ---", configFile.getAbsolutePath()));
+                LOGGER.warn(FileUtil.readContentFromFile(configFile));
+                LOGGER.warn("------");
+            }
+            LOGGER.debug(e);
+            throw e;
         }
     }
 
@@ -198,31 +250,7 @@ public class GoFileConfigDataSource {
     }
 
     private void writeToConfigXmlFile(String content) {
-        FileChannel channel = null;
-        FileOutputStream outputStream = null;
-        FileLock lock = null;
-        try {
-            RandomAccessFile randomAccessFile = new RandomAccessFile(fileLocation(), "rw");
-            channel = randomAccessFile.getChannel();
-            lock = channel.lock();
-            randomAccessFile.seek(0);
-            randomAccessFile.setLength(0);
-            outputStream = new FileOutputStream(randomAccessFile.getFD());
-
-            IOUtils.write(content, outputStream, UTF_8);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        } finally {
-            if (channel != null && lock != null) {
-                try {
-                    lock.release();
-                    channel.close();
-                    IOUtils.closeQuietly(outputStream);
-                } catch (IOException e) {
-                    LOGGER.error("Error occured when releasing file lock and closing file.", e);
-                }
-            }
-        }
+        this.goConfigFileWriter.writeToConfigXmlFile(content);
     }
 
     public synchronized EntityConfigSaveResult writeEntityWithLock(EntityConfigUpdateCommand updatingCommand, GoConfigHolder configHolder, Username currentUser) {
@@ -291,6 +319,8 @@ public class GoFileConfigDataSource {
         }
     }
 
+//  This method should be removed once we have API's for all entities which should use writeEntityWithLock and full config save should use writeFullConfigWithLock
+    @Deprecated
     public synchronized GoConfigSaveResult writeWithLock(UpdateConfigCommand updatingCommand, GoConfigHolder configHolder) {
         try {
 
@@ -338,6 +368,63 @@ public class GoFileConfigDataSource {
         }
     }
 
+    public synchronized GoConfigSaveResult writeFullConfigWithLock(FullConfigUpdateCommand updatingCommand, GoConfigHolder configHolder) {
+        try {
+            GoConfigHolder validatedConfigHolder;
+            try {
+                validatedConfigHolder = trySavingConfigWithLastKnownPartials(updatingCommand, configHolder);
+            } catch (Exception e) {
+                if (!canUpdateConfigWithLastValidPartials())
+                    throw e;
+
+                LOGGER.warn(String.format("Merged config update operation failed on LATEST %s partials. Falling back to using LAST VALID %s partials." +
+                        " Exception message was: %s", cachedGoPartials.lastKnownPartials().size(), cachedGoPartials.lastValidPartials().size(), e.getMessage()), e);
+
+                validatedConfigHolder = trySavingConfigWithLastValidPartials(updatingCommand, configHolder);
+            }
+            ConfigSaveState configSaveState = shouldMergeConfig(updatingCommand, configHolder) ? ConfigSaveState.MERGED : ConfigSaveState.UPDATED;
+            return new GoConfigSaveResult(validatedConfigHolder, configSaveState);
+        } catch (ConfigFileHasChangedException e) {
+            LOGGER.warn(String.format("Configuration file could not be merged successfully after a concurrent edit: %s", e.getMessage()), e);
+            throw e;
+        } catch (GoConfigInvalidException e) {
+            LOGGER.warn(String.format("Configuration file is invalid: %s", e.getMessage()), e);
+            throw bomb(e.getMessage(), e);
+        } catch (Exception e) {
+            LOGGER.error(String.format("Configuration file is not valid: %s", e.getMessage()), e);
+            throw bomb(e.getMessage(), e);
+        } finally {
+            LOGGER.debug("[Config Save] Done writing with lock");
+        }
+    }
+
+    private GoConfigHolder trySavingConfigWithLastKnownPartials(FullConfigUpdateCommand updateCommand, GoConfigHolder configHolder) throws Exception {
+        return trySavingFullConfig(updateCommand, configHolder, cachedGoPartials.lastKnownPartials());
+    }
+
+    private GoConfigHolder trySavingConfigWithLastValidPartials(FullConfigUpdateCommand updateCommand, GoConfigHolder configHolder) throws Exception {
+        List<PartialConfig> lastValidPartials = cachedGoPartials.lastValidPartials();
+        GoConfigHolder goConfigHolder;
+
+        try {
+            goConfigHolder = trySavingFullConfig(updateCommand, configHolder, cachedGoPartials.lastValidPartials());
+            LOGGER.info(String.format("Update operation on merged configuration succeeded with old %s LAST VALID partials.", lastValidPartials.size()));
+        } catch (GoConfigInvalidException fallbackFailed) {
+            LOGGER.warn(String.format(
+                    "Merged config update operation failed using fallback LAST VALID %s partials. Exception message was: %s",
+                    lastValidPartials.size(), fallbackFailed.getMessage()), fallbackFailed);
+            throw new GoConfigInvalidMergeException("Fallback merge failed", lastValidPartials, fallbackFailed);
+        }
+        return goConfigHolder;
+    }
+
+    private boolean canUpdateConfigWithLastValidPartials() {
+        List<PartialConfig> lastKnownPartials = cachedGoPartials.lastKnownPartials();
+        List<PartialConfig> lastValidPartials = cachedGoPartials.lastValidPartials();
+
+        return (!lastKnownPartials.isEmpty() && !areKnownPartialsSameAsValidPartials(lastKnownPartials, lastValidPartials));
+    }
+
     protected boolean areKnownPartialsSameAsValidPartials(List<PartialConfig> lastKnownPartials, List<PartialConfig> lastValidPartials) {
         if (lastKnownPartials.size() != lastValidPartials.size()) {
             return false;
@@ -362,6 +449,27 @@ public class GoFileConfigDataSource {
         CruiseConfig mergedCruiseConfigForEdit = cloner.deepClone(validatedConfigHolder.configForEdit);
         mergedCruiseConfigForEdit.merge(partialConfigs, true);
         validatedConfigHolder.mergedConfigForEdit = mergedCruiseConfigForEdit;
+    }
+
+    private GoConfigHolder trySavingFullConfig(FullConfigUpdateCommand updatingCommand, GoConfigHolder configHolder, List<PartialConfig> partials) throws Exception {
+        String userName = getConfigUpdatingUser(updatingCommand).getUserName();
+        GoConfigHolder goConfigHolder;
+
+        LOGGER.debug("[Config Save] ==-- Getting modified config");
+
+        if (shouldMergeConfig(updatingCommand, configHolder)) {
+            if (!systemEnvironment.get(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE)) {
+                throw new ConfigMergeException(ConfigFileHasChangedException.CONFIG_CHANGED_PLEASE_REFRESH);
+            }
+                goConfigHolder = this.fullConfigSaveMergeFlow.execute(updatingCommand, partials, userName);
+        } else {
+            goConfigHolder = this.fullConfigSaveNormalFlow.execute(updatingCommand, partials, userName);
+        }
+
+        reloadStrategy.latestState(goConfigHolder.config);
+
+        LOGGER.info(String.format("[Configuration Changed] Saving updated configuration."));
+        return goConfigHolder;
     }
 
     private GoConfigHolder trySavingConfig(UpdateConfigCommand updatingCommand, GoConfigHolder configHolder, List<PartialConfig> partials) throws Exception {

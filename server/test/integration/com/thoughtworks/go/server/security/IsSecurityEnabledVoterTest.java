@@ -54,7 +54,7 @@ public class IsSecurityEnabledVoterTest {
         configHelper.addSecurityWithBogusLdapConfig(false);
         GoConfigService configService = new GoConfigService(goConfigDao, null, new SystemTimeClock(), mock(GoConfigMigration.class), null, null,
                 ConfigElementImplementationRegistryMother.withNoPlugins(),
-                new InstanceFactory(), mock(CachedGoPartials.class));
+                new InstanceFactory(), mock(CachedGoPartials.class), null);
         IsSecurityEnabledVoter voter = new IsSecurityEnabledVoter(configService);
         int accessStatus = voter.vote(null, null, null);
         assertThat(accessStatus, Is.is(AccessDecisionVoter.ACCESS_ABSTAIN));

@@ -214,13 +214,13 @@ public final class LogFileHelper {
         private File artifactsDir;
 
         public FakeGoConfigService(File artifactsDir) throws IOException {
-            super(new GoConfigDao(new CachedGoConfig(new ServerHealthService(), mock(GoFileConfigDataSource.class), mock(CachedGoPartials.class))) {
+            super(new GoConfigDao(new CachedGoConfig(new ServerHealthService(), mock(GoFileConfigDataSource.class), mock(CachedGoPartials.class), null, null)) {
                 public CruiseConfig load() {
                     return null;
                 }
             }, null, new SystemTimeClock(), new GoConfigMigration(mock(ConfigRepository.class), new TimeProvider(), new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()
                     ), null, null, ConfigElementImplementationRegistryMother.withNoPlugins(),
-                    new InstanceFactory(), mock(CachedGoPartials.class));
+                    new InstanceFactory(), mock(CachedGoPartials.class), null);
             this.artifactsDir = artifactsDir;
         }
 

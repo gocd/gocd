@@ -50,10 +50,7 @@ import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.service.ConfigRepository;
-import com.thoughtworks.go.util.Clock;
-import com.thoughtworks.go.util.ExceptionUtils;
-import com.thoughtworks.go.util.Pair;
-import com.thoughtworks.go.util.SystemTimeClock;
+import com.thoughtworks.go.util.*;
 import org.apache.log4j.Logger;
 import org.dom4j.DocumentFactory;
 import org.dom4j.Element;
@@ -89,11 +86,12 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     private final ConfigElementImplementationRegistry registry;
     private InstanceFactory instanceFactory;
     private final CachedGoPartials cachedGoPartials;
+    private SystemEnvironment systemEnvironment;
 
     @Autowired
     public GoConfigService(GoConfigDao goConfigDao, PipelineRepository pipelineRepository, GoConfigMigration upgrader, GoCache goCache,
                            ConfigRepository configRepository, ConfigCache configCache, ConfigElementImplementationRegistry registry,
-                           InstanceFactory instanceFactory, CachedGoPartials cachedGoPartials) {
+                           InstanceFactory instanceFactory, CachedGoPartials cachedGoPartials, SystemEnvironment systemEnvironment) {
         this.goConfigDao = goConfigDao;
         this.pipelineRepository = pipelineRepository;
         this.goCache = goCache;
@@ -103,13 +101,14 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         this.upgrader = upgrader;
         this.instanceFactory = instanceFactory;
         this.cachedGoPartials = cachedGoPartials;
+        this.systemEnvironment = systemEnvironment;
     }
 
     //for testing
     public GoConfigService(GoConfigDao goConfigDao, PipelineRepository pipelineRepository, Clock clock, GoConfigMigration upgrader, GoCache goCache,
                            ConfigRepository configRepository, ConfigElementImplementationRegistry registry,
-                           InstanceFactory instanceFactory, CachedGoPartials cachedGoPartials) {
-        this(goConfigDao, pipelineRepository, upgrader, goCache, configRepository, new ConfigCache(), registry, instanceFactory, cachedGoPartials);
+                           InstanceFactory instanceFactory, CachedGoPartials cachedGoPartials, SystemEnvironment systemEnvironment) {
+        this(goConfigDao, pipelineRepository, upgrader, goCache, configRepository, new ConfigCache(), registry, instanceFactory, cachedGoPartials, systemEnvironment);
         this.clock = clock;
     }
 
@@ -742,11 +741,11 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     }
 
     public XmlPartialSaver groupSaver(String groupName) {
-        return new XmlPartialPipelineGroupSaver(groupName);
+        return new XmlPartialPipelineGroupSaver(groupName, systemEnvironment);
     }
 
     public XmlPartialSaver fileSaver(final boolean shouldUpgrade) {
-        return new XmlPartialFileSaver(shouldUpgrade, registry);
+        return new XmlPartialFileSaver(shouldUpgrade, registry, systemEnvironment);
     }
 
     public String configFileMd5() {
@@ -1031,9 +1030,11 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     public abstract class XmlPartialSaver<T> {
         protected final SAXReader reader;
         private final ConfigElementImplementationRegistry registry;
+        private SystemEnvironment systemEnvironment;
 
-        protected XmlPartialSaver(ConfigElementImplementationRegistry registry) {
+        protected XmlPartialSaver(ConfigElementImplementationRegistry registry, SystemEnvironment systemEnvironment) {
             this.registry = registry;
+            this.systemEnvironment = systemEnvironment;
             reader = new SAXReader();
         }
 
@@ -1062,7 +1063,17 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
 
             LOGGER.debug("[Config Save] Updating config");
             final CruiseConfig deserializedConfig = configXmlLoader.deserializeConfig(xmlString);
-            ConfigSaveState configSaveState = goConfigDao.updateConfig(new NoOverwriteUpdateConfigCommand() {
+
+            ConfigSaveState configSaveState = systemEnvironment.optimizeFullConfigSave() ? saveConfigNewFlow(deserializedConfig, md5)
+                    : saveConfigOldFlow(deserializedConfig, md5);
+
+            LOGGER.debug("[Config Save] Finished saving XML");
+            return configSaveState;
+        }
+
+        private ConfigSaveState saveConfigOldFlow(final CruiseConfig deserializedConfig, final String md5) {
+            LOGGER.debug("[Config Save] Updating config using the old flow");
+            return goConfigDao.updateConfig(new NoOverwriteUpdateConfigCommand() {
                 public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
                     deserializedConfig.setPartials(cruiseConfig.getPartials());
                     return deserializedConfig;
@@ -1072,9 +1083,11 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
                     return md5;
                 }
             });
+        }
 
-            LOGGER.debug("[Config Save] Finished saving XML");
-            return configSaveState;
+        private ConfigSaveState saveConfigNewFlow(CruiseConfig cruiseConfig, String md5) {
+            LOGGER.debug("[Config Save] Updating config using the new flow");
+            return goConfigDao.updateFullConfig(new FullConfigUpdateCommand(cruiseConfig, md5));
         }
 
         protected org.dom4j.Document documentRoot() throws Exception {
@@ -1147,8 +1160,8 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     private class XmlPartialFileSaver extends XmlPartialSaver<CruiseConfig> {
         private final boolean shouldUpgrade;
 
-        XmlPartialFileSaver(final boolean shouldUpgrade, final ConfigElementImplementationRegistry registry) {
-            super(registry);
+        XmlPartialFileSaver(final boolean shouldUpgrade, final ConfigElementImplementationRegistry registry, SystemEnvironment systemEnvironment) {
+            super(registry, systemEnvironment);
             this.shouldUpgrade = shouldUpgrade;
         }
 
@@ -1185,8 +1198,8 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     private class XmlPartialPipelineGroupSaver extends XmlPartialSaver<Object> {
         private final String groupName;
 
-        public XmlPartialPipelineGroupSaver(String groupName) {
-            super(registry);
+        public XmlPartialPipelineGroupSaver(String groupName, SystemEnvironment systemEnvironment) {
+            super(registry, systemEnvironment);
             this.groupName = groupName;
         }
 

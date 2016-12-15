@@ -105,7 +105,7 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
             configCipherUpdater.migrate(); // Should be done before configs get loaded
             configElementImplementationRegistrar.initialize();
             configRepository.initialize();
-            goFileConfigDataSource.upgradeIfNecessary();
+            cachedGoConfig.upgradeConfig();
             cachedGoConfig.loadConfigIfNull();
             goConfigService.initialize();
             entityHashingService.initialize();

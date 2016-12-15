@@ -167,7 +167,7 @@ public class ApplicationInitializerTest {
         inOrder.verify(configCipherUpdater).migrate();
         inOrder.verify(configElementImplementationRegistrar).initialize();
         inOrder.verify(configRepository).initialize();
-        inOrder.verify(goFileConfigDataSource).upgradeIfNecessary();
+        inOrder.verify(cachedGoConfig).upgradeConfig();
         inOrder.verify(cachedGoConfig).loadConfigIfNull();
         inOrder.verify(goConfigService).initialize();
     }

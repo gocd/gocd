@@ -23,13 +23,13 @@ import com.thoughtworks.go.config.exceptions.PipelineGroupNotFoundException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
-import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.config.server.security.ldap.BaseConfig;
 import com.thoughtworks.go.config.server.security.ldap.BasesConfig;
 import com.thoughtworks.go.config.update.ConfigUpdateResponse;
+import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
 import com.thoughtworks.go.config.update.UiBasedConfigUpdateCommand;
 import com.thoughtworks.go.config.update.UpdateConfigFromUI;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
@@ -62,6 +62,7 @@ import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.io.File;
 import java.util.*;
@@ -99,6 +100,7 @@ public class GoConfigServiceTest {
     private UserDao userDao;
     public PipelinePauseService pipelinePauseService;
     private InstanceFactory instanceFactory;
+    private SystemEnvironment systemEnvironment;
 
     @Before
     public void setup() throws Exception {
@@ -108,6 +110,7 @@ public class GoConfigServiceTest {
         goConfigDao = mock(GoConfigDao.class);
         pipelineRepository = mock(PipelineRepository.class);
         pipelinePauseService = mock(PipelinePauseService.class);
+        systemEnvironment = mock(SystemEnvironment.class);
 
         cruiseConfig = unchangedConfig();
         expectLoad(cruiseConfig);
@@ -115,11 +118,12 @@ public class GoConfigServiceTest {
         goCache = mock(GoCache.class);
         instanceFactory = mock(InstanceFactory.class);
         userDao = mock(UserDao.class);
+        stub(systemEnvironment.optimizeFullConfigSave()).toReturn(false);
 
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
         goConfigService = new GoConfigService(goConfigDao, pipelineRepository, this.clock, new GoConfigMigration(configRepo, new TimeProvider(), new ConfigCache(),
                 registry), goCache, configRepo, registry,
-                instanceFactory, mock(CachedGoPartials.class));
+                instanceFactory, mock(CachedGoPartials.class), systemEnvironment);
     }
 
     @Test
@@ -933,6 +937,37 @@ public class GoConfigServiceTest {
     }
 
     @Test
+    public void shouldUpdateXmlUsingNewFlowIfEnabled() throws Exception {
+        String groupName = "group_name";
+        String md5 = "md5";
+        cruiseConfig = new BasicCruiseConfig();
+        ArgumentCaptor<FullConfigUpdateCommand> commandArgumentCaptor = ArgumentCaptor.forClass(FullConfigUpdateCommand.class);
+
+        expectLoad(cruiseConfig);
+        new GoConfigMother().addPipelineWithGroup(cruiseConfig, groupName, "pipeline_name", "stage_name", "job_name");
+        expectLoadForEditing(cruiseConfig);
+        when(goConfigDao.md5OfConfigFile()).thenReturn(md5);
+        when(systemEnvironment.optimizeFullConfigSave()).thenReturn(true);
+        when(goConfigDao.updateFullConfig(commandArgumentCaptor.capture())).thenReturn(null);
+
+        GoConfigService.XmlPartialSaver partialSaver = goConfigService.groupSaver(groupName);
+        String renamedGroupName = "renamed_group_name";
+
+        GoConfigValidity validity = partialSaver.saveXml(groupXml(renamedGroupName), md5);
+
+        assertThat(validity.isValid(), Matchers.is(true));
+        assertThat(validity.errorMessage(), Matchers.is(""));
+        CruiseConfig updatedConfig = commandArgumentCaptor.getValue().configForEdit();
+
+        PipelineConfigs group = updatedConfig.findGroup(renamedGroupName);
+        PipelineConfig pipeline = group.findBy(new CaseInsensitiveString("new_name"));
+        assertThat(pipeline.name(), is(new CaseInsensitiveString("new_name")));
+        assertThat(pipeline.getLabelTemplate(), is("${COUNT}-#{foo}"));
+        assertThat(pipeline.materialConfigs().first(), is(IsInstanceOf.instanceOf(SvnMaterialConfig.class)));
+        assertThat(pipeline.materialConfigs().first().getUriForDisplay(), is("file:///tmp/foo"));
+    }
+
+    @Test
     public void shouldReturnInvalidWhenPipelineGroupPartialIsInvalid() throws Exception {
         String groupName = "group_name";
         String md5 = "md5";
@@ -1258,7 +1293,7 @@ public class GoConfigServiceTest {
         goConfigDao = mock(GoConfigDao.class, "badCruiseConfigManager");
         when(goConfigDao.checkConfigFileValid()).thenReturn(GoConfigValidity.invalid(new JDOMParseException("JDom exception", new RuntimeException())));
         return new GoConfigService(goConfigDao, pipelineRepository, new SystemTimeClock(), mock(GoConfigMigration.class), goCache, null,
-                ConfigElementImplementationRegistryMother.withNoPlugins(), instanceFactory, null);
+                ConfigElementImplementationRegistryMother.withNoPlugins(), instanceFactory, null, null);
     }
 
     private CruiseConfig mockConfig() {

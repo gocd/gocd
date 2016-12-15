@@ -202,6 +202,8 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public static GoIntSystemProperty DEPENDENCY_MATERIAL_UPDATE_LISTENERS = new GoIntSystemProperty("dependency.material.check.threads", 3);
 
+    public static GoSystemProperty<Boolean> OPTIMIZE_FULL_CONFIG_SAVE = new GoBooleanSystemProperty("optimize.full.config.save", true);
+
     private final static Map<String, String> GIT_ALLOW_PROTOCOL;
 
     static {
@@ -798,6 +800,10 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public String getAgentKeyStorePassword() {
         return get(SystemEnvironment.GO_AGENT_KEYSTORE_PASSWORD);
+    }
+
+    public boolean optimizeFullConfigSave() {
+        return OPTIMIZE_FULL_CONFIG_SAVE.getValue();
     }
 
     public static abstract class GoSystemProperty<T> {

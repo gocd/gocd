@@ -92,6 +92,8 @@ public class GoConfigMigration {
         this.registry = registry;
     }
 
+//  This method should be removed once upgrade is done using new com.thoughtworks.go.config.GoConfigMigrator#migrate()
+    @Deprecated
     public GoConfigMigrationResult upgradeIfNecessary(File configFile, final String currentGoServerVersion) {
         try {
             return upgradeValidateAndVersion(configFile, true, currentGoServerVersion);
@@ -137,6 +139,18 @@ public class GoConfigMigration {
         GoConfigHolder configHolder = validateAfterMigrationFinished(upgradedXmlString);
         new MagicalGoConfigXmlWriter(configCache, registry).write(configHolder.configForEdit, stream, false);
         return configHolder;
+    }
+
+    public File revertFileToVersion(File configFile, GoConfigRevision currentConfigRevision) throws Exception {
+        File backupFile = getBackupFile(configFile, "invalid.");
+        try {
+            backup(configFile, backupFile);
+            FileUtils.writeStringToFile(configFile, currentConfigRevision.getContent());
+        } catch (IOException e1) {
+            throw new RuntimeException(String.format("Could not write to config file '%s'.", configFile.getAbsolutePath()), e1);
+        }
+
+        return backupFile;
     }
 
     private GoConfigMigrationResult revertFileToVersion(File configFile, GoConfigRevision currentConfigRevision, Exception e) throws Exception {

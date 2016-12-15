@@ -28,6 +28,7 @@ import com.thoughtworks.go.config.registry.NoPluginsInstalled;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
+import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.helper.*;
@@ -47,6 +48,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.context.SecurityContext;
@@ -83,15 +85,20 @@ public class GoFileConfigDataSourceTest {
     private GoConfigDao goConfigDao;
     private CachedGoPartials cachedGoPartials;
     private ConfigRepoConfig repoConfig;
+    private FullConfigSaveMergeFlow fullConfigSaveMergeFlow;
+    private FullConfigSaveNormalFlow fullConfigSaveNormalFlow;
 
     @Before
     public void setup() throws Exception {
         systemEnvironment = new SystemEnvironment();
+        systemEnvironment.setProperty(SystemEnvironment.OPTIMIZE_FULL_CONFIG_SAVE.propertyName(), "false");
         configHelper = new GoConfigFileHelper();
         configHelper.onSetUp();
         configRepository = new ConfigRepository(systemEnvironment);
         configRepository.initialize();
         timeProvider = mock(TimeProvider.class);
+        fullConfigSaveMergeFlow = mock(FullConfigSaveMergeFlow.class);
+        fullConfigSaveNormalFlow = mock(FullConfigSaveNormalFlow.class);
         when(timeProvider.currentTime()).thenReturn(new Date());
         ServerVersion serverVersion = new ServerVersion();
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
@@ -102,9 +109,11 @@ public class GoFileConfigDataSourceTest {
                 throw new RuntimeException(e);
             }
         }, configRepository, new TimeProvider(), configCache, registry),
-                configRepository, systemEnvironment, timeProvider, configCache, serverVersion, registry, mock(ServerHealthService.class), cachedGoPartials);
+                configRepository, systemEnvironment, timeProvider, configCache, serverVersion, registry, mock(ServerHealthService.class),
+                cachedGoPartials, fullConfigSaveMergeFlow, fullConfigSaveNormalFlow);
+
         dataSource.upgradeIfNecessary();
-        CachedGoConfig cachedGoConfig = new CachedGoConfig(serverHealthService, dataSource, mock(CachedGoPartials.class));
+        CachedGoConfig cachedGoConfig = new CachedGoConfig(serverHealthService, dataSource, mock(CachedGoPartials.class), null, null);
         cachedGoConfig.loadConfigIfNull();
         goConfigDao = new GoConfigDao(cachedGoConfig);
         configHelper.load();
@@ -114,10 +123,13 @@ public class GoFileConfigDataSourceTest {
         GoConfigPluginService configPluginService = new GoConfigPluginService(mock(ConfigRepoExtension.class), new ConfigCache(), configElementImplementationRegistry, cachedGoConfig);
         repoConfig = new ConfigRepoConfig(new GitMaterialConfig("url"), "plugin");
         configHelper.addConfigRepo(repoConfig);
+        SecurityContext context = SecurityContextHolder.getContext();
+        context.setAuthentication(new UsernamePasswordAuthenticationToken(new User("loser_boozer", "pass", true, true, true, true, new GrantedAuthority[]{}), null));
     }
 
     @After
     public void teardown() throws Exception {
+        systemEnvironment.setProperty(SystemEnvironment.OPTIMIZE_FULL_CONFIG_SAVE.propertyName(), "false");
         cachedGoPartials.clear();
         configHelper.onTearDown();
         systemEnvironment.reset(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE);
@@ -530,7 +542,7 @@ public class GoFileConfigDataSourceTest {
         ServerHealthService serverHealthService = mock(ServerHealthService.class);
         CachedGoPartials cachedGoPartials = mock(CachedGoPartials.class);
         ConfigRepository configRepository = mock(ConfigRepository.class);
-        dataSource = new GoFileConfigDataSource(migration, configRepository, systemEnvironment, timeProvider, mock(ServerVersion.class), loader, writer, serverHealthService, cachedGoPartials);
+        dataSource = new GoFileConfigDataSource(migration, configRepository, systemEnvironment, timeProvider, mock(ServerVersion.class), loader, writer, serverHealthService, cachedGoPartials, null, null, null, null, null);
 
         final String pipelineName = UUID.randomUUID().toString();
         BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines(pipelineName);
@@ -590,5 +602,205 @@ public class GoFileConfigDataSourceTest {
         List<PartialConfig> known = asList(partialConfig1, partialConfig2);
         List<PartialConfig> valid = new ArrayList<>();
         assertThat(dataSource.areKnownPartialsSameAsValidPartials(known, valid), is(false));
+    }
+
+    @Test
+    public void shouldUpdateConfigWithLastKnownPartials_OnWriteFullConfigWithLock() throws Exception {
+        BasicCruiseConfig configForEdit = new BasicCruiseConfig();
+        MagicalGoConfigXmlLoader.setMd5(configForEdit, "md5");
+        FullConfigUpdateCommand updatingCommand = new FullConfigUpdateCommand(new BasicCruiseConfig(), "md5");
+        GoConfigHolder configHolder = new GoConfigHolder(new BasicCruiseConfig(), configForEdit);
+        List<PartialConfig> lastKnownPartials = mock(List.class);
+        CachedGoPartials cachedGoPartials = mock(CachedGoPartials.class);
+
+        GoFileConfigDataSource source = new GoFileConfigDataSource(null, null, null, null, null, null, null, null, cachedGoPartials,
+                fullConfigSaveMergeFlow, fullConfigSaveNormalFlow);
+
+        stub(cachedGoPartials.lastKnownPartials()).toReturn(lastKnownPartials);
+        stub(fullConfigSaveNormalFlow.execute(Matchers.any(FullConfigUpdateCommand.class), Matchers.any(List.class), Matchers.any(String.class))).
+                toReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
+
+        source.writeFullConfigWithLock(updatingCommand, configHolder);
+
+        verify(fullConfigSaveNormalFlow).execute(updatingCommand, lastKnownPartials, "loser_boozer");
+    }
+
+    @Test
+    public void shouldEnsureMergeFlowWithLastKnownPartialsIfConfigHasChangedBetweenUpdates_OnWriteFullConfigWithLock() throws Exception {
+        BasicCruiseConfig configForEdit = new BasicCruiseConfig();
+        MagicalGoConfigXmlLoader.setMd5(configForEdit, "new_md5");
+        FullConfigUpdateCommand updatingCommand = new FullConfigUpdateCommand(new BasicCruiseConfig(), "old_md5");
+        GoConfigHolder configHolder = new GoConfigHolder(new BasicCruiseConfig(), configForEdit);
+        List<PartialConfig> lastKnownPartials = mock(List.class);
+        CachedGoPartials cachedGoPartials = mock(CachedGoPartials.class);
+
+        GoFileConfigDataSource source = new GoFileConfigDataSource(null, null, systemEnvironment, null, null, null, null, null, cachedGoPartials,
+                fullConfigSaveMergeFlow, fullConfigSaveNormalFlow);
+
+        stub(cachedGoPartials.lastKnownPartials()).toReturn(lastKnownPartials);
+        stub(fullConfigSaveMergeFlow.execute(Matchers.any(FullConfigUpdateCommand.class), Matchers.any(List.class), Matchers.any(String.class))).
+                toReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
+
+        source.writeFullConfigWithLock(updatingCommand, configHolder);
+
+        verify(fullConfigSaveMergeFlow).execute(updatingCommand, lastKnownPartials, "loser_boozer");
+    }
+
+    @Test
+    public void shouldFallbackOnLastValidPartialsIfUpdateWithLastKnownPartialsFails_OnWriteFullConfigWithLock() throws Exception {
+        PartialConfig partialConfig1 = PartialConfigMother.withPipeline("p1", new RepoConfigOrigin(new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin"), "git_r1"));
+        PartialConfig partialConfig2 = PartialConfigMother.withPipeline("p2", new RepoConfigOrigin(new ConfigRepoConfig(MaterialConfigsMother.svnMaterialConfig(), "plugin"), "svn_r1"));
+        List<PartialConfig> known = asList(partialConfig1);
+        List<PartialConfig> valid = asList(partialConfig2);
+
+        BasicCruiseConfig configForEdit = new BasicCruiseConfig();
+        MagicalGoConfigXmlLoader.setMd5(configForEdit, "md5");
+        FullConfigUpdateCommand updatingCommand = new FullConfigUpdateCommand(new BasicCruiseConfig(), "md5");
+        GoConfigHolder configHolder = new GoConfigHolder(new BasicCruiseConfig(), configForEdit);
+        CachedGoPartials cachedGoPartials = mock(CachedGoPartials.class);
+        GoFileConfigDataSource source = new GoFileConfigDataSource(null, null, systemEnvironment, null, null, null, null, null, cachedGoPartials,
+                fullConfigSaveMergeFlow, fullConfigSaveNormalFlow);
+
+        stub(cachedGoPartials.lastKnownPartials()).toReturn(known);
+        stub(cachedGoPartials.lastValidPartials()).toReturn(valid);
+        when(fullConfigSaveNormalFlow.execute(updatingCommand, known, "loser_boozer")).
+                thenThrow(new Exception());
+        when(fullConfigSaveNormalFlow.execute(updatingCommand, valid, "loser_boozer")).
+                thenReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
+
+        source.writeFullConfigWithLock(updatingCommand, configHolder);
+
+        verify(fullConfigSaveNormalFlow).execute(updatingCommand, known, "loser_boozer");
+        verify(fullConfigSaveNormalFlow).execute(updatingCommand, valid, "loser_boozer");
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void shouldNotRetryConfigUpdateIfLastKnownPartialsAreEmpty_OnWriteFullConfigWithLock() throws Exception {
+        List<PartialConfig> known = new ArrayList<>();
+
+        BasicCruiseConfig configForEdit = new BasicCruiseConfig();
+        MagicalGoConfigXmlLoader.setMd5(configForEdit, "md5");
+        FullConfigUpdateCommand updatingCommand = new FullConfigUpdateCommand(new BasicCruiseConfig(), "md5");
+        GoConfigHolder configHolder = new GoConfigHolder(new BasicCruiseConfig(), configForEdit);
+        CachedGoPartials cachedGoPartials = mock(CachedGoPartials.class);
+        GoFileConfigDataSource source = new GoFileConfigDataSource(null, null, systemEnvironment, null, null, null, null, null, cachedGoPartials,
+                fullConfigSaveMergeFlow, fullConfigSaveNormalFlow);
+
+        stub(cachedGoPartials.lastKnownPartials()).toReturn(known);
+        when(fullConfigSaveNormalFlow.execute(updatingCommand, known, "loser_boozer")).
+                thenThrow(new GoConfigInvalidException(configForEdit, "error"));
+
+        source.writeFullConfigWithLock(updatingCommand, configHolder);
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void shouldNotRetryConfigUpdateIfLastKnownAndValidPartialsAreSame_OnWriteFullConfigWithLock() throws Exception {
+        PartialConfig partialConfig1 = PartialConfigMother.withPipeline("p1", new RepoConfigOrigin(new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin"), "git_r1"));
+        List<PartialConfig> known = asList(partialConfig1);
+        List<PartialConfig> valid = asList(partialConfig1);
+
+        BasicCruiseConfig configForEdit = new BasicCruiseConfig();
+        MagicalGoConfigXmlLoader.setMd5(configForEdit, "md5");
+        FullConfigUpdateCommand updatingCommand = new FullConfigUpdateCommand(new BasicCruiseConfig(), "md5");
+        GoConfigHolder configHolder = new GoConfigHolder(new BasicCruiseConfig(), configForEdit);
+        CachedGoPartials cachedGoPartials = mock(CachedGoPartials.class);
+        GoFileConfigDataSource source = new GoFileConfigDataSource(null, null, systemEnvironment, null, null, null, null, null, cachedGoPartials,
+                fullConfigSaveMergeFlow, fullConfigSaveNormalFlow);
+
+        stub(cachedGoPartials.lastKnownPartials()).toReturn(known);
+        stub(cachedGoPartials.lastValidPartials()).toReturn(valid);
+        when(fullConfigSaveNormalFlow.execute(updatingCommand, known, "loser_boozer")).
+                thenThrow(new GoConfigInvalidException(configForEdit, "error"));
+
+        source.writeFullConfigWithLock(updatingCommand, configHolder);
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void shouldErrorOutOnTryingToMergeConfigsIfConfigMergeFeatureIsDisabled_OnWriteFullConfigWithLock() throws Exception {
+        BasicCruiseConfig configForEdit = new BasicCruiseConfig();
+        MagicalGoConfigXmlLoader.setMd5(configForEdit, "new_md5");
+        FullConfigUpdateCommand updatingCommand = new FullConfigUpdateCommand(new BasicCruiseConfig(), "old_md5");
+        GoConfigHolder configHolder = new GoConfigHolder(new BasicCruiseConfig(), configForEdit);
+        List<PartialConfig> lastKnownPartials = new ArrayList<>();
+        CachedGoPartials cachedGoPartials = mock(CachedGoPartials.class);
+
+        GoFileConfigDataSource source = new GoFileConfigDataSource(null, null, systemEnvironment, null, null, null, null, null, cachedGoPartials,
+                fullConfigSaveMergeFlow, fullConfigSaveNormalFlow);
+
+        stub(cachedGoPartials.lastKnownPartials()).toReturn(lastKnownPartials);
+        systemEnvironment.set(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE, false);
+
+        source.writeFullConfigWithLock(updatingCommand, configHolder);
+
+        verify(fullConfigSaveMergeFlow, never()).execute(Matchers.any(FullConfigUpdateCommand.class), Matchers.any(List.class), Matchers.any(String.class));
+        verify(fullConfigSaveNormalFlow, never()).execute(Matchers.any(FullConfigUpdateCommand.class), Matchers.any(List.class), Matchers.any(String.class));
+    }
+
+    @Test
+    public void shouldUpdateAndReloadConfigUsingFullSaveNormalFlowWithLastKnownPartials_onLoad() throws Exception {
+        systemEnvironment.setProperty(SystemEnvironment.OPTIMIZE_FULL_CONFIG_SAVE.propertyName(), "y");
+
+        GoConfigFileReader goConfigFileReader = mock(GoConfigFileReader.class);
+        MagicalGoConfigXmlLoader loader = mock(MagicalGoConfigXmlLoader.class);
+        CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+        List lastKnownPartials = mock(List.class);
+        CachedGoPartials cachedGoPartials = mock(CachedGoPartials.class);
+        GoConfigHolder goConfigHolder = new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig());
+
+        ArgumentCaptor<FullConfigUpdateCommand> commandArgumentCaptor = ArgumentCaptor.forClass(FullConfigUpdateCommand.class);
+        ArgumentCaptor<List> listArgumentCaptor = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
+
+        when(goConfigFileReader.fileLocation()).thenReturn(new File(""));
+        when(goConfigFileReader.configXml()).thenReturn("config_xml");
+        when(loader.deserializeConfig("config_xml")).thenReturn(cruiseConfig);
+        when(cachedGoPartials.lastKnownPartials()).thenReturn(lastKnownPartials);
+        when(fullConfigSaveNormalFlow.execute(commandArgumentCaptor.capture(), listArgumentCaptor.capture(), stringArgumentCaptor.capture())).thenReturn(goConfigHolder);
+
+        GoFileConfigDataSource source = new GoFileConfigDataSource(null, null, systemEnvironment, null, null, loader, null, null, cachedGoPartials,
+                null, fullConfigSaveMergeFlow, fullConfigSaveNormalFlow, goConfigFileReader, null);
+
+        GoConfigHolder configHolder = source.load();
+
+        assertThat(configHolder, is(goConfigHolder));
+        assertThat(commandArgumentCaptor.getValue().configForEdit(), is(cruiseConfig));
+        assertThat(listArgumentCaptor.getValue(), is(lastKnownPartials));
+        assertThat(stringArgumentCaptor.getValue(), is("Filesystem"));
+    }
+
+    @Test
+    public void shouldReloadConfigUsingFullSaveNormalFlowWithLastValidPartialsIfUpdatingWithLastKnownPartialsFails_onLoad() throws Exception {
+        systemEnvironment.setProperty(SystemEnvironment.OPTIMIZE_FULL_CONFIG_SAVE.propertyName(), "y");
+
+        GoConfigFileReader goConfigFileReader = mock(GoConfigFileReader.class);
+        MagicalGoConfigXmlLoader loader = mock(MagicalGoConfigXmlLoader.class);
+        CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+        PartialConfigMother.withPipeline("P1");
+        List lastKnownPartials = Arrays.asList(PartialConfigMother.withPipeline("P1"));
+        List lastValidPartials = Arrays.asList(PartialConfigMother.withPipeline("P2"), PartialConfigMother.withPipeline("P3"));
+        CachedGoPartials cachedGoPartials = mock(CachedGoPartials.class);
+        GoConfigHolder goConfigHolder = new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig());
+
+        ArgumentCaptor<FullConfigUpdateCommand> commandArgumentCaptor = ArgumentCaptor.forClass(FullConfigUpdateCommand.class);
+        ArgumentCaptor<List> listArgumentCaptor = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
+
+        when(goConfigFileReader.fileLocation()).thenReturn(new File(""));
+        when(goConfigFileReader.configXml()).thenReturn("config_xml");
+        when(loader.deserializeConfig("config_xml")).thenReturn(cruiseConfig);
+        when(cachedGoPartials.lastKnownPartials()).thenReturn(lastKnownPartials);
+        when(cachedGoPartials.lastValidPartials()).thenReturn(lastValidPartials);
+        when(fullConfigSaveNormalFlow.execute(commandArgumentCaptor.capture(), listArgumentCaptor.capture(), stringArgumentCaptor.capture()))
+                .thenThrow(new GoConfigInvalidException(null, null)).thenReturn(goConfigHolder);
+
+        GoFileConfigDataSource source = new GoFileConfigDataSource(null, null, systemEnvironment, null, null, loader, null, null, cachedGoPartials,
+                null, fullConfigSaveMergeFlow, fullConfigSaveNormalFlow, goConfigFileReader, null);
+
+        GoConfigHolder configHolder = source.load();
+
+        assertThat(configHolder, is(goConfigHolder));
+        assertThat(commandArgumentCaptor.getValue().configForEdit(), is(cruiseConfig));
+        assertThat(listArgumentCaptor.getValue(), is(lastValidPartials));
+        assertThat(stringArgumentCaptor.getValue(), is("Filesystem"));
     }
 }

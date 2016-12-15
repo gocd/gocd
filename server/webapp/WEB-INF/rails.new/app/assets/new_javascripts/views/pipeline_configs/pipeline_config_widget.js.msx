@@ -92,6 +92,7 @@ define([
 
           if(!self.pipeline().isValid()) {
             self.vm.markClientSideErrors();
+            self.vm.defaultState();
             return;
           }
 

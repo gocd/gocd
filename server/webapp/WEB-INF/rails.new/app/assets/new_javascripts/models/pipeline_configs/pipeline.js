@@ -160,6 +160,10 @@ define([
       this.saveState('success');
     };
 
+    this.defaultState = function () {
+      this.saveState('');
+    };
+
     this.clearErrors = function () {
       errors = [];
     };

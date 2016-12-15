@@ -240,6 +240,7 @@ Go::Application.routes.draw do
         resources :packages, param: :package_id, only: [:show, :destroy, :index, :create, :update], constraints: {package_id: ALLOW_DOTS}
         namespace :internal do
           post :material_test, controller: :material_test, action: :test, as: :material_test
+          post :repository_check_connection, controller: :repository_check_connection, action: :check_connection, as: :repository_check_connection
           resources :pipelines, only: [:index]
           resources :resources, only: [:index]
           resources :environments, only: [:index]

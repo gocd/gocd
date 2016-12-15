@@ -6,8 +6,6 @@ gem 'validatable', '>=1.6.0'
 
 gem 'dynamic_form'
 
-gem 'gadgets', '0.0.1', path: 'vendor/engines/gadgets'
-
 gem 'sprockets-rails'
 gem 'sass-rails'
 gem 'requirejs-rails'

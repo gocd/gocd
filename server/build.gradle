@@ -1,8 +1,3 @@
-import com.thoughtworks.go.build.VerifyJarTask
-import org.jruby.CompatVersion
-import org.jruby.Ruby
-import org.jruby.RubyInstanceConfig
-
 /*
  * Copyright 2016 ThoughtWorks, Inc.
  *
@@ -19,6 +14,10 @@ import org.jruby.RubyInstanceConfig
  * limitations under the License.
  */
 
+import com.thoughtworks.go.build.VerifyJarTask
+import org.jruby.CompatVersion
+import org.jruby.Ruby
+import org.jruby.RubyInstanceConfig
 description = 'GoCD Server'
 
 buildscript {
@@ -64,8 +63,7 @@ apply from: 'jasmine.gradle'
 sourceSets {
   main {
     resources {
-      srcDirs = ['resources', 'properties/src', "${project.railsRoot}/vendor/engines/gadgets/config"]
-      exclude 'routes.rb'
+      srcDirs = ['resources', 'properties/src']
     }
   }
   test {
@@ -104,6 +102,9 @@ dependencies {
     exclude(module: 'ehcache')
     exclude(module: 'commons-collections')
   }
+
+  compile group: 'commons-fileupload', name: 'commons-fileupload', version: '1.3.2'
+
   compile(group: 'org.hibernate', name: 'hibernate-annotations', version: '3.4.0.GA') {
     exclude(module: 'slf4j-api')
   }
@@ -163,20 +164,7 @@ dependencies {
     exclude(module: 'commons-collections')
   }
   compile group: 'velocity-tools', name: 'velocity-tools-view', version: '1.2'
-  compile group: 'org.apache.shindig', name: 'shindig-features', version: '1.1-BETA5-incubating'
-  compile(group: 'org.apache.shindig', name: 'shindig-gadgets', version: '1.1-BETA5-incubating') {
-    exclude(module: 'caja')
-    exclude(module: 'guice')
-    exclude(module: 'commons-betwixt')
-    exclude(module: 'commons-codec')
-    exclude(module: 'commons-io')
-    exclude(module: 'commons-lang')
-    exclude(module: 'ehcache')
-    exclude(module: 'icu4j')
-  }
-  compile group: 'caja', name: 'caja', version: '3828'
-  compile group: 'com.google.inject', name: 'guice', version: '2.0'
-  compile group: 'com.thoughtworks.studios', name: 'gadgets', version: '1.1'
+  compile group: 'com.google.guava', name: 'guava', version: '20.0'
   compile group: 'com.sun.mail', name: 'dsn', version: '1.4.4'
   compile group: 'com.sun.mail', name: 'mailapi', version: '1.4.4'
   compile group: 'com.sun.mail', name: 'imap', version: '1.4.4'
@@ -184,14 +172,21 @@ dependencies {
   compile group: 'com.sun.mail', name: 'smtp', version: '1.4.4'
   compile group: 'org.objenesis', name: 'objenesis', version: '1.2'
   compile(group: 'jaxen', name: 'jaxen', version: '1.1') {
+    exclude(module: 'xml-apis')
     exclude(module: 'xom')
     exclude(module: 'xercesImpl')
     exclude(module: 'jdom')
   }
+  // this is just an override to force a transitive dep to the version we want.
+  compile group: 'xml-apis', name: 'xml-apis', version: '1.3.04'
   compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.21'
   compile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.21'
   compile group: 'org.slf4j', name: 'jul-to-slf4j', version: '1.7.21'
   compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit.http.server', version: '4.5.0.201609210915-r'
+  compileOnly project(':app-server')
+  compileOnly group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47'
+  compileOnly group: 'org.eclipse.jetty.websocket', name: 'websocket-server', version: versions.jetty
+
   testCompile group: 'com.unboundid', name: 'unboundid-ldapsdk', version: '2.3.6'
   testCompile project(path: ':common', configuration: 'testOutput')
   testCompile project(path: ':config-server', configuration: 'testOutput')
@@ -203,9 +198,6 @@ dependencies {
   testCompile group: 'net.javacrumbs.json-unit', name: 'json-unit', version: '1.7.0'
   testCompile group: 'org.xmlunit', name: 'xmlunit-core', version: '2.2.1'
   testCompile group: 'org.xmlunit', name: 'xmlunit-matchers', version: '2.2.1'
-  compileOnly project(':app-server')
-  compileOnly group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47'
-  compileOnly group: 'org.eclipse.jetty.websocket', name: 'websocket-server', version: versions.jetty
 }
 
 jar {
@@ -484,7 +476,6 @@ task verifyWar(type: VerifyJarTask) {
       "aspectjrt-1.5.4.jar",
       "aspectjweaver-1.5.4.jar",
       "base-${project.version}.jar",
-      "caja-3828.jar",
       "cas-client-core-3.2.1.jar",
       "cglib-2.1_3.jar",
       "cglib-nodep-2.2.jar",
@@ -496,9 +487,8 @@ task verifyWar(type: VerifyJarTask) {
       "commons-collections-3.2.2.jar",
       "commons-dbcp-1.4.jar",
       "commons-digester-1.8.jar",
-      "commons-fileupload-1.2.jar",
-      "commons-httpclient-3.1.jar",
       "commons-io-2.5.jar",
+      "commons-fileupload-1.3.2.jar",
       "commons-lang-2.6.jar",
       "commons-logging-1.2.jar",
       "commons-net-2.0.jar",
@@ -514,7 +504,6 @@ task verifyWar(type: VerifyJarTask) {
       "ehcache-core-2.0.0.jar",
       "ejb3-persistence-1.0.2.GA.jar",
       "freemarker-2.3.18.jar",
-      "gadgets-1.1.jar",
       "geronimo-j2ee-management_1.1_spec-1.0.1.jar",
       "geronimo-jms_1.1_spec-1.1.1.jar",
       "go-plugin-access-${project.version}.jar",
@@ -522,15 +511,12 @@ task verifyWar(type: VerifyJarTask) {
       "go-plugin-api-${project.version}.jar",
       "go-plugin-api-internal-${project.version}.jar",
       "go-plugin-infra-${project.version}.jar",
-      "google-collections-1.0-rc2.jar",
       "gson-2.3.1.jar",
-      "guice-2.0.jar",
       "h2-1.3.168.jar",
       "hibernate-annotations-3.4.0.GA.jar",
       "hibernate-commons-annotations-3.1.0.GA.jar",
       "hibernate-core-3.3.2.GA.jar",
       "hibernate-ehcache-3.3.2.GA.jar",
-      "htmlparser-1.0.7.jar",
       "httpclient-4.5.2.jar",
       "httpcore-4.4.4.jar",
       "httpmime-4.5.2.jar",
@@ -554,22 +540,14 @@ task verifyWar(type: VerifyJarTask) {
       "jruby-complete-1.7.26.jar",
       "jruby-rack-1.1.14.jar",
       "jsch-0.1.53.jar",
-      "json-20070829.jar",
-      "json-simple-1.1.jar",
       "json-utils-0.0.20.jar",
       "jta-1.1.jar",
-      "juel-api-2.1.2.jar",
-      "juel-impl-2.1.2.jar",
       "jul-to-slf4j-1.7.21.jar",
       "kahadb-5.5.0.jar",
       "kxml2-2.3.0.jar",
       "kxml2-min-2.3.0.jar",
       "log4j-1.2.17.jar",
       "mailapi-1.4.4.jar",
-      "nekohtml-1.9.13.jar",
-      "oauth-20090531.jar",
-      "oauth-consumer-20090531.jar",
-      "oauth-httpclient3-20090531.jar",
       "objenesis-1.2.jar",
       "org.apache.felix.framework-4.2.1.jar",
       "org.eclipse.jgit-4.5.0.201609210915-r.jar",
@@ -579,12 +557,7 @@ task verifyWar(type: VerifyJarTask) {
       "pop3-1.4.4.jar",
       "quartz-1.6.5.jar",
       "rack_hack-${project.version}.jar",
-      "rome-1.0.jar",
-      "sanselan-0.97-incubator.jar",
       "sesame-onejar-2.3.1.jar",
-      "shindig-common-1.1-BETA5-incubating.jar",
-      "shindig-features-1.1-BETA5-incubating.jar",
-      "shindig-gadgets-1.1-BETA5-incubating.jar",
       "slf4j-api-1.7.21.jar",
       "slf4j-log4j12-1.7.21.jar",
       "smtp-1.4.4.jar",
@@ -613,9 +586,7 @@ task verifyWar(type: VerifyJarTask) {
       "web.servlet-3.1.3.RELEASE.jar",
       "xercesImpl-2.9.1.jar",
       "xml-apis-1.3.04.jar",
-      "xmlParserAPIs-2.6.2.jar",
-      "xpp3_min-1.1.4c.jar",
-      "xstream-1.3.1.jar",
+      "guava-20.0.jar",
     ]
   ]
 }

@@ -203,76 +203,6 @@ public class ChangesetServiceIntegrationTest {
         List<MaterialRevision> revisions = changesetService.revisionsBetween("foo", pipelineOne.getCounter(), pipelineThree.getCounter(), loser, result, true, false);
         assertMaterialRevisions(expectedRevisions, revisions);
         assertThat(result.isSuccessful(), is(true));
-
-        List<String> cardsInBetween = changesetService.getCardNumbersBetween("foo", pipelineOne.getCounter(), pipelineThree.getCounter(), loser, result, false);
-        assertThat(result.isSuccessful(), is(true));
-        assertThat(cardsInBetween.size(), is(4));
-        assertThat(cardsInBetween, is(Arrays.asList("4200", "4521", "3750", "4520")));
-    }
-
-    @Test
-    public void shouldFlipCountersAndFindTheDiffInModificationsEvenWhenFromCounterIsBiggerThanTheToCounter() {
-        Username loser = new Username(new CaseInsensitiveString("loser"));
-        ManualBuild build = new ManualBuild(loser);
-        Date checkinTime = new Date();
-
-        Modification hgCommit1 = checkinWithComment("abcd", "#4518 - foo", checkinTime);
-        Modification gitCommit1 = checkinWithComment("1234", "#3750 - agent index", checkinTime);
-        Pipeline pipelineOne = dbHelper.checkinRevisionsToBuild(build, pipelineConfigWithTwoMaterials, dbHelper.addRevisionsWithModifications(hg, hgCommit1),
-                dbHelper.addRevisionsWithModifications(git, gitCommit1));
-
-        Modification hgCommit2 = checkinWithComment("bcde", "#4520 - foo", checkinTime);
-        Modification gitCommit2 = checkinWithComment("2355", "#3750 - agent index", checkinTime);
-        dbHelper.checkinRevisionsToBuild(build, pipelineConfigWithTwoMaterials, dbHelper.addRevisionsWithModifications(hg, hgCommit2), dbHelper.addRevisionsWithModifications(git, gitCommit2));
-
-
-        Modification hgCommit3 = checkinWithComment("cdef", "#4521 - get gadget working", checkinTime);
-        Modification gitCommit3 = checkinWithComment("2345", "#4200 - whatever", checkinTime);
-        Pipeline pipelineThree = dbHelper.checkinRevisionsToBuild(build, pipelineConfigWithTwoMaterials, dbHelper.addRevisionsWithModifications(hg, hgCommit3),
-                dbHelper.addRevisionsWithModifications(git, gitCommit3));
-
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        List<String> cardsInBetween = changesetService.getCardNumbersBetween("foo", pipelineThree.getCounter(), pipelineOne.getCounter(), loser, result, false);
-        assertThat(result.isSuccessful(), is(true));
-        assertThat(cardsInBetween.size(), is(4));
-        assertThat(cardsInBetween, is(Arrays.asList("4200", "4521", "3750", "4520")));
-    }
-
-    @Test
-    public void shouldFilterOutCardNumbersWhenGivingTheCardNumbersWhenMingleConfigIsDifferentFromParent() {
-        Username loser = new Username(new CaseInsensitiveString("loser"));
-        ManualBuild build = new ManualBuild(loser);
-        Date checkinTime = new Date();
-
-
-        PipelineConfig upstream = configHelper.addPipeline("upstream", "up-stage", git.config(), new MingleConfig("https://upstream-mingle", "go"), "job");
-
-        DependencyMaterial dependencyMaterial = MaterialsMother.dependencyMaterial("upstream", "up-stage");
-        PipelineConfig downstream = configHelper.addPipeline("downstream", "down-stage", dependencyMaterial.config(), new MingleConfig("https://downstream-mingle", "go"), "job");
-
-        //Schedule upstream
-        Modification gitCommit1 = checkinWithComment("1234", "#3750, #3123 - agent index", checkinTime);
-        MaterialRevision materialRevision = dbHelper.addRevisionsWithModifications(git, gitCommit1);
-        Pipeline upInstance1 = dbHelper.checkinRevisionsToBuild(build, upstream, materialRevision);
-
-        Modification gitCommit2 = checkinWithComment("1239", "#4150, #786 - agent index", checkinTime);
-        materialRevision = dbHelper.addRevisionsWithModifications(git, gitCommit2);
-        Pipeline upInstance2 = dbHelper.checkinRevisionsToBuild(build, upstream, materialRevision);
-
-        //Schedule downstream
-        ArrayList<MaterialRevision> materialRevisions = new ArrayList<MaterialRevision>();
-        dbHelper.addDependencyRevisionModification(materialRevisions, dependencyMaterial, upInstance1);
-        Pipeline downInstance1 = dbHelper.checkinRevisionsToBuild(build, downstream, materialRevisions);
-
-        materialRevisions.clear();
-        dbHelper.addDependencyRevisionModification(materialRevisions, dependencyMaterial, upInstance2);
-        Pipeline downInstance2 = dbHelper.checkinRevisionsToBuild(build, downstream, materialRevisions);
-
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        List<String> cardsInBetween = changesetService.getCardNumbersBetween("downstream", downInstance1.getCounter(), downInstance2.getCounter(), loser, result, false);
-
-        assertThat(result.isSuccessful(), is(true));
-        assertThat(cardsInBetween.size(), is(0));
     }
 
     @Test
@@ -298,59 +228,6 @@ public class ChangesetServiceIntegrationTest {
                 false);
         assertMaterialRevisions(expectedRevisions, revisions);
         assertThat(result.isSuccessful(), is(true));
-
-        List<String> cardsInBetween = changesetService.getCardNumbersBetween(CaseInsensitiveString.str(pipelineConfig.name()), pipelineOne.getCounter(), pipelineFour.getCounter(), loser, result,
-                false);
-        assertThat(result.isSuccessful(), is(true));
-        assertThat(cardsInBetween.size(), is(1));
-        assertThat(cardsInBetween, is(Arrays.asList("4518")));
-    }
-
-    @Test
-    public void shouldIgnoreModificationsWithNoCardNumbersInComments() {
-        Username loser = new Username(new CaseInsensitiveString("loser"));
-        ManualBuild build = new ManualBuild(loser);
-        Date checkinTime = new Date();
-
-        Pipeline pipelineOne = dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, modificationWithNoCardNumberInComment(checkinTime)));
-
-        dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, modificationWithNoCardNumberInComment(checkinTime)));
-        dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, modificationWithNoCardNumberInComment(checkinTime)));
-
-        Pipeline pipelineFour = dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, modificationWithNoCardNumberInComment(checkinTime)));
-
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        List<String> cardsInBetween = changesetService.getCardNumbersBetween(CaseInsensitiveString.str(pipelineConfig.name()), pipelineOne.getCounter(), pipelineFour.getCounter(), loser, result,
-                false);
-        assertThat(result.isSuccessful(), is(true));
-        assertThat(cardsInBetween.size(), is(0));
-    }
-
-    private Modification modificationWithNoCardNumberInComment(Date checkinTime) {
-        return checkinWithComment("abcd" + UUID.randomUUID(), "Commit made against no card number - foo", checkinTime);
-    }
-
-    @Test
-    public void shouldShowCardsWhenMaterialsChange() {
-        Username loser = new Username(new CaseInsensitiveString("loser"));
-        ManualBuild build = new ManualBuild(loser);
-
-        Pipeline pipelineFrom = dbHelper.checkinRevisionsToBuild(build, pipelineConfig,
-                dbHelper.addRevisionsWithModifications(hg, modificationWithNoCardNumberInComment(new Date())));
-        dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(hg, checkinWithComment("8923", "hg commit for card #2750 and #3400", new Date())));
-
-        CruiseConfig config = configHelper.load();
-        pipelineConfig = config.pipelineConfigByName(pipelineConfig.name());
-        pipelineConfig.materialConfigs().clear();
-        pipelineConfig.addMaterialConfig(git.config());
-        configHelper.writeConfigFile(config);
-
-        dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(git, checkinWithComment("1234abcd", "commit affecting #10", new Date())));
-        Pipeline pipelineTo = dbHelper.checkinRevisionsToBuild(build, pipelineConfig, dbHelper.addRevisionsWithModifications(git, checkinWithComment("9876dcba", "card #199", new Date())));
-
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        List<String> cardsInBetween = changesetService.getCardNumbersBetween(CaseInsensitiveString.str(pipelineConfig.name()), pipelineFrom.getCounter(), pipelineTo.getCounter(), loser, result, false);
-        assertThat(cardsInBetween, is(Arrays.asList("199", "10", "2750", "3400")));
     }
 
     @Test
@@ -370,11 +247,6 @@ public class ChangesetServiceIntegrationTest {
         List<MaterialRevision> revisions = changesetService.revisionsBetween("foo", 0, pipelineOne.getCounter(), loser, result, true, false);
         assertMaterialRevisions(expectedRevisions, revisions);
         assertThat(result.isSuccessful(), is(true));
-
-        List<String> cardsInBetween = changesetService.getCardNumbersBetween("foo", 0, pipelineOne.getCounter(), loser, result, false);
-        assertThat(result.isSuccessful(), is(true));
-        assertThat(cardsInBetween.size(), is(2));
-        assertThat(cardsInBetween, is(Arrays.asList("3750", "4518")));
     }
 
     @Test
@@ -394,11 +266,6 @@ public class ChangesetServiceIntegrationTest {
         List<MaterialRevision> revisions = changesetService.revisionsBetween("foo", pipelineOne.getCounter(), pipelineOne.getCounter(), loser, result, true, false);
         assertMaterialRevisions(expectedRevisions, revisions);
         assertThat(result.isSuccessful(), is(true));
-
-        List<String> cardsInBetween = changesetService.getCardNumbersBetween("foo", pipelineOne.getCounter(), pipelineOne.getCounter(), loser, result, false);
-        assertThat(result.isSuccessful(), is(true));
-        assertThat(cardsInBetween.size(), is(2));
-        assertThat(cardsInBetween, is(Arrays.asList("3750", "4518")));
     }
 
     @Test
@@ -457,15 +324,10 @@ public class ChangesetServiceIntegrationTest {
         List<MaterialRevision> revisionList = changesetService.
                 revisionsBetween("foo-bar", firstPipeline.getCounter(), bisectPipeline.getCounter(), new Username(new CaseInsensitiveString("loser")), result, true, true);
         assertThat(stringRevisions(revisionList), is(Arrays.asList("5", "2", "3", "4")));
-        List<String> cardList = changesetService.getCardNumbersBetween("foo-bar", firstPipeline.getCounter(), bisectPipeline.getCounter(),
-                new Username(new CaseInsensitiveString("loser")), result, true);
-        assertThat(cardList, is(Arrays.asList("5750", "3750", "4750")));
 
         //When from counter is a bisect
         revisionList = changesetService.revisionsBetween("foo-bar", bisectPipeline.getCounter(), nextPipeline.getCounter(), new Username(new CaseInsensitiveString("loser")), result, true, true);
         assertThat(stringRevisions(revisionList), is(Arrays.asList("6", "5", "2")));
-        cardList = changesetService.getCardNumbersBetween("foo-bar", bisectPipeline.getCounter(), nextPipeline.getCounter(), new Username(new CaseInsensitiveString("loser")), result, true);
-        assertThat(cardList, is(Arrays.asList("4150", "5750", "3750")));
     }
 
     @Test
@@ -491,15 +353,10 @@ public class ChangesetServiceIntegrationTest {
         List<MaterialRevision> revisionList = changesetService.revisionsBetween("foo-bar", firstPipeline.getCounter(), bisectPipeline.getCounter(), new Username(new CaseInsensitiveString("loser")), result, true,
                 false);
         assertThat(revisionList.isEmpty(), is(true));
-        List<String> cardList = changesetService.getCardNumbersBetween("foo-bar", firstPipeline.getCounter(), bisectPipeline.getCounter(), new Username(new CaseInsensitiveString("loser")), result,
-                false);
-        assertThat(cardList.isEmpty(), is(true));
 
         //When from counter is a bisect
         revisionList = changesetService.revisionsBetween("foo-bar", bisectPipeline.getCounter(), nextPipeline.getCounter(), new Username(new CaseInsensitiveString("loser")), result, true, false);
         assertThat(revisionList.isEmpty(), is(true));
-        cardList = changesetService.getCardNumbersBetween("foo-bar", bisectPipeline.getCounter(), nextPipeline.getCounter(), new Username(new CaseInsensitiveString("loser")), result, false);
-        assertThat(cardList.isEmpty(), is(true));
     }
 
     @Test

@@ -21,19 +21,15 @@ import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import org.apache.commons.httpclient.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
 
+import static javax.servlet.http.HttpServletResponse.*;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class PipelinePauseServiceTest {
     private PipelineSqlMapDao pipelineDao;
@@ -81,7 +77,7 @@ public class PipelinePauseServiceTest {
         verify(pipelineDao).pause(VALID_PIPELINE, "cause", VALID_USER.getUsername().toString());
 
         assertThat(result.isSuccessful(), is(true));
-        assertThat(result.httpCode(), is(HttpStatus.SC_OK));
+        assertThat(result.httpCode(), is(SC_OK));
     }
 
 
@@ -96,7 +92,7 @@ public class PipelinePauseServiceTest {
         verify(pipelineDao).unpause(VALID_PIPELINE);
 
         assertThat(result.isSuccessful(), is(true));
-        assertThat(result.httpCode(), is(HttpStatus.SC_OK));
+        assertThat(result.httpCode(), is(SC_OK));
     }
 
     @Test
@@ -107,7 +103,7 @@ public class PipelinePauseServiceTest {
         pipelinePauseService.pause(INVALID_PIPELINE, "cause", VALID_USER, result);
 
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(HttpStatus.SC_NOT_FOUND));
+        assertThat(result.httpCode(), is(SC_NOT_FOUND));
         verify(pipelineDao, never()).pause(INVALID_PIPELINE, "cause", "admin");
     }
 
@@ -119,7 +115,7 @@ public class PipelinePauseServiceTest {
         pipelinePauseService.unpause(INVALID_PIPELINE, VALID_USER, result);
 
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(HttpStatus.SC_NOT_FOUND));
+        assertThat(result.httpCode(), is(SC_NOT_FOUND));
         verify(pipelineDao, never()).unpause(INVALID_PIPELINE);
     }
 
@@ -135,7 +131,7 @@ public class PipelinePauseServiceTest {
         pipelinePauseService.pause(VALID_PIPELINE, "cause", VALID_USER, result);
 
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(HttpStatus.SC_INTERNAL_SERVER_ERROR));
+        assertThat(result.httpCode(), is(SC_INTERNAL_SERVER_ERROR));
 
         verify(pipelineDao).pause(VALID_PIPELINE, "cause", VALID_USER.getUsername().toString());
     }
@@ -152,7 +148,7 @@ public class PipelinePauseServiceTest {
         pipelinePauseService.unpause(VALID_PIPELINE, VALID_USER, result);
 
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(HttpStatus.SC_INTERNAL_SERVER_ERROR));
+        assertThat(result.httpCode(), is(SC_INTERNAL_SERVER_ERROR));
 
         verify(pipelineDao).unpause(VALID_PIPELINE);
     }
@@ -166,7 +162,7 @@ public class PipelinePauseServiceTest {
         pipelinePauseService.pause(VALID_PIPELINE, "cause", INVALID_USER, result);
 
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(HttpStatus.SC_UNAUTHORIZED));
+        assertThat(result.httpCode(), is(SC_UNAUTHORIZED));
         verify(pipelineDao, never()).pause(VALID_PIPELINE, "cause", "admin");
     }
 
@@ -179,7 +175,7 @@ public class PipelinePauseServiceTest {
         pipelinePauseService.unpause(VALID_PIPELINE, INVALID_USER, result);
 
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(HttpStatus.SC_UNAUTHORIZED));
+        assertThat(result.httpCode(), is(SC_UNAUTHORIZED));
         verify(pipelineDao, never()).unpause(VALID_PIPELINE);
     }
 
@@ -192,7 +188,7 @@ public class PipelinePauseServiceTest {
         pipelinePauseService.pause(VALID_PIPELINE, null, VALID_USER, result);
 
         assertThat(result.isSuccessful(), is(true));
-        assertThat(result.httpCode(), is(HttpStatus.SC_OK));
+        assertThat(result.httpCode(), is(SC_OK));
         verify(pipelineDao).pause(VALID_PIPELINE, "", VALID_USER.getUsername().toString());
     }
 

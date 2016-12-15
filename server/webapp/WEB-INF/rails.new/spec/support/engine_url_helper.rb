@@ -11,7 +11,6 @@ module EngineUrlHelper
     allow(main_app).to receive(:templates_path).and_return("/path/to/templates")
     allow(main_app).to receive(:config_view_path).and_return("/path/to/config/view")
     allow(main_app).to receive(:edit_server_config_path).and_return("/path/to/server/edit")
-    allow(main_app).to receive(:gadgets_oauth_clients_path).and_return("/path/to/gadget")
     allow(main_app).to receive(:plugins_listing_path).and_return("/path/to/plugins/listing")
     allow(main_app).to receive(:package_repositories_new_path).and_return("/path/to/package/repo")
     allow(main_app).to receive(:package_repositories_list_path).and_return("/path/to/package/listing")

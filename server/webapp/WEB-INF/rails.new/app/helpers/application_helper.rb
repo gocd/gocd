@@ -387,11 +387,6 @@ module ApplicationHelper
     Integer(s) rescue false
   end
 
-  def make_https url
-    uri = org.apache.commons.httpclient.URI.new(url, "UTF-8")
-    org.apache.commons.httpclient.URI.new("https", uri.getUserinfo(), uri.getHost(), system_environment.getSslServerPort(), uri.getPath(), uri.getQuery(), uri.getFragment()).to_s
-  end
-
   def config_md5_field
     hidden_field_tag('cruise_config_md5', cruise_config_md5)
   end

@@ -61,7 +61,6 @@ describe "/layouts/admin" do
       expect(tab).to_not have_selector("#server-configuration-tab-button")
       expect(tab).to_not have_selector("#user-summary-tab-button")
       expect(tab).to_not have_selector("#oauth-clients-tab-button")
-      expect(tab).to_not have_selector("#gadget-providers-tab-button")
     end
   end
 

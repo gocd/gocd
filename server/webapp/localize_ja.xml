@@ -177,11 +177,6 @@
     <entry key="USER_SEARCH_FAILED">Ldap search and password search failed, please contact the administrator.</entry>
     <entry key="SEARCH_STRING_TOO_SMALL">Please use a search string that has at least two (2) letters.</entry>
     <entry key="USER_FIELD_VALIDATIONS_FAILED">Failed to add user. Validations failed. {0}</entry>
-    <entry key="GADGET_NAME_PIPELINE_STATUS">Pipeline Status</entry>
-    <entry key="GADGET_NAME_DEPENDENCY_REVISIONS">Dependency Revisions</entry>
-    <entry key="AUTHORIZE_GADGET">Authorize the gadget to fetch ''{0}'' from Go</entry>
-    <entry key="GADGET_PIPELINE_NAME_MISSING">Request does not have parameter ''{0}'' set. Please specify the name of the pipeline.</entry>
-    <entry key="GADGET_PIPELINE_NAME_EMPTY">Parameter ''{0}'' is empty. Please specify the name of the pipeline.</entry>
     <entry key="GO">Go</entry>
     <entry key="PREVIOUSLY_BLURB">Previously: </entry>
     <entry key="NOT_ALL_RESULTS_SHOWN">Too many matches found, not all results are being shown.</entry>
@@ -285,8 +280,7 @@
     <entry key="COMPARED_TO">compared to</entry>
     <entry key="UNAUTHORIZED_TO_EDIT_PIPELINE">Unauthorized to edit {0} pipeline.</entry>
     <entry key="FAILED_TO_UPDATE_PIPELINE">Failed to update pipeline ''{0}''. {1}</entry>
-    <entry key="NO_CARD_ACTIVITY_FOR_BISECT">This pipeline instance cannot be used to perform a comparison because it was triggered with a non-sequential material revision.</entry>
-    <entry key="CARD_ACTIVITY">Card Activity</entry>
+    <entry key="NO_COMPARISON_FOR_BISECT">This pipeline instance cannot be used to perform a comparison because it was triggered with a non-sequential material revision.</entry>
     <entry key="REVISION">Revision</entry>
     <entry key="MODIFIED_BY">Modified by</entry>
     <entry key="COMMENT">Comment</entry>
@@ -335,7 +329,6 @@
     <entry key="TRACKING">Tracking Tool Integration</entry>
     <entry key="TRACKING_TOOL_REGEX">Pattern</entry>
     <entry key="TRACKING_TOOL_URL">URI</entry>
-    <entry key="MINGLE_GADGET_CONFIGURATION">Mingle Integration</entry>
     <entry key="MINGLE_URL">URI</entry>
     <entry key="MINGLE_PROJECT_IDENTIFIER">Project Identifier</entry>
     <entry key="MQL_GROUPING_CONDITIONS">MQL Grouping Conditions</entry>
@@ -430,7 +423,6 @@
     <entry key="TOOLTIP_MATERIAL_NAME">[Optional] The name of the material. If omitted, the default material name is the URL. You can override this by setting the material name explicitly.</entry>
     <entry key="TOOLTIP_LABEL_TEMPLATE">Customize the label for this pipeline. <![CDATA[<a class='' href='http://www.go.cd/documentation/user/current/configuration/admin_use_custom_pipeline_label.html' target='_blank'>More...</a>]]></entry>
     <entry key="TOOLTIP_CRON_TIMER_SPECIFICATION">A cron-like schedule to build the pipeline. For example to run a pipeline once every night at 10 pm on weekdays, use '0 0 22 ? * MON-FRI'. <![CDATA[<a href='http://www.go.cd/documentation/user/current/configuration/configuration_reference.html#timer' target='_blank'>More...</a>]]></entry>
-    <entry key="TOOLTIP_MINGLE_GADGET_CONFIGURATION">Associates a Mingle project to a pipeline. Doing so will allow you to track Mingle cards from within Go.</entry>
     <entry key="TOOLTIP_MINGLE_URL">Base URI to the Mingle installation (do not include the project name/identifier)</entry>
     <entry key="TOOLTIP_MINGLE_PROJECT_IDENTIFIER">In Mingle, the project 'Identfier' can be found under the project's 'Project admin' tab in the section titled 'Basic Information'.</entry>
     <entry key="TOOLTIP_MQL_GROUPING_CONDITIONS">A MQL string that determines the 'passing criteria' for cards displayed.</entry>

@@ -108,7 +108,7 @@ class AdminController < ApplicationController
     @cruise_config, @node, @subject, @config_after = update_response.getCruiseConfig(), update_response.getNode(), update_response.getSubject(), update_response.configAfterUpdate()
 
     unless @update_result.isSuccessful()
-      @config_file_conflict = (@update_result.httpCode() == HttpStatus::SC_CONFLICT)
+      @config_file_conflict = (@update_result.httpCode() == 409)
       flash.now[:error] = @update_result.message(localizer)
       response.headers[GO_CONFIG_ERROR_HEADER] = flash[:error]
     end

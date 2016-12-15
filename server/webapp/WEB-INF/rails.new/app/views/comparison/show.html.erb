@@ -1,27 +1,4 @@
 <%- scope = {} -%>
-<script src="/go/gadgets/js/rpc.js?v=1.1-beta5" type="text/javascript"></script>
-<script type="text/javascript">
-    Util.on_load(function() {
-        tw_gadget.init('<%=gadget_rendering_path %>');
-    });
-</script>
-<% if @mingle_config %>
-    <script type="text/javascript">
-        Util.on_load(function() {
-            card_activity_gadget_url = '<%= @mingle_config.urlFor('/gadgets/card_activity.xml') -%>';
-            card_activity_gadget_options = {
-                nocache: 0,
-                debug: 1,
-                up_card_number_list_url: '<%= card_activity_url(:only_path => false, :pipeline_name => @pipeline_name, :from_pipeline_counter => @from_pipeline.getCounter(), :to_pipeline_counter => @to_pipeline.getCounter(), :show_bisect => show_bisect?) -%>',
-                up_project: <%== @mingle_config.getQuotedProjectIdentifier() %>,
-                up_grouping_conditions: <%== @mingle_config.getQuotedMql() %>,
-                width: '100%',
-                height: '850px'
-            };
-            tw_gadget.addGadget('card_activity_gadget', card_activity_gadget_url, card_activity_gadget_options);
-        });
-    </script>
-<% end %>
 <div class="clear-float"></div>
 <div class="sub_tab_container rounded-corner-for-tab-container">
     <div class="sub_tabs_container">
@@ -30,22 +7,9 @@
                 <a class="tab_button_body_match_text">checkins</a>
                 <a><%= (l.string("CHANGES")).capitalize -%></a>
             </li>
-            <li class="card_activity">
-                <a class="tab_button_body_match_text">card_activity</a>
-                <a><%= l.string("CARD_ACTIVITY") -%></a>
-            </li>
         </ul>
     </div>
     <div class="sub_tab_container_content">
-        <div id="tab-content-of-card_activity">
-            <%= render :partial => "bisect_warning.html", :locals => {:scope => {:to_pipeline => @to_pipeline, :from_pipeline => @from_pipeline}} -%>
-            <div id="card_activity_gadget" class="gadget-container">
-                <% unless @mingle_config %>
-                    <div class="information"><%= l.string("NO_MINGLE_CONFIG_FOUND") %> <%= link_to l.string("MORE_INFORMATION"), "http://www.go.cd/documentation/user/current/integration/mingle_card_activity_gadget.html", :target => "_blank" %></div>
-                <% end %>
-                <!-- gadget goes here -->
-            </div>
-        </div>
         <div id="tab-content-of-checkins" class="material_revision_diff">
             <%= render :partial => "bisect_warning.html", :locals => {:scope => {:to_pipeline => @to_pipeline, :from_pipeline => @from_pipeline}} -%>
             <div style="padding: 1em;">

@@ -1,11 +1,4 @@
 PATH
-  remote: vendor/engines/gadgets
-  specs:
-    gadgets (0.0.1)
-      rails (~> 4.0.4)
-      validatable (>= 1.6.0)
-
-PATH
   remote: vendor/engines/oauth2_provider
   specs:
     oauth2_provider (1.0.3)
@@ -196,7 +189,6 @@ DEPENDENCIES
   dynamic_form
   font-awesome-sass
   foundation-rails
-  gadgets (= 0.0.1)!
   jasmine
   jasmine-jquery-rails
   jasmine-junitreporter

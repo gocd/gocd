@@ -89,9 +89,6 @@
                     <li id="oauth-clients-tab-button" class="<%= @tab_name == "oauth-clients" ? "current_tab" : "" -%>">
                       <%= link_to "OAuth Clients", oauth_engine.clients_path, :id => "tab-link-of-oauth-clients" %>
                     </li>
-                    <li id="gadget-providers-tab-button" class="<%= @tab_name == "gadget-providers" ? "current_tab" : "" -%>">
-                      <%= link_to "OAuth Enabled Gadget Providers", main_app.gadgets_oauth_clients_path, :id => "tab-link-of-gadget-providers" %>
-                    </li>
                     <li id="backup-tab-button" class="<%= @tab_name == "backup" ? "current_tab" : "" -%>">
                       <%= link_to "Backup", main_app.backup_server_path, :id => "tab-link-of-backup" %>
                     </li>

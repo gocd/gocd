@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -43,7 +43,6 @@ import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
-import org.apache.commons.httpclient.HttpStatus;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,6 +51,7 @@ import org.mockito.Mock;
 import java.util.*;
 
 import static com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels.createPipelineInstanceModels;
+import static javax.servlet.http.HttpServletResponse.SC_NOT_IMPLEMENTED;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
@@ -953,7 +953,7 @@ public class PipelineHistoryServiceTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         pipelineHistoryService.updateComment(pipelineName, 1, "test comment", new Username(unauthorizedUser), result);
 
-        assertThat(result.httpCode(), is(HttpStatus.SC_NOT_IMPLEMENTED));
+        assertThat(result.httpCode(), is(SC_NOT_IMPLEMENTED));
         assertThat((Localizable.CurryableLocalizable) result.localizable(), is(LocalizedMessage.string("FEATURE_NOT_AVAILABLE", "Pipeline Comment")));
         verify(pipelineDao, never()).updateComment(pipelineName, 1, "test comment");
     }

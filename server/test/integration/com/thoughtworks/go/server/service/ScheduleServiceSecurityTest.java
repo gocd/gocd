@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
@@ -28,7 +28,7 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.UserHelper;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.apache.commons.httpclient.HttpStatus;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,6 +41,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
+import static javax.servlet.http.HttpServletResponse.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -85,7 +86,7 @@ public class ScheduleServiceSecurityTest {
 
         assertThat(resultStage, is(nullValue()));
         assertThat(operationResult.isSuccessful(), is(false));
-        assertThat(operationResult.httpCode(), is(HttpStatus.SC_UNAUTHORIZED));
+        assertThat(operationResult.httpCode(), is(SC_UNAUTHORIZED));
     }
 
     @Test
@@ -98,7 +99,7 @@ public class ScheduleServiceSecurityTest {
 
         assertThat(resultStage, is(nullValue()));
         assertThat(operationResult.isSuccessful(), is(false));
-        assertThat(operationResult.httpCode(), is(HttpStatus.SC_NOT_FOUND));
+        assertThat(operationResult.httpCode(), is(SC_NOT_FOUND));
     }
 
     @Test
@@ -111,7 +112,7 @@ public class ScheduleServiceSecurityTest {
 
         assertThat(resultStage, is(nullValue()));
         assertThat(operationResult.isSuccessful(), is(false));
-        assertThat(operationResult.httpCode(), is(HttpStatus.SC_NOT_FOUND));
+        assertThat(operationResult.httpCode(), is(SC_NOT_FOUND));
     }
 
     @Test
@@ -128,7 +129,7 @@ public class ScheduleServiceSecurityTest {
 
         assertThat(resultStage, is(not(nullValue())));
         assertThat(operationResult.isSuccessful(), is(true));
-        assertThat(operationResult.httpCode(), is(HttpStatus.SC_OK));
+        assertThat(operationResult.httpCode(), is(SC_OK));
         //TODO: Check why stage result is not persisted after stage is cancelled
 //        Stage mostRecent = stageDao.mostRecentStage(new StageConfigIdentifier(fixture.pipelineName, fixture.ftStage));
 //        assertThat(mostRecent.getResult(), is(StageResult.Cancelled));
@@ -149,7 +150,7 @@ public class ScheduleServiceSecurityTest {
 
         assertThat(resultStage, is(not(nullValue())));
         assertThat(operationResult.isSuccessful(), is(true));
-        assertThat(operationResult.httpCode(), is(HttpStatus.SC_OK));
+        assertThat(operationResult.httpCode(), is(SC_OK));
     }
 
 }

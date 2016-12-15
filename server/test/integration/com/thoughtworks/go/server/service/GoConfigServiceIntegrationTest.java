@@ -1,28 +1,23 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.CachedGoConfig;
-import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.update.ConfigUpdateResponse;
 import com.thoughtworks.go.config.update.UpdateConfigFromUI;
@@ -43,7 +38,6 @@ import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.ReflectionUtil;
-import org.apache.commons.httpclient.HttpStatus;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,12 +46,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
+import static javax.servlet.http.HttpServletResponse.SC_CONFLICT;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
@@ -737,7 +736,7 @@ public class GoConfigServiceIntegrationTest {
         CruiseConfig config = response.getCruiseConfig();
         assertThat(config.getMd5(), is(md5BeforeAddingGroupAtBeginning));
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(HttpStatus.SC_CONFLICT));
+        assertThat(result.httpCode(), is(SC_CONFLICT));
         assertThat(result.message(localizer), is("Save failed. Duplicate unique value [first_group] declared for identity constraint \"uniquePipelines\" of element \"cruise\"."));
     }
 

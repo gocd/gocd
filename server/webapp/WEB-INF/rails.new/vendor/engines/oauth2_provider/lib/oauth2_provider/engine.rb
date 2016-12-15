@@ -13,7 +13,7 @@ module Oauth2Provider
     require 'active_model'
     require 'active_model/validations'
     require 'active_model/errors'
-    require 'ext/validatable_ext.rb'
+    require 'oauth2_provider/validatable_ext.rb'
 
     isolate_namespace Oauth2Provider
     engine_name 'oauth_engine'

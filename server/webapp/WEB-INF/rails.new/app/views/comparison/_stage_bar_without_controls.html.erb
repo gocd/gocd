@@ -14,7 +14,7 @@
     </div>
     <% if scope[:pipeline].isBisect() && !show_bisect? %>
         <div class="pipeline_counter_information">
-            <%= l.string("NO_CARD_ACTIVITY_FOR_BISECT") %>
+            <%= l.string("NO_COMPARISON_FOR_BISECT") %>
         </div>
     <% else %>
         <div class="selected_pipeline_<%= scope[:suffix] -%> stages">

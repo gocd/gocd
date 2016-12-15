@@ -1,7 +1,3 @@
-import groovy.io.FileType
-
-import java.security.SecureRandom
-
 /*
  * Copyright 2016 ThoughtWorks, Inc.
  *
@@ -17,6 +13,10 @@ import java.security.SecureRandom
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import groovy.io.FileType
+
+import java.security.SecureRandom
 
 def script = this
 
@@ -101,8 +101,6 @@ allprojects {
     jcenter()
 
     maven { url "https://dl.bintray.com/gocd-maven-repo/generic/gocd" }
-    maven { url "https://dl.bintray.com/gocd-google-code-mirror/generic/oauth" }
-    maven { url "https://dl.bintray.com/gocd-google-code-mirror/generic/google-caja" }
   }
 
   configurations {

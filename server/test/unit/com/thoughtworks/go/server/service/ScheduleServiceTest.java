@@ -39,7 +39,7 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.TimeProvider;
-import org.apache.commons.httpclient.HttpStatus;
+import org.apache.http.HttpStatus;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,6 +48,8 @@ import java.util.HashMap;
 
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
+import static javax.servlet.http.HttpServletResponse.SC_OK;
+import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
@@ -116,7 +118,7 @@ public class ScheduleServiceTest {
         Stage resultStage = spyedService.cancelAndTriggerRelevantStages(stageId, admin, result);
 
         assertThat(resultStage, is(spiedStage));
-        assertThat(result.httpCode(), is(HttpStatus.SC_OK));
+        assertThat(result.httpCode(), is(SC_OK));
         assertThat(result.isSuccessful(), is(true));
         when(localizer.localize("STAGE_CANCELLED_SUCCESSFULLY", new Object[] {})).thenReturn("Stage cancelled successfully.");
         assertThat(result.message(localizer), is("Stage cancelled successfully."));
@@ -137,7 +139,7 @@ public class ScheduleServiceTest {
         when(stageService.stageById(stageId)).thenReturn(firstStage);
         Stage resultStage = service.cancelAndTriggerRelevantStages(stageId, admin, result);
         assertThat(resultStage, is(firstStage));
-        assertThat(result.httpCode(), is(HttpStatus.SC_OK));
+        assertThat(result.httpCode(), is(SC_OK));
         assertThat(result.isSuccessful(), is(true));
         assertThat(result.hasMessage(), is(true));
         Localizer localizer = mock(Localizer.class);
@@ -163,7 +165,7 @@ public class ScheduleServiceTest {
         doReturn(firstStage).when(spyedService).cancelAndTriggerRelevantStages(stageId, admin, result);
         Stage resultStage = spyedService.cancelAndTriggerRelevantStages(pipelineName, stageName, admin, result);
         assertThat(resultStage, is(firstStage));
-        assertThat(result.httpCode(), is(HttpStatus.SC_OK));
+        assertThat(result.httpCode(), is(SC_OK));
         assertThat(result.isSuccessful(), is(true));
         verify(stageService).findLatestStage(pipelineName, stageName);
     }
@@ -184,7 +186,7 @@ public class ScheduleServiceTest {
         Stage resultStage = service.cancelAndTriggerRelevantStages(stageId, admin, result);
 
         assertThat(resultStage, is(nullValue()));
-        assertThat(result.httpCode(), is(HttpStatus.SC_UNAUTHORIZED));
+        assertThat(result.httpCode(), is(SC_UNAUTHORIZED));
         assertThat(result.isSuccessful(), is(false));
         verify(securityService).hasOperatePermissionForStage(pipeline.getName(), spiedStage.getName(), admin.getUsername().toString());
         verify(stageService, never()).cancelStage(spiedStage);

@@ -32,8 +32,8 @@ group :development, :test do
   gem 'jasmine-jquery-rails'
   gem 'jasmine-junitreporter'
 
-  gem 'rspec-rails', '2.14.2'
-  gem 'rspec-extra-formatters'
+  gem 'rspec-rails'
+  gem 'rspec_junit_formatter'
 
   gem 'capybara', '2.2.1'
   gem 'ruby-debug-base'

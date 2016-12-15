@@ -14,14 +14,14 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "admin/server/index.html.erb" do
 
   before(:each) do
     assign(:server_configuration_form, ServerConfigurationForm.new({:artifactsDir => "some_dir", :purgeArtifacts => "Size", :purgeStart => 10.5, :purgeUpto => 20.3, :siteUrl => "abc", :secureSiteUrl => "def", :commandRepositoryLocation => "default"}))
-    view.stub(:cruise_config_md5).and_return('foo_bar_baz')
-    view.stub(:l).and_return(localizer = Class.new do
+    allow(view).to receive(:cruise_config_md5).and_return('foo_bar_baz')
+    allow(view).to receive(:l).and_return(localizer = Class.new do
       def method_missing method, *args
         com.thoughtworks.go.i18n.LocalizedMessage.string(args[0], args[1..-1].to_java(java.lang.Object)).localize(Spring.bean("localizer"))
       end

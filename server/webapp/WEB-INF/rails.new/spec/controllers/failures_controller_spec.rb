@@ -14,14 +14,14 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe FailuresController do
   before do
     @failure_service = double("failure_service")
     @user = Username.new(CaseInsensitiveString.new("foo"))
-    controller.stub(:failure_service).and_return(@failure_service)
-    controller.stub(:current_user).and_return(@user)
+    allow(controller).to receive(:failure_service).and_return(@failure_service)
+    allow(controller).to receive(:current_user).and_return(@user)
     @job_id = JobIdentifier.new(StageIdentifier.new("pipeline_foo", 12, "stage_bar", "34"), "build_dev")
     @failure_details = FailureDetails.new("message", "stack_trace")
   end
@@ -31,24 +31,24 @@ describe FailuresController do
   end
 
   it "should load failure message and stack trace" do
-    @failure_service.should_receive(:failureDetailsFor).with(@job_id, 'suite_name', 'test_name', @user, an_instance_of(HttpLocalizedOperationResult)).and_return(@failure_details)
+    expect(@failure_service).to receive(:failureDetailsFor).with(@job_id, 'suite_name', 'test_name', @user, an_instance_of(HttpLocalizedOperationResult)).and_return(@failure_details)
     #suite_name and test_name are ParamEncode#enc'ed because they can potentially have special characters like dot(.) or slash(/) etc.
 
     get :show, :pipeline_name => "pipeline_foo", :pipeline_counter => "12", :stage_name => "stage_bar", :stage_counter => "34", :job_name => "build_dev", :suite_name => "c3VpdGVfbmFtZQ%3D%3D%0A", :test_name => "dGVzdF9uYW1l%0A", :no_layout => true
 
-    assigns[:failure_details].should == @failure_details
+    expect(assigns[:failure_details]).to eq(@failure_details)
     assert_template layout: false
   end
 
   it "should render error message when fails" do
-    @failure_service.should_receive(:failureDetailsFor) do |_, _, _, _, result|
+    expect(@failure_service).to receive(:failureDetailsFor) do |_, _, _, _, result|
       result.connectionError(LocalizedMessage.string("ON"))
     end
 
     get :show, :pipeline_name => "pipeline_foo", :pipeline_counter => "12", :stage_name => "stage_bar", :stage_counter => "34", :job_name => "build_dev", :suite_name => "suite_name", :test_name => "test_name", :no_layout => true
 
-    assigns[:failure_details].should be_nil
-    response.status.should == 400
-    response.body.should == "on\n"
+    expect(assigns[:failure_details]).to be_nil
+    expect(response.status).to eq(400)
+    expect(response.body).to eq("on\n")
   end
 end

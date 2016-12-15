@@ -14,9 +14,9 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
-describe ::ConfigUpdate::JobsJobSubject do
+describe ':ConfigUpdate::JobsJobSubject' do
   include ::ConfigUpdate::JobsJobSubject
 
   before(:each) do
@@ -26,6 +26,6 @@ describe ::ConfigUpdate::JobsJobSubject do
 
   it "should load job from jobs collection" do
     params[:job_name] = "bar"
-    subject(@jobs).should == @bar
+    expect(subject(@jobs)).to eq(@bar)
   end
 end

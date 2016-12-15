@@ -14,13 +14,13 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "possible_groups_popup" do
   include FormUI
 
   it "should render all the groups as a list" do
-    view.stub(:move_pipeline_to_group_path).and_return("foo")
+    allow(view).to receive(:move_pipeline_to_group_path).and_return("foo")
     assign(:cruise_config, cruise_config = BasicCruiseConfig.new)
     set(cruise_config, "md5", "abc")
 
@@ -35,7 +35,7 @@ describe "possible_groups_popup" do
   end
 
   it "should display conflict message on md5 mismatch" do
-    view.stub(:move_pipeline_to_group_path).and_return("foo")
+    allow(view).to receive(:move_pipeline_to_group_path).and_return("foo")
     assign(:cruise_config, cruise_config = BasicCruiseConfig.new)
     set(cruise_config, "md5", "abc")
 

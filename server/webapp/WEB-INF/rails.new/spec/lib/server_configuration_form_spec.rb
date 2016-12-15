@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ServerConfigurationForm do
 
@@ -23,24 +23,24 @@ describe ServerConfigurationForm do
       input = " foo,bar, baz \nbase2\r\n\n base3 "
       form = ServerConfigurationForm.new({})
       actual = form.to_bases_collection input
-      actual.size.should == 3
-      actual[0].getValue().should == " foo,bar, baz "
-      actual[1].getValue().should == "base2"
-      actual[2].getValue().should == " base3 "
+      expect(actual.size).to eq(3)
+      expect(actual[0].getValue()).to eq(" foo,bar, baz ")
+      expect(actual[1].getValue()).to eq("base2")
+      expect(actual[2].getValue()).to eq(" base3 ")
     end
 
     it "should ignore empty lines when constructing base config" do
       input = "  \nfoo  \n  \n  "
       form = ServerConfigurationForm.new({})
       actual = form.to_bases_collection input
-      actual.size.should == 1
+      expect(actual.size).to eq(1)
     end
 
     it "should not construct base config for empty" do
       input = "  \n  "
       form = ServerConfigurationForm.new({})
       actual = form.to_bases_collection input
-      actual.size.should == 0
+      expect(actual.size).to eq(0)
     end
   end
 
@@ -48,7 +48,7 @@ describe ServerConfigurationForm do
     it "should convert bases collection to new line separated entry" do
       bases = BasesConfig.new([BaseConfig.new('base1'), BaseConfig.new('base2')].to_java(BaseConfig))
       actual = ServerConfigurationForm.from_bases_collection(bases)
-      actual.should == "base1\r\nbase2"
+      expect(actual).to eq("base1\r\nbase2")
     end
   end
 
@@ -57,8 +57,8 @@ describe ServerConfigurationForm do
       input = "foo,bar, baz\nbase2\n\nbase3\n\n\r\n\n\n\n\n\n\r\n"
       form = ServerConfigurationForm.new({:ldap_search_base => input})
       actual = form.to_ldap_config
-      actual.searchBases().should_not == nil
-      actual.searchBases().size().should == 3
+      expect(actual.searchBases()).not_to eq(nil)
+      expect(actual.searchBases().size()).to eq(3)
     end
   end
 

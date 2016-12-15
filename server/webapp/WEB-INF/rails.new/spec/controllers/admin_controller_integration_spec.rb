@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe AdminController, "integration test" do
   #this the place for integration testing admin-config-update, we should try to cover failure, 406, 409, 401 etc here,
@@ -59,8 +59,8 @@ describe AdminController, "integration test" do
     end) do
       save_successful = true
     end
-    stage.name().should == CaseInsensitiveString.new("new-stage-name")
-    save_successful.should be_true
+    expect(stage.name()).to eq(CaseInsensitiveString.new("new-stage-name"))
+    expect(save_successful).to be_truthy
   end
 
 end

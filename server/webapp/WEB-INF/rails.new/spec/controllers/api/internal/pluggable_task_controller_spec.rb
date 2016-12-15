@@ -14,12 +14,12 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe Api::Internal::PluggableTaskController do
 
-  describe :route do
-    describe :with_header do
+  describe 'route' do
+    describe 'with_header' do
       before :each do
         allow_any_instance_of(HeaderConstraint).to receive(:matches?).and_return(true)
       end
@@ -28,7 +28,7 @@ describe Api::Internal::PluggableTaskController do
         expect(post: 'api/config/internal/pluggable_task/id').to route_to(controller: 'api/internal/pluggable_task', action: 'validate', plugin_id: 'id')
       end
 
-      describe :with_plugin_id_constraints do
+      describe 'with_plugin_id_constraints' do
         it 'should route to validate action of pluggable task controller with alphanumeric plugin id' do
           expect(post: 'api/config/internal/pluggable_task/id13').to route_to(controller: 'api/internal/pluggable_task', action: 'validate', plugin_id: 'id13')
         end
@@ -49,7 +49,7 @@ describe Api::Internal::PluggableTaskController do
         end
       end
     end
-    describe :without_header do
+    describe 'without_header' do
       before :each do
         allow_any_instance_of(HeaderConstraint).to receive(:matches?).and_return(false)
       end

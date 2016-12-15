@@ -14,17 +14,22 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "admin/tasks/plugin/edit.html.erb" do
-  include GoUtil, TaskMother, FormUI
+  include GoUtil
+
+  include TaskMother
+
+
+  include FormUI
 
   before :each do
     assign(:cruise_config, config = BasicCruiseConfig.new)
     set(config, "md5", "abcd1234")
 
     assign(:on_cancel_task_vms, @vms =  java.util.Arrays.asList([vm_for(exec_task('rm')), vm_for(ant_task), vm_for(nant_task), vm_for(rake_task), vm_for(fetch_task_with_exec_on_cancel_task)].to_java(TaskViewModel)))
-    view.stub(:admin_task_update_path).and_return("task_edit_path")
+    allow(view).to receive(:admin_task_update_path).and_return("task_edit_path")
   end
 
   it "should render a simple exec task for edit" do
@@ -172,7 +177,7 @@ describe "admin/tasks/plugin/edit.html.erb" do
         expect(divs[0]).to have_selector("label[for='?']", /runif_passed_[a-f0-9-]{36}/)
         divs[0].find("label") do |tags|
           label = tags[0]
-          label.children[0].to_s.should == "Passed"
+          expect(label.children[0].to_s).to eq("Passed")
           id = label.attributes['for']
         end
         expect(form).to have_selector("input[type='checkbox'][name='task[#{com.thoughtworks.go.config.ExecTask::RUN_IF_CONFIGS_PASSED}]'][id='#{id}']")
@@ -180,7 +185,7 @@ describe "admin/tasks/plugin/edit.html.erb" do
         expect(divs[0]).to have_selector("label[for='?']", /runif_failed_[a-f0-9-]{36}/)
         divs[0].find("label") do |tags|
           label = tags[0]
-          label.children[0].to_s.should == "Failed"
+          expect(label.children[0].to_s).to eq("Failed")
           id = label.attributes['for']
         end
         expect(form).to have_selector("input[type='checkbox'][name='task[#{com.thoughtworks.go.config.ExecTask::RUN_IF_CONFIGS_FAILED}]'][id='#{id}']")
@@ -188,7 +193,7 @@ describe "admin/tasks/plugin/edit.html.erb" do
         expect(divs[0]).to have_selector("label[for='?']", /runif_any_[a-f0-9-]{36}/)
         divs[0].find("label") do |tags|
           label = tags[0]
-          label.children[0].to_s.should == "Any"
+          expect(label.children[0].to_s).to eq("Any")
           id = label.attributes['for']
         end
         expect(form).to have_selector("input[type='checkbox'][name='task[#{com.thoughtworks.go.config.ExecTask::RUN_IF_CONFIGS_ANY}]'][id='#{id}']")

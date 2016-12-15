@@ -14,14 +14,14 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "/shared/_pipeline.html.erb" do
   include PipelineModelMother
 
   before do
     allow(view).to receive(:go_config_service).and_return(@go_config_service = double('go_config_service'))
-    @go_config_service.stub(:getTrackingToolFor).with("blah_pipeline").and_return(TrackingTool.new("http://pavan/${ID}", "#(\\d+)"))
+    allow(@go_config_service).to receive(:getTrackingToolFor).with("blah_pipeline").and_return(TrackingTool.new("http://pavan/${ID}", "#(\\d+)"))
   end
 
   it "should display trigger button if showControls is true" do

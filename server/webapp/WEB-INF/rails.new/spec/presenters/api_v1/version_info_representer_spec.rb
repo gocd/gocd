@@ -15,7 +15,7 @@
 ##########################################################################
 
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV1::VersionInfoRepresenter do
   before(:each) do
@@ -23,7 +23,7 @@ describe ApiV1::VersionInfoRepresenter do
     @installed_version  = GoVersion.new('1.2.3-1')
     @latest_version     = GoVersion.new('5.6.7-1')
 
-    @system_environment.stub(:getUpdateServerUrl).and_return('https://update.example.com/some/path?foo=bar')
+    allow(@system_environment).to receive(:getUpdateServerUrl).and_return('https://update.example.com/some/path?foo=bar')
   end
 
   it 'renders a version_info with hal representation' do
@@ -56,7 +56,7 @@ describe ApiV1::VersionInfoRepresenter do
   end
 
   it 'should handle update server url without query params' do
-    @system_environment.stub(:getUpdateServerUrl).and_return('https://update.example.com/some/path')
+    allow(@system_environment).to receive(:getUpdateServerUrl).and_return('https://update.example.com/some/path')
 
     model = VersionInfo.new('go_server', @installed_version, nil, nil)
 

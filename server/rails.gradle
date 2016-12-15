@@ -103,7 +103,6 @@ task compileAssets(type: ExecuteUnderRailsTask) {
 }
 
 task rspec(type: ExecuteUnderRailsTask) {
-  dependsOn ':server:testJar'
   outputs.upToDateWhen { false }
 
   description = "Run specs (pass '-Ppots=...' to pass options)"
@@ -120,7 +119,6 @@ task rspec(type: ExecuteUnderRailsTask) {
 }
 
 task parallelRspec(type: ExecuteUnderRailsTask) {
-  dependsOn ':server:testJar'
   outputs.upToDateWhen { false }
 
   description = "Run specs in parallel (pass '-Ppots=...' to pass options)"
@@ -145,6 +143,7 @@ task parallelRspec(type: ExecuteUnderRailsTask) {
 }
 
 task railsExec(type: ExecuteUnderRailsTask) {
+
   outputs.upToDateWhen { false }
 
   description = "rails exec (pass '-Pcmd=...' to pass options)"

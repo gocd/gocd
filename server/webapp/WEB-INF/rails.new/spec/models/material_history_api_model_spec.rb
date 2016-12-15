@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe MaterialHistoryAPIModel do
   include APIModelMother
@@ -25,17 +25,17 @@ describe MaterialHistoryAPIModel do
       @modification_view_model = create_modification_view_model
       material_history_api_model = MaterialHistoryAPIModel.new(@pagination_view_model, [@modification_view_model])
 
-      material_history_api_model.pagination.page_size.should == 10
-      material_history_api_model.pagination.offset.should == 1
-      material_history_api_model.pagination.total.should == 100
+      expect(material_history_api_model.pagination.page_size).to eq(10)
+      expect(material_history_api_model.pagination.offset).to eq(1)
+      expect(material_history_api_model.pagination.total).to eq(100)
 
       modification_api_model = material_history_api_model.modifications[0]
-      modification_api_model.id.should == 321
-      modification_api_model.revision.should == 'revision'
-      modification_api_model.modified_time.should == 12345678
-      modification_api_model.user_name.should == 'user name'
-      modification_api_model.comment.should == 'comment'
-      modification_api_model.email_address.should == 'test@test.com'
+      expect(modification_api_model.id).to eq(321)
+      expect(modification_api_model.revision).to eq('revision')
+      expect(modification_api_model.modified_time).to eq(12345678)
+      expect(modification_api_model.user_name).to eq('user name')
+      expect(modification_api_model.comment).to eq('comment')
+      expect(modification_api_model.email_address).to eq('test@test.com')
     end
 
     it "should handle empty data" do
@@ -43,17 +43,17 @@ describe MaterialHistoryAPIModel do
       @modification_view_model = create_empty_modification_view_model
       material_history_api_model = MaterialHistoryAPIModel.new(@pagination_view_model, [@modification_view_model])
 
-      material_history_api_model.pagination.page_size.should == nil
-      material_history_api_model.pagination.offset.should == nil
-      material_history_api_model.pagination.total.should == nil
+      expect(material_history_api_model.pagination.page_size).to eq(nil)
+      expect(material_history_api_model.pagination.offset).to eq(nil)
+      expect(material_history_api_model.pagination.total).to eq(nil)
 
       modification_api_model = material_history_api_model.modifications[0]
-      modification_api_model.id.should == nil
-      modification_api_model.revision.should == nil
-      modification_api_model.modified_time.should == nil
-      modification_api_model.user_name.should == nil
-      modification_api_model.comment.should == nil
-      modification_api_model.email_address.should == nil
+      expect(modification_api_model.id).to eq(nil)
+      expect(modification_api_model.revision).to eq(nil)
+      expect(modification_api_model.modified_time).to eq(nil)
+      expect(modification_api_model.user_name).to eq(nil)
+      expect(modification_api_model.comment).to eq(nil)
+      expect(modification_api_model.email_address).to eq(nil)
     end
   end
 end

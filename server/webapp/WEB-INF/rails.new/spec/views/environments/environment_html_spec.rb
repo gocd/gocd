@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "/environments/_environment.html.erb" do
   include PipelineModelMother
@@ -40,7 +40,6 @@ describe "/environments/_environment.html.erb" do
     class << view
       include StagesHelper
     end
-    allow(view).to receive(:on_pipeline_dashboard?).and_return(false)
   end
 
   def render_show

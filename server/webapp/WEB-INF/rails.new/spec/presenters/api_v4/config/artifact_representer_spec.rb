@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV4::Config::ArtifactRepresenter do
   it 'should serialize build artifact' do

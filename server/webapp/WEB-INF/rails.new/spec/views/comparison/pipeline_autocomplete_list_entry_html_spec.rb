@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "/comparison/_pipeline_autocomplete_list_entry.html.erb" do
 
@@ -23,11 +23,11 @@ describe "/comparison/_pipeline_autocomplete_list_entry.html.erb" do
   before :each do
     @hg_revisions = ModificationsMother.createHgMaterialRevisions()
     @pipeline = PipelineInstanceModel.createPipeline("some_pipeline", 10, "some-label", BuildCause.createWithModifications(@hg_revisions, "user"), stage_history_for("dev", "prod"))
-    view.stub(:go_config_service).and_return(@go_config_service = double("go config service"))
+    allow(view).to receive(:go_config_service).and_return(@go_config_service = double("go config service"))
   end
 
   it "should display pipeline counter and its details" do
-    @go_config_service.should_receive(:getCommentRendererFor).with("some_pipeline").exactly(2).times.and_return(TrackingTool.new("http://foo/${ID}", "\\d+"))
+    expect(@go_config_service).to receive(:getCommentRendererFor).with("some_pipeline").exactly(2).times.and_return(TrackingTool.new("http://foo/${ID}", "\\d+"))
 
     render :partial => "pipeline_autocomplete_list_entry", :locals => {:scope => {:pipeline => @pipeline}}
 
@@ -116,7 +116,7 @@ describe "/comparison/_pipeline_autocomplete_list_entry.html.erb" do
     stages = stage_history_for("dev", "prod")
     stages.add(stage_model_with_unknown_state("new_stage"))
     @pipeline = PipelineInstanceModel.createPipeline("some_pipeline", 19151, "some-915-label", BuildCause.createManualForced(revisions, Username.new(CaseInsensitiveString.new("user-915"))), stages)
-    @go_config_service.should_receive(:getCommentRendererFor).with("some_pipeline").once.times.and_return(TrackingTool.new("http://foo/${ID}", "\\d+"))
+    expect(@go_config_service).to receive(:getCommentRendererFor).with("some_pipeline").once.times.and_return(TrackingTool.new("http://foo/${ID}", "\\d+"))
 
     render :partial => "pipeline_autocomplete_list_entry", :locals => {:scope => {:pipeline => @pipeline}}
 
@@ -147,7 +147,7 @@ describe "/comparison/_pipeline_autocomplete_list_entry.html.erb" do
                               [Modification.new("user-915-1", "comment-915", "some email", modified_time, "revision-9151")])
         ].to_java(MaterialRevision))
     @pipeline = PipelineInstanceModel.createPipeline("some_pipeline", 19151, "some-915-label", BuildCause.createManualForced(revisions, Username.new(CaseInsensitiveString.new("user-915"))), stage_history_for("dev", "prod"))
-    @go_config_service.should_receive(:getCommentRendererFor).with("some_pipeline").once.times.and_return(TrackingTool.new("http://foo/${ID}", "\\d+"))
+    expect(@go_config_service).to receive(:getCommentRendererFor).with("some_pipeline").once.times.and_return(TrackingTool.new("http://foo/${ID}", "\\d+"))
 
     render :partial => "pipeline_autocomplete_list_entry", :locals => {:scope => {:pipeline => @pipeline}}
 
@@ -168,7 +168,7 @@ describe "/comparison/_pipeline_autocomplete_list_entry.html.erb" do
   end
 
   it "should render stage_bar html" do
-    @go_config_service.stub(:getCommentRendererFor).with("some_pipeline").and_return(com.thoughtworks.go.config.TrackingTool.new())
+    allow(@go_config_service).to receive(:getCommentRendererFor).with("some_pipeline").and_return(com.thoughtworks.go.config.TrackingTool.new())
     stub_template "_stage_bar.html.erb" => "STAGE BAR"
 
     render :partial => "pipeline_autocomplete_list_entry", :locals => {:scope => {:pipeline => @pipeline, :disable_stage_bar_href => true}}

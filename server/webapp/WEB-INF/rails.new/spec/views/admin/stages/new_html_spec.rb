@@ -14,10 +14,12 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "admin/stages/new.html.erb" do
-  include GoUtil, FormUI
+  include GoUtil
+
+  include FormUI
 
   before(:each) do
     @new_job = JobConfig.new(CaseInsensitiveString.new("job-name"), Resources.new, ArtifactPlans.new, com.thoughtworks.go.config.Tasks.new([@task = ExecTask.new("ls", "-la", "my_work_dir")].to_java(Task)))

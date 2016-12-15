@@ -14,12 +14,12 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ConfigUpdate::SaveAsSuperAdmin do
 
   it "should check if user is super amdin" do
     save = ::ConfigUpdate::SaveAsSuperAdmin.new(nil, nil, nil)
-    save.class.included_modules.should include(::ConfigUpdate::CheckIsSuperAdmin)
+    expect(save.class.included_modules).to include(::ConfigUpdate::CheckIsSuperAdmin)
   end
 end

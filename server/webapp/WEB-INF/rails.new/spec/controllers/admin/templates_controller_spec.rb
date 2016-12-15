@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe Admin::TemplatesController do
   include MockRegistryModule
@@ -23,50 +23,50 @@ describe Admin::TemplatesController do
 
   describe "routes" do
     it "should resolve route to the templates listing page" do
-      {:get => "/admin/templates"}.should route_to(:controller => "admin/templates", :action => "index")
+      expect({:get => "/admin/templates"}).to route_to(:controller => "admin/templates", :action => "index")
     end
 
     it "should generate listing route" do
-      templates_url.should == "http://test.host/admin/templates"
+      expect(templates_url).to eq("http://test.host/admin/templates")
     end
 
     it "should resolve route to the template delete" do
-      {:delete => "/admin/templates/template.name"}.should route_to(:controller => "admin/templates", :action => "destroy", :pipeline_name => "template.name")
-      delete_template_path(:pipeline_name => "template.name").should == "/admin/templates/template.name"
+      expect({:delete => "/admin/templates/template.name"}).to route_to(:controller => "admin/templates", :action => "destroy", :pipeline_name => "template.name")
+      expect(delete_template_path(:pipeline_name => "template.name")).to eq("/admin/templates/template.name")
     end
 
     it "should resolve & generate route to the template edit" do
-      {:get => "/admin/templates/blah.blah/general"}.should route_to(:controller => "admin/templates", :action => "edit", :stage_parent => "templates", :pipeline_name => "blah.blah", :current_tab => 'general')
-      template_edit_path(:pipeline_name => "blah.blah", :current_tab => 'general').should == "/admin/templates/blah.blah/general"
+      expect({:get => "/admin/templates/blah.blah/general"}).to route_to(:controller => "admin/templates", :action => "edit", :stage_parent => "templates", :pipeline_name => "blah.blah", :current_tab => 'general')
+      expect(template_edit_path(:pipeline_name => "blah.blah", :current_tab => 'general')).to eq("/admin/templates/blah.blah/general")
     end
 
     it "should resolve & generate route to the template update" do
-      {:put => "/admin/templates/blah.blah/general"}.should route_to(:controller => "admin/templates", :action => "update", :stage_parent => "templates", :pipeline_name => "blah.blah", :current_tab => 'general')
-      template_update_path(:pipeline_name => "blah.blah", :current_tab => 'general').should == "/admin/templates/blah.blah/general"
+      expect({:put => "/admin/templates/blah.blah/general"}).to route_to(:controller => "admin/templates", :action => "update", :stage_parent => "templates", :pipeline_name => "blah.blah", :current_tab => 'general')
+      expect(template_update_path(:pipeline_name => "blah.blah", :current_tab => 'general')).to eq("/admin/templates/blah.blah/general")
     end
 
     it "should resolve & generate route for new" do
-      {:get => "/admin/templates/new"}.should route_to(:controller => "admin/templates", :action => "new")
-      template_new_path.should == "/admin/templates/new"
+      expect({:get => "/admin/templates/new"}).to route_to(:controller => "admin/templates", :action => "new")
+      expect(template_new_path).to eq("/admin/templates/new")
     end
 
     it "should resolve & generate route for create" do
-      {:post => "/admin/templates/create"}.should route_to(:controller => "admin/templates", :action => "create")
-      template_create_path.should == "/admin/templates/create"
+      expect({:post => "/admin/templates/create"}).to route_to(:controller => "admin/templates", :action => "create")
+      expect(template_create_path).to eq("/admin/templates/create")
     end
 
     it "should resolve & generate route for edit permissions" do
-      {:get => "/admin/templates/template_name/permissions"}.should route_to(:controller => "admin/templates", :action => "edit_permissions", :template_name => "template_name")
-      edit_template_permissions_path(:template_name => "foo").should == "/admin/templates/foo/permissions"
+      expect({:get => "/admin/templates/template_name/permissions"}).to route_to(:controller => "admin/templates", :action => "edit_permissions", :template_name => "template_name")
+      expect(edit_template_permissions_path(:template_name => "foo")).to eq("/admin/templates/foo/permissions")
     end
 
     it "should resolve & generate route for update permissions" do
-      {:post => "/admin/templates/template_name/permissions"}.should route_to(:controller => "admin/templates", :action => "update_permissions", :template_name => "template_name")
-      update_template_permissions_path(:template_name => "foo").should == "/admin/templates/foo/permissions"
+      expect({:post => "/admin/templates/template_name/permissions"}).to route_to(:controller => "admin/templates", :action => "update_permissions", :template_name => "template_name")
+      expect(update_template_permissions_path(:template_name => "foo")).to eq("/admin/templates/foo/permissions")
     end
   end
 
-  describe :action do
+  describe 'action' do
     before :each do
       @pipeline = PipelineTemplateConfig.new(CaseInsensitiveString.new("some_template"), [StageConfigMother.stageConfig("defaultStage")].to_java(StageConfig))
       @cruise_config = BasicCruiseConfig.new
@@ -77,83 +77,83 @@ describe Admin::TemplatesController do
       @template_config_service = stub_service(:template_config_service)
       @go_config_service = stub_service(:go_config_service)
 
-      @go_config_service.stub(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid())
-      @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
+      allow(@go_config_service).to receive(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid())
+      allow(@go_config_service).to receive(:getRegistry).and_return(MockRegistryModule::MockRegistry.new)
     end
 
     describe "index" do
       before(:each) do
-        @template_config_service.should_receive(:templatesWithPipelinesForUser).with(@user.getUsername.toString).and_return(@template_to_pipelines = {"template1" => to_list([]), "template2" => to_list(["first", "second"])})
-        @go_config_service.should_receive(:loadCruiseConfigForEdit).with(@user, @result).and_return(@cruise_config)
+        expect(@template_config_service).to receive(:templatesWithPipelinesForUser).with(@user.getUsername.toString).and_return(@template_to_pipelines = {"template1" => to_list([]), "template2" => to_list(["first", "second"])})
+        expect(@go_config_service).to receive(:loadCruiseConfigForEdit).with(@user, @result).and_return(@cruise_config)
       end
 
       it "should populate all the templates and the associated pipelines" do
         get :index
 
-        assigns[:template_to_pipelines].should == @template_to_pipelines
+        expect(assigns[:template_to_pipelines]).to eq(@template_to_pipelines)
         assert_template layout: "admin"
       end
     end
 
     describe "edit" do
       before(:each) do
-        @go_config_service.should_receive(:loadCruiseConfigForEdit).with(@user, @result).and_return(@cruise_config)
+        expect(@go_config_service).to receive(:loadCruiseConfigForEdit).with(@user, @result).and_return(@cruise_config)
       end
 
       it "should assign template with name" do
         get :edit, :stage_parent => "templates", :pipeline_name => "some_template", :current_tab => "general"
 
-        assigns[:pipeline].should == @pipeline
+        expect(assigns[:pipeline]).to eq(@pipeline)
         assert_template "general"
         assert_template layout: "templates/details"
       end
     end
 
-    describe :edit_permissions do
+    describe 'edit_permissions' do
       before(:each) do
-        @go_config_service.should_receive(:loadCruiseConfigForEdit).with(@user, @result).and_return(@cruise_config)
+        expect(@go_config_service).to receive(:loadCruiseConfigForEdit).with(@user, @result).and_return(@cruise_config)
         @user_service = stub_service(:user_service)
-        @user_service.stub(:allUsernames).and_return(["foo", "bar", "baz"])
+        allow(@user_service).to receive(:allUsernames).and_return(["foo", "bar", "baz"])
       end
 
       it "should assign template" do
         get :edit_permissions, :template_name => "some_template"
 
-        assigns[:pipeline].should == @pipeline
-        response.should render_template("edit_permissions")
+        expect(assigns[:pipeline]).to eq(@pipeline)
+        expect(response).to render_template("edit_permissions")
         assert_template layout: "admin"
       end
 
       it "should assign users for autocomplete" do
         get :edit_permissions, :template_name => "template1"
 
-        assigns[:autocomplete_users].should == ["foo", "bar", "baz"].to_json
+        expect(assigns[:autocomplete_users]).to eq(["foo", "bar", "baz"].to_json)
       end
 
       it "should set tab name to templates" do
         get :edit_permissions, :template_name => "template1"
 
-        assigns[:tab_name].should == "templates"
+        expect(assigns[:tab_name]).to eq("templates")
       end
     end
 
-    describe :update_permissions do
+    describe 'update_permissions' do
       before(:each) do
         @user_service = stub_service(:user_service)
-        @user_service.stub(:allUsernames).and_return(["foo", "bar", "baz"])
+        allow(@user_service).to receive(:allUsernames).and_return(["foo", "bar", "baz"])
       end
 
       it "should update permissions for template successfully" do
         stub_save_for_success(@cruise_config)
-        stub_service(:flash_message_service).should_receive(:add).with(FlashMessageModel.new("Saved successfully.", "success")).and_return("random-message-uuid")
+        expect(stub_service(:flash_message_service)).to receive(:add).with(FlashMessageModel.new("Saved successfully.", "success")).and_return("random-message-uuid")
 
         put :update_permissions, :config_md5 => "1234abcd", :template_name => "some_template", :template => {:name => "some_template", :authorization => [{:name => "new-admin", :type => "USER", :privileges => [{:admin => "ON"}]}]}
 
         admins = @cruise_config.getTemplateByName(CaseInsensitiveString.new('some_template')).getAuthorization().getAdminsConfig()
-        admins.size().should == 1
-        admins.get(0).getName().toString().should == "new-admin"
-        response.status.should == 302
-        response.should redirect_to("http://test.host/admin/templates/some_template/permissions?fm=random-message-uuid")
+        expect(admins.size()).to eq(1)
+        expect(admins.get(0).getName().toString()).to eq("new-admin")
+        expect(response.status).to eq(302)
+        expect(response).to redirect_to("http://test.host/admin/templates/some_template/permissions?fm=random-message-uuid")
       end
 
       it "should assign users for autocomplete on error" do
@@ -163,73 +163,73 @@ describe Admin::TemplatesController do
 
         put :update_permissions, :config_md5 => "1234abcd", :template_name => "some_template", :template => {:name => "some_template"}
 
-        response.status.should == 400
-        assigns[:pipeline].should == @cruise_config.getTemplateByName(CaseInsensitiveString.new('some_template'))
-        assigns[:autocomplete_users].should == ["foo", "bar", "baz"].to_json
+        expect(response.status).to eq(400)
+        expect(assigns[:pipeline]).to eq(@cruise_config.getTemplateByName(CaseInsensitiveString.new('some_template')))
+        expect(assigns[:autocomplete_users]).to eq(["foo", "bar", "baz"].to_json)
         assert_template layout: "admin"
       end
     end
 
     describe "destroy" do
       before(:each) do
-        @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
-        @go_config_service.should_receive(:loadCruiseConfigForEdit).with(@user, @result).and_return(@cruise_config)
+        allow(@go_config_service).to receive(:getRegistry).and_return(MockRegistryModule::MockRegistry.new)
+        expect(@go_config_service).to receive(:loadCruiseConfigForEdit).with(@user, @result).and_return(@cruise_config)
       end
 
       it "should delete a template" do
         @pipeline_2 = PipelineTemplateConfig.new(CaseInsensitiveString.new("some_template_2"), [StageConfigMother.stageConfig("defaultStage")].to_java(StageConfig))
         @cruise_config.addTemplate(@pipeline_2)
-        @cruise_config.getTemplates().size().should == 2
+        expect(@cruise_config.getTemplates().size()).to eq(2)
         stub_save_for_success
 
         delete :destroy, :pipeline_name => "some_template", :config_md5 => "abcd1234"
 
-        assigns[:cruise_config].getTemplates().size().should == 1
+        expect(assigns[:cruise_config].getTemplates().size()).to eq(1)
 
         assert_save_arguments "abcd1234"
         assert_update_command ::ConfigUpdate::SaveAsSuperAdmin, ConfigUpdate::TemplatesNode, ConfigUpdate::TemplatesTemplateSubject
         h = java.util.HashMap.new()
         h.put(CaseInsensitiveString.new("some_template_2"), java.util.ArrayList.new())
-        assigns[:template_to_pipelines].should == h
+        expect(assigns[:template_to_pipelines]).to eq(h)
       end
 
       it "should return error if there are dependent pipelines for the template" do
-        controller.stub(:set_error_flash).and_return("Error!")
+        allow(controller).to receive(:set_error_flash).and_return("Error!")
         com.thoughtworks.go.helper.GoConfigMother.new().addPipelineWithTemplate(@cruise_config, "P1", "Template1", "S1", ["J1"].to_java(java.lang.String))
 
         delete :destroy, :pipeline_name => "Template1", :config_md5 => "abcd1234"
-        response.should redirect_to templates_path(:fm => "Error!")
-        @go_config_service.should_not_receive(:updateConfigFromUI)
+        expect(response).to redirect_to templates_path(:fm => "Error!")
+        expect(@go_config_service).not_to receive(:updateConfigFromUI)
       end
     end
 
     describe "new" do
       it "should create an empty template" do
-        @go_config_service.should_receive(:loadCruiseConfigForEdit).with(@user, @result).and_return(@cruise_config)
+        expect(@go_config_service).to receive(:loadCruiseConfigForEdit).with(@user, @result).and_return(@cruise_config)
         template_config_service = stub_service(:template_config_service)
 
         expected = java.util.Arrays.asList([PipelineConfigMother.pipeline_config("pipeline1"), PipelineConfigMother.pipeline_config("pipeline.2"), PipelineConfigMother.pipeline_config("FOO_BAR")].to_java(PipelineConfig))
-        template_config_service.should_receive(:allPipelinesNotUsingTemplates).with(@user, @result).and_return(expected)
+        expect(template_config_service).to receive(:allPipelinesNotUsingTemplates).with(@user, @result).and_return(expected)
 
         get :new
 
-        assigns[:pipeline].should == PipelineTemplateConfigViewModel.new(PipelineTemplateConfig.new, "", expected)
+        expect(assigns[:pipeline]).to eq(PipelineTemplateConfigViewModel.new(PipelineTemplateConfig.new, "", expected))
         assert_template "new"
         assert_template layout: false
       end
 
       it "should create an empty template when pipelineToExtractFrom is set" do
         in_params(:pipelineToExtractFrom => 'pipeline1')
-        @go_config_service.should_receive(:loadCruiseConfigForEdit).with(@user, @result).and_return(@cruise_config)
+        expect(@go_config_service).to receive(:loadCruiseConfigForEdit).with(@user, @result).and_return(@cruise_config)
 
         template_config_service = stub_service(:template_config_service)
 
         expected = java.util.Arrays.asList([PipelineConfigMother.pipeline_config("pipeline1"), PipelineConfigMother.pipeline_config("pipeline.2"), PipelineConfigMother.pipeline_config("FOO_BAR")].to_java(PipelineConfig))
-        template_config_service.should_receive(:allPipelinesNotUsingTemplates).with(@user, @result).and_return(expected)
+        expect(template_config_service).to receive(:allPipelinesNotUsingTemplates).with(@user, @result).and_return(expected)
 
         get :new
 
-        assigns[:pipeline].should == PipelineTemplateConfigViewModel.new(PipelineTemplateConfig.new, "pipeline1", expected)
+        expect(assigns[:pipeline]).to eq(PipelineTemplateConfigViewModel.new(PipelineTemplateConfig.new, "pipeline1", expected))
         assert_template "new"
         assert_template layout: false
       end
@@ -240,18 +240,18 @@ describe Admin::TemplatesController do
       it "should create a new template given a name" do
         stub_save_for_success
         template_config_service = stub_service(:template_config_service)
-        template_config_service.should_receive(:allPipelinesNotUsingTemplates).with(@user, @result).and_return([])
+        expect(template_config_service).to receive(:allPipelinesNotUsingTemplates).with(@user, @result).and_return([])
 
         post :create, :pipeline => {:template => {:name => "template_foo"}, :useExistingPipeline => "0"}, :config_md5 => "1234abcd"
 
         templates = assigns[:cruise_config].getTemplates()
-        templates.size().should == 2
-        templates.get(0).name().should == CaseInsensitiveString.new("some_template")
-        templates.get(1).name().should == CaseInsensitiveString.new("template_foo")
+        expect(templates.size()).to eq(2)
+        expect(templates.get(0).name()).to eq(CaseInsensitiveString.new("some_template"))
+        expect(templates.get(1).name()).to eq(CaseInsensitiveString.new("template_foo"))
         assigns[:pipeline].class == PipelineTemplateConfigViewModel
-        assigns[:pipeline].templateConfig().name().toString().should == "template_foo"
-        assigns[:pipeline].useExistingPipeline().should be_false
-        assigns[:pipeline].selectedPipelineName().should == nil
+        expect(assigns[:pipeline].templateConfig().name().toString()).to eq("template_foo")
+        expect(assigns[:pipeline].useExistingPipeline()).to be_falsey
+        expect(assigns[:pipeline].selectedPipelineName()).to eq(nil)
 
         assert_save_arguments
       end
@@ -264,22 +264,22 @@ describe Admin::TemplatesController do
         @cruise_config.addPipeline('default', pipeline)
 
         expected = java.util.Arrays.asList([pipeline, PipelineConfigMother.pipeline_config("pipeline.2"), PipelineConfigMother.pipeline_config("FOO_BAR")].to_java(PipelineConfig))
-        template_config_service.should_receive(:allPipelinesNotUsingTemplates).with(@user, @result).and_return(expected)
+        expect(template_config_service).to receive(:allPipelinesNotUsingTemplates).with(@user, @result).and_return(expected)
 
         post :create, :pipeline => {:template => {:name => "new_template"}, :useExistingPipeline => "1", :selectedPipelineName => "pipeline1"}, :config_md5 => "1234abcd"
 
         templates = assigns[:cruise_config].getTemplates()
-        templates.size().should == 2
-        templates.get(0).name().should == CaseInsensitiveString.new("some_template")
+        expect(templates.size()).to eq(2)
+        expect(templates.get(0).name()).to eq(CaseInsensitiveString.new("some_template"))
         new_template = templates.get(1)
-        new_template.name().should == CaseInsensitiveString.new("new_template")
-        new_template.get(0).name.toString.should == "stage1"
-        new_template.get(1).name.toString.should == "stage2"
+        expect(new_template.name()).to eq(CaseInsensitiveString.new("new_template"))
+        expect(new_template.get(0).name.toString).to eq("stage1")
+        expect(new_template.get(1).name.toString).to eq("stage2")
 
         assigns[:pipeline].class == PipelineTemplateConfigViewModel
-        assigns[:pipeline].templateConfig().name().toString().should == "new_template"
-        assigns[:pipeline].useExistingPipeline().should be_true
-        assigns[:pipeline].selectedPipelineName().should == "pipeline1"
+        expect(assigns[:pipeline].templateConfig().name().toString()).to eq("new_template")
+        expect(assigns[:pipeline].useExistingPipeline()).to be_truthy
+        expect(assigns[:pipeline].selectedPipelineName()).to eq("pipeline1")
 
         assert_save_arguments
       end
@@ -292,13 +292,13 @@ describe Admin::TemplatesController do
         @cruise_config.addPipeline('default', pipeline)
 
         expected = java.util.Arrays.asList([pipeline, PipelineConfigMother.pipeline_config("pipeline.2"), PipelineConfigMother.pipeline_config("FOO_BAR")].to_java(PipelineConfig))
-        template_config_service.should_receive(:allPipelinesNotUsingTemplates).with(@user, @result).and_return(expected)
+        expect(template_config_service).to receive(:allPipelinesNotUsingTemplates).with(@user, @result).and_return(expected)
 
         post :create, :pipeline => {:template => {:name => "new_template"}, :useExistingPipeline => "1", :selectedPipelineName => "pipeline1"}, :config_md5 => "1234abcd"
 
         modified_pipeline = @cruise_config.pipelineConfigByName(CaseInsensitiveString.new('pipeline1'))
-        modified_pipeline.getTemplateName.should == CaseInsensitiveString.new('new_template')
-        modified_pipeline.isEmpty.should be_true
+        expect(modified_pipeline.getTemplateName).to eq(CaseInsensitiveString.new('new_template'))
+        expect(modified_pipeline.isEmpty).to be_truthy
         assert_save_arguments
       end
 
@@ -314,17 +314,17 @@ describe Admin::TemplatesController do
 
         template_config_service = stub_service(:template_config_service)
         expected = java.util.Arrays.asList([PipelineConfigMother.pipeline_config("pipeline1"), pipeline2, PipelineConfigMother.pipeline_config("FOO_BAR")].to_java(PipelineConfig))
-        template_config_service.should_receive(:allPipelinesNotUsingTemplates).with(@user, @result).and_return(expected)
+        expect(template_config_service).to receive(:allPipelinesNotUsingTemplates).with(@user, @result).and_return(expected)
 
         post :create, :pipeline => {:template => {:name => "some_template"}, :useExistingPipeline => "1", :selectedPipelineName => "pipeline.2"}, :config_md5 => "abcd1234"
 
-        assigns[:pipeline].useExistingPipeline().should be_true
-        assigns[:pipeline].pipelineNames().should == java.util.Arrays.asList(["pipeline1", "pipeline.2", "FOO_BAR"].to_java :string)
-        assigns[:pipeline].selectedPipelineName().should == "pipeline.2"
-        assigns[:errors].size.should == 1
+        expect(assigns[:pipeline].useExistingPipeline()).to be_truthy
+        expect(assigns[:pipeline].pipelineNames()).to eq(java.util.Arrays.asList(["pipeline1", "pipeline.2", "FOO_BAR"].to_java :string))
+        expect(assigns[:pipeline].selectedPipelineName()).to eq("pipeline.2")
+        expect(assigns[:errors].size).to eq(1)
         assert_save_arguments "abcd1234"
         assert_template "new"
-        response.status.should == 400
+        expect(response.status).to eq(400)
         assert_template layout: false
       end
     end

@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV4::AgentRepresenter do
   include AgentInstanceFactory
@@ -69,7 +69,7 @@ describe ApiV4::AgentRepresenter do
   end
 
   it 'renders agent state correctly' do
-    @security_service.should_receive(:hasViewOrOperatePermissionForPipeline).with(@current_user, anything).exactly(3).times.and_return(false)
+    expect(@security_service).to receive(:hasViewOrOperatePermissionForPipeline).with(@current_user, anything).exactly(3).times.and_return(false)
     {
       idle_agent         => AgentRuntimeStatus::Idle,
       building_agent     => AgentRuntimeStatus::Building,
@@ -85,7 +85,7 @@ describe ApiV4::AgentRepresenter do
   end
 
   it 'renders build state correctly' do
-    @security_service.should_receive(:hasViewOrOperatePermissionForPipeline).with(@current_user, anything).exactly(3).times.and_return(false)
+    expect(@security_service).to receive(:hasViewOrOperatePermissionForPipeline).with(@current_user, anything).exactly(3).times.and_return(false)
 
     {
       idle_agent         => AgentRuntimeStatus::Idle,
@@ -102,7 +102,7 @@ describe ApiV4::AgentRepresenter do
   end
 
   it 'renders config state correctly' do
-    @security_service.should_receive(:hasViewOrOperatePermissionForPipeline).with(@current_user, anything).exactly(2).times.and_return(false)
+    expect(@security_service).to receive(:hasViewOrOperatePermissionForPipeline).with(@current_user, anything).exactly(2).times.and_return(false)
     {
       pending_agent      => AgentConfigStatus::Pending,
       building_agent     => AgentConfigStatus::Enabled,
@@ -118,7 +118,7 @@ describe ApiV4::AgentRepresenter do
   end
 
   it 'renders build url correctly for agents with building status' do
-    @security_service.should_receive(:hasViewOrOperatePermissionForPipeline).with(@current_user, anything).and_return(true)
+    expect(@security_service).to receive(:hasViewOrOperatePermissionForPipeline).with(@current_user, anything).and_return(true)
     presenter   = ApiV4::AgentRepresenter.new({agent: building_agent, environments: [], security_service: @security_service, current_user: @current_user})
     actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
 
@@ -127,7 +127,7 @@ describe ApiV4::AgentRepresenter do
   end
 
   it 'renders build url correctly for agents with lost contact status' do
-    @security_service.should_receive(:hasViewOrOperatePermissionForPipeline).with(@current_user, anything).and_return(true)
+    expect(@security_service).to receive(:hasViewOrOperatePermissionForPipeline).with(@current_user, anything).and_return(true)
     presenter   = ApiV4::AgentRepresenter.new({agent: lost_contact_agent, environments: [], security_service: @security_service, current_user: @current_user})
     actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
 

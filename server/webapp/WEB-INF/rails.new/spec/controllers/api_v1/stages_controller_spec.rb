@@ -14,13 +14,15 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV1::StagesController do
-  include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
+  include ApiHeaderSetupTeardown
 
-  describe :show do
-    describe :security do
+  include ApiV1::ApiVersionHelper
+
+  describe 'show' do
+    describe 'security' do
 
       it 'should allow anyone, with security disabled' do
         disable_security
@@ -49,12 +51,12 @@ describe ApiV1::StagesController do
         before(:each) do
           login_as_user
           allow_current_user_to_access_pipeline('pipeline')
-          controller.stub(:stage_service).and_return(@stage_service = double('stage_service'))
+          allow(controller).to receive(:stage_service).and_return(@stage_service = double('stage_service'))
         end
 
         it 'should get stage instance json' do
           @stage_model=StageMother.passedStageInstance('stage', 'job', 'pipeline')
-          @stage_service.should_receive(:findStageWithIdentifier).with('pipeline', 1, 'stage', '1', @user.getUsername.to_s, anything).and_return(@stage_model)
+          expect(@stage_service).to receive(:findStageWithIdentifier).with('pipeline', 1, 'stage', '1', @user.getUsername.to_s, anything).and_return(@stage_model)
           get_with_api_header :show, pipeline_name: 'pipeline', stage_name: 'stage', pipeline_counter: '1', stage_counter: '1'
           expect(response).to be_ok
           expect(actual_response).to eq(expected_response(@stage_model, ApiV1::StageRepresenter))
@@ -62,10 +64,10 @@ describe ApiV1::StagesController do
       end
     end
 
-    describe :route do
-      describe :with_header do
+    describe 'route' do
+      describe 'with_header' do
 
-        describe :with_pipeline_name_contraint do
+        describe 'with_pipeline_name_contraint' do
           it 'should route to show action of stages controller having dots in pipeline name' do
             expect(:get => 'api/stages/some.thing/1/bar/2').to route_to(controller: 'api_v1/stages', action: 'show', pipeline_name: 'some.thing', pipeline_counter: '1', stage_name: 'bar', stage_counter: '2')
           end
@@ -91,7 +93,7 @@ describe ApiV1::StagesController do
           end
         end
 
-        describe :with_stage_name_constraint do
+        describe 'with_stage_name_constraint' do
           it 'should route to show action of stages controller' do
             expect(:get => 'api/stages/foo/1/bar/2').to route_to(controller: 'api_v1/stages', action: 'show', pipeline_name: 'foo', pipeline_counter: '1', stage_name: 'bar', stage_counter: '2')
           end
@@ -121,20 +123,20 @@ describe ApiV1::StagesController do
           end
         end
 
-        describe :with_pipeline_counter_constraint do
+        describe 'with_pipeline_counter_constraint' do
           it 'should not route to show action of stages controller for invalid pipeline counter' do
             expect(:get => 'api/stages/some.thing/fo$%#@6/bar/2').to_not be_routable
           end
         end
 
-        describe :with_stage_counter_constraint do
+        describe 'with_stage_counter_constraint' do
           it 'should not route to show action of stages controller for invalid stage counter' do
             expect(:get => 'api/stages/some.thing/1/bar/fo$%#@6').to_not be_routable
           end
         end
       end
 
-      describe :without_header do
+      describe 'without_header' do
         before :each do
           teardown_header
         end
@@ -146,8 +148,8 @@ describe ApiV1::StagesController do
     end
   end
 
-  describe :history do
-    describe :security do
+  describe 'history' do
+    describe 'security' do
 
       it 'should allow anyone, with security disabled' do
         disable_security
@@ -176,13 +178,13 @@ describe ApiV1::StagesController do
         before(:each) do
           login_as_user
           allow_current_user_to_access_pipeline('pipeline')
-          controller.stub(:stage_service).and_return(@stage_service = double('stage_service'))
+          allow(controller).to receive(:stage_service).and_return(@stage_service = double('stage_service'))
         end
 
         it 'should get stage instance json' do
           @stage_instance_models = [StageMother.toStageInstanceModel(StageMother.passedStageInstance('stage', 'job', 'pipeline'))]
-          @stage_service.should_receive(:getCount).and_return(10)
-          @stage_service.should_receive(:findDetailedStageHistoryByOffset).with('pipeline', 'stage', anything, @user.getUsername.to_s, anything).and_return(@stage_instance_models)
+          expect(@stage_service).to receive(:getCount).and_return(10)
+          expect(@stage_service).to receive(:findDetailedStageHistoryByOffset).with('pipeline', 'stage', anything, @user.getUsername.to_s, anything).and_return(@stage_instance_models)
           get_with_api_header :history, pipeline_name: 'pipeline', stage_name: 'stage', pipeline_counter: '1', stage_counter: '1'
           expect(response).to be_ok
           expect(actual_response).to eq(expected_response_with_options(@stage_instance_models, {pipeline_name: 'pipeline', stage_name: 'stage'}, ApiV1::StageHistoryRepresenter))
@@ -190,10 +192,10 @@ describe ApiV1::StagesController do
       end
     end
 
-    describe :route do
-      describe :with_header do
+    describe 'route' do
+      describe 'with_header' do
 
-        describe :with_pipeline_name_contraint do
+        describe 'with_pipeline_name_contraint' do
           it 'should route to history action of stages controller having dots in pipeline name' do
             expect(:get => 'api/stages/some.thing/bar').to route_to(controller: 'api_v1/stages', action: 'history', pipeline_name: 'some.thing', stage_name: 'bar')
           end
@@ -219,7 +221,7 @@ describe ApiV1::StagesController do
           end
         end
 
-        describe :with_stage_name_constraint do
+        describe 'with_stage_name_constraint' do
           it 'should route to history action of stages controller' do
             expect(:get => 'api/stages/foo/bar').to route_to(controller: 'api_v1/stages', action: 'history', pipeline_name: 'foo', stage_name: 'bar')
           end
@@ -250,7 +252,7 @@ describe ApiV1::StagesController do
         end
       end
 
-      describe :without_header do
+      describe 'without_header' do
         before :each do
           teardown_header
         end

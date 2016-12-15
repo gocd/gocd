@@ -14,20 +14,25 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV4::AgentsController do
-  include AgentInstanceFactory, ApiHeaderSetupTeardown, ApiV4::ApiVersionHelper
+  include AgentInstanceFactory
+
+  include ApiHeaderSetupTeardown
+
+
+  include ApiV4::ApiVersionHelper
 
   before do
-    controller.stub(:agent_service).and_return(@agent_service = double('agent-service'))
-    controller.stub(:security_service).and_return(@security_service = double('security-service'))
+    allow(controller).to receive(:agent_service).and_return(@agent_service = double('agent-service'))
+    allow(controller).to receive(:security_service).and_return(@security_service = double('security-service'))
     @current_user = Username.new(CaseInsensitiveString.new('user'))
-    controller.stub(:job_instance_service).and_return(@job_instance_service = double('job instance service'))
+    allow(controller).to receive(:job_instance_service).and_return(@job_instance_service = double('job instance service'))
   end
 
-  describe :index do
-    describe :security do
+  describe 'index' do
+    describe 'security' do
       it 'should allow anyone, with security disabled' do
         disable_security
         expect(controller).to allow_action(:get, :index)
@@ -53,7 +58,7 @@ describe ApiV4::AgentsController do
       it 'should get agents json' do
         two_agents = {idle_agent => %w(uat perf), missing_agent => %w()}
 
-        @agent_service.should_receive(:agentEnvironmentMap).and_return(two_agents)
+        expect(@agent_service).to receive(:agentEnvironmentMap).and_return(two_agents)
 
         get_with_api_header :index
         expect(response).to be_ok
@@ -63,7 +68,7 @@ describe ApiV4::AgentsController do
       it 'should get empty json when there are no agents' do
         zero_agents = {}
 
-        @agent_service.should_receive(:agentEnvironmentMap).and_return(zero_agents)
+        expect(@agent_service).to receive(:agentEnvironmentMap).and_return(zero_agents)
 
         get_with_api_header :index
         expect(response).to be_ok
@@ -71,14 +76,14 @@ describe ApiV4::AgentsController do
       end
     end
 
-    describe :route do
-      describe :with_header do
+    describe 'route' do
+      describe 'with_header' do
 
         it 'should route to index action of the agents controller' do
           expect(:get => 'api/agents').to route_to(action: 'index', controller: 'api_v4/agents')
         end
       end
-      describe :without_header do
+      describe 'without_header' do
         before :each do
           teardown_header
         end
@@ -90,11 +95,11 @@ describe ApiV4::AgentsController do
     end
   end
 
-  describe :show do
-    describe :security do
+  describe 'show' do
+    describe 'security' do
       before(:each) do
         @agent = AgentInstanceMother.idle()
-        @agent_service.stub(:findAgent).and_return(@agent)
+        allow(@agent_service).to receive(:findAgent).and_return(@agent)
       end
 
       it 'should allow anyone, with security disabled' do
@@ -121,7 +126,7 @@ describe ApiV4::AgentsController do
 
       it 'should get agents json' do
         agent = AgentInstanceMother.idle()
-        @agent_service.should_receive(:findAgent).with(agent.getUuid()).and_return(agent)
+        expect(@agent_service).to receive(:findAgent).with(agent.getUuid()).and_return(agent)
 
         get_with_api_header :show, uuid: agent.getUuid()
         expect(response).to be_ok
@@ -130,15 +135,15 @@ describe ApiV4::AgentsController do
 
       it 'should return 404 when agent is not found' do
         null_agent = NullAgentInstance.new('some-uuid')
-        @agent_service.should_receive(:findAgent).with(null_agent.getUuid()).and_return(null_agent)
+        expect(@agent_service).to receive(:findAgent).with(null_agent.getUuid()).and_return(null_agent)
 
         get_with_api_header :show, uuid: null_agent.getUuid()
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end
     end
 
-    describe :route do
-      describe :with_header do
+    describe 'route' do
+      describe 'with_header' do
 
         it 'should route to show action of the agents controller for uuid with hyphen' do
           expect(:get => 'api/agents/uuid-123').to route_to(action: 'show', controller: 'api_v4/agents', uuid: 'uuid-123')
@@ -152,7 +157,7 @@ describe ApiV4::AgentsController do
           expect(:get => 'api/agents/uuid.123').to route_to(action: 'show', controller: 'api_v4/agents', uuid: 'uuid.123')
         end
       end
-      describe :without_header do
+      describe 'without_header' do
         before :each do
           teardown_header
         end
@@ -164,11 +169,11 @@ describe ApiV4::AgentsController do
     end
   end
 
-  describe :delete do
-    describe :security do
+  describe 'delete' do
+    describe 'security' do
       before(:each) do
         @agent = AgentInstanceMother.idle()
-        @agent_service.stub(:findAgent).and_return(@agent)
+        allow(@agent_service).to receive(:findAgent).and_return(@agent)
       end
 
       it 'should allow anyone, with security disabled' do
@@ -195,9 +200,9 @@ describe ApiV4::AgentsController do
 
       it 'should render result in case of error' do
         agent = AgentInstanceMother.idle()
-        @agent_service.should_receive(:findAgent).with(agent.getUuid()).and_return(agent)
+        expect(@agent_service).to receive(:findAgent).with(agent.getUuid()).and_return(agent)
 
-        @agent_service.should_receive(:deleteAgents).with(@user, anything(), [agent.getUuid()]) do |user, result, uuid|
+        expect(@agent_service).to receive(:deleteAgents).with(@user, anything(), [agent.getUuid()]) do |user, result, uuid|
           result.notAcceptable('Not Acceptable', HealthStateType.general(HealthStateScope::GLOBAL))
         end
 
@@ -207,9 +212,9 @@ describe ApiV4::AgentsController do
 
       it 'should return 200 when delete completes' do
         agent = AgentInstanceMother.idle()
-        @agent_service.should_receive(:findAgent).with(agent.getUuid()).and_return(agent)
+        expect(@agent_service).to receive(:findAgent).with(agent.getUuid()).and_return(agent)
 
-        @agent_service.should_receive(:deleteAgents).with(@user, anything(), [agent.getUuid()]) do |user, result, uuid|
+        expect(@agent_service).to receive(:deleteAgents).with(@user, anything(), [agent.getUuid()]) do |user, result, uuid|
           result.ok('Deleted 1 agent(s).')
         end
 
@@ -219,8 +224,8 @@ describe ApiV4::AgentsController do
       end
     end
 
-    describe :route do
-      describe :with_header do
+    describe 'route' do
+      describe 'with_header' do
         it 'should route to destoy action of the agents controller for uuid with hyphen' do
           expect(:delete => 'api/agents/uuid-123').to route_to(action: 'destroy', controller: 'api_v4/agents', uuid: 'uuid-123')
         end
@@ -233,7 +238,7 @@ describe ApiV4::AgentsController do
           expect(:delete => 'api/agents/uuid.123').to route_to(action: 'destroy', controller: 'api_v4/agents', uuid: 'uuid.123')
         end
       end
-      describe :without_header do
+      describe 'without_header' do
         before :each do
           teardown_header
         end
@@ -245,11 +250,11 @@ describe ApiV4::AgentsController do
     end
   end
 
-  describe :update do
-    describe :security do
+  describe 'update' do
+    describe 'security' do
       before(:each) do
         @agent = AgentInstanceMother.idle()
-        @agent_service.stub(:findAgent).and_return(@agent)
+        allow(@agent_service).to receive(:findAgent).and_return(@agent)
       end
 
       it 'should allow anyone, with security disabled' do
@@ -276,8 +281,8 @@ describe ApiV4::AgentsController do
 
       it 'should return agent json when agent name update is successful' do
         agent = AgentInstanceMother.idle()
-        @agent_service.should_receive(:findAgent).twice.with(agent.getUuid()).and_return(agent)
-        @agent_service.should_receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', nil, nil, TriState.UNSET) do |user, result, uuid, new_hostname|
+        expect(@agent_service).to receive(:findAgent).twice.with(agent.getUuid()).and_return(agent)
+        expect(@agent_service).to receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', nil, nil, TriState.UNSET) do |user, result, uuid, new_hostname|
           result.ok("Updated agent with uuid #{agent.getUuid()}")
         end
 
@@ -288,8 +293,8 @@ describe ApiV4::AgentsController do
 
       it 'should return agent json when agent resources update is successful by specifing a comma separated string' do
         agent = AgentInstanceMother.idle()
-        @agent_service.should_receive(:findAgent).twice.with(agent.getUuid()).and_return(agent)
-        @agent_service.should_receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', "java,linux,firefox", nil, TriState.UNSET) do |user, result, uuid, new_hostname|
+        expect(@agent_service).to receive(:findAgent).twice.with(agent.getUuid()).and_return(agent)
+        expect(@agent_service).to receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', "java,linux,firefox", nil, TriState.UNSET) do |user, result, uuid, new_hostname|
           result.ok("Updated agent with uuid #{agent.getUuid()}")
         end
 
@@ -300,8 +305,8 @@ describe ApiV4::AgentsController do
 
       it 'should return agent json when agent environments update is successful by specifing a comma separated string' do
         agent = AgentInstanceMother.idle()
-        @agent_service.should_receive(:findAgent).twice.with(agent.getUuid()).and_return(agent)
-        @agent_service.should_receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', nil, 'pre-prod,performance', TriState.UNSET) do |user, result, uuid, new_hostname|
+        expect(@agent_service).to receive(:findAgent).twice.with(agent.getUuid()).and_return(agent)
+        expect(@agent_service).to receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', nil, 'pre-prod,performance', TriState.UNSET) do |user, result, uuid, new_hostname|
           result.ok("Updated agent with uuid #{agent.getUuid()}")
         end
 
@@ -312,8 +317,8 @@ describe ApiV4::AgentsController do
 
       it 'should return agent json when agent is enabled' do
         agent = AgentInstanceMother.idle()
-        @agent_service.should_receive(:findAgent).twice.with(agent.getUuid()).and_return(agent)
-        @agent_service.should_receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', "java,linux,firefox", nil, TriState.TRUE) do |user, result, uuid, new_hostname|
+        expect(@agent_service).to receive(:findAgent).twice.with(agent.getUuid()).and_return(agent)
+        expect(@agent_service).to receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', "java,linux,firefox", nil, TriState.TRUE) do |user, result, uuid, new_hostname|
           result.ok("Updated agent with uuid #{agent.getUuid()}")
         end
 
@@ -324,8 +329,8 @@ describe ApiV4::AgentsController do
 
       it 'should return agent json when agent is disabled' do
         agent = AgentInstanceMother.idle()
-        @agent_service.should_receive(:findAgent).twice.with(agent.getUuid()).and_return(agent)
-        @agent_service.should_receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', "java,linux,firefox", nil, TriState.FALSE) do |user, result, uuid, new_hostname|
+        expect(@agent_service).to receive(:findAgent).twice.with(agent.getUuid()).and_return(agent)
+        expect(@agent_service).to receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', "java,linux,firefox", nil, TriState.FALSE) do |user, result, uuid, new_hostname|
           result.ok("Updated agent with uuid #{agent.getUuid()}")
         end
 
@@ -336,8 +341,8 @@ describe ApiV4::AgentsController do
 
       it 'should return agent json when agent resources update is successful by specifying a resource array' do
         agent = AgentInstanceMother.idle()
-        @agent_service.should_receive(:findAgent).twice.with(agent.getUuid()).and_return(agent)
-        @agent_service.should_receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', "java,linux,firefox", nil, TriState.UNSET) do |user, result, uuid, new_hostname|
+        expect(@agent_service).to receive(:findAgent).twice.with(agent.getUuid()).and_return(agent)
+        expect(@agent_service).to receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', "java,linux,firefox", nil, TriState.UNSET) do |user, result, uuid, new_hostname|
           result.ok("Updated agent with uuid #{agent.getUuid()}")
         end
 
@@ -348,8 +353,8 @@ describe ApiV4::AgentsController do
 
       it 'should return agent json when agent environments update is successful by specifying an environment array' do
         agent = AgentInstanceMother.idle()
-        @agent_service.should_receive(:findAgent).twice.with(agent.getUuid()).and_return(agent)
-        @agent_service.should_receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', nil, 'pre-prod,staging', TriState.UNSET) do |user, result, uuid, new_hostname|
+        expect(@agent_service).to receive(:findAgent).twice.with(agent.getUuid()).and_return(agent)
+        expect(@agent_service).to receive(:updateAgentAttributes).with(@user, anything(), agent.getUuid(), 'some-hostname', nil, 'pre-prod,staging', TriState.UNSET) do |user, result, uuid, new_hostname|
           result.ok("Updated agent with uuid #{agent.getUuid()}")
         end
 
@@ -360,7 +365,7 @@ describe ApiV4::AgentsController do
 
       it 'should return 404 when agent is not found' do
         null_agent = NullAgentInstance.new('some-uuid')
-        @agent_service.should_receive(:findAgent).with(null_agent.getUuid()).and_return(null_agent)
+        expect(@agent_service).to receive(:findAgent).with(null_agent.getUuid()).and_return(null_agent)
 
         patch_with_api_header :update, uuid: null_agent.getUuid()
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
@@ -368,15 +373,15 @@ describe ApiV4::AgentsController do
 
       it 'should raise error when submitting a junk (non-blank) value for enabled boolean' do
         agent = AgentInstanceMother.idle()
-        @agent_service.should_receive(:findAgent).with(agent.getUuid()).and_return(agent)
+        expect(@agent_service).to receive(:findAgent).with(agent.getUuid()).and_return(agent)
 
         patch_with_api_header :update, uuid: agent.getUuid(), hostname: 'some-hostname', agent_config_state: 'foo'
         expect(response).to have_api_message_response(400, 'Your request could not be processed. The value of `agent_config_state` can be one of `Enabled`, `Disabled` or null.')
       end
     end
 
-    describe :route do
-      describe :with_header do
+    describe 'route' do
+      describe 'with_header' do
 
         it 'should route to update action of the agents controller for uuid with hyphen' do
           expect(:patch => 'api/agents/uuid-123').to route_to(action: 'update', controller: 'api_v4/agents', uuid: 'uuid-123')
@@ -390,7 +395,7 @@ describe ApiV4::AgentsController do
           expect(:patch => 'api/agents/uuid.123').to route_to(action: 'update', controller: 'api_v4/agents', uuid: 'uuid.123')
         end
       end
-      describe :without_header do
+      describe 'without_header' do
         before :each do
           teardown_header
         end
@@ -402,8 +407,8 @@ describe ApiV4::AgentsController do
     end
   end
 
-  describe :bulk_delete do
-    describe :security do
+  describe 'bulk_delete' do
+    describe 'security' do
       it 'should allow anyone, with security disabled' do
         disable_security
         expect(controller).to allow_action(:delete, :bulk_destroy)
@@ -439,7 +444,7 @@ describe ApiV4::AgentsController do
         agent1 = AgentInstanceMother.idle()
         agent2= AgentInstanceMother.idle()
 
-        @agent_service.should_receive(:deleteAgents).with(@user, anything(), [agent1.getUuid(), agent2.getUuid()]) do |user, result, uuids|
+        expect(@agent_service).to receive(:deleteAgents).with(@user, anything(), [agent1.getUuid(), agent2.getUuid()]) do |user, result, uuids|
           result.ok('Deleted 2 agent(s).')
         end
 
@@ -452,7 +457,7 @@ describe ApiV4::AgentsController do
         agent1 = AgentInstanceMother.idle()
         agent2 = AgentInstanceMother.idle()
 
-        @agent_service.should_receive(:deleteAgents).with(@user, anything(), [agent1.getUuid(), agent2.getUuid()]) do |user, result, uuids|
+        expect(@agent_service).to receive(:deleteAgents).with(@user, anything(), [agent1.getUuid(), agent2.getUuid()]) do |user, result, uuids|
           result.notAcceptable('Not Acceptable', HealthStateType.general(HealthStateScope::GLOBAL))
         end
 
@@ -461,13 +466,13 @@ describe ApiV4::AgentsController do
       end
     end
 
-    describe :route do
-      describe :with_header do
+    describe 'route' do
+      describe 'with_header' do
         it 'should route to bulk_destroy action of the agents controller' do
           expect(:delete => 'api/agents').to route_to(action: 'bulk_destroy', controller: 'api_v4/agents')
         end
       end
-      describe :without_header do
+      describe 'without_header' do
         before :each do
           teardown_header
         end
@@ -480,8 +485,8 @@ describe ApiV4::AgentsController do
 
   end
 
-  describe :bulk_update do
-    describe :security do
+  describe 'bulk_update' do
+    describe 'security' do
       it 'should allow anyone, with security disabled' do
         disable_security
         expect(controller).to allow_action(:patch, :bulk_update)
@@ -520,7 +525,7 @@ describe ApiV4::AgentsController do
 
       it 'should allow admin users to update a group of agents' do
         uuids = %w(agent-1 agent-2)
-        @agent_service.should_receive(:bulkUpdateAgentAttributes).with(@user, anything(), uuids, anything(), anything(), anything(), anything(), anything()) do |user, result, uuids, r_add, r_remove, e_add, e_remove, state|
+        expect(@agent_service).to receive(:bulkUpdateAgentAttributes).with(@user, anything(), uuids, anything(), anything(), anything(), anything(), anything()) do |user, result, uuids, r_add, r_remove, e_add, e_remove, state|
           result.setMessage(LocalizedMessage.string("BULK_AGENT_UPDATE_SUCESSFUL", uuids.join(', ')));
         end
 
@@ -530,13 +535,13 @@ describe ApiV4::AgentsController do
       end
     end
 
-    describe :route do
-      describe :with_header do
+    describe 'route' do
+      describe 'with_header' do
         it 'should route to bulk_update action of the agents controller' do
           expect(:patch => 'api/agents').to route_to(action: 'bulk_update', controller: 'api_v4/agents')
         end
       end
-      describe :without_header do
+      describe 'without_header' do
         before :each do
           teardown_header
         end

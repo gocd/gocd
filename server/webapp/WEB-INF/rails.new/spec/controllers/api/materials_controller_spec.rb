@@ -14,12 +14,12 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe Api::MaterialsController do
   include APIModelMother
 
-  describe :routes do
+  describe 'routes' do
     it "should generate the route" do
       expect(material_notify_path(:post_commit_hook_material_type => 'svn')).to eq("/api/material/notify/svn")
     end
@@ -30,17 +30,17 @@ describe Api::MaterialsController do
     end
   end
 
-  describe :notify do
+  describe 'notify' do
     before :each do
       @material_update_service = double('Material Update Service')
       @user = Username.new(CaseInsensitiveString.new('loser'))
-      controller.stub(:current_user).and_return(@user)
-      controller.stub(:material_update_service).and_return(@material_update_service)
+      allow(controller).to receive(:current_user).and_return(@user)
+      allow(controller).to receive(:material_update_service).and_return(@material_update_service)
       @params = {:post_commit_hook_material_type => 'svn', :no_layout => true, :payload => {}}
     end
 
     it "should return 401 when user is not an admin" do
-      @material_update_service.should_receive(:notifyMaterialsForUpdate).with(@user, an_instance_of(ActionController::Parameters), an_instance_of(HttpLocalizedOperationResult)) do |user, params, result|
+      expect(@material_update_service).to receive(:notifyMaterialsForUpdate).with(@user, an_instance_of(ActionController::Parameters), an_instance_of(HttpLocalizedOperationResult)) do |user, params, result|
         result.unauthorized(LocalizedMessage.string('API_ACCESS_UNAUTHORIZED'), HealthStateType.unauthorised())
       end
       post :notify, @params
@@ -49,13 +49,13 @@ describe Api::MaterialsController do
     end
 
     it "should return 200 when notify is successful" do
-      @material_update_service.should_receive(:notifyMaterialsForUpdate).with(@user, an_instance_of(ActionController::Parameters), an_instance_of(HttpLocalizedOperationResult)).and_return(nil)
+      expect(@material_update_service).to receive(:notifyMaterialsForUpdate).with(@user, an_instance_of(ActionController::Parameters), an_instance_of(HttpLocalizedOperationResult)).and_return(nil)
       post :notify, @params
       expect(response.status).to eq(200)
     end
 
     it "should return 400 with params is empty" do
-      @material_update_service.should_receive(:notifyMaterialsForUpdate).with(@user, an_instance_of(ActionController::Parameters), an_instance_of(HttpLocalizedOperationResult)) do |user, params, result|
+      expect(@material_update_service).to receive(:notifyMaterialsForUpdate).with(@user, an_instance_of(ActionController::Parameters), an_instance_of(HttpLocalizedOperationResult)) do |user, params, result|
         result.badRequest(LocalizedMessage.string('API_BAD_REQUEST'))
       end
       post :notify, @params
@@ -64,9 +64,9 @@ describe Api::MaterialsController do
     end
   end
 
-  describe :list_materials_config do
+  describe 'list_materials_config' do
     before :each do
-      controller.stub(:material_config_service).and_return(@material_config_service = double('material_config_service'))
+      allow(controller).to receive(:material_config_service).and_return(@material_config_service = double('material_config_service'))
     end
 
     it "should resolve" do
@@ -75,8 +75,8 @@ describe Api::MaterialsController do
 
     it "should render material list json" do
       loser = Username.new(CaseInsensitiveString.new("loser"))
-      controller.should_receive(:current_user).and_return(loser)
-      @material_config_service.should_receive(:getMaterialConfigs).with("loser").and_return([create_material_config_model])
+      expect(controller).to receive(:current_user).and_return(loser)
+      expect(@material_config_service).to receive(:getMaterialConfigs).with("loser").and_return([create_material_config_model])
 
       get :list_configs, :no_layout => true
 
@@ -84,10 +84,10 @@ describe Api::MaterialsController do
     end
   end
 
-  describe :list_material_modifications do
+  describe 'list_material_modifications' do
     before :each do
-      controller.stub(:material_config_service).and_return(@material_config_service = double('material_config_service'))
-      controller.stub(:material_service).and_return(@material_service = double('material_service'))
+      allow(controller).to receive(:material_config_service).and_return(@material_config_service = double('material_config_service'))
+      allow(controller).to receive(:material_service).and_return(@material_service = double('material_service'))
     end
 
     it "should resolve" do
@@ -97,11 +97,11 @@ describe Api::MaterialsController do
 
     it "should render material modification list json" do
       loser = Username.new(CaseInsensitiveString.new("loser"))
-      controller.should_receive(:current_user).and_return(loser)
+      expect(controller).to receive(:current_user).and_return(loser)
       material_config = create_material_view_model
-      @material_config_service.should_receive(:getMaterialConfig).with("loser", "fingerprint", anything).and_return(material_config)
-      @material_service.should_receive(:getTotalModificationsFor).with(material_config).and_return(10)
-      @material_service.should_receive(:getModificationsFor).with(material_config, anything).and_return([create_modification_view_model])
+      expect(@material_config_service).to receive(:getMaterialConfig).with("loser", "fingerprint", anything).and_return(material_config)
+      expect(@material_service).to receive(:getTotalModificationsFor).with(material_config).and_return(10)
+      expect(@material_service).to receive(:getModificationsFor).with(material_config, anything).and_return([create_modification_view_model])
 
       get :modifications, :fingerprint => "fingerprint", :offset => "5", :no_layout => true
 
@@ -110,8 +110,8 @@ describe Api::MaterialsController do
 
     it "should render error correctly" do
       loser = Username.new(CaseInsensitiveString.new("loser"))
-      controller.should_receive(:current_user).and_return(loser)
-      @material_config_service.should_receive(:getMaterialConfig).with("loser", "fingerprint", anything) do |username, fingerprint, result|
+      expect(controller).to receive(:current_user).and_return(loser)
+      expect(@material_config_service).to receive(:getMaterialConfig).with("loser", "fingerprint", anything) do |username, fingerprint, result|
         result.notAcceptable("Not Acceptable", HealthStateType.general(HealthStateScope::GLOBAL))
       end
 

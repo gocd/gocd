@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ValueStreamMapController do
 
@@ -22,13 +22,13 @@ describe ValueStreamMapController do
     @value_stream_map_service = double('value_stream_map_service')
     @pipeline_service = double('pipeline_service')
 
-    controller.stub(:value_stream_map_service).and_return(@value_stream_map_service)
-    controller.stub(:pipeline_service).and_return(@pipeline_service)
+    allow(controller).to receive(:value_stream_map_service).and_return(@value_stream_map_service)
+    allow(controller).to receive(:pipeline_service).and_return(@pipeline_service)
     @result = HttpLocalizedOperationResult.new
-    HttpLocalizedOperationResult.stub(:new).and_return(@result)
+    allow(HttpLocalizedOperationResult).to receive(:new).and_return(@result)
     @user = double('some user')
-    controller.stub(:current_user).and_return(@user)
-    controller.stub(:is_ie8?).and_return(false)
+    allow(controller).to receive(:current_user).and_return(@user)
+    allow(controller).to receive(:is_ie8?).and_return(false)
 
     @vsm_path_partial = proc do |name, counter|
       vsm_show_path(name, counter)
@@ -41,17 +41,17 @@ describe ValueStreamMapController do
     end
   end
 
-  describe :redirect_to_stage_pdg_if_ie8 do
+  describe 'redirect_to_stage_pdg_if_ie8' do
     before :each do
       @pipeline_history_service = double('pipeline history service')
-      controller.stub(:pipeline_history_service).and_return(@pipeline_history_service)
+      allow(controller).to receive(:pipeline_history_service).and_return(@pipeline_history_service)
     end
 
     it "should redirect to old pdg page when user is accessing via IE8" do
-      controller.stub(:is_ie8?).and_return(true)
+      allow(controller).to receive(:is_ie8?).and_return(true)
       pim = double('PIM')
-      @pipeline_history_service.should_receive(:findPipelineInstance).with('foo', 42, @user, an_instance_of(HttpOperationResult)).and_return(pim)
-      controller.stub(:url_for_pipeline_instance).with(pim).and_return('/some_funky_url')
+      expect(@pipeline_history_service).to receive(:findPipelineInstance).with('foo', 42, @user, an_instance_of(HttpOperationResult)).and_return(pim)
+      allow(controller).to receive(:url_for_pipeline_instance).with(pim).and_return('/some_funky_url')
 
       get :show, { pipeline_name: 'foo', pipeline_counter: '42' }
 
@@ -60,10 +60,10 @@ describe ValueStreamMapController do
     end
 
     it "should not redirect to old pdg page when user is accessing via IE8 but requesting format is not HTML" do
-      controller.stub(:is_ie8?).and_return(true)
-      controller.stub(:generate_vsm_json).and_return('some_json')
-      @pipeline_history_service.should_receive(:findPipelineInstance).never
-      @pipeline_service.should_receive(:findPipelineByCounterOrLabel).with('foo', '42').and_return('pipeline')
+      allow(controller).to receive(:is_ie8?).and_return(true)
+      allow(controller).to receive(:generate_vsm_json).and_return('some_json')
+      expect(@pipeline_history_service).to receive(:findPipelineInstance).never
+      expect(@pipeline_service).to receive(:findPipelineByCounterOrLabel).with('foo', '42').and_return('pipeline')
 
       get :show, { pipeline_name: 'foo', pipeline_counter: '42', format: 'json' }
 
@@ -71,9 +71,9 @@ describe ValueStreamMapController do
     end
 
     it "should not redirect to old pdg page when user is using a browser other than IE8" do
-      controller.stub(:is_ie8?).and_return(false)
-      @pipeline_history_service.should_receive(:findPipelineInstance).never
-      @pipeline_service.should_receive(:findPipelineByCounterOrLabel).with('foo', '42').and_return('pipeline')
+      allow(controller).to receive(:is_ie8?).and_return(false)
+      expect(@pipeline_history_service).to receive(:findPipelineInstance).never
+      expect(@pipeline_service).to receive(:findPipelineByCounterOrLabel).with('foo', '42').and_return('pipeline')
 
       get :show, { pipeline_name: 'foo', pipeline_counter: '42' }
 
@@ -104,7 +104,7 @@ describe ValueStreamMapController do
 
     it "should show Error message when pipeline name and counter cannot be resolved to a unique instance" do
       pipeline = "foo"
-      @pipeline_service.stub(:findPipelineByCounterOrLabel).with("foo","1").and_throw(Exception.new());
+      allow(@pipeline_service).to receive(:findPipelineByCounterOrLabel).with("foo","1").and_throw(Exception.new());
       get :show, pipeline_name: pipeline, pipeline_counter: 1
 
       expect(assigns(:pipeline)).to eq(nil)
@@ -113,11 +113,11 @@ describe ValueStreamMapController do
     describe "render json" do
       it "should get the pipeline dependency graph json" do
         pipeline = "P1"
-        @pipeline_service.stub(:findPipelineByCounterOrLabel).with("P1", "1").and_return(nil)
+        allow(@pipeline_service).to receive(:findPipelineByCounterOrLabel).with("P1", "1").and_return(nil)
         vsm = ValueStreamMap.new(pipeline, nil)
         vsm.addUpstreamNode(PipelineDependencyNode.new("git", "git"), nil, pipeline)
         model = vsm.presentationModel()
-        @value_stream_map_service.should_receive(:getValueStreamMap).with(pipeline, 1, @user, @result).and_return(model)
+        expect(@value_stream_map_service).to receive(:getValueStreamMap).with(pipeline, 1, @user, @result).and_return(model)
 
         get :show, pipeline_name: pipeline, pipeline_counter: 1, format: "json"
 
@@ -127,7 +127,7 @@ describe ValueStreamMapController do
       end
 
       it "should render pipeline dependency graph JSON with pipeline instance and stage details" do
-        @pipeline_service.stub(:findPipelineByCounterOrLabel).with("current", "1").and_return(nil)
+        allow(@pipeline_service).to receive(:findPipelineByCounterOrLabel).with("current", "1").and_return(nil)
         revision_p1_1 = PipelineRevision.new("p1", 1, "label-p1-1")
         revision_p1_1.addStages(Stages.new([StageMother.passedStageInstance("stage-1-for-p1-1", "j1", "p1"), StageMother.passedStageInstance("stage-2-for-p1-1", "j2", "p1")]))
           modification = com.thoughtworks.go.domain.materials.Modification.new("user", "comment", "", java.util.Date.new() , "r1")
@@ -139,21 +139,21 @@ describe ValueStreamMapController do
         vsm.addUpstreamMaterialNode(SCMDependencyNode.new("git1", "http://git.com", "Git"),CaseInsensitiveString.new("git"), "p1", MaterialRevision.new(nil, false, modification))
         vsm.addUpstreamMaterialNode(SCMDependencyNode.new("git2", "http://git.com", "Git"), nil, "p1", MaterialRevision.new(nil, false, modifications))
         model = vsm.presentationModel()
-        @value_stream_map_service.should_receive(:getValueStreamMap).with(pipeline, 1,@user, @result).and_return(model)
+        expect(@value_stream_map_service).to receive(:getValueStreamMap).with(pipeline, 1,@user, @result).and_return(model)
 
         get :show, pipeline_name: pipeline, pipeline_counter: 1, format: "json"
 
         graph_details = JSON.parse(response.body)
         expected_graph_details = JSON.parse(expected_json_for_graph_with_pipeline_instance_details)
-        graph_details.should == expected_graph_details
+        expect(graph_details).to eq(expected_graph_details)
       end
 
       it "should display error message when the pipeline does not exist" do
         pipeline = "P1"
-        @pipeline_service.stub(:findPipelineByCounterOrLabel).with("P1", "1").and_return(nil)
+        allow(@pipeline_service).to receive(:findPipelineByCounterOrLabel).with("P1", "1").and_return(nil)
 
-        @value_stream_map_service.should_receive(:getValueStreamMap) do |pipeline, pipeline_counter, user, result|
-          result.stub(:message).with(anything).and_return("error")
+        expect(@value_stream_map_service).to receive(:getValueStreamMap) do |pipeline, pipeline_counter, user, result|
+          allow(result).to receive(:message).with(anything).and_return("error")
         end
 
         get :show, pipeline_name: pipeline, pipeline_counter: 1, format: "json"
@@ -164,7 +164,7 @@ describe ValueStreamMapController do
 
     describe "render html" do
       it "should render html when html format" do
-        @pipeline_service.stub(:findPipelineByCounterOrLabel).with("P1", "1").and_return(nil)
+        allow(@pipeline_service).to receive(:findPipelineByCounterOrLabel).with("P1", "1").and_return(nil)
         get :show, pipeline_name: "P1", pipeline_counter: 1
         assert_template "show"
       end
@@ -309,7 +309,7 @@ describe ValueStreamMapController do
         vsm = ValueStreamMap.new(material, nil, com.thoughtworks.go.domain.materials.Modification.new("user", "comment", "", java.util.Date.new() , "r1"))
         vsm.addDownstreamNode(PipelineDependencyNode.new("p1", "p1"), vsm.current_material.getId())
         model = vsm.presentationModel()
-        @value_stream_map_service.should_receive(:getValueStreamMap).with(material.getFingerprint(), 'revision', @user, @result).and_return(model)
+        expect(@value_stream_map_service).to receive(:getValueStreamMap).with(material.getFingerprint(), 'revision', @user, @result).and_return(model)
 
         get :show_material, material_fingerprint: material.getFingerprint(), revision: 'revision', format: "json"
 
@@ -321,8 +321,8 @@ describe ValueStreamMapController do
       it "should display error message when the pipeline does not exist" do
         fingerprint = 'fingerprint'
         revision = 'revision'
-        @value_stream_map_service.should_receive(:getValueStreamMap) do |fingerprint, revision, user, result|
-          result.stub(:message).with(anything).and_return("error")
+        expect(@value_stream_map_service).to receive(:getValueStreamMap) do |fingerprint, revision, user, result|
+          allow(result).to receive(:message).with(anything).and_return("error")
         end
 
         get :show_material, material_fingerprint: fingerprint, revision: revision, format: "json"

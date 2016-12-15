@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "admin/tasks/_on_cancel.html.erb" do
   include TaskMother
@@ -29,7 +29,7 @@ describe "admin/tasks/_on_cancel.html.erb" do
     fields_for(:task, @task) do |f|
       @form = f
     end
-    @store.stub(:preferenceFor).with("curl.plugin").and_return(nil)
+    allow(@store).to receive(:preferenceFor).with("curl.plugin").and_return(nil)
 
     render :partial => "admin/tasks/on_cancel.html", :locals => {:scope => {:task => @task, :form => @form, :config_store => @store}}
 
@@ -58,7 +58,7 @@ describe "admin/tasks/_on_cancel.html.erb" do
       @form = f
     end
     @task = simple_task_with_pluggable_on_cancel_task
-    @store.stub(:preferenceFor).with("curl.plugin").and_return(double(:Preference))
+    allow(@store).to receive(:preferenceFor).with("curl.plugin").and_return(double(:Preference))
 
     render :partial => "admin/tasks/on_cancel.html", :locals => {:scope => {:task => @task, :form => @form, :config_store => @store}}
 

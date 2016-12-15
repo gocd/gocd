@@ -14,9 +14,9 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
-describe ::ConfigUpdate::PipelineOrTemplateNode do
+describe ':ConfigUpdate::PipelineOrTemplateNode' do
   include ::ConfigUpdate::PipelineOrTemplateNode
 
   before(:each) do
@@ -29,12 +29,12 @@ describe ::ConfigUpdate::PipelineOrTemplateNode do
   it "should load pipeline" do
     params[:stage_parent] = "pipelines"
     params[:pipeline_name] = "pipeline-bar"
-    node(@cruise_config).should == @pipeline
+    expect(node(@cruise_config)).to eq(@pipeline)
   end
 
   it "should load template" do
     params[:stage_parent] = "templates"
     params[:pipeline_name] = "template-bar"
-    node(@cruise_config).should == @template
+    expect(node(@cruise_config)).to eq(@template)
   end
 end

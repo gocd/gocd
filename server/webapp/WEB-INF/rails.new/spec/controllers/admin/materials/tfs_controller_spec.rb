@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 load File.join(File.dirname(__FILE__), 'material_controller_examples.rb')
 
 describe Admin::Materials::TfsController do
@@ -38,7 +38,7 @@ describe Admin::Materials::TfsController do
     tfs_material_config = TfsMaterialConfig.new(GoCipher.new, UrlArgument.new("http://10.4.4.101:8080/tfs/Sample"), "loser", "domain", "passwd", "walk_this_path")
     tfs_material_config.setName(CaseInsensitiveString.new('new-some-kinda-material'))
     tfs_material_config.setConfigAttributes({ScmMaterialConfig::FOLDER => "my-folder"})
-    @pipeline.materialConfigs().get(1).should == tfs_material_config
+    expect(@pipeline.materialConfigs().get(1)).to eq(tfs_material_config)
   end
 
   def update_payload
@@ -46,8 +46,8 @@ describe Admin::Materials::TfsController do
   end
 
   def assert_successful_update
-    @pipeline.materialConfigs().get(0).getUrl().should == "http://10.4.4.101:8080/tfs/Sample"
-    @pipeline.materialConfigs().get(0).getName().should == CaseInsensitiveString.new("new-some-kinda-material")
+    expect(@pipeline.materialConfigs().get(0).getUrl()).to eq("http://10.4.4.101:8080/tfs/Sample")
+    expect(@pipeline.materialConfigs().get(0).getName()).to eq(CaseInsensitiveString.new("new-some-kinda-material"))
   end
 
   def setup_other_form_objects

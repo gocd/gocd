@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe PipelineHistoryAPIModel do
   include APIModelMother
@@ -25,67 +25,67 @@ describe PipelineHistoryAPIModel do
       @pipeline_history_view_model = create_pipeline_history_model
       pipeline_history_api_model = PipelineHistoryAPIModel.new(@pagination_view_model, @pipeline_history_view_model)
 
-      pipeline_history_api_model.pagination.page_size.should == 10
-      pipeline_history_api_model.pagination.offset.should == 1
-      pipeline_history_api_model.pagination.total.should == 100
+      expect(pipeline_history_api_model.pagination.page_size).to eq(10)
+      expect(pipeline_history_api_model.pagination.offset).to eq(1)
+      expect(pipeline_history_api_model.pagination.total).to eq(100)
 
       pipeline_instance_api_model = pipeline_history_api_model.pipelines[0]
-      pipeline_instance_api_model.id.should == 321
-      pipeline_instance_api_model.name.should == 'pipeline name'
-      pipeline_instance_api_model.counter.should == 123
-      pipeline_instance_api_model.label.should == 'label'
-      pipeline_instance_api_model.natural_order.should == 1
-      pipeline_instance_api_model.can_run.should == true
-      pipeline_instance_api_model.comment.should == 'pipeline comment'
-      pipeline_instance_api_model.preparing_to_schedule.should == false
+      expect(pipeline_instance_api_model.id).to eq(321)
+      expect(pipeline_instance_api_model.name).to eq('pipeline name')
+      expect(pipeline_instance_api_model.counter).to eq(123)
+      expect(pipeline_instance_api_model.label).to eq('label')
+      expect(pipeline_instance_api_model.natural_order).to eq(1)
+      expect(pipeline_instance_api_model.can_run).to eq(true)
+      expect(pipeline_instance_api_model.comment).to eq('pipeline comment')
+      expect(pipeline_instance_api_model.preparing_to_schedule).to eq(false)
 
       build_cause_api_model = pipeline_instance_api_model.build_cause
-      build_cause_api_model.trigger_message.should == 'message'
-      build_cause_api_model.trigger_forced.should == true
-      build_cause_api_model.approver.should == 'me'
+      expect(build_cause_api_model.trigger_message).to eq('message')
+      expect(build_cause_api_model.trigger_forced).to eq(true)
+      expect(build_cause_api_model.approver).to eq('me')
 
       material_revision_api_model = build_cause_api_model.material_revisions[0]
-      material_revision_api_model.changed.should == true
+      expect(material_revision_api_model.changed).to eq(true)
 
       material_api_model = material_revision_api_model.material
-      material_api_model.id.should == 2
-      material_api_model.fingerprint.should == 'fingerprint'
-      material_api_model.type.should == 'git'
-      material_api_model.description.should == 'URL: http://test.com Branch: master'
+      expect(material_api_model.id).to eq(2)
+      expect(material_api_model.fingerprint).to eq('fingerprint')
+      expect(material_api_model.type).to eq('git')
+      expect(material_api_model.description).to eq('URL: http://test.com Branch: master')
 
       modification_api_model = material_revision_api_model.modifications[0]
-      modification_api_model.id.should == 321
-      modification_api_model.revision.should == 'revision'
-      modification_api_model.modified_time.should == 12345678
-      modification_api_model.user_name.should == 'user name'
-      modification_api_model.comment.should == 'comment'
-      modification_api_model.email_address.should == 'test@test.com'
+      expect(modification_api_model.id).to eq(321)
+      expect(modification_api_model.revision).to eq('revision')
+      expect(modification_api_model.modified_time).to eq(12345678)
+      expect(modification_api_model.user_name).to eq('user name')
+      expect(modification_api_model.comment).to eq('comment')
+      expect(modification_api_model.email_address).to eq('test@test.com')
 
       stage_history_item_api_model = pipeline_instance_api_model.stages[0]
-      stage_history_item_api_model.id.should == 456
-      stage_history_item_api_model.name.should == 'stage name'
-      stage_history_item_api_model.counter.should == '1'
-      stage_history_item_api_model.scheduled.should == false
-      stage_history_item_api_model.approval_type.should == 'manual'
-      stage_history_item_api_model.approved_by.should == 'me'
-      stage_history_item_api_model.result.should == 'passed'
-      stage_history_item_api_model.rerun_of_counter.should == 1
-      stage_history_item_api_model.operate_permission.should == 'yes'
-      stage_history_item_api_model.can_run.should == true
+      expect(stage_history_item_api_model.id).to eq(456)
+      expect(stage_history_item_api_model.name).to eq('stage name')
+      expect(stage_history_item_api_model.counter).to eq('1')
+      expect(stage_history_item_api_model.scheduled).to eq(false)
+      expect(stage_history_item_api_model.approval_type).to eq('manual')
+      expect(stage_history_item_api_model.approved_by).to eq('me')
+      expect(stage_history_item_api_model.result).to eq('passed')
+      expect(stage_history_item_api_model.rerun_of_counter).to eq(1)
+      expect(stage_history_item_api_model.operate_permission).to eq('yes')
+      expect(stage_history_item_api_model.can_run).to eq(true)
 
       job_history_item_api_model = stage_history_item_api_model.jobs[0]
-      job_history_item_api_model.id.should == 543
-      job_history_item_api_model.name.should == 'job name'
-      job_history_item_api_model.state.should == 'state'
-      job_history_item_api_model.result.should == 'result'
-      job_history_item_api_model.scheduled_date.should == 12345678
-      job_history_item_api_model.rerun.should == nil
-      job_history_item_api_model.original_job_id.should == nil
-      job_history_item_api_model.agent_uuid.should == nil
-      job_history_item_api_model.pipeline_name.should == nil
-      job_history_item_api_model.pipeline_counter.should == nil
-      job_history_item_api_model.stage_name.should == nil
-      job_history_item_api_model.stage_counter.should == nil
+      expect(job_history_item_api_model.id).to eq(543)
+      expect(job_history_item_api_model.name).to eq('job name')
+      expect(job_history_item_api_model.state).to eq('state')
+      expect(job_history_item_api_model.result).to eq('result')
+      expect(job_history_item_api_model.scheduled_date).to eq(12345678)
+      expect(job_history_item_api_model.rerun).to eq(nil)
+      expect(job_history_item_api_model.original_job_id).to eq(nil)
+      expect(job_history_item_api_model.agent_uuid).to eq(nil)
+      expect(job_history_item_api_model.pipeline_name).to eq(nil)
+      expect(job_history_item_api_model.pipeline_counter).to eq(nil)
+      expect(job_history_item_api_model.stage_name).to eq(nil)
+      expect(job_history_item_api_model.stage_counter).to eq(nil)
     end
 
     it "should handle empty data" do
@@ -93,67 +93,67 @@ describe PipelineHistoryAPIModel do
       @pipeline_history_view_model = create_empty_pipeline_history_model
       pipeline_history_api_model = PipelineHistoryAPIModel.new(@pagination_view_model, @pipeline_history_view_model)
 
-      pipeline_history_api_model.pagination.page_size.should == nil
-      pipeline_history_api_model.pagination.offset.should == nil
-      pipeline_history_api_model.pagination.total.should == nil
+      expect(pipeline_history_api_model.pagination.page_size).to eq(nil)
+      expect(pipeline_history_api_model.pagination.offset).to eq(nil)
+      expect(pipeline_history_api_model.pagination.total).to eq(nil)
 
       pipeline_instance_api_model = pipeline_history_api_model.pipelines[0]
-      pipeline_instance_api_model.id.should == nil
-      pipeline_instance_api_model.name.should == nil
-      pipeline_instance_api_model.counter.should == nil
-      pipeline_instance_api_model.label.should == nil
-      pipeline_instance_api_model.natural_order.should == nil
-      pipeline_instance_api_model.can_run.should == nil
-      pipeline_instance_api_model.comment.should == nil
-      pipeline_instance_api_model.preparing_to_schedule.should == nil
+      expect(pipeline_instance_api_model.id).to eq(nil)
+      expect(pipeline_instance_api_model.name).to eq(nil)
+      expect(pipeline_instance_api_model.counter).to eq(nil)
+      expect(pipeline_instance_api_model.label).to eq(nil)
+      expect(pipeline_instance_api_model.natural_order).to eq(nil)
+      expect(pipeline_instance_api_model.can_run).to eq(nil)
+      expect(pipeline_instance_api_model.comment).to eq(nil)
+      expect(pipeline_instance_api_model.preparing_to_schedule).to eq(nil)
 
       build_cause_api_model = pipeline_instance_api_model.build_cause
-      build_cause_api_model.trigger_message.should == nil
-      build_cause_api_model.trigger_forced.should == nil
-      build_cause_api_model.approver.should == nil
+      expect(build_cause_api_model.trigger_message).to eq(nil)
+      expect(build_cause_api_model.trigger_forced).to eq(nil)
+      expect(build_cause_api_model.approver).to eq(nil)
 
       material_revision_api_model = build_cause_api_model.material_revisions[0]
-      material_revision_api_model.changed.should == nil
+      expect(material_revision_api_model.changed).to eq(nil)
 
       material_api_model = material_revision_api_model.material
-      material_api_model.id.should == nil
-      material_api_model.fingerprint.should == nil
-      material_api_model.type.should == nil
-      material_api_model.description.should == nil
+      expect(material_api_model.id).to eq(nil)
+      expect(material_api_model.fingerprint).to eq(nil)
+      expect(material_api_model.type).to eq(nil)
+      expect(material_api_model.description).to eq(nil)
 
       modification_api_model = material_revision_api_model.modifications[0]
-      modification_api_model.id.should == nil
-      modification_api_model.revision.should == nil
-      modification_api_model.modified_time.should == nil
-      modification_api_model.user_name.should == nil
-      modification_api_model.comment.should == nil
-      modification_api_model.email_address.should == nil
+      expect(modification_api_model.id).to eq(nil)
+      expect(modification_api_model.revision).to eq(nil)
+      expect(modification_api_model.modified_time).to eq(nil)
+      expect(modification_api_model.user_name).to eq(nil)
+      expect(modification_api_model.comment).to eq(nil)
+      expect(modification_api_model.email_address).to eq(nil)
 
       stage_history_item_api_model = pipeline_instance_api_model.stages[0]
-      stage_history_item_api_model.id.should == nil
-      stage_history_item_api_model.name.should == nil
-      stage_history_item_api_model.counter.should == nil
-      stage_history_item_api_model.scheduled.should == nil
-      stage_history_item_api_model.approval_type.should == nil
-      stage_history_item_api_model.approved_by.should == nil
-      stage_history_item_api_model.result.should == nil
-      stage_history_item_api_model.rerun_of_counter.should == nil
-      stage_history_item_api_model.operate_permission.should == nil
-      stage_history_item_api_model.can_run.should == nil
+      expect(stage_history_item_api_model.id).to eq(nil)
+      expect(stage_history_item_api_model.name).to eq(nil)
+      expect(stage_history_item_api_model.counter).to eq(nil)
+      expect(stage_history_item_api_model.scheduled).to eq(nil)
+      expect(stage_history_item_api_model.approval_type).to eq(nil)
+      expect(stage_history_item_api_model.approved_by).to eq(nil)
+      expect(stage_history_item_api_model.result).to eq(nil)
+      expect(stage_history_item_api_model.rerun_of_counter).to eq(nil)
+      expect(stage_history_item_api_model.operate_permission).to eq(nil)
+      expect(stage_history_item_api_model.can_run).to eq(nil)
 
       job_history_item_api_model = stage_history_item_api_model.jobs[0]
-      job_history_item_api_model.id.should == nil
-      job_history_item_api_model.name.should == nil
-      job_history_item_api_model.state.should == nil
-      job_history_item_api_model.result.should == nil
-      job_history_item_api_model.scheduled_date.should == nil
-      job_history_item_api_model.rerun.should == nil
-      job_history_item_api_model.original_job_id.should == nil
-      job_history_item_api_model.agent_uuid.should == nil
-      job_history_item_api_model.pipeline_name.should == nil
-      job_history_item_api_model.pipeline_counter.should == nil
-      job_history_item_api_model.stage_name.should == nil
-      job_history_item_api_model.stage_counter.should == nil
+      expect(job_history_item_api_model.id).to eq(nil)
+      expect(job_history_item_api_model.name).to eq(nil)
+      expect(job_history_item_api_model.state).to eq(nil)
+      expect(job_history_item_api_model.result).to eq(nil)
+      expect(job_history_item_api_model.scheduled_date).to eq(nil)
+      expect(job_history_item_api_model.rerun).to eq(nil)
+      expect(job_history_item_api_model.original_job_id).to eq(nil)
+      expect(job_history_item_api_model.agent_uuid).to eq(nil)
+      expect(job_history_item_api_model.pipeline_name).to eq(nil)
+      expect(job_history_item_api_model.pipeline_counter).to eq(nil)
+      expect(job_history_item_api_model.stage_name).to eq(nil)
+      expect(job_history_item_api_model.stage_counter).to eq(nil)
     end
   end
 end

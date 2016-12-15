@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe JobInstanceAPIModel do
   include APIModelMother
@@ -23,17 +23,17 @@ describe JobInstanceAPIModel do
     it "should clear correct data" do
       job_instance_api_model = JobInstanceAPIModel.new(create_job_model)
 
-      job_instance_api_model.pipeline_name.should == 'pipeline'
-      job_instance_api_model.pipeline_counter.should == 123
-      job_instance_api_model.stage_name.should == 'stage'
-      job_instance_api_model.stage_counter.should == '1'
+      expect(job_instance_api_model.pipeline_name).to eq('pipeline')
+      expect(job_instance_api_model.pipeline_counter).to eq(123)
+      expect(job_instance_api_model.stage_name).to eq('stage')
+      expect(job_instance_api_model.stage_counter).to eq('1')
 
       job_instance_api_model.clear_pipeline_and_stage_details
 
-      job_instance_api_model.pipeline_name.should == nil
-      job_instance_api_model.pipeline_counter.should == nil
-      job_instance_api_model.stage_name.should == nil
-      job_instance_api_model.stage_counter.should == nil
+      expect(job_instance_api_model.pipeline_name).to eq(nil)
+      expect(job_instance_api_model.pipeline_counter).to eq(nil)
+      expect(job_instance_api_model.stage_name).to eq(nil)
+      expect(job_instance_api_model.stage_counter).to eq(nil)
     end
   end
 end

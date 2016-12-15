@@ -14,10 +14,12 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "admin/jobs/artifacts.html.erb" do
-  include GoUtil, FormUI
+  include GoUtil
+
+  include FormUI
 
   before(:each) do
     pipeline = PipelineConfigMother.createPipelineConfig("pipeline-name", "stage-name", ["job-name"].to_java(java.lang.String))

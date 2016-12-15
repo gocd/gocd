@@ -14,9 +14,9 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
-load File.join(File.dirname(__FILE__), 'task_controller_examples.rb')
-load File.join(File.dirname(__FILE__), 'fetch_task_controller_example.rb')
+require 'rails_helper'
+require_relative 'task_controller_examples'
+require_relative 'fetch_task_controller_example'
 
 describe Admin::TasksController, "fetch task" do
   include TaskMother
@@ -40,7 +40,7 @@ describe Admin::TasksController, "fetch task" do
 
   describe "auto-suggest" do
     before(:each) do
-      controller.stub(:populate_config_validity)
+      allow(controller).to receive(:populate_config_validity)
       @gramp_pipeline = PipelineConfigMother.createPipelineConfig("gramp-pipeline", "gramp-stage", ["job.gramp.1", "job.gramp.2"].to_java(java.lang.String))
       @parent_pipeline = PipelineConfigMother.createPipelineConfig("parent-pipeline", "parent-stage", ["job.parent.1"].to_java(java.lang.String))
       @parent_pipeline.addMaterialConfig(DependencyMaterialConfig.new(CaseInsensitiveString.new("gramp-pipeline"), CaseInsensitiveString.new("gramp-stage")))
@@ -84,7 +84,7 @@ describe Admin::TasksController, "fetch task" do
       end
 
       def form_load_expectation
-        @go_config_service.should_receive(:loadForEdit).with(@pipeline_name, @user, @result).and_return(@pipeline_config_for_edit)
+        expect(@go_config_service).to receive(:loadForEdit).with(@pipeline_name, @user, @result).and_return(@pipeline_config_for_edit)
       end
 
       it_should_behave_like :fetch_task_controller
@@ -115,7 +115,7 @@ describe Admin::TasksController, "fetch task" do
 
       def form_load_expectation
         template_config_for_edit = ConfigForEdit.new(@template, @cruise_config, @cruise_config)
-        @template_config_service.should_receive(:loadForEdit).with(@pipeline_name, @user, @result).and_return(template_config_for_edit)
+        expect(@template_config_service).to receive(:loadForEdit).with(@pipeline_name, @user, @result).and_return(template_config_for_edit)
       end
 
       it_should_behave_like :fetch_task_controller
@@ -144,6 +144,6 @@ describe Admin::TasksController, "fetch task" do
   end
 
   def controller_specific_setup task_view_service
-    task_view_service.stub(:taskInstanceFor).with("exec").and_return(exec_task_without_on_cancel)
+    allow(task_view_service).to receive(:taskInstanceFor).with("exec").and_return(exec_task_without_on_cancel)
   end
 end

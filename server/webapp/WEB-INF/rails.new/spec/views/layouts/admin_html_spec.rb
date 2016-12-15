@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 load File.join(File.dirname(__FILE__), 'layout_html_examples.rb')
 
 describe "/layouts/admin" do
@@ -23,11 +23,11 @@ describe "/layouts/admin" do
   before do
     @layout_name = 'layouts/admin'
     @admin_url = "/admin/pipelines"
-    @user = Object.new
+    @user = double('user')
     assign(:user, @user)
     assign(:error_count, 0)
     assign(:warning_count, 0)
-    @user.stub(:anonymous?).and_return(true)
+    allow(@user).to receive(:anonymous?).and_return(true)
     allow(view).to receive(:can_view_admin_page?).and_return(true)
     allow(view).to receive(:is_user_a_group_admin?).and_return(true)
     allow(view).to receive(:is_user_an_admin?).and_return(true)

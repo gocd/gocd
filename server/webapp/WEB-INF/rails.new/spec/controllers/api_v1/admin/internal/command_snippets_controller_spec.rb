@@ -14,13 +14,15 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV1::Admin::Internal::CommandSnippetsController do
-  include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
+  include ApiHeaderSetupTeardown
 
-  describe :index do
-    describe :authorization do
+  include ApiV1::ApiVersionHelper
+
+  describe 'index' do
+    describe 'authorization' do
       it 'should allow all with security disabled' do
         disable_security
 
@@ -57,8 +59,8 @@ describe ApiV1::Admin::Internal::CommandSnippetsController do
         presenter   = ApiV1::CommandSnippetsRepresenter.new([snippet])
         snippet_hash = presenter.to_hash(url_builder: controller, prefix: 'rake')
 
-        controller.stub(:command_repository_service).and_return(service = double('command_repository_service'))
-        service.should_receive(:lookupCommand).with('rake').and_return([snippet])
+        allow(controller).to receive(:command_repository_service).and_return(service = double('command_repository_service'))
+        expect(service).to receive(:lookupCommand).with('rake').and_return([snippet])
 
         get_with_api_header :index, prefix: 'rake'
 
@@ -67,13 +69,13 @@ describe ApiV1::Admin::Internal::CommandSnippetsController do
       end
     end
 
-    describe :route do
-      describe :with_header do
+    describe 'route' do
+      describe 'with_header' do
         it 'should route to index action of the internal command_snippets controller' do
           expect(:get => 'api/admin/internal/command_snippets').to route_to(action: 'index', controller: 'api_v1/admin/internal/command_snippets')
         end
       end
-      describe :without_header do
+      describe 'without_header' do
         before :each do
           teardown_header
         end

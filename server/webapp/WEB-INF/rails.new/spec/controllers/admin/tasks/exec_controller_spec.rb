@@ -14,8 +14,8 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
-load File.join(File.dirname(__FILE__), 'task_controller_examples.rb')
+require 'rails_helper'
+require_relative 'task_controller_examples'
 
 describe Admin::TasksController do
   include TaskMother
@@ -36,6 +36,6 @@ describe Admin::TasksController do
   it_should_behave_like :task_controller
 
   def controller_specific_setup task_view_service
-    task_view_service.stub(:taskInstanceFor).with("ant").and_return(ant_task)
+    allow(task_view_service).to receive(:taskInstanceFor).with("ant").and_return(ant_task)
   end
 end

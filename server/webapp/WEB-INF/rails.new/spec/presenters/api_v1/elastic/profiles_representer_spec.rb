@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV1::Elastic::ProfilesRepresenter do
   it 'should serialize to json' do

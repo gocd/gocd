@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "/pipelines/_pipelines_locking_blurb.html.erb" do
   include PipelineModelMother

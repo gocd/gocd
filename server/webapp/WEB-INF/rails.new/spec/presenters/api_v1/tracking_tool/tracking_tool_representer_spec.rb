@@ -14,10 +14,10 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV1::Config::TrackingTool::TrackingToolRepresenter do
-  describe :generic_tool do
+  describe 'generic_tool' do
     it 'renders generic tracking tool with hal representation' do
       generic_tracking_tool = TrackingTool.new('link', 'regex')
       presenter             = ApiV1::Config::TrackingTool::TrackingToolRepresenter.new(generic_tracking_tool)
@@ -69,7 +69,7 @@ describe ApiV1::Config::TrackingTool::TrackingToolRepresenter do
     end
   end
 
-  describe :mingle do
+  describe 'mingle' do
     it 'renders mingle tracking tool with hal representation' do
 
       mingle_tracking_tool= MingleConfig.new('http://mingle.example.com', 'my_project', "status > 'In Dev'")

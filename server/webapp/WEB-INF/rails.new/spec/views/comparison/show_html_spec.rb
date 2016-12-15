@@ -14,10 +14,15 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "comparison/show.html.erb" do
-  include GoUtil, ReflectiveUtil, PipelineModelMother
+  include GoUtil
+
+  include ReflectiveUtil
+
+
+  include PipelineModelMother
 
   before :each do
     dependency_material_revision = ModificationsMother.changedDependencyMaterialRevision("up_pipeline", 10, "label-10", "up_stage", 5, Time.now)
@@ -37,7 +42,7 @@ describe "comparison/show.html.erb" do
   end
 
   def ensure_show_bisect_message_is_shown parent_id
-    view.should_receive(:compare_pipelines_path).twice.with(:show_bisect => true).and_return("http://foo.bar?baz=quux")
+    expect(view).to receive(:compare_pipelines_path).twice.with(:show_bisect => true).and_return("http://foo.bar?baz=quux")
     render :template => 'comparison/show.html.erb'
 
     response_body = Capybara.string(response.body)
@@ -45,7 +50,7 @@ describe "comparison/show.html.erb" do
     expect(response_body).to have_selector("##{parent_id} div.information span.prompt a[href='http://foo.bar?baz=quux']", :text => "Continue")
   end
 
-  describe :on_revisions_tab do
+  describe 'on_revisions_tab' do
     it "should show message prompting user about showing revisions for bisect on to_pipeline" do
       set(@to_pipeline, "naturalOrder", 1.2)
       ensure_show_bisect_message_is_shown "tab-content-of-checkins"
@@ -115,7 +120,7 @@ describe "comparison/show.html.erb" do
     end
   end
 
-  describe :on_mingle_cards_tab do
+  describe 'on_mingle_cards_tab' do
     it "should show message prompting user about showing revisions for bisect on to_pipeline" do
       set(@to_pipeline, "naturalOrder", 1.2)
       ensure_show_bisect_message_is_shown "tab-content-of-card_activity"

@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe 'HeaderConstraint' do
 
@@ -24,7 +24,7 @@ describe 'HeaderConstraint' do
 
   it 'should return true if request has the required header' do
     request = double('foo', :headers => {'HTTP_CONFIRM' => 'True'})
-    
+
     expect(HeaderConstraint.new.matches?(request)).to be(true)
   end
 

@@ -14,15 +14,24 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe Admin::TasksController do
-  include MockRegistryModule, TaskMother, ReflectiveUtil, ConfigSaveStubbing
+  include MockRegistryModule
+
+  include TaskMother
+
+
+  include ReflectiveUtil
+
+
+
+  include ConfigSaveStubbing
 
   describe "increment" do
 
     before(:each) do
-      controller.stub(:populate_config_validity)
+      allow(controller).to receive(:populate_config_validity)
       @pipeline = PipelineConfigMother.createPipelineConfig("pipeline.name", "stage.name", ["job.1"].to_java(java.lang.String))
       @tasks = @pipeline.get(0).getJobs().get(0).getTasks()
       @tasks.add(ant_task)
@@ -44,7 +53,7 @@ describe Admin::TasksController do
 
       @pipeline_config_for_edit = ConfigForEdit.new(@pipeline, @cruise_config, @cruise_config)
       @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
-      @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
+      allow(@go_config_service).to receive(:getRegistry).and_return(MockRegistryModule::MockRegistry.new)
     end
 
 
@@ -55,22 +64,22 @@ describe Admin::TasksController do
 
       tasks = @template.get(0).getJobs().get(0).getTasks()
 
-      tasks.size().should == 2
-      tasks.get(0).should be_an(AntTask)
-      tasks.get(1).should be_a(ExecTask)
+      expect(tasks.size()).to eq(2)
+      expect(tasks.get(0)).to be_an(AntTask)
+      expect(tasks.get(1)).to be_a(ExecTask)
       assert_update_command ::ConfigUpdate::SaveAsPipelineOrTemplateAdmin, ::ConfigUpdate::JobNode
     end
 
     it "should decrement a task's index" do
-      @pipeline_pause_service.should_receive(:pipelinePauseInfo).with("pipeline.name").and_return(@pause_info)
+      expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline.name").and_return(@pause_info)
 
       stub_save_for_success
 
       post :decrement_index, :pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :task_index=> "1", :config_md5 => "abcd1234", :stage_parent => "pipelines", :current_tab => "tasks"
 
-      @tasks.size().should == 4
-      @tasks.get(0).should == nant_task
-      @tasks.get(1).should == ant_task
+      expect(@tasks.size()).to eq(4)
+      expect(@tasks.get(0)).to eq(nant_task)
+      expect(@tasks.get(1)).to eq(ant_task)
       assert_update_command ::ConfigUpdate::SaveAsPipelineOrTemplateAdmin, ::ConfigUpdate::JobNode
     end
   end
@@ -78,7 +87,7 @@ describe Admin::TasksController do
   describe "index" do
 
     before(:each) do
-      controller.stub(:populate_config_validity)
+      allow(controller).to receive(:populate_config_validity)
       @pipeline = PipelineConfigMother.createPipelineConfig("pipeline.name", "stage.name", ["job.1", "job.2", "job.3"].to_java(java.lang.String))
       @tasks = @pipeline.get(0).getJobs().get(0).getTasks()
       @tasks.add(@example_task)
@@ -99,22 +108,22 @@ describe Admin::TasksController do
       @pipeline_config_for_edit = ConfigForEdit.new(@pipeline, @cruise_config, @cruise_config)
       @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
 
-      @go_config_service.should_receive(:loadForEdit).with("pipeline.name", @user, @result).and_return(@pipeline_config_for_edit)
-      @pipeline_pause_service.should_receive(:pipelinePauseInfo).with("pipeline.name").and_return(@pause_info)
-      @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
+      expect(@go_config_service).to receive(:loadForEdit).with("pipeline.name", @user, @result).and_return(@pipeline_config_for_edit)
+      expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline.name").and_return(@pause_info)
+      allow(@go_config_service).to receive(:getRegistry).and_return(MockRegistryModule::MockRegistry.new)
     end
 
     it "should load tasks" do
-      controller.should_receive(:task_view_service).and_return(task_view_service = double("task_view_service"))
-      task_view_service.should_receive(:getTaskViewModels).and_return(tasks = [TaskViewModel.new(AntTask.new(), "new", "erb"), TaskViewModel.new(NantTask.new(), "new", "erb")].to_java(TaskViewModel))
+      expect(controller).to receive(:task_view_service).and_return(task_view_service = double("task_view_service"))
+      expect(task_view_service).to receive(:getTaskViewModels).and_return(tasks = [TaskViewModel.new(AntTask.new(), "new", "erb"), TaskViewModel.new(NantTask.new(), "new", "erb")].to_java(TaskViewModel))
 
       get :index, :pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :stage_parent => "pipelines", :current_tab=>"tasks"
 
-      assigns[:pipeline].should == @pipeline
-      assigns[:stage].should == @pipeline.get(0)
-      assigns[:job].should == @pipeline.get(0).getJobs().get(0)
-      assigns[:tasks].should == com.thoughtworks.go.config.Tasks.new([@example_task].to_java(Task))
-      assigns[:task_view_models].should == tasks
+      expect(assigns[:pipeline]).to eq(@pipeline)
+      expect(assigns[:stage]).to eq(@pipeline.get(0))
+      expect(assigns[:job]).to eq(@pipeline.get(0).getJobs().get(0))
+      expect(assigns[:tasks]).to eq(com.thoughtworks.go.config.Tasks.new([@example_task].to_java(Task)))
+      expect(assigns[:task_view_models]).to eq(tasks)
       assert_template "index"
       assert_template layout: "pipelines/job"
     end
@@ -123,7 +132,7 @@ describe Admin::TasksController do
   describe "config_store" do
     it "should return config store" do
       actual = controller.send(:config_store)
-      actual.instance_of?(com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore).should == true
+      expect(actual.instance_of?(com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore)).to eq(true)
     end
   end
 end

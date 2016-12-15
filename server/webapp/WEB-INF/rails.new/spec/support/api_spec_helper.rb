@@ -31,82 +31,84 @@ module ApiSpecHelper
   [:post, :put, :patch].each do |http_verb|
     class_eval(<<-EOS, __FILE__, __LINE__)
       def #{http_verb}_with_api_header(path, params={}, headers={})
-        controller.stub(:verify_content_type_on_post)
+        allow(controller).to receive(:verify_content_type_on_post).and_return(nil)
         #{http_verb} path, params, {'Accept' => current_api_accept_header}.merge(headers)
       end
     EOS
   end
 
   def login_as_pipeline_group_Non_Admin_user
-    enable_security
-    controller.stub(:current_user).and_return(@user = Username.new(CaseInsensitiveString.new(SecureRandom.hex)))
-    @security_service.stub(:isUserAdminOfGroup).and_return(false)
-    @security_service.stub(:isUserAdmin).with(@user).and_return(false)
+    login_as_user
   end
 
   def login_as_pipeline_group_admin_user(group_name)
     enable_security
-    controller.stub(:current_user).and_return(@user = Username.new(CaseInsensitiveString.new(SecureRandom.hex)))
-    @security_service.stub(:isUserAdminOfGroup).with(@user.getUsername, group_name).and_return(true)
-    @security_service.stub(:isUserAdmin).with(@user).and_return(true)
+    setup_security(group_admin: group_name)
   end
 
   def login_as_user
     enable_security
-    controller.stub(:current_user).and_return(@user = Username.new(CaseInsensitiveString.new(SecureRandom.hex)))
-    @security_service.stub(:isUserAdmin).with(@user).and_return(false)
-    @security_service.stub(:isUserGroupAdmin).with(@user).and_return(false)
-    @security_service.stub(:isAuthorizedToViewAndEditTemplates).with(@user).and_return(false)
-    @security_service.stub(:isAuthorizedToEditTemplate).with(anything, anything).and_return(false)
+    setup_security
   end
 
   def allow_current_user_to_access_pipeline(pipeline_name)
-    @security_service.stub(:hasViewPermissionForPipeline).with(controller.current_user, pipeline_name).and_return(true)
+    allow(@security_service).to receive(:hasViewPermissionForPipeline).with(controller.current_user, pipeline_name).and_return(true)
   end
 
   def allow_current_user_to_not_access_pipeline(pipeline_name)
-    @security_service.stub(:hasViewPermissionForPipeline).with(controller.current_user, pipeline_name).and_return(false)
+    allow(@security_service).to receive(:hasViewPermissionForPipeline).with(controller.current_user, pipeline_name).and_return(false)
   end
 
   def disable_security
-    controller.stub(:security_service).and_return(@security_service = double('security-service'))
-    @security_service.stub(:isSecurityEnabled).and_return(false)
-    @security_service.stub(:isUserAdmin).and_return(true)
+    allow(controller).to receive(:security_service).and_return(@security_service = double('security-service'))
+    allow(@security_service).to receive(:isSecurityEnabled).and_return(false)
+    allow(@security_service).to receive(:isUserAdmin).and_return(true)
   end
 
   def enable_security
-    controller.stub(:security_service).and_return(@security_service = double('security-service'))
-    @security_service.stub(:isSecurityEnabled).and_return(true)
+    allow(controller).to receive(:security_service).and_return(@security_service = double('security-service'))
+    allow(@security_service).to receive(:isSecurityEnabled).and_return(true)
   end
 
   def login_as_admin
     enable_security
-    controller.stub(:current_user).and_return(@user = Username.new(CaseInsensitiveString.new(SecureRandom.hex)))
-    @security_service.stub(:isUserAdmin).with(@user).and_return(true)
+    setup_security(admin: true)
   end
 
   def login_as_group_admin
     enable_security
-    controller.stub(:current_user).and_return(@user = Username.new(CaseInsensitiveString.new(SecureRandom.hex)))
-    @security_service.stub(:isUserAdmin).with(@user).and_return(false)
-    @security_service.stub(:isUserGroupAdmin).with(@user).and_return(true)
-    @security_service.stub(:isUserAdminOfGroup).with(anything, anything).and_return(true)
+    setup_security(group_admin: true)
   end
 
   def login_as_template_admin
     enable_security
-    controller.stub(:current_user).and_return(@user = Username.new(CaseInsensitiveString.new(SecureRandom.hex)))
-    @security_service.stub(:isUserAdmin).with(@user).and_return(false)
-    @security_service.stub(:isAuthorizedToViewAndEditTemplates).with(@user).and_return(true)
-    @security_service.stub(:isAuthorizedToEditTemplate).with(anything, anything).and_return(true)
+    setup_security(template_admin: true)
   end
 
   def login_as_anonymous
-    controller.stub(:current_user).and_return(@user = Username::ANONYMOUS)
-    @security_service.stub(:isUserAdmin).with(@user).and_return(false)
-    @security_service.stub(:isUserGroupAdmin).with(@user).and_return(false)
-    @security_service.stub(:isAuthorizedToViewAndEditTemplates).with(@user).and_return(false)
-    @security_service.stub(:isAuthorizedToEditTemplate).with(anything, anything).and_return(false)
+    setup_security(anonymous: true)
+  end
+
+  def setup_security(opts={})
+    allow(controller).to receive(:current_user).and_return(@user = opts[:anonymous] ? Username::ANONYMOUS : Username.new(CaseInsensitiveString.new(SecureRandom.hex)))
+    allow(@security_service).to receive(:isUserAdmin).with(@user).and_return(!!opts[:admin])
+    allow(@security_service).to receive(:isUserGroupAdmin).with(@user).and_return(!!opts[:group_admin])
+
+    pipeline_groups = double('pipeline-groups')
+    allow(controller.go_config_service).to receive(:groups).and_return(pipeline_groups)
+
+    if opts[:group_admin].respond_to?(:to_str)
+      allow(pipeline_groups).to receive(:hasGroup).and_return(false)
+      allow(pipeline_groups).to receive(:hasGroup).with(opts[:group_admin]).and_return(true)
+    else
+      allow(pipeline_groups).to receive(:hasGroup).and_return(!!opts[:group_admin])
+    end
+
+    group_name_matcher = opts[:group_admin].respond_to?(:to_str) ? opts[:group_admin] : anything
+    allow(@security_service).to receive(:isUserAdminOfGroup).with(@user.getUsername, group_name_matcher).and_return(!!opts[:group_admin])
+    allow(@security_service).to receive(:isAuthorizedToViewAndEditTemplates).with(@user).and_return(!!opts[:template_admin])
+    template_name_matcher = opts[:template_admin].respond_to?(:to_str) ? opts[:template_admin] : anything
+    allow(@security_service).to receive(:isAuthorizedToEditTemplate).with(template_name_matcher, @user).and_return(!!opts[:template_admin])
   end
 
   def actual_response
@@ -133,45 +135,43 @@ class UrlBuilder
   end
 
   def add_hostname(args)
-    opts        = args.extract_options! || {}
+    opts = args.extract_options! || {}
     opts[:host] = 'test.host'
     [*args, opts]
   end
 end
 
-
-class ReachedControllerError < StandardError
-end
-
 RSpec::Matchers.define :allow_action do |verb, expected_action, params={}, headers={}|
   match do |controller|
     @reached_controller = false
-    controller.stub(expected_action).and_raise(ReachedControllerError)
+    exception_message_to_raise = "Boom #{SecureRandom.hex}!"
+    allow(controller).to receive(expected_action).and_raise(exception_message_to_raise)
     begin
       if controller.class.name =~ /ApiV/
         send("#{verb}_with_api_header", expected_action, params, headers)
       else
         send(verb, expected_action, params, headers)
       end
-    rescue => ReachedControllerError
-      # ignore
-      @reached_controller = true
     rescue => e
-      @reached_controller = false
-      @exception          = e
+      if e.message == exception_message_to_raise
+        @reached_controller = true
+      else
+        @reached_controller = false
+        @exception = e
+      end
     end
 
     @reached_controller && !@exception
   end
 
-  failure_message_for_should do |controller|
+  failure_message do |controller|
     messages = []
     if !@reached_controller
       messages << "expected `#{controller}` to reach action #{verb.to_s.upcase} :#{expected_action.to_sym}, but did not."
     end
 
     if @exception
-      messages << "An exception was raised #{exception.message}."
+      messages << "An exception was raised #{@exception.message}."
     end
 
     messages.join("\n")
@@ -180,25 +180,27 @@ end
 
 RSpec::Matchers.define :disallow_action do |verb, expected_action, params={}, headers={}|
   chain :with do |expected_status, expected_message|
-    @status_matcher  = RSpec::Matchers::BuiltIn::Eq.new(expected_status)
+    @status_matcher = RSpec::Matchers::BuiltIn::Eq.new(expected_status)
     @message_matcher = RSpec::Matchers::BuiltIn::Eq.new(expected_message)
   end
 
   match do |controller|
     @reached_controller = false
-    controller.stub(expected_action).and_raise(ReachedControllerError)
+    error_message_to_raise = "Boom #{SecureRandom.hex}!"
+    allow(controller).to receive(expected_action).and_raise(error_message_to_raise)
     begin
       if controller.class.name =~ /ApiV/
         send("#{verb}_with_api_header", expected_action, params, headers)
       else
         send(verb, expected_action, params, headers)
       end
-    rescue => ReachedControllerError
-      # ignore
-      @reached_controller = true
     rescue => e
-      @reached_controller = false
-      @exception          = e
+      if e.message == error_message_to_raise
+        @reached_controller = true
+      else
+        @reached_controller = false
+        @exception = e
+      end
     end
 
     failed = @reached_controller || @exception
@@ -216,14 +218,14 @@ RSpec::Matchers.define :disallow_action do |verb, expected_action, params={}, he
     !failed
   end
 
-  failure_message_for_should do |controller|
+  failure_message do |controller|
     messages = []
     if @reached_controller
       messages << "expected `#{controller}` to not reach action #{verb.to_s.upcase} :#{expected_action.to_sym}."
     end
 
     if @exception
-      messages << "An exception was raised #{exception.message}."
+      messages << "An exception was raised #{@exception.message}."
     end
 
     if @failed_with_bad_status
@@ -240,7 +242,7 @@ end
 
 RSpec::Matchers.define :have_api_message_response do |expected_status, expected_message|
 
-  failure_message_for_should do |response|
+  failure_message do |response|
     unless @status_matched
       @message = @status_matcher.failure_message_for_should
     end
@@ -261,10 +263,10 @@ RSpec::Matchers.define :have_api_message_response do |expected_status, expected_
   end
 
   match do |response|
-    @status_matcher  = RSpec::Matchers::BuiltIn::Eq.new(expected_status)
+    @status_matcher = RSpec::Matchers::BuiltIn::Eq.new(expected_status)
     @message_matcher = RSpec::Matchers::BuiltIn::Eq.new(expected_message)
 
-    @status_matched  = @status_matcher.matches?(response.status)
+    @status_matched = @status_matcher.matches?(response.status)
     @message_matched = @message_matcher.matches?(JSON.parse(response.body)['message'])
     @status_matched && @message_matched
   end
@@ -273,11 +275,11 @@ end
 
 RSpec::Matchers.define :have_links do |*link_names|
 
-  failure_message_for_should do |hal_json|
+  failure_message do |hal_json|
     @matcher.failure_message_for_should
   end
 
-  failure_message_for_should_not do |hal_json|
+  failure_message_when_negated do |hal_json|
     @matcher.failure_message_for_should_not
   end
 
@@ -286,7 +288,7 @@ RSpec::Matchers.define :have_links do |*link_names|
   end
 
   match do |hal_json|
-    @matcher = RSpec::Matchers::BuiltIn::MatchArray.new(link_names.collect(&:to_sym))
+    @matcher = match_array(link_names.collect(&:to_sym))
     @matcher.matches?((hal_json[:_links] || {}).keys.collect(&:to_sym))
   end
 end
@@ -305,8 +307,8 @@ RSpec::Matchers.define :have_link do |link_name|
 
     if @link_url
       if hal_json[:_links].blank?
-        @match                          = false
-        @failure_message_for_should     = 'the json has no links in it'
+        @match = false
+        @failure_message_for_should = 'the json has no links in it'
         @failure_message_for_should_not = 'the json has links in it'
       else
         if link = hal_json[:_links][link_name.to_sym]
@@ -334,7 +336,7 @@ RSpec::Matchers.define :have_link do |link_name|
             end
           end
         else
-          @failure_message_for_should     = "the json did not have a link named #{link_name.inspect}"
+          @failure_message_for_should = "the json did not have a link named #{link_name.inspect}"
           @failure_message_for_should_not = "the json had a link named #{link_name.inspect}"
         end
       end
@@ -343,11 +345,11 @@ RSpec::Matchers.define :have_link do |link_name|
     @match
   end
 
-  failure_message_for_should_not do |hal_json|
+  failure_message_when_negated do |hal_json|
     @failure_message_for_should_not
   end
 
-  failure_message_for_should do |hal_json|
+  failure_message do |hal_json|
     @failure_message_for_should
   end
 end

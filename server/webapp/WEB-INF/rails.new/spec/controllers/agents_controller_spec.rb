@@ -14,13 +14,12 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe AgentsController do
 
   before do
-    controller.stub(:set_locale)
-    controller.stub(:populate_config_validity)
+    allow(controller).to receive(:populate_config_validity)
   end
 
   describe "GET 'index'" do
@@ -51,7 +50,7 @@ describe AgentsController do
     it "should show all agents" do
       get 'index'
 
-      response.should be_success
+      expect(response).to be_success
       expect(assigns(:agents).size).to eq(6)
       assert_template layout: :application
     end
@@ -73,20 +72,20 @@ describe AgentsController do
     end
 
     it "should sort on status if no sort requested" do
-      controller.stub(:agent_service).and_return(agent_service = Object.new)
-      agent_service.stub(:agents).and_return(agents = [])
-      agents.should_receive(:sortBy).with(AgentsController::AgentViewModel.STATUS_COMPARATOR, com.thoughtworks.go.server.ui.SortOrder::ASC).and_return([])
-      agents.should_receive(:filter).with(nil).and_return([])
-      agents.stub(:disabledCount).and_return(0)
-      agents.stub(:enabledCount).and_return(10)
-      agents.stub(:pendingCount).and_return(0)
+      allow(controller).to receive(:agent_service).and_return(agent_service = Object.new)
+      allow(agent_service).to receive(:agents).and_return(agents = [])
+      expect(agents).to receive(:sortBy).with(AgentsController::AgentViewModel.STATUS_COMPARATOR, com.thoughtworks.go.server.ui.SortOrder::ASC).and_return([])
+      expect(agents).to receive(:filter).with(nil).and_return([])
+      allow(agents).to receive(:disabledCount).and_return(0)
+      allow(agents).to receive(:enabledCount).and_return(10)
+      allow(agents).to receive(:pendingCount).and_return(0)
       get "index"
       expect(assigns(:agents)).to eq []
     end
 
-    describe :apply_default_sort_unless_sorted do
+    describe 'apply_default_sort_unless_sorted' do
       before do
-        controller.stub(:params).and_return(@params = { })
+        allow(controller).to receive(:params).and_return(@params = { })
       end
       it "should apply default sort if not sorted" do
         controller.send(:apply_default_sort_unless_sorted)
@@ -103,19 +102,19 @@ describe AgentsController do
       end
 
       it "should be applied on GET index" do
-        controller.should_receive(:apply_default_sort_unless_sorted)
+        expect(controller).to receive(:apply_default_sort_unless_sorted)
         get :index
       end
     end
 
     it "should use agent_instances.agent_count to find agent count by status(for building, idle, lost_contact and missing agents)" do
-      controller.stub(:agent_service).and_return(agent_service = Object.new)
-      agent_service.stub(:agents).and_return(agents = [])
-      agents.stub(:disabledCount).and_return(9)
-      agents.stub(:enabledCount).and_return(10)
-      agents.stub(:pendingCount).and_return(8)
-      agents.stub(:sortBy).and_return([])
-      agents.should_receive(:filter).with(nil).and_return([])
+      allow(controller).to receive(:agent_service).and_return(agent_service = Object.new)
+      allow(agent_service).to receive(:agents).and_return(agents = [])
+      allow(agents).to receive(:disabledCount).and_return(9)
+      allow(agents).to receive(:enabledCount).and_return(10)
+      allow(agents).to receive(:pendingCount).and_return(8)
+      allow(agents).to receive(:sortBy).and_return([])
+      expect(agents).to receive(:filter).with(nil).and_return([])
       get :index
       expect(assigns(:agents_disabled)).to eq 9
       expect(assigns(:agents_pending)).to eq 8
@@ -124,7 +123,7 @@ describe AgentsController do
 
   end
 
-  describe :edit_agents do
+  describe 'edit_agents' do
 
     it "should resolve routes" do
       expect(:post => "old_agents/edit_agents").to route_to({:controller => "agents", :action => 'edit_agents'})
@@ -134,19 +133,19 @@ describe AgentsController do
     it "should redirect to :index maintaining sort" do
       setup_base_urls
       bulk_edit_result = double('bulk_edit_result')
-      controller.should_receive(:bulk_edit).and_return(bulk_edit_result)
-      bulk_edit_result.stub(:message).and_return("successfuly managed to edit")
-      bulk_edit_result.stub(:canContinue).and_return(false)
+      expect(controller).to receive(:bulk_edit).and_return(bulk_edit_result)
+      allow(bulk_edit_result).to receive(:message).and_return("successfuly managed to edit")
+      allow(bulk_edit_result).to receive(:canContinue).and_return(false)
       get :edit_agents, :column => "foo", :order => "bar", :filter => "criteria"
       expect(response).to redirect_to("/old_agents?column=foo&filter=criteria&order=bar")
     end
   end
 
-  describe :resource_selector do
+  describe 'resource_selector' do
     before(:each) do
-      controller.stub(:agent_service).and_return(@agent_service = Object.new)
+      allow(controller).to receive(:agent_service).and_return(@agent_service = Object.new)
       @resources = [ TriStateSelection.new('resource-1', 'remove') ]
-      @agent_service.stub(:getResourceSelections)
+      allow(@agent_service).to receive(:getResourceSelections)
     end
 
     it "should resolve routes" do
@@ -155,13 +154,13 @@ describe AgentsController do
     end
 
     it "should load all resources" do
-      @agent_service.should_receive(:getResourceSelections).with(["UUID1", "UUID2"]).and_return(@resources)
+      expect(@agent_service).to receive(:getResourceSelections).with(["UUID1", "UUID2"]).and_return(@resources)
       post :resource_selector, :selected => ["UUID1", "UUID2"]
       expect(assigns(:selections)).to eq(@resources)
     end
 
     it "should default selected UUIDS to empty list" do
-      @agent_service.should_receive(:getResourceSelections).with([]).and_return(@resources)
+      expect(@agent_service).to receive(:getResourceSelections).with([]).and_return(@resources)
       post :resource_selector
       expect(assigns(:selections)).to eq(@resources)
     end
@@ -173,11 +172,11 @@ describe AgentsController do
     end
   end
 
-  describe :environments_selector do
+  describe 'environments_selector' do
     before(:each) do
-      controller.stub(:agent_service).and_return(@agent_service = Object.new)
+      allow(controller).to receive(:agent_service).and_return(@agent_service = Object.new)
       @environments = [ TriStateSelection.new('resource-1', 'remove') ]
-      @agent_service.stub(:getEnvironmentSelections)
+      allow(@agent_service).to receive(:getEnvironmentSelections)
     end
 
     it "should resolve routes" do
@@ -186,13 +185,13 @@ describe AgentsController do
     end
 
     it "should load all environments" do
-      @agent_service.should_receive(:getEnvironmentSelections).with(["UUID1", "UUID2"]).and_return(@environments)
+      expect(@agent_service).to receive(:getEnvironmentSelections).with(["UUID1", "UUID2"]).and_return(@environments)
       post :environment_selector, :selected => ["UUID1", "UUID2"]
       expect(assigns(:selections)).to eq @environments
     end
 
     it "should default selected UUIDS to empty list" do
-      @agent_service.should_receive(:getEnvironmentSelections).with([]).and_return(@resources)
+      expect(@agent_service).to receive(:getEnvironmentSelections).with([]).and_return(@resources)
       post :environment_selector
       expect(assigns(:selections)).to eq @resources
     end

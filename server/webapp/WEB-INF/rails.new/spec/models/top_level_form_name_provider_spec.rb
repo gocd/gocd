@@ -14,39 +14,39 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe TopLevelFormNameProvider do
   it "should generate correct attribute names" do
     top_level_attributes = TopLevelFormNameProvider.new("foo")
-    top_level_attributes.name("bar").should == "foo[bar]"
-    top_level_attributes.name("baz").should == "foo[baz]"
+    expect(top_level_attributes.name("bar")).to eq("foo[bar]")
+    expect(top_level_attributes.name("baz")).to eq("foo[baz]")
   end
 
   it "should generate correct collection names" do
     list_attr = TopLevelFormNameProvider.new("bar").collection("baz")
-    list_attr.name("foo").should == "bar[baz][][foo]"
-    list_attr.name("quux").should == "bar[baz][][quux]"
+    expect(list_attr.name("foo")).to eq("bar[baz][][foo]")
+    expect(list_attr.name("quux")).to eq("bar[baz][][quux]")
   end
 
   it "should generate correct collection names" do
     obj_attr = TopLevelFormNameProvider.new("baz").obj("bar")
-    obj_attr.name('foo').should == "baz[bar][foo]"
-    obj_attr.name('quux').should == "baz[bar][quux]"
+    expect(obj_attr.name('foo')).to eq("baz[bar][foo]")
+    expect(obj_attr.name('quux')).to eq("baz[bar][quux]")
   end
 
   it "should generate css id for given element" do
     provider = TopLevelFormNameProvider.new("foo")
-    provider.css_id_for("some_id").should == "foo_some_id"
-    provider.css_id_for("some_id[with][params]").should == "foo_some_id_with_params"
+    expect(provider.css_id_for("some_id")).to eq("foo_some_id")
+    expect(provider.css_id_for("some_id[with][params]")).to eq("foo_some_id_with_params")
 
     provider = TopLevelFormNameProvider.new("foo[with][params]")
-    provider.css_id_for("some_id").should == "foo_with_params_some_id"
-    provider.css_id_for("some_id[with][more][params]").should == "foo_with_params_some_id_with_more_params"
+    expect(provider.css_id_for("some_id")).to eq("foo_with_params_some_id")
+    expect(provider.css_id_for("some_id[with][more][params]")).to eq("foo_with_params_some_id_with_more_params")
   end
 
   it "should give the base name of the form" do
-    TopLevelFormNameProvider.new("foo").form_name_prefix.should == "foo"
-    TopLevelFormNameProvider.new("[foo][bar]").form_name_prefix.should == "[foo][bar]"
+    expect(TopLevelFormNameProvider.new("foo").form_name_prefix).to eq("foo")
+    expect(TopLevelFormNameProvider.new("[foo][bar]").form_name_prefix).to eq("[foo][bar]")
   end
 end

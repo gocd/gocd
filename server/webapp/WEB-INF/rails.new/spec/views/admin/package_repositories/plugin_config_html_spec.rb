@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "admin/package_repositories/plugin_config.html.erb" do
   it "should render _config.html.erb" do

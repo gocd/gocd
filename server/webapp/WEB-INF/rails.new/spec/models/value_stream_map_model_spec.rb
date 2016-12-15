@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 
 describe ValueStreamMapModel do
@@ -25,7 +25,7 @@ describe ValueStreamMapModel do
   end
 
   it "should initialize graph model correctly" do
-    @result.stub(:isSuccessful).and_return(true)
+    allow(@result).to receive(:isSuccessful).and_return(true)
     # git -> p1 -> current
     #  +---- X -----^
     #
@@ -39,54 +39,54 @@ describe ValueStreamMapModel do
     materialNames << "git1"
     materialNames << "git2"
 
-    graph_model.current_pipeline.should == "current"
-    graph_model.current_material.should == nil
+    expect(graph_model.current_pipeline).to eq("current")
+    expect(graph_model.current_material).to eq(nil)
 
-    graph_model.levels.size.should == 3
-    graph_model.levels[0].nodes.size.should == 1
-    graph_model.levels[1].nodes.size.should == 2
-    graph_model.levels[2].nodes.size.should == 1
+    expect(graph_model.levels.size).to eq(3)
+    expect(graph_model.levels[0].nodes.size).to eq(1)
+    expect(graph_model.levels[1].nodes.size).to eq(2)
+    expect(graph_model.levels[2].nodes.size).to eq(1)
 
     nodeInThirdLevel = graph_model.levels[0].nodes[0]
-    nodeInThirdLevel.id.should == "git"
-    nodeInThirdLevel.node_type.should == "GIT"
-    nodeInThirdLevel.material_names.should == materialNames
-    nodeInThirdLevel.locator.should == ""
-    nodeInThirdLevel.dependents[0].should == "p1"
-    nodeInThirdLevel.dependents.size.should == 2
-    nodeInThirdLevel.parents.size.should == 0
-    nodeInThirdLevel.depth.should == 1
+    expect(nodeInThirdLevel.id).to eq("git")
+    expect(nodeInThirdLevel.node_type).to eq("GIT")
+    expect(nodeInThirdLevel.material_names).to eq(materialNames)
+    expect(nodeInThirdLevel.locator).to eq("")
+    expect(nodeInThirdLevel.dependents[0]).to eq("p1")
+    expect(nodeInThirdLevel.dependents.size).to eq(2)
+    expect(nodeInThirdLevel.parents.size).to eq(0)
+    expect(nodeInThirdLevel.depth).to eq(1)
 
     node1InSecondLevel = graph_model.levels[1].nodes[0]
-    node1InSecondLevel.id.should == "p1"
-    node1InSecondLevel.node_type.should == DependencyNodeType::PIPELINE.to_s
-    node1InSecondLevel.locator.should == "/go/tab/pipeline/history/p1"
-    node1InSecondLevel.dependents[0].should == "current"
-    node1InSecondLevel.parents[0].should == "git"
-    node1InSecondLevel.depth.should == 1
+    expect(node1InSecondLevel.id).to eq("p1")
+    expect(node1InSecondLevel.node_type).to eq(DependencyNodeType::PIPELINE.to_s)
+    expect(node1InSecondLevel.locator).to eq("/go/tab/pipeline/history/p1")
+    expect(node1InSecondLevel.dependents[0]).to eq("current")
+    expect(node1InSecondLevel.parents[0]).to eq("git")
+    expect(node1InSecondLevel.depth).to eq(1)
 
     node2InSecondLevel = graph_model.levels[1].nodes[1]
-    node2InSecondLevel.node_type.should == DependencyNodeType::DUMMY.to_s
-    node2InSecondLevel.locator.should == ""
-    node2InSecondLevel.name.start_with?("dummy").should == true
-    node2InSecondLevel.dependents[0].should == "current"
-    node2InSecondLevel.parents[0].should == "git"
-    node2InSecondLevel.depth.should == 2
+    expect(node2InSecondLevel.node_type).to eq(DependencyNodeType::DUMMY.to_s)
+    expect(node2InSecondLevel.locator).to eq("")
+    expect(node2InSecondLevel.name.start_with?("dummy")).to eq(true)
+    expect(node2InSecondLevel.dependents[0]).to eq("current")
+    expect(node2InSecondLevel.parents[0]).to eq("git")
+    expect(node2InSecondLevel.depth).to eq(2)
 
     nodeInFirstLevel = graph_model.levels[2].nodes[0]
-    nodeInFirstLevel.id.should == "current"
-    nodeInFirstLevel.node_type.should == DependencyNodeType::PIPELINE.to_s
-    nodeInFirstLevel.locator.should == "/go/tab/pipeline/history/current"
-    nodeInFirstLevel.dependents.size.should == 0
-    nodeInFirstLevel.parents[0].should == "p1"
-    nodeInFirstLevel.depth.should == 1
+    expect(nodeInFirstLevel.id).to eq("current")
+    expect(nodeInFirstLevel.node_type).to eq(DependencyNodeType::PIPELINE.to_s)
+    expect(nodeInFirstLevel.locator).to eq("/go/tab/pipeline/history/current")
+    expect(nodeInFirstLevel.dependents.size).to eq(0)
+    expect(nodeInFirstLevel.parents[0]).to eq("p1")
+    expect(nodeInFirstLevel.depth).to eq(1)
   end
 
   it "should set error on model if result was not successful" do
     graph_model = ValueStreamMapModel.new(nil, "error message", @l)
-    graph_model.current_pipeline.should == nil
-    graph_model.levels.should == nil
-    graph_model.error.should == "error message"
+    expect(graph_model.current_pipeline).to eq(nil)
+    expect(graph_model.levels).to eq(nil)
+    expect(graph_model.error).to eq("error message")
   end
 
   it "should initialize graph model with instances for pipelines" do
@@ -128,71 +128,71 @@ describe ValueStreamMapModel do
     graph_model = ValueStreamMapModel.new(vsm.presentationModel(), nil, @l, vsm_path_partial, vsm_material_path_partial, stage_detail_path_partial)
 
     nodeThatTheGraphIsBuiltFor = graph_model.levels[3].nodes[0]
-    nodeThatTheGraphIsBuiltFor.id.should == "current"
+    expect(nodeThatTheGraphIsBuiltFor.id).to eq("current")
 
     nodeP1 = graph_model.levels[1].nodes[0]
-    nodeP1.id.should == "p1"
-    nodeP1.instances.size.should == 2
-    nodeP1.instances[0].label.should == "label-p1-2"
-    nodeP1.instances[0].counter.should == 2
-    nodeP1.instances[0].locator.should == "some/path/to/p1/2"
-    nodeP1.instances[0].stages.size.should == 1
-    nodeP1.instances[0].stages[0].name.should == "stage-1-for-p1-2"
-    nodeP1.instances[0].stages[0].status.should == "Passed"
+    expect(nodeP1.id).to eq("p1")
+    expect(nodeP1.instances.size).to eq(2)
+    expect(nodeP1.instances[0].label).to eq("label-p1-2")
+    expect(nodeP1.instances[0].counter).to eq(2)
+    expect(nodeP1.instances[0].locator).to eq("some/path/to/p1/2")
+    expect(nodeP1.instances[0].stages.size).to eq(1)
+    expect(nodeP1.instances[0].stages[0].name).to eq("stage-1-for-p1-2")
+    expect(nodeP1.instances[0].stages[0].status).to eq("Passed")
 
-    nodeP1.instances[1].label.should == "label-p1-1"
-    nodeP1.instances[1].counter.should == 1
-    nodeP1.instances[1].locator.should == "some/path/to/p1/1"
-    nodeP1.instances[1].stages.size.should == 2
-    nodeP1.instances[1].stages[0].name.should == "stage-1-for-p1-1"
-    nodeP1.instances[1].stages[0].status.should == "Passed"
-    nodeP1.instances[1].stages[0].locator.should == "path/to/stage/p1/1/stage-1-for-p1-1/1"
-    nodeP1.instances[1].stages[1].name.should == "stage-2-for-p1-1"
-    nodeP1.instances[1].stages[1].status.should == "Passed"
-    nodeP1.instances[1].stages[1].locator.should == "path/to/stage/p1/1/stage-2-for-p1-1/1"
+    expect(nodeP1.instances[1].label).to eq("label-p1-1")
+    expect(nodeP1.instances[1].counter).to eq(1)
+    expect(nodeP1.instances[1].locator).to eq("some/path/to/p1/1")
+    expect(nodeP1.instances[1].stages.size).to eq(2)
+    expect(nodeP1.instances[1].stages[0].name).to eq("stage-1-for-p1-1")
+    expect(nodeP1.instances[1].stages[0].status).to eq("Passed")
+    expect(nodeP1.instances[1].stages[0].locator).to eq("path/to/stage/p1/1/stage-1-for-p1-1/1")
+    expect(nodeP1.instances[1].stages[1].name).to eq("stage-2-for-p1-1")
+    expect(nodeP1.instances[1].stages[1].status).to eq("Passed")
+    expect(nodeP1.instances[1].stages[1].locator).to eq("path/to/stage/p1/1/stage-2-for-p1-1/1")
 
     nodeP2 = graph_model.levels[2].nodes[0]
-    nodeP2.id.should == "p2"
-    nodeP2.instances.size.should == 1
-    nodeP2.instances[0].label.should == "label-p2-1"
-    nodeP2.instances[0].counter.should == 1
-    nodeP2.instances[0].locator.should == "some/path/to/p2/1"
-    nodeP2.instances[0].stages.size.should == 2
-    nodeP2.instances[0].stages[0].name.should == "stage-1-for-p2-1"
-    nodeP2.instances[0].stages[0].status.should == "Passed"
-    nodeP2.instances[0].stages[0].locator.should == "path/to/stage/p2/1/stage-1-for-p2-1/1"
-    nodeP2.instances[0].stages[1].name.should == "unrun_stage"
-    nodeP2.instances[0].stages[1].status.should == "Unknown"
-    nodeP2.instances[0].stages[1].locator.should == ""
+    expect(nodeP2.id).to eq("p2")
+    expect(nodeP2.instances.size).to eq(1)
+    expect(nodeP2.instances[0].label).to eq("label-p2-1")
+    expect(nodeP2.instances[0].counter).to eq(1)
+    expect(nodeP2.instances[0].locator).to eq("some/path/to/p2/1")
+    expect(nodeP2.instances[0].stages.size).to eq(2)
+    expect(nodeP2.instances[0].stages[0].name).to eq("stage-1-for-p2-1")
+    expect(nodeP2.instances[0].stages[0].status).to eq("Passed")
+    expect(nodeP2.instances[0].stages[0].locator).to eq("path/to/stage/p2/1/stage-1-for-p2-1/1")
+    expect(nodeP2.instances[0].stages[1].name).to eq("unrun_stage")
+    expect(nodeP2.instances[0].stages[1].status).to eq("Unknown")
+    expect(nodeP2.instances[0].stages[1].locator).to eq("")
 
     nodeP3 = graph_model.levels[4].nodes[0]
-    nodeP3.id.should == "p3"
-    nodeP3.instances.size.should == 1
-    nodeP3.instances[0].label.should == ""
-    nodeP3.instances[0].counter.should == 0
-    nodeP3.instances[0].locator.should == ""
-    nodeP3.instances[0].stages[0].name.should == "unrun_stage1"
-    nodeP3.instances[0].stages[0].status.should == "Unknown"
-    nodeP3.instances[0].stages[0].locator.should == ""
-    nodeP3.instances[0].stages[1].name.should == "unrun_stage2"
-    nodeP3.instances[0].stages[1].status.should == "Unknown"
-    nodeP3.instances[0].stages[1].locator.should == ""
+    expect(nodeP3.id).to eq("p3")
+    expect(nodeP3.instances.size).to eq(1)
+    expect(nodeP3.instances[0].label).to eq("")
+    expect(nodeP3.instances[0].counter).to eq(0)
+    expect(nodeP3.instances[0].locator).to eq("")
+    expect(nodeP3.instances[0].stages[0].name).to eq("unrun_stage1")
+    expect(nodeP3.instances[0].stages[0].status).to eq("Unknown")
+    expect(nodeP3.instances[0].stages[0].locator).to eq("")
+    expect(nodeP3.instances[0].stages[1].name).to eq("unrun_stage2")
+    expect(nodeP3.instances[0].stages[1].status).to eq("Unknown")
+    expect(nodeP3.instances[0].stages[1].locator).to eq("")
 
 
     nodeDummy = graph_model.levels[2].nodes[1]
-    nodeDummy.node_type.should == DependencyNodeType::DUMMY.to_s
-    nodeDummy.instances.size.should == 0
+    expect(nodeDummy.node_type).to eq(DependencyNodeType::DUMMY.to_s)
+    expect(nodeDummy.instances.size).to eq(0)
 
     nodeGit = graph_model.levels[0].nodes[0]
-    nodeGit.id.should == "git"
-    nodeGit.node_type.should == "GIT"
-    nodeGit.instances.size.should == 0
-    nodeGit.material_revisions.size.should == 1
-    nodeGit.material_revisions[0].modifications.size.should == 1
+    expect(nodeGit.id).to eq("git")
+    expect(nodeGit.node_type).to eq("GIT")
+    expect(nodeGit.instances.size).to eq(0)
+    expect(nodeGit.material_revisions.size).to eq(1)
+    expect(nodeGit.material_revisions[0].modifications.size).to eq(1)
     git_instance = nodeGit.material_revisions[0].modifications[0]
     modification = modifications.get(0)
-    git_instance.revision.should == modification.getRevision()
-    git_instance.locator.should == "some/path/to/git/r1"
+    expect(git_instance.revision).to eq(modification.getRevision())
+    expect(git_instance.locator).to eq("some/path/to/git/r1")
   end
 
 
@@ -231,50 +231,50 @@ describe ValueStreamMapModel do
     graph_model = ValueStreamMapModel.new(vsm.presentationModel(), nil, @l, vsm_path_partial, vsm_material_path_partial, stage_detail_path_partial)
 
     nodeThatTheGraphIsBuiltFor = graph_model.levels[3].nodes[0]
-    nodeThatTheGraphIsBuiltFor.id.should == "current"
+    expect(nodeThatTheGraphIsBuiltFor.id).to eq("current")
 
     nodeP1 = graph_model.levels[1].nodes[0]
-    nodeP1.id.should == "p1"
-    nodeP1.instances.size.should == 1
-    nodeP1.instances[0].label.should == "label-p1-1"
-    nodeP1.instances[0].counter.should == 1
-    nodeP1.instances[0].locator.should == "some/path/to/p1/1"
-    nodeP1.instances[0].stages.size.should == 2
-    nodeP1.instances[0].stages[0].name.should == "stage-1-for-p1-1"
-    nodeP1.instances[0].stages[0].status.should == "Passed"
+    expect(nodeP1.id).to eq("p1")
+    expect(nodeP1.instances.size).to eq(1)
+    expect(nodeP1.instances[0].label).to eq("label-p1-1")
+    expect(nodeP1.instances[0].counter).to eq(1)
+    expect(nodeP1.instances[0].locator).to eq("some/path/to/p1/1")
+    expect(nodeP1.instances[0].stages.size).to eq(2)
+    expect(nodeP1.instances[0].stages[0].name).to eq("stage-1-for-p1-1")
+    expect(nodeP1.instances[0].stages[0].status).to eq("Passed")
 
     nodeP2 = graph_model.levels[2].nodes[0]
-    nodeP2.id.should == "p2"
-    nodeP2.instances.size.should == 1
-    nodeP2.instances[0].label.should == "label-p2-1"
-    nodeP2.instances[0].counter.should == 1
-    nodeP2.instances[0].locator.should == "some/path/to/p2/1"
-    nodeP2.instances[0].stages.size.should == 2
-    nodeP2.instances[0].stages[0].name.should == "stage-1-for-p2-1"
-    nodeP2.instances[0].stages[0].status.should == "Passed"
-    nodeP2.instances[0].stages[0].locator.should == "path/to/stage/p2/1/stage-1-for-p2-1/1"
-    nodeP2.instances[0].stages[1].name.should == "unrun_stage"
-    nodeP2.instances[0].stages[1].status.should == "Unknown"
-    nodeP2.instances[0].stages[1].locator.should == ""
+    expect(nodeP2.id).to eq("p2")
+    expect(nodeP2.instances.size).to eq(1)
+    expect(nodeP2.instances[0].label).to eq("label-p2-1")
+    expect(nodeP2.instances[0].counter).to eq(1)
+    expect(nodeP2.instances[0].locator).to eq("some/path/to/p2/1")
+    expect(nodeP2.instances[0].stages.size).to eq(2)
+    expect(nodeP2.instances[0].stages[0].name).to eq("stage-1-for-p2-1")
+    expect(nodeP2.instances[0].stages[0].status).to eq("Passed")
+    expect(nodeP2.instances[0].stages[0].locator).to eq("path/to/stage/p2/1/stage-1-for-p2-1/1")
+    expect(nodeP2.instances[0].stages[1].name).to eq("unrun_stage")
+    expect(nodeP2.instances[0].stages[1].status).to eq("Unknown")
+    expect(nodeP2.instances[0].stages[1].locator).to eq("")
 
     nodeP3 = graph_model.levels[4].nodes[0]
-    nodeP3.id.should == "p3"
-    nodeP3.instances.size.should == 0
-    nodeP3.view_type.should == "NO_PERMISSION"
-    nodeP3.locator.should == ""
-    nodeP3.message.should == "You are not authorized to view this pipeline"
+    expect(nodeP3.id).to eq("p3")
+    expect(nodeP3.instances.size).to eq(0)
+    expect(nodeP3.view_type).to eq("NO_PERMISSION")
+    expect(nodeP3.locator).to eq("")
+    expect(nodeP3.message).to eq("You are not authorized to view this pipeline")
 
     nodeDummy = graph_model.levels[2].nodes[1]
-    nodeDummy.node_type.should == DependencyNodeType::DUMMY.to_s
-    nodeDummy.instances.size.should == 0
+    expect(nodeDummy.node_type).to eq(DependencyNodeType::DUMMY.to_s)
+    expect(nodeDummy.instances.size).to eq(0)
 
     nodeGit = graph_model.levels[0].nodes[0]
-    nodeGit.id.should == "git"
-    nodeGit.node_type.should == "GIT"
-    nodeGit.material_revisions.size.should == 1
-    nodeGit.material_revisions[0].modifications.size.should == 1
-    nodeGit.material_revisions[0].modifications[0].revision.should == "r1"
-    nodeGit.material_revisions[0].modifications[0].locator.should == "some/path/to/git/r1"
+    expect(nodeGit.id).to eq("git")
+    expect(nodeGit.node_type).to eq("GIT")
+    expect(nodeGit.material_revisions.size).to eq(1)
+    expect(nodeGit.material_revisions[0].modifications.size).to eq(1)
+    expect(nodeGit.material_revisions[0].modifications[0].revision).to eq("r1")
+    expect(nodeGit.material_revisions[0].modifications[0].locator).to eq("some/path/to/git/r1")
   end
 
   it "should populate details of material_revisions with modifications" do
@@ -286,15 +286,15 @@ describe ValueStreamMapModel do
     graph_model = ValueStreamMapModel.new(vsm.presentationModel(), nil, @l)
     git_node = graph_model.levels[0].nodes[0]
 
-    git_node.material_revisions.size.should == 1
-    git_node.material_revisions[0].modifications.size.should == 1
+    expect(git_node.material_revisions.size).to eq(1)
+    expect(git_node.material_revisions[0].modifications.size).to eq(1)
 
     git_instance = git_node.material_revisions[0].modifications[0]
     modification = modifications.get(0)
-    git_instance.revision.should == modification.getRevision()
-    git_instance.user.should == modification.getUserName()
-    git_instance.comment.should == modification.getComment()
-    git_instance.modified_time.should == "less than a minute ago"
+    expect(git_instance.revision).to eq(modification.getRevision())
+    expect(git_instance.user).to eq(modification.getUserName())
+    expect(git_instance.comment).to eq(modification.getComment())
+    expect(git_instance.modified_time).to eq("less than a minute ago")
   end
 
   it "should create VSM json model for material correctly" do
@@ -306,19 +306,19 @@ describe ValueStreamMapModel do
     vsm.addDownstreamNode(PipelineDependencyNode.new("p1", "p1"), vsm.current_material.getId())
 
     graph_model = ValueStreamMapModel.new(vsm.presentationModel(), nil, @l)
-    graph_model.current_pipeline.should == nil
-    graph_model.current_material.should == material.getFingerprint()
+    expect(graph_model.current_pipeline).to eq(nil)
+    expect(graph_model.current_material).to eq(material.getFingerprint())
 
     git_node = graph_model.levels[0].nodes[0]
-    git_node.material_revisions.size.should == 1
-    git_node.material_revisions[0].modifications.size.should == 1
+    expect(git_node.material_revisions.size).to eq(1)
+    expect(git_node.material_revisions[0].modifications.size).to eq(1)
 
     git_instance = git_node.material_revisions[0].modifications[0]
     modification = modifications.get(0)
-    git_instance.revision.should == modification.getRevision()
-    git_instance.user.should == modification.getUserName()
-    git_instance.comment.should == modification.getComment()
-    git_instance.modified_time.should == "less than a minute ago"
+    expect(git_instance.revision).to eq(modification.getRevision())
+    expect(git_instance.user).to eq(modification.getUserName())
+    expect(git_instance.comment).to eq(modification.getComment())
+    expect(git_instance.modified_time).to eq("less than a minute ago")
   end
 
   def modifications

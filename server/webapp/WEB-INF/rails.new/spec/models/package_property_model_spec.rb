@@ -14,28 +14,28 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe PackageViewModel do
   it "should create model from metadata and package configuration" do
     package_configuration = PackageConfiguration.new("key1").with(PackageConfiguration::SECURE, false).with(PackageConfiguration::DISPLAY_NAME, "Key 1")
     config_property = ConfigurationProperty.new(ConfigurationKey.new("key1"), ConfigurationValue.new("value"))
     model = PackagePropertyModel.new(package_configuration, config_property)
-    model.display_name.should == "Key 1"
-    model.name.should == "key1"
-    model.value.should == "value"
-    model.is_mandatory.should == true
-    model.is_secure.should == false
+    expect(model.display_name).to eq("Key 1")
+    expect(model.name).to eq("key1")
+    expect(model.value).to eq("value")
+    expect(model.is_mandatory).to eq(true)
+    expect(model.is_secure).to eq(false)
   end
 
   it "should create model from metadata when package property is nil" do
     package_configuration = PackageConfiguration.new("key1").with(PackageConfiguration::SECURE, false).with(PackageConfiguration::DISPLAY_NAME, "Key 1")
     model = PackagePropertyModel.new(package_configuration, nil)
-    model.display_name.should == "Key 1"
-    model.name.should == "key1"
-    model.value.should == nil
-    model.is_mandatory.should == true
-    model.is_secure.should == false
+    expect(model.display_name).to eq("Key 1")
+    expect(model.name).to eq("key1")
+    expect(model.value).to eq(nil)
+    expect(model.is_mandatory).to eq(true)
+    expect(model.is_secure).to eq(false)
   end
 
   it "should display key name if display name is not configured" do
@@ -43,7 +43,7 @@ describe PackageViewModel do
     property = ConfigurationProperty.new(ConfigurationKey.new("key3_secure"), nil, EncryptedConfigurationValue.new("secure"), nil)
 
     model = PackagePropertyModel.new config, property
-    model.display_name.should == "key3_secure"
-    model.value.should == "secure"
+    expect(model.display_name).to eq("key3_secure")
+    expect(model.value).to eq("secure")
   end
 end

@@ -14,10 +14,10 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV1::Config::PipelineConfigsWithMinimalAttributesRepresenter do
-  describe :serialize do
+  describe 'serialize' do
     it 'should render pipelines with hal representation' do
       pipeline_config = PipelineConfigMother.createPipelineConfigWithStages('regression', 'fetch', 'run')
       pipeline_configs_list = Arrays.asList(BasicPipelineConfigs.new(pipeline_config))
@@ -27,7 +27,7 @@ describe ApiV1::Config::PipelineConfigsWithMinimalAttributesRepresenter do
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
 
       expect(actual_json).to have_link(:self).with_url('http://test.host/api/admin/internal/pipelines')
-      actual_json.fetch(:_embedded).should == {:pipelines => [ApiV1::Config::PipelineConfigWithMinimalAttributesRepresenter.new(pipeline_config).to_hash(url_builder: UrlBuilder.new)]}
+      expect(actual_json.fetch(:_embedded)).to eq({:pipelines => [ApiV1::Config::PipelineConfigWithMinimalAttributesRepresenter.new(pipeline_config).to_hash(url_builder: UrlBuilder.new)]})
     end
   end
 end

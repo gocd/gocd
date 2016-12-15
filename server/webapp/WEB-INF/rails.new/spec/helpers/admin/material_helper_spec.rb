@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe Admin::MaterialHelper do
   include Admin::MaterialHelper, RailsLocalizer
@@ -22,14 +22,14 @@ describe Admin::MaterialHelper do
   describe "material options in new pipeline wizard" do
     it "should populate options correctly" do
       material_options_map = material_options
-      material_options_map.size.should == 7
-      material_options_map["Subversion"].should == SvnMaterialConfig::TYPE
-      material_options_map["Git"].should == GitMaterialConfig::TYPE
-      material_options_map["Mercurial"].should == HgMaterialConfig::TYPE
-      material_options_map["Perforce"].should == P4MaterialConfig::TYPE
-      material_options_map["Team Foundation Server"].should == TfsMaterialConfig::TYPE
-      material_options_map["Pipeline"].should == DependencyMaterialConfig::TYPE
-      material_options_map["Package"].should == PackageMaterialConfig::TYPE
+      expect(material_options_map.size).to eq(7)
+      expect(material_options_map["Subversion"]).to eq(SvnMaterialConfig::TYPE)
+      expect(material_options_map["Git"]).to eq(GitMaterialConfig::TYPE)
+      expect(material_options_map["Mercurial"]).to eq(HgMaterialConfig::TYPE)
+      expect(material_options_map["Perforce"]).to eq(P4MaterialConfig::TYPE)
+      expect(material_options_map["Team Foundation Server"]).to eq(TfsMaterialConfig::TYPE)
+      expect(material_options_map["Pipeline"]).to eq(DependencyMaterialConfig::TYPE)
+      expect(material_options_map["Package"]).to eq(PackageMaterialConfig::TYPE)
     end
   end
 
@@ -50,27 +50,27 @@ describe Admin::MaterialHelper do
       @original_cruise_config.setPackageRepositories(PackageRepositories.new([repository1, repository2, repository3].to_java(PackageRepository)))
 
       metadata_store = double("RepositoryMetadataStore")
-      RepositoryMetadataStore.stub(:getInstance).and_return(metadata_store)
-      metadata_store.stub(:getMetadata).with(valid_plugin_id).and_return(PackageConfigurations.new)
-      metadata_store.stub(:getMetadata).with(invalid_plugin_id).and_return(nil)
+      allow(RepositoryMetadataStore).to receive(:getInstance).and_return(metadata_store)
+      allow(metadata_store).to receive(:getMetadata).with(valid_plugin_id).and_return(PackageConfigurations.new)
+      allow(metadata_store).to receive(:getMetadata).with(invalid_plugin_id).and_return(nil)
 
     end
 
     it "should get a map of repos with corresponding packages" do
-      repository_packages_map_from_config.size.should == 3
-      repository_packages_map_from_config.should == {"repo1" => {:name => "repo1-name", :plugin_id => "pluginid", :is_plugin_missing => false, :packages => [{:id => "pkg1", :name => "package1-name"},{:id => "pkg3", :name => "package3-name"}]},
+      expect(repository_packages_map_from_config.size).to eq(3)
+      expect(repository_packages_map_from_config).to eq({"repo1" => {:name => "repo1-name", :plugin_id => "pluginid", :is_plugin_missing => false, :packages => [{:id => "pkg1", :name => "package1-name"},{:id => "pkg3", :name => "package3-name"}]},
                                                      "repo2" => {:name => "repo2-name", :plugin_id => "pluginid", :is_plugin_missing => false, :packages => [{:id => "pkg2", :name => "package2-name"},{:id => "pkg4", :name => "package4-name"}]},
                                                      "repo3" => {:name => "repo3-name", :plugin_id => "invalid-pluginid", :is_plugin_missing => true, :packages => []}
-      }
+      })
     end
 
     it "should get all plugins with the select one for dropdown option" do
       metadataStore = double("RepositoryMetadataStore")
-      RepositoryMetadataStore.stub(:getInstance).and_return(metadataStore)
-      metadataStore.stub(:getPlugins).and_return(Arrays.asList(["P1", "P2"].to_java(java.lang.String)))
+      allow(RepositoryMetadataStore).to receive(:getInstance).and_return(metadataStore)
+      allow(metadataStore).to receive(:getPlugins).and_return(Arrays.asList(["P1", "P2"].to_java(java.lang.String)))
 
-      package_material_plugins.size.should == 3
-      package_material_plugins.should include(["[Select]", ""],"P1", "P2")
+      expect(package_material_plugins.size).to eq(3)
+      expect(package_material_plugins).to include(["[Select]", ""],"P1", "P2")
     end
   end
 end

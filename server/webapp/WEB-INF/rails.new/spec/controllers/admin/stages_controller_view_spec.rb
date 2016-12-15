@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe Admin::StagesController, "view" do
   include GoUtil
@@ -24,8 +24,8 @@ describe Admin::StagesController, "view" do
     render_views
 
     before do
-      controller.stub(:populate_config_validity)
-      controller.stub(:checkConfigFileValid)
+      allow(controller).to receive(:populate_config_validity)
+      allow(controller).to receive(:checkConfigFileValid)
 
       @cruise_config = BasicCruiseConfig.new()
       cruise_config_mother = GoConfigMother.new
@@ -39,13 +39,13 @@ describe Admin::StagesController, "view" do
       before(:each) do
         @go_config_service = stub_service(:go_config_service)
         @pipeline_pause_service = stub_service(:pipeline_pause_service)
-        controller.should_receive(:load_pipeline) do
+        expect(controller).to receive(:load_pipeline) do
           controller.instance_variable_set('@cruise_config', @cruise_config)
           controller.instance_variable_set('@pipeline', @pipeline)
         end
         @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
-        @pipeline_pause_service.should_receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
-        @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
+        expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
+        allow(@go_config_service).to receive(:getRegistry).and_return(MockRegistryModule::MockRegistry.new)
       end
 
       it "should display 'fetch materials' & 'clean working directory' checkbox" do
@@ -68,7 +68,7 @@ describe Admin::StagesController, "view" do
 
     describe "when listing loads pipeline successfully" do
       before(:each) do
-        controller.should_receive(:load_pipeline) do
+        expect(controller).to receive(:load_pipeline) do
           controller.instance_variable_set('@cruise_config', @cruise_config)
           controller.instance_variable_set('@pipeline', @pipeline)
         end
@@ -96,7 +96,7 @@ describe Admin::StagesController, "view" do
 
     describe "foo" do
       before(:each) do
-        controller.should_receive(:load_pipeline) do
+        expect(controller).to receive(:load_pipeline) do
           controller.instance_variable_set('@cruise_config', @cruise_config)
           controller.instance_variable_set('@pipeline', @pipeline)
         end
@@ -116,11 +116,11 @@ describe Admin::StagesController, "view" do
     describe "when loading new" do
       before(:each) do
         ReflectionUtil.setField(@cruise_config, "md5", "1234abcd")
-        controller.should_receive(:load_pipeline) do
+        expect(controller).to receive(:load_pipeline) do
           controller.instance_variable_set('@cruise_config', @cruise_config)
           controller.instance_variable_set('@pipeline', @pipeline)
         end
-        controller.should_receive(:load_pause_info) do
+        expect(controller).to receive(:load_pause_info) do
           controller.instance_variable_set('@pause_info', PipelinePauseInfo.paused("just for fun", "loser"))
         end
       end
@@ -135,7 +135,7 @@ describe Admin::StagesController, "view" do
     describe "when creating" do
       before(:each) do
         ReflectionUtil.setField(@cruise_config, "md5", "1234abcd")
-        @cruise_config.pipelineConfigByName(CaseInsensitiveString.new("pipeline-name")).findBy(CaseInsensitiveString.new("stage-foo")).should be_nil
+        expect(@cruise_config.pipelineConfigByName(CaseInsensitiveString.new("pipeline-name")).findBy(CaseInsensitiveString.new("stage-foo"))).to be_nil
         @go_config_service = stub_service(:go_config_service)
       end
 
@@ -144,7 +144,7 @@ describe Admin::StagesController, "view" do
           @result = stub_localized_result
           @user = current_user
           stub_save_for_success
-          @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
+          allow(@go_config_service).to receive(:getRegistry).and_return(MockRegistryModule::MockRegistry.new)
         end
 
         after do
@@ -153,7 +153,7 @@ describe Admin::StagesController, "view" do
 
         it "should save stage fields" do
           post :create, :stage_parent=> "pipelines", :pipeline_name => "pipeline-name", :stage => {:name => "stage-foo", :jobs => [{:name => "another-job"}]}, :config_md5 => "some-md5"
-          @cruise_config.pipelineConfigByName(CaseInsensitiveString.new("pipeline-name")).findBy(CaseInsensitiveString.new("stage-foo")).should_not be_nil
+          expect(@cruise_config.pipelineConfigByName(CaseInsensitiveString.new("pipeline-name")).findBy(CaseInsensitiveString.new("stage-foo"))).not_to be_nil
 
           expect(response.status).to eq(200)
           expect(response.body).to have_content("Saved successfully")

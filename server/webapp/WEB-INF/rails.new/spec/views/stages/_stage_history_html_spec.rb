@@ -14,10 +14,12 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "_stage_history.html.erb" do
-  include StageModelMother, GoUtil
+  include StageModelMother
+
+  include GoUtil
 
   before(:each) do
     stages = StageInstanceModels.new
@@ -27,10 +29,10 @@ describe "_stage_history.html.erb" do
 
     in_params :pipeline_name => 'cruise', :stage_name => "dev", :pipeline_counter => '5', :stage_counter => '1'
 
-    view.stub(:is_user_an_admin?).and_return(true)
+    allow(view).to receive(:is_user_an_admin?).and_return(true)
 
     @stage_history_page = stage_history_page(10)
-    view.stub(:stage_detail_tab_path).with(instance_of(Hash)).and_return do |params|
+    allow(view).to receive(:stage_detail_tab_path).with(instance_of(Hash)) do |params|
       "url_for_#{params[:pipeline_counter]}_run_#{params[:stage_counter]}"
     end
   end
@@ -83,7 +85,7 @@ describe "_stage_history.html.erb" do
   end
 
   it "should render stage links" do
-    view.stub(:tab_aware_path_for_stage) do |id, tab|
+    allow(view).to receive(:tab_aware_path_for_stage) do |id, tab|
       id.getStageLocator() + "/" +tab
     end
     render :partial => "stages/stage_history", :locals => {:scope => {:stage_history_page => @stage_history_page, :tab => 'jobs', :current_stage_pipeline => @pipeline, :current_config_version => "md5-test"}}
@@ -158,7 +160,7 @@ describe "_stage_history.html.erb" do
   end
 
   it "should divide stage history instances when config has changed and show plain text indication for non-admins" do
-    view.stub(:is_user_an_admin?).and_return(false)
+    allow(view).to receive(:is_user_an_admin?).and_return(false)
     stage_history = stage_history_page(5)
     stage = StageMother.createPassedStage("cruise", 6, "dev", 1, "rspec", org.joda.time.DateTime.new().plus_minutes(10).toDate())
     stage.setConfigVersion("changed-md5-test")
@@ -175,7 +177,7 @@ describe "_stage_history.html.erb" do
   end
 
   it "should show config changed as a link to open diff only for admin user" do
-    view.stub(:is_user_an_admin?).and_return(true)
+    allow(view).to receive(:is_user_an_admin?).and_return(true)
     stage_history = stage_history_page(5)
     stage = StageMother.createPassedStage("cruise", 6, "dev", 1, "rspec", org.joda.time.DateTime.new().plus_minutes(10).toDate())
     stage.setConfigVersion("changed-md5-test")
@@ -192,7 +194,7 @@ describe "_stage_history.html.erb" do
   end
 
   it "should not show config changed as a link when the stage does not have corresponding md5 associated with it" do
-    view.stub(:is_user_an_admin?).and_return(true)
+    allow(view).to receive(:is_user_an_admin?).and_return(true)
     stage_history = stage_history_page(1)
     stage_history.getStages().last().setConfigVersion(nil)
     stage_history.getStages().first().setConfigVersion("changed-md5")
@@ -208,20 +210,20 @@ describe "_stage_history.html.erb" do
   end
 
   it "should show config changed as a link when config has changed between top of this page and bottom of previous page" do
-    view.stub(:is_user_an_admin?).and_return(true)
+    allow(view).to receive(:is_user_an_admin?).and_return(true)
     stage_history_page = double('stage_history_page')
     bottom_of_previous_page = double('bottom_of_last_page')
-    bottom_of_previous_page.should_receive(:getConfigVersion).and_return('some-old-config-version-older-than-current-but-newer-than-top-of-this-page-config-version')
+    expect(bottom_of_previous_page).to receive(:getConfigVersion).and_return('some-old-config-version-older-than-current-but-newer-than-top-of-this-page-config-version')
 
     top_of_this_page = double('top_of_this_page')
-    top_of_this_page.should_receive(:getConfigVersion).exactly(3).times.and_return('some-old-config-version')
-    top_of_this_page.should_receive(:getIdentifier).exactly(7).times.and_return(StageIdentifier.new('p1', java.lang.Integer.new(1), 'label1', 'stage', '1'))
-    top_of_this_page.should_receive(:getState).twice.and_return(StageState::Building)
-    top_of_this_page.should_receive(:hasRerunJobs).twice.and_return(false)
+    expect(top_of_this_page).to receive(:getConfigVersion).exactly(3).times.and_return('some-old-config-version')
+    expect(top_of_this_page).to receive(:getIdentifier).exactly(7).times.and_return(StageIdentifier.new('p1', java.lang.Integer.new(1), 'label1', 'stage', '1'))
+    expect(top_of_this_page).to receive(:getState).twice.and_return(StageState::Building)
+    expect(top_of_this_page).to receive(:hasRerunJobs).twice.and_return(false)
 
-    stage_history_page.should_receive(:getImmediateChronologicallyForwardStageHistoryEntry).and_return(bottom_of_previous_page)
-    stage_history_page.should_receive(:getStages).and_return([top_of_this_page])
-    stage_history_page.should_receive(:getPagination).and_return(Pagination::ONE_ITEM)
+    expect(stage_history_page).to receive(:getImmediateChronologicallyForwardStageHistoryEntry).and_return(bottom_of_previous_page)
+    expect(stage_history_page).to receive(:getStages).and_return([top_of_this_page])
+    expect(stage_history_page).to receive(:getPagination).and_return(Pagination::ONE_ITEM)
 
     render :partial => "stages/stage_history", :locals => {:scope => {:stage_history_page => stage_history_page, :tab => 'jobs', :current_stage_pipeline => @pipeline, :current_config_version => "current-config-version"}}
 
@@ -231,20 +233,20 @@ describe "_stage_history.html.erb" do
   end
 
   it "should not show config changed as a link when config has not changed between top of this page and bottom of previous page" do
-    view.stub(:is_user_an_admin?).and_return(true)
+    allow(view).to receive(:is_user_an_admin?).and_return(true)
     stage_history_page = double('stage_history_page')
     bottom_of_previous_page = double('bottom_of_last_page')
-    bottom_of_previous_page.should_receive(:getConfigVersion).and_return('some-old-config-version')
+    expect(bottom_of_previous_page).to receive(:getConfigVersion).and_return('some-old-config-version')
 
     top_of_this_page = double('top_of_this_page')
-    top_of_this_page.should_receive(:getConfigVersion).twice.and_return('some-old-config-version')
-    top_of_this_page.should_receive(:getIdentifier).exactly(5).times.and_return(StageIdentifier.new('p1', java.lang.Integer.new(1), 'label1', 'stage', '1'))
-    top_of_this_page.should_receive(:getState).twice.and_return(StageState::Building)
-    top_of_this_page.should_receive(:hasRerunJobs).twice.and_return(false)
+    expect(top_of_this_page).to receive(:getConfigVersion).twice.and_return('some-old-config-version')
+    expect(top_of_this_page).to receive(:getIdentifier).exactly(5).times.and_return(StageIdentifier.new('p1', java.lang.Integer.new(1), 'label1', 'stage', '1'))
+    expect(top_of_this_page).to receive(:getState).twice.and_return(StageState::Building)
+    expect(top_of_this_page).to receive(:hasRerunJobs).twice.and_return(false)
 
-    stage_history_page.should_receive(:getImmediateChronologicallyForwardStageHistoryEntry).and_return(bottom_of_previous_page)
-    stage_history_page.should_receive(:getStages).and_return([top_of_this_page])
-    stage_history_page.should_receive(:getPagination).and_return(Pagination::ONE_ITEM)
+    expect(stage_history_page).to receive(:getImmediateChronologicallyForwardStageHistoryEntry).and_return(bottom_of_previous_page)
+    expect(stage_history_page).to receive(:getStages).and_return([top_of_this_page])
+    expect(stage_history_page).to receive(:getPagination).and_return(Pagination::ONE_ITEM)
 
     render :partial => "stages/stage_history", :locals => {:scope => {:stage_history_page => stage_history_page, :tab => 'jobs', :current_stage_pipeline => @pipeline, :current_config_version => "current-config-version"}}
 

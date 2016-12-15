@@ -14,12 +14,17 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 require File.join(File.dirname(__FILE__), "..", "auto_refresh_examples")
 
 
 describe 'stages/_jobs.html.erb' do
-  include JobMother, GoUtil, ReflectiveUtil
+  include JobMother
+
+  include GoUtil
+
+
+  include ReflectiveUtil
 
   before :each do
     stage = StageMother.completedStageInstanceWithTwoPlans("bar_stage")
@@ -55,7 +60,7 @@ describe 'stages/_jobs.html.erb' do
     end
 
     it "should not display form and checkbox next to job names when stage is active" do
-      @stage.getState().stub(:completed).and_return(false)
+      allow(@stage.getState()).to receive(:completed).and_return(false)
       render :partial => "stages/jobs", :locals => {:scope => {:jobs => @jobs, :stage => @stage, :has_operate_permissions => true}}
 
       expect(response.body).to_not have_selector("form")

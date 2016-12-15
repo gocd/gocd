@@ -14,21 +14,23 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV2::Admin::PluginInfosController do
-  include ApiHeaderSetupTeardown, ApiV2::ApiVersionHelper
+  include ApiHeaderSetupTeardown
+
+  include ApiV2::ApiVersionHelper
 
   before(:each) do
     @plugin_service = double('plugin_service')
-    controller.stub('plugin_service').and_return(@plugin_service)
+    allow(controller).to receive('plugin_service').and_return(@plugin_service)
   end
 
-  describe :security do
-    describe :show do
+  describe 'security' do
+    describe 'show' do
       it 'should allow anyone, with security disabled' do
         disable_security
-        expect(controller).to allow_action(:get, :show)
+        expect(controller).to allow_action(:get, :show, id: 'plugin_id')
       end
 
       it 'should disallow non-admin user, with security enabled' do
@@ -39,16 +41,16 @@ describe ApiV2::Admin::PluginInfosController do
 
       it 'should allow admin users, with security enabled' do
         login_as_admin
-        expect(controller).to allow_action(:get, :show)
+        expect(controller).to allow_action(:get, :show, id: 'plugin_id')
       end
 
       it 'should allow pipeline group admin users, with security enabled' do
         login_as_group_admin
-        expect(controller).to allow_action(:get, :show)
+        expect(controller).to allow_action(:get, :show, id: 'plugin_id')
       end
     end
 
-    describe :index do
+    describe 'index' do
       it 'should allow anyone, with security disabled' do
         disable_security
         expect(controller).to allow_action(:get, :index)
@@ -72,7 +74,7 @@ describe ApiV2::Admin::PluginInfosController do
     end
   end
 
-  describe :index do
+  describe 'index' do
     before(:each) do
       login_as_group_admin
     end
@@ -80,7 +82,7 @@ describe ApiV2::Admin::PluginInfosController do
     it 'should list all plugin_infos' do
       plugin_info = PluginInfo.new('plugin_id', 'plugin_name','plugin_version', 'plugin_type', nil, nil)
 
-      @plugin_service.should_receive(:pluginInfos).with(nil).and_return([plugin_info])
+      expect(@plugin_service).to receive(:pluginInfos).with(nil).and_return([plugin_info])
 
       get_with_api_header :index
 
@@ -91,7 +93,7 @@ describe ApiV2::Admin::PluginInfosController do
     it 'should filter plugin_infos by type' do
       plugin_info = PluginInfo.new('plugin_id', 'plugin_name', 'plugin_version', 'plugin_type', nil, nil)
 
-      @plugin_service.should_receive(:pluginInfos).with('scm').and_return([plugin_info])
+      expect(@plugin_service).to receive(:pluginInfos).with('scm').and_return([plugin_info])
 
       get_with_api_header :index, type: 'scm'
 
@@ -100,7 +102,7 @@ describe ApiV2::Admin::PluginInfosController do
     end
 
     it 'should be a unprocessible entity for a invalid plugin type' do
-      @plugin_service.should_receive(:pluginInfos).with('invalid_type').and_raise(InvalidPluginTypeException.new)
+      expect(@plugin_service).to receive(:pluginInfos).with('invalid_type').and_raise(InvalidPluginTypeException.new)
 
       get_with_api_header :index, type: 'invalid_type'
 
@@ -109,14 +111,14 @@ describe ApiV2::Admin::PluginInfosController do
       expect(json[:message]).to eq('Your request could not be processed. Invalid plugins type - `invalid_type` !')
     end
 
-    describe :route do
-      describe :with_header do
+    describe 'route' do
+      describe 'with_header' do
         it 'should route to the index action of plugin_infos controller' do
           expect(:get => 'api/admin/plugin_info').to route_to(action: 'index', controller: 'api_v2/admin/plugin_infos')
         end
       end
 
-      describe :without_header do
+      describe 'without_header' do
         before :each do
           teardown_header
         end
@@ -128,7 +130,7 @@ describe ApiV2::Admin::PluginInfosController do
     end
   end
 
-  describe :show do
+  describe 'show' do
     before(:each) do
       login_as_group_admin
     end
@@ -136,7 +138,7 @@ describe ApiV2::Admin::PluginInfosController do
     it 'should fetch a plugin_info for the given id' do
       plugin_info = PluginInfo.new('plugin_id', 'plugin_name', 'plugin_version', 'plugin_type', nil, nil)
 
-      @plugin_service.should_receive(:pluginInfo).with('plugin_id').and_return(plugin_info)
+      expect(@plugin_service).to receive(:pluginInfo).with('plugin_id').and_return(plugin_info)
 
       get_with_api_header :show, id: 'plugin_id'
 
@@ -145,7 +147,7 @@ describe ApiV2::Admin::PluginInfosController do
     end
 
     it 'should return 404 in absence of plugin_info' do
-      @plugin_service.should_receive(:pluginInfo).with('plugin_id').and_return(nil)
+      expect(@plugin_service).to receive(:pluginInfo).with('plugin_id').and_return(nil)
 
       get_with_api_header :show, id: 'plugin_id'
 
@@ -154,8 +156,8 @@ describe ApiV2::Admin::PluginInfosController do
       expect(json[:message]).to eq('Either the resource you requested was not found, or you are not authorized to perform this action.')
     end
 
-    describe :route do
-      describe :with_header do
+    describe 'route' do
+      describe 'with_header' do
 
         it 'should route to the show action of plugin_infos controller for alphanumeric plugin id' do
           expect(:get => 'api/admin/plugin_info/foo123bar').to route_to(action: 'show', controller: 'api_v2/admin/plugin_infos', id: 'foo123bar')
@@ -178,7 +180,7 @@ describe ApiV2::Admin::PluginInfosController do
         end
       end
 
-      describe :without_header do
+      describe 'without_header' do
         before :each do
           teardown_header
         end

@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "/api/jobs" do
 
@@ -37,14 +37,14 @@ describe "/api/jobs" do
     @job.setAgentUuid("UUID")
 
     @job_properties_reader = double("job_properties_reader")
-    @job_properties_reader.stub(:getPropertiesForJob).with(1).and_return(@properties)
+    allow(@job_properties_reader).to receive(:getPropertiesForJob).with(1).and_return(@properties)
 
     @artifacts_url_reader = double("artifacts_url_reader")
-    @artifacts_url_reader.stub(:findArtifactRoot).with(@job.getIdentifier()).and_return("/artifacts-path")
-    @artifacts_url_reader.stub(:findArtifactUrl).with(@job.getIdentifier()).and_return("/artifacts-url")
+    allow(@artifacts_url_reader).to receive(:findArtifactRoot).with(@job.getIdentifier()).and_return("/artifacts-path")
+    allow(@artifacts_url_reader).to receive(:findArtifactUrl).with(@job.getIdentifier()).and_return("/artifacts-url")
 
     @job_plan_loader = double("job_plan_loader")
-    @job_plan_loader.stub(:loadOriginalJobPlan).with(@job.getIdentifier()).and_return(DefaultJobPlan.new(@resources, @plans, nil, 1, @job.getIdentifier, 'UUID', @variables, @variables, nil))
+    allow(@job_plan_loader).to receive(:loadOriginalJobPlan).with(@job.getIdentifier()).and_return(DefaultJobPlan.new(@resources, @plans, nil, 1, @job.getIdentifier, 'UUID', @variables, @variables, nil))
 
     @context = XmlWriterContext.new("http://test.host", @job_properties_reader, @artifacts_url_reader, @job_plan_loader, nil)
     assign(:doc, JobXmlViewModel.new(@job).toXml(@context))
@@ -129,10 +129,10 @@ describe "/api/jobs" do
 
       @job = JobInstanceMother::completed("job<na\"me")
       @job.setStageId(666)
-      @job_properties_reader.stub(:getPropertiesForJob).with(1).and_return(properties)
-      @artifacts_url_reader.stub(:findArtifactUrl).with(@job.getIdentifier()).and_return("/artifacts-url")
-      @artifacts_url_reader.stub(:findArtifactRoot).with(@job.getIdentifier()).and_return("/artifacts-path")
-      @job_plan_loader.stub(:loadOriginalJobPlan).with(@job.getIdentifier()).and_return(DefaultJobPlan.new(@resources, plans, nil, 1, @job.getIdentifier, 'UUID', variables, variables, nil))
+      allow(@job_properties_reader).to receive(:getPropertiesForJob).with(1).and_return(properties)
+      allow(@artifacts_url_reader).to receive(:findArtifactUrl).with(@job.getIdentifier()).and_return("/artifacts-url")
+      allow(@artifacts_url_reader).to receive(:findArtifactRoot).with(@job.getIdentifier()).and_return("/artifacts-path")
+      allow(@job_plan_loader).to receive(:loadOriginalJobPlan).with(@job.getIdentifier()).and_return(DefaultJobPlan.new(@resources, plans, nil, 1, @job.getIdentifier, 'UUID', variables, variables, nil))
 
       assign(:doc, JobXmlViewModel.new(@job).toXml(@context))
     end

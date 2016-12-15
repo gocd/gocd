@@ -14,12 +14,12 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ConfigUpdate::SaveAsPipelineAdmin do
 
   it "should check if user can edit pipeline" do
     save = ::ConfigUpdate::SaveAsPipelineAdmin.new(nil, nil, nil)
-    save.class.included_modules.should include(::ConfigUpdate::CheckCanEditPipeline)
+    expect(save.class.included_modules).to include(::ConfigUpdate::CheckCanEditPipeline)
   end
 end

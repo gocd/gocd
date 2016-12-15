@@ -14,10 +14,10 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV1::GoLatestVersion do
-  describe :valid? do
+  describe 'valid?' do
     before(:each) do
       @public_key_path = 'update_server_public_key_path'
       @public_key = 'public_key'
@@ -33,14 +33,14 @@ describe ApiV1::GoLatestVersion do
 
       @system_environment = double('system_environment', :getUpdateServerPublicKeyPath => @public_key_path)
       @result = double('HttpLocalizedOperationResult')
-      File.stub(:read).with(@public_key_path).and_return(@public_key)
+      allow(File).to receive(:read).with(@public_key_path).and_return(@public_key)
     end
 
     it 'should be valid if message and signing public key are not tampered' do
-      @system_environment.should_receive(:getUpdateServerPublicKeyPath).and_return(@public_key_path)
-      File.should_receive(:read).with(@public_key_path).and_return(@public_key)
-      MessageVerifier.should_receive(:verify).ordered.with(@signing_public_key, @signing_public_key_signature, @public_key).and_return(true)
-      MessageVerifier.should_receive(:verify).ordered.with(@message, @message_signature, @signing_public_key).and_return(true)
+      expect(@system_environment).to receive(:getUpdateServerPublicKeyPath).and_return(@public_key_path)
+      expect(File).to receive(:read).with(@public_key_path).and_return(@public_key)
+      expect(MessageVerifier).to receive(:verify).ordered.with(@signing_public_key, @signing_public_key_signature, @public_key).and_return(true)
+      expect(MessageVerifier).to receive(:verify).ordered.with(@message, @message_signature, @signing_public_key).and_return(true)
 
       latest_version = ApiV1::GoLatestVersion.new(@latest_version_hash, @system_environment)
 
@@ -54,8 +54,8 @@ describe ApiV1::GoLatestVersion do
                              :signing_public_key => bad_signing_public_key,
                              :signing_public_key_signature => @signing_public_key_signature}
 
-      MessageVerifier.should_receive(:verify).with(bad_signing_public_key, @signing_public_key_signature, @public_key).and_return(false)
-      MessageVerifier.should_receive(:verify).with(@message, @message_signature, @signing_public_key).never
+      expect(MessageVerifier).to receive(:verify).with(bad_signing_public_key, @signing_public_key_signature, @public_key).and_return(false)
+      expect(MessageVerifier).to receive(:verify).with(@message, @message_signature, @signing_public_key).never
 
       latest_version = ApiV1::GoLatestVersion.new(latest_version_hash, @system_environment)
 
@@ -69,15 +69,15 @@ describe ApiV1::GoLatestVersion do
                              :signing_public_key => @signing_public_key,
                              :signing_public_key_signature => @signing_public_key_signature}
 
-      MessageVerifier.should_receive(:verify).with(@signing_public_key, @signing_public_key_signature, @public_key).and_return(true)
-      MessageVerifier.should_receive(:verify).with(bad_message, @message_signature, @signing_public_key).and_return(false)
+      expect(MessageVerifier).to receive(:verify).with(@signing_public_key, @signing_public_key_signature, @public_key).and_return(true)
+      expect(MessageVerifier).to receive(:verify).with(bad_message, @message_signature, @signing_public_key).and_return(false)
 
       latest_version = ApiV1::GoLatestVersion.new(latest_version_hash, @system_environment)
 
       expect(latest_version.valid?).to be(false)
     end
   end
-  describe :latest_version do
+  describe 'latest_version' do
     it 'should return the latest_version'do
       latest_version_hash = {:message => %Q({\n  "latest-version": "16.1.0-123",\n  "release-time": "2015-07-13 17:52:28 UTC"\n}),
                               :message_signature => 'message_signature',

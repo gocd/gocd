@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe "/shared/_application_nav.html.erb" do
   include GoUtil
@@ -28,7 +28,7 @@ describe "/shared/_application_nav.html.erb" do
   end
 
   partial_page = "shared/application_nav.html.erb"
-  describe :header do
+  describe 'header' do
     before :each do
       allow(view).to receive(:url_for_path).and_return('url_for_path')
       allow(view).to receive(:url_for).and_return('url_for')
@@ -153,7 +153,7 @@ describe "/shared/_application_nav.html.erb" do
     end
   end
 
-  describe :admin_dropdown do
+  describe 'admin_dropdown' do
     before :each do
       allow(view).to receive(:can_view_admin_page?).and_return(true)
       @assert_values = {"Pipelines"     => pipeline_groups_path, "Templates" => templates_path, "Config XML" => config_view_path, "Server Configuration" => edit_server_config_path, "User Summary" => user_listing_path,

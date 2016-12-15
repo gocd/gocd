@@ -139,6 +139,6 @@ class AdminController < ApplicationController
   end
 
   def load_context
-    assert_load :config_context, create_config_context(go_config_service.registry)
+    assert_load :config_context, create_config_context(go_config_service.getRegistry)
   end
 end

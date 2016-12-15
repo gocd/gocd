@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe PipelineConfigAPIModel do
   include APIModelMother
@@ -24,16 +24,16 @@ describe PipelineConfigAPIModel do
       @pipeline_config_view_model = create_pipeline_config_model
       pipeline_config_api_model = PipelineConfigAPIModel.new(@pipeline_config_view_model)
 
-      pipeline_config_api_model.name.should == 'pipeline name'
-      pipeline_config_api_model.label.should == 'label'
+      expect(pipeline_config_api_model.name).to eq('pipeline name')
+      expect(pipeline_config_api_model.label).to eq('label')
 
       material_config_api_model = pipeline_config_api_model.materials[0]
-      material_config_api_model.fingerprint.should == 'fingerprint'
-      material_config_api_model.type.should == 'git'
-      material_config_api_model.description.should == 'URL: http://test.com Branch: master'
+      expect(material_config_api_model.fingerprint).to eq('fingerprint')
+      expect(material_config_api_model.type).to eq('git')
+      expect(material_config_api_model.description).to eq('URL: http://test.com Branch: master')
 
       stage_config_api_model = pipeline_config_api_model.stages[0]
-      stage_config_api_model.name.should == 'stage name'
+      expect(stage_config_api_model.name).to eq('stage name')
     end
   end
 end

@@ -14,10 +14,15 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe Admin::TasksController do
-  include ConfigSaveStubbing, TaskMother, FormUI
+  include ConfigSaveStubbing
+
+  include TaskMother
+
+
+  include FormUI
 
   before :all do
     set_up_registry
@@ -58,7 +63,7 @@ describe Admin::TasksController do
 
   describe "actions" do
     before do
-      controller.stub(:populate_config_validity)
+      allow(controller).to receive(:populate_config_validity)
       @pipeline = PipelineConfigMother.createPipelineConfig("pipeline.name", "stage.name", ["job.1", "job.2", "job.3"].to_java(java.lang.String))
       @tasks = @pipeline.get(0).getJobs().get(0).getTasks()
       @tasks.add(@example_task)
@@ -75,65 +80,65 @@ describe Admin::TasksController do
 
       @pipeline_config_for_edit = ConfigForEdit.new(@pipeline, @cruise_config, @cruise_config)
       @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
-      @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
+      allow(@go_config_service).to receive(:getRegistry).and_return(MockRegistryModule::MockRegistry.new)
 
-      @go_config_service.should_receive(:loadForEdit).with("pipeline.name", @user, @result).and_return(@pipeline_config_for_edit)
-      @pipeline_pause_service.should_receive(:pipelinePauseInfo).with("pipeline.name").and_return(@pause_info)
-      @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
+      expect(@go_config_service).to receive(:loadForEdit).with("pipeline.name", @user, @result).and_return(@pipeline_config_for_edit)
+      expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline.name").and_return(@pause_info)
+      allow(@go_config_service).to receive(:getRegistry).and_return(MockRegistryModule::MockRegistry.new)
       @task_view_service = stub_service(:task_view_service)
       @pluggable_task_service = stub_service(:pluggable_task_service)
     end
 
     describe "create" do
       it "should perform plugin validation before creating a pluggable task" do
-        @task_view_service.should_receive(:taskInstanceFor).with(@task_type).and_return(@new_task)
-        @task_view_service.should_receive(:taskInstanceFor).with(@on_cancel_task_type).and_return(@on_cancel_task)
+        expect(@task_view_service).to receive(:taskInstanceFor).with(@task_type).and_return(@new_task)
+        expect(@task_view_service).to receive(:taskInstanceFor).with(@on_cancel_task_type).and_return(@on_cancel_task)
 
-        @pluggable_task_service.should_receive(:validate) do |task|
+        expect(@pluggable_task_service).to receive(:validate) do |task|
           task.getConfiguration().getProperty("Url").addError("Url", "error message")
         end
 
         stub_save_for_validation_error do |result, config, node|
           result.badRequest(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["pipeline-name"]))
         end
-        @task_view_service.should_receive(:getViewModel).with(@created_task, 'new').and_return(vm_template_for(@created_task))
+        expect(@task_view_service).to receive(:getViewModel).with(@created_task, 'new').and_return(vm_template_for(@created_task))
         @on_cancel_task_vms = java.util.Arrays.asList([vm_template_for(exec_task('rm')), vm_template_for(ant_task), vm_template_for(nant_task), vm_template_for(rake_task), vm_template_for(fetch_task_with_exec_on_cancel_task)].to_java(TaskViewModel))
-        @task_view_service.should_receive(:getOnCancelTaskViewModels).with(@created_task).and_return(@on_cancel_task_vms)
+        expect(@task_view_service).to receive(:getOnCancelTaskViewModels).with(@created_task).and_return(@on_cancel_task_vms)
 
         post :create, :pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :type => @task_type, :config_md5 => "1234abcd", :task => @create_payload, :stage_parent => "pipelines", :current_tab => "tasks"
 
-        assigns[:task].cancelTask().getConfiguration().getProperty("Url").errors().getAll().size().should == 1
-        assigns[:task].cancelTask().getConfiguration().getProperty("Url").errors().getAll().should include("error message")
+        expect(assigns[:task].cancelTask().getConfiguration().getProperty("Url").errors().getAll().size()).to eq(1)
+        expect(assigns[:task].cancelTask().getConfiguration().getProperty("Url").errors().getAll()).to include("error message")
         assert_save_arguments
         assert_template "admin/tasks/plugin/new"
         assert_template layout: false
-        response.status.should == 400
+        expect(response.status).to eq(400)
       end
     end
 
     describe "update" do
       it "should perform plugin validation before updating a pluggable task" do
-        @task_view_service.should_receive(:taskInstanceFor).with(@on_cancel_task_type).and_return(@on_cancel_task)
+        expect(@task_view_service).to receive(:taskInstanceFor).with(@on_cancel_task_type).and_return(@on_cancel_task)
 
-        @pluggable_task_service.should_receive(:validate) do |task|
+        expect(@pluggable_task_service).to receive(:validate) do |task|
           task.getConfiguration().getProperty("Url").addError("Url", "error message")
         end
 
         stub_save_for_validation_error do |result, config, node|
           result.badRequest(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["pipeline-name"]))
         end
-        @task_view_service.should_receive(:getViewModel).with(@updated_task, 'edit').and_return(vm_template_for(@updated_task))
+        expect(@task_view_service).to receive(:getViewModel).with(@updated_task, 'edit').and_return(vm_template_for(@updated_task))
         on_cancel_task_vms = java.util.Arrays.asList([vm_template_for(exec_task('rm')), vm_template_for(ant_task), vm_template_for(nant_task), vm_template_for(rake_task), vm_template_for(fetch_task_with_exec_on_cancel_task)].to_java(TaskViewModel))
-        @task_view_service.should_receive(:getOnCancelTaskViewModels).with(@updated_task).and_return(on_cancel_task_vms)
+        expect(@task_view_service).to receive(:getOnCancelTaskViewModels).with(@updated_task).and_return(on_cancel_task_vms)
 
         put :update, :pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :task_index => "0", :config_md5 => "1234abcd", :type => @task_type, :task => @updated_payload, :stage_parent => "pipelines", :current_tab => "tasks"
 
-        assigns[:task].cancelTask().getConfiguration().getProperty("Url").errors().getAll().size().should == 1
-        assigns[:task].cancelTask().getConfiguration().getProperty("Url").errors().getAll().should include("error message")
+        expect(assigns[:task].cancelTask().getConfiguration().getProperty("Url").errors().getAll().size()).to eq(1)
+        expect(assigns[:task].cancelTask().getConfiguration().getProperty("Url").errors().getAll()).to include("error message")
         assert_save_arguments
         assert_template "admin/tasks/plugin/edit"
         assert_template layout: false
-        response.status.should == 400
+        expect(response.status).to eq(400)
       end
     end
   end
@@ -142,7 +147,7 @@ describe Admin::TasksController do
     return vm_for task unless (task.instance_of? PluggableTask)
 
     plugin_manager = double(PluginManager.class)
-    plugin_manager.should_receive(:doOn).and_return(TaskViewStub.new)
+    expect(plugin_manager).to receive(:doOn).and_return(TaskViewStub.new)
     PluggableTaskViewModelFactory.new(plugin_manager).viewModelFor(task, "edit")
   end
 end

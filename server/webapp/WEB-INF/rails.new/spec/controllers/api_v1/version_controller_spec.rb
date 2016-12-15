@@ -14,15 +14,17 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV1::VersionController do
-  include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
+  include ApiHeaderSetupTeardown
 
-  describe :show do
-    it 'should render the current gocd server version for admins' do
+  include ApiV1::ApiVersionHelper
+
+  describe 'show' do
+    it 'should render the current gocd server version for everyone' do
       actual_json = {go_version: '16.6.0', go_build_number: '235', git_sha: '69ef4921709a84831913d9fa7e750fbf840f213c'}
-      ApiV1::VersionRepresenter.should_receive(:version).and_return(OpenStruct.new(actual_json))
+      allow(ApiV1::VersionRepresenter).to receive(:version).and_return(OpenStruct.new(actual_json))
 
       get_with_api_header :show
       expect(response).to be_ok
@@ -30,7 +32,7 @@ describe ApiV1::VersionController do
     end
   end
 
-  describe :routing do
+  describe 'routing' do
     describe 'with header' do
       it 'should route to show action of version controller' do
         expect(:get => 'api/version').to route_to(action: 'show', controller: 'api_v1/version')

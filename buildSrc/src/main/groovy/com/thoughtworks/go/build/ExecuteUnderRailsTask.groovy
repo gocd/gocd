@@ -32,6 +32,8 @@ public class ExecuteUnderRailsTask extends Exec {
     dependsOn ':server:prepare'
     dependsOn ':server:cleanRails'
     dependsOn ':server:jar'
+    dependsOn ':server:testJar'
+    dependsOn ':server:dependencyClassPath'
 
     if (isWindows()) {
       dependsOn ':server:pathingJar'

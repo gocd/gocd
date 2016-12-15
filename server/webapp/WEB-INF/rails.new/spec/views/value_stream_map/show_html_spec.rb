@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 
 describe "/value_stream_map/show.html.erb" do
@@ -30,7 +30,7 @@ describe "/value_stream_map/show.html.erb" do
   describe "render html" do
     it "should render pipeline label for VSM page breadcrumb when it is available" do
       pipeline = double('pipeline instance')
-      pipeline.should_receive(:getLabel).and_return('test')
+      expect(pipeline).to receive(:getLabel).and_return('test')
       assign(:pipeline, pipeline)
 
       render

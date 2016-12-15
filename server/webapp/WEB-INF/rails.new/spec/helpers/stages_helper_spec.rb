@@ -14,10 +14,12 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe StagesHelper do
-  include StagesHelper, GoUtil
+  include StagesHelper
+
+  include GoUtil
 
   before do
     @stage = StageMother.scheduledStage("cruise", 10, "dev", 5, "unit")
@@ -39,8 +41,8 @@ describe StagesHelper do
   end
 
   it "should understand if stage is dummy" do
-    expect(placeholder_stage?(@stage_summary)).to be_false
-    expect(placeholder_stage?(@new_stage_summary)).to be_true
+    expect(placeholder_stage?(@stage_summary)).to be_falsey
+    expect(placeholder_stage?(@new_stage_summary)).to be_truthy
   end
 
   it "should understand if stage is the current stage" do
@@ -48,11 +50,11 @@ describe StagesHelper do
     params[:pipeline_counter] = "1"
     params[:stage_name] = "stage_name"
     params[:stage_counter] = "2"
-    expect(is_current_stage?(StageIdentifier.new('pipeline_name', 1, "stage_name", "2"))).to be_true
-    expect(is_current_stage?(StageIdentifier.new('pipeline_name_x', 1, "stage_name", "2"))).to be_false
-    expect(is_current_stage?(StageIdentifier.new('pipeline_name', 10, "stage_name", "2"))).to be_false
-    expect(is_current_stage?(StageIdentifier.new('pipeline_name', 1, "stage_name_x", "2"))).to be_false
-    expect(is_current_stage?(StageIdentifier.new('pipeline_name', 1, "stage_name", "20"))).to be_false
+    expect(is_current_stage?(StageIdentifier.new('pipeline_name', 1, "stage_name", "2"))).to be_truthy
+    expect(is_current_stage?(StageIdentifier.new('pipeline_name_x', 1, "stage_name", "2"))).to be_falsey
+    expect(is_current_stage?(StageIdentifier.new('pipeline_name', 10, "stage_name", "2"))).to be_falsey
+    expect(is_current_stage?(StageIdentifier.new('pipeline_name', 1, "stage_name_x", "2"))).to be_falsey
+    expect(is_current_stage?(StageIdentifier.new('pipeline_name', 1, "stage_name", "20"))).to be_falsey
   end
 
   it "should generate link with current tab css if this is the current tab" do

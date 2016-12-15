@@ -14,13 +14,13 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 
 describe "/agents/index.json.erb" do
   before do
-    view.stub(:can_view_admin_page?).and_return(true)
-    view.stub(:has_operate_permission_for_agents?).and_return(true)
+    allow(view).to receive(:can_view_admin_page?).and_return(true)
+    allow(view).to receive(:has_operate_permission_for_agents?).and_return(true)
   end
 
   it "should return json of partials" do

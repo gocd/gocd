@@ -14,14 +14,14 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV4::Config::Tasks::TaskRepresenter do
   include TaskMother
 
   shared_examples_for 'tasks' do
 
-    describe :serialize do
+    describe 'serialize' do
       it 'should render task with hal representation' do
         presenter          = ApiV4::Config::Tasks::TaskRepresenter.new(existing_task)
         actual_json        = presenter.to_hash(url_builder: UrlBuilder.new)
@@ -49,7 +49,7 @@ describe ApiV4::Config::Tasks::TaskRepresenter do
       end
     end
 
-    describe :deserialize do
+    describe 'deserialize' do
       it 'should convert hash to Task' do
         new_task = task_type.new
 
@@ -84,7 +84,7 @@ describe ApiV4::Config::Tasks::TaskRepresenter do
     end
   end
 
-  describe :exec do
+  describe 'exec' do
     it_should_behave_like 'tasks'
 
     def existing_task
@@ -112,11 +112,11 @@ describe ApiV4::Config::Tasks::TaskRepresenter do
       task         = ExecTask.new()
       task.setWorkingDirectory("../outside")
       validation_context = double('ValidationContext')
-      validation_context.stub(:isWithinPipelines).and_return(true)
+      allow(validation_context).to receive(:isWithinPipelines).and_return(true)
       pipeline = PipelineConfigMother::createPipelineConfigWithStage("this_pipeline", "stage")
-      validation_context.stub(:getPipeline).and_return(pipeline)
-      validation_context.stub(:getStage).and_return(pipeline.first)
-      validation_context.stub(:getJob).and_return(pipeline.first.getJobs.first)
+      allow(validation_context).to receive(:getPipeline).and_return(pipeline)
+      allow(validation_context).to receive(:getStage).and_return(pipeline.first)
+      allow(validation_context).to receive(:getJob).and_return(pipeline.first.getJobs.first)
       task.validateTree(validation_context)
 
       presenter   = ApiV4::Config::Tasks::TaskRepresenter.new(task)
@@ -137,7 +137,7 @@ describe ApiV4::Config::Tasks::TaskRepresenter do
     end
   end
 
-  describe :ant do
+  describe 'ant' do
     it_should_behave_like 'tasks'
 
     def existing_task
@@ -176,11 +176,11 @@ describe ApiV4::Config::Tasks::TaskRepresenter do
       task         = AntTask.new()
       task.setWorkingDirectory("../outside")
       validation_context = double('ValidationContext')
-      validation_context.stub(:isWithinPipelines).and_return(true)
+      allow(validation_context).to receive(:isWithinPipelines).and_return(true)
       pipeline = PipelineConfigMother::createPipelineConfigWithStage("this_pipeline", "stage")
-      validation_context.stub(:getPipeline).and_return(pipeline)
-      validation_context.stub(:getStage).and_return(pipeline.first)
-      validation_context.stub(:getJob).and_return(pipeline.first.getJobs.first)
+      allow(validation_context).to receive(:getPipeline).and_return(pipeline)
+      allow(validation_context).to receive(:getStage).and_return(pipeline.first)
+      allow(validation_context).to receive(:getJob).and_return(pipeline.first.getJobs.first)
       task.validateTree(validation_context)
 
       presenter   = ApiV4::Config::Tasks::TaskRepresenter.new(task)
@@ -212,7 +212,7 @@ describe ApiV4::Config::Tasks::TaskRepresenter do
     end
   end
 
-  describe :nant do
+  describe 'nant' do
     it_should_behave_like 'tasks'
 
     def task_type
@@ -253,11 +253,11 @@ describe ApiV4::Config::Tasks::TaskRepresenter do
       task         = NantTask.new()
       task.setWorkingDirectory("../outside")
       validation_context = double('ValidationContext')
-      validation_context.stub(:isWithinPipelines).and_return(true)
+      allow(validation_context).to receive(:isWithinPipelines).and_return(true)
       pipeline = PipelineConfigMother::createPipelineConfigWithStage("this_pipeline", "stage")
-      validation_context.stub(:getPipeline).and_return(pipeline)
-      validation_context.stub(:getStage).and_return(pipeline.first)
-      validation_context.stub(:getJob).and_return(pipeline.first.getJobs.first)
+      allow(validation_context).to receive(:getPipeline).and_return(pipeline)
+      allow(validation_context).to receive(:getStage).and_return(pipeline.first)
+      allow(validation_context).to receive(:getJob).and_return(pipeline.first.getJobs.first)
       task.validateTree(validation_context)
 
       presenter   = ApiV4::Config::Tasks::TaskRepresenter.new(task)
@@ -289,7 +289,7 @@ describe ApiV4::Config::Tasks::TaskRepresenter do
     end
   end
 
-  describe :rake do
+  describe 'rake' do
     it_should_behave_like 'tasks'
 
     def existing_task
@@ -329,11 +329,11 @@ describe ApiV4::Config::Tasks::TaskRepresenter do
       task         = RakeTask.new()
       task.setWorkingDirectory("../outside")
       validation_context = double('ValidationContext')
-      validation_context.stub(:isWithinPipelines).and_return(true)
+      allow(validation_context).to receive(:isWithinPipelines).and_return(true)
       pipeline = PipelineConfigMother::createPipelineConfigWithStage("this_pipeline", "stage")
-      validation_context.stub(:getPipeline).and_return(pipeline)
-      validation_context.stub(:getStage).and_return(pipeline.first)
-      validation_context.stub(:getJob).and_return(pipeline.first.getJobs.first)
+      allow(validation_context).to receive(:getPipeline).and_return(pipeline)
+      allow(validation_context).to receive(:getStage).and_return(pipeline.first)
+      allow(validation_context).to receive(:getJob).and_return(pipeline.first.getJobs.first)
       task.validateTree(validation_context)
 
       presenter   = ApiV4::Config::Tasks::TaskRepresenter.new(task)
@@ -366,7 +366,7 @@ describe ApiV4::Config::Tasks::TaskRepresenter do
     end
   end
 
-  describe :fetch do
+  describe 'fetch' do
 
     it_should_behave_like 'tasks'
 
@@ -381,11 +381,11 @@ describe ApiV4::Config::Tasks::TaskRepresenter do
     it 'should represent errors' do
       fetch_task         = FetchTask.new(CaseInsensitiveString.new('this_pipeline'), CaseInsensitiveString.new(''), CaseInsensitiveString.new(''), "../src", "../dest")
       validation_context = double('ValidationContext')
-      validation_context.stub(:isWithinPipelines).and_return(true)
+      allow(validation_context).to receive(:isWithinPipelines).and_return(true)
       pipeline = PipelineConfigMother::createPipelineConfigWithStage("this_pipeline", "stage")
-      validation_context.stub(:getPipeline).and_return(pipeline)
-      validation_context.stub(:getStage).and_return(pipeline.first)
-      validation_context.stub(:getJob).and_return(pipeline.first.getJobs.first)
+      allow(validation_context).to receive(:getPipeline).and_return(pipeline)
+      allow(validation_context).to receive(:getStage).and_return(pipeline.first)
+      allow(validation_context).to receive(:getJob).and_return(pipeline.first.getJobs.first)
       fetch_task.validateTree(validation_context)
 
       presenter   = ApiV4::Config::Tasks::TaskRepresenter.new(fetch_task)
@@ -425,7 +425,7 @@ describe ApiV4::Config::Tasks::TaskRepresenter do
 
   end
 
-  describe :pluggable do
+  describe 'pluggable' do
     it_should_behave_like 'tasks'
 
     before(:each) do

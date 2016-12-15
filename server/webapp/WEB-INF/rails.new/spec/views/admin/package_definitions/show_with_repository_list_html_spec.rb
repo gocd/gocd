@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-require 'spec_helper'
+require 'rails_helper'
 include GoUtil, FormUI
 
 describe "admin/package_definitions/show_with_repository_list.html.erb" do
@@ -40,8 +40,8 @@ describe "admin/package_definitions/show_with_repository_list.html.erb" do
 
     #md5 setup
     assign(:cruise_config, @cruise_config = double("cruise config"))
-    @cruise_config.should_receive(:canDeletePackageRepository).at_least(:once).with(anything).and_return(true)
-    @cruise_config.should_receive(:getMd5).at_least(:once).and_return("abc")
+    expect(@cruise_config).to receive(:canDeletePackageRepository).at_least(:once).with(anything).and_return(true)
+    expect(@cruise_config).to receive(:getMd5).at_least(:once).and_return("abc")
 
     # metadata setup
     metadata = PackageConfigurations.new

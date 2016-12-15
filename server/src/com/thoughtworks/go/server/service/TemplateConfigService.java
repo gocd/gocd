@@ -87,7 +87,7 @@ public class TemplateConfigService {
             goConfigService.updateConfig(command, currentUser);
         } catch (Exception e) {
             if (e instanceof GoConfigInvalidException) {
-                result.unprocessableEntity(LocalizedMessage.string("ENTITY_CONFIG_VALIDATION_FAILED", templateConfig.getClass().getAnnotation(ConfigTag.class).value(), templateConfig.name(), e.getMessage()));
+                result.unprocessableEntity(LocalizedMessage.string("ENTITY_CONFIG_VALIDATION_FAILED", "template", templateConfig.name(), e.getMessage()));
             } else {
                 if (!result.hasMessage()) {
                     LOGGER.error(e.getMessage(), e);

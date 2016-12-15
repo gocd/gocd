@@ -148,7 +148,6 @@ module JavaImports
   java_import com.thoughtworks.go.server.service.result.DefaultLocalizedResult unless defined? DefaultLocalizedResult
   java_import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult unless defined? HttpLocalizedOperationResult
   java_import com.thoughtworks.go.server.service.result.HttpOperationResult unless defined? HttpOperationResult
-  java_import org.apache.commons.httpclient.HttpStatus unless defined? HttpStatus
   java_import com.thoughtworks.go.server.service.result.SubsectionLocalizedOperationResult unless defined? SubsectionLocalizedOperationResult
   java_import com.thoughtworks.go.server.service.UserService unless defined? UserService
   java_import com.thoughtworks.go.server.ui.AgentsViewModel unless defined? AgentsViewModel

@@ -39,18 +39,18 @@ public class MingleConfigTest {
     @Test
     public void shouldBuildUrlGivenPath() throws Exception {
         MingleConfig mingleConfig = new MingleConfig("http://foo.bar:7019/baz", "go-project");
-        assertThat(mingleConfig.urlFor("/gadgets/card_activity.xml"), is("http://foo.bar:7019/baz/gadgets/card_activity.xml"));
-        assertThat(mingleConfig.urlFor("gadgets/card_activity.xml"), is("http://foo.bar:7019/bazgadgets/card_activity.xml"));
+        assertThat(mingleConfig.urlFor("/cards/123"), is("http://foo.bar:7019/baz/cards/123"));
+        assertThat(mingleConfig.urlFor("cards/123"), is("http://foo.bar:7019/bazcards/123"));
 
         mingleConfig = new MingleConfig("http://foo.bar:7019/baz/", "go-project");
-        assertThat(mingleConfig.urlFor("/gadgets/card_activity.xml"), is("http://foo.bar:7019/baz/gadgets/card_activity.xml"));
-        assertThat(mingleConfig.urlFor("gadgets/card_activity.xml"), is("http://foo.bar:7019/baz/gadgets/card_activity.xml"));
+        assertThat(mingleConfig.urlFor("/cards/123"), is("http://foo.bar:7019/baz/cards/123"));
+        assertThat(mingleConfig.urlFor("cards/123"), is("http://foo.bar:7019/baz/cards/123"));
 
         mingleConfig = new MingleConfig("http://foo.bar:7019", "go-project");
-        assertThat(mingleConfig.urlFor("/gadgets/card_activity.xml"), is("http://foo.bar:7019/gadgets/card_activity.xml"));
+        assertThat(mingleConfig.urlFor("/cards/123"), is("http://foo.bar:7019/cards/123"));
 
         mingleConfig = new MingleConfig("http://foo.bar:7019/quux?hi=there", "go-project");
-        assertThat(mingleConfig.urlFor("/gadgets/card_activity.xml"), is("http://foo.bar:7019/quux/gadgets/card_activity.xml?hi=there"));
+        assertThat(mingleConfig.urlFor("/cards/123"), is("http://foo.bar:7019/quux/cards/123?hi=there"));
     }
 
     @Test

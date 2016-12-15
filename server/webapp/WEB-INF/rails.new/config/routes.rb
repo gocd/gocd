@@ -388,7 +388,6 @@ Go::Application.routes.draw do
         # pipeline api's
         get 'pipelines/:name/stages.xml' => 'pipelines#stage_feed', constraints: {name: PIPELINE_NAME_FORMAT}, as: :api_pipeline_stage_feed
         get 'pipelines/:name/:id.xml' => 'pipelines#pipeline_instance', constraints: {name: PIPELINE_NAME_FORMAT}, as: :api_pipeline_instance
-        get 'card_activity/:pipeline_name/:from_pipeline_counter/to/:to_pipeline_counter' => 'pipelines#card_activity', constraints: {from_pipeline_counter: PIPELINE_COUNTER_FORMAT, to_pipeline_counter: PIPELINE_COUNTER_FORMAT, pipeline_name: PIPELINE_NAME_FORMAT}, as: :card_activity
         get 'pipelines.xml' => 'pipelines#pipelines', as: :api_pipelines
 
         #job api's
@@ -440,11 +439,6 @@ Go::Application.routes.draw do
   get "cas_errors/user_disabled" => 'cas_errors#user_disabled', as: :user_disabled_cas_error
   get "cas_errors/user_unknown" => 'cas_errors#user_unknown', as: :user_unknown_cas_error
   get "errors/inactive" => 'go_errors#inactive'
-
-  if java.lang.System.getProperty('go.gadgets.pipeline_status.enable') == 'Y'
-    get "gadgets/pipeline.xml" => "gadgets/pipeline#index", :format => 'xml', as: :pipeline_status_gadget
-    get "gadgets/pipeline/content" => "gadgets/pipeline#content", :no_layout => true, as: :pipeline_status_gadget_content
-  end
 
   get "cctray.xml" => "cctray#index", :format => "xml", as: :cctray
 

@@ -82,7 +82,6 @@ describe "/navigation_elements/navigation" do
       @assert_values = {"Pipelines"     => pipeline_groups_path, "Templates" => templates_path, "Config XML" => config_view_path, "Server Configuration" => edit_server_config_path, "User Summary" => user_listing_path,
                         "OAuth Clients" => oauth_engine.clients_path, "Backup" => backup_server_path, "Plugins" => plugins_listing_path, "Package Repositories" => package_repositories_new_path}
 
-      @assert_values.merge!("OAuth Enabled Gadget Providers" => gadgets_oauth_clients_path) if Gadgets.enabled?
     end
 
     it 'should show dropdown items for admin link on header' do

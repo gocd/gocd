@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
+/*
  * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain;
 
@@ -371,30 +371,6 @@ public class MaterialRevisions implements Serializable, Iterable<MaterialRevisio
             }
         }
         return false;
-    }
-
-    public List<String> getCardNumbersFromComments() {
-        List<String> cardNumbers = new ArrayList<>();
-        for (Modification modification : collectAllModifications()) {
-            collectUniqueCardNumbers(modification, cardNumbers);
-        }
-        return cardNumbers;
-    }
-
-    public void collectUniqueCardNumbers(Modification modification, List<String> cardNumbers) {
-        for (String number : modification.getCardNumbersFromComment()) {
-            if (!cardNumbers.contains(number)) {
-                cardNumbers.add(number);
-            }
-        }
-    }
-
-    private Modifications collectAllModifications() {
-        Set<Modification> mods = new TreeSet<>(Modifications.LATEST_MODIFICATION_FIRST);
-        for (MaterialRevision revision : revisions) {
-            mods.addAll(revision.getModifications());
-        }
-        return new Modifications(new ArrayList<>(mods));
     }
 
     public BuildCommand updateToCommand(String baseDir) {

@@ -68,24 +68,6 @@ describe ComparisonController, "view" do
       @revisions.addRevision(@dependency_revisions)
     end
 
-    it "should load mingle config for given pipeline" do
-      next unless Gadgets.enabled?
-      controller.stub(:current_user).and_return(loser = Username.new(CaseInsensitiveString.new('loser')))
-      controller.should_receive(:mingle_config_service).and_return(service = double('MingleConfigService'))
-      result = HttpLocalizedOperationResult.new
-      HttpLocalizedOperationResult.stub(:new).and_return(result)
-      mingle_config = MingleConfig.new("https://some_host/path", "foo_bar_project", "mql != not(mql)")
-      service.should_receive(:mingleConfigForPipelineNamed).with('some_pipeline', loser, result).and_return(mingle_config)
-      controller.should_receive(:changeset_service).and_return(changeset_service = double('ChangesetService'))
-      changeset_service.should_receive(:revisionsBetween).with('some_pipeline', 10, 17, loser, result, true, false).and_return(@revisions.getRevisions())
-      stub_go_config_service
-
-      get :show, :pipeline_name => "some_pipeline", :from_counter => "10", :to_counter => '17'
-
-      expect(assigns[:mingle_config]).to eq(mingle_config)
-      expect(response.body).to include("http://test.host/api/card_activity/some_pipeline/10/to/17")
-    end
-
     def stub_go_config_service
       go_config_service = stub_service(:go_config_service)
       go_config_service.stub(:isSecurityEnabled).and_return(true)
@@ -93,28 +75,6 @@ describe ComparisonController, "view" do
       go_config_service.stub(:getCommentRendererFor).with("some_pipeline").and_return(com.thoughtworks.go.config.TrackingTool.new())
       mother = GoConfigMother.new
       go_config_service.stub(:getCurrentConfig).and_return(mother.cruiseConfigWithPipelineUsingTwoMaterials())
-    end
-
-    it "should not fail if mingle not configured for given pipeline" do
-      next unless Gadgets.enabled?
-      controller.stub(:current_user).and_return(loser = Username.new(CaseInsensitiveString.new('loser')))
-      service = stub_service(:mingle_config_service)
-      result = stub_localized_result()
-      service.should_receive(:mingleConfigForPipelineNamed).with('some_pipeline', loser, result).and_return(nil)
-      changeset_service = stub_service(:changeset_service)
-      changeset_service.should_receive(:revisionsBetween).with('some_pipeline', 10, 17, loser, result, true, false).and_return(@revisions.getRevisions())
-      stub_go_config_service
-
-
-      get :show, :pipeline_name => "some_pipeline", :from_counter => "10", :to_counter => '17'
-      expect(assigns[:mingle_config]).to eq(nil)
-
-      expect(response.status).to eq(200)
-      expect(response.body).to include("tw_gadget.init") #because it has to show remote dependency gadgets anyway
-      expect(response.body).to_not include("tw_gadget.addGadget")
-      expect(response.body).to include("No mingle project configured for this pipeline.")
-
-      assert_scm_modification_shown(@hg_revisions.getRevisions().get(0).getModifications().get(0), 1, 0)
     end
 
     it "should render error page when user doesn't have view access to pipeline" do
@@ -160,33 +120,6 @@ describe ComparisonController, "view" do
       end
       expect(response.body).to include("<h3>You do not have view permissions for pipeline &#39;admin_only&#39;. { too bad for you! }\n</h3>")
       expect(response.status).to eq(401)
-    end
-
-    it "should render Card Activity and Checkins as tabs" do
-      next unless Gadgets.enabled?
-      controller.stub(:current_user).and_return(loser = Username.new(CaseInsensitiveString.new("loser")))
-      controller.should_receive(:mingle_config_service).and_return(service = double('MingleConfigService'))
-      result = HttpLocalizedOperationResult.new
-      HttpLocalizedOperationResult.stub(:new).and_return(result)
-      mingle_config = MingleConfig.new("https://some_host/path", "foo_bar_project", "mql != not(mql)")
-      service.should_receive(:mingleConfigForPipelineNamed).with('some_pipeline', loser, result).and_return(mingle_config)
-
-      controller.should_receive(:changeset_service).and_return(changeset_service = double('ChangesetService'))
-      changeset_service.should_receive(:revisionsBetween).with('some_pipeline', 10, 17, loser, result, true, false).and_return(@revisions.getRevisions())
-
-      stub_go_config_service
-      get :show, :pipeline_name => "some_pipeline", :from_counter => "10", :to_counter => "17"
-
-      Capybara.string(response.body).find("div.sub_tab_container").tap do |element|
-        element.find("div.sub_tabs_container").tap do |node|
-          expect(node).to have_selector("ul li.card_activity a", :text => "Card Activity")
-          expect(node).to have_selector("ul li.checkins a", :text => "Changes")
-        end
-        element.find("div.sub_tab_container_content").tap do |node|
-          expect(node).to have_selector("div#tab-content-of-card_activity")
-          expect(node).to have_selector("div#tab-content-of-checkins")
-        end
-      end
     end
 
     it "should render Checkins between the given pipeline instances" do

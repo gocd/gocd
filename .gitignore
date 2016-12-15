@@ -102,7 +102,6 @@ server/tfs-impl-14.jar
 server/artifactsDir/
 server/config/agentkeystore
 server/config/cruise-config.xml.*
-server/config/gadget_truststore.jks
 server/config/keystore
 server/config/truststore
 server/data/

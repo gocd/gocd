@@ -47,8 +47,6 @@
                 /api/*/*.xml=performanceLoggingFilter,modeAwareFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,apiSessionFilter,goLogoutFilter,removeAdminPermissionFilter,casAuthProcessingFilter,oauthProcessingFilter,basicProcessingFilter,authenticationProcessingFilter,userEnabledCheckFilter,anonymousProcessingFilter,basicAuthenticationAccessDenied,filterInvocationInterceptor,flashLoader,urlRewriter
                 /api/pipelines/*/*.xml=performanceLoggingFilter,modeAwareFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,apiSessionFilter,goLogoutFilter,removeAdminPermissionFilter,casAuthProcessingFilter,oauthProcessingFilter,basicProcessingFilter,authenticationProcessingFilter,userEnabledCheckFilter,anonymousProcessingFilter,basicAuthenticationAccessDenied,filterInvocationInterceptor,flashLoader,urlRewriter
 
-                /gadgets/**=performanceLoggingFilter,modeAwareFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,goLogoutFilter,removeAdminPermissionFilter,casAuthProcessingFilter,oauthProcessingFilter,basicProcessingFilter,authenticationProcessingFilter,userEnabledCheckFilter,anonymousProcessingFilter,basicAuthenticationAccessDenied,filterInvocationInterceptor,flashLoader,urlRewriter
-
                 /cctray.xml=performanceLoggingFilter,modeAwareFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,apiSessionFilter,goLogoutFilter,removeAdminPermissionFilter,casAuthProcessingFilter,oauthProcessingFilter,basicProcessingFilter,authenticationProcessingFilter,userEnabledCheckFilter,anonymousProcessingFilter,basicAuthenticationAccessDenied,filterInvocationInterceptor,flashLoader,urlRewriter
                 /api/**=performanceLoggingFilter,modeAwareFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,apiSessionFilter,goLogoutFilter,removeAdminPermissionFilter,casAuthProcessingFilter,oauthProcessingFilter,basicProcessingFilter,authenticationProcessingFilter,userEnabledCheckFilter,anonymousProcessingFilter,basicAuthenticationAccessDenied,filterInvocationInterceptor,flashLoader,urlRewriter
                 /files/**=performanceLoggingFilter,modeAwareFilter,artifactSizeEnforcementFilter,i18nlocaleResolver,httpSessionContextIntegrationFilter,goLogoutFilter,removeAdminPermissionFilter,casAuthProcessingFilter,oauthProcessingFilter,basicProcessingFilter,authenticationProcessingFilter,userEnabledCheckFilter,anonymousProcessingFilter,cruiseLoginOrBasicAuthentication,filterInvocationInterceptor,flashLoader,urlRewriter
@@ -299,11 +297,6 @@
                 /oauth/authorize=ROLE_USER
                 /oauth/user_tokens=ROLE_USER
                 /oauth/user_tokens/revoke/**=ROLE_USER
-
-                /gadgets/pipeline.xml=IS_AUTHENTICATED_ANONYMOUSLY
-                /gadgets/pipeline/**=ROLE_OAUTH_USER,ROLE_USER
-                /gadgets/remote_materials.xml=IS_AUTHENTICATED_ANONYMOUSLY
-                /gadgets/remote_materials/**=ROLE_OAUTH_USER,ROLE_USER
 
                 /plugin/interact/**=IS_AUTHENTICATED_ANONYMOUSLY
 

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -62,11 +62,6 @@ public class ChangesetService {
         this.pipelineDao = pipelineDao;
         this.materialRepository = materialRepository;
         this.goConfigService = goConfigService;
-    }
-
-    public List<String> getCardNumbersBetween(String pipelineName, Integer fromCounter, Integer toCounter, Username username, HttpLocalizedOperationResult result, boolean showBisect) {
-        List<MaterialRevision> materialRevisions = revisionsBetween(pipelineName, fromCounter, toCounter, username, result, false, showBisect);
-        return new MaterialRevisions(materialRevisions).getCardNumbersFromComments();
     }
 
     public List<MaterialRevision> revisionsBetween(List<PipelineRevisionRange> pipelineRevisionRanges, Username username, HttpLocalizedOperationResult result) {

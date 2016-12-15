@@ -119,15 +119,6 @@ class Api::PipelinesController < Api::ApiController
     render_operation_result(result)
   end
 
-  def card_activity
-    card_numbers_set = changeset_service.getCardNumbersBetween(params[:pipeline_name], params[:from_pipeline_counter].to_i, params[:to_pipeline_counter].to_i, current_user, result = HttpLocalizedOperationResult.new, show_bisect?)
-    if !result.isSuccessful
-      render_localized_operation_result result
-      return
-    end
-    render text: card_numbers_set.to_a.join(",")
-  end
-
   def pause
     result = HttpLocalizedOperationResult.new
     pipeline_name = params[:pipeline_name]

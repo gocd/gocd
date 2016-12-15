@@ -19,11 +19,6 @@
 <li role="presentation">
   <%= link_to "OAuth Clients", oauth_engine.clients_path -%>
 </li>
-<% if Gadgets.enabled? %>
-<li role="presentation">
-  <%= link_to "OAuth Enabled Gadget Providers", gadgets_oauth_clients_path -%>
-</li>
-<% end %>
 <li role="presentation">
   <%= link_to "Backup", backup_server_path -%>
 </li>

@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
@@ -41,7 +41,6 @@ import com.thoughtworks.go.server.valuestreammap.DownstreamInstancePopulator;
 import com.thoughtworks.go.server.valuestreammap.RunStagesPopulator;
 import com.thoughtworks.go.server.valuestreammap.UnrunStagesPopulator;
 import com.thoughtworks.go.util.ReflectionUtil;
-import org.apache.commons.httpclient.HttpStatus;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.core.IsNull;
 import org.junit.Before;
@@ -53,6 +52,7 @@ import java.util.*;
 import static com.thoughtworks.go.domain.valuestreammap.VSMTestHelper.assertDepth;
 import static com.thoughtworks.go.helper.ModificationsMother.checkinWithComment;
 import static java.util.Arrays.asList;
+import static javax.servlet.http.HttpServletResponse.*;
 import static junit.framework.TestCase.assertNull;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
@@ -717,7 +717,7 @@ public class ValueStreamMapServiceTest {
 
         valueStreamMapService.getValueStreamMap(pipelineName, 1, newUser, result);
 
-		assertResult(HttpStatus.SC_UNAUTHORIZED, "PIPELINE_CANNOT_VIEW");
+		assertResult(SC_UNAUTHORIZED, "PIPELINE_CANNOT_VIEW");
     }
 
     @Test
@@ -789,12 +789,12 @@ public class ValueStreamMapServiceTest {
 		// unknown material
 		valueStreamMapService.getValueStreamMap("unknown-material", "r1", new Username(new CaseInsensitiveString(userName)), result);
 
-		assertResult(HttpStatus.SC_NOT_FOUND, "MATERIAL_CONFIG_WITH_FINGERPRINT_NOT_FOUND");
+		assertResult(SC_NOT_FOUND, "MATERIAL_CONFIG_WITH_FINGERPRINT_NOT_FOUND");
 
 		// unauthorized
 		valueStreamMapService.getValueStreamMap(gitMaterial.getFingerprint(), "r1", new Username(new CaseInsensitiveString(userName)), result);
 
-		assertResult(HttpStatus.SC_UNAUTHORIZED, "MATERIAL_CANNOT_VIEW");
+		assertResult(SC_UNAUTHORIZED, "MATERIAL_CANNOT_VIEW");
 
 		// material config exists but no material instance
 		when(securityService.hasViewPermissionForGroup(userName, groupName)).thenReturn(true);
@@ -802,7 +802,7 @@ public class ValueStreamMapServiceTest {
 
 		valueStreamMapService.getValueStreamMap(gitMaterial.getFingerprint(), "r1", new Username(new CaseInsensitiveString(userName)), result);
 
-		assertResult(HttpStatus.SC_NOT_FOUND, "MATERIAL_INSTANCE_WITH_FINGERPRINT_NOT_FOUND");
+		assertResult(SC_NOT_FOUND, "MATERIAL_INSTANCE_WITH_FINGERPRINT_NOT_FOUND");
 
 		// modification (revision) doesn't exist
 		when(materialRepository.findMaterialInstance(gitConfig)).thenReturn(gitMaterialInstance);
@@ -810,14 +810,14 @@ public class ValueStreamMapServiceTest {
 
 		valueStreamMapService.getValueStreamMap(gitMaterial.getFingerprint(), "r1", new Username(new CaseInsensitiveString(userName)), result);
 
-		assertResult(HttpStatus.SC_NOT_FOUND, "MATERIAL_MODIFICATION_NOT_FOUND");
+		assertResult(SC_NOT_FOUND, "MATERIAL_MODIFICATION_NOT_FOUND");
 
 		// internal error
 		when(goConfigService.groups()).thenThrow(new RuntimeException("just for fun"));
 
 		valueStreamMapService.getValueStreamMap(gitMaterial.getFingerprint(), "r1", new Username(new CaseInsensitiveString(userName)), result);
 
-		assertResult(HttpStatus.SC_INTERNAL_SERVER_ERROR, "VSM_INTERNAL_SERVER_ERROR_FOR_MATERIAL");
+		assertResult(SC_INTERNAL_SERVER_ERROR, "VSM_INTERNAL_SERVER_ERROR_FOR_MATERIAL");
 	}
 
 	private void assertResult(int httpCode, String msgKey) {

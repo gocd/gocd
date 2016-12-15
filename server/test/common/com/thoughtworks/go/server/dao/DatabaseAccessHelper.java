@@ -16,15 +16,6 @@
 
 package com.thoughtworks.go.server.dao;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import javax.sql.DataSource;
-
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
@@ -36,12 +27,7 @@ import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
-import com.thoughtworks.go.helper.BuildPlanMother;
-import com.thoughtworks.go.helper.JobInstanceMother;
-import com.thoughtworks.go.helper.MaterialConfigsMother;
-import com.thoughtworks.go.helper.MaterialsMother;
-import com.thoughtworks.go.helper.ModificationsMother;
-import com.thoughtworks.go.helper.StageConfigMother;
+import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.domain.Username;
@@ -73,6 +59,15 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 import static com.thoughtworks.go.domain.JobResult.Failed;
 import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
@@ -187,9 +182,6 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
         dataSet.addTable(new DefaultTable("oauthauthorizations"));
         dataSet.addTable(new DefaultTable("oauthtokens"));
 
-        dataSet.addTable(new DefaultTable("gadgetOauthClients"));
-        dataSet.addTable(new DefaultTable("gadgetOauthAuthorizationCodes"));
-        dataSet.addTable(new DefaultTable("gadgetOauthAccessTokens"));
         dataSet.addTable(new DefaultTable("stageArtifactCleanupProhibited"));
         dataSet.addTable(new DefaultTable("serverBackups"));
 

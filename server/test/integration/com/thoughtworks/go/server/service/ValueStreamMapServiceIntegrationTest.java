@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
@@ -32,9 +32,7 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.ReflectionUtil;
-import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.collections.Transformer;
-import org.apache.commons.httpclient.HttpStatus;
 import org.hamcrest.core.Is;
 import org.hamcrest.core.IsCollectionContaining;
 import org.hamcrest.core.IsNull;
@@ -51,10 +49,13 @@ import java.util.List;
 
 import static com.thoughtworks.go.domain.valuestreammap.VSMTestHelper.assertInstances;
 import static com.thoughtworks.go.domain.valuestreammap.VSMTestHelper.assertStageDetails;
+import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
+import static javax.servlet.http.HttpServletResponse.SC_NOT_IMPLEMENTED;
 import static org.apache.commons.collections.CollectionUtils.collect;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
@@ -294,7 +295,7 @@ public class ValueStreamMapServiceIntegrationTest {
 
         assertThat(valueStreamMapService.getValueStreamMap(pipeline, 1, username, result), is(IsNull.nullValue()));
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(HttpStatus.SC_NOT_FOUND));
+        assertThat(result.httpCode(), is(SC_NOT_FOUND));
         assertThat(result.message(localizer), is("Pipeline 'NewlyCreated' with counter '1' not found."));
     }
 
@@ -302,7 +303,7 @@ public class ValueStreamMapServiceIntegrationTest {
     public void shouldNotReturnGraphForNonExistentPipeline() {
         assertThat(valueStreamMapService.getValueStreamMap("does_not_exist", 1, username, result), is(IsNull.nullValue()));
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(HttpStatus.SC_NOT_FOUND));
+        assertThat(result.httpCode(), is(SC_NOT_FOUND));
         assertThat(result.message(localizer), is("Pipeline 'does_not_exist' with counter '1' not found."));
     }
 
@@ -532,7 +533,7 @@ public class ValueStreamMapServiceIntegrationTest {
 
         valueStreamMapService.getValueStreamMap("p1", 2, username, result);
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(HttpStatus.SC_NOT_IMPLEMENTED));
+        assertThat(result.httpCode(), is(SC_NOT_IMPLEMENTED));
         assertThat(result.message(localizer), is(String.format(
                 "Value Stream Map of Pipeline 'p1' with counter '2' can not be rendered. Changes to the configuration have introduced complex dependencies for this instance which are not supported currently.",
                 "p1", 2)));

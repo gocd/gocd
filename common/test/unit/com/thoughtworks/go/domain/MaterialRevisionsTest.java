@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain;
 
@@ -359,7 +359,7 @@ public class MaterialRevisionsTest {
 
     @Test
     public void shouldUseFirstChangedMaterialAsBuildCauseMessage() throws Exception {
-        MaterialRevisions materialRevisions = madeChanges(new boolean[] {false, true}, 
+        MaterialRevisions materialRevisions = madeChanges(new boolean[] {false, true},
                 oneModifiedFile("user1", "svnRev", TWO_DAYS_AGO_CHECKIN),
                 oneModifiedFile("user2", "hgRev", new Date()));
 
@@ -472,27 +472,8 @@ public class MaterialRevisionsTest {
     }
 
     @Test
-    public void shouldReturnCardNumbersFromComments() {
-        Modification first = new Modification(null, "Fixing only #11 #7865", null, null, null);
-        first.setId(1);
-        Modification second = new Modification(null, "Fixing #3455 - #1234", null, null, null);
-        second.setId(2);
-        Modification third = new Modification(null, "Fixing only #7865", null, null, null);
-        third.setId(3);
-
-        MaterialRevision revision1 = new MaterialRevision(null, second);
-        MaterialRevision revision2 = new MaterialRevision(null, first);
-        MaterialRevision revision3 = new MaterialRevision(null, third);
-
-        MaterialRevisions materialRevisions = new MaterialRevisions(revision1, revision2, revision3);
-
-        assertThat(materialRevisions.getCardNumbersFromComments().size(), is(4));
-        assertThat(materialRevisions.getCardNumbersFromComments(), is(Arrays.asList("7865", "1234", "3455", "11")));
-    }
-
-    @Test
     public void shouldReturnTrueForMissingModificationsForEmptyList() {
-        assertThat(new MaterialRevisions().isMissingModifications(),is(true));        
+        assertThat(new MaterialRevisions().isMissingModifications(),is(true));
     }
 
     @Test

@@ -375,12 +375,6 @@ describe ApplicationHelper do
     end
   end
 
-  it "should convert urls to https" do
-    should_receive(:system_environment).and_return(env = double('sys_env'))
-    env.should_receive(:getSslServerPort).and_return(8154)
-    make_https("http://user:loser@google.com/hello?world=foo").should == "https://user:loser@google.com:8154/hello?world=foo"
-  end
-
   it "should identify flash messages as session[:notice]" do
     allow(self).to receive(:session).and_return({})
 

@@ -33,11 +33,6 @@
 <li role="presentation">
     <a href="$req.getContextPath()/oauth/admin/clients?column=status&order=ASC">OAuth Clients</a>
 </li>
-#if($gadgetRenderingServerEnabled)
-<li role="presentation">
-    <a href="$req.getContextPath()/admin/gadgets/oauth_clients?column=status&order=ASC">OAuth Enabled Gadget Providers</a>
-</li>
-#end
 <li role="presentation">
     <a href="$req.getContextPath()/admin/backup">Backup</a>
 </li>

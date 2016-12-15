@@ -513,7 +513,6 @@ task verifyWar(type: VerifyJarTask) {
       "dsn-1.4.4.jar",
       "ehcache-core-2.0.0.jar",
       "ejb3-persistence-1.0.2.GA.jar",
-      "fluent-hc-4.5.2.jar",
       "freemarker-2.3.18.jar",
       "gadgets-1.1.jar",
       "geronimo-j2ee-management_1.1_spec-1.0.1.jar",

@@ -157,7 +157,9 @@ describe "/shared/_application_nav.html.erb" do
     before :each do
       allow(view).to receive(:can_view_admin_page?).and_return(true)
       @assert_values = {"Pipelines"     => pipeline_groups_path, "Templates" => templates_path, "Config XML" => config_view_path, "Server Configuration" => edit_server_config_path, "User Summary" => user_listing_path,
-                        "OAuth Clients" => oauth_engine.clients_path, "OAuth Enabled Gadget Providers" => gadgets_oauth_clients_path, "Backup" => backup_server_path, "Plugins" => plugins_listing_path, "Package Repositories" => package_repositories_new_path}
+                        "OAuth Clients" => oauth_engine.clients_path, "Backup" => backup_server_path, "Plugins" => plugins_listing_path, "Package Repositories" => package_repositories_new_path}
+
+      @assert_values.merge!("OAuth Enabled Gadget Providers" => gadgets_oauth_clients_path) if Gadgets.enabled?
     end
 
     it 'should show dropdown items for admin link on header' do

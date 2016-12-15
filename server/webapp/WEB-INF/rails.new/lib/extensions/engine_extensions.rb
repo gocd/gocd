@@ -23,12 +23,14 @@ Oauth2Provider::ModelBase.instance_eval do
   end
 end
 
-Gadgets::ModelBase.instance_eval do
-  def datasource
-    @go_gadget_datasource ||= Spring.bean("gadgetRepository")
-  end
+if Gadgets.enabled?
+  Gadgets::ModelBase.instance_eval do
+    def datasource
+      @go_gadget_datasource ||= Spring.bean("gadgetRepository")
+    end
 
-  def datasource=(ds)
-    @go_gadget_datasource = ds
+    def datasource=(ds)
+      @go_gadget_datasource = ds
+    end
   end
 end

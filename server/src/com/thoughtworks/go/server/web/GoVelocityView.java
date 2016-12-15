@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.web;
 
@@ -43,6 +43,7 @@ public class GoVelocityView extends VelocityToolboxView {
     public static final String VIEW_ADMINISTRATOR_RIGHTS = "userHasViewAdministratorRights";
     public static final String GROUP_ADMINISTRATOR = "userHasGroupAdministratorRights";
     public static final String USE_COMPRESS_JS = "useCompressJS";
+    public static final String GADGET_RENDERING_SERVER_ENABLED = "gadgetRenderingServerEnabled";
     public static final String CONCATENATED_JAVASCRIPT_FILE_PATH = "concatenatedJavascriptFilePath";
     public static final String CONCATENATED_APPLICATION_CSS_FILE_PATH = "concatenatedApplicationCssFilePath";
     public static final String CURRENT_GOCD_VERSION = "currentGoCDVersion";
@@ -81,6 +82,7 @@ public class GoVelocityView extends VelocityToolboxView {
         velocityContext.put(TEMPLATE_ADMINISTRATOR, true);
         velocityContext.put(VIEW_ADMINISTRATOR_RIGHTS, true);
         velocityContext.put(USE_COMPRESS_JS, systemEnvironment.useCompressedJs());
+        velocityContext.put(GADGET_RENDERING_SERVER_ENABLED, "Y".equals(java.lang.System.getProperty("go.gadgets.rendering.enable")));
 
         velocityContext.put(Toggles.PIPELINE_COMMENT_FEATURE_TOGGLE_KEY, Toggles.isToggleOn(Toggles.PIPELINE_COMMENT_FEATURE_TOGGLE_KEY));
 

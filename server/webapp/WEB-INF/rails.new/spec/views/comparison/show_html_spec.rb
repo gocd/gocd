@@ -37,7 +37,7 @@ describe "comparison/show.html.erb" do
   end
 
   def ensure_show_bisect_message_is_shown parent_id
-    view.should_receive(:compare_pipelines_path).twice.with(:show_bisect => true).and_return("http://foo.bar?baz=quux")
+    view.should_receive(:compare_pipelines_path).exactly(Gadgets.enabled? ? 2 : 1).with(:show_bisect => true).and_return("http://foo.bar?baz=quux")
     render :template => 'comparison/show.html.erb'
 
     response_body = Capybara.string(response.body)
@@ -115,15 +115,17 @@ describe "comparison/show.html.erb" do
     end
   end
 
-  describe :on_mingle_cards_tab do
-    it "should show message prompting user about showing revisions for bisect on to_pipeline" do
-      set(@to_pipeline, "naturalOrder", 1.2)
-      ensure_show_bisect_message_is_shown "tab-content-of-card_activity"
-    end
+  if Gadgets.enabled?
+    describe :on_mingle_cards_tab do
+      it "should show message prompting user about showing revisions for bisect on to_pipeline" do
+        set(@to_pipeline, "naturalOrder", 1.2)
+        ensure_show_bisect_message_is_shown "tab-content-of-card_activity"
+      end
 
-    it "should show message prompting user about showing revisions for bisect on from_pipeline" do
-      set(@from_pipeline, "naturalOrder", 1.4)
-      ensure_show_bisect_message_is_shown "tab-content-of-card_activity"
+      it "should show message prompting user about showing revisions for bisect on from_pipeline" do
+        set(@from_pipeline, "naturalOrder", 1.4)
+        ensure_show_bisect_message_is_shown "tab-content-of-card_activity"
+      end
     end
   end
 
@@ -137,6 +139,7 @@ describe "comparison/show.html.erb" do
     expect(response_body).to_not have_selector("div.info-box div.prompt a[href='http://foo.bar?baz=quux']", :text => "Continue")
   end
 
+  if Gadgets.enabled?
   it "should carry forward the show_bisect flag to card-api call" do
     set(@from_pipeline, "naturalOrder", 1.4)
     in_params(:show_bisect => true.to_s)
@@ -147,5 +150,6 @@ describe "comparison/show.html.erb" do
   it "should set show_bisect off as default when looking at bisect" do
     render :template => 'comparison/show.html.erb'
     expect(Capybara.string(response.body)).to have_content("http://test.host/api/card_activity/my-shiny-pipeline/10/to/20")
+  end
   end
 end

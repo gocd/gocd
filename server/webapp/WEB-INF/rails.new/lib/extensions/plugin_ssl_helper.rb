@@ -30,7 +30,7 @@ module ::GoSslHelper
   end
 end
 
-[Gadgets::SslHelper, Oauth2Provider::SslHelper].each do |helper|
+[Gadgets.enabled? ? Gadgets::SslHelper : nil, Oauth2Provider::SslHelper].compact.each do |helper|
   helper.class_eval { include ::GoSslHelper }
 end
 

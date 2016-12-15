@@ -29,6 +29,8 @@ import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.util.HttpService;
 import com.thoughtworks.go.util.SubprocessLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -48,6 +50,7 @@ public class AgentControllerFactory {
     private final HttpService httpService;
     private final WebSocketClientHandler webSocketClientHandler;
     private final WebSocketSessionHandler sessionHandler;
+    private static final Logger LOG = LoggerFactory.getLogger(AgentControllerFactory.class);
 
     @Autowired
     public AgentControllerFactory(
@@ -82,6 +85,7 @@ public class AgentControllerFactory {
 
     public AgentController createInstance() {
         if (systemEnvironment.isWebsocketEnabled()) {
+            LOG.info("Connecting to server using WebSockets");
             return new AgentWebSocketClientController(
                     server,
                     manipulator,
@@ -96,6 +100,7 @@ public class AgentControllerFactory {
                     taskExtension,
                     httpService, webSocketClientHandler, sessionHandler);
         } else {
+            LOG.info("Connecting to server using HTTP(S)");
             return new AgentHTTPClientController(
                     server,
                     manipulator,

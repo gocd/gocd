@@ -20,7 +20,7 @@ dependencies {
   compile group: 'commons-io', name: 'commons-io', version: '2.5'
   compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
   compile group: 'commons-codec', name: 'commons-codec', version: '1.4'
-  compile(group: 'org.apache.httpcomponents', name: 'fluent-hc', version: '4.5.2') {
+  compile(group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.2') {
     exclude(module: 'commons-codec')
     exclude(module: 'commons-logging')
   }

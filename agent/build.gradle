@@ -109,7 +109,6 @@ task verifyJar(type: VerifyJarTask) {
           "config-api-${project.version}.jar",
           "db-${project.version}.jar",
           "dom4j-1.6.1.jar",
-          "fluent-hc-4.5.2.jar",
           "freemarker-2.3.18.jar",
           "go-plugin-access-${project.version}.jar",
           "go-plugin-activator.jar",

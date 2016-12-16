@@ -110,7 +110,7 @@ describe Admin::JobsController do
     describe "new" do
       it "should render a new job" do
         controller.should_receive(:task_view_service).and_return(task_view_service = double("task_view_service"))
-        task_view_service.should_receive(:getTaskViewModels).and_return(tvms = [TaskViewModel.new(AntTask.new(), "new", "erb"), TaskViewModel.new(NantTask.new(), "new", "erb")].to_java(TaskViewModel))
+        task_view_service.should_receive(:getTaskViewModels).and_return(tvms = [TaskViewModel.new(AntTask.new(), "new"), TaskViewModel.new(NantTask.new(), "new")].to_java(TaskViewModel))
         @pipeline_pause_service.should_receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
         @go_config_service.should_receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
         add_resource("job-1", "windows")
@@ -383,7 +383,7 @@ describe Admin::JobsController do
         execTask = ExecTask.new('ls', '', 'work')
         controller.should_receive(:task_view_service).twice.and_return(task_view_service = double("task_view_service"))
         task_view_service.should_receive(:taskInstanceFor).and_return(ExecTask.new)
-        task_view_service.should_receive(:getTaskViewModelsWith).with(execTask).and_return(@tvms = [TaskViewModel.new(AntTask.new(), "new", "erb"), TaskViewModel.new(execTask, "new", "erb")].to_java(TaskViewModel))
+        task_view_service.should_receive(:getTaskViewModelsWith).with(execTask).and_return(@tvms = [TaskViewModel.new(AntTask.new(), "new"), TaskViewModel.new(execTask, "new")].to_java(TaskViewModel))
         @pipeline_pause_service.should_receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
         stub_save_for_validation_error do |result, *_|
           result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["pipeline-name"]), HealthStateType.unauthorisedForPipeline("pipeline-name"))
@@ -400,7 +400,7 @@ describe Admin::JobsController do
         execTask = ExecTask.new('ls', '', 'work')
         controller.should_receive(:task_view_service).twice.and_return(task_view_service = double("task_view_service"))
         task_view_service.should_receive(:taskInstanceFor).and_return(ExecTask.new)
-        task_view_service.should_receive(:getTaskViewModelsWith).with(execTask).and_return(@tvms = [TaskViewModel.new(AntTask.new(), "new", "erb"), TaskViewModel.new(execTask, "new", "erb")].to_java(TaskViewModel))
+        task_view_service.should_receive(:getTaskViewModelsWith).with(execTask).and_return(@tvms = [TaskViewModel.new(AntTask.new(), "new"), TaskViewModel.new(execTask, "new")].to_java(TaskViewModel))
         @pipeline_pause_service.should_receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
 
         add_resource("job-2", "anything")

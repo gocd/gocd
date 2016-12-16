@@ -37,6 +37,6 @@ describe Admin::TaskHelper do
   end
 
   def tvm_of task
-    TaskViewModel.new task, "", ""
+    TaskViewModel.new task, ""
   end
 end

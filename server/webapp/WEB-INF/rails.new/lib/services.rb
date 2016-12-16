@@ -30,7 +30,7 @@ module Services
            :job_instance_service, :job_presentation_service, :localizer, :material_service, :pipeline_config_service, :pipeline_history_service, :pipeline_lock_service, :pipeline_scheduler, :pipeline_stages_feed_service,
            :pipeline_unlock_api_service, :properties_service, :security_service, :server_config_service, :server_health_service, :stage_service, :system_environment, :user_service, :user_search_service, :failure_service,
            :mingle_config_service, :schedule_service, :flash_message_service, :template_config_service, :shine_dao, :xml_api_service, :pipeline_pause_service, :luau_service,
-           :task_view_service, :view_rendering_service, :role_service, :server_status_service, :pipeline_configs_service, :pipeline_service, :material_update_service,
+           :task_view_service, :role_service, :server_status_service, :pipeline_configs_service, :pipeline_service, :material_update_service,
            :system_service, :default_plugin_manager, :command_repository_service, :value_stream_map_service, :admin_service, :config_repository, :package_repository_service, :package_definition_service, :pipeline_sql_map_dao, :pluggable_task_service, :garage_service,
            :material_config_service, :feature_toggle_service, :cc_tray_service, :pluggable_scm_service, :cc_tray_status_service, :plugin_service, :artifacts_dir_holder, :version_info_service, :entity_hashing_service,
            :elastic_profile_service, :password_deserializer

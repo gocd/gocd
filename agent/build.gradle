@@ -111,7 +111,6 @@ task verifyJar(type: VerifyJarTask) {
           "db-${project.version}.jar",
           "domain-${project.version}.jar",
           "dom4j-1.6.1.jar",
-          "freemarker-2.3.18.jar",
           "go-plugin-access-${project.version}.jar",
           "plugin-metadata-store-${project.version}.jar",
           "go-plugin-activator.jar",

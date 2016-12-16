@@ -29,7 +29,6 @@ Go::Application.configure do
   config.assets.raise_runtime_errors = true
 
   config.java_services_cache = :ServiceCache
-  config.fail_if_unable_to_register_renderer = false
 
   config.log_level = :debug
   org.apache.log4j.Logger.getLogger("com.thoughtworks.go.server.Rails").setLevel(org.apache.log4j.Level::DEBUG)

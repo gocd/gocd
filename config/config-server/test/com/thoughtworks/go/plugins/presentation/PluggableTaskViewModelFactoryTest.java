@@ -160,7 +160,6 @@ public class PluggableTaskViewModelFactoryTest {
 
         PluggableViewModel<PluggableTask> viewModel = factory.viewModelFor(pluggableTask, actionName);
         assertThat(viewModel.getModel(), is(pluggableTask));
-        assertThat(viewModel.getRenderingFramework(), is(Renderer.ERB));
         assertThat(viewModel.getTaskType(), is("pluggable_task_plugin_1"));
         assertThat(viewModel.getTemplatePath(), is(expectedTemplatePath));
     }

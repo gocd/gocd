@@ -415,9 +415,9 @@ module ApplicationHelper
 
   def render_pluggable_template(task_view_model, options = {})
     # The view is self here since this method will be called only from views.
-    options.merge!(view: self)
     options.reject { |key, val| key.is_a?(String) }.map { |key, val| options[key.to_s] = val }
-    view_rendering_service.render(task_view_model, options)
+    options.reverse_merge!(task_view_model.getParameters())
+    render file: task_view_model.getTemplatePath(), locals: options
   end
 
   def render_pluggable_form_template(task_view_model, form_provider, options = {})

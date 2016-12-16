@@ -486,8 +486,8 @@ describe Admin::PipelinesController do
       controller.stub(:task_view_service).and_return(task_view_service = double('Task View Service'))
       task_view_models = Object.new()
       task_view_service.should_receive(:getTaskViewModels).and_return(task_view_models)
-      task_view_service.should_receive(:getViewModel).with(anything, anything).and_return(TaskViewModel.new(nil, nil, nil))
-      task_view_service.should_receive(:getModelOfType).with(anything, anything).and_return(TaskViewModel.new(nil, nil, nil))
+      task_view_service.should_receive(:getViewModel).with(anything, anything).and_return(TaskViewModel.new(nil, nil))
+      task_view_service.should_receive(:getModelOfType).with(anything, anything).and_return(TaskViewModel.new(nil, nil))
       @security_service.should_receive(:modifiableGroupsForUser).with(@user).and_return(["group1", "group2"])
       @security_service.stub(:hasViewOrOperatePermissionForPipeline).and_return(true)
 
@@ -560,8 +560,8 @@ describe Admin::PipelinesController do
       task_view_service.should_receive(:taskInstanceFor).with("ant").and_return(AntTask.new)
       task_view_models = Object.new()
       task_view_service.should_receive(:getTaskViewModels).and_return(task_view_models)
-      task_view_service.should_receive(:getViewModel).with(anything, anything).and_return(TaskViewModel.new(nil, nil, nil))
-      task_view_service.should_receive(:getModelOfType).with(anything, anything).and_return(TaskViewModel.new(nil, nil, nil))
+      task_view_service.should_receive(:getViewModel).with(anything, anything).and_return(TaskViewModel.new(nil, nil))
+      task_view_service.should_receive(:getModelOfType).with(anything, anything).and_return(TaskViewModel.new(nil, nil))
       @cruise_config_mother.addPipeline(@cruise_config, "pipeline2", "stage-2", ["job-2"].to_java(java.lang.String))
       @go_config_service.should_receive(:getCurrentConfig).twice.and_return(Cloner.new().deepClone(@cruise_config))
 
@@ -662,8 +662,8 @@ describe Admin::PipelinesController do
       end
       @new_task = PluggableTask.new( PluginConfiguration.new("curl.plugin", "1.0"), Configuration.new([ConfigurationPropertyMother.create("key", false, nil)].to_java(ConfigurationProperty)))
       task_view_service.should_receive(:taskInstanceFor).with("pluggableTask").and_return(@new_task)
-      task_view_service.should_receive(:getViewModel).with(@new_task, "new").and_return(TaskViewModel.new(nil, nil, nil))
-      task_view_service.should_receive(:getModelOfType).with(anything, anything).and_return(TaskViewModel.new(nil, nil, nil))
+      task_view_service.should_receive(:getViewModel).with(@new_task, "new").and_return(TaskViewModel.new(nil, nil))
+      task_view_service.should_receive(:getModelOfType).with(anything, anything).and_return(TaskViewModel.new(nil, nil))
       @go_config_service.should_receive(:getCurrentConfig).twice.and_return(Cloner.new().deepClone(@cruise_config))
       stub_save_for_validation_error do |result, cruise_config, pipeline|
         result.badRequest(LocalizedMessage.string("SAVE_FAILED"))

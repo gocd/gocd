@@ -174,7 +174,7 @@ describe Admin::StagesController do
         @pipeline_pause_service.should_receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
         @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
         controller.should_receive(:task_view_service).and_return(task_view_service = double("task_view_service"))
-        task_view_service.should_receive(:getTaskViewModels).and_return(@tvms = [TaskViewModel.new(AntTask.new(), "new", "erb"), TaskViewModel.new(NantTask.new(), "new", "erb")].to_java(TaskViewModel))
+        task_view_service.should_receive(:getTaskViewModels).and_return(@tvms = [TaskViewModel.new(AntTask.new(), "new"), TaskViewModel.new(NantTask.new(), "new")].to_java(TaskViewModel))
       end
 
       it "should load a blank exec task in a blank job" do
@@ -287,7 +287,7 @@ describe Admin::StagesController do
       it "should show error message when config save fails for reasons other than validations" do
         controller.should_receive(:task_view_service).twice.and_return(task_view_service = double("task_view_service"))
         task_view_service.should_receive(:taskInstanceFor).with("exec").and_return(ExecTask.new())
-        task_view_service.should_receive(:getTaskViewModelsWith).with(ExecTask.new('ls','','work')).and_return(tvms = [TaskViewModel.new(AntTask.new(), "new", "erb"), TaskViewModel.new(NantTask.new(), "new", "erb")].to_java(TaskViewModel))
+        task_view_service.should_receive(:getTaskViewModelsWith).with(ExecTask.new('ls','','work')).and_return(tvms = [TaskViewModel.new(AntTask.new(), "new"), TaskViewModel.new(NantTask.new(), "new")].to_java(TaskViewModel))
         stub_save_for_validation_error do |result, config, node|
           result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT_PIPELINE", ["pipeline-name"]), HealthStateType.unauthorisedForPipeline("pipeline-name"))
         end

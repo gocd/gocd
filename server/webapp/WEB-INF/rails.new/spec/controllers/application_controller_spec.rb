@@ -119,11 +119,6 @@ describe ApplicationController do
       expect(controller.user_search_service).to eq(service)
     end
 
-    it "should load viewRenderingService" do
-      expect(Spring).to receive(:bean).with('viewRenderingService').and_return(service = Object.new)
-      expect(controller.view_rendering_service).to eq(service)
-    end
-
     it "should have task_view_service method available" do
       expect(Spring).to receive(:bean).with('taskViewService').and_return(service = Object.new)
       expect(controller.task_view_service).to eq(service)

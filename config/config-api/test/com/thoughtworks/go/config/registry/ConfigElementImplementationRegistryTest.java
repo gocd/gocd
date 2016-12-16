@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config.registry;
 
@@ -29,7 +29,6 @@ import com.thoughtworks.go.plugins.PluginExtensions;
 import com.thoughtworks.go.plugins.PluginTestUtil;
 import com.thoughtworks.go.plugins.presentation.PluggableViewModel;
 import com.thoughtworks.go.plugins.presentation.PluggableViewModelFactory;
-import com.thoughtworks.go.plugins.presentation.Renderer;
 import com.thoughtworks.go.presentation.TaskViewModel;
 import com.thoughtworks.go.util.DataStructureUtils;
 import org.jdom.Element;
@@ -112,7 +111,7 @@ public class ConfigElementImplementationRegistryTest {
         ConfigTypeExtension exec = new TestTaskConfigTypeExtension<PluginExec>(PluginExec.class, factory);
         PluginExec execInstance = new PluginExec();
 
-        TaskViewModel stubbedViewModel = new TaskViewModel(execInstance, "my/view", Renderer.FREEMARKER);
+        TaskViewModel stubbedViewModel = new TaskViewModel(execInstance, "my/view");
         when(factory.viewModelFor(execInstance, "new")).thenReturn(stubbedViewModel);
 
 
@@ -217,7 +216,7 @@ public class ConfigElementImplementationRegistryTest {
 
         @Override
         public String arguments() {
-            return null;            
+            return null;
         }
     }
 }

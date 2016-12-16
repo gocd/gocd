@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -35,7 +35,6 @@ import com.thoughtworks.go.plugin.api.task.TaskView;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.plugins.presentation.PluggableViewModel;
-import com.thoughtworks.go.plugins.presentation.Renderer;
 import com.thoughtworks.go.presentation.TaskViewModel;
 import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.After;
@@ -87,13 +86,13 @@ public class TaskViewServiceTest {
 
         when(registry.implementersOf(Task.class)).thenReturn(taskClasses);
         when(registry.getViewModelFor(new AntTask(), "new")).thenReturn(viewModel(new AntTask()));
-        when(registry.getViewModelFor(new ExecTask(), "new")).thenReturn(new TaskViewModel(new ExecTask(), "", Renderer.ERB));
+        when(registry.getViewModelFor(new ExecTask(), "new")).thenReturn(new TaskViewModel(new ExecTask(), ""));
 
         List<PluggableViewModel> taskViewModels = taskViewService.getTaskViewModels();
 
         assertThat(taskViewModels.size(), is(3));
         assertThat(taskViewModels, hasItem((PluggableViewModel) viewModel(new AntTask())));
-        assertThat(taskViewModels, hasItem((PluggableViewModel) new TaskViewModel(new ExecTask(), "", Renderer.ERB)));
+        assertThat(taskViewModels, hasItem((PluggableViewModel) new TaskViewModel(new ExecTask(), "")));
     }
 
     private void storeTaskPreferences(String pluginId, String... properties) {
@@ -173,13 +172,13 @@ public class TaskViewServiceTest {
 
         when(registry.implementersOf(Task.class)).thenReturn(taskClasses);
         when(registry.getViewModelFor(new AntTask(), "new")).thenReturn(viewModel(new AntTask()));
-        when(registry.getViewModelFor(new ExecTask(), "new")).thenReturn(new TaskViewModel(new ExecTask(), "", Renderer.ERB));
+        when(registry.getViewModelFor(new ExecTask(), "new")).thenReturn(new TaskViewModel(new ExecTask(), ""));
 
         List<PluggableViewModel> taskViewModels = taskViewService.getTaskViewModels();
 
         assertThat(taskViewModels.size(), is(3));
         assertThat(taskViewModels, hasItem((PluggableViewModel) viewModel(new AntTask())));
-        assertThat(taskViewModels, hasItem((PluggableViewModel) new TaskViewModel(new ExecTask(), "", Renderer.ERB)));
+        assertThat(taskViewModels, hasItem((PluggableViewModel) new TaskViewModel(new ExecTask(), "")));
     }
 
     @Test
@@ -288,7 +287,7 @@ public class TaskViewServiceTest {
     }
 
     private PluggableViewModel<Task> viewModel(final Task task) {
-        return new TaskViewModel(task, "", Renderer.ERB);
+        return new TaskViewModel(task, "");
     }
 
     private class FakeTask implements com.thoughtworks.go.plugin.api.task.Task {

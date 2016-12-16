@@ -106,7 +106,7 @@ describe Admin::TasksController do
 
     it "should load tasks" do
       controller.should_receive(:task_view_service).and_return(task_view_service = double("task_view_service"))
-      task_view_service.should_receive(:getTaskViewModels).and_return(tasks = [TaskViewModel.new(AntTask.new(), "new", "erb"), TaskViewModel.new(NantTask.new(), "new", "erb")].to_java(TaskViewModel))
+      task_view_service.should_receive(:getTaskViewModels).and_return(tasks = [TaskViewModel.new(AntTask.new(), "new"), TaskViewModel.new(NantTask.new(), "new")].to_java(TaskViewModel))
 
       get :index, :pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :stage_parent => "pipelines", :current_tab=>"tasks"
 

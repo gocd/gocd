@@ -37,7 +37,7 @@ describe "admin/pipelines/new.html.erb" do
     assign(:template_list, Array.new)
     assign(:all_pipelines, ArrayList.new)
     tvms = java.util.ArrayList.new
-    tvms.add(com.thoughtworks.go.presentation.TaskViewModel.new(com.thoughtworks.go.config.ExecTask.new, "admin/tasks/exec/new", "erb"))
+    tvms.add(com.thoughtworks.go.presentation.TaskViewModel.new(com.thoughtworks.go.config.ExecTask.new, "admin/tasks/exec/new"))
     assign(:task_view_models, tvms)
     assign(:config_context, create_config_context(MockRegistryModule::MockRegistry.new))
 

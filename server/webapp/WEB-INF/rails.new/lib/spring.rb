@@ -14,35 +14,23 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-import javax.servlet.ServletContext
-
-require 'erb_renderer'
-
 class Spring
 
   MUTEX = Mutex.new
 
   def self.bean(bean_name)
     context.get_bean(bean_name)
-  rescue
-    puts "Error loading bean #{bean_name} : #{$!.to_s}"
+  rescue => e
+    puts "Error loading bean #{bean_name} : #{e}"
     beans = context.bean_definition_names.collect { |bean| bean }
     puts "Defined beans are: #{beans.sort.join(', ')}"
-    raise $!
+    raise e
   end
 
   def self.context
-    if (!@context)
+    unless @context
       MUTEX.synchronize do
-        if (!@context)
-          @context =  load_context
-          begin
-            self.bean("viewRenderingService").registerRenderer(com.thoughtworks.go.plugins.presentation.Renderer.ERB, ErbRenderer.new) if @context
-          rescue => e
-            raise $! if Rails.configuration.fail_if_unable_to_register_renderer
-            puts "WARNING: Failed to register renderer. Continuing, though: #{e}"
-          end
-        end
+        @context ||= load_context
       end
     end
     @context

@@ -18,6 +18,6 @@ description = 'GoCD Agent Common Utilities'
 
 dependencies {
   compile project(':base')
-  compile group: 'com.beust', name: 'jcommander', version: '1.48'
+  compile group: 'com.beust', name: 'jcommander', version: '1.60'
   testCompile project(':test-utils')
 }

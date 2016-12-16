@@ -32,11 +32,12 @@ import com.thoughtworks.go.server.web.BaseUrlProvider;
 import com.thoughtworks.go.validators.HostNameValidator;
 import com.thoughtworks.go.validators.PortValidator;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.validator.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
 import org.springframework.stereotype.Service;
 
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -123,7 +124,9 @@ public class ServerConfigService implements BaseUrlProvider {
 
     public LocalizedResult validateEmail(String email) {
         DefaultLocalizedResult result = new DefaultLocalizedResult();
-        if (!EmailValidator.getInstance().isValid(email)) {
+        try {
+            new InternetAddress(email, true);
+        } catch (AddressException e) {
             result.invalid("INVALID_EMAIL", email);
         }
         return result;

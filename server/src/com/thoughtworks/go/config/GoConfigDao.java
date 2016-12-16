@@ -106,7 +106,7 @@ public class GoConfigDao {
         LOGGER.info("Config update request by {} is in queue - {}", UserHelper.getUserName().getUsername(), command);
         synchronized (GoConfigWriteLock.class) {
             try {
-                LOGGER.info("Config update request by {} is being processed", UserHelper.getUserName().getUsername());
+                LOGGER.info("Config update request {} by {} is being processed", command, UserHelper.getUserName().getUsername());
                 if (command instanceof CheckedUpdateCommand) {
                     CheckedUpdateCommand checkedCommand = (CheckedUpdateCommand) command;
                     if (!checkedCommand.canContinue(cachedConfigService.currentConfig())) {

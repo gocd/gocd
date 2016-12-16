@@ -24,7 +24,6 @@
 <div class="content_wrapper_outer" id="content_wrapper_outer_pipeline_history"><div class="content_wrapper_inner" id="content_wrapper_inner_pipeline_history">
     <div class='page_header'>
       <div class="row">
-        <div class="medium-12 columns">
         <div class="entity_title" style="margin-bottom: 0;" id="pipeline_activity_header">
             <ul class="entity_title">
                 <li class="last"><h1 id="page-title" class="entity_title" style="float: left;">$_page_title</h1></li>
@@ -52,7 +51,6 @@
             #end
         </div>
         </div>
-      </div>
     </div>
   <div class="row pipeline_history_table_container">
 {if data.groups}

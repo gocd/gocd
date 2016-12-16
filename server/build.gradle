@@ -195,7 +195,7 @@ dependencies {
   testCompile project(path: ':config-api', configuration: 'testOutput')
   testCompile project(path: ':test-utils')
   testCompile project(':jetty9')
-  testCompile group: 'org.skyscreamer', name: 'jsonassert', version: '1.2.3'
+  testCompile group: 'org.skyscreamer', name: 'jsonassert', version: '1.4.0'
   testCompile group: 'org.jsoup', name: 'jsoup', version: '1.8.1'
   testCompile group: 'net.javacrumbs.json-unit', name: 'json-unit', version: '1.7.0'
   testCompile group: 'org.xmlunit', name: 'xmlunit-core', version: '2.2.1'

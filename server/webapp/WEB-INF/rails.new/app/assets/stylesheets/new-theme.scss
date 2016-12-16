@@ -19,7 +19,7 @@
 @import '../new_stylesheets/shared/common';
 
 @include foundation-grid;
-@include foundation-typography;
+//@include foundation-typography;
 @include foundation-forms;
 
 %page-title {
@@ -230,6 +230,7 @@ h4 {
   .dropdown-menu {
     border-radius: 0;
     padding:       0;
+    margin:        0;
     top:           40px;
     background:    $drop-down-menu-bg;
     @extend %boxshadow;
@@ -648,6 +649,11 @@ h1.entity_title {
   background-color: transparent;
 }
 
+.pipeline-history-group .pipeline-name .wrapper {
+  width:  25em;
+  _width: 25em;
+}
+
 .container-in-body {
   padding: 0 !important;
 }
@@ -746,7 +752,7 @@ ul.entity_title {
 .admin_pause_info_and_controls {
   float:       left;
   margin-top:  7px;
-  min-width:   300px;
+  min-width:   70%;
   margin-left: 0;
 }
 
@@ -1351,9 +1357,16 @@ button#confirm-pause-up42 {
   }
 }
 
-.pipeline_group h2.entity_title {
+.group_pipelines .group_name_edit {
+  margin: 0px 0 0 0px;
+}
 
-  color: #333;
+.group_name_delete {
+  margin: 0;
+}
+
+.delete_icon_disabled.group_name_delete {
+  margin-top: 3px;
 }
 
 .steps_panes .form_buttons {
@@ -1731,6 +1744,9 @@ a:link#link-to-this-page, a:visited#link-to-this-page {
   overflow:       visible !important;
   padding-bottom: 51px;
   box-sizing:     border-box;
+  .flash{
+    position: static;
+  }
 }
 
 #MB_content .sub_tab_container, #MB_content .form_content, #MB_content .new_form_content {
@@ -1985,7 +2001,7 @@ a:link.help, a:visited.help {
   z-index:  $label-filter-group;
 
   .filter-clear-icon {
-    top: 14px;
+    top: 11px;
   }
 }
 
@@ -2030,11 +2046,6 @@ a:link.help, a:visited.help {
   h2.entity_title {
     border: 0;
   }
-}
-
-#tab-content-of-templates .template .title_action_wrapper {
-  float:      left;
-  margin-top: 5px;
 }
 
 .fieldset .form_item {
@@ -2505,7 +2516,8 @@ $new-theme-material-popup-width: ($new-theme-material-popup-user-width + $new-th
 
 ul.plugins .plugin {
   padding:    20px;
-  border-top: 1px dotted #ccc;
+  border-top:0;
+  border-bottom: 1px dotted #ccc;
   .plugin-details {
     margin-bottom: 10px;
   }
@@ -2843,12 +2855,6 @@ button.edit-environment {
   font-weight:         400;
 }
 
-#admin_pipeline_groups .content_wrapper_inner h1 {
-  font-weight:   400;
-  margin-bottom: 14px;
-  font-size:     21px;
-}
-
 #oauth_page {
   h1 {
     margin-bottom: 20px;
@@ -2873,7 +2879,7 @@ button.edit-environment {
 
 .overview_widget {
   .job_grouping {
-    margin:0 20px 0 0;
+    margin:        0 20px 0 0;
     border-bottom: 1px dotted $border-color;
     padding:       6px 0;
     .color_code_small {
@@ -2881,22 +2887,27 @@ button.edit-environment {
     }
   }
 }
-.hidereveal_expander{
-  font-size:rem-calc(13px);
+
+.hidereveal_expander {
+  font-size: rem-calc(13px);
 }
-.content #tab_container div.jobs{
-  width:215px;
+
+.content #tab_container div.jobs {
+  width: 215px;
   .wrapped_word {
     font-size: 13px;
-   }
+  }
 }
+
 .content #tab_container .materials_overview_wrapper {
   margin-left: 240px;
- }
+}
+
 //icon replacements
+
 %iconstyles {
   background:  none;
-  font-size:   rem-calc(14px);
+  font-size:   rem-calc(13px);
   transition:  all 0.1s ease-in-out;
   color:       $icon-txt;
   font-weight: 600;
@@ -2937,17 +2948,20 @@ button.edit-environment {
   @include icon-before($type: remove);
   background: none;
   color:      #ccc;
-  font-size:  rem-calc(16px);
+  font-size:  rem-calc(13px);
+  cursor:     not-allowed;
   &:before {
     color:     #ccc;
-    font-size: 16px;
+    font-size: rem-calc(13px);
     margin:    0 5px;
   }
 }
 
 .icon_remove {
-  @include icon-before($type: remove);
+  @include icon-before($type: times-circle, $color: #E57373,  $size: rem-calc(16px));
   @extend %iconstyles;
+  height:auto;
+  width:auto;
 
 }
 
@@ -2981,13 +2995,11 @@ a.add_item {
 .add_link, .add_icon, a.add_item {
   @include icon-before($type: plus-circle, $size: rem-calc(16px), $color: $add-color);
   background:  none;
-  font-size:   rem-calc(14px);
+  font-size:   rem-calc(13px);
   transition:  all 0.1s ease-in-out;
   font-weight: 600;
   color:       $icon-txt;
   padding:     5px 0;
-  //background:$add-color;
-  //border-radius:$global-border-radius;
   &:before {
     margin:      0 5px;
     font-weight: 600;
@@ -3004,8 +3016,45 @@ a.add_item {
 
 }
 
+.add_icon_disabled {
+  @include icon-before($type: plus-circle, $size: rem-calc(16px), $color: $disabled-icon-color);
+  background:  none;
+  font-size:   rem-calc(13px);
+  transition:  all 0.1s ease-in-out;
+  font-weight: 600;
+  color:       $disabled-icon-color;
+  padding:     5px 0;
+  cursor:      not-allowed;
+  &:before {
+    margin:      0 5px;
+    font-weight: 600;
+  }
+  &:visited {
+    color: $disabled-icon-color;
+  }
+  &:hover {
+    color:      $disabled-icon-color;
+    background: none;
+  }
+}
+
 .action_icon {
   height: auto;
+}
+
+.move_icon {
+  @include icon-before($type: arrow-circle-o-right);
+  @extend %iconstyles;
+}
+
+.clone_icon {
+  @include icon-before($type: clone);
+  @extend %iconstyles;
+}
+
+.lock_icon {
+  @include icon-before($type: lock);
+  @extend %iconstyles;
 }
 
 //config pages
@@ -3158,6 +3207,105 @@ a.add_item {
   margin-left: 0;
 }
 
+.admin-tab-contents {
 
+}
 
+.admin-tab-contents {
+  padding: 20px 30px;
+  h1 {
+    font-weight:    600;
+    margin:         20px 0 40px 0;
+    border-bottom:  1px solid $border-color;
+    font-size:      20px;
+    padding-bottom: 10px;
+  }
+  .title_secondary_info {
+    float: right;
+  }
+  .title_action_wrapper {
+    ul {
+      margin-left: 10px;
+      li {
+        a {
+          margin-left:  0px;
+          padding-left: 10px;
+        }
+        .delete_icon_disabled {
+          margin-top: 3px;
+        }
+        > span {
+          padding-left: 10px;
 
+        }
+      }
+    }
+  }
+
+  h2.entity_title {
+    color:               $txt-color;
+    font-size:           rem-calc(17px);
+    line-height:         20px;
+    font-weight:         600;
+    border-bottom:       0;
+    padding:             0 0 0 37px;
+    background-size:     40px 40px;
+    background-position: -8px -10px;
+  }
+  .list_table {
+    .actions {
+      .delete_icon_disabled {
+        margin-top: 3px;
+      }
+    }
+  }
+  .heading {
+    border-bottom:1px solid $border-color;
+    padding-bottom:10px;
+    margin-bottom:20px;
+    h2 {
+      font-size: 20px;
+    }
+    span {
+      margin-top: 12px;
+    }
+  }
+  .fieldset {
+    padding: 20px 0;
+  }
+  .permissions .instructions {
+    margin: -10px 0 0 0;
+  }
+  .fieldset .form_item {
+    border-bottom: 0;
+    margin-bottom: 0;
+    padding-bottom:0;
+  }
+  .button_row_with_help {
+    margin-top: 20px;
+  }
+  .roles {
+    white-space: nowrap;
+  }
+}
+#server_management h2.legend, #user_management h2.legend{
+  font-size: 20px;
+}
+
+#tab-content-of-templates .template .title_action_wrapper {
+  float: left;
+  li {
+    margin-left: 0px;
+  }
+}
+#tab-content-of-source-xml .heading h2 {
+  font-size: 20px;
+}
+form#package_repositories_edit_form {
+  margin-top: 0;
+}
+#tab-content-of-user-listing{
+  .title_secondary_info{
+    margin-top:10px;
+  }
+}

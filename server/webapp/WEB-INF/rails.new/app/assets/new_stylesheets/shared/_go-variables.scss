@@ -136,10 +136,12 @@ $stage-history-pagination-bg: #dcdcdc;
 
 $max-breakpoint: 1600px;
 
-$icon-color: #999;
+$icon-color: #039BE5;
+//$icon-color: $go-primary;
 $icon-color-hover: #666;
-$icon-txt: #666;
+$icon-txt: #333;
 $icon-txt-hover: #333;
 
 $icon--secondary-color: #666;
 $add-color: #00bfa5;
+$disabled-icon-color :#ccc;

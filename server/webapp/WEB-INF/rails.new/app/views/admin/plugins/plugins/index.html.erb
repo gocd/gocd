@@ -18,8 +18,10 @@
         </div>
     </div>
     <% end %>
-
+<div class="heading">
     <h2><%= l.string("INSTALLED_PLUGINS") %></h2>
+</div>
+
     <ul class="plugins">
         <% @plugin_descriptors.each do |descriptor| %>
             <% about = descriptor.about()

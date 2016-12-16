@@ -6,10 +6,10 @@
         Pipelines
 		<span class="title_secondary_info">
 			<% if @groups.size() == 0 %>
-                <%= link_to l.string("ADD_FIRST_PIPELINE"), pipeline_new_path(:group => com.thoughtworks.go.config.PipelineConfigs::DEFAULT_GROUP), :class => "add_link add_pipeline_to_group" -%>
+                <%= link_to l.string("ADD_FIRST_PIPELINE"), pipeline_new_path(:group => com.thoughtworks.go.config.PipelineConfigs::DEFAULT_GROUP), :class => "link_as_button primary add_pipeline_to_group" -%>
 		    <% end %>
 		    <% if is_user_an_admin? %>
-		            <a href="#" class="add_link" onclick="Modalbox.show('<%= pipeline_group_new_path -%>', {overlayClose: false,title: '<%= l.string("ADD_NEW_PIPELINE_GROUP") -%>'})">
+		            <a href="#" class="link_as_button primary" onclick="Modalbox.show('<%= pipeline_group_new_path -%>', {overlayClose: false,title: '<%= l.string("ADD_NEW_PIPELINE_GROUP") -%>'})">
 		                <%= l.string("ADD_NEW_PIPELINE_GROUP") -%>
 		            </a>
 		    <% end %>
@@ -23,10 +23,20 @@
     <% @groups.each do |group| %>
         <div class="group pipeline_group">
             <h2 class="group_name entity_title wrapped_word"><%= group.getGroup() %></h2>
-            <%= link_to l.string("EDIT"), pipeline_group_edit_path(:group_name => group.getGroup()), :class=> "group_name_edit action_icon edit_icon" %>
-            <% if is_user_an_admin? %>
-                <%= render :partial => 'delete_pipeline_group', :locals => {:scope => {:group => group}} %>
-            <% end %>
+          <div class="title_action_wrapper">
+            <ul>
+              <li>
+                <%= link_to l.string("EDIT"), pipeline_group_edit_path(:group_name => group.getGroup()), :class=> "group_name_edit action_icon edit_icon" %>
+              </li>
+              <li>
+                <% if is_user_an_admin? %>
+                    <%= render :partial => 'delete_pipeline_group', :locals => {:scope => {:group => group}} %>
+                <% end %>
+              </li>
+            </ul>
+          </div>
+
+
             <% if group.isEmpty() %>
                 <div class="no_pipeline_in_group">
                     <div class="information"><%= l.string("NO_PIPELINE_IN_GROUP") %></div>

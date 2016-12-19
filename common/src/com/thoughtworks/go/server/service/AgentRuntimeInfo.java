@@ -312,4 +312,13 @@ public class AgentRuntimeInfo implements Serializable {
     public boolean isElastic() {
         return false;
     }
+
+    public String getElasticAgentId() {
+        return "";
+    }
+
+    public String getElasticPluginId() {
+        return "";
+    }
+
 }

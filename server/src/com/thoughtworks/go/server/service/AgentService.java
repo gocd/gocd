@@ -25,7 +25,6 @@ import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.security.Registration;
 import com.thoughtworks.go.server.domain.AgentInstances;
-import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.AgentDao;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
@@ -389,7 +388,7 @@ public class AgentService {
         return toAgentViewModel(findAgentAndRefreshStatus(uuid));
     }
 
-    public LinkedMultiValueMap<String, ElasticAgentMetadata> allElasticAgents() {
+    public LinkedMultiValueMap<String, AgentInstance> allElasticAgents() {
         return agentInstances.allElasticAgentsGroupedByPluginId();
     }
 

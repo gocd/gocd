@@ -22,7 +22,6 @@ import com.thoughtworks.go.config.Resources;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.security.Registration;
 import com.thoughtworks.go.security.X509CertificateGenerator;
-import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo;
@@ -50,7 +49,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
     private SystemEnvironment systemEnvironment;
     private ConfigErrors errors;
 
-    protected AgentInstance(AgentConfig agentConfig, AgentType agentType, SystemEnvironment systemEnvironment) {
+    public AgentInstance(AgentConfig agentConfig, AgentType agentType, SystemEnvironment systemEnvironment) {
         this.systemEnvironment = systemEnvironment;
         this.agentRuntimeInfo = AgentRuntimeInfo.initialState(agentConfig);
         this.agentConfigStatus = AgentConfigStatus.Pending;
@@ -325,16 +324,19 @@ public class AgentInstance implements Comparable<AgentInstance> {
         return agentRuntimeInfo.isElastic();
     }
 
-    public ElasticAgentMetadata elasticAgentMetadata() {
-        ElasticAgentRuntimeInfo runtimeInfo = (ElasticAgentRuntimeInfo) this.agentRuntimeInfo;
-        return new ElasticAgentMetadata(getUuid(), runtimeInfo.getElasticAgentId(), runtimeInfo.getElasticPluginId(), this.agentRuntimeInfo.getRuntimeStatus(), getAgentConfigStatus());
+    public String elasticPluginId() {
+        return agentRuntimeInfo.getElasticPluginId();
+    }
+
+    public String elasticAgentId() {
+        return agentRuntimeInfo.getElasticAgentId();
     }
 
     public boolean canBeDeleted() {
         return isDisabled() && !(isBuilding() || isCancelled());
     }
 
-    enum AgentType {
+    public enum AgentType {
         LOCAL, REMOTE
     }
 

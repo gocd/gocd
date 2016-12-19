@@ -37,6 +37,7 @@ import java.util.List;
 
 import static com.thoughtworks.go.domain.AgentInstance.AgentType.LOCAL;
 import static com.thoughtworks.go.domain.AgentInstance.AgentType.REMOTE;
+import static com.thoughtworks.go.server.domain.ElasticAgentMetadata.from;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.greaterThan;
@@ -525,8 +526,8 @@ public class AgentInstanceTest {
         agent.syncConfig(agentConfig);
         assertTrue(agent.isElastic());
 
-        assertEquals("i-123456", agent.elasticAgentMetadata().elasticAgentId());
-        assertEquals("com.example.aws", agent.elasticAgentMetadata().elasticPluginId());
+        assertEquals("i-123456", from(agent).elasticAgentId());
+        assertEquals("com.example.aws", from(agent).elasticPluginId());
     }
 
     @Test

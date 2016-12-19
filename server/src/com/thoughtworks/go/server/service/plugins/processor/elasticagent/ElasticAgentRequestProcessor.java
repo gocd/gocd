@@ -25,7 +25,6 @@ import com.thoughtworks.go.plugin.api.response.GoApiResponse;
 import com.thoughtworks.go.plugin.infra.GoPluginApiRequestProcessor;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.AgentConfigService;
 import com.thoughtworks.go.server.service.AgentService;
@@ -38,6 +37,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.plugin.access.elastic.Constants.*;
 import static com.thoughtworks.go.server.service.ElasticAgentPluginService.toAgentMetadata;
@@ -60,7 +60,9 @@ public class ElasticAgentRequestProcessor implements GoPluginApiRequestProcessor
 
         registry.registerProcessorFor(PROCESS_DISABLE_AGENTS, this);
         registry.registerProcessorFor(PROCESS_DELETE_AGENTS, this);
-        registry.registerProcessorFor(REQUEST_SERVER_LIST_AGENTS, this);
+        registry.registerProcessorFor(REQUEST_SERVER_LIST_ELASTIC_AGENTS, this);
+        registry.registerProcessorFor(REQUEST_SERVER_LIST_ALL_AGENTS, this);
+//        registry.registerProcessorFor(REQUEST_SERVER_LIST_ALL_JOBS, this);
     }
 
     @Override
@@ -78,24 +80,28 @@ public class ElasticAgentRequestProcessor implements GoPluginApiRequestProcessor
                     return new DefaultGoApiResponse(200);
                 }
                 return processDeleteAgent(pluginDescriptor, goPluginApiRequest);
-            case REQUEST_SERVER_LIST_AGENTS:
-                return processListAgents(pluginDescriptor, goPluginApiRequest);
+            case REQUEST_SERVER_LIST_ELASTIC_AGENTS:
+                return processListElasticAgents(pluginDescriptor, goPluginApiRequest);
+            case REQUEST_SERVER_LIST_ALL_AGENTS:
+                return processListAllAgents(pluginDescriptor, goPluginApiRequest);
+//            case REQUEST_SERVER_LIST_ALL_JOBS:
+//                return processListAllJobs(pluginDescriptor, goPluginApiRequest);
             default:
                 return DefaultGoApiResponse.error("Illegal api request");
         }
     }
 
-    private GoApiResponse processListAgents(GoPluginDescriptor pluginDescriptor, GoApiRequest goPluginApiRequest) {
-        LOGGER.debug("Listing agents for plugin {}", pluginDescriptor.id());
-        List<ElasticAgentMetadata> elasticAgents = agentService.allElasticAgents().get(pluginDescriptor.id());
+    private GoApiResponse processListElasticAgents(GoPluginDescriptor pluginDescriptor, GoApiRequest goPluginApiRequest) {
+        LOGGER.debug("Listing elastic agents for plugin {}", pluginDescriptor.id());
+        List<AgentInstance> elasticAgents = agentService.allElasticAgents().get(pluginDescriptor.id());
 
         Collection<AgentMetadata> metadata;
         if (elasticAgents == null) {
             metadata = new ArrayList<>();
         } else {
-            metadata = ListUtil.map(elasticAgents, new ListUtil.Transformer<ElasticAgentMetadata, AgentMetadata>() {
+            metadata = ListUtil.map(elasticAgents, new ListUtil.Transformer<AgentInstance, AgentMetadata>() {
                 @Override
-                public AgentMetadata transform(ElasticAgentMetadata obj) {
+                public AgentMetadata transform(AgentInstance obj) {
                     return toAgentMetadata(obj);
                 }
             });
@@ -104,6 +110,36 @@ public class ElasticAgentRequestProcessor implements GoPluginApiRequestProcessor
         String responseBody = elasticAgentExtension.getElasticAgentMessageConverter(goPluginApiRequest.apiVersion()).listAgentsResponseBody(metadata);
         return DefaultGoApiResponse.success(responseBody);
     }
+
+    private GoApiResponse processListAllAgents(GoPluginDescriptor pluginDescriptor, GoApiRequest goPluginApiRequest) {
+        LOGGER.debug("Listing all agents for plugin {}", pluginDescriptor.id());
+        final Map<AgentInstance, Collection<String>> agentEnvironmentMap = agentService.agentEnvironmentMap();
+
+        Collection<AgentMetadata> metadata;
+        if (agentEnvironmentMap == null) {
+            metadata = new ArrayList<>();
+        } else {
+            metadata = ListUtil.map(agentEnvironmentMap.keySet(), new ListUtil.Transformer<AgentInstance, AgentMetadata>() {
+                @Override
+                public AgentMetadata transform(AgentInstance obj) {
+                    return toAgentMetadata(obj, agentEnvironmentMap.get(obj));
+                }
+            });
+        }
+
+        String responseBody = elasticAgentExtension.getElasticAgentMessageConverter(goPluginApiRequest.apiVersion()).listAgentsResponseBody(metadata);
+        return DefaultGoApiResponse.success(responseBody);
+    }
+
+/*
+    private GoApiResponse processListAllJobs(GoPluginDescriptor pluginDescriptor, GoApiRequest goPluginApiRequest) {
+        LOGGER.debug("Listing all jobs for plugin {}", pluginDescriptor.id());
+        final Map<AgentInstance, Collection<String>> jobs = agentService.agentEnvironmentMap();
+
+//        String responseBody = elasticAgentExtension.getElasticAgentMessageConverter(goPluginApiRequest.apiVersion()).listJobsResponseBody(jobs);
+        return DefaultGoApiResponse.success(""); //success(responseBody);
+    }
+*/
 
     private GoApiResponse processDeleteAgent(GoPluginDescriptor pluginDescriptor, GoApiRequest goPluginApiRequest) {
         Collection<AgentInstance> agentInstances = getAgentInstances(pluginDescriptor, goPluginApiRequest);

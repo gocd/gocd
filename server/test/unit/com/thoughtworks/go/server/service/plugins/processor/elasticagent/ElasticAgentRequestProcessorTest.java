@@ -17,9 +17,7 @@
 package com.thoughtworks.go.server.service.plugins.processor.elasticagent;
 
 import com.thoughtworks.go.config.AgentConfig;
-import com.thoughtworks.go.domain.AgentConfigStatus;
 import com.thoughtworks.go.domain.AgentInstance;
-import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.plugin.access.elastic.AgentMetadata;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
@@ -27,15 +25,17 @@ import com.thoughtworks.go.plugin.api.request.DefaultGoApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoApiResponse;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.service.AgentConfigService;
 import com.thoughtworks.go.server.service.AgentService;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.Arrays;
+import java.util.Collections;
 
+import static com.thoughtworks.go.domain.AgentInstance.AgentType;
 import static com.thoughtworks.go.plugin.access.elastic.Constants.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -52,14 +52,18 @@ public class ElasticAgentRequestProcessorTest {
 
     @Test
     public void shouldProcessListAgentRequest() throws Exception {
-        LinkedMultiValueMap<String, ElasticAgentMetadata> allAgents = new LinkedMultiValueMap<>();
-        ElasticAgentMetadata agent = new ElasticAgentMetadata("foo", "bar", "docker", AgentRuntimeStatus.Building, AgentConfigStatus.Disabled);
-        allAgents.put("docker", Arrays.asList(agent));
+        LinkedMultiValueMap<String, AgentInstance> allAgents = new LinkedMultiValueMap<>();
+
+        AgentConfig agentConfig = new AgentConfig("foo", "A", "127.0.0.1");
+        agentConfig.setElasticAgentId("bar");
+        agentConfig.setElasticPluginId("myplugin");
+        AgentInstance agent = new AgentInstance(agentConfig, AgentType.LOCAL, new SystemEnvironment());
+        allAgents.put("docker", Collections.singletonList(agent));
 
         when(agentService.allElasticAgents()).thenReturn(allAgents);
-        GoApiResponse response = processor.process(pluginDescriptor, new DefaultGoApiRequest(REQUEST_SERVER_LIST_AGENTS, "1.0", pluginIdentifier));
+        GoApiResponse response = processor.process(pluginDescriptor, new DefaultGoApiRequest(REQUEST_SERVER_LIST_ELASTIC_AGENTS, "1.0", pluginIdentifier));
 
-        JSONAssert.assertEquals("[{\"agent_id\":\"bar\",\"agent_state\":\"Building\",\"build_state\":\"Building\",\"config_state\":\"Disabled\"}]", response.responseBody(), true);
+        JSONAssert.assertEquals("[{\"agent_id\":\"bar\",\"agent_state\":\"Missing\",\"build_state\":\"Unknown\",\"config_state\":\"Pending\",\"environments\":[],\"resources\":[]}]", response.responseBody(), true);
     }
 
     @Test

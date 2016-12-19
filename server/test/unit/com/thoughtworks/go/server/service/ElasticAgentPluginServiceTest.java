@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.ArtifactPlans;
 import com.thoughtworks.go.config.EnvironmentVariablesConfig;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
+import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.DefaultJobPlan;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobPlan;
@@ -26,15 +27,17 @@ import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginRegistry;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentMessage;
 import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentQueueHandler;
 import com.thoughtworks.go.server.messaging.elasticagents.ServerPingMessage;
 import com.thoughtworks.go.server.messaging.elasticagents.ServerPingQueueHandler;
+import com.thoughtworks.go.server.messaging.elasticagents.JobStatusPluginMessage;
+import com.thoughtworks.go.server.messaging.elasticagents.JobStatusPluginQueueHandler;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.TimeProvider;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -61,6 +64,8 @@ public class ElasticAgentPluginServiceTest {
     @Mock
     private ServerPingQueueHandler serverPingQueue;
     @Mock
+    private JobStatusPluginQueueHandler jobStatusPluginQueue;
+    @Mock
     private ServerHealthService serverHealthService;
     @Mock
     private ServerConfigService serverConfigService;
@@ -77,9 +82,9 @@ public class ElasticAgentPluginServiceTest {
         plugins.add(new GoPluginDescriptor("p1", null, null, null, null, true));
         plugins.add(new GoPluginDescriptor("p2", null, null, null, null, true));
         when(registry.getPlugins()).thenReturn(plugins);
-        when(agentService.allElasticAgents()).thenReturn(new LinkedMultiValueMap<String, ElasticAgentMetadata>());
+        when(agentService.allElasticAgents()).thenReturn(new LinkedMultiValueMap<String, AgentInstance>());
         timeProvider = new TimeProvider();
-        service = new ElasticAgentPluginService(pluginManager, registry, agentService, environmentConfigService, createAgentQueue, serverPingQueue, serverConfigService, timeProvider, serverHealthService);
+        service = new ElasticAgentPluginService(pluginManager, registry, agentService, environmentConfigService, createAgentQueue, serverPingQueue, jobStatusPluginQueue, serverConfigService, timeProvider, serverHealthService);
         when(serverConfigService.getAutoregisterKey()).thenReturn(autoRegisterKey);
     }
 
@@ -133,4 +138,8 @@ public class ElasticAgentPluginServiceTest {
         JobIdentifier identifier = new JobIdentifier("pipeline-" + jobId, 1, "1", "stage", "1", "job");
         return new DefaultJobPlan(null, new ArtifactPlans(), null, jobId, identifier, null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), elasticProfile);
     }
+
+    @Ignore
+    @Test
+    public void shouldSendJobStatusToAllPlugins() {}
 }

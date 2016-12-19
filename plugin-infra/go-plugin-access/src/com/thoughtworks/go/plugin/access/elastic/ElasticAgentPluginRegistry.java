@@ -84,6 +84,12 @@ public class ElasticAgentPluginRegistry implements PluginChangeListener {
         LOGGER.debug("Done processing server ping for plugin {}", pluginId);
     }
 
+    public void jobStatusChanged(String pluginId, String jobIdentifier, String state, String agentUuid, String environment, List<String> resources) {
+        LOGGER.debug("Processing server ping for plugin {}", pluginId);
+        elasticAgentExtension.jobStatusChange(pluginId, jobIdentifier, state, agentUuid, environment, resources);
+        LOGGER.debug("Done processing server ping for plugin {}", pluginId);
+    }
+
     public boolean shouldAssignWork(PluginDescriptor plugin, AgentMetadata agent, String environment, Map<String, String> configuration) {
         LOGGER.debug("Processing should assign work for plugin: {} with agent: {} with environment: {} with configuration: {}", plugin.id(), agent, environment, configuration);
         boolean result = elasticAgentExtension.shouldAssignWork(plugin.id(), agent, environment, configuration);

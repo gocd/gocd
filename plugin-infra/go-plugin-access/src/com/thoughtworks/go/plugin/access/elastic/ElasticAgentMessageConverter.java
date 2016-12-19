@@ -21,11 +21,14 @@ import com.thoughtworks.go.plugin.api.config.Configuration;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 public interface ElasticAgentMessageConverter {
 
     String createAgentRequestBody(String autoRegisterKey, String environment, Map<String, String> configuration);
+
+    String jobStatusChangeRequestBody(String jobIdentifier, String state, String agentUuid, String environment, List<String> resources);
 
     Boolean canHandlePluginResponseFromBody(String responseBody);
 

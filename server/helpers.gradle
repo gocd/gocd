@@ -1,0 +1,76 @@
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+task bumpSchemaVersion {
+  doFirst {
+
+    File goConstantsFile = project(':base').file("src/com/thoughtworks/go/util/GoConstants.java")
+    def originalXSDFile = project(':config-server').file('resources/cruise-config.xsd')
+
+    def goConstantsContents = goConstantsFile.getText('utf-8')
+    def xsdContents = originalXSDFile.getText('utf-8')
+
+    def currentVersion = new Integer(goConstantsFile.readLines().grep(~/.*CONFIG_SCHEMA_VERSION\s*=\s*.*/).first().trim().split("=").last().trim().replace(";", ""))
+    def nextVersion = currentVersion + 1
+
+    goConstantsFile.withWriter { out ->
+      out.write(goConstantsContents.replaceAll(/(.*)CONFIG_SCHEMA_VERSION\s*=\s*.*/, "\$1CONFIG_SCHEMA_VERSION = ${nextVersion};"))
+    }
+
+    originalXSDFile.withWriter { out ->
+      out.println(xsdContents.replaceAll("""<xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="${currentVersion}"/>""", """<xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="${nextVersion}"/>"""))
+    }
+
+    copy {
+      from originalXSDFile
+      into project(':config-server').file("resources/schemas")
+      rename "cruise-config.xsd", "${currentVersion}_cruise-config.xsd"
+    }
+
+    project(':config-server').file("resources/upgrades/${nextVersion}.xsl").withWriter { out ->
+      out.println("""
+<?xml version="1.0"?>
+<!--
+  ~ Copyright ${Calendar.getInstance().get(Calendar.YEAR)} ThoughtWorks, Inc.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+    <xsl:template match="/cruise/@schemaVersion">
+        <xsl:attribute name="schemaVersion">${nextVersion}</xsl:attribute>
+    </xsl:template>
+    <!-- Copy everything -->
+    <xsl:template match="@*|node()">
+        <xsl:copy>
+            <xsl:apply-templates select="@*|node()"/>
+        </xsl:copy>
+    </xsl:template>
+</xsl:stylesheet>
+""".trim())
+    }
+  }
+}

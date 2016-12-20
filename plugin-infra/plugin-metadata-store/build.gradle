@@ -14,18 +14,13 @@
  * limitations under the License.
  */
 
-description = 'GoCD Config API'
-dependencies {
-  compile project(':util')
-  compile project(':plugin-metadata-store')
-  compile project(':db')
-  compile group: 'org.quartz-scheduler', name: 'quartz', version: '1.6.5'
-  compile group: 'uk.com.robust-it', name: 'cloning', version: '1.7.3'
-  compile group: 'jdom', name: 'jdom', version: '1.0'
-  compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.21'
-  compile group: 'org.apache.felix', name: 'org.apache.felix.framework', version: '4.2.1'
-  testCompile project(':test-utils')
-  testCompile group: 'jaxen', name: 'jaxen', version: '1.1.6'
+description = 'Metadata store for GoCD Plugins'
 
-  compileOnly(group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47')
+dependencies {
+  compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
+  compile project(':go-plugin-api')
+  compile group: 'com.bazaarvoice.jolt', name: 'jolt-core', version: '0.0.20'
+  compile group: 'com.bazaarvoice.jolt', name: 'json-utils', version: '0.0.20'
+  testCompile group: 'org.skyscreamer', name: 'jsonassert', version: '1.2.3'
+  testCompile project(':test-utils')
 }

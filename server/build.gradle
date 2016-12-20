@@ -82,6 +82,7 @@ sourceSets {
 dependencies {
   compile project(':database')
   compile project(':config-server')
+  compile project(':go-plugin-access')
   compile project(':common')
   compile project(':rack_hack')
   compile(group: 'commons-beanutils', name: 'commons-beanutils-core', version: '1.7.0') {

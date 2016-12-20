@@ -18,6 +18,8 @@ description = 'APIs to allow GoCD to communicate with GoCD Plugins'
 
 dependencies {
   compile project(':go-plugin-infra')
+  compile project(':domain')
+  compile project(':plugin-metadata-store')
   compile group: 'com.bazaarvoice.jolt', name: 'jolt-core', version: '0.0.20'
   compile group: 'com.bazaarvoice.jolt', name: 'json-utils', version: '0.0.20'
   testCompile group: 'org.skyscreamer', name: 'jsonassert', version: '1.2.3'

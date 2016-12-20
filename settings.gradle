@@ -85,3 +85,6 @@ project(':development-server').projectDir = "$rootDir/development-utility/develo
 project(':installers').projectDir = "$rootDir/installers" as File
 project(':release').projectDir = "$rootDir/release" as File
 project(':tools').projectDir = "$rootDir/tools" as File
+include 'domain'
+include 'commandline'
+

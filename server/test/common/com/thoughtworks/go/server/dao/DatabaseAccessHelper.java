@@ -35,6 +35,7 @@ import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.persistence.PipelineRepository;
 import com.thoughtworks.go.server.service.InstanceFactory;
 import com.thoughtworks.go.server.service.ManualBuild;
+import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.server.service.PipelineService;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
@@ -292,7 +293,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
         String[] jobConfigNames = new String[]{};
         PipelineConfig pipelineConfig = configurePipeline(pipelineName, stageName, jobConfigNames);
 
-        BuildCause buildCause = BuildCause.createManualForced(modifyOneFile(MaterialsMother.createMaterialsFromMaterialConfigs(pipelineConfig.materialConfigs()),
+        BuildCause buildCause = BuildCause.createManualForced(modifyOneFile(new MaterialConfigConverter().toMaterials(pipelineConfig.materialConfigs()),
                 ModificationsMother.currentRevision()), Username.ANONYMOUS);
 
         Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, buildCause, new DefaultSchedulingContext(
@@ -316,7 +317,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
 
     public Pipeline newPipelineWithFirstStagePassed(PipelineConfig config) throws SQLException {
         Pipeline pipeline = instanceFactory.createPipelineInstance(config,
-                BuildCause.createManualForced(modifyOneFile(MaterialsMother.createMaterialsFromMaterialConfigs(config.materialConfigs()), ModificationsMother.nextRevision()), Username.ANONYMOUS),
+                BuildCause.createManualForced(modifyOneFile(new MaterialConfigConverter().toMaterials(config.materialConfigs()), ModificationsMother.nextRevision()), Username.ANONYMOUS),
                 new DefaultSchedulingContext(
                         GoConstants.DEFAULT_APPROVED_BY), md5, new TimeProvider());
         saveMaterialsWIthPassedStages(pipeline);
@@ -329,7 +330,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
     }
 
     public Pipeline newPipelineWithFirstStageFailed(PipelineConfig config) throws SQLException {
-        Pipeline pipeline = instanceFactory.createPipelineInstance(config, BuildCause.createManualForced(modifyOneFile(MaterialsMother.createMaterialsFromMaterialConfigs(config.materialConfigs()),
+        Pipeline pipeline = instanceFactory.createPipelineInstance(config, BuildCause.createManualForced(modifyOneFile(new MaterialConfigConverter().toMaterials(config.materialConfigs()),
                 ModificationsMother.currentRevision()), Username.ANONYMOUS),
                 new DefaultSchedulingContext(
                         GoConstants.DEFAULT_APPROVED_BY), md5, new TimeProvider());
@@ -340,7 +341,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
 
     public Pipeline newPipelineWithFirstStageScheduled(PipelineConfig config) throws SQLException {
         Pipeline pipeline = instanceFactory.createPipelineInstance(config,
-                BuildCause.createManualForced(modifyOneFile(MaterialsMother.createMaterialsFromMaterialConfigs(config.materialConfigs()), ModificationsMother.nextRevision()), Username.ANONYMOUS),
+                BuildCause.createManualForced(modifyOneFile(new MaterialConfigConverter().toMaterials(config.materialConfigs()), ModificationsMother.nextRevision()), Username.ANONYMOUS),
                 new DefaultSchedulingContext(
                         GoConstants.DEFAULT_APPROVED_BY), md5, new TimeProvider());
         savePipelineWithStagesAndMaterials(pipeline);

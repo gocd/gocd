@@ -33,6 +33,7 @@ import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.dto.DurationBean;
 import com.thoughtworks.go.fixture.PipelineWithMultipleStages;
 import com.thoughtworks.go.helper.*;
+import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryEntry;
 import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryPage;
 import com.thoughtworks.go.remote.AgentIdentifier;

@@ -34,6 +34,8 @@ test {
 
 dependencies {
   compile project(':config-api')
+  compile project(':commandline')
+  compile project(':domain')
   compile project(':go-plugin-access')
   compile group: 'org.springframework', name: 'spring-orm', version: '3.1.3.RELEASE'
   compile group: 'cglib', name: 'cglib-nodep', version: '2.2'
@@ -45,6 +47,7 @@ dependencies {
   compile group: 'dom4j', name: 'dom4j', version: '1.6.1'
   compile(group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.5.2')
   testCompile project(path: ':config-api', configuration: 'testOutput')
+  testCompile project(path: ':domain', configuration: 'testOutput')
   testCompile(group: 'org.skyscreamer', name: 'jsonassert', version: '1.2.3')
   testCompile project(':test-utils')
   testCompile group: 'org.reflections', name: 'reflections', version: '0.9.8'

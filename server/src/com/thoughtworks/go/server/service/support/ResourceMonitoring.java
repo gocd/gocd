@@ -45,7 +45,7 @@ public class ResourceMonitoring {
             if (threadMXBean.isThreadCpuTimeSupported()) {
                 threadMXBean.setThreadCpuTimeEnabled(true);
             }
-            if (((com.sun.management.ThreadMXBean) threadMXBean).isThreadAllocatedMemorySupported()) {
+            if ((threadMXBean instanceof com.sun.management.ThreadMXBean) && ((com.sun.management.ThreadMXBean) threadMXBean).isThreadAllocatedMemorySupported()) {
                 ((com.sun.management.ThreadMXBean) threadMXBean).setThreadAllocatedMemoryEnabled(true);
             }
         }

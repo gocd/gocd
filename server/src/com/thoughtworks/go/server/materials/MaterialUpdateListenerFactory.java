@@ -22,6 +22,7 @@ import com.thoughtworks.go.server.messaging.GoMessageTopic;
 import com.thoughtworks.go.server.perf.MDUPerformanceLogger;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.MaterialExpansionService;
+import com.thoughtworks.go.server.service.support.DaemonThreadStatsCollector;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -36,6 +37,7 @@ public class MaterialUpdateListenerFactory {
     private MaterialUpdateQueue queue;
     private ConfigMaterialUpdateQueue configQueue;
     private DependencyMaterialUpdateQueue dependencyMaterialQueue;
+    private final DaemonThreadStatsCollector daemonThreadStatsCollector;
     private SystemEnvironment systemEnvironment;
     private final ServerHealthService serverHealthService;
     private final GoDiskSpaceMonitor diskSpaceMonitor;
@@ -63,7 +65,7 @@ public class MaterialUpdateListenerFactory {
                                          PluggableSCMMaterialUpdater pluggableSCMMaterialUpdater,
                                          MaterialExpansionService materialExpansionService,
                                          MDUPerformanceLogger mduPerformanceLogger,
-                                         DependencyMaterialUpdateQueue dependencyMaterialQueue) {
+                                         DependencyMaterialUpdateQueue dependencyMaterialQueue, DaemonThreadStatsCollector daemonThreadStatsCollector) {
         this.topic = topic;
         this.configTopic = configTopic;
         this.queue = queue;
@@ -80,6 +82,7 @@ public class MaterialUpdateListenerFactory {
         this.materialExpansionService = materialExpansionService;
         this.mduPerformanceLogger = mduPerformanceLogger;
         this.dependencyMaterialQueue = dependencyMaterialQueue;
+        this.daemonThreadStatsCollector = daemonThreadStatsCollector;
     }
 
     public void init(){

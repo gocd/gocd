@@ -35,6 +35,7 @@ import com.thoughtworks.go.server.security.GoCasServiceProperties;
 import com.thoughtworks.go.server.security.LdapContextFactory;
 import com.thoughtworks.go.server.security.RemoveAdminPermissionFilter;
 import com.thoughtworks.go.server.service.*;
+import com.thoughtworks.go.server.service.support.ResourceMonitoring;
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.service.ConfigRepository;
@@ -136,6 +137,8 @@ public class ApplicationInitializerTest {
     private DependencyMaterialUpdateNotifier dependencyMaterialUpdateNotifier;
     @Mock
     private SCMMaterialSource scmMaterialSource;
+    @Mock
+    private ResourceMonitoring resourceMonitoring;
     @InjectMocks
     ApplicationInitializer initializer = new ApplicationInitializer();
 

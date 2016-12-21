@@ -43,7 +43,7 @@ public class ActiveMqTest implements GoMessageListener {
 
     @Before
     public void setUp() throws Exception {
-        messaging = new ActiveMqMessagingService();
+        messaging = new ActiveMqMessagingService(null);
 
     }
 

@@ -35,6 +35,7 @@ import com.thoughtworks.go.server.security.GoCasServiceProperties;
 import com.thoughtworks.go.server.security.LdapContextFactory;
 import com.thoughtworks.go.server.security.RemoveAdminPermissionFilter;
 import com.thoughtworks.go.server.service.*;
+import com.thoughtworks.go.server.service.support.ResourceMonitoring;
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.server.util.ServletHelper;
@@ -86,6 +87,7 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
     @Autowired private EntityHashingService entityHashingService;
     @Autowired private DependencyMaterialUpdateNotifier dependencyMaterialUpdateNotifier;
     @Autowired private SCMMaterialSource scmMaterialSource;
+    @Autowired private ResourceMonitoring resourceMonitoring;
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
@@ -93,6 +95,7 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
             return;
         }
         try {
+            resourceMonitoring.enableIfDiagnosticsModeIsEnabled();
             //plugin
             defaultPluginJarLocationMonitor.initialize();
             pluginsInitializer.initialize();

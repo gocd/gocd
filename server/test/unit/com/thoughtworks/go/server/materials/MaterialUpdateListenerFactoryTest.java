@@ -75,7 +75,7 @@ public class MaterialUpdateListenerFactoryTest {
                 materialRepository, systemEnvironment, healthService, diskSpaceMonitor,
                 transactionTemplate, dependencyMaterialUpdater, scmMaterialUpdater,
                 packageMaterialUpdater, pluggableSCMMaterialUpdater, materialExpansionService, mduPerformanceLogger,
-                dependencyMaterialQueue);
+                dependencyMaterialQueue, null);
         factory.init();
 
         verify(queue, new Times(NUMBER_OF_CONSUMERS)).addListener(any(GoMessageListener.class));
@@ -89,7 +89,7 @@ public class MaterialUpdateListenerFactoryTest {
                 materialRepository, systemEnvironment, healthService, diskSpaceMonitor,
                 transactionTemplate, dependencyMaterialUpdater, scmMaterialUpdater,
                 packageMaterialUpdater, pluggableSCMMaterialUpdater, materialExpansionService, mduPerformanceLogger,
-                dependencyMaterialQueue);
+                dependencyMaterialQueue, null);
         factory.init();
 
         verify(configQueue, new Times(NUMBER_OF_CONFIG_CONSUMERS)).addListener(any(GoMessageListener.class));
@@ -105,7 +105,7 @@ public class MaterialUpdateListenerFactoryTest {
                 materialRepository, systemEnvironment, healthService, diskSpaceMonitor,
                 transactionTemplate, dependencyMaterialUpdater, scmMaterialUpdater,
                 packageMaterialUpdater, pluggableSCMMaterialUpdater, materialExpansionService, mduPerformanceLogger,
-                dependencyMaterialQueue);
+                dependencyMaterialQueue, null);
         factory.init();
 
         verify(dependencyMaterialQueue, new Times(noOfDependencyMaterialCheckListeners)).addListener(any(GoMessageListener.class));

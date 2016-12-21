@@ -22,6 +22,7 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 
+import com.thoughtworks.go.server.service.support.DaemonThreadStatsCollector;
 import com.thoughtworks.go.server.messaging.GoMessageListener;
 import com.thoughtworks.go.server.messaging.MessageSender;
 import com.thoughtworks.go.server.messaging.MessagingService;
@@ -34,6 +35,7 @@ import org.apache.activemq.broker.region.Destination;
 import org.apache.activemq.broker.region.Subscription;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.util.BrokerSupport;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -45,11 +47,14 @@ public class ActiveMqMessagingService implements MessagingService {
 
     public static final String BROKER_NAME = "go-server";
     public static final String BROKER_URL = "vm://go-server";
+    private final DaemonThreadStatsCollector daemonThreadStatsCollector;
     private ActiveMQConnection connection;
     public ActiveMQConnectionFactory factory;
     private BrokerService broker;
 
-    public ActiveMqMessagingService() throws Exception {
+    @Autowired
+    public ActiveMqMessagingService(DaemonThreadStatsCollector daemonThreadStatsCollector) throws Exception {
+        this.daemonThreadStatsCollector = daemonThreadStatsCollector;
         SystemEnvironment systemEnvironment = new SystemEnvironment();
 
         broker = new BrokerService();
@@ -85,7 +90,7 @@ public class ActiveMqMessagingService implements MessagingService {
         try {
             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             MessageConsumer consumer = session.createConsumer(session.createTopic(topic));
-            return JMSMessageListenerAdapter.startListening(consumer, listener);
+            return JMSMessageListenerAdapter.startListening(consumer, listener, daemonThreadStatsCollector);
         } catch (Exception e) {
             throw bomb(e);
         }
@@ -107,7 +112,7 @@ public class ActiveMqMessagingService implements MessagingService {
         try {
             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             MessageConsumer consumer = session.createConsumer(session.createQueue(queueName));
-            return JMSMessageListenerAdapter.startListening(consumer, listener);
+            return JMSMessageListenerAdapter.startListening(consumer, listener, daemonThreadStatsCollector);
         } catch (Exception e) {
             throw bomb(e);
         }

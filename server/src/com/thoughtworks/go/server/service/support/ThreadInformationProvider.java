@@ -16,17 +16,20 @@
 
 package com.thoughtworks.go.server.service.support;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ReflectionUtils;
 
 import java.lang.management.*;
-import java.lang.management.ThreadInfo;
-import java.lang.management.ThreadMXBean;
+import java.lang.reflect.Method;
 import java.util.*;
 
 @Component
 public class ThreadInformationProvider implements ServerInfoProvider {
     private final DaemonThreadStatsCollector daemonThreadStatsCollector;
+    private static final Logger LOGGER = LoggerFactory.getLogger(ThreadInformationProvider.class.getName());
 
     @Autowired
     public ThreadInformationProvider(DaemonThreadStatsCollector daemonThreadStatsCollector) {
@@ -88,10 +91,7 @@ public class ThreadInformationProvider implements ServerInfoProvider {
             threadStackTrace.put("UserTime(nanoseconds)", threadMXBean.getThreadUserTime(threadInfo.getThreadId()));
             threadStackTrace.put("CPUTime(nanoseconds)", threadMXBean.getThreadCpuTime(threadInfo.getThreadId()));
             threadStackTrace.put("DaemonThreadInfo", daemonThreadStatsCollector.statsFor(threadInfo.getThreadId()));
-            if (threadMXBean instanceof com.sun.management.ThreadMXBean) {
-                com.sun.management.ThreadMXBean mxBean = (com.sun.management.ThreadMXBean) threadMXBean;
-                threadStackTrace.put("AllocatedMemory(Bytes)", mxBean.getThreadAllocatedBytes(threadInfo.getThreadId()));
-            }
+            threadStackTrace.put("AllocatedMemory(Bytes)", getAllocatedMemory(threadMXBean, threadInfo));
             LinkedHashMap<String, Object> lockMonitorInfo = new LinkedHashMap<>();
             MonitorInfo[] lockedMonitors = threadInfo.getLockedMonitors();
             ArrayList<Map<String, Object>> lockedMonitorsJson = new ArrayList<>();
@@ -135,6 +135,19 @@ public class ThreadInformationProvider implements ServerInfoProvider {
             traces.put(threadInfo.getThreadId(), threadStackTrace);
         }
         return traces;
+    }
+
+    private long getAllocatedMemory(ThreadMXBean threadMXBean, ThreadInfo threadInfo) {
+        Method method = ReflectionUtils.findMethod(threadMXBean.getClass(), "getThreadAllocatedBytes", long.class);
+        if (method != null) {
+            try {
+                method.setAccessible(true);
+                return (long) method.invoke(threadMXBean, threadInfo.getThreadId());
+            } catch (Exception e) {
+                LOGGER.error("Error while capturing allocatedMemory for api/support : {}", e.getMessage());
+            }
+        }
+        return -1;
     }
 
     private Object asJSON(StackTraceElement[] stackTrace) {

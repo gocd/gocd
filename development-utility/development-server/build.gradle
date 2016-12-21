@@ -24,7 +24,11 @@ dependencies {
   compile group: 'org.eclipse.jetty', name: 'jetty-servlets', version: versions.jetty
   compile group: 'org.eclipse.jetty', name: 'jetty-util', version: versions.jetty
   compile group: 'org.eclipse.jetty.websocket', name: 'websocket-server', version: versions.jetty
-  compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit.http.server', version: '4.5.0.201609210915-r'
+  compile(group: 'org.eclipse.jgit', name: 'org.eclipse.jgit.http.server', version: '4.5.0.201609210915-r'){
+    // we don't use http or ssh transports, so don't pull these deps
+    exclude(group: 'org.apache.httpcomponents')
+    exclude(group: 'com.jcraft')
+  }
   compile project(':jetty9')
   compile group: 'javax.servlet', name: 'javax.servlet-api', version: '3.1.0'
   compile group: 'org.jruby', name: 'jruby-complete', version: '1.7.26'

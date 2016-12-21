@@ -33,7 +33,6 @@ import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
-import org.apache.http.HttpStatus;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -45,6 +44,7 @@ import java.util.*;
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_BUNDLE_PATH;
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_FRAMEWORK_ENABLED;
 import static java.lang.Double.parseDouble;
+import static javax.servlet.http.HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE;
 
 @Service
 public class DefaultPluginManager implements PluginManager {
@@ -88,7 +88,7 @@ public class DefaultPluginManager implements PluginManager {
     public PluginUploadResponse addPlugin(File uploadedPlugin, String filename) {
         if (!pluginValidator.namecheckForJar(filename)) {
             Map<Integer, String> errors = new HashMap<>();
-            errors.put(HttpStatus.SC_UNSUPPORTED_MEDIA_TYPE, "Please upload a jar.");
+            errors.put(SC_UNSUPPORTED_MEDIA_TYPE, "Please upload a jar.");
             return PluginUploadResponse.create(false, null, errors);
         }
         return pluginWriter.addPlugin(uploadedPlugin, filename);

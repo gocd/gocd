@@ -18,78 +18,91 @@ package com.thoughtworks.go.agent.service;
 
 import com.thoughtworks.go.agent.AgentAutoRegistrationPropertiesImpl;
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient;
+import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClientBuilder;
 import com.thoughtworks.go.config.DefaultAgentRegistry;
 import com.thoughtworks.go.security.Registration;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.SystemUtil;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.client.utils.URLEncodedUtils;
+import org.eclipse.jetty.client.api.ContentProvider;
+import org.eclipse.jetty.client.api.ContentResponse;
+import org.eclipse.jetty.client.api.Request;
+import org.eclipse.jetty.client.api.Response;
+import org.eclipse.jetty.util.MultiMap;
+import org.eclipse.jetty.util.UrlEncoded;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
+import java.nio.ByteBuffer;
 import java.util.Properties;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.Is.isA;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class RemoteRegistrationRequesterTest {
 
     @Test
-    public void shouldPassAllParametersToPostForRegistrationOfNonElasticAgent() throws IOException, ClassNotFoundException {
+    public void shouldPassAllParametersToPostForRegistrationOfNonElasticAgent() throws Exception {
         String url = "http://cruise.com/go";
-        GoAgentServerHttpClient httpClient = mock(GoAgentServerHttpClient.class);
-        when(httpClient.execute(argThat(isA(HttpUriRequest.class)))).thenReturn(mock(CloseableHttpResponse.class));
-        final DefaultAgentRegistry defaultAgentRegistry = new DefaultAgentRegistry();
-        Properties properties = new Properties();
-        properties.put(AgentAutoRegistrationPropertiesImpl.AGENT_AUTO_REGISTER_KEY, "t0ps3cret");
-        properties.put(AgentAutoRegistrationPropertiesImpl.AGENT_AUTO_REGISTER_RESOURCES, "linux, java");
-        properties.put(AgentAutoRegistrationPropertiesImpl.AGENT_AUTO_REGISTER_ENVIRONMENTS, "uat, staging");
-        properties.put(AgentAutoRegistrationPropertiesImpl.AGENT_AUTO_REGISTER_HOSTNAME, "agent01.example.com");
+        try (GoAgentServerHttpClient httpClient = spy(new GoAgentServerHttpClient(new GoAgentServerHttpClientBuilder(new SystemEnvironment())))) {
+            httpClient.init();
+            ArgumentCaptor<Request> argumentCaptor = ArgumentCaptor.forClass(Request.class);
+            doReturn(mock(ContentResponse.class)).when(httpClient).execute(argumentCaptor.capture());
 
-        remoteRegistryRequester(url, httpClient, defaultAgentRegistry, 200).requestRegistration("cruise.com", new AgentAutoRegistrationPropertiesImpl(null, properties));
-        verify(httpClient).execute(argThat(hasAllParams(defaultAgentRegistry.uuid(), "", "")));
+            final DefaultAgentRegistry defaultAgentRegistry = new DefaultAgentRegistry();
+            Properties properties = new Properties();
+            properties.put(AgentAutoRegistrationPropertiesImpl.AGENT_AUTO_REGISTER_KEY, "t0ps3cret");
+            properties.put(AgentAutoRegistrationPropertiesImpl.AGENT_AUTO_REGISTER_RESOURCES, "linux, java");
+            properties.put(AgentAutoRegistrationPropertiesImpl.AGENT_AUTO_REGISTER_ENVIRONMENTS, "uat, staging");
+            properties.put(AgentAutoRegistrationPropertiesImpl.AGENT_AUTO_REGISTER_HOSTNAME, "agent01.example.com");
+
+            SslInfrastructureService.RemoteRegistrationRequester remoteRegistryRequester = remoteRegistryRequester(url, httpClient, defaultAgentRegistry, 200);
+
+            remoteRegistryRequester.requestRegistration("cruise.com", new AgentAutoRegistrationPropertiesImpl(null, properties));
+            Request value = argumentCaptor.getValue();
+            assertThat(value, hasAllParams(defaultAgentRegistry.uuid(), "", ""));
+        }
     }
 
     @Test
-    public void shouldPassAllParametersToPostForRegistrationOfElasticAgent() throws IOException, ClassNotFoundException {
+    public void shouldPassAllParametersToPostForRegistrationOfElasticAgent() throws Exception {
         String url = "http://cruise.com/go";
-        GoAgentServerHttpClient httpClient = mock(GoAgentServerHttpClient.class);
-        when(httpClient.execute(argThat(isA(HttpUriRequest.class)))).thenReturn(mock(CloseableHttpResponse.class));
+        try (GoAgentServerHttpClient httpClient = spy(new GoAgentServerHttpClient(new GoAgentServerHttpClientBuilder(new SystemEnvironment())))) {
+            httpClient.init();
+            ArgumentCaptor<Request> argumentCaptor = ArgumentCaptor.forClass(Request.class);
+            doReturn(mock(ContentResponse.class)).when(httpClient).execute(argumentCaptor.capture());
 
-        final DefaultAgentRegistry defaultAgentRegistry = new DefaultAgentRegistry();
-        Properties properties = new Properties();
-        properties.put(AgentAutoRegistrationPropertiesImpl.AGENT_AUTO_REGISTER_KEY, "t0ps3cret");
-        properties.put(AgentAutoRegistrationPropertiesImpl.AGENT_AUTO_REGISTER_RESOURCES, "linux, java");
-        properties.put(AgentAutoRegistrationPropertiesImpl.AGENT_AUTO_REGISTER_ENVIRONMENTS, "uat, staging");
-        properties.put(AgentAutoRegistrationPropertiesImpl.AGENT_AUTO_REGISTER_HOSTNAME, "agent01.example.com");
-        properties.put(AgentAutoRegistrationPropertiesImpl.AGENT_AUTO_REGISTER_ELASTIC_AGENT_ID, "42");
-        properties.put(AgentAutoRegistrationPropertiesImpl.AGENT_AUTO_REGISTER_ELASTIC_PLUGIN_ID, "tw.go.elastic-agent.docker");
+            final DefaultAgentRegistry defaultAgentRegistry = new DefaultAgentRegistry();
+            Properties properties = new Properties();
+            properties.put(AgentAutoRegistrationPropertiesImpl.AGENT_AUTO_REGISTER_KEY, "t0ps3cret");
+            properties.put(AgentAutoRegistrationPropertiesImpl.AGENT_AUTO_REGISTER_RESOURCES, "linux, java");
+            properties.put(AgentAutoRegistrationPropertiesImpl.AGENT_AUTO_REGISTER_ENVIRONMENTS, "uat, staging");
+            properties.put(AgentAutoRegistrationPropertiesImpl.AGENT_AUTO_REGISTER_HOSTNAME, "agent01.example.com");
+            properties.put(AgentAutoRegistrationPropertiesImpl.AGENT_AUTO_REGISTER_ELASTIC_AGENT_ID, "42");
+            properties.put(AgentAutoRegistrationPropertiesImpl.AGENT_AUTO_REGISTER_ELASTIC_PLUGIN_ID, "tw.go.elastic-agent.docker");
 
-        remoteRegistryRequester(url, httpClient, defaultAgentRegistry, 200).requestRegistration("cruise.com", new AgentAutoRegistrationPropertiesImpl(null, properties));
-        verify(httpClient).execute(argThat(hasAllParams(defaultAgentRegistry.uuid(), "42", "tw.go.elastic-agent.docker")));
+            SslInfrastructureService.RemoteRegistrationRequester registrationRequester = remoteRegistryRequester(url, httpClient, defaultAgentRegistry, 200);
+            registrationRequester.requestRegistration("cruise.com", new AgentAutoRegistrationPropertiesImpl(null, properties));
+            Request value = argumentCaptor.getValue();
+            assertThat(value, hasAllParams(defaultAgentRegistry.uuid(), "42", "tw.go.elastic-agent.docker"));
+        }
     }
 
-    private TypeSafeMatcher<HttpRequestBase> hasAllParams(final String uuid, final String elasticAgentId, final String elasticPluginId) {
-        return new TypeSafeMatcher<HttpRequestBase>() {
+    private TypeSafeMatcher<Request> hasAllParams(final String uuid, final String elasticAgentId, final String elasticPluginId) {
+        return new TypeSafeMatcher<Request>() {
             @Override
-            public boolean matchesSafely(HttpRequestBase item) {
+            public boolean matchesSafely(Request request) {
                 try {
-                    HttpEntityEnclosingRequestBase postMethod = (HttpEntityEnclosingRequestBase) item;
-                    List<NameValuePair> params = URLEncodedUtils.parse(postMethod.getEntity());
+                    ContentProvider content = request.getContent();
+
+                    MultiMap<String> params = toMap(content);
 
                     assertThat(getParameter(params, "hostname"), is("cruise.com"));
                     assertThat(getParameter(params, "uuid"), is(uuid));
@@ -108,13 +121,8 @@ public class RemoteRegistrationRequesterTest {
                 }
             }
 
-            private String getParameter(List<NameValuePair> params, String paramName) {
-                for (NameValuePair param : params) {
-                    if (param.getName().equals(paramName)) {
-                        return param.getValue();
-                    }
-                }
-                return null;
+            private String getParameter(MultiMap<String> params, String paramName) {
+                return params.getString(paramName);
             }
 
             public void describeTo(Description description) {
@@ -126,7 +134,7 @@ public class RemoteRegistrationRequesterTest {
     private SslInfrastructureService.RemoteRegistrationRequester remoteRegistryRequester(final String url, final GoAgentServerHttpClient httpClient, final DefaultAgentRegistry defaultAgentRegistry, final int statusCode) {
         return new SslInfrastructureService.RemoteRegistrationRequester(url, defaultAgentRegistry, httpClient) {
             @Override
-            protected int getStatusCode(CloseableHttpResponse response) {
+            protected int getStatusCode(Response response) {
                 return statusCode;
             }
 
@@ -135,6 +143,25 @@ public class RemoteRegistrationRequesterTest {
                 return null;
             }
         };
+    }
+
+
+    private MultiMap<String> toMap(ContentProvider actual) throws IOException {
+        String content = contentProviderToString(actual);
+
+        MultiMap<String> map = new MultiMap<>();
+        UrlEncoded.decodeTo(content, map, UTF_8, 9999);
+        return map;
+    }
+
+    private static String contentProviderToString(ContentProvider actual) throws IOException {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+
+        for (ByteBuffer byteBuffer : actual) {
+            byteArrayOutputStream.write(byteBuffer.array());
+        }
+
+        return byteArrayOutputStream.toString("utf-8");
     }
 
 

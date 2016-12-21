@@ -19,159 +19,138 @@ package com.thoughtworks.go.util;
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient;
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClientBuilder;
 import com.thoughtworks.go.domain.FetchHandler;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.http.HttpEntity;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.entity.mime.content.ByteArrayBody;
-import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.message.BasicNameValuePair;
+import org.eclipse.jetty.client.api.ContentProvider;
+import org.eclipse.jetty.client.api.ContentResponse;
+import org.eclipse.jetty.client.api.Request;
+import org.eclipse.jetty.client.api.Response;
+import org.eclipse.jetty.client.util.*;
+import org.eclipse.jetty.http.HttpMethod;
+import org.eclipse.jetty.util.Fields;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.util.Arrays;
+import java.nio.charset.StandardCharsets;
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 @Component
 public class HttpService {
-    private HttpClientFactory httpClientFactory;
-    private static final Log LOGGER = LogFactory.getLog(HttpService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpService.class);
     public static final String GO_ARTIFACT_PAYLOAD_SIZE = "X-GO-ARTIFACT-SIZE";
+    private final GoAgentServerHttpClient httpClient;
 
     public HttpService() {
         this(new GoAgentServerHttpClient(new GoAgentServerHttpClientBuilder(new SystemEnvironment())));
     }
 
-    @Autowired(required = false)
+    @Autowired
     public HttpService(GoAgentServerHttpClient httpClient) {
-        this(new HttpClientFactory(httpClient));
+        this.httpClient = httpClient;
     }
 
-    HttpService(HttpClientFactory httpClientFactory) {
-        this.httpClientFactory = httpClientFactory;
-    }
-
-    public int upload(String url, long size, File artifactFile, Properties artifactChecksums) throws IOException {
+    public int upload(String url, long size, File artifactFile, Properties artifactChecksums) throws IOException, InterruptedException, ExecutionException, TimeoutException {
         String absolutePath = artifactFile.getAbsolutePath();
         if (!artifactFile.exists()) {
             String message = "Failed to find file [" + absolutePath + "]";
             LOGGER.error(message);
             throw new FileNotFoundException(message);
         }
-        LOGGER.info(String.format("Uploading file [%s] to url [%s]", absolutePath, url));
+        LOGGER.info("Uploading file {} to url {}", absolutePath, url);
 
-        HttpPost filePost = createHttpPostForUpload(url, size, artifactFile, artifactChecksums);
-        try (CloseableHttpResponse response = execute(filePost)) {
-            return response.getStatusLine().getStatusCode();
-        } catch (IOException e) {
-            LOGGER.error("Error while uploading file [" + artifactFile.getAbsolutePath() + "]", e);
+        Request filePost = createHttpPostForUpload(url, size, artifactFile, artifactChecksums);
+        try {
+            ContentResponse response = execute(filePost);
+            return response.getStatus();
+        } catch (InterruptedException | ExecutionException | TimeoutException | IOException e) {
+            LOGGER.error("Error while uploading file {}", artifactFile.getAbsolutePath(), e);
             throw e;
-        } finally {
-            filePost.releaseConnection();
         }
     }
 
-    private HttpPost createHttpPostForUpload(String url, long size, File artifactFile, Properties artifactChecksums) throws IOException {
-        HttpPost filePost = httpClientFactory.createPost(url);
+    public void appendConsoleLog(String consoleUri, String content) throws InterruptedException, ExecutionException, TimeoutException, IOException {
+        LOGGER.debug("Appending console to URL -> {}", consoleUri);
+        Request request = httpClient.newRequest(consoleUri).method(HttpMethod.PUT);
+        request.header("Confirm", "true");
+        setSizeHeader(request, content.getBytes().length);
+        request.content(new StringContentProvider("text/plain", content, StandardCharsets.UTF_8));
+        execute(request);
+    }
+
+    private Request createHttpPostForUpload(String url, long size, File artifactFile, Properties artifactChecksums) throws IOException {
+        Request filePost = httpClient.newRequest(url).method(HttpMethod.POST);
         setSizeHeader(filePost, size);
-        filePost.setHeader("Confirm", "true");
-        filePost.setEntity(httpClientFactory.createMultipartRequestEntity(artifactFile, artifactChecksums));
+        filePost.header("Confirm", "true");
+        filePost.content(createMultipartRequestEntity(artifactFile, artifactChecksums));
         return filePost;
     }
 
-    public int download(String url, FetchHandler handler) throws IOException {
-        HttpGet toGet = null;
-        InputStream is = null;
+    public int download(String url, FetchHandler handler) throws IOException, InterruptedException, ExecutionException, TimeoutException {
+        PerfTimer timer = PerfTimer.start(String.format("Downloading from url [%s]", url));
         try {
-            toGet = httpClientFactory.createGet(url);
-            PerfTimer timer = PerfTimer.start(String.format("Downloading from url [%s]", url));
-            try (CloseableHttpResponse response = execute(toGet)) {
-                timer.stop();
-                int statusCode = response.getStatusLine().getStatusCode();
-
+            Request toGet = httpClient.newRequest(url).method(HttpMethod.GET);
+            InputStreamResponseListener listener = new InputStreamResponseListener();
+            execute(toGet, listener);
+            Response response = listener.get(15, TimeUnit.SECONDS);
+            try (InputStream is = listener.getInputStream()) {
+                int statusCode = response.getStatus();
                 if (statusCode == HttpServletResponse.SC_OK) {
-                    if (response.getEntity() != null) {
-                        is = response.getEntity().getContent();
-                    }
                     handler.handle(is);
                 }
                 return statusCode;
             }
-        } catch (IOException e) {
-            LOGGER.error("Error while downloading [" + url + "]", e);
+        } catch (InterruptedException | ExecutionException | TimeoutException | IOException e) {
+            LOGGER.error("Error while downloading {}", url, e);
             throw e;
         } finally {
-            IOUtils.closeQuietly(is);
-            if (toGet != null) {
-                toGet.releaseConnection();
-            }
+            timer.stop();
         }
     }
 
-    public void postProperty(String url, String value) throws IOException {
-        LOGGER.info("Posting property to the URL " + url + "Property Value =" + value);
-        HttpPost post = httpClientFactory.createPost(url);
-        CloseableHttpResponse response = null;
-        try {
-            post.setHeader("Confirm", "true");
-            post.setEntity(new UrlEncodedFormEntity(Arrays.asList(new BasicNameValuePair("value", value))));
-            response = execute(post);
-        } finally {
-            IOUtils.closeQuietly(response);
-            post.releaseConnection();
-        }
+    public void postProperty(String url, String value) throws IOException, InterruptedException, ExecutionException, TimeoutException {
+        LOGGER.info("Posting property {} to the URL {}", value, url);
+        Request post = httpClient.newRequest(url).method(HttpMethod.POST);
+        post.header("Confirm", "true");
+        Fields fields = new Fields(true);
+        fields.put(new Fields.Field("value", value));
+        post.content(new FormContentProvider(fields));
+        execute(post);
     }
 
-    public CloseableHttpResponse execute(HttpRequestBase httpMethod) throws IOException {
-        GoAgentServerHttpClient client = httpClientFactory.httpClient();
-        CloseableHttpResponse response = client.execute(httpMethod);
-        LOGGER.info("Got back " + response.getStatusLine().getStatusCode() + " from server");
+    public ContentResponse execute(Request httpMethod) throws IOException, InterruptedException, ExecutionException, TimeoutException {
+        ContentResponse response = httpClient.execute(httpMethod);
+        LOGGER.debug("Got back {} from server", response.getStatus());
         return response;
     }
 
-    public static void setSizeHeader(HttpRequestBase method, long size) {
-        method.setHeader(GO_ARTIFACT_PAYLOAD_SIZE, String.valueOf(size));
+    public void execute(Request httpMethod, Response.Listener listener) throws IOException, InterruptedException, ExecutionException, TimeoutException {
+        httpMethod.onResponseHeaders(new Response.HeadersListener() {
+            @Override
+            public void onHeaders(Response response) {
+                LOGGER.info("Got back {} from server", response.getStatus());
+            }
+        });
+        httpClient.execute(httpMethod, listener);
     }
 
-    /**
-     * Used to wrap the constructors in order to mock them out.
-     */
-    static class HttpClientFactory {
-        private final GoAgentServerHttpClient httpClient;
+    public static void setSizeHeader(Request method, long size) {
+        method.header(GO_ARTIFACT_PAYLOAD_SIZE, String.valueOf(size));
+    }
 
-        public HttpClientFactory(GoAgentServerHttpClient httpClient) {
-            this.httpClient = httpClient;
-        }
+    private ContentProvider createMultipartRequestEntity(File artifact, Properties artifactChecksums) throws IOException {
+        MultiPartContentProvider contentProvider = new MultiPartContentProvider();
+        contentProvider.addFilePart(GoConstants.ZIP_MULTIPART_FILENAME, artifact.getName(), new PathContentProvider(artifact.toPath()), null);
 
-        public GoAgentServerHttpClient httpClient() {
-            return httpClient;
+        if (artifactChecksums != null) {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            artifactChecksums.store(outputStream, "");
+            contentProvider.addFilePart(GoConstants.CHECKSUM_MULTIPART_FILENAME, "checksum_file", new BytesContentProvider(outputStream.toByteArray()), null);
         }
-
-        public HttpPost createPost(String url) {
-            return new HttpPost(url);
-        }
-
-        public HttpGet createGet(String url) {
-            return new HttpGet(url);
-        }
-
-        public HttpEntity createMultipartRequestEntity(File artifact, Properties artifactChecksums) throws IOException {
-            MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
-            entityBuilder.addPart(GoConstants.ZIP_MULTIPART_FILENAME, new FileBody(artifact));
-            if (artifactChecksums != null) {
-                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                artifactChecksums.store(outputStream, "");
-                entityBuilder.addPart(GoConstants.CHECKSUM_MULTIPART_FILENAME, new ByteArrayBody(outputStream.toByteArray(), "checksum_file"));
-            }
-            return entityBuilder.build();
-        }
+        return contentProvider;
     }
 }

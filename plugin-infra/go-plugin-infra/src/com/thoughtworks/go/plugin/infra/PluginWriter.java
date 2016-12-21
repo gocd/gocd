@@ -19,7 +19,6 @@ package com.thoughtworks.go.plugin.infra;
 import com.thoughtworks.go.plugin.infra.commons.GoFileSystem;
 import com.thoughtworks.go.plugin.infra.commons.PluginUploadResponse;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_EXTERNAL_PROVIDED_PATH;
+import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 
 @Service
 public class PluginWriter {
@@ -49,7 +49,7 @@ public class PluginWriter {
             return PluginUploadResponse.create(true, "Your file is saved!", null);
         } catch (Exception e) {
             Map<Integer, String> errors = new HashMap<>();
-            errors.put(HttpStatus.SC_INTERNAL_SERVER_ERROR, "Your file is not saved. Please try again.");
+            errors.put(SC_INTERNAL_SERVER_ERROR, "Your file is not saved. Please try again.");
             return PluginUploadResponse.create(false, null, errors);
         }
     }

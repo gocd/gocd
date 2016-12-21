@@ -16,13 +16,13 @@
 
 package com.thoughtworks.go.plugin.infra.commons;
 
-import org.apache.http.HttpStatus;
 import org.junit.Test;
 
 import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -40,7 +40,7 @@ public class PluginUploadResponseTest {
     @Test
     public void shouldCreateAResponseWithErrors() {
         Map<Integer, String> errors = new HashMap<Integer, String>();
-        int errorCode = HttpStatus.SC_INTERNAL_SERVER_ERROR;
+        int errorCode = SC_INTERNAL_SERVER_ERROR;
         String errorMessage = new FileNotFoundException().getMessage();
         errors.put(errorCode, errorMessage);
 

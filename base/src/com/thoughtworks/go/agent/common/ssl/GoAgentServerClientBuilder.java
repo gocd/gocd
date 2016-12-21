@@ -18,14 +18,18 @@ package com.thoughtworks.go.agent.common.ssl;
 
 import com.thoughtworks.go.util.SslVerificationMode;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 
+import javax.net.ssl.TrustManager;
 import javax.security.auth.x500.X500Principal;
 import java.io.*;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.CRL;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Collection;
 import java.util.List;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
@@ -107,4 +111,35 @@ public abstract class GoAgentServerClientBuilder<T> {
             bomb("Unable to create folder " + parentFile.getAbsolutePath());
         }
     }
+
+    protected SslContextFactory createSslContextFactory() throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException {
+        SslContextFactory sslContextFactory = sslVerificationMode == SslVerificationMode.NONE ? new TrustAllSSLContextFactory() : new SslContextFactory();
+        sslContextFactory.setNeedClientAuth(true);
+
+        sslContextFactory.setKeyStore(agentKeystore());
+        sslContextFactory.setKeyStorePassword(keystorePassword());
+        sslContextFactory.setKeyManagerPassword(keystorePassword());
+
+        if (rootCertFile != null) {
+            sslContextFactory.setTrustStore(agentTruststore());
+            sslContextFactory.setTrustStorePassword(keystorePassword());
+        }
+
+        if (sslVerificationMode == SslVerificationMode.NO_VERIFY_HOST) {
+            sslContextFactory.setEndpointIdentificationAlgorithm(null);
+        }
+
+        if (sslVerificationMode == SslVerificationMode.FULL){
+            sslContextFactory.setEndpointIdentificationAlgorithm("https");
+        }
+        return sslContextFactory;
+    }
+
+    protected class TrustAllSSLContextFactory extends SslContextFactory {
+        @Override
+        protected TrustManager[] getTrustManagers(KeyStore trustStore, Collection<? extends CRL> crls) throws Exception {
+            return TRUST_ALL_CERTS;
+        }
+    }
+
 }

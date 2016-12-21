@@ -21,23 +21,27 @@ import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClientBuilder;
 import com.thoughtworks.go.agent.common.util.Downloader;
 import com.thoughtworks.go.util.PerfTimer;
 import com.thoughtworks.go.util.SslVerificationMode;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpHead;
-import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.impl.client.CloseableHttpClient;
+import org.eclipse.jetty.client.HttpClient;
+import org.eclipse.jetty.client.api.ContentResponse;
+import org.eclipse.jetty.client.api.Request;
+import org.eclipse.jetty.client.api.Response;
+import org.eclipse.jetty.client.util.InputStreamResponseListener;
+import org.eclipse.jetty.http.HttpMethod;
+import org.eclipse.jetty.http.HttpStatus;
 
 import java.io.*;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 public class ServerBinaryDownloader implements Downloader {
+    private static final File TEMP_DIR = new File("data/server-binary-downloads");
 
     private static final Log LOG = LogFactory.getLog(ServerBinaryDownloader.class);
+    public static final int MAX_BUFFER_SIZE = 16 * 1024;
     private final ServerUrlGenerator urlGenerator;
     private String md5 = null;
     private String sslPort;
@@ -45,8 +49,16 @@ public class ServerBinaryDownloader implements Downloader {
     private static final String MD5_HEADER = "Content-MD5";
     @Deprecated // for backward compatibility
     private static final String SSL_PORT_HEADER = "Cruise-Server-Ssl-Port";
-    private static final int HTTP_TIMEOUT_IN_MILLISECONDS = 5000;
     private GoAgentServerHttpClientBuilder httpClientBuilder;
+
+    static {
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                FileUtils.deleteQuietly(TEMP_DIR);
+            }
+        });
+    }
 
     public ServerBinaryDownloader(ServerUrlGenerator urlGenerator, File rootCertFile, SslVerificationMode sslVerificationMode) throws Exception {
         this(new GoAgentServerHttpClientBuilder(rootCertFile, sslVerificationMode), urlGenerator);
@@ -90,61 +102,96 @@ public class ServerBinaryDownloader implements Downloader {
 
     void fetchUpdateCheckHeaders(DownloadableFile downloadableFile) throws Exception {
         String url = downloadableFile.validatedUrl(urlGenerator);
-        final HttpRequestBase request = new HttpHead(url);
-        request.setConfig(RequestConfig.custom().setConnectTimeout(HTTP_TIMEOUT_IN_MILLISECONDS).build());
 
-        try (
-                CloseableHttpClient httpClient = httpClientBuilder.build();
-                CloseableHttpResponse response = httpClient.execute(request)
-        ) {
-            handleInvalidResponse(response, url);
-            this.md5 = response.getFirstHeader(MD5_HEADER).getValue();
-            this.sslPort = response.getFirstHeader(SSL_PORT_HEADER).getValue();
+        HttpClient httpClient = httpClientBuilder.build();
+        try {
+            Request request = httpClient.newRequest(url)
+                    .method(HttpMethod.HEAD)
+                    .timeout(5, TimeUnit.SECONDS)
+                    .onResponseHeaders(this::abortRequestIfBadResponse);
+            ContentResponse response = request.send();
+            this.md5 = response.getHeaders().get(MD5_HEADER);
+            this.sslPort = response.getHeaders().get(SSL_PORT_HEADER);
+        } finally {
+            httpClient.stop();
         }
+
     }
 
     protected synchronized boolean download(final DownloadableFile downloadableFile) throws Exception {
         File toDownload = downloadableFile.getLocalFile();
-        LOG.info("Downloading " + toDownload);
         String url = downloadableFile.url(urlGenerator);
-        final HttpRequestBase request = new HttpGet(url);
-        request.setConfig(RequestConfig.custom().setConnectTimeout(HTTP_TIMEOUT_IN_MILLISECONDS).build());
 
-        try (CloseableHttpClient httpClient = httpClientBuilder.build();
-             CloseableHttpResponse response = httpClient.execute(request)) {
-            LOG.info("Got server response");
-            if (response.getEntity() == null) {
-                LOG.error("Unable to read file from the server response");
-                return false;
+        return download(url, toDownload);
+    }
+
+    protected boolean download(String url, File toDownload) throws Exception {
+        LOG.info("Downloading " + toDownload);
+        HttpClient httpClient = httpClientBuilder.build();
+
+        try {
+            Request request = httpClient.newRequest(url)
+                    .method(HttpMethod.GET)
+                    .idleTimeout(5, TimeUnit.SECONDS);
+
+            InputStreamResponseListener listener = new InputStreamResponseListener(MAX_BUFFER_SIZE);
+            request.send(listener);
+            Response response = listener.get(5, TimeUnit.SECONDS);
+            if (response.getStatus() == 200) {
+                return writeViaTemporaryFile(listener, toDownload);
+            } else {
+                abortRequestIfBadResponse(response);
             }
-            handleInvalidResponse(response, url);
-            try (BufferedOutputStream outStream = new BufferedOutputStream(new FileOutputStream(downloadableFile.getLocalFile()))) {
-                response.getEntity().writeTo(outStream);
-                LOG.info("Piped the stream to " + downloadableFile);
-            }
+        } finally {
+            httpClient.stop();
         }
         return true;
     }
 
-    private void handleInvalidResponse(HttpResponse response, String url) throws IOException {
+    private boolean writeViaTemporaryFile(InputStreamResponseListener listener, File toDownload) throws IOException {
+        TEMP_DIR.mkdirs();
+        File tempFile = new File(TEMP_DIR, UUID.randomUUID().toString() + ".jar");
+        try (
+                OutputStream outStream = new BufferedOutputStream(new FileOutputStream(tempFile));
+                InputStream inputStream = listener.getInputStream()
+        ) {
+            IOUtils.copy(inputStream, outStream, MAX_BUFFER_SIZE);
+        }
+
+        if (tempFile.length() == 0) {
+            tempFile.delete();
+            return false;
+        } else {
+            FileUtils.deleteQuietly(toDownload);
+            FileUtils.moveFile(tempFile, toDownload);
+            return true;
+        }
+    }
+
+    private void abortRequestIfBadResponse(Response response) {
         StringWriter sw = new StringWriter();
         try (PrintWriter out = new PrintWriter(sw)) {
             out.print("Problem accessing server at ");
-            out.println(url);
-            if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                LOG.info("Response code: " + response.getStatusLine().getStatusCode());
+            out.print(response.getRequest().getURI());
+            out.println(" the status was " + response.getStatus());
+            if (response.getStatus() != HttpStatus.OK_200) {
+                LOG.info("Response code: " + response.getStatus());
                 out.println("Few Possible Causes: ");
                 out.println("1. Your Go Server is down or not accessible.");
                 out.println("2. This agent might be incompatible with your Go Server. Please fix the version mismatch between Go Server and Go Agent.");
-
-                throw new ClientProtocolException(sw.toString());
-            } else if (response.getFirstHeader(MD5_HEADER) == null || response.getFirstHeader(SSL_PORT_HEADER) == null) {
+                RuntimeException cause = new RuntimeException(sw.toString());
+                response.abort(cause);
+                throw cause;
+            } else if (response.getHeaders().get(MD5_HEADER) == null || response.getHeaders().get(SSL_PORT_HEADER) == null) {
                 out.print("Missing required headers '");
                 out.print(MD5_HEADER);
                 out.print("' and '");
                 out.print(SSL_PORT_HEADER);
                 out.println("' in response.");
-                throw new ClientProtocolException(sw.toString());
+                RuntimeException cause = new RuntimeException(sw.toString());
+                response.abort(cause);
+
+                throw cause;
             }
         }
     }

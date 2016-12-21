@@ -93,8 +93,6 @@ public class SslInfrastructureServiceTest {
 
     private void shouldCreateSslInfrastucture() throws Exception {
         sslInfrastructureService.createSslInfrastructure();
-//        Protocol protocol = Protocol.getProtocol("https");
-//        assertThat(protocol.getSocketFactory(), instanceOf(AuthSSLProtocolSocketFactory.class));
     }
 
     private void assertRemoteCalled() {

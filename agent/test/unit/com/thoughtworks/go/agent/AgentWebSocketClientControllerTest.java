@@ -39,9 +39,8 @@ import com.thoughtworks.go.websocket.Message;
 import com.thoughtworks.go.websocket.MessageEncoding;
 import com.thoughtworks.go.websocket.Report;
 import com.thoughtworks.go.work.SleepWork;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPut;
-import org.eclipse.jetty.util.IO;
+import org.eclipse.jetty.client.HttpClient;
+import org.eclipse.jetty.client.api.ContentProvider;
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import org.junit.After;
 import org.junit.Rule;
@@ -52,11 +51,12 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.net.URI;
+import java.nio.ByteBuffer;
 import java.security.GeneralSecurityException;
 
-import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
@@ -201,10 +201,7 @@ public class AgentWebSocketClientControllerTest {
 
         verify(webSocketSessionHandler, times(2)).sendAndWaitForAcknowledgement(currentStatusMessageCaptor.capture());
 
-        ArgumentCaptor<HttpPut> putMethodArg = ArgumentCaptor.forClass(HttpPut.class);
-        verify(httpService).execute(putMethodArg.capture());
-        assertThat(putMethodArg.getValue().getURI(), is(new URI("http://foo.bar/console")));
-        assertThat(IO.toString(putMethodArg.getValue().getEntity().getContent()), containsString("building"));
+        verify(httpService).appendConsoleLog(argThat(is("http://foo.bar/console")), argThat(containsString("building")));
 
         Message message = currentStatusMessageCaptor.getAllValues().get(0);
         assertThat(message.getAcknowledgementId(), notNullValue());
@@ -364,5 +361,15 @@ public class AgentWebSocketClientControllerTest {
                 httpService,
                 webSocketClientHandler, webSocketSessionHandler);
         return controller;
+    }
+
+    static String contentProviderToString(ContentProvider actual) throws IOException {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+
+        for (ByteBuffer byteBuffer : actual) {
+            byteArrayOutputStream.write(byteBuffer.array());
+        }
+
+        return byteArrayOutputStream.toString("utf-8");
     }
 }

@@ -16,36 +16,13 @@
 
 package com.thoughtworks.go.agent.common.ssl;
 
-import com.thoughtworks.go.util.SslVerificationMode;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
-
-import javax.net.ssl.TrustManager;
-import java.security.KeyStore;
-import java.security.cert.CRL;
-import java.util.Collection;
 
 public class GoAgentServerWebSocketClientBuilder extends GoAgentServerClientBuilder<WebSocketClient> {
     @Override
     public WebSocketClient build() throws Exception {
-        SslContextFactory sslContextFactory = sslVerificationMode == SslVerificationMode.NONE ? new TrustAllSSLContextFactory() : new SslContextFactory();
-        sslContextFactory.setNeedClientAuth(true);
-
-        sslContextFactory.setKeyStore(agentKeystore());
-        sslContextFactory.setKeyStorePassword(keystorePassword());
-        sslContextFactory.setKeyManagerPassword(keystorePassword());
-
-        if (rootCertFile != null) {
-            sslContextFactory.setTrustStore(agentTruststore());
-            sslContextFactory.setTrustStorePassword(keystorePassword());
-        }
-
-        if (sslVerificationMode == SslVerificationMode.NO_VERIFY_HOST) {
-            sslContextFactory.setEndpointIdentificationAlgorithm(null);
-        }
-
-        WebSocketClient client = new WebSocketClient(sslContextFactory);
+        WebSocketClient client = new WebSocketClient(createSslContextFactory());
         client.setMaxIdleTimeout(systemEnvironment.getWebsocketMaxIdleTime());
         return client;
     }
@@ -54,11 +31,5 @@ public class GoAgentServerWebSocketClientBuilder extends GoAgentServerClientBuil
         super(systemEnvironment);
     }
 
-    private class TrustAllSSLContextFactory extends SslContextFactory {
-        @Override
-        protected TrustManager[] getTrustManagers(KeyStore trustStore, Collection<? extends CRL> crls) throws Exception {
-            return TRUST_ALL_CERTS;
-        }
-    }
 }
 

@@ -22,10 +22,10 @@ import com.thoughtworks.go.server.util.HttpTestUtil;
 import com.thoughtworks.go.server.util.ServletHelper;
 import com.thoughtworks.go.util.SslVerificationMode;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.io.IOUtils;
-import org.apache.http.Header;
-import org.apache.http.client.methods.*;
-import org.apache.http.impl.client.CloseableHttpClient;
+import org.eclipse.jetty.client.HttpClient;
+import org.eclipse.jetty.client.api.ContentResponse;
+import org.eclipse.jetty.client.api.Request;
+import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.junit.AfterClass;
@@ -41,11 +41,11 @@ import javax.servlet.DispatcherType;
 import java.io.File;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.eclipse.jetty.http.HttpMethod.*;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -107,26 +107,22 @@ public class UrlRewriterIntegrationTest {
         httpUtil.stop();
     }
 
-    enum METHOD {
-        GET, POST, PUT
-    }
-
     private static class ResponseAssertion {
         private final String requestedUrl;
         private final String servedUrl;
         private boolean useConfiguredUrls = false;
         private Map<String, String> responseHeaders = new HashMap<String, String>();
         private int responseCode = 200;
-        private METHOD method;
+        private HttpMethod method;
 
-        public ResponseAssertion(String requestedUrl, String servedUrl, METHOD method) {
+        public ResponseAssertion(String requestedUrl, String servedUrl, HttpMethod method) {
             this.requestedUrl = requestedUrl;
             this.servedUrl = servedUrl;
             this.method = method;
         }
 
         public ResponseAssertion(String requestedUrl, String servedUrl) {
-            this(requestedUrl, servedUrl, METHOD.GET);
+            this(requestedUrl, servedUrl, HttpMethod.GET);
         }
 
         public ResponseAssertion(String requestedUrl, String servedUrl, boolean useConfiguredUrls) {
@@ -134,7 +130,7 @@ public class UrlRewriterIntegrationTest {
             this.useConfiguredUrls = useConfiguredUrls;
         }
 
-        public ResponseAssertion(String requestedUrl, String servedUrl, METHOD method, boolean useConfiguredUrls) {
+        public ResponseAssertion(String requestedUrl, String servedUrl, HttpMethod method, boolean useConfiguredUrls) {
             this(requestedUrl, servedUrl, method);
             this.useConfiguredUrls = useConfiguredUrls;
         }
@@ -164,7 +160,7 @@ public class UrlRewriterIntegrationTest {
     @DataPoint
     public static ResponseAssertion PIPELINE_NEW = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/admin/pipeline/new", "http://127.1.1.1:" + HTTP + "/go/rails/admin/pipeline/new", true);
     @DataPoint
-    public static ResponseAssertion PIPELINE_CREATE = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/admin/pipelines", "http://127.1.1.1:" + HTTP + "/go/rails/admin/pipelines", METHOD.POST);
+    public static ResponseAssertion PIPELINE_CREATE = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/admin/pipelines", "http://127.1.1.1:" + HTTP + "/go/rails/admin/pipelines", POST);
     @DataPoint
     public static ResponseAssertion SERVER_BACKUP = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/admin/backup", "http://127.1.1.1:" + HTTP + "/go/rails/admin/backup", true);
 
@@ -205,9 +201,9 @@ public class UrlRewriterIntegrationTest {
     @DataPoint
     public static ResponseAssertion CONFIG_CHANGE = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/config_change/md5_value", "http://127.1.1.1:" + HTTP + "/go/rails/config_change/md5_value", true);
     @DataPoint
-    public static ResponseAssertion CONFIG_XML_VIEW = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/admin/config_xml", "http://127.1.1.1:" + HTTP + "/go/rails/admin/config_xml", METHOD.GET, true);
+    public static ResponseAssertion CONFIG_XML_VIEW = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/admin/config_xml", "http://127.1.1.1:" + HTTP + "/go/rails/admin/config_xml", GET, true);
     @DataPoint
-    public static ResponseAssertion CONFIG_XML_EDIT = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/admin/config_xml/edit", "http://127.1.1.1:" + HTTP + "/go/rails/admin/config_xml/edit", METHOD.GET, true);
+    public static ResponseAssertion CONFIG_XML_EDIT = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/admin/config_xml/edit", "http://127.1.1.1:" + HTTP + "/go/rails/admin/config_xml/edit", GET, true);
 
     @DataPoint
     public static ResponseAssertion ARTIFACT_API_HTML_LISTING = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/files/pipeline/1/stage/1/job.html", "http://127.1.1.1:" + HTTP + "/go/repository/restful/artifact/GET/html?pipelineName=pipeline&pipelineLabel=1&stageName=stage&stageCounter=1&buildName=job&filePath=", true);
@@ -218,55 +214,48 @@ public class UrlRewriterIntegrationTest {
     @DataPoint
     public static ResponseAssertion ARTIFACT_API_GET_FILE = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/files/pipeline/1/stage/1/job//tmp/file", "http://127.1.1.1:" + HTTP + "/go/repository/restful/artifact/GET/?pipelineName=pipeline&pipelineLabel=1&stageName=stage&stageCounter=1&buildName=job&filePath=%2Ftmp%2Ffile", true);
     @DataPoint
-    public static ResponseAssertion ARTIFACT_API_PUSH_FILE = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/files/pipeline/1/stage/1/job//tmp/file", "http://127.1.1.1:" + HTTP + "/go/repository/restful/artifact/POST/?pipelineName=pipeline&pipelineLabel=1&stageName=stage&stageCounter=1&buildName=job&filePath=%2Ftmp%2Ffile", METHOD.POST, true);
+    public static ResponseAssertion ARTIFACT_API_PUSH_FILE = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/files/pipeline/1/stage/1/job//tmp/file", "http://127.1.1.1:" + HTTP + "/go/repository/restful/artifact/POST/?pipelineName=pipeline&pipelineLabel=1&stageName=stage&stageCounter=1&buildName=job&filePath=%2Ftmp%2Ffile", POST, true);
     @DataPoint
-    public static ResponseAssertion ARTIFACT_API_CHANGE_FILE = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/files/pipeline/1/stage/1/job/file", "http://127.1.1.1:" + HTTP + "/go/repository/restful/artifact/PUT/?pipelineName=pipeline&pipelineLabel=1&stageName=stage&stageCounter=1&buildName=job&filePath=file", METHOD.PUT, true);
+    public static ResponseAssertion ARTIFACT_API_CHANGE_FILE = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/files/pipeline/1/stage/1/job/file", "http://127.1.1.1:" + HTTP + "/go/repository/restful/artifact/PUT/?pipelineName=pipeline&pipelineLabel=1&stageName=stage&stageCounter=1&buildName=job&filePath=file", PUT, true);
 
     @DataPoint
     public static ResponseAssertion ADMIN_GARAGE_INDEX = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/admin/garage", "http://127.1.1.1:" + HTTP + "/go/rails/admin/garage");
     @DataPoint
-    public static ResponseAssertion ADMIN_GARAGE_GC = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/admin/garage/gc", "http://127.1.1.1:" + HTTP + "/go/rails/admin/garage/gc", METHOD.POST);
+    public static ResponseAssertion ADMIN_GARAGE_GC = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/admin/garage/gc", "http://127.1.1.1:" + HTTP + "/go/rails/admin/garage/gc", POST);
     @DataPoint
-    public static ResponseAssertion PIPELINE_DASHBOARD_JSON = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/pipelines.json", "http://127.1.1.1:" + HTTP + "/go/rails/pipelines.json", METHOD.GET);
+    public static ResponseAssertion PIPELINE_DASHBOARD_JSON = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/pipelines.json", "http://127.1.1.1:" + HTTP + "/go/rails/pipelines.json", GET);
     @DataPoint
-    public static ResponseAssertion MATERIALS_VALUE_STREAM_MAP = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/materials/value_stream_map/fingerprint/revision", "http://127.1.1.1:" + HTTP + "/go/rails/materials/value_stream_map/fingerprint/revision", METHOD.GET);
+    public static ResponseAssertion MATERIALS_VALUE_STREAM_MAP = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/materials/value_stream_map/fingerprint/revision", "http://127.1.1.1:" + HTTP + "/go/rails/materials/value_stream_map/fingerprint/revision", GET);
 
     @DataPoint
-    public static ResponseAssertion RAILS_INTERNAL_API = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/api/config/internal/pluggable_task/indix.s3fetch", "http://127.1.1.1:" + HTTP + "/go/rails/api/config/internal/pluggable_task/indix.s3fetch", METHOD.GET);
+    public static ResponseAssertion RAILS_INTERNAL_API = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/api/config/internal/pluggable_task/indix.s3fetch", "http://127.1.1.1:" + HTTP + "/go/rails/api/config/internal/pluggable_task/indix.s3fetch", GET);
 
     @DataPoint
-    public static ResponseAssertion USERS_INDEX_API = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/api/users", "http://127.1.1.1:" + HTTP + "/go/rails/api/users", METHOD.GET);
+    public static ResponseAssertion USERS_INDEX_API = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/api/users", "http://127.1.1.1:" + HTTP + "/go/rails/api/users", GET);
     @DataPoint
-    public static ResponseAssertion USERS_SHOW_API = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/api/users/some.one", "http://127.1.1.1:" + HTTP + "/go/rails/api/users/some.one", METHOD.GET);
+    public static ResponseAssertion USERS_SHOW_API = new ResponseAssertion("http://127.1.1.1:" + HTTP + "/go/api/users/some.one", "http://127.1.1.1:" + HTTP + "/go/rails/api/users/some.one", GET);
 
     @Theory
     public void shouldRewrite(final ResponseAssertion assertion) throws Exception {
         useConfiguredUrls = assertion.useConfiguredUrls;
         GoAgentServerHttpClientBuilder builder = new GoAgentServerHttpClientBuilder(null, SslVerificationMode.NONE);
-        try (CloseableHttpClient httpClient = builder.build()) {
-            HttpRequestBase httpMethod;
-            if (assertion.method == METHOD.GET) {
-                httpMethod = new HttpGet(assertion.requestedUrl);
-            } else if (assertion.method == METHOD.POST) {
-                httpMethod = new HttpPost(assertion.requestedUrl);
-            } else if (assertion.method == METHOD.PUT) {
-                httpMethod = new HttpPut(assertion.requestedUrl);
-            } else {
-                throw new RuntimeException("Method has to be one of GET, POST and PUT. Was: " + assertion.method);
-            }
+        HttpClient httpClient = builder.build();
+        try {
+            Request httpMethod = httpClient.newRequest(assertion.requestedUrl).method(assertion.method);
+            ContentResponse response = httpMethod.send();
 
-            try (CloseableHttpResponse response = httpClient.execute(httpMethod)) {
-                assertThat("status code match failed", response.getStatusLine().getStatusCode(), is(assertion.responseCode));
-                assertThat("handler url match failed", IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8), is(assertion.servedUrl));
-                for (Map.Entry<String, String> headerValPair : assertion.responseHeaders.entrySet()) {
-                    Header responseHeader = response.getFirstHeader(headerValPair.getKey());
-                    if (headerValPair.getValue() == null) {
-                        assertThat("header match failed", responseHeader, is(nullValue()));
-                    } else {
-                        assertThat("header match failed", responseHeader.getValue(), is(headerValPair.getValue()));
-                    }
+            assertThat("status code match failed", response.getStatus(), is(assertion.responseCode));
+            assertThat("handler url match failed", response.getContentAsString(), is(assertion.servedUrl));
+            for (Map.Entry<String, String> headerValPair : assertion.responseHeaders.entrySet()) {
+                String responseHeader = response.getHeaders().get(headerValPair.getKey());
+                if (headerValPair.getValue() == null) {
+                    assertThat("header match failed", responseHeader, is(nullValue()));
+                } else {
+                    assertThat("header match failed", responseHeader, is(headerValPair.getValue()));
                 }
             }
+        } finally {
+            httpClient.stop();
         }
     }
 }

@@ -18,22 +18,11 @@ package com.thoughtworks.go.agent.common.ssl;
 
 import com.thoughtworks.go.util.SslVerificationMode;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.http.config.SocketConfig;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.TrustStrategy;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.DefaultConnectionKeepAliveStrategy;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.ssl.SSLContextBuilder;
+import org.eclipse.jetty.client.HttpClient;
 
-import javax.net.ssl.HostnameVerifier;
-import java.io.*;
-import java.security.*;
+import java.io.File;
 
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
-
-public class GoAgentServerHttpClientBuilder extends GoAgentServerClientBuilder<CloseableHttpClient> {
+public class GoAgentServerHttpClientBuilder extends GoAgentServerClientBuilder<HttpClient> {
 
     public GoAgentServerHttpClientBuilder(File rootCertFile, SslVerificationMode sslVerificationMode) {
         super(new SystemEnvironment(), rootCertFile, AGENT_CERTIFICATE_FILE, sslVerificationMode);
@@ -43,33 +32,15 @@ public class GoAgentServerHttpClientBuilder extends GoAgentServerClientBuilder<C
         super(systemEnvironment);
     }
 
-    public CloseableHttpClient build() throws Exception {
-        HttpClientBuilder builder = HttpClients.custom();
-        builder
-                .setDefaultSocketConfig(SocketConfig.custom()
-                        .setTcpNoDelay(true)
-                        .setSoKeepAlive(true)
-                        .build()
-                )
-                .setKeepAliveStrategy(DefaultConnectionKeepAliveStrategy.INSTANCE);
+    public HttpClient build() throws Exception {
+        HttpClient httpClient = new HttpClient(createSslContextFactory());
+        httpClient.setTCPNoDelay(true);
+        httpClient.setConnectTimeout(15000);
+        httpClient.setAddressResolutionTimeout(15000);
+        httpClient.setIdleTimeout(15000);
 
-
-        HostnameVerifier hostnameVerifier = sslVerificationMode.verifier();
-        TrustStrategy trustStrategy = sslVerificationMode.trustStrategy();
-        KeyStore trustStore = agentTruststore();
-
-        SSLContextBuilder sslContextBuilder = SSLContextBuilder.create()
-                .useProtocol(systemEnvironment.get(SystemEnvironment.GO_SSL_TRANSPORT_PROTOCOL_TO_BE_USED_BY_AGENT));
-
-        if (trustStore != null || trustStrategy != null) {
-            sslContextBuilder.loadTrustMaterial(trustStore, trustStrategy);
-        }
-
-        sslContextBuilder.loadKeyMaterial(agentKeystore(), keystorePassword().toCharArray());
-
-        SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContextBuilder.build(), hostnameVerifier);
-        builder.setSSLSocketFactory(sslConnectionSocketFactory);
-        return builder.build();
+        httpClient.start();
+        return httpClient;
     }
 
 }

@@ -20,7 +20,8 @@ import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.serverhealth.HealthStateType;
-import org.apache.http.HttpStatus;
+
+import static javax.servlet.http.HttpServletResponse.*;
 
 /**
  * @understands localized operation result for http
@@ -52,56 +53,56 @@ public class HttpLocalizedOperationResult implements LocalizedOperationResult {
 
     public void notImplemented(Localizable message) {
         this.message = message;
-        httpCode = HttpStatus.SC_NOT_IMPLEMENTED;
+        httpCode = SC_NOT_IMPLEMENTED;
     }
 
     @Override
     public void unprocessableEntity(Localizable message) {
         this.message = message;
-        this.httpCode = HttpStatus.SC_UNPROCESSABLE_ENTITY;
+        this.httpCode = 422;
     }
 
     public void unauthorized(Localizable message, HealthStateType healthStateType) {
         this.message = message;
         this.healthStateType = healthStateType;
-        httpCode = HttpStatus.SC_UNAUTHORIZED;
+        httpCode = SC_UNAUTHORIZED;
     }
 
     @Override
     public void stale(Localizable message) {
         this.message = message;
-        httpCode = HttpStatus.SC_PRECONDITION_FAILED;
+        httpCode = SC_PRECONDITION_FAILED;
     }
 
     public void notFound(Localizable message, HealthStateType healthStateType) {
         this.message = message;
         this.healthStateType = healthStateType;
-        httpCode = HttpStatus.SC_NOT_FOUND;
+        httpCode = SC_NOT_FOUND;
     }
 
     public void conflict(Localizable message) {
         this.message = message;
-        httpCode = HttpStatus.SC_CONFLICT;
+        httpCode = SC_CONFLICT;
     }
 
     public void internalServerError(Localizable message) {
         this.message = message;
-        httpCode = HttpStatus.SC_INTERNAL_SERVER_ERROR;
+        httpCode = SC_INTERNAL_SERVER_ERROR;
     }
 
     public void badRequest(Localizable message) {
         this.message = message;
-        httpCode = HttpStatus.SC_BAD_REQUEST;
+        httpCode = SC_BAD_REQUEST;
     }
 
     public void accepted(Localizable message) {
         this.message = message;
-        httpCode = HttpStatus.SC_ACCEPTED;
+        httpCode = SC_ACCEPTED;
     }
 
     public void notAcceptable(Localizable message) {
         this.message = message;
-        httpCode = HttpStatus.SC_NOT_ACCEPTABLE;
+        httpCode = SC_NOT_ACCEPTABLE;
     }
 
     public boolean isSuccessful() {
@@ -110,7 +111,7 @@ public class HttpLocalizedOperationResult implements LocalizedOperationResult {
 
     public void connectionError(Localizable message) {
         this.message = message;
-        httpCode = HttpStatus.SC_BAD_REQUEST;
+        httpCode = SC_BAD_REQUEST;
     }
 
     public int httpCode() {

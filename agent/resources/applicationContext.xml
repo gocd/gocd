@@ -46,7 +46,6 @@
     <property name="httpInvokerRequestExecutor">
       <bean class="com.thoughtworks.go.agent.GoHttpClientHttpInvokerRequestExecutor">
         <constructor-arg ref="httpClient"/>
-        <constructor-arg ref="systemEnvironment"/>
       </bean>
     </property>
   </bean>

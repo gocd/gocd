@@ -17,17 +17,12 @@
 package com.thoughtworks.go.remote.work;
 
 import com.thoughtworks.go.util.HttpService;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.entity.StringEntity;
-import org.apache.log4j.Logger;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 public class RemoteConsoleAppender implements ConsoleAppender {
-
-    private static final Logger LOGGER = Logger.getLogger(RemoteConsoleAppender.class);
-
     private String consoleUri;
     private HttpService httpService;
 
@@ -36,21 +31,7 @@ public class RemoteConsoleAppender implements ConsoleAppender {
         this.httpService = httpService;
     }
 
-    public void append(String content) throws IOException {
-        HttpPut putMethod = new HttpPut(consoleUri);
-        try {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Appending console to URL -> " + consoleUri);
-            }
-
-            putMethod.setEntity(new StringEntity(content));
-            HttpService.setSizeHeader(putMethod, content.getBytes().length);
-            CloseableHttpResponse response = httpService.execute(putMethod);
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Got " + response.getStatusLine().getStatusCode());
-            }
-        } finally {
-            putMethod.releaseConnection();
-        }
+    public void append(String content) throws IOException, InterruptedException, ExecutionException, TimeoutException {
+        httpService.appendConsoleLog(consoleUri, content);
     }
 }

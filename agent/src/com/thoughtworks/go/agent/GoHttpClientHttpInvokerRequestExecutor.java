@@ -17,16 +17,11 @@
 package com.thoughtworks.go.agent;
 
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient;
-import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
-import org.apache.http.NoHttpResponseException;
-import org.apache.http.StatusLine;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.protocol.BasicHttpContext;
+import org.eclipse.jetty.client.api.Request;
+import org.eclipse.jetty.client.api.Response;
+import org.eclipse.jetty.client.util.BytesContentProvider;
+import org.eclipse.jetty.client.util.InputStreamResponseListener;
+import org.eclipse.jetty.http.HttpMethod;
 import org.springframework.remoting.httpinvoker.AbstractHttpInvokerRequestExecutor;
 import org.springframework.remoting.httpinvoker.HttpInvokerClientConfiguration;
 import org.springframework.remoting.support.RemoteInvocationResult;
@@ -34,56 +29,32 @@ import org.springframework.remoting.support.RemoteInvocationResult;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.zip.GZIPInputStream;
+import java.util.concurrent.TimeUnit;
 
 public class GoHttpClientHttpInvokerRequestExecutor extends AbstractHttpInvokerRequestExecutor {
     private final GoAgentServerHttpClient goAgentServerHttpClient;
-    private final SystemEnvironment environment;
 
-    public GoHttpClientHttpInvokerRequestExecutor(GoAgentServerHttpClient goAgentServerHttpClient, SystemEnvironment environment) {
+    public GoHttpClientHttpInvokerRequestExecutor(GoAgentServerHttpClient goAgentServerHttpClient) {
         this.goAgentServerHttpClient = goAgentServerHttpClient;
-        this.environment = environment;
     }
 
     @Override
     protected RemoteInvocationResult doExecuteRequest(HttpInvokerClientConfiguration config, ByteArrayOutputStream baos) throws Exception {
-        HttpPost postMethod = new HttpPost(config.getServiceUrl());
+        Request postMethod = goAgentServerHttpClient.newRequest(config.getServiceUrl()).method(HttpMethod.POST);
+        postMethod.content(new BytesContentProvider(getContentType(), baos.toByteArray()));
 
-        ByteArrayEntity entity = new ByteArrayEntity(baos.toByteArray());
-        entity.setContentType(getContentType());
-        postMethod.setEntity(entity);
-
-        BasicHttpContext context = null;
-
-        if (environment.useSslContext()) {
-            context = new BasicHttpContext();
-            context.setAttribute(HttpClientContext.USER_TOKEN, goAgentServerHttpClient.principal());
-        }
-
-        try (CloseableHttpResponse response = goAgentServerHttpClient.execute(postMethod, context)) {
-            validateResponse(response);
-            InputStream responseBody = getResponseBody(response);
+        InputStreamResponseListener listener = new InputStreamResponseListener();
+        goAgentServerHttpClient.execute(postMethod, listener);
+        Response response = listener.get(15, TimeUnit.SECONDS);
+        validateResponse(response);
+        try(InputStream responseBody = listener.getInputStream()) {
             return readRemoteInvocationResult(responseBody, config.getCodebaseUrl());
         }
     }
 
-    private InputStream getResponseBody(HttpResponse httpResponse) throws IOException {
-        if (isGzipResponse(httpResponse)) {
-            return new GZIPInputStream(httpResponse.getEntity().getContent());
-        } else {
-            return httpResponse.getEntity().getContent();
-        }
-    }
-
-    private boolean isGzipResponse(HttpResponse httpResponse) {
-        Header encodingHeader = httpResponse.getFirstHeader(HTTP_HEADER_CONTENT_ENCODING);
-        return (encodingHeader != null && encodingHeader.getValue() != null && encodingHeader.getValue().toLowerCase().contains(ENCODING_GZIP));
-    }
-
-    private void validateResponse(HttpResponse response) throws IOException {
-        StatusLine status = response.getStatusLine();
-        if (status.getStatusCode() >= 300) {
-            throw new NoHttpResponseException("Did not receive successful HTTP response: status code = " + status.getStatusCode() + ", status message = [" + status.getReasonPhrase() + "]");
+    private void validateResponse(Response response) throws IOException {
+        if (response.getStatus() >= 300) {
+            throw new IOException("Did not receive successful HTTP response: status code = " + response.getStatus() + ", status message = [" + response.getReason() + "]");
         }
 
     }

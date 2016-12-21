@@ -30,7 +30,7 @@ import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.util.HttpService;
 import com.thoughtworks.go.util.SubprocessLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.http.client.HttpClient;
+import org.eclipse.jetty.client.HttpClient;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -47,7 +47,7 @@ import static com.thoughtworks.go.util.SystemUtil.getFirstLocalNonLoopbackIpAddr
 import static com.thoughtworks.go.util.SystemUtil.getLocalhostName;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.inOrder;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AgentControllerTest {

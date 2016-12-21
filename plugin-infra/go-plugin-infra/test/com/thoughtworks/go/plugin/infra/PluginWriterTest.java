@@ -20,7 +20,6 @@ import com.thoughtworks.go.plugin.infra.commons.GoFileSystem;
 import com.thoughtworks.go.plugin.infra.commons.PluginUploadResponse;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
-import org.apache.http.HttpStatus;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,6 +31,7 @@ import java.io.File;
 import java.io.IOException;
 
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_EXTERNAL_PROVIDED_PATH;
+import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertFalse;
@@ -96,7 +96,7 @@ public class PluginWriterTest {
         PluginUploadResponse response = pluginWriter.addPlugin(SRC_FILE, SRC_FILE.getName());
 
         assertFalse(response.isSuccess());
-        assertTrue(response.errors().containsKey(HttpStatus.SC_INTERNAL_SERVER_ERROR));
+        assertTrue(response.errors().containsKey(SC_INTERNAL_SERVER_ERROR));
 
     }
 

@@ -39,8 +39,9 @@ class AdminController < ApplicationController
   def save_page(md5, redirect_url, render_error_options_or_proc, save_action, success_message = "Saved successfully.", &load_data)
     set_save_redirect_url redirect_url
     save(md5, render_error_options_or_proc, save_action, success_message, load_data) do |message|
-      url = com.thoughtworks.go.util.UrlUtil.urlWithQuery(@onsuccess_redirect_uri, "fm", set_flash_message(message, "success"))
-      redirect_to(url)
+      url = URI(@onsuccess_redirect_uri)
+      url.query = URI.encode_www_form(URI.decode_www_form(uri.query || "") << ['fm', set_flash_message(message, "success")])
+      redirect_to(url.to_s)
     end
   end
 

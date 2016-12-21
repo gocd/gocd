@@ -30,29 +30,32 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.SystemUtil;
 import com.thoughtworks.go.util.URLService;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.input.NullInputStream;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.client.methods.RequestBuilder;
-import org.apache.log4j.Logger;
+import org.eclipse.jetty.client.api.ContentResponse;
+import org.eclipse.jetty.client.api.Request;
+import org.eclipse.jetty.client.api.Response;
+import org.eclipse.jetty.client.util.FormContentProvider;
+import org.eclipse.jetty.http.HttpMethod;
+import org.eclipse.jetty.util.Fields;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 import static com.thoughtworks.go.security.CertificateUtil.md5Fingerprint;
 import static com.thoughtworks.go.security.SelfSignedCertificateX509TrustManager.CRUISE_SERVER;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
-import static org.apache.http.HttpStatus.SC_ACCEPTED;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.eclipse.jetty.http.HttpStatus.ACCEPTED_202;
 
 @Service
 public class SslInfrastructureService {
 
     private static final String CHAIN_ALIAS = "agent";
-    private static final Logger LOGGER = Logger.getLogger(SslInfrastructureService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SslInfrastructureService.class);
     private static final int REGISTER_RETRY_INTERVAL = 5000;
     private final RemoteRegistrationRequester remoteRegistrationRequester;
     private final KeyStoreManager keyStoreManager;
@@ -126,8 +129,9 @@ public class SslInfrastructureService {
     private void storeChainIntoAgentStore(Registration keyEntry) {
         try {
             keyStoreManager.storeCertificate(CHAIN_ALIAS, GoAgentServerClientBuilder.AGENT_CERTIFICATE_FILE, httpClientBuilder().keystorePassword(), keyEntry);
-            LOGGER.info(String.format("[Agent Registration] Stored registration for cert with hash code: %s not valid before: %s", md5Fingerprint(keyEntry.getFirstCertificate()),
-                    keyEntry.getCertificateNotBeforeDate()));
+            LOGGER.info("[Agent Registration] Stored registration for cert with hash code: {} not valid before: {}",
+                    md5Fingerprint(keyEntry.getFirstCertificate()),
+                    keyEntry.getCertificateNotBeforeDate());
         } catch (Exception e) {
             throw bomb("Couldn't save agent key into store", e);
         }
@@ -139,7 +143,7 @@ public class SslInfrastructureService {
             keyStoreManager.deleteEntry(CHAIN_ALIAS, GoAgentServerClientBuilder.AGENT_CERTIFICATE_FILE, httpClientBuilder().keystorePassword());
             keyStoreManager.deleteEntry(CRUISE_SERVER, GoAgentServerClientBuilder.AGENT_TRUST_FILE, httpClientBuilder().keystorePassword());
         } catch (Exception e) {
-            LOGGER.fatal("[Agent Registration] Error while deleting key from key store", e);
+            LOGGER.error("[Agent Registration] Error while deleting key from key store", e);
             deleteKeyStores();
         }
     }
@@ -160,45 +164,44 @@ public class SslInfrastructureService {
             this.agentRegistry = agentRegistry;
         }
 
-        protected Registration requestRegistration(String agentHostName, AgentAutoRegistrationProperties agentAutoRegisterProperties) throws IOException, ClassNotFoundException {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(String.format("[Agent Registration] Using URL %s to register.", serverUrl));
+        protected Registration requestRegistration(String agentHostName, AgentAutoRegistrationProperties agentAutoRegisterProperties) throws IOException, ClassNotFoundException, InterruptedException, ExecutionException, TimeoutException {
+            LOGGER.debug("[Agent Registration] Using URL {} to register.", serverUrl);
+
+            Request postMethod = httpClient.newRequest(serverUrl).method(HttpMethod.POST);
+
+            Fields fields = new Fields(true);
+            fields.add("hostname", agentHostName);
+            fields.add("uuid", agentRegistry.uuid());
+            fields.add("location", SystemUtil.currentWorkingDirectory());
+            fields.add("usablespace", String.valueOf(AgentRuntimeInfo.usableSpace(SystemUtil.currentWorkingDirectory())));
+            fields.add("operatingSystem", new SystemEnvironment().getOperatingSystemCompleteName());
+            fields.add("agentAutoRegisterKey", agentAutoRegisterProperties.agentAutoRegisterKey());
+            fields.add("agentAutoRegisterResources", agentAutoRegisterProperties.agentAutoRegisterResources());
+            fields.add("agentAutoRegisterEnvironments", agentAutoRegisterProperties.agentAutoRegisterEnvironments());
+            fields.add("agentAutoRegisterHostname", agentAutoRegisterProperties.agentAutoRegisterHostname());
+            fields.add("elasticAgentId", agentAutoRegisterProperties.agentAutoRegisterElasticAgentId());
+            fields.add("elasticPluginId", agentAutoRegisterProperties.agentAutoRegisterElasticPluginId());
+
+            postMethod.content(new FormContentProvider(fields));
+            ContentResponse response = httpClient.execute(postMethod);
+            if (getStatusCode(response) == ACCEPTED_202) {
+                LOGGER.debug("The server has accepted the registration request.");
+                return Registration.createNullPrivateKeyEntry();
             }
 
-            HttpRequestBase postMethod = (HttpRequestBase) RequestBuilder.post(serverUrl)
-                    .addParameter("hostname", agentHostName)
-                    .addParameter("uuid", agentRegistry.uuid())
-                    .addParameter("location", SystemUtil.currentWorkingDirectory())
-                    .addParameter("usablespace", String.valueOf(AgentRuntimeInfo.usableSpace(SystemUtil.currentWorkingDirectory())))
-                    .addParameter("operatingSystem", new SystemEnvironment().getOperatingSystemCompleteName())
-                    .addParameter("agentAutoRegisterKey", agentAutoRegisterProperties.agentAutoRegisterKey())
-                    .addParameter("agentAutoRegisterResources", agentAutoRegisterProperties.agentAutoRegisterResources())
-                    .addParameter("agentAutoRegisterEnvironments", agentAutoRegisterProperties.agentAutoRegisterEnvironments())
-                    .addParameter("agentAutoRegisterHostname", agentAutoRegisterProperties.agentAutoRegisterHostname())
-                    .addParameter("elasticAgentId", agentAutoRegisterProperties.agentAutoRegisterElasticAgentId())
-                    .addParameter("elasticPluginId", agentAutoRegisterProperties.agentAutoRegisterElasticPluginId())
-                    .build();
+            byte[] content = response.getContent();
 
-            try {
-                CloseableHttpResponse response = httpClient.execute(postMethod);
-                if (getStatusCode(response) == SC_ACCEPTED) {
-                    LOGGER.debug("The server has accepted the registration request.");
-                    return Registration.createNullPrivateKeyEntry();
-                }
+            if (content == null) {
+                content = new byte[]{};
+            }
 
-                try (InputStream is = response.getEntity() == null ? new NullInputStream(0) : response.getEntity().getContent()) {
-                    String responseBody = IOUtils.toString(is, StandardCharsets.UTF_8);
-
-                    if (getStatusCode(response) == 200) {
-                        LOGGER.info("This agent is now approved by the server.");
-                        return readResponse(responseBody);
-                    } else {
-                        LOGGER.warn(String.format("The server sent a response that we could not understand. The HTTP status was %s. The response body was:\n%s", response.getStatusLine(), responseBody));
-                        return Registration.createNullPrivateKeyEntry();
-                    }
-                }
-            } finally {
-                postMethod.releaseConnection();
+            String responseBody = new String(content, UTF_8);
+            if (getStatusCode(response) == 200) {
+                LOGGER.info("This agent is now approved by the server.");
+                return readResponse(responseBody);
+            } else {
+                LOGGER.warn("The server sent a response that we could not understand. The HTTP status was {}. The response body was:\n{}", response.getStatus(), responseBody);
+                return Registration.createNullPrivateKeyEntry();
             }
         }
 
@@ -206,8 +209,8 @@ public class SslInfrastructureService {
             return RegistrationJSONizer.fromJson(responseBody);
         }
 
-        protected int getStatusCode(CloseableHttpResponse response) {
-            return response.getStatusLine().getStatusCode();
+        protected int getStatusCode(Response response) {
+            return response.getStatus();
         }
 
     }

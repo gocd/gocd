@@ -16,22 +16,23 @@
 
 package com.thoughtworks.go.agent.common.ssl;
 
-import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.protocol.HttpContext;
+import org.eclipse.jetty.client.HttpClient;
+import org.eclipse.jetty.client.api.ContentResponse;
+import org.eclipse.jetty.client.api.Request;
+import org.eclipse.jetty.client.api.Response;
 
 import javax.security.auth.x500.X500Principal;
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 public class GoAgentServerHttpClient implements Closeable {
     private static final Log LOG = LogFactory.getLog(GoAgentServerHttpClient.class);
 
-    private CloseableHttpClient client;
+    private HttpClient client;
     private X500Principal principal;
     private GoAgentServerHttpClientBuilder builder;
 
@@ -45,29 +46,33 @@ public class GoAgentServerHttpClient implements Closeable {
         this.principal = builder.principal();
     }
 
-
-    public CloseableHttpResponse execute(HttpUriRequest request) throws IOException {
-        return client.execute(request);
+    public ContentResponse execute(Request request) throws IOException, InterruptedException, ExecutionException, TimeoutException {
+        return request.send();
     }
 
-    public CloseableHttpResponse execute(HttpUriRequest request, HttpContext context) throws IOException {
-        return client.execute(request, context);
+    public void execute(Request request, Response.Listener listener) throws IOException, InterruptedException, ExecutionException, TimeoutException {
+        request.send(listener);
     }
 
     @Override
     public synchronized void close() {
-        try {
-            if (this.client != null) {
-                this.client.close();
-            }
-        } catch (Exception e) {
-            LOG.warn("Could not close http client", e);
-        }
+        destroy();
 
         try {
             init();
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    // used only in tests
+    public void destroy() {
+        try {
+            if (this.client != null) {
+                this.client.stop();
+            }
+        } catch (Exception e) {
+            LOG.warn("Could not close http client", e);
         }
     }
 
@@ -77,5 +82,9 @@ public class GoAgentServerHttpClient implements Closeable {
 
     public X500Principal principal() {
         return this.principal;
+    }
+
+    public Request newRequest(String url) {
+        return client.newRequest(url);
     }
 }

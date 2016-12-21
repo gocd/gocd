@@ -20,11 +20,10 @@ import com.thoughtworks.go.agent.ServerUrlGenerator;
 import com.thoughtworks.go.util.SslVerificationMode;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.http.client.utils.URIBuilder;
 
 import java.io.File;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Map;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
@@ -71,17 +70,20 @@ public class AgentBootstrapperBackwardCompatibility {
     }
 
     public String sslServerUrl(String sslPort) {
-        String serverUrl = serverUrl();
-
         try {
             // backward compatibility, since the agent.jar requires an ssl url, but the old bootstrapper does not have one.
-            URIBuilder url = new URIBuilder(serverUrl);
-            if (url.getScheme().equals("http")) {
-                url.setPort(Integer.valueOf(sslPort));
-                url.setScheme("https");
+            URL url = new URL(serverUrl());
+
+            if (url.getProtocol().equalsIgnoreCase("http")) {
+                return new URL(
+                        "https",
+                        url.getHost(),
+                        Integer.valueOf(sslPort),
+                        url.getFile()
+                ).toString();
             }
             return url.toString();
-        } catch (URISyntaxException e) {
+        } catch (MalformedURLException e) {
             throw bomb(e);
         }
 

@@ -19,14 +19,17 @@ package com.thoughtworks.go.agent.service;
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.URLService;
-import org.apache.http.Header;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.log4j.Logger;
+import org.eclipse.jetty.client.api.Request;
+import org.eclipse.jetty.client.api.Response;
+import org.eclipse.jetty.http.HttpField;
+import org.eclipse.jetty.http.HttpMethod;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 @Service
 public class AgentUpgradeService {
@@ -67,10 +70,11 @@ public class AgentUpgradeService {
     }
 
     void checkForUpgrade(String agentMd5, String launcherMd5, String agentPluginsMd5, String tfsImplMd5) throws Exception {
-        HttpGet method = getAgentLatestStatusGetMethod();
-        try (final CloseableHttpResponse response = httpClient.execute(method)) {
-            if (response.getStatusLine().getStatusCode() != 200) {
-                LOGGER.error(String.format("[Agent Upgrade] Got status %d %s from Go", response.getStatusLine().getStatusCode(), response.getStatusLine()));
+        Request request = getAgentLatestStatusGetMethod(httpClient);
+        try {
+            Response response = httpClient.execute(request);
+            if (response.getStatus() != 200) {
+                LOGGER.error(String.format("[Agent Upgrade] Got status %d %s from Go", response.getStatus(), response.getReason()));
                 return;
             }
             validateMd5(agentMd5, response, SystemEnvironment.AGENT_CONTENT_MD5_HEADER, "itself");
@@ -82,13 +86,11 @@ public class AgentUpgradeService {
             LOGGER.error(message);
             LOGGER.debug(message, ioe);
             throw ioe;
-        } finally {
-            method.releaseConnection();
         }
     }
 
-    private void validateMd5(String currentMd5, CloseableHttpResponse response, String agentContentMd5Header, String what) {
-        final Header md5Header = response.getFirstHeader(agentContentMd5Header);
+    private void validateMd5(String currentMd5, Response response, String agentContentMd5Header, String what) {
+        final HttpField md5Header = response.getHeaders().getField(agentContentMd5Header);
         if (!"".equals(currentMd5)) {
             if (!currentMd5.equals(md5Header.getValue())) {
                 jvmExitter.jvmExit(what, currentMd5, md5Header.getValue());
@@ -96,8 +98,8 @@ public class AgentUpgradeService {
         }
     }
 
-    HttpGet getAgentLatestStatusGetMethod() {
-        return new HttpGet(urlService.getAgentLatestStatusUrl());
+    Request getAgentLatestStatusGetMethod(GoAgentServerHttpClient client) throws InterruptedException, ExecutionException, TimeoutException {
+        return client.newRequest(urlService.getAgentLatestStatusUrl()).method(HttpMethod.GET);
     }
 
 }

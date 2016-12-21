@@ -16,146 +16,210 @@
 
 package com.thoughtworks.go.util;
 
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient;
+import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClientBuilder;
 import com.thoughtworks.go.domain.FetchHandler;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileUpload;
+import org.apache.commons.fileupload.RequestContext;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpVersion;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.message.BasicStatusLine;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Arrays;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Properties;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static com.thoughtworks.go.util.HttpService.GO_ARTIFACT_PAYLOAD_SIZE;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.*;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.mock;
 
 public class HttpServiceTest {
-    private static final String NOT_EXIST_URL = "http://bjcruiselablablab";
+    @Rule
+    public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().dynamicPort(), true);
 
     private File folderToSaveDowloadFiles;
     private HttpService service;
-    private HttpService.HttpClientFactory httpClientFactory;
     private GoAgentServerHttpClient httpClient;
+
+    @Rule
+    public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     @Before
     public void setUp() throws Exception {
-        folderToSaveDowloadFiles = TestFileUtil.createUniqueTempFolder("HttpServiceTest");
-        httpClientFactory = mock(HttpService.HttpClientFactory.class);
-        httpClient = mock(GoAgentServerHttpClient.class);
-        when(httpClientFactory.httpClient()).thenReturn(httpClient);
-
-        service = new HttpService(httpClientFactory);
+        folderToSaveDowloadFiles = temporaryFolder.newFolder();
+        httpClient = new GoAgentServerHttpClient(new GoAgentServerHttpClientBuilder(new SystemEnvironment()));
+        httpClient.init();
+        service = new HttpService(httpClient);
     }
 
     @After
     public void tearDown() throws Exception {
-        folderToSaveDowloadFiles.delete();
+        httpClient.destroy();
     }
 
-
     @Test
-    public void shouldPostArtifactsAlongWithMD5() throws IOException {
-        File uploadingFile = mock(File.class);
+    public void shouldPostArtifactsAlongWithMD5() throws Exception {
+        File uploadingFile = temporaryFolder.newFile();
+        String fileContents = randomFileContents();
+
+        stubFor(post(urlPathEqualTo("/foo"))
+                .willReturn(aResponse()
+                        .withStatus(200))
+        );
+
+        FileUtils.write(uploadingFile, fileContents, UTF_8);
         java.util.Properties checksums = new java.util.Properties();
+        checksums.put("foo", "bar");
 
-        String uploadUrl = "url";
+        service.upload("http://localhost:" + wireMockRule.port() + "/foo", fileContents.length(), uploadingFile, checksums);
 
-        HttpPost mockPostMethod = mock(HttpPost.class);
-        CloseableHttpResponse response = mock(CloseableHttpResponse.class);
-        when(response.getStatusLine()).thenReturn(new BasicStatusLine(HttpVersion.HTTP_1_1, 200, "OK"));
-        when(httpClient.execute(mockPostMethod)).thenReturn(response);
+        LoggedRequest loggedRequest = wireMockRule.findAll(
+                postRequestedFor(urlPathEqualTo("/foo"))
+                        .withHeader(GO_ARTIFACT_PAYLOAD_SIZE, equalTo(Integer.toString(fileContents.length())))
+                        .withHeader("Confirm", equalTo("true"))
+        ).get(0);
 
-        when(uploadingFile.exists()).thenReturn(true);
-        when(httpClientFactory.createPost(uploadUrl)).thenReturn(mockPostMethod);
+        FileUpload fileUpload = new FileUpload(new DiskFileItemFactory(1024 * 1024, temporaryFolder.newFolder("uploads")));
+        List<FileItem> fileItems = fileUpload.parseRequest(new LoggedRequestBasedContext(loggedRequest));
 
-        service.upload(uploadUrl, 100L, uploadingFile, checksums);
+        assertThat(fileItems, hasSize(2));
 
-        verify(mockPostMethod).setHeader(GO_ARTIFACT_PAYLOAD_SIZE, "100");
-        verify(mockPostMethod).setHeader("Confirm", "true");
-        verify(httpClientFactory).createMultipartRequestEntity(uploadingFile, checksums);
-        verify(httpClient).execute(mockPostMethod);
+        assertThat(fileItems.get(0).getString("utf-8"), is(fileContents));
+        assertThat(fileItems.get(0).getFieldName(), is("zipfile"));
+        Properties properties = new Properties();
+        properties.load(new ByteArrayInputStream(fileItems.get(1).get()));
+        assertThat(properties, is(checksums));
+        assertThat(fileItems.get(1).getFieldName(), is("file_checksum"));
     }
 
     @Test
-    public void shouldDownloadArtifact() throws IOException {
-        String url = "http://blah";
+    public void shouldDownloadArtifact() throws Exception {
+        String url = "http://localhost:" + wireMockRule.port() + "/download";
+
+        String fileContents = randomFileContents();
+        stubFor(get(urlPathEqualTo("/download"))
+                .willReturn(aResponse()
+                        .withStatus(200).withBody(fileContents)
+                ));
         FetchHandler fetchHandler = mock(FetchHandler.class);
 
-        HttpGet mockGetMethod = mock(HttpGet.class);
-        CloseableHttpResponse response = mock(CloseableHttpResponse.class);
-        when(response.getStatusLine()).thenReturn(new BasicStatusLine(HttpVersion.HTTP_1_1, 200, "OK"));
-        when(httpClient.execute(mockGetMethod)).thenReturn(response);
-        when(httpClientFactory.createGet(url)).thenReturn(mockGetMethod);
-
+        ArgumentCaptor<InputStream> argumentCaptor = ArgumentCaptor.forClass(InputStream.class);
         service.download(url, fetchHandler);
-        verify(httpClient).execute(mockGetMethod);
-        verify(fetchHandler).handle(null);
+        Mockito.verify(fetchHandler).handle(argumentCaptor.capture());
+
+        InputStream value = argumentCaptor.getValue();
+        assertThat(IOUtils.toString(value, StandardCharsets.UTF_8), is(fileContents));
     }
 
     @Test
-    public void shouldNotFailIfChecksumFileIsNotPresent() throws IOException {
-        HttpService.HttpClientFactory factory = new HttpService.HttpClientFactory(null);
-        File artifact = new File(folderToSaveDowloadFiles, "artifact");
-        artifact.createNewFile();
-        try {
-            factory.createMultipartRequestEntity(artifact,null);
-        } catch (FileNotFoundException e) {
-            fail("Nulitpart should be created even in the absence of checksum file");
+    public void shouldNotFailIfChecksumFileIsNotPresent() throws Exception {
+        File uploadingFile = temporaryFolder.newFile();
+        String fileContents = randomFileContents();
+
+        stubFor(post(urlPathEqualTo("/foo"))
+                .willReturn(aResponse()
+                        .withStatus(200))
+        );
+
+        FileUtils.write(uploadingFile, fileContents, UTF_8);
+        service.upload("http://localhost:" + wireMockRule.port() + "/foo", fileContents.length(), uploadingFile, null);
+
+        LoggedRequest loggedRequest = wireMockRule.findAll(
+                postRequestedFor(urlPathEqualTo("/foo"))
+                        .withHeader(GO_ARTIFACT_PAYLOAD_SIZE, equalTo(Integer.toString(fileContents.length())))
+                        .withHeader("Confirm", equalTo("true"))
+        ).get(0);
+
+        FileUpload fileUpload = new FileUpload(new DiskFileItemFactory(1024 * 1024, temporaryFolder.newFolder("uploads")));
+        List<FileItem> fileItems = fileUpload.parseRequest(new LoggedRequestBasedContext(loggedRequest));
+
+        assertThat(fileItems, hasSize(1));
+        assertThat(fileItems.get(0).getString("utf-8"), is(fileContents));
+        assertThat(fileItems.get(0).getFieldName(), is("zipfile"));
+    }
+
+    @Test
+    public void shouldSetTheConfirmHeaderWhilePostingProperties() throws Exception {
+        stubFor(post(urlPathEqualTo("/property"))
+                .willReturn(aResponse()
+                        .withStatus(200))
+        );
+
+        service.postProperty("http://localhost:" + wireMockRule.port() + "/property", "some-property-value");
+
+        verify(postRequestedFor(urlPathEqualTo("/property"))
+                .withHeader("Confirm", equalTo("true"))
+                .withRequestBody(equalTo("value=some-property-value"))
+        );
+    }
+
+    @Test
+    public void shouldAppendConsoleLog() throws Exception {
+        stubFor(put(urlPathEqualTo("/console-log"))
+                .willReturn(aResponse()
+                        .withStatus(200))
+        );
+
+        // testing with some multi byte unicode chars
+        String content = "some console \u040A log contents \u20AC";
+
+        service.appendConsoleLog("http://localhost:" + wireMockRule.port() + "/console-log", content);
+        verify(putRequestedFor(urlPathEqualTo("/console-log"))
+                .withHeader("Confirm", equalTo("true"))
+                .withHeader("Content-Length", equalTo(Integer.toString(content.getBytes(UTF_8).length)))
+                .withRequestBody(equalTo(content))
+        );
+    }
+
+    private String randomFileContents() {
+        return Long.toHexString(Double.doubleToLongBits(Math.random()));
+    }
+
+    private static class LoggedRequestBasedContext implements RequestContext {
+        private final LoggedRequest loggedRequest;
+
+        public LoggedRequestBasedContext(LoggedRequest loggedRequest) {
+            this.loggedRequest = loggedRequest;
+        }
+
+        @Override
+        public String getCharacterEncoding() {
+            return null;
+        }
+
+        @Override
+        public String getContentType() {
+            return loggedRequest.getHeader("Content-Type");
+        }
+
+        @Override
+        public int getContentLength() {
+            return -1;
+        }
+
+        @Override
+        public InputStream getInputStream() throws IOException {
+            return new ByteArrayInputStream(loggedRequest.getBody());
         }
     }
 
-    @Test
-    public void shouldSetTheAcceptHeaderWhilePostingProperties() throws Exception {
-        HttpPost post = mock(HttpPost.class);
-        when(httpClientFactory.createPost("url")).thenReturn(post);
-        CloseableHttpResponse response = mock(CloseableHttpResponse.class);
-        when(response.getStatusLine()).thenReturn(new BasicStatusLine(HttpVersion.HTTP_1_1, 200, "OK"));
-        when(httpClient.execute(post)).thenReturn(response);
-
-        ArgumentCaptor<UrlEncodedFormEntity> entityCaptor = ArgumentCaptor.forClass(UrlEncodedFormEntity.class);
-
-        service.postProperty("url", "value");
-
-        verify(post).setHeader("Confirm","true");
-        verify(post).setEntity(entityCaptor.capture());
-
-        UrlEncodedFormEntity expected = new UrlEncodedFormEntity(Arrays.asList(new BasicNameValuePair("value", "value")));
-
-        UrlEncodedFormEntity actual = entityCaptor.getValue();
-
-        assertEquals(IOUtils.toString(expected.getContent()), IOUtils.toString(actual.getContent()));
-        assertEquals(expected.getContentLength(), expected.getContentLength());
-        assertEquals(expected.getContentType(), expected.getContentType());
-        assertEquals(expected.getContentEncoding(), expected.getContentEncoding());
-        assertEquals(expected.isChunked(), expected.isChunked());
-    }
-
-    @Test
-    public void shouldCreateMultipleRequestWithChecksumValues() throws IOException {
-        HttpService.HttpClientFactory factory = new HttpService.HttpClientFactory(null);
-        File artifact = new File(folderToSaveDowloadFiles, "artifact");
-        artifact.createNewFile();
-        try {
-            java.util.Properties artifactChecksums = new java.util.Properties();
-            artifactChecksums.setProperty("foo.txt","323233333");
-
-            factory.createMultipartRequestEntity(artifact, artifactChecksums);
-
-        } catch (FileNotFoundException e) {
-            fail("Nulitpart should be created even in the absence of checksum file");
-        }
-
-    }
 }

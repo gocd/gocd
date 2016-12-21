@@ -270,6 +270,7 @@ public class AgentRegistrationController {
 
             public void render(Map model, HttpServletRequest request, HttpServletResponse response) throws IOException {
                 response.setContentType(getContentType());
+                response.setCharacterEncoding("UTF-8");
                 if (!registration.isValid()) {
                     response.setStatus(HttpServletResponse.SC_ACCEPTED);
                 }

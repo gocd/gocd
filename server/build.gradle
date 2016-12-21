@@ -183,7 +183,10 @@ dependencies {
   compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.21'
   compile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.21'
   compile group: 'org.slf4j', name: 'jul-to-slf4j', version: '1.7.21'
-  compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit.http.server', version: '4.5.0.201609210915-r'
+  compile(group: 'org.eclipse.jgit', name: 'org.eclipse.jgit.http.server', version: '4.5.0.201609210915-r'){
+    exclude(module: 'httpclient')
+    exclude(module: 'jsch')
+  }
   compileOnly project(':app-server')
   compileOnly group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47'
   compileOnly group: 'org.eclipse.jetty.websocket', name: 'websocket-server', version: versions.jetty
@@ -518,9 +521,10 @@ task verifyWar(type: VerifyJarTask) {
       "hibernate-commons-annotations-3.1.0.GA.jar",
       "hibernate-core-3.3.2.GA.jar",
       "hibernate-ehcache-3.3.2.GA.jar",
-      "httpclient-4.5.2.jar",
-      "httpcore-4.4.4.jar",
-      "httpmime-4.5.2.jar",
+      "jetty-client-${project.versions.jetty}.jar",
+      "jetty-http-${project.versions.jetty}.jar",
+      "jetty-io-${project.versions.jetty}.jar",
+      "jetty-util-${project.versions.jetty}.jar",
       "ibatis-sqlmap-2.3.4.726.jar",
       "imap-1.4.4.jar",
       "jackson-annotations-2.5.0.jar",
@@ -540,7 +544,6 @@ task verifyWar(type: VerifyJarTask) {
       "jolt-core-0.0.20.jar",
       "jruby-complete-1.7.26.jar",
       "jruby-rack-1.1.14.jar",
-      "jsch-0.1.53.jar",
       "json-utils-0.0.20.jar",
       "jta-1.1.jar",
       "jul-to-slf4j-1.7.21.jar",

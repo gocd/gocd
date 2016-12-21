@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 import static com.thoughtworks.go.util.ArtifactLogUtil.getConsoleOutputFolderAndFileName;
 
@@ -116,7 +117,7 @@ public class ConsoleService {
 
         LOGGER.trace("Updating console log [" + dest.getAbsolutePath() + "]");
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(dest, dest.exists()))) {
-            IOUtils.copy(in, writer);
+            IOUtils.copy(in, writer, StandardCharsets.UTF_8);
         } catch (IOException e) {
             LOGGER.error("Failed to update console log at : [" + dest.getAbsolutePath() + "]", e);
             return false;

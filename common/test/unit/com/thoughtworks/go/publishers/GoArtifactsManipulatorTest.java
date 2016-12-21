@@ -70,7 +70,7 @@ public class GoArtifactsManipulatorTest {
     }
 
     @Test
-    public void shouldBombWithErrorWhenStatusCodeReturnedIsRequestEntityTooLarge() throws IOException, InterruptedException {
+    public void shouldBombWithErrorWhenStatusCodeReturnedIsRequestEntityTooLarge() throws Exception {
         long size = anyLong();
         when(httpService.upload(any(String.class), size, any(File.class), any(Properties.class))).thenReturn(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
 
@@ -88,7 +88,7 @@ public class GoArtifactsManipulatorTest {
     }
 
     @Test
-    public void uploadShouldBeGivenFileSize() throws IOException {
+    public void uploadShouldBeGivenFileSize() throws Exception {
 
         when(httpService.upload(any(String.class), eq(tempFile.length()), any(File.class), any(Properties.class))).thenReturn(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
         try {
@@ -100,7 +100,7 @@ public class GoArtifactsManipulatorTest {
     }
 
     @Test
-    public void shouldUploadArtifactChecksumAlongWithArtifact() throws IOException {
+    public void shouldUploadArtifactChecksumAlongWithArtifact() throws Exception {
         String data = "Some text whose checksum can be asserted";
         final String md5 = CachedDigestUtils.md5Hex(data);
         FileUtils.writeStringToFile(tempFile, data);
@@ -113,7 +113,7 @@ public class GoArtifactsManipulatorTest {
     }
 
     @Test
-    public void shouldUploadArtifactChecksumWithRightPathWhenArtifactDestinationPathIsEmpty() throws IOException {
+    public void shouldUploadArtifactChecksumWithRightPathWhenArtifactDestinationPathIsEmpty() throws Exception {
         String data = "Some text whose checksum can be asserted";
         final String md5 = CachedDigestUtils.md5Hex(data);
         FileUtils.writeStringToFile(tempFile, data);
@@ -126,7 +126,7 @@ public class GoArtifactsManipulatorTest {
     }
 
     @Test
-    public void shouldUploadArtifactChecksumForADirectory() throws IOException {
+    public void shouldUploadArtifactChecksumForADirectory() throws Exception {
         String data = "Some text whose checksum can be asserted";
         String secondData = "some more";
 

@@ -20,7 +20,9 @@ dependencies {
   compile project(':config-api')
   compile project(':common')
   compile(group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: '4.5.0.201609210915-r') {
+    // we don't use http or ssh transports, so don't pull these deps
     exclude(group: 'org.apache.httpcomponents')
+    exclude(group: 'com.jcraft')
   }
   compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.21'
   compile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.21'

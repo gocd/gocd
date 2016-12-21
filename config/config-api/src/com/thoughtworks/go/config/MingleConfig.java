@@ -22,10 +22,10 @@ import com.thoughtworks.go.domain.DefaultCommentRenderer;
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.XmlUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.http.client.utils.URIBuilder;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -96,8 +96,9 @@ public class MingleConfig implements ParamsAttributeAware, Validatable, CommentR
     }
 
     public String urlFor(String path) throws MalformedURLException, URISyntaxException {
-        URIBuilder baseUri = new URIBuilder(baseUrl);
-        String originalPath = baseUri.getPath();
+        URL url = new URL(baseUrl);
+        String originalPath = url.getPath();
+
         if (originalPath == null) {
             originalPath = "";
         }
@@ -106,7 +107,12 @@ public class MingleConfig implements ParamsAttributeAware, Validatable, CommentR
             path = path.replaceFirst(DELIMITER, "");
         }
 
-        return baseUri.setPath(originalPath + path).toString();
+        if (url.getQuery() == null) {
+            return new URL(url.getProtocol(), url.getHost(), url.getPort(), originalPath + path).toString();
+        } else {
+            return new URL(url.getProtocol(), url.getHost(), url.getPort(), originalPath + path + '?' + url.getQuery()).toString();
+        }
+
     }
 
     public String getProjectIdentifier() {

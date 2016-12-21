@@ -36,6 +36,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.EnumSet;
 import java.util.Properties;
+import java.util.UUID;
 
 import static com.thoughtworks.go.agent.testhelper.FakeBootstrapperServer.TestResource.*;
 import static com.thoughtworks.go.util.FileDigester.md5DigestOfStream;
@@ -129,11 +130,29 @@ public class FakeBootstrapperServer extends BlockJUnit4ClassRunner {
         addFakeAgentBinaryServlet(wac, "/admin/agent-launcher.jar", TEST_AGENT_LAUNCHER);
         addFakeAgentBinaryServlet(wac, "/admin/agent-plugins.zip", TEST_AGENT_PLUGINS);
         addFakeAgentBinaryServlet(wac, "/admin/tfs-impl.jar", TEST_TFS_IMPL);
+        addHeadOnlyServlet(wac, "/broken-jar-download-with-no-response-body");
         addlatestAgentStatusCall(wac);
         addDefaultServlet(wac);
         server.setHandler(wac);
         server.setStopAtShutdown(true);
         server.start();
+    }
+
+    private void addHeadOnlyServlet(WebAppContext wac, String pathSpec) {
+        ServletHolder holder = new ServletHolder();
+        holder.setServlet(new HttpServlet() {
+            @Override
+            protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+                doHead(req, resp);
+            }
+
+            @Override
+            protected void doHead(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+                resp.setHeader("Content-MD5", UUID.randomUUID().toString());
+                resp.setHeader("Cruise-Server-Ssl-Port", "9091");
+            }
+        });
+        wac.addServlet(holder, pathSpec);
     }
 
     public static final class AgentStatusApi extends HttpServlet {

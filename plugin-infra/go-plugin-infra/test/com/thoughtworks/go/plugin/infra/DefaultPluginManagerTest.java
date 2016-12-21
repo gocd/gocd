@@ -29,7 +29,6 @@ import com.thoughtworks.go.plugin.infra.plugininfo.DefaultPluginRegistry;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
-import org.apache.http.HttpStatus;
 import org.hamcrest.MatcherAssert;
 import org.junit.After;
 import org.junit.Before;
@@ -49,6 +48,7 @@ import java.util.Random;
 
 import static com.thoughtworks.go.util.SystemEnvironment.*;
 import static java.util.Arrays.asList;
+import static javax.servlet.http.HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.Matchers.isEmptyString;
@@ -145,8 +145,8 @@ public class DefaultPluginManagerTest {
 
         assertThat(response.success(), isEmptyString());
         assertFalse(response.isSuccess());
-        assertTrue(response.errors().containsKey(HttpStatus.SC_UNSUPPORTED_MEDIA_TYPE));
-        assertThat(response.errors().get(HttpStatus.SC_UNSUPPORTED_MEDIA_TYPE), is("Please upload a jar."));
+        assertTrue(response.errors().containsKey(SC_UNSUPPORTED_MEDIA_TYPE));
+        assertThat(response.errors().get(SC_UNSUPPORTED_MEDIA_TYPE), is("Please upload a jar."));
     }
 
     @Test

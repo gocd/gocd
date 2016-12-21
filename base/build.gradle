@@ -19,11 +19,7 @@ description = 'GoCD Base'
 dependencies {
   compile group: 'commons-io', name: 'commons-io', version: '2.5'
   compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
-  compile group: 'commons-codec', name: 'commons-codec', version: '1.4'
-  compile(group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.2') {
-    exclude(module: 'commons-codec')
-    exclude(module: 'commons-logging')
-  }
+  compile group: 'org.eclipse.jetty', name: 'jetty-client', version: versions.jetty
   compile group: 'joda-time', name: 'joda-time', version: '2.3'
   compile group: 'commons-logging', name: 'commons-logging', version: '1.2'
   compile group: 'log4j', name: 'log4j', version: '1.2.17'

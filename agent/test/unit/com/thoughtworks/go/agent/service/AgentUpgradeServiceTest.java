@@ -19,36 +19,25 @@ package com.thoughtworks.go.agent.service;
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.URLService;
-import org.apache.http.HttpVersion;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.message.BasicHeader;
-import org.apache.http.message.BasicStatusLine;
-import org.hamcrest.core.Is;
+import org.eclipse.jetty.client.api.ContentResponse;
+import org.eclipse.jetty.client.api.Request;
+import org.eclipse.jetty.http.HttpFields;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 
 import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+
 
 public class AgentUpgradeServiceTest {
 
     private SystemEnvironment systemEnvironment;
     private URLService urlService;
     private AgentUpgradeService agentUpgradeService;
-    private HttpGet httpMethod;
-    private CloseableHttpResponse closeableHttpResponse;
+    private Request httpMethod;
+    private ContentResponse closeableHttpResponse;
     private AgentUpgradeService.JvmExitter jvmExitter;
 
     @Before
@@ -59,10 +48,11 @@ public class AgentUpgradeServiceTest {
         jvmExitter = mock(AgentUpgradeService.JvmExitter.class);
         agentUpgradeService = spy(new AgentUpgradeService(urlService, httpClient, systemEnvironment, jvmExitter));
 
-        httpMethod = mock(HttpGet.class);
-        doReturn(httpMethod).when(agentUpgradeService).getAgentLatestStatusGetMethod();
-        closeableHttpResponse = mock(CloseableHttpResponse.class);
-        when(closeableHttpResponse.getStatusLine()).thenReturn(new BasicStatusLine(HttpVersion.HTTP_1_1, 200, "OK"));
+        httpMethod = mock(Request.class);
+        doReturn(httpMethod).when(agentUpgradeService).getAgentLatestStatusGetMethod(httpClient);
+        closeableHttpResponse = mock(ContentResponse.class);
+        when(closeableHttpResponse.getHeaders()).thenReturn(new HttpFields());
+        when(closeableHttpResponse.getStatus()).thenReturn(200);
         when(httpClient.execute(httpMethod)).thenReturn(closeableHttpResponse);
     }
 
@@ -172,6 +162,6 @@ public class AgentUpgradeServiceTest {
     }
 
     private void expectHeaderValue(final String headerName, final String headerValue) {
-        when(closeableHttpResponse.getFirstHeader(headerName)).thenReturn(new BasicHeader(headerName, headerValue));
+        closeableHttpResponse.getHeaders().add(headerName, headerValue);
     }
 }

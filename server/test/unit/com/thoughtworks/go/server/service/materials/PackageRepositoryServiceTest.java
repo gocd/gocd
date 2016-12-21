@@ -42,7 +42,7 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import org.apache.http.HttpStatus;
+import org.eclipse.jetty.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -104,7 +104,7 @@ public class PackageRepositoryServiceTest {
         assertThat(response.isSuccessful(), is(true));
         assertThat(response.getMessage(), is("SAVED_CONFIGURATION_SUCCESSFULLY"));
         assertThat(response.getSubjectIdentifier(), is("repoid"));
-        assertThat(response.getStatusCode(), is(HttpStatus.SC_OK));
+        assertThat(response.getStatusCode(), is(HttpStatus.OK_200));
 
         verify(service).performPluginValidationsFor(packageRepository);
         verify(service).getPackageRepositoryUpdateCommand(packageRepository, username);
@@ -150,7 +150,7 @@ public class PackageRepositoryServiceTest {
         assertThat(response.getGlobalErrors().size(), is(1));
         assertThat(response.getGlobalErrors().contains("error"), is(true));
 
-        assertThat(response.getStatusCode(), is(HttpStatus.SC_BAD_REQUEST));
+        assertThat(response.getStatusCode(), is(HttpStatus.BAD_REQUEST_400));
 
         verify(service).performPluginValidationsFor(packageRepository);
         verify(service).getPackageRepositoryUpdateCommand(packageRepository, username);

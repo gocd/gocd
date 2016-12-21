@@ -1,5 +1,3 @@
-import com.thoughtworks.go.build.VerifyJarTask
-
 /*
  * Copyright 2016 ThoughtWorks, Inc.
  *
@@ -15,6 +13,8 @@ import com.thoughtworks.go.build.VerifyJarTask
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import com.thoughtworks.go.build.VerifyJarTask
 
 description = 'GoCD Agent Bootstrapper'
 
@@ -75,13 +75,14 @@ task verifyJar(type: VerifyJarTask) {
           "agent-common-${project.version}.jar",
           "AppleJavaExtensions-1.4.jar",
           "base-${project.version}.jar",
-          "commons-codec-1.4.jar",
           "commons-io-2.5.jar",
           "commons-lang-2.6.jar",
           "commons-logging-1.2.jar",
-          "httpclient-4.5.2.jar",
-          "httpcore-4.4.4.jar",
           "jcommander-1.48.jar",
+          "jetty-client-${project.versions.jetty}.jar",
+          "jetty-http-${project.versions.jetty}.jar",
+          "jetty-io-${project.versions.jetty}.jar",
+          "jetty-util-${project.versions.jetty}.jar",
           "joda-time-2.3.jar",
           "log4j-1.2.17.jar",
       ]

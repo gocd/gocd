@@ -17,11 +17,8 @@
 package com.thoughtworks.go.util;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URIBuilder;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -53,12 +50,6 @@ public class UrlUtil {
         return builder.toString();
     }
 
-    public static String urlWithQuery(String oldUrl, String paramName, String paramValue) throws URISyntaxException {
-        URIBuilder uriBuilder = new URIBuilder(oldUrl);
-        uriBuilder.addParameter(paramName, paramValue);
-        return uriBuilder.toString();
-    }
-
     private static String encode(String query) {
         if (query == null) {
             return null;
@@ -78,20 +69,6 @@ public class UrlUtil {
             return URLDecoder.decode(query, UTF_8);
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    public static String getQueryParamFromUrl(String url, String paramName) {
-        try {
-            List<NameValuePair> queryParams = new URIBuilder(url).getQueryParams();
-            for (NameValuePair pair : queryParams) {
-                if (pair.getName().equals(paramName)) {
-                    return pair.getValue();
-                }
-            }
-            return StringUtils.EMPTY;
-        } catch (URISyntaxException e) {
-            return StringUtils.EMPTY;
         }
     }
 

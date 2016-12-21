@@ -1106,6 +1106,7 @@ div#tab_container {
     font-size:        rem-calc(13px) !important;
     padding:          10px !important;
     font-weight:      600;
+
   }
   tbody {
     background: #fff;
@@ -1123,6 +1124,10 @@ div#tab_container {
     border:        0;
     border-bottom: 3px solid $table-header-border;
   }
+}
+
+.notification .filters{
+  min-height:auto;
 }
 
 span.contextual_help {
@@ -1746,6 +1751,9 @@ a:link#link-to-this-page, a:visited#link-to-this-page {
   .flash{
     position: static;
   }
+  .task.fieldset{
+    padding: 1.25em 0;
+  }
 }
 
 #MB_content .sub_tab_container, #MB_content .form_content, #MB_content .new_form_content {
@@ -2009,6 +2017,11 @@ a:link.help, a:visited.help {
 
 .treeview .preview_icon_wobg {
   top: 11px;
+}
+
+.treeview li a {
+  white-space: normal;
+  word-break: break-all;
 }
 
 .admin_workspace.has_tree_view {
@@ -2664,7 +2677,7 @@ button.check_connection + .connection_test_message pre {
 
 .promote_button {
   background-color: transparent;
-  .promote_up {
+  .promote_up , .promote_down{
     background-color: transparent;
 
   }
@@ -2736,6 +2749,9 @@ table.variables th {
   label.inline {
     display:       inline-block;
     margin-bottom: 5px;
+  }
+  textarea.exec-task-arguments{
+    height:100px;
   }
 }
 
@@ -3309,5 +3325,23 @@ form#package_repositories_edit_form {
 #tab-content-of-user-listing{
   .title_secondary_info{
     margin-top:10px;
+  }
+}
+.tasks_list_table .icon_remove, .jobs_list_table .icon_remove {
+  margin-top: 0px;
+}
+.error-message-for-old-args{
+ clear:both;
+}
+
+.admin_configuration{
+  .flash#config_error{
+    position:static;
+  }
+}
+
+#stage_job_form{
+  .fieldset{
+    padding:1.25rem 0;
   }
 }

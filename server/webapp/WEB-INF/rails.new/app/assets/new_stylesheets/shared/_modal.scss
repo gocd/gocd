@@ -15,13 +15,14 @@
  */
 
 .reveal {
+  padding:30px;
   .modal-title {
     border-bottom:           1px solid #ccc;
     padding:                 10px 15px;
-    margin:                  -17px -16px 20px;
-    border-top-left-radius:  5px;
+    margin:                  -30px -30px 20px;
+    border-top-left-radius:  $global-border-radius;
     background:              #e0dfdf;
-    border-top-right-radius: 5px;
+    border-top-right-radius: $global-border-radius;
     font-size:               rem-calc(16px);
   }
 
@@ -31,8 +32,10 @@
   }
 
   .modal-buttons {
+    margin-top:20px;
     .button {
-      margin-right: 1rem;
+      margin:0 1rem 0 0;
+
     }
   }
   .button {

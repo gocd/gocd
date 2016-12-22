@@ -21,6 +21,7 @@ import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.common.settings.AbstractExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
+import com.thoughtworks.go.plugin.access.notification.v1.JsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,11 +63,11 @@ public class NotificationExtension extends AbstractExtension {
         });
     }
 
-    public Result notify(String pluginId, final String requestName, final Map requestMap) {
+    public <T> Result notify(String pluginId, final String requestName, final T data) {
         return pluginRequestHelper.submitRequest(pluginId, requestName, new DefaultPluginInteractionCallback<Result>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return messageHandlerMap.get(resolvedExtensionVersion).requestMessageForNotify(requestName, requestMap);
+                return messageHandlerMap.get(resolvedExtensionVersion).requestMessageForNotify(data);
             }
 
             @Override

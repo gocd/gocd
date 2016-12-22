@@ -82,6 +82,7 @@ sourceSets {
 dependencies {
   compile project(':database')
   compile project(':config-server')
+  compile project(':go-plugin-access')
   compile project(':common')
   compile project(':rack_hack')
   compile(group: 'commons-beanutils', name: 'commons-beanutils-core', version: '1.7.0') {
@@ -481,6 +482,7 @@ task verifyWar(type: VerifyJarTask) {
       "cglib-2.1_3.jar",
       "cglib-nodep-2.2.jar",
       "cloning-1.7.3.jar",
+      "commandline-${project.version}.jar",
       "common-${project.version}.jar",
       "commons-beanutils-1.7.0.jar",
       "commons-beanutils-core-1.7.0.jar",
@@ -500,6 +502,7 @@ task verifyWar(type: VerifyJarTask) {
       "database-${project.version}.jar",
       "db-${project.version}.jar",
       "dbdeploy-2.11.1.jar",
+      "domain-${project.version}.jar",
       "dom4j-1.6.1.jar",
       "dsn-1.4.4.jar",
       "ehcache-core-2.0.0.jar",
@@ -508,6 +511,7 @@ task verifyWar(type: VerifyJarTask) {
       "geronimo-j2ee-management_1.1_spec-1.0.1.jar",
       "geronimo-jms_1.1_spec-1.1.1.jar",
       "go-plugin-access-${project.version}.jar",
+      "plugin-metadata-store-${project.version}.jar",
       "go-plugin-activator-${project.version}.jar",
       "go-plugin-api-${project.version}.jar",
       "go-plugin-api-internal-${project.version}.jar",

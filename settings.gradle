@@ -18,6 +18,8 @@ rootProject.name = 'gocd'
 include ':base'
 include ':util'
 include ':test-utils'
+include 'domain'
+include 'commandline'
 include ':db'
 include ':database'
 include ':go-plugin-api-internal'
@@ -25,6 +27,7 @@ include ':go-plugin-api'
 include ':go-plugin-activator'
 include ':go-plugin-infra'
 include ':go-plugin-access'
+include ':plugin-metadata-store'
 include ':config-api'
 include ':config-server'
 include ':common'
@@ -53,11 +56,14 @@ project(':util').projectDir = "$rootDir/util" as File
 project(':test-utils').projectDir = "$rootDir/test-utils" as File
 project(':db').projectDir = "$rootDir/db" as File
 project(':database').projectDir = "$rootDir/addon-api/database" as File
+project(':commandline').projectDir = "$rootDir/commandline" as File
+project(':domain').projectDir = "$rootDir/domain" as File
 project(':go-plugin-api-internal').projectDir = "$rootDir/plugin-infra/go-plugin-api-internal" as File
 project(':go-plugin-api').projectDir = "$rootDir/plugin-infra/go-plugin-api" as File
 project(':go-plugin-activator').projectDir = "$rootDir/plugin-infra/go-plugin-activator" as File
 project(':go-plugin-infra').projectDir = "$rootDir/plugin-infra/go-plugin-infra" as File
 project(':go-plugin-access').projectDir = "$rootDir/plugin-infra/go-plugin-access" as File
+project(':plugin-metadata-store').projectDir = "$rootDir/plugin-infra/plugin-metadata-store" as File
 project(':config-api').projectDir = "$rootDir/config/config-api" as File
 project(':config-server').projectDir = "$rootDir/config/config-server" as File
 project(':common').projectDir = "$rootDir/common" as File
@@ -79,3 +85,6 @@ project(':development-server').projectDir = "$rootDir/development-utility/develo
 project(':installers').projectDir = "$rootDir/installers" as File
 project(':release').projectDir = "$rootDir/release" as File
 project(':tools').projectDir = "$rootDir/tools" as File
+include 'domain'
+include 'commandline'
+

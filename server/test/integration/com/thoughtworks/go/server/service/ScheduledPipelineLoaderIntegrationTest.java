@@ -5,14 +5,13 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package com.thoughtworks.go.server.service;
@@ -32,6 +31,7 @@ import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.domain.materials.git.GitTestRepo;
 import com.thoughtworks.go.domain.packagerepository.*;
 import com.thoughtworks.go.helper.*;
+import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfigurations;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageMetadataStore;
@@ -362,7 +362,7 @@ public class ScheduledPipelineLoaderIntegrationTest {
 
     private Pipeline createAndLoadModifyOneFilePipeline(PipelineConfig pipelineConfig) {
         MaterialConfigs expandedConfigs = materialExpansionService.expandMaterialConfigsForScheduling(pipelineConfig.materialConfigs());
-        MaterialRevisions materialRevisions = ModificationsMother.modifyOneFile(MaterialsMother.createMaterialsFromMaterialConfigs(expandedConfigs));
+        MaterialRevisions materialRevisions = ModificationsMother.modifyOneFile(new MaterialConfigConverter().toMaterials(expandedConfigs));
         Pipeline building = PipelineMother.buildingWithRevisions(pipelineConfig, materialRevisions);
         Pipeline pipeline = dbHelper.savePipelineWithMaterials(building);
         final long jobId = pipeline.getStages().get(0).getJobInstances().get(0).getId();

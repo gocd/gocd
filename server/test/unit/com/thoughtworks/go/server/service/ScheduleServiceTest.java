@@ -22,6 +22,7 @@ import com.thoughtworks.go.domain.activity.AgentAssignment;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.*;
+import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.dao.PipelineDao;
@@ -269,7 +270,7 @@ public class ScheduleServiceTest {
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
         when(schedulingChecker.canAutoTriggerConsumer(pipelineConfig)).thenReturn(true);
         when(pipelineScheduleQueue.createPipeline(any(BuildCause.class), eq(pipelineConfig), any(SchedulingContext.class), eq("md5-test"), eq(timeProvider))).thenReturn(PipelineMother.schedule(pipelineConfig,
-                BuildCause.createManualForced(new MaterialRevisions(new MaterialRevision(MaterialsMother.createMaterialFromMaterialConfig(materialConfig), ModificationsMother.aCheckIn("123", "foo.c"))), new Username(new CaseInsensitiveString("loser")))));
+                BuildCause.createManualForced(new MaterialRevisions(new MaterialRevision(new MaterialConfigConverter().toMaterial(materialConfig), ModificationsMother.aCheckIn("123", "foo.c"))), new Username(new CaseInsensitiveString("loser")))));
         final HashMap<String, BuildCause> map = new HashMap<String, BuildCause>();
         map.put("pipeline-quux", BuildCause.createManualForced());
         when(pipelineScheduleQueue.toBeScheduled()).thenReturn(map);

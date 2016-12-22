@@ -61,6 +61,10 @@ public class PipelineMother {
     }
 
     public static Pipeline pipelineWithAllTypesOfMaterials(String pipelineName, String stageName, String jobName) {
+        return pipelineWithAllTypesOfMaterials(pipelineName, stageName, jobName, ModificationsMother.nextRevision());
+    }
+
+    public static Pipeline pipelineWithAllTypesOfMaterials(String pipelineName, String stageName, String jobName, String fixedMaterialRevisionForAllMaterials) {
         GitMaterial gitMaterial = MaterialsMother.gitMaterial("http://user:password@gitrepo.com", null, "branch");
         HgMaterial hgMaterial = MaterialsMother.hgMaterial("http://user:password@hgrepo.com");
         SvnMaterial svnMaterial = MaterialsMother.svnMaterial("http://user:password@svnrepo.com", null, "username", "password", false, null);
@@ -71,7 +75,7 @@ public class PipelineMother {
         PluggableSCMMaterial pluggableSCMMaterial = MaterialsMother.pluggableSCMMaterial();
         Materials materials = new Materials(gitMaterial, hgMaterial, svnMaterial, tfsMaterial, p4Material, dependencyMaterial, packageMaterial, pluggableSCMMaterial);
 
-        return new Pipeline(pipelineName, BuildCause.createWithModifications(ModificationsMother.modifyOneFile(materials, ModificationsMother.nextRevision()), ""), StageMother.passedStageInstance(stageName, jobName, pipelineName));
+        return new Pipeline(pipelineName, BuildCause.createWithModifications(ModificationsMother.modifyOneFile(materials, fixedMaterialRevisionForAllMaterials), ""), StageMother.passedStageInstance(stageName, jobName, pipelineName));
     }
 
     public static Pipeline schedule(PipelineConfig pipelineConfig, BuildCause cause) {

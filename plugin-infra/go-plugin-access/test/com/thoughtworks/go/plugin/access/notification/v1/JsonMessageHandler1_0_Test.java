@@ -42,7 +42,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.fail;
 
-public class JsonMessageHandler1_0Test {
+public class JsonMessageHandler1_0_Test {
     private JsonMessageHandler1_0 messageHandler;
 
     @Before
@@ -256,7 +256,7 @@ public class JsonMessageHandler1_0Test {
                 "}";
 
         String request = messageHandler.requestMessageForNotify(new StageNotificationData(pipeline.getFirstStage(), pipeline.getBuildCause(), "pipeline-group"));
-        JSONAssert.assertEquals(request, expected, JSONCompareMode.NON_EXTENSIBLE);
+        JSONAssert.assertEquals(expected, request, JSONCompareMode.NON_EXTENSIBLE);
     }
 
     @Rule
@@ -304,7 +304,7 @@ public class JsonMessageHandler1_0Test {
     }
 
     private Pipeline createPipeline() throws Exception {
-        Pipeline pipeline = PipelineMother.pipelineWithAllTypesOfMaterials("pipeline-name", "stage-name", "job-name");
+        Pipeline pipeline = PipelineMother.pipelineWithAllTypesOfMaterials("pipeline-name", "stage-name", "job-name", "1");
         List<MaterialRevision> materialRevisions = pipeline.getMaterialRevisions().getRevisions();
         PackageDefinition packageDefinition = ((PackageMaterial) materialRevisions.get(6).getMaterial()).getPackageDefinition();
         packageDefinition.getRepository().getConfiguration().get(1).handleSecureValueConfiguration(true);

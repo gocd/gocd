@@ -577,6 +577,10 @@ public class JobInstance extends PersistentObject implements Serializable, Compa
         return new RunDuration.ActualDuration(new Duration(completedTime.getTime() - scheduleStartTime.getTime()));
     }
 
+    public Date getAssignedDate() {
+        return getStartedDateFor(JobState.Assigned);
+    }
+
     public Date getCompletedDate() {
         return getStartedDateFor(JobState.Completed);
     }

@@ -22,6 +22,7 @@ import com.thoughtworks.go.plugin.access.common.settings.AbstractExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.access.notification.v1.JsonMessageHandler1_0;
+import com.thoughtworks.go.plugin.access.notification.v2.JsonMessageHandler2_0;
 import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,20 +37,24 @@ import static java.util.Arrays.asList;
 @Component
 public class NotificationExtension extends AbstractExtension {
     public static final String EXTENSION_NAME = "notification";
-    private static final List<String> goSupportedVersions = asList("1.0");
+    static final List<String> goSupportedVersions = asList("1.0", "2.0");
 
-    public static final String REQUEST_NOTIFICATIONS_INTERESTED_IN = "notifications-interested-in";
+    static final String REQUEST_NOTIFICATIONS_INTERESTED_IN = "notifications-interested-in";
     public static final String STAGE_STATUS_CHANGE_NOTIFICATION = "stage-status";
 
-    public static final List<String> VALID_NOTIFICATION_TYPES = asList(STAGE_STATUS_CHANGE_NOTIFICATION);
+    static final List<String> VALID_NOTIFICATION_TYPES = asList(STAGE_STATUS_CHANGE_NOTIFICATION);
 
     private Map<String, JsonMessageHandler> messageHandlerMap = new HashMap<>();
 
     @Autowired
     public NotificationExtension(PluginManager pluginManager) {
         super(pluginManager, new PluginRequestHelper(pluginManager, goSupportedVersions, EXTENSION_NAME), EXTENSION_NAME);
+
         pluginSettingsMessageHandlerMap.put("1.0", new PluginSettingsJsonMessageHandler1_0());
-        this.messageHandlerMap.put("1.0", new JsonMessageHandler1_0());
+        messageHandlerMap.put("1.0", new JsonMessageHandler1_0());
+
+        pluginSettingsMessageHandlerMap.put("2.0", new PluginSettingsJsonMessageHandler1_0()); /* No change. */
+        messageHandlerMap.put("2.0", new JsonMessageHandler2_0());
     }
 
     public List<String> getNotificationsOfInterestFor(String pluginId) {

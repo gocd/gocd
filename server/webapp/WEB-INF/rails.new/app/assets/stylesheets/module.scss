@@ -264,6 +264,7 @@ input.new_resource {
 .agents_table tr.agent_instance td.resources,
 .agents_table tr.agent_instance th.resources {
     width: 20%;
+    line-height:20px;
 }
 
 .agents_table tr.agent_instance td.environments,

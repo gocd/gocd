@@ -16,17 +16,18 @@
 
 package com.thoughtworks.go.server.messaging.activemq;
 
-import java.util.ArrayList;
-import java.util.List;
-import javax.jms.JMSException;
-
 import com.thoughtworks.go.server.messaging.*;
+import com.thoughtworks.go.server.service.support.DaemonThreadStatsCollector;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import javax.jms.JMSException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -43,8 +44,7 @@ public class ActiveMqTest implements GoMessageListener {
 
     @Before
     public void setUp() throws Exception {
-        messaging = new ActiveMqMessagingService(null);
-
+        messaging = new ActiveMqMessagingService(new DaemonThreadStatsCollector());
     }
 
     @After

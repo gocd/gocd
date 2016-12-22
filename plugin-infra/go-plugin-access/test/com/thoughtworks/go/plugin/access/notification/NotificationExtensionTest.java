@@ -1,24 +1,28 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.plugin.access.notification;
 
+import com.thoughtworks.go.domain.Stage;
+import com.thoughtworks.go.domain.notificationdata.StageNotificationData;
+import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfiguration;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConstants;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
+import com.thoughtworks.go.plugin.access.notification.v1.JsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.api.response.Result;
@@ -30,9 +34,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertSame;
@@ -44,7 +46,6 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 public class NotificationExtensionTest {
     public static final String PLUGIN_ID = "plugin-id";
-    public static final Map REQUEST_BODY = new HashMap();
     public static final String RESPONSE_BODY = "expected-response";
 
     @Mock
@@ -61,8 +62,6 @@ public class NotificationExtensionTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-
-        REQUEST_BODY.put("key", "value");
 
         notificationExtension = new NotificationExtension(pluginManager);
         notificationExtension.getPluginSettingsMessageHandlerMap().put("1.0", pluginSettingsJSONMessageHandler);
@@ -131,10 +130,11 @@ public class NotificationExtensionTest {
         Result response = new Result();
         String notificationName = "notification-name";
         String jsonResponse = "json-response";
-        when(jsonMessageHandler.requestMessageForNotify(notificationName, REQUEST_BODY)).thenReturn(jsonResponse);
+        StageNotificationData stageNotificationData = new StageNotificationData(new Stage(), BuildCause.createWithEmptyModifications(), "group");
+        when(jsonMessageHandler.requestMessageForNotify(stageNotificationData)).thenReturn(jsonResponse);
         when(jsonMessageHandler.responseMessageForNotify(RESPONSE_BODY)).thenReturn(response);
 
-        Result deserializedResponse = notificationExtension.notify(PLUGIN_ID, notificationName, REQUEST_BODY);
+        Result deserializedResponse = notificationExtension.notify(PLUGIN_ID, notificationName, stageNotificationData);
 
         assertRequest(requestArgumentCaptor.getValue(), NotificationExtension.EXTENSION_NAME, "1.0", notificationName, jsonResponse);
         verify(jsonMessageHandler).responseMessageForNotify(RESPONSE_BODY);

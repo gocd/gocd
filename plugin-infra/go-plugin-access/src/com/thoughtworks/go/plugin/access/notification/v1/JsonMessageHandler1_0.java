@@ -1,24 +1,27 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
-package com.thoughtworks.go.plugin.access.notification;
+package com.thoughtworks.go.plugin.access.notification.v1;
 
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.thoughtworks.go.domain.notificationdata.StageNotificationData;
+import com.thoughtworks.go.plugin.access.notification.DataConverter;
+import com.thoughtworks.go.plugin.access.notification.JsonMessageHandler;
 import com.thoughtworks.go.plugin.api.response.Result;
+import org.apache.commons.lang.NotImplementedException;
 
 import java.util.*;
 
@@ -63,9 +66,15 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
     }
 
     @Override
-    public String requestMessageForNotify(String requestName, Map requestMap) {
-        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-        return gson.toJson(requestMap);
+    public <T> String requestMessageForNotify(T data) {
+        return getConverter(data).createRequest();
+    }
+
+    private <T> DataConverter getConverter(T data) {
+        if (data instanceof StageNotificationData) {
+            return new StageConverter((StageNotificationData) data);
+        }
+        throw new NotImplementedException(String.format("Converter for %s not supported", data.getClass().getCanonicalName()));
     }
 
     @Override

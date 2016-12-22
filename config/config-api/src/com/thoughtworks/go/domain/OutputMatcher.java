@@ -18,7 +18,9 @@ package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.ConfigInterface;
 
+import java.io.Serializable;
+
 @ConfigInterface //does this need to be a config interface?  none of its implementers are config elements.
-public interface OutputMatcher {//make validatable if needs to be used in the config
+public interface OutputMatcher extends Serializable {//make validatable if needs to be used in the config
     String match(CharSequence output);
 }

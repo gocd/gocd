@@ -17,6 +17,7 @@
 package com.thoughtworks.go.domain;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -31,7 +32,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.lang.StringUtils;
 
-public class JobInstanceLog {
+public class JobInstanceLog implements Serializable {
     private LogFile logFile;
     private Map props;
 

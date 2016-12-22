@@ -16,15 +16,14 @@
 
 package com.thoughtworks.go.plugin.access.notification;
 
-import com.thoughtworks.go.plugin.api.response.Result;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
-import java.util.List;
-import java.util.Map;
+public abstract class DataConverter<T> {
+    protected abstract T transformData();
 
-public interface JsonMessageHandler {
-    List<String> responseMessageForNotificationsInterestedIn(String responseBody);
-
-    <T> String requestMessageForNotify(T data);
-
-    Result responseMessageForNotify(String responseBody);
+    public String createRequest() {
+        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().serializeNulls().create();
+        return gson.toJson(this.transformData());
+    }
 }

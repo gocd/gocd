@@ -22,6 +22,8 @@ dependencies {
   compile project(':plugin-metadata-store')
   compile group: 'com.bazaarvoice.jolt', name: 'jolt-core', version: '0.0.20'
   compile group: 'com.bazaarvoice.jolt', name: 'json-utils', version: '0.0.20'
+  compileOnly(group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47')
   testCompile group: 'org.skyscreamer', name: 'jsonassert', version: '1.2.3'
   testCompile project(':test-utils')
+  testCompile project(path: ':domain', configuration: 'testOutput')
 }

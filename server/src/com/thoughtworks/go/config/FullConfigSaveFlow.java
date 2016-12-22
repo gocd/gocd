@@ -71,16 +71,12 @@ public abstract class FullConfigSaveFlow {
 
     public abstract GoConfigHolder execute(FullConfigUpdateCommand updatingCommand, List<PartialConfig> partials, String currentUser) throws Exception;
 
-    protected void postValidationUpdates(CruiseConfig preProcessedConfig, CruiseConfig configForEdit, String xmlString, List<PartialConfig> partials) throws NoSuchFieldException, IllegalAccessException {
+    protected void postValidationUpdates(CruiseConfig configForEdit, String xmlString) throws NoSuchFieldException, IllegalAccessException {
         String md5 = CachedDigestUtils.md5Hex(xmlString);
 
         configForEdit.setOrigins(new FileConfigOrigin());
-        preProcessedConfig.setOrigins(new FileConfigOrigin());
 
-        MagicalGoConfigXmlLoader.setMd5(preProcessedConfig, md5);
         MagicalGoConfigXmlLoader.setMd5(configForEdit, md5);
-
-        cachedGoPartials.markAsValid(partials);
     }
 
     protected String toXmlString(CruiseConfig configForEdit) throws Exception {

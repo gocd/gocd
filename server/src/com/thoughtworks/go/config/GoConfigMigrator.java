@@ -35,6 +35,9 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.util.ArrayList;
 
+/*
+GoConfigMigrator is responsible to migrate the config xml to the latest version, this is called at server startup.
+*/
 @Component
 public class GoConfigMigrator {
     private final GoConfigMigration goConfigMigration;
@@ -92,6 +95,7 @@ public class GoConfigMigrator {
         try {
             return upgradeConfigFile();
         } catch (Exception e) {
+            LOGGER.warn("Error upgrading config file, trying to upgrade using the versioned config file.");
             return upgradeVersionedConfigFile(e);
         }
     }
@@ -99,14 +103,14 @@ public class GoConfigMigrator {
     private GoConfigHolder upgradeConfigFile() throws Exception {
         String upgradedXml = this.goConfigMigration.upgradeIfNecessary(this.goConfigFileReader.configXml());
 
+        LOGGER.info("[Config Save] Starting Config Save post upgrade using FullConfigSaveNormalFlow");
+
         CruiseConfig cruiseConfig = this.loader.deserializeConfig(upgradedXml);
 
         return fullConfigSaveNormalFlow.execute(new FullConfigUpdateCommand(cruiseConfig, null), new ArrayList<>(), "Upgrade");
     }
 
     private GoConfigHolder upgradeVersionedConfigFile(Exception originalException) throws Exception {
-        LOGGER.warn("Error upgrading config file, trying to upgrade using the versioned config file.");
-
         GoConfigRevision currentConfigRevision = configRepository.getCurrentRevision();
         if(currentConfigRevision == null) {
             LOGGER.warn("There is no versioned configuration to fallback for migration.");

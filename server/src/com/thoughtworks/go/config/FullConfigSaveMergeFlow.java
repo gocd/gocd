@@ -33,6 +33,11 @@ import java.util.List;
 
 import static java.lang.String.format;
 
+/*
+Given a CruiseConfig object, FullConfigSaveMergeFlow updates the config by merging with existing config in repo and by orchestrating the required steps from preprocessing,
+validating to writing the config in appropriate locations.
+*/
+
 @Component
 public class FullConfigSaveMergeFlow extends FullConfigSaveFlow{
     @Autowired
@@ -84,7 +89,7 @@ public class FullConfigSaveMergeFlow extends FullConfigSaveFlow{
                 }
             });
         } catch (Exception e) {
-            LOGGER.info(format("[CONFIG_MERGE] Post merge validation failed"));
+            LOGGER.debug("[CONFIG_MERGE] Post merge validation failed");
             throw new ConfigMergePostValidationException(e.getMessage(), e);
         }
     }
@@ -97,17 +102,17 @@ public class FullConfigSaveMergeFlow extends FullConfigSaveFlow{
     }
 
     private String toXmlString(CruiseConfig configForEdit, String md5) {
-        LOGGER.info(format("[CONFIG_MERGE] Validating and serializing CruiseConfig to xml before merge: Starting"));
+        LOGGER.debug("[CONFIG_MERGE] Validating and serializing CruiseConfig to xml before merge: Starting");
         String configForEditXml;
 
         try {
             preprocessAndValidate(configForEdit);
             configForEditXml = toXmlString(configForEdit);
         } catch (Exception e) {
-            LOGGER.info(format("[CONFIG_MERGE] Pre merge validation failed, latest-md5: %s", md5));
+            LOGGER.debug("[CONFIG_MERGE] Pre merge validation failed, latest-md5: {}", md5);
             throw new ConfigMergePreValidationException(e.getMessage(), e);
         }
-        LOGGER.info(format("[CONFIG_MERGE] Validating and serializing CruiseConfig to xml before merge: Done"));
+        LOGGER.debug("[CONFIG_MERGE] Validating and serializing CruiseConfig to xml before merge: Done");
 
         return configForEditXml;
     }

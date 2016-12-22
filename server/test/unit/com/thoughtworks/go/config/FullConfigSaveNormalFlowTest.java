@@ -29,6 +29,7 @@ import org.jdom.Document;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -37,6 +38,7 @@ import java.util.List;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.inOrder;
 
 public class FullConfigSaveNormalFlowTest {
     private MagicalGoConfigXmlLoader loader;
@@ -145,15 +147,18 @@ public class FullConfigSaveNormalFlowTest {
     }
 
     @Test
-    public void shouldUpdateCachedGoPartialsWithValidPartials() throws Exception {
+    public void shouldUpdateCachedGoPartialsWithValidPartialsPostAllSteps() throws Exception {
         String configAsXml = "cruise config as xml";
 
         when(writer.documentFrom(configForEdit)).thenReturn(document);
         when(writer.toString(document)).thenReturn(configAsXml);
         when(loader.preprocessAndValidate(configForEdit)).thenReturn(new BasicCruiseConfig());
+        InOrder inOrder = inOrder(configRepository, fileWriter, cachedGoPartials);
 
         flow.execute(updateConfigCommand, partials, null);
 
-        verify(cachedGoPartials).markAsValid(partials);
+        inOrder.verify(configRepository).checkin(any(GoConfigRevision.class));
+        inOrder.verify(fileWriter).writeToConfigXmlFile(any(String.class));
+        inOrder.verify(cachedGoPartials).markAsValid(partials);
     }
 }

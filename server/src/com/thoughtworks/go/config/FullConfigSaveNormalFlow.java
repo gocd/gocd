@@ -28,6 +28,10 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+/*
+Given a CruiseConfig object, FullConfigSaveNormalFlow updates the config by orchestrating the required steps from preprocessing,
+validating to writing the config in appropriate locations.
+*/
 @Component
 public class FullConfigSaveNormalFlow extends FullConfigSaveFlow {
 
@@ -53,11 +57,11 @@ public class FullConfigSaveNormalFlow extends FullConfigSaveFlow {
 
         CruiseConfig configForEdit = configForEditWithPartials(updatingCommand, partials);
 
-        CruiseConfig preProcessedConfig = preprocessAndValidate(configForEdit);
-
         String configForEditXmlString = toXmlString(configForEdit);
 
-        postValidationUpdates(preProcessedConfig, configForEdit, configForEditXmlString, partials);
+        postValidationUpdates(configForEdit, configForEditXmlString);
+
+        CruiseConfig preProcessedConfig = preprocessAndValidate(configForEdit);
 
         checkinToConfigRepo(currentUser, configForEdit, configForEditXmlString);
 
@@ -66,6 +70,8 @@ public class FullConfigSaveNormalFlow extends FullConfigSaveFlow {
         GoConfigHolder goConfigHolder = new GoConfigHolder(preProcessedConfig, configForEdit);
 
         setMergedConfigForEditOn(goConfigHolder, partials);
+
+        cachedGoPartials.markAsValid(partials);
 
         LOGGER.debug("[Config Save] Done Config Save using FullConfigSaveNormalFlow");
 

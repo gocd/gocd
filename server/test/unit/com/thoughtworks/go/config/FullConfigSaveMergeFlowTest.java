@@ -31,6 +31,7 @@ import org.jdom.Document;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -220,9 +221,12 @@ public class FullConfigSaveMergeFlowTest {
         when(writer.toString(document)).thenReturn("cruise_config");
         when(loader.loadConfigHolder(any(String.class), any(MagicalGoConfigXmlLoader.Callback.class)))
                 .thenReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
+        InOrder inOrder = inOrder(configRepository, fileWriter, cachedGoPartials);
 
         flow.execute(updateConfigCommand, partials, null);
 
-        verify(cachedGoPartials).markAsValid(partials);
+        inOrder.verify(configRepository).checkin(any(GoConfigRevision.class));
+        inOrder.verify(fileWriter).writeToConfigXmlFile(any(String.class));
+        inOrder.verify(cachedGoPartials).markAsValid(partials);
     }
 }

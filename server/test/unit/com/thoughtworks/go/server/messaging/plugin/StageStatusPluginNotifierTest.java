@@ -88,6 +88,7 @@ public class StageStatusPluginNotifierTest {
         assertThat((String) pipelineMap.get("counter"), is("1"));
 
         assertThat((String) pipelineMap.get("group"), is("pipeline-group"));
+        assertThat((String) pipelineMap.get("label"), is ("LABEL-1"));
 
         List revisionsList = (List) pipelineMap.get("build-cause");
         Map gitRevisionMap = (Map) revisionsList.get(0);

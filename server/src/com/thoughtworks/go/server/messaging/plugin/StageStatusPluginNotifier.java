@@ -73,17 +73,19 @@ public class StageStatusPluginNotifier implements StageStatusListener {
         Map<String, Object> data = new LinkedHashMap<>();
         String pipelineName = stage.getIdentifier().getPipelineName();
         Integer pipelineCounter = new Integer(stage.getIdentifier().getPipelineCounter());
+        String pipelineLabel = stage.getIdentifier().getPipelineLabel();
 
-        Map<String, Object> pipelineMap = createPipelineDataMap(pipelineName, pipelineCounter, stage);
+        Map<String, Object> pipelineMap = createPipelineDataMap(pipelineName, pipelineCounter, stage, pipelineLabel);
         data.put("pipeline", pipelineMap);
 
         return data;
     }
 
-    private Map<String, Object> createPipelineDataMap(String pipelineName, Integer pipelineCounter, Stage stage) {
+    private Map<String, Object> createPipelineDataMap(String pipelineName, Integer pipelineCounter, Stage stage, String pipelineLabel) {
         Map<String, Object> pipelineMap = new LinkedHashMap<>();
         pipelineMap.put("name", pipelineName);
         pipelineMap.put("counter", pipelineCounter.toString());
+        pipelineMap.put("label", pipelineLabel);
 
         String pipelineGroup = goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName));
         pipelineMap.put("group", pipelineGroup);

@@ -24,7 +24,7 @@ define(['mithril', 'helpers/form_helper', 'views/pipeline_configs/errors_widget'
       controller: function (args) {
 
         var ctrl = {
-          vm:           args.vm,
+          vm:                     args.vm,
           checkPackageConnection: function () {
             //TODO : Have an API for checking the repository connection and make the request from here.
           }
@@ -56,16 +56,19 @@ define(['mithril', 'helpers/form_helper', 'views/pipeline_configs/errors_widget'
                 <f.checkBox attrName="autoUpdate"
                             model={args.packageForEdit()}
                             class="align"
-                            size={6} />
+                            size={6}/>
               </f.row>
 
-              {args.packageForEdit().configuration().mapConfigurations(function(configuration) {
-                return (<PackageConfigurationWidget configuration={configuration} />);
+              {args.packageForEdit().configuration().mapConfigurations(function (configuration) {
+                return (<PackageConfigurationWidget configuration={configuration}/>);
               })}
 
               <f.row>
-                <f.button onclick={ctrl.checkPackageConnection}>Check Package Connection</f.button>
+                <f.column size={12}>
+                  <f.button class="secondary" onclick={ctrl.checkPackageConnection}>Check Package Connection</f.button>
+                </f.column>
               </f.row>
+
 
             </div>
           </div>

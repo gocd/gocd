@@ -256,12 +256,12 @@ define(["jquery", "mithril", "lodash", "views/pipeline_configs/package_repositor
         var editRepositoryBox = $root.find('.repository');
         expect($(editRepositoryBox).find('button')).toExist();
 
-        var editRepositoryLabelNames = _.map($(editRepositoryBox).find('label'), function (label) {
-          return $(label).text();
+        var editRepositoryLabelNames = _.map($(editRepositoryBox).find('dt'), function (dt) {
+          return $(dt).text();
         });
 
-        var editRepositoryInformation = _.map($(editRepositoryBox).find('span'), function (span) {
-          return $(span).text();
+        var editRepositoryInformation = _.map($(editRepositoryBox).find('dd'), function (dd) {
+          return $(dd).text();
         });
 
         expect(editRepositoryLabelNames).toEqual(['Name', 'Plugin', 'Repo_url', 'Username', 'Password']);
@@ -298,12 +298,12 @@ define(["jquery", "mithril", "lodash", "views/pipeline_configs/package_repositor
         var editRepositoryBox = $root.find('.repository');
         expect($(editRepositoryBox).find('button')).toExist();
 
-        var editRepositoryLabelNames = _.map($(editRepositoryBox).find('label'), function (label) {
-          return $(label).text();
+        var editRepositoryLabelNames = _.map($(editRepositoryBox).find('dt'), function (dt) {
+          return $(dt).text();
         });
 
-        var editRepositoryInformation = _.map($(editRepositoryBox).find('span'), function (span) {
-          return $(span).text();
+        var editRepositoryInformation = _.map($(editRepositoryBox).find('dd'), function (dd) {
+          return $(dd).text();
         });
 
         expect(editRepositoryLabelNames).toEqual(['Name', 'Plugin', 'Repo_url', 'Username', 'Password']);
@@ -314,12 +314,12 @@ define(["jquery", "mithril", "lodash", "views/pipeline_configs/package_repositor
         m.redraw(true);
 
         editRepositoryBox            = $root.find('.repository');
-        editRepositoryLabelNames = _.map($(editRepositoryBox).find('label'), function (label) {
-          return $(label).text();
+        editRepositoryLabelNames = _.map($(editRepositoryBox).find('dt'), function (dt) {
+          return $(dt).text();
         });
 
-        editRepositoryInformation = _.map($(editRepositoryBox).find('span'), function (span) {
-          return $(span).text();
+        editRepositoryInformation = _.map($(editRepositoryBox).find('dd'), function (dd) {
+          return $(dd).text();
         });
 
         expect(editRepositoryLabelNames).toEqual(['Name', 'Plugin', 'Repo_url', 'Username', 'Password']);

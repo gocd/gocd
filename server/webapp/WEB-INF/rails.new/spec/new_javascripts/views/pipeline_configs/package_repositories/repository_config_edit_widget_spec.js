@@ -64,8 +64,8 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/reposi
       });
 
       it("should show the repository plugin information", function () {
-        var typeOfPlugin = $root.find(".modal-body .key-value span");
-        expect(typeOfPlugin).toHaveText('deb');
+        var typeOfPlugin = $root.find(".modal-body p");
+        expect(typeOfPlugin).toContainText('deb');
       });
 
       it('should change the repository model on changing the repository name', function () {

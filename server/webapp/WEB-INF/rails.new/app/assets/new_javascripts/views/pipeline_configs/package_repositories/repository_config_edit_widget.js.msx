@@ -28,6 +28,15 @@ define(['mithril', 'helpers/form_helper', 'views/pipeline_configs/errors_widget'
               {errors}
             </div>
             <div class='modal-body'>
+              <f.row size={6}>
+                <f.column size={12}>
+                  <p>
+                    <strong>Type of plugin - </strong>
+                    {args.repoForEdit().pluginMetadata().id()}
+                  </p>
+                </f.column>
+              </f.row>
+
               <f.row>
                 <f.inputWithLabel attrName='name'
                                   class='align'
@@ -39,13 +48,8 @@ define(['mithril', 'helpers/form_helper', 'views/pipeline_configs/errors_widget'
                                   model={args.repoForEdit()}/>
               </f.row>
 
-              <f.row class='key-value' size={6}>
-                <label>Type of plugin</label>
-                <span>{args.repoForEdit().pluginMetadata().id()}</span>
-              </f.row>
-
-              {args.repoForEdit().configuration().mapConfigurations(function(configuration) {
-                return (<RepositoryConfigurationWidget configuration={configuration} />);
+              {args.repoForEdit().configuration().mapConfigurations(function (configuration) {
+                return (<RepositoryConfigurationWidget configuration={configuration}/>);
               }, this)}
 
             </div>

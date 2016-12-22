@@ -65,7 +65,9 @@ define(['mithril', 'helpers/form_helper', 'models/pipeline_configs/packages', 'v
               })}
 
               <f.row>
-                <f.button onclick={ctrl.checkPackageConnection}>Check Package Connection</f.button>
+                <f.column size={12}>
+                  <f.button class="secondary" onclick={ctrl.checkPackageConnection}>Check Package Connection</f.button>
+                </f.column>
               </f.row>
 
             </div>

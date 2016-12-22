@@ -59,16 +59,6 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
               {errors}
             </div>
             <div class='modal-body'>
-              <f.row>
-                <f.inputWithLabel attrName='name'
-                                  class='align'
-                                  size={12}
-                                  largeSize={12}
-                                  validate={true}
-                                  isRequired={true}
-                                  model={repoForEdit()}/>
-              </f.row>
-
               <f.row class='repo-selector'>
                 <f.select
                   value={ctrl.plugin}
@@ -80,6 +70,16 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
                   model={ctrl}
                   onchange={ctrl.selectPlugin.bind(ctrl, ctrl.plugin())}
                 />
+              </f.row>
+
+              <f.row>
+                <f.inputWithLabel attrName='name'
+                                  class='align'
+                                  size={12}
+                                  largeSize={12}
+                                  validate={true}
+                                  isRequired={true}
+                                  model={repoForEdit()}/>
               </f.row>
 
               {repoForEdit().configuration().mapConfigurations(function (configuration) {

@@ -219,3 +219,12 @@
     margin-top: 25px;
   }
 }
+
+.add-repository, .edit-repository {
+  .modal-buttons {
+    .button {
+      float: left;
+      clear: both;
+    }
+  }
+}

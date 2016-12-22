@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipeline_configs/encrypted_value', 'models/pipeline_configs/scms',
-  'models/validatable_mixin', 'js-routes'], function (m, _, s, Mixins, EncryptedValue, SCMs, Validatable, Routes) {
+define([
+  'mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipeline_configs/encrypted_value', 'models/pipeline_configs/scms',
+  'models/pipeline_configs/packages', 'models/pipeline_configs/repositories', 'models/validatable_mixin', 'js-routes'
+], function (m, _, s, Mixins, EncryptedValue, SCMs, Packages, Repositories, Validatable, Routes) {
 
   function plainOrCipherValue(data) {
     if (data.encryptedPassword) {
@@ -32,8 +34,8 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
 
   Materials.create = function (data) {
     return Materials.isBuiltInType(data.type) ? new Materials.Types[data.type].type(data)
-                                              : data.type === 'package' ? new Materials.Material.PackageMaterial(data)
-                                              : new Materials.Material.PluggableMaterial(data) ;
+      : data.type === 'package' ? new Materials.Material.PackageMaterial(data)
+      : new Materials.Material.PluggableMaterial(data);
   };
 
   Materials.Filter = function (data) {
@@ -73,8 +75,8 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     this.constructor.modelType = 'material';
     Mixins.HasUUID.call(this);
     Validatable.call(this, data);
-    this.parent           = Mixins.GetterSetter();
-    this.type             = m.prop(type);
+    this.parent = Mixins.GetterSetter();
+    this.type   = m.prop(type);
 
     if (hasFilter) {
       this.filter = m.prop(s.defaultToIfBlank(data.filter, new Materials.Filter(s.defaultToIfBlank(data.filter, {}))));
@@ -98,7 +100,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     this.testConnection = function (pipelineName) {
       var self = this;
 
-      var xhrConfig = function(xhr) {
+      var xhrConfig = function (xhr) {
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.setRequestHeader("Accept", "application/vnd.go.cd.v1+json");
       };
@@ -129,11 +131,11 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
       throw new Error("Subclass responsibility!");
     };
 
-    this._passwordHash = function() {
+    this._passwordHash = function () {
       if (this.isPlainPasswordValue() || this.isDirtyPasswordValue()) {
-        return { password: this.passwordValue() };
+        return {password: this.passwordValue()};
       }
-      return { encryptedPassword: this.passwordValue() };
+      return {encryptedPassword: this.passwordValue()};
     };
   };
 
@@ -152,7 +154,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
     var _password       = m.prop(plainOrCipherValue(data));
     this.checkExternals = m.prop(data.checkExternals);
     this.autoUpdate     = m.prop(s.defaultToIfBlank(data.autoUpdate, true));
-    this.invertFilter = m.prop(s.defaultToIfBlank(data.invertFilter, false));
+    this.invertFilter   = m.prop(s.defaultToIfBlank(data.invertFilter, false));
     Mixins.HasEncryptedAttribute.call(this, {attribute: _password, name: 'passwordValue'});
 
     this.validatePresenceOf('url');
@@ -212,7 +214,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
         branch:        this.branch(),
         shallow_clone: this.shallowClone(),
         auto_update:   this.autoUpdate(),
-        invert_filter:  this.invertFilter()
+        invert_filter: this.invertFilter()
       };
       /* eslint-enable camelcase */
     };
@@ -274,14 +276,14 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
 
   Materials.Material.Perforce = function (data) {
     Materials.Material.call(this, "p4", true, data);
-    this.name        = m.prop(s.defaultToIfBlank(data.name, ''));
-    this.destination = m.prop(s.defaultToIfBlank(data.destination, ''));
-    this.port        = m.prop(s.defaultToIfBlank(data.port, ''));
-    this.username    = m.prop(s.defaultToIfBlank(data.username, ''));
-    var _password    = m.prop(plainOrCipherValue(data));
-    this.view        = m.prop(s.defaultToIfBlank(data.view, ''));
-    this.useTickets  = m.prop(data.useTickets);
-    this.autoUpdate  = m.prop(s.defaultToIfBlank(data.autoUpdate, true));
+    this.name         = m.prop(s.defaultToIfBlank(data.name, ''));
+    this.destination  = m.prop(s.defaultToIfBlank(data.destination, ''));
+    this.port         = m.prop(s.defaultToIfBlank(data.port, ''));
+    this.username     = m.prop(s.defaultToIfBlank(data.username, ''));
+    var _password     = m.prop(plainOrCipherValue(data));
+    this.view         = m.prop(s.defaultToIfBlank(data.view, ''));
+    this.useTickets   = m.prop(data.useTickets);
+    this.autoUpdate   = m.prop(s.defaultToIfBlank(data.autoUpdate, true));
     this.invertFilter = m.prop(s.defaultToIfBlank(data.invertFilter, false));
     Mixins.HasEncryptedAttribute.call(this, {attribute: _password, name: 'passwordValue'});
 
@@ -437,17 +439,29 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipel
   };
 
   Materials.Material.PackageMaterial = function (data) {
+
+    var initializeRepo = function (repo) {
+      Packages.findById(data.ref).then(function (packageMaterial) {
+        Repositories.findById(packageMaterial.packageRepo().id()).then(function (repository) {
+          repo(repository);
+        });
+      });
+    };
     Materials.Material.call(this, "package", true, data);
     this.repository = m.prop(data.repository);
-    this.name = m.prop('');
-    this.package = m.prop(data.package);
-    this.ref  = m.prop(data.ref);
+    this.name       = m.prop('');
+    this.package    = m.prop(data.package);
+    this.ref        = m.prop(data.ref);
 
     this._attributesToJSON = function () {
       return {
         ref: this.ref()
       };
     };
+
+    if (data.ref) {
+      initializeRepo(this.repository);
+    }
   };
 
   Materials.Material.PackageMaterial.fromJSON = function (data) {

@@ -236,11 +236,15 @@ define(["jquery", "mithril", "lodash", "views/pipeline_configs/package_repositor
       });
     };
 
+    var repositoryVM = {
+      packageId: m.prop()
+    };
     var mount = function (material) {
       m.mount(root,
         m.component(PackageConfigWidget,
           {
-            'material': material
+            'material': material,
+            repositoryVM:repositoryVM
           })
       );
       m.redraw(true);
@@ -300,6 +304,7 @@ define(["jquery", "mithril", "lodash", "views/pipeline_configs/package_repositor
       var pluginInfo      = new PluginInfos.PluginInfo(debPluginInfoJSON);
       pkgMaterial.repository(repository);
       pkgMaterial.ref(packageMaterial.id());
+      pkgMaterial.package(packageMaterial);
       Repositories([repository]);
       PluginInfos([pluginInfo]);
       mount(pkgMaterial);
@@ -329,12 +334,12 @@ define(["jquery", "mithril", "lodash", "views/pipeline_configs/package_repositor
         var editRepositoryBox = $root.find('.package');
         expect($(editRepositoryBox).find('button')).toExist();
 
-        var editRepositoryLabelNames = _.map($(editRepositoryBox).find('label'), function (label) {
-          return $(label).text();
+        var editRepositoryLabelNames = _.map($(editRepositoryBox).find('dt'), function (dt) {
+          return $(dt).text();
         });
 
-        var editRepositoryInformation = _.map($(editRepositoryBox).find('span'), function (span) {
-          return $(span).text();
+        var editRepositoryInformation = _.map($(editRepositoryBox).find('dd'), function (dd) {
+          return $(dd).text();
         });
 
         expect(editRepositoryLabelNames).toEqual(['Name', 'AutoUpdate', 'Package_name', 'Version_spec', 'Architecture']);
@@ -344,8 +349,7 @@ define(["jquery", "mithril", "lodash", "views/pipeline_configs/package_repositor
 
       it('should have the first package selected by default in the package dropdown', function () {
         setMaterialWithPackage();
-        var packageInformation = $root.find('.package-selector');
-        var defaultSelection   = $(packageInformation).find("select[data-prop-name='defaultPackageId']");
+        var defaultSelection   = $root.find("select[data-prop-name='defaultPackageId']");
 
         expect(defaultSelection).toHaveValue('packageId');
       });
@@ -353,48 +357,46 @@ define(["jquery", "mithril", "lodash", "views/pipeline_configs/package_repositor
 
       it('should change the package on selection in the package dropdown', function () {
         setMaterialWithPackage();
-        var packageInfo      = $root.find('.package-selector');
-        var defaultSelection = $(packageInfo).find("select[data-prop-name='defaultPackageId']");
+        var defaultSelection = $root.find("select[data-prop-name='defaultPackageId']");
         expect(defaultSelection).toHaveValue('packageId');
 
 
         $(defaultSelection).val('secondPackageId');
         m.redraw(true);
 
-        defaultSelection = $(packageInfo).find("select[data-prop-name='defaultPackageId']");
+        defaultSelection = $root.find("select[data-prop-name='defaultPackageId']");
         expect($(defaultSelection).find("option:selected")).toHaveText('secondPackageName');
       });
 
       it('should change the edit package information on change of package selector', function () {
 
         setMaterialWithPackage();
-        var packageInfo       = $root.find('.package-selector');
         var editRepositoryBox = $root.find('.package');
         expect($(editRepositoryBox).find('button')).toExist();
 
-        var editRepositoryLabelNames = _.map($(editRepositoryBox).find('label'), function (label) {
-          return $(label).text();
+        var editRepositoryLabelNames = _.map($(editRepositoryBox).find('dt'), function (dt) {
+          return $(dt).text();
         });
 
-        var editRepositoryInformation = _.map($(editRepositoryBox).find('span'), function (span) {
-          return $(span).text();
+        var editRepositoryInformation = _.map($(editRepositoryBox).find('dd'), function (dd) {
+          return $(dd).text();
         });
 
         expect(editRepositoryLabelNames).toEqual(['Name', 'AutoUpdate', 'Package_name', 'Version_spec', 'Architecture']);
         expect(editRepositoryInformation).toEqual(['packageName', 'false', 'plugin', 'version', 'jar']);
 
 
-        var defaultSelection = $(packageInfo).find("select[data-prop-name='defaultPackageId']");
+        var defaultSelection = $root.find("select[data-prop-name='defaultPackageId']");
         $(defaultSelection).val('secondPackageId').trigger('change');
         m.redraw(true);
 
         editRepositoryBox        = $root.find('.package');
-        editRepositoryLabelNames = _.map($(editRepositoryBox).find('label'), function (label) {
-          return $(label).text();
+        editRepositoryLabelNames = _.map($(editRepositoryBox).find('dt'), function (dt) {
+          return $(dt).text();
         });
 
-        editRepositoryInformation = _.map($(editRepositoryBox).find('span'), function (span) {
-          return $(span).text();
+        editRepositoryInformation = _.map($(editRepositoryBox).find('dd'), function (dd) {
+          return $(dd).text();
         });
 
         expect(editRepositoryLabelNames).toEqual(['Name', 'AutoUpdate', 'Package_name', 'Version_spec', 'Architecture']);
@@ -436,7 +438,7 @@ define(["jquery", "mithril", "lodash", "views/pipeline_configs/package_repositor
           var saveButton = $.find('.reveal:visible .modal-buttons .save');
           $(saveButton).click();
           m.redraw(true);
-          requestArgs = m.request.calls.all()[2].args[0];
+          requestArgs = m.request.calls.all()[1].args[0];
           expect(requestArgs.url).toBe('/go/api/admin/packages');
           expect(requestArgs.method).toBe('POST');
         });
@@ -448,7 +450,7 @@ define(["jquery", "mithril", "lodash", "views/pipeline_configs/package_repositor
           var saveButton = $.find('.reveal:visible .modal-buttons .save');
           $(saveButton).click();
           m.redraw(true);
-          requestArgs = m.request.calls.all()[1].args[0];
+          requestArgs = m.request.calls.all()[0].args[0];
 
           expect(requestArgs.url).toBe('/go/api/admin/packages/packageId');
           expect(requestArgs.method).toBe('PUT');

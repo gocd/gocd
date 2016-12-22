@@ -158,15 +158,16 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/reposi
     describe("Repository New Widget", function () {
       it("should have input for repository name", function () {
         var modal = $root.find('.modal-content');
+        debugger;
         expect(modal).toContainElement("input[data-prop-name='name']");
         var labels = $(modal).find('label');
-        expect(labels[0]).toContainText("Name");
+        expect(labels[1]).toContainText("Name");
       });
 
       it("should have a dropdown for repository plugins", function () {
         var selector = $root.find(".modal-content select[data-prop-name='plugin']");
         var labels   = $root.find('.modal-content label');
-        expect(labels[1]).toContainText("Type of plugin");
+        expect(labels[0]).toContainText("Type of plugin");
         var options = $(selector).find('option');
         expect(options[0]).toHaveText('Deb plugin');
         expect(options[1]).toHaveText('Npm plugin');

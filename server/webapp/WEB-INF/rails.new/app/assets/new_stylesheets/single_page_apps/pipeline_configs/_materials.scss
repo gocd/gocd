@@ -22,6 +22,9 @@
     textarea {
       min-height: 98px;
     }
+    .add-button {
+      margin-top: 1px;
+    }
   }
 
   .edit-secure-password {
@@ -106,6 +109,18 @@
   .callout {
     margin-bottom: 20px;
   }
+}
+
+.repository, .package {
+  width: 400px;
+
+  dd {
+    width: 200px;
+  }
+}
+
+.button-no-text {
+  width: 40px;
 }
 
 .scm-selector, .repo-selector, .package-selector {

@@ -20,9 +20,11 @@ define([
   'views/pipeline_configs/package_repositories/package_config_edit_widget'
 ], function (m, _, f, Modal, Packages, Repositories, PluginInfos, PackageConfigNewWidget, PackageConfigEditWidget) {
 
-  var onSuccessOfPackageApi = function (vm, modal, material, data) {
+  var onSuccessOfPackageApi = function (vm, modal, material, repositoryVM, data) {
     vm.saveSuccess();
+    debugger;
     material.ref(data.id());
+    repositoryVM.packageId(data.id());
     Repositories.findById(material.repository().id()).then(function (repository) {
       material.repository(repository);
     });
@@ -40,11 +42,11 @@ define([
           return _.isNil(PluginInfos.findById(args.material.repository().pluginMetadata().id()));
         },
 
-        editPackage:     function (packageForEdit, vm, modal) {
-          packageForEdit().update().then(onSuccessOfPackageApi.bind(this, vm, modal, args.material), onFailureOfPackageApi.bind(this, vm));
+        editPackage: function (packageForEdit, vm, modal) {
+          packageForEdit().update().then(onSuccessOfPackageApi.bind(this, vm, modal, args.material, args.repositoryVM), onFailureOfPackageApi.bind(this, vm));
         },
 
-        update:         function () {
+        update: function () {
           args.create(args.packageForEdit, args.material.repository, PackageConfigEditWidget, 'Edit Package', ctrl.editPackage);
         }
       };
@@ -64,21 +66,16 @@ define([
         : (<f.editButton class={null} onclick={ctrl.update}/>);
 
       return (
-        <div>
-          <div class='package'>
-            {editButton}
-            <f.row>
-              <ul>
-                {_.map(data, function (v, k) {
-                  return (
-                    <li>
-                      <label class={_.toLower(k)}>{k}</label><span>{v}</span>
-                    </li>
-                  );
-                })}
-              </ul>
-            </f.row>
-          </div>
+        <div class='package'>
+          {editButton}
+          <dl class="key-value-pair">
+            {_.map(data, function (v, k) {
+              return [
+                (<dt class={_.toLower(k)}>{k}</dt>),
+                (<dd>{v}</dd>)
+              ];
+            })}
+          </dl>
         </div>
       );
     }
@@ -89,7 +86,7 @@ define([
     controller: function (args) {
       var ctrl = {
         createPackage: function (packageForEdit, vm, modal) {
-          packageForEdit().create().then(onSuccessOfPackageApi.bind(this, vm, modal, args.material), onFailureOfPackageApi.bind(this, vm));
+          packageForEdit().create().then(onSuccessOfPackageApi.bind(this, vm, modal, args.material, args.repositoryVM), onFailureOfPackageApi.bind(this, vm));
         },
         create:        function () {
           var packageForEdit = m.prop(new Packages.Package({}));
@@ -101,21 +98,20 @@ define([
     },
 
     view: function (ctrl, args) {
-      return (
-        <f.row>
-          <f.column class='no-package' size={4} largeSize={6} end>
-            {args.material.repository().packages().countPackage() === 0 ?
-              <div>
-                <label>No packages available in this repository.</label> <a class='add-button button'
-                                                                            href="javascript:void(0)"
-                                                                            onclick={ctrl.create}>Create New Package</a>
-              </div>
-              : <a class='add-button button' href="javascript:void(0)"
-                   onclick={ctrl.create}/>}
 
-          </f.column>
-        </f.row>
-      );
+      if (args.material.repository().packages().countPackage() === 0) {
+        return (
+          <div class="columns medium-8 no-package">
+            <label>No packages available in this repository.</label> <a class='add-button button'
+                                                                        href="javascript:void(0)"
+                                                                        onclick={ctrl.create}>Create New Package</a>
+          </div>
+        )
+      }
+      return (
+        <div class="columns medium-6 no-package"><a class='add-button button button-no-text'
+                                                    href="javascript:void(0)"
+                                                    onclick={ctrl.create}/></div>)
     }
   };
 
@@ -125,7 +121,7 @@ define([
       return {
         selectPackage: function (packageId) {
           args.material.ref(packageId);
-          args.vm.packageId(packageId);
+          args.repositoryVM.packageId(packageId);
           args.getPackageForEdit(packageId);
         }
       };
@@ -139,41 +135,30 @@ define([
         item['text'] = packageInfo.name();
         items.push(item);
       });
-      var material = args.material;
       return (
-        <f.row class='package-selector'>
+        <div class="columns medium-6">
           <select disabled={false}
                   data-prop-name={"defaultPackageId"}
+                  class='package-selector'
                   onchange={m.withAttr('value', ctrl.selectPackage)}>
             {_.map(items, function (item) {
-              debugger;
               return (
                 <option value={item.id} selected={item.id === args.material.ref()}>{item.text}</option>
               );
             })}
           </select>
-        </f.row>
+        </div>
       );
     }
   };
 
   var PackageWidget = {
     controller: function (args) {
-      var getMaterialReference = function () {
-        if(args.material.repository().packages().countPackage() === 0) {
-          return args.material.ref();
-        }
-        if(args.material.ref()) {
-          return args.material.ref();
-        }
-        return args.material.repository().packages().firstPackage().id();
-      };
       var ctrl = {
 
         getPackageForEdit: function (packageId) {
           var packageForEdit = args.material.package;
-          if(packageId) {
-            debugger;
+          if (packageId) {
             Packages.getPackage(packageId, packageForEdit, args.material.ref);
           }
           return packageForEdit;
@@ -182,14 +167,14 @@ define([
         defaultPackageId: m.prop(args.material.ref()),
 
         create: function (packageForEdit, repository, PackageConfigurationWidget, modalTitle, performOperation) {
-          var vm             = new Packages.vm();
+          var vm = new Packages.vm();
 
           var modal = new Modal({
             size:    'small',
             title:   modalTitle,
             body:    (<PackageConfigurationWidget packageForEdit={packageForEdit}
-                                              repository={repository()}
-                                              vm={vm}/>),
+                                                  repository={repository()}
+                                                  vm={vm}/>),
             onclose: function () {
               vm.reset();
               modal.destroy();
@@ -213,20 +198,26 @@ define([
     },
     view:       function (ctrl, args) {
       return (
-        <div>
+        <span>
+          <div class="row expanded">
+
+            {args.material.repository().packages().countPackage() === 0 ? '' :
+              <SelectPackageWidget material={args.material}
+                                   defaultPackageId={ctrl.defaultPackageId}
+                                   repositoryVM={args.repositoryVM}
+                                   getPackageForEdit={ctrl.getPackageForEdit.bind(ctrl)}/>}
+
+            <NewPackageWidget material={args.material}
+                              repositoryVM={args.repositoryVM}
+                              create={ctrl.create}/>
+          </div>
+
           {args.material.repository().packages().countPackage() === 0 ? '' :
-            <SelectPackageWidget material={args.material}
-                                 defaultPackageId={ctrl.defaultPackageId}
-                                 vm={args.vm}
-                                 getPackageForEdit={ctrl.getPackageForEdit.bind(ctrl)}/>}
-
-          <NewPackageWidget material={args.material}
-                            create={ctrl.create}/>
-
-          {args.material.repository().packages().countPackage() === 0 ? '' : <EditPackageWidget packageForEdit={args.material.package}
-                                                                                                material={args.material}
-                                                                                                create={ctrl.create}/>}
-        </div>
+            <EditPackageWidget packageForEdit={args.material.package}
+                               material={args.material}
+                               repositoryVM={args.repositoryVM}
+                               create={ctrl.create}/>}
+        </span>
       );
     }
   };

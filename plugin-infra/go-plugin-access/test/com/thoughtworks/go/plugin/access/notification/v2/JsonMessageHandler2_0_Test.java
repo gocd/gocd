@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.plugin.access.notification.v1;
+package com.thoughtworks.go.plugin.access.notification.v2;
 
 import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
@@ -30,24 +30,26 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
+
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import static com.thoughtworks.go.plugin.access.notification.v1.StageConverter.DATE_PATTERN;
+
+import static com.thoughtworks.go.plugin.access.notification.v2.StageConverter.DATE_PATTERN;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.fail;
 
-public class JsonMessageHandler1_0Test {
-    private JsonMessageHandler1_0 messageHandler;
+public class JsonMessageHandler2_0_Test {
+    private JsonMessageHandler2_0 messageHandler;
 
     @Before
     public void setUp() throws Exception {
-        messageHandler = new JsonMessageHandler1_0();
+        messageHandler = new JsonMessageHandler2_0();
     }
 
     @Test
@@ -82,8 +84,8 @@ public class JsonMessageHandler1_0Test {
 
     @Test
     public void shouldHandleNullMessagesForNotify() throws Exception {
-        assertSuccessResult(messageHandler.responseMessageForNotify("{\"status\":\"success\"}"), new ArrayList<String>());
-        assertFailureResult(messageHandler.responseMessageForNotify("{\"status\":\"failure\"}"), new ArrayList<String>());
+        assertSuccessResult(messageHandler.responseMessageForNotify("{\"status\":\"success\"}"), new ArrayList<>());
+        assertFailureResult(messageHandler.responseMessageForNotify("{\"status\":\"failure\"}"), new ArrayList<>());
     }
 
     @Test
@@ -111,6 +113,7 @@ public class JsonMessageHandler1_0Test {
         String expected = "{\n" +
                 "\t\"pipeline\": {\n" +
                 "\t\t\"name\": \"pipeline-name\",\n" +
+                "\t\t\"label\": \"LABEL-1\",\n" +
                 "\t\t\"counter\": \"1\",\n" +
                 "\t\t\"group\": \"pipeline-group\",\n" +
                 "\t\t\"build-cause\": [{\n" +
@@ -246,6 +249,7 @@ public class JsonMessageHandler1_0Test {
                 "\t\t\t\"jobs\": [{\n" +
                 "\t\t\t\t\"name\": \"job-name\",\n" +
                 "\t\t\t\t\"schedule-time\": \"2011-07-13T19:43:37.100Z\",\n" +
+                "\t\t\t\t\"assign-time\": \"2011-07-13T19:43:37.100Z\",\n" +
                 "\t\t\t\t\"complete-time\": \"2011-07-13T19:43:37.100Z\",\n" +
                 "\t\t\t\t\"state\": \"Completed\",\n" +
                 "\t\t\t\t\"result\": \"Passed\",\n" +
@@ -256,7 +260,7 @@ public class JsonMessageHandler1_0Test {
                 "}";
 
         String request = messageHandler.requestMessageForNotify(new StageNotificationData(pipeline.getFirstStage(), pipeline.getBuildCause(), "pipeline-group"));
-        JSONAssert.assertEquals(request, expected, JSONCompareMode.NON_EXTENSIBLE);
+        JSONAssert.assertEquals(expected, request, JSONCompareMode.NON_EXTENSIBLE);
     }
 
     @Rule
@@ -304,7 +308,7 @@ public class JsonMessageHandler1_0Test {
     }
 
     private Pipeline createPipeline() throws Exception {
-        Pipeline pipeline = PipelineMother.pipelineWithAllTypesOfMaterials("pipeline-name", "stage-name", "job-name");
+        Pipeline pipeline = PipelineMother.pipelineWithAllTypesOfMaterials("pipeline-name", "stage-name", "job-name", "1");
         List<MaterialRevision> materialRevisions = pipeline.getMaterialRevisions().getRevisions();
         PackageDefinition packageDefinition = ((PackageMaterial) materialRevisions.get(6).getMaterial()).getPackageDefinition();
         packageDefinition.getRepository().getConfiguration().get(1).handleSecureValueConfiguration(true);
@@ -319,6 +323,7 @@ public class JsonMessageHandler1_0Test {
         stage.setLastTransitionedTime(new Timestamp(getFixedDate().getTime()));
         JobInstance job = stage.getJobInstances().get(0);
         job.setScheduledDate(getFixedDate());
+        job.getTransition(JobState.Assigned).setStateChangeTime(getFixedDate());
         job.getTransition(JobState.Completed).setStateChangeTime(getFixedDate());
         return pipeline;
     }

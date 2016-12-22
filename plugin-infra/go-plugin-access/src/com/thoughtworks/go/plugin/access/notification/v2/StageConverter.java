@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.plugin.access.notification.v1;
+package com.thoughtworks.go.plugin.access.notification.v2;
 
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.notificationdata.StageNotificationData;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.domain.notificationdata.StageNotificationData;
 import com.thoughtworks.go.plugin.access.notification.DataConverter;
 
 import java.util.ArrayList;
@@ -43,14 +43,15 @@ public class StageConverter extends DataConverter<StageNotificationDTO> {
     public StageNotificationDTO transformData() {
         String pipelineName = stage.getIdentifier().getPipelineName();
         Integer pipelineCounter = stage.getIdentifier().getPipelineCounter();
-        StageNotificationDTO.PipelineDTO pipeline = new StageNotificationDTO.PipelineDTO(pipelineName, pipelineCounter, pipelineGroup, createBuildCause(buildCause), createStageDTO());
+        String pipelineLabel = stage.getIdentifier().getPipelineLabel();
+        StageNotificationDTO.PipelineDTO pipeline = new StageNotificationDTO.PipelineDTO(pipelineName, pipelineCounter, pipelineLabel, pipelineGroup, createBuildCause(buildCause), createStageDTO());
         return new StageNotificationDTO(pipeline);
     }
 
     private StageNotificationDTO.StageDTO createStageDTO() {
         ArrayList<StageNotificationDTO.JobDTO> jobs = new ArrayList<>();
         for (JobInstance job : stage.getJobInstances()) {
-            StageNotificationDTO.JobDTO jobDTO = new StageNotificationDTO.JobDTO(job.getName(), job.getScheduledDate(), job.getCompletedDate(), job.getState(), job.getResult(), job.getAgentUuid());
+            StageNotificationDTO.JobDTO jobDTO = new StageNotificationDTO.JobDTO(job.getName(), job.getScheduledDate(), job.getAssignedDate(), job.getCompletedDate(), job.getState(), job.getResult(), job.getAgentUuid());
             jobs.add(jobDTO);
         }
 

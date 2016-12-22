@@ -21,7 +21,7 @@ import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessa
 import com.thoughtworks.go.plugin.access.notification.v1.JsonMessageHandler1_0;
 import org.mockito.Mock;
 
-public class NotificationExtensionTest extends NotificationExtensionTestBase {
+public class NotificationExtensionTestForV1 extends NotificationExtensionTestBase {
     @Mock
     private PluginSettingsJsonMessageHandler1_0 pluginSettingsJSONMessageHandlerv1;
     @Mock

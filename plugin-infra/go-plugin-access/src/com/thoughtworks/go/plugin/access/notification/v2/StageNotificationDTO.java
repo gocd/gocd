@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.plugin.access.notification.v1;
+package com.thoughtworks.go.plugin.access.notification.v2;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -47,6 +47,9 @@ public class StageNotificationDTO {
         @SerializedName("counter")
         private String counter;
         @Expose
+        @SerializedName("label")
+        private String pipelineLabel;
+        @Expose
         @SerializedName("group")
         private String group;
         @Expose
@@ -56,9 +59,10 @@ public class StageNotificationDTO {
         @SerializedName("stage")
         private StageDTO stage;
 
-        public PipelineDTO(String name, Integer counter, String group, List<MaterialRevisionDTO> buildCause, StageDTO stage) {
+        public PipelineDTO(String name, Integer counter, String pipelineLabel, String group, List<MaterialRevisionDTO> buildCause, StageDTO stage) {
             this.name = name;
             this.counter = counter.toString();
+            this.pipelineLabel = pipelineLabel;
             this.group = group;
             this.buildCause = buildCause;
             this.stage = stage;
@@ -151,6 +155,9 @@ public class StageNotificationDTO {
         @SerializedName("schedule-time")
         private String scheduleTime;
         @Expose
+        @SerializedName("assign-time")
+        private final String assignTime;
+        @Expose
         @SerializedName("complete-time")
         private String completeTime;
         @Expose
@@ -163,9 +170,10 @@ public class StageNotificationDTO {
         @SerializedName("agent-uuid")
         private String agentUuid;
 
-        public JobDTO(String name, Date scheduleTime, Date completeTime, JobState state, JobResult result, String agentUuid) {
+        public JobDTO(String name, Date scheduleTime, Date assignTime, Date completeTime, JobState state, JobResult result, String agentUuid) {
             this.name = name;
             this.scheduleTime = dateToString(scheduleTime);
+            this.assignTime = dateToString(assignTime);
             this.completeTime = dateToString(completeTime);
             this.state = state.toString();
             this.result = result.toString();

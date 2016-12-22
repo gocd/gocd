@@ -19,17 +19,18 @@ package com.thoughtworks.go.plugin.access.notification;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.access.notification.v1.JsonMessageHandler1_0;
+import com.thoughtworks.go.plugin.access.notification.v2.JsonMessageHandler2_0;
 import org.mockito.Mock;
 
-public class NotificationExtensionTestForV1 extends NotificationExtensionTestBase {
+public class NotificationExtensionTestForV2 extends NotificationExtensionTestBase {
     @Mock
     private PluginSettingsJsonMessageHandler1_0 pluginSettingsJSONMessageHandlerv1;
     @Mock
-    private JsonMessageHandler1_0 jsonMessageHandlerv1;
+    private JsonMessageHandler2_0 jsonMessageHandlerv2;
 
     @Override
     protected String apiVersion() {
-        return "1.0";
+        return "2.0";
     }
 
     @Override
@@ -39,6 +40,6 @@ public class NotificationExtensionTestForV1 extends NotificationExtensionTestBas
 
     @Override
     protected JsonMessageHandler jsonMessageHandler() {
-        return jsonMessageHandlerv1;
+        return jsonMessageHandlerv2;
     }
 }

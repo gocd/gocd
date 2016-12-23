@@ -48,7 +48,7 @@ dependencies {
   compile(group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.5.2')
   testCompile project(path: ':config-api', configuration: 'testOutput')
   testCompile project(path: ':domain', configuration: 'testOutput')
-  testCompile(group: 'org.skyscreamer', name: 'jsonassert', version: '1.2.3')
+  testCompile(group: 'org.skyscreamer', name: 'jsonassert', version: '1.4.0')
   testCompile project(':test-utils')
   testCompile group: 'org.reflections', name: 'reflections', version: '0.9.8'
   compileOnly(group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47')

@@ -19,13 +19,12 @@ package com.thoughtworks.go.config;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.commands.CheckedUpdateCommand;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
-import com.thoughtworks.go.config.update.AddEnvironmentCommand;
 import com.thoughtworks.go.config.update.ConfigUpdateCheckFailedException;
+import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.EnvironmentConfigService;
 import com.thoughtworks.go.server.util.UserHelper;
 import com.thoughtworks.go.util.ExceptionUtils;
 import org.slf4j.Logger;
@@ -120,6 +119,19 @@ public class GoConfigDao {
                 }
                 LOGGER.info("Config update request by {} is completed", UserHelper.getUserName().getUsername());
             }
+        }
+        return configSaveState;
+    }
+
+    public ConfigSaveState updateFullConfig(FullConfigUpdateCommand command) {
+        ConfigSaveState configSaveState;
+        LOGGER.info("Config update request by {} is in queue - {}", UserHelper.getUserName().getUsername(), command);
+        synchronized (GoConfigWriteLock.class) {
+            LOGGER.info("Config update request by {} is being processed", UserHelper.getUserName().getUsername());
+
+            configSaveState = cachedConfigService.writeFullConfigWithLock(command);
+
+            LOGGER.info("Config update request by {} is completed", UserHelper.getUserName().getUsername());
         }
         return configSaveState;
     }

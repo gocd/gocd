@@ -26,6 +26,7 @@ import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.config.update.CreatePipelineConfigCommand;
+import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.*;
@@ -37,10 +38,12 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
+import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.ConsoleResult;
 import org.apache.commons.io.FileUtils;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.Is;
 import org.junit.*;
@@ -66,9 +69,7 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.hamcrest.core.StringContains.containsString;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -96,6 +97,8 @@ public class CachedGoConfigIntegrationTest {
     private GoPartialConfig goPartialConfig;
     @Autowired
     private GoFileConfigDataSource goFileConfigDataSource;
+    @Autowired
+    private ConfigRepository configRepository;
 
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -135,11 +138,11 @@ public class CachedGoConfigIntegrationTest {
         // pipeline references are like this: pipe1 -> downstream
         File downstreamExternalConfigRepo = temporaryFolder.newFolder();
          /*here is a pipeline 'downstream' with material dependency on 'pipe1' in other repository*/
-        String downstreamLatestCommit = setupExternalConfigRepo(downstreamExternalConfigRepo,"external_git_config_repo_referencing_first");
+        String downstreamLatestCommit = setupExternalConfigRepo(downstreamExternalConfigRepo, "external_git_config_repo_referencing_first");
         configHelper.addConfigRepo(new ConfigRepoConfig(new GitMaterialConfig(downstreamExternalConfigRepo.getAbsolutePath()), "gocd-xml"));
         goConfigService.forceNotifyListeners();//TODO what if this is not called?
         ConfigRepoConfig downstreamConfigRepo = configWatchList.getCurrentConfigRepos().get(1);
-        assertThat(configWatchList.getCurrentConfigRepos().size(),is(2));
+        assertThat(configWatchList.getCurrentConfigRepos().size(), is(2));
 
         // And unluckily downstream gets parsed first
         repoConfigDataSource.onCheckoutComplete(downstreamConfigRepo.getMaterialConfig(), downstreamExternalConfigRepo, downstreamLatestCommit);
@@ -148,11 +151,11 @@ public class CachedGoConfigIntegrationTest {
         assertThat(messageForInvalidMerge.isEmpty(), is(false));
         assertThat(messageForInvalidMerge.get(0).getDescription(), containsString("tries to fetch artifact from pipeline &quot;pipe1&quot;"));
         // and current config is still old
-        assertThat(goConfigService.hasPipelineNamed(new CaseInsensitiveString("downstream")),is(false));
-        assertThat(cachedGoPartials.lastKnownPartials().size(),is(1));
-        assertThat(cachedGoPartials.lastValidPartials().size(),is(0));
+        assertThat(goConfigService.hasPipelineNamed(new CaseInsensitiveString("downstream")), is(false));
+        assertThat(cachedGoPartials.lastKnownPartials().size(), is(1));
+        assertThat(cachedGoPartials.lastValidPartials().size(), is(0));
         //here downstream partial is waiting to be merged
-        assertThat(cachedGoPartials.lastKnownPartials().get(0).getGroups().get(0).hasPipeline(new CaseInsensitiveString("downstream")),is(true));
+        assertThat(cachedGoPartials.lastKnownPartials().get(0).getGroups().get(0).hasPipeline(new CaseInsensitiveString("downstream")), is(true));
 
         // Finally upstream config repository is parsed
         repoConfigDataSource.onCheckoutComplete(configRepo.getMaterialConfig(), externalConfigRepo, latestCommit);
@@ -169,16 +172,16 @@ public class CachedGoConfigIntegrationTest {
         // pipeline references are like this: pipe1 -> downstream -> downstream2
         File secondDownstreamExternalConfigRepo = temporaryFolder.newFolder();
          /*here is a pipeline 'downstream2' with material dependency on 'downstream' in other repository*/
-        String secondDownstreamLatestCommit = setupExternalConfigRepo(secondDownstreamExternalConfigRepo,"external_git_config_repo_referencing_second");
+        String secondDownstreamLatestCommit = setupExternalConfigRepo(secondDownstreamExternalConfigRepo, "external_git_config_repo_referencing_second");
         configHelper.addConfigRepo(new ConfigRepoConfig(new GitMaterialConfig(secondDownstreamExternalConfigRepo.getAbsolutePath()), "gocd-xml"));
         File firstDownstreamExternalConfigRepo = temporaryFolder.newFolder();
          /*here is a pipeline 'downstream' with material dependency on 'pipe1' in other repository*/
-        String firstDownstreamLatestCommit = setupExternalConfigRepo(firstDownstreamExternalConfigRepo,"external_git_config_repo_referencing_first");
+        String firstDownstreamLatestCommit = setupExternalConfigRepo(firstDownstreamExternalConfigRepo, "external_git_config_repo_referencing_first");
         configHelper.addConfigRepo(new ConfigRepoConfig(new GitMaterialConfig(firstDownstreamExternalConfigRepo.getAbsolutePath()), "gocd-xml"));
         goConfigService.forceNotifyListeners();
         ConfigRepoConfig firstDownstreamConfigRepo = configWatchList.getCurrentConfigRepos().get(1);
         ConfigRepoConfig secondDownstreamConfigRepo = configWatchList.getCurrentConfigRepos().get(2);
-        assertThat(configWatchList.getCurrentConfigRepos().size(),is(3));
+        assertThat(configWatchList.getCurrentConfigRepos().size(), is(3));
 
         // And unluckily downstream2 gets parsed first
         repoConfigDataSource.onCheckoutComplete(secondDownstreamConfigRepo.getMaterialConfig(), secondDownstreamExternalConfigRepo, secondDownstreamLatestCommit);
@@ -189,11 +192,11 @@ public class CachedGoConfigIntegrationTest {
         assertThat(messageForInvalidMerge.isEmpty(), is(false));
         assertThat(messageForInvalidMerge.get(0).getDescription(), containsString("tries to fetch artifact from pipeline &quot;downstream&quot;"));
         // and current config is still old
-        assertThat(goConfigService.hasPipelineNamed(new CaseInsensitiveString("downstream2")),is(false));
-        assertThat(cachedGoPartials.lastKnownPartials().size(),is(1));
-        assertThat(cachedGoPartials.lastValidPartials().size(),is(0));
+        assertThat(goConfigService.hasPipelineNamed(new CaseInsensitiveString("downstream2")), is(false));
+        assertThat(cachedGoPartials.lastKnownPartials().size(), is(1));
+        assertThat(cachedGoPartials.lastValidPartials().size(), is(0));
         //here downstream2 partial is waiting to be merged
-        assertThat(cachedGoPartials.lastKnownPartials().get(0).getGroups().get(0).hasPipeline(new CaseInsensitiveString("downstream2")),is(true));
+        assertThat(cachedGoPartials.lastKnownPartials().get(0).getGroups().get(0).hasPipeline(new CaseInsensitiveString("downstream2")), is(true));
 
         // Then middle upstream config repository is parsed
         repoConfigDataSource.onCheckoutComplete(firstDownstreamConfigRepo.getMaterialConfig(), firstDownstreamExternalConfigRepo, firstDownstreamLatestCommit);
@@ -203,10 +206,10 @@ public class CachedGoConfigIntegrationTest {
         assertThat(messageForInvalidMerge.isEmpty(), is(false));
         assertThat(messageForInvalidMerge.get(0).getDescription(), containsString("Pipeline &quot;pipe1&quot; does not exist. It is used from pipeline &quot;downstream&quot"));
         // and current config is still old
-        assertThat(goConfigService.hasPipelineNamed(new CaseInsensitiveString("downstream")),is(false));
-        assertThat(goConfigService.hasPipelineNamed(new CaseInsensitiveString("downstream2")),is(false));
-        assertThat(cachedGoPartials.lastKnownPartials().size(),is(2));
-        assertThat(cachedGoPartials.lastValidPartials().size(),is(0));
+        assertThat(goConfigService.hasPipelineNamed(new CaseInsensitiveString("downstream")), is(false));
+        assertThat(goConfigService.hasPipelineNamed(new CaseInsensitiveString("downstream2")), is(false));
+        assertThat(cachedGoPartials.lastKnownPartials().size(), is(2));
+        assertThat(cachedGoPartials.lastValidPartials().size(), is(0));
 
         // Finally upstream config repository is parsed
         repoConfigDataSource.onCheckoutComplete(configRepo.getMaterialConfig(), externalConfigRepo, latestCommit);
@@ -230,10 +233,8 @@ public class CachedGoConfigIntegrationTest {
                 "www.spring.com");
         try {
             goConfigDao.addPipeline(dupPipelineConfig, PipelineConfigs.DEFAULT_GROUP);
-        }
-        catch (RuntimeException ex)
-        {
-            assertThat(ex.getMessage(),containsString("You have defined multiple pipelines named 'pipe1'. Pipeline names must be unique. Source(s):"));
+        } catch (RuntimeException ex) {
+            assertThat(ex.getMessage(), containsString("You have defined multiple pipelines named 'pipe1'. Pipeline names must be unique. Source(s):"));
             return;
         }
         fail("Should have thrown");
@@ -327,8 +328,7 @@ public class CachedGoConfigIntegrationTest {
     }
 
     @Test
-    public void shouldReturnRemotePipelinesAmongAllPipelinesInMergedConfigForEdit() throws Exception
-    {
+    public void shouldReturnRemotePipelinesAmongAllPipelinesInMergedConfigForEdit() throws Exception {
         assertThat(configWatchList.getCurrentConfigRepos().size(), is(1));
 
         repoConfigDataSource.onCheckoutComplete(configRepo.getMaterialConfig(), externalConfigRepo, latestCommit);
@@ -777,7 +777,7 @@ public class CachedGoConfigIntegrationTest {
     }
 
     @Test
-    public void shouldNotAllowAGitMergeOfConcurrentChangesIfTheChangeCausesMergedPartialsToBecomeInvalid(){
+    public void shouldNotAllowAGitMergeOfConcurrentChangesIfTheChangeCausesMergedPartialsToBecomeInvalid() {
         final String upstream = UUID.randomUUID().toString();
         String remoteDownstream = "remote-downstream";
         setupExternalConfigRepoWithDependencyMaterialOnPipelineInMainXml(upstream, remoteDownstream);
@@ -813,7 +813,7 @@ public class CachedGoConfigIntegrationTest {
     }
 
     @Test
-    public void shouldMarkAPartialAsValidIfItBecomesValidBecauseOfNewerChangesInMainXml_GitMergeWorkflow(){
+    public void shouldMarkAPartialAsValidIfItBecomesValidBecauseOfNewerChangesInMainXml_GitMergeWorkflow() {
         final String upstream = UUID.randomUUID().toString();
         String remoteDownstream = "remote-downstream";
         setupExternalConfigRepoWithDependencyMaterialOnPipelineInMainXml(upstream, remoteDownstream);
@@ -898,7 +898,7 @@ public class CachedGoConfigIntegrationTest {
     }
 
     @Test
-    public void shouldRemoveCorrespondingRemotePipelinesFromCachedGoConfigIfTheConfigRepoIsDeleted(){
+    public void shouldRemoveCorrespondingRemotePipelinesFromCachedGoConfigIfTheConfigRepoIsDeleted() {
         final ConfigRepoConfig repoConfig1 = new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url1"), XmlPartialConfigProvider.providerName);
         final ConfigRepoConfig repoConfig2 = new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url2"), XmlPartialConfigProvider.providerName);
         goConfigService.updateConfig(new UpdateConfigCommand() {
@@ -936,7 +936,7 @@ public class CachedGoConfigIntegrationTest {
         assertThat(cachedGoConfig.currentConfig().getAllPipelineNames().contains(new CaseInsensitiveString("pipeline_in_repo1")), is(false));
         assertThat(cachedGoConfig.currentConfig().getAllPipelineNames().contains(new CaseInsensitiveString("pipeline_in_repo2")), is(true));
         assertThat(cachedGoPartials.lastKnownPartials().size(), is(1));
-        assertThat(((RepoConfigOrigin)cachedGoPartials.lastKnownPartials().get(0).getOrigin()).getMaterial().getFingerprint().equals(repoConfig2.getMaterialConfig().getFingerprint()), is(true));
+        assertThat(((RepoConfigOrigin) cachedGoPartials.lastKnownPartials().get(0).getOrigin()).getMaterial().getFingerprint().equals(repoConfig2.getMaterialConfig().getFingerprint()), is(true));
         assertThat(ListUtil.find(cachedGoPartials.lastKnownPartials(), new ListUtil.Condition() {
             @Override
             public <T> boolean isMet(T item) {
@@ -945,7 +945,7 @@ public class CachedGoConfigIntegrationTest {
             }
         }), is(nullValue()));
         assertThat(cachedGoPartials.lastValidPartials().size(), is(1));
-        assertThat(((RepoConfigOrigin)cachedGoPartials.lastValidPartials().get(0).getOrigin()).getMaterial().getFingerprint().equals(repoConfig2.getMaterialConfig().getFingerprint()), is(true));
+        assertThat(((RepoConfigOrigin) cachedGoPartials.lastValidPartials().get(0).getOrigin()).getMaterial().getFingerprint().equals(repoConfig2.getMaterialConfig().getFingerprint()), is(true));
         assertThat(ListUtil.find(cachedGoPartials.lastValidPartials(), new ListUtil.Condition() {
             @Override
             public <T> boolean isMet(T item) {
@@ -956,6 +956,180 @@ public class CachedGoConfigIntegrationTest {
 
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).isEmpty(), is(true));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).isEmpty(), is(true));
+    }
+
+    @Test
+    public void shouldUpdateConfigWhenPartialsAreNotConfigured() throws GitAPIException, IOException {
+        String gitShaBeforeSave = configRepository.getCurrentRevCommit().getName();
+        BasicCruiseConfig config = GoConfigMother.configWithPipelines("pipeline1");
+
+        ConfigSaveState state = cachedGoConfig.writeFullConfigWithLock(new FullConfigUpdateCommand(config, goConfigService.configFileMd5()));
+
+        String gitShaAfterSave = configRepository.getCurrentRevCommit().getName();
+        String configXmlFromConfigFolder = FileUtil.readContentFromFile(new File(goConfigDao.fileLocation()));
+
+        assertThat(state, is(ConfigSaveState.UPDATED));
+        assertThat(cachedGoConfig.loadForEditing(), is(config));
+        assertNotEquals(gitShaBeforeSave, gitShaAfterSave);
+        assertThat(cachedGoConfig.loadForEditing().getMd5(), is(configRepository.getCurrentRevision().getMd5()));
+        assertThat(cachedGoConfig.currentConfig().getMd5(), is(configRepository.getCurrentRevision().getMd5()));
+        assertThat(configXmlFromConfigFolder, is(configRepository.getCurrentRevision().getContent()));
+    }
+
+    @Test
+    public void writeFullConfigWithLockShouldUpdateReloadStrategyToEnsureReloadIsSkippedInAbsenceOfConfigFileChanges() throws GitAPIException, IOException {
+        BasicCruiseConfig config = GoConfigMother.configWithPipelines("pipeline1");
+
+        ConfigSaveState state = cachedGoConfig.writeFullConfigWithLock(new FullConfigUpdateCommand(config, goConfigService.configFileMd5()));
+
+        String gitShaAfterSave = configRepository.getCurrentRevCommit().getName();
+        assertThat(state, is(ConfigSaveState.UPDATED));
+
+        cachedGoConfig.forceReload();
+        String gitShaAfterReload = configRepository.getCurrentRevCommit().getName();
+        assertThat(gitShaAfterReload, is(gitShaAfterSave));
+    }
+
+    @Test
+    public void shouldUpdateConfigWhenPartialsAreConfigured() throws GitAPIException, IOException {
+        String gitShaBeforeSave = configRepository.getCurrentRevCommit().getName();
+        PartialConfig validPartial = PartialConfigMother.withPipeline("remote_pipeline", new RepoConfigOrigin(configRepo, "revision1"));
+        goPartialConfig.onSuccessPartialConfig(configRepo, validPartial);
+
+        assertThat(cachedGoPartials.lastValidPartials().contains(validPartial), is(true));
+        assertThat(cachedGoPartials.lastKnownPartials().contains(validPartial), is(true));
+
+        CruiseConfig config = new Cloner().deepClone(cachedGoConfig.loadForEditing());
+
+        config.addEnvironment(UUID.randomUUID().toString());
+
+        ConfigSaveState state = cachedGoConfig.writeFullConfigWithLock(new FullConfigUpdateCommand(config, goConfigService.configFileMd5()));
+
+        String gitShaAfterSave = configRepository.getCurrentRevCommit().getName();
+        String configXmlFromConfigFolder = FileUtil.readContentFromFile(new File(goConfigDao.fileLocation()));
+
+        assertThat(state, is(ConfigSaveState.UPDATED));
+        assertThat(cachedGoConfig.loadForEditing(), is(config));
+        assertNotEquals(gitShaBeforeSave, gitShaAfterSave);
+        assertThat(cachedGoConfig.loadForEditing().getMd5(), is(configRepository.getCurrentRevision().getMd5()));
+        assertThat(cachedGoConfig.currentConfig().getMd5(), is(configRepository.getCurrentRevision().getMd5()));
+        assertThat(configXmlFromConfigFolder, is(configRepository.getCurrentRevision().getContent()));
+        assertThat(cachedGoPartials.lastValidPartials().contains(validPartial), is(true));
+        assertThat(cachedGoPartials.lastKnownPartials().contains(validPartial), is(true));
+    }
+
+    @Test
+    public void shouldUpdateConfigWithNoValidPartialsAndInvalidKnownPartials() throws GitAPIException, IOException {
+        String gitShaBeforeSave = configRepository.getCurrentRevCommit().getName();
+        PartialConfig invalidPartial = PartialConfigMother.invalidPartial("invalid", new RepoConfigOrigin(configRepo, "revision1"));
+        goPartialConfig.onSuccessPartialConfig(configRepo, invalidPartial);
+
+        assertTrue(cachedGoPartials.lastValidPartials().isEmpty());
+        assertTrue(cachedGoPartials.lastKnownPartials().contains(invalidPartial));
+
+        CruiseConfig config = new Cloner().deepClone(cachedGoConfig.loadForEditing());
+
+        config.addEnvironment(UUID.randomUUID().toString());
+
+        ConfigSaveState state = cachedGoConfig.writeFullConfigWithLock(new FullConfigUpdateCommand(config, goConfigService.configFileMd5()));
+
+        String gitShaAfterSave = configRepository.getCurrentRevCommit().getName();
+        String configXmlFromConfigFolder = FileUtil.readContentFromFile(new File(goConfigDao.fileLocation()));
+
+        assertThat(state, is(ConfigSaveState.UPDATED));
+        assertThat(cachedGoConfig.loadForEditing(), is(config));
+        assertNotEquals(gitShaBeforeSave, gitShaAfterSave);
+        assertThat(cachedGoConfig.loadForEditing().getMd5(), is(configRepository.getCurrentRevision().getMd5()));
+        assertThat(cachedGoConfig.currentConfig().getMd5(), is(configRepository.getCurrentRevision().getMd5()));
+        assertThat(configXmlFromConfigFolder, is(configRepository.getCurrentRevision().getContent()));
+        assertTrue(cachedGoPartials.lastValidPartials().isEmpty());
+        assertTrue(cachedGoPartials.lastKnownPartials().contains(invalidPartial));
+    }
+
+    @Test
+    public void shouldUpdateConfigWithValidPartialsAndInvalidKnownPartials() throws GitAPIException, IOException {
+        String gitShaBeforeSave = configRepository.getCurrentRevCommit().getName();
+        PartialConfig validPartial = PartialConfigMother.withPipeline("remote_pipeline", new RepoConfigOrigin(configRepo, "revision1"));
+        PartialConfig invalidPartial = PartialConfigMother.invalidPartial("invalid", new RepoConfigOrigin(configRepo, "revision2"));
+        goPartialConfig.onSuccessPartialConfig(configRepo, validPartial);
+        goPartialConfig.onSuccessPartialConfig(configRepo, invalidPartial);
+
+        assertTrue(cachedGoPartials.lastValidPartials().contains(validPartial));
+        assertTrue(cachedGoPartials.lastKnownPartials().contains(invalidPartial));
+
+        CruiseConfig config = new Cloner().deepClone(cachedGoConfig.loadForEditing());
+
+        config.addEnvironment(UUID.randomUUID().toString());
+
+        ConfigSaveState state = cachedGoConfig.writeFullConfigWithLock(new FullConfigUpdateCommand(config, goConfigService.configFileMd5()));
+
+        String gitShaAfterSave = configRepository.getCurrentRevCommit().getName();
+        String configXmlFromConfigFolder = FileUtil.readContentFromFile(new File(goConfigDao.fileLocation()));
+
+        assertThat(state, is(ConfigSaveState.UPDATED));
+        assertThat(cachedGoConfig.loadForEditing(), is(config));
+        assertNotEquals(gitShaBeforeSave, gitShaAfterSave);
+        assertThat(cachedGoConfig.loadForEditing().getMd5(), is(configRepository.getCurrentRevision().getMd5()));
+        assertThat(cachedGoConfig.currentConfig().getMd5(), is(configRepository.getCurrentRevision().getMd5()));
+        assertThat(configXmlFromConfigFolder, is(configRepository.getCurrentRevision().getContent()));
+        assertTrue(cachedGoPartials.lastValidPartials().contains(validPartial));
+        assertTrue(cachedGoPartials.lastKnownPartials().contains(invalidPartial));
+    }
+
+    @Test
+    public void shouldErrorOutOnUpdateConfigWithValidPartials_WithMainConfigBreakingPartials() throws GitAPIException, IOException {
+        setupExternalConfigRepoWithDependencyMaterialOnPipelineInMainXml("upstream", "downstream");
+        String gitShaBeforeSave = configRepository.getCurrentRevCommit().getName();
+        CruiseConfig originalConfig = cachedGoConfig.loadForEditing();
+        CruiseConfig editedConfig = new Cloner().deepClone(originalConfig);
+
+        editedConfig.getGroups().remove(editedConfig.findGroup("default"));
+
+        try {
+            cachedGoConfig.writeFullConfigWithLock(new FullConfigUpdateCommand(editedConfig, goConfigService.configFileMd5()));
+            fail("Expected the test to fail");
+        } catch (Exception e) {
+            String gitShaAfterSave = configRepository.getCurrentRevCommit().getName();
+            String configXmlFromConfigFolder = FileUtil.readContentFromFile(new File(goConfigDao.fileLocation()));
+            assertThat(cachedGoConfig.loadForEditing(), is(originalConfig));
+            assertEquals(gitShaBeforeSave, gitShaAfterSave);
+            assertThat(cachedGoConfig.loadForEditing().getMd5(), is(configRepository.getCurrentRevision().getMd5()));
+            assertThat(cachedGoConfig.currentConfig().getMd5(), is(configRepository.getCurrentRevision().getMd5()));
+            assertThat(configXmlFromConfigFolder, is(configRepository.getCurrentRevision().getContent()));
+            RepoConfigOrigin origin = (RepoConfigOrigin) cachedGoPartials.lastValidPartials().get(0).getOrigin();
+            assertThat(origin.getRevision(), is("r1"));
+        }
+    }
+
+    @Test
+    public void shouldMarkAPreviousInvalidPartialAsValid_IfMainXMLSatisfiesTheDependency() throws GitAPIException, IOException {
+        String gitShaBeforeSave = configRepository.getCurrentRevCommit().getName();
+        PipelineConfig upstream = PipelineConfigMother.createPipelineConfig("upstream", "S", "J");
+        PartialConfig partialConfig = PartialConfigMother.pipelineWithDependencyMaterial("downstream", upstream, new RepoConfigOrigin(configRepo, "r2"));
+        goPartialConfig.onSuccessPartialConfig(configRepo, partialConfig);
+
+        assertTrue(cachedGoPartials.lastKnownPartials().contains(partialConfig));
+        assertTrue(cachedGoPartials.lastValidPartials().isEmpty());
+
+        CruiseConfig originalConfig = cachedGoConfig.loadForEditing();
+        CruiseConfig editedConfig = new Cloner().deepClone(originalConfig);
+
+        editedConfig.addPipeline("default", upstream);
+        ConfigSaveState state = cachedGoConfig.writeFullConfigWithLock(new FullConfigUpdateCommand(editedConfig, goConfigService.configFileMd5()));
+
+        String gitShaAfterSave = configRepository.getCurrentRevCommit().getName();
+        String configXmlFromConfigFolder = FileUtil.readContentFromFile(new File(goConfigDao.fileLocation()));
+
+        assertThat(state, is(ConfigSaveState.UPDATED));
+        assertThat(cachedGoConfig.loadForEditing(), is(editedConfig));
+        assertNotEquals(gitShaBeforeSave, gitShaAfterSave);
+        assertThat(cachedGoConfig.loadForEditing().getMd5(), is(configRepository.getCurrentRevision().getMd5()));
+        assertThat(cachedGoConfig.currentConfig().getMd5(), is(configRepository.getCurrentRevision().getMd5()));
+        assertThat(configXmlFromConfigFolder, is(configRepository.getCurrentRevision().getContent()));
+        RepoConfigOrigin origin = (RepoConfigOrigin) cachedGoPartials.lastValidPartials().get(0).getOrigin();
+        assertThat(origin.getRevision(), is("r2"));
+        assertTrue(cachedGoPartials.lastKnownPartials().contains(partialConfig));
+        assertTrue(cachedGoPartials.lastValidPartials().contains(partialConfig));
     }
 
     private void addPipelineWithParams(CruiseConfig cruiseConfig) {

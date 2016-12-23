@@ -29,6 +29,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -88,7 +90,19 @@ public class MagicalGoConfigXmlWriter {
         LOGGER.debug("[Serializing Config] Finished writing config partial.");
     }
 
-    private void verifyXsdValid(Document document) throws Exception {
+    public Document documentFrom(CruiseConfig config) {
+        Document document = createEmptyCruiseConfigDocument();
+        write(config, document.getRootElement(), configCache, registry);
+        return document;
+    }
+
+    public String toString(Document document) throws IOException {
+        org.apache.commons.io.output.ByteArrayOutputStream outputStream = new org.apache.commons.io.output.ByteArrayOutputStream();
+        XmlUtils.writeXml(document, outputStream);
+        return outputStream.toString(StandardCharsets.UTF_8);
+    }
+
+    public void verifyXsdValid(Document document) throws Exception {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         XmlUtils.writeXml(document, buffer);
         InputStream content = toInputStream(buffer.toString());

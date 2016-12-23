@@ -15,11 +15,14 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
+import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
+import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.PartialConfigMother;
 import com.thoughtworks.go.i18n.Localizer;
@@ -83,7 +86,7 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
 
     @Before
     public void setup() throws Exception {
-        configHelper = new GoConfigFileHelper();
+        configHelper = new GoConfigFileHelper(ConfigFileFixture.XML_WITH_SINGLE_ENVIRONMENT);
         configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
         configHelper.onSetUp();
         goConfigService.forceNotifyListeners();
@@ -113,15 +116,18 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
 
     @Test
     public void shouldNotDeadlockWhenAllPossibleWaysOfUpdatingTheConfigAreBeingUsedAtTheSameTime() throws Exception {
+        int EXISTING_ENV_COUNT = goConfigService.cruiseConfig().getEnvironments().size();
         final ArrayList<Thread> group1 = new ArrayList<>();
         final ArrayList<Thread> group2 = new ArrayList<>();
         final ArrayList<Thread> group3 = new ArrayList<>();
         final ArrayList<Thread> group4 = new ArrayList<>();
+        final ArrayList<Thread> group5 = new ArrayList<>();
         int count = 100;
         final int pipelineCreatedThroughApiCount = count;
         final int pipelineCreatedThroughUICount = count;
         final int configRepoAdditionThreadCount = count;
         final int configRepoDeletionThreadCount = count;
+        final int fullConfigSaveThreadCount = count;
 
         for (int i = 0; i < pipelineCreatedThroughUICount; i++) {
             Thread thread = configSaveThread(i);
@@ -148,6 +154,10 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
             Thread thread = configRepoDeleteThread(configRepoConfig, i);
             group4.add(thread);
         }
+        for (int i = 0; i < fullConfigSaveThreadCount; i++) {
+            Thread thread = fullConfigSaveThread(i);
+            group5.add(thread);
+        }
         configHelper.setConfigRepos(configRepos);
         for (int i = 0; i < count  ; i++) {
             Thread timerThread = null;
@@ -173,11 +183,13 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
                 group2.get(i).start();
                 group3.get(i).start();
                 group4.get(i).start();
+                group5.get(i).start();
                 timerThread.start();
                 group1.get(i).join();
                 group2.get(i).join();
                 group3.get(i).join();
                 group4.get(i).join();
+                group5.get(i).join();
                 timerThread.join();
             } catch (InterruptedException e) {
                 fail(e.getMessage());
@@ -187,6 +199,7 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
 
         assertThat(goConfigService.getAllPipelineConfigs().size(), is(pipelineCreatedThroughApiCount + pipelineCreatedThroughUICount + configRepoAdditionThreadCount));
         assertThat(goConfigService.getConfigForEditing().getAllPipelineConfigs().size(), is(pipelineCreatedThroughApiCount + pipelineCreatedThroughUICount));
+        assertThat(goConfigService.getConfigForEditing().getEnvironments().size(), is(fullConfigSaveThreadCount + EXISTING_ENV_COUNT));
     }
 
     private void writeConfigToFile(File configFile) throws IOException {
@@ -226,6 +239,24 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
                 goPartialConfig.onSuccessPartialConfig(configRepoConfig, PartialConfigMother.withPipeline("remote-pipeline" + counter, new RepoConfigOrigin(configRepoConfig, "1")));
             }
         }, "config-repo-save-thread" + counter);
+    }
+
+    private Thread fullConfigSaveThread(final int counter) throws InterruptedException {
+        return createThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    CruiseConfig cruiseConfig = cachedGoConfig.loadForEditing();
+                    CruiseConfig cruiseConfig1 = new Cloner().deepClone(cruiseConfig);
+                    cruiseConfig1.addEnvironment(UUID.randomUUID().toString());
+
+                    goConfigDao.updateFullConfig(new FullConfigUpdateCommand(cruiseConfig1, cruiseConfig.getMd5()));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }, "full-config-save-thread" + counter);
+
     }
 
     private Thread configRepoDeleteThread(final ConfigRepoConfig configRepoToBeDeleted, final int counter) throws InterruptedException {

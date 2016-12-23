@@ -17,6 +17,7 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.listener.ConfigChangedListener;
@@ -25,6 +26,7 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +46,8 @@ public class CachedGoConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger(CachedGoConfig.class);
     private final GoFileConfigDataSource dataSource;
     private final CachedGoPartials cachedGoPartials;
+    private GoConfigMigrator goConfigMigrator;
+    private SystemEnvironment systemEnvironment;
     private final ServerHealthService serverHealthService;
     private List<ConfigChangedListener> listeners = new ArrayList<>();
     private volatile CruiseConfig currentConfig;
@@ -53,11 +57,13 @@ public class CachedGoConfig {
     private volatile Exception lastException;
 
     @Autowired
-    public CachedGoConfig(ServerHealthService serverHealthService,
-                          GoFileConfigDataSource dataSource, CachedGoPartials cachedGoPartials) {
+    public CachedGoConfig(ServerHealthService serverHealthService, GoFileConfigDataSource dataSource,
+                          CachedGoPartials cachedGoPartials, GoConfigMigrator goConfigMigrator, SystemEnvironment systemEnvironment) {
         this.serverHealthService = serverHealthService;
         this.dataSource = dataSource;
         this.cachedGoPartials = cachedGoPartials;
+        this.goConfigMigrator = goConfigMigrator;
+        this.systemEnvironment = systemEnvironment;
     }
 
     public static List<ConfigErrors> validate(CruiseConfig config) {
@@ -123,6 +129,21 @@ public class CachedGoConfig {
     public void loadConfigIfNull() {
         if (currentConfig == null || currentConfigForEdit == null || configHolder == null || (mergedCurrentConfigForEdit == null && !cachedGoPartials.lastValidPartials().isEmpty())) {
             forceReload();
+        }
+    }
+
+    public synchronized ConfigSaveState writeFullConfigWithLock(FullConfigUpdateCommand updateConfigCommand) {
+        GoFileConfigDataSource.GoConfigSaveResult saveResult = dataSource.writeFullConfigWithLock(updateConfigCommand, this.configHolder);
+        saveValidConfigToCacheAndNotifyConfigChangeListeners(saveResult.getConfigHolder());
+        return saveResult.getConfigSaveState();
+    }
+
+    public synchronized void upgradeConfig() throws Exception {
+        if(systemEnvironment.optimizeFullConfigSave()) {
+            GoConfigHolder goConfigHolder = goConfigMigrator.migrate();
+            saveValidConfigToCacheAndNotifyConfigChangeListeners(goConfigHolder);
+        } else {
+            dataSource.upgradeIfNecessary();
         }
     }
 

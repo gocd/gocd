@@ -24,7 +24,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfiles;
@@ -1544,8 +1543,9 @@ public class GoConfigMigrationIntegrationTest {
         }, configRepository, new TimeProvider(), configCache, registry
         );
         SystemEnvironment sysEnv = new SystemEnvironment();
+        FullConfigSaveNormalFlow normalFlow = new FullConfigSaveNormalFlow(configCache, registry, sysEnv, serverVersion, new TimeProvider(), configRepository, cachedGoPartials);
         GoFileConfigDataSource configDataSource = new GoFileConfigDataSource(migration, configRepository, sysEnv, new TimeProvider(), configCache, serverVersion,
-                registry, serverHealthService, cachedGoPartials);
+                registry, serverHealthService, cachedGoPartials, null, normalFlow);
         configDataSource.upgradeIfNecessary();
         return configDataSource.forceLoad(configFile);
     }

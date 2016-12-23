@@ -23,7 +23,6 @@ import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
-import com.thoughtworks.go.config.merge.MergePipelineConfigs;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
@@ -37,7 +36,6 @@ import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.helper.*;
-import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.util.ServerVersion;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
@@ -48,7 +46,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.thoughtworks.go.config.PipelineConfigs.DEFAULT_GROUP;
@@ -120,10 +117,11 @@ public class GoConfigFileHelper {
             ConfigCache configCache = new ConfigCache();
             ConfigElementImplementationRegistry configElementImplementationRegistry = ConfigElementImplementationRegistryMother.withNoPlugins();
             CachedGoPartials cachedGoPartials = new CachedGoPartials(serverHealthService);
+            FullConfigSaveNormalFlow normalFlow = new FullConfigSaveNormalFlow(configCache, configElementImplementationRegistry, systemEnvironment, new ServerVersion(), new TimeProvider(), configRepository, cachedGoPartials);
             GoFileConfigDataSource dataSource = new GoFileConfigDataSource(new DoNotUpgrade(), configRepository, systemEnvironment, new TimeProvider(),
-                    configCache, new ServerVersion(), configElementImplementationRegistry, serverHealthService, cachedGoPartials);
+                    configCache, new ServerVersion(), configElementImplementationRegistry, serverHealthService, cachedGoPartials, null, normalFlow);
             dataSource.upgradeIfNecessary();
-            CachedGoConfig cachedConfigService = new CachedGoConfig(serverHealthService, dataSource, cachedGoPartials);
+            CachedGoConfig cachedConfigService = new CachedGoConfig(serverHealthService, dataSource, cachedGoPartials, null, null);
             cachedConfigService.loadConfigIfNull();
             return new GoConfigDao(cachedConfigService);
         } catch (IOException e) {
@@ -139,11 +137,13 @@ public class GoConfigFileHelper {
             ServerHealthService serverHealthService = new ServerHealthService();
             ConfigRepository configRepository = new ConfigRepository(systemEnvironment);
             configRepository.initialize();
+            FullConfigSaveNormalFlow normalFlow = new FullConfigSaveNormalFlow(new ConfigCache(), com.thoughtworks.go.util.ConfigElementImplementationRegistryMother.withNoPlugins(), systemEnvironment, new ServerVersion(), new TimeProvider(), configRepository, new CachedGoPartials(serverHealthService));
             GoFileConfigDataSource dataSource = new GoFileConfigDataSource(new DoNotUpgrade(), configRepository, systemEnvironment, new TimeProvider(),
-                    new ConfigCache(), new ServerVersion(), com.thoughtworks.go.util.ConfigElementImplementationRegistryMother.withNoPlugins(), serverHealthService, new CachedGoPartials(serverHealthService));
+                    new ConfigCache(), new ServerVersion(), com.thoughtworks.go.util.ConfigElementImplementationRegistryMother.withNoPlugins(),
+                    serverHealthService, new CachedGoPartials(serverHealthService), null, normalFlow);
             dataSource.upgradeIfNecessary();
             CachedGoPartials cachedGoPartials = new CachedGoPartials(serverHealthService);
-            CachedGoConfig cachedConfigService = new CachedGoConfig(serverHealthService, dataSource, cachedGoPartials);
+            CachedGoConfig cachedConfigService = new CachedGoConfig(serverHealthService, dataSource, cachedGoPartials, null, null);
             cachedConfigService.loadConfigIfNull();
             return new GoConfigDao(cachedConfigService);
         } catch (IOException e) {

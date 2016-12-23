@@ -1371,6 +1371,17 @@ public final class ConfigFileFixture {
                     + "</cruise>";
 
     public static final String DEFAULT_XML_WITH_2_AGENTS = xml();
+
+    public static final String XML_WITH_SINGLE_ENVIRONMENT = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+            + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
+            + " xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
+            + "<server artifactsdir=\"artifactsDir\">\n"
+            + "</server>"
+            + "<environments>"
+            + "<environment name='dummy'/>"
+            + "</environments>"
+            + "</cruise>";
+
     public static final String XML_WITH_ENTERPRISE_LICENSE_FOR_TWO_USERS = xml();
 
     private static String xml() {

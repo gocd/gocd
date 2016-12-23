@@ -17,10 +17,14 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
+import com.thoughtworks.go.serverhealth.ServerHealthState;
+import com.thoughtworks.go.util.SystemEnvironment;
+import org.hamcrest.core.Is;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,12 +44,17 @@ public class CachedGoConfigTest {
     private GoConfigHolder configHolder;
     @Mock
     private ServerHealthService serverHealthService;
+    @Mock
+    private GoConfigMigrator goConfigMigrator;
+    @Mock
+    private SystemEnvironment systemEnvironment;
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
         configHolder = new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig());
-        cachedGoConfig = new CachedGoConfig(serverHealthService, dataSource, mock(CachedGoPartials.class));
+        cachedGoConfig = new CachedGoConfig(serverHealthService, dataSource, mock(CachedGoPartials.class), goConfigMigrator, systemEnvironment);
+        stub(systemEnvironment.optimizeFullConfigSave()).toReturn(true);
         when(dataSource.load()).thenReturn(configHolder);
     }
 
@@ -139,5 +148,74 @@ public class CachedGoConfigTest {
         assertThat(pipelineConfigChangeListenerCalled[0], is(true));
         assertThat(agentConfigChangeListenerCalled[0], is(false));
         assertThat(cruiseConfigChangeListenerCalled[0], is(false));
+    }
+
+    @Test
+    public void shouldWriteFullConfigWithLock() {
+        FullConfigUpdateCommand fullConfigUpdateCommand = mock(FullConfigUpdateCommand.class);
+        when(dataSource.writeFullConfigWithLock(any(FullConfigUpdateCommand.class), any(GoConfigHolder.class))).thenReturn(new GoFileConfigDataSource.GoConfigSaveResult(null, null));
+
+        cachedGoConfig.forceReload();
+        cachedGoConfig.writeFullConfigWithLock(fullConfigUpdateCommand);
+
+        verify(dataSource).writeFullConfigWithLock(fullConfigUpdateCommand, cachedGoConfig.loadConfigHolder());
+    }
+
+    @Test
+    public void shouldUpdateCachesPostWriteFullConfigWithLock() {
+        BasicCruiseConfig config = mock(BasicCruiseConfig.class);
+        BasicCruiseConfig configForEdit = mock(BasicCruiseConfig.class);
+        BasicCruiseConfig mergedConfigForEdit = mock(BasicCruiseConfig.class);
+        GoConfigHolder goConfigHolder = new GoConfigHolder(config, configForEdit);
+        goConfigHolder.mergedConfigForEdit = mergedConfigForEdit;
+        ConfigSaveState configSaveState = ConfigSaveState.UPDATED;
+
+        when(dataSource.writeFullConfigWithLock(any(FullConfigUpdateCommand.class), any(GoConfigHolder.class)))
+                .thenReturn(new GoFileConfigDataSource.GoConfigSaveResult(goConfigHolder, configSaveState));
+
+        cachedGoConfig.forceReload();
+        ConfigSaveState saveState = cachedGoConfig.writeFullConfigWithLock(mock(FullConfigUpdateCommand.class));
+
+        assertThat(saveState, is(configSaveState));
+        assertThat(cachedGoConfig.currentConfig(), Is.<CruiseConfig>is(config));
+        assertThat(cachedGoConfig.loadForEditing(), Is.<CruiseConfig>is(configForEdit));
+        assertThat(cachedGoConfig.loadConfigHolder(), is(goConfigHolder));
+        assertThat(cachedGoConfig.loadMergedForEditing(), Is.<CruiseConfig>is(mergedConfigForEdit));
+        verify(serverHealthService, times(2)).update(any(ServerHealthState.class));
+    }
+
+    @Test
+    public void shouldUpgradeConfigFile() throws Exception {
+        cachedGoConfig.upgradeConfig();
+
+        verify(goConfigMigrator).migrate();
+    }
+
+    @Test
+    public void shouldUpdateCachesPostConfigUpgade() throws Exception {
+        BasicCruiseConfig config = mock(BasicCruiseConfig.class);
+        BasicCruiseConfig configForEdit = mock(BasicCruiseConfig.class);
+        BasicCruiseConfig mergedConfigForEdit = mock(BasicCruiseConfig.class);
+        GoConfigHolder goConfigHolder = new GoConfigHolder(config, configForEdit);
+        goConfigHolder.mergedConfigForEdit = mergedConfigForEdit;
+
+        when(goConfigMigrator.migrate()).thenReturn(goConfigHolder);
+
+        cachedGoConfig.upgradeConfig();
+
+        assertThat(cachedGoConfig.currentConfig(), Is.<CruiseConfig>is(config));
+        assertThat(cachedGoConfig.loadForEditing(), Is.<CruiseConfig>is(configForEdit));
+        assertThat(cachedGoConfig.loadConfigHolder(), is(goConfigHolder));
+        assertThat(cachedGoConfig.loadMergedForEditing(), Is.<CruiseConfig>is(mergedConfigForEdit));
+        verify(serverHealthService).update(any(ServerHealthState.class));
+    }
+
+    @Test
+    public void shouldFallbackToOldConfigUpgradeIfNewFlowIsDisabled() throws Exception {
+        when(systemEnvironment.optimizeFullConfigSave()).thenReturn(false);
+
+        cachedGoConfig.upgradeConfig();
+
+        verify(dataSource).upgradeIfNecessary();
     }
 }

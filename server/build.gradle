@@ -486,7 +486,7 @@ task verifyWar(type: VerifyJarTask) {
       "common-${project.version}.jar",
       "commons-beanutils-1.7.0.jar",
       "commons-beanutils-core-1.7.0.jar",
-      "commons-codec-1.9.jar",
+      "commons-codec-1.10.jar",
       "commons-collections-3.2.2.jar",
       "commons-dbcp-1.4.jar",
       "commons-digester-1.8.jar",

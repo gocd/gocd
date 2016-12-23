@@ -542,7 +542,7 @@ public class GoFileConfigDataSourceTest {
         ServerHealthService serverHealthService = mock(ServerHealthService.class);
         CachedGoPartials cachedGoPartials = mock(CachedGoPartials.class);
         ConfigRepository configRepository = mock(ConfigRepository.class);
-        dataSource = new GoFileConfigDataSource(migration, configRepository, systemEnvironment, timeProvider, mock(ServerVersion.class), loader, writer, serverHealthService, cachedGoPartials, null, null, null, null, null);
+        dataSource = new GoFileConfigDataSource(migration, configRepository, systemEnvironment, timeProvider, mock(ServerVersion.class), loader, writer, serverHealthService, cachedGoPartials, null, null, null, null);
 
         final String pipelineName = UUID.randomUUID().toString();
         BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines(pipelineName);
@@ -758,7 +758,7 @@ public class GoFileConfigDataSourceTest {
         when(fullConfigSaveNormalFlow.execute(commandArgumentCaptor.capture(), listArgumentCaptor.capture(), stringArgumentCaptor.capture())).thenReturn(goConfigHolder);
 
         GoFileConfigDataSource source = new GoFileConfigDataSource(null, null, systemEnvironment, null, null, loader, null, null, cachedGoPartials,
-                null, fullConfigSaveMergeFlow, fullConfigSaveNormalFlow, goConfigFileReader, null);
+                fullConfigSaveMergeFlow, fullConfigSaveNormalFlow, goConfigFileReader, null);
 
         GoConfigHolder configHolder = source.load();
 
@@ -794,7 +794,7 @@ public class GoFileConfigDataSourceTest {
                 .thenThrow(new GoConfigInvalidException(null, null)).thenReturn(goConfigHolder);
 
         GoFileConfigDataSource source = new GoFileConfigDataSource(null, null, systemEnvironment, null, null, loader, null, null, cachedGoPartials,
-                null, fullConfigSaveMergeFlow, fullConfigSaveNormalFlow, goConfigFileReader, null);
+                fullConfigSaveMergeFlow, fullConfigSaveNormalFlow, goConfigFileReader, null);
 
         GoConfigHolder configHolder = source.load();
 

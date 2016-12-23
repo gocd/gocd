@@ -86,7 +86,7 @@ public class GoFileConfigDataSource {
         this(upgrader, configRepository, systemEnvironment, timeProvider, serverVersion,
                 new MagicalGoConfigXmlLoader(configCache, configElementImplementationRegistry),
                 new MagicalGoConfigXmlWriter(configCache, configElementImplementationRegistry), serverHealthService,
-                cachedGoPartials, configElementImplementationRegistry, fullConfigSaveMergeFlow, fullConfigSaveNormalFlow,
+                cachedGoPartials, fullConfigSaveMergeFlow, fullConfigSaveNormalFlow,
                 new GoConfigFileReader(systemEnvironment), new GoConfigFileWriter(systemEnvironment));
         this.configElementImplementationRegistry = configElementImplementationRegistry;
     }
@@ -94,9 +94,9 @@ public class GoFileConfigDataSource {
     GoFileConfigDataSource(GoConfigMigration upgrader, ConfigRepository configRepository, SystemEnvironment systemEnvironment,
                            TimeProvider timeProvider, ServerVersion serverVersion, MagicalGoConfigXmlLoader magicalGoConfigXmlLoader,
                            MagicalGoConfigXmlWriter magicalGoConfigXmlWriter, ServerHealthService serverHealthService,
-                           CachedGoPartials cachedGoPartials, ConfigElementImplementationRegistry configElementImplementationRegistry,
-                           FullConfigSaveMergeFlow fullConfigSaveMergeFlow, FullConfigSaveNormalFlow fullConfigSaveNormalFlow,
-                           GoConfigFileReader goConfigFileReader, GoConfigFileWriter goConfigFileWriter) {
+                           CachedGoPartials cachedGoPartials, FullConfigSaveMergeFlow fullConfigSaveMergeFlow,
+                           FullConfigSaveNormalFlow fullConfigSaveNormalFlow, GoConfigFileReader goConfigFileReader,
+                           GoConfigFileWriter goConfigFileWriter) {
         this.configRepository = configRepository;
         this.systemEnvironment = systemEnvironment;
         this.upgrader = upgrader;
@@ -110,7 +110,6 @@ public class GoFileConfigDataSource {
         this.fullConfigSaveNormalFlow = fullConfigSaveNormalFlow;
         this.goConfigFileReader = goConfigFileReader;
         this.goConfigFileWriter = goConfigFileWriter;
-        this.reloadStrategy = reloadStrategy;
     }
 
     public GoFileConfigDataSource reloadEveryTime() {

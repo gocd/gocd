@@ -265,6 +265,7 @@
                 /api/admin/internal/repository_check_connection=ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR
                 /api/admin/pipelines=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR
                 /api/admin/pipelines/*=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR
+                /api/admin/encrypt=ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR, ROLE_TEMPLATE_SUPERVISOR
                 /api/admin/scms/**=ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR
                 /api/admin/repositories/**=ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR
                 /api/admin/packages/**=ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR

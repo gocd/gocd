@@ -16,15 +16,14 @@
 
 package com.thoughtworks.go.server.util;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.servlet.http.HttpServletRequest;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.security.X509AuthoritiesPopulator;
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
+import com.thoughtworks.go.util.StringUtil;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.security.Authentication;
 import org.springframework.security.GrantedAuthority;
 import org.springframework.security.context.SecurityContext;
@@ -32,11 +31,16 @@ import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.userdetails.UserDetails;
 import org.springframework.security.userdetails.ldap.LdapUserDetails;
 
+import javax.naming.NamingException;
+import javax.servlet.http.HttpServletRequest;
+
 import static com.thoughtworks.go.server.domain.Username.ANONYMOUS;
+import static com.thoughtworks.go.server.security.LdapAuthenticator.DISPLAY_NAME_KEY;
 
 public class UserHelper {
 
     public static final String USERID = "USERID";
+    private static final Log LOG = LogFactory.getLog(UserHelper.class);
 
     public static Username getUserName() {
         SecurityContext securityContext = SecurityContextHolder.getContext();
@@ -50,7 +54,7 @@ public class UserHelper {
         Object principal = authentication.getPrincipal();
         if (principal instanceof LdapUserDetails) {
             LdapUserDetails userDetails = (LdapUserDetails) principal;
-            return new Username(new CaseInsensitiveString(userDetails.getUsername()), resolveDisplayName(userDetails.getUsername(), userDetails.getDn()));
+            return new Username(new CaseInsensitiveString(userDetails.getUsername()), resolveDisplayName(userDetails));
         }
         if (principal instanceof GoUserPrinciple) {
             GoUserPrinciple userPrincipleDetails = (GoUserPrinciple) principal;
@@ -88,24 +92,32 @@ public class UserHelper {
         return false;
     }
 
-    private static String resolveDisplayName(String username, String dn) {
-        Pattern pattern = Pattern.compile("cn=(.*?),\\s");
-        Matcher matcher = pattern.matcher(dn);
-        if (matcher.find()) {
-            return matcher.group(1);
+    private static String resolveDisplayName(LdapUserDetails ldapUserDetails) {
+        try {
+            String displayNameAttributeValue = (String) ldapUserDetails.getAttributes().get(DISPLAY_NAME_KEY).get();
+            if (StringUtil.isBlank(displayNameAttributeValue))
+                displayNameAttributeValue = ldapUserDetails.getDn();
+
+            if (displayNameAttributeValue.startsWith("cn=")) {
+                DistinguishedName distinguishedName = new DistinguishedName(displayNameAttributeValue);
+                return distinguishedName.getValue("cn");
+            }
+            return displayNameAttributeValue;
+        } catch (NamingException e) {
+            LOG.error("Error while resolving display name: " + e.getMessage());
+            return "";
         }
-        return username;
     }
 
-    public static String getSessionKeyForUserId(){
+    public static String getSessionKeyForUserId() {
         return USERID;
     }
-    
+
     public static Long getUserId(HttpServletRequest request) {
         return (Long) request.getSession().getAttribute(USERID);
     }
 
     public static void setUserId(HttpServletRequest request, Long id) {
-        request.getSession().setAttribute(USERID,id);
+        request.getSession().setAttribute(USERID, id);
     }
 }

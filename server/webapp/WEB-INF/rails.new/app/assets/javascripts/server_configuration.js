@@ -117,7 +117,8 @@ ServerConfiguration = function (validation_url) {
           'server_configuration_form[ldap_password_changed]':   $('server_configuration_form_ldap_password_changed').checked,
           'server_configuration_form[ldap_encrypted_password]': $('server_configuration_form_ldap_encrypted_password').value,
           'server_configuration_form[ldap_search_base]':        $('server_configuration_form_ldap_search_base').value,
-          'server_configuration_form[ldap_search_filter]':      $('server_configuration_form_ldap_search_filter').value
+          'server_configuration_form[ldap_search_filter]':      $('server_configuration_form_ldap_search_filter').value,
+          'server_configuration_form[ldap_display_name_attribute]':      $('server_configuration_form_ldap_display_name_attribute').value
 
         },
         requestHeaders: {

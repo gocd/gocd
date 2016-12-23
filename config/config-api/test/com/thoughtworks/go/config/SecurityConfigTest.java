@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.config;
 
-import java.util.Arrays;
-import java.util.regex.Pattern;
-
 import com.thoughtworks.go.config.server.security.ldap.BaseConfig;
 import com.thoughtworks.go.config.server.security.ldap.BasesConfig;
 import com.thoughtworks.go.domain.config.Admin;
@@ -26,6 +23,9 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ReflectionUtil;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.regex.Pattern;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
@@ -141,19 +141,19 @@ public class SecurityConfigTest {
     @Test
     public void shouldNotUpdateManagerPasswordForLDAPIfNotChangedOrNull() throws InvalidCipherTextException {
         SecurityConfig securityConfig = new SecurityConfig();
-        securityConfig.modifyLdap(new LdapConfig("ldap://uri", "dn", "p", null, true, new BasesConfig(new BaseConfig("")), ""));
+        securityConfig.modifyLdap(new LdapConfig("ldap://uri", "dn", "p", null, true, new BasesConfig(new BaseConfig("")), "", ""));
         assertThat((String) ReflectionUtil.getField(securityConfig.ldapConfig(), "managerPassword"), is(""));
         assertThat(securityConfig.ldapConfig().managerPassword(), is("p"));
         String encryptedPassword = new GoCipher().encrypt("p");
         assertThat(securityConfig.ldapConfig().getEncryptedManagerPassword(), is(encryptedPassword));
 
-        securityConfig.modifyLdap(new LdapConfig("ldap://uri", "dn", "notP", null, false, new BasesConfig(new BaseConfig("")), ""));
+        securityConfig.modifyLdap(new LdapConfig("ldap://uri", "dn", "notP", null, false, new BasesConfig(new BaseConfig("")), "", ""));
 
         assertThat((String) ReflectionUtil.getField(securityConfig.ldapConfig(), "managerPassword"), is(""));
         assertThat(securityConfig.ldapConfig().managerPassword(), is("p"));
         assertThat(securityConfig.ldapConfig().getEncryptedManagerPassword(), is(encryptedPassword));
 
-        securityConfig.modifyLdap(new LdapConfig("ldap://uri", "dn", "", null, true, new BasesConfig(new BaseConfig("")), ""));
+        securityConfig.modifyLdap(new LdapConfig("ldap://uri", "dn", "", null, true, new BasesConfig(new BaseConfig("")), "", ""));
         assertThat(securityConfig.ldapConfig().managerPassword(), is(""));
         assertThat(securityConfig.ldapConfig().getEncryptedManagerPassword(), is(nullValue()));
     }
@@ -166,7 +166,7 @@ public class SecurityConfigTest {
     @Test
     public void shouldBeAbleToTellIfSecurityMethodChangedFromNothingToLdap() {
         SecurityConfig ldapSecurity = new SecurityConfig();
-        ldapSecurity.modifyLdap(new LdapConfig("ldap://uri", "dn", "p", null, true, new BasesConfig(new BaseConfig("")), ""));
+        ldapSecurity.modifyLdap(new LdapConfig("ldap://uri", "dn", "p", null, true, new BasesConfig(new BaseConfig("")), "", ""));
         assertTrue(new SecurityConfig().hasSecurityMethodChanged(ldapSecurity));
     }
 
@@ -202,7 +202,7 @@ public class SecurityConfigTest {
     }
 
     public static LdapConfig ldap() {
-        return new LdapConfig("test", "test", "test", null, true, new BasesConfig(new BaseConfig("test")), "test");
+        return new LdapConfig("test", "test", "test", null, true, new BasesConfig(new BaseConfig("test")), "test","test");
     }
 
     public static PasswordFileConfig pwordFile() {

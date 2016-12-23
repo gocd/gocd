@@ -77,7 +77,7 @@
                     </xsd:unique>
                 </xsd:element>
             </xsd:sequence>
-            <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="88"/>
+            <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="87"/>
         </xsd:complexType>
         <xsd:unique name="uniquePipelines">
             <xsd:selector xpath="pipelines"/>
@@ -285,7 +285,6 @@
         <xsd:attribute name="managerPassword" type="xsd:string"/>
         <xsd:attribute name="encryptedManagerPassword" type="xsd:string"/>
         <xsd:attribute name="searchFilter" type="xsd:string"/>
-        <xsd:attribute name="displayNameAttribute" type="xsd:string"/>
     </xsd:complexType>
     <xsd:complexType name="searchBasesType">
         <xsd:sequence>

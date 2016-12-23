@@ -22,15 +22,14 @@ import com.thoughtworks.go.config.server.security.ldap.BasesConfig;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.*;
 
 public class OauthTokenSweeperTest {
     private OauthRepository mockRepo;
     private OauthTokenSweeper oauthTokenSweeper;
 
-    @Before public void setUp() {
+    @Before
+    public void setUp() {
         mockRepo = mock(OauthRepository.class);
         oauthTokenSweeper = new OauthTokenSweeper(mockRepo, null);
     }
@@ -100,7 +99,7 @@ public class OauthTokenSweeperTest {
 
         CruiseConfig newConfig = configWithoutSecurity();
         newConfig.server().security().addRole(new Role(new CaseInsensitiveString("viewer")));
-        
+
         oauthTokenSweeper.onConfigChange(newConfig);
 
         verifyNoMoreInteractions(mockRepo);
@@ -124,13 +123,13 @@ public class OauthTokenSweeperTest {
 
     private CruiseConfig configWithLdap() {
         return configWithSecurity(
-                new LdapConfig("uri", "manager", "pwd", null, true, new BasesConfig(new BaseConfig("foo")), "bar"),
+                new LdapConfig("uri", "manager", "pwd", null, true, new BasesConfig(new BaseConfig("foo")), "bar", "foo"),
                 null);
     }
 
     private CruiseConfig configWithPasswordFile() {
         return configWithSecurity(
-                null, 
+                null,
                 new PasswordFileConfig("password.properties"));
     }
 

@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.config;
 
-import javax.annotation.PostConstruct;
-
 import com.thoughtworks.go.config.server.security.ldap.BaseConfig;
 import com.thoughtworks.go.config.server.security.ldap.BasesConfig;
 import com.thoughtworks.go.domain.ConfigErrors;
@@ -25,17 +23,28 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.StringUtil;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 
+import javax.annotation.PostConstruct;
+
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.StringUtil.nullToBlank;
 
 @ConfigTag("ldap")
-public class LdapConfig implements Validatable, PasswordEncrypter{
-    @ConfigAttribute(value = "uri") private String uri = "";
-    @ConfigAttribute(value = "managerDn") private String managerDn = "";
-    @ConfigAttribute(value = "managerPassword") private String managerPassword = "";
-    @ConfigAttribute(value = "encryptedManagerPassword", allowNull = true) private String encryptedManagerPassword = null;
-    @ConfigAttribute(value = "searchFilter") private String searchFilter = "";
-    @ConfigSubtag(optional = false) private BasesConfig basesConfig = new BasesConfig();
+public class LdapConfig implements Validatable, PasswordEncrypter {
+    @ConfigAttribute(value = "uri")
+    private String uri = "";
+    @ConfigAttribute(value = "managerDn")
+    private String managerDn = "";
+    @ConfigAttribute(value = "managerPassword")
+    private String managerPassword = "";
+    @ConfigAttribute(value = "encryptedManagerPassword", allowNull = true)
+    private String encryptedManagerPassword = null;
+    @ConfigAttribute(value = "searchFilter")
+    private String searchFilter = "";
+    @ConfigAttribute(value = "displayNameAttribute")
+    private String displayNameAttribute = "";
+    @ConfigSubtag(optional = false)
+    private BasesConfig basesConfig = new BasesConfig();
+
     private ConfigErrors errors = new ConfigErrors();
     private boolean passwordChanged;
     private final GoCipher goCipher;
@@ -45,7 +54,7 @@ public class LdapConfig implements Validatable, PasswordEncrypter{
         this.goCipher = goCipher;
     }
 
-    public LdapConfig(String uri, String managerDn, String managerPassword, String encryptedManagerPassword, boolean passwordChanged, BasesConfig basesConfig, String searchFilter) {
+    public LdapConfig(String uri, String managerDn, String managerPassword, String encryptedManagerPassword, boolean passwordChanged, BasesConfig basesConfig, String searchFilter,String displayNameAttribute) {
         this(new GoCipher());
         this.uri = nullToBlank(uri);
         this.managerDn = nullToBlank(managerDn);
@@ -57,6 +66,7 @@ public class LdapConfig implements Validatable, PasswordEncrypter{
         }
         this.basesConfig = basesConfig;
         this.searchFilter = nullToBlank(searchFilter);
+        this.displayNameAttribute = nullToBlank(displayNameAttribute);
     }
 
     public String uri() {
@@ -85,32 +95,20 @@ public class LdapConfig implements Validatable, PasswordEncrypter{
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         LdapConfig that = (LdapConfig) o;
 
-        if (basesConfig != null ? !basesConfig.equals(that.basesConfig) : that.basesConfig != null) {
+        if (uri != null ? !uri.equals(that.uri) : that.uri != null) return false;
+        if (managerDn != null ? !managerDn.equals(that.managerDn) : that.managerDn != null) return false;
+        if (encryptedManagerPassword != null ? !encryptedManagerPassword.equals(that.encryptedManagerPassword) : that.encryptedManagerPassword != null)
             return false;
-        }
-        if (encryptedManagerPassword != null ? !encryptedManagerPassword.equals(that.encryptedManagerPassword) : that.encryptedManagerPassword != null) {
+        if (searchFilter != null ? !searchFilter.equals(that.searchFilter) : that.searchFilter != null) return false;
+        if (displayNameAttribute != null ? !displayNameAttribute.equals(that.displayNameAttribute) : that.displayNameAttribute != null)
             return false;
-        }
-        if (managerDn != null ? !managerDn.equals(that.managerDn) : that.managerDn != null) {
-            return false;
-        }
-        if (searchFilter != null ? !searchFilter.equals(that.searchFilter) : that.searchFilter != null) {
-            return false;
-        }
-        if (uri != null ? !uri.equals(that.uri) : that.uri != null) {
-            return false;
-        }
+        return basesConfig != null ? basesConfig.equals(that.basesConfig) : that.basesConfig == null;
 
-        return true;
     }
 
     @Override
@@ -119,6 +117,7 @@ public class LdapConfig implements Validatable, PasswordEncrypter{
         result = 31 * result + (managerDn != null ? managerDn.hashCode() : 0);
         result = 31 * result + (encryptedManagerPassword != null ? encryptedManagerPassword.hashCode() : 0);
         result = 31 * result + (searchFilter != null ? searchFilter.hashCode() : 0);
+        result = 31 * result + (displayNameAttribute != null ? displayNameAttribute.hashCode() : 0);
         result = 31 * result + (basesConfig != null ? basesConfig.hashCode() : 0);
         return result;
     }
@@ -154,9 +153,10 @@ public class LdapConfig implements Validatable, PasswordEncrypter{
             this.encryptedManagerPassword = newLdapConfig.encryptedManagerPassword;
         }
         this.uri = newLdapConfig.uri;
-        this.managerDn =  newLdapConfig.managerDn;
+        this.managerDn = newLdapConfig.managerDn;
         this.basesConfig = newLdapConfig.getBasesConfig();
-        this.searchFilter =  newLdapConfig.searchFilter;
+        this.searchFilter = newLdapConfig.searchFilter;
+        this.displayNameAttribute = newLdapConfig.displayNameAttribute;
     }
 
     private void resetPassword(String password) {
@@ -192,5 +192,9 @@ public class LdapConfig implements Validatable, PasswordEncrypter{
 
     public BasesConfig getBasesConfig() {
         return basesConfig;
+    }
+
+    public String displayNameAttribute() {
+        return this.displayNameAttribute;
     }
 }

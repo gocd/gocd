@@ -23,7 +23,6 @@ import com.thoughtworks.go.config.exceptions.PipelineGroupNotFoundException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
-import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
@@ -292,7 +291,7 @@ public class GoConfigServiceTest {
     @Test
     public void shouldUnderstandIfLdapIsConfigured() throws Exception {
         CruiseConfig config = new BasicCruiseConfig();
-        config.setServerConfig(new ServerConfig(null, new SecurityConfig(new LdapConfig("test", "test", "test", null, true, new BasesConfig(new BaseConfig("test")), "test"), null, true, null)));
+        config.setServerConfig(new ServerConfig(null, new SecurityConfig(new LdapConfig("test", "test", "test", null, true, new BasesConfig(new BaseConfig("test")), "test","test"), null, true, null)));
         expectLoad(config);
         assertThat("Ldap is configured", goConfigService.isLdapConfigured(), is(true));
     }

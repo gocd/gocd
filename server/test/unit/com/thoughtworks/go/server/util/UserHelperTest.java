@@ -32,9 +32,12 @@ import org.springframework.security.providers.TestingAuthenticationToken;
 import org.springframework.security.userdetails.User;
 import org.springframework.security.userdetails.ldap.LdapUserDetailsImpl;
 
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttributes;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import static com.thoughtworks.go.server.security.LdapAuthenticator.DISPLAY_NAME_KEY;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
@@ -70,7 +73,7 @@ public class UserHelperTest {
     public static void stubSecurityContextForRole(String roleName) {
         GrantedAuthority agentAuth = mock(GrantedAuthority.class);
         when(agentAuth.getAuthority()).thenReturn(roleName);
-        GrantedAuthority[] grantedAuthorities = roleName == null ? new GrantedAuthority[] {} : new GrantedAuthority[] {agentAuth};
+        GrantedAuthority[] grantedAuthorities = roleName == null ? new GrantedAuthority[]{} : new GrantedAuthority[]{agentAuth};
         stubSecurityContextForGrantedAuthorities(grantedAuthorities);
     }
 
@@ -90,7 +93,7 @@ public class UserHelperTest {
     }
 
     @Test
-    public void shouldGetFullNameFromLdapUserDetails() {
+    public void shouldGetNameFromDNLdapUserDetailsIfDisplayNameAttributeNotFound() {
         TestingAuthenticationToken authentication = new TestingAuthenticationToken(new LdapUserDetailsImpl() {
             public String getUsername() {
                 return "test1";
@@ -99,12 +102,19 @@ public class UserHelperTest {
             public String getDn() {
                 return "cn=Test User, ou=Beijing, ou=Employees, ou=Enterprise, ou=Principal";
             }
+
+            @Override
+            public Attributes getAttributes() {
+                Attributes attributes = new BasicAttributes();
+                attributes.put(DISPLAY_NAME_KEY, "");
+                return attributes;
+            }
         }, null, null);
         assertThat(UserHelper.getUserName(authentication).getDisplayName(), is("Test User"));
     }
 
     @Test
-    public void shouldGetNameFromLdapUserDetailsIfCannotGetFullName() {
+    public void shouldGetNameFromLdapUserDetails() {
         TestingAuthenticationToken authentication = new TestingAuthenticationToken(new LdapUserDetailsImpl() {
             public String getUsername() {
                 return "test1";
@@ -112,6 +122,13 @@ public class UserHelperTest {
 
             public String getDn() {
                 return "n=Test User, ou=Beijing, ou=Employees, ou=Enterprise, ou=Principal";
+            }
+
+            @Override
+            public Attributes getAttributes() {
+                Attributes attributes = new BasicAttributes();
+                attributes.put(DISPLAY_NAME_KEY, "test1");
+                return attributes;
             }
         }, null, null);
         assertThat(UserHelper.getUserName(authentication).getDisplayName(), is("test1"));
@@ -139,17 +156,18 @@ public class UserHelperTest {
     }
 
     @Test
-    public void shouldSetUserIdIntoSession(){
+    public void shouldSetUserIdIntoSession() {
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpSession session = mock(HttpSession.class);
         when(request.getSession()).thenReturn(session);
 
         UserHelper.setUserId(request, 123L);
 
-        verify(session).setAttribute("USERID",123L);
+        verify(session).setAttribute("USERID", 123L);
     }
+
     @Test
-    public void shouldGetUserIdFromSession(){
+    public void shouldGetUserIdFromSession() {
         HttpServletRequest request = mock(HttpServletRequest.class);
         HttpSession session = mock(HttpSession.class);
         when(request.getSession()).thenReturn(session);

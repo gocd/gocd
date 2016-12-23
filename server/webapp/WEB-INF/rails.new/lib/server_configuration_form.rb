@@ -21,20 +21,20 @@ class ServerConfigurationForm
   PURGING_ENABLED = "Size"
 
   attr_accessor :hostName, :port, :username, :password, :encrypted_password, :tls, :from, :adminMail, :password_changed,
-                :allow_auto_login, :ldap_username, :ldap_uri, :ldap_password, :ldap_encrypted_password, :ldap_password_changed, :ldap_search_base, :ldap_search_filter, :password_file_path,
+                :allow_auto_login, :ldap_username, :ldap_uri, :ldap_password, :ldap_encrypted_password, :ldap_password_changed, :ldap_search_base, :ldap_search_filter, :ldap_display_name_attribute, :password_file_path,
                 :artifactsDir, :purgeArtifacts, :jobTimeout, :timeoutType, :siteUrl, :secureSiteUrl, :commandRepositoryLocation
-  
+
   def initialize(attributes)
     @hostName, @port, @username, @password, @encrypted_password, @password_changed, @tls, @from, @adminMail =
-            attributes[:hostName], attributes[:port], attributes[:username], attributes[:password], attributes[:encrypted_password], attributes[:password_changed], attributes[:tls], attributes[:from], attributes[:adminMail]
+      attributes[:hostName], attributes[:port], attributes[:username], attributes[:password], attributes[:encrypted_password], attributes[:password_changed], attributes[:tls], attributes[:from], attributes[:adminMail]
 
-    @allow_auto_login, @ldap_username, @ldap_uri, @ldap_password, @ldap_encrypted_password, @ldap_password_changed, @ldap_search_base, @ldap_search_filter, @password_file_path =
-            attributes[:allow_auto_login], attributes[:ldap_username], attributes[:ldap_uri], attributes[:ldap_password], attributes[:ldap_encrypted_password], attributes[:ldap_password_changed],
-                    attributes[:ldap_search_base], attributes[:ldap_search_filter], attributes[:password_file_path]
+    @allow_auto_login, @ldap_username, @ldap_uri, @ldap_password, @ldap_encrypted_password, @ldap_password_changed, @ldap_search_base, @ldap_search_filter, @ldap_display_name_attribute, @password_file_path =
+      attributes[:allow_auto_login], attributes[:ldap_username], attributes[:ldap_uri], attributes[:ldap_password], attributes[:ldap_encrypted_password], attributes[:ldap_password_changed],
+        attributes[:ldap_search_base], attributes[:ldap_search_filter], attributes[:ldap_display_name_attribute], attributes[:password_file_path]
     @artifactsDir, @purgeArtifacts, @purgeStart, @purgeUpto = attributes[:artifactsDir], attributes[:purgeArtifacts], attributes[:purgeStart], attributes[:purgeUpto]
     @jobTimeout = attributes[:timeoutType] == com.thoughtworks.go.config.ServerConfig::NEVER_TIMEOUT ? "0" : attributes[:jobTimeout]
     @timeoutType = attributes[:timeoutType]
-    @siteUrl, @secureSiteUrl =  attributes[:siteUrl], attributes[:secureSiteUrl]
+    @siteUrl, @secureSiteUrl = attributes[:siteUrl], attributes[:secureSiteUrl]
     @commandRepositoryLocation = attributes[:commandRepositoryLocation]
   end
 
@@ -43,16 +43,16 @@ class ServerConfigurationForm
   end
 
   def self.from_server_config(server_config)
-    security_config, mail_host = server_config.security(),server_config.mailHost()
+    security_config, mail_host = server_config.security(), server_config.mailHost()
     ldap_config = security_config.ldapConfig()
     password_file_path = security_config.passwordFileConfig().path()
     auto_login = security_config.isAllowOnlyKnownUsersToLogin() ? "false" : "true"
 
     allow_auto_login = {:allow_auto_login => auto_login}
     mail_host_params= {:hostName => mail_host.getHostName(), :port => mail_host.getPort().to_s, :username => mail_host.getUserName(),
-                       :password => mail_host.getPassword(), :encrypted_password => mail_host.getEncryptedPassword(), :password_changed => mail_host.isPasswordChanged().to_s , :tls => mail_host.getTls().to_s, :from => mail_host.getFrom(), :adminMail => mail_host.getAdminMail()}
+                       :password => mail_host.getPassword(), :encrypted_password => mail_host.getEncryptedPassword(), :password_changed => mail_host.isPasswordChanged().to_s, :tls => mail_host.getTls().to_s, :from => mail_host.getFrom(), :adminMail => mail_host.getAdminMail()}
     ldap_config_params = {:ldap_uri => ldap_config.uri(), :ldap_username => ldap_config.managerDn(), :ldap_password => ldap_config.managerPassword(), :ldap_encrypted_password => ldap_config.getEncryptedManagerPassword(), :ldap_password_changed => ldap_config.isPasswordChanged().to_s,
-                          :ldap_search_base => from_bases_collection(ldap_config.searchBases()), :ldap_search_filter => ldap_config.searchFilter(), :password_file_path => password_file_path}
+                          :ldap_search_base => from_bases_collection(ldap_config.searchBases()), :ldap_search_filter => ldap_config.searchFilter(), :ldap_display_name_attribute => ldap_config.displayNameAttribute(), :password_file_path => password_file_path}
     artifacts_params = {:artifactsDir => server_config.artifactsDir(), :purgeArtifacts => artifactPurgingAllowed?(server_config), :purgeStart => server_config.getPurgeStart(), :purgeUpto => server_config.getPurgeUpto()}
     job_timeout_params = {:timeoutType => server_config.getTimeoutType(), :jobTimeout => server_config.getJobTimeout()}
     site_url_params = {:siteUrl => server_config.getSiteUrl().getUrl(), :secureSiteUrl => server_config.getSecureSiteUrl().getUrl()}
@@ -68,7 +68,7 @@ class ServerConfigurationForm
   end
 
   def to_ldap_config
-    LdapConfig.new(ldap_uri, ldap_username, ldap_password, ldap_encrypted_password, ldap_password_changed == "true", to_bases_collection(ldap_search_base), ldap_search_filter)
+    LdapConfig.new(ldap_uri, ldap_username, ldap_password, ldap_encrypted_password, ldap_password_changed == "true", to_bases_collection(ldap_search_base), ldap_search_filter, ldap_display_name_attribute)
   end
 
   def self.from_bases_collection bases_collection
@@ -158,23 +158,24 @@ class ServerConfigurationForm
 
   def ==(other)
     hostName == other.hostName &&
-    port == other.port &&
-    username == other.username &&
-    password == other.password &&
-    tls == other.tls &&
-    from == other.from &&
-    adminMail == other.adminMail &&
-    allow_auto_login == other.allow_auto_login &&
-    ldap_username == other.ldap_username &&
-    ldap_uri == other.ldap_uri &&
-    ldap_password == other.ldap_password &&
-    ldap_search_base == other.ldap_search_base &&
-    ldap_search_filter == other.ldap_search_filter &&
-    password_file_path == other.password_file_path
+      port == other.port &&
+      username == other.username &&
+      password == other.password &&
+      tls == other.tls &&
+      from == other.from &&
+      adminMail == other.adminMail &&
+      allow_auto_login == other.allow_auto_login &&
+      ldap_username == other.ldap_username &&
+      ldap_uri == other.ldap_uri &&
+      ldap_password == other.ldap_password &&
+      ldap_search_base == other.ldap_search_base &&
+      ldap_search_filter == other.ldap_search_filter &&
+      ldap_display_name_attribute == other.ldap_display_name_attribute &&
+      password_file_path == other.password_file_path
   end
 
   def hash
-    hostName ^ port ^ username ^ password ^ tls ^ from ^ adminMail ^ allow_auto_login ^ ldap_username ^ ldap_uri ^ ldap_password ^ ldap_search_base ^ ldap_search_filter ^ password_file_path
+    hostName ^ port ^ username ^ password ^ tls ^ from ^ adminMail ^ allow_auto_login ^ ldap_username ^ ldap_uri ^ ldap_password ^ ldap_search_base ^ ldap_search_filter ^ ldap_display_name_attribute ^ password_file_path
   end
 end
 

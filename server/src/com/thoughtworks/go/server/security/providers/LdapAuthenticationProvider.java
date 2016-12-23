@@ -28,6 +28,7 @@ public class LdapAuthenticationProvider extends org.springframework.security.pro
     public LdapAuthenticationProvider(GoConfigService goConfigService, org.springframework.security.providers.ldap.LdapAuthenticator authenticator, LdapAuthoritiesPopulator authoritiesPopulator) {
         super(authenticator, authoritiesPopulator);
         this.goConfigService = goConfigService;
+        setUserDetailsContextMapper(new CustomLdapUserDetailsContextMapper(goConfigService));
     }
 
     public boolean supports(Class authentication) {

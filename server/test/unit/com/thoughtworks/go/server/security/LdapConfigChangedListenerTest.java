@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.server.security;
 
-import java.io.IOException;
-
 import com.thoughtworks.go.config.AdminsConfig;
 import com.thoughtworks.go.config.LdapConfig;
 import com.thoughtworks.go.config.PasswordFileConfig;
@@ -28,10 +26,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import java.io.IOException;
+
+import static org.mockito.Mockito.*;
 
 
 public class LdapConfigChangedListenerTest {
@@ -51,8 +48,8 @@ public class LdapConfigChangedListenerTest {
 
     @Test
     public void shouldTriggerReintializeOfContextFactoryOnChangeOnLdapConfig() {
-        LdapConfig oldLdapConfig = new LdapConfig("oldOne", "manager", "pwd", null, true, new BasesConfig(new BaseConfig("foo")), "bar");
-        LdapConfig newLdapConfig = new LdapConfig("newOne", "manager", "pwd", null, true, new BasesConfig(new BaseConfig("foo")), "bar");
+        LdapConfig oldLdapConfig = new LdapConfig("oldOne", "manager", "pwd", null, true, new BasesConfig(new BaseConfig("foo")), "bar", "foo");
+        LdapConfig newLdapConfig = new LdapConfig("newOne", "manager", "pwd", null, true, new BasesConfig(new BaseConfig("foo")), "bar", "foo");
         helper.addLdapSecurityWith(oldLdapConfig, true, new PasswordFileConfig(), new AdminsConfig());
 
         LdapContextFactory mockContextFactory = mock(LdapContextFactory.class);
@@ -66,7 +63,7 @@ public class LdapConfigChangedListenerTest {
 
     @Test
     public void shouldNotTriggerReintializeOfContextFactoryWhenLdapConfigDoesNotChange() {
-        LdapConfig oldLdapConfig = new LdapConfig("oldOne", "manager", "pwd", null, true, new BasesConfig(new BaseConfig("foo")), "bar");
+        LdapConfig oldLdapConfig = new LdapConfig("oldOne", "manager", "pwd", null, true, new BasesConfig(new BaseConfig("foo")), "bar", "foo");
         helper.addLdapSecurityWith(oldLdapConfig, true, new PasswordFileConfig(), new AdminsConfig());
 
         LdapContextFactory mockContextFactory = mock(LdapContextFactory.class);
@@ -80,16 +77,16 @@ public class LdapConfigChangedListenerTest {
 
     @Test
     public void shouldReinitializeDelegator_whenLdapManagerPasswordChanges() {
-        LdapConfig oldLdapConfig = new LdapConfig("oldOne", "manager", "pwd", null, true, new BasesConfig(new BaseConfig("foo")), "bar");
+        LdapConfig oldLdapConfig = new LdapConfig("oldOne", "manager", "pwd", null, true, new BasesConfig(new BaseConfig("foo")), "bar", "foo");
         helper.addLdapSecurityWith(oldLdapConfig, true, new PasswordFileConfig(), new AdminsConfig());
 
         LdapContextFactory mockContextFactory = mock(LdapContextFactory.class);
         LdapConfigChangedListener listener = new LdapConfigChangedListener(oldLdapConfig, mockContextFactory);
 
-        LdapConfig newLdapConfig = new LdapConfig("oldOne", "manager", "new_pwd", null, true, new BasesConfig(new BaseConfig("foo")), "bar");
+        LdapConfig newLdapConfig = new LdapConfig("oldOne", "manager", "new_pwd", null, true, new BasesConfig(new BaseConfig("foo")), "bar", "foo");
 
         helper.addLdapSecurityWith(newLdapConfig, true, new PasswordFileConfig(), new AdminsConfig());
-        
+
         listener.onConfigChange(helper.currentConfig());
 
         verify(mockContextFactory).initializeDelegator();

@@ -43,6 +43,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
@@ -53,11 +54,14 @@ public class ServerConfigServiceIntegrationTest {
 
     @Autowired
     GoConfigService goConfigService;
-    @Autowired ServerConfigService serverConfigService;
-    @Autowired UserService userService;
+    @Autowired
+    ServerConfigService serverConfigService;
+    @Autowired
+    UserService userService;
     @Autowired
     GoConfigDao goConfigDao;
-    @Autowired Localizer localizer;
+    @Autowired
+    Localizer localizer;
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
@@ -71,6 +75,7 @@ public class ServerConfigServiceIntegrationTest {
     private static final String MANAGER_PASSWORD = "some-password";
     private static final String SEARCH_BASE = "ou=Employees,ou=Company,ou=Principal," + BASE_DN;
     private static final String SEARCH_FILTER = "(sAMAccountName={0})";
+    private static final String DISPLAY_NAME = "uid";
 
     @Before
     public void setup() throws Exception {
@@ -93,7 +98,7 @@ public class ServerConfigServiceIntegrationTest {
 
     @Test
     public void shouldUpdateServerConfigWithoutValidatingMailHostWhenMailhostisEmpty() {
-        LdapConfig ldapConfig = new LdapConfig(LDAP_URL, MANAGER_DN, MANAGER_PASSWORD, null, true, new BasesConfig(new BaseConfig(SEARCH_BASE)), SEARCH_FILTER);
+        LdapConfig ldapConfig = new LdapConfig(LDAP_URL, MANAGER_DN, MANAGER_PASSWORD, null, true, new BasesConfig(new BaseConfig(SEARCH_BASE)), SEARCH_FILTER, DISPLAY_NAME);
         PasswordFileConfig passwordFileConfig = new PasswordFileConfig("valid_path.txt");
         MailHost mailHost = new MailHost(new GoCipher());
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -109,7 +114,7 @@ public class ServerConfigServiceIntegrationTest {
 
     @Test
     public void shouldUpdateServerConfig() throws InvalidCipherTextException {
-        LdapConfig ldapConfig = new LdapConfig(LDAP_URL, MANAGER_DN, MANAGER_PASSWORD, null, true, new BasesConfig(new BaseConfig(SEARCH_BASE)), SEARCH_FILTER);
+        LdapConfig ldapConfig = new LdapConfig(LDAP_URL, MANAGER_DN, MANAGER_PASSWORD, null, true, new BasesConfig(new BaseConfig(SEARCH_BASE)), SEARCH_FILTER, DISPLAY_NAME);
         PasswordFileConfig passwordFileConfig = new PasswordFileConfig("valid_path.txt");
         MailHost mailHost = new MailHost("boo", 1, "username", "password", new GoCipher().encrypt("password"), true, true, "from@from.com", "admin@admin.com", new GoCipher());
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -125,14 +130,14 @@ public class ServerConfigServiceIntegrationTest {
         assertThat(goConfigService.serverConfig().getJobTimeout(), is("42"));
         assertThat(goConfigService.serverConfig().getPurgeStart(), is(10.0));
         assertThat(goConfigService.serverConfig().getPurgeUpto(), is(20.0));
-        assertThat(goConfigService.serverConfig().getCommandRepositoryLocation(),is("gist-repo/folder"));
+        assertThat(goConfigService.serverConfig().getCommandRepositoryLocation(), is("gist-repo/folder"));
 
         assertThat(result.isSuccessful(), is(true));
     }
 
     @Test
     public void shouldAllowNullValuesForPurgeStartAndPurgeUpTo() throws InvalidCipherTextException {
-        LdapConfig ldapConfig = new LdapConfig(LDAP_URL, MANAGER_DN, MANAGER_PASSWORD, null, true, new BasesConfig(new BaseConfig(SEARCH_BASE)), SEARCH_FILTER);
+        LdapConfig ldapConfig = new LdapConfig(LDAP_URL, MANAGER_DN, MANAGER_PASSWORD, null, true, new BasesConfig(new BaseConfig(SEARCH_BASE)), SEARCH_FILTER, DISPLAY_NAME);
         PasswordFileConfig passwordFileConfig = new PasswordFileConfig("valid_path.txt");
         MailHost mailHost = new MailHost("boo", 1, "username", "password", new GoCipher().encrypt("password"), true, true, "from@from.com", "admin@admin.com", new GoCipher());
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -147,7 +152,7 @@ public class ServerConfigServiceIntegrationTest {
 
     @Test
     public void shouldUpdateWithEmptySecureSiteUrlAndSiteUrl() throws InvalidCipherTextException {
-        LdapConfig ldapConfig = new LdapConfig(LDAP_URL, MANAGER_DN, MANAGER_PASSWORD, null, true, new BasesConfig(new BaseConfig(SEARCH_BASE)), SEARCH_FILTER);
+        LdapConfig ldapConfig = new LdapConfig(LDAP_URL, MANAGER_DN, MANAGER_PASSWORD, null, true, new BasesConfig(new BaseConfig(SEARCH_BASE)), SEARCH_FILTER, DISPLAY_NAME);
         PasswordFileConfig passwordFileConfig = new PasswordFileConfig("valid_path.txt");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         MailHost mailHost = new MailHost("boo", 1, "username", "password", new GoCipher().encrypt("password"), true, true, "from@from.com", "admin@admin.com", new GoCipher());
@@ -163,7 +168,7 @@ public class ServerConfigServiceIntegrationTest {
         configHelper.turnOnSecurity();
         configHelper.addRole(role);
 
-        LdapConfig ldapConfig = new LdapConfig(LDAP_URL, MANAGER_DN, MANAGER_PASSWORD, null, true, new BasesConfig(new BaseConfig(SEARCH_BASE)), SEARCH_FILTER);
+        LdapConfig ldapConfig = new LdapConfig(LDAP_URL, MANAGER_DN, MANAGER_PASSWORD, null, true, new BasesConfig(new BaseConfig(SEARCH_BASE)), SEARCH_FILTER, DISPLAY_NAME);
         PasswordFileConfig passwordConfig = new PasswordFileConfig("valid_path.txt");
         SecurityConfig securityConfig = createSecurity(role, ldapConfig, passwordConfig, false);
 
@@ -189,7 +194,7 @@ public class ServerConfigServiceIntegrationTest {
 
     @Test
     public void shouldUpdateServerConfigShouldFailWhenConfigSaveFails() {
-        LdapConfig ldapConfig = new LdapConfig(LDAP_URL, MANAGER_DN, MANAGER_PASSWORD, null, true, new BasesConfig(new BaseConfig("")), "");
+        LdapConfig ldapConfig = new LdapConfig(LDAP_URL, MANAGER_DN, MANAGER_PASSWORD, null, true, new BasesConfig(new BaseConfig("")), "", "");
         PasswordFileConfig passwordFileConfig = new PasswordFileConfig("valid_path.txt");
         MailHost mailHost = new MailHost("boo", 1, "username", "password", true, true, "from@from.com", "admin@admin.com");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -205,7 +210,7 @@ public class ServerConfigServiceIntegrationTest {
     @Test
     public void shouldUpdateOnlyLdapConfiguration() {
         CruiseConfig cruiseConfig = goConfigDao.loadForEditing();
-        LdapConfig newLdapConfig = new LdapConfig("url", "managerDN", "managerPassword", "encrypted", true, new BasesConfig(new BaseConfig("base1"), new BaseConfig("base2")), "filter");
+        LdapConfig newLdapConfig = new LdapConfig("url", "managerDN", "managerPassword", "encrypted", true, new BasesConfig(new BaseConfig("base1"), new BaseConfig("base2")), "filter", "displayName");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         ServerConfig serverConfig = cruiseConfig.server();
         serverConfigService.updateServerConfig(cruiseConfig.mailHost(), newLdapConfig, serverConfig.security().passwordFileConfig(),
@@ -294,14 +299,14 @@ public class ServerConfigServiceIntegrationTest {
         assertThat(result.message(localizer), is("Cannot connect to ldap, please check the settings. Reason: An LDAP connection URL must be supplied."));
 
         result = new HttpLocalizedOperationResult();
-        invalidLdapConfig = new LdapConfig("ldap://some_loser_url", MANAGER_DN, MANAGER_PASSWORD, null, true, new BasesConfig(new BaseConfig(SEARCH_BASE)), SEARCH_FILTER);
+        invalidLdapConfig = new LdapConfig("ldap://some_loser_url", MANAGER_DN, MANAGER_PASSWORD, null, true, new BasesConfig(new BaseConfig(SEARCH_BASE)), SEARCH_FILTER, DISPLAY_NAME);
         serverConfigService.validateLdapSettings(invalidLdapConfig, result);
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.message(localizer),
                 is("Cannot connect to ldap, please check the settings. Reason: some_loser_url:389; nested exception is javax.naming.CommunicationException: some_loser_url:389 [Root exception is java.net.UnknownHostException: some_loser_url]"));
 
         result = new HttpLocalizedOperationResult();
-        invalidLdapConfig = new LdapConfig(LDAP_URL, "invalidDN=1", MANAGER_PASSWORD, null, true, new BasesConfig(new BaseConfig(SEARCH_BASE)), SEARCH_FILTER);
+        invalidLdapConfig = new LdapConfig(LDAP_URL, "invalidDN=1", MANAGER_PASSWORD, null, true, new BasesConfig(new BaseConfig(SEARCH_BASE)), SEARCH_FILTER, DISPLAY_NAME);
         serverConfigService.validateLdapSettings(invalidLdapConfig, result);
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.message(localizer), is("Cannot connect to ldap, please check the settings." +
@@ -310,7 +315,7 @@ public class ServerConfigServiceIntegrationTest {
                 " [LDAP: error code 49 - Unable to bind as user 'invalidDN=1' because no such entry exists in the server.]"));
 
         result = new HttpLocalizedOperationResult();
-        invalidLdapConfig = new LdapConfig(LDAP_URL, MANAGER_DN, "wrong_password", null, true, new BasesConfig(new BaseConfig(SEARCH_BASE)), SEARCH_FILTER);
+        invalidLdapConfig = new LdapConfig(LDAP_URL, MANAGER_DN, "wrong_password", null, true, new BasesConfig(new BaseConfig(SEARCH_BASE)), SEARCH_FILTER, DISPLAY_NAME);
         serverConfigService.validateLdapSettings(invalidLdapConfig, result);
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.message(localizer), is("Cannot connect to ldap, please check the settings." +
@@ -322,7 +327,7 @@ public class ServerConfigServiceIntegrationTest {
                 " password was incorrect.]"));
 
         result = new HttpLocalizedOperationResult();
-        LdapConfig validConfig = new LdapConfig(LDAP_URL, MANAGER_DN, MANAGER_PASSWORD, null, true, new BasesConfig(new BaseConfig(SEARCH_BASE)), SEARCH_FILTER);
+        LdapConfig validConfig = new LdapConfig(LDAP_URL, MANAGER_DN, MANAGER_PASSWORD, null, true, new BasesConfig(new BaseConfig(SEARCH_BASE)), SEARCH_FILTER, DISPLAY_NAME);
         serverConfigService.validateLdapSettings(validConfig, result);
         assertThat("Expected no message. Got: " + result.message(localizer), result.isSuccessful(), is(true));
     }
@@ -356,7 +361,7 @@ public class ServerConfigServiceIntegrationTest {
 
     @Test
     public void shouldUseTheNewPasswordIfItIsChanged() {
-        LdapConfig ldapConfig = new LdapConfig(LDAP_URL, MANAGER_DN, "changed_password", "encrypted_password", true, new BasesConfig(new BaseConfig(SEARCH_BASE)), SEARCH_FILTER);
+        LdapConfig ldapConfig = new LdapConfig(LDAP_URL, MANAGER_DN, "changed_password", "encrypted_password", true, new BasesConfig(new BaseConfig(SEARCH_BASE)), SEARCH_FILTER, DISPLAY_NAME);
         DefaultSpringSecurityContextSource source = serverConfigService.ldapContextSource(ldapConfig);
         assertThat(source.getAuthenticationSource().getCredentials(), is("changed_password"));
     }
@@ -364,7 +369,7 @@ public class ServerConfigServiceIntegrationTest {
     @Test
     public void shouldUseTheEncryptedPasswordWhenPasswordIsNotChanged() throws InvalidCipherTextException {
         String encryptedPassword = new GoCipher().encrypt("encrypted_password");
-        LdapConfig ldapConfig = new LdapConfig(LDAP_URL, MANAGER_DN, MANAGER_PASSWORD, encryptedPassword, false, new BasesConfig(new BaseConfig(SEARCH_BASE)), SEARCH_FILTER);
+        LdapConfig ldapConfig = new LdapConfig(LDAP_URL, MANAGER_DN, MANAGER_PASSWORD, encryptedPassword, false, new BasesConfig(new BaseConfig(SEARCH_BASE)), SEARCH_FILTER, DISPLAY_NAME);
         DefaultSpringSecurityContextSource source = serverConfigService.ldapContextSource(ldapConfig);
         assertThat(source.getAuthenticationSource().getCredentials(), is("encrypted_password"));
     }

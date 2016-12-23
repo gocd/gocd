@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.security;
 
+import com.thoughtworks.go.server.service.GoConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.security.Authentication;
@@ -23,16 +24,20 @@ import org.springframework.security.providers.ldap.authenticator.BindAuthenticat
 
 public class LdapAuthenticator extends BindAuthenticator {
     public static final String AUTHENTICATION_KEY = "AUTHENTICATION_KEY";
+    public static final String DISPLAY_NAME_KEY = "DISPLAY_NAME_KEY";
+    private GoConfigService goConfigService;
 
     @Autowired
-    public LdapAuthenticator(LdapContextFactory contextFactory, LdapUserSearch userSearch) {
+    public LdapAuthenticator(LdapContextFactory contextFactory, GoConfigService goConfigService, LdapUserSearch userSearch) {
         super(contextFactory);
+        this.goConfigService = goConfigService;
         setUserSearch(userSearch);
     }
 
     public DirContextOperations authenticate(Authentication authentication) {
         DirContextOperations contextOperations = super.authenticate(authentication);
         contextOperations.setAttributeValue(AUTHENTICATION_KEY, authentication);
+        contextOperations.setAttributeValue(DISPLAY_NAME_KEY, contextOperations.getStringAttribute(goConfigService.ldapConfig().displayNameAttribute()));
         return contextOperations;
     }
 }

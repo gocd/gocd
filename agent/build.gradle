@@ -128,7 +128,7 @@ task verifyJar(type: VerifyJarTask) {
           "javasysmon-0.3.6.jar",
           "javax.inject-1.jar",
           "javax.servlet-api-3.1.0.jar",
-          "jcommander-1.48.jar",
+          "jcommander-1.60.jar",
           "jdom-1.0.jar",
           "jettison-1.2.jar",
           "jetty-io-${versions.jetty}.jar",

@@ -229,7 +229,6 @@ Go::Application.routes.draw do
       end
 
       namespace :admin do
-        resources :templates, param: :template_name, except: [:new, :edit], constraints: {template_name: TEMPLATE_NAME_FORMAT}
         resources :repositories, param: :repo_id, only: [:show, :index, :destroy, :create, :update], constraints: {repo_id: ALLOW_DOTS}
         resources :environments, param: :name, only: [:show, :destroy, :create, :update, :index], constraints: {:name => ENVIRONMENT_NAME_FORMAT} do
           patch on: :member, action: :patch

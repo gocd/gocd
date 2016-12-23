@@ -28,7 +28,6 @@ public class ElasticProfilesTest {
         assertThat(new ElasticProfiles().find("foo"), is(nullValue()));
         ElasticProfile profile = new ElasticProfile("foo", "docker");
         assertThat(new ElasticProfiles(profile).find("foo"), is(profile));
-
     }
 
     @Test

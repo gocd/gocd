@@ -17,7 +17,7 @@
 package com.thoughtworks.go.server.service.plugins.processor.elasticagent;
 
 import com.thoughtworks.go.domain.AgentInstance;
-import com.thoughtworks.go.plugin.access.elastic.AgentMetadata;
+import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.plugin.api.request.GoApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoApiResponse;
@@ -39,7 +39,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static com.thoughtworks.go.plugin.access.elastic.Constants.*;
+import static com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginConstants.*;
 import static com.thoughtworks.go.server.service.ElasticAgentPluginService.toAgentMetadata;
 import static java.lang.String.format;
 

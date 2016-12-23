@@ -16,17 +16,17 @@
 
 package com.thoughtworks.go.config.elastic;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.ConfigCollection;
+import com.thoughtworks.go.config.ConfigTag;
+import com.thoughtworks.go.config.PluginProfiles;
+import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.domain.ConfigErrors;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 @ConfigTag("profiles")
 @ConfigCollection(ElasticProfile.class)
-public class ElasticProfiles extends ArrayList<ElasticProfile> implements Validatable {
+public class ElasticProfiles extends PluginProfiles<ElasticProfile> implements Validatable {
     private final ConfigErrors errors = new ConfigErrors();
 
     public ElasticProfiles() {
@@ -34,37 +34,6 @@ public class ElasticProfiles extends ArrayList<ElasticProfile> implements Valida
 
     public ElasticProfiles(ElasticProfile... profiles) {
         super(Arrays.asList(profiles));
-    }
-
-    public ElasticProfile find(String profileId) {
-        for (ElasticProfile profile : this) {
-            if (profile.getId().equals(profileId)) {
-                return profile;
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public void validate(ValidationContext validationContext) {
-        validateIdUniqueness();
-    }
-
-    private void validateIdUniqueness() {
-        Map<String, ElasticProfile> profiles = new HashMap<>();
-        for (ElasticProfile elasticProfile : this) {
-            elasticProfile.validateIdUniquness(profiles);
-        }
-    }
-
-    @Override
-    public ConfigErrors errors() {
-        return errors;
-    }
-
-    @Override
-    public void addError(String fieldName, String message) {
-        errors().add(fieldName, message);
     }
 
 }

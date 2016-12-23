@@ -14,11 +14,23 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.plugin.access.common.settings;
+package com.thoughtworks.go.plugin.access.common.models;
 
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 
 public class Image {
+    private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+
+    @Expose
+    @SerializedName("content_type")
     private final String contentType;
+
+    @Expose
+    @SerializedName("data")
     private final String data;
 
     public Image(String contentType, String data) {
@@ -36,5 +48,9 @@ public class Image {
 
     public String toDataURI() {
         return "data:" + contentType + ";base64," + data;
+    }
+
+    public static Image fromJSON(String responseData) {
+        return GSON.fromJson(responseData, Image.class);
     }
 }

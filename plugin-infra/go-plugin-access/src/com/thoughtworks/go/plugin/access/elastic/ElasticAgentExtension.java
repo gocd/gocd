@@ -18,11 +18,11 @@ package com.thoughtworks.go.plugin.access.elastic;
 
 import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
-import com.thoughtworks.go.plugin.access.common.settings.AbstractExtension;
-import com.thoughtworks.go.plugin.access.common.settings.Image;
-import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
-import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
-import com.thoughtworks.go.plugin.api.config.Configuration;
+import com.thoughtworks.go.plugin.access.common.AbstractExtension;
+import com.thoughtworks.go.plugin.access.common.models.Image;
+import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKeys;
+import com.thoughtworks.go.plugin.access.common.settings.*;
+import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +38,7 @@ public class ElasticAgentExtension extends AbstractExtension {
 
     @Autowired
     public ElasticAgentExtension(PluginManager pluginManager) {
-        super(pluginManager, new PluginRequestHelper(pluginManager, Constants.SUPPORTED_VERSIONS, Constants.EXTENSION_NAME), Constants.EXTENSION_NAME);
+        super(pluginManager, new PluginRequestHelper(pluginManager, ElasticAgentPluginConstants.SUPPORTED_VERSIONS, ElasticAgentPluginConstants.EXTENSION_NAME), ElasticAgentPluginConstants.EXTENSION_NAME);
         addHandler(ElasticAgentExtensionConverterV1.VERSION, new PluginSettingsJsonMessageHandler1_0(), new ElasticAgentExtensionConverterV1());
     }
 
@@ -48,7 +48,7 @@ public class ElasticAgentExtension extends AbstractExtension {
     }
 
     public void createAgent(String pluginId, final String autoRegisterKey, final String environment, final Map<String, String> configuration) {
-        pluginRequestHelper.submitRequest(pluginId, Constants.REQUEST_CREATE_AGENT, new DefaultPluginInteractionCallback<Void>() {
+        pluginRequestHelper.submitRequest(pluginId, ElasticAgentPluginConstants.REQUEST_CREATE_AGENT, new DefaultPluginInteractionCallback<Void>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return getElasticAgentMessageConverter(resolvedExtensionVersion).createAgentRequestBody(autoRegisterKey, environment, configuration);
@@ -57,11 +57,11 @@ public class ElasticAgentExtension extends AbstractExtension {
     }
 
     public void serverPing(final String pluginId) {
-        pluginRequestHelper.submitRequest(pluginId, Constants.REQUEST_SERVER_PING, new DefaultPluginInteractionCallback<Void>());
+        pluginRequestHelper.submitRequest(pluginId, ElasticAgentPluginConstants.REQUEST_SERVER_PING, new DefaultPluginInteractionCallback<Void>());
     }
 
     public boolean shouldAssignWork(String pluginId, final AgentMetadata agent, final String environment, final Map<String, String> configuration) {
-        return pluginRequestHelper.submitRequest(pluginId, Constants.REQUEST_SHOULD_ASSIGN_WORK, new DefaultPluginInteractionCallback<Boolean>() {
+        return pluginRequestHelper.submitRequest(pluginId, ElasticAgentPluginConstants.REQUEST_SHOULD_ASSIGN_WORK, new DefaultPluginInteractionCallback<Boolean>() {
 
             @Override
             public String requestBody(String resolvedExtensionVersion) {
@@ -79,17 +79,17 @@ public class ElasticAgentExtension extends AbstractExtension {
         return messageHandlerMap.get(version);
     }
 
-    public Configuration getProfileMetadata(String pluginId) {
-        return pluginRequestHelper.submitRequest(pluginId, Constants.REQUEST_GET_PROFILE_METADATA, new DefaultPluginInteractionCallback<Configuration>() {
+    PluginProfileMetadataKeys getProfileMetadata(String pluginId) {
+        return pluginRequestHelper.submitRequest(pluginId, ElasticAgentPluginConstants.REQUEST_GET_PROFILE_METADATA, new DefaultPluginInteractionCallback<PluginProfileMetadataKeys>() {
             @Override
-            public Configuration onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public PluginProfileMetadataKeys onSuccess(String responseBody, String resolvedExtensionVersion) {
                 return getElasticAgentMessageConverter(resolvedExtensionVersion).getProfileMetadataResponseFromBody(responseBody);
             }
         });
     }
 
-    public String getProfileView(String pluginId) {
-        return pluginRequestHelper.submitRequest(pluginId, Constants.REQUEST_GET_PROFILE_VIEW, new DefaultPluginInteractionCallback<String>() {
+    String getProfileView(String pluginId) {
+        return pluginRequestHelper.submitRequest(pluginId, ElasticAgentPluginConstants.REQUEST_GET_PROFILE_VIEW, new DefaultPluginInteractionCallback<String>() {
             @Override
             public String onSuccess(String responseBody, String resolvedExtensionVersion) {
                 return getElasticAgentMessageConverter(resolvedExtensionVersion).getProfileViewResponseFromBody(responseBody);
@@ -98,7 +98,7 @@ public class ElasticAgentExtension extends AbstractExtension {
     }
 
     public ValidationResult validate(final String pluginId, final Map<String, String> configuration) {
-        return pluginRequestHelper.submitRequest(pluginId, Constants.REQUEST_VALIDATE_PROFILE, new DefaultPluginInteractionCallback<ValidationResult>() {
+        return pluginRequestHelper.submitRequest(pluginId, ElasticAgentPluginConstants.REQUEST_VALIDATE_PROFILE, new DefaultPluginInteractionCallback<ValidationResult>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return getElasticAgentMessageConverter(resolvedExtensionVersion).validateRequestBody(configuration);
@@ -111,8 +111,8 @@ public class ElasticAgentExtension extends AbstractExtension {
         });
     }
 
-    public Image getIcon(String pluginId) {
-        return pluginRequestHelper.submitRequest(pluginId, Constants.REQUEST_GET_PLUGIN_SETTINGS_ICON, new DefaultPluginInteractionCallback<Image>() {
+    Image getIcon(String pluginId) {
+        return pluginRequestHelper.submitRequest(pluginId, ElasticAgentPluginConstants.REQUEST_GET_PLUGIN_SETTINGS_ICON, new DefaultPluginInteractionCallback<Image>() {
             @Override
             public Image onSuccess(String responseBody, String resolvedExtensionVersion) {
                 return getElasticAgentMessageConverter(resolvedExtensionVersion).getImageResponseFromBody(responseBody);

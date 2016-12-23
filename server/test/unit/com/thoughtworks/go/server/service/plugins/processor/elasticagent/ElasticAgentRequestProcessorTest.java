@@ -20,7 +20,7 @@ import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.domain.AgentConfigStatus;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
-import com.thoughtworks.go.plugin.access.elastic.AgentMetadata;
+import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
 import com.thoughtworks.go.plugin.api.request.DefaultGoApiRequest;
@@ -36,7 +36,7 @@ import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.Arrays;
 
-import static com.thoughtworks.go.plugin.access.elastic.Constants.*;
+import static com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginConstants.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;

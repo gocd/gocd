@@ -17,7 +17,7 @@
 package com.thoughtworks.go.server.service.plugins.builder;
 
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationPluginRegistry;
-import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginRegistry;
+import com.thoughtworks.go.plugin.access.elastic.ElasticPluginConfigMetadataStore;
 import com.thoughtworks.go.plugin.access.notification.NotificationPluginRegistry;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfigurations;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageMetadataStore;
@@ -57,7 +57,7 @@ public class PluginInfoBuilderTest {
     NotificationPluginRegistry notificationPluginRegistry;
 
     @Mock
-    ElasticAgentPluginRegistry elasticPluginRegistry;
+    ElasticPluginConfigMetadataStore elasticPluginConfigMetadataStore;
 
     @Mock
     PluginManager manager;
@@ -109,7 +109,7 @@ public class PluginInfoBuilderTest {
 
         when(authenticationPluginRegistry.getAuthenticationPlugins()).thenReturn(new HashSet<>(Arrays.asList("github.oauth")));
         when(notificationPluginRegistry.getNotificationPlugins()).thenReturn(new HashSet<>(Arrays.asList("email.notifier")));
-        when(elasticPluginRegistry.getPlugins()).thenReturn(new ArrayList<PluginDescriptor>(Arrays.asList(dockerElasticAgentPlugin)));
+        when(elasticPluginConfigMetadataStore.getPlugins()).thenReturn(new ArrayList<PluginDescriptor>(Arrays.asList(dockerElasticAgentPlugin)));
         when(jsonBasedPluggableTask.view()).thenReturn(taskView);
 
         when(manager.getPluginDescriptorFor("github.oauth")).thenReturn(githubDescriptor);
@@ -122,7 +122,7 @@ public class PluginInfoBuilderTest {
         PackageMetadataStore.getInstance().addMetadataFor(yumPoller.id(), new PackageConfigurations());
         PluggableTaskConfigStore.store().setPreferenceFor("xunit.convertor", new TaskPreference(jsonBasedPluggableTask));
         SCMMetadataStore.getInstance().setPreferenceFor("github.pr", new SCMPreference(new SCMConfigurations(), mock(SCMView.class)));
-        pluginViewModelBuilder = new PluginInfoBuilder(authenticationPluginRegistry, notificationPluginRegistry, elasticPluginRegistry, manager);
+        pluginViewModelBuilder = new PluginInfoBuilder(authenticationPluginRegistry, notificationPluginRegistry, elasticPluginConfigMetadataStore, manager);
     }
 
     @Test

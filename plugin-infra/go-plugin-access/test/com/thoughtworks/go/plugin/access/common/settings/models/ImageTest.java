@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.plugin.access.common.settings;
+package com.thoughtworks.go.plugin.access.common.settings.models;
 
+import com.thoughtworks.go.plugin.access.common.models.Image;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;

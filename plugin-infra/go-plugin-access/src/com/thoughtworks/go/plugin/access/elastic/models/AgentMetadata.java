@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.plugin.access.elastic;
+package com.thoughtworks.go.plugin.access.elastic.models;
 
 import com.google.gson.*;
 import com.google.gson.annotations.Expose;

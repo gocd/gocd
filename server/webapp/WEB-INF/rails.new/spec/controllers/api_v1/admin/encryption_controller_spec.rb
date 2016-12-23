@@ -45,6 +45,11 @@ describe ApiV1::Admin::EncryptionController do
       login_as_group_admin
       expect(controller).to allow_action(:post, :encrypt_value)
     end
+
+    it 'should allow template admin users, with security enabled' do
+      login_as_template_admin
+      expect(controller).to allow_action(:post, :encrypt_value)
+    end
   end
 
   describe :route do
@@ -70,8 +75,8 @@ describe ApiV1::Admin::EncryptionController do
       login_as_admin
       post_with_api_header :encrypt_value, {value: 'foo'}
 
-      expect(response.status).to eq(200)
-      expect(actual_response).to eq({encrypted_value: GoCipher.new.encrypt('foo')})
+      expect(response).to be_ok
+      expected_response(GoCipher.new.encrypt('foo'), ApiV1::EncryptedValueRepresenter)
     end
   end
 end

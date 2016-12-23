@@ -15,18 +15,21 @@
 ##########################################################################
 
 module ApiV1
-  module Admin
-    class EncryptionController < ApiV1::BaseController
-      before_action :check_any_admin_user_and_401
+  class EncryptedValueRepresenter < ApiV1::BaseRepresenter
 
-      @@go_cipher = GoCipher.new
-
-      def encrypt_value
-        encrypted_value = @@go_cipher.encrypt(params[:value])
-        render DEFAULT_FORMAT => ApiV1::EncryptedValueRepresenter.new(encrypted_value).to_hash(url_builder: self)
-      rescue
-        render_message("An error occurred while encrypting the value. Please check the logs for more details.", :internal_server_error)
-      end
+    link :self do |opts|
+      opts[:url_builder].apiv1_admin_encrypt_url
     end
+
+    link :doc do |opts|
+      'https://api.go.cd/#encryption'
+    end
+
+    property :encrypted_value, exec_context: :decorator
+
+    def encrypted_value
+      represented
+    end
+
   end
 end

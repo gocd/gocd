@@ -97,6 +97,7 @@ module ApiSpecHelper
     enable_security
     controller.stub(:current_user).and_return(@user = Username.new(CaseInsensitiveString.new(SecureRandom.hex)))
     @security_service.stub(:isUserAdmin).with(@user).and_return(false)
+    @security_service.stub(:isUserGroupAdmin).with(@user).and_return(false)
     @security_service.stub(:isAuthorizedToViewAndEditTemplates).with(@user).and_return(true)
     @security_service.stub(:isAuthorizedToEditTemplate).with(anything, anything).and_return(true)
   end

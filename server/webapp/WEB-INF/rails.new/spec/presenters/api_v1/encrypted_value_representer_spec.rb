@@ -14,19 +14,15 @@
 # limitations under the License.
 ##########################################################################
 
-module ApiV1
-  module Admin
-    class EncryptionController < ApiV1::BaseController
-      before_action :check_any_admin_user_and_401
+require 'spec_helper'
 
-      @@go_cipher = GoCipher.new
+describe ApiV1::EncryptedValueRepresenter do
+  it 'should render encrypted value with hal representation' do
+    actual_json = ApiV1::EncryptedValueRepresenter.new("encrypted_string").to_hash(url_builder: UrlBuilder.new)
+    expect(actual_json).to have_link(:self).with_url(UrlBuilder.new.apiv1_admin_encrypt_url)
+    expect(actual_json).to have_link(:doc).with_url('https://api.go.cd/#encryption')
+    actual_json.delete(:_links)
 
-      def encrypt_value
-        encrypted_value = @@go_cipher.encrypt(params[:value])
-        render DEFAULT_FORMAT => ApiV1::EncryptedValueRepresenter.new(encrypted_value).to_hash(url_builder: self)
-      rescue
-        render_message("An error occurred while encrypting the value. Please check the logs for more details.", :internal_server_error)
-      end
-    end
+    expect(actual_json).to eq({encrypted_value: "encrypted_string"})
   end
 end

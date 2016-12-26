@@ -18,7 +18,7 @@ require 'spec_helper'
 
 describe ApiV1::Plugin::PluginInfosRepresenter do
   it 'renders all plugin_infos with hal representation' do
-    plugin_info = PluginInfo.new('plugin_id', 'plugin_name', 'plugin_version', 'plugin_type', 'plugin_display_name', nil)
+    plugin_info = PluginInfo.new('plugin_id', 'plugin_name', 'plugin_version', 'plugin_type', 'plugin_display_name', nil, nil)
 
     actual_json = ApiV1::Plugin::PluginInfosRepresenter.new([plugin_info]).to_hash(url_builder: UrlBuilder.new)
 

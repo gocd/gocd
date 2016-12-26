@@ -15,11 +15,18 @@
  *************************GO-LICENSE-END***********************************/
 
 package com.thoughtworks.go.config;
+    
+import com.thoughtworks.go.domain.ConfigErrors;
 
 import java.util.Collection;
 
 @ConfigTag("role")
-public class RoleConfig extends AbstractRole {
+public class RoleConfig implements Role {
+
+    private final ConfigErrors configErrors = new ConfigErrors();
+
+    @ConfigAttribute(value = "name", optional = false)
+    protected CaseInsensitiveString name;
 
     @ConfigSubtag
     private Users users = new Users();
@@ -29,11 +36,15 @@ public class RoleConfig extends AbstractRole {
     }
 
     public RoleConfig(CaseInsensitiveString name, RoleUser... users) {
-        super(name, users);
+        this(name, Users.users(users));
     }
 
     public RoleConfig(CaseInsensitiveString name, Users users) {
-        super(name, users);
+        this.name = name;
+        doSetUsers(new Users());
+        for (RoleUser user : users) {
+            addUser(user);
+        }
     }
 
     @Override
@@ -43,7 +54,48 @@ public class RoleConfig extends AbstractRole {
 
     @Override
     public void doSetUsers(Collection<RoleUser> users) {
-        this.users = Users.users(users);
+        this.users = new Users();
+
+        for (RoleUser user : users) {
+            addUser(user);
+        }
+    }
+
+    public ConfigErrors errors() {
+        return configErrors;
+    }
+
+    public void addError(String fieldName, String message) {
+        configErrors.add(fieldName, message);
+    }
+
+    @Override
+    public CaseInsensitiveString getName() {
+        return name;
+    }
+
+    @Override
+    public void setName(CaseInsensitiveString name) {
+        this.name = name;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        RoleConfig that = (RoleConfig) o;
+
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        return users != null ? users.equals(that.users) : that.users == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (users != null ? users.hashCode() : 0);
+        return result;
     }
 
     @Override
@@ -53,24 +105,4 @@ public class RoleConfig extends AbstractRole {
                 ", users=" + users +
                 '}';
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-
-        RoleConfig that = (RoleConfig) o;
-
-        return users != null ? users.equals(that.users) : that.users == null;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (users != null ? users.hashCode() : 0);
-        return result;
-    }
-
-
 }

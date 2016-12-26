@@ -16,5 +16,11 @@
 
 package com.thoughtworks.go.server.service;
 
-public class ElasticProfileNotFoundException extends RuntimeException {
+public class PluginProfileNotFoundException extends RuntimeException {
+    public PluginProfileNotFoundException() {
+    }
+
+    public PluginProfileNotFoundException(String message) {
+        super(message);
+    }
 }

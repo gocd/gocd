@@ -17,7 +17,7 @@
 package com.thoughtworks.go.server.security.providers;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.Role;
+import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.config.RoleUser;
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationExtension;
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationPluginRegistry;
@@ -96,7 +96,7 @@ public class PluginAuthenticationProvider extends AbstractUserDetailsAuthenticat
             AuthenticationResponse response = authorizationExtension.authenticateUser(pluginId, username, password);
             User user = ensureDisplayNamePresent(response.getUser());
             if (user != null) {
-                List<String> roleNames = response.getRoles();
+                List<CaseInsensitiveString> roleNames = CaseInsensitiveString.caseInsensitiveStrings(response.getRoles());
                 addUserToRoles(pluginId, user, roleNames);
                 return getGoUserPrinciple(user);
             }
@@ -121,21 +121,18 @@ public class PluginAuthenticationProvider extends AbstractUserDetailsAuthenticat
         return false;
     }
 
+    void addUserToRoles(String pluginId, User user, List<CaseInsensitiveString> roleNames) {
+        List<PluginRoleConfig> pluginRolesConfig = configService.security().getPluginRolesConfig(pluginId, roleNames);
 
-    private void addUserToRoles(String pluginId, User user, List<String> roleNames) {
-        for (String roleName : roleNames) {
-            Role role = configService.security().getRoles().findPluggableRole(pluginId, roleName);
-            if (role == null) {
-                LOGGER.error("Role {} does not exists.", role);
-                continue;
-            }
-
+        for (PluginRoleConfig role : pluginRolesConfig) {
             if (!role.hasMember(new CaseInsensitiveString(user.getUsername()))) {
+                LOGGER.info("Adding user `{}` to role `{}`", user.getUsername(), role.getName());
                 role.addUser(new RoleUser(user.getUsername()));
+            } else {
+                LOGGER.info("User `{}` already exists in role `{}`", user.getUsername(), role.getName());
             }
         }
     }
-
 
     private User ensureDisplayNamePresent(User user) {
         if (user == null) {

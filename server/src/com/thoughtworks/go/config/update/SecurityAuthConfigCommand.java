@@ -17,9 +17,9 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.elastic.ElasticProfile;
-import com.thoughtworks.go.config.elastic.ElasticProfiles;
-import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
+import com.thoughtworks.go.config.SecurityAuthConfig;
+import com.thoughtworks.go.config.SecurityAuthConfigs;
+import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -27,27 +27,27 @@ import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
 import java.util.Map;
 
-abstract class ElasticAgentProfileCommand extends PluginProfileCommand<ElasticProfile, ElasticProfiles> {
+abstract class SecurityAuthConfigCommand extends PluginProfileCommand<SecurityAuthConfig, SecurityAuthConfigs> {
+    protected final AuthorizationExtension extension;
 
-    private final ElasticAgentExtension extension;
-
-    public ElasticAgentProfileCommand(GoConfigService goConfigService, ElasticProfile elasticProfile, ElasticAgentExtension extension, Username currentUser, LocalizedOperationResult result) {
-        super(goConfigService, elasticProfile, currentUser, result);
+    public SecurityAuthConfigCommand(GoConfigService goConfigService, SecurityAuthConfig newSecurityAuthConfig, AuthorizationExtension extension, Username currentUser, LocalizedOperationResult result) {
+        super(goConfigService, newSecurityAuthConfig, currentUser, result);
         this.extension = extension;
     }
 
     @Override
-    protected ElasticProfiles getPluginProfiles(CruiseConfig preprocessedConfig) {
-        return preprocessedConfig.server().getElasticConfig().getProfiles();
+    protected SecurityAuthConfigs getPluginProfiles(CruiseConfig preprocessedConfig) {
+        return preprocessedConfig.server().security().securityAuthConfigs();
     }
 
     @Override
     protected ValidationResult validateUsingExtension(String pluginId, Map<String, String> configuration) {
-        return extension.validate(pluginId, configuration);
+        return extension.validatePluginConfiguration(pluginId, configuration);
     }
 
     @Override
     protected String getObjectDescriptor() {
-        return "Elastic agent profile";
+        return "Security auth config";
     }
+
 }

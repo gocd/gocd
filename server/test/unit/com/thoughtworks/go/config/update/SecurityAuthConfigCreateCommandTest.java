@@ -17,12 +17,12 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
-import com.thoughtworks.go.config.elastic.ElasticProfile;
+import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.helper.GoConfigMother;
-import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
+import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -43,38 +43,38 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class ElasticAgentProfileCreateCommandTest {
+public class SecurityAuthConfigCreateCommandTest {
 
-    private ElasticAgentExtension extension;
+    private AuthorizationExtension extension;
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
     @Before
     public void setUp() throws Exception {
-        extension = mock(ElasticAgentExtension.class);
+        extension = mock(AuthorizationExtension.class);
     }
 
     @Test
-    public void shouldAddElasticProfile() throws Exception {
+    public void shouldAddSecurityAuthConfig() throws Exception {
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
-        ElasticProfile elasticProfile = new ElasticProfile("foo", "docker");
-        ElasticAgentProfileCreateCommand command = new ElasticAgentProfileCreateCommand(null, elasticProfile, extension, null, null);
+        SecurityAuthConfig authConfig = new SecurityAuthConfig("foo", "ldap");
+        SecurityAuthConfigCreateCommand command = new SecurityAuthConfigCreateCommand(null, authConfig, extension, null, null);
         command.update(cruiseConfig);
 
-        assertThat(cruiseConfig.server().getElasticConfig().getProfiles().find("foo"), equalTo(elasticProfile));
+        assertThat(cruiseConfig.server().security().securityAuthConfigs().find("foo"), equalTo(authConfig));
     }
 
     @Test
     public void shouldInvokePluginValidationsBeforeSave() throws Exception {
         ValidationResult validationResult = new ValidationResult();
         validationResult.addError(new ValidationError("key", "error"));
-        when(extension.validate(eq("aws"), Matchers.<Map<String, String>>any())).thenReturn(validationResult);
-        ElasticProfile newProfile = new ElasticProfile("foo", "aws", new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("val")));
-        PluginProfileCommand command = new ElasticAgentProfileCreateCommand(mock(GoConfigService.class), newProfile, extension, null, new HttpLocalizedOperationResult());
+        when(extension.validatePluginConfiguration(eq("aws"), Matchers.<Map<String, String>>any())).thenReturn(validationResult);
+        SecurityAuthConfig newProfile = new SecurityAuthConfig("foo", "aws", new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("val")));
+        PluginProfileCommand command = new SecurityAuthConfigCreateCommand(mock(GoConfigService.class), newProfile, extension, null, new HttpLocalizedOperationResult());
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
 
         thrown.expect(PluginProfileNotFoundException.class);
-        thrown.expectMessage("Elastic agent profile `foo` does not exist.");
+        thrown.expectMessage("Security auth config `foo` does not exist.");
         command.isValid(cruiseConfig);
         command.update(cruiseConfig);
         assertThat(newProfile.first().errors().size(), is(1));

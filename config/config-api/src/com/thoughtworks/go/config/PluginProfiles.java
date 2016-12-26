@@ -54,6 +54,16 @@ public abstract class PluginProfiles<T extends PluginProfile> extends BaseCollec
         return list;
     }
 
+    public T findByPluginIdAndProfileId(String pluginId, String profileId) {
+        for (T profile : this) {
+            if (profile.getPluginId().equals(pluginId) && profile.getId().equals(profileId)) {
+                return profile;
+            }
+        }
+
+        return null;
+    }
+
     @Override
     public void validate(ValidationContext validationContext) {
         validateIdUniqueness();

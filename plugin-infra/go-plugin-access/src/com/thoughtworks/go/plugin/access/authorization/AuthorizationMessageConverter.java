@@ -16,9 +16,10 @@
 
 package com.thoughtworks.go.plugin.access.authorization;
 
+import com.thoughtworks.go.config.PluginRoleConfig;
+import com.thoughtworks.go.plugin.access.authentication.models.User;
 import com.thoughtworks.go.plugin.access.authorization.models.AuthenticationResponse;
 import com.thoughtworks.go.plugin.access.authorization.models.Capabilities;
-import com.thoughtworks.go.plugin.access.authentication.models.User;
 import com.thoughtworks.go.plugin.access.common.models.Image;
 import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKeys;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
@@ -54,4 +55,8 @@ public interface AuthorizationMessageConverter {
     List<User> getSearchUsersFromResponseBody(String responseBody);
 
     String searchUsersRequestBody(String searchTerm);
+
+    String processGetRoleConfigsRequest(String requestBody);
+
+    String getProcessRoleConfigsResponseBody(List<PluginRoleConfig> roles);
 }

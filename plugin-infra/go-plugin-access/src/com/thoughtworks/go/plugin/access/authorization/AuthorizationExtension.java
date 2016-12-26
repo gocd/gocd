@@ -57,7 +57,7 @@ public class AuthorizationExtension extends AbstractExtension {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_CAPABILITIES, new DefaultPluginInteractionCallback<Capabilities>() {
             @Override
             public Capabilities onSuccess(String responseBody, String resolvedExtensionVersion) {
-                return getAuthorizationMessageConverter(resolvedExtensionVersion).getCapabilitiesFromResponseBody(responseBody);
+                return getMessageConverter(resolvedExtensionVersion).getCapabilitiesFromResponseBody(responseBody);
             }
         });
     }
@@ -66,7 +66,7 @@ public class AuthorizationExtension extends AbstractExtension {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_PLUGIN_CONFIG_METADATA, new DefaultPluginInteractionCallback<PluginProfileMetadataKeys>() {
             @Override
             public PluginProfileMetadataKeys onSuccess(String responseBody, String resolvedExtensionVersion) {
-                return getAuthorizationMessageConverter(resolvedExtensionVersion).getPluginConfigMetadataResponseFromBody(responseBody);
+                return getMessageConverter(resolvedExtensionVersion).getPluginConfigMetadataResponseFromBody(responseBody);
             }
         });
     }
@@ -75,7 +75,7 @@ public class AuthorizationExtension extends AbstractExtension {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_PLUGIN_CONFIG_VIEW, new DefaultPluginInteractionCallback<String>() {
             @Override
             public String onSuccess(String responseBody, String resolvedExtensionVersion) {
-                return getAuthorizationMessageConverter(resolvedExtensionVersion).getPluginConfigurationViewFromResponseBody(responseBody);
+                return getMessageConverter(resolvedExtensionVersion).getPluginConfigurationViewFromResponseBody(responseBody);
             }
         });
     }
@@ -84,12 +84,12 @@ public class AuthorizationExtension extends AbstractExtension {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_VALIDATE_PLUGIN_CONFIG, new DefaultPluginInteractionCallback<ValidationResult>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return getAuthorizationMessageConverter(resolvedExtensionVersion).validatePluginConfigurationRequestBody(configuration);
+                return getMessageConverter(resolvedExtensionVersion).validatePluginConfigurationRequestBody(configuration);
             }
 
             @Override
             public ValidationResult onSuccess(String responseBody, String resolvedExtensionVersion) {
-                return getAuthorizationMessageConverter(resolvedExtensionVersion).getPluginConfigurationValidationResultFromResponseBody(responseBody);
+                return getMessageConverter(resolvedExtensionVersion).getPluginConfigurationValidationResultFromResponseBody(responseBody);
             }
         });
     }
@@ -103,12 +103,12 @@ public class AuthorizationExtension extends AbstractExtension {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_VERIFY_CONNECTION, new DefaultPluginInteractionCallback<ValidationResult>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return getAuthorizationMessageConverter(resolvedExtensionVersion).verifyConnectionRequestBody(configuration);
+                return getMessageConverter(resolvedExtensionVersion).verifyConnectionRequestBody(configuration);
             }
 
             @Override
             public ValidationResult onSuccess(String responseBody, String resolvedExtensionVersion) {
-                return getAuthorizationMessageConverter(resolvedExtensionVersion).getVerifyConnectionResultFromResponseBody(responseBody);
+                return getMessageConverter(resolvedExtensionVersion).getVerifyConnectionResultFromResponseBody(responseBody);
             }
         });
     }
@@ -117,12 +117,12 @@ public class AuthorizationExtension extends AbstractExtension {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_AUTHENTICATE_USER, new DefaultPluginInteractionCallback<AuthenticationResponse>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return getAuthorizationMessageConverter(resolvedExtensionVersion).authenticateUserRequestBody(username, password);
+                return getMessageConverter(resolvedExtensionVersion).authenticateUserRequestBody(username, password);
             }
 
             @Override
             public AuthenticationResponse onSuccess(String responseBody, String resolvedExtensionVersion) {
-                return getAuthorizationMessageConverter(resolvedExtensionVersion).getAuthenticatedUserFromResponseBody(responseBody);
+                return getMessageConverter(resolvedExtensionVersion).getAuthenticatedUserFromResponseBody(responseBody);
             }
         });
     }
@@ -131,7 +131,7 @@ public class AuthorizationExtension extends AbstractExtension {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_ROLE_CONFIG_METADATA, new DefaultPluginInteractionCallback<PluginProfileMetadataKeys>() {
             @Override
             public PluginProfileMetadataKeys onSuccess(String responseBody, String resolvedExtensionVersion) {
-                return getAuthorizationMessageConverter(resolvedExtensionVersion).getRoleConfigMetadataResponseFromBody(responseBody);
+                return getMessageConverter(resolvedExtensionVersion).getRoleConfigMetadataResponseFromBody(responseBody);
             }
         });
     }
@@ -140,7 +140,7 @@ public class AuthorizationExtension extends AbstractExtension {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_ROLE_CONFIG_VIEW, new DefaultPluginInteractionCallback<String>() {
             @Override
             public String onSuccess(String responseBody, String resolvedExtensionVersion) {
-                return getAuthorizationMessageConverter(resolvedExtensionVersion).getRoleConfigurationViewFromResponseBody(responseBody);
+                return getMessageConverter(resolvedExtensionVersion).getRoleConfigurationViewFromResponseBody(responseBody);
             }
         });
     }
@@ -149,12 +149,12 @@ public class AuthorizationExtension extends AbstractExtension {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_VALIDATE_ROLE_CONFIG, new DefaultPluginInteractionCallback<ValidationResult>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return getAuthorizationMessageConverter(resolvedExtensionVersion).validatePluginConfigurationRequestBody(roleConfiguration);
+                return getMessageConverter(resolvedExtensionVersion).validatePluginConfigurationRequestBody(roleConfiguration);
             }
 
             @Override
             public ValidationResult onSuccess(String responseBody, String resolvedExtensionVersion) {
-                return getAuthorizationMessageConverter(resolvedExtensionVersion).getPluginConfigurationValidationResultFromResponseBody(responseBody);
+                return getMessageConverter(resolvedExtensionVersion).getPluginConfigurationValidationResultFromResponseBody(responseBody);
             }
         });
     }
@@ -163,12 +163,12 @@ public class AuthorizationExtension extends AbstractExtension {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_SEARCH_USERS, new DefaultPluginInteractionCallback<List<User>>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return getAuthorizationMessageConverter(resolvedExtensionVersion).searchUsersRequestBody(searchTerm);
+                return getMessageConverter(resolvedExtensionVersion).searchUsersRequestBody(searchTerm);
             }
 
             @Override
             public List<User> onSuccess(String responseBody, String resolvedExtensionVersion) {
-                return getAuthorizationMessageConverter(resolvedExtensionVersion).getSearchUsersFromResponseBody(responseBody);
+                return getMessageConverter(resolvedExtensionVersion).getSearchUsersFromResponseBody(responseBody);
             }
         });
     }
@@ -177,13 +177,13 @@ public class AuthorizationExtension extends AbstractExtension {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_PLUGIN_ICON, new DefaultPluginInteractionCallback<Image>() {
             @Override
             public Image onSuccess(String responseBody, String resolvedExtensionVersion) {
-                return getAuthorizationMessageConverter(resolvedExtensionVersion).getImageResponseFromBody(responseBody);
+                return getMessageConverter(resolvedExtensionVersion).getImageResponseFromBody(responseBody);
             }
         });
     }
 
 
-    private AuthorizationMessageConverter getAuthorizationMessageConverter(String version) {
+    public AuthorizationMessageConverter getMessageConverter(String version) {
         return messageHandlerMap.get(version);
     }
 }

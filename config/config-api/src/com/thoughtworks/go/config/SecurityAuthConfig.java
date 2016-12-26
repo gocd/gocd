@@ -39,4 +39,8 @@ public class SecurityAuthConfig extends PluginProfile {
     protected String getObjectDescription() {
         return "Security authorization configuration";
     }
+
+    public boolean hasRole(PluginRoleConfig role) {
+        return role.getAuthConfigId().equals(id);
+    }
 }

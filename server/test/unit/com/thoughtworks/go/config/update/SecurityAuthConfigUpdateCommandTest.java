@@ -17,12 +17,12 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
-import com.thoughtworks.go.config.elastic.ElasticProfile;
+import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.PluginProfileNotFoundException;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.PluginProfileNotFoundException;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.Before;
 import org.junit.Rule;
@@ -34,7 +34,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class ElasticAgentProfileUpdateCommandTest {
+public class SecurityAuthConfigUpdateCommandTest {
     private Username currentUser;
     private GoConfigService goConfigService;
     private BasicCruiseConfig cruiseConfig;
@@ -51,38 +51,38 @@ public class ElasticAgentProfileUpdateCommandTest {
 
     @Test
     public void shouldRaiseErrorWhenUpdatingNonExistentProfile() throws Exception {
-        cruiseConfig.server().getElasticConfig().getProfiles().clear();
-        ElasticAgentProfileUpdateCommand command = new ElasticAgentProfileUpdateCommand(null, new ElasticProfile("foo", "docker"), null, null, new HttpLocalizedOperationResult(), null, null);
+        cruiseConfig.server().security().securityAuthConfigs().clear();
+        SecurityAuthConfigUpdateCommand command = new SecurityAuthConfigUpdateCommand(null, new SecurityAuthConfig("foo", "ldap"), null, null, new HttpLocalizedOperationResult(), null, null);
         thrown.expect(PluginProfileNotFoundException.class);
         command.update(cruiseConfig);
     }
 
     @Test
     public void shouldUpdateExistingProfile() throws Exception {
-        ElasticProfile oldProfile = new ElasticProfile("foo", "docker");
-        ElasticProfile newProfile = new ElasticProfile("foo", "aws");
+        SecurityAuthConfig oldAuthConfig = new SecurityAuthConfig("foo", "ldap");
+        SecurityAuthConfig newAuthConfig = new SecurityAuthConfig("foo", "github");
 
-        cruiseConfig.server().getElasticConfig().getProfiles().add(oldProfile);
-        ElasticAgentProfileUpdateCommand command = new ElasticAgentProfileUpdateCommand(null, newProfile, null, null, null, null, null);
+        cruiseConfig.server().security().securityAuthConfigs().add(oldAuthConfig);
+        SecurityAuthConfigUpdateCommand command = new SecurityAuthConfigUpdateCommand(null, newAuthConfig, null, null, null, null, null);
         command.update(cruiseConfig);
-        assertThat(cruiseConfig.server().getElasticConfig().getProfiles().find("foo"), is(equalTo(newProfile)));
+        assertThat(cruiseConfig.server().security().securityAuthConfigs().find("foo"), is(equalTo(newAuthConfig)));
     }
 
     @Test
     public void shouldNotContinueWithConfigSaveIfRequestIsNotFresh() {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
 
-        ElasticProfile oldProfile = new ElasticProfile("foo", "docker");
-        ElasticProfile newProfile = new ElasticProfile("foo", "aws");
+        SecurityAuthConfig oldAuthConfig = new SecurityAuthConfig("foo", "ldap");
+        SecurityAuthConfig newAuthConfig = new SecurityAuthConfig("foo", "github");
 
-        cruiseConfig.server().getElasticConfig().getProfiles().add(oldProfile);
+        cruiseConfig.server().security().securityAuthConfigs().add(oldAuthConfig);
 
         EntityHashingService entityHashingService = mock(EntityHashingService.class);
 
-        when(entityHashingService.md5ForEntity(oldProfile)).thenReturn("md5");
+        when(entityHashingService.md5ForEntity(oldAuthConfig)).thenReturn("md5");
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        ElasticAgentProfileUpdateCommand command = new ElasticAgentProfileUpdateCommand(goConfigService, newProfile, null, currentUser, result, entityHashingService, "bad-md5");
+        SecurityAuthConfigUpdateCommand command = new SecurityAuthConfigUpdateCommand(goConfigService, newAuthConfig, null, currentUser, result, entityHashingService, "bad-md5");
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result.toString(), containsString("STALE_RESOURCE_CONFIG"));

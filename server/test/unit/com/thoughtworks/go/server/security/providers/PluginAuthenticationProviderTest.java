@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.security.providers;
 
+import com.thoughtworks.go.config.SecurityConfig;
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationExtension;
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationPluginRegistry;
 import com.thoughtworks.go.plugin.access.authentication.models.User;
@@ -70,6 +71,7 @@ public class PluginAuthenticationProviderTest {
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
+    private SecurityConfig securityConfig;
 
     @Before
     public void setUp() {
@@ -80,6 +82,8 @@ public class PluginAuthenticationProviderTest {
         when(authorityGranter.authorities("username")).thenReturn(new GrantedAuthority[]{userAuthority});
 
         provider = new PluginAuthenticationProvider(authenticationPluginRegistry, authenticationExtension, authorizationExtension, store, authorityGranter, goConfigService);
+        securityConfig = new SecurityConfig();
+        when(goConfigService.security()).thenReturn(securityConfig);
     }
 
     @Test

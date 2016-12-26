@@ -17,18 +17,17 @@
 package com.thoughtworks.go.plugin.access.authorization;
 
 import com.google.gson.Gson;
+import com.thoughtworks.go.config.PluginRoleConfig;
+import com.thoughtworks.go.plugin.access.authentication.models.User;
 import com.thoughtworks.go.plugin.access.authorization.models.AuthenticationResponse;
 import com.thoughtworks.go.plugin.access.authorization.models.Capabilities;
-import com.thoughtworks.go.plugin.access.authentication.models.User;
 import com.thoughtworks.go.plugin.access.common.handler.JSONResultMessageHandler;
 import com.thoughtworks.go.plugin.access.common.models.Image;
 import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKeys;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class AuthorizationMessageConverterV1 implements AuthorizationMessageConverter {
     public static final String VERSION = "1.0";
@@ -109,6 +108,23 @@ public class AuthorizationMessageConverterV1 implements AuthorizationMessageConv
         return GSON.toJson(requestMap);
     }
 
+    @Override
+    public String processGetRoleConfigsRequest(String requestBody) {
+        return (String) GSON.fromJson(requestBody, Map.class).get("auth_config_id");
+    }
+
+    @Override
+    public String getProcessRoleConfigsResponseBody(List<PluginRoleConfig> roles) {
+        List<Map> list = new ArrayList<>();
+        for (PluginRoleConfig role : roles) {
+            LinkedHashMap<String, Object> e = new LinkedHashMap<>();
+            e.put("name", role.getName().toString());
+            e.put("configuration", role.getConfigurationAsMap(true));
+            list.add(e);
+        }
+        return GSON.toJson(list);
+    }
+
     private String getTemplateFromResponse(String responseBody, String message) {
         String template = (String) new Gson().fromJson(responseBody, Map.class).get("template");
         if (StringUtils.isBlank(template)) {
@@ -116,4 +132,5 @@ public class AuthorizationMessageConverterV1 implements AuthorizationMessageConv
         }
         return template;
     }
+
 }

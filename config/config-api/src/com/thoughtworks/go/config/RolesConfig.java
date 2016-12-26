@@ -68,6 +68,11 @@ public class RolesConfig extends BaseCollection<Role> implements Validatable {
         return super.remove(role);
     }
 
+    public void removeIfExists(Role role) {
+        super.remove(role);
+    }
+
+
     public List<Role> memberRoles(Admin admin) {
         List<Role> memberRoles = new ArrayList<>();
         for (Role role : this) {
@@ -96,19 +101,6 @@ public class RolesConfig extends BaseCollection<Role> implements Validatable {
         return null;
     }
 
-    public Role findPluggableRole(String pluginId, String roleName) {
-        CaseInsensitiveString name = new CaseInsensitiveString(roleName);
-        for (Role role : this) {
-            if (role instanceof PluginRoleConfig) {
-                if (((PluginRoleConfig) role).getPluginId().equals(pluginId) && role.getName().equals(name)) {
-                    return role;
-                }
-            }
-        }
-        return null;
-    }
-
-
     public boolean isUserMemberOfRole(final CaseInsensitiveString userName, final CaseInsensitiveString roleName) {
         Role role = findByName(roleName);
         bombIfNull(role, String.format("Role \"%s\" does not exist!", roleName));
@@ -127,6 +119,16 @@ public class RolesConfig extends BaseCollection<Role> implements Validatable {
         List<PluginRoleConfig> pluginRolesConfig = new ArrayList<>();
         for (Role role : this) {
             if (role instanceof PluginRoleConfig) {
+                pluginRolesConfig.add((PluginRoleConfig) role);
+            }
+        }
+        return pluginRolesConfig;
+    }
+
+    public List<PluginRoleConfig> getPluginRolesConfig(String authConfigId) {
+        List<PluginRoleConfig> pluginRolesConfig = new ArrayList<>();
+        for (Role role : this) {
+            if (role instanceof PluginRoleConfig && ((PluginRoleConfig) role).getAuthConfigId().equals(authConfigId)) {
                 pluginRolesConfig.add((PluginRoleConfig) role);
             }
         }

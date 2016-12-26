@@ -17,29 +17,30 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.elastic.ElasticProfile;
-import com.thoughtworks.go.config.elastic.ElasticProfiles;
+import com.thoughtworks.go.config.SecurityAuthConfig;
+import com.thoughtworks.go.config.SecurityAuthConfigs;
 import com.thoughtworks.go.i18n.LocalizedMessage;
-import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
+import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
-public class ElasticAgentProfileUpdateCommand extends ElasticAgentProfileCommand {
+public class SecurityAuthConfigUpdateCommand extends SecurityAuthConfigCommand {
+
     private final EntityHashingService hashingService;
     private final String md5;
 
-    public ElasticAgentProfileUpdateCommand(GoConfigService goConfigService, ElasticProfile newProfile, ElasticAgentExtension extension, Username currentUser, LocalizedOperationResult result, EntityHashingService hashingService, String md5) {
-        super(goConfigService, newProfile, extension, currentUser, result);
+    public SecurityAuthConfigUpdateCommand(GoConfigService goConfigService, SecurityAuthConfig newSecurityAuthConfig, AuthorizationExtension extension, Username currentUser, LocalizedOperationResult result, EntityHashingService hashingService, String md5) {
+        super(goConfigService, newSecurityAuthConfig, extension, currentUser, result);
         this.hashingService = hashingService;
         this.md5 = md5;
     }
 
     @Override
     public void update(CruiseConfig preprocessedConfig) throws Exception {
-        ElasticProfile existingProfile = findExistingProfile(preprocessedConfig);
-        ElasticProfiles profiles = getPluginProfiles(preprocessedConfig);
+        SecurityAuthConfig existingProfile = findExistingProfile(preprocessedConfig);
+        SecurityAuthConfigs profiles = getPluginProfiles(preprocessedConfig);
         profiles.set(profiles.indexOf(existingProfile), profile);
     }
 
@@ -54,7 +55,7 @@ public class ElasticAgentProfileUpdateCommand extends ElasticAgentProfileCommand
     }
 
     private boolean isRequestFresh(CruiseConfig cruiseConfig) {
-        ElasticProfile existingProfile = findExistingProfile(cruiseConfig);
+        SecurityAuthConfig existingProfile = findExistingProfile(cruiseConfig);
         boolean freshRequest = hashingService.md5ForEntity(existingProfile).equals(md5);
         if (!freshRequest) {
             result.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", getObjectDescriptor(), existingProfile.getId()));

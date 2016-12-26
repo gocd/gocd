@@ -16,9 +16,10 @@
 
 package com.thoughtworks.go.config;
 
-import java.util.*;
+import com.thoughtworks.go.config.validation.NameTypeValidator;
+import com.thoughtworks.go.domain.ConfigErrors;
 
-import static com.thoughtworks.go.util.ExceptionUtils.bombIf;
+import java.util.*;
 
 @ConfigInterface
 public interface Role extends Validatable {
@@ -29,6 +30,21 @@ public interface Role extends Validatable {
     Collection<RoleUser> doGetUsers();
 
     void doSetUsers(Collection<RoleUser> users);
+
+    default void validate(ValidationContext validationContext) {
+        if (getName().isBlank() || !new NameTypeValidator().isNameValid(getName())) {
+            addError("name", NameTypeValidator.errorMessage("role name", getName()));
+        }
+
+        Set<RoleUser> roleUsers = new HashSet<>();
+        for (RoleUser user : doGetUsers()) {
+            if (roleUsers.contains(user)) {
+                new ErrorMarkingDuplicateHandler(this).invoke(user);
+            } else {
+                roleUsers.add(user);
+            }
+        }
+    }
 
     default boolean hasMember(CaseInsensitiveString user) {
         if (user == null) {
@@ -42,13 +58,14 @@ public interface Role extends Validatable {
         return false;
     }
 
-    default boolean addUser(RoleUser user) {
-        bombIf(doGetUsers().contains(user), "User '" + CaseInsensitiveString.str(user.getName()) + "' already exists in '" + getName() + "'.");
-        return doGetUsers().add(user);
+    default void addUser(RoleUser user) {
+        if (!doGetUsers().contains(user)) {
+            doGetUsers().add(user);
+        }
     }
 
     default void removeUser(RoleUser roleUser) {
-        getUsers().remove(roleUser);
+        doGetUsers().remove(roleUser);
     }
 
     default Set<String> usersOfRole() {
@@ -63,4 +80,21 @@ public interface Role extends Validatable {
         return new ArrayList<>(doGetUsers());
     }
 
+
+    default List<ConfigErrors> getAllErrors() {
+        return ErrorCollector.getAllErrors(this);
+    }
+
+    class ErrorMarkingDuplicateHandler {
+
+        private final Role role;
+
+        public ErrorMarkingDuplicateHandler(Role role) {
+            this.role = role;
+        }
+
+        public void invoke(final RoleUser roleUser) {
+            roleUser.addDuplicateError(CaseInsensitiveString.str(role.getName()));
+        }
+    }
 }

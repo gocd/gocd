@@ -68,8 +68,8 @@ public interface Role extends Validatable {
         doGetUsers().remove(roleUser);
     }
 
-    default Set<String> usersOfRole() {
-        Set<String> users = new HashSet<>();
+    default Collection<String> usersOfRole() {
+        List<String> users = new ArrayList<>();
         for (RoleUser roleUser : doGetUsers()) {
             users.add(CaseInsensitiveString.str(roleUser.getName()));
         }

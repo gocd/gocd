@@ -23,7 +23,7 @@
                         <%- if is_user_a_template_admin? && !is_user_an_admin? -%>
                             <%= action_icon({:type => "delete", :text => l.string("DELETE"), :title => l.string("UNAUTHORIZED_TO_DELETE_TEMPLATE"), :disabled => true}) %>
                         <%- elsif !is_pipeline_empty -%>
-                            <%= action_icon({:type => "delete", :text => l.string("DELETE"), :title => l.string("CANNOT_DELETE_TEMPLATE"), :disabled => true}) %>
+                            <%= action_icon({:type => "delete", :text => l.string("DELETE"), :title => l.string("CANNOT_DELETE_TEMPLATE", template, pipelines), :disabled => true}) %>
                         <%- else -%>
                             <%= form_tag(delete_template_path(:pipeline_name => template), :method => :delete, :id => "delete_template_#{template}") %>
                             <%= md5_field %>

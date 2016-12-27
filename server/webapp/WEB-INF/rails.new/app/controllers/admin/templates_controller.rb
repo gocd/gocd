@@ -104,7 +104,7 @@ class Admin::TemplatesController < AdminController
 
   def destroy
     template_name = params[:pipeline_name]
-    load_templates @cruise_config
+    load_templates_from_service
     dependent_pipelines = @template_to_pipelines[CaseInsensitiveString.new(template_name)]
     redirect_to templates_path(:fm => set_error_flash("TEMPLATE_HAS_DEPENDENT_PIPELINES_ERROR", template_name)) and return if !dependent_pipelines.empty?
     save_page(params[:config_md5], templates_path, {:action => :index}, Class.new(::ConfigUpdate::SaveAsSuperAdmin) do
@@ -115,7 +115,7 @@ class Admin::TemplatesController < AdminController
         templates.removeTemplateNamed(CaseInsensitiveString.new(template_name))
       end
     end.new(params, current_user, security_service)) do
-      load_templates @cruise_config
+      load_templates_from_service
     end
   end
 

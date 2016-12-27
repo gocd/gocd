@@ -57,15 +57,7 @@ public class DeleteTemplateConfigCommand extends TemplateConfigCommand {
 
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
-        return isUserAuthorized() && doesTemplateExist(cruiseConfig);
-    }
-
-    private boolean isUserAuthorized() {
-        if (!goConfigService.isAuthorizedToEditTemplate(templateConfig.name().toString(), currentUser)) {
-            result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
-            return false;
-        }
-        return true;
+        return super.canContinue(cruiseConfig) && doesTemplateExist(cruiseConfig);
     }
 
     private boolean doesTemplateExist(CruiseConfig cruiseConfig) {

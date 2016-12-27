@@ -456,17 +456,16 @@ describe ApiV2::Admin::TemplatesController do
         expect(controller).to allow_action(:delete, :destroy)
       end
 
-      it 'show allow template admin, with security enabled' do
+      it 'show disallow template admin, with security enabled' do
         login_as_template_admin
 
-        expect(controller).to allow_action(:delete, :destroy, template_name: 'foo')
+        expect(controller).to disallow_action(:delete, :destroy, template_name: 'foo')
       end
     end
     describe 'admin' do
       before(:each) do
         enable_security
         login_as_admin
-        @security_service.should_receive(:isAuthorizedToEditTemplate).with(anything, anything).and_return(true)
       end
 
       it 'should raise an error if template is not found' do

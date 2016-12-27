@@ -17,8 +17,8 @@
 module ApiV2
   module Admin
     class TemplatesController < ApiV2::BaseController
-      before_action :check_admin_user_and_401, only: [:create]
-      before_action :check_admin_or_template_admin_and_401, only: [:index, :show, :update, :destroy]
+      before_action :check_admin_user_and_401, only: [:create, :destroy]
+      before_action :check_admin_or_template_admin_and_401, only: [:index, :show, :update]
       before_action :load_template, only: [:show, :update, :destroy]
       before_action :check_for_stale_request, :check_for_attempted_template_rename, only: [:update]
 

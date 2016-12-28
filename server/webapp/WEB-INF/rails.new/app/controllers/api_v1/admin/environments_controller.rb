@@ -27,7 +27,7 @@ module ApiV1
 
       def show
         json = ApiV1::Config::EnvironmentConfigRepresenter.new(@environment_config).to_hash(url_builder: self)
-        render DEFAULT_FORMAT => json if stale?(etag: get_etag_for_environment)
+        render DEFAULT_FORMAT => json if stale?(etag: etag_for(@environment_config))
       end
 
       def create
@@ -40,7 +40,7 @@ module ApiV1
       def put
         result = HttpLocalizedOperationResult.new
         get_environment_from_request
-        environment_config_service.updateEnvironment(@environment_config, @environment_config_from_request, current_user, get_etag_for_environment, result)
+        environment_config_service.updateEnvironment(@environment_config, @environment_config_from_request, current_user, etag_for(@environment_config), result)
         handle_config_save_result(result, @environment_config_from_request.name.to_s)
       end
 
@@ -78,15 +78,11 @@ module ApiV1
         end
       end
 
-      def get_etag_for_environment
-        etag_for(@environment_config)
-      end
-
       def handle_config_save_result(result, environment_name)
         if result.isSuccessful
           load_environment(environment_name)
           json = ApiV1::Config::EnvironmentConfigRepresenter.new(@environment_config).to_hash(url_builder: self)
-          response.etag = [get_etag_for_environment]
+          response.etag = [etag_for(@environment_config)]
           render DEFAULT_FORMAT => json
         else
           render_http_operation_result(result)
@@ -94,7 +90,7 @@ module ApiV1
       end
 
       def check_for_stale_request
-        if request.env['HTTP_IF_MATCH'] != "\"#{Digest::MD5.hexdigest(get_etag_for_environment)}\""
+        if request.env['HTTP_IF_MATCH'] != %Q{"#{Digest::MD5.hexdigest(etag_for(@environment_config))}"}
           result = HttpLocalizedOperationResult.new
           result.stale(LocalizedMessage::string('STALE_RESOURCE_CONFIG', 'environment', params[:name]))
           render_http_operation_result(result)

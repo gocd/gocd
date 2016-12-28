@@ -58,7 +58,7 @@ module ApiV1
       end
 
       def check_for_stale_request
-        if (request.env["HTTP_IF_MATCH"] != "\"#{Digest::MD5.hexdigest(etag_for(find_scm(params[:material_name])))}\"")
+        if request.env["HTTP_IF_MATCH"] != %Q{"#{Digest::MD5.hexdigest(etag_for(find_scm(params[:material_name])))}"}
           result = HttpLocalizedOperationResult.new
           result.stale(LocalizedMessage::string('STALE_RESOURCE_CONFIG', 'SCM', params[:material_name]))
           render_http_operation_result(result)
@@ -76,9 +76,7 @@ module ApiV1
       end
 
       def find_scm(material_name)
-        scm = pluggable_scm_service.findPluggableScmMaterial(material_name)
-        raise ApiV1::RecordNotFound unless scm
-        scm
+        pluggable_scm_service.findPluggableScmMaterial(material_name) || (raise ApiV1::RecordNotFound)
       end
 
     end

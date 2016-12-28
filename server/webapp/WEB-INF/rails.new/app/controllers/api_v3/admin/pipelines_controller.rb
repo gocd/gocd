@@ -81,7 +81,7 @@ module ApiV3
       end
 
       def check_for_stale_request
-        if request.env["HTTP_IF_MATCH"] != "\"#{Digest::MD5.hexdigest(etag_for(@pipeline_config))}\""
+        if request.env["HTTP_IF_MATCH"] != %Q{"#{Digest::MD5.hexdigest(etag_for(@pipeline_config))}"}
           result = HttpLocalizedOperationResult.new
           result.stale(LocalizedMessage::string("STALE_RESOURCE_CONFIG", 'pipeline', params[:pipeline_name]))
           render_http_operation_result(result)

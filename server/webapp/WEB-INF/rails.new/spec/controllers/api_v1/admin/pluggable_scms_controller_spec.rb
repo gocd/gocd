@@ -216,7 +216,7 @@ describe ApiV1::Admin::PluggableScmsController do
       end
 
       it 'should deserialize scm object from given parameters' do
-        controller.stub(:etag_for).and_return('some-md5')
+        controller.stub(:etag_for_entity_in_config).and_return('some-md5')
         hash = {id: 'scm-id', name: 'foo', auto_update: false, plugin_metadata: {id: 'foo', version: '1'}, configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bar.git'}, {"key" => 'password', "value" => "some-value"}]}
         @pluggable_scm_service.should_receive(:createPluggableScmMaterial).with(anything, an_instance_of(SCM), anything)
         post_with_api_header :create, pluggable_scm: hash
@@ -229,7 +229,7 @@ describe ApiV1::Admin::PluggableScmsController do
       end
 
       it 'should generate id if id is not provided by user' do
-        controller.stub(:etag_for).and_return('some-md5')
+        controller.stub(:etag_for_entity_in_config).and_return('some-md5')
         hash = {name: 'foo', auto_update: false, plugin_metadata: {id: 'some-plugin', version: '1'}, configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bar.git'}, {"key" => 'password', "encrypted_value" => 'baz'}]}
         @pluggable_scm_service.should_receive(:createPluggableScmMaterial).with(anything, an_instance_of(SCM), anything)
 

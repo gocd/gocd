@@ -43,7 +43,6 @@ dependencies {
   compile group: 'net.sf.kxml', name: 'kxml2', version: '2.3.0'
   compile group: 'net.sf.kxml', name: 'kxml2-min', version: '2.3.0'
   compile group: 'com.jezhumble', name: 'javasysmon', version: '0.3.6'
-  compile group: 'org.freemarker', name: 'freemarker', version: '2.3.18'
   compile group: 'dom4j', name: 'dom4j', version: '1.6.1'
   compile(group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.5.2')
   testCompile project(path: ':config-api', configuration: 'testOutput')

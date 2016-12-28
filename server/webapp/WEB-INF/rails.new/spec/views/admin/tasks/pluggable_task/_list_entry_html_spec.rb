@@ -71,7 +71,7 @@ describe "admin/tasks/pluggable_task/list_entry.html.erb" do
 
   it "should list pluggable task, which has on-cancel task" do
     task_plugin = simple_task_plugin_with_on_cancel_config
-    tvm_of_cancel_task = TaskViewModel.new(task_plugin.cancelTask(), "list-entry", "erb")
+    tvm_of_cancel_task = TaskViewModel.new(task_plugin.cancelTask(), "list-entry")
 
     render :partial => "admin/tasks/pluggable_task/list_entry.html", :locals => {:scope => {:task_config => task_plugin, :tvm => tvm_for(task_plugin), :tvm_of_cancel_task => tvm_of_cancel_task}, :modify_onclick_callback => "on-click-callback"}
     capybara_response = "<table><tr>" + response.body + "</tr></table>" # to help Capybara parse html
@@ -80,10 +80,10 @@ describe "admin/tasks/pluggable_task/list_entry.html.erb" do
   end
 
   def tvm_for(task)
-    PluggableTaskViewModel.new task, "admin/tasks/pluggable_task/list_entry", com.thoughtworks.go.plugins.presentation.Renderer::ERB, "Curl - Download" , "Curl - Template"
+    PluggableTaskViewModel.new task, "admin/tasks/pluggable_task/list_entry", "Curl - Download" , "Curl - Template"
   end
 
   def tvm_for_missing_plugin(task)
-    MissingPluggableTaskViewModel.new task, "admin/tasks/pluggable_task/list_entry", com.thoughtworks.go.plugins.presentation.Renderer::ERB
+    MissingPluggableTaskViewModel.new task, "admin/tasks/pluggable_task/list_entry"
   end
 end

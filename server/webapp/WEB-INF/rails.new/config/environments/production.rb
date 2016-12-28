@@ -80,5 +80,4 @@ Go::Application.configure do
   config.log_formatter = ::Logger::Formatter.new
 
   config.java_services_cache = :ServiceCache
-  config.fail_if_unable_to_register_renderer = true
 end

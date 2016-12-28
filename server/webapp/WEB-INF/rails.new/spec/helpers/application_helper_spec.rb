@@ -467,18 +467,16 @@ describe ApplicationHelper do
 
   describe "plugins" do
     it "should render the right plugin template" do
-      allow(self).to receive(:view_rendering_service).and_return(renderer = double("rendering-service"))
-      view_model = TaskViewModel.new(ExecTask.new(), "new", "erb")
-      renderer.should_receive(:render).with(view_model, :view => self, "view" => self).and_return("view")
-      render_pluggable_template(view_model).should == "view"
+      view_model = TaskViewModel.new(ExecTask.new(), "new")
+      self.should_receive(:render).with(file: view_model.getTemplatePath(), locals: {})
+      render_pluggable_template(view_model)
     end
 
     it "should render the right form plugin template" do
-      allow(self).to receive(:view_rendering_service).and_return(renderer = double("rendering-service"))
-      view_model = TaskViewModel.new(ExecTask.new(), "new", "erb")
+      view_model = TaskViewModel.new(ExecTask.new(), "new")
       form_name_provider = Object.new()
-      renderer.should_receive(:render).with(view_model, {"formNameProvider" => form_name_provider, :view => self, "view" => self, "foo" => "bar" }).and_return("view")
-      render_pluggable_form_template(view_model, form_name_provider, "foo" => "bar").should == "view"
+      self.should_receive(:render).with(file: view_model.getTemplatePath(), locals: {"formNameProvider" => form_name_provider, "foo" => "bar"})
+      render_pluggable_form_template(view_model, form_name_provider, "foo" => "bar")
     end
 
     it "should return a NameProvider which uses the object name" do

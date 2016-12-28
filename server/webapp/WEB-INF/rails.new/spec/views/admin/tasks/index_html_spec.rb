@@ -300,19 +300,19 @@ describe "admin/tasks/index.html.erb" do
   end
 
   def tvm(task)
-    TaskViewModel.new(task, "new", "erb")
+    TaskViewModel.new(task, "new")
   end
 
   def tvm_for_list_entry(task)
-    TaskViewModel.new(task, "admin/tasks/plugin/_task_entry_value_fields.html", "erb")
+    TaskViewModel.new(task, "admin/tasks/plugin/_task_entry_value_fields.html")
   end
 
   def pluggable_tvm_for(task, display_value)
-    PluggableTaskViewModel.new task, "admin/tasks/pluggable_task/_list_entry.html", com.thoughtworks.go.plugins.presentation.Renderer::ERB, display_value, "Curl - Template"
+    PluggableTaskViewModel.new task, "admin/tasks/pluggable_task/_list_entry.html", display_value, "Curl - Template"
   end
 
   def pluggable_tvm_for_missing(task)
-    MissingPluggableTaskViewModel.new task, "admin/tasks/pluggable_task/_list_entry.html", com.thoughtworks.go.plugins.presentation.Renderer::ERB
+    MissingPluggableTaskViewModel.new task, "admin/tasks/pluggable_task/_list_entry.html"
   end
 
   def assert_has_delete_button_for_task tr, index

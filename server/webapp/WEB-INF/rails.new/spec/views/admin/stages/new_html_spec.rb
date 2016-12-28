@@ -35,7 +35,7 @@ describe "admin/stages/new.html.erb" do
     in_params(:stage_parent => "pipelines", :pipeline_name => "foo_bar", :action => "new", :controller => "admin/stages")
 
     tvms = java.util.ArrayList.new
-    tvms.add(com.thoughtworks.go.presentation.TaskViewModel.new(@task, "admin/tasks/exec/new", "erb"))
+    tvms.add(com.thoughtworks.go.presentation.TaskViewModel.new(@task, "admin/tasks/exec/new"))
     assign(:task_view_models, tvms)
   end
 

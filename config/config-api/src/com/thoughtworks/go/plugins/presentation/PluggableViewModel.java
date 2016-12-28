@@ -19,10 +19,6 @@ package com.thoughtworks.go.plugins.presentation;
 import java.util.Map;
 
 public interface PluggableViewModel<T> {
-    String FACTORY_CONTEXT_KEY = "__FactoryContext__";
-    String LOCAL_CONTEXT_KEY = "__LocalContext__";
-
-    String getRenderingFramework();
 
     String getTemplatePath();
 

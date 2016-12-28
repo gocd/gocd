@@ -53,18 +53,20 @@ module ApiV3
         render_http_operation_result(result)
       end
 
+      protected
+
       def load_template(template_name = params[:template_name])
         result = HttpLocalizedOperationResult.new
         @template = template_config_service.loadForView(template_name, result)
         raise RecordNotFound unless @template
       end
 
-      def check_for_stale_request
-        if request.env["HTTP_IF_MATCH"] != %Q{"#{Digest::MD5.hexdigest(etag_for(@template))}"}
-          result = HttpLocalizedOperationResult.new
-          result.stale(LocalizedMessage::string('STALE_RESOURCE_CONFIG', 'Template', params[:template][:name]))
-          render_http_operation_result(result)
-        end
+      def stale_message
+        LocalizedMessage::string('STALE_RESOURCE_CONFIG', 'Template', params[:template][:name])
+      end
+
+      def etag_for_entity_in_config
+        etag_for(@template)
       end
 
       def check_for_attempted_template_rename

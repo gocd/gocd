@@ -64,7 +64,7 @@ module ApiV1
         render_http_operation_result(result)
       end
 
-      private
+      protected
 
       def load_environment(environment_name = params[:name])
         @environment_config = environment_config_service.getEnvironmentConfig(environment_name)
@@ -89,12 +89,12 @@ module ApiV1
         end
       end
 
-      def check_for_stale_request
-        if request.env['HTTP_IF_MATCH'] != %Q{"#{Digest::MD5.hexdigest(etag_for(@environment_config))}"}
-          result = HttpLocalizedOperationResult.new
-          result.stale(LocalizedMessage::string('STALE_RESOURCE_CONFIG', 'environment', params[:name]))
-          render_http_operation_result(result)
-        end
+      def stale_message
+        LocalizedMessage::string('STALE_RESOURCE_CONFIG', 'environment', params[:name])
+      end
+
+      def etag_for_entity_in_config
+        etag_for(@environment_config)
       end
     end
   end

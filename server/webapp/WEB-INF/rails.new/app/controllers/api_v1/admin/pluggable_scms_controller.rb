@@ -46,7 +46,8 @@ module ApiV1
         handle_create_or_update_response(result, updated_scm)
       end
 
-      private
+      protected
+
       def handle_create_or_update_response(result, updated_scm)
         json = ApiV1::Scms::PluggableScmRepresenter.new(updated_scm).to_hash(url_builder: self)
         if result.isSuccessful
@@ -57,12 +58,12 @@ module ApiV1
         end
       end
 
-      def check_for_stale_request
-        if request.env["HTTP_IF_MATCH"] != %Q{"#{Digest::MD5.hexdigest(etag_for(find_scm(params[:material_name])))}"}
-          result = HttpLocalizedOperationResult.new
-          result.stale(LocalizedMessage::string('STALE_RESOURCE_CONFIG', 'SCM', params[:material_name]))
-          render_http_operation_result(result)
-        end
+      def stale_message
+        LocalizedMessage::string('STALE_RESOURCE_CONFIG', 'SCM', params[:material_name])
+      end
+
+      def etag_for_entity_in_config
+        etag_for(find_scm(params[:material_name]))
       end
 
       def check_for_scm_rename

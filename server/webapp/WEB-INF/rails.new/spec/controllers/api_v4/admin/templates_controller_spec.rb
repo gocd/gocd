@@ -241,7 +241,7 @@ describe ApiV4::Admin::TemplatesController do
       end
 
       it 'should deserialize template from given parameters' do
-        controller.stub(:get_etag_for_template).and_return('some-md5')
+        controller.stub(:etag_for).and_return('some-md5')
         @template_config_service.should_receive(:createTemplateConfig).with(anything, an_instance_of(PipelineTemplateConfig), anything)
         post_with_api_header :create, template: template_hash
 
@@ -329,7 +329,7 @@ describe ApiV4::Admin::TemplatesController do
 
       it 'should deserialize template from given parameters' do
         controller.stub(:check_for_stale_request).and_return(nil)
-        controller.stub(:get_etag_for_template).and_return('md5')
+        controller.stub(:etag_for).and_return('md5')
         controller.stub(:load_template).and_return(@template)
 
         @template_config_service.should_receive(:updateTemplateConfig).with(anything, an_instance_of(PipelineTemplateConfig), anything, anything)
@@ -352,7 +352,7 @@ describe ApiV4::Admin::TemplatesController do
       it 'should fail update if etag does not match' do
         controller.stub(:load_template).and_return(@template)
         controller.stub(:check_for_attempted_template_rename).and_return(nil)
-        controller.stub(:get_etag_for_template).and_return('another-etag')
+        controller.stub(:etag_for).and_return('another-etag')
         controller.request.env['HTTP_IF_MATCH'] = "some-etag"
 
         put_with_api_header :update, template_name: 'some-template', template: template_hash

@@ -28,7 +28,7 @@ module ApiV1
 
       def show
         json = ApiV1::Config::PackageRepresenter.new({package: @package}).to_hash(url_builder: self)
-        render DEFAULT_FORMAT => json if stale?(etag: get_etag_for_package(@package))
+        render DEFAULT_FORMAT => json if stale?(etag: etag_for(@package))
       end
 
       def destroy
@@ -50,7 +50,7 @@ module ApiV1
       def update
         result = HttpLocalizedOperationResult.new
         updated_package_repo_hash = ApiV1::Config::PackageRepresenter.new({package: PackageDefinition.new, repository: @repository}).from_hash(params[:package])
-        package_definition_service.updatePackage(@package.getId, updated_package_repo_hash[:package], get_etag_for_package(@package), current_user, result)
+        package_definition_service.updatePackage(@package.getId, updated_package_repo_hash[:package], etag_for(@package), current_user, result)
         handle_config_save_result(result, updated_package_repo_hash[:package])
       end
 
@@ -72,19 +72,15 @@ module ApiV1
       def handle_config_save_result(result, updated_package)
         json = ApiV1::Config::PackageRepresenter.new({package: updated_package}).to_hash(url_builder: self)
         if result.isSuccessful
-          response.etag = [get_etag_for_package(updated_package)]
+          response.etag = [etag_for(updated_package)]
           render DEFAULT_FORMAT => json
         else
           render_http_operation_result(result, {data: json})
         end
       end
 
-      def get_etag_for_package(package)
-        entity_hashing_service.md5ForEntity(package)
-      end
-
       def check_for_stale_request
-        if request.env['HTTP_IF_MATCH'] != %Q{"#{Digest::MD5.hexdigest(get_etag_for_package(@package))}"}
+        if request.env['HTTP_IF_MATCH'] != %Q{"#{Digest::MD5.hexdigest(etag_for(@package))}"}
           result = HttpLocalizedOperationResult.new
           result.stale(LocalizedMessage::string('STALE_RESOURCE_CONFIG', 'package', params[:package_id]))
           render_http_operation_result(result)

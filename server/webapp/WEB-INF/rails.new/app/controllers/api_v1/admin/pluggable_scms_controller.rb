@@ -28,7 +28,7 @@ module ApiV1
 
       def show
         hash = get_scm_hash(params[:material_name])
-        render DEFAULT_FORMAT => hash if stale?(etag: get_etag_for_scm_object(params[:material_name]))
+        render DEFAULT_FORMAT => hash if stale?(etag: etag_for(find_scm(params[:material_name])))
       end
 
       def create
@@ -42,7 +42,7 @@ module ApiV1
       def update
         result = HttpLocalizedOperationResult.new
         updated_scm = ApiV1::Scms::PluggableScmRepresenter.new(SCM.new).from_hash(params[:pluggable_scm])
-        pluggable_scm_service.updatePluggableScmMaterial(current_user, updated_scm, result, get_etag_for_scm_object(params[:material_name]))
+        pluggable_scm_service.updatePluggableScmMaterial(current_user, updated_scm, result, etag_for(find_scm(params[:material_name])))
         handle_create_or_update_response(result, updated_scm)
       end
 
@@ -50,7 +50,7 @@ module ApiV1
       def handle_create_or_update_response(result, updated_scm)
         json = ApiV1::Scms::PluggableScmRepresenter.new(updated_scm).to_hash(url_builder: self)
         if result.isSuccessful
-          response.etag = [get_etag_for_scm_object(updated_scm.getName)]
+          response.etag = [etag_for(find_scm(updated_scm.getName))]
           render DEFAULT_FORMAT => json
         else
           render_http_operation_result(result, {data: json})
@@ -58,15 +58,11 @@ module ApiV1
       end
 
       def check_for_stale_request
-        if (request.env["HTTP_IF_MATCH"] != "\"#{Digest::MD5.hexdigest(get_etag_for_scm_object(params[:material_name]))}\"")
+        if request.env["HTTP_IF_MATCH"] != %Q{"#{Digest::MD5.hexdigest(etag_for(find_scm(params[:material_name])))}"}
           result = HttpLocalizedOperationResult.new
           result.stale(LocalizedMessage::string('STALE_RESOURCE_CONFIG', 'SCM', params[:material_name]))
           render_http_operation_result(result)
         end
-      end
-
-      def get_etag_for_scm_object(material_name)
-        entity_hashing_service.md5ForEntity(find_scm(material_name))
       end
 
       def check_for_scm_rename
@@ -80,9 +76,7 @@ module ApiV1
       end
 
       def find_scm(material_name)
-        scm = pluggable_scm_service.findPluggableScmMaterial(material_name)
-        raise ApiV1::RecordNotFound unless scm
-        scm
+        pluggable_scm_service.findPluggableScmMaterial(material_name) || (raise ApiV1::RecordNotFound)
       end
 
     end

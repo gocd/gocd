@@ -54,7 +54,8 @@ module ApiV1
         handle_config_save_result(result, updated_package_repo_hash[:package])
       end
 
-      private
+      protected
+
       def load_package(package_id = params[:package_id])
         @package = package_definition_service.find(package_id)
         raise RecordNotFound if @package.nil?
@@ -79,13 +80,12 @@ module ApiV1
         end
       end
 
-      def check_for_stale_request
-        if request.env['HTTP_IF_MATCH'] != %Q{"#{Digest::MD5.hexdigest(etag_for(@package))}"}
-          result = HttpLocalizedOperationResult.new
-          result.stale(LocalizedMessage::string('STALE_RESOURCE_CONFIG', 'package', params[:package_id]))
-          render_http_operation_result(result)
-        end
+      def stale_message
+        LocalizedMessage::string('STALE_RESOURCE_CONFIG', 'package', params[:package_id])
+      end
 
+      def etag_for_entity_in_config
+        etag_for(@package)
       end
     end
   end

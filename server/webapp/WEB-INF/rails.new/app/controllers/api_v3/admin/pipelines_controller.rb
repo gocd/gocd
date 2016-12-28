@@ -52,7 +52,7 @@ module ApiV3
         render_http_operation_result(result)
       end
 
-      private
+      protected
 
       def get_pipeline_from_request
         @pipeline_config_from_request ||= PipelineConfig.new.tap do |config|
@@ -80,12 +80,12 @@ module ApiV3
         end
       end
 
-      def check_for_stale_request
-        if request.env["HTTP_IF_MATCH"] != %Q{"#{Digest::MD5.hexdigest(etag_for(@pipeline_config))}"}
-          result = HttpLocalizedOperationResult.new
-          result.stale(LocalizedMessage::string("STALE_RESOURCE_CONFIG", 'pipeline', params[:pipeline_name]))
-          render_http_operation_result(result)
-        end
+      def stale_message
+        LocalizedMessage::string("STALE_RESOURCE_CONFIG", 'pipeline', params[:pipeline_name])
+      end
+
+      def etag_for_entity_in_config
+        etag_for(@pipeline_config)
       end
 
       def load_pipeline(pipeline_name = params[:pipeline_name])

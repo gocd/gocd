@@ -54,18 +54,18 @@ module ApiV1
         render_http_operation_result(result)
       end
 
-      private
+      protected
 
       def load_profile
         elastic_profile_service.findProfile(params[:profile_id]) || (raise ApiV1::RecordNotFound)
       end
 
-      def check_for_stale_request
-        if request.env['HTTP_IF_MATCH'] != %Q{"#{Digest::MD5.hexdigest(etag_for(load_profile))}"}
-          result = HttpLocalizedOperationResult.new
-          result.stale(LocalizedMessage::string('STALE_RESOURCE_CONFIG', 'Elastic agent profile', params[:profile_id]))
-          render_http_operation_result(result)
-        end
+      def stale_message
+        LocalizedMessage::string('STALE_RESOURCE_CONFIG', 'Elastic agent profile', params[:profile_id])
+      end
+
+      def etag_for_entity_in_config
+        etag_for(load_profile)
       end
 
       def handle_create_or_update_response(result, updated_profile)

@@ -17,10 +17,11 @@
 module ApiV4
   module Admin
     class TemplatesController < ApiV4::BaseController
-      before_action :check_admin_user_and_401, only: [:create, :destroy]
-      before_action :check_admin_or_template_admin_and_401, only: [:index, :show, :update]
-      before_action :load_template, only: [:show, :update, :destroy]
-      before_action :check_for_stale_request, :check_for_attempted_template_rename, only: [:update]
+      before_action :check_admin_user_and_401, only: [:create, :destroy, :update]
+      before_action :check_admin_or_template_admin_and_401, only: [:index, :show, :update_stage_config]
+      before_action :load_template, only: [:show, :update, :destroy, :update_stage_config]
+      before_action :check_for_stale_request, only: [:update, :update_stage_config]
+      before_action :check_for_attempted_template_rename, only: [:update]
 
       def index
         templates = template_config_service.templatesWithPipelinesForUser(current_user.getUsername.toString)
@@ -51,6 +52,13 @@ module ApiV4
         result = HttpLocalizedOperationResult.new
         template_config_service.deleteTemplateConfig(current_user, @template, result)
         render_http_operation_result(result)
+      end
+
+      def update_stage_config
+        result = HttpLocalizedOperationResult.new
+        updated_template = ApiV4::Config::TemplateStageConfigRepresenter.new(@template).from_hash(params[:template])
+        template_config_service.updateTemplateConfig(current_user, updated_template, result, etag_for(@template))
+        handle_create_or_update_response(result, updated_template)
       end
 
       protected

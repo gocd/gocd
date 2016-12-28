@@ -314,17 +314,16 @@ describe ApiV4::Admin::TemplatesController do
         expect(controller).to allow_action(:put, :update)
       end
 
-      it 'show allow template admin, with security enabled' do
+      it 'show disallow template admin, with security enabled' do
         login_as_template_admin
 
-        expect(controller).to allow_action(:put, :update, template_name: 'foo')
+        expect(controller).to disallow_action(:put, :update, template_name: 'foo')
       end
     end
     describe 'admin' do
       before(:each) do
         enable_security
         login_as_admin
-        @security_service.should_receive(:isAuthorizedToEditTemplate).with(anything, anything).and_return(true)
       end
 
       it 'should deserialize template from given parameters' do
@@ -532,6 +531,145 @@ describe ApiV4::Admin::TemplatesController do
     end
   end
 
+  describe 'update_stage_config' do
+    describe 'security' do
+      before :each do
+        controller.stub(:load_template).and_return(nil)
+        controller.stub(:check_for_stale_request).and_return(nil)
+      end
+      it 'should allow all with security disabled' do
+        disable_security
+
+        expect(controller).to allow_action(:patch, :update_stage_config)
+      end
+
+      it 'should disallow anonymous users, with security enabled' do
+        enable_security
+        login_as_anonymous
+
+        expect(controller).to disallow_action(:patch, :update_stage_config, template_name: 'foo').with(401, 'You are not authorized to perform this action.')
+      end
+
+      it 'should disallow normal users, with security enabled' do
+        enable_security
+        login_as_user
+
+        expect(controller).to disallow_action(:patch, :update_stage_config, template_name: 'foo').with(401, 'You are not authorized to perform this action.')
+      end
+
+      it 'should allow admin, with security enabled' do
+        enable_security
+        login_as_admin
+
+        expect(controller).to allow_action(:patch, :update_stage_config)
+      end
+
+      it 'show allow template admin, with security enabled' do
+        login_as_template_admin
+
+        expect(controller).to allow_action(:patch, :update_stage_config, template_name: 'foo')
+      end
+
+
+    end
+    describe 'route' do
+      describe :with_header do
+        it 'should route to update action of templates controller for alphanumeric template name' do
+          expect(:patch => 'api/admin/templates/foo123').to route_to(action: 'update_stage_config', controller: 'api_v4/admin/templates', template_name: 'foo123')
+        end
+
+        it 'should route to update action of templates controller for template name with dots' do
+          expect(:patch => 'api/admin/templates/foo.123').to route_to(action: 'update_stage_config', controller: 'api_v4/admin/templates', template_name: 'foo.123')
+        end
+
+        it 'should route to update action of templates controller for template name with hyphen' do
+          expect(:patch => 'api/admin/templates/foo-123').to route_to(action: 'update_stage_config', controller: 'api_v4/admin/templates', template_name: 'foo-123')
+        end
+
+        it 'should route to update action of templates controller for template name with underscore' do
+          expect(:patch => 'api/admin/templates/foo_123').to route_to(action: 'update_stage_config', controller: 'api_v4/admin/templates', template_name: 'foo_123')
+        end
+
+        it 'should route to update action of templates controller for capitalized template name' do
+          expect(:patch => 'api/admin/templates/FOO').to route_to(action: 'update_stage_config', controller: 'api_v4/admin/templates', template_name: 'FOO')
+        end
+      end
+      describe :without_header do
+        before :each do
+          teardown_header
+        end
+        it 'should not route to update action of templates controller without header' do
+          expect(:patch => 'api/admin/templates/foo').to_not route_to(action: 'update_stage_config', controller: 'api_v4/admin/templates')
+          expect(:patch => 'api/admin/templates/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/templates/foo')
+        end
+      end
+    end
+    describe 'admin' do
+      before(:each) do
+        enable_security
+        login_as_admin
+        @security_service.should_receive(:isAuthorizedToEditTemplate).with(anything, anything).and_return(true)
+      end
+
+      it 'should deserialize template stages from given parameters without affecting the rest of the template' do
+        template = PipelineTemplateConfig.new(CaseInsensitiveString.new('some-template'), StageConfig.new(CaseInsensitiveString.new('stage'), JobConfigs.new(JobConfig.new(CaseInsensitiveString.new('job')))))
+        template_auth = Authorization.new(AdminsConfig.new(AdminUser.new(CaseInsensitiveString.new('some-user'))))
+        template.setAuthorization(template_auth)
+        controller.stub(:check_for_stale_request).and_return(nil)
+        controller.stub(:etag_for).and_return('md5')
+        @template_config_service.should_receive(:loadForView).with('some-template', anything).and_return(template)
+
+        @template_config_service.should_receive(:updateTemplateConfig).with(anything, an_instance_of(PipelineTemplateConfig), anything, anything)
+
+        patch_with_api_header :update_stage_config, template_name: 'some-template', template: template_stages_hash
+
+        expect(response).to be_ok
+        expect(actual_response).to eq(expected_response(template, ApiV4::Config::TemplateConfigRepresenter))
+        expect(template.getAuthorization).to eq(template_auth)
+      end
+
+      it 'should fail update if etag does not match' do
+        controller.stub(:load_template).and_return(@template)
+        controller.stub(:etag_for).and_return('another-etag')
+        controller.request.env['HTTP_IF_MATCH'] = "some-etag"
+
+        patch_with_api_header :update_stage_config, template_name: 'some-template', template: template_hash
+
+        expect(response).to have_api_message_response(412, "Someone has modified the configuration for Template 'some-template'. Please update your copy of the config with the changes." )
+      end
+
+      it 'should proceed with update if etag matches.' do
+        controller.request.env['HTTP_IF_MATCH'] = "\"#{Digest::MD5.hexdigest("md5")}\""
+
+        @template_config_service.should_receive(:loadForView).with('some-template', anything).and_return(@template)
+        @entity_hashing_service.should_receive(:md5ForEntity).with(an_instance_of(PipelineTemplateConfig)).exactly(3).times.and_return('md5')
+        @template_config_service.should_receive(:updateTemplateConfig).with(anything, an_instance_of(PipelineTemplateConfig), anything, "md5")
+
+        patch_with_api_header :update_stage_config, template_name: 'some-template', template: template_hash
+
+        expect(response).to be_ok
+        expect(actual_response).to eq(expected_response(@template, ApiV4::Config::TemplateConfigRepresenter))
+      end
+
+      it 'should not update existing material if validations fail' do
+        controller.stub(:check_for_stale_request).and_return(nil)
+        controller.stub(:check_for_attempted_template_rename).and_return(nil)
+
+        result = HttpLocalizedOperationResult.new
+
+        @entity_hashing_service.should_receive(:md5ForEntity).with(an_instance_of(PipelineTemplateConfig)).and_return('md5')
+        @template_config_service.should_receive(:loadForView).and_return(@template)
+        @template_config_service.stub(:updateTemplateConfig).with(anything, an_instance_of(PipelineTemplateConfig), result, anything)  do |user, template, result|
+          result.unprocessableEntity(LocalizedMessage::string("SAVE_FAILED_WITH_REASON", "Validation failed"))
+        end
+
+        patch_with_api_header :update_stage_config, template_name: 'some-template'
+
+        expect(response).to have_api_message_response(422, 'Save failed. Validation failed')
+      end
+    end
+  end
+
 
   private
   def template_hash
@@ -543,6 +681,20 @@ describe ApiV4::Admin::TemplatesController do
           jobs: [
             {
               name: 'job'
+            }
+          ]
+        }
+      ]
+    }
+  end
+  def template_stages_hash
+    {
+      stages: [
+        {
+          name: 'updated_stage',
+          jobs: [
+            {
+              name: 'updated_job'
             }
           ]
         }

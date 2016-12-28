@@ -251,4 +251,5 @@ module JavaImports
   java_import com.thoughtworks.go.config.EnvironmentAgentConfig unless defined? EnvironmentAgentConfig
   java_import com.thoughtworks.go.config.EnvironmentVariableConfig unless defined? EnvironmentVariableConfig
   java_import com.thoughtworks.go.config.elastic.ElasticProfile unless defined? ElasticProfile
+  java_import com.thoughtworks.go.config.AdminUser unless defined? AdminUser
 end

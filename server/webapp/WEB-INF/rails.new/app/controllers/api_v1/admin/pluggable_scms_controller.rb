@@ -51,7 +51,7 @@ module ApiV1
       def handle_create_or_update_response(result, updated_scm)
         json = ApiV1::Scms::PluggableScmRepresenter.new(updated_scm).to_hash(url_builder: self)
         if result.isSuccessful
-          response.etag = [etag_for(find_scm(updated_scm.getName))]
+          response.etag = [etag_for_entity_in_config(updated_scm.getName)]
           render DEFAULT_FORMAT => json
         else
           render_http_operation_result(result, {data: json})
@@ -62,8 +62,8 @@ module ApiV1
         LocalizedMessage::string('STALE_RESOURCE_CONFIG', 'SCM', params[:material_name])
       end
 
-      def etag_for_entity_in_config
-        etag_for(find_scm(params[:material_name]))
+      def etag_for_entity_in_config(material_name = params[:material_name])
+        etag_for(find_scm(material_name))
       end
 
       def check_for_scm_rename

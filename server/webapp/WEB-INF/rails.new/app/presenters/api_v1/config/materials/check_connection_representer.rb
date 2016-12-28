@@ -17,11 +17,11 @@
 module ApiV1
   module Config
     module Materials
-      class RepositoryCheckConnectionRepresenter < ApiV1::BaseRepresenter
-        alias_method :package_repository, :represented
+      class CheckConnectionRepresenter < ApiV1::BaseRepresenter
 
         property :plugin,
-                 exec_context: :decorator
+                 exec_context: :decorator,
+                 skip_parse: :represented.class == com.thoughtworks.go.domain.packagerepository.PackageDefinition
 
         collection :configuration,
                    decorator: ApiV1::Config::PluginConfigurationPropertyRepresenter,
@@ -31,11 +31,11 @@ module ApiV1
 
         def plugin=(value)
           plugin_configuration = com.thoughtworks.go.domain.config.PluginConfiguration.new(value, nil)
-          package_repository.setPluginConfiguration(plugin_configuration)
+          represented.setPluginConfiguration(plugin_configuration)
         end
 
         def configuration=(value)
-          package_repository.addConfigurations(value)
+          represented.addConfigurations(value)
         end
 
       end

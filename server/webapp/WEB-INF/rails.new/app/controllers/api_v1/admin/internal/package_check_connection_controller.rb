@@ -17,14 +17,18 @@
 module ApiV1
   module Admin
     module Internal
-      class RepositoryCheckConnectionController < ::ApiV1::BaseController
+      class PackageCheckConnectionController < ::ApiV1::BaseController
         before_action :check_admin_user_or_group_admin_user_and_401
 
         def check_connection
-          package_repository = PackageRepository.new
+          package_definition = PackageDefinition.new
+          repository = package_repository_service.getPackageRepository(params[:repo_id])
+          raise RecordNotFound if repository.blank?
+
+          package_definition.setRepository(repository)
+          ApiV1::Config::Materials::CheckConnectionRepresenter.new(package_definition).from_hash(params[:package_check_connection])
           result = HttpLocalizedOperationResult.new
-          ApiV1::Config::Materials::CheckConnectionRepresenter.new(package_repository).from_hash(params[:repository_check_connection])
-          package_repository_service.checkConnection(package_repository, result)
+          package_definition_service.checkConnection(package_definition, result)
           render_http_operation_result(result)
         end
 

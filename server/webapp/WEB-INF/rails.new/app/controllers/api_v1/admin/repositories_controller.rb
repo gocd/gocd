@@ -23,7 +23,7 @@ module ApiV1
 
       def show
         json = ApiV1::Config::PackageRepositoryRepresenter.new(@package_repo_config).to_hash(url_builder: self)
-        render DEFAULT_FORMAT => json if stale?(etag: get_etag_for_package_repository(@package_repo_config))
+        render DEFAULT_FORMAT => json if stale?(etag: etag_for(@package_repo_config))
       end
 
       def index
@@ -41,7 +41,7 @@ module ApiV1
       def update
         result = HttpLocalizedOperationResult.new
         updated_repository = ApiV1::Config::PackageRepositoryRepresenter.new(PackageRepository.new).from_hash(params[:repository])
-        package_repository_service.updatePackageRepository(updated_repository, current_user, get_etag_for_package_repository(@package_repo_config), result, params[:repo_id])
+        package_repository_service.updatePackageRepository(updated_repository, current_user, etag_for(@package_repo_config), result, params[:repo_id])
         handle_config_save_result(result, updated_repository)
       end
 
@@ -60,19 +60,15 @@ module ApiV1
       def handle_config_save_result(result, updated_repository)
         json = ApiV1::Config::PackageRepositoryRepresenter.new(updated_repository).to_hash(url_builder: self)
         if result.isSuccessful
-          response.etag = [get_etag_for_package_repository(updated_repository)]
+          response.etag = [etag_for(updated_repository)]
           render DEFAULT_FORMAT => json
         else
           render_http_operation_result(result, {data: json})
         end
       end
 
-      def get_etag_for_package_repository(package_repository)
-        entity_hashing_service.md5ForEntity(package_repository)
-      end
-
       def check_for_stale_request
-        if request.env['HTTP_IF_MATCH'] != %Q{"#{Digest::MD5.hexdigest(get_etag_for_package_repository(@package_repo_config))}"}
+        if request.env['HTTP_IF_MATCH'] != %Q{"#{Digest::MD5.hexdigest(etag_for(@package_repo_config))}"}
           result = HttpLocalizedOperationResult.new
           result.stale(LocalizedMessage::string('STALE_RESOURCE_CONFIG', 'Package Repository', params[:repo_id]))
           render_http_operation_result(result)

@@ -59,6 +59,10 @@ module ApiV2
 
     protected
 
+    def etag_for(entity)
+      entity_hashing_service.md5ForEntity(entity)
+    end
+
     def to_tristate(var)
       TriState.from(var.to_s)
     rescue => e

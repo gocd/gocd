@@ -23,7 +23,7 @@ module ApiV2
       before_action :check_for_stale_request, :check_for_attempted_pipeline_rename, only: [:update]
 
       def show
-        if stale?(etag: get_etag_for(@pipeline_config))
+        if stale?(etag: etag_for(@pipeline_config))
           json = ApiV2::Config::PipelineConfigRepresenter.new(@pipeline_config).to_hash(url_builder: self)
           render DEFAULT_FORMAT => json
         end
@@ -42,7 +42,7 @@ module ApiV2
       def update
         result = HttpLocalizedOperationResult.new
         get_pipeline_from_request
-        pipeline_config_service.updatePipelineConfig(current_user, @pipeline_config_from_request, get_etag_for(@pipeline_config), result)
+        pipeline_config_service.updatePipelineConfig(current_user, @pipeline_config_from_request, etag_for(@pipeline_config), result)
         handle_config_save_or_update_result(result)
       end
 
@@ -64,7 +64,7 @@ module ApiV2
         if result.isSuccessful
           load_pipeline(pipeline_name)
           json = ApiV2::Config::PipelineConfigRepresenter.new(@pipeline_config).to_hash(url_builder: self)
-          response.etag = [get_etag_for(@pipeline_config)]
+          response.etag = [etag_for(@pipeline_config)]
           render DEFAULT_FORMAT => json
         else
           json = ApiV2::Config::PipelineConfigRepresenter.new(@pipeline_config_from_request).to_hash(url_builder: self)
@@ -80,12 +80,8 @@ module ApiV2
         end
       end
 
-      def get_etag_for(pipeline)
-        entity_hashing_service.md5ForEntity(pipeline)
-      end
-
       def check_for_stale_request
-        if request.env["HTTP_IF_MATCH"] != "\"#{Digest::MD5.hexdigest(get_etag_for(@pipeline_config))}\""
+        if request.env["HTTP_IF_MATCH"] != "\"#{Digest::MD5.hexdigest(etag_for(@pipeline_config))}\""
           result = HttpLocalizedOperationResult.new
           result.stale(LocalizedMessage::string("STALE_RESOURCE_CONFIG", 'pipeline', params[:pipeline_name]))
           render_http_operation_result(result)

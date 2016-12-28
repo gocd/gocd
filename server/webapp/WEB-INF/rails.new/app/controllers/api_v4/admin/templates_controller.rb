@@ -30,7 +30,7 @@ module ApiV4
 
       def show
         json = ApiV4::Config::TemplateConfigRepresenter.new(@template).to_hash(url_builder: self)
-        render DEFAULT_FORMAT => json if stale?(etag: get_etag_for_template(@template))
+        render DEFAULT_FORMAT => json if stale?(etag: etag_for(@template))
       end
 
       def create
@@ -43,7 +43,7 @@ module ApiV4
       def update
         result = HttpLocalizedOperationResult.new
         updated_template = ApiV4::Config::TemplateConfigRepresenter.new(PipelineTemplateConfig.new).from_hash(params[:template])
-        template_config_service.updateTemplateConfig(current_user, updated_template, result, get_etag_for_template(@template))
+        template_config_service.updateTemplateConfig(current_user, updated_template, result, etag_for(@template))
         handle_create_or_update_response(result, updated_template)
       end
 
@@ -60,7 +60,7 @@ module ApiV4
       end
 
       def check_for_stale_request
-        if request.env["HTTP_IF_MATCH"] != %Q{"#{Digest::MD5.hexdigest(get_etag_for_template(@template))}"}
+        if request.env["HTTP_IF_MATCH"] != %Q{"#{Digest::MD5.hexdigest(etag_for(@template))}"}
           result = HttpLocalizedOperationResult.new
           result.stale(LocalizedMessage::string('STALE_RESOURCE_CONFIG', 'Template', params[:template][:name]))
           render_http_operation_result(result)
@@ -76,16 +76,13 @@ module ApiV4
       def handle_create_or_update_response(result, updated_template)
         json = ApiV4::Config::TemplateConfigRepresenter.new(updated_template).to_hash(url_builder: self)
         if result.isSuccessful
-          response.etag = [get_etag_for_template(updated_template)]
+          response.etag = [etag_for(updated_template)]
           render DEFAULT_FORMAT => json
         else
           render_http_operation_result(result, {data: json})
         end
       end
 
-      def get_etag_for_template(template)
-        entity_hashing_service.md5ForEntity(template)
-      end
     end
   end
 end

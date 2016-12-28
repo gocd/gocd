@@ -68,10 +68,6 @@ module ApiV1
         end
       end
 
-      def etag_for(profile)
-        entity_hashing_service.md5ForEntity(profile)
-      end
-
       def handle_create_or_update_response(result, updated_profile)
         json = ProfileRepresenter.new(updated_profile).to_hash(url_builder: self)
         if result.isSuccessful

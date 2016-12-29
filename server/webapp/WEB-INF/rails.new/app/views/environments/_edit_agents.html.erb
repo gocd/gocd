@@ -5,7 +5,7 @@
                 <% if scope[:agents].empty? %>
                     <%= l.string("NO_AGENTS") %>
                 <% else %>
-                    <%= render :partial => "agents/agents_table", :locals => {:scope => {:agents => scope[:agents], :exclude_columns => ["status", "usable_space"], :sortable_columns => false, :show_only_disabled => true, :selector_name => 'environment[agents][][uuid]', :selected => scope[:environment].agents.map(&:uuid)}} %>
+                    <%= render :partial => "environments/agents_table", :locals => {:scope => {:agents => scope[:agents], :exclude_columns => ["status", "usable_space"], :sortable_columns => false, :show_only_disabled => true, :selector_name => 'environment[agents][][uuid]', :selected => scope[:environment].agents.map(&:uuid)}} %>
                 <% end %>
             </div>
         </div>

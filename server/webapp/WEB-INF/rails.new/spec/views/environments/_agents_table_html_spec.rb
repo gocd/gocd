@@ -16,7 +16,7 @@
 
 require 'spec_helper'
 
-describe "/agents/index" do
+describe "Environments agents table" do
   include AgentMother
 
   before :each do
@@ -30,7 +30,7 @@ describe "/agents/index" do
   it "should not link to agent details for a pending agent" do
     assign(:agents, AgentsViewModel.new([pending_agent].to_java(AgentViewModel)))
 
-    render :partial => "agents/agents_table.html",:locals => {:scope => {:sortable_columns => false}}
+    render :partial => "environments/agents_table.html",:locals => {:scope => {:sortable_columns => false}}
 
     Capybara.string(response.body).find("#agent_details").tap do |agent_details|
       expect(agent_details).to_not have_selector("a", :text => "CCeDev03")
@@ -39,25 +39,25 @@ describe "/agents/index" do
   end
 
   it "should not make the column sortable if sortable is false" do
-    render :partial => "agents/agents_table.html",:locals => {:scope => {:sortable_columns => false}}
+    render :partial => "environments/agents_table.html",:locals => {:scope => {:sortable_columns => false}}
     expect(response.body).to have_selector("th span", :text => "Agent Name")
   end
 
   it "should make the column sortable if sortable is true" do
-    render :partial => "agents/agents_table.html",:locals => {:scope => {:sortable_columns => true}}
+    render :partial => "environments/agents_table.html",:locals => {:scope => {:sortable_columns => true}}
 
     expect(response.body).to have_selector("th a span", :text => "Agent Name")
   end
 
   it "should show status only for disabled agents if show_only_disabled is true" do
-    render :partial => "agents/agents_table.html",:locals => {:scope => {:show_only_disabled => true}}
+    render :partial => "environments/agents_table.html",:locals => {:scope => {:show_only_disabled => true}}
 
     expect(response.body).to_not have_selector("tr.Idle")
     expect(response.body).to have_selector("tr.Disabled")
   end
 
   it "should show all status by default if show_only_disabled is not given or is false" do
-    render :partial => "agents/agents_table.html",:locals => {:scope => {}}
+    render :partial => "environments/agents_table.html",:locals => {:scope => {}}
 
     expect(response.body).to have_selector("tr.Idle")
     expect(response.body).to have_selector("tr.Disabled")
@@ -82,7 +82,7 @@ describe "/agents/index" do
     assign(:agents, AgentsViewModel.new([agent_with_dangerous_values].to_java(AgentViewModel)))
 
 
-    render :partial => "agents/agents_table.html",:locals => {:scope => {}}
+    render :partial => "environments/agents_table.html",:locals => {:scope => {}}
 
 
     sanitize = proc {|val| val.gsub('<', '&lt;').gsub('>', '&gt;')}

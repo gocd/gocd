@@ -52,7 +52,6 @@ define(['mithril',
           <f.row>
             <f.column size={5}>
               <h1>Agents</h1>
-              <a href="/go/old_agents" class="button small old-agents-page">Switch back to old view</a>
             </f.column>
 
             <f.column size={7}>

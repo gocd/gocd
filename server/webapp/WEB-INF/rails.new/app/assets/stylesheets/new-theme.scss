@@ -1651,7 +1651,7 @@ input[type='submit'], input[type='submit']:hover, button.submit, button.submit:h
   background-color: $passed;
 }
 
-.Failed {
+.Failed , #new-pipeline-history .failed-stage{
   background-image: none;
   background-color: $failed;
 }

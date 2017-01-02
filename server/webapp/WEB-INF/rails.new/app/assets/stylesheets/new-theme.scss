@@ -670,8 +670,10 @@ h1.entity_title {
 }
 
 .pipeline-history-group .pipeline-name .wrapper {
-  width:  25em;
-  _width: 25em;
+  max-width: 25em;
+  _width:    25em;
+  width:     auto;
+  min-width: 12em;
 }
 
 .container-in-body {
@@ -1651,7 +1653,7 @@ input[type='submit'], input[type='submit']:hover, button.submit, button.submit:h
   background-color: $passed;
 }
 
-.Failed , #new-pipeline-history .failed-stage{
+.Failed, #new-pipeline-history .failed-stage {
   background-image: none;
   background-color: $failed;
 }

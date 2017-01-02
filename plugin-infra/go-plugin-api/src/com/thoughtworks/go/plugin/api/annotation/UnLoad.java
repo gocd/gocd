@@ -41,7 +41,7 @@ import java.lang.annotation.Target;
  *
  * Please refer to the Go Plugin documentation for more details.
  *
- * @see <a href="http://www.go.cd/documentation/developer/writing_go_plugins/go_plugins_basics.html" target="_blank">Go Plugin Documentation</a>
+ * @see <a href="https://www.gocd.io/documentation/developer/writing_go_plugins/go_plugins_basics.html" target="_blank">Go Plugin Documentation</a>
  * @see com.thoughtworks.go.plugin.api.info.PluginContext
  * @see Load
  *

@@ -295,7 +295,7 @@ public class AgentService {
             LOGGER.warn(format("Found agent [%s] with duplicate uuid. Please check the agent installation.", info.agentInfoDebugString()));
             serverHealthService.update(
                     ServerHealthState.warning(format("[%s] has duplicate unique identifier which conflicts with [%s]", info.agentInfoForDisplay(), findAgentAndRefreshStatus(info.getUUId()).agentInfoForDisplay()),
-                            "Please check the agent installation. Click <a href='http://www.go.cd/documentation/user/current/faq/agent_guid_issue.html' target='_blank'>here</a> for more info.",
+                            "Please check the agent installation. Click <a href='https://www.gocd.io/documentation/user/current/faq/agent_guid_issue.html' target='_blank'>here</a> for more info.",
                             HealthStateType.duplicateAgent(HealthStateScope.forAgent(info.getCookie())), Timeout.THIRTY_SECONDS));
             throw new AgentWithDuplicateUUIDException(format("Agent [%s] has invalid cookie", info.agentInfoDebugString()));
         }

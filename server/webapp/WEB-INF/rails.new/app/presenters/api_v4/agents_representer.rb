@@ -28,7 +28,7 @@ module ApiV4
     end
 
     link :doc do
-      'https://api.go.cd/#agents'
+      'https://api.gocd.io/#agents'
     end
 
     collection :agents, embedded: true, exec_context: :decorator, decorator: AgentRepresenter

@@ -26,7 +26,7 @@ module ApiV1
       end
 
       link :doc do
-        'https://api.go.cd/#scms'
+        'https://api.gocd.io/#scms'
       end
 
       link :find do |opts|

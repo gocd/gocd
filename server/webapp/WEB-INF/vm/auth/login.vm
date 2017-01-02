@@ -110,7 +110,7 @@
             <div id="error-box">
               $SPRING_SECURITY_LAST_EXCEPTION.message.replaceAll(";.*", "")
               <a target="_blank"
-                 href="https://docs.go.cd/current/configuration/dev_authentication.html#common-errors">Help
+                 href="https://docs.gocd.io/current/configuration/dev_authentication.html#common-errors">Help
                 Topic: Authentication</a>
             </div>
             <div class="ab-bg">
@@ -141,7 +141,7 @@
                 </p>
 
                 <p id="login-actions">
-                  <a target="_blank" href="https://go.cd/help"
+                  <a target="_blank" href="https://gocd.io/help"
                      title="Click to open help documentation" class="help">$l.localize("HELP_SMALL")</a>
                 ##                                    <input class="default" name="commit" type="submit" id="signin" value="Sign in &#187;"/>
 

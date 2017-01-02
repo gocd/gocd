@@ -23,7 +23,7 @@ module ApiV2
       end
 
       link :doc do |opts|
-        'https://api.go.cd/#template-config'
+        'https://api.gocd.io/#template-config'
       end
 
       link :find do |opts|

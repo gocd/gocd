@@ -67,7 +67,7 @@ public class EmailMessageDrafterTest {
             + "When the available space goes below %sMb, Go will stop scheduling. "
             + "Please ensure enough space is available. You can read more about Go's artifacts repository, "
             + "including our recommendation to create a separate partition for it at "
-            + "http://www.go.cd/documentation/user/current/installation/configuring_server_details.html\n", ip, size, artifactRoot, noDiskSpaceSize);
+            + "https://www.gocd.io/documentation/user/current/installation/configuring_server_details.html\n", ip, size, artifactRoot, noDiskSpaceSize);
     }
 
     private String noArtifactDiskSpaceEmail(String ip, String size) {
@@ -76,6 +76,6 @@ public class EmailMessageDrafterTest {
             + "This server has stopped scheduling because it has less than %sMb of disk space available at %s to store artifacts. "
             + "Please ensure enough space is available. You can read more about Go's artifacts repository, "
             + "including our recommendation to create a separate partition for it at "
-            + "http://www.go.cd/documentation/user/current/installation/configuring_server_details.html\n", ip, size, artifactRoot);
+            + "https://www.gocd.io/documentation/user/current/installation/configuring_server_details.html\n", ip, size, artifactRoot);
     }
 }

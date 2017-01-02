@@ -160,7 +160,7 @@ define([
           if(!ctrl.task.args().isList()){
             return (
               <label>The lookup feature is only available for the <a class=""
-                   href="http://www.go.cd/documentation/user/current/advanced_usage/command_repository.html#args-style-commands"
+                   href="https://www.gocd.io/documentation/user/current/advanced_usage/command_repository.html#args-style-commands"
                    target="_blank">
                   new style</a> of custom commands.</label>
             );

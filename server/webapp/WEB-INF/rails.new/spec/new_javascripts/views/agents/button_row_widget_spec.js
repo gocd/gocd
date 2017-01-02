@@ -125,7 +125,7 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/button_row_wi
               "href": "https://ci.example.com/go/api/agents/uuid-1"
             },
             "doc":  {
-              "href": "http://api.go.cd/#agents"
+              "href": "https://api.gocd.io/#agents"
             },
             "find": {
               "href": "https://ci.example.com/go/api/agents/:uuid"

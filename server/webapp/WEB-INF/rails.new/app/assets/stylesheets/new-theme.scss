@@ -3424,3 +3424,8 @@ form#package_repositories_edit_form {
     background: #e5e5e5;
   }
 }
+#new_pipeline_group_container{
+  .form_error {
+    padding: 0 7px;
+  }
+}

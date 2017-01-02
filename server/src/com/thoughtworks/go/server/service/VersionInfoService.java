@@ -34,6 +34,10 @@ public class VersionInfoService {
     }
 
     public VersionInfo getStaleVersionInfo() {
+        if (!manager.isUpdateCheckEnabled()) {
+            return null;
+        }
+
         return manager.versionInfoForUpdate();
     }
 

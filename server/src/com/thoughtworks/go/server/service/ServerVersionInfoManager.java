@@ -97,7 +97,7 @@ public class ServerVersionInfoManager {
     }
 
     private boolean isDevelopmentServer() {
-        return serverVersionInfo == null;
+        return !systemEnvironment.isProductionMode() || (serverVersionInfo == null);
     }
 
     private boolean isVersionInfoUpdatedToday() {

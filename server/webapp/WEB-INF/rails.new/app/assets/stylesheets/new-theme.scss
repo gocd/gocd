@@ -2436,7 +2436,7 @@ input.compare_pipeline_input {
 
 #new-pipeline-history .passed-stage {
   background-image: none;
-  background-color: #64dd17;
+  background-color: $passed;
 }
 
 #pipeline_navigator .selected .stage_bar_wrapper, #pipeline_status_bar .pipeline .stages .selected .stage_bar_wrapper {
@@ -2593,7 +2593,7 @@ button.check_connection + .connection_test_message pre {
 }
 
 #my-cruise-page .sub_tab_container_content .wizard h1 {
-  margin:  0;
+  margin:      0;
   padding-top: 20px;
   color:       #333;
   strong {
@@ -2678,14 +2678,14 @@ button.check_connection + .connection_test_message pre {
 
 }
 
-.Building , .Cancelled{
-  a{
+.Building, .Cancelled {
+  a {
     position: absolute;
-    left: 0;
-    top: 0;
-    right: 0;
-    z-index: 1;
-    bottom: 0;
+    left:     0;
+    top:      0;
+    right:    0;
+    z-index:  1;
+    bottom:   0;
   }
 }
 
@@ -2920,8 +2920,9 @@ button.edit-environment {
 
 .overview_widget {
   h3 {
-    font-size:     rem-calc(20px);
+    font-size:     rem-calc(14px);
     margin-bottom: 20px;
+    padding:       13px 10px;
   }
 }
 
@@ -2932,8 +2933,8 @@ button.edit-environment {
     padding:       6px 0;
     .color_code_small {
       margin-top: 5px;
-      &.Active , &.Cancelled{
-        margin-top:0;
+      &.Active, &.Cancelled {
+        margin-top: 0;
       }
     }
   }
@@ -3404,14 +3405,15 @@ form#package_repositories_edit_form {
   clear: both;
 }
 
-.templates{
-  .list_table{
-    .action_icon{
-      padding-left:0;
+.templates {
+  .list_table {
+    .action_icon {
+      padding-left: 0;
     }
   }
 }
-#new_template_container{
+
+#new_template_container {
   .instructions {
     margin-top: -10px;
   }
@@ -3420,11 +3422,12 @@ form#package_repositories_edit_form {
 .path_textbox {
   box-shadow: none;
   label {
-    padding: 7px 4px 7px 6px;
+    padding:    7px 4px 7px 6px;
     background: #e5e5e5;
   }
 }
-#new_pipeline_group_container{
+
+#new_pipeline_group_container {
   .form_error {
     padding: 0 7px;
   }

@@ -67,17 +67,16 @@ define(["jquery", "mithril", "models/pipeline_configs/environment_variables", "v
 
     it("should display edit link for secure variable", function () {
       var environmentVariableField = $root.find('.environment-variables div.environment-variable[data-variable-type=secure][data-variable-name=PASSWORD]');
-      var editLink                 = environmentVariableField.find("a.edit-secure-variable");
+      var editLink                 = environmentVariableField.find("button.edit-secure-variable");
 
-      expect(editLink).toHaveText('Edit');
+      expect(editLink.length).toBe(1);
 
       var evObj = document.createEvent('MouseEvents');
       evObj.initEvent('click', true, false);
       editLink.get(0).onclick(evObj);
       m.redraw(true);
 
-      editLink = environmentVariableField.find("a.edit-secure-variable");
-      expect(editLink).toHaveLength(0);
+      expect($('button.edit-secure-variable').length).toBe(0);
     });
   });
 });

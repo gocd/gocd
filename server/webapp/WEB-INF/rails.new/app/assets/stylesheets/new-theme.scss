@@ -1678,16 +1678,8 @@ tr.Cancelled, tr.cancelled-stage {
   }
 }
 
-.Cancelled img {
-  border-radius: 50%;
-}
-
 #new-pipeline-history .cancelled-stage {
   background-image: none;
-
-  img {
-    border-radius: 50%;
-  }
 }
 
 .Building, .Active {
@@ -2686,6 +2678,17 @@ button.check_connection + .connection_test_message pre {
 
 }
 
+.Building , .Cancelled{
+  a{
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    z-index: 1;
+    bottom: 0;
+  }
+}
+
 #users_form .isFixed {
   box-shadow:       0 4px 5px rgba(102, 102, 102, 0.36);
   top:              40px;
@@ -2929,6 +2932,9 @@ button.edit-environment {
     padding:       6px 0;
     .color_code_small {
       margin-top: 5px;
+      &.Active , &.Cancelled{
+        margin-top:0;
+      }
     }
   }
 }

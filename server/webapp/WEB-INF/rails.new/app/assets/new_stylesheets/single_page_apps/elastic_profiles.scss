@@ -46,10 +46,11 @@ $elastic-profile-icon-text-padding: 20px;
   margin:        10px;
   border:        0;
   border-radius: $global-border-radius;
-  padding:       10px;
   cursor:        pointer;
 }
-
+.elastic-profile-header {
+  padding: 10px;
+}
 .edit-profile {
   @include icon-before($type: pencil-square-o, $color: $dark-gray);
   &:not(.disabled) {
@@ -104,12 +105,15 @@ $elastic-profile-icon-text-padding: 20px;
   right:    10px;
   top:      13px;
 }
+.delete-profile-confirm{
+  position: relative;
+  top: -2px;
+}
 
 .plugin-config-read-only {
-  padding-left: $elastic-profile-plugin-icon-size + $elastic-profile-icon-text-padding;
-  width:        95%;
   box-sizing:   border-box;
-  margin:       20px 0 10px 0;
+  padding: 10px 10px 10px 60px;
+  border-top:1px solid $light-grey;
 }
 
 .unknown-plugin-icon {

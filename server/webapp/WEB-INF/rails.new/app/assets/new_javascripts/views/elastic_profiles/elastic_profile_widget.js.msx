@@ -75,7 +75,7 @@ define(["mithril", 'helpers/form_helper', 'helpers/mithril_component_mixins'], f
                 return [
                   (<dt>{configuration.key()}</dt>),
                   (<dd>
-                    <pre>{configuration.value()}</pre>
+                    {configuration.value()}
                   </dd>)
                 ];
               })}

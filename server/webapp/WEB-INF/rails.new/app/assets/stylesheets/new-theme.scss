@@ -670,10 +670,13 @@ h1.entity_title {
 }
 
 .pipeline-history-group .pipeline-name .wrapper {
-  max-width: 25em;
-  _width:    25em;
   width:     auto;
   min-width: 12em;
+  max-width: 25em;
+}
+
+.pipeline-history-group .pipeline-info.revision {
+  width: 12em;
 }
 
 .container-in-body {
@@ -3376,7 +3379,7 @@ form#package_repositories_edit_form {
   clear: both;
 }
 
-.admin_configuration {
+.admin_configuration, .admin_pipeline_groups, .admin_templates, .admin_server, .admin_users, .oauth2_provider_clients, .admin_backup, .admin_plugins_plugins, .admin_package_repositories {
   .flash#config_error {
     position: static;
   }

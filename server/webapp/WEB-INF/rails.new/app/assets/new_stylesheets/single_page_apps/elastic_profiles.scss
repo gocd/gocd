@@ -20,10 +20,8 @@
 @import 'shared/header';
 @import 'shared/alert';
 
-
 $elastic-profile-plugin-icon-size: 30px;
 $elastic-profile-icon-text-padding: 20px;
-
 
 .add-profile {
   float:         right;
@@ -48,9 +46,11 @@ $elastic-profile-icon-text-padding: 20px;
   border-radius: $global-border-radius;
   cursor:        pointer;
 }
+
 .elastic-profile-header {
   padding: 10px;
 }
+
 .edit-profile {
   @include icon-before($type: pencil-square-o, $color: $dark-gray);
   &:not(.disabled) {
@@ -64,6 +64,8 @@ $elastic-profile-icon-text-padding: 20px;
 
 .delete-profile-confirm {
   @include icon-before($type: trash, $color: $dark-gray);
+  position: relative;
+  top:      -2px;
   &:not(.disabled) {
     &:hover {
       &:before {
@@ -105,15 +107,24 @@ $elastic-profile-icon-text-padding: 20px;
   right:    10px;
   top:      13px;
 }
-.delete-profile-confirm{
-  position: relative;
-  top: -2px;
-}
 
 .plugin-config-read-only {
-  box-sizing:   border-box;
-  padding: 10px 10px 10px 60px;
-  border-top:1px solid $light-grey;
+  box-sizing: border-box;
+  padding:    10px 10px 10px 60px;
+  border-top: 1px solid $light-grey;
+  .key-value-pair {
+    dt {
+      width: 20%;
+    }
+    dd {
+      width: 80%;
+    }
+    pre {
+      width:       100%;
+      display:     block;
+      white-space: inherit;
+    }
+  }
 }
 
 .unknown-plugin-icon {

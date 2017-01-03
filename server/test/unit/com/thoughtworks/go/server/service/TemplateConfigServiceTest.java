@@ -16,20 +16,24 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
+import com.thoughtworks.go.config.update.CreateTemplateConfigCommand;
+import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.PipelineTemplateConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
+import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.presentation.ConfigForEdit;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
 import static org.hamcrest.core.Is.is;
@@ -38,9 +42,7 @@ import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class TemplateConfigServiceTest {
     public GoConfigService goConfigService;
@@ -219,6 +221,22 @@ public class TemplateConfigServiceTest {
         assertThat(template, is(actual));
     }
 
+    @Test
+    public void shouldPopulateErrorInResultOnFailure() throws Exception {
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        Username user = new Username(new CaseInsensitiveString("user"));
+        String templateName = "template-name";
+        PipelineTemplateConfig pipelineTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString(templateName), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"));
+        String errorMessage = "invalid template";
+        doThrow(new GoConfigInvalidException(new GoConfigMother().defaultCruiseConfig(), errorMessage)).when(goConfigService).updateConfig(any(CreateTemplateConfigCommand.class), any(Username.class));
+
+        service.createTemplateConfig(user, pipelineTemplateConfig, result);
+
+        HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
+        expectedResult.unprocessableEntity(LocalizedMessage.string("ENTITY_CONFIG_VALIDATION_FAILED", "template", templateName, errorMessage));
+
+        assertThat(result.toString(), is(expectedResult.toString()));
+    }
 
     private PipelineConfig createPipelineWithTemplate(String pipelineName, PipelineTemplateConfig template) {
         PipelineConfig pipelineConfig = pipelineConfig(pipelineName);

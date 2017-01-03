@@ -33,7 +33,7 @@ describe ApiV1::VersionInfoRepresenter do
     actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
 
     expect(actual_json).to have_link(:self).with_url('http://test.host/api/version_infos/stale')
-    expect(actual_json).to have_link(:doc).with_url('https://api.go.cd/#versionInfo')
+    expect(actual_json).to have_link(:doc).with_url('https://api.gocd.io/#versionInfo')
     actual_json.delete(:_links)
 
     expect(actual_json).to eq({ component_name:    'go_server',

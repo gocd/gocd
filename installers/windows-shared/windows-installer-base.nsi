@@ -245,9 +245,9 @@ Section "Install"
     ; Write the uninstall keys for Windows
     WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Go $%NAME%" "DisplayName" "Go $%NAME%"
     WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Go $%NAME%" "DisplayVersion" "$%VERSION%"
-    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Go $%NAME%" "HelpLink" "https://docs.go.cd/current/"
+    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Go $%NAME%" "HelpLink" "https://docs.gocd.io/current/"
     WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Go $%NAME%" "InstallLocation" "$INSTDIR"
-    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Go $%NAME%" "URLInfoAbout" "https://www.go.cd/"
+    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Go $%NAME%" "URLInfoAbout" "https://www.gocd.io/"
     WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Go $%NAME%" "UninstallString" '"$INSTDIR\uninstall.exe"'
     WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Go $%NAME%" "DisplayIcon" '"$INSTDIR\go.ico"'
     WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Go $%NAME%" "NoModify" 1

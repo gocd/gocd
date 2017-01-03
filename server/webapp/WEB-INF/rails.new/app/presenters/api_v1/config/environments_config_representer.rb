@@ -23,7 +23,7 @@ module ApiV1
       end
 
       link :doc do
-        'https://api.go.cd/#environment-config'
+        'https://api.gocd.io/#environment-config'
       end
 
       collection :environments, embedded: true, exec_context: :decorator, decorator: EnvironmentConfigRepresenter

@@ -24,7 +24,7 @@ module ApiV1
       end
 
       link :doc do |opts|
-        'https://api.go.cd/#elastic-agent-profiles'
+        'https://api.gocd.io/#elastic-agent-profiles'
       end
 
       link :find do |opts|

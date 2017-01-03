@@ -62,7 +62,7 @@
         Click on a stage in the configuration panel to view activity only within that stage.
         You can also manually approve stages from this screen to force the next stage to run.
         <a class="more" target="_blank" title="Learn more from help documentation"
-           href="http://www.go.cd/documentation/user/current/navigation/pipeline_activity_page.html">more...</a>
+           href="https://docs.gocd.io/current/navigation/pipeline_activity_page.html">more...</a>
       </p>
         #parse("shared/_page_intro_bottom.vm")
       <!-- pipeline start -->

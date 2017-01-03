@@ -22,7 +22,7 @@ module ApiV1
     end
 
     link :doc do
-      'https://api.go.cd/#users'
+      'https://api.gocd.io/#users'
     end
 
     collection :users, embedded: true, exec_context: :decorator, decorator: UserRepresenter

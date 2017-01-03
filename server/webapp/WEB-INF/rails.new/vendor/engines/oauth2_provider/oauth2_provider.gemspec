@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.version     = Oauth2Provider::VERSION
   s.authors     = ["GoCD"]
   s.email       = ["go-cd-dev@googlegroups.com"]
-  s.homepage    = "http://go.cd"
+  s.homepage    = "https://gocd.io"
   s.summary     = "Engine to enable Go to understand OAuth2"
   s.description = "This engine implements v09 of the OAuth2 draft spec http://tools.ietf.org/html/draft-ietf-oauth-v2-09."
 

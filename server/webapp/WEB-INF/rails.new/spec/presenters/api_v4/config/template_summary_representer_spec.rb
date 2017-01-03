@@ -24,7 +24,7 @@ describe ApiV4::Config::TemplateSummaryRepresenter do
 
     expect(actual_json).to have_links(:self, :doc, :find)
     expect(actual_json).to have_link(:self).with_url('http://test.host/api/admin/templates/template-name')
-    expect(actual_json).to have_link(:doc).with_url('https://api.go.cd/#template-config')
+    expect(actual_json).to have_link(:doc).with_url('https://api.gocd.io/#template-config')
     expect(actual_json).to have_link(:find).with_url('http://test.host/api/admin/templates/:template_name')
     actual_json.delete(:_links)
     expect(actual_json).to eq(index_hash)
@@ -42,7 +42,7 @@ describe ApiV4::Config::TemplateSummaryRepresenter do
                 :href => "http://test.host/api/admin/pipelines/pipeline1"
               },
               doc: {
-                :href => "https://api.go.cd/#pipeline-config"
+                :href => "https://api.gocd.io/#pipeline-config"
               },
               find: {
                 :href => "http://test.host/api/admin/pipelines/:pipeline_name"
@@ -56,7 +56,7 @@ describe ApiV4::Config::TemplateSummaryRepresenter do
                 href: "http://test.host/api/admin/pipelines/pipeline2"
               },
               doc: {
-                href: "https://api.go.cd/#pipeline-config"
+                href: "https://api.gocd.io/#pipeline-config"
               },
               find: {
                 href: "http://test.host/api/admin/pipelines/:pipeline_name"

@@ -22,7 +22,7 @@ module ApiV1
       end
 
       link :doc do
-        'https://api.go.cd/#packages'
+        'https://api.gocd.io/#packages'
       end
 
       collection :packages, embedded: true, exec_context: :decorator, decorator: PackageRepresenter

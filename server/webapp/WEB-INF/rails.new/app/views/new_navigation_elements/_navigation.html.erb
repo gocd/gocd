@@ -34,7 +34,7 @@
     <div class="top-bar-right">
       <ul class="dropdown menu current-user nav-right" data-dropdown-menu>
         <% unless @user.anonymous? %>
-            <li><%= link_to(l.string('HELP_SMALL'), 'https://go.cd/help', :target => '_blank') %></li>
+            <li><%= link_to(l.string('HELP_SMALL'), 'https://gocd.io/help', :target => '_blank') %></li>
             <li class="current-user">
               <a href="#"><i class="user"></i><%= @user.display_name %></a>
               <ul class="menu vertical">

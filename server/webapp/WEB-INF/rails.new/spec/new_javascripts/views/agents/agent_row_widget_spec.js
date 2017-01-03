@@ -146,7 +146,7 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agent_row_wid
               "href": "https://ci.example.com/go/api/agents/dfdbe0b1-4521-4a52-ac2f-ca0cf6bdaa3e"
             },
             "doc":  {
-              "href": "http://api.go.cd/#agents"
+              "href": "https://api.gocd.io/#agents"
             },
             "find": {
               "href": "https://ci.example.com/go/api/agents/:uuid"
@@ -174,7 +174,7 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agent_row_wid
               "href": "https://ci.example.com/go/api/agents/dfdbe0b1-4521-4a52-ac2f-ca0cf6bdaa3e"
             },
             "doc":  {
-              "href": "http://api.go.cd/#agents"
+              "href": "https://api.gocd.io/#agents"
             },
             "find": {
               "href": "https://ci.example.com/go/api/agents/:uuid"
@@ -198,7 +198,7 @@ define(["jquery", "mithril", 'models/agents/agents', "views/agents/agent_row_wid
               "href": "https://ci.example.com/go/api/agents/dfdbe0b1-4521-4a52-ac2f-ca0cf6bdaa3e"
             },
             "doc":  {
-              "href": "http://api.go.cd/#agents"
+              "href": "https://api.gocd.io/#agents"
             },
             "find": {
               "href": "https://ci.example.com/go/api/agents/:uuid"

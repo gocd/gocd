@@ -43,7 +43,7 @@ describe 'environments/index.html.erb' do
 
     render
 
-    expect(response).to have_selector("div.unused_feature a[href='http://www.go.cd/documentation/user/current/configuration/managing_environments.html']", :text => "More Information")
+    expect(response).to have_selector("div.unused_feature a[href='https://docs.gocd.io/current/configuration/managing_environments.html']", :text => "More Information")
   end
 
   describe :auto_refresh do

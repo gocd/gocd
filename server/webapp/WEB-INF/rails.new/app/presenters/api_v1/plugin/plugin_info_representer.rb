@@ -24,7 +24,7 @@ module ApiV1
       end
 
       link :doc do |opts|
-        'https://api.go.cd/#plugin-info'
+        'https://api.gocd.io/#plugin-info'
       end
 
       link :find do |opts|

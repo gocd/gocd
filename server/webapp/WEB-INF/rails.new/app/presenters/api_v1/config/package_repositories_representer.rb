@@ -24,7 +24,7 @@ module ApiV1
       end
 
       link :doc do
-        'https://api.go.cd/#package-repositories'
+        'https://api.gocd.io/#package-repositories'
       end
 
       collection :package_repositories, embedded: true, exec_context: :decorator, decorator: PackageRepositoryRepresenter

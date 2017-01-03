@@ -1,5 +1,8 @@
+<div class="config-container">
+<div class="help-wrapper">
 <h3><%= l.string("TABS") %></h3>
 <span title="<%= l.string("TOOLTIP_TABS") -%>" class="contextual_help has_go_tip_right">&nbsp;</span>
+</div>
 <%= form_for @job,
                 :as => :job,
                 :url => admin_job_update_path(:current_tab => "tabs"),
@@ -16,6 +19,7 @@
     <%= render :partial => 'shared/convert_tool_tips.html', :locals => {:scope => {}} %>
     <%= render :partial => "admin/shared/form_submit", :locals => {:scope => {:reset_url => admin_job_edit_path(:pipeline_name => @pipeline.name(), :stage_name => params[:stage_name], :job_name => params[:job_name], :current_tab => "tabs")}} %>
 <% end %>
+</div>
 <script type="text/javascript">
         AjaxForm.error_box_selector = '#form_parent';
 </script>

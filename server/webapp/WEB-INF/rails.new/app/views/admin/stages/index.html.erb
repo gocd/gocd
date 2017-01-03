@@ -1,3 +1,4 @@
+<div class="config-container">
 <h3><%= l.string("STAGES") %></h3>
 
 <% if (params[:stage_parent] == "pipelines") %>
@@ -120,7 +121,7 @@
         </table>
     </div>
 <% end %>
-
+</div>
 <script type="text/javascript">
     Util.on_load(function() {
         var hasSwitchedToTemplate = false;

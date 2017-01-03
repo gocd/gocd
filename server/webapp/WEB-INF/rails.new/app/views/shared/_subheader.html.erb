@@ -1,6 +1,5 @@
 <% if @page_header %>
     <div class="page_header">
-      <div class="row">
         <h1><%== @page_header %></h1>
         <% if @show_pipeline_selector %>
             <div class="pipelines_selector">
@@ -13,6 +12,5 @@
               <%= link_to title, environment_new_path(), {:class => "link_as_header_button"} %>
             </div>
         <% end %>
-      </div>
     </div>
 <% end %>

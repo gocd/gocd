@@ -1,3 +1,4 @@
+<div class="config-container config-job-settings">
 <h3><%= l.string('JOB_SETTINGS') %></h3>
 
 <%= form_for @job,
@@ -11,6 +12,7 @@
     <%= render :partial => "job_basic_settings.html", :locals => {:scope => {:job => @job, :form => f, :cruise_config => @cruise_config}} -%>
     <%= render :partial => "admin/shared/form_submit", :locals => {:scope => {:reset_url => admin_job_edit_path(:pipeline_name => @pipeline.name(), :stage_name => params[:stage_name], :job_name => params[:job_name], :current_tab => "settings")}} %>
 <% end %>
+  </div>
 <script type="text/javascript">
    AjaxForm.error_box_selector = '#form_parent';
 </script>

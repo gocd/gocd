@@ -89,8 +89,8 @@ describe "admin/pipelines/general.html.erb" do
     Capybara.string(response.body).find('#pipeline_edit_form').tap do |form|
       expect(form).to have_selector("input[type='checkbox'][name='not_to_be_submitted'][checked='checked'][disabled='disabled']")
       expect(form).to have_selector("label[for='pipeline_approval_type']", :text => "Automatic pipeline scheduling")
-      expect(form).to have_selector("div.inline_instruction", :text => "Since this pipeline is based on a template, automatic/manual behaviour is determined by the template (first stage)")
-      expect(form).to have_selector("div.contextual_help.has_go_tip_right[title='If unchecked, this pipeline will only schedule in response to a Manual/API/Timer trigger. Unchecking this box is the same as making the first stage manual.']")
+      expect(form).to have_selector("span.inline_instruction", :text => "Since this pipeline is based on a template, automatic/manual behaviour is determined by the template (first stage)")
+      expect(form).to have_selector("span.contextual_help.has_go_tip_right[title='If unchecked, this pipeline will only schedule in response to a Manual/API/Timer trigger. Unchecking this box is the same as making the first stage manual.']")
     end
   end
 

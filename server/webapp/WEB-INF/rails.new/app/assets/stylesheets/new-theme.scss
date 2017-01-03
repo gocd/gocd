@@ -18,6 +18,9 @@
 @import "../new_stylesheets/shared/mixins";
 @import '../new_stylesheets/shared/common';
 
+@include foundation-grid;
+@include foundation-forms;
+
 %page-title {
   color:       #333 !important;
   margin-top:  4px;
@@ -37,11 +40,15 @@ body {
 
 }
 
+ul {
+  margin: 0;
+}
+
 .row {
   margin-left:  auto;
   margin-right: auto;
   @include clearfix;
-  @media only screen and (max-width: 1600px) {
+  @media only screen and (max-width: $max-breakpoint) {
     max-width: 100%;
   }
   @media only screen and (min-width: $max-breakpoint) {
@@ -222,6 +229,7 @@ h4 {
   .dropdown-menu {
     border-radius: 0;
     padding:       0;
+    margin:        0;
     top:           40px;
     background:    $drop-down-menu-bg;
     @extend %boxshadow;
@@ -381,6 +389,27 @@ h4 {
   margin:  5px 0 0 0;
 }
 
+#add_new_environment {
+  .steps_panes {
+    padding: 20px 30px;
+  }
+}
+
+.wizard_form {
+  .form_content {
+    height:       auto;
+    border-width: 1px 0 0 0;
+    overflow:     visible;
+  }
+  .secure-variables {
+    margin: 30px 0;
+  }
+}
+
+#tab-content-of-env-agents .form_content {
+  height: auto;
+}
+
 .environment .pipeline .deployed_revisions .materials th, .environment .pipeline .deployed_revisions .materials td {
   font-size: 11px !important;
 }
@@ -404,6 +433,9 @@ h4 {
 }
 
 //pipelines
+.pipeline_bundle {
+  padding: 0 30px;
+}
 
 #environments #body_content, #pipelines #body_content {
   background-color: transparent;
@@ -579,6 +611,11 @@ h1.entity_title {
   background-color: $passed;
 }
 
+#build_detail_summary_container.passed h3 {
+  background-color: $passed;
+
+}
+
 .pipeline_bundle {
   .pipeline {
     border:     0;
@@ -632,6 +669,16 @@ h1.entity_title {
   background-color: transparent;
 }
 
+.pipeline-history-group .pipeline-name .wrapper {
+  width:     auto;
+  min-width: 12em;
+  max-width: 25em;
+}
+
+.pipeline-history-group .pipeline-info.revision {
+  width: 12em;
+}
+
 .container-in-body {
   padding: 0 !important;
 }
@@ -659,8 +706,14 @@ h1.entity_title {
 span.pipeline-buttons a.link_as_button {
   margin:    0;
   min-width: 40px;
+  span {
+    font-size: rem-calc(10px) !important;
+  }
   &:hover {
     color: #333;
+    span {
+      font-size: rem-calc(10px) !important;
+    }
   }
 }
 
@@ -730,7 +783,7 @@ ul.entity_title {
 .admin_pause_info_and_controls {
   float:       left;
   margin-top:  7px;
-  min-width:   300px;
+  min-width:   70%;
   margin-left: 0;
 }
 
@@ -980,7 +1033,7 @@ input.pipeline-comment-button {
   ul {
     float:         none;
     overflow:      hidden;
-    padding:       5px 20px 0;
+    padding:       10px 20px 0;
     background:    $tab-header-bg;
     border-radius: $global-border-radius $global-border-radius 0 0;
     li {
@@ -1067,9 +1120,11 @@ div#tab_container {
   thead {
     border: 0;
     tr {
-      background: $table-header-bg;
-      color:      $txt-color;
-      font-size:  rem-calc(14px);
+      background:   $table-header-bg;
+      color:        $txt-color;
+      font-size:    rem-calc(14px);
+      border-left:  1px solid $table-header-bg;
+      border-right: 1px solid $table-header-bg;
     }
   }
   tr.agent_header {
@@ -1081,7 +1136,9 @@ div#tab_container {
     border-bottom:    1px solid #ddd;
     white-space:      nowrap;
     font-size:        rem-calc(13px) !important;
-    padding:          5px 10px !important;
+    padding:          10px !important;
+    font-weight:      600;
+
   }
   tbody {
     background: #fff;
@@ -1101,11 +1158,8 @@ div#tab_container {
   }
 }
 
-.admin_workspace h3 {
-  display:       inline-block;
-  margin:        10px 10px 10px 20px;
-  border-bottom: none;
-
+.notification .filters {
+  min-height: auto;
 }
 
 span.contextual_help {
@@ -1132,7 +1186,7 @@ span.contextual_help.stage_approval {
 
 .admin_sidebar.general {
   background:    #fff;
-  padding:       10px;
+  padding:       20px 10px;
   border-radius: 3px;
 }
 
@@ -1155,26 +1209,18 @@ ul#pipeline_config_tree {
 
 }
 
-.admin_wrapper {
-  .form_buttons {
-    margin:     10px 0 0 0;
-    background: none;
-  }
-  .list_table, .simple {
-    margin: 0 20px;
-    width:  97%;
-  }
-}
-
 #pipeline_edit_form .form_buttons .submit, #stage_edit_form .form_buttons .submit, #job_edit_form .form_buttons .submit, #template_edit_form .form_buttons .submit, #group_edit_form .form_buttons .submit, #pipeline_edit_form .form_buttons .reset_button, #stage_edit_form .form_buttons .reset_button, #job_edit_form .form_buttons .reset_button, #template_edit_form .form_buttons .reset_button, #group_edit_form .form_buttons .reset_button, #stage_permissions_edit_form .form_buttons .reset_button, #pipeline_snippet_view #view_group .link_as_button, #pipeline_snippet_edit #edit_group .form_buttons .link_as_button, button.submit {
-  background: #ccc;
-  color:      #333 !important;
-  font-size:  rem-calc(13px);
-  border:     0;
-  min-width:  inherit;
+  background:  #ccc;
+  color:       #333 !important;
+  font-size:   rem-calc(13px);
+  font-weight: 600;
+  border:      0;
+  min-width:   inherit;
+  transition:  background-color 0.25s ease-out, color 0.25s ease-out;
   &:hover {
     background: #666;
     color:      #fff !important;
+    transition: background-color 0.25s ease-out, color 0.25s ease-out;
 
   }
 }
@@ -1184,20 +1230,22 @@ ul#pipeline_config_tree {
   text-align:       center;
   line-height:      1;
   cursor:           pointer;
-  transition:       background-color 0.25s ease-out, color 0.25s ease-out;
+  transition:       all 0.3s ease-in-out;
   vertical-align:   middle;
   border:           0;
-  border-radius:    3px;
+  border-radius:    $global-border-radius;
   padding:          0.5em 1em;
-  background-color: $go-primary;;
-  color:            #fefefe;
-  font-size:        0.75rem;
+  background-color: $primary-btn-bg;
+  color:            $go-white;
+  font-size:        rem-calc(13px);
+  font-weight:      600;
   position:         relative;
   margin:           0 10px;
-  top:              -1px;
+  top:              -2px;
   &:hover {
-    background-color: #a64fb4;
-    color:            #fefefe;
+    transition:       all 0.3s ease-in-out;
+    background-color: $primary-btn-bg-hover;
+    color:            $go-white;
   }
 }
 
@@ -1209,24 +1257,27 @@ ul#pipeline_config_tree {
   margin-top: 3px;
 }
 
-.environment_variables_section #add_variables {
-  float:               none;
-  margin:              10px 0 0 0;
-  background-position: 3px 0px;
-  height:              16px;
-  line-height:         16px;
-  padding:             0 0 0 24px;
-  display:             inline-block;
-}
-
 .enhanced_dropdown {
   border-bottom-color: #ccc;
   border-right-color:  #ccc;
   margin-top:          -37px;
   @extend %boxshadow;
-
+  li:hover {
+    background-color: #efefef;
+  }
+  a.lookup_icon {
+    background-position: calc(100% - 10px) center;
+  }
   &.agent_edit_popup {
     margin-top: auto;
+  }
+
+  &#new_task_popup {
+    li {
+      a {
+        padding: 5px 10px;
+      }
+    }
   }
 }
 
@@ -1334,46 +1385,28 @@ button#confirm-pause-up42 {
   }
 }
 
-.add_link {
-  padding:     0px 5px 0px 20px;
-  line-height: 16px;
-}
-
 .sub_tab_container_content {
   background: #fff;
-  padding:    20px 30px;
+  padding:    0;
   #tab-content-of-configuration-xml & {
     padding: 20px 0;
   }
 }
 
-.pipeline_group h2.entity_title {
+.group_pipelines .group_name_edit {
+  margin: 0px 0 0 0px;
+}
 
-  color: #333;
+.group_name_delete {
+  margin: 0;
+}
+
+.delete_icon_disabled.group_name_delete {
+  margin-top: 3px;
 }
 
 .steps_panes .form_buttons {
   background: none;
-}
-
-.admin_workspace.has_tree_view {
-  padding:       20px;
-  border-radius: 3px;
-  background:    #fff;
-  .fieldset {
-    padding:     0;
-    margin-left: 20px;
-  }
-  form#pipeline_edit_form {
-    padding: 0 20px;
-    .fieldset {
-      margin-left: 0;
-    }
-    h3 {
-      margin-left: 0;
-    }
-  }
-
 }
 
 #environments h2.entity_title {
@@ -1462,11 +1495,11 @@ input.new_resource {
 
 .fieldset {
   clear:         none;
-  margin-bottom: 15px;
   box-shadow:    none;
   border-radius: 0;
   border:        0;
   background:    none;
+  margin:        0 0 20px 0;
 }
 
 //modal
@@ -1498,28 +1531,16 @@ input.new_resource {
   padding:  15px;
 }
 
-.admin_workspace .pipeline_header {
-  padding: 0 0 10px 0;
-}
-
-.admin_workspace h3.title.entity_title {
-  padding:     7px 0 7px 40px;;
-  display:     inline-block;
-  margin:      0;
-  font-weight: 600;
-  border:      0;
-}
-
 //forms
 
 input[type="text"], input[type="password"], input[type="file"], input[type="url"], textarea {
 
-  font-size:     13px;
-  line-height:   30px;
-  height:        30px;
+  font-size:     rem-calc(13px);
+  line-height:   37px;
   border-radius: 3px;
   padding:       0 10px;
   box-shadow:    none;
+  margin-bottom: 10px;
 }
 
 textarea {
@@ -1619,6 +1640,7 @@ input[type='submit'], input[type='submit']:hover, button.submit, button.submit:h
   color:          $btn-txt !important;
   padding:        6px 10px;
   text-transform: uppercase;
+  border-radius:  $global-border-radius;
   &:hover {
     background: $btn-bg-hover;
     color:      $btn-txt !important;
@@ -1634,7 +1656,7 @@ input[type='submit'], input[type='submit']:hover, button.submit, button.submit:h
   background-color: $passed;
 }
 
-.Failed {
+.Failed, #new-pipeline-history .failed-stage {
   background-image: none;
   background-color: $failed;
 }
@@ -1661,16 +1683,8 @@ tr.Cancelled, tr.cancelled-stage {
   }
 }
 
-.Cancelled img {
-  border-radius: 50%;
-}
-
 #new-pipeline-history .cancelled-stage {
   background-image: none;
-
-  img {
-    border-radius: 50%;
-  }
 }
 
 .Building, .Active {
@@ -1758,6 +1772,12 @@ a:link#link-to-this-page, a:visited#link-to-this-page {
   overflow:       visible !important;
   padding-bottom: 51px;
   box-sizing:     border-box;
+  .flash {
+    position: static;
+  }
+  .task.fieldset {
+    padding: 1.25em 0;
+  }
 }
 
 #MB_content .sub_tab_container, #MB_content .form_content, #MB_content .new_form_content {
@@ -1767,7 +1787,7 @@ a:link#link-to-this-page, a:visited#link-to-this-page {
 .ui-dialog-titlebar, #MB_header {
   border-bottom: 2px solid #ccc;
   background:    $modal-header-bg;
-                 //margin-bottom: 25px;
+  //margin-bottom: 25px;
 }
 
 .permissions .instructions {
@@ -2006,14 +2026,26 @@ a:link.help, a:visited.help {
 
 .label-filter-group {
   position: absolute;
-  top:      10px;
+  top:      7px;
   right:    10px;
   padding:  0;
   z-index:  $label-filter-group;
+  @media only screen and (min-width: $max-breakpoint) {
+    right: 0;
+  }
 
   .filter-clear-icon {
-    top: 14px;
+    top: 11px;
   }
+}
+
+.treeview .preview_icon_wobg {
+  top: 11px;
+}
+
+.treeview li a {
+  white-space: normal;
+  word-break:  break-all;
 }
 
 .admin_workspace.has_tree_view {
@@ -2022,7 +2054,7 @@ a:link.help, a:visited.help {
 
 .admin_workspace.has_tree_view {
   .instructions {
-    margin: 0px 0 10px 20px;
+    margin: 0px 0 10px 0px;
   }
 }
 
@@ -2034,12 +2066,6 @@ a:link.help, a:visited.help {
   padding: 20px;
   @media only screen and (min-width: $max-breakpoint) {
     padding: 15px 0 !important
-  }
-}
-
-.admin_templates {
-  .admin_workspace h3.title.entity_title {
-    padding-left: 40px;
   }
 }
 
@@ -2059,11 +2085,6 @@ a:link.help, a:visited.help {
   h2.entity_title {
     border: 0;
   }
-}
-
-#tab-content-of-templates .template .title_action_wrapper {
-  float:      left;
-  margin-top: 5px;
 }
 
 .fieldset .form_item {
@@ -2379,6 +2400,9 @@ input.compare_pipeline_input {
     span {
       color: #fff !important;
     }
+    &:hover {
+      background: $go-primary !important;
+    }
   }
   button.submit.primary[disabled] {
     background: $btn-light-bg !important;
@@ -2417,7 +2441,7 @@ input.compare_pipeline_input {
 
 #new-pipeline-history .passed-stage {
   background-image: none;
-  background-color: #64dd17;
+  background-color: $passed;
 }
 
 #pipeline_navigator .selected .stage_bar_wrapper, #pipeline_status_bar .pipeline .stages .selected .stage_bar_wrapper {
@@ -2440,10 +2464,6 @@ input.compare_pipeline_input {
   .action_icon {
     margin-top: 10px;
   }
-}
-
-.checkbox_row div.contextual_help {
-  position: relative;
 }
 
 $new-theme-material-popup-user-width: 20em;
@@ -2534,8 +2554,9 @@ $new-theme-material-popup-width: ($new-theme-material-popup-user-width + $new-th
 //plugins
 
 ul.plugins .plugin {
-  padding:    20px;
-  border-top: 1px dotted #ccc;
+  padding:       20px;
+  border-top:    0;
+  border-bottom: 1px dotted #ccc;
   .plugin-details {
     margin-bottom: 10px;
   }
@@ -2577,7 +2598,7 @@ button.check_connection + .connection_test_message pre {
 }
 
 #my-cruise-page .sub_tab_container_content .wizard h1 {
-  margin-top:  0;
+  margin:      0;
   padding-top: 20px;
   color:       #333;
   strong {
@@ -2662,6 +2683,17 @@ button.check_connection + .connection_test_message pre {
 
 }
 
+.Building, .Cancelled {
+  a {
+    position: absolute;
+    left:     0;
+    top:      0;
+    right:    0;
+    z-index:  1;
+    bottom:   0;
+  }
+}
+
 #users_form .isFixed {
   box-shadow:       0 4px 5px rgba(102, 102, 102, 0.36);
   top:              40px;
@@ -2680,7 +2712,7 @@ button.check_connection + .connection_test_message pre {
 
 .promote_button {
   background-color: transparent;
-  .promote_up {
+  .promote_up, .promote_down {
     background-color: transparent;
 
   }
@@ -2753,6 +2785,9 @@ table.variables th {
     display:       inline-block;
     margin-bottom: 5px;
   }
+  textarea.exec-task-arguments {
+    height: 100px;
+  }
 }
 
 .change_materials .smartfill_content .user {
@@ -2780,6 +2815,7 @@ pre, code, #admin-holder-for-admin-config-source-xml textarea {
   width:      100%;
   box-sizing: border-box;
   padding:    10px;
+  min-height: calc(100vh - 480px);
 }
 
 .old-agent-button-group {
@@ -2872,12 +2908,6 @@ button.edit-environment {
   font-weight:         400;
 }
 
-#admin_pipeline_groups .content_wrapper_inner h1 {
-  font-weight:   400;
-  margin-bottom: 14px;
-  font-size:     21px;
-}
-
 #oauth_page {
   h1 {
     margin-bottom: 20px;
@@ -2889,5 +2919,521 @@ button.edit-environment {
 }
 
 .job_details_content .build_detail_container #tab-content-of-materials .material_revision {
-  padding: 0px 20px !important;
+  padding:       20px !important;
+  margin-bottom: 0;
+}
+
+.overview_widget {
+  h3 {
+    font-size:     rem-calc(14px);
+    margin-bottom: 20px;
+    padding:       13px 10px;
+  }
+}
+
+.overview_widget {
+  .job_grouping {
+    margin:        0 20px 0 0;
+    border-bottom: 1px dotted $border-color;
+    padding:       6px 0;
+    .color_code_small {
+      margin-top: 5px;
+      &.Active, &.Cancelled {
+        margin-top: 0;
+      }
+    }
+  }
+}
+
+.hidereveal_expander {
+  font-size: rem-calc(13px);
+}
+
+.content #tab_container div.jobs {
+  width: 215px;
+  .wrapped_word {
+    font-size: 13px;
+  }
+}
+
+.content #tab_container .materials_overview_wrapper {
+  margin-left: 240px;
+}
+
+//icon replacements
+
+%iconstyles {
+  background:  none;
+  font-size:   rem-calc(13px);
+  transition:  all 0.1s ease-in-out;
+  color:       $icon-txt;
+  font-weight: 600;
+  &:before {
+    color:       $icon-color;
+    margin:      0 5px;
+    font-weight: 600;
+    transition:  all 0.1s ease-in-out;
+  }
+  &:visited {
+    color: $icon-txt;
+  }
+  &:hover {
+    color:      $icon-txt-hover;
+    transition: all 0.1s ease-in-out;
+    background: none;
+  }
+
+}
+
+.preview_icon {
+  @include icon-before($type: search);
+  @extend %iconstyles;
+
+}
+
+.edit_icon {
+  @include icon-before($type: edit);
+  @extend %iconstyles;
+}
+
+.delete_icon {
+  @include icon-before($type: remove);
+  @extend %iconstyles;
+}
+
+.delete_icon_disabled {
+  @include icon-before($type: remove);
+  background: none;
+  color:      #ccc;
+  font-size:  rem-calc(13px);
+  cursor:     not-allowed;
+  &:before {
+    color:     #ccc;
+    font-size: rem-calc(13px);
+    margin:    0 5px;
+  }
+}
+
+.icon_remove {
+  @include icon-before($type: times-circle, $color: #e57373, $size: rem-calc(16px));
+  @extend %iconstyles;
+  height: auto;
+  width:  auto;
+
+}
+
+.contextual_help, div.contextual_help, span.contextual_help {
+  @include icon-before($type: question-circle);
+  background: none;
+  height:     auto;
+  width:      auto;
+  margin:     0 0 0 5px;
+  &:before {
+    color:     $icon--secondary-color;
+    font-size: 16px;
+    margin:    0 5px;
+  }
+  &:hover {
+    background: none;
+  }
+}
+
+a.add_item {
+  padding:          0;
+  display:          block;
+  width:            55px;
+  margin:           10px 0;
+  text-decoration:  none;
+  background-image: none;
+  height:           auto;
+
+}
+
+.add_link, .add_icon, a.add_item {
+  @include icon-before($type: plus-circle, $size: rem-calc(16px), $color: $add-color);
+  background:  none;
+  font-size:   rem-calc(13px);
+  transition:  all 0.1s ease-in-out;
+  font-weight: 600;
+  color:       $icon-txt;
+  padding:     5px 0;
+  &:before {
+    margin:      0 5px;
+    font-weight: 600;
+    transition:  all 0.1s ease-in-out;
+  }
+  &:visited {
+    color: $icon-txt;
+  }
+  &:hover {
+    color:      $icon-txt;
+    transition: all 0.1s ease-in-out;
+    background: none;
+  }
+
+}
+
+.add_icon_disabled {
+  @include icon-before($type: plus-circle, $size: rem-calc(16px), $color: $disabled-icon-color);
+  background:  none;
+  font-size:   rem-calc(13px);
+  transition:  all 0.1s ease-in-out;
+  font-weight: 600;
+  color:       $disabled-icon-color;
+  padding:     5px 0;
+  cursor:      not-allowed;
+  &:before {
+    margin:      0 5px;
+    font-weight: 600;
+  }
+  &:visited {
+    color: $disabled-icon-color;
+  }
+  &:hover {
+    color:      $disabled-icon-color;
+    background: none;
+  }
+}
+
+.action_icon {
+  height: auto;
+}
+
+.move_icon {
+  @include icon-before($type: arrow-circle-o-right);
+  @extend %iconstyles;
+}
+
+.clone_icon {
+  @include icon-before($type: clone);
+  @extend %iconstyles;
+}
+
+.lock_icon {
+  @include icon-before($type: lock);
+  @extend %iconstyles;
+}
+
+//config pages
+
+.admin_workspace .pipeline_header {
+  padding: 0 0 10px 0;
+  border:  0;
+}
+
+.admin_workspace h3.title.entity_title {
+  padding:     4px 0 7px 40px;;
+  display:     inline-block;
+  margin:      0;
+  font-weight: 600;
+  border:      0;
+  font-size:   rem-calc(18px);
+}
+
+.admin_workspace.has_tree_view {
+  padding:       20px;
+  border-radius: 3px;
+  background:    #fff;
+  .fieldset {
+    padding: 0;
+  }
+
+}
+
+.admin_workspace h3 {
+  display:       inline-block;
+  border-bottom: none;
+  margin-bottom: 20px;
+
+}
+
+.admin_wrapper #form_parent form, #admin_tasks table.reorderable_table {
+  margin-top: 0;
+}
+
+.config-container {
+  @include clearfix;
+  padding: 0 20px 30px;
+  label {
+    font-size: 14px;
+  }
+  .form_item_block {
+    padding-bottom: 0;
+  }
+  h3 {
+    font-weight: 600;
+  }
+  .checkbox_row {
+    margin-bottom: 20px;
+  }
+  .form_item {
+    margin-bottom: 30px;
+  }
+  .checkbox_label_wrapper {
+    margin-bottom: 5px;
+    .contextual_help {
+      top:  2px;
+      left: -16px;
+    }
+  }
+  .inline_instruction {
+    display:    block;
+    font-style: normal;
+    font-size:  rem-calc(12px);
+  }
+  .form_buttons {
+    margin:        20px 0 0 0;
+    padding:       0;
+    background:    none;
+    border-radius: $global-border-radius;
+    a.skip_dirty_stop {
+      margin-left: 0;
+    }
+  }
+
+}
+
+.warnings, .information {
+  margin: 10px 0;
+}
+
+.help-wrapper {
+  @include clearfix;
+  .contextual_help, div.contextual_help, span.contextual_help {
+    margin-top: 9px;
+  }
+  .checkbox_row & {
+    span.contextual_help {
+      margin-left: -10px;
+    }
+  }
+}
+
+#tiptip_content {
+  box-shadow:  none;
+  font-size:   rem-calc(13px);
+  line-height: 18px;
+  font-weight: 600;
+}
+
+.checkbox_row div.contextual_help {
+  margin-left: -10px;
+}
+
+.name_value_cell.icon_remove_cell {
+  vertical-align: top;
+}
+
+.config-materials {
+  .contextual_help, div.contextual_help, span.contextual_help {
+    position: relative;
+    top:      6px;
+  }
+}
+
+.config-general {
+  .contextual_help, div.contextual_help, span.contextual_help {
+    position: relative;
+    top:      5px;
+  }
+}
+
+.config-env-variables {
+
+}
+
+.config-job-settings {
+  .inline_instruction {
+    position: relative;
+    top:      -10px;
+  }
+  .checkbox_row {
+    margin-bottom: 0;
+  }
+  input#job_timeout {
+    float: none;
+  }
+
+}
+
+.form-section {
+  margin-bottom: 15px;
+}
+
+#new_material_popup {
+  margin-left: 0;
+}
+
+.admin-tab-contents {
+
+}
+
+.admin-tab-contents {
+  padding: 20px 30px;
+  h1 {
+    font-weight:    600;
+    margin:         20px 0 40px 0;
+    border-bottom:  1px solid $border-color;
+    font-size:      20px;
+    padding-bottom: 10px;
+  }
+  .title_secondary_info {
+    float: right;
+  }
+  .title_action_wrapper {
+    ul {
+      margin-left: 10px;
+      li {
+        a {
+          margin-left:  0px;
+          padding-left: 10px;
+        }
+        .delete_icon_disabled {
+          margin-top: 3px;
+        }
+        > span {
+          padding-left: 10px;
+
+        }
+      }
+    }
+  }
+
+  h2.entity_title {
+    color:               $txt-color;
+    font-size:           rem-calc(17px);
+    line-height:         20px;
+    font-weight:         600;
+    border-bottom:       0;
+    padding:             0 0 0 37px;
+    background-size:     40px 40px;
+    background-position: -8px -10px;
+  }
+  .list_table {
+    .actions {
+      .delete_icon_disabled {
+        margin-top: 3px;
+      }
+    }
+  }
+  .heading {
+    border-bottom:  1px solid $border-color;
+    padding-bottom: 10px;
+    margin-bottom:  20px;
+    h2 {
+      font-size: 20px;
+    }
+    span {
+      margin-top: 12px;
+    }
+  }
+  .fieldset {
+    padding: 20px 0;
+  }
+  .permissions .instructions {
+    margin: -10px 0 0 0;
+  }
+  .fieldset .form_item {
+    border-bottom:  0;
+    margin-bottom:  0;
+    padding-bottom: 0;
+  }
+  .button_row_with_help {
+    margin-top: 20px;
+  }
+  .roles {
+    white-space: nowrap;
+  }
+}
+
+#server_management h2.legend, #user_management h2.legend {
+  font-size: 20px;
+}
+
+#tab-content-of-templates .template .title_action_wrapper {
+  float: left;
+  li {
+    margin-left: 0px;
+  }
+}
+
+#tab-content-of-source-xml .heading h2 {
+  font-size: 20px;
+}
+
+form#package_repositories_edit_form {
+  margin-top: 0;
+}
+
+#tab-content-of-user-listing {
+  .title_secondary_info {
+    margin-top: 10px;
+  }
+}
+
+.tasks_list_table .icon_remove, .jobs_list_table .icon_remove {
+  margin-top: 0px;
+}
+
+.error-message-for-old-args {
+  clear: both;
+}
+
+.admin_configuration, .admin_pipeline_groups, .admin_templates, .admin_server, .admin_users, .oauth2_provider_clients, .admin_backup, .admin_plugins_plugins, .admin_package_repositories {
+  .flash#config_error {
+    position: static;
+  }
+}
+
+.job_tabs_section,
+.artifact {
+  span.contextual_help {
+    position: relative;
+    top:      -3px;
+  }
+}
+
+#stage_job_form {
+  .fieldset {
+    padding: 1.25rem 0;
+  }
+}
+
+.on_cancel_task {
+  .task_entry {
+    clear: both;
+    float: left;
+  }
+}
+
+.agent_details_pane div {
+  clear: both;
+}
+
+.templates {
+  .list_table {
+    .action_icon {
+      padding-left: 0;
+    }
+  }
+}
+
+#new_template_container {
+  .instructions {
+    margin-top: -10px;
+  }
+}
+
+.path_textbox {
+  box-shadow: none;
+  label {
+    padding:    7px 4px 7px 6px;
+    background: #e5e5e5;
+  }
+}
+
+#new_pipeline_group_container {
+  .form_error {
+    padding: 0 7px;
+  }
 }

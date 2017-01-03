@@ -206,7 +206,7 @@ describe "admin/templates/index.html.erb" do
     render
 
     Capybara.string(response.body).find('.templates').tap do |templates|
-      expect(templates).to have_selector("a[href='#'][class='add_link']", :text => "Add New Template")
+      expect(templates).to have_selector("a[href='#'][class='link_as_button primary']", :text => "Add New Template")
     end
   end
 
@@ -230,7 +230,7 @@ describe "admin/templates/index.html.erb" do
     render
 
     Capybara.string(response.body).find('.templates').tap do |templates|
-      expect(templates).to have_selector("a[href='#'][class='add_link']", :text => "Add New Template")
+      expect(templates).to have_selector("a[href='#'][class='link_as_button primary']", :text => "Add New Template")
     end
   end
 
@@ -240,7 +240,7 @@ describe "admin/templates/index.html.erb" do
     render
 
     Capybara.string(response.body).find('.templates').tap do |templates|
-      expect(templates).to have_selector("a[href='#'][class='add_link']", :text => "Add New Template")
+      expect(templates).to have_selector("a[href='#'][class='link_as_button primary']", :text => "Add New Template")
     end
   end
 

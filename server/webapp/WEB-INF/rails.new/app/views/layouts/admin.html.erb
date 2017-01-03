@@ -16,10 +16,8 @@
 
     <div id='body_content'>
       <div class="messaging_wrapper" id="messaging_wrapper">
-        <div class="row">
         <%= render :partial => "shared/flash_message" %>
         <%= render :partial => "shared/config_save_actions", :locals => {:scope => {}} -%>
-        </div>
       </div>
 
       <% if @in_pipeline_group_edit %>
@@ -103,7 +101,7 @@
                 <% end %>
               </ul>
             </div>
-            <div class="sub_tab_container_content">
+            <div class="sub_tab_container_content admin-tab-contents">
               <div id="tab-content-of-<%= @tab_name -%>" style="">
                 <%= yield %>
               </div>

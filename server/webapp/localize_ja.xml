@@ -208,7 +208,7 @@
     <entry key="DOMAIN">Domain</entry>
     <entry key="PASSWORD">Password</entry>
     <entry key="MAIL_HOST_USE_SMTPS">Use SMTPS</entry>
-    <entry key="TOOLTIP_MAIL_HOST_SMTPS">This changes the protocol used to send the mail. It switches between SMTP and SMTPS. To enable STARTLS support, for providers such as GMail and Office 365, see <![CDATA[<a class='' href='https://www.gocd.io/documentation/user/current/configuration/admin_mailhost_info.html#starttls' target='_blank'>this page in the documentation</a>.]]></entry>
+    <entry key="TOOLTIP_MAIL_HOST_SMTPS">This changes the protocol used to send the mail. It switches between SMTP and SMTPS. To enable STARTLS support, for providers such as GMail and Office 365, see <![CDATA[<a class='' href='https://docs.gocd.io/current/configuration/admin_mailhost_info.html#starttls' target='_blank'>this page in the documentation</a>.]]></entry>
     <entry key="MAIL_HOST_FROM">From</entry>
     <entry key="MAIL_HOST_ADMIN_MAIL">Admin mail</entry>
     <entry key="MAIL_HOST_SEND_TEST_EMAIL">SEND TEST EMAIL</entry>
@@ -405,7 +405,7 @@
     <entry key="INSTRUCTION_JOB_TASK">This job requires at least one task. You can add more tasks once this job has been created</entry>
     <entry key="INSTRUCTION_TEST_ARTIFACT">Type</entry>
     <entry key="TOOLTIP_RESOURCES">Agent resources that this job requires to run</entry>
-    <entry key="TOOLTIP_TABS">Lets you add new tabs within the Job Details page. <![CDATA[<a class='' href='https://www.gocd.io/documentation/user/current/faq/dev_see_artifact_as_tab.html' target='_blank'>More...</a>]]></entry>
+    <entry key="TOOLTIP_TABS">Lets you add new tabs within the Job Details page. <![CDATA[<a class='' href='https://docs.gocd.io/current/faq/dev_see_artifact_as_tab.html' target='_blank'>More...</a>]]></entry>
     <entry key="TOOLTIP_TAB_NAME">Name of the tab which will appear in the Job Detail Page.</entry>
     <entry key="TOOLTIP_TAB_PATH">The artifact that will be rendered in the custom tab. This is typically a html or xml file.</entry>
     <entry key="TOOLTIP_RUN_ON_ALL"> Job will run on all agents that match its resources (if any) and are in the same environment as this job’s pipeline. This option is particularly useful when deploying to multiple servers.</entry>
@@ -418,16 +418,16 @@
     <entry key="UNSAVED_CHANGES_WARNING_MESSAGE">There are unsaved changes on your form. 'Proceed' will discard these changes.</entry>
     <entry key="TOOLTIP_PIPELINE_LOCKING">If checked, only a single instance of the pipeline can be run at a time and the lock will release only if the entire pipeline completes successfully. This is particularly useful in deployment scenarios.</entry>
     <entry key="TOOLTIP_TRACKING_TOOL">Can be used to specify links to an issue tracker. Go will construct a link based on the commit message that you can use to take you to your tracking tool (Mingle card, JIRA issue, Trac issue etc).</entry>
-    <entry key="TOOLTIP_TRACKING_TOOL_REGEX">A regular expression to identify card or bug numbers from your checkin comments. <![CDATA[<a class='' href='https://www.gocd.io/documentation/user/current/integration/go_integration.html' target='_blank'>More...</a>]]></entry>
-    <entry key="TOOLTIP_TRACKING_TOOL_URL">The URI to your tracking tool. This must contain the string ${ID} which will be replaced with the number identified using the pattern. <![CDATA[<a class='' href='https://www.gocd.io/documentation/user/current/integration/go_integration.html' target='_blank'>More...</a>]]></entry>
+    <entry key="TOOLTIP_TRACKING_TOOL_REGEX">A regular expression to identify card or bug numbers from your checkin comments. <![CDATA[<a class='' href='https://docs.gocd.io/current/integration/go_integration.html' target='_blank'>More...</a>]]></entry>
+    <entry key="TOOLTIP_TRACKING_TOOL_URL">The URI to your tracking tool. This must contain the string ${ID} which will be replaced with the number identified using the pattern. <![CDATA[<a class='' href='https://docs.gocd.io/current/integration/go_integration.html' target='_blank'>More...</a>]]></entry>
     <entry key="TOOLTIP_MATERIAL_NAME">[Optional] The name of the material. If omitted, the default material name is the URL. You can override this by setting the material name explicitly.</entry>
-    <entry key="TOOLTIP_LABEL_TEMPLATE">Customize the label for this pipeline. <![CDATA[<a class='' href='https://www.gocd.io/documentation/user/current/configuration/admin_use_custom_pipeline_label.html' target='_blank'>More...</a>]]></entry>
-    <entry key="TOOLTIP_CRON_TIMER_SPECIFICATION">A cron-like schedule to build the pipeline. For example to run a pipeline once every night at 10 pm on weekdays, use '0 0 22 ? * MON-FRI'. <![CDATA[<a href='https://www.gocd.io/documentation/user/current/configuration/configuration_reference.html#timer' target='_blank'>More...</a>]]></entry>
+    <entry key="TOOLTIP_LABEL_TEMPLATE">Customize the label for this pipeline. <![CDATA[<a class='' href='https://docs.gocd.io/current/configuration/admin_use_custom_pipeline_label.html' target='_blank'>More...</a>]]></entry>
+    <entry key="TOOLTIP_CRON_TIMER_SPECIFICATION">A cron-like schedule to build the pipeline. For example to run a pipeline once every night at 10 pm on weekdays, use '0 0 22 ? * MON-FRI'. <![CDATA[<a href='https://docs.gocd.io/current/configuration/configuration_reference.html#timer' target='_blank'>More...</a>]]></entry>
     <entry key="TOOLTIP_MINGLE_URL">Base URI to the Mingle installation (do not include the project name/identifier)</entry>
     <entry key="TOOLTIP_MINGLE_PROJECT_IDENTIFIER">In Mingle, the project 'Identfier' can be found under the project's 'Project admin' tab in the section titled 'Basic Information'.</entry>
     <entry key="TOOLTIP_MQL_GROUPING_CONDITIONS">A MQL string that determines the 'passing criteria' for cards displayed.</entry>
-    <entry key="TOOLTIP_ENVIRONMENT_VARIABLES">Environment variables defined here are set on the agents and can be used within your tasks. <![CDATA[<a class='' href='https://www.gocd.io/documentation/user/current/faq/dev_use_current_revision_in_build.html' target='_blank'>More...</a>]]></entry>
-    <entry key="TOOLTIP_PARAMETERS">Parameters help reduce repetition within your configurations and combined with templates allow you to setup complex configurations. <![CDATA[<a class='' href='https://www.gocd.io/documentation/user/current/configuration/admin_use_parameters_in_configuration.html' target='_blank'>More...</a>]]> </entry>
+    <entry key="TOOLTIP_ENVIRONMENT_VARIABLES">Environment variables defined here are set on the agents and can be used within your tasks. <![CDATA[<a class='' href='https://docs.gocd.io/current/faq/dev_use_current_revision_in_build.html' target='_blank'>More...</a>]]></entry>
+    <entry key="TOOLTIP_PARAMETERS">Parameters help reduce repetition within your configurations and combined with templates allow you to setup complex configurations. <![CDATA[<a class='' href='https://docs.gocd.io/current/configuration/admin_use_parameters_in_configuration.html' target='_blank'>More...</a>]]> </entry>
     <entry key="TOOLTIP_COMPARE_WITH_PREVIOUS">Compare with the previous build</entry>
     <entry key="TOOLTIP_CANNOT_COMPARE_WHILE_BISECT">Cannot compare because it was manually triggered with a non-sequential revision</entry>
     <entry key="TOOLTIP_TASK_COMMAND">The command or script to be executed, relative to the working directory</entry>
@@ -628,10 +628,10 @@
     <entry key="NO_GRAPH_FOR_STAGE">The graph will be available once there is at least one passed or failed stage.</entry>
     <entry key="DOWNLOAD_AGENT">Download Agent</entry>
     <entry key="SITE_URL">Site URL</entry>
-    <entry key="TOOLTIP_SITE_URL">This entry will be used by Go Server to generate links for emails, feeds etc. Format: [protocol]://[host]:[port]. <![CDATA[<a class='' href='https://www.gocd.io/documentation/user/current/installation/configuring_server_details.html#configure-site-urls' target='_blank'>More...</a>]]></entry>
+    <entry key="TOOLTIP_SITE_URL">This entry will be used by Go Server to generate links for emails, feeds etc. Format: [protocol]://[host]:[port]. <![CDATA[<a class='' href='https://docs.gocd.io/current/installation/configuring_server_details.html#configure-site-urls' target='_blank'>More...</a>]]></entry>
     <entry key="SECURE_SITE_URL">Secure Site URL</entry>
-    <entry key="TOOLTIP_SECURE_SITE_URL">If you wish that your primary site URL be HTTP, but still want to have HTTPS endpoints for the features that require SSL, you can specify this attribute with a value of the base HTTPS URL. Format: https://[host]:[port]. <![CDATA[<a class='' href='https://www.gocd.io/documentation/user/current/installation/configuring_server_details.html#configure-site-urls' target='_blank'>More...</a>]]></entry>
-    <entry key="FILTERS_HELP_LINK"><![CDATA[<a class='' href='https://www.gocd.io/documentation/user/current/navigation/agents_page.html#filtering-agents' target='_blank'>More...</a>]]></entry>
+    <entry key="TOOLTIP_SECURE_SITE_URL">If you wish that your primary site URL be HTTP, but still want to have HTTPS endpoints for the features that require SSL, you can specify this attribute with a value of the base HTTPS URL. Format: https://[host]:[port]. <![CDATA[<a class='' href='https://docs.gocd.io/current/installation/configuring_server_details.html#configure-site-urls' target='_blank'>More...</a>]]></entry>
+    <entry key="FILTERS_HELP_LINK"><![CDATA[<a class='' href='https://docs.gocd.io/current/navigation/agents_page.html#filtering-agents' target='_blank'>More...</a>]]></entry>
     <entry key="FILTER">Filter</entry>
     <entry key="CLEAR">Clear</entry>
     <entry key="BACKUP_SERVER">Perform Backup</entry>
@@ -647,7 +647,7 @@
     <entry key="TFS_PROJECT_PATH">Project Path</entry>
     <entry key="TFS">Team Foundation Server</entry>
     <entry key="UNAUTHORIZED_TO_BACKUP">Unauthorized to initiate Go backup as you are not a Go administrator</entry>
-    <entry key="TOOLTIP_ENCRYPTED_ENVIRONMENT_VARIABLES">Environment variables that are never displayed or logged in plain text. <![CDATA[<a class='' href='https://www.gocd.io/documentation/user/current/faq/dev_use_current_revision_in_build.html' target='_blank'>More...</a>]]></entry>
+    <entry key="TOOLTIP_ENCRYPTED_ENVIRONMENT_VARIABLES">Environment variables that are never displayed or logged in plain text. <![CDATA[<a class='' href='https://docs.gocd.io/current/faq/dev_use_current_revision_in_build.html' target='_blank'>More...</a>]]></entry>
     <entry key="USER_NOT_KNOWN">Your account is not known to the Go server.</entry>
     <entry key="USER_DISABLED">Your account has been disabled.</entry>
     <entry key="OVERRIDE_SECURE_ENVIRONMENT_AND_PIPELINE_LEVEL_VARIABLES">Override secure Environment and Pipeline level variables:</entry>
@@ -689,12 +689,12 @@
     <entry key="LABEL_COMMAND_REPOSITORY">Lookup Commands</entry>
     <entry key="COMMAND_LOOKUP_PLACEHOLDER_TEXT">Enter command name or keyword</entry>
     <entry key="COMMAND_REPO_LOCATION">Location</entry>
-    <entry key="TOOLTIP_COMMAND_REPOSITORY_LOCATION">Path to <![CDATA[<a class='' href='https://www.gocd.io/documentation/user/current/advanced_usage/command_repository.html' target='_blank'>command repository</a>]]> on Go Server. The location should be accessible to Go user.</entry>
+    <entry key="TOOLTIP_COMMAND_REPOSITORY_LOCATION">Path to <![CDATA[<a class='' href='https://docs.gocd.io/current/advanced_usage/command_repository.html' target='_blank'>command repository</a>]]> on Go Server. The location should be accessible to Go user.</entry>
     <entry key="INVALID_SNIPPETS">Invalid Commands</entry>
     <entry key="INVALID_SNIPPETS_FOUND">{0} invalid commands found.</entry>
-    <entry key="TOOLTIP_COMMAND_LOOKUP">Lookup sample command snippets from your local <![CDATA[<a class='' href='https://www.gocd.io/documentation/user/current/advanced_usage/command_repository.html' target='_blank'>command repository</a>]]>.</entry>
+    <entry key="TOOLTIP_COMMAND_LOOKUP">Lookup sample command snippets from your local <![CDATA[<a class='' href='https://docs.gocd.io/current/advanced_usage/command_repository.html' target='_blank'>command repository</a>]]>.</entry>
     <entry key="TOOLTIP_COMMAND_REPOSITORY_CACHE_RELOAD">Explicit reloading of the commands from the repository. Note: Changing the repository location above will automatically do this.</entry>
-    <entry key="MESSAGE_ABOUT_COMMAND_LOOKUP_DISABLED_DUE_TO_OLD_STYLE_ARGS">The lookup feature is only available for the <![CDATA[<a class='' href='https://www.gocd.io/documentation/user/current/advanced_usage/command_repository.html#args-style-commands' target='_blank'>new style</a>]]> of custom commands.</entry>
+    <entry key="MESSAGE_ABOUT_COMMAND_LOOKUP_DISABLED_DUE_TO_OLD_STYLE_ARGS">The lookup feature is only available for the <![CDATA[<a class='' href='https://docs.gocd.io/current/advanced_usage/command_repository.html#args-style-commands' target='_blank'>new style</a>]]> of custom commands.</entry>
     <entry key="RELOAD_COMMAND_REPO_CACHE">Reload cache</entry>
     <entry key="COMMAND_REPOSITORY_MANAGEMENT">Command Repository Management</entry>
     <entry key="PLUGINS_TAB">Plugins</entry>
@@ -725,10 +725,10 @@
     <entry key="YOUR_CHANGES">Your Changes</entry>
     <entry key="LAST_MODIFIED">Last modified</entry>
     <entry key="AGO">ago</entry>
-    <entry key="HELP_LINK_CONFIGURATION_REFERENCE"><![CDATA[<a class='' href='https://www.gocd.io/documentation/user/current/configuration/configuration_reference.html' target='_blank'>Help Topic: Configuration</a>]]></entry>
+    <entry key="HELP_LINK_CONFIGURATION_REFERENCE"><![CDATA[<a class='' href='https://docs.gocd.io/current/configuration/configuration_reference.html' target='_blank'>Help Topic: Configuration</a>]]></entry>
     <entry key="VSM_PIPELINE_DELETED">Pipeline has been deleted</entry>
     <entry key="VSM_PIPELINE_UNAUTHORIZED">You are not authorized to view this pipeline</entry>
-    <entry key="VSM_UNSUPPORTED_ON_IE8"><![CDATA[Your browser is not supported. Please either upgrade your browser or use a different browser to view <a href='https://www.gocd.io/documentation/user/current/navigation/value_stream_map.html' target='_blank'>Value Stream Map</a>.]]></entry>
+    <entry key="VSM_UNSUPPORTED_ON_IE8"><![CDATA[Your browser is not supported. Please either upgrade your browser or use a different browser to view <a href='https://docs.gocd.io/current/navigation/value_stream_map.html' target='_blank'>Value Stream Map</a>.]]></entry>
     <entry key="VSM_CYCLIC_DEPENDENCY">Value Stream Map of Pipeline ''{0}'' with counter ''{1}'' can not be rendered. Changes to the configuration have introduced complex dependencies for this instance which are not supported currently.</entry>
     <entry key="VSM_INTERNAL_SERVER_ERROR">Value Stream Map of pipeline ''{0}'' with counter ''{1}'' can not be rendered. Please check the server log for details.</entry>
     <entry key="VSM_INTERNAL_SERVER_ERROR_FOR_MATERIAL">Value Stream Map of material with fingerprint ''{0}'' with revision ''{1}'' can not be rendered. Please check the server log for details.</entry>

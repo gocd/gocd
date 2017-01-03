@@ -39,7 +39,7 @@
       It shows the console output of the job, failure information if relevant, modifications, artifacts, properties, and
       any custom tabs
       you've configured from your artifacts.
-      <a href="https://www.gocd.io/documentation/user/current/navigations/job_details_page.html" target="_blank"
+      <a href="https://docs.gocd.io/current/navigations/job_details_page.html" target="_blank"
          title="Learn more from help documentation" class="more">more...</a>
     </p>
       #parse("shared/_page_intro_bottom.vm")

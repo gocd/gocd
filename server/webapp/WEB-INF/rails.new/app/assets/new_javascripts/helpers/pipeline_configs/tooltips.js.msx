@@ -226,7 +226,7 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'js-routes'], function (m, _
         variables values from the console logs.
       </p>
 
-      <a href='https://www.gocd.io/documentation/user/current/faq/dev_use_current_revision_in_build.html' target='_blank'>
+      <a href='https://docs.gocd.io/current/faq/dev_use_current_revision_in_build.html' target='_blank'>
         Read more...
       </a>
 
@@ -453,7 +453,7 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'js-routes'], function (m, _
         complex configurations.{' '}
       </p>
       <a
-        href='https://www.gocd.io/documentation/user/current/configuration/admin_use_parameters_in_configuration.html'
+        href='https://docs.gocd.io/current/configuration/admin_use_parameters_in_configuration.html'
         target='_blank'>
         Read more...
       </a>
@@ -529,7 +529,7 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'js-routes'], function (m, _
                       <div>
                         Lookup sample command snippets from your local
                         <a class=""
-                           href="https://www.gocd.io/documentation/user/current/advanced_usage/command_repository.html"
+                           href="https://docs.gocd.io/current/advanced_usage/command_repository.html"
                            target="_blank"> command repository</a>.
                       </div>
                     ),
@@ -697,7 +697,7 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'js-routes'], function (m, _
             <div>
               <p>
                 Lets you add new tabs within the Job Details page. <a
-                href="https://www.gocd.io/documentation/user/current/faq/dev_see_artifact_as_tab.html"
+                href="https://docs.gocd.io/current/faq/dev_see_artifact_as_tab.html"
                 target="_blank">More...</a>
               </p>
             </div>

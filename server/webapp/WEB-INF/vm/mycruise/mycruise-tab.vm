@@ -35,7 +35,7 @@
       #parse("shared/_page_intro_top.vm")
     <p>This page gives users the ability to set up email notifications for different events (failure, build break, build
       fixed etc) for each stage that they have view permission.
-      <a href="https://www.gocd.io/documentation/user/current/configuration/dev_notifications.html" target="_blank"
+      <a href="https://docs.gocd.io/current/configuration/dev_notifications.html" target="_blank"
          title="Learn more from help documentation" class="more">more...</a>
     </p>
       #parse("shared/_page_intro_bottom.vm")

@@ -51,8 +51,8 @@ describe Admin::StagesController, "view" do
       it "should display 'fetch materials' & 'clean working directory' checkbox" do
         get :edit, :stage_parent=> "pipelines", :current_tab => :settings, :pipeline_name => @pipeline.name().to_s, :stage_name => @pipeline.get(0).name().to_s
         expect(response.status).to eq(200)
-        expect(response.body).to have_selector("div[class='form_item checkbox_row fetch_materials']")
-        expect(response.body).to have_selector("div[class='form_item checkbox_row clean_working_dir']")
+        expect(response.body).to have_selector("div[class='form_item_block checkbox_row fetch_materials']")
+        expect(response.body).to have_selector("div[class='form_item_block checkbox_row clean_working_dir']")
       end
 
       it "should display 'on success' & 'manual' radio buttons" do

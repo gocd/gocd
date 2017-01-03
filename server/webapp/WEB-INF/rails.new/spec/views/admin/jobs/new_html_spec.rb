@@ -67,7 +67,7 @@ describe "admin/jobs/new.html.erb" do
 
     render
 
-    Capybara.string(response.body).all("#new_job_container .form_item").tap do |blocks|
+    Capybara.string(response.body).all("#new_job_container .fieldset").tap do |blocks|
       expect(blocks[0]).to have_selector("label", :text => "Use default (42 minute(s))")
       expect(blocks[0]).to have_selector("input[type='radio'][name='job[timeoutType]'][value='defaultTimeout'][checked='checked']")
       expect(blocks[0]).to have_selector("label", :text => "Cancel after")
@@ -87,7 +87,7 @@ describe "admin/jobs/new.html.erb" do
 
     render
 
-    Capybara.string(response.body).all("#new_job_container .form_item").tap do |blocks|
+    Capybara.string(response.body).all("#new_job_container .fieldset").tap do |blocks|
       expect(blocks[0]).to have_selector("label", :text => "Use default (Never)")
       expect(blocks[0]).to have_selector("input[type='radio'][name='job[timeoutType]'][value='defaultTimeout']")
     end
@@ -113,7 +113,7 @@ describe "admin/jobs/new.html.erb" do
 
     render
 
-    Capybara.string(response.body).all("#new_job_container .form_item").tap do |blocks|
+    Capybara.string(response.body).all("#new_job_container .form-section").tap do |blocks|
       expect(blocks[2]).to have_selector("label", :text => "Run Type")
 
       expect(blocks[2]).to have_selector("label", :text => "Run one instance")

@@ -36,11 +36,9 @@ define([
                        size={5}
                        largeSize={4}/>
             {children}
-            <f.column size={1} end={true}>
-              <div class='actions'>
+            <f.column size={2} largeSize={2} end={true}>
                 {args.removeChildPreContent}
                 {args.removeWidget}
-              </div>
             </f.column>
           </f.row>
         );
@@ -75,20 +73,26 @@ define([
                       attrName='value'
                       placeholder='Value'
                       onChange={args.onChange}
-                      type={variable.isSecureValue() ? 'password' : 'text'}/>
+                      type={variable.isSecureValue() ? 'password' : 'text'}
+                      size={5}
+                      largeSize={4}/>
             )
           ];
 
           if (variable.isDirtyValue()) {
             removeChildPreContent = (
-              <f.resetButton onclick={variable.resetToOriginalValue.bind(variable)}/>
+              <f.resetButton class='position-reset-button' onclick={variable.resetToOriginalValue.bind(variable)}/>
             );
           }
         } else {
-          content = (
-            <f.column>
-              <f.link onclick={variable.editValue.bind(variable)} class="edit-secure-variable">Edit</f.link>
-            </f.column>
+          content = [
+            (<f.column size={5} largeSize={4}>
+              <input type='password' value='password' disabled/>
+            </f.column>)
+          ];
+
+          removeChildPreContent = (
+                  <f.editButton onclick={variable.editValue.bind(variable)} class="edit-secure-variable"/>
           );
         }
 

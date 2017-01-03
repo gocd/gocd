@@ -77,7 +77,7 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
       },
 
       view: function (ctrl, args) {
-        var model       = deleteKeyAndReturnValue(args, 'model'),
+        var model     = deleteKeyAndReturnValue(args, 'model'),
           attrName    = deleteKeyAndReturnValue(args, 'attrName'),
           type        = deleteKeyAndReturnValue(args, 'type', 'text'),
           placeholder = deleteKeyAndReturnValue(args, 'placeholder', ''),

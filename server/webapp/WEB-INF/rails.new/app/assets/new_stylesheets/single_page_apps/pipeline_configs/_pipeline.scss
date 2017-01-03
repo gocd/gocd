@@ -148,11 +148,9 @@
     }
 
     .edit-secure-variable {
-      display:     inline-block;
-      padding-top: 3px;
-    }
-    .actions {
-      margin: 7px 0 0 -24px;
+      display:  inline-block;
+      position: relative;
+      top:      3px;
     }
   }
 
@@ -180,12 +178,13 @@
   .tooltip-wrapper {
     right:    -15px;
     position: absolute;
-    top:      9px;
+    top:      3px;
   }
 }
 
-.position-remove-button {
-  margin-top: 7px;
+.position-remove-button, .position-reset-button {
+  position: relative;
+  top:      2px;
 }
 
 .asterisk {

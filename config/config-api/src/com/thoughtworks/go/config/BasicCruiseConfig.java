@@ -642,47 +642,6 @@ public class BasicCruiseConfig implements CruiseConfig {
         return new BasicPipelineConfigs(allPipelines().toArray(new PipelineConfig[0]));
     }
 
-    @Override
-    public Map<String, List<Authorization.PrivilegeType>> groupsAffectedByDeletionOfRole(final String roleName) {
-        Map<String, List<Authorization.PrivilegeType>> result = new HashMap<>();
-        for (PipelineConfigs group : groups) {
-            final List<Authorization.PrivilegeType> privileges = group.getAuthorization().privilagesOfRole(new CaseInsensitiveString(roleName));
-            if (privileges.size() > 0) {
-                result.put(group.getGroup(), privileges);
-            }
-        }
-        return result;
-    }
-
-    @Override
-    public Set<Pair<PipelineConfig, StageConfig>> stagesWithPermissionForRole(final String roleName) {
-        Set<Pair<PipelineConfig, StageConfig>> result = new HashSet<>();
-        for (PipelineConfig pipelineConfig : allPipelines()) {
-            result.addAll(pipelineConfig.stagesWithPermissionForRole(new CaseInsensitiveString(roleName)));
-        }
-        return result;
-    }
-
-    @Override
-    public void removeRole(Role roleToDelete) {
-        if (doesAdminConfigContainRole(roleToDelete.getName().toString())) {
-            server().security().adminsConfig().removeRole(roleToDelete);
-        }
-        for (PipelineConfigs group : this.getGroups()) {
-            group.cleanupAllUsagesOfRole(roleToDelete);
-        }
-        server().security().deleteRole(roleToDelete);
-    }
-
-    @Override
-    public boolean doesAdminConfigContainRole(String roleToDelete) {
-        SecurityConfig security = server().security();
-        Role role = security.roleNamed(roleToDelete);
-        if (role == null) {
-            return false;
-        }
-        return security.adminsConfig().isAdminRole(Arrays.asList(role));
-    }
 
     @Override
     public List<PipelineConfig> allPipelines() {
@@ -705,8 +664,6 @@ public class BasicCruiseConfig implements CruiseConfig {
         }
         throw new RuntimeException("");
     }
-
-    // TODO - #2491 - rename jobConfig to job
 
     @Override
     public boolean hasBuildPlan(final CaseInsensitiveString pipelineName, final CaseInsensitiveString stageName, String buildName, boolean ignoreCase) {
@@ -1016,15 +973,9 @@ public class BasicCruiseConfig implements CruiseConfig {
         return hasAdminPrivileges(new AdminUser(new CaseInsensitiveString(username)));
     }
 
-    @Override
-    public boolean doesRoleHaveAdminPrivileges(String rolename) {
-        return hasAdminPrivileges(new AdminRole(new CaseInsensitiveString(rolename)));
-    }
-
     private boolean hasAdminPrivileges(Admin admin) {
         return server().security().isAdmin(admin);
     }
-
 
     // For tests
 

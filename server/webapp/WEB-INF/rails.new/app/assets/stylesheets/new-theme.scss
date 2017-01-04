@@ -3437,3 +3437,35 @@ form#package_repositories_edit_form {
     padding: 0 7px;
   }
 }
+
+#new_job_container {
+  .fieldset {
+    padding: 10px 0;
+  }
+  h3 {
+    margin: 0 0 20px 0;
+  }
+
+  .override_timeout.checkbox_row {
+    input {
+      float:        none;
+      margin-right: 10px;
+    }
+    label {
+      margin: 0 10px 0 0;
+    }
+    input.in_between_text {
+      margin-left: 0;
+    }
+  }
+  p.required {
+    margin-top:    -35px;
+    margin-bottom: 30px;
+  }
+  .form_item {
+    padding-bottom: 0;
+    .fieldset {
+      margin-bottom: 0;
+    }
+  }
+}

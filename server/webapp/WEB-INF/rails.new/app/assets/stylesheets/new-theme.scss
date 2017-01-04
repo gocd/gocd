@@ -3027,7 +3027,7 @@ button.edit-environment {
   background: none;
   height:     auto;
   width:      auto;
-  margin:     0 0 0 5px;
+  margin:     10px 0 0 5px;
   &:before {
     color:     $icon--secondary-color;
     font-size: 16px;
@@ -3389,7 +3389,7 @@ form#package_repositories_edit_form {
 .artifact {
   span.contextual_help {
     position: relative;
-    top:      -3px;
+    top:      -13px;
   }
 }
 

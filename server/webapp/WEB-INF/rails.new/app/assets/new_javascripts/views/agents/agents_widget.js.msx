@@ -275,7 +275,7 @@ define([
             {updateMessage}
             <f.row>
               <div class="container">
-                <table class="go-table agents-table agents-table-head">
+                <table class="go-table agents-table">
                   <AgentTableHeader
                     onCheckboxClick={ctrl.selectAllAgents.bind(ctrl)}
                     checkboxValue={ctrl.areAllAgentsSelected.bind(ctrl)}

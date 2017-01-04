@@ -16,11 +16,11 @@
 
 require 'spec_helper'
 
-describe ApiV1::Config::Materials::RepositoryCheckConnectionRepresenter do
+describe ApiV1::Config::Materials::CheckConnectionRepresenter do
   describe 'deserialize' do
     it 'renders a check repository with hal representation' do
       package_repo = PackageRepository.new
-      ApiV1::Config::Materials::RepositoryCheckConnectionRepresenter.new(package_repo).from_hash(get_repository_json)
+      ApiV1::Config::Materials::CheckConnectionRepresenter.new(package_repo).from_hash(get_repository_json)
       expected_repo = get_package_repository
       expect(expected_repo.getConfiguration).to eq(package_repo.getConfiguration)
       expect(expected_repo.getPluginConfiguration).to eq(package_repo.getPluginConfiguration)

@@ -20,7 +20,10 @@ import com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConfig
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConstants;
 import com.thoughtworks.go.plugin.access.common.models.Image;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
-import com.thoughtworks.go.server.ui.plugins.*;
+import com.thoughtworks.go.server.ui.plugins.PluggableInstanceSettings;
+import com.thoughtworks.go.server.ui.plugins.PluginConfiguration;
+import com.thoughtworks.go.server.ui.plugins.PluginInfo;
+import com.thoughtworks.go.server.ui.plugins.PluginView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +65,7 @@ class AuthorizationViewModelBuilder implements ViewModelBuilder {
         PluginView roleView = new PluginView(metadataStore.getRoleView(descriptor));
         PluggableInstanceSettings roleSettings = new PluggableInstanceSettings(roleConfigurations, roleView);
 
-        return new AuthorizationPluginInfo(descriptor, AuthorizationPluginConstants.EXTENSION_NAME, null, profileSettings, roleSettings, icon);
+        return new PluginInfo(descriptor, AuthorizationPluginConstants.EXTENSION_NAME, null, profileSettings, roleSettings, icon);
     }
 
 }

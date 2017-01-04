@@ -16,10 +16,7 @@
 
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.PluginRoleConfig;
-import com.thoughtworks.go.config.RolesConfig;
-import com.thoughtworks.go.config.SecurityAuthConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
@@ -56,8 +53,8 @@ public class SecurityAuthConfigDeleteCommand extends SecurityAuthConfigCommand {
         RolesConfig rolesConfig = preprocessedConfig.server().security().getRoles();
 
         List<String> usedByRolesConfig = new ArrayList<>();
-        for (PluginRoleConfig role : rolesConfig.getPluginRolesConfig()) {
-            if (role.getAuthConfigId().equals(profile.getId())) {
+        for (Role role : rolesConfig.getPluginRolesConfig()) {
+            if (profile.hasRole((PluginRoleConfig) role)) {
                 usedByRolesConfig.add(role.getName().toString());
             }
         }

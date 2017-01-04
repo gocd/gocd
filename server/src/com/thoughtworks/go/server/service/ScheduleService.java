@@ -248,7 +248,7 @@ public class ScheduleService {
 
     private SchedulingContext schedulingContext(String username, PipelineConfig pipelineConfig, StageConfig stageConfig) {
         Agents availableAgents = environmentConfigService.agentsForPipeline(pipelineConfig.name());
-        SchedulingContext context = new DefaultSchedulingContext(username, availableAgents, elasticProfileService.allProfiles());
+        SchedulingContext context = new DefaultSchedulingContext(username, availableAgents, elasticProfileService.listAll());
         context = context.overrideEnvironmentVariables(pipelineConfig.getVariables());
         context = context.overrideEnvironmentVariables(stageConfig.getVariables());
         return context;

@@ -24,12 +24,13 @@ import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.helper.GoConfigMother;
-import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
+import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
+import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -49,13 +50,11 @@ public class PluginProfileCommandTest {
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
-    private AuthorizationExtension authorizationExtension;
 
     @Before
     public void setUp() throws Exception {
         currentUser = new Username("bob");
         goConfigService = mock(GoConfigService.class);
-        authorizationExtension = mock(AuthorizationExtension.class);
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
     }
 
@@ -109,22 +108,7 @@ public class PluginProfileCommandTest {
         assertThat(command.canContinue(cruiseConfig), is(true));
     }
 
-    @Test
-    public void shouldContinueWithConfigSaveIfUserIsGroupAdmin() throws Exception {
-        SecurityAuthConfig securityAuthConfig = new SecurityAuthConfig("ldap", "cd.go.ldap");
-
-        when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
-        when(goConfigService.isGroupAdministrator(currentUser.getUsername())).thenReturn(true);
-
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        PluginProfileCommand command = new StubSecurityAuthConfigCommand(goConfigService, securityAuthConfig, currentUser, result);
-        assertThat(cruiseConfig.server().security().securityAuthConfigs().find("ldap"), nullValue());
-
-        assertThat(command.canContinue(cruiseConfig), is(true));
-    }
-
     private class StubSecurityAuthConfigCommand extends PluginProfileCommand<SecurityAuthConfig, SecurityAuthConfigs> {
-
 
         public StubSecurityAuthConfigCommand(GoConfigService goConfigService, SecurityAuthConfig profile, Username currentUser, LocalizedOperationResult result) {
             super(goConfigService, profile, currentUser, result);
@@ -153,6 +137,14 @@ public class PluginProfileCommandTest {
         @Override
         protected String getObjectDescriptor() {
             return "some foo object";
+        }
+
+        protected final boolean isAuthorized() {
+            if (goConfigService.isUserAdmin(currentUser)) {
+                return true;
+            }
+            result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
+            return false;
         }
     }
 }

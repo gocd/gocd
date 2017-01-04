@@ -24,6 +24,7 @@ import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.LinkedHashMap;
@@ -32,7 +33,7 @@ import java.util.Map;
 public abstract class PluginProfilesService<M extends PluginProfile> {
     protected final GoConfigService goConfigService;
     protected final EntityHashingService hashingService;
-    protected org.slf4j.Logger LOGGER = LoggerFactory.getLogger(getClass());
+    protected Logger LOGGER = LoggerFactory.getLogger(getClass());
 
     public PluginProfilesService(GoConfigService goConfigService, EntityHashingService hashingService) {
         this.goConfigService = goConfigService;
@@ -45,7 +46,7 @@ public abstract class PluginProfilesService<M extends PluginProfile> {
         return getPluginProfiles().find(id);
     }
 
-    public Map<String, M> allProfiles() {
+    public Map<String, M> listAll() {
         Map<String, M> result = new LinkedHashMap<>();
         for (M profile : getPluginProfiles()) {
             result.put(profile.getId(), profile);

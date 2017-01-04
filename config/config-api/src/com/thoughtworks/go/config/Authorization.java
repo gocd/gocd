@@ -16,15 +16,15 @@
 
 package com.thoughtworks.go.config;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.ConfigOriginTraceable;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.util.StringUtil;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import static java.util.Collections.sort;
 
@@ -112,6 +112,12 @@ public class Authorization implements Validatable, ParamsAttributeAware, ConfigO
     }
 
     public Authorization() {
+    }
+
+    public Authorization(ViewConfig viewConfig, OperationConfig operationConfig, AdminsConfig adminsConfig) {
+        this.viewConfig = viewConfig;
+        this.operationConfig = operationConfig;
+        this.adminsConfig = adminsConfig;
     }
 
     public Authorization(ViewConfig viewConfig) {

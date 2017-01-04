@@ -16,18 +16,13 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.PipelineConfigs;
-import com.thoughtworks.go.config.SecurityConfig;
-import com.thoughtworks.go.config.StageConfig;
-import com.thoughtworks.go.config.UserRoleMatcher;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.server.domain.Username;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class SecurityService {
@@ -121,7 +116,7 @@ public class SecurityService {
         return goConfigService.isUserAdmin(username);
     }
 
-    public boolean isSecurityEnabled(){
+    public boolean isSecurityEnabled() {
         return goConfigService.isSecurityEnabled();
     }
 

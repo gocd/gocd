@@ -170,7 +170,7 @@ $task-body-bg: #f5f5f5;
   .remove-job {
     position: absolute;
     left:     calc(100% - 31px);
-    top:      8px;
+    top:      inherit;
   }
 
   .snippet {
@@ -279,7 +279,7 @@ $task-body-bg: #f5f5f5;
 .remove-stage {
   position: absolute;
   right:    -15px;
-  top:      -18px;
+  top: inherit;
 }
 
 //tasks

@@ -36,7 +36,7 @@ public class HibernateInformationProvider implements ServerInfoProvider {
 
     @Override
     public double priority() {
-        return 7.0;
+        return 12.0;
     }
 
     @Override

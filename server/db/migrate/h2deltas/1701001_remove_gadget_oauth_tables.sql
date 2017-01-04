@@ -14,14 +14,9 @@
 -- limitations under the License.
 --
 
--- H2 automatically creates indices on primary keys and foreign keys,
--- while postgres only creates indices on primary keys.
--- A migration was added to create the missing index on a foreign key in postgres.
--- To maintain sanity, and avoid mismatch of the migrations we have on h2 and postgres, this migration is added.
-
-DROP TABLE gadgetOauthAuthorizationCodes;
-DROP TABLE gadgetOauthAccessTokens;
-DROP TABLE gadgetOauthClients;
+DROP TABLE IF EXISTS gadgetOauthAuthorizationCodes;
+DROP TABLE IF EXISTS gadgetOauthAccessTokens ;
+DROP TABLE IF EXISTS gadgetOauthClients;
 
 --//@UNDO
 

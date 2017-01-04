@@ -56,6 +56,7 @@ public class RuntimeInformationProvider implements ServerInfoProvider {
 
         json.put("Input Arguments", runtimeMXBean.getInputArguments());
         json.put("System Properties", new TreeMap<>(asIndentedMultilineValuesAsJson(runtimeMXBean.getSystemProperties())));
+        json.put("Environment Variables", new TreeMap<>(asIndentedMultilineValuesAsJson(System.getenv())));
 
         return json;
     }

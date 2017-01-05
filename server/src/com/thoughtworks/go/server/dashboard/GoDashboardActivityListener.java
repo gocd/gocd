@@ -18,11 +18,9 @@ package com.thoughtworks.go.server.dashboard;
 
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
-import com.thoughtworks.go.server.domain.JobStatusListener;
 import com.thoughtworks.go.server.domain.PipelineLockStatusChangeListener;
 import com.thoughtworks.go.server.domain.PipelinePauseChangeListener;
 import com.thoughtworks.go.server.domain.StageStatusListener;
@@ -39,13 +37,12 @@ import org.springframework.stereotype.Component;
 /* Listens to all activity that is needed to keep the dashboard updated and sets it up for processing.
  */
 @Component
-public class GoDashboardActivityListener implements Initializer, JobStatusListener, ConfigChangedListener,
-        PipelinePauseChangeListener, PipelineLockStatusChangeListener {
+public class GoDashboardActivityListener implements Initializer, ConfigChangedListener, PipelinePauseChangeListener,
+        PipelineLockStatusChangeListener {
     private final GoConfigService goConfigService;
     private final StageService stageService;
     private final PipelinePauseService pipelinePauseService;
     private final PipelineLockService pipelineLockService;
-    private final GoDashboardJobStatusChangeHandler jobStatusChangeHandler;
     private final GoDashboardStageStatusChangeHandler stageStatusChangeHandler;
     private final GoDashboardConfigChangeHandler configChangeHandler;
     private final GoDashboardPipelinePauseStatusChangeHandler pauseStatusChangeHandler;
@@ -58,7 +55,6 @@ public class GoDashboardActivityListener implements Initializer, JobStatusListen
                                        StageService stageService,
                                        PipelinePauseService pipelinePauseService,
                                        PipelineLockService pipelineLockService,
-                                       GoDashboardJobStatusChangeHandler jobStatusChangeHandler,
                                        GoDashboardStageStatusChangeHandler stageStatusChangeHandler,
                                        GoDashboardConfigChangeHandler configChangeHandler,
                                        GoDashboardPipelinePauseStatusChangeHandler pauseStatusChangeHandler,
@@ -68,7 +64,6 @@ public class GoDashboardActivityListener implements Initializer, JobStatusListen
         this.pipelinePauseService = pipelinePauseService;
         this.pipelineLockService = pipelineLockService;
 
-        this.jobStatusChangeHandler = jobStatusChangeHandler;
         this.stageStatusChangeHandler = stageStatusChangeHandler;
         this.configChangeHandler = configChangeHandler;
         this.pauseStatusChangeHandler = pauseStatusChangeHandler;
@@ -85,21 +80,6 @@ public class GoDashboardActivityListener implements Initializer, JobStatusListen
         pipelinePauseService.registerListener(this);
         pipelineLockService.registerListener(this);
         processor.start();
-    }
-
-    @Override
-    public void jobStatusChanged(final JobInstance job) {
-        processor.add(new Action() {
-            @Override
-            public void call() {
-                jobStatusChangeHandler.call(job);
-            }
-
-            @Override
-            public String description() {
-                return "job: " + job;
-            }
-        });
     }
 
     @Override

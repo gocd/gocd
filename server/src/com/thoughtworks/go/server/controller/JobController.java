@@ -113,6 +113,7 @@ public class JobController {
         Map data = new HashMap();
         data.put("presenter", presenter);
         data.put("l", localizer);
+        data.put("isEditableViaUI", goConfigService.isPipelineEditableViaUI(jobDetail.getPipelineName()));
         return new ModelAndView("build_detail/build_detail_page", data);
     }
 

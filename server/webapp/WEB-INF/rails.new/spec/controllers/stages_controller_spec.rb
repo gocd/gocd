@@ -51,6 +51,7 @@ describe StagesController do
     controller.stub(:populate_config_validity)
 
     @go_config_service.stub(:findGroupNameByPipeline).and_return(nil)
+    @go_config_service.stub(:isPipelineEditableViaUI)
     @pim = PipelineHistoryMother.singlePipeline("pipline-name", StageInstanceModels.new)
     controller.stub(:pipeline_history_service).and_return(@pipeline_history_service=double())
     controller.stub(:pipeline_lock_service).and_return(@pipieline_lock_service=double())
@@ -653,27 +654,38 @@ describe StagesController do
       controller.stub(:can_continue).and_return(nil)
       controller.stub(:load_stage_history).and_return(nil)
       controller.stub(:load_current_config_version).and_return(nil)
+      allow(@go_config_service).to receive(:isPipelineEditableViaUI).and_return(true)
+      @go_config_service.should_receive(:findGroupNameByPipeline).and_return('group')
     end
     it 'should return false for normal users' do
       login_as_user
 
-      @go_config_service.should_receive(:findGroupNameByPipeline).and_return('group')
       @security_service.should_receive(:isUserAdminOfGroup).with(anything, 'group').and_return(false)
 
       get :overview, pipeline_name: "pipeline", pipeline_counter: "2", stage_name: "stage", stage_counter: "3"
 
-      expect(controller.instance_variable_get(:@has_permission_to_view_settings)).to eq(false)
+      expect(controller.instance_variable_get(:@can_user_view_settings)).to eq(false)
     end
 
     it 'should return true for admin users' do
-      login_as_user
+      login_as_admin
 
-      @go_config_service.should_receive(:findGroupNameByPipeline).and_return('group')
       @security_service.should_receive(:isUserAdminOfGroup).with(anything, 'group').and_return(true)
 
       get :overview, pipeline_name: "pipeline", pipeline_counter: "2", stage_name: "stage", stage_counter: "3"
 
-      expect(controller.instance_variable_get(:@has_permission_to_view_settings)).to eq(true)
+      expect(controller.instance_variable_get(:@can_user_view_settings)).to eq(true)
+    end
+
+    it 'should return false for admin users when pipeline is not editable from UI' do
+      login_as_admin
+
+      @go_config_service.should_receive(:isPipelineEditableViaUI).and_return(false)
+      @security_service.should_receive(:isUserAdminOfGroup).with(anything, 'group').and_return(true)
+
+      get :overview, pipeline_name: "pipeline", pipeline_counter: "2", stage_name: "stage", stage_counter: "3"
+
+      expect(controller.instance_variable_get(:@can_user_view_settings)).to eq(false)
     end
   end
 

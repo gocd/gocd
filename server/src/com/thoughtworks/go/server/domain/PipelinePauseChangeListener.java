@@ -56,6 +56,10 @@ public interface PipelinePauseChangeListener {
         public String toString() {
             return ToStringBuilder.reflectionToString(this);
         }
+
+        public String pipelineName() {
+            return pipelineName;
+        }
     }
 
     enum EventType { PAUSED, UNPAUSED }

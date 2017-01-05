@@ -17,24 +17,34 @@
 package com.thoughtworks.go.server.dashboard;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.server.domain.PipelinePauseChangeListener;
+import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoDashboardCacheUpdateService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
 
-/* Understands what needs to be done to keep the dashboard cache updated, when a pipeline is paused or unpaused. */
-@Component
-public class GoDashboardPipelinePauseStatusChangeHandler {
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.MockitoAnnotations.initMocks;
+
+public class GoDashboardPipelinePauseStatusChangeHandlerTest {
+    @Mock
     private GoDashboardCacheUpdateService cacheUpdateService;
 
-    @Autowired
-    public GoDashboardPipelinePauseStatusChangeHandler(GoDashboardCacheUpdateService cacheUpdateService) {
-        this.cacheUpdateService = cacheUpdateService;
+    private GoDashboardPipelinePauseStatusChangeHandler handler;
+
+    @Before
+    public void setUp() throws Exception {
+        initMocks(this);
+
+        handler = new GoDashboardPipelinePauseStatusChangeHandler(cacheUpdateService);
     }
 
-    public void call(PipelinePauseChangeListener.Event event) {
-        cacheUpdateService.updateForPipeline(new CaseInsensitiveString(event.pipelineName()));
+    @Test
+    public void shouldHandlePipelinePauseStatusChangeByRefreshingPipelineInCache() throws Exception {
+        handler.call(PipelinePauseChangeListener.Event.pause("pipeline1", Username.valueOf("user1")));
+
+        verify(cacheUpdateService).updateForPipeline(new CaseInsensitiveString("pipeline1"));
     }
 }

@@ -1,4 +1,5 @@
-<h3><%= l.string("MATERIALS") -%></h3>
+<div class="config-container config-materials">
+<h3 class="section-title material-title"><%= l.string("MATERIALS") -%></h3>
 
 <table class="list_table">
     <thead>
@@ -98,7 +99,7 @@
     </tbody>
 </table>
 <div class="clear"></div>
-
+</div>
 <% if !@pipeline.materialConfigs().scmMaterialsHaveDestination() %>
     <div class="light_box_content" style="display: none">
         <div class="warnings"><%= l.string("WARNING_DESTINATION_DIRECTORY_NEEDED") %></div>

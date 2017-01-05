@@ -1,11 +1,11 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,15 +16,15 @@
 
 package com.thoughtworks.go.server.service.support;
 
-import java.io.File;
-import java.util.*;
-
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.log4j.Appender;
 import org.apache.log4j.FileAppender;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.io.File;
+import java.util.*;
 
 @Component
 public class FileLocationProvider implements ServerInfoProvider {
@@ -38,7 +38,7 @@ public class FileLocationProvider implements ServerInfoProvider {
 
     @Override
     public double priority() {
-        return 2.0;
+        return 3.0;
     }
 
     @Override

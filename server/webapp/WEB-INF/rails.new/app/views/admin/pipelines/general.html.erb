@@ -1,4 +1,5 @@
-<h3><%= l.string("BASIC_SETTINGS") %></h3>
+<div class="config-container config-general">
+<h3 class="section-title"><%= l.string("BASIC_SETTINGS") %></h3>
 
 <%= form_for @pipeline, :as => :pipeline, :url => pipeline_update_path(:pipeline_name => @pipeline.name(), :current_tab => 'general'), :html => {:method => :put, :id => "pipeline_edit_form"} do |f| %>
     <%= md5_field %>
@@ -33,9 +34,9 @@
                         <div class="checkbox_label_wrapper">
                             <%= approval.check_box com.thoughtworks.go.config.Approval::TYPE, {:disabled => :disabled, :name => :not_to_be_submitted}, com.thoughtworks.go.config.Approval::SUCCESS, com.thoughtworks.go.config.Approval::MANUAL -%>
                             <%= approval.label com.thoughtworks.go.config.Approval::TYPE, l.string('AUTOMATIC_PIPELINE_SCHEDULING') -%>
-                            <div class="contextual_help has_go_tip_right" title="<%= l.string("TOOLTIP_AUTOMATIC_PIPELINE_SCHEDULING") -%>"></div>
+                            <span class="contextual_help has_go_tip_right" title="<%= l.string("TOOLTIP_AUTOMATIC_PIPELINE_SCHEDULING") -%>"></span>
                         </div>
-                        <div class="inline_instruction"><%= l.string("INLINE_INSTRUCTION_AUTOMATIC_PIPELINE_SCHEDULING") -%></div>
+                        <span class="inline_instruction"><%= l.string("INLINE_INSTRUCTION_AUTOMATIC_PIPELINE_SCHEDULING") -%></span>
                     </div>
                 <% end -%>
             <% else -%>
@@ -82,7 +83,7 @@
     <%= render :partial => "admin/shared/form_submit", :locals => {:scope => {:reset_url => pipeline_edit_path(:pipeline_name => params[:pipeline_name], :current_tab => 'general')}} %>
     <%= render :partial => 'shared/convert_tool_tips.html', :locals => {:scope => {}} %>
 <% end %>
-
+</div>
 <script type="text/javascript">
     var timeSpecTexbox = jQuery("#pipeline_timer_timerSpec");
     var onlyOnChangeCheckbox = jQuery("#pipeline_timer_onlyOnChanges");

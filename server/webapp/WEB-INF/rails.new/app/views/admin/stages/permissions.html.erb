@@ -1,3 +1,4 @@
+<div class="config-container">
 <h3><%= l.string('PERMISSIONS') %></h3>
 
     <div class="instructions"><%= l.string("ADMIN_GROUP_ADMINS_CAN_OPERATE_MESSAGE") %></div>
@@ -42,7 +43,7 @@
         </div>
         <%= render :partial => "admin/shared/form_submit", :locals => {:scope => {:reset_url => admin_stage_edit_path(:pipeline_name => @pipeline.name(), :stage_name => params[:stage_name], :current_tab => "permissions")}} %>
     <% end %>
-
+</div>
 <script type="text/javascript">
     Util.on_load(function() {
         jQuery("#inherit_permissions").click(function() {

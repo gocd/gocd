@@ -22,7 +22,7 @@ module ApiV1
     end
 
     link :doc do |opts|
-      'https://api.go.cd/#encryption'
+      'https://api.gocd.io/#encryption'
     end
 
     property :encrypted_value, exec_context: :decorator

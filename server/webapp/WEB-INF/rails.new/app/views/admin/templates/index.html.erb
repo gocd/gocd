@@ -11,7 +11,7 @@
                     <%= l.string("ADD_NEW_TEMPLATE") -%>
                 </span>
             <%- else -%>
-                <a href="#" class="add_link" onclick="Modalbox.show('<%= template_new_path(:allow_pipeline_selection => true) -%>', {overlayClose: false,title: '<%= l.string("ADD_NEW_TEMPLATE") -%>'})">
+                <a href="#" class="link_as_button primary" onclick="Modalbox.show('<%= template_new_path(:allow_pipeline_selection => true) -%>', {overlayClose: false,title: '<%= l.string("ADD_NEW_TEMPLATE") -%>'})">
                       <%= l.string("ADD_NEW_TEMPLATE") -%>
                 </a>
             <%- end -%>

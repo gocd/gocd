@@ -1,14 +1,17 @@
 <style type="text/css">.errors{overflow:auto}</style>
 <%- @view_title = "Administration" -%>
 <div class="andare">
+  <div class="heading">
+    <h2>
+      <%- if scope[:isNewRepo] %>Add <% else %>Edit <% end %>Package Repository<a class="help" href="https://docs.gocd.io/current/extension_points/package_repository_extension.html" target="_blank">What is a Package Repository?</a>
+    </h2>
+  </div>
     <div id="package-repositories" class="layout admin-entity">
         <div class="navigation">
                 <%= render :partial => 'list', :locals => {:scope => {:package_repositories => scope[:package_repositories], :current_repo => scope[:package_repository].getName(), :package_to_pipeline_map => scope[:package_to_pipeline_map]}} %>
         </div>
         <div class="content">
-            <h2>
-            <%- if scope[:isNewRepo] %>Add <% else %>Edit <% end %>Package Repository<a class="help" href="http://www.go.cd/documentation/user/current/extension_points/package_repository_extension.html" target="_blank">What is a Package Repository?</a>
-            </h2>
+
             <% if package_material_plugins.length < 2 %>
                 <div class="information" style="margin: 0 !important;"> <%= l.string("NO_PLUGINS_INSTALLED")-%></div>
             <%- end -%>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,8 @@ import org.hibernate.stat.Statistics;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.lang.management.ManagementFactory;
-import java.lang.management.RuntimeMXBean;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @Component
 public class HibernateInformationProvider implements ServerInfoProvider {
@@ -37,13 +36,16 @@ public class HibernateInformationProvider implements ServerInfoProvider {
 
     @Override
     public double priority() {
-        return 7.0;
+        return 12.0;
     }
 
     @Override
     public Map<String, Object> asJson() {
         LinkedHashMap<String, Object> json = new LinkedHashMap<>();
         Statistics statistics = sessionFactory.getStatistics();
+        if (!statistics.isStatisticsEnabled()){
+            return json;
+        }
         json.put("EntityDeleteCount", statistics.getEntityDeleteCount());
         json.put("EntityInsertCount", statistics.getEntityInsertCount());
         json.put("EntityLoadCount", statistics.getEntityLoadCount());

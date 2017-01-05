@@ -1,4 +1,6 @@
-<a name="plain_section"><h3><%= l.string("ENVIRONMENT_VARIABLES") %></h3></a>
+
+<div class="config-container config-env-variables">
+<a name="plain_section"><h3 class="section-title"><%= l.string("ENVIRONMENT_VARIABLES") %></h3></a>
 <span title="<%= l.string("TOOLTIP_ENVIRONMENT_VARIABLES") -%>" class="contextual_help has_go_tip_right">&nbsp;</span>
 
 <%= form_for @pipeline, :as => :pipeline, :url => pipeline_update_path(:pipeline_name => @pipeline.name(), :current_tab => 'environment_variables'), :html => {:method => :put, :id => "pipeline_edit_form"} do |f| %>
@@ -18,3 +20,4 @@
 
     <%= render :partial => "admin/shared/form_submit", :locals => {:scope => {:reset_url => pipeline_edit_path(:pipeline_name => params[:pipeline_name], :current_tab => 'environment_variables')}} %>
 <% end %>
+</div>

@@ -113,9 +113,8 @@ public class AgentService {
         return new ArrayList<>(agentInstances.getAllOperatingSystems());
     }
 
-    @Deprecated // used by old code, stop using AgentViewModel
-    public AgentsViewModel agents() {
-        return toAgentViewModels(agentInstances.allAgents());
+    AgentInstances agents() {
+        return agentInstances;
     }
 
     public Map<AgentInstance, Collection<String>> agentEnvironmentMap() {
@@ -361,14 +360,6 @@ public class AgentService {
 
     public void building(String uuid, AgentBuildingInfo agentBuildingInfo) {
         agentInstances.building(uuid, agentBuildingInfo);
-    }
-
-    public List<TriStateSelection> getResourceSelections(List<String> uuids) {
-        return TriStateSelection.forAgentsResources(goConfigService.getAllResources(), agentConfigService.findAgents(uuids));
-    }
-
-    public List<TriStateSelection> getEnvironmentSelections(List<String> uuids) {
-        return TriStateSelection.forAgentsEnvironmens(environmentConfigService.getEnvironments(), agentConfigService.findAgents(uuids));
     }
 
     public String assignCookie(AgentIdentifier identifier) {

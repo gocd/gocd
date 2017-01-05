@@ -302,7 +302,6 @@
 
                 /plugin/interact/**=IS_AUTHENTICATED_ANONYMOUSLY
 
-                /old_agents/**=ROLE_USER
                 /agents=ROLE_USER
                 /agents/*/job_run_history*=ROLE_SUPERVISOR
                 /agents/*/job_run_history/*=ROLE_SUPERVISOR

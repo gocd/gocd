@@ -22,6 +22,7 @@ import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.domain.JobState;
 import com.thoughtworks.go.util.GoConstants;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
@@ -50,5 +51,22 @@ public class StageInstanceModelTest {
         StageInstanceModel stageHistoryItem = new StageInstanceModel();
         stageHistoryItem.setApprovalType(GoConstants.APPROVAL_MANUAL);
         assertThat(stageHistoryItem.isAutoApproved(), is(false));
+    }
+
+    @Test
+    public void shouldReturnNullIfJobHistoryIsBlank() throws Exception {
+        StageInstanceModel stageHistoryItem = new StageInstanceModel();
+        stageHistoryItem.setBuildHistory(new JobHistory());
+        assertThat(stageHistoryItem.getScheduledDate(), is(nullValue()));
+    }
+
+    @Test
+    public void shouldReturnDateIfJobHistoryIsNotBlank() throws Exception {
+        StageInstanceModel stageHistoryItem = new StageInstanceModel();
+        JobHistory jobHistory = new JobHistory();
+        Date date = new Date(1367472329111L);
+        jobHistory.addJob("jobName", JobState.Building, JobResult.Passed, date);
+        stageHistoryItem.setBuildHistory(jobHistory);
+        assertThat(stageHistoryItem.getScheduledDate(), is(date));
     }
 }

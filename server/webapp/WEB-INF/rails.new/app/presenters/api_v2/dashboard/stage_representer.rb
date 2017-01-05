@@ -42,6 +42,8 @@ module ApiV2
       property :status, exec_context: :decorator
 
       property :previous_stage, embedded: false, exec_context: :decorator, decorator: StageRepresenter, skip_nil: true
+      property :getApprovedBy, as: :approved_by
+      property :scheduled_at, exec_context: :decorator
 
       def status
         stage.getState()
@@ -55,6 +57,10 @@ module ApiV2
           }
           [stage.getPreviousStage(), stage_presenter_opts]
         end
+      end
+
+      def scheduled_at
+        stage.getScheduledDate()
       end
 
       private

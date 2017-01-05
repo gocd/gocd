@@ -3027,7 +3027,7 @@ button.edit-environment {
   background: none;
   height:     auto;
   width:      auto;
-  margin:     0 0 0 5px;
+  margin:     10px 0 0 5px;
   &:before {
     color:     $icon--secondary-color;
     font-size: 16px;
@@ -3389,7 +3389,7 @@ form#package_repositories_edit_form {
 .artifact {
   span.contextual_help {
     position: relative;
-    top:      -3px;
+    top:      -13px;
   }
 }
 
@@ -3435,5 +3435,37 @@ form#package_repositories_edit_form {
 #new_pipeline_group_container {
   .form_error {
     padding: 0 7px;
+  }
+}
+
+#new_job_container {
+  .fieldset {
+    padding: 10px 0;
+  }
+  h3 {
+    margin: 0 0 20px 0;
+  }
+
+  .override_timeout.checkbox_row {
+    input {
+      float:        none;
+      margin-right: 10px;
+    }
+    label {
+      margin: 0 10px 0 0;
+    }
+    input.in_between_text {
+      margin-left: 0;
+    }
+  }
+  p.required {
+    margin-top:    -35px;
+    margin-bottom: 30px;
+  }
+  .form_item {
+    padding-bottom: 0;
+    .fieldset {
+      margin-bottom: 0;
+    }
   }
 }

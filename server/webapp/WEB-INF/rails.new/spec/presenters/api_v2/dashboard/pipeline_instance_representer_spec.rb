@@ -19,7 +19,7 @@ require 'spec_helper'
 describe ApiV2::Dashboard::PipelineInstanceRepresenter do
   include PipelineModelMother
 
-  it 'renders all pipeline instances with hal representation' do
+  it 'renders pipeline instance for pipeline that has never been executed with hal representation' do
     presenter = ApiV2::Dashboard::PipelineInstanceRepresenter.new(pipeline_instance_model_empty('p1', 's1'))
 
     actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
@@ -30,7 +30,19 @@ describe ApiV2::Dashboard::PipelineInstanceRepresenter do
     expect(actual_json).to have_link(:compare_url).with_url('http://test.host/compare/p1/-1/with/0')
     expect(actual_json).to have_link(:history_url).with_url('http://test.host/api/pipelines/p1/history')
     expect(actual_json).to have_link(:vsm_url).with_url('http://test.host/pipelines/value_stream_map/p1/0')
-
     actual_json.fetch(:_embedded)[:stages].collect { |s| s[:name] }.should == ['s1']
   end
+
+  it 'renders all pipeline instance with hal representation' do
+
+    instance = pipeline_instance_model({:name => "p1", :label => "g1", :counter => 5, :stages => [{:name => "cruise", :counter => "10", :approved_by => "Anonymous"}]})
+    date = instance.getScheduledDate()
+    presenter = ApiV2::Dashboard::PipelineInstanceRepresenter.new(instance)
+
+    actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
+    actual_json.delete(:_links)
+    actual_json.delete(:_embedded)
+    expect(actual_json).to eq({:label => "g1", :schedule_at => date, :triggered_by => "Anonymous"})
+  end
+
 end

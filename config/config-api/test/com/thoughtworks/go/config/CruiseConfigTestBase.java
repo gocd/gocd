@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,11 +25,11 @@ import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
-import com.thoughtworks.go.domain.*;
-import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
+import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.config.merge.MergePipelineConfigs;
 import com.thoughtworks.go.config.remote.*;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
@@ -49,12 +49,9 @@ import org.junit.Test;
 
 import java.util.*;
 
-import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
-import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
+import static com.thoughtworks.go.helper.PipelineConfigMother.*;
 import static org.hamcrest.Matchers.hasItem;
-import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.notNullValue;
@@ -681,58 +678,6 @@ public abstract class CruiseConfigTestBase {
         CruiseConfig cfg = createCruiseConfig();
         cfg.addPipeline("grp1", PipelineConfigMother.pipelineConfig("foo"));
         assertThat(cfg.sanitizedGroupName("gr1"), is("gr1"));
-    }
-
-    @Test
-    public void shouldRemoveUserFromRoleWhenRoleIsDeleted() {
-        CruiseConfig config = createCruiseConfig();
-        SecurityConfig securityConfig = new SecurityConfig(new LdapConfig(new GoCipher()), new PasswordFileConfig("foo"), false);
-        securityConfig.adminsConfig().add(new AdminUser(new CaseInsensitiveString("root")));
-        final Role role = goConfigMother.createRole("ldap-users", "root");
-        securityConfig.addRole(role);
-        config.server().useSecurity(securityConfig);
-
-        assertTrue(config.server().security().getRoles().isRoleExist(new CaseInsensitiveString("ldap-users")));
-        config.removeRole(role);
-        assertFalse(config.server().security().getRoles().isRoleExist(new CaseInsensitiveString("ldap-users")));
-    }
-
-    @Test
-    public void shouldDeleteAdminRolesInAllPipelineGroupWhenARoleIsDeleted() throws Exception {
-        final Role role = setupSecurityWithRole();
-
-        goConfigMother.addPipelineWithGroup(cruiseConfig, "group1", "p1", "s1", "b1");
-        goConfigMother.addPipelineWithGroup(cruiseConfig, "group2", "p2", "s2", "b2");
-        goConfigMother.addRoleAsViewerOfPipelineGroup(cruiseConfig, "ldap-users", "group1");
-        goConfigMother.addRoleAsViewerOfPipelineGroup(cruiseConfig, "ldap-users", "group2");
-
-        assertEquals(new HashSet<String>(Arrays.asList("group1", "group2")), cruiseConfig.groupsAffectedByDeletionOfRole("ldap-users").keySet());
-        cruiseConfig.removeRole(role);
-        assertEquals(new HashSet<String>(), cruiseConfig.groupsAffectedByDeletionOfRole("ldap-users").keySet());
-    }
-
-    @Test
-    public void shouldDeleteAdminRoleFromAllApprovalsWhenARoleIsDeleted() throws Exception {
-        final Role role = setupSecurityWithRole();
-        goConfigMother.addPipelineWithGroup(cruiseConfig, "group1", "p1", "s1", "b1");
-        goConfigMother.addApprovalForStage(cruiseConfig, "p1", "s1", "ldap-users");
-        assertEquals(1, cruiseConfig.stagesWithPermissionForRole(role.getName().toLower()).size());
-        cruiseConfig.removeRole(role);
-        assertEquals(0, cruiseConfig.stagesWithPermissionForRole(role.getName().toLower()).size());
-    }
-
-    @Test
-    public void shouldRemoveSystemAdminPermissionsForARoleWhenARoleIsDeleted() throws Exception {
-        String adminRoleName = "admin-role";
-        Role adminRole = new Role(new CaseInsensitiveString(adminRoleName));
-        adminRole.addUser(new RoleUser(new CaseInsensitiveString("admin")));
-        goConfigMother.addRole(cruiseConfig, adminRole);
-        goConfigMother.addRoleAsSuperAdmin(cruiseConfig, adminRoleName);
-        assertThat(cruiseConfig.doesAdminConfigContainRole(adminRoleName), is(true));
-        assertThat(cruiseConfig.server().security().getRoles().contains(adminRole), is(true));
-        cruiseConfig.removeRole(adminRole);
-        assertThat(cruiseConfig.doesAdminConfigContainRole(adminRoleName), is(false));
-        assertThat(cruiseConfig.server().security().getRoles().contains(adminRole), is(false));
     }
 
     @Test

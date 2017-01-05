@@ -26,7 +26,6 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.util.Node;
-import com.thoughtworks.go.util.Pair;
 
 import javax.annotation.PostConstruct;
 import java.util.Hashtable;
@@ -93,14 +92,6 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
     MailHost mailHost();
 
     EnvironmentsConfig getEnvironments();
-
-    Map<String, List<Authorization.PrivilegeType>> groupsAffectedByDeletionOfRole(String roleName);
-
-    Set<Pair<PipelineConfig, StageConfig>> stagesWithPermissionForRole(String roleName);
-
-    void removeRole(Role roleToDelete);
-
-    boolean doesAdminConfigContainRole(String roleToDelete);
 
     List<PipelineConfig> allPipelines();
 
@@ -171,8 +162,6 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
     List<CaseInsensitiveString> getAllPipelineNames();
 
     boolean isAdministrator(String username);
-
-    boolean doesRoleHaveAdminPrivileges(String rolename);
 
     void setEnvironments(EnvironmentsConfig environments);
 

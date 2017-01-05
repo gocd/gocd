@@ -60,18 +60,6 @@ public class CruiseConfigTest {
     }
 
     @Test
-    public void doesRoleHaveAdminPrivileges_shouldReturnTrueIfRoleIsAdmin() throws Exception {
-        CruiseConfig config = ConfigMigrator.loadWithMigration(ConfigFileFixture.CONFIG_WITH_ROLE_AS_ADMIN).config;
-        assertThat(config.doesRoleHaveAdminPrivileges("adminRole"), is(true));
-    }
-
-    @Test
-    public void doesRoleHaveAdminPrivileges_shouldReturnTrueIfNoAdminsAreDefined() throws Exception {
-        CruiseConfig config = ConfigMigrator.loadWithMigration(ConfigFileFixture.TWO_PIPELINES).config;
-        assertThat(config.doesRoleHaveAdminPrivileges("adminRole"), is(true));
-    }
-
-    @Test
     public void shouldReturnfalseIfUserIsNotAdmin() throws Exception {
         CruiseConfig config = ConfigMigrator.loadWithMigration(ConfigFileFixture.STAGE_AUTH_WITH_ADMIN_AND_AUTH).config;
         assertThat(config.isAdministrator("pavan"), is(false));

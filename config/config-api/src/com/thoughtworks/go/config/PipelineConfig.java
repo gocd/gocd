@@ -37,7 +37,6 @@ import com.thoughtworks.go.domain.label.PipelineLabel;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.service.TaskFactory;
 import com.thoughtworks.go.util.Node;
-import com.thoughtworks.go.util.Pair;
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.XmlUtils;
 import org.apache.commons.collections.CollectionUtils;
@@ -50,7 +49,6 @@ import java.util.regex.Pattern;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIf;
-import static com.thoughtworks.go.util.Pair.pair;
 import static org.apache.commons.collections.CollectionUtils.select;
 
 /**
@@ -901,16 +899,6 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         for (StageConfig stageConfig : this) {
             stageConfig.cleanupAllUsagesOfRole(roleToDelete);
         }
-    }
-
-    public Set<Pair<PipelineConfig, StageConfig>> stagesWithPermissionForRole(CaseInsensitiveString roleName) {
-        Set<Pair<PipelineConfig, StageConfig>> result = new HashSet<>();
-        for (StageConfig stageConfig : this) {
-            if (stageConfig.canBeOperatedBy(new Role(roleName))) {
-                result.add(pair(this, stageConfig));
-            }
-        }
-        return result;
     }
 
     public void templatize(CaseInsensitiveString templateName) {

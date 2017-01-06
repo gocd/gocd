@@ -31,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 import static com.thoughtworks.go.util.ArtifactLogUtil.getConsoleOutputFolderAndFileName;
 
@@ -63,7 +64,7 @@ public class ConsoleService {
 
         StringBuilder builder = new StringBuilder();
         try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
             String consoleLine;
             while (null != (consoleLine = reader.readLine())) {
                 if (lineNumber >= startingLine) {
@@ -115,8 +116,8 @@ public class ConsoleService {
         parentFile.mkdirs();
 
         LOGGER.trace("Updating console log [" + dest.getAbsolutePath() + "]");
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(dest, dest.exists()))) {
-            IOUtils.copy(in, writer);
+        try (OutputStream out = new BufferedOutputStream(new FileOutputStream(dest, dest.exists()))) {
+            IOUtils.copyLarge(in, out);
         } catch (IOException e) {
             LOGGER.error("Failed to update console log at : [" + dest.getAbsolutePath() + "]", e);
             return false;

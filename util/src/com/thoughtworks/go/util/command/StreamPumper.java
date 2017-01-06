@@ -69,17 +69,14 @@
  */
 package com.thoughtworks.go.util.command;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.LineNumberReader;
-import java.io.UnsupportedEncodingException;
-import java.util.concurrent.TimeUnit;
-
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.SystemTimeClock;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.TimeUnit;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static java.lang.String.format;
@@ -116,7 +113,7 @@ public class StreamPumper implements Runnable {
         this.lastHeard = System.currentTimeMillis();
         try {
             if ( encoding==null){
-                this.in = new LineNumberReader(new InputStreamReader(in));
+                this.in = new LineNumberReader(new InputStreamReader(in, StandardCharsets.UTF_8));
             }
             else {
                 this.in = new LineNumberReader(new InputStreamReader(in, encoding));

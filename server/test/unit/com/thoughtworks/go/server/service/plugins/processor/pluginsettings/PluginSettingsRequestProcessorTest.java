@@ -84,6 +84,14 @@ public class PluginSettingsRequestProcessorTest {
     }
 
     @Test
+    public void shouldAccept2_0AsAnAPIVersion() {
+        when(pluginDescriptor.id()).thenReturn("plugin-foo-id");
+        when(pluginSqlMapDao.findPlugin("plugin-foo-id")).thenReturn(new Plugin("plugin-foo-id", "{\"k1\": \"v1\",\"k2\": \"v2\"}"));
+        GoApiResponse response = processor.process(pluginDescriptor, new DefaultGoApiRequest(PluginSettingsRequestProcessor.GET_PLUGIN_SETTINGS, "2.0", null));
+        assertThat(response.responseCode(), is(200));
+    }
+
+    @Test
     public void shouldGetPluginSettingsForPluginThatExistsInDB() {
         when(pluginDescriptor.id()).thenReturn("plugin-foo-id");
         when(pluginSqlMapDao.findPlugin("plugin-foo-id")).thenReturn(new Plugin("plugin-foo-id", "{\"k1\": \"v1\",\"k2\": \"v2\"}"));

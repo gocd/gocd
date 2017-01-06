@@ -14,24 +14,17 @@
 # limitations under the License.
 ##########################################################################
 
-module ApiV1
-  module Elastic
-    class ProfileRepresenter < ApiV1::PluginProfileRepresenter
-      alias_method :profile, :represented
+module Admin
+  module Security
+    class AuthConfigsController < ::ApplicationController
+      include ApiV1::AuthenticationHelper
 
+      layout 'single_page_app'
+      before_action :check_admin_user_and_401
 
-      link :self do |opts|
-        opts[:url_builder].apiv1_elastic_profile_url(profile_id: profile.id) unless profile.id.blank?
+      def index
+        @view_title = 'Authorization Configuration'
       end
-
-      link :doc do |opts|
-        'https://api.gocd.io/#elastic-agent-profiles'
-      end
-
-      link :find do |opts|
-        opts[:url_builder].apiv1_elastic_profile_url(profile_id: '__profile_id__').gsub('__profile_id__', ':profile_id')
-      end
-
     end
   end
 end

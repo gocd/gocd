@@ -1,0 +1,168 @@
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+define([
+  "mithril", 'lodash', 'jquery', 'helpers/form_helper', 'models/pipeline_configs/plugin_infos',
+  'models/roles/roles', 'views/shared/angular_plugin'
+], function (m, _, $, f, PluginInfos, Roles, AngularPlugin) {
+
+  var autoComplete = function (model, attrName, authConfigs, selectCb) {
+    return function (elem, isInitialized, context) {
+      if (isInitialized) {
+        return;
+      }
+
+      var $inputElem = $($(elem).find("input[data-prop-name='" + attrName + "']"));
+      var values     = authConfigs().mapAuthConfigs(function (ac) {
+        return ac.id();
+      });
+
+      context.onunload = function () {
+        $inputElem.textcomplete('destroy');
+      };
+
+      $inputElem.textcomplete([
+        {
+          match:   /([^\s].*)$/,
+          index:   1, // use the second match in the regex to extract the search term
+          search:  function (term, callback) {
+            term = term.toLowerCase();
+            callback($.map(values, function (word) {
+              return word.toLowerCase().indexOf(term) >= 0 ? word : null;
+            }));
+          },
+          replace: function (word) {
+            return word;
+          }
+        }
+      ], {
+        zIndex: '10000'
+      });
+
+      $inputElem.on('textComplete:select', function () {
+        model()[attrName]($inputElem.val());
+        if (selectCb) {
+          selectCb($inputElem.val());
+        }
+      });
+    };
+  };
+
+  var RoleModalBody = {
+    controller: function (args) {
+      this.$scope       = m.prop();
+      var setPluginInfo = function (pluginInfo) {
+        args.pluginInfo(pluginInfo);
+        args.saveDisabled(!pluginInfo);
+      };
+
+      function getAuthConfig(role) {
+        return args.authConfigs().findAuthConfig(function (authConfig) {
+          return authConfig.id() === role().authConfigId();
+        });
+      }
+
+      function getPluginInfoFor(authConfig) {
+        if (!authConfig) {
+          return;
+        }
+
+        return _.find(PluginInfos(), function (pluginInfo) {
+          return pluginInfo.id() === authConfig.pluginId();
+        });
+      }
+
+      this.selectAuthConfigId = function () {
+        setPluginInfo(null);
+        var authConfig = getAuthConfig(args.role);
+        var pluginInfo = getPluginInfoFor(authConfig);
+
+        if (!pluginInfo) {
+          return;
+        }
+
+        PluginInfos.PluginInfo.get(pluginInfo.id()).then(function (pluginInfo) {
+          setPluginInfo(pluginInfo);
+          var newRole = new Roles.Role({name: args.role().name(), authConfigId: authConfig.id()});
+          newRole.etag(args.role().etag());
+          args.role(newRole);
+        });
+      };
+    },
+
+    view: function (ctrl, args) {
+      var roleIdDisabledMessage;
+
+      if (args.errorMessage && args.errorMessage()) {
+        return (
+          <f.alert>{args.errorMessage()}</f.alert>
+        );
+      }
+
+      if (!args.role()) {
+        return (
+          <div class="modal-spinner"/>
+        );
+      }
+
+      if (!args.newRole) {
+        roleIdDisabledMessage = (<div>Editing of role name is disabled</div>);
+      }
+
+      var settingsView = (
+        <div></div>
+      );
+
+      if (args.pluginInfo()) {
+        settingsView = (
+          <AngularPlugin settings={args.pluginInfo().roleSettings}
+                         configuration={args.role().properties}
+                         key={args.pluginInfo() ? args.pluginInfo().id() : 'no-plugin'}/>
+        );
+      }
+
+      return (
+        <div>
+          <f.row key="static-stuff" class="id-and-plugin-id-wrapper">
+            <f.inputWithLabel model={args.role()}
+                              attrName="name"
+                              validate="true"
+                              isRequired="true"
+                              disabled={!args.newRole}
+                              message={roleIdDisabledMessage}
+                              label="Name"
+                              key="role-name"/>
+            <f.inputWithLabel model={args.role()}
+                              key="auth-config-id-autocomplete"
+                              validate="true"
+                              attrName="authConfigId"
+                              isRequired="true"
+                              label="Auth config Id"
+                              onChange={ctrl.selectAuthConfigId.bind(ctrl)}
+                              config={autoComplete(args.role, 'authConfigId', args.authConfigs, ctrl.selectAuthConfigId.bind(ctrl))}
+                              end="true"/>
+          </f.row>
+
+          <div class="row collapse">
+            {settingsView}
+          </div>
+        </div>
+      );
+    }
+  };
+
+  return RoleModalBody;
+});

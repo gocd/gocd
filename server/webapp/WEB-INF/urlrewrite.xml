@@ -62,6 +62,20 @@
     </rule>
 
     <rule>
+        <name>Rails Security Auth Config UI</name>
+        <from>^/admin/security/auth_configs$</from>
+        <to last="true">/rails/admin/security/auth_configs</to>
+        <set name="rails_bound">true</set>
+    </rule>
+
+    <rule>
+        <name>Rails Security Auth Config UI</name>
+        <from>^/admin/security/roles$</from>
+        <to last="true">/rails/admin/security/roles</to>
+        <set name="rails_bound">true</set>
+    </rule>
+
+    <rule>
         <name>Rails UI</name>
         <note>
             Prepends 'rails/' to Rails urls, so that the request does not go through Java at all
@@ -98,6 +112,34 @@
         <name>Rails Profiles API</name>
         <from>^/api/elastic/profiles/(.*)$</from>
         <to last="true">/rails/api/elastic/profiles/${escape:$1}</to>
+        <set name="rails_bound">true</set>
+    </rule>
+
+    <rule>
+        <name>Rails Security Auth Configs API Index API</name>
+        <from>^/api/admin/security/auth_configs</from>
+        <to last="true">/rails/api/admin/security/auth_configs</to>
+        <set name="rails_bound">true</set>
+    </rule>
+
+    <rule>
+        <name>Rails Security Auth Configs API</name>
+        <from>^/api/admin/security/auth_configs/(.*)$</from>
+        <to last="true">/rails/api/admin/security/auth_configs/${escape:$1}</to>
+        <set name="rails_bound">true</set>
+    </rule>
+
+    <rule>
+        <name>Rails Security Roles API Index API</name>
+        <from>^/api/admin/security/roles</from>
+        <to last="true">/rails/api/admin/security/roles</to>
+        <set name="rails_bound">true</set>
+    </rule>
+
+    <rule>
+        <name>Rails Security Roles API</name>
+        <from>^/api/admin/security/roles/(.*)$</from>
+        <to last="true">/rails/api/admin/security/roles/${escape:$1}</to>
         <set name="rails_bound">true</set>
     </rule>
 

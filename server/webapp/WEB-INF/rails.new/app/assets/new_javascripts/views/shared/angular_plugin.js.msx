@@ -24,8 +24,9 @@ define(['mithril', 'lodash', 'jquery', 'angular'], function (m, _, $, angular) {
     return 'controller-' + configuration.uuid();
   };
 
-  var pluginTemplate = function (pluginInfo) {
-    return m.trust(AngularPlugin.template(pluginInfo.viewTemplate()));
+  var pluginTemplate = function (settings) {
+    if (settings.view)
+      return m.trust(AngularPlugin.template(settings.view.template));
   };
 
   function config(scope, args) {
@@ -73,11 +74,24 @@ define(['mithril', 'lodash', 'jquery', 'angular'], function (m, _, $, angular) {
             listeners.push(listener);
           }
 
-          $scope.initialize = function (pluginInfo, configurations) {
+          function validateConfigurations(configMetadata, configurations) {
+            configurations.eachConfiguration(function (property) {
+              if (property) {
+                var isInvalid = (_.findIndex(configMetadata, {'key': property.key()}) === -1);
+                if (isInvalid) {
+                  configurations.removeConfiguration(property);
+                }
+              }
+            });
+            return configurations;
+          }
+
+          $scope.initialize = function (settings, configurations) {
             unregisterExistingListeners();
             $scope.clearErrors();
+            configurations = validateConfigurations(settings.configurations, configurations);
 
-            _.map(pluginInfo.configurations(), function (config) {
+            _.map(settings.configurations, function (config) {
               $scope[config.key] = configurations.valueFor(config.key);
               addListeners(configurations, config);
               copyOverErrors(configurations, config);
@@ -92,12 +106,12 @@ define(['mithril', 'lodash', 'jquery', 'angular'], function (m, _, $, angular) {
             });
           };
 
-          $scope.initialize(args.pluginInfo(), args.configuration());
+          $scope.initialize(args.settings(), args.configuration());
         }]);
 
         angular.bootstrap(elem, [appName(args.configuration())]);
       } else {
-        scope().initialize(args.pluginInfo(), args.configuration());
+        scope().initialize(args.settings(), args.configuration());
         scope().$apply();
       }
     };
@@ -116,7 +130,7 @@ define(['mithril', 'lodash', 'jquery', 'angular'], function (m, _, $, angular) {
     },
 
     view: function (ctrl, args) {
-      if (!args.pluginInfo()) {
+      if (!args.settings()) {
         return (<div/>);
       }
 
@@ -124,7 +138,7 @@ define(['mithril', 'lodash', 'jquery', 'angular'], function (m, _, $, angular) {
         <div class='plugin-view'
              ng-controller={controllerName(args.configuration())}
              config={config(ctrl.$scope, args)}>
-          {pluginTemplate(args.pluginInfo())}
+          {pluginTemplate(args.settings())}
         </div>
       );
     }

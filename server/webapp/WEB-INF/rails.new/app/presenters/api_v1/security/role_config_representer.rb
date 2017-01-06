@@ -15,21 +15,20 @@
 ##########################################################################
 
 module ApiV1
-  module Elastic
-    class ProfileRepresenter < ApiV1::PluginProfileRepresenter
-      alias_method :profile, :represented
+  module Security
+    class RoleConfigRepresenter < RoleRepresenter
 
+      collection :users, exec_context: :decorator
 
-      link :self do |opts|
-        opts[:url_builder].apiv1_elastic_profile_url(profile_id: profile.id) unless profile.id.blank?
+      protected
+      def users
+        role.usersOfRole
       end
 
-      link :doc do |opts|
-        'https://api.gocd.io/#elastic-agent-profiles'
-      end
-
-      link :find do |opts|
-        opts[:url_builder].apiv1_elastic_profile_url(profile_id: '__profile_id__').gsub('__profile_id__', ':profile_id')
+      def users=(new_users)
+        new_users.each do |user|
+          role.addUser(RoleUser.new(user))
+        end
       end
 
     end

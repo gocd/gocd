@@ -21,7 +21,7 @@ define([
   var unwrapMessageOrEntity = function (originalEtag) {
     return function (data, xhr) {
       if (xhr.status === 422) {
-        var fromJSON = new ElasticProfiles.Profile.fromJSON(data.data);
+        var fromJSON = new AuthConfigs.AuthConfig.fromJSON(data.data);
         fromJSON.etag(originalEtag);
         return fromJSON;
       } else {
@@ -30,28 +30,28 @@ define([
     };
   };
 
-  var ElasticProfiles = function (data) {
+  var AuthConfigs = function (data) {
     Mixins.HasMany.call(this, {
-      factory:    ElasticProfiles.Profile.create,
-      as:         'Profile',
+      factory:    AuthConfigs.AuthConfig.create,
+      as:         'AuthConfig',
       collection: data,
       uniqueOn:   'id'
     });
   };
 
-  ElasticProfiles.all = function () {
+  AuthConfigs.all = function () {
     return m.request({
       method:        "GET",
-      url:           Routes.apiv1ElasticProfilesPath(),
+      url:           Routes.apiv1AdminSecurityAuthConfigsPath(),
       config:        mrequest.xhrConfig.v1,
       unwrapSuccess: function (data) {
-        return ElasticProfiles.fromJSON(data['_embedded']['profiles']);
+        return AuthConfigs.fromJSON(data['_embedded']['auth_configs']);
       },
       unwrapError:   mrequest.unwrapErrorExtractMessage
     });
   };
 
-  ElasticProfiles.Profile = function (data) {
+  AuthConfigs.AuthConfig = function (data) {
     this.id         = m.prop(s.defaultToIfBlank(data.id, ''));
     this.pluginId   = m.prop(s.defaultToIfBlank(data.pluginId, ''));
     this.properties = s.collectionToJSON(m.prop(s.defaultToIfBlank(data.properties, new PluginConfigurations())));
@@ -68,7 +68,7 @@ define([
       var self = this;
       return m.request({
         method:      'PUT',
-        url:         Routes.apiv1ElasticProfilePath(this.id()),
+        url:         Routes.apiv1AdminSecurityAuthConfigPath(this.id()),
         config:      function (xhr) {
           mrequest.xhrConfig.v1(xhr);
           xhr.setRequestHeader('If-Match', self.etag());
@@ -81,7 +81,7 @@ define([
     this.delete = function () {
       return m.request({
         method:        "DELETE",
-        url:           Routes.apiv1ElasticProfilePath(this.id()),
+        url:           Routes.apiv1AdminSecurityAuthConfigPath(this.id()),
         config:        mrequest.xhrConfig.v1,
         unwrapSuccess: function (data, xhr) {
           if (xhr.status === 200) {
@@ -95,7 +95,17 @@ define([
     this.create = function () {
       return m.request({
         method:      'POST',
-        url:         Routes.apiv1ElasticProfilesPath(),
+        url:         Routes.apiv1AdminSecurityAuthConfigsPath(),
+        config:      mrequest.xhrConfig.v1,
+        data:        JSON.parse(JSON.stringify(this, s.snakeCaser)),
+        unwrapError: unwrapMessageOrEntity()
+      });
+    };
+
+    this.verifyConnection = function () {
+      return m.request({
+        method:        "POST",
+        url:           Routes.apiv1AdminInternalVerifyConnectionPath(),
         config:      mrequest.xhrConfig.v1,
         data:        JSON.parse(JSON.stringify(this, s.snakeCaser)),
         unwrapError: unwrapMessageOrEntity()
@@ -103,13 +113,13 @@ define([
     };
   };
 
-  ElasticProfiles.Profile.get = function (id) {
+  AuthConfigs.AuthConfig.get = function (id) {
     return m.request({
       method:        'GET',
-      url:           Routes.apiv1ElasticProfilePath(id),
+      url:           Routes.apiv1AdminSecurityAuthConfigPath(id),
       config:        mrequest.xhrConfig.v1,
       unwrapSuccess: function (data, xhr) {
-        var entity = ElasticProfiles.Profile.fromJSON(data);
+        var entity = AuthConfigs.AuthConfig.fromJSON(data);
         entity.etag(xhr.getResponseHeader('ETag'));
         return entity;
       },
@@ -117,12 +127,12 @@ define([
     });
   };
 
-  ElasticProfiles.Profile.create = function (data) {
-    return new ElasticProfiles.Profile(data);
+  AuthConfigs.AuthConfig.create = function (data) {
+    return new AuthConfigs.AuthConfig(data);
   };
 
-  ElasticProfiles.Profile.fromJSON = function (data) {
-    return new ElasticProfiles.Profile({
+  AuthConfigs.AuthConfig.fromJSON = function (data) {
+    return new AuthConfigs.AuthConfig({
       id:         data.id,
       pluginId:   data.plugin_id,
       errors:     data.errors,
@@ -131,11 +141,10 @@ define([
   };
 
   Mixins.fromJSONCollection({
-    parentType: ElasticProfiles,
-    childType:  ElasticProfiles.Profile,
-    via:        'addProfile'
+    parentType: AuthConfigs,
+    childType:  AuthConfigs.AuthConfig,
+    via:        'addAuthConfig'
   });
 
-
-  return ElasticProfiles;
+  return AuthConfigs;
 });

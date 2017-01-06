@@ -61,22 +61,19 @@ task fatJar(type: Jar, dependsOn: [':agent:jar', ':agent-process-launcher:jar'])
     attributes 'Go-Agent-Bootstrap-Class': 'com.thoughtworks.go.agent.AgentProcessParentImpl'
   }
 
-  doFirst {
-    from(configurations.compile) {
-      into "lib/"
-      rename "go-plugin-activator-${project.version}.jar", "go-plugin-activator.jar"
-    }
+  from({ configurations.compile }) {
+    into "lib/"
+    rename "go-plugin-activator-${project.version}.jar", "go-plugin-activator.jar"
+  }
 
-    from(jar.archivePath) {
-      into('main/')
-    }
+  from({ jar.archivePath }) {
+    into('main/')
+  }
 
-    with(copySpec {
-      from { configurations.extractedAtTopLevel.collect { it.isDirectory() ? it : zipTree(it) } }
-      include '**/*.class'
-      exclude 'OneJar.class'
-      into("/")
-    })
+  from({ configurations.extractedAtTopLevel.collect { it.isDirectory() ? it : zipTree(it) } }) {
+    include '**/*.class'
+    exclude 'OneJar.class'
+    into("/")
   }
 
   doLast {

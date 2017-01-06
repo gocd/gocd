@@ -23,11 +23,9 @@ task agentOSXZip(type: Zip, dependsOn: [':agent-bootstrapper:fatJar']) { zipTask
 
   configureOsxZip(zipTask, packageName)
 
-  doFirst {
-    from(configurations.agentBootstrapperJar) {
-      into "Contents/Resources"
-      rename "(.*)-${project.version}.(.*)", '$1.$2'
-    }
+  from({ configurations.agentBootstrapperJar }) {
+    into "Contents/Resources"
+    rename "(.*)-${project.version}.(.*)", '$1.$2'
   }
 }
 
@@ -38,11 +36,9 @@ task serverOSXZip(type: Zip, dependsOn: [':server-launcher:fatJar']) { zipTask -
 
   configureOsxZip(zipTask, packageName)
 
-  doFirst {
-    from(configurations.serverJar) {
-      into "Contents/Resources"
-      rename "(.*)-${project.version}.(.*)", 'go.$2'
-    }
+  from({ configurations.serverJar }) {
+    into "Contents/Resources"
+    rename "(.*)-${project.version}.(.*)", 'go.$2'
   }
 }
 
@@ -61,20 +57,18 @@ private void configureOsxZip(Zip zipTask, String packageName) {
       fileMode 0755
     }
 
-    doFirst {
-      from('osx-shared/gocd.icns') {
-        into "Contents/Resources"
-        rename ".*", "${packageName}.icns"
-      }
+    from('osx-shared/gocd.icns') {
+      into "Contents/Resources"
+      rename ".*", "${packageName}.icns"
+    }
 
-      from("${packageName}/osx/Info.plist") {
-        filter ReplaceTokens, tokens: [
-            'distVersion': rootProject.distVersion ? rootProject.distVersion : '',
-            'version'    : rootProject.version.toString(),
-            'currentYear': Calendar.getInstance().get(Calendar.YEAR).toString(),
-        ]
-        into "Contents"
-      }
+    from("${packageName}/osx/Info.plist") {
+      filter ReplaceTokens, tokens: [
+        'distVersion': rootProject.distVersion ? rootProject.distVersion : '',
+        'version'    : rootProject.version.toString(),
+        'currentYear': Calendar.getInstance().get(Calendar.YEAR).toString(),
+      ]
+      into "Contents"
     }
   }
 }

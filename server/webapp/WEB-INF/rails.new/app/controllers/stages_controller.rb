@@ -160,7 +160,7 @@ class StagesController < ApplicationController
     pipeline_name = params[:pipeline_name]
     stage_identifier = StageIdentifier.new(pipeline_name, params[:pipeline_counter].to_i, params[:stage_name], params[:stage_counter])
 
-    @has_permission_to_view_settings = has_permission_to_view_settings
+    @can_user_view_settings = can_view_settings?
     pipeline_history_service.validate(pipeline_name, current_user, result = HttpOperationResult.new)
     return unless can_continue result
 
@@ -245,8 +245,9 @@ class StagesController < ApplicationController
     stage_duration_array
   end
 
-  def has_permission_to_view_settings
+  def can_view_settings?
     group_name = go_config_service.findGroupNameByPipeline(CaseInsensitiveString.new(params[:pipeline_name]))
-    !group_name.blank? && security_service.isUserAdminOfGroup(current_user.getUsername, group_name)
+    permission = !group_name.blank? && security_service.isUserAdminOfGroup(current_user.getUsername, group_name)
+    go_config_service.isPipelineEditableViaUI(params[:pipeline_name]) && permission
   end
 end

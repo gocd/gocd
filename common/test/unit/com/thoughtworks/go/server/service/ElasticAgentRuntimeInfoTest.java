@@ -19,7 +19,9 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.domain.AgentStatus;
 import com.thoughtworks.go.remote.AgentIdentifier;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.websocket.MessageEncoding;
+import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
 import static org.hamcrest.core.Is.is;
@@ -47,5 +49,22 @@ public class ElasticAgentRuntimeInfoTest {
         AgentRuntimeInfo info = new ElasticAgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, "/foo/one", null, "42", "go.cd.elastic-agent-plugin.docker");
         AgentRuntimeInfo clonedInfo = MessageEncoding.decodeData(MessageEncoding.encodeData(info), AgentRuntimeInfo.class);
         assertThat(clonedInfo, is(info));
+    }
+
+    @Test
+    public void shouldRefreshOperatingSystemOfAgent() throws Exception {
+        AgentIdentifier identifier = new AgentIdentifier("local.in", "127.0.0.1", "uuid-1");
+        AgentRuntimeInfo runtimeInfo = ElasticAgentRuntimeInfo.fromAgent(identifier, AgentRuntimeStatus.Idle, "/tmp/foo", false);
+        String os = new SystemEnvironment().getOperatingSystemCompleteName();
+        assertThat(runtimeInfo.getOperatingSystem(), is(os));
+    }
+
+    @Test
+    public void shouldRefreshUsableSpaceOfAgent() throws Exception {
+        AgentIdentifier identifier = new AgentIdentifier("local.in", "127.0.0.1", "uuid-1");
+        String workingDirectory = FileUtils.getTempDirectory().getAbsolutePath();
+        AgentRuntimeInfo runtimeInfo = ElasticAgentRuntimeInfo.fromAgent(identifier, AgentRuntimeStatus.Idle, workingDirectory, false);
+        long space = ElasticAgentRuntimeInfo.usableSpace(workingDirectory);
+        assertThat(runtimeInfo.getUsableSpace(), is(space));
     }
 }

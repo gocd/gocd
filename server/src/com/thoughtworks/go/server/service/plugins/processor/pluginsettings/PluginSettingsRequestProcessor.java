@@ -41,7 +41,7 @@ public class PluginSettingsRequestProcessor implements GoPluginApiRequestProcess
     private static final Logger LOGGER = Logger.getLogger(PluginSettingsRequestProcessor.class);
 
     public static final String GET_PLUGIN_SETTINGS = "go.processor.plugin-settings.get";
-    private static final List<String> goSupportedVersions = asList("1.0");
+    private static final List<String> goSupportedVersions = asList("1.0", "2.0");
 
     private PluginSqlMapDao pluginSqlMapDao;
     private Map<String, JsonMessageHandler> messageHandlerMap = new HashMap<>();
@@ -51,6 +51,7 @@ public class PluginSettingsRequestProcessor implements GoPluginApiRequestProcess
         this.pluginSqlMapDao = pluginSqlMapDao;
         registry.registerProcessorFor(GET_PLUGIN_SETTINGS, this);
         this.messageHandlerMap.put("1.0", new JsonMessageHandler1_0());
+        this.messageHandlerMap.put("2.0", new JsonMessageHandler1_0());
     }
 
     @Override

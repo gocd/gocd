@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
@@ -21,11 +21,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.GoConfigDao;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.Role;
-import com.thoughtworks.go.config.RoleUser;
+import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.RoleConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
@@ -549,7 +546,7 @@ public class PipelineHistoryServiceIntegrationTest {
 
     @Test public void shouldReturnNullForLatestWhenPipelineNotViewable() throws Exception {
         configHelper.addPipelineWithGroup("admin_only", "admin_pipeline", "stage", "deploy");
-        configHelper.addRole(new Role(new CaseInsensitiveString("deployers"), new RoleUser(new CaseInsensitiveString("root"))));
+        configHelper.addRole(new RoleConfig(new CaseInsensitiveString("deployers"), new RoleUser(new CaseInsensitiveString("root"))));
         configHelper.blockPipelineGroupExceptFor("admin_only", "deployers");
         assertThat(pipelineHistoryService.latest("admin_pipeline", new Username(new CaseInsensitiveString("root"))), is(not(nullValue())));
         assertThat(pipelineHistoryService.latest("admin_pipeline", new Username(new CaseInsensitiveString("someone_else"))), is(nullValue()));

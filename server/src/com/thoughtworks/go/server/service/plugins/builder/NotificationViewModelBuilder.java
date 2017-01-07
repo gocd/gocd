@@ -37,24 +37,22 @@ class NotificationViewModelBuilder implements ViewModelBuilder {
     public List<PluginInfo> allPluginInfos() {
         List<PluginInfo> pluginInfos = new ArrayList<>();
 
-        for(String pluginId : notificationPluginRegistry.getNotificationPlugins()) {
+        for (String pluginId : notificationPluginRegistry.getNotificationPlugins()) {
             GoPluginDescriptor descriptor = pluginManager.getPluginDescriptorFor(pluginId);
 
-            pluginInfos.add(new PluginInfo(pluginId, descriptor.about().name(), descriptor.about().version(),
-                    NotificationExtension.EXTENSION_NAME, null));
+            pluginInfos.add(new PluginInfo(descriptor, NotificationExtension.EXTENSION_NAME, null, null, null));
         }
         return pluginInfos;
     }
 
     @Override
     public PluginInfo pluginInfoFor(String pluginId) {
-        if(!notificationPluginRegistry.getNotificationPlugins().contains(pluginId)) {
+        if (!notificationPluginRegistry.getNotificationPlugins().contains(pluginId)) {
             return null;
         }
 
         GoPluginDescriptor descriptor = pluginManager.getPluginDescriptorFor(pluginId);
 
-        return new PluginInfo(pluginId, descriptor.about().name(), descriptor.about().version(),
-                NotificationExtension.EXTENSION_NAME, null);
+        return new PluginInfo(descriptor, NotificationExtension.EXTENSION_NAME, null, null, null);
     }
 }

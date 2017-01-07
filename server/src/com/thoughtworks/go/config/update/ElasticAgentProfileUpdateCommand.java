@@ -30,8 +30,8 @@ public class ElasticAgentProfileUpdateCommand extends ElasticAgentProfileCommand
     private final EntityHashingService hashingService;
     private final String md5;
 
-    public ElasticAgentProfileUpdateCommand(GoConfigService goConfigService, EntityHashingService hashingService, ElasticProfile newProfile, String md5, LocalizedOperationResult result, Username currentUser, ElasticAgentExtension elasticAgentExtension) {
-        super(newProfile, goConfigService, elasticAgentExtension, currentUser, result);
+    public ElasticAgentProfileUpdateCommand(GoConfigService goConfigService, ElasticProfile newProfile, ElasticAgentExtension extension, Username currentUser, LocalizedOperationResult result, EntityHashingService hashingService, String md5) {
+        super(goConfigService, newProfile, extension, currentUser, result);
         this.hashingService = hashingService;
         this.md5 = md5;
     }
@@ -39,10 +39,13 @@ public class ElasticAgentProfileUpdateCommand extends ElasticAgentProfileCommand
     @Override
     public void update(CruiseConfig preprocessedConfig) throws Exception {
         ElasticProfile existingProfile = findExistingProfile(preprocessedConfig);
+        ElasticProfiles profiles = getPluginProfiles(preprocessedConfig);
+        profiles.set(profiles.indexOf(existingProfile), profile);
+    }
 
-        ElasticProfiles profiles = preprocessedConfig.server().getElasticConfig().getProfiles();
-
-        profiles.set(profiles.indexOf(existingProfile), elasticProfile);
+    @Override
+    public boolean isValid(CruiseConfig preprocessedConfig) {
+        return isValidForCreateOrUpdate(preprocessedConfig);
     }
 
     @Override
@@ -52,11 +55,9 @@ public class ElasticAgentProfileUpdateCommand extends ElasticAgentProfileCommand
 
     private boolean isRequestFresh(CruiseConfig cruiseConfig) {
         ElasticProfile existingProfile = findExistingProfile(cruiseConfig);
-
         boolean freshRequest = hashingService.md5ForEntity(existingProfile).equals(md5);
-
         if (!freshRequest) {
-            result.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", "Elastic agent profile", existingProfile.getId()));
+            result.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", getObjectDescriptor(), existingProfile.getId()));
         }
         return freshRequest;
     }

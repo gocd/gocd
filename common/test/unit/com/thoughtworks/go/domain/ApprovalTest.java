@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,10 +16,6 @@
 
 package com.thoughtworks.go.domain;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.domain.config.Admin;
@@ -28,6 +24,10 @@ import com.thoughtworks.go.helper.StageConfigMother;
 import org.apache.commons.collections.map.SingletonMap;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.core.Is.is;
@@ -67,7 +67,7 @@ public class ApprovalTest {
     @Test
     public void shouldFailValidateWhenUsersWithoutOperatePermissionOnGroupAreAuthorizedToApproveStage_WithPipelineConfigSaveValidationContext() {
         CruiseConfig cruiseConfig = cruiseConfigWithSecurity(
-                new Role(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
+                new RoleConfig(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
                         new CaseInsensitiveString("admin")));
 
         addUserAndRoleToDefaultGroup(cruiseConfig, "user", "role");
@@ -87,7 +87,7 @@ public class ApprovalTest {
     @Test
     public void shouldPassValidateWhenNoPermissionAreSetupOnGroupAndUserIsAuthorizedToApproveStage_WithPipelineConfigSaveValidationContext() {
         CruiseConfig cruiseConfig = cruiseConfigWithSecurity(
-                new Role(new CaseInsensitiveString("role"),
+                new RoleConfig(new CaseInsensitiveString("role"),
                         new RoleUser(new CaseInsensitiveString("first")),
                         new RoleUser(new CaseInsensitiveString("second"))),
                 new AdminUser(
@@ -106,7 +106,7 @@ public class ApprovalTest {
     @Test
     public void shouldPassValidateWhenARoleIsAdminOnGroupAndThatRoleIsAuthorizedToApproveStage_WithPipelineConfigSaveValidationContext() {
         CruiseConfig cruiseConfig = cruiseConfigWithSecurity(
-                new Role(new CaseInsensitiveString("role"),
+                new RoleConfig(new CaseInsensitiveString("role"),
                         new RoleUser(new CaseInsensitiveString("first")),
                         new RoleUser(new CaseInsensitiveString("second"))),
                 new AdminUser(new CaseInsensitiveString("admin")));
@@ -183,7 +183,7 @@ public class ApprovalTest {
     @Test
     public void validate_shouldNotAllow_UserInApprovalListButNotInOperationList() {
         CruiseConfig cruiseConfig = cruiseConfigWithSecurity(
-                new Role(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
+                new RoleConfig(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
                 new CaseInsensitiveString("admin")));
 
         PipelineConfigs group = addUserAndRoleToDefaultGroup(cruiseConfig, "user", "role");
@@ -202,7 +202,7 @@ public class ApprovalTest {
     @Test
     public void validate_shouldNotAllowRoleInApprovalListButNotInOperationList() throws Exception {
         CruiseConfig cruiseConfig = cruiseConfigWithSecurity(
-                new Role(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
+                new RoleConfig(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
                 new CaseInsensitiveString("admin")));
 
         PipelineConfigs group = addUserAndRoleToDefaultGroup(cruiseConfig, "user", "role");
@@ -221,7 +221,7 @@ public class ApprovalTest {
     @Test
     public void validate_shouldAllowUserWhoseRoleHasOperatePermission() throws Exception {
         CruiseConfig cruiseConfig = cruiseConfigWithSecurity(
-                new Role(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
+                new RoleConfig(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
                         new CaseInsensitiveString("admin")));
 
         PipelineConfigs group = addUserAndRoleToDefaultGroup(cruiseConfig, "user", "role");
@@ -238,7 +238,7 @@ public class ApprovalTest {
     @Test
     public void validate_shouldAllowUserWhoIsDefinedInGroup() throws Exception {
         CruiseConfig cruiseConfig = cruiseConfigWithSecurity(
-                new Role(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
+                new RoleConfig(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
                 new CaseInsensitiveString("admin")));
 
         PipelineConfigs group = addUserAndRoleToDefaultGroup(cruiseConfig, "user", "role");
@@ -255,7 +255,7 @@ public class ApprovalTest {
     @Test
     public void validate_shouldAllowUserWhenSecurityIsNotDefinedInGroup() throws Exception {
         CruiseConfig cruiseConfig = cruiseConfigWithSecurity(
-                new Role(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
+                new RoleConfig(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
                 new CaseInsensitiveString("admin")));
 
         PipelineConfigs group = cruiseConfig.findGroup(DEFAULT_GROUP);
@@ -272,7 +272,7 @@ public class ApprovalTest {
     @Test
     public void validate_shouldAllowAdminToOperateOnAStage() throws Exception {
         CruiseConfig cruiseConfig = cruiseConfigWithSecurity(
-                new Role(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
+                new RoleConfig(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
                 new CaseInsensitiveString("admin")));
 
         PipelineConfigs group = addUserAndRoleToDefaultGroup(cruiseConfig, "user", "role");
@@ -289,7 +289,7 @@ public class ApprovalTest {
     @Test
     public void shouldShowBugWhichAllowsAUserWithoutOperatePermissionToOperateAStage() throws Exception {
         CruiseConfig cruiseConfig = cruiseConfigWithSecurity(
-                new Role(new CaseInsensitiveString("role"),
+                new RoleConfig(new CaseInsensitiveString("role"),
                         new RoleUser(new CaseInsensitiveString("first")),
                         new RoleUser(new CaseInsensitiveString("second"))),
                 new AdminUser(new CaseInsensitiveString("admin")));
@@ -312,7 +312,7 @@ public class ApprovalTest {
     @Test
     public void validate_shouldNotTryAndValidateWhenWithinTemplate() throws Exception {
         CruiseConfig cruiseConfig = cruiseConfigWithSecurity(
-                new Role(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
+                new RoleConfig(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
                 new CaseInsensitiveString("admin")));
 
         PipelineConfigs group = addUserAndRoleToDefaultGroup(cruiseConfig, "user", "role");
@@ -335,7 +335,6 @@ public class ApprovalTest {
         
         assertThat(approval.validateTree(PipelineConfigSaveValidationContext.forChain(true, "g1", cruiseConfig, pipelineConfig)), is(false));
         assertThat(approval.getAuthConfig().errors().isEmpty(), is(false));
-        assertThat(approval.getAuthConfig().errors().firstError(), is("Role \"role\" does not exist."));
     }
 
     private CruiseConfig cruiseConfigWithSecurity(Role roleDefinition, Admin admins) {

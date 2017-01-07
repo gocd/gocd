@@ -739,6 +739,7 @@
     <entry key="RESOURCE_NOT_FOUND">{0} ''{1}'' not found.</entry>
     <entry key="RESOURCE_ALREADY_EXISTS">Failed to add {0}. The {0} ''{1}'' already exists.</entry>
     <entry key="CANNOT_DELETE_RESOURCE_REFERENCED_BY_PIPELINES">Cannot delete the {0} ''{1}'' as it is used by pipeline(s): ''{2}''</entry>
+    <entry key="CANNOT_DELETE_RESOURCE_REFERENCED_BY_OTHER_RESOURCE">Cannot delete the {0} ''{1}'' as it is used by {2}(s): ''{3}''</entry>
     <entry key="VIEW">View</entry>
     <entry key="ADD_NEW_REPOSITORY">Add New Repository</entry>
     <entry key="MANDATORY_CONFIGURATION_FIELD">This field is required</entry>

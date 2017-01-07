@@ -1,26 +1,26 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.security;
 
 import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
-import com.thoughtworks.go.plugin.access.authentication.AuthenticationExtension;
-import com.thoughtworks.go.plugin.access.authentication.AuthenticationPluginRegistry;
+import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
+import com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConfigMetadataStore;
 import com.thoughtworks.go.presentation.UserSearchModel;
 import com.thoughtworks.go.presentation.UserSourceType;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -32,7 +32,7 @@ import org.mockito.Mock;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashSet;
+import java.util.HashSet;
 import java.util.List;
 
 import static org.hamcrest.core.Is.is;
@@ -46,9 +46,9 @@ public class UserSearchServiceTest {
     @Mock
     private PasswordFileUserSearch passwordFileUserSearch;
     @Mock
-    private AuthenticationPluginRegistry authenticationPluginRegistry;
+    private AuthorizationPluginConfigMetadataStore metadataStore;
     @Mock
-    private AuthenticationExtension authenticationExtension;
+    private AuthorizationExtension authorizationExtension;
     @Mock
     private GoConfigService goConfigService;
     private UserSearchService userSearchService;
@@ -59,7 +59,7 @@ public class UserSearchServiceTest {
 
         when(goConfigService.isLdapConfigured()).thenReturn(true);
 
-        userSearchService = new UserSearchService(ldapUserSearch, passwordFileUserSearch, authenticationPluginRegistry, authenticationExtension, goConfigService);
+        userSearchService = new UserSearchService(ldapUserSearch, passwordFileUserSearch, metadataStore, authorizationExtension, goConfigService);
     }
 
     @Test
@@ -80,11 +80,11 @@ public class UserSearchServiceTest {
         when(ldapUserSearch.search(searchTerm)).thenReturn(Arrays.asList(foo, bar));
 
         List<String> pluginIds = Arrays.asList("plugin-id-1", "plugin-id-2", "plugin-id-3", "plugin-id-4");
-        when(authenticationPluginRegistry.getAuthenticationPlugins()).thenReturn(new LinkedHashSet<String>(pluginIds));
-        when(authenticationExtension.searchUser("plugin-id-1", searchTerm)).thenReturn(Arrays.asList(getPluginUser(1)));
-        when(authenticationExtension.searchUser("plugin-id-2", searchTerm)).thenReturn(Arrays.asList(getPluginUser(2), getPluginUser(3)));
-        when(authenticationExtension.searchUser("plugin-id-3", searchTerm)).thenReturn(new ArrayList<com.thoughtworks.go.plugin.access.authentication.model.User>());
-        when(authenticationExtension.searchUser("plugin-id-4", searchTerm)).thenReturn(Arrays.asList(new com.thoughtworks.go.plugin.access.authentication.model.User("username-" + 4, null, null)));
+        when(metadataStore.getPluginsThatSupportsUserSearch()).thenReturn(new HashSet<>(pluginIds));
+        when(authorizationExtension.searchUsers("plugin-id-1", searchTerm)).thenReturn(Arrays.asList(getPluginUser(1)));
+        when(authorizationExtension.searchUsers("plugin-id-2", searchTerm)).thenReturn(Arrays.asList(getPluginUser(2), getPluginUser(3)));
+        when(authorizationExtension.searchUsers("plugin-id-3", searchTerm)).thenReturn(new ArrayList<com.thoughtworks.go.plugin.access.authentication.models.User>());
+        when(authorizationExtension.searchUsers("plugin-id-4", searchTerm)).thenReturn(Arrays.asList(new com.thoughtworks.go.plugin.access.authentication.models.User("username-" + 4, null, null)));
 
         List<UserSearchModel> models = userSearchService.search(searchTerm, new HttpLocalizedOperationResult());
 
@@ -193,7 +193,7 @@ public class UserSearchServiceTest {
         return new User("username-" + userId, "display-name-" + userId, "test" + userId + "@test.com");
     }
 
-    private com.thoughtworks.go.plugin.access.authentication.model.User getPluginUser(Integer userId) {
-        return new com.thoughtworks.go.plugin.access.authentication.model.User("username-" + userId, "display-name-" + userId, "test" + userId + "@test.com");
+    private com.thoughtworks.go.plugin.access.authentication.models.User getPluginUser(Integer userId) {
+        return new com.thoughtworks.go.plugin.access.authentication.models.User("username-" + userId, "display-name-" + userId, "test" + userId + "@test.com");
     }
 }

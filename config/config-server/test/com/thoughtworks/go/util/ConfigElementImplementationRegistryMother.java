@@ -19,14 +19,13 @@ package com.thoughtworks.go.util;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistrar;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.registry.NoPluginsInstalled;
-import com.thoughtworks.go.plugin.infra.PluginManager;
 
 import static org.mockito.Mockito.mock;
 
 public class ConfigElementImplementationRegistryMother {
     public static ConfigElementImplementationRegistry withNoPlugins() {
         ConfigElementImplementationRegistry registry = new ConfigElementImplementationRegistry(new NoPluginsInstalled());
-        new ConfigElementImplementationRegistrar(mock(PluginManager.class), registry).initialize();
+        new ConfigElementImplementationRegistrar(registry).initialize();
         return registry;
     }
 }

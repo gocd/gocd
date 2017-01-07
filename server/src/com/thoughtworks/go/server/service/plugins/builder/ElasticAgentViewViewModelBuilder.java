@@ -17,8 +17,6 @@
 package com.thoughtworks.go.server.service.plugins.builder;
 
 import com.thoughtworks.go.plugin.access.common.models.Image;
-import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKey;
-import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKeys;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginConstants;
 import com.thoughtworks.go.plugin.access.elastic.ElasticPluginConfigMetadataStore;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
@@ -28,23 +26,21 @@ import com.thoughtworks.go.server.ui.plugins.PluginInfo;
 import com.thoughtworks.go.server.ui.plugins.PluginView;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 class ElasticAgentViewViewModelBuilder implements ViewModelBuilder {
-    private ElasticPluginConfigMetadataStore elasticPluginConfigMetadataStore;
+    private ElasticPluginConfigMetadataStore metadataStore;
 
-    ElasticAgentViewViewModelBuilder(ElasticPluginConfigMetadataStore elasticPluginConfigMetadataStore) {
-        this.elasticPluginConfigMetadataStore = elasticPluginConfigMetadataStore;
+    ElasticAgentViewViewModelBuilder(ElasticPluginConfigMetadataStore metadataStore) {
+        this.metadataStore = metadataStore;
     }
 
     @Override
     public List<PluginInfo> allPluginInfos() {
         List<PluginInfo> pluginInfos = new ArrayList<>();
 
-        for (PluginDescriptor descriptor : elasticPluginConfigMetadataStore.getPlugins()) {
-            Image icon = elasticPluginConfigMetadataStore.getIcon(descriptor);
+        for (PluginDescriptor descriptor : metadataStore.getPlugins()) {
+            Image icon = metadataStore.getIcon(descriptor);
             pluginInfos.add(new PluginInfo(descriptor, ElasticAgentPluginConstants.EXTENSION_NAME, null, null, icon));
         }
 
@@ -53,30 +49,19 @@ class ElasticAgentViewViewModelBuilder implements ViewModelBuilder {
 
     @Override
     public PluginInfo pluginInfoFor(String pluginId) {
-        PluginDescriptor descriptor = elasticPluginConfigMetadataStore.find(pluginId);
+        PluginDescriptor descriptor = metadataStore.find(pluginId);
 
         if (descriptor == null) {
             return null;
         }
 
-        Image icon = elasticPluginConfigMetadataStore.getIcon(descriptor);
-        ArrayList<PluginConfiguration> pluginConfigurations = getPluginConfigurations(elasticPluginConfigMetadataStore.getProfileMetadata(descriptor));
+        Image icon = metadataStore.getIcon(descriptor);
 
-        PluginView pluginView = new PluginView(elasticPluginConfigMetadataStore.getProfileView(descriptor));
+        ArrayList<PluginConfiguration> pluginConfigurations = PluginConfiguration.getPluginConfigurations(metadataStore.getProfileMetadata(descriptor));
+
+        PluginView pluginView = new PluginView(metadataStore.getProfileView(descriptor));
         PluggableInstanceSettings settings = new PluggableInstanceSettings(pluginConfigurations, pluginView);
 
         return new PluginInfo(descriptor, ElasticAgentPluginConstants.EXTENSION_NAME, null, settings, icon);
-    }
-
-    private ArrayList<PluginConfiguration> getPluginConfigurations(PluginProfileMetadataKeys config) {
-        ArrayList<PluginConfiguration> pluginConfigurations = new ArrayList<>();
-        for (PluginProfileMetadataKey property : config) {
-            Map<String, Object> metaData = new HashMap<>();
-            metaData.put(REQUIRED_OPTION, property.getMetadata().isRequired());
-            metaData.put(SECURE_OPTION, property.getMetadata().isSecure());
-
-            pluginConfigurations.add(new PluginConfiguration(property.getKey(), metaData));
-        }
-        return pluginConfigurations;
     }
 }

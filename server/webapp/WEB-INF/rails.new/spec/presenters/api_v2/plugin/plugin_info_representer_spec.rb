@@ -24,7 +24,7 @@ describe ApiV2::Plugin::PluginInfoRepresenter do
     view = com.thoughtworks.go.server.ui.plugins.PluginView.new('plugin_view_template')
     settings = PluggableInstanceSettings.new([url_configuration, username_configuration], view)
 
-    plugin_info = PluginInfo.new('plugin_id', 'plugin_name', 'plugin_version', 'plugin_type', 'plugin_display_name', settings)
+    plugin_info = PluginInfo.new('plugin_id', 'plugin_name', 'plugin_version', 'plugin_type', 'plugin_display_name', settings, nil)
 
     actual_json = ApiV2::Plugin::PluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
 
@@ -59,7 +59,7 @@ describe ApiV2::Plugin::PluginInfoRepresenter do
   end
 
   it 'should render plugin_info in absence of pluggable_settings' do
-    plugin_info = PluginInfo.new('plugin_id', 'plugin_name','plugin_version', 'plugin_type', nil, nil)
+    plugin_info = PluginInfo.new('plugin_id', 'plugin_name','plugin_version', 'plugin_type', nil, nil, nil)
 
     actual_json = ApiV2::Plugin::PluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
 

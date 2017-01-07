@@ -78,7 +78,7 @@ describe ApiV1::Admin::PluginInfosController do
     end
 
     it 'should list all plugin_infos' do
-      plugin_info = PluginInfo.new('plugin_id', 'plugin_name','plugin_version', 'plugin_type', nil, nil)
+      plugin_info = PluginInfo.new('plugin_id', 'plugin_name', 'plugin_version', 'plugin_type', nil, nil, nil)
 
       @plugin_service.should_receive(:pluginInfos).with(nil).and_return([plugin_info])
 
@@ -89,7 +89,7 @@ describe ApiV1::Admin::PluginInfosController do
     end
 
     it 'should filter plugin_infos by type' do
-      plugin_info = PluginInfo.new('plugin_id', 'plugin_name', 'plugin_version', 'plugin_type', nil, nil)
+      plugin_info = PluginInfo.new('plugin_id', 'plugin_name', 'plugin_version', 'plugin_type', nil, nil, nil)
 
       @plugin_service.should_receive(:pluginInfos).with('scm').and_return([plugin_info])
 
@@ -134,7 +134,7 @@ describe ApiV1::Admin::PluginInfosController do
     end
 
     it 'should fetch a plugin_info for the given id' do
-      plugin_info = PluginInfo.new('plugin_id', 'plugin_name', 'plugin_version', 'plugin_type', nil, nil)
+      plugin_info = PluginInfo.new('plugin_id', 'plugin_name', 'plugin_version', 'plugin_type', nil, nil, nil)
 
       @plugin_service.should_receive(:pluginInfo).with('plugin_id').and_return(plugin_info)
 

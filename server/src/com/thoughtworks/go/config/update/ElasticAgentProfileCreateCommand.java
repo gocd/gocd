@@ -24,12 +24,18 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
 public class ElasticAgentProfileCreateCommand extends ElasticAgentProfileCommand {
-    public ElasticAgentProfileCreateCommand(ElasticProfile elasticProfile, GoConfigService goConfigService, ElasticAgentExtension elasticAgentExtension, Username currentUser, LocalizedOperationResult result) {
-        super(elasticProfile, goConfigService, elasticAgentExtension, currentUser, result);
+
+    public ElasticAgentProfileCreateCommand(GoConfigService goConfigService, ElasticProfile elasticProfile, ElasticAgentExtension extension, Username currentUser, LocalizedOperationResult result) {
+        super(goConfigService, elasticProfile, extension, currentUser, result);
     }
 
     @Override
     public void update(CruiseConfig preprocessedConfig) throws Exception {
-        preprocessedConfig.server().getElasticConfig().getProfiles().add(elasticProfile);
+        getPluginProfiles(preprocessedConfig).add(profile);
+    }
+
+    @Override
+    public boolean isValid(CruiseConfig preprocessedConfig) {
+        return isValidForCreateOrUpdate(preprocessedConfig);
     }
 }

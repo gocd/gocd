@@ -1,22 +1,20 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
-
-import java.util.ArrayList;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.PipelineGroupVisitor;
@@ -27,10 +25,10 @@ import org.jmock.integration.junit4.JMock;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
+
+import java.util.ArrayList;
+
+import static org.mockito.Mockito.*;
 
 @RunWith(JMock.class)
 public class SecurityFilterTest {
@@ -71,7 +69,7 @@ public class SecurityFilterTest {
         final PipelineConfigs group = new BasicPipelineConfigs("group1", new Authorization(new AdminsConfig(new AdminUser(new CaseInsensitiveString("anyone")))), PipelineConfigMother.pipelineConfig("pipeline1"));
 
         when(securityService.hasViewPermissionForGroup("anyone", "group1")).thenReturn(true);
-        when(goConfigService.rolesForUser(new CaseInsensitiveString("anyone"))).thenReturn(new ArrayList<Role>());
+        when(goConfigService.rolesForUser(new CaseInsensitiveString("anyone"))).thenReturn(new ArrayList<>());
         securityFilter.visit(group);
         verify(pipelineGroupVisitor).visit(group);
     }

@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.authentication;
 
-import com.thoughtworks.go.plugin.access.authentication.model.AuthenticationPluginConfiguration;
+import com.thoughtworks.go.plugin.access.authentication.models.AuthenticationPluginConfiguration;
 import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.infra.PluginChangeListener;
 import com.thoughtworks.go.plugin.infra.PluginManager;

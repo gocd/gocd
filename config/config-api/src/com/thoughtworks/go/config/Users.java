@@ -19,12 +19,23 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 
+import java.util.Collection;
+
 @ConfigTag("users")
 @ConfigCollection(RoleUser.class)
 public class Users extends BaseCollection<RoleUser> implements Validatable {
     private final ConfigErrors configErrors = new ConfigErrors();
 
     static Users users(RoleUser... users) {
+        Users usersList = new Users();
+        for (RoleUser user : users) {
+            usersList.add(user);
+        }
+        return usersList;
+    }
+
+
+    static Users users(Collection<RoleUser> users) {
         Users usersList = new Users();
         for (RoleUser user : users) {
             usersList.add(user);

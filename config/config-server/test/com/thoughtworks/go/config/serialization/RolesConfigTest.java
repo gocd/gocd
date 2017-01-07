@@ -24,12 +24,14 @@ import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 public class RolesConfigTest {
     CruiseConfig config;
+
     @Before
     public void setUp() throws Exception {
         config = new MagicalGoConfigXmlLoader(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()).loadConfigHolder(
@@ -63,12 +65,8 @@ public class RolesConfigTest {
 
     @Test
     public void shouldNotSupportRoleWithTheMultipleUsersThatAreTheSame() throws Exception {
-        try {
-            addRole(role("test_role", user("chris"), user("chris")));
-            fail("User already exists");
-        } catch (Exception expected) {
-            assertThat(expected.getMessage(), is("User 'chris' already exists in 'test_role'."));
-        }
+        Role role = role("test_role", user("chris"), user("chris"), user("bob"), user("john"));
+        assertThat(role.getUsers(), hasSize(3));
     }
 
     private RoleUser user(String name) {
@@ -76,6 +74,6 @@ public class RolesConfigTest {
     }
 
     private Role role(String name, RoleUser... users) {
-        return new Role(new CaseInsensitiveString(name), users);
+        return new RoleConfig(new CaseInsensitiveString(name), users);
     }
 }

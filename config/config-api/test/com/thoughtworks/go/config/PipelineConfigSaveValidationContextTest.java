@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,8 +32,6 @@ import org.hamcrest.MatcherAssert;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.Arrays;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -148,7 +146,7 @@ public class PipelineConfigSaveValidationContextTest {
     public void shouldGetServerSecurityContext() {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         SecurityConfig securityConfig = new SecurityConfig();
-        securityConfig.addRole(new Role(new CaseInsensitiveString("admin")));
+        securityConfig.addRole(new RoleConfig(new CaseInsensitiveString("admin")));
         securityConfig.adminsConfig().add(new AdminUser(new CaseInsensitiveString("super-admin")));
         cruiseConfig.server().useSecurity(securityConfig);
         PipelineConfigSaveValidationContext context = PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig);

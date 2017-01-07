@@ -31,6 +31,7 @@ import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.dao.PluginSqlMapDao;
 import com.thoughtworks.go.server.domain.PluginSettings;
 import com.thoughtworks.go.server.service.plugins.builder.PluginInfoBuilder;
@@ -41,20 +42,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class PluginServiceTest {
@@ -264,7 +257,8 @@ public class PluginServiceTest {
 
     @Test
     public void shouldFetchPluginInfoForTheSpecifiedId() {
-        PluginInfo pluginInfo = new PluginInfo("id", "name", "ver", "type", null, null);
+        GoPluginDescriptor.About about = new GoPluginDescriptor.About("asdfasdf", "1.0", null, null, null, null);
+        PluginInfo pluginInfo = new PluginInfo(new GoPluginDescriptor("github.pr", "1.0", about, null, null, false), null, null, null, null);
         when(builder.pluginInfoFor("github.pr")).thenReturn(pluginInfo);
 
         assertThat(pluginService.pluginInfo("github.pr"), is(pluginInfo));

@@ -20,7 +20,7 @@ import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.ElasticProfileNotFoundException;
+import com.thoughtworks.go.server.service.PluginProfileNotFoundException;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -52,8 +52,8 @@ public class ElasticAgentProfileUpdateCommandTest {
     @Test
     public void shouldRaiseErrorWhenUpdatingNonExistentProfile() throws Exception {
         cruiseConfig.server().getElasticConfig().getProfiles().clear();
-        ElasticAgentProfileUpdateCommand command = new ElasticAgentProfileUpdateCommand(null, null, new ElasticProfile("foo", "docker"), null, new HttpLocalizedOperationResult(), null, null);
-        thrown.expect(ElasticProfileNotFoundException.class);
+        ElasticAgentProfileUpdateCommand command = new ElasticAgentProfileUpdateCommand(null, new ElasticProfile("foo", "docker"), null, null, new HttpLocalizedOperationResult(), null, null);
+        thrown.expect(PluginProfileNotFoundException.class);
         command.update(cruiseConfig);
     }
 
@@ -63,24 +63,9 @@ public class ElasticAgentProfileUpdateCommandTest {
         ElasticProfile newProfile = new ElasticProfile("foo", "aws");
 
         cruiseConfig.server().getElasticConfig().getProfiles().add(oldProfile);
-        ElasticAgentProfileUpdateCommand command = new ElasticAgentProfileUpdateCommand(null, null, newProfile, null, null, null, null);
+        ElasticAgentProfileUpdateCommand command = new ElasticAgentProfileUpdateCommand(null, newProfile, null, null, null, null, null);
         command.update(cruiseConfig);
         assertThat(cruiseConfig.server().getElasticConfig().getProfiles().find("foo"), is(equalTo(newProfile)));
-    }
-
-    @Test
-    public void shouldNotContinueWithConfigSaveIfUserIsUnauthorized() {
-        when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
-
-        ElasticProfile oldProfile = new ElasticProfile("foo", "docker");
-        ElasticProfile newProfile = new ElasticProfile("foo", "aws");
-
-        cruiseConfig.server().getElasticConfig().getProfiles().add(oldProfile);
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        ElasticAgentProfileUpdateCommand command = new ElasticAgentProfileUpdateCommand(goConfigService, null, newProfile, null, result, currentUser, null);
-
-        assertThat(command.canContinue(cruiseConfig), is(false));
-        assertThat(result.toString(), containsString("UNAUTHORIZED_TO_EDIT"));
     }
 
     @Test
@@ -97,7 +82,7 @@ public class ElasticAgentProfileUpdateCommandTest {
         when(entityHashingService.md5ForEntity(oldProfile)).thenReturn("md5");
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        ElasticAgentProfileUpdateCommand command = new ElasticAgentProfileUpdateCommand(goConfigService, entityHashingService, newProfile, "bad-md5", result, currentUser, null);
+        ElasticAgentProfileUpdateCommand command = new ElasticAgentProfileUpdateCommand(goConfigService, newProfile, null, currentUser, result, entityHashingService, "bad-md5");
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result.toString(), containsString("STALE_RESOURCE_CONFIG"));

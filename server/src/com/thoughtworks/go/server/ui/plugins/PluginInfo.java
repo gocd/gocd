@@ -27,11 +27,9 @@ public class PluginInfo {
     private final String displayName;
     private final PluggableInstanceSettings pluggableInstanceSettings;
     private final Image image;
+    private PluggableInstanceSettings roleSettings;
 
-    public PluginInfo(String id, String name, String version, String type, String displayName, PluggableInstanceSettings settings) {
-        this(id, name, version, type, displayName, settings, null);
-    }
-
+    @Deprecated // used in tests
     public PluginInfo(String id, String name, String version, String type, String displayName, PluggableInstanceSettings settings, Image image) {
         this.id = id;
         this.name = name;
@@ -46,12 +44,13 @@ public class PluginInfo {
         this(descriptor, type, displayName, settings, null);
     }
 
-    public PluginInfo(String id, String name, String version, String type, String displayName) {
-        this(id, name, version, type, displayName, null, null);
-    }
-
     public PluginInfo(PluginDescriptor descriptor, String type, String displayName, PluggableInstanceSettings settings, Image icon) {
         this(descriptor.id(), descriptor.about().name(), descriptor.about().version(), type, displayName, settings, icon);
+    }
+
+    public PluginInfo(PluginDescriptor descriptor, String type, String displayName, PluggableInstanceSettings settings, PluggableInstanceSettings roleSettings, Image icon) {
+        this(descriptor.id(), descriptor.about().name(), descriptor.about().version(), type, displayName, settings, icon);
+        this.roleSettings = roleSettings;
     }
 
     public String getId() {
@@ -74,13 +73,16 @@ public class PluginInfo {
         return pluggableInstanceSettings;
     }
 
-
     public Image getImage() {
         return image;
     }
 
     public String getDisplayName() {
         return displayName;
+    }
+
+    public PluggableInstanceSettings getRoleSettings() {
+        return roleSettings;
     }
 
     @Override
@@ -97,7 +99,8 @@ public class PluginInfo {
         if (displayName != null ? !displayName.equals(that.displayName) : that.displayName != null) return false;
         if (pluggableInstanceSettings != null ? !pluggableInstanceSettings.equals(that.pluggableInstanceSettings) : that.pluggableInstanceSettings != null)
             return false;
-        return image != null ? image.equals(that.image) : that.image == null;
+        if (image != null ? !image.equals(that.image) : that.image != null) return false;
+        return roleSettings != null ? roleSettings.equals(that.roleSettings) : that.roleSettings == null;
     }
 
     @Override
@@ -109,6 +112,7 @@ public class PluginInfo {
         result = 31 * result + (displayName != null ? displayName.hashCode() : 0);
         result = 31 * result + (pluggableInstanceSettings != null ? pluggableInstanceSettings.hashCode() : 0);
         result = 31 * result + (image != null ? image.hashCode() : 0);
+        result = 31 * result + (roleSettings != null ? roleSettings.hashCode() : 0);
         return result;
     }
 }

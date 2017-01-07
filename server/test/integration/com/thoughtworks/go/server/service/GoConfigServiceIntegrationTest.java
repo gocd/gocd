@@ -744,7 +744,7 @@ public class GoConfigServiceIntegrationTest {
     public void shouldNotThrowUpOnConfigSaveWhenIndependentChangesAreMade_ViaMergeFlow() throws Exception {
         // Priming current configuration to add lines simulating the license section before removal
         for (int i = 0; i < 10; i++) {
-            configHelper.addRole(new Role(new CaseInsensitiveString("admin_role_" + i), new RoleUser(new CaseInsensitiveString("admin_user_" + i))));
+            configHelper.addRole(new RoleConfig(new CaseInsensitiveString("admin_role_" + i), new RoleUser(new CaseInsensitiveString("admin_user_" + i))));
         }
 
         // User 1 loads page
@@ -756,7 +756,7 @@ public class GoConfigServiceIntegrationTest {
         CruiseConfig user2SeeingConfig = configHelper.load();
 
         // User 1 edits old config to make an independent change
-        new GoConfigMother().addRole(user1SeeingConfig, new Role(new CaseInsensitiveString("admin_role"), new RoleUser(new CaseInsensitiveString("admin_user"))));
+        new GoConfigMother().addRole(user1SeeingConfig, new RoleConfig(new CaseInsensitiveString("admin_role"), new RoleUser(new CaseInsensitiveString("admin_user"))));
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         configHelper.getXml(user1SeeingConfig, os);
 

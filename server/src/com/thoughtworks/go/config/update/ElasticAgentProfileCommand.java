@@ -16,105 +16,38 @@
 
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfiles;
-import com.thoughtworks.go.domain.config.ConfigurationProperty;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
-import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.ElasticProfileNotFoundException;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 
-import static com.thoughtworks.go.util.StringUtil.isBlank;
+import java.util.Map;
 
-abstract class ElasticAgentProfileCommand implements EntityConfigUpdateCommand<ElasticProfile> {
+abstract class ElasticAgentProfileCommand extends PluginProfileCommand<ElasticProfile, ElasticProfiles> {
 
-    protected ElasticProfile preprocessedElasticProfile;
-    protected final ElasticProfile elasticProfile;
-    protected final GoConfigService goConfigService;
-    private final ElasticAgentExtension elasticAgentExtension;
-    protected final Username currentUser;
-    protected final LocalizedOperationResult result;
+    private final ElasticAgentExtension extension;
 
-    public ElasticAgentProfileCommand(ElasticProfile elasticProfile, GoConfigService goConfigService, ElasticAgentExtension elasticAgentExtension, Username currentUser, LocalizedOperationResult result) {
-        this.elasticProfile = elasticProfile;
-        this.goConfigService = goConfigService;
-        this.elasticAgentExtension = elasticAgentExtension;
-        this.currentUser = currentUser;
-        this.result = result;
+    public ElasticAgentProfileCommand(GoConfigService goConfigService, ElasticProfile elasticProfile, ElasticAgentExtension extension, Username currentUser, LocalizedOperationResult result) {
+        super(goConfigService, elasticProfile, currentUser, result);
+        this.extension = extension;
     }
 
     @Override
-    public void clearErrors() {
-        BasicCruiseConfig.clearErrors(elasticProfile);
+    protected ElasticProfiles getPluginProfiles(CruiseConfig preprocessedConfig) {
+        return preprocessedConfig.server().getElasticConfig().getProfiles();
     }
 
     @Override
-    public ElasticProfile getPreprocessedEntityConfig() {
-        return preprocessedElasticProfile;
+    protected ValidationResult validateUsingExtension(String pluginId, Map<String, String> configuration) {
+        return extension.validate(pluginId, configuration);
     }
 
     @Override
-    public boolean canContinue(CruiseConfig cruiseConfig) {
-        return isAuthorized();
-    }
-
-    @Override
-    public boolean isValid(CruiseConfig preprocessedConfig) {
-        preprocessedElasticProfile = findExistingProfile(preprocessedConfig);
-        preprocessedElasticProfile.validate(null);
-        ValidationResult result = elasticAgentExtension.validate(preprocessedElasticProfile.getPluginId(), elasticProfile.getConfigurationAsMap(true));
-        if (!result.isSuccessful()) {
-            for (ValidationError validationError : result.getErrors()) {
-                ConfigurationProperty property = preprocessedElasticProfile.getProperty(validationError.getKey());
-                if (property == null) {
-                    elasticProfile.addNewConfiguration(validationError.getKey(), false);
-                    preprocessedElasticProfile.addNewConfiguration(validationError.getKey(), false);
-                    property = preprocessedElasticProfile.getProperty(validationError.getKey());
-                }
-                property.addError(validationError.getKey(), validationError.getMessage());
-            }
-        }
-        if (preprocessedElasticProfile.errors().isEmpty()) {
-            ElasticProfiles profiles = preprocessedConfig.server().getElasticConfig().getProfiles();
-            profiles.validate(null);
-            BasicCruiseConfig.copyErrors(preprocessedElasticProfile, elasticProfile);
-            return preprocessedElasticProfile.getAllErrors().isEmpty() && elasticProfile.errors().isEmpty();
-        }
-
-        BasicCruiseConfig.copyErrors(preprocessedElasticProfile, elasticProfile);
-        return false;
-    }
-
-    protected boolean isAuthorized() {
-        if (!(goConfigService.isUserAdmin(currentUser) || goConfigService.isGroupAdministrator(currentUser.getUsername()))) {
-            result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
-            return false;
-        }
-        return true;
-    }
-
-    protected ElasticProfile findExistingProfile(CruiseConfig cruiseConfig) {
-        if (elasticProfile == null || isBlank(elasticProfile.getId())) {
-            if (elasticProfile != null) {
-                elasticProfile.addError("id", "Elastic profile cannot have a blank id.");
-            }
-            result.unprocessableEntity(LocalizedMessage.string("ENTITY_ATTRIBUTE_NULL", "elastic agent profile", "id"));
-            throw new IllegalArgumentException("Elastic profile id cannot be null.");
-        } else {
-            ElasticProfile profile = cruiseConfig.server().getElasticConfig().getProfiles().find(elasticProfile.getId());
-            if (profile == null) {
-                result.notFound(LocalizedMessage.string("RESOURCE_NOT_FOUND", "profile", elasticProfile.getId()), HealthStateType.notFound());
-                throw new ElasticProfileNotFoundException();
-            }
-            return profile;
-        }
+    protected String getObjectDescriptor() {
+        return "Elastic agent profile";
     }
 }

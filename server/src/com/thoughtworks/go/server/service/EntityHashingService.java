@@ -55,6 +55,7 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         goConfigService.register(new PackageRepositoryChangeListener());
         goConfigService.register(new ElasticAgentProfileConfigListener());
         goConfigService.register(new PackageListener());
+        goConfigService.register(new SecurityAuthConfigListener());
     }
 
     @Override
@@ -88,6 +89,11 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
     }
 
     public String md5ForEntity(ElasticProfile config) {
+        String cacheKey = cacheKey(config, config.getId());
+        return getFromCache(config, cacheKey);
+    }
+
+    public String md5ForEntity(SecurityAuthConfig config) {
         String cacheKey = cacheKey(config, config.getId());
         return getFromCache(config, cacheKey);
     }
@@ -185,6 +191,13 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         @Override
         public void onEntityConfigChange(PackageDefinition entity) {
             removeFromCache(entity, entity.getId());
+        }
+    }
+
+    class SecurityAuthConfigListener extends EntityConfigChangedListener<SecurityAuthConfig> {
+        @Override
+        public void onEntityConfigChange(SecurityAuthConfig profile) {
+            removeFromCache(profile, profile.getId());
         }
     }
 }

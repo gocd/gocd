@@ -18,6 +18,8 @@ package com.thoughtworks.go.server.service.plugins.builder;
 
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationExtension;
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationPluginRegistry;
+import com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConfigMetadataStore;
+import com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConstants;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginConstants;
 import com.thoughtworks.go.plugin.access.elastic.ElasticPluginConfigMetadataStore;
 import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
@@ -45,6 +47,7 @@ public class PluginInfoBuilder {
     public PluginInfoBuilder(AuthenticationPluginRegistry authenticationPluginRegistry,
                              NotificationPluginRegistry notificationPluginRegistry,
                              ElasticPluginConfigMetadataStore elasticPluginConfigMetadataStore,
+                             AuthorizationPluginConfigMetadataStore authorizationPluginConfigMetadataStore,
                              PluginManager pluginManager) {
         pluginExtensionToBuilder.put(AuthenticationExtension.EXTENSION_NAME, new AuthenticationViewModelBuilder(pluginManager, authenticationPluginRegistry));
         pluginExtensionToBuilder.put(NotificationExtension.EXTENSION_NAME, new NotificationViewModelBuilder(pluginManager, notificationPluginRegistry));
@@ -52,6 +55,7 @@ public class PluginInfoBuilder {
         pluginExtensionToBuilder.put(JsonBasedTaskExtension.TASK_EXTENSION, new PluggableTaskViewModelBuilder(pluginManager));
         pluginExtensionToBuilder.put(SCMExtension.EXTENSION_NAME, new SCMViewModelBuilder(pluginManager));
         pluginExtensionToBuilder.put(ElasticAgentPluginConstants.EXTENSION_NAME, new ElasticAgentViewViewModelBuilder(elasticPluginConfigMetadataStore));
+        pluginExtensionToBuilder.put(AuthorizationPluginConstants.EXTENSION_NAME, new AuthorizationViewModelBuilder(authorizationPluginConfigMetadataStore));
     }
 
     public List<PluginInfo> allPluginInfos(String type) {

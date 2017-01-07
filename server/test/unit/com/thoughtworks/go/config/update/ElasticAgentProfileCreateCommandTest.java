@@ -26,9 +26,12 @@ import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.PluginProfileNotFoundException;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.Matchers;
 
 import java.util.Map;
@@ -42,18 +45,20 @@ import static org.mockito.Mockito.when;
 
 public class ElasticAgentProfileCreateCommandTest {
 
-    private ElasticAgentExtension elasticAgentExtension;
+    private ElasticAgentExtension extension;
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     @Before
     public void setUp() throws Exception {
-        elasticAgentExtension = mock(ElasticAgentExtension.class);
+        extension = mock(ElasticAgentExtension.class);
     }
 
     @Test
     public void shouldAddElasticProfile() throws Exception {
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
         ElasticProfile elasticProfile = new ElasticProfile("foo", "docker");
-        ElasticAgentProfileCreateCommand command = new ElasticAgentProfileCreateCommand(elasticProfile, null, elasticAgentExtension, null, null);
+        ElasticAgentProfileCreateCommand command = new ElasticAgentProfileCreateCommand(null, elasticProfile, extension, null, null);
         command.update(cruiseConfig);
 
         assertThat(cruiseConfig.server().getElasticConfig().getProfiles().find("foo"), equalTo(elasticProfile));
@@ -63,12 +68,15 @@ public class ElasticAgentProfileCreateCommandTest {
     public void shouldInvokePluginValidationsBeforeSave() throws Exception {
         ValidationResult validationResult = new ValidationResult();
         validationResult.addError(new ValidationError("key", "error"));
-        when(elasticAgentExtension.validate(eq("aws"), Matchers.<Map<String,String>>any())).thenReturn(validationResult);
+        when(extension.validate(eq("aws"), Matchers.<Map<String, String>>any())).thenReturn(validationResult);
         ElasticProfile newProfile = new ElasticProfile("foo", "aws", new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("val")));
-        ElasticAgentProfileCreateCommand command = new ElasticAgentProfileCreateCommand(newProfile, mock(GoConfigService.class), elasticAgentExtension, null, new HttpLocalizedOperationResult());
+        PluginProfileCommand command = new ElasticAgentProfileCreateCommand(mock(GoConfigService.class), newProfile, extension, null, new HttpLocalizedOperationResult());
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
-        command.update(cruiseConfig);
+
+        thrown.expect(PluginProfileNotFoundException.class);
+        thrown.expectMessage("Elastic agent profile `foo` does not exist.");
         command.isValid(cruiseConfig);
+        command.update(cruiseConfig);
         assertThat(newProfile.first().errors().size(), is(1));
         assertThat(newProfile.first().errors().asString(), is("error"));
     }

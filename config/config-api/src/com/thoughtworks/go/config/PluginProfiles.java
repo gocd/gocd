@@ -19,10 +19,7 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public abstract class PluginProfiles<T extends PluginProfile> extends BaseCollection<T> implements Validatable {
     private final ConfigErrors errors = new ConfigErrors();
@@ -44,6 +41,26 @@ public abstract class PluginProfiles<T extends PluginProfile> extends BaseCollec
                 return profile;
             }
         }
+        return null;
+    }
+
+    public List<T> findByPluginId(String pluginId) {
+        List<T> list = new ArrayList<>();
+        for (T profile : this) {
+            if (profile.getPluginId().equals(pluginId)) {
+                list.add(profile);
+            }
+        }
+        return list;
+    }
+
+    public T findByPluginIdAndProfileId(String pluginId, String profileId) {
+        for (T profile : this) {
+            if (profile.getPluginId().equals(pluginId) && profile.getId().equals(profileId)) {
+                return profile;
+            }
+        }
+
         return null;
     }
 

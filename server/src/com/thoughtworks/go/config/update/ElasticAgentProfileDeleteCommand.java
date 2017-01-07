@@ -23,8 +23,8 @@ import com.thoughtworks.go.domain.JobConfigIdentifier;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.ElasticProfileNotFoundException;
 import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.PluginProfileNotFoundException;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import org.apache.commons.lang.StringUtils;
 
@@ -33,25 +33,27 @@ import java.util.List;
 
 public class ElasticAgentProfileDeleteCommand extends ElasticAgentProfileCommand {
 
-    public ElasticAgentProfileDeleteCommand(ElasticProfile elasticProfile, GoConfigService goConfigService, Username currentUser, LocalizedOperationResult result, ElasticAgentExtension elasticAgentExtension) {
-        super(elasticProfile, goConfigService, elasticAgentExtension, currentUser, result);
+    public ElasticAgentProfileDeleteCommand(GoConfigService goConfigService, ElasticProfile elasticProfile, ElasticAgentExtension extension, Username currentUser, LocalizedOperationResult result) {
+        super(goConfigService, elasticProfile, extension, currentUser, result);
     }
 
     @Override
     public void update(CruiseConfig preprocessedConfig) throws Exception {
-        preprocessedElasticProfile = findExistingProfile(preprocessedConfig);
-
-        if (preprocessedElasticProfile == null) {
-            throw new ElasticProfileNotFoundException();
+        preprocessedProfile = findExistingProfile(preprocessedConfig);
+        if (preprocessedProfile == null) {
+            throw new PluginProfileNotFoundException();
         }
-
-        preprocessedConfig.server().getElasticConfig().getProfiles().remove(preprocessedElasticProfile);
+        getPluginProfiles(preprocessedConfig).remove(preprocessedProfile);
     }
 
     @Override
     public boolean isValid(CruiseConfig preprocessedConfig) {
-        List<PipelineConfig> allPipelineConfigs = preprocessedConfig.getAllPipelineConfigs();
+        return isValidForDelete(preprocessedConfig);
+    }
 
+
+    private boolean isValidForDelete(CruiseConfig preprocessedConfig) {
+        List<PipelineConfig> allPipelineConfigs = preprocessedConfig.getAllPipelineConfigs();
         List<JobConfigIdentifier> usedByPipelines = new ArrayList<>();
 
         for (PipelineConfig pipelineConfig : allPipelineConfigs) {
@@ -59,8 +61,8 @@ public class ElasticAgentProfileDeleteCommand extends ElasticAgentProfileCommand
         }
 
         if (!usedByPipelines.isEmpty()) {
-            result.unprocessableEntity(LocalizedMessage.string("CANNOT_DELETE_RESOURCE_REFERENCED_BY_PIPELINES", "elastic agent profile", elasticProfile.getId(), usedByPipelines));
-            throw new GoConfigInvalidException(preprocessedConfig, String.format("The elastic agent profile '%s' is being referenced by pipeline(s): %s.", elasticProfile.getId(), StringUtils.join(usedByPipelines, ", ")));
+            result.unprocessableEntity(LocalizedMessage.string("CANNOT_DELETE_RESOURCE_REFERENCED_BY_PIPELINES", getObjectDescriptor().toLowerCase(), profile.getId(), usedByPipelines));
+            throw new GoConfigInvalidException(preprocessedConfig, String.format("The %s '%s' is being referenced by pipeline(s): %s.", getObjectDescriptor().toLowerCase(), profile.getId(), StringUtils.join(usedByPipelines, ", ")));
         }
         return true;
     }
@@ -69,7 +71,7 @@ public class ElasticAgentProfileDeleteCommand extends ElasticAgentProfileCommand
         for (StageConfig stage : pipelineConfig) {
             JobConfigs jobs = stage.getJobs();
             for (JobConfig job : jobs) {
-                String id = elasticProfile.getId();
+                String id = profile.getId();
                 if (id.equals(job.getElasticProfileId())) {
                     usedByPipelines.add(new JobConfigIdentifier(pipelineConfig.name(), stage.name(), job.name()));
                 }

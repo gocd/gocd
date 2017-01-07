@@ -63,11 +63,10 @@ public class PluginProfileMetadataKeys implements Iterable<PluginProfileMetadata
     }
 
     public PluginProfileMetadataKey get(String key) {
-        return keys.stream().filter(new Predicate<PluginProfileMetadataKey>() {
-            @Override
-            public boolean test(PluginProfileMetadataKey k) {
-                return k.getKey().equals(key);
-            }
-        }).findFirst().orElse(null);
+        for (PluginProfileMetadataKey pluginProfileMetadataKey : keys) {
+            if (key.equals(pluginProfileMetadataKey.getKey()))
+                return pluginProfileMetadataKey;
+        }
+        return null;
     }
 }

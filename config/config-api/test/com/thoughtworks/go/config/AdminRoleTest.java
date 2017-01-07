@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -70,7 +70,7 @@ public class AdminRoleTest {
         AdminRole role = new AdminRole(new CaseInsensitiveString("role2"));
         PipelineConfigs pipelinesConfig = new BasicPipelineConfigs(new Authorization(new ViewConfig(role)));
         CruiseConfig config = new BasicCruiseConfig(pipelinesConfig);
-        config.server().security().addRole(new Role(new CaseInsensitiveString("role2")));
+        config.server().security().addRole(new RoleConfig(new CaseInsensitiveString("role2")));
         role.validate(ConfigSaveValidationContext.forChain(config));
         assertThat(role.errors().isEmpty(), is(true));
 
@@ -82,7 +82,7 @@ public class AdminRoleTest {
         StageConfig stage = StageConfigMother.custom("ft", new AuthConfig(role));
         PipelineConfigs pipelineConfigs = new BasicPipelineConfigs(new PipelineConfig(new CaseInsensitiveString("pipeline"), new MaterialConfigs(), stage));
         CruiseConfig config = new BasicCruiseConfig(pipelineConfigs);
-        config.server().security().addRole(new Role(new CaseInsensitiveString("role1")));
+        config.server().security().addRole(new RoleConfig(new CaseInsensitiveString("role1")));
         role.validate(ConfigSaveValidationContext.forChain(config));
         assertThat(role.errors().isEmpty(), is(true));
     }
@@ -94,7 +94,7 @@ public class AdminRoleTest {
         );
         PipelineConfigs pipelinesConfig = new BasicPipelineConfigs("group", new Authorization(), new PipelineConfig(new CaseInsensitiveString("pipeline"), new MaterialConfigs(), stage));
         CruiseConfig config = new BasicCruiseConfig(pipelinesConfig);
-        config.server().security().addRole(new Role(new CaseInsensitiveString("role1")));
+        config.server().security().addRole(new RoleConfig(new CaseInsensitiveString("role1")));
         pipelinesConfig.validate(ConfigSaveValidationContext.forChain(config));
         assertThat(pipelinesConfig.errors().isEmpty(), is(true));
     }
@@ -115,7 +115,7 @@ public class AdminRoleTest {
         AdminRole role = new AdminRole(new CaseInsensitiveString("shilpaIsHere"));
         PipelineConfigs pipelineConfigs = new BasicPipelineConfigs(new Authorization(new AdminsConfig(role)));
         CruiseConfig config = new BasicCruiseConfig(pipelineConfigs);
-        config.server().security().addRole(new Role(new CaseInsensitiveString("shilpaIsHere")));
+        config.server().security().addRole(new RoleConfig(new CaseInsensitiveString("shilpaIsHere")));
         role.validate(ConfigSaveValidationContext.forChain(config));
         assertThat(role.errors().isEmpty(), is(true));
     }

@@ -18,7 +18,7 @@
 <xsd:schema elementFormDefault="qualified" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
     <xsd:annotation>
         <xsd:documentation xml:lang="en">
-            Configuration schema for Go. Copyright (c) 2013 ThoughtWorks, Inc.
+            Configuration schema for Go. Copyright (c) 2016 ThoughtWorks, Inc.
             www.thoughtworks.com. All rights reserved.
         </xsd:documentation>
     </xsd:annotation>
@@ -77,7 +77,7 @@
                     </xsd:unique>
                 </xsd:element>
             </xsd:sequence>
-            <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="87"/>
+            <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="88"/>
         </xsd:complexType>
         <xsd:unique name="uniquePipelines">
             <xsd:selector xpath="pipelines"/>
@@ -189,13 +189,14 @@
         <xsd:all>
             <xsd:element minOccurs="0" maxOccurs="1" name="ldap" type="ldapType"/>
             <xsd:element minOccurs="0" maxOccurs="1" name="passwordFile" type="passwordfileType"/>
-            <xsd:element minOccurs="0" maxOccurs="1" name="roles" type="rolesType">
-                <xsd:unique name="uniqueRole">
-                    <xsd:selector xpath="role"/>
-                    <xsd:field xpath="@name"/>
-                    <!-- Unique role name -->
+            <xsd:element minOccurs="0" maxOccurs="1" name="authConfigs" type="authConfigsType">
+                <xsd:unique name="uniqueAuthConfig">
+                    <xsd:selector xpath="authConfig"/>
+                    <xsd:field xpath="@id"/>
+                    <!-- Unique auth config id -->
                 </xsd:unique>
             </xsd:element>
+            <xsd:element minOccurs="0" name="roles" type="rolesType"/>
             <xsd:element minOccurs="0" maxOccurs="1" name="admins" type="adminType">
                 <xsd:unique name="uniqueUserInAdmins">
                     <xsd:selector xpath="user"/>
@@ -222,24 +223,33 @@
     </xsd:complexType>
     <xsd:complexType name="serverElasticConfigType">
         <xsd:sequence>
-            <xsd:element name="profiles" type="elasticAgentProfilesType" minOccurs="0" maxOccurs="1"/>
+            <xsd:element name="profiles" type="elasticAgentProfilesType" minOccurs="0" maxOccurs="1">
+                <xsd:unique name="uniqueProfileId">
+                    <xsd:selector xpath="profile"/>
+                    <xsd:field xpath="@id"/>
+                    <!-- Unique profile id -->
+                </xsd:unique>
+            </xsd:element>
         </xsd:sequence>
         <xsd:attribute name="jobStarvationTimeout" type="xsd:long"/>
     </xsd:complexType>
     <xsd:complexType name="elasticAgentProfilesType">
         <xsd:sequence>
-            <xsd:element minOccurs="0" maxOccurs="unbounded" name="profile" type="elasticAgentProfileType"/>
+            <xsd:element minOccurs="0" maxOccurs="unbounded" name="profile" type="pluginProfile"/>
         </xsd:sequence>
     </xsd:complexType>
-
-    <xsd:complexType name="elasticAgentProfileType">
+    <xsd:complexType name="authConfigsType">
+        <xsd:sequence>
+            <xsd:element minOccurs="0" maxOccurs="unbounded" name="authConfig" type="pluginProfile"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="pluginProfile">
         <xsd:sequence>
             <xsd:element name="property" minOccurs="0" maxOccurs="unbounded" type="pluginPropertyType"/>
         </xsd:sequence>
         <xsd:attribute type="nameType" name="pluginId" use="required"/>
         <xsd:attribute type="nameType" name="id" use="required"/>
     </xsd:complexType>
-
     <xsd:simpleType name="emailType">
         <xsd:restriction base="xsd:string">
             <xsd:pattern value=".*@.*"/>
@@ -247,27 +257,52 @@
     </xsd:simpleType>
     <xsd:complexType name="rolesType">
         <xsd:sequence>
-            <xsd:element minOccurs="1" maxOccurs="unbounded" name="role">
-                <xsd:complexType>
-                    <xsd:sequence>
-                        <xsd:element minOccurs="0" maxOccurs="1" name="users">
-                            <xsd:complexType>
-                                <xsd:sequence>
-                                    <xsd:element minOccurs="0" maxOccurs="unbounded" name="user">
-                                        <xsd:simpleType>
-                                            <xsd:restriction base="xsd:string">
-                                                <xsd:minLength value="1"/>
-                                            </xsd:restriction>
-                                        </xsd:simpleType>
-                                    </xsd:element>
-                                </xsd:sequence>
-                            </xsd:complexType>
-                        </xsd:element>
-                    </xsd:sequence>
-                    <xsd:attribute name="name" type="nameType" use="required"/>
-                </xsd:complexType>
-            </xsd:element>
+            <xsd:element minOccurs="1" maxOccurs="unbounded" ref="baseRole"/>
         </xsd:sequence>
+    </xsd:complexType>
+    <xsd:element abstract="true" name="baseRole" type="baseRoleType"/>
+    <xsd:element name="pluginRole" substitutionGroup="baseRole" type="pluginRoleType" />
+    <xsd:element name="role" substitutionGroup="baseRole" type="roleType">
+        <xsd:unique name="uniqueRole">
+            <xsd:selector xpath="role"/>
+            <xsd:field xpath="@name"/>
+            <!-- Unique role name -->
+        </xsd:unique>
+    </xsd:element>
+    <xsd:complexType name="baseRoleType" abstract="true"/>
+    <xsd:complexType name="pluginRoleType">
+        <xsd:complexContent mixed="false">
+            <xsd:extension base="baseRoleType">
+                <xsd:sequence>
+                    <xsd:element name="property" minOccurs="0" maxOccurs="unbounded" type="pluginPropertyType"/>
+                </xsd:sequence>
+                <xsd:attribute name="name" type="nameType" use="required"/>
+                <xsd:attribute name="pluginId" type="nameType" use="required"/>
+                <xsd:attribute name="authConfigId" type="nameType" use="required"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <xsd:complexType name="roleType">
+        <xsd:complexContent mixed="false">
+            <xsd:extension base="baseRoleType">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" maxOccurs="1" name="users">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element minOccurs="0" maxOccurs="unbounded" name="user">
+                                    <xsd:simpleType>
+                                        <xsd:restriction base="xsd:string">
+                                            <xsd:minLength value="1"/>
+                                        </xsd:restriction>
+                                    </xsd:simpleType>
+                                </xsd:element>
+                            </xsd:sequence>
+                        </xsd:complexType>
+                    </xsd:element>
+                </xsd:sequence>
+                <xsd:attribute name="name" type="nameType" use="required"/>
+            </xsd:extension>
+        </xsd:complexContent>
     </xsd:complexType>
     <xsd:complexType name="adminType">
         <xsd:choice minOccurs="0" maxOccurs="unbounded">
@@ -992,3 +1027,4 @@
         <xsd:attribute name="secure" type="xsd:boolean"/>
     </xsd:complexType>
 </xsd:schema>
+

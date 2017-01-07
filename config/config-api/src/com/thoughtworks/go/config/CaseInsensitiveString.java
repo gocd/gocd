@@ -16,9 +16,12 @@
 
 package com.thoughtworks.go.config;
 
-import java.io.Serializable;
-
+import com.thoughtworks.go.util.ListUtil;
 import org.apache.commons.lang.StringUtils;
+
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
 
 @ConfigAttributeValue(fieldName = "name", createForNull = false)
 public class CaseInsensitiveString implements Comparable<CaseInsensitiveString>, Serializable {
@@ -89,5 +92,18 @@ public class CaseInsensitiveString implements Comparable<CaseInsensitiveString>,
 
     public static String str(CaseInsensitiveString str) {
         return str == null ? null : str.name;
+    }
+
+    public static List<CaseInsensitiveString> caseInsensitiveStrings(List<String> roles) {
+        return ListUtil.map(roles, new ListUtil.Transformer<String, CaseInsensitiveString>() {
+            @Override
+            public CaseInsensitiveString transform(String obj) {
+                return new CaseInsensitiveString(obj);
+            }
+        });
+    }
+
+    public static List<CaseInsensitiveString> caseInsensitiveStrings(String... roles) {
+        return caseInsensitiveStrings(Arrays.asList(roles));
     }
 }

@@ -301,9 +301,11 @@ Go::Application.routes.draw do
       delete 'agents', action: :bulk_destroy, controller: 'agents'
 
       namespace :admin do
-        resources :templates, param: :template_name, except: [:new, :edit], constraints: {template_name: TEMPLATE_NAME_FORMAT}
+        resources :templates, param: :template_name, except: [:new, :edit], constraints: {template_name: TEMPLATE_NAME_FORMAT} do
+          patch on: :member, action: :update_stage_config
+        end
       end
-      
+
       match '*url', via: :all, to: 'errors#not_found'
     end
   end

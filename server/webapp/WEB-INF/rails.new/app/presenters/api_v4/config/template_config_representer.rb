@@ -17,6 +17,7 @@
 module ApiV4
   module Config
     class TemplateConfigRepresenter < ApiV4::BaseRepresenter
+
       alias_method :template, :represented
 
       error_representer
@@ -37,20 +38,7 @@ module ApiV4
       property :errors, exec_context: :decorator, decorator: ApiV4::Config::ErrorRepresenter, skip_parse: true, skip_render: lambda { |object, options| object.empty? }
       property :name, case_insensitive_string: true
       property :authorization, decorator: ApiV4::Config::AuthorizationRepresenter, class: Authorization
-      collection :stages,
-                 exec_context: :decorator,
-                 decorator:    ApiV4::Config::StageRepresenter,
-                 expect_hash:  true,
-                 class:        com.thoughtworks.go.config.StageConfig
-
-      def stages
-        template.getStages() unless template.getStages().isEmpty
-      end
-
-      def stages=(value)
-        template.getStages().clear()
-        value.each { |stage| template.addStageWithoutValidityAssertion(stage) }
-      end
+      include ApiV4::Config::TemplateStagesRepresenterHelper
     end
   end
 end

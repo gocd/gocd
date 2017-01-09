@@ -443,11 +443,10 @@ describe Admin::PipelinesController do
       controller.stub(:current_user_entity_id).and_return(current_user_entity_id)
 
       selected_pipeline_id = "456"
-      controller.stub(:cookies).and_return(cookiejar={:selected_pipelines => selected_pipeline_id})
 
       @go_config_service.should_receive(:getCurrentConfig).twice.and_return(Cloner.new().deepClone(@cruise_config))
       @pipeline_pause_service.should_receive(:pause).with("new-pip", "Under construction", @user)
-      @go_config_service.should_receive(:updateUserPipelineSelections).with(selected_pipeline_id, current_user_entity_id, CaseInsensitiveString.new(pipeline_name))
+      @go_config_service.should_receive(:updateUserPipelineSelections).with(current_user_entity_id, CaseInsensitiveString.new(pipeline_name))
 
       stub_save_for_success
       post :create, :config_md5 => "1234abcd", :pipeline_group => {:group => "new-group", :pipeline => {:name => pipeline_name}}
@@ -774,9 +773,8 @@ describe Admin::PipelinesController do
         controller.stub(:current_user_entity_id).and_return(current_user_entity_id)
 
         selected_pipeline_id = "456"
-        controller.stub(:cookies).and_return(cookiejar={:selected_pipelines => selected_pipeline_id})
 
-        expect(@go_config_service).to receive(:updateUserPipelineSelections).with(selected_pipeline_id, current_user_entity_id, CaseInsensitiveString.new("new-pip"))
+        expect(@go_config_service).to receive(:updateUserPipelineSelections).with(current_user_entity_id, CaseInsensitiveString.new("new-pip"))
 
         post :save_clone, :config_md5 => "1234abcd", :pipeline_group => {:group => "group1", :pipeline => {:name => "new-pip"}}, :pipeline_name => @pipeline.name().to_s
       end

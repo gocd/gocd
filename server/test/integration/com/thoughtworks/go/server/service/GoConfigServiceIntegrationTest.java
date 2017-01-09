@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,6 +48,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 
 import static javax.servlet.http.HttpServletResponse.SC_CONFLICT;
 import static org.hamcrest.Matchers.containsString;
@@ -787,6 +788,15 @@ public class GoConfigServiceIntegrationTest {
         GoConfigValidity validity = saver.saveXml(os.toString(), user2SeeingMd5);
 
         assertThat(validity.isValid(), is(true));
+    }
+
+    @Test
+    public void shouldUpdateExistingPipelineSelectionsForAnonymousUserIfItAlreadyExistsInsteadOfAddingDuplicates() {
+        long firstSaveId = goConfigService.persistSelectedPipelines(null, Arrays.asList("pipeline1", "pipeline2"), false);
+        long secondSaveId = goConfigService.persistSelectedPipelines(null, Arrays.asList("pipeline1"), false);
+
+        assertThat(firstSaveId, is(secondSaveId));
+        assertThat(goConfigService.getSelectedPipelines(null).getSelections(), is("pipeline1"));
     }
 
     private void setJobTimeoutTo(final String jobTimeout) {

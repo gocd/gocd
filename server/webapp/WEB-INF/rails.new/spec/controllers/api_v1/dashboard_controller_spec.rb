@@ -31,7 +31,7 @@ describe ApiV1::DashboardController do
   describe :dashboard do
     it 'should get dashboard json' do
       @pipeline_group_models.add(PipelineGroupModel.new("bla"))
-      @go_config_service.should_receive(:getSelectedPipelines).with(@selected_pipeline_id, @user_id).and_return(selections=PipelineSelections.new)
+      @go_config_service.should_receive(:getSelectedPipelines).with(@user_id).and_return(selections=PipelineSelections.new)
       @pipeline_history_service.should_receive(:allActivePipelineInstances).with(@user, selections).and_return(@pipeline_group_models)
 
       get_with_api_header :dashboard
@@ -40,7 +40,7 @@ describe ApiV1::DashboardController do
     end
 
     it 'should get empty json when dashboard is empty' do
-      @go_config_service.should_receive(:getSelectedPipelines).with(@selected_pipeline_id, @user_id).and_return(selections=PipelineSelections.new)
+      @go_config_service.should_receive(:getSelectedPipelines).with(@user_id).and_return(selections=PipelineSelections.new)
       @pipeline_history_service.should_receive(:allActivePipelineInstances).with(@user, selections).and_return(@pipeline_group_models)
 
       get_with_api_header :dashboard

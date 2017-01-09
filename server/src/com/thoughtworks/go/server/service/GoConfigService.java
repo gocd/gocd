@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -788,16 +788,16 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return new PipelineConfigDependencyGraph(currentPipeline, graphs.toArray(new PipelineConfigDependencyGraph[0]));
     }
 
-    public PipelineSelections getSelectedPipelines(String id, Long userId) {
-        PipelineSelections pipelineSelections = getPersistedPipelineSelections(id, userId);
+    public PipelineSelections getSelectedPipelines(Long userId) {
+        PipelineSelections pipelineSelections = getPersistedPipelineSelections(userId);
         if (pipelineSelections == null) {
             pipelineSelections = PipelineSelections.ALL;
         }
         return pipelineSelections;
     }
 
-    public long persistSelectedPipelines(String id, Long userId, List<String> selectedPipelines, boolean isBlacklist) {
-        PipelineSelections pipelineSelections = findOrCreateCurrentPipelineSelectionsFor(id, userId);
+    public long persistSelectedPipelines(Long userId, List<String> selectedPipelines, boolean isBlacklist) {
+        PipelineSelections pipelineSelections = findOrCreateCurrentPipelineSelectionsFor(userId);
 
         if (isBlacklist) {
             List<String> unselectedPipelines = invertSelections(selectedPipelines);
@@ -809,10 +809,10 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return pipelineRepository.saveSelectedPipelines(pipelineSelections);
     }
 
-    private PipelineSelections findOrCreateCurrentPipelineSelectionsFor(String id, Long userId) {
-        PipelineSelections pipelineSelections = isSecurityEnabled() ? pipelineRepository.findPipelineSelectionsByUserId(userId) : pipelineRepository.findPipelineSelectionsById(id);
+    private PipelineSelections findOrCreateCurrentPipelineSelectionsFor(Long userId) {
+        PipelineSelections pipelineSelections = pipelineRepository.findPipelineSelectionsByUserId(userId);
         if (pipelineSelections == null) {
-            pipelineSelections = new PipelineSelections(new ArrayList<String>(), clock.currentTime(), userId, true);
+            pipelineSelections = new PipelineSelections(new ArrayList<>(), clock.currentTime(), userId, true);
         }
         return pipelineSelections;
     }
@@ -829,15 +829,8 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return unselectedPipelines;
     }
 
-    private PipelineSelections getPersistedPipelineSelections(String id, Long userId) {
-        PipelineSelections pipelineSelections = null;
-        if (isSecurityEnabled()) {
-            pipelineSelections = pipelineRepository.findPipelineSelectionsByUserId(userId);
-        }
-        if (pipelineSelections == null) {
-            pipelineSelections = pipelineRepository.findPipelineSelectionsById(id);
-        }
-        return pipelineSelections;
+    private PipelineSelections getPersistedPipelineSelections(Long userId) {
+        return pipelineRepository.findPipelineSelectionsByUserId(userId);
     }
 
     public List<Role> rolesForUser(final CaseInsensitiveString user) {
@@ -987,8 +980,8 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return getCurrentConfig().getTemplates().canViewAndEditTemplate(username.getUsername());
     }
 
-    public void updateUserPipelineSelections(String id, Long userId, CaseInsensitiveString pipelineToAdd) {
-        PipelineSelections currentSelections = findOrCreateCurrentPipelineSelectionsFor(id, userId);
+    public void updateUserPipelineSelections(Long userId, CaseInsensitiveString pipelineToAdd) {
+        PipelineSelections currentSelections = findOrCreateCurrentPipelineSelectionsFor(userId);
         if (!currentSelections.isBlacklist()) {
             currentSelections.addPipelineToSelections(pipelineToAdd);
             pipelineRepository.saveSelectedPipelines(currentSelections);

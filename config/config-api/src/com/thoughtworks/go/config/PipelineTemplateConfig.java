@@ -24,6 +24,7 @@ import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
 import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
+import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.domain.config.Admin;
 
 import java.util.HashMap;
@@ -66,6 +67,47 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
 
     public CaseInsensitiveString name() {
         return name;
+    }
+
+    public void validateTree(ValidationContext validationContext, CruiseConfig preprocessedConfig, boolean isTemplateBeingCreated) {
+        validate(validationContext);
+        if (!isTemplateBeingCreated) {
+            validateParamsAndFetchTasks(preprocessedConfig);
+        }
+    }
+
+    private void validateParamsAndFetchTasks(CruiseConfig preprocessedConfig) {
+        List<CaseInsensitiveString> pipelineNames = preprocessedConfig.pipelinesAssociatedWithTemplate(this.name());
+        ParamsConfig paramsConfig = this.referredParams();
+        for (CaseInsensitiveString pipelineName : pipelineNames) {
+            PipelineConfig pipelineConfig = preprocessedConfig.getPipelineConfigByName(pipelineName);
+            validateParams(pipelineConfig, paramsConfig);
+            validateFetchTasks(preprocessedConfig, pipelineConfig);
+        }
+    }
+
+    private void validateFetchTasks(CruiseConfig preprocessedConfig, PipelineConfig pipelineConfig) {
+        PipelineConfigSaveValidationContext contextForStages = PipelineConfigSaveValidationContext.forChain(false, "", preprocessedConfig, pipelineConfig);
+        for (StageConfig stageConfig : pipelineConfig.getStages()) {
+            PipelineConfigSaveValidationContext contextForJobs = contextForStages.withParent(stageConfig);
+            for (JobConfig jobConfig : stageConfig.getJobs()) {
+                PipelineConfigSaveValidationContext contextForTasks = contextForJobs.withParent(jobConfig);
+                for (Task task : jobConfig.getTasks()) {
+                    if (task instanceof FetchTask) {
+                        task.validate(contextForTasks);
+                        this.errors().addAll(task.errors());
+                    }
+                }
+            }
+        }
+    }
+
+    private void validateParams(PipelineConfig pipelineConfig, ParamsConfig paramsConfig) {
+        for (ParamConfig paramConfig : paramsConfig) {
+            if (!pipelineConfig.getParams().hasParamNamed(paramConfig.getName())) {
+                this.addError("params", String.format("The param '%s' is not defined in pipeline '%s'", paramConfig.getName(), pipelineConfig.getName()));
+            }
+        }
     }
 
     public void validate(ValidationContext validationContext) {

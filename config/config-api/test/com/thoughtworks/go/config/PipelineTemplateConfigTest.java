@@ -16,11 +16,10 @@
 
 package com.thoughtworks.go.config;
 
+import java.util.Arrays;
 import java.util.Map;
 
-import com.thoughtworks.go.helper.GoConfigMother;
-import com.thoughtworks.go.helper.PipelineTemplateConfigMother;
-import com.thoughtworks.go.helper.StageConfigMother;
+import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.util.DataStructureUtils;
 import org.hamcrest.Matchers;
 import org.junit.Test;
@@ -146,6 +145,37 @@ public class PipelineTemplateConfigTest {
         assertThat(params, hasItem(new ParamConfig("baz", null)));
         params = template.referredParams();//should not mutate
         assertThat(params.size(), is(3));
+    }
+
+    @Test
+    public void shouldValidateWhetherTheReferredParamsAreDefinedInPipelinesUsingTheTemplate() {
+        PipelineTemplateConfig templateWithParams = PipelineTemplateConfigMother.createTemplateWithParams("template", "param1", "param2");
+        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfigWithTemplate("pipeline", "template");
+        BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
+        cruiseConfig.addTemplate(templateWithParams);
+        cruiseConfig.addPipelineWithoutValidation("group", pipelineConfig);
+
+        templateWithParams.validateTree(ConfigSaveValidationContext.forChain(cruiseConfig), cruiseConfig, false);
+
+        assertThat(templateWithParams.errors().getAllOn("params"), is(Arrays.asList("The param 'param1' is not defined in pipeline 'pipeline'", "The param 'param2' is not defined in pipeline 'pipeline'")));
+    }
+
+    @Test
+    public void shouldValidateFetchTasksOfATemplateInTheContextOfPipelinesUsingTheTemplate() throws Exception {
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("defaultJob"));
+        jobConfig.addTask(new FetchTask(new CaseInsensitiveString("non-existent-pipeline"), new CaseInsensitiveString("stage"), new CaseInsensitiveString("job"), "src", "dest"));
+        JobConfigs jobConfigs = new JobConfigs(jobConfig);
+        StageConfig stageConfig = StageConfigMother.custom("stage", jobConfigs);
+        PipelineTemplateConfig template = PipelineTemplateConfigMother.createTemplate("template", stageConfig);
+        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfigWithTemplate("pipeline", "template");
+        pipelineConfig.usingTemplate(template);
+        BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
+        cruiseConfig.addTemplate(template);
+        cruiseConfig.addPipelineWithoutValidation("group", pipelineConfig);
+
+        template.validateTree(ConfigSaveValidationContext.forChain(cruiseConfig), cruiseConfig, false);
+
+        assertThat(template.errors().getAllOn("pipeline"), is(Arrays.asList("\"pipeline :: stage :: defaultJob\" tries to fetch artifact from pipeline \"non-existent-pipeline\" which does not exist.")));
     }
 
     @Test

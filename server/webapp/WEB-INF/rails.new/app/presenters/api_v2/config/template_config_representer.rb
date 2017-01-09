@@ -22,7 +22,7 @@ module ApiV2
       error_representer
 
       link :self do |opts|
-        opts[:url_builder].apiv2_admin_template_url(template_name: template.name.to_s) unless template.name.blank?
+        opts[:url_builder].apiv2_admin_template_url(template_name: template.name.to_s) unless template.name.blank? || !template.errors().isEmpty()
       end
 
       link :doc do |opts|

@@ -47,6 +47,11 @@ public class UpdateTemplateConfigCommand extends TemplateConfigCommand{
     }
 
     @Override
+    public boolean isValid(CruiseConfig preprocessedConfig) {
+        return super.isValid(preprocessedConfig, false);
+    }
+
+    @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
         return isUserAuthorized() && isRequestFresh(cruiseConfig);
     }

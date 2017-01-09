@@ -200,7 +200,7 @@ public class TemplatesConfigTest {
     }
 
     private Role getSecurityConfigRole(CaseInsensitiveString templateAdmin) {
-        return new Role(new CaseInsensitiveString("role1"), new RoleUser(templateAdmin));
+        return new RoleConfig(new CaseInsensitiveString("role1"), new RoleUser(templateAdmin));
     }
 
     private List<Role> setupRoles(Role securityConfigRole) {

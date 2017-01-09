@@ -42,11 +42,11 @@ public abstract class TemplateConfigCommand implements EntityConfigUpdateCommand
         this.goConfigService = goConfigService;
     }
 
-    @Override
-    public boolean isValid(CruiseConfig preprocessedConfig) {
+
+    protected boolean isValid(CruiseConfig preprocessedConfig, boolean isTemplateBeingCreated) {
         TemplatesConfig templatesConfig = preprocessedConfig.getTemplates();
         preprocessedTemplateConfig = findAddedTemplate(preprocessedConfig);
-        preprocessedTemplateConfig.validate(ConfigSaveValidationContext.forChain(templatesConfig));
+        preprocessedTemplateConfig.validateTree(ConfigSaveValidationContext.forChain(preprocessedConfig, templatesConfig), preprocessedConfig, isTemplateBeingCreated);
         if(preprocessedTemplateConfig.getAllErrors().isEmpty()) {
             templatesConfig.validate(null);
             BasicCruiseConfig.copyErrors(preprocessedTemplateConfig, templateConfig);

@@ -36,4 +36,9 @@ public class CreateTemplateConfigCommand extends TemplateConfigCommand {
         modifiedConfig.addTemplate(templateConfig);
     }
 
+    @Override
+    public boolean isValid(CruiseConfig preprocessedConfig) {
+        return super.isValid(preprocessedConfig, true);
+    }
+
 }

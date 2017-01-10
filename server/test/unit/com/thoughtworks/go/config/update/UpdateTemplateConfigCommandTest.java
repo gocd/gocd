@@ -16,9 +16,7 @@
 
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.BasicCruiseConfig;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.PipelineTemplateConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.server.domain.Username;
@@ -50,6 +48,7 @@ public class UpdateTemplateConfigCommandTest {
     private Username currentUser;
     private BasicCruiseConfig cruiseConfig;
     private PipelineTemplateConfig pipelineTemplateConfig;
+    private Authorization authorization;
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -61,6 +60,8 @@ public class UpdateTemplateConfigCommandTest {
         cruiseConfig = new GoConfigMother().defaultCruiseConfig();
         result = new HttpLocalizedOperationResult();
         pipelineTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"));
+        authorization = new Authorization(new AdminsConfig(new AdminUser(new CaseInsensitiveString("user"))));
+        pipelineTemplateConfig.setAuthorization(authorization);
     }
 
     @Test
@@ -81,6 +82,18 @@ public class UpdateTemplateConfigCommandTest {
 
         thrown.expectMessage("The template with name 'template' is not found.");
         command.update(cruiseConfig);
+    }
+
+    @Test
+    public void shouldCopyOverAuthorizationAsIsWhileUpdatingTemplateStageConfig() throws Exception {
+        PipelineTemplateConfig updatedTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage2"));;
+        cruiseConfig.addTemplate(pipelineTemplateConfig);
+
+        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(updatedTemplateConfig, currentUser, goConfigService, result, "md5", entityHashingService);
+        command.update(cruiseConfig);
+        assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(false));
+        assertThat(cruiseConfig.getTemplates().contains(updatedTemplateConfig), is(true));
+        assertThat(cruiseConfig.getTemplateByName(updatedTemplateConfig.name()).getAuthorization(), is(authorization));
     }
 
     @Test

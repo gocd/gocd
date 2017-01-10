@@ -16,23 +16,18 @@
 
 package com.thoughtworks.go.util;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 
 public final class StringUtil {
     private static final int DEFAULT_BUFFER_SIZE = 1024 * 4;
@@ -56,15 +51,10 @@ public final class StringUtil {
         return content.replaceAll("\\s+", "");
     }
 
-    public static String base64Encode(byte[] bytes) {
-        Base64 base64 = new Base64();
-        return stripLineSeparator(base64.encodeToString(bytes));
-    }
-
     public static String md5Digest(byte[] bytes) {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
-            return base64Encode(md.digest(bytes));
+            return Base64.getEncoder().encodeToString(md.digest(bytes));
         } catch (NoSuchAlgorithmException nsae) {
             throw ExceptionUtils.bomb(nsae);
         }
@@ -73,7 +63,7 @@ public final class StringUtil {
     public static String sha1Digest(byte[] bytes) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA1");
-            return base64Encode(md.digest(bytes));
+            return Base64.getEncoder().encodeToString(md.digest(bytes));
         } catch (NoSuchAlgorithmException nsae) {
             throw ExceptionUtils.bomb(nsae);
         }
@@ -89,7 +79,7 @@ public final class StringUtil {
             while (-1 != (n = input.read(buffer))) {
                 digest.update(buffer, 0, n);
             }
-            return base64Encode(digest.digest());
+            return Base64.getEncoder().encodeToString(digest.digest());
         } catch (Exception nsae) {
             throw ExceptionUtils.bomb(nsae);
         } finally {

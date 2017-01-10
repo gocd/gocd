@@ -25,6 +25,7 @@ import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Base64;
 
 public class FileDigester {
     private final InputStream input;
@@ -59,7 +60,7 @@ public class FileDigester {
         if (md == null) {
             throw new IllegalStateException("You must call copy() to copy the file before trying to obtain the digest");
         }
-        return StringUtil.base64Encode(md.digest());
+        return Base64.getEncoder().encodeToString(md.digest());
     }
 
     public static String md5DigestOfFile(File file) throws IOException {

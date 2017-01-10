@@ -17,16 +17,15 @@
 
 package com.thoughtworks.go.security;
 
-import java.io.Serializable;
-
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.bouncycastle.crypto.engines.DESEngine;
 import org.bouncycastle.crypto.modes.CBCBlockCipher;
 import org.bouncycastle.crypto.paddings.PaddedBufferedBlockCipher;
 import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.util.encoders.Hex;
+
+import java.io.Serializable;
 
 public class GoCipher implements Serializable {
 
@@ -56,13 +55,14 @@ public class GoCipher implements Serializable {
         byte[] cipherTextBytes = new byte[cipher.getOutputSize(plainTextBytes.length)];
         int outputLength = cipher.processBytes(plainTextBytes, 0, plainTextBytes.length, cipherTextBytes, 0);
         cipher.doFinal(cipherTextBytes, outputLength);
-        return Base64.encodeBase64String(cipherTextBytes).trim();
+        return java.util.Base64.getEncoder().encodeToString(cipherTextBytes).trim();
     }
 
     public String decipher(byte[] key, String cipherText) throws InvalidCipherTextException {
         PaddedBufferedBlockCipher cipher = new PaddedBufferedBlockCipher(new CBCBlockCipher(new DESEngine()));
         cipher.init(false, new KeyParameter(Hex.decode(key)));
-        byte[] cipherTextBytes = Base64.decodeBase64(cipherText);
+        byte[] cipherTextBytes = java.util.Base64.getDecoder().decode(cipherText);
+
         byte[] plainTextBytes = new byte[cipher.getOutputSize(cipherTextBytes.length)];
         int outputLength = cipher.processBytes(cipherTextBytes, 0, cipherTextBytes.length, plainTextBytes, 0);
         cipher.doFinal(plainTextBytes, outputLength);

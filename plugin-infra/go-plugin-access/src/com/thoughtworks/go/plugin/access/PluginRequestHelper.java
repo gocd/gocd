@@ -22,7 +22,7 @@ public class PluginRequestHelper {
 
     public <T> T submitRequest(String pluginId, String requestName, PluginInteractionCallback<T> pluginInteractionCallback) {
         if (!pluginManager.isPluginOfType(extensionName, pluginId)) {
-            throw new RuntimeException(format("Did not find '%s' plugin with id '%s'. Looks like plugin is missing", extensionName, pluginId));
+            throw new PluginNotFoundException(format("Did not find '%s' plugin with id '%s'. Looks like plugin is missing", extensionName, pluginId));
         }
         try {
             String resolvedExtensionVersion = pluginManager.resolveExtensionVersion(pluginId, goSupportedVersions);

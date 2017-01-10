@@ -34,6 +34,7 @@ import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.service.plugins.InvalidPluginTypeException;
 import com.thoughtworks.go.server.ui.plugins.PluginInfo;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -133,6 +134,18 @@ public class PluginInfoBuilderTest {
         PluggableTaskConfigStore.store().setPreferenceFor("xunit.convertor", new TaskPreference(jsonBasedPluggableTask));
         SCMMetadataStore.getInstance().setPreferenceFor("github.pr", new SCMPreference(new SCMConfigurations(), mock(SCMView.class)));
         pluginViewModelBuilder = new PluginInfoBuilder(authenticationPluginRegistry, notificationPluginRegistry, elasticPluginConfigMetadataStore, authorizationPluginConfigMetadataStore, manager);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        githubDescriptor = null;
+        emailNotifier = null;
+        yumPoller = null;
+        xunitConvertor = null;
+        githubPR = null;
+        dockerElasticAgentPlugin = null;
+        ldapAuthPlugin = null;
+        pluginViewModelBuilder = null;
     }
 
     @Test

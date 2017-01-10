@@ -21,7 +21,7 @@ module ApiV1
       before_action :check_for_stale_request, :check_for_attempted_rename, only: [:update]
 
       def index
-        profiles = elastic_profile_service.allProfiles.values.to_a
+        profiles = elastic_profile_service.listAll.values.to_a
         render DEFAULT_FORMAT => ProfilesRepresenter.new(profiles.to_a).to_hash(url_builder: self)
       end
 

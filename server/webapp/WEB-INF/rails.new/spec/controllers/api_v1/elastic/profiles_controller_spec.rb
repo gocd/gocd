@@ -67,7 +67,7 @@ describe ApiV1::Elastic::ProfilesController do
         login_as_admin
 
         profile = ElasticProfile.new('foo', 'docker')
-        @elastic_profile_service.should_receive(:allProfiles).and_return({'foo' => profile})
+        @elastic_profile_service.should_receive(:listAll).and_return({'foo' => profile})
 
         get_with_api_header :index
 

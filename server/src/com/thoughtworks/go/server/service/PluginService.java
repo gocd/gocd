@@ -76,9 +76,9 @@ public class PluginService {
                 anyExtensionSupportsPluginId = true;
             }
         }
-        if(!anyExtensionSupportsPluginId)
+        if (!anyExtensionSupportsPluginId)
             throw new IllegalArgumentException(String.format(
-                    "Plugin '%s' is not supported by any extension point",pluginId));
+                    "Plugin '%s' is not supported by any extension point", pluginId));
 
         if (!result.isSuccessful()) {
             for (ValidationError error : result.getErrors()) {

@@ -124,7 +124,7 @@ module Admin
 
     def load_resources_and_elastic_profile_ids_for_autocomplete
       assert_load :autocomplete_resources, @processed_cruise_config.getAllResources().map(&:getName).sort.to_json
-      assert_load :elastic_profile_ids, elastic_profile_service.allProfiles().keys.sort.to_json
+      assert_load :elastic_profile_ids, elastic_profile_service.listAll().keys.sort.to_json
     end
 
     def failure_handler(render_options)

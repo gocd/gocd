@@ -16,6 +16,9 @@
 
 package com.thoughtworks.go.server.security.providers;
 
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.PluginRoleConfig;
+import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.config.SecurityConfig;
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationExtension;
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationPluginRegistry;
@@ -43,8 +46,7 @@ import java.util.HashSet;
 
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -168,5 +170,68 @@ public class PluginAuthenticationProviderTest {
         when(authenticationPluginRegistry.getPluginsThatSupportsPasswordBasedAuthentication()).thenReturn(new HashSet<>(Arrays.asList("plugin-id-1")));
         when(store.getPluginsThatSupportsPasswordBasedAuthentication()).thenReturn(new HashSet<>());
         assertThat(provider.supports(UsernamePasswordAuthenticationToken.class), is(true));
+    }
+
+    @Test
+    public void shouldAddUserToTheCorrectRole() throws Exception {
+        securityConfig.addRole(new PluginRoleConfig("blackbird", "ldap"));
+        securityConfig.addRole(new PluginRoleConfig("admins", "ldap"));
+        securityConfig.addRole(new PluginRoleConfig("view", "github"));
+
+        securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("ldap", "cd.go.ldap"));
+        securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("github", "cd.go.github"));
+
+
+        String pluginId1 = "cd.go.ldap";
+        String pluginId2 = "cd.go.github";
+
+        when(store.getPluginsThatSupportsPasswordBasedAuthentication()).thenReturn(new HashSet<>(Arrays.asList(pluginId1, pluginId2)));
+
+        when(authorizationExtension.authenticateUser(pluginId1, "username", "password")).thenReturn(
+                new AuthenticationResponse(
+                        new User("username", "bob", "bob@example.com"),
+                        Arrays.asList("blackbird", "admins")
+                )
+        );
+        when(authorizationExtension.authenticateUser(pluginId2, "username", "password")).thenReturn(NULL_AUTH_RESPONSE);
+
+        UserDetails userDetails = provider.retrieveUser("username", new UsernamePasswordAuthenticationToken(null, "password"));
+
+        assertNotNull(userDetails);
+
+        assertTrue(securityConfig.isUserMemberOfRole(new CaseInsensitiveString("username"), new CaseInsensitiveString("blackbird")));
+        assertTrue(securityConfig.isUserMemberOfRole(new CaseInsensitiveString("username"), new CaseInsensitiveString("admins")));
+        assertFalse(securityConfig.isUserMemberOfRole(new CaseInsensitiveString("username"), new CaseInsensitiveString("view")));
+    }
+
+    @Test
+    public void shouldNotAddUserToRolesWhenPluginRespondsWithRoleNamesItDoesNotOwn() throws Exception {
+        securityConfig.addRole(new PluginRoleConfig("blackbird", "ldap"));
+        securityConfig.addRole(new PluginRoleConfig("admins", "ldap"));
+        securityConfig.addRole(new PluginRoleConfig("view", "ldap"));
+
+        securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("ldap", "cd.go.ldap"));
+        securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("github", "cd.go.github"));
+
+        String pluginId1 = "cd.go.ldap";
+        String pluginId2 = "cd.go.github";
+
+        when(store.getPluginsThatSupportsPasswordBasedAuthentication()).thenReturn(new HashSet<>(Arrays.asList(pluginId1, pluginId2)));
+
+        when(authorizationExtension.authenticateUser(pluginId1, "username", "password")).thenReturn(NULL_AUTH_RESPONSE);
+        when(authorizationExtension.authenticateUser(pluginId2, "username", "password")).thenReturn(
+                new AuthenticationResponse(
+                        new User("username", "bob", "bob@example.com"),
+                        Arrays.asList("blackbird", "admins", "view")
+                )
+        );
+
+        UserDetails userDetails = provider.retrieveUser("username", new UsernamePasswordAuthenticationToken(null, "password"));
+
+        assertNotNull(userDetails);
+
+        assertFalse(securityConfig.isUserMemberOfRole(new CaseInsensitiveString("username"), new CaseInsensitiveString("blackbird")));
+        assertFalse(securityConfig.isUserMemberOfRole(new CaseInsensitiveString("username"), new CaseInsensitiveString("admins")));
+        assertFalse(securityConfig.isUserMemberOfRole(new CaseInsensitiveString("username"), new CaseInsensitiveString("view")));
     }
 }

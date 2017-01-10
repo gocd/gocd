@@ -113,12 +113,6 @@ abstract class PluginProfileCommand<T extends PluginProfile, M extends PluginPro
         return profile.getClass().getAnnotation(ConfigTag.class).value();
     }
 
-    protected final boolean isAuthorized() {
-        if (!(goConfigService.isUserAdmin(currentUser) || goConfigService.isGroupAdministrator(currentUser.getUsername()))) {
-            result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
-            return false;
-        }
-        return true;
-    }
+    protected abstract boolean isAuthorized();
 
 }

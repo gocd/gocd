@@ -19,8 +19,8 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
-import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
+import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
@@ -56,6 +56,7 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         goConfigService.register(new ElasticAgentProfileConfigListener());
         goConfigService.register(new PackageListener());
         goConfigService.register(new SecurityAuthConfigListener());
+        goConfigService.register(new RoleConfigListener());
     }
 
     @Override
@@ -95,6 +96,11 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
 
     public String md5ForEntity(SecurityAuthConfig config) {
         String cacheKey = cacheKey(config, config.getId());
+        return getFromCache(config, cacheKey);
+    }
+
+    public String md5ForEntity(Role config) {
+        String cacheKey = cacheKey(config, config.getName());
         return getFromCache(config, cacheKey);
     }
 
@@ -187,7 +193,7 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         }
     }
 
-    private class PackageListener extends EntityConfigChangedListener<PackageDefinition>{
+    private class PackageListener extends EntityConfigChangedListener<PackageDefinition> {
         @Override
         public void onEntityConfigChange(PackageDefinition entity) {
             removeFromCache(entity, entity.getId());
@@ -198,6 +204,13 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         @Override
         public void onEntityConfigChange(SecurityAuthConfig profile) {
             removeFromCache(profile, profile.getId());
+        }
+    }
+
+    private class RoleConfigListener extends EntityConfigChangedListener<Role> {
+        @Override
+        public void onEntityConfigChange(Role entity) {
+            removeFromCache(entity, entity.getName());
         }
     }
 }

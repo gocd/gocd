@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.service.plugins.processor.authorization;
 
 import com.google.gson.Gson;
 import com.thoughtworks.go.config.PluginRoleConfig;
-import com.thoughtworks.go.config.RolesConfig;
 import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.config.SecurityAuthConfigs;
 import com.thoughtworks.go.plugin.access.authentication.JsonMessageHandler;
@@ -31,10 +30,7 @@ import com.thoughtworks.go.plugin.api.response.GoApiResponse;
 import com.thoughtworks.go.plugin.infra.GoPluginApiRequestProcessor;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import com.thoughtworks.go.server.security.AuthorityGranter;
 import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.UserService;
-import org.apache.commons.collections.map.HashedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

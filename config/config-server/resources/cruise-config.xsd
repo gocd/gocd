@@ -277,7 +277,6 @@
                     <xsd:element name="property" minOccurs="0" maxOccurs="unbounded" type="pluginPropertyType"/>
                 </xsd:sequence>
                 <xsd:attribute name="name" type="nameType" use="required"/>
-                <xsd:attribute name="pluginId" type="nameType" use="required"/>
                 <xsd:attribute name="authConfigId" type="nameType" use="required"/>
             </xsd:extension>
         </xsd:complexContent>

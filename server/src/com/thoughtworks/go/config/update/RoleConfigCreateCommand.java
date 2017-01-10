@@ -17,26 +17,24 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.elastic.ElasticProfile;
-import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
+import com.thoughtworks.go.config.Role;
+import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
-public class ElasticAgentProfileCreateCommand extends ElasticAgentProfileCommand {
-
-    public ElasticAgentProfileCreateCommand(GoConfigService goConfigService, ElasticProfile elasticProfile, ElasticAgentExtension extension, Username currentUser, LocalizedOperationResult result) {
-        super(goConfigService, elasticProfile, extension, currentUser, result);
+public class RoleConfigCreateCommand extends RoleConfigCommand {
+    public RoleConfigCreateCommand(GoConfigService goConfigService, Role newRole, AuthorizationExtension extension, Username currentUser, LocalizedOperationResult result) {
+        super(goConfigService, newRole, extension, currentUser, result);
     }
 
     @Override
     public void update(CruiseConfig preprocessedConfig) throws Exception {
-        getPluginProfiles(preprocessedConfig).add(profile);
+        preprocessedConfig.server().security().addRole(role);
     }
 
     @Override
     public boolean isValid(CruiseConfig preprocessedConfig) {
         return isValidForCreateOrUpdate(preprocessedConfig);
     }
-
 }

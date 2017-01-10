@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.config;
 
-import java.util.Arrays;
-import java.util.regex.Pattern;
-
 import com.thoughtworks.go.config.server.security.ldap.BaseConfig;
 import com.thoughtworks.go.config.server.security.ldap.BasesConfig;
 import com.thoughtworks.go.domain.config.Admin;
@@ -27,6 +24,12 @@ import com.thoughtworks.go.util.ReflectionUtil;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Pattern;
+
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -207,5 +210,36 @@ public class SecurityConfigTest {
 
     public static PasswordFileConfig pwordFile() {
         return new PasswordFileConfig("test");
+    }
+
+    @Test
+    public void shouldGetPluginRolesWhichBelogsToSpecifiedPlugin() throws Exception {
+        SecurityConfig securityConfig = new SecurityConfig();
+        securityConfig.addRole(new PluginRoleConfig("foo", "ldap"));
+        securityConfig.addRole(new PluginRoleConfig("bar", "github"));
+        securityConfig.addRole(new RoleConfig(new CaseInsensitiveString("xyz")));
+
+        securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("ldap", "cd.go.ldap"));
+        securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("github", "cd.go.github"));
+
+
+        List<PluginRoleConfig> pluginRolesConfig = securityConfig.getPluginRolesConfig("cd.go.ldap", CaseInsensitiveString.caseInsensitiveStrings("foo", "bar", "xyz", "none-existing-role"));
+
+        assertThat(pluginRolesConfig, hasSize(1));
+        assertThat(pluginRolesConfig, contains(new PluginRoleConfig("foo", "ldap")));
+    }
+
+    @Test
+    public void getPluginRolesConfig_shouldReturnNothingWhenBadPluginIdSpecified() throws Exception {
+        SecurityConfig securityConfig = new SecurityConfig();
+        securityConfig.addRole(new PluginRoleConfig("foo", "ldap"));
+        securityConfig.addRole(new PluginRoleConfig("bar", "github"));
+        securityConfig.addRole(new RoleConfig(new CaseInsensitiveString("xyz")));
+        securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("ldap", "cd.go.ldap"));
+        securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("github", "cd.go.github"));
+
+        List<PluginRoleConfig> pluginRolesConfig = securityConfig.getPluginRolesConfig("non-existant-plugin", CaseInsensitiveString.caseInsensitiveStrings("foo", "bar", "xyz", "none-existing-role"));
+
+        assertThat(pluginRolesConfig, hasSize(0));
     }
 }

@@ -300,10 +300,6 @@ Go::Application.routes.draw do
       patch 'agents', action: :bulk_update, controller: 'agents'
       delete 'agents', action: :bulk_destroy, controller: 'agents'
 
-      namespace :admin do
-        resources :templates, param: :template_name, except: [:new, :edit], constraints: {template_name: TEMPLATE_NAME_FORMAT}
-      end
-      
       match '*url', via: :all, to: 'errors#not_found'
     end
   end

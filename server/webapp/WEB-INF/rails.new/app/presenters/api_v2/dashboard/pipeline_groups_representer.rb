@@ -17,8 +17,12 @@
 module ApiV2
   module Dashboard
     class PipelineGroupsRepresenter < ApiV2::BaseRepresenter
+      def initialize(options)
+        @groups = options[:pipeline_groups]
+        @user = options[:user]
 
-      alias_method :all_pipelines_across_groups, :represented
+        super(options)
+      end
 
       link :self do |opts|
         opts[:url_builder].apiv2_show_dashboard_url
@@ -30,10 +34,14 @@ module ApiV2
 
       collection :pipeline_groups, embedded: true, exec_context: :decorator, decorator: PipelineGroupRepresenter
 
+      collection :pipelines, embedded: true, exec_context: :decorator, decorator: PipelineRepresenter
+
       def pipeline_groups
-        all_pipelines_across_groups
-            .group_by {|pipeline| pipeline.groupName()}
-            .collect {|group_name, pipelines_in_group| {:name => group_name, :pipelines => pipelines_in_group}}
+        @groups.inject([]) {|r, e| r << {pipeline_group: e, user: @user}}
+      end
+
+      def pipelines
+        @groups.inject([]) {|r, e| r + e.allPipelines()}.inject([]) {|r, e| r << {pipeline: e, user: @user}}
       end
     end
   end

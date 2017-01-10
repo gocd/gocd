@@ -20,25 +20,43 @@ describe ApiV2::Dashboard::PipelineGroupsRepresenter do
   include GoDashboardPipelineMother
 
   it 'renders pipeline dashboard with hal representation' do
-    pipeline1_in_group1 = dashboard_pipeline("pipeline1", "group1")
-    pipeline2_in_group1 = dashboard_pipeline("pipeline2", "group1")
-    pipeline3_in_group2 = dashboard_pipeline("pipeline2", "group2")
+    user = Username.new(CaseInsensitiveString.new(SecureRandom.hex))
+    permissions = Permissions.new(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE)
 
-    model       = [pipeline1_in_group1, pipeline2_in_group1, pipeline3_in_group2]
-    presenter   = ApiV2::Dashboard::PipelineGroupsRepresenter.new(model)
+    pipeline_group1 = GoDashboardPipelineGroup.new('group1', permissions)
+    pipeline_group2 = GoDashboardPipelineGroup.new('group2', permissions)
+
+    pipeline1_in_group1 = dashboard_pipeline('pipeline1')
+    pipeline2_in_group1 = dashboard_pipeline('pipeline2')
+    pipeline3_in_group2 = dashboard_pipeline('pipeline2')
+
+    pipeline_group1.addPipeline(pipeline1_in_group1)
+    pipeline_group1.addPipeline(pipeline2_in_group1)
+    pipeline_group2.addPipeline(pipeline3_in_group2)
+
+    presenter   = ApiV2::Dashboard::PipelineGroupsRepresenter.new({pipeline_groups: [pipeline_group1, pipeline_group2], user: user})
 
     actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
     expect(actual_json).to have_links(:self, :doc)
     expect(actual_json).to have_link(:self).with_url('http://test.host/api/dashboard')
     expect(actual_json).to have_link(:doc).with_url('https://api.go.cd/current/#dashboard')
-    actual_json.fetch(:_embedded)[:pipeline_groups].should ==
-        [expected_embedded_pipeline_groups({:name => 'group1', :pipelines => [pipeline1_in_group1, pipeline2_in_group1]}),
-         expected_embedded_pipeline_groups({:name => 'group2', :pipelines => [pipeline3_in_group2]})]
+    actual_json.delete(:_links)
+    expect(actual_json.fetch(:_embedded)[:pipeline_groups]).to eq(
+                                                                 [expected_embedded_pipeline_groups({pipeline_group: pipeline_group1, user: user}),
+                                                                  expected_embedded_pipeline_groups({pipeline_group: pipeline_group2, user: user})]
+                                                               )
+    expect(actual_json.delete(:_embedded)[:pipelines]).to eq([expected_embedded_pipeline({pipeline: pipeline1_in_group1, user: user}),
+                                                              expected_embedded_pipeline({pipeline: pipeline2_in_group1, user: user}),
+                                                              expected_embedded_pipeline({pipeline: pipeline3_in_group2, user: user})])
   end
 
   private
 
   def expected_embedded_pipeline_groups(model)
     ApiV2::Dashboard::PipelineGroupRepresenter.new(model).to_hash(url_builder: UrlBuilder.new)
+  end
+
+  def expected_embedded_pipeline(model)
+    ApiV2::Dashboard::PipelineRepresenter.new(model).to_hash(url_builder: UrlBuilder.new)
   end
 end

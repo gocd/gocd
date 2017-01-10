@@ -20,20 +20,32 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
+import com.thoughtworks.go.config.security.Permissions;
+import com.thoughtworks.go.config.security.users.AllowedUsers;
+import com.thoughtworks.go.config.security.users.Everyone;
+import com.thoughtworks.go.config.security.users.NoOne;
 import com.thoughtworks.go.helper.GoConfigMother;
-import com.thoughtworks.go.server.dashboard.GoDashboardCache;
-import com.thoughtworks.go.server.dashboard.GoDashboardCurrentStateLoader;
-import com.thoughtworks.go.server.dashboard.GoDashboardPipeline;
+import com.thoughtworks.go.server.dashboard.*;
+import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.domain.user.PipelineSelections;
+import com.thoughtworks.go.util.Clock;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.server.dashboard.GoDashboardPipelineMother.pipeline;
 import static java.util.Arrays.asList;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -105,13 +117,120 @@ public class GoDashboardServiceTest {
     }
 
     @Test
-    public void shouldRetrieveTheLatestKnownSetOfPipelinesFromTheCache() throws Exception {
-        List<GoDashboardPipeline> cachedPipelines = asList(pipeline("pipeline1"), pipeline("pipeline2"));
+    public void allPipelineGroupsForDashboard_shouldRetrieveTheLatestKnownSetOfPipelinesFromTheCache() throws Exception {
+        PipelineSelections pipelineSelections = mock(PipelineSelections.class);
 
-        when(cache.allEntriesInOrder()).thenReturn(cachedPipelines);
+        configMother.addPipelineWithGroup(config, "group1", "pipeline2", "stage1A", "job1A1");
+        GoDashboardPipeline pipeline2 = pipeline("pipeline2", "group1");
 
-        List<GoDashboardPipeline> currentPipelines = service.allPipelinesForDashboard();
+        configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1");
+        GoDashboardPipeline pipeline1 = pipeline("pipeline1", "group1");
 
-        assertThat(currentPipelines, is(cachedPipelines));
+        addPipelinesToCache(pipeline1, pipeline2);
+        when(pipelineSelections.includesPipeline(any(PipelineConfig.class))).thenReturn(true);
+
+        List<GoDashboardPipelineGroup> pipelineGroups = allPipelineGroupsForDashboard(pipelineSelections, new Username("user1"));
+
+        assertThat(pipelineGroups.size(), is(1));
+        assertThat(pipelineGroups.get(0).allPipelineNames(), contains("pipeline1", "pipeline2"));
+        assertThat(pipelineGroups.get(0).allPipelines(), contains(pipeline1, pipeline2));
+    }
+
+    @Test
+    public void allPipelineGroupsForDashboard_shouldRetrieveOnlyPipelineGroupsViewableByTheUser() throws Exception {
+        PipelineSelections pipelineSelections = mock(PipelineSelections.class);
+
+        PipelineConfig pipelineConfig4 = configMother.addPipelineWithGroup(config, "group2", "pipeline4", "stage1A", "job1A1");
+        GoDashboardPipeline pipeline4 = pipeline("pipeline4", "group2");
+
+        PipelineConfig pipelineConfig3 = configMother.addPipelineWithGroup(config, "group2", "pipeline3", "stage1A", "job1A1");
+        GoDashboardPipeline pipeline3 = pipeline("pipeline3", "group2");
+
+        PipelineConfig pipelineConfig2 = configMother.addPipelineWithGroup(config, "group1", "pipeline2", "stage1A", "job1A1");
+        GoDashboardPipeline pipeline2 = pipeline("pipeline2", "group1");
+
+        PipelineConfig pipelineConfig1 = configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1");
+        GoDashboardPipeline pipeline1 = pipeline("pipeline1", "group1");
+
+        addPipelinesToCache(pipeline1, pipeline2, pipeline3, pipeline4);
+        when(pipelineSelections.includesPipeline(pipelineConfig1)).thenReturn(true);
+        when(pipelineSelections.includesPipeline(pipelineConfig2)).thenReturn(false);
+        when(pipelineSelections.includesPipeline(pipelineConfig3)).thenReturn(true);
+        when(pipelineSelections.includesPipeline(pipelineConfig4)).thenReturn(false);
+
+        List<GoDashboardPipelineGroup> pipelineGroups = allPipelineGroupsForDashboard(pipelineSelections, new Username("user1"));
+
+        assertThat(pipelineGroups.size(), is(2));
+        assertThat(pipelineGroups.get(0).allPipelineNames(), contains("pipeline1"));
+        assertThat(pipelineGroups.get(0).allPipelines(), contains(pipeline1));
+
+        assertThat(pipelineGroups.get(1).allPipelineNames(), contains("pipeline3"));
+        assertThat(pipelineGroups.get(1).allPipelines(), contains(pipeline3));
+    }
+
+    @Test
+    public void allPipelineGroupsForDashboard_shouldRetrievePipelineGroupsBasedOnUsersPipelineSelections() throws Exception {
+        PipelineSelections pipelineSelections = mock(PipelineSelections.class);
+
+        configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1");
+        GoDashboardPipeline pipeline1 = pipeline("pipeline1", "group1", new Permissions(new AllowedUsers(Collections.singleton("user1"), Collections.emptySet()),
+                NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE));
+
+        configMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage1A", "job1A1");
+        GoDashboardPipeline pipeline2 = pipeline("pipeline2", "group2", new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE));
+
+        addPipelinesToCache(pipeline1, pipeline2);
+        when(pipelineSelections.includesPipeline(any(PipelineConfig.class))).thenReturn(true);
+
+        List<GoDashboardPipelineGroup> pipelineGroups = allPipelineGroupsForDashboard(pipelineSelections, new Username("user1"));
+
+        assertThat(pipelineGroups.size(), is(1));
+        assertThat(pipelineGroups.get(0).allPipelineNames(), contains("pipeline1"));
+        assertThat(pipelineGroups.get(0).allPipelines(), contains(pipeline1));
+    }
+
+    @Test
+    public void allPipelineGroupsForDashboard_shouldNotListEmptyPipelineGroup() throws Exception {
+        PipelineSelections pipelineSelections = mock(PipelineSelections.class);
+        configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1");
+
+        when(pipelineSelections.includesPipeline(any(PipelineConfig.class))).thenReturn(true);
+
+        List<GoDashboardPipelineGroup> pipelineGroups = allPipelineGroupsForDashboard(pipelineSelections, new Username("user1"));
+
+        assertThat(pipelineGroups.size(), is(0));
+    }
+
+    @Test
+    public void allPipelineGroupsForDashboard_shouldNotListPipelinesExistingInConfigButNotInCache() throws Exception {
+        PipelineSelections pipelineSelections = mock(PipelineSelections.class);
+
+        configMother.addPipelineWithGroup(config, "group1", "pipeline2", "stage1A", "job1A1");
+
+        configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1");
+        GoDashboardPipeline pipeline1 = pipeline("pipeline1", "group1", new Permissions(Everyone.INSTANCE,
+                Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE));
+
+
+        addPipelinesToCache(pipeline1);
+        when(pipelineSelections.includesPipeline(any(PipelineConfig.class))).thenReturn(true);
+
+        List<GoDashboardPipelineGroup> pipelineGroups = allPipelineGroupsForDashboard(pipelineSelections, new Username("user1"));
+
+        assertThat(pipelineGroups.size(), is(1));
+        assertThat(pipelineGroups.get(0).allPipelineNames(), contains("pipeline1"));
+        assertThat(pipelineGroups.get(0).allPipelines(), contains(pipeline1));
+    }
+
+    private List<GoDashboardPipelineGroup> allPipelineGroupsForDashboard(PipelineSelections pipelineSelections, Username username) {
+        when(goConfigService.groups()).thenReturn(config.getGroups());
+
+        return service.allPipelineGroupsForDashboard(pipelineSelections, username);
+    }
+
+    private void addPipelinesToCache(GoDashboardPipeline... pipelines) {
+        for (GoDashboardPipeline pipeline : pipelines) {
+            when(cache.get(pipeline.name())).thenReturn(pipeline);
+        }
     }
 }

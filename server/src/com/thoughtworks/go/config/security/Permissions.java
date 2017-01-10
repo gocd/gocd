@@ -46,4 +46,26 @@ public class Permissions {
     public Users pipelineOperators() {
         return pipelineOperators;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Permissions that = (Permissions) o;
+
+        if (viewers != null ? !viewers.equals(that.viewers) : that.viewers != null) return false;
+        if (operators != null ? !operators.equals(that.operators) : that.operators != null) return false;
+        if (admins != null ? !admins.equals(that.admins) : that.admins != null) return false;
+        return pipelineOperators != null ? pipelineOperators.equals(that.pipelineOperators) : that.pipelineOperators == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = viewers != null ? viewers.hashCode() : 0;
+        result = 31 * result + (operators != null ? operators.hashCode() : 0);
+        result = 31 * result + (admins != null ? admins.hashCode() : 0);
+        result = 31 * result + (pipelineOperators != null ? pipelineOperators.hashCode() : 0);
+        return result;
+    }
 }

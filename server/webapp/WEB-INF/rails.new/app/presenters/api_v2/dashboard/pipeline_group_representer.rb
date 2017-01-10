@@ -16,9 +16,13 @@
 
 module ApiV2
   module Dashboard
-
     class PipelineGroupRepresenter < ApiV2::BaseRepresenter
-      alias_method :pipeline_group, :represented
+      def initialize(options)
+        @pipeline_group = options[:pipeline_group]
+        @user = options[:user]
+
+        super(@pipeline_group)
+      end
 
       link :self do |opts|
         opts[:url_builder].pipeline_group_config_list_api_url
@@ -29,14 +33,19 @@ module ApiV2
       end
 
       property :name, as: :name, exec_context: :decorator
-      collection :pipelines, embedded: true, exec_context: :decorator, decorator: PipelineRepresenter
+      collection :pipelines, exec_context: :decorator
+      property :can_administer, exec_context: :decorator
 
       def name
-        pipeline_group[:name]
+        @pipeline_group.getName()
       end
 
       def pipelines
-        pipeline_group[:pipelines].collect {|pipeline| pipeline.model()}
+        @pipeline_group.allPipelineNames()
+      end
+
+      def can_administer
+        @pipeline_group.canBeAdministeredBy(@user.getUsername().toString())
       end
     end
   end

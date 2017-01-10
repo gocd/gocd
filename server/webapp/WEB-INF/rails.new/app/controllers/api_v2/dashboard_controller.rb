@@ -19,16 +19,13 @@ module ApiV2
     include ApplicationHelper
 
     def dashboard
-      name_of_current_user = CaseInsensitiveString.str(current_user.getUsername())
+      pipeline_selections = pipeline_selections_service.getSelectedPipelines(cookies[:selected_pipelines], current_user_entity_id)
+      all_pipelines_groups_for_dashboard = go_dashboard_service.allPipelineGroupsForDashboard(pipeline_selections, current_user)
 
-      pipelines_across_groups = go_dashboard_service.allPipelinesForDashboard()
-      pipelines_viewable_by_user = pipelines_across_groups.select do |pipeline|
-        pipeline.canBeViewedBy(name_of_current_user)
-      end
+      presenters = Dashboard::PipelineGroupsRepresenter.new({pipeline_groups: all_pipelines_groups_for_dashboard, user: current_user})
+      presenters_to_hash = presenters.to_hash(url_builder: self)
 
-      presenters              = Dashboard::PipelineGroupsRepresenter.new(pipelines_viewable_by_user)
-      render DEFAULT_FORMAT => presenters.to_hash(url_builder: self)
+      render DEFAULT_FORMAT => presenters_to_hash, status: status
     end
-
   end
 end

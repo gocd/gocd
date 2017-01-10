@@ -31,13 +31,12 @@ import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.presentation.pipelinehistory.*;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
-import com.thoughtworks.go.server.dashboard.GoDashboardCurrentStateLoader;
-import com.thoughtworks.go.server.dashboard.GoDashboardPipeline;
 import com.thoughtworks.go.server.scheduling.TriggerMonitor;
 import com.thoughtworks.go.server.service.PipelineLockService;
 import com.thoughtworks.go.server.service.PipelinePauseService;
 import com.thoughtworks.go.server.service.PipelineUnlockApiService;
 import com.thoughtworks.go.server.service.SchedulingCheckerService;
+import com.thoughtworks.go.util.Clock;
 import org.hamcrest.Matcher;
 import org.hamcrest.core.Is;
 import org.junit.Before;
@@ -54,9 +53,7 @@ import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class GoDashboardCurrentStateLoaderTest {
@@ -85,7 +82,7 @@ public class GoDashboardCurrentStateLoaderTest {
     public void setUp() throws Exception {
         initMocks(this);
         loader = new GoDashboardCurrentStateLoader(pipelineSqlMapDao, triggerMonitor, pipelinePauseService,
-                pipelineLockService, pipelineUnlockApiService, schedulingCheckerService, permissionsAuthority);
+                pipelineLockService, pipelineUnlockApiService, schedulingCheckerService, permissionsAuthority, new TimeStampBasedCounter(mock(Clock.class)));
 
         goConfigMother = new GoConfigMother();
         config = goConfigMother.defaultCruiseConfig();

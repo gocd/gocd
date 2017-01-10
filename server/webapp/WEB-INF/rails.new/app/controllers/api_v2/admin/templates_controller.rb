@@ -62,7 +62,7 @@ module ApiV2
       end
 
       def stale_message
-        LocalizedMessage::string('STALE_RESOURCE_CONFIG', 'Template', params[:template][:name])
+        LocalizedMessage::string('STALE_RESOURCE_CONFIG', 'template', params[:template][:name])
       end
 
       def etag_for_entity_in_config

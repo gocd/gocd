@@ -56,7 +56,9 @@ public class UpdateEnvironmentCommand extends EnvironmentCommand implements Enti
     }
 
     @Override
-    public void clearErrors() {}
+    public void clearErrors() {
+        BasicCruiseConfig.clearErrors(this.newEnvironmentConfig);
+    }
 
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
@@ -64,7 +66,7 @@ public class UpdateEnvironmentCommand extends EnvironmentCommand implements Enti
     }
 
     private boolean isRequestFresh(CruiseConfig cruiseConfig) {
-        EnvironmentConfig config = cruiseConfig.getEnvironments().find(new CaseInsensitiveString(oldEnvironmentName));
+        EnvironmentConfig config = cruiseConfig.getEnvironments().find(oldEnvironmentName);
         boolean freshRequest =  hashingService.md5ForEntity(config).equals(md5);
         if (!freshRequest) {
             result.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", "environment", oldEnvironmentName));

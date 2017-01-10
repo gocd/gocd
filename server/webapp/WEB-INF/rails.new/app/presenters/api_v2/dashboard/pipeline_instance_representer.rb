@@ -45,7 +45,7 @@ module ApiV2
       end
 
       property :getLabel, as: :label
-      property :getScheduledDate, as: :schedule_at
+      property :getScheduledDate, as: :scheduled_at
       property :getApprovedBy, as: :triggered_by
       collection :stages, embedded: true, exec_context: :decorator, decorator: StageRepresenter
 

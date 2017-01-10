@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################################################################
 
-require 'spec_helper'
+require 'rails_helper'
 
 describe ApiV2::Dashboard::PipelineInstanceRepresenter do
   include PipelineModelMother
@@ -30,7 +30,7 @@ describe ApiV2::Dashboard::PipelineInstanceRepresenter do
     expect(actual_json).to have_link(:compare_url).with_url('http://test.host/compare/p1/-1/with/0')
     expect(actual_json).to have_link(:history_url).with_url('http://test.host/api/pipelines/p1/history')
     expect(actual_json).to have_link(:vsm_url).with_url('http://test.host/pipelines/value_stream_map/p1/0')
-    actual_json.fetch(:_embedded)[:stages].collect { |s| s[:name] }.should == ['s1']
+    expect(actual_json.fetch(:_embedded)[:stages].collect { |s| s[:name] }).to eq(['s1'])
   end
 
   it 'renders all pipeline instance with hal representation' do
@@ -42,7 +42,7 @@ describe ApiV2::Dashboard::PipelineInstanceRepresenter do
     actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
     actual_json.delete(:_links)
     actual_json.delete(:_embedded)
-    expect(actual_json).to eq({:label => "g1", :schedule_at => date, :triggered_by => "Anonymous"})
+    expect(actual_json).to eq({:label => "g1", :scheduled_at => date, :triggered_by => "Anonymous"})
   end
 
 end

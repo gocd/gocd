@@ -19,7 +19,9 @@ require File.expand_path(File.dirname(__FILE__) + '/pipeline_model_mother')
 module GoDashboardPipelineMother
   include PipelineModelMother
 
-  def dashboard_pipeline(pipeline_name, group_name = "group1", permissions = Permissions.new(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE))
-    GoDashboardPipeline.new(pipeline_model(pipeline_name, 'pipeline-label'), permissions, group_name)
+  def dashboard_pipeline(pipeline_name, group_name = "group1", permissions = Permissions.new(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE), timestamp = 1000)
+    clock = double('Clock')
+    clock.stub(:currentTimeMillis).and_return(timestamp)
+    GoDashboardPipeline.new(pipeline_model(pipeline_name, 'pipeline-label'), permissions, group_name, TimeStampBasedCounter.new(clock))
   end
 end

@@ -25,7 +25,6 @@ import com.thoughtworks.go.domain.PipelinePauseInfo;
 import com.thoughtworks.go.domain.PiplineConfigVisitor;
 import com.thoughtworks.go.presentation.pipelinehistory.*;
 import com.thoughtworks.go.server.dao.PipelineDao;
-import com.thoughtworks.go.server.dashboard.GoDashboardPipeline;
 import com.thoughtworks.go.server.scheduling.TriggerMonitor;
 import com.thoughtworks.go.server.service.PipelineLockService;
 import com.thoughtworks.go.server.service.PipelinePauseService;
@@ -33,7 +32,6 @@ import com.thoughtworks.go.server.service.PipelineUnlockApiService;
 import com.thoughtworks.go.server.service.SchedulingCheckerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,12 +53,13 @@ public class GoDashboardCurrentStateLoader {
     private PipelineUnlockApiService pipelineUnlockApiService;
     private SchedulingCheckerService schedulingCheckerService;
     private GoConfigPipelinePermissionsAuthority permissionsAuthority;
+    private TimeStampBasedCounter timeStampBasedCounter;
 
     @Autowired
     public GoDashboardCurrentStateLoader(PipelineDao pipelineDao, TriggerMonitor triggerMonitor,
-                            PipelinePauseService pipelinePauseService, PipelineLockService pipelineLockService,
-                            PipelineUnlockApiService pipelineUnlockApiService, SchedulingCheckerService schedulingCheckerService,
-                            GoConfigPipelinePermissionsAuthority permissionsAuthority) {
+                                         PipelinePauseService pipelinePauseService, PipelineLockService pipelineLockService,
+                                         PipelineUnlockApiService pipelineUnlockApiService, SchedulingCheckerService schedulingCheckerService,
+                                         GoConfigPipelinePermissionsAuthority permissionsAuthority, TimeStampBasedCounter timeStampBasedCounter) {
         this.pipelineDao = pipelineDao;
         this.triggerMonitor = triggerMonitor;
         this.pipelinePauseService = pipelinePauseService;
@@ -68,6 +67,7 @@ public class GoDashboardCurrentStateLoader {
         this.pipelineUnlockApiService = pipelineUnlockApiService;
         this.schedulingCheckerService = schedulingCheckerService;
         this.permissionsAuthority = permissionsAuthority;
+        this.timeStampBasedCounter = timeStampBasedCounter;
     }
 
     public List<GoDashboardPipeline> allPipelines(CruiseConfig config) {
@@ -85,7 +85,7 @@ public class GoDashboardCurrentStateLoader {
                         Permissions permissions = permissionsFor(pipelineConfig, pipelinesAndTheirPermissions);
                         PipelineModel pipelineModel = pipelineModelFor(pipelineConfig, activeInstances);
 
-                        pipelines.add(new GoDashboardPipeline(pipelineModel, permissions, group.getGroup()));
+                        pipelines.add(new GoDashboardPipeline(pipelineModel, permissions, group.getGroup(), timeStampBasedCounter));
                     }
                 });
             }
@@ -100,7 +100,7 @@ public class GoDashboardCurrentStateLoader {
         Permissions permissions = permissionsAuthority.permissionsForPipeline(pipelineConfig.name());
         PipelineModel pipelineModel = pipelineModelFor(pipelineConfig, activePipelineInstances);
 
-        return new GoDashboardPipeline(pipelineModel, permissions, groupConfig.getGroup());
+        return new GoDashboardPipeline(pipelineModel, permissions, groupConfig.getGroup(), timeStampBasedCounter);
     }
 
     private PipelineModel pipelineModelFor(PipelineConfig pipelineConfig, PipelineInstanceModels activeInstances) {

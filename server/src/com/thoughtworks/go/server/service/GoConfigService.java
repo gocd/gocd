@@ -928,13 +928,13 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return null;
     }
 
-    public boolean isAuthorizedToEditTemplate(String templateName, Username username) {
-        return isUserAdmin(username) || getCurrentConfig().getTemplates().canUserEditTemplate(templateName, username.getUsername());
-    }
-
-    public boolean isAuthorizedToViewAndEditTemplates(Username username) {
-        return getCurrentConfig().getTemplates().canViewAndEditTemplate(username.getUsername());
-    }
+//    public boolean isAuthorizedToEditTemplate(String templateName, Username username) {
+//        return isUserAdmin(username) || getCurrentConfig().getTemplates().canUserEditTemplate(templateName, username.getUsername());
+//    }
+//
+//    public boolean isAuthorizedToViewAndEditTemplates(Username username) {
+//        return getCurrentConfig().getTemplates().canViewAndEditTemplate(username.getUsername());
+//    }
 
     public boolean isPipelineEditable(String pipelineName) {
         return isPipelineEditable(new CaseInsensitiveString(pipelineName));

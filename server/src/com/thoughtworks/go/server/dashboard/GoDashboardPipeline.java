@@ -25,11 +25,13 @@ public class GoDashboardPipeline {
     private final PipelineModel pipelineModel;
     private final Permissions permissions;
     private final String groupName;
+    private final long lastUpdatedTimeStamp;
 
-    public GoDashboardPipeline(PipelineModel pipelineModel, Permissions permissions, String groupName) {
+    public GoDashboardPipeline(PipelineModel pipelineModel, Permissions permissions, String groupName, Counter timeStampBasedCounter) {
         this.pipelineModel = pipelineModel;
         this.permissions = permissions;
         this.groupName = groupName;
+        this.lastUpdatedTimeStamp = timeStampBasedCounter.getNext();
     }
 
     public String groupName() {
@@ -52,8 +54,47 @@ public class GoDashboardPipeline {
         return permissions.viewers().contains(userName);
     }
 
+    public boolean canBeOperatedBy(String userName) {
+        return permissions.operators().contains(userName);
+    }
+
+    public boolean canBeAdministeredBy(String userName) {
+        return permissions.admins().contains(userName);
+    }
+
+    public boolean isPipelineOperator(String userName) {
+        return permissions.pipelineOperators().contains(userName);
+    }
+
+    public long getLastUpdatedTimeStamp() {
+        return lastUpdatedTimeStamp;
+    }
+
     @Override
     public String toString() {
         return String.format("GoDashboardPipeline{name='%s',groupName='%s'}", name(), groupName);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        GoDashboardPipeline that = (GoDashboardPipeline) o;
+
+        if (lastUpdatedTimeStamp != that.lastUpdatedTimeStamp) return false;
+        if (pipelineModel != null ? !pipelineModel.equals(that.pipelineModel) : that.pipelineModel != null)
+            return false;
+        if (permissions != null ? !permissions.equals(that.permissions) : that.permissions != null) return false;
+        return groupName != null ? groupName.equals(that.groupName) : that.groupName == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = pipelineModel != null ? pipelineModel.hashCode() : 0;
+        result = 31 * result + (permissions != null ? permissions.hashCode() : 0);
+        result = 31 * result + (groupName != null ? groupName.hashCode() : 0);
+        result = 31 * result + (int) (lastUpdatedTimeStamp ^ (lastUpdatedTimeStamp >>> 32));
+        return result;
     }
 }

@@ -17,7 +17,7 @@
 package com.thoughtworks.go.server.dashboard;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.presentation.pipelinehistory.PipelineModel;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -25,6 +25,7 @@ import java.util.*;
 /* Understands how to cache dashboard statuses, for every pipeline. */
 @Component
 public class GoDashboardCache {
+    private final TimeStampBasedCounter timeStampBasedCounter;
     /**
      * Assumption: The put() and replaceAllEntriesInCacheWith() methods, which change this cache,
      * will always be called from the same thread (queueProcessor in GoDashboardActivityListener). Even get() will be.
@@ -32,11 +33,13 @@ public class GoDashboardCache {
      * order is not very important in this case, but it comes for free (almost) because of the map.
      */
     private LinkedHashMap<CaseInsensitiveString, GoDashboardPipeline> cache;
-    private volatile List<GoDashboardPipeline> orderedEntries;
+    private volatile GoDashboardPipelines dashboardPipelines;
 
-    public GoDashboardCache() {
+    @Autowired
+    public GoDashboardCache(TimeStampBasedCounter timeStampBasedCounter) {
+        this.timeStampBasedCounter = timeStampBasedCounter;
         cache = new LinkedHashMap<>();
-        orderedEntries = new ArrayList<>();
+        dashboardPipelines = new GoDashboardPipelines(new ArrayList<>(), timeStampBasedCounter);
     }
 
     public GoDashboardPipeline get(CaseInsensitiveString pipelineName) {
@@ -54,12 +57,12 @@ public class GoDashboardCache {
         cacheHasChanged();
     }
 
-    public List<GoDashboardPipeline> allEntriesInOrder() {
-        return orderedEntries;
+    public GoDashboardPipelines allEntriesInOrder() {
+        return dashboardPipelines;
     }
 
     private void cacheHasChanged() {
-        orderedEntries = new ArrayList<>(cache.values());
+        dashboardPipelines = new GoDashboardPipelines(new ArrayList<>(cache.values()), timeStampBasedCounter);
     }
 
     private Map<CaseInsensitiveString, GoDashboardPipeline> createMapFor(List<GoDashboardPipeline> pipelines) {

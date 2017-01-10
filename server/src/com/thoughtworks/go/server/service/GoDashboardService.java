@@ -20,13 +20,19 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
-import com.thoughtworks.go.server.dashboard.GoDashboardCache;
-import com.thoughtworks.go.server.dashboard.GoDashboardCurrentStateLoader;
-import com.thoughtworks.go.server.dashboard.GoDashboardPipeline;
+import com.thoughtworks.go.config.security.Permissions;
+import com.thoughtworks.go.domain.PipelineGroupVisitor;
+import com.thoughtworks.go.domain.PiplineConfigVisitor;
+import com.thoughtworks.go.server.dashboard.*;
+import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.domain.user.PipelineSelections;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /* Understands how to interact with the GoDashboardCache cache. */
 @Service
@@ -42,8 +48,20 @@ public class GoDashboardService {
         this.goConfigService = goConfigService;
     }
 
-    public List<GoDashboardPipeline> allPipelinesForDashboard() {
-        return cache.allEntriesInOrder();
+    public List<GoDashboardPipelineGroup> allPipelineGroupsForDashboard(PipelineSelections pipelineSelections, Username user) {
+        List<GoDashboardPipelineGroup> pipelineGroups = new ArrayList<>();
+
+        goConfigService.groups().accept(new PipelineGroupVisitor() {
+            @Override
+            public void visit(PipelineConfigs group) {
+                GoDashboardPipelineGroup dashboardPipelineGroup = dashboardPipelineGroupFor(group, pipelineSelections, user);
+                if (dashboardPipelineGroup.hasPipelines()) {
+                    pipelineGroups.add(dashboardPipelineGroup);
+                }
+            }
+        });
+
+        return pipelineGroups;
     }
 
     public void updateCacheForPipeline(CaseInsensitiveString pipelineName) {
@@ -59,6 +77,33 @@ public class GoDashboardService {
 
     public void updateCacheForAllPipelinesIn(CruiseConfig config) {
         cache.replaceAllEntriesInCacheWith(dashboardCurrentStateLoader.allPipelines(config));
+    }
+
+    private GoDashboardPipelineGroup dashboardPipelineGroupFor(PipelineConfigs pipelineGroup, PipelineSelections pipelineSelections, Username user) {
+        GoDashboardPipelineGroup goDashboardPipelineGroup = new GoDashboardPipelineGroup(pipelineGroup.getGroup(), resolvePermissionsForPipelineGroup(pipelineGroup));
+
+        if (goDashboardPipelineGroup.hasPermissions() && goDashboardPipelineGroup.canBeViewedBy(user.getUsername().toString())) {
+            pipelineGroup.accept(new PiplineConfigVisitor() {
+                @Override
+                public void visit(PipelineConfig pipelineConfig) {
+                    if (pipelineSelections.includesPipeline(pipelineConfig)) {
+                        goDashboardPipelineGroup.addPipeline(cache.get(pipelineConfig.getName()));
+                    }
+                }
+            });
+        }
+        return goDashboardPipelineGroup;
+    }
+
+    private Permissions resolvePermissionsForPipelineGroup(PipelineConfigs pipelineGroup) {
+        for (PipelineConfig pipelineConfig : pipelineGroup) {
+            GoDashboardPipeline goDashboardPipeline = cache.get(pipelineConfig.getName());
+            if (goDashboardPipeline != null) {
+                return goDashboardPipeline.permissions();
+            }
+        }
+
+        return null;
     }
 
     private void updateCache(PipelineConfigs group, PipelineConfig pipelineConfig) {

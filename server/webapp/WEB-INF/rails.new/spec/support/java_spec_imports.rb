@@ -129,4 +129,6 @@ module JavaSpecImports
   java_import com.thoughtworks.go.config.security.users.Everyone unless defined? Everyone
   java_import com.thoughtworks.go.config.security.users.NoOne unless defined? NoOne
   java_import com.thoughtworks.go.server.dashboard.GoDashboardPipeline unless defined? GoDashboardPipeline
+  java_import com.thoughtworks.go.server.dashboard.TimeStampBasedCounter unless defined? TimeStampBasedCounter
+  java_import com.thoughtworks.go.util.SystemTimeClock unless defined? SystemTimeClock
 end

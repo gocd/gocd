@@ -37,6 +37,7 @@ describe PipelinesController do
     controller.stub(:pipeline_history_service).and_return(@pipeline_history_service=double())
     controller.stub(:pipeline_lock_service).and_return(@pipieline_lock_service=double())
     controller.stub(:go_config_service).and_return(@go_config_service=double())
+    controller.stub(:pipeline_selections_service).and_return(@pipeline_selections_service=double())
     controller.stub(:security_service).and_return(@security_service=double())
     controller.stub(:pipeline_config_service).and_return(@pipeline_config_service=double())
     @pipeline_identifier = PipelineIdentifier.new("blah", 1, "label")
@@ -86,7 +87,7 @@ describe PipelinesController do
     end
 
     it "should load the dashboard" do
-      @go_config_service.should_receive(:getSelectedPipelines).with(@user_id).and_return(selections=PipelineSelections.new)
+      @pipeline_selections_service.should_receive(:getSelectedPipelines).with(@user_id).and_return(selections=PipelineSelections.new)
       @pipeline_history_service.should_receive(:allActivePipelineInstances).with(@user,selections).and_return(:pipeline_group_models)
       @pipeline_config_service.should_receive(:viewableGroupsFor).with(@user).and_return(viewable_groups=BasicPipelineConfigs.new)
       @security_service.should_receive(:canCreatePipelines).with(@user).and_return(true)
@@ -106,7 +107,7 @@ describe PipelinesController do
     it "should redirect to 'add pipeline wizard' when there are no pipelines in config only if the user is an admin" do
       pipeline_group_models = java.util.ArrayList.new
       pipeline_group_models.add(PipelineGroupModel.new("bla"))
-      @go_config_service.should_receive(:getSelectedPipelines).with(@user_id).and_return(selections=PipelineSelections.new)
+      @pipeline_selections_service.should_receive(:getSelectedPipelines).with(@user_id).and_return(selections=PipelineSelections.new)
       @pipeline_history_service.should_receive(:allActivePipelineInstances).with(@user,selections).and_return(pipeline_group_models)
       @pipeline_config_service.should_receive(:viewableGroupsFor).with(@user).and_return(viewable_groups=BasicPipelineConfigs.new())
       @security_service.should_receive(:canCreatePipelines).with(@user).and_return(true)
@@ -119,7 +120,7 @@ describe PipelinesController do
     it "should not redirect to 'add pipeline wizard' when there are no pipelines in config and the user is a template admin or is not an admin" do
       pipeline_group_models = java.util.ArrayList.new
       pipeline_group_models.add(PipelineGroupModel.new("bla"))
-      @go_config_service.should_receive(:getSelectedPipelines).with(@user_id).and_return(selections=PipelineSelections.new)
+      @pipeline_selections_service.should_receive(:getSelectedPipelines).with(@user_id).and_return(selections=PipelineSelections.new)
       @pipeline_history_service.should_receive(:allActivePipelineInstances).with(@user,selections).and_return(pipeline_group_models)
       @security_service.should_receive(:canCreatePipelines).with(@user).and_return(false)
       @pipeline_config_service.should_receive(:viewableGroupsFor).with(@user).and_return(viewable_groups=BasicPipelineConfigs.new())
@@ -133,7 +134,7 @@ describe PipelinesController do
       pipeline_group_models = java.util.ArrayList.new
       pipeline_group_models.add(PipelineGroupModel.new("bla"))
       viewable_groups = PipelineConfigMother::createGroup("blah", [PipelineConfigMother::createPipelineConfig("pip1", "stage1", ["job1"].to_java(:string))].to_java('com.thoughtworks.go.config.PipelineConfig'))
-      @go_config_service.should_receive(:getSelectedPipelines).with(@user_id).and_return(selections=PipelineSelections.new)
+      @pipeline_selections_service.should_receive(:getSelectedPipelines).with(@user_id).and_return(selections=PipelineSelections.new)
       @pipeline_history_service.should_receive(:allActivePipelineInstances).with(@user, selections).and_return(pipeline_group_models)
       @pipeline_config_service.should_receive(:viewableGroupsFor).with(@user).and_return(viewable_groups)
 
@@ -253,7 +254,7 @@ describe PipelinesController do
 
   describe "set_tab_name" do
     it "should set tab name" do
-      @go_config_service.should_receive(:getSelectedPipelines).with(@user_id).and_return(selections=PipelineSelections.new)
+      @pipeline_selections_service.should_receive(:getSelectedPipelines).with(@user_id).and_return(selections=PipelineSelections.new)
       @pipeline_history_service.should_receive(:allActivePipelineInstances).with(@user,selections).and_return(:pipeline_group_models)
       @pipeline_config_service.should_receive(:viewableGroupsFor).with(@user).and_return(viewable_groups=BasicPipelineConfigs.new)
       @security_service.should_receive(:canCreatePipelines).with(@user).and_return(true)

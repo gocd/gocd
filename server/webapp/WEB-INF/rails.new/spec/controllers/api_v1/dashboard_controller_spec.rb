@@ -24,14 +24,14 @@ describe ApiV1::DashboardController do
     @pipeline_group_models = java.util.ArrayList.new
     controller.stub(:current_user).and_return(@user)
     controller.stub(:pipeline_history_service).and_return(@pipeline_history_service=double())
-    controller.stub(:go_config_service).and_return(@go_config_service=double())
+    controller.stub(:pipeline_selections_service).and_return(@pipeline_selections_service=double())
     controller.stub(:populate_config_validity)
   end
 
   describe :dashboard do
     it 'should get dashboard json' do
       @pipeline_group_models.add(PipelineGroupModel.new("bla"))
-      @go_config_service.should_receive(:getSelectedPipelines).with(@user_id).and_return(selections=PipelineSelections.new)
+      @pipeline_selections_service.should_receive(:getSelectedPipelines).with(@user_id).and_return(selections=PipelineSelections.new)
       @pipeline_history_service.should_receive(:allActivePipelineInstances).with(@user, selections).and_return(@pipeline_group_models)
 
       get_with_api_header :dashboard
@@ -40,7 +40,7 @@ describe ApiV1::DashboardController do
     end
 
     it 'should get empty json when dashboard is empty' do
-      @go_config_service.should_receive(:getSelectedPipelines).with(@user_id).and_return(selections=PipelineSelections.new)
+      @pipeline_selections_service.should_receive(:getSelectedPipelines).with(@user_id).and_return(selections=PipelineSelections.new)
       @pipeline_history_service.should_receive(:allActivePipelineInstances).with(@user, selections).and_return(@pipeline_group_models)
 
       get_with_api_header :dashboard

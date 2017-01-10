@@ -20,7 +20,7 @@ module ApiV1
 
     def dashboard
       # TODO: What happens when there is no cookie!
-      pipeline_selections = go_config_service.getSelectedPipelines(current_user_entity_id)
+      pipeline_selections = pipeline_selections_service.getSelectedPipelines(current_user_entity_id)
       pipeline_groups     = pipeline_history_service.allActivePipelineInstances(current_user, pipeline_selections)
       presenters          = Dashboard::PipelineGroupsRepresenter.new(pipeline_groups)
 

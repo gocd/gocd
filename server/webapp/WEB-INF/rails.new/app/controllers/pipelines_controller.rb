@@ -59,7 +59,7 @@ class PipelinesController < ApplicationController
   end
 
   def select_pipelines
-    go_config_service.persistSelectedPipelines(current_user_entity_id, ((params[:selector]||{})[:pipeline]||[]), !params[:show_new_pipelines].nil?)
+    pipeline_selections_service.persistSelectedPipelines(current_user_entity_id, ((params[:selector]||{})[:pipeline]||[]), !params[:show_new_pipelines].nil?)
     render :nothing => true
   end
 
@@ -87,7 +87,7 @@ class PipelinesController < ApplicationController
   end
 
   def load_pipeline_related_information
-    @pipeline_selections = go_config_service.getSelectedPipelines(current_user_entity_id)
+    @pipeline_selections = pipeline_selections_service.getSelectedPipelines(current_user_entity_id)
     @pipeline_groups = pipeline_history_service.allActivePipelineInstances(current_user, @pipeline_selections)
     @pipeline_configs = pipeline_config_service.viewableGroupsFor(current_user)
   end

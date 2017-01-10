@@ -788,50 +788,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return new PipelineConfigDependencyGraph(currentPipeline, graphs.toArray(new PipelineConfigDependencyGraph[0]));
     }
 
-    public PipelineSelections getSelectedPipelines(Long userId) {
-        PipelineSelections pipelineSelections = getPersistedPipelineSelections(userId);
-        if (pipelineSelections == null) {
-            pipelineSelections = PipelineSelections.ALL;
-        }
-        return pipelineSelections;
-    }
 
-    public long persistSelectedPipelines(Long userId, List<String> selectedPipelines, boolean isBlacklist) {
-        PipelineSelections pipelineSelections = findOrCreateCurrentPipelineSelectionsFor(userId);
-
-        if (isBlacklist) {
-            List<String> unselectedPipelines = invertSelections(selectedPipelines);
-            pipelineSelections.update(unselectedPipelines, clock.currentTime(), userId, isBlacklist);
-        } else {
-            pipelineSelections.update(selectedPipelines, clock.currentTime(), userId, isBlacklist);
-        }
-
-        return pipelineRepository.saveSelectedPipelines(pipelineSelections);
-    }
-
-    private PipelineSelections findOrCreateCurrentPipelineSelectionsFor(Long userId) {
-        PipelineSelections pipelineSelections = pipelineRepository.findPipelineSelectionsByUserId(userId);
-        if (pipelineSelections == null) {
-            pipelineSelections = new PipelineSelections(new ArrayList<>(), clock.currentTime(), userId, true);
-        }
-        return pipelineSelections;
-    }
-
-    private List<String> invertSelections(List<String> selectedPipelines) {
-        List<String> unselectedPipelines = new ArrayList<>();
-        List<PipelineConfig> pipelineConfigList = cruiseConfig().getAllPipelineConfigs();
-        for (PipelineConfig pipelineConfig : pipelineConfigList) {
-            String pipelineName = CaseInsensitiveString.str(pipelineConfig.name());
-            if (!selectedPipelines.contains(pipelineName)) {
-                unselectedPipelines.add(pipelineName);
-            }
-        }
-        return unselectedPipelines;
-    }
-
-    private PipelineSelections getPersistedPipelineSelections(Long userId) {
-        return pipelineRepository.findPipelineSelectionsByUserId(userId);
-    }
 
     public List<Role> rolesForUser(final CaseInsensitiveString user) {
         return security().getRoles().memberRoles(new AdminUser(user));
@@ -978,14 +935,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
 
     public boolean isAuthorizedToViewAndEditTemplates(Username username) {
         return getCurrentConfig().getTemplates().canViewAndEditTemplate(username.getUsername());
-    }
-
-    public void updateUserPipelineSelections(Long userId, CaseInsensitiveString pipelineToAdd) {
-        PipelineSelections currentSelections = findOrCreateCurrentPipelineSelectionsFor(userId);
-        if (!currentSelections.isBlacklist()) {
-            currentSelections.addPipelineToSelections(pipelineToAdd);
-            pipelineRepository.saveSelectedPipelines(currentSelections);
-        }
     }
 
     public boolean isPipelineEditableViaUI(String pipelineName) {

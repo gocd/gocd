@@ -26,6 +26,8 @@ import static com.thoughtworks.go.helper.PipelineHistoryMother.pipelineWithLates
 import static com.thoughtworks.go.helper.PipelineHistoryMother.pipelineWithLatestRevisionAndMaterialRevision;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
 
 
@@ -34,8 +36,14 @@ public class EnvironmentTest {
     public void shouldBeAbleToTellIfThereAreAnyPiplinesThatHaveNewMaterialRevisions() {
         MaterialRevisions latest = new MaterialRevisions();
         latest.addRevision(MaterialsMother.hgMaterial(), ModificationsMother.aCheckIn("21"));
-        assertThat(new Environment("blah", Arrays.asList(pipeline(), pipelineWithLatestRevision(latest))).hasNewRevisions(),is(true));
-        assertThat(new Environment("blah", Arrays.asList(pipeline(), pipelineWithLatestRevisionAndMaterialRevision(latest,latest))).hasNewRevisions(),is(false));
+        boolean isLocal = true;
+        assertThat(new Environment("blah", isLocal, Arrays.asList(pipeline(), pipelineWithLatestRevision(latest))).hasNewRevisions(),is(true));
+        assertThat(new Environment("blah", isLocal, Arrays.asList(pipeline(), pipelineWithLatestRevisionAndMaterialRevision(latest,latest))).hasNewRevisions(),is(false));
     }
 
+    @Test
+    public void shouldReturnWhetherTheEnvironmentIsLocal() throws Exception {
+        Environment env1 = new Environment("env1", true, null);
+        assertTrue(env1.isLocal());
+    }
 }

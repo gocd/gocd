@@ -61,7 +61,7 @@ public class EnvironmentServiceTest {
         PipelineInstanceModel stagingInstance = stubPipelineHistoryServiceToReturnPipelines("staging-pipeline");
         ArrayList<Environment> environments = new ArrayList<Environment>();
 
-        environmentService.addEnvironmentFor(new CaseInsensitiveString("uat"), username, environments);
+        environmentService.addEnvironmentFor(new CaseInsensitiveString("uat"), username, true, environments);
 
         assertThat(environments.size(),is(1));
         Environment environment = environments.get(0);

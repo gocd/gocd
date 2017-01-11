@@ -23,10 +23,12 @@ import java.util.List;
  */
 public class Environment {
     private final String name;
+    private boolean isLocal;
     private List<PipelineModel> pipelinesModels;
 
-    public Environment(String name, List<PipelineModel> pipelineModels) {
+    public Environment(String name, boolean isLocal, List<PipelineModel> pipelineModels) {
         this.name = name;
+        this.isLocal = isLocal;
         pipelinesModels = pipelineModels;
     }
 
@@ -36,6 +38,10 @@ public class Environment {
 
     public String getName() {
         return name;
+    }
+
+    public boolean isLocal() {
+        return isLocal;
     }
 
     public boolean hasNewRevisions() {

@@ -401,6 +401,16 @@ public class EnvironmentConfigServiceTest {
         environmentConfigService.getEnvironmentConfig("invalid-environment-name");
     }
 
+    @Test
+    public void shouldReturnWhetherEnvironmentIsLocalOrNot() throws Exception {
+        CaseInsensitiveString envName = new CaseInsensitiveString("foo");
+        String pipelineName = "up42";
+        EnvironmentsConfig environments = environmentsConfig(envName.toString(), pipelineName);
+        environmentConfigService.sync(environments);
+        EnvironmentConfig environmentConfig = environments.find(envName);
+        assertThat(environmentConfigService.isEnvironmentLocal(envName), is(environmentConfig.isLocal()));
+    }
+
     private EnvironmentsConfig environmentsConfig(String envName, String pipelineName) {
         EnvironmentsConfig environments = new EnvironmentsConfig();
         BasicEnvironmentConfig config = new BasicEnvironmentConfig(new CaseInsensitiveString(envName));

@@ -253,4 +253,8 @@ public class EnvironmentConfigService implements ConfigChangedListener {
             }
         }
     }
+
+    public boolean isEnvironmentLocal(CaseInsensitiveString environmentName) {
+        return this.environments.find(environmentName).isLocal();
+    }
 }

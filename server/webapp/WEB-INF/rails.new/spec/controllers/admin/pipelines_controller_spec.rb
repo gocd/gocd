@@ -36,6 +36,7 @@ describe Admin::PipelinesController do
     allow(controller).to receive(:pluggable_task_service).and_return(@pluggable_task_service)
     allow(controller).to receive(:task_view_service).and_return(@task_view_service = double('Task View Service'))
     allow(controller).to receive(:package_definition_service).with(no_args).and_return(@package_definition_service = StubPackageDefinitionService.new)
+    allow(controller).to receive(:pipeline_selections_service).and_return(@pipeline_selections_service = double('pipeline selections service'))
   end
 
   describe "routes" do
@@ -418,7 +419,7 @@ describe Admin::PipelinesController do
       @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
       allow(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("new-pip").and_return(@pause_info)
 
-      allow(@go_config_service).to receive(:updateUserPipelineSelections)
+      allow(@pipeline_selections_service).to receive(:updateUserPipelineSelections)
       allow(controller).to receive(:cookies).and_return({})
       allow(@security_service).to receive(:modifiableGroupsForUser).with(@user).and_return(["group1", "group2"])
     end
@@ -467,7 +468,7 @@ describe Admin::PipelinesController do
 
       expect(@go_config_service).to receive(:getCurrentConfig).twice.and_return(Cloner.new().deepClone(@cruise_config))
       expect(@pipeline_pause_service).to receive(:pause).with("new-pip", "Under construction", @user)
-      expect(@go_config_service).to receive(:updateUserPipelineSelections).with(selected_pipeline_id, current_user_entity_id, CaseInsensitiveString.new(pipeline_name))
+      expect(@pipeline_selections_service).to receive(:updateUserPipelineSelections).with(selected_pipeline_id, current_user_entity_id, CaseInsensitiveString.new(pipeline_name))
 
       stub_save_for_success
       post :create, :config_md5 => "1234abcd", :pipeline_group => {:group => "new-group", :pipeline => {:name => pipeline_name}}
@@ -483,7 +484,7 @@ describe Admin::PipelinesController do
       pipeline_name = "new-pip"
 
       expect(@go_config_service).to receive(:getCurrentConfig).twice.and_return(Cloner.new().deepClone(@cruise_config))
-      expect(@go_config_service).not_to receive(:updateUserPipelineSelections)
+      expect(@pipeline_selections_service).not_to receive(:updateUserPipelineSelections)
 
       stub_save_for_validation_error do |result, _, _|
         result.unauthorized(com.thoughtworks.go.i18n.LocalizedMessage.string("UNAUTHORIZED_TO_CREATE_PIPELINE"), nil)
@@ -752,7 +753,7 @@ describe Admin::PipelinesController do
     describe "save_clone" do
       before :each do
         allow(@pipeline_pause_service).to receive(:pause)
-        allow(@go_config_service).to receive(:updateUserPipelineSelections)
+        allow(@pipeline_selections_service).to receive(:updateUserPipelineSelections)
       end
 
       it "should save cloned pipeline successfully" do
@@ -812,7 +813,7 @@ describe Admin::PipelinesController do
         selected_pipeline_id = "456"
         allow(controller).to receive(:cookies).and_return(cookiejar={:selected_pipelines => selected_pipeline_id})
 
-        expect(@go_config_service).to receive(:updateUserPipelineSelections).with(selected_pipeline_id, current_user_entity_id, CaseInsensitiveString.new("new-pip"))
+        expect(@pipeline_selections_service).to receive(:updateUserPipelineSelections).with(selected_pipeline_id, current_user_entity_id, CaseInsensitiveString.new("new-pip"))
 
         post :save_clone, :config_md5 => "1234abcd", :pipeline_group => {:group => "group1", :pipeline => {:name => "new-pip"}}, :pipeline_name => @pipeline.name().to_s
       end
@@ -824,7 +825,7 @@ describe Admin::PipelinesController do
 
         post :save_clone, :config_md5 => "1234abcd", :pipeline_group => {:group => "group1", :pipeline => {:name => "new-pip"}}, :pipeline_name => @pipeline.name().to_s
 
-        expect(@go_config_service).to_not receive(:updateUserPipelineSelections)
+        expect(@pipeline_selections_service).to_not receive(:updateUserPipelineSelections)
       end
     end
   end

@@ -86,6 +86,7 @@ module Services
     :pipeline_lock_service,
     :pipeline_pause_service,
     :pipeline_scheduler,
+    :pipeline_selections_service,
     :pipeline_service,
     :pipeline_sql_map_dao,
     :pipeline_stages_feed_service,
@@ -111,7 +112,7 @@ module Services
     :user_service,
     :value_stream_map_service,
     :version_info_service,
-    :xml_api_service
+    :xml_api_service,
   )
 
   service_with_alias_name(:go_config_service_for_url, "goConfigService")

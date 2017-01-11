@@ -620,160 +620,6 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldPersistPipelineSelections_WhenSecurityIsDisabled() {
-        Date date = new DateTime(2000, 1, 1, 1, 1, 1, 1).toDate();
-        when(clock.currentTime()).thenReturn(date);
-        mockConfig();
-        Matcher<PipelineSelections> pipelineSelectionsMatcher = hasValues(Arrays.asList("pipelineX", "pipeline3"), Arrays.asList("pipeline1", "pipeline2"), date, null);
-        when(pipelineRepository.saveSelectedPipelines(argThat(pipelineSelectionsMatcher))).thenReturn(2L);
-        assertThat(goConfigService.persistSelectedPipelines(null, null, Arrays.asList("pipelineX", "pipeline3"), true), is(2l));
-        verify(pipelineRepository).saveSelectedPipelines(argThat(pipelineSelectionsMatcher));
-    }
-
-    @Test
-    public void shouldPersistPipelineSelectionsAgainstUser_AlreadyHavingSelections() {
-        Date date = new DateTime(2000, 1, 1, 1, 1, 1, 1).toDate();
-        when(clock.currentTime()).thenReturn(date);
-        mockConfigWithSecurity();
-        User user = getUser("badger", 10L);
-        PipelineSelections pipelineSelections = new PipelineSelections(Arrays.asList("pipeline2"), new Date(), user.getId(), true);
-        when(pipelineRepository.findPipelineSelectionsByUserId(user.getId())).thenReturn(pipelineSelections);
-        when(pipelineRepository.saveSelectedPipelines(pipelineSelections)).thenReturn(2L);
-
-        long pipelineSelectionId = goConfigService.persistSelectedPipelines("1", user.getId(), Arrays.asList("pipelineX", "pipeline3"), true);
-
-        assertThat(pipelineSelections.getSelections(), is("pipeline1,pipeline2"));
-        assertThat(pipelineSelectionId, is(2l));
-        verify(pipelineRepository).saveSelectedPipelines(pipelineSelections);
-        verify(pipelineRepository).findPipelineSelectionsByUserId(user.getId());
-        verify(pipelineRepository, never()).findPipelineSelectionsById("1");
-    }
-
-    @Test
-    public void shouldPersistPipelineSelectionsAgainstUser_WhenUserHasNoSelections() {
-        Date date = new DateTime(2000, 1, 1, 1, 1, 1, 1).toDate();
-        when(clock.currentTime()).thenReturn(date);
-        mockConfigWithSecurity();
-        User user = getUser("badger", 10L);
-        Matcher<PipelineSelections> pipelineSelectionsMatcher = hasValues(Arrays.asList("pipelineX", "pipeline3"), Arrays.asList("pipeline1", "pipeline2"), date, user.getId());
-        when(pipelineRepository.findPipelineSelectionsByUserId(user.getId())).thenReturn(null);
-        when(pipelineRepository.saveSelectedPipelines(argThat(pipelineSelectionsMatcher))).thenReturn(2L);
-
-        long pipelineSelectionsId = goConfigService.persistSelectedPipelines("1", user.getId(), Arrays.asList("pipelineX", "pipeline3"), true);
-
-        assertThat(pipelineSelectionsId, is(2l));
-        verify(pipelineRepository).saveSelectedPipelines(argThat(pipelineSelectionsMatcher));
-        verify(pipelineRepository).findPipelineSelectionsByUserId(user.getId());
-        verify(pipelineRepository, never()).findPipelineSelectionsById("1");
-    }
-
-    @Test
-    public void shouldPersistPipelineSelectionsShouldRemovePipelinesFromSelectedGroups() {
-        CruiseConfig config = configWith(
-                createGroup("group1", pipelineConfig("pipeline1"), pipelineConfig("pipeline2")),
-                createGroup("group2", pipelineConfig("pipelineX")),
-                createGroup("group3", pipelineConfig("pipeline3"), pipelineConfig("pipeline4")));
-        when(goConfigDao.load()).thenReturn(config);
-        goConfigService.persistSelectedPipelines(null, null, Arrays.asList("pipeline1", "pipeline2", "pipeline3"), true);
-        verify(pipelineRepository).saveSelectedPipelines(argThat(hasValues(Arrays.asList("pipeline1", "pipeline2", "pipeline3"), Arrays.asList("pipelineX", "pipeline4"), clock.currentTime(), null)));
-    }
-
-    @Test
-    public void shouldPersistInvertedListOfPipelineSelections_WhenBlacklistIsSelected() {
-        Date date = new DateTime(2000, 1, 1, 1, 1, 1, 1).toDate();
-        when(clock.currentTime()).thenReturn(date);
-        mockConfigWithSecurity();
-
-        User user = getUser("badger", 10L);
-        PipelineSelections blacklistPipelineSelections = new PipelineSelections(new ArrayList<>(), date, user.getId(), false);
-        when(pipelineRepository.findPipelineSelectionsByUserId(user.getId())).thenReturn(blacklistPipelineSelections);
-
-        goConfigService.persistSelectedPipelines(null, user.getId(), Arrays.asList("pipelineX", "pipeline3"), true);
-
-        verify(pipelineRepository).saveSelectedPipelines(argThat(isAPipelineSelectionsInstanceWith(true, "pipeline1", "pipeline2")));
-    }
-
-    @Test
-    public void shouldPersistNonInvertedListOfPipelineSelections_WhenWhitelistIsSelected() {
-        Date date = new DateTime(2000, 1, 1, 1, 1, 1, 1).toDate();
-        when(clock.currentTime()).thenReturn(date);
-        mockConfigWithSecurity();
-
-        User user = getUser("badger", 10L);
-        PipelineSelections whitelistPipelineSelections = new PipelineSelections(new ArrayList<>(), date, user.getId(), true);
-        when(pipelineRepository.findPipelineSelectionsByUserId(user.getId())).thenReturn(whitelistPipelineSelections);
-
-        goConfigService.persistSelectedPipelines(null, user.getId(), Arrays.asList("pipelineX", "pipeline3"), false);
-
-        verify(pipelineRepository).saveSelectedPipelines(argThat(isAPipelineSelectionsInstanceWith(false, "pipelineX", "pipeline3")));
-    }
-
-    @Test
-    public void shouldUpdateAlreadyPersistedSelection_WhenSecurityIsDisabled() {
-        Date date = new DateTime(2000, 1, 1, 1, 1, 1, 1).toDate();
-        when(clock.currentTime()).thenReturn(date);
-        mockConfig();
-        PipelineSelections pipelineSelections = new PipelineSelections(Arrays.asList("pip1"));
-        when(pipelineRepository.findPipelineSelectionsById("123")).thenReturn(pipelineSelections);
-        List<String> newPipelines = Arrays.asList("pipeline1", "pipeline2");
-
-        goConfigService.persistSelectedPipelines("123", null, newPipelines, true);
-
-        assertHasSelected(pipelineSelections, newPipelines);
-        assertThat(pipelineSelections.lastUpdated(), is(date));
-        verify(pipelineRepository).findPipelineSelectionsById("123");
-        verify(pipelineRepository).saveSelectedPipelines(argThat(hasValues(Arrays.asList("pipeline1", "pipeline2"), Arrays.asList("pipelineX", "pipeline3"), clock.currentTime(), null)));
-    }
-
-    @Test
-    public void shouldReturnPersistedPipelineSelectionsAgainstCookieId_WhenSecurityisDisabled() {
-        PipelineSelections pipelineSelections = new PipelineSelections(Arrays.asList("pip1"));
-        when(pipelineRepository.findPipelineSelectionsById("123")).thenReturn(pipelineSelections);
-        assertThat(goConfigService.getSelectedPipelines("123", null), is(pipelineSelections));
-        assertThat(goConfigService.getSelectedPipelines("", null), is(PipelineSelections.ALL));
-        assertThat(goConfigService.getSelectedPipelines("345", null), is(PipelineSelections.ALL));
-    }
-
-    @Test
-    public void shouldReturnPersistedPipelineSelectionsAgainstUser_WhenSecurityIsEnabled() {
-        User loser = getUser("loser", 10L);
-        User newUser = getUser("new user", 20L);
-        when(userDao.findUser("new user")).thenReturn(newUser);
-        mockConfigWithSecurity();
-        PipelineSelections pipelineSelections = new PipelineSelections(Arrays.asList("pip1"));
-
-        when(pipelineRepository.findPipelineSelectionsByUserId(loser.getId())).thenReturn(pipelineSelections);
-
-        assertThat(goConfigService.getSelectedPipelines("1", loser.getId()), is(pipelineSelections));
-        assertThat(goConfigService.getSelectedPipelines("1", newUser.getId()), is(PipelineSelections.ALL));
-    }
-
-    @Test
-    public void shouldReturnAllPipelineSelections_WhenSecurityIsEnabled_AndNoPersistedSelections() {
-        User user = getUser("loser", 10L);
-        User newUser = getUser("new user", 20L);
-        when(userDao.findUser("new user")).thenReturn(newUser);
-        mockConfigWithSecurity();
-
-        when(pipelineRepository.findPipelineSelectionsByUserId(user.getId())).thenReturn(null);
-        when(pipelineRepository.findPipelineSelectionsById("1")).thenReturn(null);
-
-        assertThat(goConfigService.getSelectedPipelines("1", newUser.getId()), is(PipelineSelections.ALL));
-    }
-
-    @Test
-    public void shouldReturnPersistedPipelineSelectionsAgainstCookieId_WhenSecurityIsEnabled_AndUserSelectionsDoesNotExist() {
-        User user = getUser("loser", 10L);
-        mockConfigWithSecurity();
-        PipelineSelections pipelineSelections = new PipelineSelections(Arrays.asList("pip1"));
-
-        when(pipelineRepository.findPipelineSelectionsByUserId(user.getId())).thenReturn(null);
-        when(pipelineRepository.findPipelineSelectionsById("1")).thenReturn(pipelineSelections);
-
-        assertThat(goConfigService.getSelectedPipelines("1", user.getId()), is(pipelineSelections));
-    }
-
-    @Test
     public void shouldRegisterBaseUrlChangeListener() throws Exception {
         CruiseConfig cruiseConfig = new GoConfigMother().cruiseConfigWithOnePipelineGroup();
         stub(goConfigDao.load()).toReturn(cruiseConfig);
@@ -1096,56 +942,6 @@ public class GoConfigServiceTest {
         verify(cruiseConfig).pipelines("group");
     }
 
-    @Test
-    public void shouldNotUpdatePipelineSelectionsWhenTheUserIsAnonymousAndHasNeverSelectedPipelines() {
-        goConfigService.updateUserPipelineSelections(null, null, new CaseInsensitiveString("pipelineNew"));
-
-        verify(pipelineRepository, times(0)).saveSelectedPipelines(argThat(Matchers.any(PipelineSelections.class)));
-    }
-
-    @Test
-    public void shouldNotUpdatePipelineSelectionsWhenTheUserIsAnonymousAndHasSelectedPipelines_WithBlacklist() {
-        when(pipelineRepository.findPipelineSelectionsById("1")).thenReturn(new PipelineSelections(Arrays.asList("pipeline1", "pipeline2"), null, null, true));
-
-        goConfigService.updateUserPipelineSelections("1", null, new CaseInsensitiveString("pipelineNew"));
-
-        verify(pipelineRepository).findPipelineSelectionsById("1");
-        verify(pipelineRepository, times(0)).saveSelectedPipelines(argThat(Matchers.any(PipelineSelections.class)));
-    }
-
-    @Test
-    public void shouldUpdatePipelineSelectionsWhenTheUserIsAnonymousAndHasSelectedPipelines_WithWhitelist() {
-        when(pipelineRepository.findPipelineSelectionsById("1")).thenReturn(new PipelineSelections(Arrays.asList("pipeline1", "pipeline2"), null, null, false));
-
-        goConfigService.updateUserPipelineSelections("1", null, new CaseInsensitiveString("pipelineNew"));
-
-        verify(pipelineRepository).findPipelineSelectionsById("1");
-        verify(pipelineRepository, times(1)).saveSelectedPipelines(argThat(isAPipelineSelectionsInstanceWith(false, "pipeline1", "pipeline2", "pipelineNew")));
-    }
-
-    @Test
-    public void shouldNotUpdatePipelineSelectionsWhenTheUserIsLoggedIn_WithBlacklist() {
-        mockConfigWithSecurity();
-
-        when(pipelineRepository.findPipelineSelectionsByUserId(1L)).thenReturn(new PipelineSelections(Arrays.asList("pipeline1", "pipeline2"), null, null, true));
-
-        goConfigService.updateUserPipelineSelections(null, 1L, new CaseInsensitiveString("pipelineNew"));
-
-        verify(pipelineRepository).findPipelineSelectionsByUserId(1L);
-        verify(pipelineRepository, times(0)).saveSelectedPipelines(argThat(Matchers.any(PipelineSelections.class)));
-    }
-
-    @Test
-    public void shouldUpdatePipelineSelectionsWhenTheUserIsLoggedIn_WithWhitelist() {
-        mockConfigWithSecurity();
-
-        when(pipelineRepository.findPipelineSelectionsByUserId(1L)).thenReturn(new PipelineSelections(Arrays.asList("pipeline1", "pipeline2"), null, null, false));
-
-        goConfigService.updateUserPipelineSelections(null, 1L, new CaseInsensitiveString("pipelineNew"));
-
-        verify(pipelineRepository).findPipelineSelectionsByUserId(1L);
-        verify(pipelineRepository, times(1)).saveSelectedPipelines(argThat(isAPipelineSelectionsInstanceWith(false, "pipeline1", "pipeline2", "pipelineNew")));
-    }
 
 
     @Test
@@ -1267,6 +1063,7 @@ public class GoConfigServiceTest {
         assertFalse(goConfigService.canEditPipeline("pipeline1", new Username("admin_user")));
     }
 
+    @Test
     public void shouldFindGroupByPipelineName() throws Exception {
         GoConfigMother configMother = new GoConfigMother();
         BasicCruiseConfig config = GoConfigMother.defaultCruiseConfig();
@@ -1299,23 +1096,6 @@ public class GoConfigServiceTest {
         when(goConfigDao.checkConfigFileValid()).thenReturn(GoConfigValidity.invalid(new JDOMParseException("JDom exception", new RuntimeException())));
         return new GoConfigService(goConfigDao, pipelineRepository, new SystemTimeClock(), mock(GoConfigMigration.class), goCache, null,
                 ConfigElementImplementationRegistryMother.withNoPlugins(), instanceFactory, null, null);
-    }
-
-    private CruiseConfig mockConfig() {
-        CruiseConfig config = configWith(
-                createGroup("group0", pipelineConfig("pipeline1"), pipelineConfig("pipeline2")),
-                createGroup("group1", pipelineConfig("pipelineX")),
-                createGroup("group2", pipelineConfig("pipeline3")));
-        when(goConfigDao.load()).thenReturn(config);
-        return config;
-    }
-
-    private CruiseConfig mockConfigWithSecurity() {
-        CruiseConfig config = mockConfig();
-        final SecurityConfig securityConfig = new SecurityConfig(true);
-        securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("file", "cd.go.authentication.passwordfile"));
-        config.server().useSecurity(securityConfig);
-        return config;
     }
 
     private GoConfigInvalidException getGoConfigInvalidException() {
@@ -1360,58 +1140,6 @@ public class GoConfigServiceTest {
             public void describeTo(Description description) {
             }
         };
-    }
-
-    private User getUser(final String userName, long id) {
-        long userId = id;
-        User user = new User(userName);
-        user.setId(userId);
-        when(userDao.findUser(userName)).thenReturn(user);
-        return user;
-    }
-
-    private Matcher<PipelineSelections> hasValues(final List<String> isVisible, final List<String> isNotVisible, final Date today, final Long userId) {
-        return new BaseMatcher<PipelineSelections>() {
-            public boolean matches(Object o) {
-                PipelineSelections pipelineSelections = (PipelineSelections) o;
-                assertHasSelected(pipelineSelections, isVisible);
-                assertHasSelected(pipelineSelections, isNotVisible, false);
-                assertThat(pipelineSelections.lastUpdated(), is(today));
-                assertThat(pipelineSelections.userId(), is(userId));
-                return true;
-            }
-
-            public void describeTo(Description description) {
-            }
-        };
-    }
-
-    private Matcher<PipelineSelections> isAPipelineSelectionsInstanceWith(final boolean isBlacklist, final String... pipelineSelectionsInInstance) {
-        return new BaseMatcher<PipelineSelections>() {
-            public boolean matches(Object o) {
-                PipelineSelections pipelineSelections = (PipelineSelections) o;
-                assertThat(pipelineSelections.isBlacklist(), is(isBlacklist));
-
-                List<String> expectedSelectionsAsList = Arrays.asList(pipelineSelectionsInInstance);
-                assertEquals(pipelineSelections.getSelections(), ListUtil.join(expectedSelectionsAsList, ","));
-
-                return true;
-            }
-
-            public void describeTo(Description description) {
-            }
-        };
-    }
-
-    private void assertHasSelected(PipelineSelections pipelineSelections, List<String> pipelines) {
-        assertHasSelected(pipelineSelections, pipelines, true);
-    }
-
-    private void assertHasSelected(PipelineSelections pipelineSelections, List<String> pipelines, boolean has) {
-        String message = "Expected: " + pipelines + " to include " + pipelineSelections + ": (" + has + ").";
-        for (String pipeline : pipelines) {
-            assertThat(message + ". Failed to find: " + pipeline, pipelineSelections.includesPipeline(pipelineConfig(pipeline)), is(has));
-        }
     }
 
     private String groupXml(final String groupName) {

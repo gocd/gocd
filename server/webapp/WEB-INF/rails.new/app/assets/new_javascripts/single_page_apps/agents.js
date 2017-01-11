@@ -15,14 +15,13 @@
  */
 
 require([
-  'jquery', 'mithril',
-  'models/agents/agents',
-  'views/agents/agents_widget',
-  'views/agents/models/agents_widget_view_model',
-  'foundation.util.mediaQuery', 'foundation.dropdownMenu', 'foundation.responsiveToggle', 'foundation.dropdown'
-], function ($, m, Agents, AgentsWidget, AgentsVM) {
+  'jquery', 'mithril', 'models/agents/agents', 'views/agents/agents_widget', 'views/agents/models/agents_widget_view_model',
+  'models/shared/version_updater', 'foundation.util.mediaQuery', 'foundation.dropdownMenu', 'foundation.responsiveToggle',
+  'foundation.dropdown'
+], function ($, m, Agents, AgentsWidget, AgentsVM, VersionUpdater) {
 
   $(function () {
+    new VersionUpdater().update();
 
     var agentsDOMElement = document.getElementById('agents');
 

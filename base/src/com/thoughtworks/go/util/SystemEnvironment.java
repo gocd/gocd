@@ -203,6 +203,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoIntSystemProperty DEPENDENCY_MATERIAL_UPDATE_LISTENERS = new GoIntSystemProperty("dependency.material.check.threads", 3);
 
     public static GoSystemProperty<Boolean> OPTIMIZE_FULL_CONFIG_SAVE = new GoBooleanSystemProperty("optimize.full.config.save", true);
+    public static GoSystemProperty<String> GO_SERVER_MODE = new GoStringSystemProperty("go.server.mode", "production");
 
     private final static Map<String, String> GIT_ALLOW_PROTOCOL;
 
@@ -804,6 +805,10 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public boolean optimizeFullConfigSave() {
         return OPTIMIZE_FULL_CONFIG_SAVE.getValue();
+    }
+
+    public boolean isProductionMode() {
+        return GO_SERVER_MODE.getValue().equalsIgnoreCase("production");
     }
 
     public static abstract class GoSystemProperty<T> {

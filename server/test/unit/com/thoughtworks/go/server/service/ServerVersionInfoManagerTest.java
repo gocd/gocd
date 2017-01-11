@@ -48,6 +48,7 @@ public class ServerVersionInfoManagerTest {
         systemEnvironment = mock(SystemEnvironment.class);
         manager = new ServerVersionInfoManager(builder, versionInfoDao, new SystemTimeClock(), goCache, systemEnvironment);
 
+        stub(systemEnvironment.isProductionMode()).toReturn(true);
         when(systemEnvironment.isGOUpdateCheckEnabled()).thenReturn(true);
     }
 
@@ -126,12 +127,12 @@ public class ServerVersionInfoManagerTest {
     @Test
     public void shouldNotReturnVersionInfoForDevelopementServer(){
         when(builder.getServerVersionInfo()).thenReturn(null);
+        when(systemEnvironment.isProductionMode()).thenReturn(false);
 
         manager.initialize();
 
         assertNull(manager.versionInfoForUpdate());
     }
-
 
     @Test
     public void shouldNotGetVersionInfoIfLatestVersionIsBeingUpdated(){
@@ -221,6 +222,7 @@ public class ServerVersionInfoManagerTest {
 
         when(builder.getServerVersionInfo()).thenReturn(new VersionInfo());
         when(systemEnvironment.isGOUpdateCheckEnabled()).thenReturn(true);
+        when(systemEnvironment.isProductionMode()).thenReturn(true);
 
         manager = new ServerVersionInfoManager(builder, versionInfoDao, new SystemTimeClock(), goCache, systemEnvironment);
         manager.initialize();
@@ -229,10 +231,11 @@ public class ServerVersionInfoManagerTest {
     }
 
     @Test
-    public void shouldBeFalseForADevelopmentServer(){
+    public void updateCheckShouldBeDisabledForADevelopmentServer(){
         SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
 
-        when(builder.getServerVersionInfo()).thenReturn(null);
+        when(builder.getServerVersionInfo()).thenReturn(new VersionInfo());
+        when(systemEnvironment.isProductionMode()).thenReturn(false);
         when(systemEnvironment.isGOUpdateCheckEnabled()).thenReturn(true);
 
         manager = new ServerVersionInfoManager(builder, versionInfoDao, new SystemTimeClock(), goCache, systemEnvironment);
@@ -245,8 +248,9 @@ public class ServerVersionInfoManagerTest {
     public void shouldBeFalseIfVersionCheckIsDisabled(){
         SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
 
-        when(builder.getServerVersionInfo()).thenReturn(null);
-        when(systemEnvironment.isGOUpdateCheckEnabled()).thenReturn(true);
+        when(builder.getServerVersionInfo()).thenReturn(new VersionInfo());
+        when(systemEnvironment.isProductionMode()).thenReturn(true);
+        when(systemEnvironment.isGOUpdateCheckEnabled()).thenReturn(false);
 
         manager = new ServerVersionInfoManager(builder, versionInfoDao, new SystemTimeClock(), goCache, systemEnvironment);
         manager.initialize();

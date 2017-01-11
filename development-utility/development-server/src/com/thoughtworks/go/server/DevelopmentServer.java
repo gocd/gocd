@@ -62,6 +62,7 @@ public class DevelopmentServer {
 
         systemEnvironment.set(SystemEnvironment.DEFAULT_PLUGINS_ZIP, "/plugins.zip");
         systemEnvironment.setProperty(GoConstants.I18N_CACHE_LIFE, "0"); //0 means reload when stale
+        systemEnvironment.set(SystemEnvironment.GO_SERVER_MODE, "development");
         setupPeriodicGC(systemEnvironment);
         PropertyConfigurator.configureAndWatch("./properties/src/log4j.properties", 100L);
         File pluginsDist = new File("../tw-go-plugins/dist/");

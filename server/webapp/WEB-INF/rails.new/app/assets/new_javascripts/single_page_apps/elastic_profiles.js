@@ -15,14 +15,14 @@
  */
 
 require([
-  'jquery', 'mithril',
-  'views/elastic_profiles/elastic_profiles_widget',
-  'models/pipeline_configs/plugin_infos',
-  'foundation.util.mediaQuery', 'foundation.dropdownMenu', 'foundation.responsiveToggle', 'foundation.dropdown'
-], function ($, m, ElasticProfilesWidget, PluginInfos) {
+  'jquery', 'mithril', 'views/elastic_profiles/elastic_profiles_widget', 'models/pipeline_configs/plugin_infos',
+  'models/shared/version_updater', 'foundation.util.mediaQuery', 'foundation.dropdownMenu',
+  'foundation.responsiveToggle', 'foundation.dropdown'
+], function ($, m, ElasticProfilesWidget, PluginInfos, VersionUpdater) {
 
   $(function () {
     $(document).foundation();
+    new VersionUpdater().update();
 
     var onSuccess = function () {
       m.mount($("#elastic-profiles").get(0), ElasticProfilesWidget);

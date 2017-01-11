@@ -18,9 +18,9 @@ require([
   'jquery', 'mithril', 'models/pipeline_configs/pluggable_tasks', 'models/pipeline_configs/resources', 'models/pipeline_configs/users',
   'models/pipeline_configs/roles', 'views/pipeline_configs/pipeline_config_widget', 'models/pipeline_configs/plugin_infos',
   'models/pipeline_configs/pluggable_scms', 'models/pipeline_configs/scms', 'models/elastic_profiles/elastic_profiles',
-  'foundation.util.mediaQuery', 'foundation.dropdownMenu',
-  'foundation.responsiveToggle', 'foundation.dropdown'
-], function ($, m, PluggableTasks, Resources, Users, Roles, PipelineConfigWidget, PluginInfos, PluggableSCMs, SCMs, ElasticProfiles) {
+  'models/shared/version_updater', 'foundation.util.mediaQuery', 'foundation.dropdownMenu', 'foundation.responsiveToggle',
+  'foundation.dropdown'
+], function ($, m, PluggableTasks, Resources, Users, Roles, PipelineConfigWidget, PluginInfos, PluggableSCMs, SCMs, ElasticProfiles, VersionUpdater) {
 
   $(function () {
     var pipelineConfigElem = $('#pipeline-config');
@@ -32,6 +32,7 @@ require([
     Resources.initializeWith(allResourceNames);
     Users.initializeWith(allUserNames);
     Roles.initializeWith(allRoleNames);
+    new VersionUpdater().update();
     m.sync([PluginInfos.init(), SCMs.init(), ElasticProfiles.all()]).then(function (args) {
 
       PluggableTasks.init();

@@ -27,24 +27,27 @@ describe ApiV1::DashboardController do
     allow(controller).to receive(:pipeline_history_service).and_return(@pipeline_history_service=double())
     allow(controller).to receive(:go_config_service).and_return(@go_config_service=double())
     allow(controller).to receive(:populate_config_validity)
+    allow(controller).to receive(:pipeline_selections_service).and_return(@pipeline_selections_service=double())
   end
 
   describe "dashboard" do
     it 'should get dashboard json' do
       @pipeline_group_models.add(PipelineGroupModel.new("bla"))
-      expect(@go_config_service).to receive(:getSelectedPipelines).with(@selected_pipeline_id, @user_id).and_return(selections=PipelineSelections.new)
+      expect(@pipeline_selections_service).to receive(:getSelectedPipelines).with(@selected_pipeline_id, @user_id).and_return(selections=PipelineSelections.new)
       expect(@pipeline_history_service).to receive(:allActivePipelineInstances).with(@user, selections).and_return(@pipeline_group_models)
 
       get_with_api_header :dashboard
+
       expect(response).to be_ok
       expect(actual_response).to eq(expected_response(@pipeline_group_models, ApiV1::Dashboard::PipelineGroupsRepresenter))
     end
 
     it 'should get empty json when dashboard is empty' do
-      expect(@go_config_service).to receive(:getSelectedPipelines).with(@selected_pipeline_id, @user_id).and_return(selections=PipelineSelections.new)
+      expect(@pipeline_selections_service).to receive(:getSelectedPipelines).with(@selected_pipeline_id, @user_id).and_return(selections=PipelineSelections.new)
       expect(@pipeline_history_service).to receive(:allActivePipelineInstances).with(@user, selections).and_return(@pipeline_group_models)
 
       get_with_api_header :dashboard
+
       expect(response).to be_ok
       expect(actual_response).to eq(expected_response(@pipeline_group_models, ApiV1::Dashboard::PipelineGroupsRepresenter))
     end

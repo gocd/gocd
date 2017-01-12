@@ -18,6 +18,7 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
@@ -54,66 +55,84 @@ public class PatchEnvironmentCommand extends EnvironmentCommand implements Entit
         this.result = result;
     }
 
-    private boolean validateAgents(List<String> uuids, LocalizedOperationResult result, Agents agents) {
-        List<String> unknownAgents = new ArrayList<>();
+    @Override
+    public void update(CruiseConfig configForEdit) throws Exception {
+        EnvironmentConfig environmentConfig = configForEdit.getEnvironments().named(this.environmentConfig.name());
 
-        for (String uuid : uuids) {
-            AgentConfig agent = agents.getAgentByUuid(uuid);
-            if (agent.isNull()) {
-                unknownAgents.add(uuid);
-            }
+        for (String uuid : agentsToAdd) {
+            environmentConfig.addAgent(uuid);
         }
 
-        if (!unknownAgents.isEmpty()) {
-            result.badRequest(LocalizedMessage.string("AGENTS_WITH_UUIDS_NOT_FOUND", unknownAgents));
-            return false;
+        for (String uuid : agentsToRemove) {
+            environmentConfig.removeAgent(uuid);
         }
-        return true;
+
+        for (String pipelineName : pipelinesToAdd) {
+            environmentConfig.addPipeline(new CaseInsensitiveString(pipelineName));
+        }
+
+        for (String pipelineName : pipelinesToRemove) {
+            environmentConfig.removePipeline(new CaseInsensitiveString(pipelineName));
+        }
     }
-
-    private boolean validatePipelines(List<String> pipelines, HttpLocalizedOperationResult result, CruiseConfig config) {
-        ArrayList<String> unknownPipelines = new ArrayList<>();
-
-        for (String pipeline : pipelines) {
-            try{
-                config.pipelineConfigByName(new CaseInsensitiveString(pipeline));
-            } catch(PipelineNotFoundException e){
-                unknownPipelines.add(pipeline);
-            }
-        }
-
-        if (!unknownPipelines.isEmpty()) {
-            result.badRequest(LocalizedMessage.string("PIPELINES_WITH_NAMES_NOT_FOUND", unknownPipelines));
-            return false;
-        }
-        return true;
-
-    }
-
 
     @Override
-    public void update(CruiseConfig preprocessedConfig) throws Exception {
-        EnvironmentsConfig environments = preprocessedConfig.getEnvironments();
-        int index = environments.indexOf(environmentConfig);
-        EnvironmentConfig preprocessedEnvironmentConfig = environments.get(index);
+    public boolean isValid(CruiseConfig preprocessedConfig) {
+        boolean isValid = validateRemovePipelines(preprocessedConfig);
+        isValid = isValid && validateRemoveAgents(preprocessedConfig);
+        return isValid && super.isValid(preprocessedConfig);
+    }
 
-        if(isValidConfig(preprocessedConfig)){
-            for (String uuid : agentsToAdd) {
-                preprocessedEnvironmentConfig.addAgent(uuid);
-            }
-
-            for (String uuid : agentsToRemove) {
-                preprocessedEnvironmentConfig.removeAgent(uuid);
-            }
-
-            for (String pipelineName : pipelinesToAdd) {
-                preprocessedEnvironmentConfig.addPipeline(new CaseInsensitiveString(pipelineName));
-            }
-
-            for (String pipelineName : pipelinesToRemove) {
-                preprocessedEnvironmentConfig.removePipeline(new CaseInsensitiveString(pipelineName));
+    private boolean validateRemoveAgents(CruiseConfig preprocessedConfig) {
+        EnvironmentConfig preprocessedEnvironmentConfig = preprocessedConfig.getEnvironments().find(environmentConfig.name());
+        if(preprocessedEnvironmentConfig instanceof MergeEnvironmentConfig){
+            for (String agentToRemove : agentsToRemove) {
+                if(preprocessedEnvironmentConfig.containsAgentRemotely(agentToRemove)){
+                    String origin = ((MergeEnvironmentConfig) preprocessedEnvironmentConfig).getOriginForAgent(agentToRemove).displayName();
+                    String message = String.format("Agent with uuid '%s' cannot be removed from environment '%s' as the association has been defined remotely in [%s]",
+                            agentToRemove, environmentConfig.name(), origin);
+                    result.badRequest(actionFailed.addParam(message));
+                    return false;
+                }
             }
         }
+
+        EnvironmentConfig environmentConfig = this.environmentConfig;
+        for (String agentToRemove : agentsToRemove) {
+            if(!environmentConfig.hasAgent(agentToRemove)){
+                String message = String.format("Agent with uuid '%s' does not exist in environment '%s'", agentToRemove, environmentConfig.name());
+                result.badRequest(actionFailed.addParam(message));
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private boolean validateRemovePipelines(CruiseConfig preprocessedConfig) {
+        EnvironmentConfig preprocessedEnvironmentConfig = preprocessedConfig.getEnvironments().find(environmentConfig.name());
+        if(preprocessedEnvironmentConfig instanceof MergeEnvironmentConfig){
+            for (String pipelineToRemove : pipelinesToRemove) {
+                if(preprocessedEnvironmentConfig.containsPipelineRemotely(new CaseInsensitiveString(pipelineToRemove))){
+                    String origin = ((MergeEnvironmentConfig) preprocessedEnvironmentConfig).getOriginForPipeline(new CaseInsensitiveString(pipelineToRemove)).displayName();
+                    String message = String.format("Pipeline '%s' cannot be removed from environment '%s' as the association has been defined remotely in [%s]",
+                            pipelineToRemove, environmentConfig.name(), origin);
+                    result.badRequest(actionFailed.addParam(message));
+                    return false;
+                }
+            }
+        }
+
+        EnvironmentConfig environmentConfig = this.environmentConfig;
+        for (String pipelineToRemove : pipelinesToRemove) {
+            if(!environmentConfig.containsPipeline(new CaseInsensitiveString(pipelineToRemove))){
+                String message = String.format("Pipeline '%s' does not exist in environment '%s'", pipelineToRemove, environmentConfig.name());
+                result.badRequest(actionFailed.addParam(message));
+                return false;
+            }
+        }
+
+        return true;
     }
 
     @Override
@@ -129,13 +148,5 @@ public class PatchEnvironmentCommand extends EnvironmentCommand implements Entit
             return false;
         }
         return true;
-    }
-
-    public boolean isValidConfig(CruiseConfig preprocessedConfig) {
-        boolean isValid = validateAgents(agentsToAdd, result, preprocessedConfig.agents());
-        isValid = isValid && validateAgents(agentsToRemove, result, preprocessedConfig.agents());
-        isValid = isValid && validatePipelines(pipelinesToAdd, result, preprocessedConfig);
-        isValid = isValid && validatePipelines(pipelinesToRemove, result, preprocessedConfig);
-        return isValid;
     }
 }

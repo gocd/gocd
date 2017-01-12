@@ -19,6 +19,7 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.BasicEnvironmentConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.domain.AllConfigErrors;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
@@ -101,9 +102,10 @@ public class AddEnvironmentCommandTest {
         AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result);
         command.update(cruiseConfig);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.badRequest(actionFailed.addParam("Environment Variable name 'foo' is not unique for environment 'Dev'."));
 
         assertThat(command.isValid(cruiseConfig), is(false));
+        String allErrors = new AllConfigErrors(cruiseConfig.getAllErrors()).asString();
+        expectedResult.badRequest(actionFailed.addParam(allErrors));
         assertThat(result, is(expectedResult));
     }
 

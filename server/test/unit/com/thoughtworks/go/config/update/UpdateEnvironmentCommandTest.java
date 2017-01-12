@@ -19,6 +19,7 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.BasicEnvironmentConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.domain.AllConfigErrors;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
@@ -74,7 +75,7 @@ public class UpdateEnvironmentCommandTest {
 
     @Test
     public void shouldUpdateTheSpecifiedEnvironment() throws Exception {
-        UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig, newEnvironmentConfig, currentUser, actionFailed, md5, entityHashingService, result);
+        UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig.name().toString(), newEnvironmentConfig, currentUser, actionFailed, md5, entityHashingService, result);
 
         assertFalse(cruiseConfig.getEnvironments().hasEnvironmentNamed(newEnvironmentName));
         command.update(cruiseConfig);
@@ -84,7 +85,7 @@ public class UpdateEnvironmentCommandTest {
     @Test
     public void shouldValidateInvalidAgentUUID() throws Exception {
         newEnvironmentConfig.addAgent("Invalid-agent-uuid");
-        UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig, newEnvironmentConfig, currentUser, actionFailed, md5, entityHashingService, result);
+        UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig.name().toString(), newEnvironmentConfig, currentUser, actionFailed, md5, entityHashingService, result);
         command.update(cruiseConfig);
         HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
         expectResult.badRequest(actionFailed.addParam("Environment 'Test' has an invalid agent uuid 'Invalid-agent-uuid'"));
@@ -96,7 +97,7 @@ public class UpdateEnvironmentCommandTest {
     @Test
     public void shouldValidateInvalidPipelines() throws Exception {
         newEnvironmentConfig.addPipeline(new CaseInsensitiveString("Invalid-pipeline-name"));
-        UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig, newEnvironmentConfig, currentUser, actionFailed, md5, entityHashingService, result);
+        UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig.name().toString(), newEnvironmentConfig, currentUser, actionFailed, md5, entityHashingService, result);
         command.update(cruiseConfig);
         HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
         expectResult.badRequest(actionFailed.addParam("Environment 'Test' refers to an unknown pipeline 'Invalid-pipeline-name'."));
@@ -109,19 +110,22 @@ public class UpdateEnvironmentCommandTest {
     public void shouldValidateDuplicateEnvironmentVariables() throws Exception {
         newEnvironmentConfig.addEnvironmentVariable("foo", "bar");
         newEnvironmentConfig.addEnvironmentVariable("foo", "baz");
-        UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig, newEnvironmentConfig, currentUser, actionFailed, md5, entityHashingService, result);
+        UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig.name().toString(), newEnvironmentConfig, currentUser, actionFailed, md5, entityHashingService, result);
         command.update(cruiseConfig);
-        HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
-        expectResult.badRequest(actionFailed.addParam("Environment Variable name 'foo' is not unique for environment 'Test'."));
 
         assertThat(command.isValid(cruiseConfig), is(false));
+
+        HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
+        String allErrors = new AllConfigErrors(cruiseConfig.getAllErrors()).asString();
+        expectResult.badRequest(actionFailed.addParam(allErrors));
+
         assertThat(result, is(expectResult));
 
     }
 
     @Test
     public void shouldNotContinueIfTheUserDontHavePermissionsToOperateOnEnvironments() throws Exception {
-        UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig, newEnvironmentConfig, currentUser, actionFailed, md5, entityHashingService, result);
+        UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig.name().toString(), newEnvironmentConfig, currentUser, actionFailed, md5, entityHashingService, result);
         when(goConfigService.isAdministrator(currentUser.getUsername())).thenReturn(false);
         assertThat(command.canContinue(cruiseConfig), is(false));
         HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
@@ -133,12 +137,12 @@ public class UpdateEnvironmentCommandTest {
 
     @Test
     public void shouldNotContinueIfTheUserSubmittedStaleEtag() throws Exception {
-        UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig, newEnvironmentConfig, currentUser, actionFailed, md5, entityHashingService, result);
+        UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig.name().toString(), newEnvironmentConfig, currentUser, actionFailed, md5, entityHashingService, result);
         when(goConfigService.isAdministrator(currentUser.getUsername())).thenReturn(true);
         when(entityHashingService.md5ForEntity(oldEnvironmentConfig)).thenReturn("foo");
         assertThat(command.canContinue(cruiseConfig), is(false));
         HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
-        expectResult.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", "Environment", oldEnvironmentConfig.name()));
+        expectResult.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", "Environment", oldEnvironmentConfig.name().toString()));
 
         assertThat(result, is(expectResult));
     }

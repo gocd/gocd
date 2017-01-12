@@ -16,13 +16,13 @@
 
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.BasicEnvironmentConfig;
 import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.config.validation.EnvironmentAgentValidator;
 import com.thoughtworks.go.config.validation.EnvironmentPipelineValidator;
 import com.thoughtworks.go.config.validation.GoConfigValidator;
+import com.thoughtworks.go.domain.AllConfigErrors;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
@@ -34,11 +34,6 @@ public class EnvironmentCommand {
     private Localizable.CurryableLocalizable actionFailed;
     private EnvironmentConfig config;
     private LocalizedOperationResult result;
-    private final List<GoConfigValidator> VALIDATORS = Arrays.asList(
-            new EnvironmentAgentValidator(),
-            new EnvironmentPipelineValidator()
-    );
-
 
     public EnvironmentCommand(Localizable.CurryableLocalizable actionFailed, EnvironmentConfig config, LocalizedOperationResult result) {
         this.actionFailed = actionFailed;
@@ -47,23 +42,15 @@ public class EnvironmentCommand {
     }
 
     public boolean isValid(CruiseConfig preprocessedConfig) {
-        BasicEnvironmentConfig config = (BasicEnvironmentConfig) preprocessedConfig.getEnvironments().find(this.config.name());
-        config.getVariables().validate(ConfigSaveValidationContext.forChain(config));
-        List<ConfigErrors> allErrors = preprocessedConfig.getAllErrors();
-        if (!allErrors.isEmpty()) {
-            result.badRequest(actionFailed.addParam(allErrors.get(0).firstError()));
-            return false;
+        EnvironmentConfig config = preprocessedConfig.getEnvironments().find(this.config.name());
+        boolean isValid = config.validateTree(ConfigSaveValidationContext.forChain(preprocessedConfig), preprocessedConfig);
+
+        if (!isValid) {
+            String allErrors = new AllConfigErrors(preprocessedConfig.getAllErrors()).asString();
+            result.badRequest(actionFailed.addParam(allErrors));
         }
 
-        for (GoConfigValidator validator : VALIDATORS) {
-            try {
-                validator.validate(preprocessedConfig);
-            } catch (Exception e) {
-                result.badRequest(actionFailed.addParam(e.getMessage()));
-                return false;
-            }
-        }
-        return true;
+        return isValid;
     }
 
     public EnvironmentConfig getPreprocessedEntityConfig() {

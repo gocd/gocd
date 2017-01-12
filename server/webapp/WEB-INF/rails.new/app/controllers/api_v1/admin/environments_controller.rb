@@ -40,7 +40,7 @@ module ApiV1
       def put
         result = HttpLocalizedOperationResult.new
         get_environment_from_request
-        environment_config_service.updateEnvironment(@environment_config, @environment_config_from_request, current_user, etag_for(@environment_config), result)
+        environment_config_service.updateEnvironment(@environment_config.name().toString(), @environment_config_from_request, current_user, etag_for(@environment_config), result)
         handle_config_save_result(result, @environment_config_from_request.name.to_s)
       end
 
@@ -67,7 +67,8 @@ module ApiV1
       protected
 
       def load_environment(environment_name = params[:name])
-        @environment_config = environment_config_service.getEnvironmentConfig(environment_name)
+        @environment_config = environment_config_service.forEdit(environment_name)
+        @environment_config.setOrigins(com.thoughtworks.go.config.remote.FileConfigOrigin.new)
       rescue com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException
         raise ApiV1::RecordNotFound
       end

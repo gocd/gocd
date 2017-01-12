@@ -304,3 +304,78 @@ select {
     }
   }
 }
+
+// toggle-switch
+
+
+$toggle-no-color:#aaa;
+$toggle-yes-color:$go-primary;
+
+.cbx-toggle {
+  position: absolute;
+  margin-left: -9999px;
+  visibility: hidden;
+}
+
+.cbx-toggle + label {
+  display: block;
+  position: relative;
+  cursor: pointer;
+  outline: none;
+  user-select: none;
+  float: left;
+  margin-right: 10px;
+}
+
+.toggle-switch span{
+  display: inline-block;
+  float: left;
+  margin-top: 0px;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+input.cbx-toggle + label {
+  padding: 2px;
+  width: 40px;
+  height: 21px;
+  background-color: $toggle-no-color;
+  border-radius: 20px;
+  transition: background 0.4s;
+}
+
+input.cbx-toggle + label:before,
+input.cbx-toggle + label:after {
+  display: block;
+  position: absolute;
+  content: "";
+}
+
+input.cbx-toggle + label:before {
+  top: 2px;
+  left: 2px;
+  bottom: 2px;
+  right: 2px;
+  background-color: #fff;
+  border-radius: 20px;
+  transition: background 0.4s;
+}
+
+input.cbx-toggle + label:after {
+  top: 5px;
+  left: 4px;
+  bottom: 4px;
+  width: 13px;
+  background-color: #dddddd;
+  border-radius: 50%;
+  transition: margin 0.4s, background 0.4s;
+}
+
+input.cbx-toggle:checked + label {
+  background-color: $toggle-yes-color;
+}
+
+input.cbx-toggle:checked + label:after {
+  margin-left: 19px;
+  background-color: $toggle-yes-color;
+}

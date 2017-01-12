@@ -46,7 +46,7 @@ define(['mithril', 'helpers/form_helper', 'lodash', 'helpers/mithril_component_m
 
       if(args.template.pipelines().length !== 0) {
         pipelinesList = (
-          <div class="key-value-pair">
+          <div class="pipeline-list">
             {_.map(args.template.pipelines(), function(pipeline) {
               return [
                 (<div>

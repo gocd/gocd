@@ -137,12 +137,12 @@ define([
                   </f.row>
                   <f.row>
                     <f.row>
-                      <f.checkBox model={ctrl.template()}
-                                  attrName='isExtractedFromPipeline'
-                                  class="extract-from-pipeline"
-                                  label='Extract From Pipeline'
-                                  size={12}
-                                  end={true}/>
+                      <f.switch model={ctrl.template()}
+                                attrName='isExtractedFromPipeline'
+                                class="extract-from-pipeline"
+                                label='Extract From Pipeline'
+                                size={12}
+                                end={true}/>
                       </f.row>
                     <f.column size={12}>
                       {templateStages}

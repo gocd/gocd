@@ -15,12 +15,13 @@
  */
 @import 'pipeline_configs';
 @import 'pipeline_configs/pipeline-edit';
+@import 'elastic_profiles';
 
 #templates {
   margin-top: 60px;
 }
 
-.template-main{
+.template-main {
   @extend .pipeline;
 }
 
@@ -38,6 +39,15 @@
 
 .delete-template {
   margin-top: 20px;
+}
+
+.extract-from-pipeline {
+  margin-bottom: 5px;
+}
+
+.pipeline-list {
+  padding: 10px;
+  @extend .key-value-pair;
 }
 
 .template-link {
@@ -76,6 +86,7 @@
   width:        95%;
   box-sizing:   border-box;
   margin:       20px 0 10px 0;
+  border-top: 1px solid $light-grey;
 }
 
 .template-actions {

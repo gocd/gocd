@@ -40,6 +40,7 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig>  i
     private final ConfigErrors configErrors = new ConfigErrors();
 
     public static final String CONSISTENT_KV = "ConsistentEnvVariables";
+    @ConfigAttribute(value = NAME_FIELD, optional = false) private CaseInsensitiveString name;
 
     public MergeEnvironmentConfig(EnvironmentConfig... configs)
     {
@@ -50,6 +51,7 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig>  i
                         "partial environment configs must all have the same name");
             this.add(part);
         }
+        this.name = name;
     }
     public MergeEnvironmentConfig(List<EnvironmentConfig> configs)
     {
@@ -60,8 +62,8 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig>  i
                         "partial environment configs must all have the same name");
             this.add(part);
         }
+        this.name = name;
     }
-
 
     public EnvironmentConfig getFirstEditablePartOrNull()
     {

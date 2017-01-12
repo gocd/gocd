@@ -402,7 +402,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         };
     }
 
-    public void addEnvironment(BasicEnvironmentConfig environmentConfig) {
+    public void addEnvironment(EnvironmentConfig environmentConfig) {
         goConfigDao.addEnvironment(environmentConfig);
     }
 

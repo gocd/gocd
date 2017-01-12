@@ -95,7 +95,6 @@ describe ApiV1::Admin::EnvironmentsController do
       it 'should render 404 when a environment does not exist' do
         login_as_admin
 
-        @environment_name = SecureRandom.hex
         @environment_config_service.stub(:getEnvironmentConfig).and_raise(com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException.new(CaseInsensitiveString.new('foo-env')))
         get_with_api_header :show, name: @environment_name
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
@@ -203,7 +202,6 @@ describe ApiV1::Admin::EnvironmentsController do
       it 'should render 404 when a environment does not exist' do
         login_as_admin
 
-        @environment_name = SecureRandom.hex
         @environment_config_service.stub(:getEnvironmentConfig).and_raise(com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException.new(CaseInsensitiveString.new('foo-env')))
         put_with_api_header :put, name: @environment_name
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
@@ -393,7 +391,6 @@ describe ApiV1::Admin::EnvironmentsController do
       it 'should render 404 when a environment does not exist' do
         login_as_admin
 
-        @environment_name = SecureRandom.hex
         @environment_config_service.stub(:getEnvironmentConfig).and_raise(com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException.new(CaseInsensitiveString.new('foo-env')))
         delete_with_api_header :destroy, name: @environment_name
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')

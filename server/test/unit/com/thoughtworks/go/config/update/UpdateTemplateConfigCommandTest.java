@@ -17,7 +17,9 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.helper.GoConfigMother;
+import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
@@ -67,6 +69,40 @@ public class UpdateTemplateConfigCommandTest {
     @Test
     public void shouldUpdateExistingTemplate() throws Exception {
         PipelineTemplateConfig updatedTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage2"));
+        cruiseConfig.addTemplate(pipelineTemplateConfig);
+
+        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(updatedTemplateConfig, currentUser, goConfigService, result, "md5", entityHashingService);
+        assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(true));
+        command.update(cruiseConfig);
+        assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(false));
+        assertThat(cruiseConfig.getTemplates().contains(updatedTemplateConfig), is(true));
+    }
+
+    @Test
+    public void shouldNotAllowEditingOfStageNameUsedAsAMaterialByAnotherPipeline() throws Exception {
+        PipelineConfig up42 = PipelineConfigMother.pipelineConfigWithTemplate("up42", pipelineTemplateConfig.name().toString());
+        PipelineConfig dependentPipeline = PipelineConfigMother.createPipelineConfig("depenedent", "defaultStage");
+        dependentPipeline.addMaterialConfig(new DependencyMaterialConfig(up42.name(), pipelineTemplateConfig.getStages().get(0).name()));
+
+        cruiseConfig.addPipeline("first", up42);
+        cruiseConfig.addPipeline("first", dependentPipeline);
+
+        PipelineTemplateConfig updatedTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage2"));
+        cruiseConfig.addTemplate(pipelineTemplateConfig);
+
+        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(updatedTemplateConfig, currentUser, goConfigService, result, "md5", entityHashingService);
+        assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(true));
+        command.update(cruiseConfig);
+
+        assertThat(command.isValid(cruiseConfig), is(false));
+        assertThat(updatedTemplateConfig.getAllErrors().size(), is(1));
+        String message = "Can not update stage name as it is used as a material `up42 [stage]` in pipeline `depenedent`";
+        assertThat(updatedTemplateConfig.getAllErrors().get(0).asString(), is(message));
+    }
+
+    @Test
+    public void shouldAllowEditingOfStageNameWhenItIsNotUsedAsDependencyMaterial() throws Exception {
+        PipelineTemplateConfig updatedTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage2"));
         cruiseConfig.addTemplate(pipelineTemplateConfig);
 
         UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(updatedTemplateConfig, currentUser, goConfigService, result, "md5", entityHashingService);

@@ -49,6 +49,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
@@ -776,6 +777,15 @@ public class PipelineConfigTest {
         assertThat(config.hasTemplate(), is(false));
         config.templatize(null);
         assertThat(config.hasTemplate(), is(false));
+    }
+
+    @Test
+    public void shouldKnowIfPipelineWasCreatedFromTemplate() throws Exception {
+        PipelineConfig config = PipelineConfigMother.createPipelineConfigWithStages("pipeline", "stage1", "stage2");
+        CaseInsensitiveString templateName = new CaseInsensitiveString("template");
+        config.templatize(templateName);
+        assertThat(config.hasTemplate(), is(true));
+        assertTrue(config.isCreatedFromTemplate(templateName));
     }
 
     @Test

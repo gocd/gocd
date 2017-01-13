@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['mithril', 'jquery', 'models/shared/version_updater'], function (m, $, VersionUpdater) {
+define(['models/shared/version_updater'], function (VersionUpdater) {
   describe("VersionUpdater", function () {
     describe('update', function() {
       beforeEach(function () {
@@ -22,93 +22,119 @@ define(['mithril', 'jquery', 'models/shared/version_updater'], function (m, $, V
       });
 
       it('should fetch the stale version info', function () {
-        var deferred = $.Deferred();
-        var xhr = jasmine.createSpyObj(xhr, ['setRequestHeader']);
-        var thirtyOneMinutesBack = new Date(Date.now() - 31 * 60 * 1000);
+        jasmine.Ajax.withMock(function () {
+          jasmine.Ajax.stubRequest('/go/api/version_infos/stale', undefined, 'GET').andReturn({
+            responseText: {},
+            status: 200
+          });
 
-        localStorage.setItem('versionCheckInfo', JSON.stringify({last_updated_at: thirtyOneMinutesBack})); //eslint-disable-line camelcase
-        spyOn(m, 'request').and.returnValue(deferred.promise());
+          var thirtyOneMinutesBack = new Date(Date.now() - 31 * 60 * 1000);
 
-        new VersionUpdater().update();
+          localStorage.setItem('versionCheckInfo', JSON.stringify({last_updated_at: thirtyOneMinutesBack})); //eslint-disable-line camelcase
 
-        var requestArgs = m.request.calls.mostRecent().args[0];
-        requestArgs.config(xhr);
+          new VersionUpdater().update();
 
-        expect(requestArgs.method).toBe('GET');
-        expect(requestArgs.url).toBe('/go/api/version_infos/stale');
-        expect(xhr.setRequestHeader).toHaveBeenCalledWith("Content-Type", "application/json");
-        expect(xhr.setRequestHeader).toHaveBeenCalledWith("Accept", "application/vnd.go.cd.v1+json");
+          var request = jasmine.Ajax.requests.mostRecent();
+
+          expect(request.method).toBe('GET');
+          expect(request.url).toBe('/go/api/version_infos/stale');
+          expect(request.requestHeaders['Content-Type']).toContain('application/json');
+          expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
+        });
       });
 
       it('should skip updates if update tried in last half hour', function() {
-        var deferred = $.Deferred();
-        var twentyNineMinutesBack = new Date(Date.now() - 29 * 60 * 1000);
+        jasmine.Ajax.withMock(function () {
+          var twentyNineMinutesBack = new Date(Date.now() - 29 * 60 * 1000);
 
-        spyOn(m, 'request').and.returnValue(deferred.promise());
-        localStorage.setItem('versionCheckInfo', JSON.stringify({last_updated_at: twentyNineMinutesBack})); //eslint-disable-line camelcase
+          localStorage.setItem('versionCheckInfo', JSON.stringify({last_updated_at: twentyNineMinutesBack})); //eslint-disable-line camelcase
 
-        new VersionUpdater().update();
+          new VersionUpdater().update();
 
-        expect(m.request).not.toHaveBeenCalled();
+          expect(jasmine.Ajax.requests.count()).toBe(0);
+        });
       });
 
       it('should skip updates in absence of stale version info and update local storage with last update time', function () {
-        var deferred = $.Deferred();
-        var myDate = jasmine.createSpyObj('Date', ['getTime']);
+        jasmine.Ajax.withMock(function () {
+          jasmine.Ajax.stubRequest('/go/api/version_infos/stale', undefined, 'GET').andReturn({
+            responseText: {},
+            status:       200
+          });
 
-        spyOn(window, 'Date').and.returnValue(myDate);
-        myDate.getTime.and.callFake(function() { return 123;});
+          var myDate = jasmine.createSpyObj('Date', ['getTime']);
 
-        spyOn(m, 'request').and.returnValue(deferred.promise());
+          spyOn(window, 'Date').and.returnValue(myDate);
 
-        deferred.resolve({});
+          myDate.getTime.and.callFake(function () {
+            return 123;
+          });
 
-        new VersionUpdater().update();
+          new VersionUpdater().update();
 
-        expect(m.request).toHaveBeenCalledTimes(1);
-        expect(localStorage.getItem('versionCheckInfo')).toEqual('{"last_updated_at":123}');
+          expect(jasmine.Ajax.requests.count()).toBe(1);
+          expect(localStorage.getItem('versionCheckInfo')).toEqual('{"last_updated_at":123}');
+        });
       });
 
       it('should fetch latest version info if can update', function () {
-        var deferred = $.Deferred();
-        var xhr = jasmine.createSpyObj(xhr, ['setRequestHeader']);
+        jasmine.Ajax.withMock(function () {
+          jasmine.Ajax.stubRequest('/go/api/version_infos/stale', undefined, 'GET').andReturn({
+            responseText: JSON.stringify({'update_server_url': 'update.server.url'}),
+            status:       200
+          });
 
-        spyOn(m, 'request').and.returnValue(deferred.promise());
+          jasmine.Ajax.stubRequest('update.server.url', undefined, 'GET').andReturn({
+            responseText: {},
+            status:       200
+          });
 
-        new VersionUpdater().update();
-        deferred.resolve({'update_server_url': 'update.server.url'});
+          new VersionUpdater().update();
 
-        var requestArgs = m.request.calls.all()[1].args[0];
-        requestArgs.config(xhr);
+          var request = jasmine.Ajax.requests.at(1);
 
-        expect(requestArgs.method).toBe('GET');
-        expect(requestArgs.url).toBe('update.server.url');
-        expect(xhr.setRequestHeader).toHaveBeenCalledWith("Accept", "application/vnd.update.go.cd.v1+json");
+          expect(request.method).toBe('GET');
+          expect(request.url).toBe('update.server.url');
+          expect(request.requestHeaders['Accept']).toContain('application/vnd.update.go.cd.v1+json');
+        });
       });
 
       it('should post the latest version info to server', function () {
-        var deferred = $.Deferred();
-        var xhr = jasmine.createSpyObj(xhr, ['setRequestHeader']);
-        var lastestVersionDeferred = $.Deferred();
-        var myDate = jasmine.createSpyObj('Date', ['getTime']);
+        jasmine.Ajax.withMock(function () {
+          jasmine.Ajax.stubRequest('/go/api/version_infos/stale', undefined, 'GET').andReturn({
+            responseText: JSON.stringify({'update_server_url': 'update.server.url'}),
+            status:       200
+          });
 
-        spyOn(window, 'Date').and.returnValue(myDate);
-        myDate.getTime.and.callFake(function() { return 123;});
-        spyOn(m, 'request').and.returnValues(deferred.promise(), lastestVersionDeferred.promise(), deferred.promise());
+          jasmine.Ajax.stubRequest('update.server.url', undefined, 'GET').andReturn({
+            responseText: JSON.stringify({foo: 'bar'}),
+            status:       200
+          });
 
-        new VersionUpdater().update();
-        deferred.resolve({'update_server_url': 'update.server.url'});
-        lastestVersionDeferred.resolve({foo: 'bar'});
+          jasmine.Ajax.stubRequest('/go/api/version_infos/go_server', undefined, 'PATCH').andReturn({
+            responseText: {},
+            status:       200
+          });
 
-        var requestArgs = m.request.calls.all()[2].args[0];
-        requestArgs.config(xhr);
+          var myDate = jasmine.createSpyObj('Date', ['getTime']);
 
-        expect(requestArgs.method).toBe('PATCH');
-        expect(requestArgs.url).toBe('/go/api/version_infos/go_server');
-        expect(requestArgs.data).toEqual({foo: 'bar'});
-        expect(xhr.setRequestHeader).toHaveBeenCalledWith("Content-Type", "application/json");
-        expect(xhr.setRequestHeader).toHaveBeenCalledWith("Accept", "application/vnd.go.cd.v1+json");
-        expect(localStorage.getItem('versionCheckInfo')).toEqual('{"last_updated_at":123}');
+          spyOn(window, 'Date').and.returnValue(myDate);
+
+          myDate.getTime.and.callFake(function () {
+            return 123;
+          });
+
+          new VersionUpdater().update();
+
+          var request = jasmine.Ajax.requests.at(2);
+
+          expect(request.method).toBe('PATCH');
+          expect(request.url).toBe('/go/api/version_infos/go_server');
+          expect(JSON.parse(request.params)).toEqual({foo: 'bar'});
+          expect(request.requestHeaders['Content-Type']).toContain('application/json');
+          expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
+          expect(localStorage.getItem('versionCheckInfo')).toEqual('{"last_updated_at":123}');
+        });
       });
     });
   });

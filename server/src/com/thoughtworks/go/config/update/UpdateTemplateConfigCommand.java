@@ -54,7 +54,36 @@ public class UpdateTemplateConfigCommand extends TemplateConfigCommand {
     @Override
     public boolean isValid(CruiseConfig preprocessedConfig) {
         boolean isValid = validateStageNameUpdate(preprocessedConfig);
+        isValid = isValid && validateJobNameUpdate(preprocessedConfig);
         return isValid && super.isValid(preprocessedConfig, false);
+    }
+
+    private boolean validateJobNameUpdate(CruiseConfig preprocessedConfig) {
+        ArrayList<String> pipelinesUsingCurrentTemplate = getPipelinesUsingCurrentTemplate(preprocessedConfig);
+        for (String pipeline : pipelinesUsingCurrentTemplate) {
+            PipelineConfig dependencyPipeline = preprocessedConfig.findPipelineUsingThisPipelineAsADependency(pipeline);
+            if (dependencyPipeline != null) {
+                List<FetchTask> fetchTasks = dependencyPipeline.getFetchTasks();
+                for (FetchTask fetchTask : fetchTasks) {
+                    if(!hasJob(fetchTask)){
+                        String jobName = templateConfig.name() + "/" + fetchTask.getStage() + "/" + fetchTask.getJob();
+                        String error = String.format("Can not update job name `%s` as it is used as fetch artifact in pipeline `%s`", jobName, dependencyPipeline.name());
+                        newTemplateConfig.addError("Job Name", error);
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    private boolean hasJob(FetchTask task) {
+        for (StageConfig stageConfig : templateConfig.getStages()) {
+            if(task.getStage().equals(stageConfig.name()) && (stageConfig.jobConfigByConfigName(task.getJob()) != null)){
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean validateStageNameUpdate(CruiseConfig preprocessedConfig) {

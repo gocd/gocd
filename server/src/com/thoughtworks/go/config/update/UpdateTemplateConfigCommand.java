@@ -55,7 +55,51 @@ public class UpdateTemplateConfigCommand extends TemplateConfigCommand {
     public boolean isValid(CruiseConfig preprocessedConfig) {
         boolean isValid = validateStageNameUpdate(preprocessedConfig);
         isValid = isValid && validateJobNameUpdate(preprocessedConfig);
+        isValid = isValid && validateElasticProfileId(preprocessedConfig);
         return isValid && super.isValid(preprocessedConfig, false);
+    }
+
+    private boolean validateElasticProfileId(CruiseConfig preprocessedConfig) {
+        ArrayList<String> changedElasticProfileId = getChangedElasticProfileIds();
+        if (changedElasticProfileId.isEmpty()) {
+            return true;
+        }
+
+        ArrayList<String> pipelinesUsingCurrentTemplate = getPipelinesUsingCurrentTemplate(preprocessedConfig);
+        if (pipelinesUsingCurrentTemplate.isEmpty()) {
+            return true;
+        }
+
+        ConfigSaveValidationContext context = ConfigSaveValidationContext.forChain(preprocessedConfig);
+
+        for (String elasticProfileId : changedElasticProfileId) {
+            if (!context.isValidProfileId(elasticProfileId)) {
+                String message = String.format("No profile defined corresponding to profile_id '%s'", elasticProfileId);
+                newTemplateConfig.addError("ELASTIC_PROFILE_ID", message);
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private ArrayList<String> getChangedElasticProfileIds() {
+        ArrayList<String> changedElasticProfileId = new ArrayList<>();
+        for (StageConfig stageConfig : existingTemplateConfig.getStages()) {
+            StageConfig newTemplateStage = templateConfig.getStage(stageConfig.name());
+            if (newTemplateStage != null) {
+                for (JobConfig jobConfig : stageConfig.getJobs()) {
+                    JobConfig newTemplateJob = newTemplateStage.jobConfigByConfigName(jobConfig.name());
+                    if (newTemplateJob != null) {
+                        String elasticProfileId = jobConfig.getElasticProfileId();
+                        if ((elasticProfileId != newTemplateJob.getElasticProfileId())) {
+                            changedElasticProfileId.add(newTemplateJob.getElasticProfileId());
+                        }
+                    }
+                }
+            }
+        }
+        return changedElasticProfileId;
     }
 
     private boolean validateJobNameUpdate(CruiseConfig preprocessedConfig) {
@@ -65,7 +109,7 @@ public class UpdateTemplateConfigCommand extends TemplateConfigCommand {
             if (dependencyPipeline != null) {
                 List<FetchTask> fetchTasks = dependencyPipeline.getFetchTasks();
                 for (FetchTask fetchTask : fetchTasks) {
-                    if(!hasJob(fetchTask)){
+                    if (!hasJob(fetchTask)) {
                         String jobName = templateConfig.name() + "/" + fetchTask.getStage() + "/" + fetchTask.getJob();
                         String error = String.format("Can not update job name `%s` as it is used as fetch artifact in pipeline `%s`", jobName, dependencyPipeline.name());
                         newTemplateConfig.addError("Job Name", error);
@@ -79,7 +123,7 @@ public class UpdateTemplateConfigCommand extends TemplateConfigCommand {
 
     private boolean hasJob(FetchTask task) {
         for (StageConfig stageConfig : templateConfig.getStages()) {
-            if(task.getStage().equals(stageConfig.name()) && (stageConfig.jobConfigByConfigName(task.getJob()) != null)){
+            if (task.getStage().equals(stageConfig.name()) && (stageConfig.jobConfigByConfigName(task.getJob()) != null)) {
                 return true;
             }
         }
@@ -97,7 +141,7 @@ public class UpdateTemplateConfigCommand extends TemplateConfigCommand {
             PipelineConfig dependencyPipeline = preprocessedConfig.findPipelineUsingThisPipelineAsADependency(pipeline);
             if (dependencyPipeline != null) {
                 DependencyMaterialConfig material = dependencyPipeline.materialConfigs().findDependencyMaterial(new CaseInsensitiveString(pipeline));
-                if(templateConfig.findBy(material.getStageName()) == null){
+                if (templateConfig.findBy(material.getStageName()) == null) {
                     String error = String.format("Can not update stage name as it is used as a material `%s` in pipeline `%s`", material.getPipelineStageName(), dependencyPipeline.name());
                     newTemplateConfig.addError("Stage Name", error);
                     return false;

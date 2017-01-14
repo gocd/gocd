@@ -17,6 +17,7 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
@@ -81,7 +82,7 @@ public class UpdateTemplateConfigCommandTest {
     @Test
     public void shouldNotAllowEditingOfStageNameUsedAsAMaterialByAnotherPipeline() throws Exception {
         PipelineConfig up42 = PipelineConfigMother.pipelineConfigWithTemplate("up42", pipelineTemplateConfig.name().toString());
-        PipelineConfig dependentPipeline = PipelineConfigMother.createPipelineConfig("depenedent", "defaultStage");
+        PipelineConfig dependentPipeline = PipelineConfigMother.createPipelineConfig("dependent", "defaultStage");
         dependentPipeline.addMaterialConfig(new DependencyMaterialConfig(up42.name(), pipelineTemplateConfig.getStages().get(0).name()));
 
         cruiseConfig.addPipeline("first", up42);
@@ -96,7 +97,7 @@ public class UpdateTemplateConfigCommandTest {
 
         assertThat(command.isValid(cruiseConfig), is(false));
         assertThat(updatedTemplateConfig.getAllErrors().size(), is(1));
-        String message = "Can not update stage name as it is used as a material `up42 [stage]` in pipeline `depenedent`";
+        String message = "Can not update stage name as it is used as a material `up42 [stage]` in pipeline `dependent`";
         assertThat(updatedTemplateConfig.getAllErrors().get(0).asString(), is(message));
     }
 
@@ -115,7 +116,7 @@ public class UpdateTemplateConfigCommandTest {
     @Test
     public void shouldNotAllowEditingJobNameWhenItIsUsedAsAFetchArtifactInDownstreamPipeline() throws Exception {
         PipelineConfig up42 = PipelineConfigMother.pipelineConfigWithTemplate("up42", pipelineTemplateConfig.name().toString());
-        PipelineConfig dependentPipeline = PipelineConfigMother.createPipelineConfig("depenedent", "defaultStage");
+        PipelineConfig dependentPipeline = PipelineConfigMother.createPipelineConfig("dependent", "defaultStage");
         dependentPipeline.addMaterialConfig(new DependencyMaterialConfig(up42.name(), pipelineTemplateConfig.getStages().get(0).name()));
 
         JobConfig fooJob = new JobConfig("fooJob");
@@ -135,7 +136,7 @@ public class UpdateTemplateConfigCommandTest {
 
         assertThat(command.isValid(cruiseConfig), is(false));
         assertThat(updatedTemplateConfig.getAllErrors().size(), is(1));
-        String message = "Can not update job name `template/stage/job` as it is used as fetch artifact in pipeline `depenedent`";
+        String message = "Can not update job name `template/stage/job` as it is used as fetch artifact in pipeline `dependent`";
         assertThat(updatedTemplateConfig.getAllErrors().get(0).asString(), is(message));
     }
 
@@ -149,6 +150,41 @@ public class UpdateTemplateConfigCommandTest {
         command.update(cruiseConfig);
         assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(false));
         assertThat(cruiseConfig.getTemplates().contains(updatedTemplateConfig), is(true));
+    }
+
+    @Test
+    public void shouldAllowSubmittingInvalidElasticProfileId() throws Exception {
+        PipelineTemplateConfig updatedTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.stageConfig("stage", new JobConfigs(new JobConfig("job"))));
+        JobConfig jobConfig = updatedTemplateConfig.findBy(new CaseInsensitiveString("stage")).jobConfigByConfigName(new CaseInsensitiveString("job"));
+        jobConfig.setElasticProfileId("invalidElasticProfileId");
+
+        cruiseConfig.addTemplate(pipelineTemplateConfig);
+
+        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(updatedTemplateConfig, currentUser, goConfigService, result, "md5", entityHashingService);
+        assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(true));
+        command.update(cruiseConfig);
+        assertThat(command.isValid(cruiseConfig), is(true));
+        assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(false));
+        assertThat(cruiseConfig.getTemplates().contains(updatedTemplateConfig), is(true));
+    }
+
+    @Test
+    public void shouldValidateElasticProfileIdWhenTemplateIsUsedInAMaterial() throws Exception {
+        PipelineConfig up42 = PipelineConfigMother.pipelineConfigWithTemplate("up42", pipelineTemplateConfig.name().toString());
+        cruiseConfig.addPipeline("first", up42);
+        PipelineTemplateConfig updatedTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.stageConfig("stage", new JobConfigs(new JobConfig("job"))));
+        JobConfig jobConfig = updatedTemplateConfig.findBy(new CaseInsensitiveString("stage")).jobConfigByConfigName(new CaseInsensitiveString("job"));
+        jobConfig.setElasticProfileId("invalidElasticProfileId");
+
+        cruiseConfig.addTemplate(pipelineTemplateConfig);
+
+        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(updatedTemplateConfig, currentUser, goConfigService, result, "md5", entityHashingService);
+        assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(true));
+        command.update(cruiseConfig);
+        assertThat(command.isValid(cruiseConfig), is(false));
+        assertThat(updatedTemplateConfig.getAllErrors().size(), is(1));
+        String message = "No profile defined corresponding to profile_id 'invalidElasticProfileId'";
+        assertThat(updatedTemplateConfig.getAllErrors().get(0).asString(), is(message));
     }
 
     @Test

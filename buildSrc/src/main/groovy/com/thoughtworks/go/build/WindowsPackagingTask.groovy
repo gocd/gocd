@@ -131,7 +131,7 @@ class WindowsPackagingTask extends DefaultTask {
           'MODULE'           : packageName.replaceAll(/^go-/, ''),
           'GO_ICON'          : project.file('windows-shared/gocd.ico').absolutePath,
           'VERSION'          : "${version}-${distVersion}",
-          'REGVER'           : "${version}${distVersion.padRight(5, '0')}".replaceAll(/\./, ''),
+          'REGVER'           : "${version.split(/\./).collect{it.padLeft(2, '0')}.join()}${distVersion.padRight(5, '0')}",
           'JAVA'             : 'jre',
           'JAVASRC'          : jreDir,
           'DISABLE_LOGGING'  : System.getenv('DISABLE_WIN_INSTALLER_LOGGING') ?: false,

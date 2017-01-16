@@ -78,30 +78,6 @@ public class UpdateTemplateConfigCommandTest {
     }
 
     @Test
-    public void shouldAllowEditingOfStageNameWhenItIsNotUsedAsDependencyMaterial() throws Exception {
-        PipelineTemplateConfig updatedTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage2"));
-        cruiseConfig.addTemplate(pipelineTemplateConfig);
-
-        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(updatedTemplateConfig, currentUser, goConfigService, result, "md5", entityHashingService);
-        assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(true));
-        command.update(cruiseConfig);
-        assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(false));
-        assertThat(cruiseConfig.getTemplates().contains(updatedTemplateConfig), is(true));
-    }
-
-    @Test
-    public void shouldAllowEditingOfJobNameWhenItIsNotUsedAsFetchArtifact() throws Exception {
-        PipelineTemplateConfig updatedTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job2"));
-        cruiseConfig.addTemplate(pipelineTemplateConfig);
-
-        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(updatedTemplateConfig, currentUser, goConfigService, result, "md5", entityHashingService);
-        assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(true));
-        command.update(cruiseConfig);
-        assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(false));
-        assertThat(cruiseConfig.getTemplates().contains(updatedTemplateConfig), is(true));
-    }
-
-    @Test
     public void shouldAllowSubmittingInvalidElasticProfileId() throws Exception {
         PipelineTemplateConfig updatedTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.stageConfig("stage", new JobConfigs(new JobConfig("job"))));
         JobConfig jobConfig = updatedTemplateConfig.findBy(new CaseInsensitiveString("stage")).jobConfigByConfigName(new CaseInsensitiveString("job"));

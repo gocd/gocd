@@ -587,10 +587,6 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         return templateName != null && !StringUtil.isBlank(templateName.toString());
     }
 
-    public boolean isCreatedFromTemplate(CaseInsensitiveString name){
-        return hasTemplate() && templateName.equals(name);
-    }
-
     public CaseInsensitiveString getTemplateName() {
         return templateName;
     }

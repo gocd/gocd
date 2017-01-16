@@ -239,6 +239,30 @@ public class PipelineTemplateConfigTest {
     }
 
     @Test
+    public void shouldAllowEditingOfStageNameWhenItIsNotUsedAsDependencyMaterial() throws Exception {
+        PipelineTemplateConfig template = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage2"));
+        BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
+        cruiseConfig.addTemplate(template);
+        template.getStages().get(0).setName(new CaseInsensitiveString("updatedStageName"));
+
+        template.validateTree(ConfigSaveValidationContext.forChain(cruiseConfig), cruiseConfig, false);
+
+        assertThat(template.errors().isEmpty(), is(true));
+    }
+
+    @Test
+    public void shouldAllowEditingOfJobNameWhenItIsNotUsedAsFetchArtifact() throws Exception {
+        PipelineTemplateConfig template = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job2"));
+        BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
+        cruiseConfig.addTemplate(template);
+        template.getStages().get(0).getJobs().get(0).setName(new CaseInsensitiveString("updatedJobName"));
+
+        template.validateTree(ConfigSaveValidationContext.forChain(cruiseConfig), cruiseConfig, false);
+
+        assertThat(template.errors().isEmpty(), is(true));
+    }
+
+    @Test
     public void copyStagesShouldNotThrowExceptionIfInputPipelineConfigIsNull() {
         PipelineTemplateConfig template = PipelineTemplateConfigMother.createTemplateWithParams("template-name", "foo", "bar", "baz");
         int sizeBeforeCopy = template.size();

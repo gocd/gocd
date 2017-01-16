@@ -63,7 +63,7 @@ public class UpdateTemplateConfigCommand extends TemplateConfigCommand {
             return true;
         }
 
-        ArrayList<String> pipelinesUsingCurrentTemplate = getPipelinesUsingCurrentTemplate(preprocessedConfig);
+        List<CaseInsensitiveString> pipelinesUsingCurrentTemplate = preprocessedConfig.pipelinesAssociatedWithTemplate(templateConfig.name());
         if (pipelinesUsingCurrentTemplate.isEmpty()) {
             return true;
         }
@@ -98,19 +98,6 @@ public class UpdateTemplateConfigCommand extends TemplateConfigCommand {
             }
         }
         return changedElasticProfileId;
-    }
-
-
-    private ArrayList<String> getPipelinesUsingCurrentTemplate(CruiseConfig preprocessedConfig) {
-        List<PipelineConfig> allPipelines = preprocessedConfig.allPipelines();
-        ArrayList<String> pipelinesUsingCurrentTemplate = new ArrayList<>();
-        for (PipelineConfig pipeline : allPipelines) {
-            boolean isFromTemplate = pipeline.isCreatedFromTemplate(existingTemplateConfig.name());
-            if (isFromTemplate) {
-                pipelinesUsingCurrentTemplate.add(pipeline.name().toString());
-            }
-        }
-        return pipelinesUsingCurrentTemplate;
     }
 
     @Override

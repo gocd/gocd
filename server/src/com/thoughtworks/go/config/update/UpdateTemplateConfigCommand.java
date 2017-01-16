@@ -53,51 +53,7 @@ public class UpdateTemplateConfigCommand extends TemplateConfigCommand {
 
     @Override
     public boolean isValid(CruiseConfig preprocessedConfig) {
-        boolean isValid = validateElasticProfileId(preprocessedConfig);
-        return isValid && super.isValid(preprocessedConfig, false);
-    }
-
-    private boolean validateElasticProfileId(CruiseConfig preprocessedConfig) {
-        ArrayList<String> changedElasticProfileId = getChangedElasticProfileIds();
-        if (changedElasticProfileId.isEmpty()) {
-            return true;
-        }
-
-        List<CaseInsensitiveString> pipelinesUsingCurrentTemplate = preprocessedConfig.pipelinesAssociatedWithTemplate(templateConfig.name());
-        if (pipelinesUsingCurrentTemplate.isEmpty()) {
-            return true;
-        }
-
-        ConfigSaveValidationContext context = ConfigSaveValidationContext.forChain(preprocessedConfig);
-
-        for (String elasticProfileId : changedElasticProfileId) {
-            if (!context.isValidProfileId(elasticProfileId)) {
-                String message = String.format("No profile defined corresponding to profile_id '%s'", elasticProfileId);
-                newTemplateConfig.addError("ELASTIC_PROFILE_ID", message);
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private ArrayList<String> getChangedElasticProfileIds() {
-        ArrayList<String> changedElasticProfileId = new ArrayList<>();
-        for (StageConfig stageConfig : existingTemplateConfig.getStages()) {
-            StageConfig newTemplateStage = templateConfig.getStage(stageConfig.name());
-            if (newTemplateStage != null) {
-                for (JobConfig jobConfig : stageConfig.getJobs()) {
-                    JobConfig newTemplateJob = newTemplateStage.jobConfigByConfigName(jobConfig.name());
-                    if (newTemplateJob != null) {
-                        String elasticProfileId = jobConfig.getElasticProfileId();
-                        if ((elasticProfileId != newTemplateJob.getElasticProfileId())) {
-                            changedElasticProfileId.add(newTemplateJob.getElasticProfileId());
-                        }
-                    }
-                }
-            }
-        }
-        return changedElasticProfileId;
+        return super.isValid(preprocessedConfig, false);
     }
 
     @Override
@@ -121,17 +77,6 @@ public class UpdateTemplateConfigCommand extends TemplateConfigCommand {
         }
 
         return freshRequest;
-    }
-
-    public ArrayList<CaseInsensitiveString> getUpdatedStageNames() {
-        ArrayList<CaseInsensitiveString> modifiedStages = new ArrayList<>();
-        for (StageConfig stageConfig : existingTemplateConfig.getStages()) {
-            CaseInsensitiveString name = stageConfig.name();
-            if (newTemplateConfig.getStage(name) == null) {
-                modifiedStages.add(name);
-            }
-        }
-        return modifiedStages;
     }
 }
 

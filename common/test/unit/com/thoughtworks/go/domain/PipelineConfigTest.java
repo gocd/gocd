@@ -780,15 +780,6 @@ public class PipelineConfigTest {
     }
 
     @Test
-    public void shouldKnowIfPipelineWasCreatedFromTemplate() throws Exception {
-        PipelineConfig config = PipelineConfigMother.createPipelineConfigWithStages("pipeline", "stage1", "stage2");
-        CaseInsensitiveString templateName = new CaseInsensitiveString("template");
-        config.templatize(templateName);
-        assertThat(config.hasTemplate(), is(true));
-        assertTrue(config.isCreatedFromTemplate(templateName));
-    }
-
-    @Test
     public void shouldAssignApprovalTypeOnFirstStageAsAuto() throws Exception {
         Map approvalAttributes = Collections.singletonMap(Approval.TYPE, Approval.SUCCESS);
         Map<String, Map> map = Collections.singletonMap(StageConfig.APPROVAL, approvalAttributes);

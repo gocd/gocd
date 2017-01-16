@@ -94,18 +94,19 @@ public class UpdateTemplateConfigCommandTest {
     }
 
     @Test
-    public void shouldValidateElasticProfileIdWhenTemplateIsUsedInAMaterial() throws Exception {
+    public void shouldValidateElasticProfileIdWhenTemplateIsUsedInAPipeline() throws Exception {
+        cruiseConfig.addTemplate(pipelineTemplateConfig);
         PipelineConfig up42 = PipelineConfigMother.pipelineConfigWithTemplate("up42", pipelineTemplateConfig.name().toString());
         cruiseConfig.addPipeline("first", up42);
+
         PipelineTemplateConfig updatedTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.stageConfig("stage", new JobConfigs(new JobConfig("job"))));
         JobConfig jobConfig = updatedTemplateConfig.findBy(new CaseInsensitiveString("stage")).jobConfigByConfigName(new CaseInsensitiveString("job"));
         jobConfig.setElasticProfileId("invalidElasticProfileId");
 
-        cruiseConfig.addTemplate(pipelineTemplateConfig);
-
         UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(updatedTemplateConfig, currentUser, goConfigService, result, "md5", entityHashingService);
         assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(true));
         command.update(cruiseConfig);
+        MagicalGoConfigXmlLoader.preprocess(cruiseConfig);
         assertThat(command.isValid(cruiseConfig), is(false));
         assertThat(updatedTemplateConfig.getAllErrors().size(), is(1));
         String message = "No profile defined corresponding to profile_id 'invalidElasticProfileId'";

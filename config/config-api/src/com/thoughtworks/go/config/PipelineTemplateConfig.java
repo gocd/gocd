@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,7 +83,7 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
             PipelineConfig pipelineConfig = preprocessedConfig.getPipelineConfigByName(pipelineName);
             PipelineConfigSaveValidationContext contextForStages = PipelineConfigSaveValidationContext.forChain(false, "", preprocessedConfig, pipelineConfig);
             validateParams(pipelineConfig, paramsConfig);
-            validateFetchTasks(preprocessedConfig, pipelineConfig, contextForStages);
+            validateTaskAndElasticProfileId(pipelineConfig, contextForStages);
             validateDependencyMaterialAndFetchArtifactForDownstreams(pipelineConfig, contextForStages);
         }
     }
@@ -94,17 +94,31 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
         this.errors().addAll(pipelineConfig.errors());
     }
 
-    private void validateFetchTasks(CruiseConfig preprocessedConfig, PipelineConfig pipelineConfig, PipelineConfigSaveValidationContext contextForStages) {
+    private void validateTaskAndElasticProfileId(PipelineConfig pipelineConfig, PipelineConfigSaveValidationContext contextForStages) {
         for (StageConfig stageConfig : pipelineConfig.getStages()) {
             PipelineConfigSaveValidationContext contextForJobs = contextForStages.withParent(stageConfig);
             for (JobConfig jobConfig : stageConfig.getJobs()) {
                 PipelineConfigSaveValidationContext contextForTasks = contextForJobs.withParent(jobConfig);
-                for (Task task : jobConfig.getTasks()) {
-                    if (task instanceof FetchTask) {
-                        task.validate(contextForTasks);
-                        this.errors().addAll(task.errors());
-                    }
-                }
+                validateTaskAndElasticProfileId(jobConfig, contextForTasks);
+                validateElasticProfileId(jobConfig, contextForTasks);
+            }
+        }
+    }
+
+    private void validateElasticProfileId(JobConfig jobConfig, PipelineConfigSaveValidationContext preprocessedConfig) {
+        String elasticProfileId = jobConfig.getElasticProfileId();
+        if(elasticProfileId != null && !preprocessedConfig.isValidProfileId(elasticProfileId)){
+            String message = String.format("No profile defined corresponding to profile_id '%s'", elasticProfileId);
+            jobConfig.addError("elasticProfileId", message);
+            this.errors().addAll(jobConfig.errors());
+        }
+    }
+
+    private void validateTaskAndElasticProfileId(JobConfig jobConfig, PipelineConfigSaveValidationContext contextForTasks) {
+        for (Task task : jobConfig.getTasks()) {
+            if (task instanceof FetchTask) {
+                task.validate(contextForTasks);
+                this.errors().addAll(task.errors());
             }
         }
     }

@@ -17,7 +17,6 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
@@ -25,25 +24,20 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 
-import java.util.ArrayList;
-import java.util.List;
 
 public class UpdateTemplateConfigCommand extends TemplateConfigCommand {
-    private final PipelineTemplateConfig newTemplateConfig;
-    private PipelineTemplateConfig existingTemplateConfig;
     private String md5;
     private EntityHashingService entityHashingService;
 
     public UpdateTemplateConfigCommand(PipelineTemplateConfig templateConfig, Username currentUser, GoConfigService goConfigService, LocalizedOperationResult result, String md5, EntityHashingService entityHashingService) {
         super(templateConfig, result, currentUser, goConfigService);
-        this.newTemplateConfig = templateConfig;
         this.md5 = md5;
         this.entityHashingService = entityHashingService;
     }
 
     @Override
     public void update(CruiseConfig modifiedConfig) throws Exception {
-        this.existingTemplateConfig = findAddedTemplate(modifiedConfig);
+        PipelineTemplateConfig existingTemplateConfig = findAddedTemplate(modifiedConfig);
         templateConfig.setAuthorization(existingTemplateConfig.getAuthorization());
         TemplatesConfig templatesConfig = modifiedConfig.getTemplates();
         templatesConfig.removeTemplateNamed(existingTemplateConfig.name());
@@ -75,7 +69,6 @@ public class UpdateTemplateConfigCommand extends TemplateConfigCommand {
         if (!freshRequest) {
             result.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", "Template", templateConfig.name()));
         }
-
         return freshRequest;
     }
 }

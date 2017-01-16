@@ -72,34 +72,34 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
     public void validateTree(ValidationContext validationContext, CruiseConfig preprocessedConfig, boolean isTemplateBeingCreated) {
         validate(validationContext);
         if (!isTemplateBeingCreated) {
-            validateParamsAndFetchTasks(preprocessedConfig);
+            validateDependencies(preprocessedConfig);
         }
     }
 
-    private void validateParamsAndFetchTasks(CruiseConfig preprocessedConfig) {
+    private void validateDependencies(CruiseConfig preprocessedConfig) {
         List<CaseInsensitiveString> pipelineNames = preprocessedConfig.pipelinesAssociatedWithTemplate(this.name());
         ParamsConfig paramsConfig = this.referredParams();
         for (CaseInsensitiveString pipelineName : pipelineNames) {
             PipelineConfig pipelineConfig = preprocessedConfig.getPipelineConfigByName(pipelineName);
             PipelineConfigSaveValidationContext contextForStages = PipelineConfigSaveValidationContext.forChain(false, "", preprocessedConfig, pipelineConfig);
             validateParams(pipelineConfig, paramsConfig);
-            validateTaskAndElasticProfileId(pipelineConfig, contextForStages);
-            validateDependencyMaterialAndFetchArtifactForDownstreams(pipelineConfig, contextForStages);
+            validateFetchTasksAndElasticProfileId(pipelineConfig, contextForStages);
+            validateDependenciesOfDownstreams(pipelineConfig, contextForStages);
         }
     }
 
-    private void validateDependencyMaterialAndFetchArtifactForDownstreams(PipelineConfig pipelineConfig, PipelineConfigSaveValidationContext contextForStages) {
+    private void validateDependenciesOfDownstreams(PipelineConfig pipelineConfig, PipelineConfigSaveValidationContext contextForStages) {
         PipelineConfigTreeValidator pipelineConfigTreeValidator = new PipelineConfigTreeValidator(pipelineConfig);
         pipelineConfigTreeValidator.validateDependencies(contextForStages);
         this.errors().addAll(pipelineConfig.errors());
     }
 
-    private void validateTaskAndElasticProfileId(PipelineConfig pipelineConfig, PipelineConfigSaveValidationContext contextForStages) {
+    private void validateFetchTasksAndElasticProfileId(PipelineConfig pipelineConfig, PipelineConfigSaveValidationContext contextForStages) {
         for (StageConfig stageConfig : pipelineConfig.getStages()) {
             PipelineConfigSaveValidationContext contextForJobs = contextForStages.withParent(stageConfig);
             for (JobConfig jobConfig : stageConfig.getJobs()) {
                 PipelineConfigSaveValidationContext contextForTasks = contextForJobs.withParent(jobConfig);
-                validateTaskAndElasticProfileId(jobConfig, contextForTasks);
+                validateFetchTasks(jobConfig, contextForTasks);
                 validateElasticProfileId(jobConfig, contextForTasks);
             }
         }
@@ -114,7 +114,7 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
         }
     }
 
-    private void validateTaskAndElasticProfileId(JobConfig jobConfig, PipelineConfigSaveValidationContext contextForTasks) {
+    private void validateFetchTasks(JobConfig jobConfig, PipelineConfigSaveValidationContext contextForTasks) {
         for (Task task : jobConfig.getTasks()) {
             if (task instanceof FetchTask) {
                 task.validate(contextForTasks);

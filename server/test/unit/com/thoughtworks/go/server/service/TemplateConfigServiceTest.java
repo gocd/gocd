@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.presentation.ConfigForEdit;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import com.thoughtworks.go.server.service.tasks.PluggableTaskService;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -49,13 +50,15 @@ public class TemplateConfigServiceTest {
     private SecurityService securityService;
     private TemplateConfigService service;
     private EntityHashingService entityHashingService;
+    private PluggableTaskService pluggableTaskService;
 
     @Before
     public void setup() {
         goConfigService = mock(GoConfigService.class);
         securityService = mock(SecurityService.class);
         entityHashingService = mock(EntityHashingService.class);
-        service = new TemplateConfigService(goConfigService, securityService, entityHashingService);
+        pluggableTaskService = mock(PluggableTaskService.class);
+        service = new TemplateConfigService(goConfigService, securityService, entityHashingService, pluggableTaskService);
     }
 
     @Test
@@ -95,7 +98,7 @@ public class TemplateConfigServiceTest {
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.addTemplate(emptyTemplate);
 
-        TemplateConfigService service = new TemplateConfigService(goConfigService, securityService, entityHashingService);
+        TemplateConfigService service = new TemplateConfigService(goConfigService, securityService, entityHashingService, pluggableTaskService);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         service.removeTemplate("not_found_template", cruiseConfig, "md5", result);

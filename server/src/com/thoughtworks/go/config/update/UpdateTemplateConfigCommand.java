@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,7 @@
 
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.PipelineTemplateConfig;
-import com.thoughtworks.go.config.TemplatesConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
@@ -26,7 +24,8 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 
-public class UpdateTemplateConfigCommand extends TemplateConfigCommand{
+
+public class UpdateTemplateConfigCommand extends TemplateConfigCommand {
     private String md5;
     private EntityHashingService entityHashingService;
 
@@ -47,6 +46,11 @@ public class UpdateTemplateConfigCommand extends TemplateConfigCommand{
     }
 
     @Override
+    public boolean isValid(CruiseConfig preprocessedConfig) {
+        return super.isValid(preprocessedConfig, false);
+    }
+
+    @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
         return isUserAuthorized() && isRequestFresh(cruiseConfig);
     }
@@ -61,11 +65,10 @@ public class UpdateTemplateConfigCommand extends TemplateConfigCommand{
 
     private boolean isRequestFresh(CruiseConfig cruiseConfig) {
         PipelineTemplateConfig pipelineTemplateConfig = findAddedTemplate(cruiseConfig);
-        boolean freshRequest =  entityHashingService.md5ForEntity(pipelineTemplateConfig).equals(md5);
+        boolean freshRequest = entityHashingService.md5ForEntity(pipelineTemplateConfig).equals(md5);
         if (!freshRequest) {
             result.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", "Template", templateConfig.name()));
         }
-
         return freshRequest;
     }
 }

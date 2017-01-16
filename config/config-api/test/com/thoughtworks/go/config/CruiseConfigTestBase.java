@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -219,7 +219,7 @@ public abstract class CruiseConfigTestBase {
         securityConfig.adminsConfig().add(new AdminUser(new CaseInsensitiveString("root")));
         cruiseConfig.server().useSecurity(securityConfig);
 
-        Map<CaseInsensitiveString, List<CaseInsensitiveString>> templateWithPipelines = cruiseConfig.templatesWithPipelinesForUser("root");
+        Map<CaseInsensitiveString, List<CaseInsensitiveString>> templateWithPipelines = cruiseConfig.templatesWithPipelinesForUser("root", null);
 
         assertThat(templateWithPipelines.size(), is(1));
         assertThat(templateWithPipelines.get(new CaseInsensitiveString("first_template")), is(Arrays.asList(new CaseInsensitiveString("first"), new CaseInsensitiveString("second"))));
@@ -253,7 +253,7 @@ public abstract class CruiseConfigTestBase {
         securityConfig.adminsConfig().add(new AdminUser(new CaseInsensitiveString("root")));
         cruiseConfig.server().useSecurity(securityConfig);
 
-        Map<CaseInsensitiveString, List<CaseInsensitiveString>> templateWithPipelines = cruiseConfig.templatesWithPipelinesForUser("firstTemplate-admin");
+        Map<CaseInsensitiveString, List<CaseInsensitiveString>> templateWithPipelines = cruiseConfig.templatesWithPipelinesForUser("firstTemplate-admin", null);
 
         assertThat(templateWithPipelines.size(), is(1));
         assertThat(templateWithPipelines.get(new CaseInsensitiveString("first_template")), is(Arrays.asList(new CaseInsensitiveString("first"))));
@@ -287,7 +287,7 @@ public abstract class CruiseConfigTestBase {
         cruiseConfig.addTemplate(firstTemplate);
         cruiseConfig.addTemplate(secondTemplate);
 
-        Map<CaseInsensitiveString, List<CaseInsensitiveString>> templateWithPipelines = cruiseConfig.templatesWithPipelinesForUser("root");
+        Map<CaseInsensitiveString, List<CaseInsensitiveString>> templateWithPipelines = cruiseConfig.templatesWithPipelinesForUser("root", null);
 
         assertThat(templateWithPipelines.size(), is(2));
         assertThat(templateWithPipelines.get(new CaseInsensitiveString("first_template")), is(Arrays.asList(new CaseInsensitiveString("first"))));

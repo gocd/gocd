@@ -27,7 +27,7 @@ module ApiV2
                         })
 
       link :self do |opts|
-        opts[:url_builder].apiv2_admin_pipeline_url(pipeline_name: pipeline.name)
+        opts[:url_builder].apiv2_admin_pipeline_url(pipeline_name: pipeline.name) if pipeline.errors().isEmpty()
       end
 
       link :doc do |opts|

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,8 @@ import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
 import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
+import com.thoughtworks.go.domain.Task;
+import com.thoughtworks.go.domain.config.Admin;
 
 import java.util.HashMap;
 import java.util.List;
@@ -67,10 +69,84 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
         return name;
     }
 
+    public void validateTree(ValidationContext validationContext, CruiseConfig preprocessedConfig, boolean isTemplateBeingCreated) {
+        validate(validationContext);
+        if (!isTemplateBeingCreated) {
+            validateDependencies(preprocessedConfig);
+        }
+    }
+
+    private void validateDependencies(CruiseConfig preprocessedConfig) {
+        List<CaseInsensitiveString> pipelineNames = preprocessedConfig.pipelinesAssociatedWithTemplate(this.name());
+        ParamsConfig paramsConfig = this.referredParams();
+        for (CaseInsensitiveString pipelineName : pipelineNames) {
+            PipelineConfig pipelineConfig = preprocessedConfig.getPipelineConfigByName(pipelineName);
+            PipelineConfigSaveValidationContext contextForStages = PipelineConfigSaveValidationContext.forChain(false, "", preprocessedConfig, pipelineConfig);
+            validateParams(pipelineConfig, paramsConfig);
+            validateFetchTasksAndElasticProfileId(pipelineConfig, contextForStages);
+            validateDependenciesOfDownstreams(pipelineConfig, contextForStages);
+        }
+    }
+
+    private void validateDependenciesOfDownstreams(PipelineConfig pipelineConfig, PipelineConfigSaveValidationContext contextForStages) {
+        PipelineConfigTreeValidator pipelineConfigTreeValidator = new PipelineConfigTreeValidator(pipelineConfig);
+        pipelineConfigTreeValidator.validateDependencies(contextForStages);
+        this.errors().addAll(pipelineConfig.errors());
+    }
+
+    private void validateFetchTasksAndElasticProfileId(PipelineConfig pipelineConfig, PipelineConfigSaveValidationContext contextForStages) {
+        for (StageConfig stageConfig : pipelineConfig.getStages()) {
+            PipelineConfigSaveValidationContext contextForJobs = contextForStages.withParent(stageConfig);
+            for (JobConfig jobConfig : stageConfig.getJobs()) {
+                PipelineConfigSaveValidationContext contextForTasks = contextForJobs.withParent(jobConfig);
+                validateFetchTasks(jobConfig, contextForTasks);
+                validateElasticProfileId(jobConfig, contextForTasks);
+            }
+        }
+    }
+
+    private void validateElasticProfileId(JobConfig jobConfig, PipelineConfigSaveValidationContext preprocessedConfig) {
+        String elasticProfileId = jobConfig.getElasticProfileId();
+        if(elasticProfileId != null && !preprocessedConfig.isValidProfileId(elasticProfileId)){
+            String message = String.format("No profile defined corresponding to profile_id '%s'", elasticProfileId);
+            jobConfig.addError("elasticProfileId", message);
+            this.errors().addAll(jobConfig.errors());
+        }
+    }
+
+    private void validateFetchTasks(JobConfig jobConfig, PipelineConfigSaveValidationContext contextForTasks) {
+        for (Task task : jobConfig.getTasks()) {
+            if (task instanceof FetchTask) {
+                task.validate(contextForTasks);
+                this.errors().addAll(task.errors());
+            }
+        }
+    }
+
+    private void validateParams(PipelineConfig pipelineConfig, ParamsConfig paramsConfig) {
+        for (ParamConfig paramConfig : paramsConfig) {
+            if (!pipelineConfig.getParams().hasParamNamed(paramConfig.getName())) {
+                this.addError("params", String.format("The param '%s' is not defined in pipeline '%s'", paramConfig.getName(), pipelineConfig.getName()));
+            }
+        }
+    }
+
     public void validate(ValidationContext validationContext) {
         validateTemplateName();
         validateStageNameUniqueness();
+        validateTemplateAuth(new DelegatingValidationContext(validationContext) {
+            @Override
+            public boolean shouldNotCheckRole() {
+                return false;
+            }
+        });
         validateStageConfig(validationContext);
+    }
+
+    private void validateTemplateAuth(DelegatingValidationContext validationContextWhichChecksForRole) {
+        for (Admin admin : getAuthorization().getAdminsConfig()) {
+            admin.validate(validationContextWhichChecksForRole);
+        }
     }
 
     public void validateStageConfig(ValidationContext validationContext) {

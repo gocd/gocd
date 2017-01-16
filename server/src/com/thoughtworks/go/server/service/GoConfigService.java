@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -897,7 +897,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     }
 
     private boolean isUserTemplateAdmin(Username username) {
-        return getCurrentConfig().getTemplates().canViewAndEditTemplate(username.getUsername());
+        return getCurrentConfig().getTemplates().canViewAndEditTemplate(username.getUsername(), rolesForUser(username.getUsername()));
     }
 
     public GoConfigRevision getConfigAtVersion(String version) {
@@ -980,11 +980,11 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     }
 
     public boolean isAuthorizedToEditTemplate(String templateName, Username username) {
-        return isUserAdmin(username) || getCurrentConfig().getTemplates().canUserEditTemplate(templateName, username.getUsername());
+        return isUserAdmin(username) || getCurrentConfig().getTemplates().canUserEditTemplate(templateName, username.getUsername(), rolesForUser(username.getUsername()));
     }
 
     public boolean isAuthorizedToViewAndEditTemplates(Username username) {
-        return getCurrentConfig().getTemplates().canViewAndEditTemplate(username.getUsername());
+        return getCurrentConfig().getTemplates().canViewAndEditTemplate(username.getUsername(), rolesForUser(username.getUsername()));
     }
 
     public void updateUserPipelineSelections(String id, Long userId, CaseInsensitiveString pipelineToAdd) {

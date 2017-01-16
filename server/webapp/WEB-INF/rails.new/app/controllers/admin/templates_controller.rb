@@ -1,5 +1,5 @@
-##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+##########################################################################
+# Copyright 2017 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-##########################GO-LICENSE-END##################################
+##########################################################################
 
 class Admin::TemplatesController < AdminController
 
@@ -104,7 +104,7 @@ class Admin::TemplatesController < AdminController
 
   def destroy
     template_name = params[:pipeline_name]
-    load_templates @cruise_config
+    load_templates_from_service
     dependent_pipelines = @template_to_pipelines[CaseInsensitiveString.new(template_name)]
     redirect_to templates_path(:fm => set_error_flash("TEMPLATE_HAS_DEPENDENT_PIPELINES_ERROR", template_name)) and return if !dependent_pipelines.empty?
     save_page(params[:config_md5], templates_path, {:action => :index}, Class.new(::ConfigUpdate::SaveAsSuperAdmin) do
@@ -115,7 +115,7 @@ class Admin::TemplatesController < AdminController
         templates.removeTemplateNamed(CaseInsensitiveString.new(template_name))
       end
     end.new(params, current_user, security_service)) do
-      load_templates @cruise_config
+      load_templates_from_service
     end
   end
 

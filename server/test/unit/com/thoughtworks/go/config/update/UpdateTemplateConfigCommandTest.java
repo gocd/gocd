@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.helper.GoConfigMother;
+import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
@@ -74,6 +75,42 @@ public class UpdateTemplateConfigCommandTest {
         command.update(cruiseConfig);
         assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(false));
         assertThat(cruiseConfig.getTemplates().contains(updatedTemplateConfig), is(true));
+    }
+
+    @Test
+    public void shouldAllowSubmittingInvalidElasticProfileId() throws Exception {
+        PipelineTemplateConfig updatedTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.stageConfig("stage", new JobConfigs(new JobConfig("job"))));
+        JobConfig jobConfig = updatedTemplateConfig.findBy(new CaseInsensitiveString("stage")).jobConfigByConfigName(new CaseInsensitiveString("job"));
+        jobConfig.setElasticProfileId("invalidElasticProfileId");
+
+        cruiseConfig.addTemplate(pipelineTemplateConfig);
+
+        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(updatedTemplateConfig, currentUser, goConfigService, result, "md5", entityHashingService);
+        assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(true));
+        command.update(cruiseConfig);
+        assertThat(command.isValid(cruiseConfig), is(true));
+        assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(false));
+        assertThat(cruiseConfig.getTemplates().contains(updatedTemplateConfig), is(true));
+    }
+
+    @Test
+    public void shouldValidateElasticProfileIdWhenTemplateIsUsedInAPipeline() throws Exception {
+        cruiseConfig.addTemplate(pipelineTemplateConfig);
+        PipelineConfig up42 = PipelineConfigMother.pipelineConfigWithTemplate("up42", pipelineTemplateConfig.name().toString());
+        cruiseConfig.addPipeline("first", up42);
+
+        PipelineTemplateConfig updatedTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.stageConfig("stage", new JobConfigs(new JobConfig("job"))));
+        JobConfig jobConfig = updatedTemplateConfig.findBy(new CaseInsensitiveString("stage")).jobConfigByConfigName(new CaseInsensitiveString("job"));
+        jobConfig.setElasticProfileId("invalidElasticProfileId");
+
+        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(updatedTemplateConfig, currentUser, goConfigService, result, "md5", entityHashingService);
+        assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(true));
+        command.update(cruiseConfig);
+        MagicalGoConfigXmlLoader.preprocess(cruiseConfig);
+        assertThat(command.isValid(cruiseConfig), is(false));
+        assertThat(updatedTemplateConfig.getAllErrors().size(), is(1));
+        String message = "No profile defined corresponding to profile_id 'invalidElasticProfileId'";
+        assertThat(updatedTemplateConfig.getAllErrors().get(0).asString(), is(message));
     }
 
     @Test

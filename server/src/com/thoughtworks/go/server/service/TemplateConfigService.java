@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,14 +20,17 @@ import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
+import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.update.CreateTemplateConfigCommand;
 import com.thoughtworks.go.config.update.DeleteTemplateConfigCommand;
 import com.thoughtworks.go.config.update.UpdateTemplateConfigCommand;
+import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.presentation.ConfigForEdit;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
+import com.thoughtworks.go.server.service.tasks.PluggableTaskService;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.slf4j.LoggerFactory;
@@ -45,16 +48,18 @@ public class TemplateConfigService {
     private org.slf4j.Logger LOGGER = LoggerFactory.getLogger(TemplateConfigService.class);
     private Cloner cloner = new Cloner();
     private EntityHashingService entityHashingService;
+    private PluggableTaskService pluggableTaskService;
 
     @Autowired
-    public TemplateConfigService(GoConfigService goConfigService, SecurityService securityService, EntityHashingService entityHashingService) {
+    public TemplateConfigService(GoConfigService goConfigService, SecurityService securityService, EntityHashingService entityHashingService, PluggableTaskService pluggableTaskService) {
         this.goConfigService = goConfigService;
         this.securityService = securityService;
         this.entityHashingService = entityHashingService;
+        this.pluggableTaskService = pluggableTaskService;
     }
 
     public Map<CaseInsensitiveString, List<CaseInsensitiveString>> templatesWithPipelinesForUser(String username) {
-        return goConfigService.getCurrentConfig().templatesWithPipelinesForUser(username);
+        return goConfigService.getCurrentConfig().templatesWithPipelinesForUser(username, goConfigService.rolesForUser(new CaseInsensitiveString(username)));
     }
 
     public void removeTemplate(String templateName, CruiseConfig cruiseConfig, String md5, HttpLocalizedOperationResult result) {
@@ -65,11 +70,13 @@ public class TemplateConfigService {
     }
 
     public void createTemplateConfig(final Username currentUser, final PipelineTemplateConfig templateConfig, final LocalizedOperationResult result) {
+        validatePluggableTasks(templateConfig);
         CreateTemplateConfigCommand command = new CreateTemplateConfigCommand(templateConfig, currentUser, goConfigService, result);
         update(currentUser, result, command, templateConfig);
     }
 
     public void updateTemplateConfig(final Username currentUser, final PipelineTemplateConfig templateConfig, final LocalizedOperationResult result, String md5) {
+        validatePluggableTasks(templateConfig);
         UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(templateConfig, currentUser, goConfigService, result, md5, entityHashingService);
         update(currentUser, result, command, templateConfig);
     }
@@ -95,6 +102,26 @@ public class TemplateConfigService {
                 }
             }
         }
+    }
+
+    private void validatePluggableTasks(PipelineTemplateConfig templateConfig) {
+        for(PluggableTask task: getPluggableTask(templateConfig)) {
+            pluggableTaskService.isValid(task);
+        }
+    }
+
+    private List<PluggableTask> getPluggableTask(PipelineTemplateConfig templateConfig) {
+        List<PluggableTask> pluggableTasks = new ArrayList<>();
+        for(StageConfig stage: templateConfig.getStages()) {
+            for(JobConfig job: stage.getJobs()) {
+                for(Task task: job.getTasks()) {
+                    if(task instanceof PluggableTask) {
+                        pluggableTasks.add((PluggableTask) task);
+                    }
+                }
+            }
+        }
+        return pluggableTasks;
     }
 
     public ConfigForEdit<PipelineTemplateConfig> loadForEdit(String templateName, Username username, HttpLocalizedOperationResult result) {

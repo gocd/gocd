@@ -177,6 +177,13 @@ describe Admin::TemplatesController do
       end
 
       it "should delete a template" do
+        first_set = java.util.HashMap.new()
+        first_set.put(CaseInsensitiveString.new("some_template"), java.util.ArrayList.new())
+        first_set.put(CaseInsensitiveString.new("some_template_2"), java.util.ArrayList.new())
+        templates_after_delete = java.util.HashMap.new()
+        templates_after_delete.put(CaseInsensitiveString.new("some_template_2"), java.util.ArrayList.new())
+        allow(@template_config_service).to receive(:templatesWithPipelinesForUser).and_return(first_set, templates_after_delete)
+
         @pipeline_2 = PipelineTemplateConfig.new(CaseInsensitiveString.new("some_template_2"), [StageConfigMother.stageConfig("defaultStage")].to_java(StageConfig))
         @cruise_config.addTemplate(@pipeline_2)
         @cruise_config.getTemplates().size().should == 2
@@ -188,14 +195,18 @@ describe Admin::TemplatesController do
 
         assert_save_arguments "abcd1234"
         assert_update_command ::ConfigUpdate::SaveAsSuperAdmin, ConfigUpdate::TemplatesNode, ConfigUpdate::TemplatesTemplateSubject
-        h = java.util.HashMap.new()
-        h.put(CaseInsensitiveString.new("some_template_2"), java.util.ArrayList.new())
-        assigns[:template_to_pipelines].should == h
+
+        assigns[:template_to_pipelines].should == templates_after_delete
       end
 
       it "should return error if there are dependent pipelines for the template" do
+        template_with_dependent_pipelines = java.util.HashMap.new()
+        list_of_pipelines = java.util.ArrayList.new()
+        list_of_pipelines.add("some_pipeline")
+        template_with_dependent_pipelines.put(CaseInsensitiveString.new("Template1"),list_of_pipelines)
+        allow(@template_config_service).to receive(:templatesWithPipelinesForUser).and_return(template_with_dependent_pipelines)
+
         controller.stub(:set_error_flash).and_return("Error!")
-        com.thoughtworks.go.helper.GoConfigMother.new().addPipelineWithTemplate(@cruise_config, "P1", "Template1", "S1", ["J1"].to_java(java.lang.String))
 
         delete :destroy, :pipeline_name => "Template1", :config_md5 => "abcd1234"
         response.should redirect_to templates_path(:fm => "Error!")

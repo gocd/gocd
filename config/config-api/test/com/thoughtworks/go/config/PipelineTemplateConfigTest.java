@@ -19,6 +19,9 @@ package com.thoughtworks.go.config;
 import java.util.Arrays;
 import java.util.Map;
 
+import com.thoughtworks.go.config.materials.MaterialConfigs;
+import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
+import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.util.DataStructureUtils;
 import org.hamcrest.Matchers;
@@ -176,6 +179,63 @@ public class PipelineTemplateConfigTest {
         template.validateTree(ConfigSaveValidationContext.forChain(cruiseConfig), cruiseConfig, false);
 
         assertThat(template.errors().getAllOn("pipeline"), is(Arrays.asList("\"pipeline :: stage :: defaultJob\" tries to fetch artifact from pipeline \"non-existent-pipeline\" which does not exist.")));
+    }
+
+    @Test
+    public void shouldValidateTemplateStageUsedInDownstreamPipelines() {
+        JobConfig jobConfigWithExecTask = new JobConfig(new CaseInsensitiveString("defaultJob"));
+        jobConfigWithExecTask.addTask(new ExecTask("ls", "l", "server/config"));
+        JobConfigs jobConfigs = new JobConfigs(jobConfigWithExecTask);
+
+        StageConfig stageConfig = StageConfigMother.custom("stage", jobConfigs);
+        PipelineTemplateConfig template = PipelineTemplateConfigMother.createTemplate("template", stageConfig);
+
+        PipelineConfig upstreamPipelineUsingTemplate = PipelineConfigMother.pipelineConfigWithTemplate("pipeline", "template");
+        upstreamPipelineUsingTemplate.usingTemplate(template);
+
+        //Pipeline and stage of upstreamPipelineUsingTemplate
+        MaterialConfig dependency = new DependencyMaterialConfig(new CaseInsensitiveString("pipeline"), new CaseInsensitiveString("non-existent-stage"));
+        PipelineConfig downStreamPipeline = PipelineConfigMother.pipelineConfig("downstreamPipeline", new MaterialConfigs(dependency));
+
+        BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
+        cruiseConfig.addTemplate(template);
+        cruiseConfig.addPipelineWithoutValidation("group", upstreamPipelineUsingTemplate);
+        cruiseConfig.addPipelineWithoutValidation("group", downStreamPipeline);
+
+        template.validateTree(ConfigSaveValidationContext.forChain(cruiseConfig), cruiseConfig, false);
+
+       assertThat(template.errors().getAllOn("base"), is(Arrays.asList("Stage with name 'non-existent-stage' does not exist on pipeline 'pipeline', it is being referred to from pipeline 'downstreamPipeline' (cruise-config.xml)")));
+
+    }
+
+    @Test
+    public void shouldValidateTemplateJobsUsedInDownstreamPipelines() {
+        JobConfig jobConfigWithExecTask = new JobConfig(new CaseInsensitiveString("defaultJob"));
+        jobConfigWithExecTask.addTask(new ExecTask("ls", "l", "server/config"));
+        JobConfigs jobConfigs = new JobConfigs(jobConfigWithExecTask);
+
+        JobConfig jobConfigWithFetchTask = new JobConfig(new CaseInsensitiveString("fetchJob"));
+        jobConfigWithFetchTask.addTask(new FetchTask(new CaseInsensitiveString("pipeline"), new CaseInsensitiveString("stage"), new CaseInsensitiveString("non-existent-job"), "src", "dest"));
+        JobConfigs jobConfigsForDownstream = new JobConfigs(jobConfigWithFetchTask);
+
+        StageConfig stageConfig = StageConfigMother.custom("stage", jobConfigs);
+        PipelineTemplateConfig template = PipelineTemplateConfigMother.createTemplate("template", stageConfig);
+
+        PipelineConfig upstreamPipelineUsingTemplate = PipelineConfigMother.pipelineConfigWithTemplate("pipeline", "template");
+        upstreamPipelineUsingTemplate.usingTemplate(template);
+
+        //Pipeline and stage of upstreamPipelineUsingTemplate
+        MaterialConfig dependency = new DependencyMaterialConfig(new CaseInsensitiveString("pipeline"), new CaseInsensitiveString("stage"));
+        PipelineConfig downStreamPipeline = PipelineConfigMother.pipelineConfig("downstreamPipeline", new MaterialConfigs(dependency), jobConfigsForDownstream);
+
+        BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
+        cruiseConfig.addTemplate(template);
+        cruiseConfig.addPipelineWithoutValidation("group", upstreamPipelineUsingTemplate);
+        cruiseConfig.addPipelineWithoutValidation("group", downStreamPipeline);
+
+        template.validateTree(ConfigSaveValidationContext.forChain(cruiseConfig), cruiseConfig, false);
+
+        assertThat(template.errors().getAllOn("base"), is(Arrays.asList("\"downstreamPipeline :: mingle :: fetchJob\" tries to fetch artifact from job \"pipeline :: stage :: non-existent-job\" which does not exist.")));
     }
 
     @Test

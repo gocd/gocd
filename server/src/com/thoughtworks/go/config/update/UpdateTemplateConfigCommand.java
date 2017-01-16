@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,9 +53,7 @@ public class UpdateTemplateConfigCommand extends TemplateConfigCommand {
 
     @Override
     public boolean isValid(CruiseConfig preprocessedConfig) {
-        boolean isValid = validateStageNameUpdate(preprocessedConfig);
-        isValid = isValid && validateJobNameUpdate(preprocessedConfig);
-        isValid = isValid && validateElasticProfileId(preprocessedConfig);
+        boolean isValid = validateElasticProfileId(preprocessedConfig);
         return isValid && super.isValid(preprocessedConfig, false);
     }
 
@@ -102,54 +100,6 @@ public class UpdateTemplateConfigCommand extends TemplateConfigCommand {
         return changedElasticProfileId;
     }
 
-    private boolean validateJobNameUpdate(CruiseConfig preprocessedConfig) {
-        ArrayList<String> pipelinesUsingCurrentTemplate = getPipelinesUsingCurrentTemplate(preprocessedConfig);
-        for (String pipeline : pipelinesUsingCurrentTemplate) {
-            PipelineConfig dependencyPipeline = preprocessedConfig.findPipelineUsingThisPipelineAsADependency(pipeline);
-            if (dependencyPipeline != null) {
-                List<FetchTask> fetchTasks = dependencyPipeline.getFetchTasks();
-                for (FetchTask fetchTask : fetchTasks) {
-                    if (!hasJob(fetchTask)) {
-                        String jobName = templateConfig.name() + "/" + fetchTask.getStage() + "/" + fetchTask.getJob();
-                        String error = String.format("Can not update job name `%s` as it is used as fetch artifact in pipeline `%s`", jobName, dependencyPipeline.name());
-                        newTemplateConfig.addError("Job Name", error);
-                        return false;
-                    }
-                }
-            }
-        }
-        return true;
-    }
-
-    private boolean hasJob(FetchTask task) {
-        for (StageConfig stageConfig : templateConfig.getStages()) {
-            if (task.getStage().equals(stageConfig.name()) && (stageConfig.jobConfigByConfigName(task.getJob()) != null)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean validateStageNameUpdate(CruiseConfig preprocessedConfig) {
-        ArrayList<CaseInsensitiveString> updatedStageNames = getUpdatedStageNames();
-        if (updatedStageNames.isEmpty()) {
-            return true;
-        }
-        ArrayList<String> pipelinesUsingCurrentTemplate = getPipelinesUsingCurrentTemplate(preprocessedConfig);
-
-        for (String pipeline : pipelinesUsingCurrentTemplate) {
-            PipelineConfig dependencyPipeline = preprocessedConfig.findPipelineUsingThisPipelineAsADependency(pipeline);
-            if (dependencyPipeline != null) {
-                DependencyMaterialConfig material = dependencyPipeline.materialConfigs().findDependencyMaterial(new CaseInsensitiveString(pipeline));
-                if (templateConfig.findBy(material.getStageName()) == null) {
-                    String error = String.format("Can not update stage name as it is used as a material `%s` in pipeline `%s`", material.getPipelineStageName(), dependencyPipeline.name());
-                    newTemplateConfig.addError("Stage Name", error);
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
 
     private ArrayList<String> getPipelinesUsingCurrentTemplate(CruiseConfig preprocessedConfig) {
         List<PipelineConfig> allPipelines = preprocessedConfig.allPipelines();

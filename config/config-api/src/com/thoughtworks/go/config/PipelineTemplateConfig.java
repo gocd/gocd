@@ -81,13 +81,20 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
         ParamsConfig paramsConfig = this.referredParams();
         for (CaseInsensitiveString pipelineName : pipelineNames) {
             PipelineConfig pipelineConfig = preprocessedConfig.getPipelineConfigByName(pipelineName);
+            PipelineConfigSaveValidationContext contextForStages = PipelineConfigSaveValidationContext.forChain(false, "", preprocessedConfig, pipelineConfig);
             validateParams(pipelineConfig, paramsConfig);
-            validateFetchTasks(preprocessedConfig, pipelineConfig);
+            validateFetchTasks(preprocessedConfig, pipelineConfig, contextForStages);
+            validateDependencyMaterialAndFetchArtifactForDownstreams(pipelineConfig, contextForStages);
         }
     }
 
-    private void validateFetchTasks(CruiseConfig preprocessedConfig, PipelineConfig pipelineConfig) {
-        PipelineConfigSaveValidationContext contextForStages = PipelineConfigSaveValidationContext.forChain(false, "", preprocessedConfig, pipelineConfig);
+    private void validateDependencyMaterialAndFetchArtifactForDownstreams(PipelineConfig pipelineConfig, PipelineConfigSaveValidationContext contextForStages) {
+        PipelineConfigTreeValidator pipelineConfigTreeValidator = new PipelineConfigTreeValidator(pipelineConfig);
+        pipelineConfigTreeValidator.validateDependencies(contextForStages);
+        this.errors().addAll(pipelineConfig.errors());
+    }
+
+    private void validateFetchTasks(CruiseConfig preprocessedConfig, PipelineConfig pipelineConfig, PipelineConfigSaveValidationContext contextForStages) {
         for (StageConfig stageConfig : pipelineConfig.getStages()) {
             PipelineConfigSaveValidationContext contextForJobs = contextForStages.withParent(stageConfig);
             for (JobConfig jobConfig : stageConfig.getJobs()) {

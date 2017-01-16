@@ -85,7 +85,7 @@ public class PipelineConfigTreeValidator {
         }
     }
 
-    private void validateDependencies(PipelineConfigSaveValidationContext validationContext) {
+    public void validateDependencies(PipelineConfigSaveValidationContext validationContext) {
         if (validationContext.isPipelineBeingCreated()) return;
         for (CaseInsensitiveString selected : validationContext.getPipelinesWithDependencyMaterials()) {
             if (selected.equals(pipelineConfig.name())) continue;

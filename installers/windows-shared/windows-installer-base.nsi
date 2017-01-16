@@ -98,7 +98,15 @@ Function .onInit
     IfErrors done
         ReadRegStr $1 HKLM "Software\ThoughtWorks Studios\Go $%NAME%" "Ver"
         ReadRegStr $2 HKLM "Software\ThoughtWorks Studios\Go $%NAME%" "Version"
-        IntCmp $1 $%REGVER% issame isnewer isolder
+
+        ${If} $1 L= $%REGVER%
+            Goto issame
+        ${ElseIf} $1 L< $%REGVER%
+            Goto isnewer
+        ${Else}
+            Goto isolder
+        ${EndIf}
+
 
         issame:
             IfSilent IsSameSilentLabel IsSameNonSilentLabel

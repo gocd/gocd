@@ -12,7 +12,7 @@ Vagrant.configure(2) do |config|
 
   packages = []
 
-  packages << 'java-1.7.0-openjdk-devel'
+  packages << 'java-1.8.0-openjdk-devel'
   packages << %w(zip unzip gzip bzip2) # compression tools
   packages << %w(git)
   packages << %w(createrepo yum-utils rpm-build yum-utils) #for building rpm packages

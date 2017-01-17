@@ -97,10 +97,12 @@ public class PluginService {
         pluginDao.saveOrUpdate(plugin);
     }
 
+    @Deprecated // used by v1 and v2
     public List<PluginInfo> pluginInfos(String type) {
         return pluginInfoBuilder.allPluginInfos(type);
     }
 
+    @Deprecated
     public PluginInfo pluginInfo(String pluginId) {
         return pluginInfoBuilder.pluginInfoFor(pluginId);
     }

@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Deprecated
 class PackageViewModelBuilder implements ViewModelBuilder {
     private PluginManager pluginManager;
 

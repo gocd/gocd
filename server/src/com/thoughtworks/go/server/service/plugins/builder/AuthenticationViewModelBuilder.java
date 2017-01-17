@@ -25,6 +25,7 @@ import com.thoughtworks.go.server.ui.plugins.PluginInfo;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 class AuthenticationViewModelBuilder implements ViewModelBuilder {
     private PluginManager pluginManager;
     private AuthenticationPluginRegistry registry;

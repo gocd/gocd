@@ -28,6 +28,7 @@ import com.thoughtworks.go.server.ui.plugins.PluginView;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 class ElasticAgentViewViewModelBuilder implements ViewModelBuilder {
     private ElasticPluginConfigMetadataStore metadataStore;
 

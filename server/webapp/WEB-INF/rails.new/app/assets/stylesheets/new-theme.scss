@@ -3095,10 +3095,6 @@ a.add_item {
   }
 }
 
-.action_icon {
-  height: auto;
-}
-
 .move_icon {
   @include icon-before($type: arrow-circle-o-right);
   @extend %iconstyles;

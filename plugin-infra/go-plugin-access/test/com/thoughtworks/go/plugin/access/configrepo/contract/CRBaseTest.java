@@ -27,13 +27,10 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.thoughtworks.go.util.TestUtils.contains;
-import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.fail;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.mockito.AdditionalMatchers.not;
 
 public abstract class CRBaseTest<T extends CRBase> {
 

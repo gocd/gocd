@@ -28,8 +28,6 @@ import com.thoughtworks.go.helper.GitSubmoduleRepos;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
-import com.thoughtworks.go.matchers.FileExistsMatcher;
-import com.thoughtworks.go.util.JsonUtils;
 import com.thoughtworks.go.util.JsonValue;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TestFileUtil;

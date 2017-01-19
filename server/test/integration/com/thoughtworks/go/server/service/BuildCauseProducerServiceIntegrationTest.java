@@ -38,7 +38,6 @@ import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.svn.Subversion;
 import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.helper.HgTestRepo;
-import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.helper.SvnTestRepo;
 import com.thoughtworks.go.helper.TestRepo;

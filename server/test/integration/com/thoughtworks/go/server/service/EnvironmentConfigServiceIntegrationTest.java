@@ -37,7 +37,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import static com.thoughtworks.go.server.service.EnvironmentConfigServiceTest.env;
 import static org.hamcrest.Matchers.nullValue;

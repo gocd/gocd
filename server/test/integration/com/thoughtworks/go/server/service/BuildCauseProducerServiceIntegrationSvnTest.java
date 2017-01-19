@@ -28,7 +28,6 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
-import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.svn.Subversion;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.PipelineMother;

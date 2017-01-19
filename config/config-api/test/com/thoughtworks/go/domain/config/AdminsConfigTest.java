@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package com.thoughtworks.go.domain.config;
 import java.util.Arrays;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.RoleConfig;
 import com.thoughtworks.go.helper.UserRoleMatcherMother;
 import org.junit.Test;
 

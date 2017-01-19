@@ -22,7 +22,6 @@ import com.thoughtworks.go.config.Resource;
 import com.thoughtworks.go.config.Resources;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.util.comparator.AlphaAsciiComparator;
-import info.aduna.text.NumericStringComparator;
 import org.apache.commons.lang.StringUtils;
 
 /**

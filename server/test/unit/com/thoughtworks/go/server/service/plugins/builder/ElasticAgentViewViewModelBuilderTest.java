@@ -22,7 +22,6 @@ import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKey;
 import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKeys;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginConstants;
 import com.thoughtworks.go.plugin.access.elastic.ElasticPluginConfigMetadataStore;
-import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.ui.plugins.PluginConfiguration;
 import com.thoughtworks.go.server.ui.plugins.PluginInfo;

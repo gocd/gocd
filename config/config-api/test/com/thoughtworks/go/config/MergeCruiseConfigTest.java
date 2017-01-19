@@ -3,7 +3,6 @@ package com.thoughtworks.go.config;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
-import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.config.merge.MergePipelineConfigs;
 import com.thoughtworks.go.config.remote.*;
 import com.thoughtworks.go.domain.ConfigErrors;

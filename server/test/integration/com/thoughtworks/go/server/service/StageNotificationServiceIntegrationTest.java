@@ -28,7 +28,6 @@ import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.StageEvent;
 import com.thoughtworks.go.domain.User;
-import com.thoughtworks.go.domain.testinfo.TestSuite;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.JobInstanceDao;

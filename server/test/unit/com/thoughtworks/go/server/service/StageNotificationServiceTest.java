@@ -41,7 +41,6 @@ import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.ModifiedAction;
 import com.thoughtworks.go.domain.testinfo.TestStatus;
 import com.thoughtworks.go.domain.testinfo.TestSuite;
-import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.dao.sparql.ShineDao;
 import com.thoughtworks.go.server.domain.Username;

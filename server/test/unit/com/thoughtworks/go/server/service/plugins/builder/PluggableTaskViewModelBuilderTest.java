@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package com.thoughtworks.go.server.service.plugins.builder;
 import com.thoughtworks.go.plugin.access.pluggabletask.JsonBasedPluggableTask;
 import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskPreference;
-import com.thoughtworks.go.plugin.api.task.Task;
 import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.api.task.TaskConfigProperty;
 import com.thoughtworks.go.plugin.api.task.TaskView;

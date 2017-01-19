@@ -32,7 +32,6 @@ import com.thoughtworks.go.domain.PipelineTimelineEntry;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.domain.user.PipelineSelections;
-import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;

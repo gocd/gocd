@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.ConfigSaveState;
 import com.thoughtworks.go.config.MailHost;
-import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;

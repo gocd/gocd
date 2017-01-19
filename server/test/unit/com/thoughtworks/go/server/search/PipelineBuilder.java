@@ -21,7 +21,6 @@ import java.util.Date;
 import java.util.List;
 
 import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.JobInstanceLog;
 import com.thoughtworks.go.domain.JobInstances;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;

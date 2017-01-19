@@ -22,7 +22,6 @@ import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.activity.StageStatusCache;
 import com.thoughtworks.go.domain.feed.Author;
 import com.thoughtworks.go.domain.feed.FeedEntries;
-import com.thoughtworks.go.domain.feed.FeedEntry;
 import com.thoughtworks.go.domain.feed.stage.StageFeedEntry;
 import com.thoughtworks.go.dto.DurationBean;
 import com.thoughtworks.go.dto.DurationBeans;

@@ -39,7 +39,6 @@ import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.work.BuildWork;
 import com.thoughtworks.go.remote.work.DeniedAgentWork;
-import com.thoughtworks.go.remote.work.NoWork;
 import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;

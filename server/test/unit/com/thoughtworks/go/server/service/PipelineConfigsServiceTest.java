@@ -22,7 +22,6 @@ import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.helper.GoConfigMother;
-import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedKeyValueMessage;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.i18n.Localizer;

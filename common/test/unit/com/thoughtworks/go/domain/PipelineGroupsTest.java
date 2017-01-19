@@ -17,10 +17,8 @@
 package com.thoughtworks.go.domain;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.*;
 import java.util.regex.Matcher;
 
@@ -29,27 +27,17 @@ import com.thoughtworks.go.config.exceptions.PipelineGroupNotFoundException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
-import com.thoughtworks.go.config.materials.ScmMaterialConfig;
-import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
-import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
-import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
-import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
-import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.merge.MergePipelineConfigs;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
-import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
-import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.Pair;
-import com.thoughtworks.go.util.command.UrlArgument;
 import org.junit.Test;
 
 import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
-import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
 import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
@@ -58,7 +46,6 @@ import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class PipelineGroupsTest {
 

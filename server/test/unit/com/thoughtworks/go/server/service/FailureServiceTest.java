@@ -21,7 +21,6 @@ import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.StageFinder;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.domain.testinfo.FailureDetails;
-import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.dao.sparql.ShineDao;
 import com.thoughtworks.go.server.domain.Username;

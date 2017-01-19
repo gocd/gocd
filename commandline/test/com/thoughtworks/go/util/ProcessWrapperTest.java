@@ -30,7 +30,6 @@ import com.thoughtworks.go.util.command.ConsoleResult;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
-import com.thoughtworks.go.util.command.SecretString;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;

@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.security;
 
 import com.thoughtworks.go.domain.User;
-import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConfigMetadataStore;

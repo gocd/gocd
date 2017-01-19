@@ -23,8 +23,6 @@ import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.*;
-import com.thoughtworks.go.helper.MaterialsMother;
-import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.presentation.PipelineStatusModel;
 import com.thoughtworks.go.presentation.pipelinehistory.*;

@@ -26,7 +26,6 @@ import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginRegistry;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentMessage;
 import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentQueueHandler;
 import com.thoughtworks.go.server.messaging.elasticagents.ServerPingMessage;

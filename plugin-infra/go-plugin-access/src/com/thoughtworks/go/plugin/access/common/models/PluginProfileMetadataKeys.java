@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Spliterator;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 
 public class PluginProfileMetadataKeys implements Iterable<PluginProfileMetadataKey> {
     private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();

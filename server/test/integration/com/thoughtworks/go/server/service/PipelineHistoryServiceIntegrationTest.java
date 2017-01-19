@@ -22,7 +22,6 @@ import java.util.Date;
 import java.util.List;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.RoleConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
@@ -31,7 +30,6 @@ import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.domain.materials.Revision;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
 import com.thoughtworks.go.domain.materials.svn.SubversionRevision;
 import com.thoughtworks.go.fixture.ArtifactsDiskIsFull;

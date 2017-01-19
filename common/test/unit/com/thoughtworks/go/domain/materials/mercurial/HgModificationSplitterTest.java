@@ -26,8 +26,6 @@ import org.junit.Test;
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.core.Is.is;
 import org.joda.time.DateTime;
-import com.thoughtworks.go.util.command.CommandArgument;
-import com.thoughtworks.go.util.command.SecretString;
 
 public class HgModificationSplitterTest {
 

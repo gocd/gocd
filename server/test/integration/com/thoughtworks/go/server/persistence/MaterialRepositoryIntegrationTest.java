@@ -46,7 +46,6 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother;
 import com.thoughtworks.go.domain.scm.SCMMother;
 import com.thoughtworks.go.helper.*;
-import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;

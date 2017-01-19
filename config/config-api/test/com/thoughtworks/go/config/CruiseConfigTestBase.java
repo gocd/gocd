@@ -44,7 +44,6 @@ import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.Is;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.*;
@@ -57,7 +56,6 @@ import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 public abstract class CruiseConfigTestBase {

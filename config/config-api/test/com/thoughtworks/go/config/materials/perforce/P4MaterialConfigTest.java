@@ -25,7 +25,6 @@ import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ReflectionUtil;
-import com.thoughtworks.go.util.command.UrlArgument;
 import org.junit.Test;
 
 import java.util.HashMap;

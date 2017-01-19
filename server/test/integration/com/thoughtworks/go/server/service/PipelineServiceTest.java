@@ -57,8 +57,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static com.thoughtworks.go.helper.ModificationsMother.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.*;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {

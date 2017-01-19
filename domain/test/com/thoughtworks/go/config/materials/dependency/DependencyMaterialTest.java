@@ -23,7 +23,6 @@ import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Modifications;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
 import com.thoughtworks.go.helper.GoConfigMother;
-import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 

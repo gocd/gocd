@@ -19,8 +19,6 @@ package com.thoughtworks.go.domain;
 import java.util.ArrayList;
 import java.util.Date;
 
-import com.thoughtworks.go.domain.materials.Modification;
-
 public class NullMaterialRevision extends MaterialRevision {
     public NullMaterialRevision() {
         super(null, new ArrayList<>());

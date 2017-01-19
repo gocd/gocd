@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.plugin.access.configrepo;
 
-import com.thoughtworks.go.plugin.access.configrepo.contract.CRBase;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRError;
 
 import java.util.ArrayList;

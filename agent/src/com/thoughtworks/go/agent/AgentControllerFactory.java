@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExte
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.plugin.infra.PluginManager;
-import com.thoughtworks.go.plugin.infra.PluginManagerReference;
 import com.thoughtworks.go.publishers.GoArtifactsManipulator;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.util.HttpService;

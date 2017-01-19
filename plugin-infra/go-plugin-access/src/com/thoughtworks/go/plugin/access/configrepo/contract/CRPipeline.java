@@ -18,8 +18,6 @@ package com.thoughtworks.go.plugin.access.configrepo.contract;
 
 import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
 import com.thoughtworks.go.plugin.access.configrepo.contract.material.CRMaterial;
-import com.thoughtworks.go.plugin.access.configrepo.contract.material.CRPluggableScmMaterial;
-import com.thoughtworks.go.plugin.access.configrepo.contract.material.CRScmMaterial;
 import com.thoughtworks.go.plugin.access.configrepo.contract.material.SourceCodeMaterial;
 import com.thoughtworks.go.util.StringUtil;
 import org.apache.commons.collections.CollectionUtils;

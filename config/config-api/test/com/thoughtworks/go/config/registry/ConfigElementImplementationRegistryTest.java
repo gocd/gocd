@@ -27,7 +27,6 @@ import com.thoughtworks.go.config.BuildTask;
 import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.plugins.PluginExtensions;
 import com.thoughtworks.go.plugins.PluginTestUtil;
-import com.thoughtworks.go.plugins.presentation.PluggableViewModel;
 import com.thoughtworks.go.plugins.presentation.PluggableViewModelFactory;
 import com.thoughtworks.go.presentation.TaskViewModel;
 import com.thoughtworks.go.util.DataStructureUtils;

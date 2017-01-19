@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@ package com.thoughtworks.go.server.security;
 import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
+import com.thoughtworks.go.plugin.access.authentication.AuthenticationExtension;
+import com.thoughtworks.go.plugin.access.authentication.AuthenticationPluginRegistry;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConfigMetadataStore;
 import com.thoughtworks.go.presentation.UserSearchModel;
@@ -42,6 +44,10 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 public class UserSearchServiceTest {
     @Mock
+    private AuthenticationPluginRegistry authenticationPluginRegistry;
+    @Mock
+    private AuthenticationExtension authenticationExtension;
+    @Mock
     private LdapUserSearch ldapUserSearch;
     @Mock
     private PasswordFileUserSearch passwordFileUserSearch;
@@ -59,7 +65,7 @@ public class UserSearchServiceTest {
 
         when(goConfigService.isLdapConfigured()).thenReturn(true);
 
-        userSearchService = new UserSearchService(ldapUserSearch, passwordFileUserSearch, metadataStore, authorizationExtension, goConfigService);
+        userSearchService = new UserSearchService(ldapUserSearch, passwordFileUserSearch, metadataStore, authorizationExtension, goConfigService, authenticationPluginRegistry, authenticationExtension);
     }
 
     @Test
@@ -81,6 +87,7 @@ public class UserSearchServiceTest {
 
         List<String> pluginIds = Arrays.asList("plugin-id-1", "plugin-id-2", "plugin-id-3", "plugin-id-4");
         when(metadataStore.getPluginsThatSupportsUserSearch()).thenReturn(new HashSet<>(pluginIds));
+        when(authorizationExtension.canHandlePlugin(anyString())).thenReturn(true);
         when(authorizationExtension.searchUsers("plugin-id-1", searchTerm)).thenReturn(Arrays.asList(getPluginUser(1)));
         when(authorizationExtension.searchUsers("plugin-id-2", searchTerm)).thenReturn(Arrays.asList(getPluginUser(2), getPluginUser(3)));
         when(authorizationExtension.searchUsers("plugin-id-3", searchTerm)).thenReturn(new ArrayList<com.thoughtworks.go.plugin.access.authentication.models.User>());
@@ -90,6 +97,25 @@ public class UserSearchServiceTest {
 
         assertThat(models, is(Arrays.asList(new UserSearchModel(foo, UserSourceType.LDAP), new UserSearchModel(bar, UserSourceType.LDAP), new UserSearchModel(getUser(1), UserSourceType.PLUGIN),
                 new UserSearchModel(getUser(2), UserSourceType.PLUGIN), new UserSearchModel(getUser(3), UserSourceType.PLUGIN), new UserSearchModel(new User("username-" + 4, "", ""), UserSourceType.PLUGIN))));
+    }
+
+    @Test
+    public void shouldAddPluginSearchResultsWhenPluginImplementsAuthenticationExtension() {
+        String searchTerm = "foo";
+        List<String> pluginIds = Arrays.asList("plugin-id-1", "plugin-id-2", "plugin-id-3", "plugin-id-4");
+
+        when(authenticationPluginRegistry.getAuthenticationPlugins()).thenReturn(new HashSet<String>(pluginIds));
+        when(authenticationExtension.canHandlePlugin(anyString())).thenReturn(true);
+        when(authenticationExtension.searchUser("plugin-id-1", searchTerm)).thenReturn(Arrays.asList(getPluginUser(1)));
+        when(authenticationExtension.searchUser("plugin-id-2", searchTerm)).thenReturn(Arrays.asList(getPluginUser(2), getPluginUser(3)));
+        when(authenticationExtension.searchUser("plugin-id-3", searchTerm)).thenReturn(new ArrayList<com.thoughtworks.go.plugin.access.authentication.models.User>());
+        when(authenticationExtension.searchUser("plugin-id-4", searchTerm)).thenReturn(Arrays.asList(new com.thoughtworks.go.plugin.access.authentication.models.User("username-" + 4, null, null)));
+
+        List<UserSearchModel> models = userSearchService.search(searchTerm, new HttpLocalizedOperationResult());
+        assertThat(models, is(Arrays.asList(new UserSearchModel(getUser(1), UserSourceType.PLUGIN),
+                new UserSearchModel(getUser(2), UserSourceType.PLUGIN),
+                new UserSearchModel(getUser(3), UserSourceType.PLUGIN),
+                new UserSearchModel(new User("username-" + 4, "", ""), UserSourceType.PLUGIN))));
     }
 
     @Test

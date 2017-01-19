@@ -118,20 +118,20 @@ public class PipelineConfigDependencyGraphTest {
         PipelineConfigDependencyGraph dependencyGraph = new PipelineConfigDependencyGraph(current, up1Graph, up2Graph);
 
         assertThat(dependencyGraph.unsharedMaterialConfigs().size(), is(2));
-        assertThat(dependencyGraph.unsharedMaterialConfigs().get(0), is((MaterialConfig) up1DependencyMaterial));
-        assertThat(dependencyGraph.unsharedMaterialConfigs().get(1), is((MaterialConfig) up2DependencyMaterial));
+        assertThat(dependencyGraph.unsharedMaterialConfigs().get(0), is(up1DependencyMaterial));
+        assertThat(dependencyGraph.unsharedMaterialConfigs().get(1), is(up2DependencyMaterial));
 
         assertThat(up1Graph.unsharedMaterialConfigs().size(), is(2));
-        assertThat(up1Graph.unsharedMaterialConfigs().get(0), is((MaterialConfig) firstOrderGitMaterial));
-        assertThat(up1Graph.unsharedMaterialConfigs().get(1), is((MaterialConfig) uppestDependencyMaterial));
+        assertThat(up1Graph.unsharedMaterialConfigs().get(0), is(firstOrderGitMaterial));
+        assertThat(up1Graph.unsharedMaterialConfigs().get(1), is(uppestDependencyMaterial));
 
         assertThat(up2Graph.unsharedMaterialConfigs().size(), is(2));
-        assertThat(up2Graph.unsharedMaterialConfigs().get(0), is((MaterialConfig) firstOrderSVNMaterial));
-        assertThat(up2Graph.unsharedMaterialConfigs().get(1), is((MaterialConfig) uppestDependencyMaterial));
+        assertThat(up2Graph.unsharedMaterialConfigs().get(0), is(firstOrderSVNMaterial));
+        assertThat(up2Graph.unsharedMaterialConfigs().get(1), is(uppestDependencyMaterial));
 
         assertThat(uppestGraph.unsharedMaterialConfigs().size(), is(2));
-        assertThat(uppestGraph.unsharedMaterialConfigs().get(0), is((MaterialConfig) common1));
-        assertThat(uppestGraph.unsharedMaterialConfigs().get(1), is((MaterialConfig) firstOrderP4Material));
+        assertThat(uppestGraph.unsharedMaterialConfigs().get(0), is(common1));
+        assertThat(uppestGraph.unsharedMaterialConfigs().get(1), is(firstOrderP4Material));
     }
 
     @Test

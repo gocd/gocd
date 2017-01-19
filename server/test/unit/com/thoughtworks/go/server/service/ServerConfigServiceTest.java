@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ public class ServerConfigServiceTest {
                 ConfigSaveState.UPDATED);
         serverConfigService.updateServerConfig(mailHost, null, null, null, null, null, null, true, "http://site", "https://site", "location", result, "md5");
 
-        assertThat(result.localizable(), Is.is((Localizable) LocalizedMessage.string("SAVED_CONFIGURATION_SUCCESSFULLY")));
+        assertThat(result.localizable(), Is.is(LocalizedMessage.string("SAVED_CONFIGURATION_SUCCESSFULLY")));
 
     }
 

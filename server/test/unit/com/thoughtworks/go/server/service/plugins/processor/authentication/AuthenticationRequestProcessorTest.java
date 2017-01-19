@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -100,7 +100,7 @@ public class AuthenticationRequestProcessorTest {
         assertThat(goUserPrincipal.getDisplayName(), is("display name"));
         verifyGrantAuthorities(goUserPrincipal.getAuthorities());
         PreAuthenticatedAuthenticationToken authenticationToken = processorSpy.getAuthenticationToken(goUserPrincipal);
-        assertThat((GoUserPrinciple) authenticationToken.getPrincipal(), is(goUserPrincipal));
+        assertThat(authenticationToken.getPrincipal(), is(goUserPrincipal));
         verifyGrantAuthorities(authenticationToken.getAuthorities());
         verify(securityContext).setAuthentication(authenticationToken);
     }

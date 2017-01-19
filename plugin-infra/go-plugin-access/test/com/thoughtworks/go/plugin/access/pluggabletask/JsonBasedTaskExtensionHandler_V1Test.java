@@ -103,13 +103,13 @@ public class JsonBasedTaskExtensionHandler_V1Test {
 
         Map property1 = (Map) taskConfigMap.get("k1");
         assertThat(property1.get("value").toString(), is("value1"));
-        assertThat((Boolean) property1.get("secure"), is(true));
-        assertThat((Boolean) property1.get("required"), is(true));
+        assertThat(property1.get("secure"), is(true));
+        assertThat(property1.get("required"), is(true));
 
         Map property2 = (Map) taskConfigMap.get("k2");
         assertThat(property2.get("value").toString(), is("value2"));
-        assertThat((Boolean) property2.get("secure"), is(false));
-        assertThat((Boolean) property2.get("required"), is(true));
+        assertThat(property2.get("secure"), is(false));
+        assertThat(property2.get("required"), is(true));
     }
 
     @Test
@@ -396,7 +396,7 @@ public class JsonBasedTaskExtensionHandler_V1Test {
         Map result = (Map) new GsonBuilder().create().fromJson(requestBody, Object.class);
         Map taskExecutionContextFromRequest = (Map) result.get("context");
 
-        assertThat((String) taskExecutionContextFromRequest.get("workingDirectory"), is(workingDir));
+        assertThat(taskExecutionContextFromRequest.get("workingDirectory"), is(workingDir));
         Map environmentVariables = (Map) taskExecutionContextFromRequest.get("environmentVariables");
         assertThat(environmentVariables.size(), is(2));
         assertThat(environmentVariables.get("ENV1").toString(), is("VAL1"));

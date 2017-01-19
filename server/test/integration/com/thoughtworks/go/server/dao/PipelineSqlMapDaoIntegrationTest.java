@@ -920,7 +920,7 @@ public class PipelineSqlMapDaoIntegrationTest {
         Pipeline pipelineFromDB = pipelineDao.loadPipeline(pipeline.getId());
         final Materials materials = pipelineFromDB.getMaterials();
 
-        assertThat((SvnMaterial) materials.get(0), is(svnMaterial));
+        assertThat(materials.get(0), is(svnMaterial));
     }
 
     @Test
@@ -977,7 +977,7 @@ public class PipelineSqlMapDaoIntegrationTest {
 
         final Materials materials = pipelineFromDB.getMaterials();
 
-        assertThat((DependencyMaterial) materials.get(0), is(dependencyMaterial));
+        assertThat(materials.get(0), is(dependencyMaterial));
     }
 
     @Test
@@ -1005,7 +1005,7 @@ public class PipelineSqlMapDaoIntegrationTest {
 
         final Materials materials = pipelineFromDB.getMaterials();
 
-        assertThat((DependencyMaterial) materials.get(0), is(dependencyMaterial));
+        assertThat(materials.get(0), is(dependencyMaterial));
     }
 
     @Test
@@ -1143,7 +1143,7 @@ public class PipelineSqlMapDaoIntegrationTest {
 
         Pipeline pipelineFromDB = pipelineDao.loadPipeline(pipeline.getId());
         Materials materials = pipelineFromDB.getMaterials();
-        assertThat((P4Material) materials.get(0), is(p4Material));
+        assertThat(materials.get(0), is(p4Material));
     }
 
     @Test

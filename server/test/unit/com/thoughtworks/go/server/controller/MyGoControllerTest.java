@@ -78,13 +78,13 @@ public class MyGoControllerTest {
 
         ModelAndView modelAndView = controller.handleRequest(null, request);
 
-        assertThat((Matcher) modelAndView.getModel().get("matchers"), is(new Matcher("rope,srikanth")));
-        assertThat((String) modelAndView.getModel().get("email"), is("sriki@tw.com"));
-        assertThat((Boolean) modelAndView.getModel().get("emailMe"), is(true));
-        assertThat((List<NotificationFilter>) modelAndView.getModel().get("notificationFilters"), is(user.getNotificationFilters()));
-        assertThat((Localizer) modelAndView.getModel().get("l"), is(localizer));
+        assertThat(modelAndView.getModel().get("matchers"), is(new Matcher("rope,srikanth")));
+        assertThat(modelAndView.getModel().get("email"), is("sriki@tw.com"));
+        assertThat(modelAndView.getModel().get("emailMe"), is(true));
+        assertThat(modelAndView.getModel().get("notificationFilters"), is(user.getNotificationFilters()));
+        assertThat(modelAndView.getModel().get("l"), is(localizer));
 
-        assertThat((String) modelAndView.getModel().get("pipelines"),
+        assertThat(modelAndView.getModel().get("pipelines"),
                 is("[{\"name\":\"" + GoConstants.ANY_PIPELINE + "\",\"stages\":[{\"stageName\":\"" + GoConstants.ANY_STAGE + "\"}]},"
                         + "{\"name\":\"pipeline1-1\",\"stages\":[{\"stageName\":\"" + GoConstants.ANY_STAGE + "\"},{\"stageName\":\"stage1-1\"},{\"stageName\":\"stage1-2\"}]},"
                         + "{\"name\":\"PIPELINE2-1\",\"stages\":[{\"stageName\":\"" + GoConstants.ANY_STAGE + "\"},{\"stageName\":\"stage2-1\"}]},"

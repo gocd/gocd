@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2016 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.web;
 
@@ -93,8 +93,8 @@ public class MyGoInterceptorTest {
         smtpIs(true);
         myGoInterceptor.postHandle(request, response, null, modelAndView);
         ModelMap modelMap = modelAndView.getModelMap();
-        assertThat((Boolean) modelMap.get(SECURITY_IS_ENABLED), is(true));
-        assertThat((Boolean) modelMap.get(SMTP_IS_ENABLED), is(true));
+        assertThat(modelMap.get(SECURITY_IS_ENABLED), is(true));
+        assertThat(modelMap.get(SMTP_IS_ENABLED), is(true));
     }
 
     private void smtpIs(final boolean result) {
@@ -107,7 +107,7 @@ public class MyGoInterceptorTest {
         smtpIs(false);
         myGoInterceptor.postHandle(request, response, null, modelAndView);
         ModelMap modelMap = modelAndView.getModelMap();
-        assertThat((Boolean) modelMap.get(SECURITY_IS_ENABLED), is(false));
-        assertThat((Boolean) modelMap.get(SMTP_IS_ENABLED), is(false));
+        assertThat(modelMap.get(SECURITY_IS_ENABLED), is(false));
+        assertThat(modelMap.get(SMTP_IS_ENABLED), is(false));
     }
 }

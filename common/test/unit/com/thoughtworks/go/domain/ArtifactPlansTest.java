@@ -63,7 +63,7 @@ public class ArtifactPlansTest {
         TestArtifactPlan plan = new TestArtifactPlan();
         plan.setSrc("blah");
         plan.setDest("something");
-        assertThat((TestArtifactPlan) artifactPlans.get(0), is(plan));
+        assertThat(artifactPlans.get(0), is(plan));
         assertThat(artifactPlans.get(1), is(new ArtifactPlan("blah2", "something2")));
     }
 
@@ -95,7 +95,7 @@ public class ArtifactPlansTest {
         TestArtifactPlan plan = new TestArtifactPlan();
         plan.setSrc("blah");
         plan.setDest("something");
-        assertThat((TestArtifactPlan) artifactPlans.get(0), is(plan));
+        assertThat(artifactPlans.get(0), is(plan));
         assertThat(artifactPlans.get(1), is(new ArtifactPlan("blah2", "something2")));
     }
 

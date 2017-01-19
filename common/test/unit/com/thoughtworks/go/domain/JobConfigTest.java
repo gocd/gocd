@@ -60,7 +60,7 @@ public class JobConfigTest {
         config.setConfigAttributes(DataStructureUtils.m(JobConfig.NAME, "foo-job", JobConfig.TASKS, DataStructureUtils.m(Tasks.TASK_OPTIONS, "exec", "exec",
                 DataStructureUtils.m(Task.TASK_TYPE, "exec", ExecTask.COMMAND, "ls", ExecTask.ARGS, "-la", ExecTask.WORKING_DIR, "/tmp"))), taskFactory);
         assertThat(config.name(), is(new CaseInsensitiveString("foo-job")));
-        assertThat(config.getTasks().get(0), is((Task) new ExecTask("ls", "-la", "/tmp")));
+        assertThat(config.getTasks().get(0), is(new ExecTask("ls", "-la", "/tmp")));
         assertThat(config.getTasks().size(), is(1));
     }
 
@@ -488,7 +488,7 @@ public class JobConfigTest {
         ArgumentCaptor<PipelineConfigSaveValidationContext> captor = ArgumentCaptor.forClass(PipelineConfigSaveValidationContext.class);
         verify(tasks).validateTree(captor.capture());
         PipelineConfigSaveValidationContext childContext = captor.getValue();
-        assertThat((JobConfig)childContext.getParent(), is(jobConfig));
+        assertThat(childContext.getParent(), is(jobConfig));
         verify(resources).validateTree(childContext);
         verify(properties).validateTree(childContext);
         verify(artifactPlans).validateTree(childContext);
@@ -523,7 +523,7 @@ public class JobConfigTest {
         ArgumentCaptor<PipelineConfigSaveValidationContext> captor = ArgumentCaptor.forClass(PipelineConfigSaveValidationContext.class);
         verify(tasks).validateTree(captor.capture());
         PipelineConfigSaveValidationContext childContext = captor.getValue();
-        assertThat((JobConfig)childContext.getParent(), is(jobConfig));
+        assertThat(childContext.getParent(), is(jobConfig));
         verify(resources).validateTree(childContext);
         verify(properties).validateTree(childContext);
         verify(artifactPlans).validateTree(childContext);

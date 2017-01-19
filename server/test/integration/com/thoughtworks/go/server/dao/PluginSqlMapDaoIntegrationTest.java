@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.thoughtworks.go.server.dao;
 
 import com.google.gson.GsonBuilder;
@@ -93,7 +94,7 @@ public class PluginSqlMapDaoIntegrationTest {
     @Test
     public void shouldReturnNullPluginIfPluginIdDoesNotExist() throws Exception {
         Plugin pluginInDB = pluginSqlMapDao.findPlugin("non-existing-plugin-id");
-        assertThat(pluginInDB, is((Plugin) new NullPlugin()));
+        assertThat(pluginInDB, is(new NullPlugin()));
     }
 
     @Test

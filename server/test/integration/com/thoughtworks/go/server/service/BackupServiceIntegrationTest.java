@@ -310,7 +310,7 @@ public class BackupServiceIntegrationTest {
         String backupStartedTimeString = backupService.backupRunningSinceISO8601();
         DateTimeFormatter dateTimeFormatter = ISODateTimeFormat.dateTime();
         DateTime dateTime = dateTimeFormatter.parseDateTime(backupStartedTimeString);
-        assertThat(ReflectionUtil.getField(backupService, "backupRunningSince"), is((Object) dateTime));
+        assertThat(ReflectionUtil.getField(backupService, "backupRunningSince"), is(dateTime));
         waitForAssertionToCompleteWhileBackupIsOn.release();
         backupThd.join();
     }
@@ -344,7 +344,7 @@ public class BackupServiceIntegrationTest {
         backupThd.start();
         waitForBackupToStart.acquire();
         String backupStartedBy = backupService.backupStartedBy();
-        assertThat(ReflectionUtil.getField(backupService, "backupStartedBy"), is((Object) backupStartedBy));
+        assertThat(ReflectionUtil.getField(backupService, "backupStartedBy"), is(backupStartedBy));
         waitForAssertionToCompleteWhileBackupIsOn.release();
         backupThd.join();
     }

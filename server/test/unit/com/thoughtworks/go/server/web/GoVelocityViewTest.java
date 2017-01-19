@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.web;
 
@@ -83,7 +83,7 @@ public class GoVelocityViewTest {
         }, null, null));
         request.getSession().setAttribute(SPRING_SECURITY_CONTEXT_KEY, securityContext);
         view.exposeHelpers(velocityContext, request);
-        assertThat((String) velocityContext.get(GoVelocityView.PRINCIPAL), is("Test User"));
+        assertThat(velocityContext.get(GoVelocityView.PRINCIPAL), is("Test User"));
     }
 
     @Test
@@ -93,7 +93,7 @@ public class GoVelocityViewTest {
                         new GrantedAuthority[]{new GrantedAuthorityImpl(GoAuthority.ROLE_SUPERVISOR.toString())}));
         request.getSession().setAttribute(SPRING_SECURITY_CONTEXT_KEY, securityContext);
         view.exposeHelpers(velocityContext, request);
-        assertThat((Boolean) velocityContext.get(GoVelocityView.ADMINISTRATOR), is(true));
+        assertThat(velocityContext.get(GoVelocityView.ADMINISTRATOR), is(true));
     }
 
     @Test
@@ -103,7 +103,7 @@ public class GoVelocityViewTest {
                         new GrantedAuthority[]{new GrantedAuthorityImpl(GoAuthority.ROLE_TEMPLATE_SUPERVISOR.toString())}));
         request.getSession().setAttribute(SPRING_SECURITY_CONTEXT_KEY, securityContext);
         view.exposeHelpers(velocityContext, request);
-        assertThat((Boolean) velocityContext.get(GoVelocityView.TEMPLATE_ADMINISTRATOR), is(true));
+        assertThat(velocityContext.get(GoVelocityView.TEMPLATE_ADMINISTRATOR), is(true));
     }
 
     @Test
@@ -111,17 +111,17 @@ public class GoVelocityViewTest {
         securityContext.setAuthentication(new TestingAuthenticationToken("jez", "badger", new GrantedAuthority[]{new GrantedAuthorityImpl(GoAuthority.ROLE_TEMPLATE_SUPERVISOR.toString())}));
         request.getSession().setAttribute(SPRING_SECURITY_CONTEXT_KEY, securityContext);
         view.exposeHelpers(velocityContext, request);
-        assertThat((Boolean) velocityContext.get(GoVelocityView.VIEW_ADMINISTRATOR_RIGHTS), is(true));
+        assertThat(velocityContext.get(GoVelocityView.VIEW_ADMINISTRATOR_RIGHTS), is(true));
 
         securityContext.setAuthentication(new TestingAuthenticationToken("jez", "badger", new GrantedAuthority[]{new GrantedAuthorityImpl(GoAuthority.ROLE_GROUP_SUPERVISOR.toString())}));
         request.getSession().setAttribute(SPRING_SECURITY_CONTEXT_KEY, securityContext);
         view.exposeHelpers(velocityContext, request);
-        assertThat((Boolean) velocityContext.get(GoVelocityView.VIEW_ADMINISTRATOR_RIGHTS), is(true));
+        assertThat(velocityContext.get(GoVelocityView.VIEW_ADMINISTRATOR_RIGHTS), is(true));
 
         securityContext.setAuthentication(new TestingAuthenticationToken("jez", "badger", new GrantedAuthority[]{new GrantedAuthorityImpl(GoAuthority.ROLE_SUPERVISOR.toString())}));
         request.getSession().setAttribute(SPRING_SECURITY_CONTEXT_KEY, securityContext);
         view.exposeHelpers(velocityContext, request);
-        assertThat((Boolean) velocityContext.get(GoVelocityView.VIEW_ADMINISTRATOR_RIGHTS), is(true));
+        assertThat(velocityContext.get(GoVelocityView.VIEW_ADMINISTRATOR_RIGHTS), is(true));
 
         securityContext.setAuthentication(new TestingAuthenticationToken("jez", "badger", new GrantedAuthority[]{new GrantedAuthorityImpl(GoAuthority.ROLE_USER.toString())}));
         request.getSession().setAttribute(SPRING_SECURITY_CONTEXT_KEY, securityContext);
@@ -136,8 +136,8 @@ public class GoVelocityViewTest {
                         new GrantedAuthority[]{new GrantedAuthorityImpl(GoAuthority.ROLE_GROUP_SUPERVISOR.toString())}));
         request.getSession().setAttribute(SPRING_SECURITY_CONTEXT_KEY, securityContext);
         view.exposeHelpers(velocityContext, request);
-        assertThat((Boolean) velocityContext.get(GoVelocityView.ADMINISTRATOR), is(nullValue()));
-        assertThat((Boolean) velocityContext.get(GoVelocityView.GROUP_ADMINISTRATOR), is(true));
+        assertThat(velocityContext.get(GoVelocityView.ADMINISTRATOR), is(nullValue()));
+        assertThat(velocityContext.get(GoVelocityView.GROUP_ADMINISTRATOR), is(true));
     }
 
     @Test
@@ -161,7 +161,7 @@ public class GoVelocityViewTest {
                         new User("Test User", "pwd", true, new GrantedAuthority[]{new GrantedAuthorityImpl("nowt")}),
                         null, null));
         view.exposeHelpers(velocityContext, request);
-        assertThat((String) velocityContext.get(GoVelocityView.PRINCIPAL), is("Test User"));
+        assertThat(velocityContext.get(GoVelocityView.PRINCIPAL), is("Test User"));
     }
 
     @Test
@@ -183,14 +183,14 @@ public class GoVelocityViewTest {
 
         view.exposeHelpers(velocityContext, servletRequest);
 
-        assertThat((String) velocityContext.get(GoVelocityView.CONCATENATED_JAVASCRIPT_FILE_PATH), is("assets/application-digest.js"));
-        assertThat((String) velocityContext.get(GoVelocityView.CONCATENATED_APPLICATION_CSS_FILE_PATH), is("assets/application-digest.css"));
-        assertThat((String) velocityContext.get(GoVelocityView.CONCATENATED_VM_APPLICATION_CSS_FILE_PATH), is("assets/vm/application-digest.css"));
-        assertThat((String) velocityContext.get(GoVelocityView.CONCATENATED_CSS_APPLICATION_CSS_FILE_PATH), is("assets/css/application-digest.css"));
-        assertThat((String) velocityContext.get(GoVelocityView.CONCATENATED_STAGE_BAR_CANCELLED_ICON_FILE_PATH), is("assets/g9/stage_bar_cancelled_icon.png"));
-        assertThat((String) velocityContext.get(GoVelocityView.CONCATENATED_SPINNER_ICON_FILE_PATH), is("assets/spinner.gif"));
-        assertThat((String) velocityContext.get(GoVelocityView.CONCATENATED_CRUISE_ICON_FILE_PATH), is("assets/cruise.ico"));
-        assertThat((RailsAssetsService) velocityContext.get(GoVelocityView.PATH_RESOLVER), is(railsAssetsService));
+        assertThat(velocityContext.get(GoVelocityView.CONCATENATED_JAVASCRIPT_FILE_PATH), is("assets/application-digest.js"));
+        assertThat(velocityContext.get(GoVelocityView.CONCATENATED_APPLICATION_CSS_FILE_PATH), is("assets/application-digest.css"));
+        assertThat(velocityContext.get(GoVelocityView.CONCATENATED_VM_APPLICATION_CSS_FILE_PATH), is("assets/vm/application-digest.css"));
+        assertThat(velocityContext.get(GoVelocityView.CONCATENATED_CSS_APPLICATION_CSS_FILE_PATH), is("assets/css/application-digest.css"));
+        assertThat(velocityContext.get(GoVelocityView.CONCATENATED_STAGE_BAR_CANCELLED_ICON_FILE_PATH), is("assets/g9/stage_bar_cancelled_icon.png"));
+        assertThat(velocityContext.get(GoVelocityView.CONCATENATED_SPINNER_ICON_FILE_PATH), is("assets/spinner.gif"));
+        assertThat(velocityContext.get(GoVelocityView.CONCATENATED_CRUISE_ICON_FILE_PATH), is("assets/cruise.ico"));
+        assertThat(velocityContext.get(GoVelocityView.PATH_RESOLVER), is(railsAssetsService));
     }
 
     @Test
@@ -209,10 +209,10 @@ public class GoVelocityViewTest {
 
         view.exposeHelpers(velocityContext, servletRequest);
 
-        assertThat((String) velocityContext.get(GoVelocityView.CONCATENATED_JAVASCRIPT_FILE_PATH), is("assets/application.js"));
-        assertThat((String) velocityContext.get(GoVelocityView.CONCATENATED_APPLICATION_CSS_FILE_PATH), is("assets/application.css"));
-        assertThat((String) velocityContext.get(GoVelocityView.CONCATENATED_VM_APPLICATION_CSS_FILE_PATH), is("assets/vm/application.css"));
-        assertThat((String) velocityContext.get(GoVelocityView.CONCATENATED_CSS_APPLICATION_CSS_FILE_PATH), is("assets/css/application.css"));
+        assertThat(velocityContext.get(GoVelocityView.CONCATENATED_JAVASCRIPT_FILE_PATH), is("assets/application.js"));
+        assertThat(velocityContext.get(GoVelocityView.CONCATENATED_APPLICATION_CSS_FILE_PATH), is("assets/application.css"));
+        assertThat(velocityContext.get(GoVelocityView.CONCATENATED_VM_APPLICATION_CSS_FILE_PATH), is("assets/vm/application.css"));
+        assertThat(velocityContext.get(GoVelocityView.CONCATENATED_CSS_APPLICATION_CSS_FILE_PATH), is("assets/css/application.css"));
     }
 
     @Test
@@ -222,7 +222,7 @@ public class GoVelocityViewTest {
 
         view.exposeHelpers(velocityContext, servletRequest);
 
-        assertThat((Boolean) velocityContext.get(Toggles.PIPELINE_COMMENT_FEATURE_TOGGLE_KEY), is(true));
+        assertThat(velocityContext.get(Toggles.PIPELINE_COMMENT_FEATURE_TOGGLE_KEY), is(true));
     }
 
     @Test
@@ -236,6 +236,6 @@ public class GoVelocityViewTest {
         view.exposeHelpers(velocityContext, servletRequest);
 
         assertTrue((Boolean) velocityContext.get(GoVelocityView.GO_UPDATE_CHECK_ENABLED));
-        assertThat((String) velocityContext.get(GoVelocityView.GO_UPDATE), is("16.1.0-123"));
+        assertThat(velocityContext.get(GoVelocityView.GO_UPDATE), is("16.1.0-123"));
     }
 }

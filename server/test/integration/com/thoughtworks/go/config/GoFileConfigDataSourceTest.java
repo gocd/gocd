@@ -322,8 +322,8 @@ public class GoFileConfigDataSourceTest {
 
         assertThat(dataSource.load(), is(nullValue()));
 
-        assertThat((Long) ReflectionUtil.getField(reloadStrategy, "lastModified"), is(dataSource.fileLocation().lastModified()));
-        assertThat((Long) ReflectionUtil.getField(reloadStrategy, "prevSize"), is(dataSource.fileLocation().length()));
+        assertThat(ReflectionUtil.getField(reloadStrategy, "lastModified"), is(dataSource.fileLocation().lastModified()));
+        assertThat(ReflectionUtil.getField(reloadStrategy, "prevSize"), is(dataSource.fileLocation().length()));
     }
 
     @Test

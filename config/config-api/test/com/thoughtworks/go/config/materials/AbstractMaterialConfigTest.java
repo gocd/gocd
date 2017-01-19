@@ -62,14 +62,14 @@ public class AbstractMaterialConfigTest {
         Map<String, Object> sqlCriteria = testMaterialConfig.getSqlCriteria();
         testMaterialConfig.setConfigAttributes(m("bar", "baz"));
         assertThat(testMaterialConfig.getSqlCriteria(), not(sameInstance(sqlCriteria)));
-        assertThat(testMaterialConfig.getSqlCriteria().get("foo"), is((Object) "baz"));
+        assertThat(testMaterialConfig.getSqlCriteria().get("foo"), is("baz"));
     }
 
     @Test
     public void shouldReturnTrueIfMaterialNameIsUsedInPipelineTemplate() {
         AbstractMaterialConfig material = new TestMaterialConfig("");
         material.setName(new CaseInsensitiveString("funky_name"));
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("blah"), "${COUNT}-${funky_name}", "", false, (MaterialConfigs) null, new BaseCollection<>());
+        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("blah"), "${COUNT}-${funky_name}", "", false, null, new BaseCollection<>());
         assertThat(material.isUsedInLabelTemplate(pipelineConfig), is(true));
     }
 
@@ -77,7 +77,7 @@ public class AbstractMaterialConfigTest {
     public void shouldReturnTrueIfMaterialNameIsUsedInPipelineTemplate_caseInsensitive() {
         AbstractMaterialConfig material = new TestMaterialConfig("");
         material.setName(new CaseInsensitiveString("funky_name"));
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("blah"), "${COUNT}-${funky_Name}", "", false, (MaterialConfigs) null, new BaseCollection<>());
+        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("blah"), "${COUNT}-${funky_Name}", "", false, null, new BaseCollection<>());
         assertThat(material.isUsedInLabelTemplate(pipelineConfig), is(true));
     }
 
@@ -85,13 +85,13 @@ public class AbstractMaterialConfigTest {
     public void shouldReturnFalseIfMaterialNameIsNotUsedInPipelineTemplate() {
         AbstractMaterialConfig material = new TestMaterialConfig("");
         material.setName(new CaseInsensitiveString("funky_name"));
-        assertThat(material.isUsedInLabelTemplate(new PipelineConfig(new CaseInsensitiveString("blah"), "${COUNT}-${test1}-test", "", false, (MaterialConfigs) null, new BaseCollection<>())), is(false));
+        assertThat(material.isUsedInLabelTemplate(new PipelineConfig(new CaseInsensitiveString("blah"), "${COUNT}-${test1}-test", "", false, null, new BaseCollection<>())), is(false));
     }
 
     @Test
     public void shouldReturnFalseIfMaterialNameIsNotDefined() {
         AbstractMaterialConfig material = new TestMaterialConfig("test");
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("blah"), "${COUNT}-${test}-test", "", false, (MaterialConfigs) null, new BaseCollection<>());
+        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("blah"), "${COUNT}-${test}-test", "", false, null, new BaseCollection<>());
         assertThat(material.isUsedInLabelTemplate(pipelineConfig), is(false));
     }
 

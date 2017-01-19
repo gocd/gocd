@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ public class MissingPluggableTaskViewModelTest {
         PluggableTask pluggableTask = new PluggableTask(pluginConfiguration, new Configuration());
 
         MissingPluggableTaskViewModel viewModel = new MissingPluggableTaskViewModel(pluggableTask, null);
-        assertThat((String) viewModel.getParameters().get("template"), is(String.format("Associated plugin '%s' not found. Please contact the Go admin to install the plugin.", pluginConfiguration.getId())));
+        assertThat(viewModel.getParameters().get("template"), is(String.format("Associated plugin '%s' not found. Please contact the Go admin to install the plugin.", pluginConfiguration.getId())));
         assertThat(viewModel.getTypeForDisplay(), is(pluginConfiguration.getId()));
     }
 }

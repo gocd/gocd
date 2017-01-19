@@ -90,8 +90,8 @@ public class PluggableSCMMaterialTest {
         material.setSCMConfig(scmConfig);
 
         Map<String, Object> criteria = material.getSqlCriteria();
-        assertThat((String) criteria.get("type"), is(PluggableSCMMaterial.class.getSimpleName()));
-        assertThat((String) criteria.get("fingerprint"), is(material.getFingerprint()));
+        assertThat(criteria.get("type"), is(PluggableSCMMaterial.class.getSimpleName()));
+        assertThat(criteria.get("fingerprint"), is(material.getFingerprint()));
     }
 
     @Test
@@ -448,11 +448,11 @@ public class PluggableSCMMaterialTest {
         PluggableSCMMaterial material = createPluggableSCMMaterialWithSecureConfiguration();
         Map<String, Object> attributes = material.getAttributes(true);
 
-        assertThat((String) attributes.get("type"), is("scm"));
-        assertThat((String) attributes.get("plugin-id"), is("pluginid"));
+        assertThat(attributes.get("type"), is("scm"));
+        assertThat(attributes.get("plugin-id"), is("pluginid"));
         Map<String, Object> configuration = (Map<String, Object>) attributes.get("scm-configuration");
-        assertThat((String) configuration.get("k1"), is("v1"));
-        assertThat((String) configuration.get("k2"), is("v2"));
+        assertThat(configuration.get("k1"), is("v1"));
+        assertThat(configuration.get("k2"), is("v2"));
     }
 
     @Test
@@ -460,10 +460,10 @@ public class PluggableSCMMaterialTest {
         PluggableSCMMaterial material = createPluggableSCMMaterialWithSecureConfiguration();
         Map<String, Object> attributes = material.getAttributes(false);
 
-        assertThat((String) attributes.get("type"), is("scm"));
-        assertThat((String) attributes.get("plugin-id"), is("pluginid"));
+        assertThat(attributes.get("type"), is("scm"));
+        assertThat(attributes.get("plugin-id"), is("pluginid"));
         Map<String, Object> configuration = (Map<String, Object>) attributes.get("scm-configuration");
-        assertThat((String) configuration.get("k1"), is("v1"));
+        assertThat(configuration.get("k1"), is("v1"));
         assertThat(configuration.get("k2"), is(nullValue()));
     }
 

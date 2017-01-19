@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ public class ScheduleServiceRescheduleHungJobsTest {
         when(agentService.findRegisteredAgents()).thenReturn(new AgentInstances(null));
         scheduleService.rescheduleHungJobs();
         verify(agentService).findRegisteredAgents();
-        verify(jobInstanceService, times(0)).findHungJobs((List<String>) any());
+        verify(jobInstanceService, times(0)).findHungJobs(any());
     }
 
     @Test

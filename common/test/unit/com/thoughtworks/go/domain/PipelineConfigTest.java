@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -112,32 +112,32 @@ public class PipelineConfigTest {
 
     @Test
     public void shouldGetStageByName() {
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipeline"), (MaterialConfigs) null, completedStage(), buildingStage());
+        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipeline"), null, completedStage(), buildingStage());
         assertThat(pipelineConfig.getStage(new CaseInsensitiveString("COMpleTEd stage")).name(), is(new CaseInsensitiveString("completed stage")));
         assertThat(pipelineConfig.getStage(new CaseInsensitiveString("Does-not-exist")), is(nullValue()));
     }
 
     @Test
     public void shouldReturnFalseIfThereIsNoNextStage() {
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipeline"), (MaterialConfigs) null, completedStage(), buildingStage());
+        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipeline"), null, completedStage(), buildingStage());
         assertThat(pipelineConfig.hasNextStage(buildingStage().name()), is(false));
     }
 
     @Test
     public void shouldReturnFalseIfThereIsNextStage() {
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipeline"), (MaterialConfigs) null, completedStage(), buildingStage());
+        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipeline"), null, completedStage(), buildingStage());
         assertThat(pipelineConfig.hasNextStage(completedStage().name()), is(true));
     }
 
     @Test
     public void shouldReturnFalseThePassInStageDoesNotExist() {
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipeline"), (MaterialConfigs) null, completedStage(), buildingStage());
+        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipeline"), null, completedStage(), buildingStage());
         assertThat(pipelineConfig.hasNextStage(new CaseInsensitiveString("notExist")), is(false));
     }
 
     @Test
     public void shouldReturnTrueIfThereNoStagesDefined() {
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipeline"), (MaterialConfigs) null);
+        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipeline"), null);
         assertThat(pipelineConfig.hasNextStage(completedStage().name()), is(false));
     }
 
@@ -186,7 +186,7 @@ public class PipelineConfigTest {
 
     @Test
     public void shouldBombWhenAddingStagesIfItAlreadyHasATemplate() {
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("mingle"), (MaterialConfigs) null);
+        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("mingle"), null);
         try {
             pipelineConfig.setTemplateName(new CaseInsensitiveString("some-template"));
             pipelineConfig.add(StageConfigMother.stageConfig("second"));
@@ -661,7 +661,7 @@ public class PipelineConfigTest {
         pipelineConfig.setConfigAttributes(attributeMap);
 
         assertThat(pipelineConfig.name(), is(new CaseInsensitiveString("startup")));
-        assertThat((SvnMaterialConfig) pipelineConfig.materialConfigs().get(0), is(new SvnMaterialConfig("http://url", "loser", "passwd", false)));
+        assertThat(pipelineConfig.materialConfigs().get(0), is(new SvnMaterialConfig("http://url", "loser", "passwd", false)));
     }
 
     @Test

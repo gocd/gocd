@@ -516,7 +516,7 @@ public class StageSqlMapDaoIntegrationTest {
         when(mockTemplate.queryForObject(eq("findStageWithJobsByIdentifier"), any())).thenReturn(null);
 
         Stage actual = stageDao.findStageWithIdentifier(new StageIdentifier("pipeline", 1, "stage", "1"));
-        assertThat((NullStage) actual, is(new NullStage("stage")));
+        assertThat(actual, is(new NullStage("stage")));
         stageDao.findStageWithIdentifier(new StageIdentifier("pipeline", 1, "stage", "1"));
 
         verify(mockTemplate, times(2)).queryForObject(eq("findStageWithJobsByIdentifier"), any());
@@ -689,7 +689,7 @@ public class StageSqlMapDaoIntegrationTest {
         stageDao.mostRecentId(pipelineName, stageName);
         id = stageDao.mostRecentId(pipelineName, stageName);
         assertThat(id, is(20L));
-        assertThat((Long) goCache.get(key), is(20L));
+        assertThat(goCache.get(key), is(20L));
 
         verify(mockTemplate, times(2)).queryForObject(eq("getMostRecentId"), any());
     }

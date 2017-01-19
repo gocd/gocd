@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -111,7 +111,7 @@ public class GoCacheTest {
     public void shouldAllowAddingUnpersistedNullObjects() {
         NullUser user = new NullUser();
         goCache.put("loser_user", user);
-        assertThat((NullUser) goCache.get("loser_user"), is(user));
+        assertThat(goCache.get("loser_user"), is(user));
         try (LogFixture logFixture = logFixtureFor(GoCache.class, Level.DEBUG)) {
             String allLogs = logFixture.allLogs();
             assertThat(allLogs, not(containsString("added to cache without an id.")));
@@ -189,7 +189,7 @@ public class GoCacheTest {
             String key = "key" + (n % 10);
             String subKey = n.toString();
             goCache.put(key, subKey, n);
-            assertThat((Long) goCache.get(key, subKey), is(n));
+            assertThat(goCache.get(key, subKey), is(n));
         }
     }
 
@@ -221,15 +221,15 @@ public class GoCacheTest {
     @Test
     public void get_shouldGetScopedValueForSubKey() {
         goCache.put("foo", "bar", "baz");
-        assertThat((String) goCache.get("foo", "bar"), is("baz"));
+        assertThat(goCache.get("foo", "bar"), is("baz"));
     }
 
     @Test
     public void put_shouldWriteScopedValueForSubKey() {
         goCache.put("foo", "bar", "baz");
         goCache.put("foo", "baz", "quux");
-        assertThat((String) goCache.get("foo", "bar"), is("baz"));
-        assertThat((String) goCache.get("foo", "baz"), is("quux"));
+        assertThat(goCache.get("foo", "bar"), is("baz"));
+        assertThat(goCache.get("foo", "baz"), is("quux"));
     }
 
     @Test
@@ -237,8 +237,8 @@ public class GoCacheTest {
         goCache.put("foo", "bar", "baz");
         goCache.put("foo", "baz", "quux");
         goCache.remove("foo", "baz");
-        assertThat((String) goCache.get("foo", "bar"), is("baz"));
-        assertThat((String) goCache.get("foo", "baz"), is(nullValue()));
+        assertThat(goCache.get("foo", "bar"), is("baz"));
+        assertThat(goCache.get("foo", "baz"), is(nullValue()));
     }
 
     @Test
@@ -304,7 +304,7 @@ public class GoCacheTest {
         goCache.removeAll(Arrays.asList("foo", "bar"));
         assertThat(goCache.get("foo"), is(nullValue()));
         assertThat(goCache.get("bar"), is(nullValue()));
-        assertThat((String) goCache.get("baz"), is("3"));
+        assertThat(goCache.get("baz"), is("3"));
     }
 
     @Test
@@ -355,7 +355,7 @@ public class GoCacheTest {
         goCache.put("unrelatedkey", "value");
         waitForCacheElementsToExpire();
         assertThat(goCache.getKeys().size(), is(1));
-        assertThat(((String) goCache.get("unrelatedkey")), is("value"));
+        assertThat(goCache.get("unrelatedkey"), is("value"));
     }
 
     @Test

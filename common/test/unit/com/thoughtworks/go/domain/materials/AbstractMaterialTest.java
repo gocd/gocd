@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -148,12 +148,12 @@ public class AbstractMaterialTest {
 
         Map<String, Object> sqlCriteria = testMaterial.getSqlCriteria();
         assertThat(testMaterial.getSqlCriteria(), sameInstance(sqlCriteria));
-        assertThat(testMaterial.getSqlCriteria().get("foo"), is((Object) "bar"));
+        assertThat(testMaterial.getSqlCriteria().get("foo"), is("bar"));
         assertThat(testMaterial.getSqlCriteria().getClass().getCanonicalName(), is("java.util.Collections.UnmodifiableMap"));
 
         Map < String, Object > attributesForXml = testMaterial.getAttributesForXml();
         assertThat(testMaterial.getAttributesForXml(), sameInstance(attributesForXml));
-        assertThat(testMaterial.getAttributesForXml().get("baz"), is((Object) "quux"));
+        assertThat(testMaterial.getAttributesForXml().get("baz"), is("quux"));
 
         assertThat(testMaterial.getAttributesForXml().getClass().getCanonicalName(), is("java.util.Collections.UnmodifiableMap"));
     }

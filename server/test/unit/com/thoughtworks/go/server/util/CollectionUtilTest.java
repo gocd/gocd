@@ -37,12 +37,12 @@ public class CollectionUtilTest {
         stringIntMap.put("foo", Arrays.asList(1, 2, 3, 4));
         stringIntMap.put("bar", Arrays.asList(3, 4, 5, 6));
         Map<Integer, Set<String>> reversedMap = CollectionUtil.reverse(stringIntMap);
-        assertThat(reversedMap.get(1), is((Set<String>) new HashSet<>(Arrays.asList("foo"))));
-        assertThat(reversedMap.get(2), is((Set<String>) new HashSet<>(Arrays.asList("foo"))));
-        assertThat(reversedMap.get(3), is((Set<String>) new HashSet<>(Arrays.asList("foo", "bar"))));
-        assertThat(reversedMap.get(4), is((Set<String>) new HashSet<>(Arrays.asList("foo", "bar"))));
-        assertThat(reversedMap.get(5), is((Set<String>) new HashSet<>(Arrays.asList("bar"))));
-        assertThat(reversedMap.get(6), is((Set<String>) new HashSet<>(Arrays.asList("bar"))));
+        assertThat(reversedMap.get(1), is(new HashSet<>(Arrays.asList("foo"))));
+        assertThat(reversedMap.get(2), is(new HashSet<>(Arrays.asList("foo"))));
+        assertThat(reversedMap.get(3), is(new HashSet<>(Arrays.asList("foo", "bar"))));
+        assertThat(reversedMap.get(4), is(new HashSet<>(Arrays.asList("foo", "bar"))));
+        assertThat(reversedMap.get(5), is(new HashSet<>(Arrays.asList("bar"))));
+        assertThat(reversedMap.get(6), is(new HashSet<>(Arrays.asList("bar"))));
     }
 
     @Test

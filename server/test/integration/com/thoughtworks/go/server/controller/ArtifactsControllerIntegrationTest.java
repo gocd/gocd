@@ -177,7 +177,7 @@ public class ArtifactsControllerIntegrationTest {
     @Test
     public void shouldHaveJobIdentifierInModelForHtmlFolderView() throws Exception {
         ModelAndView mav = artifactsController.getArtifactAsHtml(pipeline.getName(), pipeline.getLabel(), stage.getName(), String.valueOf(stage.getCounter()), job.getName(), "", null, null);
-        assertThat((JobIdentifier) mav.getModel().get("jobIdentifier"), is(new JobIdentifier(pipeline, stage, job)));
+        assertThat(mav.getModel().get("jobIdentifier"), is(new JobIdentifier(pipeline, stage, job)));
         assertThat(mav.getViewName(), is("rest/html"));
     }
 

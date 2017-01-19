@@ -978,7 +978,7 @@ public class MagicalGoConfigXmlLoaderTest {
         Task task = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).first().allBuildPlans().first().tasks().first();
 
         assertThat(task, is(instanceOf(ExecTask.class)));
-        assertThat((ExecTask) task, is(new ExecTask("c:\\program files\\cmd.exe", "arguments", (String) null)));
+        assertThat(task, is(new ExecTask("c:\\program files\\cmd.exe", "arguments", (String) null)));
     }
 
     @Test
@@ -1007,7 +1007,7 @@ public class MagicalGoConfigXmlLoaderTest {
     private void shouldBeHgMaterial(MaterialConfig material) {
         assertThat(material, is(instanceOf(HgMaterialConfig.class)));
         HgMaterialConfig hgMaterial = (HgMaterialConfig) material;
-        assertThat((HgUrlArgument) hgMaterial.getUrlArgument(), is(new HgUrlArgument("http://username:password@hgUrl.com")));
+        assertThat(hgMaterial.getUrlArgument(), is(new HgUrlArgument("http://username:password@hgUrl.com")));
     }
 
     private void shouldBeP4Material(MaterialConfig material) {
@@ -1293,7 +1293,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
         Task task = job.tasks().findFirstByType(AntTask.class);
         assertThat(task.hasCancelTask(), is(true));
-        assertThat((ExecTask) task.cancelTask(), is(new ExecTask("kill.rb", "", "utils")));
+        assertThat(task.cancelTask(), is(new ExecTask("kill.rb", "", "utils")));
 
         Task task2 = job.tasks().findFirstByType(ExecTask.class);
         assertThat(task2.hasCancelTask(), is(false));

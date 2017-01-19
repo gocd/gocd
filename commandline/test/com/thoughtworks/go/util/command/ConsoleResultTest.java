@@ -43,7 +43,7 @@ public class ConsoleResultTest {
         assertThat(exception, sameInstance(topException));
 
         assertThat(exception.getCause().getMessage(), is("baz ****** baz"));
-        assertThat(exception.getCause(), sameInstance((Throwable) innerException));
+        assertThat(exception.getCause(), sameInstance(innerException));
     }
 
     @Test

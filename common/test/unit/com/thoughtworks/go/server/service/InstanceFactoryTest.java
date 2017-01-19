@@ -294,7 +294,7 @@ public class InstanceFactoryTest {
         ArtifactPlans artifactPlans = new ArtifactPlans();
         JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test"), resources, artifactPlans);
         JobPlan plan = instanceFactory.createJobPlan(jobConfig, new DefaultSchedulingContext());
-        assertThat(plan, is((JobPlan) new DefaultJobPlan(resources, artifactPlans, new ArtifactPropertiesGenerators(), -1, new JobIdentifier(), null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null)));
+        assertThat(plan, is(new DefaultJobPlan(resources, artifactPlans, new ArtifactPropertiesGenerators(), -1, new JobIdentifier(), null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null)));
     }
 
     @Test

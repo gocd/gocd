@@ -71,8 +71,8 @@ public class PackageMaterialTest {
         PackageRepository repository = PackageRepositoryMother.create("repo-id", "repo", "pluginid", "version", new Configuration(ConfigurationPropertyMother.create("k1", false, "v1")));
         material.setPackageDefinition(PackageDefinitionMother.create("p-id", "name", new Configuration(ConfigurationPropertyMother.create("k2", false, "v2")), repository));
         Map<String, Object> criteria = material.getSqlCriteria();
-        assertThat((String) criteria.get("type"), is(PackageMaterial.class.getSimpleName()));
-        assertThat((String) criteria.get("fingerprint"), is(material.getFingerprint()));
+        assertThat(criteria.get("type"), is(PackageMaterial.class.getSimpleName()));
+        assertThat(criteria.get("fingerprint"), is(material.getFingerprint()));
     }
 
     @Test
@@ -409,14 +409,14 @@ public class PackageMaterialTest {
         PackageMaterial material = createPackageMaterialWithSecureConfiguration();
         Map<String, Object> attributes = material.getAttributes(true);
 
-        assertThat((String) attributes.get("type"), is("package"));
-        assertThat((String) attributes.get("plugin-id"), is("pluginid"));
+        assertThat(attributes.get("type"), is("package"));
+        assertThat(attributes.get("plugin-id"), is("pluginid"));
         Map<String, Object> repositoryConfiguration = (Map<String, Object>) attributes.get("repository-configuration");
-        assertThat((String) repositoryConfiguration.get("k1"), is("repo-v1"));
-        assertThat((String) repositoryConfiguration.get("k2"), is("repo-v2"));
+        assertThat(repositoryConfiguration.get("k1"), is("repo-v1"));
+        assertThat(repositoryConfiguration.get("k2"), is("repo-v2"));
         Map<String, Object> packageConfiguration = (Map<String, Object>) attributes.get("package-configuration");
-        assertThat((String) packageConfiguration.get("k3"), is("package-v1"));
-        assertThat((String) packageConfiguration.get("k4"), is("package-v2"));
+        assertThat(packageConfiguration.get("k3"), is("package-v1"));
+        assertThat(packageConfiguration.get("k4"), is("package-v2"));
     }
 
     @Test
@@ -424,13 +424,13 @@ public class PackageMaterialTest {
         PackageMaterial material = createPackageMaterialWithSecureConfiguration();
         Map<String, Object> attributes = material.getAttributes(false);
 
-        assertThat((String) attributes.get("type"), is("package"));
-        assertThat((String) attributes.get("plugin-id"), is("pluginid"));
+        assertThat(attributes.get("type"), is("package"));
+        assertThat(attributes.get("plugin-id"), is("pluginid"));
         Map<String, Object> repositoryConfiguration = (Map<String, Object>) attributes.get("repository-configuration");
-        assertThat((String) repositoryConfiguration.get("k1"), is("repo-v1"));
+        assertThat(repositoryConfiguration.get("k1"), is("repo-v1"));
         assertThat(repositoryConfiguration.get("k2"), is(nullValue()));
         Map<String, Object> packageConfiguration = (Map<String, Object>) attributes.get("package-configuration");
-        assertThat((String) packageConfiguration.get("k3"), is("package-v1"));
+        assertThat(packageConfiguration.get("k3"), is("package-v1"));
         assertThat(packageConfiguration.get("k4"), is(nullValue()));
     }
 

@@ -259,7 +259,7 @@ public class FelixGoPluginOSGiFrameworkTest {
                 }, new ExceptionHandler<SomeInterface>() {
                     @Override
                     public void handleException(SomeInterface obj, Throwable t) {
-                        assertThat((RuntimeException) t, is(expectedException));
+                        assertThat(t, is(expectedException));
                     }
                 }
         );

@@ -451,7 +451,7 @@ public class PipelineHistoryServiceIntegrationTest {
 
         PipelineInstanceModels latest = pipelineHistoryService.loadWithEmptyAsDefault(pipelineOne.pipelineName, Pagination.ONE_ITEM, "username");
         MaterialRevisions latestRevision = latest.get(0).getLatestRevisions();
-        assertThat(latestRevision.getMaterialRevision(0).getRevision(), is((Revision) new SubversionRevision("2")));
+        assertThat(latestRevision.getMaterialRevision(0).getRevision(), is(new SubversionRevision("2")));
     }
 
     private void saveRev(final MaterialRevision materialRevision) {
@@ -468,7 +468,7 @@ public class PipelineHistoryServiceIntegrationTest {
         configHelper.setViewPermissionForGroup("group1", "username");
 
         PipelineInstanceModel latest = pipelineHistoryService.latest(pipeline.getName(), new Username(new CaseInsensitiveString("username")));
-        assertThat(latest.getLatestRevisions().getMaterialRevision(0).getRevision(), is((Revision) new SubversionRevision("2")));
+        assertThat(latest.getLatestRevisions().getMaterialRevision(0).getRevision(), is(new SubversionRevision("2")));
     }
 
     @Test public void shouldContainNoRevisionsForNewMaterialsThatHAveNotBeenUpdated() throws Exception {

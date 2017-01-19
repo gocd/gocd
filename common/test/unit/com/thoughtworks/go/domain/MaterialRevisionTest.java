@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -259,7 +259,7 @@ public class MaterialRevisionTest {
         newMaterial.setFilter(new Filter(new IgnoredFiles("**/*.txt")));
         final MaterialRevision after = findNewRevision(original, newMaterial, workingFolder, new TestSubprocessExecutionContext());
 
-        assertThat(after.getMaterial(), is((Material) newMaterial));
+        assertThat(after.getMaterial(), is(newMaterial));
     }
 
     @Test
@@ -273,13 +273,13 @@ public class MaterialRevisionTest {
     @Test
     public void shouldDetectLatestRevision() throws Exception {
         MaterialRevision materialRevision = new MaterialRevision(hgMaterial, modification("3"), modification("2"), modification("1"));
-        assertThat((StringRevision) materialRevision.getRevision(), is(new StringRevision("3")));
+        assertThat(materialRevision.getRevision(), is(new StringRevision("3")));
     }
 
     @Test
     public void shouldDetectOldestScmRevision() throws Exception {
         MaterialRevision materialRevision = new MaterialRevision(hgMaterial, modification("3"), modification("2"), modification("1"));
-        assertThat((StringRevision) materialRevision.getOldestRevision(), is(new StringRevision("1")));
+        assertThat(materialRevision.getOldestRevision(), is(new StringRevision("1")));
     }
 
     @Test
@@ -287,8 +287,8 @@ public class MaterialRevisionTest {
         DependencyMaterial dependencyMaterial = new DependencyMaterial(new CaseInsensitiveString("upstream"), new CaseInsensitiveString("stage"));
         MaterialRevision materialRevision = new MaterialRevision(dependencyMaterial, new Modification(new Date(), "upstream/3/stage/1", "1.3-3", null),
                 new Modification(new Date(), "upstream/2/stage/1", "1.3-2", null));
-        assertThat((DependencyMaterialRevision) materialRevision.getOldestRevision(), is(DependencyMaterialRevision.create("upstream/2/stage/1", "1.3-2")));
-        assertThat((DependencyMaterialRevision) materialRevision.getRevision(), is(DependencyMaterialRevision.create("upstream/3/stage/1", "1.3-3")));
+        assertThat(materialRevision.getOldestRevision(), is(DependencyMaterialRevision.create("upstream/2/stage/1", "1.3-2")));
+        assertThat(materialRevision.getRevision(), is(DependencyMaterialRevision.create("upstream/3/stage/1", "1.3-3")));
     }
 
     @Test

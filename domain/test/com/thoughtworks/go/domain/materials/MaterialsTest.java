@@ -76,7 +76,7 @@ public class MaterialsTest {
         materials.add(material1);
         materials.add(material2);
 
-        assertThat((HgMaterial) materials.byFolder("folder1"), is(material1));
+        assertThat(materials.byFolder("folder1"), is(material1));
     }
 
     @Test
@@ -99,7 +99,7 @@ public class MaterialsTest {
 
         materials.add(material1);
 
-        assertThat((HgMaterial) materials.byFolder(material1.getFolder()), is(material1));
+        assertThat(materials.byFolder(material1.getFolder()), is(material1));
     }
 
     @Test
@@ -122,7 +122,7 @@ public class MaterialsTest {
         materials.add(material1);
         materials.add(material2);
 
-        assertThat(materials.byFolder("folder"), is((Material) material1));
+        assertThat(materials.byFolder("folder"), is(material1));
     }
 
     @Test
@@ -135,7 +135,7 @@ public class MaterialsTest {
         materials.add(material1);
         materials.add(material2);
 
-        assertThat((HgMaterial) materials.get(MaterialsMother.hgMaterial()), is(material1));
+        assertThat(materials.get(MaterialsMother.hgMaterial()), is(material1));
         try {
             materials.get(MaterialsMother.p4Material());
             fail("Must not have found the p4 material");
@@ -152,7 +152,7 @@ public class MaterialsTest {
         materials.add(MaterialsMother.svnMaterial("url", "folder"));
 
         Material actualMaterial = materials.getByFingerPrint(expectedMaterial.getPipelineUniqueFingerprint());
-        assertThat((HgMaterial) actualMaterial, is(expectedMaterial));
+        assertThat(actualMaterial, is(expectedMaterial));
     }
 
     @Test

@@ -830,7 +830,7 @@ public class JobInstanceSqlMapDaoTest {
         final List<JobPlan> plans = findPlans(planList, projectOne);
 
         assertThat(plans.size(), is(1));
-        assertThat(plans.get(0).getResources(), is((List<Resource>) resources));
+        assertThat(plans.get(0).getResources(), is(resources));
     }
 
     @Test

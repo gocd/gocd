@@ -550,8 +550,8 @@ public class GoConfigServiceTest {
         cruiseConfig = configWith(GoConfigMother.createPipelineConfigWithMaterialConfig(svnMaterialConfig));
         when(goConfigDao.load()).thenReturn(cruiseConfig);
 
-        assertThat((SvnMaterialConfig) goConfigService.findMaterial(new CaseInsensitiveString("pipeline"), svnMaterialConfig.getPipelineUniqueFingerprint()), is(svnMaterialConfig));
-        assertThat((SvnMaterialConfig) goConfigService.findMaterial(new CaseInsensitiveString("piPelIne"), svnMaterialConfig.getPipelineUniqueFingerprint()), is(svnMaterialConfig));
+        assertThat(goConfigService.findMaterial(new CaseInsensitiveString("pipeline"), svnMaterialConfig.getPipelineUniqueFingerprint()), is(svnMaterialConfig));
+        assertThat(goConfigService.findMaterial(new CaseInsensitiveString("piPelIne"), svnMaterialConfig.getPipelineUniqueFingerprint()), is(svnMaterialConfig));
     }
 
     @Test
@@ -570,7 +570,7 @@ public class GoConfigServiceTest {
         when(goConfigDao.load()).thenReturn(cruiseConfig);
 
         MaterialConfig actual = goConfigService.materialForPipelineWithFingerprint("pipeline", expected.getFingerprint());
-        assertThat((SvnMaterialConfig) actual, is(expected));
+        assertThat(actual, is(expected));
     }
 
     @Test

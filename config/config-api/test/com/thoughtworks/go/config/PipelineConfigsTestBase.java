@@ -322,7 +322,7 @@ public abstract class PipelineConfigsTestBase {
         Authorization authorization = group.getAuthorization();
 
         assertThat(authorization.getViewConfig().size(), is(2));
-        assertThat(authorization.getViewConfig(), hasItems((Admin) new AdminRole(new CaseInsensitiveString("role1")), (Admin) new AdminUser(new CaseInsensitiveString("user1"))));
+        assertThat(authorization.getViewConfig(), hasItems(new AdminRole(new CaseInsensitiveString("role1")), new AdminUser(new CaseInsensitiveString("user1"))));
 
         assertThat(authorization.getOperationConfig().size(), is(0));
         assertThat(authorization.getAdminsConfig().size(), is(0));

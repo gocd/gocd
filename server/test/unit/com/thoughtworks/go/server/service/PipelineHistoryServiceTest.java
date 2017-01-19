@@ -953,7 +953,7 @@ public class PipelineHistoryServiceTest {
         pipelineHistoryService.updateComment(pipelineName, 1, "test comment", new Username(unauthorizedUser), result);
 
         assertThat(result.httpCode(), is(SC_NOT_IMPLEMENTED));
-        assertThat((Localizable.CurryableLocalizable) result.localizable(), is(LocalizedMessage.string("FEATURE_NOT_AVAILABLE", "Pipeline Comment")));
+        assertThat(result.localizable(), is(LocalizedMessage.string("FEATURE_NOT_AVAILABLE", "Pipeline Comment")));
         verify(pipelineDao, never()).updateComment(pipelineName, 1, "test comment");
     }
 

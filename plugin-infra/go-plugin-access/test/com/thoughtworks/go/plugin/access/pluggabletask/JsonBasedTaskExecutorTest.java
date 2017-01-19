@@ -123,7 +123,7 @@ public class JsonBasedTaskExecutorTest {
         Map result = (Map) new GsonBuilder().create().fromJson(executionRequest[0].requestBody(), Object.class);
         Map context = (Map) result.get("context");
 
-        assertThat((String) context.get("workingDirectory"), is(workingDir));
+        assertThat(context.get("workingDirectory"), is(workingDir));
         Map environmentVariables = (Map) context.get("environmentVariables");
         assertThat(environmentVariables.size(), is(2));
         assertThat(environmentVariables.get("ENV1").toString(), is("VAL1"));

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,6 +75,6 @@ public class LoggingValidatorTest {
         } });
         LoggingValidator validator = new LoggingValidator(env);
         assertThat(validator.getLog4jFile(), is(new File(tempFolder, "log4j.properties")));
-        assertThat((FileValidator) validator.getLog4jPropertiesValidator(), is(FileValidator.configFile("log4j.properties", env)));
+        assertThat(validator.getLog4jPropertiesValidator(), is(FileValidator.configFile("log4j.properties", env)));
     }
 }

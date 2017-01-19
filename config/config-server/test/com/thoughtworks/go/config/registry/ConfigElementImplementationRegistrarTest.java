@@ -157,7 +157,7 @@ public class ConfigElementImplementationRegistrarTest {
     private void assertReturnsAppropriateViewModelForInbuiltTasks(ConfigElementImplementationRegistry registry, Task task, final String taskType) {
         for (String actionName : new String[]{"new", "edit"}) {
             PluggableViewModel viewModelFor = registry.getViewModelFor(task, actionName);
-            assertThat(viewModelFor, is((PluggableViewModel) new TaskViewModel(task, String.format("admin/tasks/%s/%s", taskType, actionName))));
+            assertThat(viewModelFor, is(new TaskViewModel(task, String.format("admin/tasks/%s/%s", taskType, actionName))));
         }
     }
 

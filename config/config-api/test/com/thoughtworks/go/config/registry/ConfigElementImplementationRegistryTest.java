@@ -119,7 +119,7 @@ public class ConfigElementImplementationRegistryTest {
         when(pluginExtns.configTagImplementations()).thenReturn(Arrays.asList(execTask));
 
         ConfigElementImplementationRegistry registry = new ConfigElementImplementationRegistry(pluginExtns);
-        assertThat(registry.getViewModelFor(execInstance, "new"), is((PluggableViewModel) stubbedViewModel));
+        assertThat(registry.getViewModelFor(execInstance, "new"), is(stubbedViewModel));
     }
 
     @Test

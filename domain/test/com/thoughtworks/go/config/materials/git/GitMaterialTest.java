@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -563,10 +563,10 @@ public class GitMaterialTest {
         GitMaterial git = new GitMaterial("http://username:password@gitrepo.com", GitMaterialConfig.DEFAULT_BRANCH);
         Map<String, Object> attributes = git.getAttributes(true);
 
-        assertThat((String) attributes.get("type"), is("git"));
+        assertThat(attributes.get("type"), is("git"));
         Map<String, Object> configuration = (Map<String, Object>) attributes.get("git-configuration");
-        assertThat((String) configuration.get("url"), is("http://username:password@gitrepo.com"));
-        assertThat((String) configuration.get("branch"), is(GitMaterialConfig.DEFAULT_BRANCH));
+        assertThat(configuration.get("url"), is("http://username:password@gitrepo.com"));
+        assertThat(configuration.get("branch"), is(GitMaterialConfig.DEFAULT_BRANCH));
     }
 
     @Test
@@ -574,10 +574,10 @@ public class GitMaterialTest {
         GitMaterial git = new GitMaterial("http://username:password@gitrepo.com", GitMaterialConfig.DEFAULT_BRANCH);
         Map<String, Object> attributes = git.getAttributes(false);
 
-        assertThat((String) attributes.get("type"), is("git"));
+        assertThat(attributes.get("type"), is("git"));
         Map<String, Object> configuration = (Map<String, Object>) attributes.get("git-configuration");
-        assertThat((String) configuration.get("url"), is("http://username:******@gitrepo.com"));
-        assertThat((String) configuration.get("branch"), is(GitMaterialConfig.DEFAULT_BRANCH));
+        assertThat(configuration.get("url"), is("http://username:******@gitrepo.com"));
+        assertThat(configuration.get("branch"), is(GitMaterialConfig.DEFAULT_BRANCH));
     }
 
     private void assertWorkingCopyNotCheckedOut(File localWorkingDir) {

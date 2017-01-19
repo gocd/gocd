@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.web;
 
@@ -60,7 +60,7 @@ public class DeploymentContextWriterTest {
         assertThat(req.getAttributeNames().hasMoreElements(), is(false));
         DeploymentContextWriter writer = new DeploymentContextWriter();
         writer.writeSslPort(req);
-        assertThat((Integer) req.getAttribute("ssl_port"), is(5050));
+        assertThat(req.getAttribute("ssl_port"), is(5050));
     }
 
     @Test
@@ -79,8 +79,8 @@ public class DeploymentContextWriterTest {
             }
         };
         writer.writeSecureSiteUrl(request);
-        assertThat((String) request.getAttribute("secure_site"), is("https://url/go/admin?tab=oAuth"));
-        assertThat((String) request.getAttribute("force_ssl"), is("true"));
+        assertThat(request.getAttribute("secure_site"), is("https://url/go/admin?tab=oAuth"));
+        assertThat(request.getAttribute("force_ssl"), is("true"));
     }
 
     @Test
@@ -100,8 +100,8 @@ public class DeploymentContextWriterTest {
             }
         };
         writer.writeSecureSiteUrl(req);
-        assertThat((String) req.getAttribute("secure_site"), is(nullValue()));
-        assertThat((String) req.getAttribute("force_ssl"), is(nullValue()));
+        assertThat(req.getAttribute("secure_site"), is(nullValue()));
+        assertThat(req.getAttribute("force_ssl"), is(nullValue()));
     }
 
     @Test
@@ -122,7 +122,7 @@ public class DeploymentContextWriterTest {
             }
         };
         writer.writeSecureSiteUrl(req);
-        assertThat((String) req.getAttribute("secure_site"), is(nullValue()));
-        assertThat((String) req.getAttribute("force_ssl"), is(nullValue()));
+        assertThat(req.getAttribute("secure_site"), is(nullValue()));
+        assertThat(req.getAttribute("force_ssl"), is(nullValue()));
     }
 }

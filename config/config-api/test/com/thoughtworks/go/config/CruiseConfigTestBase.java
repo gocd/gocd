@@ -96,8 +96,8 @@ public abstract class CruiseConfigTestBase {
         cruiseConfig.addPipeline("group-3", three);
 
         assertThat(cruiseConfig.materialConfigFor(svnConfig.getFingerprint()), is(svnConfig));
-        assertThat(cruiseConfig.materialConfigFor(p4One.getFingerprint()), is((MaterialConfig) p4One));
-        assertThat(cruiseConfig.materialConfigFor(p4Two.getFingerprint()), is((MaterialConfig) p4Two));
+        assertThat(cruiseConfig.materialConfigFor(p4One.getFingerprint()), is(p4One));
+        assertThat(cruiseConfig.materialConfigFor(p4Two.getFingerprint()), is(p4Two));
         assertThat(cruiseConfig.materialConfigFor("some_crazy_fingerprint"), is(nullValue()));
     }
 
@@ -853,17 +853,17 @@ public abstract class CruiseConfigTestBase {
     @Test
     public void shouldReturnAllUniqueSchedulableScmMaterials() {
         final MaterialConfig svnMaterialConfig = new SvnMaterialConfig("http://svn_url_1", "username", "password", false);
-        ((ScmMaterialConfig) svnMaterialConfig).setAutoUpdate(false);
+        svnMaterialConfig.setAutoUpdate(false);
         final MaterialConfig svnMaterialConfigWithAutoUpdate = new SvnMaterialConfig("http://svn_url_2", "username", "password", false);
-        ((ScmMaterialConfig) svnMaterialConfigWithAutoUpdate).setAutoUpdate(true);
+        svnMaterialConfigWithAutoUpdate.setAutoUpdate(true);
         final MaterialConfig hgMaterialConfig = new HgMaterialConfig("http://hg_url", null);
-        ((ScmMaterialConfig) hgMaterialConfig).setAutoUpdate(false);
+        hgMaterialConfig.setAutoUpdate(false);
         final MaterialConfig gitMaterialConfig = new GitMaterialConfig("http://git_url");
-        ((ScmMaterialConfig) gitMaterialConfig).setAutoUpdate(false);
+        gitMaterialConfig.setAutoUpdate(false);
         final MaterialConfig tfsMaterialConfig = new TfsMaterialConfig(mock(GoCipher.class), new UrlArgument("http://tfs_url"), "username", "domain", "password", "project_path");
-        ((ScmMaterialConfig) tfsMaterialConfig).setAutoUpdate(false);
+        tfsMaterialConfig.setAutoUpdate(false);
         final MaterialConfig p4MaterialConfig = new P4MaterialConfig("http://p4_url", "view", "username");
-        ((ScmMaterialConfig) p4MaterialConfig).setAutoUpdate(false);
+        p4MaterialConfig.setAutoUpdate(false);
         final MaterialConfig dependencyMaterialConfig = MaterialConfigsMother.dependencyMaterialConfig();
         final PluggableSCMMaterialConfig pluggableSCMMaterialConfig = MaterialConfigsMother.pluggableSCMMaterialConfig("scm-id-1", null, null);
         pluggableSCMMaterialConfig.getSCMConfig().setAutoUpdate(false);
@@ -1094,7 +1094,7 @@ public abstract class CruiseConfigTestBase {
     }
 
     private void addPipelineWithStages(String pipelineName, String stageName, JobConfig... jobConfigs) {
-        PipelineConfig pipeline = new PipelineConfig(new CaseInsensitiveString(pipelineName), (MaterialConfigs) null);
+        PipelineConfig pipeline = new PipelineConfig(new CaseInsensitiveString(pipelineName), null);
         pipeline.add(new StageConfig(new CaseInsensitiveString(stageName), new JobConfigs(jobConfigs)));
         pipeline.add(new StageConfig(new CaseInsensitiveString(stageName + "2"), new JobConfigs(jobConfigs)));
         pipelines.add(pipeline);

@@ -100,10 +100,10 @@ public class GitCommandTest {
 
     @Test
     public void shouldDefaultToMasterIfNoBranchIsSpecified(){
-        assertThat((String) ReflectionUtil.getField(new GitCommand(null, gitLocalRepoDir, null, false, new HashMap<>()), "branch"), Is.is("master"));
-        assertThat((String) ReflectionUtil.getField(new GitCommand(null, gitLocalRepoDir, " ", false, new HashMap<>()), "branch"), Is.is("master"));
-        assertThat((String) ReflectionUtil.getField(new GitCommand(null, gitLocalRepoDir, "master", false, new HashMap<>()), "branch"), Is.is("master"));
-        assertThat((String) ReflectionUtil.getField(new GitCommand(null, gitLocalRepoDir, "branch", false, new HashMap<>()), "branch"), Is.is("branch"));
+        assertThat(ReflectionUtil.getField(new GitCommand(null, gitLocalRepoDir, null, false, new HashMap<>()), "branch"), Is.is("master"));
+        assertThat(ReflectionUtil.getField(new GitCommand(null, gitLocalRepoDir, " ", false, new HashMap<>()), "branch"), Is.is("master"));
+        assertThat(ReflectionUtil.getField(new GitCommand(null, gitLocalRepoDir, "master", false, new HashMap<>()), "branch"), Is.is("master"));
+        assertThat(ReflectionUtil.getField(new GitCommand(null, gitLocalRepoDir, "branch", false, new HashMap<>()), "branch"), Is.is("branch"));
     }
 
     @Test
@@ -469,8 +469,8 @@ public class GitCommandTest {
         CommandLine commandLine = GitCommand.commandToCheckConnection(url, executionContext.getDefaultEnvironmentVariables());
         assertThat(commandLine.getExecutable(), is("git"));
         List<CommandArgument> arguments = commandLine.getArguments();
-        assertThat((StringArgument) arguments.get(0), is(new StringArgument("ls-remote")));
-        assertThat((UrlArgument) arguments.get(1), is(url));
+        assertThat(arguments.get(0), is(new StringArgument("ls-remote")));
+        assertThat(arguments.get(1), is(url));
     }
 
 

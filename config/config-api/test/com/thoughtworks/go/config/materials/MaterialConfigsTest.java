@@ -371,7 +371,7 @@ Above scenario allowed
         pipeline1.addMaterialConfig(MaterialConfigsMother.svnMaterialConfig("url", "folder"));
 
         MaterialConfig actualMaterialConfig = pipeline1.materialConfigs().getByFingerPrint(expectedMaterial.getPipelineUniqueFingerprint());
-        assertThat((HgMaterialConfig) actualMaterialConfig, is(expectedMaterial));
+        assertThat(actualMaterialConfig, is(expectedMaterial));
     }
 
     @Test
@@ -449,7 +449,7 @@ Above scenario allowed
         attributeMap.put(SvnMaterialConfig.TYPE, svnAttrMap);
         materialConfigs.setConfigAttributes(attributeMap);
 
-        assertThat((SvnMaterialConfig) materialConfigs.first(), is(new SvnMaterialConfig("foo", "bar", "baz", false)));
+        assertThat(materialConfigs.first(), is(new SvnMaterialConfig("foo", "bar", "baz", false)));
     }
 
     @Test
@@ -471,7 +471,7 @@ Above scenario allowed
 
         TfsMaterialConfig tfsMaterialConfig = new TfsMaterialConfig(new GoCipher(), new UrlArgument("foo"), "bar", "CORPORATE", "baz", "to_hell");
         tfsMaterialConfig.setName(new CaseInsensitiveString("crapy_material"));
-        assertThat((TfsMaterialConfig) materialConfigs.first(), is(tfsMaterialConfig));
+        assertThat(materialConfigs.first(), is(tfsMaterialConfig));
         assertThat(tfsMaterialConfig.getPassword(), is("baz"));
     }
 
@@ -490,7 +490,7 @@ Above scenario allowed
         materialConfigs.setConfigAttributes(attributeMap);
 
         assertThat(materialConfigs.size(), is(1));
-        assertThat((HgMaterialConfig) materialConfigs.first(), is(new HgMaterialConfig("foo", null)));
+        assertThat(materialConfigs.first(), is(new HgMaterialConfig("foo", null)));
     }
 
     @Test
@@ -509,7 +509,7 @@ Above scenario allowed
         assertThat(materialConfigs.size(), is(1));
         GitMaterialConfig expected = new GitMaterialConfig("foo");
         expected.setConfigAttributes(Collections.singletonMap(GitMaterialConfig.BRANCH, "master"));
-        assertThat((GitMaterialConfig) materialConfigs.first(), is(expected));
+        assertThat(materialConfigs.first(), is(expected));
     }
 
     @Test
@@ -530,7 +530,7 @@ Above scenario allowed
         assertThat(materialConfigs.size(), is(1));
         P4MaterialConfig expected = new P4MaterialConfig("localhost:1666", "foo", "username");
         expected.setPassword("password");
-        assertThat((P4MaterialConfig) materialConfigs.first(), is(expected));
+        assertThat(materialConfigs.first(), is(expected));
     }
 
     @Test
@@ -547,7 +547,7 @@ Above scenario allowed
 
         assertThat(materialConfigs.size(), is(1));
         DependencyMaterialConfig expected = new DependencyMaterialConfig(new CaseInsensitiveString("blah"), new CaseInsensitiveString("foo"));
-        assertThat((DependencyMaterialConfig) materialConfigs.first(), is(expected));
+        assertThat(materialConfigs.first(), is(expected));
     }
 
     @Test

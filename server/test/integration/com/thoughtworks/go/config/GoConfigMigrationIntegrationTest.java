@@ -1013,7 +1013,7 @@ public class GoConfigMigrationIntegrationTest {
 
         Tasks tasks = jobConfig.getTasks();
         assertThat(tasks.size(),is(1));
-        assertThat((PluggableTask) tasks.get(0), is(new PluggableTask(new PluginConfiguration("plugin-id", "1.0"), configuration)));
+        assertThat(tasks.get(0), is(new PluggableTask(new PluginConfiguration("plugin-id", "1.0"), configuration)));
     }
 
     @Test
@@ -1075,7 +1075,7 @@ public class GoConfigMigrationIntegrationTest {
         CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml, 72);
         Task task = migratedConfig.tasksForJob("Test", "Functional", "Functional").get(0);
         assertThat(task, is(instanceOf(ExecTask.class)));
-        assertThat((ExecTask) task, is(new ExecTask("c:\\program files\\cmd.exe", "arguments", (String) null)));
+        assertThat(task, is(new ExecTask("c:\\program files\\cmd.exe", "arguments", (String) null)));
     }
 
     @Test
@@ -1106,7 +1106,7 @@ public class GoConfigMigrationIntegrationTest {
         CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml, 72);
         Task task = migratedConfig.tasksForJob("Test", "Functional", "Functional").get(0);
         assertThat(task, is(instanceOf(ExecTask.class)));
-        assertThat((ExecTask) task, is(new ExecTask("c:\\program files\\cmd.exe", "arguments", (String) null)));
+        assertThat(task, is(new ExecTask("c:\\program files\\cmd.exe", "arguments", (String) null)));
     }
     @Test
     public void shouldNotRemoveNonEmptyUserTags_asPartOfMigration78() throws Exception {

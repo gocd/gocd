@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ public class FolderDirectoryEntry extends DirectoryEntry {
     }
 
     public Map<String, Object> toJson() {
-        Map json = (Map) super.toJson();
+        Map json = super.toJson();
         json.put("files", subDirectory.toJson());
         return json;
     }

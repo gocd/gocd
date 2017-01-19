@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config.materials.perforce;
 
@@ -95,7 +95,7 @@ public class P4MaterialTest extends P4MaterialTestBase {
     public void shouldEncryptP4Password() throws Exception {
         GoCipher mockGoCipher = mock(GoCipher.class);
         when(mockGoCipher.encrypt("password")).thenReturn("encrypted");
-        
+
         P4Material p4Material = new P4Material("example.com:1818", "view", mockGoCipher);
         p4Material.setPassword("password");
         p4Material.ensureEncrypted();
@@ -161,13 +161,13 @@ public class P4MaterialTest extends P4MaterialTestBase {
         material.setUseTickets(true);
         Map<String, Object> attributes = material.getAttributes(true);
 
-        assertThat((String) attributes.get("type"), is("perforce"));
+        assertThat(attributes.get("type"), is("perforce"));
         Map<String, Object> configuration = (Map<String, Object>) attributes.get("perforce-configuration");
-        assertThat((String) configuration.get("url"), is("host:1234"));
-        assertThat((String) configuration.get("username"), is("username"));
-        assertThat((String) configuration.get("password"), is("password"));
-        assertThat((String) configuration.get("view"), is("view"));
-        assertThat((Boolean) configuration.get("use-tickets"), is(true));
+        assertThat(configuration.get("url"), is("host:1234"));
+        assertThat(configuration.get("username"), is("username"));
+        assertThat(configuration.get("password"), is("password"));
+        assertThat(configuration.get("view"), is("view"));
+        assertThat(configuration.get("use-tickets"), is(true));
     }
 
     @Test
@@ -177,12 +177,12 @@ public class P4MaterialTest extends P4MaterialTestBase {
         material.setUseTickets(true);
         Map<String, Object> attributes = material.getAttributes(false);
 
-        assertThat((String) attributes.get("type"), is("perforce"));
+        assertThat(attributes.get("type"), is("perforce"));
         Map<String, Object> configuration = (Map<String, Object>) attributes.get("perforce-configuration");
-        assertThat((String) configuration.get("url"), is("host:1234"));
-        assertThat((String) configuration.get("username"), is("username"));
+        assertThat(configuration.get("url"), is("host:1234"));
+        assertThat(configuration.get("username"), is("username"));
         assertThat(configuration.get("password"), is(nullValue()));
-        assertThat((String) configuration.get("view"), is("view"));
-        assertThat((Boolean) configuration.get("use-tickets"), is(true));
+        assertThat(configuration.get("view"), is("view"));
+        assertThat(configuration.get("use-tickets"), is(true));
     }
 }

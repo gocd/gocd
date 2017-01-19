@@ -288,14 +288,14 @@ public class MaterialRepositoryIntegrationTest {
 
         HibernateTemplate mockTemplate = mock(HibernateTemplate.class);
         repo.setHibernateTemplate(mockTemplate);
-        when(mockTemplate.execute((HibernateCallback) any())).thenReturn(mod);
+        when(mockTemplate.execute(any())).thenReturn(mod);
 
         repo.findLatestModification(materialInstance);
 
         Modification modification = repo.findLatestModification(materialInstance);
         assertSame(mod, modification);
 
-        verify(mockTemplate, times(1)).execute((HibernateCallback) any());
+        verify(mockTemplate, times(1)).execute(any());
 
     }
 
@@ -428,7 +428,7 @@ public class MaterialRepositoryIntegrationTest {
 
         Material restored = loaded.toOldMaterial(null, null, null);
 
-        assertThat((P4Material) restored, is(p4Material));
+        assertThat(restored, is(p4Material));
     }
 
     @Test
@@ -1120,11 +1120,11 @@ public class MaterialRepositoryIntegrationTest {
         List<Modification> modifications = repo.modificationFor(stageIdentifier);
         assertThat(modifications.size(), is(1));
         assertThat(modifications.get(0).getRevision(), is("P1/2/S1/1"));
-        assertThat((List<Modification>) goCache.get(repo.cacheKeyForModificationsForStageLocator(stageIdentifier)), is(modifications));
+        assertThat(goCache.get(repo.cacheKeyForModificationsForStageLocator(stageIdentifier)), is(modifications));
 
         StageIdentifier p2_s1_stageId = new StageIdentifier("P2", 1, "S1", "1");
         List<Modification> mod_p2_s1 = repo.modificationFor(p2_s1_stageId);
-        assertThat((List<Modification>) goCache.get(repo.cacheKeyForModificationsForStageLocator(p2_s1_stageId)), is(mod_p2_s1));
+        assertThat(goCache.get(repo.cacheKeyForModificationsForStageLocator(p2_s1_stageId)), is(mod_p2_s1));
         StageIdentifier p2_s1_3 = new StageIdentifier("P2", 1, "S1", "3");
         assertThat(repo.modificationFor(p2_s1_3).isEmpty(), is(true));
         assertThat(goCache.get(repo.cacheKeyForModificationsForStageLocator(p2_s1_3)), is(nullValue()));

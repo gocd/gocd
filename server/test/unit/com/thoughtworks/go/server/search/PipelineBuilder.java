@@ -50,7 +50,7 @@ public class PipelineBuilder {
     }
 
     public void addJob(String jobName) {
-        JobInstance instance = new JobInstance(jobName, (JobInstanceLog) null, new TimeProvider());
+        JobInstance instance = new JobInstance(jobName, null, new TimeProvider());
         currentStage().getJobInstances().add(instance);
     }
 

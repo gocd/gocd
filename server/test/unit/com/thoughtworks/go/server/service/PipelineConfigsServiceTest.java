@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -222,7 +222,7 @@ public class PipelineConfigsServiceTest {
         GoConfigOperationalResponse<PipelineConfigs> actual = service.updateXml(groupName, groupXml(), md5, validUser, result);
         GoConfigValidity validity = actual.getValidity();
 
-        assertThat(result.localizable(), is((Localizable) LocalizedMessage.string("SAVED_CONFIGURATION_SUCCESSFULLY")));
+        assertThat(result.localizable(), is(LocalizedMessage.string("SAVED_CONFIGURATION_SUCCESSFULLY")));
         assertThat(validity.isValid(), is(true));
     }
 

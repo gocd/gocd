@@ -104,7 +104,7 @@ public class PluggableSCMMaterialPollerTest {
         assertConfiguration(scmConfiguration.getValue(), "k1", "v1");
         assertConfiguration(scmConfiguration.getValue(), "k2", "v2");
         assertThat(materialData.getValue().size(), is(1));
-        assertThat((String) materialData.getValue().get("mk-1"), is("mv-1"));
+        assertThat(materialData.getValue().get("mk-1"), is("mv-1"));
     }
 
     @Test
@@ -143,7 +143,7 @@ public class PluggableSCMMaterialPollerTest {
         assertThat(new HashSet(modifications.get(0).getModifiedFiles()), is(new HashSet(asList(f1, f2, f3))));
         assertConfiguration(scmConfiguration.getValue(), material.getScmConfig().getConfiguration());
         assertThat(materialData.getValue().size(), is(1));
-        assertThat((String) materialData.getValue().get("mk-1"), is("mv-1"));
+        assertThat(materialData.getValue().get("mk-1"), is("mv-1"));
     }
 
     @Test
@@ -166,7 +166,7 @@ public class PluggableSCMMaterialPollerTest {
         assertThat(knownSCMRevision.getValue().getRevision(), is("rev-122"));
         assertThat(knownSCMRevision.getValue().getTimestamp(), is(timestamp));
         assertThat(materialData.getValue().size(), is(1));
-        assertThat((String) materialData.getValue().get("mk-1"), is("mv-1"));
+        assertThat(materialData.getValue().get("mk-1"), is("mv-1"));
     }
 
     @Test
@@ -218,7 +218,7 @@ public class PluggableSCMMaterialPollerTest {
         assertThat(firstModification.getAdditionalData(), is(JsonHelper.toJsonString(expected)));
         assertThat(firstModification.getModifiedFiles().isEmpty(), is(true));
         assertThat(materialData.getValue().size(), is(1));
-        assertThat((String) materialData.getValue().get("mk-1"), is("mv-1"));
+        assertThat(materialData.getValue().get("mk-1"), is("mv-1"));
     }
 
     private void assertConfiguration(com.thoughtworks.go.plugin.api.config.Configuration configurationsSentToPlugin, Configuration configurationInMaterial) {

@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.BasicPipelineConfigs;
@@ -86,8 +86,8 @@ public class MaterialConfigServiceTest {
 		MaterialConfigs materialConfigs = materialConfigService.getMaterialConfigs(user);
 
 		assertThat(materialConfigs.size(), is(2));
-		assertThat(materialConfigs.get(0), is((MaterialConfig) new GitMaterialConfig("http://test.com")));
-		assertThat(materialConfigs.get(1), is((MaterialConfig) new GitMaterialConfig("http://crap.com")));
+		assertThat(materialConfigs.get(0), is(new GitMaterialConfig("http://test.com")));
+		assertThat(materialConfigs.get(1), is(new GitMaterialConfig("http://crap.com")));
 	}
 
 	@Test
@@ -96,7 +96,7 @@ public class MaterialConfigServiceTest {
 		GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("http://crap.com");
 		MaterialConfig materialConfig = materialConfigService.getMaterialConfig(user, gitMaterialConfig.getFingerprint(), result);
 
-		assertThat(materialConfig, is((MaterialConfig) gitMaterialConfig));
+		assertThat(materialConfig, is(gitMaterialConfig));
 		assertThat(result.canContinue(), is(true));
 	}
 

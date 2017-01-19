@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -474,7 +474,7 @@ public class GoConfigServiceIntegrationTest {
         assertThat(config.get(0).name(), is(new CaseInsensitiveString("stage")));
 
         assertThat(response.getCruiseConfig(), is(goConfigService.getConfigForEditing()));
-        assertThat((PipelineConfig) response.getNode(), is(pipelineConfig));
+        assertThat(response.getNode(), is(pipelineConfig));
         assertFailedResult(result, "Save failed. oops, foo bared!");
     }
 
@@ -499,7 +499,7 @@ public class GoConfigServiceIntegrationTest {
         assertThat(config.get(0).name(), is(new CaseInsensitiveString("stage")));
 
         assertThat(response.getCruiseConfig(), is(goConfigService.getConfigForEditing()));
-        assertThat((PipelineConfig) response.getNode(), is(pipelineConfig));
+        assertThat(response.getNode(), is(pipelineConfig));
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(401));
         assertThat(result.message(localizer), is("Unauthorized to edit 'groupName' group."));

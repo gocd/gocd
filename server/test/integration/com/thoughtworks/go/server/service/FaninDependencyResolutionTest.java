@@ -736,7 +736,7 @@ public class FaninDependencyResolutionTest {
            pkg1-------> P2
         */
         int i = 1;
-        PackageMaterial pkg1 = (PackageMaterial) MaterialsMother.packageMaterial();
+        PackageMaterial pkg1 = MaterialsMother.packageMaterial();
         u.addPackageDefinition((PackageMaterialConfig) pkg1.config());
         String[] pkg_revs1 = {"pkg1-1", "pkg1-2"};
         u.checkinInOrder(pkg1, u.d(i++), pkg_revs1);
@@ -768,7 +768,7 @@ public class FaninDependencyResolutionTest {
             +--> P2 ----+
         */
         int i = 1;
-        PackageMaterial pkg1 = (PackageMaterial) MaterialsMother.packageMaterial();
+        PackageMaterial pkg1 = MaterialsMother.packageMaterial();
         u.addPackageDefinition((PackageMaterialConfig) pkg1.config());
         String[] pkg_revs = {"pkg1-1", "pkg1-2"};
         u.checkinInOrder(pkg1, u.d(i++), pkg_revs);

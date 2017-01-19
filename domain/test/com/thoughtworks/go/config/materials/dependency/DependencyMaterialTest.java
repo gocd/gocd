@@ -89,8 +89,8 @@ public class DependencyMaterialTest {
         DependencyMaterial material1 = new DependencyMaterial(new CaseInsensitiveString("pipeline1"), new CaseInsensitiveString("stage1"));
         Map<String, Object> map = new HashMap<>();
         material1.appendCriteria(map);
-        assertThat(map, hasEntry("pipelineName", (Object) "pipeline1"));
-        assertThat(map, hasEntry("stageName", (Object) "stage1"));
+        assertThat(map, hasEntry("pipelineName", "pipeline1"));
+        assertThat(map, hasEntry("stageName", "stage1"));
         assertThat(map.size(), is(2));
     }
 
@@ -223,10 +223,10 @@ public class DependencyMaterialTest {
 
 
     private void assertAttributes(Map<String, Object> attributes) {
-        assertThat((String) attributes.get("type"), is("pipeline"));
+        assertThat(attributes.get("type"), is("pipeline"));
         Map<String, Object> configuration = (Map<String, Object>) attributes.get("pipeline-configuration");
-        assertThat((String) configuration.get("pipeline-name"), is("pipeline-name"));
-        assertThat((String) configuration.get("stage-name"), is("stage-name"));
+        assertThat(configuration.get("pipeline-name"), is("pipeline-name"));
+        assertThat(configuration.get("stage-name"), is("stage-name"));
     }
 
     @Test

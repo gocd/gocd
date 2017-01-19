@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -166,7 +166,7 @@ public class RescheduleJobTest {
             Resource oldResource = oldJobPlan.getResources().get(i);
             assertThat(newResource.getId(), is(not(oldResource.getId())));
             assertThat(newResource.getName(), is(oldResource.getName()));
-            assertThat((Long) ReflectionUtil.getField(newResource, "buildId"), is(newJobPlan.getJobId()));
+            assertThat(ReflectionUtil.getField(newResource, "buildId"), is(newJobPlan.getJobId()));
         }
 
         assertThat(newJobPlan.getArtifactPlans().size(), is(2));
@@ -178,7 +178,7 @@ public class RescheduleJobTest {
             assertThat(newArtifactPlan.getSrc(), is(oldArtifactPlan.getSrc()));
             assertThat(newArtifactPlan.getDest(), is(oldArtifactPlan.getDest()));
             assertThat(newArtifactPlan.getArtifactType(), is(oldArtifactPlan.getArtifactType()));
-            assertThat((Long) ReflectionUtil.getField(newArtifactPlan, "buildId"), is(newJobPlan.getJobId()));
+            assertThat(ReflectionUtil.getField(newArtifactPlan, "buildId"), is(newJobPlan.getJobId()));
         }
 
         assertThat(newJobPlan.getPropertyGenerators().size(), is(2));
@@ -189,7 +189,7 @@ public class RescheduleJobTest {
             assertThat(newArtifactPropertiesGenerator.getName(), is(oldArtifactPropertiesGenerator.getName()));
             assertThat(newArtifactPropertiesGenerator.getSrc(), is(oldArtifactPropertiesGenerator.getSrc()));
             assertThat(newArtifactPropertiesGenerator.getXpath(), is(oldArtifactPropertiesGenerator.getXpath()));
-            assertThat((Long) ReflectionUtil.getField(newArtifactPropertiesGenerator, "jobId"), is(newJobPlan.getJobId()));
+            assertThat(ReflectionUtil.getField(newArtifactPropertiesGenerator, "jobId"), is(newJobPlan.getJobId()));
         }
 
         JobInstance newJobInstance = dbHelper.getBuildInstanceDao().buildById(newJobPlan.getJobId());

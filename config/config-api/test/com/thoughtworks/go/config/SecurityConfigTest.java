@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -145,14 +145,14 @@ public class SecurityConfigTest {
     public void shouldNotUpdateManagerPasswordForLDAPIfNotChangedOrNull() throws InvalidCipherTextException {
         SecurityConfig securityConfig = new SecurityConfig();
         securityConfig.modifyLdap(new LdapConfig("ldap://uri", "dn", "p", null, true, new BasesConfig(new BaseConfig("")), ""));
-        assertThat((String) ReflectionUtil.getField(securityConfig.ldapConfig(), "managerPassword"), is(""));
+        assertThat(ReflectionUtil.getField(securityConfig.ldapConfig(), "managerPassword"), is(""));
         assertThat(securityConfig.ldapConfig().managerPassword(), is("p"));
         String encryptedPassword = new GoCipher().encrypt("p");
         assertThat(securityConfig.ldapConfig().getEncryptedManagerPassword(), is(encryptedPassword));
 
         securityConfig.modifyLdap(new LdapConfig("ldap://uri", "dn", "notP", null, false, new BasesConfig(new BaseConfig("")), ""));
 
-        assertThat((String) ReflectionUtil.getField(securityConfig.ldapConfig(), "managerPassword"), is(""));
+        assertThat(ReflectionUtil.getField(securityConfig.ldapConfig(), "managerPassword"), is(""));
         assertThat(securityConfig.ldapConfig().managerPassword(), is("p"));
         assertThat(securityConfig.ldapConfig().getEncryptedManagerPassword(), is(encryptedPassword));
 

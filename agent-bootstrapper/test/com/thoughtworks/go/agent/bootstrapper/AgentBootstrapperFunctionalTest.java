@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,15 +18,12 @@ package com.thoughtworks.go.agent.bootstrapper;
 
 import com.googlecode.junit.ext.checkers.OSChecker;
 import com.thoughtworks.go.agent.common.AgentBootstrapperArgs;
-import com.thoughtworks.go.agent.common.util.Downloader;
 import com.thoughtworks.go.agent.testhelper.FakeBootstrapperServer;
 import com.thoughtworks.go.util.FileUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.eclipse.jetty.util.resource.Resource;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -119,20 +116,6 @@ public class AgentBootstrapperFunctionalTest {
                     }.go(false, new AgentBootstrapperArgs(new URL("http://" + "localhost" + ":" + 9090 + "/go"), null, AgentBootstrapperArgs.SslMode.NONE));
             assertThat(agentJar.length(), not(original));
             agentJar.delete();
-        }
-    }
-
-    @Ignore @Test
-    public void shouldDieNicelyIfWrongUrl() {
-        new File("agent.jar").delete();
-        try {
-            new AgentBootstrapper(){
-                        @Override void jvmExit(int returnValue) {
-                        }
-                    }.go(false, new AgentBootstrapperArgs(new URL("http://" + "IShouldNotResolveAtAll" + ":" + 9090 + "/go"), null, AgentBootstrapperArgs.SslMode.NONE));
-            fail("Shouldn't work if wrong URL provided");
-        } catch (Exception e) {
-            assertThat(e.getMessage(), containsString("Please check the URL"));
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,34 +16,17 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.io.IOException;
-import java.util.Date;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.StageConfig;
-import com.thoughtworks.go.domain.CannotScheduleException;
-import com.thoughtworks.go.domain.DefaultSchedulingContext;
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.JobInstances;
-import com.thoughtworks.go.domain.JobResult;
-import com.thoughtworks.go.domain.JobState;
-import com.thoughtworks.go.domain.MaterialRevisions;
-import com.thoughtworks.go.domain.NullStage;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.StageIdentifier;
-import com.thoughtworks.go.domain.StageResult;
-import com.thoughtworks.go.domain.StageState;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.exception.StageAlreadyBuildingException;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.svn.Subversion;
 import com.thoughtworks.go.domain.materials.svn.SvnCommand;
-import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.helper.SvnTestRepo;
@@ -60,11 +43,7 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.TimeProvider;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -72,6 +51,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+
+import java.io.IOException;
+import java.util.Date;
 
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.server.dao.DatabaseAccessHelper.AGENT_UUID;
@@ -162,54 +144,6 @@ public class BuildRepositoryServiceIntegrationTest {
         assertThat(stage2.getApprovedBy(), is(DEFAULT_APPROVED_BY));
 
         assertThat("In same pipeline", stage1.getPipelineId(), is(stage2.getPipelineId()));
-    }
-
-    @Test
-    @Ignore(value = "#2055 we need to rewrite these as proper integration tests")
-    public void shouldTriggerDependentPipelineWhenStagePassed() throws Exception {
-        PipelineConfig product = config.addPipeline("product", "dev", svnRepo, "build");
-        config.setDependencyOn(product, PIPELINE_NAME, DEV_STAGE);
-
-        int oldSize = pipelineScheduleQueue.toBeScheduled().size();
-        createPipelineWithFirstStageCompletedAndNextStageBuilding(StageState.Passed);
-        assertThat(pipelineScheduleQueue.toBeScheduled().size(), is(oldSize + 1));
-        assertThat(pipelineScheduleQueue.hasBuildCause("product"), is(true));
-    }
-
-    @Test
-    @Ignore(value = "#2055 we need to rewrite these as proper integration tests")
-    public void shouldNotFailCompletedStageIfFailedToTriggerDependentPipeline() throws Exception {
-        Subversion notExistsRepo = new SvnCommand(null, "http://notExistSvnURL");
-        PipelineConfig dependentPipeline = config.addPipeline("product", "dev", notExistsRepo, "build");
-        config.setDependencyOn(dependentPipeline, PIPELINE_NAME, DEV_STAGE);
-        int beforeProcessing = serverHealthService.getAllValidLogs(goConfigService.currentCruiseConfig()).size();
-        int oldSize = pipelineScheduleQueue.toBeScheduled().size();
-        createPipelineWithFirstStageCompleted(mingle);
-
-        assertThat(serverHealthService.getAllValidLogs(goConfigService.currentCruiseConfig()).size(),
-                is(beforeProcessing + 1));
-        assertThat(pipelineScheduleQueue.toBeScheduled().size(), is(oldSize));
-    }
-
-    @Test
-    @Ignore(value = "#2055 we need to rewrite these as proper integration tests")
-    public void shouldRerunDependentPipelineIfThereAreNoModifications() throws Exception {
-        // creating dependentPipeline so that it depends on mingle
-        PipelineConfig dependentPipeline = config.addPipeline("product", "dev", svnRepo, "build");
-        config.setDependencyOn(dependentPipeline, PIPELINE_NAME, DEV_STAGE);
-        // complete dependentPipeline so next time it will not find any modifications
-        createPipelineWithFirstStageCompleted(dependentPipeline);
-        Pipeline beforeRerun = pipelineService.mostRecentFullPipelineByName(CaseInsensitiveString.str(dependentPipeline.name()));
-        Stage firstStage = beforeRerun.getFirstStage();
-
-        // now the first stage of mingle just passed
-        createPipelineWithFirstStageCompleted(mingle);
-
-        // verify that dependentPipeline rerun
-        Pipeline afterRerun = pipelineService.mostRecentFullPipelineByName(CaseInsensitiveString.str(dependentPipeline.name()));
-        assertThat("A new stage instance should have been generated",
-                afterRerun.getFirstStage().getId() > firstStage.getId(), is(true));
-        assertThat("Should share the same pipeline id", afterRerun.getId(), is(beforeRerun.getId()));
     }
 
     @Test

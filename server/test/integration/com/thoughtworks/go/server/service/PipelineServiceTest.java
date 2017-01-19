@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,31 +16,30 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.util.Date;
-import java.util.HashMap;
-
-import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
-import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
-import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
+import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.JobConfig;
+import com.thoughtworks.go.config.JobConfigs;
 import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.activity.JobStatusCache;
 import com.thoughtworks.go.domain.activity.StageStatusCache;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
-import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.helper.*;
-import com.thoughtworks.go.helper.MaterialsMother;
+import com.thoughtworks.go.helper.PipelineConfigMother;
+import com.thoughtworks.go.helper.PipelineMother;
+import com.thoughtworks.go.helper.StageMother;
+import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.dao.StageDao;
-import com.thoughtworks.go.server.domain.*;
+import com.thoughtworks.go.server.domain.JobStatusListener;
+import com.thoughtworks.go.server.domain.PipelineConfigDependencyGraph;
+import com.thoughtworks.go.server.domain.PipelineTimeline;
+import com.thoughtworks.go.server.domain.StageStatusListener;
 import com.thoughtworks.go.server.messaging.JobResultTopic;
 import com.thoughtworks.go.server.messaging.StageStatusTopic;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
@@ -49,9 +48,7 @@ import com.thoughtworks.go.server.transaction.TestTransactionTemplate;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -59,20 +56,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import static com.thoughtworks.go.domain.config.CaseInsensitiveStringMother.str;
-import static com.thoughtworks.go.helper.GoConfigMother.createPipelineConfigWithMaterialConfig;
-import static com.thoughtworks.go.helper.ModificationsMother.createHgMaterialWithMultipleRevisions;
-import static com.thoughtworks.go.helper.ModificationsMother.createSvnMaterialWithMultipleRevisions;
-import static com.thoughtworks.go.helper.ModificationsMother.dependencyMaterialRevision;
-import static com.thoughtworks.go.helper.ModificationsMother.oneModifiedFile;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static com.thoughtworks.go.helper.ModificationsMother.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
@@ -110,27 +97,6 @@ public class PipelineServiceTest {
         first.setId(1);
         third.setId(3);
         second.setId(2);
-    }
-
-    @Test
-    @Ignore("Current implementation of DD does not support Duplicate Materials - Sriki/Sachin")
-    public void shouldCopyMissingRevisionsForSameMaterialThatsUsedMoreThanOnce() throws Exception {
-        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("last");
-        pipelineConfig.materialConfigs().clear();
-        HgMaterialConfig onDirOne = MaterialConfigsMother.hgMaterialConfig("google.com", "dirOne");
-        HgMaterialConfig onDirTwo = MaterialConfigsMother.hgMaterialConfig("google.com", "dirTwo");
-        pipelineConfig.addMaterialConfig(onDirOne);
-        pipelineConfig.addMaterialConfig(onDirTwo);
-
-        HashMap<Material, String> materialToCommit = new HashMap<Material, String>();
-        materialToCommit.put(new MaterialConfigConverter().toMaterial(onDirOne), "abc");
-        materialToCommit.put(new MaterialConfigConverter().toMaterial(onDirTwo), "abc");
-        MaterialRevisions revs = ModificationsMother.getMaterialRevisions(materialToCommit);
-
-        PipelineConfigDependencyGraph dependencyGraph = new PipelineConfigDependencyGraph(pipelineConfig);
-        MaterialRevisions finalRevisions = service.getRevisionsBasedOnDependencies(revs,
-                createCruiseConfigFromGraph(new BasicCruiseConfig(), dependencyGraph), dependencyGraph.getCurrent().name());
-        assertThat(finalRevisions.getRevisions(), is(revs.getRevisions()));
     }
 
     @Test
@@ -214,29 +180,6 @@ public class PipelineServiceTest {
         when(pipelineDao.save(pipeline)).thenReturn(savedPipeline);
 
         service.save(pipeline);
-    }
-
-    @Test
-    @Ignore("We do not support this now")
-    public void shouldGetTheRevisionsFromTheUpStreamPipelineBasedOnCurrentConfiguration() throws Exception {
-        MaterialRevisions expectedIfPegged = createHgMaterialWithMultipleRevisions(1L, first);
-        MaterialRevision up1Revision = dependencyMaterialRevision("up1", 1, "label", "stage", 1, new Date());
-        up1Revision.markAsChanged();
-        expectedIfPegged.addRevision(up1Revision);
-
-        MaterialRevisions actual = createHgMaterialWithMultipleRevisions(1L, third);
-        actual.addRevision(up1Revision);
-
-        PipelineConfig current = createPipelineConfigWithMaterialConfig("current", actual.getMaterials().get(0).config(),
-                new DependencyMaterialConfig(new CaseInsensitiveString("up1"), new CaseInsensitiveString("first")));
-        GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("git", "master");
-        gitMaterialConfig.setFolder("folder");
-        PipelineConfig up1 = createPipelineConfigWithMaterialConfig("up1", gitMaterialConfig); // The pipeline does not have the material anymore
-
-        when(pipelineDao.findBuildCauseOfPipelineByNameAndCounter("up1", 1)).thenReturn(BuildCause.createManualForced(expectedIfPegged, new Username(str("loser"))));
-
-        PipelineConfigDependencyGraph dependencyGraph = new PipelineConfigDependencyGraph(current, new PipelineConfigDependencyGraph(up1));
-        assertThat(service.getRevisionsBasedOnDependencies(actual, createCruiseConfigFromGraph(new BasicCruiseConfig(), dependencyGraph), dependencyGraph.getCurrent().name()), is(actual));
     }
 
     @Test

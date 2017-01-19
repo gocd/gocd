@@ -1,20 +1,44 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.plugin.activation;
+
+import com.googlecode.junit.ext.checkers.OSChecker;
+import com.thoughtworks.go.plugin.activation.test.*;
+import com.thoughtworks.go.plugin.api.TestGoPluginExtensionPoint;
+import com.thoughtworks.go.plugin.api.annotation.Extension;
+import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
+import com.thoughtworks.go.plugin.api.info.PluginDescriptorAware;
+import com.thoughtworks.go.plugin.infra.FelixGoPluginOSGiFramework;
+import com.thoughtworks.go.plugin.infra.plugininfo.DefaultPluginRegistry;
+import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+import com.thoughtworks.go.util.ReflectionUtil;
+import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.ZipUtil;
+import lib.test.DummyPluginAwareExtensionInLibDirectory;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.hamcrest.core.Is;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.ops4j.pax.tinybundles.core.InnerClassStrategy;
+import org.ops4j.pax.tinybundles.core.TinyBundle;
+import org.ops4j.pax.tinybundles.core.TinyBundles;
+import org.osgi.framework.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,59 +46,8 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.zip.ZipInputStream;
 
-import com.googlecode.junit.ext.checkers.OSChecker;
-import com.thoughtworks.go.util.ReflectionUtil;
-import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.ZipUtil;
-import com.thoughtworks.go.plugin.activation.test.AbstractPluginAwareExtension;
-import com.thoughtworks.go.plugin.activation.test.ClassThatExtendsTestExtensionPoint;
-import com.thoughtworks.go.plugin.activation.test.ClassWhichUsesSomeClassInJavaxPackage;
-import com.thoughtworks.go.plugin.activation.test.ClassWhichUsesSomeClassesInOrgW3CDomPackage;
-import com.thoughtworks.go.plugin.activation.test.ClassWhichUsesSomeClassesInOrgXMLSaxPackage;
-import com.thoughtworks.go.plugin.activation.test.DummyClassProvidingAnonymousClass;
-import com.thoughtworks.go.plugin.activation.test.DummyClassWithLocalInnerClass;
-import com.thoughtworks.go.plugin.activation.test.DummyPluginAwareExtension;
-import com.thoughtworks.go.plugin.activation.test.DummyPluginAwareExtensionWhichThrowsAnExceptionDuringConstruction;
-import com.thoughtworks.go.plugin.activation.test.DummyPluginAwareExtensionWithNonPublicDefaultConstructor;
-import com.thoughtworks.go.plugin.activation.test.DummyPluginAwareExtensionWithOneArgConstructorOnly;
-import com.thoughtworks.go.plugin.activation.test.NotAGoExtensionAsItDoesNotImplementAnyExtensionPoints;
-import com.thoughtworks.go.plugin.activation.test.NotAGoExtensionPoint;
-import com.thoughtworks.go.plugin.activation.test.PluginAwareExtensionInterface;
-import com.thoughtworks.go.plugin.activation.test.PluginAwareExtensionOuterClass;
-import com.thoughtworks.go.plugin.activation.test.PluginAwareExtensionThatIsADerivedClass;
-import com.thoughtworks.go.plugin.activation.test.TestGoPluginExtensionThatImplementsTwoExtensionPoints;
-import com.thoughtworks.go.plugin.api.TestGoPluginExtensionPoint;
-import com.thoughtworks.go.plugin.api.annotation.Extension;
-import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
-import com.thoughtworks.go.plugin.api.info.PluginDescriptorAware;
-import com.thoughtworks.go.plugin.api.test_package_which_will_be_in_bundles_classloader.TestGoPluginExtensionInThePackageOfOtherGoPlugins;
-import com.thoughtworks.go.plugin.api.test_package_which_will_be_in_bundles_classloader.TestGoPluginExtensionWhichImplementsANonGoExposedGoExtensionInterface;
-import com.thoughtworks.go.plugin.infra.FelixGoPluginOSGiFramework;
-import com.thoughtworks.go.plugin.infra.plugininfo.DefaultPluginRegistry;
-import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import lib.test.DummyPluginAwareExtensionInLibDirectory;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.hamcrest.core.Is;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.ops4j.pax.tinybundles.core.InnerClassStrategy;
-import org.ops4j.pax.tinybundles.core.TinyBundle;
-import org.ops4j.pax.tinybundles.core.TinyBundles;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleException;
-import org.osgi.framework.Constants;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
-
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 public class DefaultGoPluginActivatorIntegrationTest {
 
@@ -125,14 +98,6 @@ public class DefaultGoPluginActivatorIntegrationTest {
         GoPluginDescriptor descriptor = registry.getPlugin(GO_TEST_DUMMY_SYMBOLIC_NAME);
         assertThat(descriptor.isInvalid(), is(true));
         assertThat(descriptor.getStatus().getMessages().contains(NO_EXT_ERR_MSG), is(true));
-    }
-
-    @Test
-    @Ignore("Currently, since we are not using PaxExam, the TestGoPluginExtensionInThePackageOfOtherGoPlugins class gets leaked. Need to rewrite with an invalid plugin JAR which gets loaded. -Sachin")
-    public void shouldNotRegisterAsAnOSGiServiceAnExtensionClassWhichImplementsAGoExtensionPointInTheSamePackageAsGoExtensionPointButIsNotARealGoExtensionPointExposedByGo() throws Exception {
-        Bundle bundle = installBundleWithClasses(TestGoPluginExtensionInThePackageOfOtherGoPlugins.class,
-                TestGoPluginExtensionWhichImplementsANonGoExposedGoExtensionInterface.class);
-        assertThat(bundle.getState(), is(Bundle.UNINSTALLED));
     }
 
     @Test

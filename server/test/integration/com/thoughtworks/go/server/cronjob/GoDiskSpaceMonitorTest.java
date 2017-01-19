@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.cronjob;
 
@@ -20,14 +20,7 @@ import com.thoughtworks.go.fixture.ArtifactsDiskIsFull;
 import com.thoughtworks.go.fixture.ArtifactsDiskIsLow;
 import com.thoughtworks.go.fixture.DatabaseDiskIsFull;
 import com.thoughtworks.go.fixture.DatabaseDiskIsLow;
-import com.thoughtworks.go.server.service.ArtifactsDiskSpaceFullChecker;
-import com.thoughtworks.go.server.service.ArtifactsService;
-import com.thoughtworks.go.server.service.ConfigDbStateRepository;
-import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.DatabaseDiskSpaceFullChecker;
-import com.thoughtworks.go.server.service.StageService;
-import com.thoughtworks.go.server.service.SystemDiskSpaceChecker;
-import com.thoughtworks.go.server.service.TestingEmailSender;
+import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.serverhealth.HealthStateLevel;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
@@ -35,7 +28,6 @@ import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -48,9 +40,6 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -107,23 +96,6 @@ public class GoDiskSpaceMonitorTest {
 
         goDiskSpaceMonitor.onTimer();
         assertThat(goDiskSpaceMonitor.isLowOnDisk(), is(false));
-    }
-
-    @Test
-    @Ignore("Will fix this soon. -Rope and Duck")
-    public void shouldNotifyArtifactDiskCleanerOfLowDiskWhenArtifactDirectoryRunsOutNew() throws Exception {
-        ArtifactsDiskIsLow full = new ArtifactsDiskIsLow();
-        full.onSetUp();
-        goConfigService.getCurrentConfig().server().setPurgeLimits(1.0, 0.0);
-
-        Mockito.when(mockDiskSpaceChecker.getUsableSpace(goConfigService.artifactsDir())).thenReturn(full.getLowLimit() + 1L);
-        Mockito.when(mockDiskSpaceChecker.getUsableSpace(systemEnvironment.getDbFolder())).thenReturn(SHITLOADS_OF_DISK_SPACE);
-
-        goDiskSpaceMonitor.onTimer();
-
-        verify(configDbStateRepository, times(1)).flushConfigState();
-        verify(stageService, times(1)).oldestStagesWithDeletableArtifacts();
-        verifyNoMoreInteractions(stageService, configDbStateRepository);
     }
 
     @Test

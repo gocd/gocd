@@ -72,7 +72,7 @@ public class AuthorizationExtension extends AbstractExtension {
     }
 
     String getPluginConfigurationView(String pluginId) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_PLUGIN_CONFIG_VIEW, new DefaultPluginInteractionCallback<String>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_PLUGIN_CONFIG_VIEW, new DefaultPluginInteractionCallback<String>() {
             @Override
             public String onSuccess(String responseBody, String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).getPluginConfigurationViewFromResponseBody(responseBody);
@@ -137,7 +137,7 @@ public class AuthorizationExtension extends AbstractExtension {
     }
 
     public String getRoleConfigurationView(String pluginId) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_ROLE_CONFIG_VIEW, new DefaultPluginInteractionCallback<String>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_ROLE_CONFIG_VIEW, new DefaultPluginInteractionCallback<String>() {
             @Override
             public String onSuccess(String responseBody, String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).getRoleConfigurationViewFromResponseBody(responseBody);

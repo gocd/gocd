@@ -125,6 +125,16 @@ public class AuthorizationMessageConverterV1 implements AuthorizationMessageConv
         return GSON.toJson(list);
     }
 
+    @Override
+    public String getInvalidateCacheResponseBody() {
+        return StringUtils.EMPTY;
+    }
+
+    @Override
+    public String getProcessPluginConfigResponseBody(Map<String, Map<String, String>> authConfigProfiles) {
+        return GSON.toJson(authConfigProfiles);
+    }
+
     private String getTemplateFromResponse(String responseBody, String message) {
         String template = (String) new Gson().fromJson(responseBody, Map.class).get("template");
         if (StringUtils.isBlank(template)) {

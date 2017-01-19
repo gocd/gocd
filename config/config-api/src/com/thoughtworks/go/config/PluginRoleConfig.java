@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 
-import java.util.Collection;
 import java.util.List;
 
 @ConfigTag("pluginRole")
@@ -36,8 +35,6 @@ public class PluginRoleConfig extends Configuration implements Role {
 
     @ConfigAttribute(value = "authConfigId", optional = false)
     private String authConfigId;
-
-    private Users users = new Users();
 
     public PluginRoleConfig() {
     }
@@ -65,13 +62,12 @@ public class PluginRoleConfig extends Configuration implements Role {
     }
 
     @Override
-    public Collection<RoleUser> doGetUsers() {
-        return users;
+    public void addUser(RoleUser user) {
+        throw new RuntimeException("PluginRoleConfig does not support adding users, should be added through PluginRoleService");
     }
 
-    @Override
-    public void doSetUsers(Collection<RoleUser> users) {
-        this.users = Users.users(users);
+    public void removeUser(RoleUser roleUser) {
+        throw new RuntimeException("PluginRoleConfig does not support removing users, should be removed through PluginRoleService");
     }
 
     public ConfigErrors errors() {
@@ -90,6 +86,11 @@ public class PluginRoleConfig extends Configuration implements Role {
     @Override
     public void setName(CaseInsensitiveString name) {
         this.name = name;
+    }
+
+    @Override
+    public List<RoleUser> getUsers() {
+        return PluginRoleUsersStore.instance().usersInRole(this);
     }
 
     public void addConfigurations(List<ConfigurationProperty> configurations) {

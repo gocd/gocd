@@ -59,4 +59,8 @@ public interface AuthorizationMessageConverter {
     String processGetRoleConfigsRequest(String requestBody);
 
     String getProcessRoleConfigsResponseBody(List<PluginRoleConfig> roles);
+
+    String getInvalidateCacheResponseBody();
+
+    String getProcessPluginConfigResponseBody(Map<String, Map<String,String>> authConfigProfiles);
 }

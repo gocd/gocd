@@ -16,16 +16,12 @@
 
 package com.thoughtworks.go.server.security;
 
-import java.io.IOException;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import com.thoughtworks.go.config.CachedGoConfig;
 import com.thoughtworks.go.config.GoConfigDao;
+import com.thoughtworks.go.config.PluginRoleConfig;
+import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.PluginRoleService;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.TimeProvider;
 import org.junit.After;
@@ -42,12 +38,16 @@ import org.springframework.security.userdetails.User;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
@@ -63,6 +63,7 @@ public class RemoveAdminPermissionFilterIntegrationTest {
     @Autowired private GoConfigService goConfigService;
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private CachedGoConfig cachedGoConfig;
+    @Autowired private PluginRoleService pluginRoleService;
 
     private static final GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private TimeProvider timeProvider;
@@ -92,13 +93,13 @@ public class RemoveAdminPermissionFilterIntegrationTest {
 
     @Test
     public void testGetOrder() throws IOException, ServletException {
-        RemoveAdminPermissionFilter filter = new RemoveAdminPermissionFilter(goConfigService, timeProvider);
+        RemoveAdminPermissionFilter filter = new RemoveAdminPermissionFilter(goConfigService, timeProvider, pluginRoleService);
         assertThat(filter.getOrder(), is(FilterChainOrder.BASIC_PROCESSING_FILTER - 1));
     }
 
     @Test
     public void testShouldContinueWithChainReturnIfAuthenticationIsNull() throws IOException, ServletException {
-        RemoveAdminPermissionFilter filter = new RemoveAdminPermissionFilter(goConfigService, timeProvider);
+        RemoveAdminPermissionFilter filter = new RemoveAdminPermissionFilter(goConfigService, timeProvider, pluginRoleService);
         filter.doFilterHttp(request, response, chain);
         verify(chain).doFilter(request, response);
         verifyNoMoreInteractions(chain);
@@ -106,7 +107,7 @@ public class RemoveAdminPermissionFilterIntegrationTest {
 
     @Test
     public void testShouldContinueWithChainReturnIfCruiseConfigIsNull() throws IOException, ServletException {
-        RemoveAdminPermissionFilter filter = new RemoveAdminPermissionFilter(goConfigService, timeProvider);
+        RemoveAdminPermissionFilter filter = new RemoveAdminPermissionFilter(goConfigService, timeProvider, pluginRoleService);
         filter.doFilterHttp(request, response, chain);
         verify(chain).doFilter(request, response);
         verifyNoMoreInteractions(chain);
@@ -116,12 +117,12 @@ public class RemoveAdminPermissionFilterIntegrationTest {
     public void testShouldContinueWithTheChainIfTheSecurityConfigHasNotChanged() throws IOException, ServletException {
         Authentication authentication = setupAuthentication();
 
-        RemoveAdminPermissionFilter filter = new RemoveAdminPermissionFilter(goConfigService, timeProvider);
+        RemoveAdminPermissionFilter filter = new RemoveAdminPermissionFilter(goConfigService, timeProvider, pluginRoleService);
 
         filter.doFilterHttp(request, response, chain);
         modifyArtifactRoot();
         filter.doFilterHttp(request, response, chain);
-        
+
         assertThat(authentication.isAuthenticated(), is(true));
     }
 
@@ -135,7 +136,7 @@ public class RemoveAdminPermissionFilterIntegrationTest {
         Authentication authentication = setupAuthentication();
         when(session.getAttribute(RemoveAdminPermissionFilter.SECURITY_CONFIG_LAST_CHANGE)).thenReturn(0L).thenReturn(0L).thenReturn(100L);
 
-        RemoveAdminPermissionFilter filter = new RemoveAdminPermissionFilter(goConfigService, timeProvider);
+        RemoveAdminPermissionFilter filter = new RemoveAdminPermissionFilter(goConfigService, timeProvider, pluginRoleService);
         filter.initialize();
 
         filter.doFilterHttp(request, response, chain);
@@ -159,11 +160,41 @@ public class RemoveAdminPermissionFilterIntegrationTest {
 
     @Test
     public void testShouldReAuthenticateOnlyOnceAfterConfigChange() throws IOException, ServletException {
+        goConfigService.security().securityAuthConfigs().add(new SecurityAuthConfig("github","cd.go.authorization.github"));
+        goConfigService.security().addRole(new PluginRoleConfig("spacetiger", "github"));
         Authentication authentication = setupAuthentication();
 
         when(session.getAttribute(RemoveAdminPermissionFilter.SECURITY_CONFIG_LAST_CHANGE)).thenReturn(0L).thenReturn(0L).thenReturn(100L);
 
-        RemoveAdminPermissionFilter filter = new RemoveAdminPermissionFilter(goConfigService, timeProvider);
+        RemoveAdminPermissionFilter filter = new RemoveAdminPermissionFilter(goConfigService, timeProvider, pluginRoleService);
+        filter.initialize();
+
+        assertThat(authentication.isAuthenticated(), is(true));//good initial state
+
+        filter.doFilterHttp(request, response, chain);
+
+        pluginRoleService.invalidateRolesFor("cd.go.authorization.github");
+
+        assertThat(authentication.isAuthenticated(), is(true));
+
+        filter.doFilterHttp(request, response, chain);
+
+        assertThat(authentication.isAuthenticated(), is(false));
+
+        authentication.setAuthenticated(true);
+
+        filter.doFilterHttp(request, response, chain);
+
+        assertThat(authentication.isAuthenticated(), is(true));
+    }
+
+    @Test
+    public void testShouldReAuthenticateOnlyOnceAfterAuthorizationPluginUnloaded() throws IOException, ServletException {
+        Authentication authentication = setupAuthentication();
+
+        when(session.getAttribute(RemoveAdminPermissionFilter.SECURITY_CONFIG_LAST_CHANGE)).thenReturn(0L).thenReturn(0L).thenReturn(100L);
+
+        RemoveAdminPermissionFilter filter = new RemoveAdminPermissionFilter(goConfigService, timeProvider, pluginRoleService);
         filter.initialize();
 
         assertThat(authentication.isAuthenticated(), is(true));//good initial state
@@ -190,7 +221,7 @@ public class RemoveAdminPermissionFilterIntegrationTest {
         when(timeProvider.currentTimeMillis()).thenReturn(100L);
 
         when(session.getAttribute(RemoveAdminPermissionFilter.SECURITY_CONFIG_LAST_CHANGE)).thenReturn(null);
-        RemoveAdminPermissionFilter filter = new RemoveAdminPermissionFilter(goConfigService, timeProvider);
+        RemoveAdminPermissionFilter filter = new RemoveAdminPermissionFilter(goConfigService, timeProvider, pluginRoleService);
         filter.initialize();
         turnOnSecurity("pavan");
         filter.doFilterHttp(request, response, chain);
@@ -203,7 +234,7 @@ public class RemoveAdminPermissionFilterIntegrationTest {
         when(timeProvider.currentTimeMillis()).thenReturn(100L);
 
         when(session.getAttribute(RemoveAdminPermissionFilter.SECURITY_CONFIG_LAST_CHANGE)).thenReturn(null);
-        RemoveAdminPermissionFilter filter = new RemoveAdminPermissionFilter(goConfigService, timeProvider);
+        RemoveAdminPermissionFilter filter = new RemoveAdminPermissionFilter(goConfigService, timeProvider, pluginRoleService);
         filter.initialize();
         turnOnSecurity("pavan");
         filter.doFilterHttp(request, response, chain);
@@ -215,7 +246,7 @@ public class RemoveAdminPermissionFilterIntegrationTest {
         setupAuthentication();
         when(timeProvider.currentTimeMillis()).thenReturn(100L);
         when(session.getAttribute(RemoveAdminPermissionFilter.SECURITY_CONFIG_LAST_CHANGE)).thenReturn(100L);
-        RemoveAdminPermissionFilter filter = new RemoveAdminPermissionFilter(goConfigService, timeProvider);
+        RemoveAdminPermissionFilter filter = new RemoveAdminPermissionFilter(goConfigService, timeProvider, pluginRoleService);
         filter.doFilterHttp(request, response, chain);
 
         verify(session).getAttribute(RemoveAdminPermissionFilter.SECURITY_CONFIG_LAST_CHANGE);//Make sure the stub was indeed called.

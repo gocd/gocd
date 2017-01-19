@@ -16,12 +16,9 @@
 
 package com.thoughtworks.go.server.service.plugins.processor.authorization;
 
-import com.google.gson.Gson;
 import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.config.SecurityAuthConfigs;
-import com.thoughtworks.go.plugin.access.authentication.JsonMessageHandler;
-import com.thoughtworks.go.plugin.access.authentication.JsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMessageConverter;
 import com.thoughtworks.go.plugin.api.request.GoApiRequest;
@@ -31,6 +28,7 @@ import com.thoughtworks.go.plugin.infra.GoPluginApiRequestProcessor;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.PluginRoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -39,8 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.thoughtworks.go.server.service.plugins.processor.authorization.AuthorizationRequestProcessor.Request.GET_PLUGIN_CONFIG_REQUEST;
-import static com.thoughtworks.go.server.service.plugins.processor.authorization.AuthorizationRequestProcessor.Request.GET_ROLE_CONFIG_REQUEST;
+import static com.thoughtworks.go.server.service.plugins.processor.authorization.AuthorizationRequestProcessor.Request.*;
 import static java.util.Arrays.asList;
 
 @Component
@@ -49,15 +46,16 @@ public class AuthorizationRequestProcessor implements GoPluginApiRequestProcesso
 
     private final GoConfigService goConfigService;
     private final AuthorizationExtension extension;
-    private Map<String, JsonMessageHandler> messageHandlerMap = new HashMap<>();
+    private final PluginRoleService pluginRoleService;
 
     @Autowired
-    public AuthorizationRequestProcessor(PluginRequestProcessorRegistry registry, GoConfigService goConfigService, AuthorizationExtension extension) {
+    public AuthorizationRequestProcessor(PluginRequestProcessorRegistry registry, GoConfigService goConfigService, AuthorizationExtension extension, PluginRoleService pluginRoleService) {
         this.goConfigService = goConfigService;
         this.extension = extension;
-        this.messageHandlerMap.put("1.0", new JsonMessageHandler1_0());
+        this.pluginRoleService = pluginRoleService;
         registry.registerProcessorFor(GET_PLUGIN_CONFIG_REQUEST.requestName(), this);
         registry.registerProcessorFor(GET_ROLE_CONFIG_REQUEST.requestName(), this);
+        registry.registerProcessorFor(INVALIDATE_CACHE_REQUEST.requestName(), this);
     }
 
     @Override
@@ -66,12 +64,20 @@ public class AuthorizationRequestProcessor implements GoPluginApiRequestProcesso
         validatePluginRequest(request);
         switch (Request.fromString(request.api())) {
             case GET_PLUGIN_CONFIG_REQUEST:
-                return processPluginConfigRequest(pluginDescriptor);
+                return processPluginConfigRequest(pluginDescriptor, request);
             case GET_ROLE_CONFIG_REQUEST:
                 return processRoleConfigRequest(pluginDescriptor, request);
+            case INVALIDATE_CACHE_REQUEST:
+                return processInvalidateCacheRequest(pluginDescriptor, request);
             default:
                 return DefaultGoApiResponse.error("Illegal api request");
         }
+    }
+
+    private GoApiResponse processInvalidateCacheRequest(GoPluginDescriptor pluginDescriptor, GoApiRequest request) {
+        AuthorizationMessageConverter messageConverter = extension.getMessageConverter(request.apiVersion());
+        pluginRoleService.invalidateRolesFor(pluginDescriptor.id());
+        return DefaultGoApiResponse.success(messageConverter.getInvalidateCacheResponseBody());
     }
 
     private GoApiResponse processRoleConfigRequest(GoPluginDescriptor pluginDescriptor, GoApiRequest request) {
@@ -94,14 +100,15 @@ public class AuthorizationRequestProcessor implements GoPluginApiRequestProcesso
         }
     }
 
-    private GoApiResponse processPluginConfigRequest(GoPluginDescriptor pluginDescriptor) {
+    private GoApiResponse processPluginConfigRequest(GoPluginDescriptor pluginDescriptor, GoApiRequest request) {
+        AuthorizationMessageConverter messageConverter = extension.getMessageConverter(request.apiVersion());
         DefaultGoApiResponse response = new DefaultGoApiResponse(200);
-        response.setResponseBody(new Gson().toJson(getAuthConfigProfiles(pluginDescriptor)));
+        response.setResponseBody(messageConverter.getProcessPluginConfigResponseBody(getAuthConfigProfiles(pluginDescriptor)));
         return response;
     }
 
     private Map<String, Map<String, String>> getAuthConfigProfiles(GoPluginDescriptor pluginDescriptor) {
-        SecurityAuthConfigs securityAuthConfigs = goConfigService.serverConfig().security().securityAuthConfigs();
+        SecurityAuthConfigs securityAuthConfigs = goConfigService.security().securityAuthConfigs();
         Map<String, Map<String, String>> authConfigs = new HashMap<>();
         for (SecurityAuthConfig securityAuthConfig : securityAuthConfigs.findByPluginId(pluginDescriptor.id())) {
             authConfigs.put(securityAuthConfig.getId(), securityAuthConfig.getConfigurationAsMap(true));
@@ -111,7 +118,8 @@ public class AuthorizationRequestProcessor implements GoPluginApiRequestProcesso
 
     enum Request {
         GET_PLUGIN_CONFIG_REQUEST("go.processor.authorization.get-profile-config"),
-        GET_ROLE_CONFIG_REQUEST("go.processor.authorization.get-role-config");
+        GET_ROLE_CONFIG_REQUEST("go.processor.authorization.get-role-config"),
+        INVALIDATE_CACHE_REQUEST("go.processor.authorization.invalidate-cache");
 
         private final String requestName;
 

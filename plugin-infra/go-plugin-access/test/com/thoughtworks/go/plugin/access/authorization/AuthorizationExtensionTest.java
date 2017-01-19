@@ -1,0 +1,212 @@
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.thoughtworks.go.plugin.access.authorization;
+
+import com.thoughtworks.go.plugin.access.authentication.models.User;
+import com.thoughtworks.go.plugin.access.authorization.models.AuthenticationResponse;
+import com.thoughtworks.go.plugin.access.authorization.models.Capabilities;
+import com.thoughtworks.go.plugin.access.authorization.models.SupportedAuthType;
+import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadata;
+import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKey;
+import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKeys;
+import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
+import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
+import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
+import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.infra.PluginManager;
+import org.hamcrest.core.Is;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import static com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConstants.*;
+import static com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE;
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.initMocks;
+
+public class AuthorizationExtensionTest {
+    public static final String PLUGIN_ID = "plugin-id";
+
+    @Mock
+    private PluginManager pluginManager;
+    private ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor;
+    private AuthorizationExtension authorizationExtension;
+
+    @Before
+    public void setUp() throws Exception {
+        initMocks(this);
+        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, Arrays.asList("1.0"))).thenReturn("1.0");
+        when(pluginManager.isPluginOfType(AuthorizationPluginConstants.EXTENSION_NAME, PLUGIN_ID)).thenReturn(true);
+
+        authorizationExtension = new AuthorizationExtension(pluginManager);
+
+        requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
+    }
+
+    @Test
+    public void shouldTalkToPlugin_To_GetCapabilities() throws Exception {
+        String responseBody = "{\"supported_auth_type\":\"password\",\"can_search\":true}";
+        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
+
+        Capabilities capabilities = authorizationExtension.getCapabilities(PLUGIN_ID);
+
+        assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_GET_CAPABILITIES, null);
+        assertThat(capabilities.getSupportedAuthType(), is(SupportedAuthType.Password));
+        assertThat(capabilities.canSearch(), is(true));
+    }
+
+    @Test
+    public void shouldTalkToPlugin_To_GetPluginConfigurationMetadata() throws Exception {
+        String responseBody = "[{\"key\":\"username\",\"metadata\":{\"required\":true,\"secure\":false}},{\"key\":\"password\",\"metadata\":{\"required\":true,\"secure\":true}}]";
+        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
+
+        PluginProfileMetadataKeys pluginConfigurationMetadata = authorizationExtension.getPluginConfigurationMetadata(PLUGIN_ID);
+
+        assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_GET_PLUGIN_CONFIG_METADATA, null);
+
+        assertThat(pluginConfigurationMetadata, containsInAnyOrder(
+                new PluginProfileMetadataKey("username", new PluginProfileMetadata(true, false)),
+                new PluginProfileMetadataKey("password", new PluginProfileMetadata(true, true))
+        ));
+    }
+
+    @Test
+    public void shouldTalkToPlugin_To_GetPluginConfigurationView() throws Exception {
+        String responseBody = "{ \"template\": \"<div>This is view snippet</div>\" }";
+        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
+
+        String pluginConfigurationView = authorizationExtension.getPluginConfigurationView(PLUGIN_ID);
+
+        assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_GET_PLUGIN_CONFIG_VIEW, null);
+
+        assertThat(pluginConfigurationView, is("<div>This is view snippet</div>"));
+    }
+
+    @Test
+    public void shouldTalkToPlugin_To_ValidatePluginConfiguration() throws Exception {
+        String responseBody = "[{\"message\":\"Url must not be blank.\",\"key\":\"Url\"},{\"message\":\"SearchBase must not be blank.\",\"key\":\"SearchBase\"}]";
+        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
+
+        ValidationResult validationResult = authorizationExtension.validatePluginConfiguration(PLUGIN_ID, Collections.emptyMap());
+
+        assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_VALIDATE_PLUGIN_CONFIG, "{}");
+
+        assertThat(validationResult.isSuccessful(), is(false));
+        assertThat(validationResult.getErrors(), containsInAnyOrder(
+                new ValidationError("Url", "Url must not be blank."),
+                new ValidationError("SearchBase", "SearchBase must not be blank.")
+        ));
+    }
+
+    @Test
+    public void shouldTalkToPlugin_To_VerifyConnection() throws Exception {
+        String responseBody = "[]";
+        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
+        AuthorizationExtension authorizationExtensionSpy = spy(authorizationExtension);
+
+        authorizationExtensionSpy.verifyConnection(PLUGIN_ID, Collections.emptyMap());
+
+        assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_VERIFY_CONNECTION, "{}");
+
+        verify(authorizationExtensionSpy).validatePluginConfiguration(PLUGIN_ID, Collections.emptyMap());
+    }
+
+    @Test
+    public void shouldTalkToPlugin_To_GetRoleConfigurationMetadata() throws Exception {
+        String responseBody = "[{\"key\":\"memberOf\",\"metadata\":{\"required\":true,\"secure\":false}}]";
+        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
+
+        PluginProfileMetadataKeys pluginConfigurationMetadata = authorizationExtension.getRoleConfigurationMetadata(PLUGIN_ID);
+
+        assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_GET_ROLE_CONFIG_METADATA, null);
+
+        assertThat(pluginConfigurationMetadata, containsInAnyOrder(
+                new PluginProfileMetadataKey("memberOf", new PluginProfileMetadata(true, false))
+        ));
+    }
+
+    @Test
+    public void shouldTalkToPlugin_To_GetRoleConfigurationView() throws Exception {
+        String responseBody = "{ \"template\": \"<div>This is view snippet</div>\" }";
+        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
+
+        String pluginConfigurationView = authorizationExtension.getRoleConfigurationView(PLUGIN_ID);
+
+        assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_GET_ROLE_CONFIG_VIEW, null);
+
+        assertThat(pluginConfigurationView, is("<div>This is view snippet</div>"));
+    }
+
+    @Test
+    public void shouldTalkToPlugin_To_ValidateRoleConfiguration() throws Exception {
+        String responseBody = "[{\"message\":\"memberOf must not be blank.\",\"key\":\"memberOf\"}]";
+        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
+
+        ValidationResult validationResult = authorizationExtension.validateRoleConfiguration(PLUGIN_ID, Collections.emptyMap());
+
+        assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_VALIDATE_ROLE_CONFIG, "{}");
+
+        assertThat(validationResult.isSuccessful(), is(false));
+        assertThat(validationResult.getErrors(), containsInAnyOrder(
+                new ValidationError("memberOf", "memberOf must not be blank.")
+        ));
+    }
+
+    @Test
+    public void shouldTalkToPlugin_To_AuthenticateUser() throws Exception {
+        String requestBody = "{\"password\":\"secret\",\"username\":\"bob\"}";
+        String responseBody = "{\"user\":{\"username\":\"bob\",\"display_name\":\"Bob\",\"email\":\"bob@example.com\"},\"roles\":[\"blackbird\"]}";
+        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
+
+        AuthenticationResponse authenticationResponse = authorizationExtension.authenticateUser(PLUGIN_ID, "bob", "secret");
+
+        assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_AUTHENTICATE_USER, requestBody);
+        assertThat(authenticationResponse.getUser(), is(new User("bob", "Bob", "bob@example.com")));
+        assertThat(authenticationResponse.getRoles().get(0), is("blackbird"));
+    }
+
+    @Test
+    public void shouldTalkToPlugin_To_SearchUsers() throws Exception {
+        String requestBody = "{\"search_term\":\"bob\"}";
+        String responseBody = "[{\"username\":\"bob\",\"display_name\":\"Bob\",\"email\":\"bob@example.com\"}]";
+        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
+
+        List<User> users = authorizationExtension.searchUsers(PLUGIN_ID, "bob");
+
+        assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_SEARCH_USERS, requestBody);
+        assertThat(users, hasSize(1));
+        assertThat(users, hasItem(new User("bob", "Bob", "bob@example.com")));
+    }
+
+    private void assertRequest(GoPluginApiRequest goPluginApiRequest, String extensionName, String version, String requestName, String requestBody) {
+        Assert.assertThat(goPluginApiRequest.extension(), Is.is(extensionName));
+        Assert.assertThat(goPluginApiRequest.extensionVersion(), Is.is(version));
+        Assert.assertThat(goPluginApiRequest.requestName(), Is.is(requestName));
+        Assert.assertThat(goPluginApiRequest.requestBody(), Is.is(requestBody));
+    }
+}

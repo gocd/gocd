@@ -101,6 +101,16 @@ public class RolesConfig extends BaseCollection<Role> implements Validatable {
         return null;
     }
 
+
+    public PluginRoleConfig findPluginRoleByName(CaseInsensitiveString pluginRoleName) {
+        for (PluginRoleConfig pluginRoleConfig : getPluginRolesConfig()) {
+            if (pluginRoleConfig.getName().equals(pluginRoleName)) {
+                return pluginRoleConfig;
+            }
+        }
+        return null;
+    }
+
     public boolean isUserMemberOfRole(final CaseInsensitiveString userName, final CaseInsensitiveString roleName) {
         Role role = findByName(roleName);
         bombIfNull(role, String.format("Role \"%s\" does not exist!", roleName));

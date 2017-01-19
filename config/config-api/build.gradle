@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ dependencies {
   compile group: 'org.apache.felix', name: 'org.apache.felix.framework', version: '4.2.1'
   testCompile project(':test-utils')
   testCompile group: 'jaxen', name: 'jaxen', version: '1.1.6'
+  compileOnly group: 'com.google.guava', name: 'guava', version: '20.0'
 
   compileOnly(group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47')
 }

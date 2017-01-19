@@ -16,13 +16,11 @@
 
 package com.thoughtworks.go.plugin.access.authorization;
 
-import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtensionConverterV1;
-
 import java.util.Arrays;
 import java.util.List;
 
 public interface AuthorizationPluginConstants {
-    List<String> SUPPORTED_VERSIONS = Arrays.asList(ElasticAgentExtensionConverterV1.VERSION);
+    List<String> SUPPORTED_VERSIONS = Arrays.asList(AuthorizationMessageConverterV1.VERSION);
 
     String EXTENSION_NAME = "authorization";
 
@@ -34,12 +32,12 @@ public interface AuthorizationPluginConstants {
     String _ROLE_CONFIG_METADATA = "role-config";
 
     String REQUEST_GET_PLUGIN_CONFIG_METADATA = String.join(".", REQUEST_PREFIX, _PLUGIN_CONFIG_METADATA, "get-metadata");
-    String REQUEST_PLUGIN_CONFIG_VIEW = String.join(".", REQUEST_PREFIX, _PLUGIN_CONFIG_METADATA, "get-view");
+    String REQUEST_GET_PLUGIN_CONFIG_VIEW = String.join(".", REQUEST_PREFIX, _PLUGIN_CONFIG_METADATA, "get-view");
     String REQUEST_VALIDATE_PLUGIN_CONFIG = String.join(".", REQUEST_PREFIX, _PLUGIN_CONFIG_METADATA, "validate");
     String REQUEST_VERIFY_CONNECTION = String.join(".", REQUEST_PREFIX, _PLUGIN_CONFIG_METADATA, "verify-connection");
 
     String REQUEST_GET_ROLE_CONFIG_METADATA = String.join(".", REQUEST_PREFIX, _ROLE_CONFIG_METADATA, "get-metadata");
-    String REQUEST_ROLE_CONFIG_VIEW = String.join(".", REQUEST_PREFIX, _ROLE_CONFIG_METADATA, "get-view");
+    String REQUEST_GET_ROLE_CONFIG_VIEW = String.join(".", REQUEST_PREFIX, _ROLE_CONFIG_METADATA, "get-view");
     String REQUEST_VALIDATE_ROLE_CONFIG = String.join(".", REQUEST_PREFIX, _ROLE_CONFIG_METADATA, "validate");
 
     String REQUEST_AUTHENTICATE_USER = REQUEST_PREFIX + ".authenticate-user";

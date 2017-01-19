@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,9 +27,11 @@ public interface Role extends Validatable {
 
     void setName(CaseInsensitiveString name);
 
-    Collection<RoleUser> doGetUsers();
+    List<RoleUser> getUsers();
 
-    void doSetUsers(Collection<RoleUser> users);
+    void addUser(RoleUser user);
+
+    void removeUser(RoleUser roleUser);
 
     default void validate(ValidationContext validationContext) {
         if (getName().isBlank() || !new NameTypeValidator().isNameValid(getName())) {
@@ -37,7 +39,7 @@ public interface Role extends Validatable {
         }
 
         Set<RoleUser> roleUsers = new HashSet<>();
-        for (RoleUser user : doGetUsers()) {
+        for (RoleUser user : getUsers()) {
             if (roleUsers.contains(user)) {
                 new ErrorMarkingDuplicateHandler(this).invoke(user);
             } else {
@@ -50,7 +52,7 @@ public interface Role extends Validatable {
         if (user == null) {
             return false;
         }
-        for (RoleUser roleUser : doGetUsers()) {
+        for (RoleUser roleUser : getUsers()) {
             if (roleUser.getName().equals(user)) {
                 return true;
             }
@@ -58,28 +60,13 @@ public interface Role extends Validatable {
         return false;
     }
 
-    default void addUser(RoleUser user) {
-        if (!doGetUsers().contains(user)) {
-            doGetUsers().add(user);
-        }
-    }
-
-    default void removeUser(RoleUser roleUser) {
-        doGetUsers().remove(roleUser);
-    }
-
     default Collection<String> usersOfRole() {
         List<String> users = new ArrayList<>();
-        for (RoleUser roleUser : doGetUsers()) {
+        for (RoleUser roleUser : getUsers()) {
             users.add(CaseInsensitiveString.str(roleUser.getName()));
         }
         return users;
     }
-
-    default List<RoleUser> getUsers() {
-        return new ArrayList<>(doGetUsers());
-    }
-
 
     default List<ConfigErrors> getAllErrors() {
         return ErrorCollector.getAllErrors(this);

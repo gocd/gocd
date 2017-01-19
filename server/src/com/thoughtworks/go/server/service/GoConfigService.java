@@ -812,7 +812,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     private PipelineSelections findOrCreateCurrentPipelineSelectionsFor(String id, Long userId) {
         PipelineSelections pipelineSelections = isSecurityEnabled() ? pipelineRepository.findPipelineSelectionsByUserId(userId) : pipelineRepository.findPipelineSelectionsById(id);
         if (pipelineSelections == null) {
-            pipelineSelections = new PipelineSelections(new ArrayList<String>(), clock.currentTime(), userId, true);
+            pipelineSelections = new PipelineSelections(new ArrayList<>(), clock.currentTime(), userId, true);
         }
         return pipelineSelections;
     }

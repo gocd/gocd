@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,7 +77,7 @@ public class ElasticAgentPluginServiceTest {
         plugins.add(new GoPluginDescriptor("p1", null, null, null, null, true));
         plugins.add(new GoPluginDescriptor("p2", null, null, null, null, true));
         when(registry.getPlugins()).thenReturn(plugins);
-        when(agentService.allElasticAgents()).thenReturn(new LinkedMultiValueMap<String, ElasticAgentMetadata>());
+        when(agentService.allElasticAgents()).thenReturn(new LinkedMultiValueMap<>());
         timeProvider = new TimeProvider();
         service = new ElasticAgentPluginService(pluginManager, registry, agentService, environmentConfigService, createAgentQueue, serverPingQueue, serverConfigService, timeProvider, serverHealthService);
         when(serverConfigService.getAutoregisterKey()).thenReturn(autoRegisterKey);
@@ -117,7 +117,7 @@ public class ElasticAgentPluginServiceTest {
         when(serverConfigService.elasticJobStarvationThreshold()).thenReturn(0L);
         JobPlan plan1 = plan(1);
         ArgumentCaptor<CreateAgentMessage> captor = ArgumentCaptor.forClass(CreateAgentMessage.class);
-        service.createAgentsFor(new ArrayList<JobPlan>(), Arrays.asList(plan1));
+        service.createAgentsFor(new ArrayList<>(), Arrays.asList(plan1));
         service.createAgentsFor(Arrays.asList(plan1), Arrays.asList(plan1));//invoke create again
 
         verify(createAgentQueue, times(2)).post(captor.capture());

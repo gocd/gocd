@@ -1,11 +1,11 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -106,9 +106,9 @@ public class PipelineSchedulerTest {
     public void shouldAddErrorIfPipelineisNotFound() throws Exception {
         when(configService.hasPipelineNamed(new CaseInsensitiveString("invalid"))).thenReturn(false);
         OperationResult operationResult = mock(OperationResult.class);
-        final HashMap<String, String> revisions = new HashMap<String, String>();
-        final HashMap<String, String> environmentVariables = new HashMap<String, String>();
-        scheduler.manualProduceBuildCauseAndSave("invalid", Username.ANONYMOUS, new ScheduleOptions(revisions, environmentVariables, new HashMap<String, String>()), operationResult);
+        final HashMap<String, String> revisions = new HashMap<>();
+        final HashMap<String, String> environmentVariables = new HashMap<>();
+        scheduler.manualProduceBuildCauseAndSave("invalid", Username.ANONYMOUS, new ScheduleOptions(revisions, environmentVariables, new HashMap<>()), operationResult);
         verify(operationResult).notFound("Pipeline 'invalid' not found", "Pipeline 'invalid' not found", HealthStateType.general(
                 HealthStateScope.forPipeline("invalid")));
     }
@@ -118,8 +118,8 @@ public class PipelineSchedulerTest {
         when(configService.hasPipelineNamed(new CaseInsensitiveString("blahPipeline"))).thenReturn(true);
         when(configService.hasVariableInScope("blahPipeline", "blahVariable")).thenReturn(false);
         OperationResult operationResult = mock(OperationResult.class);
-        final HashMap<String, String> revisions = new HashMap<String, String>();
-        scheduler.manualProduceBuildCauseAndSave("blahPipeline", Username.ANONYMOUS, new ScheduleOptions(revisions, Collections.singletonMap("blahVariable", "blahValue"), new HashMap<String, String>()), operationResult);
+        final HashMap<String, String> revisions = new HashMap<>();
+        scheduler.manualProduceBuildCauseAndSave("blahPipeline", Username.ANONYMOUS, new ScheduleOptions(revisions, Collections.singletonMap("blahVariable", "blahValue"), new HashMap<>()), operationResult);
         //noinspection unchecked
         verify(buildCauseProducerService, new NoMoreInteractions()).manualSchedulePipeline(any(Username.class), any(CaseInsensitiveString.class), any(ScheduleOptions.class), any(OperationResult.class));
         verify(operationResult).notFound("Variable 'blahVariable' has not been configured for pipeline 'blahPipeline'", "Variable 'blahVariable' has not been configured for pipeline 'blahPipeline'",
@@ -134,10 +134,10 @@ public class PipelineSchedulerTest {
         when(configService.hasVariableInScope("blahPipeline", "blahVariable")).thenReturn(true);
         OperationResult operationResult = mock(OperationResult.class);
         Map<String, String> variables = Collections.singletonMap("blahVariable", "blahValue");
-        final HashMap<String, String> revisions = new HashMap<String, String>();
-        scheduler.manualProduceBuildCauseAndSave("blahPipeline", Username.ANONYMOUS, new ScheduleOptions(revisions, variables, new HashMap<String, String>()), operationResult);
+        final HashMap<String, String> revisions = new HashMap<>();
+        scheduler.manualProduceBuildCauseAndSave("blahPipeline", Username.ANONYMOUS, new ScheduleOptions(revisions, variables, new HashMap<>()), operationResult);
         //noinspection unchecked
-        verify(buildCauseProducerService).manualSchedulePipeline(Username.ANONYMOUS, pipelineConfig.name(), new ScheduleOptions(new HashMap<String, String>(), variables, new HashMap<String, String>()),
+        verify(buildCauseProducerService).manualSchedulePipeline(Username.ANONYMOUS, pipelineConfig.name(), new ScheduleOptions(new HashMap<>(), variables, new HashMap<>()),
                 operationResult);
     }
 
@@ -146,8 +146,8 @@ public class PipelineSchedulerTest {
         when(configService.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(true);
         when(configService.findMaterial(new CaseInsensitiveString("pipeline"), "invalid-material")).thenReturn(null);
         HttpOperationResult result = new HttpOperationResult();
-        final HashMap<String, String> environmentVariables = new HashMap<String, String>();
-        scheduler.manualProduceBuildCauseAndSave("pipeline", Username.ANONYMOUS, new ScheduleOptions(Collections.singletonMap("invalid-material", "blah-revision"), environmentVariables, new HashMap<String, String>()), result);
+        final HashMap<String, String> environmentVariables = new HashMap<>();
+        scheduler.manualProduceBuildCauseAndSave("pipeline", Username.ANONYMOUS, new ScheduleOptions(Collections.singletonMap("invalid-material", "blah-revision"), environmentVariables, new HashMap<>()), result);
         assertThat(result.httpCode(), is(404));
         assertThat(result.message(), is("material with fingerprint [invalid-material] not found in pipeline [pipeline]"));
     }
@@ -159,8 +159,8 @@ public class PipelineSchedulerTest {
         when(configService.findMaterial(new CaseInsensitiveString("pipeline"), "invalid-material")).thenReturn(materialConfig);
 
         HttpOperationResult result = new HttpOperationResult();
-        final HashMap<String, String> environmentVariables = new HashMap<String, String>();
-        scheduler.manualProduceBuildCauseAndSave("pipeline", Username.ANONYMOUS, new ScheduleOptions(Collections.singletonMap("invalid-material", ""), environmentVariables, new HashMap<String, String>()), result);
+        final HashMap<String, String> environmentVariables = new HashMap<>();
+        scheduler.manualProduceBuildCauseAndSave("pipeline", Username.ANONYMOUS, new ScheduleOptions(Collections.singletonMap("invalid-material", ""), environmentVariables, new HashMap<>()), result);
         assertThat(result.httpCode(), is(406));
         assertThat(result.message(), is("material with fingerprint [invalid-material] has empty revision"));
     }

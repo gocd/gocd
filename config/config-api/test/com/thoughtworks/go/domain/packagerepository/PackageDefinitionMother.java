@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,25 +37,25 @@ public class PackageDefinitionMother {
     }
 
     public static HashMap<String, Serializable> paramsForPackageMaterialCreation(String repoId, String pkgName) {
-        HashMap<String, HashMap> config = new HashMap<String, HashMap>();
+        HashMap<String, HashMap> config = new HashMap<>();
         config.put("0", paramsForPackageMaterialConfig("key1", "value1"));
         config.put("1", paramsForPackageMaterialConfig("key2", "value2"));
 
-        HashMap<String, Serializable> packageDef = new HashMap<String, Serializable>();
+        HashMap<String, Serializable> packageDef = new HashMap<>();
         packageDef.put("repositoryId", repoId);
         packageDef.put("name", pkgName);
         packageDef.put("configuration", config);
 
-        HashMap<String, Serializable> params = new HashMap<String, Serializable>();
+        HashMap<String, Serializable> params = new HashMap<>();
         params.put("package_definition", packageDef);
         return params;
     }
 
     public static HashMap<String, Serializable> paramsForPackageMaterialAssociation(String repoId, String pkgId) {
-        HashMap<String, Serializable> packageDef = new HashMap<String, Serializable>();
+        HashMap<String, Serializable> packageDef = new HashMap<>();
         packageDef.put("repositoryId", repoId);
 
-        HashMap<String, Serializable> params = new HashMap<String, Serializable>();
+        HashMap<String, Serializable> params = new HashMap<>();
         params.put("package_definition", packageDef);
         params.put("packageId", pkgId);
         return params;
@@ -63,8 +63,8 @@ public class PackageDefinitionMother {
 
     public static HashMap paramsForPackageMaterialConfig(String key, String value) {
         HashMap property = new HashMap();
-        HashMap<String, String> valueMap = new HashMap<String, String>();
-        HashMap<String, Serializable> keyMap = new HashMap<String, Serializable>();
+        HashMap<String, String> valueMap = new HashMap<>();
+        HashMap<String, Serializable> keyMap = new HashMap<>();
         keyMap.put("name", key);
         valueMap.put("value", value);
         property.put("configurationKey", keyMap);

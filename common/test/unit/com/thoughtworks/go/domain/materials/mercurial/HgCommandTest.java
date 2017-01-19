@@ -47,7 +47,7 @@ public class HgCommandTest {
 
     private HgCommand hgCommand;
 
-    private List<File> foldersToDelete = new ArrayList<File>();
+    private List<File> foldersToDelete = new ArrayList<>();
     private InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
     private File workingDirectory;
     private static final String REVISION_0 = "b61d12de515d82d3a377ae3aae6e8abe516a2651";
@@ -178,7 +178,7 @@ public class HgCommandTest {
         assertThat(currentBranch, is(branchName));
 
         List<String> branches = hg(secondBranchWorkingCopy, "branches").runOrBomb(null).output();
-        ArrayList<String> branchNames = new ArrayList<String>();
+        ArrayList<String> branchNames = new ArrayList<>();
         for (String branchDetails : branches) {
             branchNames.add(StringUtils.split(branchDetails, " ")[0]);
         }

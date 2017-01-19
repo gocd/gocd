@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -149,10 +149,10 @@ public class ScheduleServiceRunOnAllAgentIntegrationTest {
     }
 
     private Pipeline manualSchedule(String pipelineName) {
-        final HashMap<String, String> revisions = new HashMap<String, String>();
-        final HashMap<String, String> environmentVariables = new HashMap<String, String>();
+        final HashMap<String, String> revisions = new HashMap<>();
+        final HashMap<String, String> environmentVariables = new HashMap<>();
         buildCauseProducer.manualProduceBuildCauseAndSave(pipelineName, new Username(new CaseInsensitiveString("some user name")),
-                new ScheduleOptions(revisions, environmentVariables, new HashMap<String, String>()), new ServerHealthStateOperationResult());
+                new ScheduleOptions(revisions, environmentVariables, new HashMap<>()), new ServerHealthStateOperationResult());
         scheduleService.autoSchedulePipelinesFromRequestBuffer();
         return pipelineService.mostRecentFullPipelineByName(pipelineName);
     }

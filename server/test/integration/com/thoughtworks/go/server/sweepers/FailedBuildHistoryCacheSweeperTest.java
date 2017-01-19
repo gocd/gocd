@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.sweepers;
 
@@ -56,12 +56,12 @@ public class FailedBuildHistoryCacheSweeperTest {
 
     @Before
     public void setUp() {
-        HashMap<String, List<PipelineTimelineEntry.Revision>> modificationTimes = new HashMap<String, List<PipelineTimelineEntry.Revision>>();
+        HashMap<String, List<PipelineTimelineEntry.Revision>> modificationTimes = new HashMap<>();
         modificationTimes.put("hg", a(new PipelineTimelineEntry.Revision(new Date(), "123", "hg", 10)));
         newlyAddedEntry = new PipelineTimelineEntry("cruise", 100, 10, modificationTimes, 5.0);
         entryBeforeNew = new PipelineTimelineEntry("cruise", 98, 9, modificationTimes, 4.0);
         entryAfterNew = new PipelineTimelineEntry("cruise", 99, 11, modificationTimes, 6.0);
-        timeline = new TreeSet<PipelineTimelineEntry>();
+        timeline = new TreeSet<>();
         timeline.add(entryBeforeNew);
         timeline.add(entryAfterNew);
         timeline.add(newlyAddedEntry);
@@ -78,7 +78,7 @@ public class FailedBuildHistoryCacheSweeperTest {
         goCache.put(pipelineKey, stageKey, "fragment");
 
         sweeper.added(newlyAddedEntry, timeline);
-        
+
         assertThat(goCache.get(pipelineKey), is(nullValue()));
     }
 }

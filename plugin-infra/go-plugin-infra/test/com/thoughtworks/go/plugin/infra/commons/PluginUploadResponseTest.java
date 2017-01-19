@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ public class PluginUploadResponseTest {
 
     @Test
     public void shouldCreateAResponseWithErrors() {
-        Map<Integer, String> errors = new HashMap<Integer, String>();
+        Map<Integer, String> errors = new HashMap<>();
         int errorCode = HttpStatus.SC_INTERNAL_SERVER_ERROR;
         String errorMessage = new FileNotFoundException().getMessage();
         errors.put(errorCode, errorMessage);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,7 +67,7 @@ public class ConfigElementImplementationRegistrarTest {
     public void setUp() {
         initMocks(this);
 
-        when(pluginExtns.configTagImplementations()).thenReturn(new ArrayList<ConfigurationExtension>());
+        when(pluginExtns.configTagImplementations()).thenReturn(new ArrayList<>());
 
         registry = new ConfigElementImplementationRegistry(pluginExtns);
         registrar = new ConfigElementImplementationRegistrar(registry);
@@ -77,7 +77,7 @@ public class ConfigElementImplementationRegistrarTest {
 
     @Test
     public void testShouldProvideTheDefaultTaskConfigMappingsOnlyForBuiltInTasks() throws Exception {
-        List<Class<? extends Task>> tasks = new ArrayList<Class<? extends Task>>();
+        List<Class<? extends Task>> tasks = new ArrayList<>();
         tasks.add(AntTask.class);
         tasks.add(NantTask.class);
         tasks.add(ExecTask.class);
@@ -90,7 +90,7 @@ public class ConfigElementImplementationRegistrarTest {
 
     @Test
     public void testShouldProvideTheDefaultMaterialConfigMappings() throws Exception {
-        List<Class<? extends MaterialConfig>> materials = new ArrayList<Class<? extends MaterialConfig>>();
+        List<Class<? extends MaterialConfig>> materials = new ArrayList<>();
         materials.add(SvnMaterialConfig.class);
         materials.add(HgMaterialConfig.class);
         materials.add(GitMaterialConfig.class);
@@ -105,7 +105,7 @@ public class ConfigElementImplementationRegistrarTest {
 
     @Test
     public void testShouldProvideTheDefaultArtifactsConfigMappings() throws Exception {
-        List<Class<? extends Artifact>> artifacts = new ArrayList<Class<? extends Artifact>>();
+        List<Class<? extends Artifact>> artifacts = new ArrayList<>();
         artifacts.add(TestArtifactPlan.class);
         artifacts.add(ArtifactPlan.class);
 
@@ -114,7 +114,7 @@ public class ConfigElementImplementationRegistrarTest {
 
     @Test
     public void testShouldProvideTheDefaultOutputMatcherConfigMappings() throws Exception {
-        List<Class<? extends OutputMatcher>> outputMatchers = new ArrayList<Class<? extends OutputMatcher>>();
+        List<Class<? extends OutputMatcher>> outputMatchers = new ArrayList<>();
         outputMatchers.add(BuildOutputMatcher.class);
 
         assertThat(registry.implementersOf(OutputMatcher.class), is(outputMatchers));
@@ -122,7 +122,7 @@ public class ConfigElementImplementationRegistrarTest {
 
     @Test
     public void testShouldProvideTheDefaultAdminConfigMappings() throws Exception {
-        List<Class<? extends Admin>> admin = new ArrayList<Class<? extends Admin>>();
+        List<Class<? extends Admin>> admin = new ArrayList<>();
         admin.add(AdminUser.class);
         admin.add(AdminRole.class);
 

@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2015 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain.cctray;
 
@@ -56,7 +56,7 @@ public class CcTrayJobStatusChangeHandlerTest {
         when(cache.get(projectNameFor("job1"))).thenReturn(status);
 
         CcTrayJobStatusChangeHandler handler = new CcTrayJobStatusChangeHandler(cache);
-        ProjectStatus newStatus = handler.statusFor(JobInstanceMother.building("job1"), new HashSet<String>());
+        ProjectStatus newStatus = handler.statusFor(JobInstanceMother.building("job1"), new HashSet<>());
 
         assertThat(activityOf(newStatus), is("Building"));
     }
@@ -67,7 +67,7 @@ public class CcTrayJobStatusChangeHandlerTest {
         when(cache.get(projectNameFor("job1"))).thenReturn(oldStatusInCache);
 
         CcTrayJobStatusChangeHandler handler = new CcTrayJobStatusChangeHandler(cache);
-        ProjectStatus newStatus = handler.statusFor(JobInstanceMother.building("job1"), new HashSet<String>());
+        ProjectStatus newStatus = handler.statusFor(JobInstanceMother.building("job1"), new HashSet<>());
 
         assertThat(newStatus.getLastBuildStatus(), is(oldStatusInCache.getLastBuildStatus()));
         assertThat(newStatus.getLastBuildLabel(), is(oldStatusInCache.getLastBuildLabel()));
@@ -82,7 +82,7 @@ public class CcTrayJobStatusChangeHandlerTest {
         when(cache.get(projectNameFor("job1"))).thenReturn(oldStatusInCache);
 
         CcTrayJobStatusChangeHandler handler = new CcTrayJobStatusChangeHandler(cache);
-        ProjectStatus newStatus = handler.statusFor(JobInstanceMother.completed("job1"), new HashSet<String>());
+        ProjectStatus newStatus = handler.statusFor(JobInstanceMother.completed("job1"), new HashSet<>());
 
         assertThat(activityOf(newStatus), is("Sleeping"));
         assertThat(newStatus.getLastBuildStatus(), is("Success"));
@@ -95,7 +95,7 @@ public class CcTrayJobStatusChangeHandlerTest {
     public void shouldUpdateBreakersAlongWithOtherFields() throws Exception {
         String jobName = "job1";
 
-        Set<String> breakers = new HashSet<String>();
+        Set<String> breakers = new HashSet<>();
         breakers.add("abc");
         breakers.add("def");
 
@@ -114,7 +114,7 @@ public class CcTrayJobStatusChangeHandlerTest {
         when(cache.get(projectNameFor("job1"))).thenReturn(oldStatusInCache);
 
         CcTrayJobStatusChangeHandler handler = new CcTrayJobStatusChangeHandler(cache);
-        ProjectStatus newStatus = handler.statusFor(JobInstanceMother.building("job1"), new HashSet<String>());
+        ProjectStatus newStatus = handler.statusFor(JobInstanceMother.building("job1"), new HashSet<>());
 
         assertThat(newStatus.viewers(), is(viewers));
     }

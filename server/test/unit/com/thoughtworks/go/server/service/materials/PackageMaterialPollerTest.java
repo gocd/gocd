@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service.materials;
 
@@ -87,7 +87,7 @@ public class PackageMaterialPollerTest {
         packageRevision.addData(dataKey, dataValue);
         when(packageAsRepositoryExtension.getLatestRevision(eq(material.getPluginId()), packageConfiguration.capture(), repositoryConfiguration.capture())).thenReturn(packageRevision);
 
-        HashMap<String, String> expected = new HashMap<String, String>();
+        HashMap<String, String> expected = new HashMap<>();
         expected.put(dataKey, dataValue);
 
         List<Modification> modifications = poller.latestModification(material, null, null);
@@ -113,7 +113,7 @@ public class PackageMaterialPollerTest {
     public void shouldGetModificationsSinceAGivenRevisionAlongWithAdditionalDataFromThePackageRevision() {
         String previousRevision = "rev-122";
         Date timestamp = new Date();
-        HashMap<String, String> dataInPreviousRevision = new HashMap<String, String>();
+        HashMap<String, String> dataInPreviousRevision = new HashMap<>();
         dataInPreviousRevision.put("1", "one");
         PackageMaterialRevision knownRevision = new PackageMaterialRevision(previousRevision, timestamp, dataInPreviousRevision);
         ArgumentCaptor<PackageRevision> knownPackageRevision = ArgumentCaptor.forClass(PackageRevision.class);
@@ -133,7 +133,7 @@ public class PackageMaterialPollerTest {
         assertThat(knownPackageRevision.getValue().getData().size(), is(dataInPreviousRevision.size()));
         assertThat(knownPackageRevision.getValue().getData().get("1"), is(dataInPreviousRevision.get("1")));
 
-        HashMap<String, String> expected = new HashMap<String, String>();
+        HashMap<String, String> expected = new HashMap<>();
         expected.put(dataKey, dataValue);
         String expectedDataString = JsonHelper.toJsonString(expected);
 

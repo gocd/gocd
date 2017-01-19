@@ -1,11 +1,11 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -115,7 +115,7 @@ public class DependencyMaterialConfigTest {
     @Test
     public void shouldAddErrorWhenInvalidPipelineNameStage() {
         DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig();
-        Map<String, String> configMap = new HashMap<String, String>();
+        Map<String, String> configMap = new HashMap<>();
         configMap.put(DependencyMaterialConfig.PIPELINE_STAGE_NAME, "invalid pipeline stage");
 
         dependencyMaterialConfig.setConfigAttributes(configMap);
@@ -156,7 +156,7 @@ public class DependencyMaterialConfigTest {
     public void setConfigAttributes_shouldPopulateFromConfigAttributes() {
         DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString(""), new CaseInsensitiveString(""));
         assertThat(dependencyMaterialConfig.getPipelineStageName(), is(nullValue()));
-        HashMap<String, String> configMap = new HashMap<String, String>();
+        HashMap<String, String> configMap = new HashMap<>();
         configMap.put(AbstractMaterialConfig.MATERIAL_NAME, "name1");
         configMap.put(DependencyMaterialConfig.PIPELINE_STAGE_NAME, "pipeline-1 [stage-1]");
 
@@ -171,7 +171,7 @@ public class DependencyMaterialConfigTest {
     @Test
     public void setConfigAttributes_shouldNotPopulateNameFromConfigAttributesIfNameIsEmptyOrNull() {
         DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString("name2"), new CaseInsensitiveString("pipeline"), new CaseInsensitiveString("stage"));
-        HashMap<String, String> configMap = new HashMap<String, String>();
+        HashMap<String, String> configMap = new HashMap<>();
         configMap.put(AbstractMaterialConfig.MATERIAL_NAME, "");
 
         dependencyMaterialConfig.setConfigAttributes(configMap);

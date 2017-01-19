@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -178,7 +178,7 @@ public class PipelineHistoryServiceIntegrationTest {
         pipelineTwo.createPipelineWithFirstStagePassedAndSecondStageHasNotStarted();
         dbHelper.updateNaturalOrder(toRerun.getId(), 3);
         dbHelper.scheduleStage(toRerun, pipelineTwo.devStage());
-        pipelineRepository.updatePipelineTimeline(pipelineTimeline, new ArrayList<PipelineTimelineEntry>());
+        pipelineRepository.updatePipelineTimeline(pipelineTimeline, new ArrayList<>());
 
         List<PipelineGroupModel> groupModels = pipelineHistoryService.allActivePipelineInstances(new Username(new CaseInsensitiveString("jez")), PipelineSelections.ALL);
         assertThat(groupModels.size(), is(2));
@@ -806,7 +806,7 @@ public class PipelineHistoryServiceIntegrationTest {
 
         PipelineInstanceModels actual = pipelineHistoryService.findMatchingPipelineInstances("pipeline_name", "h-1", limit, new Username(new CaseInsensitiveString("user")), new HttpLocalizedOperationResult());
         assertThat(actual.size(), is(3));
-        
+
         actual = pipelineHistoryService.findMatchingPipelineInstances("pipeline_name", "h%-%1_5", limit, new Username(new CaseInsensitiveString("user")), new HttpLocalizedOperationResult());
         assertThat(actual.size(), is(0));
     }
@@ -904,7 +904,7 @@ public class PipelineHistoryServiceIntegrationTest {
         assertThat("first counter", actual.get(0).getCounter(), is(shouldMatch1.getCounter()));
         assertThat("second counter", actual.get(1).getCounter(), is(shouldMatch2.getCounter()));
     }
-    
+
     @Test
     public void findMatchingPipelineInstances_shouldShowExpectedNumberOfMatchesWhenThePipelineHasMultipleStagesAndJobs() {
         final int limit = 2;

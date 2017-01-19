@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ public class AgentViewModel implements Comparable<AgentViewModel>{
     private Set<String> environments;
 
     public AgentViewModel(AgentInstance agentInstance) {
-        this(agentInstance, new HashSet<String>());
+        this(agentInstance, new HashSet<>());
     }
 
     public AgentViewModel(AgentInstance agentInstance, Collection<String> environments) {

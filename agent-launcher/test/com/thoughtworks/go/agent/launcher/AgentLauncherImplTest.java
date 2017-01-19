@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,7 +71,7 @@ public class AgentLauncherImplTest {
 
     @Test
     public void shouldPassLauncherVersionToAgent() throws InterruptedException, IOException {
-        final List<String> actualVersion = new ArrayList<String>();
+        final List<String> actualVersion = new ArrayList<>();
         final AgentLauncher launcher = new AgentLauncherImpl(new AgentLauncherImpl.AgentProcessParentRunner() {
             public int run(String launcherVersion, String launcherMd5, ServerUrlGenerator urlConstructor, Map<String, String> environmentVariables, Map context) {
                 actualVersion.add(launcherVersion);

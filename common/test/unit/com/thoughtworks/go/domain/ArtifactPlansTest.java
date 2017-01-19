@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -43,16 +43,16 @@ public class ArtifactPlansTest {
 
     @Test
     public void shouldLoadArtifactPlans() {
-        HashMap<String, String> artifactPlan1 = new HashMap<String, String>();
+        HashMap<String, String> artifactPlan1 = new HashMap<>();
         artifactPlan1.put(SRC, "blah");
         artifactPlan1.put(DEST, "something");
         artifactPlan1.put("artifactTypeValue", TestArtifactPlan.TEST_PLAN_DISPLAY_NAME);
-        HashMap<String, String> artifactPlan2 = new HashMap<String, String>();
+        HashMap<String, String> artifactPlan2 = new HashMap<>();
         artifactPlan2.put(SRC, "blah2");
         artifactPlan2.put(DEST, "something2");
         artifactPlan2.put("artifactTypeValue", ArtifactPlan.ARTIFACT_PLAN_DISPLAY_NAME);
 
-        List<HashMap> artifactPlansList = new ArrayList<HashMap>();
+        List<HashMap> artifactPlansList = new ArrayList<>();
         artifactPlansList.add(artifactPlan1);
         artifactPlansList.add(artifactPlan2);
 
@@ -69,21 +69,21 @@ public class ArtifactPlansTest {
 
     @Test
     public void setConfigAttributes_shouldIgnoreEmptySourceAndDest() {
-        HashMap<String, String> artifactPlan1 = new HashMap<String, String>();
+        HashMap<String, String> artifactPlan1 = new HashMap<>();
         artifactPlan1.put(SRC, "blah");
         artifactPlan1.put(DEST, "something");
         artifactPlan1.put("artifactTypeValue", TestArtifactPlan.TEST_PLAN_DISPLAY_NAME);
-        HashMap<String, String> artifactPlan2 = new HashMap<String, String>();
+        HashMap<String, String> artifactPlan2 = new HashMap<>();
         artifactPlan2.put(SRC, "blah2");
         artifactPlan2.put(DEST, "something2");
         artifactPlan2.put("artifactTypeValue", ArtifactPlan.ARTIFACT_PLAN_DISPLAY_NAME);
 
-        HashMap<String, String> artifactPlan3 = new HashMap<String, String>();
+        HashMap<String, String> artifactPlan3 = new HashMap<>();
         artifactPlan3.put(SRC, "");
         artifactPlan3.put(DEST, "");
         artifactPlan3.put("artifactTypeValue", ArtifactPlan.ARTIFACT_PLAN_DISPLAY_NAME);
 
-        List<HashMap> artifactPlansList = new ArrayList<HashMap>();
+        List<HashMap> artifactPlansList = new ArrayList<>();
         artifactPlansList.add(artifactPlan1);
         artifactPlansList.add(artifactPlan3);
         artifactPlansList.add(artifactPlan2);

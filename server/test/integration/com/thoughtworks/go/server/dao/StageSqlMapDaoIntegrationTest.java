@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.dao;
 
@@ -174,7 +174,7 @@ public class StageSqlMapDaoIntegrationTest {
 
     @Test
     public void shouldGetStageInstancesOfTheSameStageRunStartingFromTheLatest() throws Exception {
-        List<Pipeline> completedPipelines = new ArrayList<Pipeline>();
+        List<Pipeline> completedPipelines = new ArrayList<>();
         mingleConfig.add(StageConfigMother.custom("new-stage", "job-1"));
         for (int i = 0; i < 10; i++) {
             Pipeline completed = dbHelper.schedulePipelineWithAllStages(mingleConfig, ModificationsMother.modifySomeFiles(mingleConfig));
@@ -187,7 +187,7 @@ public class StageSqlMapDaoIntegrationTest {
 
     @Test
     public void shouldGetStageInstancesBasedUponAPageNumberAndLimit() {
-        List<Pipeline> completedPipelines = new ArrayList<Pipeline>();
+        List<Pipeline> completedPipelines = new ArrayList<>();
         mingleConfig.add(StageConfigMother.custom("new-stage", "job-1"));
         for (int i = 0; i < 10; i++) {
             Pipeline completed = dbHelper.schedulePipelineWithAllStages(mingleConfig, ModificationsMother.modifySomeFiles(mingleConfig));
@@ -207,7 +207,7 @@ public class StageSqlMapDaoIntegrationTest {
     public void shouldNotIncludeStageWithJobRerunWhileGettingLastStageInstances() throws Exception {
         configHelper.addPipeline(mingleConfig);
         configHelper.turnOffSecurity();
-        List<Pipeline> completedPipelines = new ArrayList<Pipeline>();
+        List<Pipeline> completedPipelines = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             Pipeline completed = dbHelper.schedulePipelineWithAllStages(mingleConfig, ModificationsMother.modifySomeFiles(mingleConfig));
             dbHelper.pass(completed);
@@ -223,7 +223,7 @@ public class StageSqlMapDaoIntegrationTest {
     public void shouldNotIncludeCancelledStagesWhileGettingLastStageInstances() throws Exception {
         configHelper.addPipeline(mingleConfig);
         configHelper.turnOffSecurity();
-        List<Pipeline> completedPipelines = new ArrayList<Pipeline>();
+        List<Pipeline> completedPipelines = new ArrayList<>();
         Pipeline pipeline;
         for (int i = 0; i < 3; i++) {
             pipeline = dbHelper.schedulePipelineWithAllStages(mingleConfig, ModificationsMother.modifySomeFiles(mingleConfig));
@@ -244,7 +244,7 @@ public class StageSqlMapDaoIntegrationTest {
     public void shouldGetTotalStageCountForChart(){
         configHelper.addPipeline(mingleConfig);
         configHelper.turnOffSecurity();
-        List<Pipeline> completedPipelines = new ArrayList<Pipeline>();
+        List<Pipeline> completedPipelines = new ArrayList<>();
         Pipeline pipeline;
         for (int i = 0; i < 3; i++) {
             pipeline = dbHelper.schedulePipelineWithAllStages(mingleConfig, ModificationsMother.modifySomeFiles(mingleConfig));
@@ -355,7 +355,7 @@ public class StageSqlMapDaoIntegrationTest {
 
     @Test
     public void shouldNotGetFailedCancelledUnknownStagesAfterAGivenStage_AndShouldGetStageTransitionTimeFromStageTable() throws Exception {
-        List<Pipeline> pipelines = new ArrayList<Pipeline>();
+        List<Pipeline> pipelines = new ArrayList<>();
         pipelines.add(pipelineWithFirstStagePassed(mingleConfig));
         pipelines.add(pipelineWithFirstStageCancelled(mingleConfig));
         pipelines.add(pipelineWithFirstStagePassed(mingleConfig));
@@ -1215,7 +1215,7 @@ public class StageSqlMapDaoIntegrationTest {
         PipelineAndStage[] cruiseStages = run4Pipelines("cruise");
         run4Pipelines("mingle");
 
-        List<FeedEntry> completedStages = new ArrayList<FeedEntry>(stageDao.findCompletedStagesFor("cruise", FeedModifier.Latest, -1, 5));
+        List<FeedEntry> completedStages = new ArrayList<>(stageDao.findCompletedStagesFor("cruise", FeedModifier.Latest, -1, 5));
         StageFeedEntry latestFeedEntry = (StageFeedEntry) completedStages.get(0);
 
         assertThat(completedStages.size(), is(4));
@@ -1240,7 +1240,7 @@ public class StageSqlMapDaoIntegrationTest {
 
         updateResultInTransaction(StageMother.completedFailedStageInstance("cruise", "stage", "job"), StageResult.Failed);
 
-        List<FeedEntry> actual = new ArrayList<FeedEntry>(stageDao.findCompletedStagesFor("cruise", FeedModifier.Latest, 10, 100));
+        List<FeedEntry> actual = new ArrayList<>(stageDao.findCompletedStagesFor("cruise", FeedModifier.Latest, 10, 100));
         assertEquals(entries, actual);
 
         verify(mockTemplate, times(2)).queryForList(eq("allCompletedStagesForPipeline"), any());
@@ -1298,7 +1298,7 @@ public class StageSqlMapDaoIntegrationTest {
     public void shouldFindAllCompletedStages() throws SQLException {
         PipelineAndStage[] stages = run4Pipelines();
 
-        List<FeedEntry> completedStages = new ArrayList<FeedEntry>(stageDao.findAllCompletedStages(FeedModifier.Latest, -1, 5));
+        List<FeedEntry> completedStages = new ArrayList<>(stageDao.findAllCompletedStages(FeedModifier.Latest, -1, 5));
 
         assertThat(completedStages.size(), is(4));
         assertFeed(completedStages.get(0), stages[3].stage);
@@ -1309,7 +1309,7 @@ public class StageSqlMapDaoIntegrationTest {
     public void shouldFindAllCompletedStagesBeforeAGivenStage() throws SQLException {
         PipelineAndStage[] stages = run4Pipelines();
 
-        List<FeedEntry> completedStages = new ArrayList<FeedEntry>(stageDao.findAllCompletedStages(FeedModifier.Before, transitionId(stages[3].stage), 2));
+        List<FeedEntry> completedStages = new ArrayList<>(stageDao.findAllCompletedStages(FeedModifier.Before, transitionId(stages[3].stage), 2));
 
         assertThat(completedStages.size(), is(2));
         assertFeed(completedStages.get(0), stages[2].stage);
@@ -1757,7 +1757,7 @@ public class StageSqlMapDaoIntegrationTest {
 
 	private void assertJobDetails(JobHistory buildHistory) {
 		assertThat(buildHistory.size(), is(2));
-		Set<String> jobNames = new HashSet<String>(Arrays.asList(buildHistory.get(0).getName(), buildHistory.get(1).getName()));
+		Set<String> jobNames = new HashSet<>(Arrays.asList(buildHistory.get(0).getName(), buildHistory.get(1).getName()));
 		assertThat(jobNames, hasItems("job2", "job1"));
 		assertThat(buildHistory.get(0).getResult(), is(JobResult.Passed));
 		assertThat(buildHistory.get(1).getResult(), is(JobResult.Passed));
@@ -1924,7 +1924,7 @@ public class StageSqlMapDaoIntegrationTest {
     }
 
     private List<Pipeline> createFourPipelines() throws Exception {
-        List<Pipeline> completedPipelines = new ArrayList<Pipeline>();
+        List<Pipeline> completedPipelines = new ArrayList<>();
         for (int i = 0; i < 4; i++) {
             Pipeline[] createdPipelines = pipelineWithOnePassedAndOneCurrentlyRunning(mingleConfig);
             completedPipelines.add(createdPipelines[0]);

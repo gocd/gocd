@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -303,7 +303,7 @@ public class UserServiceIntegrationTest {
     @Test
     public void create_shouldReturnErrorWhenNoUsersSelected() throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        userService.create(new ArrayList<UserSearchModel>(), result);
+        userService.create(new ArrayList<>(), result);
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.message(localizer), is("No users selected."));
     }
@@ -502,7 +502,7 @@ public class UserServiceIntegrationTest {
         addUser(new User("loser"));
         addUser(new User("boozer"));
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("user", "boozer"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.add), new ArrayList<TriStateSelection>(), result);
+        userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("user", "boozer"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.add), new ArrayList<>(), result);
         CruiseConfig cruiseConfig = goConfigDao.load();
         final AdminsConfig adminsConfig = cruiseConfig.server().security().adminsConfig();
         assertThat(adminsConfig.hasUser(new CaseInsensitiveString("user"), UserRoleMatcherMother.ALWAYS_FALSE_MATCHER), is(true));
@@ -528,7 +528,7 @@ public class UserServiceIntegrationTest {
         assertThat(adminsConfig.hasUser(new CaseInsensitiveString("boozer"), UserRoleMatcherMother.ALWAYS_FALSE_MATCHER), is(true));
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("user", "boozer"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.remove), new ArrayList<TriStateSelection>(), result);
+        userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("user", "boozer"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.remove), new ArrayList<>(), result);
 
         cruiseConfig = goConfigDao.load();
         securityConfig = cruiseConfig.server().security();
@@ -554,7 +554,7 @@ public class UserServiceIntegrationTest {
 
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("user", "boozer"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), new ArrayList<TriStateSelection>(), result);
+        userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("user", "boozer"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), new ArrayList<>(), result);
 
         final CruiseConfig cruiseConfig = goConfigDao.load();
         final SecurityConfig securityConfig = cruiseConfig.server().security();
@@ -751,7 +751,7 @@ public class UserServiceIntegrationTest {
     }
 
     private List<UserSearchModel> users(String... usernames) {
-        List<UserSearchModel> models = new ArrayList<UserSearchModel>();
+        List<UserSearchModel> models = new ArrayList<>();
         for (String username : usernames) {
             models.add(new UserSearchModel(new User(username, username, "foo@cruise.com")));
         }

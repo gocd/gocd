@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
@@ -118,7 +118,7 @@ public class StageServiceTest {
         StageRunFinder runFinder = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), securityService, pipelineDao,
                 changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
 
-        List<StageIdentifier> expectedStages = new ArrayList<StageIdentifier>();
+        List<StageIdentifier> expectedStages = new ArrayList<>();
         expectedStages.add(new StageIdentifier(PIPELINE_NAME, 3, STAGE_NAME, "1"));
         expectedStages.add(new StageIdentifier(PIPELINE_NAME, 2, STAGE_NAME, "2"));
         expectedStages.add(new StageIdentifier(PIPELINE_NAME, 1, STAGE_NAME, "1"));
@@ -140,7 +140,7 @@ public class StageServiceTest {
         StageRunFinder runFinder = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), securityService,
                 pipelineDao, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
 
-        List<StageIdentifier> expectedStages = new ArrayList<StageIdentifier>();
+        List<StageIdentifier> expectedStages = new ArrayList<>();
         expectedStages.add(new StageIdentifier(PIPELINE_NAME, 3, STAGE_NAME, "1"));
         expectedStages.add(new StageIdentifier(PIPELINE_NAME, 2, STAGE_NAME, "2"));
         expectedStages.add(new StageIdentifier(PIPELINE_NAME, 1, STAGE_NAME, "1"));
@@ -167,7 +167,7 @@ public class StageServiceTest {
 
         when(pipelineDao.findPipelineByNameAndCounter(PIPELINE_NAME, 3)).thenReturn(pipeline);
         when(pipelineDao.findEarlierPipelineThatPassedForStage(PIPELINE_NAME, STAGE_NAME, 10.0)).thenReturn(pipelineThatLastPassed);
-        when(stageDao.findFailedStagesBetween(PIPELINE_NAME, STAGE_NAME, 5.0, 10.0)).thenReturn(new ArrayList<StageIdentifier>());
+        when(stageDao.findFailedStagesBetween(PIPELINE_NAME, STAGE_NAME, 5.0, 10.0)).thenReturn(new ArrayList<>());
 
         assertThat(runFinder.findRunForStage(new StageIdentifier(PIPELINE_NAME, 3, STAGE_NAME, "1")).isEmpty(), is(true));
     }
@@ -361,7 +361,7 @@ public class StageServiceTest {
         MingleConfig mingleConfig = new MingleConfig("http://foo.bar:7019/baz/", "go-project");
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfigWithMingle("cruise", mingleConfig));
 
-        Map<Long, List<ModificationForPipeline>> expectedMap = new HashMap<Long, List<ModificationForPipeline>>();
+        Map<Long, List<ModificationForPipeline>> expectedMap = new HashMap<>();
         expectedMap.put(1L,
                 asList(new ModificationForPipeline(new PipelineId("cruise", 1L), ModificationsMother.checkinWithComment("revision", "#123 hello wolrd", updateDate), "Svn", "fooBarBaaz")));
         when(changesetService.modificationsOfPipelines(asList(1L), "cruise", Username.ANONYMOUS)).thenReturn(expectedMap);
@@ -396,7 +396,7 @@ public class StageServiceTest {
         MingleConfig mingleConfig = new MingleConfig("http://foo.bar:7019/baz/", "go-project");
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfigWithMingle("cruise", mingleConfig));
 
-        Map<Long, List<ModificationForPipeline>> expectedMap = new HashMap<Long, List<ModificationForPipeline>>();
+        Map<Long, List<ModificationForPipeline>> expectedMap = new HashMap<>();
         expectedMap.put(1L,
                 asList(new ModificationForPipeline(new PipelineId("cruise", 1L), ModificationsMother.checkinWithComment("revision", "#123 hello wolrd", updateDate), "Svn", "fooBarBaaz")));
         when(changesetService.modificationsOfPipelines(asList(1L), "cruise", Username.ANONYMOUS)).thenReturn(expectedMap);
@@ -444,7 +444,7 @@ public class StageServiceTest {
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfigWithMingle("cruise", mingleConfig));
 
         //Setup card numbers
-        Map<Long, List<ModificationForPipeline>> expectedMap = new HashMap<Long, List<ModificationForPipeline>>();
+        Map<Long, List<ModificationForPipeline>> expectedMap = new HashMap<>();
         expectedMap.put(1L,
                 asList(new ModificationForPipeline(new PipelineId("cruise", 1L), ModificationsMother.checkinWithComment("revision", "#123 hello wolrd", updateDate), "Svn", "fooBarBaaz")));
         when(changesetService.modificationsOfPipelines(asList(1L), "cruise", Username.ANONYMOUS)).thenReturn(expectedMap);
@@ -475,7 +475,7 @@ public class StageServiceTest {
         PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("down");
         MingleConfig mingleConfig = new MingleConfig("http://foo.bar:7019/baz/", "go-project");
         pipelineConfig.setMingleConfig(mingleConfig);
-        Map<Long, List<ModificationForPipeline>> expectedModMapDown = new HashMap<Long, List<ModificationForPipeline>>();
+        Map<Long, List<ModificationForPipeline>> expectedModMapDown = new HashMap<>();
         Modification mod1 = ModificationsMother.checkinWithComment("revision", "#123 hello wolrd", updateDate);
         expectedModMapDown.put(1L, asList(new ModificationForPipeline(new PipelineId("down", 1L), mod1, "Svn", "fooBarBaaz")));
 

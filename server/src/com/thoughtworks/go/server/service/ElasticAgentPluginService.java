@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -132,7 +132,7 @@ public class ElasticAgentPluginService implements JobStatusListener {
         jobsThatRequireAgent.addAll(Sets.difference(new HashSet<>(newPlan), new HashSet<>(old)));
         jobsThatRequireAgent.addAll(starvingJobs);
 
-        ArrayList<JobPlan> plansThatRequireElasticAgent = ListUtil.filterInto(new ArrayList<JobPlan>(), jobsThatRequireAgent, isElasticAgent());
+        ArrayList<JobPlan> plansThatRequireElasticAgent = ListUtil.filterInto(new ArrayList<>(), jobsThatRequireAgent, isElasticAgent());
 
         for (JobPlan plan : plansThatRequireElasticAgent) {
             String environment = environmentConfigService.envForPipeline(plan.getPipelineName());

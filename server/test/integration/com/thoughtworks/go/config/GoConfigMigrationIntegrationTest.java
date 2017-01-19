@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -282,7 +282,7 @@ public class GoConfigMigrationIntegrationTest {
 
     @Test
     public void shouldFailIfJobsWithSameNameButDifferentCasesExistInConfig() throws IOException {
-        final List<Exception> exs = new ArrayList<Exception>();
+        final List<Exception> exs = new ArrayList<>();
         GoConfigMigration upgrader = new GoConfigMigration(
                 new GoConfigMigration.UpgradeFailedHandler() {
                     public void handle(Exception e) {
@@ -461,7 +461,7 @@ public class GoConfigMigrationIntegrationTest {
 
     @Test
     public void shouldEncryptPasswordsOnUpgradeIfNecessary() throws IOException {
-        final List<Exception> exs = new ArrayList<Exception>();
+        final List<Exception> exs = new ArrayList<>();
         GoConfigMigration upgrader = new GoConfigMigration(
                 new GoConfigMigration.UpgradeFailedHandler() {
                     public void handle(Exception e) {
@@ -536,7 +536,7 @@ public class GoConfigMigrationIntegrationTest {
 
     @Test
     public void shouldAllowParamsInP4ServerAndPortField() throws IOException {
-        final List<Exception> exs = new ArrayList<Exception>();
+        final List<Exception> exs = new ArrayList<>();
         GoConfigMigration upgrader = new GoConfigMigration(
                 new GoConfigMigration.UpgradeFailedHandler() {
                     public void handle(Exception e) {
@@ -574,7 +574,7 @@ public class GoConfigMigrationIntegrationTest {
     @Test
     public void shouldIntroduceAWrapperTagForUsersOfRole() throws Exception {
 
-        final List<Exception> exs = new ArrayList<Exception>();
+        final List<Exception> exs = new ArrayList<>();
         GoConfigMigration upgrader = new GoConfigMigration(
                 new GoConfigMigration.UpgradeFailedHandler() {
                     public void handle(Exception e) {
@@ -1509,7 +1509,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     private String migrateXmlString(String content, int fromVersion, int toVersion) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        final List<Exception> exs = new ArrayList<Exception>();
+        final List<Exception> exs = new ArrayList<>();
         GoConfigMigration upgrader = new GoConfigMigration(
                 new GoConfigMigration.UpgradeFailedHandler() {
                     public void handle(Exception e) {

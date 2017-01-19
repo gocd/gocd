@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -364,7 +364,7 @@ public class MaterialRepositoryIntegrationTest {
         };
 
         repo.setHibernateTemplate(mockTemplate);
-        List<Thread> threads = new ArrayList<Thread>();
+        List<Thread> threads = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             Thread thread = new Thread(new Runnable() {
                 public void run() {
@@ -1266,7 +1266,7 @@ public class MaterialRepositoryIntegrationTest {
         goCache.put(key, subKey, new Modifications(new Modification()));
         transactionTemplate.execute(new TransactionCallback() {
             public Object doInTransaction(TransactionStatus status) {
-                repo.saveModifications(materialInstance, new ArrayList<Modification>());
+                repo.saveModifications(materialInstance, new ArrayList<>());
                 return null;
             }
         });
@@ -1382,7 +1382,7 @@ public class MaterialRepositoryIntegrationTest {
 
         String label = pipeline.getLabel();
 
-        ArrayList<Modification> mods = new ArrayList<Modification>();
+        ArrayList<Modification> mods = new ArrayList<>();
         for (int i = 0; i < dmrStageCounters.length; i++) {
             int dmrStageCounter = dmrStageCounters[i];
             StageIdentifier stageIdentifier = new StageIdentifier(pipeline.getIdentifier(), CaseInsensitiveString.str(stageName), String.valueOf(dmrStageCounter));

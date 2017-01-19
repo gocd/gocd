@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -264,7 +264,7 @@ public class PipelineSqlMapDaoIntegrationTest {
 
     @Test
     public void shouldLoadModificationsWithNoModifiedFiles() throws Exception {
-        List<Modification> modifications = new ArrayList<Modification>();
+        List<Modification> modifications = new ArrayList<>();
         Modification modification = ModificationsMother.oneModifiedFile(ModificationsMother.nextRevision());
         modifications.add(modification);
         modifications.add(new Modification(MOD_USER, MOD_COMMENT, "foo@bar.com", YESTERDAY_CHECKIN, ModificationsMother.nextRevision()));
@@ -1758,7 +1758,7 @@ public class PipelineSqlMapDaoIntegrationTest {
 
     public static MaterialRevisions revisions(boolean changed) {
         MaterialRevisions revisions = new MaterialRevisions();
-        List<Modification> modifications = new ArrayList<Modification>();
+        List<Modification> modifications = new ArrayList<>();
         modifications.add(ModificationsMother.oneModifiedFile(ModificationsMother.currentRevision()));
         SvnMaterial svnMaterial = MaterialsMother.svnMaterial("http://mingle.com");
         svnMaterial.setName(new CaseInsensitiveString("mingle"));
@@ -1780,7 +1780,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     private class ModificationsCollector extends ModificationVisitorAdapter {
-        private List<Modification> mods = new ArrayList<Modification>();
+        private List<Modification> mods = new ArrayList<>();
 
         public void visit(Modification modification) {
             mods.add(modification);

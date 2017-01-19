@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain.builder.pluggableTask;
 
@@ -70,7 +70,7 @@ public class PluggableTaskBuilderTest {
         initMocks(this);
         PluginManagerReference.reference().setPluginManager(pluginManager);
         when(pluggableTask.getPluginConfiguration()).thenReturn(new PluginConfiguration(TEST_PLUGIN_ID, "1.0"));
-        HashMap<String, Map<String, String>> pluginConfig = new HashMap<String, Map<String, String>>();
+        HashMap<String, Map<String, String>> pluginConfig = new HashMap<>();
         when(pluggableTask.configAsMap()).thenReturn(pluginConfig);
         taskExtension = new TaskExtension(pluginManager);
         when(pluginManager.hasReferenceFor(Task.class, TEST_PLUGIN_ID)).thenReturn(true);
@@ -145,7 +145,7 @@ public class PluggableTaskBuilderTest {
 
     @Test
     public void shouldReturnDefaultValueInExecConfigWhenNoConfigValueIsProvided() throws Exception {
-        Map<String, Map<String, String>> configMap = new HashMap<String, Map<String, String>>();
+        Map<String, Map<String, String>> configMap = new HashMap<>();
         PluggableTask task = mock(PluggableTask.class);
         when(task.getPluginConfiguration()).thenReturn(new PluginConfiguration());
         when(task.configAsMap()).thenReturn(configMap);
@@ -168,7 +168,7 @@ public class PluggableTaskBuilderTest {
         String propertyName = "URL";
         String defaultValue = "ABC.TXT";
 
-        Map<String, Map<String, String>> configMap = new HashMap<String, Map<String, String>>();
+        Map<String, Map<String, String>> configMap = new HashMap<>();
         configMap.put(propertyName, null);
 
         PluggableTask task = mock(PluggableTask.class);
@@ -189,8 +189,8 @@ public class PluggableTaskBuilderTest {
         String propertyName = "URL";
         String defaultValue = "ABC.TXT";
 
-        Map<String, Map<String, String>> configMap = new HashMap<String, Map<String, String>>();
-        HashMap<String, String> configValue = new HashMap<String, String>();
+        Map<String, Map<String, String>> configMap = new HashMap<>();
+        HashMap<String, String> configValue = new HashMap<>();
         configValue.put("value", "");
 
         configMap.put(propertyName, configValue);
@@ -212,10 +212,10 @@ public class PluggableTaskBuilderTest {
         TaskConfig defaultTaskConfig = new TaskConfig();
         String propertyName = "URL";
         String defaultValue = "ABC.TXT";
-        HashMap<String, String> configValue = new HashMap<String, String>();
+        HashMap<String, String> configValue = new HashMap<>();
         configValue.put("value", "XYZ.TXT");
 
-        Map<String, Map<String, String>> configMap = new HashMap<String, Map<String, String>>();
+        Map<String, Map<String, String>> configMap = new HashMap<>();
         configMap.put(propertyName, configValue);
 
         PluggableTask task = mock(PluggableTask.class);

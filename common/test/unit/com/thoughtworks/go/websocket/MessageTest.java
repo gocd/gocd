@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,7 +74,7 @@ public class MessageTest {
         MaterialRevisions revisions = ModificationsMother.modifyOneFile(materials, ModificationsMother.nextRevision());
         BuildCause buildCause = BuildCause.createWithModifications(revisions, "");
 
-        List<Builder> builder = new ArrayList<Builder>();
+        List<Builder> builder = new ArrayList<>();
         builder.add(new CommandBuilder("command", "args", workingDir, new RunIfConfigs(), new NullBuilder(), "desc"));
         builder.add(new BuilderForKillAllChildTask());
         builder.add(new CommandBuilderWithArgList("command", new String[]{"arg1", "arg2"}, workingDir, new RunIfConfigs(), new NullBuilder(), "desc"));

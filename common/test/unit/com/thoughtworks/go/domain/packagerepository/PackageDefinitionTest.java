@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -287,7 +287,7 @@ public class PackageDefinitionTest extends PackageMaterialTestBase {
     public void shouldValidateUniqueNames() {
         PackageDefinition packageDefinition = new PackageDefinition();
         packageDefinition.setName("PKG");
-        HashMap<String, PackageDefinition> nameMap = new HashMap<String, PackageDefinition>();
+        HashMap<String, PackageDefinition> nameMap = new HashMap<>();
         PackageDefinition original = new PackageDefinition();
         original.setName("pkg");
         nameMap.put("pkg", original);
@@ -341,7 +341,7 @@ public class PackageDefinitionTest extends PackageMaterialTestBase {
         PackageDefinition definition3 = PackageDefinitionMother.create("3", "pkg3", new Configuration(new ConfigurationProperty(new ConfigurationKey("k1"), new ConfigurationValue("v1"))), repository);
 
 
-        HashMap<String, Packages> map = new HashMap<String, Packages>();
+        HashMap<String, Packages> map = new HashMap<>();
         map.put(definition1.getFingerprint(AbstractMaterialConfig.FINGERPRINT_DELIMITER), new Packages(definition1, definition3));
         map.put(definition2.getFingerprint(AbstractMaterialConfig.FINGERPRINT_DELIMITER), new Packages(definition2));
         definition1.validateFingerprintUniqueness(map);
@@ -360,7 +360,7 @@ public class PackageDefinitionTest extends PackageMaterialTestBase {
         PackageRepository repository = PackageRepositoryMother.create("repo1");
         PackageDefinition packageDefinition = PackageDefinitionMother.create("1", "pkg1", new Configuration(new ConfigurationProperty(new ConfigurationKey("k1"), new ConfigurationValue("v1"))), repository);
 
-        HashMap<String, Packages> map = new HashMap<String, Packages>();
+        HashMap<String, Packages> map = new HashMap<>();
         map.put(packageDefinition.getFingerprint(AbstractMaterialConfig.FINGERPRINT_DELIMITER), new Packages(packageDefinition));
         packageDefinition.validateFingerprintUniqueness(map);
 

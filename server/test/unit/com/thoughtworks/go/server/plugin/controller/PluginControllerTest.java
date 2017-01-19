@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.plugin.controller;
 
@@ -79,7 +79,7 @@ public class PluginControllerTest {
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(200));
         when(pluginManager.isPluginOfType(any(String.class), any(String.class))).thenReturn(true);
 
-        Map<String, String[]> springParameterMap = new HashMap<String, String[]>();
+        Map<String, String[]> springParameterMap = new HashMap<>();
         springParameterMap.put("k1", new String[]{"v1"});
         springParameterMap.put("k2", new String[]{"v2", "v3"});
         springParameterMap.put("k3", new String[]{});
@@ -94,12 +94,12 @@ public class PluginControllerTest {
 
         pluginController.handlePluginInteractRequest(PLUGIN_ID, REQUEST_NAME, servletRequest, servletResponse);
 
-        Map<String, String> requestParameters = new HashMap<String, String>();
+        Map<String, String> requestParameters = new HashMap<>();
         requestParameters.put("k1", "v1");
         requestParameters.put("k2", "v2");
         requestParameters.put("k3", null);
         requestParameters.put("k4", null);
-        Map<String, String> requestHeaders = new HashMap<String, String>();
+        Map<String, String> requestHeaders = new HashMap<>();
         requestHeaders.put("h1", "v1");
         requestHeaders.put("h2", "");
         requestHeaders.put("h3", null);
@@ -114,14 +114,14 @@ public class PluginControllerTest {
         apiResponse.setResponseBody(responseBody);
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(apiResponse);
 
-        when(servletRequest.getParameterMap()).thenReturn(new HashMap<String, String[]>());
-        when(servletRequest.getHeaderNames()).thenReturn(getMockEnumeration(new ArrayList<String>()));
+        when(servletRequest.getParameterMap()).thenReturn(new HashMap<>());
+        when(servletRequest.getHeaderNames()).thenReturn(getMockEnumeration(new ArrayList<>()));
 
         pluginController.handlePluginInteractRequest(PLUGIN_ID, REQUEST_NAME, servletRequest, servletResponse);
 
         assertThat(contentTypeArgument.getValue(), is(PluginController.CONTENT_TYPE_HTML));
         verify(writer).write(responseBody);
-        assertRequest(requestArgumentCaptor.getValue(), REQUEST_NAME, new HashMap<String, String>(), new HashMap<String, String>());
+        assertRequest(requestArgumentCaptor.getValue(), REQUEST_NAME, new HashMap<>(), new HashMap<>());
     }
 
     @Test
@@ -134,8 +134,8 @@ public class PluginControllerTest {
         apiResponse.setResponseBody(responseBody);
         when(pluginManager.submitTo(eq(PLUGIN_ID), any(GoPluginApiRequest.class))).thenReturn(apiResponse);
 
-        when(servletRequest.getParameterMap()).thenReturn(new HashMap<String, String[]>());
-        when(servletRequest.getHeaderNames()).thenReturn(getMockEnumeration(new ArrayList<String>()));
+        when(servletRequest.getParameterMap()).thenReturn(new HashMap<>());
+        when(servletRequest.getHeaderNames()).thenReturn(getMockEnumeration(new ArrayList<>()));
 
         pluginController.handlePluginInteractRequest(PLUGIN_ID, REQUEST_NAME, servletRequest, servletResponse);
 
@@ -151,8 +151,8 @@ public class PluginControllerTest {
         apiResponse.responseHeaders().put("Location", redirectLocation);
         when(pluginManager.submitTo(eq(PLUGIN_ID), any(GoPluginApiRequest.class))).thenReturn(apiResponse);
 
-        when(servletRequest.getParameterMap()).thenReturn(new HashMap<String, String[]>());
-        when(servletRequest.getHeaderNames()).thenReturn(getMockEnumeration(new ArrayList<String>()));
+        when(servletRequest.getParameterMap()).thenReturn(new HashMap<>());
+        when(servletRequest.getHeaderNames()).thenReturn(getMockEnumeration(new ArrayList<>()));
 
         pluginController.handlePluginInteractRequest(PLUGIN_ID, REQUEST_NAME, servletRequest, servletResponse);
 

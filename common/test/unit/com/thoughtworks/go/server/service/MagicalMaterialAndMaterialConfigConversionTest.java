@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,7 +67,7 @@ public class MagicalMaterialAndMaterialConfigConversionTest {
     private static PackageDefinition packageDefinition = PackageDefinitionMother.create("id", "name1", new Configuration(create("k2", false, "v2")), packageRepo);
     public static SCM scmConfig = SCMMother.create("scm-id", "scm-name", "plugin-id", "1.0", new Configuration(create("k1", false, "v1")));
 
-    private static Map<Class, String[]> fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack = new HashMap<Class, String[]>();
+    private static Map<Class, String[]> fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack = new HashMap<>();
     private MaterialConfigConverter materialConfigConverter = new MaterialConfigConverter();
 
     @DataPoint public static MaterialConfig gitMaterialConfig = new GitMaterialConfig(url("git-url"), "branch", "submodule", true, filterFor("*.doc"), false, "folder", cis("gitMaterial"), false);
@@ -126,7 +126,7 @@ public class MagicalMaterialAndMaterialConfigConversionTest {
     @Test
     public void failIfNewTypeOfMaterialIsNotAddedInTheAboveTest() throws Exception {
         Reflections reflections = new Reflections("com.thoughtworks");
-        List<Class> reflectionsSubTypesOf = new ArrayList<Class>(reflections.getSubTypesOf(MaterialConfig.class));
+        List<Class> reflectionsSubTypesOf = new ArrayList<>(reflections.getSubTypesOf(MaterialConfig.class));
 
         Iterator<Class> iterator = reflectionsSubTypesOf.iterator();
         while (iterator.hasNext()) {
@@ -141,7 +141,7 @@ public class MagicalMaterialAndMaterialConfigConversionTest {
     }
 
     private void assertThatAllMaterialConfigsInCodeAreTestedHere(List<Class> reflectionsSubTypesOf, List<Class> allExpectedMaterialConfigImplementations) {
-        List<Class> missingImplementations = new ArrayList<Class>(reflectionsSubTypesOf);
+        List<Class> missingImplementations = new ArrayList<>(reflectionsSubTypesOf);
         missingImplementations.removeAll(allExpectedMaterialConfigImplementations);
         String message = "You need to add a DataPoint for these materials in this test: " + missingImplementations;
 
@@ -152,7 +152,7 @@ public class MagicalMaterialAndMaterialConfigConversionTest {
     private List<Class> allMaterialConfigsWhichAreDataPointsInThisTest() throws Exception {
         Set<Field> fields = Reflections.getAllFields(getClass(), Reflections.withAnnotation(DataPoint.class));
 
-        ArrayList<Class> allDataPointMaterialConfigClasses = new ArrayList<Class>();
+        ArrayList<Class> allDataPointMaterialConfigClasses = new ArrayList<>();
         for (Field field : fields) {
             allDataPointMaterialConfigClasses.add(field.get(this).getClass());
         }

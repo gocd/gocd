@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ public class ConfigElementImplementationRegistryTest {
     @Before
     public void setUp() {
         pluginExtns = mock(PluginExtensions.class);
-        List<ConfigurationExtension> configTags = new ArrayList<ConfigurationExtension>();
+        List<ConfigurationExtension> configTags = new ArrayList<>();
         when(pluginExtns.configTagImplementations()).thenReturn(configTags);
     }
 
@@ -108,14 +108,14 @@ public class ConfigElementImplementationRegistryTest {
     public void shouldCreateTaskViewModelForPlugins() throws MalformedURLException {
         BundleContext execCtx = PluginTestUtil.bundleCtxWithHeaders(DataStructureUtils.m(PluginNamespace.XSD_NAMESPACE_PREFIX, "exec", PluginNamespace.XSD_NAMESPACE_URI, "uri-exec"));
         PluggableViewModelFactory<PluginExec> factory = mock(PluggableViewModelFactory.class);
-        ConfigTypeExtension exec = new TestTaskConfigTypeExtension<PluginExec>(PluginExec.class, factory);
+        ConfigTypeExtension exec = new TestTaskConfigTypeExtension<>(PluginExec.class, factory);
         PluginExec execInstance = new PluginExec();
 
         TaskViewModel stubbedViewModel = new TaskViewModel(execInstance, "my/view");
         when(factory.viewModelFor(execInstance, "new")).thenReturn(stubbedViewModel);
 
 
-        ConfigurationExtension execTask = new ConfigurationExtension<Task>(
+        ConfigurationExtension execTask = new ConfigurationExtension<>(
                 new PluginNamespace(execCtx, new URL("file:///exec")), exec);
         when(pluginExtns.configTagImplementations()).thenReturn(Arrays.asList(execTask));
 
@@ -126,10 +126,10 @@ public class ConfigElementImplementationRegistryTest {
     @Test
     public void shouldNotThrowUpIfPluginHasNotRegisteredViewTemplates() throws Exception {
         BundleContext execCtx = PluginTestUtil.bundleCtxWithHeaders(DataStructureUtils.m(PluginNamespace.XSD_NAMESPACE_PREFIX, "exec", PluginNamespace.XSD_NAMESPACE_URI, "uri-exec"));
-        ConfigTypeExtension exec = new TestTaskConfigTypeExtension<PluginExec>(PluginExec.class, PluggableViewModelFactory.DOES_NOT_APPLY);
+        ConfigTypeExtension exec = new TestTaskConfigTypeExtension<>(PluginExec.class, PluggableViewModelFactory.DOES_NOT_APPLY);
         PluginExec execInstance = new PluginExec();
 
-        ConfigurationExtension execTask = new ConfigurationExtension<Task>(
+        ConfigurationExtension execTask = new ConfigurationExtension<>(
                 new PluginNamespace(execCtx, new URL("file:///exec")), exec);
         when(pluginExtns.configTagImplementations()).thenReturn(Arrays.asList(execTask));
 
@@ -147,16 +147,16 @@ public class ConfigElementImplementationRegistryTest {
     public void registerAllConfigTagImplementationsProvidedByPlugins() throws MalformedURLException {
         BundleContext execCtx = PluginTestUtil.bundleCtxWithHeaders(DataStructureUtils.m(PluginNamespace.XSD_NAMESPACE_PREFIX, "exec", PluginNamespace.XSD_NAMESPACE_URI, "uri-exec"));
         PluggableViewModelFactory<PluginExec> factory = mock(PluggableViewModelFactory.class);
-        ConfigTypeExtension exec = new TestTaskConfigTypeExtension<PluginExec>(PluginExec.class, factory);
+        ConfigTypeExtension exec = new TestTaskConfigTypeExtension<>(PluginExec.class, factory);
 
-        ConfigurationExtension execTag = new ConfigurationExtension<Task>(
+        ConfigurationExtension execTag = new ConfigurationExtension<>(
                 new PluginNamespace(execCtx, new URL("file:///exec")), exec);
 
         BundleContext antCtx = PluginTestUtil.bundleCtxWithHeaders(DataStructureUtils.m(PluginNamespace.XSD_NAMESPACE_PREFIX, "ant", PluginNamespace.XSD_NAMESPACE_URI, "uri-ant"));
 
-        ConfigTypeExtension ant = new TestTaskConfigTypeExtension<PluginAnt>(PluginAnt.class, mock(PluggableViewModelFactory.class));
+        ConfigTypeExtension ant = new TestTaskConfigTypeExtension<>(PluginAnt.class, mock(PluggableViewModelFactory.class));
 
-        ConfigurationExtension antTag = new ConfigurationExtension<Task>(
+        ConfigurationExtension antTag = new ConfigurationExtension<>(
                 new PluginNamespace(antCtx, new URL("file:///ant")), ant);
 
         when(pluginExtns.configTagImplementations()).thenReturn(Arrays.asList(execTag, antTag));

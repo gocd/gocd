@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.scheduling;
 
@@ -119,7 +119,7 @@ public class BuildCauseProducerServiceTest {
     @Mock private MaterialExpansionService materialExpansionService;
     @Mock private SchedulingPerformanceLogger schedulingPerformanceLogger;
 
-    private final Map<String, String> EMPTY_REVISIONS = new HashMap<String, String>();
+    private final Map<String, String> EMPTY_REVISIONS = new HashMap<>();
     private HealthStateType healthStateType;
     private TriggerMonitor triggerMonitor;
     private BuildCauseProducerService buildCauseProducerService;
@@ -224,9 +224,9 @@ public class BuildCauseProducerServiceTest {
         pipelineConfig.addMaterialConfig(hgMaterialConfig);
 
         when(materialConfigConverter.toMaterial(hgMaterialConfig)).thenReturn(hgMaterial);
-        when(specificMaterialRevisionFactory.create("pipeline", new HashMap<String, String>())).thenReturn(new MaterialRevisions());
+        when(specificMaterialRevisionFactory.create("pipeline", new HashMap<>())).thenReturn(new MaterialRevisions());
         when(pipelineScheduleQueue.mostRecentScheduled(CaseInsensitiveString.str(pipelineConfig.name()))).thenReturn(BuildCause.createNeverRun());
-        when(materialRepository.findLatestModification(hgMaterial)).thenReturn(new MaterialRevisions(new MaterialRevision(hgMaterial, new ArrayList<Modification>())));
+        when(materialRepository.findLatestModification(hgMaterial)).thenReturn(new MaterialRevisions(new MaterialRevision(hgMaterial, new ArrayList<>())));
 
         buildCauseProducerService.manualSchedulePipeline(Username.ANONYMOUS, pipelineConfig.name(), new ScheduleOptions(), new ServerHealthStateOperationResult());
         assertThat(triggerMonitor.isAlreadyTriggered(CaseInsensitiveString.str(pipelineConfig.name())), is(true));
@@ -296,10 +296,10 @@ public class BuildCauseProducerServiceTest {
         MaterialUpdateStatusNotifier notifier = new MaterialUpdateStatusNotifier(mock(MaterialUpdateCompletedTopic.class));
         buildCauseProducerService = spy(createBuildCauseProducerService(notifier));
         buildCauseProducerService.manualSchedulePipeline(Username.ANONYMOUS, pipelineConfig.name(), new ScheduleOptions(), new ServerHealthStateOperationResult());
-        final HashMap<String, String> stringStringHashMap = new HashMap<String, String>();
+        final HashMap<String, String> stringStringHashMap = new HashMap<>();
         doReturn(ServerHealthState.success(healthStateType)).when(buildCauseProducerService).newProduceBuildCause(
                 eq(pipelineConfig), any(ManualBuild.class),
-                new ScheduleOptions(eq(EMPTY_REVISIONS), stringStringHashMap, new HashMap<String, String>()), any(ServerHealthStateOperationResult.class), eq(12345L));
+                new ScheduleOptions(eq(EMPTY_REVISIONS), stringStringHashMap, new HashMap<>()), any(ServerHealthStateOperationResult.class), eq(12345L));
 
         assertThat(notifier.hasListenerFor(pipelineConfig), is(true));
         notifier.onMessage(new MaterialUpdateSuccessfulMessage(hgMaterial, 1111L));
@@ -341,10 +341,10 @@ public class BuildCauseProducerServiceTest {
         when(materialConfigConverter.toMaterials(knownMaterialConfigs)).thenReturn(new Materials(dependencyMaterial, svnMaterial));
 
         ManualBuild buildType = new ManualBuild(Username.ANONYMOUS);
-        final HashMap<String, String> stringStringHashMap = new HashMap<String, String>();
+        final HashMap<String, String> stringStringHashMap = new HashMap<>();
         buildCauseProducerService.newProduceBuildCause(pipelineConfig, buildType,
                 new ScheduleOptions(Collections.singletonMap(dependencyMaterial.getPipelineUniqueFingerprint(), "upstream-pipeline/2/stage/1"),
-                        stringStringHashMap, new HashMap<String, String>()), new ServerHealthStateOperationResult(), 12345);
+                        stringStringHashMap, new HashMap<>()), new ServerHealthStateOperationResult(), 12345);
 
         verify(pipelineScheduleQueue).schedule(eq("pipeline"), argThat(containsRevisions(new MaterialRevision(svnMaterial, svnModifications), specificMaterialRevision)));
     }
@@ -355,10 +355,10 @@ public class BuildCauseProducerServiceTest {
         when(specificMaterialRevisionFactory.create(eq("pipeline"), eq(Collections.singletonMap(dependencyMaterial.getPipelineUniqueFingerprint(), "upstream-pipeline/200/stage/1"))))
                 .thenThrow(new RuntimeException("Invalid specified revision"));
         ManualBuild buildType = new ManualBuild(Username.ANONYMOUS);
-        final HashMap<String, String> stringStringHashMap = new HashMap<String, String>();
+        final HashMap<String, String> stringStringHashMap = new HashMap<>();
         buildCauseProducerService.newProduceBuildCause(pipelineConfig, buildType,
                 new ScheduleOptions(Collections.singletonMap(dependencyMaterial.getPipelineUniqueFingerprint(), "upstream-pipeline/200/stage/1"),
-                        stringStringHashMap, new HashMap<String, String>()), new ServerHealthStateOperationResult(), 12345);
+                        stringStringHashMap, new HashMap<>()), new ServerHealthStateOperationResult(), 12345);
         verify(mockServerHealthService).update(argThat(hasErrorHealthState("Error while scheduling pipeline: pipeline", "Invalid specified revision")));
     }
 
@@ -368,9 +368,9 @@ public class BuildCauseProducerServiceTest {
         when(specificMaterialRevisionFactory.create(eq("pipeline"), eq(Collections.singletonMap(dependencyMaterial.getPipelineUniqueFingerprint(), "upstream-pipeline/200/stage/1"))))
                 .thenThrow(new NullPointerException());
         ManualBuild buildType = new ManualBuild(Username.ANONYMOUS);
-        final HashMap<String, String> stringStringHashMap = new HashMap<String, String>();
+        final HashMap<String, String> stringStringHashMap = new HashMap<>();
         buildCauseProducerService.newProduceBuildCause(pipelineConfig, buildType,
-                new ScheduleOptions(Collections.singletonMap(dependencyMaterial.getPipelineUniqueFingerprint(), "upstream-pipeline/200/stage/1"), stringStringHashMap, new HashMap<String, String>()),
+                new ScheduleOptions(Collections.singletonMap(dependencyMaterial.getPipelineUniqueFingerprint(), "upstream-pipeline/200/stage/1"), stringStringHashMap, new HashMap<>()),
                 new ServerHealthStateOperationResult(), 12345);
         verify(mockServerHealthService).update(argThat(hasErrorHealthState("Error while scheduling pipeline: pipeline", "Details not available, please check server logs.")));
     }
@@ -394,7 +394,7 @@ public class BuildCauseProducerServiceTest {
         when(materialConfigConverter.toMaterial(materialConfig2)).thenReturn(material2);
 
         buildCauseProducerService.manualSchedulePipeline(Username.ANONYMOUS, pipelineConfig.name(),
-                new ScheduleOptions(new HashMap<String, String>(), new HashMap<String, String>(), new HashMap<String, String>()),
+                new ScheduleOptions(new HashMap<>(), new HashMap<>(), new HashMap<>()),
                 new ServerHealthStateOperationResult());
         verify(mockMaterialUpdateService, times(1)).updateMaterial(any(Material.class));
         MaterialUpdateStatusListener statusListener = extractMaterialListenerInstanceFromRegisterCall();
@@ -415,7 +415,7 @@ public class BuildCauseProducerServiceTest {
         when(goConfigService.hasPipelineNamed(pipelineConfig.name())).thenReturn(true);
 
         buildCauseProducerService.manualSchedulePipeline(Username.ANONYMOUS, pipelineConfig.name(),
-                new ScheduleOptions(new HashMap<String, String>(), new HashMap<String, String>(), new HashMap<String, String>()),
+                new ScheduleOptions(new HashMap<>(), new HashMap<>(), new HashMap<>()),
                 new ServerHealthStateOperationResult());
         verify(goConfigService, times(1)).pipelineConfigNamed(pipelineConfig.name());
 
@@ -438,7 +438,7 @@ public class BuildCauseProducerServiceTest {
         when(materialConfigConverter.toMaterial(materialConfig1)).thenReturn(material1);
 
         buildCauseProducerService.manualSchedulePipeline(Username.ANONYMOUS, pipelineConfig.name(),
-                new ScheduleOptions(new HashMap<String, String>(), new HashMap<String, String>(), new HashMap<String, String>()),
+                new ScheduleOptions(new HashMap<>(), new HashMap<>(), new HashMap<>()),
                 new ServerHealthStateOperationResult());
         verify(goConfigService, times(1)).pipelineConfigNamed(pipelineConfig.name());
 
@@ -463,7 +463,7 @@ public class BuildCauseProducerServiceTest {
         when(materialConfigConverter.toMaterial(materialConfig2)).thenReturn(material2);
 
         buildCauseProducerService.manualSchedulePipeline(Username.ANONYMOUS, pipelineConfig.name(),
-                new ScheduleOptions(new HashMap<String, String>(), new HashMap<String, String>(), new HashMap<String, String>()),
+                new ScheduleOptions(new HashMap<>(), new HashMap<>(), new HashMap<>()),
                 new ServerHealthStateOperationResult());
         verify(goConfigService, times(1)).pipelineConfigNamed(pipelineConfig.name());
 

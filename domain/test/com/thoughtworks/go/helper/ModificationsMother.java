@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.helper;
 
@@ -120,20 +120,20 @@ public class ModificationsMother {
 
     public static MaterialRevision createPackageMaterialRevision(String revision, String user, String comment) {
         Material material = MaterialsMother.packageMaterial();
-        List<Modification> modifications = new ArrayList<Modification>();
+        List<Modification> modifications = new ArrayList<>();
         modifications.add(new Modification(user, comment, null, new Date(), revision));
         return new MaterialRevision(material, modifications);
     }
 
     public static MaterialRevision createPipelineMaterialRevision(String stageIdentifier) {
         Material material = MaterialsMother.dependencyMaterial();
-        List<Modification> modifications = new ArrayList<Modification>();
+        List<Modification> modifications = new ArrayList<>();
         modifications.add(new Modification(new Date(), stageIdentifier, "123", 1L));
         return new MaterialRevision(material, modifications);
     }
 
     public static List<Modification> multipleModificationsInHg() {
-        final ArrayList<Modification> modifications = new ArrayList<Modification>();
+        final ArrayList<Modification> modifications = new ArrayList<>();
 
         modifications.add(new Modification("user2", "comment2", "email2", TODAY_CHECKIN, "9fdcf27f16eadc362733328dd481d8a2c29915e1"));
         modifications.add(new Modification("user1", "comment1", "email1", TWO_DAYS_AGO_CHECKIN, "eef77acd79809fc14ed82b79a312648d4a2801c6"));
@@ -149,7 +149,7 @@ public class ModificationsMother {
     public static MaterialRevisions modifyOneFile(Materials materials, String revision, String comment) {
         return modifyOneFile(materials, revision, comment, MOD_USER);
     }
-    
+
     public static MaterialRevisions modifyOneFile(Materials materials, String revision, String comment, String committer) {
         MaterialRevisions materialRevisions = new MaterialRevisions();
         Materials expandedMaterials = new Materials();
@@ -296,7 +296,7 @@ public class ModificationsMother {
                 TODAY_CHECKIN, revisionToUse.next());
         modification3.createModifiedFile(MOD_FILE_READ_ME, "\\build", MOD_MODIFIED_ACTION);
 
-        List<Modification> modifications = new ArrayList<Modification>();
+        List<Modification> modifications = new ArrayList<>();
         modifications.add(modification3);
         modifications.add(modification2);
         modifications.add(modification1);
@@ -310,7 +310,7 @@ public class ModificationsMother {
     public static BuildCause modifyNoFiles(PipelineConfig config) {
         MaterialRevisions materialRevisions = new MaterialRevisions();
         for (Material material : new MaterialConfigConverter().toMaterials(config.materialConfigs())) {
-            ArrayList<Modification> list = new ArrayList<Modification>();
+            ArrayList<Modification> list = new ArrayList<>();
             list.add(new Modification("no-user", "comment", "dummy-email", new Date(), "Dummy Modification"+ UUID.randomUUID().toString()));
             materialRevisions.addRevision(material, list);
         }
@@ -352,7 +352,7 @@ public class ModificationsMother {
     }
 
     public static MaterialRevisions createMaterialRevisions(SvnMaterial svnMaterial, Modification modification) {
-        List<Modification> modifications = new ArrayList<Modification>();
+        List<Modification> modifications = new ArrayList<>();
         modifications.add(modification);
         MaterialRevisions revisions = new MaterialRevisions();
         revisions.addRevision(svnMaterial, modifications);
@@ -360,7 +360,7 @@ public class ModificationsMother {
     }
 
     public static MaterialRevisions createP4MaterialRevisions(Modification modification) {
-        List<Modification> modifications = new ArrayList<Modification>();
+        List<Modification> modifications = new ArrayList<>();
         modifications.add(modification);
         Material svnMaterial = MaterialsMother.p4Material();
         MaterialRevisions revisions = new MaterialRevisions();

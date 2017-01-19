@@ -1,11 +1,11 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -48,7 +48,7 @@ public class SvnMaterialConfigTest {
     public void shouldSetConfigAttributes() {
         SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig("", "", "", false);
 
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put(SvnMaterialConfig.URL, "url");
         map.put(SvnMaterialConfig.USERNAME, "username");
         map.put(SvnMaterialConfig.CHECK_EXTERNALS, "true");
@@ -113,7 +113,7 @@ public class SvnMaterialConfigTest {
     @Test
     public void setConfigAttributes_shouldUpdatePasswordWhenPasswordChangedBooleanChanged() throws Exception {
         SvnMaterialConfig svnMaterial = new SvnMaterialConfig("", "", "notSoSecret", false);
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put(SvnMaterialConfig.PASSWORD, "secret");
         map.put(SvnMaterialConfig.PASSWORD_CHANGED, "1");
 

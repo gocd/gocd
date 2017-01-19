@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -93,7 +93,7 @@ public class AbstractTfsCommandTest {
 
     @Test
     public void testModificationsSince() throws Exception {
-        List<Modification> modifications = new ArrayList<Modification>();
+        List<Modification> modifications = new ArrayList<>();
         modifications.add(new Modification(user, "comment latest", "email", new Date(), "10"));
         modifications.add(new Modification(user, "comment latest", "email", new Date(), "9"));
         modifications.add(new Modification(user, "comment latest", "email", new Date(), "8"));

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,7 +59,7 @@ public class PluginSettingsRequestProcessorTest {
     public void setUp() {
         initMocks(this);
 
-        Map<String, String> configuration = new HashMap<String, String>();
+        Map<String, String> configuration = new HashMap<>();
         configuration.put("k1", "v1");
         configuration.put("k2", "v2");
         when(pluginSqlMapDao.findPlugin("plugin-id-1")).thenReturn(new Plugin("plugin-id-1", JsonHelper.toJsonString(configuration)));
@@ -107,7 +107,7 @@ public class PluginSettingsRequestProcessorTest {
         assertThat(response.responseCode(), is(200));
         assertThat(response.responseBody(), is(responseBody));
 
-        Map<String, String> settingsMap = new HashMap<String, String>();
+        Map<String, String> settingsMap = new HashMap<>();
         settingsMap.put("k1", "v1");
         settingsMap.put("k2", "v2");
         assertEquals(requestArgumentCaptor.getValue().getSettingsAsKeyValuePair(), settingsMap);

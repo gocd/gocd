@@ -78,7 +78,7 @@ public class TemplateConfigServiceTest {
 
         assertThat(templateWithPipelines.size(), is(2));
         assertThat(templateWithPipelines.get(new CaseInsensitiveString("first_template")), is(Arrays.asList(new CaseInsensitiveString("first"), new CaseInsensitiveString("second"))));
-        assertThat(templateWithPipelines.get(new CaseInsensitiveString("empty_template")), is((List<CaseInsensitiveString>) new ArrayList<CaseInsensitiveString>()));
+        assertThat(templateWithPipelines.get(new CaseInsensitiveString("empty_template")), is(new ArrayList<CaseInsensitiveString>()));
     }
 
     @Test

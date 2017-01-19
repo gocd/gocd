@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,7 +74,7 @@ public class PipelineHistoryJsonPresentationModel implements JsonAware {
         this.hasForceBuildCause = hasForceBuildCause;
         this.hasBuildCauseInBuffer = hasBuildCauseInBuffer;
         this.canPause = canPause;
-        createGroupForCurrentConfigIfItHasChanged(new HashMap<String, StageIdentifier>());
+        createGroupForCurrentConfigIfItHasChanged(new HashMap<>());
     }
 
     private void createGroupForCurrentConfigIfItHasChanged(Map<String, StageIdentifier> latest) {

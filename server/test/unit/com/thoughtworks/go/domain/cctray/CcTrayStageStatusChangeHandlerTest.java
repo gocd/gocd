@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2015 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain.cctray;
 
@@ -65,8 +65,8 @@ public class CcTrayStageStatusChangeHandlerTest {
         JobInstance secondJob = JobInstanceMother.completed("job2");
         Stage stage = StageMother.custom("stage1", firstJob, secondJob);
 
-        when(jobStatusChangeHandler.statusFor(firstJob, new HashSet<String>())).thenReturn(new ProjectStatus("job1_name", null, null, null, null, null));
-        when(jobStatusChangeHandler.statusFor(secondJob, new HashSet<String>())).thenReturn(new ProjectStatus("job2_name", null, null, null, null, null));
+        when(jobStatusChangeHandler.statusFor(firstJob, new HashSet<>())).thenReturn(new ProjectStatus("job1_name", null, null, null, null, null));
+        when(jobStatusChangeHandler.statusFor(secondJob, new HashSet<>())).thenReturn(new ProjectStatus("job2_name", null, null, null, null, null));
 
         List<ProjectStatus> statuses = handler.statusesOfStageAndItsJobsFor(stage);
 
@@ -95,7 +95,7 @@ public class CcTrayStageStatusChangeHandlerTest {
 
         handler.statusesOfStageAndItsJobsFor(stage);
 
-        verify(jobStatusChangeHandler).statusFor(job1_building, new HashSet<String>());
+        verify(jobStatusChangeHandler).statusFor(job1_building, new HashSet<>());
         verify(jobStatusChangeHandler).statusFor(job2_failed, s("breaker1", "breaker2"));
     }
 
@@ -182,7 +182,7 @@ public class CcTrayStageStatusChangeHandlerTest {
     public void shouldUpdateCacheWhenStageWhichHasChangedIsNotANullStage() throws Exception {
         Stage completedStage = StageMother.createPassedStage("pipeline", 1, "stage1", 1, "job1", new Date());
         ProjectStatus jobStatus = new ProjectStatus("job1_name", "activity1", "lastBuildStatus1", "lastBuildLabel1", new Date(), "webUrl1");
-        when(jobStatusChangeHandler.statusFor(completedStage.getJobInstances().first(), new HashSet<String>())).thenReturn(jobStatus);
+        when(jobStatusChangeHandler.statusFor(completedStage.getJobInstances().first(), new HashSet<>())).thenReturn(jobStatus);
 
         handler.call(completedStage);
 

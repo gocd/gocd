@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain.valuestreammap;
 
@@ -88,7 +88,7 @@ public class ValueStreamMapTest {
         graph.addUpstreamMaterialNode(new SCMDependencyNode("git_fingerprint", "git", "git"), new CaseInsensitiveString("git2"), P1, new MaterialRevision(null));
 
         SCMDependencyNode node = (SCMDependencyNode) graph.findNode("git_fingerprint");
-        HashSet<String> materialNames = new HashSet<String>();
+        HashSet<String> materialNames = new HashSet<>();
         materialNames.add("git1");
         materialNames.add("git2");
 
@@ -137,7 +137,7 @@ public class ValueStreamMapTest {
         graph.addUpstreamMaterialNode(new SCMDependencyNode("git_fingerprint", "git", "git"), new CaseInsensitiveString("git1"), P1, new MaterialRevision(null));
 
         SCMDependencyNode node = (SCMDependencyNode) graph.findNode("git_fingerprint");
-        HashSet<String> materialNames = new HashSet<String>();
+        HashSet<String> materialNames = new HashSet<>();
         materialNames.add("git1");
 
         assertThat(node.getMaterialNames(), is(materialNames));
@@ -265,7 +265,7 @@ public class ValueStreamMapTest {
 	}
 
 	private List<String> getNodeIds(List<Node> rootNodes) {
-		List<String> nodeIds = new LinkedList<String>();
+		List<String> nodeIds = new LinkedList<>();
 		for (Node rootNode : rootNodes) {
 			nodeIds.add(rootNode.getId());
 		}

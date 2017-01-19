@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -62,7 +62,7 @@ public class PluggableSCMMaterialConfigTest {
     public void shouldAddErrorIfSCMNameUniquenessValidationFails() throws Exception {
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig("scm-id");
 
-        Map<CaseInsensitiveString, AbstractMaterialConfig> nameToMaterialMap = new HashMap<CaseInsensitiveString, AbstractMaterialConfig>();
+        Map<CaseInsensitiveString, AbstractMaterialConfig> nameToMaterialMap = new HashMap<>();
         PluggableSCMMaterialConfig existingMaterial = new PluggableSCMMaterialConfig("scm-id");
         nameToMaterialMap.put(new CaseInsensitiveString("scm-id"), existingMaterial);
         nameToMaterialMap.put(new CaseInsensitiveString("foo"), new GitMaterialConfig("url"));
@@ -80,7 +80,7 @@ public class PluggableSCMMaterialConfigTest {
     public void shouldPassMaterialUniquenessIfIfNoDuplicateSCMFound() throws Exception {
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig("scm-id");
 
-        Map<CaseInsensitiveString, AbstractMaterialConfig> nameToMaterialMap = new HashMap<CaseInsensitiveString, AbstractMaterialConfig>();
+        Map<CaseInsensitiveString, AbstractMaterialConfig> nameToMaterialMap = new HashMap<>();
         nameToMaterialMap.put(new CaseInsensitiveString("scm-id-new"), new PluggableSCMMaterialConfig("scm-id-new"));
         nameToMaterialMap.put(new CaseInsensitiveString("foo"), new GitMaterialConfig("url"));
 
@@ -94,7 +94,7 @@ public class PluggableSCMMaterialConfigTest {
     public void shouldNotAddErrorDuringUniquenessValidationIfSCMNameIsEmpty() throws Exception {
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig("");
 
-        Map<CaseInsensitiveString, AbstractMaterialConfig> nameToMaterialMap = new HashMap<CaseInsensitiveString, AbstractMaterialConfig>();
+        Map<CaseInsensitiveString, AbstractMaterialConfig> nameToMaterialMap = new HashMap<>();
 
         pluggableSCMMaterialConfig.validateNameUniqueness(nameToMaterialMap);
 
@@ -152,7 +152,7 @@ public class PluggableSCMMaterialConfigTest {
 
     @Test
     public void shouldSetConfigAttributesForSCMMaterial() throws Exception {
-        Map<String, String> attributes = new HashMap<String, String>();
+        Map<String, String> attributes = new HashMap<>();
         attributes.put(PluggableSCMMaterialConfig.SCM_ID, "scm-id");
         attributes.put(PluggableSCMMaterialConfig.FOLDER, "dest");
         attributes.put(PluggableSCMMaterialConfig.FILTER, "/foo/**.*,/another/**.*,bar");
@@ -167,7 +167,7 @@ public class PluggableSCMMaterialConfigTest {
 
     @Test
     public void shouldSetConfigAttributesForSCMMaterialWhenDataIsEmpty() throws Exception {
-        Map<String, String> attributes = new HashMap<String, String>();
+        Map<String, String> attributes = new HashMap<>();
         attributes.put(PluggableSCMMaterialConfig.SCM_ID, "scm-id");
         attributes.put(PluggableSCMMaterialConfig.FOLDER, "");
         attributes.put(PluggableSCMMaterialConfig.FILTER, "");
@@ -194,7 +194,7 @@ public class PluggableSCMMaterialConfigTest {
 
     @Test
     public void shouldSetSCMIdToNullIfConfigAttributesForSCMMaterialDoesNotContainSCMId() throws Exception {
-        Map<String, String> attributes = new HashMap<String, String>();
+        Map<String, String> attributes = new HashMap<>();
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig("scm-id");
 
         pluggableSCMMaterialConfig.setConfigAttributes(attributes);

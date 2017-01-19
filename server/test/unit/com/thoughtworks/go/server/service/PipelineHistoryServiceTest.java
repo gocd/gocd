@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -362,8 +362,8 @@ public class PipelineHistoryServiceTest {
                 new StageInstanceModel("stage1", "3", StageResult.Failed, new StageIdentifier()),
                 new StageInstanceModel("stage2", "2", StageResult.Passed, new StageIdentifier())));
 
-        when(pipelineTimeline.runBefore(2, new CaseInsensitiveString("pipeline1"))).thenReturn(new PipelineTimelineEntry("pipeline1", 1, 9, new HashMap<String, List<PipelineTimelineEntry.Revision>>()));
-        when(pipelineTimeline.runBefore(1, new CaseInsensitiveString("pipeline1"))).thenReturn(new PipelineTimelineEntry("pipeline1", 3, 11, new HashMap<String, List<PipelineTimelineEntry.Revision>>()));
+        when(pipelineTimeline.runBefore(2, new CaseInsensitiveString("pipeline1"))).thenReturn(new PipelineTimelineEntry("pipeline1", 1, 9, new HashMap<>()));
+        when(pipelineTimeline.runBefore(1, new CaseInsensitiveString("pipeline1"))).thenReturn(new PipelineTimelineEntry("pipeline1", 3, 11, new HashMap<>()));
 
         stubPermisssionsForActivePipeline(foo, cruiseConfig, "pipeline1", true, true);
         when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(any(String.class)))).thenReturn(true);
@@ -506,8 +506,8 @@ public class PipelineHistoryServiceTest {
 
         //2>1>3
 
-        when(pipelineTimeline.runBefore(2, new CaseInsensitiveString("pipeline1"))).thenReturn(new PipelineTimelineEntry("pipeline1", 1, 9, new HashMap<String, List<PipelineTimelineEntry.Revision>>()));
-        when(pipelineTimeline.runBefore(1, new CaseInsensitiveString("pipeline1"))).thenReturn(new PipelineTimelineEntry("pipeline1", 3, 11, new HashMap<String, List<PipelineTimelineEntry.Revision>>()));
+        when(pipelineTimeline.runBefore(2, new CaseInsensitiveString("pipeline1"))).thenReturn(new PipelineTimelineEntry("pipeline1", 1, 9, new HashMap<>()));
+        when(pipelineTimeline.runBefore(1, new CaseInsensitiveString("pipeline1"))).thenReturn(new PipelineTimelineEntry("pipeline1", 3, 11, new HashMap<>()));
 
         stubPermisssionsForActivePipeline(foo, cruiseConfig, "pipeline1", true, true);
         when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(any(String.class)))).thenReturn(true);
@@ -643,7 +643,7 @@ public class PipelineHistoryServiceTest {
         PipelineDependencyGraphOld expected = new PipelineDependencyGraphOld(instanceModel, createPipelineInstanceModels());
         when(pipelineDao.pipelineGraphByNameAndCounter("blahPipeline", 12)).thenReturn(expected);
         ensureConfigHasPipeline("blahPipeline");
-        when(goConfigService.downstreamPipelinesOf("blahPipeline")).thenReturn(new ArrayList<PipelineConfig>());
+        when(goConfigService.downstreamPipelinesOf("blahPipeline")).thenReturn(new ArrayList<>());
         stubConfigServiceToReturnPipeline("blahPipeline", PipelineConfigMother.pipelineConfig("blahPipeline"));
         when(pipelineTimeline.pipelineBefore(12)).thenReturn(1L);
         when(pipelineDao.loadHistory(1)).thenReturn(new PipelineInstanceModel("blahPipeline", 21, "prev-label", BuildCause.createWithEmptyModifications(), new StageInstanceModels()));
@@ -665,7 +665,7 @@ public class PipelineHistoryServiceTest {
 
         when(pipelineDao.pipelineGraphByNameAndCounter("blahPipeline", 12)).thenReturn(expected);
         ensureConfigHasPipeline("blahPipeline");
-        when(goConfigService.downstreamPipelinesOf("blahPipeline")).thenReturn(new ArrayList<PipelineConfig>());
+        when(goConfigService.downstreamPipelinesOf("blahPipeline")).thenReturn(new ArrayList<>());
 
         stubConfigServiceToReturnPipeline("blahPipeline", PipelineConfigMother.pipelineConfig("blahPipeline"));
         when(pipelineTimeline.pipelineBefore(23)).thenReturn(1L);
@@ -688,7 +688,7 @@ public class PipelineHistoryServiceTest {
         PipelineDependencyGraphOld expected = new PipelineDependencyGraphOld(pim, createPipelineInstanceModels());
         when(pipelineDao.pipelineGraphByNameAndCounter("blahPipeline", 12)).thenReturn(expected);
         ensureConfigHasPipeline("blahPipeline");
-        when(goConfigService.downstreamPipelinesOf("blahPipeline")).thenReturn(new ArrayList<PipelineConfig>());
+        when(goConfigService.downstreamPipelinesOf("blahPipeline")).thenReturn(new ArrayList<>());
         stubConfigServiceToReturnPipeline("blahPipeline", PipelineConfigMother.pipelineConfig("blahPipeline"));
         when(scheduleService.canRun(pim.getPipelineIdentifier(), "stage", CaseInsensitiveString.str(USERNAME.getUsername()), true)).thenReturn(true);
         when(securityService.hasOperatePermissionForStage("blahPipeline", "stage", CaseInsensitiveString.str(USERNAME.getUsername()))).thenReturn(true);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -129,8 +129,8 @@ public class TaskViewServiceTest {
         assertThat(viewModels.get(1).getModel(), instanceOf(PluggableTask.class));
         assertThat(viewModels.get(2).getModel(), instanceOf(PluggableTask.class));
 
-        assertThat((PluggableTask) viewModels.get(1).getModel(), is(expectedPluggableTaskForPlugin1));
-        assertThat((PluggableTask) viewModels.get(2).getModel(), is(expectedPluggableTaskForPlugin2));
+        assertThat(viewModels.get(1).getModel(), is(expectedPluggableTaskForPlugin1));
+        assertThat(viewModels.get(2).getModel(), is(expectedPluggableTaskForPlugin2));
 
         verify(registry).getViewModelFor(expectedPluggableTaskForPlugin1, "new");
         verify(registry).getViewModelFor(expectedPluggableTaskForPlugin2, "new");
@@ -184,7 +184,7 @@ public class TaskViewServiceTest {
     @Test
     public void shouldThrowAnExceptionIfTheTaskOfGivenTypeIsNotFound() {
         ConfigElementImplementationRegistry registry = this.registry;
-        List<Class<? extends Task>> taskClasses = new ArrayList<Class<? extends Task>>();
+        List<Class<? extends Task>> taskClasses = new ArrayList<>();
         taskClasses.add(AntTask.class);
         when(registry.implementersOf(Task.class)).thenReturn(taskClasses);
 
@@ -202,7 +202,7 @@ public class TaskViewServiceTest {
         ConfigElementImplementationRegistry registry = this.registry;
         when(registry.implementersOf(Task.class)).thenReturn(taskImplementations());
         TaskViewService taskViewService = new TaskViewService(registry, mock(PluginManager.class));
-        assertThat((AntTask) taskViewService.taskInstanceFor(new AntTask().getTaskType()), is(new AntTask()));
+        assertThat(taskViewService.taskInstanceFor(new AntTask().getTaskType()), is(new AntTask()));
     }
 
     @Test
@@ -279,7 +279,7 @@ public class TaskViewServiceTest {
     }
 
     private List<Class<? extends Task>> taskImplementations() {
-        List<Class<? extends Task>> taskClasses = new ArrayList<Class<? extends Task>>();
+        List<Class<? extends Task>> taskClasses = new ArrayList<>();
         taskClasses.add(AntTask.class);
         taskClasses.add(ExecTask.class);
         taskClasses.add(FetchTask.class);
@@ -302,7 +302,7 @@ public class TaskViewServiceTest {
         }
 
         private List<TaskConfigProperty> convertToProperties(String[] properties) {
-            ArrayList<TaskConfigProperty> taskConfigProperties = new ArrayList<TaskConfigProperty>();
+            ArrayList<TaskConfigProperty> taskConfigProperties = new ArrayList<>();
             for (String property : properties) {
                 taskConfigProperties.add(new TaskConfigProperty(property, null));
             }

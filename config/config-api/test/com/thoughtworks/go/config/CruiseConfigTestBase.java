@@ -316,7 +316,7 @@ public abstract class CruiseConfigTestBase {
         Task task2 = new AntTask();
         setupJobWithTasks(config, task1, task2);
 
-        final List<Task> tasksVisited = new ArrayList<Task>();
+        final List<Task> tasksVisited = new ArrayList<>();
         config.accept(new TaskConfigVisitor() {
 
             public void visit(PipelineConfig pipelineConfig, StageConfig stageConfig, JobConfig jobConfig, Task task) {
@@ -334,7 +334,7 @@ public abstract class CruiseConfigTestBase {
         CruiseConfig config = createCruiseConfig();
         setupJobWithTasks(config, new NullTask());
 
-        final List<Task> tasksVisited = new ArrayList<Task>();
+        final List<Task> tasksVisited = new ArrayList<>();
         config.accept(new TaskConfigVisitor() {
 
             public void visit(PipelineConfig pipelineConfig, StageConfig stageConfig, JobConfig jobConfig, Task task) {
@@ -577,7 +577,7 @@ public abstract class CruiseConfigTestBase {
         goConfigMother.setDependencyOn(cruiseConfig, pipelineConfig, "invalid", "invalid");
         cruiseConfig.validate(null);
         List<ConfigErrors> allErrors = cruiseConfig.getAllErrors();
-        List<String> errors = new ArrayList<String>();
+        List<String> errors = new ArrayList<>();
         for (ConfigErrors allError : allErrors) {
             errors.addAll(allError.getAllOn("base"));
         }

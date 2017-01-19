@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,11 +48,11 @@ public class ConsoleResultTest {
 
     @Test
     public void shouldReplaceSecretInfoShouldNotFailForNull() {
-        ArrayList<CommandArgument> commands = new ArrayList<CommandArgument>();
+        ArrayList<CommandArgument> commands = new ArrayList<>();
         commands.add(new PasswordArgument("foo"));
-        ArrayList<SecretString> secretStrings = new ArrayList<SecretString>();
+        ArrayList<SecretString> secretStrings = new ArrayList<>();
         secretStrings.add(new PasswordArgument("foo"));
-        ConsoleResult result = new ConsoleResult(10, new ArrayList<String>(), new ArrayList<String>(), commands, secretStrings);
+        ConsoleResult result = new ConsoleResult(10, new ArrayList<>(), new ArrayList<>(), commands, secretStrings);
         assertThat(result.replaceSecretInfo(null), is(nullValue()));
     }
 }

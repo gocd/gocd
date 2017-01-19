@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -143,7 +143,7 @@ public class AuthenticationExtensionTest {
     public void shouldTalkToPluginToSearchUser() throws Exception {
         String searchTerm = "search-term";
         when(jsonMessageHandler.requestMessageForSearchUser(searchTerm)).thenReturn(REQUEST_BODY);
-        List<User> response = new ArrayList<User>();
+        List<User> response = new ArrayList<>();
         when(jsonMessageHandler.responseMessageForSearchUser(RESPONSE_BODY)).thenReturn(response);
 
         List<User> deserializedResponse = authenticationExtension.searchUser(PLUGIN_ID, searchTerm);

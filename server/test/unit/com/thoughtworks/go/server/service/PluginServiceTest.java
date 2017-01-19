@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,7 +77,7 @@ public class PluginServiceTest {
 
         PluginSettingsMetadataStore.getInstance().clear();
 
-        Map<String, String> configuration = new HashMap<String, String>();
+        Map<String, String> configuration = new HashMap<>();
         configuration.put("p1-k1", "v1");
         configuration.put("p1-k2", "");
         configuration.put("p1-k3", null);
@@ -131,7 +131,7 @@ public class PluginServiceTest {
 
     @Test
     public void shouldPopulateSettingsMapFromKeyValueMap() {
-        Map<String, String> parameterMap = new HashMap<String, String>();
+        Map<String, String> parameterMap = new HashMap<>();
         parameterMap.put("p3-k1", "v1");
         parameterMap.put("p3-k2", "");
         parameterMap.put("p3-k3", null);
@@ -178,7 +178,7 @@ public class PluginServiceTest {
         validationResult.addError(new ValidationError("p4-k3", "m3"));
         when(notificationExtension.validatePluginSettings(eq("plugin-id-4"), any(PluginSettingsConfiguration.class))).thenReturn(validationResult);
 
-        Map<String, String> parameterMap = new HashMap<String, String>();
+        Map<String, String> parameterMap = new HashMap<>();
         parameterMap.put("p4-k1", "v1");
         parameterMap.put("p4-k2", "v2");
         PluginSettings pluginSettings = new PluginSettings("plugin-id-4");
@@ -196,7 +196,7 @@ public class PluginServiceTest {
         when(notificationExtension.canHandlePlugin("plugin-id-4")).thenReturn(true);
         when(notificationExtension.validatePluginSettings(eq("plugin-id-4"), any(PluginSettingsConfiguration.class))).thenReturn(new ValidationResult());
 
-        Map<String, String> parameterMap = new HashMap<String, String>();
+        Map<String, String> parameterMap = new HashMap<>();
         parameterMap.put("p4-k1", "v1");
         parameterMap.put("p4-k2", "v2");
         PluginSettings pluginSettings = new PluginSettings("plugin-id-4");

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,7 +70,7 @@ public class ScheduleTestUtil {
         this.dbHelper = dbHelper;
         this.configHelper = configHelper;
         date = new Date();
-        triggeredPipelines = new HashMap<CaseInsensitiveString, Pipeline>();
+        triggeredPipelines = new HashMap<>();
     }
 
     public Date d(int extraHours) {
@@ -87,7 +87,7 @@ public class ScheduleTestUtil {
     }
 
     public MaterialRevision mr(Material material, final boolean changed, final String... revs) {
-        ArrayList<Modification> modifications = new ArrayList<Modification>();
+        ArrayList<Modification> modifications = new ArrayList<>();
         for (String rev : revs) {
             Modification mod = modForRev(rev);
             modifications.add(0, mod);
@@ -174,7 +174,7 @@ public class ScheduleTestUtil {
     }
 
     public RevisionsForMaterial[] getRevisionsForMaterials(List<String>... materialRevisions) {
-        List<RevisionsForMaterial> revisionsForMaterials = new ArrayList<RevisionsForMaterial>();
+        List<RevisionsForMaterial> revisionsForMaterials = new ArrayList<>();
         for (List<String> materialRevision : materialRevisions) {
             revisionsForMaterials.add(new RevisionsForMaterial(materialRevision));
         }
@@ -245,7 +245,7 @@ public class ScheduleTestUtil {
             } else {
                 MaterialRevision oldRev = oldInstance.getBuildCause().getMaterialRevisions().findRevisionFor(material);
                 List<Modification> modificationsSince = materialRepository.findModificationsSince(material, oldRev);
-                List<Modification> newRange = new ArrayList<Modification>();
+                List<Modification> newRange = new ArrayList<>();
                 for (Modification newMod : modificationsSince) {
                     newRange.add(0, newMod);
                     if (newMod.equals(modifications)) {

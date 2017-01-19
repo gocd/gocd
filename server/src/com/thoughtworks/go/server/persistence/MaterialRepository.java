@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -163,7 +163,7 @@ public class MaterialRepository extends HibernateDaoSupport {
 
                 Map<Long, List<ModificationForPipeline>> modificationsForPipeline = new HashMap<>();
                 CollectionUtil.CollectionValueMap<Long, ModificationForPipeline> modsForPipeline = CollectionUtil.collectionValMap(modificationsForPipeline,
-                        new CollectionUtil.ArrayList<ModificationForPipeline>());
+                        new CollectionUtil.ArrayList<>());
                 for (Object[] modAndPmr : allModifications) {
                     Modification mod = (Modification) modAndPmr[MODIFICATION];
                     Long relevantPipelineId = (Long) modAndPmr[RELEVANT_PIPELINE_ID];
@@ -194,7 +194,7 @@ public class MaterialRepository extends HibernateDaoSupport {
         final List<Object[]> ids = pipelineIdsQuery.list();
 
         Map<Long, List<PipelineId>> lookedUpToParentMap = new HashMap<>();
-        CollectionUtil.CollectionValueMap<Long, PipelineId> lookedUpToRelevantMap = CollectionUtil.collectionValMap(lookedUpToParentMap, new CollectionUtil.ArrayList<PipelineId>());
+        CollectionUtil.CollectionValueMap<Long, PipelineId> lookedUpToRelevantMap = CollectionUtil.collectionValMap(lookedUpToParentMap, new CollectionUtil.ArrayList<>());
         for (Object[] relevantAndLookedUpId : ids) {
             lookedUpToRelevantMap.put((Long) relevantAndLookedUpId[LOOKED_UP_PIPELINE_ID],
                     new PipelineId((String) relevantAndLookedUpId[RELEVANT_PIPELINE_NAME], (Long) relevantAndLookedUpId[RELEVANT_PIPELINE_ID]));

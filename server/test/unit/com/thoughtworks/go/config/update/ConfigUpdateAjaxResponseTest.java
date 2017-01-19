@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ public class ConfigUpdateAjaxResponseTest {
 
     @Test
     public void shouldGetJsonRepresentationForFailure() throws Exception {
-        HashMap<String, List<String>> fieldErrors = new HashMap<String, List<String>>();
+        HashMap<String, List<String>> fieldErrors = new HashMap<>();
         fieldErrors.put("field1", Arrays.asList("error 1"));
         fieldErrors.put("field2", Arrays.asList("error 2"));
         ConfigUpdateAjaxResponse response = ConfigUpdateAjaxResponse.failure("id", SC_BAD_REQUEST, "Save failed", fieldErrors, Arrays.asList("global1", "global2"));

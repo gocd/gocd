@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.materials.postcommit.pluggablescm;
 
@@ -44,7 +44,7 @@ public class PluggableSCMPostCommitHookImplementerTest {
         PluggableSCMMaterial material2 = new PluggableSCMMaterial(MaterialConfigsMother.pluggableSCMMaterialConfig("material-2", null, null));
         PluggableSCMMaterial material3 = new PluggableSCMMaterial(MaterialConfigsMother.pluggableSCMMaterialConfig("material-3", null, null));
         PluggableSCMMaterial material4 = new PluggableSCMMaterial(MaterialConfigsMother.pluggableSCMMaterialConfig("material-4", null, null));
-        Set<Material> materials = new HashSet<Material>(Arrays.asList(material1, material2, material3, material4));
+        Set<Material> materials = new HashSet<>(Arrays.asList(material1, material2, material3, material4));
         Map params = new HashMap();
         params.put(PluggableSCMPostCommitHookImplementer.SCM_NAME, "SCM-MATERIAL-1");
 
@@ -58,7 +58,7 @@ public class PluggableSCMPostCommitHookImplementerTest {
     public void shouldReturnEmptyListIfNoMatchingMaterialFound() throws Exception {
         PluggableSCMMaterial material1 = new PluggableSCMMaterial(MaterialConfigsMother.pluggableSCMMaterialConfig("material-1", null, null));
         PluggableSCMMaterial material2 = new PluggableSCMMaterial(MaterialConfigsMother.pluggableSCMMaterialConfig("material-2", null, null));
-        Set<Material> materials = new HashSet<Material>(Arrays.asList(material1, material2));
+        Set<Material> materials = new HashSet<>(Arrays.asList(material1, material2));
         Map params = new HashMap();
         params.put(PluggableSCMPostCommitHookImplementer.SCM_NAME, "unknown-scm-name");
 
@@ -70,7 +70,7 @@ public class PluggableSCMPostCommitHookImplementerTest {
     @Test
     public void shouldQueryOnlyPluggableSCMMaterialsWhilePruning() throws Exception {
         SvnMaterial material1 = mock(SvnMaterial.class);
-        Set<Material> materials = new HashSet<Material>(Arrays.asList(material1));
+        Set<Material> materials = new HashSet<>(Arrays.asList(material1));
         Map params = new HashMap();
         params.put(PluggableSCMPostCommitHookImplementer.SCM_NAME, "scm-material-1");
 
@@ -83,7 +83,7 @@ public class PluggableSCMPostCommitHookImplementerTest {
     @Test
     public void shouldReturnEmptyListIfParamHasNoValueForSCMName() throws Exception {
         PluggableSCMMaterial material1 = mock(PluggableSCMMaterial.class);
-        Set<Material> materials = new HashSet<Material>(Arrays.asList(material1));
+        Set<Material> materials = new HashSet<>(Arrays.asList(material1));
         Map params = new HashMap();
         params.put(PluggableSCMPostCommitHookImplementer.SCM_NAME, "");
 
@@ -96,7 +96,7 @@ public class PluggableSCMPostCommitHookImplementerTest {
     @Test
     public void shouldReturnEmptyListIfParamIsMissingForSCMName() throws Exception {
         PluggableSCMMaterial material1 = mock(PluggableSCMMaterial.class);
-        Set<Material> materials = new HashSet<Material>(Arrays.asList(material1));
+        Set<Material> materials = new HashSet<>(Arrays.asList(material1));
 
         Set<Material> actual = implementer.prune(materials, new HashMap());
 

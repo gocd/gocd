@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.agent.testhelpers;
 
@@ -92,7 +92,7 @@ public class DefaultWorkCreator implements WorkCreator {
         try {
             CruiseConfig config = GoConfigMother.pipelineHavingJob(PIPELINE_NAME, STAGE_NAME, JOB_PLAN_NAME, ARTIFACT_FILE.getAbsolutePath(), ARTIFACT_FOLDER.getAbsolutePath());
             BuildCause buildCause = BuildCause.createWithEmptyModifications();
-            BuildAssignment buildAssignment = BuildAssignment.create(toPlan(config), buildCause, new ArrayList<Builder>(), new File("testdata/" + CruiseConfig.WORKING_BASE_DIR + STAGE_NAME));
+            BuildAssignment buildAssignment = BuildAssignment.create(toPlan(config), buildCause, new ArrayList<>(), new File("testdata/" + CruiseConfig.WORKING_BASE_DIR + STAGE_NAME));
             return new BuildWork(buildAssignment);
         } catch (Exception e) {
             throw bomb(e);

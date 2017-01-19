@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -308,8 +308,8 @@ public class BuildWorkArtifactUploadingTest {
                 new String[]{"logs/pic/pass.png", "logs/pic-1/pass.png"});
 
         BuildWork work = new BuildWork(buildAssigment);
-        GoArtifactsManipulatorStub manipulator = new GoArtifactsManipulatorStub(new ArrayList<Property>(),
-                new ArrayList<String>(), new HttpServiceStub(), new URLService(), new ZipUtilThatRunsOutOfMemory());
+        GoArtifactsManipulatorStub manipulator = new GoArtifactsManipulatorStub(new ArrayList<>(),
+                new ArrayList<>(), new HttpServiceStub(), new URLService(), new ZipUtilThatRunsOutOfMemory());
 
         AgentIdentifier agentIdentifier = new AgentIdentifier("somename", "127.0.0.1", AGENT_UUID);
         work.doWork(agentIdentifier, new FakeBuildRepositoryRemote(), manipulator, environmentVariableContext,
@@ -329,7 +329,7 @@ public class BuildWorkArtifactUploadingTest {
     private BuildAssignment createAssignment(ArtifactPlans artifactPlans, String[] fileToCreate) {
         MaterialRevisions materialRevisions = materialRevisions();
         BuildCause buildCause = BuildCause.createWithModifications(materialRevisions, "");
-        List<Builder> builders = new ArrayList<Builder>();
+        List<Builder> builders = new ArrayList<>();
         builders.add(new CreateFileBuilder(fileToCreate));
         DefaultJobPlan plan = new DefaultJobPlan(new Resources(), artifactPlans, new ArtifactPropertiesGenerators(), -1, new JobIdentifier(PIPELINE_NAME, -2, "1", STAGE_NAME, "1", JOB_NAME), null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null);
         return BuildAssignment.create(plan, buildCause, builders, buildWorkingDirectory);

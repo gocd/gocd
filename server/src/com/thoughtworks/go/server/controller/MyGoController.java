@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -147,7 +147,7 @@ public class MyGoController {
     }
 
     private ModelAndView render(HttpServletRequest request, Message message) {
-        return render(request, message, new HashMap<String, Object>());
+        return render(request, message, new HashMap<>());
     }
 
     private ModelAndView render(HttpServletRequest request, Message message, HashMap<String, Object> data) {

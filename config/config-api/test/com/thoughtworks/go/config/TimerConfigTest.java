@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -51,7 +51,7 @@ public class TimerConfigTest {
 
     @Test
     public void shouldCreateTimerGivenTheAttributeMapIfOnlyOnChangesIsCheckedInUI(){
-        HashMap<String, String> mapOfTimerValues = new HashMap<String, String>();
+        HashMap<String, String> mapOfTimerValues = new HashMap<>();
         mapOfTimerValues.put(TimerConfig.TIMER_SPEC, "0 0 * * * ?");
         mapOfTimerValues.put(TimerConfig.TIMER_ONLY_ON_CHANGES, "1");
         TimerConfig timer = TimerConfig.createTimer(mapOfTimerValues);
@@ -61,7 +61,7 @@ public class TimerConfigTest {
 
     @Test
     public void shouldCreateTimerGivenTheAttributeMapOnlyOnChangesIsNotPresent(){
-        HashMap<String, String> mapOfTimerValues = new HashMap<String, String>();
+        HashMap<String, String> mapOfTimerValues = new HashMap<>();
         mapOfTimerValues.put(TimerConfig.TIMER_SPEC, "0 0 * * * ?");
         TimerConfig timer = TimerConfig.createTimer(mapOfTimerValues);
         assertThat(timer.getTimerSpec(), is("0 0 * * * ?"));
@@ -70,7 +70,7 @@ public class TimerConfigTest {
 
     @Test
     public void shouldCreateTimerGivenTheAttributeMapIfOnlyOnChangesIsNotCheckedInUI(){
-        HashMap<String, String> mapOfTimerValues = new HashMap<String, String>();
+        HashMap<String, String> mapOfTimerValues = new HashMap<>();
         mapOfTimerValues.put(TimerConfig.TIMER_SPEC, "0 0 * * * ?");
         mapOfTimerValues.put(TimerConfig.TIMER_ONLY_ON_CHANGES, "0");
         TimerConfig timer = TimerConfig.createTimer(mapOfTimerValues);

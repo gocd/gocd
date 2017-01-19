@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -112,7 +112,7 @@ public class GitTestRepo extends TestRepo {
     }
 
     private GitCommand git(File workingDir) {
-        return new GitCommand(null, workingDir, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<String, String>());
+        return new GitCommand(null, workingDir, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<>());
     }
 
     public GitMaterial createMaterial() {
@@ -124,22 +124,22 @@ public class GitTestRepo extends TestRepo {
     }
 
     private void checkoutRemoteBranchToLocal(String branch) {
-        new GitCommand(null, gitRepo, branch, false, new HashMap<String, String>()).checkoutRemoteBranchToLocal();
+        new GitCommand(null, gitRepo, branch, false, new HashMap<>()).checkoutRemoteBranchToLocal();
     }
 
     public List<Modification> addFileAndPush(String fileName, String message) throws IOException {
         File newFile = new File(gitRepo, fileName);
         newFile.createNewFile();
-        new GitCommand(null, gitRepo, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<String, String>()).add(newFile);
-        new GitCommand(null, gitRepo, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<String, String>()).commit(message);
+        new GitCommand(null, gitRepo, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<>()).add(newFile);
+        new GitCommand(null, gitRepo, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<>()).commit(message);
         return createMaterial().latestModification(TestFileUtil.createUniqueTempFolder("working-dir-"), new TestSubprocessExecutionContext());
     }
 
     public List<Modification> addFileAndAmend(String fileName, String message) throws IOException {
         File newFile = new File(gitRepo, fileName);
         newFile.createNewFile();
-        new GitCommand(null, gitRepo, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<String, String>()).add(newFile);
-        new GitCommandWithAmend(null, gitRepo, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<String, String>()).commitWithAmend(message, gitRepo);
+        new GitCommand(null, gitRepo, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<>()).add(newFile);
+        new GitCommandWithAmend(null, gitRepo, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<>()).commitWithAmend(message, gitRepo);
         return createMaterial().latestModification(TestFileUtil.createUniqueTempFolder("working-dir-"), new TestSubprocessExecutionContext());
     }
 

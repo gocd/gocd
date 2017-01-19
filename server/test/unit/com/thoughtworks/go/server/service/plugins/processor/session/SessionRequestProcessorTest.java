@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,7 +72,7 @@ public class SessionRequestProcessorTest {
     public void shouldPutIntoSession() {
         String pluginId = "plugin-id-1";
         String requestBody = "expected-request";
-        Map<String, String> sessionData = new HashMap<String, String>();
+        Map<String, String> sessionData = new HashMap<>();
         sessionData.put("k1", "v1");
         sessionData.put("k2", "v2");
         when(jsonMessageHandler.requestMessageSessionPut(requestBody)).thenReturn(new SessionData(pluginId, sessionData));
@@ -103,7 +103,7 @@ public class SessionRequestProcessorTest {
     @Test
     public void shouldGetFromSession() {
         String pluginId = "plugin-id-1";
-        Map<String, String> sessionData = new HashMap<String, String>();
+        Map<String, String> sessionData = new HashMap<>();
         sessionData.put("k3", "v3");
         sessionData.put("k4", "v4");
         when(session.getAttribute(pluginId)).thenReturn(sessionData);

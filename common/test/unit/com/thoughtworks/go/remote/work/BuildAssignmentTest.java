@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,13 +44,13 @@ import static org.junit.Assert.assertThat;
 public class BuildAssignmentTest {
     @Test
     public void shouldStartWithNoEnvironmentContext() throws Exception {
-        BuildAssignment buildAssignment = BuildAssignment.create(jobForPipeline("foo"), BuildCause.createManualForced(), new ArrayList<Builder>(), null);
+        BuildAssignment buildAssignment = BuildAssignment.create(jobForPipeline("foo"), BuildCause.createManualForced(), new ArrayList<>(), null);
         assertThat(buildAssignment.initialEnvironmentVariableContext(), is(new EnvironmentVariableContext()));
     }
 
     @Test
     public void shouldEnhanceInitialEnvironmentContext() throws Exception {
-        BuildAssignment buildAssignment = BuildAssignment.create(jobForPipeline("foo"), BuildCause.createManualForced(), new ArrayList<Builder>(), null);
+        BuildAssignment buildAssignment = BuildAssignment.create(jobForPipeline("foo"), BuildCause.createManualForced(), new ArrayList<>(), null);
 
         buildAssignment.enhanceEnvironmentVariables(new EnvironmentVariableContext("foo", "bar"));
 
@@ -66,7 +66,7 @@ public class BuildAssignmentTest {
         MaterialRevisions materialRevisions = new MaterialRevisions(svn, hg);
         BuildCause buildCause = BuildCause.createWithModifications(materialRevisions, "user1");
 
-        BuildAssignment buildAssignment = BuildAssignment.create(jobForPipeline("foo"), buildCause, new ArrayList<Builder>(), null);
+        BuildAssignment buildAssignment = BuildAssignment.create(jobForPipeline("foo"), buildCause, new ArrayList<>(), null);
 
         assertThat(buildAssignment.getBuildApprover(), is("user1"));
         assertThat(buildAssignment.materialRevisions().getRevisions().size(), is(materialRevisions.getRevisions().size()));
@@ -77,7 +77,7 @@ public class BuildAssignmentTest {
     @Test
     public void shouldCopyAdditionalDataToBuildAssignment() {
         MaterialRevision packageMaterialRevision = ModificationsMother.createPackageMaterialRevision("revision");
-        Map<String, String> additionalData = new HashMap<String, String>();
+        Map<String, String> additionalData = new HashMap<>();
         additionalData.put("a1", "v1");
         additionalData.put("a2", "v2");
         String additionalDataAsString = new Gson().toJson(additionalData);
@@ -85,7 +85,7 @@ public class BuildAssignmentTest {
         MaterialRevisions materialRevisions = new MaterialRevisions(packageMaterialRevision);
         BuildCause buildCause = BuildCause.createWithModifications(materialRevisions, "user1");
 
-        BuildAssignment buildAssignment = BuildAssignment.create(jobForPipeline("foo"), buildCause, new ArrayList<Builder>(), null);
+        BuildAssignment buildAssignment = BuildAssignment.create(jobForPipeline("foo"), buildCause, new ArrayList<>(), null);
 
         assertThat(buildAssignment.getBuildApprover(), is("user1"));
         assertThat(buildAssignment.materialRevisions().getRevisions().size(), is(materialRevisions.getRevisions().size()));

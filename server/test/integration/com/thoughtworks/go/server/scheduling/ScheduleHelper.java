@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -97,15 +97,15 @@ public class ScheduleHelper {
     }
 
     public ServerHealthState manuallySchedulePipelineWithRealMaterials(String pipeline, Username username) throws Exception {
-        final HashMap<String, String> revisions = new HashMap<String, String>();
+        final HashMap<String, String> revisions = new HashMap<>();
         return manuallySchedulePipelineWithRealMaterials(pipeline, username, revisions);
     }
 
     public ServerHealthState manuallySchedulePipelineWithRealMaterials(String pipeline, Username username, Map<String, String> pegging) throws Exception {
         updateMaterials(pipeline);
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
-        final HashMap<String, String> environmentVariables = new HashMap<String, String>();
-        HashMap<String, String> secureEnvironmentVariables = new HashMap<String, String>();
+        final HashMap<String, String> environmentVariables = new HashMap<>();
+        HashMap<String, String> secureEnvironmentVariables = new HashMap<>();
         pipelineScheduler.manualProduceBuildCauseAndSave(pipeline, username, new ScheduleOptions(pegging, environmentVariables, secureEnvironmentVariables), result);
         if (result.canContinue()) {
             waitForAnyScheduled(30);

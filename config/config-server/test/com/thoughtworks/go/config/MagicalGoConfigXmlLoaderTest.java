@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1832,7 +1832,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "</environments>");
         EnvironmentsConfig environmentsConfig = ConfigMigrator.loadWithMigration(content).config.getEnvironments();
         EnvironmentPipelineMatcher matcher = environmentsConfig.matchersForPipeline("pipeline1");
-        assertThat(matcher, is(new EnvironmentPipelineMatcher(new CaseInsensitiveString("uat"), new ArrayList<String>(),
+        assertThat(matcher, is(new EnvironmentPipelineMatcher(new CaseInsensitiveString("uat"), new ArrayList<>(),
                 new EnvironmentPipelinesConfig(new CaseInsensitiveString("piPeline1")))));
     }
 
@@ -3531,7 +3531,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 return property.getConfigurationValue().getValue();
             }
         });
-        assertThat(new ArrayList<String>(values), is(asList("http://fake-go-server", "godev", "password")));
+        assertThat(new ArrayList<>(values), is(asList("http://fake-go-server", "godev", "password")));
     }
 
     @Test

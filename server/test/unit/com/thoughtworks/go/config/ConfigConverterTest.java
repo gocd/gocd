@@ -1,3 +1,19 @@
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.materials.Filter;
@@ -416,7 +432,7 @@ public class ConfigConverterTest {
         // this url would be configured inside xml config-repo section
         HgMaterialConfig configRepoMaterial = new HgMaterialConfig("url","folder");
         when(context.configMaterial()).thenReturn(configRepoMaterial);
-        CRConfigMaterial crConfigMaterial = new CRConfigMaterial(null, null,new CRFilter(new ArrayList<String>(),true));
+        CRConfigMaterial crConfigMaterial = new CRConfigMaterial(null, null,new CRFilter(new ArrayList<>(),true));
 
         MaterialConfig materialConfig = configConverter.toMaterialConfig(crConfigMaterial,context);
         assertNull("shouldSetEmptyMaterialNameAsInConfigRepoSourceCode",materialConfig.getName());
@@ -803,7 +819,7 @@ public class ConfigConverterTest {
     @Test
     public void shouldConvertApprovalWhenManualAndNoAuth()
     {
-        CRApproval crApproval = new CRApproval(CRApprovalCondition.manual, new ArrayList<String>(), new ArrayList<String>());
+        CRApproval crApproval = new CRApproval(CRApprovalCondition.manual, new ArrayList<>(), new ArrayList<>());
 
         Approval approval = configConverter.toApproval(crApproval);
         assertThat(approval.isManual(),is(true));
@@ -812,7 +828,7 @@ public class ConfigConverterTest {
     @Test
     public void shouldConvertApprovalWhenSuccess()
     {
-        CRApproval crApproval = new CRApproval(CRApprovalCondition.success, new ArrayList<String>(), new ArrayList<String>());
+        CRApproval crApproval = new CRApproval(CRApprovalCondition.success, new ArrayList<>(), new ArrayList<>());
 
         Approval approval = configConverter.toApproval(crApproval);
         assertThat(approval.isManual(),is(false));

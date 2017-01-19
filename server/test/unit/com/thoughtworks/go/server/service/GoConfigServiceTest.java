@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -698,7 +698,7 @@ public class GoConfigServiceTest {
         mockConfigWithSecurity();
 
         User user = getUser("badger", 10L);
-        PipelineSelections blacklistPipelineSelections = new PipelineSelections(new ArrayList<String>(), date, user.getId(), false);
+        PipelineSelections blacklistPipelineSelections = new PipelineSelections(new ArrayList<>(), date, user.getId(), false);
         when(pipelineRepository.findPipelineSelectionsByUserId(user.getId())).thenReturn(blacklistPipelineSelections);
 
         goConfigService.persistSelectedPipelines(null, user.getId(), Arrays.asList("pipelineX", "pipeline3"), true);
@@ -713,7 +713,7 @@ public class GoConfigServiceTest {
         mockConfigWithSecurity();
 
         User user = getUser("badger", 10L);
-        PipelineSelections whitelistPipelineSelections = new PipelineSelections(new ArrayList<String>(), date, user.getId(), true);
+        PipelineSelections whitelistPipelineSelections = new PipelineSelections(new ArrayList<>(), date, user.getId(), true);
         when(pipelineRepository.findPipelineSelectionsByUserId(user.getId())).thenReturn(whitelistPipelineSelections);
 
         goConfigService.persistSelectedPipelines(null, user.getId(), Arrays.asList("pipelineX", "pipeline3"), false);
@@ -1246,7 +1246,7 @@ public class GoConfigServiceTest {
         DependencyMaterialConfig dependencyMaterialConfig = MaterialConfigsMother.dependencyMaterialConfig();
         SvnMaterialConfig svnMaterialConfig = MaterialConfigsMother.svnMaterialConfig();
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig = MaterialConfigsMother.pluggableSCMMaterialConfig();
-        HashSet<MaterialConfig> materialConfigs = new HashSet<MaterialConfig>(Arrays.asList(dependencyMaterialConfig, svnMaterialConfig, pluggableSCMMaterialConfig));
+        HashSet<MaterialConfig> materialConfigs = new HashSet<>(Arrays.asList(dependencyMaterialConfig, svnMaterialConfig, pluggableSCMMaterialConfig));
 
         when(goConfigService.getCurrentConfig()).thenReturn(config);
         when(config.getAllUniqueMaterialsBelongingToAutoPipelinesAndConfigRepos()).thenReturn(materialConfigs);
@@ -1263,7 +1263,7 @@ public class GoConfigServiceTest {
         DependencyMaterialConfig dependencyMaterialConfig = MaterialConfigsMother.dependencyMaterialConfig();
         SvnMaterialConfig svnMaterialConfig = MaterialConfigsMother.svnMaterialConfig();
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig = MaterialConfigsMother.pluggableSCMMaterialConfig();
-        HashSet<MaterialConfig> materialConfigs = new HashSet<MaterialConfig>(Arrays.asList(dependencyMaterialConfig, svnMaterialConfig, pluggableSCMMaterialConfig));
+        HashSet<MaterialConfig> materialConfigs = new HashSet<>(Arrays.asList(dependencyMaterialConfig, svnMaterialConfig, pluggableSCMMaterialConfig));
 
         when(goConfigService.getCurrentConfig()).thenReturn(config);
         when(config.getAllUniqueMaterialsBelongingToAutoPipelinesAndConfigRepos()).thenReturn(materialConfigs);

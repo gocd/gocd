@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -148,12 +148,12 @@ public class EnvironmentVariablesConfigTest {
     @Test
     public void shouldSetConfigAttributesSecurely(){
         environmentVariablesConfig = new EnvironmentVariablesConfig();
-        ArrayList<Map<String,String>> attribs = new ArrayList<Map<String, String>>();
-        Map<String,String> var1 = new HashMap<String, String>();
+        ArrayList<Map<String,String>> attribs = new ArrayList<>();
+        Map<String,String> var1 = new HashMap<>();
         var1.put(EnvironmentVariableConfig.NAME, "name-var1");
         var1.put(EnvironmentVariableConfig.VALUE, "val-var1");
         attribs.add(var1);
-        Map<String,String> var2 = new HashMap<String, String>();
+        Map<String,String> var2 = new HashMap<>();
         var2.put(EnvironmentVariableConfig.NAME, "name-var2");
         var2.put(EnvironmentVariableConfig.VALUE, "val-var2");
         var2.put(EnvironmentVariableConfig.SECURE, "true");

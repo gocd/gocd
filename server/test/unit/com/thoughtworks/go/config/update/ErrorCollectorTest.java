@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config.update;
 
@@ -39,7 +39,7 @@ public class ErrorCollectorTest {
         first.add("field-one", "error-one");
         ConfigErrors second = new ConfigErrors();
         second.add("field-two", "error-two");
-        ArrayList<String> errorBucket = new ArrayList<String>();
+        ArrayList<String> errorBucket = new ArrayList<>();
         ErrorCollector.collectGlobalErrors(errorBucket, Arrays.asList(first, second));
         assertThat(errorBucket.size(),is(2));
         assertThat(errorBucket.contains("error-one"),is(true));
@@ -53,13 +53,13 @@ public class ErrorCollectorTest {
         packageRepository.getConfiguration().add(new ConfigurationProperty(new ConfigurationKey("name"),new ConfigurationValue("value")));
         packageRepository.getConfiguration().get(0).getConfigurationKey().addError("name", "url is mandatory field");
 
-        HashMap<String, List<String>> errorsMap = new HashMap<String, List<String>>();
+        HashMap<String, List<String>> errorsMap = new HashMap<>();
         ErrorCollector.collectFieldErrors(errorsMap, "package_repository", packageRepository);
 
-        List<String> nameErrors = new ArrayList<String>();
+        List<String> nameErrors = new ArrayList<>();
         nameErrors.add("name is mandatory field");
         assertThat(errorsMap.get("package_repository[name]"), is(nameErrors));
-        List<String> urlErrors = new ArrayList<String>();
+        List<String> urlErrors = new ArrayList<>();
         urlErrors.add("url is mandatory field");
         assertThat(errorsMap.get("package_repository[configuration][0][configurationKey][name]"), is(urlErrors));
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -397,7 +397,7 @@ public class ValueStreamMapServiceIntegrationTest {
 
         PipelineDependencyNode p1_node = (PipelineDependencyNode) allLevels.get(CURRENT_PIPELINE_LEVEL - 1).get(1);
         assertThat(p1_node.revisions().toString(), p1_node.revisions().isEmpty(), is(true));
-        assertThat((String) ReflectionUtil.getField((p1_node.getMessage()), "key"), is("VSM_PIPELINE_UNAUTHORIZED"));
+        assertThat(ReflectionUtil.getField((p1_node.getMessage()), "key"), is("VSM_PIPELINE_UNAUTHORIZED"));
         assertThat(p1_node.getViewType(), Is.is(VSMViewType.NO_PERMISSION));
 
         PipelineDependencyNode currentNode = (PipelineDependencyNode) allLevels.get(CURRENT_PIPELINE_LEVEL).get(0);
@@ -411,7 +411,7 @@ public class ValueStreamMapServiceIntegrationTest {
 
         PipelineDependencyNode p4_node = (PipelineDependencyNode) allLevels.get(CURRENT_PIPELINE_LEVEL + 2).get(0);
         assertThat(p4_node.revisions().toString(), p4_node.revisions().isEmpty(), is(true));
-        assertThat((String) ReflectionUtil.getField((p4_node.getMessage()), "key"), is("VSM_PIPELINE_UNAUTHORIZED"));
+        assertThat(ReflectionUtil.getField((p4_node.getMessage()), "key"), is("VSM_PIPELINE_UNAUTHORIZED"));
         assertThat(p1_node.getViewType(), is(VSMViewType.NO_PERMISSION));
     }
 
@@ -453,7 +453,7 @@ public class ValueStreamMapServiceIntegrationTest {
 
         PipelineDependencyNode p1_node = (PipelineDependencyNode) allLevels.get(CURRENT_PIPELINE_LEVEL - 1).get(1);
         assertThat(p1_node.revisions().toString(), p1_node.revisions().isEmpty(), is(true));
-        assertThat((String) ReflectionUtil.getField((p1_node.getMessage()), "key"), is("VSM_PIPELINE_UNAUTHORIZED"));
+        assertThat(ReflectionUtil.getField((p1_node.getMessage()), "key"), is("VSM_PIPELINE_UNAUTHORIZED"));
         assertThat(p1_node.getViewType(), is(VSMViewType.NO_PERMISSION));
 
         PipelineDependencyNode currentNode = (PipelineDependencyNode) allLevels.get(CURRENT_PIPELINE_LEVEL).get(0);
@@ -467,7 +467,7 @@ public class ValueStreamMapServiceIntegrationTest {
 
         PipelineDependencyNode p4_node = (PipelineDependencyNode) allLevels.get(CURRENT_PIPELINE_LEVEL + 2).get(0);
         assertThat(p4_node.revisions().toString(), p4_node.revisions().isEmpty(), is(true));
-        assertThat((String) ReflectionUtil.getField((p4_node.getMessage()), "key"), is("VSM_PIPELINE_UNAUTHORIZED"));
+        assertThat(ReflectionUtil.getField((p4_node.getMessage()), "key"), is("VSM_PIPELINE_UNAUTHORIZED"));
         assertThat(p1_node.getViewType(), is(VSMViewType.NO_PERMISSION));
     }
 

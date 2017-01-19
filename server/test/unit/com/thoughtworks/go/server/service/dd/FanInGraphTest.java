@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ public class FanInGraphTest {
         CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(p1, p2, p3, p4));
         FanInGraph faninGraph = new FanInGraph(cruiseConfig, p4.name(), null, null, null, null);
         List<ScmMaterialConfig> scmMaterialNodes = faninGraph.getScmMaterials();
-        List<String> scmMaterialUrls = new ArrayList<String>();
+        List<String> scmMaterialUrls = new ArrayList<>();
         for (ScmMaterialConfig scmMaterialNode : scmMaterialNodes) {
             scmMaterialUrls.add(scmMaterialNode.getUrl().toString());
         }

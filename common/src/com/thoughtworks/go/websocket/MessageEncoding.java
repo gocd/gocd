@@ -23,12 +23,12 @@ import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.ElasticAgentRuntimeInfo;
 import com.thoughtworks.go.util.StringUtil;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 
 import java.io.*;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -44,7 +44,7 @@ public class MessageEncoding {
                 try (ObjectOutputStream objectStream = new ObjectOutputStream(binaryOutput)) {
                     objectStream.writeObject(work);
                 }
-                return Base64.encodeBase64String(binaryOutput.toByteArray());
+                return Base64.getEncoder().encodeToString(binaryOutput.toByteArray());
             }
         } catch (IOException e) {
             throw bomb(e);
@@ -53,7 +53,7 @@ public class MessageEncoding {
 
     public static Work decodeWork(String data) {
         try {
-            byte[] binary = Base64.decodeBase64(data);
+            byte[] binary = Base64.getDecoder().decode(data.getBytes(StandardCharsets.UTF_8));
             try (ObjectInputStream objectStream = new ObjectInputStream(new ByteArrayInputStream(binary))) {
                 return (Work) objectStream.readObject();
             }

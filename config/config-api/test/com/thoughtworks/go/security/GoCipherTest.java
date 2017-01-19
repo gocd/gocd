@@ -16,10 +16,6 @@
 
 package com.thoughtworks.go.security;
 
-import java.io.File;
-import java.io.IOException;
-import javax.crypto.spec.DESKeySpec;
-
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
@@ -27,6 +23,12 @@ import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import javax.crypto.spec.DESKeySpec;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 import static com.thoughtworks.go.util.ReflectionUtil.getField;
 import static com.thoughtworks.go.util.ReflectionUtil.invoke;
@@ -78,6 +80,17 @@ public class GoCipherTest {
     public void shouldErrorOutWhenCipherTextIsTamperedWith() {
         try {
             goCipher.decrypt("some junk that should not decrypt to something sane. I mean, seriously, how could this make sense.");
+            fail("Should have thrown DataLengthException");
+        }
+        catch (Exception e) {
+            assertThat(e.getMessage(), is("Illegal base64 character 20"));
+        }
+    }
+
+    @Test
+    public void shouldErrorOutWhenCipherTextIsTamperedWithEvenIfTextIsBas64Encoded() {
+        try {
+            goCipher.decrypt(Base64.getEncoder().encodeToString("some junk that should not decrypt to something sane. I mean, seriously, how could this make sense.".getBytes(StandardCharsets.UTF_8)));
             fail("Should have thrown DataLengthException");
         }
         catch (Exception e) {

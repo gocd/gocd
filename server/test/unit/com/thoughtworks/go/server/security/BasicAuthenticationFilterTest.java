@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.security;
 
 import com.thoughtworks.go.i18n.Localizer;
-import org.apache.commons.codec.binary.Base64;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -40,9 +39,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class BasicAuthenticationFilterTest {
     private String errorMessage;
@@ -74,7 +71,7 @@ public class BasicAuthenticationFilterTest {
         });
         assertThat(BasicAuthenticationFilter.isProcessingBasicAuth(), is(false));
         MockHttpServletRequest httpRequest = new MockHttpServletRequest();
-        httpRequest.addHeader("Authorization", "Basic " + Base64.encodeBase64String("loser:boozer".getBytes()));
+        httpRequest.addHeader("Authorization", "Basic " + java.util.Base64.getEncoder().encodeToString("loser:boozer".getBytes()));
         filter.doFilterHttp(httpRequest, new MockHttpServletResponse(), new FilterChain() {
             public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse) throws IOException, ServletException {
 

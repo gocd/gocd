@@ -59,8 +59,7 @@ class PipelinesController < ApplicationController
   end
 
   def select_pipelines
-    pipeline_selections_id = go_config_service.persistSelectedPipelines(cookies[:selected_pipelines], current_user_entity_id, ((params[:selector]||{})[:pipeline]||[]), !params[:show_new_pipelines].nil?)
-    cookies[:selected_pipelines] = {:value => pipeline_selections_id, :expires => 1.year.from_now.beginning_of_day} if !mycruise_available?
+    pipeline_selections_service.persistSelectedPipelines(current_user_entity_id, ((params[:selector]||{})[:pipeline]||[]), !params[:show_new_pipelines].nil?)
     render :nothing => true
   end
 
@@ -88,7 +87,7 @@ class PipelinesController < ApplicationController
   end
 
   def load_pipeline_related_information
-    @pipeline_selections = go_config_service.getSelectedPipelines(cookies[:selected_pipelines], current_user_entity_id)
+    @pipeline_selections = pipeline_selections_service.getSelectedPipelines(current_user_entity_id)
     @pipeline_groups = pipeline_history_service.allActivePipelineInstances(current_user, @pipeline_selections)
     @pipeline_configs = pipeline_config_service.viewableGroupsFor(current_user)
   end

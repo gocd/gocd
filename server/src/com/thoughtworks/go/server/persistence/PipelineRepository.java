@@ -1,48 +1,43 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.persistence;
 
 import com.thoughtworks.go.database.Database;
 import com.thoughtworks.go.database.QueryExtensions;
-import java.math.BigInteger;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.thoughtworks.go.domain.PipelineTimelineEntry;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.domain.user.PipelineSelections;
-import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.lang.StringUtils;
+import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.apache.log4j.Logger;
-import org.hibernate.HibernateException;
-import org.hibernate.SQLQuery;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
+import org.hibernate.*;
+import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+
+import java.math.BigInteger;
+import java.sql.SQLException;
+import java.util.*;
 
 /**
  * @understands how to store and retrieve piplines from the database
@@ -51,12 +46,14 @@ import org.springframework.stereotype.Component;
 public class PipelineRepository extends HibernateDaoSupport {
     private static final Logger LOGGER = Logger.getLogger(PipelineRepository.class);
     private final QueryExtensions queryExtensions;
+    private TransactionTemplate transactionTemplate;
     private GoCache goCache;
 
     @Autowired
-    public PipelineRepository(SessionFactory sessionFactory, GoCache goCache, Database databaseStrategy) {
+    public PipelineRepository(SessionFactory sessionFactory, GoCache goCache, Database databaseStrategy, TransactionTemplate transactionTemplate) {
         this.goCache = goCache;
         this.queryExtensions = databaseStrategy.getQueryExtensions();
+        this.transactionTemplate = transactionTemplate;
         setSessionFactory(sessionFactory);
     }
 
@@ -238,34 +235,8 @@ public class PipelineRepository extends HibernateDaoSupport {
         return pipelineSelections.getId();
     }
 
-    public PipelineSelections findPipelineSelectionsById(long id) {
-        PipelineSelections pipelineSelections;
-        String key = pipelineSelectionForCookieKey(id);
-        if (goCache.isKeyInCache(key)) {
-            return (PipelineSelections) goCache.get(key);
-        }
-        synchronized (key) {
-            if (goCache.isKeyInCache(key)) {
-                return (PipelineSelections) goCache.get(key);
-            }
-            pipelineSelections = getHibernateTemplate().get(PipelineSelections.class, id);
-            goCache.put(key, pipelineSelections);
-            return pipelineSelections;
-        }
-    }
-
-    public PipelineSelections findPipelineSelectionsById(String id) {
-        if (StringUtils.isEmpty(id)) {
-            return null;
-        }
-        return findPipelineSelectionsById(Long.parseLong(id));
-    }
-
     public PipelineSelections findPipelineSelectionsByUserId(Long userId) {
-        if (userId == null) {
-            return null;
-        }
-        PipelineSelections pipelineSelections;
+        PipelineSelections pipelineSelections = null;
         String key = pipelineSelectionForUserIdKey(userId);
         if (goCache.isKeyInCache(key)) {
             return (PipelineSelections) goCache.get(key);
@@ -274,11 +245,17 @@ public class PipelineRepository extends HibernateDaoSupport {
             if (goCache.isKeyInCache(key)) {
                 return (PipelineSelections) goCache.get(key);
             }
-            List list = getHibernateTemplate().find("FROM PipelineSelections WHERE userId = ?", new Object[]{userId});
-            if (list.isEmpty()) {
-                pipelineSelections = null;
-            } else {
-                pipelineSelections = (PipelineSelections) list.get(0);
+            List list = (List) transactionTemplate.execute(new TransactionCallback() {
+                @Override
+                public Object doInTransaction(TransactionStatus transactionStatus) {
+                    Criterion userIdRestriction = userId != null ? Restrictions.eq("userId", userId) : Restrictions.isNull("userId");
+                    Criteria criteria = PipelineRepository.this.getSessionFactory().getCurrentSession().createCriteria(PipelineSelections.class).add(userIdRestriction).addOrder(Order.asc("id"));
+                    return criteria.list();
+                }
+            });
+
+            if (!list.isEmpty()) {
+                pipelineSelections = (PipelineSelections) list.get(list.size() - 1);
             }
             goCache.put(key, pipelineSelections);
             return pipelineSelections;

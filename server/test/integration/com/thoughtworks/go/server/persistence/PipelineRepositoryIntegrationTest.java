@@ -1,30 +1,20 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.persistence;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.CruiseConfig;
@@ -34,12 +24,7 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
-import com.thoughtworks.go.domain.DefaultSchedulingContext;
-import com.thoughtworks.go.domain.MaterialRevision;
-import com.thoughtworks.go.domain.MaterialRevisions;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.PipelineTimelineEntry;
-import com.thoughtworks.go.domain.User;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.materials.Modification;
@@ -67,6 +52,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 
+import java.util.*;
+
 import static com.thoughtworks.go.helper.ModificationsMother.oneModifiedFile;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
@@ -74,9 +61,7 @@ import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
@@ -96,6 +81,7 @@ public class PipelineRepositoryIntegrationTest {
     @Autowired private GoConfigService goConfigService;
     @Autowired private GoConfigDao goConfigDao;
     @Autowired private InstanceFactory instanceFactory;
+    @Autowired private org.hibernate.SessionFactory sessionFactory;
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private static final String PIPELINE_NAME = "pipeline";
@@ -111,6 +97,12 @@ public class PipelineRepositoryIntegrationTest {
     @After
     public void teardown() throws Exception {
         configHelper.onTearDown();
+        transactionTemplate.execute(new TransactionCallback() {
+            @Override
+            public Object doInTransaction(TransactionStatus status) {
+                return sessionFactory.getCurrentSession().delete("FROM PipelineSelections");
+            }
+        });
         dbHelper.onTearDown();
     }
 
@@ -320,25 +312,12 @@ public class PipelineRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldReturnNullForInvalidIds() {
-        assertThat(pipelineRepository.findPipelineSelectionsById(null), is(nullValue()));
-        assertThat(pipelineRepository.findPipelineSelectionsById(""), is(nullValue()));
-        assertThat(pipelineRepository.findPipelineSelectionsById("123"), is(nullValue()));
-        try {
-            pipelineRepository.findPipelineSelectionsById("foo");
-            fail("should throw error");
-        } catch (NumberFormatException e) {
-
-        }
-    }
-
-    @Test
     public void shouldSaveSelectedPipelinesWithoutUserId() {
         Date date = new Date();
         List<String> unSelected = Arrays.asList("pipeline1", "pipeline2");
 
         long id = pipelineRepository.saveSelectedPipelines(new PipelineSelections(unSelected, date, null, true));
-        PipelineSelections found = pipelineRepository.findPipelineSelectionsById(id);
+        PipelineSelections found = findPipelineSelectionsById(id);
 
         assertHasPipelines(found, new String[]{"pipeline3", "pipeline4"});
         assertHasPipelines(found, new String[]{"pipeline1", "pipeline2"}, false);
@@ -352,7 +331,7 @@ public class PipelineRepositoryIntegrationTest {
 
         List<String> unSelected = Arrays.asList("pipeline1", "pipeline2");
         long id = pipelineRepository.saveSelectedPipelines(new PipelineSelections(unSelected, new Date(), user.getId(), true));
-        assertThat(pipelineRepository.findPipelineSelectionsById(id).userId(), is(user.getId()));
+        assertThat(findPipelineSelectionsById(id).userId(), is(user.getId()));
     }
 
     @Test
@@ -361,8 +340,14 @@ public class PipelineRepositoryIntegrationTest {
 
         List<String> unSelected = Arrays.asList("pipeline1", "pipeline2");
         long id = pipelineRepository.saveSelectedPipelines(new PipelineSelections(unSelected, new Date(), user.getId(), false));
-        assertThat(pipelineRepository.findPipelineSelectionsById(id).isBlacklist(), is(false));
+
+        assertThat(findPipelineSelectionsById(id).isBlacklist(), is(false));
     }
+
+    PipelineSelections findPipelineSelectionsById(long id) {
+        return pipelineRepository.getHibernateTemplate().get(PipelineSelections.class, id);
+    }
+
 
     @Test
     public void shouldSaveSelectedPipelinesWithBlacklistPreferenceTrue() {
@@ -370,7 +355,7 @@ public class PipelineRepositoryIntegrationTest {
 
         List<String> unSelected = Arrays.asList("pipeline1", "pipeline2");
         long id = pipelineRepository.saveSelectedPipelines(new PipelineSelections(unSelected, new Date(), user.getId(), true));
-        assertThat(pipelineRepository.findPipelineSelectionsById(id).isBlacklist(), is(true));
+        assertThat(findPipelineSelectionsById(id).isBlacklist(), is(true));
     }
 
     @Test
@@ -383,12 +368,20 @@ public class PipelineRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldReturnNullAsPipelineSelectionsIfUserIdIsNull() {
+    public void shouldReturnNullAsPipelineSelectionsNoSelectionHasBeenSavedForNullUserId() {
         assertThat(pipelineRepository.findPipelineSelectionsByUserId(null), is(nullValue()));
     }
 
     @Test
-    public void shouldReturnNullAsPipelineSelectionsIfSelectionsExistForUser() {
+    public void shouldReturnLastSavedSelectionsIfUserIdIsNullAndSelectionsExist() {
+        List<String> unSelected = Arrays.asList("pipeline1", "pipeline2");
+        long selectionId = pipelineRepository.saveSelectedPipelines(new PipelineSelections(unSelected, new Date(), null, true));
+
+        assertThat(pipelineRepository.findPipelineSelectionsByUserId(null).getId(), is(selectionId));
+    }
+
+    @Test
+    public void shouldReturnNullAsPipelineSelectionsIfSelectionsDoesNotExistForUser() {
         assertThat(pipelineRepository.findPipelineSelectionsByUserId(10L), is(nullValue()));
     }
 

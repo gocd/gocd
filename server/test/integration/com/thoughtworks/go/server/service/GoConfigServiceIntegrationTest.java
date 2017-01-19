@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,6 @@ import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.After;
@@ -69,9 +68,7 @@ public class GoConfigServiceIntegrationTest {
     @Autowired private GoConfigService goConfigService;
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private Localizer localizer;
-    @Autowired private ConfigRepository configRepo;
     @Autowired private CachedGoConfig cachedGoConfig;
-    @Autowired private ServerConfigService serverConfigService;
 
     private GoConfigFileHelper configHelper;
 

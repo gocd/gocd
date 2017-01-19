@@ -48,13 +48,13 @@ import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMem
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
+@Ignore
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
         "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
 })
-
 public class PipelineConfigServicePerformanceTest {
     private static String consoleAppenderForPerformanceTest;
 
@@ -128,6 +128,70 @@ public class PipelineConfigServicePerformanceTest {
         user = new Username(new CaseInsensitiveString("admin"));
         consoleAppenderForPerformanceTest = "ConsoleAppenderForPerformanceTest";
         rollingFileAppenderForPerformanceTest = "RollingFileAppenderForPerformanceTest";
+    }
+
+    @Test
+    public void performanceTestForUpdatePipeline() throws Exception {
+        setupPipelines(numberOfRequests);
+        final ConcurrentHashMap<String, Boolean> results = new ConcurrentHashMap<>();
+        run(new Runnable() {
+            @Override
+            public void run() {
+                PipelineConfig pipelineConfig = goConfigService.getConfigForEditing().pipelineConfigByName(new CaseInsensitiveString(Thread.currentThread().getName()));
+                pipelineConfig.add(new StageConfig(new CaseInsensitiveString("additional_stage"), new JobConfigs(new JobConfig(new CaseInsensitiveString("addtn_job")))));
+                PerfTimer updateTimer = PerfTimer.start("Saving pipelineConfig : " + pipelineConfig.name());
+                pipelineConfigService.updatePipelineConfig(user, pipelineConfig, entityHashingService.md5ForEntity(pipelineConfig), result);
+                updateTimer.stop();
+                results.put(Thread.currentThread().getName(), result.isSuccessful());
+                if (!result.isSuccessful()) {
+                    LOGGER.error(result.toString());
+                    LOGGER.error("Errors on pipeline" + Thread.currentThread().getName() + " are : " + ListUtil.join(getAllErrors(pipelineConfig)));
+                }
+            }
+        }, numberOfRequests, results);
+    }
+
+    @Test
+    public void performanceTestForDeletePipeline() throws Exception {
+        setupPipelines(numberOfRequests);
+        final ConcurrentHashMap<String, Boolean> results = new ConcurrentHashMap<>();
+        run(new Runnable() {
+            @Override
+            public void run() {
+                PipelineConfig pipelineConfig = goConfigService.getConfigForEditing().pipelineConfigByName(new CaseInsensitiveString(Thread.currentThread().getName()));
+                pipelineConfig.add(new StageConfig(new CaseInsensitiveString("additional_stage"), new JobConfigs(new JobConfig(new CaseInsensitiveString("addtn_job")))));
+                PerfTimer updateTimer = PerfTimer.start("Saving pipelineConfig : " + pipelineConfig.name());
+                pipelineConfigService.deletePipelineConfig(user, pipelineConfig, result);
+                updateTimer.stop();
+                results.put(Thread.currentThread().getName(), result.isSuccessful());
+                if (!result.isSuccessful()) {
+                    LOGGER.error(result.toString());
+                    LOGGER.error("Errors on pipeline" + Thread.currentThread().getName() + " are : " + ListUtil.join(getAllErrors(pipelineConfig)));
+                }
+            }
+        }, numberOfRequests, results);
+    }
+
+    @Test
+    public void performanceTestForCreatePipeline() throws Exception {
+        setupPipelines(0);
+        final ConcurrentHashMap<String, Boolean> results = new ConcurrentHashMap<>();
+        run(new Runnable() {
+            @Override
+            public void run() {
+                JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("job"));
+                StageConfig stageConfig = new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(jobConfig));
+                PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString(Thread.currentThread().getName()), new MaterialConfigs(new GitMaterialConfig("FOO")), stageConfig);
+                PerfTimer updateTimer = PerfTimer.start("Saving pipelineConfig : " + pipelineConfig.name());
+                pipelineConfigService.createPipelineConfig(user, pipelineConfig, result, "jumbo");
+                updateTimer.stop();
+                results.put(Thread.currentThread().getName(), result.isSuccessful());
+                if (!result.isSuccessful()) {
+                    LOGGER.error(result.toString());
+                    LOGGER.error("Errors on pipeline" + Thread.currentThread().getName() + " are : " + ListUtil.join(getAllErrors(pipelineConfig)));
+                }
+            }
+        }, numberOfRequests, results);
     }
 
     @After

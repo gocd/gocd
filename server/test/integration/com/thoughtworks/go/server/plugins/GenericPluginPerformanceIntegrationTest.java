@@ -1,43 +1,39 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2015 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.plugins;
 
+import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
+import com.thoughtworks.go.helper.MaterialsMother;
+import com.thoughtworks.go.plugin.infra.DefaultPluginManager;
+import com.thoughtworks.go.plugin.infra.monitor.PluginJarChangeListener;
+import com.thoughtworks.go.server.service.MaterialService;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
-import com.thoughtworks.go.domain.config.ConfigurationProperty;
-import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
-import com.thoughtworks.go.helper.MaterialsMother;
-import com.thoughtworks.go.server.service.MaterialService;
-import com.thoughtworks.go.plugin.infra.DefaultPluginManager;
-import com.thoughtworks.go.plugin.infra.monitor.PluginFileDetails;
-import com.thoughtworks.go.plugin.infra.monitor.PluginJarChangeListener;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -49,28 +45,6 @@ public class GenericPluginPerformanceIntegrationTest  {
     @Autowired private DefaultPluginManager defaultPluginManager;
     @Autowired private PluginJarChangeListener pluginJarChangeListener;
     @Autowired private MaterialService materialService;
-
-    @Ignore
-    @Test
-    public void testPluginCallsInParallel() throws Exception {
-        String pathToPluginJar = "/home/godev/Downloads/yum-repo-exec-poller.jar";
-
-        // Example: To hit 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3
-        // Total number of requests: 15, concurrencyLevel = anything, numberOfDifferentIndexes = 3
-        int totalNumberOfRequests = 100;
-        int concurrencyLevel = 10;
-        int numberOfDifferentIndexes = 20;
-
-        defaultPluginManager.startInfrastructure(true);
-        pluginJarChangeListener.pluginJarAdded(new PluginFileDetails(new File(pathToPluginJar), true));
-
-        List<Callable<Object>> operations = new ArrayList<Callable<Object>>();
-        for (int i = 0; i < totalNumberOfRequests; i++) {
-            operations.add(operation(i % numberOfDifferentIndexes));
-        }
-
-        runInParallel(concurrencyLevel, operations);
-    }
 
     private void runInParallel(int concurrencyLevel, List<Callable<Object>> operations) throws InterruptedException {
         long start = System.currentTimeMillis();

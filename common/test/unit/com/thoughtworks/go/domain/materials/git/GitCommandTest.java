@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,10 +58,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.hamcrest.core.StringEndsWith.endsWith;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class GitCommandTest {
@@ -461,30 +458,6 @@ public class GitCommandTest {
     }
 
     @Test(expected = Exception.class)
-    @Ignore
-    public void shouldFailGitCommandExecutionWhenProtocolIsDisallowed() throws Exception {
-        final Map<String, String> whiteListWhichDoesNotContainFileProtocol = new HashMap<>();
-        whiteListWhichDoesNotContainFileProtocol.put("GIT_ALLOW_PROTOCOL", "git");
-
-        when(testSubprocessExecutionContext.getDefaultEnvironmentVariables()).thenReturn(whiteListWhichDoesNotContainFileProtocol);
-        GitCommand.checkConnection(new UrlArgument(gitRepo.projectRepositoryUrl()), "master", testSubprocessExecutionContext.getDefaultEnvironmentVariables());
-    }
-
-    @Test(expected = Exception.class)
-    @Ignore
-    public void shouldFailGitCloneWhenProtocolIsDisallowed() throws Exception {
-        final Map<String, String> whiteListWhichDoesNotContainFileProtocol = new HashMap<>();
-        whiteListWhichDoesNotContainFileProtocol.put("GIT_ALLOW_PROTOCOL", "git");
-        final TestSubprocessExecutionContext executionContext = testSubprocessExecutionContext;
-        when(executionContext.getDefaultEnvironmentVariables()).thenReturn(whiteListWhichDoesNotContainFileProtocol);
-
-        GitCommand gitCommand = new GitCommand("unique-material", null, "master", false, executionContext.getDefaultEnvironmentVariables());
-        InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
-        gitCommand.clone(outputStreamConsumer, gitRepo.projectRepositoryUrl());
-        GitCommand.checkConnection(new UrlArgument("git://somewhere.is.not.exist"), "master", testSubprocessExecutionContext.getDefaultEnvironmentVariables());
-    }
-
-    @Test(expected = Exception.class)
     public void shouldThrowExceptionWhenRemoteBranchDoesNotExist() throws Exception {
         GitCommand.checkConnection(new UrlArgument(gitRepo.projectRepositoryUrl()), "Invalid_Branch", testSubprocessExecutionContext.getDefaultEnvironmentVariables());
     }
@@ -530,18 +503,6 @@ public class GitCommandTest {
         } catch (Exception e) {
             assertThat(e.getMessage(), anyOf(containsString("The remote end hung up unexpectedly"), containsString("Could not read from remote repository")));
         }
-    }
-
-    @Test
-    @Ignore("It seems that Git log/diff-tree output filepath in a wrong way.  fix later")
-    public void shouldSupportUTF8InCheckIn() throws IOException {
-        String filename = "司徒空在此.scn";
-        String message = "司徒空在此";
-        gitRepo.addFileAndPush(filename, message);
-
-        Modification modification = git.latestModification().get(0);
-        assertThat(modification.getModifiedFiles().get(0).getFileName(), containsString(filename));
-        assertThat(modification.getComment(), is(message));
     }
 
     @Test
@@ -612,24 +573,6 @@ public class GitCommandTest {
         clonedCopy.resetWorkingDir(outputStreamConsumer, new StringRevision(modifications.get(0).getRevision()));
 
         assertThat(FileUtils.readFileToString(fileInSubmodule), is("NEW CONTENT OF FILE"));
-    }
-
-    @Test
-    @Ignore("Test to reproduce #152 - Will fix. -Aravind")
-    public void shouldAllowSubmoduleToHaveDifferentNameFromItsPath() throws Exception {
-        InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
-        GitSubmoduleRepos submoduleRepos = new GitSubmoduleRepos();
-
-        String submoduleNameInGitModulesFile = "some-submodule-name";
-        String submoduleDirectoryName = "some-submodule-path";
-
-        submoduleRepos.addSubmodule(SUBMODULE, submoduleNameInGitModulesFile, submoduleDirectoryName);
-
-        /* Simulate an agent checkout of code. */
-        File cloneDirectory = createTempWorkingDirectory();
-        GitCommand clonedCopy = new GitCommand(null, cloneDirectory, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<String, String>());
-        clonedCopy.clone(outputStreamConsumer, submoduleRepos.mainRepo().getUrl());
-        clonedCopy.resetWorkingDir(outputStreamConsumer, new StringRevision("HEAD"));
     }
 
     @Test

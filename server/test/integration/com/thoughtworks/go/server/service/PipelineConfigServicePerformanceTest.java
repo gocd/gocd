@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -134,73 +134,6 @@ public class PipelineConfigServicePerformanceTest {
     public void tearDown() throws Exception {
         configHelper.onTearDown();
         dbHelper.onTearDown();
-    }
-
-    @Test
-    @Ignore
-    public void performanceTestForUpdatePipeline() throws Exception {
-        setupPipelines(numberOfRequests);
-        final ConcurrentHashMap<String, Boolean> results = new ConcurrentHashMap<>();
-        run(new Runnable() {
-            @Override
-            public void run() {
-                PipelineConfig pipelineConfig = goConfigService.getConfigForEditing().pipelineConfigByName(new CaseInsensitiveString(Thread.currentThread().getName()));
-                pipelineConfig.add(new StageConfig(new CaseInsensitiveString("additional_stage"), new JobConfigs(new JobConfig(new CaseInsensitiveString("addtn_job")))));
-                PerfTimer updateTimer = PerfTimer.start("Saving pipelineConfig : " + pipelineConfig.name());
-                pipelineConfigService.updatePipelineConfig(user, pipelineConfig, entityHashingService.md5ForEntity(pipelineConfig), result);
-                updateTimer.stop();
-                results.put(Thread.currentThread().getName(), result.isSuccessful());
-                if (!result.isSuccessful()) {
-                    LOGGER.error(result.toString());
-                    LOGGER.error("Errors on pipeline" + Thread.currentThread().getName() + " are : " + ListUtil.join(getAllErrors(pipelineConfig)));
-                }
-            }
-        }, numberOfRequests, results);
-    }
-
-    @Test
-    @Ignore
-    public void performanceTestForDeletePipeline() throws Exception {
-        setupPipelines(numberOfRequests);
-        final ConcurrentHashMap<String, Boolean> results = new ConcurrentHashMap<>();
-        run(new Runnable() {
-            @Override
-            public void run() {
-                PipelineConfig pipelineConfig = goConfigService.getConfigForEditing().pipelineConfigByName(new CaseInsensitiveString(Thread.currentThread().getName()));
-                pipelineConfig.add(new StageConfig(new CaseInsensitiveString("additional_stage"), new JobConfigs(new JobConfig(new CaseInsensitiveString("addtn_job")))));
-                PerfTimer updateTimer = PerfTimer.start("Saving pipelineConfig : " + pipelineConfig.name());
-                pipelineConfigService.deletePipelineConfig(user, pipelineConfig, result);
-                updateTimer.stop();
-                results.put(Thread.currentThread().getName(), result.isSuccessful());
-                if (!result.isSuccessful()) {
-                    LOGGER.error(result.toString());
-                    LOGGER.error("Errors on pipeline" + Thread.currentThread().getName() + " are : " + ListUtil.join(getAllErrors(pipelineConfig)));
-                }
-            }
-        }, numberOfRequests, results);
-    }
-
-    @Test
-    @Ignore
-    public void performanceTestForCreatePipeline() throws Exception {
-        setupPipelines(0);
-        final ConcurrentHashMap<String, Boolean> results = new ConcurrentHashMap<>();
-        run(new Runnable() {
-            @Override
-            public void run() {
-                JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("job"));
-                StageConfig stageConfig = new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(jobConfig));
-                PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString(Thread.currentThread().getName()), new MaterialConfigs(new GitMaterialConfig("FOO")), stageConfig);
-                PerfTimer updateTimer = PerfTimer.start("Saving pipelineConfig : " + pipelineConfig.name());
-                pipelineConfigService.createPipelineConfig(user, pipelineConfig, result, "jumbo");
-                updateTimer.stop();
-                results.put(Thread.currentThread().getName(), result.isSuccessful());
-                if (!result.isSuccessful()) {
-                    LOGGER.error(result.toString());
-                    LOGGER.error("Errors on pipeline" + Thread.currentThread().getName() + " are : " + ListUtil.join(getAllErrors(pipelineConfig)));
-                }
-            }
-        }, numberOfRequests, results);
     }
 
     private void run(Runnable runnable, int numberOfRequests, final ConcurrentHashMap<String, Boolean> results) throws InterruptedException {

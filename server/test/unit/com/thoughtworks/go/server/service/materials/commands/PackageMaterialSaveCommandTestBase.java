@@ -1,28 +1,25 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service.materials.commands;
 
-import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
-import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
@@ -31,15 +28,12 @@ import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.materials.PackageDefinitionService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public abstract class PackageMaterialSaveCommandTestBase {
@@ -86,22 +80,5 @@ public abstract class PackageMaterialSaveCommandTestBase {
         assertThat(result.isSuccessful(), is(false));
 
         verify(securityService, times(1)).isUserAdminOfGroup(view.getUsername(), pipelineGroup);
-    }
-
-    @Ignore("wip")
-    @Test
-    public void shouldGetUpdatedNode() throws Exception {
-        PackageMaterialSaveCommand command = getCommand(admin);
-        Cloner c = new Cloner();
-        CruiseConfig configWithErrors = c.deepClone(cruiseConfig);
-        MaterialConfig materialConfig = configWithErrors.getPipelineConfigByName(new CaseInsensitiveString(pipelineName)).materialConfigs().get(0);
-        materialConfig.addError("field1", "msg");
-        command.update(cruiseConfig);
-        PackageMaterialConfig subject = (PackageMaterialConfig) command.subject(null);
-        subject.validate(null);
-        Validatable validatable = command.updatedNode(configWithErrors);
-        assertThat(validatable.errors().isEmpty(), is(false));
-        assertThat(validatable.errors().getAllOn("field1").size(), is(1));
-        assertThat(validatable.errors().getAllOn("field1").get(0), is("msg"));
     }
 }

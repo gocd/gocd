@@ -536,22 +536,6 @@ public abstract class CruiseConfigTestBase {
     }
 
     @Test
-    @Ignore("ShilpaG & RajeshM removed in 12208:39962f06092d, because they could not find any place in the codebase where circular reference existed(so the circular ref check was undone) - Sachin & JJ")
-    public void shouldNotFailOnCircularReference() {
-        MyValidatable foo = new MyValidatable();
-        MyValidatable bar = new MyValidatable();
-        foo.innerValidatable = bar;
-        bar.innerValidatable = foo;
-
-        GoConfigGraphWalker.Handler handler = mock(GoConfigGraphWalker.Handler.class);
-
-        new GoConfigGraphWalker(foo).walk(handler);
-
-        verify(handler).handle(same(foo), any(ValidationContext.class));
-        verify(handler).handle(same(bar), any(ValidationContext.class));
-    }
-
-    @Test
     public void shouldNotConsiderEqualObjectsAsSame() {
         MyValidatable foo = new AlwaysEqualMyValidatable();
         MyValidatable bar = new AlwaysEqualMyValidatable();

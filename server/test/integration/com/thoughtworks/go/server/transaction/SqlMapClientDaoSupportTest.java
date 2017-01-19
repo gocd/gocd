@@ -1,27 +1,24 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.transaction;
-
-import java.sql.SQLException;
 
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.ibatis.sqlmap.client.SqlMapExecutor;
 import com.thoughtworks.go.config.GoConfigDao;
-import com.thoughtworks.go.domain.NullUser;
 import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
@@ -31,13 +28,14 @@ import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.ibatis.SqlMapClientCallback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.sql.SQLException;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -92,22 +90,6 @@ public class SqlMapClientDaoSupportTest {
     }
 
     @Test
-    @Ignore("Moving to hibernate. Our caching will become obsolete soon. Also we do not delete entities from our application.")
-    public void shouldOptOutOfCacheServing_forDelete() {
-        User loser = new User("loser");
-        userDao.saveOrUpdate(loser);
-
-        assertionUtil.assertCacheBehaviourInTxn(new TransactionCacheAssertionUtil.DoInTxn() {
-            public void invoke() {
-                daoSupport.getSqlMapClientTemplate().delete("delete-all-users");
-            }
-        });
-
-        goCache.clear();
-        assertThat(userDao.findUser("loser"), is(instanceOf(NullUser.class)));
-    }
-
-    @Test
     public void shouldNotOptOutOfCacheServing_whenQueryingObjects() {
         final User loser = new User("loser");
         userDao.saveOrUpdate(loser);
@@ -121,7 +103,7 @@ public class SqlMapClientDaoSupportTest {
 
         assertThat(loadedUser[0].getName(), is("loser"));
     }
-    
+
     @Test
     public void shouldNotOptOutOfCacheServing_whenQueryingList() {
         final User loser = new User("loser");

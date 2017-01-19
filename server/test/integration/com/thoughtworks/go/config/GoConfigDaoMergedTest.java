@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,24 +22,13 @@ import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.PipelineGroups;
-import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.helper.PipelineConfigMother;
-import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.LogFixture;
-import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.thoughtworks.go.config.PipelineConfigs.DEFAULT_GROUP;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -68,32 +57,5 @@ public class GoConfigDaoMergedTest extends GoConfigDaoTestBase {
     @Before
     public void setup() throws Exception {
         configHelper.initializeConfigFile();
-    }
-
-   // TODO: jyoti
-    @Ignore("need to handle this scenario, but its a test-only method!")
-    @Test
-    public void shouldUpgradeOldXmlWhenRequestedTo() throws Exception {
-        cachedGoConfig.save(ConfigFileFixture.VERSION_5, true);
-        CruiseConfig cruiseConfig = goConfigDao.load();
-        assertThat(cruiseConfig.getAllPipelineConfigs().size(), is(2));
-        assertNotNull(cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("framework")));
-    }
-
-    // TODO: jyoti
-    @Ignore("rewrite this test as integration test")
-    @Test
-    public void shouldFailWhenTryingToAddPipelineDefinedRemotely() throws Exception {
-        PipelineConfig dupPipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndSvnMaterialsAtUrl("remote-pipe", "ut",
-                "www.spring.com");
-        try {
-            goConfigDao.addPipeline(dupPipelineConfig, DEFAULT_GROUP);
-        }
-        catch (RuntimeException ex)
-        {
-            assertThat(ex.getMessage(),is("Pipeline called 'remote-pipe' is already defined in configuration repository http://config-repo.git at 3213455"));
-            return;
-        }
-        fail("Should have thrown");
     }
 }

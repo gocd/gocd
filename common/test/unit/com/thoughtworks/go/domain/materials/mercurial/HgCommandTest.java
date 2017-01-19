@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -38,11 +37,9 @@ import java.util.List;
 
 import static com.thoughtworks.go.util.FileUtil.deleteFolder;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
-import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 
 public class HgCommandTest {
     private static File serverRepo;
@@ -163,18 +160,6 @@ public class HgCommandTest {
         String workingUrl = hgCommand.workingRepositoryUrl().outputAsString();
 
         assertThat(workingUrl, is(serverRepo.getAbsolutePath()));
-    }
-
-    @Test
-    @Ignore("super slow test")
-    public void shouldProvideDetailedErrorMsgWhenPullFailsDueToLock() throws IOException {
-        addLockTo(workingDirectory);
-        try {
-            hgCommand.findRecentModifications(1);
-            fail("should have thrown with detailed error message when pull fails");
-        } catch (Exception e) {
-            assertThat(e.getMessage(), containsString("waiting for lock on repository"));
-        }
     }
 
     @Test(expected = RuntimeException.class)

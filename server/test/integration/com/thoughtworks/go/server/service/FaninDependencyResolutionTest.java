@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,9 @@ import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.GoConfigDao;
-import com.thoughtworks.go.config.materials.*;
+import com.thoughtworks.go.config.materials.PackageMaterial;
+import com.thoughtworks.go.config.materials.PackageMaterialConfig;
+import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
@@ -29,7 +31,6 @@ import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
-import com.thoughtworks.go.domain.materials.ModifiedAction;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
@@ -44,14 +45,11 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import java.io.File;
 
 import static com.thoughtworks.go.util.SystemEnvironment.RESOLVE_FANIN_MAX_BACK_TRACK_LIMIT;
 import static org.hamcrest.core.Is.is;
@@ -260,125 +258,6 @@ public class FaninDependencyResolutionTest {
         assertThat(getBuildCause(staging, given, previousMaterialRevisions).getMaterialRevisions(), is(expected));
     }
 
-    @Ignore("Fails with FaninGraph")
-    @Test
-    public void addingNewMaterialsShouldTriggerAsExpected() throws Exception {
-
-        //     -----> Acceptance ----
-        //     |        |           v
-        //  Build       |          Staging ---> Production
-        //     |        v           ^
-        //     ----->Regression ----
-        //
-
-        GitMaterial git = u.wf(new GitMaterial("git"), "folder1");
-        u.checkinInOrder(git, "g1", "g2", "g3");
-
-        ScheduleTestUtil.AddedPipeline build = u.saveConfigWith("build", u.m(git));
-        ScheduleTestUtil.AddedPipeline acceptance = u.saveConfigWith("acceptance", u.m(build));
-        ScheduleTestUtil.AddedPipeline regression = u.saveConfigWith("regression", u.m(build), u.m(acceptance));
-        ScheduleTestUtil.AddedPipeline staging = u.saveConfigWith("staging", u.m(acceptance), u.m(regression));
-        ScheduleTestUtil.AddedPipeline production = u.saveConfigWith("production", u.m(staging));
-        CruiseConfig cruiseConfig = goConfigDao.load();
-
-        int i = 1;
-
-        String b_1 = u.runAndPass(build, "g1");
-
-        String a_1 = u.runAndPass(acceptance, b_1);
-        String r_1 = u.runAndPass(regression, b_1, a_1);
-        String s_1 = u.runAndPass(staging, a_1, r_1);
-        String p_1 = u.runAndPass(production, s_1);
-
-        // Adding new QA repos to acceptance and regression
-
-        HgMaterial hg = u.wf(new HgMaterial("hgurl", null), "hg_folder");
-        u.checkinInOrder(hg, "h1");
-        acceptance = u.addMaterialToPipeline(acceptance, u.m(hg));
-        cruiseConfig = goConfigDao.load();
-
-        String a_2 = u.runAndPass(acceptance, b_1, "h1");
-
-        MaterialRevisions given = u.mrs(
-                u.mr(acceptance, true, a_2),
-                u.mr(regression, false, r_1));
-        MaterialRevisions expected = u.mrs(
-                u.mr(acceptance, true, a_1),
-                u.mr(regression, false, r_1));
-        assertThat(getRevisionsBasedOnDependencies(staging, cruiseConfig, given), is(expected));
-
-        given = u.mrs(
-                u.mr(build, false, b_1),
-                u.mr(acceptance, true, a_2));
-
-        assertThat(getRevisionsBasedOnDependencies(regression, cruiseConfig, given), is(given));
-
-        String r_2 = u.runAndPass(regression, b_1, a_2);
-        regression = u.addMaterialToPipeline(regression, u.m(hg));
-        cruiseConfig = goConfigDao.load();
-
-        given = u.mrs(
-                u.mr(acceptance, true, a_2),
-                u.mr(regression, false, r_2));
-
-//        assertThat(getRevisionsBasedOnDependencies(staging, cruiseConfig, given, defaultPegger()), is(given)); TODO: Doesnot find this to be comaptible <Sara>
-
-
-        String r_3 = u.runAndPass(regression, b_1, a_2, "h1");
-
-        given = u.mrs(
-                u.mr(acceptance, true, a_2),
-                u.mr(regression, false, r_3));
-        assertThat(getRevisionsBasedOnDependencies(staging, cruiseConfig, given), is(given));
-
-        String s_2 = u.runAndPass(staging, a_2, r_3);
-        given = u.mrs(u.mr(staging, true, s_2));
-        assertThat(getRevisionsBasedOnDependencies(production, cruiseConfig, given), is(given));
-    }
-
-    @Ignore("Fails with FaninGraph")
-    @Test
-    public void shouldTriggerInspiteOfMaterialConfigChange_FAILING_SCN() throws Exception {
-        GitMaterial git1 = u.wf(new GitMaterial("git1"), "folder1");
-        u.checkinInOrder(git1, "g11", "g12");
-
-        GitMaterial git2 = u.wf(new GitMaterial("git2"), "folder2");
-        git2.setFolder("folder");
-        u.checkinInOrder(git2, "g21", "g22");
-
-        ScheduleTestUtil.AddedPipeline p3 = u.saveConfigWith("p3", u.m(git1));
-        ScheduleTestUtil.AddedPipeline p4 = u.saveConfigWith("p4", u.m(p3));
-        ScheduleTestUtil.AddedPipeline p5 = u.saveConfigWith("p5", u.m(p4), u.m(git2));
-        ScheduleTestUtil.AddedPipeline p6 = u.saveConfigWith("p6", u.m(p4), u.m(git2));
-        ScheduleTestUtil.AddedPipeline p7 = u.saveConfigWith("p7", u.m(p5), u.m(p6));
-        CruiseConfig cruiseConfig = goConfigDao.load();
-
-        String p3_1 = u.runAndPass(p3, "g11");
-        String p4_1 = u.runAndPass(p4, p3_1);
-        String p5_1 = u.runAndPass(p5, p4_1, "g21");
-        String p6_1 = u.runAndPass(p6, p4_1, "g21");
-        String p7_1 = u.runAndPass(p7, p5_1, p6_1);
-
-        String p3_2 = u.runAndPass(p3, "g11");
-        p3 = u.addMaterialToPipeline(p3, u.m(git2));
-        cruiseConfig = goConfigDao.load();
-
-        MaterialRevisions given = u.mrs(u.mr(p3, true, p3_2));
-        assertThat(getRevisionsBasedOnDependencies(p4, cruiseConfig, given), is(given));
-        String p4_2 = u.runAndPass(p4, p3_2);
-        String p5_2 = u.runAndPass(p5, p4_2, "g21");
-        String p6_2 = u.runAndPass(p6, p4_2, "g21");
-        given = u.mrs(
-                u.mr(p5, true, p5_2),
-                u.mr(p6, true, p6_2));
-        MaterialRevisions expected = u.mrs(
-                u.mr(p5, true, p5_2),
-                u.mr(p6, true, p6_2));
-
-
-//        assertThat(getRevisionsBasedOnDependencies(p7, cruiseConfig, given), is(expected)); //TODO: ************************** Bug where p7 does not get triggerred <Sara>
-    }
-
     @Test
     public void shouldReturnPreviousBuild_sRevisionsIfOneParentFailed() {
 //            git ----------
@@ -420,7 +299,6 @@ public class FaninDependencyResolutionTest {
         assertThat(finalRevisions, is(expected));
     }
 
-    //    @Ignore("Expected behavior with Sriki's Algo ;)")
     @Test
     public void shouldResolveWithMultipleDiamondsOnSamePipelines() throws Exception {
         /*
@@ -458,82 +336,6 @@ public class FaninDependencyResolutionTest {
 
         assertThat(getRevisionsBasedOnDependencies(p3, goConfigDao.load(), given), is(expected));
     }
-
-    @Ignore("Expected behavior with Sriki's Algo ;)")
-    @Test
-    public void shouldResolveSimpleDiamondWithOlderRevisions() {
-        /*
-              /-->P1--\
-            git        P3
-              \-->P2--/
-         */
-        GitMaterial git1 = new GitMaterial("git1");
-        String[] git_revs1 = {"g11", "g12", "g13"};
-        u.checkinInOrder(git1, git_revs1);
-
-        ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("p1", u.m(git1));
-        ScheduleTestUtil.AddedPipeline p2 = u.saveConfigWith("p2", u.m(git1));
-        ScheduleTestUtil.AddedPipeline p3 = u.saveConfigWith("p3", u.m(p1), u.m(p2));
-        CruiseConfig cruiseConfig = goConfigDao.load();
-
-        int i = 1;
-        String p1_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p1, u.d(i++), "g11");
-        String p2_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p2, u.d(i++), "g11");
-
-        String p3_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p3, u.d(i++), p1_1, p2_1);
-
-        String p1_2 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p1, u.d(i++), "g13");
-        String p2_2 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p2, u.d(i++), "g13");
-
-        String p1_3 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p1, u.d(i++), "g12");
-
-        MaterialRevisions given = u.mrs(
-                u.mr(p1, true, p1_3),
-                u.mr(p2, true, p2_2));
-
-        MaterialRevisions expected = u.mrs(
-                u.mr(p1, true, p1_2),
-                u.mr(p2, true, p2_2));
-
-        assertThat(getRevisionsBasedOnDependencies(p3, cruiseConfig, given), is(expected));
-    }
-
-    @Ignore("In progress")
-    @Test
-    public void shouldTriggerDependenciesAppropriatelyWithIgnoredMaterials() throws Exception {
-        //        -----> App
-        //       /        v
-        //      git ---> Web ---> Pkg
-        //       \        ^
-        //        -----> Bus
-
-        GitMaterial ga = u.wf(new GitMaterial("scm"), "app");
-        ga.setFilter(new Filter(new IgnoredFiles("web/*.*"), new IgnoredFiles("bus/*.*")));
-        GitMaterial gb = u.wf(new GitMaterial("scm"), "bus");
-        gb.setFilter(new Filter(new IgnoredFiles("app/*.*"), new IgnoredFiles("web/*.*")));
-        GitMaterial gw = u.wf(new GitMaterial("scm"), "web");
-        gw.setFilter(new Filter(new IgnoredFiles("app/*.*"), new IgnoredFiles("bus/*.*")));
-
-        ScheduleTestUtil.AddedPipeline app = u.saveConfigWith("app", u.m(ga));
-        ScheduleTestUtil.AddedPipeline bus = u.saveConfigWith("bus", u.m(gb));
-        ScheduleTestUtil.AddedPipeline web = u.saveConfigWith("web", u.m(app), u.m(bus), u.m(gw));
-        ScheduleTestUtil.AddedPipeline pkg = u.saveConfigWith("pkg", u.m(web));
-        CruiseConfig cruiseConfig = goConfigDao.load();
-        u.checkinFile(ga, "ga1", new File("app/hi.txt"), ModifiedAction.added);
-        u.checkinFile(gb, "gb1", new File("bus/hi.txt"), ModifiedAction.added);
-
-        String a_1 = u.runAndPass(app, "ga1");
-        String b_1 = u.runAndPass(bus, "gb1");
-
-        MaterialRevisions given = u.mrs(
-                u.mr(app, true, a_1),
-                u.mr(bus, true, b_1),
-                u.mr(gw, true, "gb1")
-        );
-        assertThat(getRevisionsBasedOnDependencies(web, cruiseConfig, given), is(given));
-
-    }
-
 
     @Test
     public void shouldFindCompatibleRevisionWhenDependencyMaterialHasMaterialName() throws Exception {

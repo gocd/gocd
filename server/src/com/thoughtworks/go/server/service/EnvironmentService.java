@@ -45,20 +45,21 @@ public class EnvironmentService {
         List<CaseInsensitiveString> environmentNames = environmentConfigService.environmentNames();
         ArrayList<Environment> environments = new ArrayList<>();
         for (CaseInsensitiveString environmentName : environmentNames) {
-            addEnvironmentFor(environmentName, username, environments);
+            boolean isLocal = environmentConfigService.isEnvironmentLocal(environmentName);
+            addEnvironmentFor(environmentName, username, isLocal, environments);
         }
         return environments;
     }
 
-    void addEnvironmentFor(CaseInsensitiveString environmentName, Username username, ArrayList<Environment> environments) throws NoSuchEnvironmentException {
+    void addEnvironmentFor(CaseInsensitiveString environmentName, Username username, boolean isLocal, ArrayList<Environment> environments) throws NoSuchEnvironmentException {
         List<CaseInsensitiveString> pipelines = environmentConfigService.pipelinesFor(environmentName);
         if (pipelines.isEmpty()) {
-            environments.add(new Environment(CaseInsensitiveString.str(environmentName), new ArrayList<PipelineModel>()));
+            environments.add(new Environment(CaseInsensitiveString.str(environmentName), isLocal, new ArrayList<PipelineModel>()));
             return;
         }
         List<PipelineModel> pipelineInstanceModels = getPipelinesInstanceForEnvironment(pipelines, username);
         if (!pipelineInstanceModels.isEmpty()) {
-            environments.add(new Environment(CaseInsensitiveString.str(environmentName), pipelineInstanceModels));
+            environments.add(new Environment(CaseInsensitiveString.str(environmentName), isLocal, pipelineInstanceModels));
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ public class JsonBasedPluggableTask implements Task {
 
     @Override
     public TaskConfig config() {
-        return pluginRequestHelper.submitRequest(pluginId, JsonBasedTaskExtension.CONFIGURATION_REQUEST, new DefaultPluginInteractionCallback<TaskConfig>() {
+        return pluginRequestHelper.submitRequest(pluginId, TaskExtension.CONFIGURATION_REQUEST, new DefaultPluginInteractionCallback<TaskConfig>() {
             @Override
             public TaskConfig onSuccess(String responseBody, String resolvedExtensionVersion) {
                 return handlerMap.get(resolvedExtensionVersion).convertJsonToTaskConfig(responseBody);
@@ -54,7 +54,7 @@ public class JsonBasedPluggableTask implements Task {
 
     @Override
     public TaskView view() {
-        return pluginRequestHelper.submitRequest(pluginId, JsonBasedTaskExtension.TASK_VIEW_REQUEST, new DefaultPluginInteractionCallback<TaskView>() {
+        return pluginRequestHelper.submitRequest(pluginId, TaskExtension.TASK_VIEW_REQUEST, new DefaultPluginInteractionCallback<TaskView>() {
 
 
             @Override
@@ -66,7 +66,7 @@ public class JsonBasedPluggableTask implements Task {
 
     @Override
     public ValidationResult validate(final TaskConfig configuration) {
-        return pluginRequestHelper.submitRequest(pluginId, JsonBasedTaskExtension.VALIDATION_REQUEST, new DefaultPluginInteractionCallback<ValidationResult>() {
+        return pluginRequestHelper.submitRequest(pluginId, TaskExtension.VALIDATION_REQUEST, new DefaultPluginInteractionCallback<ValidationResult>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return handlerMap.get(resolvedExtensionVersion).convertTaskConfigToJson(configuration);

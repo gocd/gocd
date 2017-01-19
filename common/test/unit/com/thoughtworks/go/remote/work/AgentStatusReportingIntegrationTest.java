@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package com.thoughtworks.go.remote.work;
 
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
-import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
+import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.remote.AgentIdentifier;
@@ -38,7 +38,7 @@ public class AgentStatusReportingIntegrationTest {
     private GoArtifactsManipulatorStub artifactManipulator;
     private BuildRepositoryRemoteStub buildRepository;
     private AgentRuntimeInfo agentRuntimeInfo;
-    private PackageAsRepositoryExtension packageAsRepositoryExtension;
+    private PackageRepositoryExtension packageRepositoryExtension;
     private SCMExtension scmExtension;
     private TaskExtension taskExtension;
 
@@ -59,7 +59,7 @@ public class AgentStatusReportingIntegrationTest {
     @Test
     public void shouldReportIdleWhenAgentRunningNoWork() {
         NoWork work = new NoWork();
-        work.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, agentRuntimeInfo, packageAsRepositoryExtension, scmExtension, taskExtension);
+        work.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, agentRuntimeInfo, packageRepositoryExtension, scmExtension, taskExtension);
         assertThat(agentRuntimeInfo, is(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false)));
     }
 
@@ -73,7 +73,7 @@ public class AgentStatusReportingIntegrationTest {
     @Test
     public void shouldReportIdleWhenAgentRunningDeniedWork() {
         Work work = new DeniedAgentWork("uuid");
-        work.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, agentRuntimeInfo, packageAsRepositoryExtension, scmExtension, taskExtension);
+        work.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, agentRuntimeInfo, packageRepositoryExtension, scmExtension, taskExtension);
         assertThat(agentRuntimeInfo, is(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false)));
     }
 
@@ -88,7 +88,7 @@ public class AgentStatusReportingIntegrationTest {
     public void shouldNotChangeWhenAgentRunningUnregisteredAgentWork() {
         Work work = new UnregisteredAgentWork("uuid");
         try {
-            work.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, agentRuntimeInfo, packageAsRepositoryExtension, scmExtension, taskExtension);
+            work.doWork(agentIdentifier, buildRepository, artifactManipulator, environmentVariableContext, agentRuntimeInfo, packageRepositoryExtension, scmExtension, taskExtension);
         } catch (Exception e) {
         }
         assertThat(agentRuntimeInfo, is(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false)));

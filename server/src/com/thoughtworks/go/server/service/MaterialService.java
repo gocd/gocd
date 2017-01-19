@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
@@ -28,7 +28,7 @@ import com.thoughtworks.go.config.materials.tfs.TfsMaterial;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.i18n.LocalizedMessage;
-import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
+import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
@@ -55,18 +55,18 @@ public class MaterialService {
     private final MaterialRepository materialRepository;
     private final GoConfigService goConfigService;
     private final SecurityService securityService;
-    private PackageAsRepositoryExtension packageAsRepositoryExtension;
+    private PackageRepositoryExtension packageRepositoryExtension;
     private SCMExtension scmExtension;
     private TransactionTemplate transactionTemplate;
     private Map<Class, MaterialPoller> materialPollerMap = new HashMap<>();
 
     @Autowired
     public MaterialService(MaterialRepository materialRepository, GoConfigService goConfigService, SecurityService securityService,
-                           PackageAsRepositoryExtension packageAsRepositoryExtension, SCMExtension scmExtension, TransactionTemplate transactionTemplate) {
+                           PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension, TransactionTemplate transactionTemplate) {
         this.materialRepository = materialRepository;
         this.goConfigService = goConfigService;
         this.securityService = securityService;
-        this.packageAsRepositoryExtension = packageAsRepositoryExtension;
+        this.packageRepositoryExtension = packageRepositoryExtension;
         this.scmExtension = scmExtension;
         this.transactionTemplate = transactionTemplate;
         populatePollerImplementations();
@@ -79,7 +79,7 @@ public class MaterialService {
         materialPollerMap.put(TfsMaterial.class, new TfsPoller());
         materialPollerMap.put(P4Material.class, new P4Poller());
         materialPollerMap.put(DependencyMaterial.class, new DependencyMaterialPoller());
-        materialPollerMap.put(PackageMaterial.class, new PackageMaterialPoller(packageAsRepositoryExtension));
+        materialPollerMap.put(PackageMaterial.class, new PackageMaterialPoller(packageRepositoryExtension));
         materialPollerMap.put(PluggableSCMMaterial.class, new PluggableSCMMaterialPoller(materialRepository, scmExtension, transactionTemplate));
     }
 

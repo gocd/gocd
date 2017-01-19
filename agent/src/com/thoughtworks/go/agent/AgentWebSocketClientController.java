@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import com.thoughtworks.go.buildsession.BuildSession;
 import com.thoughtworks.go.buildsession.BuildVariables;
 import com.thoughtworks.go.config.AgentRegistry;
 import com.thoughtworks.go.domain.BuildSettings;
-import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
+import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.plugin.infra.PluginManager;
@@ -62,7 +62,7 @@ public class AgentWebSocketClientController extends AgentController {
     private WebSocketSessionHandler webSocketSessionHandler;
     private AtomicReference<BuildSession> buildSession = new AtomicReference<>();
     private JobRunner runner;
-    private PackageAsRepositoryExtension packageAsRepositoryExtension;
+    private PackageRepositoryExtension packageRepositoryExtension;
     private SCMExtension scmExtension;
     private TaskExtension taskExtension;
     private BuildRepositoryRemote server;
@@ -71,13 +71,13 @@ public class AgentWebSocketClientController extends AgentController {
                                           SslInfrastructureService sslInfrastructureService, AgentRegistry agentRegistry,
                                           AgentUpgradeService agentUpgradeService, SubprocessLogger subprocessLogger,
                                           SystemEnvironment systemEnvironment, PluginManager pluginManager,
-                                          PackageAsRepositoryExtension packageAsRepositoryExtension, SCMExtension scmExtension,
+                                          PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension,
                                           TaskExtension taskExtension, HttpService httpService,
                                           WebSocketClientHandler webSocketClientHandler, WebSocketSessionHandler webSocketSessionHandler) {
         super(sslInfrastructureService, systemEnvironment, agentRegistry, pluginManager, subprocessLogger, agentUpgradeService);
         this.server = server;
         this.manipulator = manipulator;
-        this.packageAsRepositoryExtension = packageAsRepositoryExtension;
+        this.packageRepositoryExtension = packageRepositoryExtension;
         this.scmExtension = scmExtension;
         this.taskExtension = taskExtension;
         this.sslInfrastructureService = sslInfrastructureService;
@@ -129,7 +129,7 @@ public class AgentWebSocketClientController extends AgentController {
                     runner.run(work, agentIdentifier(),
                             new BuildRepositoryRemoteAdapter(runner, webSocketSessionHandler),
                             manipulator, getAgentRuntimeInfo(),
-                            packageAsRepositoryExtension, scmExtension,
+                            packageRepositoryExtension, scmExtension,
                             taskExtension);
                 } finally {
                     getAgentRuntimeInfo().idle();

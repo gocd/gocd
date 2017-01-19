@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package com.thoughtworks.go.plugin.access.packagematerial;
 
 import com.thoughtworks.go.plugin.api.GoPlugin;
-import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialProvider;
 import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
 import com.thoughtworks.go.plugin.infra.GoPluginFrameworkException;
 import com.thoughtworks.go.plugin.infra.PluginChangeListener;
@@ -38,18 +37,18 @@ public class PackageMaterialMetadataLoader implements PluginChangeListener {
 
     private static final Logger LOGGER = getLogger(PackageMaterialMetadataLoader.class);
 
-    PackageAsRepositoryExtension packageAsRepositoryExtension;
+    PackageRepositoryExtension packageRepositoryExtension;
 
     @Autowired
-    public PackageMaterialMetadataLoader(PluginManager pluginManager, PackageAsRepositoryExtension packageAsRepositoryExtension) {
-        this.packageAsRepositoryExtension = packageAsRepositoryExtension;
-        pluginManager.addPluginChangeListener(this, PackageMaterialProvider.class, GoPlugin.class);
+    public PackageMaterialMetadataLoader(PluginManager pluginManager, PackageRepositoryExtension packageRepositoryExtension) {
+        this.packageRepositoryExtension = packageRepositoryExtension;
+        pluginManager.addPluginChangeListener(this, GoPlugin.class);
     }
 
     void fetchRepositoryAndPackageMetaData(GoPluginDescriptor pluginDescriptor) {
         try {
-            RepositoryConfiguration repositoryConfiguration = packageAsRepositoryExtension.getRepositoryConfiguration(pluginDescriptor.id());
-            com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration packageConfiguration = packageAsRepositoryExtension.getPackageConfiguration(pluginDescriptor.id());
+            RepositoryConfiguration repositoryConfiguration = packageRepositoryExtension.getRepositoryConfiguration(pluginDescriptor.id());
+            com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration packageConfiguration = packageRepositoryExtension.getPackageConfiguration(pluginDescriptor.id());
             if (repositoryConfiguration == null) {
                 throw new RuntimeException(format("Plugin[%s] returned null repository configuration", pluginDescriptor.id()));
             }
@@ -65,7 +64,7 @@ public class PackageMaterialMetadataLoader implements PluginChangeListener {
 
     @Override
     public void pluginLoaded(GoPluginDescriptor pluginDescriptor) {
-        if (packageAsRepositoryExtension.canHandlePlugin(pluginDescriptor.id())) {
+        if (packageRepositoryExtension.canHandlePlugin(pluginDescriptor.id())) {
             fetchRepositoryAndPackageMetaData(pluginDescriptor);
         }
     }

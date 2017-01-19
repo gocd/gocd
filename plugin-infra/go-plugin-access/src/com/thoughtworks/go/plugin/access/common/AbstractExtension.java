@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,7 @@ package com.thoughtworks.go.plugin.access.common;
 
 import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
-import com.thoughtworks.go.plugin.access.common.settings.GoPluginExtension;
-import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfiguration;
-import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConstants;
-import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
+import com.thoughtworks.go.plugin.access.common.settings.*;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 
@@ -80,5 +77,9 @@ public abstract class AbstractExtension implements GoPluginExtension {
                 return pluginSettingsMessageHandlerMap.get(resolvedExtensionVersion).responseMessageForPluginSettingsValidation(responseBody);
             }
         });
+    }
+
+    public void registerHandler(String version, PluginSettingsJsonMessageHandler1_0 handler) {
+        pluginSettingsMessageHandlerMap.put(version, handler);
     }
 }

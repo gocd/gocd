@@ -63,7 +63,7 @@ public class PluggableTaskBuilderTest {
     @Mock private DefaultGoPublisher goPublisher;
     @Mock private BuildLogElement buildLogElement;
     @Mock private GoPluginDescriptor pluginDescriptor;
-    @Mock private TaskExtension taskExtension;
+    private TaskExtension taskExtension;
 
     @Before
     public void setUp() {
@@ -93,19 +93,9 @@ public class PluggableTaskBuilderTest {
             }
         };
 
-
-        when(pluginManager.doOn(eq(Task.class), eq(TEST_PLUGIN_ID), any(ActionWithReturn.class))).thenAnswer(new Answer<ExecutionResult>() {
-            @Override
-            public ExecutionResult answer(InvocationOnMock invocationOnMock) throws Throwable {
-                ActionWithReturn<Task, ExecutionResult> actionWithReturn = (ActionWithReturn<Task, ExecutionResult>) invocationOnMock.getArguments()[2];
-                return actionWithReturn.execute(mock(Task.class), pluginDescriptor);
-            }
-        });
-
         taskBuilder.build(buildLogElement, goPublisher, variableContext, taskExtension);
 
         assertThat(executeTaskCalled[0], is(1));
-        verify(pluginManager).doOn(eq(Task.class), eq(TEST_PLUGIN_ID), any(ActionWithReturn.class));
     }
 
     @Test

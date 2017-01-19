@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service.materials;
 
@@ -31,7 +31,7 @@ import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.i18n.Localizer;
-import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
+import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageMetadataStore;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialProperty;
@@ -58,13 +58,13 @@ public class PackageDefinitionService {
     private final Localizer localizer;
     private EntityHashingService entityHashingService;
     private GoConfigService goConfigService;
-    PackageAsRepositoryExtension packageAsRepositoryExtension;
+    PackageRepositoryExtension packageRepositoryExtension;
 
     public static final Logger LOGGER = Logger.getLogger(PackageDefinitionService.class);
 
     @Autowired
-    public PackageDefinitionService(PackageAsRepositoryExtension packageAsRepositoryExtension, Localizer localizer, EntityHashingService entityHashingService, GoConfigService goConfigService) {
-        this.packageAsRepositoryExtension = packageAsRepositoryExtension;
+    public PackageDefinitionService(PackageRepositoryExtension packageRepositoryExtension, Localizer localizer, EntityHashingService entityHashingService, GoConfigService goConfigService) {
+        this.packageRepositoryExtension = packageRepositoryExtension;
         this.localizer = localizer;
         this.entityHashingService = entityHashingService;
         this.goConfigService = goConfigService;
@@ -74,7 +74,7 @@ public class PackageDefinitionService {
         String pluginId = packageDefinition.getRepository().getPluginConfiguration().getId();
 
 
-        ValidationResult validationResult = packageAsRepositoryExtension.isPackageConfigurationValid(pluginId, buildPackageConfigurations(packageDefinition), buildRepositoryConfigurations(packageDefinition.getRepository()));
+        ValidationResult validationResult = packageRepositoryExtension.isPackageConfigurationValid(pluginId, buildPackageConfigurations(packageDefinition), buildRepositoryConfigurations(packageDefinition.getRepository()));
         for (ValidationError error : validationResult.getErrors()) {
             packageDefinition.addConfigurationErrorFor(error.getKey(), error.getMessage());
         }
@@ -94,7 +94,7 @@ public class PackageDefinitionService {
             throw new RuntimeException(String.format("Plugin with id '%s' is not found.", pluginId));
         }
 
-        ValidationResult validationResult = packageAsRepositoryExtension.isPackageConfigurationValid(pluginId, buildPackageConfigurations(packageDefinition), buildRepositoryConfigurations(packageDefinition.getRepository()));
+        ValidationResult validationResult = packageRepositoryExtension.isPackageConfigurationValid(pluginId, buildPackageConfigurations(packageDefinition), buildRepositoryConfigurations(packageDefinition.getRepository()));
         addErrorsToConfiguration(validationResult, packageDefinition);
 
         return validationResult.isSuccessful();
@@ -130,7 +130,7 @@ public class PackageDefinitionService {
             String pluginId = packageDefinition.getRepository().getPluginConfiguration().getId();
 
 
-            Result checkConnectionResult = packageAsRepositoryExtension.checkConnectionToPackage(pluginId, buildPackageConfigurations(packageDefinition), buildRepositoryConfigurations(packageDefinition.getRepository()));
+            Result checkConnectionResult = packageRepositoryExtension.checkConnectionToPackage(pluginId, buildPackageConfigurations(packageDefinition), buildRepositoryConfigurations(packageDefinition.getRepository()));
             String messages = checkConnectionResult.getMessagesForDisplay();
             if (!checkConnectionResult.isSuccessful()) {
                 result.connectionError(LocalizedMessage.string("PACKAGE_CHECK_FAILED", messages));

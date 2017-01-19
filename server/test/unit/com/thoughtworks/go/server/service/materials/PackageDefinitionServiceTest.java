@@ -1,29 +1,28 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service.materials;
 
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.packagerepository.*;
 import com.thoughtworks.go.i18n.Localizer;
-import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
+import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfigurations;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageMetadataStore;
-import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialConfiguration;
 import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
 import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
@@ -59,9 +58,7 @@ public class PackageDefinitionServiceTest {
     @Mock
     private Localizer localizer;
     @Mock
-    private PackageMaterialConfiguration packageMaterialConfiguration;
-    @Mock
-    private PackageAsRepositoryExtension packageAsRepositoryExtension;
+    private PackageRepositoryExtension packageRepositoryExtension;
     private PackageDefinitionService service;
     private PackageRepository packageRepository;
 
@@ -69,7 +66,7 @@ public class PackageDefinitionServiceTest {
     public void setUp() throws Exception {
         initMocks(this);
         when(localizer.localize(eq("MANDATORY_CONFIGURATION_FIELD_WITH_NAME"), anyString())).thenReturn("mandatory field");
-        service = new PackageDefinitionService(packageAsRepositoryExtension, localizer, entityHashingService, goConfigService);
+        service = new PackageDefinitionService(packageRepositoryExtension, localizer, entityHashingService, goConfigService);
 
         PackageConfigurations configurations = new PackageConfigurations();
         configurations.add(new PackageConfiguration("required").with(PackageConfiguration.REQUIRED, true));
@@ -94,7 +91,7 @@ public class PackageDefinitionServiceTest {
 
         ValidationResult expectedValidationResult = new ValidationResult();
         expectedValidationResult.addError(new ValidationError("spec", "invalid spec"));
-        when(packageAsRepositoryExtension.isPackageConfigurationValid(eq(packageRepository.getPluginConfiguration().getId()),
+        when(packageRepositoryExtension.isPackageConfigurationValid(eq(packageRepository.getPluginConfiguration().getId()),
                 any(com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration.class),
                 any(RepositoryConfiguration.class))).thenReturn(expectedValidationResult);
         service.performPluginValidationsFor(packageDefinition);
@@ -116,7 +113,7 @@ public class PackageDefinitionServiceTest {
         expectedValidationResult.addError(new ValidationError("required-field", "error-one"));
         expectedValidationResult.addError(new ValidationError("required-field", "error-two"));
 
-        when(packageAsRepositoryExtension.isPackageConfigurationValid(eq(packageRepository.getPluginConfiguration().getId()),
+        when(packageRepositoryExtension.isPackageConfigurationValid(eq(packageRepository.getPluginConfiguration().getId()),
                 any(com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration.class),
                 any(RepositoryConfiguration.class))).thenReturn(expectedValidationResult);
         service.performPluginValidationsFor(packageDefinition);
@@ -137,12 +134,12 @@ public class PackageDefinitionServiceTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
 
-        PackageDefinitionService service = new PackageDefinitionService(packageAsRepositoryExtension, localizer, entityHashingService, goConfigService);
+        PackageDefinitionService service = new PackageDefinitionService(packageRepositoryExtension, localizer, entityHashingService, goConfigService);
 
         ArgumentCaptor<com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration> packageConfigurationsCaptor = ArgumentCaptor.forClass(com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration.class);
         ArgumentCaptor<RepositoryConfiguration> packageRepositoryConfigurationsCaptor = ArgumentCaptor.forClass(RepositoryConfiguration.class);
 
-        when(packageAsRepositoryExtension.checkConnectionToPackage(eq(packageRepository.getPluginConfiguration().getId()),
+        when(packageRepositoryExtension.checkConnectionToPackage(eq(packageRepository.getPluginConfiguration().getId()),
                 packageConfigurationsCaptor.capture(), packageRepositoryConfigurationsCaptor.capture())).thenReturn(
                 new Result().withSuccessMessages("Got Package!!!"));
 
@@ -153,7 +150,7 @@ public class PackageDefinitionServiceTest {
         assertThat(result.isSuccessful(), Is.is(true));
         when(localizer.localize("PACKAGE_CHECK_OK", "Got Package!!!")).thenReturn("success_msg");
         assertThat(result.message(localizer), Is.is("success_msg"));
-        verify(packageAsRepositoryExtension).checkConnectionToPackage(anyString(), any(com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration.class), any(RepositoryConfiguration.class));
+        verify(packageRepositoryExtension).checkConnectionToPackage(anyString(), any(com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration.class), any(RepositoryConfiguration.class));
     }
 
     @Test
@@ -169,11 +166,11 @@ public class PackageDefinitionServiceTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
 
-        PackageDefinitionService service = new PackageDefinitionService(packageAsRepositoryExtension, localizer, entityHashingService, goConfigService);
+        PackageDefinitionService service = new PackageDefinitionService(packageRepositoryExtension, localizer, entityHashingService, goConfigService);
         ArgumentCaptor<com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration> packageConfigurationsCaptor = ArgumentCaptor.forClass(com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration.class);
         ArgumentCaptor<RepositoryConfiguration> packageRepositoryConfigurationsCaptor = ArgumentCaptor.forClass(RepositoryConfiguration.class);
 
-        when(packageAsRepositoryExtension.checkConnectionToPackage(eq(packageRepository.getPluginConfiguration().getId()),
+        when(packageRepositoryExtension.checkConnectionToPackage(eq(packageRepository.getPluginConfiguration().getId()),
                 packageConfigurationsCaptor.capture(), packageRepositoryConfigurationsCaptor.capture())).thenReturn(
                 new Result().withErrorMessages("Package not available", "Repo not available"));
 
@@ -184,7 +181,7 @@ public class PackageDefinitionServiceTest {
         assertThat(result.isSuccessful(), Is.is(false));
         when(localizer.localize("PACKAGE_CHECK_FAILED", "Package not available\nRepo not available")).thenReturn("error_msg");
         assertThat(result.message(localizer), Is.is("error_msg"));
-        verify(packageAsRepositoryExtension).checkConnectionToPackage(anyString(), any(com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration.class), any(RepositoryConfiguration.class));
+        verify(packageRepositoryExtension).checkConnectionToPackage(anyString(), any(com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration.class), any(RepositoryConfiguration.class));
     }
 
     @Test
@@ -200,13 +197,13 @@ public class PackageDefinitionServiceTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
 
-        PackageDefinitionService service = new PackageDefinitionService(packageAsRepositoryExtension, localizer, entityHashingService, goConfigService);
+        PackageDefinitionService service = new PackageDefinitionService(packageRepositoryExtension, localizer, entityHashingService, goConfigService);
 
 
         ArgumentCaptor<com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration> packageConfigurationsCaptor = ArgumentCaptor.forClass(com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration.class);
         ArgumentCaptor<RepositoryConfiguration> packageRepositoryConfigurationsCaptor = ArgumentCaptor.forClass(RepositoryConfiguration.class);
 
-        when(packageAsRepositoryExtension.checkConnectionToPackage(eq(packageRepository.getPluginConfiguration().getId()),
+        when(packageRepositoryExtension.checkConnectionToPackage(eq(packageRepository.getPluginConfiguration().getId()),
                 packageConfigurationsCaptor.capture(), packageRepositoryConfigurationsCaptor.capture())).thenThrow(
                 new RuntimeException("Check connection for package not implemented!!"));
 
@@ -215,7 +212,7 @@ public class PackageDefinitionServiceTest {
         assertThat(result.isSuccessful(), Is.is(false));
         when(localizer.localize("PACKAGE_CHECK_FAILED", "Check connection for package not implemented!!")).thenReturn("error_msg");
         assertThat(result.message(localizer), Is.is("error_msg"));
-        verify(packageAsRepositoryExtension).checkConnectionToPackage(anyString(), any(com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration.class), any(RepositoryConfiguration.class));
+        verify(packageRepositoryExtension).checkConnectionToPackage(anyString(), any(com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration.class), any(RepositoryConfiguration.class));
     }
 
 }

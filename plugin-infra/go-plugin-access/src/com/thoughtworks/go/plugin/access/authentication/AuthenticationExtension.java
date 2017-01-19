@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ public class AuthenticationExtension extends AbstractExtension {
     @Autowired
     public AuthenticationExtension(PluginManager defaultPluginManager) {
         super(defaultPluginManager, new PluginRequestHelper(defaultPluginManager, goSupportedVersions, EXTENSION_NAME), EXTENSION_NAME);
-        this.pluginSettingsMessageHandlerMap.put("1.0", new PluginSettingsJsonMessageHandler1_0());
+        this.registerHandler("1.0", new PluginSettingsJsonMessageHandler1_0());
         this.messageHandlerMap.put("1.0", new JsonMessageHandler1_0());
     }
 

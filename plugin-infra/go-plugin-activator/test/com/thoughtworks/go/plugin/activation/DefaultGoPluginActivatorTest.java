@@ -16,12 +16,6 @@
 
 package com.thoughtworks.go.plugin.activation;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.List;
-
 import com.thoughtworks.go.plugin.api.annotation.Extension;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptorAware;
@@ -37,6 +31,12 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.List;
+
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
@@ -45,9 +45,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.contains;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class DefaultGoPluginActivatorTest {
@@ -197,11 +195,6 @@ public class DefaultGoPluginActivatorTest {
         activator.stop(context);
 
         assertThat(GoExtensionWithLoadUnloadAnnotation.unLoadInvoked, is(1));
-    }
-
-    @Test
-    public void shouldInvokedMethodWithLoadUnloadAnnotationAtPluginStartForClassWithMultipleExtensions() throws Exception {
-        assertLoadUnloadInvocationCount(GoExtensionWithMultipleExtensionsWithLoadUnloadAnnotation.class, 1);
     }
 
     @Test

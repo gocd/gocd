@@ -19,7 +19,7 @@ package com.thoughtworks.go.agent;
 import com.thoughtworks.go.agent.service.AgentUpgradeService;
 import com.thoughtworks.go.agent.service.SslInfrastructureService;
 import com.thoughtworks.go.config.AgentRegistry;
-import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
+import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.plugin.infra.PluginManager;
@@ -43,7 +43,7 @@ public class AgentControllerFactory {
     private final AgentRegistry agentRegistry;
     private final SubprocessLogger subprocessLogger;
     private final AgentUpgradeService agentUpgradeService;
-    private final PackageAsRepositoryExtension packageAsRepositoryExtension;
+    private final PackageRepositoryExtension packageRepositoryExtension;
     private final SCMExtension scmExtension;
     private final TaskExtension taskExtension;
     private final HttpService httpService;
@@ -61,7 +61,7 @@ public class AgentControllerFactory {
             SystemEnvironment systemEnvironment,
             AgentRegistry agentRegistry,
             SubprocessLogger subprocessLogger,
-            PackageAsRepositoryExtension packageAsRepositoryExtension,
+            PackageRepositoryExtension packageRepositoryExtension,
             SCMExtension scmExtension,
             TaskExtension taskExtension,
             HttpService httpService,
@@ -74,7 +74,7 @@ public class AgentControllerFactory {
         this.agentRegistry = agentRegistry;
         this.subprocessLogger = subprocessLogger;
         this.agentUpgradeService = agentUpgradeService;
-        this.packageAsRepositoryExtension = packageAsRepositoryExtension;
+        this.packageRepositoryExtension = packageRepositoryExtension;
         this.scmExtension = scmExtension;
         this.taskExtension = taskExtension;
         this.httpService = httpService;
@@ -94,7 +94,7 @@ public class AgentControllerFactory {
                     subprocessLogger,
                     systemEnvironment,
                     pluginManager,
-                    packageAsRepositoryExtension,
+                    packageRepositoryExtension,
                     scmExtension,
                     taskExtension,
                     httpService, webSocketClientHandler, sessionHandler);
@@ -109,7 +109,7 @@ public class AgentControllerFactory {
                     subprocessLogger,
                     systemEnvironment,
                     pluginManager,
-                    packageAsRepositoryExtension,
+                    packageRepositoryExtension,
                     scmExtension,
                     taskExtension);
         }

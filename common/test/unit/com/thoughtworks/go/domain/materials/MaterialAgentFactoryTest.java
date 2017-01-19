@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.domain.materials;
 
-import java.io.File;
-
 import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
@@ -25,7 +23,7 @@ import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.materials.packagematerial.PackageMaterialAgent;
 import com.thoughtworks.go.domain.materials.scm.PluggableSCMMaterialAgent;
-import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
+import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.util.CachedDigestUtils;
@@ -38,6 +36,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import java.io.File;
+
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -46,7 +46,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 public class MaterialAgentFactoryTest {
     private TempFiles tempFiles;
     @Mock
-    private PackageAsRepositoryExtension packageAsRepositoryExtension;
+    private PackageRepositoryExtension packageRepositoryExtension;
     @Mock
     private SCMExtension scmExtension;
 
@@ -66,7 +66,7 @@ public class MaterialAgentFactoryTest {
         String agentUuid = "uuid-01783738";
         File workingDirectory = tempFiles.createUniqueFolder("");
         MaterialAgentFactory factory = new MaterialAgentFactory(new ProcessOutputStreamConsumer(new DevNull(), new DevNull()), workingDirectory,
-                new AgentIdentifier("host", "1.1.1.1", agentUuid), packageAsRepositoryExtension, scmExtension);
+                new AgentIdentifier("host", "1.1.1.1", agentUuid), packageRepositoryExtension, scmExtension);
         GitMaterial gitMaterial = new GitMaterial("http://foo", "master", "dest_folder");
 
         MaterialAgent agent = factory.createAgent(new MaterialRevision(gitMaterial));
@@ -81,11 +81,11 @@ public class MaterialAgentFactoryTest {
     public void shouldGetPackageMaterialAgent() {
         File workingDirectory = new File("/tmp/workingDirectory");
         MaterialRevision revision = new MaterialRevision(new PackageMaterial(), new Modifications());
-        MaterialAgentFactory factory = new MaterialAgentFactory(null, workingDirectory, null, packageAsRepositoryExtension, scmExtension);
+        MaterialAgentFactory factory = new MaterialAgentFactory(null, workingDirectory, null, packageRepositoryExtension, scmExtension);
         MaterialAgent agent = factory.createAgent(revision);
 
         assertThat(agent instanceof PackageMaterialAgent, is(true));
-        assertThat(ReflectionUtil.getField(agent, "packageAsRepositoryExtension"), is(packageAsRepositoryExtension));
+        assertThat(ReflectionUtil.getField(agent, "packageRepositoryExtension"), is(packageRepositoryExtension));
         assertThat(ReflectionUtil.getField(agent, "revision"), is(revision));
         assertThat(ReflectionUtil.getField(agent, "workingDirectory"), is(workingDirectory));
     }
@@ -94,7 +94,7 @@ public class MaterialAgentFactoryTest {
     public void shouldGetPluggableSCMMaterialAgent() {
         File workingDirectory = new File("/tmp/workingDirectory");
         MaterialRevision revision = new MaterialRevision(new PluggableSCMMaterial(), new Modifications());
-        MaterialAgentFactory factory = new MaterialAgentFactory(null, workingDirectory, null, packageAsRepositoryExtension, scmExtension);
+        MaterialAgentFactory factory = new MaterialAgentFactory(null, workingDirectory, null, packageRepositoryExtension, scmExtension);
         MaterialAgent agent = factory.createAgent(revision);
 
         assertThat(agent instanceof PluggableSCMMaterialAgent, is(true));

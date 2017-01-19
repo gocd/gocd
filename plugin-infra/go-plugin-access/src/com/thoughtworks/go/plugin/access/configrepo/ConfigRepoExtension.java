@@ -45,7 +45,7 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
     @Autowired
     public ConfigRepoExtension(PluginManager pluginManager) {
         super(pluginManager, new PluginRequestHelper(pluginManager, goSupportedVersions, EXTENSION_NAME),EXTENSION_NAME);
-        pluginSettingsMessageHandlerMap.put("1.0", new PluginSettingsJsonMessageHandler1_0());
+        registerHandler("1.0", new PluginSettingsJsonMessageHandler1_0());
         messageHandlerMap.put("1.0", new JsonMessageHandler1_0());
     }
 

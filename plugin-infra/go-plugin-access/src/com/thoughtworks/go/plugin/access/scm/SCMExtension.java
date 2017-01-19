@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import java.util.Map;
 import static java.util.Arrays.asList;
 
 @Component
-public class SCMExtension extends AbstractExtension implements SCMExtensionContract {
+public class SCMExtension extends AbstractExtension {
     public static final String EXTENSION_NAME = "scm";
     private static final List<String> goSupportedVersions = asList("1.0");
 
@@ -53,7 +53,7 @@ public class SCMExtension extends AbstractExtension implements SCMExtensionContr
     @Autowired
     public SCMExtension(PluginManager pluginManager) {
         super(pluginManager, new PluginRequestHelper(pluginManager, goSupportedVersions, EXTENSION_NAME), EXTENSION_NAME);
-        pluginSettingsMessageHandlerMap.put("1.0", new PluginSettingsJsonMessageHandler1_0());
+        registerHandler("1.0", new PluginSettingsJsonMessageHandler1_0());
         messageHandlerMap.put("1.0", new JsonMessageHandler1_0());
     }
 

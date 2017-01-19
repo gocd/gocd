@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import com.thoughtworks.go.agent.common.ssl.GoAgentServerWebSocketClientBuilder;
 import com.thoughtworks.go.agent.service.AgentUpgradeService;
 import com.thoughtworks.go.agent.service.SslInfrastructureService;
 import com.thoughtworks.go.config.AgentRegistry;
-import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
+import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.plugin.infra.PluginManager;
@@ -86,7 +86,7 @@ public class WebSocketClientHandlerTest {
                 mock(SubprocessLogger.class),
                 mock(SystemEnvironment.class),
                 mock(PluginManager.class),
-                mock(PackageAsRepositoryExtension.class),
+                mock(PackageRepositoryExtension.class),
                 mock(SCMExtension.class),
                 mock(TaskExtension.class),
                 mock(HttpService.class),

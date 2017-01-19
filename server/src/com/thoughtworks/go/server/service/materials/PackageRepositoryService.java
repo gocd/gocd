@@ -30,7 +30,7 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.i18n.Localizer;
-import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
+import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
 import com.thoughtworks.go.plugin.access.packagematerial.RepositoryMetadataStore;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialProperty;
@@ -67,15 +67,15 @@ public class PackageRepositoryService {
     private EntityHashingService entityHashingService;
     private final Localizer localizer;
     private RepositoryMetadataStore repositoryMetadataStore;
-    private PackageAsRepositoryExtension packageAsRepositoryExtension;
+    private PackageRepositoryExtension packageRepositoryExtension;
 
     public static final Logger LOGGER = Logger.getLogger(PackageRepositoryService.class);
 
     @Autowired
-    public PackageRepositoryService(PluginManager pluginManager, PackageAsRepositoryExtension packageAsRepositoryExtension, GoConfigService goConfigService, SecurityService securityService,
+    public PackageRepositoryService(PluginManager pluginManager, PackageRepositoryExtension packageRepositoryExtension, GoConfigService goConfigService, SecurityService securityService,
                                     EntityHashingService entityHashingService, Localizer localizer) {
         this.pluginManager = pluginManager;
-        this.packageAsRepositoryExtension = packageAsRepositoryExtension;
+        this.packageRepositoryExtension = packageRepositoryExtension;
         this.goConfigService = goConfigService;
         this.securityService = securityService;
         this.entityHashingService = entityHashingService;
@@ -103,7 +103,7 @@ public class PackageRepositoryService {
 
     public void checkConnection(final PackageRepository packageRepository, final LocalizedOperationResult result) {
         try {
-            Result checkConnectionResult = packageAsRepositoryExtension.checkConnectionToRepository(packageRepository.getPluginConfiguration().getId(), populateConfiguration(packageRepository.getConfiguration()));
+            Result checkConnectionResult = packageRepositoryExtension.checkConnectionToRepository(packageRepository.getPluginConfiguration().getId(), populateConfiguration(packageRepository.getConfiguration()));
             String messages = checkConnectionResult.getMessagesForDisplay();
             if (!checkConnectionResult.isSuccessful()) {
                 result.connectionError(LocalizedMessage.string("PACKAGE_REPOSITORY_CHECK_CONNECTION_FAILED", messages));
@@ -130,7 +130,7 @@ public class PackageRepositoryService {
             }
         }
 
-        ValidationResult validationResult = packageAsRepositoryExtension.isRepositoryConfigurationValid(packageRepository.getPluginConfiguration().getId(), populateConfiguration(packageRepository.getConfiguration()));
+        ValidationResult validationResult = packageRepositoryExtension.isRepositoryConfigurationValid(packageRepository.getPluginConfiguration().getId(), populateConfiguration(packageRepository.getConfiguration()));
         for (ValidationError error : validationResult.getErrors()) {
             packageRepository.addConfigurationErrorFor(error.getKey(), error.getMessage());
         }
@@ -141,7 +141,7 @@ public class PackageRepositoryService {
             throw new RuntimeException(String.format("Plugin with id '%s' is not found.", packageRepository.getPluginConfiguration().getId()));
         }
 
-        ValidationResult validationResult = packageAsRepositoryExtension.isRepositoryConfigurationValid(packageRepository.getPluginConfiguration().getId(), populateConfiguration(packageRepository.getConfiguration()));
+        ValidationResult validationResult = packageRepositoryExtension.isRepositoryConfigurationValid(packageRepository.getPluginConfiguration().getId(), populateConfiguration(packageRepository.getConfiguration()));
         addErrorsToConfiguration(validationResult, packageRepository);
 
         return validationResult.isSuccessful();

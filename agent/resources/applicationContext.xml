@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2016 ThoughtWorks, Inc.
+  ~ Copyright 2017 ThoughtWorks, Inc.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -59,8 +59,8 @@
   <bean id="agentRegistry" class="com.thoughtworks.go.config.DefaultAgentRegistry"/>
   <bean id="subprocessLogger" class="com.thoughtworks.go.util.SubprocessLogger"/>
   <bean id="agentPluginsInitializer" class="com.thoughtworks.go.agent.AgentPluginsInitializer"/>
-  <bean id="packageAsRepositoryExtension"
-        class="com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension"/>
+  <bean id="packageRepositoryExtension"
+        class="com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension"/>
   <bean id="scmExtension" class="com.thoughtworks.go.plugin.access.scm.SCMExtension"/>
   <bean id="taskExtension" class="com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension"/>
   <bean id="httpClient" class="com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient">

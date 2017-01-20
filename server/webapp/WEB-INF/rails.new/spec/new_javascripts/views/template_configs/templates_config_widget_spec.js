@@ -192,31 +192,31 @@ define(["jquery", "mithril", "views/template_configs/templates_config_widget"], 
 
     describe("Pipeline Information", function () {
       it('should show the information of pipelines which uses current template', function () {
-        expect($('.template-used-by-pipelines')[0]).toHaveClass('hide');
+        expect($('.exp-col-body')[0]).toHaveClass('hide');
         $('#template-link-header').click();
         m.redraw(true);
-        expect($('.template-used-by-pipelines')[0]).toHaveClass('show');
+        expect($('.exp-col-body')[0]).toHaveClass('show');
 
-        expect($('.template-used-by-pipelines')[0]).toContainText('up42');
+        expect($('.exp-col-body')[0]).toContainText('up42');
       });
 	
 	    it('should show information message for no associated pipelines', function () {
-		    expect($('.template-used-by-pipelines')[1]).toHaveClass('hide');
+		    expect($('.exp-col-body')[1]).toHaveClass('hide');
 		    $('#template-link-header').click();
 		    m.redraw(true);
 		    
 		    var message = "No pipelines are associated with this template";
-		    expect($('.template-used-by-pipelines')[1]).toContainText(message);
+		    expect($('.exp-col-body')[1]).toContainText(message);
 	    });
 
       it('should toggle pipeline information view on clicks', function () {
-        expect($('.template-used-by-pipelines')).toHaveClass('hide');
+        expect($('.exp-col-body')).toHaveClass('hide');
         $('#template-link-header').click();
         m.redraw(true);
-        expect($('.template-used-by-pipelines')).toHaveClass('show');
+        expect($('.exp-col-body')).toHaveClass('show');
         $('#template-link-header').click();
         m.redraw(true);
-        expect($('.template-used-by-pipelines')).toHaveClass('hide');
+        expect($('.exp-col-body')).toHaveClass('hide');
       });
     });
 

@@ -50,16 +50,6 @@
   @extend .key-value-pair;
 }
 
-.template-link {
-  background:    $go-white;
-  position:      relative;
-  margin:        10px;
-  border:        0;
-  border-radius: $global-border-radius;
-  padding:       10px;
-  cursor:        pointer;
-}
-
 .edit-template {
   @include icon-before($type: pencil-square-o, $color: $dark-gray);
   &:not(.disabled) {
@@ -80,13 +70,6 @@
       }
     }
   }
-}
-
-.template-used-by-pipelines {
-  width:        95%;
-  box-sizing:   border-box;
-  margin:       20px 0 10px 0;
-  border-top: 1px solid $light-grey;
 }
 
 .template-actions {

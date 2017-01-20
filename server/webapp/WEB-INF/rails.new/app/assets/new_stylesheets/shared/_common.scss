@@ -379,3 +379,37 @@ input.cbx-toggle:checked + label:after {
   margin-left: 19px;
   background-color: $toggle-yes-color;
 }
+
+// expand-collapse panel
+
+
+.exp-col-panel {
+  background:    $go-white;
+  position:      relative;
+  margin:        10px;
+  border:        0;
+  border-radius: $global-border-radius;
+  cursor:        pointer;
+}
+
+.exp-col-header {
+  padding: 10px;
+}
+
+.exp-col-body {
+  box-sizing: border-box;
+  border-top: 1px solid $light-grey;
+  .key-value-pair {
+    dt {
+      width: 20%;
+    }
+    dd {
+      width: 80%;
+    }
+    pre {
+      width:       100%;
+      display:     block;
+      white-space: inherit;
+    }
+  }
+}

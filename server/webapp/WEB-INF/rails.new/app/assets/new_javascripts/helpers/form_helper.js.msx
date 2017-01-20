@@ -314,7 +314,8 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
             attrName  = deleteKeyAndReturnValue(args, 'attrName');
 
         return (
-            <f.column class="toggle-switch">
+            <f.column {...args}
+                      class={"toggle-switch " + args.class}>
               <input id="toggle"
                      class="cbx-toggle cbx-toggle-round-flat"
                      type="checkbox"

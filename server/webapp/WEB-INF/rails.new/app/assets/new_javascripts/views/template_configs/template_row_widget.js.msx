@@ -59,11 +59,11 @@ define(['mithril', 'helpers/form_helper', 'lodash', 'helpers/mithril_component_m
       };
 
       return (
-        <div class="template-link">
-          <div id="template-link-header" onclick={ctrl.toggleHide.bind(ctrl)}>
+        <div class="exp-col-panel">
+          <div id="template-link-header" class="exp-col-header" onclick={ctrl.toggleHide.bind(ctrl)}>
             {args.template.name()}
           </div>
-          <div class={'template-used-by-pipelines ' + ctrl.showState()}>
+          <div class={'exp-col-body ' + ctrl.showState()}>
             {pipelinesList}
           </div>
           <div class="template-actions">

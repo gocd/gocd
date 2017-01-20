@@ -18,6 +18,7 @@ package com.thoughtworks.go.domain;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import static java.util.Arrays.asList;
 

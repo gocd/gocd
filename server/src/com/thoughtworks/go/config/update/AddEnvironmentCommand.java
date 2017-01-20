@@ -63,8 +63,7 @@ public class AddEnvironmentCommand extends EnvironmentCommand implements EntityC
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
         if (!goConfigService.isUserAdmin(user)) {
-            Localizable noPermission = LocalizedMessage.string("NO_PERMISSION_TO_ADD_ENVIRONMENT", user.getDisplayName());
-            result.unauthorized(noPermission, HealthStateType.unauthorised());
+            result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_OPERATE"), HealthStateType.unauthorised());
             return false;
         }
         CaseInsensitiveString environmentName = environmentConfig.name();

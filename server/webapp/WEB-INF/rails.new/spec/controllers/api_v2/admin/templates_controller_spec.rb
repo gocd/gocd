@@ -357,7 +357,7 @@ describe ApiV2::Admin::TemplatesController do
 
         put_with_api_header :update, template_name: 'some-template', template: template_hash
 
-        expect(response).to have_api_message_response(412, "Someone has modified the configuration for Template 'some-template'. Please update your copy of the config with the changes." )
+        expect(response).to have_api_message_response(412, "Someone has modified the configuration for template 'some-template'. Please update your copy of the config with the changes." )
       end
 
       it 'should proceed with update if etag matches.' do

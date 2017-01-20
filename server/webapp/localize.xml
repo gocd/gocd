@@ -149,9 +149,6 @@
     <entry key="NOT_YET_ASSIGNED">Not yet assigned</entry>
     <entry key="NO_VIEW_PERMISSION_ON_PIPELINE">User ''{0}'' does not have view permission on pipeline ''{1}''</entry>
     <entry key="ENVIRONMENTS">Environments</entry>
-    <entry key="NO_PERMISSION_TO_ADD_ENVIRONMENT">Failed to add environment. User ''{0}'' does not have permission to add environments</entry>
-    <entry key="NO_PERMISSION_TO_UPDATE_ENVIRONMENT">Failed to update environment ''{0}''. User ''{1}'' does not have permission to update environments</entry>
-    <entry key="NO_PERMISSION_TO_DELETE_ENVIRONMENT">Failed to delete environment ''{0}''. User ''{1}'' does not have permission to update environments</entry>
     <entry key="ADD_THIS_ENVIRONMENT">Add this environment</entry>
     <entry key="ADD_ENVIRONMENT_SUCCESS">Added environment ''{0}''</entry>
     <entry key="UPDATE_ENVIRONMENT_SUCCESS">Updated environment ''{0}''.</entry>

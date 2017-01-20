@@ -79,7 +79,6 @@ public class DeleteEnvironmentCommandTest {
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertFalse(result.isSuccessful());
         assertThat(result.httpCode(), is(401));
-        assertThat(result.toString(), containsString("NO_PERMISSION_TO_DELETE_ENVIRONMENT"));
-        assertThat(result.toString(), containsString(currentUser.getUsername().toString()));
+        assertThat(result.toString(), containsString("UNAUTHORIZED_TO_OPERATE"));
     }
 }

@@ -67,7 +67,7 @@ public class UpdateTemplateConfigCommand extends TemplateConfigCommand {
         PipelineTemplateConfig pipelineTemplateConfig = findAddedTemplate(cruiseConfig);
         boolean freshRequest = entityHashingService.md5ForEntity(pipelineTemplateConfig).equals(md5);
         if (!freshRequest) {
-            result.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", "Template", templateConfig.name()));
+            result.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", "template", templateConfig.name()));
         }
         return freshRequest;
     }

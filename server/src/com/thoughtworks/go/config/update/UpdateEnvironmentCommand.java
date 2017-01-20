@@ -16,11 +16,9 @@
 
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.BasicCruiseConfig;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.EnvironmentConfig;
-import com.thoughtworks.go.config.EnvironmentsConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
@@ -32,17 +30,17 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 public class UpdateEnvironmentCommand extends EnvironmentCommand implements EntityConfigUpdateCommand<EnvironmentConfig> {
 
     private GoConfigService goConfigService;
-    private final EnvironmentConfig oldEnvironmentConfig;
+    private String oldEnvironmentName;
     private final EnvironmentConfig newEnvironmentConfig;
     private final Username username;
     private String md5;
     private EntityHashingService hashingService;
     private final HttpLocalizedOperationResult result;
 
-    public UpdateEnvironmentCommand(GoConfigService goConfigService, EnvironmentConfig oldEnvironmentConfig, EnvironmentConfig newEnvironmentConfig, Username username, Localizable.CurryableLocalizable actionFailed, String md5, EntityHashingService hashingService, HttpLocalizedOperationResult result) {
+    public UpdateEnvironmentCommand(GoConfigService goConfigService, String oldEnvironmentName, EnvironmentConfig newEnvironmentConfig, Username username, Localizable.CurryableLocalizable actionFailed, String md5, EntityHashingService hashingService, HttpLocalizedOperationResult result) {
         super(actionFailed, newEnvironmentConfig, result);
         this.goConfigService = goConfigService;
-        this.oldEnvironmentConfig = oldEnvironmentConfig;
+        this.oldEnvironmentName = oldEnvironmentName;
         this.newEnvironmentConfig = newEnvironmentConfig;
         this.username = username;
         this.md5 = md5;
@@ -53,14 +51,13 @@ public class UpdateEnvironmentCommand extends EnvironmentCommand implements Enti
     @Override
     public void update(CruiseConfig preprocessedConfig) throws Exception {
         EnvironmentsConfig environments = preprocessedConfig.getEnvironments();
-        int index = environments.indexOf(oldEnvironmentConfig);
-        environments.remove(index);
-        environments.add(index, newEnvironmentConfig);
+        EnvironmentConfig oldEnvironmentConfig = preprocessedConfig.getEnvironments().find(oldEnvironmentName);
+        environments.replace(oldEnvironmentConfig, newEnvironmentConfig);
     }
 
     @Override
     public void clearErrors() {
-        BasicCruiseConfig.clearErrors(oldEnvironmentConfig);
+        BasicCruiseConfig.clearErrors(this.newEnvironmentConfig);
     }
 
     @Override
@@ -69,18 +66,17 @@ public class UpdateEnvironmentCommand extends EnvironmentCommand implements Enti
     }
 
     private boolean isRequestFresh(CruiseConfig cruiseConfig) {
-        EnvironmentConfig config = cruiseConfig.getEnvironments().find(oldEnvironmentConfig.name());
+        EnvironmentConfig config = cruiseConfig.getEnvironments().find(oldEnvironmentName);
         boolean freshRequest =  hashingService.md5ForEntity(config).equals(md5);
         if (!freshRequest) {
-            result.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", "Environment", oldEnvironmentConfig.name()));
+            result.stale(LocalizedMessage.string("STALE_RESOURCE_CONFIG", "environment", oldEnvironmentName));
         }
         return freshRequest;
     }
 
     private boolean isAuthorized(CruiseConfig cruiseConfig) {
         if (!goConfigService.isAdministrator(username.getUsername())) {
-            Localizable noPermission = LocalizedMessage.string("NO_PERMISSION_TO_UPDATE_ENVIRONMENT", oldEnvironmentConfig.name().toString(), username.getDisplayName());
-            result.unauthorized(noPermission, HealthStateType.unauthorised());
+            result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_OPERATE"), HealthStateType.unauthorised());
             return false;
         }
         return true;

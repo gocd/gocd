@@ -58,7 +58,7 @@ public class DeleteEnvironmentCommand extends EnvironmentCommand implements Enti
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
         if (!goConfigService.isAdministrator(username.getUsername())) {
-            result.unauthorized(LocalizedMessage.string("NO_PERMISSION_TO_DELETE_ENVIRONMENT", environmentConfig.name().toString(), username.getDisplayName()), HealthStateType.unauthorised());
+            result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_OPERATE"), HealthStateType.unauthorised());
             return false;
         }
         return true;

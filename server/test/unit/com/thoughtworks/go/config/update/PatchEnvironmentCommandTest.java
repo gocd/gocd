@@ -169,8 +169,7 @@ public class PatchEnvironmentCommandTest {
         when(goConfigService.isAdministrator(currentUser.getUsername())).thenReturn(false);
         assertThat(command.canContinue(cruiseConfig), is(false));
         HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
-        Localizable noPermission = LocalizedMessage.string("NO_PERMISSION_TO_UPDATE_ENVIRONMENT", environmentConfig.name().toString(), currentUser.getDisplayName());
-        expectResult.unauthorized(noPermission, HealthStateType.unauthorised());
+        expectResult.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_OPERATE"), HealthStateType.unauthorised());
 
         assertThat(result, is(expectResult));
     }

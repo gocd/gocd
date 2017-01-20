@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config.materials.tfs;
 
@@ -87,12 +87,12 @@ public class TfsMaterialTest {
         TestSubprocessExecutionContext execCtx = new TestSubprocessExecutionContext();
         TfsMaterial spy = spy(tfsMaterialFirstCollectionSecondProject);
         TfsCommand tfsCommand = mock(TfsCommand.class);
-        when(tfsCommand.latestModification(dir)).thenReturn(new ArrayList<Modification>());
+        when(tfsCommand.latestModification(dir)).thenReturn(new ArrayList<>());
         doReturn(tfsCommand).when(spy).tfs(execCtx);
 
         List<Modification> actual = spy.latestModification(dir, execCtx);
 
-        assertThat((ArrayList<Modification>) actual, is(new ArrayList<Modification>()));
+        assertThat(actual, is(new ArrayList<Modification>()));
         verify(tfsCommand).latestModification(dir);
     }
 
@@ -102,12 +102,12 @@ public class TfsMaterialTest {
         TestSubprocessExecutionContext execCtx = new TestSubprocessExecutionContext();
         TfsMaterial spy = spy(tfsMaterialFirstCollectionFirstProject);
         TfsCommand tfsCommand = mock(TfsCommand.class);
-        when(tfsCommand.modificationsSince(dir, new StringRevision("5"))).thenReturn(new ArrayList<Modification>());
+        when(tfsCommand.modificationsSince(dir, new StringRevision("5"))).thenReturn(new ArrayList<>());
         doReturn(tfsCommand).when(spy).tfs(execCtx);
 
         List<Modification> actual = spy.modificationsSince(dir, new StringRevision("5"), execCtx);
 
-        assertThat((ArrayList<Modification>) actual, is(new ArrayList<Modification>()));
+        assertThat(actual, is(new ArrayList<Modification>()));
         verify(tfsCommand).modificationsSince(dir, new StringRevision("5"));
     }
 
@@ -265,13 +265,13 @@ public class TfsMaterialTest {
         TfsMaterial material = new TfsMaterial(new GoCipher(), new UrlArgument("http://username:password@tfsrepo.com"), "username", "domain", "password", "$project/path/");
         Map<String, Object> attributes = material.getAttributes(true);
 
-        assertThat((String) attributes.get("type"), is("tfs"));
+        assertThat(attributes.get("type"), is("tfs"));
         Map<String, Object> configuration = (Map<String, Object>) attributes.get("tfs-configuration");
-        assertThat((String) configuration.get("url"), is("http://username:password@tfsrepo.com"));
-        assertThat((String) configuration.get("domain"), is("domain"));
-        assertThat((String) configuration.get("username"), is("username"));
-        assertThat((String) configuration.get("password"), is("password"));
-        assertThat((String) configuration.get("project-path"), is("$project/path/"));
+        assertThat(configuration.get("url"), is("http://username:password@tfsrepo.com"));
+        assertThat(configuration.get("domain"), is("domain"));
+        assertThat(configuration.get("username"), is("username"));
+        assertThat(configuration.get("password"), is("password"));
+        assertThat(configuration.get("project-path"), is("$project/path/"));
     }
 
     @Test
@@ -279,12 +279,12 @@ public class TfsMaterialTest {
         TfsMaterial material = new TfsMaterial(new GoCipher(), new UrlArgument("http://username:password@tfsrepo.com"), "username", "domain", "password", "$project/path/");
         Map<String, Object> attributes = material.getAttributes(false);
 
-        assertThat((String) attributes.get("type"), is("tfs"));
+        assertThat(attributes.get("type"), is("tfs"));
         Map<String, Object> configuration = (Map<String, Object>) attributes.get("tfs-configuration");
-        assertThat((String) configuration.get("url"), is("http://username:******@tfsrepo.com"));
-        assertThat((String) configuration.get("domain"), is("domain"));
-        assertThat((String) configuration.get("username"), is("username"));
-        assertThat((String) configuration.get("password"), is(nullValue()));
-        assertThat((String) configuration.get("project-path"), is("$project/path/"));
+        assertThat(configuration.get("url"), is("http://username:******@tfsrepo.com"));
+        assertThat(configuration.get("domain"), is("domain"));
+        assertThat(configuration.get("username"), is("username"));
+        assertThat(configuration.get("password"), is(nullValue()));
+        assertThat(configuration.get("project-path"), is("$project/path/"));
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -294,7 +294,7 @@ public class InstanceFactoryTest {
         ArtifactPlans artifactPlans = new ArtifactPlans();
         JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test"), resources, artifactPlans);
         JobPlan plan = instanceFactory.createJobPlan(jobConfig, new DefaultSchedulingContext());
-        assertThat(plan, is((JobPlan) new DefaultJobPlan(resources, artifactPlans, new ArtifactPropertiesGenerators(), -1, new JobIdentifier(), null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null)));
+        assertThat(plan, is(new DefaultJobPlan(resources, artifactPlans, new ArtifactPropertiesGenerators(), -1, new JobIdentifier(), null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), null)));
     }
 
     @Test
@@ -459,7 +459,7 @@ public class InstanceFactoryTest {
 
 		SchedulingContext context = mock(SchedulingContext.class);
 		when(context.getApprovedBy()).thenReturn("chris");
-		when(context.findAgentsMatching(new Resources())).thenReturn(new ArrayList<AgentConfig>());
+		when(context.findAgentsMatching(new Resources())).thenReturn(new ArrayList<>());
 		when(context.getEnvironmentVariablesConfig()).thenReturn(new EnvironmentVariablesConfig());
 		when(context.overrideEnvironmentVariables(any(EnvironmentVariablesConfig.class))).thenReturn(context);
 

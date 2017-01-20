@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain;
 
@@ -33,8 +33,8 @@ public class StageStateTest {
 
     @Before
     public void shouldBeUpdatedWhenEnumerationsChange() {
-        testedStates = new HashSet<StageState>();
-        testedResults = new HashSet<StageResult>();
+        testedStates = new HashSet<>();
+        testedResults = new HashSet<>();
     }
 
     @After
@@ -101,14 +101,14 @@ public class StageStateTest {
 
 
     private void shouldCoverAllResults() {
-        Set<StageResult> missingResults = new HashSet<StageResult>(asList(StageResult.values()));
+        Set<StageResult> missingResults = new HashSet<>(asList(StageResult.values()));
         missingResults.removeAll(testedResults);
         assertThat("Update all tests when you add a new StageResult (missing " + missingResults + ")",
                 missingResults.isEmpty(), is(true));
     }
 
     private void shouldCoverAllStates() {
-        Set<StageState> missingStates = new HashSet<StageState>(asList(StageState.values()));
+        Set<StageState> missingStates = new HashSet<>(asList(StageState.values()));
         missingStates.removeAll(testedStates);
         assertThat("Update all tests when you add a new StageState (missing " + missingStates + ")",
                 missingStates.isEmpty(), is(true));

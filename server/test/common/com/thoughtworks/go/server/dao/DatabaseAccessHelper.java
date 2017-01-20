@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -633,7 +633,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
     public List<MaterialRevision> addDependencyRevisionModification(List<MaterialRevision> materialRevisions, DependencyMaterial dependencyMaterial, Pipeline... upstreams) {
         String stageName = CaseInsensitiveString.str(dependencyMaterial.getStageName());
         String label = upstreams[0].getLabel();
-        List<Modification> modifications = new ArrayList<Modification>();
+        List<Modification> modifications = new ArrayList<>();
         for (Pipeline upstream : upstreams) {
             modifications.add(new Modification(new Date(),
                     DependencyMaterialRevision.create(CaseInsensitiveString.str(dependencyMaterial.getPipelineName()), upstream.getCounter(), label, stageName, upstream.findStage(stageName

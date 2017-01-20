@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -313,9 +313,9 @@ public class PipelineScheduleQueueIntegrationTest {
         List<JobPlan> plans = jobService.orderedScheduledBuilds();
         JobPlan plan = plans.get(0);
         assertThat(plan.getName(), is("test-job"));
-        assertThat(plan.getArtifactPlans(), is((List<ArtifactPlan>) artifactPlans));
-        assertThat(plan.getPropertyGenerators(), is((List<ArtifactPropertiesGenerator>) generators));
-        assertThat(plan.getResources(), is((List<Resource>) resources));
+        assertThat(plan.getArtifactPlans(), is(artifactPlans));
+        assertThat(plan.getPropertyGenerators(), is(generators));
+        assertThat(plan.getResources(), is(resources));
     }
 
     @Test

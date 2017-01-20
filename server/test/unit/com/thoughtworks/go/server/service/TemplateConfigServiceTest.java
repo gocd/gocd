@@ -41,8 +41,6 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 public class TemplateConfigServiceTest {
@@ -78,7 +76,7 @@ public class TemplateConfigServiceTest {
 
         assertThat(templateWithPipelines.size(), is(2));
         assertThat(templateWithPipelines.get(new CaseInsensitiveString("first_template")), is(Arrays.asList(new CaseInsensitiveString("first"), new CaseInsensitiveString("second"))));
-        assertThat(templateWithPipelines.get(new CaseInsensitiveString("empty_template")), is((List<CaseInsensitiveString>) new ArrayList<CaseInsensitiveString>()));
+        assertThat(templateWithPipelines.get(new CaseInsensitiveString("empty_template")), is(new ArrayList<CaseInsensitiveString>()));
     }
 
     @Test

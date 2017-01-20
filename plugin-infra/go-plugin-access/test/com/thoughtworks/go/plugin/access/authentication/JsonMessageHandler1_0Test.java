@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,7 @@ public class JsonMessageHandler1_0Test {
         String requestMessage = messageHandler.requestMessageForAuthenticateUser("username", "password");
         Object o = new GsonBuilder().create().fromJson(requestMessage, Object.class);
 
-        Map<String, String> requestMap = new HashMap<String, String>();
+        Map<String, String> requestMap = new HashMap<>();
         requestMap.put("username", "username");
         requestMap.put("password", "password");
         assertEquals(o, requestMap);

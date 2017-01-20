@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,7 +69,7 @@ public class SvnMaterialTest {
     private SvnMaterial svnMaterial;
     private static final String URL = "svn://something";
     SubversionRevision revision = new SubversionRevision("1");
-    private final ArrayList<File> tempFiles = new ArrayList<File>();
+    private final ArrayList<File> tempFiles = new ArrayList<>();
     private InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
 
     @Before
@@ -234,7 +234,7 @@ public class SvnMaterialTest {
         ObjectOutputStream serialized = new ObjectOutputStream(buf);
         serialized.writeObject(material1);
         ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(buf.toByteArray()));
-        assertThat((SvnMaterial) in.readObject(), is(material1));
+        assertThat(in.readObject(), is(material1));
     }
 
     @Test
@@ -453,12 +453,12 @@ public class SvnMaterialTest {
         SvnMaterial material = new SvnMaterial("http://username:password@svnrepo.com", "user", "password", true);
         Map<String, Object> attributes = material.getAttributes(true);
 
-        assertThat((String) attributes.get("type"), is("svn"));
+        assertThat(attributes.get("type"), is("svn"));
         Map<String, Object> configuration = (Map<String, Object>) attributes.get("svn-configuration");
-        assertThat((String) configuration.get("url"), is("http://username:password@svnrepo.com"));
-        assertThat((String) configuration.get("username"), is("user"));
-        assertThat((String) configuration.get("password"), is("password"));
-        assertThat((Boolean) configuration.get("check-externals"), is(true));
+        assertThat(configuration.get("url"), is("http://username:password@svnrepo.com"));
+        assertThat(configuration.get("username"), is("user"));
+        assertThat(configuration.get("password"), is("password"));
+        assertThat(configuration.get("check-externals"), is(true));
     }
 
     @Test
@@ -466,11 +466,11 @@ public class SvnMaterialTest {
         SvnMaterial material = new SvnMaterial("http://username:password@svnrepo.com", "user", "password", true);
         Map<String, Object> attributes = material.getAttributes(false);
 
-        assertThat((String) attributes.get("type"), is("svn"));
+        assertThat(attributes.get("type"), is("svn"));
         Map<String, Object> configuration = (Map<String, Object>) attributes.get("svn-configuration");
-        assertThat((String) configuration.get("url"), is("http://username:******@svnrepo.com"));
-        assertThat((String) configuration.get("username"), is("user"));
+        assertThat(configuration.get("url"), is("http://username:******@svnrepo.com"));
+        assertThat(configuration.get("username"), is("user"));
         assertThat(configuration.get("password"), is(nullValue()));
-        assertThat((Boolean) configuration.get("check-externals"), is(true));
+        assertThat(configuration.get("check-externals"), is(true));
     }
 }

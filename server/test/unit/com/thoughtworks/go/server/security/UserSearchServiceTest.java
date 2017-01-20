@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.security;
 
 import com.thoughtworks.go.domain.User;
-import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationExtension;
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationPluginRegistry;
@@ -70,8 +69,8 @@ public class UserSearchServiceTest {
 
     @Test
     public void shouldSearchForUsers() throws Exception {
-        User foo = new User("foo", new ArrayList<String>(), "foo@cruise.com", false);
-        User bar = new User("bar-foo", new ArrayList<String>(), "bar@go.com", true);
+        User foo = new User("foo", new ArrayList<>(), "foo@cruise.com", false);
+        User bar = new User("bar-foo", new ArrayList<>(), "bar@go.com", true);
         when(ldapUserSearch.search("foo")).thenReturn(Arrays.asList(foo, bar));
         List<UserSearchModel> models = userSearchService.search("foo", new HttpLocalizedOperationResult());
         assertThat(models, is(Arrays.asList(new UserSearchModel(foo, UserSourceType.LDAP), new UserSearchModel(bar, UserSourceType.LDAP))));
@@ -81,8 +80,8 @@ public class UserSearchServiceTest {
     public void shouldAddPluginSearchResults() throws Exception {
         String searchTerm = "foo";
 
-        User foo = new User("foo", new ArrayList<String>(), "foo@cruise.com", false);
-        User bar = new User("bar-foo", new ArrayList<String>(), "bar@go.com", true);
+        User foo = new User("foo", new ArrayList<>(), "foo@cruise.com", false);
+        User bar = new User("bar-foo", new ArrayList<>(), "bar@go.com", true);
         when(ldapUserSearch.search(searchTerm)).thenReturn(Arrays.asList(foo, bar));
 
         List<String> pluginIds = Arrays.asList("plugin-id-1", "plugin-id-2", "plugin-id-3", "plugin-id-4");
@@ -90,7 +89,7 @@ public class UserSearchServiceTest {
         when(authorizationExtension.canHandlePlugin(anyString())).thenReturn(true);
         when(authorizationExtension.searchUsers("plugin-id-1", searchTerm)).thenReturn(Arrays.asList(getPluginUser(1)));
         when(authorizationExtension.searchUsers("plugin-id-2", searchTerm)).thenReturn(Arrays.asList(getPluginUser(2), getPluginUser(3)));
-        when(authorizationExtension.searchUsers("plugin-id-3", searchTerm)).thenReturn(new ArrayList<com.thoughtworks.go.plugin.access.authentication.models.User>());
+        when(authorizationExtension.searchUsers("plugin-id-3", searchTerm)).thenReturn(new ArrayList<>());
         when(authorizationExtension.searchUsers("plugin-id-4", searchTerm)).thenReturn(Arrays.asList(new com.thoughtworks.go.plugin.access.authentication.models.User("username-" + 4, null, null)));
 
         List<UserSearchModel> models = userSearchService.search(searchTerm, new HttpLocalizedOperationResult());
@@ -123,10 +122,10 @@ public class UserSearchServiceTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         when(goConfigService.isPasswordFileConfigured()).thenReturn(true);
         when(passwordFileUserSearch.search("foo")).thenThrow(new RuntimeException("Password file not found"));
-        when(ldapUserSearch.search("foo")).thenReturn(new ArrayList<User>());
+        when(ldapUserSearch.search("foo")).thenReturn(new ArrayList<>());
         List<UserSearchModel> models = userSearchService.search("foo", result);
         assertThat(models.size(), is(0));
-        assertThat(result.localizable(), is((Localizable) LocalizedMessage.string("PASSWORD_SEARCH_FAILED")));
+        assertThat(result.localizable(), is(LocalizedMessage.string("PASSWORD_SEARCH_FAILED")));
     }
 
     @Test
@@ -141,7 +140,7 @@ public class UserSearchServiceTest {
 
     @Test
     public void search_shouldNotAttemptLdapSearchIfLdapIsNotConfigured() throws Exception {
-        User foo = new User("foo", new ArrayList<String>(), "foo@cruise.com", false);
+        User foo = new User("foo", new ArrayList<>(), "foo@cruise.com", false);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         when(goConfigService.isLdapConfigured()).thenReturn(false);
         when(passwordFileUserSearch.search("foo")).thenReturn(Arrays.asList(foo));
@@ -151,7 +150,7 @@ public class UserSearchServiceTest {
 
     @Test
     public void shouldReturnWarningMessageWhenLdapSearchFails() throws Exception {
-        User foo = new User("foo", new ArrayList<String>(), "foo@cruise.com", false);
+        User foo = new User("foo", new ArrayList<>(), "foo@cruise.com", false);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
         when(goConfigService.isPasswordFileConfigured()).thenReturn(true);
@@ -159,7 +158,7 @@ public class UserSearchServiceTest {
         when(passwordFileUserSearch.search("foo")).thenReturn(Arrays.asList(foo));
         List<UserSearchModel> models = userSearchService.search("foo", result);
         assertThat(models, is(Arrays.asList(new UserSearchModel(foo, UserSourceType.PASSWORD_FILE))));
-        assertThat(result.localizable(), is((Localizable) LocalizedMessage.string("LDAP_ERROR")));
+        assertThat(result.localizable(), is(LocalizedMessage.string("LDAP_ERROR")));
     }
 
     @Test
@@ -168,7 +167,7 @@ public class UserSearchServiceTest {
         when(ldapUserSearch.search("foo")).thenReturn(new ArrayList());
         when(passwordFileUserSearch.search("foo")).thenReturn(new ArrayList());
         userSearchService.search("foo", result);
-        assertThat(result.localizable(), is((Localizable) LocalizedMessage.string("NO_SEARCH_RESULTS_ERROR")));
+        assertThat(result.localizable(), is(LocalizedMessage.string("NO_SEARCH_RESULTS_ERROR")));
     }
 
     @Test
@@ -178,7 +177,7 @@ public class UserSearchServiceTest {
         when(ldapUserSearch.search("foo")).thenThrow(new RuntimeException("Ldap Error"));
         when(passwordFileUserSearch.search("foo")).thenThrow(new IOException("Password file not found"));
         userSearchService.search("foo", result);
-        assertThat(result.localizable(), is((Localizable) LocalizedMessage.string("USER_SEARCH_FAILED")));
+        assertThat(result.localizable(), is(LocalizedMessage.string("USER_SEARCH_FAILED")));
     }
 
     @Test
@@ -208,11 +207,11 @@ public class UserSearchServiceTest {
         User bar = new User("barUser", "boo User", "boo@user.com");
 
         when(ldapUserSearch.search("foo")).thenThrow(new LdapUserSearch.NotAllResultsShownException(Arrays.asList(foo, bar)));
-        when(passwordFileUserSearch.search("foo")).thenReturn(new ArrayList<User>());
+        when(passwordFileUserSearch.search("foo")).thenReturn(new ArrayList<>());
 
         List<UserSearchModel> models = userSearchService.search("foo", result);
         assertThat(models.size(), is(2));
-        assertThat(result.localizable(), is((Localizable) LocalizedMessage.string("NOT_ALL_RESULTS_SHOWN")));
+        assertThat(result.localizable(), is(LocalizedMessage.string("NOT_ALL_RESULTS_SHOWN")));
     }
 
     private User getUser(Integer userId) {

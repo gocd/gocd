@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -80,7 +80,7 @@ public class PackageMaterialConfigTest {
     public void shouldAddErrorIfMaterialNameUniquenessValidationFails() throws Exception {
         PackageMaterialConfig packageMaterialConfig = new PackageMaterialConfig("package-id");
 
-        Map<CaseInsensitiveString, AbstractMaterialConfig> nameToMaterialMap = new HashMap<CaseInsensitiveString, AbstractMaterialConfig>();
+        Map<CaseInsensitiveString, AbstractMaterialConfig> nameToMaterialMap = new HashMap<>();
         PackageMaterialConfig existingMaterial = new PackageMaterialConfig("package-id");
         nameToMaterialMap.put(new CaseInsensitiveString("package-id"), existingMaterial);
         nameToMaterialMap.put(new CaseInsensitiveString("foo"), new GitMaterialConfig("url"));
@@ -98,7 +98,7 @@ public class PackageMaterialConfigTest {
     public void shouldPassMaterialUniquenessIfIfNoDuplicateMaterialFound() throws Exception {
         PackageMaterialConfig packageMaterialConfig = new PackageMaterialConfig("package-id");
 
-        Map<CaseInsensitiveString, AbstractMaterialConfig> nameToMaterialMap = new HashMap<CaseInsensitiveString, AbstractMaterialConfig>();
+        Map<CaseInsensitiveString, AbstractMaterialConfig> nameToMaterialMap = new HashMap<>();
         nameToMaterialMap.put(new CaseInsensitiveString("repo-name:pkg-name"), new PackageMaterialConfig("package-id-new"));
         nameToMaterialMap.put(new CaseInsensitiveString("foo"), new GitMaterialConfig("url"));
 
@@ -112,7 +112,7 @@ public class PackageMaterialConfigTest {
     public void shouldNotAddErrorDuringUniquenessValidationIfMaterialNameIsEmpty() throws Exception {
         PackageMaterialConfig packageMaterialConfig = new PackageMaterialConfig("");
 
-        Map<CaseInsensitiveString, AbstractMaterialConfig> nameToMaterialMap = new HashMap<CaseInsensitiveString, AbstractMaterialConfig>();
+        Map<CaseInsensitiveString, AbstractMaterialConfig> nameToMaterialMap = new HashMap<>();
 
         packageMaterialConfig.validateNameUniqueness(nameToMaterialMap);
 
@@ -122,7 +122,7 @@ public class PackageMaterialConfigTest {
 
     @Test
     public void shouldSetConfigAttributesForThePackageMaterial() throws Exception {
-        Map<String, String> attributes = new HashMap<String, String>();
+        Map<String, String> attributes = new HashMap<>();
         attributes.put(PackageMaterialConfig.PACKAGE_ID, "packageId");
 
         PackageMaterialConfig packageMaterialConfig = new PackageMaterialConfig();
@@ -132,7 +132,7 @@ public class PackageMaterialConfigTest {
 
     @Test
     public void shouldSetPackageIdToNullIfConfigAttributesForThePackageMaterialDoesNotContainPackageId() throws Exception {
-        Map<String, String> attributes = new HashMap<String, String>();
+        Map<String, String> attributes = new HashMap<>();
         PackageMaterialConfig packageMaterialConfig = new PackageMaterialConfig("id");
         packageMaterialConfig.setConfigAttributes(attributes);
         assertThat(packageMaterialConfig.getPackageId(), is(nullValue()));

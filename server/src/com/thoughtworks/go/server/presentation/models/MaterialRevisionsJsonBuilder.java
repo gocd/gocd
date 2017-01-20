@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,6 @@ import java.util.Map;
 import static com.thoughtworks.go.config.materials.PackageMaterial.TYPE;
 import static com.thoughtworks.go.util.DateUtils.formatISO8601;
 import static java.lang.String.valueOf;
-import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 
 public class MaterialRevisionsJsonBuilder extends ModificationVisitorAdapter {
     private List materials = new ArrayList();

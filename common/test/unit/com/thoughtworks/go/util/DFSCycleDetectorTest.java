@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -59,7 +59,7 @@ public class DFSCycleDetectorTest {
     public void shouldNotThrowExceptionWhenCycleDependencyNotFound() throws Exception {
         when(state.getDependencyMaterials(new CaseInsensitiveString("a"))).thenReturn(new Node(new Node.DependencyNode(new CaseInsensitiveString("b"), new CaseInsensitiveString("stage"))));
         when(state.getDependencyMaterials(new CaseInsensitiveString("b"))).thenReturn(new Node(new Node.DependencyNode(new CaseInsensitiveString("c"), new CaseInsensitiveString("stage"))));
-        when(state.getDependencyMaterials(new CaseInsensitiveString("c"))).thenReturn(new Node(new ArrayList<Node.DependencyNode>()));
+        when(state.getDependencyMaterials(new CaseInsensitiveString("c"))).thenReturn(new Node(new ArrayList<>()));
 
         when(state.hasPipeline(new CaseInsensitiveString("a"))).thenReturn(true);
         when(state.hasPipeline(new CaseInsensitiveString("b"))).thenReturn(true);

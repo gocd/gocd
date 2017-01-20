@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,9 +46,9 @@ public class GraphGenerator {
            +---->L31--->L32----+
      */
     public PipelineConfig createMesh(PipelineConfig startNode, String endNodeName, String pipelineNameSuffix, int numberOfInstances, int numberOfNodesPerLevel, int numberOfLevels) {
-        List<PipelineConfig> previousNodes = new ArrayList<PipelineConfig>();
+        List<PipelineConfig> previousNodes = new ArrayList<>();
         previousNodes.add(startNode);
-        List<PipelineConfig> currentNodes = new ArrayList<PipelineConfig>();
+        List<PipelineConfig> currentNodes = new ArrayList<>();
         for (int i = 1; i <= numberOfLevels; i++) {
             for (int j = 1; j <= numberOfNodesPerLevel; j++) {
                 String pipelineName = String.format("pipeline_%s_%d_%d", pipelineNameSuffix, i, j);
@@ -56,7 +56,7 @@ public class GraphGenerator {
                 currentNodes.add(pipelineConfig);
             }
             previousNodes = currentNodes;
-            currentNodes = new ArrayList<PipelineConfig>();
+            currentNodes = new ArrayList<>();
         }
         return createPipelineWithInstances(endNodeName, previousNodes, numberOfInstances);
     }
@@ -83,7 +83,7 @@ public class GraphGenerator {
 
     private void createInstances(int numberOfInstances, List<PipelineConfig> previousNodes, PipelineConfig pipelineConfig) {
         for (int k = 1; k <= numberOfInstances; k++) {
-            List<String> previousRevisions = new ArrayList<String>();
+            List<String> previousRevisions = new ArrayList<>();
             previousRevisions.add("svn_1");
             int instanceCount = previousNodes.size() == 1 ? 1 : k;
             for (int x = 0; x < previousNodes.size(); x++) {

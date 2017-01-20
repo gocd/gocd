@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service.builders;
 
@@ -64,14 +64,14 @@ public class BuilderFactoryTest {
     private static NullTaskBuilder nullTaskBuilder = mock(NullTaskBuilder.class);
     private static PluggableTaskBuilderCreator pluggableTaskBuilderCreator = mock(PluggableTaskBuilderCreator.class);
 
-    @DataPoint public static TaskDataPoint<AntTask> antDataPoint = new TaskDataPoint<AntTask>(new AntTask(), antTaskBuilder);
-    @DataPoint public static TaskDataPoint<ExecTask> execDataPoint = new TaskDataPoint<ExecTask>(new ExecTask(), execTaskBuilder);
-    @DataPoint public static TaskDataPoint<NantTask> nantDataPoint = new TaskDataPoint<NantTask>(new NantTask(), nantTaskBuilder);
-    @DataPoint public static TaskDataPoint<RakeTask> rakeDataPoint = new TaskDataPoint<RakeTask>(new RakeTask(), rakeTaskBuilder);
-    @DataPoint public static TaskDataPoint<FetchTask> fetchDataPoint = new TaskDataPoint<FetchTask>(new FetchTask(), fetchTaskBuilder);
-    @DataPoint public static TaskDataPoint<NullTask> nullDataPoint = new TaskDataPoint<NullTask>(new NullTask(), nullTaskBuilder);
-    @DataPoint public static TaskDataPoint<PluggableTask> pluggableTaskDataPoint = new TaskDataPoint<PluggableTask>(new PluggableTask(), pluggableTaskBuilderCreator);
-    @DataPoint public static TaskDataPoint<KillAllChildProcessTask> killAllChildProcessTaskTaskDataPoint = new TaskDataPoint<KillAllChildProcessTask>(new KillAllChildProcessTask(), killAllChildProcessTaskBuilder);
+    @DataPoint public static TaskDataPoint<AntTask> antDataPoint = new TaskDataPoint<>(new AntTask(), antTaskBuilder);
+    @DataPoint public static TaskDataPoint<ExecTask> execDataPoint = new TaskDataPoint<>(new ExecTask(), execTaskBuilder);
+    @DataPoint public static TaskDataPoint<NantTask> nantDataPoint = new TaskDataPoint<>(new NantTask(), nantTaskBuilder);
+    @DataPoint public static TaskDataPoint<RakeTask> rakeDataPoint = new TaskDataPoint<>(new RakeTask(), rakeTaskBuilder);
+    @DataPoint public static TaskDataPoint<FetchTask> fetchDataPoint = new TaskDataPoint<>(new FetchTask(), fetchTaskBuilder);
+    @DataPoint public static TaskDataPoint<NullTask> nullDataPoint = new TaskDataPoint<>(new NullTask(), nullTaskBuilder);
+    @DataPoint public static TaskDataPoint<PluggableTask> pluggableTaskDataPoint = new TaskDataPoint<>(new PluggableTask(), pluggableTaskBuilderCreator);
+    @DataPoint public static TaskDataPoint<KillAllChildProcessTask> killAllChildProcessTaskTaskDataPoint = new TaskDataPoint<>(new KillAllChildProcessTask(), killAllChildProcessTaskBuilder);
 
     @Before
     public void setUp() throws Exception {

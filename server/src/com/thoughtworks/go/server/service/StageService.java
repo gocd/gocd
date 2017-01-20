@@ -1,11 +1,11 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,7 +22,6 @@ import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.activity.StageStatusCache;
 import com.thoughtworks.go.domain.feed.Author;
 import com.thoughtworks.go.domain.feed.FeedEntries;
-import com.thoughtworks.go.domain.feed.FeedEntry;
 import com.thoughtworks.go.domain.feed.stage.StageFeedEntry;
 import com.thoughtworks.go.dto.DurationBean;
 import com.thoughtworks.go.dto.DurationBeans;
@@ -326,7 +325,7 @@ public class StageService implements StageRunFinder, StageFinder {
                 }
             }
         }
-        return cloner.deepClone(new FeedEntries(new ArrayList<FeedEntry>(feedEntries)));
+        return cloner.deepClone(new FeedEntries(new ArrayList<>(feedEntries)));
     }
 
     private String cacheKeyForLatestStageFeedForPipeline(String pipelineName) {
@@ -343,7 +342,7 @@ public class StageService implements StageRunFinder, StageFinder {
     public FeedEntries feedBefore(long entryId, String pipelineName, Username username) {
         List<StageFeedEntry> stageEntries = stageDao.findCompletedStagesFor(pipelineName, FeedModifier.Before, entryId, FEED_PAGE_SIZE);
         populateAuthorsAndMingleCards(stageEntries, pipelineName, username);
-        return new FeedEntries(new ArrayList<FeedEntry>(stageEntries));
+        return new FeedEntries(new ArrayList<>(stageEntries));
     }
 
     private void populateAuthorsAndMingleCards(List<StageFeedEntry> stageEntries, String pipelineName, Username username) {

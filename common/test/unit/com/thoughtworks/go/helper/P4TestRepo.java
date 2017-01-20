@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -211,7 +211,7 @@ public class P4TestRepo extends TestRepo {
 
     private void runP4(File workingDir, String... args) {
         InMemoryStreamConsumer consumer2 = inMemoryConsumer();
-        List<String> arrays = new ArrayList<String>();
+        List<String> arrays = new ArrayList<>();
         arrays.add("-p");
         arrays.add(serverAndPort());
         arrays.addAll(Arrays.asList(args));

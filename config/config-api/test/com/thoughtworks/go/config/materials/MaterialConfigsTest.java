@@ -1,11 +1,11 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -371,7 +371,7 @@ Above scenario allowed
         pipeline1.addMaterialConfig(MaterialConfigsMother.svnMaterialConfig("url", "folder"));
 
         MaterialConfig actualMaterialConfig = pipeline1.materialConfigs().getByFingerPrint(expectedMaterial.getPipelineUniqueFingerprint());
-        assertThat((HgMaterialConfig) actualMaterialConfig, is(expectedMaterial));
+        assertThat(actualMaterialConfig, is(expectedMaterial));
     }
 
     @Test
@@ -438,25 +438,25 @@ Above scenario allowed
     public void shouldSetSvnConfigAttributesForMaterial() {
         MaterialConfigs materialConfigs = new MaterialConfigs();
 
-        Map<String, Object> svnAttrMap = new HashMap<String, Object>();
+        Map<String, Object> svnAttrMap = new HashMap<>();
         svnAttrMap.put(SvnMaterialConfig.URL, "foo");
         svnAttrMap.put(SvnMaterialConfig.USERNAME, "bar");
         svnAttrMap.put(SvnMaterialConfig.PASSWORD, "baz");
         svnAttrMap.put(SvnMaterialConfig.CHECK_EXTERNALS, false);
 
-        Map<String, Object> attributeMap = new HashMap<String, Object>();
+        Map<String, Object> attributeMap = new HashMap<>();
         attributeMap.put(AbstractMaterialConfig.MATERIAL_TYPE, SvnMaterialConfig.TYPE);
         attributeMap.put(SvnMaterialConfig.TYPE, svnAttrMap);
         materialConfigs.setConfigAttributes(attributeMap);
 
-        assertThat((SvnMaterialConfig) materialConfigs.first(), is(new SvnMaterialConfig("foo", "bar", "baz", false)));
+        assertThat(materialConfigs.first(), is(new SvnMaterialConfig("foo", "bar", "baz", false)));
     }
 
     @Test
     public void shouldSetTfsConfigAttributesForMaterial() {
         MaterialConfigs materialConfigs = new MaterialConfigs();
 
-        Map<String, String> tfsAttrMap = new HashMap<String, String>();
+        Map<String, String> tfsAttrMap = new HashMap<>();
         tfsAttrMap.put(TfsMaterialConfig.URL, "foo");
         tfsAttrMap.put(TfsMaterialConfig.USERNAME, "bar");
         tfsAttrMap.put(TfsMaterialConfig.PASSWORD, "baz");
@@ -464,14 +464,14 @@ Above scenario allowed
         tfsAttrMap.put(TfsMaterialConfig.MATERIAL_NAME, "crapy_material");
         tfsAttrMap.put(TfsMaterialConfig.DOMAIN, "CORPORATE");
 
-        Map<String, Object> attributeMap = new HashMap<String, Object>();
+        Map<String, Object> attributeMap = new HashMap<>();
         attributeMap.put(AbstractMaterialConfig.MATERIAL_TYPE, TfsMaterialConfig.TYPE);
         attributeMap.put(TfsMaterialConfig.TYPE, tfsAttrMap);
         materialConfigs.setConfigAttributes(attributeMap);
 
         TfsMaterialConfig tfsMaterialConfig = new TfsMaterialConfig(new GoCipher(), new UrlArgument("foo"), "bar", "CORPORATE", "baz", "to_hell");
         tfsMaterialConfig.setName(new CaseInsensitiveString("crapy_material"));
-        assertThat((TfsMaterialConfig) materialConfigs.first(), is(tfsMaterialConfig));
+        assertThat(materialConfigs.first(), is(tfsMaterialConfig));
         assertThat(tfsMaterialConfig.getPassword(), is("baz"));
     }
 
@@ -481,27 +481,27 @@ Above scenario allowed
         materialConfigs.add(new HgMaterialConfig("", null));
         materialConfigs.add(new SvnMaterialConfig("", "", "", false));
 
-        Map<String, String> hashMap = new HashMap<String, String>();
+        Map<String, String> hashMap = new HashMap<>();
         hashMap.put(HgMaterialConfig.URL, "foo");
 
-        Map<String, Object> attributeMap = new HashMap<String, Object>();
+        Map<String, Object> attributeMap = new HashMap<>();
         attributeMap.put(AbstractMaterialConfig.MATERIAL_TYPE, HgMaterialConfig.TYPE);
         attributeMap.put(HgMaterialConfig.TYPE, hashMap);
         materialConfigs.setConfigAttributes(attributeMap);
 
         assertThat(materialConfigs.size(), is(1));
-        assertThat((HgMaterialConfig) materialConfigs.first(), is(new HgMaterialConfig("foo", null)));
+        assertThat(materialConfigs.first(), is(new HgMaterialConfig("foo", null)));
     }
 
     @Test
     public void shouldSetGitConfigAttributesForMaterial() {
         MaterialConfigs materialConfigs = new MaterialConfigs();
 
-        Map<String, String> hashMap = new HashMap<String, String>();
+        Map<String, String> hashMap = new HashMap<>();
         hashMap.put(GitMaterialConfig.URL, "foo");
         hashMap.put(GitMaterialConfig.BRANCH, "master");
 
-        HashMap<String, Object> attributeMap = new HashMap<String, Object>();
+        HashMap<String, Object> attributeMap = new HashMap<>();
         attributeMap.put(AbstractMaterialConfig.MATERIAL_TYPE, GitMaterialConfig.TYPE);
         attributeMap.put(GitMaterialConfig.TYPE, hashMap);
         materialConfigs.setConfigAttributes(attributeMap);
@@ -509,20 +509,20 @@ Above scenario allowed
         assertThat(materialConfigs.size(), is(1));
         GitMaterialConfig expected = new GitMaterialConfig("foo");
         expected.setConfigAttributes(Collections.singletonMap(GitMaterialConfig.BRANCH, "master"));
-        assertThat((GitMaterialConfig) materialConfigs.first(), is(expected));
+        assertThat(materialConfigs.first(), is(expected));
     }
 
     @Test
     public void shouldSetP4ConfigAttributesForMaterial() {
         MaterialConfigs materialConfigs = new MaterialConfigs();
 
-        Map<String, String> hashMap = new HashMap<String, String>();
+        Map<String, String> hashMap = new HashMap<>();
         hashMap.put(P4MaterialConfig.SERVER_AND_PORT, "localhost:1666");
         hashMap.put(P4MaterialConfig.USERNAME, "username");
         hashMap.put(P4MaterialConfig.PASSWORD, "password");
         hashMap.put(P4MaterialConfig.VIEW, "foo");
 
-        Map<String, Object> attributeMap = new HashMap<String, Object>();
+        Map<String, Object> attributeMap = new HashMap<>();
         attributeMap.put(AbstractMaterialConfig.MATERIAL_TYPE, P4MaterialConfig.TYPE);
         attributeMap.put(P4MaterialConfig.TYPE, hashMap);
         materialConfigs.setConfigAttributes(attributeMap);
@@ -530,34 +530,34 @@ Above scenario allowed
         assertThat(materialConfigs.size(), is(1));
         P4MaterialConfig expected = new P4MaterialConfig("localhost:1666", "foo", "username");
         expected.setPassword("password");
-        assertThat((P4MaterialConfig) materialConfigs.first(), is(expected));
+        assertThat(materialConfigs.first(), is(expected));
     }
 
     @Test
     public void shouldSetDependencyMaterialConfigAttributesForMaterial() {
         MaterialConfigs materialConfigs = new MaterialConfigs();
 
-        Map<String, String> hashMap = new HashMap<String, String>();
+        Map<String, String> hashMap = new HashMap<>();
         hashMap.put(DependencyMaterialConfig.PIPELINE_STAGE_NAME, "blah [foo]");
 
-        Map<String, Object> attributeMap = new HashMap<String, Object>();
+        Map<String, Object> attributeMap = new HashMap<>();
         attributeMap.put(AbstractMaterialConfig.MATERIAL_TYPE, DependencyMaterialConfig.TYPE);
         attributeMap.put(DependencyMaterialConfig.TYPE, hashMap);
         materialConfigs.setConfigAttributes(attributeMap);
 
         assertThat(materialConfigs.size(), is(1));
         DependencyMaterialConfig expected = new DependencyMaterialConfig(new CaseInsensitiveString("blah"), new CaseInsensitiveString("foo"));
-        assertThat((DependencyMaterialConfig) materialConfigs.first(), is(expected));
+        assertThat(materialConfigs.first(), is(expected));
     }
 
     @Test
     public void shouldSetPackageMaterialConfigAttributesForMaterial() {
-        Map<String, String> hashMap = new HashMap<String, String>();
+        Map<String, String> hashMap = new HashMap<>();
         String packageId = "some-id";
 
         hashMap.put(PackageMaterialConfig.PACKAGE_ID, packageId);
 
-        Map<String, Object> attributeMap = new HashMap<String, Object>();
+        Map<String, Object> attributeMap = new HashMap<>();
         attributeMap.put(AbstractMaterialConfig.MATERIAL_TYPE, PackageMaterialConfig.TYPE);
         attributeMap.put(PackageMaterialConfig.TYPE, hashMap);
 
@@ -582,10 +582,10 @@ Above scenario allowed
     @Test
     public void shouldSetPluggableSCMMaterialConfigAttributesForMaterial() {
         String scmId = "scm-id";
-        Map<String, String> hashMap = new HashMap<String, String>();
+        Map<String, String> hashMap = new HashMap<>();
         hashMap.put(PluggableSCMMaterialConfig.SCM_ID, scmId);
 
-        Map<String, Object> attributeMap = new HashMap<String, Object>();
+        Map<String, Object> attributeMap = new HashMap<>();
         attributeMap.put(AbstractMaterialConfig.MATERIAL_TYPE, PluggableSCMMaterialConfig.TYPE);
         attributeMap.put(PluggableSCMMaterialConfig.TYPE, hashMap);
 

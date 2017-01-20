@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKey;
 import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKeys;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginConstants;
 import com.thoughtworks.go.plugin.access.elastic.ElasticPluginConfigMetadataStore;
-import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.ui.plugins.PluginConfiguration;
 import com.thoughtworks.go.server.ui.plugins.PluginInfo;
@@ -66,7 +65,7 @@ public class ElasticAgentViewViewModelBuilderTest {
 
     @Test
     public void shouldBeAbleToFetchAllPluginInfos() throws Exception {
-        when(elasticPluginConfigMetadataStore.getPlugins()).thenReturn(new ArrayList<PluginDescriptor>(Arrays.asList(dockerPlugin, awsPlugin)));
+        when(elasticPluginConfigMetadataStore.getPlugins()).thenReturn(new ArrayList<>(Arrays.asList(dockerPlugin, awsPlugin)));
         List<PluginInfo> pluginInfos = builder.allPluginInfos();
 
         assertThat(pluginInfos.size(), is(2));

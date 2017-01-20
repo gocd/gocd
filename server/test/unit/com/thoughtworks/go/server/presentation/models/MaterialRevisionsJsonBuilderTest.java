@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -144,7 +144,7 @@ public class MaterialRevisionsJsonBuilderTest {
 
     @Test
     public void shouldNotProcessPackageMaterialComment() throws Exception {
-        HashMap<String, String> map = new HashMap<String, String>();
+        HashMap<String, String> map = new HashMap<>();
         map.put("TYPE", "PACKAGE_MATERIAL");
         map.put("TRACKBACK_URL", "google.com");
         map.put("COMMENT", "comment");

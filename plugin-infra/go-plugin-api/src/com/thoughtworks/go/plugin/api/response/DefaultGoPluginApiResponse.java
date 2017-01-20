@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ public class DefaultGoPluginApiResponse extends GoPluginApiResponse {
      * @param responseCode Response code for the response
      */
     public DefaultGoPluginApiResponse(int responseCode) {
-        this(responseCode, null, new HashMap<String, String>());
+        this(responseCode, null, new HashMap<>());
     }
 
     /**
@@ -51,7 +51,7 @@ public class DefaultGoPluginApiResponse extends GoPluginApiResponse {
      * @param responseBody Body of the response
      */
     public DefaultGoPluginApiResponse(int responseCode, String responseBody) {
-        this(responseCode, responseBody, new HashMap<String, String>());
+        this(responseCode, responseBody, new HashMap<>());
     }
 
     /**

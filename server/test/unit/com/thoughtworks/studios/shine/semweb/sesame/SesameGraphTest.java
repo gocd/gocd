@@ -1,52 +1,37 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.studios.shine.semweb.sesame;
+
+import com.thoughtworks.studios.shine.ShineRuntimeException;
+import com.thoughtworks.studios.shine.semweb.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.openrdf.repository.Repository;
+import org.openrdf.repository.RepositoryConnection;
+import org.openrdf.repository.RepositoryException;
 
 import java.io.StringReader;
 import java.util.List;
 
 import static com.thoughtworks.studios.shine.AssertUtils.assertAskIsFalse;
 import static com.thoughtworks.studios.shine.AssertUtils.assertAskIsTrue;
-import com.thoughtworks.studios.shine.ShineRuntimeException;
-import com.thoughtworks.studios.shine.semweb.BoundVariables;
-import com.thoughtworks.studios.shine.semweb.Graph;
-import com.thoughtworks.studios.shine.semweb.MalformedSPARQLException;
-import com.thoughtworks.studios.shine.semweb.MoreThanOneResultFoundException;
-import com.thoughtworks.studios.shine.semweb.Namespace;
-import com.thoughtworks.studios.shine.semweb.RDFProperty;
-import com.thoughtworks.studios.shine.semweb.RDFType;
-import com.thoughtworks.studios.shine.semweb.Resource;
-import com.thoughtworks.studios.shine.semweb.URIReference;
-import com.thoughtworks.studios.shine.semweb.UnsupportedSPARQLStatementException;
-import org.junit.After;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import org.junit.Before;
-import org.junit.Test;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyBoolean;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryException;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public class SesameGraphTest {
     private final static String CONTEXT = "http://foo.com/context";

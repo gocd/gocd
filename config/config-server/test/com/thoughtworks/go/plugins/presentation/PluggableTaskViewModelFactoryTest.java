@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.plugins.presentation;
 
@@ -66,31 +66,31 @@ public class PluggableTaskViewModelFactoryTest {
         PluggableViewModel<PluggableTask> viewModel = factory.viewModelFor(pluggableTask, "new");
 
         assertThat(viewModel.getTypeForDisplay(), is("First plugin"));
-        assertThat((String) viewModel.getParameters().get("template"), is("<input type='text' ng-model='abc'></input>"));
+        assertThat(viewModel.getParameters().get("template"), is("<input type='text' ng-model='abc'></input>"));
     }
 
     @Test
     public void templateShouldBeLoadedFromClasspathWithClasspathPrefix() throws Exception {
         PluggableViewModel<PluggableTask> viewModel = getModelWithTaskTemplateAt("/com/thoughtworks/go/plugins/presentation/test-template.html");
-        assertThat((String) viewModel.getParameters().get("template"), is("<html>my-template</html>"));
+        assertThat(viewModel.getParameters().get("template"), is("<html>my-template</html>"));
     }
 
     @Test
     public void shouldReturnErrorMessageIfTemplateIsMissingFromPlugin() {
         PluggableViewModel<PluggableTask> viewModel = getModelWithTaskTemplateAt("/test-template-missing.html");
-        assertThat((String) viewModel.getParameters().get("template"), is("Template \"/test-template-missing.html\" is missing."));
+        assertThat(viewModel.getParameters().get("template"), is("Template \"/test-template-missing.html\" is missing."));
     }
 
     @Test
     public void shouldProvideATemplateWithAnErrorMessageWhenTemplateProvidedIsNull() throws Exception {
         PluggableViewModel<PluggableTask> viewModel = getModelWithTaskTemplateHavingValue(null);
-        assertThat((String) viewModel.getParameters().get("template"), is("View template provided by plugin is null."));
+        assertThat(viewModel.getParameters().get("template"), is("View template provided by plugin is null."));
     }
 
     @Test
     public void shouldProvideNoTemplateWhenTemplateProvidedIsEmpty() throws Exception {
         PluggableViewModel<PluggableTask> viewModel = getModelWithTaskTemplateHavingValue("");
-        assertThat((String) viewModel.getParameters().get("template"), is(""));
+        assertThat(viewModel.getParameters().get("template"), is(""));
     }
 
     @Test
@@ -149,7 +149,7 @@ public class PluggableTaskViewModelFactoryTest {
         String pluginId = "pluginId";
         PluggableTaskViewModelFactory factory = new PluggableTaskViewModelFactory();
         PluggableViewModel<PluggableTask> viewModel = factory.viewModelFor(new PluggableTask(new PluginConfiguration(pluginId, "1"), new Configuration()), "edit");
-        assertThat((String) viewModel.getParameters().get("template"), is(String.format("Associated plugin '%s' not found. Please contact the Go admin to install the plugin.", pluginId)));
+        assertThat(viewModel.getParameters().get("template"), is(String.format("Associated plugin '%s' not found. Please contact the Go admin to install the plugin.", pluginId)));
         assertThat(viewModel.getTypeForDisplay(), is(pluginId));
         assertThat(viewModel instanceof MissingPluggableTaskViewModel, is(true));
     }

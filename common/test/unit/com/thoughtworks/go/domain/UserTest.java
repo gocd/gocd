@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain;
 
@@ -96,19 +96,19 @@ public class UserTest {
     @Test
     public void shouldPopulateEmptyListWhenMatcherDoesNotInitialized() throws Exception {
         user = new User("UserName", new String[]{""}, "user@mail.com", true);
-        HashMap<String, Object> data = new HashMap<String, Object>();
+        HashMap<String, Object> data = new HashMap<>();
         user.populateModel(data);
         Object value = data.get("matchers");
-        assertThat((Matcher) value, is(new Matcher("")));
+        assertThat(value, is(new Matcher("")));
     }
 
     @Test
     public void shouldPopulateMatchers() throws Exception {
         user = new User("UserName", new String[]{"Jez,Pavan"}, "user@mail.com", true);
-        HashMap<String, Object> data = new HashMap<String, Object>();
+        HashMap<String, Object> data = new HashMap<>();
         user.populateModel(data);
         Object value = data.get("matchers");
-        assertThat((Matcher) value, is(new Matcher("Jez,Pavan")));
+        assertThat(value, is(new Matcher("Jez,Pavan")));
     }
 
     @Test

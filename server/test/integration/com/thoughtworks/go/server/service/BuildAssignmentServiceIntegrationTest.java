@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,6 @@ import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.work.BuildWork;
 import com.thoughtworks.go.remote.work.DeniedAgentWork;
-import com.thoughtworks.go.remote.work.NoWork;
 import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
@@ -218,7 +217,7 @@ public class BuildAssignmentServiceIntegrationTest {
         buildAssignmentService.onConfigChange(goConfigService.getCurrentConfig());
         JobInstance job = buildOf(pipeline);
         jobInstanceDao.updateStateAndResult(job);
-        assertThat(buildAssignmentService.assignWorkToAgent(instance), is((Work) BuildAssignmentService.NO_WORK));
+        assertThat(buildAssignmentService.assignWorkToAgent(instance), is(BuildAssignmentService.NO_WORK));
     }
 
     @Test
@@ -231,7 +230,7 @@ public class BuildAssignmentServiceIntegrationTest {
         job.cancel();
         jobInstanceDao.updateStateAndResult(job);
 
-        assertThat(buildAssignmentService.assignWorkToAgent(instance), is((Work) BuildAssignmentService.NO_WORK));
+        assertThat(buildAssignmentService.assignWorkToAgent(instance), is(BuildAssignmentService.NO_WORK));
     }
 
     @Test
@@ -318,7 +317,7 @@ public class BuildAssignmentServiceIntegrationTest {
         AgentConfig agentConfig = AgentMother.localAgent();
         agentConfig.addResource(new Resource("some-other-resource"));
 
-        assertThat((NoWork) buildAssignmentService.assignWorkToAgent(agent(agentConfig)), Matchers.is(BuildAssignmentService.NO_WORK));
+        assertThat(buildAssignmentService.assignWorkToAgent(agent(agentConfig)), Matchers.is(BuildAssignmentService.NO_WORK));
         Pipeline pipeline = pipelineDao.mostRecentPipeline(fixture.pipelineName);
         JobInstance job = pipeline.getFirstStage().getJobInstances().first();
         assertThat(job.getState(), is(JobState.Completed));
@@ -566,7 +565,7 @@ public class BuildAssignmentServiceIntegrationTest {
         Pipeline pipeline = pipelineDao.mostRecentPipeline(CaseInsensitiveString.str(evolveConfig.name()));
         JobInstance job = pipeline.findStage(STAGE_NAME).findJob("unit");
 
-        assertThat(work, is((Work) BuildAssignmentService.NO_WORK));
+        assertThat(work, is(BuildAssignmentService.NO_WORK));
         assertThat(job.getState(), is(JobState.Scheduled));
         assertThat(job.getAgentUuid(), is(nullValue()));
     }
@@ -582,7 +581,7 @@ public class BuildAssignmentServiceIntegrationTest {
         agentConfig.addResource(new Resource("some-other-resource"));
 
         Work work = buildAssignmentService.assignWorkToAgent(agent(agentConfig));
-        assertThat(work, is((Work) BuildAssignmentService.NO_WORK));
+        assertThat(work, is(BuildAssignmentService.NO_WORK));
 
         Pipeline pipeline = pipelineDao.mostRecentPipeline(CaseInsensitiveString.str(evolveConfig.name()));
         JobInstance job = pipeline.findStage(STAGE_NAME).findJob("unit");
@@ -603,13 +602,13 @@ public class BuildAssignmentServiceIntegrationTest {
 
         buildAssignmentService.onTimer();
         Work work = buildAssignmentService.assignWorkToAgent(agent(agentConfig));
-        assertThat(work, is(not((Work) BuildAssignmentService.NO_WORK)));
+        assertThat(work, is(not(BuildAssignmentService.NO_WORK)));
 
         Pipeline pipeline = pipelineDao.mostRecentPipeline(CaseInsensitiveString.str(evolveConfig.name()));
         JobInstance job = pipeline.findStage(STAGE_NAME).findJob("unit");
 
         JobPlan loadedPlan = jobInstanceDao.loadPlan(job.getId());
-        assertThat(loadedPlan.getResources(), is((List<Resource>) plan.resources()));
+        assertThat(loadedPlan.getResources(), is(plan.resources()));
 
 
         assertThat(job.getState(), is(JobState.Assigned));
@@ -628,7 +627,7 @@ public class BuildAssignmentServiceIntegrationTest {
         AgentConfig agentConfig = AgentMother.localAgent();
         agentConfig.addResource(new Resource("some-resource"));
         Work work = buildAssignmentService.assignWorkToAgent(agent(agentConfig));
-        assertThat(work, is(not((Work) BuildAssignmentService.NO_WORK)));
+        assertThat(work, is(not(BuildAssignmentService.NO_WORK)));
 
         Pipeline pipeline = pipelineDao.mostRecentPipeline(CaseInsensitiveString.str(evolveConfig.name()));
         JobInstance job = pipeline.findStage(STAGE_NAME).findJob("unit");
@@ -644,11 +643,11 @@ public class BuildAssignmentServiceIntegrationTest {
 
         buildAssignmentService.onTimer();
         Work noResourcesWork = buildAssignmentService.assignWorkToAgent(agent(AgentMother.localAgentWithResources("WITHOUT_RESOURCES")));
-        assertThat(noResourcesWork, is((Work) BuildAssignmentService.NO_WORK));
+        assertThat(noResourcesWork, is(BuildAssignmentService.NO_WORK));
 
         buildAssignmentService.onTimer();
         Work correctAgentWork = buildAssignmentService.assignWorkToAgent(agent(agentConfig));
-        assertThat(correctAgentWork, is(not((Work) BuildAssignmentService.NO_WORK)));
+        assertThat(correctAgentWork, is(not(BuildAssignmentService.NO_WORK)));
 
     }
 

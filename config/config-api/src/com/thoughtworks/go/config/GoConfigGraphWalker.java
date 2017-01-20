@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -79,7 +79,7 @@ public class GoConfigGraphWalker {
         if (!walkedObject.shouldWalk()) {
             return;
         }
-        if (canAssignToValidatableCache.valuesFor(new AbstractMap.SimpleEntry<Class, Class>(Validatable.class, current.getClass()))) {
+        if (canAssignToValidatableCache.valuesFor(new AbstractMap.SimpleEntry<>(Validatable.class, current.getClass()))) {
             Validatable validatable = (Validatable) current;
             handler.handle(validatable, context);
             context = context.withParent(validatable);
@@ -117,7 +117,7 @@ public class GoConfigGraphWalker {
         // We can only expect java to honor the contract of datastructure interfaces(read: List),
         // and not depend on how they choose to implement it, so we short-circuit at a level that we know will continue to work(bad, but safe)
         // TODO: do java.util.Map when needed, not handled yet, but its a simple EntrySet walk
-        if (canAssignToCollectionCache.valuesFor(new AbstractMap.SimpleEntry<Class, Class>(Collection.class, current.getClass()))) {
+        if (canAssignToCollectionCache.valuesFor(new AbstractMap.SimpleEntry<>(Collection.class, current.getClass()))) {
             Collection collection = (Collection) current;
             for (Object collectionItem : collection) {
                 walkSubtree(collectionItem, ctx, handler);

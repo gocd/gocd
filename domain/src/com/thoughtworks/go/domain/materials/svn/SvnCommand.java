@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,6 @@ import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Modifications;
 import com.thoughtworks.go.domain.materials.SCMCommand;
 import com.thoughtworks.go.domain.materials.ValidationBean;
-import com.thoughtworks.go.util.ExceptionUtils;
 import com.thoughtworks.go.util.SvnLogXmlParser;
 import com.thoughtworks.go.util.command.*;
 import org.apache.commons.lang.StringUtils;

@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.materials.postcommit.git;
 
@@ -49,7 +49,7 @@ public class GitPostCommitHookImplementerTest {
         when(material3.getUrlArgument()).thenReturn(new UrlArgument("https://machine.local.git"));
         GitMaterial material4 = mock(GitMaterial.class);
         when(material4.getUrlArgument()).thenReturn(new UrlArgument("https://machine.local.git"));
-        Set<Material> materials = new HashSet<Material>(Arrays.asList(material1, material2, material3, material4));
+        Set<Material> materials = new HashSet<>(Arrays.asList(material1, material2, material3, material4));
         HashMap params = new HashMap();
         params.put(GitPostCommitHookImplementer.REPO_URL_PARAM_KEY, "https://machine.local.git");
 
@@ -68,7 +68,7 @@ public class GitPostCommitHookImplementerTest {
     @Test
     public void shouldQueryOnlyGitMaterialsWhilePruning() throws Exception {
         SvnMaterial material1 = mock(SvnMaterial.class);
-        Set<Material> materials = new HashSet<Material>(Arrays.asList(material1));
+        Set<Material> materials = new HashSet<>(Arrays.asList(material1));
         HashMap params = new HashMap();
         params.put(GitPostCommitHookImplementer.REPO_URL_PARAM_KEY, "https://machine.local.git");
 
@@ -83,7 +83,7 @@ public class GitPostCommitHookImplementerTest {
     public void shouldReturnEmptyListIfParamHasNoValueForRepoURL() throws Exception {
         GitMaterial material1 = mock(GitMaterial.class);
         when(material1.getUrlArgument()).thenReturn(new UrlArgument("https://machine.local.git"));
-        Set<Material> materials = new HashSet<Material>(Arrays.asList(material1));
+        Set<Material> materials = new HashSet<>(Arrays.asList(material1));
         HashMap params = new HashMap();
         params.put(GitPostCommitHookImplementer.REPO_URL_PARAM_KEY, "");
 
@@ -98,7 +98,7 @@ public class GitPostCommitHookImplementerTest {
     public void shouldReturnEmptyListIfParamIsMissingForRepoURL() throws Exception {
         GitMaterial material1 = mock(GitMaterial.class);
         when(material1.getUrlArgument()).thenReturn(new UrlArgument("https://machine.local.git"));
-        Set<Material> materials = new HashSet<Material>(Arrays.asList(material1));
+        Set<Material> materials = new HashSet<>(Arrays.asList(material1));
 
         Set<Material> actual = implementer.prune(materials, new HashMap());
 

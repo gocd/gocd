@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -59,7 +59,7 @@ public class TasksTest {
         spy.setConfigAttributes(attributes, taskFactory);
 
         assertThat(spy.size(), is(1));
-        assertThat((AntTask) spy.get(0), is(antTask("build.xml", "test", "foo")));
+        assertThat(spy.get(0), is(antTask("build.xml", "test", "foo")));
     }
 
     @Test
@@ -74,9 +74,9 @@ public class TasksTest {
 
         tasks.incrementIndex(0);
 
-        assertThat((AntTask) tasks.get(0), is(task2));
-        assertThat((AntTask) tasks.get(1), is(task1));
-        assertThat((AntTask) tasks.get(2), is(task3));
+        assertThat(tasks.get(0), is(task2));
+        assertThat(tasks.get(1), is(task1));
+        assertThat(tasks.get(2), is(task3));
     }
 
     @Test
@@ -101,9 +101,9 @@ public class TasksTest {
 
         tasks.decrementIndex(2);
 
-        assertThat((AntTask) tasks.get(0), is(task1));
-        assertThat((AntTask) tasks.get(1), is(task3));
-        assertThat((AntTask) tasks.get(2), is(task2));
+        assertThat(tasks.get(0), is(task1));
+        assertThat(tasks.get(1), is(task3));
+        assertThat(tasks.get(2), is(task2));
     }
 
     @Test

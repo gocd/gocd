@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.plugin.access.pluggabletask;
 
@@ -103,13 +103,13 @@ public class JsonBasedTaskExtensionHandler_V1Test {
 
         Map property1 = (Map) taskConfigMap.get("k1");
         assertThat(property1.get("value").toString(), is("value1"));
-        assertThat((Boolean) property1.get("secure"), is(true));
-        assertThat((Boolean) property1.get("required"), is(true));
+        assertThat(property1.get("secure"), is(true));
+        assertThat(property1.get("required"), is(true));
 
         Map property2 = (Map) taskConfigMap.get("k2");
         assertThat(property2.get("value").toString(), is("value2"));
-        assertThat((Boolean) property2.get("secure"), is(false));
-        assertThat((Boolean) property2.get("required"), is(true));
+        assertThat(property2.get("secure"), is(false));
+        assertThat(property2.get("required"), is(true));
     }
 
     @Test
@@ -396,7 +396,7 @@ public class JsonBasedTaskExtensionHandler_V1Test {
         Map result = (Map) new GsonBuilder().create().fromJson(requestBody, Object.class);
         Map taskExecutionContextFromRequest = (Map) result.get("context");
 
-        assertThat((String) taskExecutionContextFromRequest.get("workingDirectory"), is(workingDir));
+        assertThat(taskExecutionContextFromRequest.get("workingDirectory"), is(workingDir));
         Map environmentVariables = (Map) taskExecutionContextFromRequest.get("environmentVariables");
         assertThat(environmentVariables.size(), is(2));
         assertThat(environmentVariables.get("ENV1").toString(), is("VAL1"));
@@ -415,7 +415,7 @@ public class JsonBasedTaskExtensionHandler_V1Test {
         return new EnvironmentVariables() {
             @Override
             public Map<String, String> asMap() {
-                final HashMap<String, String> map = new HashMap<String, String>();
+                final HashMap<String, String> map = new HashMap<>();
                 map.put("ENV1", "VAL1");
                 map.put("ENV2", "VAL2");
                 return map;

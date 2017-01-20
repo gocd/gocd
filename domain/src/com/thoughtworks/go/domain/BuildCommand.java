@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import com.google.gson.Gson;
 import com.google.gson.annotations.Expose;
 import com.thoughtworks.go.util.ArrayUtil;
 import com.thoughtworks.go.util.GoConstants;
-import com.thoughtworks.go.util.MapBuilder;
 
 import java.util.*;
 

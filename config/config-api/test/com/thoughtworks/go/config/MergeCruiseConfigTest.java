@@ -1,9 +1,24 @@
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.thoughtworks.go.config;
 
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
-import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.config.merge.MergePipelineConfigs;
 import com.thoughtworks.go.config.remote.*;
 import com.thoughtworks.go.domain.ConfigErrors;
@@ -291,7 +306,7 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
         // pipeline1 is in xml and in config repo - this is an error at merged scope
         PartialConfig remotePart = PartialConfigMother.withPipelineInGroup("pipeline1", "defaultGroup");
         remotePart.setOrigin(new RepoConfigOrigin());
-        BasicCruiseConfig merged = new BasicCruiseConfig((BasicCruiseConfig) cruiseConfig, remotePart);
+        BasicCruiseConfig merged = new BasicCruiseConfig(cruiseConfig, remotePart);
         List<ConfigErrors> allErrors = merged.validateAfterPreprocess();
         assertThat(remotePart.getGroups().get(0).getPipelines().get(0).errors().size(), is(1));
         assertThat(allErrors.size(), is(2));

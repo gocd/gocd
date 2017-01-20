@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package com.thoughtworks.go.plugin.access.notification;
 
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
-import com.thoughtworks.go.plugin.access.notification.v1.JsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.access.notification.v2.JsonMessageHandler2_0;
 import org.mockito.Mock;
 

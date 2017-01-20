@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -134,7 +134,7 @@ public class TfsSDKCommand extends AbstractTfsCommand {
                     getUrl(), getProjectPath(), latestRevision, revsToLoad));
         }
         Changeset[] changesets = retrieveChangeset(latestRevision, (int) revsToLoad);
-        ArrayList<Modification> modifications = new ArrayList<Modification>();
+        ArrayList<Modification> modifications = new ArrayList<>();
         for (Changeset changeset : changesets) {
             Modification modification = new Modification(changeset.getCommitter(), changeset.getComment(), null, changeset.getDate().getTime(), String.valueOf(changeset.getChangesetID()));
             modification.setModifiedFiles(getModifiedFiles(changeset));
@@ -146,7 +146,7 @@ public class TfsSDKCommand extends AbstractTfsCommand {
 
 
     ArrayList<ModifiedFile> getModifiedFiles(Changeset changeset) {
-        ArrayList<ModifiedFile> files = new ArrayList<ModifiedFile>();
+        ArrayList<ModifiedFile> files = new ArrayList<>();
         for (Change change : changeset.getChanges()) {
             ModifiedFile modifiedFile = new ModifiedFile(change.getItem().getServerItem(), "", ModifiedAction.unknown);
             files.add(modifiedFile);

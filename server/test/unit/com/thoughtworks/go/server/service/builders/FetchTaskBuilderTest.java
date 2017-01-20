@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service.builders;
 
@@ -171,7 +171,7 @@ public class FetchTaskBuilderTest {
         FetchHandler fetchHandler = fetchTaskBuilder.getHandler(fetchTask, pipeline.getName());
         FetchArtifactBuilder builder = (FetchArtifactBuilder) fetchTaskBuilder.createBuilder(builderFactory, fetchTask, pipeline, resolver);
 
-        assertThat((FileHandler) fetchHandler, is(new FileHandler(new File("pipelines/cruise/dest"), getSrc())));
+        assertThat(fetchHandler, is(new FileHandler(new File("pipelines/cruise/dest"), getSrc())));
         assertThat(builder.jobLocatorForDisplay(), is("mingle/label-1/dev/2/one"));
     }
 
@@ -198,14 +198,14 @@ public class FetchTaskBuilderTest {
     public void shouldNormalizeDestOnAgent() {
         FetchTask fetchTask = new FetchTask(new CaseInsensitiveString("mingle"), new CaseInsensitiveString("dev"), new CaseInsensitiveString("one"), "", "dest\\pavan");
         FetchHandler fetchHandler = fetchTaskBuilder.getHandler(fetchTask, "cruise");
-        assertThat((FileHandler) fetchHandler, is(new FileHandler(new File("pipelines/cruise/dest/pavan"), getSrc())));
+        assertThat(fetchHandler, is(new FileHandler(new File("pipelines/cruise/dest/pavan"), getSrc())));
     }
 
     @Test
     public void shouldSupportNullForDest() {
         FetchTask fetchTask = new FetchTask(new CaseInsensitiveString("mingle"), new CaseInsensitiveString("dev"), new CaseInsensitiveString("one"), "", null);
         FetchHandler fetchHandler = fetchTaskBuilder.getHandler(fetchTask, "cruise");
-        assertThat((FileHandler) fetchHandler, is(new FileHandler(new File("pipelines/cruise"), getSrc())));
+        assertThat(fetchHandler, is(new FileHandler(new File("pipelines/cruise"), getSrc())));
     }
 
     @Test
@@ -215,7 +215,7 @@ public class FetchTaskBuilderTest {
         fetchTask.setSrcdir("log");
         FetchHandler actual = fetchTaskBuilder.getHandler(fetchTask, pipeline.getName());
         File folderOnAgent = new File("pipelines/mingle/dest/subfolder");
-        assertThat((DirHandler) actual, is(new DirHandler("log", folderOnAgent)));
+        assertThat(actual, is(new DirHandler("log", folderOnAgent)));
     }
 
     @Test
@@ -224,7 +224,7 @@ public class FetchTaskBuilderTest {
         FetchTask fetchTask = new FetchTask(new CaseInsensitiveString(pipeline.getName()), new CaseInsensitiveString(pipeline.getFirstStage().getName()), new CaseInsensitiveString("windows-3"), "cruise.zip", "dest\\subfolder");
         FetchHandler actual = fetchTaskBuilder.getHandler(fetchTask, pipeline.getName());
         File folderOnAgent = new File("pipelines/mingle/dest/subfolder");
-        assertThat((FileHandler) actual, is(new FileHandler(new File(folderOnAgent, "cruise.zip"), getSrc())));
+        assertThat(actual, is(new FileHandler(new File(folderOnAgent, "cruise.zip"), getSrc())));
     }
 
     @Test

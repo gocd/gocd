@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2016 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.dao;
 
@@ -60,10 +60,6 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -223,7 +219,7 @@ public class PipelineSqlMapDaoCachingTest {
             }
         };
 
-        List<Thread> threads = new ArrayList<Thread>();
+        List<Thread> threads = new ArrayList<>();
         final int[] errors = new int[1];
         for (int i = 0; i < 10; i++) {
             JobInstances jobInstances = new JobInstances(JobInstanceMother.completed("job"));
@@ -264,7 +260,7 @@ public class PipelineSqlMapDaoCachingTest {
 
     @Test
     public void findPipelineIds_shouldCacheResultWhenOnlyLatestPipelineIdIsRequested() {
-        List<Long> expectedIds = new ArrayList<Long>();
+        List<Long> expectedIds = new ArrayList<>();
         expectedIds.add(1L);
         when(mockTemplate.queryForList(eq("getPipelineRange"), any())).thenReturn(expectedIds);
         pipelineDao.findPipelineIds("pipelineName", 1, 0);
@@ -276,7 +272,7 @@ public class PipelineSqlMapDaoCachingTest {
 
     @Test
     public void findPipelineIds_shouldNotCacheResultWhenMultiplePipelineIdsOrPipelineIdsFromASubsequentPageAreRequested() {
-        List<Long> expectedIds = new ArrayList<Long>();
+        List<Long> expectedIds = new ArrayList<>();
         expectedIds.add(1L);
         expectedIds.add(2L);
         when(mockTemplate.queryForList(eq("getPipelineRange"), any())).thenReturn(expectedIds);
@@ -327,7 +323,7 @@ public class PipelineSqlMapDaoCachingTest {
         }).start();
         TestUtils.sleepQuietly(200);
 
-        List<Thread> threads = new ArrayList<Thread>();
+        List<Thread> threads = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             final Pipeline pipeline = PipelineMother.pipeline("mingle");
             pipeline.setCounter(i + 1);
@@ -628,7 +624,7 @@ public class PipelineSqlMapDaoCachingTest {
         StageIdentifier actual = pipelineDao.latestPassedStageIdentifier(pipelineId, stage);
         assertThat(actual, is(StageIdentifier.NULL));
 
-        assertThat((StageIdentifier) goCache.get(pipelineDao.cacheKeyForlatestPassedStage(pipelineId, stage)), is(StageIdentifier.NULL));
+        assertThat(goCache.get(pipelineDao.cacheKeyForlatestPassedStage(pipelineId, stage)), is(StageIdentifier.NULL));
 
         actual = pipelineDao.latestPassedStageIdentifier(pipelineId, stage);
         assertThat(actual, is(StageIdentifier.NULL));
@@ -708,7 +704,7 @@ public class PipelineSqlMapDaoCachingTest {
 
         List<PipelineIdentifier> actual = pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial("p1", new PipelineIdentifier("p", 1));
         assertThat(actual, hasSize(0));
-        assertThat((List<PipelineIdentifier>) goCache.get(cacheKey), is(actual));
+        assertThat(goCache.get(cacheKey), is(actual));
     }
 
     @Test
@@ -738,7 +734,7 @@ public class PipelineSqlMapDaoCachingTest {
 
         List<PipelineIdentifier> actual = pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial("p1", new PipelineIdentifier("p", 1));
         assertThat(actual, Matchers.is(result));
-        assertThat((List<PipelineIdentifier>) goCache.get(cacheKey), is(result));
+        assertThat(goCache.get(cacheKey), is(result));
 
 
         MaterialRevisions materialRevisions = new MaterialRevisions(
@@ -746,7 +742,7 @@ public class PipelineSqlMapDaoCachingTest {
         Pipeline pipeline = new Pipeline("p1", BuildCause.createWithModifications(materialRevisions, ""));
 
         pipelineDao.save(pipeline);
-        assertThat((List<PipelineIdentifier>) goCache.get(cacheKey), is(result));
+        assertThat(goCache.get(cacheKey), is(result));
     }
 
 	@Test
@@ -761,7 +757,7 @@ public class PipelineSqlMapDaoCachingTest {
 
 		//Query second time should return from cache
 		pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial("p1".toUpperCase(), materialInstance, "r1");
-		assertThat((List<PipelineIdentifier>) goCache.get(cacheKey), is(actual));
+		assertThat(goCache.get(cacheKey), is(actual));
 
 		verify(mockTemplate, times(1)).queryForList(eq("pipelineInstancesTriggeredOffOfMaterialRevision"), anyString());
 	}
@@ -775,7 +771,7 @@ public class PipelineSqlMapDaoCachingTest {
 		List<PipelineIdentifier> actual = pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial("p1", materialInstance, "r1");
 
 		assertThat(actual, hasSize(0));
-		assertThat((List<PipelineIdentifier>) goCache.get(cacheKey), is(actual));
+		assertThat(goCache.get(cacheKey), is(actual));
 	}
 
 	@Test
@@ -805,13 +801,13 @@ public class PipelineSqlMapDaoCachingTest {
 
 		List<PipelineIdentifier> actual = pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial("p1", materialInstance, "r1");
 		assertThat(actual, Matchers.is(result));
-		assertThat((List<PipelineIdentifier>) goCache.get(cacheKey), is(result));
+		assertThat(goCache.get(cacheKey), is(result));
 
 		MaterialRevisions materialRevisions = new MaterialRevisions(new MaterialRevision(new GitMaterial("url", "branch"), new Modification("user", "comment", "email", new Date(), "r2")));
 		Pipeline pipeline = new Pipeline("p1", BuildCause.createWithModifications(materialRevisions, ""));
 
 		pipelineDao.save(pipeline);
-		assertThat((List<PipelineIdentifier>) goCache.get(cacheKey), is(result));
+		assertThat(goCache.get(cacheKey), is(result));
 	}
 
     private PipelineInstanceModel model(long id, JobState jobState, JobResult jobResult) {

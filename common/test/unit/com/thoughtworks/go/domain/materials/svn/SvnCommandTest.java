@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2016 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain.materials.svn;
 
@@ -505,7 +505,7 @@ public class SvnCommandTest {
         when(svnMaterial.getPassword()).thenReturn("password");
         final ConsoleResult consoleResult = mock(ConsoleResult.class);
         when(consoleResult.outputAsString()).thenReturn(svnInfoOutput);
-        final HashSet<SvnMaterial> svnMaterials = new HashSet<SvnMaterial>();
+        final HashSet<SvnMaterial> svnMaterials = new HashSet<>();
         svnMaterials.add(svnMaterial);
         final SvnCommand spy = spy(subversion);
         doAnswer(new Answer() {
@@ -526,7 +526,7 @@ public class SvnCommandTest {
         when(svnMaterial1.getUrl()).thenReturn("http://localhost/svn/project1");
         final SvnMaterial svnMaterial2 = mock(SvnMaterial.class);
         when(svnMaterial2.getUrl()).thenReturn("http://foo.bar");
-        final HashSet<SvnMaterial> svnMaterials = new HashSet<SvnMaterial>();
+        final HashSet<SvnMaterial> svnMaterials = new HashSet<>();
         svnMaterials.add(svnMaterial1);
         svnMaterials.add(svnMaterial2);
         final SvnCommand spy = spy(subversion);
@@ -563,7 +563,7 @@ public class SvnCommandTest {
         final SvnMaterial svnMaterial1 = buildMockSvnMaterial(svnMaterial1Url, svnMaterial1User, svnMaterial1Password);
         String svnMaterial2Url = "http://localhost/svn/project2";
         SvnMaterial svnMaterial2 = buildMockSvnMaterial(svnMaterial2Url, null, null);
-        HashSet<SvnMaterial> svnMaterials = new HashSet<SvnMaterial>();
+        HashSet<SvnMaterial> svnMaterials = new HashSet<>();
         svnMaterials.add(svnMaterial1);
         svnMaterials.add(svnMaterial2);
 

@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.materials.postcommit.svn;
 
@@ -66,7 +66,7 @@ public class SvnPostCommitHookImplementerTest {
         final Material p4Material = mock(P4Material.class);
         final Material tfsMaterial = mock(TfsMaterial.class);
         final Material dependencyMaterial = mock(DependencyMaterial.class);
-        final HashSet<Material> allMaterials = new HashSet<Material>(Arrays.asList(svnMaterial1, svnMaterial2, svnMaterial3, gitMaterial, hgMaterial, p4Material, tfsMaterial, dependencyMaterial));
+        final HashSet<Material> allMaterials = new HashSet<>(Arrays.asList(svnMaterial1, svnMaterial2, svnMaterial3, gitMaterial, hgMaterial, p4Material, tfsMaterial, dependencyMaterial));
         final SvnPostCommitHookImplementer spy = spy(implementer);
         doAnswer(new Answer() {
             @Override public Object answer(InvocationOnMock invocation) throws Throwable {
@@ -91,13 +91,13 @@ public class SvnPostCommitHookImplementerTest {
         final SvnMaterial svnMaterial1 = mock(SvnMaterial.class);
         final SvnMaterial svnMaterial2 = mock(SvnMaterial.class);
         final SvnMaterial svnMaterial3 = mock(SvnMaterial.class);
-        final HashSet<Material> allMaterials = new HashSet<Material>(Arrays.asList(svnMaterial1, svnMaterial2, svnMaterial3));
-        final HashMap<Object, Object> params = new HashMap<Object, Object>();
+        final HashSet<Material> allMaterials = new HashSet<>(Arrays.asList(svnMaterial1, svnMaterial2, svnMaterial3));
+        final HashMap<Object, Object> params = new HashMap<>();
         final String uuid = "12345";
         params.put(SvnPostCommitHookImplementer.UUID, uuid);
 
         final SvnPostCommitHookImplementer spy = spy(implementer);
-        final HashMap<String, String> map = new HashMap<String, String>();
+        final HashMap<String, String> map = new HashMap<>();
         doAnswer(new Answer() {
             @Override public Object answer(InvocationOnMock invocation) throws Throwable {
                 map.put("url1", "12345");
@@ -130,7 +130,7 @@ public class SvnPostCommitHookImplementerTest {
     @Test
     public void shouldReturnEmptyListWhenUUIDIsNotPresent() {
         final SvnMaterial svnMaterial1 = mock(SvnMaterial.class);
-        final HashSet<Material> allMaterials = new HashSet<Material>();
+        final HashSet<Material> allMaterials = new HashSet<>();
         allMaterials.add(svnMaterial1);
         final SvnPostCommitHookImplementer spy = spy(implementer);
         final Set<Material> prunedList = spy.prune(allMaterials, new HashMap());
@@ -146,7 +146,7 @@ public class SvnPostCommitHookImplementerTest {
         when(svnMaterial2.getUrl()).thenReturn("url2");
         final SvnMaterial svnMaterial3 = mock(SvnMaterial.class);
         when(svnMaterial3.getUrl()).thenReturn("url not present in map");
-        final HashMap<String, String> map = new HashMap<String, String>();
+        final HashMap<String, String> map = new HashMap<>();
         map.put("url1", "12345");
         map.put("url2", "54321");
         assertThat(implementer.isQualified("12345", svnMaterial1, map), is(true));
@@ -160,14 +160,14 @@ public class SvnPostCommitHookImplementerTest {
         final SvnCommand svnCommand = mock(SvnCommand.class);
         final Material svnMaterial1 = mock(SvnMaterial.class);
         final Material hgMaterial1 = mock(HgMaterial.class);
-        final HashSet<Material> allMaterials = new HashSet<Material>(Arrays.asList(svnMaterial1, hgMaterial1));
+        final HashSet<Material> allMaterials = new HashSet<>(Arrays.asList(svnMaterial1, hgMaterial1));
         doAnswer(new Answer() {
             @Override public Object answer(InvocationOnMock invocation) throws Throwable {
                 return svnCommand;
             }
         }).when(spy).getEmptySvnCommand();
         spy.createUrlToRemoteUUIDMap(allMaterials);
-        verify(svnCommand).createUrlToRemoteUUIDMap(new HashSet<SvnMaterial>(Arrays.asList((SvnMaterial) svnMaterial1)));
+        verify(svnCommand).createUrlToRemoteUUIDMap(new HashSet<>(Arrays.asList((SvnMaterial) svnMaterial1)));
     }
 
     @Test

@@ -1,11 +1,11 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -51,7 +51,7 @@ public class TfsMaterialConfigUpdateTest {
     public void shouldSetConfigAttributes() {
         TfsMaterialConfig tfsMaterialConfig = new TfsMaterialConfig(new GoCipher(), new UrlArgument("http://10.4.4.101:8080/tfs/Sample"), "loser", "some_domain", "passwd", "walk_this_path");
 
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put(ScmMaterialConfig.URL, "http://foo:8080/tfs/HelloWorld");
         map.put(ScmMaterialConfig.USERNAME, "boozer");
         map.put(ScmMaterialConfig.PASSWORD, "secret");
@@ -85,7 +85,7 @@ public class TfsMaterialConfigUpdateTest {
     @Test
     public void setConfigAttributes_shouldUpdatePasswordWhenPasswordChangedBooleanChanged() throws Exception {
         TfsMaterialConfig tfsMaterialConfig = new TfsMaterialConfig(new GoCipher(), new UrlArgument("http://10.4.4.101:8080/tfs/Sample"), "loser", "CORPORATE", "passwd", "walk_this_path");
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put(TfsMaterialConfig.PASSWORD, "secret");
         map.put(TfsMaterialConfig.PASSWORD_CHANGED, "1");
 

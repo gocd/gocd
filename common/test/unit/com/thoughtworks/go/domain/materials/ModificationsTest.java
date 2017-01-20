@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain.materials;
 
@@ -72,7 +72,7 @@ public class ModificationsTest {
         final Modification modification1 = new Modification(new Date(), "1", "MOCK_LABEL-12", null);
         final Modification modification2 = new Modification(new Date(), "2", "MOCK_LABEL-12", null);
 
-        List<Modification> modifications = new ArrayList<Modification>();
+        List<Modification> modifications = new ArrayList<>();
         modifications.add(modification1);
         modifications.add(modification2);
 
@@ -130,7 +130,7 @@ public class ModificationsTest {
     public void shouldGetLatestModificationsForPackageMaterial() {
         Date timestamp = new Date();
         String revisionString = "123";
-        HashMap<String, String> data = new HashMap<String, String>();
+        HashMap<String, String> data = new HashMap<>();
         data.put("1", "one");
         data.put("2", "two");
         Modification modification = new Modification(null, null, null, timestamp, revisionString, JsonHelper.toJsonString(data));
@@ -151,7 +151,7 @@ public class ModificationsTest {
     public void shouldGetLatestModificationsForPluggableSCMMaterial() {
         String revisionString = "123";
         Date timestamp = new Date();
-        HashMap<String, String> data = new HashMap<String, String>();
+        HashMap<String, String> data = new HashMap<>();
         data.put("1", "one");
         data.put("2", "two");
         Modification modification = new Modification(null, null, null, timestamp, revisionString, JsonHelper.toJsonString(data));

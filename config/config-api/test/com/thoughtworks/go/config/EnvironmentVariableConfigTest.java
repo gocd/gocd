@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -177,9 +177,9 @@ public class EnvironmentVariableConfigTest {
         EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(goCipher, "key", plainText, false);
 
         Map<String, Object> sqlCriteria = environmentVariableConfig.getSqlCriteria();
-        assertThat((String) sqlCriteria.get("variableName"), is("key"));
-        assertThat((String) sqlCriteria.get("variableValue"), is(plainText));
-        assertThat((Boolean) sqlCriteria.get("isSecure"), is(false));
+        assertThat(sqlCriteria.get("variableName"), is("key"));
+        assertThat(sqlCriteria.get("variableValue"), is(plainText));
+        assertThat(sqlCriteria.get("isSecure"), is(false));
 
         verify(goCipher, never()).encrypt(plainText);
     }
@@ -193,9 +193,9 @@ public class EnvironmentVariableConfigTest {
         EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(goCipher, "key", plainText, true);
 
         Map<String, Object> sqlCriteria = environmentVariableConfig.getSqlCriteria();
-        assertThat((String) sqlCriteria.get("variableName"), is("key"));
-        assertThat((String) sqlCriteria.get("variableValue"), is(plainText));
-        assertThat((Boolean) sqlCriteria.get("isSecure"), is(true));
+        assertThat(sqlCriteria.get("variableName"), is("key"));
+        assertThat(sqlCriteria.get("variableValue"), is(plainText));
+        assertThat(sqlCriteria.get("isSecure"), is(true));
 
         verify(goCipher).encrypt(plainText);
         verify(goCipher).decrypt(encryptedText);

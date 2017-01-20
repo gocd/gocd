@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import com.thoughtworks.go.domain.activity.AgentAssignment;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.*;
-import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.i18n.Localizer;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.dao.PipelineDao;
@@ -40,7 +39,6 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.TimeProvider;
-import org.apache.http.HttpStatus;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -55,9 +53,6 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyVararg;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 public class ScheduleServiceTest {
@@ -250,7 +245,7 @@ public class ScheduleServiceTest {
         when(schedulingChecker.canAutoTriggerConsumer(pipelineConfig)).thenReturn(true);
         when(pipelineScheduleQueue.createPipeline(any(BuildCause.class), eq(pipelineConfig), any(SchedulingContext.class), eq("md5-test"), eq(timeProvider))).thenThrow(
                 new CannotScheduleException("foo", "stage-baz"));
-        final HashMap<String, BuildCause> map = new HashMap<String, BuildCause>();
+        final HashMap<String, BuildCause> map = new HashMap<>();
         map.put("pipeline-quux", BuildCause.createManualForced());
         when(pipelineScheduleQueue.toBeScheduled()).thenReturn(map);
 
@@ -271,7 +266,7 @@ public class ScheduleServiceTest {
         when(schedulingChecker.canAutoTriggerConsumer(pipelineConfig)).thenReturn(true);
         when(pipelineScheduleQueue.createPipeline(any(BuildCause.class), eq(pipelineConfig), any(SchedulingContext.class), eq("md5-test"), eq(timeProvider))).thenReturn(PipelineMother.schedule(pipelineConfig,
                 BuildCause.createManualForced(new MaterialRevisions(new MaterialRevision(new MaterialConfigConverter().toMaterial(materialConfig), ModificationsMother.aCheckIn("123", "foo.c"))), new Username(new CaseInsensitiveString("loser")))));
-        final HashMap<String, BuildCause> map = new HashMap<String, BuildCause>();
+        final HashMap<String, BuildCause> map = new HashMap<>();
         map.put("pipeline-quux", BuildCause.createManualForced());
         when(pipelineScheduleQueue.toBeScheduled()).thenReturn(map);
 

@@ -1,11 +1,11 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,7 +25,6 @@ import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ReflectionUtil;
-import com.thoughtworks.go.util.command.UrlArgument;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -41,7 +40,7 @@ public class P4MaterialConfigTest {
     public void shouldSetConfigAttributes() {
         P4MaterialConfig p4MaterialConfig = new P4MaterialConfig("", "");
 
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put(P4MaterialConfig.SERVER_AND_PORT, "serverAndPort");
         map.put(P4MaterialConfig.USERNAME, "username");
         map.put(P4MaterialConfig.PASSWORD, "password");
@@ -95,7 +94,7 @@ public class P4MaterialConfigTest {
     public void setConfigAttributes_shouldUpdatePasswordWhenPasswordChangedBooleanChanged() throws Exception {
         P4MaterialConfig materialConfig = new P4MaterialConfig("","");
         materialConfig.setPassword("notSecret");
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put(P4MaterialConfig.PASSWORD, "secret");
         map.put(P4MaterialConfig.PASSWORD_CHANGED, "1");
 
@@ -126,7 +125,7 @@ public class P4MaterialConfigTest {
     public void shouldNotSetUseTicketsIfNotInConfigAttributesMap() {
         P4MaterialConfig p4MaterialConfig = new P4MaterialConfig("", "");
 
-        HashMap<String, String> map = new HashMap<String, String>();
+        HashMap<String, String> map = new HashMap<>();
         map.put(P4MaterialConfig.USE_TICKETS, "true");
         p4MaterialConfig.setConfigAttributes(map);
         assertThat(p4MaterialConfig.getUseTickets(), is(true));

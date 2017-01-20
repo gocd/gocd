@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,7 +72,7 @@ public class ProcessManagerTest {
 
     @Test
     public void shouldAddToProcessListWhenNewProcessCreated() {
-        processManager.createProcess(new String[]{"echo", "message"}, "echo 'message'", null, new HashMap<String, String>(), new EnvironmentVariableContext(), inMemoryConsumer(), "test-tag", null,
+        processManager.createProcess(new String[]{"echo", "message"}, "echo 'message'", null, new HashMap<>(), new EnvironmentVariableContext(), inMemoryConsumer(), "test-tag", null,
                 "ERROR: ");
         assertThat(processManager.getProcessMap().size(), is(3));
     }

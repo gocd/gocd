@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,9 +29,7 @@ import com.thoughtworks.go.domain.materials.ModifiedAction;
 import com.thoughtworks.go.domain.materials.ModifiedFile;
 import com.thoughtworks.go.util.ClassMockery;
 import com.thoughtworks.go.util.LogFixture;
-import com.thoughtworks.go.util.command.CommandArgument;
 import com.thoughtworks.go.util.command.ConsoleResult;
-import com.thoughtworks.go.util.command.SecretString;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Level;
 import org.jmock.Expectations;
@@ -74,7 +72,7 @@ public class P4OutputParserTest {
         String output = "Change 2 on 08/08/19 by cceuser@connect4 'some modification message'";
         Modification modification = new Modification();
         try {
-            parser.parseFistline(modification, output, new ConsoleResult(0, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<CommandArgument>(), new ArrayList<SecretString>()));
+            parser.parseFistline(modification, output, new ConsoleResult(0, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
         } catch (P4OutputParseException e) {
             assertThat(e.getMessage(), containsString("Could not parse P4 describe:"));
 
@@ -94,7 +92,7 @@ public class P4OutputParserTest {
                         + "... //depot/README.txt#2 edit\n"
                         + "... //depot/cruise-output/log.xml#1 delete\n"
                         + "";
-        Modification mod = parser.modificationFromDescription(output, new ConsoleResult(0, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<CommandArgument>(), new ArrayList<SecretString>()));
+        Modification mod = parser.modificationFromDescription(output, new ConsoleResult(0, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
         assertThat(mod.getRevision(), is("2"));
         assertThat(mod.getUserName(), is("cce123user@connect4_10.18.2.31"));
         assertThat(mod.getModifiedTime(), is(DESCRIPTION_FORMAT.parse("2008/08/19 15:04:43")));
@@ -117,7 +115,7 @@ public class P4OutputParserTest {
         final StringWriter writer = new StringWriter();
         IOUtils.copy(new ClassPathResource("/data/BIG_P4_OUTPUT.txt").getInputStream(), writer, Charset.defaultCharset());
         String output = writer.toString();
-        Modification modification = parser.modificationFromDescription(output, new ConsoleResult(0, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<CommandArgument>(), new ArrayList<SecretString>()));
+        Modification modification = parser.modificationFromDescription(output, new ConsoleResult(0, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
         assertThat(modification.getModifiedFiles().size(), is(1304));
         assertThat(modification.getModifiedFiles().get(0).getFileName(),
                 is("Internal Projects/ABC/Customers3/ABC/RIP/SomeProject/data/main/config/lib/java/AdvJDBCColumnHandler.jar"));
@@ -128,7 +126,7 @@ public class P4OutputParserTest {
     public void shouldThrowExceptionWhenCannotParseChanges() {
         String line = "Some line I don't understand";
         try {
-            parser.modificationFromDescription(line, new ConsoleResult(0, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<CommandArgument>(), new ArrayList<SecretString>()));
+            parser.modificationFromDescription(line, new ConsoleResult(0, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
             fail("Should throw exception if can't parse the description");
         } catch (P4OutputParseException expected) {
             assertThat(expected.getMessage(), containsString(line));
@@ -165,7 +163,7 @@ public class P4OutputParserTest {
                         + "... //APP/AB/Core/Templates/Somemv.RemotingService/coordinator_template.config#69 edit\n"
                         + "";
 
-        Modification modification = parser.modificationFromDescription(description, new ConsoleResult(0, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<CommandArgument>(), new ArrayList<SecretString>()));
+        Modification modification = parser.modificationFromDescription(description, new ConsoleResult(0, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
         assertThat(modification.getComment(), is(
                 "Add a WCF CrossDomainPolicyService and CrossDomain.xml.\n"
                         + "Update service reference.\n"
@@ -186,7 +184,7 @@ public class P4OutputParserTest {
                         + "\n"
                         + "... //depot/file#5 edit";
 
-        Modification modification = parser.modificationFromDescription(description, new ConsoleResult(0, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<CommandArgument>(), new ArrayList<SecretString>()));
+        Modification modification = parser.modificationFromDescription(description, new ConsoleResult(0, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
         assertThat(modification.getComment(), is(
                 "Affected files ...\n"
                         + "\n"
@@ -204,7 +202,7 @@ public class P4OutputParserTest {
                         + "\n"
                         + "... //another_depot/1.txt#6 edit";
 
-        Modification modification = parser.modificationFromDescription(description, new ConsoleResult(0, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<CommandArgument>(), new ArrayList<SecretString>()));
+        Modification modification = parser.modificationFromDescription(description, new ConsoleResult(0, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
         assertThat(modification.getComment(), is(""));
     }
 
@@ -226,7 +224,7 @@ public class P4OutputParserTest {
 
     @Test
     public void shouldMatchWhenCommentsAreMultipleLines() throws Exception {
-        Modification modification = parser.modificationFromDescription(BUG_2503_OUTPUT, new ConsoleResult(0, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<CommandArgument>(), new ArrayList<SecretString>()));
+        Modification modification = parser.modificationFromDescription(BUG_2503_OUTPUT, new ConsoleResult(0, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
 
         assertThat(parser.revisionFromChange(BUG_2503_OUTPUT), is(122636L));
         assertThat(modification.getModifiedTime(), is(DESCRIPTION_FORMAT.parse("2009/02/06 17:53:57")));
@@ -275,7 +273,7 @@ public class P4OutputParserTest {
             }
         });
 
-        List<Modification> modifications = parser.modifications(new ConsoleResult(0, Arrays.asList(output.split("\n")), new ArrayList<String>(), new ArrayList<CommandArgument>(), new ArrayList<SecretString>()));
+        List<Modification> modifications = parser.modifications(new ConsoleResult(0, Arrays.asList(output.split("\n")), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
         assertThat(modifications.size(), is(20));
     }
 
@@ -293,7 +291,7 @@ public class P4OutputParserTest {
                 }
             });
 
-            List<Modification> modifications = parser.modifications(new ConsoleResult(0, Arrays.asList(output.split("\n")), new ArrayList<String>(), new ArrayList<CommandArgument>(), new ArrayList<SecretString>()));
+            List<Modification> modifications = parser.modifications(new ConsoleResult(0, Arrays.asList(output.split("\n")), new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
             assertThat(modifications.size(), is(0));
             assertThat(logging.getLog(), containsString(description));
         }

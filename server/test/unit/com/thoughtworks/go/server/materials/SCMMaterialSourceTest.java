@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,7 +70,7 @@ public class SCMMaterialSourceTest {
 
     @Test
     public void shouldListAllSchedulableSCMMaterials_schedulableMaterials() {
-        Set<MaterialConfig> schedulableMaterialConfigs = new HashSet<MaterialConfig>(Collections.singleton(svnMaterial.config()));
+        Set<MaterialConfig> schedulableMaterialConfigs = new HashSet<>(Collections.singleton(svnMaterial.config()));
 
         when(goConfigService.getSchedulableSCMMaterials()).thenReturn(schedulableMaterialConfigs);
         when(materialConfigConverter.toMaterials(schedulableMaterialConfigs)).thenReturn(new HashSet<>(Collections.singleton(svnMaterial)));
@@ -84,7 +84,7 @@ public class SCMMaterialSourceTest {
     @Test
     public void shouldListMaterialsWhichHaveElapsedUpdateInterval_schedulableMaterials() {
         long minuteBack = DateTimeUtils.currentTimeMillis() - 60000;
-        Set<MaterialConfig> schedulableMaterialConfigs = new HashSet<MaterialConfig>(Arrays.asList(svnMaterial.config(), gitMaterial.config()));
+        Set<MaterialConfig> schedulableMaterialConfigs = new HashSet<>(Arrays.asList(svnMaterial.config(), gitMaterial.config()));
 
         systemEnvironment.setProperty(SystemEnvironment.MATERIAL_UPDATE_IDLE_INTERVAL_PROPERTY, "60000");
         when(goConfigService.getSchedulableSCMMaterials()).thenReturn(schedulableMaterialConfigs);
@@ -125,7 +125,7 @@ public class SCMMaterialSourceTest {
 
     @Test
     public void shouldReloadSchedulableMaterialsOnConfigChange() {
-        Set<MaterialConfig> schedulableMaterialConfigs = new HashSet<MaterialConfig>(Arrays.asList(svnMaterial.config()));
+        Set<MaterialConfig> schedulableMaterialConfigs = new HashSet<>(Arrays.asList(svnMaterial.config()));
 
         when(goConfigService.getSchedulableSCMMaterials()).thenReturn(schedulableMaterialConfigs);
         when(materialConfigConverter.toMaterials(schedulableMaterialConfigs)).thenReturn(new HashSet<>(Arrays.asList(svnMaterial)));
@@ -136,7 +136,7 @@ public class SCMMaterialSourceTest {
         assertTrue(materials.contains(svnMaterial));
 
 
-        schedulableMaterialConfigs = new HashSet<MaterialConfig>(Arrays.asList(svnMaterial.config(), gitMaterial.config()));
+        schedulableMaterialConfigs = new HashSet<>(Arrays.asList(svnMaterial.config(), gitMaterial.config()));
         when(goConfigService.getSchedulableSCMMaterials()).thenReturn(schedulableMaterialConfigs);
         when(materialConfigConverter.toMaterials(schedulableMaterialConfigs)).thenReturn(new HashSet<>(Arrays.asList(svnMaterial, gitMaterial)));
         when(serverHealthService.getAllLogs()).thenReturn(new ServerHealthStates());
@@ -151,7 +151,7 @@ public class SCMMaterialSourceTest {
 
     @Test
     public void shouldReloadSchedulableMaterialsOnPipelineConfigChange() {
-        Set<MaterialConfig> schedulableMaterialConfigs = new HashSet<MaterialConfig>(Arrays.asList(svnMaterial.config()));
+        Set<MaterialConfig> schedulableMaterialConfigs = new HashSet<>(Arrays.asList(svnMaterial.config()));
 
         when(goConfigService.getSchedulableSCMMaterials()).thenReturn(schedulableMaterialConfigs);
         when(materialConfigConverter.toMaterials(schedulableMaterialConfigs)).thenReturn(new HashSet<>(Arrays.asList(svnMaterial)));

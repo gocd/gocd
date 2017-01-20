@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,6 @@ import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.ModifiedAction;
 import com.thoughtworks.go.domain.testinfo.TestStatus;
 import com.thoughtworks.go.domain.testinfo.TestSuite;
-import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.dao.sparql.ShineDao;
 import com.thoughtworks.go.server.domain.Username;
@@ -150,7 +149,7 @@ public class StageNotificationServiceTest {
         String jezMail = prepareOneMatchedUser();
         stubPipelineAndStage(new Date());
         when(systemEnvironment.isShineEnabled()).thenReturn(true);
-        when(shineDao.failedTestsFor(stageIdentifier)).thenReturn(new ArrayList<TestSuite>());
+        when(shineDao.failedTestsFor(stageIdentifier)).thenReturn(new ArrayList<>());
 
         stageNotificationService.sendNotifications(stageIdentifier, StageEvent.Fails, new Username(new CaseInsensitiveString("loser")));
 
@@ -206,7 +205,7 @@ public class StageNotificationServiceTest {
 
     @Test
     public void shouldNotComputeFailedTestSuitesWhenThereAreNoSubscribers() throws Exception {
-        when(userService.findValidSubscribers(stageIdentifier.stageConfigIdentifier())).thenReturn(new Users(new ArrayList<User>()));
+        when(userService.findValidSubscribers(stageIdentifier.stageConfigIdentifier())).thenReturn(new Users(new ArrayList<>()));
 
         stageNotificationService.sendNotifications(stageIdentifier, StageEvent.Fails, new Username(new CaseInsensitiveString("loser")));
         verifyZeroInteractions(shineDao);

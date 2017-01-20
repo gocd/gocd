@@ -1,23 +1,23 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
+
 package com.thoughtworks.go.config.merge;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
-import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.helper.PipelineConfigMother;
@@ -253,7 +253,7 @@ public class MergePipelineConfigsTest extends PipelineConfigsTestBase {
                 new BasicPipelineConfigs(first, PipelineConfigMother.pipelineConfig("second")),
                 new BasicPipelineConfigs(duplicate, PipelineConfigMother.pipelineConfig("third")));
 
-        Map<String, PipelineConfigs> nameToConfig = new HashMap<String, PipelineConfigs>();
+        Map<String, PipelineConfigs> nameToConfig = new HashMap<>();
         List<PipelineConfigs> visited = new ArrayList();
 
         group.validateNameUniqueness(nameToConfig);

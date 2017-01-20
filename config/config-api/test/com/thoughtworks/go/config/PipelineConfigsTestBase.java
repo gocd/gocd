@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config;
 
@@ -322,7 +322,7 @@ public abstract class PipelineConfigsTestBase {
         Authorization authorization = group.getAuthorization();
 
         assertThat(authorization.getViewConfig().size(), is(2));
-        assertThat(authorization.getViewConfig(), hasItems((Admin) new AdminRole(new CaseInsensitiveString("role1")), (Admin) new AdminUser(new CaseInsensitiveString("user1"))));
+        assertThat(authorization.getViewConfig(), hasItems(new AdminRole(new CaseInsensitiveString("role1")), new AdminUser(new CaseInsensitiveString("user1"))));
 
         assertThat(authorization.getOperationConfig().size(), is(0));
         assertThat(authorization.getAdminsConfig().size(), is(0));
@@ -339,7 +339,7 @@ public abstract class PipelineConfigsTestBase {
     @Test
     public void shouldValidateGroupNameUniqueness()
     {
-        Map<String, PipelineConfigs> nameToConfig = new HashMap<String, PipelineConfigs>();
+        Map<String, PipelineConfigs> nameToConfig = new HashMap<>();
         PipelineConfigs group1 = createEmpty();
         group1.setGroup("joe");
         PipelineConfigs group2 = createEmpty();

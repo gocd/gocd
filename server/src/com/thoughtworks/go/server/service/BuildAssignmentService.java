@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -182,7 +182,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
         synchronized (this) {
             if (jobPlans == null) {
                 jobPlans = jobInstanceService.orderedScheduledBuilds();
-                elasticAgentPluginService.createAgentsFor(jobPlans, new ArrayList<JobPlan>());
+                elasticAgentPluginService.createAgentsFor(jobPlans, new ArrayList<>());
             } else {
                 List<JobPlan> old = jobPlans;
                 List<JobPlan> newPlan = jobInstanceService.orderedScheduledBuilds();

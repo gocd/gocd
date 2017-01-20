@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -143,10 +143,10 @@ public class UserServiceTest {
 
     @Test
     public void shouldLoadAllUsersOrderedOnIsAdmin() {
-        User foo = new User("foo", new ArrayList<String>(), "foo@cruise.com", false);
-        User bar = new User("bar", new ArrayList<String>(), "zooboo@go.com", false);
-        User quux = new User("quux", new ArrayList<String>(), "quux@cruise.go", false);
-        User baaz = new User("baaz", new ArrayList<String>(), "baaz@cruise.go", false);
+        User foo = new User("foo", new ArrayList<>(), "foo@cruise.com", false);
+        User bar = new User("bar", new ArrayList<>(), "zooboo@go.com", false);
+        User quux = new User("quux", new ArrayList<>(), "quux@cruise.go", false);
+        User baaz = new User("baaz", new ArrayList<>(), "baaz@cruise.go", false);
         when(userDao.allUsers()).thenReturn(new Users(Arrays.asList(quux, foo, bar, baaz)));
 
         when(securityService.isUserAdmin(new Username(new CaseInsensitiveString("foo")))).thenReturn(false);
@@ -175,10 +175,10 @@ public class UserServiceTest {
 
     @Test
     public void shouldLoadAllUsersOrderedOnEnabled() {
-        User foo = new User("foo", new ArrayList<String>(), "foo@cruise.com", false);
-        User bar = new User("bar", new ArrayList<String>(), "zooboo@go.com", false);
-        User quux = new User("quux", new ArrayList<String>(), "quux@cruise.go", false);
-        User baaz = new User("baaz", new ArrayList<String>(), "baaz@cruise.go", false);
+        User foo = new User("foo", new ArrayList<>(), "foo@cruise.com", false);
+        User bar = new User("bar", new ArrayList<>(), "zooboo@go.com", false);
+        User quux = new User("quux", new ArrayList<>(), "quux@cruise.go", false);
+        User baaz = new User("baaz", new ArrayList<>(), "baaz@cruise.go", false);
         when(userDao.allUsers()).thenReturn(new Users(Arrays.asList(quux, foo, bar, baaz)));
 
         foo.disable();
@@ -528,7 +528,7 @@ public class UserServiceTest {
     }
 
     private UserModel model(User user, boolean admin) {
-        return model(user, new ArrayList<String>(), admin);
+        return model(user, new ArrayList<>(), admin);
     }
 
     private UserModel model(User user, List<String> roles, boolean isAdmin) {

@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.persistence;
 
@@ -136,15 +136,15 @@ public class PipelineRepositoryIntegrationTest {
         PipelineTimeline timeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
         timeline.updateTimelineOnInit();
 
-        List<PipelineTimelineEntry> timelineEntries = new ArrayList<PipelineTimelineEntry>(timeline.getEntriesFor("P"));
+        List<PipelineTimelineEntry> timelineEntries = new ArrayList<>(timeline.getEntriesFor("P"));
         assertThat(timelineEntries.get(0).getPipelineLocator().getCounter(), is(1));
         assertThat(timelineEntries.get(0).naturalOrder(), is(1.0));
-        List<PipelineTimelineEntry.Revision> flyweightsRevs = new ArrayList<List<PipelineTimelineEntry.Revision>>(timelineEntries.get(0).revisions().values()).get(0);
+        List<PipelineTimelineEntry.Revision> flyweightsRevs = new ArrayList<>(timelineEntries.get(0).revisions().values()).get(0);
         assertThat(flyweightsRevs.get(0).revision, is("g1"));
         assertThat(flyweightsRevs.get(1).revision, is("g2"));
         assertThat(timelineEntries.get(1).getPipelineLocator().getCounter(), is(2));
         assertThat(timelineEntries.get(1).naturalOrder(), is(2.0));
-        flyweightsRevs = new ArrayList<List<PipelineTimelineEntry.Revision>>(timelineEntries.get(1).revisions().values()).get(0);
+        flyweightsRevs = new ArrayList<>(timelineEntries.get(1).revisions().values()).get(0);
         assertThat(flyweightsRevs.get(0).revision, is("g2"));
         assertThat(flyweightsRevs.get(1).revision, is("g1"));
 
@@ -157,15 +157,15 @@ public class PipelineRepositoryIntegrationTest {
         timeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
         timeline.updateTimelineOnInit();
 
-        timelineEntries = new ArrayList<PipelineTimelineEntry>(timeline.getEntriesFor("P"));
+        timelineEntries = new ArrayList<>(timeline.getEntriesFor("P"));
         assertThat(timelineEntries.get(0).getPipelineLocator().getCounter(), is(1));
         assertThat(timelineEntries.get(0).naturalOrder(), is(1.0));
-        flyweightsRevs = new ArrayList<List<PipelineTimelineEntry.Revision>>(timelineEntries.get(0).revisions().values()).get(0);
+        flyweightsRevs = new ArrayList<>(timelineEntries.get(0).revisions().values()).get(0);
         assertThat(flyweightsRevs.get(0).revision, is("g1"));
         assertThat(flyweightsRevs.get(1).revision, is("g2"));
         assertThat(timelineEntries.get(1).getPipelineLocator().getCounter(), is(2));
         assertThat(timelineEntries.get(1).naturalOrder(), is(2.0));
-        flyweightsRevs = new ArrayList<List<PipelineTimelineEntry.Revision>>(timelineEntries.get(1).revisions().values()).get(0);
+        flyweightsRevs = new ArrayList<>(timelineEntries.get(1).revisions().values()).get(0);
         assertThat(flyweightsRevs.get(0).revision, is("g2"));
         assertThat(flyweightsRevs.get(1).revision, is("g1"));
     }
@@ -208,7 +208,7 @@ public class PipelineRepositoryIntegrationTest {
 
         long thirdId = createPipeline(hgmaterial, pipelineConfig, 3, oneModifiedFile("30", date.plusDays(10).toDate()));
 
-        pipelineRepository.updatePipelineTimeline(pipelineTimeline, new ArrayList<PipelineTimelineEntry>());
+        pipelineRepository.updatePipelineTimeline(pipelineTimeline, new ArrayList<>());
 
         assertThat(pipelineTimeline.getEntriesFor(PIPELINE_NAME).size(), is(3));
         assertThat(pipelineTimeline.getEntriesFor(PIPELINE_NAME), hasItem(expected(thirdId,
@@ -220,7 +220,7 @@ public class PipelineRepositoryIntegrationTest {
         assertThat(pipelineSqlMapDao.pipelineByIdWithMods(thirdId).getNaturalOrder(), is(2.0));
 
         PipelineTimeline pipelineTimeline2 = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
-        pipelineRepository.updatePipelineTimeline(pipelineTimeline2, new ArrayList<PipelineTimelineEntry>());
+        pipelineRepository.updatePipelineTimeline(pipelineTimeline2, new ArrayList<>());
     }
 
     @Test
@@ -278,7 +278,7 @@ public class PipelineRepositoryIntegrationTest {
                         oneModifiedFile("25", date.plusDays(5).toDate())));
 
         PipelineTimeline pipelineTimeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
-        pipelineRepository.updatePipelineTimeline(pipelineTimeline, new ArrayList<PipelineTimelineEntry>());
+        pipelineRepository.updatePipelineTimeline(pipelineTimeline, new ArrayList<>());
 
         Collection<PipelineTimelineEntry> modifications = pipelineTimeline.getEntriesFor(PIPELINE_NAME);
         assertThat(modifications.size(), is(2));

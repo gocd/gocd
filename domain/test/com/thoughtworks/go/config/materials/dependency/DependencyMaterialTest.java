@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Modifications;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
 import com.thoughtworks.go.helper.GoConfigMother;
-import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -73,7 +72,7 @@ public class DependencyMaterialTest {
 
     @Test
     public void shouldParseMaterialRevisionWithPipelineLabel() {
-        ArrayList<Modification> mods = new ArrayList<Modification>();
+        ArrayList<Modification> mods = new ArrayList<>();
         Modification mod = new Modification(new Date(), "pipelineName/123/stageName/2", "pipeline-label-123", null);
         mods.add(mod);
         DependencyMaterialRevision revision = (DependencyMaterialRevision) new Modifications(mods).latestRevision(dependencyMaterial);
@@ -88,10 +87,10 @@ public class DependencyMaterialTest {
 
     @Test public void shouldBeUniqueBasedOnpipelineAndStageName() throws Exception {
         DependencyMaterial material1 = new DependencyMaterial(new CaseInsensitiveString("pipeline1"), new CaseInsensitiveString("stage1"));
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         material1.appendCriteria(map);
-        assertThat(map, hasEntry("pipelineName", (Object) "pipeline1"));
-        assertThat(map, hasEntry("stageName", (Object) "stage1"));
+        assertThat(map, hasEntry("pipelineName", "pipeline1"));
+        assertThat(map, hasEntry("stageName", "stage1"));
         assertThat(map.size(), is(2));
     }
 
@@ -160,7 +159,7 @@ public class DependencyMaterialTest {
     public void shouldDetectDependencyMaterialUsedInFetchArtifact() {
         DependencyMaterial material = new DependencyMaterial(new CaseInsensitiveString("pipeline-foo"), new CaseInsensitiveString("stage-bar"));
         PipelineConfig pipelineConfig = mock(PipelineConfig.class);
-        ArrayList<FetchTask> fetchTasks = new ArrayList<FetchTask>();
+        ArrayList<FetchTask> fetchTasks = new ArrayList<>();
         fetchTasks.add(new FetchTask(new CaseInsensitiveString("something"), new CaseInsensitiveString("new"), "src", "dest"));
         fetchTasks.add(new FetchTask(new CaseInsensitiveString("pipeline-foo"), new CaseInsensitiveString("stage-bar"), new CaseInsensitiveString("job"), "src", "dest"));
         when(pipelineConfig.getFetchTasks()).thenReturn(fetchTasks);
@@ -172,7 +171,7 @@ public class DependencyMaterialTest {
     public void shouldDetectDependencyMaterialUsedInFetchArtifactFromAncestor() {
         DependencyMaterial material = new DependencyMaterial(new CaseInsensitiveString("parent-pipeline"), new CaseInsensitiveString("stage-bar"));
         PipelineConfig pipelineConfig = mock(PipelineConfig.class);
-        ArrayList<FetchTask> fetchTasks = new ArrayList<FetchTask>();
+        ArrayList<FetchTask> fetchTasks = new ArrayList<>();
         fetchTasks.add(new FetchTask(new CaseInsensitiveString("grandparent-pipeline/parent-pipeline"), new CaseInsensitiveString("grandparent-stage"), new CaseInsensitiveString("grandparent-job"), "src", "dest"));
         when(pipelineConfig.getFetchTasks()).thenReturn(fetchTasks);
 
@@ -183,7 +182,7 @@ public class DependencyMaterialTest {
     public void shouldDetectDependencyMaterialNotUsedInFetchArtifact() {
         DependencyMaterial material = new DependencyMaterial(new CaseInsensitiveString("pipeline-foo"), new CaseInsensitiveString("stage-bar"));
         PipelineConfig pipelineConfig = mock(PipelineConfig.class);
-        ArrayList<FetchTask> fetchTasks = new ArrayList<FetchTask>();
+        ArrayList<FetchTask> fetchTasks = new ArrayList<>();
         fetchTasks.add(new FetchTask(new CaseInsensitiveString("something"), new CaseInsensitiveString("new"), "src", "dest"));
         fetchTasks.add(new FetchTask(new CaseInsensitiveString("another"), new CaseInsensitiveString("boo"),new CaseInsensitiveString("foo"), "src", "dest"));
         when(pipelineConfig.getFetchTasks()).thenReturn(fetchTasks);
@@ -221,13 +220,13 @@ public class DependencyMaterialTest {
         dependencyMaterialConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig, pipeline));
         assertThat(dependencyMaterialConfig.errors().on(DependencyMaterialConfig.PIPELINE_STAGE_NAME), is("Stage with name 'does_not_exist' does not exist on pipeline 'upstream_pipeline', it is being referred to from pipeline 'downstream' (cruise-config.xml)"));
     }
-    
+
 
     private void assertAttributes(Map<String, Object> attributes) {
-        assertThat((String) attributes.get("type"), is("pipeline"));
+        assertThat(attributes.get("type"), is("pipeline"));
         Map<String, Object> configuration = (Map<String, Object>) attributes.get("pipeline-configuration");
-        assertThat((String) configuration.get("pipeline-name"), is("pipeline-name"));
-        assertThat((String) configuration.get("stage-name"), is("stage-name"));
+        assertThat(configuration.get("pipeline-name"), is("pipeline-name"));
+        assertThat(configuration.get("stage-name"), is("stage-name"));
     }
 
     @Test

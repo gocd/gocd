@@ -1,26 +1,24 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.*;
 import java.util.regex.Matcher;
 
@@ -29,27 +27,17 @@ import com.thoughtworks.go.config.exceptions.PipelineGroupNotFoundException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
-import com.thoughtworks.go.config.materials.ScmMaterialConfig;
-import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
-import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
-import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
-import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
-import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.merge.MergePipelineConfigs;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
-import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
-import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.Pair;
-import com.thoughtworks.go.util.command.UrlArgument;
 import org.junit.Test;
 
 import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
-import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
 import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
@@ -58,7 +46,6 @@ import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class PipelineGroupsTest {
 
@@ -211,9 +198,9 @@ public class PipelineGroupsTest {
         Map<String, List<Pair<PipelineConfig,PipelineConfigs>>> packageToPipelineMap = groups.getPackageUsageInPipelines();
 
         assertThat(packageToPipelineMap.get("package-id-one").size(), is(1));
-        assertThat(packageToPipelineMap.get("package-id-one"), hasItems(new Pair<PipelineConfig,PipelineConfigs>(p1,groupOne)));
+        assertThat(packageToPipelineMap.get("package-id-one"), hasItems(new Pair<>(p1, groupOne)));
         assertThat(packageToPipelineMap.get("package-id-two").size(), is(2));
-        assertThat(packageToPipelineMap.get("package-id-two"), hasItems(new Pair<PipelineConfig,PipelineConfigs>(p1,groupOne), new Pair<PipelineConfig,PipelineConfigs>(p2,groupTwo)));
+        assertThat(packageToPipelineMap.get("package-id-two"), hasItems(new Pair<>(p1, groupOne), new Pair<>(p2, groupTwo)));
     }
 
     @Test
@@ -246,9 +233,9 @@ public class PipelineGroupsTest {
         Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> pluggableSCMMaterialUsageInPipelinesOne = groups.getPluggableSCMMaterialUsageInPipelines();
 
         assertThat(pluggableSCMMaterialUsageInPipelinesOne.get("scm-id-one").size(), is(1));
-        assertThat(pluggableSCMMaterialUsageInPipelinesOne.get("scm-id-one"), hasItems(new Pair<PipelineConfig, PipelineConfigs>(p1, groupOne)));
+        assertThat(pluggableSCMMaterialUsageInPipelinesOne.get("scm-id-one"), hasItems(new Pair<>(p1, groupOne)));
         assertThat(pluggableSCMMaterialUsageInPipelinesOne.get("scm-id-two").size(), is(2));
-        assertThat(pluggableSCMMaterialUsageInPipelinesOne.get("scm-id-two"), hasItems(new Pair<PipelineConfig, PipelineConfigs>(p1, groupOne), new Pair<PipelineConfig, PipelineConfigs>(p2, groupTwo)));
+        assertThat(pluggableSCMMaterialUsageInPipelinesOne.get("scm-id-two"), hasItems(new Pair<>(p1, groupOne), new Pair<>(p2, groupTwo)));
 
         Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> pluggableSCMMaterialUsageInPipelinesTwo = groups.getPluggableSCMMaterialUsageInPipelines();
         assertSame(pluggableSCMMaterialUsageInPipelinesOne, pluggableSCMMaterialUsageInPipelinesTwo);

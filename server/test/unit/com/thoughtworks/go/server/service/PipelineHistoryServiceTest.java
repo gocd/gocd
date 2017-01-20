@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,6 @@ import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.*;
-import com.thoughtworks.go.helper.MaterialsMother;
-import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.presentation.PipelineStatusModel;
 import com.thoughtworks.go.presentation.pipelinehistory.*;
@@ -362,8 +360,8 @@ public class PipelineHistoryServiceTest {
                 new StageInstanceModel("stage1", "3", StageResult.Failed, new StageIdentifier()),
                 new StageInstanceModel("stage2", "2", StageResult.Passed, new StageIdentifier())));
 
-        when(pipelineTimeline.runBefore(2, new CaseInsensitiveString("pipeline1"))).thenReturn(new PipelineTimelineEntry("pipeline1", 1, 9, new HashMap<String, List<PipelineTimelineEntry.Revision>>()));
-        when(pipelineTimeline.runBefore(1, new CaseInsensitiveString("pipeline1"))).thenReturn(new PipelineTimelineEntry("pipeline1", 3, 11, new HashMap<String, List<PipelineTimelineEntry.Revision>>()));
+        when(pipelineTimeline.runBefore(2, new CaseInsensitiveString("pipeline1"))).thenReturn(new PipelineTimelineEntry("pipeline1", 1, 9, new HashMap<>()));
+        when(pipelineTimeline.runBefore(1, new CaseInsensitiveString("pipeline1"))).thenReturn(new PipelineTimelineEntry("pipeline1", 3, 11, new HashMap<>()));
 
         stubPermisssionsForActivePipeline(foo, cruiseConfig, "pipeline1", true, true);
         when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(any(String.class)))).thenReturn(true);
@@ -506,8 +504,8 @@ public class PipelineHistoryServiceTest {
 
         //2>1>3
 
-        when(pipelineTimeline.runBefore(2, new CaseInsensitiveString("pipeline1"))).thenReturn(new PipelineTimelineEntry("pipeline1", 1, 9, new HashMap<String, List<PipelineTimelineEntry.Revision>>()));
-        when(pipelineTimeline.runBefore(1, new CaseInsensitiveString("pipeline1"))).thenReturn(new PipelineTimelineEntry("pipeline1", 3, 11, new HashMap<String, List<PipelineTimelineEntry.Revision>>()));
+        when(pipelineTimeline.runBefore(2, new CaseInsensitiveString("pipeline1"))).thenReturn(new PipelineTimelineEntry("pipeline1", 1, 9, new HashMap<>()));
+        when(pipelineTimeline.runBefore(1, new CaseInsensitiveString("pipeline1"))).thenReturn(new PipelineTimelineEntry("pipeline1", 3, 11, new HashMap<>()));
 
         stubPermisssionsForActivePipeline(foo, cruiseConfig, "pipeline1", true, true);
         when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(any(String.class)))).thenReturn(true);
@@ -643,7 +641,7 @@ public class PipelineHistoryServiceTest {
         PipelineDependencyGraphOld expected = new PipelineDependencyGraphOld(instanceModel, createPipelineInstanceModels());
         when(pipelineDao.pipelineGraphByNameAndCounter("blahPipeline", 12)).thenReturn(expected);
         ensureConfigHasPipeline("blahPipeline");
-        when(goConfigService.downstreamPipelinesOf("blahPipeline")).thenReturn(new ArrayList<PipelineConfig>());
+        when(goConfigService.downstreamPipelinesOf("blahPipeline")).thenReturn(new ArrayList<>());
         stubConfigServiceToReturnPipeline("blahPipeline", PipelineConfigMother.pipelineConfig("blahPipeline"));
         when(pipelineTimeline.pipelineBefore(12)).thenReturn(1L);
         when(pipelineDao.loadHistory(1)).thenReturn(new PipelineInstanceModel("blahPipeline", 21, "prev-label", BuildCause.createWithEmptyModifications(), new StageInstanceModels()));
@@ -665,7 +663,7 @@ public class PipelineHistoryServiceTest {
 
         when(pipelineDao.pipelineGraphByNameAndCounter("blahPipeline", 12)).thenReturn(expected);
         ensureConfigHasPipeline("blahPipeline");
-        when(goConfigService.downstreamPipelinesOf("blahPipeline")).thenReturn(new ArrayList<PipelineConfig>());
+        when(goConfigService.downstreamPipelinesOf("blahPipeline")).thenReturn(new ArrayList<>());
 
         stubConfigServiceToReturnPipeline("blahPipeline", PipelineConfigMother.pipelineConfig("blahPipeline"));
         when(pipelineTimeline.pipelineBefore(23)).thenReturn(1L);
@@ -688,7 +686,7 @@ public class PipelineHistoryServiceTest {
         PipelineDependencyGraphOld expected = new PipelineDependencyGraphOld(pim, createPipelineInstanceModels());
         when(pipelineDao.pipelineGraphByNameAndCounter("blahPipeline", 12)).thenReturn(expected);
         ensureConfigHasPipeline("blahPipeline");
-        when(goConfigService.downstreamPipelinesOf("blahPipeline")).thenReturn(new ArrayList<PipelineConfig>());
+        when(goConfigService.downstreamPipelinesOf("blahPipeline")).thenReturn(new ArrayList<>());
         stubConfigServiceToReturnPipeline("blahPipeline", PipelineConfigMother.pipelineConfig("blahPipeline"));
         when(scheduleService.canRun(pim.getPipelineIdentifier(), "stage", CaseInsensitiveString.str(USERNAME.getUsername()), true)).thenReturn(true);
         when(securityService.hasOperatePermissionForStage("blahPipeline", "stage", CaseInsensitiveString.str(USERNAME.getUsername()))).thenReturn(true);
@@ -955,7 +953,7 @@ public class PipelineHistoryServiceTest {
         pipelineHistoryService.updateComment(pipelineName, 1, "test comment", new Username(unauthorizedUser), result);
 
         assertThat(result.httpCode(), is(SC_NOT_IMPLEMENTED));
-        assertThat((Localizable.CurryableLocalizable) result.localizable(), is(LocalizedMessage.string("FEATURE_NOT_AVAILABLE", "Pipeline Comment")));
+        assertThat(result.localizable(), is(LocalizedMessage.string("FEATURE_NOT_AVAILABLE", "Pipeline Comment")));
         verify(pipelineDao, never()).updateComment(pipelineName, 1, "test comment");
     }
 

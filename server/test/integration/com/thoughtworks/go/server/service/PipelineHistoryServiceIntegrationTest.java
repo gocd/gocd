@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import java.util.Date;
 import java.util.List;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.RoleConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
@@ -31,7 +30,6 @@ import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
-import com.thoughtworks.go.domain.materials.Revision;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
 import com.thoughtworks.go.domain.materials.svn.SubversionRevision;
 import com.thoughtworks.go.fixture.ArtifactsDiskIsFull;
@@ -178,7 +176,7 @@ public class PipelineHistoryServiceIntegrationTest {
         pipelineTwo.createPipelineWithFirstStagePassedAndSecondStageHasNotStarted();
         dbHelper.updateNaturalOrder(toRerun.getId(), 3);
         dbHelper.scheduleStage(toRerun, pipelineTwo.devStage());
-        pipelineRepository.updatePipelineTimeline(pipelineTimeline, new ArrayList<PipelineTimelineEntry>());
+        pipelineRepository.updatePipelineTimeline(pipelineTimeline, new ArrayList<>());
 
         List<PipelineGroupModel> groupModels = pipelineHistoryService.allActivePipelineInstances(new Username(new CaseInsensitiveString("jez")), PipelineSelections.ALL);
         assertThat(groupModels.size(), is(2));
@@ -453,7 +451,7 @@ public class PipelineHistoryServiceIntegrationTest {
 
         PipelineInstanceModels latest = pipelineHistoryService.loadWithEmptyAsDefault(pipelineOne.pipelineName, Pagination.ONE_ITEM, "username");
         MaterialRevisions latestRevision = latest.get(0).getLatestRevisions();
-        assertThat(latestRevision.getMaterialRevision(0).getRevision(), is((Revision) new SubversionRevision("2")));
+        assertThat(latestRevision.getMaterialRevision(0).getRevision(), is(new SubversionRevision("2")));
     }
 
     private void saveRev(final MaterialRevision materialRevision) {
@@ -470,7 +468,7 @@ public class PipelineHistoryServiceIntegrationTest {
         configHelper.setViewPermissionForGroup("group1", "username");
 
         PipelineInstanceModel latest = pipelineHistoryService.latest(pipeline.getName(), new Username(new CaseInsensitiveString("username")));
-        assertThat(latest.getLatestRevisions().getMaterialRevision(0).getRevision(), is((Revision) new SubversionRevision("2")));
+        assertThat(latest.getLatestRevisions().getMaterialRevision(0).getRevision(), is(new SubversionRevision("2")));
     }
 
     @Test public void shouldContainNoRevisionsForNewMaterialsThatHAveNotBeenUpdated() throws Exception {
@@ -806,7 +804,7 @@ public class PipelineHistoryServiceIntegrationTest {
 
         PipelineInstanceModels actual = pipelineHistoryService.findMatchingPipelineInstances("pipeline_name", "h-1", limit, new Username(new CaseInsensitiveString("user")), new HttpLocalizedOperationResult());
         assertThat(actual.size(), is(3));
-        
+
         actual = pipelineHistoryService.findMatchingPipelineInstances("pipeline_name", "h%-%1_5", limit, new Username(new CaseInsensitiveString("user")), new HttpLocalizedOperationResult());
         assertThat(actual.size(), is(0));
     }
@@ -904,7 +902,7 @@ public class PipelineHistoryServiceIntegrationTest {
         assertThat("first counter", actual.get(0).getCounter(), is(shouldMatch1.getCounter()));
         assertThat("second counter", actual.get(1).getCounter(), is(shouldMatch2.getCounter()));
     }
-    
+
     @Test
     public void findMatchingPipelineInstances_shouldShowExpectedNumberOfMatchesWhenThePipelineHasMultipleStagesAndJobs() {
         final int limit = 2;

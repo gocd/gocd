@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.config;
 
@@ -66,7 +66,7 @@ public class OnCancelConfigTest {
         when(taskFactory.taskInstanceFor(execTask.getTaskType())).thenReturn(execTask);
         OnCancelConfig cancelConfig = OnCancelConfig.create(hashMap, taskFactory);
 
-        assertThat((ExecTask) cancelConfig.getTask(), is(new ExecTask("ls", "blah", "pwd")));
+        assertThat(cancelConfig.getTask(), is(new ExecTask("ls", "blah", "pwd")));
     }
 
     @Test
@@ -88,7 +88,7 @@ public class OnCancelConfigTest {
         expectedAntTask.setBuildFile("build.xml");
         expectedAntTask.setTarget("blah");
         expectedAntTask.setWorkingDirectory("pwd");
-        assertThat((AntTask) cancelConfig.getTask(), is(expectedAntTask));
+        assertThat(cancelConfig.getTask(), is(expectedAntTask));
     }
 
     @Test
@@ -113,7 +113,7 @@ public class OnCancelConfigTest {
         expectedNantTask.setTarget("compile");
         expectedNantTask.setWorkingDirectory("pwd");
         expectedNantTask.setNantPath("/usr/bin/nant");
-        assertThat((NantTask) cancelConfig.getTask(), is(expectedNantTask));
+        assertThat(cancelConfig.getTask(), is(expectedNantTask));
     }
 
     @Test
@@ -134,6 +134,6 @@ public class OnCancelConfigTest {
         expectedRakeTask.setBuildFile("rakefile");
         expectedRakeTask.setTarget("build");
         expectedRakeTask.setWorkingDirectory("pwd");
-        assertThat((RakeTask) cancelConfig.getTask(), is(expectedRakeTask));
+        assertThat(cancelConfig.getTask(), is(expectedRakeTask));
     }
 }

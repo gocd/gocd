@@ -327,7 +327,7 @@ public class DefaultGoPluginActivatorIntegrationTest {
         Object m_activator = ReflectionUtil.getField(bundle, "m_activator");
         try {
             Object hasErrors = ReflectionUtil.invoke(m_activator, "hasErrors");
-            assertThat((Boolean) hasErrors, Is.is(true));
+            assertThat(hasErrors, Is.is(true));
         } catch (Exception e) {
             e.printStackTrace();
         }

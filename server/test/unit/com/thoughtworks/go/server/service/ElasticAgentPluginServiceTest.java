@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginRegistry;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentMessage;
 import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentQueueHandler;
 import com.thoughtworks.go.server.messaging.elasticagents.ServerPingMessage;
@@ -77,7 +76,7 @@ public class ElasticAgentPluginServiceTest {
         plugins.add(new GoPluginDescriptor("p1", null, null, null, null, true));
         plugins.add(new GoPluginDescriptor("p2", null, null, null, null, true));
         when(registry.getPlugins()).thenReturn(plugins);
-        when(agentService.allElasticAgents()).thenReturn(new LinkedMultiValueMap<String, ElasticAgentMetadata>());
+        when(agentService.allElasticAgents()).thenReturn(new LinkedMultiValueMap<>());
         timeProvider = new TimeProvider();
         service = new ElasticAgentPluginService(pluginManager, registry, agentService, environmentConfigService, createAgentQueue, serverPingQueue, serverConfigService, timeProvider, serverHealthService);
         when(serverConfigService.getAutoregisterKey()).thenReturn(autoRegisterKey);
@@ -117,7 +116,7 @@ public class ElasticAgentPluginServiceTest {
         when(serverConfigService.elasticJobStarvationThreshold()).thenReturn(0L);
         JobPlan plan1 = plan(1);
         ArgumentCaptor<CreateAgentMessage> captor = ArgumentCaptor.forClass(CreateAgentMessage.class);
-        service.createAgentsFor(new ArrayList<JobPlan>(), Arrays.asList(plan1));
+        service.createAgentsFor(new ArrayList<>(), Arrays.asList(plan1));
         service.createAgentsFor(Arrays.asList(plan1), Arrays.asList(plan1));//invoke create again
 
         verify(createAgentQueue, times(2)).post(captor.capture());

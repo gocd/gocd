@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
@@ -95,7 +95,7 @@ public class ValueStreamMapPerformanceTest {
     public void shouldTestVSMForNPipelines() throws Exception {
         final int numberOfDownstreamPipelines = 5;
         final CruiseConfig cruiseConfig = setupVSM(numberOfDownstreamPipelines);
-        ArrayList<Thread> ts = new ArrayList<Thread>();
+        ArrayList<Thread> ts = new ArrayList<>();
         int numberOfParallelRequests = 10;
         for (int i = 0; i < numberOfParallelRequests; i++) {
             final int finalI = i;
@@ -132,7 +132,7 @@ public class ValueStreamMapPerformanceTest {
         String[] svn_revs = {"svn_1"};
         u.checkinInOrder(svn, svn_revs);
 
-        PipelineConfig upstreamConfig = graphGenerator.createPipelineWithInstances("upstream", new ArrayList<PipelineConfig>(), 1);
+        PipelineConfig upstreamConfig = graphGenerator.createPipelineWithInstances("upstream", new ArrayList<>(), 1);
         PipelineConfig currentConfig = graphGenerator.createMesh(upstreamConfig, "current", "up", numberOfInstancesForUpstream, numberOfNodesPerLevel, numberOfLevels);
         graphGenerator.createMesh(currentConfig, "downstream", "down", numberOfInstancesForDownstream, numberOfNodesPerLevel, numberOfLevels);
 
@@ -155,7 +155,7 @@ public class ValueStreamMapPerformanceTest {
     }
 
     private List<Node> getAllNodes(ValueStreamMapPresentationModel presentationModel) {
-        ArrayList<Node> nodes = new ArrayList<Node>();
+        ArrayList<Node> nodes = new ArrayList<>();
         List<List<Node>> nodesAtEachLevel = presentationModel.getNodesAtEachLevel();
         for (List<Node> nodesAtLevel : nodesAtEachLevel) {
             nodes.addAll(nodesAtLevel);

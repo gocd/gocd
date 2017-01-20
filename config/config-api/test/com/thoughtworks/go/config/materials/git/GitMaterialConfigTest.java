@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ public class GitMaterialConfigTest {
     public void shouldSetConfigAttributes() {
         GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("");
 
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put(GitMaterialConfig.URL, "url");
         map.put(GitMaterialConfig.BRANCH, "some-branch");
         map.put(GitMaterialConfig.SHALLOW_CLONE, "true");

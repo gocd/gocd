@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -356,7 +356,7 @@ public class JobInstanceServiceTest {
         when(jobInstanceDao.loadPlan(7l)).thenReturn(expectedPlan);
         JobIdentifier givenId = new JobIdentifier("pipeline-name", 9, "label-9", "stage-name", "2", "job-name", 10l);
         when(resolver.actualJobIdentifier(givenId)).thenReturn(new JobIdentifier("pipeline-name", 8, "label-8", "stage-name", "1", "job-name", 7l));
-        assertThat(jobService.loadOriginalJobPlan(givenId), sameInstance((JobPlan) expectedPlan));
+        assertThat(jobService.loadOriginalJobPlan(givenId), sameInstance(expectedPlan));
         verify(jobInstanceDao).loadPlan(7l);
     }
 
@@ -376,7 +376,7 @@ public class JobInstanceServiceTest {
     public void shouldGetCompletedJobsOnAgentOnTheGivenPage() {
         JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService,
 				null, pluginManager);
-        ArrayList<JobInstance> expected = new ArrayList<JobInstance>();
+        ArrayList<JobInstance> expected = new ArrayList<>();
         when(jobInstanceDao.totalCompletedJobsOnAgent("uuid")).thenReturn(500);
         when(jobInstanceDao.completedJobsOnAgent("uuid", JobInstanceService.JobHistoryColumns.pipeline, SortOrder.ASC, 50, 50)).thenReturn(expected);
 

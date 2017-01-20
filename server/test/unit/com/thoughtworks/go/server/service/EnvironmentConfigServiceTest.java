@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -207,12 +207,12 @@ public class EnvironmentConfigServiceTest {
     @Test
     public void shouldCreateANewEnvironment() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        List<String> selectedAgents = new ArrayList<String>();
+        List<String> selectedAgents = new ArrayList<>();
         Username user = new Username(new CaseInsensitiveString("user"));
         when(securityService.isUserAdmin(user)).thenReturn(true);
         String environmentName = "foo-environment";
         when(mockGoConfigService.hasEnvironmentNamed(new CaseInsensitiveString(environmentName))).thenReturn(false);
-        environmentConfigService.createEnvironment(env(environmentName, new ArrayList<String>(), new ArrayList<Map<String, String>>(), selectedAgents), user, result);
+        environmentConfigService.createEnvironment(env(environmentName, new ArrayList<>(), new ArrayList<>(), selectedAgents), user, result);
 
         assertThat(result.isSuccessful(), is(true));
     }
@@ -225,7 +225,7 @@ public class EnvironmentConfigServiceTest {
         String environmentName = "foo-environment";
         when(mockGoConfigService.hasEnvironmentNamed(new CaseInsensitiveString(environmentName))).thenReturn(false);
 
-        environmentConfigService.createEnvironment(env(environmentName, new ArrayList<String>(), new ArrayList<Map<String, String>>(), Arrays.asList(new String[]{"agent-guid-1"})), user, result);
+        environmentConfigService.createEnvironment(env(environmentName, new ArrayList<>(), new ArrayList<>(), Arrays.asList(new String[]{"agent-guid-1"})), user, result);
 
         assertThat(result.isSuccessful(), is(true));
         BasicEnvironmentConfig envConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
@@ -235,14 +235,14 @@ public class EnvironmentConfigServiceTest {
     @Test
     public void shouldCreateANewEnvironmentWithEnvironmentVariables() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        List<String> selectedAgents = new ArrayList<String>();
+        List<String> selectedAgents = new ArrayList<>();
         Username user = new Username(new CaseInsensitiveString("user"));
         when(securityService.isUserAdmin(user)).thenReturn(true);
         String environmentName = "foo-environment";
         when(mockGoConfigService.hasEnvironmentNamed(new CaseInsensitiveString(environmentName))).thenReturn(false);
-        List<Map<String, String>> environmentVariables = new ArrayList<Map<String, String>>();
+        List<Map<String, String>> environmentVariables = new ArrayList<>();
         environmentVariables.addAll(Arrays.asList(envVar("SHELL", "/bin/zsh"), envVar("HOME", "/home/cruise")));
-        environmentConfigService.createEnvironment(env(environmentName, new ArrayList<String>(), environmentVariables, selectedAgents), user, result);
+        environmentConfigService.createEnvironment(env(environmentName, new ArrayList<>(), environmentVariables, selectedAgents), user, result);
 
         assertThat(result.isSuccessful(), is(true));
         BasicEnvironmentConfig expectedConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
@@ -251,7 +251,7 @@ public class EnvironmentConfigServiceTest {
     }
 
     private Map<String, String> envVar(String name, String value) {
-        HashMap<String, String> map = new HashMap<String, String>();
+        HashMap<String, String> map = new HashMap<>();
         map.put("name", name);
         map.put("value", value);
         return map;
@@ -265,7 +265,7 @@ public class EnvironmentConfigServiceTest {
         String environmentName = "foo-environment";
         when(mockGoConfigService.hasEnvironmentNamed(new CaseInsensitiveString(environmentName))).thenReturn(false);
         List<String> selectedPipelines = asList("first", "second");
-        environmentConfigService.createEnvironment(env(environmentName, selectedPipelines, new ArrayList<Map<String, String>>(), new ArrayList<String>()), user, result);
+        environmentConfigService.createEnvironment(env(environmentName, selectedPipelines, new ArrayList<>(), new ArrayList<>()), user, result);
 
         assertThat(result.isSuccessful(), is(true));
         BasicEnvironmentConfig config = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
@@ -382,7 +382,7 @@ public class EnvironmentConfigServiceTest {
         assertThat(result.toString(), containsString("UPDATE_ENVIRONMENT_SUCCESS"));
         assertThat(result.toString(), containsString(environmentName));
     }
-    
+
     @Test
     public void shouldReturnEnvironmentConfig() throws Exception {
         String environmentName = "foo-environment";
@@ -410,7 +410,7 @@ public class EnvironmentConfigServiceTest {
     }
 
     private List<JobPlan> jobs(String... envNames) {
-        ArrayList<JobPlan> plans = new ArrayList<JobPlan>();
+        ArrayList<JobPlan> plans = new ArrayList<>();
         for (String envName : envNames) {
             plans.add(jobForPipeline(envName + "-pipeline"));
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,6 @@ import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.StageIdentifier;
 import static com.thoughtworks.go.config.TestArtifactPlan.TEST_OUTPUT_FOLDER;
 import static com.thoughtworks.go.server.presentation.models.JobDetailPresentationModel.BASE_FILE_URL;
-import static com.thoughtworks.go.server.web.JsonRenderer.render;
 
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.server.service.ArtifactsService;

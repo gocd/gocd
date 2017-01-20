@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -89,7 +89,7 @@ public class ModificationTest {
 
     @Test
     public void shouldSerializeAndUnserializeAllAttributes() throws IOException, ClassNotFoundException {
-        HashMap<String, String> additionalData = new HashMap<String, String>();
+        HashMap<String, String> additionalData = new HashMap<>();
         additionalData.put("foo", "bar");
         Modification modification = new Modification("user", "comment", "foo@bar.com", new Date(), "pipe/1/stage/2", JsonHelper.toJsonString(additionalData));
         modification.setPipelineLabel("label-1");
@@ -116,7 +116,7 @@ public class ModificationTest {
     @Test
     public void shouldCopyConstructor() {
         Modification modification = new Modification("user", "comment", "foo@bar.com", new Date(), "pipe/1/stage/2");
-        Map<String, String> additionalData = new HashMap<String, String>();
+        Map<String, String> additionalData = new HashMap<>();
         additionalData.put("a1", "v1");
         additionalData.put("a2", "v2");
         modification.setAdditionalData(new Gson().toJson(additionalData));

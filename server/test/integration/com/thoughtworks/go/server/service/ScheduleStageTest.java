@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
@@ -66,7 +66,7 @@ public class ScheduleStageTest {
     @Autowired private StageDao stageDao;
     @Autowired private MaterialRepository materialRepository;
     @Autowired private TransactionTemplate transactionTemplate;
-    
+
     private PipelineWithMultipleStages fixture;
     private GoConfigFileHelper configHelper;
 
@@ -125,7 +125,7 @@ public class ScheduleStageTest {
         JobInstances jobInstances = stage.getJobInstances();
         assertThat(jobInstances.getByName(fixture.JOB_FOR_DEV_STAGE).getPlan().getVariables(), is(expectedVariableOrder));
     }
-    
+
      @Test
     public void shouldResolveEnvironmentVariablesForJobReRun() throws Exception {
         Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
@@ -317,7 +317,7 @@ public class ScheduleStageTest {
     @Test
     public void shouldNotScheduleAStageIfAnyStageForThatPipelineIsAlreadyRunning() throws Exception {
         fixture.createdPipelineWithAllStagesPassed();
-        final List<Exception> exceptions = new ArrayList<Exception>();
+        final List<Exception> exceptions = new ArrayList<>();
         Thread t1 = new Thread(rerunStage(exceptions, fixture.devStage));
         Thread t2 = new Thread(rerunStage(exceptions, fixture.ftStage));
 

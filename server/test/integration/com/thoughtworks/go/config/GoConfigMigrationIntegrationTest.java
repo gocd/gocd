@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,8 +68,6 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -282,7 +280,7 @@ public class GoConfigMigrationIntegrationTest {
 
     @Test
     public void shouldFailIfJobsWithSameNameButDifferentCasesExistInConfig() throws IOException {
-        final List<Exception> exs = new ArrayList<Exception>();
+        final List<Exception> exs = new ArrayList<>();
         GoConfigMigration upgrader = new GoConfigMigration(
                 new GoConfigMigration.UpgradeFailedHandler() {
                     public void handle(Exception e) {
@@ -461,7 +459,7 @@ public class GoConfigMigrationIntegrationTest {
 
     @Test
     public void shouldEncryptPasswordsOnUpgradeIfNecessary() throws IOException {
-        final List<Exception> exs = new ArrayList<Exception>();
+        final List<Exception> exs = new ArrayList<>();
         GoConfigMigration upgrader = new GoConfigMigration(
                 new GoConfigMigration.UpgradeFailedHandler() {
                     public void handle(Exception e) {
@@ -536,7 +534,7 @@ public class GoConfigMigrationIntegrationTest {
 
     @Test
     public void shouldAllowParamsInP4ServerAndPortField() throws IOException {
-        final List<Exception> exs = new ArrayList<Exception>();
+        final List<Exception> exs = new ArrayList<>();
         GoConfigMigration upgrader = new GoConfigMigration(
                 new GoConfigMigration.UpgradeFailedHandler() {
                     public void handle(Exception e) {
@@ -574,7 +572,7 @@ public class GoConfigMigrationIntegrationTest {
     @Test
     public void shouldIntroduceAWrapperTagForUsersOfRole() throws Exception {
 
-        final List<Exception> exs = new ArrayList<Exception>();
+        final List<Exception> exs = new ArrayList<>();
         GoConfigMigration upgrader = new GoConfigMigration(
                 new GoConfigMigration.UpgradeFailedHandler() {
                     public void handle(Exception e) {
@@ -1015,7 +1013,7 @@ public class GoConfigMigrationIntegrationTest {
 
         Tasks tasks = jobConfig.getTasks();
         assertThat(tasks.size(),is(1));
-        assertThat((PluggableTask) tasks.get(0), is(new PluggableTask(new PluginConfiguration("plugin-id", "1.0"), configuration)));
+        assertThat(tasks.get(0), is(new PluggableTask(new PluginConfiguration("plugin-id", "1.0"), configuration)));
     }
 
     @Test
@@ -1077,7 +1075,7 @@ public class GoConfigMigrationIntegrationTest {
         CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml, 72);
         Task task = migratedConfig.tasksForJob("Test", "Functional", "Functional").get(0);
         assertThat(task, is(instanceOf(ExecTask.class)));
-        assertThat((ExecTask) task, is(new ExecTask("c:\\program files\\cmd.exe", "arguments", (String) null)));
+        assertThat(task, is(new ExecTask("c:\\program files\\cmd.exe", "arguments", (String) null)));
     }
 
     @Test
@@ -1108,7 +1106,7 @@ public class GoConfigMigrationIntegrationTest {
         CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml, 72);
         Task task = migratedConfig.tasksForJob("Test", "Functional", "Functional").get(0);
         assertThat(task, is(instanceOf(ExecTask.class)));
-        assertThat((ExecTask) task, is(new ExecTask("c:\\program files\\cmd.exe", "arguments", (String) null)));
+        assertThat(task, is(new ExecTask("c:\\program files\\cmd.exe", "arguments", (String) null)));
     }
     @Test
     public void shouldNotRemoveNonEmptyUserTags_asPartOfMigration78() throws Exception {
@@ -1509,7 +1507,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     private String migrateXmlString(String content, int fromVersion, int toVersion) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        final List<Exception> exs = new ArrayList<Exception>();
+        final List<Exception> exs = new ArrayList<>();
         GoConfigMigration upgrader = new GoConfigMigration(
                 new GoConfigMigration.UpgradeFailedHandler() {
                     public void handle(Exception e) {

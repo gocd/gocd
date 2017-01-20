@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,7 +57,6 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import static com.thoughtworks.go.helper.ModificationsMother.checkinWithComment;
-import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -400,34 +399,34 @@ public class ChangesetServiceIntegrationTest {
         Username username = new Username(new CaseInsensitiveString("user1"));
 
         //By default the pmr's actualFromRevisionId should be the fromRevisionId
-        List<MaterialRevision> revisionsForUpstream1 = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisionsForUpstream1 = new ArrayList<>();
         addRevisionWith2Mods(revisionsForUpstream1, git);
         Pipeline upstream1 = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), upstreamPipeline, revisionsForUpstream1);
         assertPipelineMaterialRevisions(upstream1);
 
         //First downstream pipeline's actualFromRevisionId should also be it's fromRevisionId
-        List<MaterialRevision> revisionsForDownstream1 = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisionsForDownstream1 = new ArrayList<>();
         dbHelper.addDependencyRevisionModification(revisionsForDownstream1, dependencyMaterial, upstream1);
         Pipeline downstream1 = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), downstreamConfig, revisionsForDownstream1);
         assertPipelineMaterialRevisions(downstream1);
 
         // When downstream is triggered with a range of upstream modifications it's actualFromRevisionId should be 1 more than the last one that was built
-        List<MaterialRevision> revisionsForUpstream2 = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisionsForUpstream2 = new ArrayList<>();
         addRevisionWith2Mods(revisionsForUpstream2, git);
         Pipeline upstream2 = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), upstreamPipeline, revisionsForUpstream2);
         assertPipelineMaterialRevisions(upstream2);
 
-        List<MaterialRevision> revisionsForUpstream3 = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisionsForUpstream3 = new ArrayList<>();
         addRevisionWith2Mods(revisionsForUpstream3, git);
         Pipeline upstream3 = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), upstreamPipeline, revisionsForUpstream3);
         assertPipelineMaterialRevisions(upstream3);
 
-        List<MaterialRevision> revisionsForUpstream4 = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisionsForUpstream4 = new ArrayList<>();
         addRevisionWith2Mods(revisionsForUpstream4, git);
         Pipeline upstream4 = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), upstreamPipeline, revisionsForUpstream4);
         assertPipelineMaterialRevisions(upstream4);
 
-        List<MaterialRevision> depMaterialRevision = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> depMaterialRevision = new ArrayList<>();
         dbHelper.addDependencyRevisionModification(depMaterialRevision, dependencyMaterial, upstream2);
         Modification expectedMod = depMaterialRevision.get(0).getLatestModification();
         MaterialInstance dep = materialRepository.findOrCreateFrom(dependencyMaterial);
@@ -436,7 +435,7 @@ public class ChangesetServiceIntegrationTest {
         dbHelper.addDependencyRevisionModification(depMaterialRevision, dependencyMaterial, upstream3);
         saveRev(depMaterialRevision.get(0).getLatestModification(), dep);
 
-        List<MaterialRevision> revisionsForDownstream2 = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisionsForDownstream2 = new ArrayList<>();
         dbHelper.addDependencyRevisionModification(revisionsForDownstream2, dependencyMaterial, upstream4);
         Pipeline downstream2 = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), downstreamConfig, revisionsForDownstream2);
         List<PipelineMaterialRevision> pmrs = materialRepository.findPipelineMaterialRevisions(downstream2.getId());
@@ -462,7 +461,7 @@ public class ChangesetServiceIntegrationTest {
 
     @Test
     public void shouldReturnTheHgMaterialForAGivenPipeline() {
-        List<MaterialRevision> revisions = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisions = new ArrayList<>();
         addRevisionWith2Mods(revisions, hg);
 
         Username username = new Username(new CaseInsensitiveString("user1"));
@@ -478,7 +477,7 @@ public class ChangesetServiceIntegrationTest {
 
     @Test
     public void shouldReturnModsOf2MaterialsForAGivenPipeline() {
-        List<MaterialRevision> revisions = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisions = new ArrayList<>();
         addRevisionWith2Mods(revisions, hg);
         addRevisionWith2Mods(revisions, git);
 
@@ -495,14 +494,14 @@ public class ChangesetServiceIntegrationTest {
 
     @Test
     public void shouldReturnModsOf2MaterialsBetweenTheGivenPipelineCounters() {
-        List<MaterialRevision> revisionsForPipeline1 = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisionsForPipeline1 = new ArrayList<>();
         addRevisionWith2Mods(revisionsForPipeline1, hg);
         addRevisionWith2Mods(revisionsForPipeline1, git);
 
         Username username = new Username(new CaseInsensitiveString("user1"));
         Pipeline pipelineOne = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), pipelineConfigWithTwoMaterials, revisionsForPipeline1);
 
-        List<MaterialRevision> revisionsForPipeline2 = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisionsForPipeline2 = new ArrayList<>();
         addRevisionWith2Mods(revisionsForPipeline2, hg);
         addRevisionWith2Mods(revisionsForPipeline2, git);
 
@@ -528,12 +527,12 @@ public class ChangesetServiceIntegrationTest {
         Username username = new Username(new CaseInsensitiveString("user1"));
 
         //Schedule upstream
-        List<MaterialRevision> revisionsForUpstream1 = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisionsForUpstream1 = new ArrayList<>();
         addRevisionWith2Mods(revisionsForUpstream1, git);
         Pipeline upstreamOne = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), upstreamPipeline, revisionsForUpstream1);
 
         //Schedule downstream
-        List<MaterialRevision> revisionsForPipeline1 = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisionsForPipeline1 = new ArrayList<>();
         addRevisionWith2Mods(revisionsForPipeline1, hg);
         dbHelper.addDependencyRevisionModification(revisionsForPipeline1, dependencyMaterial, upstreamOne);
         Pipeline pipelineOne = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), pipelineConfigWithTwoMaterials, revisionsForPipeline1);
@@ -564,18 +563,18 @@ public class ChangesetServiceIntegrationTest {
         Username username = new Username(new CaseInsensitiveString("user1"));
 
         //Schedule grandfather
-        List<MaterialRevision> revisionsForGrandfather1 = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisionsForGrandfather1 = new ArrayList<>();
         addRevisionWith2Mods(revisionsForGrandfather1, svn);
         Pipeline grandFatherOne = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), grandFatherPipeline, revisionsForGrandfather1);
 
         //Schedule upstream
-        List<MaterialRevision> revisionsForUpstream1 = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisionsForUpstream1 = new ArrayList<>();
         addRevisionWith2Mods(revisionsForUpstream1, git);
         dbHelper.addDependencyRevisionModification(revisionsForUpstream1, parentDependencyMaterial, grandFatherOne);
         Pipeline upstreamOne = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), upstreamPipeline, revisionsForUpstream1);
 
         //Schedule downstream
-        List<MaterialRevision> revisionsForPipeline1 = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisionsForPipeline1 = new ArrayList<>();
         addRevisionWith2Mods(revisionsForPipeline1, hg);
         dbHelper.addDependencyRevisionModification(revisionsForPipeline1, dependencyMaterial, upstreamOne);
         Pipeline pipelineOne = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), pipelineConfigWithTwoMaterials, revisionsForPipeline1);
@@ -609,18 +608,18 @@ public class ChangesetServiceIntegrationTest {
         PipelineConfig downstream = configHelper.addPipeline("downstream", "stage", dependencyMaterial.config(), "job");
 
         //Schedule grandfather
-        List<MaterialRevision> revisionsForGrandfather1 = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisionsForGrandfather1 = new ArrayList<>();
         addRevisionWith2Mods(revisionsForGrandfather1, svn);
         Pipeline grandFatherOne = dbHelper.checkinRevisionsToBuild(new ManualBuild(user), grandFatherPipeline, revisionsForGrandfather1);
 
         //Schedule upstream
-        List<MaterialRevision> revisionsForUpstream1 = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisionsForUpstream1 = new ArrayList<>();
         addRevisionWith2Mods(revisionsForUpstream1, git);
         dbHelper.addDependencyRevisionModification(revisionsForUpstream1, parentDependencyMaterial, grandFatherOne);
         Pipeline upstreamOne = dbHelper.checkinRevisionsToBuild(new ManualBuild(user), upstreamPipeline, revisionsForUpstream1);
 
         //Schedule downstream
-        List<MaterialRevision> revisionsForDownstream = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisionsForDownstream = new ArrayList<>();
         dbHelper.addDependencyRevisionModification(revisionsForDownstream, dependencyMaterial, upstreamOne);
         Pipeline pipelineDownstream = dbHelper.checkinRevisionsToBuild(new ManualBuild(user), downstream, revisionsForDownstream);
 
@@ -647,18 +646,18 @@ public class ChangesetServiceIntegrationTest {
         PipelineConfig downstream = configHelper.addPipeline("downstream", "stage", dependencyMaterial.config(), new MingleConfig("https://downstream-mingle", "go"), "job");
 
         //Schedule grandfather
-        List<MaterialRevision> revisionsForGrandfather1 = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisionsForGrandfather1 = new ArrayList<>();
         addRevisionWith2Mods(revisionsForGrandfather1, svn);
         Pipeline grandFatherOne = dbHelper.checkinRevisionsToBuild(new ManualBuild(user), grandFatherPipeline, revisionsForGrandfather1);
 
         //Schedule upstream
-        List<MaterialRevision> revisionsForUpstream1 = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisionsForUpstream1 = new ArrayList<>();
         addRevisionWith2Mods(revisionsForUpstream1, git);
         dbHelper.addDependencyRevisionModification(revisionsForUpstream1, parentDependencyMaterial, grandFatherOne);
         Pipeline upstreamOne = dbHelper.checkinRevisionsToBuild(new ManualBuild(user), upstreamPipeline, revisionsForUpstream1);
 
         //Schedule downstream
-        List<MaterialRevision> revisionsForDownstream = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisionsForDownstream = new ArrayList<>();
         dbHelper.addDependencyRevisionModification(revisionsForDownstream, dependencyMaterial, upstreamOne);
         Pipeline pipelineDownstream = dbHelper.checkinRevisionsToBuild(new ManualBuild(user), downstream, revisionsForDownstream);
 
@@ -685,18 +684,18 @@ public class ChangesetServiceIntegrationTest {
         PipelineConfig downstream = configHelper.addPipeline("downstream", "stage", dependencyMaterial.config(), new TrackingTool("http://mingle/${ID}", "another-regex"), "job");
 
         //Schedule grandfather
-        List<MaterialRevision> revisionsForGrandfather1 = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisionsForGrandfather1 = new ArrayList<>();
         addRevisionWith2Mods(revisionsForGrandfather1, svn);
         Pipeline grandFatherOne = dbHelper.checkinRevisionsToBuild(new ManualBuild(user), grandFatherPipeline, revisionsForGrandfather1);
 
         //Schedule upstream
-        List<MaterialRevision> revisionsForUpstream1 = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisionsForUpstream1 = new ArrayList<>();
         addRevisionWith2Mods(revisionsForUpstream1, git);
         dbHelper.addDependencyRevisionModification(revisionsForUpstream1, parentDependencyMaterial, grandFatherOne);
         Pipeline upstreamOne = dbHelper.checkinRevisionsToBuild(new ManualBuild(user), upstreamPipeline, revisionsForUpstream1);
 
         //Schedule downstream
-        List<MaterialRevision> revisionsForDownstream = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisionsForDownstream = new ArrayList<>();
         dbHelper.addDependencyRevisionModification(revisionsForDownstream, dependencyMaterial, upstreamOne);
         Pipeline pipelineDownstream = dbHelper.checkinRevisionsToBuild(new ManualBuild(user), downstream, revisionsForDownstream);
 
@@ -725,43 +724,43 @@ public class ChangesetServiceIntegrationTest {
         Username username = new Username(new CaseInsensitiveString("user1"));
 
         //Schedule first of upstream
-        List<MaterialRevision> revisionsForUpstream1 = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisionsForUpstream1 = new ArrayList<>();
         addRevisionWith2Mods(revisionsForUpstream1, git);
         Pipeline upstreamOne = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), upstreamPipeline, revisionsForUpstream1);
 
         //Schedule downstream
-        List<MaterialRevision> revisionsForDownstream1 = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisionsForDownstream1 = new ArrayList<>();
         addRevisionWith2Mods(revisionsForDownstream1, hg);
         dbHelper.addDependencyRevisionModification(revisionsForDownstream1, dependencyMaterial, upstreamOne);
         Pipeline downstreamOne = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), pipelineConfigWithTwoMaterials, revisionsForDownstream1);
 
         //Schedule second upstream
-        List<MaterialRevision> revisionsForUpstream2 = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisionsForUpstream2 = new ArrayList<>();
         addRevisionWith2Mods(revisionsForUpstream2, git);
         Pipeline upstreamTwo = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), upstreamPipeline, revisionsForUpstream2);
 
         //Schedule second downstream
-        List<MaterialRevision> revisionsForDownstream2 = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisionsForDownstream2 = new ArrayList<>();
         addRevisionWith2Mods(revisionsForDownstream2, hg);
         dbHelper.addDependencyRevisionModification(revisionsForDownstream2, dependencyMaterial, upstreamTwo);
         Pipeline downstreamTwo = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), pipelineConfigWithTwoMaterials, revisionsForDownstream2);
 
         //Schedule multiple upstream, but no corresponding downstream, because upstream stage failed(may be?)
-        List<MaterialRevision> revisionsForUpstream3 = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisionsForUpstream3 = new ArrayList<>();
         addRevisionWith2Mods(revisionsForUpstream3, git);
         Pipeline upstreamThree = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), upstreamPipeline, revisionsForUpstream3);
 
-        List<MaterialRevision> revisionsForUpstream4 = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisionsForUpstream4 = new ArrayList<>();
         addRevisionWith2Mods(revisionsForUpstream4, git);
         Pipeline upstreamFour = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), upstreamPipeline, revisionsForUpstream4);
 
         //Schedule upstream again(upstream stage starts passing once again)
-        List<MaterialRevision> revisionsForUpstream5 = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisionsForUpstream5 = new ArrayList<>();
         addRevisionWith2Mods(revisionsForUpstream5, git);
         Pipeline upstreamFive = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), upstreamPipeline, revisionsForUpstream5);
 
         //Schedule downstream for comparision
-        List<MaterialRevision> revisionsForDownstream3 = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisionsForDownstream3 = new ArrayList<>();
         addRevisionWith2Mods(revisionsForDownstream3, hg);
         dbHelper.addDependencyRevisionModification(revisionsForDownstream3, dependencyMaterial, upstreamFive);
         Pipeline downstreamThree = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), pipelineConfigWithTwoMaterials, revisionsForDownstream3);
@@ -786,18 +785,18 @@ public class ChangesetServiceIntegrationTest {
         Username username = new Username(new CaseInsensitiveString("user1"));
 
         //Schedule first of upstream
-        List<MaterialRevision> revisionsForUpstream1 = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisionsForUpstream1 = new ArrayList<>();
         addRevisionWith2Mods(revisionsForUpstream1, git);
         Pipeline upstreamOne = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), upstreamPipeline, revisionsForUpstream1);
 
         //Schedule downstream
-        List<MaterialRevision> revisionsForDownstream1 = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisionsForDownstream1 = new ArrayList<>();
         addRevisionWith2Mods(revisionsForDownstream1, hg);
         dbHelper.addDependencyRevisionModification(revisionsForDownstream1, dependencyMaterial, upstreamOne);
         Pipeline downstreamOne = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), pipelineConfigWithTwoMaterials, revisionsForDownstream1);
 
         //Schedule second upstream
-        List<MaterialRevision> revisionsForUpstream2 = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisionsForUpstream2 = new ArrayList<>();
         addRevisionWith2Mods(revisionsForUpstream2, git);
         List<MaterialRevision> expectedGitRevision = revisionsForUpstream2;
         Pipeline upstreamTwo = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), upstreamPipeline, revisionsForUpstream2);
@@ -826,32 +825,32 @@ public class ChangesetServiceIntegrationTest {
         Username username = new Username(new CaseInsensitiveString("user1"));
 
         //Schedule first of upstream
-        List<MaterialRevision> revisionsForUpstream1 = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisionsForUpstream1 = new ArrayList<>();
         addRevisionWith2Mods(revisionsForUpstream1, git);
         Pipeline upstreamOne = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), upstreamPipeline, revisionsForUpstream1);
 
         //Schedule downstream
-        List<MaterialRevision> revisionsForDownstream1 = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisionsForDownstream1 = new ArrayList<>();
         addRevisionWith2Mods(revisionsForDownstream1, hg);
         dbHelper.addDependencyRevisionModification(revisionsForDownstream1, dependencyMaterial, upstreamOne);
         Pipeline downstreamOne = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), pipelineConfigWithTwoMaterials, revisionsForDownstream1);
 
         //Schedule multiple upstream, but no corresponding downstream, because upstream stage failed(may be?)
-        List<MaterialRevision> revisionsForUpstream2 = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisionsForUpstream2 = new ArrayList<>();
         addRevisionWith2Mods(revisionsForUpstream2, git);
         Pipeline upstreamTwo = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), upstreamPipeline, revisionsForUpstream2);
 
-        List<MaterialRevision> revisionsForUpstream3 = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisionsForUpstream3 = new ArrayList<>();
         addRevisionWith2Mods(revisionsForUpstream3, git);
         Pipeline upstreamThree = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), upstreamPipeline, revisionsForUpstream3);
 
         //Schedule upstream again(upstream stage starts passing once again)
-        List<MaterialRevision> revisionsForUpstream4 = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisionsForUpstream4 = new ArrayList<>();
         addRevisionWith2Mods(revisionsForUpstream4, git);
         Pipeline upstreamFour = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), upstreamPipeline, revisionsForUpstream4);
 
         //Schedule downstream for comparision
-        List<MaterialRevision> revisionsForDownstream2 = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisionsForDownstream2 = new ArrayList<>();
         addRevisionWith2Mods(revisionsForDownstream2, hg);
         dbHelper.addDependencyRevisionModification(revisionsForDownstream2, dependencyMaterial, upstreamFour);
         Pipeline downstreamTwo = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), pipelineConfigWithTwoMaterials, revisionsForDownstream2);
@@ -884,31 +883,31 @@ public class ChangesetServiceIntegrationTest {
         Username username = new Username(new CaseInsensitiveString("user1"));
 
         //Schedule first of upstream
-        List<MaterialRevision> revisionsForUpstream1 = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisionsForUpstream1 = new ArrayList<>();
         addRevisionWith2Mods(revisionsForUpstream1, git);
         Pipeline upstreamOne = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), upstreamPipeline, revisionsForUpstream1);
 
         //Schedule downstream
-        List<MaterialRevision> revisionsForDownstream1 = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisionsForDownstream1 = new ArrayList<>();
         addRevisionWith2Mods(revisionsForDownstream1, hg);
         dbHelper.addDependencyRevisionModification(revisionsForDownstream1, dependencyMaterial, upstreamOne);
         Pipeline downstreamOne = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), pipelineConfigWithTwoMaterials, revisionsForDownstream1);
 
         //Schedule multiple upstreams
-        List<MaterialRevision> revisionsForUpstream2 = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisionsForUpstream2 = new ArrayList<>();
         addRevisionWith2Mods(revisionsForUpstream2, git);
         Pipeline upstreamTwo = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), upstreamPipeline, revisionsForUpstream2);
 
-        List<MaterialRevision> revisionsForUpstream3 = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisionsForUpstream3 = new ArrayList<>();
         addRevisionWith2Mods(revisionsForUpstream3, git);
         Pipeline upstreamThree = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), upstreamPipeline, revisionsForUpstream3);
 
-        List<MaterialRevision> revisionsForUpstream4 = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisionsForUpstream4 = new ArrayList<>();
         addRevisionWith2Mods(revisionsForUpstream4, git);
         Pipeline upstreamFour = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), upstreamPipeline, revisionsForUpstream4);
 
         //Schedule downstream
-        List<MaterialRevision> revisionsForDownstream2 = new ArrayList<MaterialRevision>();
+        List<MaterialRevision> revisionsForDownstream2 = new ArrayList<>();
         addRevisionWith2Mods(revisionsForDownstream2, hg);
         dbHelper.addDependencyRevisionModification(revisionsForDownstream2, dependencyMaterial, upstreamFour, upstreamThree, upstreamTwo);
         Pipeline downstreamTwo = dbHelper.checkinRevisionsToBuild(new ManualBuild(username), pipelineConfigWithTwoMaterials, revisionsForDownstream2);
@@ -963,7 +962,7 @@ public class ChangesetServiceIntegrationTest {
             for (MaterialRevision materialRevision : materialRevisions) {
                 MaterialRevision revision = grouped.findRevisionFor(materialRevision.getMaterial());
                 if (revision == null) {
-                    revision = new MaterialRevision(materialRevision.getMaterial(), new ArrayList<Modification>());
+                    revision = new MaterialRevision(materialRevision.getMaterial(), new ArrayList<>());
                     grouped.addRevision(revision);
                 }
                 revision.addModifications(materialRevision.getModifications());
@@ -995,7 +994,7 @@ public class ChangesetServiceIntegrationTest {
     }
 
     private List<String> stringRevisions(List<MaterialRevision> revisionList) {
-        List<String> stringRevisions = new ArrayList<String>();
+        List<String> stringRevisions = new ArrayList<>();
         for (MaterialRevision revision : revisionList) {
             for (Modification mod : revision.getModifications()) {
                 stringRevisions.add(mod.getRevision());

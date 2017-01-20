@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -422,9 +422,9 @@ public class HgMaterialTest {
         HgMaterial material = new HgMaterial("http://username:password@hgrepo.com", null);
         Map<String, Object> attributes = material.getAttributes(true);
 
-        assertThat((String) attributes.get("type"), is("mercurial"));
+        assertThat(attributes.get("type"), is("mercurial"));
         Map<String, Object> configuration = (Map<String, Object>) attributes.get("mercurial-configuration");
-        assertThat((String) configuration.get("url"), is("http://username:password@hgrepo.com"));
+        assertThat(configuration.get("url"), is("http://username:password@hgrepo.com"));
     }
 
     @Test
@@ -432,8 +432,8 @@ public class HgMaterialTest {
         HgMaterial material = new HgMaterial("http://username:password@hgrepo.com", null);
         Map<String, Object> attributes = material.getAttributes(false);
 
-        assertThat((String) attributes.get("type"), is("mercurial"));
+        assertThat(attributes.get("type"), is("mercurial"));
         Map<String, Object> configuration = (Map<String, Object>) attributes.get("mercurial-configuration");
-        assertThat((String) configuration.get("url"), is("http://username:******@hgrepo.com"));
+        assertThat(configuration.get("url"), is("http://username:******@hgrepo.com"));
     }
 }

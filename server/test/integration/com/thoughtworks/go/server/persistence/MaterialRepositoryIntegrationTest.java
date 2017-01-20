@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,6 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother;
 import com.thoughtworks.go.domain.scm.SCMMother;
 import com.thoughtworks.go.helper.*;
-import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
@@ -289,14 +288,14 @@ public class MaterialRepositoryIntegrationTest {
 
         HibernateTemplate mockTemplate = mock(HibernateTemplate.class);
         repo.setHibernateTemplate(mockTemplate);
-        when(mockTemplate.execute((HibernateCallback) any())).thenReturn(mod);
+        when(mockTemplate.execute(any())).thenReturn(mod);
 
         repo.findLatestModification(materialInstance);
 
         Modification modification = repo.findLatestModification(materialInstance);
         assertSame(mod, modification);
 
-        verify(mockTemplate, times(1)).execute((HibernateCallback) any());
+        verify(mockTemplate, times(1)).execute(any());
 
     }
 
@@ -364,7 +363,7 @@ public class MaterialRepositoryIntegrationTest {
         };
 
         repo.setHibernateTemplate(mockTemplate);
-        List<Thread> threads = new ArrayList<Thread>();
+        List<Thread> threads = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             Thread thread = new Thread(new Runnable() {
                 public void run() {
@@ -429,7 +428,7 @@ public class MaterialRepositoryIntegrationTest {
 
         Material restored = loaded.toOldMaterial(null, null, null);
 
-        assertThat((P4Material) restored, is(p4Material));
+        assertThat(restored, is(p4Material));
     }
 
     @Test
@@ -1121,11 +1120,11 @@ public class MaterialRepositoryIntegrationTest {
         List<Modification> modifications = repo.modificationFor(stageIdentifier);
         assertThat(modifications.size(), is(1));
         assertThat(modifications.get(0).getRevision(), is("P1/2/S1/1"));
-        assertThat((List<Modification>) goCache.get(repo.cacheKeyForModificationsForStageLocator(stageIdentifier)), is(modifications));
+        assertThat(goCache.get(repo.cacheKeyForModificationsForStageLocator(stageIdentifier)), is(modifications));
 
         StageIdentifier p2_s1_stageId = new StageIdentifier("P2", 1, "S1", "1");
         List<Modification> mod_p2_s1 = repo.modificationFor(p2_s1_stageId);
-        assertThat((List<Modification>) goCache.get(repo.cacheKeyForModificationsForStageLocator(p2_s1_stageId)), is(mod_p2_s1));
+        assertThat(goCache.get(repo.cacheKeyForModificationsForStageLocator(p2_s1_stageId)), is(mod_p2_s1));
         StageIdentifier p2_s1_3 = new StageIdentifier("P2", 1, "S1", "3");
         assertThat(repo.modificationFor(p2_s1_3).isEmpty(), is(true));
         assertThat(goCache.get(repo.cacheKeyForModificationsForStageLocator(p2_s1_3)), is(nullValue()));
@@ -1266,7 +1265,7 @@ public class MaterialRepositoryIntegrationTest {
         goCache.put(key, subKey, new Modifications(new Modification()));
         transactionTemplate.execute(new TransactionCallback() {
             public Object doInTransaction(TransactionStatus status) {
-                repo.saveModifications(materialInstance, new ArrayList<Modification>());
+                repo.saveModifications(materialInstance, new ArrayList<>());
                 return null;
             }
         });
@@ -1382,7 +1381,7 @@ public class MaterialRepositoryIntegrationTest {
 
         String label = pipeline.getLabel();
 
-        ArrayList<Modification> mods = new ArrayList<Modification>();
+        ArrayList<Modification> mods = new ArrayList<>();
         for (int i = 0; i < dmrStageCounters.length; i++) {
             int dmrStageCounter = dmrStageCounters[i];
             StageIdentifier stageIdentifier = new StageIdentifier(pipeline.getIdentifier(), CaseInsensitiveString.str(stageName), String.valueOf(dmrStageCounter));

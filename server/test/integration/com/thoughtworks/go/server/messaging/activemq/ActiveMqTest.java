@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -131,7 +131,7 @@ public class ActiveMqTest implements GoMessageListener {
     }
 
     private class FastListener implements GoMessageListener<GoTextMessage> {
-        public List<GoTextMessage> receivedMessages = new ArrayList<GoTextMessage>();
+        public List<GoTextMessage> receivedMessages = new ArrayList<>();
 
         public void onMessage(GoTextMessage message) {
             receivedMessages.add(message);

@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.materials;
 
@@ -76,10 +76,10 @@ public class MaterialDatabaseUpdaterTest {
 
     @Test
     public void shouldGetCorrectUpdaterForMaterials() throws Exception {
-        assertThat(materialDatabaseUpdater.updater(MaterialsMother.dependencyMaterial()), is((MaterialUpdater) dependencyMaterialUpdater));
-        assertThat(materialDatabaseUpdater.updater(MaterialsMother.svnMaterial()), is((MaterialUpdater) scmMaterialUpdater));
-        assertThat(materialDatabaseUpdater.updater(MaterialsMother.packageMaterial()), is((MaterialUpdater) packageMaterialUpdater));
-        assertThat(materialDatabaseUpdater.updater(MaterialsMother.pluggableSCMMaterial()), is((MaterialUpdater) pluggableSCMMaterialUpdater));
+        assertThat(materialDatabaseUpdater.updater(MaterialsMother.dependencyMaterial()), is(dependencyMaterialUpdater));
+        assertThat(materialDatabaseUpdater.updater(MaterialsMother.svnMaterial()), is(scmMaterialUpdater));
+        assertThat(materialDatabaseUpdater.updater(MaterialsMother.packageMaterial()), is(packageMaterialUpdater));
+        assertThat(materialDatabaseUpdater.updater(MaterialsMother.pluggableSCMMaterial()), is(pluggableSCMMaterialUpdater));
     }
 
     @Test

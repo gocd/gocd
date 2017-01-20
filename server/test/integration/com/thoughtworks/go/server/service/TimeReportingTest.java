@@ -16,9 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
@@ -26,14 +24,12 @@ import com.thoughtworks.go.config.update.ConfigUpdateResponse;
 import com.thoughtworks.go.config.update.UpdateConfigFromUI;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
-import com.thoughtworks.go.server.domain.user.PipelineSelections;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.TimeReportingUtil;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,18 +1,17 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package com.thoughtworks.go.config.materials.scm;
@@ -91,8 +90,8 @@ public class PluggableSCMMaterialTest {
         material.setSCMConfig(scmConfig);
 
         Map<String, Object> criteria = material.getSqlCriteria();
-        assertThat((String) criteria.get("type"), is(PluggableSCMMaterial.class.getSimpleName()));
-        assertThat((String) criteria.get("fingerprint"), is(material.getFingerprint()));
+        assertThat(criteria.get("type"), is(PluggableSCMMaterial.class.getSimpleName()));
+        assertThat(criteria.get("fingerprint"), is(material.getFingerprint()));
     }
 
     @Test
@@ -264,7 +263,7 @@ public class PluggableSCMMaterialTest {
         PluggableSCMMaterial material = new PluggableSCMMaterial();
         material.setSCMConfig(scmConfig);
         material.setName(new CaseInsensitiveString("tw-dev:go-agent"));
-        HashMap<String, String> map = new HashMap<String, String>();
+        HashMap<String, String> map = new HashMap<>();
         map.put("MY_NEW_KEY", "my_value");
         Modification modification = new Modification("loser", "comment", "email", new Date(), "revision-123", JsonHelper.toJsonString(map));
         Modifications modifications = new Modifications(modification);
@@ -286,7 +285,7 @@ public class PluggableSCMMaterialTest {
         PluggableSCMMaterial material = new PluggableSCMMaterial();
         material.setSCMConfig(scmConfig);
         material.setName(new CaseInsensitiveString("tw-dev:go-agent"));
-        HashMap<String, String> map = new HashMap<String, String>();
+        HashMap<String, String> map = new HashMap<>();
         map.put("ADDITIONAL_DATA_ONE", "foobar:!secure_value:with_special_chars");
         map.put("ADDITIONAL_DATA_URL_ENCODED", "something:%21secure_value%3Awith_special_chars");
         map.put("ADDITIONAL_DATA_TWO", "foobar:secure_value_with_regular_chars");
@@ -449,11 +448,11 @@ public class PluggableSCMMaterialTest {
         PluggableSCMMaterial material = createPluggableSCMMaterialWithSecureConfiguration();
         Map<String, Object> attributes = material.getAttributes(true);
 
-        assertThat((String) attributes.get("type"), is("scm"));
-        assertThat((String) attributes.get("plugin-id"), is("pluginid"));
+        assertThat(attributes.get("type"), is("scm"));
+        assertThat(attributes.get("plugin-id"), is("pluginid"));
         Map<String, Object> configuration = (Map<String, Object>) attributes.get("scm-configuration");
-        assertThat((String) configuration.get("k1"), is("v1"));
-        assertThat((String) configuration.get("k2"), is("v2"));
+        assertThat(configuration.get("k1"), is("v1"));
+        assertThat(configuration.get("k2"), is("v2"));
     }
 
     @Test
@@ -461,10 +460,10 @@ public class PluggableSCMMaterialTest {
         PluggableSCMMaterial material = createPluggableSCMMaterialWithSecureConfiguration();
         Map<String, Object> attributes = material.getAttributes(false);
 
-        assertThat((String) attributes.get("type"), is("scm"));
-        assertThat((String) attributes.get("plugin-id"), is("pluginid"));
+        assertThat(attributes.get("type"), is("scm"));
+        assertThat(attributes.get("plugin-id"), is("pluginid"));
         Map<String, Object> configuration = (Map<String, Object>) attributes.get("scm-configuration");
-        assertThat((String) configuration.get("k1"), is("v1"));
+        assertThat(configuration.get("k1"), is("v1"));
         assertThat(configuration.get("k2"), is(nullValue()));
     }
 

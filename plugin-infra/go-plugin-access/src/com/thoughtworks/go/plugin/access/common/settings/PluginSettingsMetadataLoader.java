@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,12 @@
 
 package com.thoughtworks.go.plugin.access.common.settings;
 
-import com.thoughtworks.go.plugin.access.authentication.AuthenticationExtension;
-import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
-import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
-import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.JsonBasedTaskExtension;
-import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
-import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.infra.PluginChangeListener;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.access.BootstrapException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

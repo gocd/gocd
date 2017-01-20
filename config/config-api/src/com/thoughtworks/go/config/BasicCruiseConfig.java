@@ -122,7 +122,7 @@ public class BasicCruiseConfig implements CruiseConfig {
     private void resetAllPipelineConfigsCache() {
         allPipelineConfigs = null;
         //TODO temporary to check if this causes #1901
-        pipelineNameToConfigMap = new ConcurrentHashMap<CaseInsensitiveString, PipelineConfig>();
+        pipelineNameToConfigMap = new ConcurrentHashMap<>();
     }
 
     private void createMergedConfig(BasicCruiseConfig main, List<PartialConfig> partList,boolean forEdit) {
@@ -232,7 +232,7 @@ public class BasicCruiseConfig implements CruiseConfig {
         //@IgnoreTraversal
         //private BasicCruiseConfig main; // this might be causing cloning troubles
         private boolean forEdit;
-        private List<PartialConfig> parts = new ArrayList<PartialConfig>();
+        private List<PartialConfig> parts = new ArrayList<>();
 
         public MergeStrategy(List<PartialConfig> parts,boolean forEdit) {
             this.forEdit = forEdit;
@@ -259,7 +259,7 @@ public class BasicCruiseConfig implements CruiseConfig {
             for (EnvironmentConfig env : allEnvConfigs) {
                 CaseInsensitiveString key = env.name();
                 if (map.get(key) == null) {
-                    map.put(key, new ArrayList<EnvironmentConfig>());
+                    map.put(key, new ArrayList<>());
                 }
                 map.get(key).add(env);
             }
@@ -326,7 +326,7 @@ public class BasicCruiseConfig implements CruiseConfig {
             for (PipelineConfigs pipes : allPipelineConfigs) {
                 String key = pipes.getGroup();
                 if (map.get(key) == null) {
-                    map.put(key, new ArrayList<PipelineConfigs>());
+                    map.put(key, new ArrayList<>());
                 }
                 map.get(key).add(pipes);
             }
@@ -450,7 +450,7 @@ public class BasicCruiseConfig implements CruiseConfig {
             BasicCruiseConfig configForValidation = cloner.deepClone(BasicCruiseConfig.this);
             // and this must be initialized again, we don't want _same_ instances in groups and in allPipelineConfigs
             configForValidation.allPipelineConfigs = null;
-            configForValidation.pipelineNameToConfigMap = new ConcurrentHashMap<CaseInsensitiveString, PipelineConfig>();
+            configForValidation.pipelineNameToConfigMap = new ConcurrentHashMap<>();
             return configForValidation;
         }
     }
@@ -681,8 +681,8 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public Set<MaterialConfig> getAllUniquePostCommitSchedulableMaterials() {
-        Set<MaterialConfig> materialConfigs = new HashSet<MaterialConfig>();
-        Set<String> uniqueMaterials = new HashSet<String>();
+        Set<MaterialConfig> materialConfigs = new HashSet<>();
+        Set<String> uniqueMaterials = new HashSet<>();
         for (PipelineConfigs pipelineConfigs : this.groups) {
             for (PipelineConfig pipelineConfig : pipelineConfigs) {
                 for (MaterialConfig materialConfig : pipelineConfig.materialConfigs()) {
@@ -1254,14 +1254,14 @@ public class BasicCruiseConfig implements CruiseConfig {
         for (PipelineConfig currentPipeline : pipelineConfigs) {
             String currentPipelineName = currentPipeline.name().toString();
             if (!result.containsKey(currentPipelineName)) {
-                result.put(currentPipelineName, new ArrayList<PipelineConfig>());
+                result.put(currentPipelineName, new ArrayList<>());
             }
 
             for (MaterialConfig materialConfig : currentPipeline.materialConfigs()) {
                 if (materialConfig instanceof DependencyMaterialConfig) {
                     String pipelineWhichTriggersMe = ((DependencyMaterialConfig) materialConfig).getPipelineName().toString();
                     if (!result.containsKey(pipelineWhichTriggersMe)) {
-                        result.put(pipelineWhichTriggersMe, new ArrayList<PipelineConfig>());
+                        result.put(pipelineWhichTriggersMe, new ArrayList<>());
                     }
                     result.get(pipelineWhichTriggersMe).add(currentPipeline);
                 }
@@ -1283,7 +1283,7 @@ public class BasicCruiseConfig implements CruiseConfig {
         HashMap<CaseInsensitiveString, List<CaseInsensitiveString>> templateToPipelines = new HashMap<>();
         for (PipelineTemplateConfig template : getTemplates()) {
             if (isAdministrator(username) || template.getAuthorization().getAdminsConfig().isAdmin(new AdminUser(new CaseInsensitiveString(username)), roles)) {
-                templateToPipelines.put(template.name(), new ArrayList<CaseInsensitiveString>());
+                templateToPipelines.put(template.name(), new ArrayList<>());
             }
         }
         for (PipelineConfig pipelineConfig : getAllPipelineConfigs()) {

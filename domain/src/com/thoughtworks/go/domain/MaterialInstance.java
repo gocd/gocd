@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -165,7 +165,7 @@ public abstract class MaterialInstance extends PersistentObject {
     }
 
     public Map<String, String> getAdditionalDataMap() {
-        return additionalDataMap == null ? new HashMap<String, String>() : additionalDataMap;
+        return additionalDataMap == null ? new HashMap<>() : additionalDataMap;
     }
 
     public boolean requiresUpdate(Map<String, String> additionalDataMap) {

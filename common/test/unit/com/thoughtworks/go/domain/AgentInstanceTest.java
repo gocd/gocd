@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -472,7 +472,7 @@ public class AgentInstanceTest {
     @Test public void shouldReturnNullWhenNoMatchingJobs() throws Exception {
         AgentInstance agentInstance = new AgentInstance(agentConfig("linux, mercurial"), LOCAL, systemEnvironment);
 
-        JobPlan matchingJob = agentInstance.firstMatching(new ArrayList<JobPlan>());
+        JobPlan matchingJob = agentInstance.firstMatching(new ArrayList<>());
         assertThat(matchingJob, is(nullValue()));
     }
 
@@ -555,7 +555,7 @@ public class AgentInstanceTest {
         AgentInstance agentInstance = new AgentInstance(agentConfig, REMOTE, mock(SystemEnvironment.class));
         DefaultJobPlan jobPlan1 = new DefaultJobPlan();
         jobPlan1.setElasticProfile(new ElasticProfile("foo", elasticPluginId));
-        List<JobPlan> jobPlans = asList(jobPlan1, (JobPlan)new DefaultJobPlan());
+        List<JobPlan> jobPlans = asList(jobPlan1, new DefaultJobPlan());
 
         assertThat(agentInstance.firstMatching(jobPlans), Is.<JobPlan>is(jobPlan1));
     }
@@ -569,7 +569,7 @@ public class AgentInstanceTest {
         AgentInstance agentInstance = new AgentInstance(agentConfig, REMOTE, mock(SystemEnvironment.class));
         DefaultJobPlan jobPlan1 = new DefaultJobPlan();
         jobPlan1.setElasticProfile(new ElasticProfile("foo", "elastic-plugin-id-2"));
-        List<JobPlan> jobPlans = asList(jobPlan1, (JobPlan)new DefaultJobPlan());
+        List<JobPlan> jobPlans = asList(jobPlan1, new DefaultJobPlan());
 
         assertThat(agentInstance.firstMatching(jobPlans), is(nullValue()));
     }
@@ -583,7 +583,7 @@ public class AgentInstanceTest {
         AgentInstance agentInstance = new AgentInstance(agentConfig, REMOTE, mock(SystemEnvironment.class));
         DefaultJobPlan jobPlan1 = new DefaultJobPlan();
         jobPlan1.setResources(asList(new Resource("r1")));
-        List<JobPlan> jobPlans = asList(jobPlan1, (JobPlan)new DefaultJobPlan());
+        List<JobPlan> jobPlans = asList(jobPlan1, new DefaultJobPlan());
 
         assertThat(agentInstance.firstMatching(jobPlans), is(nullValue()));
     }
@@ -604,7 +604,7 @@ public class AgentInstanceTest {
     }
 
     private List<JobPlan> jobPlans(String... resources) {
-        ArrayList<JobPlan> plans = new ArrayList<JobPlan>();
+        ArrayList<JobPlan> plans = new ArrayList<>();
         int count = 1;
         for (String resource : resources) {
             plans.add(jobPlan("pipeline" + count, "job" + count, resource, null));

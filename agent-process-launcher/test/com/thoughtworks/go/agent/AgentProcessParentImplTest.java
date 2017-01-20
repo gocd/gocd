@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,7 +90,7 @@ public class AgentProcessParentImplTest {
         String expectedAgentPluginsMd5 = TEST_AGENT_PLUGINS.getMd5();
         String expectedTfsMd5 = TEST_TFS_IMPL.getMd5();
         AgentProcessParentImpl bootstrapper = createBootstrapper(cmd);
-        int returnCode = bootstrapper.run("launcher_version", "bar", getURLGenerator(), new HashMap<String, String>(), context());
+        int returnCode = bootstrapper.run("launcher_version", "bar", getURLGenerator(), new HashMap<>(), context());
         assertThat(returnCode, is(42));
         assertThat(cmd.toArray(new String[]{}), equalTo(new String[]{
                 (getProperty("java.home") + getProperty("file.separator") + "bin" + getProperty("file.separator") + "java"),
@@ -183,7 +183,7 @@ public class AgentProcessParentImplTest {
             Process subProcess = mockProcess();
             when(subProcess.waitFor()).thenThrow(new InterruptedException("bang bang!"));
             AgentProcessParentImpl bootstrapper = createBootstrapper(cmd, subProcess);
-            int returnCode = bootstrapper.run("bootstrapper_version", "bar", getURLGenerator(), new HashMap<String, String>(), context());
+            int returnCode = bootstrapper.run("bootstrapper_version", "bar", getURLGenerator(), new HashMap<>(), context());
             assertThat(returnCode, is(0));
             assertThat(logFixture.contains(Level.ERROR, "Agent was interrupted. Terminating agent and respawning. java.lang.InterruptedException: bang bang!"), is(true));
             verify(subProcess).destroy();
@@ -204,7 +204,7 @@ public class AgentProcessParentImplTest {
             }
         });
         AgentProcessParentImpl bootstrapper = createBootstrapper(cmd, subProcess);
-        int returnCode = bootstrapper.run("bootstrapper_version", "bar", getURLGenerator(), new HashMap<String, String>(), context());
+        int returnCode = bootstrapper.run("bootstrapper_version", "bar", getURLGenerator(), new HashMap<>(), context());
         assertThat(returnCode, is(42));
         assertThat(FileUtils.readFileToString(stderrLog).contains(stdErrMsg), is(true));
         assertThat(FileUtils.readFileToString(stdoutLog).contains(stdOutMsg), is(true));
@@ -222,7 +222,7 @@ public class AgentProcessParentImplTest {
                     throw new RuntimeException("something failed!");
                 }
             };
-            int returnCode = bootstrapper.run("bootstrapper_version", "bar", getURLGenerator(), new HashMap<String, String>(), context());
+            int returnCode = bootstrapper.run("bootstrapper_version", "bar", getURLGenerator(), new HashMap<>(), context());
             assertThat(returnCode, is(-373));
             assertThat(logFixture.contains(Level.ERROR, "Exception while executing command: " + StringUtils.join(cmd, " ") + " - java.lang.RuntimeException: something failed!"), is(true));
         }
@@ -240,7 +240,7 @@ public class AgentProcessParentImplTest {
             }
         });
         AgentProcessParentImpl bootstrapper = createBootstrapper(cmd, subProcess);
-        int returnCode = bootstrapper.run("bootstrapper_version", "bar", getURLGenerator(), new HashMap<String, String>(), context());
+        int returnCode = bootstrapper.run("bootstrapper_version", "bar", getURLGenerator(), new HashMap<>(), context());
         assertThat(returnCode, is(21));
     }
 
@@ -251,7 +251,7 @@ public class AgentProcessParentImplTest {
             AGENT_PLUGINS_ZIP.setLastModified(System.currentTimeMillis() - 10 * 1000);
 
             long expectedModifiedDate = AGENT_PLUGINS_ZIP.lastModified();
-            AgentProcessParentImpl bootstrapper = createBootstrapper(new ArrayList<String>());
+            AgentProcessParentImpl bootstrapper = createBootstrapper(new ArrayList<>());
             bootstrapper.run("launcher_version", "bar", getURLGenerator(), m(AgentProcessParentImpl.AGENT_STARTUP_ARGS, "foo bar  baz with%20some%20space"), context());
             assertThat(Downloader.AGENT_PLUGINS_ZIP.lastModified(), is(expectedModifiedDate));
         }
@@ -263,7 +263,7 @@ public class AgentProcessParentImplTest {
             File stalePluginZip = randomFile(AGENT_PLUGINS_ZIP);
             long original = stalePluginZip.length();
 
-            AgentProcessParentImpl bootstrapper = createBootstrapper(new ArrayList<String>());
+            AgentProcessParentImpl bootstrapper = createBootstrapper(new ArrayList<>());
             bootstrapper.run("launcher_version", "bar", getURLGenerator(), m(AgentProcessParentImpl.AGENT_STARTUP_ARGS, "foo bar  baz with%20some%20space"), context());
 
             assertThat(stalePluginZip.length(), not(original));
@@ -276,7 +276,7 @@ public class AgentProcessParentImplTest {
             File staleFile = randomFile(TFS_IMPL_JAR);
             long original = staleFile.length();
 
-            AgentProcessParentImpl bootstrapper = createBootstrapper(new ArrayList<String>());
+            AgentProcessParentImpl bootstrapper = createBootstrapper(new ArrayList<>());
             bootstrapper.run("launcher_version", "bar", getURLGenerator(), m(AgentProcessParentImpl.AGENT_STARTUP_ARGS, "foo bar  baz with%20some%20space"), context());
 
             assertThat(staleFile.length(), not(original));

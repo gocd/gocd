@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
@@ -28,7 +28,6 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
-import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.svn.Subversion;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.PipelineMother;
@@ -125,7 +124,7 @@ public class BuildCauseProducerServiceIntegrationSvnTest {
         assertThat(materialRevisions.getRevisions().size(), is(1));
         Materials materials = materialRevisions.getMaterials();
         assertThat(materials.size(), is(1));
-        assertThat(materials.get(0), is((Material) svnMaterial));
+        assertThat(materials.get(0), is(svnMaterial));
     }
 
     @Test
@@ -148,7 +147,7 @@ public class BuildCauseProducerServiceIntegrationSvnTest {
         assertThat(materialRevisions.getRevisions().size(), is(2));
         Materials materials = materialRevisions.getMaterials();
         assertThat(materials.size(), is(2));
-        assertThat(materials.get(0), is((Material) svnMaterial));
+        assertThat(materials.get(0), is(svnMaterial));
         SvnMaterial external = (SvnMaterial) materials.get(1);
         assertThat(external.getUrl(), is(repo.externalRepositoryUrl()));
     }

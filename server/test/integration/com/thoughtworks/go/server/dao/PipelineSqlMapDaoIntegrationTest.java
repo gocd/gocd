@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,6 @@ import com.thoughtworks.go.domain.materials.ModifiedAction;
 import com.thoughtworks.go.domain.materials.ModifiedFile;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
 import com.thoughtworks.go.helper.*;
-import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel;
@@ -264,7 +263,7 @@ public class PipelineSqlMapDaoIntegrationTest {
 
     @Test
     public void shouldLoadModificationsWithNoModifiedFiles() throws Exception {
-        List<Modification> modifications = new ArrayList<Modification>();
+        List<Modification> modifications = new ArrayList<>();
         Modification modification = ModificationsMother.oneModifiedFile(ModificationsMother.nextRevision());
         modifications.add(modification);
         modifications.add(new Modification(MOD_USER, MOD_COMMENT, "foo@bar.com", YESTERDAY_CHECKIN, ModificationsMother.nextRevision()));
@@ -921,7 +920,7 @@ public class PipelineSqlMapDaoIntegrationTest {
         Pipeline pipelineFromDB = pipelineDao.loadPipeline(pipeline.getId());
         final Materials materials = pipelineFromDB.getMaterials();
 
-        assertThat((SvnMaterial) materials.get(0), is(svnMaterial));
+        assertThat(materials.get(0), is(svnMaterial));
     }
 
     @Test
@@ -978,7 +977,7 @@ public class PipelineSqlMapDaoIntegrationTest {
 
         final Materials materials = pipelineFromDB.getMaterials();
 
-        assertThat((DependencyMaterial) materials.get(0), is(dependencyMaterial));
+        assertThat(materials.get(0), is(dependencyMaterial));
     }
 
     @Test
@@ -1006,7 +1005,7 @@ public class PipelineSqlMapDaoIntegrationTest {
 
         final Materials materials = pipelineFromDB.getMaterials();
 
-        assertThat((DependencyMaterial) materials.get(0), is(dependencyMaterial));
+        assertThat(materials.get(0), is(dependencyMaterial));
     }
 
     @Test
@@ -1144,7 +1143,7 @@ public class PipelineSqlMapDaoIntegrationTest {
 
         Pipeline pipelineFromDB = pipelineDao.loadPipeline(pipeline.getId());
         Materials materials = pipelineFromDB.getMaterials();
-        assertThat((P4Material) materials.get(0), is(p4Material));
+        assertThat(materials.get(0), is(p4Material));
     }
 
     @Test
@@ -1758,7 +1757,7 @@ public class PipelineSqlMapDaoIntegrationTest {
 
     public static MaterialRevisions revisions(boolean changed) {
         MaterialRevisions revisions = new MaterialRevisions();
-        List<Modification> modifications = new ArrayList<Modification>();
+        List<Modification> modifications = new ArrayList<>();
         modifications.add(ModificationsMother.oneModifiedFile(ModificationsMother.currentRevision()));
         SvnMaterial svnMaterial = MaterialsMother.svnMaterial("http://mingle.com");
         svnMaterial.setName(new CaseInsensitiveString("mingle"));
@@ -1780,7 +1779,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     private class ModificationsCollector extends ModificationVisitorAdapter {
-        private List<Modification> mods = new ArrayList<Modification>();
+        private List<Modification> mods = new ArrayList<>();
 
         public void visit(Modification modification) {
             mods.add(modification);

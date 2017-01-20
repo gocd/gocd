@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,9 +80,6 @@ import org.apache.log4j.Logger;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
-import static com.thoughtworks.go.util.ListUtil.join;
 
 /**
  * Commandline objects help handling command lines specifying processes to execute.

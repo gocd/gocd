@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -46,7 +46,7 @@ public class TestVelocityView extends VelocityView {
         this.templatePath = templatePath;
         this.modelData = modelData;
 
-        this.additionalTemplates = new ArrayList<Template>();
+        this.additionalTemplates = new ArrayList<>();
         loader = mock(ResourceLoader.class);
         runtimeServices = spy(new RuntimeInstance());
 
@@ -83,7 +83,7 @@ public class TestVelocityView extends VelocityView {
     protected Template getTemplate() throws Exception {
         Template realTemplateForTest = setupTemplate(loader, runtimeServices, "template1", getClass().getResourceAsStream(templatePath));
 
-        List<Template> templates = new ArrayList<Template>();
+        List<Template> templates = new ArrayList<>();
         templates.add(realTemplateForTest);
         templates.addAll(additionalTemplates);
 
@@ -128,7 +128,7 @@ public class TestVelocityView extends VelocityView {
 
     /* Represents "tools" setup in toolbox.vm. Part of setup of velocity. */
     private void setupToolAttributes() {
-        HashMap<String, Class> toolAttributes = new HashMap<String, Class>();
+        HashMap<String, Class> toolAttributes = new HashMap<>();
         toolAttributes.put("esc", org.apache.velocity.tools.generic.EscapeTool.class);
         toolAttributes.put("util", com.thoughtworks.go.server.util.WebUtils.class);
         setToolAttributes(toolAttributes);

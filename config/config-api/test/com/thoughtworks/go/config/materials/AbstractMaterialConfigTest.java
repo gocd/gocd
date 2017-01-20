@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.config.materials;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
@@ -27,14 +24,15 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class AbstractMaterialConfigTest {
     @Test
@@ -49,7 +47,7 @@ public class AbstractMaterialConfigTest {
     @Test
     public void shouldNotSetMaterialNameIfItIsSetToEmptyAsItsAnOptionalField() {
         AbstractMaterialConfig materialConfig = new TestMaterialConfig("");
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put(AbstractMaterialConfig.MATERIAL_NAME, "");
 
         materialConfig.setConfigAttributes(map);
@@ -64,14 +62,14 @@ public class AbstractMaterialConfigTest {
         Map<String, Object> sqlCriteria = testMaterialConfig.getSqlCriteria();
         testMaterialConfig.setConfigAttributes(m("bar", "baz"));
         assertThat(testMaterialConfig.getSqlCriteria(), not(sameInstance(sqlCriteria)));
-        assertThat(testMaterialConfig.getSqlCriteria().get("foo"), is((Object) "baz"));
+        assertThat(testMaterialConfig.getSqlCriteria().get("foo"), is("baz"));
     }
 
     @Test
     public void shouldReturnTrueIfMaterialNameIsUsedInPipelineTemplate() {
         AbstractMaterialConfig material = new TestMaterialConfig("");
         material.setName(new CaseInsensitiveString("funky_name"));
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("blah"), "${COUNT}-${funky_name}", "", false, (MaterialConfigs) null, new BaseCollection<StageConfig>());
+        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("blah"), "${COUNT}-${funky_name}", "", false, null, new BaseCollection<>());
         assertThat(material.isUsedInLabelTemplate(pipelineConfig), is(true));
     }
 
@@ -79,7 +77,7 @@ public class AbstractMaterialConfigTest {
     public void shouldReturnTrueIfMaterialNameIsUsedInPipelineTemplate_caseInsensitive() {
         AbstractMaterialConfig material = new TestMaterialConfig("");
         material.setName(new CaseInsensitiveString("funky_name"));
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("blah"), "${COUNT}-${funky_Name}", "", false, (MaterialConfigs) null, new BaseCollection<StageConfig>());
+        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("blah"), "${COUNT}-${funky_Name}", "", false, null, new BaseCollection<>());
         assertThat(material.isUsedInLabelTemplate(pipelineConfig), is(true));
     }
 
@@ -87,13 +85,13 @@ public class AbstractMaterialConfigTest {
     public void shouldReturnFalseIfMaterialNameIsNotUsedInPipelineTemplate() {
         AbstractMaterialConfig material = new TestMaterialConfig("");
         material.setName(new CaseInsensitiveString("funky_name"));
-        assertThat(material.isUsedInLabelTemplate(new PipelineConfig(new CaseInsensitiveString("blah"), "${COUNT}-${test1}-test", "", false, (MaterialConfigs) null, new BaseCollection<StageConfig>())), is(false));
+        assertThat(material.isUsedInLabelTemplate(new PipelineConfig(new CaseInsensitiveString("blah"), "${COUNT}-${test1}-test", "", false, null, new BaseCollection<>())), is(false));
     }
 
     @Test
     public void shouldReturnFalseIfMaterialNameIsNotDefined() {
         AbstractMaterialConfig material = new TestMaterialConfig("test");
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("blah"), "${COUNT}-${test}-test", "", false, (MaterialConfigs) null, new BaseCollection<StageConfig>());
+        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("blah"), "${COUNT}-${test}-test", "", false, null, new BaseCollection<>());
         assertThat(material.isUsedInLabelTemplate(pipelineConfig), is(false));
     }
 
@@ -140,7 +138,7 @@ public class AbstractMaterialConfigTest {
     }
 
     private Map<String, String> m(String key, String value) {
-        HashMap<String, String> map = new HashMap<String, String>();
+        HashMap<String, String> map = new HashMap<>();
         map.put(key, value);
         return map;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,6 @@ import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.dto.DurationBean;
 import com.thoughtworks.go.fixture.PipelineWithMultipleStages;
 import com.thoughtworks.go.helper.*;
-import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryEntry;
 import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryPage;
 import com.thoughtworks.go.remote.AgentIdentifier;
@@ -329,7 +328,7 @@ public class StageServiceIntegrationTest {
 
     @Test
     public void shouldIgnoreErrorsWhenNotifyingListenersDuringSave() throws Exception {
-        List<StageStatusListener> original = new ArrayList<StageStatusListener>(stageService.getStageStatusListeners());
+        List<StageStatusListener> original = new ArrayList<>(stageService.getStageStatusListeners());
 
         try {
             stageService.getStageStatusListeners().clear();
@@ -569,7 +568,7 @@ public class StageServiceIntegrationTest {
      public void findStageHistoryForChart_shouldFindLatestStageInstancesForChart() throws Exception {
          PipelineConfig pipelineConfig = configFileHelper.addPipeline("pipeline-1", "stage-1");
          configFileHelper.turnOffSecurity();
-         List<Pipeline> completedPipelines = new ArrayList<Pipeline>();
+         List<Pipeline> completedPipelines = new ArrayList<>();
          Pipeline pipeline;
          for (int i = 0; i < 16; i++) {
              pipeline = dbHelper.schedulePipelineWithAllStages(pipelineConfig, ModificationsMother.modifySomeFiles(pipelineConfig));
@@ -792,7 +791,7 @@ public class StageServiceIntegrationTest {
 
         Pipeline pipelineP4 = dbHelper.checkinRevisionsToBuild(build, upstreamWithoutMingle, new MaterialRevision(p4, p4Commit1));
 
-        ArrayList<MaterialRevision> materialRevisionsFor1 = new ArrayList<MaterialRevision>();
+        ArrayList<MaterialRevision> materialRevisionsFor1 = new ArrayList<>();
         dbHelper.addDependencyRevisionModification(materialRevisionsFor1, dependencyMaterial, pipelineOne);
         dbHelper.addDependencyRevisionModification(materialRevisionsFor1, dependencyMaterialViaP4, pipelineP4);
 
@@ -806,7 +805,7 @@ public class StageServiceIntegrationTest {
 
         Pipeline pipeline2P4 = dbHelper.checkinRevisionsToBuild(build, upstreamWithoutMingle, new MaterialRevision(p4, p4Commit2));
 
-        ArrayList<MaterialRevision> materialRevisionsFor2 = new ArrayList<MaterialRevision>();
+        ArrayList<MaterialRevision> materialRevisionsFor2 = new ArrayList<>();
         dbHelper.addDependencyRevisionModification(materialRevisionsFor2, dependencyMaterial, pipelineTwo);
         dbHelper.addDependencyRevisionModification(materialRevisionsFor2, dependencyMaterialViaP4, pipeline2P4);
 

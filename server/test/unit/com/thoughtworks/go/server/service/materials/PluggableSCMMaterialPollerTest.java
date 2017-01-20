@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service.materials;
 
@@ -75,7 +75,7 @@ public class PluggableSCMMaterialPollerTest {
         material.setSCMConfig(scmConfig);
 
         MaterialInstance materialInstance = material.createMaterialInstance();
-        Map<String, String> data = new HashMap<String, String>();
+        Map<String, String> data = new HashMap<>();
         data.put("mk-1", "mv-1");
         materialInstance.setAdditionalData(JsonHelper.toJsonString(data));
         when(materialRepository.findMaterialInstance(material)).thenReturn(materialInstance);
@@ -104,7 +104,7 @@ public class PluggableSCMMaterialPollerTest {
         assertConfiguration(scmConfiguration.getValue(), "k1", "v1");
         assertConfiguration(scmConfiguration.getValue(), "k2", "v2");
         assertThat(materialData.getValue().size(), is(1));
-        assertThat((String) materialData.getValue().get("mk-1"), is("mv-1"));
+        assertThat(materialData.getValue().get("mk-1"), is("mv-1"));
     }
 
     @Test
@@ -120,11 +120,11 @@ public class PluggableSCMMaterialPollerTest {
     @Test
     public void shouldGetLatestModificationAlongWithAdditionalDataFromTheSCMRevision() {
         Date timestamp = new Date();
-        Map<String, String> data = new HashMap<String, String>();
+        Map<String, String> data = new HashMap<>();
         String dataKey = "revision_data";
         String dataValue = "revision_value";
         data.put(dataKey, dataValue);
-        List<ModifiedFile> modifiedFiles = new ArrayList<ModifiedFile>(asList(new ModifiedFile("f1", ModifiedAction.added), new ModifiedFile("f2", ModifiedAction.modified), new ModifiedFile("f3", ModifiedAction.deleted)));
+        List<ModifiedFile> modifiedFiles = new ArrayList<>(asList(new ModifiedFile("f1", ModifiedAction.added), new ModifiedFile("f2", ModifiedAction.modified), new ModifiedFile("f3", ModifiedAction.deleted)));
         SCMRevision scmRevision = new SCMRevision("revision-123", timestamp, "user", "comment", data, modifiedFiles);
         MaterialPollResult materialPollResult = new MaterialPollResult(null, scmRevision);
         when(scmExtension.getLatestRevision(eq(material.getPluginId()), scmConfiguration.capture(), materialData.capture(), eq(flyweightFolderPath))).thenReturn(materialPollResult);
@@ -143,7 +143,7 @@ public class PluggableSCMMaterialPollerTest {
         assertThat(new HashSet(modifications.get(0).getModifiedFiles()), is(new HashSet(asList(f1, f2, f3))));
         assertConfiguration(scmConfiguration.getValue(), material.getScmConfig().getConfiguration());
         assertThat(materialData.getValue().size(), is(1));
-        assertThat((String) materialData.getValue().get("mk-1"), is("mv-1"));
+        assertThat(materialData.getValue().get("mk-1"), is("mv-1"));
     }
 
     @Test
@@ -166,7 +166,7 @@ public class PluggableSCMMaterialPollerTest {
         assertThat(knownSCMRevision.getValue().getRevision(), is("rev-122"));
         assertThat(knownSCMRevision.getValue().getTimestamp(), is(timestamp));
         assertThat(materialData.getValue().size(), is(1));
-        assertThat((String) materialData.getValue().get("mk-1"), is("mv-1"));
+        assertThat(materialData.getValue().get("mk-1"), is("mv-1"));
     }
 
     @Test
@@ -185,12 +185,12 @@ public class PluggableSCMMaterialPollerTest {
     public void shouldGetModificationsSinceAGivenRevisionAlongWithAdditionalDataFromTheSCMRevision() {
         String previousRevision = "rev-122";
         Date timestamp = new Date();
-        Map<String, String> dataInPreviousRevision = new HashMap<String, String>();
+        Map<String, String> dataInPreviousRevision = new HashMap<>();
         dataInPreviousRevision.put("1", "one");
         PluggableSCMMaterialRevision knownRevision = new PluggableSCMMaterialRevision(previousRevision, timestamp, dataInPreviousRevision);
         ArgumentCaptor<SCMRevision> knownSCMRevision = ArgumentCaptor.forClass(SCMRevision.class);
 
-        Map<String, String> data = new HashMap<String, String>();
+        Map<String, String> data = new HashMap<>();
         String dataKey = "2";
         String dataValue = "two";
         data.put(dataKey, dataValue);
@@ -207,7 +207,7 @@ public class PluggableSCMMaterialPollerTest {
         assertThat(knownSCMRevision.getValue().getData().size(), is(dataInPreviousRevision.size()));
         assertThat(knownSCMRevision.getValue().getData().get("1"), is(dataInPreviousRevision.get("1")));
 
-        HashMap<String, String> expected = new HashMap<String, String>();
+        HashMap<String, String> expected = new HashMap<>();
         expected.put(dataKey, dataValue);
 
         Modification firstModification = modifications.get(0);
@@ -218,7 +218,7 @@ public class PluggableSCMMaterialPollerTest {
         assertThat(firstModification.getAdditionalData(), is(JsonHelper.toJsonString(expected)));
         assertThat(firstModification.getModifiedFiles().isEmpty(), is(true));
         assertThat(materialData.getValue().size(), is(1));
-        assertThat((String) materialData.getValue().get("mk-1"), is("mv-1"));
+        assertThat(materialData.getValue().get("mk-1"), is("mv-1"));
     }
 
     private void assertConfiguration(com.thoughtworks.go.plugin.api.config.Configuration configurationsSentToPlugin, Configuration configurationInMaterial) {

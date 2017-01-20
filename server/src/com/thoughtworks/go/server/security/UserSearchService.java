@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package com.thoughtworks.go.server.security;
 
 import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.i18n.LocalizedMessage;
+import com.thoughtworks.go.plugin.access.authentication.AuthenticationExtension;
+import com.thoughtworks.go.plugin.access.authentication.AuthenticationPluginRegistry;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConfigMetadataStore;
 import com.thoughtworks.go.presentation.UserSearchModel;
@@ -29,7 +31,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @understands searching for users(from authentication sources)
@@ -41,6 +45,8 @@ public class UserSearchService {
     private final AuthorizationPluginConfigMetadataStore store;
     private final AuthorizationExtension authorizationExtension;
     private GoConfigService goConfigService;
+    private AuthenticationPluginRegistry authenticationPluginRegistry;
+    private AuthenticationExtension authenticationExtension;
 
     private static final Logger LOGGER = Logger.getLogger(UserSearchService.class);
     private static final int MINIMUM_SEARCH_STRING_LENGTH = 2;
@@ -48,12 +54,14 @@ public class UserSearchService {
     @Autowired
     public UserSearchService(LdapUserSearch ldapUserSearch, PasswordFileUserSearch passwordFileUserSearch,
                              AuthorizationPluginConfigMetadataStore store, AuthorizationExtension authorizationExtension,
-                             GoConfigService goConfigService) {
+                             GoConfigService goConfigService, AuthenticationPluginRegistry authenticationPluginRegistry, AuthenticationExtension authenticationExtension) {
         this.ldapUserSearch = ldapUserSearch;
         this.passwordFileUserSearch = passwordFileUserSearch;
         this.store = store;
         this.authorizationExtension = authorizationExtension;
         this.goConfigService = goConfigService;
+        this.authenticationPluginRegistry = authenticationPluginRegistry;
+        this.authenticationExtension = authenticationExtension;
     }
 
     public List<UserSearchModel> search(String searchText, HttpLocalizedOperationResult result) {
@@ -110,9 +118,9 @@ public class UserSearchService {
 
     private void searchUsingPlugins(String searchText, List<UserSearchModel> userSearchModels) {
         List<User> searchResults = new ArrayList<>();
-        for (final String pluginId : store.getPluginsThatSupportsUserSearch()) {
+        for (final String pluginId : getAuthorizationAndAuthenticationPlugins()) {
             try {
-                List<com.thoughtworks.go.plugin.access.authentication.models.User> users = authorizationExtension.searchUsers(pluginId, searchText);
+                List<com.thoughtworks.go.plugin.access.authentication.models.User> users = getUsersConfiguredViaPlugin(pluginId, searchText);
                 if (users != null && !users.isEmpty()) {
                     for (com.thoughtworks.go.plugin.access.authentication.models.User user : users) {
                         String displayName = user.getDisplayName() == null ? "" : user.getDisplayName();
@@ -125,6 +133,26 @@ public class UserSearchService {
             }
         }
         userSearchModels.addAll(convertUsersToUserSearchModel(searchResults, UserSourceType.PLUGIN));
+    }
+
+    private List<com.thoughtworks.go.plugin.access.authentication.models.User> getUsersConfiguredViaPlugin(String pluginId, String searchTerm) {
+        List<com.thoughtworks.go.plugin.access.authentication.models.User> users = new ArrayList<>();
+        if (authorizationExtension.canHandlePlugin(pluginId)) {
+            users.addAll(authorizationExtension.searchUsers(pluginId, searchTerm));
+        }
+        if (authenticationExtension.canHandlePlugin(pluginId)) {
+            users.addAll(authenticationExtension.searchUser(pluginId, searchTerm));
+        }
+        return users;
+    }
+
+    private Set<String> getAuthorizationAndAuthenticationPlugins() {
+        Set<String> authPlugins = new HashSet<>();
+        Set<String> pluginsThatSupportsUserSearch = store.getPluginsThatSupportsUserSearch();
+        Set<String> authenticationPlugins = authenticationPluginRegistry.getAuthenticationPlugins();
+        authPlugins.addAll(pluginsThatSupportsUserSearch);
+        authPlugins.addAll(authenticationPlugins);
+        return authPlugins;
     }
 
     private boolean isInputValid(String searchText, HttpLocalizedOperationResult result) {

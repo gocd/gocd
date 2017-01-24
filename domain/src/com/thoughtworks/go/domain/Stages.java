@@ -104,7 +104,7 @@ public class Stages extends BaseCollection<Stage> implements StageContainer {
     public Stages latestStagesInRunOrder() {
         Stages latestRunStages = new Stages();
         for (Stage  stage: this) {
-            if(stage.isLatestRun()) {
+            if(stage.isLatestRun() && latestRunStages.byName(stage.getName()) instanceof NullStage) {
                 latestRunStages.add(stage);
             }
         }

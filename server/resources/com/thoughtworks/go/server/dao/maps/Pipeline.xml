@@ -136,6 +136,7 @@
         SELECT id as pipelineId, name as pipelineName, buildCauseType, label, buildCauseMessage, pipelines.counter as pipelineCounter, pipelines.naturalOrder
         FROM pipelines
         WHERE name = #name# AND counter=#counter#
+        ORDER BY pipelineId DESC LIMIT 1
     </select>
 
     <select id="findEarlierPipelineThatPassedForStage" resultMap="select-pipeline">

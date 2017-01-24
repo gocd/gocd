@@ -25,8 +25,7 @@ import org.junit.Test;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class StagesTest {
 
@@ -102,5 +101,19 @@ public class StagesTest {
         Stages stages = new Stages(s2_1, s1_2, s1_1);
         Stages latestStagesInRunOrder = stages.latestStagesInRunOrder();
         assertThat(latestStagesInRunOrder, is(new Stages(s1_2,s2_1)));
+    }
+
+    @Test
+    public void shouldFilterOutDuplicates(){
+        Stage s1_1 = StageMother.createPassedStage("p", 1, "s1", 1, "b", new Date());
+        s1_1.setOrderId(1);
+        Stage s2_1 = StageMother.createPassedStage("p", 1, "s2", 1, "b", new Date());
+        s2_1.setOrderId(2);
+        Stage s1_1_dup = StageMother.createPassedStage("p", 1, "s1", 1, "b", new Date());
+        s1_1_dup.setOrderId(1);
+
+        Stages stages = new Stages(s2_1, s1_1, s1_1_dup);
+        Stages latestStagesInRunOrder = stages.latestStagesInRunOrder();
+        assertThat(latestStagesInRunOrder, is(new Stages(s1_1,s2_1)));
     }
 }

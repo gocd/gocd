@@ -16,11 +16,9 @@
 
 package com.thoughtworks.go.server.dao;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import javax.sql.DataSource;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
@@ -57,10 +55,7 @@ import com.thoughtworks.go.server.database.DatabaseStrategy;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.materials.DependencyMaterialUpdateNotifier;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
-import com.thoughtworks.go.server.service.InstanceFactory;
-import com.thoughtworks.go.server.service.PipelinePauseService;
-import com.thoughtworks.go.server.service.ScheduleService;
-import com.thoughtworks.go.server.service.ScheduleTestUtil;
+import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.*;
 import org.apache.commons.lang.StringUtils;
@@ -93,6 +88,7 @@ import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
 import static com.thoughtworks.go.helper.ModificationsMother.multipleModificationsInHg;
 import static com.thoughtworks.go.server.dao.PersistentObjectMatchers.hasSameId;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
+import static com.thoughtworks.go.util.IBatisUtil.arguments;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
@@ -769,7 +765,6 @@ public class PipelineSqlMapDaoIntegrationTest {
         assertThat(pipelineHistories.size(), is(1));
         assertThat(pipelineHistories.get(0).getId(), is(twistPipeline.getId()));
         assertThat(pipelineHistories.get(0).getBuildCause().getMaterialRevisions().isEmpty(), is(false));
-
     }
 
     @Test
@@ -1177,6 +1172,22 @@ public class PipelineSqlMapDaoIntegrationTest {
         assertThat(loadedId.getId(), is(pipeline.getId()));
         loadedId = pipelineDao.findPipelineByNameAndCounter("tEsT", pipeline.getCounter());
         assertThat(loadedId.getId(), is(pipeline.getId()));
+    }
+
+    @Test
+    public void shouldHandleLoadingUpPipelineNamesWithDuplicateCounterIntroducedBecauseOGithubIssue1471() {
+        String pipelineName = "Test";
+        Pipeline instance1WithLowerCaseName = new Pipeline(pipelineName.toLowerCase(), BuildCause.createWithEmptyModifications());
+        int counter = 1;
+        instance1WithLowerCaseName.setCounter(counter);
+        Pipeline instance2WithUpperCaseName = new Pipeline(pipelineName.toUpperCase(), BuildCause.createWithEmptyModifications());
+        instance2WithUpperCaseName.setCounter(counter);
+        pipelineDao.getSqlMapClientTemplate().insert("insertPipeline", instance1WithLowerCaseName);
+        pipelineDao.getSqlMapClientTemplate().insert("insertPipeline", instance2WithUpperCaseName);
+
+        assertThat(pipelineDao.findPipelineByNameAndCounter(pipelineName, counter).getId(), is(instance2WithUpperCaseName.getId()));
+        assertThat(pipelineDao.findPipelineByNameAndCounter(pipelineName.toLowerCase(), counter).getId(), is(instance2WithUpperCaseName.getId()));
+        assertThat(pipelineDao.findPipelineByNameAndCounter(pipelineName.toUpperCase(), counter).getId(), is(instance2WithUpperCaseName.getId()));
     }
 
     @Test

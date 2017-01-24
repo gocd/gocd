@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package com.thoughtworks.go.plugin.access.common.settings;
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationExtension;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
 import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
-import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
+import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.plugin.api.GoPlugin;
@@ -43,7 +43,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 public class PluginSettingsMetadataLoaderTest {
     @Mock
-    private PackageAsRepositoryExtension packageAsRepositoryExtension;
+    private PackageRepositoryExtension packageRepositoryExtension;
     @Mock
     private SCMExtension scmExtension;
     @Mock
@@ -65,7 +65,7 @@ public class PluginSettingsMetadataLoaderTest {
         initMocks(this);
         pluginDescriptor = new GoPluginDescriptor("plugin-id", "1.0", null, null, null, true);
 
-        extensions = Arrays.asList(packageAsRepositoryExtension, scmExtension, taskExtension, notificationExtension, authenticationExtension,configRepoExtension);
+        extensions = Arrays.asList(packageRepositoryExtension, scmExtension, taskExtension, notificationExtension, authenticationExtension,configRepoExtension);
         metadataLoader = new PluginSettingsMetadataLoader(extensions, pluginManager);
 
         PluginSettingsMetadataStore.getInstance().clear();
@@ -119,9 +119,9 @@ public class PluginSettingsMetadataLoaderTest {
         PluginSettingsConfiguration configuration = new PluginSettingsConfiguration();
         configuration.add(new PluginSettingsProperty("k1").with(Property.REQUIRED, true).with(Property.SECURE, false));
 
-        when(packageAsRepositoryExtension.canHandlePlugin(pluginDescriptor.id())).thenReturn(true);
-        when(packageAsRepositoryExtension.getPluginSettingsConfiguration(pluginDescriptor.id())).thenReturn(null);
-        when(packageAsRepositoryExtension.getPluginSettingsView(pluginDescriptor.id())).thenReturn("template");
+        when(packageRepositoryExtension.canHandlePlugin(pluginDescriptor.id())).thenReturn(true);
+        when(packageRepositoryExtension.getPluginSettingsConfiguration(pluginDescriptor.id())).thenReturn(null);
+        when(packageRepositoryExtension.getPluginSettingsView(pluginDescriptor.id())).thenReturn("template");
 
         metadataLoader.fetchPluginSettingsMetaData(pluginDescriptor);
 
@@ -132,9 +132,9 @@ public class PluginSettingsMetadataLoaderTest {
     public void shouldNotStoreMetadataIfTemplateIsMissing() {
         PluginSettingsConfiguration configuration = new PluginSettingsConfiguration();
 
-        when(packageAsRepositoryExtension.canHandlePlugin(pluginDescriptor.id())).thenReturn(true);
-        when(packageAsRepositoryExtension.getPluginSettingsConfiguration(pluginDescriptor.id())).thenReturn(configuration);
-        when(packageAsRepositoryExtension.getPluginSettingsView(pluginDescriptor.id())).thenReturn(null);
+        when(packageRepositoryExtension.canHandlePlugin(pluginDescriptor.id())).thenReturn(true);
+        when(packageRepositoryExtension.getPluginSettingsConfiguration(pluginDescriptor.id())).thenReturn(configuration);
+        when(packageRepositoryExtension.getPluginSettingsView(pluginDescriptor.id())).thenReturn(null);
 
         metadataLoader.fetchPluginSettingsMetaData(pluginDescriptor);
 

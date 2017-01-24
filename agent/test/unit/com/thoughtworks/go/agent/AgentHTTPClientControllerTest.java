@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import com.thoughtworks.go.agent.service.AgentUpgradeService;
 import com.thoughtworks.go.agent.service.SslInfrastructureService;
 import com.thoughtworks.go.config.AgentRegistry;
 import com.thoughtworks.go.config.GuidService;
-import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
+import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.plugin.infra.PluginManager;
@@ -71,7 +71,7 @@ public class AgentHTTPClientControllerTest {
     @Mock
     private PluginManager pluginManager;
     @Mock
-    private PackageAsRepositoryExtension packageAsRepositoryExtension;
+    private PackageRepositoryExtension packageRepositoryExtension;
     @Mock
     private SCMExtension scmExtension;
     @Mock
@@ -105,7 +105,7 @@ public class AgentHTTPClientControllerTest {
         agentController.ping();
         agentController.retrieveWork();
         verify(work).doWork(eq(agentIdentifier), eq(loopServer), eq(artifactsManipulator),
-                any(EnvironmentVariableContext.class), any(AgentRuntimeInfo.class), eq(packageAsRepositoryExtension),
+                any(EnvironmentVariableContext.class), any(AgentRuntimeInfo.class), eq(packageRepositoryExtension),
                 eq(scmExtension), eq(taskExtension));
         verify(sslInfrastructureService).createSslInfrastructure();
     }
@@ -122,7 +122,7 @@ public class AgentHTTPClientControllerTest {
         agentController.loop();
         verify(work).doWork(eq(agentIdentifier), eq(loopServer), eq(artifactsManipulator),
                 any(EnvironmentVariableContext.class), eq(agentController.getAgentRuntimeInfo()),
-                eq(packageAsRepositoryExtension), eq(scmExtension), eq(taskExtension));
+                eq(packageRepositoryExtension), eq(scmExtension), eq(taskExtension));
     }
 
     @Test
@@ -132,7 +132,7 @@ public class AgentHTTPClientControllerTest {
         agentController = createAgentController();
         agentController.init();
         agentController.retrieveWork();
-        verify(work).doWork(eq(agentIdentifier), eq(loopServer), eq(artifactsManipulator), any(EnvironmentVariableContext.class), any(AgentRuntimeInfo.class), eq(packageAsRepositoryExtension), eq(scmExtension), eq(taskExtension));
+        verify(work).doWork(eq(agentIdentifier), eq(loopServer), eq(artifactsManipulator), any(EnvironmentVariableContext.class), any(AgentRuntimeInfo.class), eq(packageRepositoryExtension), eq(scmExtension), eq(taskExtension));
         verify(sslInfrastructureService).createSslInfrastructure();
     }
 
@@ -140,7 +140,7 @@ public class AgentHTTPClientControllerTest {
     public void shouldRegisterSubprocessLoggerAtExit() throws Exception {
         SslInfrastructureService sslInfrastructureService = mock(SslInfrastructureService.class);
         AgentRegistry agentRegistry = mock(AgentRegistry.class);
-        agentController = new AgentHTTPClientController(loopServer, artifactsManipulator, sslInfrastructureService, agentRegistry, agentUpgradeService, subprocessLogger, systemEnvironment, pluginManager, packageAsRepositoryExtension, scmExtension, taskExtension);
+        agentController = new AgentHTTPClientController(loopServer, artifactsManipulator, sslInfrastructureService, agentRegistry, agentUpgradeService, subprocessLogger, systemEnvironment, pluginManager, packageRepositoryExtension, scmExtension, taskExtension);
         agentController.init();
         verify(subprocessLogger).registerAsExitHook("Following processes were alive at shutdown: ");
     }
@@ -177,7 +177,7 @@ public class AgentHTTPClientControllerTest {
                 subprocessLogger,
                 systemEnvironment,
                 pluginManager,
-                packageAsRepositoryExtension,
+                packageRepositoryExtension,
                 scmExtension,
                 taskExtension);
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,7 @@
 
 package com.thoughtworks.go.server.service.plugins.builder;
 
-import com.thoughtworks.go.plugin.access.packagematerial.JsonBasedPackageRepositoryExtension;
-import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
-import com.thoughtworks.go.plugin.access.packagematerial.PackageConfigurations;
-import com.thoughtworks.go.plugin.access.packagematerial.PackageMetadataStore;
-import com.thoughtworks.go.plugin.access.packagematerial.RepositoryMetadataStore;
+import com.thoughtworks.go.plugin.access.packagematerial.*;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
@@ -46,7 +42,7 @@ class PackageViewModelBuilder implements ViewModelBuilder {
         for(String pluginId : PackageMetadataStore.getInstance().pluginIds()) {
             GoPluginDescriptor descriptor = pluginManager.getPluginDescriptorFor(pluginId);
 
-            pluginInfos.add(new PluginInfo(descriptor, JsonBasedPackageRepositoryExtension.EXTENSION_NAME, null, null, null));
+            pluginInfos.add(new PluginInfo(descriptor, PackageRepositoryExtension.EXTENSION_NAME, null, null, null));
         }
         return pluginInfos;
     }
@@ -65,7 +61,7 @@ class PackageViewModelBuilder implements ViewModelBuilder {
         pluginConfigurations.addAll(configurations(PackageMetadataStore.getInstance().getMetadata(pluginId), PACKAGE_CONFIGRATION_TYPE));
         pluginConfigurations.addAll(configurations(RepositoryMetadataStore.getInstance().getMetadata(pluginId),  REPOSITORY_CONFIGRATION_TYPE));
 
-        return new PluginInfo(descriptor, JsonBasedPackageRepositoryExtension.EXTENSION_NAME, null, new PluggableInstanceSettings(pluginConfigurations));
+        return new PluginInfo(descriptor, PackageRepositoryExtension.EXTENSION_NAME, null, new PluggableInstanceSettings(pluginConfigurations));
     }
 
     private List<PluginConfiguration> configurations(PackageConfigurations packageConfigurations, String type) {

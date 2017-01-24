@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,8 @@ import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginConstants;
 import com.thoughtworks.go.plugin.access.elastic.ElasticPluginConfigMetadataStore;
 import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
 import com.thoughtworks.go.plugin.access.notification.NotificationPluginRegistry;
-import com.thoughtworks.go.plugin.access.packagematerial.JsonBasedPackageRepositoryExtension;
-import com.thoughtworks.go.plugin.access.pluggabletask.JsonBasedTaskExtension;
+import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
+import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.server.service.plugins.InvalidPluginTypeException;
@@ -51,8 +51,8 @@ public class PluginInfoBuilder {
                              PluginManager pluginManager) {
         pluginExtensionToBuilder.put(AuthenticationExtension.EXTENSION_NAME, new AuthenticationViewModelBuilder(pluginManager, authenticationPluginRegistry));
         pluginExtensionToBuilder.put(NotificationExtension.EXTENSION_NAME, new NotificationViewModelBuilder(pluginManager, notificationPluginRegistry));
-        pluginExtensionToBuilder.put(JsonBasedPackageRepositoryExtension.EXTENSION_NAME, new PackageViewModelBuilder(pluginManager));
-        pluginExtensionToBuilder.put(JsonBasedTaskExtension.TASK_EXTENSION, new PluggableTaskViewModelBuilder(pluginManager));
+        pluginExtensionToBuilder.put(PackageRepositoryExtension.EXTENSION_NAME, new PackageViewModelBuilder(pluginManager));
+        pluginExtensionToBuilder.put(TaskExtension.TASK_EXTENSION, new PluggableTaskViewModelBuilder(pluginManager));
         pluginExtensionToBuilder.put(SCMExtension.EXTENSION_NAME, new SCMViewModelBuilder(pluginManager));
         pluginExtensionToBuilder.put(ElasticAgentPluginConstants.EXTENSION_NAME, new ElasticAgentViewViewModelBuilder(elasticPluginConfigMetadataStore));
         pluginExtensionToBuilder.put(AuthorizationPluginConstants.EXTENSION_NAME, new AuthorizationViewModelBuilder(authorizationPluginConfigMetadataStore));

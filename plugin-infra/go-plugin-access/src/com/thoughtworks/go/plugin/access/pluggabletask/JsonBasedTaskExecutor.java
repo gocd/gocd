@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ public class JsonBasedTaskExecutor implements TaskExecutor {
 
     @Override
     public ExecutionResult execute(final TaskConfig config, final TaskExecutionContext taskExecutionContext) {
-        return pluginRequestHelper.submitRequest(pluginId, JsonBasedTaskExtension.EXECUTION_REQUEST, new DefaultPluginInteractionCallback<ExecutionResult>() {
+        return pluginRequestHelper.submitRequest(pluginId, TaskExtension.EXECUTION_REQUEST, new DefaultPluginInteractionCallback<ExecutionResult>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return handlerMap.get(resolvedExtensionVersion).getTaskExecutionBody(config, taskExecutionContext);

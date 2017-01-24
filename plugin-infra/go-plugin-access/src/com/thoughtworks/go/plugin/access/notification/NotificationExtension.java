@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,10 +50,10 @@ public class NotificationExtension extends AbstractExtension {
     public NotificationExtension(PluginManager pluginManager) {
         super(pluginManager, new PluginRequestHelper(pluginManager, goSupportedVersions, EXTENSION_NAME), EXTENSION_NAME);
 
-        pluginSettingsMessageHandlerMap.put("1.0", new PluginSettingsJsonMessageHandler1_0());
+        registerHandler("1.0", new PluginSettingsJsonMessageHandler1_0());
         messageHandlerMap.put("1.0", new JsonMessageHandler1_0());
 
-        pluginSettingsMessageHandlerMap.put("2.0", new PluginSettingsJsonMessageHandler1_0()); /* No change. */
+        registerHandler("2.0", new PluginSettingsJsonMessageHandler1_0());
         messageHandlerMap.put("2.0", new JsonMessageHandler2_0());
     }
 

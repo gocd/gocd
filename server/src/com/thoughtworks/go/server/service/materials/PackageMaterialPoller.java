@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service.materials;
 
@@ -26,7 +26,7 @@ import com.thoughtworks.go.domain.materials.Revision;
 import com.thoughtworks.go.domain.materials.packagematerial.PackageMaterialRevision;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
-import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
+import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialProperty;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageRevision;
@@ -40,17 +40,17 @@ import java.util.Map;
 
 public class PackageMaterialPoller implements MaterialPoller<PackageMaterial> {
 
-    private PackageAsRepositoryExtension packageAsRepositoryExtension;
+    private PackageRepositoryExtension packageRepositoryExtension;
 
-    public PackageMaterialPoller(PackageAsRepositoryExtension packageAsRepositoryExtension) {
-        this.packageAsRepositoryExtension = packageAsRepositoryExtension;
+    public PackageMaterialPoller(PackageRepositoryExtension packageRepositoryExtension) {
+        this.packageRepositoryExtension = packageRepositoryExtension;
     }
 
     @Override
     public List<Modification> latestModification(final PackageMaterial material, File baseDir, SubprocessExecutionContext execCtx) {
         PackageConfiguration packageConfiguration = buildPackageConfigurations(material.getPackageDefinition());
         RepositoryConfiguration repositoryConfiguration = buildRepositoryConfigurations(material.getPackageDefinition().getRepository());
-        PackageRevision packageRevision = packageAsRepositoryExtension.getLatestRevision(material.getPluginId(), packageConfiguration, repositoryConfiguration);
+        PackageRevision packageRevision = packageRepositoryExtension.getLatestRevision(material.getPluginId(), packageConfiguration, repositoryConfiguration);
         return getModifications(packageRevision);
     }
 
@@ -60,7 +60,7 @@ public class PackageMaterialPoller implements MaterialPoller<PackageMaterial> {
         PackageRevision previouslyKnownRevision = new PackageRevision(packageMaterialRevision.getRevision(), packageMaterialRevision.getTimestamp(), null, packageMaterialRevision.getData());
         PackageConfiguration packageConfiguration = buildPackageConfigurations(material.getPackageDefinition());
         RepositoryConfiguration repositoryConfiguration = buildRepositoryConfigurations(material.getPackageDefinition().getRepository());
-        PackageRevision packageRevision = packageAsRepositoryExtension.latestModificationSince(material.getPluginId(), packageConfiguration, repositoryConfiguration, previouslyKnownRevision);
+        PackageRevision packageRevision = packageRepositoryExtension.latestModificationSince(material.getPluginId(), packageConfiguration, repositoryConfiguration, previouslyKnownRevision);
         return getModifications(packageRevision);
     }
 

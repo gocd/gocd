@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,14 @@ package com.thoughtworks.go.plugin.access.packagematerial;
 import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
-import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageRevision;
 import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
 import com.thoughtworks.go.plugin.api.response.Result;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.infra.PluginManager;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.List;
@@ -33,7 +34,9 @@ import java.util.Map;
 
 import static java.util.Arrays.asList;
 
-public class JsonBasedPackageRepositoryExtension extends AbstractExtension implements PackageAsRepositoryExtensionContract {
+@Component
+public class PackageRepositoryExtension extends AbstractExtension {
+
     public static final String EXTENSION_NAME = "package-repository";
     private static final List<String> goSupportedVersions = asList("1.0");
 
@@ -45,20 +48,22 @@ public class JsonBasedPackageRepositoryExtension extends AbstractExtension imple
     public static final String REQUEST_LATEST_REVISION_SINCE = "latest-revision-since";
     public static final String REQUEST_CHECK_REPOSITORY_CONNECTION = "check-repository-connection";
     public static final String REQUEST_CHECK_PACKAGE_CONNECTION = "check-package-connection";
-    private Map<String, JsonMessageHandler> messageHandlerMap = new HashMap<>();
+    final Map<String, JsonMessageHandler> messageHandlerMap = new HashMap<>();
 
-    public JsonBasedPackageRepositoryExtension(PluginManager pluginManager) {
+    @Autowired
+    public PackageRepositoryExtension(PluginManager pluginManager) {
         super(pluginManager, new PluginRequestHelper(pluginManager, goSupportedVersions, EXTENSION_NAME), EXTENSION_NAME);
-        pluginSettingsMessageHandlerMap.put("1.0", new PluginSettingsJsonMessageHandler1_0());
+        registerHandler("1.0", new PluginSettingsJsonMessageHandler1_0());
         messageHandlerMap.put("1.0", new JsonMessageHandler1_0());
     }
+
 
     public RepositoryConfiguration getRepositoryConfiguration(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_REPOSITORY_CONFIGURATION, new DefaultPluginInteractionCallback<RepositoryConfiguration>() {
 
             @Override
             public RepositoryConfiguration onSuccess(String responseBody, String resolvedExtensionVersion) {
-                return messageHandlerMap.get(resolvedExtensionVersion).responseMessageForRepositoryConfiguration(responseBody);
+                return messageConverter(resolvedExtensionVersion).responseMessageForRepositoryConfiguration(responseBody);
             }
         });
     }
@@ -68,7 +73,7 @@ public class JsonBasedPackageRepositoryExtension extends AbstractExtension imple
 
             @Override
             public com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration onSuccess(String responseBody, String resolvedExtensionVersion) {
-                return messageHandlerMap.get(resolvedExtensionVersion).responseMessageForPackageConfiguration(responseBody);
+                return messageConverter(resolvedExtensionVersion).responseMessageForPackageConfiguration(responseBody);
             }
         });
     }
@@ -77,13 +82,13 @@ public class JsonBasedPackageRepositoryExtension extends AbstractExtension imple
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_VALIDATE_REPOSITORY_CONFIGURATION, new DefaultPluginInteractionCallback<ValidationResult>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return messageHandlerMap.get(resolvedExtensionVersion).requestMessageForIsRepositoryConfigurationValid(repositoryConfiguration);
+                return messageConverter(resolvedExtensionVersion).requestMessageForIsRepositoryConfigurationValid(repositoryConfiguration);
 
             }
 
             @Override
             public ValidationResult onSuccess(String responseBody, String resolvedExtensionVersion) {
-                return messageHandlerMap.get(resolvedExtensionVersion).responseMessageForIsRepositoryConfigurationValid(responseBody);
+                return messageConverter(resolvedExtensionVersion).responseMessageForIsRepositoryConfigurationValid(responseBody);
             }
         });
     }
@@ -92,12 +97,12 @@ public class JsonBasedPackageRepositoryExtension extends AbstractExtension imple
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_VALIDATE_PACKAGE_CONFIGURATION, new DefaultPluginInteractionCallback<ValidationResult>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return messageHandlerMap.get(resolvedExtensionVersion).requestMessageForIsPackageConfigurationValid(packageConfiguration, repositoryConfiguration);
+                return messageConverter(resolvedExtensionVersion).requestMessageForIsPackageConfigurationValid(packageConfiguration, repositoryConfiguration);
             }
 
             @Override
             public ValidationResult onSuccess(String responseBody, String resolvedExtensionVersion) {
-                return messageHandlerMap.get(resolvedExtensionVersion).responseMessageForIsPackageConfigurationValid(responseBody);
+                return messageConverter(resolvedExtensionVersion).responseMessageForIsPackageConfigurationValid(responseBody);
             }
         });
     }
@@ -106,12 +111,12 @@ public class JsonBasedPackageRepositoryExtension extends AbstractExtension imple
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_LATEST_REVISION, new DefaultPluginInteractionCallback<PackageRevision>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return messageHandlerMap.get(resolvedExtensionVersion).requestMessageForLatestRevision(packageConfiguration, repositoryConfiguration);
+                return messageConverter(resolvedExtensionVersion).requestMessageForLatestRevision(packageConfiguration, repositoryConfiguration);
             }
 
             @Override
             public PackageRevision onSuccess(String responseBody, String resolvedExtensionVersion) {
-                return messageHandlerMap.get(resolvedExtensionVersion).responseMessageForLatestRevision(responseBody);
+                return messageConverter(resolvedExtensionVersion).responseMessageForLatestRevision(responseBody);
             }
         });
     }
@@ -120,12 +125,12 @@ public class JsonBasedPackageRepositoryExtension extends AbstractExtension imple
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_LATEST_REVISION_SINCE, new DefaultPluginInteractionCallback<PackageRevision>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return messageHandlerMap.get(resolvedExtensionVersion).requestMessageForLatestRevisionSince(packageConfiguration, repositoryConfiguration, previouslyKnownRevision);
+                return messageConverter(resolvedExtensionVersion).requestMessageForLatestRevisionSince(packageConfiguration, repositoryConfiguration, previouslyKnownRevision);
             }
 
             @Override
             public PackageRevision onSuccess(String responseBody, String resolvedExtensionVersion) {
-                return messageHandlerMap.get(resolvedExtensionVersion).responseMessageForLatestRevisionSince(responseBody);
+                return messageConverter(resolvedExtensionVersion).responseMessageForLatestRevisionSince(responseBody);
             }
         });
     }
@@ -134,12 +139,12 @@ public class JsonBasedPackageRepositoryExtension extends AbstractExtension imple
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_CHECK_REPOSITORY_CONNECTION, new DefaultPluginInteractionCallback<Result>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return messageHandlerMap.get(resolvedExtensionVersion).requestMessageForCheckConnectionToRepository(repositoryConfiguration);
+                return messageConverter(resolvedExtensionVersion).requestMessageForCheckConnectionToRepository(repositoryConfiguration);
             }
 
             @Override
             public Result onSuccess(String responseBody, String resolvedExtensionVersion) {
-                return messageHandlerMap.get(resolvedExtensionVersion).responseMessageForCheckConnectionToRepository(responseBody);
+                return messageConverter(resolvedExtensionVersion).responseMessageForCheckConnectionToRepository(responseBody);
             }
         });
     }
@@ -148,21 +153,18 @@ public class JsonBasedPackageRepositoryExtension extends AbstractExtension imple
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_CHECK_PACKAGE_CONNECTION, new DefaultPluginInteractionCallback<Result>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return messageHandlerMap.get(resolvedExtensionVersion).requestMessageForCheckConnectionToPackage(packageConfiguration, repositoryConfiguration);
+                return messageConverter(resolvedExtensionVersion).requestMessageForCheckConnectionToPackage(packageConfiguration, repositoryConfiguration);
             }
 
             @Override
             public Result onSuccess(String responseBody, String resolvedExtensionVersion) {
-                return messageHandlerMap.get(resolvedExtensionVersion).responseMessageForCheckConnectionToPackage(responseBody);
+                return messageConverter(resolvedExtensionVersion).responseMessageForCheckConnectionToPackage(responseBody);
             }
         });
     }
 
-    Map<String, PluginSettingsJsonMessageHandler> getPluginSettingsMessageHandlerMap() {
-        return pluginSettingsMessageHandlerMap;
+    JsonMessageHandler messageConverter(String resolvedExtensionVersion) {
+        return messageHandlerMap.get(resolvedExtensionVersion);
     }
 
-    Map<String, JsonMessageHandler> getMessageHandlerMap() {
-        return messageHandlerMap;
-    }
 }

@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
@@ -39,7 +39,7 @@ import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.i18n.LocalizedMessage;
-import com.thoughtworks.go.plugin.access.packagematerial.PackageAsRepositoryExtension;
+import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMPropertyConfiguration;
 import com.thoughtworks.go.plugin.access.scm.material.MaterialPollResult;
@@ -89,7 +89,7 @@ public class MaterialServiceTest {
     @Mock
     private SecurityService securityService;
     @Mock
-    private PackageAsRepositoryExtension packageAsRepositoryExtension;
+    private PackageRepositoryExtension packageRepositoryExtension;
     @Mock
     private SCMExtension scmExtension;
     @Mock
@@ -100,7 +100,7 @@ public class MaterialServiceTest {
     @Before
     public void setUp() {
         initMocks(this);
-        materialService = new MaterialService(materialRepository, goConfigService, securityService, packageAsRepositoryExtension, scmExtension, transactionTemplate);
+        materialService = new MaterialService(materialRepository, goConfigService, securityService, packageRepositoryExtension, scmExtension, transactionTemplate);
     }
 
     @Test
@@ -256,7 +256,7 @@ public class MaterialServiceTest {
         material.setPackageDefinition(packageDefinition);
 
 
-        when(packageAsRepositoryExtension.getLatestRevision(eq("plugin-id"),
+        when(packageRepositoryExtension.getLatestRevision(eq("plugin-id"),
                 any(PackageConfiguration.class),
                 any(RepositoryConfiguration.class))).thenReturn(new PackageRevision("blah-123", new Date(), "user"));
 
@@ -271,7 +271,7 @@ public class MaterialServiceTest {
         PackageDefinition packageDefinition = create("id", "package", new Configuration(), PackageRepositoryMother.create("id", "name", "plugin-id", "plugin-version", new Configuration()));
         material.setPackageDefinition(packageDefinition);
 
-        when(packageAsRepositoryExtension.latestModificationSince(eq("plugin-id"),
+        when(packageRepositoryExtension.latestModificationSince(eq("plugin-id"),
                 any(PackageConfiguration.class),
                 any(RepositoryConfiguration.class),
                 any(PackageRevision.class))).thenReturn(new PackageRevision("new-revision-456", new Date(), "user"));

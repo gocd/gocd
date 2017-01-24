@@ -20,11 +20,27 @@ define([
   'models/pipeline_configs/repositories', 'models/pipeline_configs/plugin_infos', 'models/pipeline_configs/packages'
 ], function (m, _, f, Modal, RepositoryConfigEditWidget, RepositoryConfigNewWidget, PackageConfigWidget, Repositories, PluginInfos, Packages) {
 
-  var onSuccessOfRepoAPI = function (vm, modal, material, data) {
+  var addOrReplaceRepository = function (allRepositories, newRepository) {
+
+    var existingRepo = allRepositories().findRepository(function (repository) {
+      return repository.id() === newRepository.id();
+    });
+
+    if (_.isNil(existingRepo)) {
+      allRepositories().addRepository(newRepository);
+    } else {
+      allRepositories().replaceRepository(newRepository, function (repo) {
+        return repo.id() === newRepository.id();
+      });
+    }
+  };
+
+  var onSuccessOfRepoAPI = function (vm, modal, material, allRepositories, newRepository) {
     vm.saveSuccess();
     modal.destroy();
-    material.repository(data);
-    Repositories.init();
+    var newRepo = Repositories.Repository.fromJSON(newRepository);
+    addOrReplaceRepository(allRepositories, newRepo);
+    material.repository(newRepo);
   };
 
   var onFailureOfRepoAPI = function (vm, data) {
@@ -37,7 +53,7 @@ define([
       var ctrl = {
 
         editRepository: function (repoForEdit, vm, modal, material) {
-          repoForEdit().update().then(onSuccessOfRepoAPI.bind(this, vm, modal, material), onFailureOfRepoAPI.bind(this, vm));
+          repoForEdit().update().then(onSuccessOfRepoAPI.bind(this, vm, modal, material, args.repositories), onFailureOfRepoAPI.bind(this, vm));
         },
 
         update: function () {
@@ -53,9 +69,11 @@ define([
     },
 
     view: function (ctrl, args) {
-
       var repository = args.material.repository();
-      var data       = {Name: repository.name(), Plugin: PluginInfos.findById(repository.pluginMetadata().id()).name()};
+      var data       = {
+        Name:   repository.name(),
+        Plugin: PluginInfos.findById(repository.pluginMetadata().id()).name()
+      };
 
       repository.configuration().mapConfigurations(function (conf) {
         data[_.capitalize(conf.key())] = conf.isSecureValue() ? "***********" : conf.value();
@@ -85,22 +103,22 @@ define([
     controller: function (args) {
       var ctrl = {
         createRepository: function (repoForEdit, vm, modal, material) {
-          repoForEdit().create().then(onSuccessOfRepoAPI.bind(this, vm, modal, material), onFailureOfRepoAPI.bind(this, vm));
+          repoForEdit().create().then(onSuccessOfRepoAPI.bind(this, vm, modal, material, args.repositories), onFailureOfRepoAPI.bind(this, vm));
         },
 
         create: function () {
-          var repoForEdit = m.prop(new Repositories.Repository({}));
+          var repoForEdit = m.prop(Repositories.Repository.fromJSON({}));
           args.create(repoForEdit, RepositoryConfigNewWidget, 'Add Repository', 'add-repository', ctrl.createRepository);
         }
       };
       return ctrl;
     },
 
-    view: function (ctrl) {
+    view: function (ctrl, args) {
       return (
 
         <f.column class='no-repo' size={6} end>
-          {_.isEmpty(Repositories()) ?
+          {args.repositories().isEmptyRepository() ?
             <div>
               <label>No repositories available.</label> <a class='add-button button' href="javascript:void(0)"
                                                            onclick={ctrl.create}>Create New Repository</a></div>
@@ -118,10 +136,12 @@ define([
 
   var SelectRepositoryWidget = {
     controller: function (args) {
-
-      Repositories.findById(args.defaultRepoId()).then(function (repository) {
+      var existingRepository = args.repositories().findRepository(function (repo) {
+        return repo.id() === args.defaultRepoId();
+      });
+      existingRepository.refresh().then(function (repository) {
         args.material.repository(repository);
-        if (!repository.packages().countPackage() == 0) {
+        if (!repository.packages().isEmptyPackage()) {
           var packageId = repository.packages().firstPackage().id();
           if (args.material.ref()) {
             packageId = args.material.ref();
@@ -129,19 +149,26 @@ define([
           if (repositoryVM.packageId()) {
             packageId = repositoryVM.packageId();
           }
-          Packages.getPackage(packageId, args.material.package, args.material.ref);
+          Packages.getPackage(packageId, args.material.package, args.material.ref, repository);
+        }
+        else {
+          args.material.package(new Packages.Package({}));
+          args.material.ref(null);
         }
       });
 
 
       var ctrl = {
         selectRepository: function () {
-          var id = args.defaultRepoId();
-          Repositories.findById(id).then(function (repository) {
+          var id                 = args.defaultRepoId();
+          var existingRepository = args.repositories().findRepository(function (repo) {
+            return repo.id() === id;
+          });
+          existingRepository.refresh().then(function (repository) {
             args.material.repository(repository);
-            if (!repository.packages().countPackage() == 0) {
+            if (!repository.packages().isEmptyPackage()) {
               var packageId = repository.packages().firstPackage().id();
-              Packages.getPackage(packageId, args.material.package, args.material.ref);
+              Packages.getPackage(packageId, args.material.package, args.material.ref, repository);
             }
             else {
               args.material.package(new Packages.Package({}));
@@ -155,7 +182,8 @@ define([
 
     view: function (ctrl, args) {
       var items = [];
-      _.each(Repositories(), function (repository) {
+
+      args.repositories().eachRepository(function (repository) {
         var item     = {};
         item['id']   = repository.id();
         item['text'] = repository.name();
@@ -175,28 +203,28 @@ define([
     }
   };
 
-  var RepositoryWidget = {
+  var RepositoryConfigWidget = {
     controller: function (args) {
-
-      var getDefaultRepoId = function () {
+      var getDefaultRepoId = function (allRepositories) {
         var headOfRepositories;
-        if (!_.isEmpty(_.head(Repositories()))) {
-          headOfRepositories = _.head(Repositories()).id();
+        if (!allRepositories().isEmptyRepository()) {
+          headOfRepositories = allRepositories().firstRepository().id();
         }
         return _.isNil(args.material.repository()) ? headOfRepositories : args.material.repository().id();
       };
 
       var ctrl = {
-
-        defaultRepoId: m.prop(getDefaultRepoId()),
+        repositories:  args.repositories,
+        defaultRepoId: m.prop(getDefaultRepoId(args.repositories)),
 
         create: function (repoForEdit, RepositoryConfigurationWidget, modalTitle, modalClass, performOperation) {
           var vm    = new Repositories.vm();
           var modal = new Modal({
             size:    'small',
             title:   modalTitle,
-            class: modalClass,
+            class:   modalClass,
             body:    (<RepositoryConfigurationWidget repoForEdit={repoForEdit}
+                                                     repositories={args.repositories}
                                                      vm={vm}/>),
             onclose: function () {
               vm.reset();
@@ -225,30 +253,52 @@ define([
       };
       return ctrl;
     },
-    view:       function (ctrl, args) {
-      var repository = args.material.repository;
+
+    view: function (ctrl, args) {
+      var repository = args.material.repository();
+
+
+      var maybeSelectRepositoryWidget;
+      if (!_.isNil(repository) || !args.repositories().isEmptyRepository()) {
+        maybeSelectRepositoryWidget = (
+          <SelectRepositoryWidget material={args.material}
+                                  defaultRepoId={ctrl.defaultRepoId}
+                                  repositories={args.repositories}/>);
+      }
+
+      var maybeEditRepositoryWidget;
+
+      if (!_.isNil(repository)) {
+        maybeEditRepositoryWidget = (<EditRepositoryWidget material={args.material}
+                                                           repositories={args.repositories}
+                                                           create={ctrl.create}/>);
+      }
+
+      var packageConfigWidget;
+      if (!_.isNil(repository)) {
+        packageConfigWidget = <PackageConfigWidget material={args.material}
+                                                   repositories={args.repositories}
+                                                   repositoryVM={repositoryVM}/>;
+      }
 
       return (
         <div class="row expanded">
           <div class="columns medium-6">
             <div class="row expanded">
-              {!_.isNil(repository()) || !_.isEmpty(Repositories()) ?
-                <SelectRepositoryWidget material={args.material} defaultRepoId={ctrl.defaultRepoId}/> : ''}
-
+              {maybeSelectRepositoryWidget}
               <NewRepositoryWidget material={args.material}
+                                   repositories={args.repositories}
                                    create={ctrl.create}/>
             </div>
-
-            {_.isNil(repository()) ? '' : <EditRepositoryWidget material={args.material}
-                                                                create={ctrl.create}/> }
+            {maybeEditRepositoryWidget}
           </div>
           <div class="columns medium-6">
-            {!_.isNil(repository()) ? <PackageConfigWidget material={args.material}
-                                                           repositoryVM={repositoryVM}/> : ''}
+            {packageConfigWidget}
           </div>
         </div>
       );
     }
   };
-  return RepositoryWidget;
+
+  return RepositoryConfigWidget;
 });

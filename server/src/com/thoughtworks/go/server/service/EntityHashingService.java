@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
+import com.thoughtworks.go.domain.packagerepository.Packages;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
@@ -183,6 +184,10 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         @Override
         public void onEntityConfigChange(PackageRepository repo) {
             removeFromCache(repo, repo.getId());
+            Packages packages = repo.getPackages();
+            for (PackageDefinition aPackage : packages) {
+                removeFromCache(aPackage, aPackage.getId());
+            }
         }
     }
 
@@ -197,6 +202,8 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         @Override
         public void onEntityConfigChange(PackageDefinition entity) {
             removeFromCache(entity, entity.getId());
+            PackageRepository repo = entity.getRepository();
+            removeFromCache(repo, repo.getId());
         }
     }
 

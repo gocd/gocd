@@ -68,57 +68,6 @@ define(["jquery", "mithril", "lodash", "views/pipeline_configs/package_repositor
       }
     };
 
-
-    var allRepositoriesJSON = {
-      "_embedded": {
-        "package_repositories": [
-          {
-            "repo_id":         "2e74f4c6-be61-4122-8bf5-9c0641d44258",
-            "name":            "first1",
-            "plugin_metadata": {
-              "id":      "nuget",
-              "version": "1"
-            },
-            "configuration":   [
-              {
-                "key":   "REPO_URL",
-                "value": "http://"
-              },
-              {
-                "key":   "USERNAME",
-                "value": "first"
-              },
-              {
-                "key":             "PASSWORD",
-                "encrypted_value": "en5p5YgWfxJkOAYqAy5u0g=="
-              }
-            ],
-            "_embedded":       {
-              "packages": []
-            }
-          },
-          {
-            "repo_id":         "6e74622b-b921-4546-9fc6-b7f9ba1732ba",
-            "name":            "hello",
-            "plugin_metadata": {
-              "id":      "deb",
-              "version": "1"
-            },
-            "configuration":   [
-              {
-                "key":   "REPO_URL",
-                "value": "http://hello"
-              }
-            ],
-            "_embedded":       {
-              "packages": []
-            }
-          }
-        ]
-      }
-    };
-
-
     var repositoryJSON = {
       "repo_id":         "e9745dc7-aaeb-48a8-a22a-fa206ad0637e",
       "name":            "repo",
@@ -171,17 +120,32 @@ define(["jquery", "mithril", "lodash", "views/pipeline_configs/package_repositor
       }
     };
 
+    var allRepositoriesJSON = {
+      /* eslint-disable camelcase */
+      _embedded: {
+        package_repositories: [
+          repositoryJSON,
+          repository2JSON
+        ]
+      }
+      /* eslint-enable camelcase */
+    };
+
+
+
+
     var removeModal = function () {
       $('.modal-parent').each(function (_i, elem) {
         $(elem).data('modal').destroy();
       });
     };
 
-    var mount = function (material) {
+    var mount = function (material, allRepos) {
       m.mount(root,
         m.component(RepositoryConfigWidget,
           {
-            'material': material
+            'material': material,
+            'repositories': allRepos
           })
       );
       m.redraw(true);
@@ -210,8 +174,8 @@ define(["jquery", "mithril", "lodash", "views/pipeline_configs/package_repositor
       pkgMaterial = new Materials().createMaterial({
         type: 'package'
       });
-
-      mount(pkgMaterial);
+      var allRepositories = m.prop(Repositories.fromJSON({}));
+      mount(pkgMaterial, allRepositories);
     });
 
     afterEach(function () {
@@ -224,13 +188,15 @@ define(["jquery", "mithril", "lodash", "views/pipeline_configs/package_repositor
 
 
     var setMaterialWithDebainRepository = function () {
-      var repository = new Repositories.Repository(repositoryJSON);
-      var repo2      = new Repositories.Repository(repository2JSON);
+      var repository = Repositories.Repository.fromJSON(repositoryJSON);
+      var allRepos = Repositories.fromJSON({});
+      allRepos.addRepository(repository);
+      allRepos.addRepository(Repositories.Repository.fromJSON(repository2JSON));
       var pluginInfo = new PluginInfos.PluginInfo(debPluginInfoJSON);
       pkgMaterial.repository(repository);
-      Repositories([repository, repo2]);
       PluginInfos([pluginInfo]);
-      mount(pkgMaterial);
+      var allRepositories = m.prop(allRepos);
+      mount(pkgMaterial, allRepositories);
     };
 
     describe("Repository Widget", function () {

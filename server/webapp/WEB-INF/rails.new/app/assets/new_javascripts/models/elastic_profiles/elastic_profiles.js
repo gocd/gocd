@@ -34,7 +34,6 @@ define([
     dataPath: '_embedded.profiles'
   });
 
-
   ElasticProfiles.Profile = function (data) {
     this.id         = m.prop(s.defaultToIfBlank(data.id, ''));
     this.pluginId   = m.prop(s.defaultToIfBlank(data.pluginId, ''));

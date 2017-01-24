@@ -34,12 +34,17 @@ require([
     Roles.initializeWith(allRoleNames);
     new VersionUpdater().update();
 
-    m.sync([PluginInfos.init(), SCMs.init(), ElasticProfiles.all(),  Repositories.init()]).then(function (args) {
+    m.sync([PluginInfos.init(), SCMs.init(), ElasticProfiles.all(), Repositories.all()]).then(function (args) {
       PluggableTasks.init();
       PluggableSCMs.init();
       PackageRepositories.init();
 
-      m.mount(pipelineConfigElem.get(0), PipelineConfigWidget({url: m.prop(url), elasticProfiles: m.prop(args[2])}));
+      m.mount(pipelineConfigElem.get(0), PipelineConfigWidget({
+        url:             m.prop(url),
+        elasticProfiles: m.prop(args[2]),
+        repositories:    m.prop(args[3])
+      }));
+
       $(document).foundation();
     });
 

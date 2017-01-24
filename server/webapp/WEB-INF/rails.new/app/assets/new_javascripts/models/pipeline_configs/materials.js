@@ -16,8 +16,8 @@
 
 define([
   'mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipeline_configs/encrypted_value', 'models/pipeline_configs/scms',
-  'models/pipeline_configs/packages', 'models/pipeline_configs/repositories', 'models/validatable_mixin', 'js-routes'
-], function (m, _, s, Mixins, EncryptedValue, SCMs, Packages, Repositories, Validatable, Routes) {
+  'models/pipeline_configs/repositories', 'models/validatable_mixin', 'js-routes'
+], function (m, _, s, Mixins, EncryptedValue, SCMs, Repositories, Validatable, Routes) {
 
   function plainOrCipherValue(data) {
     if (data.encryptedPassword) {
@@ -33,9 +33,13 @@ define([
   };
 
   Materials.create = function (data) {
+    function getNonBuiltInMaterial() {
+      return data.type === 'package' ? new Materials.Material.PackageMaterial(data)
+        : new Materials.Material.PluggableMaterial(data);
+    }
+
     return Materials.isBuiltInType(data.type) ? new Materials.Types[data.type].type(data)
-      : data.type === 'package' ? new Materials.Material.PackageMaterial(data)
-      : new Materials.Material.PluggableMaterial(data);
+      : getNonBuiltInMaterial();
   };
 
   Materials.Filter = function (data) {
@@ -440,13 +444,6 @@ define([
 
   Materials.Material.PackageMaterial = function (data) {
 
-    var initializeRepo = function (repo) {
-      Packages.findById(data.ref).then(function (packageMaterial) {
-        Repositories.findById(packageMaterial.packageRepo().id()).then(function (repository) {
-          repo(repository);
-        });
-      });
-    };
     Materials.Material.call(this, "package", true, data);
     this.repository = m.prop(data.repository);
     this.name       = m.prop('');
@@ -460,7 +457,7 @@ define([
     };
 
     if (data.ref) {
-      initializeRepo(this.repository);
+      this.repository(Repositories.findByPackageId(data.ref));
     }
   };
 

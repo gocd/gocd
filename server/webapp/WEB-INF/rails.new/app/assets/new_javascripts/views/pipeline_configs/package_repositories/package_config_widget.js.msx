@@ -16,18 +16,35 @@
 
 define([
   'mithril', 'lodash', 'helpers/form_helper', 'views/shared/new_modal',
-  'models/pipeline_configs/packages', 'models/pipeline_configs/repositories', 'models/pipeline_configs/plugin_infos', 'views/pipeline_configs/package_repositories/package_config_new_widget',
+  'models/pipeline_configs/packages', 'models/pipeline_configs/plugin_infos', 'views/pipeline_configs/package_repositories/package_config_new_widget',
   'views/pipeline_configs/package_repositories/package_config_edit_widget'
-], function (m, _, f, Modal, Packages, Repositories, PluginInfos, PackageConfigNewWidget, PackageConfigEditWidget) {
+], function (m, _, f, Modal, Packages, PluginInfos, PackageConfigNewWidget, PackageConfigEditWidget) {
 
-  var onSuccessOfPackageApi = function (vm, modal, material, repositoryVM, data) {
-    vm.saveSuccess();
-    debugger;
-    material.ref(data.id());
-    repositoryVM.packageId(data.id());
-    Repositories.findById(material.repository().id()).then(function (repository) {
-      material.repository(repository);
+  var addOrReplacePackage = function (repository, newPackage) {
+    var existingPackage = repository.packages().findPackage(function (pkg) {
+      return pkg.id() === newPackage.id();
     });
+    if (_.isNil(existingPackage)) {
+      repository.packages().addPackage(newPackage);
+    }
+    else {
+      repository.packages().replacePackage(newPackage, function (pkg) {
+        return pkg.id() === newPackage.id();
+      });
+    }
+  };
+
+  var onSuccessOfPackageApi = function (vm, modal, material, repositoryVM, allRepositories, newPkg) {
+    vm.saveSuccess();
+    var newPackage = Packages.Package.fromJSON(newPkg);
+    material.ref(newPackage.id());
+    material.package(newPackage);
+    repositoryVM.packageId(newPackage.id());
+    var existingRepository = allRepositories().findRepository(function (repo) {
+      return repo.id() === newPackage.packageRepo().id();
+    });
+    material.repository(existingRepository);
+    addOrReplacePackage(existingRepository, newPackage);
     modal.destroy();
   };
 
@@ -43,7 +60,7 @@ define([
         },
 
         editPackage: function (packageForEdit, vm, modal) {
-          packageForEdit().update().then(onSuccessOfPackageApi.bind(this, vm, modal, args.material, args.repositoryVM), onFailureOfPackageApi.bind(this, vm));
+          packageForEdit().update().then(onSuccessOfPackageApi.bind(this, vm, modal, args.material, args.repositoryVM, args.repositories), onFailureOfPackageApi.bind(this, vm));
         },
 
         update: function () {
@@ -86,10 +103,10 @@ define([
     controller: function (args) {
       var ctrl = {
         createPackage: function (packageForEdit, vm, modal) {
-          packageForEdit().create().then(onSuccessOfPackageApi.bind(this, vm, modal, args.material, args.repositoryVM), onFailureOfPackageApi.bind(this, vm));
+          packageForEdit().create().then(onSuccessOfPackageApi.bind(this, vm, modal, args.material, args.repositoryVM, args.repositories), onFailureOfPackageApi.bind(this, vm));
         },
         create:        function () {
-          var packageForEdit = m.prop(new Packages.Package({}));
+          var packageForEdit = m.prop(Packages.Package.fromJSON({}));
           args.create(packageForEdit, args.material.repository, PackageConfigNewWidget, 'Add Package', ctrl.createPackage);
         }
       };
@@ -99,19 +116,19 @@ define([
 
     view: function (ctrl, args) {
 
-      if (args.material.repository().packages().countPackage() === 0) {
+      if (args.material.repository().packages().isEmptyPackage()) {
         return (
           <div class="columns medium-8 no-package">
             <label>No packages available in this repository.</label> <a class='add-button button'
                                                                         href="javascript:void(0)"
                                                                         onclick={ctrl.create}>Create New Package</a>
           </div>
-        )
+        );
       }
       return (
         <div class="columns medium-6 no-package"><a class='add-button button button-no-text'
                                                     href="javascript:void(0)"
-                                                    onclick={ctrl.create}/></div>)
+                                                    onclick={ctrl.create}/></div>);
     }
   };
 
@@ -159,7 +176,7 @@ define([
         getPackageForEdit: function (packageId) {
           var packageForEdit = args.material.package;
           if (packageId) {
-            Packages.getPackage(packageId, packageForEdit, args.material.ref);
+            Packages.getPackage(packageId, packageForEdit, args.material.ref, args.material.repository());
           }
           return packageForEdit;
         },
@@ -201,7 +218,7 @@ define([
         <span>
           <div class="row expanded">
 
-            {args.material.repository().packages().countPackage() === 0 ? '' :
+            {args.material.repository().packages().isEmptyPackage() ? '' :
               <SelectPackageWidget material={args.material}
                                    defaultPackageId={ctrl.defaultPackageId}
                                    repositoryVM={args.repositoryVM}
@@ -209,13 +226,15 @@ define([
 
             <NewPackageWidget material={args.material}
                               repositoryVM={args.repositoryVM}
+                              repositories={args.repositories}
                               create={ctrl.create}/>
           </div>
 
-          {args.material.repository().packages().countPackage() === 0 ? '' :
+          {args.material.repository().packages().isEmptyPackage() ? '' :
             <EditPackageWidget packageForEdit={args.material.package}
                                material={args.material}
                                repositoryVM={args.repositoryVM}
+                               repositories={args.repositories}
                                create={ctrl.create}/>}
         </span>
       );

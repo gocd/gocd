@@ -74,8 +74,8 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/packag
       };
 
       beforeEach(function () {
-        packageMaterial = m.prop(new Packages.Package(packageConfig));
-        repository  = new Repositories.Repository(repoConfig);
+        packageMaterial = m.prop(Packages.Package.fromJSON(packageConfig));
+        repository  = new Repositories.Repository.fromJSON(repoConfig);
         mount(packageMaterial, repository);
       });
 

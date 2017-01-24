@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-define(['jquery', 'mithril', 'models/pipeline_configs/packages'],
-  function ($, m, Packages) {
+define(['lodash', 'models/pipeline_configs/packages', 'models/shared/plugin_configurations'],
+  function (_, Packages, PluginConfigurations) {
     describe('packages', function () {
       describe('package', function () {
         describe('constructor', function () {
@@ -25,8 +25,8 @@ define(['jquery', 'mithril', 'models/pipeline_configs/packages'],
               /* eslint-disable camelcase */
               id:            'packageId',
               name:          'packageName',
-              package_repo:  {id: 'repo-id', name: 'repoName'},
-              configuration: [{key: 'PACKAGE_SPEC', value: 'path/to/repo'}, {key: 'username', value: 'some_name'}],
+              packageRepo:  Packages.Package.PackageRepository.fromJSON({id: 'repo-id', name: 'repoName'}),
+              configuration: PluginConfigurations.fromJSON([{key: 'PACKAGE_SPEC', value: 'path/to/repo'}, {key: 'username', value: 'some_name'}])
               /* eslint-enable camelcase */
             });
           });
@@ -48,224 +48,194 @@ define(['jquery', 'mithril', 'models/pipeline_configs/packages'],
             expect(packageMaterial.configuration().collectConfigurationProperty('value')).toEqual(['path/to/repo', 'some_name']);
           });
 
+          it('should default autoUpdate to true if not provided', function () {
+            expect(packageMaterial.autoUpdate()).toBe(true);
+          });
+
         });
 
         describe('create', function () {
-          var packageMaterial, requestArgs, deferred;
+          var packageJSON;
 
-          packageMaterial = new Packages.Package({
+          packageJSON = {
             /* eslint-disable camelcase */
-            id:            'packageId',
-            name:          'packageName',
-            package_repo:  {id: 'repo-id', name: 'repoName'},
-            configuration: [{key: 'PACKAGE_SPEC', value: 'path/to/repo'}, {key: 'username', value: 'some_name'}]
+            id: 'packageId',
+            name: 'pkg',
+            auto_update: 'false',
+            package_repo: {
+              id: 'repoId',
+              name: 'repoName'
+            },
+            configuration: [
+              {
+                key: 'PACKAGE_SPEC',
+                value: '4.*'
+              },
+              {
+                key: 'VERSION',
+                value: '12'
+              }
+            ]
             /* eslint-enable camelcase */
-          });
-
-          beforeAll(function () {
-            deferred = $.Deferred();
-            spyOn(m, 'request').and.returnValue(deferred.promise());
-
-            packageMaterial.create();
-            requestArgs = m.request.calls.mostRecent().args[0];
-          });
-
-          afterAll(function () {
-            Packages.packageIdToEtag = {};
-          });
+          };
 
           it('should post to packages endpoint', function () {
-            expect(requestArgs.method).toBe('POST');
-            expect(requestArgs.url).toBe('/go/api/admin/packages');
+            var packageMaterial = Packages.Package.fromJSON(packageJSON);
+
+            jasmine.Ajax.withMock(function () {
+              jasmine.Ajax.stubRequest('/go/api/admin/packages').andReturn({
+                responseText: JSON.stringify(packageJSON),
+                status:       200
+              });
+
+              var successCallback = jasmine.createSpy().and.callFake(function (pkg) {
+                var newPackage = Packages.Package.fromJSON(pkg);
+                expect(newPackage.name()).toBe('pkg');
+              });
+
+              packageMaterial.create().then(successCallback);
+              expect(successCallback).toHaveBeenCalled();
+
+              var request = jasmine.Ajax.requests.mostRecent();
+
+              expect(request.method).toBe('POST');
+              expect(request.url).toBe('/go/api/admin/packages');
+              expect(request.requestHeaders['Content-Type']).toContain('application/json');
+              expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
+              expect(JSON.parse(request.params)).toEqual(packageJSON);
+            });
           });
 
-          it('should post required headers', function () {
-            var xhr = jasmine.createSpyObj(xhr, ['setRequestHeader']);
-            requestArgs.config(xhr);
+          it("should not create a package and call the error callback on non-200 failure code", function () {
+            var packageMaterial = Packages.Package.fromJSON(packageJSON);
 
-            expect(xhr.setRequestHeader).toHaveBeenCalledWith("Content-Type", "application/json");
-            expect(xhr.setRequestHeader).toHaveBeenCalledWith("Accept", "application/vnd.go.cd.v1+json");
-          });
+            jasmine.Ajax.withMock(function () {
+              jasmine.Ajax.stubRequest('/go/api/admin/packages', undefined, 'POST').andReturn({
+                responseText: JSON.stringify({message: 'Unauthorized'}),
+                status:       401
+              });
 
-          it('should post package json', function () {
-            expect(JSON.stringify(requestArgs.data)).toBe(JSON.stringify({
-              /* eslint-disable camelcase */
-              id:            'packageId',
-              name:          'packageName',
-              auto_update:    true,
-              package_repo:  {id: 'repo-id', name: 'repoName'},
-              configuration: [{key: 'PACKAGE_SPEC', value: 'path/to/repo'}, {key: 'username', value: 'some_name'}]
-              /* eslint-enable camelcase */
-            }));
-          });
+              var errorCallback = jasmine.createSpy();
 
-          it('should update etag cache on success', function () {
-            var xhr = {
-              status:            200,
-              getResponseHeader: m.prop(),
-              responseText:      JSON.stringify({id: 'new_id'})
-            };
+              packageMaterial.create().then(_.noop, errorCallback);
 
-            spyOn(xhr, 'getResponseHeader').and.returnValue('etag_for_package');
+              expect(errorCallback).toHaveBeenCalledWith('Unauthorized');
 
-            requestArgs = m.request.calls.mostRecent().args[0];
-            requestArgs.extract(xhr);
+              expect(jasmine.Ajax.requests.count()).toBe(1);
 
-            expect(xhr.getResponseHeader).toHaveBeenCalledWith('ETag');
-            expect(Packages.packageIdToEtag).toEqual({'new_id': 'etag_for_package'});
+              var request = jasmine.Ajax.requests.mostRecent();
+
+              expect(request.method).toBe('POST');
+              expect(JSON.parse(request.params)).toEqual(packageJSON);
+              expect(request.url).toBe('/go/api/admin/packages');
+              expect(request.requestHeaders['Content-Type']).toContain('application/json');
+              expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
+              expect(JSON.parse(request.params)).toEqual(packageJSON);
+            });
           });
         });
 
         describe('update', function () {
-          var packageMaterial, requestArgs, deferred;
+          var packageJSON, existingPackageJSON;
 
-          packageMaterial = new Packages.Package({
+          packageJSON = {
             /* eslint-disable camelcase */
-            id:            'packageId',
-            name:          'packageName',
-            package_repo:  {id: 'repo-id', name: 'repoName'},
-            configuration: [{key: 'PACKAGE_SPEC', value: 'path/to/repo'}, {key: 'username', value: 'some_name'}]
+            id: 'packageId',
+            name: 'packageName',
+            auto_update: true,
+            package_repo: {
+              id: 'repoId',
+              name: 'repoName'
+            },
+            configuration: [
+              {
+                key: 'PACKAGE_SPEC',
+                value: '44abc'
+              },
+              {
+                key: 'ARCHITECTURE',
+                value: 'jar'
+              }
+            ]
             /* eslint-enable camelcase */
-          });
-
-          beforeAll(function () {
-            deferred = $.Deferred();
-            spyOn(m, 'request').and.returnValue(deferred.promise());
-            Packages.packageIdToEtag['packageId'] = 'etag';
-
-            packageMaterial.update();
-
-            requestArgs = m.request.calls.mostRecent().args[0];
-          });
-
-          afterAll(function () {
-            Packages.packageIdToEtag = {};
-          });
-
-          it('should put to package endpoint', function () {
-            expect(requestArgs.method).toBe('PUT');
-            expect(requestArgs.url).toBe('/go/api/admin/packages/packageId');
-          });
-
-          it('should post required headers', function () {
-            var xhr = jasmine.createSpyObj(xhr, ['setRequestHeader']);
-            requestArgs.config(xhr);
-
-            expect(xhr.setRequestHeader).toHaveBeenCalledWith("Content-Type", "application/json");
-            expect(xhr.setRequestHeader).toHaveBeenCalledWith("Accept", "application/vnd.go.cd.v1+json");
-            expect(xhr.setRequestHeader).toHaveBeenCalledWith("If-Match", "etag");
-          });
-
-          it('should post package json', function () {
-            expect(JSON.stringify(requestArgs.data)).toBe(JSON.stringify({
-              /* eslint-disable camelcase */
-              id:            'packageId',
-              name:          'packageName',
-              auto_update:   true,
-              package_repo:  {id: 'repo-id', name: 'repoName'},
-              configuration: [{key: 'PACKAGE_SPEC', value: 'path/to/repo'}, {key: 'username', value: 'some_name'}],
-              /* eslint-enable camelcase */
-            }));
-          });
-
-          it('should update etag cache on success', function () {
-            Packages.packageIdToEtag[packageMaterial.id()] = 'etag_before_update';
-            var xhr                                        = {
-              status:            200,
-              getResponseHeader: m.prop()
-            };
-
-            spyOn(xhr, 'getResponseHeader').and.returnValue('etag_after_update');
-
-            requestArgs = m.request.calls.mostRecent().args[0];
-            requestArgs.extract(xhr);
-
-            expect(xhr.getResponseHeader).toHaveBeenCalledWith('ETag');
-            expect(Packages.packageIdToEtag).toEqual({'packageId': 'etag_after_update'});
-          });
-        });
-
-      });
-
-      describe('findById', function () {
-        var requestArgs, deferred;
-
-        beforeAll(function () {
-          Packages([
-            new Packages.Package({
-              /* eslint-disable camelcase */
-              id:            'packageId0',
-              name:          'packageName',
-              package_repo:  {id: 'repo-id', name: 'repoName'},
-              configuration: [{key: 'PACKAGE_SPEC', value: 'path/to/repo'}, {key: 'username', value: 'some_name'}]
-              /* eslint-enable camelcase */
-            }),
-            new Packages.Package({
-              /* eslint-disable camelcase */
-              id:            'packageId1',
-              name:          'packageName',
-              package_repo:  {id: 'repo-id', name: 'repoName'},
-              configuration: [{key: 'PACKAGE_SPEC', value: 'path/to/repo'}, {key: 'username', value: 'some_name'}]
-              /* eslint-enable camelcase */
-            })
-          ]);
-
-          deferred = $.Deferred();
-          spyOn(m, 'request').and.returnValue(deferred.promise());
-        });
-
-        afterAll(function () {
-          Packages([]);
-          Packages.packagesIdToEtag = {};
-        });
-
-        it('should fetch package for a given package_id', function () {
-          Packages.findById('packageId1');
-
-          requestArgs = m.request.calls.mostRecent().args[0];
-
-          expect(requestArgs.method).toBe('GET');
-          expect(requestArgs.url).toBe('/go/api/admin/packages/packageId1');
-        });
-
-        it('should post required headers', function () {
-          var xhr = jasmine.createSpyObj(xhr, ['setRequestHeader']);
-
-          Packages.findById('packageId1');
-
-          requestArgs = m.request.calls.mostRecent().args[0];
-          requestArgs.config(xhr);
-
-          expect(xhr.setRequestHeader).toHaveBeenCalledWith("Content-Type", "application/json");
-          expect(xhr.setRequestHeader).toHaveBeenCalledWith("Accept", "application/vnd.go.cd.v1+json");
-        });
-
-        it('should serialize the returned json to package', function () {
-          Packages.findById('packageId1');
-
-          requestArgs = m.request.calls.mostRecent().args[0];
-
-          expect(requestArgs.type).toBe(Packages.Package);
-        });
-
-        it('should stop page redraw', function () {
-          expect(requestArgs.background).toBe(false);
-        });
-
-        it('should extract and cache etag for the package', function () {
-          var xhr = {
-            getResponseHeader: m.prop()
           };
 
-          spyOn(xhr, 'getResponseHeader').and.returnValue('etag2');
+          existingPackageJSON = {
+            /* eslint-disable camelcase */
+            id: 'packageId',
+            name: 'packageName',
+            auto_update: false,
+            package_repo: {
+              id: 'repoId',
+              name: 'repoName'
+            },
+            configuration: [
+              {
+                key: 'PACKAGE_SPEC',
+                value: 'abc'
+              }
+            ]
+            /* eslint-enable camelcase */
+          };
 
-          Packages.findById('packageId1');
+          it('should put to package endpoint', function () {
+            var existingPackage = Packages.Package.fromJSON(existingPackageJSON);
+            existingPackage.etag('old-etag');
+            jasmine.Ajax.withMock(function () {
+              jasmine.Ajax.stubRequest('/go/api/admin/packages/packageId').andReturn({
+                responseText: JSON.stringify(packageJSON),
+                status:       200
+              });
 
-          requestArgs = m.request.calls.mostRecent().args[0];
-          requestArgs.extract(xhr);
+              var successCallback = jasmine.createSpy().and.callFake(function (pkg) {
+                var updatedPackage = Packages.Package.fromJSON(pkg);
+                expect(updatedPackage.name()).toBe('packageName');
+                expect(updatedPackage.configuration().collectConfigurationProperty('key')).toEqual(['PACKAGE_SPEC', 'ARCHITECTURE']);
+                expect(updatedPackage.configuration().collectConfigurationProperty('value')).toEqual(['44abc', 'jar']);
+              });
 
-          expect(xhr.getResponseHeader).toHaveBeenCalledWith('ETag');
-          expect(Packages.packageIdToEtag).toEqual({'packageId1': 'etag2'});
+              existingPackage.update().then(successCallback);
+              expect(successCallback).toHaveBeenCalled();
+
+              var request = jasmine.Ajax.requests.mostRecent();
+
+              expect(request.method).toBe('PUT');
+              expect(request.url).toBe('/go/api/admin/packages/packageId');
+              expect(request.requestHeaders['Content-Type']).toContain('application/json');
+              expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
+              expect(request.requestHeaders['If-Match']).toContain(existingPackage.etag());
+              expect(JSON.parse(request.params)).toEqual(existingPackageJSON);
+            });
+          });
+
+          it('should not update a package and call error callback on error', function () {
+            var pkg = Packages.Package.fromJSON(existingPackageJSON);
+            pkg.etag("some-etag");
+
+            jasmine.Ajax.withMock(function () {
+              jasmine.Ajax.stubRequest('/go/api/admin/packages/packageId', undefined, 'PUT').andReturn({
+                responseText: JSON.stringify({message: 'Someone has modified the entity'}),
+                status:       412
+              });
+
+              var errorCallback = jasmine.createSpy();
+
+              pkg.update().then(_.noop, errorCallback);
+
+              expect(errorCallback).toHaveBeenCalledWith('Someone has modified the entity');
+
+              expect(jasmine.Ajax.requests.count()).toBe(1);
+
+              var request = jasmine.Ajax.requests.mostRecent();
+
+              expect(request.method).toBe('PUT');
+              expect(request.url).toBe('/go/api/admin/packages/packageId');
+              expect(request.requestHeaders['Content-Type']).toContain('application/json');
+              expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
+              expect(request.requestHeaders['If-Match']).toBe('some-etag');
+              expect(JSON.parse(request.params)).toEqual(existingPackageJSON);
+            });
+          });
         });
       });
     });

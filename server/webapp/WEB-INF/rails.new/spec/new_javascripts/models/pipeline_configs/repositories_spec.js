@@ -14,54 +14,57 @@
  * limitations under the License.
  */
 
-define(['jquery', 'mithril', 'models/pipeline_configs/repositories'],
-  function ($, m, Repositories) {
+define(['lodash','models/pipeline_configs/repositories', 'models/shared/plugin_configurations'],
+  function (_, Repositories, PluginConfigurations) {
     describe('Repositories', function () {
-      describe('init', function () {
-        var requestArgs;
-
-        beforeEach(function () {
-          spyOn(m, 'request').and.returnValue($.Deferred());
-        });
+      describe('all', function () {
+        var repositories = {
+          "_embedded": {
+            /* eslint-disable camelcase */
+            "package_repositories": [
+              {"id": '1', "name": 'repo_1'},
+              {"id": '2', "name": 'repo_2'}
+            ]
+            /* eslint-enable camelcase */
+          }
+        };
 
         it('should fetch all repositories', function () {
-          Repositories.init();
+          jasmine.Ajax.withMock(function () {
+            jasmine.Ajax.stubRequest('/go/api/admin/repositories').andReturn({
+              responseText: JSON.stringify(repositories),
+              status:       200
+            });
 
-          requestArgs = m.request.calls.mostRecent().args[0];
+            var successCallback = jasmine.createSpy().and.callFake(function (repos) {
+              expect(repos.countRepository()).toBe(2);
+            });
 
-          expect(requestArgs.method).toBe('GET');
-          expect(requestArgs.url).toBe('/go/api/admin/repositories');
+            Repositories.all().then(successCallback);
+            expect(successCallback).toHaveBeenCalled();
+
+            var request = jasmine.Ajax.requests.mostRecent();
+
+            expect(request.method).toBe('GET');
+            expect(request.url).toBe('/go/api/admin/repositories');
+            expect(request.requestHeaders['Content-Type']).toContain('application/json');
+            expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
+          });
         });
 
-        it('should post required headers', function () {
-          var xhr = jasmine.createSpyObj(xhr, ['setRequestHeader']);
+        it('should call error callback for non-200 response', function () {
+          jasmine.Ajax.withMock(function () {
+            jasmine.Ajax.stubRequest('/go/api/admin/repositories').andReturn({
+              responseText: JSON.stringify({message: 'Unauthorized'}),
+              status:       403
+            });
 
-          Repositories.init();
+            var errorCallback = jasmine.createSpy();
 
-          requestArgs = m.request.calls.mostRecent().args[0];
-          requestArgs.config(xhr);
+            Repositories.all().then(_.noop, errorCallback);
 
-          expect(xhr.setRequestHeader).toHaveBeenCalledWith("Content-Type", "application/json");
-          expect(xhr.setRequestHeader).toHaveBeenCalledWith("Accept", "application/vnd.go.cd.v1+json");
-        });
-
-        it('should unwrap the response data to return list of repositories', function () {
-          Repositories.init();
-
-          requestArgs = m.request.calls.mostRecent().args[0];
-
-          var repositories = {
-            _embedded: {
-              /* eslint-disable camelcase */
-              package_repositories: [
-                {id: '1', name: 'repo_1'},
-                {id: '2', name: 'repo_2'}
-              ]
-              /* eslint-enable camelcase */
-            }
-          };
-
-          expect(requestArgs.unwrapSuccess(repositories)).toEqual(repositories._embedded.package_repositories);
+            expect(errorCallback).toHaveBeenCalledWith('Unauthorized');
+          });
         });
       });
 
@@ -70,13 +73,14 @@ define(['jquery', 'mithril', 'models/pipeline_configs/repositories'],
           var repository;
           beforeAll(function () {
             repository = new Repositories.Repository({
-              /* eslint-disable camelcase */
-              repo_id:         'repositoryId',
-              name:            'repo',
-              plugin_metadata: {id: 'deb', version: '1.1'},
-              configuration:   [{key: 'REPO_URL', value: 'path/to/repo'}, {key: 'username', value: 'some_name'}],
-              _embedded: {packages: []}
-              /* eslint-enable camelcase */
+              id:             'repositoryId',
+              name:           'repo',
+              pluginMetadata: Repositories.Repository.PluginMetadata.fromJSON({id: 'deb', version: '1.1'}),
+              configuration:  PluginConfigurations.fromJSON([{key: 'REPO_URL', value: 'path/to/repo'}, {
+                key:   'username',
+                value: 'some_name'
+              }]),
+              _embedded:      {packages: []}
             });
           });
 
@@ -98,271 +102,277 @@ define(['jquery', 'mithril', 'models/pipeline_configs/repositories'],
             expect(repository.configuration().collectConfigurationProperty('value')).toEqual(['path/to/repo', 'some_name']);
           });
 
-
-          it('should not default repo_id of not provided', function () {
+          it('should default repo id to blank if not provided', function () {
             var repo = new Repositories.Repository({
-              /* eslint-disable camelcase */
-              name:            'repo',
-              plugin_metadata: {id: 'deb', version: '1.1'},
-              configuration:   [{key: 'REPO_URL', value: 'path/to/repo'}],
-              _embedded: {packages: []}
-              /* eslint-enable camelcase */
+              name:           'repo',
+              pluginMetadata: Repositories.Repository.PluginMetadata.fromJSON({id: 'deb', version: '1.1'}),
+              configuration:  PluginConfigurations.fromJSON([{key: 'REPO_URL', value: 'path/to/repo'}]),
+              _embedded:      {packages: []}
             });
-            expect(repo.id()).toBe(undefined);
+            expect(repo.id()).toBe('');
           });
 
         });
 
         describe('create', function () {
-          var repository, requestArgs, deferred;
+          var repository;
 
-          repository = new Repositories.Repository({
-            name:            'repo',
-            plugin_metadata: {id: 'deb', version: '1.1'}, //eslint-disable-line camelcase
-            configuration:   [{key: 'REPO_URL', value: 'path/to/repo'}, {key: 'username', value: 'some_name'}],
-            _embedded: {packages: []}
-          });
-
-          beforeAll(function () {
-            deferred = $.Deferred();
-            spyOn(m, 'request').and.returnValue(deferred.promise());
-
-            repository.create();
-            requestArgs = m.request.calls.mostRecent().args[0];
-          });
-
-          afterAll(function () {
-            Repositories.repoIdToEtag = {};
-          });
+          repository = {
+            /* eslint-disable camelcase */
+            repo_id: 'repoId',
+            name: 'repo',
+            plugin_metadata: {
+              id: 'deb',
+              version: '1.1'
+            },
+            configuration: [
+              {
+                key: 'REPO_URL',
+                value: 'path/to/repo'
+              },
+              {
+                key: 'username',
+                value: 'some_user'
+              }
+            ]
+            /* eslint-enable camelcase */
+          };
 
           it('should post to repositories endpoint', function () {
-            expect(requestArgs.method).toBe('POST');
-            expect(requestArgs.url).toBe('/go/api/admin/repositories');
+            var repo = Repositories.Repository.fromJSON(repository);
+
+            jasmine.Ajax.withMock(function () {
+              jasmine.Ajax.stubRequest('/go/api/admin/repositories').andReturn({
+                responseText: JSON.stringify(repository),
+                status:       200
+              });
+
+              var successCallback = jasmine.createSpy().and.callFake(function (repository) {
+                var newRepository = Repositories.Repository.fromJSON(repository);
+                expect(newRepository.name()).toBe('repo');
+              });
+
+              repo.create().then(successCallback);
+              expect(successCallback).toHaveBeenCalled();
+
+              var request = jasmine.Ajax.requests.mostRecent();
+
+              expect(request.method).toBe('POST');
+              expect(request.url).toBe('/go/api/admin/repositories');
+              expect(request.requestHeaders['Content-Type']).toContain('application/json');
+              expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
+              expect(JSON.parse(request.params)).toEqual(repository);
+            });
           });
 
-          it('should post required headers', function () {
-            var xhr = jasmine.createSpyObj(xhr, ['setRequestHeader']);
-            requestArgs.config(xhr);
+          it("should not create a repository and call the error callback on non-200 failure code", function () {
+            var repo = Repositories.Repository.fromJSON(repository);
 
-            expect(xhr.setRequestHeader).toHaveBeenCalledWith("Content-Type", "application/json");
-            expect(xhr.setRequestHeader).toHaveBeenCalledWith("Accept", "application/vnd.go.cd.v1+json");
-          });
+            jasmine.Ajax.withMock(function () {
+              jasmine.Ajax.stubRequest('/go/api/admin/repositories', undefined, 'POST').andReturn({
+                responseText: JSON.stringify({message: 'Unauthorized'}),
+                status:       401
+              });
 
-          it('should post repository json', function () {
-            expect(JSON.stringify(requestArgs.data)).toBe(JSON.stringify({
-              /* eslint-disable camelcase */
-              name:            'repo',
-              plugin_metadata: {id: 'deb', version: '1.1'},
-              configuration:   [{key: 'REPO_URL', value: 'path/to/repo'}, {key: 'username', value: 'some_name'}]
-              /* eslint-enable camelcase */
-            }));
-          });
+              var errorCallback = jasmine.createSpy();
 
-          it('should update etag cache on success', function () {
-            /* eslint-disable camelcase */
-            var xhr = {
-              status:            200,
-              getResponseHeader: m.prop(),
-              responseText:      JSON.stringify({repo_id: 'new_id'})
-            };
-            /* eslint-enable camelcase */
+              repo.create().then(_.noop, errorCallback);
 
-            spyOn(xhr, 'getResponseHeader').and.returnValue('etag_for_repo');
+              expect(errorCallback).toHaveBeenCalledWith('Unauthorized');
 
-            requestArgs = m.request.calls.mostRecent().args[0];
-            requestArgs.extract(xhr);
+              expect(jasmine.Ajax.requests.count()).toBe(1);
 
-            expect(xhr.getResponseHeader).toHaveBeenCalledWith('ETag');
-            expect(Repositories.repoIdToEtag).toEqual({'new_id': 'etag_for_repo'});
+              var request = jasmine.Ajax.requests.mostRecent();
+
+              expect(request.method).toBe('POST');
+              expect(JSON.parse(request.params)).toEqual(repository);
+              expect(request.url).toBe('/go/api/admin/repositories');
+              expect(request.requestHeaders['Content-Type']).toContain('application/json');
+              expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
+              expect(JSON.parse(request.params)).toEqual(repository);
+            });
           });
         });
 
         describe('update', function () {
-          var repository, requestArgs, deferred;
+          var repository, existingRepositoryJSON;
 
-          repository = new Repositories.Repository({
+          repository = {
             /* eslint-disable camelcase */
-            repo_id:         '43c45e0b-1b0c-46f3-a60a-2bbc5cec069c',
-            name:            'repo',
-            plugin_metadata: {id: 'deb', version: '1.1'},
-            configuration:   [{key: 'REPO_URL', value: 'path/to/repo'}, {key: 'username', value: 'some_name'}],
-            _embedded: {packages: []}
+            name: 'repo',
+            plugin_metadata: {
+              id: 'deb',
+              version: '1.1'
+            },
+            configuration: [
+              {
+                key: 'REPO_URL',
+                value: 'path/to/repo'
+              },
+              {
+                key: 'username',
+                value: 'some_user'
+              }
+            ]
             /* eslint-enable camelcase */
-          });
-
-          beforeAll(function () {
-            deferred = $.Deferred();
-            spyOn(m, 'request').and.returnValue(deferred.promise());
-            Repositories.repoIdToEtag['43c45e0b-1b0c-46f3-a60a-2bbc5cec069c'] = 'etag';
-
-            repository.update();
-
-            requestArgs = m.request.calls.mostRecent().args[0];
-          });
-
-          afterAll(function () {
-            Repositories.repoIdToEtag = {};
-          });
-
-          it('should put to repository endpoint', function () {
-            expect(requestArgs.method).toBe('PUT');
-            expect(requestArgs.url).toBe('/go/api/admin/repositories/43c45e0b-1b0c-46f3-a60a-2bbc5cec069c');
-          });
-
-          it('should post required headers', function () {
-            var xhr = jasmine.createSpyObj(xhr, ['setRequestHeader']);
-            requestArgs.config(xhr);
-
-            expect(xhr.setRequestHeader).toHaveBeenCalledWith("Content-Type", "application/json");
-            expect(xhr.setRequestHeader).toHaveBeenCalledWith("Accept", "application/vnd.go.cd.v1+json");
-            expect(xhr.setRequestHeader).toHaveBeenCalledWith("If-Match", "etag");
-          });
-
-          it('should post repository json', function () {
-            expect(JSON.stringify(requestArgs.data)).toBe(JSON.stringify({
-              /* eslint-disable camelcase */
-              repo_id:         '43c45e0b-1b0c-46f3-a60a-2bbc5cec069c',
-              name:            'repo',
-              plugin_metadata: {id: 'deb', version: '1.1'},
-              configuration:   [{key: 'REPO_URL', value: 'path/to/repo'}, {key: 'username', value: 'some_name'}],
-              /* eslint-enable camelcase */
-            }));
-          });
-
-          it('should update etag cache on success', function () {
-            Repositories.repoIdToEtag[repository.id()] = 'etag_before_update';
-            var xhr                                    = {
-              status:            200,
-              getResponseHeader: m.prop()
-            };
-
-            spyOn(xhr, 'getResponseHeader').and.returnValue('etag_after_update');
-
-            requestArgs = m.request.calls.mostRecent().args[0];
-            requestArgs.extract(xhr);
-
-            expect(xhr.getResponseHeader).toHaveBeenCalledWith('ETag');
-            expect(Repositories.repoIdToEtag).toEqual({'43c45e0b-1b0c-46f3-a60a-2bbc5cec069c': 'etag_after_update'});
-          });
-        });
-
-      });
-
-      describe('findById', function () {
-        var requestArgs, deferred;
-
-        beforeAll(function () {
-          Repositories([
-            /* eslint-disable camelcase */
-            new Repositories.Repository({
-              repo_id:         'repo_id_1',
-              name:            'repo_1',
-              plugin_metadata: {id: 'deb', version: '1.1'}, //eslint-disable-line camelcase
-              _embedded: {packages: []}
-
-            }),
-            new Repositories.Repository({
-              repo_id:         'repo_id_2',
-              name:            'repo_2',
-              plugin_metadata: {id: 'npm', version: '1.1'}, //eslint-disable-line camelcase
-              _embedded: {packages: []}
-            })
-            /* eslint-enable camelcase */
-          ]);
-
-          deferred = $.Deferred();
-          spyOn(m, 'request').and.returnValue(deferred.promise());
-        });
-
-        afterAll(function () {
-          Repositories([]);
-          Repositories.repoIdToEtag = {};
-        });
-
-        it('should fetch repo for a given repo_id', function () {
-          Repositories.findById('repo_id_2');
-
-          requestArgs = m.request.calls.mostRecent().args[0];
-
-          expect(requestArgs.method).toBe('GET');
-          expect(requestArgs.url).toBe('/go/api/admin/repositories/repo_id_2');
-        });
-
-        it('should post required headers', function () {
-          var xhr = jasmine.createSpyObj(xhr, ['setRequestHeader']);
-
-          Repositories.findById('repo_id_2');
-
-          requestArgs = m.request.calls.mostRecent().args[0];
-          requestArgs.config(xhr);
-
-          expect(xhr.setRequestHeader).toHaveBeenCalledWith("Content-Type", "application/json");
-          expect(xhr.setRequestHeader).toHaveBeenCalledWith("Accept", "application/vnd.go.cd.v1+json");
-        });
-
-        it('should serialize the returned json to repository', function () {
-          Repositories.findById('repo_id_2');
-
-          requestArgs = m.request.calls.mostRecent().args[0];
-
-          expect(requestArgs.type).toBe(Repositories.Repository);
-        });
-
-        it('should return null if no repository found for the given id', function () {
-          expect(Repositories.findById('invalid_plugin_id')).toBe(null);
-        });
-
-        it('should extract and cache etag for the repository', function () {
-          var xhr = {
-            getResponseHeader: m.prop()
           };
 
-          spyOn(xhr, 'getResponseHeader').and.returnValue('etag2');
+          existingRepositoryJSON = {
+            /* eslint-disable camelcase */
+            repo_id: 'repoId',
+            name: 'repo',
+            plugin_metadata: {
+              id: 'deb',
+              version: '1.1'
+            },
+            configuration: [
+              {
+                key: 'REPO_URL',
+                value: 'http://old-path'
+              },
+              {
+                key: 'username',
+                value: 'some_user'
+              }
+            ]
+            /* eslint-enable camelcase */
+          };
 
-          Repositories.findById('repo_id_2');
+          it('should put to repositories endpoint', function () {
+            var repo = Repositories.Repository.fromJSON(existingRepositoryJSON);
+            repo.etag('old-etag');
+            jasmine.Ajax.withMock(function () {
+              jasmine.Ajax.stubRequest('/go/api/admin/repositories/repoId').andReturn({
+                responseText: JSON.stringify(repository),
+                status:       200
+              });
 
-          requestArgs = m.request.calls.mostRecent().args[0];
-          requestArgs.extract(xhr);
+              var successCallback = jasmine.createSpy().and.callFake(function (repository) {
+                var newRepository = Repositories.Repository.fromJSON(repository);
+                expect(newRepository.name()).toBe('repo');
+              });
 
-          expect(xhr.getResponseHeader).toHaveBeenCalledWith('ETag');
-          expect(Repositories.repoIdToEtag).toEqual({'repo_id_2': 'etag2'});
+              repo.update().then(successCallback);
+              expect(successCallback).toHaveBeenCalled();
+
+              var request = jasmine.Ajax.requests.mostRecent();
+
+              expect(request.method).toBe('PUT');
+              expect(request.url).toBe('/go/api/admin/repositories/repoId');
+              expect(request.requestHeaders['Content-Type']).toContain('application/json');
+              expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
+              expect(request.requestHeaders['If-Match']).toContain(repo.etag());
+              expect(JSON.parse(request.params)).toEqual(existingRepositoryJSON);
+            });
+          });
+
+          it('should update a repository and call error callback on error', function () {
+            var repo = Repositories.Repository.fromJSON(existingRepositoryJSON);
+            repo.etag("some-etag");
+
+            jasmine.Ajax.withMock(function () {
+              jasmine.Ajax.stubRequest('/go/api/admin/repositories/repoId', undefined, 'PUT').andReturn({
+                responseText: JSON.stringify({message: 'Unauthorized'}),
+                status:       401
+              });
+
+              var errorCallback = jasmine.createSpy();
+
+              repo.update().then(_.noop, errorCallback);
+
+              expect(errorCallback).toHaveBeenCalledWith('Unauthorized');
+
+              expect(jasmine.Ajax.requests.count()).toBe(1);
+
+              var request = jasmine.Ajax.requests.mostRecent();
+
+              expect(request.method).toBe('PUT');
+              expect(request.url).toBe('/go/api/admin/repositories/repoId');
+              expect(request.requestHeaders['Content-Type']).toContain('application/json');
+              expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
+              expect(request.requestHeaders['If-Match']).toBe('some-etag');
+              expect(JSON.parse(request.params)).toEqual(existingRepositoryJSON);
+            });
+          });
         });
       });
 
-      describe('filterByPluginId', function () {
+      describe('get by id', function () {
+        var repo1, repo2;
         beforeAll(function () {
-          Repositories([
-            /* eslint-disable camelcase */
-            new Repositories.Repository({
-              repo_id:              'repo_id_1',
-              plugin_metadata: {id: 'deb', version: '1.1'}, //eslint-disable-line camelcase
-              _embedded: {packages: []}
+          /* eslint-disable camelcase */
+          repo1 = {
+            repo_id:         'repo_id_1',
+            name:            'repo_1',
+            plugin_metadata: {id: 'deb', version: '1.1'}, //eslint-disable-line camelcase
+            configuration:   [{key: 'REPO_URL', value: 'http://repo'}, {key: 'USERNAME', value: 'user'}],
+            _embedded:       {packages: []}
 
-            }),
-            new Repositories.Repository({
-              repo_id:              'repo_id_2',
-              plugin_metadata: {id: 'npm', version: '1.1'}, //eslint-disable-line camelcase
-              _embedded: {packages: []}
-            }),
-            new Repositories.Repository({
-              repo_id:              'repo_id_3',
-              plugin_metadata: {id: 'deb', version: '1.1'}, //eslint-disable-line camelcase
-              _embedded: {packages: []}
-            })
-            /* eslint-enable camelcase */
+          };
+          repo2 = {
+            repo_id:         'repo_id_2',
+            name:            'repo_2',
+            plugin_metadata: {id: 'npm', version: '1.1'}, //eslint-disable-line camelcase
+            _embedded:       {packages: []}
+          };
+          /* eslint-enable camelcase */
+          Repositories([
+            Repositories.Repository.fromJSON(repo1),
+            Repositories.Repository.fromJSON(repo2)
+
           ]);
         });
 
-        afterAll(function () {
-          Repositories([]);
+        it('should find a repository and call the success callback', function () {
+          jasmine.Ajax.withMock(function () {
+            jasmine.Ajax.stubRequest('/go/api/admin/repositories/repo_id_1', undefined, 'GET').andReturn({
+              responseText:    JSON.stringify(repo1),
+              responseHeaders: {
+                ETag: 'foo'
+              },
+              status:          200
+            });
+
+            var successCallback = jasmine.createSpy().and.callFake(function (repo) {
+              //var repo = Repositories.Repository.fromJSON(repository);
+              expect(repo.id()).toBe("repo_id_1");
+              expect(repo.pluginMetadata().id()).toBe('deb');
+              expect(repo.configuration().collectConfigurationProperty('key')).toEqual(['REPO_URL', 'USERNAME']);
+              expect(repo.configuration().collectConfigurationProperty('value')).toEqual(['http://repo', 'user']);
+              expect(repo.etag()).toBe("foo");
+            });
+
+            Repositories.Repository.get('repo_id_1').then(successCallback);
+
+            expect(successCallback).toHaveBeenCalled();
+
+            expect(jasmine.Ajax.requests.count()).toBe(1);
+            var request = jasmine.Ajax.requests.mostRecent();
+            expect(request.method).toBe('GET');
+            expect(request.url).toBe('/go/api/admin/repositories/repo_id_1');
+            expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
+          });
         });
 
-        it('should find all repositories for a given plugin id', function () {
-          var repositories = Repositories.filterByPluginId('deb');
+        it("should find a repository and call the error callback on error", function () {
+          jasmine.Ajax.withMock(function () {
+            jasmine.Ajax.stubRequest('/go/api/admin/repositories/repo_id_2', undefined, 'GET').andReturn({
+              responseText: JSON.stringify({message: 'Unauthorized'}),
+              status:       401
+            });
 
-          expect(repositories.length).toBe(2);
-          expect(repositories[0].id()).toBe('repo_id_1');
-          expect(repositories[1].id()).toBe('repo_id_3');
+            var failureCallback = jasmine.createSpy();
+
+            Repositories.Repository.get('repo_id_2').then(_.noop, failureCallback);
+
+            expect(failureCallback).toHaveBeenCalledWith('Unauthorized');
+
+            expect(jasmine.Ajax.requests.count()).toBe(1);
+            var request = jasmine.Ajax.requests.mostRecent();
+            expect(request.method).toBe('GET');
+            expect(request.url).toBe('/go/api/admin/repositories/repo_id_2');
+            expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
+          });
         });
       });
     });

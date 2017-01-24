@@ -18,7 +18,7 @@ define(["jquery", "mithril", "lodash", "views/pipeline_configs/package_repositor
   'models/pipeline_configs/packages', 'models/pipeline_configs/repositories', 'models/pipeline_configs/plugin_infos'
 ], function ($, m, _, PackageConfigWidget, Materials, Packages, Repositories, PluginInfos) {
 
-  describe("Package Widget", function () {
+  describe("PackageConfigWidget", function () {
     var $root = $('#mithril-mount-point'), root = $root.get(0);
 
     /* eslint-disable camelcase */
@@ -70,54 +70,55 @@ define(["jquery", "mithril", "lodash", "views/pipeline_configs/package_repositor
     };
 
 
+    var repo1                      = {
+      "repo_id":         "2e74f4c6-be61-4122-8bf5-9c0641d44258",
+      "name":            "first1",
+      "plugin_metadata": {
+        "id":      "nuget",
+        "version": "1"
+      },
+      "configuration":   [
+        {
+          "key":   "REPO_URL",
+          "value": "http://"
+        },
+        {
+          "key":   "USERNAME",
+          "value": "first"
+        },
+        {
+          "key":             "PASSWORD",
+          "encrypted_value": "en5p5YgWfxJkOAYqAy5u0g=="
+        }
+      ]
+    };
+    var repo2                      = {
+      "repo_id":         "6e74622b-b921-4546-9fc6-b7f9ba1732ba",
+      "name":            "hello",
+      "plugin_metadata": {
+        "id":      "deb",
+        "version": "1"
+      },
+      "configuration":   [
+        {
+          "key":   "REPO_URL",
+          "value": "http://hello"
+        }
+      ]
+    };
+
     var allRepositoriesJSON = {
-      "_embedded": {
-        "package_repositories": [
-          {
-            "repo_id":         "2e74f4c6-be61-4122-8bf5-9c0641d44258",
-            "name":            "first1",
-            "plugin_metadata": {
-              "id":      "nuget",
-              "version": "1"
-            },
-            "configuration":   [
-              {
-                "key":   "REPO_URL",
-                "value": "http://"
-              },
-              {
-                "key":   "USERNAME",
-                "value": "first"
-              },
-              {
-                "key":             "PASSWORD",
-                "encrypted_value": "en5p5YgWfxJkOAYqAy5u0g=="
-              }
-            ],
-            "_embedded":       {
-              "packages": []
-            }
-          },
-          {
-            "repo_id":         "6e74622b-b921-4546-9fc6-b7f9ba1732ba",
-            "name":            "hello",
-            "plugin_metadata": {
-              "id":      "deb",
-              "version": "1"
-            },
-            "configuration":   [
-              {
-                "key":   "REPO_URL",
-                "value": "http://hello"
-              }
-            ],
-            "_embedded":       {
-              "packages": []
-            }
-          }
+      _embedded: {
+        package_repositories: [
+          repo1,
+          repo2
         ]
       }
     };
+
+    var allRepositories = Repositories.fromJSON({});
+    allRepositories.addRepository(Repositories.Repository.fromJSON(repo1));
+    allRepositories.addRepository(Repositories.Repository.fromJSON(repo2));
 
 
     var repositoryJSON = {
@@ -140,10 +141,7 @@ define(["jquery", "mithril", "lodash", "views/pipeline_configs/package_repositor
           "key":             "PASSWORD",
           "encrypted_value": "en5p5YgWfxJkOAYqAy5u0g=="
         }
-      ],
-      "_embedded":       {
-        "packages": []
-      }
+      ]
     };
 
     var repositoryWithPackages = {
@@ -243,8 +241,9 @@ define(["jquery", "mithril", "lodash", "views/pipeline_configs/package_repositor
       m.mount(root,
         m.component(PackageConfigWidget,
           {
-            'material': material,
-            repositoryVM:repositoryVM
+            material:   material,
+            repositoryVM: repositoryVM,
+            repositories: allRepositories
           })
       );
       m.redraw(true);
@@ -284,7 +283,7 @@ define(["jquery", "mithril", "lodash", "views/pipeline_configs/package_repositor
         type: 'package'
       });
 
-      var repository = new Repositories.Repository(repositoryJSON);
+      var repository = Repositories.Repository.fromJSON(repositoryJSON);
       pkgMaterial.repository(repository);
       mount(pkgMaterial);
     });
@@ -299,8 +298,8 @@ define(["jquery", "mithril", "lodash", "views/pipeline_configs/package_repositor
 
 
     var setMaterialWithPackage = function () {
-      var repository      = new Repositories.Repository(repositoryWithPackages);
-      var packageMaterial = new Packages.Package(packageConfig);
+      var repository      = Repositories.Repository.fromJSON(repositoryWithPackages);
+      var packageMaterial = Packages.Package.fromJSON(packageConfig);
       var pluginInfo      = new PluginInfos.PluginInfo(debPluginInfoJSON);
       pkgMaterial.repository(repository);
       pkgMaterial.ref(packageMaterial.id());
@@ -404,7 +403,7 @@ define(["jquery", "mithril", "lodash", "views/pipeline_configs/package_repositor
 
       });
 
-      describe("Repository modal actions", function () {
+      describe("Package modal actions", function () {
         var deferred, requestArgs;
 
         beforeEach(function () {

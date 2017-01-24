@@ -21,7 +21,7 @@ define([
   'models/pipeline_configs/pluggable_scms', 'models/pipeline_configs/package_repositories', 'views/pipeline_configs/pluggable_scm_widget', 'views/pipeline_configs/package_repositories/repository_config_widget', 'views/pipeline_configs/material_filter_widget',
   'models/pipeline_configs/plugin_infos'
 ], function (m, _, s, f, tt, ComponentMixins, Materials, TestConnectionWidget, PipelineStageField, Pipelines, PluggableSCMs, PackageRepositories,
-             PluggableSCMWidget, RepositoryWidget, MaterialFilterWidget, PluginInfos) {
+             PluggableSCMWidget, RepositoryConfigWidget, MaterialFilterWidget, PluginInfos) {
 
   var PasswordField = {
     view: function (_ctrl, args) {
@@ -57,7 +57,7 @@ define([
   };
 
   var UrlField = {
-    view: function(_ctrl, args) {
+    view: function (_ctrl, args) {
       return (
         <f.inputWithLabel attrName='url'
                           type='url'
@@ -85,9 +85,9 @@ define([
                           model={args.material}
                           validate={true}
                           tooltip={{
-                            content: tt.material.destination,
+                            content:   tt.material.destination,
                             direction: 'bottom',
-                            size: 'small'
+                            size:      'small'
                           }}/>
       );
     }
@@ -101,9 +101,9 @@ define([
                           validate={true}
                           model={args.material}
                           tooltip={{
-                            content: tt.material.name,
+                            content:   tt.material.name,
                             direction: 'bottom',
-                            size: 'small'
+                            size:      'small'
                           }}/>
       );
     }
@@ -150,16 +150,16 @@ define([
   var MaterialViews = {
     base: {
       controller: function (args) {
-        this.args     = args;
+        this.args = args;
         ComponentMixins.HasViewModel.call(this);
       },
 
       view: function (ctrl, args, children) {
         var title = function () {
-          if(Materials.isBuiltInType(args.material.type())) {
+          if (Materials.isBuiltInType(args.material.type())) {
             return [args.material.type(), '-', args.material.name()].join(' ');
           }
-          if(args.material.type() === 'plugin') {
+          if (args.material.type() === 'plugin') {
             return [args.material.type(), '-', args.material.scm() ? args.material.scm().name() : ''].join(' ');
           } else {
             return args.material.type();
@@ -234,7 +234,7 @@ define([
             <f.row>
               <DestinationField material={material}/>
             </f.row>
-            <TestConnection material={material}  pipelineName={args.pipelineName}/>
+            <TestConnection material={material} pipelineName={args.pipelineName}/>
             <MaterialFilterWidget material={material}/>
           </MaterialViews.base>
         );
@@ -254,7 +254,7 @@ define([
             <f.row>
               <DestinationField material={material}/>
             </f.row>
-            <TestConnection material={material}  pipelineName={args.pipelineName}/>
+            <TestConnection material={material} pipelineName={args.pipelineName}/>
             <MaterialFilterWidget material={material}/>
           </MaterialViews.base>
         );
@@ -297,7 +297,7 @@ define([
             <f.row>
               <DestinationField material={material}/>
             </f.row>
-            <TestConnection material={material}  pipelineName={args.pipelineName}/>
+            <TestConnection material={material} pipelineName={args.pipelineName}/>
             <MaterialFilterWidget material={material}/>
           </MaterialViews.base>
         );
@@ -335,7 +335,7 @@ define([
             <f.row>
               <DestinationField material={material}/>
             </f.row>
-            <TestConnection material={material}  pipelineName={args.pipelineName}/>
+            <TestConnection material={material} pipelineName={args.pipelineName}/>
             <MaterialFilterWidget material={material}/>
           </MaterialViews.base>
         );
@@ -373,10 +373,11 @@ define([
 
     package: {
       view: function (_ctrl, args) {
-        var material = args.material;
+        var material     = args.material;
+        var repositories = args.repositories;
         return (
           <MaterialViews.base {...args}>
-            <RepositoryWidget material={material}/>
+            <RepositoryConfigWidget material={material} repositories={repositories}/>
           </MaterialViews.base>
         );
       }
@@ -386,7 +387,7 @@ define([
 
   var MaterialTypeSelector = {
     controller: function () {
-      this.selected       = m.prop('git');
+      this.selected = m.prop('git');
     },
 
     view: function (ctrl, args) {
@@ -428,9 +429,13 @@ define([
 
       self.createMaterial = function (materials) {
         return function (type) {
-          var newMaterial = Materials.isBuiltInType(type()) ? materials().createMaterial({type: type()})
-                                                            : type() === 'package' ? materials().createMaterial({type: type()})
-                                                            : materials().createMaterial({type: type(), pluginInfo: PluginInfos.findById(type())});
+          var newMaterial;
+
+          if (Materials.isBuiltInType(type()) || type() === 'package') {
+            newMaterial = materials().createMaterial({type: type()});
+          } else {
+            newMaterial = materials().createMaterial({type: type(), pluginInfo: PluginInfos.findById(type())});
+          }
 
           var indexOfMaterial = materials().indexOfMaterial(newMaterial);
           self.vmState('material-' + indexOfMaterial, {selectedMaterialIndex: m.prop(0)});
@@ -452,12 +457,13 @@ define([
             {args.materials().mapMaterials(function (material, index) {
               var materialView = MaterialViews[material.type()];
               return (m.component(materialView, {
-                material: material,
-                onRemove: ctrl.removeMaterial(args.materials),
-                key: material.uuid(),
+                material:     material,
+                onRemove:     ctrl.removeMaterial(args.materials),
+                key:          material.uuid(),
                 pipelineName: args.pipelineName,
-                pipelines: ctrl.pipelines,
-                vm: ctrl.vmState('material-' + index)
+                pipelines:    ctrl.pipelines,
+                vm:           ctrl.vmState('material-' + index),
+                repositories: args.repositories
               }));
             })}
             <MaterialTypeSelector createMaterial={ctrl.createMaterial(args.materials)}

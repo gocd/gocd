@@ -17,15 +17,66 @@
 define(["jquery", "mithril", "views/pipeline_configs/package_repositories/repository_config_edit_widget", 'models/pipeline_configs/repositories'
 ], function ($, m, RepositoryConfigEditWidget, Repositories) {
 
-  describe("RepositoryConfigNewWidget", function () {
+  describe("RepositoryConfigEditWidget", function () {
     var repository;
     var $root = $('#mithril-mount-point'), root = $root.get(0);
+
+    var repo1                      = {
+      "repo_id":         "2e74f4c6-be61-4122-8bf5-9c0641d44258",
+      "name":            "first1",
+      "plugin_metadata": {
+        "id":      "nuget",
+        "version": "1"
+      },
+      "configuration":   [
+        {
+          "key":   "REPO_URL",
+          "value": "http://"
+        },
+        {
+          "key":   "USERNAME",
+          "value": "first"
+        },
+        {
+          "key":             "PASSWORD",
+          "encrypted_value": "en5p5YgWfxJkOAYqAy5u0g=="
+        }
+      ]
+    };
+    var repo2                      = {
+      "repo_id":         "6e74622b-b921-4546-9fc6-b7f9ba1732ba",
+      "name":            "hello",
+      "plugin_metadata": {
+        "id":      "deb",
+        "version": "1"
+      },
+      "configuration":   [
+        {
+          "key":   "REPO_URL",
+          "value": "http://hello"
+        }
+      ]
+    };
+
+    //var allRepositoriesJSON = {
+    //  _embedded: {
+    //    package_repositories: [
+    //      repo1,
+    //      repo2
+    //    ]
+    //  }
+    //};
+    var allRepositories = Repositories([
+      Repositories.Repository.fromJSON(repo1),
+      Repositories.Repository.fromJSON(repo2)
+    ]);
 
     var mount = function (repository) {
       m.mount(root,
         m.component(RepositoryConfigEditWidget,
           {
             'repoForEdit': repository,
+            'repositories': allRepositories,
             'vm':          new Repositories.vm()
           })
       );
@@ -34,7 +85,7 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/reposi
 
 
     beforeEach(function () {
-      repository = m.prop(new Repositories.Repository({
+      repository = m.prop(Repositories.Repository.fromJSON({
         /* eslint-disable camelcase */
         repo_id:         'repoId',
         name:            'repoName',

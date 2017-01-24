@@ -14,255 +14,219 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'helpers/mrequest', 'models/errors',  'models/pipeline_configs/plugin_infos', 'models/validatable_mixin', 'js-routes',
-  'models/shared/plugin_configurations'],
-  function (m, _, s, Mixins, mrequest, Errors, PluginInfos, Validatable, Routes, PluginConfigurations) {
+define([
+  'mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipeline_configs/plugin_infos', 'models/validatable_mixin', 'js-routes',
+  'models/shared/plugin_configurations', 'models/pipeline_configs/packages', 'models/crud_mixins'
+], function (m, _, s, Mixins, PluginInfos, Validatable, Routes, PluginConfigurations, Packages, CrudMixins) {
 
-    var Repositories          = m.prop([]);
-    Repositories.repoIdToEtag = {};
+  var Repositories = function (data) {
+    Mixins.HasMany.call(this, {
+      factory:    Repositories.Repository.create,
+      as:         'Repository',
+      plural:     'Repositories',
+      collection: data,
+      uniqueOn:   'id'
+    });
+  };
 
-    Repositories.Repository = function (data) {
-      Validatable.call(this, data);
+  CrudMixins.Index({
+    type:     Repositories,
+    url:      Routes.apiv1AdminRepositoriesPath(),
+    version:  'v1',
+    dataPath: '_embedded.package_repositories'
+  });
 
-      var embeddedPackages = function (data) {
-        var getPackages = function (embedded) {
-          return embedded.packages ? embedded.packages : '';
-        };
-        return data._embedded ? getPackages(data._embedded) : '';
+  Repositories.findByPackageId = function (packageId) {
+    var getRelevantPackage = function (repository) {
+      return repository.packages().findPackage(function (packageMaterial) {
+        return packageMaterial.id() === packageId;
+      });
+    };
+    Repositories.all().then(function (repositories) {
+      repositories.findRepository(function (repository) {
+        return getRelevantPackage(repository).id() === packageId;
+      });
+    });
+  };
+
+  Repositories.Repository = function (data) {
+    this.id             = m.prop(s.defaultToIfBlank(data.id, ''));
+    this.name           = m.prop(s.defaultToIfBlank(data.name, ''));
+    this.pluginMetadata = m.prop(data.pluginMetadata);
+    this.configuration  = m.prop(data.configuration);
+    this.packages       = m.prop(data.packages);
+
+    this.parent = Mixins.GetterSetter();
+    this.etag   = Mixins.GetterSetter();
+
+    Mixins.HasUUID.call(this);
+
+    Validatable.call(this, data);
+
+
+    this.toJSON = function () {
+      /* eslint-disable camelcase */
+      return {
+        repo_id:         this.id(),
+        name:            this.name(),
+        plugin_metadata: this.pluginMetadata().toJSON(),
+        configuration:   this.configuration().toJSON()
       };
+      /* eslint-enable camelcase */
+    };
 
-
-      this.init = function (data) {
-        this.id             = m.prop(s.defaultToIfBlank(data.repo_id));
-        this.name           = m.prop(s.defaultToIfBlank(data.name, ''));
-        this.pluginMetadata = m.prop(new Repositories.Repository.PluginMetadata(data.plugin_metadata || {}));
-        this.configuration  = s.collectionToJSON(m.prop(PluginConfigurations.fromJSON(data.configuration || {})));
-        this.packages       = m.prop(Repositories.Repository.Packages.fromJSON(embeddedPackages(data)));
-        this.errors         = m.prop(new Errors(data.errors));
-      };
-
-      this.init(data);
-
-      this.toJSON = function () {
+    CrudMixins.Update.call(this, {
+      url: function(id) {
         /* eslint-disable camelcase */
-        return {
-          repo_id:         this.id(),
-          name:            this.name(),
-          plugin_metadata: this.pluginMetadata().toJSON(),
-          configuration:   this.configuration
-        };
+        return Routes.apiv1AdminRepositoryPath({repo_id: id});
         /* eslint-enable camelcase */
-      };
+      },
+      version: 'v1',
+      type: Repositories.Repository
+    });
 
-      this.update = function () {
-        var self = this;
 
-        var config = function (xhr) {
-          xhr.setRequestHeader("Content-Type", "application/json");
-          xhr.setRequestHeader("Accept", "application/vnd.go.cd.v1+json");
-          xhr.setRequestHeader("If-Match", Repositories.repoIdToEtag[self.id()]);
-        };
+    CrudMixins.Create.call(this, {
+      url: function() {
+        return Routes.apiv1AdminRepositoriesPath();
+      },
+      version: 'v1',
+      type:    Repositories.Repository
+    });
 
-        var extract = function (xhr) {
-          if (xhr.status === 200) {
-            Repositories.repoIdToEtag[self.id()] = xhr.getResponseHeader('ETag');
-          }
-          return xhr.responseText;
-        };
-
-        return m.request({
-          method:     'PUT',
-          url:        Routes.apiv1AdminRepositoryPath({repo_id: this.id()}), //eslint-disable-line camelcase
-          background: false,
-          config:     config,
-          extract:    extract,
-          data:       this,
-          type:       Repositories.Repository
-        });
-      };
-
-      this.create = function () {
-        var extract = function (xhr) {
-          if (xhr.status === 200) {
-            Repositories.repoIdToEtag[JSON.parse(xhr.responseText).repo_id] = xhr.getResponseHeader('ETag');
-          }
-          return xhr.responseText;
-        };
-
-        return m.request({
-          method:     'POST',
-          url:        Routes.apiv1AdminRepositoriesPath(),
-          background: false,
-          config:     mrequest.xhrConfig.v1,
-          extract:    extract,
-          data:       this,
-          type:       Repositories.Repository
-        });
-      };
-    };
-
-    Repositories.Repository.initialize = function (pluginInfo, configurations) {
-      return new Repositories.Repository({
+    CrudMixins.Refresh.call(this, {
+      url: function (id) {
         /* eslint-disable camelcase */
-        plugin_metadata: {
-          id:      pluginInfo.id(),
-          version: pluginInfo.version()
-        },
-        configuration:   configProperties(configurations)
+        return Routes.apiv1AdminRepositoryPath({repo_id: id});
         /* eslint-enable camelcase */
-      });
-    };
+      },
+      version: 'v1',
+      type: Repositories.Repository
+    });
+  };
 
-    Repositories.Repository.setRepositoryForEdit = function (repoForEdit, pluginId) {
-      PluginInfos.PluginInfo.get(pluginId).then(function (pluginInfo) {
-        var allConfigurations        = pluginInfo.configurations();
-        var repositoryConfigurations = _.filter(allConfigurations, function (configuration) {
-          return configuration.type === 'repository';
-        });
-        var repository               = Repositories.Repository.initialize(pluginInfo, repositoryConfigurations);
-        repoForEdit(repository);
-      });
-    };
+  Repositories.Repository.get = function (id) {
+    return new Repositories.Repository({id: id}).refresh();
+  };
 
-    var configProperties = function (configurations) {
-      var config = [];
-      _.map(configurations, function (configuration) {
-        return config.push({key: configuration.key});
-      });
-      return config;
-    };
+  Repositories.Repository.create = function (data) {
+    return new Repositories.Repository(data);
+  };
 
-    Repositories.Repository.Packages = function (data) {
-      Mixins.HasMany.call(this, {
-        factory:    Repositories.Repository.Packages,
-        as:         'Package',
-        collection: data
-      });
-    };
+  Repositories.Repository.PluginMetadata = function (data) {
+    this.id      = m.prop(s.defaultToIfBlank(data.id, ''));
+    this.version = m.prop(s.defaultToIfBlank(data.version, ''));
 
-    Repositories.Repository.Packages.fromJSON = function (data) {
-      var packages = _.map(data, function (d) {
-        return new Repositories.Repository.Packages.Package(d);
-      });
-
-      return new Repositories.Repository.Packages(packages);
-    };
-
-
-    Repositories.Repository.Packages.Package = function (data) {
-      this.id   = m.prop(s.defaultToIfBlank(data.id, ''));
-      this.name = m.prop(s.defaultToIfBlank(data.name, ''));
-    };
-
-
-    Repositories.Repository.PluginMetadata = function (data) {
-
-      this.id      = m.prop(s.defaultToIfBlank(data.id, ''));
-      this.version = m.prop(s.defaultToIfBlank(data.version, ''));
-
-      this.toJSON = function () {
-        return {
-          id:      this.id(),
-          version: this.version()
-        };
+    this.toJSON = function () {
+      return {
+        id:      this.id(),
+        version: this.version()
       };
     };
+  };
 
-    Repositories.init = function () {
-      return m.request({
-        method:        'GET',
-        url:           Routes.apiv1AdminRepositoriesPath(),
-        config:        mrequest.xhrConfig.v1,
-        type:          Repositories.Repository,
-        unwrapSuccess: function (response) {
-          return response._embedded.package_repositories;
+  Repositories.Repository.PluginMetadata.fromJSON = function (data) {
+    data = _.assign({}, data);
+    return new Repositories.Repository.PluginMetadata({
+      id:      data.id,
+      version: data.version
+    });
+  };
+
+  Repositories.Repository.fromJSON = function (data) {
+    return new Repositories.Repository({
+      id:             data.repo_id,
+      name:           data.name,
+      pluginMetadata: Repositories.Repository.PluginMetadata.fromJSON(data.plugin_metadata),
+      configuration:  PluginConfigurations.fromJSON(data.configuration),
+      packages:       Packages.fromJSON(_.get(data, '_embedded.packages', [])),
+      errors:         data.errors
+    });
+  };
+
+  Mixins.fromJSONCollection({
+    parentType: Repositories,
+    childType:  Repositories.Repository,
+    via:        'addRepository'
+  });
+
+  Repositories.Repository.initialize = function (pluginInfo, configurations) {
+    return new Repositories.Repository({
+      pluginMetadata: new Repositories.Repository.PluginMetadata({
+        id:      pluginInfo.id(),
+        version: pluginInfo.version()
+      }),
+      configuration:  PluginConfigurations.fromJSON(configProperties(configurations))
+    });
+  };
+
+  Repositories.Repository.setRepositoryForEdit = function (repoForEdit, pluginId) {
+    PluginInfos.PluginInfo.get(pluginId).then(function (pluginInfo) {
+      var allConfigurations        = pluginInfo.configurations();
+      var repositoryConfigurations = _.filter(allConfigurations, function (configuration) {
+        return configuration.type === 'repository';
+      });
+      var repository               = Repositories.Repository.initialize(pluginInfo, repositoryConfigurations);
+      repoForEdit(repository);
+    });
+  };
+
+  var configProperties = function (configurations) {
+    var config = [];
+    _.map(configurations, function (configuration) {
+      return config.push({key: configuration.key});
+    });
+    return config;
+  };
+
+  Repositories.vm = function () {
+    this.saveState = m.prop('');
+    var errors     = [];
+
+    this.startUpdating = function () {
+      errors = [];
+      this.saveState('in-progress disabled');
+    };
+
+    this.saveFailed = function (data) {
+      errors.push(data.message);
+
+      if (data.data) {
+        if (data.data.configuration) {
+          errors = _.concat(errors, _.flattenDeep(_.map(data.data.configuration, function (conf) {
+            return _.values(conf.errors);
+          })));
         }
-      }).then(Repositories);
-    };
-
-    Repositories.filterByPluginId = function (pluginId) {
-      return _.filter(Repositories(), function (repository) {
-        return _.isEqual(repository.pluginMetadata().id(), pluginId);
-      });
-    };
-
-    Repositories.findById = function (id) {
-      var repository = _.find(Repositories(), function (repository) {
-        return _.isEqual(repository.id(), id);
-      });
-
-      if (_.isNil(repository)) {
-        return null;
       }
 
-      var config = function (xhr) {
-        xhr.setRequestHeader("Content-Type", "application/json");
-        xhr.setRequestHeader("Accept", "application/vnd.go.cd.v1+json");
-        xhr.setRequestHeader('Cache-Control', "no-cache");
-      };
-
-      var extract = function (xhr) {
-        Repositories.repoIdToEtag[repository.id()] = xhr.getResponseHeader('ETag');
-        return xhr.responseText;
-      };
-
-      return m.request({
-        method:  'GET',
-        url:     Routes.apiv1AdminRepositoryPath({repo_id: repository.id()}),  //eslint-disable-line camelcase
-        config:  config,
-        extract: extract,
-        type:    Repositories.Repository
-      });
+      this.saveState('alert');
     };
 
-    Repositories.vm = function () {
-      this.saveState = m.prop('');
-      var errors     = [];
-
-      this.startUpdating = function () {
-        errors = [];
-        this.saveState('in-progress disabled');
-      };
-
-      this.saveFailed = function (data) {
-        errors.push(data.message);
-
-        if (data.data) {
-          if (data.data.configuration) {
-            errors = _.concat(errors, _.flattenDeep(_.map(data.data.configuration, function (conf) {
-              return _.values(conf.errors);
-            })));
-          }
-        }
-
-        this.saveState('alert');
-      };
-
-      this.saveSuccess = function () {
-        this.saveState('success');
-      };
-
-      this.clearErrors = function () {
-        errors = [];
-      };
-
-      this.reset = function () {
-        errors = [];
-        this.saveState('');
-      };
-
-      this.errors = function () {
-        return errors;
-      };
-
-      this.hasErrors = function () {
-        return !_.isEmpty(errors);
-      };
-
-      this.markClientSideErrors = function () {
-        errors.push('There are errors on the page, fix them and save');
-      };
+    this.saveSuccess = function () {
+      this.saveState('success');
     };
 
-    return Repositories;
-  });
+    this.clearErrors = function () {
+      errors = [];
+    };
+
+    this.reset = function () {
+      errors = [];
+      this.saveState('');
+    };
+
+    this.errors = function () {
+      return errors;
+    };
+
+    this.hasErrors = function () {
+      return !_.isEmpty(errors);
+    };
+
+    this.markClientSideErrors = function () {
+      errors.push('There are errors on the page, fix them and save');
+    };
+  };
+
+  return Repositories;
+});

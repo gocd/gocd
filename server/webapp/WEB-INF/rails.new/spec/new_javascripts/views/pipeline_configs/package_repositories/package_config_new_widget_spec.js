@@ -41,6 +41,22 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/packag
         /* eslint-enable camelcase */
       };
 
+      var initialPackageJSON = {
+        /* eslint-disable camelcase */
+        id: '',
+        name: '',
+        configuration: [
+          {
+            key: 'PACKAGE_NAME'
+          }
+        ],
+        package_repo: {
+          id: 'repo-id',
+          name: 'repoName'
+        }
+        /* eslint-enable camelcase */
+      };
+
 
       var mount = function (packageForEdit, repository) {
         m.mount(root,
@@ -55,8 +71,8 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/packag
       };
 
       beforeEach(function () {
-        packageMaterial = m.prop(new Packages.Package({}));
-        var repository  = new Repositories.Repository(repoConfig);
+        packageMaterial = m.prop(Packages.Package.fromJSON(initialPackageJSON));
+        var repository  = Repositories.Repository.fromJSON(repoConfig);
         mount(packageMaterial, repository);
       });
 

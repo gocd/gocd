@@ -20,8 +20,6 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
     var RepositoryConfigNewWidget = {
 
       controller: function (args) {
-
-
         var initializeRepository = function (pluginId) {
           Repositories.Repository.setRepositoryForEdit(args.repoForEdit, pluginId);
         };
@@ -82,9 +80,11 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
                                   model={repoForEdit()}/>
               </f.row>
 
-              {repoForEdit().configuration().mapConfigurations(function (configuration) {
-                return (<RepositoryConfigurationWidget configuration={configuration}/>);
-              }, this)}
+              {
+                repoForEdit().configuration().mapConfigurations(function (configuration) {
+                  return (<RepositoryConfigurationWidget configuration={configuration}/>);
+                })
+              }
 
             </div>
           </div>

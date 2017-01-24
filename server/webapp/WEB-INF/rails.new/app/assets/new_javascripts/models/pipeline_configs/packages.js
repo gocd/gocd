@@ -14,29 +14,32 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', 'helpers/mrequest', 'models/errors', 'models/validatable_mixin', 'js-routes', 'models/pipeline_configs/plugin_infos', 'models/shared/plugin_configurations'],
-  function (m, _, s, mrequest, Errors, Validatable, Routes, PluginInfos, PluginConfigurations) {
+define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/validatable_mixin', 'js-routes', 'models/pipeline_configs/plugin_infos', 'models/shared/plugin_configurations', 'models/crud_mixins'],
+  function (m, _, s, Mixins, Validatable, Routes, PluginInfos, PluginConfigurations, CrudMixins) {
 
-    var Packages             = m.prop([]);
-    Packages.packageIdToEtag = {};
+    var Packages = function (data) {
+      Mixins.HasMany.call(this, {
+        factory:    Packages.Package.create,
+        as:         'Package',
+        collection: data,
+        uniqueOn:   'id'
+      });
+    };
 
     Packages.Package = function (data) {
+      this.id            = m.prop(s.defaultToIfBlank(data.id, ''));
+      this.name          = m.prop(s.defaultToIfBlank(data.name, ''));
+      this.autoUpdate    = m.prop(s.defaultToIfBlank(data.autoUpdate, true));
+      this.configuration = m.prop(data.configuration);
+      this.packageRepo = m.prop(data.packageRepo);
+
+      this.parent = Mixins.GetterSetter();
+      this.etag   = Mixins.GetterSetter();
+
+      Mixins.HasUUID.call(this);
+
       Validatable.call(this, data);
 
-      this.init = function (data) {
-        this.id            = m.prop(s.defaultToIfBlank(data.id, ''));
-        this.name          = m.prop(s.defaultToIfBlank(data.name, ''));
-        this.autoUpdate    = m.prop(s.defaultToIfBlank(data.auto_update, true));
-        this.configuration = s.collectionToJSON(m.prop(PluginConfigurations.fromJSON(data.configuration || {})));
-        this.packageRepo   = m.prop(new Packages.Package.PackageRepository(data.package_repo || {}));
-        this.errors        = m.prop(new Errors(data.errors));
-      };
-
-      this.init(data);
-
-      this.reInitialize = function (data) {
-        this.init(data);
-      };
 
       this.toJSON = function () {
         /* eslint-disable camelcase */
@@ -44,68 +47,120 @@ define(['mithril', 'lodash', 'string-plus', 'helpers/mrequest', 'models/errors',
           id:            this.id(),
           name:          this.name(),
           auto_update:   this.autoUpdate(),
-          package_repo:  this.packageRepo.toJSON(),
-          configuration: this.configuration
+          package_repo:  this.packageRepo().toJSON(),
+          configuration: this.configuration().toJSON()
         };
         /* eslint-enable camelcase */
       };
 
-      this.update = function () {
-        var self = this;
+      //this.update = function () {
+      //  var self = this;
+      //
+      //  var config = function (xhr) {
+      //    xhr.setRequestHeader("Content-Type", "application/json");
+      //    xhr.setRequestHeader("Accept", "application/vnd.go.cd.v1+json");
+      //    xhr.setRequestHeader("If-Match", Packages.packageIdToEtag[self.id()]);
+      //  };
+      //
+      //  var extract = function (xhr) {
+      //    if (xhr.status === 200) {
+      //      Packages.packageIdToEtag[self.id()] = xhr.getResponseHeader('ETag');
+      //    }
+      //    return xhr.responseText;
+      //  };
+      //
+      //  return m.request({
+      //    method:     'PUT',
+      //    url:        Routes.apiv1AdminPackagePath({package_id: this.id()}), //eslint-disable-line camelcase
+      //    background: false,
+      //    config:     config,
+      //    extract:    extract,
+      //    data:       this,
+      //    type:       Packages.Package
+      //  });
+      //};
+      //
+      //this.create = function () {
+      //  var extract = function (xhr) {
+      //    if (xhr.status === 200) {
+      //      Packages.packageIdToEtag[JSON.parse(xhr.responseText).id] = xhr.getResponseHeader('ETag');
+      //    }
+      //    return xhr.responseText;
+      //  };
+      //
+      //  return m.request({
+      //    method:     'POST',
+      //    url:        Routes.apiv1AdminPackagesPath(),
+      //    background: false,
+      //    config:     mrequest.xhrConfig.v1,
+      //    extract:    extract,
+      //    data:       this,
+      //    type:       Packages.Package
+      //  });
+      //};
 
-        var config = function (xhr) {
-          xhr.setRequestHeader("Content-Type", "application/json");
-          xhr.setRequestHeader("Accept", "application/vnd.go.cd.v1+json");
-          xhr.setRequestHeader("If-Match", Packages.packageIdToEtag[self.id()]);
-        };
+      CrudMixins.Update.call(this, {
+        url:     function (id) {
+          /* eslint-disable camelcase */
+          return Routes.apiv1AdminPackagePath({package_id: id});
+          /* eslint-enable camelcase */
+        },
+        version: 'v1',
+        type:    Packages.Package
+      });
 
-        var extract = function (xhr) {
-          if (xhr.status === 200) {
-            Packages.packageIdToEtag[self.id()] = xhr.getResponseHeader('ETag');
-          }
-          return xhr.responseText;
-        };
 
-        return m.request({
-          method:     'PUT',
-          url:        Routes.apiv1AdminPackagePath({package_id: this.id()}), //eslint-disable-line camelcase
-          background: false,
-          config:     config,
-          extract:    extract,
-          data:       this,
-          type:       Packages.Package
-        });
-      };
+      CrudMixins.Create.call(this, {
+        url:     function () {
+          return Routes.apiv1AdminPackagesPath();
+        },
+        version: 'v1',
+        type:    Packages.Package
+      });
 
-      this.create = function () {
-        var extract = function (xhr) {
-          if (xhr.status === 200) {
-            Packages.packageIdToEtag[JSON.parse(xhr.responseText).id] = xhr.getResponseHeader('ETag');
-          }
-          return xhr.responseText;
-        };
+      CrudMixins.Refresh.call(this, {
+        url:     function (id) {
+          /* eslint-disable camelcase */
+          return Routes.apiv1AdminPackagePath({package_id: id});
+          /* eslint-enable camelcase */
+        },
+        version: 'v1',
+        type:    Packages.Package
+      });
+    };
 
-        return m.request({
-          method:     'POST',
-          url:        Routes.apiv1AdminPackagesPath(),
-          background: false,
-          config:     mrequest.xhrConfig.v1,
-          extract:    extract,
-          data:       this,
-          type:       Packages.Package
-        });
-      };
+    Packages.Package.fromJSON = function (data) {
+      return new Packages.Package({
+        id:            data.id,
+        name:          data.name,
+        autoUpdate:    data.auto_update,
+        configuration: PluginConfigurations.fromJSON(data.configuration),
+        packageRepo:   Packages.Package.PackageRepository.fromJSON(data.package_repo),
+        errors:        data.errors
+      });
+    };
+
+    Mixins.fromJSONCollection({
+      parentType: Packages,
+      childType:  Packages.Package,
+      via:        'addPackage'
+    });
+
+    Packages.Package.get = function (id) {
+      new Packages.Package({id: id}).refresh();
+    };
+
+    Packages.Package.create = function (data) {
+      return new Packages.Package(data);
     };
 
     Packages.Package.initialize = function (repository, configurations) {
       return new Packages.Package({
-        /* eslint-disable camelcase */
-        configuration: configProperties(configurations),
-        package_repo:  {
+        configuration: PluginConfigurations.fromJSON(configProperties(configurations)),
+        packageRepo:   new Packages.Package.PackageRepository({
           id:   repository.id(),
           name: repository.name()
-        }
-        /* eslint-enable camelcase */
+        })
       });
     };
 
@@ -140,25 +195,20 @@ define(['mithril', 'lodash', 'string-plus', 'helpers/mrequest', 'models/errors',
       };
     };
 
-    Packages.findById = function (id) {
-
-      var extract = function (xhr) {
-        Packages.packageIdToEtag[id] = xhr.getResponseHeader('ETag');
-        return xhr.responseText;
-      };
-
-      return m.request({
-        method:     'GET',
-        url:        Routes.apiv1AdminPackagePath({package_id: id}),  //eslint-disable-line camelcase
-        background: false,
-        config:     mrequest.xhrConfig.v1,
-        extract:    extract,
-        type:       Packages.Package
+    Packages.Package.PackageRepository.fromJSON = function (data) {
+      data = _.assign({}, data);
+      return new Packages.Package.PackageRepository({
+        id:   data.id,
+        name: data.name
       });
     };
 
-    Packages.getPackage = function (packageId, packageForEdit, packageReference) {
-      Packages.findById(packageId).then(function (packageMaterial) {
+    Packages.getPackage = function (packageId, packageForEdit, packageReference, repository) {
+      var existingPackage = repository.packages().findPackage(function (pkg) {
+        return pkg.id() === packageId;
+      });
+
+      existingPackage.refresh().then(function (packageMaterial) {
         packageForEdit(packageMaterial);
         packageReference(packageId);
       });

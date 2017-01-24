@@ -79,6 +79,7 @@ define([
   };
 
   PluginConfigurations.Configuration.fromJSON = function (data) {
+    data = _.assign({}, data);
     return new PluginConfigurations.Configuration(data);
   };
 

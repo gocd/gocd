@@ -249,7 +249,11 @@ module ApplicationHelper
   end
 
   def version
-    ApiV1::VersionRepresenter.version.full_version
+    @@version ||= com.thoughtworks.go.CurrentGoCDVersion.getInstance().formatted()
+  end
+
+  def copyright_year
+    @@copyright_year ||= com.thoughtworks.go.CurrentGoCDVersion.getInstance().copyrightYear
   end
 
   def go_update

@@ -50,6 +50,8 @@ hs_err_pid*
 # intellij has a tendency to cache rake tasks
 .rakeTasks
 
+resources-generated/
+
 addon-api/database/target/
 agent-bootstrapper/.agent-bootstrapper.running
 agent-bootstrapper/.tmp.file.list

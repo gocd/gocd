@@ -27,6 +27,7 @@ public class CurrentGoCDVersion {
     private final String gitRevision;
     private final String formatted;
     private final String fullVersion;
+    private final String copyrightYear;
 
     private CurrentGoCDVersion() {
         try (InputStream in = getClass().getClassLoader().getResourceAsStream("gocd-version.properties")) {
@@ -37,10 +38,15 @@ public class CurrentGoCDVersion {
             this.distVersion = properties.getProperty("distVersion", "unknown");
             this.gitRevision = properties.getProperty("gitRevision", "unknown");
             this.fullVersion = properties.getProperty("fullVersion", "unknown");
+            this.copyrightYear = properties.getProperty("copyrightYear", "unknown");
             this.formatted = String.format("%s (%s-%s)", goVersion, distVersion, gitRevision);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public String copyrightYear() {
+        return copyrightYear;
     }
 
     public String goVersion() {

@@ -1502,6 +1502,19 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
+    public void shouldPauseExistingPipeline_CaseInsensitive() throws Exception {
+        PipelineConfig pipeline = PipelineMother.twoBuildPlansWithResourcesAndMaterials("some-pipeline", "dev");
+        schedulePipelineWithStages(pipeline);
+
+        pipelineDao.pause(pipeline.name().toUpper().toString(), "cause", "by");
+
+        PipelinePauseInfo actual = pipelineDao.pauseState(pipeline.name().toString());
+        PipelinePauseInfo expected = new PipelinePauseInfo(true, "cause", "by");
+
+        assertThat(actual, is(expected));
+    }
+
+    @Test
     public void shouldUnPauseAPausedPipeline() throws Exception {
         PipelineConfig mingleConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("some-pipeline", "dev");
         schedulePipelineWithStages(mingleConfig);
@@ -1558,6 +1571,56 @@ public class PipelineSqlMapDaoIntegrationTest {
         dbHelper.newPipelineWithAllStagesPassed(pipelineConfig); // Counter should be incremented
 
         assertThat(pipelineDao.getCounterForPipeline(pipeline.getName()), is(pipeline.getCounter() + 1));
+    }
+
+    @Test
+    public void shouldGetTheLastRunCounterWhenPipelineRowExistsForPipelineNameWithDifferentCase() throws SQLException {
+        String pipelineName = "some-pipeline";
+        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig(pipelineName);
+
+        Pipeline pipeline = dbHelper.newPipelineWithAllStagesPassed(pipelineConfig); // Counter is 1
+        dbHelper.newPipelineWithAllStagesPassed(pipelineConfig); // Counter should be incremented
+
+        int nextCounter = pipeline.getCounter() + 1;
+        assertThat(pipelineDao.getCounterForPipeline(pipeline.getName()), is(nextCounter));
+        assertThat(pipelineDao.getCounterForPipeline(pipeline.getName().toUpperCase()), is(nextCounter));
+    }
+
+    @Test
+    public void getCounterForPipelineShouldHandleDuplicateRowsInPipelineLabelCountsTable_GithubIssue1471_DuplicatesWereIntroducedInDbAsThePipelinenameIsNotCaseInsensitive() throws SQLException {
+        String pipelineName = "some-pipeline";
+        Map<String, Object> lowercasePipelineName = arguments("pipelineName", pipelineName.toLowerCase()).and("count", 10).asMap();
+        Map<String, Object> uppercasePipelineName = arguments("pipelineName", pipelineName.toUpperCase()).and("count", 20).asMap();
+        pipelineDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", lowercasePipelineName);
+        pipelineDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", uppercasePipelineName);
+        assertThat(pipelineDao.getCounterForPipeline(pipelineName), is(20));
+        assertThat(pipelineDao.getCounterForPipeline(pipelineName.toUpperCase()), is(20));
+    }
+
+    @Test
+    public void pauseStateShouldHandleDuplicateRowsInPipelineLabelCountsTable_GithubIssue1471_DuplicatesWereIntroducedInDbAsThePipelinenameIsNotCaseInsensitive() throws SQLException {
+        String pipelineName = "Some-Pipeline";
+        Map<String, Object> lowercasePipelineName = arguments("pipelineName", pipelineName.toLowerCase()).and("count", 10).asMap();
+        Map<String, Object> uppercasePipelineName = arguments("pipelineName", pipelineName.toUpperCase()).and("count", 20).asMap();
+        pipelineDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", lowercasePipelineName);
+        pipelineDao.getSqlMapClientTemplate().insert("insertPipelineLabelCounter", uppercasePipelineName);
+        pipelineDao.pause(pipelineName.toLowerCase(), "cause", "me");
+        assertThat(pipelineDao.pauseState(pipelineName), is(new PipelinePauseInfo(true, "cause", "me")));
+        assertThat(pipelineDao.pauseState(pipelineName.toUpperCase()), is(pipelineDao.pauseState(pipelineName)));
+        assertThat(pipelineDao.pauseState(pipelineName.toLowerCase()), is(pipelineDao.pauseState(pipelineName)));
+    }
+
+    @Test
+    public void insertOrUpdatePipelineCounterShouldUpdateNotInsertPipelineCounterIfARowWithDifferentlyCasedPipelineNameAlreadyExists() throws SQLException {
+        String pipelineName = "Some-Pipeline";
+        pipelineDao.insertOrUpdatePipelineCounter(new Pipeline(pipelineName.toLowerCase(), BuildCause.createManualForced()), 0, 1);
+        pipelineDao.insertOrUpdatePipelineCounter(new Pipeline(pipelineName.toUpperCase(), BuildCause.createManualForced()), 1, 2);
+        ResultSet resultSet = pipelineDao.getSqlMapClient().getDataSource().getConnection().prepareStatement("select count(*) from pipelinelabelcounts where lower(pipelinename)='" + pipelineName.toLowerCase()+"'").executeQuery();
+        int rowCount = 0;
+        if(resultSet.next()){
+            rowCount = resultSet.getInt(1);
+        }
+        assertThat(rowCount, is(1));
     }
 
     @Test

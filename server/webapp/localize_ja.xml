@@ -245,7 +245,7 @@
     <entry key="ABLE_TO_CONNECT_TO_LDAP">Connected to LDAP successfully.</entry>
     <entry key="PASSWORD_FILE_SETTINGS">Password File Settings</entry>
     <entry key="PASSWORD_FILE_PATH">Password File Path</entry>
-    <entry key="ALLOW_AUTO_LOGIN_MESSAGE">Allow users that exist in LDAP or in the password file to log into Go, even if they haven't been explicitly added to Go.</entry>
+    <entry key="ALLOW_AUTO_LOGIN_MESSAGE">Allow users that exist in LDAP, password file or via plugin to log into GoCD, even if they haven't been explicitly added to GoCD.</entry>
     <entry key="FAILED_TO_SAVE_THE_SERVER_CONFIGURATION">Failed to save the server configuration. Reason: {0}</entry>
     <entry key="LICENSE_DETAILS">License Details</entry>
     <entry key="VIEW_FAILURE_DETAILS">View failure details</entry>

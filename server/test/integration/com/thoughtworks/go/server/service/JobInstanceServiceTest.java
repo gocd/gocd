@@ -20,12 +20,6 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.activity.JobStatusCache;
 import com.thoughtworks.go.helper.JobInstanceMother;
-import com.thoughtworks.go.plugin.api.hook.joblifecycle.IJobPostCompletionHook;
-import com.thoughtworks.go.plugin.api.hook.joblifecycle.IJobPreScheduleHook;
-import com.thoughtworks.go.plugin.api.hook.joblifecycle.JobContext;
-import com.thoughtworks.go.plugin.api.hook.joblifecycle.ResponseContext;
-import com.thoughtworks.go.plugin.infra.Action;
-import com.thoughtworks.go.plugin.infra.ExceptionHandler;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.dao.StageDao;
@@ -40,12 +34,12 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.ui.JobInstancesModel;
 import com.thoughtworks.go.server.ui.SortOrder;
 import com.thoughtworks.go.server.util.Pagination;
-import org.hamcrest.core.Is;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.*;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
@@ -54,11 +48,9 @@ import java.util.ArrayList;
 
 import static com.thoughtworks.go.helper.JobInstanceMother.completed;
 import static com.thoughtworks.go.helper.JobInstanceMother.scheduled;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.sameInstance;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -71,11 +63,6 @@ public class JobInstanceServiceTest {
     @Mock private CruiseConfig cruiseConfig;
 	@Mock private SecurityService securityService;
     @Mock private PluginManager pluginManager;
-
-    @Captor private ArgumentCaptor<Action<IJobPostCompletionHook>> jobPostCompletionActionHandlerCaptor;
-    @Captor private ArgumentCaptor<ExceptionHandler<IJobPostCompletionHook>> jobPostCompletionExceptionHandlerCaptor;
-    @Captor private ArgumentCaptor<Action<IJobPreScheduleHook>> jobPreScheduleActionHandlerCaptor;
-    @Captor private ArgumentCaptor<ExceptionHandler<IJobPreScheduleHook>> jobPreScheduleExceptionHandlerCaptor;
 
     private JobInstance job;
     private TestTransactionSynchronizationManager transactionSynchronizationManager;
@@ -387,116 +374,4 @@ public class JobInstanceServiceTest {
         verify(jobInstanceDao).completedJobsOnAgent("uuid", JobInstanceService.JobHistoryColumns.pipeline, SortOrder.ASC, 50, 50);
     }
 
-    @Test
-    public void shouldInvokePreScheduleHooks() {
-        final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager,
-                null, null, goConfigService, null, pluginManager);
-
-        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            public void doInTransactionWithoutResult(TransactionStatus status) {
-                jobService.save(new StageIdentifier("pipelineName", 1, "1", "defaultStage", "1"), 42l, job);
-            }
-        });
-
-        verify(pluginManager).doOnAll(eq(IJobPreScheduleHook.class), jobPreScheduleActionHandlerCaptor.capture(), jobPreScheduleExceptionHandlerCaptor.capture());
-
-        IJobPreScheduleHook preScheduleHook = mock(IJobPreScheduleHook.class);
-        Action<IJobPreScheduleHook> value = jobPreScheduleActionHandlerCaptor.getValue();
-        value.execute(preScheduleHook, null);
-
-        final ArgumentCaptor<JobContext> argumentCaptor = ArgumentCaptor.forClass(JobContext.class);
-        verify(preScheduleHook).call(argumentCaptor.capture());
-
-        JobContext jobContext = argumentCaptor.getValue();
-        Assert.assertThat(jobContext.getPipelineName(), Is.is("pipelineName"));
-        Assert.assertThat(jobContext.getPipelineCounter(), Is.is("1"));
-        Assert.assertThat(jobContext.getPipelineLabel(), Is.is("1"));
-        Assert.assertThat(jobContext.getStageName(), Is.is("defaultStage"));
-        Assert.assertThat(jobContext.getStageCounter(), Is.is(String.valueOf("1")));
-        Assert.assertThat(jobContext.getJobName(), Is.is(job.getName()));
-        Assert.assertThat(jobContext.getJobCounter(), Is.is(String.valueOf(job.getId())));
-
-        verify(jobInstanceDao).save(42, job);
-    }
-
-    @Test
-    public void shouldReThrowExceptionWhenPreScheduleHookThrowsException() {
-
-        final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager,
-                null, null, goConfigService, null, pluginManager);
-
-        doThrow(new RuntimeException("This will fail with an exception, when plugin manager runs the exception handler.")).when(pluginManager).doOnAll(eq(IJobPreScheduleHook.class), jobPreScheduleActionHandlerCaptor.capture(), jobPreScheduleExceptionHandlerCaptor.capture());
-
-        try {
-            transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-                public void doInTransactionWithoutResult(TransactionStatus status) {
-                    jobService.save(new StageIdentifier("pipelineName", 1, "1", "defaultStage", "1"), 42l, job);
-                }
-            });
-            fail("Expected this to throw an exception");
-        } catch (Exception e) {
-        }
-
-        IJobPreScheduleHook preScheduleHook = mock(IJobPreScheduleHook.class);
-        verify(pluginManager).doOnAll(eq(IJobPreScheduleHook.class), jobPreScheduleActionHandlerCaptor.capture(), jobPreScheduleExceptionHandlerCaptor.capture());
-
-        try {
-            jobPreScheduleExceptionHandlerCaptor.getValue().handleException(preScheduleHook, new RuntimeException("Bundle throws exception"));
-        } catch (Exception e) {
-            assertThat(e.getMessage(), is("java.lang.RuntimeException: Bundle throws exception"));
-        }
-    }
-
-    @Test
-    public void shouldCallPostCommitHookAfterJobCompletion() {
-        //given
-        JobInstance completedJob = completed("dev");
-        IJobPostCompletionHook jobPostCompletionHook = mock(IJobPostCompletionHook.class);
-
-        when(jobPostCompletionHook.call(any(JobContext.class))).thenReturn(new ResponseContext(ResponseContext.ResponseCode.SUCCESS, "success"));
-
-        JobInstanceService jobService = new JobInstanceService(jobInstanceDao, buildPropertiesService, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager,
-                null, null, goConfigService, null, pluginManager);
-
-        //when
-        jobService.updateStateAndResult(completedJob);
-
-        //then
-        verify(pluginManager).doOnAll(eq(IJobPostCompletionHook.class), jobPostCompletionActionHandlerCaptor.capture(), jobPostCompletionExceptionHandlerCaptor.capture());
-
-        jobPostCompletionActionHandlerCaptor.getValue().execute(jobPostCompletionHook, null);
-        final ArgumentCaptor<JobContext> jobContextCaptor = ArgumentCaptor.forClass(JobContext.class);
-        verify(jobPostCompletionHook).call(jobContextCaptor.capture());
-
-        JobContext jobContext = jobContextCaptor.getValue();
-        assertThat(jobContext.getPipelineName(), Is.is(completedJob.getIdentifier().getPipelineName()));
-        assertThat(jobContext.getPipelineCounter(), Is.is(String.valueOf(completedJob.getIdentifier().getPipelineCounter())));
-        assertThat(jobContext.getPipelineLabel(), Is.is(completedJob.getIdentifier().getPipelineLabel()));
-        assertThat(jobContext.getStageName(), Is.is(completedJob.getIdentifier().getStageName()));
-        assertThat(jobContext.getStageCounter(), Is.is(completedJob.getIdentifier().getStageCounter()));
-        assertThat(jobContext.getJobName(), Is.is(completedJob.getName()));
-        assertThat(jobContext.getJobCounter(), Is.is(String.valueOf(completedJob.getId())));
-        assertThat(jobContext.getJobStatus(), Is.is(completedJob.getResult().getStatus()));
-        assertThat(jobContext.getAgentUuid(), Is.is(completedJob.getAgentUuid()));
-
-        verify(jobInstanceDao).updateStateAndResult(completedJob);
-        verify(buildPropertiesService).saveCruiseProperties(completedJob);
-    }
-
-    @Test
-    public void shouldNotCallPostCommitHookIfJobNotCompleted() {
-
-        //given
-        JobInstance jobInstance = JobInstanceMother.building("dev");
-        IJobPostCompletionHook jobPostCompletionHook = mock(IJobPostCompletionHook.class);
-        JobInstanceService jobService = new JobInstanceService(jobInstanceDao, buildPropertiesService, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager,
-                null, null, goConfigService, null, pluginManager);
-
-        //when
-        jobService.updateStateAndResult(jobInstance);
-
-        //then
-        verify(jobPostCompletionHook, never()).call(any(JobContext.class));
-        verify(jobInstanceDao).updateStateAndResult(jobInstance);
-    }
 }

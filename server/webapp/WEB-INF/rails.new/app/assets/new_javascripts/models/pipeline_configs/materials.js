@@ -456,9 +456,9 @@ define([
       };
     };
 
-    if (data.ref) {
-      this.repository(Repositories.findByPackageId(data.ref));
-    }
+    //if (data.ref) {
+    //  this.repository(Repositories.findByPackageId(data.ref));
+    //}
   };
 
   Materials.Material.PackageMaterial.fromJSON = function (data) {

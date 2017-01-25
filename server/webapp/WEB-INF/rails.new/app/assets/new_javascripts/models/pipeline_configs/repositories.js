@@ -27,6 +27,14 @@ define([
       collection: data,
       uniqueOn:   'id'
     });
+
+    this.findRepositoryByPackageId = function (packageId) {
+      return this.findRepository(function (repository) {
+        return repository.packages().findPackage(function (pkg) {
+          return pkg.id() === packageId;
+        });
+      });
+    };
   };
 
   CrudMixins.Index({

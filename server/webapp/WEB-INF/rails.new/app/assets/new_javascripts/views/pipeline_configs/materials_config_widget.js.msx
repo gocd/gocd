@@ -372,9 +372,21 @@ define([
     },
 
     package: {
-      view: function (_ctrl, args) {
+      controller: function (args) {
+        var ctrl = {
+          resolveMaterialRepository: function (newMaterialRef) {
+            if (!_.isNil(newMaterialRef)) {
+              args.material.repository(args.repositories().findRepositoryByPackageId(newMaterialRef));
+            }
+          }
+        };
+        return ctrl;
+      },
+      view: function (ctrl, args) {
         var material     = args.material;
         var repositories = args.repositories;
+        ctrl.resolveMaterialRepository(args.material.ref());
+
         return (
           <MaterialViews.base {...args}>
             <RepositoryConfigWidget material={material} repositories={repositories}/>

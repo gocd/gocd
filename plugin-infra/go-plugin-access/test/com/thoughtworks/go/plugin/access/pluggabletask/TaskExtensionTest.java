@@ -77,12 +77,12 @@ public class TaskExtensionTest {
         PluginSettingsConfiguration deserializedResponse = new PluginSettingsConfiguration();
         when(pluginSettingsJSONMessageHandler.responseMessageForPluginSettingsConfiguration(responseBody)).thenReturn(deserializedResponse);
 
-        when(pluginManager.isPluginOfType(TaskExtension.TASK_EXTENSION, pluginId)).thenReturn(true);
+        when(pluginManager.isPluginOfType(TaskExtensionConstants.TASK_EXTENSION, pluginId)).thenReturn(true);
         when(pluginManager.submitTo(eq(pluginId), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
         PluginSettingsConfiguration response = extension.getPluginSettingsConfiguration(pluginId);
 
-        assertRequest(requestArgumentCaptor.getValue(), TaskExtension.TASK_EXTENSION, "1.0", PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_CONFIGURATION, null);
+        assertRequest(requestArgumentCaptor.getValue(), TaskExtensionConstants.TASK_EXTENSION, "1.0", PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_CONFIGURATION, null);
         verify(pluginSettingsJSONMessageHandler).responseMessageForPluginSettingsConfiguration(responseBody);
         assertSame(response, deserializedResponse);
     }
@@ -96,12 +96,12 @@ public class TaskExtensionTest {
         String deserializedResponse = "";
         when(pluginSettingsJSONMessageHandler.responseMessageForPluginSettingsView(responseBody)).thenReturn(deserializedResponse);
 
-        when(pluginManager.isPluginOfType(TaskExtension.TASK_EXTENSION, pluginId)).thenReturn(true);
+        when(pluginManager.isPluginOfType(TaskExtensionConstants.TASK_EXTENSION, pluginId)).thenReturn(true);
         when(pluginManager.submitTo(eq(pluginId), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
         String response = extension.getPluginSettingsView(pluginId);
 
-        assertRequest(requestArgumentCaptor.getValue(), TaskExtension.TASK_EXTENSION, "1.0", PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_VIEW, null);
+        assertRequest(requestArgumentCaptor.getValue(), TaskExtensionConstants.TASK_EXTENSION, "1.0", PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_VIEW, null);
         verify(pluginSettingsJSONMessageHandler).responseMessageForPluginSettingsView(responseBody);
         assertSame(response, deserializedResponse);
     }
@@ -118,12 +118,12 @@ public class TaskExtensionTest {
         ValidationResult deserializedResponse = new ValidationResult();
         when(pluginSettingsJSONMessageHandler.responseMessageForPluginSettingsValidation(responseBody)).thenReturn(deserializedResponse);
 
-        when(pluginManager.isPluginOfType(TaskExtension.TASK_EXTENSION, pluginId)).thenReturn(true);
+        when(pluginManager.isPluginOfType(TaskExtensionConstants.TASK_EXTENSION, pluginId)).thenReturn(true);
         when(pluginManager.submitTo(eq(pluginId), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
         ValidationResult response = extension.validatePluginSettings(pluginId, pluginSettingsConfiguration);
 
-        assertRequest(requestArgumentCaptor.getValue(), TaskExtension.TASK_EXTENSION, "1.0", PluginSettingsConstants.REQUEST_VALIDATE_PLUGIN_SETTINGS, requestBody);
+        assertRequest(requestArgumentCaptor.getValue(), TaskExtensionConstants.TASK_EXTENSION, "1.0", PluginSettingsConstants.REQUEST_VALIDATE_PLUGIN_SETTINGS, requestBody);
         verify(pluginSettingsJSONMessageHandler).responseMessageForPluginSettingsValidation(responseBody);
         assertSame(response, deserializedResponse);
     }
@@ -158,7 +158,7 @@ public class TaskExtensionTest {
         TaskConfig taskConfig = mock(TaskConfig.class);
 
         when(response.responseCode()).thenReturn(DefaultGoApiResponse.SUCCESS_RESPONSE_CODE);
-        when(pluginManager.isPluginOfType(TaskExtension.TASK_EXTENSION, pluginId)).thenReturn(true);
+        when(pluginManager.isPluginOfType(TaskExtensionConstants.TASK_EXTENSION, pluginId)).thenReturn(true);
         when(response.responseBody()).thenReturn("{\"errors\":{\"key\":\"error\"}}");
         when(pluginManager.submitTo(eq(pluginId), any(GoPluginApiRequest.class))).thenReturn(response);
         ValidationResult validationResult = jsonBasedTaskExtension.validate(pluginId, taskConfig);

@@ -25,7 +25,7 @@ import com.thoughtworks.go.plugin.access.elastic.ElasticPluginConfigMetadataStor
 import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
 import com.thoughtworks.go.plugin.access.notification.NotificationPluginRegistry;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
-import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
+import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtensionConstants;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.server.service.plugins.InvalidPluginTypeException;
@@ -53,7 +53,7 @@ public class PluginInfoBuilder {
         pluginExtensionToBuilder.put(AuthenticationExtension.EXTENSION_NAME, new AuthenticationViewModelBuilder(pluginManager, authenticationPluginRegistry));
         pluginExtensionToBuilder.put(NotificationExtension.EXTENSION_NAME, new NotificationViewModelBuilder(pluginManager, notificationPluginRegistry));
         pluginExtensionToBuilder.put(PackageRepositoryExtension.EXTENSION_NAME, new PackageViewModelBuilder(pluginManager));
-        pluginExtensionToBuilder.put(TaskExtension.TASK_EXTENSION, new PluggableTaskViewModelBuilder(pluginManager));
+        pluginExtensionToBuilder.put(TaskExtensionConstants.TASK_EXTENSION, new PluggableTaskViewModelBuilder(pluginManager));
         pluginExtensionToBuilder.put(SCMExtension.EXTENSION_NAME, new SCMViewModelBuilder(pluginManager));
         pluginExtensionToBuilder.put(ElasticAgentPluginConstants.EXTENSION_NAME, new ElasticAgentViewViewModelBuilder(elasticPluginConfigMetadataStore));
         pluginExtensionToBuilder.put(AuthorizationPluginConstants.EXTENSION_NAME, new AuthorizationViewModelBuilder(authorizationPluginConfigMetadataStore));

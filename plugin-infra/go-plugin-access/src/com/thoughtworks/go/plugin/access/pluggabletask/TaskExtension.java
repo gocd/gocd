@@ -29,25 +29,16 @@ import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 
 @Component
 public class TaskExtension extends AbstractExtension {
-    private final static List<String> supportedVersions = Arrays.asList(JsonBasedTaskExtensionHandler_V1.VERSION);
-
-    public final static String TASK_EXTENSION = "task";
-    public final static String CONFIGURATION_REQUEST = "configuration";
-    public final static String VALIDATION_REQUEST = "validate";
-    public final static String EXECUTION_REQUEST = "execute";
-    public final static String TASK_VIEW_REQUEST = "view";
 
     final HashMap<String, JsonBasedTaskExtensionHandler> messageHandlerMap = new HashMap<>();
 
     @Autowired
     public TaskExtension(PluginManager pluginManager) {
-        super(pluginManager, new PluginRequestHelper(pluginManager, supportedVersions, TaskExtension.TASK_EXTENSION), TaskExtension.TASK_EXTENSION);
+        super(pluginManager, new PluginRequestHelper(pluginManager, TaskExtensionConstants.SUPPORTED_VERSIONS, TaskExtensionConstants.TASK_EXTENSION), TaskExtensionConstants.TASK_EXTENSION);
         registerHandler(JsonBasedTaskExtensionHandler_V1.VERSION, new PluginSettingsJsonMessageHandler1_0());
         messageHandlerMap.put(JsonBasedTaskExtensionHandler_V1.VERSION, new JsonBasedTaskExtensionHandler_V1());
     }

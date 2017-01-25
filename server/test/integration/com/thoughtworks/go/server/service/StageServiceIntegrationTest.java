@@ -37,10 +37,7 @@ import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryEntry;
 import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryPage;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.cache.GoCache;
-import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
-import com.thoughtworks.go.server.dao.JobInstanceDao;
-import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
-import com.thoughtworks.go.server.dao.StageDao;
+import com.thoughtworks.go.server.dao.*;
 import com.thoughtworks.go.server.domain.StageIdentity;
 import com.thoughtworks.go.server.domain.StageStatusListener;
 import com.thoughtworks.go.server.domain.Username;
@@ -50,16 +47,15 @@ import com.thoughtworks.go.server.messaging.JobResultMessage;
 import com.thoughtworks.go.server.messaging.JobResultTopic;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.scheduling.ScheduleHelper;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.ui.MingleCard;
+import com.thoughtworks.go.server.ui.StageSummaryModel;
 import com.thoughtworks.go.server.ui.StageSummaryModels;
 import com.thoughtworks.go.server.util.Pagination;
-import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.GoConstants;
-import com.thoughtworks.go.util.ReflectionUtil;
-import com.thoughtworks.go.util.TimeProvider;
+import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.utils.Assertions;
 import com.thoughtworks.go.utils.Timeout;
 import org.hamcrest.core.Is;
@@ -694,6 +690,31 @@ public class StageServiceIntegrationTest {
         assertThat(latestStageInstances.contains(new StageIdentity("upstream-without-mingle", "stage",13L)),is(true));
         assertThat(latestStageInstances.contains(new StageIdentity("downstream", "down-stage",14L)),is(true));
         assertThat(latestStageInstances.contains(new StageIdentity("upstream-with-mingle", "stage",10L)),is(true));
+    }
+
+    @Test
+    public void findStageSummaryByIdentifierShouldFilterOutDuplicateStageRunsGithubIssue1471() throws Exception {
+        String pipelineName = "Test";
+        Username loser = new Username(new CaseInsensitiveString("loser"));
+        Stage stage1 = new Stage("default", new JobInstances(JobInstanceMother.building("job")), loser.getDisplayName(), "", new SystemTimeClock());
+        Stage stage2 = new Stage("default", new JobInstances(JobInstanceMother.building("job")), loser.getDisplayName(), "", new SystemTimeClock());
+        Pipeline instance1WithLowerCaseName = new Pipeline(pipelineName.toLowerCase(), BuildCause.createWithEmptyModifications(), stage1);
+        int counter = 1;
+        instance1WithLowerCaseName.setCounter(counter);
+        Pipeline instance2WithUpperCaseName = new Pipeline(pipelineName.toUpperCase(), BuildCause.createWithEmptyModifications(), stage2);
+        instance2WithUpperCaseName.setCounter(counter);
+        pipelineDao.getSqlMapClientTemplate().insert("insertPipeline", instance1WithLowerCaseName);
+        //Next statement was possible because of #1471
+        pipelineDao.getSqlMapClientTemplate().insert("insertPipeline", instance2WithUpperCaseName);
+
+        dbHelper.saveStage(instance1WithLowerCaseName, stage1, 1);
+        dbHelper.saveStage(instance2WithUpperCaseName, stage2, 1);
+        dbHelper.passStage(stage1);
+        dbHelper.passStage(stage2);
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        assertThat(stageService.findStageSummaryByIdentifier(stage1.getIdentifier(), loser, result).getTotalRuns(), is(1));
+        assertThat(stageService.findStageSummaryByIdentifier(stage2.getIdentifier(), loser, result).getTotalRuns(), is(1));
     }
 
     private void assertStageEntryAuthorAndMingleCards(MingleConfig upstreamMingle, MingleConfig downstreamMingle, FeedEntries feed) {

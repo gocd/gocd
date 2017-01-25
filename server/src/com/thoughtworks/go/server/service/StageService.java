@@ -46,10 +46,15 @@ import com.thoughtworks.go.server.ui.MingleCard;
 import com.thoughtworks.go.server.ui.ModificationForPipeline;
 import com.thoughtworks.go.server.ui.StageSummaryModel;
 import com.thoughtworks.go.server.ui.StageSummaryModels;
+import com.thoughtworks.go.server.util.CollectionUtil;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.server.util.UserHelper;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
+import com.thoughtworks.go.util.Filter;
+import com.thoughtworks.go.util.ListUtil;
+import net.sf.cglib.core.CollectionUtils;
+import org.apache.commons.collections.Transformer;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -59,6 +64,7 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 @Service
 public class StageService implements StageRunFinder, StageFinder {
@@ -146,9 +152,22 @@ public class StageService implements StageRunFinder, StageFinder {
             return null;
         }
         Stages stages = stageDao.getAllRunsOfStageForPipelineInstance(stageId.getPipelineName(), stageId.getPipelineCounter(), stageId.getStageName());
+        Stages stagesWithoutDuplicates = new Stages();
+
         for (Stage stage : stages) {
+            boolean shouldAdd = stagesWithoutDuplicates.isEmpty();
+            for (Stage stageFromFilteredList : stagesWithoutDuplicates) {
+                if(stage.getCounter() != stageFromFilteredList.getCounter())
+                    shouldAdd = true;
+            }
+            if(shouldAdd){
+                stagesWithoutDuplicates.add(stage);
+            }
+        }
+
+        for (Stage stage : stagesWithoutDuplicates) {
             if (stage.getIdentifier().getStageCounter().equals(stageId.getStageCounter())) {
-                StageSummaryModel summaryModel = new StageSummaryModel(stage, stages, stageDao, null);
+                StageSummaryModel summaryModel = new StageSummaryModel(stage, stagesWithoutDuplicates, stageDao, null);
                 return summaryModel;
             }
         }

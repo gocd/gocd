@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,14 +22,7 @@ import com.thoughtworks.go.config.JobConfig;
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.activity.JobStatusCache;
-import com.thoughtworks.go.plugin.api.hook.joblifecycle.IJobPostCompletionHook;
-import com.thoughtworks.go.plugin.api.hook.joblifecycle.IJobPreScheduleHook;
-import com.thoughtworks.go.plugin.api.hook.joblifecycle.JobContext;
-import com.thoughtworks.go.plugin.api.hook.joblifecycle.ResponseContext;
-import com.thoughtworks.go.plugin.infra.Action;
-import com.thoughtworks.go.plugin.infra.ExceptionHandler;
 import com.thoughtworks.go.plugin.infra.PluginManager;
-import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.domain.JobStatusListener;
 import com.thoughtworks.go.server.domain.Username;
@@ -131,11 +124,6 @@ public class JobInstanceService implements JobPlanLoader {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
                 internalUpdateJobStateAndResult(job);
-                /* POST JOB COMPLETION HOOK - BEGIN */
-                if (job.isCompleted()) {
-                    runJobPostCompletionHooks(job);
-                }
-                /* POST JOB COMPLETION HOOK - END */
 
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug(String.format("job status updated [%s]", job));
@@ -143,31 +131,6 @@ public class JobInstanceService implements JobPlanLoader {
                 notifyJobStatusChangeListeners(job);
             }
         });
-    }
-
-    private void runJobPostCompletionHooks(JobInstance job) {
-        final JobContext jobContext = new JobContext(job.getIdentifier().getPipelineName(), String.valueOf(job.getIdentifier().getPipelineCounter()),
-                job.getIdentifier().getPipelineLabel(), job.getIdentifier().getStageName(),
-                job.getIdentifier().getStageCounter(), job.getName(), String.valueOf(job.getId()), job.getResult().getStatus(), job.getAgentUuid());
-
-        Action<IJobPostCompletionHook> actionForEachHook = new Action<IJobPostCompletionHook>() {
-            public void execute(IJobPostCompletionHook jobPostCompletionHook, GoPluginDescriptor pluginDescriptor) {
-                ResponseContext responseContext = jobPostCompletionHook.call(jobContext);
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug(String.format("[JOB POST COMPLETION HOOK] Hook %s reported status %s with message %s", jobPostCompletionHook, responseContext.getResponseCode(),
-                            responseContext.getMessage()));
-                }
-            }
-        };
-        ExceptionHandler<IJobPostCompletionHook> exceptionHandler = new ExceptionHandler<IJobPostCompletionHook>() {
-            public void handleException(IJobPostCompletionHook jobPostCompletionHook, Throwable t) {
-                String message = String.format("[JOB POST COMPLETION HOOK] Hook %s resulted in an exception %s", jobPostCompletionHook, t.getMessage());
-                LOGGER.error(message);
-                LOGGER.debug(message, t);
-            }
-        };
-
-        pluginManager.doOnAll(IJobPostCompletionHook.class, actionForEachHook, exceptionHandler);
     }
 
     private void notifyJobStatusChangeListeners(final JobInstance job) {
@@ -248,34 +211,6 @@ public class JobInstanceService implements JobPlanLoader {
     }
 
     public void save(StageIdentifier stageIdentifier, long stageId, final JobInstance job) {
-        /* PRE JOB SCHEDULE HOOK - BEGIN */
-        final JobContext jobContext = new JobContext(stageIdentifier.getPipelineName(), String.valueOf(stageIdentifier.getPipelineCounter()),
-                stageIdentifier.getPipelineLabel(), stageIdentifier.getStageName(),
-                stageIdentifier.getStageCounter(), job.getName(), String.valueOf(job.getId()));
-
-        Action<IJobPreScheduleHook> actionForEachHook = new Action<IJobPreScheduleHook>() {
-            @Override
-            public void execute(IJobPreScheduleHook preScheduleHook, GoPluginDescriptor pluginDescriptor) {
-                ResponseContext responseContext = preScheduleHook.call(jobContext);
-                if (LOGGER.isDebugEnabled()) {
-                    ResponseContext.ResponseCode responseCode = responseContext == null ? null : responseContext.getResponseCode();
-                    String message = responseContext == null ? "Unknown message" : responseContext.getMessage();
-                    LOGGER.debug(String.format("[JOB PRE ASSIGNMENT HOOK] Hook %s reported status %s with message %s", preScheduleHook, responseCode, message));
-                }
-            }
-        };
-        ExceptionHandler<IJobPreScheduleHook> exceptionHandler = new ExceptionHandler<IJobPreScheduleHook>() {
-            @Override
-            public void handleException(IJobPreScheduleHook preScheduleHook, Throwable t) {
-                String message = String.format("[JOB PRE ASSIGNMENT HOOK] Hook %s resulted in an exception %s", preScheduleHook, t.getMessage());
-                LOGGER.error(message, t);
-                LOGGER.debug(message, t);
-                throw new RuntimeException(t);
-            }
-        };
-        pluginManager.doOnAll(IJobPreScheduleHook.class, actionForEachHook, exceptionHandler);
-        /* PRE JOB SCHEDULE HOOK - END */
-
         jobInstanceDao.save(stageId, job);
         job.setIdentifier(new JobIdentifier(stageIdentifier, job));
 

@@ -18,6 +18,7 @@ package com.thoughtworks.go.plugin.access.pluggabletask;
 
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
@@ -39,8 +40,12 @@ public class TaskExtension extends AbstractExtension {
     @Autowired
     public TaskExtension(PluginManager pluginManager) {
         super(pluginManager, new PluginRequestHelper(pluginManager, TaskExtensionConstants.SUPPORTED_VERSIONS, TaskExtensionConstants.TASK_EXTENSION), TaskExtensionConstants.TASK_EXTENSION);
-        registerHandler(JsonBasedTaskExtensionHandler_V1.VERSION, new PluginSettingsJsonMessageHandler1_0());
-        messageHandlerMap.put(JsonBasedTaskExtensionHandler_V1.VERSION, new JsonBasedTaskExtensionHandler_V1());
+        addHandler(JsonBasedTaskExtensionHandler_V1.VERSION, new PluginSettingsJsonMessageHandler1_0(), new JsonBasedTaskExtensionHandler_V1());
+    }
+
+    private void addHandler(String version, PluginSettingsJsonMessageHandler handler, JsonBasedTaskExtensionHandler value) {
+        registerHandler(version, handler);
+        messageHandlerMap.put(JsonBasedTaskExtensionHandler_V1.VERSION, value);
     }
 
     public ExecutionResult execute(String pluginId, ActionWithReturn<Task, ExecutionResult> actionWithReturn) {

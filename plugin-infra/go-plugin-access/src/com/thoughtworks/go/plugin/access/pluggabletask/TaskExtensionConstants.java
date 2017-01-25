@@ -20,7 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public interface TaskExtensionConstants {
-    List<String> SUPPORTED_VERSIONS = Arrays.asList(JsonBasedTaskExtensionHandler_V1.VERSION);
+    List<String> SUPPORTED_VERSIONS = Arrays.asList(TaskMessageConverter_V1.VERSION);
     String TASK_EXTENSION = "task";
     String CONFIGURATION_REQUEST = "configuration";
     String VALIDATION_REQUEST = "validate";

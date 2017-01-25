@@ -28,10 +28,10 @@ import java.util.HashMap;
 
 public class JsonBasedPluggableTask implements Task {
     private PluginRequestHelper pluginRequestHelper;
-    private HashMap<String, JsonBasedTaskExtensionHandler> handlerMap;
+    private HashMap<String, TaskMessageConverter> handlerMap;
     private String pluginId;
 
-    public JsonBasedPluggableTask(String pluginId, PluginRequestHelper pluginRequestHelper, HashMap<String, JsonBasedTaskExtensionHandler> handlerMap) {
+    public JsonBasedPluggableTask(String pluginId, PluginRequestHelper pluginRequestHelper, HashMap<String, TaskMessageConverter> handlerMap) {
         this.pluginId = pluginId;
         this.pluginRequestHelper = pluginRequestHelper;
         this.handlerMap = handlerMap;

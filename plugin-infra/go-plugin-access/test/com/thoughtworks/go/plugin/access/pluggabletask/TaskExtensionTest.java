@@ -50,7 +50,7 @@ public class TaskExtensionTest {
     @Mock
     private PluginSettingsJsonMessageHandler1_0 pluginSettingsJSONMessageHandler;
     @Mock
-    private JsonBasedTaskExtensionHandler jsonMessageHandler;
+    private TaskMessageConverter jsonMessageHandler;
 
     private TaskExtension extension;
     private String pluginId;

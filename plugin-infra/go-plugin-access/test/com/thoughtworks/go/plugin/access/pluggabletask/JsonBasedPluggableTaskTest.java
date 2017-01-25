@@ -53,8 +53,8 @@ public class JsonBasedPluggableTaskTest {
         pluginManager = mock(PluginManager.class);
         pluginId = "plugin-id";
         final List<String> goSupportedVersions = asList("1.0");
-        final HashMap<String, JsonBasedTaskExtensionHandler> handlerMap = new HashMap<>();
-        handlerMap.put("1.0", new JsonBasedTaskExtensionHandler_V1());
+        final HashMap<String, TaskMessageConverter> handlerMap = new HashMap<>();
+        handlerMap.put("1.0", new TaskMessageConverter_V1());
 
         task = new JsonBasedPluggableTask(pluginId, new PluginRequestHelper(pluginManager, goSupportedVersions, TaskExtensionConstants.TASK_EXTENSION), handlerMap);
         goPluginApiResponse = mock(GoPluginApiResponse.class);
@@ -92,7 +92,7 @@ public class JsonBasedPluggableTaskTest {
         ArgumentCaptor<GoPluginApiRequest> argument = ArgumentCaptor.forClass(GoPluginApiRequest.class);
         verify(pluginManager).submitTo(eq(pluginId), argument.capture());
         MatcherAssert.assertThat(argument.getValue().extension(), Matchers.is(TaskExtensionConstants.TASK_EXTENSION));
-        MatcherAssert.assertThat(argument.getValue().extensionVersion(), Matchers.is(JsonBasedTaskExtensionHandler_V1.VERSION));
+        MatcherAssert.assertThat(argument.getValue().extensionVersion(), Matchers.is(TaskMessageConverter_V1.VERSION));
         MatcherAssert.assertThat(argument.getValue().requestName(), Matchers.is(TaskExtensionConstants.CONFIGURATION_REQUEST));
     }
 
@@ -108,7 +108,7 @@ public class JsonBasedPluggableTaskTest {
         ArgumentCaptor<GoPluginApiRequest> argument = ArgumentCaptor.forClass(GoPluginApiRequest.class);
         verify(pluginManager).submitTo(eq(pluginId), argument.capture());
         MatcherAssert.assertThat(argument.getValue().extension(), Matchers.is(TaskExtensionConstants.TASK_EXTENSION));
-        MatcherAssert.assertThat(argument.getValue().extensionVersion(), Matchers.is(JsonBasedTaskExtensionHandler_V1.VERSION));
+        MatcherAssert.assertThat(argument.getValue().extensionVersion(), Matchers.is(TaskMessageConverter_V1.VERSION));
         MatcherAssert.assertThat(argument.getValue().requestName(), Matchers.is(TaskExtensionConstants.TASK_VIEW_REQUEST));
     }
 
@@ -138,7 +138,7 @@ public class JsonBasedPluggableTaskTest {
         assertThat(argument.getValue().requestBody(), is(config));
 
         MatcherAssert.assertThat(argument.getValue().extension(), Matchers.is(TaskExtensionConstants.TASK_EXTENSION));
-        MatcherAssert.assertThat(argument.getValue().extensionVersion(), Matchers.is(JsonBasedTaskExtensionHandler_V1.VERSION));
+        MatcherAssert.assertThat(argument.getValue().extensionVersion(), Matchers.is(TaskMessageConverter_V1.VERSION));
         MatcherAssert.assertThat(argument.getValue().requestName(), Matchers.is(TaskExtensionConstants.VALIDATION_REQUEST));
     }
 

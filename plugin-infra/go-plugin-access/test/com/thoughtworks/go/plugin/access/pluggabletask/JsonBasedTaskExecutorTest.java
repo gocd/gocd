@@ -48,9 +48,9 @@ public class JsonBasedTaskExecutorTest {
     private PluginManager pluginManager;
     private String pluginId;
     private GoPluginApiResponse response;
-    private JsonBasedTaskExtensionHandler handler;
+    private TaskMessageConverter handler;
     private PluginRequestHelper pluginRequestHelper;
-    private HashMap<String, JsonBasedTaskExtensionHandler> handlerHashMap = new HashMap<>();
+    private HashMap<String, TaskMessageConverter> handlerHashMap = new HashMap<>();
 
     @Before
     public void setup() {
@@ -58,7 +58,7 @@ public class JsonBasedTaskExecutorTest {
         pluginManager = mock(PluginManager.class);
         pluginId = "pluginId";
         response = mock(GoPluginApiResponse.class);
-        handler = mock(JsonBasedTaskExtensionHandler.class);
+        handler = mock(TaskMessageConverter.class);
         handlerHashMap.put("1.0", handler);
         final List<String> goSupportedVersions = asList("1.0");
         pluginRequestHelper = new PluginRequestHelper(pluginManager, goSupportedVersions, TaskExtensionConstants.TASK_EXTENSION);
@@ -115,7 +115,7 @@ public class JsonBasedTaskExecutorTest {
                 return response;
             }
         }).when(pluginManager).submitTo(eq(pluginId), any(GoPluginApiRequest.class));
-        handler = new JsonBasedTaskExtensionHandler_V1();
+        handler = new TaskMessageConverter_V1();
         handlerHashMap.put("1.0", handler);
         new JsonBasedTaskExecutor(pluginId, pluginRequestHelper, handlerHashMap).execute(config(), context);
 

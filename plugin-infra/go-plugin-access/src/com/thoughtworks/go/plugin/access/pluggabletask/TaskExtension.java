@@ -35,17 +35,17 @@ import java.util.HashMap;
 @Component
 public class TaskExtension extends AbstractExtension {
 
-    final HashMap<String, JsonBasedTaskExtensionHandler> messageHandlerMap = new HashMap<>();
+    final HashMap<String, TaskMessageConverter> messageHandlerMap = new HashMap<>();
 
     @Autowired
     public TaskExtension(PluginManager pluginManager) {
         super(pluginManager, new PluginRequestHelper(pluginManager, TaskExtensionConstants.SUPPORTED_VERSIONS, TaskExtensionConstants.TASK_EXTENSION), TaskExtensionConstants.TASK_EXTENSION);
-        addHandler(JsonBasedTaskExtensionHandler_V1.VERSION, new PluginSettingsJsonMessageHandler1_0(), new JsonBasedTaskExtensionHandler_V1());
+        addHandler(TaskMessageConverter_V1.VERSION, new PluginSettingsJsonMessageHandler1_0(), new TaskMessageConverter_V1());
     }
 
-    private void addHandler(String version, PluginSettingsJsonMessageHandler handler, JsonBasedTaskExtensionHandler value) {
+    private void addHandler(String version, PluginSettingsJsonMessageHandler handler, TaskMessageConverter value) {
         registerHandler(version, handler);
-        messageHandlerMap.put(JsonBasedTaskExtensionHandler_V1.VERSION, value);
+        messageHandlerMap.put(TaskMessageConverter_V1.VERSION, value);
     }
 
     public ExecutionResult execute(String pluginId, ActionWithReturn<Task, ExecutionResult> actionWithReturn) {

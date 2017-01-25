@@ -198,6 +198,13 @@ define([
             },
             buttons: [
               {
+                text:    'Check Package Connection',
+                class:   'check_repo_connection secondary',
+                onclick: function () {
+                  //TODO: implement the check package API
+                }
+              },
+              {
                 text:    'Save',
                 class:   'save primary',
                 onclick: function () {
@@ -214,28 +221,28 @@ define([
       return ctrl;
     },
     view:       function (ctrl, args) {
+      var mayBeSelectPackage, mayBeEditPackage;
+      if (!args.material.repository().packages().isEmptyPackage()) {
+        mayBeSelectPackage = <SelectPackageWidget material={args.material}
+                                                  defaultPackageId={ctrl.defaultPackageId}
+                                                  repositoryVM={args.repositoryVM}
+                                                  getPackageForEdit={ctrl.getPackageForEdit.bind(ctrl)}/>
+        mayBeEditPackage = <EditPackageWidget packageForEdit={args.material.package}
+                                              material={args.material}
+                                              repositoryVM={args.repositoryVM}
+                                              repositories={args.repositories}
+                                              create={ctrl.create}/>
+      }
       return (
         <span>
           <div class="row expanded">
-
-            {args.material.repository().packages().isEmptyPackage() ? '' :
-              <SelectPackageWidget material={args.material}
-                                   defaultPackageId={ctrl.defaultPackageId}
-                                   repositoryVM={args.repositoryVM}
-                                   getPackageForEdit={ctrl.getPackageForEdit.bind(ctrl)}/>}
-
+            {mayBeSelectPackage}
             <NewPackageWidget material={args.material}
                               repositoryVM={args.repositoryVM}
                               repositories={args.repositories}
                               create={ctrl.create}/>
           </div>
-
-          {args.material.repository().packages().isEmptyPackage() ? '' :
-            <EditPackageWidget packageForEdit={args.material.package}
-                               material={args.material}
-                               repositoryVM={args.repositoryVM}
-                               repositories={args.repositories}
-                               create={ctrl.create}/>}
+          {mayBeEditPackage}
         </span>
       );
     }

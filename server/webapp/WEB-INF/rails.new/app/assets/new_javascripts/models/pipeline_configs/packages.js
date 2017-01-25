@@ -53,52 +53,6 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/valid
         /* eslint-enable camelcase */
       };
 
-      //this.update = function () {
-      //  var self = this;
-      //
-      //  var config = function (xhr) {
-      //    xhr.setRequestHeader("Content-Type", "application/json");
-      //    xhr.setRequestHeader("Accept", "application/vnd.go.cd.v1+json");
-      //    xhr.setRequestHeader("If-Match", Packages.packageIdToEtag[self.id()]);
-      //  };
-      //
-      //  var extract = function (xhr) {
-      //    if (xhr.status === 200) {
-      //      Packages.packageIdToEtag[self.id()] = xhr.getResponseHeader('ETag');
-      //    }
-      //    return xhr.responseText;
-      //  };
-      //
-      //  return m.request({
-      //    method:     'PUT',
-      //    url:        Routes.apiv1AdminPackagePath({package_id: this.id()}), //eslint-disable-line camelcase
-      //    background: false,
-      //    config:     config,
-      //    extract:    extract,
-      //    data:       this,
-      //    type:       Packages.Package
-      //  });
-      //};
-      //
-      //this.create = function () {
-      //  var extract = function (xhr) {
-      //    if (xhr.status === 200) {
-      //      Packages.packageIdToEtag[JSON.parse(xhr.responseText).id] = xhr.getResponseHeader('ETag');
-      //    }
-      //    return xhr.responseText;
-      //  };
-      //
-      //  return m.request({
-      //    method:     'POST',
-      //    url:        Routes.apiv1AdminPackagesPath(),
-      //    background: false,
-      //    config:     mrequest.xhrConfig.v1,
-      //    extract:    extract,
-      //    data:       this,
-      //    type:       Packages.Package
-      //  });
-      //};
-
       CrudMixins.Update.call(this, {
         url:     function (id) {
           /* eslint-disable camelcase */
@@ -147,7 +101,7 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/valid
     });
 
     Packages.Package.get = function (id) {
-      new Packages.Package({id: id}).refresh();
+      return new Packages.Package({id: id}).refresh();
     };
 
     Packages.Package.create = function (data) {

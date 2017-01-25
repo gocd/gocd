@@ -17,6 +17,10 @@
 define(['lodash','models/pipeline_configs/repositories', 'models/shared/plugin_configurations'],
   function (_, Repositories, PluginConfigurations) {
     describe('Repositories', function () {
+      afterEach(function () {
+        jasmine.Ajax.uninstall();
+      });
+
       describe('all', function () {
         var repositories = {
           "_embedded": {
@@ -298,7 +302,7 @@ define(['lodash','models/pipeline_configs/repositories', 'models/shared/plugin_c
       });
 
       describe('get by id', function () {
-        var repo1, repo2;
+        var repo1;
         beforeAll(function () {
           /* eslint-disable camelcase */
           repo1 = {
@@ -309,18 +313,7 @@ define(['lodash','models/pipeline_configs/repositories', 'models/shared/plugin_c
             _embedded:       {packages: []}
 
           };
-          repo2 = {
-            repo_id:         'repo_id_2',
-            name:            'repo_2',
-            plugin_metadata: {id: 'npm', version: '1.1'}, //eslint-disable-line camelcase
-            _embedded:       {packages: []}
-          };
           /* eslint-enable camelcase */
-          Repositories([
-            Repositories.Repository.fromJSON(repo1),
-            Repositories.Repository.fromJSON(repo2)
-
-          ]);
         });
 
         it('should find a repository and call the success callback', function () {
@@ -334,7 +327,6 @@ define(['lodash','models/pipeline_configs/repositories', 'models/shared/plugin_c
             });
 
             var successCallback = jasmine.createSpy().and.callFake(function (repo) {
-              //var repo = Repositories.Repository.fromJSON(repository);
               expect(repo.id()).toBe("repo_id_1");
               expect(repo.pluginMetadata().id()).toBe('deb');
               expect(repo.configuration().collectConfigurationProperty('key')).toEqual(['REPO_URL', 'USERNAME']);

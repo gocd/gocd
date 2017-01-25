@@ -16,20 +16,13 @@
 
 define(['mithril', 'helpers/form_helper', 'views/pipeline_configs/errors_widget', 'views/pipeline_configs/package_repositories/configuration_widget'],
   function (m, f, ErrorsWidget, PackageConfigurationWidget) {
-    //This has to be done to get around mithril's controller caching
-
 
     var PackageConfigEditWidget = {
 
       controller: function (args) {
-
         var ctrl = {
-          vm:                     args.vm,
-          checkPackageConnection: function () {
-            //TODO : Have an API for checking the repository connection and make the request from here.
-          }
+          vm:                     args.vm
         };
-
         return ctrl;
       },
 
@@ -62,14 +55,6 @@ define(['mithril', 'helpers/form_helper', 'views/pipeline_configs/errors_widget'
               {args.packageForEdit().configuration().mapConfigurations(function (configuration) {
                 return (<PackageConfigurationWidget configuration={configuration}/>);
               })}
-
-              <f.row>
-                <f.column size={12}>
-                  <f.button class="secondary" onclick={ctrl.checkPackageConnection}>Check Package Connection</f.button>
-                </f.column>
-              </f.row>
-
-
             </div>
           </div>
         );

@@ -17,6 +17,9 @@
 define(['lodash', 'models/pipeline_configs/packages', 'models/shared/plugin_configurations'],
   function (_, Packages, PluginConfigurations) {
     describe('packages', function () {
+      afterEach(function () {
+        jasmine.Ajax.uninstall();
+      });
       describe('package', function () {
         describe('constructor', function () {
           var packageMaterial;
@@ -234,6 +237,73 @@ define(['lodash', 'models/pipeline_configs/packages', 'models/shared/plugin_conf
               expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
               expect(request.requestHeaders['If-Match']).toBe('some-etag');
               expect(JSON.parse(request.params)).toEqual(existingPackageJSON);
+            });
+          });
+        });
+
+        describe('get by id', function () {
+          var package1;
+          beforeAll(function () {
+            /* eslint-disable camelcase */
+            package1 = {
+              id:            'package_id_1',
+              name:          'package_1',
+              package_repo:  {id: 'repoId', name: 'repoName'},
+              configuration: [{key: 'VERSION_SPEC', value: '4.*'}, {key: 'ARCHITECTURE', value: 'jar'}]
+
+            };
+            /* eslint-enable camelcase */
+
+          });
+
+          it('should find a repository and call the success callback', function () {
+            jasmine.Ajax.withMock(function () {
+              jasmine.Ajax.stubRequest('/go/api/admin/packages/package_id_1', undefined, 'GET').andReturn({
+                responseText:    JSON.stringify(package1),
+                responseHeaders: {
+                  ETag: 'foo'
+                },
+                status:          200
+              });
+
+              var successCallback = jasmine.createSpy().and.callFake(function (pkg) {
+                expect(pkg.id()).toBe("package_id_1");
+                expect(pkg.packageRepo().id()).toBe('repoId');
+                expect(pkg.configuration().collectConfigurationProperty('key')).toEqual(['VERSION_SPEC', 'ARCHITECTURE']);
+                expect(pkg.configuration().collectConfigurationProperty('value')).toEqual(['4.*', 'jar']);
+                expect(pkg.etag()).toBe("foo");
+              });
+
+              Packages.Package.get('package_id_1').then(successCallback);
+
+              expect(successCallback).toHaveBeenCalled();
+
+              expect(jasmine.Ajax.requests.count()).toBe(1);
+              var request = jasmine.Ajax.requests.mostRecent();
+              expect(request.method).toBe('GET');
+              expect(request.url).toBe('/go/api/admin/packages/package_id_1');
+              expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
+            });
+          });
+
+          it("should find a repository and call the error callback on error", function () {
+            jasmine.Ajax.withMock(function () {
+              jasmine.Ajax.stubRequest('/go/api/admin/packages/package_id_2', undefined, 'GET').andReturn({
+                responseText: JSON.stringify({message: 'Unauthorized'}),
+                status:       401
+              });
+
+              var failureCallback = jasmine.createSpy();
+
+              Packages.Package.get('package_id_2').then(_.noop, failureCallback);
+
+              expect(failureCallback).toHaveBeenCalledWith('Unauthorized');
+
+              expect(jasmine.Ajax.requests.count()).toBe(1);
+              var request = jasmine.Ajax.requests.mostRecent();
+              expect(request.method).toBe('GET');
+              expect(request.url).toBe('/go/api/admin/packages/package_id_2');
+              expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
             });
           });
         });

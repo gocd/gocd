@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'jquery', 'helpers/form_helper'], function (m, _, $, f) {
-  var $body = $('body');
-
+define(['mithril', 'lodash', 'jquery', 'string-plus', 'helpers/form_helper'], function (m, _, $, s, f) {
+  // instead of each modal being a top level component of its own (and causing a redraw of everything else on the page)
+  // we manage a single component that's always mounted as soon as the page loads up, creating a new modal will create
+  // a sub-component in the top level component.
+  // see https://github.com/lhorie/mithril.js/issues/694
+  var allModals      = {};
   var defaultOptions = {
     title:   'This is the title',
     body:    (<small>This is the body</small>),
@@ -32,11 +35,11 @@ define(['mithril', 'lodash', 'jquery', 'helpers/form_helper'], function (m, _, $
   };
 
   var Modal = function (options) {
-    var $modalParent;
+    var self     = this;
+    this.modalId = "modal-" + s.uuid();
+    options      = _.assign({}, defaultOptions, options);
 
-    options = _.assign({}, defaultOptions, options);
-
-    var modalDialog = {
+    this.modalDialog = {
       controller: function () {
         this.close = function (onclose, destroy, e) {
           if (onclose) {
@@ -49,7 +52,7 @@ define(['mithril', 'lodash', 'jquery', 'helpers/form_helper'], function (m, _, $
         };
       },
 
-      view: function (ctrl, args) {
+      view: function (ctrl) {
         return (
           <div class="reveal-overlay" style={{display: 'block'}}>
             <div class={'reveal ' + (options.size ? options.size : '')}
@@ -64,7 +67,7 @@ define(['mithril', 'lodash', 'jquery', 'helpers/form_helper'], function (m, _, $
               <button class="close-button"
                       aria-label="Close modal"
                       type="button"
-                      onclick={ctrl.close.bind(ctrl, options.onclose, args.destroy)}>
+                      onclick={ctrl.close.bind(ctrl, options.onclose, self.destroy)}>
                 <span aria-hidden="true">&times;</span>
               </button>
 
@@ -84,16 +87,39 @@ define(['mithril', 'lodash', 'jquery', 'helpers/form_helper'], function (m, _, $
     };
 
     this.render = function () {
-      $modalParent = $('<div class="modal-parent"/>').appendTo($body);
-      // so you can directly access the modal in tests via `$('.modal-parent').data('modal')`
-      $modalParent.data('modal', this);
-      m.mount($modalParent.get(0), m.component(modalDialog, {destroy: this.destroy}));
+      allModals[this.modalId] = this;
     };
 
     this.destroy = function () {
-      m.mount($modalParent.get(0), null);
-      $modalParent.remove();
+      delete allModals[this.modalId];
     };
+  };
+
+  $(function () {
+    var $body        = $('body');
+    var $modalParent = $('<div class="new-modal-container"/>').appendTo($body);
+
+    // so you can directly access the modals in tests via `$('.modal-parent').data('modal')`
+    $modalParent.data('modals', allModals);
+    var ModalDialogs = {
+      view: function () {
+        var sortedModalKeys = _.keysIn(allModals).sort();
+        return (
+          <div>
+            {_.map(sortedModalKeys, function (key) {
+              return m.component(allModals[key].modalDialog);
+            })}
+          </div>
+        );
+      }
+    };
+    m.mount($modalParent.get(0), ModalDialogs);
+  });
+
+  Modal.destroyAll = function () {
+    _.each(_.values(allModals), function (modal) {
+      modal.destroy();
+    });
   };
 
   return Modal;

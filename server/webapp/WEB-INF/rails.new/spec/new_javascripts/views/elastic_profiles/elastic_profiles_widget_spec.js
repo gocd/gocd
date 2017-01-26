@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(["jquery", "mithril", "views/elastic_profiles/elastic_profiles_widget", 'models/pipeline_configs/plugin_infos'], function ($, m, ElasticProfilesWidget, PluginInfos) {
+define(["jquery", "mithril", "views/elastic_profiles/elastic_profiles_widget", 'models/pipeline_configs/plugin_infos', 'views/shared/new_modal'], function ($, m, ElasticProfilesWidget, PluginInfos, Modal) {
 
   describe("ElasticProfilesWidget", function () {
     var $root = $('#mithril-mount-point'), root = $root.get(0);
@@ -96,12 +96,6 @@ define(["jquery", "mithril", "views/elastic_profiles/elastic_profiles_widget", '
       }
     };
 
-    var removeModal = function () {
-      $('.modal-parent').each(function (_i, elem) {
-        $(elem).data('modal').destroy();
-      });
-    };
-
     beforeEach(function () {
       jasmine.Ajax.install();
       jasmine.Ajax.stubRequest('/go/api/elastic/profiles', undefined, 'GET').andReturn({
@@ -131,6 +125,8 @@ define(["jquery", "mithril", "views/elastic_profiles/elastic_profiles_widget", '
 
       m.mount(root, null);
       m.redraw(true);
+
+      expect($('.new-modal-container .reveal')).not.toExist('Did you forget to close the modal before the test?');
     });
 
     describe("list all profiles", function () {
@@ -153,7 +149,7 @@ define(["jquery", "mithril", "views/elastic_profiles/elastic_profiles_widget", '
     });
 
     describe("add a new profile", function () {
-      afterEach(removeModal);
+      afterEach(Modal.destroyAll);
 
       it("should popup a new modal to allow adding a profile", function () {
         expect($root.find('.reveal:visible')).not.toBeInDOM();
@@ -161,7 +157,6 @@ define(["jquery", "mithril", "views/elastic_profiles/elastic_profiles_widget", '
         m.redraw(true);
         expect($('.reveal:visible')).toBeInDOM();
         expect($('.reveal:visible input[data-prop-name]')).not.toBeDisabled();
-
       });
 
       it("should not allow saving a profile if plugin id is not entered", function () {
@@ -232,7 +227,7 @@ define(["jquery", "mithril", "views/elastic_profiles/elastic_profiles_widget", '
     });
 
     describe("edit an existing profile", function () {
-      afterEach(removeModal);
+      afterEach(Modal.destroyAll);
       it("should popup a new modal to allow edditing a profile", function () {
         jasmine.Ajax.stubRequest('/go/api/elastic/profiles/' + profileJSON.id, undefined, 'GET').andReturn({
           responseText: JSON.stringify(profileJSON),
@@ -280,7 +275,7 @@ define(["jquery", "mithril", "views/elastic_profiles/elastic_profiles_widget", '
     });
 
     describe("delete an existing profile", function () {
-      afterEach(removeModal);
+      afterEach(Modal.destroyAll);
 
       it("should show confirm modal when deleting a profile", function () {
         $('.delete-profile-confirm').click();

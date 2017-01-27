@@ -69,14 +69,6 @@ define([
           }
         }
       });
-      var keysPresentInCurrentConfiguration = this.collectConfigurationProperty('key');
-      var additionalKeys = _.map(keys, function (key) {
-        return !_.includes(keysPresentInCurrentConfiguration, key);
-      });
-
-      _.each(additionalKeys, function (additionalKey) {
-        pluginConfigurations.createConfiguration({key: additionalKey});
-      });
 
       return pluginConfigurations;
     };

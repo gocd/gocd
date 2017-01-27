@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/repositories', 'views/pipeline_configs/errors_widget', 'models/pipeline_configs/plugin_infos', 'views/pipeline_configs/package_repositories/configuration_widget'],
-  function (m, _, f, Repositories, ErrorsWidget, PluginInfos, RepositoryConfigurationWidget) {
+define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/plugin_infos', 'views/pipeline_configs/package_repositories/configuration_widget'],
+  function (m, _, f, PluginInfos, ConfigurationWidget) {
 
-    var RepositoryConfigNewWidget = {
+    var RepositoryConfigModalWidget = {
       view: function (_ctrl, args) {
 
         if (args.errorMessage && args.errorMessage()) {
@@ -39,22 +39,37 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
           };
         });
 
+        var createOrEdit;
+        if (args.isBeingCreated) {
+          createOrEdit = (<f.row class='repo-selector'>
+            <f.select
+              label='Type of plugin'
+              items={items}
+              size={12}
+              largeSize={12}
+              attrName="selectedPluginId"
+              model={args}
+            />
+          </f.row>);
+        }
+        else {
+          createOrEdit = (
+            <f.row size={6}>
+              <f.column size={12}>
+                <p>
+                  <strong>Type of plugin - </strong>
+                  {args.repo().pluginMetadata().id()}
+                </p>
+              </f.column>
+            </f.row>
+          );
+        }
 
         return (
 
           <div class='modal-content'>
             <div class='modal-body'>
-              <f.row class='repo-selector'>
-                <f.select
-                  label='Type of plugin'
-                  items={items}
-                  size={12}
-                  largeSize={12}
-                  attrName="selectedPluginId"
-                  model={args}
-                />
-              </f.row>
-
+              {createOrEdit}
               <f.row>
                 <f.inputWithLabel attrName='name'
                                   class='align'
@@ -67,7 +82,7 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
 
               {
                 args.repo().configuration().mapConfigurations(function (configuration) {
-                  return (<RepositoryConfigurationWidget configuration={configuration}/>);
+                  return (<ConfigurationWidget configuration={configuration}/>);
                 })
               }
 
@@ -77,5 +92,5 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
       }
     };
 
-    return RepositoryConfigNewWidget;
+    return RepositoryConfigModalWidget;
   });

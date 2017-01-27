@@ -15,9 +15,9 @@
  */
 
 define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/repositories', 'views/shared/new_modal',
-  'views/pipeline_configs/package_repositories/repo_config_new_widget', 'views/pipeline_configs/package_repositories/repo_config_edit_widget', 'models/pipeline_configs/plugin_infos',
+  'views/pipeline_configs/package_repositories/repo_config_new_widget', 'models/pipeline_configs/plugin_infos',
   'models/pipeline_configs/packages', 'views/pipeline_configs/package_repositories/package_config_widget', 'helpers/mithril_component_mixins'
-], function (m, _, f, Repositories, Modal, RepositoryConfigNewWidget, RepositoryConfigEditWidget, PluginInfos, Packages, PackageConfigWidget, ComponentMixins) {
+], function (m, _, f, Repositories, Modal, RepositoryConfigNewWidget, PluginInfos, Packages, PackageConfigWidget, ComponentMixins) {
 
   var addOrReplaceRepository = function (allRepositories, newRepository) {
 
@@ -52,17 +52,7 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
 
   var EditRepositoryWidget = {
     controller: function (args) {
-
       var ctrl = {
-
-        editRepository: function (repoForEdit, vm, modal) {
-          repoForEdit().update().then(onSuccessOfRepoAPI.bind(this, vm, modal, args.repositories), onFailureOfRepoAPI.bind(this, vm));
-        },
-
-        update: function () {
-          var repoForEdit = m.prop(args.repository());
-          args.oncreate(repoForEdit, RepositoryConfigEditWidget, 'Edit Repository', ctrl.editRepository);
-        },
 
         isPluginMissing: function () {
           return _.isNil(PluginInfos.findById(args.repository().pluginMetadata().id()));
@@ -84,7 +74,7 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
 
       var editButton = ctrl.isPluginMissing() ? (
           <f.alert><b>{repository.pluginMetadata().id()}</b> plugin seems to be removed.</f.alert>)
-        : (<f.editButton onclick={ctrl.update}/>);
+        : (<f.editButton onclick={args.onsave}/>);
 
       return (
         <div class='repository'>
@@ -104,8 +94,6 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
 
   var RepositoryConfigWidget = {
     controller: function (args) {
-      console.log('Repo config Widget');
-
 
       var ctrl = {
         // TODO: in case of ref on the package material, use that instead
@@ -159,6 +147,7 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
                                                  pluginInfo={pluginInfo}
                                                  errorMessage={errorMessage}
                                                  selectedPluginId={selectedPluginId}
+                                                 isBeingCreate={true}
                                                  saveDisabled={saveDisabled}/>),
             onclose: function () {
               //vm.reset();
@@ -177,11 +166,6 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
                 class:   'save primary',
                 onclick: function () {
                   saveDisabled('disabled in-progress');
-                  //onSuccessOfRepoAPI = function (modal, allRepositories, newRepo, newRepository) {
-                  //  modal.destroy();
-                  //  newRepo(Repositories.Repository.fromJSON(newRepository));
-                  //  addOrReplaceRepository(allRepositories, newRepo);
-                  //};
                   var onSuccess = function (newRepoFromServer) {
                     modal.destroy();
                     newRepo(newRepoFromServer);
@@ -218,14 +202,11 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
             });
 
             var supportedKeys = _.map(repositoryConfigurations, function (configProperty) {
-              return configProperty.key();
+              return configProperty.key;
             });
 
-            newRepo.configuration().keepKeys(supportedKeys);
-            //var repo = Repositories.Repository.initialize(pluginInfo(), repositoryConfigurations);
-            //newRepo.configuration().eachConfiguration(function (configProperty) {
-            //  repo.
-            //})
+            var configuration = newRepo().configuration().newConfigurationWithKeys(supportedKeys);
+            newRepo.configuration(configuration);
           };
 
           var selectedPluginId = function () {
@@ -261,11 +242,6 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
                 class:   'save primary',
                 onclick: function () {
                   saveDisabled('disabled in-progress');
-                  //onSuccessOfRepoAPI = function (modal, allRepositories, newRepo, newRepository) {
-                  //  modal.destroy();
-                  //  newRepo(Repositories.Repository.fromJSON(newRepository));
-                  //  addOrReplaceRepository(allRepositories, newRepo);
-                  //};
                   var onSuccess = function (newRepoFromServer) {
                     modal.destroy();
                     newRepo(newRepoFromServer);

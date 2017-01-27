@@ -159,7 +159,7 @@ define(["jquery", "mithril", "views/elastic_profiles/elastic_profiles_widget", '
         expect($('.reveal:visible input[data-prop-name]')).not.toBeDisabled();
       });
 
-      it("should not allow saving a profile if plugin id is not entered", function () {
+      it("should allow saving a profile if save is successful", function () {
         $root.find('.add-profile').click();
         m.redraw(true);
 
@@ -180,7 +180,8 @@ define(["jquery", "mithril", "views/elastic_profiles/elastic_profiles_widget", '
         expect($('.reveal:visible .modal-buttons').find('.save')).not.toBeDisabled();
 
         jasmine.Ajax.stubRequest('/go/api/elastic/profiles', undefined, 'POST').andReturn({
-          status: 200
+          responseText: JSON.stringify({data: profileJSON}),
+          status:       200
         });
 
         $('.reveal:visible .modal-buttons').find('.save').click();

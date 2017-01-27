@@ -82,6 +82,14 @@ define(['mithril', 'lodash', 'jquery', 'angular'], function (m, _, $, angular) {
               addListeners(configurations, config);
               copyOverErrors(configurations, config);
             });
+
+            var supportedConfigKeys = _.map(pluginInfo.configurations(), function (config) {
+              return config.key;
+            });
+
+            configurations.removeConfiguration(function (configuration) {
+              return !_.includes(supportedConfigKeys, configuration.key());
+            });
           };
 
           $scope.initialize(args.pluginInfo(), args.configuration());

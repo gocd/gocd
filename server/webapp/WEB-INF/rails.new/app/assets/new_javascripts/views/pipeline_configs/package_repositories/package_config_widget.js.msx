@@ -43,7 +43,6 @@ define([
     var existingRepository = allRepositories().findRepository(function (repo) {
       return repo.id() === newPackage.packageRepo().id();
     });
-    material.repository(existingRepository);
     addOrReplacePackage(existingRepository, newPackage);
     modal.destroy();
   };
@@ -56,7 +55,7 @@ define([
     controller: function (args) {
       var ctrl = {
         isPluginMissing: function () {
-          return _.isNil(PluginInfos.findById(args.material.repository().pluginMetadata().id()));
+          return _.isNil(PluginInfos.findById(args.repository().pluginMetadata().id()));
         },
 
         editPackage: function (packageForEdit, vm, modal) {
@@ -64,7 +63,7 @@ define([
         },
 
         update: function () {
-          args.create(args.packageForEdit, args.material.repository, PackageConfigEditWidget, 'Edit Package', ctrl.editPackage);
+          args.create(args.packageForEdit, args.repository, PackageConfigEditWidget, 'Edit Package', ctrl.editPackage);
         }
       };
       return ctrl;
@@ -79,7 +78,7 @@ define([
       });
 
       var editButton = ctrl.isPluginMissing() ? (
-        <f.alert><b>{args.material.repository().pluginMetadata().id()}</b> plugin seems to be removed.</f.alert>)
+        <f.alert><b>{args.repository().pluginMetadata().id()}</b> plugin seems to be removed.</f.alert>)
         : (<f.editButton class={null} onclick={ctrl.update}/>);
 
       return (
@@ -107,7 +106,7 @@ define([
         },
         create:        function () {
           var packageForEdit = m.prop(Packages.Package.fromJSON({}));
-          args.create(packageForEdit, args.material.repository, PackageConfigNewWidget, 'Add Package', ctrl.createPackage);
+          args.create(packageForEdit, args.repository, PackageConfigNewWidget, 'Add Package', ctrl.createPackage);
         }
       };
       return ctrl;
@@ -116,7 +115,7 @@ define([
 
     view: function (ctrl, args) {
 
-      if (args.material.repository().packages().isEmptyPackage()) {
+      if (args.repository().packages().isEmptyPackage()) {
         return (
           <div class="columns medium-8 no-package">
             <label>No packages available in this repository.</label> <a class='add-button button'
@@ -146,7 +145,7 @@ define([
 
     view: function (ctrl, args) {
       var items = [];
-      args.material.repository().packages().mapPackages(function (packageInfo) {
+      args.repository().packages().mapPackages(function (packageInfo) {
         var item     = {};
         item['id']   = packageInfo.id();
         item['text'] = packageInfo.name();
@@ -176,7 +175,7 @@ define([
         getPackageForEdit: function (packageId) {
           var packageForEdit = args.material.package;
           if (packageId) {
-            Packages.getPackage(packageId, packageForEdit, args.material.ref, args.material.repository());
+            Packages.getPackage(packageId, packageForEdit, args.material.ref, args.repository());
           }
           return packageForEdit;
         },
@@ -222,16 +221,19 @@ define([
     },
     view:       function (ctrl, args) {
       var mayBeSelectPackage, mayBeEditPackage;
-      if (!args.material.repository().packages().isEmptyPackage()) {
+      if (!args.repository().packages().isEmptyPackage()) {
         mayBeSelectPackage = <SelectPackageWidget material={args.material}
                                                   defaultPackageId={ctrl.defaultPackageId}
                                                   repositoryVM={args.repositoryVM}
-                                                  getPackageForEdit={ctrl.getPackageForEdit.bind(ctrl)}/>
+                                                  repository={args.repository}
+                                                  getPackageForEdit={ctrl.getPackageForEdit.bind(ctrl)}/>;
+
         mayBeEditPackage = <EditPackageWidget packageForEdit={args.material.package}
                                               material={args.material}
                                               repositoryVM={args.repositoryVM}
+                                              repository={args.repository}
                                               repositories={args.repositories}
-                                              create={ctrl.create}/>
+                                              create={ctrl.create}/>;
       }
       return (
         <span>
@@ -240,6 +242,7 @@ define([
             <NewPackageWidget material={args.material}
                               repositoryVM={args.repositoryVM}
                               repositories={args.repositories}
+                              repository={args.repository}
                               create={ctrl.create}/>
           </div>
           {mayBeEditPackage}

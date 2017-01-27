@@ -150,6 +150,7 @@ define([
   var MaterialViews = {
     base: {
       controller: function (args) {
+        console.log('Materials views base');
         this.args = args;
         ComponentMixins.HasViewModel.call(this);
       },
@@ -372,24 +373,17 @@ define([
     },
 
     package: {
-      controller: function (args) {
-        var ctrl = {
-          resolveMaterialRepository: function (newMaterialRef) {
-            if (!_.isNil(newMaterialRef)) {
-              args.material.repository(args.repositories().findRepositoryByPackageId(newMaterialRef));
-            }
-          }
-        };
-        return ctrl;
+      controller: function(args){
+        this.args = args;
+        ComponentMixins.HasViewModel.call(this);
       },
       view: function (ctrl, args) {
         var material     = args.material;
         var repositories = args.repositories;
-        ctrl.resolveMaterialRepository(args.material.ref());
 
         return (
           <MaterialViews.base {...args}>
-            <RepositoryConfigWidget material={material} repositories={repositories}/>
+            <RepositoryConfigWidget material={material} repositories={repositories} vm={ctrl.vmState('repositories')}/>
           </MaterialViews.base>
         );
       }
@@ -428,6 +422,7 @@ define([
 
   var MaterialsConfigWidget = {
     controller: function (args) {
+      console.log('Materials config widget');
       var self       = this;
       self.args      = args;
       self.pipelines = Pipelines.init(args.pipelineName());

@@ -23,6 +23,7 @@ define([
              StagesConfigWidget) {
   var PipelineFlowWidget = {
     controller: function (args) {
+      console.log('pipeline flow widget');
       this.args = args;
       ComponentMixins.HasViewModel.call(this);
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(["jquery", "mithril", "views/pipeline_configs/package_repositories/repository_config_edit_widget", 'models/pipeline_configs/repositories'
+define(["jquery", "mithril", "views/pipeline_configs/package_repositories/repo_config_edit_widget", 'models/pipeline_configs/repositories'
 ], function ($, m, RepositoryConfigEditWidget, Repositories) {
 
   describe("RepositoryConfigEditWidget", function () {

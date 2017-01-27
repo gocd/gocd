@@ -57,6 +57,29 @@ define([
         existingConfig.value(value);
       }
     };
+
+    this.newConfigurationWithKeys = function (keys) {
+      var pluginConfigurations = new PluginConfigurations();
+      this.eachConfiguration(function (config) {
+        if (_.includes(keys, config.key())) {
+          if (config.isSecureValue()) {
+            pluginConfigurations.createConfiguration({key: config.key(), encrypted_value: config.value()});
+          } else {
+            pluginConfigurations.createConfiguration({key: config.key(), value: config.value()});
+          }
+        }
+      });
+      var keysPresentInCurrentConfiguration = this.collectConfigurationProperty('key');
+      var additionalKeys = _.map(keys, function (key) {
+        return !_.includes(keysPresentInCurrentConfiguration, key);
+      });
+
+      _.each(additionalKeys, function (additionalKey) {
+        pluginConfigurations.createConfiguration({key: additionalKey});
+      });
+
+      return pluginConfigurations;
+    };
   };
 
   PluginConfigurations.Configuration = function (data) {

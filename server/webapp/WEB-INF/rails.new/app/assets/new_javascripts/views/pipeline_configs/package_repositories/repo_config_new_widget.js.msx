@@ -18,55 +18,40 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
   function (m, _, f, Repositories, ErrorsWidget, PluginInfos, RepositoryConfigurationWidget) {
 
     var RepositoryConfigNewWidget = {
+      view: function (_ctrl, args) {
 
-      controller: function (args) {
-        var initializeRepository = function (pluginId) {
-          Repositories.Repository.setRepositoryForEdit(args.repoForEdit, pluginId);
-        };
+        if (args.errorMessage && args.errorMessage()) {
+          return (
+            <f.alert>{args.errorMessage()}</f.alert>
+          );
+        }
 
-        var pluginInfo = _.head(PluginInfos.filterByType('package-repository'));
+        if (!args.repo()) {
+          return (
+            <div class="modal-spinner"/>
+          );
+        }
 
-        initializeRepository(pluginInfo.id());
-
-        var ctrl = {
-          plugin:       m.prop(pluginInfo.id()),
-          vm:           args.vm,
-          selectPlugin: function (id) {
-            initializeRepository(id);
-          }
-        };
-
-        return ctrl;
-      },
-
-      view: function (ctrl, args) {
-        var errors      = ctrl.vm.hasErrors() ? (<ErrorsWidget errors={ctrl.vm.errors()}/>) : undefined;
-        var repoForEdit = args.repoForEdit;
-
-        var items = [];
-        _.each(PluginInfos.filterByType('package-repository'), function (pluginInfo) {
-          var item     = {};
-          item['id']   = pluginInfo.id();
-          item['text'] = pluginInfo.name();
-          items.push(item);
+        var items = _.map(PluginInfos.filterByType('package-repository'), function (pluginInfo) {
+          return {
+            id:   pluginInfo.id(),
+            text: pluginInfo.name()
+          };
         });
 
+
         return (
+
           <div class='modal-content'>
-            <div class='modal-header'>
-              {errors}
-            </div>
             <div class='modal-body'>
               <f.row class='repo-selector'>
                 <f.select
-                  value={ctrl.plugin}
                   label='Type of plugin'
                   items={items}
                   size={12}
                   largeSize={12}
-                  attrName="plugin"
-                  model={ctrl}
-                  onchange={ctrl.selectPlugin.bind(ctrl, ctrl.plugin())}
+                  attrName="selectedPluginId"
+                  model={args}
                 />
               </f.row>
 
@@ -77,11 +62,11 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
                                   largeSize={12}
                                   validate={true}
                                   isRequired={true}
-                                  model={repoForEdit()}/>
+                                  model={args.repo()}/>
               </f.row>
 
               {
-                repoForEdit().configuration().mapConfigurations(function (configuration) {
+                args.repo().configuration().mapConfigurations(function (configuration) {
                   return (<RepositoryConfigurationWidget configuration={configuration}/>);
                 })
               }

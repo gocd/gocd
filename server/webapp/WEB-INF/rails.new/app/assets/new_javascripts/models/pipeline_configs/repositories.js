@@ -39,7 +39,7 @@ define([
 
   CrudMixins.Index({
     type:     Repositories,
-    url:      Routes.apiv1AdminRepositoriesPath(),
+    indexUrl: Routes.apiv1AdminRepositoriesPath(),
     version:  'v1',
     dataPath: '_embedded.package_repositories'
   });
@@ -83,34 +83,45 @@ define([
       /* eslint-enable camelcase */
     };
 
-    CrudMixins.Update.call(this, {
-      url: function(id) {
+    CrudMixins.AllOperations.call(this, ['update', 'create', 'refresh'], {
+      type:        Repositories.Repository,
+      indexUrl:    Routes.apiv1AdminRepositoriesPath(),
+      resourceUrl: function (id) {
         /* eslint-disable camelcase */
         return Routes.apiv1AdminRepositoryPath({repo_id: id});
         /* eslint-enable camelcase */
       },
-      version: 'v1',
-      type: Repositories.Repository
+      version:     'v1',
+      dataPath:    '_embedded.package_repositories'
     });
-
-
-    CrudMixins.Create.call(this, {
-      url: function() {
-        return Routes.apiv1AdminRepositoriesPath();
-      },
-      version: 'v1',
-      type:    Repositories.Repository
-    });
-
-    CrudMixins.Refresh.call(this, {
-      url: function (id) {
-        /* eslint-disable camelcase */
-        return Routes.apiv1AdminRepositoryPath({repo_id: id});
-        /* eslint-enable camelcase */
-      },
-      version: 'v1',
-      type: Repositories.Repository
-    });
+    //CrudMixins.Update.call(this, {
+    //  url: function(id) {
+    //    /* eslint-disable camelcase */
+    //    return Routes.apiv1AdminRepositoryPath({repo_id: id});
+    //    /* eslint-enable camelcase */
+    //  },
+    //  version: 'v1',
+    //  type: Repositories.Repository
+    //});
+    //
+    //
+    //CrudMixins.Create.call(this, {
+    //  url: function() {
+    //    return Routes.apiv1AdminRepositoriesPath();
+    //  },
+    //  version: 'v1',
+    //  type:    Repositories.Repository
+    //});
+    //
+    //CrudMixins.Refresh.call(this, {
+    //  url: function (id) {
+    //    /* eslint-disable camelcase */
+    //    return Routes.apiv1AdminRepositoryPath({repo_id: id});
+    //    /* eslint-enable camelcase */
+    //  },
+    //  version: 'v1',
+    //  type: Repositories.Repository
+    //});
   };
 
   Repositories.Repository.get = function (id) {
@@ -165,17 +176,6 @@ define([
         version: pluginInfo.version()
       }),
       configuration:  PluginConfigurations.fromJSON(configProperties(configurations))
-    });
-  };
-
-  Repositories.Repository.setRepositoryForEdit = function (repoForEdit, pluginId) {
-    PluginInfos.PluginInfo.get(pluginId).then(function (pluginInfo) {
-      var allConfigurations        = pluginInfo.configurations();
-      var repositoryConfigurations = _.filter(allConfigurations, function (configuration) {
-        return configuration.type === 'repository';
-      });
-      var repository               = Repositories.Repository.initialize(pluginInfo, repositoryConfigurations);
-      repoForEdit(repository);
     });
   };
 

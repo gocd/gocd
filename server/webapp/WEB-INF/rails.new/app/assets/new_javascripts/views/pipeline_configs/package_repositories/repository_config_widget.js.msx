@@ -14,26 +14,10 @@
  * limitations under the License.
  */
 
-define(['mithril', 'helpers/form_helper', 'models/pipeline_configs/repositories', 'views/shared/new_modal',
+define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/repositories', 'views/shared/new_modal',
   'views/pipeline_configs/package_repositories/repo_config_new_widget', 'views/pipeline_configs/package_repositories/repo_config_edit_widget', 'models/pipeline_configs/plugin_infos',
   'models/pipeline_configs/packages', 'views/pipeline_configs/package_repositories/package_config_widget', 'helpers/mithril_component_mixins'
-], function (m, f, Repositories, Modal, RepositoryConfigNewWidget, RepositoryConfigEditWidget, PluginInfos, Packages, PackageConfigWidget, ComponentMixins) {
-
-  var resolveRepository = function (ref, allRepositories, selectedRepositoryId, alwaysFind) {
-    var repo;
-    repo = allRepositories().findRepository(function (repository) {
-      return repository.id() === selectedRepositoryId();
-    });
-    if (ref) {
-      repo =  allRepositories().findRepositoryByPackageId(ref);
-    }
-    if (alwaysFind) {
-      repo = allRepositories().findRepository(function (repository) {
-        return repository.id() === selectedRepositoryId();
-      });
-    }
-    return repo;
-  };
+], function (m, _, f, Repositories, Modal, RepositoryConfigNewWidget, RepositoryConfigEditWidget, PluginInfos, Packages, PackageConfigWidget, ComponentMixins) {
 
   var addOrReplaceRepository = function (allRepositories, newRepository) {
 
@@ -50,42 +34,17 @@ define(['mithril', 'helpers/form_helper', 'models/pipeline_configs/repositories'
     }
   };
 
-  var onSuccessOfRepoAPI = function (vm, modal, allRepositories, newRepository) {
-    vm.saveSuccess();
-    modal.destroy();
-    var newRepo = Repositories.Repository.fromJSON(newRepository);
-    addOrReplaceRepository(allRepositories, newRepo);
-  };
-
-  var onFailureOfRepoAPI = function (vm, data) {
-    vm.saveFailed(data);
-  };
-
   var NewRepositoryWidget = {
-    controller: function (args) {
-      var ctrl = {
-        createRepository: function (repoForEdit, vm, modal) {
-          repoForEdit().create().then(onSuccessOfRepoAPI.bind(this, vm, modal, args.repositories), onFailureOfRepoAPI.bind(this, vm));
-        },
-
-        create: function () {
-          var repoForEdit = m.prop(Repositories.Repository.fromJSON({}));
-          args.create(repoForEdit, RepositoryConfigNewWidget, 'Add Repository', 'add-repository', ctrl.createRepository);
-        }
-      };
-      return ctrl;
-    },
-
-    view: function (ctrl, args) {
+    view: function (_ctrl, args) {
       return (
         <f.column class='no-repo' size={6} end="true">
           {args.repositories().isEmptyRepository() ?
             <div>
               <label>No repositories available.</label>
-              <f.link class='add-button button' onclick={ctrl.create}>Create New Repository</f.link>
+              <f.link class='add-button button' onclick={args.oncreate}>Create New Repository</f.link>
             </div>
             :
-            <f.link class='add-button button-no-text button' onclick={ctrl.create}/>}
+            <f.link class='add-button button-no-text button' onclick={args.oncreate}/>}
         </f.column>
       );
     }
@@ -102,7 +61,7 @@ define(['mithril', 'helpers/form_helper', 'models/pipeline_configs/repositories'
 
         update: function () {
           var repoForEdit = m.prop(args.repository());
-          args.create(repoForEdit, RepositoryConfigEditWidget, 'Edit Repository', 'edit-repository', ctrl.editRepository);
+          args.oncreate(repoForEdit, RepositoryConfigEditWidget, 'Edit Repository', ctrl.editRepository);
         },
 
         isPluginMissing: function () {
@@ -143,101 +102,66 @@ define(['mithril', 'helpers/form_helper', 'models/pipeline_configs/repositories'
     }
   };
 
-  var repositoryVM = {
-    packageId: m.prop()
-  };
-
-  var SelectRepositoryWidget = {
-    controller: function (args) {
-      console.log('Select Repo config Widget');
-
-      var ctrl = {
-        args: args,
-        selectedRepoId: m.prop(args.repositories().firstRepository().id()),
-        selectedRepository: m.prop(args.repositories().firstRepository()),
-
-        selectRepository: function (selectedRepoId, selectedRepository) {
-          var existingRepository = resolveRepository(args.material.ref(), args.repositories, selectedRepoId, true);
-          existingRepository.refresh().then(function (repository) {
-            selectedRepoId(repository.id());
-            selectedRepository(repository);
-            if (!repository.packages().isEmptyPackage()) {
-              var packageId = repository.packages().firstPackage().id();
-              Packages.getPackage(packageId, args.material.package, args.material.ref, repository);
-            }
-            else {
-              args.material.package(new Packages.Package({}));
-              args.material.ref(null);
-            }
-          });
-        }
-      };
-
-
-      var existingRepository = resolveRepository(args.material.ref(), args.repositories, ctrl.selectedRepoId, false);
-      existingRepository.refresh().then(function (repository) {
-        ctrl.selectedRepoId(repository.id());
-        ctrl.selectedRepository(repository);
-        if (!repository.packages().isEmptyPackage()) {
-          var packageId = repository.packages().firstPackage().id();
-          Packages.getPackage(packageId, args.material.package, args.material.ref, repository);
-        }
-        else {
-          args.material.package(new Packages.Package({}));
-          args.material.ref(null);
-        }
-      });
-      return ctrl;
-    },
-    view: function (ctrl, args) {
-      var items = [];
-
-      args.repositories().eachRepository(function (repository) {
-        var item     = {};
-        item['id']   = repository.id();
-        item['text'] = repository.name();
-        items.push(item);
-      });
-
-      return (
-        <div>
-          <f.select model={ctrl}
-                    attrName="selectedRepoId"
-                    class="repo-selector"
-                    items={items}
-                    size={6}
-                    onchange={ctrl.selectRepository.bind(ctrl, ctrl.selectedRepoId, ctrl.selectedRepository)}/>
-
-          <EditRepositoryWidget repositories={args.repositories}
-                                repository={ctrl.selectedRepository}
-                                create={args.create}/>
-
-          <PackageConfigWidget material={args.material}
-                               repositories={args.repositories}
-                               repository={ctrl.selectedRepository}
-                               repositoryVM={repositoryVM}/>
-        </div>
-      );
-    }
-  };
-
   var RepositoryConfigWidget = {
     controller: function (args) {
       console.log('Repo config Widget');
 
+
       var ctrl = {
-        args: args,
-        create: function (repoForEdit, RepositoryConfigurationWidget, modalTitle, modalClass, performOperation) {
-          var vm    = new Repositories.vm();
+        // TODO: in case of ref on the package material, use that instead
+        selectedRepository:    m.prop(args.repositories().firstRepository()),
+        selectedRepositoryId:  function () {
+          if (arguments.length) {
+            var repoId = arguments[0];
+            ctrl.selectedRepository(args.repositories().findRepository(function (eachRepo) {
+              return eachRepo.id() === repoId;
+            }));
+          }
+
+          return ctrl.selectedRepository().id();
+        },
+        createRepositoryModal: function () {
+          var newRepo      = m.prop();
+          var saveDisabled = m.prop(false);
+          var errorMessage = m.prop();
+
+          var allPackageRepoPluginInfos = PluginInfos.filterByType('package-repository');
+          var firstPluginInfo           = _.head(allPackageRepoPluginInfos);
+
+          var pluginInfo = m.prop();
+
+          var initializeRepoWithPluginInfo = function (newPluginInfo) {
+            pluginInfo(newPluginInfo);
+            newRepo(createRepoWithPluginInfo(newPluginInfo));
+          };
+
+          var createRepoWithPluginInfo = function (newPluginInfo) {
+            var allConfigurations = newPluginInfo.configurations();
+
+            var repositoryConfigurations = _.filter(allConfigurations, function (configuration) {
+              return configuration.type === 'repository';
+            });
+            return Repositories.Repository.initialize(pluginInfo(), repositoryConfigurations);
+          };
+
+          var selectedPluginId = function () {
+            if (arguments.length) {
+              var pluginId = arguments[0];
+              PluginInfos.PluginInfo.get(pluginId).then(initializeRepoWithPluginInfo, errorMessage);
+            }
+            return pluginInfo().id();
+          };
+
           var modal = new Modal({
             size:    'small',
-            title:   modalTitle,
-            class:   modalClass,
-            body:    (<RepositoryConfigurationWidget repoForEdit={repoForEdit}
-                                                     repositories={args.repositories}
-                                                     vm={vm}/>),
+            title:   'Add repository',
+            body:    (<RepositoryConfigNewWidget repo={newRepo}
+                                                 pluginInfo={pluginInfo}
+                                                 errorMessage={errorMessage}
+                                                 selectedPluginId={selectedPluginId}
+                                                 saveDisabled={saveDisabled}/>),
             onclose: function () {
-              vm.reset();
+              //vm.reset();
               modal.destroy();
             },
             buttons: [
@@ -252,42 +176,162 @@ define(['mithril', 'helpers/form_helper', 'models/pipeline_configs/repositories'
                 text:    'Save',
                 class:   'save primary',
                 onclick: function () {
-                  vm.startUpdating();
-                  performOperation(repoForEdit, vm, modal);
+                  saveDisabled('disabled in-progress');
+                  //onSuccessOfRepoAPI = function (modal, allRepositories, newRepo, newRepository) {
+                  //  modal.destroy();
+                  //  newRepo(Repositories.Repository.fromJSON(newRepository));
+                  //  addOrReplaceRepository(allRepositories, newRepo);
+                  //};
+                  var onSuccess = function (newRepoFromServer) {
+                    modal.destroy();
+                    newRepo(newRepoFromServer);
+                    addOrReplaceRepository(args.repositories, newRepoFromServer);
+                    ctrl.selectedRepository(newRepo());
+                  };
+                  newRepo().create().then(onSuccess, errorMessage);
                 }
               }
             ]
           });
           modal.render();
+          m.redraw(true);
+
+          PluginInfos.PluginInfo.get(firstPluginInfo.id()).then(initializeRepoWithPluginInfo, errorMessage);
+        },
+        editRepositoryModal:   function () {
+          var newRepo      = m.prop(ctrl.selectedRepository());
+          var saveDisabled = m.prop(false);
+          var errorMessage = m.prop();
+
+          var pluginInfo = m.prop();
+
+          var initializeRepoWithPluginInfo = function (newPluginInfo) {
+            pluginInfo(newPluginInfo);
+            newRepo(createRepoWithPluginInfo(newPluginInfo));
+          };
+
+          var createRepoWithPluginInfo = function (newPluginInfo) {
+            var allConfigurations = newPluginInfo.configurations();
+
+            var repositoryConfigurations = _.filter(allConfigurations, function (configuration) {
+              return configuration.type === 'repository';
+            });
+
+            var supportedKeys = _.map(repositoryConfigurations, function (configProperty) {
+              return configProperty.key();
+            });
+
+            newRepo.configuration().keepKeys(supportedKeys);
+            //var repo = Repositories.Repository.initialize(pluginInfo(), repositoryConfigurations);
+            //newRepo.configuration().eachConfiguration(function (configProperty) {
+            //  repo.
+            //})
+          };
+
+          var selectedPluginId = function () {
+            if (arguments.length) {
+              var pluginId = arguments[0];
+              PluginInfos.PluginInfo.get(pluginId).then(initializeRepoWithPluginInfo, errorMessage);
+            }
+            return pluginInfo().id();
+          };
+
+          var modal = new Modal({
+            size:    'small',
+            title:   'Add repository',
+            body:    (<RepositoryConfigNewWidget repo={newRepo}
+                                                 pluginInfo={pluginInfo}
+                                                 errorMessage={errorMessage}
+                                                 selectedPluginId={selectedPluginId}
+                                                 saveDisabled={saveDisabled}/>),
+            onclose: function () {
+              //vm.reset();
+              modal.destroy();
+            },
+            buttons: [
+              {
+                text:    'Check Repository Connection',
+                class:   'check_repo_connection secondary',
+                onclick: function () {
+                  //TODO: implement the check repository API
+                }
+              },
+              {
+                text:    'Save',
+                class:   'save primary',
+                onclick: function () {
+                  saveDisabled('disabled in-progress');
+                  //onSuccessOfRepoAPI = function (modal, allRepositories, newRepo, newRepository) {
+                  //  modal.destroy();
+                  //  newRepo(Repositories.Repository.fromJSON(newRepository));
+                  //  addOrReplaceRepository(allRepositories, newRepo);
+                  //};
+                  var onSuccess = function (newRepoFromServer) {
+                    modal.destroy();
+                    newRepo(newRepoFromServer);
+                    addOrReplaceRepository(args.repositories, newRepoFromServer);
+                    ctrl.selectedRepository(newRepo());
+                  };
+                  newRepo().create().then(onSuccess, errorMessage);
+                }
+              }
+            ]
+          });
+          modal.render();
+          m.redraw(true);
+
+          PluginInfos.PluginInfo.get(newRepo().pluginMetadata().id()).then(initializeRepoWithPluginInfo, errorMessage);
         }
       };
 
-      ComponentMixins.HasViewModel.call(ctrl);
       return ctrl;
     },
-    view: function (ctrl, args) {
-      var selectRepository;
 
-      if (!args.repositories().isEmptyRepository()) {
-        selectRepository = (
-          <SelectRepositoryWidget material={args.material}
-                                  key="select-repository-widget"
-                                  create={ctrl.create}
-                                  vm={ctrl.vmState('repositories')}
-                                  repositories={args.repositories}/>);
+    view: function (ctrl, args) {
+      var editRepository;
+
+      if (ctrl.selectedRepository()) {
+        editRepository = (<EditRepositoryWidget repository={ctrl.selectedRepository}
+                                                onsave={ctrl.editRepositoryModal}/>);
+      }
+      return (
+        <div>
+          <f.row>
+            <RepositoriesSelectWidget repositories={args.repositories}
+                                      selectedRepositoryId={ctrl.selectedRepositoryId}/>
+            <NewRepositoryWidget repositories={args.repositories}
+                                 oncreate={ctrl.createRepositoryModal}
+                                 key='new-repository-widget'/>
+
+          </f.row>
+          <f.row>
+            {editRepository}
+          </f.row>
+        </div>
+      );
+    }
+  };
+
+  var RepositoriesSelectWidget = {
+    view: function (_ctrl, args) {
+
+      if (args.repositories().isEmptyRepository()) {
+        return (<div/>);
       }
 
+      var items = args.repositories().mapRepositories(function (repository) {
+        return {
+          id:   repository.id(),
+          text: repository.name()
+        };
+      });
+
       return (
-        <div class="row expanded">
-          <div class="columns medium-6">
-            <div class="row expanded">
-              <NewRepositoryWidget repositories={args.repositories}
-                                   create={ctrl.create}
-                                   key='new-repository-widget'/>
-              {selectRepository}
-            </div>
-          </div>
-        </div>
+        <f.select model={args}
+                  attrName="selectedRepositoryId"
+                  class="repo-selector"
+                  size="3"
+                  items={items}/>
       );
     }
   };

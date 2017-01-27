@@ -17,6 +17,7 @@
 define(["mithril", 'helpers/form_helper', 'helpers/mithril_component_mixins'], function (m, f, ComponentMixins) {
   var ElasticProfileWidget = {
     controller: function (args) {
+      console.log('elastic profile');
       this.args = args;
       ComponentMixins.HasViewModel.call(this);
 

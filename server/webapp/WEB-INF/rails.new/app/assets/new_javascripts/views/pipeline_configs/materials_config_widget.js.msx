@@ -373,17 +373,14 @@ define([
     },
 
     package: {
-      controller: function(args){
-        this.args = args;
-        ComponentMixins.HasViewModel.call(this);
-      },
-      view: function (ctrl, args) {
+
+      view: function (_ctrl, args) {
         var material     = args.material;
         var repositories = args.repositories;
 
         return (
           <MaterialViews.base {...args}>
-            <RepositoryConfigWidget material={material} repositories={repositories} vm={ctrl.vmState('repositories')}/>
+            <RepositoryConfigWidget material={material} repositories={repositories}/>
           </MaterialViews.base>
         );
       }

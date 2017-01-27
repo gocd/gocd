@@ -19,7 +19,7 @@ define(['mithril', 'helpers/form_helper'], function (m, f) {
     view: function (_ctrl, args) {
       var inputType     = 'text';
       var configuration = args.configuration;
-      if (configuration.key().toLowerCase() === 'password') {
+      if (configuration.isSecureValue()) {
         inputType = 'password';
       }
       configuration.becomeUnSecureValue();

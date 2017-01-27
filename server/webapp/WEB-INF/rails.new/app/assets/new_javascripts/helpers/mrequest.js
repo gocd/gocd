@@ -37,6 +37,11 @@ define(['jquery'], function ($) {
       },
       v4: function (xhr) {
         setHeaders(xhr, 'v4');
+      },
+      forVersion: function(version){
+        return function (xhr) {
+          setHeaders(xhr, version);
+        };
       }
     },
 

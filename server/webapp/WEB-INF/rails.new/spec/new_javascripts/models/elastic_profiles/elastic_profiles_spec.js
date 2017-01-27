@@ -93,7 +93,7 @@ define([
 
         jasmine.Ajax.withMock(function () {
           jasmine.Ajax.stubRequest('/go/api/elastic/profiles/' + profile.id(), undefined, 'PUT').andReturn({
-            responseText: JSON.stringify({foo: 123}),
+            responseText: JSON.stringify({id: 'gocd', 'plugin_id': 'docker'}),
             status:       200
           });
 
@@ -102,7 +102,10 @@ define([
 
           profile.update().then(successCallback);
 
-          expect(successCallback).toHaveBeenCalledWith({foo: 123});
+          expect(successCallback).toHaveBeenCalled();
+
+          expect(successCallback.calls.mostRecent().args[0].id()).toEqual('gocd');
+          expect(successCallback.calls.mostRecent().args[0].pluginId()).toEqual('docker');
 
           expect(jasmine.Ajax.requests.count()).toBe(1);
 
@@ -161,7 +164,9 @@ define([
 
           profile.create().then(successCallback);
 
-          expect(successCallback).toHaveBeenCalledWith(jasmine.objectContaining(profileJSON));
+          expect(successCallback).toHaveBeenCalled();
+          expect(successCallback.calls.mostRecent().args[0].id()).toEqual(profileJSON['id']);
+          expect(successCallback.calls.mostRecent().args[0].pluginId()).toEqual(profileJSON['plugin_id']);
 
           expect(jasmine.Ajax.requests.count()).toBe(1);
 

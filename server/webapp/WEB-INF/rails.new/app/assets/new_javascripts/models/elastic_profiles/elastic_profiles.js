@@ -15,20 +15,8 @@
  */
 
 define([
-  'mithril', 'string-plus', 'models/model_mixins', 'models/shared/plugin_configurations', 'helpers/mrequest', 'js-routes', 'models/validatable_mixin'
-], function (m, s, Mixins, PluginConfigurations, mrequest, Routes, Validatable) {
-
-  var unwrapMessageOrProfile = function (originalEtag) {
-    return function (data, xhr) {
-      if (xhr.status === 422) {
-        var fromJSON = new ElasticProfiles.Profile.fromJSON(data.data);
-        fromJSON.etag(originalEtag);
-        return fromJSON;
-      } else {
-        return mrequest.unwrapErrorExtractMessage(data, xhr);
-      }
-    };
-  };
+  'mithril', 'string-plus', 'models/model_mixins', 'models/shared/plugin_configurations', 'js-routes', 'models/validatable_mixin', 'models/crud_mixins'
+], function (m, s, Mixins, PluginConfigurations, Routes, Validatable, CrudMixins) {
 
   var ElasticProfiles = function (data) {
     Mixins.HasMany.call(this, {
@@ -39,17 +27,13 @@ define([
     });
   };
 
-  ElasticProfiles.all = function () {
-    return m.request({
-      method:        "GET",
-      url:           Routes.apiv1ElasticProfilesPath(),
-      config:        mrequest.xhrConfig.v1,
-      unwrapSuccess: function (data) {
-        return ElasticProfiles.fromJSON(data['_embedded']['profiles']);
-      },
-      unwrapError:   mrequest.unwrapErrorExtractMessage
-    });
-  };
+  CrudMixins.Index({
+    type:     ElasticProfiles,
+    indexUrl: Routes.apiv1ElasticProfilesPath(),
+    version:  'v1',
+    dataPath: '_embedded.profiles'
+  });
+
 
   ElasticProfiles.Profile = function (data) {
     this.id         = m.prop(s.defaultToIfBlank(data.id, ''));
@@ -64,57 +48,18 @@ define([
     this.validatePresenceOf('id');
     this.validatePresenceOf('pluginId');
 
-    this.update = function () {
-      var profile = this;
-      return m.request({
-        method:      'PUT',
-        url:         Routes.apiv1ElasticProfilePath(this.id()),
-        config:      function (xhr) {
-          mrequest.xhrConfig.v1(xhr);
-          xhr.setRequestHeader('If-Match', profile.etag());
-        },
-        data:        JSON.parse(JSON.stringify(profile, s.snakeCaser)),
-        unwrapError: unwrapMessageOrProfile(profile.etag())
-      });
-    };
-
-    this.delete = function () {
-      return m.request({
-        method:        "DELETE",
-        url:           Routes.apiv1ElasticProfilePath(this.id()),
-        config:        mrequest.xhrConfig.v1,
-        unwrapSuccess: function (data, xhr) {
-          if (xhr.status === 200) {
-            return data.message;
-          }
-        },
-        unwrapError:   mrequest.unwrapErrorExtractMessage
-      });
-    };
-
-    this.create = function () {
-      return m.request({
-        method:      'POST',
-        url:         Routes.apiv1ElasticProfilesPath(),
-        config:      mrequest.xhrConfig.v1,
-        data:        JSON.parse(JSON.stringify(this, s.snakeCaser)),
-        unwrapError: unwrapMessageOrProfile()
-      });
-    };
+    CrudMixins.AllOperations.call(this, ['refresh', 'update', 'delete', 'create'], {
+      type:        ElasticProfiles.Profile,
+      indexUrl:    Routes.apiv1ElasticProfilesPath(),
+      resourceUrl: function (id) {
+        return Routes.apiv1ElasticProfilePath(id);
+      },
+      version:     'v1'
+    });
   };
 
   ElasticProfiles.Profile.get = function (id) {
-    return m.request({
-      method:        'GET',
-      url:           Routes.apiv1ElasticProfilePath(id),
-      config:        mrequest.xhrConfig.v1,
-      unwrapSuccess: function (data, xhr) {
-        var profile = ElasticProfiles.Profile.fromJSON(data);
-        profile.etag(xhr.getResponseHeader('ETag'));
-        return profile;
-      },
-      unwrapError:   mrequest.unwrapErrorExtractMessage
-    });
+    return new ElasticProfiles.Profile({id: id}).refresh();
   };
 
   ElasticProfiles.Profile.create = function (data) {
@@ -135,6 +80,7 @@ define([
     childType:  ElasticProfiles.Profile,
     via:        'addProfile'
   });
+
 
   return ElasticProfiles;
 });

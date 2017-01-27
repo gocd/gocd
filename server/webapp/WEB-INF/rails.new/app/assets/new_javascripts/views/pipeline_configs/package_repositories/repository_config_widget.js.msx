@@ -15,9 +15,9 @@
  */
 
 define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/repositories', 'views/shared/new_modal',
-  'views/pipeline_configs/package_repositories/repo_config_new_widget', 'models/pipeline_configs/plugin_infos',
-  'models/pipeline_configs/packages', 'views/pipeline_configs/package_repositories/package_config_widget', 'helpers/mithril_component_mixins'
-], function (m, _, f, Repositories, Modal, RepositoryConfigNewWidget, PluginInfos, Packages, PackageConfigWidget, ComponentMixins) {
+  'views/pipeline_configs/package_repositories/repo_config_modal_widget', 'models/pipeline_configs/plugin_infos',
+  'models/pipeline_configs/packages', 'views/pipeline_configs/package_repositories/package_config_widget'
+], function (m, _, f, Repositories, Modal, RepositoryConfigModalWidget, PluginInfos, Packages, PackageConfigWidget) {
 
   var addOrReplaceRepository = function (allRepositories, newRepository) {
 
@@ -143,12 +143,12 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
           var modal = new Modal({
             size:    'small',
             title:   'Add repository',
-            body:    (<RepositoryConfigNewWidget repo={newRepo}
-                                                 pluginInfo={pluginInfo}
-                                                 errorMessage={errorMessage}
-                                                 selectedPluginId={selectedPluginId}
-                                                 isBeingCreate={true}
-                                                 saveDisabled={saveDisabled}/>),
+            body:    (<RepositoryConfigModalWidget repo={newRepo}
+                                                   pluginInfo={pluginInfo}
+                                                   errorMessage={errorMessage}
+                                                   selectedPluginId={selectedPluginId}
+                                                   isBeingCreated={true}
+                                                   saveDisabled={saveDisabled}/>),
             onclose: function () {
               //vm.reset();
               modal.destroy();
@@ -189,9 +189,10 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
 
           var pluginInfo = m.prop();
 
-          var initializeRepoWithPluginInfo = function (newPluginInfo) {
-            pluginInfo(newPluginInfo);
-            newRepo(createRepoWithPluginInfo(newPluginInfo));
+          var initializeRepoWithPluginInfo = function (args) {
+            newRepo(args[0]);
+            pluginInfo(args[1]);
+            //newRepo(createRepoWithPluginInfo(newPluginInfo));
           };
 
           var createRepoWithPluginInfo = function (newPluginInfo) {
@@ -206,25 +207,16 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
             });
 
             var configuration = newRepo().configuration().newConfigurationWithKeys(supportedKeys);
-            newRepo.configuration(configuration);
-          };
-
-          var selectedPluginId = function () {
-            if (arguments.length) {
-              var pluginId = arguments[0];
-              PluginInfos.PluginInfo.get(pluginId).then(initializeRepoWithPluginInfo, errorMessage);
-            }
-            return pluginInfo().id();
+            newRepo().configuration(configuration);
           };
 
           var modal = new Modal({
             size:    'small',
-            title:   'Add repository',
-            body:    (<RepositoryConfigNewWidget repo={newRepo}
-                                                 pluginInfo={pluginInfo}
-                                                 errorMessage={errorMessage}
-                                                 selectedPluginId={selectedPluginId}
-                                                 saveDisabled={saveDisabled}/>),
+            title:   'Edit repository',
+            body:    (<RepositoryConfigModalWidget repo={newRepo}
+                                                   pluginInfo={pluginInfo}
+                                                   errorMessage={errorMessage}
+                                                   saveDisabled={saveDisabled}/>),
             onclose: function () {
               //vm.reset();
               modal.destroy();
@@ -248,7 +240,7 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
                     addOrReplaceRepository(args.repositories, newRepoFromServer);
                     ctrl.selectedRepository(newRepo());
                   };
-                  newRepo().create().then(onSuccess, errorMessage);
+                  newRepo().update().then(onSuccess, errorMessage);
                 }
               }
             ]
@@ -256,7 +248,7 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
           modal.render();
           m.redraw(true);
 
-          PluginInfos.PluginInfo.get(newRepo().pluginMetadata().id()).then(initializeRepoWithPluginInfo, errorMessage);
+          m.sync([Repositories.Repository.get(newRepo().id()), PluginInfos.PluginInfo.get(newRepo().pluginMetadata().id())]).then(initializeRepoWithPluginInfo, errorMessage);
         }
       };
 

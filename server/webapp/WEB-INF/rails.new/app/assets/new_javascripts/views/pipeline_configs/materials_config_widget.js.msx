@@ -150,7 +150,6 @@ define([
   var MaterialViews = {
     base: {
       controller: function (args) {
-        console.log('Materials views base');
         this.args = args;
         ComponentMixins.HasViewModel.call(this);
       },
@@ -419,7 +418,6 @@ define([
 
   var MaterialsConfigWidget = {
     controller: function (args) {
-      console.log('Materials config widget');
       var self       = this;
       self.args      = args;
       self.pipelines = Pipelines.init(args.pipelineName());

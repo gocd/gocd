@@ -18,7 +18,21 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/plu
   function (m, _, f, PluginInfos, ConfigurationWidget) {
 
     var RepositoryConfigModalWidget = {
-      view: function (_ctrl, args) {
+      controller: function (args) {
+        var ctrl = {
+          isPropertySecure: function (key) {
+            var securePluginKeys = _.chain(args.pluginInfo().configurations()).filter(function (property) {
+              return property.metadata.secure;
+            }).map(function (property) {
+              return property.key;
+            }).value();
+
+            return _.includes(securePluginKeys, key);
+          }
+        };
+        return ctrl;
+      },
+      view: function (ctrl, args) {
 
         if (args.errorMessage && args.errorMessage()) {
           return (
@@ -26,12 +40,11 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/plu
           );
         }
 
-        if (!args.repo()) {
+        if (!args.repo() || !args.pluginInfo()) {
           return (
             <div class="modal-spinner"/>
           );
         }
-
         var items = _.map(PluginInfos.filterByType('package-repository'), function (pluginInfo) {
           return {
             id:   pluginInfo.id(),
@@ -82,7 +95,8 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/plu
 
               {
                 args.repo().configuration().mapConfigurations(function (configuration) {
-                  return (<ConfigurationWidget configuration={configuration}/>);
+                  return (<ConfigurationWidget configuration={configuration}
+                                                isPropertySecure={ctrl.isPropertySecure(configuration.key())}/>);
                 })
               }
 

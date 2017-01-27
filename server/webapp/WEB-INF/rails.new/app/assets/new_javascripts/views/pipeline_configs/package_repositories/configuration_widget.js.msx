@@ -19,10 +19,10 @@ define(['mithril', 'helpers/form_helper'], function (m, f) {
     view: function (_ctrl, args) {
       var inputType     = 'text';
       var configuration = args.configuration;
-      if (configuration.isSecureValue()) {
+      if (args.isPropertySecure) {
         inputType = 'password';
+        configuration.becomeUnSecureValue();
       }
-      configuration.becomeUnSecureValue();
       return (
         <f.row>
           <f.inputWithLabel attrName='value'

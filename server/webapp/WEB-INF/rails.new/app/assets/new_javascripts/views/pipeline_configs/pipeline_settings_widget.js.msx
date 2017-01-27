@@ -25,7 +25,6 @@ define([
 
   var PipelineSettingsWidget = {
     controller: function(args) {
-      console.log('pipeline settings widget');
       this.args      = args;
       ComponentMixins.HasViewModel.call(this);
     },

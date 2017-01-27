@@ -35,7 +35,10 @@
     margin-top: 20px;
     .button {
       margin: 0 1rem 0 0;
+    }
 
+    .columns:first-child {
+      padding-left: 0;
     }
   }
   .button {

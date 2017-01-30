@@ -1,6 +1,6 @@
 <%
 #########################################################################
-# Copyright 2016 ThoughtWorks, Inc.
+# Copyright 2017 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,9 +18,11 @@
 
 <%= ERB.new(File.read(File.join(install_scripts_dir, 'shared', 'partials', '_set-debian-permissions.sh.erb')), nil, '-', "_#{SecureRandom.hex}").result(binding) %>
 
-<% if name == 'go-server' -%>
-    # Start the service
-    /etc/init.d/go-server start
-<% else -%>
-  <%= ERB.new(File.read(File.join(install_scripts_dir, 'shared', 'partials', '_cleanup_temp_files_from_previous_version_of_go_agent.sh.erb')), nil, '-', "_#{SecureRandom.hex}").result(binding) %>
+<% if File.exist?(File.join(install_scripts_dir, 'shared', 'partials', "_#{name}-cleanup_temp_files_from_previous_version.sh.erb")) -%>
+  <%= ERB.new(File.read(File.join(install_scripts_dir, 'shared', 'partials', "_#{name}-cleanup_temp_files_from_previous_version.sh.erb")), nil, '-', "_#{SecureRandom.hex}").result(binding) %>
 <% end -%>
+
+    if [ -e /var/run/<%= name %>-running-check-from-deb-package ]; then
+        rm -rf /var/run/<%= name %>-running-check-from-deb-package
+        invoke-rc.d <%= name %> start
+    fi

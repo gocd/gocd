@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,11 +25,12 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/config
         "value": "http://repository"
       };
 
-      var mount = function (configuration) {
+      var mount = function (configuration, isPropertySecure) {
         m.mount(root,
           m.component(ConfigurationWidget,
             {
-              'configuration': configuration
+              'configuration': configuration,
+              'isPropertySecure': isPropertySecure
             })
         );
         m.redraw(true);
@@ -42,7 +43,7 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/config
 
       it("should have input for a configuration key", function () {
         var configuration = new PluginConfigurations.Configuration({'key': 'REPO_URL'});
-        mount(configuration);
+        mount(configuration, false);
         var input = $root.find("input[data-prop-name='value']");
         expect(input).toHaveValue('');
         var labels = $($root).find('label');
@@ -51,7 +52,7 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/config
 
       it('should contain input of type password for PASSWORD key', function () {
         var configuration = new PluginConfigurations.Configuration({'key': 'PASSWORD'});
-        mount(configuration);
+        mount(configuration, true);
         expect($root).toContainElement("input[type='password']");
         var labels = $($root).find('label');
         expect(labels).toContainText("PASSWORD");
@@ -59,14 +60,14 @@ define(["jquery", "mithril", "views/pipeline_configs/package_repositories/config
 
       it("should have prefilled input for a configuration key", function () {
         var configuration = new PluginConfigurations.Configuration(config);
-        mount(configuration);
+        mount(configuration, false);
         var input = $root.find("input[data-prop-name='value']");
         expect(input).toHaveValue('http://repository');
       });
 
       it('should change the configuration model on changing input element', function () {
         var configuration = new PluginConfigurations.Configuration(config);
-        mount(configuration);
+        mount(configuration, false);
         var input = $root.find("input[data-prop-name='value']");
         $(input).val('http://newrepositoryvalue').trigger('input');
         m.redraw(true);

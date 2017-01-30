@@ -256,26 +256,31 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
     },
 
     view: function (ctrl, args) {
-      var editRepository;
+      var editRepository, packageConfigWidget;
 
       if (ctrl.selectedRepository()) {
         editRepository = (<EditRepositoryWidget repository={ctrl.selectedRepository}
                                                 onsave={ctrl.editRepositoryModal}/>);
+        packageConfigWidget = (<PackageConfigWidget repository={ctrl.selectedRepository}
+                                                    material={args.material}/>);
       }
       return (
-        <div>
-          <f.row>
-            <RepositoriesSelectWidget repositories={args.repositories}
-                                      selectedRepositoryId={ctrl.selectedRepositoryId}/>
-            <NewRepositoryWidget repositories={args.repositories}
-                                 oncreate={ctrl.createRepositoryModal}
-                                 key='new-repository-widget'/>
+        <f.row>
+          <f.column>
+            <f.row>
+              <RepositoriesSelectWidget repositories={args.repositories}
+                                        selectedRepositoryId={ctrl.selectedRepositoryId}/>
+              <NewRepositoryWidget repositories={args.repositories}
+                                   oncreate={ctrl.createRepositoryModal}
+                                   key='new-repository-widget'/>
 
-          </f.row>
-          <f.row>
-            {editRepository}
-          </f.row>
-        </div>
+            </f.row>
+            <f.row>
+              {editRepository}
+            </f.row>
+          </f.column>
+            {packageConfigWidget}
+        </f.row>
       );
     }
   };

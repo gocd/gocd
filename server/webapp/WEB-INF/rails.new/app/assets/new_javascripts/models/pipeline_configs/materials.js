@@ -16,8 +16,8 @@
 
 define([
   'mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipeline_configs/encrypted_value', 'models/pipeline_configs/scms',
-  'models/pipeline_configs/repositories', 'models/validatable_mixin', 'js-routes'
-], function (m, _, s, Mixins, EncryptedValue, SCMs, Repositories, Validatable, Routes) {
+  'models/validatable_mixin', 'js-routes'
+], function (m, _, s, Mixins, EncryptedValue, SCMs, Validatable, Routes) {
 
   function plainOrCipherValue(data) {
     if (data.encryptedPassword) {

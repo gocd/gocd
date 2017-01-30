@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/validatable_mixin', 'js-routes', 'models/pipeline_configs/plugin_infos', 'models/shared/plugin_configurations', 'models/crud_mixins'],
-  function (m, _, s, Mixins, Validatable, Routes, PluginInfos, PluginConfigurations, CrudMixins) {
+define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/validatable_mixin', 'js-routes', 'models/shared/plugin_configurations', 'models/crud_mixins'],
+  function (m, _, s, Mixins, Validatable, Routes, PluginConfigurations, CrudMixins) {
 
     var Packages = function (data) {
       Mixins.HasMany.call(this, {
@@ -53,33 +53,15 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/valid
         /* eslint-enable camelcase */
       };
 
-      CrudMixins.Update.call(this, {
-        url:     function (id) {
+      CrudMixins.AllOperations.call(this, ['update', 'create', 'refresh'], {
+        type:        Packages.Package,
+        indexUrl:    Routes.apiv1AdminPackagesPath(),
+        resourceUrl: function (id) {
           /* eslint-disable camelcase */
           return Routes.apiv1AdminPackagePath({package_id: id});
           /* eslint-enable camelcase */
         },
-        version: 'v1',
-        type:    Packages.Package
-      });
-
-
-      CrudMixins.Create.call(this, {
-        url:     function () {
-          return Routes.apiv1AdminPackagesPath();
-        },
-        version: 'v1',
-        type:    Packages.Package
-      });
-
-      CrudMixins.Refresh.call(this, {
-        url:     function (id) {
-          /* eslint-disable camelcase */
-          return Routes.apiv1AdminPackagePath({package_id: id});
-          /* eslint-enable camelcase */
-        },
-        version: 'v1',
-        type:    Packages.Package
+        version:     'v1',
       });
     };
 
@@ -118,16 +100,16 @@ define(['mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/valid
       });
     };
 
-    Packages.Package.setPackageForEdit = function (packageForEdit, pluginId, repository) {
-      PluginInfos.PluginInfo.get(pluginId).then(function (pluginInfo) {
-        var allConfigurations     = pluginInfo.configurations();
-        var packageConfigurations = _.filter(allConfigurations, function (configuration) {
-          return configuration.type === 'package';
-        });
-        var packageMaterial       = Packages.Package.initialize(repository, packageConfigurations);
-        packageForEdit(packageMaterial);
-      });
-    };
+    //Packages.Package.setPackageForEdit = function (packageForEdit, pluginId, repository) {
+    //  PluginInfos.PluginInfo.get(pluginId).then(function (pluginInfo) {
+    //    var allConfigurations     = pluginInfo.configurations();
+    //    var packageConfigurations = _.filter(allConfigurations, function (configuration) {
+    //      return configuration.type === 'package';
+    //    });
+    //    var packageMaterial       = Packages.Package.initialize(repository, packageConfigurations);
+    //    packageForEdit(packageMaterial);
+    //  });
+    //};
 
     var configProperties = function (configurations) {
       var config = [];

@@ -92,8 +92,7 @@ define(['lodash', 'models/pipeline_configs/packages', 'models/shared/plugin_conf
               });
 
               var successCallback = jasmine.createSpy().and.callFake(function (pkg) {
-                var newPackage = Packages.Package.fromJSON(pkg);
-                expect(newPackage.name()).toBe('pkg');
+                expect(pkg.name()).toBe('pkg');
               });
 
               packageMaterial.create().then(successCallback);
@@ -190,8 +189,7 @@ define(['lodash', 'models/pipeline_configs/packages', 'models/shared/plugin_conf
                 status:       200
               });
 
-              var successCallback = jasmine.createSpy().and.callFake(function (pkg) {
-                var updatedPackage = Packages.Package.fromJSON(pkg);
+              var successCallback = jasmine.createSpy().and.callFake(function (updatedPackage) {
                 expect(updatedPackage.name()).toBe('packageName');
                 expect(updatedPackage.configuration().collectConfigurationProperty('key')).toEqual(['PACKAGE_SPEC', 'ARCHITECTURE']);
                 expect(updatedPackage.configuration().collectConfigurationProperty('value')).toEqual(['44abc', 'jar']);

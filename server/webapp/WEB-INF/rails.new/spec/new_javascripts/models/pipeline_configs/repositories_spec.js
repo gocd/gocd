@@ -152,8 +152,7 @@ define(['lodash','models/pipeline_configs/repositories', 'models/shared/plugin_c
               });
 
               var successCallback = jasmine.createSpy().and.callFake(function (repository) {
-                var newRepository = Repositories.Repository.fromJSON(repository);
-                expect(newRepository.name()).toBe('repo');
+                expect(repository.name()).toBe('repo');
               });
 
               repo.create().then(successCallback);
@@ -252,8 +251,7 @@ define(['lodash','models/pipeline_configs/repositories', 'models/shared/plugin_c
               });
 
               var successCallback = jasmine.createSpy().and.callFake(function (repository) {
-                var newRepository = Repositories.Repository.fromJSON(repository);
-                expect(newRepository.name()).toBe('repo');
+                expect(repository.name()).toBe('repo');
               });
 
               repo.update().then(successCallback);

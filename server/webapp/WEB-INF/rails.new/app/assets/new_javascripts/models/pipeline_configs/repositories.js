@@ -15,9 +15,9 @@
  */
 
 define([
-  'mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/pipeline_configs/plugin_infos', 'models/validatable_mixin', 'js-routes',
+  'mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/validatable_mixin', 'js-routes',
   'models/shared/plugin_configurations', 'models/pipeline_configs/packages', 'models/crud_mixins'
-], function (m, _, s, Mixins, PluginInfos, Validatable, Routes, PluginConfigurations, Packages, CrudMixins) {
+], function (m, _, s, Mixins, Validatable, Routes, PluginConfigurations, Packages, CrudMixins) {
 
   var Repositories = function (data) {
     Mixins.HasMany.call(this, {
@@ -94,34 +94,6 @@ define([
       version:     'v1',
       dataPath:    '_embedded.package_repositories'
     });
-    //CrudMixins.Update.call(this, {
-    //  url: function(id) {
-    //    /* eslint-disable camelcase */
-    //    return Routes.apiv1AdminRepositoryPath({repo_id: id});
-    //    /* eslint-enable camelcase */
-    //  },
-    //  version: 'v1',
-    //  type: Repositories.Repository
-    //});
-    //
-    //
-    //CrudMixins.Create.call(this, {
-    //  url: function() {
-    //    return Routes.apiv1AdminRepositoriesPath();
-    //  },
-    //  version: 'v1',
-    //  type:    Repositories.Repository
-    //});
-    //
-    //CrudMixins.Refresh.call(this, {
-    //  url: function (id) {
-    //    /* eslint-disable camelcase */
-    //    return Routes.apiv1AdminRepositoryPath({repo_id: id});
-    //    /* eslint-enable camelcase */
-    //  },
-    //  version: 'v1',
-    //  type: Repositories.Repository
-    //});
   };
 
   Repositories.Repository.get = function (id) {

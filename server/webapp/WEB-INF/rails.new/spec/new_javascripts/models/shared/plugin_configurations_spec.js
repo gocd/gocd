@@ -14,19 +14,21 @@
  * limitations under the License.
  */
 
-define([
-  'mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/validatable_mixin', 'models/pipeline_configs/encrypted_value', 'models/shared/plugin_configurations'
-], function (m, _, s, Mixins, Validatable, EncryptedValue, PluginConfigurations) {
+define(['models/shared/plugin_configurations'], function (PluginConfigurations) {
 
   describe('PluginConfigurations', function () {
     describe('new config with keys', function () {
       it('should remove configuration properties no longer supported by a plugin', function () {
-        var configurations = PluginConfigurations.fromJSON([{key: 'key1', value: 'value1'}, {key: 'key2', 'encrypted_value': 'value2'}, {}]);
-        var keys = ['key1'];
+        var configurations = PluginConfigurations.fromJSON([{key: 'key1', value: 'value1'}, {
+          key:               'key2',
+          'encrypted_value': 'value2'
+        }]);
+        var keys           = ['key2'];
 
         var config = configurations.newConfigurationWithKeys(keys);
 
-        expect(config.collectConfigurationProperty('key')).toEqual(['key1']);
+        expect(config.collectConfigurationProperty('key')).toEqual(['key2']);
+        expect(config.collectConfigurationProperty('value')).toEqual(['value2']);
       });
     });
   });

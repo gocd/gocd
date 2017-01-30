@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,6 @@ import org.osgi.framework.Bundle;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.List;
 import java.util.Random;
 
 import static com.thoughtworks.go.util.SystemEnvironment.*;
@@ -312,30 +311,6 @@ public class DefaultPluginManagerTest {
         assertThat(actualResponse, is(expectedResponse));
         PluginAwareDefaultGoApplicationAccessor accessor = captor.getValue();
         assertThat(accessor.pluginDescriptor(), is(descriptor));
-    }
-
-    @Test
-    public void shouldGetAllPluginsOfGivenExtension() throws Exception {
-        GoPluginIdentifier pluginIdentifier = new GoPluginIdentifier("extension-type", asList("1.0"));
-        GoPluginIdentifier anotherPluginIdentifier = new GoPluginIdentifier("another-extension-type", asList("1.0"));
-        final GoPlugin goPlugin = mock(GoPlugin.class);
-        final GoPluginDescriptor descriptor = mock(GoPluginDescriptor.class);
-        doAnswer(new Answer() {
-            @Override
-            public Void answer(InvocationOnMock invocationOnMock) throws Throwable {
-                Action<GoPlugin> action = (Action<GoPlugin>) invocationOnMock.getArguments()[1];
-                action.execute(goPlugin, descriptor);
-                action.execute(goPlugin, descriptor);
-                return null;
-            }
-        }).when(goPluginOSGiFramework).doOnAll(eq(GoPlugin.class), any(Action.class));
-        when(goPlugin.pluginIdentifier()).thenReturn(pluginIdentifier).thenReturn(anotherPluginIdentifier);
-
-
-        DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, pluginRequestProcessorRegistry, pluginWriter, pluginValidator, systemEnvironment, pluginsZipUpdater, pluginsListListener);
-        List<GoPluginIdentifier> pluginIdentifiers = pluginManager.allPluginsOfType("extension-type");
-        assertThat(pluginIdentifiers.size(), is(1));
-        assertThat(pluginIdentifiers.get(0), is(pluginIdentifier));
     }
 
     @Test

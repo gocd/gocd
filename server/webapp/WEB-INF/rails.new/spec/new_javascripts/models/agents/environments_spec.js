@@ -20,7 +20,7 @@ define(['models/agents/environments'], function (Environments) {
     beforeAll(function () {
       jasmine.Ajax.install();
       jasmine.Ajax.stubRequest(/\/api\/admin\/internal\/environments/).andReturn({
-        "responseText": JSON.stringify(["Dev", "Test"]),
+        "responseText": JSON.stringify(["QA", "Dev", "Test"]),
         "status":       200
       });
     });
@@ -29,32 +29,36 @@ define(['models/agents/environments'], function (Environments) {
       jasmine.Ajax.uninstall();
     });
 
-    it("should initialize the environments", function () {
+    it("should initialize the environments in sorted order", function () {
       Environments.init();
-      expect(Environments.list.length).toBe(2);
+      expect(Environments.list.length).toBe(3);
       expect(Environments.list[0].name()).toBe('Dev');
-      expect(Environments.list[1].name()).toBe('Test');
+      expect(Environments.list[1].name()).toBe('QA');
+      expect(Environments.list[2].name()).toBe('Test');
     });
 
     it("should initialize the environments with state depending upon the checkedAgents", function () {
       var checkedAgents = [{
         environments: function () {
-          return ['Test'];
+          return ['Test', 'QA'];
         }
       }, {
         environments: function () {
-          return ['Test', 'Dev'];
+          return ['Test', 'Dev', 'QA'];
         }
       }];
       Environments.init(checkedAgents);
-      expect(Environments.list.length).toBe(2);
+      expect(Environments.list.length).toBe(3);
       expect(Environments.list[0].name()).toBe('Dev');
-      expect(Environments.list[1].name()).toBe('Test');
+      expect(Environments.list[1].name()).toBe('QA');
+      expect(Environments.list[2].name()).toBe('Test');
 
       expect(Environments.list[0].isChecked()).toBe(false);
       expect(Environments.list[0].isIndeterminate()).toBe(true);
       expect(Environments.list[1].isChecked()).toBe(true);
       expect(Environments.list[1].isIndeterminate()).toBe(false);
+      expect(Environments.list[2].isChecked()).toBe(true);
+      expect(Environments.list[2].isIndeterminate()).toBe(false);
     });
   });
 });

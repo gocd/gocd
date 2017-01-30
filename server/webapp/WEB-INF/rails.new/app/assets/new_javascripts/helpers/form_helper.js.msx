@@ -35,6 +35,21 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
     };
   };
 
+  function setValue(items, cb) {
+    return function (e) {
+      e                 = e || window.event;
+      var currentTarget = e.currentTarget || this;
+
+      var mappings = _.reduce(items, function (memo, item) {
+        var id = s.coerceToMprop(item.id)();
+        memo[id] = item;
+        return memo;
+      }, {});
+
+      cb(mappings[currentTarget.value]);
+    };
+  }
+
   var f = {
     row: {
       view: function (_ctrl, args, children) {
@@ -77,7 +92,7 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
       },
 
       view: function (ctrl, args) {
-        var model     = deleteKeyAndReturnValue(args, 'model'),
+        var model       = deleteKeyAndReturnValue(args, 'model'),
           attrName    = deleteKeyAndReturnValue(args, 'attrName'),
           type        = deleteKeyAndReturnValue(args, 'type', 'text'),
           placeholder = deleteKeyAndReturnValue(args, 'placeholder', ''),
@@ -444,14 +459,15 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
       },
 
       view: function (_ctrl, args) {
-        var items     = deleteKeyAndReturnValue(args, 'items', [{}]),
-          label     = deleteKeyAndReturnValue(args, 'label'),
-          model     = deleteKeyAndReturnValue(args, 'model'),
-          modelType = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
-          attrName  = deleteKeyAndReturnValue(args, 'attrName'),
-          tooltip   = deleteKeyAndReturnValue(args, 'tooltip'),
-          disabled  = deleteKeyAndReturnValue(args, 'disabled', false),
-          message   = deleteKeyAndReturnValue(args, 'message', '');
+        var items         = deleteKeyAndReturnValue(args, 'items', [{}]),
+          label         = deleteKeyAndReturnValue(args, 'label'),
+          model         = deleteKeyAndReturnValue(args, 'model'),
+          modelType     = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
+          attrName      = deleteKeyAndReturnValue(args, 'attrName'),
+          tooltip       = deleteKeyAndReturnValue(args, 'tooltip'),
+          disabled      = deleteKeyAndReturnValue(args, 'disabled', false),
+          receiveObject = deleteKeyAndReturnValue(args, 'receiveObject', false),
+          message       = deleteKeyAndReturnValue(args, 'message', '');
 
         if (!args.size) {
           args.size = 3;
@@ -462,15 +478,21 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
           propertyMessage = <f.infoToolTip content={message}/>;
         }
 
-        var selectElem = (
-          <select value={model[attrName]()}
+        var onchange = receiveObject ? setValue(items, model[attrName]) : m.withAttr('value', model[attrName]);
+
+        var selectedValue = model[attrName]();
+        var selectElem    = (
+          <select value={selectedValue}
                   disabled={disabled}
                   data-prop-name={attrName}
                   data-model-type={modelType}
-                  onchange={m.withAttr('value', model[attrName])}>
+                  onchange={onchange}>
             {_.map(items, function (item) {
+              var id   = s.coerceToMprop(item.id)();
+              var text = s.coerceToMprop(item.text)();
+
               return (
-                <option value={item.id} selected={item.id === model[attrName]()}>{item.text}</option>
+                <option value={id} selected={id === selectedValue}>{text}</option>
               );
             })}
           </select>

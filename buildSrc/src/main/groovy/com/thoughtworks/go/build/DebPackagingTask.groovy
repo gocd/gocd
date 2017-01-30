@@ -33,7 +33,7 @@ class DebPackagingTask extends LinuxPackagingTask {
   protected List fpmOpts() {
     def cmd = super.fpmOpts()
     cmd += ['-t', packageType()]
-    cmd += ['--depends', 'java7-runtime-headless']
+    cmd += ['--depends', 'java8-runtime-headless']
     cmd += ['--deb-no-default-config-files']
 
     // HACK: for debian packages :(, since manifests cannot contain fine grained ownership

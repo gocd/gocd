@@ -18,19 +18,24 @@ define(['mithril', 'lodash', 'helpers/mrequest', 'models/agents/tri_state_checkb
   var Resources         = {};
   Resources.list        = m.prop([]);
 
+  var getSortedResources = function (resources, selectedAgents) {
+    var selectedAgentsResources = _.map(selectedAgents, function (agent) {
+      return agent.resources();
+    });
+
+    return _.map(resources.sort(), function (resource) {
+      return new TriStateCheckbox(resource, selectedAgentsResources);
+    });
+  };
+
   Resources.init = function (selectedAgents) {
     m.request({
       method:        'GET',
       url:           Routes.apiv1AdminInternalResourcesPath(),
       config:        mrequest.xhrConfig.v1,
       unwrapSuccess: function (responseBody) {
-        var list = _.map(responseBody, function (value) {
-          return new TriStateCheckbox(value, _.map(selectedAgents, function (agent) {
-            return agent.resources();
-          }));
-        });
-
-        Resources.list(list);
+        var sortedResources = getSortedResources(responseBody, selectedAgents);
+        Resources.list(sortedResources);
       }
     });
   };

@@ -78,25 +78,25 @@ define(["jquery", "mithril", 'models/agents/resources', "views/agents/resources_
     it('should contain all the resources checkbox', function () {
       var allResources = $.find('.resources-items :checkbox');
       expect(allResources).toHaveLength(4);
-      expect(allResources[0]).toHaveValue('Linux');
-      expect(allResources[1]).toHaveValue('Gauge');
-      expect(allResources[2]).toHaveValue('Java');
+      expect(allResources[0]).toHaveValue('Gauge');
+      expect(allResources[1]).toHaveValue('Java');
+      expect(allResources[2]).toHaveValue('Linux');
       expect(allResources[3]).toHaveValue('Windows');
     });
 
     it('should check resources that are present on all the agents', function () {
       var allResources = $.find('.resources-items :checkbox');
-      expect(allResources[2]).toHaveValue('Java');
-      expect(allResources[2]).toBeChecked();
+      expect(allResources[1]).toHaveValue('Java');
+      expect(allResources[1]).toBeChecked();
     });
 
     it('should select resources as indeterminate that are present on some of the agents', function () {
       var allResources = $.find('.resources-items :checkbox');
-      expect(allResources[0]).toHaveValue('Linux');
-      expect(allResources[0].indeterminate).toBe(true);
+      expect(allResources[2]).toHaveValue('Linux');
+      expect(allResources[2].indeterminate).toBe(true);
 
-      expect(allResources[1]).toHaveValue('Gauge');
-      expect(allResources[1].indeterminate).toBe(true);
+      expect(allResources[0]).toHaveValue('Gauge');
+      expect(allResources[0].indeterminate).toBe(true);
     });
 
     it('should uncheck resources that are not present on any the agents', function () {
@@ -149,7 +149,7 @@ define(["jquery", "mithril", 'models/agents/resources', "views/agents/resources_
     it('should not add duplicate resources', function () {
       var allResources = $root.find('.resources-items input[type="Checkbox"]');
       expect(allResources).toHaveLength(4);
-      expect(allResources[0]).toHaveValue('Linux');
+      expect(allResources[2]).toHaveValue('Linux');
 
       var inputBox = $root.find('.add-resource :input')[0];
       $(inputBox).val('Linux').trigger('change');

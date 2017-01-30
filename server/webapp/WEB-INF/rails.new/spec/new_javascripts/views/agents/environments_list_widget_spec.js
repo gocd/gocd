@@ -53,32 +53,32 @@ define(["jquery", "mithril", 'models/agents/environments', "views/agents/environ
     it('should contain all the environments checkbox', function () {
       var allEnvironments = $.find('.resources-items :checkbox');
       expect(allEnvironments).toHaveLength(4);
-      expect(allEnvironments[0]).toHaveValue('Dev');
-      expect(allEnvironments[1]).toHaveValue('Build');
-      expect(allEnvironments[2]).toHaveValue('Testing');
-      expect(allEnvironments[3]).toHaveValue('Deploy');
+      expect(allEnvironments[0]).toHaveValue('Build');
+      expect(allEnvironments[1]).toHaveValue('Deploy');
+      expect(allEnvironments[2]).toHaveValue('Dev');
+      expect(allEnvironments[3]).toHaveValue('Testing');
     });
 
     it('should check environments that are present on all the agents', function () {
       var allEnvironments = $.find('.resources-items :checkbox');
-      expect(allEnvironments[2]).toHaveValue('Testing');
-      expect(allEnvironments[2]).toBeChecked();
+      expect(allEnvironments[3]).toHaveValue('Testing');
+      expect(allEnvironments[3]).toBeChecked();
     });
 
     it('should select environments as indeterminate that are present on some of the agents', function () {
       var allEnvironments = $.find('.resources-items :checkbox');
-      expect(allEnvironments[0]).toHaveValue('Dev');
-      expect(allEnvironments[0].indeterminate).toBe(true);
+      expect(allEnvironments[2]).toHaveValue('Dev');
+      expect(allEnvironments[2].indeterminate).toBe(true);
 
-      expect(allEnvironments[1]).toHaveValue('Build');
-      expect(allEnvironments[1].indeterminate).toBe(true);
+      expect(allEnvironments[0]).toHaveValue('Build');
+      expect(allEnvironments[0].indeterminate).toBe(true);
     });
 
     it('should uncheck environments that are not present on any the agents', function () {
       var allEnvironments = $.find('.resources-items :checkbox');
-      expect(allEnvironments[3]).toHaveValue('Deploy');
-      expect(allEnvironments[3]).not.toBeChecked();
-      expect(allEnvironments[3].indeterminate).toBe(false);
+      expect(allEnvironments[1]).toHaveValue('Deploy');
+      expect(allEnvironments[1]).not.toBeChecked();
+      expect(allEnvironments[1].indeterminate).toBe(false);
     });
 
     var mount = function () {

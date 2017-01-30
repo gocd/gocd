@@ -20,7 +20,7 @@ define(['models/agents/resources'], function (Resources) {
     beforeAll(function () {
       jasmine.Ajax.install();
       jasmine.Ajax.stubRequest(/\/api\/admin\/internal\/resources/).andReturn({
-        "responseText": JSON.stringify(["Firefox", "Linux"]),
+        "responseText": JSON.stringify(["Linux", "Firefox"]),
         "status":       200
       });
     });
@@ -29,7 +29,7 @@ define(['models/agents/resources'], function (Resources) {
       jasmine.Ajax.uninstall();
     });
 
-    it("should initialize the resources", function () {
+    it("should initialize the resources in sorted order", function () {
       Resources.init();
       expect(Resources.list().length).toBe(2);
       expect(Resources.list()[0].name()).toBe('Firefox');

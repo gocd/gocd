@@ -18,17 +18,23 @@ define(['mithril', 'lodash', 'helpers/mrequest', 'models/agents/tri_state_checkb
   var Environments  = {};
   Environments.list = [];
 
+  var getSortedEnvironments = function (environments, selectedAgents) {
+    var selectedAgentsEnvironments = _.map(selectedAgents, function (agent) {
+      return agent.environments();
+    });
+
+    return _.map(environments.sort(), function (environment) {
+      return new TriStateCheckbox(environment, selectedAgentsEnvironments);
+    });
+  };
+
   Environments.init = function (selectedAgents) {
     m.request({
       method:        'GET',
       url:           Routes.apiv1AdminInternalEnvironmentsPath(),
       config:        mrequest.xhrConfig.v1,
       unwrapSuccess: function (responseBody) {
-        Environments.list = _.map(responseBody, function (value) {
-          return new TriStateCheckbox(value, _.map(selectedAgents, function (agent) {
-            return agent.environments();
-          }));
-        });
+        Environments.list = getSortedEnvironments(responseBody, selectedAgents);
       }
     });
   };

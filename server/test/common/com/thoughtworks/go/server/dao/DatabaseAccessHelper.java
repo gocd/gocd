@@ -170,7 +170,6 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
         dataSet.addTable(new DefaultTable("users"));
         dataSet.addTable(new DefaultTable("artifactPropertiesGenerator"));
         dataSet.addTable(new DefaultTable("stages"));
-        dataSet.addTable(new DefaultTable("buildCauseBuffer"));
         dataSet.addTable(new DefaultTable("pipelineLabelCounts"));
         dataSet.addTable(new DefaultTable("environmentVariables"));
         dataSet.addTable(new DefaultTable("properties"));

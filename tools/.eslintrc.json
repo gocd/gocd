@@ -68,6 +68,15 @@
         "argsIgnorePattern": "^_."
       }
     ],
+    "no-empty": [
+      "error"
+    ],
+    "curly": [
+      "error"
+    ],
+    "no-nested-ternary": [
+      "error"
+    ],
     "react/display-name": [
       "off"
     ],

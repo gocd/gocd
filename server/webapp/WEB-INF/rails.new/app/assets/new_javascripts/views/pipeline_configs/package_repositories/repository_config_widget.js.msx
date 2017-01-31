@@ -192,7 +192,7 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
           var initializeRepoWithPluginInfo = function (args) {
             newRepo(args[0]);
             pluginInfo(args[1]);
-            //newRepo(createRepoWithPluginInfo(newPluginInfo));
+            newRepo(createRepoWithPluginInfo(args[0]));
           };
 
           var createRepoWithPluginInfo = function (newPluginInfo) {
@@ -259,9 +259,13 @@ define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/rep
       var editRepository, packageConfigWidget;
 
       if (ctrl.selectedRepository()) {
+
+        var fooKey = [ctrl.selectedRepository().uuid(), args.material.ref()].join('-');
+
         editRepository = (<EditRepositoryWidget repository={ctrl.selectedRepository}
                                                 onsave={ctrl.editRepositoryModal}/>);
         packageConfigWidget = (<PackageConfigWidget repository={ctrl.selectedRepository}
+                                                    key={fooKey}
                                                     material={args.material}/>);
       }
       return (

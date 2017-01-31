@@ -35,18 +35,22 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
     };
   };
 
-  function setValue(items, cb) {
+  function setValue(items, mprop, callback) {
     return function (e) {
       e                 = e || window.event;
       var currentTarget = e.currentTarget || this;
 
       var mappings = _.reduce(items, function (memo, item) {
         var id = s.coerceToMprop(item.id)();
-        memo[id] = item;
+        memo[id] = s.coerceToMprop(item.object);
         return memo;
       }, {});
 
-      cb(mappings[currentTarget.value]);
+      mprop(mappings[currentTarget.value]);
+
+      if (callback) {
+        callback();
+      }
     };
   }
 
@@ -467,7 +471,8 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
           tooltip       = deleteKeyAndReturnValue(args, 'tooltip'),
           disabled      = deleteKeyAndReturnValue(args, 'disabled', false),
           receiveObject = deleteKeyAndReturnValue(args, 'receiveObject', false),
-          message       = deleteKeyAndReturnValue(args, 'message', '');
+          message       = deleteKeyAndReturnValue(args, 'message', ''),
+          onChange      = deleteKeyAndReturnValue(args, 'onChange', _.noop);
 
         if (!args.size) {
           args.size = 3;
@@ -478,7 +483,7 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
           propertyMessage = <f.infoToolTip content={message}/>;
         }
 
-        var onchange = receiveObject ? setValue(items, model[attrName]) : m.withAttr('value', model[attrName]);
+        var onchange = receiveObject ? setValue(items, model[attrName], onChange) : m.withAttr('value', model[attrName]);
 
         var selectedValue = model[attrName]();
         var selectElem    = (
@@ -490,9 +495,10 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
             {_.map(items, function (item) {
               var id   = s.coerceToMprop(item.id)();
               var text = s.coerceToMprop(item.text)();
-
+              var currentObject = (receiveObject ? s.coerceToMprop(item.object)() : id);
+              
               return (
-                <option value={id} selected={id === selectedValue}>{text}</option>
+                <option value={id} selected={ currentObject === selectedValue}>{text}</option>
               );
             })}
           </select>

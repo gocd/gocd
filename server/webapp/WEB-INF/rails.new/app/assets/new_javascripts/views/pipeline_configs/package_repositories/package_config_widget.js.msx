@@ -32,17 +32,32 @@ define([
       });
     }
   };
-  var EditPackageWidget = {
+  var EditPackageWidget   = {
     controller: function (args) {
       var ctrl = {
         isPluginMissing: function () {
           return _.isNil(PluginInfos.findById(args.repository().pluginMetadata().id()));
         },
+
+        refreshPackage: function () {
+          if (args.package() && args.package().configuration().isEmptyConfiguration()) {
+            args.package(args.package().refresh());
+          }
+        }
       };
+
+      ctrl.refreshPackage();
+
       return ctrl;
     },
 
     view: function (ctrl, args) {
+      if (!args.package()) {
+        return (
+          <div/>
+        );
+      }
+
       var packageForEdit = args.package();
       var data           = {Name: packageForEdit.name(), AutoUpdate: packageForEdit.autoUpdate()};
 
@@ -51,7 +66,7 @@ define([
       });
 
       var editButton = ctrl.isPluginMissing() ? (
-        <f.alert><b>{args.repository().pluginMetadata().id()}</b> plugin seems to be removed.</f.alert>)
+          <f.alert><b>{args.repository().pluginMetadata().id()}</b> plugin seems to be removed.</f.alert>)
         : (<f.editButton class={null} onclick={args.onsave}/>);
 
       return (
@@ -90,24 +105,61 @@ define([
     }
   };
 
-  var PackageWidget = {
+  var PackageSelectWidget = {
+    view: function (_ctrl, args) {
+      if (args.repository().packages().isEmptyPackage()) {
+        return (<div/>);
+      }
+      var items = args.repository().packages().mapPackages(function (packageInfo) {
+        return {
+          id:   packageInfo.id(),
+          text: packageInfo.name(),
+          object: packageInfo
+        };
+      });
+
+      return (
+        <f.select model={args}
+                  attrName="selectedPackage"
+                  receiveObject={true}
+                  class="package-selector"
+                  items={items}
+                  onChange={args.onChange}/>
+      );
+    }
+  };
+
+  var PackageConfigWidget = {
+
     controller: function (args) {
       var ctrl = {
+        selectedPackage:           m.prop(),
+        onChange:                  function () {
+          ctrl.selectedPackage().refresh().then(function (unshallowedPackage) {
+            ctrl.selectedPackage(unshallowedPackage);
+          });
+        },
+        initializeSelectedPackage: function () {
+          var packageObject;
 
-        // TODO: in case of ref on the package material, use that instead
-        selectedPackage:    m.prop(args.repository().packages().firstPackage()),
-        selectedPackageId:  function () {
-          if (arguments.length) {
-            var packageId = arguments[0];
-            ctrl.selectedPackage(args.repository().packages().findPackage(function (eachPackage) {
-              return eachPackage.id() === packageId;
-            }));
+          if (args.material.ref()) {
+            packageObject = args.repository().packages().findPackage(function (eachPackage) {
+              return eachPackage.id() === args.material.ref();
+            });
+          } else {
+            packageObject = args.repository().packages().firstPackage();
           }
 
-          return ctrl.selectedPackage().id();
+          if (packageObject) {
+            ctrl.selectedPackage(undefined);
+            m.redraw(true);
+            packageObject.refresh().then(function (unshallowedPackage) {
+              ctrl.selectedPackage(unshallowedPackage);
+            });
+          }
         },
-        createPackageModal: function () {
-          var newPackage      = m.prop();
+        createPackageModal:        function () {
+          var newPackage   = m.prop();
           var saveDisabled = m.prop(false);
           var errorMessage = m.prop();
 
@@ -154,7 +206,7 @@ define([
                     newPackage(newPackageFromServer);
                     addOrReplacePackage(args.repository(), newPackageFromServer);
                     ctrl.selectedPackage(newPackage());
-                    args.material.ref(ctrl.selectedPackageId());
+                    args.material.ref(ctrl.selectedPackage().id());
                   };
                   newPackage().create().then(onSuccess, errorMessage);
                 }
@@ -166,8 +218,8 @@ define([
 
           PluginInfos.PluginInfo.get(args.repository().pluginMetadata().id()).then(initializePackageWithConfig, errorMessage);
         },
-        editPackageModal: function () {
-          var newPackage      = m.prop(ctrl.selectedPackage());
+        editPackageModal:          function () {
+          var newPackage   = m.prop(ctrl.selectedPackage());
           var saveDisabled = m.prop(false);
           var errorMessage = m.prop();
 
@@ -180,14 +232,14 @@ define([
             //newPackage(createPackageWithPluginInfo(newPluginInfo));
           };
 
-          var createPackageWithPluginInfo = function (newPluginInfo) {
-            var allConfigurations = newPluginInfo.configurations();
-
-            var packageConfigurations = _.filter(allConfigurations, function (configuration) {
-              return configuration.type === 'package';
-            });
-            return Packages.Package.initialize(args.repository(), packageConfigurations);
-          };
+          //var createPackageWithPluginInfo = function (newPluginInfo) {
+          //  var allConfigurations = newPluginInfo.configurations();
+          //
+          //  var packageConfigurations = _.filter(allConfigurations, function (configuration) {
+          //    return configuration.type === 'package';
+          //  });
+          //  return Packages.Package.initialize(args.repository(), packageConfigurations);
+          //};
 
           var modal = new Modal({
             size:    'small',
@@ -216,7 +268,7 @@ define([
                     newPackage(newPackageFromServer);
                     addOrReplacePackage(args.repository(), newPackageFromServer);
                     ctrl.selectedPackage(newPackage());
-                    args.material.ref(ctrl.selectedPackageId());
+                    args.material.ref(ctrl.selectedPackage().id());
                   };
                   newPackage().update().then(onSuccess, errorMessage);
                 }
@@ -230,50 +282,31 @@ define([
         },
 
       };
+
+      ctrl.initializeSelectedPackage();
       return ctrl;
     },
-    view:       function (ctrl, args) {
-      var mayBeEditPackage;
-      if (ctrl.selectedPackage()) {
-        mayBeEditPackage = <EditPackageWidget package={ctrl.selectedPackage}
-                                              repository={args.repository}
-                                              onsave={ctrl.editPackageModal}/>;
-      }
+
+    view: function (ctrl, args) {
       return (
         <f.column>
           <f.row>
             <PackageSelectWidget repository={args.repository}
-                                 selectedPackageId={ctrl.selectedPackageId}/>
+                                 selectedPackage={ctrl.selectedPackage}
+                                 onChange={ctrl.onChange.bind(ctrl)}/>
+
             <NewPackageWidget repository={args.repository}
                               oncreate={ctrl.createPackageModal}/>
           </f.row>
           <f.row>
-            {mayBeEditPackage}
+            <EditPackageWidget package={ctrl.selectedPackage}
+                               repository={args.repository}
+                               key={ctrl.selectedPackage() ? ctrl.selectedPackage().id() : 'no-edit-package-widget'}
+                               onsave={ctrl.editPackageModal}/>
           </f.row>
         </f.column>
       );
     }
   };
-
-  var PackageSelectWidget = {
-    view: function (_ctrl, args) {
-      if (args.repository().packages().isEmptyPackage()) {
-        return (<div/>);
-      }
-      var items = args.repository().packages().mapPackages(function (packageInfo) {
-        return {
-          id: packageInfo.id(),
-          text: packageInfo.name()
-        };
-      });
-
-      return (
-        <f.select model={args}
-                  attrName="selectedPackageId"
-                  class="package-selector"
-                  items={items}/>
-      );
-    }
-  };
-  return PackageWidget;
+  return PackageConfigWidget;
 });

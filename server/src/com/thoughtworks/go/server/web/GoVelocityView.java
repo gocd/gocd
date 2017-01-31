@@ -41,6 +41,7 @@ public class GoVelocityView extends VelocityToolboxView {
     public static final String ADMINISTRATOR = "userHasAdministratorRights";
     public static final String TEMPLATE_ADMINISTRATOR = "userHasTemplateAdministratorRights";
     public static final String VIEW_ADMINISTRATOR_RIGHTS = "userHasViewAdministratorRights";
+    public static final String TEMPLATE_VIEW_USER = "userHasTemplateViewUserRights";
     public static final String GROUP_ADMINISTRATOR = "userHasGroupAdministratorRights";
     public static final String USE_COMPRESS_JS = "useCompressJS";
     public static final String CONCATENATED_JAVASCRIPT_FILE_PATH = "concatenatedJavascriptFilePath";
@@ -80,6 +81,7 @@ public class GoVelocityView extends VelocityToolboxView {
         velocityContext.put(GROUP_ADMINISTRATOR, true);
         velocityContext.put(TEMPLATE_ADMINISTRATOR, true);
         velocityContext.put(VIEW_ADMINISTRATOR_RIGHTS, true);
+        velocityContext.put(TEMPLATE_VIEW_USER, true);
         velocityContext.put(USE_COMPRESS_JS, systemEnvironment.useCompressedJs());
 
         velocityContext.put(Toggles.PIPELINE_COMMENT_FEATURE_TOGGLE_KEY, Toggles.isToggleOn(Toggles.PIPELINE_COMMENT_FEATURE_TOGGLE_KEY));
@@ -120,12 +122,13 @@ public class GoVelocityView extends VelocityToolboxView {
         removeAdminFromContextIfNecessary(velocityContext, authorities);
         removeGroupAdminFromContextIfNecessary(velocityContext, authorities);
         removeTemplateAdminFromContextIfNecessary(velocityContext, authorities);
+        removeTemplateViewUserFromContextIfNecessary(velocityContext, authorities);
         removeViewAdminRightsFromContextIfNecessary(velocityContext);
 
     }
 
     private void removeViewAdminRightsFromContextIfNecessary(Context context) {
-        if (!(context.containsKey(ADMINISTRATOR) || context.containsKey(GROUP_ADMINISTRATOR) || context.containsKey(TEMPLATE_ADMINISTRATOR)))
+        if (!(context.containsKey(ADMINISTRATOR) || context.containsKey(GROUP_ADMINISTRATOR) || context.containsKey(TEMPLATE_ADMINISTRATOR) || context.containsKey(TEMPLATE_VIEW_USER)))
             context.remove(VIEW_ADMINISTRATOR_RIGHTS);
     }
 
@@ -153,6 +156,19 @@ public class GoVelocityView extends VelocityToolboxView {
         }
     }
 
+    private void removeTemplateViewUserFromContextIfNecessary(Context velocityContext, GrantedAuthority[] authorities) {
+        boolean isTemplateViewUser = false;
+        for (GrantedAuthority authority : authorities) {
+            if(isTemplateViewUser(authority)) {
+                isTemplateViewUser = true;
+            }
+        }
+
+        if (!isTemplateViewUser) {
+            velocityContext.remove(TEMPLATE_VIEW_USER);
+        }
+    }
+
     private void removeAdminFromContextIfNecessary(Context velocityContext, GrantedAuthority[] authorities) {
         boolean administrator = false;
         for (GrantedAuthority authority : authorities) {
@@ -175,6 +191,10 @@ public class GoVelocityView extends VelocityToolboxView {
 
     private boolean isTemplateAdministrator(GrantedAuthority authority) {
         return authority.getAuthority().equals(GoAuthority.ROLE_TEMPLATE_SUPERVISOR.toString());
+    }
+
+    private boolean isTemplateViewUser(GrantedAuthority authority) {
+        return authority.getAuthority().equals(GoAuthority.ROLE_TEMPLATE_VIEW_USER.toString());
     }
 
     public String getContentAsString() {

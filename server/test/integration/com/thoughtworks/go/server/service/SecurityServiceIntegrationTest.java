@@ -179,6 +179,27 @@ public class SecurityServiceIntegrationTest {
     }
 
     @Test
+    public void shouldNotCheckAdminPermissionsIfPipelineDoesNotExist() {
+        assertThat(securityService.hasAdminPermissionsForPipeline(new Username(ADMIN), new CaseInsensitiveString("non-existent-pipeline")), is(true));
+    }
+
+    @Test
+    public void shouldReturnTrueForSuperAdminIfPipelineExists() {
+        assertThat(securityService.hasAdminPermissionsForPipeline(new Username(ADMIN), new CaseInsensitiveString(PIPELINE_NAME)), is(true));
+    }
+
+    @Test
+    public void shouldReturnTrueForGroupAdminForPipeline() {
+        configHelper.setAdminPermissionForGroup(GROUP_NAME, PIPELINE_ADMIN);
+        assertThat(securityService.hasAdminPermissionsForPipeline(new Username(PIPELINE_ADMIN), new CaseInsensitiveString(PIPELINE_NAME)), is(true));
+    }
+
+    @Test
+    public void shouldReturnFalseForNonAdminUserForPipeline() {
+        assertThat(securityService.hasAdminPermissionsForPipeline(new Username(VIEWER), new CaseInsensitiveString(PIPELINE_NAME)), is(false));
+    }
+
+    @Test
     public void shouldNotCheckViewPermissionIfSecurityIsTurnedOff() {
         configHelper.turnOffSecurity();
         configHelper.setViewPermissionForGroup(GROUP_NAME, VIEWER);

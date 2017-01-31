@@ -68,6 +68,7 @@ describe Admin::TemplatesController do
 
   describe :action do
     before :each do
+      login_as_admin
       @pipeline = PipelineTemplateConfig.new(CaseInsensitiveString.new("some_template"), [StageConfigMother.stageConfig("defaultStage")].to_java(StageConfig))
       @cruise_config = BasicCruiseConfig.new
       @cruise_config.addTemplate(@pipeline)
@@ -194,7 +195,7 @@ describe Admin::TemplatesController do
         assigns[:cruise_config].getTemplates().size().should == 1
 
         assert_save_arguments "abcd1234"
-        assert_update_command ::ConfigUpdate::SaveAsSuperAdmin, ConfigUpdate::TemplatesNode, ConfigUpdate::TemplatesTemplateSubject
+        assert_update_command ::ConfigUpdate::SaveAsTemplateAdmin, ConfigUpdate::TemplatesNode, ConfigUpdate::TemplatesTemplateSubject
 
         assigns[:template_to_pipelines].should == templates_after_delete
       end

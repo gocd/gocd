@@ -31,6 +31,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.Authorization.ALLOW_GROUP_ADMINS;
+
 /**
  * @understands abstracting a pipeline definition
  */
@@ -145,6 +147,9 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
 
     private void validateTemplateAuth(DelegatingValidationContext validationContextWhichChecksForRole) {
         for (Admin admin : getAuthorization().getAdminsConfig()) {
+            admin.validate(validationContextWhichChecksForRole);
+        }
+        for (Admin admin : getAuthorization().getViewConfig()) {
             admin.validate(validationContextWhichChecksForRole);
         }
     }
@@ -270,10 +275,18 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
         else {
             this.authorization = new Authorization();
         }
+
+        if(attributeMap.containsKey(ALLOW_GROUP_ADMINS)) {
+            this.authorization.setAllowGroupAdmins("true".equals(attributeMap.get(ALLOW_GROUP_ADMINS)));
+        }
     }
 
     public void addDefaultStage() {
         add(new StageConfig(new CaseInsensitiveString(StageConfig.DEFAULT_NAME), new JobConfigs(new JobConfig(JobConfig.DEFAULT_NAME))));
+    }
+
+    public boolean isAllowGroupAdmins() {
+        return this.getAuthorization().isAllowGroupAdmins();
     }
 
     public void validateNameUniquness(Map<String, PipelineTemplateConfig> templateMap) {

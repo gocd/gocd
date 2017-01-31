@@ -3278,6 +3278,7 @@ a.add_item {
   }
   .title_action_wrapper {
     ul {
+      margin-top:  1px;
       margin-left: 10px;
       li {
         a {
@@ -3464,4 +3465,13 @@ form#package_repositories_edit_form {
       margin-bottom: 0;
     }
   }
+}
+
+.edit_icon_disabled, .lock_icon_disabled {
+  padding-left: 20px !important;
+  margin-top:   3px;
+}
+
+.lock_icon_disabled {
+  margin-left: 10px;
 }

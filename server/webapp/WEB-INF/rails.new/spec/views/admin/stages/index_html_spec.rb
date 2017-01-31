@@ -21,7 +21,7 @@ describe "admin/stages/index.html.erb" do
   include FormUI
 
   before(:each) do
-    view.stub(:is_user_an_admin?).and_return(true)
+    view.stub(:is_user_a_template_admin_for_template?).and_return(true)
     @pipeline = PipelineConfigMother.createPipelineConfigWithStages("pipeline-name", ["dev", "acceptance"].to_java(:string))
     assign(:pipeline, @pipeline)
 

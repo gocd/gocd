@@ -92,7 +92,7 @@ public class DeleteTemplateConfigCommandTest {
     @Test
     public void shouldContinueWithConfigSaveIfUserIsAuthorized() {
         cruiseConfig.addTemplate(pipelineTemplateConfig);
-        when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
+        when(goConfigService.isAuthorizedToEditTemplate("template", currentUser)).thenReturn(true);
 
         DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(pipelineTemplateConfig, result, goConfigService, currentUser);
 

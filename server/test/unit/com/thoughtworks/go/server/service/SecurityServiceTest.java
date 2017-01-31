@@ -50,6 +50,26 @@ public class SecurityServiceTest {
     }
 
     @Test
+    public void shouldBeAbleToViewAdminPageIfUserCanViewTemplates() {
+        final Username user = new Username(new CaseInsensitiveString("user"));
+        when(goConfigService.isGroupAdministrator(user.getUsername())).thenReturn(false);
+        when(goConfigService.isUserAdmin(user)).thenReturn(false);
+        when(goConfigService.isAuthorizedToViewAndEditTemplates(user)).thenReturn(false);
+        when(goConfigService.isAuthorizedToViewTemplates(user)).thenReturn(true);
+        assertThat(securityService.canViewAdminPage(new Username(new CaseInsensitiveString("user"))), is(true));
+    }
+
+    @Test
+    public void shouldReturnFalseForViewingAdminPageForARegularUser() {
+        final Username user = new Username(new CaseInsensitiveString("user"));
+        when(goConfigService.isGroupAdministrator(user.getUsername())).thenReturn(false);
+        when(goConfigService.isUserAdmin(user)).thenReturn(false);
+        when(goConfigService.isAuthorizedToViewAndEditTemplates(user)).thenReturn(false);
+        when(goConfigService.isAuthorizedToViewTemplates(user)).thenReturn(false);
+        assertThat(securityService.canViewAdminPage(new Username(new CaseInsensitiveString("user"))), is(false));
+    }
+
+    @Test
     public void shouldBeAbleToTellIfAUserIsAnAdmin() {
         Username username = new Username(new CaseInsensitiveString("user"));
         when(goConfigService.isUserAdmin(username)).thenReturn(Boolean.TRUE);

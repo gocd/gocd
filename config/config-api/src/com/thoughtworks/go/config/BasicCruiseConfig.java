@@ -1103,6 +1103,17 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
+    public TemplatesConfig getTemplatesForUser(CaseInsensitiveString username, List<Role> roles) {
+        TemplatesConfig templates = new TemplatesConfig();
+        for (PipelineTemplateConfig template : getTemplates()) {
+            if (isAuthorizedToAccessTemplate(username, roles, template)) {
+                templates.add(template);
+            }
+        }
+        return templates;
+    }
+
+    @Override
     public PipelineTemplateConfig findTemplate(CaseInsensitiveString templateName) {
         for (PipelineTemplateConfig config : templatesConfig) {
             if (templateName.equals(config.name())) {
@@ -1282,7 +1293,7 @@ public class BasicCruiseConfig implements CruiseConfig {
     public Map<CaseInsensitiveString, List<CaseInsensitiveString>> templatesWithPipelinesForUser(String username, List<Role> roles) {
         HashMap<CaseInsensitiveString, List<CaseInsensitiveString>> templateToPipelines = new HashMap<>();
         for (PipelineTemplateConfig template : getTemplates()) {
-            if (isAdministrator(username) || template.getAuthorization().getAdminsConfig().isAdmin(new AdminUser(new CaseInsensitiveString(username)), roles)) {
+            if (isAuthorizedToAccessTemplate(new CaseInsensitiveString(username), roles, template)) {
                 templateToPipelines.put(template.name(), new ArrayList<>());
             }
         }
@@ -1440,6 +1451,10 @@ public class BasicCruiseConfig implements CruiseConfig {
     @Override
     public void setOrigins(ConfigOrigin origins) {
         this.strategy.setOrigins(origins);
+    }
+
+    private boolean isAuthorizedToAccessTemplate(CaseInsensitiveString username, List<Role> roles, PipelineTemplateConfig template) {
+        return isAdministrator(username.toString()) || template.getAuthorization().hasAdminOrViewPermissions(username, roles) || (template.isAllowGroupAdmins() && isGroupAdministrator(username));
     }
 
     private static class FindPipelineGroupAdminstrator implements PipelineGroupVisitor {

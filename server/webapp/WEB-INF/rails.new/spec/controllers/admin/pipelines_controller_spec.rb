@@ -287,6 +287,7 @@ describe Admin::PipelinesController do
       controller.stub(:go_config_service).with().and_return(@go_config_service = double('Go Config Service'))
       @go_config_service.stub(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid())
       @go_config_service.stub(:registry)
+      @go_config_service.stub(:rolesForUser).and_return(nil)
       @cruise_config = BasicCruiseConfig.new
       @go_config_service.should_receive(:getConfigForEditing).and_return(@cruise_config)
       @cruise_config_mother = GoConfigMother.new
@@ -386,6 +387,7 @@ describe Admin::PipelinesController do
 
       controller.stub(:go_config_service).with().and_return(@go_config_service = double('Go Config Service'))
       @go_config_service.stub(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid())
+      @go_config_service.stub(:rolesForUser).and_return(nil)
       @cruise_config = BasicCruiseConfig.new
       @repository1 = PackageRepositoryMother.create("repo-id", "repo1-name", "pluginid", "version1.0", Configuration.new([ConfigurationPropertyMother.create("k1", false, "v1")].to_java(ConfigurationProperty)))
       @pkg = PackageDefinitionMother.create("pkg-id", "package3-name", Configuration.new([ConfigurationPropertyMother.create("k2", false, "p3v2")].to_java(ConfigurationProperty)), @repository1)

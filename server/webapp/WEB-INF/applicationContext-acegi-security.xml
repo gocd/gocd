@@ -253,7 +253,7 @@
                 /admin/restful/configuration/**=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR
                 /admin/pipelines/**=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR
                 /admin/pipeline_group/**=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR
-                /admin/templates/**=ROLE_SUPERVISOR,ROLE_TEMPLATE_SUPERVISOR
+                /admin/templates/**=ROLE_SUPERVISOR,ROLE_TEMPLATE_SUPERVISOR,ROLE_TEMPLATE_VIEW_USER,ROLE_GROUP_SUPERVISOR
                 /admin/commands/**=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR, ROLE_TEMPLATE_SUPERVISOR
                 /admin/plugins=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR
                 /admin/pipeline/**=ROLE_SUPERVISOR,ROLE_GROUP_SUPERVISOR
@@ -276,7 +276,7 @@
                 /api/admin/agents=ROLE_SUPERVISOR
                 /api/elastic/profiles/**=ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR
                 /admin/elastic_profiles/**=ROLE_SUPERVISOR, ROLE_GROUP_SUPERVISOR
-                /api/admin/templates/**=ROLE_SUPERVISOR, ROLE_TEMPLATE_SUPERVISOR
+                /api/admin/templates/**=ROLE_USER
                 /api/admin/**=ROLE_SUPERVISOR
                 /api/config-repository.git/**=ROLE_SUPERVISOR
                 /api/jobs/scheduled.xml=ROLE_SUPERVISOR
@@ -307,7 +307,7 @@
                 /agents=ROLE_USER
                 /agents/*/job_run_history*=ROLE_SUPERVISOR
                 /agents/*/job_run_history/*=ROLE_SUPERVISOR
-                /config_view/templates/*=ROLE_GROUP_SUPERVISOR, ROLE_SUPERVISOR
+                /config_view/templates/*=ROLE_USER
                 /add-on/*/admin/**=ROLE_SUPERVISOR
                 /add-on/*/api/**=ROLE_OAUTH_USER
                 /**=ROLE_USER

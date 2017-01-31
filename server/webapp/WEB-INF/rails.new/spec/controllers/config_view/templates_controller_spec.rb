@@ -25,8 +25,46 @@ describe ConfigView::TemplatesController do
     end
   end
 
+  describe 'security' do
+
+    it 'should disallow anonymous users, with security enabled' do
+      enable_security
+      login_as_anonymous
+
+      expect(controller).to disallow_action(:get, :show, name: 'template')
+    end
+
+    it 'should disallow normal users, with security enabled' do
+      enable_security
+      login_as_user
+
+      expect(controller).to disallow_action(:get, :show, name: 'template')
+    end
+
+    it 'should allow admin, with security enabled' do
+      enable_security
+      login_as_admin
+
+      expect(controller).to allow_action(:get, :show)
+    end
+
+    it 'should allow template admin, with security enabled' do
+      login_as_template_admin
+
+      expect(controller).to allow_action(:get, :show)
+    end
+
+    it 'should allow template view users, with security enabled' do
+      enable_security
+      @security_service.stub(:isAuthorizedToViewTemplate).with(anything, anything).and_return(true)
+
+      expect(controller).to allow_action(:get, :show)
+    end
+  end
+
   describe :show do
     before :each do
+      controller.stub(:is_user_authorized_to_view_template)
       @template_config_service = double('template config service')
       controller.stub(:template_config_service).and_return(@template_config_service)
     end

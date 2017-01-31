@@ -77,6 +77,57 @@ public class AuthorizationTest {
     }
 
     @Test
+    public void shouldSayThatAnAdmin_HasAdminOrViewPermissions() {
+        CaseInsensitiveString adminUser = new CaseInsensitiveString("admin");
+        Authorization authorization = new Authorization(new AdminsConfig(new AdminUser(adminUser)));
+        assertThat(authorization.hasAdminOrViewPermissions(adminUser, null), is(true));
+    }
+
+    @Test
+    public void shouldSayThatAViewUser_HasAdminOrViewPermissions() {
+        CaseInsensitiveString viewUser = new CaseInsensitiveString("view");
+        Authorization authorization = new Authorization(new ViewConfig(new AdminUser(viewUser)));
+        assertThat(authorization.hasAdminOrViewPermissions(viewUser, null), is(true));
+    }
+
+    @Test
+    public void shouldSayThatAnAdminWithinARole_HasAdminOrViewPermissions() {
+        CaseInsensitiveString adminUser = new CaseInsensitiveString("admin");
+        RoleConfig role = new RoleConfig(new CaseInsensitiveString("role1"), new RoleUser(adminUser));
+        List<Role> roles = new ArrayList<>();
+        roles.add(role);
+        Authorization authorization = new Authorization(new AdminsConfig(new AdminRole(role)));
+        assertThat(authorization.hasAdminOrViewPermissions(adminUser, roles), is(true));
+    }
+
+    @Test
+    public void shouldSayThatAViewUserWithinARole_HasAdminOrViewPermissions() {
+        CaseInsensitiveString viewUser = new CaseInsensitiveString("view");
+        RoleConfig role = new RoleConfig(new CaseInsensitiveString("role1"), new RoleUser(viewUser));
+        List<Role> roles = new ArrayList<>();
+        roles.add(role);
+        Authorization authorization = new Authorization(new ViewConfig(new AdminRole(role)));
+        assertThat(authorization.hasAdminOrViewPermissions(viewUser, roles), is(true));
+    }
+
+    @Test
+    public void shouldReturnFalseForUserNotInAdminOrViewConfig() {
+        CaseInsensitiveString viewUser = new CaseInsensitiveString("view");
+        Authorization authorization = new Authorization();
+        assertThat(authorization.hasAdminOrViewPermissions(viewUser, null), is(false));
+    }
+
+    @Test
+    public void shouldReturnFalseForNonAdminNonViewUserWithinARole() {
+        CaseInsensitiveString viewUser = new CaseInsensitiveString("view");
+        RoleConfig role = new RoleConfig(new CaseInsensitiveString("role1"), new RoleUser(viewUser));
+        List<Role> roles = new ArrayList<>();
+        roles.add(role);
+        Authorization authorization = new Authorization(new ViewConfig(new AdminUser(new CaseInsensitiveString("other-user"))));
+        assertThat(authorization.hasAdminOrViewPermissions(viewUser, roles), is(false));
+    }
+
+    @Test
     public void shouldReturnAuthorizationMapForView() {
         Authorization authorization = new Authorization();
         authorization.getAdminsConfig().add(new AdminRole(new CaseInsensitiveString("group_of_losers")));

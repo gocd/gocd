@@ -2074,6 +2074,12 @@ li.template_form_error {
   float: right;
   margin: 0;
 }
+
+.admin_workspace .allow {
+    display: inline-block;
+    margin-left: 20px;
+}
+
 /* pipeline navigator */
 .pipeline_navigation {
     -moz-border-radius: 6px 6px 6px 6px;

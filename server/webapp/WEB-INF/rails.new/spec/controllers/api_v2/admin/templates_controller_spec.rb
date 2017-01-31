@@ -63,6 +63,13 @@ describe ApiV2::Admin::TemplatesController do
 
         expect(controller).to allow_action(:get, :index)
       end
+
+      it 'should allow template view users, with security enabled' do
+        enable_security
+        @security_service.stub(:isAuthorizedToViewTemplates).with(anything).and_return(true)
+
+        expect(controller).to allow_action(:get, :index)
+      end
     end
     describe 'admin' do
       it 'should list all templates' do
@@ -135,13 +142,20 @@ describe ApiV2::Admin::TemplatesController do
 
         expect(controller).to allow_action(:get, :show, template_name: 'foo')
       end
+
+      it 'should allow template view users, with security enabled' do
+        enable_security
+        @security_service.stub(:isAuthorizedToViewTemplate).with(anything, anything).and_return(true)
+
+        expect(controller).to allow_action(:get, :show)
+      end
     end
     describe 'admin' do
 
       before(:each) do
         enable_security
         login_as_admin
-        @security_service.should_receive(:isAuthorizedToEditTemplate).with(anything, anything).and_return(true)
+        @security_service.stub(:isAuthorizedToViewTemplate).with(anything, anything).and_return(true)
         @result =HttpLocalizedOperationResult.new
       end
 
@@ -456,10 +470,10 @@ describe ApiV2::Admin::TemplatesController do
         expect(controller).to allow_action(:delete, :destroy)
       end
 
-      it 'show disallow template admin, with security enabled' do
+      it 'should allow template admin, with security enabled' do
         login_as_template_admin
 
-        expect(controller).to disallow_action(:delete, :destroy, template_name: 'foo')
+        expect(controller).to allow_action(:delete, :destroy, template_name: 'foo')
       end
     end
     describe 'admin' do

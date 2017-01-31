@@ -128,6 +128,7 @@ describe Admin::StagesController do
 
       before do
         @go_config_service.should_receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
+        @go_config_service.stub(:rolesForUser).and_return(nil)
         @pipeline_pause_service.should_receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
         @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
       end
@@ -482,6 +483,7 @@ describe Admin::StagesController do
       before do
         @pipeline_pause_service.should_receive(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
         @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
+        @go_config_service.stub(:rolesForUser).and_return(nil)
       end
 
       it "should delete the given stage" do
@@ -501,6 +503,7 @@ describe Admin::StagesController do
 
       before do
         @stage_parent = "pipelines"
+        @go_config_service.stub(:rolesForUser).and_return(nil)
       end
 
       it_should_behave_like :stages_controller
@@ -509,6 +512,7 @@ describe Admin::StagesController do
     describe "increment and decrement for templates" do
 
       before :each do
+        @go_config_service.stub(:rolesForUser).and_return(nil)
         @is_template = true
         @pipeline = PipelineTemplateConfig.new(CaseInsensitiveString.new("pipeline-name"), [].to_java(StageConfig))
         @cruise_config.addTemplate(@pipeline)
@@ -524,6 +528,7 @@ describe Admin::StagesController do
         @go_config_service.should_receive(:loadForEdit).with("pipeline-name", @user, @result).and_return(@pipeline_config_for_edit)
         @pipeline_pause_service.stub(:pipelinePauseInfo).with("pipeline-name").and_return(@pause_info)
         @go_config_service.stub(:registry).and_return(MockRegistryModule::MockRegistry.new)
+        @go_config_service.stub(:rolesForUser).and_return(nil)
       end
 
       it "should use template" do

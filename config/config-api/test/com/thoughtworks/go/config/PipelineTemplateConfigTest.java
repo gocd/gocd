@@ -16,7 +16,9 @@
 
 package com.thoughtworks.go.config;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import com.thoughtworks.go.config.materials.MaterialConfigs;
@@ -136,6 +138,36 @@ public class PipelineTemplateConfigTest {
         assertThat(pipelineTemplateConfig.get(1).errors().isEmpty(), is(false));
         assertThat(pipelineTemplateConfig.get(0).errors().on(StageConfig.NAME), is("You have defined multiple stages called 'stage1'. Stage names are case-insensitive and must be unique."));
         assertThat(pipelineTemplateConfig.get(1).errors().on(StageConfig.NAME), is("You have defined multiple stages called 'stage1'. Stage names are case-insensitive and must be unique."));
+    }
+
+    @Test
+    public void shouldValidateRoleNamesInTemplateAdminAuthorization() {
+        BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
+        ServerConfig serverConfig = new ServerConfig(new SecurityConfig(null, null, false, new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))), null);
+        cruiseConfig.setServerConfig(serverConfig);
+        GoConfigMother.enableSecurityWithPasswordFile(cruiseConfig);
+        RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("non-existent-role"), new RoleUser("non-existent-user"));
+        PipelineTemplateConfig template = new PipelineTemplateConfig(new CaseInsensitiveString("template"), new Authorization(new AdminsConfig(new AdminRole(roleConfig))), StageConfigMother.manualStage("stage2"),
+                StageConfigMother.manualStage("stage"));
+
+        template.validate(ConfigSaveValidationContext.forChain(cruiseConfig));
+
+        assertThat(template.getAllErrors().get(0).getAllOn("name"), is(Arrays.asList("Role \"non-existent-role\" does not exist.")));
+    }
+
+    @Test
+    public void shouldValidateRoleNamesInTemplateViewAuthorization() {
+        BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
+        ServerConfig serverConfig = new ServerConfig(new SecurityConfig(null, null, false, new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))), null);
+        cruiseConfig.setServerConfig(serverConfig);
+        GoConfigMother.enableSecurityWithPasswordFile(cruiseConfig);
+        RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("non-existent-role"), new RoleUser("non-existent-user"));
+        PipelineTemplateConfig template = new PipelineTemplateConfig(new CaseInsensitiveString("template"), new Authorization(new ViewConfig(new AdminRole(roleConfig))), StageConfigMother.manualStage("stage2"),
+                StageConfigMother.manualStage("stage"));
+
+        template.validate(ConfigSaveValidationContext.forChain(cruiseConfig));
+
+        assertThat(template.getAllErrors().get(0).getAllOn("name"), is(Arrays.asList("Role \"non-existent-role\" does not exist.")));
     }
 
     @Test

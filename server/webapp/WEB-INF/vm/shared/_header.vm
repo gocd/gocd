@@ -129,7 +129,7 @@
                                         #parse("shared/_dropdown_admin.vm")
                                     #elseif($userHasGroupAdministratorRights)
                                       #parse("shared/_dropdown_pipeline_group_admin.vm")
-                                  #elseif($userHasTemplateAdministratorRights)
+                                  #elseif($userHasTemplateAdministratorRights || $userHasTemplateViewUserRights)
                                       #parse("shared/_dropdown_template_admin.vm")
                                   #end
                               </ul>

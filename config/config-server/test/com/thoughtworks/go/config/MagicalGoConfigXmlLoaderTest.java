@@ -3596,6 +3596,127 @@ public class MagicalGoConfigXmlLoaderTest {
     }
 
     @Test
+    public void shouldAllowTemplateViewConfigToBeSpecified() {
+        String configXml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+                + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
+                + "     xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
+                + "<server artifactsdir='artifactsDir'>"
+                + "     <security>"
+                + "         <roles>"
+                + "             <role name='role1'>"
+                + "                 <users>"
+                + "                     <user>jyoti</user>"
+                + "                     <user>duck</user>"
+                + "                 </users>"
+                + "             </role>"
+                + "         </roles>"
+                + "     </security>"
+                + " </server>"
+                + " <templates>"
+                + "   <pipeline name='template1'>"
+                + "     <authorization>"
+                + "       <view>"
+                + "         <user>foo</user>"
+                + "         <role>role1</role>"
+                + "       </view>"
+                + "     </authorization>"
+                + "  <stage name='build'>"
+                + "    <jobs>"
+                + "      <job name='test1'>"
+                + "      </job>"
+                + "    </jobs>"
+                + "  </stage>"
+                + "   </pipeline>"
+                + "  </templates>"
+                + "</cruise>";
+
+        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(configXml).config;
+        ViewConfig expectedViewConfig = new ViewConfig(new AdminUser(new CaseInsensitiveString("foo")), new AdminRole(new RoleConfig(new CaseInsensitiveString("role1"), new RoleUser("duck"), new RoleUser("jyoti"))));
+
+        assertThat(cruiseConfig.getTemplateByName(new CaseInsensitiveString("template1")).getAuthorization().getViewConfig(), is(expectedViewConfig));
+    }
+
+    @Test
+    public void shouldAllowPipelineGroupAdminsToViewTemplateByDefault() {
+        String configXml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+                + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
+                + "     xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
+                + "<server artifactsdir='artifactsDir'>"
+                + "     <security>"
+                + "         <roles>"
+                + "             <role name='role1'>"
+                + "                 <users>"
+                + "                     <user>jyoti</user>"
+                + "                     <user>duck</user>"
+                + "                 </users>"
+                + "             </role>"
+                + "         </roles>"
+                + "     </security>"
+                + " </server>"
+                + " <templates>"
+                + "   <pipeline name='template1'>"
+                + "     <authorization>"
+                + "       <admins>"
+                + "         <user>foo</user>"
+                + "         <role>role1</role>"
+                + "       </admins>"
+                + "     </authorization>"
+                + "  <stage name='build'>"
+                + "    <jobs>"
+                + "      <job name='test1'>"
+                + "      </job>"
+                + "    </jobs>"
+                + "  </stage>"
+                + "   </pipeline>"
+                + "  </templates>"
+                + "</cruise>";
+
+        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(configXml).config;
+
+        assertThat(cruiseConfig.getTemplateByName(new CaseInsensitiveString("template1")).getAuthorization().isAllowGroupAdmins(), is(true));
+    }
+
+    @Test
+    public void shouldNotAllowGroupAdminsToViewTemplateIfTheOptionIsDisabled() {
+        String configXml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+                + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
+                + "     xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
+                + "<server artifactsdir='artifactsDir'>"
+                + "     <security>"
+                + "         <roles>"
+                + "             <role name='role1'>"
+                + "                 <users>"
+                + "                     <user>jyoti</user>"
+                + "                     <user>duck</user>"
+                + "                 </users>"
+                + "             </role>"
+                + "         </roles>"
+                + "     </security>"
+                + " </server>"
+                + " <templates>"
+                + "   <pipeline name='template1'>"
+                + "     <authorization allGroupAdminsAreViewers='false'>"
+                + "       <admins>"
+                + "         <user>foo</user>"
+                + "         <role>role1</role>"
+                + "       </admins>"
+                + "     </authorization>"
+                + "  <stage name='build'>"
+                + "    <jobs>"
+                + "      <job name='test1'>"
+                + "      </job>"
+                + "    </jobs>"
+                + "  </stage>"
+                + "   </pipeline>"
+                + "  </templates>"
+                + "</cruise>";
+
+        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(configXml).config;
+
+        assertThat(cruiseConfig.getTemplateByName(new CaseInsensitiveString("template1")).getAuthorization().isAllowGroupAdmins(), is(false));
+    }
+
+    @Test
     public void shouldSerializeJobElasticProfileId() throws Exception {
         String configWithJobElasticProfileId =
                 "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"

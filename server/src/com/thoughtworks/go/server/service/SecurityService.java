@@ -73,6 +73,15 @@ public class SecurityService {
         return hasOperatePermissionForGroup(username, groupName);
     }
 
+    public boolean hasAdminPermissionsForPipeline(Username username, CaseInsensitiveString pipelineName) {
+        String groupName = goConfigService.findGroupNameByPipeline(pipelineName);
+        if (groupName == null) {
+            return true;
+        }
+
+        return isUserAdminOfGroup(username.getUsername(), groupName);
+    }
+
     public boolean hasOperatePermissionForGroup(final CaseInsensitiveString username, String groupName) {
         CruiseConfig cruiseConfig = goConfigService.getCurrentConfig();
 
@@ -126,7 +135,7 @@ public class SecurityService {
     }
 
     public boolean canViewAdminPage(Username username) {
-        return isUserAdmin(username) || isUserGroupAdmin(username) || isAuthorizedToViewAndEditTemplates(username);
+        return isUserAdmin(username) || isUserGroupAdmin(username) || isAuthorizedToViewAndEditTemplates(username) || isAuthorizedToViewTemplates(username);
     }
 
     public boolean canCreatePipelines(Username username) {
@@ -183,6 +192,14 @@ public class SecurityService {
 
     public boolean isAuthorizedToEditTemplate(String templateName, Username username) {
         return goConfigService.isAuthorizedToEditTemplate(templateName, username);
+    }
+
+    public boolean isAuthorizedToViewTemplate(String templateName, Username username) {
+        return goConfigService.isAuthorizedToViewTemplate(templateName, username);
+    }
+
+    public boolean isAuthorizedToViewTemplates(Username username) {
+        return goConfigService.isAuthorizedToViewTemplates(username);
     }
 
     public static class UserRoleMatcherImpl implements UserRoleMatcher {

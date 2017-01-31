@@ -183,6 +183,8 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
 
     TemplatesConfig getTemplates();
 
+    TemplatesConfig getTemplatesForUser(CaseInsensitiveString username, List<Role> roles);
+
     PipelineTemplateConfig findTemplate(CaseInsensitiveString templateName);
 
     void addTemplate(PipelineTemplateConfig pipelineTemplate);

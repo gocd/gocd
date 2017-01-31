@@ -3,10 +3,10 @@
 <%- @view_title = l.string("ADMINISTRATION") -%>
 
 <div class="templates">
-    <h1>
-        Pipeline Templates
-		<span class="title_secondary_info">
-            <%- if is_user_a_template_admin? && !is_user_an_admin? -%>
+  <h1>
+    Pipeline Templates
+    <span class="title_secondary_info">
+            <%- if !is_user_an_admin? -%>
                 <span class="add_icon_disabled" title="<%= l.string("UNAUTHORIZED_TO_CREATE_TEMPLATE") -%>">
                     <%= l.string("ADD_NEW_TEMPLATE") -%>
                 </span>
@@ -17,19 +17,19 @@
             <%- end -%>
 		</span>
 
-    </h1>
+  </h1>
 
 
 
-    <% if @template_to_pipelines.size() == 0 %>
-        <div class="information"><%= l.string("NO_TEMPLATES_DEFINED") %></div>
-    <% else %>
-        <%= render :partial => 'templates_listing', :locals => {:scope => {:template_to_pipelines => @template_to_pipelines}} %>
-    <% end %>
+  <% if @template_to_pipelines.size() == 0 %>
+      <div class="information"><%= l.string("NO_TEMPLATES_DEFINED") %></div>
+  <% else %>
+      <%= render :partial => 'templates_listing', :locals => {:scope => {:template_to_pipelines => @template_to_pipelines}} %>
+  <% end %>
 
 </div>
 
 
 <script type="text/javascript">
-    AjaxForm.error_box_selector = '#MB_content';
+  AjaxForm.error_box_selector = '#MB_content';
 </script>

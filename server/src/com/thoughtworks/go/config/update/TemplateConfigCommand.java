@@ -28,14 +28,14 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 
 public abstract class TemplateConfigCommand implements EntityConfigUpdateCommand<PipelineTemplateConfig> {
 
-    protected PipelineTemplateConfig preprocessedTemplateConfig;
+    PipelineTemplateConfig preprocessedTemplateConfig;
     protected final LocalizedOperationResult result;
     protected PipelineTemplateConfig templateConfig;
     protected final Username currentUser;
     protected GoConfigService goConfigService;
 
 
-    public TemplateConfigCommand(PipelineTemplateConfig templateConfig, LocalizedOperationResult result, Username currentUser, GoConfigService goConfigService) {
+    TemplateConfigCommand(PipelineTemplateConfig templateConfig, LocalizedOperationResult result, Username currentUser, GoConfigService goConfigService) {
         this.templateConfig = templateConfig;
         this.result = result;
         this.currentUser = currentUser;
@@ -56,7 +56,7 @@ public abstract class TemplateConfigCommand implements EntityConfigUpdateCommand
         return false;
     }
 
-    protected PipelineTemplateConfig findAddedTemplate(CruiseConfig cruiseConfig) {
+    PipelineTemplateConfig findAddedTemplate(CruiseConfig cruiseConfig) {
         if (templateConfig == null || templateConfig.name() == null || templateConfig.name().isBlank()) {
             result.unprocessableEntity(LocalizedMessage.string("ENTITY_ATTRIBUTE_NULL", "template", "name"));
             throw new IllegalArgumentException("Template name cannot be null.");
@@ -78,14 +78,5 @@ public abstract class TemplateConfigCommand implements EntityConfigUpdateCommand
     @Override
     public PipelineTemplateConfig getPreprocessedEntityConfig() {
         return preprocessedTemplateConfig;
-    }
-
-    @Override
-    public boolean canContinue(CruiseConfig cruiseConfig) {
-        if (!goConfigService.isUserAdmin(currentUser)) {
-            result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
-            return false;
-        }
-        return true;
     }
 }

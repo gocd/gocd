@@ -16,6 +16,8 @@
 
 class Admin::TemplatesController < AdminController
 
+  before_filter :check_admin_user_and_401, only: [:edit_permissions, :update_permissions, :new, :create]
+  before_filter :check_admin_or_template_admin_and_401, only: [:destroy, :update]
   before_filter :load_templates_from_service, :only => :index
   before_filter :load_cruise_config, :only => [:new, :edit, :index, :destroy, :edit_permissions]
   before_filter :autocomplete_for_permissions, :only => [:edit_permissions]
@@ -107,7 +109,7 @@ class Admin::TemplatesController < AdminController
     load_templates_from_service
     dependent_pipelines = @template_to_pipelines[CaseInsensitiveString.new(template_name)]
     redirect_to templates_path(:fm => set_error_flash("TEMPLATE_HAS_DEPENDENT_PIPELINES_ERROR", template_name)) and return if !dependent_pipelines.empty?
-    save_page(params[:config_md5], templates_path, {:action => :index}, Class.new(::ConfigUpdate::SaveAsSuperAdmin) do
+    save_page(params[:config_md5], templates_path, {:action => :index}, Class.new(::ConfigUpdate::SaveAsTemplateAdmin) do
       include ::ConfigUpdate::TemplatesNode
       include ::ConfigUpdate::TemplatesTemplateSubject
 
@@ -134,10 +136,12 @@ class Admin::TemplatesController < AdminController
   end
 
   def load_cruise_config
-    result = HttpLocalizedOperationResult.new
-    assert_load :cruise_config, go_config_service.loadCruiseConfigForEdit(current_user, result)
-    unless result.isSuccessful()
-      render_localized_operation_result result
+    if security_service.isAuthorizedToViewAndEditTemplates(current_user)
+      result = HttpLocalizedOperationResult.new
+      assert_load :cruise_config, go_config_service.loadCruiseConfigForEdit(current_user, result)
+      unless result.isSuccessful()
+        render_localized_operation_result result
+      end
     end
   end
 
@@ -146,6 +150,7 @@ class Admin::TemplatesController < AdminController
   end
 
   helper_method :default_url_options, :allow_pipeline_selection?
+
   def default_url_options(options = nil)
     super.reverse_merge(params.only(:allow_pipeline_selection).symbolize_keys)
   end

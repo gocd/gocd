@@ -18,9 +18,11 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineTemplateConfig;
+import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
+import com.thoughtworks.go.serverhealth.HealthStateType;
 
 
 public class CreateTemplateConfigCommand extends TemplateConfigCommand {
@@ -39,4 +41,12 @@ public class CreateTemplateConfigCommand extends TemplateConfigCommand {
         return super.isValid(preprocessedConfig, true);
     }
 
+    @Override
+    public boolean canContinue(CruiseConfig cruiseConfig) {
+        if (!goConfigService.isUserAdmin(currentUser)) {
+            result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
+            return false;
+        }
+        return true;
+    }
 }

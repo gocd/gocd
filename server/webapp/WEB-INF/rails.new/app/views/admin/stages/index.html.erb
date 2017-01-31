@@ -7,10 +7,10 @@
 
         <%= render :partial => "admin/shared/stage_configuration_type.html", :locals => {:scope => {:form => f, :pipeline => @pipeline}} -%>
         <div id="select_template_container" class="hidden">
+            <h3>Associated template: <%=@pipeline.getTemplateName().to_s -%></h3>
             <% if @template_list.length > 0 %>
                 <div class="fieldset">
                     <div class="form_item">
-
                         <div class="template_selection">
                             <%= f.label l.string("SELECT_TEMPLATE") %>
                             <%= f.select(com.thoughtworks.go.config.PipelineConfig::TEMPLATE_NAME, @template_list, {:selected => @pipeline.getTemplateName()}, {:id => "select_template"}) %>
@@ -18,7 +18,7 @@
                             <% template_name = (@pipeline.getTemplateName() || @template_list.first).to_s %>
 
                             <%= link_to l.string("VIEW"), "#", :class=> "view_template_link action_icon button preview_icon skip_dirty_stop"%>
-                            <% if is_user_an_admin? %>
+                            <% if is_user_a_template_admin_for_template? template_name %>
                                 <%=link_to l.string("EDIT"), template_edit_path(:pipeline_name => template_name, :stage_parent => "templates", :current_tab => 'general'), :class=> "action_icon edit_icon edit_template_link"%>
                             <% end %>
                         </div>

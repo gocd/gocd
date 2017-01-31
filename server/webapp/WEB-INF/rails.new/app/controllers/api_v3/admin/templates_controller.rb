@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2016 ThoughtWorks, Inc.
+# Copyright 2017 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,9 +17,10 @@
 module ApiV3
   module Admin
     class TemplatesController < ApiV3::BaseController
-      before_action :check_admin_user_and_401, only: [:create, :destroy]
-      before_action :check_admin_or_template_admin_and_401, only: [:index, :show, :update]
       before_action :load_template, only: [:show, :update, :destroy]
+      before_action :check_admin_user_and_401, only: [:create]
+      before_action :check_admin_or_template_admin_and_401, only: [:destroy, :update]
+      before_action :check_view_access_to_template_and_401, only: [:show, :index]
       before_action :check_for_stale_request, :check_for_attempted_template_rename, only: [:update]
 
       def index

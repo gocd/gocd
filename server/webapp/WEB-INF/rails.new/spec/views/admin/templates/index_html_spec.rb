@@ -37,6 +37,10 @@ describe "admin/templates/index.html.erb" do
     set(cruise_config, "md5", "abcd1234")
   end
 
+  after :each do
+    assign(:template_to_pipelines, {})
+  end
+
   it "should display the list of all the templates and the pipelines in it" do
     render
 
@@ -148,7 +152,8 @@ describe "admin/templates/index.html.erb" do
     end
   end
 
-  it "should display that there are pipelines using this template but not show pipelines if user is template admin" do
+  it "should display names of pipelines using this template if user is a template admin" do
+    view.stub(:has_admin_permissions_for_pipeline?).and_return(false)
     view.stub(:is_user_a_template_admin?).and_return(true)
     view.stub(:is_user_an_admin?).and_return(false)
 
@@ -166,7 +171,12 @@ describe "admin/templates/index.html.erb" do
           end
           table.find("tbody") do |tbody|
             tbody.find("tr") do |tr|
-              expect(tr).to have_selector("td span", :text => "This template is used in 2 pipelines.")
+              tr.find(".pipeline") do |pipelines|
+                expect(pipelines).to have_selector("span", text: 'pipeline1')
+                expect(pipelines).to have_selector("span.edit_icon_disabled[title='Unauthorized to edit pipeline1 pipeline.']")
+                expect(pipelines).to have_selector("span", text: 'pipeline2')
+                expect(pipelines).to have_selector("span.edit_icon_disabled[title='Unauthorized to edit pipeline2 pipeline.']")
+              end
             end
           end
         end
@@ -180,7 +190,65 @@ describe "admin/templates/index.html.erb" do
           end
           table.find("tbody") do |tbody|
             tbody.find("tr") do |tr|
-              expect(tr).to have_selector("td span", :text => "This template is used in 1 pipeline.")
+              tr.find(".pipeline") do |pipelines|
+                expect(pipelines).to have_selector("span", text: 'pipeline3')
+                expect(pipelines).to have_selector("span.edit_icon_disabled[title='Unauthorized to edit pipeline3 pipeline.']")
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+
+  it "should display names and edit pipeline link of pipelines using this template if user is a template admin" do
+    view.stub(:has_admin_permissions_for_pipeline?).and_return(true)
+    view.stub(:is_user_a_template_admin?).and_return(true)
+    view.stub(:is_user_an_admin?).and_return(false)
+
+    render
+
+    expect(view.instance_variable_get("@tab_name")).to eq("templates")
+
+    Capybara.string(response.body).find('.templates').tap do |templates|
+      templates.find("#template_container_template1") do |template_container|
+        expect(template_container).to have_selector("h2", :text => "template1")
+        template_container.find("table") do |table|
+          table.find("thead tr.pipeline") do |tr|
+            expect(tr).to have_selector("th", :text => "Pipeline")
+            expect(tr).to have_selector("th", :text => "Actions")
+          end
+          table.find("tbody") do |tbody|
+            tbody.find("tr") do |tr|
+              tr.find(".pipeline") do |pipelines|
+                expect(pipelines).to have_selector("span", text: 'pipeline1')
+                expect(pipelines).to have_selector("span", text: 'pipeline2')
+                pipelines.find("td a[href='#{pipeline_edit_path(:pipeline_name => "pipeline1", :current_tab => "general")}'][class='action_icon edit_icon']") do |pipeline|
+                  expect(pipeline).to have_selector("span", :text => "Edit")
+                end
+                pipelines.find("td a[href='#{pipeline_edit_path(:pipeline_name => "pipeline2", :current_tab => "general")}'][class='action_icon edit_icon']") do |pipeline|
+                  expect(pipeline).to have_selector("span", :text => "Edit")
+                end
+              end
+            end
+          end
+        end
+      end
+      templates.find("#template_container_template2") do |template_container|
+        expect(template_container).to have_selector("h2", :text => "template2")
+        template_container.find("table") do |table|
+          table.find("thead tr.pipeline") do |tr|
+            expect(tr).to have_selector("th", :text => "Pipeline")
+            expect(tr).to have_selector("th", :text => "Actions")
+          end
+          table.find("tbody") do |tbody|
+            tbody.find("tr") do |tr|
+              tr.find(".pipeline") do |pipelines|
+                expect(pipelines).to have_selector("span", text: 'pipeline3')
+                pipelines.find("td a[href='#{pipeline_edit_path(:pipeline_name => "pipeline3", :current_tab => "general")}'][class='action_icon edit_icon']") do |pipeline|
+                  expect(pipeline).to have_selector("span", :text => "Edit")
+                end
+              end
             end
           end
         end
@@ -283,16 +351,38 @@ describe "admin/templates/index.html.erb" do
     end
   end
 
-  it "should disable the delete button next to the template name for template admin" do
+  it "should display the delete button next to the template name for template admin" do
     view.stub(:is_user_a_template_admin?).and_return(true)
     view.stub(:is_user_an_admin?).and_return(false)
-    assign(:template_to_pipelines, {"used_template" => to_list(["pipeline"])})
+    assign(:template_to_pipelines, {"unused_template" => to_list([])})
 
     render
 
     Capybara.string(response.body).find('.templates').tap do |templates|
       templates.find(".template") do |template|
-        expect(template).to have_selector("h2", :text => "used_template")
+        expect(template).to have_selector("h2", :text => "unused_template")
+        expect(template).to have_selector(".information", :text => "No pipelines associated with this template")
+        template.find("form#delete_template_unused_template[action='#{delete_template_path(:pipeline_name => "unused_template")}'][method='post']") do |form|
+          expect(form).to have_selector("input[type='hidden'][name='_method'][value='delete']")
+          expect(form).to have_selector("span#trigger_delete_unused_template.delete_parent[title='Delete this template']")
+          expect(form).to have_selector("script[type='text/javascript']", :text => /Util.escapeDotsFromId\('trigger_delete_unused_template #warning_prompt'\)/)
+          expect(form).to have_selector("div#warning_prompt[style='display:none;']", :text => /Are you sure you want to delete the template 'unused_template' \?/)
+        end
+
+      end
+    end
+  end
+
+  it 'should disable the delete button if user not not a template admin or super admin' do
+    view.stub(:is_user_a_template_admin?).and_return(false)
+    view.stub(:is_user_an_admin?).and_return(false)
+    assign(:template_to_pipelines, {"unused_template" => to_list([])})
+
+    render
+
+    Capybara.string(response.body).find('.templates').tap do |templates|
+      templates.find(".template") do |template|
+        expect(template).to have_selector("h2", :text => "unused_template")
         expect(template).to have_selector("span.delete_icon_disabled[title='You are unauthorized to perform this operation. Please contact a Go System Administrator to delete this template.']")
       end
     end
@@ -325,6 +415,7 @@ describe "admin/templates/index.html.erb" do
   end
 
   it "should disable the edit permissions link next to the template name for template admin and not super admin" do
+    view.stub(:has_admin_permissions_for_pipeline?).and_return(false)
     view.stub(:is_user_a_template_admin?).and_return(true)
     view.stub(:is_user_an_admin?).and_return(false)
 

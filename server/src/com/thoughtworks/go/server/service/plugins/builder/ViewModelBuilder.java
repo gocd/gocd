@@ -20,6 +20,7 @@ import com.thoughtworks.go.server.ui.plugins.PluginInfo;
 
 import java.util.List;
 
+@Deprecated
 public interface ViewModelBuilder {
     String REQUIRED_OPTION = "required";
     String SECURE_OPTION = "secure";

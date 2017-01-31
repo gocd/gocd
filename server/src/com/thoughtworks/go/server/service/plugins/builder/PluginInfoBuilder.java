@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 
 @Component
+@Deprecated
 public class PluginInfoBuilder {
 
     private Map<String, ViewModelBuilder> pluginExtensionToBuilder = new HashMap<>();

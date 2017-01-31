@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.plugin.infra;
 
-import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
@@ -47,8 +46,6 @@ public interface PluginManager {
     void addPluginChangeListener(PluginChangeListener pluginChangeListener, Class<?>... serviceReferenceClass);
 
     GoPluginApiResponse submitTo(String pluginId, GoPluginApiRequest apiRequest);
-
-    List<GoPluginIdentifier> allPluginsOfType(String extension);
 
     boolean hasReferenceFor(Class serviceReferenceClass, String pluginId);
 

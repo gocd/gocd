@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Deprecated
 class SCMViewModelBuilder implements ViewModelBuilder {
     private PluginManager pluginManager;
 

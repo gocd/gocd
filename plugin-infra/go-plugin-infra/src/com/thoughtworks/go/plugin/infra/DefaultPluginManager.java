@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,7 @@
 
 package com.thoughtworks.go.plugin.infra;
 
-import com.thoughtworks.go.plugin.api.GoApplicationAccessor;
 import com.thoughtworks.go.plugin.api.GoPlugin;
-import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
 import com.thoughtworks.go.plugin.api.exceptions.UnhandledRequestTypeException;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
@@ -52,7 +50,6 @@ public class DefaultPluginManager implements PluginManager {
     private final DefaultPluginJarLocationMonitor monitor;
     private DefaultPluginRegistry registry;
     private final DefaultPluginJarChangeListener defaultPluginJarChangeListener;
-    private GoApplicationAccessor goApplicationAccessor;
     private SystemEnvironment systemEnvironment;
     private File bundleLocation;
     private GoPluginOSGiFramework goPluginOSGiFramework;
@@ -206,20 +203,6 @@ public class DefaultPluginManager implements PluginManager {
             PluginAwareDefaultGoApplicationAccessor accessor = new PluginAwareDefaultGoApplicationAccessor(pluginDescriptor, requestProcesRegistry);
             plugin.initializeGoApplicationAccessor(accessor);
         }
-    }
-
-    public List<GoPluginIdentifier> allPluginsOfType(final String extension) {
-        final List<GoPluginIdentifier> list = new ArrayList<>();
-        goPluginOSGiFramework.doOnAll(GoPlugin.class, new Action<GoPlugin>() {
-            @Override
-            public void execute(GoPlugin plugin, GoPluginDescriptor pluginDescriptor) {
-                GoPluginIdentifier goPluginIdentifier = plugin.pluginIdentifier();
-                if (extension.equals(goPluginIdentifier.getExtension())) {
-                    list.add(goPluginIdentifier);
-                }
-            }
-        });
-        return list;
     }
 
     @Override

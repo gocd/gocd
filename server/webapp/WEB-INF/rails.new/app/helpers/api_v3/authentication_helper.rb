@@ -66,20 +66,20 @@ module ApiV3
 
     def verify_content_type_on_post
       if [:put, :post, :patch].include?(request.request_method_symbol) && !request.raw_post.blank? && request.content_mime_type != :json
-        render ApiV3::BaseController::DEFAULT_FORMAT => { message: "You must specify a 'Content-Type' of 'application/json'" }, status: :unsupported_media_type
+        render BaseController::DEFAULT_FORMAT => { message: "You must specify a 'Content-Type' of 'application/json'" }, status: :unsupported_media_type
       end
     end
 
     def render_not_found_error
-      render ApiV3::BaseController::DEFAULT_FORMAT => { :message => 'Either the resource you requested was not found, or you are not authorized to perform this action.' }, :status => 404
+      render BaseController::DEFAULT_FORMAT => { :message => 'Either the resource you requested was not found, or you are not authorized to perform this action.' }, :status => 404
     end
 
     def render_bad_request(exception)
-      render ApiV3::BaseController::DEFAULT_FORMAT => { :message => "Your request could not be processed. #{exception.message}" }, :status => 400
+      render BaseController::DEFAULT_FORMAT => { :message => "Your request could not be processed. #{exception.message}" }, :status => 400
     end
 
     def render_unauthorized_error
-      render ApiV3::BaseController::DEFAULT_FORMAT => { :message => 'You are not authorized to perform this action.' }, :status => 401
+      render BaseController::DEFAULT_FORMAT => { :message => 'You are not authorized to perform this action.' }, :status => 401
     end
 
     private

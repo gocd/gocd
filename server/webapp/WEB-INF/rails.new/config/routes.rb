@@ -248,7 +248,6 @@ Go::Application.routes.draw do
           resources :environments, only: [:index]
           resources :command_snippets, only: [:index]
         end
-        resources :plugin_info, controller: 'plugin_infos', param: :id, only: [:index, :show], constraints: {id: PLUGIN_ID_FORMAT}
         resources :scms, param: :material_name, controller: :pluggable_scms, only: [:index, :show, :create, :update], constraints: {material_name: ALLOW_DOTS}
       end
 

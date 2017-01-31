@@ -19,13 +19,24 @@ package com.thoughtworks.go.plugin.access.common.settings.models;
 import com.thoughtworks.go.plugin.access.common.models.Image;
 import org.junit.Test;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class ImageTest {
     @Test
     public void convertsToDataUri() throws Exception {
-        String dataURI = new Image("foo", "bar").toDataURI();
-        assertThat(dataURI, is("data:foo;base64,bar"));
+        String encodedString = Base64.getEncoder().encodeToString("asdf".getBytes(StandardCharsets.UTF_8));
+        String dataURI = new Image("foo", encodedString).toDataURI();
+        assertThat(dataURI, is("data:foo;base64," + encodedString));
     }
+
+    @Test
+    public void convertsToByteData() throws Exception {
+        Image image = new Image("foo", Base64.getEncoder().encodeToString("asdf".getBytes(StandardCharsets.UTF_8)));
+        assertThat(image.getDataAsBytes(), is("asdf".getBytes(StandardCharsets.UTF_8)));
+    }
+
 }

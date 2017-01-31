@@ -18,7 +18,7 @@ package com.thoughtworks.go.plugin.access.packagematerial;
 
 import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
 
-public final class RepositoryMetadataStore extends AbstractMetaDataStore {
+public class RepositoryMetadataStore extends AbstractMetaDataStore {
 
     private static RepositoryMetadataStore repositoryMetadataStore=new RepositoryMetadataStore();
 

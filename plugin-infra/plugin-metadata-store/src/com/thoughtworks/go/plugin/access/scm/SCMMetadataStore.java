@@ -25,7 +25,7 @@ import java.util.Set;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
-public final class SCMMetadataStore extends PluginPreferenceStore<SCMPreference> {
+public class SCMMetadataStore extends PluginPreferenceStore<SCMPreference> {
 
     private static SCMMetadataStore scmMetadataStore = new SCMMetadataStore();
 

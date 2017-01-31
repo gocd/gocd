@@ -33,16 +33,13 @@ import com.thoughtworks.go.server.ui.plugins.PluginInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 @Deprecated
 public class PluginInfoBuilder {
 
-    private Map<String, ViewModelBuilder> pluginExtensionToBuilder = new HashMap<>();
+    private Map<String, ViewModelBuilder> pluginExtensionToBuilder = new LinkedHashMap<>();
 
     @Autowired
     public PluginInfoBuilder(AuthenticationPluginRegistry authenticationPluginRegistry,

@@ -21,6 +21,7 @@ import com.thoughtworks.go.plugin.api.config.Option;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
@@ -53,6 +54,13 @@ public abstract class AbstractMetaDataStore extends  PluginPreferenceStore<Packa
             }
         }
         return option.getValue();
+    }
+
+    public void clear() {
+        Set<String> pluginIds = pluginIds();
+        for (String pluginId : pluginIds) {
+            removePreferenceFor(pluginId);
+        }
     }
 
     public List<String> getPlugins() {

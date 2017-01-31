@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2016 ThoughtWorks, Inc.
+# Copyright 2017 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,14 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ##########################################################################
-
-module ApiV2
+module ApiV3
   module Plugin
-    class PluginInfoRepresenter < BaseRepresenter
+    class BasePluginInfoRepresenter < BaseRepresenter
       alias_method :plugin, :represented
 
       link :self do |opts|
-        opts[:url_builder].apiv2_admin_plugin_info_url(plugin.id())
+        opts[:url_builder].apiv3_admin_plugin_info_url(id)
       end
 
       link :doc do |opts|
@@ -28,29 +27,32 @@ module ApiV2
       end
 
       link :find do |opts|
-        opts[:url_builder].apiv2_admin_plugin_info_url(id: '__plugin_id__').gsub(/__plugin_id__/, ':id')
+        opts[:url_builder].apiv3_admin_plugin_info_url(id: '__plugin_id__').gsub(/__plugin_id__/, ':plugin_id')
       end
 
-      link :image do |opts|
-        plugin.image.try(:toDataURI)
+      property :id, exec_context: :decorator
+      property :version, exec_context: :decorator
+      property :getExtensionName, as: :type
+
+      property :about, exec_context: :decorator do
+        property :name
+        property :version
+        property :target_go_version
+        property :description
+        property :target_operating_systems, getter: lambda { |opts| self.target_operating_systems.to_a }
+
+        property :vendor do
+          property :name
+          property :url
+        end
       end
 
-      property :id
-      property :name
-      property :display_name, skip_nil: true
-      property :version
-      property :type
-      property :getPluggableInstanceSettings,
-               as: :pluggable_instance_settings,
-               skip_nil: true,
-               expect_hash: true,
-               inherit: false,
-               class: PluggableInstanceSettings,
-               decorator: ApiV2::Plugin::PluggableInstanceSettingsRepresenter
+      protected
 
-      property :image, skip_nil: true do
-        property :content_type
-        property :data
+      delegate :id, :version, :about, to: :descriptor
+
+      def descriptor
+        plugin.getDescriptor()
       end
     end
   end

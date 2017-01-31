@@ -76,6 +76,14 @@ module ApiV3
       end
     end
 
+    def check_admin_user_or_group_admin_user_and_401
+      return unless security_service.isSecurityEnabled()
+      if !(security_service.isUserAdmin(current_user) || security_service.isUserGroupAdmin(current_user))
+        Rails.logger.info("User '#{current_user.getUsername}' attempted to perform an unauthorized action!")
+        render_unauthorized_error
+      end
+    end
+
 
     def verify_content_type_on_post
       if [:put, :post, :patch].include?(request.request_method_symbol) && !request.raw_post.blank? && request.content_mime_type != :json

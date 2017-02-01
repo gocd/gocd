@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,6 +76,25 @@ public class ConfigRepository {
         git = new Git(gitRepo);
     }
 
+
+    @Deprecated // use only in tests
+    public void resetAndClear() throws IOException {
+        if ("true".equalsIgnoreCase(System.getProperty("config.repository.do.not.reset"))) {
+            // this is a ugly hack for rails, because there's something that's
+            // holding a reference to the repository that we delete and close.
+            return;
+        }
+
+        this.gitRepo.close();
+        this.git.close();
+
+        File configRepoDir = new File(workingDir, ".git");
+        if(workingDir.exists()) {
+            FileUtils.forceDelete(workingDir);
+        }
+        gitRepo = new FileRepositoryBuilder().setGitDir(configRepoDir).build();
+        git = new Git(gitRepo);
+    }
 
     public Repository getGitRepo() {
         return gitRepo;

@@ -16,10 +16,10 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.server.messaging.SendEmailMessage;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import com.thoughtworks.go.server.messaging.SendEmailMessage;
 
 import static org.junit.Assert.fail;
 

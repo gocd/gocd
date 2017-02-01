@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.ui.plugins.PluginConfiguration;
 import com.thoughtworks.go.server.ui.plugins.PluginInfo;
 import org.hamcrest.core.Is;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -50,6 +51,7 @@ public class PackageViewModelBuilderTest {
     @Before
     public void setUp() {
         initMocks(this);
+        PackageMetadataStore.getInstance().clear();
         builder = new PackageViewModelBuilder(manager);
         yumPoller = new GoPluginDescriptor("yum.poller", "version1",
                                            new GoPluginDescriptor.About("Yum Poller", "1.0", null, null, null,null),
@@ -70,6 +72,11 @@ public class PackageViewModelBuilderTest {
         PackageMetadataStore.getInstance().addMetadataFor(npmPoller.id(), new PackageConfigurations());
 
         RepositoryMetadataStore.getInstance().addMetadataFor(yumPoller.id(), repositoryConfigurations);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        PackageMetadataStore.getInstance().clear();
     }
 
     @Test

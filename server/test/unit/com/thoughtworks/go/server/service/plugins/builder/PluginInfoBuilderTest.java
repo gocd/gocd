@@ -75,6 +75,7 @@ public class PluginInfoBuilderTest {
     @Before
     public void setUp() {
         initMocks(this);
+        PluggableTaskConfigStore.store().clear();
         githubDescriptor = new GoPluginDescriptor("github.oauth", "version1",
                 new GoPluginDescriptor.About("GitHub OAuth Plugin", "1.0", null, null, null, null),
                 null, null, false);
@@ -136,6 +137,7 @@ public class PluginInfoBuilderTest {
 
     @After
     public void tearDown() throws Exception {
+        PluggableTaskConfigStore.store().clear();
         githubDescriptor = null;
         emailNotifier = null;
         yumPoller = null;

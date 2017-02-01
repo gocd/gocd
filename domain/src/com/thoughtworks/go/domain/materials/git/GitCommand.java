@@ -40,7 +40,7 @@ import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMem
 public class GitCommand extends SCMCommand {
     private static final Pattern GIT_SUBMODULE_STATUS_PATTERN = Pattern.compile("^.[0-9a-fA-F]{40} (.+?)( \\(.+\\))?$");
     private static final Pattern GIT_SUBMODULE_URL_PATTERN = Pattern.compile("^submodule\\.(.+)\\.url (.+)$");
-    private static final Pattern GIT_VERSION_PATTERN = Pattern.compile(".*\\s+(\\d(\\.\\d)+).*");
+    private static final Pattern GIT_VERSION_PATTERN = Pattern.compile(".*\\s+(\\d(\\.\\d+)+).*");
 
     private static final Pattern GIT_DIFF_TREE_PATTERN = Pattern.compile("^(.)\\s+(.+)$");
 
@@ -96,10 +96,22 @@ public class GitCommand extends SCMCommand {
         return isVersionEqualToOrHigherThan(version, 2.9f);
     }
 
-    public static boolean isVersionEqualToOrHigherThan(String gitVersionOutput, float version) {
-        String gitVersion = parseGitVersion(gitVersionOutput);
-        Float aFloat = NumberUtils.createFloat(gitVersion.subSequence(0, 3).toString());
-        return aFloat >= version;
+    public static boolean isVersionEqualToOrHigherThan(String gitVersionOutput, float versionToCompare) {
+        StringTokenizer actualVersion = new StringTokenizer(parseGitVersion(gitVersionOutput), ".");
+        StringTokenizer versionToCompareWith = new StringTokenizer("" + versionToCompare, ".");
+
+        while(versionToCompareWith.hasMoreTokens() && actualVersion.hasMoreTokens()){
+            int toCompare = Integer.parseInt(versionToCompareWith.nextToken());
+            int actual = Integer.parseInt(actualVersion.nextToken());
+            if(actual > toCompare){
+                return true;
+            }
+            if(actual < toCompare){
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private static String parseGitVersion(String hgOut) {

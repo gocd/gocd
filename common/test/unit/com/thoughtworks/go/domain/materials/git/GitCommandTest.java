@@ -72,6 +72,8 @@ public class GitCommandTest {
     private File repoLocation;
     private static final Date THREE_DAYS_FROM_NOW = setMilliseconds(addDays(new Date(), 3), 0);
     private static final String GIT_VERSION_1_6_0_2 = "git version 1.6.0.2";
+    private static final String GIT_VERSION_1_6_1 = "git version 1.6.1";
+    private static final String GIT_VERSION_2_9 = "git version 2.9.0";
     private static final String GIT_VERSION_1_5_4_3 = "git version 1.5.4.3";
     private static final String GIT_VERSION_1_6_0_2_ON_WINDOWS = "git version 1.6.0.2.1172.ga5ed0";
     private static final String GIT_VERSION_2_9_1 = "git version 2.9.1.0";
@@ -410,6 +412,11 @@ public class GitCommandTest {
     }
 
     @Test
+    public void shouldReturnTrueIfVersionHigherThan1dot6dLinux() throws Exception {
+        assertThat(git.isVersionEqualToOrHigherThan(GIT_VERSION_1_6_1, 1.6f), Is.is(true));
+    }
+
+    @Test
     public void shouldReturnFalseIfVersionLowerThanExpectedLinux() throws Exception {
         assertThat(git.isVersionEqualToOrHigherThan(GIT_VERSION_1_5_4_3, 1.6f), Is.is(false));
     }
@@ -422,6 +429,24 @@ public class GitCommandTest {
     @Test
     public void shouldReturnTrueIfVersionHigherThan2dot9Linux() throws Exception {
         assertThat(git.isVersionEqualToOrHigherThan(GIT_VERSION_2_9_1, 2.9f), Is.is(true));
+    }
+
+    @Test
+    public void shouldReturnTrueIfVersionEqualToHigherThan2dot9Linux() throws Exception {
+        assertThat(git.isVersionEqualToOrHigherThan("git version 2.9", 2.9f), Is.is(true));
+        assertThat(git.isVersionEqualToOrHigherThan("git version 2.9.0", 2.9f), Is.is(true));
+        assertThat(git.isVersionEqualToOrHigherThan("git version 2.9.0.1", 2.9f), Is.is(true));
+        assertThat(git.isVersionEqualToOrHigherThan("git version 2.9.1", 2.9f), Is.is(true));
+        assertThat(git.isVersionEqualToOrHigherThan("git version 2.9.1.1", 2.9f), Is.is(true));
+        assertThat(git.isVersionEqualToOrHigherThan("git version 2.10.0", 2.9f), Is.is(true));
+        assertThat(git.isVersionEqualToOrHigherThan("git version 3.0.0", 2.9f), Is.is(true));
+    }
+
+    @Test
+    public void shouldReturnFalseIfVersionLesserThanSpecifiedVersion() throws Exception {
+        assertThat(git.isVersionEqualToOrHigherThan("git version 2.8", 2.9f), Is.is(false));
+        assertThat(git.isVersionEqualToOrHigherThan("git version 2.8.1", 2.9f), Is.is(false));
+        assertThat(git.isVersionEqualToOrHigherThan("git version 2.9", 3.10f), Is.is(false));
     }
 
     @Test

@@ -65,6 +65,15 @@ public class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
     }
 
     @Test
+    public void ShouldContainSameNameAsOfPartialEnvironments() throws Exception {
+        BasicEnvironmentConfig local = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        BasicEnvironmentConfig remote = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        MergeEnvironmentConfig mergeEnv = new MergeEnvironmentConfig(local, remote);
+
+        assertThat(mergeEnv.name(), is(local.name()));
+    }
+
+    @Test
     public void getRemotePipelines_shouldReturnEmptyWhenOnlyLocalPartHasPipelines()
     {
         uatLocalPart2.addPipeline(new CaseInsensitiveString("pipe"));

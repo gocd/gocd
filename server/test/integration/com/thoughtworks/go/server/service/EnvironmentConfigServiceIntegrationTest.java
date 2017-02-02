@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
+import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.domain.ConfigElementForEdit;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.i18n.Localizer;
@@ -155,6 +156,36 @@ public class EnvironmentConfigServiceIntegrationTest {
         EnvironmentsConfig currentEnvironments = goConfigService.getCurrentConfig().getEnvironments();
         assertThat(currentEnvironments.indexOf(updatedEnv), is(2));
         assertThat(currentEnvironments.size(), is(5));
+    }
+
+
+    @Test
+    public void shouldUpdateMergedEnvironmnetConfig() throws Exception {
+        goConfigService.addPipeline(PipelineConfigMother.createPipelineConfig("foo", "dev", "job"), "foo-grp");
+
+        String environmentName = "uat";
+        BasicEnvironmentConfig localEnv = environmentConfig(environmentName);
+        localEnv.addPipeline(new CaseInsensitiveString("foo"));
+        localEnv.addEnvironmentVariable("env-one", "ONE");
+        EnvironmentConfig uat = new MergeEnvironmentConfig(Arrays.asList(localEnv));
+
+        goConfigService.addEnvironment(uat);
+
+        BasicEnvironmentConfig newLocal = environmentConfig(environmentName);
+        newLocal.addPipeline(new CaseInsensitiveString("foo"));
+        newLocal.addEnvironmentVariable("env-one", "ONE");
+        newLocal.addEnvironmentVariable("env-two", "TWO");
+        EnvironmentConfig newUat = new MergeEnvironmentConfig(Arrays.asList(newLocal));
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        String md5 = entityHashingService.md5ForEntity(uat);
+        service.updateEnvironment(uat, newUat, new Username(new CaseInsensitiveString("foo")), md5, result);
+
+        assertTrue(result.isSuccessful());
+        EnvironmentConfig updatedEnv = service.named(environmentName);
+        assertThat(updatedEnv.getVariables().size(), is(2));
+        assertThat(updatedEnv.getVariables().get(0).getName(), is("env-one"));
+        assertThat(updatedEnv.getVariables().get(1).getName(), is("env-two"));
     }
 
     @Test

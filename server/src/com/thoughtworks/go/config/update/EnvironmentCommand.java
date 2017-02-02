@@ -47,7 +47,7 @@ public class EnvironmentCommand {
     }
 
     public boolean isValid(CruiseConfig preprocessedConfig) {
-        BasicEnvironmentConfig config = (BasicEnvironmentConfig) preprocessedConfig.getEnvironments().find(this.config.name());
+        EnvironmentConfig config = preprocessedConfig.getEnvironments().find(this.config.name());
         config.getVariables().validate(ConfigSaveValidationContext.forChain(config));
         List<ConfigErrors> allErrors = preprocessedConfig.getAllErrors();
         if (!allErrors.isEmpty()) {

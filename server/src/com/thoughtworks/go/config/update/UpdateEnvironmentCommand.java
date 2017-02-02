@@ -53,7 +53,8 @@ public class UpdateEnvironmentCommand extends EnvironmentCommand implements Enti
     @Override
     public void update(CruiseConfig preprocessedConfig) throws Exception {
         EnvironmentsConfig environments = preprocessedConfig.getEnvironments();
-        int index = environments.indexOf(oldEnvironmentConfig);
+        EnvironmentConfig envToRemove = environments.find(oldEnvironmentConfig.name());
+        int index = environments.indexOf(envToRemove);
         environments.remove(index);
         environments.add(index, newEnvironmentConfig);
     }

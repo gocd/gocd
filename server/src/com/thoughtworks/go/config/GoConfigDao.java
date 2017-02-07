@@ -62,7 +62,7 @@ public class GoConfigDao {
         updateConfig(pipelineAdder(pipelineConfig, groupName));
     }
 
-    public void addEnvironment(final BasicEnvironmentConfig environmentConfig) {
+    public void addEnvironment(final EnvironmentConfig environmentConfig) {
         updateConfig(new UpdateConfigCommand() {
             public CruiseConfig update(CruiseConfig cruiseConfig) {
                 cruiseConfig.getEnvironments().add(environmentConfig);

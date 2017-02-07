@@ -16,6 +16,7 @@
 package com.thoughtworks.go.config.merge;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
@@ -62,6 +63,15 @@ public class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
     {
         new MergeEnvironmentConfig(new BasicEnvironmentConfig(new CaseInsensitiveString("UAT")),
                 new BasicEnvironmentConfig(new CaseInsensitiveString("Two")));
+    }
+
+    @Test
+    public void ShouldContainSameNameAsOfPartialEnvironments() throws Exception {
+        BasicEnvironmentConfig local = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        BasicEnvironmentConfig remote = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        MergeEnvironmentConfig mergeEnv = new MergeEnvironmentConfig(local, remote);
+
+        assertThat(mergeEnv.name(), is(local.name()));
     }
 
     @Test
@@ -194,10 +204,36 @@ public class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
     public void shouldCreateErrorsForInconsistentEnvironmentVariables() throws Exception {
         pairEnvironmentConfig.get(0).addEnvironmentVariable("variable-name1", "variable-value1");
         pairEnvironmentConfig.get(1).addEnvironmentVariable("variable-name1", "variable-value2");
-        pairEnvironmentConfig.validate(null);
+        pairEnvironmentConfig.validate(ConfigSaveValidationContext.forChain(pairEnvironmentConfig));
         assertThat(pairEnvironmentConfig.errors().isEmpty(), is(false));
         assertThat(pairEnvironmentConfig.errors().on(MergeEnvironmentConfig.CONSISTENT_KV),
                 Matchers.is("Environment variable 'variable-name1' is defined more than once with different values"));
+    }
+
+    @Test
+    public void shouldValidateDuplicatePipelines() throws Exception {
+        pairEnvironmentConfig.get(0).addPipeline(new CaseInsensitiveString("up42"));
+        pairEnvironmentConfig.get(1).addPipeline(new CaseInsensitiveString("up42"));
+
+        pairEnvironmentConfig.validate(ConfigSaveValidationContext.forChain(pairEnvironmentConfig));
+
+        assertThat(pairEnvironmentConfig.errors().isEmpty(), is(false));
+
+        assertThat(pairEnvironmentConfig.errors().firstError(),
+                Matchers.is("Environment pipeline 'up42' is defined more than once."));
+    }
+
+    @Test
+    public void shouldValidateDuplicateAgents() throws Exception {
+        pairEnvironmentConfig.get(0).addAgent("random-uuid");
+        pairEnvironmentConfig.get(1).addAgent("random-uuid");
+
+        pairEnvironmentConfig.validate(ConfigSaveValidationContext.forChain(pairEnvironmentConfig));
+
+        assertThat(pairEnvironmentConfig.errors().isEmpty(), is(false));
+
+        assertThat(pairEnvironmentConfig.errors().firstError(),
+                Matchers.is("Environment agent 'random-uuid' is defined more than once."));
     }
 
     @Test
@@ -239,5 +275,38 @@ public class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
         assertThat("ChangesShouldBeInLocalConfig",uatLocalPart.getVariables(), hasItem(new EnvironmentVariableConfig("foo", "bar")));
         assertThat("ChangesShouldBeInLocalConfig",uatLocalPart.getVariables(), hasItem(new EnvironmentVariableConfig("baz", "quux")));
         assertThat("ChangesShouldBeInLocalConfig",uatLocalPart.getVariables().size(), is(3));
+    }
+
+    @Test
+    public void shouldReturnCorrectOriginOfDefinedPipeline() throws Exception {
+        BasicEnvironmentConfig uatLocalPart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        uatLocalPart.setOrigins(new FileConfigOrigin());
+        String localPipeline = "local-pipeline";
+        uatLocalPart.addPipeline(new CaseInsensitiveString(localPipeline));
+        BasicEnvironmentConfig uatRemotePart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        uatRemotePart.setOrigins(new RepoConfigOrigin());
+        String remotePipeline = "remote-pipeline";
+        uatRemotePart.addPipeline(new CaseInsensitiveString(remotePipeline));
+        MergeEnvironmentConfig environmentConfig = new MergeEnvironmentConfig(uatLocalPart, uatRemotePart);
+
+        assertThat(environmentConfig.getOriginForPipeline(new CaseInsensitiveString(localPipeline)), is(new FileConfigOrigin()));
+        assertThat(environmentConfig.getOriginForPipeline(new CaseInsensitiveString(remotePipeline)), is(new RepoConfigOrigin()));
+    }
+
+
+    @Test
+    public void shouldReturnCorrectOriginOfDefinedAgent() throws Exception {
+        BasicEnvironmentConfig uatLocalPart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        uatLocalPart.setOrigins(new FileConfigOrigin());
+        String localAgent = "local-agent";
+        uatLocalPart.addAgent(localAgent);
+        BasicEnvironmentConfig uatRemotePart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
+        uatRemotePart.setOrigins(new RepoConfigOrigin());
+        String remoteAgent = "remote-agent";
+        uatRemotePart.addAgent(remoteAgent);
+        MergeEnvironmentConfig environmentConfig = new MergeEnvironmentConfig(uatLocalPart, uatRemotePart);
+
+        assertThat(environmentConfig.getOriginForAgent(localAgent), is(new FileConfigOrigin()));
+        assertThat(environmentConfig.getOriginForAgent(remoteAgent), is(new RepoConfigOrigin()));
     }
 }

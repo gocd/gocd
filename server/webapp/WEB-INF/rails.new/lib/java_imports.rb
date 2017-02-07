@@ -38,6 +38,7 @@ module JavaImports
   java_import com.thoughtworks.go.config.BasicCruiseConfig unless defined? BasicCruiseConfig
   java_import com.thoughtworks.go.config.EnvironmentConfig unless defined? EnvironmentConfig
   java_import com.thoughtworks.go.config.BasicEnvironmentConfig unless defined? BasicEnvironmentConfig
+  java_import com.thoughtworks.go.config.merge.MergeEnvironmentConfig unless defined? MergeEnvironmentConfig
   java_import com.thoughtworks.go.config.EnvironmentVariablesConfig unless defined? EnvironmentVariablesConfig
   java_import com.thoughtworks.go.config.ExecTask unless defined? ExecTask
   java_import com.thoughtworks.go.domain.feed.FeedEntries unless defined? FeedEntries

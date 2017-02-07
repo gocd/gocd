@@ -342,9 +342,11 @@ public class EnvironmentConfigServiceTest {
         env.addPipeline(new CaseInsensitiveString("bar"));
         env.addAgent("baz");
         env.addEnvironmentVariable("quux", "bang");
-        config.getEnvironments().add(env);
+        EnvironmentsConfig environments = config.getEnvironments();
+        environments.add(env);
+        environmentConfigService.sync(environments);
         when(mockGoConfigService.getMergedConfigForEditing()).thenReturn(config);
-        assertThat(environmentConfigService.forEdit("foo", result).getConfigElement(), Is.<EnvironmentConfig>is(env));
+        assertThat(environmentConfigService.forDisplay("foo", result).getConfigElement(), Is.is(env));
         assertThat(result.isSuccessful(), is(true));
     }
 
@@ -359,7 +361,7 @@ public class EnvironmentConfigServiceTest {
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         String md5 = "md5";
-        environmentConfigService.updateEnvironment(environmentConfig, environmentConfig, user, md5, result);
+        environmentConfigService.updateEnvironment(environmentConfig.name().toString(), environmentConfig, user, md5, result);
 
         assertTrue(result.isSuccessful());
         assertThat(result.toString(), containsString("UPDATE_ENVIRONMENT_SUCCESS"));
@@ -376,7 +378,7 @@ public class EnvironmentConfigServiceTest {
         when(mockGoConfigService.updateConfig(any(UpdateConfigCommand.class))).thenReturn(ConfigSaveState.UPDATED);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         String md5 = "md5";
-        environmentConfigService.updateEnvironment(environmentConfig, environmentConfig, user, md5, result);
+        environmentConfigService.updateEnvironment(environmentConfig.name().toString(), environmentConfig, user, md5, result);
 
         assertTrue(result.isSuccessful());
         assertThat(result.toString(), containsString("UPDATE_ENVIRONMENT_SUCCESS"));

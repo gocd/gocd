@@ -17,12 +17,16 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
+import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
+import com.thoughtworks.go.config.remote.ConfigRepoConfigTest;
+import com.thoughtworks.go.config.remote.FileConfigOrigin;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.i18n.Localizable;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.EntityHashingService;
-import com.thoughtworks.go.server.service.EnvironmentConfigService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
@@ -53,14 +57,9 @@ public class PatchEnvironmentCommandTest {
     private PipelineConfig pipelineConfig;
     private AgentConfig agentConfig;
 
-    @Mock
-    private EnvironmentConfigService environmentConfigService;
 
     @Mock
     private GoConfigService goConfigService;
-
-    @Mock
-    private EntityHashingService entityHashingService;
 
     @Before
     public void setup() throws Exception {
@@ -136,13 +135,12 @@ public class PatchEnvironmentCommandTest {
         assertFalse(cruiseConfig.getEnvironments().find(environmentName).hasAgent(uuid));
         command.update(cruiseConfig);
 
-        assertFalse(cruiseConfig.getEnvironments().find(environmentName).hasAgent(uuid));
+        assertFalse(command.isValid(cruiseConfig));
 
-        HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
-        expectResult.badRequest(LocalizedMessage.string("AGENTS_WITH_UUIDS_NOT_FOUND", agentsToAdd));
+        HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
+        expectedResult.badRequest(actionFailed.addParam("Environment 'Dev' has an invalid agent uuid 'invalid-agent-uuid'"));
 
-        assertFalse(result.isSuccessful());
-        assertThat(result, is(expectResult));
+        assertThat(result, is(expectedResult));
     }
 
     @Test
@@ -156,11 +154,109 @@ public class PatchEnvironmentCommandTest {
 
         assertFalse(cruiseConfig.getEnvironments().find(environmentName).hasAgent(pipelineName));
 
-        HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
-        expectResult.badRequest(LocalizedMessage.string("PIPELINES_WITH_NAMES_NOT_FOUND", pipelinesToAdd));
+        boolean isValid = command.isValid(cruiseConfig);
+        assertFalse(isValid);
 
-        assertFalse(result.isSuccessful());
-        assertThat(result, is(expectResult));
+        HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
+        expectedResult.badRequest(actionFailed.addParam("Environment 'Dev' refers to an unknown pipeline 'invalid-pipeline-name'."));
+
+        assertThat(result, is(expectedResult));
+    }
+
+    @Test
+    public void shouldValidateInvalidPipelineRemoval() throws Exception {
+        String pipelineName = "invalid-pipeline-to-remove";
+
+        pipelinesToRemove.add(pipelineName);
+        PatchEnvironmentCommand command = new PatchEnvironmentCommand(goConfigService, environmentConfig, pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToRemove, currentUser, actionFailed, result);
+        assertFalse(cruiseConfig.getEnvironments().find(environmentName).containsPipeline(new CaseInsensitiveString(pipelineName)));
+        command.update(cruiseConfig);
+
+        boolean isValid = command.isValid(cruiseConfig);
+        assertFalse(isValid);
+
+        HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
+        expectedResult.badRequest(actionFailed.addParam("Pipeline 'invalid-pipeline-to-remove' does not exist in environment 'Dev'"));
+
+        assertThat(result, is(expectedResult));
+    }
+
+    @Test
+    public void shouldValidateInvalidAgentRemoval() throws Exception {
+        String agentUUID = "invalid-agent-to-remove";
+
+        agentsToRemove.add(agentUUID);
+        PatchEnvironmentCommand command = new PatchEnvironmentCommand(goConfigService, environmentConfig, pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToRemove, currentUser, actionFailed, result);
+        assertFalse(cruiseConfig.getEnvironments().find(environmentName).hasAgent(agentUUID));
+        command.update(cruiseConfig);
+
+        boolean isValid = command.isValid(cruiseConfig);
+        assertFalse(isValid);
+
+        HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
+        expectedResult.badRequest(actionFailed.addParam("Agent with uuid 'invalid-agent-to-remove' does not exist in environment 'Dev'"));
+
+        assertThat(result, is(expectedResult));
+    }
+
+    @Test
+    public void shouldNotAllowRemovingRemotePipeline() throws Exception {
+        CaseInsensitiveString pipelineName = new CaseInsensitiveString("remote-pipeline-to-remove");
+
+        BasicEnvironmentConfig local = new BasicEnvironmentConfig(environmentName);
+        local.setOrigins(new FileConfigOrigin());
+        BasicEnvironmentConfig remote = new BasicEnvironmentConfig(environmentName);
+        remote.addPipeline(pipelineName);
+        ConfigRepoConfig configRepo = new ConfigRepoConfig(new GitMaterialConfig("foo/bar.git", "master"), "myPlugin");
+        remote.setOrigins(new RepoConfigOrigin(configRepo, "latest"));
+
+        MergeEnvironmentConfig mergedConfig = new MergeEnvironmentConfig(local, remote);
+
+        pipelinesToRemove.add(pipelineName.toString());
+        PatchEnvironmentCommand command = new PatchEnvironmentCommand(goConfigService, environmentConfig, pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToRemove, currentUser, actionFailed, result);
+        assertFalse(cruiseConfig.getEnvironments().find(environmentName).containsPipeline(new CaseInsensitiveString(pipelineName.toString())));
+        command.update(cruiseConfig);
+
+        cruiseConfig.getEnvironments().replace(cruiseConfig.getEnvironments().find(environmentName), mergedConfig); //preprocess
+
+        boolean isValid = command.isValid(cruiseConfig);
+        assertFalse(isValid);
+
+        HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
+        String message = "Pipeline 'remote-pipeline-to-remove' cannot be removed from environment 'Dev' as the association has been defined remotely in [foo/bar.git at latest]";
+        expectedResult.badRequest(actionFailed.addParam(message));
+
+        assertThat(result, is(expectedResult));
+    }
+
+    @Test
+    public void shouldNotAllowRemovingRemoteAgents() throws Exception {
+        String agentUUID = "remote-agent-to-remove";
+
+        BasicEnvironmentConfig local = new BasicEnvironmentConfig(environmentName);
+        local.setOrigins(new FileConfigOrigin());
+        BasicEnvironmentConfig remote = new BasicEnvironmentConfig(environmentName);
+        remote.addAgent(agentUUID);
+        ConfigRepoConfig configRepo = new ConfigRepoConfig(new GitMaterialConfig("foo/bar.git", "master"), "myPlugin");
+        remote.setOrigins(new RepoConfigOrigin(configRepo, "latest"));
+
+        MergeEnvironmentConfig mergedConfig = new MergeEnvironmentConfig(local, remote);
+
+        agentsToRemove.add(agentUUID);
+        PatchEnvironmentCommand command = new PatchEnvironmentCommand(goConfigService, environmentConfig, pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToRemove, currentUser, actionFailed, result);
+        assertFalse(cruiseConfig.getEnvironments().find(environmentName).containsPipeline(new CaseInsensitiveString(agentUUID)));
+        command.update(cruiseConfig);
+
+        cruiseConfig.getEnvironments().replace(cruiseConfig.getEnvironments().find(environmentName), mergedConfig); //preprocess
+
+        boolean isValid = command.isValid(cruiseConfig);
+        assertFalse(isValid);
+
+        HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
+        String message = "Agent with uuid 'remote-agent-to-remove' cannot be removed from environment 'Dev' as the association has been defined remotely in [foo/bar.git at latest]";
+        expectedResult.badRequest(actionFailed.addParam(message));
+
+        assertThat(result, is(expectedResult));
     }
 
     @Test

@@ -234,6 +234,8 @@ Go::Application.routes.draw do
           patch on: :member, action: :patch
           put on: :member, action: :put
         end
+        get 'environments/:name/withremote' => 'environments_with_remote#show',constraints: {:name => ENVIRONMENT_NAME_FORMAT}
+
 
         post 'encrypt', controller: :encryption, action: :encrypt_value
         resources :packages, param: :package_id, only: [:show, :destroy, :index, :create, :update], constraints: {package_id: ALLOW_DOTS}

@@ -99,4 +99,8 @@ public interface EnvironmentConfig extends ParamsAttributeAware, Validatable, En
     EnvironmentAgentsConfig getLocalAgents();
 
     boolean containsPipelineRemotely(CaseInsensitiveString pipelineName);
+
+    boolean containsAgentRemotely(String uuid);
+
+    boolean validateTree(ConfigSaveValidationContext validationContext, CruiseConfig preprocessedConfig);
 }

@@ -161,11 +161,15 @@ public class EnvironmentConfigService implements ConfigChangedListener {
         return environments.named(new CaseInsensitiveString(environmentName));
     }
 
-    public ConfigElementForEdit<EnvironmentConfig> forEdit(String environmentName, HttpLocalizedOperationResult result) {
+    public EnvironmentConfig forEdit(String environmentName) {
+        return cloner.deepClone(environments.find(new CaseInsensitiveString(environmentName)));
+    }
+
+    public ConfigElementForEdit<EnvironmentConfig> forDisplay(String environmentName, HttpLocalizedOperationResult result) {
         ConfigElementForEdit<EnvironmentConfig> edit = null;
         try {
             CruiseConfig config = goConfigService.getMergedConfigForEditing();
-            EnvironmentConfig env = config.getEnvironments().named(new CaseInsensitiveString(environmentName));
+            EnvironmentConfig env = environments.named(new CaseInsensitiveString(environmentName));
             edit = new ConfigElementForEdit<>(cloner.deepClone(env), config.getMd5());
         } catch (NoSuchEnvironmentException e) {
             result.badRequest(LocalizedMessage.string("RESOURCE_NOT_FOUND", "Environment", environmentName));
@@ -213,12 +217,12 @@ public class EnvironmentConfigService implements ConfigChangedListener {
         return pipelines;
     }
 
-    public void updateEnvironment(final EnvironmentConfig oldEnvironmentConfig, final EnvironmentConfig newEnvironmentConfig, final Username username, String md5, final HttpLocalizedOperationResult result) {
-        Localizable.CurryableLocalizable actionFailed = LocalizedMessage.string("ENV_UPDATE_FAILED", oldEnvironmentConfig.name());
-        UpdateEnvironmentCommand updateEnvironmentCommand = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig, newEnvironmentConfig, username, actionFailed, md5, entityHashingService, result);
-        update(updateEnvironmentCommand, oldEnvironmentConfig, username, result, actionFailed);
+    public void updateEnvironment(final String oldEnvironmentConfigName, final EnvironmentConfig newEnvironmentConfig, final Username username, String md5, final HttpLocalizedOperationResult result) {
+        Localizable.CurryableLocalizable actionFailed = LocalizedMessage.string("ENV_UPDATE_FAILED", oldEnvironmentConfigName);
+        UpdateEnvironmentCommand updateEnvironmentCommand = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfigName, newEnvironmentConfig, username, actionFailed, md5, entityHashingService, result);
+        update(updateEnvironmentCommand, newEnvironmentConfig, username, result, actionFailed);
         if (result.isSuccessful()) {
-            result.setMessage(LocalizedMessage.string("UPDATE_ENVIRONMENT_SUCCESS", oldEnvironmentConfig.name()));
+            result.setMessage(LocalizedMessage.string("UPDATE_ENVIRONMENT_SUCCESS", oldEnvironmentConfigName));
         }
     }
 

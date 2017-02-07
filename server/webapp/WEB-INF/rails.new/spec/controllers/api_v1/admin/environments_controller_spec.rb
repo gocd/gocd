@@ -80,7 +80,7 @@ describe ApiV1::Admin::EnvironmentsController do
       @environment_config = BasicEnvironmentConfig.new(CaseInsensitiveString.new(@environment_name))
       @environment_config_service = double('environment-config-service')
       controller.stub(:environment_config_service).and_return(@environment_config_service)
-      @environment_config_service.stub(:getEnvironmentConfig).with(@environment_name).and_return(@environment_config)
+      @environment_config_service.stub(:forEdit).with(@environment_name).and_return(@environment_config)
     end
 
     describe :for_admins do
@@ -96,7 +96,7 @@ describe ApiV1::Admin::EnvironmentsController do
         login_as_admin
 
         @environment_name = SecureRandom.hex
-        @environment_config_service.stub(:getEnvironmentConfig).and_raise(com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException.new(CaseInsensitiveString.new('foo-env')))
+        @environment_config_service.stub(:forEdit).and_raise(com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException.new(CaseInsensitiveString.new('foo-env')))
         get_with_api_header :show, name: @environment_name
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end
@@ -164,7 +164,7 @@ describe ApiV1::Admin::EnvironmentsController do
       @entity_hashing_service = double('entity-hashing-see=rvice')
       controller.stub(:environment_config_service).and_return(@environment_config_service)
       controller.stub(:entity_hashing_service).and_return(@entity_hashing_service)
-      @environment_config_service.stub(:getEnvironmentConfig).with(@environment_name).and_return(@environment_config)
+      @environment_config_service.stub(:forEdit).with(@environment_name).and_return(@environment_config)
       @entity_hashing_service.stub(:md5ForEntity).and_return(@md5)
     end
 
@@ -172,7 +172,7 @@ describe ApiV1::Admin::EnvironmentsController do
       it 'should allow updating environments' do
         login_as_admin
         result = HttpLocalizedOperationResult.new
-        @environment_config_service.should_receive(:updateEnvironment).with(@environment_config, anything, anything, @md5, anything).and_return(result)
+        @environment_config_service.should_receive(:updateEnvironment).with(@environment_name, anything, anything, @md5, anything).and_return(result)
         hash = {name: @environment_name, pipelines: [], agents: [], environment_variables: []}
 
         controller.request.env['HTTP_IF_MATCH'] = "\"#{Digest::MD5.hexdigest(@md5)}\""
@@ -204,7 +204,7 @@ describe ApiV1::Admin::EnvironmentsController do
         login_as_admin
 
         @environment_name = SecureRandom.hex
-        @environment_config_service.stub(:getEnvironmentConfig).and_raise(com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException.new(CaseInsensitiveString.new('foo-env')))
+        @environment_config_service.stub(:forEdit).and_raise(com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException.new(CaseInsensitiveString.new('foo-env')))
         put_with_api_header :put, name: @environment_name
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end
@@ -273,7 +273,7 @@ describe ApiV1::Admin::EnvironmentsController do
       @environment_config = BasicEnvironmentConfig.new(CaseInsensitiveString.new(@environment_name))
       @environment_config_service = double('environment-config-service')
       controller.stub(:environment_config_service).and_return(@environment_config_service)
-      @environment_config_service.stub(:getEnvironmentConfig).with(@environment_name).and_return(@environment_config)
+      @environment_config_service.stub(:forEdit).with(@environment_name).and_return(@environment_config)
     end
 
     describe :for_admins do
@@ -310,7 +310,7 @@ describe ApiV1::Admin::EnvironmentsController do
         login_as_admin
 
         @environment_name = SecureRandom.hex
-        @environment_config_service.stub(:getEnvironmentConfig).and_raise(com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException.new(CaseInsensitiveString.new('foo-env')))
+        @environment_config_service.stub(:forEdit).and_raise(com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException.new(CaseInsensitiveString.new('foo-env')))
         patch_with_api_header :patch, name: @environment_name
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end
@@ -374,7 +374,7 @@ describe ApiV1::Admin::EnvironmentsController do
       @environment_config = BasicEnvironmentConfig.new(CaseInsensitiveString.new(@environment_name))
       @environment_config_service = double('environment-config-service')
       controller.stub(:environment_config_service).and_return(@environment_config_service)
-      @environment_config_service.stub(:getEnvironmentConfig).with(@environment_name).and_return(@environment_config)
+      @environment_config_service.stub(:forEdit).with(@environment_name).and_return(@environment_config)
     end
 
     describe :for_admins do
@@ -394,7 +394,7 @@ describe ApiV1::Admin::EnvironmentsController do
         login_as_admin
 
         @environment_name = SecureRandom.hex
-        @environment_config_service.stub(:getEnvironmentConfig).and_raise(com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException.new(CaseInsensitiveString.new('foo-env')))
+        @environment_config_service.stub(:forEdit).and_raise(com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException.new(CaseInsensitiveString.new('foo-env')))
         delete_with_api_header :destroy, name: @environment_name
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end
@@ -458,7 +458,7 @@ describe ApiV1::Admin::EnvironmentsController do
       @environment_config = BasicEnvironmentConfig.new(CaseInsensitiveString.new(@environment_name))
       @environment_config_service = double('environment-config-service')
       controller.stub(:environment_config_service).and_return(@environment_config_service)
-      @environment_config_service.stub(:getEnvironmentConfig).with(@environment_name).and_return(@environment_config)
+      @environment_config_service.stub(:forEdit).with(@environment_name).and_return(@environment_config)
     end
 
 

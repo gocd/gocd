@@ -69,6 +69,24 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
         }
     }
 
+    @Override
+    public boolean validateTree(ConfigSaveValidationContext validationContext, CruiseConfig preprocessedConfig) {
+        validate(validationContext);
+        try{
+            validateContainsOnlyPipelines(preprocessedConfig.getAllPipelineNames());
+        }catch (RuntimeException e){
+            errors().add("pipeline", e.getMessage());
+        }
+        validateContainsOnlyUuids(preprocessedConfig.agents().acceptedUuids());
+
+        boolean isValid = ErrorCollector.getAllErrors(this).isEmpty();
+
+        ValidationContext contextForChildren = validationContext.withParent(this);
+        isValid = isValid && variables.validateTree(contextForChildren);
+
+        return isValid;
+    }
+
     private String displayNameFor(ConfigOrigin origin) {
         return origin != null ? origin.displayName() : "cruise-config.xml";
     }
@@ -359,6 +377,16 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
         if(this.isLocal())
             return false;
         if(!this.containsPipeline(pipelineName))
+            return false;
+
+        return true;
+    }
+
+    @Override
+    public boolean containsAgentRemotely(String uuid) {
+        if(this.isLocal())
+            return false;
+        if(!this.hasAgent(uuid))
             return false;
 
         return true;

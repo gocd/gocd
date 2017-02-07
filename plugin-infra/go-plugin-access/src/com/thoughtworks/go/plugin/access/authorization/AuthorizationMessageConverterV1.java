@@ -18,6 +18,7 @@ package com.thoughtworks.go.plugin.access.authorization;
 
 import com.google.gson.Gson;
 import com.thoughtworks.go.config.PluginRoleConfig;
+import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.plugin.access.authentication.models.User;
 import com.thoughtworks.go.plugin.access.authorization.models.AuthenticationResponse;
 import com.thoughtworks.go.plugin.access.authorization.models.Capabilities;
@@ -84,11 +85,25 @@ public class AuthorizationMessageConverterV1 implements AuthorizationMessageConv
     }
 
     @Override
-    public String authenticateUserRequestBody(String username, String password) {
+    public String authenticateUserRequestBody(String username, String password, List<SecurityAuthConfig> authConfigs) {
         Map<String, Object> requestMap = new HashMap<>();
         requestMap.put("username", username);
         requestMap.put("password", password);
+        requestMap.put("profiles", getAuthConfigProfiles(authConfigs));
         return GSON.toJson(requestMap);
+    }
+
+    private Map<String, Map<String, String>> getAuthConfigProfiles(List<SecurityAuthConfig> authConfigs) {
+        Map<String, Map<String, String>> authConfigsMap = new HashMap<>();
+
+        if (authConfigs == null) {
+            return authConfigsMap;
+        }
+
+        for (SecurityAuthConfig securityAuthConfig : authConfigs) {
+            authConfigsMap.put(securityAuthConfig.getId(), securityAuthConfig.getConfigurationAsMap(true));
+        }
+        return authConfigsMap;
     }
 
     @Override
@@ -102,9 +117,10 @@ public class AuthorizationMessageConverterV1 implements AuthorizationMessageConv
     }
 
     @Override
-    public String searchUsersRequestBody(String searchTerm) {
+    public String searchUsersRequestBody(String searchTerm, List<SecurityAuthConfig> authConfigs) {
         Map<String, Object> requestMap = new HashMap<>();
         requestMap.put("search_term", searchTerm);
+        requestMap.put("profiles", getAuthConfigProfiles(authConfigs));
         return GSON.toJson(requestMap);
     }
 
@@ -123,16 +139,6 @@ public class AuthorizationMessageConverterV1 implements AuthorizationMessageConv
             list.add(e);
         }
         return GSON.toJson(list);
-    }
-
-    @Override
-    public String getInvalidateCacheResponseBody() {
-        return StringUtils.EMPTY;
-    }
-
-    @Override
-    public String getProcessPluginConfigResponseBody(Map<String, Map<String, String>> authConfigProfiles) {
-        return GSON.toJson(authConfigProfiles);
     }
 
     private String getTemplateFromResponse(String responseBody, String message) {

@@ -31,9 +31,9 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import java.util.Arrays;
-import java.util.Collections;
 
-import static com.thoughtworks.go.server.service.plugins.processor.authorization.AuthorizationRequestProcessor.Request.*;
+import static com.thoughtworks.go.server.service.plugins.processor.authorization.AuthorizationRequestProcessor.Request.GET_ROLE_CONFIG_REQUEST;
+import static com.thoughtworks.go.server.service.plugins.processor.authorization.AuthorizationRequestProcessor.Request.INVALIDATE_CACHE_REQUEST;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
@@ -98,21 +98,5 @@ public class AuthorizationRequestProcessorTest {
         verify(securityAuthConfigsSpy).findByPluginIdAndProfileId(pluginDescriptor.id(), "github");
         verify(securityConfig.getRoles()).getPluginRolesConfig("github");
 
-    }
-
-    @Test
-    public void shouldProcessPluginConfigRequest() throws Exception {
-        SecurityAuthConfig githubSecurityAuthConfig = new SecurityAuthConfig("github", "cd.go.authorization.github");
-        securityAuthConfigsSpy.add(githubSecurityAuthConfig);
-        securityAuthConfigsSpy.add(new SecurityAuthConfig("ldap", "cd.go.authorization.ldap"));
-        AuthorizationMessageConverterV1 converterV1 = spy(new AuthorizationMessageConverterV1());
-        when(authorizationExtension.getMessageConverter(AuthorizationMessageConverterV1.VERSION)).thenReturn(converterV1);
-
-        DefaultGoApiRequest request = new DefaultGoApiRequest(GET_PLUGIN_CONFIG_REQUEST.requestName(), "1.0", null);
-        AuthorizationRequestProcessor authorizationRequestProcessor = new AuthorizationRequestProcessor(registry, goConfigService, authorizationExtension, null);
-        GoApiResponse response = authorizationRequestProcessor.process(pluginDescriptor, request);
-
-        assertThat(response.responseCode(), is(200));
-        verify(authorizationExtension.getMessageConverter(AuthorizationMessageConverterV1.VERSION)).getProcessPluginConfigResponseBody(Collections.singletonMap("github", githubSecurityAuthConfig.getConfigurationAsMap(true)));
     }
 }

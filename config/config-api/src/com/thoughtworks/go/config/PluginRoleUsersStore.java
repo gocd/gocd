@@ -25,17 +25,13 @@ import static com.google.common.collect.Multimaps.synchronizedSetMultimap;
 
 public class PluginRoleUsersStore {
     private final SetMultimap<PluginRoleConfig, RoleUser> roleToUsersMappings = synchronizedSetMultimap(HashMultimap.create());
-    private static PluginRoleUsersStore self;
 
     private PluginRoleUsersStore() {
 
     }
 
     public static PluginRoleUsersStore instance() {
-        if (self == null) {
-            self = new PluginRoleUsersStore();
-        }
-        return self;
+        return PluginRoleUsersStoreHolder.PLUGIN_ROLE_USERS_STORE;
     }
 
     public void assignRole(String user, PluginRoleConfig pluginRoleConfig) {
@@ -46,8 +42,12 @@ public class PluginRoleUsersStore {
         return new ArrayList(roleToUsersMappings.get(pluginRoleConfig));
     }
 
-    public Set<PluginRoleConfig> pluginRoles() {
-        return new HashSet<>(roleToUsersMappings.keySet());
+    public void removePluginRolesNotIn(List<PluginRoleConfig> pluginRoles) {
+        for (PluginRoleConfig pluginRole : pluginRoles()) {
+            if (!pluginRoles.contains(pluginRole)) {
+                remove(pluginRole);
+            }
+        }
     }
 
     public void remove(PluginRoleConfig pluginRole) {
@@ -70,7 +70,16 @@ public class PluginRoleUsersStore {
         }
     }
 
+    protected Set<PluginRoleConfig> pluginRoles() {
+        return new HashSet<>(roleToUsersMappings.keySet());
+    }
+
+//    Used only in tests
     public void clearAll() {
         roleToUsersMappings.clear();
+    }
+
+    private static class PluginRoleUsersStoreHolder {
+        static final PluginRoleUsersStore PLUGIN_ROLE_USERS_STORE = new PluginRoleUsersStore();
     }
 }

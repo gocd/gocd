@@ -16,14 +16,15 @@
 
 package com.thoughtworks.go.plugin.access.authorization;
 
+import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
+import com.thoughtworks.go.plugin.access.authentication.models.User;
 import com.thoughtworks.go.plugin.access.authorization.models.AuthenticationResponse;
 import com.thoughtworks.go.plugin.access.authorization.models.Capabilities;
-import com.thoughtworks.go.plugin.access.authentication.models.User;
+import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.access.common.models.Image;
 import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKeys;
-import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
@@ -113,11 +114,11 @@ public class AuthorizationExtension extends AbstractExtension {
         });
     }
 
-    public AuthenticationResponse authenticateUser(String pluginId, final String username, final String password) {
+    public AuthenticationResponse authenticateUser(String pluginId, final String username, final String password, List<SecurityAuthConfig> authConfigs) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_AUTHENTICATE_USER, new DefaultPluginInteractionCallback<AuthenticationResponse>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return getMessageConverter(resolvedExtensionVersion).authenticateUserRequestBody(username, password);
+                return getMessageConverter(resolvedExtensionVersion).authenticateUserRequestBody(username, password, authConfigs);
             }
 
             @Override
@@ -159,11 +160,11 @@ public class AuthorizationExtension extends AbstractExtension {
         });
     }
 
-    public List<User> searchUsers(String pluginId, final String searchTerm) {
+    public List<User> searchUsers(String pluginId, final String searchTerm, List<SecurityAuthConfig> authConfigs) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_SEARCH_USERS, new DefaultPluginInteractionCallback<List<User>>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return getMessageConverter(resolvedExtensionVersion).searchUsersRequestBody(searchTerm);
+                return getMessageConverter(resolvedExtensionVersion).searchUsersRequestBody(searchTerm, authConfigs);
             }
 
             @Override

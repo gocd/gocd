@@ -17,7 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.listener.AuthorizationPluginUnloadListener;
+import com.thoughtworks.go.listener.PluginRoleChangeListener;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.infra.PluginChangeListener;
@@ -32,7 +32,7 @@ import java.util.*;
 public class PluginRoleService implements ConfigChangedListener, PluginChangeListener {
     private final GoConfigService goConfigService;
     private final PluginRoleUsersStore pluginRoleUsersStore = PluginRoleUsersStore.instance();
-    private final Set<AuthorizationPluginUnloadListener> listeners = new HashSet<>();
+    private final Set<PluginRoleChangeListener> listeners = new HashSet<>();
 
     @Autowired
     public PluginRoleService(GoConfigService goConfigService, PluginManager pluginManager) {
@@ -46,21 +46,20 @@ public class PluginRoleService implements ConfigChangedListener, PluginChangeLis
         Map<CaseInsensitiveString, PluginRoleConfig> pluginRoles = getPluginRoles(pluginId);
         for (CaseInsensitiveString pluginRoleName : pluginRolesName) {
             PluginRoleConfig pluginRoleConfig = pluginRoles.get(pluginRoleName);
-            if (pluginRoleConfig == null) {
-                continue;
-            }
 
-            pluginRoleUsersStore.assignRole(username, pluginRoleConfig);
+            if (pluginRoleConfig != null) {
+                pluginRoleUsersStore.assignRole(username, pluginRoleConfig);
+            }
         }
     }
 
-    public void register(AuthorizationPluginUnloadListener listener) {
+    public void register(PluginRoleChangeListener listener) {
         listeners.add(listener);
     }
 
     private void notifyListeners() {
-        for (AuthorizationPluginUnloadListener listener : listeners) {
-            listener.onUnload();
+        for (PluginRoleChangeListener listener : listeners) {
+            listener.onPluginRoleChange();
         }
     }
 
@@ -77,15 +76,15 @@ public class PluginRoleService implements ConfigChangedListener, PluginChangeLis
         return pluginRoleUsersStore.usersInRole(pluginRole(roleName));
     }
 
+    public void revokeAllRolesFor(String username) {
+        pluginRoleUsersStore.revokeAllRolesFor(username);
+    }
+
     @Override
     public void onConfigChange(CruiseConfig newCruiseConfig) {
-        List<PluginRoleConfig> pluginRoles = newCruiseConfig.server().security().getRoles().getPluginRolesConfig();
+        List<PluginRoleConfig> pluginRolesAfterConfigUpdate = newCruiseConfig.server().security().getRoles().getPluginRolesConfig();
 
-        for (PluginRoleConfig pluginRole : pluginRoleUsersStore.pluginRoles()) {
-            if (!pluginRoles.contains(pluginRole)) {
-                pluginRoleUsersStore.remove(pluginRole);
-            }
-        }
+        pluginRoleUsersStore.removePluginRolesNotIn(pluginRolesAfterConfigUpdate);
     }
 
     private PluginRoleConfig pluginRole(String roleName) {

@@ -19,7 +19,7 @@ package com.thoughtworks.go.server.security;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.SecurityConfig;
 import com.thoughtworks.go.listener.ConfigChangedListener;
-import com.thoughtworks.go.listener.AuthorizationPluginUnloadListener;
+import com.thoughtworks.go.listener.PluginRoleChangeListener;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.PluginRoleService;
 import com.thoughtworks.go.util.TimeProvider;
@@ -38,7 +38,7 @@ import java.io.IOException;
 /**
  * @understands when a logged in user's authorization needs to be redone to get the new roles.
  */
-public class RemoveAdminPermissionFilter extends SpringSecurityFilter implements ConfigChangedListener, AuthorizationPluginUnloadListener {
+public class RemoveAdminPermissionFilter extends SpringSecurityFilter implements ConfigChangedListener, PluginRoleChangeListener {
     private static final Logger LOGGER = Logger.getLogger(RemoveAdminPermissionFilter.class);
 
     protected static final String SECURITY_CONFIG_LAST_CHANGE = "security_config_last_changed_time";
@@ -96,7 +96,7 @@ public class RemoveAdminPermissionFilter extends SpringSecurityFilter implements
     }
 
     @Override
-    public void onUnload() {
+    public void onPluginRoleChange() {
         this.lastChangedTime = timeProvider.currentTimeMillis();
     }
 }

@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.security;
 
+import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationExtension;
@@ -138,7 +139,8 @@ public class UserSearchService {
     private List<com.thoughtworks.go.plugin.access.authentication.models.User> getUsersConfiguredViaPlugin(String pluginId, String searchTerm) {
         List<com.thoughtworks.go.plugin.access.authentication.models.User> users = new ArrayList<>();
         if (authorizationExtension.canHandlePlugin(pluginId)) {
-            users.addAll(authorizationExtension.searchUsers(pluginId, searchTerm));
+            List<SecurityAuthConfig> authConfigs = goConfigService.security().securityAuthConfigs().findByPluginId(pluginId);
+            users.addAll(authorizationExtension.searchUsers(pluginId, searchTerm, authConfigs));
         }
         if (authenticationExtension.canHandlePlugin(pluginId)) {
             users.addAll(authenticationExtension.searchUser(pluginId, searchTerm));

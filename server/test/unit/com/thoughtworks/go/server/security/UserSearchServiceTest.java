@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.security;
 
+import com.thoughtworks.go.config.SecurityConfig;
 import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationExtension;
@@ -31,10 +32,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -87,10 +85,11 @@ public class UserSearchServiceTest {
         List<String> pluginIds = Arrays.asList("plugin-id-1", "plugin-id-2", "plugin-id-3", "plugin-id-4");
         when(metadataStore.getPluginsThatSupportsUserSearch()).thenReturn(new HashSet<>(pluginIds));
         when(authorizationExtension.canHandlePlugin(anyString())).thenReturn(true);
-        when(authorizationExtension.searchUsers("plugin-id-1", searchTerm)).thenReturn(Arrays.asList(getPluginUser(1)));
-        when(authorizationExtension.searchUsers("plugin-id-2", searchTerm)).thenReturn(Arrays.asList(getPluginUser(2), getPluginUser(3)));
-        when(authorizationExtension.searchUsers("plugin-id-3", searchTerm)).thenReturn(new ArrayList<>());
-        when(authorizationExtension.searchUsers("plugin-id-4", searchTerm)).thenReturn(Arrays.asList(new com.thoughtworks.go.plugin.access.authentication.models.User("username-" + 4, null, null)));
+        when(goConfigService.security()).thenReturn(new SecurityConfig());
+        when(authorizationExtension.searchUsers("plugin-id-1", searchTerm, Collections.emptyList())).thenReturn(Arrays.asList(getPluginUser(1)));
+        when(authorizationExtension.searchUsers("plugin-id-2", searchTerm, Collections.emptyList())).thenReturn(Arrays.asList(getPluginUser(2), getPluginUser(3)));
+        when(authorizationExtension.searchUsers("plugin-id-3", searchTerm, Collections.emptyList())).thenReturn(new ArrayList<>());
+        when(authorizationExtension.searchUsers("plugin-id-4", searchTerm, Collections.emptyList())).thenReturn(Arrays.asList(new com.thoughtworks.go.plugin.access.authentication.models.User("username-" + 4, null, null)));
 
         List<UserSearchModel> models = userSearchService.search(searchTerm, new HttpLocalizedOperationResult());
 

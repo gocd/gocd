@@ -16,6 +16,6 @@
 
 package com.thoughtworks.go.listener;
 
-public interface AuthorizationPluginUnloadListener {
-    void onUnload();
+public interface PluginRoleChangeListener {
+    void onPluginRoleChange();
 }

@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.plugin.access.authorization;
 
+import com.thoughtworks.go.config.SecurityAuthConfig;
+import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.plugin.access.authentication.models.User;
 import com.thoughtworks.go.plugin.access.authorization.models.AuthenticationResponse;
 import com.thoughtworks.go.plugin.access.authorization.models.Capabilities;
@@ -179,11 +181,11 @@ public class AuthorizationExtensionTest {
 
     @Test
     public void shouldTalkToPlugin_To_AuthenticateUser() throws Exception {
-        String requestBody = "{\"password\":\"secret\",\"username\":\"bob\"}";
+        String requestBody = "{\"password\":\"secret\",\"profiles\":{},\"username\":\"bob\"}";
         String responseBody = "{\"user\":{\"username\":\"bob\",\"display_name\":\"Bob\",\"email\":\"bob@example.com\"},\"roles\":[\"blackbird\"]}";
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
 
-        AuthenticationResponse authenticationResponse = authorizationExtension.authenticateUser(PLUGIN_ID, "bob", "secret");
+        AuthenticationResponse authenticationResponse = authorizationExtension.authenticateUser(PLUGIN_ID, "bob", "secret", null);
 
         assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_AUTHENTICATE_USER, requestBody);
         assertThat(authenticationResponse.getUser(), is(new User("bob", "Bob", "bob@example.com")));
@@ -192,11 +194,11 @@ public class AuthorizationExtensionTest {
 
     @Test
     public void shouldTalkToPlugin_To_SearchUsers() throws Exception {
-        String requestBody = "{\"search_term\":\"bob\"}";
+        String requestBody = "{\"search_term\":\"bob\",\"profiles\":{\"ldap\":{\"foo\":\"bar\"}}}";
         String responseBody = "[{\"username\":\"bob\",\"display_name\":\"Bob\",\"email\":\"bob@example.com\"}]";
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
 
-        List<User> users = authorizationExtension.searchUsers(PLUGIN_ID, "bob");
+        List<User> users = authorizationExtension.searchUsers(PLUGIN_ID, "bob", Collections.singletonList(new SecurityAuthConfig("ldap", "cd.go.ldap", ConfigurationPropertyMother.create("foo", false, "bar"))));
 
         assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_SEARCH_USERS, requestBody);
         assertThat(users, hasSize(1));

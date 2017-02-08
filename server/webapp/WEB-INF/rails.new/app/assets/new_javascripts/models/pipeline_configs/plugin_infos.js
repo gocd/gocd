@@ -51,7 +51,12 @@ define(['mithril', 'lodash', 'string-plus', 'helpers/mrequest', 'models/shared/i
 
   PluginInfos.PluginInfo = function (data) {
     var view = function (settings) {
-      return settings ? settings.view : {};
+
+      function pluggableInstanceSettingsView() {
+        return settings.view ? settings.view : {};
+      }
+
+      return settings ? pluggableInstanceSettingsView() : {};
     };
 
     this.id             = m.prop(data.id);

@@ -130,6 +130,14 @@ define(['lodash', 'string-plus', 'mithril'], function (_, s, m) {
       return _.find(collection(), cb, thisArg);
     };
 
+    this['replace' + associationName] = function (newObj, cb) {
+      //var indexOf = this['indexOf' + associationName](cb);
+      var indexOf = _.findIndex(collection(), cb);
+      if (indexOf >= 0) {
+        collection()[indexOf] = newObj;
+      }
+    };
+
     this['filter' + associationName] = function (cb, thisArg) {
       return _.filter(collection(), cb, thisArg);
     };
@@ -142,11 +150,11 @@ define(['lodash', 'string-plus', 'mithril'], function (_, s, m) {
       _.each(collection(), cb, thisArg);
     };
 
-    this['sortBy' + associationNamePlural] = function(cb, thisArg) {
+    this['sortBy' + associationNamePlural] = function (cb, thisArg) {
       return _.sortBy(collection(), cb, thisArg);
     };
 
-    this['every' + associationName] = function(cb, thisArg) {
+    this['every' + associationName] = function (cb, thisArg) {
       return _.every(collection(), cb, thisArg);
     };
 
@@ -163,13 +171,13 @@ define(['lodash', 'string-plus', 'mithril'], function (_, s, m) {
     };
 
     this.isValid = function () {
-      return _.every(collection() , function (item) {
+      return _.every(collection(), function (item) {
         return item.isValid();
       });
     };
 
     this.isUnique = function (childModel, uniqueOn) {
-      if(_.isNil(childModel[uniqueOn]()) || _.isEmpty(childModel[uniqueOn]())) {
+      if (_.isNil(childModel[uniqueOn]()) || _.isEmpty(childModel[uniqueOn]())) {
         return true;
       }
 

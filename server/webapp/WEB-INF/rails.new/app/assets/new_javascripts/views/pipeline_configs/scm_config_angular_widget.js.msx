@@ -27,6 +27,7 @@ define(['mithril', 'lodash', 'jquery', 'string-plus', 'models/pipeline_configs/p
         self.appName          = 'app-' + self.uuid;
 
         PluginInfos.PluginInfo.get(self.pluginId).then(function (plugin) {
+
           self.templateHTML = AngularPlugin.template(plugin.viewTemplate());
           self.defaultConfig = plugin.configurations();
 
@@ -64,6 +65,7 @@ define(['mithril', 'lodash', 'jquery', 'string-plus', 'models/pipeline_configs/p
 
       view: function (ctrl) {
         var config = function (_elem, isInitialized) {
+
           if (!isInitialized) {
             var pluginTaskTemplateElement = $('#pluggable-scm-template-' + ctrl.uuid);
             angular.bootstrap(pluginTaskTemplateElement.get(0), [ctrl.appName]);

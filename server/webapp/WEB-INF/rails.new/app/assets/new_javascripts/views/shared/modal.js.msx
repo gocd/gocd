@@ -32,7 +32,7 @@ define(['mithril', 'lodash', 'jquery', 'string-plus', 'foundation.reveal'], func
       var subViewArgs = _.merge({parentView: this}, this.subView.args);
 
       return (
-        <div class='reveal scm-plugin-modal' id={"modal-" + this.uuid} data-reveal data-close-on-click='false' config={init(this.uuid)}>
+        <div class='reveal scm-plugin-modal' id={"modal-" + this.uuid} data-reveal data-close-on-click='false' config={init(this.uuid)} key={"modal-" + this.uuid}>
           <h4 class='modal-title'>{this.title}</h4>
           <button class="close-button" onclick={this.close.bind(this)} aria-label="Close modal" type="button">
             <span aria-hidden="true">&times;</span>

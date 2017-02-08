@@ -46,6 +46,7 @@ define([
         self.url              = options.url;
         self.callback         = options.callback;
         self.elasticProfiles  = options.elasticProfiles;
+        self.repositories     = options.repositories;
         self.vm               = new Pipeline.vm();
 
         ComponentMixins.HasViewModel.call(this);
@@ -151,6 +152,7 @@ define([
             <PipelineFlowWidget pipeline={ctrl.pipeline}
                                 elasticProfiles={ctrl.elasticProfiles}
                                 currentSelection={ctrl.currentSelection}
+                                key="pipeline-flow-widget"
                                 vm={ctrl.vmState('pipelineFlowConfig')}/>
           );
         };
@@ -164,7 +166,8 @@ define([
                 <PipelineSettingsWidget pipeline={ctrl.pipeline}
                                         vm={ctrl.vmState('pipelineSettingsConfig')}/>
                 <MaterialsConfigWidget materials={pipeline.materials}
-                                       key={pipeline.materials().uuid}
+                                       repositories={ctrl.repositories}
+                                       key={pipeline.materials().uuid()}
                                        pipelineName={pipeline.name}
                                        vm={ctrl.vmState('materialsConfig')}/>
                 {pipelineFlowWidget()}

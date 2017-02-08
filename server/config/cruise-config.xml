@@ -11,6 +11,90 @@
       </admins>
     </security>
   </server>
+  <repositories>
+    <repository id="44b7d930-069a-4879-b27a-4588dbc4a755" name="repo1">
+      <pluginConfiguration id="yum" version="2.0.1" />
+      <configuration>
+        <property>
+          <key>xxxREPO_URL</key>
+          <value>http://foo</value>
+        </property>
+        <property>
+          <key>USERNAME</key>
+          <value>admin</value>
+        </property>
+        <property>
+          <key>PASSWORD</key>
+          <encryptedValue>8xok/YGUAoU=</encryptedValue>
+        </property>
+      </configuration>
+      <packages>
+        <package id="dbed1a96-5040-467f-9141-36a9a19d1efa" name="package2">
+          <configuration>
+            <property>
+              <key>PACKAGE_SPEC</key>
+              <value>4</value>
+            </property>
+          </configuration>
+        </package>
+        <package id="0d4215b5-5049-4a8b-9aff-175683b97357" name="x3">
+          <configuration>
+            <property>
+              <key>PACKAGE_SPEC</key>
+              <value>x3</value>
+            </property>
+          </configuration>
+        </package>
+        <package id="2be782ef-2b40-4c73-b885-b8401a54a90e" name="package1">
+          <configuration>
+            <property>
+              <key>PACKAGE_SPEC</key>
+              <value>v4</value>
+            </property>
+          </configuration>
+        </package>
+      </packages>
+    </repository>
+    <repository id="f5b014a9-0272-472a-a532-75bafcb9e3f1" name="repo2">
+      <pluginConfiguration id="nuget" version="1" />
+      <configuration>
+        <property>
+          <key>REPO_URL</key>
+          <value>http://repo2/nuget</value>
+        </property>
+        <property>
+          <key>USERNAME</key>
+          <value>admin</value>
+        </property>
+        <property>
+          <key>PASSWORD</key>
+          <encryptedValue>aSdiFgRRZ6A=</encryptedValue>
+        </property>
+      </configuration>
+      <packages>
+        <package id="59ae1d1b-9679-4b17-ae4e-4b8e6bfef82a" name="qq">
+          <configuration>
+            <property>
+              <key>PACKAGE_ID</key>
+              <value>qq</value>
+            </property>
+            <property>
+              <key>POLL_VERSION_FROM</key>
+              <value>2</value>
+            </property>
+            <property>
+              <key>POLL_VERSION_TO</key>
+              <value>3</value>
+            </property>
+            <property>
+              <key>INCLUDE_PRE_RELEASE</key>
+              <value>yes</value>
+            </property>
+          </configuration>
+        </package>
+      </packages>
+    </repository>
+  </repositories>
   <pipelines group="first">
     <authorization>
       <view>
@@ -20,15 +104,18 @@
         <user>operate</user>
       </admins>
     </authorization>
-    <pipeline name="up42">
+    <pipeline name="up42" isLocked="false">
       <materials>
         <hg url="../manual-testing/ant_hg/dummy" dest="dest_dir" materialName="dummyhg" />
+        <package ref="59ae1d1b-9679-4b17-ae4e-4b8e6bfef82a" />
       </materials>
       <stage name="up42_stage">
         <jobs>
           <job name="up42_job">
             <tasks>
-              <exec command="ls" />
+              <exec command="ls">
+                <runif status="passed" />
+              </exec>
             </tasks>
           </job>
         </jobs>

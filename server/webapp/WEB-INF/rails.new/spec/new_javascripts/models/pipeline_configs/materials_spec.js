@@ -882,7 +882,7 @@ define([
       });
 
       it("should initialize material model with pluginInfo", function () {
-        expect(Materials.create({pluginInfo: new PluginInfos.PluginInfo({id: 'plugin_id'})}).pluginInfo().id()).toBe('plugin_id');
+        expect(Materials.create({ type: 'plugin', pluginInfo: new PluginInfos.PluginInfo({id: 'plugin_id'})}).pluginInfo().id()).toBe('plugin_id');
       });
 
       it("should initialize material model with invert_filter", function () {

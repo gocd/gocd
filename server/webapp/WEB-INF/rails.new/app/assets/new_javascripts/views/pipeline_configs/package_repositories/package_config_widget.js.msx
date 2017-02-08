@@ -1,0 +1,312 @@
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+define([
+  'mithril', 'lodash', 'helpers/form_helper', 'views/shared/new_modal',
+  'models/pipeline_configs/packages', 'models/pipeline_configs/plugin_infos', 'views/pipeline_configs/package_repositories/package_config_modal_widget',
+], function (m, _, f, Modal, Packages, PluginInfos, PackageConfigModalWidget) {
+
+  var addOrReplacePackage = function (repository, newPackage) {
+    var existingPackage = repository.packages().findPackage(function (pkg) {
+      return pkg.id() === newPackage.id();
+    });
+    if (_.isNil(existingPackage)) {
+      repository.packages().addPackage(newPackage);
+    }
+    else {
+      repository.packages().replacePackage(newPackage, function (pkg) {
+        return pkg.id() === newPackage.id();
+      });
+    }
+  };
+  var EditPackageWidget   = {
+    controller: function (args) {
+      var ctrl = {
+        isPluginMissing: function () {
+          return _.isNil(PluginInfos.findById(args.repository().pluginMetadata().id()));
+        },
+
+        refreshPackage: function () {
+          if (args.package() && args.package().configuration().isEmptyConfiguration()) {
+            args.package(args.package().refresh());
+          }
+        }
+      };
+
+      ctrl.refreshPackage();
+
+      return ctrl;
+    },
+
+    view: function (ctrl, args) {
+      if (!args.package()) {
+        return (
+          <div/>
+        );
+      }
+
+      var packageForEdit = args.package();
+      var data           = {Name: packageForEdit.name(), AutoUpdate: packageForEdit.autoUpdate()};
+
+      packageForEdit.configuration().mapConfigurations(function (conf) {
+        data[_.capitalize(conf.key())] = conf.isSecureValue() ? "***********" : conf.value();
+      });
+
+      var editButton = ctrl.isPluginMissing() ? (
+          <f.alert><b>{args.repository().pluginMetadata().id()}</b> plugin seems to be removed.</f.alert>)
+        : (<f.editButton class={null} onclick={args.onsave}/>);
+
+      return (
+        <div class='package'>
+          {editButton}
+          <dl class="key-value-pair">
+            {_.map(data, function (v, k) {
+              return [
+                (<dt class={_.toLower(k)}>{k}</dt>),
+                (<dd>{v}</dd>)
+              ];
+            })}
+          </dl>
+        </div>
+      );
+    }
+  };
+
+
+  var NewPackageWidget = {
+    view: function (_ctrl, args) {
+
+      if (args.repository().packages().isEmptyPackage()) {
+        return (
+          <div class="columns medium-8 no-package">
+            <label>No packages available in this repository.</label> <a class='add-button button'
+                                                                        href="javascript:void(0)"
+                                                                        onclick={args.oncreate}>Create New Package</a>
+          </div>
+        );
+      }
+      return (
+        <div class="columns medium-6 no-package"><a class='add-button button button-no-text'
+                                                    href="javascript:void(0)"
+                                                    onclick={args.oncreate}/></div>);
+    }
+  };
+
+  var PackageSelectWidget = {
+    view: function (_ctrl, args) {
+      if (args.repository().packages().isEmptyPackage()) {
+        return (<div/>);
+      }
+      var items = args.repository().packages().mapPackages(function (packageInfo) {
+        return {
+          id:   packageInfo.id(),
+          text: packageInfo.name(),
+          object: packageInfo
+        };
+      });
+
+      return (
+        <f.select model={args}
+                  attrName="selectedPackage"
+                  receiveObject={true}
+                  class="package-selector"
+                  items={items}
+                  onChange={args.onChange}/>
+      );
+    }
+  };
+
+  var PackageConfigWidget = {
+
+    controller: function (args) {
+      var ctrl = {
+        selectedPackage:           m.prop(),
+        onChange:                  function () {
+          ctrl.selectedPackage().refresh().then(function (unshallowedPackage) {
+            ctrl.selectedPackage(unshallowedPackage);
+          });
+        },
+        initializeSelectedPackage: function () {
+          var packageObject;
+
+          if (args.material.ref()) {
+            packageObject = args.repository().packages().findPackage(function (eachPackage) {
+              return eachPackage.id() === args.material.ref();
+            });
+          } else {
+            packageObject = args.repository().packages().firstPackage();
+          }
+
+          if (packageObject) {
+            ctrl.selectedPackage(undefined);
+            m.redraw(true);
+            packageObject.refresh().then(function (unshallowedPackage) {
+              ctrl.selectedPackage(unshallowedPackage);
+            });
+          }
+        },
+        createPackageModal:        function () {
+          var newPackage   = m.prop();
+          var saveDisabled = m.prop(false);
+          var errorMessage = m.prop();
+
+          var pluginInfo = m.prop();
+
+          var initializePackageWithConfig = function (newPluginInfo) {
+            pluginInfo(newPluginInfo);
+            newPackage(createPackageWithPluginInfo(newPluginInfo));
+          };
+
+          var createPackageWithPluginInfo = function (newPluginInfo) {
+            var allConfigurations = newPluginInfo.configurations();
+
+            var packageConfigurations = _.filter(allConfigurations, function (configuration) {
+              return configuration.type === 'package';
+            });
+            return Packages.Package.initialize(args.repository(), packageConfigurations);
+          };
+
+          var modal = new Modal({
+            size:    'small',
+            title:   'Add Package',
+            body:    (<PackageConfigModalWidget package={newPackage}
+                                                errorMessage={errorMessage}
+                                                saveDisabled={saveDisabled}/>),
+            onclose: function () {
+              modal.destroy();
+            },
+            buttons: [
+              {
+                text:    'Check Package Connection',
+                class:   'check_repo_connection secondary',
+                onclick: function () {
+                  //TODO: implement the check package API
+                }
+              },
+              {
+                text:    'Save',
+                class:   'save primary',
+                onclick: function () {
+                  saveDisabled('disabled in-progress');
+                  var onSuccess = function (newPackageFromServer) {
+                    modal.destroy();
+                    newPackage(newPackageFromServer);
+                    addOrReplacePackage(args.repository(), newPackageFromServer);
+                    ctrl.selectedPackage(newPackage());
+                    args.material.ref(ctrl.selectedPackage().id());
+                  };
+                  newPackage().create().then(onSuccess, errorMessage);
+                }
+              }
+            ]
+          });
+          modal.render();
+          m.redraw(true);
+
+          PluginInfos.PluginInfo.get(args.repository().pluginMetadata().id()).then(initializePackageWithConfig, errorMessage);
+        },
+        editPackageModal:          function () {
+          var newPackage   = m.prop(ctrl.selectedPackage());
+          var saveDisabled = m.prop(false);
+          var errorMessage = m.prop();
+
+
+          var pluginInfo = m.prop();
+
+          var initializePackageWithConfig = function (args) {
+            newPackage(args[0]);
+            pluginInfo(args[1]);
+            //newPackage(createPackageWithPluginInfo(newPluginInfo));
+          };
+
+          //var createPackageWithPluginInfo = function (newPluginInfo) {
+          //  var allConfigurations = newPluginInfo.configurations();
+          //
+          //  var packageConfigurations = _.filter(allConfigurations, function (configuration) {
+          //    return configuration.type === 'package';
+          //  });
+          //  return Packages.Package.initialize(args.repository(), packageConfigurations);
+          //};
+
+          var modal = new Modal({
+            size:    'small',
+            title:   'Edit Package',
+            body:    (<PackageConfigModalWidget package={newPackage}
+                                                errorMessage={errorMessage}
+                                                saveDisabled={saveDisabled}/>),
+            onclose: function () {
+              modal.destroy();
+            },
+            buttons: [
+              {
+                text:    'Check Package Connection',
+                class:   'check_repo_connection secondary',
+                onclick: function () {
+                  //TODO: implement the check package API
+                }
+              },
+              {
+                text:    'Save',
+                class:   'save primary',
+                onclick: function () {
+                  saveDisabled('disabled in-progress');
+                  var onSuccess = function (newPackageFromServer) {
+                    modal.destroy();
+                    newPackage(newPackageFromServer);
+                    addOrReplacePackage(args.repository(), newPackageFromServer);
+                    ctrl.selectedPackage(newPackage());
+                    args.material.ref(ctrl.selectedPackage().id());
+                  };
+                  newPackage().update().then(onSuccess, errorMessage);
+                }
+              }
+            ]
+          });
+          modal.render();
+          m.redraw(true);
+
+          m.sync([Packages.Package.get(newPackage().id()), PluginInfos.PluginInfo.get(args.repository().pluginMetadata().id())]).then(initializePackageWithConfig, errorMessage);
+        },
+
+      };
+
+      ctrl.initializeSelectedPackage();
+      return ctrl;
+    },
+
+    view: function (ctrl, args) {
+      return (
+        <f.column>
+          <f.row>
+            <PackageSelectWidget repository={args.repository}
+                                 selectedPackage={ctrl.selectedPackage}
+                                 onChange={ctrl.onChange.bind(ctrl)}/>
+
+            <NewPackageWidget repository={args.repository}
+                              oncreate={ctrl.createPackageModal}/>
+          </f.row>
+          <f.row>
+            <EditPackageWidget package={ctrl.selectedPackage}
+                               repository={args.repository}
+                               key={ctrl.selectedPackage() ? ctrl.selectedPackage().id() : 'no-edit-package-widget'}
+                               onsave={ctrl.editPackageModal}/>
+          </f.row>
+        </f.column>
+      );
+    }
+  };
+  return PackageConfigWidget;
+});

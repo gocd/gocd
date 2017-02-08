@@ -54,7 +54,7 @@ define(['mithril', 'lodash', 'jquery', 'string-plus', 'helpers/form_helper'], fu
 
       view: function (ctrl) {
         return (
-          <div class="reveal-overlay" style={{display: 'block'}}>
+          <div class={"reveal-overlay " + options.class} style={{display: 'block'}}>
             <div class={'reveal ' + (options.size ? options.size : '')}
                  style={{display: 'block'}}>
 
@@ -72,13 +72,16 @@ define(['mithril', 'lodash', 'jquery', 'string-plus', 'helpers/form_helper'], fu
               </button>
 
               <f.row class="modal-buttons">
-                {_.map(_.isFunction(options.buttons) ? options.buttons() : options.buttons, function (button) {
-                  return (
-                    <f.button disabled={button.disabled ? button.disabled() : false}
-                              onclick={button.onclick}
-                              class={button.class}>{button.text}</f.button>
-                  );
-                })}
+                <div class="columns medium-12">
+                  {_.map(_.isFunction(options.buttons) ? options.buttons() : options.buttons, function (button) {
+                    return (
+
+                      <f.button disabled={button.disabled ? button.disabled() : false}
+                                onclick={button.onclick}
+                                class={button.class}>{button.text}</f.button>
+                    );
+                  })}
+                </div>
               </f.row>
             </div>
           </div>

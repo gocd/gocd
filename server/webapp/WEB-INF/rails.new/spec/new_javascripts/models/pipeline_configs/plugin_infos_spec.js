@@ -111,6 +111,31 @@ define(['jquery', 'mithril', "models/pipeline_configs/plugin_infos"], function (
         expect(pluginInfo.viewTemplate()).toBe('plugin_view_template');
       });
 
+      it('should default view template to blank if view is undefined', function () {
+        /* eslint-disable camelcase */
+        var plugin = new PluginInfos.PluginInfo({
+          id:                          'plugin_id',
+          name:                        'plugin_name',
+          version:                     'plugin_version',
+          type:                        'plugin_type',
+          display_name:                'Plugin Display Name',
+          pluggable_instance_settings: {
+            configurations: [
+              {
+                key:      'url',
+                metadata: {required: true, secure: false}
+              },
+              {
+                key:      'username',
+                type:     'package',
+                metadata: {required: true, secure: false}
+              }]
+          }
+        });
+        /* eslint-enable camelcase */
+        expect(plugin.viewTemplate()).toBe('');
+      });
+
       it('should initialize with display name', function () {
         expect(pluginInfo.displayName()).toBe('Plugin Display Name');
       });

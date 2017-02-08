@@ -1,0 +1,110 @@
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+define(['mithril', 'lodash', 'helpers/form_helper', 'models/pipeline_configs/plugin_infos', 'views/pipeline_configs/package_repositories/configuration_widget'],
+  function (m, _, f, PluginInfos, ConfigurationWidget) {
+
+    var RepositoryConfigModalWidget = {
+      controller: function (args) {
+        var ctrl = {
+          isPropertySecure: function (key) {
+            var securePluginKeys = _.chain(args.pluginInfo().configurations()).filter(function (property) {
+              return property.metadata.secure;
+            }).map(function (property) {
+              return property.key;
+            }).value();
+
+            return _.includes(securePluginKeys, key);
+          }
+        };
+        return ctrl;
+      },
+      view: function (ctrl, args) {
+
+        if (args.errorMessage && args.errorMessage()) {
+          return (
+            <f.alert>{args.errorMessage()}</f.alert>
+          );
+        }
+
+        if (!args.repo() || !args.pluginInfo()) {
+          return (
+            <div class="modal-spinner"/>
+          );
+        }
+        var items = _.map(PluginInfos.filterByType('package-repository'), function (pluginInfo) {
+          return {
+            id:   pluginInfo.id(),
+            text: pluginInfo.name()
+          };
+        });
+
+        var createOrEdit;
+        if (args.isBeingCreated) {
+          createOrEdit = (<f.row class='repo-selector'>
+            <f.select
+              label='Type of plugin'
+              items={items}
+              size={12}
+              largeSize={12}
+              attrName="selectedPluginId"
+              model={args}
+            />
+          </f.row>);
+        }
+        else {
+          createOrEdit = (
+            <f.row size={6}>
+              <f.column size={12}>
+                <p>
+                  <strong>Type of plugin - </strong>
+                  {args.repo().pluginMetadata().id()}
+                </p>
+              </f.column>
+            </f.row>
+          );
+        }
+
+        return (
+
+          <div class='modal-content'>
+            <div class='modal-body'>
+              {createOrEdit}
+              <f.row>
+                <f.inputWithLabel attrName='name'
+                                  class='align'
+                                  size={12}
+                                  largeSize={12}
+                                  validate={true}
+                                  isRequired={true}
+                                  model={args.repo()}/>
+              </f.row>
+
+              {
+                args.repo().configuration().mapConfigurations(function (configuration) {
+                  return (<ConfigurationWidget configuration={configuration}
+                                                isPropertySecure={ctrl.isPropertySecure(configuration.key())}/>);
+                })
+              }
+
+            </div>
+          </div>
+        );
+      }
+    };
+
+    return RepositoryConfigModalWidget;
+  });

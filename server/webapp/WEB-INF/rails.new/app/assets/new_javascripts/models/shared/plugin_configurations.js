@@ -15,8 +15,16 @@
  */
 
 define([
-  'mithril', 'string-plus', 'models/model_mixins', 'models/validatable_mixin'
-], function (m, s, Mixins, Validatable) {
+  'mithril', 'lodash', 'string-plus', 'models/model_mixins', 'models/validatable_mixin', 'models/pipeline_configs/encrypted_value'
+], function (m, _, s, Mixins, Validatable, EncryptedValue) {
+
+  function plainOrCipherValue(data) {
+    if (data.encrypted_value) {
+      return new EncryptedValue({cipherText: s.defaultToIfBlank(data.encrypted_value, '')});
+    } else {
+      return new EncryptedValue({clearText: s.defaultToIfBlank(data.value, '')});
+    }
+  }
 
   var PluginConfigurations = function (data) {
     this.constructor.modelType = 'plugin-configurations';
@@ -49,23 +57,36 @@ define([
         existingConfig.value(value);
       }
     };
+
+    this.newConfigurationWithKeys = function (keys) {
+      var pluginConfigurations = new PluginConfigurations();
+      this.eachConfiguration(function (config) {
+        if (_.includes(keys, config.key())) {
+          if (config.isSecureValue()) {
+            pluginConfigurations.createConfiguration({key: config.key(), encrypted_value: config.value()});
+          } else {
+            pluginConfigurations.createConfiguration({key: config.key(), value: config.value()});
+          }
+        }
+      });
+
+      return pluginConfigurations;
+    };
   };
 
   PluginConfigurations.Configuration = function (data) {
-    this.parent = Mixins.GetterSetter();
-    this.constructor.modelType = 'plugin-configuration';
-
-    this.key   = m.prop(s.defaultToIfBlank(data.key, ''));
-    this.value = m.prop(s.defaultToIfBlank(data.value, ''));
     Validatable.call(this, data);
+    this.parent = Mixins.GetterSetter();
+    this.key    = m.prop(s.defaultToIfBlank(data.key, ''));
+    var _value  = m.prop(plainOrCipherValue(data));
+
+    Mixins.HasEncryptedAttribute.call(this, {attribute: _value, name: 'value'});
 
     this.toJSON = function () {
-      return {
-        key:   this.key(),
-        value: this.value()
-      };
-    };
+      var valueHash = this.isPlainValue() ? {value: this.value()} : {encrypted_value: this.value()};  //eslint-disable-line camelcase
 
+      return _.merge({key: this.key()}, valueHash);
+    };
   };
 
   PluginConfigurations.Configuration.create = function (data) {
@@ -73,6 +94,7 @@ define([
   };
 
   PluginConfigurations.Configuration.fromJSON = function (data) {
+    data = _.assign({}, data);
     return new PluginConfigurations.Configuration(data);
   };
 
@@ -84,4 +106,3 @@ define([
 
   return PluginConfigurations;
 });
-

@@ -17,17 +17,19 @@
 package com.thoughtworks.go.server.security.providers;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.PluginRoleConfig;
-import com.thoughtworks.go.config.RoleUser;
+import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationExtension;
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationPluginRegistry;
 import com.thoughtworks.go.plugin.access.authentication.models.User;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConfigMetadataStore;
 import com.thoughtworks.go.plugin.access.authorization.models.AuthenticationResponse;
+import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.security.AuthorityGranter;
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
 import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.PluginRoleService;
+import com.thoughtworks.go.server.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,15 +53,22 @@ public class PluginAuthenticationProvider extends AbstractUserDetailsAuthenticat
     private final AuthorizationPluginConfigMetadataStore store;
     private final AuthorityGranter authorityGranter;
     private GoConfigService configService;
+    private PluginRoleService pluginRoleService;
+    private UserService userService;
 
     @Autowired
-    public PluginAuthenticationProvider(AuthenticationPluginRegistry authenticationPluginRegistry, AuthenticationExtension authenticationExtension, AuthorizationExtension authorizationExtension, AuthorizationPluginConfigMetadataStore store, AuthorityGranter authorityGranter, GoConfigService configService) {
+    public PluginAuthenticationProvider(AuthenticationPluginRegistry authenticationPluginRegistry, AuthenticationExtension authenticationExtension,
+                                        AuthorizationExtension authorizationExtension, AuthorizationPluginConfigMetadataStore store,
+                                        AuthorityGranter authorityGranter, GoConfigService configService, PluginRoleService pluginRoleService,
+                                        UserService userService) {
         this.authenticationPluginRegistry = authenticationPluginRegistry;
         this.authenticationExtension = authenticationExtension;
         this.authorizationExtension = authorizationExtension;
         this.store = store;
         this.authorityGranter = authorityGranter;
         this.configService = configService;
+        this.pluginRoleService = pluginRoleService;
+        this.userService = userService;
     }
 
     @Override
@@ -68,16 +77,26 @@ public class PluginAuthenticationProvider extends AbstractUserDetailsAuthenticat
 
     @Override
     protected UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
-        UserDetails user = getUserDetailsFromAuthorizationPlugins(username, authentication);
-        if (user != null) return user;
+        GoUserPrinciple user = getUserDetailsFromAuthorizationPlugins(username, authentication);
 
-        user = getUserDetailsFromAuthenticationPlugins(username, authentication);
-        if (user != null) return user;
+        if (user == null) {
+            user = getUserDetailsFromAuthenticationPlugins(username, authentication);
+        }
 
-        throw new UsernameNotFoundException("Unable to authenticate user: " + username);
+        if (user == null) {
+            removeAnyAssociatedPluginRolesFor(username);
+            throw new UsernameNotFoundException("Unable to authenticate user: " + username);
+        }
+
+        userService.addUserIfDoesNotExist(new Username(new CaseInsensitiveString(user.getUsername()), user.getDisplayName()));
+        return user;
     }
 
-    private UserDetails getUserDetailsFromAuthenticationPlugins(String username, UsernamePasswordAuthenticationToken authentication) {
+    private void removeAnyAssociatedPluginRolesFor(String username) {
+        pluginRoleService.revokeAllRolesFor(username);
+    }
+
+    private GoUserPrinciple getUserDetailsFromAuthenticationPlugins(String username, UsernamePasswordAuthenticationToken authentication) {
         Set<String> plugins = authenticationPluginRegistry.getPluginsThatSupportsPasswordBasedAuthentication();
         for (String pluginId : plugins) {
             String password = (String) authentication.getCredentials();
@@ -89,15 +108,19 @@ public class PluginAuthenticationProvider extends AbstractUserDetailsAuthenticat
         return null;
     }
 
-    private UserDetails getUserDetailsFromAuthorizationPlugins(String username, UsernamePasswordAuthenticationToken authentication) {
+    private GoUserPrinciple getUserDetailsFromAuthorizationPlugins(String username, UsernamePasswordAuthenticationToken authentication) {
         Set<String> plugins = store.getPluginsThatSupportsPasswordBasedAuthentication();
         for (String pluginId : plugins) {
             String password = (String) authentication.getCredentials();
-            AuthenticationResponse response = authorizationExtension.authenticateUser(pluginId, username, password);
+            List<SecurityAuthConfig> authConfigs = configService.security().securityAuthConfigs().findByPluginId(pluginId);
+
+            if (authConfigs == null || authConfigs.isEmpty())
+                continue;
+
+            AuthenticationResponse response = authorizationExtension.authenticateUser(pluginId, username, password, authConfigs);
             User user = ensureDisplayNamePresent(response.getUser());
             if (user != null) {
-                List<CaseInsensitiveString> roleNames = CaseInsensitiveString.caseInsensitiveStrings(response.getRoles());
-                addUserToRoles(pluginId, user, roleNames);
+                pluginRoleService.updatePluginRoles(pluginId, username, CaseInsensitiveString.caseInsensitiveStrings(response.getRoles()));
                 return getGoUserPrinciple(user);
             }
         }
@@ -119,19 +142,6 @@ public class PluginAuthenticationProvider extends AbstractUserDetailsAuthenticat
         }
 
         return false;
-    }
-
-    void addUserToRoles(String pluginId, User user, List<CaseInsensitiveString> roleNames) {
-        List<PluginRoleConfig> pluginRolesConfig = configService.security().getPluginRolesConfig(pluginId, roleNames);
-
-        for (PluginRoleConfig role : pluginRolesConfig) {
-            if (!role.hasMember(new CaseInsensitiveString(user.getUsername()))) {
-                LOGGER.info("Adding user `{}` to role `{}`", user.getUsername(), role.getName());
-                role.addUser(new RoleUser(user.getUsername()));
-            } else {
-                LOGGER.info("User `{}` already exists in role `{}`", user.getUsername(), role.getName());
-            }
-        }
     }
 
     private User ensureDisplayNamePresent(User user) {

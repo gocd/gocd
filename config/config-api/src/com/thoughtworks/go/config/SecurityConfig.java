@@ -216,15 +216,16 @@ public class SecurityConfig implements Validatable {
         return this.securityAuthConfigs;
     }
 
-    public List<PluginRoleConfig> getPluginRolesConfig(String pluginId, List<CaseInsensitiveString> roleNames) {
-        ArrayList<PluginRoleConfig> result = new ArrayList<>();
+    public List<PluginRoleConfig> getPluginRoles(String pluginId) {
+        List<PluginRoleConfig> result = new ArrayList<>();
+
         List<SecurityAuthConfig> authConfigs = securityAuthConfigs.findByPluginId(pluginId);
         List<PluginRoleConfig> pluginRoles = rolesConfig.getPluginRolesConfig();
 
         for (SecurityAuthConfig authConfig : authConfigs) {
-            for (PluginRoleConfig role : pluginRoles) {
-                if (roleNames.contains(role.getName()) && authConfig.hasRole(role)) {
-                    result.add(role);
+            for (PluginRoleConfig pluginRole : pluginRoles) {
+                if (pluginRole.getAuthConfigId().equals(authConfig.getId())) {
+                    result.add(pluginRole);
                 }
             }
         }

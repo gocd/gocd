@@ -54,10 +54,8 @@ public abstract class AbstractPluginRegistry<Extension extends AbstractExtension
 
     @Override
     public void pluginUnLoaded(GoPluginDescriptor pluginDescriptor) {
-        if (extension.canHandlePlugin(pluginDescriptor.id())) {
-            plugins.remove(pluginDescriptor);
-            store.remove(pluginDescriptor);
-        }
+        plugins.remove(pluginDescriptor);
+        store.remove(pluginDescriptor);
     }
 
     public List<PluginDescriptor> getPlugins() {

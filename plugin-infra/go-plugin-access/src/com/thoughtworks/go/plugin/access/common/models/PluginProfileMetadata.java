@@ -41,4 +41,22 @@ public class PluginProfileMetadata {
     public boolean isSecure() {
         return secure;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof PluginProfileMetadata)) return false;
+
+        PluginProfileMetadata that = (PluginProfileMetadata) o;
+
+        if (required != that.required) return false;
+        return secure == that.secure;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (required ? 1 : 0);
+        result = 31 * result + (secure ? 1 : 0);
+        return result;
+    }
 }

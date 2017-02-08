@@ -223,7 +223,7 @@ public class SecurityConfigTest {
         securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("github", "cd.go.github"));
 
 
-        List<PluginRoleConfig> pluginRolesConfig = securityConfig.getPluginRolesConfig("cd.go.ldap", CaseInsensitiveString.caseInsensitiveStrings("foo", "bar", "xyz", "none-existing-role"));
+        List<PluginRoleConfig> pluginRolesConfig = securityConfig.getPluginRoles("cd.go.ldap");
 
         assertThat(pluginRolesConfig, hasSize(1));
         assertThat(pluginRolesConfig, contains(new PluginRoleConfig("foo", "ldap")));
@@ -238,7 +238,7 @@ public class SecurityConfigTest {
         securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("ldap", "cd.go.ldap"));
         securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("github", "cd.go.github"));
 
-        List<PluginRoleConfig> pluginRolesConfig = securityConfig.getPluginRolesConfig("non-existant-plugin", CaseInsensitiveString.caseInsensitiveStrings("foo", "bar", "xyz", "none-existing-role"));
+        List<PluginRoleConfig> pluginRolesConfig = securityConfig.getPluginRoles("non-existant-plugin");
 
         assertThat(pluginRolesConfig, hasSize(0));
     }

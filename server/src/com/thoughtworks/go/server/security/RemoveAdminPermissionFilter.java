@@ -16,42 +16,47 @@
 
 package com.thoughtworks.go.server.security;
 
-import java.io.IOException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.SecurityConfig;
-import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.listener.ConfigChangedListener;
+import com.thoughtworks.go.listener.PluginRoleChangeListener;
+import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.PluginRoleService;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.log4j.Logger;
-import org.springframework.security.ui.SpringSecurityFilter;
-import org.springframework.security.ui.FilterChainOrder;
-import org.springframework.security.context.SecurityContextHolder;
 import org.springframework.security.Authentication;
+import org.springframework.security.context.SecurityContextHolder;
+import org.springframework.security.ui.FilterChainOrder;
+import org.springframework.security.ui.SpringSecurityFilter;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * @understands when a logged in user's authorization needs to be redone to get the new roles.
  */
-public class RemoveAdminPermissionFilter extends SpringSecurityFilter implements ConfigChangedListener {
+public class RemoveAdminPermissionFilter extends SpringSecurityFilter implements ConfigChangedListener, PluginRoleChangeListener {
     private static final Logger LOGGER = Logger.getLogger(RemoveAdminPermissionFilter.class);
 
     protected static final String SECURITY_CONFIG_LAST_CHANGE = "security_config_last_changed_time";
     private SecurityConfig securityConfig;
     private GoConfigService goConfigService;
     private TimeProvider timeProvider;
+    private PluginRoleService pluginRoleService;
     private volatile long lastChangedTime;
 
-    public RemoveAdminPermissionFilter(GoConfigService goConfigService, TimeProvider timeProvider) {
+    public RemoveAdminPermissionFilter(GoConfigService goConfigService, TimeProvider timeProvider, PluginRoleService pluginRoleService) {
         this.goConfigService = goConfigService;
         this.timeProvider = timeProvider;
+        this.pluginRoleService = pluginRoleService;
     }
 
     public void initialize() {
         goConfigService.register(this);
+        pluginRoleService.register(this);
     }
 
     public void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -88,5 +93,10 @@ public class RemoveAdminPermissionFilter extends SpringSecurityFilter implements
 
     private SecurityConfig securityConfig(CruiseConfig newCruiseConfig) {
         return newCruiseConfig.server().security();
+    }
+
+    @Override
+    public void onPluginRoleChange() {
+        this.lastChangedTime = timeProvider.currentTimeMillis();
     }
 }

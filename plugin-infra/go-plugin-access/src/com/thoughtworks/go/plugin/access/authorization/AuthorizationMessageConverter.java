@@ -17,6 +17,7 @@
 package com.thoughtworks.go.plugin.access.authorization;
 
 import com.thoughtworks.go.config.PluginRoleConfig;
+import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.plugin.access.authentication.models.User;
 import com.thoughtworks.go.plugin.access.authorization.models.AuthenticationResponse;
 import com.thoughtworks.go.plugin.access.authorization.models.Capabilities;
@@ -48,13 +49,13 @@ public interface AuthorizationMessageConverter {
 
     String verifyConnectionRequestBody(Map<String, String> configuration);
 
-    String authenticateUserRequestBody(String username, String password);
+    String authenticateUserRequestBody(String username, String password, List<SecurityAuthConfig> authConfigs);
 
     AuthenticationResponse getAuthenticatedUserFromResponseBody(String responseBody);
 
     List<User> getSearchUsersFromResponseBody(String responseBody);
 
-    String searchUsersRequestBody(String searchTerm);
+    String searchUsersRequestBody(String searchTerm, List<SecurityAuthConfig> authConfigs);
 
     String processGetRoleConfigsRequest(String requestBody);
 

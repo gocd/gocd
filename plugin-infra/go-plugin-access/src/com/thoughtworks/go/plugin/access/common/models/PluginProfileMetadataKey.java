@@ -42,4 +42,22 @@ public class PluginProfileMetadataKey {
         }
         return metadata;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof PluginProfileMetadataKey)) return false;
+
+        PluginProfileMetadataKey that = (PluginProfileMetadataKey) o;
+
+        if (key != null ? !key.equals(that.key) : that.key != null) return false;
+        return metadata != null ? metadata.equals(that.metadata) : that.metadata == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = key != null ? key.hashCode() : 0;
+        result = 31 * result + (metadata != null ? metadata.hashCode() : 0);
+        return result;
+    }
 }

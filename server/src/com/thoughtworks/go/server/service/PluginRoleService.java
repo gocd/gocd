@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,81 +16,99 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.ConfigTag;
-import com.thoughtworks.go.config.Role;
-import com.thoughtworks.go.config.RolesConfig;
-import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
-import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
-import com.thoughtworks.go.config.update.RoleConfigCreateCommand;
-import com.thoughtworks.go.config.update.RoleConfigDeleteCommand;
-import com.thoughtworks.go.config.update.RoleConfigUpdateCommand;
-import com.thoughtworks.go.i18n.LocalizedMessage;
-import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
-import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import org.slf4j.LoggerFactory;
+import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.listener.PluginRoleChangeListener;
+import com.thoughtworks.go.listener.ConfigChangedListener;
+import com.thoughtworks.go.plugin.api.GoPlugin;
+import com.thoughtworks.go.plugin.infra.PluginChangeListener;
+import com.thoughtworks.go.plugin.infra.PluginManager;
+import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@Component
-public class PluginRoleService {
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(PluginRoleService.class);
-    private final AuthorizationExtension authorizationExtension;
+import java.util.*;
+
+@Service
+public class PluginRoleService implements ConfigChangedListener, PluginChangeListener {
     private final GoConfigService goConfigService;
-    private final EntityHashingService hashingService;
+    private final PluginRoleUsersStore pluginRoleUsersStore = PluginRoleUsersStore.instance();
+    private final Set<PluginRoleChangeListener> listeners = new HashSet<>();
 
     @Autowired
-    public PluginRoleService(GoConfigService goConfigService, EntityHashingService hashingService, AuthorizationExtension authorizationExtension) {
+    public PluginRoleService(GoConfigService goConfigService, PluginManager pluginManager) {
         this.goConfigService = goConfigService;
-        this.hashingService = hashingService;
-        this.authorizationExtension = authorizationExtension;
+        pluginManager.addPluginChangeListener(this, GoPlugin.class);
     }
 
-    public Role findRole(String name) {
-        return getRoles().findByName(new CaseInsensitiveString(name));
-    }
+    public void updatePluginRoles(String pluginId, String username, List<CaseInsensitiveString> pluginRolesName) {
+        pluginRoleUsersStore.revokeAllRolesFor(username);
 
-    public RolesConfig listAll() {
-        return getRoles();
-    }
+        Map<CaseInsensitiveString, PluginRoleConfig> pluginRoles = getPluginRoles(pluginId);
+        for (CaseInsensitiveString pluginRoleName : pluginRolesName) {
+            PluginRoleConfig pluginRoleConfig = pluginRoles.get(pluginRoleName);
 
-    protected void update(Username currentUser, Role role, LocalizedOperationResult result, EntityConfigUpdateCommand<Role> command) {
-        try {
-            goConfigService.updateConfig(command, currentUser);
-        } catch (Exception e) {
-            if (e instanceof GoConfigInvalidException) {
-                result.unprocessableEntity(LocalizedMessage.string("ENTITY_CONFIG_VALIDATION_FAILED", getTagName(role), role.getName(), e.getMessage()));
-            } else {
-                if (!result.hasMessage()) {
-                    LOGGER.error(e.getMessage(), e);
-                    result.internalServerError(LocalizedMessage.string("SAVE_FAILED_WITH_REASON", "An error occurred while saving the role config. Please check the logs for more information."));
-                }
+            if (pluginRoleConfig != null) {
+                pluginRoleUsersStore.assignRole(username, pluginRoleConfig);
             }
         }
     }
 
-    private String getTagName(Role role) {
-        return role.getClass().getAnnotation(ConfigTag.class).value();
+    public void register(PluginRoleChangeListener listener) {
+        listeners.add(listener);
     }
 
-    private RolesConfig getRoles() {
-        return goConfigService.serverConfig().security().getRoles();
-    }
-
-    public void update(Username currentUser, String md5, Role newRole, LocalizedOperationResult result) {
-        update(currentUser, newRole, result, new RoleConfigUpdateCommand(goConfigService, newRole, authorizationExtension, currentUser, result, hashingService, md5));
-    }
-
-    public void delete(Username currentUser, Role role, LocalizedOperationResult result) {
-        update(currentUser, role, result, new RoleConfigDeleteCommand(goConfigService, role, authorizationExtension, currentUser, result));
-        if (result.isSuccessful()) {
-            result.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", "plugin role config", role.getName()));
+    private void notifyListeners() {
+        for (PluginRoleChangeListener listener : listeners) {
+            listener.onPluginRoleChange();
         }
     }
 
-    public void create(Username currentUser, Role newRole, LocalizedOperationResult result) {
-        update(currentUser, newRole, result, new RoleConfigCreateCommand(goConfigService, newRole, authorizationExtension, currentUser, result));
+    public void invalidateRolesFor(String pluginId) {
+        List<PluginRoleConfig> pluginRoles = goConfigService.security().getPluginRoles(pluginId);
+
+        if (!pluginRoles.isEmpty()) {
+            pluginRoleUsersStore.remove(pluginRoles);
+            notifyListeners();
+        }
     }
 
+    public List<RoleUser> usersForPluginRole(String roleName) {
+        return pluginRoleUsersStore.usersInRole(pluginRole(roleName));
+    }
+
+    public void revokeAllRolesFor(String username) {
+        pluginRoleUsersStore.revokeAllRolesFor(username);
+    }
+
+    @Override
+    public void onConfigChange(CruiseConfig newCruiseConfig) {
+        List<PluginRoleConfig> pluginRolesAfterConfigUpdate = newCruiseConfig.server().security().getRoles().getPluginRolesConfig();
+
+        pluginRoleUsersStore.removePluginRolesNotIn(pluginRolesAfterConfigUpdate);
+    }
+
+    private PluginRoleConfig pluginRole(String roleName) {
+        return goConfigService.security().getRoles().findPluginRoleByName(new CaseInsensitiveString(roleName));
+    }
+
+    private Map<CaseInsensitiveString, PluginRoleConfig> getPluginRoles(String pluginId) {
+        Map<CaseInsensitiveString, PluginRoleConfig> result = new HashMap<>();
+
+        List<PluginRoleConfig> pluginRoles = goConfigService.security().getPluginRoles(pluginId);
+
+        for (PluginRoleConfig pluginRole : pluginRoles) {
+            result.put(pluginRole.getName(), pluginRole);
+        }
+        return result;
+    }
+
+    @Override
+    public void pluginLoaded(GoPluginDescriptor pluginDescriptor) {
+//        do nothing
+    }
+
+    @Override
+    public void pluginUnLoaded(GoPluginDescriptor pluginDescriptor) {
+        invalidateRolesFor(pluginDescriptor.id());
+    }
 }

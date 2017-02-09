@@ -20,17 +20,19 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
-import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 
 
 public class UpdateTemplateConfigCommand extends TemplateConfigCommand {
+    private SecurityService securityService;
     private String md5;
     private EntityHashingService entityHashingService;
 
-    public UpdateTemplateConfigCommand(PipelineTemplateConfig templateConfig, Username currentUser, GoConfigService goConfigService, LocalizedOperationResult result, String md5, EntityHashingService entityHashingService) {
-        super(templateConfig, result, currentUser, goConfigService);
+    public UpdateTemplateConfigCommand(PipelineTemplateConfig templateConfig, Username currentUser, SecurityService securityService, LocalizedOperationResult result, String md5, EntityHashingService entityHashingService) {
+        super(templateConfig, result, currentUser);
+        this.securityService = securityService;
         this.md5 = md5;
         this.entityHashingService = entityHashingService;
     }
@@ -52,11 +54,11 @@ public class UpdateTemplateConfigCommand extends TemplateConfigCommand {
 
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
-        return isUserAuthorized() && isRequestFresh(cruiseConfig);
+        return isRequestFresh(cruiseConfig) && isUserAuthorized();
     }
 
     private boolean isUserAuthorized() {
-        if (!goConfigService.isAuthorizedToEditTemplate(templateConfig.name().toString(), currentUser)) {
+        if (!securityService.isAuthorizedToEditTemplate(templateConfig.name().toString(), currentUser)) {
             result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
             return false;
         }

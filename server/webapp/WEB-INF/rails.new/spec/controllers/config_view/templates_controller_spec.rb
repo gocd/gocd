@@ -27,6 +27,12 @@ describe ConfigView::TemplatesController do
 
   describe 'security' do
 
+    it 'should allow anyone, with security disabled' do
+      disable_security
+
+      expect(controller).to allow_action(:get, :show)
+    end
+
     it 'should disallow anonymous users, with security enabled' do
       enable_security
       login_as_anonymous

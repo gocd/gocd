@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.NoSuchTemplateException;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 
@@ -32,14 +31,12 @@ public abstract class TemplateConfigCommand implements EntityConfigUpdateCommand
     protected final LocalizedOperationResult result;
     protected PipelineTemplateConfig templateConfig;
     protected final Username currentUser;
-    protected GoConfigService goConfigService;
 
 
-    TemplateConfigCommand(PipelineTemplateConfig templateConfig, LocalizedOperationResult result, Username currentUser, GoConfigService goConfigService) {
+    TemplateConfigCommand(PipelineTemplateConfig templateConfig, LocalizedOperationResult result, Username currentUser) {
         this.templateConfig = templateConfig;
         this.result = result;
         this.currentUser = currentUser;
-        this.goConfigService = goConfigService;
     }
 
 

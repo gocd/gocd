@@ -979,25 +979,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return null;
     }
 
-    public boolean isAuthorizedToEditTemplate(String templateName, Username username) {
-        PipelineTemplateConfig template = getCurrentConfig().getTemplateByName(new CaseInsensitiveString(templateName));
-        return isUserAdmin(username) || getCurrentConfig().getTemplates().canUserEditTemplate(template, username.getUsername(), rolesForUser(username.getUsername()));
-    }
-
-    public boolean isAuthorizedToViewAndEditTemplates(Username username) {
-        return isUserAdmin(username) || getCurrentConfig().getTemplates().canViewAndEditTemplate(username.getUsername(), rolesForUser(username.getUsername()));
-    }
-
-    public boolean isAuthorizedToViewTemplate(String templateName, Username username) {
-        PipelineTemplateConfig template = getCurrentConfig().getTemplateByName(new CaseInsensitiveString(templateName));
-        return isAuthorizedToEditTemplate(templateName, username) || getCurrentConfig().getTemplates().hasViewAccessToTemplate(template, username.getUsername(), rolesForUser(username.getUsername()), isGroupAdministrator(username));
-    }
-
-    public boolean isAuthorizedToViewTemplates(Username username) {
-        TemplatesConfig templates = getCurrentConfig().getTemplates();
-        return isAuthorizedToViewAndEditTemplates(username) || templates.canUserViewTemplates(username.getUsername(), rolesForUser(username.getUsername()), isGroupAdministrator(username));
-    }
-
     public void updateUserPipelineSelections(String id, Long userId, CaseInsensitiveString pipelineToAdd) {
         PipelineSelections currentSelections = findOrCreateCurrentPipelineSelectionsFor(id, userId);
         if (!currentSelections.isBlacklist()) {

@@ -27,8 +27,11 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 
 public class CreateTemplateConfigCommand extends TemplateConfigCommand {
 
+    private GoConfigService goConfigService;
+
     public CreateTemplateConfigCommand(PipelineTemplateConfig templateConfig, Username currentUser, GoConfigService goConfigService, LocalizedOperationResult result) {
-        super(templateConfig, result, currentUser, goConfigService);
+        super(templateConfig, result, currentUser);
+        this.goConfigService = goConfigService;
     }
 
     @Override

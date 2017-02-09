@@ -22,7 +22,7 @@ import com.thoughtworks.go.config.PipelineTemplateConfig;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import org.junit.Before;
@@ -40,7 +40,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 public class DeleteTemplateConfigCommandTest {
 
     @Mock
-    private GoConfigService goConfigService;
+    private SecurityService securityService;
 
     private LocalizedOperationResult result;
     private Username currentUser;
@@ -63,7 +63,7 @@ public class DeleteTemplateConfigCommandTest {
     @Test
     public void shouldDeleteTemplateFromTheGivenConfig() throws Exception {
         cruiseConfig.addTemplate(pipelineTemplateConfig);
-        DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(pipelineTemplateConfig, result, goConfigService, currentUser);
+        DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(pipelineTemplateConfig, result, securityService, currentUser);
         assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(true));
         command.update(cruiseConfig);
         assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(false));
@@ -72,7 +72,7 @@ public class DeleteTemplateConfigCommandTest {
     @Test
     public  void shouldValidateWhetherTemplateIsAssociatedWithPipelines() {
         new GoConfigMother().addPipelineWithTemplate(cruiseConfig, "p1", pipelineTemplateConfig.name().toString(), "s1", "j1");
-        DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(pipelineTemplateConfig, result, goConfigService, currentUser);
+        DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(pipelineTemplateConfig, result, securityService, currentUser);
 
         thrown.expectMessage("The template 'template' is being referenced by pipeline(s): [p1]");
         assertThat(command.isValid(cruiseConfig), is(false));
@@ -81,9 +81,10 @@ public class DeleteTemplateConfigCommandTest {
 
     @Test
     public void shouldNotContinueWithConfigSaveIfUserIsUnauthorized() {
-        when(goConfigService.isAuthorizedToEditTemplate("template", currentUser)).thenReturn(false);
+        cruiseConfig.addTemplate(pipelineTemplateConfig);
+        when(securityService.isAuthorizedToEditTemplate("template", currentUser)).thenReturn(false);
 
-        DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(pipelineTemplateConfig, result, goConfigService, currentUser);
+        DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(pipelineTemplateConfig, result, securityService, currentUser);
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result.toString(), containsString("UNAUTHORIZED_TO_EDIT"));
@@ -92,18 +93,18 @@ public class DeleteTemplateConfigCommandTest {
     @Test
     public void shouldContinueWithConfigSaveIfUserIsAuthorized() {
         cruiseConfig.addTemplate(pipelineTemplateConfig);
-        when(goConfigService.isAuthorizedToEditTemplate("template", currentUser)).thenReturn(true);
+        when(securityService.isAuthorizedToEditTemplate("template", currentUser)).thenReturn(true);
 
-        DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(pipelineTemplateConfig, result, goConfigService, currentUser);
+        DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(pipelineTemplateConfig, result, securityService, currentUser);
 
         assertThat(command.canContinue(cruiseConfig), is(true));
     }
 
     @Test
     public void shouldNotContinueWhenTemplateNoLongerExists() {
-        when(goConfigService.isAuthorizedToEditTemplate("template", currentUser)).thenReturn(true);
+        when(securityService.isAuthorizedToEditTemplate("template", currentUser)).thenReturn(true);
 
-        DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(pipelineTemplateConfig, result, goConfigService, currentUser);
+        DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(pipelineTemplateConfig, result, securityService, currentUser);
 
         assertThat(command.canContinue(cruiseConfig), is(false));
     }

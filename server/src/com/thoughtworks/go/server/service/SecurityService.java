@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service;
 
@@ -187,19 +187,26 @@ public class SecurityService {
     }
 
     public boolean isAuthorizedToViewAndEditTemplates(Username username) {
-        return goConfigService.isAuthorizedToViewAndEditTemplates(username);
+        CruiseConfig cruiseConfig = goConfigService.cruiseConfig();
+        return isUserAdmin(username) || cruiseConfig.getTemplates().canViewAndEditTemplate(username.getUsername(), rolesForUser(username.getUsername()));
+
     }
 
     public boolean isAuthorizedToEditTemplate(String templateName, Username username) {
-        return goConfigService.isAuthorizedToEditTemplate(templateName, username);
+        CruiseConfig cruiseConfig = goConfigService.cruiseConfig();
+        PipelineTemplateConfig template = cruiseConfig.getTemplateByName(new CaseInsensitiveString(templateName));
+        return isUserAdmin(username) || cruiseConfig.getTemplates().canUserEditTemplate(template, username.getUsername(), rolesForUser(username.getUsername()));
     }
 
     public boolean isAuthorizedToViewTemplate(String templateName, Username username) {
-        return goConfigService.isAuthorizedToViewTemplate(templateName, username);
+        CruiseConfig cruiseConfig = goConfigService.cruiseConfig();
+        PipelineTemplateConfig template = cruiseConfig.getTemplateByName(new CaseInsensitiveString(templateName));
+        return isAuthorizedToEditTemplate(templateName, username) || cruiseConfig.getTemplates().hasViewAccessToTemplate(template, username.getUsername(), rolesForUser(username.getUsername()), isUserGroupAdmin(username));
     }
 
     public boolean isAuthorizedToViewTemplates(Username username) {
-        return goConfigService.isAuthorizedToViewTemplates(username);
+        TemplatesConfig templates = goConfigService.cruiseConfig().getTemplates();
+        return isAuthorizedToViewAndEditTemplates(username) || templates.canUserViewTemplates(username.getUsername(), rolesForUser(username.getUsername()), isUserGroupAdmin(username));
     }
 
     public static class UserRoleMatcherImpl implements UserRoleMatcher {
@@ -212,6 +219,11 @@ public class SecurityService {
         public boolean match(CaseInsensitiveString user, CaseInsensitiveString role) {
             return securityConfig.isUserMemberOfRole(user, role);
         }
+    }
+
+    private List<Role> rolesForUser(final CaseInsensitiveString user) {
+        SecurityConfig securityConfig = this.goConfigService.security();
+        return securityConfig.getRoles().memberRoles(new AdminUser(user));
     }
 
 }

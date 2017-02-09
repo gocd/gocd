@@ -174,8 +174,12 @@ public class Authorization implements Validatable, ParamsAttributeAware, ConfigO
         return adminsConfig.isAdmin(new AdminUser(userName), memberRoles);
     }
 
+    public boolean isViewUser(final CaseInsensitiveString username, List<Role> memberRoles) {
+        return viewConfig.isAdmin(new AdminUser(username), memberRoles);
+    }
+
     public boolean hasAdminOrViewPermissions(final CaseInsensitiveString userName, List<Role> memberRoles) {
-        return isUserAnAdmin(userName, memberRoles) || viewConfig.isAdmin(new AdminUser(userName), memberRoles);
+        return isUserAnAdmin(userName, memberRoles) || isViewUser(userName, memberRoles);
     }
 
     public AdminsConfig getAdminsConfig() {

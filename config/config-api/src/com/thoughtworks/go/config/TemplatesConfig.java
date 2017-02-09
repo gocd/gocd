@@ -117,11 +117,11 @@ public class TemplatesConfig extends BaseCollection<PipelineTemplateConfig> impl
     }
 
     public boolean canUserEditTemplate(PipelineTemplateConfig template, CaseInsensitiveString username, List<Role> roles) {
-        return template.getAuthorization().getAdminsConfig().isAdmin(new AdminUser(username), roles);
+        return template.getAuthorization().isUserAnAdmin(username, roles);
     }
 
     public boolean hasViewAccessToTemplate(PipelineTemplateConfig template, CaseInsensitiveString username, List<Role> roles, boolean isGroupAdministrator) {
-        boolean hasViewAccessToTemplate = template.getAuthorization().getViewConfig().isAdmin(new AdminUser(username), roles);
+        boolean hasViewAccessToTemplate = template.getAuthorization().isViewUser(username, roles);
         hasViewAccessToTemplate = hasViewAccessToTemplate || (template.isAllowGroupAdmins() && isGroupAdministrator);
         return hasViewAccessToTemplate;
     }

@@ -29,6 +29,26 @@ def browser = { ->
   return 'firefox'
 }
 
+task karma(type: Exec) {
+  dependsOn ':server:npmInstall'
+  dependsOn ':server:compileAssetsDev'
+
+  outputs.upToDateWhen { false }
+
+  description = 'Run new jasmine tests'
+
+  standardOutput = System.out
+  errorOutput = System.err
+
+  commandLine = [OperatingSystem.current().isWindows() ? "yarn.cmd" : "yarn", "run", "jasmine-ci"]
+  workingDir = project.railsRoot
+
+  doFirst {
+    println "[${workingDir}]\$ ${executable} ${args.join(' ')}"
+  }
+
+}
+
 task jasmineNew(type: ExecuteUnderRailsTask) {
   dependsOn ':server:testJar'
   outputs.upToDateWhen { false }
@@ -53,14 +73,32 @@ task jasmineOld(type: ExecuteUnderRailsTask) {
 
   railsCommand = './bin/rake --trace jasmine:ci'
   environment += [
-      'RAILS_ENV'          : 'test',
-      'REPORTERS'          : 'console,junit',
-      'JASMINE_CONFIG_PATH': './spec/javascripts/support/jasmine-ci-old.yml',
-      'BROWSER'            : browser(),
+    'RAILS_ENV'          : 'test',
+    'REPORTERS'          : 'console,junit',
+    'JASMINE_CONFIG_PATH': './spec/javascripts/support/jasmine-ci-old.yml',
+    'BROWSER'            : browser(),
   ]
 }
 
-task jasmine(dependsOn: [jasmineNew, jasmineOld])
+task jasmine(dependsOn: [karma, jasmineNew, jasmineOld])
+
+task jasmineKarmaServer(type: Exec) {
+  dependsOn ':server:npmInstall'
+  dependsOn ':server:compileAssetsDev'
+  outputs.upToDateWhen { false }
+
+  description = 'Run new jasmine tests'
+
+  standardOutput = System.out
+  errorOutput = System.err
+
+  commandLine = [OperatingSystem.current().isWindows() ? "yarn.cmd" : "yarn", "run", "karma"]
+  workingDir = project.railsRoot
+
+  doFirst {
+    println "[${workingDir}]\$ ${executable} ${args.join(' ')}"
+  }
+}
 
 task jasmineNewServer(type: ExecuteUnderRailsTask) {
   description 'Run a web server to run jasmine tests locally'
@@ -77,8 +115,8 @@ task jasmineOldServer(type: ExecuteUnderRailsTask) {
   description 'Run a web server to run jasmine tests locally'
   railsCommand = './bin/rake --trace jasmine:server'
   environment += [
-      'RAILS_ENV'          : 'test',
-      'REPORTERS'          : 'console, junit',
-      'JASMINE_CONFIG_PATH': './spec/javascripts/support/jasmine-ci-old.yml'
+    'RAILS_ENV'          : 'test',
+    'REPORTERS'          : 'console, junit',
+    'JASMINE_CONFIG_PATH': './spec/javascripts/support/jasmine-ci-old.yml'
   ]
 }

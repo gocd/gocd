@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Jasmine Spec Runner</title>
+    <% for (var i = 0; i < htmlWebpackPlugin.options.jasmineCssFiles.length; i++) { %>
+    <link rel="stylesheet" href="<%= htmlWebpackPlugin.options.jasmineCssFiles[i] %>"/>
+    <% } %>
+    <% for (var i = 0; i < htmlWebpackPlugin.options.jasmineJsFiles.length; i++) { %>
+    <script src="<%= htmlWebpackPlugin.options.jasmineJsFiles[i] %>"></script>
+    <% } %>
+</head>
+<body></body>
+</html>

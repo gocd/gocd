@@ -6,10 +6,14 @@
   <meta charset="utf-8">
   <title><%= @view_title %> - Go</title>
 
-  <link rel="shortcut icon" href="<%=asset_path('cruise.ico')%>"/>
+  <link rel="shortcut icon" href="<%= asset_path('cruise.ico') %>"/>
   <%= stylesheet_link_tag 'frameworks' %>
   <%= stylesheet_link_tag "single_page_apps/#{controller_name}" %>
-  <%= requirejs_include_tag "single_page_apps/#{controller_name}" %>
+  <% if controller_name == 'pipeline_configs' %>
+      <%= requirejs_include_tag 'single_page_apps/pipeline_configs' %>
+  <% else %>
+      <%= javascript_include_tag *webpack_asset_paths("single_page_apps/#{controller_name}") %>
+  <% end %>
   <%= csrf_meta_tags %>
 </head>
 

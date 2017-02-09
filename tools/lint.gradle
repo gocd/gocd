@@ -54,22 +54,14 @@ task jsLint {
     project.exec {
       standardOutput = System.out
       errorOutput = System.err
-      workingDir = "${project.findProject(':server').railsRoot}/app/assets/new_javascripts"
+      workingDir = "${project.findProject(':server').railsRoot}"
       commandLine = commonCommandLine
-      commandLine += ['.']
+      commandLine += ["${project.findProject(':server').railsRoot}/webpack"]
+      commandLine += ["${project.findProject(':server').railsRoot}/spec/webpack"]
+      commandLine += ['--ignore-pattern', 'gen/']
       println "[${workingDir}]\$ ${executable} ${args.join(' ')}"
     }
 
-    project.exec {
-      standardOutput = System.out
-      errorOutput = System.err
-      commandLine = commonCommandLine
-      workingDir = "${project.findProject(':server').railsRoot}/spec/new_javascripts"
-
-      commandLine += ['--ignore-pattern', "helpers/"]
-      commandLine += ['.']
-      println "[${workingDir}]\$ ${executable} ${args.join(' ')}"
-    }
   }
 }
 

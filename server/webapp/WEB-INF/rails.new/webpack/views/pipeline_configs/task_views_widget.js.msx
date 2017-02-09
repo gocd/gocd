@@ -1,0 +1,164 @@
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+var m                     = require('mithril');
+var Stream                = require('mithril/stream');
+var _                     = require('lodash');
+var f                     = require('helpers/form_helper');
+var s                     = require('string-plus');
+var Tasks                 = require('models/pipeline_configs/tasks');
+var ComponentMixins       = require('helpers/mithril_component_mixins');
+var RunIfConditionsWidget = require('views/pipeline_configs/run_if_conditions_widget');
+var TaskBasicViews        = require('views/pipeline_configs/task_basic_views_widget');
+var CancelTaskWidget      = require('views/pipeline_configs/cancel_task_widget');
+var PluginInfos           = require('models/pipeline_configs/plugin_infos');
+
+var TaskSummaryView = {
+  view: function (vnode) {
+    return (
+      <ul class='task-type'>
+        {_.map(vnode.attrs.task.summary(), function (v, k) {
+          return !s.isBlank(v) ? (
+              <li><label class={_.toLower(k)}>{_.startCase(k)}</label> < span > {v}</span></li>) : undefined;
+        })}
+      </ul>
+    );
+  }
+};
+
+var TaskViews  = {
+  base: {
+    oninit: function (vnode) {
+      var self       = this;
+      self.args      = vnode.attrs;
+      var vmStateKey = 'taskEdit';
+
+      ComponentMixins.HasViewModel.call(this);
+      self.vmState(vmStateKey, Stream(vnode.attrs.task.isEmpty() ? true : false));
+
+      self.isEditing = function () {
+        return self.vmState(vmStateKey)();
+      };
+
+      self.toggleIsEditing = function () {
+        var isEditing = self.vmState(vmStateKey)();
+        self.vmState(vmStateKey)(!isEditing);
+      };
+
+      self.taskDisplayName = function () {
+        return Tasks.isBuiltInTaskType(vnode.attrs.task.type()) ? vnode.attrs.task.type() : PluginInfos.findById(vnode.attrs.task.pluginId()).displayName();
+      };
+    },
+
+    view: function (vnode) {
+      var children             = vnode.children;
+      var classNameForTaskBody = function () {
+        return vnode.state.isEditing() ? 'show' : 'hide';
+      };
+
+      return (
+        <div class={'task-definition task-type-' + vnode.attrs.task.type()} data-task-index={vnode.attrs.taskIndex}>
+          <div>
+            <f.row class="task-summary" onclick={vnode.state.toggleIsEditing.bind(vnode.state)}>
+              <f.column size={2} largeSize={2}><span>{vnode.state.taskDisplayName()}</span></f.column>
+              <f.column size={6} largeSize={6}>
+                {!vnode.state.isEditing() ? <TaskSummaryView task={vnode.attrs.task}/> : undefined}
+              </f.column>
+              <f.column size={2} largeSize={2}>
+                {!vnode.state.isEditing() ? (
+                    <span>{_.capitalize(vnode.attrs.task.runIf().data().join(' '))}</span>) : undefined}
+              </f.column>
+              <f.column size={2} largeSize={2}>
+                {!vnode.state.isEditing() ? (
+                    <span>{_.isNil(vnode.attrs.task.onCancelTask) ? 'No' : vnode.attrs.task.onCancelTask.type()}</span>) : undefined}
+                <div class='actions'>
+                  <f.removeButton onclick={vnode.attrs.onRemove} class="remove-task"/>
+                  <f.editButton class={vnode.state.isEditing() ? 'done' : null}/>
+                </div>
+              </f.column>
+            </f.row>
+            <div class={_.compact(["task-body", classNameForTaskBody()]).join(' ')}>
+              {children}
+              <RunIfConditionsWidget task={vnode.attrs.task}/>
+              <CancelTaskWidget task={vnode.attrs.task}/>
+            </div>
+          </div>
+        </div>
+      );
+    }
+  },
+
+  ant: {
+    view: function (vnode) {
+      return (
+        <TaskViews.base {...vnode.attrs}>
+          <TaskBasicViews.ant {...vnode.attrs}/>
+        </TaskViews.base>
+      );
+    }
+  },
+
+  nant: {
+    view: function (vnode) {
+      return (
+        <TaskViews.base {...vnode.attrs}>
+          <TaskBasicViews.nant {...vnode.attrs}/>
+        </TaskViews.base>
+      );
+    }
+  },
+
+  exec: {
+    view: function (vnode) {
+      return (
+        <TaskViews.base {...vnode.attrs}>
+          <TaskBasicViews.exec {...vnode.attrs}/>
+        </TaskViews.base>
+      );
+    }
+  },
+
+  rake: {
+    view: function (vnode) {
+      return (
+        <TaskViews.base {...vnode.attrs}>
+          <TaskBasicViews.rake {...vnode.attrs}/>
+        </TaskViews.base>
+      );
+    }
+  },
+
+  fetch: {
+    view: function (vnode) {
+      return (
+        <TaskViews.base {...vnode.attrs}>
+          <TaskBasicViews.fetch {...vnode.attrs}/>
+        </TaskViews.base>
+      );
+    }
+  },
+
+  pluggable_task: { //eslint-disable-line camelcase
+    view: function (vnode) {
+      return (
+        <TaskViews.base {...vnode.attrs}>
+          <TaskBasicViews.pluggable_task {...vnode.attrs}/>
+        </TaskViews.base>
+      );
+    }
+  }
+};
+module.exports = TaskViews;

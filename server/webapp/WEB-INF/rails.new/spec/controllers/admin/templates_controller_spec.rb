@@ -115,6 +115,7 @@ describe Admin::TemplatesController do
         @go_config_service.should_receive(:loadCruiseConfigForEdit).with(@user, @result).and_return(@cruise_config)
         @user_service = stub_service(:user_service)
         @user_service.stub(:allUsernames).and_return(["foo", "bar", "baz"])
+        @user_service.stub(:allRoleNames).and_return(["role1", "other"])
       end
 
       it "should assign template" do
@@ -131,6 +132,12 @@ describe Admin::TemplatesController do
         assigns[:autocomplete_users].should == ["foo", "bar", "baz"].to_json
       end
 
+      it "should assign roles for autocomplete" do
+        get :edit_permissions, :template_name => "template1"
+
+        assigns[:autocomplete_roles].should == ["role1", "other"].to_json
+      end
+
       it "should set tab name to templates" do
         get :edit_permissions, :template_name => "template1"
 
@@ -142,6 +149,7 @@ describe Admin::TemplatesController do
       before(:each) do
         @user_service = stub_service(:user_service)
         @user_service.stub(:allUsernames).and_return(["foo", "bar", "baz"])
+        @user_service.stub(:allRoleNames).and_return(["role1", "other"])
       end
 
       it "should update permissions for template successfully" do
@@ -167,6 +175,19 @@ describe Admin::TemplatesController do
         response.status.should == 400
         assigns[:pipeline].should == @cruise_config.getTemplateByName(CaseInsensitiveString.new('some_template'))
         assigns[:autocomplete_users].should == ["foo", "bar", "baz"].to_json
+        assert_template layout: "admin"
+      end
+
+      it "should assign roles for autocomplete on error" do
+        stub_save_for_validation_error(@cruise_config) do |result, config, node|
+          result.badRequest(LocalizedMessage.string("SAVE_FAILED"))
+        end
+
+        put :update_permissions, :config_md5 => "1234abcd", :template_name => "some_template", :template => {:name => "some_template"}
+
+        response.status.should == 400
+        assigns[:pipeline].should == @cruise_config.getTemplateByName(CaseInsensitiveString.new('some_template'))
+        assigns[:autocomplete_roles].should == ["role1", "other"].to_json
         assert_template layout: "admin"
       end
     end

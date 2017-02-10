@@ -16,9 +16,7 @@
 
 package com.thoughtworks.go.config;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 import com.thoughtworks.go.config.materials.MaterialConfigs;

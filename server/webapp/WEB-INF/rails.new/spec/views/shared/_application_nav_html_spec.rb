@@ -172,8 +172,8 @@ describe "/shared/_application_nav.html.erb" do
       end
     end
 
-    it "should show only templates in admin dropdown if user is just template admin" do
-      allow(view).to receive(:is_user_a_template_admin?).and_return(true)
+    it "should show only templates in admin dropdown if user has access to at least one template" do
+      allow(view).to receive(:is_user_authorized_to_view_templates?).and_return(true)
       allow(view).to receive(:is_user_an_admin?).and_return(false)
       allow(view).to receive(:is_user_a_group_admin?).and_return(false)
 
@@ -188,7 +188,7 @@ describe "/shared/_application_nav.html.erb" do
     end
 
     it "should show only tabs relevant to group admin in admin dropdown if user is just group admin" do
-      allow(view).to receive(:is_user_a_template_admin?).and_return(false)
+      allow(view).to receive(:is_user_authorized_to_view_templates?).and_return(false)
       allow(view).to receive(:is_user_an_admin?).and_return(false)
       allow(view).to receive(:is_user_a_group_admin?).and_return(true)
 
@@ -207,8 +207,8 @@ describe "/shared/_application_nav.html.erb" do
       end
     end
 
-    it "should show tabs relevant to group admin and template admin in admin dropdown if user is both template and group admin" do
-      allow(view).to receive(:is_user_a_template_admin?).and_return(true)
+    it "should show tabs relevant to group admin and template admin in admin dropdown if user is group admin with access to at least one template" do
+      allow(view).to receive(:is_user_authorized_to_view_templates?).and_return(true)
       allow(view).to receive(:is_user_an_admin?).and_return(false)
       allow(view).to receive(:is_user_a_group_admin?).and_return(true)
 

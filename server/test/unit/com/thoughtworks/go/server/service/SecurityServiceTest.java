@@ -74,8 +74,14 @@ public class SecurityServiceTest {
         final Username user = new Username(new CaseInsensitiveString("user"));
         CruiseConfig config = new BasicCruiseConfig();
         when(goConfigService.cruiseConfig()).thenReturn(config);
+        when(goConfigService.isUserAdmin(user)).thenReturn(false);
+        when(goConfigService.isGroupAdministrator(user.getUsername())).thenReturn(false);
 
-        assertThat(securityService.canViewAdminPage(user), is(false));
+        SecurityService spy = spy(securityService);
+        doReturn(false).when(spy).isAuthorizedToViewAndEditTemplates(user);
+        doReturn(false).when(spy).isAuthorizedToViewTemplates(user);
+
+        assertThat(spy.canViewAdminPage(user), is(false));
     }
 
     @Test
@@ -99,6 +105,7 @@ public class SecurityServiceTest {
         when(goConfigService.isGroupAdministrator(user.getUsername())).thenReturn(Boolean.FALSE);
         SecurityService spy = spy(securityService);
         doReturn(false).when(spy).isAuthorizedToViewAndEditTemplates(user);
+        doReturn(false).when(spy).isAuthorizedToViewTemplates(user);
         assertThat(spy.canViewAdminPage(new Username(new CaseInsensitiveString("user"))), is(false));
     }
 

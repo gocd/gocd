@@ -461,6 +461,35 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
+    public boolean canViewAndEditTemplates(CaseInsensitiveString username) {
+        return isAdministrator(username.toString()) || getTemplates().canViewAndEditTemplate(username, rolesForUser(username));
+    }
+
+    @Override
+    public boolean isAuthorizedToEditTemplate(String templateName, CaseInsensitiveString username) {
+        PipelineTemplateConfig template = getTemplateByName(new CaseInsensitiveString(templateName));
+        return isAdministrator(username.toString()) || getTemplates().canUserEditTemplate(template, username, rolesForUser(username));
+    }
+
+    @Override
+    public boolean isAuthorizedToViewTemplate(String templateName, CaseInsensitiveString username) {
+        if (isAuthorizedToEditTemplate(templateName, username)) {
+            return true;
+        }
+        PipelineTemplateConfig template = getTemplateByName(new CaseInsensitiveString(templateName));
+        return getTemplates().hasViewAccessToTemplate(template, username, rolesForUser(username), isGroupAdministrator(username));
+    }
+
+    @Override
+    public boolean isAuthorizedToViewTemplates(CaseInsensitiveString username) {
+        return  canViewAndEditTemplates(username) || getTemplates().canUserViewTemplates(username, rolesForUser(username), isGroupAdministrator(username));
+    }
+
+    private List<Role> rolesForUser(CaseInsensitiveString username) {
+        return server().security().getRoles().memberRoles(new AdminUser(username));
+    }
+
+    @Override
     public void validate(ValidationContext validationContext) {
         areThereCyclicDependencies();
     }
@@ -1100,17 +1129,6 @@ public class BasicCruiseConfig implements CruiseConfig {
     @Override
     public TemplatesConfig getTemplates() {
         return templatesConfig;
-    }
-
-    @Override
-    public TemplatesConfig getTemplatesForUser(CaseInsensitiveString username, List<Role> roles) {
-        TemplatesConfig templates = new TemplatesConfig();
-        for (PipelineTemplateConfig template : getTemplates()) {
-            if (isAuthorizedToAccessTemplate(username, roles, template)) {
-                templates.add(template);
-            }
-        }
-        return templates;
     }
 
     @Override

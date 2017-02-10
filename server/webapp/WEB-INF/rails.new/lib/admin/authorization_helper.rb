@@ -4,7 +4,7 @@ module Admin
       return unless security_service.isSecurityEnabled()
       unless security_service.isUserAdmin(current_user)
         Rails.logger.info("User '#{current_user.getUsername}' attempted to perform an unauthorized action!")
-        render 'shared/config_error'
+        render 'shared/config_error', status: 401
       end
     end
 
@@ -14,7 +14,16 @@ module Admin
 
       if !security_service.isUserAdmin(current_user) && !security_service.isAuthorizedToEditTemplate(template_name, current_user)
         Rails.logger.info("User '#{current_user.getUsername}' attempted to perform an unauthorized action!")
-        render 'shared/config_error'
+        render 'shared/config_error', status: 401
+      end
+    end
+
+    def check_view_access_to_template_and_401
+      return unless security_service.isSecurityEnabled
+      template_name = params[:template_name] || params[:name]
+      unless security_service.isAuthorizedToViewTemplate(template_name, current_user)
+        Rails.logger.info("User '#{current_user.getUsername}' attempted to perform an unauthorized action!")
+        render 'shared/config_error', status: 401
       end
     end
   end

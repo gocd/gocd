@@ -19,6 +19,7 @@ require 'spec_helper'
 describe "admin/pipelines/template_form.html.erb" do
 
   before(:each) do
+    allow(view).to receive(:is_user_an_admin?).and_return(true)
     @pipeline = PipelineConfigMother.createPipelineConfig("", "defaultStage", ["defaultJob"].to_java(java.lang.String))
     @pipeline_group = BasicPipelineConfigs.new
     @pipeline_group.add(@pipeline)

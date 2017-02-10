@@ -265,19 +265,6 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
         assertThat(cruiseConfig.templatesWithPipelinesForUser(regularUser.toString(), null), is(new HashMap<>()));
     }
 
-    @Test
-    public void shouldReturnASubsetOfTemplateConfigsForGroupAdmin() {
-        BasicCruiseConfig cruiseConfig = getCruiseConfigWithSecurityEnabled();
-        CaseInsensitiveString groupAdmin = new CaseInsensitiveString("template-view");
-        new GoConfigMother().addPipelineWithGroup(cruiseConfig, "group", "p1", "s1", "j1");
-        PipelineConfigs pipelineConfigs = cruiseConfig.getGroups().get(0);
-        pipelineConfigs.setAuthorization(new Authorization(new AdminsConfig(new AdminUser(groupAdmin))));
-        PipelineTemplateConfig template2 = PipelineTemplateConfigMother.createTemplate("t2", StageConfigMother.manualStage("foo"));
-        cruiseConfig.addTemplate(template2);
-
-        assertThat(cruiseConfig.getTemplatesForUser(groupAdmin, null), is(new TemplatesConfig(template2)));
-    }
-
     private BasicCruiseConfig getCruiseConfigWithSecurityEnabled() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
         ServerConfig serverConfig = new ServerConfig(new SecurityConfig(null, null, false, new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))), null);

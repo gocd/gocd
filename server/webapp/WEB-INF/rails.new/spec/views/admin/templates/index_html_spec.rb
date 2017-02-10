@@ -23,15 +23,15 @@ describe "admin/templates/index.html.erb" do
 
   before(:each) do
     assign(:template_to_pipelines, {
-                                      "template1" => to_list(["pipeline1", "pipeline2"]),
-                                      "template2" => to_list(["pipeline3"]),
+                                      "template1" => to_list([CaseInsensitiveString.new("pipeline1"), CaseInsensitiveString.new("pipeline2")]),
+                                      "template2" => to_list([CaseInsensitiveString.new("pipeline3")]),
                                       "template3" => to_list([])
                                     })
     assign(:user, Username.new(CaseInsensitiveString.new("loser")))
     view.stub(:tab_with_display_name).and_return("tab_link")
     view.stub(:mycruise_available?).and_return(false)
     view.stub(:can_view_admin_page?).and_return(true)
-    view.stub(:is_user_a_template_admin?).and_return(false)
+    view.stub(:is_user_a_template_admin_for_template?).and_return(false)
     view.stub(:is_user_an_admin?).and_return(true)
     assign(:cruise_config, cruise_config = BasicCruiseConfig.new)
     set(cruise_config, "md5", "abcd1234")
@@ -96,7 +96,7 @@ describe "admin/templates/index.html.erb" do
   end
 
   it "should display the list of all the templates and the pipelines in it if user is both template admin and super admin" do
-    view.stub(:is_user_a_template_admin?).and_return(true)
+    view.stub(:is_user_a_template_admin_for_template?).and_return(true)
     view.stub(:is_user_an_admin?).and_return(true)
 
     render
@@ -154,7 +154,7 @@ describe "admin/templates/index.html.erb" do
 
   it "should display names of pipelines using this template if user is a template admin" do
     view.stub(:has_admin_permissions_for_pipeline?).and_return(false)
-    view.stub(:is_user_a_template_admin?).and_return(true)
+    view.stub(:is_user_a_template_admin_for_template?).and_return(true)
     view.stub(:is_user_an_admin?).and_return(false)
 
     render
@@ -203,7 +203,7 @@ describe "admin/templates/index.html.erb" do
 
   it "should display names and edit pipeline link of pipelines using this template if user is a template admin" do
     view.stub(:has_admin_permissions_for_pipeline?).and_return(true)
-    view.stub(:is_user_a_template_admin?).and_return(true)
+    view.stub(:is_user_a_template_admin_for_template?).and_return(true)
     view.stub(:is_user_an_admin?).and_return(false)
 
     render
@@ -279,7 +279,7 @@ describe "admin/templates/index.html.erb" do
   end
 
   it "should not display a link to create a new template when running enterprise mode for a template admin" do
-    view.stub(:is_user_a_template_admin?).and_return(true)
+    view.stub(:is_user_a_template_admin_for_template?).and_return(true)
     view.stub(:is_user_an_admin?).and_return(false)
     assign(:template_to_pipelines, {})
 
@@ -291,7 +291,7 @@ describe "admin/templates/index.html.erb" do
   end
 
   it "should display a link to create a new template when running enterprise mode if user is both template admin and super admin" do
-    view.stub(:is_user_a_template_admin?).and_return(true)
+    view.stub(:is_user_a_template_admin_for_template?).and_return(true)
     view.stub(:is_user_an_admin?).and_return(true)
     assign(:template_to_pipelines, {})
 
@@ -303,7 +303,7 @@ describe "admin/templates/index.html.erb" do
   end
 
   it "should display a link to create a new template when running enterprise mode with templates already configured" do
-    assign(:template_to_pipelines, {"template1" => to_list(["pipeline1", "pipeline2"])})
+    assign(:template_to_pipelines, {"template1" => to_list([CaseInsensitiveString.new("pipeline1"), CaseInsensitiveString.new("pipeline2")])})
 
     render
 
@@ -314,7 +314,7 @@ describe "admin/templates/index.html.erb" do
 
   it "should display a edit permissions link next to the template name" do
 
-    assign(:template_to_pipelines, {"unused_template" => to_list([]), "used_template" => to_list(["pipeline"])})
+    assign(:template_to_pipelines, {"unused_template" => to_list([]), "used_template" => to_list([CaseInsensitiveString.new("pipeline")])})
 
     render
 
@@ -329,7 +329,7 @@ describe "admin/templates/index.html.erb" do
   end
 
   it "should display a delete button next to the template name" do
-    assign(:template_to_pipelines, {"unused_template" => to_list([]), "used_template" => to_list(["pipeline"])})
+    assign(:template_to_pipelines, {"unused_template" => to_list([]), "used_template" => to_list([CaseInsensitiveString.new("pipeline")])})
 
     render
 
@@ -352,7 +352,7 @@ describe "admin/templates/index.html.erb" do
   end
 
   it "should display the delete button next to the template name for template admin" do
-    view.stub(:is_user_a_template_admin?).and_return(true)
+    view.stub(:is_user_a_template_admin_for_template?).and_return(true)
     view.stub(:is_user_an_admin?).and_return(false)
     assign(:template_to_pipelines, {"unused_template" => to_list([])})
 
@@ -374,7 +374,6 @@ describe "admin/templates/index.html.erb" do
   end
 
   it 'should disable the delete button if user not not a template admin or super admin' do
-    view.stub(:is_user_a_template_admin?).and_return(false)
     view.stub(:is_user_an_admin?).and_return(false)
     assign(:template_to_pipelines, {"unused_template" => to_list([])})
 
@@ -389,10 +388,10 @@ describe "admin/templates/index.html.erb" do
   end
 
   it "should display a delete button next to the template name if user is both template admin and super admin" do
-    view.stub(:is_user_a_template_admin?).and_return(true)
+    view.stub(:is_user_a_template_admin_for_template?).and_return(true)
     view.stub(:is_user_an_admin?).and_return(true)
 
-    assign(:template_to_pipelines, {"unused_template" => to_list([]), "used_template" => to_list(["pipeline"])})
+    assign(:template_to_pipelines, {"unused_template" => to_list([]), "used_template" => to_list([CaseInsensitiveString.new("pipeline")])})
 
     render
 
@@ -416,7 +415,7 @@ describe "admin/templates/index.html.erb" do
 
   it "should disable the edit permissions link next to the template name for template admin and not super admin" do
     view.stub(:has_admin_permissions_for_pipeline?).and_return(false)
-    view.stub(:is_user_a_template_admin?).and_return(true)
+    view.stub(:is_user_a_template_admin_for_template?).and_return(true)
     view.stub(:is_user_an_admin?).and_return(false)
 
     assign(:template_to_pipelines, {"used_template" => to_list(["pipeline"])})
@@ -432,10 +431,10 @@ describe "admin/templates/index.html.erb" do
   end
 
   it "should enable the edit permissions link next to the template name if user is both template admin and super admin" do
-    view.stub(:is_user_a_template_admin?).and_return(true)
+    view.stub(:is_user_a_template_admin_for_template?).and_return(true)
     view.stub(:is_user_an_admin?).and_return(true)
 
-    assign(:template_to_pipelines, {"used_template" => to_list(["pipeline"])})
+    assign(:template_to_pipelines, {"used_template" => to_list([CaseInsensitiveString.new("pipeline")])})
 
     render
 
@@ -450,7 +449,7 @@ describe "admin/templates/index.html.erb" do
   end
 
   it "should display an edit button next to the template name" do
-    assign(:template_to_pipelines, {"unused_template" => to_list([]), "used_template" => to_list(["pipeline"])})
+    assign(:template_to_pipelines, {"unused_template" => to_list([]), "used_template" => to_list([CaseInsensitiveString.new("pipeline")])})
 
     render
 

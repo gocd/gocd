@@ -16,19 +16,13 @@
 
 module ConfigView
   class TemplatesController < ConfigView::ConfigViewController
-    before_action :is_user_authorized_to_view_template
+    include Admin::AuthorizationHelper
+    before_action :check_view_access_to_template_and_401
 
     def show
       result = HttpLocalizedOperationResult.new
       @template_config = template_config_service.loadForView(params[:name], result)
       render_localized_operation_result(result) unless result.isSuccessful()
-    end
-
-    private
-    def is_user_authorized_to_view_template
-      unless security_service.isAuthorizedToViewTemplate(params[:name], current_user)
-        render 'shared/config_error'
-      end
     end
   end
 end

@@ -17,7 +17,7 @@
 class Admin::TemplatesController < AdminController
 
   before_filter :check_admin_user_and_401, only: [:edit_permissions, :update_permissions, :new, :create]
-  before_filter :check_admin_or_template_admin_and_401, only: [:destroy, :update]
+  before_filter :check_admin_or_template_admin_and_401, only: [:edit, :destroy, :update]
   before_filter :load_templates_from_service, :only => :index
   before_filter :load_cruise_config, :only => [:new, :edit, :index, :destroy, :edit_permissions]
   before_filter :autocomplete_for_permissions, :only => [:edit_permissions]
@@ -121,10 +121,6 @@ class Admin::TemplatesController < AdminController
     end
   end
 
-  def stages
-
-  end
-
   private
 
   def load_templates_from_service
@@ -163,5 +159,6 @@ class Admin::TemplatesController < AdminController
 
   def autocomplete_for_permissions
     @autocomplete_users = user_service.allUsernames().to_json
+    @autocomplete_roles = user_service.allRoleNames().to_json
   end
 end

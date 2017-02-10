@@ -187,26 +187,19 @@ public class SecurityService {
     }
 
     public boolean isAuthorizedToViewAndEditTemplates(Username username) {
-        CruiseConfig cruiseConfig = goConfigService.cruiseConfig();
-        return isUserAdmin(username) || cruiseConfig.getTemplates().canViewAndEditTemplate(username.getUsername(), rolesForUser(username.getUsername()));
-
+        return goConfigService.cruiseConfig().canViewAndEditTemplates(username.getUsername());
     }
 
     public boolean isAuthorizedToEditTemplate(String templateName, Username username) {
-        CruiseConfig cruiseConfig = goConfigService.cruiseConfig();
-        PipelineTemplateConfig template = cruiseConfig.getTemplateByName(new CaseInsensitiveString(templateName));
-        return isUserAdmin(username) || cruiseConfig.getTemplates().canUserEditTemplate(template, username.getUsername(), rolesForUser(username.getUsername()));
+        return goConfigService.cruiseConfig().isAuthorizedToEditTemplate(templateName, username.getUsername());
     }
 
     public boolean isAuthorizedToViewTemplate(String templateName, Username username) {
-        CruiseConfig cruiseConfig = goConfigService.cruiseConfig();
-        PipelineTemplateConfig template = cruiseConfig.getTemplateByName(new CaseInsensitiveString(templateName));
-        return isAuthorizedToEditTemplate(templateName, username) || cruiseConfig.getTemplates().hasViewAccessToTemplate(template, username.getUsername(), rolesForUser(username.getUsername()), isUserGroupAdmin(username));
+        return goConfigService.cruiseConfig().isAuthorizedToViewTemplate(templateName, username.getUsername());
     }
 
     public boolean isAuthorizedToViewTemplates(Username username) {
-        TemplatesConfig templates = goConfigService.cruiseConfig().getTemplates();
-        return isAuthorizedToViewAndEditTemplates(username) || templates.canUserViewTemplates(username.getUsername(), rolesForUser(username.getUsername()), isUserGroupAdmin(username));
+        return goConfigService.cruiseConfig().isAuthorizedToViewTemplates(username.getUsername());
     }
 
     public static class UserRoleMatcherImpl implements UserRoleMatcher {
@@ -220,10 +213,4 @@ public class SecurityService {
             return securityConfig.isUserMemberOfRole(user, role);
         }
     }
-
-    private List<Role> rolesForUser(final CaseInsensitiveString user) {
-        SecurityConfig securityConfig = this.goConfigService.security();
-        return securityConfig.getRoles().memberRoles(new AdminUser(user));
-    }
-
 }

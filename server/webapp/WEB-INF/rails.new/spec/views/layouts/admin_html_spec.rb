@@ -32,6 +32,7 @@ describe "/layouts/admin" do
     allow(view).to receive(:is_user_a_group_admin?).and_return(true)
     allow(view).to receive(:is_user_an_admin?).and_return(true)
     allow(view).to receive(:is_user_a_template_admin?).and_return(false)
+    allow(view).to receive(:is_user_authorized_to_view_templates?).and_return(false)
     class << view
       def url_for_with_stub *args
         args.empty? ? "/go/" : url_for_without_stub(*args)
@@ -215,6 +216,7 @@ describe "/layouts/admin" do
     end
 
     it "should not be visible for group admins" do
+      allow(view).to receive(:is_user_authorized_to_view_templates?).and_return(false)
       allow(view).to receive(:is_user_a_group_admin?).and_return(true)
       allow(view).to receive(:is_user_an_admin?).and_return(false)
 
@@ -223,7 +225,7 @@ describe "/layouts/admin" do
     end
 
     it "should be visible for template admins" do
-      allow(view).to receive(:is_user_a_template_admin?).and_return(true)
+      allow(view).to receive(:is_user_authorized_to_view_templates?).and_return(true)
       allow(view).to receive(:is_user_an_admin?).and_return(false)
 
       render :inline => "<div>content</div>", :layout => @layout_name

@@ -147,7 +147,7 @@ describe ApiV2::Admin::TemplatesController do
         enable_security
         @security_service.stub(:isAuthorizedToViewTemplate).with(anything, anything).and_return(true)
 
-        expect(controller).to allow_action(:get, :show)
+        expect(controller).to allow_action(:get, :show, template_name: 'foo')
       end
     end
     describe 'admin' do

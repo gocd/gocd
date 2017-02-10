@@ -45,6 +45,7 @@ import java.util.List;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static com.thoughtworks.go.util.XmlUtils.buildXmlDocument;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * @understands how to migrate from a previous version of config
@@ -106,7 +107,7 @@ public class GoConfigMigration {
     private GoConfigMigrationResult upgradeValidateAndVersion(File configFile, boolean shouldTryOlderVersion, String currentGoServerVersion) throws Exception {
         try {
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            String xmlStringBeforeUpgrade = FileUtils.readFileToString(configFile);
+            String xmlStringBeforeUpgrade = FileUtils.readFileToString(configFile, UTF_8);
             int currentVersion = getCurrentSchemaVersion(xmlStringBeforeUpgrade);
             String reloadedXml;
             if (shouldUpgrade(currentVersion)) {
@@ -120,7 +121,7 @@ public class GoConfigMigration {
                 GoConfigHolder configHolder = reloadedConfig(stream, xmlStringBeforeUpgrade);
                 reloadedXml = new String(stream.toByteArray());
             }
-            FileUtils.writeStringToFile(configFile, reloadedXml);
+            FileUtils.writeStringToFile(configFile, reloadedXml, UTF_8);
         } catch (Exception e) {
             GoConfigRevision currentConfigRevision = configRepository.getCurrentRevision();
             if (shouldTryOlderVersion && ifVersionedConfig(currentConfigRevision)) {
@@ -145,7 +146,7 @@ public class GoConfigMigration {
         File backupFile = getBackupFile(configFile, "invalid.");
         try {
             backup(configFile, backupFile);
-            FileUtils.writeStringToFile(configFile, currentConfigRevision.getContent());
+            FileUtils.writeStringToFile(configFile, currentConfigRevision.getContent(), UTF_8);
         } catch (IOException e1) {
             throw new RuntimeException(String.format("Could not write to config file '%s'.", configFile.getAbsolutePath()), e1);
         }
@@ -157,7 +158,7 @@ public class GoConfigMigration {
         File backupFile = getBackupFile(configFile, "invalid.");
         try {
             backup(configFile, backupFile);
-            FileUtils.writeStringToFile(configFile, currentConfigRevision.getContent());
+            FileUtils.writeStringToFile(configFile, currentConfigRevision.getContent(), UTF_8);
         } catch (IOException e1) {
             throw new RuntimeException(String.format("Could not write to config file '%s'.", configFile.getAbsolutePath()), e1);
         }

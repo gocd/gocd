@@ -45,6 +45,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 /**
  * @understands versioning cruise-config
  */
@@ -107,7 +109,7 @@ public class ConfigRepository {
                 return;
             }
             final File file = new File(workingDir, CRUISE_CONFIG_XML);
-            FileUtil.writeContentToFile(rev.getContent(), file);
+            FileUtil.writeContentToFile(rev.getContent(), file, UTF_8);
             final AddCommand addCommand = git.add();
             doLocked(new VoidThrowingFn<Exception>() {
                 public void run() throws Exception {

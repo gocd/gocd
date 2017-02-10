@@ -348,9 +348,8 @@ public class UserService {
         public abstract Comparator<UserModel> forColumn(SortableColumn column);
     }
 
-    public void addUserIfDoesNotExist(Username userName) {
+    public void addUserIfDoesNotExist(User user) {
         synchronized (enableUserMutex) {
-            User user = new User(CaseInsensitiveString.str(userName.getUsername()));
             if (!(user.isAnonymous() || userExists(user))) {
                 assertUnknownUsersAreAllowedToLogin();
 

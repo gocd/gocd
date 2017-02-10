@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import com.thoughtworks.go.plugin.access.authentication.models.User;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConfigMetadataStore;
 import com.thoughtworks.go.plugin.access.authorization.models.AuthenticationResponse;
-import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.security.AuthorityGranter;
 import com.thoughtworks.go.server.security.GoAuthority;
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
@@ -133,12 +132,12 @@ public class PluginAuthenticationProviderTest {
         when(authenticationPluginRegistry.getPluginsThatSupportsPasswordBasedAuthentication()).thenReturn(new HashSet<>(Arrays.asList()));
         when(store.getPluginsThatSupportsPasswordBasedAuthentication()).thenReturn(new HashSet<>(Arrays.asList(pluginId)));
 
-        AuthenticationResponse response = new AuthenticationResponse(new User("username", "display-name", "test@test.com"), Collections.emptyList());
+        AuthenticationResponse response = new AuthenticationResponse(new User("username", "display-name", "username@example.com"), Collections.emptyList());
         when(authorizationExtension.authenticateUser(pluginId, "username", "password", securityConfig.securityAuthConfigs().findByPluginId(pluginId))).thenReturn(response);
 
         provider.retrieveUser("username", authenticationToken);
 
-        verify(userService).addUserIfDoesNotExist(new Username(new CaseInsensitiveString("username"), "display-name"));
+        verify(userService).addUserIfDoesNotExist(new com.thoughtworks.go.domain.User("username", "display-name", "username@example.com"));
     }
 
     @Test
@@ -146,11 +145,11 @@ public class PluginAuthenticationProviderTest {
         String pluginId = "plugin-id-1";
         securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("github", pluginId));
         when(authenticationPluginRegistry.getPluginsThatSupportsPasswordBasedAuthentication()).thenReturn(new HashSet<>(Arrays.asList(pluginId)));
-        when(authenticationExtension.authenticateUser(pluginId, "username", "password")).thenReturn(new User("username", "display-name", null));
+        when(authenticationExtension.authenticateUser(pluginId, "username", "password")).thenReturn(new User("username", "display-name", "username@example.com"));
 
         provider.retrieveUser("username", authenticationToken);
 
-        verify(userService).addUserIfDoesNotExist(new Username(new CaseInsensitiveString("username"), "display-name"));
+        verify(userService).addUserIfDoesNotExist(new com.thoughtworks.go.domain.User("username", "display-name", "username@example.com"));
     }
 
     @Test(expected = UsernameNotFoundException.class)
@@ -162,7 +161,7 @@ public class PluginAuthenticationProviderTest {
             provider.retrieveUser("username", authenticationToken);
             fail("should have thrown up");
         } finally {
-            verify(userService, never()).addUserIfDoesNotExist(any(Username.class));
+            verify(userService, never()).addUserIfDoesNotExist(any(com.thoughtworks.go.domain.User.class));
         }
     }
 

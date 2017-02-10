@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@ import com.thoughtworks.go.plugin.access.authentication.models.User;
 import com.thoughtworks.go.plugin.api.request.GoApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoApiResponse;
 import com.thoughtworks.go.plugin.api.response.GoApiResponse;
-import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.plugin.infra.GoPluginApiRequestProcessor;
+import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.security.AuthorityGranter;
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
@@ -78,7 +78,7 @@ public class AuthenticationRequestProcessor implements GoPluginApiRequestProcess
             GoUserPrinciple goUserPrincipal = getGoUserPrincipal(user);
             Authentication authentication = getAuthenticationToken(goUserPrincipal);
 
-            userService.addUserIfDoesNotExist(UserHelper.getUserName(authentication));
+            userService.addUserIfDoesNotExist(UserHelper.getUser(authentication));
             getSecurityContext().setAuthentication(authentication);
             return new DefaultGoApiResponse(200);
         } catch (Exception e) {

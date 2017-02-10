@@ -3473,6 +3473,14 @@ form#package_repositories_edit_form {
   }
 }
 
+.change_materials {
+
+  .form_item_block.checkbox_row.material_options {
+    label {
+      margin-top: -3px;
+    }
+  }
+}
 .edit_icon_disabled, .lock_icon_disabled {
   padding-left: 20px !important;
   margin-top:   3px;

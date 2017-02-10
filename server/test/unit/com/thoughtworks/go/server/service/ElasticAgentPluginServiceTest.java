@@ -30,6 +30,8 @@ import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentMessage;
 import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentQueueHandler;
 import com.thoughtworks.go.server.messaging.elasticagents.ServerPingMessage;
 import com.thoughtworks.go.server.messaging.elasticagents.ServerPingQueueHandler;
+import com.thoughtworks.go.serverhealth.HealthStateLevel;
+import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.TimeProvider;
@@ -75,7 +77,12 @@ public class ElasticAgentPluginServiceTest {
         ArrayList<PluginDescriptor> plugins = new ArrayList<>();
         plugins.add(new GoPluginDescriptor("p1", null, null, null, null, true));
         plugins.add(new GoPluginDescriptor("p2", null, null, null, null, true));
+        plugins.add(new GoPluginDescriptor("docker", null, null, null, null, true));
         when(registry.getPlugins()).thenReturn(plugins);
+        when(registry.has("docker")).thenReturn(true);
+        when(registry.has("p1")).thenReturn(true);
+        when(registry.has("p2")).thenReturn(true);
+        when(registry.has("missing")).thenReturn(false);
         when(agentService.allElasticAgents()).thenReturn(new LinkedMultiValueMap<>());
         timeProvider = new TimeProvider();
         service = new ElasticAgentPluginService(pluginManager, registry, agentService, environmentConfigService, createAgentQueue, serverPingQueue, serverConfigService, timeProvider, serverHealthService);
@@ -87,17 +94,18 @@ public class ElasticAgentPluginServiceTest {
         service.heartbeat();
 
         ArgumentCaptor<ServerPingMessage> captor = ArgumentCaptor.forClass(ServerPingMessage.class);
-        verify(serverPingQueue, times(2)).post(captor.capture());
+        verify(serverPingQueue, times(3)).post(captor.capture());
         List<ServerPingMessage> messages = captor.getAllValues();
         assertThat(messages.contains(new ServerPingMessage("p1")), is(true));
         assertThat(messages.contains(new ServerPingMessage("p2")), is(true));
+        assertThat(messages.contains(new ServerPingMessage("docker")), is(true));
     }
 
     @Test
     public void shouldCreateAgentForNewlyAddedJobPlansOnly() {
         when(serverConfigService.hasAutoregisterKey()).thenReturn(true);
-        JobPlan plan1 = plan(1);
-        JobPlan plan2 = plan(2);
+        JobPlan plan1 = plan(1, "docker");
+        JobPlan plan2 = plan(2, "docker");
         ArgumentCaptor<ServerHealthState> captorForHealthState = ArgumentCaptor.forClass(ServerHealthState.class);
         ArgumentCaptor<CreateAgentMessage> captor = ArgumentCaptor.forClass(CreateAgentMessage.class);
         when(environmentConfigService.envForPipeline("pipeline-2")).thenReturn("env-2");
@@ -114,7 +122,7 @@ public class ElasticAgentPluginServiceTest {
     @Test
     public void shouldRetryCreateAgentForJobThatHasBeenWaitingForAnAgentForALongTime() {
         when(serverConfigService.elasticJobStarvationThreshold()).thenReturn(0L);
-        JobPlan plan1 = plan(1);
+        JobPlan plan1 = plan(1, "docker");
         ArgumentCaptor<CreateAgentMessage> captor = ArgumentCaptor.forClass(CreateAgentMessage.class);
         service.createAgentsFor(new ArrayList<>(), Arrays.asList(plan1));
         service.createAgentsFor(Arrays.asList(plan1), Arrays.asList(plan1));//invoke create again
@@ -127,8 +135,52 @@ public class ElasticAgentPluginServiceTest {
         verifyNoMoreInteractions(createAgentQueue);
     }
 
-    private JobPlan plan(int jobId) {
-        ElasticProfile elasticProfile = new ElasticProfile("id", "docker");
+    @Test
+    public void shouldReportMissingElasticPlugin(){
+        JobPlan plan1 = plan(1, "missing");
+        ArgumentCaptor<ServerHealthState> captorForHealthState = ArgumentCaptor.forClass(ServerHealthState.class);
+        service.createAgentsFor(new ArrayList<>(), Arrays.asList(plan1));
+
+        verify(serverHealthService).update(captorForHealthState.capture());
+        ServerHealthState serverHealthState = captorForHealthState.getValue();
+        assertThat(serverHealthState.getDescription(), is("Plugin [missing] associated with JobConfigIdentifier[pipeline-1:stage:job] is missing. Either the plugin is not installed or could not be registered. Please check plugins tab and server logs for more details."));
+        assertThat(serverHealthState.getLogLevel(), is(HealthStateLevel.ERROR));
+        assertThat(serverHealthState.getMessage(), is("Unable to find agent for JobConfigIdentifier[pipeline-1:stage:job]"));
+        verifyZeroInteractions(createAgentQueue);
+    }
+
+    @Test
+    public void shouldRemoveExistingMissingPluginErrorFromAPreviousAttemptIfThePluginIsNowRegistered(){
+        JobPlan plan1 = plan(1, "docker");
+        ArgumentCaptor<HealthStateScope> captor = ArgumentCaptor.forClass(HealthStateScope.class);
+
+        service.createAgentsFor(new ArrayList<>(), Arrays.asList(plan1));
+
+        verify(createAgentQueue, times(1)).post(any());
+        verify(serverHealthService).removeByScope(captor.capture());
+        HealthStateScope healthStateScope = captor.getValue();
+        assertThat(healthStateScope.getScope(), is("pipeline-1/stage/job"));
+    }
+
+    @Test
+    public void shouldRetryCreateAgentForJobForWhichAssociatedPluginIsMissing() {
+        when(serverConfigService.elasticJobStarvationThreshold()).thenReturn(0L);
+        JobPlan plan1 = plan(1, "missing");
+        service.createAgentsFor(new ArrayList<>(), Arrays.asList(plan1));
+        service.createAgentsFor(Arrays.asList(plan1), Arrays.asList(plan1));//invoke create again
+
+        verifyZeroInteractions(createAgentQueue);
+        ArgumentCaptor<ServerHealthState> captorForHealthState = ArgumentCaptor.forClass(ServerHealthState.class);
+        verify(serverHealthService, times(2)).update(captorForHealthState.capture());
+        List<ServerHealthState> allValues = captorForHealthState.getAllValues();
+        for (ServerHealthState serverHealthState : allValues) {
+            assertThat(serverHealthState.getType().getScope().isForJob(), is(true));
+            assertThat(serverHealthState.getType().getScope().getScope(), is("pipeline-1/stage/job"));
+        }
+    }
+
+    private JobPlan plan(int jobId, String pluginId) {
+        ElasticProfile elasticProfile = new ElasticProfile("id", pluginId);
         JobIdentifier identifier = new JobIdentifier("pipeline-" + jobId, 1, "1", "stage", "1", "job");
         return new DefaultJobPlan(null, new ArtifactPlans(), null, jobId, identifier, null, new EnvironmentVariablesConfig(), new EnvironmentVariablesConfig(), elasticProfile);
     }

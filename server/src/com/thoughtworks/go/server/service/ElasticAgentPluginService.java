@@ -135,9 +135,20 @@ public class ElasticAgentPluginService implements JobStatusListener {
         ArrayList<JobPlan> plansThatRequireElasticAgent = ListUtil.filterInto(new ArrayList<>(), jobsThatRequireAgent, isElasticAgent());
 
         for (JobPlan plan : plansThatRequireElasticAgent) {
-            String environment = environmentConfigService.envForPipeline(plan.getPipelineName());
             map.put(plan.getJobId(), timeProvider.currentTimeMillis());
-            createAgentQueue.post(new CreateAgentMessage(serverConfigService.getAutoregisterKey(), environment, plan.getElasticProfile()));
+            if (elasticAgentPluginRegistry.has(plan.getElasticProfile().getPluginId())) {
+                String environment = environmentConfigService.envForPipeline(plan.getPipelineName());
+                createAgentQueue.post(new CreateAgentMessage(serverConfigService.getAutoregisterKey(), environment, plan.getElasticProfile()));
+                serverHealthService.removeByScope(HealthStateScope.forJob(plan.getIdentifier().getPipelineName(), plan.getIdentifier().getStageName(), plan.getIdentifier().getBuildName()));
+            } else {
+                String jobConfigIdentifier = plan.getIdentifier().jobConfigIdentifier().toString();
+                String description = String.format("Plugin [%s] associated with %s is missing. Either the plugin is not " +
+                        "installed or could not be registered. Please check plugins tab " +
+                        "and server logs for more details.", plan.getElasticProfile().getPluginId(), jobConfigIdentifier);
+                serverHealthService.update(ServerHealthState.error(String.format("Unable to find agent for %s",
+                        jobConfigIdentifier), description, HealthStateType.general(HealthStateScope.forJob(plan.getIdentifier().getPipelineName(), plan.getIdentifier().getStageName(), plan.getIdentifier().getBuildName()))));
+                LOGGER.error(description);
+            }
         }
     }
 

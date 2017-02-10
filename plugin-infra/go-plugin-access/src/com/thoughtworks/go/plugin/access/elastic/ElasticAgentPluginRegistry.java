@@ -70,4 +70,8 @@ public class ElasticAgentPluginRegistry extends AbstractPluginRegistry<ElasticAg
     public String getProfileView(String pluginId) {
         return extension.getProfileView(pluginId);
     }
+
+    public boolean has(String pluginId) {
+        return findPlugin(pluginId) != null;
+    }
 }

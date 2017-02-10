@@ -101,6 +101,10 @@ public class HealthStateScope implements Comparable<HealthStateScope> {
         return type == ScopeType.MATERIAL;
     }
 
+    public boolean isForJob() {
+        return type == ScopeType.JOB;
+    }
+
     ScopeType getType() {
         return type;
     }

@@ -78,52 +78,52 @@
   <bean id="agentControllerFactory" class="com.thoughtworks.go.agent.AgentControllerFactory" />
   <bean id="agentController" class="com.thoughtworks.go.agent.AgentController" factory-bean="agentControllerFactory" factory-method="createInstance" />
 
-  <bean id="agentControllerLooper" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean"
+  <bean id="agentControllerLooper" class="com.thoughtworks.go.agent.timer.MethodInvokingTimerTaskFactoryBean"
         p:targetObject-ref="agentController"
         p:targetMethod="loop"/>
 
-  <bean id="agentControllerPinger" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean"
+  <bean id="agentControllerPinger" class="com.thoughtworks.go.agent.timer.MethodInvokingTimerTaskFactoryBean"
         p:targetObject-ref="agentController"
         p:targetMethod="ping"/>
 
   <bean id="agentControllerInstructionExecutor"
-        class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean"
+        class="com.thoughtworks.go.agent.timer.MethodInvokingTimerTaskFactoryBean"
         p:targetObject-ref="agentController"
         p:targetMethod="execute"/>
 
 
   <!-- worker thread -->
-  <bean name="loopThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
-    <property name="scheduledTimerTasks">
+  <bean name="loopThread" class="org.springframework.scheduling.commonj.TimerManagerFactoryBean">
+    <property name="scheduledTimerListeners">
       <list>
-        <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
+        <bean class="org.springframework.scheduling.commonj.ScheduledTimerListener"
               p:delay="${agent.get.work.delay}"
               p:period="${agent.get.work.interval}"
-              p:timerTask-ref="agentControllerLooper"/>
+              p:timerListener-ref="agentControllerLooper"/>
       </list>
     </property>
   </bean>
 
   <!-- ping thread -->
-  <bean name="pingThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
-    <property name="scheduledTimerTasks">
+  <bean name="pingThread" class="org.springframework.scheduling.commonj.TimerManagerFactoryBean">
+    <property name="scheduledTimerListeners">
       <list>
-        <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
+        <bean class="org.springframework.scheduling.commonj.ScheduledTimerListener"
               p:delay="${agent.ping.delay}"
               p:period="${agent.ping.interval}"
-              p:timerTask-ref="agentControllerPinger"/>
+              p:timerListener-ref="agentControllerPinger"/>
       </list>
     </property>
   </bean>
 
   <!-- instruction checker -->
-  <bean name="instructionExecuteThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
-    <property name="scheduledTimerTasks">
+  <bean name="instructionExecuteThread" class="org.springframework.scheduling.commonj.TimerManagerFactoryBean">
+    <property name="scheduledTimerListeners">
       <list>
-        <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
+        <bean class="org.springframework.scheduling.commonj.ScheduledTimerListener"
               p:delay="${agent.instruction.delay}"
               p:period="${agent.instruction.interval}"
-              p:timerTask-ref="agentControllerInstructionExecutor"/>
+              p:timerListener-ref="agentControllerInstructionExecutor"/>
       </list>
     </property>
   </bean>

@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.server.persistence;
 
-import java.lang.reflect.Field;
-import java.util.*;
-
 import com.thoughtworks.go.domain.PersistentObject;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.oauth.OauthAuthorization;
@@ -36,6 +33,9 @@ import org.springframework.orm.hibernate5.HibernateTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.lang.reflect.Field;
+import java.util.*;
+
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.core.Is.is;
@@ -44,6 +44,7 @@ import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.junit.matchers.JUnitMatchers.hasItems;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
@@ -51,11 +52,15 @@ import static org.junit.matchers.JUnitMatchers.hasItems;
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
 })
 public class OauthRepositoryTest {
-    @Autowired private OauthRepository repo;
-    @Autowired private DatabaseAccessHelper dbHelper;
+
+    @Autowired
+    private OauthRepository repo;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
     private HibernateTemplate template;
 
-    @Before public void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         template = repo.getHibernateTemplate();
         dbHelper.onSetUp();
     }
@@ -66,19 +71,15 @@ public class OauthRepositoryTest {
     }
 
     @Test
-    public void shouldHonorTransaction() throws Exception{
+    public void shouldHonorTransaction() throws Exception {
         final OauthClient client = new OauthClient("mingle", "client_id", "client_secret", "http://something");
         try {
-            repo.transaction(new Runnable() {
-                public void run() {
-                    template.save(client);
-                    throw new RuntimeException("ouch! it failed.");
-                }
-            });
-            fail("should have bubbled up transaction failing exception");
+            template.save(client);
+            throw new RuntimeException("ouch! it failed.");
         } catch (Exception e) {
             assertThat(e.getMessage(), is("ouch! it failed."));
         }
+
         try {
             template.load(OauthClient.class, client.getId());
             fail("should have failed because transaction was not successful");
@@ -164,11 +165,7 @@ public class OauthRepositoryTest {
         template.save(mingle09);
         map.put("name", "a different name");
         map.put("id", mingle09.getId());
-        repo.transaction(
-        new Runnable() {
-            public void run() {
-                repo.saveOauthClient(map);
-            }});
+        repo.saveOauthClient(map);
         OauthClient client = template.load(OauthClient.class, mingle09.getId());
         assertThat(client.getDTO().getName(), is("a different name"));
     }
@@ -414,7 +411,7 @@ public class OauthRepositoryTest {
     public void shouldDeleteOauthToken() {
         OauthClient mingle09 = new OauthClient("mingle09", "client_id", "client_secret", "http://something");
         template.save(mingle09);
-          OauthToken fooTokenFor09 = new OauthToken("foo@bar.com", mingle09, "access-token", "refresh-token", 23324324);
+        OauthToken fooTokenFor09 = new OauthToken("foo@bar.com", mingle09, "access-token", "refresh-token", 23324324);
         template.save(fooTokenFor09);
 
         assertThat(template.find("from OauthToken").size(), is(1));

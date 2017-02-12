@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -123,7 +123,7 @@ task verifyJar(type: VerifyJarTask) {
           "go-plugin-api-${project.version}.jar",
           "go-plugin-api-internal-${project.version}.jar",
           "go-plugin-infra-${project.version}.jar",
-          "gson-2.3.1.jar",
+          "gson-2.8.0.jar",
           "httpclient-4.5.2.jar",
           "httpcore-4.4.4.jar",
           "httpmime-4.5.2.jar",
@@ -143,11 +143,10 @@ task verifyJar(type: VerifyJarTask) {
           "log4j-1.2.17.jar",
           "objenesis-1.2.jar",
           "org.apache.felix.framework-4.2.1.jar",
-          "quartz-1.6.5.jar",
+          "quartz-2.2.3.jar",
           "slf4j-api-1.7.21.jar",
           "slf4j-log4j12-1.7.21.jar",
           "spring-aop-${springVersion}.jar",
-          "spring-asm-${springVersion}.jar",
           "spring-beans-${springVersion}.jar",
           "spring-context-${springVersion}.jar",
           "spring-context-support-${springVersion}.jar",
@@ -163,6 +162,10 @@ task verifyJar(type: VerifyJarTask) {
           "websocket-client-${versions.jetty}.jar",
           "websocket-common-${versions.jetty}.jar",
           "xml-apis-1.0.b2.jar",
+          "spring-ibatis-2.0.8.jar",
+          "ibatis-sqlmap-2.3.0.jar",
+          "commonj-1.1.1.jar",
+          "c3p0-0.9.1.1.jar"
       ]
   ]
 }

@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.server.transaction;
 
+import org.springframework.transaction.annotation.Transactional;
+
 public class TransactionTemplate {
     private org.springframework.transaction.support.TransactionTemplate transactionTemplate;
 
@@ -30,6 +32,7 @@ public class TransactionTemplate {
         this.transactionTemplate = transactionTemplate;
     }
 
+    @Transactional
     public <T> T execute(final org.springframework.transaction.support.TransactionCallback<T> action) {
         return transactionTemplate.execute(status -> {
             txnCtx().transactionPushed();
@@ -41,6 +44,7 @@ public class TransactionTemplate {
         });
     }
 
+    @Transactional
     public <T> T executeWithExceptionHandling(final TransactionCallback<T> action) throws Exception {
         try {
             return transactionTemplate.execute(status -> {

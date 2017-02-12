@@ -46,6 +46,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
 import java.io.File;
@@ -59,6 +61,8 @@ import static org.hibernate.criterion.Restrictions.isNull;
 /**
  * @understands how to store and retrieve Materials from the database
  */
+@Transactional
+@Component
 public class MaterialRepository extends HibernateDaoSupport {
     private static final Logger LOGGER = LoggerFactory.getLogger(MaterialRepository.class.getName());
 

@@ -52,7 +52,7 @@ import static org.junit.Assert.fail;
 })
 public class MaterialRepositoryWithH2IntegrationTest {
     @Autowired
-    MaterialRepository repo;
+    MaterialRepository materialRepository;
     @Autowired
     GoCache goCache;
     @Autowired
@@ -61,14 +61,14 @@ public class MaterialRepositoryWithH2IntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        originalTemplate = repo.getHibernateTemplate();
+        originalTemplate = materialRepository.getHibernateTemplate();
         dbHelper.onSetUp();
         goCache.clear();
     }
 
     @After
     public void tearDown() throws Exception {
-        repo.setHibernateTemplate(originalTemplate);
+        materialRepository.setHibernateTemplate(originalTemplate);
         dbHelper.onTearDown();
     }
 
@@ -76,7 +76,7 @@ public class MaterialRepositoryWithH2IntegrationTest {
     @RunIf(value = DatabaseChecker.class, arguments = {DatabaseChecker.H2})
     public void materialFingerprintShouldUseTheHashAlgoritmInMigration47() throws Exception {
         final HgMaterial material = new HgMaterial("url", null);
-        byte[] fingerprint = (byte[]) repo.getHibernateTemplate().execute(new HibernateCallback<byte[]>() {
+        byte[] fingerprint = (byte[]) materialRepository.getHibernateTemplate().execute(new HibernateCallback<byte[]>() {
             public byte[] doInHibernate(Session session) throws HibernateException {
                 String pattern = format("'type=%s%surl=%s'", material.getType(), AbstractMaterial.FINGERPRINT_DELIMITER, material.getUrl());
                 SQLQuery query = session.createSQLQuery(format("CALL HASH('SHA256', STRINGTOUTF8(%s), 1)", pattern));

@@ -1147,7 +1147,7 @@ public class MaterialRepositoryIntegrationTest {
     @Test
     public void shouldSavePackageMaterialInstance() {
         PackageMaterial material = new PackageMaterial();
-        PackageRepository repository = PackageRepositoryMother.create("repo-id", "repo", "pluginid", "version", new Configuration(ConfigurationPropertyMother.create("k1", false, "v1")));
+        PackageRepository repository = PackageRepositoryMother.create("materialRepository-id", "materialRepository", "pluginid", "version", new Configuration(ConfigurationPropertyMother.create("k1", false, "v1")));
         material.setPackageDefinition(PackageDefinitionMother.create("p-id", "name", new Configuration(ConfigurationPropertyMother.create("k2", false, "v2")), repository));
         PackageMaterialInstance savedMaterialInstance = (PackageMaterialInstance) repo.findOrCreateFrom(material);
         assertThat(savedMaterialInstance.getId() > 0, is(true));

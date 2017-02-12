@@ -21,6 +21,7 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -28,6 +29,7 @@ import java.util.List;
  * @understands persisting and retrieving resource
  */
 @Service
+@Transactional
 public class ResourceRepository extends HibernateDaoSupport {
 
     private static final String GET_RESOURCES_BY_BUILD_ID = "SELECT r FROM Resource r WHERE r.buildId = ? ORDER BY r.id";

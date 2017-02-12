@@ -22,7 +22,7 @@ import java.util.List;
 
 public interface OauthDataSource {
 
-    void transaction(Runnable txn);
+//    void transaction(Runnable txn);
 
     OauthClientDTO findOauthClientById(long id);
 

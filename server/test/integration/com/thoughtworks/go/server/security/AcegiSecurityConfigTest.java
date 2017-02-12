@@ -20,7 +20,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.SecurityConfig;
+import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.test.context.ContextConfiguration;
@@ -50,36 +50,36 @@ public class AcegiSecurityConfigTest {
 
     @Test
     public void shouldAllowOnlyRoleUserToHaveAccessToWildcardUrls() {
-        verifyGetAccessToUrlPatternIsAvailableToRole(objectDefinitionSource, "/**", "ROLE_USER");
-        verifyGetAccessToUrlPatternIsAvailableToRole(objectDefinitionSource, "/**/*.js", "ROLE_USER");
-        verifyGetAccessToUrlPatternIsAvailableToRole(objectDefinitionSource, "/**/*.css", "ROLE_USER");
-        verifyGetAccessToUrlPatternIsAvailableToRole(objectDefinitionSource, "/**/*.png", "ROLE_USER");
+        verifyGetAccessToUrlPatternIsAvailableToRole(objectDefinitionSource, "/**", "hasAnyRole('ROLE_USER')");
+        verifyGetAccessToUrlPatternIsAvailableToRole(objectDefinitionSource, "/**/*.js", "hasAnyRole('ROLE_USER')");
+        verifyGetAccessToUrlPatternIsAvailableToRole(objectDefinitionSource, "/**/*.css", "hasAnyRole('ROLE_USER')");
+        verifyGetAccessToUrlPatternIsAvailableToRole(objectDefinitionSource, "/**/*.png", "hasAnyRole('ROLE_USER')");
     }
 
     @Test
     public void shouldAllowAnonymousAccessToAssets() {
-        verifyGetAccessToUrlPatternIsAvailableToRole(objectDefinitionSource, "/assets/**", "IS_AUTHENTICATED_ANONYMOUSLY");
-        verifyGetAccessToUrlPatternIsAvailableToRole(objectDefinitionSource, "/assets/**/*.js", "IS_AUTHENTICATED_ANONYMOUSLY");
-        verifyGetAccessToUrlPatternIsAvailableToRole(objectDefinitionSource, "/assets/**/*.css", "IS_AUTHENTICATED_ANONYMOUSLY");
-        verifyGetAccessToUrlPatternIsAvailableToRole(objectDefinitionSource, "/assets/**/*.jpg", "IS_AUTHENTICATED_ANONYMOUSLY");
+        verifyGetAccessToUrlPatternIsAvailableToRole(objectDefinitionSource, "/assets/**", "permitAll");
+        verifyGetAccessToUrlPatternIsAvailableToRole(objectDefinitionSource, "/assets/**/*.js", "permitAll");
+        verifyGetAccessToUrlPatternIsAvailableToRole(objectDefinitionSource, "/assets/**/*.css", "permitAll");
+        verifyGetAccessToUrlPatternIsAvailableToRole(objectDefinitionSource, "/assets/**/*.jpg", "permitAll");
     }
 
     @Test
     public void shouldNotAllowAnonymousAccessToWildcardAuthUrl(){
-        verifyGetAccessToUrlPatternIsAvailableToRole(objectDefinitionSource, "/auth/login", "IS_AUTHENTICATED_ANONYMOUSLY");
-        verifyGetAccessToUrlPatternIsAvailableToRole(objectDefinitionSource, "/auth/logout", "IS_AUTHENTICATED_ANONYMOUSLY");
+        verifyGetAccessToUrlPatternIsAvailableToRole(objectDefinitionSource, "/auth/login", "permitAll");
+        verifyGetAccessToUrlPatternIsAvailableToRole(objectDefinitionSource, "/auth/logout", "permitAll");
     }
 
     private void verifyGetAccessToUrlPatternIsAvailableToRole(DefaultFilterInvocationSecurityMetadataSource objectDefinitionSource, String urlPattern, String role) {
-        Collection definition = objectDefinitionSource.getAllConfigAttributes();
-        Iterator iterator = definition.iterator();
+        Collection<ConfigAttribute> definition = objectDefinitionSource.getAllConfigAttributes();
+        Iterator<ConfigAttribute> iterator = definition.iterator();
         StringBuilder allowedAccess = new StringBuilder();
         while (iterator.hasNext()) {
-            SecurityConfig securityConfig = (SecurityConfig) iterator.next();
-            if (securityConfig.getAttribute().equals(role))
+            ConfigAttribute configAttribute = iterator.next();
+            if (configAttribute.toString().equals(role))
                 return;
             else
-                allowedAccess.append(securityConfig.getAttribute() + ",");
+                allowedAccess.append(configAttribute.toString() + ",");
         }
         fail(String.format("Expected access to url %s only by %s but found %s", urlPattern, role, allowedAccess.toString()));
     }

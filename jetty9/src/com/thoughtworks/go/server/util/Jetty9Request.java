@@ -24,7 +24,14 @@ public class Jetty9Request implements ServletRequest {
     private Request request;
 
     public Jetty9Request(javax.servlet.ServletRequest request) {
-        this.request = (Request) ((ServletRequestWrapper) ((ServletRequestWrapper) request).getRequest()).getRequest();
+        this.request = getRequest(request);
+    }
+
+    private Request getRequest(javax.servlet.ServletRequest request) {
+        while (request instanceof ServletRequestWrapper) {
+            request = ((ServletRequestWrapper) request).getRequest();
+        }
+        return (Request) request;
     }
 
     @Override

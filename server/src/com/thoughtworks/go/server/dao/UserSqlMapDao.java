@@ -112,12 +112,12 @@ public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
         synchronized (ENABLED_USER_COUNT_CACHE_KEY) {
             value = (Integer) goCache.get(ENABLED_USER_COUNT_CACHE_KEY);
             if (value == null) {
-                value = (Integer) hibernateTemplate().execute(new HibernateCallback<Object>() {
+                value = hibernateTemplate().execute(new HibernateCallback<Long>() {
                     @Override
-                    public Object doInHibernate(Session session) throws HibernateException {
-                        return session.createCriteria(User.class).add(Restrictions.eq("enabled", true)).setProjection(Projections.rowCount()).setCacheable(true).uniqueResult();
+                    public Long doInHibernate(Session session) throws HibernateException {
+                        return (Long) session.createCriteria(User.class).add(Restrictions.eq("enabled", true)).setProjection(Projections.rowCount()).setCacheable(true).uniqueResult();
                     }
-                });
+                }).intValue();
 
                 goCache.put(ENABLED_USER_COUNT_CACHE_KEY, value);
             }

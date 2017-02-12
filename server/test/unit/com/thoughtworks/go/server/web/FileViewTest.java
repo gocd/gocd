@@ -120,7 +120,7 @@ public class FileViewTest extends MockObjectTestCase {
 
         view.render(model, mockRequest, mockResponse);
         assertEquals("text/plain;charset=utf-8", mockResponse.getContentType());
-        assertEquals("utf-8", mockResponse.getCharacterEncoding());
+        assertEquals("utf-8", mockResponse.getCharacterEncoding().toLowerCase());
     }
 
     private long getContentLength(MockHttpServletResponse mockResponse) {

@@ -33,16 +33,18 @@ import java.util.List;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
         "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
 })
-public class LdapUserSearchIntegrationTest  {
-    @Autowired private LdapUserSearch ldapUserSearch;
-    @Autowired private GoConfigDao goConfigDao;
+public class LdapUserSearchIntegrationTest {
+    @Autowired
+    private LdapUserSearch ldapUserSearch;
+    @Autowired
+    private GoConfigDao goConfigDao;
 
     private static final GoConfigFileHelper CONFIG_HELPER = new GoConfigFileHelper();
     private InMemoryLdapServerForTests ldapServer;
@@ -134,12 +136,8 @@ public class LdapUserSearchIntegrationTest  {
     public void shouldLimitUserSearchResults() throws Exception {
         addManyUsers(200);
 
-        try {
-            ldapUserSearch.search("somecompany");
-            fail("Should have failed as number of results higher than allowed limit.");
-        } catch (LdapUserSearch.NotAllResultsShownException e) {
-            assertThat(e.getUsers().size(), is(100));
-        }
+        List<User> users = ldapUserSearch.search("somecompany");
+        assertThat(users.size(), is(100));
     }
 
     private void addManyUsers(int numberOfUsersToAdd) throws Exception {

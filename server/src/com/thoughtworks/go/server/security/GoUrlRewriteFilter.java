@@ -16,22 +16,21 @@
 
 package com.thoughtworks.go.server.security;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.ServletContextAware;
 import org.tuckey.web.filters.urlrewrite.UrlRewriteFilter;
 
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
+import javax.servlet.*;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
-public class GoUrlRewriteFilter extends UrlRewriteFilter {
+public class GoUrlRewriteFilter extends UrlRewriteFilter implements ServletContextAware {
 
-    @Autowired
-    public GoUrlRewriteFilter(final ServletContext servletContext) throws ServletException {
-        super.init(getFilterConfig(servletContext));
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+        super.doFilter(request, response, chain);
     }
 
     private FilterConfig getFilterConfig(final ServletContext servletContext) {
@@ -62,5 +61,14 @@ public class GoUrlRewriteFilter extends UrlRewriteFilter {
                 return Collections.enumeration(params.keySet());
             }
         };
+    }
+
+    @Override
+    public void setServletContext(ServletContext servletContext) {
+        try {
+            super.init(getFilterConfig(servletContext));
+        } catch (ServletException e) {
+            e.printStackTrace();
+        }
     }
 }

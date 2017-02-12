@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigInteger;
 import java.util.*;
@@ -40,6 +41,7 @@ import java.util.*;
  * @understands how to store and retrieve piplines from the database
  */
 @Component
+@Transactional
 public class PipelineRepository extends HibernateDaoSupport {
     private static final Logger LOGGER = Logger.getLogger(PipelineRepository.class);
     private final QueryExtensions queryExtensions;

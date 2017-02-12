@@ -21,18 +21,17 @@ import com.thoughtworks.go.server.domain.oauth.OauthClient;
 import com.thoughtworks.go.server.domain.oauth.OauthDomainEntity;
 import com.thoughtworks.go.server.domain.oauth.OauthToken;
 import com.thoughtworks.go.server.oauth.OauthDataSource;
-import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.HibernateException;
-import org.hibernate.query.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.HibernateCallback;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.List;
@@ -41,28 +40,16 @@ import java.util.Map;
 /**
  * @understands persistence for data used for oauth support
  */
-@Service
+@Component
 public class OauthRepository extends HibernateDaoSupport implements OauthDataSource {
 
     private static final String PARAM_ID = "id";
-
-    private TransactionTemplate txnTemplate;
     private final OauthPersistenceHelper persistenceHelper;
 
     @Autowired
-    public OauthRepository(SessionFactory sessionFactory, TransactionTemplate txnTemplate) {
-        this.txnTemplate = txnTemplate;
+    public OauthRepository(SessionFactory sessionFactory) {
         setSessionFactory(sessionFactory);
         this.persistenceHelper = new OauthPersistenceHelper(getHibernateTemplate());
-    }
-
-    public void transaction(final Runnable txn) {
-        txnTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus status) {
-                txn.run();
-            }
-        });
     }
 
     public OauthClientDTO findOauthClientById(long id) {
@@ -225,16 +212,11 @@ public class OauthRepository extends HibernateDaoSupport implements OauthDataSou
     }
 
     public void deleteUsersOauthGrants(final List<String> userIds) {
-        txnTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus status) {
-                getHibernateTemplate().execute(new HibernateCallback() {
-                    public Object doInHibernate(Session session) throws HibernateException {
-                        deleteEntitiesByUserIds(OauthAuthorization.class, session, userIds);
-                        deleteEntitiesByUserIds(OauthToken.class, session, userIds);
-                        return true;
-                    }
-                });
+        getHibernateTemplate().execute(new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException {
+                deleteEntitiesByUserIds(OauthAuthorization.class, session, userIds);
+                deleteEntitiesByUserIds(OauthToken.class, session, userIds);
+                return true;
             }
         });
     }
@@ -254,13 +236,8 @@ public class OauthRepository extends HibernateDaoSupport implements OauthDataSou
     }
 
     public void deleteAllOauthGrants() {
-        txnTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus status) {
-                getHibernateTemplate().bulkUpdate("DELETE OauthAuthorization");
-                getHibernateTemplate().bulkUpdate("DELETE OauthToken");
-            }
-        });
+        getHibernateTemplate().bulkUpdate("DELETE OauthAuthorization");
+        getHibernateTemplate().bulkUpdate("DELETE OauthToken");
     }
 
     private OauthAuthorization loadAuthorization(long id) {

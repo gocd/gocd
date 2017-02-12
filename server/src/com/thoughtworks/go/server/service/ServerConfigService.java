@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,7 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Map;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.GoConstants.TEST_EMAIL_SUBJECT;
@@ -158,7 +159,7 @@ public class ServerConfigService implements BaseUrlProvider {
         DefaultSpringSecurityContextSource source = new DefaultSpringSecurityContextSource(ldapConfig.uri());
 
         //so user can define the variable java.naming.referral=follow in the server.sh
-        source.setBaseEnvironmentProperties(System.getProperties());
+        source.setBaseEnvironmentProperties((Map) System.getProperties());
         new LdapContextSourceConfigurator(ldapConfig).configure(source);
         try {
             source.afterPropertiesSet();
@@ -182,7 +183,7 @@ public class ServerConfigService implements BaseUrlProvider {
         return goConfigService.getCurrentConfig().server();
     }
 
-    public String getAutoregisterKey(){
+    public String getAutoregisterKey() {
         return serverConfig().getAgentAutoRegisterKey();
     }
 

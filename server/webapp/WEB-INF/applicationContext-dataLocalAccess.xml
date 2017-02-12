@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- *************************GO-LICENSE-START******************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,7 +80,7 @@
     <bean id="transactionTemplate" class="com.thoughtworks.go.server.transaction.TransactionTemplate">
         <constructor-arg index="0">
             <bean class="org.springframework.transaction.support.TransactionTemplate">
-                <property name="transactionManager" ref="txManager"/>
+                <constructor-arg ref="goTransactionManager"/>
             </bean>
         </constructor-arg>
     </bean>
@@ -99,9 +99,8 @@
     <!-- ========================= HIBERNATE ========================= -->
 
     <bean id="hibernateProperties" class="com.thoughtworks.go.server.database.HibernateProperties" />
-    <bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
         <property name="dataSource" ref="goDataSource"/>
-        <property name="useTransactionAwareDataSource" value="true"/>
         <property name="mappingDirectoryLocations">
             <list>
                 <value>classpath:/hibernate-mappings</value>
@@ -115,7 +114,7 @@
         </property>
     </bean>
 
-    <bean id="goTransactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+    <bean id="goTransactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
         <property name="sessionFactory" ref="sessionFactory"/>
     </bean>
 

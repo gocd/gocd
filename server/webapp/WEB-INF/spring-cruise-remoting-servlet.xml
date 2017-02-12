@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2016 ThoughtWorks, Inc.
+  ~ Copyright 2017 ThoughtWorks, Inc.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -65,8 +65,8 @@
           p:targetMethod="cancelHungJobs"/>
 
     <bean id="checkDiskSpaceTask" class="com.thoughtworks.go.timer.ModeAwareMethodInvokingTimerTaskFactoryBean"
-        p:targetObject-ref="goDiskSpaceMonitor"
-        p:targetMethod="onTimer"/>
+          p:targetObject-ref="goDiskSpaceMonitor"
+          p:targetMethod="onTimer"/>
 
     <bean id="buildAssignmentServiceRefreshExecutor" class="com.thoughtworks.go.timer.ModeAwareMethodInvokingTimerTaskFactoryBean"
           p:targetObject-ref="buildAssignmentService"
@@ -81,119 +81,119 @@
           p:targetMethod="onTimer"/>
 
     <!-- auto build cause producing thread -->
-    <bean name="produceBuildCausesThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
-        <property name="scheduledTimerTasks">
+    <bean name="produceBuildCausesThread" class="org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean">
+        <property name="scheduledExecutorTasks">
             <list>
-                <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
+                <bean class="org.springframework.scheduling.concurrent.ScheduledExecutorTask"
                       p:delay="${cruise.produce.build.cause.delay}"
                       p:period="${cruise.produce.build.cause.interval}"
-                      p:timerTask-ref="produceBuildCausesTask"/>
+                      p:runnable-ref="produceBuildCausesTask"/>
             </list>
         </property>
     </bean>
 
-    <bean name="recomputeMaterialPipelineMappingsThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
-        <property name="scheduledTimerTasks">
+    <bean name="recomputeMaterialPipelineMappingsThread" class="org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean">
+        <property name="scheduledExecutorTasks">
             <list>
-                <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
+                <bean class="org.springframework.scheduling.concurrent.ScheduledExecutorTask"
                       p:delay="10000"
                       p:period="5000"
-                      p:timerTask-ref="serverHealthRecomputeTask"/>
+                      p:runnable-ref="serverHealthRecomputeTask"/>
             </list>
         </property>
     </bean>
 
-    <bean name="materialUpdateThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
-        <property name="scheduledTimerTasks">
+    <bean name="materialUpdateThread" class="org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean">
+        <property name="scheduledExecutorTasks">
             <list>
-                <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
+                <bean class="org.springframework.scheduling.concurrent.ScheduledExecutorTask"
                       p:delay="${cruise.material.update.delay}"
                       p:period="${cruise.material.update.interval}"
-                      p:timerTask-ref="materialUpdaterExecutor"/>
+                      p:runnable-ref="materialUpdaterExecutor"/>
             </list>
         </property>
     </bean>
 
     <!--Build Cause consume thread-->
-    <bean name="consumeBuildCausesThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
-        <property name="scheduledTimerTasks">
+    <bean name="consumeBuildCausesThread" class="org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean">
+        <property name="scheduledExecutorTasks">
             <list>
-                <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
+                <bean class="org.springframework.scheduling.concurrent.ScheduledExecutorTask"
                       p:delay="10000"
                       p:period="${cruise.buildCause.consumer.interval}"
-                      p:timerTask-ref="consumeBuildCausesTask"/>
+                      p:runnable-ref="consumeBuildCausesTask"/>
             </list>
         </property>
     </bean>
 
     <!-- reschedule a building job whose agent has not pinged the server in a while -->
-    <bean name="rescheduleHungBuildThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
-        <property name="scheduledTimerTasks">
+    <bean name="rescheduleHungBuildThread" class="org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean">
+        <property name="scheduledExecutorTasks">
             <list>
-                <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
+                <bean class="org.springframework.scheduling.concurrent.ScheduledExecutorTask"
                       p:delay="3000"
                       p:period="${cruise.reschedule.hung.builds.interval}"
-                      p:timerTask-ref="rescheduleHungBuildTask"/>
+                      p:runnable-ref="rescheduleHungBuildTask"/>
             </list>
         </property>
     </bean>
 
     <!-- a heartbeat/ping call to elastic agent plugins -->
-    <bean name="elasticAgentPluginPingThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
-        <property name="scheduledTimerTasks">
+    <bean name="elasticAgentPluginPingThread" class="org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean">
+        <property name="scheduledExecutorTasks">
             <list>
-                <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
+                <bean class="org.springframework.scheduling.concurrent.ScheduledExecutorTask"
                       p:delay="3000"
                       p:period="${go.elasticplugin.heartbeat.interval}"
-                      p:timerTask-ref="elasticAgentPluginPingTask"/>
+                      p:runnable-ref="elasticAgentPluginPingTask"/>
             </list>
         </property>
     </bean>
 
     <!-- cancel a hung job thread -->
-    <bean name="cancelHungJobThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
-        <property name="scheduledTimerTasks">
+    <bean name="cancelHungJobThread" class="org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean">
+        <property name="scheduledExecutorTasks">
             <list>
-                <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
+                <bean class="org.springframework.scheduling.concurrent.ScheduledExecutorTask"
                       p:delay="3000"
                       p:period="${cruise.cancel.hung.jobs.interval}"
-                      p:timerTask-ref="cancelHungJob"/>
+                      p:runnable-ref="cancelHungJob"/>
             </list>
         </property>
     </bean>
 
     <!-- buildAssignmentServiceRefreshExecutorThread -->
-    <bean name="buildAssignmentServiceRefreshExecutorThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
-        <property name="scheduledTimerTasks">
+    <bean name="buildAssignmentServiceRefreshExecutorThread" class="org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean">
+        <property name="scheduledExecutorTasks">
             <list>
-                <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
+                <bean class="org.springframework.scheduling.concurrent.ScheduledExecutorTask"
                       p:delay="10000"
                       p:period="${cruise.build.assignment.service.interval}"
-                      p:timerTask-ref="buildAssignmentServiceRefreshExecutor"/>
+                      p:runnable-ref="buildAssignmentServiceRefreshExecutor"/>
             </list>
         </property>
     </bean>
 
     <!-- cachedGoConfigRefreshExecutorThread -->
-    <bean name="cachedGoConfigRefreshExecutorThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
-        <property name="scheduledTimerTasks">
+    <bean name="cachedGoConfigRefreshExecutorThread" class="org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean">
+        <property name="scheduledExecutorTasks">
             <list>
-                <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
+                <bean class="org.springframework.scheduling.concurrent.ScheduledExecutorTask"
                       p:delay="5000"
                       p:period="${cruise.config.refresh.interval}"
-                      p:timerTask-ref="cachedGoConfigRefreshExecutor"/>
+                      p:runnable-ref="cachedGoConfigRefreshExecutor"/>
             </list>
         </property>
     </bean>
 
     <!-- goDiskSpaceMonitorThread -->
-    <bean name="goDiskSpaceMonitorThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
-        <property name="scheduledTimerTasks">
+    <bean name="goDiskSpaceMonitorThread" class="org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean">
+        <property name="scheduledExecutorTasks">
             <list>
-                <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
+                <bean class="org.springframework.scheduling.concurrent.ScheduledExecutorTask"
                       p:delay="5000"
                       p:period="${cruise.disk.space.check.interval}"
-                      p:timerTask-ref="checkDiskSpaceTask"/>
+                      p:runnable-ref="checkDiskSpaceTask"/>
             </list>
         </property>
     </bean>
@@ -206,13 +206,13 @@
           p:targetObject-ref="agentService"
           p:targetMethod="refresh"/>
 
-    <bean name="agentServiceRefreshThread" class="org.springframework.scheduling.timer.TimerFactoryBean">
-        <property name="scheduledTimerTasks">
+    <bean name="agentServiceRefreshThread" class="org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean">
+        <property name="scheduledExecutorTasks">
             <list>
-                <bean class="org.springframework.scheduling.timer.ScheduledTimerTask"
+                <bean class="org.springframework.scheduling.concurrent.ScheduledExecutorTask"
                       p:delay="10000"
                       p:period="${cruise.agent.service.refresh.interval}"
-                      p:timerTask-ref="agentServiceRefreshExecutor"/>
+                      p:runnable-ref="agentServiceRefreshExecutor"/>
             </list>
         </property>
     </bean>

@@ -17,12 +17,6 @@
 package com.thoughtworks.go.server.persistence;
 
 
-import java.math.BigInteger;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.database.QueryExtensions;
 import com.thoughtworks.go.domain.PipelineTimelineEntry;
@@ -33,24 +27,28 @@ import com.thoughtworks.go.server.domain.user.PipelineSelections;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.query.NativeQuery;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.dao.DataAccessException;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate5.HibernateCallback;
+import org.springframework.orm.hibernate5.HibernateTemplate;
 
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class PipelineRepositoryTest {
 
@@ -63,12 +61,12 @@ public class PipelineRepositoryTest {
     private TransactionSynchronizationManager transactionSynchronizationManager;
     private TransactionTemplate transactionTemplate;
     private Session session;
-    private SQLQuery sqlQuery;
+    private NativeQuery sqlQuery;
 
     @Before
     public void setup() {
         session = mock(Session.class);
-        sqlQuery = mock(SQLQuery.class);
+        sqlQuery = mock(NativeQuery.class);
         sessionFactory = mock(SessionFactory.class);
         hibernateTemplate = mock(HibernateTemplate.class);
         goCache = mock(GoCache.class);
@@ -87,7 +85,8 @@ public class PipelineRepositoryTest {
         PipelineSelections pipelineSelections = new PipelineSelections();
         long userId = 1L;
 
-        when(hibernateTemplate.find(queryString, new Object[]{userId})).thenReturn(Arrays.asList(pipelineSelections));
+        List list = asList(pipelineSelections);
+        when(hibernateTemplate.find(queryString, userId)).thenReturn(list);
         //return false for first 2 calls and return true for next call
         when(goCache.isKeyInCache(pipelineRepository.pipelineSelectionForUserIdKey(userId))).thenReturn(false).thenReturn(false).thenReturn(true);
 
@@ -191,14 +190,10 @@ public class PipelineRepositoryTest {
         pipelineRepository.setHibernateTemplate(new HibernateTemplate() {
             @Override
             public <T> T execute(HibernateCallback<T> action) throws DataAccessException {
-                try {
-                    return action.doInHibernate(session);
-                } catch (SQLException e) {
-                    throw new RuntimeException();
-                }
+                return action.doInHibernate(session);
             }
         });
         when(session.createSQLQuery(anyString())).thenReturn(sqlQuery);
-        when(sqlQuery.list()).thenReturn(Arrays.asList(rows));
+        when(sqlQuery.list()).thenReturn(asList(rows));
     }
 }

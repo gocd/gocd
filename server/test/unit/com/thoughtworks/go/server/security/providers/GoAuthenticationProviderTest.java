@@ -22,11 +22,12 @@ import com.thoughtworks.go.server.util.UserHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.providers.AuthenticationProvider;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.userdetails.User;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.User;
+
+import java.util.Collections;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -45,9 +46,9 @@ public class GoAuthenticationProviderTest {
         userService = mock(UserService.class);
         underlyingProvider = mock(AuthenticationProvider.class);
         enforcementProvider = new GoAuthenticationProvider(userService, underlyingProvider);
-        auth = new UsernamePasswordAuthenticationToken(new User("user", "pass", true, true, true, true, new GrantedAuthority[]{}), "credentials");
+        auth = new UsernamePasswordAuthenticationToken(new User("user", "pass", true, true, true, true, Collections.emptyList()), "credentials");
         resultantAuthorization = new UsernamePasswordAuthenticationToken(new User("user-authenticated", "pass", true, true, true, true,
-                new GrantedAuthority[]{GoAuthority.ROLE_GROUP_SUPERVISOR.asAuthority()}), "credentials");
+                Collections.singletonList(GoAuthority.ROLE_GROUP_SUPERVISOR.asAuthority())), "credentials");
         when(underlyingProvider.authenticate(auth)).thenReturn(resultantAuthorization);
     }
 

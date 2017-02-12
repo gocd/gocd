@@ -1,28 +1,27 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.transaction;
-
-import org.springframework.transaction.TransactionStatus;
 
 public class TransactionTemplate {
     private org.springframework.transaction.support.TransactionTemplate transactionTemplate;
 
     private static final ThreadLocal<TransactionContext> txnCtx = new ThreadLocal<TransactionContext>() {
-        @Override protected TransactionContext initialValue() {
+        @Override
+        protected TransactionContext initialValue() {
             return new TransactionContext();
         }
     };
@@ -31,29 +30,25 @@ public class TransactionTemplate {
         this.transactionTemplate = transactionTemplate;
     }
 
-    public Object execute(final org.springframework.transaction.support.TransactionCallback action) {
-        return transactionTemplate.execute(new org.springframework.transaction.support.TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                txnCtx().transactionPushed();
-                try {
-                    return action.doInTransaction(status);
-                } finally {
-                    txnCtx().transactionPopped();
-                }
+    public <T> T execute(final org.springframework.transaction.support.TransactionCallback<T> action) {
+        return transactionTemplate.execute(status -> {
+            txnCtx().transactionPushed();
+            try {
+                return action.doInTransaction(status);
+            } finally {
+                txnCtx().transactionPopped();
             }
         });
     }
 
-    public Object executeWithExceptionHandling(final TransactionCallback action) throws Exception {
+    public <T> T executeWithExceptionHandling(final TransactionCallback<T> action) throws Exception {
         try {
-            return transactionTemplate.execute(new org.springframework.transaction.support.TransactionCallback() {
-                public Object doInTransaction(TransactionStatus status) {
-                    txnCtx().transactionPushed();
-                    try {
-                        return action.doWithExceptionHandling(status);
-                    } finally {
-                        txnCtx().transactionPopped();
-                    }
+            return transactionTemplate.execute(status -> {
+                txnCtx().transactionPushed();
+                try {
+                    return action.doWithExceptionHandling(status);
+                } finally {
+                    txnCtx().transactionPopped();
                 }
             });
         } catch (TransactionCallbackExecutionException e) {
@@ -78,7 +73,7 @@ public class TransactionTemplate {
         return txnCtx.get();
     }
 
-    public static interface TransactionSurrounding<T extends Exception> {
+    public interface TransactionSurrounding<T extends Exception> {
         Object surrounding() throws T;
     }
 }

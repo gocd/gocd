@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -84,6 +84,10 @@ sourceSets {
   }
 }
 
+def springVersion = '4.3.6.RELEASE'
+def hibernateVersion = '5.0.1.Final'
+def springSecurityVersion = '4.2.1.RELEASE'
+
 dependencies {
   compile project(':database')
   compile project(':config-server')
@@ -107,19 +111,18 @@ dependencies {
   compile group: 'commons-pool', name: 'commons-pool', version: '1.5.6'
   compile group: 'com.h2database', name: 'h2', version: '1.3.168'
   compile group: 'net.sf', name: 'dbdeploy', version: '2.11.1'
-  compile(group: 'org.hibernate', name: 'hibernate-ehcache', version: '3.3.2.GA') {
+  compile(group: 'org.hibernate', name: 'hibernate-ehcache', version: '5.2.6.Final') {
     exclude(module: 'ehcache')
     exclude(module: 'commons-collections')
   }
 
   compile group: 'commons-fileupload', name: 'commons-fileupload', version: '1.3.2'
-
-  compile(group: 'org.hibernate', name: 'hibernate-annotations', version: '3.4.0.GA') {
-    exclude(module: 'slf4j-api')
-  }
+  compile group: 'org.hibernate.common', name: 'hibernate-commons-annotations', version: hibernateVersion
   compile group: 'javassist', name: 'javassist', version: '3.9.0.GA'
   compile group: 'org.apache.ibatis', name: 'ibatis-sqlmap', version: '2.3.4.726'
-  compile group: 'net.sf.ehcache', name: 'ehcache-core', version: '2.0.0'
+  compile(group: 'net.sf.ehcache', name: 'ehcache', version: '2.10.3') {
+    exclude(module: 'slf4j-api')
+  }
   compile(group: 'opensymphony', name: 'oscache', version: '2.4.1') {
     exclude(module: 'commons-logging')
     exclude(module: 'jms')
@@ -133,13 +136,20 @@ dependencies {
   compile group: 'org.jruby', name: 'jruby-complete', version: '1.7.26'
   compile group: 'org.jruby.rack', name: 'jruby-rack', version: '1.1.14'
   compile group: 'org.openrdf', name: 'sesame-onejar', version: '2.3.1'
-  compile group: 'org.springframework', name: 'spring-web', version: '3.1.3.RELEASE'
-  compile group: 'org.springframework', name: 'web.servlet', version: '3.1.3.RELEASE'
+  compile group: 'org.springframework', name: 'spring-web', version: springVersion
+  compile(group: 'org.springframework', name: 'org.springframework.web.servlet', version: '3.2.2.RELEASE') {
+    exclude(module: 'commons-lang')
+    exclude(module: 'org.springframework.beans')
+    exclude(module: 'org.springframework.context')
+    exclude(module: 'org.springframework.context.support')
+    exclude(module: 'org.springframework.core')
+    exclude(module: 'org.springframework.web')
+  }
   compile(group: 'org.jasig.cas.client', name: 'cas-client-core', version: '3.2.1') {
     exclude(module: 'servlet-api')
     exclude(module: 'commons-logging')
   }
-  compile(group: 'org.springframework.security', name: 'spring-security-acl', version: '2.0.3') {
+  compile(group: 'org.springframework.security', name: 'spring-security-acl', version: springSecurityVersion) {
     exclude(module: 'spring-support')
     exclude(module: 'spring-jdbc')
     exclude(module: 'spring-core')
@@ -150,13 +160,20 @@ dependencies {
     exclude(module: 'commons-logging')
     exclude(module: 'commons-collections')
   }
-  compile(group: 'org.springframework.security', name: 'spring-security-cas-client', version: '2.0.3') {
+  compile(group: 'org.springframework.security', name: 'spring-security-cas-client', version: '3.0.8.RELEASE') {
     exclude(module: 'spring-support')
     exclude(module: 'spring-dao')
     exclude(module: 'cas-client-core')
   }
-  compile group: 'org.springframework.security', name: 'spring-security-core-tiger', version: '2.0.3'
-  compile(group: 'org.springframework.ldap', name: 'spring-ldap', version: '1.2.1') {
+  compile group: 'org.springframework.security', name: 'spring-security-core-tiger', version: '2.0.8.RELEASE'
+  compile(group: 'org.springframework.security', name: 'spring-security-web', version: springSecurityVersion)
+  compile group: 'org.springframework.security', name: 'spring-security-config', version: springSecurityVersion
+  compile(group: 'org.springframework.security', name: 'spring-security-core', version: springSecurityVersion) {
+    exclude(module: 'com.springsource.org.apache.commons.lang')
+  }
+  compile group: 'org.springframework.security', name: 'spring-security-ldap', version: springSecurityVersion
+  compile(group: 'org.springframework.ldap', name: 'spring-ldap-core', version: '2.3.1.RELEASE') {
+    exclude(module: 'spring-support')
     exclude(module: 'spring-core')
     exclude(module: 'spring-beans')
     exclude(module: 'commons-lang')
@@ -501,8 +518,8 @@ task verifyWar(type: VerifyJarTask) {
       "aspectjweaver-1.5.4.jar",
       "base-${project.version}.jar",
       "cas-client-core-3.2.1.jar",
-      "cglib-2.1_3.jar",
-      "cglib-nodep-2.2.jar",
+      "cglib-3.2.4.jar",
+      "cglib-nodep-3.2.4.jar",
       "cloning-1.7.3.jar",
       "commandline-${project.version}.jar",
       "common-${project.version}.jar",
@@ -525,7 +542,7 @@ task verifyWar(type: VerifyJarTask) {
       "dbdeploy-2.11.1.jar",
       "domain-${project.version}.jar",
       "dom4j-1.6.1.jar",
-      "ehcache-core-2.0.0.jar",
+      "ehcache-2.10.3.jar",
       "ejb3-persistence-1.0.2.GA.jar",
       "geronimo-j2ee-management_1.1_spec-1.0.1.jar",
       "geronimo-jms_1.1_spec-1.1.1.jar",
@@ -538,10 +555,9 @@ task verifyWar(type: VerifyJarTask) {
       "go-plugin-infra-${project.version}.jar",
       "gson-2.3.1.jar",
       "h2-1.3.168.jar",
-      "hibernate-annotations-3.4.0.GA.jar",
-      "hibernate-commons-annotations-3.1.0.GA.jar",
-      "hibernate-core-3.3.2.GA.jar",
-      "hibernate-ehcache-3.3.2.GA.jar",
+      "hibernate-commons-annotations-5.0.1.Final.jar",
+      "hibernate-core-5.2.6.Final.jar",
+      "hibernate-ehcache-5.2.6.Final.jar",
       "httpclient-4.5.2.jar",
       "httpcore-4.4.4.jar",
       "httpmime-4.5.2.jar",
@@ -580,28 +596,33 @@ task verifyWar(type: VerifyJarTask) {
       "slf4j-api-1.7.21.jar",
       "slf4j-log4j12-1.7.21.jar",
       "smtp-1.5.6.jar",
-      "spring-aop-3.1.3.RELEASE.jar",
-      "spring-asm-3.1.3.RELEASE.jar",
-      "spring-beans-3.1.3.RELEASE.jar",
-      "spring-context-3.1.3.RELEASE.jar",
-      "spring-context-support-3.1.3.RELEASE.jar",
-      "spring-core-3.1.3.RELEASE.jar",
-      "spring-expression-3.1.3.RELEASE.jar",
-      "spring-jdbc-3.1.3.RELEASE.jar",
-      "spring-ldap-1.2.1.jar",
-      "spring-orm-3.1.3.RELEASE.jar",
-      "spring-security-acl-2.0.3.jar",
-      "spring-security-cas-client-2.0.3.jar",
-      "spring-security-core-2.0.3.jar",
-      "spring-security-core-tiger-2.0.3.jar",
-      "spring-tx-3.1.3.RELEASE.jar",
-      "spring-web-3.1.3.RELEASE.jar",
-      "spring-webmvc-3.1.3.RELEASE.jar",
+      "spring-aop-${springVersion}.jar",
+      "spring-asm-${springVersion}.jar",
+      "spring-beans-${springVersion}.jar",
+      "spring-context-${springVersion}.jar",
+      "spring-context-support-${springVersion}.jar",
+      "spring-core-${springVersion}.jar",
+      "spring-expression-${springVersion}.jar",
+      "spring-jdbc-${springVersion}.jar",
+      "spring-ldap-core-2.3.1.RELEASE.jar",
+      "spring-security-ldap-4.2.1.RELEASE.jar",
+      "spring-orm-${springVersion}.jar",
+      "spring-ibatis-2.0.8.jar",
+      "spring-security-acl-4.2.1.RELEASE",
+      "spring-security-cas-client-4.2.1.RELEASE",
+      "spring-security-core-4.2.1.RELEASE",
+      "spring-security-config-4.2.1.RELEASE",
+      "spring-security-core-tiger-4.2.1.RELEASE",
+      "spring-security-ldap-4.2.1.RELEASE.jar",
+      "org.springframework.security.2.0.4.A.jar",
+      "spring-tx-${springVersion}.jar",
+      "spring-web-${springVersion}.jar",
+      "spring-webmvc-${springVersion}.jar",
       "urlrewritefilter-3.2.0.jar",
       "util-${project.version}.jar",
       "velocity-1.7.jar",
       "velocity-tools-view-1.2.jar",
-      "web.servlet-3.1.3.RELEASE.jar",
+      "org.springframework.web.servlet-3.2.2.RELEASE.jar",
       "xercesImpl-2.9.1.jar",
       "xml-apis-1.3.04.jar",
       "guava-20.0.jar",

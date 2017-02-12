@@ -18,7 +18,8 @@ package com.thoughtworks.go.server.service.support;
 
 import com.thoughtworks.go.server.cache.GoCache;
 import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.statistics.LiveCacheStatistics;
+import net.sf.ehcache.statistics.StatisticsGateway;
+import net.sf.ehcache.statistics.extended.ExtendedStatistics;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -54,32 +55,37 @@ public class CacheInformationProvider implements ServerInfoProvider {
 
     public Map<String, Object> getCacheRuntimeInformationAsJson() {
         LinkedHashMap<String, Object> json = new LinkedHashMap<>();
-        LiveCacheStatistics statistics = goCache.statistics();
+        StatisticsGateway statistics = goCache.statistics();
+//        json.put("Statistics enabled", statistics.isStatisticsEnabled());
 
-        json.put("Statistics enabled", statistics.isStatisticsEnabled());
-
-        LinkedHashMap<String, Object> time = new LinkedHashMap<>();
-        time.put("Average", statistics.getAverageGetTimeMillis());
-        time.put("Minimum", statistics.getMinGetTimeMillis());
-        time.put("Maximum", statistics.getMinGetTimeMillis());
-        json.put("Get Time in milliseconds", time);
+        json.put("Get Time in milliseconds", getStatisticsFrom(statistics.cacheGetOperation()));
+        json.put("Put Time in milliseconds", getStatisticsFrom(statistics.cachePutOperation()));
+        json.put("Remove Time in milliseconds", getStatisticsFrom(statistics.cacheRemoveOperation()));
 
         json.put("Cache Size", statistics.getSize());
-        json.put("Accuracy", statistics.getStatisticsAccuracyDescription());
+//        json.put("Accuracy", statistics.getStatisticsAccuracyDescription());
 
         LinkedHashMap<String, Object> cacheCount = new LinkedHashMap<>();
-        cacheCount.put("Hits", statistics.getCacheHitCount());
-        cacheCount.put("Miss", statistics.getCacheMissCount());
-        cacheCount.put("Expired", statistics.getExpiredCount());
-        cacheCount.put("Eviction", statistics.getEvictedCount());
-        cacheCount.put("Put", statistics.getPutCount());
-        cacheCount.put("Remove", statistics.getRemovedCount());
+        cacheCount.put("Hits", statistics.cacheHitCount());
+        cacheCount.put("Miss", statistics.cacheMissCount());
+        cacheCount.put("Expired", statistics.cacheExpiredCount());
+        cacheCount.put("Eviction", statistics.cacheEvictedCount());
+        cacheCount.put("Put", statistics.cachePutCount());
+        cacheCount.put("Remove", statistics.cacheRemoveCount());
         json.put("Cache Counts", cacheCount);
 
-        json.put("Cache Size (Disk)", statistics.getOnDiskSize());
-        json.put("Cache Count (Disk)", statistics.getOnDiskHitCount());
+        json.put("Cache Size (Disk)", statistics.getLocalDiskSize());
+        json.put("Cache Count (Disk)", statistics.localDiskHitCount());
 
         return json;
+    }
+
+    private LinkedHashMap<String, Object> getStatisticsFrom(ExtendedStatistics.Result result) {
+        LinkedHashMap<String, Object> time = new LinkedHashMap<>();
+        time.put("Average", result.latency().average());
+        time.put("Minimum", result.latency().minimum());
+        time.put("Maximum", result.latency().maximum());
+        return time;
     }
 
     public Map<String, Object> getCacheConfigurationInformationAsJson() {
@@ -96,11 +102,11 @@ public class CacheInformationProvider implements ServerInfoProvider {
         json.put("time To Live Seconds", config.getTimeToLiveSeconds());
         json.put("Overflow To Disk", config.isOverflowToDisk());
         json.put("Disk Persistent", config.isDiskPersistent());
-        json.put("Disk Store Path", config.getDiskStorePath());
+//        json.put("Disk Store Path", config.getDiskStorePath());
         json.put("Disk Spool Buffer Size in MB", config.getDiskSpoolBufferSizeMB());
         json.put("Disk Access Stripes", config.getDiskAccessStripes());
         json.put("Disk Expiry Thread Interval Seconds", config.getDiskExpiryThreadIntervalSeconds());
-        json.put("Logging Enabled", config.isLoggingEnabled());
+        json.put("Logging Enabled", config.getLogging());
         json.put("Cache Event Listener Configurations", config.getCacheEventListenerConfigurations());
         json.put("Cache Extension Configurations", config.getCacheExtensionConfigurations());
         json.put("Cache Extension Configurations", config.getCacheExtensionConfigurations());

@@ -17,21 +17,25 @@
 package com.thoughtworks.go.server.security.providers;
 
 import com.thoughtworks.go.server.oauth.OauthDataSource;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-
-import com.thoughtworks.go.server.security.AuthorityGranter;
 import com.thoughtworks.go.server.security.GoAuthority;
 import com.thoughtworks.go.server.security.OauthAuthenticationToken;
-import org.junit.Test;
 import org.junit.Before;
+import org.junit.Test;
+import org.springframework.security.authentication.jaas.AuthorityGranter;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsCollectionContaining.hasItem;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.AuthenticationException;
-import org.springframework.security.userdetails.UserDetails;
 
 public class OauthAuthenticationProviderTest {
     private OauthDataSource dataSource;
@@ -39,7 +43,8 @@ public class OauthAuthenticationProviderTest {
 
     private OauthAuthenticationProvider provider;
 
-    @Before public void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         dataSource = mock(OauthDataSource.class);
         granter = mock(AuthorityGranter.class);
         provider = new OauthAuthenticationProvider(dataSource);
@@ -48,13 +53,13 @@ public class OauthAuthenticationProviderTest {
     @Test
     public void shouldReturnOAUTH_USERAsTheGrantedAuthority() {
         when(dataSource.findOauthTokenByAccessToken("token-string")).thenReturn(oauthTokenDto("user-id"));
-        GrantedAuthority[] grantedAuthorities = {GoAuthority.ROLE_OAUTH_USER.asAuthority()};
+        List<GrantedAuthority> grantedAuthorities = Collections.singletonList(GoAuthority.ROLE_OAUTH_USER.asAuthority());
 
         OauthAuthenticationToken authentication = provider.authenticate(new OauthAuthenticationToken("token-string"));
         assertThat(authentication.isAuthenticated(), is(true));
         UserDetails userDetails = authentication.getPrincipal();
         assertThat(userDetails.getUsername(), is("user-id"));
-        assertThat(userDetails.getAuthorities(), is(grantedAuthorities));
+        assertThat(new ArrayList<>(userDetails.getAuthorities()), hasItem(GoAuthority.ROLE_OAUTH_USER.asAuthority()));
         assertThat(authentication.getAuthorities(), is(grantedAuthorities));
     }
 

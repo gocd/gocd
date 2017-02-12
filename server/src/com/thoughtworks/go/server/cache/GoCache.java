@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.statistics.LiveCacheStatistics;
+import net.sf.ehcache.statistics.StatisticsGateway;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.cache.ehcache.EhCacheFactoryBean;
@@ -247,8 +247,8 @@ public class GoCache {
         }
     }
 
-    public LiveCacheStatistics statistics() {
-        return ehCache.getLiveCacheStatistics();
+    public StatisticsGateway statistics() {
+        return ehCache.getStatistics();
     }
 
     public CacheConfiguration configuration() {

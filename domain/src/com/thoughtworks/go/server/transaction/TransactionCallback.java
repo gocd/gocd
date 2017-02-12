@@ -18,8 +18,8 @@ package com.thoughtworks.go.server.transaction;
 
 import org.springframework.transaction.TransactionStatus;
 
-public abstract class TransactionCallback {
-    final Object doWithExceptionHandling(TransactionStatus status) {
+public abstract class TransactionCallback<T> {
+    final T doWithExceptionHandling(TransactionStatus status) {
         try {
             return doInTransaction(status);
         } catch (Exception e) {
@@ -27,5 +27,5 @@ public abstract class TransactionCallback {
         }
     }
 
-    public abstract Object doInTransaction(TransactionStatus status) throws Exception;
+    public abstract T doInTransaction(TransactionStatus status) throws Exception;
 }

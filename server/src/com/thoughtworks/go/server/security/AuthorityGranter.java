@@ -16,16 +16,16 @@
 
 package com.thoughtworks.go.server.security;
 
-import java.util.List;
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.SecurityService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.stereotype.Component;
+
 import java.util.ArrayList;
 import java.util.Arrays;
-
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.server.service.SecurityService;
-import com.thoughtworks.go.server.domain.Username;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.stereotype.Component;
+import java.util.List;
 
 @Component
 public class AuthorityGranter {

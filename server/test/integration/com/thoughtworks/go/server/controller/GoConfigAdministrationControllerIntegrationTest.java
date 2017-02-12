@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,30 +16,35 @@
 
 package com.thoughtworks.go.server.controller;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.ConfigCache;
+import com.thoughtworks.go.config.GoConfigDao;
+import com.thoughtworks.go.config.GoFileConfigDataSource;
+import com.thoughtworks.go.config.MagicalGoConfigXmlWriter;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.server.controller.actions.XmlAction;
 import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
+import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.context.SecurityContext;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.context.SecurityContextImpl;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.userdetails.User;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextImpl;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Collections;
 
 import static com.thoughtworks.go.config.exceptions.ConfigFileHasChangedException.CONFIG_CHANGED_PLEASE_REFRESH;
-import static javax.servlet.http.HttpServletResponse.*;
+import static javax.servlet.http.HttpServletResponse.SC_CONFLICT;
+import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
@@ -51,11 +56,16 @@ import static org.junit.Assert.assertThat;
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
 })
 public class GoConfigAdministrationControllerIntegrationTest {
-    @Autowired private GoConfigAdministrationController controller;
-    @Autowired private GoConfigDao goConfigDao;
-    @Autowired private GoConfigService goConfigService;
-    @Autowired private GoFileConfigDataSource dataSource;
-    @Autowired private ConfigElementImplementationRegistry registry;
+    @Autowired
+    private GoConfigAdministrationController controller;
+    @Autowired
+    private GoConfigDao goConfigDao;
+    @Autowired
+    private GoConfigService goConfigService;
+    @Autowired
+    private GoFileConfigDataSource dataSource;
+    @Autowired
+    private ConfigElementImplementationRegistry registry;
     private static GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private MockHttpServletResponse response;
 
@@ -111,7 +121,8 @@ public class GoConfigAdministrationControllerIntegrationTest {
     private String groupName;
     private SecurityContext originalSecurityContext;
 
-    @Before public void setup() throws Exception {
+    @Before
+    public void setup() throws Exception {
         dataSource.reloadEveryTime();
         configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
@@ -122,14 +133,16 @@ public class GoConfigAdministrationControllerIntegrationTest {
         setCurrentUser("admin");
     }
 
-    @After public void teardown() throws Exception {
+    @After
+    public void teardown() throws Exception {
         if (originalSecurityContext != null) {
             SecurityContextHolder.setContext(originalSecurityContext);
         }
         configHelper.onTearDown();
     }
 
-    @Test public void shouldGetConfigAsXml() throws Exception {
+    @Test
+    public void shouldGetConfigAsXml() throws Exception {
         configHelper.addPipeline("pipeline", "stage", "build1", "build2");
 
         controller.getCurrentConfigXml(null, response);
@@ -139,7 +152,8 @@ public class GoConfigAdministrationControllerIntegrationTest {
         assertThat(response.getHeader(XmlAction.X_CRUISE_CONFIG_MD5), is(goConfigDao.md5OfConfigFile()));
     }
 
-    @Test public void shouldConflictWhenGivenMd5IsDifferent() throws Exception {
+    @Test
+    public void shouldConflictWhenGivenMd5IsDifferent() throws Exception {
         configHelper.addPipeline("pipeline", "stage", "build1", "build2");
 
         controller.getCurrentConfigXml("crapy_md5", response);
@@ -151,7 +165,7 @@ public class GoConfigAdministrationControllerIntegrationTest {
 
     private void setCurrentUser(String username) {
         SecurityContextImpl context = new SecurityContextImpl();
-        context.setAuthentication(new UsernamePasswordAuthenticationToken(new User(username, "", true, new GrantedAuthority[]{}), null));
+        context.setAuthentication(new UsernamePasswordAuthenticationToken(new User(username, "", Collections.emptyList()), null));
         SecurityContextHolder.setContext(context);
     }
 

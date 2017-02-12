@@ -1,11 +1,11 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.server.cache;
 
-import java.io.IOException;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
@@ -25,6 +23,8 @@ import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.springframework.cache.ehcache.EhCacheFactoryBean;
 import org.springframework.stereotype.Component;
+
+import java.io.IOException;
 
 @Component
 public class UserCacheFactory {
@@ -41,7 +41,7 @@ public class UserCacheFactory {
         factoryBean.setOverflowToDisk(false);
         factoryBean.setMaxElementsInMemory(1000);
         factoryBean.setEternal(true);
-        factoryBean.setMemoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.LRU);
+        factoryBean.setMemoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.LRU.toString());
         factoryBean.afterPropertiesSet();
         return (Cache) factoryBean.getObject();
     }
@@ -49,6 +49,6 @@ public class UserCacheFactory {
     private CacheManager createCacheManager() {
         Configuration configuration = new Configuration();
         configuration.setDefaultCacheConfiguration(new CacheConfiguration("cache", 10000));
-        return new CacheManager(configuration);
+        return CacheManager.create(configuration);
     }
 }

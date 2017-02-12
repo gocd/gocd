@@ -21,9 +21,11 @@ import com.thoughtworks.go.server.service.UserService;
 import com.thoughtworks.go.server.util.UserHelper;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.providers.AuthenticationProvider;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.User;
+
+import java.util.Collections;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -33,7 +35,8 @@ public class GoAuthenticationProviderFactoryTest {
     private UserService userService;
     private GoAuthenticationProviderFactory factory;
 
-    @Before public void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         userService = mock(UserService.class);
         factory = new GoAuthenticationProviderFactory(userService);
     }
@@ -45,7 +48,7 @@ public class GoAuthenticationProviderFactoryTest {
         licenseEnforcementProvider.setProvider(underlyingProvider);
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("foo", "bar");
         UsernamePasswordAuthenticationToken resultantAuthorization = new UsernamePasswordAuthenticationToken(
-                new org.springframework.security.userdetails.User("foo-user", "pass", true, true, true, true, new GrantedAuthority[]{GoAuthority.ROLE_USER.asAuthority()}), "bar");
+                new User("foo-user", "pass", true, true, true, true, Collections.singletonList(GoAuthority.ROLE_USER.asAuthority())), "bar");
         when(underlyingProvider.authenticate(auth)).thenReturn(resultantAuthorization);
         licenseEnforcementProvider.authenticate(auth);
         verify(userService).addUserIfDoesNotExist(UserHelper.getUser(resultantAuthorization));
@@ -55,7 +58,7 @@ public class GoAuthenticationProviderFactoryTest {
     public void shouldReturnUserLicenseEnforcementClass() throws Exception {
         assertTrue(factory.getObjectType() == GoAuthenticationProvider.class);
     }
-    
+
     @Test
     public void shouldCreateNewInstancesEveryTime() throws Exception {
         assertFalse(factory.isSingleton());

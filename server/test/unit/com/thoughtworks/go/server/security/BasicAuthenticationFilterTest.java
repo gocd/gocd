@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.security;
 
@@ -21,13 +21,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.Authentication;
-import org.springframework.security.AuthenticationException;
-import org.springframework.security.AuthenticationManager;
-import org.springframework.security.context.SecurityContext;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.ui.AbstractProcessingFilter;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.WebAttributes;
+import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -45,7 +46,7 @@ public class BasicAuthenticationFilterTest {
     private String errorMessage;
     private MockHttpServletRequest httpRequest;
     private MockHttpServletResponse httpResponse;
-    private BasicAuthenticationFilter filter;
+    private BasicAuthenticationEntryPoint basicAuthenticationEntryPoint;
     private Localizer localizer;
 
     @Before
@@ -54,45 +55,49 @@ public class BasicAuthenticationFilterTest {
         httpRequest = new MockHttpServletRequest();
         httpResponse = new MockHttpServletResponse();
         localizer = mock(Localizer.class);
-        filter = new BasicAuthenticationFilter(localizer);
+        basicAuthenticationEntryPoint = mock(BasicAuthenticationEntryPoint.class);
         when(localizer.localize("INVALID_LDAP_ERROR")).thenReturn(errorMessage);
     }
 
-    @Test
-    public void shouldConvey_itsBasicProcessingFilter() throws IOException, ServletException {
-        BasicAuthenticationFilter filter = new BasicAuthenticationFilter(localizer);
-        final Boolean[] hadBasicMarkOnInsideAuthenticationManager = new Boolean[]{false};
-
-        filter.setAuthenticationManager(new AuthenticationManager() {
+    private AuthenticationManager getAuthenticationManager(final Boolean[] hadBasicMarkOnInsideAuthenticationManager) {
+        return new AuthenticationManager() {
             public Authentication authenticate(Authentication authentication) throws AuthenticationException {
                 hadBasicMarkOnInsideAuthenticationManager[0] = BasicAuthenticationFilter.isProcessingBasicAuth();
                 return new UsernamePasswordAuthenticationToken("school-principal", "u can be principal if you know this!");
             }
-        });
+        };
+    }
+
+    @Test
+    public void shouldConvey_itsBasicProcessingFilter() throws IOException, ServletException {
+        final Boolean[] hadBasicMarkOnInsideAuthenticationManager = new Boolean[]{false};
+        BasicAuthenticationFilter filter = new BasicAuthenticationFilter(getAuthenticationManager(hadBasicMarkOnInsideAuthenticationManager), basicAuthenticationEntryPoint, localizer);
+
         assertThat(BasicAuthenticationFilter.isProcessingBasicAuth(), is(false));
+
         MockHttpServletRequest httpRequest = new MockHttpServletRequest();
         httpRequest.addHeader("Authorization", "Basic " + java.util.Base64.getEncoder().encodeToString("loser:boozer".getBytes()));
-        filter.doFilterHttp(httpRequest, new MockHttpServletResponse(), new FilterChain() {
+        filter.doFilterInternal(httpRequest, new MockHttpServletResponse(), new FilterChain() {
             public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse) throws IOException, ServletException {
 
             }
         });
         assertThat(BasicAuthenticationFilter.isProcessingBasicAuth(), is(false));
-
         assertThat(hadBasicMarkOnInsideAuthenticationManager[0], is(true));
     }
 
     @Test
     public void testShouldRender500WithHTMLTextBodyWithApiAcceptHeaderWithHTML() throws IOException {
+        final Boolean[] hadBasicMarkOnInsideAuthenticationManager = new Boolean[]{false};
+        BasicAuthenticationFilter filter = new BasicAuthenticationFilter(getAuthenticationManager(hadBasicMarkOnInsideAuthenticationManager), basicAuthenticationEntryPoint, localizer);
 
         httpRequest.addHeader("Accept", "text/html");
-
         SecurityContext context = SecurityContextHolder.getContext();
 
         filter.handleException(httpRequest, httpResponse, new Exception("some error"));
         verify(localizer).localize("INVALID_LDAP_ERROR");
 
-        assertThat(((Exception) (httpRequest.getSession().getAttribute(AbstractProcessingFilter.SPRING_SECURITY_LAST_EXCEPTION_KEY))).getMessage(), is(errorMessage));
+        assertThat(((Exception) (httpRequest.getSession().getAttribute(WebAttributes.AUTHENTICATION_EXCEPTION))).getMessage(), is(errorMessage));
         assertThat(httpRequest.getAttribute(SessionDenialAwareAuthenticationProcessingFilterEntryPoint.SESSION_DENIED).toString(), is("true"));
         assertThat(context.getAuthentication(), is(nullValue()));
         assertThat(httpResponse.getRedirectedUrl(), is("/go/auth/login?login_error=1"));
@@ -100,6 +105,9 @@ public class BasicAuthenticationFilterTest {
 
     @Test
     public void testShouldRender500WithJSONBodyWithApiAcceptHeaderWithJSON() throws Exception {
+        final Boolean[] hadBasicMarkOnInsideAuthenticationManager = new Boolean[]{false};
+        BasicAuthenticationFilter filter = new BasicAuthenticationFilter(getAuthenticationManager(hadBasicMarkOnInsideAuthenticationManager), basicAuthenticationEntryPoint, localizer);
+
         httpRequest.addHeader("Accept", "application/vnd.go.cd.v1+json");
 
         filter.handleException(httpRequest, httpResponse, null);
@@ -112,6 +120,9 @@ public class BasicAuthenticationFilterTest {
 
     @Test
     public void testShouldRender500WithXMLBodyWithApiAcceptHeaderWithXML() throws Exception {
+        final Boolean[] hadBasicMarkOnInsideAuthenticationManager = new Boolean[]{false};
+        BasicAuthenticationFilter filter = new BasicAuthenticationFilter(getAuthenticationManager(hadBasicMarkOnInsideAuthenticationManager), basicAuthenticationEntryPoint, localizer);
+
         httpRequest.addHeader("Accept", "application/XML");
 
         filter.handleException(httpRequest, httpResponse, null);
@@ -124,6 +135,8 @@ public class BasicAuthenticationFilterTest {
 
     @Test
     public void testShouldRender500WithWithHTMLWithNoAcceptHeader() throws Exception {
+        final Boolean[] hadBasicMarkOnInsideAuthenticationManager = new Boolean[]{false};
+        BasicAuthenticationFilter filter = new BasicAuthenticationFilter(getAuthenticationManager(hadBasicMarkOnInsideAuthenticationManager), basicAuthenticationEntryPoint, localizer);
 
         filter.handleException(httpRequest, httpResponse, new Exception("foo"));
         verify(localizer).localize("INVALID_LDAP_ERROR");

@@ -1,11 +1,11 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,11 +16,6 @@
 
 package com.thoughtworks.go.server.persistence;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.sql.SQLException;
-
 import com.thoughtworks.go.server.domain.oauth.OauthAuthorization;
 import com.thoughtworks.go.server.domain.oauth.OauthClient;
 import com.thoughtworks.go.server.domain.oauth.OauthDomainEntity;
@@ -28,16 +23,20 @@ import com.thoughtworks.go.server.domain.oauth.OauthToken;
 import com.thoughtworks.go.server.oauth.OauthDataSource;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.apache.commons.lang.StringUtils;
-import org.hibernate.SessionFactory;
-import org.hibernate.Session;
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
+import org.hibernate.query.Query;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
-import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate5.HibernateCallback;
+import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @understands persistence for data used for oauth support
@@ -59,7 +58,8 @@ public class OauthRepository extends HibernateDaoSupport implements OauthDataSou
 
     public void transaction(final Runnable txn) {
         txnTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override protected void doInTransactionWithoutResult(TransactionStatus status) {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
                 txn.run();
             }
         });
@@ -226,9 +226,10 @@ public class OauthRepository extends HibernateDaoSupport implements OauthDataSou
 
     public void deleteUsersOauthGrants(final List<String> userIds) {
         txnTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override protected void doInTransactionWithoutResult(TransactionStatus status) {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
                 getHibernateTemplate().execute(new HibernateCallback() {
-                    public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                    public Object doInHibernate(Session session) throws HibernateException {
                         deleteEntitiesByUserIds(OauthAuthorization.class, session, userIds);
                         deleteEntitiesByUserIds(OauthToken.class, session, userIds);
                         return true;
@@ -254,7 +255,8 @@ public class OauthRepository extends HibernateDaoSupport implements OauthDataSou
 
     public void deleteAllOauthGrants() {
         txnTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override protected void doInTransactionWithoutResult(TransactionStatus status) {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
                 getHibernateTemplate().bulkUpdate("DELETE OauthAuthorization");
                 getHibernateTemplate().bulkUpdate("DELETE OauthToken");
             }

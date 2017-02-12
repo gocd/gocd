@@ -23,11 +23,11 @@ import org.joda.time.DateTimeUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.context.SecurityContextHolder;
-import org.springframework.security.providers.TestingAuthenticationToken;
-import org.springframework.security.userdetails.User;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -37,6 +37,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -127,7 +129,7 @@ public class ReAuthenticationFilterTest {
     }
 
     private Authentication setupAuthentication() {
-        GrantedAuthority[] authorities = {};
+        List<GrantedAuthority> authorities = Collections.emptyList();
         Authentication authentication = new TestingAuthenticationToken(new User("user", "password", true, true,true, true, authorities), null, authorities);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         authentication.setAuthenticated(true);

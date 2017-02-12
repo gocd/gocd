@@ -1,15 +1,32 @@
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.thoughtworks.go.server.security;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.ConfigAttributeDefinition;
-import org.springframework.security.SecurityConfig;
-import org.springframework.security.intercept.web.DefaultFilterInvocationDefinitionSource;
+import org.springframework.security.access.SecurityConfig;
+import org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource;
+import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.Collection;
 import java.util.Iterator;
 
 import static org.junit.Assert.fail;
@@ -23,12 +40,12 @@ import static org.junit.Assert.fail;
 })
 public class AcegiSecurityConfigTest {
     @Autowired
-    private org.springframework.security.intercept.web.FilterSecurityInterceptor filterInvocationInterceptor;
-    private DefaultFilterInvocationDefinitionSource objectDefinitionSource;
+    private FilterSecurityInterceptor filterInvocationInterceptor;
+    private DefaultFilterInvocationSecurityMetadataSource objectDefinitionSource;
 
     @Before
     public void setUp() throws Exception {
-        objectDefinitionSource = (DefaultFilterInvocationDefinitionSource) filterInvocationInterceptor.getObjectDefinitionSource();
+        objectDefinitionSource = (DefaultFilterInvocationSecurityMetadataSource) filterInvocationInterceptor.obtainSecurityMetadataSource();
     }
 
     @Test
@@ -53,9 +70,9 @@ public class AcegiSecurityConfigTest {
         verifyGetAccessToUrlPatternIsAvailableToRole(objectDefinitionSource, "/auth/logout", "IS_AUTHENTICATED_ANONYMOUSLY");
     }
 
-    private void verifyGetAccessToUrlPatternIsAvailableToRole(DefaultFilterInvocationDefinitionSource objectDefinitionSource, String urlPattern, String role) {
-        ConfigAttributeDefinition definition = objectDefinitionSource.lookupAttributes(urlPattern, "get");
-        Iterator iterator = definition.getConfigAttributes().iterator();
+    private void verifyGetAccessToUrlPatternIsAvailableToRole(DefaultFilterInvocationSecurityMetadataSource objectDefinitionSource, String urlPattern, String role) {
+        Collection definition = objectDefinitionSource.getAllConfigAttributes();
+        Iterator iterator = definition.iterator();
         StringBuilder allowedAccess = new StringBuilder();
         while (iterator.hasNext()) {
             SecurityConfig securityConfig = (SecurityConfig) iterator.next();

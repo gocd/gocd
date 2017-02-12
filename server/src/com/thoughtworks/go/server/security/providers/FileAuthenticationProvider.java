@@ -1,25 +1,20 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.security.providers;
-
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
 
 import com.thoughtworks.go.server.security.AuthorityGranter;
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
@@ -29,15 +24,19 @@ import com.thoughtworks.go.server.service.UserService;
 import com.thoughtworks.go.util.StringUtil;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.AuthenticationException;
-import org.springframework.security.BadCredentialsException;
-import org.springframework.security.providers.UsernamePasswordAuthenticationToken;
-import org.springframework.security.providers.dao.AbstractUserDetailsAuthenticationProvider;
-import org.springframework.security.userdetails.User;
-import org.springframework.security.userdetails.UserDetails;
-import org.springframework.security.userdetails.UsernameNotFoundException;
-import org.springframework.security.userdetails.memory.UserMap;
-import org.springframework.security.userdetails.memory.UserMapEditor;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
 public class FileAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
 
@@ -68,9 +67,9 @@ public class FileAuthenticationProvider extends AbstractUserDetailsAuthenticatio
     protected UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
         final String passwordFilePath = goConfigService.security().passwordFileConfig().path();
         try {
-            UserMap userMap = UserMapEditor.addUsersFromProperties(new UserMap(),
-                    addDummyRoleToPropertiesIfRequired(stripShaFromPasswordsIfRequired(loadPasswordFile(passwordFilePath))));
-            final UserDetails details = userMap.getUser(username);
+            Properties properties = addDummyRoleToPropertiesIfRequired(stripShaFromPasswordsIfRequired(loadPasswordFile(passwordFilePath)));
+            InMemoryUserDetailsManager userDetailsManager = new InMemoryUserDetailsManager(properties);
+            final UserDetails details = userDetailsManager.loadUserByUsername(username);
             return userStrippedOfAnyAuthoritiesSpecifiedInFile(username, details);
         } catch (IOException e) {
             throw new UsernameNotFoundException(
@@ -122,7 +121,8 @@ public class FileAuthenticationProvider extends AbstractUserDetailsAuthenticatio
         return properties;
     }
 
-    @Override public boolean supports(Class authentication) {
+    @Override
+    public boolean supports(Class authentication) {
         return isPasswordFileConfigured() && super.supports(authentication);
     }
 

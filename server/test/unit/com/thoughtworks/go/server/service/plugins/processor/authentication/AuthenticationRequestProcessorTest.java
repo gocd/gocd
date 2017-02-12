@@ -30,10 +30,11 @@ import com.thoughtworks.go.server.service.UserService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.springframework.security.GrantedAuthority;
-import org.springframework.security.context.SecurityContext;
-import org.springframework.security.providers.preauth.PreAuthenticatedAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
+import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.core.Is.is;
@@ -96,10 +97,10 @@ public class AuthenticationRequestProcessorTest {
         GoUserPrinciple goUserPrincipal = processorSpy.getGoUserPrincipal(user);
         assertThat(goUserPrincipal.getUsername(), is("username"));
         assertThat(goUserPrincipal.getDisplayName(), is("display name"));
-        verifyGrantAuthorities(goUserPrincipal.getAuthorities());
+        verifyGrantAuthorities((List<GrantedAuthority>) goUserPrincipal.getAuthorities());
         PreAuthenticatedAuthenticationToken authenticationToken = processorSpy.getAuthenticationToken(goUserPrincipal);
         assertThat(authenticationToken.getPrincipal(), is(goUserPrincipal));
-        verifyGrantAuthorities(authenticationToken.getAuthorities());
+        verifyGrantAuthorities((List<GrantedAuthority>) authenticationToken.getAuthorities());
         verify(securityContext).setAuthentication(authenticationToken);
     }
 
@@ -109,9 +110,9 @@ public class AuthenticationRequestProcessorTest {
         assertThat(response.responseCode(), is(500));
     }
 
-    private void verifyGrantAuthorities(GrantedAuthority[] authorities) {
-        assertThat(authorities.length, is(1));
-        assertThat(authorities[0], is(userAuthority));
+    private void verifyGrantAuthorities(List<GrantedAuthority> authorities) {
+        assertThat(authorities.size(), is(1));
+        assertThat(authorities.get(0), is(userAuthority));
     }
 
     private GoApiRequest getGoPluginApiRequest(final String apiVersion, final String requestBody) {

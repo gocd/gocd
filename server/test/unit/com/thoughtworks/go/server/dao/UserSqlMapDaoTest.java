@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.server.dao;
 
-import java.util.Arrays;
-import java.util.Set;
-
 import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.service.StubGoCache;
@@ -30,21 +27,19 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate5.HibernateCallback;
+import org.springframework.orm.hibernate5.HibernateTemplate;
 import org.springframework.transaction.support.TransactionCallback;
+
+import java.util.Arrays;
+import java.util.Set;
 
 import static com.thoughtworks.go.util.DataStructureUtils.s;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.hasItems;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class UserSqlMapDaoTest {

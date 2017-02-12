@@ -30,8 +30,15 @@ dependencies {
   compile group: 'org.jruby', name: 'jruby-complete', version: '1.7.26'
   compile group: 'org.jruby.rack', name: 'jruby-rack', version: '1.1.14'
   compile group: 'org.openrdf', name: 'sesame-onejar', version: '2.3.1'
-  compile group: 'org.springframework', name: 'spring-web', version: '3.1.3.RELEASE'
-  compile group: 'org.springframework', name: 'web.servlet', version: '3.1.3.RELEASE'
+  compile group: 'org.springframework', name: 'spring-web', version: '4.3.6.RELEASE'
+  compile (group: 'org.springframework', name: 'org.springframework.web.servlet', version: '3.2.2.RELEASE') {
+    exclude(module: 'commons-lang')
+    exclude(module: 'org.springframework.beans')
+    exclude(module: 'org.springframework.context')
+    exclude(module: 'org.springframework.context.support')
+    exclude(module: 'org.springframework.core')
+    exclude(module: 'org.springframework.web')
+  }
   compile group: 'org.objenesis', name: 'objenesis', version: '1.2'
   testCompile group: 'com.unboundid', name: 'unboundid-ldapsdk', version: '2.3.6'
   testCompile project(':common')

@@ -460,4 +460,17 @@ describe "admin/templates/index.html.erb" do
       end
     end
   end
+
+  it 'should display the view button next to the template name' do
+    assign(:template_to_pipelines, {"unused_template" => to_list([])})
+
+    render
+
+    Capybara.string(response.body).find('.templates').tap do |templates|
+      templates.all(".template") do |template_list|
+        expect(template_list[0]).to have_selector("h2", :text => "unused_template")
+        expect(template_list[0]).to have_selector("a[href='#{config_view_templates_show_path(:name => "unused_template")}']", text: 'View')
+      end
+    end
+  end
 end

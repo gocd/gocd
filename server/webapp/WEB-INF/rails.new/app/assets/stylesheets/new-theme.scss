@@ -2991,6 +2991,12 @@ button.edit-environment {
 
 }
 
+.view_icon {
+  @include icon-before($type: eye);
+  @extend %iconstyles;
+
+}
+
 .edit_icon {
   @include icon-before($type: edit);
   @extend %iconstyles;
@@ -3470,8 +3476,5 @@ form#package_repositories_edit_form {
 .edit_icon_disabled, .lock_icon_disabled {
   padding-left: 20px !important;
   margin-top:   3px;
-}
-
-.lock_icon_disabled {
-  margin-left: 10px;
+  margin-left:  10px;
 }

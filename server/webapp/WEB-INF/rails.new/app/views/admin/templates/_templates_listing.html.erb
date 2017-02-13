@@ -10,6 +10,9 @@
         <div class="title_action_wrapper">
           <ul>
             <li>
+              <%= link_to('View', config_view_templates_show_path(:name => template), :class => "view_icon action_icon view_template_link skip_dirty_stop", :id => "#{template}", :title => "View Configuration") -%>
+            </li>
+            <li>
               <%- if is_user_a_template_admin_for_template? template.to_s %>
                   <%= action_icon({:type => "edit", :text => l.string("EDIT"), :href => template_edit_path(:stage_parent => "templates", :pipeline_name => template, :current_tab => "general")}) %>
               <%- else %>

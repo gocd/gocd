@@ -32,4 +32,12 @@
 
 <script type="text/javascript">
   AjaxForm.error_box_selector = '#MB_content';
+  Util.on_load(function() {
+    jQuery("a.view_template_link").click(function(e) {
+      var constructedUrl = e.target.href;
+      var templateName = e.target.id;
+      Util.ajax_modal(constructedUrl, {overlayClose: false, title: templateName}, function(text){return text});
+      return false;
+    });
+  });
 </script>

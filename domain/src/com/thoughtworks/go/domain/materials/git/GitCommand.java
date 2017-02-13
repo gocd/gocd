@@ -42,13 +42,16 @@ public class GitCommand extends SCMCommand {
     private static final Pattern GIT_DIFF_TREE_PATTERN = Pattern.compile("^(.)\\s+(.+)$");
 
     private final File workingDir;
+    private final List<SecretString> secrets;
     private final String branch;
     private final boolean isSubmodule;
     private Map<String, String> environment;
 
-    public GitCommand(String materialFingerprint, File workingDir, String branch, boolean isSubmodule, Map<String, String> environment) {
+    public GitCommand(String materialFingerprint, File workingDir, String branch, boolean isSubmodule, Map<String,
+            String> environment, List<SecretString> secrets) {
         super(materialFingerprint);
         this.workingDir = workingDir;
+        this.secrets = secrets != null ? secrets : new ArrayList<>();
         this.branch = StringUtil.isBlank(branch)? GitMaterialConfig.DEFAULT_BRANCH : branch ;
         this.isSubmodule = isSubmodule;
         this.environment = environment;
@@ -186,8 +189,9 @@ public class GitCommand extends SCMCommand {
         }
     }
 
-    private static CommandLine git(Map<String, String> environment) {
+    private CommandLine git(Map<String, String> environment) {
         CommandLine git = CommandLine.createCommandLine("git").withEncoding("UTF-8");
+        git.withNonArgSecrets(secrets);
         return git.withEnv(environment);
     }
 
@@ -246,7 +250,7 @@ public class GitCommand extends SCMCommand {
         return new UrlArgument(runOrBomb(gitConfig).outputForDisplay().get(0));
     }
 
-    public static void checkConnection(UrlArgument repoUrl, String branch, Map<String, String> environment) {
+    public void checkConnection(UrlArgument repoUrl, String branch, Map<String, String> environment) {
         CommandLine commandLine = git(environment).withArgs("ls-remote").withArg(repoUrl).withArg("refs/heads/" + branch);
         ConsoleResult result = commandLine.runOrBomb(repoUrl.forDisplay());
         if(!hasOnlyOneMatchingBranch(result)){
@@ -258,11 +262,7 @@ public class GitCommand extends SCMCommand {
         return (branchList.output().size() == 1);
     }
 
-    public static CommandLine commandToCheckConnection(UrlArgument url, Map<String, String> environment) {
-        return git(environment).withArgs("ls-remote").withArg(url);
-    }
-
-    public static String version(Map<String, String> map) {
+    public String version(Map<String, String> map) {
         CommandLine gitLsRemote = git(map).withArgs("version");
 
         return gitLsRemote.runOrBomb("git version check").outputAsString();

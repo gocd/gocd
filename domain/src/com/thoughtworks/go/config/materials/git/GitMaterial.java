@@ -29,6 +29,7 @@ import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
+import com.thoughtworks.go.util.command.SecretString;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -160,12 +161,13 @@ public class GitMaterial extends ScmMaterial {
     }
 
     public ValidationBean checkConnection(final SubprocessExecutionContext execCtx) {
+        GitCommand gitCommand = new GitCommand(null, null, null, false, null, secrets());
         try {
-            GitCommand.checkConnection(url, branch, execCtx.getDefaultEnvironmentVariables());
+            gitCommand.checkConnection(url, branch, execCtx.getDefaultEnvironmentVariables());
             return ValidationBean.valid();
         } catch (Exception e) {
             try {
-                return handleException(e, GitCommand.version(execCtx.getDefaultEnvironmentVariables()));
+                return handleException(e, gitCommand.version(execCtx.getDefaultEnvironmentVariables()));
             } catch (Exception notInstallGitException) {
                 return ValidationBean.notValid(ERR_GIT_NOT_FOUND);
             }
@@ -213,10 +215,10 @@ public class GitMaterial extends ScmMaterial {
 
     private GitCommand git(ProcessOutputStreamConsumer outputStreamConsumer, final File workingFolder, int preferredCloneDepth, SubprocessExecutionContext executionContext) throws Exception {
         if (isSubmoduleFolder()) {
-            return new GitCommand(getFingerprint(), new File(workingFolder.getPath()), GitMaterialConfig.DEFAULT_BRANCH, true, executionContext.getDefaultEnvironmentVariables());
+            return new GitCommand(getFingerprint(), new File(workingFolder.getPath()), GitMaterialConfig.DEFAULT_BRANCH, true, executionContext.getDefaultEnvironmentVariables(), secrets());
         }
 
-        GitCommand gitCommand = new GitCommand(getFingerprint(), workingFolder, getBranch(), false, executionContext.getDefaultEnvironmentVariables());
+        GitCommand gitCommand = new GitCommand(getFingerprint(), workingFolder, getBranch(), false, executionContext.getDefaultEnvironmentVariables(), secrets());
         if (!isGitRepository(workingFolder) || isRepositoryChanged(gitCommand, workingFolder)) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Invalid git working copy or repository changed. Delete folder: " + workingFolder);
@@ -249,6 +251,16 @@ public class GitMaterial extends ScmMaterial {
         return gitCommand;
     }
 
+    private List<SecretString> secrets() {
+        SecretString secretSubstitution = new SecretString() {
+            @Override
+            public String replaceSecretInfo(String line) {
+                return line.replace(url.forCommandline(), url.forDisplay());
+            }
+        };
+
+        return Arrays.asList(secretSubstitution);
+    }
     // Unshallow local repo to include a revision operating on via two step process:
     // First try to fetch forward 100 level with "git fetch -depth 100". If revision still missing,
     // unshallow the whole repo with "git fetch --2147483647".
@@ -282,7 +294,7 @@ public class GitMaterial extends ScmMaterial {
             LOG.trace("Current repository url of [" + workingDirectory + "]: " + currentWorkingUrl);
             LOG.trace("Target repository url: " + url);
         }
-        return !MaterialUrl.sameUrl(url.forCommandline(), currentWorkingUrl.forCommandline())
+        return !MaterialUrl.sameUrl(url.forDisplay(), currentWorkingUrl.forCommandline())
                 || !isBranchEqual(command)
                 || (!shallowClone && command.isShallow());
     }

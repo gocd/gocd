@@ -230,8 +230,8 @@ define([
                           label="Shallow clone (recommended for large repositories)"
                           addPadding={true}
                           end={true}
-              size={4}
-              largeSize={4}/>
+                          size={4}
+                          largeSize={4}/>
             </f.row>
             <f.row>
               <DestinationField material={material}/>

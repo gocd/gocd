@@ -96,27 +96,27 @@ public class HgMaterialTest {
 
     @Test
     public void shouldRefreshWorkingFolderWhenRepositoryChanged() throws Exception {
-        new HgCommand(null, workingFolder, "default", hgTestRepo.url().forCommandline()).clone(inMemoryConsumer(), hgTestRepo.url());
+        new HgCommand(null, workingFolder, "default", hgTestRepo.url().forCommandline(), null).clone(inMemoryConsumer(), hgTestRepo.url());
         File testFile = createNewFileInWorkingFolder();
 
         HgTestRepo hgTestRepo2 = new HgTestRepo("hgTestRepo2");
         hgMaterial = MaterialsMother.hgMaterial(hgTestRepo2.projectRepositoryUrl());
         hgMaterial.latestModification(workingFolder, new TestSubprocessExecutionContext());
 
-        String workingUrl = new HgCommand(null, workingFolder, "default", hgTestRepo.url().forCommandline()).workingRepositoryUrl().outputAsString();
+        String workingUrl = new HgCommand(null, workingFolder, "default", hgTestRepo.url().forCommandline(), null).workingRepositoryUrl().outputAsString();
         assertThat(workingUrl, is(hgTestRepo2.projectRepositoryUrl()));
         assertThat(testFile.exists(), is(false));
     }
 
     @Test
     public void shouldNotRefreshWorkingFolderWhenFileProtocolIsUsed() throws Exception {
-        new HgCommand(null, workingFolder, "default", hgTestRepo.url().forCommandline()).clone(inMemoryConsumer(), hgTestRepo.url());
+        new HgCommand(null, workingFolder, "default", hgTestRepo.url().forCommandline(), null).clone(inMemoryConsumer(), hgTestRepo.url());
         File testFile = createNewFileInWorkingFolder();
 
         hgMaterial = MaterialsMother.hgMaterial("file://" + hgTestRepo.projectRepositoryUrl());
         updateMaterial(hgMaterial, new StringRevision("0"));
 
-        String workingUrl = new HgCommand(null, workingFolder, "default", hgTestRepo.url().forCommandline()).workingRepositoryUrl().outputAsString();
+        String workingUrl = new HgCommand(null, workingFolder, "default", hgTestRepo.url().forCommandline(), null).workingRepositoryUrl().outputAsString();
         assertThat(workingUrl, is(hgTestRepo.projectRepositoryUrl()));
         assertThat(testFile.exists(), is(true));
     }
@@ -379,12 +379,12 @@ public class HgMaterialTest {
      * %h:	short-form changeset hash (12 bytes of hexadecimal)
      */
     @Test public void shouldtruncateHashTo12charsforAShortRevision() throws Exception {
-        Material git = new HgMaterial("file:///foo", null);
-        assertThat(git.getShortRevision("dc3d7e656831d1b203d8b7a63c4de82e26604e52"), is("dc3d7e656831"));
-        assertThat(git.getShortRevision("dc3d7e65683"), is("dc3d7e65683"));
-        assertThat(git.getShortRevision("dc3d7e6568312"), is("dc3d7e656831"));
-        assertThat(git.getShortRevision("24"), is("24"));
-        assertThat(git.getShortRevision(null), is(nullValue()));
+        Material hgMaterial = new HgMaterial("file:///foo", null);
+        assertThat(hgMaterial.getShortRevision("dc3d7e656831d1b203d8b7a63c4de82e26604e52"), is("dc3d7e656831"));
+        assertThat(hgMaterial.getShortRevision("dc3d7e65683"), is("dc3d7e65683"));
+        assertThat(hgMaterial.getShortRevision("dc3d7e6568312"), is("dc3d7e656831"));
+        assertThat(hgMaterial.getShortRevision("24"), is("24"));
+        assertThat(hgMaterial.getShortRevision(null), is(nullValue()));
     }
 
     @Test

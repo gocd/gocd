@@ -32,10 +32,7 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Logger;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -164,13 +161,14 @@ public class HgMaterial extends ScmMaterial {
     }
 
     public ValidationBean checkConnection(final SubprocessExecutionContext execCtx) {
+        HgCommand hgCommand = new HgCommand(null, null, null, null, secrets());
         try {
-            HgCommand.checkConnection(url);
+            hgCommand.checkConnection(url);
             return ValidationBean.valid();
         } catch (Exception e) {
             String message = null;
             try {
-                message = HgCommand.version();
+                message = hgCommand.version();
                 return handleException(e, message);
             } catch (Exception ex) {
                 return ValidationBean.notValid(ERR_NO_HG_INSTALLED);
@@ -197,7 +195,7 @@ public class HgMaterial extends ScmMaterial {
 
 
     private HgCommand hg(File workingFolder, ProcessOutputStreamConsumer outputStreamConsumer) throws Exception {
-        HgCommand hgCommand = new HgCommand(getFingerprint(), workingFolder, getBranch(), getUrl());
+        HgCommand hgCommand = new HgCommand(getFingerprint(), workingFolder, getBranch(), getUrl(), secrets());
         if (!isHgRepository(workingFolder) || isRepositoryChanged(hgCommand)) {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Invalid hg working copy or repository changed. Delete folder: " + workingFolder);
@@ -210,6 +208,17 @@ public class HgMaterial extends ScmMaterial {
             bombIfFailedToRunCommandLine(returnValue, "Failed to run hg clone command");
         }
         return hgCommand;
+    }
+
+    private List<SecretString> secrets() {
+        SecretString secretSubstitution = new SecretString() {
+            @Override
+            public String replaceSecretInfo(String line) {
+                return line.replace(url.forCommandline(), url.forDisplay());
+            }
+        };
+
+        return Arrays.asList(secretSubstitution);
     }
 
     private boolean isHgRepository(File workingFolder) {
@@ -326,5 +335,4 @@ public class HgMaterial extends ScmMaterial {
         }
         return HG_DEFAULT_BRANCH;
     }
-
 }

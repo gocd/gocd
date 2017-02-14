@@ -278,7 +278,7 @@ module Admin
     end
 
     def load_template_list
-      assert_load(:template_list, @cruise_config.getTemplates())
+      assert_load(:template_list, template_config_service.getTemplateViewModels(current_user.getUsername()))
     end
 
     def load_group_list

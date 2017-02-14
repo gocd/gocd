@@ -322,7 +322,7 @@ describe "admin/pipelines/new.html.erb" do
 
     it "should display template dropdown" do
       allow(view).to receive(:is_user_an_admin?).and_return(true)
-      assign(:template_list, TemplatesConfig.new([PipelineTemplateConfigMother.createTemplate("foo"), PipelineTemplateConfigMother.createTemplate("bar_template_name")].to_java(PipelineTemplateConfig)))
+      assign(:template_list, [TemplatesViewModel.new(PipelineTemplateConfigMother.createTemplate("foo"), true, true), TemplatesViewModel.new(PipelineTemplateConfigMother.createTemplate("bar_template_name"), true, true)])
 
       render
 

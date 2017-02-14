@@ -2986,6 +2986,19 @@ button.edit-environment {
   @extend %iconstyles;
 }
 
+.edit_icon_disabled {
+  @include icon-before($type: edit);
+  background: none;
+  color:      #999;
+  cursor:     default;
+  font-size:  rem-calc(13px);
+  &:before {
+    font-size: rem-calc(13px);
+    color:     #999;
+    margin:    0 5px;
+  }
+}
+
 .delete_icon {
   @include icon-before($type: remove);
   @extend %iconstyles;
@@ -3000,6 +3013,19 @@ button.edit-environment {
   &:before {
     color:     #ccc;
     font-size: rem-calc(13px);
+    margin:    0 5px;
+  }
+}
+
+.view_icon_disabled {
+  @include icon-before($type: eye);
+  background: none;
+  color:      #999;
+  cursor:     default;
+  font-size:  rem-calc(13px);
+  &:before {
+    font-size: rem-calc(13px);
+    color:     #999;
     margin:    0 5px;
   }
 }
@@ -3098,6 +3124,19 @@ a.add_item {
 .lock_icon {
   @include icon-before($type: lock);
   @extend %iconstyles;
+}
+
+.lock_icon_disabled {
+  @include icon-before($type: lock);
+  background: none;
+  color:      #999;
+  cursor:     default;
+  font-size:  rem-calc(13px);
+  &:before {
+    font-size: rem-calc(13px);
+    color:     #999;
+    margin:    0 5px;
+  }
 }
 
 //config pages
@@ -3277,6 +3316,10 @@ a.add_item {
         }
         .delete_icon_disabled {
           margin-top: 3px;
+        }
+        .delete_icon {
+          margin-left:  10px;
+          padding-left: 0;
         }
         > span {
           padding-left: 10px;
@@ -3458,7 +3501,6 @@ form#package_repositories_edit_form {
 }
 
 .change_materials {
-
   .form_item_block.checkbox_row.material_options {
     label {
       margin-top: -3px;
@@ -3470,8 +3512,17 @@ form#package_repositories_edit_form {
   clear: both;
 }
 
-.edit_icon_disabled, .lock_icon_disabled {
-  padding-left: 20px !important;
-  margin-top:   3px;
-  margin-left:  10px;
+.edit_icon_disabled, .lock_icon_disabled, .view_icon_disabled {
+  margin-top: 3px;
+}
+
+#links {
+  margin:  7px 0 0 10px;
+  display: inline-block;
+  .action_icon {
+    padding-left: 0;
+  }
+  span, a {
+    margin-left: 10px;
+  }
 }

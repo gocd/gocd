@@ -31,6 +31,7 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.server.service.tasks.PluggableTaskService;
+import com.thoughtworks.go.server.ui.TemplatesViewModel;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.slf4j.LoggerFactory;
@@ -84,7 +85,7 @@ public class TemplateConfigService {
     public void deleteTemplateConfig(final Username currentUser, final PipelineTemplateConfig templateConfig, final LocalizedOperationResult result) {
         DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(templateConfig, result, securityService, currentUser);
         update(currentUser, result, command, templateConfig);
-        if(result.isSuccessful()) {
+        if (result.isSuccessful()) {
             result.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", "template", templateConfig.name().toString()));
         }
     }
@@ -105,17 +106,17 @@ public class TemplateConfigService {
     }
 
     private void validatePluggableTasks(PipelineTemplateConfig templateConfig) {
-        for(PluggableTask task: getPluggableTask(templateConfig)) {
+        for (PluggableTask task : getPluggableTask(templateConfig)) {
             pluggableTaskService.isValid(task);
         }
     }
 
     private List<PluggableTask> getPluggableTask(PipelineTemplateConfig templateConfig) {
         List<PluggableTask> pluggableTasks = new ArrayList<>();
-        for(StageConfig stage: templateConfig.getStages()) {
-            for(JobConfig job: stage.getJobs()) {
-                for(Task task: job.getTasks()) {
-                    if(task instanceof PluggableTask) {
+        for (StageConfig stage : templateConfig.getStages()) {
+            for (JobConfig job : stage.getJobs()) {
+                for (Task task : job.getTasks()) {
+                    if (task instanceof PluggableTask) {
                         pluggableTasks.add((PluggableTask) task);
                     }
                 }
@@ -164,6 +165,16 @@ public class TemplateConfigService {
         return allPipelinesNotUsingTemplates;
     }
 
+    public List<TemplatesViewModel> getTemplateViewModels(CaseInsensitiveString username) {
+        List<TemplatesViewModel> templatesViewModels = new ArrayList<>();
+        CruiseConfig cruiseConfig = goConfigService.cruiseConfig();
+        for (PipelineTemplateConfig templateConfig : cruiseConfig.getTemplates()) {
+            boolean authorizedToViewTemplate = cruiseConfig.isAuthorizedToViewTemplate(templateConfig.name().toString(), username);
+            boolean authorizedToEditTemplate = cruiseConfig.isAuthorizedToEditTemplate(templateConfig.name().toString(), username);
+            templatesViewModels.add(new TemplatesViewModel(templateConfig, authorizedToViewTemplate, authorizedToEditTemplate));
+        }
+        return templatesViewModels;
+    }
 
     private PipelineTemplateConfig findTemplate(String templateName, HttpLocalizedOperationResult result, GoConfigHolder configHolder) {
         if (!doesTemplateExist(templateName, configHolder.configForEdit, result)) {

@@ -57,7 +57,7 @@ public class HgTestRepo extends TestRepo {
         setUpServerRepoFromHgBundle(remoteRepo, bundleToExtract);
 
         File workingCopy = new File(tempFolder, workingCopyName);
-        hgCommand = new HgCommand(null, workingCopy, "default", remoteRepo.getAbsolutePath());
+        hgCommand = new HgCommand(null, workingCopy, "default", remoteRepo.getAbsolutePath(), null);
         InMemoryStreamConsumer output = inMemoryConsumer();
         if (hgCommand.clone(output, new UrlArgument(remoteRepo.getAbsolutePath())) != 0) {
             fail("Error creating repository\n" + output.getAllOutput());

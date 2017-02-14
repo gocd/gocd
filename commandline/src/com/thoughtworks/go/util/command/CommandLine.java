@@ -424,6 +424,11 @@ public class CommandLine {
         return this;
     }
 
+    public CommandLine withNonArgSecrets(List<SecretString> secrets) {
+        this.secrets.addAll(secrets);
+        return this;
+    }
+
     public List<CommandArgument> getArguments() {
         return arguments;
     }

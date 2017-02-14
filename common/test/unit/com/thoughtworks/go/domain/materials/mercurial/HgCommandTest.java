@@ -63,7 +63,7 @@ public class HgCommandTest {
 
         setUpServerRepoFromHgBundle(serverRepo, new File("../common/test-resources/unit/data/hgrepo.hgbundle"));
         workingDirectory = new File(clientRepo.getPath());
-        hgCommand = new HgCommand(null, workingDirectory, "default", serverRepo.getAbsolutePath());
+        hgCommand = new HgCommand(null, workingDirectory, "default", serverRepo.getAbsolutePath(), null);
         hgCommand.clone(outputStreamConsumer, new UrlArgument(serverRepo.getAbsolutePath()));
     }
 
@@ -165,13 +165,15 @@ public class HgCommandTest {
     @Test(expected = RuntimeException.class)
     public void shouldThrowExceptionForBadConnection() throws Exception {
         String url = "http://not-exists";
-        HgCommand.checkConnection(new UrlArgument(url));
+        HgCommand hgCommand = new HgCommand(null, null, null, null, null);
+
+        hgCommand.checkConnection(new UrlArgument(url));
     }
 
     @Test
     public void shouldCloneOnlyTheSpecifiedBranchAndPointToIt() {
         String branchName = "second";
-        HgCommand hg = new HgCommand(null, secondBranchWorkingCopy, branchName, serverRepo.getAbsolutePath());
+        HgCommand hg = new HgCommand(null, secondBranchWorkingCopy, branchName, serverRepo.getAbsolutePath(), null);
         hg.clone(outputStreamConsumer, new UrlArgument(serverRepo.getAbsolutePath() + "#" + branchName));
 
         String currentBranch = hg(secondBranchWorkingCopy, "branch").runOrBomb(null).outputAsString();
@@ -244,7 +246,7 @@ public class HgCommandTest {
     }
 
     private void makeACommitToSecondBranch() {
-        HgCommand hg = new HgCommand(null, secondBranchWorkingCopy, "second", serverRepo.getAbsolutePath());
+        HgCommand hg = new HgCommand(null, secondBranchWorkingCopy, "second", serverRepo.getAbsolutePath(), null);
         hg.clone(outputStreamConsumer, new UrlArgument(serverRepo.getAbsolutePath()));
         createNewFileAndPushUpstream(secondBranchWorkingCopy);
     }

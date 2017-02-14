@@ -25,6 +25,7 @@ import org.apache.log4j.Logger;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
@@ -39,12 +40,15 @@ public class HgCommand extends SCMCommand {
     private static String templatePath;
     private final String branch;
     private final String url;
+    private final List<SecretString> secrets;
 
-    public HgCommand(String materialFingerprint, File workingDir, String branch, String url) {
+
+    public HgCommand(String materialFingerprint, File workingDir, String branch, String url, List<SecretString> secrets) {
         super(materialFingerprint);
         this.workingDir = workingDir;
         this.branch = branch;
         this.url = url;
+        this.secrets = secrets != null ? secrets : new ArrayList<>();
     }
 
 
@@ -53,19 +57,20 @@ public class HgCommand extends SCMCommand {
         return execute(hg, outputStreamConsumer) == 0;
     }
 
-    public static String version() {
+    public String version() {
         CommandLine hg = createCommandLine("hg").withArgs("version");
         return execute(hg, "hg version check").outputAsString();
     }
 
 
     public int clone(ProcessOutputStreamConsumer outputStreamConsumer, UrlArgument repositoryUrl) {
-        CommandLine hg = createCommandLine("hg").withArgs("clone").withArg("-b").withArg(branch).withArg(repositoryUrl).withArg(workingDir.getAbsolutePath());
+        CommandLine hg = createCommandLine("hg").withArgs("clone").withArg("-b").withArg(branch).withArg(repositoryUrl)
+                .withArg(workingDir.getAbsolutePath()).withNonArgSecrets(secrets);
         return execute(hg, outputStreamConsumer);
     }
 
-    public static void checkConnection(UrlArgument repositoryURL) {
-        execute(createCommandLine("hg").withArgs("id", "--id").withArg(repositoryURL), repositoryURL.forDisplay());
+    public void checkConnection(UrlArgument repositoryURL) {
+        execute(createCommandLine("hg").withArgs("id", "--id").withArg(repositoryURL).withNonArgSecrets(secrets), repositoryURL.forDisplay());
     }
 
     public void updateTo(Revision revision, ProcessOutputStreamConsumer outputStreamConsumer) {
@@ -98,7 +103,7 @@ public class HgCommand extends SCMCommand {
         return findRecentModifications(1);
     }
 
-    private static String templatePath() {
+    private String templatePath() {
         if (templatePath == null) {
             String file = HgCommand.class.getResource("/hg.template").getFile();
             try {
@@ -140,9 +145,7 @@ public class HgCommand extends SCMCommand {
     }
 
     private CommandLine hg(String... arguments) {
-        CommandLine hg = createCommandLine("hg").withArgs(arguments);
-        hg.setWorkingDir(workingDir);
-        return hg;
+        return createCommandLine("hg").withArgs(arguments).withNonArgSecrets(secrets).withWorkingDir(workingDir);
     }
 
     private static ConsoleResult execute(CommandLine hgCmd, String processTag) {

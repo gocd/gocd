@@ -23,7 +23,7 @@ public class LengthValidator extends Validator<String> {
     private final int length;
 
     public LengthValidator(int length) {
-        super("Only " + length + " charactors are allowed");
+        super("Only " + length + " characters are allowed");
         this.length = length;
     }
 

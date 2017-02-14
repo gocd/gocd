@@ -28,8 +28,8 @@ describe ApiV2::Admin::EnvironmentsWithRemoteController do
       @environment_config_service = double('environment-config-service')
       controller.stub(:environment_config_service).and_return(@environment_config_service)
       display_element = com.thoughtworks.go.domain.ConfigElementForEdit.new(@environment_config, 'md5')
-      @environment_config_service.stub(:forDisplay).and_return(display_element)
-      @environment_config_service.stub(:forEdit).and_return(local)
+      @environment_config_service.stub(:getMergedEnvironmentForDisplay).and_return(display_element)
+      @environment_config_service.stub(:getEnvironmentForEdit).and_return(local)
     end
 
     describe :for_admins do
@@ -45,7 +45,7 @@ describe ApiV2::Admin::EnvironmentsWithRemoteController do
         login_as_admin
 
         @environment_name = SecureRandom.hex
-        @environment_config_service.stub(:forDisplay).and_raise(com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException.new(CaseInsensitiveString.new('foo-env')))
+        @environment_config_service.stub(:getMergedEnvironmentForDisplay).and_raise(com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException.new(CaseInsensitiveString.new('foo-env')))
         get_with_api_header :show, name: @environment_name
         expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
       end

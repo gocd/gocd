@@ -346,7 +346,7 @@ public class EnvironmentConfigServiceTest {
         environments.add(env);
         environmentConfigService.sync(environments);
         when(mockGoConfigService.getMergedConfigForEditing()).thenReturn(config);
-        assertThat(environmentConfigService.forDisplay("foo", result).getConfigElement(), Is.is(env));
+        assertThat(environmentConfigService.getMergedEnvironmentforDisplay("foo", result).getConfigElement(), Is.is(env));
         assertThat(result.isSuccessful(), is(true));
     }
 

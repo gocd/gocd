@@ -29,7 +29,7 @@ module ApiV2
 
       def load_remote_environment(environment_name = params[:name])
         result = HttpLocalizedOperationResult.new
-        @environment_config = environment_config_service.forDisplay(environment_name, result).getConfigElement()
+        @environment_config = environment_config_service.getMergedEnvironmentForDisplay(environment_name, result).getConfigElement()
       rescue com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException
         raise ApiV2::RecordNotFound
       end

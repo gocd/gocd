@@ -458,9 +458,9 @@ h4 {
 .page_header {
   background:      $page-header-bg;
   background-size: cover;
-  position:        relative;
+  position:        fixed;
   z-index:         $page-header;
-  top:             0;
+  top:             40px;
   box-shadow:      0 0 0 #000;
   border:          0;
   height:          50px !important;
@@ -2826,6 +2826,7 @@ pre, code, #admin-holder-for-admin-config-source-xml textarea {
 }
 
 .admin-rounded-container, #yui-main .content_wrapper_inner, .my-cruise-rounded-container, #server-page .rounded-corner-for-pipeline {
+  margin-top: 50px;
   padding: 15px 0;
 }
 
@@ -3126,6 +3127,10 @@ a.add_item {
   border-bottom: none;
   margin-bottom: 20px;
 
+}
+
+.admin_wrapper {
+  margin-top: 50px;
 }
 
 .admin_wrapper #form_parent form, #admin_tasks table.reorderable_table {

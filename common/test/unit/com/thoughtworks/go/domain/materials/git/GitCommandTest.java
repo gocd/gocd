@@ -59,6 +59,8 @@ import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.hamcrest.core.StringEndsWith.endsWith;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class GitCommandTest {
@@ -69,6 +71,14 @@ public class GitCommandTest {
     private String repoUrl;
     private File repoLocation;
     private static final Date THREE_DAYS_FROM_NOW = setMilliseconds(addDays(new Date(), 3), 0);
+    private static final String GIT_VERSION_1_6_0_2 = "git version 1.6.0.2";
+    private static final String GIT_VERSION_1_6_1 = "git version 1.6.1";
+    private static final String GIT_VERSION_2_9 = "git version 2.9.0";
+    private static final String GIT_VERSION_1_5_4_3 = "git version 1.5.4.3";
+    private static final String GIT_VERSION_1_6_0_2_ON_WINDOWS = "git version 1.6.0.2.1172.ga5ed0";
+    private static final String GIT_VERSION_2_9_1 = "git version 2.9.1.0";
+    private static final String GIT_VERSION_2_9_0_2_ON_WINDOWS = "git version 2.9.0.2.1172.ga5ed0";
+    private static final String GIT_VERSION_NODE_ON_WINDOWS = "git version ga5ed0asdasd.ga5ed0";
     private GitTestRepo gitRepo;
     private File gitLocalRepoDir;
     private GitTestRepo gitFooBranchBundle;
@@ -79,7 +89,8 @@ public class GitCommandTest {
     @Rule
     public final ExpectedException expectedException = ExpectedException.none();
 
-    @Before public void setup() throws Exception {
+    @Before
+    public void setup() throws Exception {
         gitRepo = new GitTestRepo();
         gitLocalRepoDir = createTempWorkingDirectory();
         git = new GitCommand(null, gitLocalRepoDir, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<>());
@@ -94,7 +105,8 @@ public class GitCommandTest {
         initMocks(this);
     }
 
-    @After public void teardown() throws Exception {
+    @After
+    public void teardown() throws Exception {
         TestRepo.internalTearDown();
     }
 
@@ -107,7 +119,7 @@ public class GitCommandTest {
     }
 
     @Test
-    public void shouldCloneFromMasterWhenNoBranchIsSpecified(){
+    public void shouldCloneFromMasterWhenNoBranchIsSpecified() {
         InMemoryStreamConsumer output = inMemoryConsumer();
         git.clone(output, repoUrl);
         CommandLine commandLine = CommandLine.createCommandLine("git").withEncoding("UTF-8").withArg("branch").withWorkingDir(gitLocalRepoDir);
@@ -147,7 +159,53 @@ public class GitCommandTest {
         // depth '2' actually clone 3 revisions
         assertThat(git.containsRevisionInBranch(GitTestRepo.REVISION_1), is(false));
         assertThat(git.containsRevisionInBranch(GitTestRepo.REVISION_0), is(false));
+    }
 
+    @Test
+    public void shouldShallowSubmodulesForSupportedVersionWhenDepthIsSpecified() throws Exception {
+        File workingDirectory = createTempWorkingDirectory();
+        GitCommand gitWithSubmodule = spy(new GitCommand(null, workingDirectory, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<String, String>()));
+        when(gitWithSubmodule.isSubModuleShallowCloneSupported()).thenReturn(false);
+
+        InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
+        CommandLine gitCloneCommand = gitWithSubmodule.getGitCloneCommand(outputStreamConsumer, repoUrl, 2);
+
+        List<CommandArgument> expected = new ArrayList<>();
+        expected.add(new StringArgument("clone"));
+        expected.add(new StringArgument("--branch=master"));
+        expected.add(new StringArgument("--depth=2"));
+        expected.add(new UrlArgument(repoUrl));
+        expected.add(new StringArgument(workingDirectory.getAbsolutePath()));
+
+        assertThat(gitCloneCommand.getArguments(), is(expected));
+
+        assertThat(outputStreamConsumer.getAllOutput(), not(containsString("[GIT] Recursively shallow cloning submodule repositories")));
+    }
+
+    @Test
+    public void shouldNotShallowSubmodulesForUnsupportedVersion() throws Exception {
+        File workingDirectory = createTempWorkingDirectory();
+        GitCommand gitWithSubmodule = spy(new GitCommand(null, workingDirectory, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<String, String>()));
+        when(gitWithSubmodule.isSubModuleShallowCloneSupported()).thenReturn(true);
+
+        InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
+        CommandLine gitCloneCommand = gitWithSubmodule.getGitCloneCommand(outputStreamConsumer, repoUrl, 2);
+
+        List<CommandArgument> expected = new ArrayList<>();
+        expected.add(new StringArgument("clone"));
+        expected.add(new StringArgument("--branch=master"));
+        expected.add(new StringArgument("--depth=2"));
+
+        expected.add(new StringArgument("--recursive"));
+        expected.add(new StringArgument("--recurse-submodules"));
+        expected.add(new StringArgument("--shallow-submodules"));
+
+        expected.add(new UrlArgument(repoUrl));
+        expected.add(new StringArgument(workingDirectory.getAbsolutePath()));
+
+        assertThat(gitCloneCommand.getArguments(), is(expected));
+
+        assertThat(outputStreamConsumer.getAllOutput(), containsString("[GIT] Recursively shallow cloning submodule repositories"));
     }
 
     @Test
@@ -187,7 +245,7 @@ public class GitCommandTest {
     }
 
     @Test
-    public void shouldGetTheCurrentBranchForTheCheckedOutRepo(){
+    public void shouldGetTheCurrentBranchForTheCheckedOutRepo() {
         gitLocalRepoDir = createTempWorkingDirectory();
         CommandLine gitCloneCommand = CommandLine.createCommandLine("git").withEncoding("UTF-8").withArg("clone");
         gitCloneCommand.withArg("--branch=" + BRANCH).withArg(new UrlArgument(gitFooBranchBundle.projectRepositoryUrl())).withArg(gitLocalRepoDir.getAbsolutePath());
@@ -264,13 +322,13 @@ public class GitCommandTest {
     }
 
     @Test
-    public void retrieveLatestModificationShouldNotResultInWorkingCopyCheckOut() throws Exception{
+    public void retrieveLatestModificationShouldNotResultInWorkingCopyCheckOut() throws Exception {
         git.latestModification();
         assertWorkingCopyNotCheckedOut();
     }
 
     @Test
-    public void getModificationsSinceShouldNotResultInWorkingCopyCheckOut() throws Exception{
+    public void getModificationsSinceShouldNotResultInWorkingCopyCheckOut() throws Exception {
         git.modificationsSince(GitTestRepo.REVISION_2);
         assertWorkingCopyNotCheckedOut();
     }
@@ -349,6 +407,68 @@ public class GitCommandTest {
     }
 
     @Test
+    public void shouldReturnTrueIfVersionHigherThan1dot6Linux() throws Exception {
+        assertThat(git.isVersionEqualToOrHigherThan(GIT_VERSION_1_6_0_2, 1.6f), Is.is(true));
+    }
+
+    @Test
+    public void shouldReturnTrueIfVersionHigherThan1dot6dLinux() throws Exception {
+        assertThat(git.isVersionEqualToOrHigherThan(GIT_VERSION_1_6_1, 1.6f), Is.is(true));
+    }
+
+    @Test
+    public void shouldReturnFalseIfVersionLowerThanExpectedLinux() throws Exception {
+        assertThat(git.isVersionEqualToOrHigherThan(GIT_VERSION_1_5_4_3, 1.6f), Is.is(false));
+    }
+
+    @Test
+    public void shouldReturnTrueIfVersionHigherThanExpectedWindows() throws Exception {
+        assertThat(git.isVersionEqualToOrHigherThan(GIT_VERSION_1_6_0_2_ON_WINDOWS, 1.6f), Is.is(true));
+    }
+
+    @Test
+    public void shouldReturnTrueIfVersionHigherThan2dot9Linux() throws Exception {
+        assertThat(git.isVersionEqualToOrHigherThan(GIT_VERSION_2_9_1, 2.9f), Is.is(true));
+    }
+
+    @Test
+    public void shouldReturnTrueIfVersionEqualToHigherThan2dot9Linux() throws Exception {
+        assertThat(git.isVersionEqualToOrHigherThan("git version 2.9", 2.9f), Is.is(true));
+        assertThat(git.isVersionEqualToOrHigherThan("git version 2.9.0", 2.9f), Is.is(true));
+        assertThat(git.isVersionEqualToOrHigherThan("git version 2.9.0.1", 2.9f), Is.is(true));
+        assertThat(git.isVersionEqualToOrHigherThan("git version 2.9.1", 2.9f), Is.is(true));
+        assertThat(git.isVersionEqualToOrHigherThan("git version 2.9.1.1", 2.9f), Is.is(true));
+        assertThat(git.isVersionEqualToOrHigherThan("git version 2.10.0", 2.9f), Is.is(true));
+        assertThat(git.isVersionEqualToOrHigherThan("git version 3.0.0", 2.9f), Is.is(true));
+    }
+
+    @Test
+    public void shouldReturnFalseIfVersionLesserThanSpecifiedVersion() throws Exception {
+        assertThat(git.isVersionEqualToOrHigherThan("git version 2.8", 2.9f), Is.is(false));
+        assertThat(git.isVersionEqualToOrHigherThan("git version 2.8.1", 2.9f), Is.is(false));
+        assertThat(git.isVersionEqualToOrHigherThan("git version 2.9", 3.10f), Is.is(false));
+    }
+
+    @Test
+    public void shouldReturnTrueIfVersionLowerThan2dot9Linux() throws Exception {
+        assertThat(git.isVersionEqualToOrHigherThan(GIT_VERSION_1_5_4_3, 2.9f), Is.is(false));
+    }
+
+    @Test
+    public void shouldReturnTrueIfVersionHigherThan2dot9Windows() throws Exception {
+        assertThat(git.isVersionEqualToOrHigherThan(GIT_VERSION_2_9_0_2_ON_WINDOWS, 2.9f), Is.is(true));
+    }
+
+    @Test
+    public void shouldReturnFalseWhenVersionIsNotRecgonized() throws Exception {
+        try {
+            git.isVersionEqualToOrHigherThan(GIT_VERSION_NODE_ON_WINDOWS, 1.6f);
+        } catch (Exception e) {
+            assertThat(e.getMessage(), containsString("can not parse hgout"));
+        }
+    }
+
+    @Test
     public void shouldRetrieveFilenameForInitialRevision() throws IOException {
         GitTestRepo testRepo = new GitTestRepo(GitTestRepo.GIT_SUBMODULE_REF_BUNDLE);
         GitCommand gitCommand = new GitCommand(null, testRepo.gitRepository(), GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<>());
@@ -357,7 +477,8 @@ public class GitCommandTest {
         assertThat(modification.getModifiedFiles().get(0).getFileName(), is("remote.txt"));
     }
 
-    @Test public void shouldRetrieveLatestModificationFromBranch() throws Exception {
+    @Test
+    public void shouldRetrieveLatestModificationFromBranch() throws Exception {
         GitTestRepo branchedRepo = GitTestRepo.testRepoAtBranch(GIT_FOO_BRANCH_BUNDLE, BRANCH);
         GitCommand branchedGit = new GitCommand(null, createTempWorkingDirectory(), BRANCH, false, new HashMap<>());
         branchedGit.clone(inMemoryConsumer(), branchedRepo.projectRepositoryUrl());
@@ -395,7 +516,8 @@ public class GitCommandTest {
         submoduleRepos.addSubmodule(SUBMODULE, "sub1");
         GitCommand gitWithSubmodule = new GitCommand(null, createTempWorkingDirectory(), GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<>()) {
             //hack to reproduce synchronization issue
-            @Override public Map<String, String> submoduleUrls() {
+            @Override
+            public Map<String, String> submoduleUrls() {
                 return Collections.singletonMap("submodule", "submodule");
             }
         };
@@ -442,11 +564,13 @@ public class GitCommandTest {
         assertThat(submoduleUrls.size(), is(0));
     }
 
-    @Test public void shouldRetrieveRemoteRepoValue() throws Exception {
+    @Test
+    public void shouldRetrieveRemoteRepoValue() throws Exception {
         assertThat(git.workingRepositoryUrl().forCommandline(), startsWith(repoUrl));
     }
 
-    @Test public void shouldCheckIfRemoteRepoExists() throws Exception {
+    @Test
+    public void shouldCheckIfRemoteRepoExists() throws Exception {
         final TestSubprocessExecutionContext executionContext = new TestSubprocessExecutionContext();
         GitCommand.checkConnection(git.workingRepositoryUrl(), "master", executionContext.getDefaultEnvironmentVariables());
     }
@@ -474,7 +598,8 @@ public class GitCommandTest {
     }
 
 
-    @Test public void shouldIncludeNewChangesInModificationCheck() throws Exception {
+    @Test
+    public void shouldIncludeNewChangesInModificationCheck() throws Exception {
         String originalNode = git.latestModification().get(0).getRevision();
         File testingFile = checkInNewRemoteFile();
 
@@ -485,7 +610,8 @@ public class GitCommandTest {
         assertThat(modification.getModifiedFiles().get(0).getFileName(), is(testingFile.getName()));
     }
 
-    @Test public void shouldIncludeChangesFromTheFutureInModificationCheck() throws Exception {
+    @Test
+    public void shouldIncludeChangesFromTheFutureInModificationCheck() throws Exception {
         String originalNode = git.latestModification().get(0).getRevision();
         File testingFile = checkInNewRemoteFileInFuture(THREE_DAYS_FROM_NOW);
 
@@ -495,7 +621,8 @@ public class GitCommandTest {
         assertThat(modification.getModifiedTime(), is(THREE_DAYS_FROM_NOW));
     }
 
-    @Test public void shouldThrowExceptionIfRepoCanNotConnectWhenModificationCheck() throws Exception {
+    @Test
+    public void shouldThrowExceptionIfRepoCanNotConnectWhenModificationCheck() throws Exception {
         FileUtil.deleteFolder(repoLocation);
         try {
             git.latestModification();

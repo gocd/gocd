@@ -349,26 +349,6 @@ public class GitMaterialTest {
     }
 
     @Test
-    public void shouldReturnTrueIfVersionHigherThan1Dot6OnLinux() throws Exception {
-        assertThat(git.isVersionOnedotSixOrHigher(GIT_VERSION_1_6_0_2), is(true));
-    }
-
-    @Test
-    public void shouldReturnTrueIfVersionHigherThan1Dot5OnLinux() throws Exception {
-        assertThat(git.isVersionOnedotSixOrHigher(GIT_VERSION_1_5_4_3), is(false));
-    }
-
-    @Test
-    public void shouldReturnTrueIfVersionHigherThan1Dot6OnWindows() throws Exception {
-        assertThat(git.isVersionOnedotSixOrHigher(GIT_VERSION_1_6_0_2_ON_WINDOWS), is(true));
-    }
-
-    @Test(expected = Exception.class)
-    public void shouldReturnFalseWhenVersionIsNotRecgonized() throws Exception {
-        git.isVersionOnedotSixOrHigher(GIT_VERSION_NODE_ON_WINDOWS);
-    }
-
-    @Test
     public void shouldReturnInvalidBeanWithRootCauseAsLowerVersionInstalled() throws Exception {
         ValidationBean validationBean = git.handleException(new Exception(), GIT_VERSION_1_5_4_3);
         assertThat(validationBean.isValid(), is(false));

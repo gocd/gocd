@@ -61,6 +61,7 @@ import java.io.File;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static com.thoughtworks.go.util.GoConstants.CONFIG_SCHEMA_VERSION;
 import static org.hamcrest.Matchers.*;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -1131,6 +1132,33 @@ public class MagicalGoConfigXmlWriterTest {
 
         String writtenConfigXml = this.output.toString();
         assertThat(writtenConfigXml, not(containsString("<authorization>")));
+    }
+
+
+
+    @Test
+    public void shouldDisplayTheFlagInXmlIfTemplateAuthorizationDoesNotAllowGroupAdmins() throws Exception {
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
+        PipelineTemplateConfig template = com.thoughtworks.go.helper.PipelineTemplateConfigMother.createTemplate("template-name", new Authorization(new AdminsConfig()), com.thoughtworks.go.helper.StageConfigMother.manualStage("stage-name"));
+        template.getAuthorization().setAllowGroupAdmins(false);
+        cruiseConfig.addTemplate(template);
+
+        xmlWriter.write(cruiseConfig, output, false);
+
+        String writtenConfigXml = this.output.toString();
+        assertThat(writtenConfigXml, containsString("allGroupAdminsAreViewers"));
+    }
+
+    @Test
+    public void shouldNotDisplayTheOptionIfTemplateAllowsGroupAdminsToBeViewers() throws Exception {
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
+        PipelineTemplateConfig template = com.thoughtworks.go.helper.PipelineTemplateConfigMother.createTemplate("template-name", new Authorization(new AdminsConfig()), com.thoughtworks.go.helper.StageConfigMother.manualStage("stage-name"));
+        cruiseConfig.addTemplate(template);
+
+        xmlWriter.write(cruiseConfig, output, false);
+
+        String writtenConfigXml = this.output.toString();
+        assertThat(writtenConfigXml, not(containsString("allGroupAdminsAreViewers")));
     }
 
     private ConfigurationProperty getConfigurationProperty(String key, boolean isSecure, String value) {

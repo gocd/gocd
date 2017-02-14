@@ -55,7 +55,7 @@
                       <a id="tab-link-of-pipeline-groups" href="<%= main_app.pipeline_groups_path -%>"><%= l.string("PIPELINES_POPUP_TITLE") -%></a>
                     </li>
                 <% end %>
-                <% if is_user_an_admin? || is_user_a_template_admin? -%>
+                <% if is_user_an_admin? || is_user_authorized_to_view_templates? -%>
                     <li id="templates-tab-button" class="<%= "current_tab" if @tab_name == "templates" %>">
                       <a id="tab-link-of-templates" href="<%= main_app.templates_path -%>"><%= l.string("TEMPLATES") -%></a>
                     </li>

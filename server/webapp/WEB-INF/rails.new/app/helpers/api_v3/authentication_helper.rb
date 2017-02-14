@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2016 ThoughtWorks, Inc.
+# Copyright 2017 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -49,6 +49,19 @@ module ApiV3
         render_unauthorized_error
       end
       if !template_name.blank? && !security_service.isAuthorizedToEditTemplate(template_name, current_user)
+        Rails.logger.info("User '#{current_user.getUsername}' attempted to perform an unauthorized action!")
+        render_unauthorized_error
+      end
+    end
+
+    def check_view_access_to_template_and_401
+      return unless security_service.isSecurityEnabled
+      template_name = params[:template_name]
+      if !template_name.blank? && !security_service.isAuthorizedToViewTemplate(template_name, current_user)
+        Rails.logger.info("User '#{current_user.getUsername}' attempted to perform an unauthorized action!")
+        render_unauthorized_error
+      end
+      if template_name.blank? && !security_service.isAuthorizedToViewTemplates(current_user)
         Rails.logger.info("User '#{current_user.getUsername}' attempted to perform an unauthorized action!")
         render_unauthorized_error
       end

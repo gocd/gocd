@@ -264,4 +264,12 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
     List<PartialConfig> getMergedPartials();
 
     CruiseConfig cloneForValidation();
+
+    boolean canViewAndEditTemplates(CaseInsensitiveString username);
+
+    boolean isAuthorizedToEditTemplate(String templateName, CaseInsensitiveString username);
+
+    boolean isAuthorizedToViewTemplate(String templateName, CaseInsensitiveString username);
+
+    boolean isAuthorizedToViewTemplates(CaseInsensitiveString username);
 }

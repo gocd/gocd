@@ -2991,6 +2991,12 @@ button.edit-environment {
 
 }
 
+.view_icon {
+  @include icon-before($type: eye);
+  @extend %iconstyles;
+
+}
+
 .edit_icon {
   @include icon-before($type: edit);
   @extend %iconstyles;
@@ -3278,6 +3284,7 @@ a.add_item {
   }
   .title_action_wrapper {
     ul {
+      margin-top:  1px;
       margin-left: 10px;
       li {
         a {
@@ -3464,4 +3471,10 @@ form#package_repositories_edit_form {
       margin-bottom: 0;
     }
   }
+}
+
+.edit_icon_disabled, .lock_icon_disabled {
+  padding-left: 20px !important;
+  margin-top:   3px;
+  margin-left:  10px;
 }

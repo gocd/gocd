@@ -14,15 +14,16 @@
 # limitations under the License.
 ##########################################################################
 
-module ConfigView
-  class TemplatesController < ConfigView::ConfigViewController
-    include Admin::AuthorizationHelper
-    before_action :check_view_access_to_template_and_401
+module ConfigUpdate
+  module CheckIsTemplateAdmin
 
-    def show
-      result = HttpLocalizedOperationResult.new
-      @template_config = template_config_service.loadForView(params[:name], result)
-      render_localized_operation_result(result) unless result.isSuccessful()
+    include ::ConfigUpdate::LoadConfig
+
+    def checkPermission(cruise_config, result)
+      return if @security_service.isAuthorizedToEditTemplate(template_name, com.thoughtworks.go.server.util.UserHelper.getUserName())
+
+      message = com.thoughtworks.go.i18n.LocalizedMessage.string("UNAUTHORIZED_TO_ADMINISTER")
+      result.unauthorized(message, nil)
     end
   end
 end

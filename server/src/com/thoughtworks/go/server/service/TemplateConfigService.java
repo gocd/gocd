@@ -77,12 +77,12 @@ public class TemplateConfigService {
 
     public void updateTemplateConfig(final Username currentUser, final PipelineTemplateConfig templateConfig, final LocalizedOperationResult result, String md5) {
         validatePluggableTasks(templateConfig);
-        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(templateConfig, currentUser, goConfigService, result, md5, entityHashingService);
+        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(templateConfig, currentUser, securityService, result, md5, entityHashingService);
         update(currentUser, result, command, templateConfig);
     }
 
     public void deleteTemplateConfig(final Username currentUser, final PipelineTemplateConfig templateConfig, final LocalizedOperationResult result) {
-        DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(templateConfig, result, goConfigService, currentUser);
+        DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(templateConfig, result, securityService, currentUser);
         update(currentUser, result, command, templateConfig);
         if(result.isSuccessful()) {
             result.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", "template", templateConfig.name().toString()));

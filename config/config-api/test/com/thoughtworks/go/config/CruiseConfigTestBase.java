@@ -242,7 +242,9 @@ public abstract class CruiseConfigTestBase {
 
         PipelineConfig pipelineConfigWithoutTemplate = PipelineConfigMother.pipelineConfig("third");
 
-        CruiseConfig cruiseConfig = createCruiseConfig(new BasicPipelineConfigs(pipelineConfig1, pipelineConfig2, pipelineConfigWithoutTemplate));
+        BasicPipelineConfigs pipelineConfigs = new BasicPipelineConfigs(pipelineConfig1, pipelineConfig2, pipelineConfigWithoutTemplate);
+        pipelineConfigs.setOrigin(new FileConfigOrigin());
+        CruiseConfig cruiseConfig = createCruiseConfig(pipelineConfigs);
 
         cruiseConfig.addTemplate(firstTemplate);
         cruiseConfig.addTemplate(secondTemplate);

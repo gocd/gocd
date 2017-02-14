@@ -25,7 +25,8 @@ public enum GoAuthority {
     ROLE_ANONYMOUS,
     ROLE_OAUTH_USER,
     ROLE_USER,
-    ROLE_TEMPLATE_SUPERVISOR;
+    ROLE_TEMPLATE_SUPERVISOR,
+    ROLE_TEMPLATE_VIEW_USER;
 
     public GrantedAuthority asAuthority() {
         return new GrantedAuthorityImpl(this.toString());

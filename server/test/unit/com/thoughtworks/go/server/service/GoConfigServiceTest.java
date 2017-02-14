@@ -1101,57 +1101,6 @@ public class GoConfigServiceTest {
         assertThat(configSaveState, is(expectedSaveState));
     }
 
-    @Test
-    public void shouldSayThatAUserIsAuthorizedToEditTemplateWhenTheUserIsAnAdminOfThisTemplate() throws Exception {
-        CruiseConfig config = new BasicCruiseConfig();
-        String templateName = "template";
-        CaseInsensitiveString templateAdminName = new CaseInsensitiveString("templateAdmin");
-
-        GoConfigMother.enableSecurityWithPasswordFile(config);
-        GoConfigMother.addUserAsSuperAdmin(config, "theSuperAdmin");
-        config.addTemplate(createTemplate(templateName, new Authorization(new AdminsConfig(new AdminUser(templateAdminName)))));
-
-        when(goConfigService.getCurrentConfig()).thenReturn(config);
-
-        assertThat(goConfigService.isAuthorizedToEditTemplate(templateName, new Username(templateAdminName)), is(true));
-        assertThat(goConfigService.isAuthorizedToEditTemplate(templateName, new Username(new CaseInsensitiveString("someOtherUserWhoIsNotAnAdmin"))), is(false));
-    }
-
-    @Test
-    public void shouldSayThatAUserIsAuthorizedToViewAndEditTemplatesWhenTheUserHasPermissionsForAtLeastOneTemplate() throws Exception {
-        CruiseConfig config = new BasicCruiseConfig();
-        String theSuperAdmin = "theSuperAdmin";
-        String templateName = "template";
-        String secondTemplateName = "secondTemplate";
-        CaseInsensitiveString templateAdminName = new CaseInsensitiveString("templateAdmin");
-        CaseInsensitiveString secondTemplateAdminName = new CaseInsensitiveString("secondTemplateAdmin");
-
-        GoConfigMother.enableSecurityWithPasswordFile(config);
-        GoConfigMother.addUserAsSuperAdmin(config, theSuperAdmin);
-        config.addTemplate(createTemplate(templateName, new Authorization(new AdminsConfig(new AdminUser(templateAdminName)))));
-        config.addTemplate(createTemplate(secondTemplateName, new Authorization(new AdminsConfig(new AdminUser(secondTemplateAdminName)))));
-
-        when(goConfigService.getCurrentConfig()).thenReturn(config);
-
-        assertThat(goConfigService.isAuthorizedToViewAndEditTemplates(new Username(templateAdminName)), is(true));
-        assertThat(goConfigService.isAuthorizedToViewAndEditTemplates(new Username(secondTemplateAdminName)), is(true));
-        assertThat(goConfigService.isAuthorizedToViewAndEditTemplates(new Username(new CaseInsensitiveString(theSuperAdmin))), is(false));
-        assertThat(goConfigService.isAuthorizedToViewAndEditTemplates(new Username(new CaseInsensitiveString("someOtherUserWhoIsNotAdminOfAnyTemplates"))), is(false));
-    }
-
-    @Test
-    public void shouldSayThatAUserIsAuthorizedToEditTemplateWhenTheUserIsASuperAdmin() throws Exception {
-        String adminName = "theSuperAdmin";
-        String templateName = "template";
-
-        GoConfigMother.enableSecurityWithPasswordFile(cruiseConfig);
-        GoConfigMother.addUserAsSuperAdmin(cruiseConfig, adminName).addTemplate(createTemplate(templateName));
-
-        when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
-
-        assertThat(goConfigService.isAuthorizedToEditTemplate(templateName, new Username(new CaseInsensitiveString(adminName))), is(true));
-    }
-
 	@Test
 	public void shouldDelegateToConfig_getAllPipelinesInGroup() throws Exception {
 		CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);

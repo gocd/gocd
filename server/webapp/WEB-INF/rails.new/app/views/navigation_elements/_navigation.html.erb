@@ -17,7 +17,7 @@
                 <%= render partial: 'navigation_elements/dropdown_admin' -%>
             <%- elsif is_user_a_group_admin? -%>
                 <%= render partial: 'navigation_elements/dropdown_pipeline_group_admin' -%>
-            <%- elsif is_user_a_template_admin? -%>
+            <%- elsif is_user_authorized_to_view_templates? -%>
                 <li role="presentation">
                   <%= link_to 'Templates', templates_path -%>
                 </li>

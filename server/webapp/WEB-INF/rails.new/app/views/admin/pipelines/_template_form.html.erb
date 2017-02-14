@@ -1,50 +1,52 @@
 <div id="select_template_container">
-    <%- if scope[:template_list].size()== 0 %>
-        <div class="information">There are no templates configured</div>
-    <% else %>
-        <div class="fieldset">
-            <div class="form_item">
+  <%- if scope[:template_list].size()== 0 %>
+      <div class="information">There are no templates configured</div>
+  <% else %>
+      <div class="fieldset">
+        <div class="form_item">
 
                 <%= scope[:form].label l.string("SELECT_TEMPLATE") %>
                 <%- scope[:template_names] = scope[:template_list].map(&:name) -%>
                 <%= scope[:form].select(com.thoughtworks.go.config.PipelineConfig::TEMPLATE_NAME, scope[:template_names], {:selected => scope[:pipeline].getTemplateName()}, {:id => "select_template"}) %>
-                <%= link_to l.string("VIEW"), "#", :class=> "view_template_link action_icon button preview_icon" , :style=> "float:none; display:inline-block; margin-right:5px; margin-left:5px"%>
+                <% if is_user_an_admin? %>
+                  <%= link_to l.string("VIEW"), "#", :class=> "view_template_link action_icon button preview_icon" , :style=> "float:none; display:inline-block; margin-right:5px; margin-left:5px"%>
+                <% end %>
             </div>
 
 
-            <%- scope[:name_body_map] = scope[:template_list].inject({}) do |map, template| %>
-                <%- scope[:dom_container_id] = random_dom_id("template_body_") -%>
-                <textarea class="hidden" id="<%= scope[:dom_container_id] -%>">
+        <%- scope[:name_body_map] = scope[:template_list].inject({}) do |map, template| %>
+            <%- scope[:dom_container_id] = random_dom_id("template_body_") -%>
+            <textarea class="hidden" id="<%= scope[:dom_container_id] -%>">
                     <%- if template.referredParams().size() > 0 %>
                         <label><%= l.string("DEFINE_PARAMETERS") %></label>
-                        <%- template.referredParams().each do |param| -%>
+                  <%- template.referredParams().each do |param| -%>
                             <div>
                                 <%= scope[:form].fields_for "params", param, :index => "" do |form| %>
                                     <%= form.text_field :name, :class => "", :id => nil, :readonly => true -%>
-                                    <span class="equals_sign"><%= l.string("EQUALS_SIGN") -%></span>
-                                    <%= form.text_field :valueForDisplay, :class => "", :id => nil -%>
+                                  <span class="equals_sign"><%= l.string("EQUALS_SIGN") -%></span>
+                                  <%= form.text_field :valueForDisplay, :class => "", :id => nil -%>
                                 <% end %>
                             </div>
                         <%- end -%>
                     <% end %>
                 </textarea>
-                <%- map.merge(template.name() => scope[:dom_container_id]) -%>
-            <%- end -%>
-            <div id="used_params">
-            </div>
+            <%- map.merge(template.name() => scope[:dom_container_id]) -%>
+        <%- end -%>
+        <div id="used_params">
         </div>
-        <script type="text/javascript">
-            Util.on_load(function () {
-                var callback = Util.domUpdatingCallback(<%== scope[:name_body_map].to_json %>, jQuery('#used_params'), function () {
-                    return this.value;
-                });
-                var template_selector = jQuery('#select_template');
-                template_selector.change(callback);
-                callback.apply(template_selector.get(0));
+      </div>
+      <script type="text/javascript">
+        Util.on_load(function () {
+          var callback          = Util.domUpdatingCallback(<%== scope[:name_body_map].to_json %>, jQuery('#used_params'), function () {
+            return this.value;
+          });
+          var template_selector = jQuery('#select_template');
+          template_selector.change(callback);
+          callback.apply(template_selector.get(0));
 
-                new ViewTemplate("<%= config_view_templates_show_path(:name => "__template_name__") %>").addListener('a.view_template_link');
+          new ViewTemplate("<%= config_view_templates_show_path(:name => "__template_name__") %>").addListener('a.view_template_link');
 
-            });
-        </script>
-    <% end %>
+        });
+      </script>
+  <% end %>
 </div>

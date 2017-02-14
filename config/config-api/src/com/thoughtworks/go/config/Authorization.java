@@ -39,8 +39,12 @@ public class Authorization implements Validatable, ParamsAttributeAware, ConfigO
     @ConfigSubtag
     private AdminsConfig adminsConfig = new AdminsConfig();
 
+    @ConfigAttribute(value = "allGroupAdminsAreViewers")
+    private boolean allowGroupAdmins = true;
+
     private final ConfigErrors configErrors = new ConfigErrors();
     public static final String NAME = "name";
+    public static final String ALLOW_GROUP_ADMINS="allowGroupAdmins";
     public static final String PRIVILEGES = "privileges";
     public static final String VALUE = "value";
     public static final String PRIVILEGE_TYPE = "privilege_type";
@@ -170,12 +174,28 @@ public class Authorization implements Validatable, ParamsAttributeAware, ConfigO
         return adminsConfig.isAdmin(new AdminUser(userName), memberRoles);
     }
 
+    public boolean isViewUser(final CaseInsensitiveString username, List<Role> memberRoles) {
+        return viewConfig.isAdmin(new AdminUser(username), memberRoles);
+    }
+
+    public boolean hasAdminOrViewPermissions(final CaseInsensitiveString userName, List<Role> memberRoles) {
+        return isUserAnAdmin(userName, memberRoles) || isViewUser(userName, memberRoles);
+    }
+
     public AdminsConfig getAdminsConfig() {
         return adminsConfig;
     }
 
     public void setAdminsConfig(AdminsConfig adminsConfig) {
         this.adminsConfig = adminsConfig;
+    }
+
+    public void setAllowGroupAdmins(boolean allowGroupAdmins) {
+        this.allowGroupAdmins = allowGroupAdmins;
+    }
+
+    public boolean isAllowGroupAdmins() {
+        return allowGroupAdmins;
     }
 
     public List<PrivilegeType> privilagesOfRole(final CaseInsensitiveString roleName){
@@ -246,6 +266,9 @@ public class Authorization implements Validatable, ParamsAttributeAware, ConfigO
         if (viewConfig != null ? !viewConfig.equals(that.viewConfig) : that.viewConfig != null) {
             return false;
         }
+        if (allowGroupAdmins != that.allowGroupAdmins) {
+            return false;
+        }
 
         return true;
     }
@@ -255,6 +278,7 @@ public class Authorization implements Validatable, ParamsAttributeAware, ConfigO
         int result = viewConfig != null ? viewConfig.hashCode() : 0;
         result = 31 * result + (operationConfig != null ? operationConfig.hashCode() : 0);
         result = 31 * result + (adminsConfig != null ? adminsConfig.hashCode() : 0);
+        result = 31 * result + (allowGroupAdmins ? 1 : 0);
         return result;
     }
 
@@ -360,7 +384,7 @@ public class Authorization implements Validatable, ParamsAttributeAware, ConfigO
     }
 
     public String toString() {
-        return String.format("Authorization [view: %s] [operate: %s] [admins: %s]", viewConfig, operationConfig, adminsConfig);
+        return String.format("Authorization [view: %s] [operate: %s] [admins: %s] [allowGroupAdmins: %s]", viewConfig, operationConfig, adminsConfig, allowGroupAdmins);
     }
 
     private void addPrivilegesForView(ArrayList<PresentationElement> list, final AdminsConfig privilegesCollection, final PrivilegeType privilegeType, final Class<? extends Admin> allowOnly,

@@ -22,7 +22,7 @@ import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
-import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import org.junit.Before;
@@ -43,7 +43,7 @@ public class UpdateTemplateConfigCommandTest {
     private EntityHashingService entityHashingService;
 
     @Mock
-    private GoConfigService goConfigService;
+    private SecurityService securityService;
 
     private LocalizedOperationResult result;
     private Username currentUser;
@@ -70,7 +70,7 @@ public class UpdateTemplateConfigCommandTest {
         PipelineTemplateConfig updatedTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage2"));
         cruiseConfig.addTemplate(pipelineTemplateConfig);
 
-        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(updatedTemplateConfig, currentUser, goConfigService, result, "md5", entityHashingService);
+        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(updatedTemplateConfig, currentUser, securityService, result, "md5", entityHashingService);
         assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(true));
         command.update(cruiseConfig);
         assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(false));
@@ -85,7 +85,7 @@ public class UpdateTemplateConfigCommandTest {
 
         cruiseConfig.addTemplate(pipelineTemplateConfig);
 
-        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(updatedTemplateConfig, currentUser, goConfigService, result, "md5", entityHashingService);
+        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(updatedTemplateConfig, currentUser, securityService, result, "md5", entityHashingService);
         assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(true));
         command.update(cruiseConfig);
         assertThat(command.isValid(cruiseConfig), is(true));
@@ -103,7 +103,7 @@ public class UpdateTemplateConfigCommandTest {
         JobConfig jobConfig = updatedTemplateConfig.findBy(new CaseInsensitiveString("stage")).jobConfigByConfigName(new CaseInsensitiveString("job"));
         jobConfig.setElasticProfileId("invalidElasticProfileId");
 
-        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(updatedTemplateConfig, currentUser, goConfigService, result, "md5", entityHashingService);
+        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(updatedTemplateConfig, currentUser, securityService, result, "md5", entityHashingService);
         assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(true));
         command.update(cruiseConfig);
         MagicalGoConfigXmlLoader.preprocess(cruiseConfig);
@@ -115,7 +115,7 @@ public class UpdateTemplateConfigCommandTest {
 
     @Test
     public void shouldThrowAnExceptionIfTemplateConfigNotFound() throws Exception {
-        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(pipelineTemplateConfig, currentUser, goConfigService, result, "md5", entityHashingService);
+        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result, "md5", entityHashingService);
 
         thrown.expectMessage("The template with name 'template' is not found.");
         command.update(cruiseConfig);
@@ -126,7 +126,7 @@ public class UpdateTemplateConfigCommandTest {
         PipelineTemplateConfig updatedTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage2"));;
         cruiseConfig.addTemplate(pipelineTemplateConfig);
 
-        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(updatedTemplateConfig, currentUser, goConfigService, result, "md5", entityHashingService);
+        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(updatedTemplateConfig, currentUser, securityService, result, "md5", entityHashingService);
         command.update(cruiseConfig);
         assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(false));
         assertThat(cruiseConfig.getTemplates().contains(updatedTemplateConfig), is(true));
@@ -135,9 +135,12 @@ public class UpdateTemplateConfigCommandTest {
 
     @Test
     public void shouldNotContinueWithConfigSaveIfUserIsUnauthorized() {
-        when(goConfigService.isAuthorizedToEditTemplate("template", currentUser)).thenReturn(false);
+        PipelineTemplateConfig oldTemplate = new PipelineTemplateConfig(new CaseInsensitiveString("template"), StageConfigMother.manualStage("foo"));
+        cruiseConfig.addTemplate(oldTemplate);
+        when(entityHashingService.md5ForEntity(oldTemplate)).thenReturn("md5");
+        when(securityService.isAuthorizedToEditTemplate("template", currentUser)).thenReturn(false);
 
-        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(pipelineTemplateConfig, currentUser, goConfigService, result, "md5", entityHashingService);
+        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result, "md5", entityHashingService);
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result.toString(), containsString("UNAUTHORIZED_TO_EDIT"));
@@ -146,10 +149,10 @@ public class UpdateTemplateConfigCommandTest {
     @Test
     public void shouldContinueWithConfigSaveifUserIsAuthorized() {
         cruiseConfig.addTemplate(pipelineTemplateConfig);
-        when(goConfigService.isAuthorizedToEditTemplate("template", currentUser)).thenReturn(true);
+        when(securityService.isAuthorizedToEditTemplate("template", currentUser)).thenReturn(true);
         when(entityHashingService.md5ForEntity(pipelineTemplateConfig)).thenReturn("md5");
 
-        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(pipelineTemplateConfig, currentUser, goConfigService, result, "md5", entityHashingService);
+        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result, "md5", entityHashingService);
 
         assertThat(command.canContinue(cruiseConfig), is(true));
     }
@@ -157,10 +160,9 @@ public class UpdateTemplateConfigCommandTest {
     @Test
     public void shouldNotContinueWithConfigSaveIfRequestIsNotFresh() {
         cruiseConfig.addTemplate(pipelineTemplateConfig);
-        when(goConfigService.isAuthorizedToEditTemplate("template", currentUser)).thenReturn(true);
         when(entityHashingService.md5ForEntity(pipelineTemplateConfig)).thenReturn("another-md5");
 
-        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(pipelineTemplateConfig, currentUser, goConfigService, result, "md5", entityHashingService);
+        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result, "md5", entityHashingService);
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result.toString(), containsString("STALE_RESOURCE_CONFIG"));
@@ -168,9 +170,7 @@ public class UpdateTemplateConfigCommandTest {
 
     @Test
     public void shouldNotContinueWithConfigSaveIfObjectIsNotFound() {
-        when(goConfigService.isAuthorizedToEditTemplate("template", currentUser)).thenReturn(true);
-
-        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(pipelineTemplateConfig, currentUser, goConfigService, result, "md5", entityHashingService);
+        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result, "md5", entityHashingService);
 
         thrown.expectMessage("The template with name 'template' is not found.");
         command.canContinue(cruiseConfig);

@@ -139,6 +139,36 @@ public class PipelineTemplateConfigTest {
     }
 
     @Test
+    public void shouldValidateRoleNamesInTemplateAdminAuthorization() {
+        BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
+        ServerConfig serverConfig = new ServerConfig(new SecurityConfig(null, null, false, new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))), null);
+        cruiseConfig.setServerConfig(serverConfig);
+        GoConfigMother.enableSecurityWithPasswordFile(cruiseConfig);
+        RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("non-existent-role"), new RoleUser("non-existent-user"));
+        PipelineTemplateConfig template = new PipelineTemplateConfig(new CaseInsensitiveString("template"), new Authorization(new AdminsConfig(new AdminRole(roleConfig))), StageConfigMother.manualStage("stage2"),
+                StageConfigMother.manualStage("stage"));
+
+        template.validate(ConfigSaveValidationContext.forChain(cruiseConfig));
+
+        assertThat(template.getAllErrors().get(0).getAllOn("name"), is(Arrays.asList("Role \"non-existent-role\" does not exist.")));
+    }
+
+    @Test
+    public void shouldValidateRoleNamesInTemplateViewAuthorization() {
+        BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
+        ServerConfig serverConfig = new ServerConfig(new SecurityConfig(null, null, false, new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))), null);
+        cruiseConfig.setServerConfig(serverConfig);
+        GoConfigMother.enableSecurityWithPasswordFile(cruiseConfig);
+        RoleConfig roleConfig = new RoleConfig(new CaseInsensitiveString("non-existent-role"), new RoleUser("non-existent-user"));
+        PipelineTemplateConfig template = new PipelineTemplateConfig(new CaseInsensitiveString("template"), new Authorization(new ViewConfig(new AdminRole(roleConfig))), StageConfigMother.manualStage("stage2"),
+                StageConfigMother.manualStage("stage"));
+
+        template.validate(ConfigSaveValidationContext.forChain(cruiseConfig));
+
+        assertThat(template.getAllErrors().get(0).getAllOn("name"), is(Arrays.asList("Role \"non-existent-role\" does not exist.")));
+    }
+
+    @Test
     public void shouldUnderstandUsedParams() {
         PipelineTemplateConfig template = PipelineTemplateConfigMother.createTemplateWithParams("template-name", "foo", "bar", "baz");
         ParamsConfig params = template.referredParams();

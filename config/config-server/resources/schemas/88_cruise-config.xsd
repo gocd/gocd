@@ -77,7 +77,7 @@
                     </xsd:unique>
                 </xsd:element>
             </xsd:sequence>
-            <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="89"/>
+            <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="88"/>
         </xsd:complexType>
         <xsd:unique name="uniquePipelines">
             <xsd:selector xpath="pipelines"/>
@@ -696,7 +696,7 @@
             <xsd:element minOccurs="1" maxOccurs="unbounded" name="pipeline">
                 <xsd:complexType>
                     <xsd:sequence>
-                        <xsd:element minOccurs="0" maxOccurs="1" name="authorization" type="viewAdminOnlyAuthorizationType"/>
+                        <xsd:element minOccurs="0" maxOccurs="1" name="authorization" type="adminOnlyAuthorizationType"/>
                         <xsd:element minOccurs="1" maxOccurs="unbounded" name="stage" type="stageType" />
                     </xsd:sequence>
                     <xsd:attribute name="name" type="nameType"/>
@@ -704,12 +704,10 @@
             </xsd:element>
         </xsd:sequence>
     </xsd:complexType>
-    <xsd:complexType name="viewAdminOnlyAuthorizationType">
+    <xsd:complexType name="adminOnlyAuthorizationType">
         <xsd:all>
-            <xsd:element name="view" type="authorizedUserListType" minOccurs="0" maxOccurs="1" />
             <xsd:element name="admins" type="adminType" minOccurs="0" maxOccurs="1"/>
         </xsd:all>
-        <xsd:attribute name="allGroupAdminsAreViewers" type="xsd:boolean"/>
     </xsd:complexType>
     <xsd:complexType name="environmentsType">
         <xsd:sequence>

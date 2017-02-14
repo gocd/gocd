@@ -461,6 +461,35 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
+    public boolean canViewAndEditTemplates(CaseInsensitiveString username) {
+        return isAdministrator(username.toString()) || getTemplates().canViewAndEditTemplate(username, rolesForUser(username));
+    }
+
+    @Override
+    public boolean isAuthorizedToEditTemplate(String templateName, CaseInsensitiveString username) {
+        PipelineTemplateConfig template = getTemplateByName(new CaseInsensitiveString(templateName));
+        return isAdministrator(username.toString()) || getTemplates().canUserEditTemplate(template, username, rolesForUser(username));
+    }
+
+    @Override
+    public boolean isAuthorizedToViewTemplate(String templateName, CaseInsensitiveString username) {
+        if (isAuthorizedToEditTemplate(templateName, username)) {
+            return true;
+        }
+        PipelineTemplateConfig template = getTemplateByName(new CaseInsensitiveString(templateName));
+        return getTemplates().hasViewAccessToTemplate(template, username, rolesForUser(username), isGroupAdministrator(username));
+    }
+
+    @Override
+    public boolean isAuthorizedToViewTemplates(CaseInsensitiveString username) {
+        return  canViewAndEditTemplates(username) || getTemplates().canUserViewTemplates(username, rolesForUser(username), isGroupAdministrator(username));
+    }
+
+    private List<Role> rolesForUser(CaseInsensitiveString username) {
+        return server().security().getRoles().memberRoles(new AdminUser(username));
+    }
+
+    @Override
     public void validate(ValidationContext validationContext) {
         areThereCyclicDependencies();
     }
@@ -1282,7 +1311,7 @@ public class BasicCruiseConfig implements CruiseConfig {
     public Map<CaseInsensitiveString, List<CaseInsensitiveString>> templatesWithPipelinesForUser(String username, List<Role> roles) {
         HashMap<CaseInsensitiveString, List<CaseInsensitiveString>> templateToPipelines = new HashMap<>();
         for (PipelineTemplateConfig template : getTemplates()) {
-            if (isAdministrator(username) || template.getAuthorization().getAdminsConfig().isAdmin(new AdminUser(new CaseInsensitiveString(username)), roles)) {
+            if (isAuthorizedToAccessTemplate(new CaseInsensitiveString(username), roles, template)) {
                 templateToPipelines.put(template.name(), new ArrayList<>());
             }
         }
@@ -1440,6 +1469,10 @@ public class BasicCruiseConfig implements CruiseConfig {
     @Override
     public void setOrigins(ConfigOrigin origins) {
         this.strategy.setOrigins(origins);
+    }
+
+    private boolean isAuthorizedToAccessTemplate(CaseInsensitiveString username, List<Role> roles, PipelineTemplateConfig template) {
+        return isAdministrator(username.toString()) || template.getAuthorization().hasAdminOrViewPermissions(username, roles) || (template.isAllowGroupAdmins() && isGroupAdministrator(username));
     }
 
     private static class FindPipelineGroupAdminstrator implements PipelineGroupVisitor {

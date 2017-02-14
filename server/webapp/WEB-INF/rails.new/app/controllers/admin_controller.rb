@@ -16,6 +16,7 @@
 
 class AdminController < ApplicationController
   include ::Admin::ConfigContextHelper
+  include ::Admin::AuthorizationHelper
 
   layout "admin"
   prepend_before_filter :default_as_empty_list, :only => [:update]

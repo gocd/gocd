@@ -41,6 +41,7 @@ public class AuthorityGranter {
         checkAndAddSuperAdmin(username, authorities);
         checkAndAddGroupAdmin(username, authorities);
         checkAndAddTemplateAdmin(username, authorities);
+        checkAndAddTemplateViewUser(username, authorities);
         authorities.add(GoAuthority.ROLE_USER.asAuthority());
         return authorities.toArray(new GrantedAuthority[authorities.size()]);
     }
@@ -48,6 +49,12 @@ public class AuthorityGranter {
     private void checkAndAddTemplateAdmin(String username, List<GrantedAuthority> authorities) {
         if(securityService.isAuthorizedToViewAndEditTemplates(new Username(new CaseInsensitiveString(username)))) {
             authorities.add(GoAuthority.ROLE_TEMPLATE_SUPERVISOR.asAuthority());
+        }
+    }
+
+    private void checkAndAddTemplateViewUser(String userName, List<GrantedAuthority> authorities) {
+        if (securityService.isAuthorizedToViewTemplates(new Username(userName))) {
+            authorities.add(GoAuthority.ROLE_TEMPLATE_VIEW_USER.asAuthority());
         }
     }
 

@@ -246,6 +246,7 @@
     <entry key="PASSWORD_FILE_SETTINGS">Password File Settings</entry>
     <entry key="PASSWORD_FILE_PATH">Password File Path</entry>
     <entry key="ALLOW_AUTO_LOGIN_MESSAGE">Allow users that exist in LDAP, password file or via plugin to log into GoCD, even if they haven't been explicitly added to GoCD.</entry>
+    <entry key="ALLOW_GROUP_ADMINS">Allow all pipeline group administrators view access to {0} template.</entry>
     <entry key="FAILED_TO_SAVE_THE_SERVER_CONFIGURATION">Failed to save the server configuration. Reason: {0}</entry>
     <entry key="LICENSE_DETAILS">License Details</entry>
     <entry key="VIEW_FAILURE_DETAILS">View failure details</entry>
@@ -511,7 +512,7 @@
     <entry key="UNAUTHORIZED_TO_EDIT">Unauthorized to edit.</entry>
     <entry key="CHANGE_PASSWORD">Change Password</entry>
     <entry key="TEMPLATES">Templates</entry>
-    <entry key="NO_TEMPLATES_DEFINED">There are no templates configured</entry>
+    <entry key="NO_TEMPLATES_DEFINED">There are no templates configured or you are unauthorized to view the existing templates.</entry>
     <entry key="ADD_PIPELINE_TO_GROUP">Create a new pipeline within this group</entry>
     <entry key="MORE_INFORMATION">More Information</entry>
     <entry key="NO_ENVIRONMENTS_CONFIGURED">No environments are displayed because either no environments have been set up or you are not authorized to view the pipelines within any of the environments.</entry>

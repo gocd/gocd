@@ -17,7 +17,7 @@
 <li role="presentation">
     <a href="$req.getContextPath()/admin/pipelines">$l.localize("PIPELINES_POPUP_TITLE")</a>
 </li>
-#if($userHasTemplateAdministratorRights)
+#if($userHasTemplateViewUserRights)
     #parse("shared/_dropdown_template_admin.vm")
 #end
 <li role="presentation">

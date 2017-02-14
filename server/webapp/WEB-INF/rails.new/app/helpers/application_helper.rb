@@ -1,5 +1,5 @@
-##########################GO-LICENSE-START################################
-# Copyright 2016 ThoughtWorks, Inc.
+##########################################################################
+# Copyright 2017 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-##########################GO-LICENSE-END##################################
+##########################################################################
 
 # Methods added to this helper will be available to all templates in the application.
 module ApplicationHelper
@@ -217,12 +217,24 @@ module ApplicationHelper
     security_service.isUserAdmin(current_user)
   end
 
+  def has_admin_permissions_for_pipeline? pipeline_name
+    security_service.hasAdminPermissionsForPipeline(current_user, pipeline_name)
+  end
+
   def is_user_a_template_admin?
     security_service.isAuthorizedToViewAndEditTemplates(current_user)
   end
 
   def is_user_a_template_admin_for_template? template_name
     security_service.isAuthorizedToEditTemplate(template_name, current_user)
+  end
+
+  def is_user_authorized_view_template? template_name
+    security_service.isAuthorizedToViewTemplate(template_name, current_user)
+  end
+
+  def is_user_authorized_to_view_templates?
+    security_service.isAuthorizedToViewTemplates(current_user)
   end
 
   def is_plugins_enabled?

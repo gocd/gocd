@@ -979,14 +979,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return null;
     }
 
-    public boolean isAuthorizedToEditTemplate(String templateName, Username username) {
-        return isUserAdmin(username) || getCurrentConfig().getTemplates().canUserEditTemplate(templateName, username.getUsername(), rolesForUser(username.getUsername()));
-    }
-
-    public boolean isAuthorizedToViewAndEditTemplates(Username username) {
-        return getCurrentConfig().getTemplates().canViewAndEditTemplate(username.getUsername(), rolesForUser(username.getUsername()));
-    }
-
     public void updateUserPipelineSelections(String id, Long userId, CaseInsensitiveString pipelineToAdd) {
         PipelineSelections currentSelections = findOrCreateCurrentPipelineSelectionsFor(id, userId);
         if (!currentSelections.isBlacklist()) {

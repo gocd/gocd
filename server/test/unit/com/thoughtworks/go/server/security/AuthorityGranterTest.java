@@ -49,6 +49,19 @@ public class AuthorityGranterTest {
     }
 
     @Test
+    public void shouldGrantTemplateViewUserRoleToTemplateViewUsers() {
+        String templateViewUser = "templateViewUser";
+        when(securityService.isAuthorizedToViewAndEditTemplates(new Username(new CaseInsensitiveString(templateViewUser)))).thenReturn(false);
+        when(securityService.isAuthorizedToViewTemplates(new Username(templateViewUser))).thenReturn(true);
+
+        GrantedAuthority[] authorities = authorityGranter.authorities(templateViewUser);
+        assertThat(authorities, hasItemInArray(GoAuthority.ROLE_TEMPLATE_VIEW_USER.asAuthority()));
+        assertThat(authorities, not(hasItemInArray(GoAuthority.ROLE_TEMPLATE_SUPERVISOR.asAuthority())));
+        assertThat(authorities, not(hasItemInArray(GoAuthority.ROLE_GROUP_SUPERVISOR.asAuthority())));
+        assertThat(authorities, hasItemInArray(GoAuthority.ROLE_USER.asAuthority()));
+    }
+
+    @Test
     public void shouldGrantGroupSupervisorRoleToPipelineGroupAdmins() {
         when(securityService.isUserGroupAdmin(new Username(new CaseInsensitiveString("group-admin")))).thenReturn(true);
         GrantedAuthority[] authorities = authorityGranter.authorities("group-admin");

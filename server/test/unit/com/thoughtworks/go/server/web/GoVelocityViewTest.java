@@ -107,6 +107,16 @@ public class GoVelocityViewTest {
     }
 
     @Test
+    public void shouldSetTemplateViewUserRightsForTemplateViewUser() throws Exception {
+        securityContext.setAuthentication(
+                new TestingAuthenticationToken("templateView", "badger",
+                        new GrantedAuthority[]{new GrantedAuthorityImpl(GoAuthority.ROLE_TEMPLATE_VIEW_USER.toString())}));
+        request.getSession().setAttribute(SPRING_SECURITY_CONTEXT_KEY, securityContext);
+        view.exposeHelpers(velocityContext, request);
+        assertThat(velocityContext.get(GoVelocityView.TEMPLATE_VIEW_USER), is(true));
+    }
+
+    @Test
     public void shouldSetViewAdministratorRightsIfUserHasAnyLevelOfAdministratorRights() throws Exception {
         securityContext.setAuthentication(new TestingAuthenticationToken("jez", "badger", new GrantedAuthority[]{new GrantedAuthorityImpl(GoAuthority.ROLE_TEMPLATE_SUPERVISOR.toString())}));
         request.getSession().setAttribute(SPRING_SECURITY_CONTEXT_KEY, securityContext);
@@ -119,6 +129,11 @@ public class GoVelocityViewTest {
         assertThat(velocityContext.get(GoVelocityView.VIEW_ADMINISTRATOR_RIGHTS), is(true));
 
         securityContext.setAuthentication(new TestingAuthenticationToken("jez", "badger", new GrantedAuthority[]{new GrantedAuthorityImpl(GoAuthority.ROLE_SUPERVISOR.toString())}));
+        request.getSession().setAttribute(SPRING_SECURITY_CONTEXT_KEY, securityContext);
+        view.exposeHelpers(velocityContext, request);
+        assertThat(velocityContext.get(GoVelocityView.VIEW_ADMINISTRATOR_RIGHTS), is(true));
+
+        securityContext.setAuthentication(new TestingAuthenticationToken("jez", "badger", new GrantedAuthority[]{new GrantedAuthorityImpl(GoAuthority.ROLE_TEMPLATE_VIEW_USER.toString())}));
         request.getSession().setAttribute(SPRING_SECURITY_CONTEXT_KEY, securityContext);
         view.exposeHelpers(velocityContext, request);
         assertThat(velocityContext.get(GoVelocityView.VIEW_ADMINISTRATOR_RIGHTS), is(true));

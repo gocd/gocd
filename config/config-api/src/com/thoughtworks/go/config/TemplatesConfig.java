@@ -100,15 +100,29 @@ public class TemplatesConfig extends BaseCollection<PipelineTemplateConfig> impl
 
     public boolean canViewAndEditTemplate(CaseInsensitiveString username, List<Role> roles) {
         for (PipelineTemplateConfig templateConfig : this) {
-            if (templateConfig.getAuthorization().getAdminsConfig().isAdmin(new AdminUser(username), roles)) {
+            if (canUserEditTemplate(templateConfig, username, roles)) {
                 return true;
             }
         }
         return false;
     }
 
-    public boolean canUserEditTemplate(String templateName, CaseInsensitiveString username, List<Role> roles) {
-        PipelineTemplateConfig templateConfig = this.templateByName(new CaseInsensitiveString(templateName));
-        return templateConfig.getAuthorization().getAdminsConfig().isAdmin(new AdminUser(username), roles);
+    public boolean canUserViewTemplates(CaseInsensitiveString username, List<Role> roles, boolean isGroupAdministrator) {
+        for (PipelineTemplateConfig templateConfig : this) {
+            if (hasViewAccessToTemplate(templateConfig, username, roles, isGroupAdministrator)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean canUserEditTemplate(PipelineTemplateConfig template, CaseInsensitiveString username, List<Role> roles) {
+        return template.getAuthorization().isUserAnAdmin(username, roles);
+    }
+
+    public boolean hasViewAccessToTemplate(PipelineTemplateConfig template, CaseInsensitiveString username, List<Role> roles, boolean isGroupAdministrator) {
+        boolean hasViewAccessToTemplate = template.getAuthorization().isViewUser(username, roles);
+        hasViewAccessToTemplate = hasViewAccessToTemplate || (template.isAllowGroupAdmins() && isGroupAdministrator);
+        return hasViewAccessToTemplate;
     }
 }

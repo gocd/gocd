@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -178,7 +178,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
                 addError("stages", String.format("Cannot add stages to pipeline '%s' which already references template '%s'", this.name(), this.getTemplateName()));
                 addError("template", String.format("Cannot set template '%s' on pipeline '%s' because it already has stages defined", this.getTemplateName(), this.name()));
             }
-            if (templateConfig==null) {
+            if (templateConfig == null) {
                 addError("pipeline", String.format("Pipeline '%s' refers to non-existent template '%s'.", name(), templateName));
             }
         }

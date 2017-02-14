@@ -23,15 +23,19 @@ import com.thoughtworks.go.config.TemplatesConfig;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
+import com.thoughtworks.go.serverhealth.HealthStateType;
 
 import java.util.List;
 
 public class DeleteTemplateConfigCommand extends TemplateConfigCommand {
 
-    public DeleteTemplateConfigCommand(PipelineTemplateConfig templateConfig, LocalizedOperationResult result, GoConfigService goConfigService, Username currentUser) {
-        super(templateConfig, result, currentUser, goConfigService);
+    private SecurityService securityService;
+
+    public DeleteTemplateConfigCommand(PipelineTemplateConfig templateConfig, LocalizedOperationResult result, SecurityService securityService, Username currentUser) {
+        super(templateConfig, result, currentUser);
+        this.securityService = securityService;
     }
 
     @Override
@@ -54,7 +58,15 @@ public class DeleteTemplateConfigCommand extends TemplateConfigCommand {
 
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
-        return super.canContinue(cruiseConfig) && doesTemplateExist(cruiseConfig);
+        return doesTemplateExist(cruiseConfig) && isUserAuthorized();
+    }
+
+    private boolean isUserAuthorized() {
+        if (!securityService.isAuthorizedToEditTemplate(templateConfig.name().toString(), currentUser)) {
+            result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
+            return false;
+        }
+        return true;
     }
 
     private boolean doesTemplateExist(CruiseConfig cruiseConfig) {

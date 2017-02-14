@@ -270,7 +270,6 @@ Go::Application.routes.draw do
   scope :api, as: :apiv2, format: false do
     api_version(:module => 'ApiV2', header: {name: 'Accept', value: 'application/vnd.go.cd.v2+json'}) do
       namespace :admin do
-        resources :pipelines, param: :pipeline_name, only: [:show, :update, :create, :destroy], constraints: {pipeline_name: PIPELINE_NAME_FORMAT}
         resources :templates, param: :template_name, except: [:new, :edit], constraints: {template_name: TEMPLATE_NAME_FORMAT}
         resources :plugin_info, controller: 'plugin_infos', param: :id, only: [:index, :show], constraints: {id: PLUGIN_ID_FORMAT}
       end

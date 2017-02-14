@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module external.linked.project.id=":test-utils:main" external.linked.project.path="$MODULE_DIR$/../../../test-utils" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.group="com.thoughtworks.go" external.system.module.type="sourceSet" external.system.module.version="17.2.0-4564" type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8" inherit-compiler-output="false">
+    <output url="file://$MODULE_DIR$/../../../test-utils/target/classes/main" />
+    <exclude-output />
+    <content url="file://$MODULE_DIR$/../../../test-utils/resources">
+      <sourceFolder url="file://$MODULE_DIR$/../../../test-utils/resources" type="java-resource" />
+    </content>
+    <content url="file://$MODULE_DIR$/../../../test-utils/src">
+      <sourceFolder url="file://$MODULE_DIR$/../../../test-utils/src" isTestSource="false" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="util_main" />
+    <orderEntry type="library" name="Gradle: org.apache.ant:ant:1.9.7" level="project" />
+    <orderEntry type="library" name="Gradle: org.antlr:antlr:3.1.1" level="project" />
+    <orderEntry type="library" name="Gradle: cglib:cglib:2.1_3" level="project" />
+    <orderEntry type="library" name="Gradle: dom4j:dom4j:1.6.1" level="project" />
+    <orderEntry type="library" name="Gradle: org.objenesis:objenesis:1.2" level="project" />
+    <orderEntry type="library" name="Gradle: com.sdicons.jsontools:jsontools-core:1.7" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework:spring-test:3.1.3.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: org.eclipse.jetty:jetty-server:9.2.18.v20160721" level="project" />
+    <orderEntry type="library" name="Gradle: org.eclipse.jetty:jetty-plus:9.2.18.v20160721" level="project" />
+    <orderEntry type="library" name="Gradle: org.eclipse.jetty:jetty-jmx:9.2.18.v20160721" level="project" />
+    <orderEntry type="library" name="Gradle: org.eclipse.jetty:jetty-util:9.2.18.v20160721" level="project" />
+    <orderEntry type="library" name="Gradle: com.sun.mail:mailapi:1.5.6" level="project" />
+    <orderEntry type="library" name="Gradle: com.googlecode:junit-ext:1.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.hamcrest:hamcrest-core:1.3" level="project" />
+    <orderEntry type="library" name="Gradle: org.hamcrest:hamcrest-library:1.3" level="project" />
+    <orderEntry type="library" name="Gradle: org.mockito:mockito-core:1.9.5" level="project" />
+    <orderEntry type="library" name="Gradle: jmock:jmock-cglib:1.1.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.jmock:jmock-junit4:2.4.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.jmock:jmock-legacy:2.4.0" level="project" />
+    <orderEntry type="library" name="Gradle: net.sf.opencsv:opencsv:1.8" level="project" />
+    <orderEntry type="library" name="Gradle: ognl:ognl:2.6.9" level="project" />
+    <orderEntry type="library" name="Gradle: dnsjava:dnsjava:1.2.3" level="project" />
+    <orderEntry type="library" name="Gradle: org.mozilla:rhino:1.7.7" level="project" />
+    <orderEntry type="library" name="Gradle: com.springsource:org.objenesis:1.0.0" level="project" />
+    <orderEntry type="library" name="Gradle: com.bea:stax.impl:1.2.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.dbunit:dbunit:2.5.1" level="project" />
+    <orderEntry type="library" name="Gradle: org.eclipse.birt.runtime.3_7_1:org.mozilla.javascript:1.7.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.mina:mina-core:2.0.0" level="project" />
+    <orderEntry type="module" module-name="base_main" />
+    <orderEntry type="library" name="Gradle: commons-collections:commons-collections:3.2.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework:spring-context:3.1.3.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework:spring-webmvc:3.1.3.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: javax.servlet:javax.servlet-api:3.1.0" level="project" />
+    <orderEntry type="library" name="Gradle: com.google.code.gson:gson:2.3.1" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.ant:ant-launcher:1.9.7" level="project" />
+    <orderEntry type="library" name="Gradle: org.antlr:stringtemplate:3.2" level="project" />
+    <orderEntry type="library" name="Gradle: antlr:antlr:2.7.7" level="project" />
+    <orderEntry type="library" name="Gradle: asm:asm:1.5.3" level="project" />
+    <orderEntry type="library" name="Gradle: xml-apis:xml-apis:1.0.b2" level="project" />
+    <orderEntry type="library" name="Gradle: org.eclipse.jetty:jetty-http:9.2.18.v20160721" level="project" />
+    <orderEntry type="library" name="Gradle: org.eclipse.jetty:jetty-io:9.2.18.v20160721" level="project" />
+    <orderEntry type="library" name="Gradle: org.eclipse.jetty:jetty-webapp:9.2.18.v20160721" level="project" />
+    <orderEntry type="library" name="Gradle: org.eclipse.jetty:jetty-jndi:9.2.18.v20160721" level="project" />
+    <orderEntry type="library" name="Gradle: jmock:jmock:1.1.0" level="project" />
+    <orderEntry type="library" name="Gradle: cglib:cglib-full:2.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.jmock:jmock:2.4.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.slf4j:slf4j-api:1.7.12" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.poi:poi-ooxml:3.11" level="project" />
+    <orderEntry type="library" name="Gradle: commons-io:commons-io:2.5" level="project" />
+    <orderEntry type="library" name="Gradle: commons-lang:commons-lang:2.6" level="project" />
+    <orderEntry type="library" name="Gradle: commons-codec:commons-codec:1.10" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.httpcomponents:httpclient:4.5.2" level="project" />
+    <orderEntry type="library" name="Gradle: joda-time:joda-time:2.3" level="project" />
+    <orderEntry type="library" name="Gradle: commons-logging:commons-logging:1.2" level="project" />
+    <orderEntry type="library" name="Gradle: log4j:log4j:1.2.17" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework:spring-aop:3.1.3.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework:spring-beans:3.1.3.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework:spring-core:3.1.3.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework:spring-expression:3.1.3.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework:spring-asm:3.1.3.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework:spring-context-support:3.1.3.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework:spring-web:3.1.3.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: org.eclipse.jetty:jetty-xml:9.2.18.v20160721" level="project" />
+    <orderEntry type="library" name="Gradle: org.eclipse.jetty:jetty-servlet:9.2.18.v20160721" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.poi:poi:3.11" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.poi:poi-ooxml-schemas:3.11" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.httpcomponents:httpcore:4.4.4" level="project" />
+    <orderEntry type="library" name="Gradle: aopalliance:aopalliance:1.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.eclipse.jetty:jetty-security:9.2.18.v20160721" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.xmlbeans:xmlbeans:2.6.0" level="project" />
+    <orderEntry type="library" name="Gradle: stax:stax-api:1.0.1" level="project" />
+    <orderEntry type="library" name="Gradle: junit:junit:4.12" level="project" />
+  </component>
+</module>

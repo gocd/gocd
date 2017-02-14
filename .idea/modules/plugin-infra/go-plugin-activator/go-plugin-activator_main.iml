@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module external.linked.project.id=":go-plugin-activator:main" external.linked.project.path="$MODULE_DIR$/../../../../plugin-infra/go-plugin-activator" external.root.project.path="$MODULE_DIR$/../../../.." external.system.id="GRADLE" external.system.module.group="com.thoughtworks.go" external.system.module.type="sourceSet" external.system.module.version="17.2.0-4564" type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8" inherit-compiler-output="false">
+    <output url="file://$MODULE_DIR$/../../../../plugin-infra/go-plugin-activator/target/classes/main" />
+    <exclude-output />
+    <content url="file://$MODULE_DIR$/../../../../plugin-infra/go-plugin-activator/resources">
+      <sourceFolder url="file://$MODULE_DIR$/../../../../plugin-infra/go-plugin-activator/resources" type="java-resource" />
+    </content>
+    <content url="file://$MODULE_DIR$/../../../../plugin-infra/go-plugin-activator/src">
+      <sourceFolder url="file://$MODULE_DIR$/../../../../plugin-infra/go-plugin-activator/src" isTestSource="false" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="go-plugin-api_main" />
+    <orderEntry type="library" name="Gradle: org.apache.felix:org.apache.felix.framework:4.2.1" level="project" />
+    <orderEntry type="module" module-name="go-plugin-api-internal_main" />
+  </component>
+</module>

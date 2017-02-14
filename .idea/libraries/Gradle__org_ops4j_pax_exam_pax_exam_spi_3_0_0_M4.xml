@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.ops4j.pax.exam:pax-exam-spi:3.0.0.M4">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.ops4j.pax.exam/pax-exam-spi/3.0.0.M4/ac6e51113ce1bbb546df0723641bbd2844f1896f/pax-exam-spi-3.0.0.M4.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.ops4j.pax.exam/pax-exam-spi/3.0.0.M4/19a82d40edaa78a4c22727839c4a663094d838f7/pax-exam-spi-3.0.0.M4-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

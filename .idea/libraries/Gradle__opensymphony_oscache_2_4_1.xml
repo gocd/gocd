@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: opensymphony:oscache:2.4.1">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/opensymphony/oscache/2.4.1/a65e13a27a470b83d6492474f65369c0e75bb5a/oscache-2.4.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/opensymphony/oscache/2.4.1/2b51da431af5ea479c72b33fd05e50a8df91c91/oscache-2.4.1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

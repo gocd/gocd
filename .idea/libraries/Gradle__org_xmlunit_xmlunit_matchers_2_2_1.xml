@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.xmlunit:xmlunit-matchers:2.2.1">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.xmlunit/xmlunit-matchers/2.2.1/26c2afc03381d88ffa32ef2351c69e8ae90c3a8c/xmlunit-matchers-2.2.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.xmlunit/xmlunit-matchers/2.2.1/f8bc0b06eeca5b27712ae28dba6352ccf58a5cde/xmlunit-matchers-2.2.1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: com.sun.mail:mailapi:1.5.6">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.sun.mail/mailapi/1.5.6/8fe524d88c28362b50052200c28149bc8f1f45e4/mailapi-1.5.6.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.sun.mail/mailapi/1.5.6/e4d095d4d6e7c446604ba08637214d9e6f9b09df/mailapi-1.5.6-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

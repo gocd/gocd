@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.tuckey:urlrewritefilter:3.2.0">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.tuckey/urlrewritefilter/3.2.0/e53a85b462f4dcc03c6b431e0228466a2c2b3d41/urlrewritefilter-3.2.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.tuckey/urlrewritefilter/3.2.0/a516e0afa7ffdf2ee2a5b3ea9f96a54086768da1/urlrewritefilter-3.2.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

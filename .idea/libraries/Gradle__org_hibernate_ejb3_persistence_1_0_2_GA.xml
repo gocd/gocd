@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: org.hibernate:ejb3-persistence:1.0.2.GA">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.hibernate/ejb3-persistence/1.0.2.GA/be6483b6ed60a15588f54f91c25a09c745df0760/ejb3-persistence-1.0.2.GA.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.hibernate/ejb3-persistence/1.0.2.GA/653e73df771a0c38dbed3e6081c0fce7900a0a72/ejb3-persistence-1.0.2.GA-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

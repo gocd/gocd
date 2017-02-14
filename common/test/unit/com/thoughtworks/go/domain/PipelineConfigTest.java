@@ -305,7 +305,7 @@ public class PipelineConfigTest {
     }
 
     @Test
-    public void shouldSupportSpecialCharactors() {
+    public void shouldSupportSpecialCharacters() {
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("cruise"), new MaterialConfigs());
         pipelineConfig.setLabelTemplate("pipeline-${COUN_T}-${my-material}${h.i}${**}");
 

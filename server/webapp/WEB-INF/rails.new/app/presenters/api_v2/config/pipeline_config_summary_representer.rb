@@ -20,7 +20,7 @@ module ApiV2
       alias_method :pipeline, :represented
 
       link :self do |opts|
-        opts[:url_builder].apiv2_admin_pipeline_url(pipeline.getName())
+        opts[:url_builder].apiv3_admin_pipeline_url(pipeline.getName())
       end
 
       link :doc do |opts|
@@ -28,7 +28,7 @@ module ApiV2
       end
 
       link :find do |opts|
-        opts[:url_builder].apiv2_admin_pipeline_url(pipeline_name: '__pipeline_name__').gsub(/__pipeline_name__/, ':pipeline_name')
+        opts[:url_builder].apiv3_admin_pipeline_url(pipeline_name: '__pipeline_name__').gsub(/__pipeline_name__/, ':pipeline_name')
       end
 
       property :name, case_insensitive_string: true

@@ -2634,7 +2634,6 @@ button.check_connection + .connection_test_message pre {
   }
 
   > span:after {
-    animation:        move 2s linear infinite;
     content:          "";
     position:         absolute;
     top:              0;
@@ -2653,7 +2652,6 @@ button.check_connection + .connection_test_message pre {
                       );
     z-index:          1;
     background-size:  50px 50px;
-    animation:        move 2s linear infinite;
     border-radius:    20px 8px 8px 20px;
     overflow:         hidden;
   }

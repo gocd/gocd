@@ -298,7 +298,6 @@ input.new_resource {
  * Pipeline Container: contains groups of pipelines, like Pipeline Groups, Environments, etc.
  */
 #pipeline_groups_container {
-    margin-top: 50px;
     clear: both;
 }
 
@@ -428,7 +427,6 @@ input.compare_pipeline_input.ac_loading {
 }
 
 .pipeline_flow {
-    margin-top: 50px;
     padding-bottom: 30px;
 }
 
@@ -665,7 +663,6 @@ span.contextual_help.stage_approval{
 }
 
 .environments {
-    margin-top: 25px;
     clear: both;
 }
 

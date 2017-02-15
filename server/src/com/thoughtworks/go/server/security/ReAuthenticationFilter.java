@@ -43,12 +43,13 @@ public class ReAuthenticationFilter extends SpringSecurityFilter {
     protected void doFilterHttp(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
+
         if (!systemEnvironment.isReAuthenticationEnabled() || (authentication == null)) {
             chain.doFilter(request, response);
             return;
         }
 
-        synchronized (request.getRequestedSessionId().intern()) {
+        synchronized (request.getSession().getId().intern()) {
             Long lastAuthenticationTime = (Long) request.getSession().getAttribute(LAST_REAUTHENICATION_CHECK_TIME);
             if (lastAuthenticationTime == null) {
                 request.getSession().setAttribute(LAST_REAUTHENICATION_CHECK_TIME, timeProvider.currentTimeMillis());

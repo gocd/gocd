@@ -68,7 +68,7 @@ public class ReAuthenticationFilterTest {
         filter = new ReAuthenticationFilter(systemEnvironment, timeProvider);
 
         stub(request.getSession()).toReturn(session);
-        stub(request.getRequestedSessionId()).toReturn("session_id");
+        stub(session.getId()).toReturn("session_id");
     }
 
     @Test

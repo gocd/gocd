@@ -41,6 +41,7 @@ import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
+import com.thoughtworks.go.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -192,6 +193,8 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
             pipelineInstanceModel.setPipelineAfter(pipelineTimeline.runAfter(pipelineInstanceModel.getId(), pipelineName));
             pipelineInstanceModel.setPipelineBefore(pipelineTimeline.runBefore(pipelineInstanceModel.getId(), pipelineName));
         }
+        if(!StringUtil.isBlank(pipelineConfig.getDisplayName()))
+            pipelineInstanceModel.setDisplayName(pipelineConfig.getDisplayName());
         populatePlaceHolderStages(pipelineInstanceModel);
         populateMaterialRevisionsOnBuildCause(pipelineInstanceModel);
         pipelineInstanceModel.setMaterialConfigs(pipelineConfig.materialConfigs());
@@ -232,11 +235,14 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
     }
 
     public PipelineInstanceModels findPipelineInstances(String pipelineName, String pipelineLabel, int count, String username) {
+        PipelineConfig config = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
         PipelineInstanceModels history = pipelineDao.loadHistory(pipelineName, count, pipelineLabel);
         addPlaceholderStages(history);
-        addEmptyPipelineInstanceIfNeeded(pipelineName, history, new Username(new CaseInsensitiveString(username)), goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName)), false);
+        addEmptyPipelineInstanceIfNeeded(pipelineName, history, new Username(new CaseInsensitiveString(username)), config, false);
         applySecurity(history, pipelineName, username);
         applyCanRun(new Username(new CaseInsensitiveString(username)), history);
+        for(PipelineInstanceModel model : history)
+            model.setDisplayName(config.getDisplayName());
         return history;
     }
 
@@ -284,10 +290,10 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
         }
         PipelineInstanceModels pipelineInstanceModels = null;
         if (triggerMonitor.isAlreadyTriggered(pipelineName)) {
-
+            PipelineConfig config = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
             StageInstanceModels stageHistory = new StageInstanceModels();
             appendFollowingStagesFromConfig(pipelineName, stageHistory);
-            PipelineInstanceModel model = PipelineInstanceModel.createPreparingToSchedule(pipelineName, stageHistory);
+            PipelineInstanceModel model = PipelineInstanceModel.createPreparingToSchedule(pipelineName, config.getDisplayName(), stageHistory);
             model.setCanRun(false);
 
             pipelineInstanceModels = PipelineInstanceModels.createPipelineInstanceModels(model);
@@ -412,6 +418,10 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
             result.notFound(pipelineInstanceNotFound, pipelineInstanceNotFound, HealthStateType.general(HealthStateScope.GLOBAL));
             return null;
         }
+
+        String displayName = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName)).getDisplayName();
+        if(!StringUtil.isBlank(displayName))
+            pipelineInstanceModel.setDisplayName(displayName);
         populatePlaceHolderStages(pipelineInstanceModel);
         populateStageOperatePermission(pipelineInstanceModel, username);
         populateCanRunStatus(username, pipelineInstanceModel);
@@ -457,6 +467,8 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
             for (PipelineInstanceModel activePipeline : activePipelines.findAll(CaseInsensitiveString.str(pipelineName))) {
                 activePipeline.setTrackingTool(pipelineConfig.getTrackingTool());
                 activePipeline.setMingleConfig(pipelineConfig.getMingleConfig());
+                if(!StringUtil.isBlank(pipelineConfig.getDisplayName()))
+                    activePipeline.setDisplayName(pipelineConfig.getDisplayName());
                 populatePlaceHolderStages(activePipeline);
 
                 String groupName = groups.findGroupNameByPipeline(pipelineName);
@@ -557,7 +569,7 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
         if (instanceModel != null) {
             boolean canForce = schedulingCheckerService.canManuallyTrigger(pipelineName, username);
             PipelinePauseInfo pauseInfo = pipelinePauseService.pipelinePauseInfo(pipelineName);
-            PipelineModel pipelineModel = new PipelineModel(pipelineName, canForce, securityService.hasOperatePermissionForPipeline(
+            PipelineModel pipelineModel = new PipelineModel(pipelineName, instanceModel.getDisplayName(), canForce, securityService.hasOperatePermissionForPipeline(
                     username.getUsername(), pipelineName
             ), pauseInfo);
             populateLockStatus(instanceModel.getName(), username, instanceModel);
@@ -623,7 +635,7 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
         List<PipelineGroupModel> groupModels = new ArrayList<>();
 
         public void addPipelineInstance(String groupName, PipelineInstanceModel pipelineInstanceModel, boolean canForce, boolean canOperate, PipelinePauseInfo pipelinePauseInfo) {
-            PipelineModel pipelineModel = pipelineModelForPipelineName(groupName, pipelineInstanceModel.getName(), canForce, canOperate, pipelinePauseInfo);
+            PipelineModel pipelineModel = pipelineModelForPipelineName(groupName, pipelineInstanceModel.getName(), pipelineInstanceModel.getDisplayName(), canForce, canOperate, pipelinePauseInfo);
             pipelineModel.addPipelineInstance(pipelineInstanceModel);
         }
 
@@ -635,9 +647,9 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
             return new ArrayList<>(groupModels);
         }
 
-        private PipelineModel pipelineModelForPipelineName(String groupName, String pipelineName, boolean canForce, boolean canOperate, PipelinePauseInfo pipelinePauseInfo){
+        private PipelineModel pipelineModelForPipelineName(String groupName, String pipelineName, String pipelineDisplayName, boolean canForce, boolean canOperate, PipelinePauseInfo pipelinePauseInfo){
             PipelineGroupModel group = get(groupName);
-            return group.pipelineModelForPipelineName(pipelineName, canForce, canOperate, pipelinePauseInfo);
+            return group.pipelineModelForPipelineName(pipelineName, pipelineDisplayName, canForce, canOperate, pipelinePauseInfo);
         }
 
         private PipelineGroupModel get(String groupName) {

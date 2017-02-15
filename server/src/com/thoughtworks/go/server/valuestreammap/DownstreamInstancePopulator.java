@@ -54,7 +54,7 @@ public class DownstreamInstancePopulator {
 		String revision = currentMaterial.revisions().get(0).getRevisionString();
 		List<Node> downstreamPipelines = currentMaterial.getChildren();
 		for (Node downstreamPipeline : downstreamPipelines) {
-			List<PipelineIdentifier> pipelineIdentifiers = pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial(downstreamPipeline.getName(), currentMaterialInstance, revision);
+			List<PipelineIdentifier> pipelineIdentifiers = pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial(downstreamPipeline.getId(), currentMaterialInstance, revision);
 			addRevisionsToNode(downstreamPipeline, pipelineIdentifiers);
 			populateRevisionsForAllChildrenOf(downstreamPipeline, visitedRevisions);
 		}
@@ -67,7 +67,7 @@ public class DownstreamInstancePopulator {
             }
             visitedRevisions.add(revision);
             for (Node child : node.getChildren()) {
-                List<PipelineIdentifier> pipelineIdentifiers = pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial(child.getName(), ((PipelineRevision) revision).getPipelineIdentifier());
+                List<PipelineIdentifier> pipelineIdentifiers = pipelineDao.getPipelineInstancesTriggeredWithDependencyMaterial(child.getId(), ((PipelineRevision) revision).getPipelineIdentifier());
 				addRevisionsToNode(child, pipelineIdentifiers);
                 populateRevisionsForAllChildrenOf(child, visitedRevisions);
             }

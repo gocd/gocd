@@ -324,6 +324,7 @@
     <entry key="BASIC_SETTINGS">Basic Settings</entry>
     <entry key="PIPELINE_NAME">Pipeline Name</entry>
     <entry key="NEW_PIPELINE_NAME">New Pipeline Name</entry>
+    <entry key="PIPELINE_DISPLAY_NAME">Pipeline Display Name</entry>
     <entry key="LABEL_TEMPLATE">Label Template</entry>
     <entry key="CRON_TIMER_SPECIFICATION">Cron Timer Specification</entry>
     <entry key="PROJECT_MANAGEMENT">Project Management</entry>

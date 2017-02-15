@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
 import com.thoughtworks.go.presentation.pipelinehistory.Environment;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineModel;
@@ -51,7 +52,7 @@ public class EnvironmentService {
     }
 
     void addEnvironmentFor(CaseInsensitiveString environmentName, Username username, ArrayList<Environment> environments) throws NoSuchEnvironmentException {
-        List<CaseInsensitiveString> pipelines = environmentConfigService.pipelinesFor(environmentName);
+        List<PipelineConfig> pipelines = environmentConfigService.pipelinesFor(environmentName);
         if (pipelines.isEmpty()) {
             environments.add(new Environment(CaseInsensitiveString.str(environmentName), new ArrayList<>()));
             return;
@@ -62,10 +63,10 @@ public class EnvironmentService {
         }
     }
 
-    private List<PipelineModel> getPipelinesInstanceForEnvironment(List<CaseInsensitiveString> pipelines, Username username) throws NoSuchEnvironmentException {
-        List<PipelineModel> pipelineList = new ArrayList<>();
-        for (CaseInsensitiveString pipelineName : pipelines) {
-            PipelineModel pipelineModel = pipelineHistoryService.latestPipelineModel(username, CaseInsensitiveString.str(pipelineName));
+    private List<PipelineModel> getPipelinesInstanceForEnvironment(List<PipelineConfig> pipelines, Username username) throws NoSuchEnvironmentException {
+        List<PipelineModel> pipelineList = new ArrayList<PipelineModel>();
+        for (PipelineConfig pipeline : pipelines) {
+            PipelineModel pipelineModel = pipelineHistoryService.latestPipelineModel(username, CaseInsensitiveString.str(pipeline.name()));
             if (pipelineModel != null) {
                 pipelineList.add(pipelineModel);
             }

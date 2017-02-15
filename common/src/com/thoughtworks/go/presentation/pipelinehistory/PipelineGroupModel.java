@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.thoughtworks.go.domain.PipelinePauseInfo;
+import com.thoughtworks.go.util.StringUtil;
 
 /**
  * @understands group level aggregation of active pipelines
@@ -37,7 +38,7 @@ public class PipelineGroupModel {
     }
 
     public void add(PipelineModel pipelineModel) {
-        PipelineModel model = pipelineModelForPipelineName(pipelineModel.getName(), pipelineModel.canForce(), pipelineModel.canOperate(), pipelineModel.getPausedInfo());
+        PipelineModel model = pipelineModelForPipelineName(pipelineModel.getName(), pipelineModel.getDisplayName(), pipelineModel.canForce(), pipelineModel.canOperate(), pipelineModel.getPausedInfo());
         for (PipelineInstanceModel pipelineInstanceModel : pipelineModel.getActivePipelineInstances()) {
             model.addPipelineInstance(pipelineInstanceModel);
         }
@@ -48,8 +49,12 @@ public class PipelineGroupModel {
     }
 
     public PipelineModel pipelineModelForPipelineName(String pipelineName, boolean canForce, boolean canOperate, PipelinePauseInfo pipelinePauseInfo) {
-        if (!containsPipeline(pipelineName)) { pipelineModels.add(new PipelineModel(pipelineName, canForce, canOperate, pipelinePauseInfo)); }
-        return getPipelineModel(pipelineName);
+        return pipelineModelForPipelineName(pipelineName, pipelineName, canForce, canOperate, pipelinePauseInfo);
+    }
+
+    public PipelineModel pipelineModelForPipelineName(String pipelineName, String displayName, boolean canForce, boolean canOperate, PipelinePauseInfo pipelinePauseInfo) {
+        if (!containsPipeline(pipelineName)) { pipelineModels.add(new PipelineModel(pipelineName, displayName, canForce, canOperate, pipelinePauseInfo)); }
+        return getPipelineModel(pipelineName, displayName);
     }
 
     public boolean containsPipeline(String pipelineName) {
@@ -57,8 +62,14 @@ public class PipelineGroupModel {
     }
 
     public PipelineModel getPipelineModel(String pipelineName) {
+        return getPipelineModel(pipelineName, pipelineName);
+    }
+
+    public PipelineModel getPipelineModel(String pipelineName, String displayName) {
         for (PipelineModel pipelineModel : pipelineModels) {
             if (pipelineModel.getName().equalsIgnoreCase(pipelineName)) {
+                if(!StringUtil.isBlank(displayName) && !displayName.equals(pipelineName))
+                    pipelineModel.setDisplayName(displayName);
                 return pipelineModel;
             }
         }

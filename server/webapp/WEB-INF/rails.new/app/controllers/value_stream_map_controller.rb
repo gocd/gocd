@@ -23,6 +23,7 @@ class ValueStreamMapController < ApplicationController
   def show
     begin
     @pipeline = pipeline_service.findPipelineByCounterOrLabel(params[:pipeline_name], params[:pipeline_counter])
+    params[:pipeline_display_name] = go_config_service.pipelineConfigNamed(com.thoughtworks.go.config.CaseInsensitiveString.new (params[:pipeline_name])).getDisplayName()
     rescue
     end
     respond_to do |format|

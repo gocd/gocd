@@ -40,8 +40,13 @@ public class ValueStreamMap {
     private DummyNodeCreation dummyNodeCreation = new DummyNodeCreation();
     private CrossingMinimization crossingMinimization = new CrossingMinimization();
 
-    public ValueStreamMap(String pipeline, PipelineRevision pipelineRevision) {
-        currentPipeline = new PipelineDependencyNode(pipeline, pipeline);
+
+    public ValueStreamMap(String pipelineId, PipelineRevision pipelineRevision) {
+        this(pipelineId, pipelineId, pipelineRevision);
+    }
+
+    public ValueStreamMap(String pipelineId, String pipelineName, PipelineRevision pipelineRevision) {
+        currentPipeline = new PipelineDependencyNode(pipelineId, pipelineName);
         nodeIdToNodeMap.put(currentPipeline.getId(), currentPipeline);
         currentPipeline.addRevision(pipelineRevision);
     }

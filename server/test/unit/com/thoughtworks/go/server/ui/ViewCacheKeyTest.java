@@ -120,7 +120,7 @@ public class ViewCacheKeyTest {
     @Test
     public void shouldGenerateKeyForPipelineModelViewFragmentWithoutSpecialCharactersInPauseCause() {
         PipelinePauseInfo pauseInfo = new PipelinePauseInfo(true, "pause& @Cause #with $special %char &*(){';/.,<>?", "admin");
-        PipelineModel model = new PipelineModel("pipelineName", true, true, pauseInfo).updateAdministrability(true);
+        PipelineModel model = new PipelineModel("pipelineName", "displayName", true, true, pauseInfo).updateAdministrability(true);
         StageInstanceModels stages = new StageInstanceModels();
         stages.add(stageInstance("stageName", 13, JobState.Building, JobResult.Unknown));
         stages.add(new NullStageHistoryItem("stage2", true));

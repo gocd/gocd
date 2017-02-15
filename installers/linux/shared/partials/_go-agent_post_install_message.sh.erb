@@ -1,6 +1,6 @@
 <%
 #########################################################################
-# Copyright 2016 ThoughtWorks, Inc.
+# Copyright 2017 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,5 +16,8 @@
 #########################################################################
 -%>
 
-    # Start the service
-    /etc/init.d/go-server start
+    echo "Installation of GoCD Agent completed."
+    echo "Now please edit /etc/default/go-agent and set GO_SERVER_URL to the url address of your GoCD Server (https://example.com:8154/go)."
+    echo "To ensure full end-to-end transport security between the agent and server"
+    echo "see https://docs.gocd.io/current/installation/ssl_tls/end_to_end_transport_security.html"
+    echo "Once that is done start the GoCD Agent with '/etc/init.d/go-agent start'"

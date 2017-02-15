@@ -1,6 +1,6 @@
 <%
 #########################################################################
-# Copyright 2016 ThoughtWorks, Inc.
+# Copyright 2017 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,4 +16,9 @@
 #########################################################################
 -%>
 
-    invoke-rc.d <%= name %> stop || true
+    rm -rf /var/run/<%= name %>-running-check-from-deb-package
+    if invoke-rc.d <%= name %> status > /dev/null 2>&1; then
+        mkdir -p /var/run/<%= name %>-running-check-from-deb-package
+        touch /var/run/<%= name %>-running-check-from-deb-package/running
+        invoke-rc.d <%= name %> stop || true
+    fi

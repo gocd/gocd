@@ -1,6 +1,6 @@
 <%
 #########################################################################
-# Copyright 2016 ThoughtWorks, Inc.
+# Copyright 2017 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,4 +20,6 @@
     # initialize init script symlinks on first install
     update-rc.d <%= name %> defaults 99
 
-    <%= ERB.new(File.read(File.join(install_scripts_dir, 'shared', 'partials', "_after_install_#{name}.sh.erb")), nil, '-', "_#{SecureRandom.hex}").result(binding) %>
+<% if File.exist?(File.join(install_scripts_dir, 'shared', 'partials', "_#{name}_post_install_message.sh.erb")) -%>
+    <%= ERB.new(File.read(File.join(install_scripts_dir, 'shared', 'partials', "_#{name}_post_install_message.sh.erb")), nil, '-', "_#{SecureRandom.hex}").result(binding) %>
+<% end -%>

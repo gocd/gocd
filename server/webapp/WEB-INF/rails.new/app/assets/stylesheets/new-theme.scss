@@ -783,7 +783,7 @@ ul.entity_title {
 .admin_pause_info_and_controls {
   float:       left;
   margin-top:  7px;
-  min-width:   70%;
+  min-width:   30%;
   margin-left: 0;
 }
 
@@ -2634,7 +2634,6 @@ button.check_connection + .connection_test_message pre {
   }
 
   > span:after {
-    animation:        move 2s linear infinite;
     content:          "";
     position:         absolute;
     top:              0;
@@ -2653,7 +2652,6 @@ button.check_connection + .connection_test_message pre {
                       );
     z-index:          1;
     background-size:  50px 50px;
-    animation:        move 2s linear infinite;
     border-radius:    20px 8px 8px 20px;
     overflow:         hidden;
   }
@@ -2950,7 +2948,7 @@ button.edit-environment {
 }
 
 .content #tab_container div.jobs {
-  width: 215px;
+  width: 225px;
   .wrapped_word {
     font-size: 13px;
   }
@@ -3473,7 +3471,18 @@ form#package_repositories_edit_form {
   }
 }
 
-.edit_icon_disabled, .lock_icon_disabled {
+.change_materials {
+
+  .form_item_block.checkbox_row.material_options {
+    label {
+      margin-top: -3px;
+    }
+  }
+}
+
+.content_wrapper_outer {
+  clear: both;
+}.edit_icon_disabled, .lock_icon_disabled {
   padding-left: 20px !important;
   margin-top:   3px;
   margin-left:  10px;

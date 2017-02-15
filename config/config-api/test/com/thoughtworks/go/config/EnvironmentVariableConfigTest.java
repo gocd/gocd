@@ -251,6 +251,31 @@ public class EnvironmentVariableConfigTest {
     }
 
     @Test
+    public void shouldErrorOutOnValidateWhenCipherTextIsChanged() throws InvalidCipherTextException {
+        String plainText = "secure_value";
+        String cipherText = "cipherText";
+        when(goCipher.encrypt(plainText)).thenReturn(cipherText);
+        when(goCipher.decrypt(cipherText)).thenThrow(new InvalidCipherTextException("pad block corrupted"));
+
+        EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(goCipher, "secure_key", plainText, true);
+        environmentVariableConfig.validate(null);
+        ConfigErrors error = environmentVariableConfig.errors();
+        assertThat(error.isEmpty(), is(false));
+        assertThat(error.on(EnvironmentVariableConfig.VALUE),
+                is("Encrypted value for variable named 'secure_key' is invalid. This usually happens when the cipher text is modified to have an invalid value."));
+    }
+
+    @Test
+     public void shouldErrorOutOnValidateWhenValueAndEncryptedValueAreNull() throws InvalidCipherTextException {
+        EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(goCipher);
+        environmentVariableConfig.setName("env");
+        environmentVariableConfig.validate(null);
+        ConfigErrors error = environmentVariableConfig.errors();
+        assertThat(error.isEmpty(), is(false));
+        assertThat(error.on("value"), is("Either value or encrypted value must be specified for variable 'env'"));
+    }
+
+    @Test
     public void shouldNotErrorOutWhenValidationIsSuccessfulForSecureVariables() throws InvalidCipherTextException {
         String plainText = "secure_value";
         String cipherText = "cipherText";

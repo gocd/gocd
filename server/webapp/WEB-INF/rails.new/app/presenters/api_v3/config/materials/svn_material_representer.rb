@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2016 ThoughtWorks, Inc.
+# Copyright 2017 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,15 +18,10 @@ module ApiV3
   module Config
     module Materials
       class SvnMaterialRepresenter < ScmMaterialRepresenter
-        include ApiV3::Config::Materials::EncryptedPasswordSupport
+        include ApiV3::Config::Materials::EncryptedPasswordSupport #password property is parsed and encrypted in the module
 
         property :check_externals
         property :user_name, as: :username
-        property :password,
-                 skip_render: true,
-                 skip_nil: true,
-                 skip_parse: true
-
         property :encrypted_password, skip_nil: true, skip_parse: true
 
       end

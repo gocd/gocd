@@ -242,8 +242,8 @@ Go::Application.routes.draw do
         namespace :internal do
           post :material_test, controller: :material_test, action: :test, as: :material_test
           controller :package_repository_check_connection do
-            post :repository_check_connection, [action: :repository_check_connection]
-            post :package_check_connection, [action: :package_check_connection]
+            post :repository_check_connection, action: :repository_check_connection
+            post :package_check_connection, action: :package_check_connection
           end
           resources :pipelines, only: [:index]
           resources :resources, only: [:index]

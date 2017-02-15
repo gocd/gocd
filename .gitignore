@@ -142,3 +142,6 @@ tools/jruby
 tools/node_modules/
 tools/npm-debug.log
 plugin-infra/go-plugin-access/config/cipher
+
+build/
+out/

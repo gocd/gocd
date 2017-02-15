@@ -48,17 +48,20 @@
   }
 
   function fixElement(element, options) {
-    var scroll     = $window.scrollTop();
-    var styleAttrs = existingStyleAttrs(element) || createStyleAttrs(element, options);
+    var scroll        = $window.scrollTop();
+    var styleAttrs    = existingStyleAttrs(element) || createStyleAttrs(element, options);
+    var parentElement = element.parent();
 
     if (scroll >= options.requiredScroll && options.top) {
       applyStyle(element, styleAttrs);
+      applyStyle(parentElement, { "padding-top": element.height() });
     } else if (scroll >= options.requiredScroll && options.bottomLimit) {
       applyStyle(element, $.extend({}, styleAttrs, {
         top: options.bottomLimit()
       }));
     } else {
       clearStyles(element);
+      clearStyles(parentElement);
     }
   }
 

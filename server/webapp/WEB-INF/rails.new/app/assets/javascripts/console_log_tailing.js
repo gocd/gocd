@@ -64,8 +64,8 @@
 
         topActionBar.pinOnScroll({
           'z-index':      100,
-          top:            91,
-          requiredScroll: 250
+          top:            90,
+          requiredScroll: 233
         });
 
         bottomActionBar.pinOnScroll({

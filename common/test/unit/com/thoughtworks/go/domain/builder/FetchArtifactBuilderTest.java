@@ -25,11 +25,8 @@ import java.util.zip.Deflater;
 
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.domain.*;
-import com.thoughtworks.go.util.HttpService;
-import com.thoughtworks.go.util.TestFileUtil;
-import com.thoughtworks.go.util.TestingClock;
-import com.thoughtworks.go.util.URLService;
-import com.thoughtworks.go.util.ZipUtil;
+import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -216,6 +213,19 @@ public class FetchArtifactBuilderTest {
         builder.fetch(downloadAction, urlService);
 
         verify(fetchHandler).useArtifactMd5Checksums(artifactMd5Checksums);
+    }
+
+    @Test
+    public void shouldUpdateFileAndChecksumFileHandlersToWriteToOverriddenWorkDirectoryAsAPartOfStartingABuildOnTheAgent() throws Exception {
+        FetchHandler fetchHandler = mock(FetchHandler.class);
+        ChecksumFileHandler checksumFileHandler = mock(ChecksumFileHandler.class);
+        SystemEnvironment sysEnv = mock(SystemEnvironment.class);
+
+        FetchArtifactBuilder builder = getBuilder(null, "src", "dest", fetchHandler, checksumFileHandler);
+        builder.build(null, mock(DefaultGoPublisher.class), null, sysEnv, null);
+
+        verify(fetchHandler).updateDestinationForAgent(sysEnv);
+        verify(checksumFileHandler).updateDestinationForAgent(sysEnv);
     }
 
     private FetchArtifactBuilder getBuilder(JobIdentifier jobLocator, String srcdir, String dest, FetchHandler handler, final ChecksumFileHandler checksumFileHandler) {

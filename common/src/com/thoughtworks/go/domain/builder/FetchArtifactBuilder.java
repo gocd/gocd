@@ -44,6 +44,7 @@ public class FetchArtifactBuilder extends Builder {
     }
 
     public void build(BuildLogElement buildLogElement, DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, SystemEnvironment systemEnvironment, TaskExtension taskExtension) throws CruiseControlException {
+        checksumFileHandler.updateDestinationForAgent(systemEnvironment);
         handler.updateDestinationForAgent(systemEnvironment);
         publisher.fetch(this);
     }

@@ -180,7 +180,7 @@ describe ApiV3::Admin::PipelinesController do
         get_with_api_header :show, :pipeline_name => @pipeline_name
 
         expect(response).to be_ok
-        expected_response = expected_response(pipeline, ApiV3::Config::PipelineConfigRepresenter)
+        expected_response = expected_response(pipeline, ApiV3::Admin::Pipelines::PipelineConfigRepresenter)
         expect(actual_response).to eq(expected_response)
         expect(response.headers['ETag']).to eq("\"#{Digest::MD5.hexdigest(pipeline_md5)}\"")
       end
@@ -289,7 +289,7 @@ describe ApiV3::Admin::PipelinesController do
         put_with_api_header :update, pipeline_name: @pipeline_name, :pipeline => pipeline
 
         expect(response).to be_ok
-        expect(actual_response).to eq(expected_response(@pipeline, ApiV3::Config::PipelineConfigRepresenter))
+        expect(actual_response).to eq(expected_response(@pipeline, ApiV3::Admin::Pipelines::PipelineConfigRepresenter))
       end
 
       it "should not update pipeline config if etag passed does not match the one on server" do
@@ -455,7 +455,7 @@ describe ApiV3::Admin::PipelinesController do
         post_with_api_header :create, :pipeline => pipeline, :group => "new_grp"
 
         expect(response).to be_ok
-        expect(actual_response).to eq(expected_response(@pipeline, ApiV3::Config::PipelineConfigRepresenter))
+        expect(actual_response).to eq(expected_response(@pipeline, ApiV3::Admin::Pipelines::PipelineConfigRepresenter))
       end
 
       it "should create a new pipeline config" do
@@ -468,7 +468,7 @@ describe ApiV3::Admin::PipelinesController do
         post_with_api_header :create, :pipeline => pipeline, :group => "new_grp"
 
         expect(response).to be_ok
-        expect(actual_response).to eq(expected_response(@pipeline, ApiV3::Config::PipelineConfigRepresenter))
+        expect(actual_response).to eq(expected_response(@pipeline, ApiV3::Admin::Pipelines::PipelineConfigRepresenter))
       end
 
       it "should handle server validation errors" do

@@ -58,7 +58,7 @@ module ApiV3
             elsif fragment.nil?
               true
         else
-              raise ApiV3::UnprocessableEntity, "Expected #{name} to contain an object, got a #{fragment.class} instead!"
+              raise UnprocessableEntity, "Expected #{name} to contain an object, got a #{fragment.class} instead!"
         end
           }
         end
@@ -71,7 +71,7 @@ module ApiV3
       end
 
       def error_representer(error_translation_map={}, &blk)
-        self.property :errors, exec_context: :decorator, decorator: ApiV3::Config::ErrorRepresenter, skip_parse: true, skip_render: lambda { |object, options| object.empty? }
+        self.property :errors, exec_context: :decorator, decorator: ApiV3::Shared::ErrorRepresenter, skip_parse: true, skip_render: lambda { |object, options| object.empty? }
         class_attribute :error_translation_map
         self.error_translation_map = block_given? ? blk : error_translation_map
 

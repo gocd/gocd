@@ -32,10 +32,9 @@
   margin:     0 15px;
 }
 
-@media only screen and (min-width: 1600px) {
-  .row.expanded {
-    max-width: 1400px;
-  }
+.row.expanded {
+  max-width: 100%;
+  padding:   0 15px;
 }
 
 .key-value {
@@ -53,6 +52,12 @@
 
 .add-button {
   @include icon-before($type: plus-circle);
+}
+
+.app-footer {
+  .row.expanded {
+    padding: 0;
+  }
 }
 
 //sticky footer
@@ -108,10 +113,10 @@ html, body {
   h1 {
     display:       inline-block;
     margin-bottom: 0;
-    color:       #333;
-    margin-top:  1px;
-    font-size:   18px;
-    font-weight: 600;
+    color:         #333;
+    margin-top:    1px;
+    font-size:     18px;
+    font-weight:   600;
   }
 }
 
@@ -241,11 +246,11 @@ select {
   padding:   0;
   font-size: rem-calc(14px);
   dt {
-    float:     left;
-    min-width: 150px;
-    clear:     left;
-    font-size: rem-calc(13px);
-    font-weight:600;
+    float:       left;
+    min-width:   150px;
+    clear:       left;
+    font-size:   rem-calc(13px);
+    font-weight: 600;
   }
   dd {
     float:        left;

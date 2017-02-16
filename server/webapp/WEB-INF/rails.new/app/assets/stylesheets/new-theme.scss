@@ -48,13 +48,7 @@ ul {
   margin-left:  auto;
   margin-right: auto;
   @include clearfix;
-  @media only screen and (max-width: $max-breakpoint) {
-    max-width: 100%;
-  }
-  @media only screen and (min-width: $max-breakpoint) {
-    max-width: 1400px;
-  }
-
+  max-width:    100%;
 }
 
 .container {
@@ -90,7 +84,7 @@ h4 {
 
 #header {
   background: $header-bg;
-  padding:    0;
+  padding:    0 30px;
   height:     $main-nav-height;
   .header {
     background: $header-bg;
@@ -101,13 +95,7 @@ h4 {
     background: image-url('go_logo.svg') no-repeat 0 0;
     height:     calc(40px / 2);
     width:      60px;
-    margin:     12px 15px 0 18px;
-    @media only screen and (min-width: 1388px) {
-      //margin: 8px 15px 0 0px;
-    }
-    @media only screen and (min-width: $max-breakpoint) {
-      margin: 8px 15px 0 0px;
-    }
+    margin:     12px 15px 0 0px;
   }
 }
 
@@ -442,7 +430,7 @@ h4 {
 }
 
 .content_wrapper_inner {
-  padding: 15px;
+  padding: 15px 30px;
   margin:  0;
 }
 
@@ -477,7 +465,7 @@ h4 {
   border:          0;
   height:          50px !important;
   box-sizing:      border-box;
-  padding:         7px 15px;
+  padding:         7px 30px;
   h1 {
     display: inline-block;
   }
@@ -688,7 +676,7 @@ h1.entity_title {
 }
 
 .pipeline_history_table_container {
-  margin-top:    15px;
+  margin:        15px 30px;
   padding:       20px;
   background:    $go-white;
   box-sizing:    border-box;
@@ -795,7 +783,7 @@ ul.entity_title {
   background: #fff;
   box-shadow: none;
   border:     0;
-  padding:    10px 15px;
+  padding:    10px 30px;
 
   h2.entity_title {
     color:       #333 !important;
@@ -2003,6 +1991,7 @@ button#signin2 {
 #graphic-dialog-input #user_login, #graphic-dialog-input #user_password {
   padding: 5px 10px;
   height:  30px;
+  line-height:18px;
 }
 
 a:link.help, a:visited.help {
@@ -2027,12 +2016,9 @@ a:link.help, a:visited.help {
 .label-filter-group {
   position: absolute;
   top:      7px;
-  right:    10px;
+  right:    30px;
   padding:  0;
   z-index:  $label-filter-group;
-  @media only screen and (min-width: $max-breakpoint) {
-    right: 0;
-  }
 
   .filter-clear-icon {
     top: 11px;
@@ -2063,10 +2049,7 @@ a:link.help, a:visited.help {
 }
 
 #environments #body_content .content_wrapper_inner, #pipelines #body_content .content_wrapper_inner {
-  padding: 20px;
-  @media only screen and (min-width: $max-breakpoint) {
-    padding: 15px 0 !important
-  }
+  padding: 20px 0;
 }
 
 .flash {
@@ -2827,6 +2810,7 @@ pre, code, #admin-holder-for-admin-config-source-xml textarea {
 
 .pagination {
   border: 0;
+  margin: 0 30px;
   .pages {
     border-radius: 3px;
   }
@@ -2846,7 +2830,7 @@ pre, code, #admin-holder-for-admin-config-source-xml textarea {
 }
 
 .my-cruise-rounded-container {
-  margin: 0 15px;
+  margin: 0 30px;
 }
 
 .content_wrapper_inner {
@@ -2886,11 +2870,8 @@ button.edit-environment {
 }
 
 #footer-new-foundation .row.expanded {
-  max-width: 1400px;
-}
-
-#footer-new-foundation .row.expanded {
-  max-width: 1400px;
+  max-width: 100%;
+  padding:   0;
 }
 
 .buildoutput_pre * {
@@ -2913,7 +2894,7 @@ button.edit-environment {
 }
 
 #build-status-panel {
-  padding: 0 15px;
+  padding: 0 30px;
 }
 
 .job_details_content .build_detail_container #tab-content-of-materials .material_revision {
@@ -3482,7 +3463,9 @@ form#package_repositories_edit_form {
 
 .content_wrapper_outer {
   clear: both;
-}.edit_icon_disabled, .lock_icon_disabled {
+}
+
+.edit_icon_disabled, .lock_icon_disabled {
   padding-left: 20px !important;
   margin-top:   3px;
   margin-left:  10px;

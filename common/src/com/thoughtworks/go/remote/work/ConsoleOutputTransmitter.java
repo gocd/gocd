@@ -17,8 +17,7 @@
 package com.thoughtworks.go.remote.work;
 
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.command.StreamConsumer;
-import com.thoughtworks.go.websocket.ConsoleTransmission;
+import com.thoughtworks.go.util.command.TaggedStreamConsumer;
 import org.apache.commons.collections.buffer.CircularFifoBuffer;
 import org.apache.log4j.Logger;
 
@@ -32,10 +31,10 @@ import java.util.concurrent.TimeUnit;
 
 import static java.lang.String.format;
 
-public final class ConsoleOutputTransmitter implements StreamConsumer, Runnable {
+public final class ConsoleOutputTransmitter implements TaggedStreamConsumer, Runnable {
     private static final Logger LOGGER = Logger.getLogger(ConsoleOutputTransmitter.class);
 
-    private CircularFifoBuffer buffer = new CircularFifoBuffer(10 * 1024); // maximum 10k lines
+    private final CircularFifoBuffer buffer = new CircularFifoBuffer(10 * 1024); // maximum 10k lines
     private final ConsoleAppender consoleAppender;
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss.SSS");
     private final ScheduledThreadPoolExecutor executor;
@@ -53,8 +52,16 @@ public final class ConsoleOutputTransmitter implements StreamConsumer, Runnable 
     }
 
     public void consumeLine(String line) {
+        taggedConsumeLine(NONE, line);
+    }
+
+    @Override
+    public void taggedConsumeLine(String tag, String line) {
         synchronized (buffer) {
-            buffer.add(format("%s %s", dateFormat.format(new Date()), line));
+            String date = dateFormat.format(new Date());
+            String prepend = format("%s|%s", tag, date);
+            String multilineJoin = "\n" + prepend + " ";
+            buffer.add(format("%s %s", prepend, line).replaceAll("\n", multilineJoin));
         }
     }
 
@@ -86,10 +93,9 @@ public final class ConsoleOutputTransmitter implements StreamConsumer, Runnable 
             consoleAppender.append(result.toString());
         } catch (IOException e) {
             LOGGER.warn("Could not send console output to server", e);
-            //recreate buffer
             synchronized (buffer) {
                 sent.addAll(buffer);
-                buffer = new CircularFifoBuffer(10 * 1024);
+                buffer.clear();
                 buffer.addAll(sent);
             }
         }
@@ -99,5 +105,4 @@ public final class ConsoleOutputTransmitter implements StreamConsumer, Runnable 
         flushToServer();
         executor.shutdown();
     }
-
 }

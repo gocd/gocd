@@ -15,12 +15,12 @@
  * ************************GO-LICENSE-END***********************************/
 package com.thoughtworks.go.buildsession;
 
-import com.thoughtworks.go.util.command.StreamConsumer;
+import com.thoughtworks.go.util.command.TaggedStreamConsumer;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 
-class ConsoleCapture implements StreamConsumer {
+class ConsoleCapture implements TaggedStreamConsumer {
     private final ArrayList<String> captured;
 
     public ConsoleCapture() {
@@ -29,7 +29,12 @@ class ConsoleCapture implements StreamConsumer {
 
     @Override
     public void consumeLine(String line) {
-        captured.add(line);
+        taggedConsumeLine(OUT, line);
+    }
+
+    @Override
+    public void taggedConsumeLine(String tag, String line) {
+        captured.add(String.format("%s|%s", tag, line));
     }
 
     public String captured() {

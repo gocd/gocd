@@ -16,13 +16,11 @@
 
 package com.thoughtworks.go.work;
 
-import java.io.File;
-
-import com.thoughtworks.go.domain.builder.FetchArtifactBuilder;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.domain.JobState;
 import com.thoughtworks.go.domain.Property;
+import com.thoughtworks.go.domain.builder.FetchArtifactBuilder;
 import com.thoughtworks.go.publishers.GoArtifactsManipulator;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
@@ -33,6 +31,8 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.SystemUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import java.io.File;
 
 import static java.lang.String.format;
 
@@ -128,17 +128,22 @@ public class DefaultGoPublisher implements GoPublisher {
         if (LOG.isDebugEnabled()) {
             LOG.debug(message);
         }
-        consumeLine(message);
+        taggedConsumeLine(NOTICE, message);
     }
 
     @Override
     public void consumeLineWithPrefix(String message) {
-        consumeLine(String.format("[%s] %s", GoConstants.PRODUCT_NAME, message));
+        taggedConsumeLine(NOTICE, String.format("[%s] %s", GoConstants.PRODUCT_NAME, message));
     }
 
     @Override
     public void reportErrorMessage(String message, Exception e) {
         LOG.error(message, e);
-        consumeLine(message);
+        taggedConsumeLine(ERR, message);
+    }
+
+    @Override
+    public void taggedConsumeLine(String tag, String line) {
+        consoleOutputTransmitter.taggedConsumeLine(tag, line);
     }
 }

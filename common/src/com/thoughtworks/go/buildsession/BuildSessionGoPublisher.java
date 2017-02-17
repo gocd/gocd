@@ -17,7 +17,7 @@ package com.thoughtworks.go.buildsession;
 
 import com.thoughtworks.go.domain.Property;
 import com.thoughtworks.go.util.GoConstants;
-import com.thoughtworks.go.util.command.StreamConsumer;
+import com.thoughtworks.go.util.command.TaggedStreamConsumer;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -26,11 +26,11 @@ import java.io.File;
 
 class BuildSessionGoPublisher implements GoPublisher {
     private static final Log LOG = LogFactory.getLog(BuildSessionGoPublisher.class);
-    private final StreamConsumer buildConsole;
+    private final TaggedStreamConsumer buildConsole;
     private final ArtifactsRepository artifactsRepository;
     private String buildId;
 
-    public BuildSessionGoPublisher(StreamConsumer buildConsole, ArtifactsRepository artifactsRepository, String buildId) {
+    public BuildSessionGoPublisher(TaggedStreamConsumer buildConsole, ArtifactsRepository artifactsRepository, String buildId) {
         this.buildConsole = buildConsole;
         this.artifactsRepository = artifactsRepository;
         this.buildId = buildId;
@@ -60,5 +60,10 @@ class BuildSessionGoPublisher implements GoPublisher {
     @Override
     public void consumeLine(String line) {
         buildConsole.consumeLine(line);
+    }
+
+    @Override
+    public void taggedConsumeLine(String tag, String line) {
+        buildConsole.taggedConsumeLine(tag, line);
     }
 }

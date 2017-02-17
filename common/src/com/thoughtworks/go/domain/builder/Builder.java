@@ -16,18 +16,19 @@
 
 package com.thoughtworks.go.domain.builder;
 
-import java.io.Serializable;
-import static java.lang.String.format;
-
 import com.thoughtworks.go.config.RunIfConfig;
 import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.domain.BuildLogElement;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
-import com.thoughtworks.go.work.DefaultGoPublisher;
-import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.CruiseControlException;
+import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.apache.log4j.Logger;
+
+import java.io.Serializable;
+
+import static java.lang.String.format;
 
 public abstract class Builder implements Serializable {
     private static final Logger LOGGER = Logger.getLogger(Builder.class);
@@ -111,13 +112,13 @@ public abstract class Builder implements Serializable {
     }
 
     protected void logException(DefaultGoPublisher publisher, Exception e) throws CruiseControlException {
-        publisher.consumeLine(String.format("Error: %s", e.getMessage()));
+        publisher.taggedConsumeLine(DefaultGoPublisher.ERR, String.format("Error: %s", e.getMessage()));
         LOGGER.error(e.getMessage(), e);
         throw new CruiseControlException(e);
     }
 
     protected void logError(DefaultGoPublisher publisher, String message) throws CruiseControlException {
-        publisher.consumeLine(message);
+        publisher.taggedConsumeLine(DefaultGoPublisher.ERR, message);
         LOGGER.error(message);
         throw new CruiseControlException(message);
     }

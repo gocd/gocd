@@ -1,6 +1,6 @@
 package com.thoughtworks.go.helper;
 
-import com.thoughtworks.go.util.command.StreamConsumer;
+import com.thoughtworks.go.util.command.TaggedStreamConsumer;
 import com.thoughtworks.go.utils.Assertions;
 import com.thoughtworks.go.utils.Timeout;
 import org.apache.commons.lang.StringUtils;
@@ -9,11 +9,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
-public class TestStreamConsumer implements StreamConsumer {
+public class TestStreamConsumer implements TaggedStreamConsumer {
     private ConcurrentLinkedDeque<String> lines = new ConcurrentLinkedDeque<>();
 
     public void consumeLine(String line) {
-        lines.add(line);
+        taggedConsumeLine(null, line);
     }
 
     public String output() {
@@ -55,4 +55,8 @@ public class TestStreamConsumer implements StreamConsumer {
         lines.clear();
     }
 
+    @Override
+    public void taggedConsumeLine(String tag, String line) {
+        lines.add(line);
+    }
 }

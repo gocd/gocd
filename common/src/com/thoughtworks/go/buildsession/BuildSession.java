@@ -22,7 +22,7 @@ import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.HttpService;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import com.thoughtworks.go.util.command.SafeOutputStreamConsumer;
-import com.thoughtworks.go.util.command.StreamConsumer;
+import com.thoughtworks.go.util.command.TaggedStreamConsumer;
 import org.apache.commons.lang.text.StrLookup;
 import org.apache.commons.lang.text.StrSubstitutor;
 import org.slf4j.Logger;
@@ -45,7 +45,7 @@ public class BuildSession {
     private final Map<String, String> secretSubstitutions;
     private final String buildId;
     private final BuildStateReporter buildStateReporter;
-    private final StreamConsumer console;
+    private final TaggedStreamConsumer console;
     private final DownloadAction downloadAction;
     private final ExecutorService executorService;
     private File workingDir;
@@ -79,7 +79,7 @@ public class BuildSession {
         executors.put("error", new ErrorCommandExecutor());
     }
 
-    public BuildSession(String buildId, BuildStateReporter buildStateReporter, StreamConsumer console, StrLookup buildVariables, ArtifactsRepository artifactsRepository, HttpService httpService, Clock clock, File workingDir) {
+    public BuildSession(String buildId, BuildStateReporter buildStateReporter, TaggedStreamConsumer console, StrLookup buildVariables, ArtifactsRepository artifactsRepository, HttpService httpService, Clock clock, File workingDir) {
         this.buildId = buildId;
         this.buildStateReporter = buildStateReporter;
         this.console = console;
@@ -172,7 +172,7 @@ public class BuildSession {
             return false;
         }
 
-        if(!success) {
+        if (!success) {
             this.buildResult = JobResult.Failed;
         }
 
@@ -280,7 +280,7 @@ public class BuildSession {
         buildStateReporter.reportCompleting(buildId, buildResult);
     }
 
-    BuildSession newTestingSession(StreamConsumer console) {
+    BuildSession newTestingSession(TaggedStreamConsumer console) {
         BuildSession buildSession = new BuildSession(
                 buildId, new UncaringBuildStateReport(), console, buildVariables, artifactsRepository, httpService, clock, workingDir);
         buildSession.cancelLatch = this.cancelLatch;

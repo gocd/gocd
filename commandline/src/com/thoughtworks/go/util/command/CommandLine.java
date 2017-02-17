@@ -419,8 +419,8 @@ public class CommandLine {
                           EnvironmentVariableContext environmentVariableContext, String processTag) throws CheckedCommandLineException {
         LOG.info("Running command: " + toStringForDisplay());
 
-        CompositeConsumer errorStreamConsumer = new CompositeConsumer(StreamLogger.getWarnLogger(LOG), buildOutputConsumer);
-        CompositeConsumer outputStreamConsumer = new CompositeConsumer(StreamLogger.getInfoLogger(LOG), buildOutputConsumer);
+        CompositeConsumer errorStreamConsumer = new CompositeConsumer(CompositeConsumer.ERR, StreamLogger.getWarnLogger(LOG), buildOutputConsumer);
+        CompositeConsumer outputStreamConsumer = new CompositeConsumer(CompositeConsumer.OUT, StreamLogger.getInfoLogger(LOG), buildOutputConsumer);
         //TODO: The build output buffer doesn't take into account Cruise running in multi-threaded mode.
 
         ProcessWrapper process;

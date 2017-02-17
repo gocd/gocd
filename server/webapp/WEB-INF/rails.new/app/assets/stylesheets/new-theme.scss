@@ -451,16 +451,16 @@ h4 {
 
 #body_content {
   position:   relative;
-  padding:    0;
+  padding:    50px 0 0 0;
   background: transparent;
 }
 
 .page_header {
   background:      $page-header-bg;
   background-size: cover;
-  position:        relative;
+  position:        fixed;
   z-index:         $page-header;
-  top:             0;
+  top:             40px;
   box-shadow:      0 0 0 #000;
   border:          0;
   height:          50px !important;
@@ -683,6 +683,10 @@ h1.entity_title {
   border-radius: $global-border-radius;
 }
 
+#bd .yui-b {
+  padding-top: 50px !important;
+}
+
 #bd {
   border:      0;
   margin:      0;
@@ -778,7 +782,8 @@ ul.entity_title {
 .pipeline_history, .yui-b .Job, .yui-b .Server, #admin-page .Administration, #my-cruise-page .Preferences {
 
   overflow:   hidden;
-  position:   static;
+  position:   fixed;
+  top:        40px;
   height:     auto;
   background: #fff;
   box-shadow: none;

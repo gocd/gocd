@@ -25,7 +25,7 @@ describe "admin/pipelines/template_form.html.erb" do
     @pipeline_group.add(@pipeline)
     @template1 = PipelineTemplateConfigMother.createTemplateWithParams("template.name", ["foo", "bar", "blah"].to_java(java.lang.String))
     @template2 = PipelineTemplateConfigMother.createTemplateWithParams("template.name.2", ["foo2"].to_java(java.lang.String))
-    @templates = TemplatesConfig.new([@template1, @template2].to_java(PipelineTemplateConfig))
+    @templates = [TemplatesViewModel.new(@template1, true, false), TemplatesViewModel.new(@template2, true, true)]
     fields_for(:pipeline_group, @pipeline_group) do |gf|
       gf.fields_for(:pipeline, @pipeline) do |f|
         @form = f
@@ -42,7 +42,6 @@ describe "admin/pipelines/template_form.html.erb" do
         expect(select).to have_selector("option[value='template.name']", :text => "template.name")
         expect(select).to have_selector("option[value='template.name.2']", :text => "template.name.2")
       end
-      expect(div).to have_selector("a.view_template_link", :text => "View")
     end
   end
 
@@ -71,7 +70,7 @@ describe "admin/pipelines/template_form.html.erb" do
 
   it "should have empty hidden section when no parameters for a template" do
     template = PipelineTemplateConfigMother.createTemplate("template.name")
-    templates = TemplatesConfig.new([template].to_java(PipelineTemplateConfig))
+    templates = [TemplatesViewModel.new(template, true, true)]
     scope = {:pipeline => @pipeline, :template_list => templates, :form => @form}
 
     render :partial => "admin/pipelines/template_form.html", :locals => {:scope => scope}
@@ -80,7 +79,7 @@ describe "admin/pipelines/template_form.html.erb" do
   end
 
   it "should provide message when no templates are available" do
-    render :partial => "admin/pipelines/template_form.html", :locals => {:scope => {:pipeline => @pipeline, :template_list =>TemplatesConfig.new(), :form => @form}}
+    render :partial => "admin/pipelines/template_form.html", :locals => {:scope => {:pipeline => @pipeline, :template_list => [], :form => @form}}
 
     Capybara.string(response.body).find("div#select_template_container").tap do |div|
       expect(div).to have_selector("div.information", :text => "There are no templates configured")

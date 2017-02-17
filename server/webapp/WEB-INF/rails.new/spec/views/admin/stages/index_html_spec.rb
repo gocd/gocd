@@ -34,7 +34,7 @@ describe "admin/stages/index.html.erb" do
     stage_usage = java.util.HashSet.new
     assign(:stage_usage, stage_usage)
     stage_usage.add(@dev_stage)
-    assign(:template_list, ["defaultTemplate"])
+    assign(:template_list, [TemplatesViewModel.new(PipelineTemplateConfigMother.createTemplate("defaultTemplate"), true, false)])
 
     set(@cruise_config, "md5", "abc")
     in_params(:pipeline_name => "foo_bar", :action => "new", :controller => "admin/stages", :stage_parent => "pipelines")
@@ -67,25 +67,8 @@ describe "admin/stages/index.html.erb" do
     expect(response.body).to have_selector("label[class='disabled']", :text => "Define Stages")
   end
 
-  it "should render templates dropdown always along with a edit link" do
-    assign(:template_list, ["template1", "template2"])
-
-    render
-
-    Capybara.string(response.body).find("select[id='select_template']").tap do |select|
-      expect(select).to have_selector("option[value='template1']")
-      expect(select).to have_selector("option[value='template2']")
-    end
-
-    Capybara.string(response.body).find('div#select_template_container div.form_buttons').tap do |div|
-      expect(div).to have_selector("button#submit_pipeline_edit_form[onclick='return false;']", :text => "SAVE")
-    end
-
-    expect(response.body).to have_selector("a.edit_template_link[href='#{template_edit_path(:pipeline_name => "template1", :stage_parent => "templates", :current_tab => 'general')}']", :text => "Edit")
-  end
-
   it "should render switch to template form with prompt on save pipeline" do
-    assign(:template_list, ["template1", "template2"])
+    assign(:template_list, [TemplatesViewModel.new(PipelineTemplateConfigMother.createTemplate("template1"), true, false), TemplatesViewModel.new(PipelineTemplateConfigMother.createTemplate("template2"), true, false)])
 
     render
 
@@ -97,7 +80,7 @@ describe "admin/stages/index.html.erb" do
   end
 
   it "should not render error div when no error exists" do
-    assign(:template_list, ["template1", "template2"])
+    assign(:template_list, [TemplatesViewModel.new(PipelineTemplateConfigMother.createTemplate("template1"), true, false), TemplatesViewModel.new(PipelineTemplateConfigMother.createTemplate("template2"), true, false)])
 
     render
 
@@ -197,20 +180,6 @@ describe "admin/stages/index.html.erb" do
         end
       end
     end
-  end
-
-  it "should display view template button when stage configuration uses templates" do
-    assign(:template_list, ["template1", "template2"])
-
-    render
-
-    Capybara.string(response.body).find("select[id='select_template']").tap do |select|
-      expect(select).to have_selector("option[value='template1']")
-      expect(select).to have_selector("option[value='template2']")
-    end
-
-    expect(response.body).to have_selector("a.view_template_link.skip_dirty_stop", :text => "View")
-    expect(response.body).not_to have_selector(".no_templates_message")
   end
 
   it "should not render template dropdown and options when there are no templates. Should display relevant message" do

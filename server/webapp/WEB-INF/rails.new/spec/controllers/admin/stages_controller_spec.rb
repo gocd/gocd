@@ -152,11 +152,15 @@ describe Admin::StagesController do
 
       it "should assign templates" do
         @cruise_config.addTemplate(PipelineTemplateConfig.new(CaseInsensitiveString.new("foo"), [StageConfigMother.stageWithTasks("stage_one")].to_java(StageConfig)))
+        @template_config_service = double('Template Config Service')
+        controller.stub(:template_config_service).and_return(@template_config_service)
+
+        list_of_templates = [TemplatesViewModel.new(@cruise_config.getTemplateByName(CaseInsensitiveString.new("foo")), true, true), TemplatesViewModel.new(@cruise_config.getTemplateByName(CaseInsensitiveString.new("template-name")), true, true)]
+        @template_config_service.should_receive(:getTemplateViewModels).with(anything).and_return(list_of_templates)
 
         get :index, :pipeline_name => "pipeline-name", :stage_parent => "pipelines"
 
-        assigns[:template_list][0].should == CaseInsensitiveString.new("foo")
-        assigns[:template_list][1].should == CaseInsensitiveString.new("template-name")
+        assigns[:template_list].should == list_of_templates
       end
 
       it "should not bomb when there are no templates" do

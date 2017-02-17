@@ -325,10 +325,15 @@ describe Admin::PipelinesController do
       @go_config_service.should_receive(:getCurrentConfig).and_return(@cruise_config)
       template_name = "someTemplateName"
       GoConfigMother.new.addPipelineWithTemplate(@cruise_config, "someTemplatePipeline", template_name, "stageName", ["jobName"].to_java(java.lang.String))
+      @template_config_service = double('Template Config Service')
+      controller.stub(:template_config_service).and_return(@template_config_service)
+
+      list_of_templates = [TemplatesViewModel.new(@cruise_config.getTemplateByName(CaseInsensitiveString.new(template_name)), true, true)]
+      @template_config_service.should_receive(:getTemplateViewModels).with(anything).and_return(list_of_templates)
 
       get :new
 
-      assigns[:template_list].should == TemplatesConfig.new([@cruise_config.getTemplateByName(CaseInsensitiveString.new(template_name))].to_java(PipelineTemplateConfig))
+      assigns[:template_list].should == list_of_templates
     end
 
     it "should have pipelines using templates listed in the pipelineStageJsontemplate list assigned" do

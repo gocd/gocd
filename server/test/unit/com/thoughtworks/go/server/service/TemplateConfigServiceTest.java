@@ -28,15 +28,14 @@ import com.thoughtworks.go.presentation.ConfigForEdit;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.tasks.PluggableTaskService;
+import com.thoughtworks.go.server.ui.TemplatesViewModel;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
+import static com.thoughtworks.go.server.service.TemplateConfigService.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -237,6 +236,44 @@ public class TemplateConfigServiceTest {
         expectedResult.unprocessableEntity(LocalizedMessage.string("ENTITY_CONFIG_VALIDATION_FAILED", "template", templateName, errorMessage));
 
         assertThat(result.toString(), is(expectedResult.toString()));
+    }
+
+    @Test
+    public void shouldReturnAMapOfAllTemplatesWithAuthorizationsForAnyUser() {
+        BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
+        ServerConfig serverConfig = new ServerConfig(new SecurityConfig(null, null, false, new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))), null);
+        cruiseConfig.setServerConfig(serverConfig);
+        GoConfigMother.enableSecurityWithPasswordFile(cruiseConfig);
+
+        CaseInsensitiveString templateViewUser = new CaseInsensitiveString("template-view");
+        CaseInsensitiveString templateAdmin = new CaseInsensitiveString("template-admin");
+        PipelineTemplateConfig template1 = PipelineTemplateConfigMother.createTemplate("t1", new Authorization(new ViewConfig(new AdminUser(templateViewUser))), StageConfigMother.manualStage("foo"));
+        PipelineTemplateConfig template2 = PipelineTemplateConfigMother.createTemplate("t2");
+        PipelineTemplateConfig template3 = PipelineTemplateConfigMother.createTemplate("t3", new Authorization(new AdminsConfig(new AdminUser(templateAdmin))), StageConfigMother.manualStage("foobar"));
+        cruiseConfig.addTemplate(template1);
+        cruiseConfig.addTemplate(template2);
+        cruiseConfig.addTemplate(template3);
+
+        when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
+
+        List<TemplatesViewModel> templatesForSuperAdmins = new ArrayList<>();
+        templatesForSuperAdmins.add(new TemplatesViewModel(template1, true, true));
+        templatesForSuperAdmins.add(new TemplatesViewModel(template2, true, true));
+        templatesForSuperAdmins.add(new TemplatesViewModel(template3, true, true));
+
+        List<TemplatesViewModel> templatesForTemplateAdmin = new ArrayList<>();
+        templatesForTemplateAdmin.add(new TemplatesViewModel(template1, false, false));
+        templatesForTemplateAdmin.add(new TemplatesViewModel(template2, false, false));
+        templatesForTemplateAdmin.add(new TemplatesViewModel(template3, true, true));
+
+        List<TemplatesViewModel> templatesForTemplateViewUser = new ArrayList<>();
+        templatesForTemplateViewUser.add(new TemplatesViewModel(template1, true, false));
+        templatesForTemplateViewUser.add(new TemplatesViewModel(template2, false, false));
+        templatesForTemplateViewUser.add(new TemplatesViewModel(template3, false, false));
+
+        assertThat(service.getTemplateViewModels(new CaseInsensitiveString("admin")), is(templatesForSuperAdmins));
+        assertThat(service.getTemplateViewModels(templateAdmin), is(templatesForTemplateAdmin));
+        assertThat(service.getTemplateViewModels(templateViewUser), is(templatesForTemplateViewUser));
     }
 
     private PipelineConfig createPipelineWithTemplate(String pipelineName, PipelineTemplateConfig template) {

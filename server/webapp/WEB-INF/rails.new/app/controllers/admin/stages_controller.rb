@@ -189,7 +189,7 @@ module Admin
     end
 
     def load_template_list
-      assert_load(:template_list, @cruise_config.getTemplates().map(&:name).sort)
+       assert_load(:template_list, template_config_service.getTemplateViewModels(current_user.getUsername()))
     end
 
     def with_layout options = {}, layout_name = "stage"

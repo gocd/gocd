@@ -31,10 +31,7 @@ import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.ProcessManager;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
-import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import com.thoughtworks.go.util.command.PasswordArgument;
-import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
-import com.thoughtworks.go.util.command.SafeOutputStreamConsumer;
+import com.thoughtworks.go.util.command.*;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.io.FileUtils;
@@ -157,7 +154,7 @@ public class BuildWork implements Work {
     private void dumpEnvironmentVariables(EnvironmentVariableContext environmentVariableContext) {
         Set<String> processLevelEnvVariables = ProcessManager.getInstance().environmentVariableNames();
         List<String> report = environmentVariableContext.report(processLevelEnvVariables);
-        SafeOutputStreamConsumer safeOutput = safeOutputStreamConsumer(environmentVariableContext);
+        ConsoleOutputStreamConsumer safeOutput = new SetupOutputStreamConsumer(safeOutputStreamConsumer(environmentVariableContext));
         for (int i = 0; i < report.size(); i++) {
             String line = report.get(i);
             safeOutput.stdOutput((i == report.size() - 1) ? line + "\n" : line);

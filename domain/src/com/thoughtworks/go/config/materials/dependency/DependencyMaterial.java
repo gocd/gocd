@@ -26,8 +26,8 @@ import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialInstance;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
+import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import org.apache.log4j.Logger;
 
 import java.io.File;
@@ -90,7 +90,7 @@ public class DependencyMaterial extends AbstractMaterial {
 
     //Unused (legacy) methods
 
-    public void updateTo(ProcessOutputStreamConsumer outputStreamConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx) {
+    public void updateTo(ConsoleOutputStreamConsumer outputStreamConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx) {
 
     }
 

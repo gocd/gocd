@@ -16,25 +16,18 @@
 
 package com.thoughtworks.go.domain;
 
-import java.io.File;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-
 import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.domain.materials.*;
+import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
-import static com.thoughtworks.go.util.ExceptionUtils.bombIf;
-import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
+import java.io.File;
+import java.io.Serializable;
+import java.util.*;
+
+import static com.thoughtworks.go.util.ExceptionUtils.*;
 
 public class MaterialRevision implements Serializable {
     private Material material;
@@ -147,7 +140,7 @@ public class MaterialRevision implements Serializable {
         return "[" + material + ", " + getRevision() + ";" + modifications.toString() + "]";
     }
 
-    public void updateTo(File baseDir, ProcessOutputStreamConsumer consumer, final SubprocessExecutionContext execCtx) {
+    public void updateTo(File baseDir, ConsoleOutputStreamConsumer consumer, final SubprocessExecutionContext execCtx) {
         material.updateTo(consumer, baseDir, toRevisionContext(), execCtx);
     }
 

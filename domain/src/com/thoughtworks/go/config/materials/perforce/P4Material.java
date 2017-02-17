@@ -16,14 +16,6 @@
 
 package com.thoughtworks.go.config.materials.perforce;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import javax.annotation.PostConstruct;
-
 import com.thoughtworks.go.config.PasswordEncrypter;
 import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterial;
@@ -39,10 +31,17 @@ import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
-import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.io.FileUtils;
 import org.bouncycastle.crypto.InvalidCipherTextException;
+
+import javax.annotation.PostConstruct;
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
@@ -150,7 +149,7 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
         return p4;
     }
 
-    public void updateTo(ProcessOutputStreamConsumer outputConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx) {
+    public void updateTo(ConsoleOutputStreamConsumer outputConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx) {
         File workingDir = execCtx.isServer() ? baseDir : workingdir(baseDir);
         boolean cleaned = cleanDirectoryIfRepoChanged(workingDir, outputConsumer);
         String revision = revisionContext.getLatestRevision().getRevision();
@@ -212,14 +211,14 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
         resetPassword(password);
     }
 
-    P4Client p4(File baseDir, ProcessOutputStreamConsumer consumer) throws Exception {
+    P4Client p4(File baseDir, ConsoleOutputStreamConsumer consumer) throws Exception {
         return _p4(baseDir, consumer, true);
     }
 
     /**
      * not for use externally, created for testing convenience
      */
-    P4Client _p4(File workDir, ProcessOutputStreamConsumer consumer, boolean failOnError) throws Exception {
+    P4Client _p4(File workDir, ConsoleOutputStreamConsumer consumer, boolean failOnError) throws Exception {
         String clientName = clientName(workDir);
         return P4Client.fromServerAndPort(getFingerprint(), serverAndPort, userName, getPassword(), clientName,this.useTickets, workDir, p4view(clientName), consumer, failOnError);
     }

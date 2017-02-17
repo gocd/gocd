@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.util.command;
 
-public class ProcessOutputStreamConsumer<T extends StreamConsumer, T2 extends StreamConsumer> implements ConsoleOutputStreamConsumer<T,T2> {
+public class ProcessOutputStreamConsumer<T extends StreamConsumer, T2 extends StreamConsumer> implements ConsoleOutputStreamConsumer<T, T2> {
     private T stdConsumer;
     private T2 errorConsumer;
 
@@ -38,12 +38,27 @@ public class ProcessOutputStreamConsumer<T extends StreamConsumer, T2 extends St
     }
 
     public void stdOutput(String line) {
-        getStdConsumer().consumeLine(line);
+        taggedStdOutput(TaggedStreamConsumer.OUT, line);
     }
 
     public void errOutput(String line) {
-        getErrorConsumer().consumeLine(line);
+        taggedErrOutput(TaggedStreamConsumer.ERR, line);
     }
 
+    public void taggedStdOutput(String tag, String line) {
+        taggedOutput(stdConsumer, tag, line);
+    }
+
+    public void taggedErrOutput(String tag, String line) {
+        taggedOutput(errorConsumer, tag, line);
+    }
+
+    private void taggedOutput(StreamConsumer consumer, String tag, String line) {
+        if (consumer instanceof TaggedStreamConsumer) {
+            ((TaggedStreamConsumer) consumer).taggedConsumeLine(tag, line);
+        } else {
+            consumer.consumeLine(line);
+        }
+    }
 }
 

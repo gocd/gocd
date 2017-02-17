@@ -28,7 +28,7 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.StringUtil;
-import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
+import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.log4j.Logger;
 import org.bouncycastle.crypto.InvalidCipherTextException;
@@ -136,7 +136,7 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
         parameters.put("checkExternals", checkExternals);
     }
 
-    public void updateTo(ProcessOutputStreamConsumer outputStreamConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx) {
+    public void updateTo(ConsoleOutputStreamConsumer outputStreamConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx) {
         Revision revision = revisionContext.getLatestRevision();
         File workingDir = execCtx.isServer() ? baseDir : workingdir(baseDir);
         if (LOGGER.isDebugEnabled()) {
@@ -167,7 +167,7 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
         }
     }
 
-    public void freshCheckout(ProcessOutputStreamConsumer outputStreamConsumer, SubversionRevision revision,
+    public void freshCheckout(ConsoleOutputStreamConsumer outputStreamConsumer, SubversionRevision revision,
                               File workingFolder) {
         if (workingFolder.isDirectory()) {
             FileUtil.deleteFolder(workingFolder);
@@ -179,7 +179,7 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
         svn().checkoutTo(outputStreamConsumer, workingFolder, revision);
     }
 
-    public void cleanupAndUpdate(ProcessOutputStreamConsumer outputStreamConsumer, SubversionRevision revision,
+    public void cleanupAndUpdate(ConsoleOutputStreamConsumer outputStreamConsumer, SubversionRevision revision,
                                  File workingFolder) {
         try {
             svn().cleanupAndRevert(outputStreamConsumer, workingFolder);
@@ -301,11 +301,11 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
         return getFolder() == null ? folderForExternal : getFolder() + "/" + folderForExternal;
     }
 
-    public void add(ProcessOutputStreamConsumer outputStreamConsumer, File file) {
+    public void add(ConsoleOutputStreamConsumer outputStreamConsumer, File file) {
         svn().add(outputStreamConsumer, file);
     }
 
-    public void commit(ProcessOutputStreamConsumer outputStreamConsumer, File workingDir, String message) {
+    public void commit(ConsoleOutputStreamConsumer outputStreamConsumer, File workingDir, String message) {
         svn().commit(outputStreamConsumer, workingDir, message);
     }
 

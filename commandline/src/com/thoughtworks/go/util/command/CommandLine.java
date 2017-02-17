@@ -475,7 +475,7 @@ public class CommandLine {
     }
 
 
-    public int run(ProcessOutputStreamConsumer outputStreamConsumer, String processTag, String... input) {
+    public int run(ConsoleOutputStreamConsumer outputStreamConsumer, String processTag, String... input) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Running " + this);
         }

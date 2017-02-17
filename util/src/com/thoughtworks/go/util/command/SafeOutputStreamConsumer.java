@@ -32,14 +32,20 @@ public class SafeOutputStreamConsumer implements ConsoleOutputStreamConsumer {
         arguments.add(argument);
     }
 
+    public void taggedStdOutput(String tag, String line) {
+        consumer.taggedStdOutput(tag, replaceSecretInfo(line));
+    }
+
+    public void taggedErrOutput(String tag, String line) {
+        consumer.taggedErrOutput(tag, replaceSecretInfo(line));
+    }
+
     public void stdOutput(String line) {
-        line = replaceSecretInfo(line);
-        consumer.stdOutput(line);
+        consumer.stdOutput(replaceSecretInfo(line));
     }
 
     public void errOutput(String line) {
-        line = replaceSecretInfo(line);
-        consumer.errOutput(line);
+        consumer.errOutput(replaceSecretInfo(line));
     }
 
     private String replaceSecretInfo(String line) {

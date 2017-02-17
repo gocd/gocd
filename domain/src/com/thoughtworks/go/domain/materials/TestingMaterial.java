@@ -19,7 +19,7 @@ package com.thoughtworks.go.domain.materials;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.domain.MaterialInstance;
-import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
+import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.joda.time.DateTime;
 
@@ -81,7 +81,7 @@ public class TestingMaterial extends ScmMaterial {
         return new TestingMaterialInstance(url, "FLYWEIGHTNAME");
     }
 
-    public void updateTo(ProcessOutputStreamConsumer outputStreamConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx) {
+    public void updateTo(ConsoleOutputStreamConsumer outputStreamConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx) {
     }
 
     public void setUrl(String url) {

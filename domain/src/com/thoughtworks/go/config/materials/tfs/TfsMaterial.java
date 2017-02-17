@@ -29,7 +29,7 @@ import com.thoughtworks.go.domain.materials.tfs.TfsMaterialInstance;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.StringUtil;
-import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
+import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
@@ -146,7 +146,7 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
         appendCriteria(parameters);
     }
 
-    public void updateTo(ProcessOutputStreamConsumer outputStreamConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx) {
+    public void updateTo(ConsoleOutputStreamConsumer outputStreamConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx) {
         Revision revision = revisionContext.getLatestRevision();
         File workingDir = execCtx.isServer() ? baseDir : workingdir(baseDir);
         if (LOGGER.isDebugEnabled()) {

@@ -133,7 +133,12 @@ public class DefaultGoPublisher implements GoPublisher {
 
     @Override
     public void consumeLineWithPrefix(String message) {
-        taggedConsumeLine(NOTICE, String.format("[%s] %s", GoConstants.PRODUCT_NAME, message));
+        taggedConsumeLineWithPrefix(NOTICE, message);
+    }
+
+    @Override
+    public void taggedConsumeLineWithPrefix(String tag, String message) {
+        taggedConsumeLine(tag, String.format("[%s] %s", GoConstants.PRODUCT_NAME, message));
     }
 
     @Override

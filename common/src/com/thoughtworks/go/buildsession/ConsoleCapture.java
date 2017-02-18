@@ -29,12 +29,12 @@ class ConsoleCapture implements TaggedStreamConsumer {
 
     @Override
     public void consumeLine(String line) {
-        taggedConsumeLine(OUT, line);
+        taggedConsumeLine(null, line);
     }
 
     @Override
     public void taggedConsumeLine(String tag, String line) {
-        captured.add(String.format("%s|%s", tag, line));
+        captured.add(line);
     }
 
     public String captured() {

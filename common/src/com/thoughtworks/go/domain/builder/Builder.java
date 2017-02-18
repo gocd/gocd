@@ -42,16 +42,8 @@ public abstract class Builder implements Serializable {
         this.description = description;
     }
 
-    public void build(BuildLogElement buildLogElement, RunIfConfig currentStatus, DefaultGoPublisher publisher,
-                      EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension)
-            throws CruiseControlException {
-        if (conditions.match(currentStatus)) {
-            String statusMessage = format("Current job status: %s.\n", currentStatus);
-            String executeMessage = format("Start to execute task: %s.", getDescription());
-            publisher.consumeLineWithPrefix(statusMessage);
-            publisher.consumeLineWithPrefix(executeMessage);
-            build(buildLogElement, publisher, environmentVariableContext, taskExtension);
-        }
+    public boolean allowRun(RunIfConfig previousStatus) {
+        return conditions.match(previousStatus);
     }
 
     public abstract void build(BuildLogElement buildLogElement, DefaultGoPublisher publisher,

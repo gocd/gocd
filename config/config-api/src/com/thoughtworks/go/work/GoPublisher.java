@@ -26,6 +26,8 @@ public interface GoPublisher extends TaggedStreamConsumer {
 
     void consumeLineWithPrefix(String message);
 
+    void taggedConsumeLineWithPrefix(String tag, String message);
+
     void setProperty(Property property);
 
     void reportErrorMessage(String message, Exception e);

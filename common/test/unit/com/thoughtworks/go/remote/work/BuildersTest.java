@@ -16,25 +16,25 @@
 
 package com.thoughtworks.go.remote.work;
 
-import java.io.File;
-import java.util.Arrays;
-
 import com.thoughtworks.go.domain.BuildLogElement;
 import com.thoughtworks.go.domain.GoControlLog;
+import com.thoughtworks.go.domain.RunIfConfigs;
+import com.thoughtworks.go.domain.StubGoPublisher;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.builder.CommandBuilder;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.util.command.CruiseControlException;
-
-import static com.thoughtworks.go.config.RunIfConfig.FAILED;
-import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.File;
+import java.util.Arrays;
+
+import static com.thoughtworks.go.config.RunIfConfig.FAILED;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 public class BuildersTest {
     private EnvironmentVariableContext environmentVariableContext;
@@ -61,14 +61,14 @@ public class BuildersTest {
     @Test
     public void shouldNotCancelAnythingIfAllBuildersHaveRun() throws CruiseControlException {
         Builder builder = new StubBuilder();
-        Builders builders = new Builders(Arrays.asList(builder), null, new GoControlLog(), null);
+        Builders builders = new Builders(Arrays.asList(builder), new StubGoPublisher(), new GoControlLog(), null);
         builders.build(environmentVariableContext);
         builders.cancel(environmentVariableContext);
     }
 
     private class StubBuilder extends Builder {
         public StubBuilder() {
-            super(null, null, "");
+            super(new RunIfConfigs(), null, "");
         }
 
         public void build(BuildLogElement buildLogElement, DefaultGoPublisher publisher,

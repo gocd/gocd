@@ -25,11 +25,10 @@ public interface TaggedStreamConsumer extends StreamConsumer {
     public static final String ALERT = "@@"; // Go alert output
     public static final String PREP = "pr";
     public static final String TASK_START = "!!";
-    public static final String TASK_END = "$?";
     public static final String OUT = "&1";
     public static final String ERR = "&2";
-    public static final String TASK_PASS = "!0";
-    public static final String TASK_FAIL = "!1";
+    public static final String TASK_PASS = "?0";
+    public static final String TASK_FAIL = "?1";
 
     public void taggedConsumeLine(String tag, String line);
 }

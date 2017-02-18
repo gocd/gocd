@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.remote.work;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.thoughtworks.go.config.RunIfConfig;
 import com.thoughtworks.go.domain.BuildLogElement;
 import com.thoughtworks.go.domain.GoControlLog;
@@ -28,6 +25,11 @@ import com.thoughtworks.go.domain.builder.NullBuilder;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.lang.String.format;
 
 public class Builders {
     private List<Builder> builders = new ArrayList<>();
@@ -59,11 +61,18 @@ public class Builders {
             }
 
             BuildLogElement buildLogElement = new BuildLogElement();
-            try {
-                builder.build(buildLogElement, RunIfConfig.fromJobResult(result.toLowerCase()), goPublisher,
-                        environmentVariableContext, taskExtension);
-            } catch (Exception e) {
-                result = JobResult.Failed;
+            if (builder.allowRun(RunIfConfig.fromJobResult(result.toLowerCase()))) {
+                try {
+                    String executeMessage = format("Start to execute task: %s.", builder.getDescription());
+                    goPublisher.taggedConsumeLineWithPrefix(DefaultGoPublisher.TASK_START, executeMessage);
+
+                    builder.build(buildLogElement, goPublisher,
+                            environmentVariableContext, taskExtension);
+                } catch (Exception e) {
+                    result = JobResult.Failed;
+                }
+                String tag = JobResult.Failed.equals(result) ? DefaultGoPublisher.TASK_FAIL : DefaultGoPublisher.TASK_PASS;
+                goPublisher.taggedConsumeLineWithPrefix(tag, format("Task status: %s.", result.toLowerCase()));
             }
 
             buildLog.addContent(buildLogElement.getElement());

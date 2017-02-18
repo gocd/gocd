@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.domain.builder;
 
-import java.io.File;
-
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.domain.BuildLogElement;
@@ -32,13 +30,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.File;
+
 import static com.thoughtworks.go.config.RunIfConfig.FAILED;
-import static com.thoughtworks.go.config.RunIfConfig.PASSED;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.hamcrest.CoreMatchers.containsString;
 
 @RunWith(JunitExtRunner.class)
 public class BuilderTest {
@@ -53,7 +52,7 @@ public class BuilderTest {
 
     @Test
     @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, WINDOWS})
-    public void shouldReportErrorWhenCancelCommandDoesNotExists() throws Exception {
+    public void shouldReportErrorWhenCancelCommandDoesNotExist() throws Exception {
 
         StubBuilder stubBuilder = new StubBuilder();
 
@@ -96,7 +95,7 @@ public class BuilderTest {
                 new StubBuilder(),
                 "");
 
-        builder.build(new BuildLogElement(), PASSED, goPublisher, environmentVariableContext, null);
+        builder.build(new BuildLogElement(), goPublisher, environmentVariableContext, null);
 
         assertThat(goPublisher.getMessage(), is(""));
     }

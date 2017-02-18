@@ -16,19 +16,16 @@
 
 package com.thoughtworks.go.server.service.builders;
 
-import java.io.File;
-
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.config.AntTask;
 import com.thoughtworks.go.config.ExecTask;
-import com.thoughtworks.go.config.RunIfConfig;
 import com.thoughtworks.go.domain.BuildLogElement;
+import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.StubGoPublisher;
+import com.thoughtworks.go.domain.TasksTest;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.builder.CommandBuilder;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.TasksTest;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
@@ -40,14 +37,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.File;
+
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(JunitExtRunner.class)
 public class AntTaskBuilderTest {
@@ -103,7 +100,7 @@ public class AntTaskBuilderTest {
         BuildLogElement element = new BuildLogElement();
 
         try {
-            builder.build(element, RunIfConfig.PASSED, new StubGoPublisher(), new EnvironmentVariableContext(), taskEntension);
+            builder.build(element, new StubGoPublisher(), new EnvironmentVariableContext(), taskEntension);
         } catch (CruiseControlException e) {
             assertThat(e.getMessage(), containsString("Build failed. Command ant reported [BUILD FAILED]."));
             assertThat(element.getBuildError(), Is.is("Build failed. Command ant reported [BUILD FAILED]."));

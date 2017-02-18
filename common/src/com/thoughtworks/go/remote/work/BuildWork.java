@@ -214,7 +214,8 @@ public class BuildWork implements Work {
             return;
         }
 
-        goPublisher.consumeLineWithPrefix(format("Current job status: %s.\n", RunIfConfig.fromJobResult(result.toLowerCase())));
+        String tag = JobResult.Passed.equals(result) ? DefaultGoPublisher.NOTICE : DefaultGoPublisher.ALERT;
+        goPublisher.taggedConsumeLineWithPrefix(tag, format("Current job status: %s.\n", RunIfConfig.fromJobResult(result.toLowerCase())));
 
         goPublisher.reportCurrentStatus(Completing);
         goPublisher.reportAction("Start to create properties");

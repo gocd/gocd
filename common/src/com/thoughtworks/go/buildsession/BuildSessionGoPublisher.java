@@ -43,7 +43,12 @@ class BuildSessionGoPublisher implements GoPublisher {
 
     @Override
     public void consumeLineWithPrefix(String message) {
-        consumeLine(String.format("[%s] %s", GoConstants.PRODUCT_NAME, message));
+        taggedConsumeLineWithPrefix(NOTICE, message);
+    }
+
+    @Override
+    public void taggedConsumeLineWithPrefix(String tag, String message) {
+        taggedConsumeLine(tag, String.format("[%s] %s", GoConstants.PRODUCT_NAME, message));
     }
 
     @Override
@@ -59,7 +64,7 @@ class BuildSessionGoPublisher implements GoPublisher {
 
     @Override
     public void consumeLine(String line) {
-        buildConsole.consumeLine(line);
+        taggedConsumeLine(NONE, line);
     }
 
     @Override

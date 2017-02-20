@@ -110,7 +110,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
                             StageConfig stageConfig = pipelineConfig.findBy(new CaseInsensitiveString(jobPlan.getStageName()));
                             if (stageConfig != null) {
                                 JobConfig jobConfig = stageConfig.jobConfigByConfigName(new CaseInsensitiveString(jobPlan.getName()));
-                                if(jobConfig == null){
+                                if (jobConfig == null) {
                                     jobsToRemove.add(jobPlan);
                                 }
                             } else {
@@ -150,16 +150,10 @@ public class BuildAssignmentService implements ConfigChangedListener {
                 Work buildWork = createWork(agent, job);
                 AgentBuildingInfo buildingInfo = new AgentBuildingInfo(job.getIdentifier().buildLocatorForDisplay(),
                         job.getIdentifier().buildLocator());
-
-                if (agent.isElastic()) {
-                    if (!elasticAgentPluginService.shouldAssignWork(agent.elasticAgentMetadata(), environmentConfigService.envForPipeline(job.getPipelineName()), job.getElasticProfile())) {
-                        return NO_WORK;
-                    }
-                }
-
                 agentService.building(agent.getUuid(), buildingInfo);
                 LOGGER.info("[Agent Assignment] Assigned job [{}] to agent [{}]", job.getIdentifier(), agent.agentConfig().getAgentIdentifier());
                 return buildWork;
+
             }
         }
 
@@ -169,8 +163,20 @@ public class BuildAssignmentService implements ConfigChangedListener {
     private JobPlan findMatchingJob(AgentInstance agent) {
         List<JobPlan> filteredJobPlans = environmentConfigService.filterJobsByAgent(jobPlans, agent.getUuid());
         JobPlan match = agent.firstMatching(filteredJobPlans);
-        jobPlans.remove(match);
-        return match;
+
+        if (match == null) {
+            return null;
+        }
+
+        if (!agent.isElastic() || isAssignableToElasticAgent(agent, match)) {
+            jobPlans.remove(match);
+            return match;
+        }
+        return null;
+    }
+
+    private boolean isAssignableToElasticAgent(AgentInstance agent, JobPlan match) {
+        return agent.isElastic() && elasticAgentPluginService.shouldAssignWork(agent.elasticAgentMetadata(), environmentConfigService.envForPipeline(match.getPipelineName()), match.getElasticProfile());
     }
 
     public void onTimer() {
@@ -214,7 +220,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
             }
             Work work = assignWorkToAgent(agentInstance);
             if (work != NO_WORK) {
-                if(agentInstance.getSupportsBuildCommandProtocol()) {
+                if (agentInstance.getSupportsBuildCommandProtocol()) {
                     BuildSettings buildSettings = createBuildSettings(((BuildWork) work).getAssignment());
                     agent.send(new Message(Action.build, MessageEncoding.encodeData(buildSettings)));
                 } else {

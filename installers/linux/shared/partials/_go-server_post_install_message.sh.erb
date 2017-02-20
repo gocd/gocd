@@ -15,9 +15,7 @@
 # limitations under the License.
 #########################################################################
 -%>
-    <%= ERB.new(File.read(File.join(install_scripts_dir, 'shared' ,'partials', '_set-debian-permissions.sh.erb')), nil, '-', "_#{SecureRandom.hex}").result(binding) %>
 
-    # initialize init script symlinks on first install
-    update-rc.d <%= name %> defaults 99
-
-    <%= ERB.new(File.read(File.join(install_scripts_dir, 'shared', 'partials', "_#{name}_post_install_message.sh.erb")), nil, '-', "_#{SecureRandom.hex}").result(binding) %>
+    echo "Installation of GoCD server completed."
+    echo "Please edit /etc/default/go-server to add or override environment variables."
+    echo "Once that is done, start the GoCD server with '/etc/init.d/go-server start'"

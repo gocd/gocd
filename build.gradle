@@ -65,8 +65,8 @@ ext.partitionFiles = { Collection originalFiles ->
 }
 
 def COPYRIGHT_YEAR = '2017'
-def GO_VERSION = '17.2.0'
-def GO_VERSION_PREVIOUS = '17.1.0'
+def GO_VERSION = '17.3.0'
+def GO_VERSION_PREVIOUS = '17.2.0'
 def DIST_VERSION = releaseRevision()
 def GIT_REVISION = gitRevision()
 

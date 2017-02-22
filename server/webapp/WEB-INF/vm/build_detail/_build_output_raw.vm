@@ -1,4 +1,4 @@
-<div class="console-area">
+<div class="console-area" data-console-url="${presenter.consoleoutLocator}" >
 <div class="console-action-bar">
     <div>
         <a class="auto-scroll" title="Scroll to bottom">Scroll to end of logs</a>

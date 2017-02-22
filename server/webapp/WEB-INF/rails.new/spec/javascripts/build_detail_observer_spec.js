@@ -73,4 +73,18 @@ describe("build_detail_observer", function () {
         observer.display_error_message_if_necessary(inactive_json("project1"))
         assertTrue(jQuery('#trans_content').text().indexOf("breaked text") > -1);
     });
+
+    xit("should set stderr output text color to red", function() {
+        var build_output = "0r]Something failed.\
+                         But something else didn't";
+        observer._update_live_output_color(build_output);
+        assertTrue(jQuery(".buildoutput_pre p:contains('Something failed.')").hasClass("consoleStderr"))
+    });
+
+    xit("should set stdout output text color to green", function() {
+        var build_output = "0g]Something worked.\
+                             But something else didn't";
+        observer._update_live_output_color(build_output);
+        assertTrue(jQuery(".buildoutput_pre p:contains('Something worked.')").hasClass("consoleStdout"))
+    });
 });

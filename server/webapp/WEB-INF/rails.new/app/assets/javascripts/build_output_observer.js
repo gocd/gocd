@@ -132,18 +132,15 @@ BuildOutputObserver.prototype = {
     },
 
     _update_live_output_color: function(build_output) {
+        var _this = this;
         var is_output_empty = !build_output;
         if (!is_output_empty) {
 
-            // parsing the entier console output and building HTML is computationally expensive and blows up memory
+            // parsing the entire console output and building HTML is computationally expensive and blows up memory
             // we therefore chunk the console output into 1000 lines each and hand it over to the parser, and also insert it into the DOM.
 
             var lines = build_output.match(/^.*([\n\r]+|$)/gm);
-            while(lines.length){
-                var slice = lines.splice(0, 1000);
-                var htmlContents = this.ansi_up.ansi_to_html(slice.join("").escapeHTML(), {use_classes: true});
-                this.consoleElement.append(htmlContents);
-            }
+            lines.forEach(_this._addConsoleFormattingDOMElements, _this);
         }
 
         if (this.enableTailing){
@@ -151,6 +148,20 @@ BuildOutputObserver.prototype = {
         }
 
         return is_output_empty;
+    },
+
+    _addConsoleFormattingDOMElements : function(line) {
+        var lineElement = jQuery('<p></p>');
+        var escapedText = this.ansi_up.ansi_to_html(line.escapeHTML(), {use_classes: true});
+
+        if (line.startsWith("0g]")) {
+          lineElement.addClass('ansi-green-fg');
+        } else if (line.startsWith("0r]")) {
+          lineElement.addClass('ansi-red-fg');
+        }
+
+        lineElement.text(escapedText);
+        this.consoleElement.append(lineElement);
     },
 
     update_page : function(json) {

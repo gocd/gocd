@@ -16,30 +16,8 @@
 ;(function ($) {
   "use strict";
 
-  function Poller(interval) {
-    var me = this;
-    var pid;
-
-    function startPolling(job) {
-      if (pid !== null) {
-        stopPolling();
-      }
-
-      job();
-      pid = setInterval(job, interval);
-    }
-
-    function stopPolling() {
-      clearInterval(pid);
-    }
-
-    me.start = startPolling;
-    me.stop = stopPolling;
-  }
-
   function ConsumeBuildLog(url, transformer) {
     var me   = this;
-    var fail = $.noop, always = $.noop;
 
     var startLineNumber = 0;
     var inFlight = false;
@@ -78,32 +56,108 @@
         }
 
         finished = jobResultJson[0].building_info.is_completed.toLowerCase() === "true";
-      }).fail(fail).always(clearLock);
+      }).fail($.noop).always(clearLock);
     }
 
     me.notify = consumeBuildLog;
   }
 
-  function LogOutputTransformer(element) {
-    var me = this;
+  var Types = {
+    INFO: "##", ALERT: "@@", PREP: "pr", TASK_START: "!!", OUT: "&1", ERR: "&2", PASS: "?0", FAIL: "?1"
+  };
 
-    var re = /^([^\|]{2})\|(.*)/;
+  function LogOutputTransformer(consoleElement) {
+    var me = this;
+    var currentSection;
+
+    var re = /^([^|]{2})\|(.*)/;
+
+    if (!consoleElement.find(".section").length) {
+      currentSection = addBlankSection(consoleElement);
+    }
+
+    function addBlankSection(element) {
+      var section = $("<dl class='section open'>");
+      element.append(section);
+      return section;
+    }
+
+    function adoptSection(section, prefix, line) {
+      if ([Types.INFO, Types.ALERT].indexOf(prefix) > -1) {
+        section.attr("data-type", "info");
+      } else if ([Types.PREP].indexOf(prefix) > -1) {
+        section.attr("data-type", "prep");
+      } else if ([Types.TASK_START, Types.OUT, Types.ERR, Types.PASS, Types.FAIL].indexOf(prefix) > -1) {
+        section.attr("data-type", "task");
+      } else {
+        section.attr("data-type", "info");
+      }
+      insertHeader(section, prefix, line);
+    }
+
+    function insertHeader(section, prefix, line) {
+      var header = $("<dt>").attr("data-prefix", prefix).text(line);//.prepend($("<i class='fa fa-caret-right'>"));
+      section.append(header);
+    }
+
+    function insertLine(section, prefix, line) {
+      section.append($("<dd>").attr("data-prefix", prefix).text(line));
+    }
+
+    function isPartOfSection(section, prefix, line) {
+      if (section.data("type") === "info") {
+        return [Types.INFO, Types.ALERT].indexOf(prefix) > -1;
+      }
+
+      if (section.data("type") === "prep") {
+        return prefix === Types.PREP;
+      }
+
+      if (section.data("type") === "task") {
+        if (prefix === Types.TASK_START && !line.match(/\[go] Start to execute task:/)) {
+          return true;
+        }
+        return [Types.OUT, Types.ERR, Types.PASS, Types.FAIL].indexOf(prefix) > -1;
+      }
+
+      return false;
+    }
 
     me.transform = function buildDomFromLogs(logLines) {
       var line, match, prefix, body;
 
       for (var i = 0, len = logLines.length; i < len; i++) {
-        line = logLines[i];
-        console.log(line)
+        line = $.trim(logLines[i]);
         match = line.match(re);
 
         if (match) {
           prefix = match[1];
           body = match[2];
 
-          element.append($("<div>").attr("data-prefix", prefix).text(body));
+          if (currentSection.is(":empty")) {
+            adoptSection(currentSection, prefix, body);
+          } else if (isPartOfSection(currentSection, prefix, body)) {
+            insertLine(currentSection, prefix, body);
+          } else {
+            // close section and start a new one
+            if (currentSection.find("dd").length) {
+              currentSection.prepend($("<a class='fa toggle'>"));
+            }
+
+            currentSection = addBlankSection(consoleElement);
+            adoptSection(currentSection, prefix, body);
+          }
         } else {
-          element.append($("<div>").text(line));
+          // the last line is usually blank, and we don't want this extra element
+          if (i !== len - 1 || line !== "") {
+            currentSection.append($("<dt>").text(line));
+          }
+        }
+
+        // ensure the last section is made collapsible if it contains more than 1 line
+        // as the last line be passed into adoptSection()
+        if (i === len - 1 && currentSection.is("[data-type]") && currentSection.find("dd").length) {
+          currentSection.prepend($("<a class='fa toggle'>"));
         }
       }
     };
@@ -121,8 +175,15 @@
 
     poller.register(new TimerObserver(jobDetails.data("build")));
 
-    //var consoleInterval = 5000; // 5 seconds
     var build           = $("[data-console-url]");
+
+    build.on("click", ".toggle", function toggleSectionCollapse(e) {
+      e.stopPropagation();
+      e.preventDefault();
+
+      var section = $(e.currentTarget).closest(".section");
+      section.toggleClass("open");
+    });
 
     if (build.length) {
       var consoleUrl = context_path("files/" + build.data("console-url"));
@@ -133,11 +194,10 @@
     poller.start();
 
     $(function () {
-      $(document).on('click.changeTheme', '.change-theme', function (evt) {
+      $(document).on('click.changeTheme', '.change-theme', function () {
         $('.sub_tab_container_content').toggleClass('white-theme');
       });
     });
-
 
   });
 

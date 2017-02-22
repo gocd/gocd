@@ -41,6 +41,9 @@
  *= require '_new-footer-with-old-css'
  */
 
+@import "font-awesome-sprockets";
+@import "font-awesome";
+
 @import "../new_stylesheets/shared/go-variables";
 @import "../new_stylesheets/shared/mixins";
 @import "../new_stylesheets/shared/common";

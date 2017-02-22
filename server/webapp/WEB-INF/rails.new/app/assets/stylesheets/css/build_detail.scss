@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@import "font-awesome/variables";
 @import "../new_stylesheets/shared/go-variables";
 @import "css_sass/base/mixins";
 @import '_font-awesome-glyphs';
@@ -437,10 +438,12 @@ div.build_detail_container_content {
     color: black;
   }
 
-  * {
-    font-family: Monaco, Consolas, Inconsolata, "Liberation Mono", "Courier New", monospace;
-    font-size: 13px;
-    line-height: 19px;
+  font-family: Monaco, Consolas, Inconsolata, "Liberation Mono", "Courier New", monospace;
+  font-size: 13px;
+  line-height: 19px;
+
+  .fa {
+    font-family: FontAwesome;
   }
 
   @each $color in black, red, green, yellow, blue, magenta, cyan, white {
@@ -461,7 +464,40 @@ div.build_detail_container_content {
     }
   }
 
+  .section {
+    margin-left: 10px;
+
+    dd {
+      display: none;
+    }
+
+    .toggle {
+      float: left;
+      margin-left: -10px;
+      cursor: pointer;
+      text-decoration: none;
+      color: white;
+
+      &:before {
+        content: $fa-var-caret-right;
+      }
+    }
+
+
+    &.open {
+      dd {
+        display: block;
+      }
+
+      .toggle:before {
+        content: $fa-var-caret-down;
+      }
+    }
+
+  }
 }
+
+
 
 .tests li {
   margin-bottom: 0.5em;

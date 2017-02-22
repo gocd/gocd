@@ -24,7 +24,7 @@ import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 
 import java.io.Serializable;
 
-public class Report implements Serializable {
+public class Report implements Serializable, Transmission {
     @Expose
     private String buildId;
     @Expose
@@ -59,6 +59,7 @@ public class Report implements Serializable {
         return jobState;
     }
 
+    @Override
     public JobIdentifier getJobIdentifier() {
         return jobIdentifier;
     }
@@ -108,6 +109,7 @@ public class Report implements Serializable {
                 '}';
     }
 
+    @Override
     public String getBuildId() {
         return buildId;
     }

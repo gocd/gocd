@@ -129,7 +129,7 @@ public class JobInstanceStatusMonitorTest {
     }
 
     @Test
-    public void shouldSendCancelMessageIfJobIsCancelled() {
+    public void shouldSendCancelMessageIfJobIsCancelled() throws Exception {
         AgentConfig agentConfig = AgentMother.remoteAgent();
         configHelper.addAgent(agentConfig);
         fixture.createPipelineWithFirstStageScheduled();
@@ -156,7 +156,7 @@ public class JobInstanceStatusMonitorTest {
     }
 
     @Test
-    public void shouldSendCancelMessageIfJobIsRescheduled() {
+    public void shouldSendCancelMessageIfJobIsRescheduled() throws Exception {
         AgentConfig agentConfig = AgentMother.remoteAgent();
         configHelper.addAgent(agentConfig);
         fixture.createPipelineWithFirstStageScheduled();

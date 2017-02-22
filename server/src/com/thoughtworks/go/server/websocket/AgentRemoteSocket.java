@@ -43,7 +43,7 @@ public class AgentRemoteSocket implements Agent {
     }
 
     @OnWebSocketMessage
-    public void onMessage(InputStream input) {
+    public void onMessage(InputStream input) throws Exception {
         Message msg = MessageEncoding.decodeMessage(input);
         LOGGER.debug("{} message: {}", sessionName(), msg);
         handler.process(this, msg);

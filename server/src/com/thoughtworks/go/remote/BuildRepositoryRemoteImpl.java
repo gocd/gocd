@@ -138,6 +138,10 @@ public class BuildRepositoryRemoteImpl {
         }
     }
 
+    public void consumeLine(String line) {
+
+    }
+
     private interface ReportingAction {
         void call() throws Exception;
     }

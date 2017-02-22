@@ -34,10 +34,7 @@ import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.HttpService;
 import com.thoughtworks.go.util.SubprocessLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.websocket.Action;
-import com.thoughtworks.go.websocket.Message;
-import com.thoughtworks.go.websocket.MessageEncoding;
-import com.thoughtworks.go.websocket.Report;
+import com.thoughtworks.go.websocket.*;
 import com.thoughtworks.go.work.SleepWork;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPut;
@@ -159,19 +156,25 @@ public class AgentWebSocketClientControllerTest {
 
     @Test
     public void processAssignWorkAction() throws IOException, InterruptedException {
+        new SystemEnvironment().set(SystemEnvironment.WEBSOCKET_ENABLED, true);
         ArgumentCaptor<Message> argumentCaptor = ArgumentCaptor.forClass(Message.class);
         agentController = createAgentController();
         agentController.init();
         agentController.process(new Message(Action.assignWork, MessageEncoding.encodeWork(new SleepWork("work1", 0))));
         assertThat(agentController.getAgentRuntimeInfo().getRuntimeStatus(), is(AgentRuntimeStatus.Idle));
 
-        verify(webSocketSessionHandler).sendAndWaitForAcknowledgement(argumentCaptor.capture());
+        verify(webSocketSessionHandler, times(2)).sendAndWaitForAcknowledgement(argumentCaptor.capture());
         verify(artifactsManipulator).setProperty(null, new Property("work1_result", "done"));
 
-        Message message = argumentCaptor.getValue();
+        Message message = argumentCaptor.getAllValues().get(1);
         assertThat(message.getAcknowledgementId(), notNullValue());
         assertThat(message.getAction(), is(Action.ping));
         assertThat(message.getData(), is(MessageEncoding.encodeData(agentController.getAgentRuntimeInfo())));
+
+        Message message2 = argumentCaptor.getAllValues().get(0);
+        assertThat(message2.getAcknowledgementId(), notNullValue());
+        assertThat(message2.getAction(), is(Action.consoleOut));
+        assertThat(message2.getData(), is(MessageEncoding.encodeData(new ConsoleTransmission("Sleeping for 0 milliseconds", new JobIdentifier()))));
     }
 
     @Test
@@ -199,19 +202,19 @@ public class AgentWebSocketClientControllerTest {
         AgentRuntimeInfo agentRuntimeInfo = cloneAgentRuntimeInfo(agentController.getAgentRuntimeInfo());
         agentRuntimeInfo.busy(new AgentBuildingInfo("build1ForDisplay", "build1"));
 
-        verify(webSocketSessionHandler, times(2)).sendAndWaitForAcknowledgement(currentStatusMessageCaptor.capture());
+        verify(webSocketSessionHandler, times(3)).sendAndWaitForAcknowledgement(currentStatusMessageCaptor.capture());
 
-        ArgumentCaptor<HttpPut> putMethodArg = ArgumentCaptor.forClass(HttpPut.class);
-        verify(httpService).execute(putMethodArg.capture());
-        assertThat(putMethodArg.getValue().getURI(), is(new URI("http://foo.bar/console")));
-        assertThat(IO.toString(putMethodArg.getValue().getEntity().getContent()), containsString("building"));
+        Message consoleOutMsg = currentStatusMessageCaptor.getAllValues().get(0);
+        assertThat(consoleOutMsg.getAcknowledgementId(), notNullValue());
+        assertThat(consoleOutMsg.getAction(), is(Action.consoleOut));
+        assertThat(consoleOutMsg.getData(), is(MessageEncoding.encodeData(new ConsoleTransmission("building", "b001"))));
 
-        Message message = currentStatusMessageCaptor.getAllValues().get(0);
+        Message message = currentStatusMessageCaptor.getAllValues().get(1);
         assertThat(message.getAcknowledgementId(), notNullValue());
         assertThat(message.getAction(), is(Action.reportCurrentStatus));
         assertThat(message.getData(), is(MessageEncoding.encodeData(new Report(agentRuntimeInfo, "b001", JobState.Building, null))));
 
-        Message jobCompletedMessage = currentStatusMessageCaptor.getAllValues().get(1);
+        Message jobCompletedMessage = currentStatusMessageCaptor.getAllValues().get(2);
         assertThat(jobCompletedMessage.getAcknowledgementId(), notNullValue());
         assertThat(jobCompletedMessage.getAction(), is(Action.reportCompleted));
         assertThat(jobCompletedMessage.getData(), is(MessageEncoding.encodeData(new Report(agentRuntimeInfo, "b001", null, JobResult.Passed))));
@@ -270,7 +273,6 @@ public class AgentWebSocketClientControllerTest {
         assertThat(message.getAction(), is(Action.reportCompleted));
         assertThat(message.getData(), is(MessageEncoding.encodeData(new Report(agentRuntimeInfo, "b001", null, JobResult.Cancelled))));
     }
-
 
     @Test
     public void processCancelJobAction() throws IOException, InterruptedException {

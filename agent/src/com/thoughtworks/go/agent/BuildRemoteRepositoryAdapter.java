@@ -8,10 +8,7 @@ import com.thoughtworks.go.remote.AgentInstruction;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
-import com.thoughtworks.go.websocket.Action;
-import com.thoughtworks.go.websocket.Message;
-import com.thoughtworks.go.websocket.MessageEncoding;
-import com.thoughtworks.go.websocket.Report;
+import com.thoughtworks.go.websocket.*;
 
 class BuildRepositoryRemoteAdapter implements BuildRepositoryRemote {
     private JobRunner runner;
@@ -58,5 +55,11 @@ class BuildRepositoryRemoteAdapter implements BuildRepositoryRemote {
     @Override
     public String getCookie(AgentIdentifier identifier, String location) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void consumeLine(String line, JobIdentifier jobIdentifier) {
+        ConsoleTransmission consoleTransmission = new ConsoleTransmission(line, jobIdentifier);
+        webSocketSessionHandler.sendAndWaitForAcknowledgement(new Message(Action.consoleOut, MessageEncoding.encodeData(consoleTransmission)));
     }
 }

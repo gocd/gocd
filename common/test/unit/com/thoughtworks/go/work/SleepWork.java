@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.work;
 
+import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.Property;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
@@ -26,10 +27,13 @@ import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
+import static java.lang.String.format;
 
 public class SleepWork implements Work {
     private String name;
@@ -46,6 +50,8 @@ public class SleepWork implements Work {
         cancelLatch = new CountDownLatch(1);
         agentRuntimeInfo.busy(new AgentBuildingInfo("sleepwork", "sleepwork1"));
         boolean canceled = false;
+        DefaultGoPublisher goPublisher = new DefaultGoPublisher(manipulator, new JobIdentifier(),
+                remoteBuildRepository, agentRuntimeInfo);
 
         try {
             if (this.sleepInMilliSeconds > 0) {
@@ -54,7 +60,9 @@ public class SleepWork implements Work {
 
             String result = canceled ? "done_canceled" : "done";
             manipulator.setProperty(null, new Property(name + "_result", result));
-
+            if (new SystemEnvironment().isWebsocketEnabled()) {
+                goPublisher.consumeLine(format("Sleeping for %s milliseconds", this.sleepInMilliSeconds));
+            }
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

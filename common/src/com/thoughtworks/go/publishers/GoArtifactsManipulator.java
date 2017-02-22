@@ -211,5 +211,4 @@ public class GoArtifactsManipulator {
         String consoleUrl = urlService.getUploadUrlOfAgent(jobIdentifier, getConsoleOutputFolderAndFileNameUrl());
         return new ConsoleOutputTransmitter(new RemoteConsoleAppender(consoleUrl, httpService));
     }
-
 }

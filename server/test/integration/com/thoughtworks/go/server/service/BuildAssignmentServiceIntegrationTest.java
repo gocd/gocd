@@ -696,7 +696,7 @@ public class BuildAssignmentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldAssignMatchedJobToAgentsRegisteredInAgentRemoteHandler() {
+    public void shouldAssignMatchedJobToAgentsRegisteredInAgentRemoteHandler() throws Exception {
         AgentConfig agentConfig = AgentMother.remoteAgent();
         configHelper.addAgent(agentConfig);
         fixture.createPipelineWithFirstStageScheduled();
@@ -716,7 +716,7 @@ public class BuildAssignmentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotAssignNoWorkToAgentsRegisteredInAgentRemoteHandler() {
+    public void shouldNotAssignNoWorkToAgentsRegisteredInAgentRemoteHandler() throws Exception {
         AgentConfig agentConfig = AgentMother.remoteAgent();
         configHelper.addAgent(agentConfig);
         fixture.createdPipelineWithAllStagesPassed();
@@ -731,7 +731,7 @@ public class BuildAssignmentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotAssignDeniedAgentWorkToAgentsRegisteredInAgentRemoteHandler() {
+    public void shouldNotAssignDeniedAgentWorkToAgentsRegisteredInAgentRemoteHandler() throws Exception {
         AgentConfig agentConfig = AgentMother.remoteAgent();
         agentConfig.disable();
 
@@ -747,7 +747,7 @@ public class BuildAssignmentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldOnlyAssignWorkToIdleAgentsRegisteredInAgentRemoteHandler() {
+    public void shouldOnlyAssignWorkToIdleAgentsRegisteredInAgentRemoteHandler() throws Exception {
         AgentConfig agentConfig = AgentMother.remoteAgent();
         configHelper.addAgent(agentConfig);
         fixture.createPipelineWithFirstStageScheduled();
@@ -771,7 +771,7 @@ public class BuildAssignmentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotAssignWorkToCanceledAgentsRegisteredInAgentRemoteHandler() {
+    public void shouldNotAssignWorkToCanceledAgentsRegisteredInAgentRemoteHandler() throws Exception {
         AgentConfig agentConfig = AgentMother.remoteAgent();
         configHelper.addAgent(agentConfig);
         fixture.createPipelineWithFirstStageScheduled();
@@ -790,7 +790,7 @@ public class BuildAssignmentServiceIntegrationTest {
 
 
     @Test
-    public void shouldCallForReregisterIfAgentInstanceIsNotRegistered() {
+    public void shouldCallForReregisterIfAgentInstanceIsNotRegistered() throws Exception {
         AgentConfig agentConfig = AgentMother.remoteAgent();
         fixture.createPipelineWithFirstStageScheduled();
         AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS", false);
@@ -807,7 +807,7 @@ public class BuildAssignmentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldAssignAgentsWhenThereAreAgentsAreDisabledOrNeedReregister() {
+    public void shouldAssignAgentsWhenThereAreAgentsAreDisabledOrNeedReregister() throws Exception {
         fixture.createPipelineWithFirstStageScheduled();
 
         AgentConfig canceledAgentConfig = AgentMother.remoteAgent();

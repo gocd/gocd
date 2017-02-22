@@ -86,6 +86,11 @@ public class FakeBuildRepositoryRemote implements BuildRepositoryRemote {
         throw new UnsupportedOperationException("Not implemented");
     }
 
+    @Override
+    public void consumeLine(String line, JobIdentifier jobIdentifier) {
+
+    }
+
 
     public static void waitUntilBuildCompleted() throws InterruptedException {
         while (!isBuildCompleted()) {

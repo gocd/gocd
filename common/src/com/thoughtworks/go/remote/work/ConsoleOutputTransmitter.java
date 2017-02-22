@@ -18,6 +18,7 @@ package com.thoughtworks.go.remote.work;
 
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.StreamConsumer;
+import com.thoughtworks.go.websocket.ConsoleTransmission;
 import org.apache.commons.collections.buffer.CircularFifoBuffer;
 import org.apache.log4j.Logger;
 

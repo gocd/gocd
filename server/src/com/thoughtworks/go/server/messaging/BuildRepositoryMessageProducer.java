@@ -72,6 +72,10 @@ public class BuildRepositoryMessageProducer implements BuildRepositoryRemote {
         return buildRepository.getCookie(identifier, location);
     }
 
+    public void consumeLine(String line, JobIdentifier jobIdentifier) {
+        buildRepository.consumeLine(line);
+    }
+
     public void reportCompleted(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobId, JobResult result) {
         long startTime = System.currentTimeMillis();
 

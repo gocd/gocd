@@ -157,10 +157,8 @@ public class AgentWebSocketClientController extends AgentController {
 
     private void runBuild(BuildSettings buildSettings) {
         URLService urlService = new URLService();
-        ConsoleOutputTransmitter buildConsole = new ConsoleOutputTransmitter(
-                new RemoteConsoleAppender(
-                        urlService.prefixPartialUrl(buildSettings.getConsoleUrl()),
-                        httpService));
+        ConsoleOutputWebsocketTransmitter buildConsole = new ConsoleOutputWebsocketTransmitter(webSocketSessionHandler, buildSettings.getBuildId());
+
         ArtifactsRepository artifactsRepository = new UrlBasedArtifactsRepository(
                 httpService,
                 urlService.prefixPartialUrl(buildSettings.getArtifactUploadBaseUrl()),
@@ -187,11 +185,7 @@ public class AgentWebSocketClientController extends AgentController {
             getAgentRuntimeInfo().busy(new AgentBuildingInfo(buildSettings.getBuildLocatorForDisplay(), buildSettings.getBuildLocator()));
             build.build(buildSettings.getBuildCommand());
         } finally {
-            try {
-                buildConsole.stop();
-            } finally {
-                getAgentRuntimeInfo().idle();
-            }
+            getAgentRuntimeInfo().idle();
         }
         this.buildSession.set(null);
     }

@@ -45,7 +45,7 @@ describe("build_detail_observer", function () {
         Element.addMethods({writeAttribute: orig_write_attribute});
         jQuery('.buildoutput_pre').html('');
 
-        observer = new BuildOutputObserver(1, "project1");
+        observer = new BuildOutputScrollObserver(1, "project1");
         jQuery('#container').addClass("building_passed");
 
         jQuery('#trans_content').html('');
@@ -70,7 +70,7 @@ describe("build_detail_observer", function () {
         $$WordBreaker.break_text = function () {
             return "breaked text";
         }
-        observer.display_error_message_if_necessary(inactive_json("project1"))
+        observer.displayAnyErrorMessages(inactive_json("project1"))
         assertTrue(jQuery('#trans_content').text().indexOf("breaked text") > -1);
     });
 

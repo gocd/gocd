@@ -1,8 +1,8 @@
  describe("PipelineHistoryComment", function() {
     var fakeModalBox = jasmine.createSpyObj('Modalbox', ['hide', 'show']);
-    var fakeDashboardPeriodicalExecuter = jasmine.createSpyObj('DashboardPeriodicalExecuter', [ 'fireNow' ]);
+    var fakeDashboardPeriodicalExecutor = jasmine.createSpyObj('DashboardPeriodicalExecutor', [ 'fireNow' ]);
 
-    var pipelineHistoryComment = initPipelineHistoryComment(jQuery, fakeModalBox, fakeDashboardPeriodicalExecuter);
+    var pipelineHistoryComment = initPipelineHistoryComment(jQuery, fakeModalBox, fakeDashboardPeriodicalExecutor);
 
     describe("#showModal", function() {
         beforeEach(function() {
@@ -45,7 +45,7 @@
 
         it("refreshes the pipeline history", function() {
             pipelineHistoryComment.onCommentSuccessCloseModalAndRefreshPipelineHistory();
-            expect(fakeDashboardPeriodicalExecuter.fireNow).toHaveBeenCalledWith();
+            expect(fakeDashboardPeriodicalExecutor.fireNow).toHaveBeenCalledWith();
         });
 
     });

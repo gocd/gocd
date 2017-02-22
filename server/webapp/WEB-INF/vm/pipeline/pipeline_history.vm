@@ -100,14 +100,14 @@
   var stageActions = new StageActions();
   var paginator = new Paginator();
 
-  var dashboard_periodical_executer = new DashboardPeriodicalExecuter('pipelineHistory.json?pipelineName=$pipelineName');
+  var dashboard_periodical_executor = new DashboardPeriodicalExecutor('pipelineHistory.json?pipelineName=$pipelineName');
   var pipelineHistoryObserver = new PipelineHistoryObserver('history');
-  dashboard_periodical_executer.register(pipelineHistoryObserver);
+  dashboard_periodical_executor.register(pipelineHistoryObserver);
 
-  dashboard_periodical_executer.start();
+  dashboard_periodical_executor.start();
 
       #if($pipeline_comment_feature_toggle_key)
-      var PipelineHistoryComment = initPipelineHistoryComment(jQuery, Modalbox, dashboard_periodical_executer);
+      var PipelineHistoryComment = initPipelineHistoryComment(jQuery, Modalbox, dashboard_periodical_executor);
       #end
 
   var pipelineName = "$pipelineName";

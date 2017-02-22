@@ -15,7 +15,7 @@
  *************************GO-LICENSE-END**********************************/
 
 describe("dashboard_periodical_executer", function(){
-    var dashboard_periodical_executer = new DashboardPeriodicalExecuter('pipelineStatus.json');
+    var dashboard_periodical_executor = new DashboardPeriodicalExecutor('pipelineStatus.json');
 
     beforeEach(function(){
         contextPath = "/go";
@@ -27,7 +27,7 @@ describe("dashboard_periodical_executer", function(){
             "        <a id=\"project1_all_successful_builds\"></a>\n" +
             "    </div>\n" +
             "</div>");
-        dashboard_periodical_executer.clean();
+        dashboard_periodical_executor.clean();
     });
 
     afterEach(function(){
@@ -43,10 +43,10 @@ describe("dashboard_periodical_executer", function(){
         var fakeObserver = {notify: function() {
             invoked = true;
         }};
-        dashboard_periodical_executer.clean();
-        dashboard_periodical_executer.register(fakeObserver);
-        assertEquals(1, dashboard_periodical_executer.observers.size());
-        dashboard_periodical_executer.start();
+        dashboard_periodical_executor.clean();
+        dashboard_periodical_executor.register(fakeObserver);
+        assertEquals(1, dashboard_periodical_executor.observers.size());
+        dashboard_periodical_executor.start();
         assertTrue(invoked);
     });
 
@@ -62,11 +62,11 @@ describe("dashboard_periodical_executer", function(){
         });
         var fakeOb = {notify: function() {
         }};
-        dashboard_periodical_executer.clean();
-        dashboard_periodical_executer.register(fakeOb);
-        assertEquals(1, dashboard_periodical_executer.observers.size());
-        dashboard_periodical_executer.start();
-        dashboard_periodical_executer.fireNow();
+        dashboard_periodical_executor.clean();
+        dashboard_periodical_executor.register(fakeOb);
+        assertEquals(1, dashboard_periodical_executor.observers.size());
+        dashboard_periodical_executor.start();
+        dashboard_periodical_executor.fireNow();
 
         assertTrue(invoked);
         assertEquals('The server encountered a problem (json error).', msg);
@@ -83,11 +83,11 @@ describe("dashboard_periodical_executer", function(){
         }}
         prepareMockRequest({status: 200}, null);
         var fakeOb = {notify: function(){}};
-        dashboard_periodical_executer.clean();
-        dashboard_periodical_executer.register(fakeOb);
-        assertEquals(1, dashboard_periodical_executer.observers.size());
-        dashboard_periodical_executer.start();
-        dashboard_periodical_executer.fireNow();
+        dashboard_periodical_executor.clean();
+        dashboard_periodical_executor.register(fakeOb);
+        assertEquals(1, dashboard_periodical_executor.observers.size());
+        dashboard_periodical_executor.start();
+        dashboard_periodical_executor.fireNow();
 
         assertTrue(invoked);
         assertEquals('Server cannot be reached. Either there is a network problem or the server is down.', msg);
@@ -104,8 +104,8 @@ describe("dashboard_periodical_executer", function(){
             options.statusCode[404]();
         });
 
-        dashboard_periodical_executer.start();
-        dashboard_periodical_executer.fireNow();
+        dashboard_periodical_executor.start();
+        dashboard_periodical_executor.fireNow();
 
         assertTrue(invoked);
         assertEquals('Server cannot be reached (404). Either there is a network problem or the server is down.', msg);
@@ -117,12 +117,12 @@ describe("dashboard_periodical_executer", function(){
             options.statusCode[401]();
         });
 
-        dashboard_periodical_executer.redirectToLoginPage = function() {
+        dashboard_periodical_executor.redirectToLoginPage = function() {
             invoked = true;
         }
 
-        dashboard_periodical_executer.start();
-        dashboard_periodical_executer.fireNow();
+        dashboard_periodical_executor.start();
+        dashboard_periodical_executor.fireNow();
 
         assertTrue(invoked);
     });
@@ -141,8 +141,8 @@ describe("dashboard_periodical_executer", function(){
         spyOn(jQuery, "ajax").and.callFake(function(options) {
             options.statusCode[500]({responseText: 'I\'m the reason'});
         });
-        dashboard_periodical_executer.start();
-        dashboard_periodical_executer.fireNow();
+        dashboard_periodical_executor.start();
+        dashboard_periodical_executor.fireNow();
 
         assertTrue(invoked);
         assertEquals('The server encountered an internal problem.', msg1);
@@ -160,8 +160,8 @@ describe("dashboard_periodical_executer", function(){
             options.error();
         });
 
-        dashboard_periodical_executer.start();
-        dashboard_periodical_executer.fireNow();
+        dashboard_periodical_executor.start();
+        dashboard_periodical_executor.fireNow();
 
         assertTrue(invoked);
         assertEquals('Server cannot be reached (failure). Either there is a network problem or the server is down.', msg);
@@ -180,8 +180,8 @@ describe("dashboard_periodical_executer", function(){
             options.success({error: "There is some error."});
         });
 
-        dashboard_periodical_executer.start();
-        dashboard_periodical_executer.fireNow();
+        dashboard_periodical_executor.start();
+        dashboard_periodical_executor.fireNow();
 
         assertTrue(invoked);
         assertEquals('The server encountered a problem.', msg1);
@@ -196,29 +196,29 @@ describe("dashboard_periodical_executer", function(){
         var fakeOb = {notify: function() {
             invoked = true;
         }};
-        dashboard_periodical_executer.clean();
-        dashboard_periodical_executer.pause();
-        dashboard_periodical_executer.register(fakeOb);
-        assertEquals(1, dashboard_periodical_executer.observers.size());
-        dashboard_periodical_executer.start();
-        dashboard_periodical_executer.fireNow();
+        dashboard_periodical_executor.clean();
+        dashboard_periodical_executor.pause();
+        dashboard_periodical_executor.register(fakeOb);
+        assertEquals(1, dashboard_periodical_executor.observers.size());
+        dashboard_periodical_executor.start();
+        dashboard_periodical_executor.fireNow();
 
         assertFalse(invoked);
         prepareMockRequest({status: 200}, '[1, 2, 3, 4]');
-        dashboard_periodical_executer.resume();
-        dashboard_periodical_executer.fireNow();
+        dashboard_periodical_executor.resume();
+        dashboard_periodical_executor.fireNow();
         assertTrue(invoked);
     });
 
     it("test_should_have_default_path_when_there_is_no_context_path", function(){
-        dashboard_periodical_executer.setUrl('json.json');
-        assertEquals('/go/json.json', dashboard_periodical_executer.url);
+        dashboard_periodical_executor.setUrl('json.json');
+        assertEquals('/go/json.json', dashboard_periodical_executor.url);
     });
 
     it("test_sn_should_be_expired_after_call_generate_method_2_times", function(){
-        var sn = dashboard_periodical_executer.generateSequenceNumber();
-        dashboard_periodical_executer.generateSequenceNumber();
-        assertFalse(dashboard_periodical_executer.isSequenceNumberValid(sn));
+        var sn = dashboard_periodical_executor.generateSequenceNumber();
+        dashboard_periodical_executor.generateSequenceNumber();
+        assertFalse(dashboard_periodical_executor.isSequenceNumberValid(sn));
     });
 
     it("test_should_remove_all_observers_after_clean", function(){
@@ -226,17 +226,17 @@ describe("dashboard_periodical_executer", function(){
         var fakeOb = {notify: function() {
             invoked = true;
         }};
-        dashboard_periodical_executer.clean();
-        assertEquals(0, dashboard_periodical_executer.observers.size());
+        dashboard_periodical_executor.clean();
+        assertEquals(0, dashboard_periodical_executor.observers.size());
 
-        dashboard_periodical_executer.register(fakeOb);
-        dashboard_periodical_executer.register(fakeOb);
-        dashboard_periodical_executer.register(fakeOb);
-        dashboard_periodical_executer.register(fakeOb);
+        dashboard_periodical_executor.register(fakeOb);
+        dashboard_periodical_executor.register(fakeOb);
+        dashboard_periodical_executor.register(fakeOb);
+        dashboard_periodical_executor.register(fakeOb);
 
-        assertEquals(4, dashboard_periodical_executer.observers.size());
-        dashboard_periodical_executer.clean();
-        assertEquals(0, dashboard_periodical_executer.observers.size());
+        assertEquals(4, dashboard_periodical_executor.observers.size());
+        dashboard_periodical_executor.clean();
+        assertEquals(0, dashboard_periodical_executor.observers.size());
     });
 
     it("test_should_remove_observer_when_unregister", function(){
@@ -244,27 +244,27 @@ describe("dashboard_periodical_executer", function(){
         var fakeOb = {notify: function() {
             invoked = true;
         }};
-        dashboard_periodical_executer.clean();
-        assertEquals(0, dashboard_periodical_executer.observers.size());
+        dashboard_periodical_executor.clean();
+        assertEquals(0, dashboard_periodical_executor.observers.size());
 
-        dashboard_periodical_executer.register(fakeOb);
-        dashboard_periodical_executer.register(fakeOb);
+        dashboard_periodical_executor.register(fakeOb);
+        dashboard_periodical_executor.register(fakeOb);
 
-        assertEquals(2, dashboard_periodical_executer.observers.size());
-        dashboard_periodical_executer.unregister(fakeOb);
-        assertEquals(1, dashboard_periodical_executer.observers.size());
+        assertEquals(2, dashboard_periodical_executor.observers.size());
+        dashboard_periodical_executor.unregister(fakeOb);
+        assertEquals(1, dashboard_periodical_executor.observers.size());
     });
 
     it("test_should_register_one_observer", function(){
-        assertEquals(0, dashboard_periodical_executer.observers.size());
-        dashboard_periodical_executer.register("fake_observer");
-        assertEquals(1, dashboard_periodical_executer.observers.size());
+        assertEquals(0, dashboard_periodical_executor.observers.size());
+        dashboard_periodical_executor.register("fake_observer");
+        assertEquals(1, dashboard_periodical_executor.observers.size());
     });
 
     it("test_should_register_multiple_observer", function(){
-        assertEquals(0, dashboard_periodical_executer.observers.size());
-        dashboard_periodical_executer.register("fake_observer", "fake_observer2");
-        assertEquals(2, dashboard_periodical_executer.observers.size());
+        assertEquals(0, dashboard_periodical_executor.observers.size());
+        dashboard_periodical_executor.register("fake_observer", "fake_observer2");
+        assertEquals(2, dashboard_periodical_executor.observers.size());
     });
 
     it("test_executer_should_pause_when_pause_condition_is_true", function() {
@@ -278,7 +278,7 @@ describe("dashboard_periodical_executer", function(){
             invoked = true;
         }};
 
-        var pausable_dashboard_periodical_executer = new DashboardPeriodicalExecuter('pipelineStatus.json', function(data) {return data.pause;});
+        var pausable_dashboard_periodical_executer = new DashboardPeriodicalExecutor('pipelineStatus.json', function(data) {return data.pause;});
         pausable_dashboard_periodical_executer.start();
 
         pausable_dashboard_periodical_executer.fireNow();
@@ -298,8 +298,8 @@ describe("dashboard_periodical_executer", function(){
                 is_invoked = true;
             }
         }
-        dashboard_periodical_executer.register(observer);
-        dashboard_periodical_executer._loop_observers({responseText: "{bla:'bla'}"}, 1);
+        dashboard_periodical_executor.register(observer);
+        dashboard_periodical_executor._loop_observers({responseText: "{bla:'bla'}"}, 1);
         assertTrue(is_invoked);
     });
 });

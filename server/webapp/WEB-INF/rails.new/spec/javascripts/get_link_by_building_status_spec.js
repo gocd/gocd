@@ -14,6 +14,17 @@
  * limitations under the License.
  *************************GO-LICENSE-END**********************************/
 
+var BuildBaseObserver = function() { };
+
+BuildBaseObserver.prototype = {
+  get_link : function (json) {
+    if (!json)  return;
+    if (!json.building_info) return;
+    if (!json.building_info.current_status) return;
+    return 'build/detail/' + json.building_info.name
+  }
+};
+
 describe("get_link_by_building_status", function(){
 
     it("test_should_return_link_to_commit_message_when_status_is_not_building", function() {

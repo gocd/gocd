@@ -476,7 +476,7 @@ div.build_detail_container_content {
       margin-left: -10px;
       cursor: pointer;
       text-decoration: none;
-      color: white;
+      color: inherit;
 
       &:before {
         content: $fa-var-caret-right;

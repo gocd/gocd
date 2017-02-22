@@ -14,7 +14,7 @@
  * limitations under the License.
  *************************GO-LICENSE-END**********************************/
 
-function DashboardPeriodicalExecuter(url, pause_condition) {
+function DashboardPeriodicalExecutor(url, pause_condition) {
     this.setUrl(url);
     this.sequenceNumber = 0;
     this.frequency = 5000; //milli-seconds;
@@ -24,7 +24,7 @@ function DashboardPeriodicalExecuter(url, pause_condition) {
     this.pause_condition = pause_condition;
 }
 
-DashboardPeriodicalExecuter.prototype = {
+DashboardPeriodicalExecutor.prototype = {
     start: function() {
         if(!this.is_paused) {
             this.is_execution_start = true;

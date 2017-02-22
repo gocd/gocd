@@ -2,10 +2,13 @@
   <%= link_to "Pipelines", pipeline_groups_path -%>
 </li>
 <%- if is_user_authorized_to_view_templates? -%>
-  <li role="presentation">
-    <%= link_to "Templates", templates_path -%>
-  </li>
+    <li role="presentation">
+      <%= link_to "Templates", templates_path -%>
+    </li>
 <%- end -%>
+<li role="presentation">
+  <%= link_to 'Elastic Agent Profiles', admin_elastic_profiles_path -%>
+</li>
 <li role="presentation">
   <%= link_to "Config XML", pipelines_snippet_path -%>
 </li>

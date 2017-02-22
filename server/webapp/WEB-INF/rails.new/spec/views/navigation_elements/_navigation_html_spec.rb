@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2016 ThoughtWorks, Inc.
+# Copyright 2017 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -118,7 +118,7 @@ describe "/navigation_elements/navigation" do
 
       render :partial => partial_page
 
-      assert_values_there = {"Pipelines" => pipeline_groups_path, "Config XML" => pipelines_snippet_path, "Plugins" => plugins_listing_path, "Package Repositories" => package_repositories_new_path}
+      assert_values_there = {"Pipelines" => pipeline_groups_path, "Elastic Agent Profiles" => admin_elastic_profiles_path, "Config XML" => pipelines_snippet_path, "Plugins" => plugins_listing_path, "Package Repositories" => package_repositories_new_path}
 
       Capybara.string(response.body).find("ul.admin-dropdown").tap do |ul_tabs_li|
         expect(ul_tabs_li.all("li").size).to be(assert_values_there.length)
@@ -138,7 +138,7 @@ describe "/navigation_elements/navigation" do
 
       render :partial => partial_page
 
-      assert_values_there = {"Pipelines" => pipeline_groups_path, "Templates" => templates_path, "Config XML" => pipelines_snippet_path, "Plugins" => plugins_listing_path, "Package Repositories" => package_repositories_new_path}
+      assert_values_there = {"Pipelines" => pipeline_groups_path, "Templates" => templates_path, "Elastic Agent Profiles" => admin_elastic_profiles_path, "Config XML" => pipelines_snippet_path, "Plugins" => plugins_listing_path, "Package Repositories" => package_repositories_new_path}
 
       Capybara.string(response.body).find("ul.admin-dropdown").tap do |ul_tabs_li|
         expect(ul_tabs_li.all("li").size).to be(assert_values_there.length)

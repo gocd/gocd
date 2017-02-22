@@ -25,25 +25,25 @@ module ApiV3
 
       def index
         templates = template_config_service.templatesWithPipelinesForUser(current_user.getUsername.toString)
-        json = ApiV3::Config::TemplatesConfigRepresenter.new(templates).to_hash(url_builder: self)
+        json = ApiV3::Admin::Templates::TemplatesConfigRepresenter.new(templates).to_hash(url_builder: self)
         render DEFAULT_FORMAT => json
       end
 
       def show
-        json = ApiV3::Config::TemplateConfigRepresenter.new(@template).to_hash(url_builder: self)
+        json = ApiV3::Admin::Templates::TemplateConfigRepresenter.new(@template).to_hash(url_builder: self)
         render DEFAULT_FORMAT => json if stale?(etag: etag_for(@template))
       end
 
       def create
         result = HttpLocalizedOperationResult.new
-        @template = ApiV3::Config::TemplateConfigRepresenter.new(PipelineTemplateConfig.new).from_hash(params[:template])
+        @template = ApiV3::Admin::Templates::TemplateConfigRepresenter.new(PipelineTemplateConfig.new).from_hash(params[:template])
         template_config_service.createTemplateConfig(current_user, @template, result)
         handle_create_or_update_response(result, @template)
       end
 
       def update
         result = HttpLocalizedOperationResult.new
-        updated_template = ApiV3::Config::TemplateConfigRepresenter.new(PipelineTemplateConfig.new).from_hash(params[:template])
+        updated_template = ApiV3::Admin::Templates::TemplateConfigRepresenter.new(PipelineTemplateConfig.new).from_hash(params[:template])
         template_config_service.updateTemplateConfig(current_user, updated_template, result, etag_for(@template))
         handle_create_or_update_response(result, updated_template)
       end
@@ -77,7 +77,7 @@ module ApiV3
       end
 
       def handle_create_or_update_response(result, updated_template)
-        json = ApiV3::Config::TemplateConfigRepresenter.new(updated_template).to_hash(url_builder: self)
+        json = ApiV3::Admin::Templates::TemplateConfigRepresenter.new(updated_template).to_hash(url_builder: self)
         if result.isSuccessful
           response.etag = [etag_for(updated_template)]
           render DEFAULT_FORMAT => json

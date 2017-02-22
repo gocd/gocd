@@ -24,7 +24,7 @@ module ApiV3
 
       def show
         if stale?(etag: etag_for(@pipeline_config))
-          json = ApiV3::Config::PipelineConfigRepresenter.new(@pipeline_config).to_hash(url_builder: self)
+          json = ApiV3::Admin::Pipelines::PipelineConfigRepresenter.new(@pipeline_config).to_hash(url_builder: self)
           render DEFAULT_FORMAT => json
         end
       end
@@ -56,18 +56,18 @@ module ApiV3
 
       def get_pipeline_from_request
         @pipeline_config_from_request ||= PipelineConfig.new.tap do |config|
-          ApiV3::Config::PipelineConfigRepresenter.new(config).from_hash(params[:pipeline], {go_config: go_config_service.getCurrentConfig()})
+          ApiV3::Admin::Pipelines::PipelineConfigRepresenter.new(config).from_hash(params[:pipeline], {go_config: go_config_service.getCurrentConfig()})
         end
       end
 
       def handle_config_save_or_update_result(result, pipeline_name = params[:pipeline_name])
         if result.isSuccessful
           load_pipeline(pipeline_name)
-          json = ApiV3::Config::PipelineConfigRepresenter.new(@pipeline_config).to_hash(url_builder: self)
+          json = ApiV3::Admin::Pipelines::PipelineConfigRepresenter.new(@pipeline_config).to_hash(url_builder: self)
           response.etag = [etag_for(@pipeline_config)]
           render DEFAULT_FORMAT => json
         else
-          json = ApiV3::Config::PipelineConfigRepresenter.new(@pipeline_config_from_request).to_hash(url_builder: self)
+          json = ApiV3::Admin::Pipelines::PipelineConfigRepresenter.new(@pipeline_config_from_request).to_hash(url_builder: self)
           render_http_operation_result(result, {data: json})
         end
       end

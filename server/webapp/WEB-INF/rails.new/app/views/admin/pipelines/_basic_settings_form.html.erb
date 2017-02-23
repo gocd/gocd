@@ -4,7 +4,7 @@
             <%= render :partial => "wizard_step_title.html", :locals => { :scope => { :step => scope[:step], :title => scope[:title]}} %>
         </div>
 
-        <%= render :partial => 'basic_new_pipeline_fields.html', :locals => {:scope => {:form => scope[:form], :pipeline => scope[:pipeline], :pipeline_group => scope[:pipeline_group], :pipeline_name_label => "PIPELINE_NAME"}} %>
+        <%= render :partial => 'basic_new_pipeline_fields.html', :locals => {:scope => {:form => scope[:form], :pipeline => scope[:pipeline], :pipeline_group => scope[:pipeline_group], :pipeline_name_label => "PIPELINE_NAME", :pipeline_display_name_label => "PIPELINE_DISPLAY_NAME"}} %>
         <%= render :partial => 'shared/form_required_message.html', :locals => {:scope => {}} %>
     </div>
 </div>

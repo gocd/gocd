@@ -201,6 +201,9 @@ allprojects {
     includeEmptyDirs false
     duplicatesStrategy 'exclude'
 
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+
     if (jarTask.name == 'testJar') {
       project.artifacts.add 'testOutput', jarTask
     } else {
@@ -211,6 +214,9 @@ allprojects {
   tasks.withType(Zip) {
     includeEmptyDirs false
     duplicatesStrategy 'exclude'
+
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
   }
 
   tasks.withType(Exec) {
@@ -305,14 +311,6 @@ subprojects {
   apply plugin: com.github.benmanes.gradle.versions.VersionsPlugin
 
   buildDir = "${projectDir}/target"
-
-  uploadArchives {
-    repositories {
-      mavenDeployer {
-        repository(url: "file://${rootProject.rootDir}/maven-output-dir")
-      }
-    }
-  }
 }
 
 task all(dependsOn: [':server-launcher:fatJar', ':server:prepareDb'])

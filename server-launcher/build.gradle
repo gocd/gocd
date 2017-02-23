@@ -62,8 +62,8 @@ task mainJar(type: Jar, dependsOn: [':server-launcher:jar', ':jetty9:jar', ':app
   with(copySpec {
     from {
       def topLevelJars = [
-          project(':jetty9').jar.archivePath,
-          project(':app-server').jar.archivePath
+        project(':jetty9').jar.archivePath,
+        project(':app-server').jar.archivePath
       ]
 
       topLevelJars.collect { it.isDirectory() ? it : zipTree(it) }
@@ -189,11 +189,11 @@ task pluginsZip(type: Zip, dependsOn: ':server-launcher:createVersionFile') {
 task verifyPluginZip(type: VerifyJarTask) {
   jarTask = pluginsZip
   expectedJars = [
-      '/': [
-        'yum-repo-exec-poller.jar',
-        'gocd-ldap-authentication-plugin.jar',
-        'filebased-authentication-plugin.jar'
-      ]
+    '/': [
+      'yum-repo-exec-poller.jar',
+      'gocd-ldap-authentication-plugin.jar',
+      'filebased-authentication-plugin.jar'
+    ]
   ]
 }
 clean.doLast {
@@ -201,115 +201,106 @@ clean.doLast {
 }
 
 task fatJar(type: Jar,
-    dependsOn: [
-        ':common:jar', ':server-launcher:jar', ':server:war', ':server:jar', ':tfs-impl-10:fatJar', ':tfs-impl-14:fatJar', ':server-launcher:mainJar',
-        ':agent-launcher:fatJar', ':agent-bootstrapper:fatJar', ':agent:fatJar',
-        ':server-launcher:h2deltasZip', ':server-launcher:h2dbZip', ':server-launcher:defaultCommandSnippetsZip', ':server-launcher:pluginsZip'
-    ]) {
+  dependsOn: [
+    ':common:jar', ':server-launcher:jar', ':server:war', ':server:jar', ':tfs-impl-10:fatJar', ':tfs-impl-14:fatJar', ':server-launcher:mainJar',
+    ':agent-launcher:fatJar', ':agent-bootstrapper:fatJar', ':agent:fatJar',
+    ':server-launcher:h2deltasZip', ':server-launcher:h2dbZip', ':server-launcher:defaultCommandSnippetsZip', ':server-launcher:pluginsZip'
+  ]) {
   finalizedBy 'verifyFatJar'
   manifest {
     attributes 'Main-Class': 'com.simontuffs.onejar.Boot'
     attributes 'One-Jar-Main-Class': 'com.thoughtworks.go.server.util.GoLauncher'
   }
 
-  doFirst {
+  from({ configurations.packagingInDefaultFilesDir }) {
+    into "defaultFiles/"
+    rename "(.*)-${project.version}.(.*)", '$1.$2'
+  }
 
-    from(configurations.packagingInDefaultFilesDir) {
-      into "defaultFiles/"
-      rename "(.*)-${project.version}.(.*)", '$1.$2'
-    }
+  from("${project(':installers').projectDir}/go-server/release/cruise-config.xml") { into 'defaultFiles/config' }
+  from("${project(':server').projectDir}/config/jetty.xml") { into 'defaultFiles/config' }
+  from("${project(':server').projectDir}/config/go_update_server.pub") { into 'defaultFiles/config' }
+  from("${project(':server').projectDir}/properties/src/log4j.properties") { into 'defaultFiles/config' }
+  from("${project(':server').projectDir}/historical_jars") { into 'defaultFiles/historical_jars' }
+  from("${project(':config-server').projectDir}/resources/cruise-config.xsd") { into 'defaultFiles/config' }
+  from(h2dbZip.archivePath) { into 'defaultFiles' rename "(.*)-${project.version}.zip", '$1.zip' }
+  from(h2deltasZip.archivePath) { into 'defaultFiles' rename "(.*)-${project.version}.zip", '$1.zip' }
+  from(defaultCommandSnippetsZip.archivePath) { into 'defaultFiles' rename "(.*)-${project.version}.zip", '$1.zip' }
+  from(pluginsZip.archivePath) { into 'defaultFiles' rename "(.*)-${project.version}.zip", '$1.zip' }
 
-    from("${project(':installers').projectDir}/go-server/release/cruise-config.xml") { into 'defaultFiles/config' }
-    from("${project(':server').projectDir}/config/jetty.xml") { into 'defaultFiles/config' }
-    from("${project(':server').projectDir}/config/go_update_server.pub") { into 'defaultFiles/config' }
-    from("${project(':server').projectDir}/properties/src/log4j.properties") { into 'defaultFiles/config' }
-    from("${project(':server').projectDir}/historical_jars") { into 'defaultFiles/historical_jars' }
-    from("${project(':config-server').projectDir}/resources/cruise-config.xsd") { into 'defaultFiles/config' }
-    from(h2dbZip.archivePath) { into 'defaultFiles' rename "(.*)-${project.version}.zip", '$1.zip' }
-    from(h2deltasZip.archivePath) { into 'defaultFiles' rename "(.*)-${project.version}.zip", '$1.zip' }
-    from(defaultCommandSnippetsZip.archivePath) { into 'defaultFiles' rename "(.*)-${project.version}.zip", '$1.zip' }
-    from(pluginsZip.archivePath) { into 'defaultFiles' rename "(.*)-${project.version}.zip", '$1.zip' }
+  from({ project(':jetty9').configurations.compileOnly - project(':jetty9').configurations.compile }) {
+    into 'lib/'
+  }
 
-    def jetty9ProvidedOnlyPackages = project(':jetty9').configurations.compileOnly - project(':jetty9').configurations.compile
-    def serverLauncherProvidedOnlyPackages = configurations.compileOnly - configurations.compile
+  from({ configurations.packagingInLibDir + configurations.compileOnly }) {
+    into 'lib/'
+    rename "tfs-impl-(.*)-${project.version}.jar", 'tfs-impl-$1.jar'
+    rename "go-plugin-activator-${project.version}.jar", "go-plugin-activator.jar"
+  }
 
-    from(jetty9ProvidedOnlyPackages) {
-      into 'lib/'
-    }
+  from(mainJar.archivePath) {
+    into('main/')
+    rename "(.*)-${project.version}-${mainJar.classifier}.jar", 'main.jar'
+  }
 
-    from(configurations.packagingInLibDir + serverLauncherProvidedOnlyPackages) {
-      into 'lib/'
-      rename "tfs-impl-(.*)-${project.version}.jar", 'tfs-impl-$1.jar'
-      rename "go-plugin-activator-${project.version}.jar", "go-plugin-activator.jar"
-    }
+  from({ configurations.extractedAtTopLevel.collect { it.isDirectory() ? it : zipTree(it) } }) {
+    include '**/*.class'
+    exclude 'OneJar.class'
+    into("/")
+  }
 
-    from(mainJar.archivePath) {
-      into('main/')
-      rename "(.*)-${project.version}-${mainJar.classifier}.jar", 'main.jar'
-    }
+  from({ zipTree(jar.archivePath) }) {
+    into('/')
+  }
 
-    with(copySpec {
-      from { configurations.extractedAtTopLevel.collect { it.isDirectory() ? it : zipTree(it) } }
-      include '**/*.class'
-      exclude 'OneJar.class'
-      into("/")
-    })
-
-    with(copySpec {
-      from { zipTree(jar.archivePath) }
-      into('/')
-    })
-
-    with(copySpec {
-      from "${rootProject.rootDir}/LICENSE"
-      into "/"
-    })
+  from("${rootProject.rootDir}/LICENSE") {
+    into "/"
   }
 }
 
 task verifyFatJar(type: VerifyJarTask) {
   jarTask = fatJar
   expectedJars = [
-      "defaultFiles": [
-          "agent-launcher.jar",
-          "agent.jar",
-          "tfs-impl-10.jar",
-          "tfs-impl-14.jar",
-      ],
-      "main"        : [
-          "main.jar"
-      ],
-      "lib"         : [
-          "bcprov-jdk15on-1.47.jar",
-          "commons-io-2.5.jar",
-          "go-plugin-activator.jar",
-          "javasysmon-0.3.6.jar",
-          "javax.servlet-api-3.1.0.jar",
-          "jetty-continuation-${versions.jetty}.jar",
-          "jetty-http-${versions.jetty}.jar",
-          "jetty-io-${versions.jetty}.jar",
-          "jetty-jmx-${versions.jetty}.jar",
-          "jetty-jndi-${versions.jetty}.jar",
-          "jetty-plus-${versions.jetty}.jar",
-          "jetty-security-${versions.jetty}.jar",
-          "jetty-server-${versions.jetty}.jar",
-          "jetty-servlet-${versions.jetty}.jar",
-          "jetty-servlets-${versions.jetty}.jar",
-          "jetty-util-${versions.jetty}.jar",
-          "jetty-webapp-${versions.jetty}.jar",
-          "jetty-xml-${versions.jetty}.jar",
-          "joda-time-2.3.jar",
-          "log4j-1.2.17.jar",
-          "slf4j-api-1.7.21.jar",
-          "slf4j-log4j12-1.7.21.jar",
-          "tfs-impl-10.jar",
-          "tfs-impl-14.jar",
-          "websocket-api-${versions.jetty}.jar",
-          "websocket-client-${versions.jetty}.jar",
-          "websocket-common-${versions.jetty}.jar",
-          "websocket-server-${versions.jetty}.jar",
-          "websocket-servlet-${versions.jetty}.jar",
-      ]
+    "defaultFiles": [
+      "agent-launcher.jar",
+      "agent.jar",
+      "tfs-impl-10.jar",
+      "tfs-impl-14.jar",
+    ],
+    "main"        : [
+      "main.jar"
+    ],
+    "lib"         : [
+      "bcprov-jdk15on-1.47.jar",
+      "commons-io-2.5.jar",
+      "go-plugin-activator.jar",
+      "javasysmon-0.3.6.jar",
+      "javax.servlet-api-3.1.0.jar",
+      "jetty-continuation-${versions.jetty}.jar",
+      "jetty-http-${versions.jetty}.jar",
+      "jetty-io-${versions.jetty}.jar",
+      "jetty-jmx-${versions.jetty}.jar",
+      "jetty-jndi-${versions.jetty}.jar",
+      "jetty-plus-${versions.jetty}.jar",
+      "jetty-security-${versions.jetty}.jar",
+      "jetty-server-${versions.jetty}.jar",
+      "jetty-servlet-${versions.jetty}.jar",
+      "jetty-servlets-${versions.jetty}.jar",
+      "jetty-util-${versions.jetty}.jar",
+      "jetty-webapp-${versions.jetty}.jar",
+      "jetty-xml-${versions.jetty}.jar",
+      "joda-time-2.3.jar",
+      "log4j-1.2.17.jar",
+      "slf4j-api-1.7.21.jar",
+      "slf4j-log4j12-1.7.21.jar",
+      "tfs-impl-10.jar",
+      "tfs-impl-14.jar",
+      "websocket-api-${versions.jetty}.jar",
+      "websocket-client-${versions.jetty}.jar",
+      "websocket-common-${versions.jetty}.jar",
+      "websocket-server-${versions.jetty}.jar",
+      "websocket-servlet-${versions.jetty}.jar",
+    ]
   ]
 }
 

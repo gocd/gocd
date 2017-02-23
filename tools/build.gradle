@@ -1,3 +1,5 @@
+import com.thoughtworks.go.build.NpmInstallTask
+
 /*
  * Copyright 2016 ThoughtWorks, Inc.
  *
@@ -75,22 +77,8 @@ task prepareJRuby {
   }
 }
 
-private boolean isWindows() {
-  org.gradle.internal.os.OperatingSystem.current().isWindows()
-}
-
-task prepareNodeJS {
-  inputs.file project.file("package.json")
-  outputs.dir project.file('node_modules')
-
-  doFirst {
-    project.exec {
-      standardOutput = System.out
-      errorOutput = System.err
-
-      commandLine = [isWindows() ? "yarn.cmd" : "yarn", "install"]
-    }
-  }
+task prepareNodeJS(type: NpmInstallTask) {
+  workingDir = project.projectDir
 }
 
 clean.doFirst {

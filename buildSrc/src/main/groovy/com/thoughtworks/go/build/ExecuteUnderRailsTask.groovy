@@ -62,10 +62,15 @@ public class ExecuteUnderRailsTask extends DefaultTask {
 
         args('-S')
 
-        if (railsCommand instanceof String) {
-          args(Commandline.translateCommandline(railsCommand))
+        def cmd = railsCommand
+        if (cmd instanceof Closure){
+          cmd = cmd.call()
+        }
+
+        if (cmd instanceof String) {
+          args(Commandline.translateCommandline(cmd))
         } else {
-          args(railsCommand)
+          args(cmd)
         }
 
         workingDir project.file("webapp/WEB-INF/rails.new")

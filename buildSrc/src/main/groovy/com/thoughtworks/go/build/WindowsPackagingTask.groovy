@@ -22,9 +22,7 @@ import org.gradle.api.GradleException
 import org.gradle.api.Task
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
-import org.gradle.api.tasks.ParallelizableTask
 
-@ParallelizableTask
 class WindowsPackagingTask extends DefaultTask {
   @Input
   String packageName

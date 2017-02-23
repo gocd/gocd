@@ -174,7 +174,7 @@ public class AgentRemoteHandlerTest {
         verify(consoleService).consoleLogFile(eq(jobIdentifier));
         ArgumentCaptor<InputStream> arg = ArgumentCaptor.forClass(InputStream.class);
         verify(consoleService).updateConsoleLog(eq(consoleFile), arg.capture());
-        assertThat(IOUtils.toString(arg.getValue(), "UTF-8"), containsString(consoleLine + "\n"));
+        assertThat(IOUtils.toString(arg.getValue()), containsString(consoleLine + "\n"));
     }
 
     @Test

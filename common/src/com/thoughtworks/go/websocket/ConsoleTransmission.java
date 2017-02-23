@@ -18,8 +18,8 @@ package com.thoughtworks.go.websocket;
 
 import com.google.gson.annotations.Expose;
 import com.thoughtworks.go.domain.JobIdentifier;
-import org.apache.commons.io.IOUtils;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -50,7 +50,7 @@ public class ConsoleTransmission implements Serializable, Transmission {
     }
 
     public InputStream getLineAsStream() throws IOException {
-        return IOUtils.toInputStream(getLine(), "UTF-8");
+        return new ByteArrayInputStream(getLine().getBytes());
     }
 
     public String getLine() {

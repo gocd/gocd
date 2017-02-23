@@ -156,7 +156,8 @@ public class AgentWebSocketClientControllerTest {
 
     @Test
     public void processAssignWorkAction() throws IOException, InterruptedException {
-        new SystemEnvironment().set(SystemEnvironment.WEBSOCKET_ENABLED, true);
+        SystemEnvironment env = new SystemEnvironment();
+        env.set(SystemEnvironment.WEBSOCKET_ENABLED, true);
         ArgumentCaptor<Message> argumentCaptor = ArgumentCaptor.forClass(Message.class);
         agentController = createAgentController();
         agentController.init();
@@ -175,6 +176,7 @@ public class AgentWebSocketClientControllerTest {
         assertThat(message2.getAcknowledgementId(), notNullValue());
         assertThat(message2.getAction(), is(Action.consoleOut));
         assertThat(message2.getData(), is(MessageEncoding.encodeData(new ConsoleTransmission("Sleeping for 0 milliseconds", new JobIdentifier()))));
+        env.set(SystemEnvironment.WEBSOCKET_ENABLED, false);
     }
 
     @Test

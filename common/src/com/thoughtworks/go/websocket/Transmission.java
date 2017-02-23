@@ -19,9 +19,6 @@ package com.thoughtworks.go.websocket;
 import com.google.gson.annotations.Expose;
 import com.thoughtworks.go.domain.JobIdentifier;
 
-/**
- * Created by kierarad on 2/22/17.
- */
 public interface Transmission {
     public JobIdentifier getJobIdentifier();
     public String getBuildId();

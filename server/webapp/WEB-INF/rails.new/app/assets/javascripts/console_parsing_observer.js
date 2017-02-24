@@ -65,20 +65,22 @@
   }
 
   var Types = {
-    INFO: "##", ALERT: "@@", PREP: "pr", TASK_START: "!!", OUT: "&1", ERR: "&2", PASS: "?0", FAIL: "?1"
+    INFO: "##", ALERT: "@@", PREP: "pr", PREP_ERR: "pe", TASK_START: "!!", OUT: "&1", ERR: "&2", PASS: "?0", FAIL: "?1", JOB_PASS: "j0", JOB_FAIL: "j1"
   };
 
   function LogOutputTransformer(consoleElement) {
     var me = this;
-    var currentSection;
+    var currentSection, lineCursor;
 
-    var re = /^([^|]{2})\|(.*)/;
+    var re = /^([^|]{2})\|(\d\d:\d\d:\d\d\.\d\d\d)(.*)/; // prefix parsing regex
+    var BEGIN_TASK_REGEX = /^(\s*\[go] (?:Cancel t|T)ask: )(.*)/;
+    var lineNumber = 0;
 
     consoleElement.on("click", ".toggle", function toggleSectionCollapse(e) {
       e.stopPropagation();
       e.preventDefault();
 
-      var section = $(e.currentTarget).closest(".section");
+      var section = $(e.currentTarget).closest(".foldable-section");
       section.toggleClass("open");
     });
 
@@ -87,35 +89,92 @@
     }
 
     function addBlankSection(element) {
-      var section = $("<dl class='section open'>");
+      var section = $("<dl class='foldable-section open'>");
       element.append(section);
       return section;
     }
 
-    function adoptSection(section, prefix, line) {
+    function onFinishSection(section) {
+      if (!section.data("errored")) {
+        section.removeClass("open");
+      }
+    }
+
+    function detectError(section, prefix) {
+      if ([Types.ALERT, Types.FAIL, Types.JOB_FAIL].indexOf(prefix) > -1) {
+        section.data("errored", true);
+      }
+
+      if (Types.PASS === prefix) {
+        section.attr("data-task-status", "passed").removeData("task-status");
+      }
+
+      if (Types.FAIL === prefix) {
+        section.attr("data-task-status", "failed").removeData("task-status");
+      }
+
+      if (Types.JOB_PASS === prefix) {
+        section.attr("data-job-status", "passed").removeData("job-status");
+      }
+
+      if (Types.JOB_FAIL === prefix) {
+        section.attr("data-job-status", "failed").removeData("job-status");
+      }
+    }
+
+    function adoptSection(section, prefix, line) { // TODO: name adoptSectionAndAddHeader?
       if ([Types.INFO, Types.ALERT].indexOf(prefix) > -1) {
         section.attr("data-type", "info");
-      } else if ([Types.PREP].indexOf(prefix) > -1) {
+      } else if ([Types.PREP, Types.PREP_ERR].indexOf(prefix) > -1) {
         section.attr("data-type", "prep");
       } else if ([Types.TASK_START, Types.OUT, Types.ERR, Types.PASS, Types.FAIL].indexOf(prefix) > -1) {
         section.attr("data-type", "task");
+      } else if ([Types.JOB_PASS, Types.JOB_FAIL].indexOf(prefix) > -1) {
+        section.attr("data-type", "result");
       } else {
         section.attr("data-type", "info");
       }
-      insertHeader(section, prefix, line);
+
+      return insertHeader(section, prefix, line);
+    }
+
+    function parseSpecialLineContent(lineElement, prefix, line) {
+      var parts;
+
+      if (prefix === Types.TASK_START && line.match(BEGIN_TASK_REGEX)) {
+        parts = line.match(BEGIN_TASK_REGEX);
+        lineElement.text(parts[1]).append($('<code>').text(parts[2]));
+      } else if (isExplicitEndBoundary(prefix)) {
+        parts = line.match(/^(\s*\[go] (?:Current job|Task) status: )(.*)/)
+        lineElement.text(parts[1]).append($('<code>').text(parts[2]));
+      } else {
+        if ("" === line) {
+          lineElement.append($("<br/>"));
+        } else {
+          lineElement.text(line);
+        }
+      }
     }
 
     function insertHeader(section, prefix, line) {
-      var header = $("<dt>").attr("data-prefix", prefix).text(line);
+      var header = $("<dt>").attr("data-prefix", prefix);
+
+      parseSpecialLineContent(header, prefix, line);
       section.append(header);
+      return header;
     }
 
     function insertLine(section, prefix, line) {
+      var output = $("<dd>").attr("data-prefix", prefix);
+
       if (!section.data("multiline")) {
         section.prepend($("<a class='fa toggle'>"));
       }
       section.data("multiline", true);
-      section.append($("<dd>").attr("data-prefix", prefix).text(line));
+
+      parseSpecialLineContent(output, prefix, line);
+      section.append(output);
+      return output;
     }
 
     function isPartOfSection(section, prefix, line) {
@@ -124,12 +183,12 @@
       }
 
       if (section.data("type") === "prep") {
-        return prefix === Types.PREP;
+        return [Types.PREP, Types.PREP_ERR].indexOf(prefix) > -1;
       }
 
       if (section.data("type") === "task") {
-        if (prefix === Types.TASK_START && !line.match(/\[go] Start to execute task:/)) {
-          return true;
+        if (prefix === Types.TASK_START) {
+          return !line.match(BEGIN_TASK_REGEX);
         }
         return [Types.OUT, Types.ERR, Types.PASS, Types.FAIL].indexOf(prefix) > -1;
       }
@@ -137,29 +196,53 @@
       return false;
     }
 
-    me.transform = function buildDomFromLogs(logLines) {
-      var line, match, prefix, body;
+    function isExplicitEndBoundary(prefix) {
+      return [Types.PASS, Types.FAIL, Types.JOB_PASS, Types.JOB_FAIL].indexOf(prefix) > -1;
+    }
 
-      for (var i = 0, len = logLines.length; i < len; i++) {
-        line = logLines[i];
-        match = line.match(re);
+    function closeSectionAndStartNext(section, container) {
+      // close section and start a new one
+      onFinishSection(section);
+
+      return addBlankSection(container);
+    }
+
+    me.transform = function buildDomFromLogs(logLines) {
+      var rawLine, match;
+
+      for (var i = 0, prefix, line, timestamp, len = logLines.length; i < len; i++) {
+        lineNumber++;
+        rawLine = logLines[i];
+        match = rawLine.match(re);
 
         if (match) {
           prefix = match[1];
-          body = match[2];
+          timestamp = match[2];
+          line = $.trim(match[3] || "");
+
+          detectError(currentSection, prefix);
 
           if (currentSection.is(":empty")) {
-            adoptSection(currentSection, prefix, body);
-          } else if (isPartOfSection(currentSection, prefix, body)) {
-            insertLine(currentSection, prefix, body);
+            lineCursor = adoptSection(currentSection, prefix, line);
+
+            if (isExplicitEndBoundary(prefix)) {
+              currentSection = closeSectionAndStartNext(currentSection, consoleElement);
+            }
+          } else if (isPartOfSection(currentSection, prefix, line)) {
+            lineCursor = insertLine(currentSection, prefix, line);
+
+            if (isExplicitEndBoundary(prefix)) {
+              currentSection = closeSectionAndStartNext(currentSection, consoleElement);
+            }
           } else {
-            // close section and start a new one
-            currentSection = addBlankSection(consoleElement);
-            adoptSection(currentSection, prefix, body);
+            currentSection = closeSectionAndStartNext(currentSection, consoleElement);
+            lineCursor = adoptSection(currentSection, prefix, line);
           }
+
+          lineCursor.attr("data-line", lineNumber).prepend($("<span class='ts'>").text(timestamp));
         } else {
-          // the last line is usually blank, and we don't want this extra element
-          currentSection.append($("<dt>").text(line));
+          lineCursor = $("<dt>").text(rawLine);
+          currentSection.append(lineCursor);
         }
       }
     };

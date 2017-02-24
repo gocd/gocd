@@ -19,21 +19,25 @@ package com.thoughtworks.go.util.command;
 /**
  * Created by marqueslee on 2/17/17.
  */
-public class SetupOutputStreamConsumer implements ConsoleOutputStreamConsumer {
+public class LabeledOutputStreamConsumer implements ConsoleOutputStreamConsumer {
+    private String tag;
+    private String errorTag;
     private ConsoleOutputStreamConsumer consumer;
 
-    public SetupOutputStreamConsumer(ConsoleOutputStreamConsumer consumer) {
+    public LabeledOutputStreamConsumer(String tag, String errorTag, ConsoleOutputStreamConsumer consumer) {
+        this.tag = tag;
+        this.errorTag = errorTag;
         this.consumer = consumer;
     }
 
     @Override
     public void stdOutput(String line) {
-        consumer.taggedStdOutput(TaggedStreamConsumer.PREP, line);
+        consumer.taggedStdOutput(tag, line);
     }
 
     @Override
     public void errOutput(String line) {
-        consumer.taggedErrOutput(TaggedStreamConsumer.PREP, line);
+        consumer.taggedErrOutput(errorTag, line);
     }
 
     @Override

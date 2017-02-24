@@ -99,7 +99,7 @@ public class BuildComposer {
         return BuildCommand.compose(
                 echoWithPrefix("Current job status: passed."),
                 echoWithPrefix("Current job status: failed.").runIf("failed"),
-                echoWithPrefix("Start to execute task: %s.", builder.getDescription()).runIf(runIfConfig),
+                echoWithPrefix("Task: %s", builder.getDescription()).runIf(runIfConfig),
                 builder.buildCommand()
                         .runIf(runIfConfig)
                         .setOnCancel(runCancelTask(builder.getCancelBuilder()))).runIf(runIfConfig);

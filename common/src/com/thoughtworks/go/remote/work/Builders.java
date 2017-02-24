@@ -63,7 +63,7 @@ public class Builders {
             BuildLogElement buildLogElement = new BuildLogElement();
             if (builder.allowRun(RunIfConfig.fromJobResult(result.toLowerCase()))) {
                 try {
-                    String executeMessage = format("Start to execute task: %s.", builder.getDescription());
+                    String executeMessage = format("Task: %s", builder.getDescription());
                     goPublisher.taggedConsumeLineWithPrefix(DefaultGoPublisher.TASK_START, executeMessage);
 
                     builder.build(buildLogElement, goPublisher,
@@ -72,7 +72,7 @@ public class Builders {
                     result = JobResult.Failed;
                 }
                 String tag = JobResult.Failed.equals(result) ? DefaultGoPublisher.TASK_FAIL : DefaultGoPublisher.TASK_PASS;
-                goPublisher.taggedConsumeLineWithPrefix(tag, format("Task status: %s.", result.toLowerCase()));
+                goPublisher.taggedConsumeLineWithPrefix(tag, format("Task status: %s", result.toLowerCase()));
             }
 
             buildLog.addContent(buildLogElement.getElement());

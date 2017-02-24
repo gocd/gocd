@@ -177,7 +177,7 @@ public class GoArtifactsManipulator {
         try {
             String fetchMsg = String.format("Fetching artifact [%s] from [%s]", fetchArtifactBuilder.getSrc(),
                     fetchArtifactBuilder.jobLocatorForDisplay());
-            goPublisher.consumeLineWithPrefix(fetchMsg);
+            goPublisher.taggedConsumeLineWithPrefix(DefaultGoPublisher.TASK_START, fetchMsg);
             fetchArtifactBuilder.fetch(new DownloadAction(httpService, goPublisher, new SystemTimeClock()), urlService);
         } catch (Exception e) {
             String fetchMsg = String.format("Failed to save artifact [%s] to [%s]",

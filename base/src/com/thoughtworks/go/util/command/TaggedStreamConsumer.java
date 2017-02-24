@@ -24,11 +24,16 @@ public interface TaggedStreamConsumer extends StreamConsumer {
     public static final String NOTICE = "##"; // Go information output
     public static final String ALERT = "@@"; // Go alert output
     public static final String PREP = "pr";
+    public static final String PREP_ERR = "pe";
+    public static final String CANCEL_TASK = "ct";
+    public static final String CANCEL_TASK_ERR = "ce";
     public static final String TASK_START = "!!";
     public static final String OUT = "&1";
     public static final String ERR = "&2";
     public static final String TASK_PASS = "?0";
     public static final String TASK_FAIL = "?1";
+    public static final String JOB_PASS = "j0";
+    public static final String JOB_FAIL = "j1";
 
     public void taggedConsumeLine(String tag, String line);
 }

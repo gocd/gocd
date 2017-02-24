@@ -154,7 +154,7 @@ public class BuildWork implements Work {
     private void dumpEnvironmentVariables(EnvironmentVariableContext environmentVariableContext) {
         Set<String> processLevelEnvVariables = ProcessManager.getInstance().environmentVariableNames();
         List<String> report = environmentVariableContext.report(processLevelEnvVariables);
-        ConsoleOutputStreamConsumer safeOutput = new SetupOutputStreamConsumer(safeOutputStreamConsumer(environmentVariableContext));
+        ConsoleOutputStreamConsumer safeOutput = new LabeledOutputStreamConsumer(DefaultGoPublisher.PREP, DefaultGoPublisher.PREP_ERR, safeOutputStreamConsumer(environmentVariableContext));
         for (int i = 0; i < report.size(); i++) {
             String line = report.get(i);
             safeOutput.stdOutput((i == report.size() - 1) ? line + "\n" : line);
@@ -214,8 +214,8 @@ public class BuildWork implements Work {
             return;
         }
 
-        String tag = JobResult.Passed.equals(result) ? DefaultGoPublisher.NOTICE : DefaultGoPublisher.ALERT;
-        goPublisher.taggedConsumeLineWithPrefix(tag, format("Current job status: %s.\n", RunIfConfig.fromJobResult(result.toLowerCase())));
+        String tag = JobResult.Passed.equals(result) ? DefaultGoPublisher.JOB_PASS: DefaultGoPublisher.JOB_FAIL;
+        goPublisher.taggedConsumeLineWithPrefix(tag, format("Current job status: %s", RunIfConfig.fromJobResult(result.toLowerCase())));
 
         goPublisher.reportCurrentStatus(Completing);
         goPublisher.reportAction("Start to create properties");

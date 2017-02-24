@@ -31,19 +31,32 @@
 
     if (build.length) {
       var consoleUrl = context_path("files/" + build.data("console-url"));
-      var container  = $(".buildoutput_pre");
-      var parser     = new ConsoleParsingObserver(consoleUrl, new LogOutputTransformer(container), {
-        onUpdate:   function () {
-          container.trigger("consoleUpdated");
-        },
-        onComplete: function () {
-          container.trigger("consoleCompleted");
+      build.each(function initConsoleParser(idx, consoleArea) {
+        var area = $(consoleArea);
+        var container = area.find(".buildoutput_pre");
+        var parser = new ConsoleParsingObserver(consoleUrl, new LogOutputTransformer(container), {
+          onUpdate:   function () {
+            container.trigger("consoleUpdated");
+          },
+          onComplete: function () {
+            container.trigger("consoleCompleted");
+          }
+        });
+
+        area.find(".console-action-bar").on("click", ".toggle-timestamps", function toggleLogTimestamps(e) {
+          e.stopPropagation();
+          e.preventDefault();
+
+          area.toggleClass("with-timestamps");
+        });
+
+        if (container.is("#tab-content-of-console *")) {
+          var consoleScroller = new ConsoleScroller(container, $("#build_console"), $('.auto-scroll'));
+          consoleScroller.startScroll();
         }
+        executor.register(parser);
       });
 
-      var consoleScroller = new ConsoleScroller(container, $('#build_console'), $('.auto-scroll'));
-      consoleScroller.startScroll();
-      executor.register(parser);
     }
 
     executor.register(new TimerObserver(jobDetails.data("build")));

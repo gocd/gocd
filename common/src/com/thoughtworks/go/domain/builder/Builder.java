@@ -94,10 +94,10 @@ public abstract class Builder implements Serializable {
     }
 
     public void cancel(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension) {
-        publisher.consumeLineWithPrefix("Start to execute cancel task: " + cancelBuilder.getDescription());
+        publisher.consumeLineWithPrefix("Cancel task: " + cancelBuilder.getDescription());
         try {
             cancelBuilder.build(new BuildLogElement(), publisher, environmentVariableContext, taskExtension);
-            publisher.consumeLineWithPrefix("Task is cancelled");
+            publisher.consumeLineWithPrefix("Task status: cancelled");
         } catch (Exception e) {
             LOGGER.error("", e);
         }

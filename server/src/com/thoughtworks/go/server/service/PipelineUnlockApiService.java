@@ -20,7 +20,7 @@ import static java.lang.String.format;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.StageIdentifier;
-import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
+import com.thoughtworks.go.server.dao.PipelineStateDao;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.OperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
@@ -43,17 +43,14 @@ public class PipelineUnlockApiService {
     private final PipelineLockService pipelineLockService;
     private final CurrentActivityService currentActivityService;
     private final SecurityService securityService;
-    private final PipelineSqlMapDao pipelineDao;
 
     @Autowired
     public PipelineUnlockApiService(GoConfigService goConfigService, PipelineLockService pipelineLockService,
-                                    CurrentActivityService currentActivityService, SecurityService securityService,
-                                    PipelineSqlMapDao pipelineDao) {
+                                    CurrentActivityService currentActivityService, SecurityService securityService) {
         this.goConfigService = goConfigService;
         this.pipelineLockService = pipelineLockService;
         this.currentActivityService = currentActivityService;
         this.securityService = securityService;
-        this.pipelineDao = pipelineDao;
     }
 
     public void unlock(String pipelineName, Username username, OperationResult result) {

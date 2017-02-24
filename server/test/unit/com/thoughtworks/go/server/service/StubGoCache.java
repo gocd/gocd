@@ -48,6 +48,11 @@ public class StubGoCache extends GoCache {
     }
 
     @Override
+    public void clear() {
+        map.clear();
+    }
+
+    @Override
     public List<String> getKeys() {
         return new ArrayList<>(map.keySet());
     }

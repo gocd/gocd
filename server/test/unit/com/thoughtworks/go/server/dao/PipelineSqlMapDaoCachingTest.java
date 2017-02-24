@@ -16,41 +16,43 @@
 
 package com.thoughtworks.go.server.dao;
 
-import com.ibatis.sqlmap.client.SqlMapClient;
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
+import com.thoughtworks.go.database.Database;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.git.GitMaterialInstance;
-import com.thoughtworks.go.helper.JobInstanceMother;
-import com.thoughtworks.go.helper.ModificationsMother;
-import com.thoughtworks.go.helper.PipelineMother;
-import com.thoughtworks.go.helper.StageMother;
+import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.presentation.pipelinehistory.*;
 import com.thoughtworks.go.server.cache.GoCache;
-import com.thoughtworks.go.server.database.DatabaseStrategy;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
+import com.thoughtworks.go.server.service.StubGoCache;
+import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
-import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TestUtils;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hamcrest.Matchers;
+import org.hibernate.SessionFactory;
+import org.hibernate.classic.Session;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mockito.ArgumentCaptor;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.springframework.orm.ibatis.SqlMapClientTemplate;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.support.SimpleTransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
 import java.util.*;
 
@@ -62,48 +64,36 @@ import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {
-        "classpath:WEB-INF/applicationContext-global.xml",
-        "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
-        "classpath:WEB-INF/applicationContext-acegi-security.xml"
-})
 public class PipelineSqlMapDaoCachingTest {
-    @Autowired private GoCache goCache;
-    @Autowired private SqlMapClient sqlMapClient;
+    private GoCache goCache;
     private PipelineSqlMapDao pipelineDao;
-    @Autowired private TransactionTemplate transactionTemplate;
-    @Autowired private TransactionSynchronizationManager transactionSynchronizationManager;
-    @Autowired private DatabaseAccessHelper dbHelper;
-    @Autowired private SystemEnvironment systemEnvironment;
-    @Autowired private GoConfigDao configFileDao;
-    @Autowired private DatabaseStrategy databaseStrategy;
+    private TransactionTemplate transactionTemplate;
+    private TransactionSynchronizationManager transactionSynchronizationManager;
+    private GoConfigDao configFileDao;
+    private org.hibernate.SessionFactory mockSessionFactory;
     private SqlMapClientTemplate mockTemplate;
-    private MaterialRepository repository;
     private EnvironmentVariableDao environmentVariableDao;
+    private MaterialRepository repository;
+    private Session session;
 
     @Before
     public void setup() throws Exception {
+        transactionSynchronizationManager = mock(TransactionSynchronizationManager.class);
+        goCache = new StubGoCache(new TestTransactionSynchronizationManager());
         goCache.clear();
-        dbHelper.onSetUp();
         mockTemplate = mock(SqlMapClientTemplate.class);
         repository = mock(MaterialRepository.class);
         environmentVariableDao = mock(EnvironmentVariableDao.class);
+        mockSessionFactory = mock(SessionFactory.class);
+        repository = mock(MaterialRepository.class);
+        transactionTemplate = mock(TransactionTemplate.class);
+        configFileDao = mock(GoConfigDao.class);
         pipelineDao = new PipelineSqlMapDao(null, repository, goCache, environmentVariableDao, transactionTemplate, null,
-                transactionSynchronizationManager, systemEnvironment, configFileDao, databaseStrategy);
+                transactionSynchronizationManager, null, configFileDao, mock(Database.class), mockSessionFactory);
         pipelineDao.setSqlMapClientTemplate(mockTemplate);
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        dbHelper.onTearDown();
-    }
-
-    @Test
-    public void lockedPipelineCacheKey_shouldReturnTheSameInstanceForAGivenPipeline() {
-        assertSame(
-                pipelineDao.lockedPipelineCacheKey("dev"),
-                pipelineDao.lockedPipelineCacheKey("dev"));
+        session = mock(Session.class);
+        when(mockSessionFactory.getCurrentSession()).thenReturn(session);
+        when(configFileDao.load()).thenReturn(GoConfigMother.defaultCruiseConfig());
     }
 
     @Test
@@ -116,11 +106,7 @@ public class PipelineSqlMapDaoCachingTest {
         when(repository.findMaterialRevisionsForPipeline(3)).thenReturn(originalMaterialRevisions);
         when(mockTemplate.queryForObject("findPipelineByNameAndCounter", m("name", "pipeline", "counter", 15))).thenReturn(expected);
 
-        BuildCause buildCause = (BuildCause) transactionTemplate.transactionSurrounding(new TransactionTemplate.TransactionSurrounding<RuntimeException>() {
-            public Object surrounding() {
-                return pipelineDao.findBuildCauseOfPipelineByNameAndCounter("pipeline", 15);
-            }
-        });
+        BuildCause buildCause = pipelineDao.findBuildCauseOfPipelineByNameAndCounter("pipeline", 15);
 
         verify(mockTemplate).queryForObject("findPipelineByNameAndCounter", m("name", "pipeline", "counter", 15));
         verify(repository).findMaterialRevisionsForPipeline(3);
@@ -149,102 +135,6 @@ public class PipelineSqlMapDaoCachingTest {
         verify(mockTemplate, times(1)).queryForObject("getPipelineByStageId", 1L);
     }
 
-    @Test
-    public void lockedPipeline_shouldCacheLockedPipelineStatus() throws Exception {
-        StageIdentifier expected = new StageIdentifier("mingle", 1, "foo", "stage", "1");
-        when(mockTemplate.queryForObject("lockedPipeline", "mingle")).thenReturn(expected);
-
-        pipelineDao.lockedPipeline("mingle");
-        StageIdentifier actual = pipelineDao.lockedPipeline("mingle");
-
-        assertSame(expected, actual);
-        verify(mockTemplate, times(1)).queryForObject("lockedPipeline", "mingle");
-    }
-
-    @Test
-    public void lockedPipeline_shouldReturnNullIfPipelineIsNotLocked() throws Exception {
-        pipelineDao.lockedPipeline("mingle");
-        StageIdentifier actual = pipelineDao.lockedPipeline("mingle");
-
-        assertNull("got " + actual, actual);
-        verify(mockTemplate, times(1)).queryForObject("lockedPipeline", "mingle");
-    }
-
-    @Test
-    public void lockPipeline_shouldInvalidateCacheOnTransactionCommit() throws Exception {
-        final Pipeline pipeline = PipelineMother.pipeline("mingle");
-
-        when(mockTemplate.queryForObject("lockedPipeline", "mingle")).thenReturn(pipeline.getFirstStage().getIdentifier());
-        pipelineDao.lockedPipeline("mingle");
-
-        pipelineDao.lockPipeline(pipeline);
-
-        pipelineDao.lockedPipeline("mingle");
-        verify(mockTemplate, times(2)).queryForObject("lockedPipeline", "mingle");
-        verify(mockTemplate, times(1)).update("lockPipeline", pipeline.getId());
-    }
-
-    @Test
-    public void lockPipeline_shouldHandleSerializationProperly() throws Exception {
-        when(mockTemplate.queryForObject("lockedPipeline", "mingle")).thenReturn(null);
-        assertNull(pipelineDao.lockedPipeline("mingle"));
-        goCache.put(pipelineDao.lockedPipelineCacheKey("mingle"), new StageIdentifier("NOT_LOCKED", 0, "NOT_LOCKED", null));
-        assertNull(pipelineDao.lockedPipeline("mingle"));
-    }
-
-    @Test
-    public void unlockPipeline_shouldInvalidateCacheOnTransactionCommit() throws Exception {
-        final Pipeline pipeline = PipelineMother.pipeline("mingle");
-
-        when(mockTemplate.queryForObject("lockedPipeline", "mingle")).thenReturn(pipeline.getFirstStage().getIdentifier());
-        pipelineDao.lockedPipeline("mingle");
-
-        pipelineDao.unlockPipeline("mingle");
-
-        pipelineDao.lockedPipeline("mingle");
-        verify(mockTemplate, times(1)).update("unlockLockedPipeline", "mingle");
-        verify(mockTemplate, times(2)).queryForObject("lockedPipeline", "mingle");
-    }
-
-    @Test(timeout = 10 * 1000)
-    public void lockPipeline_shouldEnsureOnlyOneThreadCanLockAPipelineSuccessfully() throws Exception {
-
-        pipelineDao = new PipelineSqlMapDao(null, null, goCache, null, transactionTemplate, sqlMapClient, transactionSynchronizationManager, systemEnvironment,
-                configFileDao, databaseStrategy) {
-            @Override
-            public StageIdentifier lockedPipeline(String pipelineName) {
-                StageIdentifier result = super.lockedPipeline(pipelineName);
-                TestUtils.sleepQuietly(20); // simulate multiple threads trying to lock a pipeline
-                return result;
-            }
-        };
-
-        List<Thread> threads = new ArrayList<>();
-        final int[] errors = new int[1];
-        for (int i = 0; i < 10; i++) {
-            JobInstances jobInstances = new JobInstances(JobInstanceMother.completed("job"));
-            Stage stage = new Stage("stage-1", jobInstances, "shilpa", "auto", new TimeProvider());
-            final Pipeline pipeline = PipelineMother.pipeline("mingle", stage);
-            pipeline.setCounter(i + 1);
-            dbHelper.savePipelineWithStagesAndMaterials(pipeline);
-
-            Thread thread = new Thread(new Runnable() {
-                public void run() {
-                    try {
-                        pipelineDao.lockPipeline(pipeline);
-                    } catch (Exception e) {
-                        errors[0]++;
-                    }
-                }
-            }, "thread-" + i);
-            threads.add(thread);
-            thread.start();
-        }
-        for (Thread thread : threads) {
-            thread.join();
-        }
-        assertThat(errors[0], is(9));
-    }
 
     @Test
     public void findLastSuccessfulStageIdentifier_shouldCacheResult() {
@@ -286,6 +176,22 @@ public class PipelineSqlMapDaoCachingTest {
     @Test
     public void savePipeline_shouldClearLatestPipelineIdCacheCaseInsensitively() {
         when(mockTemplate.queryForList(eq("getPipelineRange"), any())).thenReturn(Arrays.asList(99L));
+        doAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                ((TransactionSynchronizationAdapter) invocation.getArguments()[0]).afterCommit();
+                return null;
+            }
+        }).when(transactionSynchronizationManager).registerSynchronization(any(TransactionSynchronization.class));
+
+        when(transactionTemplate.execute(any(TransactionCallback.class))).then(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                ((TransactionCallback) invocation.getArguments()[0]).doInTransaction(new SimpleTransactionStatus());
+                return null;
+            }
+        });
+
         pipelineDao.save(PipelineMother.pipeline("pipelineName"));
         pipelineDao.findPipelineIds("pipelineName", 1, 0);
         pipelineDao.save(PipelineMother.pipeline("pipelineName".toUpperCase()));
@@ -300,15 +206,7 @@ public class PipelineSqlMapDaoCachingTest {
         stage.setIdentifier(new StageIdentifier("pipeline-name", 1, "stage", "1"));
         stage.setPipelineId(1L);
         when(mockTemplate.queryForObject(eq("getLastSuccessfulStageInPipeline"), any())).thenReturn(pipelineWithOlderStage);
-
-        goCache = new GoCache(goCache) {
-            @Override
-            public void put(String key, Object value) {
-                TestUtils.sleepQuietly(1000); // sleep so we can have multiple threads try to update the cache with a value from the db
-                super.put(key, value);
-            }
-        };
-        pipelineDao = new PipelineSqlMapDao(null, null, goCache, null, null, null, transactionSynchronizationManager, systemEnvironment, configFileDao, databaseStrategy);
+        pipelineDao = new PipelineSqlMapDao(null, null, goCache, null, null, null, transactionSynchronizationManager, null, configFileDao, null, mock(SessionFactory.class));
         pipelineDao.setSqlMapClientTemplate(mockTemplate);
 
         final Stage newerStage = StageMother.passedStageInstance("stage", "job", "pipeline-name");
@@ -405,7 +303,7 @@ public class PipelineSqlMapDaoCachingTest {
 
         //need to mock configfileDao for this test
         pipelineDao = new PipelineSqlMapDao(null, repository, goCache, environmentVariableDao, transactionTemplate, null,
-                transactionSynchronizationManager, systemEnvironment, mockconfigFileDao, databaseStrategy);
+                transactionSynchronizationManager, null, mockconfigFileDao, null, mock(SessionFactory.class));
         pipelineDao.setSqlMapClientTemplate(mockTemplate);
 
         PipelineInstanceModel pipeline = new PipelineInstanceModel(pipelineName, -2, "label", BuildCause.createManualForced(), new StageInstanceModels());
@@ -422,24 +320,6 @@ public class PipelineSqlMapDaoCachingTest {
         verify(mockTemplate,times(1)).queryForObject(eq("getPipelineHistoryById"), any());
         verify(mockconfigFileDao,times(2)).load();
         verify(mockCruiseConfig,times(2)).getAllPipelineNames();
-    }
-
-
-
-    @Test
-    public void shouldLockedPipelineCacheWhenStageStatusChanges() {
-        PipelineInstanceModel pipeline = new PipelineInstanceModel("pipeline", -2, "label", BuildCause.createManualForced(), new StageInstanceModels());
-        when(mockTemplate.queryForObject(eq("getPipelineHistoryById"), any())).thenReturn(pipeline);
-
-        PipelineInstanceModel loaded;
-        pipelineDao.lockedPipeline("pipeline");
-        pipelineDao.lockedPipeline("pipeline");
-        verify(mockTemplate, times(1)).queryForObject(eq("lockedPipeline"), any());
-
-        changeStageStatus();
-
-        pipelineDao.lockedPipeline("pipeline");
-        verify(mockTemplate, times(2)).queryForObject(eq("lockedPipeline"), any());
     }
 
     private void changeStageStatus() {
@@ -525,7 +405,7 @@ public class PipelineSqlMapDaoCachingTest {
 
         //need to mock configfileDao for this test
         pipelineDao = new PipelineSqlMapDao(null, repository, goCache, environmentVariableDao, transactionTemplate, null,
-                transactionSynchronizationManager, systemEnvironment, mockconfigFileDao, databaseStrategy);
+                transactionSynchronizationManager, null, mockconfigFileDao, null, mock(SessionFactory.class));
         pipelineDao.setSqlMapClientTemplate(mockTemplate);
 
         PipelineInstanceModel first = model(1, JobState.Building, JobResult.Unknown);
@@ -562,7 +442,7 @@ public class PipelineSqlMapDaoCachingTest {
 
         //need to mock configfileDao for this test
         pipelineDao = new PipelineSqlMapDao(null, repository, goCache, environmentVariableDao, transactionTemplate, null,
-                transactionSynchronizationManager, systemEnvironment, mockconfigFileDao, databaseStrategy);
+                transactionSynchronizationManager, null, mockconfigFileDao, null, mock(SessionFactory.class));
         pipelineDao.setSqlMapClientTemplate(mockTemplate);
 
         PipelineInstanceModel first = model(1, JobState.Completed, JobResult.Passed);
@@ -722,6 +602,22 @@ public class PipelineSqlMapDaoCachingTest {
                 new MaterialRevision(new DependencyMaterial(new CaseInsensitiveString("p"), new CaseInsensitiveString("s")), new Modification("u", "comment", "email", new Date(), "p/1/s/1")));
         Pipeline pipeline = new Pipeline("p1", BuildCause.createWithModifications(materialRevisions, ""));
 
+        doAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                ((TransactionSynchronizationAdapter) invocation.getArguments()[0]).afterCommit();
+                return null;
+            }
+        }).when(transactionSynchronizationManager).registerSynchronization(any(TransactionSynchronization.class));
+
+        when(transactionTemplate.execute(any(TransactionCallback.class))).then(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                ((TransactionCallback) invocation.getArguments()[0]).doInTransaction(new SimpleTransactionStatus());
+                return null;
+            }
+        });
+
         pipelineDao.save(pipeline);
         assertThat(goCache.get(cacheKey), is(Matchers.nullValue()));
     }
@@ -787,6 +683,21 @@ public class PipelineSqlMapDaoCachingTest {
 
 		MaterialRevisions materialRevisions = new MaterialRevisions(new MaterialRevision(new GitMaterial("url", "branch"), new Modification("user", "comment", "email", new Date(), "r1")));
 		Pipeline pipeline = new Pipeline("p1", BuildCause.createWithModifications(materialRevisions, ""));
+        doAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                ((TransactionSynchronizationAdapter) invocation.getArguments()[0]).afterCommit();
+                return null;
+            }
+        }).when(transactionSynchronizationManager).registerSynchronization(any(TransactionSynchronization.class));
+
+        when(transactionTemplate.execute(any(TransactionCallback.class))).then(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                ((TransactionCallback) invocation.getArguments()[0]).doInTransaction(new SimpleTransactionStatus());
+                return null;
+            }
+        });
 
 		pipelineDao.save(pipeline);
 		assertThat(goCache.get(cacheKey), is(Matchers.nullValue()));

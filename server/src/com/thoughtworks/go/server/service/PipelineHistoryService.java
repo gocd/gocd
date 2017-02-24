@@ -422,7 +422,7 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
     private void populateLockStatus(String pipelineName, Username username, PipelineInstanceModel pipelineInstanceModel) {
         pipelineInstanceModel.setCanUnlock(pipelineUnlockService.canUnlock(pipelineName, username, new HttpOperationResult()));
         pipelineInstanceModel.setIsLockable(goConfigService.isLockable(pipelineName));
-        pipelineInstanceModel.setCurrentlyLocked(pipelineLockService.lockedPipeline(pipelineName) != null);
+        pipelineInstanceModel.setCurrentlyLocked(pipelineLockService.isLocked(pipelineName));
     }
 
     private void populateStageOperatePermission(PipelineInstanceModel pipelineInstanceModel, Username username) {

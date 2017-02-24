@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2016 ThoughtWorks, Inc.
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.dao;
 
@@ -40,6 +40,10 @@ import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.server.util.SqlUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.log4j.Logger;
+import org.hibernate.Criteria;
+import org.hibernate.SessionFactory;
+import org.hibernate.criterion.*;
+import org.hibernate.transform.BasicTransformerAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.stereotype.Component;
@@ -67,15 +71,15 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     private TransactionSynchronizationManager transactionSynchronizationManager;
     private final SystemEnvironment systemEnvironment;
     private final GoConfigDao configFileDao;
+    private SessionFactory sessionFactory;
     private final Cloner cloner = new Cloner();
     private final ReadWriteLock activePipelineRWLock = new ReentrantReadWriteLock();
     private final Lock activePipelineReadLock = activePipelineRWLock.readLock();
     private final Lock activePipelineWriteLock = activePipelineRWLock.writeLock();
-
     @Autowired
     public PipelineSqlMapDao(StageDao stageDao, MaterialRepository materialRepository, GoCache goCache, EnvironmentVariableDao environmentVariableDao, TransactionTemplate transactionTemplate,
                              SqlMapClient sqlMapClient, TransactionSynchronizationManager transactionSynchronizationManager, SystemEnvironment systemEnvironment,
-                             GoConfigDao configFileDao, Database database) {
+                             GoConfigDao configFileDao, Database database, SessionFactory sessionFactory) {
         super(goCache, sqlMapClient, systemEnvironment, database);
         this.stageDao = stageDao;
         this.materialRepository = materialRepository;
@@ -85,7 +89,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         this.transactionSynchronizationManager = transactionSynchronizationManager;
         this.systemEnvironment = systemEnvironment;
         this.configFileDao = configFileDao;
-
+        this.sessionFactory = sessionFactory;
     }
 
     @Override
@@ -339,7 +343,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
 
     private PipelineInstanceModel loadPipelineInstanceModelByNameAndCounter(String pipelineName, int pipelineCounter) {
         String cacheKey = cacheKeyForPipelineHistoryByNameAndCounter(pipelineName, pipelineCounter);
-        PipelineInstanceModel instanceModel = (PipelineInstanceModel) goCache.get(cacheKey);;
+        PipelineInstanceModel instanceModel = (PipelineInstanceModel) goCache.get(cacheKey);
         if (instanceModel == null) {
             synchronized (cacheKey) {
                 instanceModel = (PipelineInstanceModel) goCache.get(cacheKey);
@@ -479,7 +483,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     private PipelineInstanceModels convertToPipelineInstanceModels(Map<String, TreeSet<Long>> result) {
         List<PipelineInstanceModel> models = new ArrayList<PipelineInstanceModel>();
 
-        List<CaseInsensitiveString> pipelinesInConfig= getPipelineNamesInConfig();
+        List<CaseInsensitiveString> pipelinesInConfig = getPipelineNamesInConfig();
         if (pipelinesInConfig.isEmpty()) {
             LOGGER.warn("No pipelines found in Config, Skipping PIM loading.");
             return PipelineInstanceModels.createPipelineInstanceModels(models);
@@ -490,7 +494,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         for (int i = 0; i < collectionCount; i++) {
             Long id = pipelineIds.get(i);
             PipelineInstanceModel model = loadHistory(id);
-            if(model == null){
+            if (model == null) {
                 continue;
             }
             if (!pipelinesInConfig.contains(new CaseInsensitiveString(model.getName()))) {
@@ -565,7 +569,6 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         updateCachedLatestSuccessfulStage(stage);
         String pipelineName = stage.getIdentifier().getPipelineName();
         Integer pipelineCounter = stage.getIdentifier().getPipelineCounter();
-        clearLockedPipelineCache(pipelineName);
         clearPipelineHistoryCacheViaNameAndCounter(pipelineName, pipelineCounter);
     }
 
@@ -573,9 +576,6 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         goCache.remove(cacheKeyForPipelineHistoryByNameAndCounter(pipelineName, pipelineCounter));
     }
 
-    private void clearLockedPipelineCache(String pipelineName) {
-        goCache.remove(lockedPipelineCacheKey(pipelineName));
-    }
 
     private void syncCachedActivePipelines(Stage stage) {
         Map<String, TreeSet<Long>> activePipelinesToIds = (Map<String, TreeSet<Long>>) goCache.get(activePipelinesCacheKey());
@@ -795,87 +795,6 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         return latestModification != null ? latestModification.getRevision() : null;
     }
 
-    /**
-     * ReadWriteLock is used because the profiler output shows that the synchronized block in lockedPipeline is
-     * highly contended, and reads (lockedPipeline) far outnumber the writes (lockPipeline/unlockPipeline)
-     * <p/>
-     * Lock protects two pipeline instances of same pipeline from getting locked(pipeline lock) at the same time.
-     */
-    private static final ReadWriteLock lockPipelineMutex = new ReentrantReadWriteLock();
-
-    public void lockPipeline(final Pipeline pipeline) {
-        lockPipelineMutex.writeLock().lock();
-        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus status) {
-                final String pipelineName = pipeline.getName();
-                transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-                    @Override
-                    public void afterCompletion(int status) {
-                        clearLockedPipelineCache(pipelineName);
-                        lockPipelineMutex.writeLock().unlock();
-                    }
-                });
-                StageIdentifier identifier = lockedPipeline(pipelineName);
-                if (identifier != null && !identifier.pipelineIdentifier().equals(pipeline.getIdentifier())) {
-                    throw new RuntimeException(String.format("Pipeline '%s' is already locked (counter = %s)", pipelineName, identifier.getPipelineCounter()));
-                }
-                getSqlMapClientTemplate().update("lockPipeline", pipeline.getId());
-            }
-        });
-    }
-
-    /**
-     * Used in the cache to indicate that a pipeline is not locked
-     */
-
-    private static final StageIdentifier NOT_LOCKED = new StageIdentifier("NOT_LOCKED", 0, "NOT_LOCKED", null);
-
-    public void unlockPipeline(final String pipelineName) {
-        lockPipelineMutex.writeLock().lock();
-        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus status) {
-                final String cacheKey = lockedPipelineCacheKey(pipelineName);
-                transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-                    @Override
-                    public void afterCompletion(int status) {
-                        goCache.remove(cacheKey);
-                        lockPipelineMutex.writeLock().unlock();
-                    }
-                });
-                getSqlMapClientTemplate().update("unlockLockedPipeline", pipelineName);
-            }
-        });
-    }
-
-
-    public StageIdentifier lockedPipeline(String pipelineName) {
-        String cacheKey = lockedPipelineCacheKey(pipelineName);
-        lockPipelineMutex.readLock().lock();
-        try {
-            StageIdentifier lockedBy = (StageIdentifier) goCache.get(cacheKey);
-            if (lockedBy != null) {
-                // We should not do a reference equals here because the cached object may get serialized and deserialized, in which case == will not work
-                return lockedBy.equals(NOT_LOCKED) ? null : lockedBy;
-            }
-            lockedBy = (StageIdentifier) getSqlMapClientTemplate().queryForObject("lockedPipeline", pipelineName);
-            goCache.put(cacheKey, lockedBy == null ? NOT_LOCKED : lockedBy);
-            return lockedBy;
-        } finally {
-            lockPipelineMutex.readLock().unlock();
-        }
-    }
-
-    String lockedPipelineCacheKey(String pipelineName) {
-        // we intern() it because we synchronize on the returned String
-        return (PipelineSqlMapDao.class.getName() + "_lockedPipeline_" + pipelineName).intern();
-    }
-
-    public List<String> lockedPipelines() {
-        return getSqlMapClientTemplate().queryForList("allLockedPipelines");
-    }
-
     public Pipeline findPipelineByCounterOrLabel(String pipelineName, String counterOrLabel) {
         Pipeline pipeline = null;
         try {
@@ -983,30 +902,30 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         return pipelineIdentifiers;
     }
 
-	@Override
-	public List<PipelineIdentifier> getPipelineInstancesTriggeredWithDependencyMaterial(String pipelineName, MaterialInstance materialInstance, String revision) {
-		String cacheKey = cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial(pipelineName, materialInstance.getFingerprint(), revision);
-		List<PipelineIdentifier> pipelineIdentifiers = (List<PipelineIdentifier>) goCache.get(cacheKey);
-		if (pipelineIdentifiers == null) {
-			synchronized (cacheKey) {
-				pipelineIdentifiers = (List<PipelineIdentifier>) goCache.get(cacheKey);
-				if (pipelineIdentifiers == null) {
-					pipelineIdentifiers = (List<PipelineIdentifier>) getSqlMapClientTemplate().queryForList("pipelineInstancesTriggeredOffOfMaterialRevision",
-							arguments("pipelineName", pipelineName).and("materialId", materialInstance.getId()).and("materialRevision", revision).asMap());
-					goCache.put(cacheKey, pipelineIdentifiers);
-				}
-			}
-		}
-		return pipelineIdentifiers;
-	}
+    @Override
+    public List<PipelineIdentifier> getPipelineInstancesTriggeredWithDependencyMaterial(String pipelineName, MaterialInstance materialInstance, String revision) {
+        String cacheKey = cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial(pipelineName, materialInstance.getFingerprint(), revision);
+        List<PipelineIdentifier> pipelineIdentifiers = (List<PipelineIdentifier>) goCache.get(cacheKey);
+        if (pipelineIdentifiers == null) {
+            synchronized (cacheKey) {
+                pipelineIdentifiers = (List<PipelineIdentifier>) goCache.get(cacheKey);
+                if (pipelineIdentifiers == null) {
+                    pipelineIdentifiers = (List<PipelineIdentifier>) getSqlMapClientTemplate().queryForList("pipelineInstancesTriggeredOffOfMaterialRevision",
+                            arguments("pipelineName", pipelineName).and("materialId", materialInstance.getId()).and("materialRevision", revision).asMap());
+                    goCache.put(cacheKey, pipelineIdentifiers);
+                }
+            }
+        }
+        return pipelineIdentifiers;
+    }
 
     private String cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial(String pipelineName, String dependencyPipelineName, Integer dependencyPipelineCounter) {
         return (PipelineSqlMapDao.class + "_cacheKeyForPipelineInstancesWithDependencyMaterial_" + pipelineName.toLowerCase() + "_" + dependencyPipelineName.toLowerCase() + "_" + dependencyPipelineCounter).intern();
     }
 
-	String cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial(String pipelineName, String fingerPrint, String revision) {
+    String cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial(String pipelineName, String fingerPrint, String revision) {
         return (PipelineSqlMapDao.class + "_cacheKeyForPipelineInstancesWithDependencyMaterial_" + pipelineName.toLowerCase() + "_" + fingerPrint + "_" + revision).intern();
-	}
+    }
 
     private void invalidateCacheConditionallyForPipelineInstancesTriggeredWithDependencyMaterial(Pipeline pipeline) {
         BuildCause buildCause = pipeline.getBuildCause();
@@ -1016,9 +935,9 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
                 goCache.remove(cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial(pipeline.getName(),
                         dependencyMaterialRevision.getPipelineName(), dependencyMaterialRevision.getPipelineCounter()));
             } else {
-				goCache.remove(cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial(pipeline.getName(),
-						materialRevision.getMaterial().getFingerprint(), materialRevision.getRevision().getRevision()));
-			}
+                goCache.remove(cacheKeyForPipelineInstancesTriggeredWithDependencyMaterial(pipeline.getName(),
+                        materialRevision.getMaterial().getFingerprint(), materialRevision.getRevision().getRevision()));
+            }
         }
     }
 

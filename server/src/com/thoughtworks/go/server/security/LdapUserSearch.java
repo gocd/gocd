@@ -53,7 +53,6 @@ public class LdapUserSearch implements org.springframework.security.ldap.LdapUse
     private static final String SAM_ACCOUNT_NAME = "sAMAccountName";
     private static final String UID = "uid";
     private static final String COMMON_NAME = "cn";
-    private static final String USER_PRINCIPLE_NAME = "userPrincipalName";
     private static final String MAIL_ID = "mail";
     private static final String ALIAS_EMAIL_ID = "otherMailbox";
     private static final long MAX_RESULTS = 100;
@@ -119,7 +118,6 @@ public class LdapUserSearch implements org.springframework.security.ldap.LdapUse
         filter.or(new LikeFilter(SAM_ACCOUNT_NAME, searchString));
         filter.or(new LikeFilter(UID, searchString));
         filter.or(new LikeFilter(COMMON_NAME, searchString));
-        filter.or(new LikeFilter(USER_PRINCIPLE_NAME, searchString));
         filter.or(new LikeFilter(MAIL_ID, searchString));
         filter.or(new LikeFilter(ALIAS_EMAIL_ID, searchString));    // This field is optional to search based on. Only for alias emails.
         //List ldapUserList = template.search(ldapConfig.searchBase(), filter.encode(), attributes);
@@ -166,12 +164,8 @@ public class LdapUserSearch implements org.springframework.security.ldap.LdapUse
         String loginName;
         loginName = samAccName != null ? samAccName.get().toString() : attributes.get(UID).get().toString();
 
-        Attribute emailAttr = attributes.get(USER_PRINCIPLE_NAME);
+        Attribute emailAttr = attributes.get(MAIL_ID);
         String emailAddress = emailAttr != null ? emailAttr.get().toString() : "";
-        if(emailAddress.equals("")){
-            emailAttr = attributes.get(MAIL_ID);
-            emailAddress = emailAttr != null ? emailAttr.get().toString() : "";
-        }
         return new User(loginName, fullName, emailAddress);
     }
 

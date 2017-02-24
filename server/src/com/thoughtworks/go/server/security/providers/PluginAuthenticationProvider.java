@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import com.thoughtworks.go.plugin.access.authentication.models.User;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConfigMetadataStore;
 import com.thoughtworks.go.plugin.access.authorization.models.AuthenticationResponse;
-import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.security.AuthorityGranter;
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -77,7 +76,7 @@ public class PluginAuthenticationProvider extends AbstractUserDetailsAuthenticat
 
     @Override
     protected UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
-        GoUserPrinciple user = getUserDetailsFromAuthorizationPlugins(username, authentication);
+        User user = getUserDetailsFromAuthorizationPlugins(username, authentication);
 
         if (user == null) {
             user = getUserDetailsFromAuthenticationPlugins(username, authentication);
@@ -88,27 +87,32 @@ public class PluginAuthenticationProvider extends AbstractUserDetailsAuthenticat
             throw new UsernameNotFoundException("Unable to authenticate user: " + username);
         }
 
-        userService.addUserIfDoesNotExist(new Username(new CaseInsensitiveString(user.getUsername()), user.getDisplayName()));
-        return user;
+        userService.addUserIfDoesNotExist(toDomainUser(user));
+        GoUserPrinciple goUserPrinciple = getGoUserPrinciple(user);
+        return goUserPrinciple;
+    }
+
+    private com.thoughtworks.go.domain.User toDomainUser(User user) {
+        return new com.thoughtworks.go.domain.User(user.getUsername(),user.getDisplayName(),user.getEmailId());
     }
 
     private void removeAnyAssociatedPluginRolesFor(String username) {
         pluginRoleService.revokeAllRolesFor(username);
     }
 
-    private GoUserPrinciple getUserDetailsFromAuthenticationPlugins(String username, UsernamePasswordAuthenticationToken authentication) {
+    private User getUserDetailsFromAuthenticationPlugins(String username, UsernamePasswordAuthenticationToken authentication) {
         Set<String> plugins = authenticationPluginRegistry.getPluginsThatSupportsPasswordBasedAuthentication();
         for (String pluginId : plugins) {
             String password = (String) authentication.getCredentials();
             User user = ensureDisplayNamePresent(authenticationExtension.authenticateUser(pluginId, username, password));
             if (user != null) {
-                return getGoUserPrinciple(user);
+                return user;
             }
         }
         return null;
     }
 
-    private GoUserPrinciple getUserDetailsFromAuthorizationPlugins(String username, UsernamePasswordAuthenticationToken authentication) {
+    private User getUserDetailsFromAuthorizationPlugins(String username, UsernamePasswordAuthenticationToken authentication) {
         Set<String> plugins = store.getPluginsThatSupportsPasswordBasedAuthentication();
         for (String pluginId : plugins) {
             String password = (String) authentication.getCredentials();
@@ -121,7 +125,7 @@ public class PluginAuthenticationProvider extends AbstractUserDetailsAuthenticat
             User user = ensureDisplayNamePresent(response.getUser());
             if (user != null) {
                 pluginRoleService.updatePluginRoles(pluginId, username, CaseInsensitiveString.caseInsensitiveStrings(response.getRoles()));
-                return getGoUserPrinciple(user);
+                return user;
             }
         }
         return null;

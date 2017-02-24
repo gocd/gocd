@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.service.plugins.processor.authentication;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.plugin.access.authentication.JsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.access.authentication.models.User;
 import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
@@ -24,7 +23,6 @@ import com.thoughtworks.go.plugin.api.request.GoApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoApiResponse;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.security.AuthorityGranter;
 import com.thoughtworks.go.server.security.GoAuthority;
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
@@ -94,7 +92,7 @@ public class AuthenticationRequestProcessorTest {
         GoApiResponse response = processorSpy.process(pluginDescriptor, getGoPluginApiRequest("1.0", responseBody));
 
         assertThat(response.responseCode(), is(200));
-        verify(userService).addUserIfDoesNotExist(new Username(new CaseInsensitiveString("username"), "display name"));
+        verify(userService).addUserIfDoesNotExist(new com.thoughtworks.go.domain.User("username", "", ""));
         GoUserPrinciple goUserPrincipal = processorSpy.getGoUserPrincipal(user);
         assertThat(goUserPrincipal.getUsername(), is("username"));
         assertThat(goUserPrincipal.getDisplayName(), is("display name"));

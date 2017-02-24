@@ -17,11 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.domain.NotificationFilter;
-import com.thoughtworks.go.domain.NullUser;
-import com.thoughtworks.go.domain.StageConfigIdentifier;
-import com.thoughtworks.go.domain.StageEvent;
-import com.thoughtworks.go.domain.User;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.Users;
 import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.domain.exception.ValidationException;
@@ -79,13 +75,20 @@ import static org.junit.Assert.fail;
         "classpath:WEB-INF/spring-rest-servlet.xml"
 })
 public class UserServiceIntegrationTest {
-    @Autowired private UserDao userDao;
-    @Autowired private UserService userService;
-    @Autowired private GoConfigDao goConfigDao;
-    @Autowired private DatabaseAccessHelper dbHelper;
-    @Autowired private Localizer localizer;
-    @Autowired private GoCache goCache;
-    @Autowired private OauthRepository repo;
+    @Autowired
+    private UserDao userDao;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private GoConfigDao goConfigDao;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
+    @Autowired
+    private Localizer localizer;
+    @Autowired
+    private GoCache goCache;
+    @Autowired
+    private OauthRepository repo;
 
     private HibernateTemplate template;
 
@@ -136,7 +139,7 @@ public class UserServiceIntegrationTest {
     public void addUserIfDoesNotExist_shouldAddUserIfDoesNotExist() throws Exception {
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(getAuthUser("new_user"), "credentials", new GrantedAuthority[]{GoAuthority.ROLE_USER.asAuthority()});
         assertThat(userDao.findUser("new_user"), isANullUser());
-        userService.addUserIfDoesNotExist(UserHelper.getUserName(auth));
+        userService.addUserIfDoesNotExist(UserHelper.getUser(auth));
         User loadedUser = userDao.findUser("new_user");
         assertThat(loadedUser, is(new User("new_user", "new_user", "")));
         assertThat(loadedUser, not(isANullUser()));
@@ -147,12 +150,12 @@ public class UserServiceIntegrationTest {
         User user = new User("old_user");
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(getAuthUser("old_user"), "credentials", new GrantedAuthority[]{GoAuthority.ROLE_USER.asAuthority()});
         addUser(user);
-        userService.addUserIfDoesNotExist(UserHelper.getUserName(auth));
+        userService.addUserIfDoesNotExist(UserHelper.getUser(auth));
     }
 
     @Test
     public void addUserIfDoesNotExist_shouldNotAddUserIfAnonymous() throws Exception {
-        userService.addUserIfDoesNotExist(Username.ANONYMOUS);
+        userService.addUserIfDoesNotExist(new User(CaseInsensitiveString.str(Username.ANONYMOUS.getUsername())));
         assertThat(userDao.findUser(CaseInsensitiveString.str(Username.ANONYMOUS.getUsername())), isANullUser());
         assertThat(userDao.findUser(Username.ANONYMOUS.getDisplayName()), isANullUser());
     }
@@ -447,7 +450,7 @@ public class UserServiceIntegrationTest {
         userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("user-1"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), Arrays.asList(new TriStateSelection(".dev+", TriStateSelection.Action.add)), result);
 
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(localizer),containsString("Failed to add role. Reason - "));
+        assertThat(result.message(localizer), containsString("Failed to add role. Reason - "));
     }
 
     @Test
@@ -668,7 +671,7 @@ public class UserServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         userService.save(user, TriState.UNSET, TriState.FALSE, null, null, result);
         assertThat(result.isSuccessful(), is(true));
-        assertThat(user.isEmailMe(), is(false));;
+        assertThat(user.isEmailMe(), is(false));
     }
 
     @Test

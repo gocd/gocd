@@ -78,7 +78,8 @@ public class DefaultGoPublisher implements GoPublisher {
 
     @Override
     public void consumeLine(String line) {
-        if(new SystemEnvironment().isWebsocketEnabled()) {
+        SystemEnvironment env = new SystemEnvironment();
+        if(env.isWebsocketEnabled() && env.isConsoleLogsThroughWebsocketEnabled()) {
             remoteBuildRepository.consumeLine(line, jobIdentifier);
         } else {
             consoleOutputTransmitter.consumeLine(line);

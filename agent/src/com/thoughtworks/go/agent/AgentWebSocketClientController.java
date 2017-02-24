@@ -36,6 +36,7 @@ import com.thoughtworks.go.remote.work.RemoteConsoleAppender;
 import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.command.StreamConsumer;
 import com.thoughtworks.go.websocket.Action;
 import com.thoughtworks.go.websocket.Message;
 import com.thoughtworks.go.websocket.MessageEncoding;
@@ -157,7 +158,17 @@ public class AgentWebSocketClientController extends AgentController {
 
     private void runBuild(BuildSettings buildSettings) {
         URLService urlService = new URLService();
-        ConsoleOutputWebsocketTransmitter buildConsole = new ConsoleOutputWebsocketTransmitter(webSocketSessionHandler, buildSettings.getBuildId());
+        StreamConsumer buildConsole;
+
+        if (new SystemEnvironment().isConsoleLogsThroughWebsocketEnabled()) {
+            buildConsole = new ConsoleOutputWebsocketTransmitter(webSocketSessionHandler, buildSettings.getBuildId());
+        } else {
+            buildConsole = new ConsoleOutputTransmitter(
+                new RemoteConsoleAppender(
+                    urlService.prefixPartialUrl(buildSettings.getConsoleUrl()),
+                    httpService)
+            );
+        }
 
         ArtifactsRepository artifactsRepository = new UrlBasedArtifactsRepository(
                 httpService,
@@ -185,7 +196,11 @@ public class AgentWebSocketClientController extends AgentController {
             getAgentRuntimeInfo().busy(new AgentBuildingInfo(buildSettings.getBuildLocatorForDisplay(), buildSettings.getBuildLocator()));
             build.build(buildSettings.getBuildCommand());
         } finally {
-            getAgentRuntimeInfo().idle();
+            try {
+                buildConsole.stop();
+            } finally {
+                getAgentRuntimeInfo().idle();
+            }
         }
         this.buildSession.set(null);
     }

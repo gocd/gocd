@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.configrepo;
 
+import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
@@ -51,7 +52,7 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
 
     @Override
     public CRParseResult parseDirectory(String pluginId, final String destinationFolder, final Collection<CRConfigurationProperty> configurations) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_PARSE_DIRECTORY, new PluginInteractionCallback<CRParseResult>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_PARSE_DIRECTORY, new DefaultPluginInteractionCallback<CRParseResult>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return messageHandlerMap.get(resolvedExtensionVersion).requestMessageForParseDirectory(destinationFolder,configurations);

@@ -181,7 +181,63 @@ public class AuthorizationExtension extends AbstractExtension {
         });
     }
 
+    public Map<String, String> grantIdentityProviderAccess(String pluginId, Map<String, String> requestHeaders, final Map<String, String> requestParams, List<SecurityAuthConfig> authConfigs) {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_IDENTITY_PROVIDER_ACCESS, new DefaultPluginInteractionCallback<Map<String, String>>() {
+            @Override
+            public String requestBody(String resolvedExtensionVersion) {
+                return getMessageConverter(resolvedExtensionVersion).grantAccessRequestBody(authConfigs);
+            }
+
+            @Override
+            public Map<String, String> requestParams(String resolvedExtensionVersion) {
+                return requestParams;
+            }
+
+            @Override
+            public Map<String, String> requestHeaders(String resolvedExtensionVersion) {
+                return requestHeaders;
+            }
+
+            @Override
+            public Map<String, String> onSuccess(String responseBody, String resolvedExtensionVersion) {
+                return getMessageConverter(resolvedExtensionVersion).getCredentials(responseBody);
+            }
+        });
+    }
+
     public AuthorizationMessageConverter getMessageConverter(String version) {
         return messageHandlerMap.get(version);
+    }
+
+    public AuthenticationResponse authenticateUser(String pluginId, Map<String, String> credentials, List<SecurityAuthConfig> authConfigs, List<PluginRoleConfig> roleConfigs) {
+        if (authConfigs == null || authConfigs.isEmpty()) {
+            throw new MissingAuthConfigsException(String.format("No AuthConfigs configured for plugin: %s, Plugin would need at-least one auth_config to authenticate user.", pluginId));
+        }
+
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_AUTHENTICATE_USER, new DefaultPluginInteractionCallback<AuthenticationResponse>() {
+            @Override
+            public String requestBody(String resolvedExtensionVersion) {
+                return getMessageConverter(resolvedExtensionVersion).authenticateUserRequestBody(credentials, authConfigs, roleConfigs);
+            }
+
+            @Override
+            public AuthenticationResponse onSuccess(String responseBody, String resolvedExtensionVersion) {
+                return getMessageConverter(resolvedExtensionVersion).getAuthenticatedUserFromResponseBody(responseBody);
+            }
+        });
+    }
+
+    public String getIdentityProviderRedirectUrl(String pluginId, List<SecurityAuthConfig> authConfigs) {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_IDENTITY_PROVIDER_URL, new DefaultPluginInteractionCallback<String>() {
+            @Override
+            public String requestBody(String resolvedExtensionVersion) {
+                return getMessageConverter(resolvedExtensionVersion).identityProviderUrlRequestBody(authConfigs);
+            }
+
+            @Override
+            public String onSuccess(String responseBody, String resolvedExtensionVersion) {
+                return getMessageConverter(resolvedExtensionVersion).getIdentityProviderUrl(responseBody);
+            }
+        });
     }
 }

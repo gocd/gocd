@@ -19,6 +19,7 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.domain.TaskProperty;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.StringUtil;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,6 +60,22 @@ public abstract class BuildTask extends AbstractTask implements CommandTask {
 
     public void setWorkingDirectory(String workingDir) {
         this.workingDirectory = workingDir;
+    }
+
+    @Override
+    public String describe() {
+        List<String> description = new ArrayList<>();
+        description.add(command());
+
+        if (!"".equals(arguments())) {
+            description.add(arguments());
+        }
+
+        if (null != workingDirectory()) {
+            description.add(String.format("(workingDirectory: %s)", workingDirectory()));
+        }
+
+        return StringUtils.join(description, " ");
     }
 
     protected final void setTaskConfigAttributes(Map attributeMap) {

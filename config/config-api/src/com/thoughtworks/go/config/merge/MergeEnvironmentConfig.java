@@ -194,6 +194,11 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig> im
     }
 
     @Override
+    public void addEnvironmentVariable(EnvironmentVariableConfig variableConfig) {
+        this.getFirstEditablePart().addEnvironmentVariable(variableConfig);
+    }
+
+    @Override
     public void addAgent(String uuid) {
         this.getFirstEditablePart().addAgent(uuid);
     }
@@ -416,18 +421,37 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig> im
         return false;
     }
 
-    public ConfigOrigin getOriginForPipeline(CaseInsensitiveString pipelineName){
+    @Override
+    public boolean containsEnvironmentVariableRemotely(String variableName) {
         for (EnvironmentConfig part : this) {
-            if(part.containsPipeline(pipelineName)){
+            if (part.containsEnvironmentVariableRemotely(variableName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public ConfigOrigin getOriginForPipeline(CaseInsensitiveString pipelineName) {
+        for (EnvironmentConfig part : this) {
+            if (part.containsPipeline(pipelineName)) {
                 return part.getOrigin();
             }
         }
         return null;
     }
 
-    public ConfigOrigin getOriginForAgent(String agentUUID){
+    public ConfigOrigin getOriginForAgent(String agentUUID) {
         for (EnvironmentConfig part : this) {
-            if(part.hasAgent(agentUUID)){
+            if (part.hasAgent(agentUUID)) {
+                return part.getOrigin();
+            }
+        }
+        return null;
+    }
+
+    public ConfigOrigin getOriginForEnvironmentVariable(String variableName) {
+        for (EnvironmentConfig part : this) {
+            if (part.getVariables().hasVariable(variableName)) {
                 return part.getOrigin();
             }
         }

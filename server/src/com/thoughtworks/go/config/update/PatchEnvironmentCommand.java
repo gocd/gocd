@@ -37,11 +37,13 @@ public class PatchEnvironmentCommand extends EnvironmentCommand implements Entit
     private final List<String> pipelinesToRemove;
     private final List<String> agentsToAdd;
     private final List<String> agentsToRemove;
+    private final List<EnvironmentVariableConfig> envVarsToAdd;
+    private final List<String> envVarsToRemove;
     private final Username username;
     private final Localizable.CurryableLocalizable actionFailed;
     private final HttpLocalizedOperationResult result;
 
-    public PatchEnvironmentCommand(GoConfigService goConfigService, EnvironmentConfig environmentConfig, List<String> pipelinesToAdd, List<String> pipelinesToRemove, List<String> agentsToAdd, List<String> agentsToRemove, Username username, Localizable.CurryableLocalizable actionFailed, HttpLocalizedOperationResult result) {
+    public PatchEnvironmentCommand(GoConfigService goConfigService, EnvironmentConfig environmentConfig, List<String> pipelinesToAdd, List<String> pipelinesToRemove, List<String> agentsToAdd, List<String> agentsToRemove, List<EnvironmentVariableConfig> envVarsToAdd, List<String> envVarsToRemove, Username username, Localizable.CurryableLocalizable actionFailed, HttpLocalizedOperationResult result) {
         super(actionFailed, environmentConfig, result);
 
         this.goConfigService = goConfigService;
@@ -50,6 +52,8 @@ public class PatchEnvironmentCommand extends EnvironmentCommand implements Entit
         this.pipelinesToRemove = pipelinesToRemove;
         this.agentsToAdd = agentsToAdd;
         this.agentsToRemove = agentsToRemove;
+        this.envVarsToAdd = envVarsToAdd;
+        this.envVarsToRemove = envVarsToRemove;
         this.username = username;
         this.actionFailed = actionFailed;
         this.result = result;
@@ -74,13 +78,48 @@ public class PatchEnvironmentCommand extends EnvironmentCommand implements Entit
         for (String pipelineName : pipelinesToRemove) {
             environmentConfig.removePipeline(new CaseInsensitiveString(pipelineName));
         }
+
+        for (EnvironmentVariableConfig variableConfig : envVarsToAdd) {
+            environmentConfig.addEnvironmentVariable(variableConfig);
+        }
+
+        for (String variableName : envVarsToRemove) {
+            environmentConfig.getVariables().removeIfExists(variableName);
+        }
     }
 
     @Override
     public boolean isValid(CruiseConfig preprocessedConfig) {
         boolean isValid = validateRemovePipelines(preprocessedConfig);
         isValid = isValid && validateRemoveAgents(preprocessedConfig);
+        isValid = isValid && validateRemoveEnvironmentVariables(preprocessedConfig);
         return isValid && super.isValid(preprocessedConfig);
+    }
+
+    private boolean validateRemoveEnvironmentVariables(CruiseConfig preprocessedConfig) {
+        EnvironmentConfig preprocessedEnvironmentConfig = preprocessedConfig.getEnvironments().find(environmentConfig.name());
+        if(preprocessedEnvironmentConfig instanceof MergeEnvironmentConfig){
+            for (String variableName : envVarsToRemove) {
+                if(preprocessedEnvironmentConfig.containsEnvironmentVariableRemotely(variableName)){
+                    String origin = ((MergeEnvironmentConfig) preprocessedEnvironmentConfig).getOriginForEnvironmentVariable(variableName).displayName();
+                    String message = String.format("Environment variable with name '%s' cannot be removed from environment '%s' as the association has been defined remotely in [%s]",
+                            variableName, environmentConfig.name(), origin);
+                    result.badRequest(actionFailed.addParam(message));
+                    return false;
+                }
+            }
+        }
+
+        EnvironmentConfig environmentConfig = this.environmentConfig;
+        for (String variableName : envVarsToRemove) {
+            if(!environmentConfig.getVariables().hasVariable(variableName)){
+                String message = String.format("Environment variable with name '%s' does not exist in environment '%s'", variableName, environmentConfig.name());
+                result.badRequest(actionFailed.addParam(message));
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private boolean validateRemoveAgents(CruiseConfig preprocessedConfig) {

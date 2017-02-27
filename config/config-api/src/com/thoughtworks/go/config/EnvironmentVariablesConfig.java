@@ -95,7 +95,7 @@ public class EnvironmentVariablesConfig extends BaseCollection<EnvironmentVariab
         return variablesConfig;
     }
 
-    private void removeIfExists(String name) {
+    public void removeIfExists(String name) {
         EnvironmentVariableConfig configToRemove = null;
         for (EnvironmentVariableConfig config : this) {
             if (config.getName().equals(name)) {

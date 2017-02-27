@@ -54,7 +54,16 @@ module ApiV2
         agents_to_add = agents[:add] || []
         agents_to_remove = agents[:remove] || []
 
-        environment_config_service.patchEnvironment(@environment_config, pipelines_to_add, pipelines_to_remove, agents_to_add, agents_to_remove, current_user, result)
+        env_vars = params[:environment_variables] || {}
+
+        env_vars_to_add = (env_vars[:add] || []).map { |env_var|
+          ApiV2::Config::EnvironmentVariableRepresenter.new(EnvironmentVariableConfig.new).from_hash(env_var)
+        }
+
+        env_vars_to_remove = env_vars[:remove] || []
+
+
+        environment_config_service.patchEnvironment(@environment_config, pipelines_to_add, pipelines_to_remove, agents_to_add, agents_to_remove, env_vars_to_add, env_vars_to_remove, current_user, result)
         handle_config_save_result(result, @environment_config.name.to_s)
       end
 

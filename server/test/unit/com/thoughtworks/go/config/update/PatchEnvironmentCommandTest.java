@@ -53,6 +53,8 @@ public class PatchEnvironmentCommandTest {
     private ArrayList<String> pipelinesToRemove;
     private ArrayList<String> agentsToAdd;
     private ArrayList<String> agentsToRemove;
+    private ArrayList<EnvironmentVariableConfig> envVarsToAdd;
+    private ArrayList<String> envVarsToRemove;
 
     private PipelineConfig pipelineConfig;
     private AgentConfig agentConfig;
@@ -68,6 +70,9 @@ public class PatchEnvironmentCommandTest {
         pipelinesToRemove = new ArrayList<>();
         agentsToAdd = new ArrayList<>();
         agentsToRemove = new ArrayList<>();
+        envVarsToAdd = new ArrayList<>();
+        envVarsToRemove = new ArrayList<>();
+
         result = new HttpLocalizedOperationResult();
 
         currentUser = new Username(new CaseInsensitiveString("user"));
@@ -91,7 +96,7 @@ public class PatchEnvironmentCommandTest {
     @Test
     public void shouldAllowAddingAgentsToTheSpecifiedEnvironment() throws Exception {
         agentsToAdd.add(agentConfig.getUuid());
-        PatchEnvironmentCommand command = new PatchEnvironmentCommand(goConfigService, environmentConfig, pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToRemove, currentUser, actionFailed, result);
+        PatchEnvironmentCommand command = new PatchEnvironmentCommand(goConfigService, environmentConfig, pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToRemove, envVarsToAdd, envVarsToRemove, currentUser, actionFailed, result);
         assertFalse(cruiseConfig.getEnvironments().find(environmentName).hasAgent(agentConfig.getUuid()));
         command.update(cruiseConfig);
         assertTrue(cruiseConfig.getEnvironments().find(environmentName).hasAgent(agentConfig.getUuid()));
@@ -101,7 +106,7 @@ public class PatchEnvironmentCommandTest {
     public void shouldAllowRemovingAgentsFromTheSpecifiedEnvironment() throws Exception {
         environmentConfig.addAgent(agentConfig.getUuid());
         agentsToRemove.add(agentConfig.getUuid());
-        PatchEnvironmentCommand command = new PatchEnvironmentCommand(goConfigService, environmentConfig, pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToRemove, currentUser, actionFailed, result);
+        PatchEnvironmentCommand command = new PatchEnvironmentCommand(goConfigService, environmentConfig, pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToRemove, envVarsToAdd, envVarsToRemove, currentUser, actionFailed, result);
         assertTrue(cruiseConfig.getEnvironments().find(environmentName).hasAgent(agentConfig.getUuid()));
         command.update(cruiseConfig);
         assertFalse(cruiseConfig.getEnvironments().find(environmentName).hasAgent(agentConfig.getUuid()));
@@ -110,20 +115,41 @@ public class PatchEnvironmentCommandTest {
     @Test
     public void shouldAllowAddingPipelinesToTheSpecifiedEnvironment() throws Exception {
         pipelinesToAdd.add(pipelineConfig.name().toString());
-        PatchEnvironmentCommand command = new PatchEnvironmentCommand(goConfigService, environmentConfig, pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToRemove, currentUser, actionFailed, result);
+        PatchEnvironmentCommand command = new PatchEnvironmentCommand(goConfigService, environmentConfig, pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToRemove, envVarsToAdd, envVarsToRemove, currentUser, actionFailed, result);
         assertFalse(cruiseConfig.getEnvironments().find(environmentName).contains(pipelineConfig.name().toString()));
         command.update(cruiseConfig);
         assertTrue(cruiseConfig.getEnvironments().find(environmentName).contains(pipelineConfig.name().toString()));
     }
 
     @Test
-    public void shouldAllowremovingPipelinesToTheSpecifiedEnvironment() throws Exception {
+    public void shouldAllowRemovingPipelinesFromTheSpecifiedEnvironment() throws Exception {
         environmentConfig.addPipeline(pipelineConfig.name());
         pipelinesToRemove.add(pipelineConfig.name().toString());
-        PatchEnvironmentCommand command = new PatchEnvironmentCommand(goConfigService, environmentConfig, pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToRemove, currentUser, actionFailed, result);
+        PatchEnvironmentCommand command = new PatchEnvironmentCommand(goConfigService, environmentConfig, pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToRemove, envVarsToAdd, envVarsToRemove, currentUser, actionFailed, result);
         assertTrue(cruiseConfig.getEnvironments().find(environmentName).contains(pipelineConfig.name().toString()));
         command.update(cruiseConfig);
         assertFalse(cruiseConfig.getEnvironments().find(environmentName).contains(pipelineConfig.name().toString()));
+    }
+
+    @Test
+    public void shouldAllowAddingEnvironmentVariablesToTheSpecifiedEnvironment() throws Exception {
+        String variableName = "foo";
+        envVarsToAdd.add(new EnvironmentVariableConfig(variableName, "bar"));
+        PatchEnvironmentCommand command = new PatchEnvironmentCommand(goConfigService, environmentConfig, pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToRemove, envVarsToAdd, envVarsToRemove, currentUser, actionFailed, result);
+        assertFalse(cruiseConfig.getEnvironments().find(environmentName).getVariables().hasVariable(variableName));
+        command.update(cruiseConfig);
+        assertTrue(cruiseConfig.getEnvironments().find(environmentName).getVariables().hasVariable(variableName));
+    }
+
+    @Test
+    public void shouldAllowRemovingEnvironmentVariablesFromTheSpecifiedEnvironment() throws Exception {
+        String variableName = "foo";
+        environmentConfig.addEnvironmentVariable(variableName, "bar");
+        envVarsToRemove.add(variableName);
+        PatchEnvironmentCommand command = new PatchEnvironmentCommand(goConfigService, environmentConfig, pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToRemove, envVarsToAdd, envVarsToRemove, currentUser, actionFailed, result);
+        assertTrue(cruiseConfig.getEnvironments().find(environmentName).getVariables().hasVariable(variableName));
+        command.update(cruiseConfig);
+        assertFalse(cruiseConfig.getEnvironments().find(environmentName).getVariables().hasVariable(variableName));
     }
 
     @Test
@@ -131,7 +157,7 @@ public class PatchEnvironmentCommandTest {
         String uuid = "invalid-agent-uuid";
 
         agentsToAdd.add(uuid);
-        PatchEnvironmentCommand command = new PatchEnvironmentCommand(goConfigService, environmentConfig, pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToRemove, currentUser, actionFailed, result);
+        PatchEnvironmentCommand command = new PatchEnvironmentCommand(goConfigService, environmentConfig, pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToRemove, envVarsToAdd, envVarsToRemove, currentUser, actionFailed, result);
         assertFalse(cruiseConfig.getEnvironments().find(environmentName).hasAgent(uuid));
         command.update(cruiseConfig);
 
@@ -148,7 +174,7 @@ public class PatchEnvironmentCommandTest {
         String pipelineName = "invalid-pipeline-name";
 
         pipelinesToAdd.add(pipelineName);
-        PatchEnvironmentCommand command = new PatchEnvironmentCommand(goConfigService, environmentConfig, pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToRemove, currentUser, actionFailed, result);
+        PatchEnvironmentCommand command = new PatchEnvironmentCommand(goConfigService, environmentConfig, pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToRemove, envVarsToAdd, envVarsToRemove, currentUser, actionFailed, result);
         assertFalse(cruiseConfig.getEnvironments().find(environmentName).hasAgent(pipelineName));
         command.update(cruiseConfig);
 
@@ -168,7 +194,7 @@ public class PatchEnvironmentCommandTest {
         String pipelineName = "invalid-pipeline-to-remove";
 
         pipelinesToRemove.add(pipelineName);
-        PatchEnvironmentCommand command = new PatchEnvironmentCommand(goConfigService, environmentConfig, pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToRemove, currentUser, actionFailed, result);
+        PatchEnvironmentCommand command = new PatchEnvironmentCommand(goConfigService, environmentConfig, pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToRemove, envVarsToAdd, envVarsToRemove, currentUser, actionFailed, result);
         assertFalse(cruiseConfig.getEnvironments().find(environmentName).containsPipeline(new CaseInsensitiveString(pipelineName)));
         command.update(cruiseConfig);
 
@@ -186,7 +212,7 @@ public class PatchEnvironmentCommandTest {
         String agentUUID = "invalid-agent-to-remove";
 
         agentsToRemove.add(agentUUID);
-        PatchEnvironmentCommand command = new PatchEnvironmentCommand(goConfigService, environmentConfig, pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToRemove, currentUser, actionFailed, result);
+        PatchEnvironmentCommand command = new PatchEnvironmentCommand(goConfigService, environmentConfig, pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToRemove, envVarsToAdd, envVarsToRemove, currentUser, actionFailed, result);
         assertFalse(cruiseConfig.getEnvironments().find(environmentName).hasAgent(agentUUID));
         command.update(cruiseConfig);
 
@@ -195,6 +221,24 @@ public class PatchEnvironmentCommandTest {
 
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         expectedResult.badRequest(actionFailed.addParam("Agent with uuid 'invalid-agent-to-remove' does not exist in environment 'Dev'"));
+
+        assertThat(result, is(expectedResult));
+    }
+
+    @Test
+    public void shouldValidateInvalidEnvironmentVariableRemoval() throws Exception {
+        String variableName = "invalid-env-var-to-remove";
+
+        envVarsToRemove.add(variableName);
+        PatchEnvironmentCommand command = new PatchEnvironmentCommand(goConfigService, environmentConfig, pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToRemove, envVarsToAdd, envVarsToRemove, currentUser, actionFailed, result);
+        assertFalse(cruiseConfig.getEnvironments().find(environmentName).getVariables().hasVariable(variableName));
+        command.update(cruiseConfig);
+
+        boolean isValid = command.isValid(cruiseConfig);
+        assertFalse(isValid);
+
+        HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
+        expectedResult.badRequest(actionFailed.addParam("Environment variable with name 'invalid-env-var-to-remove' does not exist in environment 'Dev'"));
 
         assertThat(result, is(expectedResult));
     }
@@ -213,7 +257,7 @@ public class PatchEnvironmentCommandTest {
         MergeEnvironmentConfig mergedConfig = new MergeEnvironmentConfig(local, remote);
 
         pipelinesToRemove.add(pipelineName.toString());
-        PatchEnvironmentCommand command = new PatchEnvironmentCommand(goConfigService, environmentConfig, pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToRemove, currentUser, actionFailed, result);
+        PatchEnvironmentCommand command = new PatchEnvironmentCommand(goConfigService, environmentConfig, pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToRemove, envVarsToAdd, envVarsToRemove, currentUser, actionFailed, result);
         assertFalse(cruiseConfig.getEnvironments().find(environmentName).containsPipeline(new CaseInsensitiveString(pipelineName.toString())));
         command.update(cruiseConfig);
 
@@ -243,7 +287,7 @@ public class PatchEnvironmentCommandTest {
         MergeEnvironmentConfig mergedConfig = new MergeEnvironmentConfig(local, remote);
 
         agentsToRemove.add(agentUUID);
-        PatchEnvironmentCommand command = new PatchEnvironmentCommand(goConfigService, environmentConfig, pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToRemove, currentUser, actionFailed, result);
+        PatchEnvironmentCommand command = new PatchEnvironmentCommand(goConfigService, environmentConfig, pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToRemove, envVarsToAdd, envVarsToRemove, currentUser, actionFailed, result);
         assertFalse(cruiseConfig.getEnvironments().find(environmentName).containsPipeline(new CaseInsensitiveString(agentUUID)));
         command.update(cruiseConfig);
 
@@ -260,8 +304,38 @@ public class PatchEnvironmentCommandTest {
     }
 
     @Test
+    public void shouldNotAllowRemovingRemoteEnvironmentVariables() throws Exception {
+        String variableName = "remote-env-var-to-remove";
+
+        BasicEnvironmentConfig local = new BasicEnvironmentConfig(environmentName);
+        local.setOrigins(new FileConfigOrigin());
+        BasicEnvironmentConfig remote = new BasicEnvironmentConfig(environmentName);
+        remote.addEnvironmentVariable(variableName, "bar");
+        ConfigRepoConfig configRepo = new ConfigRepoConfig(new GitMaterialConfig("foo/bar.git", "master"), "myPlugin");
+        remote.setOrigins(new RepoConfigOrigin(configRepo, "latest"));
+
+        MergeEnvironmentConfig mergedConfig = new MergeEnvironmentConfig(local, remote);
+
+        envVarsToRemove.add(variableName);
+        PatchEnvironmentCommand command = new PatchEnvironmentCommand(goConfigService, environmentConfig, pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToRemove, envVarsToAdd, envVarsToRemove, currentUser, actionFailed, result);
+        assertFalse(cruiseConfig.getEnvironments().find(environmentName).getVariables().hasVariable(variableName));
+        command.update(cruiseConfig);
+
+        cruiseConfig.getEnvironments().replace(cruiseConfig.getEnvironments().find(environmentName), mergedConfig); //preprocess
+
+        boolean isValid = command.isValid(cruiseConfig);
+        assertFalse(isValid);
+
+        HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
+        String message = "Environment variable with name 'remote-env-var-to-remove' cannot be removed from environment 'Dev' as the association has been defined remotely in [foo/bar.git at latest]";
+        expectedResult.badRequest(actionFailed.addParam(message));
+
+        assertThat(result, is(expectedResult));
+    }
+
+    @Test
     public void shouldNotContinueIfTheUserDontHavePermissionsToOperateOnEnvironments() throws Exception {
-        PatchEnvironmentCommand command = new PatchEnvironmentCommand(goConfigService, environmentConfig, pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToRemove, currentUser, actionFailed, result);
+        PatchEnvironmentCommand command = new PatchEnvironmentCommand(goConfigService, environmentConfig, pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToRemove, envVarsToAdd, envVarsToRemove, currentUser, actionFailed, result);
         when(goConfigService.isAdministrator(currentUser.getUsername())).thenReturn(false);
         assertThat(command.canContinue(cruiseConfig), is(false));
         HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();

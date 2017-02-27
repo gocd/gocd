@@ -284,7 +284,9 @@ describe ApiV2::Admin::EnvironmentsController do
         pipelines_to_remove = ['bar']
         agents_to_add = ['agent1']
         agents_to_remove = ['agent2']
-        @environment_config_service.should_receive(:patchEnvironment).with(@environment_config, pipelines_to_add, pipelines_to_remove, agents_to_add, agents_to_remove, anything, result).and_return(result)
+        env_vars_to_add = []
+        env_vars_to_remove = []
+        @environment_config_service.should_receive(:patchEnvironment).with(@environment_config, pipelines_to_add, pipelines_to_remove, agents_to_add, agents_to_remove, env_vars_to_add, env_vars_to_remove, anything, result).and_return(result)
 
         patch_with_api_header :patch, name: @environment_name, :pipelines => {add: pipelines_to_add, remove: pipelines_to_remove}, :agents => {add: agents_to_add, remove: agents_to_remove}
         expect(response.status).to eq(200)
@@ -298,7 +300,9 @@ describe ApiV2::Admin::EnvironmentsController do
         pipelines_to_remove = ['bar']
         agents_to_add = ['agent1']
         agents_to_remove = ['agent2']
-        @environment_config_service.stub(:patchEnvironment).with(@environment_config, pipelines_to_add, pipelines_to_remove, agents_to_add, agents_to_remove, anything, result) do |environment_config, pipelines_to_add, pipelines_to_remove, agents_to_add, agents_to_remove, user, result|
+        env_vars_to_add = []
+        env_vars_to_remove = []
+        @environment_config_service.stub(:patchEnvironment).with(@environment_config, pipelines_to_add, pipelines_to_remove, agents_to_add, agents_to_remove, env_vars_to_add, env_vars_to_remove, anything, result) do |environment_config, pipelines_to_add, pipelines_to_remove, agents_to_add, agents_to_remove, env_vars_to_add, env_vars_to_remove, user, result|
           result.badRequest(LocalizedMessage.string("PIPELINES_WITH_NAMES_NOT_FOUND", pipelines_to_add))
         end
 

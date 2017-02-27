@@ -234,8 +234,6 @@ Go::Application.routes.draw do
           patch on: :member, action: :patch
           put on: :member, action: :put
         end
-        get 'environments/:name/withremote' => 'environments_with_remote#show',constraints: {:name => ENVIRONMENT_NAME_FORMAT}
-
 
         post 'encrypt', controller: :encryption, action: :encrypt_value
         resources :packages, param: :package_id, only: [:show, :destroy, :index, :create, :update], constraints: {package_id: ALLOW_DOTS}
@@ -272,6 +270,11 @@ Go::Application.routes.draw do
       namespace :admin do
         resources :templates, param: :template_name, except: [:new, :edit], constraints: {template_name: TEMPLATE_NAME_FORMAT}
         resources :plugin_info, controller: 'plugin_infos', param: :id, only: [:index, :show], constraints: {id: PLUGIN_ID_FORMAT}
+        resources :environments, param: :name, only: [:show, :destroy, :create, :update, :index], constraints: {:name => ENVIRONMENT_NAME_FORMAT} do
+          patch on: :member, action: :patch
+          put on: :member, action: :put
+        end
+        get 'environments/:name/withremote' => 'environments_with_remote#show',constraints: {:name => ENVIRONMENT_NAME_FORMAT}
       end
 
       match '*url', via: :all, to: 'errors#not_found'

@@ -16,12 +16,12 @@
 
 package com.thoughtworks.go.domain;
 
-import javax.servlet.http.HttpServletResponse;
-
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.HttpService;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.log4j.Logger;
+
+import javax.servlet.http.HttpServletResponse;
 
 public class DownloadAction {
 
@@ -65,7 +65,7 @@ public class DownloadAction {
 
     private void publishDownloadError(String url, String cause, long backout) throws InterruptedException {
         String message = String.format("Could not fetch artifact %s. Pausing %s seconds to retry. Error was : %s", url, backout, cause);
-        goPublisher.consumeLineWithPrefix(message);
+        goPublisher.taggedConsumeLineWithPrefix(GoPublisher.ERR, message);
         LOG.warn(message);
     }
 

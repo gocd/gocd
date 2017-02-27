@@ -15,15 +15,15 @@
  *************************GO-LICENSE-END***********************************/
 package com.thoughtworks.go.domain;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import javax.servlet.http.HttpServletResponse;
-
 import com.thoughtworks.go.util.ArtifactLogUtil;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.work.GoPublisher;
 import org.apache.log4j.Logger;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 
 import static org.apache.commons.io.FileUtils.deleteQuietly;
 
@@ -47,7 +47,7 @@ public class ChecksumFileHandler implements FetchHandler {
     public boolean handleResult(int returncode, GoPublisher goPublisher) {
         if (returncode == HttpServletResponse.SC_NOT_FOUND) {
             deleteQuietly(checksumFile);
-            goPublisher.consumeLineWithPrefix("[WARN] The md5checksum property file was not found on the server. Hence, Go can not verify the integrity of the artifacts.");
+            goPublisher.taggedConsumeLineWithPrefix(GoPublisher.ERR, "[WARN] The md5checksum property file was not found on the server. Hence, Go can not verify the integrity of the artifacts.");
             return true;
         }
         if (returncode == HttpServletResponse.SC_NOT_MODIFIED) {
@@ -81,11 +81,7 @@ public class ChecksumFileHandler implements FetchHandler {
 
         ChecksumFileHandler that = (ChecksumFileHandler) o;
 
-        if (checksumFile != null ? !checksumFile.equals(that.checksumFile) : that.checksumFile != null) {
-            return false;
-        }
-
-        return true;
+        return checksumFile != null ? checksumFile.equals(that.checksumFile) : that.checksumFile == null;
     }
 
     @Override

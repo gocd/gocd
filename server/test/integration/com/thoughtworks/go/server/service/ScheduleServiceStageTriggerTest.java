@@ -48,6 +48,7 @@ import com.thoughtworks.go.server.transaction.TransactionCallback;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
+import com.thoughtworks.go.serverhealth.ServerHealthStates;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.junit.After;
@@ -280,8 +281,10 @@ public class ScheduleServiceStageTriggerTest {
     }
 
     private JobInstanceService jobInstanceService(JobResultTopic jobResultTopic) {
+        ServerHealthService serverHealthService = mock(ServerHealthService.class);
+        when(serverHealthService.getAllLogs()).thenReturn(new ServerHealthStates());
         return new JobInstanceService(jobInstanceDao, propertiesService, jobResultTopic, jobStatusCache, transactionTemplate,
-                transactionSynchronizationManager, null, null, goConfigService, null, pluginManager);
+                transactionSynchronizationManager, null, null, goConfigService, null, pluginManager, serverHealthService);
     }
 
     @Test

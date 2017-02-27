@@ -47,6 +47,8 @@ import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationMana
 import com.thoughtworks.go.server.transaction.TestTransactionTemplate;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
+import com.thoughtworks.go.serverhealth.ServerHealthService;
+import com.thoughtworks.go.serverhealth.ServerHealthStates;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.Before;
 import org.junit.Test;
@@ -138,8 +140,10 @@ public class PipelineServiceTest {
 
     private Pipeline stubPipelineSaveForStatusListener(StageStatusListener stageStatusListener, JobStatusListener jobStatusListener) {
         StageDao stageDao = mock(StageDao.class);
+        ServerHealthService serverHealthService = mock(ServerHealthService.class);
+        when(serverHealthService.getAllLogs()).thenReturn(new ServerHealthStates());
         JobInstanceService jobInstanceService = new JobInstanceService(mock(JobInstanceDao.class), mock(PropertiesService.class), mock(JobResultTopic.class), mock(JobStatusCache.class),
-                actualTransactionTemplate, transactionSynchronizationManager, null, null, goConfigService, null, pluginManager, jobStatusListener);
+                actualTransactionTemplate, transactionSynchronizationManager, null, null, goConfigService, null, pluginManager, serverHealthService, jobStatusListener);
 
         StageService stageService = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), mock(SecurityService.class), mock(PipelineDao.class),
                 mock(ChangesetService.class), mock(GoConfigService.class), actualTransactionTemplate, transactionSynchronizationManager,

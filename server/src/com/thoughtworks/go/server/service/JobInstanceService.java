@@ -16,12 +16,11 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.JobConfig;
-import com.thoughtworks.go.config.StageConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.activity.JobStatusCache;
+import com.thoughtworks.go.listener.ConfigChangedListener;
+import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.domain.JobStatusListener;
@@ -36,6 +35,8 @@ import com.thoughtworks.go.server.ui.SortOrder;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
+import com.thoughtworks.go.serverhealth.ServerHealthService;
+import com.thoughtworks.go.serverhealth.ServerHealthState;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -46,9 +47,10 @@ import org.springframework.transaction.support.TransactionSynchronizationAdapter
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 @Service
-public class JobInstanceService implements JobPlanLoader {
+public class JobInstanceService implements JobPlanLoader, ConfigChangedListener {
     private final JobInstanceDao jobInstanceDao;
     private final PropertiesService buildPropertiesService;
     private final JobResultTopic jobResultTopic;
@@ -58,19 +60,20 @@ public class JobInstanceService implements JobPlanLoader {
     private final JobResolverService jobResolverService;
     private final EnvironmentConfigService environmentConfigService;
     private final GoConfigService goConfigService;
-	private SecurityService securityService;
+    private SecurityService securityService;
     private PluginManager pluginManager;
+    private final ServerHealthService serverHealthService;
     private final List<JobStatusListener> listeners;
-	private static final String NOT_AUTHORIZED_TO_VIEW_PIPELINE = "Not authorized to view pipeline";
+    private static final String NOT_AUTHORIZED_TO_VIEW_PIPELINE = "Not authorized to view pipeline";
 
     private static Logger LOGGER = Logger.getLogger(JobInstanceService.class);
     private static final Object LISTENERS_MODIFICATION_MUTEX = new Object();
 
     @Autowired
     JobInstanceService(JobInstanceDao jobInstanceDao, PropertiesService buildPropertiesService, JobResultTopic jobResultTopic, JobStatusCache jobStatusCache,
-					   TransactionTemplate transactionTemplate, TransactionSynchronizationManager transactionSynchronizationManager, JobResolverService jobResolverService,
-					   EnvironmentConfigService environmentConfigService, GoConfigService goConfigService,
-					   SecurityService securityService, PluginManager pluginManager, JobStatusListener... listener) {
+                       TransactionTemplate transactionTemplate, TransactionSynchronizationManager transactionSynchronizationManager, JobResolverService jobResolverService,
+                       EnvironmentConfigService environmentConfigService, GoConfigService goConfigService,
+                       SecurityService securityService, PluginManager pluginManager, ServerHealthService serverHealthService, JobStatusListener... listener) {
         this.jobInstanceDao = jobInstanceDao;
         this.buildPropertiesService = buildPropertiesService;
         this.jobResultTopic = jobResultTopic;
@@ -80,31 +83,34 @@ public class JobInstanceService implements JobPlanLoader {
         this.jobResolverService = jobResolverService;
         this.environmentConfigService = environmentConfigService;
         this.goConfigService = goConfigService;
-		this.securityService = securityService;
+        this.securityService = securityService;
         this.pluginManager = pluginManager;
+        this.serverHealthService = serverHealthService;
         this.listeners = new ArrayList<>(Arrays.asList(listener));
+        this.goConfigService.register(this);
+        this.goConfigService.register(new PipelineConfigChangedListener());
     }
 
     public JobInstances latestCompletedJobs(String pipelineName, String stageName, String jobConfigName) {
         return jobInstanceDao.latestCompletedJobs(pipelineName, stageName, jobConfigName, 25);
     }
 
-	public int getJobHistoryCount(String pipelineName, String stageName, String jobConfigName) {
-		return jobInstanceDao.getJobHistoryCount(pipelineName, stageName, jobConfigName);
-	}
+    public int getJobHistoryCount(String pipelineName, String stageName, String jobConfigName) {
+        return jobInstanceDao.getJobHistoryCount(pipelineName, stageName, jobConfigName);
+    }
 
-	public JobInstances findJobHistoryPage(String pipelineName, String stageName, String jobConfigName, Pagination pagination, String username, OperationResult result) {
-		if (!goConfigService.currentCruiseConfig().hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
-			result.notFound("Not Found", "Pipeline not found", HealthStateType.general(HealthStateScope.GLOBAL));
-			return null;
-		}
-		if (!securityService.hasViewPermissionForPipeline(Username.valueOf(username), pipelineName)) {
-			result.unauthorized("Unauthorized", NOT_AUTHORIZED_TO_VIEW_PIPELINE, HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
-			return null;
-		}
+    public JobInstances findJobHistoryPage(String pipelineName, String stageName, String jobConfigName, Pagination pagination, String username, OperationResult result) {
+        if (!goConfigService.currentCruiseConfig().hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
+            result.notFound("Not Found", "Pipeline not found", HealthStateType.general(HealthStateScope.GLOBAL));
+            return null;
+        }
+        if (!securityService.hasViewPermissionForPipeline(Username.valueOf(username), pipelineName)) {
+            result.unauthorized("Unauthorized", NOT_AUTHORIZED_TO_VIEW_PIPELINE, HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
+            return null;
+        }
 
-		return jobInstanceDao.findJobHistoryPage(pipelineName, stageName, jobConfigName, pagination.getPageSize(), pagination.getOffset());
-	}
+        return jobInstanceDao.findJobHistoryPage(pipelineName, stageName, jobConfigName, pagination.getPageSize(), pagination.getOffset());
+    }
 
     public JobInstance buildByIdWithTransitions(long buildId) {
         return jobInstanceDao.buildByIdWithTransitions(buildId);
@@ -253,23 +259,49 @@ public class JobInstanceService implements JobPlanLoader {
     public JobInstancesModel completedJobsOnAgent(String uuid, JobHistoryColumns columnName, SortOrder order, int pageNumber, int pageSize) {
         int total = totalCompletedJobsCountOn(uuid);
         Pagination pagination = Pagination.pageByNumber(pageNumber, total, pageSize);
-		return completedJobsOnAgent(uuid, columnName, order, pagination);
+        return completedJobsOnAgent(uuid, columnName, order, pagination);
     }
 
-	public int totalCompletedJobsCountOn(String uuid) {
-		return jobInstanceDao.totalCompletedJobsOnAgent(uuid);
-	}
+    public int totalCompletedJobsCountOn(String uuid) {
+        return jobInstanceDao.totalCompletedJobsOnAgent(uuid);
+    }
 
-	public JobInstancesModel completedJobsOnAgent(String uuid, JobHistoryColumns columnName, SortOrder order, Pagination pagination) {
-		List<JobInstance> jobInstances = jobInstanceDao.completedJobsOnAgent(uuid, columnName, order, pagination.getOffset(), pagination.getPageSize());
-		CruiseConfig cruiseConfig = goConfigService.getCurrentConfig();
-		for (JobInstance jobInstance : jobInstances) {
-			jobInstance.setPipelineStillConfigured(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(jobInstance.getPipelineName())));
-		}
-		return new JobInstancesModel(new JobInstances(jobInstances), pagination);
-	}
+    public JobInstancesModel completedJobsOnAgent(String uuid, JobHistoryColumns columnName, SortOrder order, Pagination pagination) {
+        List<JobInstance> jobInstances = jobInstanceDao.completedJobsOnAgent(uuid, columnName, order, pagination.getOffset(), pagination.getPageSize());
+        CruiseConfig cruiseConfig = goConfigService.getCurrentConfig();
+        for (JobInstance jobInstance : jobInstances) {
+            jobInstance.setPipelineStillConfigured(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(jobInstance.getPipelineName())));
+        }
+        return new JobInstancesModel(new JobInstances(jobInstances), pagination);
+    }
 
-	public enum JobHistoryColumns {
+    @Override
+    public void onConfigChange(CruiseConfig newCruiseConfig) {
+        for (ServerHealthState state : serverHealthService.getAllLogs()) {
+            HealthStateScope currentScope = state.getType().getScope();
+            if (currentScope.isForJob()) {
+                serverHealthService.removeByScope(currentScope);
+            }
+        }
+    }
+
+    class PipelineConfigChangedListener extends EntityConfigChangedListener<PipelineConfig> {
+        @Override
+        public void onEntityConfigChange(PipelineConfig pipelineConfig) {
+            for (ServerHealthState state : serverHealthService.getAllLogs()) {
+                HealthStateScope currentScope = state.getType().getScope();
+                if (currentScope.isForJob()) {
+                    String[] split = currentScope.getScope().split("/");
+                    if (split.length > 0 && new CaseInsensitiveString(split[0]).equals(pipelineConfig.name())) {
+                        serverHealthService.removeByScope(currentScope);
+                    }
+                }
+            }
+
+        }
+    }
+
+    public enum JobHistoryColumns {
         pipeline("pipelineName"), stage("stageName"), job("name"), result("result"), completed("lastTransitionTime");
 
         private final String columnName;

@@ -29,11 +29,15 @@ describe ApiV2::Config::EnvironmentConfigRepresenter do
       expect(actual_json).to have_link(:doc).with_url('https://api.gocd.io/#environment-config')
 
       actual_json.delete(:_links)
-      expect(actual_json).to eq({name: 'dev',
-                                 pipelines: [ApiV2::Config::PipelineConfigSummaryRepresenter.new(com.thoughtworks.go.config.EnvironmentPipelineConfig.new('dev-pipeline')).to_hash(url_builder: UrlBuilder.new)],
-                                 agents: [ApiV2::AgentSummaryRepresenter.new(EnvironmentAgentConfig.new('dev-agent')).to_hash(url_builder: UrlBuilder.new),
-                                          ApiV2::AgentSummaryRepresenter.new(EnvironmentAgentConfig.new('omnipresent-agent')).to_hash(url_builder: UrlBuilder.new)],
-                                 environment_variables: [{:secure => false, :name => 'username', :value => 'admin'}]})
+      expect(actual_json).to eq({
+                                  name: 'dev',
+                                  pipelines: [ApiV2::Config::PipelineConfigSummaryRepresenter.new(com.thoughtworks.go.config.EnvironmentPipelineConfig.new('dev-pipeline')).to_hash(url_builder: UrlBuilder.new)],
+                                  agents: [ApiV2::AgentSummaryRepresenter.new(EnvironmentAgentConfig.new('dev-agent')).to_hash(url_builder: UrlBuilder.new),
+                                           ApiV2::AgentSummaryRepresenter.new(EnvironmentAgentConfig.new('omnipresent-agent')).to_hash(url_builder: UrlBuilder.new)],
+                                  environment_variables: [
+                                    ApiV2::Config::EnvironmentVariableRepresenter.new(EnvironmentVariableConfig.new('username', 'admin')).to_hash(url_builder: UrlBuilder.new)
+                                  ]
+                                })
     end
 
 

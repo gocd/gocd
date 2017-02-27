@@ -384,30 +384,35 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
 
     @Override
     public boolean containsPipelineRemotely(CaseInsensitiveString pipelineName) {
-        if (this.isLocal())
+        if (this.isLocal()) {
             return false;
-        if (!this.containsPipeline(pipelineName))
+        }
+        if (!this.containsPipeline(pipelineName)) {
             return false;
-
+        }
         return true;
     }
 
     @Override
     public boolean containsAgentRemotely(String uuid) {
-        if (this.isLocal())
+        if (this.isLocal()) {
             return false;
-        if (!this.hasAgent(uuid))
+        }
+        if (!this.hasAgent(uuid)) {
             return false;
+        }
 
         return true;
     }
 
     @Override
     public boolean containsEnvironmentVariableRemotely(String variableName) {
-        if (this.isLocal())
+        if (this.isLocal()) {
             return false;
-        if (!this.getVariables().hasVariable(variableName))
+        }
+        if (!this.getVariables().hasVariable(variableName)) {
             return false;
+        }
 
         return true;
     }

@@ -24,10 +24,8 @@ import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class PatchEnvironmentCommand extends EnvironmentCommand implements EntityConfigUpdateCommand<EnvironmentConfig> {
@@ -90,31 +88,37 @@ public class PatchEnvironmentCommand extends EnvironmentCommand implements Entit
 
     @Override
     public boolean isValid(CruiseConfig preprocessedConfig) {
-        boolean isValid = validateRemovePipelines(preprocessedConfig);
-        isValid = isValid && validateRemoveAgents(preprocessedConfig);
-        isValid = isValid && validateRemoveEnvironmentVariables(preprocessedConfig);
+        EnvironmentConfig preprocessedEnvironmentConfig = preprocessedConfig.getEnvironments().find(environmentConfig.name());
+
+        boolean isValid = validateRemovalOfInvalidEntities();
+
+        if (preprocessedEnvironmentConfig instanceof MergeEnvironmentConfig) {
+            isValid = validateRemovalOfRemoteEntities(preprocessedEnvironmentConfig);
+        }
+
         return isValid && super.isValid(preprocessedConfig);
     }
 
-    private boolean validateRemoveEnvironmentVariables(CruiseConfig preprocessedConfig) {
-        EnvironmentConfig preprocessedEnvironmentConfig = preprocessedConfig.getEnvironments().find(environmentConfig.name());
-        if(preprocessedEnvironmentConfig instanceof MergeEnvironmentConfig){
-            for (String variableName : envVarsToRemove) {
-                if(preprocessedEnvironmentConfig.containsEnvironmentVariableRemotely(variableName)){
-                    String origin = ((MergeEnvironmentConfig) preprocessedEnvironmentConfig).getOriginForEnvironmentVariable(variableName).displayName();
-                    String message = String.format("Environment variable with name '%s' cannot be removed from environment '%s' as the association has been defined remotely in [%s]",
-                            variableName, environmentConfig.name(), origin);
-                    result.badRequest(actionFailed.addParam(message));
-                    return false;
-                }
+    private boolean validateRemovalOfRemotePipelines(EnvironmentConfig preprocessedEnvironmentConfig) {
+        for (String pipelineToRemove : pipelinesToRemove) {
+            if (preprocessedEnvironmentConfig.containsPipelineRemotely(new CaseInsensitiveString(pipelineToRemove))) {
+                String origin = ((MergeEnvironmentConfig) preprocessedEnvironmentConfig).getOriginForPipeline(new CaseInsensitiveString(pipelineToRemove)).displayName();
+                String message = String.format("Pipeline '%s' cannot be removed from environment '%s' as the association has been defined remotely in [%s]",
+                        pipelineToRemove, environmentConfig.name(), origin);
+                result.unprocessableEntity(actionFailed.addParam(message));
+                return false;
             }
         }
+        return true;
+    }
 
-        EnvironmentConfig environmentConfig = this.environmentConfig;
-        for (String variableName : envVarsToRemove) {
-            if(!environmentConfig.getVariables().hasVariable(variableName)){
-                String message = String.format("Environment variable with name '%s' does not exist in environment '%s'", variableName, environmentConfig.name());
-                result.badRequest(actionFailed.addParam(message));
+    private boolean validateRemovalOfRemoteAgents(EnvironmentConfig preprocessedEnvironmentConfig) {
+        for (String agentToRemove : agentsToRemove) {
+            if (preprocessedEnvironmentConfig.containsAgentRemotely(agentToRemove)) {
+                String origin = ((MergeEnvironmentConfig) preprocessedEnvironmentConfig).getOriginForAgent(agentToRemove).displayName();
+                String message = String.format("Agent with uuid '%s' cannot be removed from environment '%s' as the association has been defined remotely in [%s]",
+                        agentToRemove, environmentConfig.name(), origin);
+                result.unprocessableEntity(actionFailed.addParam(message));
                 return false;
             }
         }
@@ -122,25 +126,33 @@ public class PatchEnvironmentCommand extends EnvironmentCommand implements Entit
         return true;
     }
 
-    private boolean validateRemoveAgents(CruiseConfig preprocessedConfig) {
-        EnvironmentConfig preprocessedEnvironmentConfig = preprocessedConfig.getEnvironments().find(environmentConfig.name());
-        if(preprocessedEnvironmentConfig instanceof MergeEnvironmentConfig){
-            for (String agentToRemove : agentsToRemove) {
-                if(preprocessedEnvironmentConfig.containsAgentRemotely(agentToRemove)){
-                    String origin = ((MergeEnvironmentConfig) preprocessedEnvironmentConfig).getOriginForAgent(agentToRemove).displayName();
-                    String message = String.format("Agent with uuid '%s' cannot be removed from environment '%s' as the association has been defined remotely in [%s]",
-                            agentToRemove, environmentConfig.name(), origin);
-                    result.badRequest(actionFailed.addParam(message));
-                    return false;
-                }
+    private boolean validateRemovalOfEnvironmentVariables(EnvironmentConfig preprocessedEnvironmentConfig) {
+        for (String variableName : envVarsToRemove) {
+            if (preprocessedEnvironmentConfig.containsEnvironmentVariableRemotely(variableName)) {
+                String origin = ((MergeEnvironmentConfig) preprocessedEnvironmentConfig).getOriginForEnvironmentVariable(variableName).displayName();
+                String message = String.format("Environment variable with name '%s' cannot be removed from environment '%s' as the association has been defined remotely in [%s]",
+                        variableName, environmentConfig.name(), origin);
+                result.unprocessableEntity(actionFailed.addParam(message));
+                return false;
             }
         }
 
+        return true;
+    }
+
+    private boolean validateRemovalOfRemoteEntities(EnvironmentConfig preprocessedEnvironmentConfig) {
+        boolean isValid = validateRemovalOfRemotePipelines(preprocessedEnvironmentConfig);
+        isValid = isValid && validateRemovalOfRemoteAgents(preprocessedEnvironmentConfig);
+        isValid = isValid && validateRemovalOfEnvironmentVariables(preprocessedEnvironmentConfig);
+        return isValid;
+    }
+
+    private boolean validateRemovalOfInvalidAgents() {
         EnvironmentConfig environmentConfig = this.environmentConfig;
         for (String agentToRemove : agentsToRemove) {
-            if(!environmentConfig.hasAgent(agentToRemove)){
+            if (!environmentConfig.hasAgent(agentToRemove)) {
                 String message = String.format("Agent with uuid '%s' does not exist in environment '%s'", agentToRemove, environmentConfig.name());
-                result.badRequest(actionFailed.addParam(message));
+                result.unprocessableEntity(actionFailed.addParam(message));
                 return false;
             }
         }
@@ -148,30 +160,36 @@ public class PatchEnvironmentCommand extends EnvironmentCommand implements Entit
         return true;
     }
 
-    private boolean validateRemovePipelines(CruiseConfig preprocessedConfig) {
-        EnvironmentConfig preprocessedEnvironmentConfig = preprocessedConfig.getEnvironments().find(environmentConfig.name());
-        if(preprocessedEnvironmentConfig instanceof MergeEnvironmentConfig){
-            for (String pipelineToRemove : pipelinesToRemove) {
-                if(preprocessedEnvironmentConfig.containsPipelineRemotely(new CaseInsensitiveString(pipelineToRemove))){
-                    String origin = ((MergeEnvironmentConfig) preprocessedEnvironmentConfig).getOriginForPipeline(new CaseInsensitiveString(pipelineToRemove)).displayName();
-                    String message = String.format("Pipeline '%s' cannot be removed from environment '%s' as the association has been defined remotely in [%s]",
-                            pipelineToRemove, environmentConfig.name(), origin);
-                    result.badRequest(actionFailed.addParam(message));
-                    return false;
-                }
-            }
-        }
-
+    private boolean validateRemovalOfInvalidPipelines() {
         EnvironmentConfig environmentConfig = this.environmentConfig;
         for (String pipelineToRemove : pipelinesToRemove) {
-            if(!environmentConfig.containsPipeline(new CaseInsensitiveString(pipelineToRemove))){
+            if (!environmentConfig.containsPipeline(new CaseInsensitiveString(pipelineToRemove))) {
                 String message = String.format("Pipeline '%s' does not exist in environment '%s'", pipelineToRemove, environmentConfig.name());
-                result.badRequest(actionFailed.addParam(message));
+                result.unprocessableEntity(actionFailed.addParam(message));
                 return false;
             }
         }
 
         return true;
+    }
+
+    private boolean validateRemovalOfInvalidEnvironmentVariable() {
+        EnvironmentConfig environmentConfig = this.environmentConfig;
+        for (String variableName : envVarsToRemove) {
+            if (!environmentConfig.getVariables().hasVariable(variableName)) {
+                String message = String.format("Environment variable with name '%s' does not exist in environment '%s'", variableName, environmentConfig.name());
+                result.unprocessableEntity(actionFailed.addParam(message));
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean validateRemovalOfInvalidEntities() {
+        boolean isValid = validateRemovalOfInvalidPipelines();
+        isValid = isValid && validateRemovalOfInvalidAgents();
+        isValid = isValid && validateRemovalOfInvalidEnvironmentVariable();
+        return isValid;
     }
 
     @Override

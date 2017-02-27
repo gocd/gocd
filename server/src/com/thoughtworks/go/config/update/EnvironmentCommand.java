@@ -47,7 +47,7 @@ public class EnvironmentCommand {
 
         if (!isValid) {
             String allErrors = new AllConfigErrors(preprocessedConfig.getAllErrors()).asString();
-            result.badRequest(actionFailed.addParam(allErrors));
+            result.unprocessableEntity(actionFailed.addParam(allErrors));
         }
 
         return isValid;

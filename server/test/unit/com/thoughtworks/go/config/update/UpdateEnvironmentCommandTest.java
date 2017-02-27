@@ -88,7 +88,7 @@ public class UpdateEnvironmentCommandTest {
         UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig.name().toString(), newEnvironmentConfig, currentUser, actionFailed, md5, entityHashingService, result);
         command.update(cruiseConfig);
         HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
-        expectResult.badRequest(actionFailed.addParam("Environment 'Test' has an invalid agent uuid 'Invalid-agent-uuid'"));
+        expectResult.unprocessableEntity(actionFailed.addParam("Environment 'Test' has an invalid agent uuid 'Invalid-agent-uuid'"));
 
         assertThat(command.isValid(cruiseConfig), is(false));
         assertThat(result, is(expectResult));
@@ -100,7 +100,7 @@ public class UpdateEnvironmentCommandTest {
         UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig.name().toString(), newEnvironmentConfig, currentUser, actionFailed, md5, entityHashingService, result);
         command.update(cruiseConfig);
         HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
-        expectResult.badRequest(actionFailed.addParam("Environment 'Test' refers to an unknown pipeline 'Invalid-pipeline-name'."));
+        expectResult.unprocessableEntity(actionFailed.addParam("Environment 'Test' refers to an unknown pipeline 'Invalid-pipeline-name'."));
 
         assertThat(command.isValid(cruiseConfig), is(false));
         assertThat(result, is(expectResult));
@@ -117,7 +117,7 @@ public class UpdateEnvironmentCommandTest {
 
         HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
         String allErrors = new AllConfigErrors(cruiseConfig.getAllErrors()).asString();
-        expectResult.badRequest(actionFailed.addParam(allErrors));
+        expectResult.unprocessableEntity(actionFailed.addParam(allErrors));
 
         assertThat(result, is(expectResult));
 

@@ -164,7 +164,7 @@ public class PatchEnvironmentCommandTest {
         assertFalse(command.isValid(cruiseConfig));
 
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.badRequest(actionFailed.addParam("Environment 'Dev' has an invalid agent uuid 'invalid-agent-uuid'"));
+        expectedResult.unprocessableEntity(actionFailed.addParam("Environment 'Dev' has an invalid agent uuid 'invalid-agent-uuid'"));
 
         assertThat(result, is(expectedResult));
     }
@@ -184,7 +184,7 @@ public class PatchEnvironmentCommandTest {
         assertFalse(isValid);
 
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.badRequest(actionFailed.addParam("Environment 'Dev' refers to an unknown pipeline 'invalid-pipeline-name'."));
+        expectedResult.unprocessableEntity(actionFailed.addParam("Environment 'Dev' refers to an unknown pipeline 'invalid-pipeline-name'."));
 
         assertThat(result, is(expectedResult));
     }
@@ -202,7 +202,7 @@ public class PatchEnvironmentCommandTest {
         assertFalse(isValid);
 
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.badRequest(actionFailed.addParam("Pipeline 'invalid-pipeline-to-remove' does not exist in environment 'Dev'"));
+        expectedResult.unprocessableEntity(actionFailed.addParam("Pipeline 'invalid-pipeline-to-remove' does not exist in environment 'Dev'"));
 
         assertThat(result, is(expectedResult));
     }
@@ -220,7 +220,7 @@ public class PatchEnvironmentCommandTest {
         assertFalse(isValid);
 
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.badRequest(actionFailed.addParam("Agent with uuid 'invalid-agent-to-remove' does not exist in environment 'Dev'"));
+        expectedResult.unprocessableEntity(actionFailed.addParam("Agent with uuid 'invalid-agent-to-remove' does not exist in environment 'Dev'"));
 
         assertThat(result, is(expectedResult));
     }
@@ -238,7 +238,7 @@ public class PatchEnvironmentCommandTest {
         assertFalse(isValid);
 
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.badRequest(actionFailed.addParam("Environment variable with name 'invalid-env-var-to-remove' does not exist in environment 'Dev'"));
+        expectedResult.unprocessableEntity(actionFailed.addParam("Environment variable with name 'invalid-env-var-to-remove' does not exist in environment 'Dev'"));
 
         assertThat(result, is(expectedResult));
     }
@@ -268,7 +268,7 @@ public class PatchEnvironmentCommandTest {
 
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         String message = "Pipeline 'remote-pipeline-to-remove' cannot be removed from environment 'Dev' as the association has been defined remotely in [foo/bar.git at latest]";
-        expectedResult.badRequest(actionFailed.addParam(message));
+        expectedResult.unprocessableEntity(actionFailed.addParam(message));
 
         assertThat(result, is(expectedResult));
     }
@@ -298,7 +298,7 @@ public class PatchEnvironmentCommandTest {
 
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         String message = "Agent with uuid 'remote-agent-to-remove' cannot be removed from environment 'Dev' as the association has been defined remotely in [foo/bar.git at latest]";
-        expectedResult.badRequest(actionFailed.addParam(message));
+        expectedResult.unprocessableEntity(actionFailed.addParam(message));
 
         assertThat(result, is(expectedResult));
     }
@@ -328,7 +328,7 @@ public class PatchEnvironmentCommandTest {
 
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         String message = "Environment variable with name 'remote-env-var-to-remove' cannot be removed from environment 'Dev' as the association has been defined remotely in [foo/bar.git at latest]";
-        expectedResult.badRequest(actionFailed.addParam(message));
+        expectedResult.unprocessableEntity(actionFailed.addParam(message));
 
         assertThat(result, is(expectedResult));
     }

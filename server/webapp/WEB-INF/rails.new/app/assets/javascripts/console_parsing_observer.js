@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-;(function ($) {
+;(function ($, c) {
   "use strict";
 
   function ConsoleParsingObserver(url, transformer, options) {
@@ -89,9 +89,10 @@
     }
 
     function addBlankSection(element) {
-      var section = $("<dl class='foldable-section open'>");
-      element.append(section);
-      return section;
+      var section = c("dl", {class: "foldable-section open"})
+      c(element[0], section);
+
+      return $(section);
     }
 
     function onFinishSection(section) {
@@ -138,43 +139,44 @@
       return insertHeader(section, prefix, line);
     }
 
-    function parseSpecialLineContent(lineElement, prefix, line) {
+    function parseSpecialLineContent(rawLineElement, prefix, line) {
       var parts;
 
       if (prefix === Types.TASK_START && line.match(BEGIN_TASK_REGEX)) {
         parts = line.match(BEGIN_TASK_REGEX);
-        lineElement.text(parts[1]).append($('<code>').text(parts[2]));
+        c(rawLineElement, parts[1], c("code", parts[2]));
       } else if (isExplicitEndBoundary(prefix)) {
         parts = line.match(/^(\s*\[go] (?:Current job|Task) status: )(.*)/)
-        lineElement.text(parts[1]).append($('<code>').text(parts[2]));
+        c(rawLineElement, parts[1], c("code", parts[2]));
       } else {
         if ("" === line) {
-          lineElement.append($("<br/>"));
+          c(rawLineElement, c("br"));
         } else {
-          lineElement.text(line);
+          c(rawLineElement, line);
         }
       }
     }
 
     function insertHeader(section, prefix, line) {
-      var header = $("<dt>").attr("data-prefix", prefix);
+      var header = c("dt", {"data-prefix": prefix});
 
       parseSpecialLineContent(header, prefix, line);
-      section.append(header);
-      return header;
+      c(section[0], header);
+      return $(header);
     }
 
     function insertLine(section, prefix, line) {
-      var output = $("<dd>").attr("data-prefix", prefix);
+      var output = c("dd", {"data-prefix": prefix});
 
       if (!section.data("multiline")) {
-        section.prepend($("<a class='fa toggle'>"));
+        section.prepend(c("a", {class: "fa toggle"}));
       }
       section.data("multiline", true);
 
       parseSpecialLineContent(output, prefix, line);
-      section.append(output);
-      return output;
+      c(section[0], output);
+
+      return $(output);
     }
 
     function isPartOfSection(section, prefix, line) {
@@ -241,8 +243,8 @@
 
           lineCursor.attr("data-line", lineNumber).prepend($("<span class='ts'>").text(timestamp));
         } else {
-          lineCursor = $("<dt>").text(rawLine);
-          currentSection.append(lineCursor);
+          c(currentSection[0], lineCursor = c("dt", rawLine));
+          lineCursor = $(lineCursor);
         }
       }
     };
@@ -251,4 +253,4 @@
   // export
   window.ConsoleParsingObserver = ConsoleParsingObserver;
   window.LogOutputTransformer = LogOutputTransformer;
-})(jQuery);
+})(jQuery, crel);

@@ -395,59 +395,53 @@ task war(type: Jar) {
   baseName = 'cruise'
   extension 'war'
 
-  // do this lazily because finding gems is expensive during the configure cycle causing gradle to boot really slow
-  doFirst {
-    exclude '**/*/log4j.properties'
-    exclude 'log4j.properties'
+  exclude '**/*/log4j.properties'
+  exclude 'log4j.properties'
 
-    // exclude app-server because it causes class cast exceptions (loaded by different classloaders)
-    def classpath = project.configurations.compile.minus(project(':app-server').jar.archivePath)
+  // exclude app-server because it causes class cast exceptions (loaded by different classloaders)
+  from({ project.configurations.compile.minus(project(':app-server').jar.archivePath) }) {
+    into 'WEB-INF/lib'
+  }
 
-    from(classpath) {
-      into 'WEB-INF/lib'
+  from({ zipTree(jar.archivePath) }) {
+    into('WEB-INF/classes')
+  }
+
+  from("${project(':config-server').sourceSets.main.resources}/cruise-config.xsd") {
+    into '/'
+  }
+
+  from({project(':config-server').sourceSets.main.resources.srcDirs}) { into('/') include('cruise-config.xsd') }
+  from("messages/message.properties") { into('/') }
+
+  from({ compileAssets }) { into '/WEB-INF/rails.new/public/assets' }
+
+  from("webapp/WEB-INF/web.xml") {
+    filter {
+      it.replaceAll('<param-value>development</param-value>', '<param-value>production</param-value>')
     }
+    into "/WEB-INF"
+  }
 
-    with(copySpec {
-      from { zipTree(jar.archivePath) }
-      into('WEB-INF/classes')
-    })
-
-    from("${project(':config-server').sourceSets.main.resources}/cruise-config.xsd") {
-      into '/'
+  from('webapp') { theSpec ->
+    into '/'
+    exclude('WEB-INF/web.xml')
+    exclude("**/rails.new/*.log")
+    exclude("**/rails.new/log/*")
+    exclude("**/rails.new/spec/*")
+    exclude("**/rails.new/tmp/**/*.*")
+    exclude("**/rails.new/**/jruby/*/cache/*.gem")
+    exclude("**/rails.new/app/assets/**/*.*")
+    exclude("**/rails.new/app/views/**/*.*")
+    findGemsToNotPack().each { gem ->
+      theSpec.exclude("**/rails.new/vendor/bundle/jruby/1.9/gems/${gem}")
+      theSpec.exclude("**/rails.new/vendor/bundle/jruby/1.9/specifications/${gem}.gemspec")
+      theSpec.exclude("**/rails.new/vendor/bundle/jruby/1.9/build_info/${gem}.info")
     }
+  }
 
-    from(project(':config-server').sourceSets.main.resources.srcDirs) { into('/') include('cruise-config.xsd') }
-    from("messages/message.properties") { into('/') }
-
-    from(compileAssets) { into '/WEB-INF/rails.new/public/assets' }
-
-    from("webapp/WEB-INF/web.xml") {
-      filter {
-        it.replaceAll('<param-value>development</param-value>', '<param-value>production</param-value>')
-      }
-      into "/WEB-INF"
-    }
-
-    from('webapp') { theSpec ->
-      into '/'
-      exclude('WEB-INF/web.xml')
-      exclude("**/rails.new/*.log")
-      exclude("**/rails.new/log/*")
-      exclude("**/rails.new/spec/*")
-      exclude("**/rails.new/tmp/**/*.*")
-      exclude("**/rails.new/**/jruby/*/cache/*.gem")
-      exclude("**/rails.new/app/assets/**/*.*")
-      exclude("**/rails.new/app/views/**/*.*")
-      findGemsToNotPack().each { gem ->
-        theSpec.exclude("**/rails.new/vendor/bundle/jruby/1.9/gems/${gem}")
-        theSpec.exclude("**/rails.new/vendor/bundle/jruby/1.9/specifications/${gem}.gemspec")
-        theSpec.exclude("**/rails.new/vendor/bundle/jruby/1.9/build_info/${gem}.info")
-      }
-    }
-
-    from(inlinePartials) {
-      into '/WEB-INF/rails.new/app/views'
-    }
+  from({ inlinePartials }) {
+    into '/WEB-INF/rails.new/app/views'
   }
 
   doLast {

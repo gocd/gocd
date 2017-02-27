@@ -37,24 +37,22 @@ task fatJar(type: Jar, dependsOn: [':agent-bootstrapper:jar', ":agent-launcher:f
     attributes 'One-Jar-Main-Class': 'com.thoughtworks.go.agent.bootstrapper.AgentBootstrapper'
   }
 
-  doFirst {
-    from(configurations.compile) { into "lib/" }
-    from(jar.archivePath) {
-      into('main/')
-      rename "(.*)-${project.version}-classes.jar", 'agent-bootstrapper-classes.jar'
-    }
+  from({ configurations.compile }) { into "lib/" }
 
-    from(configurations.packagingOnly) {
-      into "defaultFiles/"
-      rename "(.*)-${project.version}.jar", '$1.jar'
-    }
+  from({ jar.archivePath }) {
+    into('main/')
+    rename "(.*)-${project.version}-classes.jar", 'agent-bootstrapper-classes.jar'
+  }
 
-    with(copySpec {
-      from { configurations.extractedAtTopLevel.collect { it.isDirectory() ? it : zipTree(it) } }
-      include '**/*.class'
-      exclude 'OneJar.class'
-      into("/")
-    })
+  from({ configurations.packagingOnly }) {
+    into "defaultFiles/"
+    rename "(.*)-${project.version}.jar", '$1.jar'
+  }
+
+  from({ configurations.extractedAtTopLevel.collect { it.isDirectory() ? it : zipTree(it) } }) {
+    include '**/*.class'
+    exclude 'OneJar.class'
+    into("/")
   }
 
   doLast {

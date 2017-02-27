@@ -204,59 +204,50 @@ task fatJar(type: Jar,
     attributes 'One-Jar-Main-Class': 'com.thoughtworks.go.server.util.GoLauncher'
   }
 
-  doFirst {
+  from({ configurations.packagingInDefaultFilesDir }) {
+    into "defaultFiles/"
+    rename "(.*)-${project.version}.(.*)", '$1.$2'
+  }
 
-    from(configurations.packagingInDefaultFilesDir) {
-      into "defaultFiles/"
-      rename "(.*)-${project.version}.(.*)", '$1.$2'
-    }
+  from("${project(':installers').projectDir}/go-server/release/cruise-config.xml") { into 'defaultFiles/config' }
+  from("${project(':installers').projectDir}/go-server/release/config.properties") { into 'defaultFiles/config' }
+  from("${project(':server').projectDir}/config/jetty.xml") { into 'defaultFiles/config' }
+  from("${project(':server').projectDir}/config/go_update_server.pub") { into 'defaultFiles/config' }
+  from("${project(':server').projectDir}/properties/src/log4j.properties") { into 'defaultFiles/config' }
+  from("${project(':server').projectDir}/historical_jars") { into 'defaultFiles/historical_jars' }
+  from("${project(':config-server').projectDir}/resources/cruise-config.xsd") { into 'defaultFiles/config' }
+  from({h2dbZip.archivePath}) { into 'defaultFiles' rename "(.*)-${project.version}.zip", '$1.zip' }
+  from({h2deltasZip.archivePath}) { into 'defaultFiles' rename "(.*)-${project.version}.zip", '$1.zip' }
+  from({defaultCommandSnippetsZip.archivePath}) { into 'defaultFiles' rename "(.*)-${project.version}.zip", '$1.zip' }
+  from({pluginsZip.archivePath}) { into 'defaultFiles' rename "(.*)-${project.version}.zip", '$1.zip' }
 
-    from("${project(':installers').projectDir}/go-server/release/cruise-config.xml") { into 'defaultFiles/config' }
-    from("${project(':installers').projectDir}/go-server/release/config.properties") { into 'defaultFiles/config' }
-    from("${project(':server').projectDir}/config/jetty.xml") { into 'defaultFiles/config' }
-    from("${project(':server').projectDir}/config/go_update_server.pub") { into 'defaultFiles/config' }
-    from("${project(':server').projectDir}/properties/src/log4j.properties") { into 'defaultFiles/config' }
-    from("${project(':server').projectDir}/historical_jars") { into 'defaultFiles/historical_jars' }
-    from("${project(':config-server').projectDir}/resources/cruise-config.xsd") { into 'defaultFiles/config' }
-    from(h2dbZip.archivePath) { into 'defaultFiles' rename "(.*)-${project.version}.zip", '$1.zip' }
-    from(h2deltasZip.archivePath) { into 'defaultFiles' rename "(.*)-${project.version}.zip", '$1.zip' }
-    from(defaultCommandSnippetsZip.archivePath) { into 'defaultFiles' rename "(.*)-${project.version}.zip", '$1.zip' }
-    from(pluginsZip.archivePath) { into 'defaultFiles' rename "(.*)-${project.version}.zip", '$1.zip' }
+  from({ (project(':jetty9').configurations.compileOnly - project(':jetty9').configurations.compile) }) {
+    into 'lib/'
+  }
 
-    def jetty9ProvidedOnlyPackages = project(':jetty9').configurations.compileOnly - project(':jetty9').configurations.compile
-    def serverLauncherProvidedOnlyPackages = configurations.compileOnly - configurations.compile
+  from({ configurations.packagingInLibDir + configurations.compileOnly - configurations.compile }) {
+    into 'lib/'
+    rename "tfs-impl-(.*)-${project.version}.jar", 'tfs-impl-$1.jar'
+    rename "go-plugin-activator-${project.version}.jar", "go-plugin-activator.jar"
+  }
 
-    from(jetty9ProvidedOnlyPackages) {
-      into 'lib/'
-    }
+  from({ mainJar.archivePath }) {
+    into('main/')
+    rename "(.*)-${project.version}-${mainJar.classifier}.jar", 'main.jar'
+  }
 
-    from(configurations.packagingInLibDir + serverLauncherProvidedOnlyPackages) {
-      into 'lib/'
-      rename "tfs-impl-(.*)-${project.version}.jar", 'tfs-impl-$1.jar'
-      rename "go-plugin-activator-${project.version}.jar", "go-plugin-activator.jar"
-    }
+  from({ configurations.extractedAtTopLevel.collect { it.isDirectory() ? it : zipTree(it) } }) {
+    include '**/*.class'
+    exclude 'OneJar.class'
+    into("/")
+  }
 
-    from(mainJar.archivePath) {
-      into('main/')
-      rename "(.*)-${project.version}-${mainJar.classifier}.jar", 'main.jar'
-    }
+  from({ zipTree(jar.archivePath) }) {
+    into('/')
+  }
 
-    with(copySpec {
-      from { configurations.extractedAtTopLevel.collect { it.isDirectory() ? it : zipTree(it) } }
-      include '**/*.class'
-      exclude 'OneJar.class'
-      into("/")
-    })
-
-    with(copySpec {
-      from { zipTree(jar.archivePath) }
-      into('/')
-    })
-
-    with(copySpec {
-      from "${rootProject.rootDir}/LICENSE"
-      into "/"
-    })
+  from("${rootProject.rootDir}/LICENSE") {
+    into "/"
   }
 
   doLast {

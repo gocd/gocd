@@ -5,7 +5,9 @@ import com.thoughtworks.go.plugin.api.response.DefaultGoApiResponse;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -26,6 +28,8 @@ public class PluginRequestHelperTest {
     private GoPluginApiResponse response;
     private final String requestName = "req";
     private final String extensionName = "some-extension";
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     @Before
     public void setup() {
@@ -42,17 +46,7 @@ public class PluginRequestHelperTest {
         when(response.responseBody()).thenReturn("junk");
         when(pluginManager.submitTo(eq(pluginId), any(GoPluginApiRequest.class))).thenReturn(response);
         try {
-            helper.submitRequest(pluginId, requestName, new PluginInteractionCallback<Object>() {
-                @Override
-                public String requestBody(String resolvedExtensionVersion) {
-                    return null;
-                }
-
-                @Override
-                public Map<String, String> requestParams(String resolvedExtensionVersion) {
-                    return null;
-                }
-
+            helper.submitRequest(pluginId, requestName, new DefaultPluginInteractionCallback<Object>() {
                 @Override
                 public Object onSuccess(String responseBody, String resolvedExtensionVersion) {
                     isSuccessInvoked[0] = true;
@@ -73,17 +67,7 @@ public class PluginRequestHelperTest {
         when(response.responseCode()).thenReturn(DefaultGoApiResponse.SUCCESS_RESPONSE_CODE);
         when(pluginManager.submitTo(eq(pluginId), any(GoPluginApiRequest.class))).thenReturn(response);
 
-        helper.submitRequest(pluginId, requestName, new PluginInteractionCallback<Object>() {
-            @Override
-            public String requestBody(String resolvedExtensionVersion) {
-                return null;
-            }
-
-            @Override
-            public Map<String, String> requestParams(String resolvedExtensionVersion) {
-                return null;
-            }
-
+        helper.submitRequest(pluginId, requestName, new DefaultPluginInteractionCallback<Object>() {
             @Override
             public Object onSuccess(String responseBody, String resolvedExtensionVersion) {
                 isSuccessInvoked[0] = true;
@@ -95,29 +79,19 @@ public class PluginRequestHelperTest {
     }
 
     @Test
-    public void shouldInvokeSuccessBlockOnValidationFailure() {
-        when(response.responseCode()).thenReturn(DefaultGoApiResponse.SUCCESS_RESPONSE_CODE);
+    public void shouldErrorOutOnValidationFailure() {
+        when(response.responseCode()).thenReturn(DefaultGoApiResponse.VALIDATION_ERROR);
         when(pluginManager.submitTo(eq(pluginId), any(GoPluginApiRequest.class))).thenReturn(response);
 
-        helper.submitRequest(pluginId, requestName, new PluginInteractionCallback<Object>() {
-            @Override
-            public String requestBody(String resolvedExtensionVersion) {
-                return null;
-            }
+        thrown.expect(RuntimeException.class);
 
-            @Override
-            public Map<String, String> requestParams(String resolvedExtensionVersion) {
-                return null;
-            }
-
+        helper.submitRequest(pluginId, requestName, new DefaultPluginInteractionCallback<Object>() {
             @Override
             public Object onSuccess(String responseBody, String resolvedExtensionVersion) {
                 isSuccessInvoked[0] = true;
                 return null;
             }
         });
-        assertTrue(isSuccessInvoked[0]);
-        verify(pluginManager).submitTo(eq(pluginId), any(GoPluginApiRequest.class));
     }
 
     @Test
@@ -135,20 +109,10 @@ public class PluginRequestHelperTest {
         }).when(pluginManager).submitTo(eq(pluginId), any(GoPluginApiRequest.class));
 
 
-        helper.submitRequest(pluginId, requestName, new PluginInteractionCallback<Object>() {
+        helper.submitRequest(pluginId, requestName, new DefaultPluginInteractionCallback<Object>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return requestBody;
-            }
-
-            @Override
-            public Map<String, String> requestParams(String resolvedExtensionVersion) {
-                return null;
-            }
-
-            @Override
-            public Object onSuccess(String responseBody, String resolvedExtensionVersion) {
-                return null;
             }
         });
         assertThat(generatedRequest[0].requestBody(), is(requestBody));
@@ -184,6 +148,11 @@ public class PluginRequestHelperTest {
                 params.put("p1", "v1");
                 params.put("p2", "v2");
                 return params;
+            }
+
+            @Override
+            public Map<String, String> requestHeaders(String resolvedExtensionVersion) {
+                return null;
             }
 
             @Override

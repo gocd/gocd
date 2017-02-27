@@ -52,6 +52,7 @@ import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -232,7 +233,6 @@ public class AuthorizationExtensionTest {
         assertThat(authenticationResponse.getRoles().get(0), is("blackbird"));
     }
 
-
     @Test
     public void shouldTalkToPlugin_To_AuthenticateUserWithEmptyListIfRoleConfigsAreNotProvided() throws Exception {
         String requestBody = "{\n" +
@@ -296,6 +296,29 @@ public class AuthorizationExtensionTest {
         assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_SEARCH_USERS, requestBody);
         assertThat(users, hasSize(1));
         assertThat(users, hasItem(new User("bob", "Bob", "bob@example.com")));
+    }
+
+    @Test
+    public void shouldTalkToPlugin_To_GetIdentityProviderRedirectUrl() throws JSONException {
+        String requestBody = "{\n" +
+                "  \"auth_configs\": [\n" +
+                "    {\n" +
+                "      \"id\": \"github\",\n" +
+                "      \"configuration\": {\n" +
+                "        \"url\": \"some-url\"\n" +
+                "      }\n" +
+                "    }\n" +
+                "  ]\n" +
+                "}";
+        String responseBody = "{\"identity_provider_url\":\"url_to_identity_provder\"}";
+        SecurityAuthConfig authConfig = new SecurityAuthConfig("github", "cd.go.github", ConfigurationPropertyMother.create("url", false, "some-url"));
+
+        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
+
+        String identityProviderRedirectUrl = authorizationExtension.getIdentityProviderRedirectUrl(PLUGIN_ID, Collections.singletonList(authConfig));
+
+        assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_IDENTITY_PROVIDER_URL, requestBody);
+        assertThat(identityProviderRedirectUrl, is("url_to_identity_provder"));
     }
 
     private void assertRequest(GoPluginApiRequest goPluginApiRequest, String extensionName, String version, String requestName, String requestBody) throws JSONException {

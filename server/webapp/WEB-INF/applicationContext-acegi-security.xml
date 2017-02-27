@@ -82,6 +82,25 @@
         </constructor-arg>
     </bean>
 
+    <bean id="preAuthenticationFilter" class="com.thoughtworks.go.server.security.PreAuthenticatedRequestsProcessingFilter"
+        p:authenticationManager-ref="preAuthenticationManager"
+        p:authenticationFailureUrl="/auth/login?login_error=1"
+        p:defaultTargetUrl="/"
+        p:filterProcessesUrl="/go/plugin/([^\s]+)/authenticate$"/>
+
+
+    <bean id="preAuthenticationManager" class="org.springframework.security.providers.ProviderManager">
+      <property name="providers">
+        <list>
+          <bean factory-bean="goAuthenticationProviderFactory" factory-method="setProvider">
+            <constructor-arg index="0">
+              <bean class="com.thoughtworks.go.server.security.providers.PreAuthenticatedAuthenticationProvider" autowire="autodetect"/>
+            </constructor-arg>
+          </bean>
+        </list>
+      </property>
+    </bean>
+
     <bean id="authenticationProcessingFilter" class="com.thoughtworks.go.server.security.AuthenticationProcessingFilter"
           p:authenticationManager-ref="goAuthenticationManager"
           p:authenticationFailureUrl="/auth/login?login_error=1"

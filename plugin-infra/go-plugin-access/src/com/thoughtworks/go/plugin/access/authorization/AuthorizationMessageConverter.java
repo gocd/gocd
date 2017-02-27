@@ -56,7 +56,15 @@ public interface AuthorizationMessageConverter {
 
     String searchUsersRequestBody(String searchTerm, List<SecurityAuthConfig> authConfigs);
 
-    String processGetRoleConfigsRequest(String requestBody);
-
     String getProcessRoleConfigsResponseBody(List<PluginRoleConfig> roles);
+
+    String grantAccessRequestBody(List<SecurityAuthConfig> authConfigs);
+
+    Map<String,String> getCredentials(String responseBody);
+
+    String authenticateUserRequestBody(Map<String, String> credentials, List<SecurityAuthConfig> authConfigs, List<PluginRoleConfig> roleConfigs);
+
+    String getIdentityProviderUrl(String responseBody);
+
+    String identityProviderUrlRequestBody(List<SecurityAuthConfig> authConfigs);
 }

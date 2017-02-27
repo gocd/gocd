@@ -71,6 +71,8 @@
   function LogOutputTransformer(consoleElement) {
     var me = this;
     var currentSection, lineCursor;
+    var ansi = new AnsiUp();
+    ansi.use_classes = true;
 
     var re = /^([^|]{2})\|(\d\d:\d\d:\d\d\.\d\d\d)(.*)/; // prefix parsing regex
     var BEGIN_TASK_REGEX = /^(\s*\[go] (?:Cancel t|T)ask: )(.*)/;
@@ -152,7 +154,7 @@
         if ("" === line) {
           c(rawLineElement, c("br"));
         } else {
-          c(rawLineElement, line);
+          rawLineElement.innerHTML = ansi.ansi_to_html(line);
         }
       }
     }

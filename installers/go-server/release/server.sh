@@ -93,10 +93,12 @@ else
     PID_FILE=go-server.pid
 fi
 
-if [ -d /etc/go ]; then
+if [ -z "${GO_CONFIG_DIR}" ]; then
+  if [ -d /etc/go ]; then
     GO_CONFIG_DIR=/etc/go
-else
+  else
     GO_CONFIG_DIR=$SERVER_DIR/config
+  fi
 fi
 
 if [ -e /usr/lib/yourkit/libyjpagent.jnilib ]; then

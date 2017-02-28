@@ -64,38 +64,19 @@
     me.notify = consumeBuildLog;
   }
 
-  var Types = {
-    INFO: "##", ALERT: "@@",
-    PREP: "pr", PREP_ERR: "pe",
-    TASK_START: "!!", OUT: "&1", ERR: "&2", PASS: "?0", FAIL: "?1",
-    CANCEL_TASK_START: "!x", CANCEL_TASK_PASS: "x0", CANCEL_TASK_FAIL: "x1",
-    JOB_PASS: "j0", JOB_FAIL: "j1"
-  };
-
-  function LogOutputTransformer(consoleElement) {
-    var me = this;
-    var currentSection, currentLine;
+  function Foldable() {
+    var Types = {
+      INFO: "##", ALERT: "@@",
+      PREP: "pr", PREP_ERR: "pe",
+      TASK_START: "!!", OUT: "&1", ERR: "&2", PASS: "?0", FAIL: "?1",
+      CANCEL_TASK_START: "!x", CANCEL_TASK_PASS: "x0", CANCEL_TASK_FAIL: "x1",
+      JOB_PASS: "j0", JOB_FAIL: "j1"
+    };
 
     var ansi = new AnsiUp();
-    ansi.use_classes = true;
-
-    var re = /^([^|]{2})\|(\d\d:\d\d:\d\d\.\d\d\d) (.*)/; // parses prefix, timestamp, and line content
-    var legacy = /^(\d\d:\d\d:\d\d\.\d\d\d )?(.*)/; // timestamps were not guaranteed to precede content in the old format
-
     var BEGIN_TASK_REGEX = /^(\s*\[go] (?:On Cancel )?Task: )(.*)/; // remove these once merge PR #3201
-    var lineNumber = 0;
 
-    consoleElement.on("click", ".toggle", function toggleSectionCollapse(e) {
-      e.stopPropagation();
-      e.preventDefault();
-
-      var section = $(e.currentTarget).closest(".foldable-section");
-      section.toggleClass("open");
-    });
-
-    if (!consoleElement.find(".section").length) {
-      currentSection = addBlankSection(consoleElement);
-    }
+    ansi.use_classes = true;
 
     function addBlankSection(element) {
       var section = c("dl", {class: "foldable-section open"})
@@ -141,7 +122,7 @@
       }
     }
 
-    function markSectionWithHeader(section, prefix, line) {
+    function assignSection(section, prefix) {
       section.removeData("data-type");
 
       if (Types.INFO ===prefix) {
@@ -157,8 +138,6 @@
       } else {
         section.attr("data-type", "info");
       }
-
-      return insertHeader(section, prefix, line);
     }
 
     function parseSpecialLineContent(rawLineElement, prefix, line) {
@@ -242,6 +221,40 @@
       return addBlankSection(container);
     }
 
+    this.detectError = detectError;
+    this.isExplicitEndBoundary = isExplicitEndBoundary;
+
+    this.addBlankSection = addBlankSection;
+    this.assignSection = assignSection;
+    this.isPartOfSection = isPartOfSection;
+    this.onFinishSection = onFinishSection;
+    this.closeSectionAndStartNext = closeSectionAndStartNext;
+
+    this.insertHeader = insertHeader;
+    this.insertLine = insertLine;
+  }
+
+  function LogOutputTransformer(consoleElement, fm /* formatter */) {
+    var me = this;
+    var currentSection, currentLine;
+
+    var re = /^([^|]{2})\|(\d\d:\d\d:\d\d\.\d\d\d) (.*)/; // parses prefix, timestamp, and line content
+    var legacy = /^(\d\d:\d\d:\d\d\.\d\d\d )?(.*)/; // timestamps were not guaranteed to precede content in the old format
+
+    var lineNumber = 0;
+
+    consoleElement.on("click", ".toggle", function toggleSectionCollapse(e) {
+      e.stopPropagation();
+      e.preventDefault();
+
+      var section = $(e.currentTarget).closest(".foldable-section");
+      section.toggleClass("open");
+    });
+
+    if (!consoleElement.find(".section").length) {
+      currentSection = fm.addBlankSection(consoleElement);
+    }
+
     me.transform = function buildDomFromLogs(logLines) {
       var rawLine, match;
 
@@ -255,23 +268,26 @@
           timestamp = match[2];
           line = match[3] || "";
 
-          detectError(currentSection, prefix);
+          fm.detectError(currentSection, prefix);
 
           if (currentSection.is(":empty")) {
-            currentLine = markSectionWithHeader(currentSection, prefix, line);
+            fm.assignSection(currentSection, prefix);
+            currentLine = fm.insertHeader(currentSection, prefix, line);
 
-            if (isExplicitEndBoundary(prefix)) {
-              currentSection = closeSectionAndStartNext(currentSection, consoleElement);
+            if (fm.isExplicitEndBoundary(prefix)) {
+              currentSection = fm.closeSectionAndStartNext(currentSection, consoleElement);
             }
-          } else if (isPartOfSection(currentSection, prefix, line)) {
-            currentLine = insertLine(currentSection, prefix, line);
+          } else if (fm.isPartOfSection(currentSection, prefix, line)) {
+            currentLine = fm.insertLine(currentSection, prefix, line);
 
-            if (isExplicitEndBoundary(prefix)) {
-              currentSection = closeSectionAndStartNext(currentSection, consoleElement);
+            if (fm.isExplicitEndBoundary(prefix)) {
+              currentSection = fm.closeSectionAndStartNext(currentSection, consoleElement);
             }
           } else {
-            currentSection = closeSectionAndStartNext(currentSection, consoleElement);
-            currentLine = markSectionWithHeader(currentSection, prefix, line);
+            currentSection = fm.closeSectionAndStartNext(currentSection, consoleElement);
+
+            fm.assignSection(currentSection, prefix);
+            currentLine = fm.insertHeader(currentSection, prefix, line);
           }
         } else {
 
@@ -294,4 +310,5 @@
   // export
   window.ConsoleParsingObserver = ConsoleParsingObserver;
   window.LogOutputTransformer = LogOutputTransformer;
+  window.Foldable = Foldable;
 })(jQuery, crel);

@@ -34,7 +34,7 @@
       build.each(function initConsoleParser(idx, consoleArea) {
         var area = $(consoleArea);
         var container = area.find(".buildoutput_pre");
-        var parser = new ConsoleParsingObserver(consoleUrl, new LogOutputTransformer(container), {
+        var parser = new ConsoleParsingObserver(consoleUrl, new LogOutputTransformer(container, new Foldable()), {
           onUpdate:   function () {
             container.trigger("consoleUpdated");
           },

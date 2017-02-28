@@ -76,15 +76,11 @@ var TemplateConfigWidget = {
         if (data.data) {
           setTemplateAndPreserveSelection(Template.fromJSON(data.data));
         }
-      });
+      }).always(m.redraw);
     };
   },
 
   view: function (vnode) {
-    return (<div>
-      on new templkate
-    </div>);
-
     var errors                  = vnode.state.vm.hasErrors() ? (
         <ErrorsWidget errors={vnode.state.vm.errors()}/>) : undefined;
     var isExtractedFromPipeline = vnode.state.template().isExtractedFromPipeline();

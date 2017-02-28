@@ -19,11 +19,11 @@ var _ = require('lodash');
 
 
 var ErrorsWidget = {
-  view: function (_ctrl, args) {
+  view: function (vnode) {
     return (
       <div class='alert callout'>
         <ul>
-          {_.map(args.errors, function (error) {
+          {_.map(vnode.attrs.errors, function (error) {
             return (<li>{error}</li>);
           })}
         </ul>

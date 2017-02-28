@@ -52,7 +52,7 @@ var TemplatesConfigWidget = {
     self.reloadPage();
 
     self.addNewTemplate = function () {
-      m.route.set('/:new');
+      m.route.set('/create/new');
     };
 
     self.deleteTemplate = function (modal, template) {
@@ -74,7 +74,7 @@ var TemplatesConfigWidget = {
     self.deleteConfirm = function (template) {
       var modal = new Modal({
         title:    'Are you sure?',
-        body:     (<div>Are you sure you want to delete the template <strong>{template.name()}</strong>?</div>),
+        body:     () => (<div>Are you sure you want to delete the template <strong>{template.name()}</strong>?</div>),
         oncancel: function () {
           modal.destroy();
         },

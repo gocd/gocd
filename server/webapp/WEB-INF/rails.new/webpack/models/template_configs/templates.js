@@ -34,9 +34,9 @@ var Templates = function (data) {
 
 Templates.Template = function (data) {
   this.parent    = Mixins.GetterSetter();
-  this.name      = m.prop(s.defaultToIfBlank(data.name, ''));
-  this.url       = m.prop(s.defaultToIfBlank(data.url, ''));
-  this.pipelines = m.prop(s.defaultToIfBlank(data.pipelines, []));
+  this.name      = Stream(s.defaultToIfBlank(data.name, ''));
+  this.url       = Stream(s.defaultToIfBlank(data.url, ''));
+  this.pipelines = Stream(s.defaultToIfBlank(data.pipelines, []));
 
   this.delete = function () {
     return m.request({
@@ -53,8 +53,8 @@ Templates.Template.fromJSON = function (data) {
     url:       data._links.self.href,
     pipelines: _.map(data._embedded.pipelines, function (pipeline) {
       return new function () {
-        this.name = m.prop(pipeline.name);
-        this.url  = m.prop(pipeline._links.self.href);
+        this.name = Stream(pipeline.name);
+        this.url  = Stream(pipeline._links.self.href);
       };
     })
   });

@@ -305,33 +305,6 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
       }
     },
 
-    switch: {
-      view: function (ctrl, args) {
-        var model     = deleteKeyAndReturnValue(args, 'model'),
-            modelType = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
-            disabled   = deleteKeyAndReturnValue(args, 'disabled'),
-            labelText  = deleteKeyAndReturnValue(args, 'label'),
-            attrName  = deleteKeyAndReturnValue(args, 'attrName');
-
-        return (
-            <f.column {...args}
-                      class={"toggle-switch " + args.class}>
-              <input id="toggle"
-                     class="cbx-toggle cbx-toggle-round-flat"
-                     type="checkbox"
-                     data-prop-name={attrName}
-                     data-model-type={modelType}
-                     disabled={disabled}
-                     checked={model[attrName]()}
-                     onchange={m.withAttr('checked', model[attrName])}/>
-              <label for="toggle" />
-              <span>{labelText}</span>
-            </f.column>
-        );
-      }
-    },
-
-
     multiSelectionBox: {
       controller: function (args) {
         this.attr = args.model[args.attrName];

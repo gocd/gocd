@@ -57,17 +57,28 @@ var Template = function (data) {
   };
 
   var createNew = function () {
-    var unwrap = function (response) {
-      return Template.fromJSON(response);
-    };
+    return $.Deferred(function () {
+      var deferred = this;
 
-    return m.request({
-      method:        'POST',
-      url:           Routes.apiv3AdminTemplatesPath(),
-      config:        mrequest.xhrConfig.v3,
-      data:          JSON.parse(JSON.stringify(self, s.snakeCaser)),
-      unwrapSuccess: unwrap
-    });
+      var jqXHR = $.ajax({
+        method:      'POST',
+        url:         Routes.apiv3AdminTemplatesPath(),
+        timeout:     mrequest.timeout,
+        beforeSend:  mrequest.xhrConfig.forVersion('v3'),
+        data:        JSON.stringify(self, s.snakeCaser),
+        contentType: 'application/json',
+      });
+
+      var didFulfill = function (data, _textStatus, _jqXHR) {
+        deferred.resolve(Template.fromJSON(data));
+      };
+
+      var didReject = function (jqXHR, _textStatus, _errorThrown) {
+        deferred.reject(jqXHR.responseJSON);
+      };
+
+      jqXHR.then(didFulfill, didReject);
+    }).promise();
   };
 
   this.create = function () {
@@ -78,17 +89,28 @@ var Template = function (data) {
   };
 
   var extractFromPipeline = function () {
-    var unwrap = function (response) {
-      return Template.fromJSON(response);
-    };
+    return $.Deferred(function () {
+      var deferred = this;
 
-    return m.request({
-      method:        'POST',
-      url:           Routes.apiv1AdminInternalExtractTemplatesPath(),
-      config:        mrequest.xhrConfig.v1,
-      data:          JSON.parse(JSON.stringify(self, s.snakeCaser)),
-      unwrapSuccess: unwrap
-    });
+      var jqXHR = $.ajax({
+        method:      'POST',
+        url:         Routes.apiv1AdminInternalExtractTemplatesPath(),
+        timeout:     mrequest.timeout,
+        beforeSend:  mrequest.xhrConfig.forVersion('v1'),
+        data:        JSON.stringify(self, s.snakeCaser),
+        contentType: 'application/json',
+      });
+
+      var didFulfill = function (data, _textStatus, _jqXHR) {
+        deferred.resolve(Template.fromJSON(data));
+      };
+
+      var didReject = function (jqXHR, _textStatus, _errorThrown) {
+        deferred.reject(jqXHR.responseJSON);
+      };
+
+      jqXHR.then(didFulfill, didReject);
+    }).promise();
   };
 
 };

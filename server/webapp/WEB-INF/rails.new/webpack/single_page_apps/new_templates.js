@@ -23,6 +23,7 @@ var NewTemplateConfigWidget = require('views/template_configs/new_template_confi
 var ElasticProfiles         = require('models/elastic_profiles/elastic_profiles');
 var Users                   = require('models/shared/users');
 var Roles                   = require('models/shared/roles');
+
 require('foundation-sites');
 
 $(function () {
@@ -45,6 +46,11 @@ $(function () {
           return m(TemplatesConfigWidget, {isUserAdmin: isUserAdmin});
         }
       },
+      '/create/new':    {
+        view: function () {
+          return m(NewTemplateConfigWidget, {elasticProfiles: elasticProfiles});
+        }
+      },
       '/:templateName': {
         view: function () {
           return m(TemplateConfigWidget, {
@@ -53,11 +59,6 @@ $(function () {
           });
         }
       }
-      //'/:new':          {
-      //  view: function () {
-      //    return m(NewTemplateConfigWidget, {elasticProfiles: elasticProfiles});
-      //  }
-      //}
     });
 
     $(document).foundation();

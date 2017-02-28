@@ -70,7 +70,7 @@ public class BuilderTest {
     }
 
     @Test
-    public void shouldRunCancelBuilderWhenCancelled() throws Exception {
+    public void shouldRunCancelBuilderWhenCanceled() throws Exception {
         StubBuilder stubBuilder = new StubBuilder();
         CommandBuilder builder = new CommandBuilder("echo", "", new File("."), new RunIfConfigs(FAILED), stubBuilder,
                 "");
@@ -79,18 +79,18 @@ public class BuilderTest {
     }
 
     @Test
-    public void shouldLogToConsoleOutWhenCancelling() {
+    public void shouldLogToConsoleOutWhenCanceling() {
         StubBuilder stubBuilder = new StubBuilder();
         CommandBuilder builder = new CommandBuilder("echo", "", new File("."), new RunIfConfigs(FAILED), stubBuilder,
                 "");
         builder.cancel(goPublisher, environmentVariableContext, null);
 
-        assertThat(goPublisher.getMessage(), containsString("Start to execute cancel task"));
-        assertThat(goPublisher.getMessage(), containsString("Task is cancelled"));
+        assertThat(goPublisher.getMessage(), containsString("On Cancel Task"));
+        assertThat(goPublisher.getMessage(), containsString("On Cancel Task completed"));
     }
 
     @Test
-    public void shouldNotBuildIfTheJobIsCancelled() throws Exception {
+    public void shouldNotBuildIfTheJobIsCanceled() throws Exception {
         CommandBuilder builder = new CommandBuilder("echo", "", new File("."), new RunIfConfigs(FAILED),
                 new StubBuilder(),
                 "");

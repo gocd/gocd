@@ -65,17 +65,22 @@
   }
 
   var Types = {
-    INFO: "##", ALERT: "@@", PREP: "pr", PREP_ERR: "pe", TASK_START: "!!", OUT: "&1", ERR: "&2", PASS: "?0", FAIL: "?1", JOB_PASS: "j0", JOB_FAIL: "j1"
+    INFO: "##", ALERT: "@@",
+    PREP: "pr", PREP_ERR: "pe",
+    TASK_START: "!!", CANCEL_TASK_START: "!x",
+    OUT: "&1", ERR: "&2", PASS: "?0", FAIL: "?1",
+    JOB_PASS: "j0", JOB_FAIL: "j1"
   };
 
   function LogOutputTransformer(consoleElement) {
     var me = this;
-    var currentSection, lineCursor;
+    var currentSection, currentLine;
+
     var ansi = new AnsiUp();
     ansi.use_classes = true;
 
-    var re = /^([^|]{2})\|(\d\d:\d\d:\d\d\.\d\d\d)(.*)/; // prefix parsing regex
-    var BEGIN_TASK_REGEX = /^(\s*\[go] (?:Cancel t|T)ask: )(.*)/;
+    var re = /^([^|]{2})\|(\d\d:\d\d:\d\d\.\d\d\d)(.*)/; // parses prefix, timestamp, and line content
+    var BEGIN_TASK_REGEX = /^(\s*\[go] (?:Cancel t|T)ask: )(.*)/; // remove these once merge PR #3201
     var lineNumber = 0;
 
     consoleElement.on("click", ".toggle", function toggleSectionCollapse(e) {
@@ -104,7 +109,14 @@
     }
 
     function detectError(section, prefix) {
-      if ([Types.ALERT, Types.FAIL, Types.JOB_FAIL].indexOf(prefix) > -1) {
+      if ([Types.FAIL, Types.JOB_FAIL].indexOf(prefix) > -1) {
+        section.data("errored", true);
+      }
+
+      // canceling a build generally leaves no task status, so infer it
+      // by detecting the CANCEL_TASK_START prefix
+      if (section.data("type") === "task" && Types.CANCEL_TASK_START === prefix) {
+        section.attr("data-task-status", "cancelled").removeData("task-status");
         section.data("errored", true);
       }
 
@@ -125,13 +137,17 @@
       }
     }
 
-    function adoptSection(section, prefix, line) { // TODO: name adoptSectionAndAddHeader?
-      if ([Types.INFO, Types.ALERT].indexOf(prefix) > -1) {
+    function markSectionWithHeader(section, prefix, line) {
+      section.removeData("data-type");
+
+      if (Types.INFO ===prefix) {
         section.attr("data-type", "info");
       } else if ([Types.PREP, Types.PREP_ERR].indexOf(prefix) > -1) {
         section.attr("data-type", "prep");
       } else if ([Types.TASK_START, Types.OUT, Types.ERR, Types.PASS, Types.FAIL].indexOf(prefix) > -1) {
         section.attr("data-type", "task");
+      } else if (Types.CANCEL_TASK_START === prefix) {
+        section.attr("data-type", "cancel");
       } else if ([Types.JOB_PASS, Types.JOB_FAIL].indexOf(prefix) > -1) {
         section.attr("data-type", "result");
       } else {
@@ -144,12 +160,16 @@
     function parseSpecialLineContent(rawLineElement, prefix, line) {
       var parts;
 
-      if (prefix === Types.TASK_START && line.match(BEGIN_TASK_REGEX)) {
+      if ([Types.TASK_START, Types.CANCEL_TASK_START].indexOf(prefix) > -1 && line.match(BEGIN_TASK_REGEX)) {
         parts = line.match(BEGIN_TASK_REGEX);
         c(rawLineElement, parts[1], c("code", parts[2]));
       } else if (isExplicitEndBoundary(prefix)) {
         parts = line.match(/^(\s*\[go] (?:Current job|Task) status: )(.*)/)
-        c(rawLineElement, parts[1], c("code", parts[2]));
+        if (parts) {
+          c(rawLineElement, parts[1], c("code", parts[2]));
+        } else {
+          c(rawLineElement, line); // Usually the end of an onCancel task
+        }
       } else {
         if ("" === line) {
           c(rawLineElement, c("br"));
@@ -192,7 +212,14 @@
 
       if (section.data("type") === "task") {
         if (prefix === Types.TASK_START) {
-          return !line.match(BEGIN_TASK_REGEX);
+          return !line.match(BEGIN_TASK_REGEX); // remove these once merge PR #3201
+        }
+        return [Types.OUT, Types.ERR, Types.PASS, Types.FAIL].indexOf(prefix) > -1;
+      }
+
+      if (section.data("type") === "cancel") {
+        if (prefix === Types.CANCEL_TASK_START) {
+          return !line.match(BEGIN_TASK_REGEX); // remove these once merge PR #3201
         }
         return [Types.OUT, Types.ERR, Types.PASS, Types.FAIL].indexOf(prefix) > -1;
       }
@@ -227,26 +254,26 @@
           detectError(currentSection, prefix);
 
           if (currentSection.is(":empty")) {
-            lineCursor = adoptSection(currentSection, prefix, line);
+            currentLine = markSectionWithHeader(currentSection, prefix, line);
 
             if (isExplicitEndBoundary(prefix)) {
               currentSection = closeSectionAndStartNext(currentSection, consoleElement);
             }
           } else if (isPartOfSection(currentSection, prefix, line)) {
-            lineCursor = insertLine(currentSection, prefix, line);
+            currentLine = insertLine(currentSection, prefix, line);
 
             if (isExplicitEndBoundary(prefix)) {
               currentSection = closeSectionAndStartNext(currentSection, consoleElement);
             }
           } else {
             currentSection = closeSectionAndStartNext(currentSection, consoleElement);
-            lineCursor = adoptSection(currentSection, prefix, line);
+            currentLine = markSectionWithHeader(currentSection, prefix, line);
           }
 
-          lineCursor.attr("data-line", lineNumber).prepend($("<span class='ts'>").text(timestamp));
+          currentLine.attr("data-line", lineNumber).prepend(c("span", {class: "ts"}, timestamp));
         } else {
-          c(currentSection[0], lineCursor = c("dt", rawLine));
-          lineCursor = $(lineCursor);
+          c(currentSection[0], currentLine = c("dt", rawLine));
+          currentLine = $(currentLine);
         }
       }
     };

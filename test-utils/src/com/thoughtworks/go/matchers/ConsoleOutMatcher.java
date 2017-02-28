@@ -297,11 +297,11 @@ public class ConsoleOutMatcher {
             public boolean matchesSafely(String consoleOut) {
                 this.consoleOut = consoleOut;
                 if (StringUtils.isEmpty(args)) {
-                    this.message = format("[%s] Current job status: %s.", GoConstants.PRODUCT_NAME, status);
-                    this.message = format("[%s] Start to execute task: %s.", GoConstants.PRODUCT_NAME, command);
+                    this.message = format("[%s] Current job status: %s", GoConstants.PRODUCT_NAME, status);
+                    this.message = format("[%s] Task: %s", GoConstants.PRODUCT_NAME, command);
                 } else {
-                    this.message = format("[%s] Current job status: %s.", GoConstants.PRODUCT_NAME, status);
-                    this.message = format("[%s] Start to execute task: %s %s.", GoConstants.PRODUCT_NAME, command, args);
+                    this.message = format("[%s] Current job status: %s", GoConstants.PRODUCT_NAME, status);
+                    this.message = format("[%s] Task: %s %s", GoConstants.PRODUCT_NAME, command, args);
                 }
                 return StringUtils.contains(consoleOut, message);
             }

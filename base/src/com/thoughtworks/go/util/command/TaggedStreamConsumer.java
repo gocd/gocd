@@ -20,20 +20,20 @@ package com.thoughtworks.go.util.command;
  * Created by marqueslee on 2/15/17.
  */
 public interface TaggedStreamConsumer extends StreamConsumer {
-    public static final String NONE = "  ";
-    public static final String NOTICE = "##"; // Go information output
-    public static final String ALERT = "@@"; // Go alert output
-    public static final String PREP = "pr";
-    public static final String PREP_ERR = "pe";
-    public static final String CANCEL_TASK = "ct";
-    public static final String CANCEL_TASK_ERR = "ce";
-    public static final String TASK_START = "!!";
-    public static final String OUT = "&1";
-    public static final String ERR = "&2";
-    public static final String TASK_PASS = "?0";
-    public static final String TASK_FAIL = "?1";
-    public static final String JOB_PASS = "j0";
-    public static final String JOB_FAIL = "j1";
+    String NONE = "  ";
+    String NOTICE = "##";
+    String PREP = "pr";
+    String PREP_ERR = "pe";
+    String CANCEL_TASK_START = "!x";
+    String CANCEL_TASK_PASS = "x0";
+    String CANCEL_TASK_FAIL = "x1";
+    String TASK_START = "!!";
+    String OUT = "&1";
+    String ERR = "&2";
+    String TASK_PASS = "?0";
+    String TASK_FAIL = "?1";
+    String JOB_PASS = "j0";
+    String JOB_FAIL = "j1";
 
-    public void taggedConsumeLine(String tag, String line);
+    void taggedConsumeLine(String tag, String line);
 }

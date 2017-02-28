@@ -272,8 +272,9 @@ public class BuildWorkTest {
                 environmentVariableContext, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension);
 
         String actual = artifactManipulator.consoleOut();
-        assertThat(actual, containsString("[go] Current job status: passed."));
-        assertThat(actual, containsString("[go] Start to execute task: echo run when status is failed, passed or cancelled."));
+        assertThat(actual, containsString("[go] Task: echo run when status is failed, passed or cancelled"));
+        assertThat(actual, containsString("[go] Task status: passed"));
+        assertThat(actual, containsString("[go] Current job status: passed"));
         assertThat(actual, containsString("run when status is failed, passed or cancelled"));
     }
 

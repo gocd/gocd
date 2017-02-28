@@ -61,6 +61,7 @@ public class Builders {
             }
 
             BuildLogElement buildLogElement = new BuildLogElement();
+
             if (builder.allowRun(RunIfConfig.fromJobResult(result.toLowerCase()))) {
                 try {
                     String executeMessage = format("Task: %s", builder.getDescription());
@@ -71,7 +72,12 @@ public class Builders {
                 } catch (Exception e) {
                     result = JobResult.Failed;
                 }
-                String tag = JobResult.Failed.equals(result) ? DefaultGoPublisher.TASK_FAIL : DefaultGoPublisher.TASK_PASS;
+
+                if (cancelStarted) {
+                    result = JobResult.Cancelled;
+                }
+
+                String tag = JobResult.Passed.equals(result) ? DefaultGoPublisher.TASK_PASS : DefaultGoPublisher.TASK_FAIL;
                 goPublisher.taggedConsumeLineWithPrefix(tag, format("Task status: %s", result.toLowerCase()));
             }
 

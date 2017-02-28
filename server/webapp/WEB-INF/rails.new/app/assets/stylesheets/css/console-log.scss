@@ -167,6 +167,36 @@ $CONSOLE_SETUP_ERR: #A567A5;;
       }
     }
 
+    &[data-type="cancel"] {
+      color: $CONSOLE_SETUP;
+
+      [data-prefix="&2"] {
+        color: $CONSOLE_SETUP_ERR;
+      }
+      &[data-task-status="passed"] {
+        &:before {
+          display: none;
+        }
+
+        code {
+          color: $CONSOLE_SETUP;
+        }
+      }
+
+      &[data-task-status="failed"] {
+        code {
+          color: $CONSOLE_SETUP_ERR;
+        }
+      }
+    }
+
+    &[data-task-status="cancelled"], &[data-job-status="cancelled"] {
+      &:before {
+        content: $fa-var-times;
+        color: $CONSOLE_CALLOUT;
+      }
+    }
+
     /*[data-prefix="?0"], [data-prefix="j0"], */[data-prefix="?0"] code, [data-prefix="j0"] code {
       color: $CONSOLE_PASS;
       font-weight: bold;

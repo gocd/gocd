@@ -94,11 +94,14 @@ public abstract class Builder implements Serializable {
     }
 
     public void cancel(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension) {
-        publisher.consumeLineWithPrefix("Cancel task: " + cancelBuilder.getDescription());
+        publisher.taggedConsumeLineWithPrefix(DefaultGoPublisher.CANCEL_TASK_START, "On Cancel Task: " + cancelBuilder.getDescription()); // odd capitalization, but consistent with UI
         try {
             cancelBuilder.build(new BuildLogElement(), publisher, environmentVariableContext, taskExtension);
-            publisher.consumeLineWithPrefix("Task status: cancelled");
+            // As this message will output before the running task outputs its task status, do not use the same
+            // wording (i.e. "Task status: %s") as the order of outputted lines may be confusing
+            publisher.taggedConsumeLineWithPrefix(DefaultGoPublisher.CANCEL_TASK_PASS, "On Cancel Task completed");
         } catch (Exception e) {
+            publisher.taggedConsumeLineWithPrefix(DefaultGoPublisher.CANCEL_TASK_FAIL, "On Cancel Task failed");
             LOGGER.error("", e);
         }
     }

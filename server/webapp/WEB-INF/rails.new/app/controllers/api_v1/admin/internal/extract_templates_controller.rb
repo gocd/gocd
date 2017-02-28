@@ -22,7 +22,7 @@ module ApiV1
 
         def create
           result = HttpLocalizedOperationResult.new
-          @template = ApiV3::Config::TemplateConfigRepresenter.new(PipelineTemplateConfig.new).from_hash(params[:extract_template])
+          @template = ApiV3::Admin::Templates::TemplateConfigRepresenter.new(PipelineTemplateConfig.new).from_hash(params[:extract_template])
           pipeline_to_extract_from = params[:pipeline]
           template_config_service.extractFromPipeline(@template, pipeline_to_extract_from, current_user, result)
           handle_create_or_update_response(result, @template)
@@ -31,7 +31,7 @@ module ApiV1
         private
 
         def handle_create_or_update_response(result, updated_template)
-          json = ApiV3::Config::TemplateConfigRepresenter.new(updated_template).to_hash(url_builder: self)
+          json = ApiV3::Admin::Templates::TemplateConfigRepresenter.new(updated_template).to_hash(url_builder: self)
           if result.isSuccessful
             render DEFAULT_FORMAT => json
           else

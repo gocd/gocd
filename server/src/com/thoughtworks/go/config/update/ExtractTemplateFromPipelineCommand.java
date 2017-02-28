@@ -24,6 +24,7 @@ import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import com.thoughtworks.go.serverhealth.HealthStateType;
 
 public class ExtractTemplateFromPipelineCommand extends TemplateConfigCommand {
     private final PipelineTemplateConfig templateConfig;
@@ -33,7 +34,7 @@ public class ExtractTemplateFromPipelineCommand extends TemplateConfigCommand {
     private final HttpLocalizedOperationResult result;
 
     public ExtractTemplateFromPipelineCommand(PipelineTemplateConfig templateConfig, String pipelineToExtractFrom, Username currentUser, GoConfigService goConfigService, HttpLocalizedOperationResult result) {
-        super(templateConfig, result, currentUser, goConfigService);
+        super(templateConfig, result, currentUser);
         this.templateConfig = templateConfig;
         this.pipelineToExtractFrom = pipelineToExtractFrom;
         this.currentUser = currentUser;
@@ -78,5 +79,14 @@ public class ExtractTemplateFromPipelineCommand extends TemplateConfigCommand {
 
         }
         return false;
+    }
+
+    @Override
+    public boolean canContinue(CruiseConfig cruiseConfig) {
+        if (!goConfigService.isUserAdmin(currentUser)) {
+            result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_EDIT"), HealthStateType.unauthorised());
+            return false;
+        }
+        return true;
     }
 }

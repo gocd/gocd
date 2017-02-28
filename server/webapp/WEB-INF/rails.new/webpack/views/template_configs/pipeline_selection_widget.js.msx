@@ -1,0 +1,82 @@
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+var m      = require('mithril');
+var Stream = require('mithril/stream');
+var f      = require('helpers/form_helper');
+
+var Template        = require('models/template_configs/template');
+var ComponentMixins = require('helpers/mithril_component_mixins');
+
+var PipelineSelectionWidget = {
+  oninit: function (vnode) {
+    var self = this;
+    ComponentMixins.HasViewModel.call(this);
+    self.pipelines = Stream([]);
+    self.args      = vnode.attrs;
+
+    self.reloadPipelines = function () {
+      Template.getPipelinesForNewTemplate().then(function (response) {
+        var pipelines = response.map(function (pipeline) {
+          return {id: pipeline, text: pipeline};
+        });
+        self.pipelines(pipelines);
+      });
+    };
+
+    self.reloadPipelines();
+  },
+
+  view: function (vnode) {
+    var arePipelinesAvailable = (vnode.state.pipelines().length > 0);
+
+    var selectPipelineSection = (
+      <f.info>
+        There are no Pipelines available to extract a new Template.
+      </f.info>
+    );
+
+    if (arePipelinesAvailable) {
+      var template = vnode.attrs.template();
+      template.pipeline(vnode.state.pipelines()[0].text);
+
+      selectPipelineSection = (<f.row class='pipeline-selector'>
+          <f.select
+            model={template}
+            attrName='pipeline'
+            class='inline'
+            label='Select a pipeline to extract new Template'
+            items={vnode.state.pipelines()}
+            size={4}
+            largeSize={4}/>
+        </f.row>
+      );
+    }
+
+    return (
+      <f.accordion accordionTitles={[(<span>Select Pipeline</span>)]}
+                   accordionKeys={['templatePipeline']}
+                   selectedIndex={vnode.state.vmState('templatePipelineSelected', Stream(0))}
+                   class='accordion select-pipeline'>
+        <div>
+          {selectPipelineSection}
+        </div>
+      </f.accordion>
+    );
+  }
+};
+
+module.exports = PipelineSelectionWidget;

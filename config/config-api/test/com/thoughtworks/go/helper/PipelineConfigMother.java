@@ -16,10 +16,7 @@
 
 package com.thoughtworks.go.helper;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
@@ -66,8 +63,9 @@ public class PipelineConfigMother {
     public static PipelineConfig pipelineConfig(String name, MaterialConfigs materialConfigs) {
         return pipelineConfig(name, materialConfigs, new JobConfigs());
     }
+
     public static PipelineConfig createPipelineConfigWithJobConfigs(String name) {
-        return pipelineConfig(name, new MaterialConfigs(),new JobConfigs(JobConfigMother.createJobConfigWithJobNameAndEmptyResources()));
+        return pipelineConfig(name, new MaterialConfigs(), new JobConfigs(JobConfigMother.createJobConfigWithJobNameAndEmptyResources()));
     }
 
     public static PipelineConfig pipelineConfig(String name, MaterialConfigs materialConfigs, JobConfigs jobConfigs) {
@@ -142,6 +140,15 @@ public class PipelineConfigMother {
         attributes.put(PipelineConfig.NAME, newPipelineName);
         newConfig.setConfigAttributes(attributes);
         return newConfig;
+    }
+
+    public static PipelineConfig pipelineWithElasticJob(String... elasticProfileIds) {
+        PipelineConfig pipelineConfig = pipelineConfig(UUID.randomUUID().toString());
+        pipelineConfig.first().getJobs().clear();
+        for (String elasticProfileId : elasticProfileIds) {
+            pipelineConfig.first().getJobs().add(JobConfigMother.elasticJob(elasticProfileId));
+        }
+        return pipelineConfig;
     }
 }
 

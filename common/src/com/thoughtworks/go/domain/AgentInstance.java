@@ -276,10 +276,11 @@ public class AgentInstance implements Comparable<AgentInstance> {
 
     public JobPlan firstMatching(List<JobPlan> jobPlans) {
         for (JobPlan jobPlan : jobPlans) {
-            if (jobPlan.assignedToAgent()) {
-                if (isElasticAndLaunchedBySamePluginAsConfiguredForJob(jobPlan) || isNotElasticAndResourcesMatchForNonElasticAgents(jobPlan)) {
-                    return jobPlan;
-                }
+            if (jobPlan.requiresElasticAgent()) {
+                continue;
+            }
+            if (jobPlan.assignedToAgent() && isNotElasticAndResourcesMatchForNonElasticAgents(jobPlan)) {
+                return jobPlan;
             } else {
                 if (agentConfig.getUuid().equals(jobPlan.getAgentUuid())) {
                     return jobPlan;
@@ -291,10 +292,6 @@ public class AgentInstance implements Comparable<AgentInstance> {
 
     private boolean isNotElasticAndResourcesMatchForNonElasticAgents(JobPlan jobPlan) {
         return !jobPlan.requiresElasticAgent() && !isElastic() && agentConfig.hasAllResources(jobPlan.getResources());
-    }
-
-    private boolean isElasticAndLaunchedBySamePluginAsConfiguredForJob(JobPlan jobPlan) {
-        return isElastic() && jobPlan.requiresElasticAgent() && jobPlan.getElasticProfile().getPluginId().equals(agentConfig.getElasticPluginId());
     }
 
     public String getBuildLocator() {

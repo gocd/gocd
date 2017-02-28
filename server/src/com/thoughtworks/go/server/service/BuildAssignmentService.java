@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.listener.ConfigChangedListener;
@@ -24,6 +25,7 @@ import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.work.*;
 import com.thoughtworks.go.server.domain.BuildComposer;
+import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.materials.StaleMaterialsOnBuildCause;
 import com.thoughtworks.go.server.service.builders.BuilderFactory;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
@@ -160,23 +162,23 @@ public class BuildAssignmentService implements ConfigChangedListener {
         return NO_WORK;
     }
 
-    private JobPlan findMatchingJob(AgentInstance agent) {
+    JobPlan findMatchingJob(AgentInstance agent) {
         List<JobPlan> filteredJobPlans = environmentConfigService.filterJobsByAgent(jobPlans, agent.getUuid());
-        JobPlan match = agent.firstMatching(filteredJobPlans);
-
-        if (match == null) {
-            return null;
+        JobPlan match = null;
+        if (!agent.isElastic()) {
+            match = agent.firstMatching(filteredJobPlans);
+        } else {
+            for (JobPlan jobPlan : filteredJobPlans) {
+                if (jobPlan.requiresElasticAgent() && elasticAgentPluginService.shouldAssignWork(agent.elasticAgentMetadata(), environmentConfigService.envForPipeline(jobPlan.getPipelineName()), jobPlan.getElasticProfile())) {
+                    match = jobPlan;
+                    break;
+                }
+            }
         }
-
-        if (!agent.isElastic() || isAssignableToElasticAgent(agent, match)) {
+        if (match != null) {
             jobPlans.remove(match);
-            return match;
         }
-        return null;
-    }
-
-    private boolean isAssignableToElasticAgent(AgentInstance agent, JobPlan match) {
-        return agent.isElastic() && elasticAgentPluginService.shouldAssignWork(agent.elasticAgentMetadata(), environmentConfigService.envForPipeline(match.getPipelineName()), match.getElasticProfile());
+        return match;
     }
 
     public void onTimer() {
@@ -324,5 +326,9 @@ public class BuildAssignmentService implements ConfigChangedListener {
             throw e;
         }
 
+    }
+
+    List<JobPlan> jobPlans() {
+        return jobPlans;
     }
 }

@@ -81,4 +81,28 @@ public class ElasticAgentMetadata {
                 ", configStatus=" + configStatus +
                 '}';
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ElasticAgentMetadata that = (ElasticAgentMetadata) o;
+
+        if (!uuid.equals(that.uuid)) return false;
+        if (!elasticAgentId.equals(that.elasticAgentId)) return false;
+        if (!elasticPluginId.equals(that.elasticPluginId)) return false;
+        if (status != that.status) return false;
+        return configStatus == that.configStatus;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = uuid.hashCode();
+        result = 31 * result + elasticAgentId.hashCode();
+        result = 31 * result + elasticPluginId.hashCode();
+        result = 31 * result + (status != null ? status.hashCode() : 0);
+        result = 31 * result + (configStatus != null ? configStatus.hashCode() : 0);
+        return result;
+    }
 }

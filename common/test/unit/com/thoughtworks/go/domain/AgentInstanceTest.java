@@ -547,7 +547,7 @@ public class AgentInstanceTest {
     }
 
     @Test
-    public void shouldMatchJobPlanIfTheAgentWasLaunchedByTheSamePluginAsWasConfiguredForTheJob(){
+    public void shouldNotMatchJobPlanIfJobRequiresElasticAgent_MatchingIsManagedByBuildAssignmentService(){
         AgentConfig agentConfig = new AgentConfig("uuid");
         agentConfig.setElasticAgentId("elastic-agent-id-1");
         String elasticPluginId = "elastic-plugin-id-1";
@@ -557,7 +557,7 @@ public class AgentInstanceTest {
         jobPlan1.setElasticProfile(new ElasticProfile("foo", elasticPluginId));
         List<JobPlan> jobPlans = asList(jobPlan1, new DefaultJobPlan());
 
-        assertThat(agentInstance.firstMatching(jobPlans), Is.<JobPlan>is(jobPlan1));
+        assertThat(agentInstance.firstMatching(jobPlans), is(nullValue()));
     }
 
     @Test

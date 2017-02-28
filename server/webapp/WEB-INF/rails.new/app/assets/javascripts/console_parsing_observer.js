@@ -67,8 +67,8 @@
   var Types = {
     INFO: "##", ALERT: "@@",
     PREP: "pr", PREP_ERR: "pe",
-    TASK_START: "!!", CANCEL_TASK_START: "!x",
-    OUT: "&1", ERR: "&2", PASS: "?0", FAIL: "?1",
+    TASK_START: "!!", OUT: "&1", ERR: "&2", PASS: "?0", FAIL: "?1",
+    CANCEL_TASK_START: "!x", CANCEL_TASK_PASS: "x0", CANCEL_TASK_FAIL: "x1",
     JOB_PASS: "j0", JOB_FAIL: "j1"
   };
 
@@ -79,8 +79,10 @@
     var ansi = new AnsiUp();
     ansi.use_classes = true;
 
-    var re = /^([^|]{2})\|(\d\d:\d\d:\d\d\.\d\d\d)(.*)/; // parses prefix, timestamp, and line content
-    var BEGIN_TASK_REGEX = /^(\s*\[go] (?:Cancel t|T)ask: )(.*)/; // remove these once merge PR #3201
+    var re = /^([^|]{2})\|(\d\d:\d\d:\d\d\.\d\d\d) (.*)/; // parses prefix, timestamp, and line content
+    var legacy = /^(\d\d:\d\d:\d\d\.\d\d\d )?(.*)/; // timestamps were not guaranteed to precede content in the old format
+
+    var BEGIN_TASK_REGEX = /^(\s*\[go] (?:On Cancel )?Task: )(.*)/; // remove these once merge PR #3201
     var lineNumber = 0;
 
     consoleElement.on("click", ".toggle", function toggleSectionCollapse(e) {
@@ -109,22 +111,24 @@
     }
 
     function detectError(section, prefix) {
-      if ([Types.FAIL, Types.JOB_FAIL].indexOf(prefix) > -1) {
+      if ([Types.FAIL, Types.JOB_FAIL, Types.CANCEL_TASK_FAIL].indexOf(prefix) > -1) {
         section.data("errored", true);
       }
 
       // canceling a build generally leaves no task status, so infer it
       // by detecting the CANCEL_TASK_START prefix
       if (section.data("type") === "task" && Types.CANCEL_TASK_START === prefix) {
+        // No, "cancelled" is not misspelled. We use both the British and American spellings inconsistently in our codebase,
+        // but we should go with whatever JobResult.Cancelled is, which uses the British spelling "cancelled"
         section.attr("data-task-status", "cancelled").removeData("task-status");
         section.data("errored", true);
       }
 
-      if (Types.PASS === prefix) {
+      if (Types.PASS === prefix || Types.CANCEL_TASK_PASS === prefix) {
         section.attr("data-task-status", "passed").removeData("task-status");
       }
 
-      if (Types.FAIL === prefix) {
+      if (Types.FAIL === prefix || Types.CANCEL_TASK_FAIL === prefix) {
         section.attr("data-task-status", "failed").removeData("task-status");
       }
 
@@ -221,14 +225,14 @@
         if (prefix === Types.CANCEL_TASK_START) {
           return !line.match(BEGIN_TASK_REGEX); // remove these once merge PR #3201
         }
-        return [Types.OUT, Types.ERR, Types.PASS, Types.FAIL].indexOf(prefix) > -1;
+        return [Types.OUT, Types.ERR, Types.CANCEL_TASK_PASS, Types.CANCEL_TASK_FAIL].indexOf(prefix) > -1;
       }
 
       return false;
     }
 
     function isExplicitEndBoundary(prefix) {
-      return [Types.PASS, Types.FAIL, Types.JOB_PASS, Types.JOB_FAIL].indexOf(prefix) > -1;
+      return [Types.PASS, Types.FAIL, Types.JOB_PASS, Types.JOB_FAIL, Types.CANCEL_TASK_PASS, Types.CANCEL_TASK_FAIL].indexOf(prefix) > -1;
     }
 
     function closeSectionAndStartNext(section, container) {
@@ -249,7 +253,7 @@
         if (match) {
           prefix = match[1];
           timestamp = match[2];
-          line = $.trim(match[3] || "");
+          line = match[3] || "";
 
           detectError(currentSection, prefix);
 
@@ -269,12 +273,20 @@
             currentSection = closeSectionAndStartNext(currentSection, consoleElement);
             currentLine = markSectionWithHeader(currentSection, prefix, line);
           }
-
-          currentLine.attr("data-line", lineNumber).prepend(c("span", {class: "ts"}, timestamp));
         } else {
-          c(currentSection[0], currentLine = c("dt", rawLine));
+
+          if (match = rawLine.match(legacy)) {
+            timestamp = $.trim(match[1] || "");
+            line = match[2] || "";
+          } else {
+            timestamp = "", line = rawLine;
+          }
+
+          c(currentSection[0], currentLine = c("dt", line));
           currentLine = $(currentLine);
         }
+
+        currentLine.attr("data-line", lineNumber).prepend(c("span", {class: "ts"}, timestamp));
       }
     };
   }

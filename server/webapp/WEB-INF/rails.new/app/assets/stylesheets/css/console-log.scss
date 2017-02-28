@@ -168,11 +168,14 @@ $CONSOLE_SETUP_ERR: #A567A5;;
     }
 
     &[data-type="cancel"] {
-      color: $CONSOLE_SETUP;
+      dt, [data-prefix] {
+        color: $CONSOLE_SETUP;
+      }
 
-      [data-prefix="&2"] {
+      [data-prefix="&2"], [data-prefix="x1"] {
         color: $CONSOLE_SETUP_ERR;
       }
+
       &[data-task-status="passed"] {
         &:before {
           display: none;
@@ -190,19 +193,19 @@ $CONSOLE_SETUP_ERR: #A567A5;;
       }
     }
 
-    &[data-task-status="cancelled"], &[data-job-status="cancelled"] {
+    &[data-task-status="cancelled"] {
       &:before {
-        content: $fa-var-times;
-        color: $CONSOLE_CALLOUT;
+        content: $fa-var-ban;
+        color: $CONSOLE_FAIL;
       }
     }
 
-    /*[data-prefix="?0"], [data-prefix="j0"], */[data-prefix="?0"] code, [data-prefix="j0"] code {
+    [data-prefix="?0"] code, [data-prefix="j0"] code {
       color: $CONSOLE_PASS;
       font-weight: bold;
     }
 
-    /*[data-prefix="?1"], [data-prefix="j1"], */[data-prefix="?1"] code, [data-prefix="j1"] code {
+    [data-prefix="?1"] code, [data-prefix="j1"] code {
       color: red;
       font-weight: bold;
     }

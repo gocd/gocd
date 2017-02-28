@@ -56,14 +56,22 @@ import static org.junit.Assert.*;
 })
 public class EnvironmentConfigServiceIntegrationTest {
 
-    @Autowired private SecurityService securityService;
-    @Autowired private GoConfigDao goConfigDao;
-    @Autowired private GoConfigService goConfigService;
-    @Autowired private EntityHashingService entityHashingService;
-    @Autowired private AgentConfigService agentConfigService;
-    @Autowired private EnvironmentConfigService service;
-    @Autowired private Localizer localizer;
-    @Autowired private AgentService agentService;
+    @Autowired
+    private SecurityService securityService;
+    @Autowired
+    private GoConfigDao goConfigDao;
+    @Autowired
+    private GoConfigService goConfigService;
+    @Autowired
+    private EntityHashingService entityHashingService;
+    @Autowired
+    private AgentConfigService agentConfigService;
+    @Autowired
+    private EnvironmentConfigService service;
+    @Autowired
+    private Localizer localizer;
+    @Autowired
+    private AgentService agentService;
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
@@ -124,7 +132,7 @@ public class EnvironmentConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldUpdateExistingEnvironment_ForNewUpdateEnvironmentMethod() throws Exception{
+    public void shouldUpdateExistingEnvironment_ForNewUpdateEnvironmentMethod() throws Exception {
         BasicEnvironmentConfig uat = environmentConfig("uat");
         goConfigService.addPipeline(PipelineConfigMother.createPipelineConfig("foo", "dev", "job"), "foo-grp");
         goConfigService.addPipeline(PipelineConfigMother.createPipelineConfig("bar", "dev", "job"), "foo-grp");
@@ -224,7 +232,7 @@ public class EnvironmentConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldPatchAnEnvironment() throws Exception{
+    public void shouldPatchAnEnvironment() throws Exception {
         String environmentName = "env";
 
         BasicEnvironmentConfig env = environmentConfig(environmentName);
@@ -239,8 +247,10 @@ public class EnvironmentConfigServiceIntegrationTest {
         agentsToAdd.add(uuid);
         List<String> pipelinesToAdd = new ArrayList<>();
         List<String> pipelinesToRemove = new ArrayList<>();
+        List<EnvironmentVariableConfig> envVarsToAdd = new ArrayList<>();
+        List<String> envVarsToRemove = new ArrayList<>();
 
-        service.patchEnvironment(service.getEnvironmentConfig(environmentName), pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToremove, user, result);
+        service.patchEnvironment(service.getEnvironmentConfig(environmentName), pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToremove, envVarsToAdd, envVarsToRemove, user, result);
         EnvironmentConfig updatedEnv = service.named(env.name().toString());
 
         assertThat(updatedEnv.name(), is(new CaseInsensitiveString(environmentName)));
@@ -254,7 +264,7 @@ public class EnvironmentConfigServiceIntegrationTest {
         configHelper.turnOnSecurity();
         configHelper.addAdmins("super_hero");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        service.patchEnvironment(service.getEnvironmentConfig("foo"), new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(),new Username(new CaseInsensitiveString("evil_hacker")), result);
+        service.patchEnvironment(service.getEnvironmentConfig("foo"), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new Username(new CaseInsensitiveString("evil_hacker")), result);
         assertThat(result.message(localizer), is("Failed to update environment 'foo'. User 'evil_hacker' does not have permission to update environments"));
     }
 

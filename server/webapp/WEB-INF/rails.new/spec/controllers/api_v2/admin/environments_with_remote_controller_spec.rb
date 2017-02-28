@@ -16,8 +16,8 @@
 
 require 'spec_helper'
 
-describe ApiV1::Admin::EnvironmentsWithRemoteController do
-  include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
+describe ApiV2::Admin::EnvironmentsWithRemoteController do
+  include ApiHeaderSetupTeardown, ApiV2::ApiVersionHelper
 
   describe :show do
     before(:each) do
@@ -38,7 +38,7 @@ describe ApiV1::Admin::EnvironmentsWithRemoteController do
 
         get_with_api_header :show, name: @environment_name
         expect(response.status).to eq(200)
-        expect(actual_response).to eq(expected_response(@environment_config, ApiV1::Config::EnvironmentConfigRepresenter))
+        expect(actual_response).to eq(expected_response(@environment_config, ApiV2::Config::EnvironmentConfigRepresenter))
       end
 
       it 'should render 404 when a environment does not exist' do
@@ -72,23 +72,23 @@ describe ApiV1::Admin::EnvironmentsWithRemoteController do
     describe :route do
       describe :with_header do
         it 'should route to show action of environments controller for alphanumeric environment name' do
-          expect(:get => 'api/admin/environments/foo123/withremote').to route_to(action: 'show', controller: 'api_v1/admin/environments_with_remote', name: 'foo123')
+          expect(:get => 'api/admin/environments/foo123/withremote').to route_to(action: 'show', controller: 'api_v2/admin/environments_with_remote', name: 'foo123')
         end
 
         it 'should route to show action of environments controller for environment name with dots' do
-          expect(:get => 'api/admin/environments/foo.123/withremote').to route_to(action: 'show', controller: 'api_v1/admin/environments_with_remote', name: 'foo.123')
+          expect(:get => 'api/admin/environments/foo.123/withremote').to route_to(action: 'show', controller: 'api_v2/admin/environments_with_remote', name: 'foo.123')
         end
 
         it 'should route to show action of environments controller for environment name with hyphen' do
-          expect(:get => 'api/admin/environments/foo-123/withremote').to route_to(action: 'show', controller: 'api_v1/admin/environments_with_remote', name: 'foo-123')
+          expect(:get => 'api/admin/environments/foo-123/withremote').to route_to(action: 'show', controller: 'api_v2/admin/environments_with_remote', name: 'foo-123')
         end
 
         it 'should route to show action of environments controller for environment name with underscore' do
-          expect(:get => 'api/admin/environments/foo_123/withremote').to route_to(action: 'show', controller: 'api_v1/admin/environments_with_remote', name: 'foo_123')
+          expect(:get => 'api/admin/environments/foo_123/withremote').to route_to(action: 'show', controller: 'api_v2/admin/environments_with_remote', name: 'foo_123')
         end
 
         it 'should route to show action of environments controller for capitalized environment name' do
-          expect(:get => 'api/admin/environments/FOO/withremote').to route_to(action: 'show', controller: 'api_v1/admin/environments_with_remote', name: 'FOO')
+          expect(:get => 'api/admin/environments/FOO/withremote').to route_to(action: 'show', controller: 'api_v2/admin/environments_with_remote', name: 'FOO')
         end
       end
       describe :without_header do
@@ -96,7 +96,7 @@ describe ApiV1::Admin::EnvironmentsWithRemoteController do
           teardown_header
         end
         it 'should not route to show action of environments controller without header' do
-          expect(:get => 'api/admin/environments/foo/withremote').to_not route_to(action: 'show', controller: 'api_v1/admin/environments_with_remote')
+          expect(:get => 'api/admin/environments/foo/withremote').to_not route_to(action: 'show', controller: 'api_v2/admin/environments_with_remote')
           expect(:get => 'api/admin/environments/foo/withremote').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/environments/foo/withremote')
         end
       end

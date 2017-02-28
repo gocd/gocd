@@ -72,6 +72,8 @@ public interface EnvironmentConfig extends ParamsAttributeAware, Validatable, En
 
     void addEnvironmentVariable(String name, String value);
 
+    void addEnvironmentVariable(EnvironmentVariableConfig variableConfig);
+
     EnvironmentVariableContext createEnvironmentContext();
 
     List<CaseInsensitiveString> getPipelineNames();
@@ -102,5 +104,8 @@ public interface EnvironmentConfig extends ParamsAttributeAware, Validatable, En
 
     boolean containsAgentRemotely(String uuid);
 
+    boolean containsEnvironmentVariableRemotely(String variableName);
+
     boolean validateTree(ConfigSaveValidationContext validationContext, CruiseConfig preprocessedConfig);
+
 }

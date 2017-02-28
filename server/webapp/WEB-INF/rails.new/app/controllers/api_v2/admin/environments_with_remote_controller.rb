@@ -14,14 +14,14 @@
 # limitations under the License.
 ##########################################################################
 
-module ApiV1
+module ApiV2
   module Admin
-    class EnvironmentsWithRemoteController < ApiV1::BaseController
+    class EnvironmentsWithRemoteController < ApiV2::BaseController
       before_action :check_admin_user_and_401
 
       def show
         load_remote_environment
-        json = ApiV1::Config::EnvironmentConfigRepresenter.new(@environment_config).to_hash(url_builder: self)
+        json = ApiV2::Config::EnvironmentConfigRepresenter.new(@environment_config).to_hash(url_builder: self)
         render DEFAULT_FORMAT => json if stale?(etag: etag_for(environment_config_service.forEdit(params[:name])))
       end
 
@@ -31,7 +31,7 @@ module ApiV1
         result = HttpLocalizedOperationResult.new
         @environment_config = environment_config_service.forDisplay(environment_name, result).getConfigElement()
       rescue com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException
-        raise ApiV1::RecordNotFound
+        raise ApiV2::RecordNotFound
       end
     end
   end

@@ -170,6 +170,7 @@ class StagesController < ApplicationController
       return
     end
 
+    @templateName = go_config_service.getCurrentConfig().pipelineConfigByName(CaseInsensitiveString.new(pipeline_name)).getTemplateName()
     @pipeline = pipeline_history_service.findPipelineInstance(pipeline_name, params[:pipeline_counter].to_i, @stage.getPipelineId(), current_user, result = HttpOperationResult.new)
     @lockedPipeline = pipeline_lock_service.lockedPipeline(pipeline_name)
   end

@@ -110,12 +110,10 @@ public class JobController {
 
     private ModelAndView getModelAndView(JobInstance jobDetail) throws Exception {
         final JobDetailPresentationModel presenter = presenter(jobDetail);
-        String pipelineName = jobDetail.getPipelineName();
         Map data = new HashMap();
         data.put("presenter", presenter);
         data.put("l", localizer);
-        data.put("isEditableViaUI", goConfigService.isPipelineEditableViaUI(pipelineName));
-        data.put("templateName", goConfigService.getCurrentConfig().pipelineConfigByName(new CaseInsensitiveString(pipelineName)).getTemplateName());
+        data.put("isEditableViaUI", goConfigService.isPipelineEditableViaUI(jobDetail.getPipelineName()));
         return new ModelAndView("build_detail/build_detail_page", data);
     }
 

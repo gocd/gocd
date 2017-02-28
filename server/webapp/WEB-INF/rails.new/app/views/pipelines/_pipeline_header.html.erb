@@ -8,11 +8,7 @@
 
     <% if @can_user_view_settings %>
         <div class="stage_detail_setting">
-          <% if @templateName %>
-              <%= link_to '', admin_stage_edit_path(pipeline_name: @templateName, stage_name: @stage.getName() , current_tab: 'settings', stage_parent: 'templates'), class: 'icon16 setting' %>
-          <% else %>
-              <%= link_to '', admin_stage_edit_path(pipeline_name: @pipeline.getName(), stage_name: @stage.getName() , current_tab: 'settings', stage_parent: 'pipelines'), class: 'icon16 setting' %>
-          <% end %>
+          <%= link_to '', pipeline_edit_path(pipeline_name: @pipeline.getName(), current_tab: 'general'), class: 'icon16 setting' %>
         </div>
     <% end %>
     <% if @lockedPipeline %>

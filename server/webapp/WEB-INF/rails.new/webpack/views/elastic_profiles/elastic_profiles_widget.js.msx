@@ -1,0 +1,264 @@
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+var m                       = require('mithril');
+var $                       = require('jquery');
+var Stream                  = require('mithril/stream');
+var _                       = require('lodash');
+var s                       = require('string-plus');
+var f                       = require('helpers/form_helper');
+var Modal                   = require('views/shared/new_modal');
+var ComponentMixins         = require('helpers/mithril_component_mixins');
+var ElasticProfiles         = require('models/elastic_profiles/elastic_profiles');
+var PluginInfos             = require('models/pipeline_configs/plugin_infos');
+var ElasticProfileWidget    = require('views/elastic_profiles/elastic_profile_widget');
+var ElasticProfileModalBody = require('views/elastic_profiles/elastic_profile_modal_body');
+require('jquery-textcomplete');
+
+function showErrors(modal, ctrl, newProfile) {
+  return function (errorMessageOrProfileWithErrors) {
+    if (_.isString(errorMessageOrProfileWithErrors)) {
+      modal.destroy();
+      ctrl.message({type: 'alert', message: errorMessageOrProfileWithErrors});
+    } else {
+      ctrl.clearMessage();
+      newProfile(errorMessageOrProfileWithErrors);
+    }
+  };
+}
+
+function showSuccess(modal, ctrl, message) {
+  return function () {
+    modal.destroy();
+    ctrl.reloadPage();
+    ctrl.message({
+      type:    'success',
+      message: message
+    });
+  };
+}
+
+var ElasticProfilesWidget = {
+  oninit: function (vnode) {
+    var ctrl = vnode.state;
+    ComponentMixins.ManagesCollection.call(this, {as: 'Profile'});
+    ComponentMixins.HasViewModel.call(this);
+
+    this.modal    = null;
+    this.profiles = Stream(new ElasticProfiles());
+
+    this.message = Stream({type: undefined, message: undefined});
+
+    this.clearMessage = function () {
+      this.message({});
+    };
+
+    this.reloadPage = function () {
+      ElasticProfiles.all().then(function (profiles) {
+        ctrl.profiles(profiles);
+      }, function (message) {
+        ctrl.message({type: 'alert', message: message});
+      }).always(m.redraw);
+    };
+
+    this.reloadPage();
+
+    this.edit = function (profile) {
+      var newProfile   = Stream();
+      var pluginInfo   = Stream();
+      var saveDisabled = Stream(false);
+      var errorMessage = Stream();
+
+      ctrl.clearMessage();
+
+      var modal = new Modal({
+        size:    'large',
+        title:   'Edit profile ' + profile.id(),
+        body:    () => (<ElasticProfileModalBody profile={newProfile}
+                                                 pluginInfo={pluginInfo}
+                                                 newProfile={false}
+                                                 errorMessage={errorMessage}
+                                                 saveDisabled={saveDisabled}/>),
+        onclose: () => modal.destroy(),
+        buttons: () => {
+          if (!newProfile()) {
+            return [];
+          }
+          return [
+            {
+              text:     'Save',
+              class:    'save primary',
+              onclick:  function () {
+                newProfile().update().then(showSuccess(modal, ctrl, 'The profile ' + newProfile().id() + ' was updated successfully.'), showErrors(modal, ctrl, newProfile)).always(m.redraw);
+              },
+              disabled: saveDisabled
+            }
+          ];
+        }
+      });
+
+      var showError = function () {
+        var messages = _.chain(arguments).map(function (arg) {
+          if (_.isString(arg)) {
+            return s.terminateWithPeriod(arg);
+          }
+        }).compact().uniq().join(' ').value();
+
+        errorMessage(messages);
+      };
+
+      var onFulfilled = function (profileFromAjax, pluginInfoFromAjax) {
+        newProfile(profileFromAjax);
+        pluginInfo(pluginInfoFromAjax);
+        errorMessage(null);
+      };
+
+      modal.render();
+
+      $.when(ElasticProfiles.Profile.get(profile.id()), PluginInfos.PluginInfo.get(profile.pluginId())).then(onFulfilled, showError).always(m.redraw);
+    };
+
+    this.add = function () {
+      var newProfile    = Stream(new ElasticProfiles.Profile({}));
+      var newPluginInfo = Stream(null);
+      var saveDisabled  = Stream(true);
+
+      var modal = new Modal({
+        size:    'large',
+        title:   'Add a new profile',
+        body:    () => (<ElasticProfileModalBody profile={newProfile}
+                                                 newProfile={true}
+                                                 pluginInfo={newPluginInfo}
+                                                 saveDisabled={saveDisabled}/>),
+        onclose: () => modal.destroy(),
+        buttons: [
+          {
+            text:     'Save',
+            class:    'save primary',
+            onclick:  function () {
+              newProfile().create().then(showSuccess(modal, ctrl, 'The profile ' + newProfile().id() + ' was created successfully.'), showErrors(modal, ctrl, newProfile)).always(m.redraw);
+            },
+            disabled: saveDisabled
+          }
+        ]
+      });
+      modal.render();
+    };
+
+    var deleteInProgress = Stream(false);
+
+    var performDelete = function (modal, profile) {
+      var onSuccess = function (message) {
+        modal.destroy();
+        ctrl.deleteVm(profile.id());
+        ctrl.reloadPage();
+        ctrl.message({type: 'success', message: message});
+        deleteInProgress(false);
+      };
+
+      var onFailure = function (message) {
+        modal.destroy();
+        ctrl.message({type: 'alert', message: message});
+        deleteInProgress(false);
+      };
+
+      deleteInProgress(true);
+      m.redraw();
+      profile.delete().then(onSuccess, onFailure);
+    };
+
+    this.deleteConfirm = function (profile) {
+      var modal = new Modal({
+        title:    'Are you sure?',
+        body:     () => (<div>Are you sure you want to delete the profile <strong>{profile.id()}</strong>?</div>),
+        oncancel: () => modal.destroy(),
+        buttons:  () => [
+          {
+            text:    'Delete',
+            class:   deleteInProgress() ? 'delete-profile in-progress' : 'delete-profile',
+            onclick: function () {
+              performDelete(modal, profile);
+            }
+          }
+        ]
+      });
+      modal.render();
+    };
+  },
+
+  view: function (vnode) {
+    var message;
+    if (vnode.state.message().message) {
+      message = (
+        <f.row>
+          <f.callout type={vnode.state.message().type}>
+            {vnode.state.message().message}
+
+            <button class="close-button" aria-label="Dismiss alert" type="button"
+                    onclick={vnode.state.clearMessage.bind(vnode.state)}>
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </f.callout>
+        </f.row>
+      );
+    }
+
+    return (
+      <div>
+        <div class="header-panel">
+          <header class="page-header">
+            <f.row>
+              <f.column size={6}>
+                <h1>Elastic Agent Profiles</h1>
+              </f.column>
+
+              <f.column size={6}>
+                <f.button onclick={vnode.state.add.bind(vnode.state)} class="add-profile">
+                  Add
+                </f.button>
+              </f.column>
+            </f.row>
+          </header>
+        </div>
+
+
+        <div class="elastic-profiles">
+          {message}
+          <f.row>
+
+            {vnode.state.profiles().mapProfiles(function (profile) {
+              var pluginInfo = _.find(PluginInfos(), function (pi) {
+                return pi.id() === profile.pluginId();
+              });
+
+              return (
+                <ElasticProfileWidget
+                  profile={profile}
+                  pluginInfo={pluginInfo}
+                  key={profile.id()}
+                  vm={vnode.state.vmState(profile.id())}
+                  onEdit={vnode.state.edit.bind(vnode.state, profile)}
+                  onDelete={vnode.state.deleteConfirm.bind(vnode.state, profile)}/>
+              );
+            })}
+          </f.row>
+        </div>
+      </div>
+    );
+  }
+};
+
+module.exports = ElasticProfilesWidget;

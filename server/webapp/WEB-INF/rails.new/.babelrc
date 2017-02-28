@@ -1,0 +1,24 @@
+{
+  "presets": [
+    [
+      "env",
+      {
+        "debug": true,
+        "targets": {
+          "browsers": [
+            "last 2 versions" // see http://browserl.ist/?q=last+2+versions
+          ]
+        }
+      }
+    ]
+  ],
+  "plugins": [
+    [
+      "transform-react-jsx",
+      {
+        "debug": true,
+        "pragma": "m"
+      }
+    ]
+  ]
+}

@@ -1,0 +1,12 @@
+
+# Ignore bundler config.
+/.bundle
+
+# Ignore all logfiles and tempfiles.
+/log/*
+!/log/.keep
+/tmp
+
+# Don't commit node_modules (vendored npm bits) or built assets
+/node_modules
+/public/webpack

@@ -17,81 +17,75 @@
 package com.thoughtworks.go.build
 
 import org.apache.tools.ant.types.Commandline
-import org.gradle.api.tasks.Exec
+import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.TaskAction
 import org.gradle.internal.os.OperatingSystem
 
-public class ExecuteUnderRailsTask extends Exec {
+public class ExecuteUnderRailsTask extends DefaultTask {
 
   @Input
   def railsCommand
 
+  @Input
+  def environment = [:]
+
   public ExecuteUnderRailsTask() {
-    dependsOn ':tools:prepareJRuby'
-    dependsOn ':server:prepare'
     dependsOn ':server:cleanRails'
+    dependsOn ':server:cleanDb'
+    dependsOn ':server:prepareDb'
+    dependsOn ':tools:prepareJRuby'
     dependsOn ':server:jar'
+    dependsOn ':server:testJar'
+    dependsOn ':server:pathingJar'
 
-    if (isWindows()) {
-      dependsOn ':server:pathingJar'
+    def self = this
+    doLast {
+      project.exec { execTask ->
+
+        PrepareRailsCommandHelper helper = new PrepareRailsCommandHelper(project)
+        helper.prepare()
+
+        def jrubyOpts = helper.jrubyOpts
+
+        execTask.environment += self.environment
+
+        execTask.environment += [
+          'CLASSPATH' : project.getTasksByName('pathingJar', false).first().archivePath,
+          'JRUBY_OPTS': jrubyOpts.join(' ')
+        ]
+
+        if (OperatingSystem.current().isWindows()) {
+          setExecutable project.findProject(':tools').file("rails/bin/jruby.bat")
+        } else {
+          setExecutable project.findProject(':tools').file("rails/bin/jruby")
+        }
+
+        args('-S')
+
+        if (railsCommand instanceof String) {
+          args(Commandline.translateCommandline(railsCommand))
+        } else {
+          args(railsCommand)
+        }
+
+        workingDir project.file("webapp/WEB-INF/rails.new")
+
+        debugEnvironment(execTask)
+
+        println "[${workingDir}]\$ ${executable} ${args.join(' ')}"
+
+        standardOutput = System.out
+        errorOutput = System.err
+      }
     }
   }
 
-  @TaskAction
-  public void exec() {
-    PrepareRailsCommandHelper helper = new PrepareRailsCommandHelper(project)
-    helper.prepare()
-
-    def jrubyOpts = helper.jrubyOpts
-
-    // use pathing jar for windows, else directly pass classpath via `-J-cp`
-    if (isWindows()) {
-      environment += ['CLASSPATH': project.getTasksByName('pathingJar', false).first().archivePath]
-    } else {
-      jrubyOpts += '-J-cp'
-      jrubyOpts += helper.classpath().asPath
-    }
-
-    environment += ['JRUBY_OPTS': jrubyOpts.join(' ')]
-
-
-    if (OperatingSystem.current().isWindows()) {
-      setExecutable project.findProject(':tools').file("rails/bin/jruby.bat")
-    } else {
-      setExecutable project.findProject(':tools').file("rails/bin/jruby")
-    }
-
-    args('-S')
-
-    if (railsCommand instanceof String) {
-      args(Commandline.translateCommandline(railsCommand))
-    } else {
-      args(railsCommand)
-    }
-
-    workingDir project.file("webapp/WEB-INF/rails.new")
-
-    debugEnvironment()
-
-    println "[${workingDir}]\$ ${executable} ${args.join(' ')}"
-
-    standardOutput = System.out
-    errorOutput = System.err
-
-    super.exec()
-  }
-
-  private void debugEnvironment() {
+  void debugEnvironment(execTask) {
     println "Using environment variables"
-    int longestEnv = environment.keySet().sort { a, b -> a.length() - b.length() }.last().length()
+    int longestEnv = execTask.environment.keySet().sort { a, b -> a.length() - b.length() }.last().length()
 
-    environment.keySet().sort().each { k ->
-      println "${k.padLeft(longestEnv)} = ${environment.get(k)}"
+    execTask.environment.keySet().sort().each { k ->
+      println "${k.padLeft(longestEnv)} = ${execTask.environment.get(k)}"
     }
-  }
-
-  private boolean isWindows() {
-    OperatingSystem.current().isWindows()
   }
 }

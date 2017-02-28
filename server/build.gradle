@@ -18,6 +18,7 @@ import com.thoughtworks.go.build.VerifyJarTask
 import org.jruby.CompatVersion
 import org.jruby.Ruby
 import org.jruby.RubyInstanceConfig
+
 description = 'GoCD Server'
 
 buildscript {
@@ -38,6 +39,14 @@ configurations {
   jarConfig
   additionalClasspath
 
+  copyOnly {
+    transitive = false
+  }
+
+  copyOnlyTestData {
+    transitive = false
+  }
+
   compile.exclude(group: 'org.springframework', module: 'spring-support')
   runtime.exclude(group: 'org.springframework', module: 'spring-support')
 }
@@ -56,10 +65,6 @@ def props = [
 ]
 props.putAll(project.hasProperty('testSystemProperties') ? project.testSystemProperties : [:])
 project.ext.testSystemProperties = props
-
-apply from: 'rails.gradle'
-apply from: 'jasmine.gradle'
-apply from: 'helpers.gradle'
 
 sourceSets {
   main {
@@ -85,10 +90,17 @@ dependencies {
   compile project(':go-plugin-access')
   compile project(':common')
   compile project(':rack_hack')
+
   compile(group: 'commons-beanutils', name: 'commons-beanutils-core', version: '1.7.0') {
     exclude(module: 'commons-logging')
     exclude(module: 'commons-collections')
   }
+
+  copyOnly project(path: ':tfs-impl-10', configuration: 'fatJarConfig')
+  copyOnly project(path: ':tfs-impl-14', configuration: 'fatJarConfig')
+  copyOnly project(path: ':agent', configuration: 'fatJarConfig')
+  copyOnly project(path: ':agent-launcher', configuration: 'fatJarConfig')
+  copyOnlyTestData project(':test-agent')
 
   compile group: 'oro', name: 'oro', version: '2.0.8'
   compile group: 'commons-dbcp', name: 'commons-dbcp', version: '1.4'
@@ -271,27 +283,35 @@ task prepareDb(dependsOn: [':server:cleanDb']) {
   }
 }
 
-task prepare(dependsOn: [cleanDb, prepareDb, ':tools:prepareJRuby', ':agent-launcher:fatJar', ':test-agent:jar', ':go-plugin-activator:jar', ':agent:fatJar', ':tfs-impl-10:fatJar', ':tfs-impl-14:fatJar']) {
+task copyAgentJarsToServerDir {
+  inputs.files(project.configurations.copyOnly)
+  inputs.files(project.configurations.copyOnlyTestData)
+
+  outputs.files(project.configurations.copyOnly.files.collect {
+    it.name.replace("-${project.version}", "")
+  })
+
+  outputs.files(project.configurations.copyOnlyTestData.files.collect {
+    "testData/${it.name.replace("-${project.version}", "")}"
+  })
+
   doFirst {
     project.copy {
-      from { project(':test-agent').jar.archivePath }
-      into "testdata"
+      from project.configurations.copyOnlyTestData
+      into 'testdata'
       rename "(.*)-${project.version}.jar", '$1.jar'
     }
 
     project.copy {
-      from {
-        [
-          project(':agent').fatJar.archivePath,
-          project(':agent-launcher').fatJar.archivePath,
-          project(':tfs-impl-10').fatJar.archivePath,
-          project(':tfs-impl-14').fatJar.archivePath,
-        ]
-      }
-      into "."
+      from project.configurations.copyOnly
+      into '.'
       rename "(.*)-${project.version}.jar", '$1.jar'
     }
   }
+}
+
+task prepare {
+  dependsOn = [cleanDb, prepareDb, ':go-plugin-activator:jar', copyAgentJarsToServerDir, ':server:dependencyClassPath', ':server:compileAssetsDev']
 }
 
 test {
@@ -345,6 +365,15 @@ clean.doFirst {
   delete 'go-shine.log'
   delete 'go-server.log'
   delete 'cce_server.log'
+  delete 'tfs-impl-10.jar'
+  delete 'tfs-impl-14.jar'
+  delete 'agent-launcher.jar'
+  delete 'agent.jar'
+  delete 'testdata/test-agent.jar'
+  delete 'config/agentkeystore'
+  delete 'config/keystore'
+  delete 'config/truststore'
+  delete "${project.railsRoot}/node_modules"
   cleanDb.execute()
   cleanRails.execute()
 }
@@ -433,11 +462,13 @@ task war(type: Jar) {
       exclude('WEB-INF/web.xml')
       exclude("**/rails.new/*.log")
       exclude("**/rails.new/log/*")
+      exclude("**/rails.new/node_modules/**/*.*")
       exclude("**/rails.new/spec/*")
       exclude("**/rails.new/tmp/**/*.*")
       exclude("**/rails.new/**/jruby/*/cache/*.gem")
       exclude("**/rails.new/app/assets/**/*.*")
       exclude("**/rails.new/app/views/**/*.*")
+      exclude("**/rails.new/webpack/**/*.*")
       findGemsToNotPack().each { gem ->
         theSpec.exclude("**/rails.new/vendor/bundle/jruby/1.9/gems/${gem}")
         theSpec.exclude("**/rails.new/vendor/bundle/jruby/1.9/specifications/${gem}.gemspec")
@@ -578,6 +609,10 @@ task verifyWar(type: VerifyJarTask) {
     ]
   ]
 }
+
+apply from: 'rails.gradle'
+apply from: 'jasmine.gradle'
+apply from: 'helpers.gradle'
 
 task verifyJar {
   dependsOn verifyWar

@@ -79,14 +79,18 @@ private boolean isWindows() {
   org.gradle.internal.os.OperatingSystem.current().isWindows()
 }
 
-task prepareNodeJS(type: Exec) {
+task prepareNodeJS {
   inputs.file project.file("package.json")
   outputs.dir project.file('node_modules')
 
-  standardOutput = System.out
-  errorOutput = System.err
+  doFirst {
+    project.exec {
+      standardOutput = System.out
+      errorOutput = System.err
 
-  commandLine = [ isWindows() ? "npm.cmd" : "npm", "install"]
+      commandLine = [isWindows() ? "yarn.cmd" : "yarn", "install"]
+    }
+  }
 }
 
 clean.doFirst {

@@ -22,6 +22,7 @@
   "globals": {
     "it": true,
     "describe": true,
+    "xdescribe": true,
     "expect": true,
     "beforeEach": true,
     "afterEach": true,
@@ -30,7 +31,8 @@
     "xit": true,
     "spyOn": true,
     "jasmine": true,
-    "angular": true
+    "angular": true,
+    "module": true
   },
   "parserOptions": {
     "ecmaFeatures": {

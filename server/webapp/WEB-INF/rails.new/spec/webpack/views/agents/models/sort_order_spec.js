@@ -1,0 +1,59 @@
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+describe("SortOrder", function () {
+
+  var _         = require('lodash');
+  var SortOrder = require('views/agents/models/sort_order');
+
+  it("should default to correct values", function () {
+    expect(new SortOrder().sortBy()).toEqual('agentState');
+    expect(new SortOrder().orderBy()).toEqual('asc');
+  });
+
+  describe('toggleSortingOrder', function () {
+    it("should toggle sort order on existing column", function () {
+      var sortOrder     = new SortOrder();
+      sortOrder.perform = _.noop;
+
+      sortOrder.toggleSortingOrder(sortOrder.sortBy());
+      expect(sortOrder.sortBy()).toEqual(sortOrder.sortBy());
+      expect(sortOrder.orderBy()).toEqual('desc');
+
+      sortOrder.toggleSortingOrder(sortOrder.sortBy());
+      expect(sortOrder.sortBy()).toEqual(sortOrder.sortBy());
+      expect(sortOrder.orderBy()).toEqual('asc');
+    });
+
+    it("should reset sort order (to asc) when column changes", function () {
+      var sortOrder     = new SortOrder();
+      sortOrder.perform = _.noop;
+
+      sortOrder.toggleSortingOrder('bar');
+      expect(sortOrder.sortBy()).toEqual('bar');
+      expect(sortOrder.orderBy()).toEqual('asc');
+    });
+  });
+
+  describe("isSortedOn", function() {
+    it("should return true if current sort column is the same as the one passed in", function() {
+      var sortOrder     = new SortOrder();
+
+      expect(sortOrder.isSortedOn(sortOrder.sortBy())).toBe(true);
+      expect(sortOrder.isSortedOn('blah')).toBe(false);
+    });
+  });
+});

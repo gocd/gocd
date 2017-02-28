@@ -42,6 +42,23 @@ def releaseRevision = { ->
   return hashStdOut.size().toString()
 }
 
+def getVersion = { ... args ->
+  ByteArrayOutputStream stdout = new ByteArrayOutputStream()
+
+  try {
+    project.exec {
+      commandLine = args
+      standardOutput = stdout
+      errorOutput = stdout
+      ignoreExitValue = true
+    }
+  } catch (Exception e){
+    return "could not determine version!";
+  }
+
+  return stdout.toString().trim()
+}
+
 ext.partitionFiles = { Collection originalFiles ->
   // no partitioning needed!
   if (!(System.getenv().containsKey('GO_JOB_RUN_COUNT') && System.getenv().containsKey('GO_JOB_RUN_INDEX'))) {
@@ -81,6 +98,18 @@ if (System.getenv().containsKey("GO_SERVER_URL")) {
   println "JVM:             ${System.getProperty('java.version')} (${System.getProperty('java.vm.vendor')} ${System.getProperty('java.vm.version')})"
   println "OS:              ${System.getProperty('os.name')} ${System.getProperty('os.version')} ${System.getProperty('os.arch')}"
   println "========================================================="
+
+  def isWindows = org.gradle.internal.os.OperatingSystem.current().isWindows();
+
+  println("Tool Versions")
+  println("============================")
+  println("node: ${getVersion("node", "--version")}")
+  println(" npm: ${getVersion((isWindows ? "npm.cmd" : 'npm'), "--version")}")
+  println("yarn: ${getVersion((isWindows ? "yarn.cmd" : 'yarn'), "--version")}")
+  println(" git: ${getVersion("git", "--version")}")
+  println("  hg: ${getVersion("hg", "--quiet", "--version")}")
+  println(" svn: ${getVersion("svn", "--quiet", "--version")}")
+  println("============================")
 }
 
 allprojects {

@@ -1,0 +1,96 @@
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+var m                  = require('mithril');
+var Stream             = require('mithril/stream');
+var _                  = require('lodash');
+var $                  = require('jquery');
+var f                  = require('helpers/form_helper');
+var ComponentMixins    = require('helpers/mithril_component_mixins');
+var dragulaConfig      = require('helpers/dragula_config');
+var StagesConfigWidget = require('views/pipeline_configs/stages_config_widget');
+var PipelineFlowWidget = {
+  oninit: function (vnode) {
+    this.args = vnode.attrs;
+    ComponentMixins.HasViewModel.call(this);
+
+    this.currentSelection = vnode.attrs.currentSelection;
+
+    this.appendStage = function () {
+      this.currentSelection(this.args.pipeline().stages().createStage());
+    };
+  },
+
+  view: function (vnode) {
+    var appendStage = (
+      <div class="pipeline-flow-box add-stage">
+        <span class='label' onclick={vnode.state.appendStage.bind(vnode.state)}>Add Stage</span>
+      </div>
+    );
+
+    var classes = function (selection, additionalClasses) {
+      return _(['pipeline-flow-box', additionalClasses, (vnode.state.currentSelection() === selection) ? 'active' : null]).flatten().compact().value().join(' ');
+    };
+
+    var dragDropConfig = function (elem, isInitialized) {
+      if (!isInitialized) {
+        var onDrop = function () {
+          var reorderedStages = _.map($(elem).find('.stage:not(.gu-mirror)'), function (eachStageElem) {
+            return vnode.attrs.pipeline().stages().stageAtIndex($(eachStageElem).attr('data-stage-index'));
+          });
+          vnode.attrs.pipeline().stages().setStages(reorderedStages);
+        };
+
+        dragulaConfig(elem, {dragulaOptions: {}, onDropCallback: onDrop});
+      }
+    };
+
+    return (
+      <f.accordion accordionTitles={[(<span>Stages</span>)]}
+                   selectedIndex={vnode.state.vmState('pipelineFlowSelected', Stream(0))}
+                   accordionKeys={['stages']}
+                   class='stages'>
+        <div>
+
+          <div class="stage-boxes">
+            <div config={dragDropConfig} class="stages-wrapper">
+              {vnode.attrs.pipeline().stages().mapStages(function (stage, stageIndex) {
+                return (
+                  <div class={classes(stage, 'stage')}
+                       data-stage-index={stageIndex}
+                       onclick={vnode.state.currentSelection.bind(vnode.state, stage)}
+                       key={stage.uuid()}>
+                    <span class="drag-handle"/>
+                    <span class='label'>{stage.name()}</span>
+                  </div>
+                );
+              })}
+            </div>
+            {appendStage}
+          </div>
+
+          <StagesConfigWidget pipeline={vnode.attrs.pipeline}
+                              elasticProfiles={vnode.attrs.elasticProfiles}
+                              currentSelection={vnode.state.currentSelection}
+                              vm={vnode.state.vmState('stagesConfig')}/>
+        </div>
+      </f.accordion>
+    );
+  }
+
+};
+
+module.exports = PipelineFlowWidget;

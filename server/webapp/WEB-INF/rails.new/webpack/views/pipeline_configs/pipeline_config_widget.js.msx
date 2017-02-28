@@ -1,0 +1,197 @@
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+var m                      = require('mithril');
+var Stream                 = require('mithril/stream');
+var s                      = require('string-plus');
+var f                      = require('helpers/form_helper');
+var ComponentMixins        = require('helpers/mithril_component_mixins');
+var Pipeline               = require('models/pipeline_configs/pipeline');
+var PipelineSettingsWidget = require('views/pipeline_configs/pipeline_settings_widget');
+var MaterialsConfigWidget  = require('views/pipeline_configs/materials_config_widget');
+var PipelineFlowWidget     = require('views/pipeline_configs/pipeline_flow_widget');
+var Modal                  = require('views/shared/modal');
+
+var ToggleViewWarning = {
+  view: function (vnode) {
+    return (
+      <div class='modal-content'>
+        <p> 'Proceed' will discard any unsaved data.</p>
+        <div class='actions'>
+          <a class='button secondary' href="javascript:void(0)"
+             onclick={vnode.attrs.parentView.close.bind(vnode.attrs.parentView)}>Cancel</a>
+          <a class='button primary'
+             href={['/go/admin/pipelines/', vnode.attrs.pipeline().name(), '/general'].join('')}>Proceed</a>
+        </div>
+      </div>
+    );
+  }
+};
+
+var PipelineConfigWidget = function (options) {
+  return {
+    oninit: function (vnode) {
+      var ctrl              = vnode.state;
+      var self              = vnode.state;
+      self.pipeline         = Stream();
+      self.currentSelection = Stream();
+      self.etag             = Stream();
+      self.url              = options.url;
+      self.callback         = options.callback;
+      self.elasticProfiles  = options.elasticProfiles;
+      self.vm               = new Pipeline.vm();
+
+      ComponentMixins.HasViewModel.call(this);
+
+      self.modal = new Modal({
+        subView: {component: ToggleViewWarning, args: {pipeline: self.pipeline}},
+        title:   'Unsaved Changes'
+      });
+
+      window.pipelineConfigWidget = Stream(this);
+
+      self.setPipelineAndPreserveSelection = function (newPipeline) {
+        var oldPipeline = self.pipeline();
+        var newSelection;
+
+        if (oldPipeline) {
+          newSelection = newPipeline.stages().findStage(function (stage) {
+            return stage.name() === ctrl.currentSelection().name();
+          });
+        }
+
+        newSelection = newSelection || newPipeline.stages().firstStage();
+
+        self.pipeline(newPipeline);
+        self.currentSelection(newSelection);
+      };
+
+      var extractEtag = function (xhr) {
+        if (xhr.status === 200) {
+          self.etag = Stream(xhr.getResponseHeader('ETag'));
+        }
+        return xhr.responseText;
+      };
+
+      Pipeline.find(self.url(), function (data, _textStatus, xhr) {
+        extractEtag(xhr);
+        self.setPipelineAndPreserveSelection(Pipeline.fromJSON(data));
+        if (self.callback) {
+          self.callback(ctrl);
+        }
+      });
+
+      self.onSavePipeline = function () {
+        self.vm.clearErrors();
+
+        if (!self.pipeline().isValid()) {
+          self.vm.markClientSideErrors();
+          self.vm.defaultState();
+          return;
+        }
+
+        self.vm.updating();
+
+        var onReject  = function (data) {
+          self.vm.saveFailed(data);
+          if (data.data) {
+            ctrl.setPipelineAndPreserveSelection(Pipeline.fromJSON(data.data));
+          }
+        };
+        var onFulfill = function (data) {
+          ctrl.setPipelineAndPreserveSelection(Pipeline.fromJSON(JSON.parse(data)));
+          self.vm.saveSuccess();
+        };
+
+        self.pipeline().update(self.etag(), extractEtag).then(onFulfill, onReject);
+      };
+    },
+
+    view: function (vnode) {
+      var pipeline = vnode.state.pipeline();
+      if (!pipeline) {
+        return (<form class='page-spinner'/>);
+      }
+
+      var errors = vnode.state.vm.hasErrors() ? (<f.alert>{vnode.state.vm.errors()}</f.alert>) : undefined;
+
+      var header = function () {
+        return (
+          <header class="pipeline-page-header">
+            <f.row class="heading">
+              <f.column size={10} largeSize={10}>
+                <h1>
+                  Pipeline configuation for pipeline
+                  {' '}
+                  {pipeline.name()}
+                </h1>
+                <a class='toggle-old-view' href="javascript:void(0)"
+                   onclick={vnode.state.modal.open.bind(vnode.state.modal)}>Normal Edit</a>
+              </f.column>
+              <f.column size={1}>
+                <f.button onclick={vnode.state.onSavePipeline.bind(vnode.state)}
+                          class={'save-pipeline ' + vnode.state.vm.saveState()}>
+                  <span class={'save-state ' + vnode.state.vm.saveState()}/>
+                  Save
+                </f.button>
+              </f.column>
+            </f.row>
+          </header>
+        );
+      };
+
+      var pipelineFlowWidget = function () {
+        if (!s.isBlank(vnode.state.pipeline().template())) {
+          return (
+            <f.info>{['Pipeline :', "'", vnode.state.pipeline().name(), "'", 'uses template :', "'", vnode.state.pipeline().template(), "'",
+              '. Template editing is not yet supported. '].join(' ')} Click
+              <f.link href={["/go/admin/templates/", vnode.state.pipeline().template(), "/general"].join('')}>here
+              </f.link>
+              to edit template.</f.info>
+          );
+        }
+
+        return (
+          <PipelineFlowWidget pipeline={vnode.state.pipeline}
+                              elasticProfiles={vnode.state.elasticProfiles}
+                              currentSelection={vnode.state.currentSelection}
+                              vm={vnode.state.vmState('pipelineFlowConfig')}/>
+        );
+      };
+
+      return (
+        <form class='pipeline'>
+          {header()}
+          <f.row class='pipeline-body'>
+            {errors}
+            <f.column end={true} size={12}>
+              <PipelineSettingsWidget pipeline={vnode.state.pipeline}
+                                      vm={vnode.state.vmState('pipelineSettingsConfig')}/>
+              <MaterialsConfigWidget materials={pipeline.materials}
+                                     key={pipeline.materials().uuid}
+                                     pipelineName={pipeline.name}
+                                     vm={vnode.state.vmState('materialsConfig')}/>
+              {pipelineFlowWidget()}
+            </f.column>
+          </f.row>
+          {vnode.state.modal.view()}
+        </form>
+      );
+    }
+  };
+};
+
+module.exports = PipelineConfigWidget;

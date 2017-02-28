@@ -14,8 +14,6 @@ paths:
   jquery.textcomplete: 'lib/jquery.textcomplete-0.8.1'
   mithril: 'lib/mithril-0.2.5'
   lodash: 'lib/lodash'
-  lodash-inflection: 'lib/lodash-inflection'
-  filesize: 'lib/filesize'
   dragula: 'lib/dragula-3.1.0'
   js-routes: 'js-routes'
   string: 'lib/underscore.string'
@@ -207,5 +205,3 @@ shim:
 # our modules
 modules:
   - name: "single_page_apps/pipeline_configs"
-  - name: "single_page_apps/agents"
-  - name: "single_page_apps/elastic_profiles"

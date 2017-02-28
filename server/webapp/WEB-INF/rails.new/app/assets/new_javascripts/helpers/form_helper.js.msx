@@ -255,8 +255,8 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
               placeholder={placeholder}
               class={propertyError ? 'error' : ''}
               oninput={ctrl.onInput.bind(ctrl, model, attrName, onChange)}
+              value={model[attrName]()}
               onblur={validate ? model.validate.bind(model, validationAttr) : undefined}>
-              {model[attrName]()}
               </textarea>
             {propertyError}
           </f.column>

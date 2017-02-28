@@ -126,9 +126,11 @@ server/webapp/WEB-INF/rails.new/db/config.git/
 server/webapp/WEB-INF/rails.new/historical_jars/
 server/webapp/WEB-INF/rails.new/log/
 server/webapp/WEB-INF/rails.new/logs/
+server/webapp/WEB-INF/rails.new/node_modules/
 server/webapp/WEB-INF/rails.new/public/assets/
 server/webapp/WEB-INF/rails.new/vendor/bundle/jruby/1.9/doc/
 server/webapp/WEB-INF/rails.new/vendor/bundle/jruby/1.9/extensions/
+server/webapp/WEB-INF/rails.new/webpack/gen/
 target/
 test-addon/target/
 test-agent/target/

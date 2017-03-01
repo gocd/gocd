@@ -141,13 +141,10 @@ task compileAssets(type: ExecuteUnderRailsTask) {
   doFirst {
     delete "${project.railsRoot}/tmp"
     delete outputAssetsDir
+    outputAssetsDir.parentFile.mkdirs()
   }
 
   doLast {
-    delete "${project.railsRoot}/tmp"
-
-    outputAssetsDir.parentFile.mkdirs()
-
     project.exec {
       standardOutput = System.out
       errorOutput = System.err

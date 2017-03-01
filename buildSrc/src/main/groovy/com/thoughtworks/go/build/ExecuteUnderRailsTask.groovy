@@ -39,7 +39,7 @@ public class ExecuteUnderRailsTask extends DefaultTask {
     dependsOn ':server:pathingJar'
 
     def self = this
-    doLast {
+    doFirst {
       project.exec { execTask ->
 
         PrepareRailsCommandHelper helper = new PrepareRailsCommandHelper(project)

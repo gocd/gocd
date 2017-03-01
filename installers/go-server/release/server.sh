@@ -79,10 +79,12 @@ SERVER_DIR="$(cd "$CWD" && pwd)"
 [ ! -z "$SERVER_WORK_DIR" ] || SERVER_WORK_DIR="$SERVER_DIR"
 [ ! -z "$YOURKIT_DISABLE_TRACING" ] || YOURKIT_DISABLE_TRACING=""
 
-if [ -d /var/log/go-server ]; then
+if [ -z "${STDOUT_LOG_FILE}" ]; then
+  if [ -d /var/log/go-server ]; then
     STDOUT_LOG_FILE=/var/log/go-server/go-server.out.log
-else
+  else
     STDOUT_LOG_FILE=go-server.out.log
+  fi
 fi
 
 if [ "$PID_FILE" ]; then

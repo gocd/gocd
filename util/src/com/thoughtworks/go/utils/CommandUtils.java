@@ -16,15 +16,23 @@
 
 package com.thoughtworks.go.utils;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public class CommandUtils {
-    
+    public static class ParseException extends RuntimeException {
+        public ParseException(String message) {
+            super(message);
+        }
+    }
+
     public static String exec(String... commands) {
         return exec(null, commands);
     }
@@ -40,7 +48,7 @@ public class CommandUtils {
 
     private static StringBuilder captureOutput(Process process) throws IOException, InterruptedException {
         BufferedReader output = new BufferedReader(new InputStreamReader(process.getInputStream()));
-        BufferedReader error = new BufferedReader(new InputStreamReader(process.getErrorStream()));        
+        BufferedReader error = new BufferedReader(new InputStreamReader(process.getErrorStream()));
         StringBuilder result = new StringBuilder();
         result.append("output:\n");
         dump(output, result);
@@ -57,6 +65,40 @@ public class CommandUtils {
         }
         reader.close();
         return builder;
+    }
+
+    /**
+     * Cheap, good-enough implementation of shell escape. i.e. only deals with quotes. poorly.
+     * <p>
+     * Put quotes around the given String if necessary.
+     * <p/>
+     * <p>
+     * If the argument doesn't include spaces or quotes, return it as is. If it contains double quotes, use single
+     * quotes - else surround the argument by double quotes.
+     * </p>
+     *
+     * @throws ParseException if the argument contains both, single and double quotes.
+     */
+    public static String shellEscape(String argument) {
+        if (argument.contains("\"")) {
+            if (argument.contains("\'")) {
+                throw new ParseException("Can't handle single and double quotes in same argument: " + argument);
+            } else {
+                return '\'' + argument + '\'';
+            }
+        } else if (argument.contains("\'") || argument.contains(" ")) {
+            return '\"' + argument + '\"';
+        } else {
+            return argument;
+        }
+    }
+
+    public static String shellJoin(String... args) {
+        ArrayList<String> strings = new ArrayList<>();
+        for (String arg : args) {
+            strings.add(shellEscape(arg));
+        }
+        return StringUtils.join(strings, " ");
     }
 
 }

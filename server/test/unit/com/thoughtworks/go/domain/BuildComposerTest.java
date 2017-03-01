@@ -313,7 +313,7 @@ public class BuildComposerTest extends BuildSessionBasedTestCase {
     public void shouldRunTaskWhenConditionMatches() throws Exception {
         build(MULTIPLE_RUN_IFS, PIPELINE_NAME, true, false);
         assertThat(console.output(), containsString("[go] Current job status: passed."));
-        assertThat(console.output(), containsString("[go] Start to execute task: <exec command=\"echo\" args=\"run when status is failed, passed or cancelled\" />."));
+        assertThat(console.output(), containsString("[go] Start to execute task: echo run when status is failed, passed or cancelled."));
         assertThat(console.output(), containsString("run when status is failed, passed or cancelled"));
         assertThat(console.output(), not(containsString("Current job status: failed.")));
     }

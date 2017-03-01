@@ -298,10 +298,10 @@ public class ConsoleOutMatcher {
                 this.consoleOut = consoleOut;
                 if (StringUtils.isEmpty(args)) {
                     this.message = format("[%s] Current job status: %s.", GoConstants.PRODUCT_NAME, status);
-                    this.message = format("[%s] Start to execute task: <exec command=\"%s\" />.", GoConstants.PRODUCT_NAME, command);
+                    this.message = format("[%s] Start to execute task: %s.", GoConstants.PRODUCT_NAME, command);
                 } else {
                     this.message = format("[%s] Current job status: %s.", GoConstants.PRODUCT_NAME, status);
-                    this.message = format("[%s] Start to execute task: <exec command=\"%s\" args=\"%s\" />.", GoConstants.PRODUCT_NAME, command, args);
+                    this.message = format("[%s] Start to execute task: %s %s.", GoConstants.PRODUCT_NAME, command, args);
                 }
                 return StringUtils.contains(consoleOut, message);
             }

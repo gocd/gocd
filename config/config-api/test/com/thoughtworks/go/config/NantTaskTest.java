@@ -41,7 +41,7 @@ public class NantTaskTest {
         task.setNantPath("tmp");
 
         assertThat(task.describe(),
-                is("<nant nantpath=\"tmp\" buildfile=\"default.build\" target=\"test\" workingdir=\"lib\" />"));
+                is("tmp" + File.separator + "nant -buildfile:\"default.build\" test (workingDirectory: lib)"));
     }
 
     @Test

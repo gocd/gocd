@@ -40,20 +40,36 @@ var Template = function (data) {
   this.validateAssociated('stages');
 
   this.update = function (etag, extract) {
-    var self = this;
-
+    var self   = this;
     var config = function (xhr) {
       mrequest.xhrConfig.v3(xhr);
       xhr.setRequestHeader("If-Match", etag);
     };
 
-    return m.request({
-      method:  'PUT',
-      url:     Routes.apiv3AdminTemplatePath({template_name: self.name()}), //eslint-disable-line camelcase
-      config:  config,
-      extract: extract,
-      data:    JSON.parse(JSON.stringify(this, s.snakeCaser))
-    });
+    return $.Deferred(function () {
+      var deferred = this;
+
+      var jqXHR = $.ajax({
+        method:      'PUT',
+        url:         Routes.apiv3AdminTemplatePath({template_name: self.name()}), //eslint-disable-line camelcase
+        timeout:     mrequest.timeout,
+        beforeSend:  config,
+        data:        JSON.stringify(self, s.snakeCaser),
+        contentType: 'application/json',
+      });
+
+      var didFulfill = function (data, _textStatus, jqXHR) {
+        extract(jqXHR)
+        deferred.resolve(Template.fromJSON(data));
+      };
+
+      var didReject = function (jqXHR, _textStatus, _errorThrown) {
+        deferred.reject(jqXHR.responseJSON);
+      };
+
+      jqXHR.then(didFulfill, didReject);
+    }).promise();
+
   };
 
   var createNew = function () {

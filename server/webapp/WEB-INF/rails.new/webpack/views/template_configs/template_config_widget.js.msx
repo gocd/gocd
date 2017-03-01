@@ -86,7 +86,7 @@ var TemplateConfigWidget = {
         if (data.data) {
           setTemplateAndPreserveSelection(Template.fromJSON(data.data));
         }
-      });
+      }).always(m.redraw);
     };
   },
 

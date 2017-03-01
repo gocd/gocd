@@ -39,11 +39,25 @@ Templates.Template = function (data) {
   this.pipelines = Stream(s.defaultToIfBlank(data.pipelines, []));
 
   this.delete = function () {
-    return m.request({
-      method: 'DELETE',
-      url:    Routes.apiv3AdminTemplatePath({template_name: data.name}), //eslint-disable-line camelcase
-      config: mrequest.xhrConfig.v3
-    });
+    return $.Deferred(function () {
+      var deferred = this;
+
+      var jqXHR = $.ajax({
+        method:      'DELETE',
+        url:         Routes.apiv3AdminTemplatePath({template_name: data.name}), //eslint-disable-line camelcase
+        beforeSend:  mrequest.xhrConfig.forVersion('v3'),
+        contentType: false
+      });
+
+      jqXHR.done(function (data, _textStatus, _jqXHR) {
+        deferred.resolve(data);
+      });
+
+      jqXHR.fail(function (jqXHR, _textStatus, _errorThrown) {
+        deferred.reject(mrequest.unwrapErrorExtractMessage(jqXHR.responseJSON, jqXHR));
+      });
+
+    }).promise();
   };
 };
 

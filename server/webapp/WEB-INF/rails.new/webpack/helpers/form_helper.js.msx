@@ -650,6 +650,10 @@ var f = {
       var args     = vnode.attrs;
       var children = vnode.children;
 
+      if (!args.tooltip && _.isEmpty(children)) {
+        return <noscript/>;
+      }
+
       var direction = deleteKeyAndReturnValue(args.tooltip, 'direction', 'bottom'),
         size      = deleteKeyAndReturnValue(args.tooltip, 'size', 'medium'),
         content   = deleteKeyAndReturnValue(args.tooltip, 'content', children),

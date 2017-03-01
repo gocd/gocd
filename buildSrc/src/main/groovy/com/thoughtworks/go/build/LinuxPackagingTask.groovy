@@ -128,7 +128,7 @@ public abstract class LinuxPackagingTask extends DefaultTask {
 
     File propertiesFile = project.fileTree(buildRoot()) { include("**/*/log4j.properties") }.files.first()
 
-    def text = propertiesFile.getText().replaceAll(/\.File=(.*)\.log/, ".File=/var/log/${packageName}/\$1.log")
+    def text = propertiesFile.getText().replaceAll(/\.File=logs\/(.*)\.log/, ".File=/var/log/${packageName}/\$1.log")
 
     propertiesFile.write(text)
 

@@ -26,6 +26,10 @@ var CrudMixins = require('models/mixins/crud_mixins');
 
 require('lodash-inflection');
 
+var resolver = function (agent) {
+  return agent.uuid() + agent.status();
+};
+
 var statusComparator = _.memoize(function (agent) {
   var rank = {
     "Pending":              1,
@@ -39,7 +43,7 @@ var statusComparator = _.memoize(function (agent) {
     "Disabled":             9
   };
   return rank[agent.status()];
-});
+}, resolver);
 
 var sortByAttrName = function (attrName) {
   return function (agent) {

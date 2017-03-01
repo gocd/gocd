@@ -176,11 +176,25 @@ Template.get = function (url, extract) {
 };
 
 Template.getPipelinesForNewTemplate = function () {
-  return m.request({
-    method: 'GET',
-    url:    Routes.apiv1AdminInternalNonTemplatePipelinesPath(),
-    config: mrequest.xhrConfig.v1
-  });
+  return $.Deferred(function () {
+    var deferred = this;
+
+    var jqXHR = $.ajax({
+      method:      'GET',
+      url:         Routes.apiv1AdminInternalNonTemplatePipelinesPath(),
+      beforeSend:  mrequest.xhrConfig.forVersion('v1'),
+      contentType: false
+    });
+
+    jqXHR.done(function (data, _textStatus, _jqXHR) {
+      deferred.resolve(data);
+    });
+
+    jqXHR.fail(function (jqXHR, _textStatus, _errorThrown) {
+      deferred.reject(mrequest.unwrapErrorExtractMessage(jqXHR.responseJSON, jqXHR));
+    });
+
+  }).promise();
 };
 
 Template.defaultTemplate = function () {

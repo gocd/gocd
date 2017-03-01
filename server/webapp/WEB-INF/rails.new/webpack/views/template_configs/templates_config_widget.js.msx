@@ -63,12 +63,12 @@ var TemplatesConfigWidget = {
         self.message({type: 'success', message: response.message});
       };
 
-      var onFailure = function (response) {
+      var onFailure = function (message) {
         modal.destroy();
-        self.message({type: 'alert', message: response.message});
+        self.message({type: 'alert', message: message});
       };
 
-      template.delete().then(onSuccess, onFailure);
+      template.delete().then(onSuccess, onFailure).always(m.redraw);
     };
 
     self.deleteConfirm = function (template) {

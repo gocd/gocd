@@ -101,6 +101,7 @@ server/agent.jar
 server/agent-launcher.jar
 server/tfs-impl-10.jar
 server/tfs-impl-14.jar
+server/artifacts/
 server/artifactsDir/
 server/config/agentkeystore
 server/config/cruise-config.xml.*

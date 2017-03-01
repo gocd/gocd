@@ -18,14 +18,10 @@ package com.thoughtworks.go.domain.builder;
 
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
-import com.thoughtworks.go.domain.BuildLogElement;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.domain.StubGoPublisher;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
-import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
-import com.thoughtworks.go.util.command.CruiseControlException;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import com.thoughtworks.go.work.DefaultGoPublisher;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -87,30 +83,6 @@ public class BuilderTest {
 
         assertThat(goPublisher.getMessage(), containsString("On Cancel Task"));
         assertThat(goPublisher.getMessage(), containsString("On Cancel Task completed"));
-    }
-
-    @Test
-    public void shouldNotBuildIfTheJobIsCanceled() throws Exception {
-        CommandBuilder builder = new CommandBuilder("echo", "", new File("."), new RunIfConfigs(FAILED),
-                new StubBuilder(),
-                "");
-
-        builder.build(new BuildLogElement(), goPublisher, environmentVariableContext, null);
-
-        assertThat(goPublisher.getMessage(), is(""));
-    }
-
-    private class StubBuilder extends Builder {
-        boolean wasCalled;
-
-        public StubBuilder() {
-            super(null, null, "");
-        }
-
-        public void build(BuildLogElement buildElement, DefaultGoPublisher publisher,
-                          EnvironmentVariableContext environmentVariableContext, TaskExtension taskExtension) throws CruiseControlException {
-            wasCalled = true;
-        }
     }
 
 }

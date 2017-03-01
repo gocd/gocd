@@ -46,8 +46,8 @@ public class StubGoPublisher extends DefaultGoPublisher {
         this.message += message;
     }
 
-    public void taggedConsumeLine(String tag, String line) {
-        this.message += line;
+    public void taggedConsumeLine(String tag, String message) {
+        this.message += message;
     }
 
     public void consumeLineWithPrefix(String message) {

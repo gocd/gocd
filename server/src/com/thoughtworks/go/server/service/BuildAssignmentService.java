@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.listener.ConfigChangedListener;
@@ -24,6 +25,7 @@ import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.work.*;
 import com.thoughtworks.go.server.domain.BuildComposer;
+import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.materials.StaleMaterialsOnBuildCause;
 import com.thoughtworks.go.server.service.builders.BuilderFactory;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
@@ -110,7 +112,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
                             StageConfig stageConfig = pipelineConfig.findBy(new CaseInsensitiveString(jobPlan.getStageName()));
                             if (stageConfig != null) {
                                 JobConfig jobConfig = stageConfig.jobConfigByConfigName(new CaseInsensitiveString(jobPlan.getName()));
-                                if(jobConfig == null){
+                                if (jobConfig == null) {
                                     jobsToRemove.add(jobPlan);
                                 }
                             } else {
@@ -150,26 +152,32 @@ public class BuildAssignmentService implements ConfigChangedListener {
                 Work buildWork = createWork(agent, job);
                 AgentBuildingInfo buildingInfo = new AgentBuildingInfo(job.getIdentifier().buildLocatorForDisplay(),
                         job.getIdentifier().buildLocator());
-
-                if (agent.isElastic()) {
-                    if (!elasticAgentPluginService.shouldAssignWork(agent.elasticAgentMetadata(), environmentConfigService.envForPipeline(job.getPipelineName()), job.getElasticProfile())) {
-                        return NO_WORK;
-                    }
-                }
-
                 agentService.building(agent.getUuid(), buildingInfo);
                 LOGGER.info("[Agent Assignment] Assigned job [{}] to agent [{}]", job.getIdentifier(), agent.agentConfig().getAgentIdentifier());
                 return buildWork;
+
             }
         }
 
         return NO_WORK;
     }
 
-    private JobPlan findMatchingJob(AgentInstance agent) {
+    JobPlan findMatchingJob(AgentInstance agent) {
         List<JobPlan> filteredJobPlans = environmentConfigService.filterJobsByAgent(jobPlans, agent.getUuid());
-        JobPlan match = agent.firstMatching(filteredJobPlans);
-        jobPlans.remove(match);
+        JobPlan match = null;
+        if (!agent.isElastic()) {
+            match = agent.firstMatching(filteredJobPlans);
+        } else {
+            for (JobPlan jobPlan : filteredJobPlans) {
+                if (jobPlan.requiresElasticAgent() && elasticAgentPluginService.shouldAssignWork(agent.elasticAgentMetadata(), environmentConfigService.envForPipeline(jobPlan.getPipelineName()), jobPlan.getElasticProfile())) {
+                    match = jobPlan;
+                    break;
+                }
+            }
+        }
+        if (match != null) {
+            jobPlans.remove(match);
+        }
         return match;
     }
 
@@ -214,7 +222,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
             }
             Work work = assignWorkToAgent(agentInstance);
             if (work != NO_WORK) {
-                if(agentInstance.getSupportsBuildCommandProtocol()) {
+                if (agentInstance.getSupportsBuildCommandProtocol()) {
                     BuildSettings buildSettings = createBuildSettings(((BuildWork) work).getAssignment());
                     agent.send(new Message(Action.build, MessageEncoding.encodeData(buildSettings)));
                 } else {
@@ -318,5 +326,9 @@ public class BuildAssignmentService implements ConfigChangedListener {
             throw e;
         }
 
+    }
+
+    List<JobPlan> jobPlans() {
+        return jobPlans;
     }
 }

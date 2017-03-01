@@ -19,6 +19,7 @@ package com.thoughtworks.go.helper;
 import com.thoughtworks.go.config.*;
 
 import java.util.Arrays;
+import java.util.UUID;
 
 public class JobConfigMother {
     public static JobConfig job() {
@@ -56,5 +57,19 @@ public class JobConfigMother {
 
     public static JobConfig createJobConfigWithResourceAndArtifactPlans() {
         return new JobConfig(new CaseInsensitiveString("defaultJob"), new Resources(new Resource("Linux"), new Resource("Java")), new ArtifactPlans(Arrays.asList(new ArtifactPlan("src", "dest"))));
+    }
+
+    public static JobConfig elasticJob(String elasticProfileId) {
+        JobConfig jobConfig = jobWithNoResourceRequirement();
+        jobConfig.setElasticProfileId(elasticProfileId);
+        return jobConfig;
+    }
+
+    public static JobConfig jobWithNoResourceRequirement() {
+        JobConfig jobConfig = jobConfig();
+        jobConfig.setName(UUID.randomUUID().toString());
+        jobConfig.setRunInstanceCount((String)null);
+        jobConfig.resources().clear();
+        return jobConfig;
     }
 }

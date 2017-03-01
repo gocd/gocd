@@ -19,8 +19,8 @@ Vagrant.configure(2) do |config|
   packages << %w(dpkg-devel dpkg-dev) #for building debian packages
   packages << %w(mingw32-nsis) #for building windows exe packages
   packages << %w(wget curl) #for downloading stuff
-  packages << %w(nodejs-devel) #nodejs for compiling rails assets
-  packages << %w(gcc-c++ gcc) #to compile stuff via rubygems, npm etc
+  packages << %w(nodejs-devel yarn) #nodejs for compiling rails assets
+  packages << %w(devtoolset-6-gcc-c++ devtoolset-6-gcc) #to compile stuff via rubygems, npm etc
   packages << %w(rh-ruby22 rh-ruby22-ruby-devel rh-ruby22-rubygem-bundler rh-ruby22-ruby-irb rh-ruby22-rubygem-rake rh-ruby22-rubygem-psych libffi-devel) #ruby needed for fpm
 
   config.vm.provision :shell, inline: <<-SHELL
@@ -35,18 +35,23 @@ gpgcheck=0
   echo '
 [nodesource]
 name=Node.js Packages for Enterprise Linux $releasever - $basearch
-baseurl=https://rpm.nodesource.com/pub_4.x/el/$releasever/$basearch
+baseurl=https://rpm.nodesource.com/pub_6.x/el/$releasever/$basearch
 enabled=1
 gpgcheck=1
 gpgkey=https://rpm.nodesource.com/pub/el/NODESOURCE-GPG-SIGNING-KEY-EL
 sslverify=true
 ' > /etc/yum.repos.d/nodesource.repo
 
-  yum install -y -q epel-release centos-release-scl
-  yum install -y -q #{packages.flatten.join(' ')}
+  wget -q https://dl.yarnpkg.com/rpm/yarn.repo -O /etc/yum.repos.d/yarn.repo
+
+  yum install -y epel-release centos-release-scl
+  yum install -y #{packages.flatten.join(' ')}
 
   echo 'source /opt/rh/rh-ruby22/enable' > /etc/profile.d/ruby-22.sh
   echo 'export PATH=/opt/rh/rh-ruby22/root/usr/local/bin:$PATH' >> /etc/profile.d/ruby-22.sh
+
+  echo 'source /opt/rh/devtoolset-6/enable' > /etc/profile.d/gcc.sh
+  echo 'PATH=$PATH:/opt/rh/devtoolset-6/root/usr/bin' >> /etc/profile.d/gcc.sh
 
   (source /opt/rh/rh-ruby22/enable; gem install fpm --no-ri --no-rdoc)
   SHELL
@@ -64,6 +69,7 @@ sslverify=true
     config.cache.enable :apt
     config.cache.enable :apt_lists
     config.cache.enable :yum
+    config.cache.enable :npm
   end
 
   if Vagrant.has_plugin?('vagrant-vbguest')

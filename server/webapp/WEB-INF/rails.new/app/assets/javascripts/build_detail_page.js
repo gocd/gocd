@@ -17,7 +17,15 @@
 ;(function ($) {
   "use strict";
 
-  $(function domReady() {
+  function MultiplexingTransformer(transformers) {
+    this.transform = function processAllTransformers(logLines) {
+      for (var i = 0, len = transformers.length; i < len; i++) {
+        transformers[i].transform(logLines);
+      }
+    };
+  }
+
+  $(function initConsolePageDomReady() {
     var jobDetails = $(".job_details_content");
 
     if (!jobDetails.length) return;
@@ -31,32 +39,32 @@
 
     if (build.length) {
       var consoleUrl = context_path("files/" + build.data("console-url"));
-      build.each(function initConsoleParser(idx, consoleArea) {
-        var area = $(consoleArea);
-        var container = area.find(".buildoutput_pre");
-        var parser = new ConsoleParsingObserver(consoleUrl, new LogOutputTransformer(container, new Foldable()), {
-          onUpdate:   function () {
-            container.trigger("consoleUpdated");
-          },
-          onComplete: function () {
-            container.trigger("consoleCompleted");
-          }
-        });
+      var containers = build.find(".buildoutput_pre"), transformers = [];
 
-        area.find(".console-action-bar").on("click", ".toggle-timestamps", function toggleLogTimestamps(e) {
+      $.each(containers, function initEachConsoleArea(i, area) {
+        var container = $(area);
+        transformers.push(new LogOutputTransformer(container, new Foldable()));
+
+        if (container.is("#tab-content-of-console *")) {
+          new ConsoleScroller(container, $("#build_console"), $('.auto-scroll')).startScroll();
+        }
+
+        container.find(".console-action-bar").on("click", ".toggle-timestamps", function toggleLogTimestamps(e) {
           e.stopPropagation();
           e.preventDefault();
 
-          area.toggleClass("with-timestamps");
+          container.toggleClass("with-timestamps");
         });
-
-        if (container.is("#tab-content-of-console *")) {
-          var consoleScroller = new ConsoleScroller(container, $("#build_console"), $('.auto-scroll'));
-          consoleScroller.startScroll();
-        }
-        executor.register(parser);
       });
 
+      executor.register(new ConsoleParsingObserver(consoleUrl, new MultiplexingTransformer(transformers), {
+        onUpdate:   function () {
+          containers.trigger("consoleUpdated");
+        },
+        onComplete: function () {
+          containers.trigger("consoleCompleted");
+        }
+      }));
     }
 
     executor.register(new TimerObserver(jobDetails.data("build")));
@@ -64,7 +72,7 @@
 
     executor.start();
 
-    $(build).on('click.changeTheme', '.change-theme', function () {
+    build.on('click.changeTheme', '.change-theme', function () {
       $('.sub_tab_container_content').toggleClass('white-theme');
     });
   });

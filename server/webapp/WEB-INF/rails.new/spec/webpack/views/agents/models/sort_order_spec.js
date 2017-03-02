@@ -17,6 +17,7 @@
 describe("SortOrder", function () {
 
   var _         = require('lodash');
+  var m         = require('mithril');
   var SortOrder = require('views/agents/models/sort_order');
 
   it("should default to correct values", function () {
@@ -48,12 +49,48 @@ describe("SortOrder", function () {
     });
   });
 
-  describe("isSortedOn", function() {
-    it("should return true if current sort column is the same as the one passed in", function() {
-      var sortOrder     = new SortOrder();
+  describe("isSortedOn", function () {
+    it("should return true if current sort column is the same as the one passed in", function () {
+      var sortOrder = new SortOrder();
 
       expect(sortOrder.isSortedOn(sortOrder.sortBy())).toBe(true);
       expect(sortOrder.isSortedOn('blah')).toBe(false);
+    });
+  });
+
+  describe("initialize", function () {
+    it("should initialize sortBy and orderBy values based on the routing params", function () {
+      let sortOrder     = new SortOrder();
+      sortOrder.perform = _.noop;
+
+      spyOn(m.route, "param").and.returnValues('resources', 'desc');
+
+      sortOrder.initialize();
+
+      expect(sortOrder.sortBy()).toEqual('resources');
+      expect(sortOrder.orderBy()).toEqual('desc');
+    });
+
+    it("should initialize sortBy and orderBy values to default when routing params are not present", function () {
+      let sortOrder     = new SortOrder();
+      sortOrder.perform = _.noop;
+
+      spyOn(m.route, "param").and.returnValues(undefined, undefined);
+
+      sortOrder.initialize();
+
+      expect(sortOrder.sortBy()).toEqual('agentState');
+      expect(sortOrder.orderBy()).toEqual('asc');
+    });
+
+    it("should perform routing on initialize", function () {
+      let sortOrder = new SortOrder();
+
+      var performSpy = spyOn(sortOrder, "perform");
+
+      sortOrder.initialize();
+
+      expect(performSpy).toHaveBeenCalled();
     });
   });
 });

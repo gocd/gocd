@@ -74,7 +74,6 @@
     };
 
     var ansi = new AnsiUp();
-    var BEGIN_TASK_REGEX = /^(\s*\[go] (?:On Cancel )?Task: )(.*)/; // remove these once merge PR #3201
 
     ansi.use_classes = true;
 
@@ -141,13 +140,15 @@
     }
 
     function parseSpecialLineContent(rawLineElement, prefix, line) {
-      var parts;
+      var parts,
+          cmd_re = /^(\s*\[go] (?:On Cancel )?Task: )(.*)/,
+          status_re = /^(\s*\[go] (?:Current job|Task) status: )(.*)/;
 
-      if ([Types.TASK_START, Types.CANCEL_TASK_START].indexOf(prefix) > -1 && line.match(BEGIN_TASK_REGEX)) {
-        parts = line.match(BEGIN_TASK_REGEX);
+      if ([Types.TASK_START, Types.CANCEL_TASK_START].indexOf(prefix) > -1) {
+        parts = line.match(cmd_re);
         c(rawLineElement, parts[1], c("code", parts[2]));
       } else if (isExplicitEndBoundary(prefix)) {
-        parts = line.match(/^(\s*\[go] (?:Current job|Task) status: )(.*)/)
+        parts = line.match(status_re)
         if (parts) {
           c(rawLineElement, parts[1], c("code", parts[2]));
         } else {
@@ -194,16 +195,10 @@
       }
 
       if (section.data("type") === "task") {
-        if (prefix === Types.TASK_START) {
-          return !line.match(BEGIN_TASK_REGEX); // remove these once merge PR #3201
-        }
         return [Types.OUT, Types.ERR, Types.PASS, Types.FAIL].indexOf(prefix) > -1;
       }
 
       if (section.data("type") === "cancel") {
-        if (prefix === Types.CANCEL_TASK_START) {
-          return !line.match(BEGIN_TASK_REGEX); // remove these once merge PR #3201
-        }
         return [Types.OUT, Types.ERR, Types.CANCEL_TASK_PASS, Types.CANCEL_TASK_FAIL].indexOf(prefix) > -1;
       }
 

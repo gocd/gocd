@@ -71,7 +71,6 @@ public class GoMacLauncher extends JFrame {
 
         String startMem = System.getProperty("cruise.server.mem", "512");
         String maxMem = System.getProperty("cruise.server.maxmem", "1024");
-        String perm = System.getProperty("cruise.server.permgen", "128");
         String maxPerm = System.getProperty("cruise.server.maxpermgen", "256");
         String lang = System.getProperty("cruise.server.lang", "en");
         String country = System.getProperty("cruise.server.country", "US");
@@ -81,7 +80,6 @@ public class GoMacLauncher extends JFrame {
         arguments.add(java);
         arguments.add("-Xms" + startMem + "m");
         arguments.add("-Xmx" + maxMem + "m");
-        arguments.add("-XX:PermSize=" + perm + "m");
         arguments.add("-XX:MaxMetaspaceSize=" + maxPerm + "m");
         if (dbDebugMode) {
             arguments.add("-DDB_DEBUG_MODE=true");

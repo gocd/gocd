@@ -36,6 +36,13 @@ var SortOrder = function () {
     this.perform();
   };
 
+  this.initialize = () => {
+    sortBy  = m.route.param('sortBy') || this.sortBy();
+    orderBy = m.route.param('orderBy') || this.orderBy();
+
+    this.perform();
+  };
+
   this.perform = function () {
     m.route.set(`/${this.sortBy()}/${this.orderBy()}`);
   };

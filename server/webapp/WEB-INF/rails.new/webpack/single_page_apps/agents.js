@@ -82,5 +82,7 @@ $(function () {
     '':                  component,
     '/:sortBy/:orderBy': component
   });
+
+  sortOrder().initialize();
 });
 

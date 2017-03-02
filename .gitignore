@@ -64,7 +64,7 @@ agent-bootstrapper/target/
 agent-common/target/
 agent-launcher/target/
 agent-process-launcher/target/
-agent/*.log
+agent/*.log*
 agent/agent-plugins.zip
 agent/config/
 agent/felix-cache/
@@ -128,9 +128,8 @@ server/webapp/WEB-INF/rails.new/log/
 server/webapp/WEB-INF/rails.new/logs/
 server/webapp/WEB-INF/rails.new/node_modules/
 server/webapp/WEB-INF/rails.new/public/assets/
-server/webapp/WEB-INF/rails.new/vendor/bundle/jruby/1.9/doc/
-server/webapp/WEB-INF/rails.new/vendor/bundle/jruby/1.9/extensions/
 server/webapp/WEB-INF/rails.new/webpack/gen/
+server/webapp/WEB-INF/rails.new/vendor/
 target/
 test-addon/target/
 test-agent/target/
@@ -147,3 +146,5 @@ plugin-infra/go-plugin-access/config/cipher
 
 build/
 out/
+
+*.DS_Store

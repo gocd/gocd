@@ -123,12 +123,16 @@ public class DefaultGoPublisher implements GoPublisher {
     }
 
     public void reportAction(String action) {
+        reportAction(NOTICE, action);
+    }
+
+    public void reportAction(String tag, String action) {
         String message = String.format("[%s] %s %s on %s [%s]", GoConstants.PRODUCT_NAME, action, jobIdentifier.buildLocatorForDisplay(),
                 agentIdentifier.getHostName(), currentWorkingDirectory);
         if (LOG.isDebugEnabled()) {
             LOG.debug(message);
         }
-        taggedConsumeLine(NOTICE, message);
+        taggedConsumeLine(tag, message);
     }
 
     @Override

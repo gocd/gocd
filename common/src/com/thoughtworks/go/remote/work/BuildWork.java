@@ -102,10 +102,9 @@ public class BuildWork implements Work {
     }
 
     private void reportFailure(Exception e) {
-        try{
+        try {
             goPublisher.reportErrorMessage(messageOf(e), e);
-        }
-        catch (Exception reportException) {
+        } catch (Exception reportException) {
             LOGGER.error(format("Unable to report error message - %s.", messageOf(e)), reportException);
         }
         reportCompletion(JobResult.Failed);
@@ -170,21 +169,21 @@ public class BuildWork implements Work {
     }
 
     private void prepareJob(AgentIdentifier agentIdentifier, PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension) {
-        goPublisher.reportAction("Start to prepare");
+        goPublisher.reportAction(DefaultGoPublisher.PREP, "Start to prepare");
         goPublisher.reportCurrentStatus(Preparing);
 
         createWorkingDirectoryIfNotExist(workingDirectory);
         if (!plan.shouldFetchMaterials()) {
-            goPublisher.consumeLineWithPrefix("Skipping material update since stage is configured not to fetch materials");
+            goPublisher.taggedConsumeLineWithPrefix(DefaultGoPublisher.PREP, "Skipping material update since stage is configured not to fetch materials");
             return;
         }
 
-        ProcessOutputStreamConsumer<GoPublisher, GoPublisher> consumer = processOutputStreamConsumer();
+        ConsoleOutputStreamConsumer consumer = new LabeledOutputStreamConsumer(DefaultGoPublisher.PREP, DefaultGoPublisher.PREP_ERR, processOutputStreamConsumer());
         MaterialAgentFactory materialAgentFactory = new MaterialAgentFactory(consumer, workingDirectory, agentIdentifier, packageRepositoryExtension, scmExtension);
 
         materialRevisions.getMaterials().cleanUp(workingDirectory, consumer);
 
-        goPublisher.consumeLineWithPrefix("Start to update materials.\n");
+        goPublisher.taggedConsumeLineWithPrefix(DefaultGoPublisher.PREP, "Start to update materials.\n");
 
         for (MaterialRevision revision : materialRevisions.getRevisions()) {
             materialAgentFactory.createAgent(revision).prepare();
@@ -197,7 +196,7 @@ public class BuildWork implements Work {
 
     private EnvironmentVariableContext setupEnvrionmentContext(EnvironmentVariableContext context) {
         context.setProperty("GO_SERVER_URL", new SystemEnvironment().getPropertyImpl("serviceUrl"), false);
-        context.setProperty("GO_TRIGGER_USER", assignment.getBuildApprover() , false);
+        context.setProperty("GO_TRIGGER_USER", assignment.getBuildApprover(), false);
         plan.getIdentifier().populateEnvironmentVariables(context);
         materialRevisions.populateEnvironmentVariables(context, workingDirectory);
         return context;
@@ -214,7 +213,7 @@ public class BuildWork implements Work {
             return;
         }
 
-        String tag = JobResult.Passed.equals(result) ? DefaultGoPublisher.JOB_PASS: DefaultGoPublisher.JOB_FAIL;
+        String tag = result.isPassed() ? DefaultGoPublisher.JOB_PASS : DefaultGoPublisher.JOB_FAIL;
         goPublisher.taggedConsumeLineWithPrefix(tag, format("Current job status: %s", RunIfConfig.fromJobResult(result.toLowerCase())));
 
         goPublisher.reportCurrentStatus(Completing);

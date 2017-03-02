@@ -77,7 +77,7 @@ public class Builders {
                     result = JobResult.Cancelled;
                 }
 
-                String tag = JobResult.Passed.equals(result) ? DefaultGoPublisher.TASK_PASS : DefaultGoPublisher.TASK_FAIL;
+                String tag = result.isPassed() ? DefaultGoPublisher.TASK_PASS : DefaultGoPublisher.TASK_FAIL;
                 goPublisher.taggedConsumeLineWithPrefix(tag, format("Task status: %s", result.toLowerCase()));
             }
 

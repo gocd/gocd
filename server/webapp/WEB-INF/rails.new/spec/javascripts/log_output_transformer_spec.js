@@ -16,46 +16,20 @@
 ;(function($) {
   "use strict";
 
-  function DummyFormatter() {}
-
-  $.extend(DummyFormatter.prototype, {
-    detectError: $.noop,
-    isExplicitEndBoundary: function (section, prefix, line) {},
-    addBlankSection: function (element) {
-      var section = $("<dl>");
-      element.append(section);
-      return section;
-    },
-    assignSection: function (section, prefix) {
-      var types = {
-        "##": "info"
-      }
-      section.attr("data-type", types[prefix]);
-    },
-    isPartOfSection: function () { return true; },
-    onFinishSection: $.noop,
-    closeSectionAndStartNext: $.noop,
-    insertHeader: function (section, prefix, line) {
-      var header = $("<dt>").attr("data-prefix", prefix).text(line);
-      section.append(header);
-      return header;
-    },
-    insertLine: function (section, prefix, line) {
-      var sub = $("<dd>").attr("data-prefix", prefix).text(line);
-      section.append(sub);
-      return sub;
-    }
-  });
-
   describe("LogOutputTransformerSpec", function LogOutputTransformerSpec() {
       var transformer, output;
+
       function extractText(collection) {
-        return $.map(collection, function(el, i) {return $(el).text();});
+        return _.map(collection, function (el) { return $(el).text(); });
+      }
+
+      if ("function" !== window.requestAnimationFrame) {
+        window.requestAnimationFrame = function (callback) { callback(); };
       }
 
       beforeEach(function () {
           setFixtures("<div id=\"console\"></div>");
-          transformer = new LogOutputTransformer(output = $("#console"), new DummyFormatter());
+          transformer = new LogOutputTransformer(output = $("#console"), FoldableSection);
       });
 
       it("basic unprefixed append to console", function () {
@@ -65,7 +39,9 @@
         ];
 
         transformer.transform(lines);
-        var actual = extractText(output.find("dt"));
+        assertEquals(2, output.find("dd").length);
+
+        var actual = extractText(output.find("dd"));
         assertEquals(lines.join("\n"), actual.join("\n")); // can't assertEquals() on arrays, so compare as strings
       });
 

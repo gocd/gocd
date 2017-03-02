@@ -50,7 +50,7 @@
 
       $.each(containers, function initEachConsoleArea(i, area) {
         var container = $(area);
-        transformers.push(new LogOutputTransformer(container, new Foldable()));
+        transformers.push(new LogOutputTransformer(container, FoldableSection));
 
         if (container.is("#tab-content-of-console *")) {
           new ConsoleScroller(container, $("#build_console"), $('.auto-scroll')).startScroll();
@@ -91,7 +91,7 @@
         consoleArea.find(".buildoutput_pre").trigger("consoleUpdated");
       });
 
-      executor.register(new ConsoleParsingObserver(consoleUrl, new MultiplexingTransformer(transformers), {
+      executor.register(new ConsoleLogObserver(consoleUrl, new MultiplexingTransformer(transformers), {
         onUpdate:   function () {
           containers.trigger("consoleUpdated");
         },

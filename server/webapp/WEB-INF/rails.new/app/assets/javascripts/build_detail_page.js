@@ -57,6 +57,13 @@
         });
       });
 
+      build.find(".console-action-bar").on("click", ".toggle-timestamps", function toggleLogTimestamps(e) {
+        e.stopPropagation();
+        e.preventDefault();
+
+        $(e.currentTarget).closest(".console-area").toggleClass("with-timestamps");
+      });
+
       executor.register(new ConsoleParsingObserver(consoleUrl, new MultiplexingTransformer(transformers), {
         onUpdate:   function () {
           containers.trigger("consoleUpdated");

@@ -26,11 +26,7 @@ var CrudMixins = require('models/mixins/crud_mixins');
 
 require('lodash-inflection');
 
-var resolver = function (agent) {
-  return agent.uuid() + agent.status();
-};
-
-var statusComparator = _.memoize(function (agent) {
+var statusComparator = function (agent) {
   var rank = {
     "Pending":              1,
     "LostContact":          2,
@@ -43,7 +39,7 @@ var statusComparator = _.memoize(function (agent) {
     "Disabled":             9
   };
   return rank[agent.status()];
-}, resolver);
+};
 
 var sortByAttrName = function (attrName) {
   return function (agent) {
@@ -66,11 +62,11 @@ var reject = function (deferred) {
 var Agents = function (data) {
   Mixins.HasMany.call(this, {factory: Agents.Agent.create, as: 'Agent', collection: data, uniqueOn: 'uuid'});
 
-  var agentsWithState = _.memoize(function (state) {
+  var agentsWithState = function (state) {
     return this.filterAgent(function (agent) {
       return agent.agentConfigState() === state;
     }).length;
-  });
+  };
 
   this.countDisabledAgents = function () {
     return agentsWithState.bind(this, 'Disabled')();

@@ -50,10 +50,15 @@
         dataType: "text",
         data: {"startLineNumber": startLineNumber}
       }).done(function processLogOutput(data, status, xhr) {
-        var nextLine = JSON.parse(xhr.getResponseHeader("X-JSON") || "[]")[0];
+        var lineSet, slice, nextLine = JSON.parse(xhr.getResponseHeader("X-JSON") || "[]")[0];
 
         if (nextLine !== startLineNumber) {
-          transformer.transform(data.match(/^.*([\n\r]+|$)/gm));
+          lineSet = data.match(/^.*([\n\r]+|$)/gm);
+
+          while (lineSet.length) {
+            slice = lineSet.splice(0, 1000);
+            transformer.transform(slice);
+          }
           startLineNumber = nextLine;
         }
 

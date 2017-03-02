@@ -36,12 +36,19 @@
     }
 
     function consumeBuildLog(jobResultJson) {
+      // Might be a bug with the "beforeSend" AJAX option in this version of jQuery.
+      // When acquireLock() returns false, $.ajax() returns false, and thus fails
+      // to attach the done() and always() callbacks.
+      //
+      // Thus, just return early if acquireLock() returns false. this might be fixed
+      // by upgrading jQuery.
+      if (!acquireLock()) return;
+
       $.ajax({
         url:  url,
         type: "GET",
         dataType: "text",
-        data: {"startLineNumber": startLineNumber},
-        beforeSend: acquireLock
+        data: {"startLineNumber": startLineNumber}
       }).done(function processLogOutput(data, status, xhr) {
         var nextLine = JSON.parse(xhr.getResponseHeader("X-JSON") || "[]")[0];
 

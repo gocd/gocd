@@ -96,7 +96,8 @@ public class ValueStreamMapService {
             return null;
         }
         String label = pipelineService.findPipelineByCounterOrLabel(pipelineName, String.valueOf(counter)).getLabel();
-        ValueStreamMap valueStreamMap = new ValueStreamMap(pipelineName, new PipelineRevision(pipelineName, counter, label));
+        String pipelineDisplayName = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(pipelineName)).getDisplayName();
+        ValueStreamMap valueStreamMap = new ValueStreamMap(pipelineName, pipelineDisplayName, new PipelineRevision(pipelineName, counter, label));
         Map<String, List<PipelineConfig>> pipelineToDownstreamMap = cruiseConfig.generatePipelineVsDownstreamMap();
 
         traverseDownstream(pipelineName, pipelineToDownstreamMap, valueStreamMap, new ArrayList<>());
@@ -192,7 +193,7 @@ public class ValueStreamMapService {
     private void removeRevisionsBasedOnPermissionAndCurrentConfig(ValueStreamMap valueStreamMap, Username username) {
         for (Node node : valueStreamMap.allNodes()) {
             if (node instanceof PipelineDependencyNode) {
-                String pipelineName = node.getName();
+                String pipelineName = node.getId();
                 PipelineDependencyNode pipelineDependencyNode = (PipelineDependencyNode) node;
 
                 if (!goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
@@ -209,9 +210,10 @@ public class ValueStreamMapService {
             Material material = materialRevision.getMaterial();
             if (material instanceof DependencyMaterial) {
                 String upstreamPipeline = ((DependencyMaterial) material).getPipelineName().toString();
+                String displayName = goConfigService.pipelineConfigNamed(((DependencyMaterial) material).getPipelineName()).getDisplayName();
                 DependencyMaterialRevision revision = (DependencyMaterialRevision) materialRevision.getRevision();
 
-                graph.addUpstreamNode(new PipelineDependencyNode(upstreamPipeline, upstreamPipeline), new PipelineRevision(revision.getPipelineName(), revision.getPipelineCounter(), revision.getPipelineLabel()),
+                graph.addUpstreamNode(new PipelineDependencyNode(upstreamPipeline, displayName), new PipelineRevision(revision.getPipelineName(), revision.getPipelineCounter(), revision.getPipelineLabel()),
                         pipelineName);
 
                 if (visitedNodes.contains(materialRevision)) {
@@ -236,7 +238,7 @@ public class ValueStreamMapService {
 	private void traverseDownstream(String materialId, List<PipelineConfig> downstreamPipelines, Map<String, List<PipelineConfig>> pipelineToDownstreamMap, ValueStreamMap graph, List<PipelineConfig> visitedNodes) {
 		for (PipelineConfig downstreamPipeline : downstreamPipelines) {
 			String downstreamPipelineName = downstreamPipeline.name().toString();
-			graph.addDownstreamNode(new PipelineDependencyNode(downstreamPipelineName, downstreamPipelineName), materialId);
+			graph.addDownstreamNode(new PipelineDependencyNode(downstreamPipelineName, downstreamPipeline.getDisplayName()), materialId);
 			if (visitedNodes.contains(downstreamPipeline)) {
 				continue;
 			}

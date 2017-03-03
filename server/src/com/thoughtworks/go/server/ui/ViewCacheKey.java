@@ -51,7 +51,10 @@ public class ViewCacheKey {
     private String keyForPipelineModelFragment(PipelineModel model, String name) {
         StringBuilder s = new StringBuilder();
         s.append(name);
-        s.append(model.getName());//FIXME: use the delimiter, the two values appended at this point can combine to get something completely different (ALWAYS USE DELIMITER.)!!! - Sara & JJ
+        s.append(DELIMITER);
+        s.append(model.getName());
+        s.append(DELIMITER);
+        s.append(model.getDisplayName());
         appendLockStatus(model, s);
         for (PipelineInstanceModel pim : model.getActivePipelineInstances()) {
             s.append("[");

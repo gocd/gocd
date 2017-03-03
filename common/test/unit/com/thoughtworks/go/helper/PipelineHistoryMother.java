@@ -76,7 +76,7 @@ public class PipelineHistoryMother {
         material.setId(10);
         revisions.addRevision(material, modification);
         BuildCause buildCause = BuildCause.createManualForced(revisions, Username.ANONYMOUS);
-        PipelineInstanceModel item = PipelineInstanceModel.createPipeline(CaseInsensitiveString.str(pipelineConfig.name()), -1, label, buildCause, stageHistory(pipelineConfig, scheduleDate));
+        PipelineInstanceModel item = PipelineInstanceModel.createPipeline(CaseInsensitiveString.str(pipelineConfig.name()), pipelineConfig.getDisplayName(), -1, label, buildCause, stageHistory(pipelineConfig, scheduleDate));
         item.setCounter(1);
         item.setId(1);
         item.setComment("build comment");

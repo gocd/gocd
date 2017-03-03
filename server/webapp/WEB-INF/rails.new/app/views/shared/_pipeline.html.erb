@@ -1,7 +1,8 @@
 <% scope[:show_controls] ||= false
    scope[:should_display_previously_blurb] ||= false
    scope[:show_changes] ||= false
-   scope[:pipeline_name] = scope[:pipeline_model].getName() -%>
+   scope[:pipeline_name] = scope[:pipeline_model].getName()
+   scope[:pipeline_display_name] = scope[:pipeline_model].getDisplayName() -%>
 <div class="pipeline_header">
     <%
         h3_class = ""
@@ -17,7 +18,7 @@
     </div>
     <div class="pipeline_name_link">
         <h3 class="title entity_title<%= h3_class %> ">
-            <%= link_to(scope[:pipeline_name], url_for_pipeline(scope[:pipeline_name])) %>
+            <%= link_to(scope[:pipeline_display_name], url_for_pipeline(scope[:pipeline_name])) %>
         </h3>
     </div>
 </div>

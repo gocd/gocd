@@ -131,8 +131,12 @@ public class EnvironmentConfigService implements ConfigChangedListener {
         return configs;
     }
 
-    public List<CaseInsensitiveString> pipelinesFor(final CaseInsensitiveString environmentName) throws NoSuchEnvironmentException {
-        return environments.named(environmentName).getPipelineNames();
+    public List<PipelineConfig> pipelinesFor(final CaseInsensitiveString environmentName) throws NoSuchEnvironmentException {
+        ArrayList<PipelineConfig> pipelines = new ArrayList<PipelineConfig>();
+        for (CaseInsensitiveString name : environments.named(environmentName).getPipelineNames()) {
+            pipelines.add(goConfigService.pipelineConfigNamed(name));
+        }
+        return pipelines;
     }
 
     public List<CaseInsensitiveString> environmentNames() {

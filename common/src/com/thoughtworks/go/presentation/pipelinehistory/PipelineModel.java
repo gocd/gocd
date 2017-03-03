@@ -17,10 +17,12 @@
 package com.thoughtworks.go.presentation.pipelinehistory;
 
 import com.thoughtworks.go.domain.PipelinePauseInfo;
+import com.thoughtworks.go.util.StringUtil;
 
 public class PipelineModel {
 
     private final String pipelineName;
+    private String pipelineDisplayName;
     private final boolean canForce;
     private final boolean canOperate;
     private boolean canAdminister = false;
@@ -29,7 +31,12 @@ public class PipelineModel {
 
 
     public PipelineModel(String pipelineName, boolean canForce, boolean canOperate, PipelinePauseInfo pipelinePauseInfo) {
+        this(pipelineName, pipelineName, canForce, canOperate, pipelinePauseInfo);
+    }
+
+    public PipelineModel(String pipelineName, String pipelineDisplayName, boolean canForce, boolean canOperate, PipelinePauseInfo pipelinePauseInfo) {
         this.pipelineName = pipelineName;
+        this.pipelineDisplayName = pipelineDisplayName;
         this.canForce = canForce;
         this.pipelinePauseInfo = pipelinePauseInfo;
         this.canOperate = canOperate;
@@ -46,6 +53,16 @@ public class PipelineModel {
 
     public String getName() {
         return pipelineName;
+    }
+
+    public String getDisplayName() {
+        if(StringUtil.isBlank(pipelineDisplayName))
+            return pipelineName;
+        return pipelineDisplayName;
+    }
+
+    public void setDisplayName(String pipelineDisplayName) {
+        this.pipelineDisplayName = pipelineDisplayName;
     }
 
     public boolean hasNewRevisions() {

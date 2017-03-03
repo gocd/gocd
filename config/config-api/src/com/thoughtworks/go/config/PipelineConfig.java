@@ -88,6 +88,9 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     @ConfigAttribute(value = "name", optional = false)
     private CaseInsensitiveString name;
 
+    @ConfigAttribute(value = "displayName", optional = true, allowNull = true)
+    private String displayName;
+
     @ConfigAttribute(value = "labeltemplate", optional = true)
     private String labelTemplate = PipelineLabel.COUNT_TEMPLATE;
 
@@ -123,6 +126,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
 
     private ConfigErrors errors = new ConfigErrors();
     public static final String NAME = "name";
+    public static final String DISPLAY_NAME = "display_name";
     public static final String INTEGRATION_TYPE = "integrationType";
     public static final String INTEGRATION_TYPE_NONE = "none";
     public static final String INTEGRATION_TYPE_MINGLE = "mingle";
@@ -427,6 +431,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     public PipelineConfig duplicate() {
         PipelineConfig clone = CLONER.deepClone(this);
         clone.name = new CaseInsensitiveString("");
+        clone.displayName = "";
         clearSelfPipelineNameInFetchTask(clone);
         return clone;
     }
@@ -476,6 +481,9 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         if (name != null ? !name.equals(that.name) : that.name != null) {
             return false;
         }
+        if (displayName != null ? !displayName.equals(that.displayName) : that.displayName != null) {
+            return false;
+        }
         if (timer != null ? !timer.equals(that.timer) : that.timer != null) {
             return false;
         }
@@ -490,6 +498,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + name.hashCode();
+        result = 31 * result + displayName.hashCode();
         result = 31 * result + (labelTemplate != null ? labelTemplate.hashCode() : 0);
         result = 31 * result + (trackingTool != null ? trackingTool.hashCode() : 0);
         result = 31 * result + (materialConfigs != null ? materialConfigs.hashCode() : 0);
@@ -703,6 +712,9 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         if (attributeMap.containsKey(NAME)) {
             setName((String) attributeMap.get(NAME));
         }
+        if (attributeMap.containsKey(DISPLAY_NAME)) {
+            displayName = (String) attributeMap.get(DISPLAY_NAME);
+        }
         if (attributeMap.containsKey(MATERIALS)) {
             materialConfigs.setConfigAttributes(attributeMap.get(MATERIALS));
         }
@@ -752,6 +764,17 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
 
     public void setName(CaseInsensitiveString name) {
         this.name = name;
+    }
+
+    public String getDisplayName() {
+        if(StringUtil.isBlank(displayName))
+            return CaseInsensitiveString.str(name);
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        if(displayName != null)
+            this.displayName = displayName.trim();
     }
 
     private void setConfigurationType(Map attributeMap) {

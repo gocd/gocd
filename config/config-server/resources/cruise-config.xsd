@@ -359,6 +359,7 @@
                         <xsd:element minOccurs="0" maxOccurs="unbounded" name="stage" type="stageType"/>
                     </xsd:sequence>
                     <xsd:attribute name="name" type="nameType" use="required"/>
+                    <xsd:attribute name="displayName" type="displayNameType"/>
                     <xsd:attribute name="labeltemplate" type="labelType"/>
                     <xsd:attribute name="isLocked" type="xsd:boolean"/>
                     <xsd:attribute name="template" type="nameType" use="optional"/>
@@ -770,6 +771,12 @@
         <xsd:restriction base="xsd:string">
             <xsd:maxLength value="255"/>
             <xsd:pattern value="[a-zA-Z0-9_\-]{1}[a-zA-Z0-9_\-.]*"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="displayNameType">
+        <xsd:restriction base="xsd:string">
+            <xsd:maxLength value="255"/>
+            <xsd:pattern value="[a-zA-Z0-9_\-]{1}[a-zA-Z0-9\s_\-.]*"/>
         </xsd:restriction>
     </xsd:simpleType>
     <xsd:simpleType name="repoIdType">

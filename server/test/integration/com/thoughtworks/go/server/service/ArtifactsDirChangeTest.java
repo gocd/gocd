@@ -34,7 +34,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static com.thoughtworks.go.serverhealth.ServerHealthMatcher.containsState;
 import static com.thoughtworks.go.serverhealth.ServerHealthMatcher.doesNotContainState;
-import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -69,12 +68,6 @@ public class ArtifactsDirChangeTest {
     public void tearDown() throws Exception {
         serverHealthService.removeAllLogs();
         fixture.onTearDown();
-    }
-
-    @Test
-    public void shouldEnsureArtifactsDirExistAfterServerStarted() {
-        configHelper.setArtifactsDir("logs");
-        assertThat(goConfigService.artifactsDir().exists(), is(true));
     }
 
     @Test

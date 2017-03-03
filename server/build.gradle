@@ -310,12 +310,16 @@ task copyAgentJarsToServerDir {
   }
 }
 
+task prepareNoRails {
+  dependsOn = [cleanDb, prepareDb, ':go-plugin-activator:jar', copyAgentJarsToServerDir]
+}
+
 task prepare {
-  dependsOn = [cleanDb, prepareDb, ':go-plugin-activator:jar', copyAgentJarsToServerDir, ':server:dependencyClassPath', ':server:compileAssetsDev']
+  dependsOn = [prepareNoRails, ':server:dependencyClassPath', ':server:compileAssetsDev']
 }
 
 test {
-  dependsOn prepare
+  dependsOn prepareNoRails
 
   minHeapSize '1024m'
   maxHeapSize '2048m'

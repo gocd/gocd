@@ -39,6 +39,20 @@ $CONSOLE_SETUP_ERR_WHITE: darken($CONSOLE_SETUP_ERR, 10%);
     display: inline;
     margin-right: 1ex;
   }
+
+  [data-collapsed] {
+    display: none;
+  }
+
+  [data-collapsed="false"]:before {
+    display: inline-block;
+    content: "Collapse all"
+  }
+
+  [data-collapsed="true"]:before {
+    display: inline-block;
+    content: "Expand all"
+  }
 }
 
 .buildoutput_pre {

@@ -41,6 +41,13 @@
       var consoleUrl = context_path("files/" + build.data("console-url"));
       var containers = build.find(".buildoutput_pre"), transformers = [];
 
+      containers.on("consoleUpdated", function detectFoldable(e) {
+        var c = $(e.currentTarget);
+        if (c.find(".foldable-section[data-type]").length) {
+          c.siblings(".console-action-bar").find("[data-collapsed]").show();
+        }
+      });
+
       $.each(containers, function initEachConsoleArea(i, area) {
         var container = $(area);
         transformers.push(new LogOutputTransformer(container, new Foldable()));
@@ -62,6 +69,26 @@
         e.preventDefault();
 
         $(e.currentTarget).closest(".console-area").toggleClass("with-timestamps");
+      });
+
+      build.find(".console-action-bar").on("click", ".toggle-folding", function toggleCollapseAll(e) {
+        e.stopPropagation();
+        e.preventDefault();
+
+        var trigger = $(e.currentTarget).removeData("collapsed");
+        var consoleArea = trigger.closest(".console-area");
+        var foldableSections = consoleArea.find(".foldable-section[data-type]");
+
+        if (!foldableSections.length) return;
+
+        if (trigger.data("collapsed")) {
+          foldableSections.addClass("open");
+          trigger.attr("data-collapsed", "false");
+        } else {
+          foldableSections.removeClass("open");
+          trigger.attr("data-collapsed", "true");
+        }
+        consoleArea.find(".buildoutput_pre").trigger("consoleUpdated");
       });
 
       executor.register(new ConsoleParsingObserver(consoleUrl, new MultiplexingTransformer(transformers), {

@@ -242,6 +242,7 @@ $CONSOLE_SETUP_ERR_WHITE: darken($CONSOLE_SETUP_ERR, 10%);
       color: inherit;
 
       &:before {
+        font-size: 120%;
         content: $fa-var-caret-right;
       }
 
@@ -254,6 +255,10 @@ $CONSOLE_SETUP_ERR_WHITE: darken($CONSOLE_SETUP_ERR, 10%);
     &.open {
       dd {
         display: block;
+      }
+
+      .toggle {
+        margin-left: -11px;
       }
 
       .toggle:before {

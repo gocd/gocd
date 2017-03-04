@@ -18,32 +18,35 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.TaskProperty;
 import com.thoughtworks.go.util.FileUtil;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 @ConfigTag("nant")
 public class NantTask extends BuildTask {
-    @ConfigAttribute(value = "nantpath", optional = true, allowNull = true)
+    @ConfigAttribute(value = "nantpath", allowNull = true)
     private String nantPath;
     private static final String NANT_EXECUTABLE = "nant";
     public static final String NANT_PATH = "nantPath";
-    private final String NANT = "NAnt";
-    public static final String TYPE="nant";
+    public static final String TYPE = "nant";
 
     public NantTask() { }
 
     public String arguments() {
-        StringBuffer buffer = new StringBuffer();
+        ArrayList<String> args = new ArrayList<>();
         if (buildFile != null) {
-            buffer.append("-buildfile:\"").append(FileUtil.normalizePath(buildFile)).append('\"');
+            args.add("-buildfile:\"" + FileUtil.normalizePath(buildFile) + "\"");
         }
+
         if (target != null) {
-            buffer.append(" ").append(target);
+            args.add(target);
         }
-        return buffer.toString();
+
+        return StringUtils.join(args, " ");
     }
 
     @Override
@@ -52,7 +55,7 @@ public class NantTask extends BuildTask {
     }
 
     public String getTypeForDisplay() {
-        return NANT;
+        return "NAnt";
     }
 
     public String command() {
@@ -98,11 +101,7 @@ public class NantTask extends BuildTask {
 
         NantTask nantTask = (NantTask) o;
 
-        if (nantPath != null ? !nantPath.equals(nantTask.nantPath) : nantTask.nantPath != null) {
-            return false;
-        }
-
-        return true;
+        return nantPath != null ? nantPath.equals(nantTask.nantPath) : nantTask.nantPath == null;
     }
 
     @Override

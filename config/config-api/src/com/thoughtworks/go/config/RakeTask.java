@@ -17,10 +17,12 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.util.FileUtil;
+import org.apache.commons.lang.StringUtils;
+
+import java.util.ArrayList;
 
 @ConfigTag("rake")
 public class RakeTask extends BuildTask {
-    private final String RAKE = "Rake";
     public static final String TYPE = "rake";
 
     @Override
@@ -29,18 +31,20 @@ public class RakeTask extends BuildTask {
     }
 
     public String getTypeForDisplay() {
-        return RAKE;
+        return "Rake";
     }
 
     public String arguments() {
-        StringBuffer buffer = new StringBuffer();
+        ArrayList<String> args = new ArrayList<>();
         if (buildFile != null) {
-            buffer.append("-f ").append('\"').append(FileUtil.normalizePath(buildFile)).append('\"');
+            args.add("-f \"" + FileUtil.normalizePath(buildFile) + "\"");
         }
+
         if (target != null) {
-            buffer.append(" ").append(target);
+            args.add(target);
         }
-        return buffer.toString();
+
+        return StringUtils.join(args, " ");
     }
 
     @Override

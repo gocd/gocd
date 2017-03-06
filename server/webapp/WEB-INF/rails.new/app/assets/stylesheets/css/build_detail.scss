@@ -785,26 +785,26 @@ a.collapse-all {
 
 .sidebar_history .passed .color_code_small /* legacy velocity style */
 {
-  background: none;
-  background-image: image_url('g9/backgrounds/bg_status_gradient.png');
-  background-repeat: repeat-x;
-  background-color: #78c42d;
+  height: 14px;
+  width: 14px;
+  @include icon-before(check, 14px, 0);
+  color: #78c42d;
 }
 
 .sidebar_history .failed .color_code_small /* legacy velocity style */
 {
-  background: none;
-  background-image: image_url('g9/backgrounds/bg_status_gradient.png');
-  background-repeat: repeat-x;
-  background-color: #fa2d2d;
+  height: 14px;
+  width: 14px;
+  @include icon-before(exclamation-circle, 14px, 0);
+  color: #fa2d2d;
 }
 
 .sidebar_history .cancelled .color_code_small /* legacy velocity style */
 {
-  background: none;
-  background-image: image_url('g9/backgrounds/bg_status_diagonal.png');
-  background-repeat: repeat-x;
-  background-color: #ffc11b;
+  height: 14px;
+  width: 14px;
+  @include icon-before(ban, 14px, 0);
+  color: #ffc11b;
   text-align: center;
 }
 

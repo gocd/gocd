@@ -69,7 +69,9 @@ public class PipelineLockServiceTest {
     @Test
     public void shouldKnowIfPipelineIsLocked() throws Exception {
         String pipelineName = "mingle";
-        when(pipelineStateDao.lockedPipeline(pipelineName)).thenReturn(new PipelineState(pipelineName, new StageIdentifier(pipelineName, 1, "1", "stage", "1")));
+        PipelineState pipelineState = new PipelineState(pipelineName, new StageIdentifier(pipelineName, 1, "1", "stage", "1"));
+        pipelineState.lock(1);
+        when(pipelineStateDao.lockedPipeline(pipelineName)).thenReturn(pipelineState);
 
         assertThat(pipelineLockService.isLocked(pipelineName), is(true));
         assertThat(pipelineLockService.isLocked("twist"), is(false));
@@ -96,7 +98,9 @@ public class PipelineLockServiceTest {
     public void shouldNotAllowStageFromLockedPipelineToBeScheduled() throws Exception {
         Pipeline pipeline = PipelineMother.firstStageBuildingAndSecondStageScheduled("mingle", asList("dev", "ft"), asList("test"));
 
-        when(pipelineStateDao.lockedPipeline("mingle")).thenReturn(new PipelineState(pipeline.getName(), new StageIdentifier(pipeline.getName(), 9999, "1.2.9999", "stage", "1")));
+        PipelineState pipelineState = new PipelineState(pipeline.getName(), new StageIdentifier(pipeline.getName(), 9999, "1.2.9999", "stage", "1"));
+        pipelineState.lock(1);
+        when(pipelineStateDao.lockedPipeline("mingle")).thenReturn(pipelineState);
         when(goConfigService.isLockable(pipeline.getName())).thenReturn(true);
 
         pipelineLockService.lockIfNeeded(pipeline);

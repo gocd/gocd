@@ -126,7 +126,7 @@ public class PipelineHistoryServiceTest {
         when(goConfigService.isLockable(pipelineName)).thenReturn(true);
         when(goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName))).thenReturn(groupName);
         when(goConfigService.isUserAdminOfGroup(username.getUsername(), groupName)).thenReturn(true);
-        when(pipelineLockService.lockedPipeline(pipelineName)).thenReturn(new StageIdentifier(pipelineName, 9, "stage1", "3"));
+        when(pipelineLockService.isLocked(pipelineName)).thenReturn(true);
         stubConfigServiceToReturnPipeline(pipelineName, PipelineConfigMother.createPipelineConfig(pipelineName, "dev", "foo", "bar"));
 
         PipelineModel loadedPipeline = pipelineHistoryService.latestPipelineModel(username, pipelineName);
@@ -217,7 +217,7 @@ public class PipelineHistoryServiceTest {
         when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(any(String.class)))).thenReturn(true);
         when(goConfigService.isLockable("pipeline1")).thenReturn(true);
         when(goConfigService.isLockable("pipeline2")).thenReturn(true);
-        when(pipelineLockService.lockedPipeline("pipeline1")).thenReturn(new StageIdentifier("pipeline1", 9, "stage1", "3"));
+        when(pipelineLockService.isLocked("pipeline1")).thenReturn(true);
 
         List<PipelineGroupModel> groups = pipelineHistoryService.allActivePipelineInstances(foo, PipelineSelections.ALL);
         PipelineGroupModel group = groups.get(0);

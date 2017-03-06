@@ -160,7 +160,7 @@ public class AgentWebSocketClientController extends AgentController {
         URLService urlService = new URLService();
         StreamConsumer buildConsole;
 
-        if (new SystemEnvironment().isConsoleLogsThroughWebsocketEnabled()) {
+        if (getSystemEnvironment().isConsoleLogsThroughWebsocketEnabled()) {
             buildConsole = new ConsoleOutputWebsocketTransmitter(webSocketSessionHandler, buildSettings.getBuildId());
         } else {
             buildConsole = new ConsoleOutputTransmitter(

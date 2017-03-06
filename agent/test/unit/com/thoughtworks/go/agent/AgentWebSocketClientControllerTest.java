@@ -156,7 +156,6 @@ public class AgentWebSocketClientControllerTest {
 
     @Test
     public void processAssignWorkAction() throws IOException, InterruptedException {
-        SystemEnvironment env = new SystemEnvironment();
         ArgumentCaptor<Message> argumentCaptor = ArgumentCaptor.forClass(Message.class);
         agentController = createAgentController();
         agentController.init();
@@ -203,8 +202,7 @@ public class AgentWebSocketClientControllerTest {
     @Test
     public void processBuildCommandWithConsoleLogsThroughWebsockets() throws Exception {
         ArgumentCaptor<Message> currentStatusMessageCaptor = ArgumentCaptor.forClass(Message.class);
-        SystemEnvironment env = new SystemEnvironment();
-        env.set(SystemEnvironment.CONSOLE_LOGS_THROUGH_WEBSOCKET_ENABLED, true);
+        when(systemEnvironment.isConsoleLogsThroughWebsocketEnabled()).thenReturn(true);
         when(agentRegistry.uuid()).thenReturn(agentUuid);
 
         agentController = createAgentController();
@@ -243,8 +241,6 @@ public class AgentWebSocketClientControllerTest {
         assertThat(jobCompletedMessage.getAcknowledgementId(), notNullValue());
         assertThat(jobCompletedMessage.getAction(), is(Action.reportCompleted));
         assertThat(jobCompletedMessage.getData(), is(MessageEncoding.encodeData(new Report(agentRuntimeInfo, "b001", null, JobResult.Passed))));
-        env.set(SystemEnvironment.CONSOLE_LOGS_THROUGH_WEBSOCKET_ENABLED, false);
-
     }
 
     @Test

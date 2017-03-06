@@ -22,14 +22,14 @@ module ApiV2
       def show
         load_remote_environment
         json = ApiV2::Config::EnvironmentConfigRepresenter.new(@environment_config).to_hash(url_builder: self)
-        render DEFAULT_FORMAT => json if stale?(etag: etag_for(environment_config_service.forEdit(params[:name])))
+        render DEFAULT_FORMAT => json if stale?(etag: etag_for(environment_config_service.getEnvironmentForEdit(params[:name])))
       end
 
       protected
 
       def load_remote_environment(environment_name = params[:name])
         result = HttpLocalizedOperationResult.new
-        @environment_config = environment_config_service.forDisplay(environment_name, result).getConfigElement()
+        @environment_config = environment_config_service.getMergedEnvironmentForDisplay(environment_name, result).getConfigElement()
       rescue com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException
         raise ApiV2::RecordNotFound
       end

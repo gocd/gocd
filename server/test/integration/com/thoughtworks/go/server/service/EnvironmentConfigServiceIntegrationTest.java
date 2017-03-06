@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
-import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.domain.ConfigElementForEdit;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.i18n.Localizer;
@@ -273,14 +272,14 @@ public class EnvironmentConfigServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         configHelper.addEnvironments("foo-env");
         assertThat(service.named("foo-env"), sameInstance(service.named("foo-env")));
-        assertThat(service.named("foo-env"), not(sameInstance(service.forDisplay("foo-env", result).getConfigElement())));
+        assertThat(service.named("foo-env"), not(sameInstance(service.getMergedEnvironmentforDisplay("foo-env", result).getConfigElement())));
         assertThat(result.isSuccessful(), is(true));
     }
 
     @Test
     public void shouldPopulateResultWithErrorIfEnvNotFound() throws NoSuchEnvironmentException {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        ConfigElementForEdit<EnvironmentConfig> edit = service.forDisplay("foo-env", result);
+        ConfigElementForEdit<EnvironmentConfig> edit = service.getMergedEnvironmentforDisplay("foo-env", result);
         assertThat(result.message(localizer), is("Environment 'foo-env' not found."));
         assertThat(edit, is(nullValue()));
     }

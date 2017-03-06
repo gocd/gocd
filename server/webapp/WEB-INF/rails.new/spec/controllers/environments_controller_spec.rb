@@ -255,8 +255,8 @@ describe EnvironmentsController do
 
     it "should return error message and the response status code of the passed in result" do
       result = HttpLocalizedOperationResult.new()
-      @environment_service.should_receive(:forDisplay).with(@environment_name, an_instance_of(HttpLocalizedOperationResult)).and_return(com.thoughtworks.go.domain.ConfigElementForEdit.new(@environment,"md5"))
-      @environment_service.stub(:forEdit).and_return(@environment)
+      @environment_service.should_receive(:getMergedEnvironmentforDisplay).with(@environment_name, an_instance_of(HttpLocalizedOperationResult)).and_return(com.thoughtworks.go.domain.ConfigElementForEdit.new(@environment,"md5"))
+      @environment_service.stub(:getEnvironmentForEdit).and_return(@environment)
       @environment_service.should_receive(:getAllLocalPipelinesForUser).with(@user).and_return([])
       @environment_service.should_receive(:getAllRemotePipelinesForUserInEnvironment).with(@user,@environment).and_return([])
 
@@ -273,8 +273,8 @@ describe EnvironmentsController do
     end
 
     it "should return error message if environment name is blank" do
-      @environment_service.should_receive(:forDisplay).with(@environment_name, an_instance_of(HttpLocalizedOperationResult)).and_return(com.thoughtworks.go.domain.ConfigElementForEdit.new(@environment,"md5"))
-      @environment_service.stub(:forEdit).with(@environment_name).and_return(@environment)
+      @environment_service.should_receive(:getMergedEnvironmentforDisplay).with(@environment_name, an_instance_of(HttpLocalizedOperationResult)).and_return(com.thoughtworks.go.domain.ConfigElementForEdit.new(@environment,"md5"))
+      @environment_service.stub(:getEnvironmentForEdit).with(@environment_name).and_return(@environment)
       @environment_service.should_receive(:getAllLocalPipelinesForUser).with(@user).and_return([])
       @environment_service.should_receive(:getAllRemotePipelinesForUserInEnvironment).with(@user,@environment).and_return([])
 
@@ -287,7 +287,7 @@ describe EnvironmentsController do
     it "should return error occured while loading the environment for edit" do
       result = HttpLocalizedOperationResult.new()
 
-      @environment_service.should_receive(:forDisplay).with(any_args, any_args) do |name, result|
+      @environment_service.should_receive(:getMergedEnvironmentforDisplay).with(any_args, any_args) do |name, result|
         result.unprocessableEntity(LocalizedMessage.string("ENV_UPDATE_FAILED", @environment_name))
       end
 
@@ -301,8 +301,8 @@ describe EnvironmentsController do
 
     it "should successfully update environment" do
       result = HttpLocalizedOperationResult.new()
-      @environment_service.should_receive(:forDisplay).with(@environment_name, an_instance_of(HttpLocalizedOperationResult)).and_return(com.thoughtworks.go.domain.ConfigElementForEdit.new(@environment,"md5"))
-      @environment_service.stub(:forEdit).and_return(@environment)
+      @environment_service.should_receive(:getMergedEnvironmentforDisplay).with(@environment_name, an_instance_of(HttpLocalizedOperationResult)).and_return(com.thoughtworks.go.domain.ConfigElementForEdit.new(@environment,"md5"))
+      @environment_service.stub(:getEnvironmentForEdit).and_return(@environment)
       @environment_service.should_receive(:getAllLocalPipelinesForUser).with(@user).and_return([])
       @environment_service.should_receive(:getAllRemotePipelinesForUserInEnvironment).with(@user,@environment).and_return([])
       @environment_service.should_receive(:updateEnvironment).with(any_args,any_args,any_args,'md5',result) do |old_config, new_config, user, md5, result|
@@ -332,14 +332,14 @@ describe EnvironmentsController do
       entity_hashing_service.stub(:md5ForEntity).and_return('md5')
       environment_service.stub(:getEnvironmentConfig).with("environment_name").and_return(BasicEnvironmentConfig.new(CaseInsensitiveString.new("environment_name")))
 
-      environment_service.stub(:forEdit).with(any_args).and_return(BasicEnvironmentConfig.new)
+      environment_service.stub(:getEnvironmentForEdit).with(any_args).and_return(BasicEnvironmentConfig.new)
 
       result = HttpLocalizedOperationResult.new()
       environment_service.should_receive(:updateEnvironment).with(any_args,any_args,any_args,'md5',result) do |old_config, new_config, user, md5, result|
         result.setMessage(LocalizedMessage.composite([LocalizedMessage.string("UPDATE_ENVIRONMENT_SUCCESS",["foo_env"].to_java(java.lang.String)),LocalizedMessage.string("CONFIG_MERGED")].to_java(com.thoughtworks.go.i18n.Localizable)))
       end
 
-      environment_service.should_receive(:forDisplay).with(any_args,any_args).and_return(com.thoughtworks.go.domain.ConfigElementForEdit.new(BasicEnvironmentConfig.new(),"md5"))
+      environment_service.should_receive(:getMergedEnvironmentforDisplay).with(any_args,any_args).and_return(com.thoughtworks.go.domain.ConfigElementForEdit.new(BasicEnvironmentConfig.new(),"md5"))
       environment_service.should_receive(:getAllLocalPipelinesForUser).with(any_args).and_return([])
       environment_service.should_receive(:getAllRemotePipelinesForUserInEnvironment).with(any_args,any_args).and_return([])
 

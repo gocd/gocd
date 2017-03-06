@@ -161,11 +161,11 @@ public class EnvironmentConfigService implements ConfigChangedListener {
         return environments.named(new CaseInsensitiveString(environmentName));
     }
 
-    public EnvironmentConfig forEdit(String environmentName) {
-        return cloner.deepClone(environments.find(new CaseInsensitiveString(environmentName)));
+    public EnvironmentConfig getEnvironmentForEdit(String environmentName) {
+        return cloner.deepClone(goConfigService.getConfigForEditing().getEnvironments().find(new CaseInsensitiveString(environmentName)));
     }
 
-    public ConfigElementForEdit<EnvironmentConfig> forDisplay(String environmentName, HttpLocalizedOperationResult result) {
+    public ConfigElementForEdit<EnvironmentConfig> getMergedEnvironmentforDisplay(String environmentName, HttpLocalizedOperationResult result) {
         ConfigElementForEdit<EnvironmentConfig> edit = null;
         try {
             CruiseConfig config = goConfigService.getMergedConfigForEditing();

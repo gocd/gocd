@@ -47,7 +47,7 @@ class EnvironmentsController < ApplicationController
   end
 
   def update
-    @environment = environment_config_service.forEdit(params[:name])
+    @environment = environment_config_service.getEnvironmentForEdit(params[:name])
     @environment.setConfigAttributes(params[:environment])
     if @environment.name().blank?
       render_error_response l.string("ENVIRONMENT_NAME_REQUIRED"), 400, true
@@ -89,10 +89,10 @@ class EnvironmentsController < ApplicationController
 
   def load_existing_environment
     result = HttpLocalizedOperationResult.new
-    env_for_display = environment_config_service.forDisplay(params[:name], result)
+    env_for_display = environment_config_service.getMergedEnvironmentforDisplay(params[:name], result)
     if (result.isSuccessful())
       @environment = env_for_display.getConfigElement()
-      @cruise_config_md5 = entity_hashing_service.md5ForEntity(environment_config_service.forEdit(params[:name]))
+      @cruise_config_md5 = entity_hashing_service.md5ForEntity(environment_config_service.getEnvironmentForEdit(params[:name]))
     end
     render_if_error(result.message(Spring.bean('localizer')), result.httpCode())
     result.isSuccessful()

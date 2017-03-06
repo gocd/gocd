@@ -16,8 +16,10 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
+import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.DefaultJobPlan;
 import com.thoughtworks.go.domain.JobIdentifier;
@@ -69,6 +71,31 @@ public class EnvironmentConfigServiceTest {
     public void shouldRegisterAsACruiseConfigChangeListener() throws Exception {
         environmentConfigService.initialize();
         Mockito.verify(mockGoConfigService).register(environmentConfigService);
+    }
+
+    @Test
+    public void shouldGetEditablePartOfEnvironmentConfig() throws Exception {
+        String uat = "uat";
+
+        BasicEnvironmentConfig local = new BasicEnvironmentConfig(new CaseInsensitiveString("uat"));
+        local.addEnvironmentVariable("user", "admin");
+        BasicEnvironmentConfig remote = new BasicEnvironmentConfig(new CaseInsensitiveString("uat"));
+        remote.addEnvironmentVariable("foo", "bar");
+        MergeEnvironmentConfig merged = new MergeEnvironmentConfig(local, remote);
+
+        EnvironmentsConfig environments = new EnvironmentsConfig();
+        environments.add(merged);
+
+        environmentConfigService.sync(environments);
+
+        BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
+        BasicEnvironmentConfig env = (BasicEnvironmentConfig) environmentConfigService.named(uat).getLocal();
+        cruiseConfig.addEnvironment(env);
+        BasicEnvironmentConfig expectedToEdit = new Cloner().deepClone(env);
+
+        when(mockGoConfigService.getConfigForEditing()).thenReturn(cruiseConfig);
+
+        assertThat(environmentConfigService.getEnvironmentForEdit(uat), is(expectedToEdit));
     }
 
     @Test
@@ -312,8 +339,7 @@ public class EnvironmentConfigServiceTest {
     }
 
     @Test
-    public void getAllRemotePipelinesForUserInEnvironment_shouldReturnOnlyRemotelyAssignedPipelinesWhichUserHasPermsToView() throws NoSuchEnvironmentException
-    {
+    public void getAllRemotePipelinesForUserInEnvironment_shouldReturnOnlyRemotelyAssignedPipelinesWhichUserHasPermsToView() throws NoSuchEnvironmentException {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         Username user = new Username(new CaseInsensitiveString("user"));
 
@@ -327,7 +353,7 @@ public class EnvironmentConfigServiceTest {
         EnvironmentConfig fooEnv = environmentConfigs.named(new CaseInsensitiveString("foo-env"));
         fooEnv.setOrigins(new RepoConfigOrigin());
         environmentConfigService.sync(environmentConfigs);
-        List<EnvironmentPipelineModel> pipelines = environmentConfigService.getAllRemotePipelinesForUserInEnvironment(user,fooEnv);
+        List<EnvironmentPipelineModel> pipelines = environmentConfigService.getAllRemotePipelinesForUserInEnvironment(user, fooEnv);
 
 
         assertThat(pipelines.size(), is(1));
@@ -346,7 +372,7 @@ public class EnvironmentConfigServiceTest {
         environments.add(env);
         environmentConfigService.sync(environments);
         when(mockGoConfigService.getMergedConfigForEditing()).thenReturn(config);
-        assertThat(environmentConfigService.forDisplay("foo", result).getConfigElement(), Is.is(env));
+        assertThat(environmentConfigService.getMergedEnvironmentforDisplay("foo", result).getConfigElement(), Is.is(env));
         assertThat(result.isSuccessful(), is(true));
     }
 

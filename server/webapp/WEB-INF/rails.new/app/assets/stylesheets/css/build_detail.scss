@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 @import "css_sass/base/mixins";
+@import '_font-awesome-glyphs';
 
 #build_detail_summary_container .ab-corner {
   border-color: #FFF;
@@ -687,19 +688,21 @@ a.collapse-all {
 .cancelled h3 {
   background-color: #ffc11b;
   color: #000;
+  @include icon-after(ban, 16px, 0 0 0 10px);
 }
 
 .failed h3,
 .failing h3 {
   background-color: #fa2d2d;
   color: #fff;
+  @include icon-after(exclamation-circle, 16px, 0 0 0 10px);
 
 }
 
 .passed h3 {
   background-color: #78C42D;
   color: #fff;
-
+  @include icon-after(check, 16px, 0 0 0 10px);
 }
 
 .inactive h3,

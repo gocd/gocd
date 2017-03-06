@@ -49,7 +49,7 @@ public interface AuthorizationMessageConverter {
 
     String verifyConnectionRequestBody(Map<String, String> configuration);
 
-    String authenticateUserRequestBody(String username, String password, List<SecurityAuthConfig> authConfigs);
+    String authenticateUserRequestBody(String username, String password, List<SecurityAuthConfig> authConfigs, List<PluginRoleConfig> roleConfigs);
 
     AuthenticationResponse getAuthenticatedUserFromResponseBody(String responseBody);
 

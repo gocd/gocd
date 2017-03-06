@@ -16,7 +16,8 @@
 
 package com.thoughtworks.go.server.service.plugins.processor.authorization;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.SecurityAuthConfigs;
+import com.thoughtworks.go.config.SecurityConfig;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMessageConverterV1;
 import com.thoughtworks.go.plugin.api.request.DefaultGoApiRequest;
@@ -30,9 +31,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import java.util.Arrays;
-
-import static com.thoughtworks.go.server.service.plugins.processor.authorization.AuthorizationRequestProcessor.Request.GET_ROLE_CONFIG_REQUEST;
 import static com.thoughtworks.go.server.service.plugins.processor.authorization.AuthorizationRequestProcessor.Request.INVALIDATE_CACHE_REQUEST;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -74,29 +72,5 @@ public class AuthorizationRequestProcessorTest {
 
         assertThat(response.responseCode(), is(200));
         verify(pluginRoleService).invalidateRolesFor("cd.go.authorization.github");
-    }
-
-    @Test
-    public void shouldProcessRoleConfigRequest() throws Exception {
-        securityAuthConfigsSpy.add(new SecurityAuthConfig("github", "cd.go.authorization.github"));
-        AuthorizationMessageConverterV1 converterV1 = spy(new AuthorizationMessageConverterV1());
-        when(authorizationExtension.getMessageConverter(AuthorizationMessageConverterV1.VERSION)).thenReturn(converterV1);
-
-        PluginRoleConfig pluginRoleConfig = new PluginRoleConfig("blackbird", "github");
-        RolesConfig rolesConfigSpy = spy(new RolesConfig(pluginRoleConfig));
-        when(securityConfig.getRoles()).thenReturn(rolesConfigSpy);
-
-        DefaultGoApiRequest request = new DefaultGoApiRequest(GET_ROLE_CONFIG_REQUEST.requestName(), "1.0", null);
-        request.setRequestBody("{\"auth_config_id\":\"github\"}");
-
-        AuthorizationRequestProcessor authorizationRequestProcessor = new AuthorizationRequestProcessor(registry, goConfigService, authorizationExtension, null);
-        GoApiResponse response = authorizationRequestProcessor.process(pluginDescriptor, request);
-
-        assertThat(response.responseCode(), is(200));
-        verify(authorizationExtension.getMessageConverter(AuthorizationMessageConverterV1.VERSION)).processGetRoleConfigsRequest(request.requestBody());
-        verify(authorizationExtension.getMessageConverter(AuthorizationMessageConverterV1.VERSION)).getProcessRoleConfigsResponseBody(Arrays.asList(pluginRoleConfig));
-        verify(securityAuthConfigsSpy).findByPluginIdAndProfileId(pluginDescriptor.id(), "github");
-        verify(securityConfig.getRoles()).getPluginRolesConfig("github");
-
     }
 }

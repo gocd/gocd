@@ -26,6 +26,7 @@ import com.thoughtworks.go.plugin.access.common.handler.JSONResultMessageHandler
 import com.thoughtworks.go.plugin.access.common.models.Image;
 import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKeys;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.*;
@@ -85,25 +86,49 @@ public class AuthorizationMessageConverterV1 implements AuthorizationMessageConv
     }
 
     @Override
-    public String authenticateUserRequestBody(String username, String password, List<SecurityAuthConfig> authConfigs) {
+    public String authenticateUserRequestBody(String username, String password, List<SecurityAuthConfig> authConfigs, List<PluginRoleConfig> roleConfigs) {
         Map<String, Object> requestMap = new HashMap<>();
-        requestMap.put("username", username);
-        requestMap.put("password", password);
-        requestMap.put("profiles", getAuthConfigProfiles(authConfigs));
+        final Map<String, String> credentials = new HashedMap();
+        credentials.put("username", username);
+        credentials.put("password", password);
+
+        requestMap.put("credentials", credentials);
+        requestMap.put("auth_configs", getAuthConfigs(authConfigs));
+        requestMap.put("role_configs", getRoleConfigs(roleConfigs));
         return GSON.toJson(requestMap);
     }
 
-    private Map<String, Map<String, String>> getAuthConfigProfiles(List<SecurityAuthConfig> authConfigs) {
-        Map<String, Map<String, String>> authConfigsMap = new HashMap<>();
+    private List<Map<String, Object>> getRoleConfigs(List<PluginRoleConfig> roleConfigs) {
+        List<Map<String, Object>> configs = new ArrayList<>();
+
+        if (roleConfigs == null) {
+            return configs;
+        }
+
+        for (PluginRoleConfig roleConfig : roleConfigs) {
+            Map<String, Object> config = new HashedMap();
+            config.put("name", roleConfig.getName().toString());
+            config.put("auth_config_id", roleConfig.getAuthConfigId());
+            config.put("configuration", roleConfig.getConfigurationAsMap(true));
+            configs.add(config);
+        }
+        return configs;
+    }
+
+    private List<Map<String, Object>> getAuthConfigs(List<SecurityAuthConfig> authConfigs) {
+        List<Map<String, Object>> configs = new ArrayList<>();
 
         if (authConfigs == null) {
-            return authConfigsMap;
+            return configs;
         }
 
         for (SecurityAuthConfig securityAuthConfig : authConfigs) {
-            authConfigsMap.put(securityAuthConfig.getId(), securityAuthConfig.getConfigurationAsMap(true));
+            Map<String, Object> authConfig = new HashedMap();
+            authConfig.put("id", securityAuthConfig.getId());
+            authConfig.put("configuration", securityAuthConfig.getConfigurationAsMap(true));
+            configs.add(authConfig);
         }
-        return authConfigsMap;
+        return configs;
     }
 
     @Override
@@ -120,7 +145,7 @@ public class AuthorizationMessageConverterV1 implements AuthorizationMessageConv
     public String searchUsersRequestBody(String searchTerm, List<SecurityAuthConfig> authConfigs) {
         Map<String, Object> requestMap = new HashMap<>();
         requestMap.put("search_term", searchTerm);
-        requestMap.put("profiles", getAuthConfigProfiles(authConfigs));
+        requestMap.put("auth_configs", getAuthConfigs(authConfigs));
         return GSON.toJson(requestMap);
     }
 

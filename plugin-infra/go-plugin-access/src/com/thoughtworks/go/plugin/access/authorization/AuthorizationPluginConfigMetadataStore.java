@@ -36,8 +36,8 @@ public class AuthorizationPluginConfigMetadataStore extends PluginConfigMetadata
     private final Map<PluginDescriptor, Image> icons = new ConcurrentHashMap<>();
     private final Map<PluginDescriptor, Capabilities> capabilities = new ConcurrentHashMap<>();
 
-    private final Map<PluginDescriptor, PluginProfileMetadataKeys> profileMetadata = new ConcurrentHashMap<>();
-    private final Map<PluginDescriptor, String> profileView = new ConcurrentHashMap<>();
+    private final Map<PluginDescriptor, PluginProfileMetadataKeys> authConfigMetadata = new ConcurrentHashMap<>();
+    private final Map<PluginDescriptor, String> authConfigView = new ConcurrentHashMap<>();
 
     private final Map<PluginDescriptor, PluginProfileMetadataKeys> roleMetadata = new ConcurrentHashMap<>();
     private final Map<PluginDescriptor, String> roleViews = new ConcurrentHashMap<>();
@@ -48,14 +48,14 @@ public class AuthorizationPluginConfigMetadataStore extends PluginConfigMetadata
             Image icon = extension.getIcon(plugin.id());
             Capabilities capabilities = extension.getCapabilities(plugin.id());
 
-            PluginProfileMetadataKeys profileMetadata = extension.getPluginConfigurationMetadata(plugin.id());
-            String profileView = extension.getPluginConfigurationView(plugin.id());
+            PluginProfileMetadataKeys authConfigMetadata = extension.getPluginConfigurationMetadata(plugin.id());
+            String authConfigView = extension.getPluginConfigurationView(plugin.id());
 
             cacheRoleMetadataAndView(plugin, extension);
 
             this.icons.put(plugin, icon);
-            this.profileMetadata.put(plugin, profileMetadata);
-            this.profileView.put(plugin, profileView);
+            this.authConfigMetadata.put(plugin, authConfigMetadata);
+            this.authConfigView.put(plugin, authConfigView);
             this.capabilities.put(plugin, capabilities);
         } catch (Exception e) {
             LOGGER.error("Failed to load plugin {}", plugin.id(), e);
@@ -82,8 +82,8 @@ public class AuthorizationPluginConfigMetadataStore extends PluginConfigMetadata
     @Override
     public void remove(PluginDescriptor plugin) {
         icons.remove(plugin);
-        profileMetadata.remove(plugin);
-        profileView.remove(plugin);
+        authConfigMetadata.remove(plugin);
+        authConfigView.remove(plugin);
         roleMetadata.remove(plugin);
         roleViews.remove(plugin);
         capabilities.remove(plugin);
@@ -99,11 +99,11 @@ public class AuthorizationPluginConfigMetadataStore extends PluginConfigMetadata
     }
 
     public PluginProfileMetadataKeys getProfileMetadata(PluginDescriptor plugin) {
-        return profileMetadata.get(plugin);
+        return authConfigMetadata.get(plugin);
     }
 
     public String getProfileView(PluginDescriptor descriptor) {
-        return profileView.get(descriptor);
+        return authConfigView.get(descriptor);
     }
 
     public String getRoleView(PluginDescriptor descriptor) {

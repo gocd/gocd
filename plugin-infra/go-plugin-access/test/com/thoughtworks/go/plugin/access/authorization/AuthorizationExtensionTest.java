@@ -16,7 +16,9 @@
 
 package com.thoughtworks.go.plugin.access.authorization;
 
+import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.config.SecurityAuthConfig;
+import com.thoughtworks.go.config.SecurityAuthConfigs;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.plugin.access.authentication.models.User;
 import com.thoughtworks.go.plugin.access.authorization.models.AuthenticationResponse;
@@ -31,11 +33,15 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.hamcrest.core.Is;
+import org.json.JSONException;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -58,6 +64,9 @@ public class AuthorizationExtensionTest {
     private PluginManager pluginManager;
     private ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor;
     private AuthorizationExtension authorizationExtension;
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     @Before
     public void setUp() throws Exception {
@@ -89,7 +98,7 @@ public class AuthorizationExtensionTest {
 
         PluginProfileMetadataKeys pluginConfigurationMetadata = authorizationExtension.getPluginConfigurationMetadata(PLUGIN_ID);
 
-        assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_GET_PLUGIN_CONFIG_METADATA, null);
+        assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_GET_AUTH_CONFIG_METADATA, null);
 
         assertThat(pluginConfigurationMetadata, containsInAnyOrder(
                 new PluginProfileMetadataKey("username", new PluginProfileMetadata(true, false)),
@@ -104,7 +113,7 @@ public class AuthorizationExtensionTest {
 
         String pluginConfigurationView = authorizationExtension.getPluginConfigurationView(PLUGIN_ID);
 
-        assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_GET_PLUGIN_CONFIG_VIEW, null);
+        assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_GET_AUTH_CONFIG_VIEW, null);
 
         assertThat(pluginConfigurationView, is("<div>This is view snippet</div>"));
     }
@@ -116,7 +125,7 @@ public class AuthorizationExtensionTest {
 
         ValidationResult validationResult = authorizationExtension.validatePluginConfiguration(PLUGIN_ID, Collections.emptyMap());
 
-        assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_VALIDATE_PLUGIN_CONFIG, "{}");
+        assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_VALIDATE_AUTH_CONFIG, "{}");
 
         assertThat(validationResult.isSuccessful(), is(false));
         assertThat(validationResult.getErrors(), containsInAnyOrder(
@@ -181,11 +190,74 @@ public class AuthorizationExtensionTest {
 
     @Test
     public void shouldTalkToPlugin_To_AuthenticateUser() throws Exception {
-        String requestBody = "{\"password\":\"secret\",\"profiles\":{},\"username\":\"bob\"}";
+        String requestBody = "{\n" +
+                "  \"credentials\": {\n" +
+                "    \"username\": \"bob\",\n" +
+                "    \"password\": \"secret\"\n" +
+                "  },\n" +
+                "  \"auth_configs\": [\n" +
+                "    {\n" +
+                "      \"id\": \"ldap\",\n" +
+                "      \"configuration\": {\n" +
+                "        \"url\": \"some-url\"\n" +
+                "      }\n" +
+                "    }\n" +
+                "  ],\n" +
+                "  \"role_configs\": [\n" +
+                "    {\n" +
+                "      \"name\": \"foo\",\n" +
+                "      \"auth_config_id\": \"ldap\",\n" +
+                "      \"configuration\": {\n" +
+                "        \"memberOf\": \"ou=some-value\"\n" +
+                "      }\n" +
+                "    }\n" +
+                "  ]\n" +
+                "}";
+
         String responseBody = "{\"user\":{\"username\":\"bob\",\"display_name\":\"Bob\",\"email\":\"bob@example.com\"},\"roles\":[\"blackbird\"]}";
+
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
 
-        AuthenticationResponse authenticationResponse = authorizationExtension.authenticateUser(PLUGIN_ID, "bob", "secret", null);
+        final PluginRoleConfig roleConfig = new PluginRoleConfig("foo", "ldap", ConfigurationPropertyMother.create("memberOf", false, "ou=some-value"));
+        final List<PluginRoleConfig> pluginRoleConfigs = Collections.singletonList(roleConfig);
+
+        final SecurityAuthConfigs authConfigs = new SecurityAuthConfigs();
+        authConfigs.add(new SecurityAuthConfig("ldap", "cd.go.ldap", ConfigurationPropertyMother.create("url", false, "some-url")));
+
+        AuthenticationResponse authenticationResponse = authorizationExtension.authenticateUser(PLUGIN_ID, "bob", "secret", authConfigs, pluginRoleConfigs);
+
+        assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_AUTHENTICATE_USER, requestBody);
+        assertThat(authenticationResponse.getUser(), is(new User("bob", "Bob", "bob@example.com")));
+        assertThat(authenticationResponse.getRoles().get(0), is("blackbird"));
+    }
+
+
+    @Test
+    public void shouldTalkToPlugin_To_AuthenticateUserWithEmptyListIfRoleConfigsAreNotProvided() throws Exception {
+        String requestBody = "{\n" +
+                "  \"credentials\": {\n" +
+                "    \"username\": \"bob\",\n" +
+                "    \"password\": \"secret\"\n" +
+                "  },\n" +
+                "  \"auth_configs\": [\n" +
+                "    {\n" +
+                "      \"id\": \"ldap\",\n" +
+                "      \"configuration\": {\n" +
+                "        \"url\": \"some-url\"\n" +
+                "      }\n" +
+                "    }\n" +
+                "  ],\n" +
+                "  \"role_configs\": []\n" +
+                "}";
+
+        String responseBody = "{\"user\":{\"username\":\"bob\",\"display_name\":\"Bob\",\"email\":\"bob@example.com\"},\"roles\":[\"blackbird\"]}";
+
+        when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
+
+        final SecurityAuthConfigs authConfigs = new SecurityAuthConfigs();
+        authConfigs.add(new SecurityAuthConfig("ldap", "cd.go.ldap", ConfigurationPropertyMother.create("url", false, "some-url")));
+
+        AuthenticationResponse authenticationResponse = authorizationExtension.authenticateUser(PLUGIN_ID, "bob", "secret", authConfigs, null);
 
         assertRequest(requestArgumentCaptor.getValue(), AuthorizationPluginConstants.EXTENSION_NAME, "1.0", REQUEST_AUTHENTICATE_USER, requestBody);
         assertThat(authenticationResponse.getUser(), is(new User("bob", "Bob", "bob@example.com")));
@@ -193,8 +265,28 @@ public class AuthorizationExtensionTest {
     }
 
     @Test
+    public void authenticateUser_shouldErrorOutInAbsenceOfSecurityAuthConfigs() throws Exception {
+        thrown.expect(MissingAuthConfigsException.class);
+        thrown.expectMessage("No AuthConfigs configured for plugin: plugin-id, Plugin would need at-least one auth_config to authenticate user.");
+
+        authorizationExtension.authenticateUser(PLUGIN_ID, "bob", "secret", null, null);
+
+        verifyNoMoreInteractions(pluginManager);
+    }
+
+    @Test
     public void shouldTalkToPlugin_To_SearchUsers() throws Exception {
-        String requestBody = "{\"search_term\":\"bob\",\"profiles\":{\"ldap\":{\"foo\":\"bar\"}}}";
+        String requestBody = "{\n" +
+                "  \"search_term\": \"bob\",\n" +
+                "  \"auth_configs\": [\n" +
+                "    {\n" +
+                "      \"id\": \"ldap\",\n" +
+                "      \"configuration\": {\n" +
+                "        \"foo\": \"bar\"\n" +
+                "      }\n" +
+                "    }\n" +
+                "  ]\n" +
+                "}";
         String responseBody = "[{\"username\":\"bob\",\"display_name\":\"Bob\",\"email\":\"bob@example.com\"}]";
         when(pluginManager.submitTo(eq(PLUGIN_ID), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
 
@@ -205,10 +297,10 @@ public class AuthorizationExtensionTest {
         assertThat(users, hasItem(new User("bob", "Bob", "bob@example.com")));
     }
 
-    private void assertRequest(GoPluginApiRequest goPluginApiRequest, String extensionName, String version, String requestName, String requestBody) {
+    private void assertRequest(GoPluginApiRequest goPluginApiRequest, String extensionName, String version, String requestName, String requestBody) throws JSONException {
         Assert.assertThat(goPluginApiRequest.extension(), Is.is(extensionName));
         Assert.assertThat(goPluginApiRequest.extensionVersion(), Is.is(version));
         Assert.assertThat(goPluginApiRequest.requestName(), Is.is(requestName));
-        Assert.assertThat(goPluginApiRequest.requestBody(), Is.is(requestBody));
+        JSONAssert.assertEquals(requestBody, goPluginApiRequest.requestBody(), true);
     }
 }

@@ -143,21 +143,19 @@
                             <code>
                                 <span><%= l.string('FETCH_TASK') %> - </span>
                                 <span title="<%= l.string('PIPELINE_NAME') %>" class="pipeline"><%= task.getPipelineName().blank? ? "[#{l.string('CURRENT_PIPELINE')}]" : task.getPipelineName() %></span>
-                                <span class='path_separator'>
-                                    >
-                                </span>
+                                <span class='path_separator'>&gt;</span>
                                 <span title="<%= l.string('STAGE_NAME') %>" class="stage"><%= task.getStage() %></span>
-                                <span class='path_separator'>
-                                    >
-                                </span>
+                                <span class='path_separator'>&gt;</span>
                                 <span title="<%= l.string('JOB_NAME') %>" class="job"><%= task.getJob() %></span>
                                 <span class='delimiter'>:</span>
                                 <span title="<%= l.string('SOURCE') %>" class="source"><%= task.getSrc() %></span>
-                                <span class="direction_arrow">
-                                    ->
-                                </span>
+                                <span class="direction_arrow">-&gt;</span>
                                 <span title="<%= l.string('DESTINATION') %>" class="destination"><%= task.getDest() %></span>
                             </code>
+                        <% elsif is_a_pluggable_task(task) %>
+                          <code>
+                            <%= render :partial => "config_view/templates/plugin_view.html", :locals => {:scope => {:task => task}} -%>
+                          </code>
                         <% else %>
                             <code>
                                 <% working_dir_title = (task.workingDirectory()==nil || task.workingDirectory() == '') ? "Working Directory": "Working Directory: " + task.workingDirectory()  %>
@@ -169,13 +167,20 @@
                         <% if task.hasCancelTask() %>
                             <ul>
                                 <li>
-                                    <code>
-                                        <% working_dir_title = (task.getTypeForDisplay() == "Fetch Artifact" || task.workingDirectory()==nil || task.workingDirectory() == '') ? "Working Directory": "Working Directory: " + task.workingDirectory() %>
+                                  <% if is_a_pluggable_task(task.cancelTask()) %>
+                                      <code>
+                                        <span class="on_cancel"> <%= l.string("ON_CANCEL") %></span>
+                                        <%= render :partial => "config_view/templates/plugin_view.html", :locals => {:scope => {:task => task.cancelTask()}} -%>
+                                      </code>
+                                  <% else %>
+                                      <code>
+                                        <% working_dir_title = (task.cancelTask().getTypeForDisplay() == "Fetch Artifact" || task.cancelTask().workingDirectory()==nil || task.cancelTask().workingDirectory() == '') ? "Working Directory": "Working Directory: " + task.cancelTask().workingDirectory() %>
                                         <span class="on_cancel"> <%= l.string("ON_CANCEL") %></span>
                                         <span class="working_dir" title="<%= working_dir_title %>"><%= "#{task.cancelTask().workingDirectory()}$" %></span>
                                         <span class="command"><%= task.cancelTask().command() %></span>
                                         <span class="arguments"><%= task.cancelTask().arguments() %></span>
-                                    </code>
+                                      </code>
+                                  <% end %>
                                 </li>
                             </ul>
                         <% end %>

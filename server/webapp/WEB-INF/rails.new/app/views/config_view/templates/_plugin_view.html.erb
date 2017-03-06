@@ -1,0 +1,7 @@
+<span>Plugin:</span>
+<span class="plugin-name"><%= plugin_task_type(scope[:task]) %></span>
+<span>- Properties - </span>
+<% plugin_properties(scope[:task]).each do |key, value| %>
+  <span class="plugin-task-key"><%= key %></span>
+  <span class="plugin-task-value"><%= value %></span>
+<% end %>

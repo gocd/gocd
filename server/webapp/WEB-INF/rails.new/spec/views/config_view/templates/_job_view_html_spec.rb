@@ -485,5 +485,52 @@ describe "config_view/templates/_job_view.html.erb" do
       end
     end
 
+    it "should display task details of a plugin task" do
+      pluggable_task = plugin_task "plugin.1", [ConfigurationPropertyMother.create("KEY1", false, "value1"), ConfigurationPropertyMother.create("KEY2", false, "value2")]
+      job = JobConfig.new('job1')
+      job.addTask(pluggable_task)
+      render :partial => 'config_view/templates/job_view', :locals => {:scope => {:job => job, :index => 1, :stage_id => 'stage_id', :stage_name => "stage_build"}}
+
+      Capybara.string(response.body).find("#stage_id_job_1").tap do |job|
+        job.find(".tab-content #tasks_stage_id_job_1 ul.tasks_view_list").tap do |list|
+          list.find("li.pluggable_task_plugin_1 code div.plugin-task").tap do |item|
+            expect(item).to_not have_selector("span.on_cancel", :text => "On Cancel")
+            expect(item).to have_selector("span.plugin-name", :text => "plugin.1")
+
+            item.find("div.plugin-task-properties").tap do |prop|
+              expect(prop).to have_selector(".plugin-task-property dt span.plugin-task-key-name", :text => "KEY1")
+              expect(prop).to have_selector(".plugin-task-property dd.plugin-task-value", :text => "value1")
+              expect(prop).to have_selector(".plugin-task-property dt span.plugin-task-key-name", :text => "KEY2")
+              expect(prop).to have_selector(".plugin-task-property dd.plugin-task-value", :text => "value2")
+            end
+          end
+        end
+      end
+    end
+
+    it "should display cancel task details, even if it's a plugin task" do
+      pluggable_task = plugin_task "plugin.1", [ConfigurationPropertyMother.create("KEY1", false, "value1"), ConfigurationPropertyMother.create("KEY2", false, "value2")]
+      job = JobConfig.new('job1')
+      task = ant_task
+      task.setCancelTask(pluggable_task)
+      job.addTask(task)
+      render :partial => 'config_view/templates/job_view', :locals => {:scope => {:job => job, :index => 1, :stage_id => 'stage_id', :stage_name => "stage_build"}}
+
+      Capybara.string(response.body).find("#stage_id_job_1").tap do |job|
+        job.find(".tab-content #tasks_stage_id_job_1 ul.tasks_view_list").tap do |list|
+          list.find("li.ant ul li code").tap do |code|
+            expect(code).to have_selector("span.on_cancel", :text => "On Cancel")
+            expect(code).to have_selector("span.plugin-name", :text => "plugin.1")
+
+            list.find("div.plugin-task div.plugin-task-properties").tap do |prop|
+              expect(prop).to have_selector(".plugin-task-property dt span.plugin-task-key-name", :text => "KEY1")
+              expect(prop).to have_selector(".plugin-task-property dd.plugin-task-value", :text => "value1")
+              expect(prop).to have_selector(".plugin-task-property dt span.plugin-task-key-name", :text => "KEY2")
+              expect(prop).to have_selector(".plugin-task-property dd.plugin-task-value", :text => "value2")
+            end
+          end
+        end
+      end
+    end
   end
 end

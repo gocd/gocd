@@ -48,6 +48,7 @@ public class PluggableTask extends AbstractTask {
     public static final String TYPE = "pluggable_task";
     public static final String VALUE_KEY = "value";
     public static final String ERRORS_KEY = "errors";
+    public static final String PLUGGABLE_TASK_PREFIX = TYPE;
 
     @ConfigSubtag
     private PluginConfiguration pluginConfiguration = new PluginConfiguration();
@@ -170,7 +171,7 @@ public class PluggableTask extends AbstractTask {
 
     @Override
     public String getTaskType() {
-        return "pluggable_task_" + getPluginConfiguration().getId().replaceAll("[^a-zA-Z0-9_]", "_");
+        return PLUGGABLE_TASK_PREFIX + "_" + getPluginConfiguration().getId().replaceAll("[^a-zA-Z0-9_]", "_");
     }
 
     @Override

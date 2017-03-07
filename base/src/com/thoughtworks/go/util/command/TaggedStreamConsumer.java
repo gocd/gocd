@@ -20,7 +20,6 @@ package com.thoughtworks.go.util.command;
  * Created by marqueslee on 2/15/17.
  */
 public interface TaggedStreamConsumer extends StreamConsumer {
-    String NONE = "  ";
     String NOTICE = "##";
     String PREP = "pr";
     String PREP_ERR = "pe";

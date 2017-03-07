@@ -78,12 +78,7 @@ public class DefaultGoPublisher implements GoPublisher {
 
     @Override
     public void consumeLine(String line) {
-        SystemEnvironment env = new SystemEnvironment();
-        if(env.isWebsocketsForAgentsEnabled() && env.isConsoleLogsThroughWebsocketEnabled()) {
-            remoteBuildRepository.consumeLine(line, jobIdentifier);
-        } else {
-            consoleOutputTransmitter.consumeLine(line);
-        }
+        taggedConsumeLine(null, line);
     }
 
     public void flushToServer() {
@@ -153,6 +148,11 @@ public class DefaultGoPublisher implements GoPublisher {
 
     @Override
     public void taggedConsumeLine(String tag, String line) {
-        consoleOutputTransmitter.taggedConsumeLine(tag, line);
+        SystemEnvironment env = new SystemEnvironment();
+        if (env.isWebsocketsForAgentsEnabled() && env.isConsoleLogsThroughWebsocketEnabled()) {
+            remoteBuildRepository.taggedConsumeLine(tag, line, jobIdentifier);
+        } else {
+            consoleOutputTransmitter.taggedConsumeLine(tag, line);
+        }
     }
 }

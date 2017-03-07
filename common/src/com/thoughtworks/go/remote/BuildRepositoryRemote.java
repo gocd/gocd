@@ -41,4 +41,6 @@ public interface BuildRepositoryRemote {
     String getCookie(AgentIdentifier identifier, String location);
 
     void consumeLine(String line, JobIdentifier jobIdentifier);
+
+    void taggedConsumeLine(String tag, String line, JobIdentifier jobIdentifier);
 }

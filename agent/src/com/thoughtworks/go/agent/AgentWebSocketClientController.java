@@ -36,7 +36,7 @@ import com.thoughtworks.go.remote.work.RemoteConsoleAppender;
 import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.util.*;
-import com.thoughtworks.go.util.command.StreamConsumer;
+import com.thoughtworks.go.util.command.TaggedStreamConsumer;
 import com.thoughtworks.go.websocket.Action;
 import com.thoughtworks.go.websocket.Message;
 import com.thoughtworks.go.websocket.MessageEncoding;
@@ -158,7 +158,7 @@ public class AgentWebSocketClientController extends AgentController {
 
     private void runBuild(BuildSettings buildSettings) {
         URLService urlService = new URLService();
-        StreamConsumer buildConsole;
+        TaggedStreamConsumer buildConsole;
 
         if (getSystemEnvironment().isConsoleLogsThroughWebsocketEnabled()) {
             buildConsole = new ConsoleOutputWebsocketTransmitter(webSocketSessionHandler, buildSettings.getBuildId());

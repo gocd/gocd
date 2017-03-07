@@ -73,7 +73,9 @@ public class BuildRepositoryMessageProducer implements BuildRepositoryRemote {
     }
 
     public void consumeLine(String line, JobIdentifier jobIdentifier) {
-        buildRepository.consumeLine(line);
+    }
+
+    public void taggedConsumeLine(String tag, String line, JobIdentifier jobIdentifier) {
     }
 
     public void reportCompleted(AgentRuntimeInfo agentRuntimeInfo, JobIdentifier jobId, JobResult result) {

@@ -52,12 +52,13 @@ public final class ConsoleOutputTransmitter implements TaggedStreamConsumer, Run
     }
 
     public void consumeLine(String line) {
-        taggedConsumeLine(NONE, line);
+        taggedConsumeLine(null, line);
     }
 
     @Override
     public void taggedConsumeLine(String tag, String line) {
         synchronized (buffer) {
+            if (null == tag) tag = "  ";
             String date = dateFormat.format(new Date());
             String prepend = format("%s|%s", tag, date);
             String multilineJoin = "\n" + prepend + " ";

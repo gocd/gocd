@@ -64,7 +64,7 @@ class BuildSessionGoPublisher implements GoPublisher {
 
     @Override
     public void consumeLine(String line) {
-        taggedConsumeLine(NONE, line);
+        taggedConsumeLine(null, line);
     }
 
     @Override

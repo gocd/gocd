@@ -71,4 +71,9 @@ public class BuildRepositoryRemoteStub implements BuildRepositoryRemote {
     public String getCookie(AgentIdentifier identifier, String location) {
         throw new RuntimeException("implement me");
     }
+
+    @Override
+    public void consumeLine(String line, JobIdentifier jobIdentifier) {
+
+    }
 }

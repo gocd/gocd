@@ -245,7 +245,7 @@ public class BuildSession {
     }
 
     void println(String line) {
-        console.consumeLine(line);
+        getPublisher().consumeLine(line);
     }
 
     public void printlnWithPrefix(String line) {

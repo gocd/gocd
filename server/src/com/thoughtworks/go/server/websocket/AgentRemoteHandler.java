@@ -23,17 +23,16 @@ import com.thoughtworks.go.remote.AgentInstruction;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.AgentService;
+import com.thoughtworks.go.server.service.ConsoleService;
 import com.thoughtworks.go.server.service.JobInstanceService;
-import com.thoughtworks.go.websocket.Action;
-import com.thoughtworks.go.websocket.Message;
-import com.thoughtworks.go.websocket.MessageEncoding;
-import com.thoughtworks.go.websocket.Report;
+import com.thoughtworks.go.websocket.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -51,15 +50,17 @@ public class AgentRemoteHandler {
     private AgentService agentService;
     @Autowired
     private JobInstanceService jobInstanceService;
+    private ConsoleService consoleService;
 
     @Autowired
-    public AgentRemoteHandler(@Qualifier("buildRepositoryMessageProducer") BuildRepositoryRemote buildRepositoryRemote, AgentService agentService, JobInstanceService jobInstanceService) {
+    public AgentRemoteHandler(@Qualifier("buildRepositoryMessageProducer") BuildRepositoryRemote buildRepositoryRemote, AgentService agentService, JobInstanceService jobInstanceService, ConsoleService consoleService) {
         this.buildRepositoryRemote = buildRepositoryRemote;
         this.agentService = agentService;
         this.jobInstanceService = jobInstanceService;
+        this.consoleService = consoleService;
     }
 
-    public void process(Agent agent, Message msg) {
+    public void process(Agent agent, Message msg) throws Exception {
         try {
             processWithoutAcknowledgement(agent, msg);
         } finally {
@@ -67,7 +68,7 @@ public class AgentRemoteHandler {
         }
     }
 
-    public void processWithoutAcknowledgement(Agent agent, Message msg) {
+    public void processWithoutAcknowledgement(Agent agent, Message msg) throws Exception {
         switch (msg.getAction()) {
             case ping:
                 AgentRuntimeInfo info = MessageEncoding.decodeData(msg.getData(), AgentRuntimeInfo.class);
@@ -102,17 +103,22 @@ public class AgentRemoteHandler {
                 report = MessageEncoding.decodeData(msg.getData(), Report.class);
                 buildRepositoryRemote.reportCompleted(report.getAgentRuntimeInfo(), findJobIdentifier(report), report.getResult());
                 break;
+            case consoleOut:
+                ConsoleTransmission consoleTransmission = MessageEncoding.decodeData(msg.getData(), ConsoleTransmission.class);
+                File consoleLogFile = consoleService.consoleLogFile(findJobIdentifier(consoleTransmission));
+                consoleService.updateConsoleLog(consoleLogFile, consoleTransmission.getLineAsStream());
+                break;
             default:
                 throw new RuntimeException("Unknown action: " + msg.getAction());
         }
     }
 
-    private JobIdentifier findJobIdentifier(Report report) {
-        if (report.getJobIdentifier() != null) {
-            return report.getJobIdentifier();
+    private JobIdentifier findJobIdentifier(Transmission transmission) {
+        if (transmission.getJobIdentifier() != null) {
+            return transmission.getJobIdentifier();
         }
 
-        JobInstance instance = jobInstanceService.buildById(Long.valueOf(report.getBuildId()));
+        JobInstance instance = jobInstanceService.buildById(Long.valueOf(transmission.getBuildId()));
         return instance.getIdentifier();
     }
 

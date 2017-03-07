@@ -29,6 +29,7 @@ import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.remote.work.ConsoleOutputTransmitter;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.GoConstants;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.SystemUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -77,7 +78,12 @@ public class DefaultGoPublisher implements GoPublisher {
 
     @Override
     public void consumeLine(String line) {
-        consoleOutputTransmitter.consumeLine(line);
+        SystemEnvironment env = new SystemEnvironment();
+        if(env.isWebsocketEnabled() && env.isConsoleLogsThroughWebsocketEnabled()) {
+            remoteBuildRepository.consumeLine(line, jobIdentifier);
+        } else {
+            consoleOutputTransmitter.consumeLine(line);
+        }
     }
 
     public void flushToServer() {

@@ -36,6 +36,7 @@ import com.thoughtworks.go.remote.work.RemoteConsoleAppender;
 import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.command.StreamConsumer;
 import com.thoughtworks.go.websocket.Action;
 import com.thoughtworks.go.websocket.Message;
 import com.thoughtworks.go.websocket.MessageEncoding;
@@ -157,10 +158,18 @@ public class AgentWebSocketClientController extends AgentController {
 
     private void runBuild(BuildSettings buildSettings) {
         URLService urlService = new URLService();
-        ConsoleOutputTransmitter buildConsole = new ConsoleOutputTransmitter(
+        StreamConsumer buildConsole;
+
+        if (getSystemEnvironment().isConsoleLogsThroughWebsocketEnabled()) {
+            buildConsole = new ConsoleOutputWebsocketTransmitter(webSocketSessionHandler, buildSettings.getBuildId());
+        } else {
+            buildConsole = new ConsoleOutputTransmitter(
                 new RemoteConsoleAppender(
-                        urlService.prefixPartialUrl(buildSettings.getConsoleUrl()),
-                        httpService));
+                    urlService.prefixPartialUrl(buildSettings.getConsoleUrl()),
+                    httpService)
+            );
+        }
+
         ArtifactsRepository artifactsRepository = new UrlBasedArtifactsRepository(
                 httpService,
                 urlService.prefixPartialUrl(buildSettings.getArtifactUploadBaseUrl()),

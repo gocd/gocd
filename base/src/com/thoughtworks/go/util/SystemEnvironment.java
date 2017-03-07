@@ -184,6 +184,8 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoSystemProperty<Integer> GO_ENCRYPTION_API_MAX_REQUESTS = new GoIntSystemProperty("go.encryption.api.max.requests", 30);
 
     public static GoSystemProperty<Boolean> WEBSOCKET_ENABLED = new GoBooleanSystemProperty("go.agent.websocket.enabled", false);
+    public static GoSystemProperty<Boolean> CONSOLE_LOGS_THROUGH_WEBSOCKET_ENABLED = new GoBooleanSystemProperty("go.agent.console.logs.websocket.enabled", true);
+
     public static GoSystemProperty<Boolean> AUTO_REGISTER_LOCAL_AGENT_ENABLED = new GoBooleanSystemProperty("go.auto.register.local.agent.enabled", true);
     public static GoSystemProperty<Long> GO_WEBSOCKET_ACK_MESSAGE_TIMEOUT = new GoLongSystemProperty("go.websocket.ack.message.timeout", 300 * 1000L);
 
@@ -766,6 +768,10 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public boolean isWebsocketEnabled() {
         return WEBSOCKET_ENABLED.getValue();
+    }
+
+    public boolean isConsoleLogsThroughWebsocketEnabled() {
+        return CONSOLE_LOGS_THROUGH_WEBSOCKET_ENABLED.getValue();
     }
 
     public boolean isAutoRegisterLocalAgentEnabled() {

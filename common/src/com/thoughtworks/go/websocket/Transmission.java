@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,10 @@
 
 package com.thoughtworks.go.websocket;
 
-public enum Action {
-    assignWork,
-    cancelBuild,
-    ping,
-    reregister,
-    reportCurrentStatus, reportCompleted, reportCompleting, acknowledge, build, consoleOut, setCookie
+import com.google.gson.annotations.Expose;
+import com.thoughtworks.go.domain.JobIdentifier;
+
+public interface Transmission {
+    public JobIdentifier getJobIdentifier();
+    public String getBuildId();
 }

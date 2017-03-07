@@ -53,7 +53,7 @@ def getVersion = { ... args ->
       ignoreExitValue = true
     }
   } catch (Exception e){
-    return "could not determine version!";
+    return "could not determine version!"
   }
 
   return stdout.toString().trim()
@@ -109,6 +109,8 @@ if (System.getenv().containsKey("GO_SERVER_URL")) {
   println(" git: ${getVersion("git", "--version")}")
   println("  hg: ${getVersion("hg", "--quiet", "--version")}")
   println(" svn: ${getVersion("svn", "--quiet", "--version")}")
+  println(" gcc: ${getVersion("gcc", "-dumpversion")}")
+  println(" g++: ${getVersion("g++", "-dumpversion")}")
   println("============================")
 }
 

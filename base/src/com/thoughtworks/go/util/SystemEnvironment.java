@@ -766,7 +766,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return GO_UPDATE_SERVER_URL.getValue();
     }
 
-    public boolean isWebsocketEnabled() {
+    public boolean isWebsocketsForAgentsEnabled() {
         return WEBSOCKET_ENABLED.getValue();
     }
 

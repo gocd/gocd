@@ -60,7 +60,8 @@ public class SleepWork implements Work {
 
             String result = canceled ? "done_canceled" : "done";
             manipulator.setProperty(null, new Property(name + "_result", result));
-            if (new SystemEnvironment().isWebsocketEnabled()) {
+            SystemEnvironment systemEnvironment = new SystemEnvironment();
+            if (systemEnvironment.isConsoleLogsThroughWebsocketEnabled() && systemEnvironment.isWebsocketsForAgentsEnabled()) {
                 goPublisher.consumeLine(format("Sleeping for %s milliseconds", this.sleepInMilliSeconds));
             }
         } catch (InterruptedException e) {

@@ -37,8 +37,6 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.websocket.*;
 import com.thoughtworks.go.work.SleepWork;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPut;
-import org.eclipse.jetty.util.IO;
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import org.junit.After;
 import org.junit.Rule;
@@ -50,10 +48,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
-import java.net.URI;
 import java.security.GeneralSecurityException;
 
-import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
@@ -106,6 +102,8 @@ public class AgentWebSocketClientControllerTest {
     @After
     public void tearDown() {
         GuidService.deleteGuid();
+        System.clearProperty("go.agent.websocket.enabled");
+        System.clearProperty("go.agent.console.logs.websocket.enabled");
     }
 
     @Test
@@ -173,10 +171,9 @@ public class AgentWebSocketClientControllerTest {
     }
 
     @Test
-    public void processAssignWorkActionWitConsoleLogsThroughhWebsockets() throws IOException, InterruptedException {
-        SystemEnvironment env = new SystemEnvironment();
-        env.set(SystemEnvironment.WEBSOCKET_ENABLED, true);
-        env.set(SystemEnvironment.CONSOLE_LOGS_THROUGH_WEBSOCKET_ENABLED, true);
+    public void processAssignWorkActionWithConsoleLogsThroughWebsockets() throws IOException, InterruptedException {
+        System.setProperty("go.agent.websocket.enabled", "Y");
+        System.setProperty("go.agent.console.logs.websocket.enabled", "Y");
         ArgumentCaptor<Message> argumentCaptor = ArgumentCaptor.forClass(Message.class);
         agentController = createAgentController();
         agentController.init();
@@ -195,8 +192,6 @@ public class AgentWebSocketClientControllerTest {
         assertThat(message2.getAcknowledgementId(), notNullValue());
         assertThat(message2.getAction(), is(Action.consoleOut));
         assertThat(message2.getData(), is(MessageEncoding.encodeData(new ConsoleTransmission("Sleeping for 0 milliseconds", new JobIdentifier()))));
-        env.set(SystemEnvironment.WEBSOCKET_ENABLED, false);
-        env.set(SystemEnvironment.CONSOLE_LOGS_THROUGH_WEBSOCKET_ENABLED, false);
     }
 
     @Test

@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.security.providers;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationExtension;
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationPluginRegistry;
@@ -117,11 +118,12 @@ public class PluginAuthenticationProvider extends AbstractUserDetailsAuthenticat
         for (String pluginId : plugins) {
             String password = (String) authentication.getCredentials();
             List<SecurityAuthConfig> authConfigs = configService.security().securityAuthConfigs().findByPluginId(pluginId);
+            final List<PluginRoleConfig> roleConfigs = configService.security().getPluginRoles(pluginId);
 
             if (authConfigs == null || authConfigs.isEmpty())
                 continue;
 
-            AuthenticationResponse response = authorizationExtension.authenticateUser(pluginId, username, password, authConfigs);
+            AuthenticationResponse response = authorizationExtension.authenticateUser(pluginId, username, password, authConfigs, roleConfigs);
             User user = ensureDisplayNamePresent(response.getUser());
             if (user != null) {
                 pluginRoleService.updatePluginRoles(pluginId, username, CaseInsensitiveString.caseInsensitiveStrings(response.getRoles()));

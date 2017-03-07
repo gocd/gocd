@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@import "../new_stylesheets/shared/go-variables";
 @import "css_sass/base/mixins";
 @import '_font-awesome-glyphs';
 
@@ -787,7 +788,7 @@ a.collapse-all {
 {
   height: 14px;
   width: 14px;
-  @include icon-before(check, 14px, 0);
+  @include icon-before($passed-icon, 14px, 0);
   color: #78c42d;
 }
 
@@ -795,7 +796,7 @@ a.collapse-all {
 {
   height: 14px;
   width: 14px;
-  @include icon-before(exclamation-circle, 14px, 0);
+  @include icon-before($failed-icon, 14px, 0);
   color: #fa2d2d;
 }
 

@@ -1643,14 +1643,84 @@ input[type='submit'], input[type='submit']:hover, button.submit, button.submit:h
   }
 }
 
-.Passed {
+#new-pipeline-history {
+  .failed-stage, .passed-stage {
+    text-align: center;
+    color: white;
+  }
+}
+
+.Passed, #new-pipeline-history .passed-stage {
   background-image: none;
   background-color: $passed;
+
+  a {
+    @include icon-after($passed-icon, $margin: 0);
+  }
 }
 
 .Failed, #new-pipeline-history .failed-stage {
   background-image: none;
   background-color: $failed;
+
+  a {
+    @include icon-after($failed-icon, $margin: 0);
+  }
+}
+
+.Passed, .Failed {
+  a {
+    text-align: center;
+    text-indent: 0px;
+    color: white;
+    line-height: 0;
+    font-size: 12px;
+    span {
+      display: none;
+    }
+  }
+}
+
+#new-pipeline-history .passed-stage {
+  @include icon-before($passed-icon, 12px, 0);
+}
+
+#new-pipeline-history .failed-stage {
+  @include icon-before($failed-icon, 12px, 0);
+}
+
+.color_code, .color_code_small {
+  &.Passed, &.Failed {
+    height: 14px;
+    width: 14px;
+    background-color: inherit;
+    font-size: 14px;
+  }
+
+  &.Passed {
+    @include icon-before($passed-icon, $margin: 0);
+    color: $passed;
+  }
+
+  &.Failed {
+    @include icon-before($failed-icon, $margin: 0);
+    color: $failed;
+  }
+}
+
+.color_code_stage, a.stage_bar, div.stage_bar {
+  &.Passed, &.Failed {
+    color: white;
+    text-align: center;
+  }
+
+  &.Passed {
+    @include icon-before($passed-icon, $margin: 0);
+  }
+
+  &.Failed {
+    @include icon-before($failed-icon, $margin: 0);
+  }
 }
 
 .Cancelled, .cancelled-stage {
@@ -2918,7 +2988,6 @@ button.edit-environment {
     border-bottom: 1px dotted $border-color;
     padding:       6px 0;
     .color_code_small {
-      margin-top: 5px;
       &.Active, &.Cancelled {
         margin-top: 0;
       }

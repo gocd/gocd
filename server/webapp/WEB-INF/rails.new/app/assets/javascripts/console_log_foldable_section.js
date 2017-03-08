@@ -146,16 +146,12 @@
       }
     }
 
-    function detectError(prefix) {
-      if ([Types.FAIL, Types.JOB_FAIL, Types.CANCEL_TASK_FAIL].indexOf(prefix) > -1) {
-        section.data("errored", true);
-      }
-
+    function detectStatus(prefix) {
       // canceling a build generally leaves no task status, so infer it
       // by detecting the CANCEL_TASK_START prefix
       if (section.data("type") === "task" && Types.CANCEL_TASK_START === prefix) {
-        // No, "cancelled" is not misspelled. We use both the British and American spellings inconsistently in our codebase,
-        // but we should go with whatever JobResult.Cancelled is, which uses the British spelling "cancelled"
+        // While "canceled" and "cancelled" are both correct spellings and are inconsistently used in our codebase.
+        // However, we should use the one that matches the JobResult enum, which is "cancelled"
         section.attr("data-task-status", "cancelled").removeData("task-status");
         section.data("errored", true);
       }
@@ -230,7 +226,7 @@
 
     // public API
 
-    this.detectError = detectError;
+    this.detectStatus = detectStatus;
     this.markMultiline = markMultiline;
 
     this.hasType = hasType;

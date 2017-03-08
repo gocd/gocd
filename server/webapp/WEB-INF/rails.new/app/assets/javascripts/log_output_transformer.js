@@ -79,7 +79,7 @@
           timestamp = match[2];
           line = match[3] || "";
 
-          currentSection.detectError(prefix);
+          currentSection.detectStatus(prefix);
 
           if (!currentSection.hasType()) {
             currentSection.assignType(prefix);

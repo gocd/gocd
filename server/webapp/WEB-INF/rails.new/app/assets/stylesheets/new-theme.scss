@@ -1644,8 +1644,11 @@ input[type='submit'], input[type='submit']:hover, button.submit, button.submit:h
 }
 
 #new-pipeline-history {
-  .failed-stage, .passed-stage {
+  .failed-stage, .passed-stage, .cancelled-stage {
     text-align: center;
+  }
+
+  .failed-stage, .passed-stage {
     color: white;
   }
 }
@@ -1668,7 +1671,13 @@ input[type='submit'], input[type='submit']:hover, button.submit, button.submit:h
   }
 }
 
-.Passed, .Failed {
+.Cancelled, #new-pipeline-history .cancelled-stage {
+  a {
+    @include icon-after($cancelled-icon, $margin: 0);
+  }
+}
+
+.Passed, .Failed, .Cancelled {
   a {
     text-align: center;
     text-indent: 0px;
@@ -1681,6 +1690,12 @@ input[type='submit'], input[type='submit']:hover, button.submit, button.submit:h
   }
 }
 
+.Cancelled {
+  a {
+    color: black;
+  }
+}
+
 #new-pipeline-history .passed-stage {
   @include icon-before($passed-icon, 12px, 0);
 }
@@ -1689,8 +1704,12 @@ input[type='submit'], input[type='submit']:hover, button.submit, button.submit:h
   @include icon-before($failed-icon, 12px, 0);
 }
 
+#new-pipeline-history .cancelled-stage {
+  @include icon-before($cancelled-icon, 12px, 0);
+}
+
 .color_code, .color_code_small {
-  &.Passed, &.Failed {
+  &.Passed, &.Failed, &.Cancelled {
     height: 14px;
     width: 14px;
     background-color: inherit;
@@ -1706,20 +1725,31 @@ input[type='submit'], input[type='submit']:hover, button.submit, button.submit:h
     @include icon-before($failed-icon, $margin: 0);
     color: $failed;
   }
+
+  &.Cancelled {
+    @include icon-before($cancelled-icon, $margin: 0);
+    color: $building;
+  }
 }
 
 .color_code_stage, a.stage_bar, div.stage_bar {
-  &.Passed, &.Failed {
-    color: white;
+  &.Passed, &.Failed, &.Cancelled {
     text-align: center;
   }
 
   &.Passed {
+    color: white;
     @include icon-before($passed-icon, $margin: 0);
   }
 
   &.Failed {
+    color: white;
     @include icon-before($failed-icon, $margin: 0);
+  }
+
+  &.Cancelled {
+    color: black;
+    @include icon-before($cancelled-icon, $margin: 0);
   }
 }
 

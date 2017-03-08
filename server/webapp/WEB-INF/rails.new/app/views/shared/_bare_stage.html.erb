@@ -5,5 +5,4 @@
 <div class="stage_bar <%= scope[:state] %>"
      title="<%= "%s (%s)" % [scope[:stage_name], scope[:state]] %>"
      style='width: <%= stage_width_em(scope[:pipeline].getStageHistory().size(), false, scope[:total_width]) %>'>
-    <%= check_for_cancelled_contents(scope[:state]) -%>
 </div>

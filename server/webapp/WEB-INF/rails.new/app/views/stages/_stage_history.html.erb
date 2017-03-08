@@ -24,7 +24,6 @@
             <a class="<%= is_current_stage?(stage_id_in_stage_history = stage_in_stage_history.getIdentifier()) ? "selected alert" : "" %>" href="<%= tab_aware_path_for_stage stage_id_in_stage_history, scope[:tab] %>">
                 <div class="label_counter_wrapper">
                     <div class="color_code_stage <%= stage_in_stage_history.getState() -%> <%= stage_in_stage_history.hasRerunJobs() ? "has_rerun_jobs" : "has_no_rerun_jobs" -%>">
-                        <%= check_for_cancelled_contents(stage_in_stage_history.getState()) %>
                       <span><span></span></span>
                     </div>
                     <%- if stage_in_stage_history.hasRerunJobs() -%>

@@ -91,6 +91,7 @@ $CONSOLE_SETUP_ERR_WHITE: darken($CONSOLE_SETUP_ERR, 10%);
     }
 
     .ansi-bright-#{$color}-fg {
+      font-weight: bold;
       color: lighten($color, 33%);
     }
 

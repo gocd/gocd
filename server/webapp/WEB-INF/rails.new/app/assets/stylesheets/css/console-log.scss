@@ -38,6 +38,12 @@ $CONSOLE_SETUP_ERR_WHITE: darken($CONSOLE_SETUP_ERR, 10%);
   &.with-timestamps .ts {
     display: inline;
     margin-right: 1ex;
+
+    &:empty {
+      // if nothing could be parsed, don't display at all; the margin-right rule above causes a shift,
+      // which doesn't make sense when there's no timestamp to display
+      display: none;
+    }
   }
 
   [data-collapsed] {

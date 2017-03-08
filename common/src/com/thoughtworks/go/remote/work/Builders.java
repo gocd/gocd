@@ -63,6 +63,7 @@ public class Builders {
             BuildLogElement buildLogElement = new BuildLogElement();
 
             if (builder.allowRun(RunIfConfig.fromJobResult(result.toLowerCase()))) {
+                JobResult taskStatus = JobResult.Passed;
                 try {
                     String executeMessage = format("Task: %s", builder.getDescription());
                     goPublisher.taggedConsumeLineWithPrefix(DefaultGoPublisher.TASK_START, executeMessage);
@@ -70,15 +71,15 @@ public class Builders {
                     builder.build(buildLogElement, goPublisher,
                             environmentVariableContext, taskExtension);
                 } catch (Exception e) {
-                    result = JobResult.Failed;
+                    result = taskStatus = JobResult.Failed;
                 }
 
                 if (cancelStarted) {
-                    result = JobResult.Cancelled;
+                    result = taskStatus = JobResult.Cancelled;
                 }
 
-                String tag = result.isPassed() ? DefaultGoPublisher.TASK_PASS : DefaultGoPublisher.TASK_FAIL;
-                goPublisher.taggedConsumeLineWithPrefix(tag, format("Task status: %s", result.toLowerCase()));
+                String tag = taskStatus.isPassed() ? DefaultGoPublisher.TASK_PASS : DefaultGoPublisher.TASK_FAIL;
+                goPublisher.taggedConsumeLineWithPrefix(tag, format("Task status: %s", taskStatus.toLowerCase()));
             }
 
             buildLog.addContent(buildLogElement.getElement());

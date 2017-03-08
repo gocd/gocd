@@ -88,13 +88,13 @@ public class PluginAuthenticationProvider extends AbstractUserDetailsAuthenticat
             throw new UsernameNotFoundException("Unable to authenticate user: " + username);
         }
 
-        userService.addUserIfDoesNotExist(toDomainUser(user));
-        GoUserPrinciple goUserPrinciple = getGoUserPrinciple(user);
+        final com.thoughtworks.go.domain.User savedUser = userService.findOrCreate(toDomainUser(user));
+        GoUserPrinciple goUserPrinciple = getGoUserPrinciple(savedUser);
         return goUserPrinciple;
     }
 
     private com.thoughtworks.go.domain.User toDomainUser(User user) {
-        return new com.thoughtworks.go.domain.User(user.getUsername(),user.getDisplayName(),user.getEmailId());
+        return new com.thoughtworks.go.domain.User(user.getUsername(), user.getDisplayName(), user.getEmailId());
     }
 
     private void removeAnyAssociatedPluginRolesFor(String username) {
@@ -133,8 +133,8 @@ public class PluginAuthenticationProvider extends AbstractUserDetailsAuthenticat
         return null;
     }
 
-    private GoUserPrinciple getGoUserPrinciple(User user) {
-        return new GoUserPrinciple(user.getUsername(), user.getDisplayName(), "", true, true, true, true, authorityGranter.authorities(user.getUsername()));
+    private GoUserPrinciple getGoUserPrinciple(com.thoughtworks.go.domain.User user) {
+        return new GoUserPrinciple(user.getName(), user.getDisplayName(), "", true, true, true, true, authorityGranter.authorities(user.getName()));
     }
 
     @Override

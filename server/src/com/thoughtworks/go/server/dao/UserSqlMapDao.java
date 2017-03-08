@@ -16,12 +16,6 @@
 
 package com.thoughtworks.go.server.dao;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import com.thoughtworks.go.domain.NullUser;
 import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.domain.Users;
@@ -31,11 +25,7 @@ import com.thoughtworks.go.server.exceptions.UserNotFoundException;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.StringUtil;
-import org.hibernate.Criteria;
-import org.hibernate.HibernateException;
-import org.hibernate.Query;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
+import org.hibernate.*;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,8 +38,14 @@ import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 @Component
-public class UserSqlMapDao  extends HibernateDaoSupport implements UserDao {
+public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
     private SessionFactory sessionFactory;
     private TransactionTemplate transactionTemplate;
     private GoCache goCache;
@@ -79,6 +75,16 @@ public class UserSqlMapDao  extends HibernateDaoSupport implements UserDao {
                 sessionFactory.getCurrentSession().saveOrUpdate(copyLoginToDisplayNameIfNotPresent(user));
             }
         });
+    }
+
+    public User findOrCreate(final User user) {
+        final User userInDB = findUser(user.getName());
+        if (!(userInDB instanceof NullUser)) {
+            return userInDB;
+        }
+
+        saveOrUpdate(user);
+        return user;
     }
 
     public User findUser(final String userName) {

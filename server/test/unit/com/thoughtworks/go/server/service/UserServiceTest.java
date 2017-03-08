@@ -28,12 +28,15 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.exceptions.UserEnabledException;
 import com.thoughtworks.go.server.exceptions.UserNotFoundException;
 import com.thoughtworks.go.server.persistence.OauthRepository;
+import com.thoughtworks.go.server.security.OnlyKnownUsersAllowedException;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TestTransactionTemplate;
 import com.thoughtworks.go.util.GoConstants;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
@@ -67,6 +70,9 @@ public class UserServiceTest {
         transactionSynchronizationManager = new TestTransactionSynchronizationManager();
         transactionTemplate = new TestTransactionTemplate(transactionSynchronizationManager);
     }
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     @Before
     public void setUp() {
@@ -517,6 +523,36 @@ public class UserServiceTest {
         userService.deleteUser(username, result);
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.hasMessage(), is(true));
+    }
+
+    @Test
+    public void shouldFindOrCreateUser() throws Exception {
+        User user = new User("username", "displayName", "email");
+
+        userService.findOrCreate(user);
+
+        verify(userDao).findOrCreate(user);
+    }
+
+    @Test
+    public void findOrCreate_shouldNotCreateAnonymousUser() throws Exception {
+        final User anonymousUser = new User("anonymous", "display", "email");
+
+        userService.findOrCreate(anonymousUser);
+
+        verifyZeroInteractions(userDao);
+    }
+
+    @Test
+    public void findOrCreate_shouldAssertIfUnkownUsersCanBeCreated() throws Exception {
+        User user = new User("username", "displayName", "email");
+
+        when(goConfigService.isOnlyKnownUserAllowedToLogin()).thenReturn(true);
+
+        thrown.expect(OnlyKnownUsersAllowedException.class);
+        thrown.expectMessage("Please ask the administrator to add you to Go");
+
+        userService.findOrCreate(user);
     }
 
     private void configureAdmin(String username, boolean isAdmin) {

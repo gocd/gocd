@@ -25,6 +25,7 @@ import org.hamcrest.Matchers;
 import org.hibernate.SessionFactory;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,7 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.junit.matchers.JUnitMatchers.hasItems;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
@@ -50,9 +52,15 @@ import static org.junit.matchers.JUnitMatchers.hasItems;
         "classpath:WEB-INF/applicationContext-acegi-security.xml"
 })
 public class UserSqlMapDaoIntegrationTest {
-    @Autowired private UserSqlMapDao userDao;
-    @Autowired private DatabaseAccessHelper dbHelper;
-    @Autowired private SessionFactory sessionFactory;
+    @Autowired
+    private UserSqlMapDao userDao;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
+    @Autowired
+    private SessionFactory sessionFactory;
+
+    @Rule
+    public org.junit.rules.ExpectedException thrown = org.junit.rules.ExpectedException.none();
 
     @Before
     public void setup() throws Exception {
@@ -77,7 +85,7 @@ public class UserSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldSaveLoginAsDisplayNameIfDisplayNameIsNotPresent(){
+    public void shouldSaveLoginAsDisplayNameIfDisplayNameIsNotPresent() {
         User user = new User("loser");
         userDao.saveOrUpdate(user);
 
@@ -85,7 +93,7 @@ public class UserSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldNotUpdateDisplayNameToNullOrBlank(){
+    public void shouldNotUpdateDisplayNameToNullOrBlank() {
         User user = new User("loser", "moocow", "moocow@example.com");
         userDao.saveOrUpdate(user);
         user.setDisplayName("");
@@ -193,7 +201,7 @@ public class UserSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldUpdateUserWithEnabledStatusWhenUserExist(){
+    public void shouldUpdateUserWithEnabledStatusWhenUserExist() {
         User user = new User("user", "my name", "user2@mail.com");
         userDao.saveOrUpdate(user);
         final User foundUser = userDao.findUser("user");
@@ -311,7 +319,7 @@ public class UserSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldLoadSubscribersOfNotification(){
+    public void shouldLoadSubscribersOfNotification() {
         User user1 = new User("user1");
         user1.addNotificationFilter(new NotificationFilter("pipeline", "stage", StageEvent.Fails, true));
         userDao.saveOrUpdate(user1);
@@ -348,7 +356,7 @@ public class UserSqlMapDaoIntegrationTest {
 
 
     @Test
-    public void shouldDeleteNotificationOnAUser(){
+    public void shouldDeleteNotificationOnAUser() {
         User user = new User("user1");
         user.addNotificationFilter(new NotificationFilter("pipeline1", "stage", StageEvent.Fails, true));
         user.addNotificationFilter(new NotificationFilter("pipeline2", "stage", StageEvent.Fails, true));
@@ -423,6 +431,35 @@ public class UserSqlMapDaoIntegrationTest {
         assertThat(retrievedUser instanceof NullUser, is(false));
         assertThat(retrievedUser, is(addingTheUserNow));
         assertThat(userDao.deleteUser(userName), is(true));
+    }
+
+    @Test
+    public void findOrCreate_shouldCreateUserIfNotExists() throws Exception {
+        final User user = new User("username", "displayName", "email");
+
+        final User savedUser = userDao.findOrCreate(user);
+
+        assertThat(userDao.findUser("username"), is(savedUser));
+    }
+
+    @Test
+    public void findOrCreate_shouldNotCreateUserIfExists() throws Exception {
+        final User user = new User("username", "displayName", "email");
+        userDao.saveOrUpdate(user);
+
+        final User savedUser = userDao.findOrCreate(new User("username"));
+
+        assertThat(savedUser, is(user));
+    }
+
+    @Test
+    public void findOrCreate_shouldNotCreateAnonymousUser() throws Exception {
+        final User user = new User("anonymous", "displayName", "email");
+
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("User name 'anonymous' is not permitted.");
+
+        userDao.findOrCreate(user);
     }
 
     private User anUser() {

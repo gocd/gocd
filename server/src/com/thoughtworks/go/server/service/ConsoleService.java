@@ -31,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
+import java.nio.charset.Charset;
 
 import static com.thoughtworks.go.util.ArtifactLogUtil.getConsoleOutputFolderAndFileName;
 
@@ -116,7 +117,7 @@ public class ConsoleService {
 
         LOGGER.trace("Updating console log [" + dest.getAbsolutePath() + "]");
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(dest, dest.exists()))) {
-            IOUtils.copy(in, writer);
+            IOUtils.copy(in, writer, Charset.defaultCharset());
         } catch (IOException e) {
             LOGGER.error("Failed to update console log at : [" + dest.getAbsolutePath() + "]", e);
             return false;

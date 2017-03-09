@@ -237,6 +237,20 @@ public final class ConfigFileFixture {
                 + pipelinesBlock
                 + "</cruise>";
     }
+    public static String configWithPluggableScm(String scmBlock, int schemaVersion) {
+        return "<cruise schemaVersion='" + schemaVersion + "'>\n"
+                + "<server artifactsdir='artifactsDir' >"
+                + "</server>"
+                + "<scms>"
+                + scmBlock
+                + "</scms>"
+                + "</cruise>";
+    }
+    public static String config(String block, int schemaVersion) {
+        return "<cruise schemaVersion='" + schemaVersion + "'>\n"
+                + block
+                + "</cruise>";
+    }
 
     public static final String WITH_MULTIPLE_LOCAL_AGENT_CONFIG =
             "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"

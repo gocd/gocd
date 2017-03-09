@@ -21,6 +21,7 @@ import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.materials.*;
+import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
@@ -63,15 +64,13 @@ import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.api.task.TaskExecutor;
 import com.thoughtworks.go.plugin.api.task.TaskView;
 import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
-import com.thoughtworks.go.util.FileUtil;
-import com.thoughtworks.go.util.ReflectionUtil;
-import com.thoughtworks.go.util.XsdValidationException;
+import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.util.command.HgUrlArgument;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.Is;
 import org.junit.After;
@@ -3821,6 +3820,148 @@ public class MagicalGoConfigXmlLoaderTest {
         assertThat(loader.getPreprocessorOfType(ConfigRepoPartialPreprocessor.class) instanceof ConfigRepoPartialPreprocessor, is(true));
         assertThat(loader.getPreprocessorOfType(ConfigParamPreprocessor.class) instanceof ConfigParamPreprocessor, is(true));
     }
+
+    @Test
+    public void shouldMigrateEncryptedEnvironmentVariablesWithNewlineAndSpaces_XslMigrationFrom88To90() throws Exception {
+        String plainText = "something";
+        String encryptedValue = new GoCipher().encrypt(plainText);
+        String encryptedValueWithWhitespaceAndNewline = new StringBuilder(encryptedValue).insert(2, "\r\n" +
+                "                        ").toString();
+
+        String content = ConfigFileFixture.configWithPipeline(
+                "<pipeline name='some_pipeline'>"
+                        + "<environmentvariables>\n"
+                        + "        <variable name=\"var_name\" secure=\"true\"><encryptedValue>" + encryptedValueWithWhitespaceAndNewline + "</encryptedValue></variable>\n"
+                        + "      </environmentvariables>"
+                        + "    <materials>"
+                        + "      <svn url='svnurl'/>"
+                        + "    </materials>"
+                        + "  <stage name='some_stage'>"
+                        + "    <jobs>"
+                        + "      <job name='some_job'>"
+                        + "      </job>"
+                        + "    </jobs>"
+                        + "  </stage>"
+                        + "</pipeline>", 88);
+
+        CruiseConfig config = ConfigMigrator.loadWithMigration(content).config;
+        assertThat(config.allPipelines().get(0).getVariables().get(0).getValue(), is(plainText));
+        assertThat(config.allPipelines().get(0).getVariables().get(0).getEncryptedValue(), is(encryptedValue));
+    }
+
+    @Test
+    public void shouldMigrateEncryptedPluginPropertyValueWithNewlineAndSpaces_XslMigrationFrom88To90() throws Exception {
+        String plainText = "something";
+        String encryptedValue = new GoCipher().encrypt(plainText);
+        String encryptedValueWithWhitespaceAndNewline = new StringBuilder(encryptedValue).insert(2, "\r\n" +
+                "                        ").toString();
+
+        String content = ConfigFileFixture.configWithPluggableScm(
+                "<scm id=\"f7c309f5-ea4d-41c5-9c43-95d79fa9ec7b\" name=\"gocd-private\">\n" +
+                        "      <pluginConfiguration id=\"github.pr\" version=\"1\" />\n" +
+                        "      <configuration>\n" +
+                        "        <property>\n" +
+                        "          <key>plainTextKey</key>\n" +
+                        "          <value>https://url/some_path</value>\n" +
+                        "        </property>\n" +
+                        "        <property>\n" +
+                        "          <key>secureKey</key>\n" +
+                        "          <encryptedValue>" + encryptedValueWithWhitespaceAndNewline + "</encryptedValue>\n" +
+                        "        </property>\n" +
+                        "      </configuration>\n" +
+                        "    </scm>", 88);
+
+        CruiseConfig config = ConfigMigrator.loadWithMigration(content).config;
+        assertThat(config.getSCMs().get(0).getConfiguration().getProperty("secureKey").getValue(), is(plainText));
+        assertThat(config.getSCMs().get(0).getConfiguration().getProperty("secureKey").getEncryptedValue(), is(encryptedValue));
+        assertThat(config.getSCMs().get(0).getConfiguration().getProperty("plainTextKey").getValue(), is("https://url/some_path"));
+    }
+
+    @Test
+    public void shouldMigrateEncryptedMaterialPasswordWithNewlineAndSpaces_XslMigrationFrom88To90() throws Exception {
+        String plainText = "something";
+        String encryptedValue = new GoCipher().encrypt(plainText);
+        String encryptedValueWithWhitespaceAndNewline = new StringBuilder(encryptedValue).insert(2, "\r\n" +
+                "                        ").toString();
+
+        String content = ConfigFileFixture.configWithPipeline(
+                "<pipeline name='some_pipeline'>"
+                        + "    <materials>"
+                        + "      <svn url='asdsa' username='user' encryptedPassword='" + encryptedValueWithWhitespaceAndNewline + "' dest='svn'>"
+                        +"<filter>\n" +
+                        "            <ignore pattern='**/*' />\n" +
+                        "          </filter>"
+                        +"</svn>"
+                        +"<tfs url='tfsurl' username='user' domain='domain' encryptedPassword='"+encryptedValueWithWhitespaceAndNewline+"' projectPath='path' dest='tfs' />"
+                        +"<p4 port='host:9999' username='user' encryptedPassword='"+encryptedValueWithWhitespaceAndNewline+"' dest='perforce'>\n" +
+                        "          <view><![CDATA[view]]></view>\n" +
+                        "        </p4>"
+                        + "    </materials>"
+                        + "  <stage name='some_stage'>"
+                        + "    <jobs>"
+                        + "      <job name='some_job'>"
+                        + "      </job>"
+                        + "    </jobs>"
+                        + "  </stage>"
+                        + "</pipeline>", 88);
+
+        CruiseConfig config = ConfigMigrator.loadWithMigration(content).config;
+        MaterialConfigs materialConfigs = config.allPipelines().get(0).materialConfigs();
+        SvnMaterialConfig svnMaterialConfig = (SvnMaterialConfig) materialConfigs.get(0);
+        assertThat(svnMaterialConfig.getPassword(), is(plainText));
+        assertThat(svnMaterialConfig.getEncryptedPassword(), is(encryptedValue));
+        assertThat(svnMaterialConfig.getFilterAsString(), is("**/*"));
+        TfsMaterialConfig tfs = (TfsMaterialConfig) materialConfigs.get(1);
+        assertThat(tfs.getPassword(), is(plainText));
+        assertThat(tfs.getEncryptedPassword(), is(encryptedValue));
+        assertThat(tfs.getUrl(), is("tfsurl"));
+        P4MaterialConfig p4 = (P4MaterialConfig) materialConfigs.get(2);
+        assertThat(p4.getPassword(), is(plainText));
+        assertThat(p4.getEncryptedPassword(), is(encryptedValue));
+        assertThat(p4.getServerAndPort(), is("host:9999"));
+    }
+
+    @Test
+    public void shouldMigrateServerMailhostEncryptedPasswordWithNewlineAndSpaces_XslMigrationFrom88To90() throws Exception {
+        String plainText = "something";
+        String encryptedValue = new GoCipher().encrypt(plainText);
+        String encryptedValueWithWhitespaceAndNewline = new StringBuilder(encryptedValue).insert(2, "\r\n" +
+                "                        ").toString();
+
+        String content = ConfigFileFixture.config(
+                "<server artifactsdir='artifacts'>\n" +
+                        "    <mailhost hostname='host' port='25' username='user' encryptedPassword='"+encryptedValueWithWhitespaceAndNewline+"' tls='false' from='user@domain.com' admin='admin@domain.com' />\n" +
+                        "  </server>", 88);
+
+        CruiseConfig config = ConfigMigrator.loadWithMigration(content).config;
+        assertThat(config.server().mailHost().getPassword(), is(plainText));
+        assertThat(config.server().mailHost().getEncryptedPassword(), is(encryptedValue));
+        assertThat(config.server().mailHost().getHostName(), is("host"));
+    }
+
+    @Test
+    public void shouldMigrateLdapManagerPasswordWithNewlineAndSpaces_XslMigrationFrom88To90() throws Exception {
+        String plainText = "something";
+        String encryptedValue = new GoCipher().encrypt(plainText);
+        String encryptedValueWithWhitespaceAndNewline = new StringBuilder(encryptedValue).insert(2, "\r\n" +
+                "                        ").toString();
+
+        String content = ConfigFileFixture.config(
+                "<server artifactsdir='artifacts'>\n" +
+                        "<security>\n" +
+                        "      <ldap uri='url' managerDn='manager-dn' encryptedManagerPassword='"+encryptedValueWithWhitespaceAndNewline+"'>\n" +
+                        "        <bases>\n" +
+                        "          <base value='base' />\n" +
+                        "        </bases>\n" +
+                        "      </ldap>\n" +
+                        "    </security>" +
+                        "  </server>", 88);
+
+        CruiseConfig config = ConfigMigrator.loadWithMigration(content).config;
+        assertThat(config.server().security().ldapConfig().currentManagerPassword(), is(plainText));
+        assertThat(config.server().security().ldapConfig().getEncryptedManagerPassword(), is(encryptedValue));
+    }
+
 
     private StageConfig stageWithJobResource(String resourceName) {
         StageConfig stage = StageConfigMother.custom("stage", "job");

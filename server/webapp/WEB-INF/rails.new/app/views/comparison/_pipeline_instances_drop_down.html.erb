@@ -9,12 +9,12 @@
                 <div style='width: <%= stage_width_percent(pipeline_instance.numberOfStages(), false, 95) %>' class="stage">
                     <div class="stage_bar_wrapper">
                         <% if placeholder_stage?(sim_for_pipeline) %>
-                            <div <%= scope[:html_options] -%>><%= check_for_cancelled_contents(sim_for_pipeline.getState()) %></div>
+                            <div <%= scope[:html_options] -%>></div>
                         <% elsif pipeline_instance.isBisect() %>
                             <div class="text_in_dropdown disabled_text_in_dropdown"><%= l.string("BISECT_TRIGGERED_PIPELINE") %></div>
                         <% else %>
                             <a href="<%= pipeline_compare_href(scope[:pipeline_name], scope[:fixed_pipeline_counter], pipeline_instance.getCounter()) -%>" <%= scope[:html_options] -%> id="<%= "stage_detail_#{scope[:suffix]}_#{pipeline_instance.getCounter()}" %>">
-                                <%= check_for_cancelled_contents(sim_for_pipeline.getState()) %><span><span></span></span>
+                                <span><span></span></span>
                             </a>
                         <% end %>
                     </div>

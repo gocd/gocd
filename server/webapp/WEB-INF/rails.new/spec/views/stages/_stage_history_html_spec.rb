@@ -216,7 +216,7 @@ describe "_stage_history.html.erb" do
     top_of_this_page = double('top_of_this_page')
     top_of_this_page.should_receive(:getConfigVersion).exactly(3).times.and_return('some-old-config-version')
     top_of_this_page.should_receive(:getIdentifier).exactly(7).times.and_return(StageIdentifier.new('p1', java.lang.Integer.new(1), 'label1', 'stage', '1'))
-    top_of_this_page.should_receive(:getState).twice.and_return(StageState::Building)
+    top_of_this_page.should_receive(:getState).and_return(StageState::Building)
     top_of_this_page.should_receive(:hasRerunJobs).twice.and_return(false)
 
     stage_history_page.should_receive(:getImmediateChronologicallyForwardStageHistoryEntry).and_return(bottom_of_previous_page)
@@ -239,7 +239,7 @@ describe "_stage_history.html.erb" do
     top_of_this_page = double('top_of_this_page')
     top_of_this_page.should_receive(:getConfigVersion).twice.and_return('some-old-config-version')
     top_of_this_page.should_receive(:getIdentifier).exactly(5).times.and_return(StageIdentifier.new('p1', java.lang.Integer.new(1), 'label1', 'stage', '1'))
-    top_of_this_page.should_receive(:getState).twice.and_return(StageState::Building)
+    top_of_this_page.should_receive(:getState).and_return(StageState::Building)
     top_of_this_page.should_receive(:hasRerunJobs).twice.and_return(false)
 
     stage_history_page.should_receive(:getImmediateChronologicallyForwardStageHistoryEntry).and_return(bottom_of_previous_page)

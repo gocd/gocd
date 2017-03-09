@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@import "../new_stylesheets/shared/go-variables";
 @import "css_sass/base/mixins";
+@import '_font-awesome-glyphs';
 
 #build_detail_summary_container .ab-corner {
   border-color: #FFF;
@@ -687,19 +689,21 @@ a.collapse-all {
 .cancelled h3 {
   background-color: #ffc11b;
   color: #000;
+  @include icon-after(ban, 16px, 0 0 0 10px);
 }
 
 .failed h3,
 .failing h3 {
   background-color: #fa2d2d;
   color: #fff;
+  @include icon-after(exclamation-circle, 16px, 0 0 0 10px);
 
 }
 
 .passed h3 {
   background-color: #78C42D;
   color: #fff;
-
+  @include icon-after(check, 16px, 0 0 0 10px);
 }
 
 .inactive h3,
@@ -782,26 +786,26 @@ a.collapse-all {
 
 .sidebar_history .passed .color_code_small /* legacy velocity style */
 {
-  background: none;
-  background-image: image_url('g9/backgrounds/bg_status_gradient.png');
-  background-repeat: repeat-x;
-  background-color: #78c42d;
+  height: 14px;
+  width: 14px;
+  @include icon-before($passed-icon, 14px, 0);
+  color: #78c42d;
 }
 
 .sidebar_history .failed .color_code_small /* legacy velocity style */
 {
-  background: none;
-  background-image: image_url('g9/backgrounds/bg_status_gradient.png');
-  background-repeat: repeat-x;
-  background-color: #fa2d2d;
+  height: 14px;
+  width: 14px;
+  @include icon-before($failed-icon, 14px, 0);
+  color: #fa2d2d;
 }
 
 .sidebar_history .cancelled .color_code_small /* legacy velocity style */
 {
-  background: none;
-  background-image: image_url('g9/backgrounds/bg_status_diagonal.png');
-  background-repeat: repeat-x;
-  background-color: #ffc11b;
+  height: 14px;
+  width: 14px;
+  @include icon-before(ban, 14px, 0);
+  color: #ffc11b;
   text-align: center;
 }
 

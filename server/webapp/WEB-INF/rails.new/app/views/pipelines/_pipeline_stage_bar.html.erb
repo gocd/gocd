@@ -35,10 +35,9 @@
 <% scope[:stage_bar_html_options] = stage_bar_options(scope[:stage_in_status_bar]) %>
 <div class="stage_bar_wrapper">
     <% if placeholder_stage?(scope[:stage_in_status_bar]) %>
-        <div <%= scope[:stage_bar_html_options] -%>><%= check_for_cancelled_contents(scope[:stage_in_status_bar].getState()) %></div>
+        <div <%= scope[:stage_bar_html_options] -%>></div>
     <% else %>
         <a href="<%= stage_bar_url(scope[:stage_in_status_bar], scope[:stage_details_action]) -%>" <%= scope[:stage_bar_html_options] -%>>
-            <%= check_for_cancelled_contents(scope[:stage_in_status_bar].getState()) %>
         <span><span></span></span></a>
     <% end %>
 </div>

@@ -14,7 +14,6 @@
         </td>
         <td class="job_result">
             <div class="color_code_small <%= l.string(job.getStatus()) -%>">
-                <%= check_for_cancelled_contents(job.getStatus()) %>
             </div>
             <%- if job.isRerun() -%>
                 <img class="rerun_job_icon" src="<%=image_path('g9/icons/icon_rerun_flag.png')%>">

@@ -11,7 +11,6 @@
                 <a class="result" href="<%= stage_detail_path_for_identifier(scope[:previous_stage_identifier], :only_path => !scope[:rendering_gadget]) -%>" <%== scope[:rendering_gadget] ? "target='_blank'" : "" -%>
                    title="<%= scope[:previous_stage_identifier].getPipelineLabel() -%>">
                     <span class="color_code_small <%= scope[:stage_result] -%>">
-                        <%= check_for_cancelled_contents(scope[:stage_result]) %>
                     </span> <%= scope[:stage_result] -%>
                 </a>
             </div>

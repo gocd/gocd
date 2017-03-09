@@ -20,11 +20,12 @@ let PipelineSettingsWidget = require('views/pipeline_configs/pipeline_settings_w
 let MaterialsConfigWidget  = require('views/pipeline_configs/materials_config_widget');
 let PipelineFlowWidget     = require('views/pipeline_configs/pipeline_flow_widget');
 
-const Stream          = require('mithril/stream');
-const s               = require('string-plus');
-const ComponentMixins = require('helpers/mithril_component_mixins');
-const Pipeline        = require('models/pipeline_configs/pipeline');
-const Modal           = require('views/shared/new_modal');
+const Stream                 = require('mithril/stream');
+const s                      = require('string-plus');
+const ComponentMixins        = require('helpers/mithril_component_mixins');
+const Pipeline               = require('models/pipeline_configs/pipeline');
+const Modal                  = require('views/shared/modal');
+const ReadOnlyTemplateWidget = require('views/pipeline_configs/read_only_template_widget');
 
 const ToggleViewWarning = {
   view (vnode) {
@@ -164,13 +165,7 @@ const PipelineConfigWidget = function (options) {
 
       const pipelineFlowWidget = function () {
         if (!s.isBlank(vnode.state.pipeline().template())) {
-          return (
-            <f.info>{['Pipeline :', "'", vnode.state.pipeline().name(), "'", 'uses template :', "'", vnode.state.pipeline().template(), "'",
-              '. Template editing is not yet supported. '].join(' ')} Click
-              <f.link href={["/go/admin/templates/", vnode.state.pipeline().template(), "/general"].join('')}>here
-              </f.link>
-              to edit template.</f.info>
-          );
+          return (<ReadOnlyTemplateWidget templateName={vnode.state.pipeline().template()}/>);
         }
 
         return (

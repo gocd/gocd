@@ -21,6 +21,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import org.apache.commons.codec.digest.DigestUtils;
+
+import java.util.Base64;
 
 public class Image {
     private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
@@ -33,9 +36,18 @@ public class Image {
     @SerializedName("data")
     private final String data;
 
+    private final String hash;
+    private final byte[] dataAsBytes;
+    private final String dataURI;
+
     public Image(String contentType, String data) {
         this.contentType = contentType;
         this.data = data;
+
+        // lazy eval everything to not take a perf hit on every request
+        this.dataURI = "data:" + this.contentType + ";base64," + this.data;
+        this.hash = DigestUtils.sha256Hex(this.dataURI);
+        this.dataAsBytes = Base64.getDecoder().decode(this.data);
     }
 
     public String getContentType() {
@@ -47,7 +59,15 @@ public class Image {
     }
 
     public String toDataURI() {
-        return "data:" + contentType + ";base64," + data;
+        return dataURI;
+    }
+
+    public String getHash() {
+        return hash;
+    }
+
+    public byte[] getDataAsBytes() {
+        return dataAsBytes;
     }
 
     public static Image fromJSON(String responseData) {

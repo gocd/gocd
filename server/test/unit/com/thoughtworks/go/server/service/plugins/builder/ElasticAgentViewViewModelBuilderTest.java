@@ -34,6 +34,7 @@ import java.util.*;
 
 import static com.thoughtworks.go.server.service.plugins.builder.ViewModelBuilder.REQUIRED_OPTION;
 import static com.thoughtworks.go.server.service.plugins.builder.ViewModelBuilder.SECURE_OPTION;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -80,7 +81,7 @@ public class ElasticAgentViewViewModelBuilderTest {
     @Test
     public void shouldBeAbleToFetchPluginInfoForSinglePlugin() throws Exception {
         when(elasticPluginConfigMetadataStore.find(dockerPlugin.id())).thenReturn(dockerPlugin);
-        Image image = new Image("foo", "bar");
+        Image image = new Image("image/png", Base64.getEncoder().encodeToString("some-base64-encoded-data".getBytes(UTF_8)));;
         when(elasticPluginConfigMetadataStore.getIcon(dockerPlugin)).thenReturn(image);
         when(elasticPluginConfigMetadataStore.getProfileView(dockerPlugin)).thenReturn("html");
 

@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service.plugins.builder;
 
+import com.thoughtworks.go.helper.MetadataStoreHelper;
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationPluginRegistry;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConfigMetadataStore;
 import com.thoughtworks.go.plugin.access.elastic.ElasticPluginConfigMetadataStore;
@@ -130,6 +131,8 @@ public class PluginInfoBuilderTest {
         when(manager.getPluginDescriptorFor("cd.go.elastic-agent.docker")).thenReturn(dockerElasticAgentPlugin);
         when(manager.getPluginDescriptorFor(ldapAuthPlugin.id())).thenReturn(ldapAuthPlugin);
 
+        MetadataStoreHelper.clear();
+
         PackageMetadataStore.getInstance().addMetadataFor(yumPoller.id(), new PackageConfigurations());
         PluggableTaskConfigStore.store().setPreferenceFor("xunit.convertor", new TaskPreference(jsonBasedPluggableTask));
         SCMMetadataStore.getInstance().setPreferenceFor("github.pr", new SCMPreference(new SCMConfigurations(), mock(SCMView.class)));
@@ -146,6 +149,7 @@ public class PluginInfoBuilderTest {
         dockerElasticAgentPlugin = null;
         ldapAuthPlugin = null;
         pluginViewModelBuilder = null;
+        MetadataStoreHelper.clear();
     }
 
     @Test

@@ -27,6 +27,7 @@ import java.util.Map;
 public class PluginConfiguration {
     private final String key;
     private final Map<String, Object> metadata;
+    @Deprecated // used only by v1 and v2
     private final String type;
 
     public PluginConfiguration(String key, Map<String, Object> metadata, String type) {
@@ -55,6 +56,7 @@ public class PluginConfiguration {
         return key;
     }
 
+    @Deprecated // used only by v1 and v2
     public String getType() {
         return type;
     }

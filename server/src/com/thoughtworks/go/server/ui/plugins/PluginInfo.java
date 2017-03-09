@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.ui.plugins;
 import com.thoughtworks.go.plugin.access.common.models.Image;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 
+@Deprecated
 public class PluginInfo {
     private final String id;
     private final String name;

@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2016 ThoughtWorks, Inc.
+# Copyright 2017 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -286,6 +286,7 @@ Go::Application.routes.draw do
       namespace :admin do
         resources :pipelines, param: :pipeline_name, only: [:show, :update, :create, :destroy], constraints: {pipeline_name: PIPELINE_NAME_FORMAT}
         resources :templates, param: :template_name, except: [:new, :edit], constraints: {template_name: TEMPLATE_NAME_FORMAT}
+        resources :plugin_info, controller: :plugin_infos, param: :id, only: [:index, :show], constraints: {id: PLUGIN_ID_FORMAT}
       end
 
       match '*url', via: :all, to: 'errors#not_found'
@@ -317,6 +318,8 @@ Go::Application.routes.draw do
   resources :agents, only: [:index], controller: "admin/agents", as: :agents
 
   namespace :api, as: "" do
+    match 'plugin_images/:plugin_id/:hash', via: %w(get head), controller: :plugin_images, action: :show, constraints: {plugin_id: PLUGIN_ID_FORMAT, hash: /(\h){64}/}, format: false, as: :plugin_images
+
     defaults :no_layout => true do
       get 'plugins/status' => 'plugins#status'
 

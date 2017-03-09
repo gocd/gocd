@@ -102,8 +102,8 @@ public class AgentWebSocketClientControllerTest {
     @After
     public void tearDown() {
         GuidService.deleteGuid();
-        System.clearProperty("go.agent.websocket.enabled");
-        System.clearProperty("go.agent.console.logs.websocket.enabled");
+        System.clearProperty(SystemEnvironment.WEBSOCKET_ENABLED.propertyName());
+        System.clearProperty(SystemEnvironment.CONSOLE_LOGS_THROUGH_WEBSOCKET_ENABLED.propertyName());
     }
 
     @Test

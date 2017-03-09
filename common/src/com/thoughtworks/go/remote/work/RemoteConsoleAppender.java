@@ -23,6 +23,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 public class RemoteConsoleAppender implements ConsoleAppender {
 
@@ -43,7 +44,7 @@ public class RemoteConsoleAppender implements ConsoleAppender {
                 LOGGER.debug("Appending console to URL -> " + consoleUri);
             }
 
-            putMethod.setEntity(new StringEntity(content));
+            putMethod.setEntity(new StringEntity(content, StandardCharsets.UTF_8));
             HttpService.setSizeHeader(putMethod, content.getBytes().length);
             CloseableHttpResponse response = httpService.execute(putMethod);
             if (LOGGER.isDebugEnabled()) {

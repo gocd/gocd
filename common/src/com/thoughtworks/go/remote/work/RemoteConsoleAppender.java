@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 
 public class RemoteConsoleAppender implements ConsoleAppender {
 
@@ -42,8 +43,7 @@ public class RemoteConsoleAppender implements ConsoleAppender {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Appending console to URL -> " + consoleUri);
             }
-
-            putMethod.setEntity(new StringEntity(content));
+            putMethod.setEntity(new StringEntity(content, Charset.defaultCharset()));
             HttpService.setSizeHeader(putMethod, content.getBytes().length);
             CloseableHttpResponse response = httpService.execute(putMethod);
             if (LOGGER.isDebugEnabled()) {

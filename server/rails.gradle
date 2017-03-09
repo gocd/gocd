@@ -92,15 +92,17 @@ task cleanRails {
   outputs.upToDateWhen { false }
   doLast {
     delete "${buildDir}/railsTests"
-    delete "${project.railsRoot}/db/h2db"
+    delete "${project.railsRoot}/config/cipher"
     delete "${project.railsRoot}/db/config.git"
+    delete "${project.railsRoot}/db/h2db"
     delete "${project.railsRoot}/db/shine"
-    delete "${project.railsRoot}/logs"
     delete "${project.railsRoot}/go-server.log"
     delete "${project.railsRoot}/go-shine.log"
-    delete "${project.railsRoot}/config/cipher"
-    delete "${project.railsRoot}/tmp"
     delete "${project.railsRoot}/historical_jars"
+    delete "${project.railsRoot}/logs"
+    delete "${project.railsRoot}/public/assets"
+    delete "${project.railsRoot}/tmp"
+    delete "${project.railsRoot}/webpack/gen"
   }
 }
 

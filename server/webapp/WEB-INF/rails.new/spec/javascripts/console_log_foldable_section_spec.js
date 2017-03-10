@@ -80,6 +80,7 @@
       assert(!fs.isPartOfSection(t.ERR));
       assert(!fs.isPartOfSection(t.PASS));
       assert(!fs.isPartOfSection(t.FAIL));
+      assert(!fs.isPartOfSection(t.CANCELLED));
       assert(!fs.isPartOfSection(t.CANCEL_TASK_START));
       assert(!fs.isPartOfSection(t.CANCEL_TASK_PASS));
       assert(!fs.isPartOfSection(t.CANCEL_TASK_FAIL));
@@ -97,6 +98,7 @@
       assert(!fs.isPartOfSection(t.ERR));
       assert(!fs.isPartOfSection(t.PASS));
       assert(!fs.isPartOfSection(t.FAIL));
+      assert(!fs.isPartOfSection(t.CANCELLED));
       assert(!fs.isPartOfSection(t.CANCEL_TASK_START));
       assert(!fs.isPartOfSection(t.CANCEL_TASK_PASS));
       assert(!fs.isPartOfSection(t.CANCEL_TASK_FAIL));
@@ -114,6 +116,7 @@
       assert(fs.isPartOfSection(t.ERR));
       assert(fs.isPartOfSection(t.PASS));
       assert(fs.isPartOfSection(t.FAIL));
+      assert(fs.isPartOfSection(t.CANCELLED));
       assert(!fs.isPartOfSection(t.CANCEL_TASK_START));
       assert(!fs.isPartOfSection(t.CANCEL_TASK_PASS));
       assert(!fs.isPartOfSection(t.CANCEL_TASK_FAIL));
@@ -131,6 +134,7 @@
       assert(fs.isPartOfSection(t.ERR));
       assert(!fs.isPartOfSection(t.PASS));
       assert(!fs.isPartOfSection(t.FAIL));
+      assert(!fs.isPartOfSection(t.CANCELLED));
       assert(!fs.isPartOfSection(t.CANCEL_TASK_START));
       assert(fs.isPartOfSection(t.CANCEL_TASK_PASS));
       assert(fs.isPartOfSection(t.CANCEL_TASK_FAIL));
@@ -148,6 +152,7 @@
       assert(!fs.isPartOfSection(t.ERR));
       assert(!fs.isPartOfSection(t.PASS));
       assert(!fs.isPartOfSection(t.FAIL));
+      assert(!fs.isPartOfSection(t.CANCELLED));
       assert(!fs.isPartOfSection(t.CANCEL_TASK_START));
       assert(!fs.isPartOfSection(t.CANCEL_TASK_PASS));
       assert(!fs.isPartOfSection(t.CANCEL_TASK_FAIL));
@@ -183,6 +188,12 @@
     });
 
     it("detectStatus recognizes failure states", function () {
+      fs.detectStatus(t.CANCELLED);
+      assert(el.data("errored"));
+      assertEquals("cancelled", el.attr("data-task-status"));
+
+      reset();
+
       fs.detectStatus(t.FAIL);
       assert(el.data("errored"));
       assertEquals("failed", el.attr("data-task-status"));
@@ -226,7 +237,7 @@
     });
 
     it("isExplicitEndBoundary only identifies prefixes are are terminal", function () {
-      assert(_.reduce([t.PASS, t.FAIL, t.JOB_PASS, t.JOB_FAIL, t.CANCEL_TASK_PASS, t.CANCEL_TASK_FAIL], function(result, prefix) {
+      assert(_.reduce([t.PASS, t.FAIL, t.CANCELLED, t.JOB_PASS, t.JOB_FAIL, t.CANCEL_TASK_PASS, t.CANCEL_TASK_FAIL], function(result, prefix) {
         result = result && fs.isExplicitEndBoundary(prefix);
         return result;
       }, true));

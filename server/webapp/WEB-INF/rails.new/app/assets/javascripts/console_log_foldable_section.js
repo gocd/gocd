@@ -19,7 +19,7 @@
   var Types = {
     INFO: "##",
     PREP: "pr", PREP_ERR: "pe",
-    TASK_START: "!!", OUT: "&1", ERR: "&2", PASS: "?0", FAIL: "?1",
+    TASK_START: "!!", OUT: "&1", ERR: "&2", PASS: "?0", FAIL: "?1", CANCELLED: "^C",
     CANCEL_TASK_START: "!x", CANCEL_TASK_PASS: "x0", CANCEL_TASK_FAIL: "x1",
     JOB_PASS: "j0", JOB_FAIL: "j1"
   };
@@ -36,7 +36,7 @@
     }
 
     function isStatusLine(prefix) {
-      return [Types.PASS, Types.FAIL, Types.JOB_PASS, Types.JOB_FAIL, Types.CANCEL_TASK_PASS, Types.CANCEL_TASK_FAIL].indexOf(prefix) > -1;
+      return [Types.PASS, Types.FAIL, Types.CANCELLED, Types.JOB_PASS, Types.JOB_FAIL, Types.CANCEL_TASK_PASS, Types.CANCEL_TASK_FAIL].indexOf(prefix) > -1;
     }
 
     function formatContent(node, prefix, line) {
@@ -147,9 +147,8 @@
     }
 
     function detectStatus(prefix) {
-      // canceling a build generally leaves no task status, so infer it
-      // by detecting the CANCEL_TASK_START prefix
-      if (section.data("type") === "task" && Types.CANCEL_TASK_START === prefix) {
+      // either and explicit cancelled status or an implicit boundary (i.e. start of a cancel-task)
+      if (prefix === Types.CANCELLED || (section.data("type") === "task" && Types.CANCEL_TASK_START === prefix)) {
         // While "canceled" and "cancelled" are both correct spellings and are inconsistently used in our codebase.
         // However, we should use the one that matches the JobResult enum, which is "cancelled"
         section.attr("data-task-status", "cancelled").removeData("task-status");
@@ -180,7 +179,7 @@
         section.attr("data-type", "info");
       } else if ([Types.PREP, Types.PREP_ERR].indexOf(prefix) > -1) {
         section.attr("data-type", "prep");
-      } else if ([Types.TASK_START, Types.OUT, Types.ERR, Types.PASS, Types.FAIL].indexOf(prefix) > -1) {
+      } else if ([Types.TASK_START, Types.OUT, Types.ERR, Types.PASS, Types.FAIL, Types.CANCELLED].indexOf(prefix) > -1) {
         section.attr("data-type", "task");
       } else if ([Types.CANCEL_TASK_START, Types.CANCEL_TASK_PASS, Types.CANCEL_TASK_FAIL].indexOf(prefix) > -1) {
         section.attr("data-type", "cancel");
@@ -203,7 +202,7 @@
       }
 
       if (section.data("type") === "task") {
-        return [Types.OUT, Types.ERR, Types.PASS, Types.FAIL].indexOf(prefix) > -1;
+        return [Types.OUT, Types.ERR, Types.PASS, Types.FAIL, Types.CANCELLED].indexOf(prefix) > -1;
       }
 
       if (section.data("type") === "cancel") {
@@ -214,7 +213,7 @@
     }
 
     function isExplicitEndBoundary(prefix) {
-      return [Types.PASS, Types.FAIL, Types.JOB_PASS, Types.JOB_FAIL, Types.CANCEL_TASK_PASS, Types.CANCEL_TASK_FAIL].indexOf(prefix) > -1;
+      return [Types.PASS, Types.FAIL, Types.CANCELLED, Types.JOB_PASS, Types.JOB_FAIL, Types.CANCEL_TASK_PASS, Types.CANCEL_TASK_FAIL].indexOf(prefix) > -1;
     }
 
     function closeAndStartNew(parentNode) {

@@ -31,6 +31,14 @@ public enum JobResult implements ViewableStatus {
         return this.equals(Passed);
     }
 
+    public boolean isFailed() {
+        return this.equals(Failed);
+    }
+
+    public boolean isCancelled() {
+        return this.equals(Cancelled);
+    }
+
     public boolean isUnknown() {
         return this.equals(Unknown);
     }
@@ -45,10 +53,6 @@ public enum JobResult implements ViewableStatus {
 
     public String toLowerCase() {
         return toString().toLowerCase();
-    }
-
-    public boolean isFailed() {
-        return this.equals(Failed);
     }
 
     public String toCctrayStatus() {
@@ -92,5 +96,4 @@ public enum JobResult implements ViewableStatus {
     private boolean _isFailed() {
         return this == Failed || this == Cancelled;
     }
-
 }

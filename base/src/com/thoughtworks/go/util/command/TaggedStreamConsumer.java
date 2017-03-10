@@ -31,6 +31,7 @@ public interface TaggedStreamConsumer extends StreamConsumer {
     String ERR = "&2";
     String TASK_PASS = "?0";
     String TASK_FAIL = "?1";
+    String TASK_CANCELLED = "^C";
     String JOB_PASS = "j0";
     String JOB_FAIL = "j1";
 

@@ -78,7 +78,14 @@ public class Builders {
                     result = taskStatus = JobResult.Cancelled;
                 }
 
-                String tag = taskStatus.isPassed() ? DefaultGoPublisher.TASK_PASS : DefaultGoPublisher.TASK_FAIL;
+                String tag;
+
+                if (taskStatus.isCancelled()) {
+                    tag = DefaultGoPublisher.TASK_CANCELLED;
+                } else {
+                    tag = taskStatus.isPassed() ? DefaultGoPublisher.TASK_PASS : DefaultGoPublisher.TASK_FAIL;
+                }
+
                 goPublisher.taggedConsumeLineWithPrefix(tag, format("Task status: %s", taskStatus.toLowerCase()));
             }
 
@@ -108,7 +115,7 @@ public class Builders {
             while (!cancelFinished) {
                 try {
                     Thread.sleep(500);
-                } catch (InterruptedException e) {
+                } catch (InterruptedException ignored) {
                 }
             }
         }
@@ -132,9 +139,11 @@ public class Builders {
         if (cancelStarted != builders1.cancelStarted) {
             return false;
         }
+
         if (builders != null ? !builders.equals(builders1.builders) : builders1.builders != null) {
             return false;
         }
+
         if (currentBuilder != null ? !currentBuilder.equals(
                 builders1.currentBuilder) : builders1.currentBuilder != null) {
             return false;

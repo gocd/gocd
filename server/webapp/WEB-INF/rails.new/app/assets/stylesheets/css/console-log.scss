@@ -221,6 +221,10 @@ $CONSOLE_SETUP_ERR_WHITE: darken($CONSOLE_SETUP_ERR, 10%);
         content: $fa-var-ban;
         color: $CONSOLE_CALLOUT;
       }
+
+      code {
+        color: $CONSOLE_CALLOUT;
+      }
     }
 
     [data-prefix="?0"] code, [data-prefix="j0"] code {
@@ -295,8 +299,10 @@ $CONSOLE_SETUP_ERR_WHITE: darken($CONSOLE_SETUP_ERR, 10%);
         color: $CONSOLE_CALLOUT_WHITE;
       }
 
-      &[data-task-status="cancelled"]:before {
-        color: $CONSOLE_CALLOUT_WHITE;
+      &[data-task-status="cancelled"] {
+        &:before, code {
+          color: $CONSOLE_CALLOUT_WHITE;
+        }
       }
 
       &[data-task-status="failed"], &[data-job-status="failed"] {

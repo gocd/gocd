@@ -42,5 +42,7 @@ dependencies {
   compileOnly(group: 'org.eclipse.jetty', name: 'jetty-servlets', version: versions.jetty)
   compileOnly(group: 'org.eclipse.jetty', name: 'jetty-util', version: versions.jetty)
   compileOnly(group: 'org.eclipse.jetty.websocket', name: 'websocket-server', version: versions.jetty)
+  compile group: 'org.eclipse.jetty.websocket', name: 'javax-websocket-server-impl', version: versions.jetty
   compileOnly(group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47')
+
 }

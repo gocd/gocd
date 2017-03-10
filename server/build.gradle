@@ -186,6 +186,7 @@ dependencies {
   compileOnly project(':app-server')
   compileOnly group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47'
   compileOnly group: 'org.eclipse.jetty.websocket', name: 'websocket-server', version: versions.jetty
+  compile group: 'org.eclipse.jetty.websocket', name: 'javax-websocket-server-impl', version: versions.jetty
 
   testCompile group: 'com.unboundid', name: 'unboundid-ldapsdk', version: '2.3.6'
   testCompile project(path: ':common', configuration: 'testOutput')

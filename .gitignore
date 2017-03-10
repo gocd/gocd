@@ -149,3 +149,4 @@ plugin-infra/go-plugin-access/config/cipher
 
 build/
 out/
+config/config-server/warnings.log

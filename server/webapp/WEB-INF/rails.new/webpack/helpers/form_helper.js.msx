@@ -798,7 +798,7 @@ let f = {
   },
 
   emptyMessage: {
-    view: function (vnode) {
+    view (vnode) {
       return (
         <f.row>
           <f.column size={4} class="empty-message">{vnode.attrs.message}</f.column>

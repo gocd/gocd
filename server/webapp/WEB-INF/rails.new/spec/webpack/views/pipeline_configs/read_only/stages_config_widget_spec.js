@@ -48,7 +48,7 @@ describe("Read Only Stages Widget", function () {
 
   it('should render the stage details for selected stage box', function () {
     var selectedStageName = $('.stages-wrapper>.stage.active').text();
-    var renderedStageName = $('.stage-definition').attr('data-stage-name')
+    var renderedStageName = $('.stage-definition').attr('data-stage-name');
 
     expect(selectedStageName).toBe(renderedStageName);
   });

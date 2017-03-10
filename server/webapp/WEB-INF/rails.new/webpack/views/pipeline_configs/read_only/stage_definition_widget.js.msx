@@ -15,7 +15,6 @@
  */
 
 var m                             = require('mithril');
-var f                             = require('helpers/form_helper');
 var StageSettingsWidget           = require('views/pipeline_configs/read_only/stage_settings_widget');
 var StageOperatePermissionsWidget = require('views/pipeline_configs/read_only/stage_operate_permissions_widget');
 var EnvironmentVariablesWidget    = require('views/pipeline_configs/read_only/environment_variables_widget');

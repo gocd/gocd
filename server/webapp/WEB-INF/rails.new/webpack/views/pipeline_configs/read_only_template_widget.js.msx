@@ -42,7 +42,7 @@ var ReadOnlyTemplateWidget = {
                    selectedIndex={vnode.state.vmState('templateSelected', Stream(0))}
                    class='template'>
         <f.row>
-          <div> name: { template.name()} </div>
+          <f.row> name: { template.name()} </f.row>
           <ReadOnlyStagesWidget stages={vnode.state.template().stages}/>
         </f.row>
       </f.accordion>

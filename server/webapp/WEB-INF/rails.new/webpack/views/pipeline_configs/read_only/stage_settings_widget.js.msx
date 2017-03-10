@@ -33,7 +33,7 @@ var StageSettingsWidget = {
     return (
       <div>
         <f.row>
-          <f.readOnlyHeading value="Stage settings:"/>
+          <f.readOnlyHeading value="Stage Settings:"/>
         </f.row>
         <f.row>
           <f.KVPairs keys={keyValuePairs}/>

@@ -23,6 +23,10 @@ module ApiV3
         opts[:url_builder].apiv3_admin_plugin_info_index_url
       end
 
+      link :find do |opts|
+        opts[:url_builder].apiv3_admin_plugin_info_url(id: '__plugin_id__').gsub(/__plugin_id__/, ':plugin_id')
+      end
+
       link :doc do
         'https://api.gocd.io/#plugin-info'
       end

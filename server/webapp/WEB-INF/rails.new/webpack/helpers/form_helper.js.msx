@@ -734,6 +734,67 @@ let f = {
     view (vnode) {
       return (<f.callout type="info" {...vnode.attrs}>{vnode.children}</f.callout>);
     }
+  },
+
+
+  checkboxIcon: {
+    view (vnode) {
+      const clazz = vnode.attrs.checked ? 'checkbox-selected-icon' : 'checkbox-unselected-icon';
+      return (
+        <f.row class={clazz}>
+          {vnode.attrs.value}
+        </f.row>
+      );
+    }
+  },
+
+  readOnlyHeading: {
+    view (vnode) {
+      return (
+        <h5>{vnode.attrs.value}</h5>
+      );
+    }
+  },
+
+  KVP: {
+    view (vnode) {
+      return (
+        <f.row>
+          <f.column>{vnode.attrs.key}:</f.column>
+          <f.column>{vnode.attrs.value}</f.column>
+        </f.row>
+      );
+    }
+  },
+
+  checklist: {
+    view (vnode) {
+      const checkboxes = _.map(vnode.attrs.keys, (ele) => {
+        return (<f.checkboxIcon checked={ele.modal()[ele.key]()} value={ele.displayKey}/>);
+      });
+
+      return (
+        <f.column size={4} largeSize={5} end>
+          {checkboxes}
+        </f.column>
+      );
+    }
+  },
+
+  KVPairs: {
+    view (vnode) {
+      const keyValuePairs = _.map(vnode.attrs.keys, (ele) => {
+        const value    = ele.modal()[ele.key]();
+        const renderer = _.isFunction(ele.renderer) ? ele.renderer : _.identity.bind(ele, value);
+        return (<f.KVP key={ele.displayKey} value={renderer(value)}/>);
+      });
+
+      return (
+        <f.column size={4}>
+          {keyValuePairs}
+        </f.column>
+      );
+    }
   }
 };
 

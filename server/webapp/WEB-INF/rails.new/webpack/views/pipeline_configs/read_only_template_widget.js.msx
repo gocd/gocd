@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-var m               = require('mithril');
-var f               = require('helpers/form_helper');
-var Stream          = require('mithril/stream');
-var ComponentMixins = require('helpers/mithril_component_mixins');
-var Template        = require('models/pipeline_configs/template');
+var m                    = require('mithril');
+var f                    = require('helpers/form_helper');
+var Stream               = require('mithril/stream');
+var ComponentMixins      = require('helpers/mithril_component_mixins');
+var Template             = require('models/pipeline_configs/template');
+var ReadOnlyStagesWidget = require('views/pipeline_configs/read_only/stages_config_widget');
 
 var ReadOnlyTemplateWidget = {
   oninit: function (vnode) {
     var self      = this;
-    self.template = Stream(Template.fromJSON({}));
+    self.template = Stream();
 
     Template.find(vnode.attrs.templateName).then(self.template);
 
@@ -32,26 +33,18 @@ var ReadOnlyTemplateWidget = {
 
   view: function (vnode) {
     var template = vnode.state.template();
+    if (!template) {
+      return (<div />);
+    }
     return (
       <f.accordion accordionTitles={[(<span>Template</span>)]}
                    accordionKeys={['template']}
                    selectedIndex={vnode.state.vmState('templateSelected', Stream(0))}
                    class='template'>
-        <div>
-          <div>
-            name: { template.name()}
-          </div>
-          <f.accordion accordionTitles={[(<span>Stages</span>)]}
-                       selectedIndex={vnode.state.vmState('pipelineFlowSelected', Stream(0))}
-                       accordionKeys={['stages']}
-                       class='stages'>
-            <div>
-              <div class="stage-boxes">
-                these are stages
-              </div>
-            </div>
-          </f.accordion>
-        </div>
+        <f.row>
+          <div> name: { template.name()} </div>
+          <ReadOnlyStagesWidget stages={vnode.state.template().stages}/>
+        </f.row>
       </f.accordion>
     );
   }

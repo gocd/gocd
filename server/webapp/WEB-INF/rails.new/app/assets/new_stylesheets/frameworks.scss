@@ -31,6 +31,20 @@
   }
 }
 
+.checkbox-selected-icon {
+  @include icon-before(check-square-o, $size: $form-label-font-size, $color: $form-label-color, $margin: 0, $line-height: $form-label-line-height) {
+    margin-left:  10px;
+    margin-right: 10px;
+  }
+}
+
+.checkbox-unselected-icon {
+  @include icon-before(square-o, $size: $form-label-font-size, $color: $form-label-color, $margin: 0, $line-height: $form-label-line-height) {
+    margin-left:  10px;
+    margin-right: 10px;
+  }
+}
+
 label {
   display: inline-block;
 }

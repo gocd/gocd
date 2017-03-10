@@ -15,15 +15,12 @@
  */
 
 var m                       = require('mithril');
-var $                       = require('jquery');
 var Stream                  = require('mithril/stream');
 var _                       = require('lodash');
-var s                       = require('string-plus');
 var f                       = require('helpers/form_helper');
 var Modal                   = require('views/shared/new_modal');
 var ComponentMixins         = require('helpers/mithril_component_mixins');
 var ElasticProfiles         = require('models/elastic_profiles/elastic_profiles');
-var PluginInfos             = require('models/pipeline_configs/plugin_infos');
 var ElasticProfileWidget    = require('views/elastic_profiles/elastic_profile_widget');
 var ElasticProfileModalBody = require('views/elastic_profiles/elastic_profile_modal_body');
 require('jquery-textcomplete');
@@ -78,7 +75,7 @@ var ElasticProfilesWidget = {
 
     this.edit = function (profile) {
       var newProfile   = Stream();
-      var pluginInfo   = Stream();
+      var pluginInfo   = Stream(vnode.attrs.pluginInfos().findById(profile.pluginId()));
       var saveDisabled = Stream(false);
       var errorMessage = Stream();
 
@@ -90,6 +87,7 @@ var ElasticProfilesWidget = {
         body:    () => (<ElasticProfileModalBody profile={newProfile}
                                                  pluginInfo={pluginInfo}
                                                  newProfile={false}
+                                                 pluginInfos={vnode.attrs.pluginInfos}
                                                  errorMessage={errorMessage}
                                                  saveDisabled={saveDisabled}/>),
         onclose: () => modal.destroy(),
@@ -110,25 +108,14 @@ var ElasticProfilesWidget = {
         }
       });
 
-      var showError = function () {
-        var messages = _.chain(arguments).map(function (arg) {
-          if (_.isString(arg)) {
-            return s.terminateWithPeriod(arg);
-          }
-        }).compact().uniq().join(' ').value();
-
-        errorMessage(messages);
-      };
-
-      var onFulfilled = function (profileFromAjax, pluginInfoFromAjax) {
+      var onFulfilled = function (profileFromAjax) {
         newProfile(profileFromAjax);
-        pluginInfo(pluginInfoFromAjax);
         errorMessage(null);
       };
 
       modal.render();
 
-      $.when(ElasticProfiles.Profile.get(profile.id()), PluginInfos.PluginInfo.get(profile.pluginId())).then(onFulfilled, showError).always(m.redraw);
+      ElasticProfiles.Profile.get(profile.id()).then(onFulfilled, errorMessage).always(m.redraw);
     };
 
     this.add = function () {
@@ -141,6 +128,7 @@ var ElasticProfilesWidget = {
         title:   'Add a new profile',
         body:    () => (<ElasticProfileModalBody profile={newProfile}
                                                  newProfile={true}
+                                                 pluginInfos={vnode.attrs.pluginInfos}
                                                  pluginInfo={newPluginInfo}
                                                  saveDisabled={saveDisabled}/>),
         onclose: () => modal.destroy(),
@@ -240,9 +228,7 @@ var ElasticProfilesWidget = {
           <f.row>
 
             {vnode.state.profiles().mapProfiles(function (profile) {
-              var pluginInfo = _.find(PluginInfos(), function (pi) {
-                return pi.id() === profile.pluginId();
-              });
+              var pluginInfo = vnode.attrs.pluginInfos().findById(profile.pluginId());
 
               return (
                 <ElasticProfileWidget

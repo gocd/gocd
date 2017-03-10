@@ -36,18 +36,13 @@ public class Image {
     @SerializedName("data")
     private final String data;
 
-    private final String hash;
-    private final byte[] dataAsBytes;
-    private final String dataURI;
+    private String hash;
+    private byte[] dataAsBytes;
+    private String dataURI;
 
     public Image(String contentType, String data) {
         this.contentType = contentType;
         this.data = data;
-
-        // lazy eval everything to not take a perf hit on every request
-        this.dataURI = "data:" + this.contentType + ";base64," + this.data;
-        this.hash = DigestUtils.sha256Hex(this.dataURI);
-        this.dataAsBytes = Base64.getDecoder().decode(this.data);
     }
 
     public String getContentType() {
@@ -59,14 +54,23 @@ public class Image {
     }
 
     public String toDataURI() {
+        if (dataURI == null) {
+            dataURI = "data:" + contentType + ";base64," + data;
+        }
         return dataURI;
     }
 
     public String getHash() {
+        if (hash == null) {
+            hash = DigestUtils.sha256Hex(toDataURI());
+        }
         return hash;
     }
 
     public byte[] getDataAsBytes() {
+        if (dataAsBytes == null) {
+            dataAsBytes = Base64.getDecoder().decode(data);
+        }
         return dataAsBytes;
     }
 

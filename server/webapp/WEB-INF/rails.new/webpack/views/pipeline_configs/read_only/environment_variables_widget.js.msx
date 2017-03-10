@@ -34,14 +34,28 @@ var StageSettingsWidget = {
       };
     });
 
+    let allVariables = plainTextVariables.concat(secureTextVariables);
+
+    let variablesList;
+
+    if (allVariables.length) {
+      variablesList = (
+        <f.row>
+          <f.KVPairs keys={allVariables}/>
+        </f.row>
+      );
+    } else {
+      variablesList = (
+        <f.emptyMessage message="No Environment Variables have been configured."/>
+      );
+    }
+
     return (
       <div>
         <f.row>
           <f.readOnlyHeading value="Environment Variables:"/>
         </f.row>
-        <f.row>
-          <f.KVPairs keys={plainTextVariables.concat(secureTextVariables)}/>
-        </f.row>
+        {variablesList}
       </div>
     );
   }

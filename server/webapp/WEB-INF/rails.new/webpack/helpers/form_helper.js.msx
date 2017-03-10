@@ -790,9 +790,19 @@ let f = {
       });
 
       return (
-        <f.column size={4}>
+        <f.column size={vnode.attrs.size || 4}>
           {keyValuePairs}
         </f.column>
+      );
+    }
+  },
+
+  emptyMessage: {
+    view: function (vnode) {
+      return (
+        <f.row>
+          <f.column size={4} class="empty-message">{vnode.attrs.message}</f.column>
+        </f.row>
       );
     }
   }

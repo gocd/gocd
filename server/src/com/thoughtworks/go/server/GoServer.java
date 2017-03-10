@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server;
 
+import com.thoughtworks.go.server.websocket.ConsoleLogEndpoint;
 import com.thoughtworks.go.util.SubprocessLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.validators.*;
@@ -81,6 +82,7 @@ public class GoServer {
         Constructor<?> constructor = Class.forName(systemEnvironment.get(SystemEnvironment.APP_SERVER)).getConstructor(SystemEnvironment.class, String.class, SSLSocketFactory.class);
         AppServer server = ((AppServer) constructor.newInstance(systemEnvironment, password, sslSocketFactory));
         server.configure();
+        server.addWebSocketEndpoint(ConsoleLogEndpoint.class);
         server.addExtraJarsToClasspath(getExtraJarsToBeAddedToClasspath());
         server.setCookieExpirePeriod(twoWeeks());
         return server;
@@ -97,6 +99,7 @@ public class GoServer {
         LOG.info("Including addons: " + extraClasspath);
         return extraClasspath;
     }
+
     private String convertToClasspath(List<File> addonJars) {
         if (addonJars.size() == 0) {
             return "";
@@ -139,7 +142,7 @@ public class GoServer {
         validators.add(FileValidator.defaultFile("historical_jars/h2-1.2.127.jar"));
         validators.add(FileValidator.configFile("cruise-config.xml", systemEnvironment));
         validators.add(FileValidator.configFileAlwaysOverwrite("cruise-config.xsd", systemEnvironment));
-		validators.add(FileValidator.configFile("jetty.xml", systemEnvironment));
+        validators.add(FileValidator.configFile("jetty.xml", systemEnvironment));
         validators.add(new JettyWorkDirValidator());
         validators.add(FileValidator.configFile(systemEnvironment.get(systemEnvironment.GO_UPDATE_SERVER_PUBLIC_KEY_FILE_NAME), systemEnvironment));
         validators.add(new DatabaseValidator());

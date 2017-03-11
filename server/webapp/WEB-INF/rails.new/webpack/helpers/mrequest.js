@@ -31,19 +31,19 @@ var mrequest   = {
     return `application/vnd.go.cd.${version}+json`;
   },
   xhrConfig:     {
-    v1:         xhr => {
+    v1:         (xhr) => {
       setHeaders(xhr, 'v1');
     },
-    v2:         xhr => {
+    v2:         (xhr) => {
       setHeaders(xhr, 'v2');
     },
-    v3:         xhr => {
+    v3:         (xhr) => {
       setHeaders(xhr, 'v3');
     },
-    v4:         xhr => {
+    v4:         (xhr) => {
       setHeaders(xhr, 'v4');
     },
-    forVersion: version => function (xhr) {
+    forVersion: (version) => function (xhr) {
       setHeaders(xhr, version);
     }
   },

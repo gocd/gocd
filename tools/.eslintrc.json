@@ -40,6 +40,15 @@
     }
   },
   "rules": {
+    "arrow-parens": [
+      "error"
+    ],
+    "block-scoped-var": [
+      "error"
+    ],
+    "eol-last": [
+      "error"
+    ],
     "indent": [
       "error",
       2

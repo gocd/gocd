@@ -33,9 +33,9 @@ import com.thoughtworks.go.domain.materials.ModifiedAction;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 import com.thoughtworks.go.domain.materials.svn.SvnCommand;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.input.SAXBuilder;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.input.SAXBuilder;
 
 public class SvnLogXmlParser {
 
@@ -79,7 +79,7 @@ public class SvnLogXmlParser {
         String revision = logEntry.getAttributeValue("revision");
 
         Modification modification = new Modification(author, comment, null, modifiedTime, revision);
-        
+
         List paths = logEntryPaths.getChildren("path");
         for (Iterator iterator = paths.iterator(); iterator.hasNext();) {
             Element node = (Element) iterator.next();

@@ -16,20 +16,20 @@
 
 package com.thoughtworks.go.config.validation;
 
+import com.thoughtworks.go.config.ExecTask;
+import com.thoughtworks.go.config.pluggabletask.PluggableTask;
+import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
+import com.thoughtworks.go.domain.Task;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
+import org.jdom2.input.SAXBuilder;
+import org.junit.Test;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import com.thoughtworks.go.config.ExecTask;
-import com.thoughtworks.go.config.pluggabletask.PluggableTask;
-import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
-import com.thoughtworks.go.domain.Task;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
-import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;

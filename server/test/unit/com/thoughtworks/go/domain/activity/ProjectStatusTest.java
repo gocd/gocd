@@ -19,7 +19,7 @@ package com.thoughtworks.go.domain.activity;
 import com.thoughtworks.go.domain.cctray.viewers.AllowedViewers;
 import com.thoughtworks.go.domain.cctray.viewers.Viewers;
 import com.thoughtworks.go.util.DateUtils;
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.junit.Test;
 
 import java.util.Date;

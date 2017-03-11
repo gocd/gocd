@@ -16,8 +16,8 @@
 
 package com.thoughtworks.go.config;
 
-import org.jdom.Document;
-import org.jdom.JDOMException;
+import org.jdom2.Document;
+import org.jdom2.JDOMException;
 
 /**
  * @understands steps required to make a cruise config capable of being written

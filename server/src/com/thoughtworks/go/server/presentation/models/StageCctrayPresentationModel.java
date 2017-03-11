@@ -24,7 +24,7 @@ import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.StageState;
 import com.thoughtworks.go.util.DateUtils;
-import org.jdom.Element;
+import org.jdom2.Element;
 
 public class StageCctrayPresentationModel {
     private final Pipeline pipeline;

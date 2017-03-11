@@ -646,7 +646,7 @@ public final class ConfigFileFixture {
             + "xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\""
             + CONFIG_SCHEMA_VERSION + "\">\n"
             + "  <server artifactsdir=\"other-artifacts\" agentAutoRegisterKey=\"default\" commandRepositoryLocation=\"default\" serverId=\"foo\" />\n"
-            + "</cruise>\n\n";
+            + "</cruise>\n";
 
     public static final String STAGE_WITH_EMPTY_AUTH = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
             + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
@@ -867,7 +867,7 @@ public final class ConfigFileFixture {
             + "      </stage>\n"
             + "    </pipeline>\n"
             + "  </pipelines>\n"
-            + "</cruise>\n\n";
+            + "</cruise>\n";
 
     public static final String EMPTY_DEPENDENCIES = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
             + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" "
@@ -890,7 +890,7 @@ public final class ConfigFileFixture {
             + "      </stage>\n"
             + "    </pipeline>\n"
             + "  </pipelines>\n"
-            + "</cruise>\n\n";
+            + "</cruise>\n";
 
     public static final String PIPELINE_WITH_TRACKINGTOOL = "<pipeline name=\"pipeline1\">\n"
             + "  <trackingtool link=\"http://mingle05/projects/cce/cards/${ID}\" regex=\"(evo-\\d+)\" />\n"

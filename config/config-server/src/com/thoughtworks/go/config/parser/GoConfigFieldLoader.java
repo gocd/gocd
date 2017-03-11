@@ -29,7 +29,7 @@ import com.thoughtworks.go.config.ConfigSubtag;
 import com.thoughtworks.go.config.ConfigValue;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.security.GoCipher;
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.springframework.beans.SimpleTypeConverter;
 import org.springframework.beans.TypeMismatchException;
 

@@ -16,8 +16,8 @@
 
 package com.thoughtworks.go.domain;
 
-import org.jdom.CDATA;
-import org.jdom.Element;
+import org.jdom2.CDATA;
+import org.jdom2.Element;
 
 public class BuildLogElement {
     private Element build;

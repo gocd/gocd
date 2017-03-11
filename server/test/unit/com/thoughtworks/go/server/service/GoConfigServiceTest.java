@@ -57,7 +57,7 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.IsInstanceOf;
-import org.jdom.input.JDOMParseException;
+import org.jdom2.input.JDOMParseException;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Before;

@@ -55,7 +55,7 @@ import org.apache.log4j.Logger;
 import org.dom4j.DocumentFactory;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
-import org.jdom.input.JDOMParseException;
+import org.jdom2.input.JDOMParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

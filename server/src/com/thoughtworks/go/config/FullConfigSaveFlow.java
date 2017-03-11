@@ -27,7 +27,7 @@ import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.CachedDigestUtils;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
-import org.jdom.Document;
+import org.jdom2.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,7 +110,7 @@ public abstract class FullConfigSaveFlow {
         return loader.preprocessAndValidate(configForEdit);
     }
 
-    protected org.jdom.Document documentFrom(CruiseConfig configForEdit) {
+    protected org.jdom2.Document documentFrom(CruiseConfig configForEdit) {
         LOGGER.debug("[Config Save] Building Document from CruiseConfig object: Starting.");
         Document document = writer.documentFrom(configForEdit);
         LOGGER.debug("[Config Save] Building Document from CruiseConfig object: Done.");

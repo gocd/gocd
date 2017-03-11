@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.util;
 
-import org.jdom.input.SAXBuilder;
+import org.jdom2.input.SAXBuilder;
 
 import java.net.URISyntaxException;
 import java.net.URL;

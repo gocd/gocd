@@ -17,7 +17,7 @@
 package com.thoughtworks.go.config.validation;
 
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
-import org.jdom.Element;
+import org.jdom2.Element;
 
 public interface GoConfigXMLValidator {
     void validate(Element element, ConfigElementImplementationRegistry registry) throws Exception;

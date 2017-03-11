@@ -24,11 +24,13 @@ import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.util.XmlUtils;
 import org.apache.commons.io.FileUtils;
 import org.bouncycastle.crypto.InvalidCipherTextException;
-import org.jdom.Attribute;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.input.SAXBuilder;
-import org.jdom.xpath.XPath;
+import org.jdom2.Attribute;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.filter.Filters;
+import org.jdom2.input.SAXBuilder;
+import org.jdom2.xpath.XPathExpression;
+import org.jdom2.xpath.XPathFactory;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -86,9 +88,10 @@ public class ConfigCipherUpdater {
             Document document = new SAXBuilder().build(configFile);
             List<String> encryptedAttributes = Arrays.asList("encryptedPassword", "encryptedManagerPassword");
             List<String> encryptedNodes = Arrays.asList("encryptedValue");
+            XPathFactory xPathFactory = XPathFactory.instance();
             for (String attributeName : encryptedAttributes) {
-                XPath xpathExpression = XPath.newInstance(String.format("//*[@%s]", attributeName));
-                List<Element> encryptedPasswordElements = xpathExpression.selectNodes(document);
+                XPathExpression<Element> xpathExpression = xPathFactory.compile(String.format("//*[@%s]", attributeName), Filters.element());
+                List<Element> encryptedPasswordElements = xpathExpression.evaluate(document);
                 for (Element element : encryptedPasswordElements) {
                     Attribute encryptedPassword = element.getAttribute(attributeName);
                     encryptedPassword.setValue(reEncryptUsingNewKey(oldCipher, newCipher, encryptedPassword.getValue()));
@@ -96,8 +99,8 @@ public class ConfigCipherUpdater {
                 }
             }
             for (String nodeName : encryptedNodes) {
-                XPath xpathExpression = XPath.newInstance(String.format("//%s", nodeName));
-                List<Element> encryptedNode = xpathExpression.selectNodes(document);
+                XPathExpression<Element> xpathExpression = xPathFactory.compile(String.format("//%s", nodeName), Filters.element());
+                List<Element> encryptedNode = xpathExpression.evaluate(document);
                 for (Element element : encryptedNode) {
                     element.setText(reEncryptUsingNewKey(oldCipher, newCipher, element.getValue()));
                     LOGGER.debug("Replaced encrypted value at {}", element.toString());

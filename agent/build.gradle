@@ -132,7 +132,7 @@ task verifyJar(type: VerifyJarTask) {
           "javax.inject-1.jar",
           "javax.servlet-api-3.1.0.jar",
           "jcommander-1.60.jar",
-          "jdom-1.0.jar",
+          "jdom-2.0.2.jar",
           "jetty-io-${versions.jetty}.jar",
           "jetty-util-${versions.jetty}.jar",
           "joda-time-2.3.jar",

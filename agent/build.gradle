@@ -138,8 +138,6 @@ task verifyJar(type: VerifyJarTask) {
           "joda-time-2.3.jar",
           "jolt-core-0.0.20.jar",
           "json-utils-0.0.20.jar",
-          "kxml2-2.3.0.jar",
-          "kxml2-min-2.3.0.jar",
           "log4j-1.2.17.jar",
           "objenesis-1.2.jar",
           "org.apache.felix.framework-4.2.1.jar",

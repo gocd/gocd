@@ -31,11 +31,11 @@ var PluginInfos = function (data) {
   });
 
   this.findById = function (id) {
-    return this.findPluginInfo(pi => pi.id() === id);
+    return this.findPluginInfo((pi) => pi.id() === id);
   };
 
   this.filterByType = function (type) {
-    return new PluginInfos(this.filterPluginInfo(pi => pi.type() === type));
+    return new PluginInfos(this.filterPluginInfo((pi) => pi.type() === type));
   };
 };
 

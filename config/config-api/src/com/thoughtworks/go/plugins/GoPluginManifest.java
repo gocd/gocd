@@ -20,7 +20,7 @@ import java.util.Dictionary;
 
 import com.thoughtworks.go.config.registry.PluginNamespace;
 import com.thoughtworks.go.util.StringUtil;
-import org.jdom.Namespace;
+import org.jdom2.Namespace;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
 

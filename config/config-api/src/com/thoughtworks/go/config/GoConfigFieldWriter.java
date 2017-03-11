@@ -23,7 +23,7 @@ import java.util.List;
 import com.thoughtworks.go.config.parser.GoConfigFieldTypeConverter;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.util.ConfigUtil;
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.springframework.beans.SimpleTypeConverter;
 import org.springframework.beans.TypeMismatchException;
 
@@ -198,7 +198,7 @@ public class GoConfigFieldWriter {
         boolean optional = field.getAnnotation(ConfigSubtag.class).optional();
         boolean isMissingElement = !configUtil.hasChild(e, tag);
         if(!optional && isMissingElement) {
-            throw bomb("Non optional tag '" + tag + "' is not in config file. Found: " + configUtil.elementOutput(e));            
+            throw bomb("Non optional tag '" + tag + "' is not in config file. Found: " + configUtil.elementOutput(e));
         }
         return optional && isMissingElement;
     }

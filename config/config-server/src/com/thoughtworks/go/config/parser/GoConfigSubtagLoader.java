@@ -28,7 +28,7 @@ import com.thoughtworks.go.config.ConfigInterface;
 import com.thoughtworks.go.config.ConfigSubtag;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ConfigUtil;
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import static com.thoughtworks.go.config.ConfigCache.annotationFor;
 import static com.thoughtworks.go.config.ConfigCache.isAnnotationPresent;

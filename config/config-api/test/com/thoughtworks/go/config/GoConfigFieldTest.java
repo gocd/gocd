@@ -22,7 +22,7 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.FileUtil;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
-import org.jdom.Element;
+import org.jdom2.Element;
 import static org.junit.Assert.assertThat;
 import org.junit.Before;
 import org.junit.Test;

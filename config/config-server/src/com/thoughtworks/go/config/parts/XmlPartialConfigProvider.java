@@ -21,7 +21,7 @@ import com.thoughtworks.go.domain.WildcardScanner;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import org.apache.log4j.Logger;
-import org.jdom.input.JDOMParseException;
+import org.jdom2.input.JDOMParseException;
 
 import java.io.File;
 import java.io.FileInputStream;

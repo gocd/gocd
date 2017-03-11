@@ -40,7 +40,7 @@ import com.thoughtworks.go.work.GoPublisher;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import java.io.File;
 import java.io.IOException;

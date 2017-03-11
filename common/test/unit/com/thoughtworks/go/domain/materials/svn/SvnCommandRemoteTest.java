@@ -30,7 +30,7 @@ import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.core.Is;
-import org.jdom.input.SAXBuilder;
+import org.jdom2.input.SAXBuilder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

@@ -23,7 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.thoughtworks.go.util.XmlUtils;
 import org.apache.commons.io.IOUtils;
-import org.jdom.Document;
+import org.jdom2.Document;
 import org.springframework.web.servlet.view.AbstractView;
 
 public class XmlView extends AbstractView {

@@ -27,7 +27,7 @@ import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.*;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.Is;
-import org.jdom.input.SAXBuilder;
+import org.jdom2.input.SAXBuilder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

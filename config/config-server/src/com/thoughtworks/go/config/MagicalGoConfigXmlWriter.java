@@ -22,7 +22,7 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.XmlUtils;
 import org.apache.log4j.Logger;
-import org.jdom.*;
+import org.jdom2.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

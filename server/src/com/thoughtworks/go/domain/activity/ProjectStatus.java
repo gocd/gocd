@@ -20,8 +20,8 @@ import com.thoughtworks.go.domain.cctray.viewers.NoOne;
 import com.thoughtworks.go.domain.cctray.viewers.Viewers;
 import com.thoughtworks.go.util.DateUtils;
 import org.apache.commons.lang.StringUtils;
-import org.jdom.Element;
-import org.jdom.output.XMLOutputter;
+import org.jdom2.Element;
+import org.jdom2.output.XMLOutputter;
 
 import java.util.Date;
 import java.util.HashSet;

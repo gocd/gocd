@@ -26,7 +26,7 @@ import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.util.ClassMockery;
 import com.thoughtworks.go.util.DateUtils;
 import org.hamcrest.Description;
-import org.jdom.Element;
+import org.jdom2.Element;
 import org.jmock.Expectations;
 import org.junit.Before;
 import org.junit.Test;

@@ -35,9 +35,9 @@ import com.thoughtworks.go.util.SvnLogXmlParser;
 import com.thoughtworks.go.util.command.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.input.SAXBuilder;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.input.SAXBuilder;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIf;

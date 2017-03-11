@@ -23,10 +23,10 @@ import com.thoughtworks.go.config.ConfigAttribute;
 import com.thoughtworks.go.config.ConfigTag;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.domain.Task;
-import org.jdom.Attribute;
-import org.jdom.Element;
-import org.jdom.Namespace;
-import org.jdom.output.XMLOutputter;
+import org.jdom2.Attribute;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
+import org.jdom2.output.XMLOutputter;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ObjectUtil.defaultIfNull;

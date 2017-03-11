@@ -560,7 +560,7 @@ task verifyWar(type: VerifyJarTask) {
       "javax.inject-1.jar",
       "javax.servlet-api-3.1.0.jar",
       "jaxen-1.1.jar",
-      "jdom-1.0.jar",
+      "jdom-2.0.2.jar",
       "joda-time-2.3.jar",
       "jolt-core-0.0.20.jar",
       "jruby-complete-1.7.26.jar",

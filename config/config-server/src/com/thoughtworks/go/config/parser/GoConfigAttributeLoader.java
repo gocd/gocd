@@ -23,7 +23,7 @@ import java.util.HashMap;
 import com.thoughtworks.go.config.ConfigAttribute;
 import com.thoughtworks.go.util.ConfigUtil;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
-import org.jdom.Element;
+import org.jdom2.Element;
 
 public class GoConfigAttributeLoader {
     private final ConfigUtil configUtil = new ConfigUtil("magic");

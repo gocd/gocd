@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.thoughtworks.go.plugins.GoPluginManifest;
-import org.jdom.Namespace;
+import org.jdom2.Namespace;
 import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleListener;
 import org.springframework.stereotype.Component;

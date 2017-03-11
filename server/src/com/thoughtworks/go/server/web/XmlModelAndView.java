@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.server.web;
 
-import org.jdom.Document;
+import org.jdom2.Document;
 import org.springframework.web.servlet.ModelAndView;
 
 public class XmlModelAndView extends ModelAndView {

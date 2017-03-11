@@ -18,9 +18,9 @@ package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.server.presentation.models.HtmlRenderer;
 import org.hamcrest.Matchers;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
+import org.jdom2.input.SAXBuilder;
 import org.junit.Test;
 
 import java.io.IOException;

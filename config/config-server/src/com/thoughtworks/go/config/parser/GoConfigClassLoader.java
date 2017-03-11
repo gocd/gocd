@@ -32,7 +32,7 @@ import com.thoughtworks.go.config.ConfigTag;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ConfigUtil;
-import org.jdom.Element;
+import org.jdom2.Element;
 
 import static com.thoughtworks.go.config.ConfigCache.annotationFor;
 import static com.thoughtworks.go.config.ConfigCache.isAnnotationPresent;

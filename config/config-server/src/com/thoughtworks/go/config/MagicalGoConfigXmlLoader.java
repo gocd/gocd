@@ -31,9 +31,9 @@ import com.thoughtworks.go.util.CachedDigestUtils;
 import com.thoughtworks.go.util.ListUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.log4j.Logger;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.input.SAXBuilder;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.input.SAXBuilder;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;

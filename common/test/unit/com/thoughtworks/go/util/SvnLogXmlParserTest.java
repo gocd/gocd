@@ -25,7 +25,7 @@ import java.util.List;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.ModifiedAction;
 import com.thoughtworks.go.domain.materials.ModifiedFile;
-import org.jdom.input.SAXBuilder;
+import org.jdom2.input.SAXBuilder;
 import org.junit.Test;
 
 import static com.thoughtworks.go.util.SvnLogXmlParser.convertDate;
@@ -148,7 +148,7 @@ public class SvnLogXmlParserTest {
         assertThat(mod.getRevision(), is("3"));
         assertThat(mod.getComment(), is(nullValue()));
     }
-    
+
 
     @Test
     public void shouldParseBJCruiseLogCorrectly() {

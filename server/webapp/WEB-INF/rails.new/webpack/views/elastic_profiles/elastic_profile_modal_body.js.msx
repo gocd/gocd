@@ -18,7 +18,6 @@ var m               = require("mithril");
 var _               = require('lodash');
 var $               = require('jquery');
 var f               = require('helpers/form_helper');
-var PluginInfos     = require('models/pipeline_configs/plugin_infos');
 var ElasticProfiles = require('models/elastic_profiles/elastic_profiles');
 var AngularPlugin   = require('views/shared/angular_plugin');
 
@@ -30,23 +29,22 @@ var autoCompleteCleanup = function (attrName) {
   };
 };
 
-var autoCompleteInitialize = function (model, attrName, selectCb) {
+var autoCompleteInitialize = function (model, pluginInfos, attrName, selectCb) {
   return function (vnode) {
     var elem       = $(vnode.dom);
     var $inputElem = $($(elem).find("input[data-prop-name='" + attrName + "']"));
-    var values     = _.map(PluginInfos(), function (pi) {
-      return pi.id();
-    });
+    var values     = pluginInfos().collectPluginInfoProperty('id');
 
     $inputElem.textcomplete([
       {
         match:   /([^\s].*)$/,
         index:   1, // use the second match in the regex to extract the search term
         search:  function (term, callback) {
-          term = term.toLowerCase();
-          callback($.map(values, function (word) {
+          term               = term.toLowerCase();
+          var filteredValues = _(values).map(function (word) {
             return word.toLowerCase().indexOf(term) >= 0 ? word : null;
-          }));
+          }).compact().value();
+          callback(filteredValues);
         },
         replace: function (word) {
           return word;
@@ -74,20 +72,16 @@ var ElasticProfileModalBody = {
     };
 
     this.selectPluginId = function () {
-      var pluginInfo = _.find(PluginInfos(), function (pi) {
-        return pi.id() === vnode.attrs.profile().pluginId();
-      });
+      var pluginInfo = vnode.attrs.pluginInfos().findById(vnode.attrs.profile().pluginId());
 
       if (!pluginInfo) {
         return;
       }
 
-      PluginInfos.PluginInfo.get(pluginInfo.id()).then(function (pluginInfo) {
-        setPluginInfo(pluginInfo);
-        var newProfile = new ElasticProfiles.Profile({id: vnode.attrs.profile().id(), pluginId: pluginInfo.id()});
-        newProfile.etag(vnode.attrs.profile().etag());
-        vnode.attrs.profile(newProfile);
-      }).always(m.redraw);
+      setPluginInfo(pluginInfo);
+      var newProfile = new ElasticProfiles.Profile({id: vnode.attrs.profile().id(), pluginId: pluginInfo.id()});
+      newProfile.etag(vnode.attrs.profile().etag());
+      vnode.attrs.profile(newProfile);
     };
   },
 
@@ -110,6 +104,14 @@ var ElasticProfileModalBody = {
       profileIdDisabledMessage = (<div>Editing of profile ID is disabled</div>);
     }
 
+    var angularPlugin;
+
+    if (vnode.attrs.pluginInfo()) {
+      angularPlugin = (<AngularPlugin pluginInfo={vnode.attrs.pluginInfo().profileSettings}
+                                      configuration={vnode.attrs.profile().properties}
+                                      key={vnode.attrs.pluginInfo() ? vnode.attrs.pluginInfo().id() : 'no-plugin'}/>);
+    }
+
     return (
       <div>
         <f.row collapse="true">
@@ -129,16 +131,14 @@ var ElasticProfileModalBody = {
                               isRequired="true"
                               label="Plugin Id"
                               onChange={vnode.state.selectPluginId.bind(vnode.state)}
-                              oncreate={autoCompleteInitialize(vnode.attrs.profile, 'pluginId', vnode.state.selectPluginId.bind(vnode.state))}
+                              oncreate={autoCompleteInitialize(vnode.attrs.profile, vnode.attrs.pluginInfos, 'pluginId', vnode.state.selectPluginId.bind(vnode.state))}
                               onbeforeremove={autoCompleteCleanup('pluginId')}
                               end="true"/>
           </f.row>
         </f.row>
 
         <div class="row collapse">
-          <AngularPlugin pluginInfo={vnode.attrs.pluginInfo}
-                         configuration={vnode.attrs.profile().properties}
-                         key={vnode.attrs.pluginInfo() ? vnode.attrs.pluginInfo().id() : 'no-plugin'}/>
+          {angularPlugin}
         </div>
       </div>
     );

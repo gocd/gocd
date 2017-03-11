@@ -18,7 +18,6 @@ module ApiV3
   module Plugin
     class PluginConfigurationRepresenter < BaseRepresenter
       property :key
-      property :type, skip_nil: true
       property :metadata, exec_context: :decorator
 
       def metadata

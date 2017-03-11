@@ -17,13 +17,14 @@ describe("ElasticProfilesWidget", function () {
 
   var $             = require("jquery");
   var m             = require("mithril");
+  var Stream        = require("mithril/stream");
   var simulateEvent = require('simulate-event');
 
   require('jasmine-jquery');
   require('jasmine-ajax');
 
   var ElasticProfilesWidget = require("views/elastic_profiles/elastic_profiles_widget");
-  var PluginInfos           = require('models/pipeline_configs/plugin_infos');
+  var PluginInfos           = require('models/shared/plugin_infos');
   var Modal                 = require('views/shared/new_modal');
 
   var $root, root;
@@ -58,7 +59,7 @@ describe("ElasticProfilesWidget", function () {
     "name":                        "Docker Elastic Agent Plugin",
     "version":                     "0.5",
     "type":                        "elastic-agent",
-    "pluggable_instance_settings": {
+    "profile_settings": {
       "configurations": [
         {
           "key":      "Image",
@@ -85,29 +86,10 @@ describe("ElasticProfilesWidget", function () {
       "view":           {
         "template": "<div></div>"
       }
-    },
-    "image":                       {
-      "content_type": "image/svg+xml",
-      "data":         "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjggMTI4Ij48ZyBmaWxsPSIjMDE5QkM2Ij48cGF0aCBkPSJNMTI0LjggNTIuMWMtNC4zLTIuNS0xMC0yLjgtMTQuOC0xLjQtLjYtNS4yLTQtOS43LTgtMTIuOWwtMS42LTEuMy0xLjQgMS42Yy0yLjcgMy4xLTMuNSA4LjMtMy4xIDEyLjMuMyAyLjkgMS4yIDUuOSAzIDguMy0xLjQuOC0yLjkgMS45LTQuMyAyLjQtMi44IDEtNS45IDItOC45IDJoLTYuN3YtMTQuMWgtMTN2LTI1aC0xNXYxMmgtMjV2MTNoLTEzdjE0aC0xMS4ybC0uMiAxLjVjLS41IDYuNC4zIDEyLjYgMyAxOC41bDEuMSAyLjIuMS4yYzcuOSAxMy40IDIxLjcgMTkgMzYuOCAxOSAyOS4yIDAgNTMuMy0xMy4xIDY0LjMtNDAuNiA3LjQuNCAxNS0xLjggMTguNi04LjlsLjktMS44LTEuNi0xem0tOTYuOC0xMy4xaDEwdjExaC0xMHYtMTF6bTEzLjEgNDQuMmMwIDEuNy0xLjQgMy4xLTMuMSAzLjEtMS43IDAtMy4xLTEuNC0zLjEtMy4xIDAtMS43IDEuNC0zLjEgMy4xLTMuMSAxLjcuMSAzLjEgMS40IDMuMSAzLjF6bS0xMy4xLTMxLjJoMTB2MTFoLTEwdi0xMXptLTEzIDBoMTF2MTFoLTExdi0xMXptMjcuNyA1MC4yYy0xNS44LS4xLTI0LjMtNS40LTMxLjMtMTIuNCAyLjEuMSA0LjEuMiA1LjkuMiAxLjYgMCAzLjIgMCA0LjctLjEgMy45LS4yIDcuMy0uNyAxMC4xLTEuNSAyLjMgNS4zIDYuNSAxMC4yIDE0IDEzLjhoLTMuNHptOC4zLTM5LjJoLTExdi0xMWgxMXYxMXptMC0xM2gtMTF2LTExaDExdjExem0xMyAxM2gtMTF2LTExaDExdjExem0wLTEzaC0xMXYtMTFoMTF2MTF6bTAtMTNoLTExdi0xMWgxMXYxMXptMTMgMjZoLTExdi0xMWgxMXYxMXpNMzguOCA4MS4yYy0uMi0uMS0uNS0uMi0uOC0uMi0xLjIgMC0yLjIgMS0yLjIgMi4yIDAgMS4yIDEgMi4yIDIuMiAyLjJzMi4yLTEgMi4yLTIuMmMwLS4zLS4xLS42LS4yLS44LS4yLjMtLjQuNS0uOC41LS41IDAtLjktLjQtLjktLjkuMS0uNC4zLS43LjUtLjh6Ii8+PC9nPjwvc3ZnPgo="
     }
   };
 
-  var allPluginInfosJSON = {
-    "_embedded": {
-      "plugin_info": [
-        {
-          "id":      "cd.go.contrib.elastic-agent.docker",
-          "name":    "Docker Elastic Agent Plugin",
-          "version": "0.5",
-          "type":    "elastic-agent",
-          "image":   {
-            "content_type": "image/svg+xml",
-            "data":         "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjggMTI4Ij48ZyBmaWxsPSIjMDE5QkM2Ij48cGF0aCBkPSJNMTI0LjggNTIuMWMtNC4zLTIuNS0xMC0yLjgtMTQuOC0xLjQtLjYtNS4yLTQtOS43LTgtMTIuOWwtMS42LTEuMy0xLjQgMS42Yy0yLjcgMy4xLTMuNSA4LjMtMy4xIDEyLjMuMyAyLjkgMS4yIDUuOSAzIDguMy0xLjQuOC0yLjkgMS45LTQuMyAyLjQtMi44IDEtNS45IDItOC45IDJoLTYuN3YtMTQuMWgtMTN2LTI1aC0xNXYxMmgtMjV2MTNoLTEzdjE0aC0xMS4ybC0uMiAxLjVjLS41IDYuNC4zIDEyLjYgMyAxOC41bDEuMSAyLjIuMS4yYzcuOSAxMy40IDIxLjcgMTkgMzYuOCAxOSAyOS4yIDAgNTMuMy0xMy4xIDY0LjMtNDAuNiA3LjQuNCAxNS0xLjggMTguNi04LjlsLjktMS44LTEuNi0xem0tOTYuOC0xMy4xaDEwdjExaC0xMHYtMTF6bTEzLjEgNDQuMmMwIDEuNy0xLjQgMy4xLTMuMSAzLjEtMS43IDAtMy4xLTEuNC0zLjEtMy4xIDAtMS43IDEuNC0zLjEgMy4xLTMuMSAxLjcuMSAzLjEgMS40IDMuMSAzLjF6bS0xMy4xLTMxLjJoMTB2MTFoLTEwdi0xMXptLTEzIDBoMTF2MTFoLTExdi0xMXptMjcuNyA1MC4yYy0xNS44LS4xLTI0LjMtNS40LTMxLjMtMTIuNCAyLjEuMSA0LjEuMiA1LjkuMiAxLjYgMCAzLjIgMCA0LjctLjEgMy45LS4yIDcuMy0uNyAxMC4xLTEuNSAyLjMgNS4zIDYuNSAxMC4yIDE0IDEzLjhoLTMuNHptOC4zLTM5LjJoLTExdi0xMWgxMXYxMXptMC0xM2gtMTF2LTExaDExdjExem0xMyAxM2gtMTF2LTExaDExdjExem0wLTEzaC0xMXYtMTFoMTF2MTF6bTAtMTNoLTExdi0xMWgxMXYxMXptMTMgMjZoLTExdi0xMWgxMXYxMXpNMzguOCA4MS4yYy0uMi0uMS0uNS0uMi0uOC0uMi0xLjIgMC0yLjIgMS0yLjIgMi4yIDAgMS4yIDEgMi4yIDIuMiAyLjJzMi4yLTEgMi4yLTIuMmMwLS4zLS4xLS42LS4yLS44LS4yLjMtLjQuNS0uOC41LS41IDAtLjktLjQtLjktLjkuMS0uNC4zLS43LjUtLjh6Ii8+PC9nPjwvc3ZnPgo="
-          }
-        }
-      ]
-    }
-  };
+  var allPluginInfosJSON = [dockerPluginInfoJSON];
 
   beforeEach(function () {
     jasmine.Ajax.install();
@@ -116,21 +98,12 @@ describe("ElasticProfilesWidget", function () {
       status:       200
     });
 
-    jasmine.Ajax.stubRequest('/go/api/admin/plugin_info?type=elastic-agent', undefined, 'GET').andReturn({
-      responseText: JSON.stringify(allPluginInfosJSON),
-      status:       200
-    });
-
-    jasmine.Ajax.stubRequest('/go/api/admin/plugin_info/' + dockerPluginInfoJSON.id, undefined, 'GET').andReturn({
-      responseText: JSON.stringify(dockerPluginInfoJSON),
-      status:       200
-    });
-
-    PluginInfos.init('elastic-agent');
-
     m.mount(root, {
       view: function () {
-        return m(ElasticProfilesWidget);
+        var fromJSON = PluginInfos.fromJSON(allPluginInfosJSON);
+        return m(ElasticProfilesWidget, {
+          pluginInfos: Stream(fromJSON)
+        });
       }
     });
     m.redraw(true);
@@ -138,7 +111,6 @@ describe("ElasticProfilesWidget", function () {
 
   afterEach(function () {
     jasmine.Ajax.uninstall();
-    PluginInfos([]);
 
     m.mount(root, null);
     m.redraw();

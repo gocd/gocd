@@ -43,11 +43,10 @@ var ElasticProfileWidget = {
     var actionIcons;
 
     if (vnode.attrs.pluginInfo) {
-      image       = (<img src={vnode.attrs.pluginInfo.image().toDataURI()}/>);
+      image       = (<img src={vnode.attrs.pluginInfo.imageUrl()}/>);
       actionIcons = (
         <div class="plugin-actions">
           <f.link class='edit-profile' onclick={vnode.attrs.onEdit}/>
-          {/*<f.link class='delete-profile-confirm' onclick={ctrl.deleteConfirm.bind(ctrl, profile, args.onDelete)}/>*/}
           <f.link class='delete-profile-confirm' onclick={vnode.attrs.onDelete}/>
         </div>
       );

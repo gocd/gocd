@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 var m       = require('mithril');
 var Stream  = require('mithril/stream');
 var _       = require('lodash');
 var $       = require('jquery');
 var angular = require('angular');
-
 
 var appName = function (configuration) {
   return 'app-' + configuration.uuid();
@@ -62,18 +62,18 @@ function onCreate(scope, args) {
         }
       }
 
-      function copyOverErrors(configurations, config) {
+      function copyOverErrors(configurations, configKey) {
         var matchingConfig = configurations.findConfiguration(function (eachConfig) {
-          return eachConfig.key() === config.key;
+          return eachConfig.key() === configKey;
         });
-        if (matchingConfig && matchingConfig.errors().hasErrors(config.key)) {
-          $scope.addError({key: config.key, errors: matchingConfig.errors().errors(config.key)});
+        if (matchingConfig && matchingConfig.errors().hasErrors(configKey)) {
+          $scope.addError({key: configKey, errors: matchingConfig.errors().errors(configKey)});
         }
       }
 
-      function addListeners(configurations, config) {
-        var listener = $scope.$watch(config.key, function (newValue) {
-          configurations.setConfiguration(config.key, newValue);
+      function addListeners(configurations, configKey) {
+        var listener = $scope.$watch(configKey, function (newValue) {
+          configurations.setConfiguration(configKey, newValue);
         });
         listeners.push(listener);
       }
@@ -82,15 +82,13 @@ function onCreate(scope, args) {
         unregisterExistingListeners();
         $scope.clearErrors();
 
-        _.map(pluginInfo.configurations(), function (config) {
-          $scope[config.key] = configurations.valueFor(config.key);
-          addListeners(configurations, config);
-          copyOverErrors(configurations, config);
+        pluginInfo.configurations().mapConfigurations(function (config) {
+          $scope[config.key()] = configurations.valueFor(config.key());
+          addListeners(configurations, config.key());
+          copyOverErrors(configurations, config.key());
         });
 
-        var supportedConfigKeys = _.map(pluginInfo.configurations(), function (config) {
-          return config.key;
-        });
+        var supportedConfigKeys = pluginInfo.configurations().collectConfigurationProperty('key');
 
         configurations.removeConfiguration(function (configuration) {
           return !_.includes(supportedConfigKeys, configuration.key());
@@ -123,10 +121,6 @@ var AngularPlugin = {
   },
 
   view: function (vnode) {
-    if (!vnode.attrs.pluginInfo()) {
-      return (<div/>);
-    }
-
     return (
       <div class='plugin-view'
            ng-controller={controllerName(vnode.attrs.configuration())}

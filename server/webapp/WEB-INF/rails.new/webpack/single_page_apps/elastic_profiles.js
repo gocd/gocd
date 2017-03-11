@@ -16,8 +16,9 @@
 
 var $                     = require('jquery');
 var m                     = require('mithril');
+var Stream                = require('mithril/stream');
 var ElasticProfilesWidget = require('views/elastic_profiles/elastic_profiles_widget');
-var PluginInfos           = require('models/pipeline_configs/plugin_infos');
+var PluginInfos           = require('models/shared/plugin_infos');
 var VersionUpdater        = require('models/shared/version_updater');
 require('foundation-sites');
 
@@ -25,8 +26,16 @@ $(function () {
   $(document).foundation();
   new VersionUpdater().update();
 
-  var onSuccess = function () {
-    m.mount($("#elastic-profiles").get(0), ElasticProfilesWidget);
+  var onSuccess = function (pluginInfos) {
+    var component = {
+      view: function () {
+        return m(ElasticProfilesWidget, {
+          pluginInfos: Stream(pluginInfos.filterByType('elastic-agent'))
+        });
+      }
+    };
+
+    m.mount($("#elastic-profiles").get(0), component);
   };
 
   var onFailure = function () {
@@ -36,5 +45,5 @@ $(function () {
     );
   };
 
-  Promise.all([PluginInfos.init('elastic-agent')]).then(onSuccess, onFailure);
+  PluginInfos.all().then(onSuccess, onFailure);
 });

@@ -15,11 +15,11 @@
  */
 describe('PluggableTasks', () => {
 
-  var _ = require('lodash');
+  const _ = require('lodash');
 
-  var PluggableTasks = require('models/pipeline_configs/pluggable_tasks');
-  var PluginInfos    = require('models/pipeline_configs/plugin_infos');
-  var Tasks          = require('models/pipeline_configs/tasks');
+  const PluggableTasks = require('models/pipeline_configs/pluggable_tasks');
+  const PluginInfos    = require('models/pipeline_configs/plugin_infos');
+  const Tasks          = require('models/pipeline_configs/tasks');
 
   afterEach(() => {
     PluginInfos([]);
@@ -28,20 +28,20 @@ describe('PluggableTasks', () => {
   describe('init', () => {
 
     it('should build pluggable task types from plugins', () => {
-      var dockerTaskPlugin = new PluginInfos.PluginInfo({
+      const dockerTaskPlugin = new PluginInfos.PluginInfo({
         id:           'docker.task',
         type:         'task',
         display_name: 'Docker', //eslint-disable-line camelcase
         description:  'Docker task plugin'
       });
 
-      var scmPlugin = new PluginInfos.PluginInfo({
+      const scmPlugin = new PluginInfos.PluginInfo({
         id:          'github.pr',
         type:        'scm',
         description: 'Github PR Plugin'
       });
 
-      var xunitConvertor = new PluginInfos.PluginInfo({
+      const xunitConvertor = new PluginInfos.PluginInfo({
         id:           'xunitConvertor',
         type:         'task',
         display_name: 'xUnit', //eslint-disable-line camelcase

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 xdescribe('SCMs', () => {
-  var SCMs = require('models/pipeline_configs/scms');
+  const SCMs = require('models/pipeline_configs/scms');
 
   describe('init', () => {
     afterEach(() => {
@@ -37,7 +37,7 @@ xdescribe('SCMs', () => {
           }
         });
 
-        var successCallback = jasmine.createSpy().and.callFake(scms => {
+        const successCallback = jasmine.createSpy().and.callFake(scms => {
           expect(scms.length).toBe(2);
 
           expect(scms[0].id()).toBe(1);
@@ -88,7 +88,7 @@ xdescribe('SCMs', () => {
           }
         });
 
-        var successCallback = jasmine.createSpy().and.callFake(scm => {
+        const successCallback = jasmine.createSpy().and.callFake(scm => {
           expect(scm.id()).toBe('plugin_id_2');
           expect(SCMs.scmIdToEtag[scm.id()]).toBe('etag');
         });
@@ -127,7 +127,7 @@ xdescribe('SCMs', () => {
     });
 
     it('should find all SCMs for a given plugin id', () => {
-      var scms = SCMs.filterByPluginId('github.pr');
+      const scms = SCMs.filterByPluginId('github.pr');
 
       expect(scms.length).toBe(2);
       expect(scms[0].id()).toBe('plugin_id_1');
@@ -137,7 +137,7 @@ xdescribe('SCMs', () => {
 
   describe('SCM', () => {
     describe('constructor', () => {
-      var scm;
+      let scm;
       beforeEach(() => {
         scm = new SCMs.SCM({
           /* eslint-disable camelcase */
@@ -173,7 +173,7 @@ xdescribe('SCMs', () => {
       });
 
       it('should default auto_update to true if not provided', () => {
-        var pluggableScm = new SCMs.SCM({
+        const pluggableScm = new SCMs.SCM({
           /* eslint-disable camelcase */
           id:              '43c45e0b-1b0c-46f3-a60a-2bbc5cec069c',
           name:            'material_name',
@@ -202,7 +202,7 @@ xdescribe('SCMs', () => {
           /* eslint-enable camelcase */
         };
 
-        var scm = new SCMs.SCM(json);
+        const scm = new SCMs.SCM(json);
 
         SCMs.scmIdToEtag['43c45e0b-1b0c-46f3-a60a-2bbc5cec069c'] = 'etag';
 
@@ -216,7 +216,7 @@ xdescribe('SCMs', () => {
             }
           });
 
-          var successCallback = jasmine.createSpy().and.callFake(scm => {
+          const successCallback = jasmine.createSpy().and.callFake(scm => {
             expect(scm.name()).toBe('material_name');
             expect(SCMs.scmIdToEtag[scm.id()]).toBe('some-etag');
           });
@@ -242,7 +242,7 @@ xdescribe('SCMs', () => {
           configuration:   [{key: 'url', value: 'path/to/repo'}, {key: 'username', value: 'some_name'}]
         };
 
-        var scm = new SCMs.SCM(json);
+        const scm = new SCMs.SCM(json);
 
         jasmine.Ajax.withMock(() => {
           jasmine.Ajax.stubRequest('/go/api/admin/scms', undefined, 'POST').andReturn({
@@ -254,7 +254,7 @@ xdescribe('SCMs', () => {
             }
           });
 
-          var successCallback = jasmine.createSpy().and.callFake(scm => {
+          const successCallback = jasmine.createSpy().and.callFake(scm => {
             expect(scm.name()).toBe('material_name');
             expect(SCMs.scmIdToEtag[scm.id()]).toBe('some-etag');
           });
@@ -268,7 +268,7 @@ xdescribe('SCMs', () => {
     describe('clone', () => {
       it('should return a cloned copy of the object', () => {
         /* eslint-disable camelcase */
-        var scm = new SCMs.SCM({
+        const scm = new SCMs.SCM({
           id:              '43c45e0b-1b0c-46f3-a60a-2bbc5cec069c',
           name:            'material_name',
           auto_update:     true,
@@ -284,7 +284,7 @@ xdescribe('SCMs', () => {
     describe('reInitialize', () => {
       it('should re-initilaize with provided data', () => {
         /* eslint-disable camelcase */
-        var scm = new SCMs.SCM({
+        const scm = new SCMs.SCM({
           id:              '43c45e0b-1b0c-46f3-a60a-2bbc5cec069c',
           name:            'material_name',
           auto_update:     true,
@@ -292,7 +292,7 @@ xdescribe('SCMs', () => {
           configuration:   [{key: 'url', value: 'path/to/repo'}, {key: 'username', value: 'some_name'}]
         });
 
-        var sampleJSON = {
+        const sampleJSON = {
           id:              '1ada7306-d028-415c-960b-1242abcd4834',
           name:            'new_name',
           auto_update:     false,
@@ -311,7 +311,7 @@ xdescribe('SCMs', () => {
   describe('SCMs.SCM.Configurations', () => {
     describe('fromJSON', () => {
       it('should generate a list of configurations', () => {
-        var configurations = SCMs.SCM.Configurations.fromJSON([{key: 'url', value: 'path/to/repo'}, {
+        const configurations = SCMs.SCM.Configurations.fromJSON([{key: 'url', value: 'path/to/repo'}, {
           key:   'username',
           value: 'some_name'
         }]);
@@ -324,7 +324,7 @@ xdescribe('SCMs', () => {
       });
 
       it('should handle secure configurations', () => {
-        var configurations = SCMs.SCM.Configurations.fromJSON([{key: 'username', value: 'some_name'}, {
+        const configurations = SCMs.SCM.Configurations.fromJSON([{key: 'username', value: 'some_name'}, {
           key:             'password',
           encrypted_value: 'adkfkk=' // eslint-disable-line camelcase
         }]);
@@ -337,7 +337,7 @@ xdescribe('SCMs', () => {
 
     describe('toJSON', () => {
       it('should serialize to JSON', () => {
-        var configurations = SCMs.SCM.Configurations.fromJSON([{key: 'url', value: 'path/to/repo'}, {
+        const configurations = SCMs.SCM.Configurations.fromJSON([{key: 'url', value: 'path/to/repo'}, {
           key:   'username',
           value: 'some_name'
         }]);
@@ -349,7 +349,7 @@ xdescribe('SCMs', () => {
       });
 
       it('should handle secure configurations', () => {
-        var configurations = SCMs.SCM.Configurations.fromJSON([{key: 'username', value: 'some_name'}, {
+        const configurations = SCMs.SCM.Configurations.fromJSON([{key: 'username', value: 'some_name'}, {
           key:             'password',
           encrypted_value: 'adkfkk=' // eslint-disable-line camelcase
         }]);
@@ -363,7 +363,7 @@ xdescribe('SCMs', () => {
 
     describe('setConfiguration', () => {
       it('should add a configuration', () => {
-        var configurations = new SCMs.SCM.Configurations([]);
+        const configurations = new SCMs.SCM.Configurations([]);
 
         configurations.setConfiguration('key', 'val');
 
@@ -373,7 +373,7 @@ xdescribe('SCMs', () => {
       });
 
       it('should update a configuration if present', () => {
-        var configurations = SCMs.SCM.Configurations.fromJSON([{key: 'url', value: 'path/to/repo'}]);
+        const configurations = SCMs.SCM.Configurations.fromJSON([{key: 'url', value: 'path/to/repo'}]);
 
         configurations.setConfiguration('url', 'new/path');
 
@@ -383,7 +383,7 @@ xdescribe('SCMs', () => {
       });
 
       it('should change a secure configuration to unsecure on update', () => {
-        var configurations = SCMs.SCM.Configurations.fromJSON([{key: 'password', encrypted_value: 'jdbfj+='}]); //eslint-disable-line camelcase
+        const configurations = SCMs.SCM.Configurations.fromJSON([{key: 'password', encrypted_value: 'jdbfj+='}]); //eslint-disable-line camelcase
 
         expect(configurations.firstConfiguration().isSecureValue()).toBe(true);
 
@@ -394,7 +394,7 @@ xdescribe('SCMs', () => {
       });
 
       it('should not update a configuration if new value is same as old', () => {
-        var configurations = SCMs.SCM.Configurations.fromJSON([{key: 'password', encrypted_value: 'jdbfj+='}]); // eslint-disable-line camelcase
+        const configurations = SCMs.SCM.Configurations.fromJSON([{key: 'password', encrypted_value: 'jdbfj+='}]); // eslint-disable-line camelcase
 
         expect(configurations.firstConfiguration().isSecureValue()).toBe(true);
 

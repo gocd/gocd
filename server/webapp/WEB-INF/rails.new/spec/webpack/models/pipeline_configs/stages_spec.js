@@ -15,12 +15,12 @@
  */
 describe("Stages Model", () => {
 
-  var s = require("string-plus");
+  const s = require("string-plus");
 
-  var Stages   = require("models/pipeline_configs/stages");
-  var Approval = require('models/pipeline_configs/approval');
+  const Stages   = require("models/pipeline_configs/stages");
+  const Approval = require('models/pipeline_configs/approval');
 
-  var stages, stage;
+  let stages, stage;
   beforeEach(() => {
     stages = new Stages();
     stage  = stages.createStage({
@@ -59,37 +59,37 @@ describe("Stages Model", () => {
 
   describe("validations", () => {
     it("should not allow blank stage names", () => {
-      var errors = stage.validate();
+      let errors = stage.validate();
       expect(errors._isEmpty()).toBe(true);
 
       stage.name("");
-      var duplicateStage = stages.createStage({name: stage.name()});
+      const duplicateStage = stages.createStage({name: stage.name()});
 
       errors                = stage.validate();
-      var errorsOnDuplicate = duplicateStage.validate();
+      const errorsOnDuplicate = duplicateStage.validate();
 
       expect(errors.errors('name')).toEqual(['Name must be present']);
       expect(errorsOnDuplicate.errors('name')).toEqual(['Name must be present']);
     });
 
     it("should not allow duplicate stage names", () => {
-      var errorsOnOriginal = stage.validate();
+      let errorsOnOriginal = stage.validate();
       expect(errorsOnOriginal._isEmpty()).toBe(true);
 
-      var duplicateStage = stages.createStage({
+      const duplicateStage = stages.createStage({
         name: "UnitTest"
       });
 
       errorsOnOriginal = stage.validate();
       expect(errorsOnOriginal.errors('name')).toEqual(['Name is a duplicate']);
 
-      var errorsOnDuplicate = duplicateStage.validate();
+      const errorsOnDuplicate = duplicateStage.validate();
       expect(errorsOnDuplicate.errors('name')).toEqual(['Name is a duplicate']);
     });
 
     describe('validate associations', () => {
       it('should validate environmental variables', () => {
-        var stage = Stages.Stage.fromJSON(sampleStageJSON());
+        const stage = Stages.Stage.fromJSON(sampleStageJSON());
 
         expect(stage.isValid()).toBe(true);
 
@@ -100,7 +100,7 @@ describe("Stages Model", () => {
       });
 
       it('should validate jobs', () => {
-        var stage = Stages.Stage.fromJSON({
+        const stage = Stages.Stage.fromJSON({
           name: 'stage1',
           jobs: [
             {name: 'job1'}
@@ -128,7 +128,7 @@ describe("Stages Model", () => {
       expect(stage.cleanWorkingDirectory()).toBe(false);
       expect(stage.neverCleanupArtifacts()).toBe(true);
 
-      var expectedEnvironmentVarNames = stage.environmentVariables().mapVariables(variable => variable.name());
+      const expectedEnvironmentVarNames = stage.environmentVariables().mapVariables(variable => variable.name());
 
       expect(expectedEnvironmentVarNames).toEqual(['MULTIPLE_LINES', 'COMPLEX']);
     });

@@ -15,12 +15,12 @@
  */
 describe("Pipeline Model", () => {
 
-  var s = require("string-plus");
+  const s = require("string-plus");
 
-  var Pipeline     = require("models/pipeline_configs/pipeline");
-  var TrackingTool = require('models/pipeline_configs/tracking_tool');
+  const Pipeline     = require("models/pipeline_configs/pipeline");
+  const TrackingTool = require('models/pipeline_configs/tracking_tool');
 
-  var pipeline, timer;
+  let pipeline, timer;
   beforeEach(() => {
     timer    = new Pipeline.Timer({spec: "0 0 22 ? * MON-FRI"});
     pipeline = new Pipeline({
@@ -80,7 +80,7 @@ describe("Pipeline Model", () => {
   });
 
   it("should default the pipeline scheduling type to the approval type of first stage", () => {
-    var pipeline = Pipeline.fromJSON({
+    const pipeline = Pipeline.fromJSON({
       stages: [{
         name:     'sampleStage',
         approval: {
@@ -97,19 +97,19 @@ describe("Pipeline Model", () => {
   describe("validations", () => {
     it("should validate presence of labelTemplate", () => {
       pipeline.labelTemplate("");
-      var errors = pipeline.validate();
+      const errors = pipeline.validate();
       expect(errors.errors('labelTemplate')).toEqual(['Label template must be present']);
     });
 
     it("should validate format of labelTemplate", () => {
       pipeline.labelTemplate("foo");
-      var errors = pipeline.validate();
+      const errors = pipeline.validate();
       expect(errors.errors('labelTemplate')).toEqual(["Label should be composed of alphanumeric text, it may contain the build number as ${COUNT}, it may contain a material revision as ${<material-name>} or ${<material-name>[:<length>]}, or use params as #{<param-name>}"]);
     });
 
     describe('validate association', () => {
       it('should validate materials', () => {
-        var pipeline = Pipeline.fromJSON(samplePipelineJSON());
+        const pipeline = Pipeline.fromJSON(samplePipelineJSON());
 
         expect(pipeline.isValid()).toBe(true);
 
@@ -120,7 +120,7 @@ describe("Pipeline Model", () => {
       });
 
       it('should validate environmental variables', () => {
-        var pipeline = Pipeline.fromJSON(samplePipelineJSON());
+        const pipeline = Pipeline.fromJSON(samplePipelineJSON());
 
         expect(pipeline.isValid()).toBe(true);
 
@@ -131,7 +131,7 @@ describe("Pipeline Model", () => {
       });
 
       it('should validate parameters', () => {
-        var pipeline = Pipeline.fromJSON(samplePipelineJSON());
+        const pipeline = Pipeline.fromJSON(samplePipelineJSON());
 
         expect(pipeline.isValid()).toBe(true);
 
@@ -142,7 +142,7 @@ describe("Pipeline Model", () => {
       });
 
       it('should validate tracking tools', () => {
-        var pipeline = Pipeline.fromJSON(samplePipelineJSON());
+        const pipeline = Pipeline.fromJSON(samplePipelineJSON());
 
         expect(pipeline.isValid()).toBe(true);
 
@@ -153,7 +153,7 @@ describe("Pipeline Model", () => {
       });
 
       it('should validate stages', () => {
-        var pipeline = Pipeline.fromJSON({
+        const pipeline = Pipeline.fromJSON({
           /* eslint-disable camelcase */
           label_template: "foo-1.0.${COUNT}-${svn}",
           tracking_tool:  {
@@ -178,21 +178,21 @@ describe("Pipeline Model", () => {
   });
 
   describe("Serialization/De-serialization to/from JSON", () => {
-    var pipeline;
+    let pipeline;
 
     beforeEach(() => {
       pipeline = Pipeline.fromJSON(samplePipelineJSON());
     });
 
     it("should serialize to JSON", () => {
-      var result = JSON.stringify(pipeline, s.snakeCaser);
+      const result = JSON.stringify(pipeline, s.snakeCaser);
       expect(JSON.parse(result)).toEqual(samplePipelineJSON());
     });
 
     it("should de-serialize from JSON", () => {
-      var expectedParamNames          = pipeline.parameters().collectParameterProperty('name');
-      var expectedEnvironmentVarNames = pipeline.environmentVariables().collectVariableProperty('name');
-      var expectedMaterialNames       = pipeline.materials().collectMaterialProperty('name');
+      const expectedParamNames          = pipeline.parameters().collectParameterProperty('name');
+      const expectedEnvironmentVarNames = pipeline.environmentVariables().collectVariableProperty('name');
+      const expectedMaterialNames       = pipeline.materials().collectMaterialProperty('name');
 
       expect(pipeline.name()).toBe("yourproject");
       expect(pipeline.trackingTool().type()).toBe('generic');

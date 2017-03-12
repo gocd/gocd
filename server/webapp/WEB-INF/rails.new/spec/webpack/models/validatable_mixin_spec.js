@@ -15,19 +15,19 @@
  */
 describe('Validatable', () => {
 
-  var Stream      = require('mithril/stream');
-  var _           = require('lodash');
-  var s           = require('string-plus');
-  var Validatable = require('models/mixins/validatable_mixin');
-  var Mixins      = require('models/mixins/model_mixins');
+  const Stream      = require('mithril/stream');
+  const _           = require('lodash');
+  const s           = require('string-plus');
+  const Validatable = require('models/mixins/validatable_mixin');
+  const Mixins      = require('models/mixins/model_mixins');
 
   describe('errors', () => {
-    var Material = function (data) {
+    const Material = function (data) {
       Validatable.call(this, data);
     };
 
     it('should map errors', () => {
-      var material = new Material({errors: {url: ["Cannot be blank"]}});
+      const material = new Material({errors: {url: ["Cannot be blank"]}});
 
       expect(material.errors()._isEmpty()).toBe(false);
       expect(material.errors().errors('url')).toEqual(["Cannot be blank"]);
@@ -35,7 +35,7 @@ describe('Validatable', () => {
   });
 
   describe('validatePresenceOf', () => {
-    var Material = function (data) {
+    const Material = function (data) {
       Validatable.call(this, data);
       this.name = Stream('');
 
@@ -43,7 +43,7 @@ describe('Validatable', () => {
     };
 
     it('should validate the presence of a given field', () => {
-      var material = new Material({});
+      const material = new Material({});
 
       material.validate();
 
@@ -52,7 +52,7 @@ describe('Validatable', () => {
     });
 
     it('should be conditional', () => {
-      var EnvVariable = function (data) {
+      const EnvVariable = function (data) {
         Validatable.call(this, data);
         this.name  = Stream('');
         this.value = Stream('');
@@ -64,7 +64,7 @@ describe('Validatable', () => {
         });
       };
 
-      var variable = new EnvVariable({});
+      const variable = new EnvVariable({});
 
       variable.validate();
 
@@ -73,7 +73,7 @@ describe('Validatable', () => {
   });
 
   describe('validateUniquenessOf', () => {
-    var Variables = function (data) {
+    const Variables = function (data) {
       Mixins.HasMany.call(this, {
         factory:    Variables.Variable.create,
         as:         'Variable',
@@ -92,9 +92,9 @@ describe('Validatable', () => {
     };
 
     it('should validate uniqueness of a given field', () => {
-      var var1      = new Variables.Variable({key: 'name'});
-      var var2      = new Variables.Variable({key: 'name'});
-      var variables = new Variables([var1, var2]);
+      const var1      = new Variables.Variable({key: 'name'});
+      const var2      = new Variables.Variable({key: 'name'});
+      const variables = new Variables([var1, var2]);
       var1.parent(variables);
       var1.parent(variables);
 
@@ -105,7 +105,7 @@ describe('Validatable', () => {
     });
 
     it('should skip validation in absence of parent', () => {
-      var variable = new Variables.Variable({key: 'name'});
+      const variable = new Variables.Variable({key: 'name'});
 
       variable.validate();
 
@@ -113,9 +113,9 @@ describe('Validatable', () => {
     });
 
     it('should skip validation if attribute is empty', () => {
-      var var1      = new Variables.Variable({key: ''});
-      var var2      = new Variables.Variable({key: ''});
-      var variables = new Variables([var1, var2]);
+      const var1      = new Variables.Variable({key: ''});
+      const var2      = new Variables.Variable({key: ''});
+      const variables = new Variables([var1, var2]);
       var1.parent(variables);
       var1.parent(variables);
 
@@ -126,7 +126,7 @@ describe('Validatable', () => {
   });
 
   describe('validateUrlPattern', () => {
-    var Material = function (data) {
+    const Material = function (data) {
       Validatable.call(this, data);
       this.url = Stream(data.url);
 
@@ -134,7 +134,7 @@ describe('Validatable', () => {
     };
 
     it('should validate url pattern', () => {
-      var material = new Material({url: 'ftp://some.com'});
+      const material = new Material({url: 'ftp://some.com'});
 
       material.validate();
 
@@ -143,7 +143,7 @@ describe('Validatable', () => {
     });
 
     it('should skip validation for empty attribute', () => {
-      var material = new Material({url: ''});
+      const material = new Material({url: ''});
 
       material.validate();
 
@@ -152,7 +152,7 @@ describe('Validatable', () => {
   });
 
   describe('validateFormatOf', () => {
-    var Material = function (data) {
+    const Material = function (data) {
       Validatable.call(this, data);
       this.url = Stream(data.url);
 
@@ -160,7 +160,7 @@ describe('Validatable', () => {
     };
 
     it('should validate the format of field', () => {
-      var material = new Material({url: 'ftp://some.com'});
+      const material = new Material({url: 'ftp://some.com'});
 
       material.validate();
 
@@ -169,7 +169,7 @@ describe('Validatable', () => {
     });
 
     it('should skip validation for empty attribute', () => {
-      var material = new Material({url: ''});
+      const material = new Material({url: ''});
 
       material.validate();
 
@@ -178,12 +178,12 @@ describe('Validatable', () => {
   });
 
   describe('validateWith', () => {
-    var Material = function (data) {
+    const Material = function (data) {
       Validatable.call(this, data);
       this.name = Stream(data.name);
       this.url  = Stream(data.url);
 
-      var UrlValidator = function () {
+      const UrlValidator = function () {
         this.validate = entity => {
           if (_.isEmpty(entity.url())) {
             entity.errors().add('url', 'Url cannot be blank');
@@ -191,7 +191,7 @@ describe('Validatable', () => {
         };
       };
 
-      var NameValidator = function () {
+      const NameValidator = function () {
         this.validate = entity => {
           if (_.isEmpty(entity.url())) {
             entity.errors().add('name', 'Name cannot be blank');
@@ -204,7 +204,7 @@ describe('Validatable', () => {
     };
 
     it('should validate with custom validator', () => {
-      var material = new Material({});
+      const material = new Material({});
 
       material.validate();
 
@@ -215,14 +215,14 @@ describe('Validatable', () => {
   });
 
   describe('validateAssociated', () => {
-    var Material = function (data) {
+    const Material = function (data) {
       Validatable.call(this, data);
       this.url = Stream(data.url);
 
       this.validatePresenceOf('url');
     };
 
-    var Pipeline = function (data) {
+    const Pipeline = function (data) {
       Validatable.call(this, data);
       this.material = Stream(new Material(data.material));
 
@@ -230,7 +230,7 @@ describe('Validatable', () => {
     };
 
     it('should validate associated attributes', () => {
-      var pipeline = new Pipeline({material: {}});
+      const pipeline = new Pipeline({material: {}});
 
       pipeline.isValid();
 
@@ -242,7 +242,7 @@ describe('Validatable', () => {
   });
 
   describe('validate', () => {
-    var Material = function (data) {
+    const Material = function (data) {
       Validatable.call(this, data);
       this.username = Stream('');
       this.password = Stream('');
@@ -252,7 +252,7 @@ describe('Validatable', () => {
     };
 
     it('should validate the model', () => {
-      var material = new Material({});
+      const material = new Material({});
 
       material.validate();
 
@@ -262,7 +262,7 @@ describe('Validatable', () => {
     });
 
     it('should be able validate a single attribute', () => {
-      var material = new Material({});
+      const material = new Material({});
 
       material.validate('username');
 
@@ -272,7 +272,7 @@ describe('Validatable', () => {
     });
 
     it('should clear existing errors before validating', () => {
-      var material = new Material({});
+      const material = new Material({});
 
       material.validate();
 
@@ -287,7 +287,7 @@ describe('Validatable', () => {
     });
 
     it('should clear existing errors for a given attribute before validating', () => {
-      var material = new Material({});
+      const material = new Material({});
 
       material.validate();
 
@@ -304,7 +304,7 @@ describe('Validatable', () => {
   });
 
   describe('isValid', () => {
-    var Variables = function (data) {
+    const Variables = function (data) {
       Mixins.HasMany.call(this, {
         factory:    Variables.Variable.create,
         as:         'Variable',
@@ -325,9 +325,9 @@ describe('Validatable', () => {
     };
 
     it('should validate the model', () => {
-      var var1      = new Variables.Variable({key: 'name'});
-      var var2      = new Variables.Variable({key: 'name'});
-      var variables = new Variables([var1, var2]);
+      const var1      = new Variables.Variable({key: 'name'});
+      const var2      = new Variables.Variable({key: 'name'});
+      const variables = new Variables([var1, var2]);
       var1.parent(variables);
       var1.parent(variables);
 
@@ -339,21 +339,21 @@ describe('Validatable', () => {
     });
 
     it('should be invalid if associated attributes are invalid', () => {
-      var Material = function (data) {
+      const Material = function (data) {
         Validatable.call(this, data);
         this.url = Stream(data.url);
 
         this.validatePresenceOf('url');
       };
 
-      var Task = function (data) {
+      const Task = function (data) {
         Validatable.call(this, data);
         this.command = Stream(data.command);
 
         this.validatePresenceOf('command');
       };
 
-      var Pipeline = function (data) {
+      const Pipeline = function (data) {
         Validatable.call(this, data);
         this.material = Stream(new Material(data.material));
         this.task     = Stream(new Task(data.task));
@@ -362,7 +362,7 @@ describe('Validatable', () => {
         this.validateAssociated('task');
       };
 
-      var pipeline = new Pipeline({material: {}, task: {command: 'some_command'}});
+      const pipeline = new Pipeline({material: {}, task: {command: 'some_command'}});
 
       expect(pipeline.isValid()).toBe(false);
       expect(pipeline.errors()._isEmpty()).toBe(true);

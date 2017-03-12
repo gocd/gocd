@@ -15,11 +15,11 @@
  */
 describe('PluggableSCMs', () => {
 
-  var _ = require('lodash');
+  const _ = require('lodash');
 
-  var PluggableSCMs = require('models/pipeline_configs/pluggable_scms');
-  var PluginInfos   = require('models/pipeline_configs/plugin_infos');
-  var Materials     = require('models/pipeline_configs/materials');
+  const PluggableSCMs = require('models/pipeline_configs/pluggable_scms');
+  const PluginInfos   = require('models/pipeline_configs/plugin_infos');
+  const Materials     = require('models/pipeline_configs/materials');
 
   afterEach(() => {
     PluginInfos([]);
@@ -29,20 +29,20 @@ describe('PluggableSCMs', () => {
   describe('init', () => {
 
     it('should build pluggable scm types from plugins', () => {
-      var dockerTaskPlugin = new PluginInfos.PluginInfo({
+      const dockerTaskPlugin = new PluginInfos.PluginInfo({
         id:          'docker.task',
         type:        'task',
         description: 'Docker task plugin'
       });
 
-      var scmPlugin = new PluginInfos.PluginInfo({
+      const scmPlugin = new PluginInfos.PluginInfo({
         id:           'github.pr',
         type:         'scm',
         display_name: 'Github PR', // eslint-disable-line camelcase
         description:  'Github PR Plugin'
       });
 
-      var xunitConvertor = new PluginInfos.PluginInfo({
+      const xunitConvertor = new PluginInfos.PluginInfo({
         id:           'scm.poller',
         type:         'scm',
         display_name: 'SCM Poller', // eslint-disable-line camelcase

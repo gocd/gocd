@@ -15,12 +15,12 @@
  */
 describe("Task Model", () => {
 
-  var s = require("string-plus");
+  const s = require("string-plus");
 
-  var Tasks = require("models/pipeline_configs/tasks");
+  const Tasks = require("models/pipeline_configs/tasks");
 
-  var PluginInfos = require('models/pipeline_configs/plugin_infos');
-  var task;
+  const PluginInfos = require('models/pipeline_configs/plugin_infos');
+  let task;
   describe("Ant", () => {
     beforeEach(() => {
       task = new Tasks.Task.Ant({
@@ -56,10 +56,10 @@ describe("Task Model", () => {
     });
 
     it('should initialize onCancel task', () => {
-      var cancelTask = 'cancelTask';
+      const cancelTask = 'cancelTask';
       spyOn(Tasks.Task, 'fromJSON').and.returnValue(cancelTask);
 
-      var task = new Tasks.Task.Ant({
+      const task = new Tasks.Task.Ant({
         onCancelTask: {type: 'Nant'}
       });
 
@@ -67,7 +67,7 @@ describe("Task Model", () => {
     });
 
     it('should not have onCancel task if not specified', () => {
-      var task = new Tasks.Task.Ant({
+      const task = new Tasks.Task.Ant({
         onCancelTask: null
       });
 
@@ -157,10 +157,10 @@ describe("Task Model", () => {
     });
 
     it('should initialize onCancel task', () => {
-      var cancelTask = 'cancelTask';
+      const cancelTask = 'cancelTask';
       spyOn(Tasks.Task, 'fromJSON').and.returnValue(cancelTask);
 
-      var task = new Tasks.Task.NAnt({
+      const task = new Tasks.Task.NAnt({
         onCancelTask: {type: 'Nant'}
       });
 
@@ -168,7 +168,7 @@ describe("Task Model", () => {
     });
 
     it('should not have onCancel task if not specified', () => {
-      var task = new Tasks.Task.NAnt({
+      const task = new Tasks.Task.NAnt({
         onCancelTask: null
       });
 
@@ -221,7 +221,7 @@ describe("Task Model", () => {
 
   describe("Exec", () => {
     describe('initialize', () => {
-      var taskJSON, task;
+      let taskJSON, task;
       beforeEach(() => {
         taskJSON = {
           command:          'bash',
@@ -243,7 +243,7 @@ describe("Task Model", () => {
       it("should initialize task model with args as list", () => {
         taskJSON['arguments'] = ['-c', 'ls -al /'];
 
-        var task = new Tasks.Task.Exec(taskJSON);
+        const task = new Tasks.Task.Exec(taskJSON);
 
         expect(task.args().data()).toEqual(['-c', 'ls -al /']);
       });
@@ -251,7 +251,7 @@ describe("Task Model", () => {
       it("should initialize task model with args as string", () => {
         taskJSON['args'] = '-a';
 
-        var task = new Tasks.Task.Exec(taskJSON);
+        const task = new Tasks.Task.Exec(taskJSON);
 
         expect(task.args().data()).toEqual('-a');
       });
@@ -262,16 +262,16 @@ describe("Task Model", () => {
 
       it('should have a string representation', () => {
         taskJSON['args'] = '-a';
-        var task         = new Tasks.Task.Exec(taskJSON);
+        const task         = new Tasks.Task.Exec(taskJSON);
 
         expect(task.toString()).toBe("bash -a");
       });
 
       it('should initialize onCancel task', () => {
-        var cancelTask = 'cancelTask';
+        const cancelTask = 'cancelTask';
         spyOn(Tasks.Task, 'fromJSON').and.returnValue(cancelTask);
 
-        var task = new Tasks.Task.Exec({
+        const task = new Tasks.Task.Exec({
           onCancelTask: {type: 'Nant'}
         });
 
@@ -279,7 +279,7 @@ describe("Task Model", () => {
       });
 
       it('should not have onCancel task if not specified', () => {
-        var task = new Tasks.Task.Exec({
+        const task = new Tasks.Task.Exec({
           onCancelTask: null
         });
 
@@ -289,7 +289,7 @@ describe("Task Model", () => {
 
     describe('validation', () => {
       it('should validate presence of command', () => {
-        var task = new Tasks.Task.Exec({});
+        const task = new Tasks.Task.Exec({});
 
         expect(task.isValid()).toBe(false);
         expect(task.errors().errors('command')).toEqual(['Command must be present']);
@@ -309,7 +309,7 @@ describe("Task Model", () => {
       });
 
       it('should map server side errors', () => {
-        var task = Tasks.Task.fromJSON({
+        const task = Tasks.Task.fromJSON({
           type:   "exec",
           errors: {
             command: [
@@ -388,10 +388,10 @@ describe("Task Model", () => {
     });
 
     it('should initialize onCancel task', () => {
-      var cancelTask = 'cancelTask';
+      const cancelTask = 'cancelTask';
       spyOn(Tasks.Task, 'fromJSON').and.returnValue(cancelTask);
 
-      var task = new Tasks.Task.Rake({
+      const task = new Tasks.Task.Rake({
         onCancelTask: {type: 'Nant'}
       });
 
@@ -399,7 +399,7 @@ describe("Task Model", () => {
     });
 
     it('should not have onCancel task if not specified', () => {
-      var task = new Tasks.Task.Rake({
+      const task = new Tasks.Task.Rake({
         onCancelTask: null
       });
 
@@ -486,7 +486,7 @@ describe("Task Model", () => {
     });
 
     it('should initialize isSourceAFile to be false if not specified', () => {
-      var task = new Tasks.Task.FetchArtifact({});
+      const task = new Tasks.Task.FetchArtifact({});
       expect(task.isSourceAFile()).toBe(false);
     });
 
@@ -499,10 +499,10 @@ describe("Task Model", () => {
     });
 
     it('should initialize onCancel task', () => {
-      var cancelTask = 'cancelTask';
+      const cancelTask = 'cancelTask';
       spyOn(Tasks.Task, 'fromJSON').and.returnValue(cancelTask);
 
-      var task = new Tasks.Task.FetchArtifact({
+      const task = new Tasks.Task.FetchArtifact({
         onCancelTask: {type: 'Nant'}
       });
 
@@ -510,7 +510,7 @@ describe("Task Model", () => {
     });
 
     it('should not have onCancel task if not specified', () => {
-      var task = new Tasks.Task.FetchArtifact({
+      const task = new Tasks.Task.FetchArtifact({
         onCancelTask: null
       });
 
@@ -518,7 +518,7 @@ describe("Task Model", () => {
     });
 
     it('should validate presence of required fields', () => {
-      var task = new Tasks.Task.FetchArtifact({});
+      const task = new Tasks.Task.FetchArtifact({});
 
       expect(task.isValid()).toBe(false);
       expect(task.errors().errors('stage')).toEqual(['Stage must be present']);
@@ -543,7 +543,7 @@ describe("Task Model", () => {
       });
 
       it('should map server side errors', () => {
-        var task = Tasks.Task.fromJSON({
+        const task = Tasks.Task.fromJSON({
           type:   "fetch",
           errors: {
             job:    [
@@ -638,12 +638,12 @@ describe("Task Model", () => {
 
     describe('from pluginInfo', () => {
       it('should be created from a plugin', () => {
-        var plugin = new PluginInfos.PluginInfo({
+        const plugin = new PluginInfos.PluginInfo({
           id:      'plugin_id',
           version: 'plugin_version'
         });
 
-        var task = Tasks.Task.PluginTask.fromPluginInfo(plugin);
+        const task = Tasks.Task.PluginTask.fromPluginInfo(plugin);
 
         expect(task.pluginId()).toBe('plugin_id');
         expect(task.version()).toBe('plugin_version');
@@ -653,7 +653,7 @@ describe("Task Model", () => {
 
     describe("Serialize from/to JSON", () => {
       beforeEach(() => {
-        var data = sampleTaskJSON();
+        const data = sampleTaskJSON();
         task     = Tasks.Task.fromJSON(data);
       });
 

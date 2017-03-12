@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 describe("Artifact Model", () => {
-  var Artifacts = require("models/pipeline_configs/artifacts");
-  var artifact;
+  const Artifacts = require("models/pipeline_configs/artifacts");
+  let artifact;
   beforeEach(() => {
     artifact = new Artifacts.Artifact({
       type:        "test",
@@ -40,14 +40,14 @@ describe("Artifact Model", () => {
   describe("validations", () => {
     it("should add error when source is blank", () => {
       artifact.source("");
-      var errors = artifact.validate();
+      const errors = artifact.validate();
       expect(errors.errors('source')).toEqual(['Source must be present']);
     });
 
     it("should NOT add error when both source and destination are blank", () => {
       artifact.destination("");
       artifact.source("");
-      var errors = artifact.validate();
+      const errors = artifact.validate();
       expect(errors._isEmpty()).toBe(true);
     });
   });

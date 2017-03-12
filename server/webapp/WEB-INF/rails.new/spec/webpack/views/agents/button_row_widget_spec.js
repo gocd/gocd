@@ -15,43 +15,43 @@
  */
 
 describe("Button Row Widget", () => {
-  var m      = require('mithril');
-  var Stream = require('mithril/stream');
+  const m      = require('mithril');
+  const Stream = require('mithril/stream');
 
   require('jasmine-jquery');
 
-  var Agents          = require('models/agents/agents');
-  var ButtonRowWidget = require("views/agents/button_row_widget");
-  var AgentsVM        = require("views/agents/models/agents_widget_view_model");
+  const Agents          = require('models/agents/agents');
+  const ButtonRowWidget = require("views/agents/button_row_widget");
+  const AgentsVM        = require("views/agents/models/agents_widget_view_model");
 
-  var agents;
+  let agents;
 
-  var $root, root;
+  let $root, root;
   beforeEach(() => {
     [$root, root] = window.createDomElementForTest();
   });
   afterEach(window.destroyDomElementForTest);
 
-  var selectedAgents     = () => {
+  const selectedAgents     = () => {
   };
-  var disableAgents      = () => {
+  const disableAgents      = () => {
   };
-  var enableAgents       = () => {
+  const enableAgents       = () => {
   };
-  var deleteAgents       = () => {
+  const deleteAgents       = () => {
   };
-  var updateResources    = () => {
+  const updateResources    = () => {
   };
-  var updateEnvironments = () => {
+  const updateEnvironments = () => {
   };
 
-  var agentsVM = new AgentsVM();
+  const agentsVM = new AgentsVM();
 
   beforeEach(() => {
     agents        = Stream();
-    var allAgents = Agents.fromJSON(json());
+    const allAgents = Agents.fromJSON(json());
     agents(allAgents);
-    var areOperationsAllowed = Stream(false);
+    const areOperationsAllowed = Stream(false);
     mount(areOperationsAllowed);
     m.redraw();
   });
@@ -62,14 +62,14 @@ describe("Button Row Widget", () => {
 
   describe('Heading Row', () => {
     it('should contain the agents page heading text', () => {
-      var headingText = $root.find('.page-header h1');
+      const headingText = $root.find('.page-header h1');
       expect(headingText).toHaveText('Agents');
     });
   });
 
   describe('Button Group', () => {
     it('should contain the row elements', () => {
-      var rowElementButtons = $root.find('.header-panel-button-group button');
+      const rowElementButtons = $root.find('.header-panel-button-group button');
       expect(rowElementButtons).toHaveLength(7);
       expect(rowElementButtons[0]).toHaveText("Delete");
       expect(rowElementButtons[1]).toHaveText("Disable");
@@ -78,12 +78,12 @@ describe("Button Row Widget", () => {
       expect(rowElementButtons[4]).toHaveText("Add");
       expect(rowElementButtons[5]).toHaveText("Apply");
       expect(rowElementButtons[6]).toHaveText("Environments");
-      var rowElementText = $root.find('.header-panel-button-group .no-environment');
+      const rowElementText = $root.find('.header-panel-button-group .no-environment');
       expect(rowElementText[0]).toHaveText("No environments are defined");
     });
 
     it('should disable the buttons if agents are not selected', () => {
-      var rowElements = $root.find('.header-panel-button-group button');
+      const rowElements = $root.find('.header-panel-button-group button');
       expect(rowElements[0]).toBeDisabled();
       expect(rowElements[1]).toBeDisabled();
       expect(rowElements[2]).toBeDisabled();
@@ -92,9 +92,9 @@ describe("Button Row Widget", () => {
     });
 
     it('should enable the buttons if at least one agent is selected', () => {
-      var areOperationsAllowed = Stream(true);
+      const areOperationsAllowed = Stream(true);
       mount(areOperationsAllowed);
-      var rowElements = $root.find('.header-panel-button-group button');
+      const rowElements = $root.find('.header-panel-button-group button');
 
       expect(rowElements[0]).not.toBeDisabled();
       expect(rowElements[1]).not.toBeDisabled();
@@ -105,7 +105,7 @@ describe("Button Row Widget", () => {
 
   });
 
-  var mount = areOperationsAllowed => {
+  const mount = areOperationsAllowed => {
     m.mount(root, {
       view() {
         return m(ButtonRowWidget, {
@@ -123,12 +123,12 @@ describe("Button Row Widget", () => {
     m.redraw();
   };
 
-  var unmount = () => {
+  const unmount = () => {
     m.mount(root, null);
     m.redraw();
   };
 
-  var json = () => [
+  const json = () => [
     {
       "_links":             {
         "self": {

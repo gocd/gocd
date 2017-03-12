@@ -15,7 +15,7 @@
  */
 describe('PluginInfos', () => {
 
-  var PluginInfos = require("models/pipeline_configs/plugin_infos");
+  const PluginInfos = require("models/pipeline_configs/plugin_infos");
 
   afterEach(() => {
     PluginInfos([]);
@@ -37,7 +37,7 @@ describe('PluginInfos', () => {
           }
         });
 
-        var successCallback = jasmine.createSpy().and.callFake(pluginInfos => {
+        const successCallback = jasmine.createSpy().and.callFake(pluginInfos => {
           expect(pluginInfos.length).toEqual(1);
           expect(pluginInfos[0].id()).toEqual(pluginInfoJSON().id);
           expect(pluginInfos[0].name()).toEqual(pluginInfoJSON().name);
@@ -79,7 +79,7 @@ describe('PluginInfos', () => {
   }
 
   describe('PluginInfo', () => {
-    var pluginInfo;
+    let pluginInfo;
     beforeEach(() => {
       pluginInfo = new PluginInfos.PluginInfo(pluginInfoJSON());
     });
@@ -109,7 +109,7 @@ describe('PluginInfos', () => {
     });
 
     it('should default to name in absence of display_name', () => {
-      var plugin = new PluginInfos.PluginInfo({name: 'plugin_name'});
+      const plugin = new PluginInfos.PluginInfo({name: 'plugin_name'});
       expect(plugin.displayName()).toBe('plugin_name');
     });
 
@@ -139,7 +139,7 @@ describe('PluginInfos', () => {
           }
         });
 
-        var successCallback = jasmine.createSpy().and.callFake(pluginInfo => {
+        const successCallback = jasmine.createSpy().and.callFake(pluginInfo => {
           expect(pluginInfo.id()).toEqual(pluginInfoJSON().id);
           expect(pluginInfo.name()).toEqual(pluginInfoJSON().name);
         });
@@ -153,13 +153,13 @@ describe('PluginInfos', () => {
 
   describe('filterByType', () => {
     it('should return plugins for the given type', () => {
-      var scm            = new PluginInfos.PluginInfo({id: 'id1', type: 'scm'});
-      var task1          = new PluginInfos.PluginInfo({id: 'id2', type: 'task'});
-      var task2          = new PluginInfos.PluginInfo({id: 'id3', type: 'task'});
-      var authentication = new PluginInfos.PluginInfo({id: 'id4', type: 'authentication'});
+      const scm            = new PluginInfos.PluginInfo({id: 'id1', type: 'scm'});
+      const task1          = new PluginInfos.PluginInfo({id: 'id2', type: 'task'});
+      const task2          = new PluginInfos.PluginInfo({id: 'id3', type: 'task'});
+      const authentication = new PluginInfos.PluginInfo({id: 'id4', type: 'authentication'});
 
       PluginInfos([scm, task1, task2, authentication]);
-      var pluginInfos = PluginInfos.filterByType('task');
+      const pluginInfos = PluginInfos.filterByType('task');
 
       expect(pluginInfos.length).toBe(2);
       expect(pluginInfos[0].type()).toBe('task');
@@ -169,13 +169,13 @@ describe('PluginInfos', () => {
 
   describe('findById', () => {
     it('should return plugins for the given id', () => {
-      var scm            = new PluginInfos.PluginInfo({id: 'id1', type: 'scm'});
-      var task1          = new PluginInfos.PluginInfo({id: 'id2', type: 'task'});
-      var task2          = new PluginInfos.PluginInfo({id: 'id3', type: 'task'});
-      var authentication = new PluginInfos.PluginInfo({id: 'id4', type: 'authentication'});
+      const scm            = new PluginInfos.PluginInfo({id: 'id1', type: 'scm'});
+      const task1          = new PluginInfos.PluginInfo({id: 'id2', type: 'task'});
+      const task2          = new PluginInfos.PluginInfo({id: 'id3', type: 'task'});
+      const authentication = new PluginInfos.PluginInfo({id: 'id4', type: 'authentication'});
 
       PluginInfos([scm, task1, task2, authentication]);
-      var pluginInfo = PluginInfos.findById('id2');
+      const pluginInfo = PluginInfos.findById('id2');
 
       expect(pluginInfo.id()).toBe('id2');
     });

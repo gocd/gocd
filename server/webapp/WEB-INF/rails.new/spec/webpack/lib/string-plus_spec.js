@@ -15,10 +15,10 @@
  */
 
 describe("Should sanitize JSON", () => {
-  var s = require("string-plus");
+  const s = require("string-plus");
 
   it("should change the keys of JSON to snake case", () => {
-    var input = {
+    const input = {
       toSnakeCase: "value",
       nested:      {
         toSnakeCase:   "value",
@@ -28,7 +28,7 @@ describe("Should sanitize JSON", () => {
     };
 
     /* eslint-disable camelcase */
-    var expected = {
+    const expected = {
       to_snake_case: "value",
       nested:        {
         to_snake_case:   "value",

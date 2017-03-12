@@ -16,10 +16,10 @@
 
 describe("Job Model", () => {
 
-  var s    = require("string-plus");
-  var Jobs = require("models/pipeline_configs/jobs");
+  const s    = require("string-plus");
+  const Jobs = require("models/pipeline_configs/jobs");
 
-  var jobs, job;
+  let jobs, job;
   beforeEach(() => {
     jobs = new Jobs();
     job  = jobs.createJob({
@@ -95,37 +95,37 @@ describe("Job Model", () => {
 
   describe("validations", () => {
     it("should not allow blank job names", () => {
-      var errors = job.validate();
+      let errors = job.validate();
       expect(errors._isEmpty()).toBe(true);
 
       job.name("");
-      var duplicateJob = jobs.createJob({name: job.name()});
+      const duplicateJob = jobs.createJob({name: job.name()});
 
       errors                = job.validate();
-      var errorsOnDuplicate = duplicateJob.validate();
+      const errorsOnDuplicate = duplicateJob.validate();
 
       expect(errors.errors('name')).toEqual(['Name must be present']);
       expect(errorsOnDuplicate.errors('name')).toEqual(['Name must be present']);
     });
 
     it("should not allow jobs with duplicate names", () => {
-      var errorsOnOriginal = job.validate();
+      let errorsOnOriginal = job.validate();
       expect(errorsOnOriginal._isEmpty()).toBe(true);
 
-      var duplicateVariable = jobs.createJob({
+      const duplicateVariable = jobs.createJob({
         name: "UnitTest"
       });
 
       errorsOnOriginal = job.validate();
       expect(errorsOnOriginal.errors('name')).toEqual(['Name is a duplicate']);
 
-      var errorsOnDuplicate = duplicateVariable.validate();
+      const errorsOnDuplicate = duplicateVariable.validate();
       expect(errorsOnDuplicate.errors('name')).toEqual(['Name is a duplicate']);
     });
 
     describe('validate associations', () => {
       it('should validate environmental variables', () => {
-        var job = Jobs.Job.fromJSON(sampleJobJSON());
+        const job = Jobs.Job.fromJSON(sampleJobJSON());
 
         expect(job.isValid()).toBe(true);
 
@@ -136,7 +136,7 @@ describe("Job Model", () => {
       });
 
       it('should validate tasks', () => {
-        var job = Jobs.Job.fromJSON({
+        const job = Jobs.Job.fromJSON({
           name:  "UnitTest",
           tasks: [
             {
@@ -158,7 +158,7 @@ describe("Job Model", () => {
     });
 
     it('should validate artifacts', () => {
-      var job = Jobs.Job.fromJSON(sampleJobJSON());
+      const job = Jobs.Job.fromJSON(sampleJobJSON());
 
       expect(job.isValid()).toBe(true);
 
@@ -169,7 +169,7 @@ describe("Job Model", () => {
     });
 
     it('should validate tabs', () => {
-      var job = Jobs.Job.fromJSON(sampleJobJSON());
+      const job = Jobs.Job.fromJSON(sampleJobJSON());
 
       expect(job.isValid()).toBe(true);
 
@@ -180,7 +180,7 @@ describe("Job Model", () => {
     });
 
     it('should validate properties', () => {
-      var job = Jobs.Job.fromJSON(sampleJobJSON());
+      const job = Jobs.Job.fromJSON(sampleJobJSON());
 
       expect(job.isValid()).toBe(true);
 
@@ -202,11 +202,11 @@ describe("Job Model", () => {
       expect(job.timeout()).toBe(20);
       expect(job.resources()).toEqual(['jdk5', 'tomcat']);
 
-      var expectedEnvironmentVarNames = job.environmentVariables().collectVariableProperty('name');
-      var expectedTasks               = job.tasks().collectTaskProperty('type');
-      var expectedArtifacts           = job.artifacts().collectArtifactProperty('source');
-      var expectedTabs                = job.tabs().collectTabProperty('name');
-      var expectedProperties          = job.properties().collectPropertyProperty('name');
+      const expectedEnvironmentVarNames = job.environmentVariables().collectVariableProperty('name');
+      const expectedTasks               = job.tasks().collectTaskProperty('type');
+      const expectedArtifacts           = job.artifacts().collectArtifactProperty('source');
+      const expectedTabs                = job.tabs().collectTabProperty('name');
+      const expectedProperties          = job.properties().collectPropertyProperty('name');
 
       expect(expectedEnvironmentVarNames).toEqual(['MULTIPLE_LINES', 'COMPLEX']);
       expect(expectedTasks).toEqual(['ant']);

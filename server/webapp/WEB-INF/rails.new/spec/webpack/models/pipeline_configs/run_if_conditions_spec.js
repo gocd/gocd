@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 describe("RunIfConditions", () => {
-  var RunIfConditions = require('models/pipeline_configs/run_if_conditions');
+  const RunIfConditions = require('models/pipeline_configs/run_if_conditions');
 
   describe('RunIfConditions create', () => {
 
     it('should create runIfConditions', () => {
-      var runIf = ['passed', 'failed'];
+      const runIf = ['passed', 'failed'];
 
-      var runIfConditions = RunIfConditions.create(runIf);
+      const runIfConditions = RunIfConditions.create(runIf);
 
       expect(runIfConditions.data()).toEqual(runIf);
     });
 
     it('should create runIfConditions with default as "passed"', () => {
-      var runIfConditions = RunIfConditions.create();
+      const runIfConditions = RunIfConditions.create();
 
       expect(runIfConditions.data()).toEqual(['passed']);
     });
@@ -35,7 +35,7 @@ describe("RunIfConditions", () => {
 
   describe('RunIfConditions push', () => {
     it('should add a condition', () => {
-      var runIfConditions = RunIfConditions.create([]);
+      const runIfConditions = RunIfConditions.create([]);
 
       runIfConditions.push('any');
 
@@ -43,7 +43,7 @@ describe("RunIfConditions", () => {
     });
 
     it("should either have 'any' or 'passed || failed' condition", () => {
-      var runIfConditions = RunIfConditions.create(['passed']);
+      const runIfConditions = RunIfConditions.create(['passed']);
 
       runIfConditions.push('any');
 
@@ -57,7 +57,7 @@ describe("RunIfConditions", () => {
 
   describe('RunIfConditions pop', () => {
     it('should pop out a condition', () => {
-      var runIfConditions = RunIfConditions.create(['passed', 'failed']);
+      const runIfConditions = RunIfConditions.create(['passed', 'failed']);
 
       runIfConditions.pop();
 

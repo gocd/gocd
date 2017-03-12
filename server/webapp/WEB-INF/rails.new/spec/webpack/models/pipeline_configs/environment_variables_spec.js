@@ -16,11 +16,11 @@
 
 describe("EnvironmentVariable Model", () => {
 
-  var s = require('string-plus');
+  const s = require('string-plus');
 
-  var EnvironmentVariables = require("models/pipeline_configs/environment_variables");
+  const EnvironmentVariables = require("models/pipeline_configs/environment_variables");
 
-  var variables, plainVariable, secureVariable;
+  let variables, plainVariable, secureVariable;
   beforeEach(() => {
     variables = new EnvironmentVariables();
 
@@ -57,7 +57,7 @@ describe("EnvironmentVariable Model", () => {
     it("should add error when name is blank but value is not", () => {
       plainVariable.name("");
       plainVariable.value('foo');
-      var errors = plainVariable.validate();
+      const errors = plainVariable.validate();
       expect(errors.errors('name')).toEqual(['Name must be present']);
     });
 
@@ -65,22 +65,22 @@ describe("EnvironmentVariable Model", () => {
       plainVariable.name("");
       plainVariable.value("");
 
-      var errors = plainVariable.validate();
+      const errors = plainVariable.validate();
       expect(errors._isEmpty()).toBe(true);
     });
 
     it("should not allow variables with duplicate names", () => {
-      var errorsOnOriginal = plainVariable.validate();
+      let errorsOnOriginal = plainVariable.validate();
       expect(errorsOnOriginal._isEmpty()).toBe(true);
 
-      var duplicateVariable = variables.createVariable({
+      const duplicateVariable = variables.createVariable({
         name: "WORKING_DIR"
       });
 
       errorsOnOriginal = plainVariable.validate();
       expect(errorsOnOriginal.errors('name')).toEqual(['Name is a duplicate']);
 
-      var errorsOnDuplicate = duplicateVariable.validate();
+      const errorsOnDuplicate = duplicateVariable.validate();
       expect(errorsOnDuplicate.errors('name')).toEqual(['Name is a duplicate']);
     });
   });

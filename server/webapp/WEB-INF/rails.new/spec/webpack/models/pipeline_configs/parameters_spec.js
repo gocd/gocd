@@ -15,8 +15,8 @@
  */
 describe("Parameter Model", () => {
 
-  var Parameters = require("models/pipeline_configs/parameters");
-  var parameters, parameter;
+  const Parameters = require("models/pipeline_configs/parameters");
+  let parameters, parameter;
   beforeEach(() => {
     parameters = new Parameters();
 
@@ -39,7 +39,7 @@ describe("Parameter Model", () => {
     it("should add error when name is blank but value is not", () => {
       parameter.name("");
       parameter.value('foo');
-      var errors = parameter.validate();
+      const errors = parameter.validate();
       expect(errors.errors('name')).toEqual(['Name must be present']);
     });
 
@@ -47,22 +47,22 @@ describe("Parameter Model", () => {
       parameter.name("");
       parameter.value("");
 
-      var errors = parameter.validate();
+      const errors = parameter.validate();
       expect(errors._isEmpty()).toBe(true);
     });
 
     it("should not allow parameters with duplicate names", () => {
-      var errorsOnOriginal = parameter.validate();
+      let errorsOnOriginal = parameter.validate();
       expect(errorsOnOriginal._isEmpty()).toBe(true);
 
-      var duplicateParameter = parameters.createParameter({
+      const duplicateParameter = parameters.createParameter({
         name: "WORKING_DIR"
       });
 
       errorsOnOriginal = parameter.validate();
       expect(errorsOnOriginal.errors('name')).toEqual(['Name is a duplicate']);
 
-      var errorsOnDuplicate = duplicateParameter.validate();
+      const errorsOnDuplicate = duplicateParameter.validate();
       expect(errorsOnDuplicate.errors('name')).toEqual(['Name is a duplicate']);
     });
   });

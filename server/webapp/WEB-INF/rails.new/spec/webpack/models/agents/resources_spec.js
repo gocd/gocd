@@ -15,7 +15,7 @@
  */
 describe('Resources Model', () => {
 
-  var Resources = require('models/agents/resources');
+  const Resources = require('models/agents/resources');
 
   require('jasmine-ajax');
 
@@ -40,7 +40,7 @@ describe('Resources Model', () => {
   });
 
   it("should initialize the resources with state depending upon the checkedAgents", () => {
-    var checkedAgents = [{
+    const checkedAgents = [{
       resources() {
         return ['Linux'];
       }

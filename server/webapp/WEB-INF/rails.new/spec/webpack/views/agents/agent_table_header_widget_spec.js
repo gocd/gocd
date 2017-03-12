@@ -18,17 +18,17 @@
 // so skipped the test suit to make sure randomize doesnt cause any problem
 describe("Agent Table Header Widget", () => {
 
-  var $      = require("jquery");
-  var _      = require('lodash');
-  var m      = require("mithril");
-  var Stream = require("mithril/stream");
+  const $      = require("jquery");
+  const _      = require('lodash');
+  const m      = require("mithril");
+  const Stream = require("mithril/stream");
 
   require('jasmine-jquery');
 
-  var AgentsTableHeader = require("views/agents/agent_table_header");
-  var SortOrder         = require('views/agents/models/sort_order');
+  const AgentsTableHeader = require("views/agents/agent_table_header");
+  const SortOrder         = require('views/agents/models/sort_order');
 
-  var $root, root, sortOrder;
+  let $root, root, sortOrder;
   beforeEach(() => {
     [$root, root] = window.createDomElementForTest();
   });
@@ -44,7 +44,7 @@ describe("Agent Table Header Widget", () => {
     unmount();
   });
 
-  var route = isUserAdmin => {
+  const route = isUserAdmin => {
     m.route(root, '', {
       '':                  {
         view() {
@@ -62,7 +62,7 @@ describe("Agent Table Header Widget", () => {
     m.redraw();
   };
 
-  var unmount = () => {
+  const unmount = () => {
     m.route.set('');
     m.mount(root, null);
     m.redraw();
@@ -70,7 +70,7 @@ describe("Agent Table Header Widget", () => {
 
 
   it('should select the checkbox depending upon the "checkboxValue" ', () => {
-    var checkbox = $root.find('thead input')[0];
+    const checkbox = $root.find('thead input')[0];
     expect(checkbox.checked).toBe(checkboxValue());
   });
 
@@ -83,7 +83,7 @@ describe("Agent Table Header Widget", () => {
   it('should add the ascending css class to table header cell attribute when table is sorted ascending on the corresponding attribute', () => {
     sortOrder().toggleSortingOrder('hostname');
     m.redraw();
-    var headerAttribute = $root.find("th:contains('Agent Name') .sort");
+    const headerAttribute = $root.find("th:contains('Agent Name') .sort");
     expect(headerAttribute).toHaveClass('asc');
   });
 
@@ -91,16 +91,16 @@ describe("Agent Table Header Widget", () => {
     sortOrder().toggleSortingOrder('hostname');
     sortOrder().toggleSortingOrder('hostname');
     m.redraw();
-    var headerAttribute = $root.find("th:contains('Agent Name') .sort");
+    const headerAttribute = $root.find("th:contains('Agent Name') .sort");
     expect(headerAttribute).toHaveClass('desc');
   });
 
-  var agentTableHeaderComponent = isUserAdmin => m(AgentsTableHeader, {
+  const agentTableHeaderComponent = isUserAdmin => m(AgentsTableHeader, {
     onCheckboxClick: _.noop,
     checkboxValue,
     sortOrder,
     isUserAdmin
   });
 
-  var checkboxValue = () => false;
+  const checkboxValue = () => false;
 });

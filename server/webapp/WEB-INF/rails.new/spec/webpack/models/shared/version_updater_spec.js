@@ -16,7 +16,7 @@
 
 describe("VersionUpdater", () => {
 
-  var VersionUpdater = require('models/shared/version_updater');
+  const VersionUpdater = require('models/shared/version_updater');
   require('jasmine-ajax');
 
   describe('update', () => {
@@ -31,13 +31,13 @@ describe("VersionUpdater", () => {
           status:       200
         });
 
-        var thirtyOneMinutesBack = new Date(Date.now() - 31 * 60 * 1000);
+        const thirtyOneMinutesBack = new Date(Date.now() - 31 * 60 * 1000);
 
         localStorage.setItem('versionCheckInfo', JSON.stringify({last_updated_at: thirtyOneMinutesBack})); //eslint-disable-line camelcase
 
         new VersionUpdater().update();
 
-        var request = jasmine.Ajax.requests.mostRecent();
+        const request = jasmine.Ajax.requests.mostRecent();
 
         expect(request.method).toBe('GET');
         expect(request.url).toBe('/go/api/version_infos/stale');
@@ -48,7 +48,7 @@ describe("VersionUpdater", () => {
 
     it('should skip updates if update tried in last half hour', () => {
       jasmine.Ajax.withMock(() => {
-        var twentyNineMinutesBack = new Date(Date.now() - 29 * 60 * 1000);
+        const twentyNineMinutesBack = new Date(Date.now() - 29 * 60 * 1000);
 
         localStorage.setItem('versionCheckInfo', JSON.stringify({last_updated_at: twentyNineMinutesBack})); //eslint-disable-line camelcase
 
@@ -65,7 +65,7 @@ describe("VersionUpdater", () => {
           status:       200
         });
 
-        var myDate = jasmine.createSpyObj('Date', ['getTime']);
+        const myDate = jasmine.createSpyObj('Date', ['getTime']);
 
         spyOn(window, 'Date').and.returnValue(myDate);
 
@@ -92,7 +92,7 @@ describe("VersionUpdater", () => {
 
         new VersionUpdater().update();
 
-        var request = jasmine.Ajax.requests.at(1);
+        const request = jasmine.Ajax.requests.at(1);
 
         expect(request.method).toBe('GET');
         expect(request.url).toBe('update.server.url');
@@ -126,7 +126,7 @@ describe("VersionUpdater", () => {
           status:       200
         });
 
-        var myDate = jasmine.createSpyObj('Date', ['getTime']);
+        const myDate = jasmine.createSpyObj('Date', ['getTime']);
 
         spyOn(window, 'Date').and.returnValue(myDate);
 
@@ -134,7 +134,7 @@ describe("VersionUpdater", () => {
 
         new VersionUpdater().update();
 
-        var request = jasmine.Ajax.requests.at(2);
+        const request = jasmine.Ajax.requests.at(2);
 
         expect(request.method).toBe('PATCH');
         expect(request.url).toBe('/go/api/version_infos/go_server');

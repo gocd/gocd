@@ -16,12 +16,12 @@
 
 describe("Material Model", () => {
 
-  var Stream      = require('mithril/stream');
-  var Materials   = require("models/pipeline_configs/materials");
-  var SCMs        = require("models/pipeline_configs/scms");
-  var PluginInfos = require('models/pipeline_configs/plugin_infos');
+  const Stream      = require('mithril/stream');
+  const Materials   = require("models/pipeline_configs/materials");
+  const SCMs        = require("models/pipeline_configs/scms");
+  const PluginInfos = require('models/pipeline_configs/plugin_infos');
 
-  var materials, gitMaterial, svnMaterial, mercurialMaterial, perforceMaterial, tfsMaterial, dependencyMaterial;
+  let materials, gitMaterial, svnMaterial, mercurialMaterial, perforceMaterial, tfsMaterial, dependencyMaterial;
   afterEach(() => {
     SCMs([]);
     SCMs.scmIdToEtag = {};
@@ -105,10 +105,10 @@ describe("Material Model", () => {
 
   describe("validation", () => {
     it("should not allow materials with duplicate names", () => {
-      var errorsOnOriginal = gitMaterial.validate();
+      let errorsOnOriginal = gitMaterial.validate();
       expect(errorsOnOriginal._isEmpty()).toBe(true);
 
-      var duplicate = materials.createMaterial({
+      const duplicate = materials.createMaterial({
         type: 'git',
         name: gitMaterial.name()
       });
@@ -116,27 +116,27 @@ describe("Material Model", () => {
       errorsOnOriginal = gitMaterial.validate();
       expect(errorsOnOriginal.errors('name')).toEqual(['Name is a duplicate']);
 
-      var errorsOnDuplicate = duplicate.validate();
+      const errorsOnDuplicate = duplicate.validate();
       expect(errorsOnDuplicate.errors('name')).toEqual(['Name is a duplicate']);
     });
 
     it("should allow multiple materials to have blank names", () => {
-      var materialA = materials.createMaterial({
+      const materialA = materials.createMaterial({
         type: 'git',
         name: '',
         url:  'https://github.com/gocd/gocd'
       });
 
-      var materialB = materials.createMaterial({
+      const materialB = materials.createMaterial({
         type: 'git',
         name: '',
         url:  'https://github.com/gocd/website'
       });
 
-      var errorsOnA = materialA.validate();
+      const errorsOnA = materialA.validate();
       expect(errorsOnA.hasErrors('name')).toBe(false);
 
-      var errorsOnB = materialB.validate();
+      const errorsOnB = materialB.validate();
       expect(errorsOnB.hasErrors('name')).toBe(false);
     });
   });
@@ -144,7 +144,7 @@ describe("Material Model", () => {
   describe('Test Connection', () => {
     describe('success', () => {
       it('should post to material_test url', () => {
-        var material = new Materials().createMaterial({
+        const material = new Materials().createMaterial({
           type: 'git',
           url:  "http://git.example.com/git/myProject"
         });
@@ -158,7 +158,7 @@ describe("Material Model", () => {
             }
           });
 
-          var successCallback = jasmine.createSpy();
+          const successCallback = jasmine.createSpy();
 
           material.testConnection(Stream('testPipeline')).then(successCallback);
           expect(successCallback).toHaveBeenCalled();
@@ -168,7 +168,7 @@ describe("Material Model", () => {
 
     describe('failure', () => {
       it('should post to material_test url', () => {
-        var material = new Materials().createMaterial({
+        const material = new Materials().createMaterial({
           type: 'git',
           url:  "http://git.example.com/git/myProject"
         });
@@ -182,7 +182,7 @@ describe("Material Model", () => {
             }
           });
 
-          var errorMessage = jasmine.createSpy().and.callFake(errorMessage => {
+          const errorMessage = jasmine.createSpy().and.callFake(errorMessage => {
             expect(errorMessage).toBe('There was an unknown error while checking connection');
           });
 
@@ -238,7 +238,7 @@ describe("Material Model", () => {
       describe("validation", () => {
         it("should add error when url is blank", () => {
           svnMaterial.url("");
-          var errors = svnMaterial.validate();
+          const errors = svnMaterial.validate();
           expect(errors.errors('url')).toEqual(['URL must be present']);
         });
       });
@@ -262,7 +262,7 @@ describe("Material Model", () => {
         });
 
         it('should map server side errors', () => {
-          var material = Materials.Material.fromJSON({
+          const material = Materials.Material.fromJSON({
             type:   "svn",
             errors: {
               url: [
@@ -338,7 +338,7 @@ describe("Material Model", () => {
       describe("validation", () => {
         it("should add error when url is blank", () => {
           gitMaterial.url("");
-          var errors = gitMaterial.validate();
+          const errors = gitMaterial.validate();
           expect(errors.errors('url')).toEqual(['URL must be present']);
         });
       });
@@ -381,7 +381,7 @@ describe("Material Model", () => {
         });
 
         it('should map server side errors', () => {
-          var material = Materials.Material.fromJSON({
+          const material = Materials.Material.fromJSON({
             type:   "git",
             errors: {
               url: [
@@ -452,7 +452,7 @@ describe("Material Model", () => {
       describe("validation", () => {
         it("should add error when url is blank", () => {
           mercurialMaterial.url("");
-          var errors = mercurialMaterial.validate();
+          const errors = mercurialMaterial.validate();
           expect(errors.errors('url')).toEqual(['URL must be present']);
         });
       });
@@ -474,7 +474,7 @@ describe("Material Model", () => {
         });
 
         it('should map server side errors', () => {
-          var material = Materials.Material.fromJSON({
+          const material = Materials.Material.fromJSON({
             type:   "hg",
             errors: {
               url: [
@@ -556,13 +556,13 @@ describe("Material Model", () => {
       describe("validation", () => {
         it("should add error when port is blank", () => {
           perforceMaterial.port("");
-          var errors = perforceMaterial.validate();
+          const errors = perforceMaterial.validate();
           expect(errors.errors('port')).toEqual(['Port must be present']);
         });
 
         it("should add error when view is blank", () => {
           perforceMaterial.view("");
-          var errors = perforceMaterial.validate();
+          const errors = perforceMaterial.validate();
           expect(errors.errors('view')).toEqual(['View must be present']);
         });
       });
@@ -587,7 +587,7 @@ describe("Material Model", () => {
         });
 
         it('should map server side errors', () => {
-          var material = Materials.Material.fromJSON({
+          const material = Materials.Material.fromJSON({
             type:   "p4",
             errors: {
               view: [
@@ -676,19 +676,19 @@ describe("Material Model", () => {
       describe("validation", () => {
         it("should add error when url is blank", () => {
           tfsMaterial.url("");
-          var errors = tfsMaterial.validate();
+          const errors = tfsMaterial.validate();
           expect(errors.errors('url')).toEqual(['URL must be present']);
         });
 
         it("should add error when username is blank", () => {
           tfsMaterial.username("");
-          var errors = tfsMaterial.validate();
+          const errors = tfsMaterial.validate();
           expect(errors.errors('username')).toEqual(['Username must be present']);
         });
 
         it("should add error when projectPath is blank", () => {
           tfsMaterial.projectPath("");
-          var errors = tfsMaterial.validate();
+          const errors = tfsMaterial.validate();
           expect(errors.errors('projectPath')).toEqual(['Project path must be present']);
         });
       });
@@ -717,7 +717,7 @@ describe("Material Model", () => {
         });
 
         it('should map server side errors', () => {
-          var material = Materials.Material.fromJSON({
+          const material = Materials.Material.fromJSON({
             type:   "tfs",
             errors: {
               url:         [
@@ -780,7 +780,7 @@ describe("Material Model", () => {
       });
 
       describe("validation", () => {
-        var errors;
+        let errors;
         beforeEach(() => {
           dependencyMaterial.pipeline('');
           dependencyMaterial.stage('');
@@ -813,7 +813,7 @@ describe("Material Model", () => {
         });
 
         it('should map server side errors', () => {
-          var material = Materials.Material.fromJSON({
+          const material = Materials.Material.fromJSON({
             type:   "p4",
             errors: {
               pipeline: [
@@ -844,8 +844,8 @@ describe("Material Model", () => {
     });
 
     describe('plugin', () => {
-      var pluggableMaterial;
-      var github = new SCMs.SCM({
+      let pluggableMaterial;
+      const github = new SCMs.SCM({
         /* eslint-disable camelcase */
         id:              '43c45e0b-1b0c-46f3-a60a-2bbc5cec069c',
         name:            'Github PR',

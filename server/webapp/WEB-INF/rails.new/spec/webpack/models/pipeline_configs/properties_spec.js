@@ -15,8 +15,8 @@
  */
 describe("Property Model", () => {
 
-  var Properties = require("models/pipeline_configs/properties");
-  var properties, property;
+  const Properties = require("models/pipeline_configs/properties");
+  let properties, property;
 
   beforeEach(() => {
     properties = new Properties();
@@ -43,7 +43,7 @@ describe("Property Model", () => {
   describe("validations", () => {
     it("should add error when name is blank but source or xpath is not", () => {
       property.name("");
-      var errors = property.validate();
+      const errors = property.validate();
       expect(errors.errors('name')).toEqual(['Name must be present']);
     });
 
@@ -52,22 +52,22 @@ describe("Property Model", () => {
       property.source("");
       property.xpath('');
 
-      var errors = property.validate();
+      const errors = property.validate();
       expect(errors._isEmpty()).toBe(true);
     });
 
     it("should not allow properties with duplicate names", () => {
-      var errorsOnOriginal = property.validate();
+      let errorsOnOriginal = property.validate();
       expect(errorsOnOriginal._isEmpty()).toBe(true);
 
-      var duplicateProperty = properties.createProperty({
+      const duplicateProperty = properties.createProperty({
         name: property.name()
       });
 
       errorsOnOriginal = property.validate();
       expect(errorsOnOriginal.errors('name')).toEqual(['Name is a duplicate']);
 
-      var errorsOnDuplicate = duplicateProperty.validate();
+      const errorsOnDuplicate = duplicateProperty.validate();
       expect(errorsOnDuplicate.errors('name')).toEqual(['Name is a duplicate']);
     });
   });

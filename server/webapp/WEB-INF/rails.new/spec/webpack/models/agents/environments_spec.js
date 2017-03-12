@@ -16,7 +16,7 @@
 
 describe('Agent Environments Model', () => {
 
-  var Environments = require('models/agents/environments');
+  const Environments = require('models/agents/environments');
 
   require('jasmine-ajax');
 
@@ -42,7 +42,7 @@ describe('Agent Environments Model', () => {
   });
 
   it("should initialize the environments with state depending upon the checkedAgents", () => {
-    var checkedAgents = [{
+    const checkedAgents = [{
       environments() {
         return ['Test', 'QA'];
       }

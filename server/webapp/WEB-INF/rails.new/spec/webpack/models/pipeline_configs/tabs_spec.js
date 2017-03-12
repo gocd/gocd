@@ -16,8 +16,8 @@
 
 describe("Tabs Model", () => {
 
-  var Tabs = require('models/pipeline_configs/tabs');
-  var tabs, tab;
+  const Tabs = require('models/pipeline_configs/tabs');
+  let tabs, tab;
 
   beforeEach(() => {
     tabs = new Tabs();
@@ -40,7 +40,7 @@ describe("Tabs Model", () => {
     it("should add error when name is blank but path is not", () => {
       tab.name('');
 
-      var errors = tab.validate();
+      const errors = tab.validate();
 
       expect(errors.errors('name')).toEqual(['Name must be present']);
     });
@@ -49,23 +49,23 @@ describe("Tabs Model", () => {
       tab.name('');
       tab.path('');
 
-      var errors = tab.validate();
+      const errors = tab.validate();
 
       expect(errors._isEmpty()).toBe(true);
     });
 
     it("should not allow tabs with duplicate names", () => {
-      var errorsOnOriginal = tab.validate();
+      let errorsOnOriginal = tab.validate();
       expect(errorsOnOriginal._isEmpty()).toBe(true);
 
-      var duplicateTab = tabs.createTab({
+      const duplicateTab = tabs.createTab({
         name: tab.name()
       });
 
       errorsOnOriginal = tab.validate();
       expect(errorsOnOriginal.errors('name')).toEqual(['Name is a duplicate']);
 
-      var errorsOnDuplicate = duplicateTab.validate();
+      const errorsOnDuplicate = duplicateTab.validate();
       expect(errorsOnDuplicate.errors('name')).toEqual(['Name is a duplicate']);
     });
   });

@@ -15,10 +15,10 @@
  */
 describe("TrackingTool Model", () => {
 
-  var s = require('string-plus');
+  const s = require('string-plus');
 
-  var TrackingTool = require("models/pipeline_configs/tracking_tool");
-  var trackingTool;
+  const TrackingTool = require("models/pipeline_configs/tracking_tool");
+  let trackingTool;
   describe("Generic", () => {
     beforeEach(() => {
       trackingTool = new TrackingTool.Generic({

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 describe('Pipelines', () => {
-  var Pipelines = require("models/pipeline_configs/pipelines");
+  const Pipelines = require("models/pipeline_configs/pipelines");
 
   describe('init', () => {
 

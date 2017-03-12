@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 describe("Agent Row Widget", () => {
-  var $      = require("jquery");
-  var m      = require('mithril');
-  var Stream = require('mithril/stream');
+  const $      = require("jquery");
+  const m      = require('mithril');
+  const Stream = require('mithril/stream');
   require('jasmine-jquery');
 
-  var Agents          = require('models/agents/agents');
-  var AgentsRowWidget = require("views/agents/agent_row_widget");
-  var AgentsVM        = require("views/agents/models/agents_widget_view_model");
+  const Agents          = require('models/agents/agents');
+  const AgentsRowWidget = require("views/agents/agent_row_widget");
+  const AgentsVM        = require("views/agents/models/agents_widget_view_model");
 
-  var $root, root;
+  let $root, root;
   beforeEach(() => {
     [$root, root] = window.createDomElementForTest();
   });
   afterEach(window.destroyDomElementForTest);
 
-  var agents   = Stream();
-  var allAgents;
-  var agentsVM = new AgentsVM();
+  const agents   = Stream();
+  let allAgents;
+  const agentsVM = new AgentsVM();
 
   beforeEach(() => {
     allAgents = Agents.fromJSON(json());
@@ -43,12 +43,12 @@ describe("Agent Row Widget", () => {
 
   it('should contain the agent information', () => {
     agents(allAgents);
-    var model = Stream(true);
+    const model = Stream(true);
     mount(agents().firstAgent(), model, true);
 
-    var row         = $root.find('tr')[0];
-    var checkbox    = $(row).find('input');
-    var information = row.children;
+    const row         = $root.find('tr')[0];
+    const checkbox    = $(row).find('input');
+    const information = row.children;
     expect(information[1]).toHaveText('in-john.local');
     expect(information[1]).toContainElement('a');
     expect(information[2]).toHaveText('/var/lib/go-agent');
@@ -63,21 +63,21 @@ describe("Agent Row Widget", () => {
 
   it('should not contain link to job run history for non-admin user', () => {
     agents(allAgents);
-    var model = Stream(true);
+    const model = Stream(true);
     mount(agents().firstAgent(), model, false);
 
-    var row         = $root.find('tr')[0];
-    var information = row.children;
+    const row         = $root.find('tr')[0];
+    const information = row.children;
     expect(information[1]).toHaveText('in-john.local');
     expect(information[1]).not.toContainElement('a');
   });
 
   it('should check the value based on the checkbox model', () => {
     agents(allAgents);
-    var model = Stream(true);
+    const model = Stream(true);
     mount(agents().firstAgent(), model, true);
 
-    var checkbox = $root.find('input')[0];
+    const checkbox = $root.find('input')[0];
     expect(checkbox.checked).toBe(model());
   });
 
@@ -90,32 +90,32 @@ describe("Agent Row Widget", () => {
   it('should show none specified if agent has no resource', () => {
     agents(allAgents.toJSON()[1]);
     mount(agents(), model, true);
-    var row         = $root.find('tr')[0];
-    var information = row.children;
+    const row         = $root.find('tr')[0];
+    const information = row.children;
     expect(information[7]).toHaveText('none specified');
   });
 
   it('should show none specified if agent has no environment', () => {
     agents(allAgents.toJSON()[1]);
     mount(agents(), model, true);
-    var row         = $root.find('tr')[0];
-    var information = row.children;
+    const row         = $root.find('tr')[0];
+    const information = row.children;
     expect(information[8]).toHaveText('none specified');
   });
 
   it('should set the class based on the status of the agent', () => {
     agents(allAgents);
     mount(agents().firstAgent(), model, true);
-    var row = $root.find('tr')[0];
+    const row = $root.find('tr')[0];
     expect(row.classList).toContain(agents().firstAgent().status().toLowerCase());
   });
 
   it('should change the checkbox model when checkbox is clicked', () => {
     agents(allAgents);
-    var model = Stream(false);
+    const model = Stream(false);
     mount(agents().firstAgent(), model, true);
-    var row      = $root.find('tr')[0];
-    var checkbox = $(row).find('input');
+    const row      = $root.find('tr')[0];
+    const checkbox = $(row).find('input');
     expect(model()).toBe(false);
     $(checkbox).click();
     m.redraw();
@@ -125,12 +125,12 @@ describe("Agent Row Widget", () => {
   it('should have links to pipeline, stage and job as a part of build details dropdown', () => {
     agents(allAgents.toJSON()[2]);
     mount(agents(), model, true);
-    var buildDetailsLinks = $root.find('.build-details a').map((_i, el) => $(el).attr('href'));
-    var buildDetails      = agents().buildDetails();
+    const buildDetailsLinks = $root.find('.build-details a').map((_i, el) => $(el).attr('href'));
+    const buildDetails      = agents().buildDetails();
     expect(buildDetailsLinks).toEqual([buildDetails.pipelineUrl(), buildDetails.stageUrl(), buildDetails.jobUrl()]);
   });
 
-  var mount = (agent, model, isUserAdmin) => {
+  const mount = (agent, model, isUserAdmin) => {
     m.mount(root, {
       view() {
         return m(AgentsRowWidget, {
@@ -144,14 +144,14 @@ describe("Agent Row Widget", () => {
     m.redraw();
   };
 
-  var unmount = () => {
+  const unmount = () => {
     m.mount(root, null);
     m.redraw();
   };
 
-  var model = Stream();
+  const model = Stream();
 
-  var json = () => [
+  const json = () => [
     {
       "_links":             {
         "self": {

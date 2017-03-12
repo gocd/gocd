@@ -15,11 +15,11 @@
  */
 describe("Model Mixins", () => {
 
-  var Stream = require('mithril/stream');
-  var Mixin  = require('models/mixins/model_mixins');
+  const Stream = require('mithril/stream');
+  const Mixin  = require('models/mixins/model_mixins');
 
   describe("TogglingGetterSetter", () => {
-    var model;
+    let model;
     beforeEach(() => {
       model = Mixin.TogglingGetterSetter(Stream('foo'));
     });

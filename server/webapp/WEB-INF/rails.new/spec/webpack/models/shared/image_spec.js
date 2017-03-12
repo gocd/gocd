@@ -15,7 +15,7 @@
  */
 describe("Image", () => {
 
-  var Image = require("models/shared/image");
+  const Image = require("models/shared/image");
   it("should render data uri", () => {
     expect(new Image("foo", "bar").toDataURI()).toBe('data:foo;base64,bar');
   });

@@ -15,11 +15,11 @@
  */
 describe('PluginInfos', () => {
 
-  var PluginInfos = require("models/shared/plugin_infos");
-  var _           = require("lodash");
+  const PluginInfos = require("models/shared/plugin_infos");
+  const _           = require("lodash");
 
   it("should deserialize collection", () => {
-    var json = [
+    const json = [
       {
         "id":      "github.oauth.login",
         "version": "1",
@@ -38,14 +38,14 @@ describe('PluginInfos', () => {
       }
     ];
 
-    var pluginInfos = PluginInfos.fromJSON(json);
+    const pluginInfos = PluginInfos.fromJSON(json);
     expect(pluginInfos.countPluginInfo()).toBe(1);
     expect(pluginInfos.firstPluginInfo().id()).toBe('github.oauth.login');
   });
 
   describe("Authentication", () => {
     it("should deserialize", () => {
-      var json = {
+      const json = {
         "id":      "github.oauth.login",
         "version": "1",
         "type":    "authentication",
@@ -62,14 +62,14 @@ describe('PluginInfos', () => {
         }
       };
 
-      var pluginInfo = PluginInfos.PluginInfo.fromJSON(json);
+      const pluginInfo = PluginInfos.PluginInfo.fromJSON(json);
       verifyBasicProperties(pluginInfo, json);
     });
   });
 
   describe("ElasticAgent", () => {
     it("should deserialize", () => {
-      var json = {
+      const json = {
         "id":               "cd.go.contrib.elastic-agent.docker",
         "version":          "1",
         "type":             "elastic-agent",
@@ -114,7 +114,7 @@ describe('PluginInfos', () => {
         }
       };
 
-      var pluginInfo = PluginInfos.PluginInfo.fromJSON(json);
+      const pluginInfo = PluginInfos.PluginInfo.fromJSON(json);
       verifyBasicProperties(pluginInfo, json);
 
       expect(pluginInfo.profileSettings().viewTemplate()).toEqual(json.profile_settings.view.template);
@@ -129,7 +129,7 @@ describe('PluginInfos', () => {
 
   describe("Notification", () => {
     it("should deserialize", () => {
-      var json = {
+      const json = {
         "id":      "github.pr.status",
         "version": "1",
         "type":    "notification",
@@ -146,14 +146,14 @@ describe('PluginInfos', () => {
         }
       };
 
-      var pluginInfo = PluginInfos.PluginInfo.fromJSON(json);
+      const pluginInfo = PluginInfos.PluginInfo.fromJSON(json);
       verifyBasicProperties(pluginInfo, json);
     });
   });
 
   describe("PackageRepository", () => {
     it("should deserialize", () => {
-      var json = {
+      const json = {
         "id":                  "nuget",
         "version":             "1",
         "type":                "package-repository",
@@ -248,7 +248,7 @@ describe('PluginInfos', () => {
         }
       };
 
-      var pluginInfo = PluginInfos.PluginInfo.fromJSON(json);
+      const pluginInfo = PluginInfos.PluginInfo.fromJSON(json);
       verifyBasicProperties(pluginInfo, json);
 
       expect(pluginInfo.packageSettings().configurations().countConfiguration()).toEqual(4);
@@ -275,7 +275,7 @@ describe('PluginInfos', () => {
 
   describe("Task", () => {
     it("should deserialize", () => {
-      var json = {
+      const json = {
         "id":            "docker-task",
         "version":       "1",
         "type":          "task",
@@ -331,7 +331,7 @@ describe('PluginInfos', () => {
         }
       };
 
-      var pluginInfo = PluginInfos.PluginInfo.fromJSON(json);
+      const pluginInfo = PluginInfos.PluginInfo.fromJSON(json);
       verifyBasicProperties(pluginInfo, json);
 
       expect(pluginInfo.taskSettings().viewTemplate()).toEqual(json.task_settings.view.template);
@@ -346,7 +346,7 @@ describe('PluginInfos', () => {
 
   describe("SCM", () => {
     it("should deserialize", () => {
-      var json = {
+      const json = {
         "id":           "github.pr",
         "version":      "1",
         "type":         "scm",
@@ -395,7 +395,7 @@ describe('PluginInfos', () => {
         }
       };
 
-      var pluginInfo = PluginInfos.PluginInfo.fromJSON(json);
+      const pluginInfo = PluginInfos.PluginInfo.fromJSON(json);
       verifyBasicProperties(pluginInfo, json);
 
       expect(pluginInfo.scmSettings().viewTemplate()).toEqual(json.scm_settings.view.template);
@@ -411,7 +411,7 @@ describe('PluginInfos', () => {
 
   describe("Authorization", () => {
     it("should deserialize", () => {
-      var json = {
+      const json = {
         "id":                   "cd.go.authorization.ldap",
         "version":              "1",
         "type":                 "authorization",
@@ -498,7 +498,7 @@ describe('PluginInfos', () => {
         }
       };
 
-      var pluginInfo = PluginInfos.PluginInfo.fromJSON(json);
+      const pluginInfo = PluginInfos.PluginInfo.fromJSON(json);
       verifyBasicProperties(pluginInfo, json);
 
       expect(pluginInfo.authConfigSettings().viewTemplate()).toEqual(json.auth_config_settings.view.template);
@@ -520,7 +520,7 @@ describe('PluginInfos', () => {
   });
 
   describe("Reading images", () => {
-    var json = {
+    const json = {
       "_links":  {
         "image": {
           "href": "http://localhost:8153/go/api/plugin_images/cd.go.contrib.elastic-agent.ecs/ff36b7db1762e22ea7523980d90ffa5759bc7f08393be910601f15bfea1f4ca6"
@@ -543,9 +543,9 @@ describe('PluginInfos', () => {
 
     _.each(_.keys(PluginInfos.Types), pluginType => {
       it(`should read image for ${pluginType}`, () => {
-        var pluginInfoJSON  = _.cloneDeep(json);
-        pluginInfoJSON.type = pluginType;
-        var pluginInfo      = PluginInfos.PluginInfo.fromJSON(pluginInfoJSON);
+        const pluginInfoJSON = _.cloneDeep(json);
+        pluginInfoJSON.type  = pluginType;
+        const pluginInfo     = PluginInfos.PluginInfo.fromJSON(pluginInfoJSON);
         expect(pluginInfo.imageUrl()).toBe(json._links.image.href);
       });
     });

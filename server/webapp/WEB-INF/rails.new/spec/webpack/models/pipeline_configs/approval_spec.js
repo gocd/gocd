@@ -15,10 +15,10 @@
  */
 describe("Stage Approval Model", () => {
 
-  var s        = require("string-plus");
-  var Approval = require("models/pipeline_configs/approval");
+  const s        = require("string-plus");
+  const Approval = require("models/pipeline_configs/approval");
 
-  var approval;
+  let approval;
   beforeEach(() => {
     approval = new Approval({
       type:          'manual',

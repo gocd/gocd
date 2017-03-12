@@ -15,22 +15,22 @@
  */
 
 describe("Agent State Count Widget", () => {
-  var m      = require('mithril');
-  var Stream = require('mithril/stream');
+  const m      = require('mithril');
+  const Stream = require('mithril/stream');
 
   require("jasmine-jquery");
 
-  var Agents                = require('models/agents/agents');
-  var AgentStateCountWidget = require("views/agents/agent_state_count_widget");
+  const Agents                = require('models/agents/agents');
+  const AgentStateCountWidget = require("views/agents/agent_state_count_widget");
 
-  var $root, root;
+  let $root, root;
   beforeEach(() => {
     [$root, root] = window.createDomElementForTest();
   });
   afterEach(window.destroyDomElementForTest);
   beforeEach(() => {
-    var agents    = Stream();
-    var allAgents = Agents.fromJSON(json());
+    const agents    = Stream();
+    const allAgents = Agents.fromJSON(json());
     agents(allAgents);
     mount(agents);
   });
@@ -40,31 +40,31 @@ describe("Agent State Count Widget", () => {
   });
 
   it('should contain the agents state count information', () => {
-    var children = $root.find('.search-summary').children();
+    const children = $root.find('.search-summary').children();
     expect(children).toHaveLength(4);
     expect(children[0]).toContainText('Total');
     expect(children[0]).toContainText('1');
   });
 
   it('should contain the agents Pending count information', () => {
-    var children = $root.find('.search-summary').children();
+    const children = $root.find('.search-summary').children();
     expect(children[1]).toContainText('Pending');
     expect(children[1]).toContainText('0');
   });
 
   it('should contain the agents Enabled count information', () => {
-    var children = $root.find('.search-summary').children();
+    const children = $root.find('.search-summary').children();
     expect(children[2]).toContainText('Enabled');
     expect(children[2]).toContainText('1');
   });
 
   it('should contain the agents Disabled count information', () => {
-    var children = $root.find('.search-summary').children();
+    const children = $root.find('.search-summary').children();
     expect(children[3]).toContainText('Disabled');
     expect(children[3]).toContainText('0');
   });
 
-  var mount = agents => {
+  const mount = agents => {
     m.mount(root,
       {
         view() {
@@ -75,12 +75,12 @@ describe("Agent State Count Widget", () => {
     m.redraw();
   };
 
-  var unmount = () => {
+  const unmount = () => {
     m.mount(root, null);
     m.redraw();
   };
 
-  var json = () => [
+  const json = () => [
     {
       "_links":             {
         "self": {

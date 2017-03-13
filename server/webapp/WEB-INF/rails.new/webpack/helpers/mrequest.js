@@ -25,7 +25,7 @@ const setHeaders = (xhr, version) => {
   }
 };
 
-var mrequest   = {
+const mrequest   = {
   timeout:       5000,
   versionHeader(version) {
     return `application/vnd.go.cd.${version}+json`;

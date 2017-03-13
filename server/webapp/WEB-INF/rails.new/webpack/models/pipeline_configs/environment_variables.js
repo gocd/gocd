@@ -101,9 +101,9 @@ Mixins.fromJSONCollection({
 });
 
 EnvironmentVariables.Variable.fromJSON = ({name, value, secure, encrypted_value}) => new EnvironmentVariables.Variable({ //eslint-disable-line camelcase
-  name:           name,
-  value:          value,
-  secure:         secure,
+  name,
+  value,
+  secure,
   encryptedValue: encrypted_value //eslint-disable-line camelcase
 });
 

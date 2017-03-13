@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,25 +15,25 @@
  */
 describe("ElasticProfilesWidget", () => {
 
-  var $             = require("jquery");
-  var m             = require("mithril");
-  var Stream        = require("mithril/stream");
-  var simulateEvent = require('simulate-event');
+  const $             = require("jquery");
+  const m             = require("mithril");
+  const Stream        = require("mithril/stream");
+  const simulateEvent = require('simulate-event');
 
   require('jasmine-jquery');
   require('jasmine-ajax');
 
-  var ElasticProfilesWidget = require("views/elastic_profiles/elastic_profiles_widget");
-  var PluginInfos           = require('models/shared/plugin_infos');
-  var Modal                 = require('views/shared/new_modal');
+  const ElasticProfilesWidget = require("views/elastic_profiles/elastic_profiles_widget");
+  const PluginInfos           = require('models/shared/plugin_infos');
+  const Modal                 = require('views/shared/new_modal');
 
-  var $root, root;
+  let $root, root;
   beforeEach(() => {
     [$root, root] = window.createDomElementForTest();
   });
   afterEach(window.destroyDomElementForTest);
 
-  var profileJSON = {
+  const profileJSON = {
     "id":         "unit-tests",
     "plugin_id":  "cd.go.contrib.elastic-agent.docker",
     "properties": [
@@ -48,13 +48,13 @@ describe("ElasticProfilesWidget", () => {
     ]
   };
 
-  var allProfilesJSON = {
+  const allProfilesJSON = {
     "_embedded": {
       "profiles": [profileJSON]
     }
   };
 
-  var dockerPluginInfoJSON = {
+  const dockerPluginInfoJSON = {
     "id":                          "cd.go.contrib.elastic-agent.docker",
     "name":                        "Docker Elastic Agent Plugin",
     "version":                     "0.5",
@@ -89,7 +89,7 @@ describe("ElasticProfilesWidget", () => {
     }
   };
 
-  var allPluginInfosJSON = [dockerPluginInfoJSON];
+  const allPluginInfosJSON = [dockerPluginInfoJSON];
 
   beforeEach(() => {
     jasmine.Ajax.install();
@@ -100,7 +100,7 @@ describe("ElasticProfilesWidget", () => {
 
     m.mount(root, {
       view() {
-        var fromJSON = PluginInfos.fromJSON(allPluginInfosJSON);
+        const fromJSON = PluginInfos.fromJSON(allPluginInfosJSON);
         return m(ElasticProfilesWidget, {
           pluginInfos: Stream(fromJSON)
         });
@@ -158,11 +158,11 @@ describe("ElasticProfilesWidget", () => {
 
       expect($('.reveal:visible .modal-buttons').find('.save')).toBeDisabled();
 
-      var profileId = $('.reveal:visible .modal-body').find('[data-prop-name="id"]').get(0);
+      const profileId = $('.reveal:visible .modal-body').find('[data-prop-name="id"]').get(0);
       $(profileId).val("unit-test");
       simulateEvent.simulate(profileId, 'input');
 
-      var pluginId = $('.reveal:visible .modal-body').find('[data-prop-name="pluginId"]').get(0);
+      const pluginId = $('.reveal:visible .modal-body').find('[data-prop-name="pluginId"]').get(0);
       $(pluginId).val(dockerPluginInfoJSON.id);
       simulateEvent.simulate(pluginId, 'input');
 
@@ -179,7 +179,7 @@ describe("ElasticProfilesWidget", () => {
 
       m.redraw();
 
-      var request = jasmine.Ajax.requests.at(jasmine.Ajax.requests.count() - 2);
+      const request = jasmine.Ajax.requests.at(jasmine.Ajax.requests.count() - 2);
       expect(request.url).toBe('/go/api/elastic/profiles');
       expect(request.method).toBe('POST');
 
@@ -190,11 +190,11 @@ describe("ElasticProfilesWidget", () => {
       simulateEvent.simulate($root.find('.add-profile').get(0), 'click');
       m.redraw();
 
-      var profileId = $('.reveal:visible .modal-body').find('[data-prop-name="id"]').get(0);
+      const profileId = $('.reveal:visible .modal-body').find('[data-prop-name="id"]').get(0);
       $(profileId).val("unit-test");
       simulateEvent.simulate(profileId, 'input');
 
-      var pluginId = $('.reveal:visible .modal-body').find('[data-prop-name="pluginId"]').get(0);
+      const pluginId = $('.reveal:visible .modal-body').find('[data-prop-name="pluginId"]').get(0);
       $(pluginId).val(dockerPluginInfoJSON.id);
       simulateEvent.simulate(pluginId, 'input');
 
@@ -208,7 +208,7 @@ describe("ElasticProfilesWidget", () => {
       simulateEvent.simulate($('.new-modal-container').find('.reveal:visible .modal-buttons .save').get(0), 'click');
       m.redraw();
 
-      var request = jasmine.Ajax.requests.at(jasmine.Ajax.requests.count() - 1);
+      const request = jasmine.Ajax.requests.at(jasmine.Ajax.requests.count() - 1);
       expect(request.url).toBe('/go/api/elastic/profiles');
       expect(request.method).toBe('POST');
 

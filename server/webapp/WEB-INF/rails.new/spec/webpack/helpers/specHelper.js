@@ -17,17 +17,17 @@
 require('jasmine-jquery');
 require('jasmine-ajax');
 
-var Environments  = require('models/agents/environments');
-var Resources     = require('models/agents/resources');
-var PluginInfos   = require('models/pipeline_configs/plugin_infos');
-var PluggableSCMs = require('models/pipeline_configs/pluggable_scms');
-var SCMs          = require("models/pipeline_configs/scms");
-var Pipelines     = require("models/pipeline_configs/pipelines");
-var _             = require('lodash');
-var $             = require('jquery');
-var Modal         = require('views/shared/new_modal');
+const Environments  = require('models/agents/environments');
+const Resources     = require('models/agents/resources');
+const PluginInfos   = require('models/pipeline_configs/plugin_infos');
+const PluggableSCMs = require('models/pipeline_configs/pluggable_scms');
+const SCMs          = require("models/pipeline_configs/scms");
+const Pipelines     = require("models/pipeline_configs/pipelines");
+const _             = require('lodash');
+const $             = require('jquery');
+const Modal         = require('views/shared/new_modal');
 
-var container;
+let container;
 
 window.createDomElementForTest = function () {
   container = $('<div>');
@@ -36,7 +36,7 @@ window.createDomElementForTest = function () {
     container.hide();
   }
 
-  var mithrilMountPoint = $('<div>').attr({class: 'mithril-mount-point'});
+  const mithrilMountPoint = $('<div>').attr({class: 'mithril-mount-point'});
   container.append(mithrilMountPoint);
   $('body').append(container);
 
@@ -47,15 +47,15 @@ window.destroyDomElementForTest = function () {
   container.remove();
 };
 
-beforeEach(function () {
+beforeEach(() => {
   if ($('#mithril-component-container').length === 0) {
-    var container = $('<div>').attr({id: 'mithril-component-container'}).hide();
+    const container = $('<div>').attr({id: 'mithril-component-container'}).hide();
     container.append($('<div>').attr({id: 'mithril-mount-point'}));
     $('body').append(container);
   }
 });
 
-afterEach(function () {
+afterEach(() => {
   expect(Environments.list.length).toBe(0);
   expect(Resources.list.length).toBe(0);
   expect(PluginInfos().length).toBe(0);

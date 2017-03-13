@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 describe("Lookup Command Widget", () => {
-  var $ = require("jquery");
-  var m = require("mithril");
+  const $ = require("jquery");
+  const m = require("mithril");
 
   require('jasmine-jquery');
 
-  var LookupCommandWidget = require("views/pipeline_configs/lookup_command_widget");
-  var Tasks               = require("models/pipeline_configs/tasks");
+  const LookupCommandWidget = require("views/pipeline_configs/lookup_command_widget");
+  const Tasks               = require("models/pipeline_configs/tasks");
 
-  var $root, root;
+  let $root, root;
   beforeEach(() => {
     [$root, root] = window.createDomElementForTest();
   });
@@ -37,15 +38,15 @@ describe("Lookup Command Widget", () => {
     m.redraw();
   }
 
-  var unmount = () => {
+  const unmount = () => {
     m.mount(root, null);
     m.redraw();
   };
 
   describe("view", () => {
-    var model, snippet, enableTextComplete;
+    let model, snippet, enableTextComplete;
 
-    beforeEach(function () {
+    beforeEach(() => {
       model   = new Tasks.Task.Exec({command: 'ls'});
       snippet = new LookupCommandWidget.Command.Snippet({
         /* eslint-disable camelcase */
@@ -92,8 +93,8 @@ describe("Lookup Command Widget", () => {
 
   describe('controller', () => {
     describe('selectSnippet', () => {
-      var snippet;
-      beforeEach(function () {
+      let snippet;
+      beforeEach(() => {
         snippet = new LookupCommandWidget.Command.Snippet({
           name:      'build',
           command:   'maven',
@@ -102,9 +103,9 @@ describe("Lookup Command Widget", () => {
         spyOn(m, 'redraw');
       });
 
-      it('should update task command and arguments', function () {
-        var task       = new Tasks.Task.Exec({command: 'ls', arguments: ['-al']});
-        var controller = new LookupCommandWidget.oninit({
+      it('should update task command and arguments', () => {
+        const task       = new Tasks.Task.Exec({command: 'ls', arguments: ['-al']});
+        const controller = new LookupCommandWidget.oninit({
           attrs: {
             model:    task,
             snippets: new LookupCommandWidget.Command.Snippets([snippet])
@@ -120,7 +121,7 @@ describe("Lookup Command Widget", () => {
     });
 
     describe('searchSnippet', () => {
-      var deferred;
+      let deferred;
 
       beforeEach(() => {
         deferred = $.Deferred();
@@ -129,7 +130,7 @@ describe("Lookup Command Widget", () => {
       });
 
       it('should lookup for command snippets for a search term', () => {
-        var vnode   = {};
+        const vnode   = {};
         vnode.attrs = {};
         new LookupCommandWidget.oninit(vnode).searchSnippets('scp');
 
@@ -137,11 +138,11 @@ describe("Lookup Command Widget", () => {
       });
 
       it('should call the textcomplete callback with snippet names on success of lookup', () => {
-        var build    = new LookupCommandWidget.Command.Snippet({name: 'build'});
-        var rake     = new LookupCommandWidget.Command.Snippet({name: 'rake'});
-        var callback = jasmine.createSpy('callback');
+        const build    = new LookupCommandWidget.Command.Snippet({name: 'build'});
+        const rake     = new LookupCommandWidget.Command.Snippet({name: 'rake'});
+        const callback = jasmine.createSpy('callback');
 
-        var vnode   = {};
+        const vnode   = {};
         vnode.attrs = {};
         new LookupCommandWidget.oninit(vnode).searchSnippets('scp', callback);
         deferred.resolve([build, rake]);
@@ -150,9 +151,9 @@ describe("Lookup Command Widget", () => {
       });
 
       it('should call the textcomplete callback with empty array on failure of lookup', () => {
-        var callback = jasmine.createSpy('callback');
+        const callback = jasmine.createSpy('callback');
 
-        var vnode = {
+        const vnode = {
           attrs:    {},
           state:    {},
           children: []
@@ -166,25 +167,25 @@ describe("Lookup Command Widget", () => {
   });
 
   describe('Command.Snippets', () => {
-    var snippets;
+    let snippets;
     beforeEach(() => {
-      var build   = new LookupCommandWidget.Command.Snippet({name: 'build'});
-      var rake    = new LookupCommandWidget.Command.Snippet({name: 'rake'});
-      var ansible = new LookupCommandWidget.Command.Snippet({name: 'ansible'});
-      var curl    = new LookupCommandWidget.Command.Snippet({name: 'curl'});
+      const build   = new LookupCommandWidget.Command.Snippet({name: 'build'});
+      const rake    = new LookupCommandWidget.Command.Snippet({name: 'rake'});
+      const ansible = new LookupCommandWidget.Command.Snippet({name: 'ansible'});
+      const curl    = new LookupCommandWidget.Command.Snippet({name: 'curl'});
       snippets    = new LookupCommandWidget.Command.Snippets([build, rake, ansible, curl]);
     });
 
     describe('findByName', () => {
       it('should return a snippet matching the name', () => {
-        var snippet = snippets.findByName('ansible');
+        const snippet = snippets.findByName('ansible');
 
         expect(snippet.name()).toBe('ansible');
       });
 
       describe('allNames', () => {
         it('should have names of all the snippets', () => {
-          var names = snippets.allNames();
+          const names = snippets.allNames();
 
           expect(names).toEqual(['build', 'rake', 'ansible', 'curl']);
         });
@@ -213,7 +214,7 @@ describe("Lookup Command Widget", () => {
           contentType:  'appication/json'
         });
 
-        var successCallback = jasmine.createSpy().and.callFake((snippets) => {
+        const successCallback = jasmine.createSpy().and.callFake((snippets) => {
           expect(snippets[0].name()).toBe('foo');
         });
         LookupCommandWidget.Command.lookup('rake').then(successCallback);

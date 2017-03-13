@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,39 +14,40 @@
  * limitations under the License.
  */
 
-var m               = require("mithril");
-var _               = require('lodash');
-var $               = require('jquery');
-var f               = require('helpers/form_helper');
-var ElasticProfiles = require('models/elastic_profiles/elastic_profiles');
-var AngularPlugin   = require('views/shared/angular_plugin');
+let m             = require("mithril");
+let f             = require('helpers/form_helper');
+let AngularPlugin = require('views/shared/angular_plugin');
 
-var autoCompleteCleanup = function (attrName) {
+const _               = require('lodash');
+const $               = require('jquery');
+const ElasticProfiles = require('models/elastic_profiles/elastic_profiles');
+
+const autoCompleteCleanup = function (attrName) {
   return function (vnode) {
-    var elem       = $(vnode.dom);
-    var $inputElem = $($(elem).find("input[data-prop-name='" + attrName + "']"));
+    const elem       = $(vnode.dom);
+    const $inputElem = $($(elem).find(`input[data-prop-name='${  attrName  }']`));
     $inputElem.textcomplete('destroy');
   };
 };
 
-var autoCompleteInitialize = function (model, pluginInfos, attrName, selectCb) {
+const autoCompleteInitialize = function (model, pluginInfos, attrName, selectCb) {
   return function (vnode) {
-    var elem       = $(vnode.dom);
-    var $inputElem = $($(elem).find("input[data-prop-name='" + attrName + "']"));
-    var values     = pluginInfos().collectPluginInfoProperty('id');
+    const elem       = $(vnode.dom);
+    const $inputElem = $($(elem).find(`input[data-prop-name='${  attrName  }']`));
+    const values     = pluginInfos().collectPluginInfoProperty('id');
 
     $inputElem.textcomplete([
       {
-        match:   /([^\s].*)$/,
-        index:   1, // use the second match in the regex to extract the search term
-        search:  function (term, callback) {
-          term               = term.toLowerCase();
-          var filteredValues = _(values).map(function (word) {
+        match: /([^\s].*)$/,
+        index: 1, // use the second match in the regex to extract the search term
+        search (term, callback) {
+          term                 = term.toLowerCase();
+          const filteredValues = _(values).map((word) => {
             return word.toLowerCase().indexOf(term) >= 0 ? word : null;
           }).compact().value();
           callback(filteredValues);
         },
-        replace: function (word) {
+        replace (word) {
           return word;
         }
       }
@@ -54,7 +55,7 @@ var autoCompleteInitialize = function (model, pluginInfos, attrName, selectCb) {
       zIndex: '10000'
     });
 
-    $inputElem.on('textComplete:select', function () {
+    $inputElem.on('textComplete:select', () => {
       model()[attrName]($inputElem.val());
       if (selectCb) {
         selectCb($inputElem.val());
@@ -64,29 +65,29 @@ var autoCompleteInitialize = function (model, pluginInfos, attrName, selectCb) {
   };
 };
 
-var ElasticProfileModalBody = {
-  oninit: function (vnode) {
-    var setPluginInfo = function (pluginInfo) {
+const ElasticProfileModalBody = {
+  oninit (vnode) {
+    const setPluginInfo = function (pluginInfo) {
       vnode.attrs.pluginInfo(pluginInfo);
       vnode.attrs.saveDisabled(!pluginInfo);
     };
 
     this.selectPluginId = function () {
-      var pluginInfo = vnode.attrs.pluginInfos().findById(vnode.attrs.profile().pluginId());
+      const pluginInfo = vnode.attrs.pluginInfos().findById(vnode.attrs.profile().pluginId());
 
       if (!pluginInfo) {
         return;
       }
 
       setPluginInfo(pluginInfo);
-      var newProfile = new ElasticProfiles.Profile({id: vnode.attrs.profile().id(), pluginId: pluginInfo.id()});
+      const newProfile = new ElasticProfiles.Profile({id: vnode.attrs.profile().id(), pluginId: pluginInfo.id()});
       newProfile.etag(vnode.attrs.profile().etag());
       vnode.attrs.profile(newProfile);
     };
   },
 
-  view: function (vnode) {
-    var profileIdDisabledMessage;
+  view (vnode) {
+    let profileIdDisabledMessage;
 
     if (vnode.attrs.errorMessage && vnode.attrs.errorMessage()) {
       return (
@@ -104,7 +105,7 @@ var ElasticProfileModalBody = {
       profileIdDisabledMessage = (<div>Editing of profile ID is disabled</div>);
     }
 
-    var angularPlugin;
+    let angularPlugin;
 
     if (vnode.attrs.pluginInfo()) {
       angularPlugin = (<AngularPlugin pluginInfo={vnode.attrs.pluginInfo().profileSettings}

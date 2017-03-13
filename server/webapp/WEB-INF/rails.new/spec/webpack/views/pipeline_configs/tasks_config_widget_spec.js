@@ -13,28 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 describe("TasksConfigWidget", () => {
 
-  var m             = require('mithril');
-  var Stream        = require('mithril/stream');
-  var _             = require("lodash");
-  var simulateEvent = require('simulate-event');
+  const m             = require('mithril');
+  const Stream        = require('mithril/stream');
+  const _             = require("lodash");
+  const simulateEvent = require('simulate-event');
 
   require('jasmine-jquery');
 
-  var Tasks             = require("models/pipeline_configs/tasks");
-  var TasksConfigWidget = require("views/pipeline_configs/tasks_config_widget");
+  const Tasks             = require("models/pipeline_configs/tasks");
+  const TasksConfigWidget = require("views/pipeline_configs/tasks_config_widget");
 
-  var $root, root;
+  let $root, root;
   beforeEach(() => {
     [$root, root] = window.createDomElementForTest();
   });
   afterEach(window.destroyDomElementForTest);
 
   describe('Ant Task View', () => {
-    var task;
+    let task;
     beforeEach(() => {
-      var tasks = Stream(new Tasks());
+      const tasks = Stream(new Tasks());
 
       task = new Tasks.Task.Ant({
         /* eslint-disable camelcase */
@@ -92,9 +93,9 @@ describe("TasksConfigWidget", () => {
   });
 
   describe('Nant Task View', () => {
-    var task;
+    let task;
     beforeEach(() => {
-      var tasks = Stream(new Tasks());
+      const tasks = Stream(new Tasks());
 
       task = new Tasks.Task.NAnt({
         buildFile:        'build-moduleA.xml',
@@ -140,9 +141,9 @@ describe("TasksConfigWidget", () => {
   });
 
   describe('Exec Task View', () => {
-    var task;
+    let task;
     beforeEach(() => {
-      var tasks = Stream(new Tasks());
+      const tasks = Stream(new Tasks());
 
       task = new Tasks.Task.Exec({
         command:          'bash',
@@ -185,9 +186,9 @@ describe("TasksConfigWidget", () => {
   });
 
   describe('Rake Task View', () => {
-    var task;
+    let task;
     beforeEach(() => {
-      var tasks = Stream(new Tasks());
+      const tasks = Stream(new Tasks());
 
       task = new Tasks.Task.Rake({
         buildFile:        'foo.rake',
@@ -228,9 +229,9 @@ describe("TasksConfigWidget", () => {
   });
 
   describe('FetchArtifact Task View', () => {
-    var task;
+    let task;
     beforeEach(() => {
-      var tasks = Stream(new Tasks());
+      const tasks = Stream(new Tasks());
 
       task = new Tasks.Task.FetchArtifact({
         pipeline:      'Build',
@@ -286,7 +287,7 @@ describe("TasksConfigWidget", () => {
   });
 
   describe("Add Tasks", () => {
-    var antTask, nantTask, execTask, rakeTask, fetchArtifactTask, tasks;
+    let antTask, nantTask, execTask, rakeTask, fetchArtifactTask, tasks;
     beforeEach(() => {
       antTask = new Tasks.Task.Ant({
         buildFile:        'build-moduleA.xml',
@@ -353,7 +354,7 @@ describe("TasksConfigWidget", () => {
     });
   });
 
-  var mount = (tasks) => {
+  const mount = (tasks) => {
     m.mount(root, {
       view() {
         return m(TasksConfigWidget, {tasks});
@@ -362,7 +363,7 @@ describe("TasksConfigWidget", () => {
     m.redraw();
   };
 
-  var unmount = () => {
+  const unmount = () => {
     m.mount(root, null);
     m.redraw();
   };

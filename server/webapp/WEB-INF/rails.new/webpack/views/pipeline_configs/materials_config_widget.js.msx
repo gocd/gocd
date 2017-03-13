@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,29 +14,30 @@
  * limitations under the License.
  */
 
-var m                    = require('mithril');
-var Stream               = require('mithril/stream');
-var _                    = require('lodash');
-var s                    = require('string-plus');
-var f                    = require('helpers/form_helper');
-var tt                   = require('helpers/pipeline_configs/tooltips');
-var ComponentMixins      = require('helpers/mithril_component_mixins');
-var Materials            = require('models/pipeline_configs/materials');
-var TestConnectionWidget = require('views/pipeline_configs/test_connection_widget');
-var PipelineStageField   = require('views/pipeline_configs/pipeline_stage_field_widget');
-var Pipelines            = require('models/pipeline_configs/pipelines');
-var PluggableSCMs        = require('models/pipeline_configs/pluggable_scms');
-var PluggableSCMWidget   = require('views/pipeline_configs/pluggable_scm_widget');
-var MaterialFilterWidget = require('views/pipeline_configs/material_filter_widget');
-var PluginInfos          = require('models/pipeline_configs/plugin_infos');
+let m                    = require('mithril');
+let f                    = require('helpers/form_helper');
+let TestConnectionWidget = require('views/pipeline_configs/test_connection_widget');
+let PipelineStageField   = require('views/pipeline_configs/pipeline_stage_field_widget');
+let PluggableSCMWidget   = require('views/pipeline_configs/pluggable_scm_widget');
+let MaterialFilterWidget = require('views/pipeline_configs/material_filter_widget');
 
-var PasswordField = {
-  view: function (vnode) {
-    var model               = vnode.attrs.model;
-    var attrName            = vnode.attrs.attrName;
-    var capitalizedAttrName = _.upperFirst(attrName);
+const Stream          = require('mithril/stream');
+const _               = require('lodash');
+const s               = require('string-plus');
+const tt              = require('helpers/pipeline_configs/tooltips');
+const ComponentMixins = require('helpers/mithril_component_mixins');
+const Materials       = require('models/pipeline_configs/materials');
+const Pipelines       = require('models/pipeline_configs/pipelines');
+const PluggableSCMs   = require('models/pipeline_configs/pluggable_scms');
+const PluginInfos     = require('models/pipeline_configs/plugin_infos');
 
-    if (model['isEditing' + capitalizedAttrName]()) {
+let PasswordField = {
+  view (vnode) {
+    const model               = vnode.attrs.model;
+    const attrName            = vnode.attrs.attrName;
+    const capitalizedAttrName = _.upperFirst(attrName);
+
+    if (model[`isEditing${  capitalizedAttrName}`]()) {
       return (
         <div>
           <f.inputWithLabel model={model}
@@ -52,7 +53,7 @@ var PasswordField = {
         <f.column>
           <label>
             Password{' '}
-            <f.link onclick={model['edit' + capitalizedAttrName].bind(model)}>Edit</f.link>
+            <f.link onclick={model[`edit${  capitalizedAttrName}`].bind(model)}>Edit</f.link>
           </label>
           <input type='password'
                  readonly={true}
@@ -63,8 +64,8 @@ var PasswordField = {
   }
 };
 
-var UrlField = {
-  view: function (vnode) {
+let UrlField = {
+  view (vnode) {
     return (
       <f.inputWithLabel attrName='url'
                         type='url'
@@ -75,8 +76,8 @@ var UrlField = {
   }
 };
 
-var UsernameField = {
-  view: function (vnode) {
+let UsernameField = {
+  view (vnode) {
     return (
       <f.inputWithLabel attrName='username'
                         model={vnode.attrs.material}/>
@@ -84,8 +85,8 @@ var UsernameField = {
   }
 };
 
-var DestinationField = {
-  view: function (vnode) {
+let DestinationField = {
+  view (vnode) {
     return (
       <f.inputWithLabel attrName='destination'
                         label="Destination"
@@ -101,8 +102,8 @@ var DestinationField = {
 };
 
 
-var NameField = {
-  view: function (vnode) {
+let NameField = {
+  view (vnode) {
     return (
       <f.inputWithLabel attrName='name'
                         validate={true}
@@ -116,8 +117,8 @@ var NameField = {
   }
 };
 
-var BranchField = {
-  view: function (vnode) {
+let BranchField = {
+  view (vnode) {
     return (
       <f.inputWithLabel attrName='branch'
                         model={vnode.attrs.material}/>
@@ -125,8 +126,8 @@ var BranchField = {
   }
 };
 
-var AutoUpdateField = {
-  view: function (vnode) {
+let AutoUpdateField = {
+  view (vnode) {
     return (
       <f.checkBox model={vnode.attrs.material}
                   attrName='autoUpdate'
@@ -136,12 +137,12 @@ var AutoUpdateField = {
   }
 };
 
-var TestConnection = {
-  oninit: function () {
+let TestConnection = {
+  oninit () {
     ComponentMixins.HasViewModel.call(this);
   },
 
-  view: function (vnode) {
+  view (vnode) {
     return (
       <f.row>
         <f.column size={12} largeSize={12}>
@@ -154,17 +155,17 @@ var TestConnection = {
   }
 };
 
-var MaterialViews = {
+let MaterialViews = {
   base: {
-    oninit: function (vnode) {
+    oninit (vnode) {
       this.args = vnode.attrs;
       ComponentMixins.HasViewModel.call(this);
     },
 
-    view: function (vnode) {
-      var children = vnode.children;
+    view (vnode) {
+      const children = vnode.children;
 
-      var title = function () {
+      const title = function () {
         if (Materials.isBuiltInType(vnode.attrs.material.type())) {
           return [vnode.attrs.material.type(), '-', vnode.attrs.material.name()].join(' ');
         }
@@ -191,8 +192,8 @@ var MaterialViews = {
   },
 
   svn: {
-    view: function (vnode) {
-      var material = vnode.attrs.material;
+    view (vnode) {
+      const material = vnode.attrs.material;
 
       return (
         <MaterialViews.base {...vnode.attrs}>
@@ -222,8 +223,8 @@ var MaterialViews = {
   },
 
   git: {
-    view: function (vnode) {
-      var material = vnode.attrs.material;
+    view (vnode) {
+      const material = vnode.attrs.material;
 
       return (
         <MaterialViews.base {...vnode.attrs}>
@@ -251,8 +252,8 @@ var MaterialViews = {
   },
 
   hg: {
-    view: function (vnode) {
-      var material = vnode.attrs.material;
+    view (vnode) {
+      const material = vnode.attrs.material;
       return (
         <MaterialViews.base {...vnode.attrs}>
           <f.row>
@@ -271,8 +272,8 @@ var MaterialViews = {
   },
 
   p4: {
-    view: function (vnode) {
-      var material = vnode.attrs.material;
+    view (vnode) {
+      const material = vnode.attrs.material;
       return (
         <MaterialViews.base {...vnode.attrs}>
           <f.row>
@@ -314,8 +315,8 @@ var MaterialViews = {
   },
 
   tfs: {
-    view: function (vnode) {
-      var material = vnode.attrs.material;
+    view (vnode) {
+      const material = vnode.attrs.material;
       return (
         <MaterialViews.base {...vnode.attrs}>
           <f.row>
@@ -352,8 +353,8 @@ var MaterialViews = {
   },
 
   dependency: {
-    view: function (vnode) {
-      var material = vnode.attrs.material;
+    view (vnode) {
+      const material = vnode.attrs.material;
 
       return (
         <MaterialViews.base {...vnode.attrs}>
@@ -369,8 +370,8 @@ var MaterialViews = {
   },
 
   plugin: {
-    view: function (vnode) {
-      var material = vnode.attrs.material;
+    view (vnode) {
+      const material = vnode.attrs.material;
 
       return (
         <MaterialViews.base {...vnode.attrs}>
@@ -381,7 +382,7 @@ var MaterialViews = {
   },
 
   package: {
-    view: function (vnode) {
+    view (vnode) {
       return (
         <MaterialViews.base {...vnode.attrs}>
           <f.info>Package materials edit is not yet supported, click
@@ -398,13 +399,13 @@ var MaterialViews = {
 
 };
 
-var MaterialTypeSelector = {
-  oninit: function () {
+let MaterialTypeSelector = {
+  oninit () {
     this.selected = Stream('git');
   },
 
-  view: function (vnode) {
-    var items = _.reduce(_.merge({}, Materials.Types, PluggableSCMs.Types), function (accumulator, value, key) {
+  view (vnode) {
+    const items = _.reduce(_.merge({}, Materials.Types, PluggableSCMs.Types), (accumulator, value, key) => {
       accumulator.push({id: key, text: value.description});
       return accumulator;
     }, []);
@@ -429,9 +430,9 @@ var MaterialTypeSelector = {
   }
 };
 
-var MaterialsConfigWidget = {
-  oninit: function (vnode) {
-    var self       = this;
+const MaterialsConfigWidget = {
+  oninit (vnode) {
+    const self     = this;
     self.args      = vnode.attrs;
     self.pipelines = Pipelines.init(vnode.attrs.pipelineName());
     ComponentMixins.HasViewModel.call(self);
@@ -444,31 +445,31 @@ var MaterialsConfigWidget = {
 
     self.createMaterial = function (materials) {
       return function (type) {
-        var newMaterial = Materials.isBuiltInType(type()) ? materials().createMaterial({type: type()})
+        const newMaterial = Materials.isBuiltInType(type()) ? materials().createMaterial({type: type()})
           : materials().createMaterial({type: type(), pluginInfo: PluginInfos.findById(type())});
 
-        var indexOfMaterial = materials().indexOfMaterial(newMaterial);
-        self.vmState('material-' + indexOfMaterial, {selectedMaterialIndex: Stream(0)});
+        const indexOfMaterial = materials().indexOfMaterial(newMaterial);
+        self.vmState(`material-${  indexOfMaterial}`, {selectedMaterialIndex: Stream(0)});
       };
     };
   },
 
-  view: function (vnode) {
+  view (vnode) {
     return (
       <f.accordion accordionTitles={[(<span>Materials</span>)]}
                    accordionKeys={['materials']}
                    class='materials'
                    selectedIndex={vnode.state.vmState('materialsSelected', Stream(-1))}>
         <div>
-          {vnode.attrs.materials().mapMaterials(function (material, index) {
-            var materialView = MaterialViews[material.type()];
+          {vnode.attrs.materials().mapMaterials((material, index) => {
+            const materialView = MaterialViews[material.type()];
             return (m(materialView, {
-              material:     material,
+              material,
               onRemove:     vnode.state.removeMaterial(vnode.attrs.materials),
               key:          material.uuid(),
               pipelineName: vnode.attrs.pipelineName,
               pipelines:    vnode.state.pipelines,
-              vm:           vnode.state.vmState('material-' + index)
+              vm:           vnode.state.vmState(`material-${  index}`)
             }));
           })}
           <MaterialTypeSelector createMaterial={vnode.state.createMaterial(vnode.attrs.materials)}

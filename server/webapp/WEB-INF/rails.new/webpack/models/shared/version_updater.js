@@ -28,23 +28,23 @@ const VersionUpdater = function () {
     }
   };
 
-  var fetchStaleVersionInfo = () => $.ajax({
+  const fetchStaleVersionInfo = () => $.ajax({
     method:     'GET',
     url:        Routes.apiv1StaleVersionInfoPath(),
     beforeSend: mrequest.xhrConfig.forVersion('v1')
   });
 
-  var fetchLatestVersion = (versionInfo) => {
+  const fetchLatestVersion = (versionInfo) => {
     $.ajax({
-      method:     'GET',
-      url:        versionInfo['update_server_url'],
+      method: 'GET',
+      url:    versionInfo['update_server_url'],
       beforeSend(xhr) {
         xhr.setRequestHeader("Accept", "application/vnd.update.go.cd.v1+json");
       },
     }).then(updateLatestVersion);
   };
 
-  var updateLatestVersion = (data) => {
+  const updateLatestVersion = (data) => {
     $.ajax({
       method:     'PATCH',
       beforeSend: mrequest.xhrConfig.forVersion('v1'),
@@ -53,18 +53,18 @@ const VersionUpdater = function () {
     }).then(markUpdateDone);
   };
 
-  var canUpdateVersion = () => {
+  const canUpdateVersion = () => {
     let versionCheckInfo = localStorage.getItem('versionCheckInfo');
     if (_.isEmpty(versionCheckInfo)) {
       return true;
     }
-    versionCheckInfo = JSON.parse(versionCheckInfo);
+    versionCheckInfo   = JSON.parse(versionCheckInfo);
     const lastUpdateAt = new Date(versionCheckInfo.last_updated_at);
     const halfHourAgo  = new Date(_.now() - 30 * 60 * 1000);
     return halfHourAgo > lastUpdateAt;
   };
 
-  var markUpdateDone = () => {
+  const markUpdateDone = () => {
     const versionCheckInfo = JSON.stringify({last_updated_at: new Date().getTime()}); //eslint-disable-line camelcase
     localStorage.setItem('versionCheckInfo', versionCheckInfo);
   };

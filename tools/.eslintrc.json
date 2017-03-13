@@ -43,6 +43,27 @@
     "arrow-parens": [
       "error"
     ],
+    "arrow-spacing": [
+      "error"
+    ],
+    "no-const-assign": [
+      "error"
+    ],
+    "no-var": [
+      "error"
+    ],
+    "object-shorthand": [
+      "error"
+    ],
+    "prefer-arrow-callback": [
+      "error"
+    ],
+    "prefer-const": [
+      "error"
+    ],
+    "prefer-template": [
+      "error"
+    ],
     "block-scoped-var": [
       "error"
     ],

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 
-var m               = require('mithril');
-var Stream          = require('mithril/stream');
-var _               = require('lodash');
-var f               = require('helpers/form_helper');
-var tt              = require('helpers/pipeline_configs/tooltips');
-var ComponentMixins = require('helpers/mithril_component_mixins');
-var TrackingTool    = require('models/pipeline_configs/tracking_tool');
+let m  = require('mithril');
+let f  = require('helpers/form_helper');
+let tt = require('helpers/pipeline_configs/tooltips');
 
-var TrackingToolViews = {
-  none: function () {
+const Stream          = require('mithril/stream');
+const _               = require('lodash');
+const ComponentMixins = require('helpers/mithril_component_mixins');
+const TrackingTool    = require('models/pipeline_configs/tracking_tool');
+
+const TrackingToolViews = {
+  none () {
   },
 
-  mingle: function (trackingTool) {
+  mingle (trackingTool) {
     return (
       <div>
         <f.row collapse>
@@ -77,7 +78,7 @@ var TrackingToolViews = {
     );
   },
 
-  generic: function (trackingTool) {
+  generic (trackingTool) {
     return (
       <div>
         <f.row collapse>
@@ -114,8 +115,8 @@ var TrackingToolViews = {
   }
 };
 
-var TrackingToolWidget = {
-  oninit: function (vnode) {
+const TrackingToolWidget = {
+  oninit (vnode) {
     this.args = vnode.attrs;
     ComponentMixins.HasViewModel.call(this);
     this.vmState('possibleTrackingTools', {
@@ -125,8 +126,8 @@ var TrackingToolWidget = {
     });
   },
 
-  view: function (vnode) {
-    var isChecked = function (type) {
+  view (vnode) {
+    const isChecked = function (type) {
       if (type === 'none' && !vnode.attrs.trackingTool()) {
         return true;
       }
@@ -134,7 +135,7 @@ var TrackingToolWidget = {
       return vnode.attrs.trackingTool() && vnode.attrs.trackingTool().type() === type;
     };
 
-    var trackingTools = _.merge({none: {type: undefined, description: "None"}}, TrackingTool.Types);
+    const trackingTools = _.merge({none: {type: undefined, description: "None"}}, TrackingTool.Types);
 
     return (
       <f.accordion accordionTitles={[(
@@ -149,15 +150,15 @@ var TrackingToolWidget = {
         <div>
           <f.row>
             <f.column size={4} end={true}>
-              {_.map(trackingTools, function (value, key) {
+              {_.map(trackingTools, (value, key) => {
                 return (
                   <span>
                   <input type="radio"
                          name='tracking-tool-button-group'
-                         id={'tracking-tool-' + key}
+                         id={`tracking-tool-${  key}`}
                          checked={isChecked(key)}
                          onclick={vnode.attrs.trackingTool.bind(vnode.attrs, vnode.state.vmState('possibleTrackingTools')[key])}/>
-                  <label for={'tracking-tool-' + key}> {value.description}</label>
+                  <label for={`tracking-tool-${  key}`}> {value.description}</label>
                 </span>
                 );
               })}
@@ -165,7 +166,7 @@ var TrackingToolWidget = {
           </f.row>
 
           <f.row
-            class={'tracking-tool tracking-tool-' + (vnode.attrs.trackingTool() ? vnode.attrs.trackingTool().type() : 'none')}>
+            class={`tracking-tool tracking-tool-${  vnode.attrs.trackingTool() ? vnode.attrs.trackingTool().type() : 'none'}`}>
             <f.column size={6} end={true}>
               {TrackingToolViews[vnode.attrs.trackingTool() ? vnode.attrs.trackingTool().type() : 'none'](vnode.attrs.trackingTool)}
             </f.column>

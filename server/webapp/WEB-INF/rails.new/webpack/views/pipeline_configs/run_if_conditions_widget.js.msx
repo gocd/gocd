@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-var m                     = require('mithril');
-var f                     = require('helpers/form_helper');
-var RunIfConditionsWidget = {
-  view: function (vnode) {
-    var args = vnode.attrs;
-    var task = args.task;
+let m                       = require('mithril');
+let f                       = require('helpers/form_helper');
+const RunIfConditionsWidget = {
+  view (vnode) {
+    const args = vnode.attrs;
+    const task = args.task;
     return (
       <div class='runif'>
         <f.row>
@@ -51,4 +51,4 @@ var RunIfConditionsWidget = {
     );
   }
 };
-module.exports            = RunIfConditionsWidget;
+module.exports              = RunIfConditionsWidget;

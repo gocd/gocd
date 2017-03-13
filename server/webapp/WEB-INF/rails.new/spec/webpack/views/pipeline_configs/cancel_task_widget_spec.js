@@ -13,22 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 describe('Cancel Task Widget', () => {
 
-  var $             = require("jquery");
-  var m             = require("mithril");
-  var simulateEvent = require('simulate-event');
+  const $             = require("jquery");
+  const m             = require("mithril");
+  const simulateEvent = require('simulate-event');
   require('jasmine-jquery');
 
-  var Tasks            = require("models/pipeline_configs/tasks");
-  var CancelTaskWidget = require("views/pipeline_configs/cancel_task_widget");
+  const Tasks            = require("models/pipeline_configs/tasks");
+  const CancelTaskWidget = require("views/pipeline_configs/cancel_task_widget");
 
-  var $root, root;
+  let $root, root;
   beforeEach(() => {
     [$root, root] = window.createDomElementForTest();
   });
   afterEach(window.destroyDomElementForTest);
-  var task;
+  let task;
   describe('view task with onCancel task', () => {
     beforeEach(() => {
       /* eslint-disable camelcase */
@@ -83,7 +84,7 @@ describe('Cancel Task Widget', () => {
 
   describe('view task without onCancel task', () => {
     it('should render only checkbox to enable onCancel task', () => {
-      var task = new Tasks.Task.Ant({
+      const task = new Tasks.Task.Ant({
         buildFile:        'build-moduleA.xml',
         target:           'clean',
         workingDirectory: 'moduleA',
@@ -104,7 +105,7 @@ describe('Cancel Task Widget', () => {
     it('should render exec task on selection', () => {
       //todo: fix asnyc redraw
 
-      var task = new Tasks.Task.Ant({
+      const task = new Tasks.Task.Ant({
         buildFile:        'build-moduleA.xml',
         target:           'clean',
         workingDirectory: 'moduleA',
@@ -128,7 +129,7 @@ describe('Cancel Task Widget', () => {
     it('should allow selecting a different onCancel task', () => {
 
       /* eslint-disable camelcase */
-      var task = new Tasks.Task.Ant({
+      const task = new Tasks.Task.Ant({
         buildFile:        'build-moduleA.xml',
         target:           'clean',
         workingDirectory: 'moduleA',
@@ -147,7 +148,7 @@ describe('Cancel Task Widget', () => {
 
       mount(task);
 
-      var dropDown = $root.find('.on-cancel select').get(0);
+      const dropDown = $root.find('.on-cancel select').get(0);
       $(dropDown).val('exec');
       simulateEvent.simulate(dropDown, 'change');
 
@@ -161,12 +162,12 @@ describe('Cancel Task Widget', () => {
 
   });
 
-  var unmount = () => {
+  const unmount = () => {
     m.mount(root, null);
     m.redraw();
   };
 
-  var mount = (task) => {
+  const mount = (task) => {
     m.mount(root, {
       view() {
         return m(CancelTaskWidget, {task});

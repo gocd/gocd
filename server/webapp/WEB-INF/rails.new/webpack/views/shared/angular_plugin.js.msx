@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,27 +14,28 @@
  * limitations under the License.
  */
 
-var m       = require('mithril');
-var Stream  = require('mithril/stream');
-var _       = require('lodash');
-var $       = require('jquery');
-var angular = require('angular');
+let m = require('mithril');
 
-var appName = function (configuration) {
-  return 'app-' + configuration.uuid();
+const Stream  = require('mithril/stream');
+const _       = require('lodash');
+const $       = require('jquery');
+const angular = require('angular');
+
+const appName = function (configuration) {
+  return `app-${  configuration.uuid()}`;
 };
 
-var controllerName = function (configuration) {
-  return 'controller-' + configuration.uuid();
+const controllerName = function (configuration) {
+  return `controller-${  configuration.uuid()}`;
 };
 
-var pluginTemplate = function (pluginInfo) {
+const pluginTemplate = function (pluginInfo) {
   return m.trust(AngularPlugin.template(pluginInfo.viewTemplate()));
 };
 
 function onCreate(scope, args) {
   return function (vnode) {
-    var elem = vnode.dom;
+    const elem = vnode.dom;
 
     angular.module(appName(args.configuration()), []).controller(controllerName(args.configuration()), ['$scope', function ($scope) {
       scope($scope);
@@ -51,19 +52,19 @@ function onCreate(scope, args) {
         $scope.GOINPUTNAME = {};
       };
 
-      var listeners = [];
+      const listeners = [];
 
       function unregisterExistingListeners() {
         if (listeners.length !== 0) {
           // we are re-initializing, so get rid of old watches
-          _.map(listeners, function (listener) {
+          _.map(listeners, (listener) => {
             listener();
           });
         }
       }
 
       function copyOverErrors(configurations, configKey) {
-        var matchingConfig = configurations.findConfiguration(function (eachConfig) {
+        const matchingConfig = configurations.findConfiguration((eachConfig) => {
           return eachConfig.key() === configKey;
         });
         if (matchingConfig && matchingConfig.errors().hasErrors(configKey)) {
@@ -72,7 +73,7 @@ function onCreate(scope, args) {
       }
 
       function addListeners(configurations, configKey) {
-        var listener = $scope.$watch(configKey, function (newValue) {
+        const listener = $scope.$watch(configKey, (newValue) => {
           configurations.setConfiguration(configKey, newValue);
         });
         listeners.push(listener);
@@ -82,15 +83,15 @@ function onCreate(scope, args) {
         unregisterExistingListeners();
         $scope.clearErrors();
 
-        pluginInfo.configurations().mapConfigurations(function (config) {
+        pluginInfo.configurations().mapConfigurations((config) => {
           $scope[config.key()] = configurations.valueFor(config.key());
           addListeners(configurations, config.key());
           copyOverErrors(configurations, config.key());
         });
 
-        var supportedConfigKeys = pluginInfo.configurations().collectConfigurationProperty('key');
+        const supportedConfigKeys = pluginInfo.configurations().collectConfigurationProperty('key');
 
-        configurations.removeConfiguration(function (configuration) {
+        configurations.removeConfiguration((configuration) => {
           return !_.includes(supportedConfigKeys, configuration.key());
         });
       };
@@ -109,18 +110,18 @@ function onUpdate(scope, args) {
   };
 }
 
-var AngularPlugin = {
-  template: function (template) {
-    return $('<div></div>').html(template.replace(/GOINPUTNAME\[([^\]]*)\]/g, function (_match, name) {
-      return "GOINPUTNAME['" + name + "']";
+const AngularPlugin = {
+  template (template) {
+    return $('<div></div>').html(template.replace(/GOINPUTNAME\[([^\]]*)\]/g, (_match, name) => {
+      return `GOINPUTNAME['${  name  }']`;
     })).html();
   },
 
-  oninit: function () {
+  oninit () {
     this.$scope = Stream();
   },
 
-  view: function (vnode) {
+  view (vnode) {
     return (
       <div class='plugin-view'
            ng-controller={controllerName(vnode.attrs.configuration())}

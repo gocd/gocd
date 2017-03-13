@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-var m = require('mithril');
+let m = require('mithril');
 
-var SortHeaderWidget = {
-  view: function (vnode) {
+let SortHeaderWidget = {
+  view (vnode) {
     return (
       <label class="agents-table-header"
              onclick={vnode.attrs.sortOrder().toggleSortingOrder.bind(vnode.attrs.sortOrder(), vnode.attrs.attrName)}>{vnode.attrs.attrLabel}
-        <div class={"sort " + vnode.attrs.sortClass(vnode.attrs.attrName)}>
+        <div class={`sort ${  vnode.attrs.sortClass(vnode.attrs.attrName)}`}>
           <span class="up"/>
           <span class="down"/>
         </div>
@@ -30,17 +30,17 @@ var SortHeaderWidget = {
   }
 };
 
-var AgentsTableHeader = {
+const AgentsTableHeader = {
 
-  oninit: function (vnode) {
+  oninit (vnode) {
 
     this.sortClass = function (attrName) {
       return vnode.attrs.sortOrder().isSortedOn(attrName) ? vnode.attrs.sortOrder().orderBy() : '';
     };
   },
 
-  view: function (vnode) {
-    var selectAllAgentsCheckbox;
+  view (vnode) {
+    let selectAllAgentsCheckbox;
     if (vnode.attrs.isUserAdmin) {
       selectAllAgentsCheckbox = (
         <input type="checkbox"

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-var m = require('mithril');
+let m = require('mithril');
 
-var BuildDetailsWidget = {
+const BuildDetailsWidget = {
 
-  oninit: function (vnode) {
-    var args = vnode.attrs;
+  oninit (vnode) {
+    const args = vnode.attrs;
 
     this.closeDropDown = function () {
       args.dropdown.reset(false);
     };
   },
 
-  view: function (vnode) {
-    var ctrl = vnode.state;
-    var args = vnode.attrs;
+  view (vnode) {
+    const ctrl = vnode.state;
+    const args = vnode.attrs;
 
-    var buildDetails = args.agent.buildDetails();
+    const buildDetails = args.agent.buildDetails();
     return (
       <div class="build-details" onclick={ctrl.closeDropDown}>
         <ul>

@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 describe("Pipeline Model", () => {
 
   const s = require("string-plus");
@@ -21,6 +22,7 @@ describe("Pipeline Model", () => {
   const TrackingTool = require('models/pipeline_configs/tracking_tool');
 
   let pipeline, timer;
+
   beforeEach(() => {
     timer    = new Pipeline.Timer({spec: "0 0 22 ? * MON-FRI"});
     pipeline = new Pipeline({
@@ -208,7 +210,7 @@ describe("Pipeline Model", () => {
   describe('update', () => {
     it('should patch to pipeline endpoint', () => {
       jasmine.Ajax.withMock(() => {
-        let url = `/go/api/admin/pipelines/${pipeline.name()}`;
+        const url = `/go/api/admin/pipelines/${pipeline.name()}`;
 
         jasmine.Ajax.stubRequest(url, undefined, 'PUT').andReturn({
           responseText:    JSON.stringify(samplePipelineJSON()),
@@ -218,7 +220,7 @@ describe("Pipeline Model", () => {
           }
         });
 
-        var successCallback = jasmine.createSpy().and.callFake(({status}) => {
+        const successCallback = jasmine.createSpy().and.callFake(({status}) => {
           expect(status).toBe(200);
         });
 

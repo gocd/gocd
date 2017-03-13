@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,23 @@
  * limitations under the License.
  */
 
-var m        = require('mithril');
-var Stream   = require('mithril/stream');
-var _        = require('lodash');
-var $        = require('jquery');
-var f        = require('helpers/form_helper');
-var Routes   = require('gen/js-routes');
-var tt       = require('helpers/pipeline_configs/tooltips');
-var mrequest = require('helpers/mrequest');
+let m = require('mithril');
+let f = require('helpers/form_helper');
+
+const Stream   = require('mithril/stream');
+const _        = require('lodash');
+const $        = require('jquery');
+const Routes   = require('gen/js-routes');
+const tt       = require('helpers/pipeline_configs/tooltips');
+const mrequest = require('helpers/mrequest');
 require('jquery-textcomplete');
 
-var LookupCommandWidget = {
+const LookupCommandWidget = {
   Command: {
-    textComplete: function (attrName, selectSnippet, searchSnippets) {
+    textComplete (attrName, selectSnippet, searchSnippets) {
       return function (elem, isInitialized, context) {
         if (!isInitialized) {
-          var $inputElem = $(elem).find("input[name='" + attrName + "']");
+          const $inputElem = $(elem).find(`input[name='${  attrName  }']`);
 
           context.onunload = function () {
             $inputElem.textcomplete('destroy');
@@ -37,10 +38,10 @@ var LookupCommandWidget = {
 
           $inputElem.textcomplete([
             {
-              match:   /([^\s].*)$/,
-              index:   1,
-              search:  searchSnippets,
-              replace: function (word) {
+              match:  /([^\s].*)$/,
+              index:  1,
+              search: searchSnippets,
+              replace (word) {
                 return word;
               }
             }
@@ -50,19 +51,19 @@ var LookupCommandWidget = {
       };
     },
 
-    lookup: function (term) {
+    lookup (term) {
       return $.Deferred(function () {
-        var deferred = this;
+        const deferred = this;
 
-        var jqXHR = $.ajax({
+        const jqXHR = $.ajax({
           method:      'GET',
           url:         Routes.apiv1AdminInternalCommandSnippetsPath({prefix: term}),
           beforeSend:  mrequest.xhrConfig.forVersion('v1'),
           contentType: false
         });
 
-        jqXHR.then(function (data, _textStatus, _jqXHR) {
-          var entities = _.map(data._embedded.command_snippets, function (snippet) {
+        jqXHR.then((data, _textStatus, _jqXHR) => {
+          const entities = _.map(data._embedded.command_snippets, (snippet) => {
             return new LookupCommandWidget.Command.Snippet(snippet);
           });
 
@@ -72,8 +73,8 @@ var LookupCommandWidget = {
 
     },
 
-    Snippet: function (data) {
-      var self          = this;
+    Snippet (data) {
+      const self        = this;
       self.name         = Stream(data.name);
       self.description  = Stream(data.description);
       self.author       = Stream(data.author);
@@ -84,26 +85,26 @@ var LookupCommandWidget = {
       self.relativePath = Stream(data.relative_path);
     },
 
-    Snippets: function (snippets) {
-      var self  = this;
-      self.list = snippets;
+    Snippets (snippets) {
+      const self = this;
+      self.list  = snippets;
 
       self.findByName = function (name) {
-        return _.find(self.list, function (snippet) {
+        return _.find(self.list, (snippet) => {
           return name === snippet.name();
         });
       };
 
       self.allNames = function () {
-        return _.map(self.list, function (snippet) {
+        return _.map(self.list, (snippet) => {
           return snippet.name();
         });
       };
     }
   },
 
-  oninit: function (vnode) {
-    var self      = this;
+  oninit (vnode) {
+    const self    = this;
     self.task     = vnode.attrs.model;
     self.snippet  = vnode.attrs.snippet || new LookupCommandWidget.Command.Snippet({});
     self.snippets = vnode.attrs.snippets || new LookupCommandWidget.Command.Snippets([]);
@@ -119,20 +120,20 @@ var LookupCommandWidget = {
 
     self.searchSnippets = function (term, textComplete) {
       LookupCommandWidget.Command.lookup(term).then(
-        function (snippets) {
+        (snippets) => {
           self.snippets = new LookupCommandWidget.Command.Snippets(snippets);
           textComplete(self.snippets.allNames());
         },
-        function () {
+        () => {
           textComplete([]);
         });
     };
   },
 
-  view: function (vnode) {
-    var snippet = vnode.state.snippet;
+  view (vnode) {
+    const snippet = vnode.state.snippet;
 
-    var snippetDetails = function () {
+    const snippetDetails = function () {
       if (snippet.name()) {
         return (
           <div class="snippet">
@@ -152,7 +153,7 @@ var LookupCommandWidget = {
       }
     };
 
-    var lookUpTextBox = function () {
+    const lookUpTextBox = function () {
       if (vnode.state.task.args().isList()) {
         return (<input type="text"
                        name="lookup"
@@ -164,7 +165,7 @@ var LookupCommandWidget = {
       return (<input type="text" disabled="disabled"/>);
     };
 
-    var lookupDisabledMessage = function () {
+    const lookupDisabledMessage = function () {
       if (!vnode.state.task.args().isList()) {
         return (
           <label>The lookup feature is only available for the <a class=""

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,27 +14,28 @@
  * limitations under the License.
  */
 
-var m                      = require('mithril');
-var Stream                 = require('mithril/stream');
-var _                      = require('lodash');
-var f                      = require('helpers/form_helper');
-var TriStateCheckboxWidget = require('views/agents/tri_state_checkbox_widget');
-var Resources              = require('models/agents/resources');
-var TriStateCheckbox       = require('models/agents/tri_state_checkbox');
+let m                      = require('mithril');
+let f                      = require('helpers/form_helper');
+let TriStateCheckboxWidget = require('views/agents/tri_state_checkbox_widget');
 
-var NewResourceVM = {
+const Stream           = require('mithril/stream');
+const _                = require('lodash');
+const Resources        = require('models/agents/resources');
+const TriStateCheckbox = require('models/agents/tri_state_checkbox');
+
+const NewResourceVM = {
   newResource: Stream(''),
   error:       Stream('')
 };
 
-var ResourcesListWidget = {
-  oninit: function (vnode) {
+const ResourcesListWidget = {
+  oninit (vnode) {
     this.addNewResource = function () {
-      var currentResources = Resources.list;
+      const currentResources = Resources.list;
 
-      var newResource = _.trim(NewResourceVM.newResource());
+      const newResource = _.trim(NewResourceVM.newResource());
 
-      var duplicateResource = _.chain(currentResources).invokeMap('name').invokeMap('toLowerCase').includes(newResource.toLowerCase()).value();
+      const duplicateResource = _.chain(currentResources).invokeMap('name').invokeMap('toLowerCase').includes(newResource.toLowerCase()).value();
 
       if (duplicateResource) {
         NewResourceVM.error("duplicate resource");
@@ -51,15 +52,15 @@ var ResourcesListWidget = {
     this.updateResource = function (callback) {
       vnode.attrs.hideDropDown('resource');
 
-      var resourcesToBeAdded = _.filter(Resources.list, function (resource) {
+      const resourcesToBeAdded = _.filter(Resources.list, (resource) => {
         return resource.isChecked();
-      }).map(function (resource) {
+      }).map((resource) => {
         return resource.name();
       });
 
-      var resourcesToBeRemoved = _.filter(Resources.list, function (resource) {
+      const resourcesToBeRemoved = _.filter(Resources.list, (resource) => {
         return !resource.isIndeterminate() && !resource.isChecked();
-      }).map(function (resource) {
+      }).map((resource) => {
         return resource.name();
       });
 
@@ -79,13 +80,13 @@ var ResourcesListWidget = {
     };
   },
 
-  view: function (vnode) {
+  view (vnode) {
     return (
       <div class="agent-button-group-dropdown resource-dropdown" onclick={vnode.state.closeDropdown}>
         <ul class="resources-items">
 
           {
-            _.map(Resources.list, function (resource, index) {
+            _.map(Resources.list, (resource, index) => {
               return <TriStateCheckboxWidget triStateCheckbox={resource} index={index} key={resource.name()}/>;
             })
           }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-var m                      = require('mithril');
-var f                      = require('helpers/form_helper');
-var ResourcesListWidget    = require('views/agents/resources_list_widget');
-var EnvironmentsListWidget = require('views/agents/environments_list_widget');
-var Resources              = require('models/agents/resources');
-var Environments           = require('models/agents/environments');
+let m                      = require('mithril');
+let f                      = require('helpers/form_helper');
+let ResourcesListWidget    = require('views/agents/resources_list_widget');
+let EnvironmentsListWidget = require('views/agents/environments_list_widget');
 
-var ButtonRowWidget = {
-  oninit: function (vnode) {
-    var args = vnode.attrs;
+const Resources    = require('models/agents/resources');
+const Environments = require('models/agents/environments');
+
+const ButtonRowWidget = {
+  oninit (vnode) {
+    const args = vnode.attrs;
 
     this.dropdownClass = function (name) {
       return args.dropdown.isDropDownOpen(name) ? 'has-dropdown is-open' : 'has-dropdown';
@@ -43,9 +44,9 @@ var ButtonRowWidget = {
 
   },
 
-  view: function (vnode) {
-    var ctrl = vnode.state;
-    var args = vnode.attrs;
+  view (vnode) {
+    const ctrl = vnode.state;
+    const args = vnode.attrs;
 
     return (
       <header class="page-header">
@@ -106,4 +107,4 @@ var ButtonRowWidget = {
     );
   }
 };
-module.exports      = ButtonRowWidget;
+module.exports        = ButtonRowWidget;

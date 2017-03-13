@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,31 +14,33 @@
  * limitations under the License.
  */
 
-var m                     = require('mithril');
-var Stream                = require('mithril/stream');
-var f                     = require('helpers/form_helper');
-var ComponentMixins       = require('helpers/mithril_component_mixins');
-var tt                    = require('helpers/pipeline_configs/tooltips');
-var ArtifactsConfigWidget = {
-  oninit: function (vnode) {
+let m = require('mithril');
+let f = require('helpers/form_helper');
+
+const Stream          = require('mithril/stream');
+const ComponentMixins = require('helpers/mithril_component_mixins');
+const tt              = require('helpers/pipeline_configs/tooltips');
+
+const ArtifactsConfigWidget = {
+  oninit (vnode) {
     this.args = vnode.attrs;
     ComponentMixins.HasViewModel.call(this);
     ComponentMixins.ManagesCollection.call(this, {
-      as:           'Artifact',
-      onInitialize: function () {
+      as: 'Artifact',
+      onInitialize () {
         this.changed();
       }
     });
   },
 
-  view: function (vnode) {
+  view (vnode) {
     return (
       <f.accordion accordionTitles={[(<span>Artifacts<f.tooltip tooltip={{content: tt.artifacts.main, size: 'small'}}/></span>)]}
                    accordionKeys={['job-artifacts']}
                    selectedIndex={vnode.state.vmState('artifactsSelected', Stream(-1))}
                    class="accordion-inner">
         <div class='job-artifacts position-tooltip'>
-          {vnode.state.map(function (artifact) {
+          {vnode.state.map((artifact) => {
             return (
               <f.row class='artifact' data-artifact-source={artifact.source()} key={artifact.uuid()}>
                 <f.input model={artifact}
@@ -92,4 +94,5 @@ var ArtifactsConfigWidget = {
     );
   }
 };
-module.exports            = ArtifactsConfigWidget;
+
+module.exports = ArtifactsConfigWidget;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-var m      = require('mithril');
-var Stream = require('mithril/stream');
-var _      = require('lodash');
-var $      = require('jquery');
-var s      = require('string-plus');
+let m = require('mithril');
+
+const Stream = require('mithril/stream');
+const _      = require('lodash');
+const $      = require('jquery');
+const s      = require('string-plus');
 require('jquery-textcomplete');
 
-var PipelineStageFieldWidget = {
-  textComplete: function (attrName, values) {
+const PipelineStageFieldWidget = {
+  textComplete (attrName, values) {
     return function (elem, isInitialized, context) {
       if (!isInitialized) {
-        var $inputElem = $(elem).find("input[name='" + attrName + "']");
+        const $inputElem = $(elem).find(`input[name='${  attrName  }']`);
 
         context.onunload = function () {
           $inputElem.textcomplete('destroy');
@@ -33,16 +34,16 @@ var PipelineStageFieldWidget = {
 
         $inputElem.textcomplete([
           {
-            words:   values,
-            match:   /(^|,)\s*([^,]+)$/,
-            index:   2,
-            search:  function (term, callback) {
+            words: values,
+            match: /(^|,)\s*([^,]+)$/,
+            index: 2,
+            search (term, callback) {
               term = term.toLowerCase();
-              callback($.map(this.words, function (word) {
+              callback($.map(this.words, (word) => {
                 return word.toLowerCase().indexOf(term) === 0 ? word : null;
               }));
             },
-            replace: function (word) {
+            replace (word) {
               return word;
             }
           }
@@ -51,10 +52,10 @@ var PipelineStageFieldWidget = {
     };
   },
 
-  vm: function (material) {
-    var PIPELINE_STAGE_PATTERN = /^(.+) \[(.+)\]$/;
-    this.material              = material;
-    this.errors                = [];
+  vm (material) {
+    const PIPELINE_STAGE_PATTERN = /^(.+) \[(.+)\]$/;
+    this.material                = material;
+    this.errors                  = [];
 
     this.getPipelineStage = function () {
       if (this.material.pipeline() && this.material.stage()) {
@@ -66,11 +67,11 @@ var PipelineStageFieldWidget = {
     this.pipelineStage = Stream(this.getPipelineStage());
 
     this.setPipelineStage = function (e) {
-      var target = (e || event).target;
+      const target = (e || event).target;
       this.pipelineStage(target.value || target.getAttribute('value'));
       this.validate();
 
-      var match = PIPELINE_STAGE_PATTERN.exec(this.pipelineStage());
+      const match = PIPELINE_STAGE_PATTERN.exec(this.pipelineStage());
 
       match ? this.material.pipeline(match[1]) : this.material.pipeline('');
       match ? this.material.stage(match[2]) : this.material.stage('');
@@ -98,12 +99,12 @@ var PipelineStageFieldWidget = {
     };
   },
 
-  oninit: function (vnode) {
+  oninit (vnode) {
     vnode.state.vm = new PipelineStageFieldWidget.vm(vnode.attrs.material);
 
     vnode.state.pipelineStages = function () {
-      var data = _.map(vnode.attrs.pipelines, function (pipeline) {
-        return _.map(pipeline.stages, function (stage) {
+      const data = _.map(vnode.attrs.pipelines, (pipeline) => {
+        return _.map(pipeline.stages, (stage) => {
           return _.join([pipeline.name, ' ', '[', stage.name, ']'], '');
         });
       });
@@ -111,8 +112,8 @@ var PipelineStageFieldWidget = {
     };
   },
 
-  view: function (vnode) {
-    var propertyError = vnode.state.vm.hasErrors() ? (
+  view (vnode) {
+    const propertyError = vnode.state.vm.hasErrors() ? (
         <span class='form-error is-visible'>{vnode.state.vm.errorsForDisplay()}</span>) : undefined;
 
     return (

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,12 @@
  */
 
 
-var m                    = require('mithril');
-var f                    = require('helpers/form_helper');
-var tt                   = require('helpers/pipeline_configs/tooltips');
-var MaterialFilterWidget = {
-  view: function (vnode) {
+let m    = require('mithril');
+let f    = require('helpers/form_helper');
+const tt = require('helpers/pipeline_configs/tooltips');
+
+const MaterialFilterWidget = {
+  view (vnode) {
     // TODO: make this an 'intelligent' text component that maps to an array.
     return (
       <div class='ignore-pattern'>

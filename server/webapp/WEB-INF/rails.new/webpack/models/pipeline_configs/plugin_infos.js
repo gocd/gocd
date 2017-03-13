@@ -30,13 +30,13 @@ PluginInfos.all = (type) => $.Deferred(function () {
 
   const jqXHR = $.ajax({
     method:      'GET',
-    url:         Routes.apiv2AdminPluginInfoIndexPath({'type': type}),
+    url:         Routes.apiv2AdminPluginInfoIndexPath({type}),
     beforeSend:  mrequest.xhrConfig.forVersion('v2'),
     contentType: false
   });
 
   jqXHR.done(({_embedded}, _textStatus, _jqXHR) => {
-    let pluginInfos = _.map(_embedded.plugin_info, (pluginInfo) => new PluginInfos.PluginInfo(pluginInfo));
+    const pluginInfos = _.map(_embedded.plugin_info, (pluginInfo) => new PluginInfos.PluginInfo(pluginInfo));
     deferred.resolve(pluginInfos);
   });
 }).promise();

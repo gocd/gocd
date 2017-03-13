@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,23 +15,23 @@
  */
 
 describe("ResourcesListWidget", () => {
-  var $                = require("jquery");
-  var simulateEvent    = require('simulate-event');
-  var m                = require('mithril');
-  var Stream           = require('mithril/stream');
-  var TriStateCheckbox = require('models/agents/tri_state_checkbox');
+  const $                = require("jquery");
+  const simulateEvent    = require('simulate-event');
+  const m                = require('mithril');
+  const Stream           = require('mithril/stream');
+  const TriStateCheckbox = require('models/agents/tri_state_checkbox');
   require("foundation-sites");
 
-  var Resources           = require('models/agents/resources');
-  var ResourcesListWidget = require("views/agents/resources_list_widget");
+  const Resources           = require('models/agents/resources');
+  const ResourcesListWidget = require("views/agents/resources_list_widget");
 
-  var $root, root;
+  let $root, root;
   beforeEach(() => {
     [$root, root] = window.createDomElementForTest();
   });
   afterEach(window.destroyDomElementForTest);
 
-  var vm;
+  let vm;
   beforeEach(() => {
     vm = {
       agentsCheckedState: {}
@@ -51,9 +51,9 @@ describe("ResourcesListWidget", () => {
     vm.dropdown.states['environment'] = Stream(false);
     vm.dropdown.states['resource']    = Stream(false);
 
-    var selectedAgentsResources = [['Linux', 'Java'], ['Gauge', 'Java']];
+    const selectedAgentsResources = [['Linux', 'Java'], ['Gauge', 'Java']];
 
-    var allResources = [
+    const allResources = [
       new TriStateCheckbox('Gauge', selectedAgentsResources),
       new TriStateCheckbox('Java', selectedAgentsResources),
       new TriStateCheckbox('Linux', selectedAgentsResources),
@@ -70,7 +70,7 @@ describe("ResourcesListWidget", () => {
   });
 
   it('should contain all the resources checkbox', () => {
-    var allResources = $.find('.resources-items :checkbox');
+    const allResources = $.find('.resources-items :checkbox');
     expect(allResources).toHaveLength(4);
     expect(allResources[0]).toHaveValue('Gauge');
     expect(allResources[1]).toHaveValue('Java');
@@ -79,13 +79,13 @@ describe("ResourcesListWidget", () => {
   });
 
   it('should check resources that are present on all the agents', () => {
-    var allResources = $.find('.resources-items :checkbox');
+    const allResources = $.find('.resources-items :checkbox');
     expect(allResources[1]).toHaveValue('Java');
     expect(allResources[1]).toBeChecked();
   });
 
   it('should select resources as indeterminate that are present on some of the agents', () => {
-    var allResources = $.find('.resources-items :checkbox');
+    const allResources = $.find('.resources-items :checkbox');
     expect(allResources[2]).toHaveValue('Linux');
     expect(allResources[2].indeterminate).toBe(true);
 
@@ -94,32 +94,32 @@ describe("ResourcesListWidget", () => {
   });
 
   it('should uncheck resources that are not present on any the agents', () => {
-    var allResources = $.find('.resources-items :checkbox');
+    const allResources = $.find('.resources-items :checkbox');
     expect(allResources[3]).toHaveValue('Windows');
     expect(allResources[3]).not.toBeChecked();
     expect(allResources[3].indeterminate).toBe(false);
   });
 
   it('should have button to add resources', () => {
-    var addButton = $root.find('.add-resource :button')[0];
+    const addButton = $root.find('.add-resource :button')[0];
     expect(addButton).toHaveText("Add");
   });
 
   it('should have button to apply resources', () => {
-    var applyButton = $root.find('.add-resource :button')[1];
+    const applyButton = $root.find('.add-resource :button')[1];
     expect(applyButton).toHaveText("Apply");
   });
 
   it('should add resource after invoking add button', () => {
-    var allResources = $root.find('.resources-items :checkbox');
+    let allResources = $root.find('.resources-items :checkbox');
     expect(allResources).toHaveLength(4);
 
-    var inputBox = $root.find('.add-resource-input').get(0);
+    const inputBox = $root.find('.add-resource-input').get(0);
     $(inputBox).val('Chrome');
     simulateEvent.simulate(inputBox, 'input');
 
     expect(inputBox).toHaveValue('Chrome');
-    var addButton = $root.find('.add-resource .add-resource-btn')[0];
+    const addButton = $root.find('.add-resource .add-resource-btn')[0];
     simulateEvent.simulate(addButton, 'click');
     m.redraw();
 
@@ -129,11 +129,11 @@ describe("ResourcesListWidget", () => {
 
 
   it('should clear input-text box after adding resource', () => {
-    var inputBox = $root.find('.add-resource input');
+    let inputBox = $root.find('.add-resource input');
     $(inputBox).val('Chrome').trigger('change');
 
     expect(inputBox).toHaveValue('Chrome');
-    var addButton = $root.find('.add-resource button')[0];
+    const addButton = $root.find('.add-resource button')[0];
     addButton.click();
     m.redraw();
 
@@ -142,14 +142,14 @@ describe("ResourcesListWidget", () => {
   });
 
   it('should not add duplicate resources', () => {
-    var allResources = $root.find('.resources-items input[type="Checkbox"]');
+    let allResources = $root.find('.resources-items input[type="Checkbox"]');
     expect(allResources).toHaveLength(4);
     expect(allResources[2]).toHaveValue('Linux');
 
-    var inputBox = $root.find('.add-resource :input')[0];
+    const inputBox = $root.find('.add-resource :input')[0];
     $(inputBox).val('Linux').trigger('change');
 
-    var addButton = $root.find('.add-resource :button')[1];
+    const addButton = $root.find('.add-resource :button')[1];
     addButton.click();
     m.redraw();
 
@@ -157,12 +157,12 @@ describe("ResourcesListWidget", () => {
     expect(allResources).toHaveLength(4);
   });
 
-  var mount = () => {
+  const mount = () => {
     m.mount(root, {
       view() {
         return m(ResourcesListWidget, {
-          'hideDropDown':      hideDropDown,
-          'dropDownReset':     dropDownReset,
+          hideDropDown,
+          dropDownReset,
           'onResourcesUpdate': Stream()
         });
       }
@@ -171,13 +171,13 @@ describe("ResourcesListWidget", () => {
     m.redraw();
   };
 
-  var hideDropDown = () => {
+  const hideDropDown = () => {
   };
 
-  var dropDownReset = () => {
+  const dropDownReset = () => {
   };
 
-  var unmount = () => {
+  const unmount = () => {
     m.mount(root, null);
     m.redraw();
   };

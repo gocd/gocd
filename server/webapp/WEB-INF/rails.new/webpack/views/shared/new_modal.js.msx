@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-var m = require('mithril');
-var _ = require('lodash');
-var $ = require('jquery');
-var s = require('string-plus');
-var f = require('helpers/form_helper');
+let m = require('mithril');
+let f = require('helpers/form_helper');
+
+const _ = require('lodash');
+const $ = require('jquery');
+const s = require('string-plus');
 // instead of each modal being a top level component of its own (and causing a redraw of everything else on the page)
 // we manage a single component that's always mounted as soon as the page loads up, creating a new modal will create
 // a sub-component in the top level component.
 // see https://github.com/lhorie/mithril.js/issues/694
-var allModals      = {};
-var defaultOptions = {
+const allModals      = {};
+const defaultOptions = {
   title:   'This is the title',
   body:    () => (<small>This is the body</small>),
   size:    'tiny',
@@ -38,13 +39,13 @@ var defaultOptions = {
   onclose: _.noop()
 };
 
-var Modal = function (options) {
-  var self    = this;
-  var modalId = "modal-" + s.uuid();
-  options     = _.assign({}, defaultOptions, options);
+const Modal = function (options) {
+  const self    = this;
+  const modalId = `modal-${  s.uuid()}`;
+  options       = _.assign({}, defaultOptions, options);
 
   this.modalDialog = {
-    oninit: function () {
+    oninit () {
       this.close = function (onclose, destroy, e) {
         if (onclose) {
           onclose(e);
@@ -56,10 +57,10 @@ var Modal = function (options) {
       };
     },
 
-    view: function (vnode) {
+    view (vnode) {
       return (
         <div class="reveal-overlay" style={{display: 'block'}}>
-          <div class={'reveal ' + (options.size ? options.size : '')}
+          <div class={`reveal ${  options.size ? options.size : ''}`}
                style={{display: 'block'}}>
 
             <h4 class='modal-title'>{options.title}</h4>
@@ -76,7 +77,7 @@ var Modal = function (options) {
             </button>
 
             <f.row class="modal-buttons" collapse>
-              {_.map(_.isFunction(options.buttons) ? options.buttons() : options.buttons, function (button) {
+              {_.map(_.isFunction(options.buttons) ? options.buttons() : options.buttons, (button) => {
                 return (
                   <f.button disabled={button.disabled ? button.disabled() : false}
                             onclick={button.onclick}
@@ -101,18 +102,18 @@ var Modal = function (options) {
   };
 };
 
-$(function () {
-  var $body        = $('body');
-  var $modalParent = $('<div class="new-modal-container"/>').appendTo($body);
+$(() => {
+  const $body        = $('body');
+  const $modalParent = $('<div class="new-modal-container"/>').appendTo($body);
 
   // so you can directly access the modals in tests via `$('.modal-parent').data('modal')`
   $modalParent.data('modals', allModals);
-  var ModalDialogs = {
-    view: function () {
-      var sortedModalKeys = _.keysIn(allModals).sort();
+  const ModalDialogs = {
+    view () {
+      const sortedModalKeys = _.keysIn(allModals).sort();
       return (
         <div>
-          {_.map(sortedModalKeys, function (key) {
+          {_.map(sortedModalKeys, (key) => {
             return m(allModals[key].modalDialog);
           })}
         </div>
@@ -123,7 +124,7 @@ $(function () {
 });
 
 Modal.destroyAll = function () {
-  _.each(_.values(allModals), function (modal) {
+  _.each(_.values(allModals), (modal) => {
     modal.destroy();
   });
 };

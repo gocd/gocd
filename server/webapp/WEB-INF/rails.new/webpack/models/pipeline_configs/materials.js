@@ -104,7 +104,7 @@ Materials.Material = function (type, hasFilter, data) {
     const self = this;
 
     const payload = () =>
-    JSON.stringify(_.merge(self.toJSON(), {pipeline_name: pipelineName()})); //eslint-disable-line camelcase
+      JSON.stringify(_.merge(self.toJSON(), {pipeline_name: pipelineName()})); //eslint-disable-line camelcase
 
     return $.Deferred(function () {
       const deferred = this;
@@ -154,7 +154,7 @@ Materials.Material.SVN = function (data) {
   this.destination    = Stream(s.defaultToIfBlank(data.destination, ''));
   this.url            = Stream(s.defaultToIfBlank(data.url, ''));
   this.username       = Stream(s.defaultToIfBlank(data.username, ''));
-  const _password       = Stream(plainOrCipherValue(data));
+  const _password     = Stream(plainOrCipherValue(data));
   this.checkExternals = Stream(data.checkExternals);
   this.autoUpdate     = Stream(s.defaultToIfBlank(data.autoUpdate, true));
   this.invertFilter   = Stream(s.defaultToIfBlank(data.invertFilter, false));
@@ -192,7 +192,7 @@ Materials.Material.SVN.fromJSON = ({attributes, errors}) => {
     autoUpdate:        attr.auto_update,
     filter:            Materials.Filter.fromJSON(attr.filter),
     invertFilter:      attr.invert_filter,
-    errors:            errors
+    errors
   });
 };
 
@@ -234,7 +234,7 @@ Materials.Material.Git.fromJSON = ({attributes, errors}) => {
     filter:       Materials.Filter.fromJSON(attr.filter),
     shallowClone: attr.shallow_clone,
     invertFilter: attr.invert_filter,
-    errors:       errors
+    errors
   });
 };
 
@@ -273,7 +273,7 @@ Materials.Material.Mercurial.fromJSON = ({attributes, errors}) => {
     autoUpdate:   attr.auto_update,
     filter:       Materials.Filter.fromJSON(attr.filter),
     invertFilter: attr.invert_filter,
-    errors:       errors
+    errors
   });
 };
 
@@ -283,7 +283,7 @@ Materials.Material.Perforce = function (data) {
   this.destination  = Stream(s.defaultToIfBlank(data.destination, ''));
   this.port         = Stream(s.defaultToIfBlank(data.port, ''));
   this.username     = Stream(s.defaultToIfBlank(data.username, ''));
-  const _password     = Stream(plainOrCipherValue(data));
+  const _password   = Stream(plainOrCipherValue(data));
   this.view         = Stream(s.defaultToIfBlank(data.view, ''));
   this.useTickets   = Stream(data.useTickets);
   this.autoUpdate   = Stream(s.defaultToIfBlank(data.autoUpdate, true));
@@ -326,7 +326,7 @@ Materials.Material.Perforce.fromJSON = ({attributes, errors}) => {
     name:              attr.name,
     filter:            Materials.Filter.fromJSON(attr.filter),
     invertFilter:      attr.invert_filter,
-    errors:            errors
+    errors
   });
 };
 
@@ -337,7 +337,7 @@ Materials.Material.TFS = function (data) {
   this.url          = Stream(s.defaultToIfBlank(data.url, ''));
   this.domain       = Stream(s.defaultToIfBlank(data.domain, ''));
   this.username     = Stream(s.defaultToIfBlank(data.username, ''));
-  const _password     = Stream(plainOrCipherValue(data));
+  const _password   = Stream(plainOrCipherValue(data));
   this.projectPath  = Stream(s.defaultToIfBlank(data.projectPath, ''));
   this.autoUpdate   = Stream(s.defaultToIfBlank(data.autoUpdate, true));
   this.invertFilter = Stream(s.defaultToIfBlank(data.invertFilter, false));
@@ -379,7 +379,7 @@ Materials.Material.TFS.fromJSON = ({attributes, errors}) => {
     name:              attr.name,
     filter:            Materials.Filter.fromJSON(attr.filter),
     invertFilter:      attr.invert_filter,
-    errors:            errors
+    errors
   });
 };
 
@@ -407,7 +407,7 @@ Materials.Material.Dependency.fromJSON = ({attributes, errors}) => {
     pipeline: attr.pipeline,
     stage:    attr.stage,
     name:     attr.name,
-    errors:   errors
+    errors
   });
 };
 
@@ -437,7 +437,7 @@ Materials.Material.PluggableMaterial.fromJSON = ({attributes, errors}) => {
     destination:  attr.destination,
     filter:       Materials.Filter.fromJSON(attr.filter),
     invertFilter: attr.invert_filter,
-    errors:       errors
+    errors
   });
 };
 
@@ -456,8 +456,8 @@ Materials.Material.PackageMaterial = function (data) {
 Materials.Material.PackageMaterial.fromJSON = ({attributes, errors}) => {
   const attr = attributes || {};
   return new Materials.Material.PackageMaterial({
-    ref:    attr.ref,
-    errors: errors
+    ref: attr.ref,
+    errors
   });
 };
 

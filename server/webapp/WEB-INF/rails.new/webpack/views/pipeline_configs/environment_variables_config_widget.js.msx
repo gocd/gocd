@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-var m               = require('mithril');
-var Stream          = require('mithril/stream');
-var _               = require('lodash');
-var f               = require('helpers/form_helper');
-var ComponentMixins = require('helpers/mithril_component_mixins');
-var tt              = require('helpers/pipeline_configs/tooltips');
+let m                 = require('mithril');
+let f                 = require('helpers/form_helper');
 
-var EnvironmentVariableWidget = {
+const Stream          = require('mithril/stream');
+const _               = require('lodash');
+const ComponentMixins = require('helpers/mithril_component_mixins');
+const tt              = require('helpers/pipeline_configs/tooltips');
+
+let EnvironmentVariableWidget = {
   base: {
-    view: function (vnode) {
-      var children = vnode.children;
-      var variable = vnode.attrs.variable;
+    view (vnode) {
+      const children = vnode.children;
+      const variable = vnode.attrs.variable;
 
       return (
         <f.row class='environment-variable'
@@ -50,7 +51,7 @@ var EnvironmentVariableWidget = {
   },
 
   plain: {
-    view: function (vnode) {
+    view (vnode) {
       return (
         <EnvironmentVariableWidget.base {...vnode.attrs}>
           <f.input model={vnode.attrs.variable}
@@ -66,10 +67,9 @@ var EnvironmentVariableWidget = {
   },
 
   secure: {
-    view: function (vnode) {
-      var variable = vnode.attrs.variable,
-        content,
-        removeChildPreContent;
+    view (vnode) {
+      const variable = vnode.attrs.variable;
+      let content, removeChildPreContent;
 
       if (variable.isEditingValue()) {
         content = [
@@ -109,32 +109,32 @@ var EnvironmentVariableWidget = {
   }
 };
 
-var VariablesWidget = {
+let VariablesWidget = {
   plain:  {
-    oninit: function (vnode) {
+    oninit (vnode) {
       this.args = vnode.attrs;
       ComponentMixins.ManagesCollection.call(this, {
-        as:           'Variable',
-        map:          function (callback) {
+        as: 'Variable',
+        map (callback) {
           return _.map(vnode.attrs.toView(), callback);
         },
-        last:         function () {
+        last () {
           return _.last(vnode.attrs.toView());
         },
-        add:          function () {
-          var variable = vnode.attrs.variables().createVariable({cipherText: ''});
+        add () {
+          const variable = vnode.attrs.variables().createVariable({cipherText: ''});
           variable.editValue();
         },
-        onInitialize: function () {
+        onInitialize () {
           this.changed();
         }
       });
     },
 
-    view: function (vnode) {
+    view (vnode) {
       return (
         <div>
-          {vnode.state.map(function (variable) {
+          {vnode.state.map((variable) => {
             return (
               <EnvironmentVariableWidget.plain variable={variable}
                                                removeWidget={vnode.state.removeLink.call(vnode.state, variable)}
@@ -147,31 +147,31 @@ var VariablesWidget = {
     }
   },
   secure: {
-    oninit: function (vnode) {
+    oninit (vnode) {
       this.args = vnode.attrs;
       ComponentMixins.ManagesCollection.call(this, {
-        as:           'Variable',
-        map:          function (callback) {
+        as: 'Variable',
+        map (callback) {
           return _.map(vnode.attrs.toView(), callback);
         },
-        last:         function () {
+        last () {
           return _.last(vnode.attrs.toView());
         },
-        add:          function () {
-          var variable = vnode.attrs.variables().createVariable();
+        add () {
+          const variable = vnode.attrs.variables().createVariable();
           variable.becomeSecureValue();
           variable.editValue();
         },
-        onInitialize: function () {
+        onInitialize () {
           this.changed();
         }
       });
     },
 
-    view: function (vnode) {
+    view (vnode) {
       return (
         <div>
-          {vnode.state.map(function (variable) {
+          {vnode.state.map((variable) => {
             return (
               <EnvironmentVariableWidget.secure variable={variable}
                                                 removeWidget={vnode.state.removeLink.call(vnode.state, variable)}
@@ -186,19 +186,18 @@ var VariablesWidget = {
 };
 
 
-var EnvironmentVariablesConfigWidget = {
-  oninit: function (vnode) {
+const EnvironmentVariablesConfigWidget = {
+  oninit (vnode) {
     this.args = vnode.attrs;
     ComponentMixins.HasViewModel.call(this);
   },
 
-  view: function (vnode) {
+  view (vnode) {
     return (
       <f.accordion accordionTitles={[
-        (
-        <span>{vnode.state.args.title}
-            <f.tooltip tooltip={{content: tt.environmentVariables.main}} model={vnode.state.args.variables()}/></span>
-        )
+        (<span>{vnode.state.args.title}
+          <f.tooltip tooltip={{content: tt.environmentVariables.main}} model={vnode.state.args.variables()}/>
+        </span>)
       ]}
                    accordionKeys={['environment-variables']}
                    selectedIndex={vnode.state.vmState('environmentVariablesSelected', Stream(-1))}

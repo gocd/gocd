@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,35 +14,37 @@
  * limitations under the License.
  */
 
-var m                                = require('mithril');
-var Stream                           = require('mithril/stream');
-var _                                = require('lodash');
-var s                                = require('string-plus');
-var $                                = require('jquery');
-var f                                = require('helpers/form_helper');
-var tt                               = require('helpers/pipeline_configs/tooltips');
-var ComponentMixins                  = require('helpers/mithril_component_mixins');
-var Resources                        = require('models/pipeline_configs/resources');
-var EnvironmentVariablesConfigWidget = require('views/pipeline_configs/environment_variables_config_widget');
-var TasksConfigWidget                = require('views/pipeline_configs/tasks_config_widget');
-var ArtifactsConfigWidget            = require('views/pipeline_configs/artifacts_config_widget');
-var PropertiesConfigWidget           = require('views/pipeline_configs/properties_config_widget');
-var TabsConfigWidget                 = require('views/pipeline_configs/tabs_config_widget');
+let m                                = require('mithril');
+let f                                = require('helpers/form_helper');
+let EnvironmentVariablesConfigWidget = require('views/pipeline_configs/environment_variables_config_widget');
+let TasksConfigWidget                = require('views/pipeline_configs/tasks_config_widget');
+let ArtifactsConfigWidget            = require('views/pipeline_configs/artifacts_config_widget');
+let PropertiesConfigWidget           = require('views/pipeline_configs/properties_config_widget');
+let TabsConfigWidget                 = require('views/pipeline_configs/tabs_config_widget');
+
+const Stream          = require('mithril/stream');
+const _               = require('lodash');
+const s               = require('string-plus');
+const $               = require('jquery');
+const tt              = require('helpers/pipeline_configs/tooltips');
+const ComponentMixins = require('helpers/mithril_component_mixins');
+const Resources       = require('models/pipeline_configs/resources');
+
 require('jquery-textcomplete');
 
 
-var resourceReplaceFunc = function (word) {
-  return '$1' + word + ', ';
+const resourceReplaceFunc = function (word) {
+  return `$1${  word  }, `;
 };
 
-var profileIdReplaceFunc = function (word) {
+const profileIdReplaceFunc = function (word) {
   return word;
 };
 
-var autoComplete = function (values, model, attrName, match, matchIndex, replaceFunc) {
+const autoComplete = function (values, model, attrName, match, matchIndex, replaceFunc) {
   return function (elem, isInitialized, context) {
     if (!isInitialized) {
-      var $inputElem = $($(elem).find("input[data-prop-name='" + attrName + "']"));
+      const $inputElem = $($(elem).find(`input[data-prop-name='${  attrName  }']`));
 
       context.onunload = function () {
         $inputElem.textcomplete('destroy');
@@ -50,11 +52,11 @@ var autoComplete = function (values, model, attrName, match, matchIndex, replace
 
       $inputElem.textcomplete([
         {
-          match:   match,
+          match,
           index:   matchIndex, // use the second match in the regex to extract the search term
-          search:  function (term, callback) {
+          search (term, callback) {
             term = term.toLowerCase();
-            callback($.map(values, function (word) {
+            callback($.map(values, (word) => {
               return word.toLowerCase().indexOf(term) === 0 ? word : null;
             }));
           },
@@ -62,18 +64,20 @@ var autoComplete = function (values, model, attrName, match, matchIndex, replace
         }
       ]);
 
-      $inputElem.on('textComplete:select', function () {
+      $inputElem.on('textComplete:select', () => {
         model[attrName]($inputElem.val());
       });
     }
   };
 };
 
-var JobTimeout = {
-  view: function (vnode) {
-    var job       = vnode.attrs.job;
-    var radioName = 'radio-' + job.uuid() + '-timeout';
-    var errors    = job.validate(), timeoutError;
+let JobTimeout = {
+  view (vnode) {
+    const job       = vnode.attrs.job;
+    const radioName = `radio-${  job.uuid()  }-timeout`;
+    const errors    = job.validate();
+    let timeoutError;
+
     if (errors.errors('timeout')) {
       timeoutError = (<small class='form-error is-visible'>{errors.errorsForDisplay('timeout')}</small>);
     }
@@ -98,23 +102,23 @@ var JobTimeout = {
           <f.column size={12}>
             <input type='radio'
                    name={radioName}
-                   id={radioName + '-never'}
+                   id={`${radioName  }-never`}
                    checked={job.isTimeoutNever()}
                    onchange={job.timeout.bind(job, 'never')}/>
-            <label for={radioName + '-never'}>Never</label>
+            <label for={`${radioName  }-never`}>Never</label>
             <input type='radio'
                    name={radioName}
-                   id={radioName + '-default'}
+                   id={`${radioName  }-default`}
                    checked={job.isTimeoutDefault()}
                    onchange={job.timeout.bind(job, null)}/>
-            <label for={radioName + '-default'}>Default</label>
+            <label for={`${radioName  }-default`}>Default</label>
 
             <input type='radio'
                    name={radioName}
-                   id={radioName + '-custom'}
+                   id={`${radioName  }-custom`}
                    checked={!(job.isTimeoutNever() || job.isTimeoutDefault())}
                    onchange={job.timeout.bind(job, '')}/>
-            <label for={radioName + '-custom'}>
+            <label for={`${radioName  }-custom`}>
               Cancel after
               <span style={{display: 'inline-table'}}>
               {m.trust('&nbsp;')}
@@ -137,13 +141,16 @@ var JobTimeout = {
 };
 
 
-var RunOnAgent = {
-  view: function (vnode) {
-    var job                  = vnode.attrs.job;
-    var radioName            = 'radio-' + job.uuid() + '-runInstanceCount';
-    var errors               = job.validate(), runInstanceCounteError;
-    var requiresElasticAgent = job.requiresElasticAgent();
-    var runOnAllAgentsMessage;
+let RunOnAgent = {
+  view (vnode) {
+    const job                  = vnode.attrs.job;
+    const radioName            = `radio-${  job.uuid()  }-runInstanceCount`;
+    const errors               = job.validate();
+    const requiresElasticAgent = job.requiresElasticAgent();
+
+    let runOnAllAgentsMessage;
+    let runInstanceCounteError;
+
 
     if (errors.errors('runInstanceCount')) {
       runInstanceCounteError = (
@@ -178,29 +185,29 @@ var RunOnAgent = {
           <f.column size={12}>
             <input type='radio'
                    name={radioName}
-                   id={radioName + '-one'}
+                   id={`${radioName  }-one`}
                    checked={job.isRunOnOneAgent()}
                    onchange={job.runInstanceCount.bind(job, null)}/>
-            <label for={radioName + '-one'}>Run on one agent</label>
+            <label for={`${radioName  }-one`}>Run on one agent</label>
 
             <input type='radio'
                    name={radioName}
                    class={requiresElasticAgent ? 'disabled-radio' : ''}
-                   id={radioName + '-all'}
+                   id={`${radioName  }-all`}
                    disabled={requiresElasticAgent}
                    checked={job.isRunOnAllAgents()}
                    onchange={job.runInstanceCount.bind(job, 'all')}/>
-            <label for={radioName + '-all'}>
+            <label for={`${radioName  }-all`}>
               Run on all agents
               {runOnAllAgentsMessage}
             </label>
 
             <input type='radio'
                    name={radioName}
-                   id={radioName + '-custom'}
+                   id={`${radioName  }-custom`}
                    checked={!(job.isRunOnOneAgent() || job.isRunOnAllAgents())}
                    onchange={job.runInstanceCount.bind(job, '')}/>
-            <label for={radioName + '-custom'}>
+            <label for={`${radioName  }-custom`}>
               Run
               <span style={{display: 'inline-table'}}>
                 {m.trust('&nbsp;')}
@@ -223,32 +230,32 @@ var RunOnAgent = {
   }
 };
 
-var JobsConfigWidget = {
-  oninit: function (vnode) {
+const JobsConfigWidget = {
+  oninit (vnode) {
     this.args = vnode.attrs;
     ComponentMixins.HasViewModel.call(this);
     ComponentMixins.ManagesCollection.call(this, {as: 'Job'});
     this.removeJob = function (job) {
-      var previousJobIndex = vnode.attrs.jobs().indexOfJob(job) - 1;
+      const previousJobIndex = vnode.attrs.jobs().indexOfJob(job) - 1;
       this.vmState('selectedJobIndex')(previousJobIndex !== -1 ? previousJobIndex : 0);
       this.remove(job);
     };
   },
 
-  view: function (vnode) {
-    var allJobNames = vnode.state.map(function (job) {
+  view (vnode) {
+    const allJobNames = vnode.state.map((job) => {
       return job.name();
     });
 
-    var allJobUUIDs = vnode.state.map(function (job) {
+    const allJobUUIDs = vnode.state.map((job) => {
       return job.uuid();
     });
 
-    var tabTitles = _(allJobNames).concat((
+    const tabTitles = _(allJobNames).concat((
       <f.link onclick={vnode.state.add.bind(vnode.state)} class='add-job'>Add Job</f.link>)
     ).value();
 
-    var tabUUIDs = _(allJobUUIDs).concat('add-job');
+    const tabUUIDs = _(allJobUUIDs).concat('add-job');
 
     return (
       <f.tabs class="job-definitions"
@@ -256,10 +263,10 @@ var JobsConfigWidget = {
               tabKeys={tabUUIDs}
               isVertical={true}
               selectedIndex={vnode.state.vmState('selectedJobIndex', Stream(0))}>
-        {vnode.state.map(function (job) {
-          var jobIndex                       = vnode.attrs.jobs().indexOfJob(job);
-          var disableElasticProfileSelection = job.isRunOnAllAgents() || !s.isBlank(job.resources());
-          var elasticProfileIdDisabledMessage;
+        {vnode.state.map((job) => {
+          const jobIndex                       = vnode.attrs.jobs().indexOfJob(job);
+          const disableElasticProfileSelection = job.isRunOnAllAgents() || !s.isBlank(job.resources());
+          let elasticProfileIdDisabledMessage;
           if (disableElasticProfileSelection) {
             elasticProfileIdDisabledMessage = (
               <div>
@@ -272,8 +279,8 @@ var JobsConfigWidget = {
             );
           }
 
-          var disableResourceTextbox = job.requiresElasticAgent();
-          var resourcesDisabledMessage;
+          const disableResourceTextbox = job.requiresElasticAgent();
+          let resourcesDisabledMessage;
           if (disableResourceTextbox) {
             resourcesDisabledMessage = (<div>Resources cannot be set on a job if "Elastic Profile Id" is set.</div>);
           }
@@ -284,7 +291,7 @@ var JobsConfigWidget = {
                 <f.removeButton onclick={vnode.state.removeJob.bind(vnode.state, job)} class='remove-job'/>
                 <f.accordion accordionTitles={[(<span>Job Settings</span>)]}
                              accordionKeys={['job-settings']}
-                             selectedIndex={vnode.state.vmState('jobSettingsSelected' + jobIndex, Stream(s.isBlank(job.name()) ? 0 : -1))}
+                             selectedIndex={vnode.state.vmState(`jobSettingsSelected${  jobIndex}`, Stream(s.isBlank(job.name()) ? 0 : -1))}
                              class="accordion-inner">
                   <div>
                     <f.row>
@@ -338,23 +345,23 @@ var JobsConfigWidget = {
                   <EnvironmentVariablesConfigWidget title='Jobs Environment Variables'
                                                     variables={job.environmentVariables}
                                                     key={job.environmentVariables().uuid()}
-                                                    vm={vnode.state.vmState('environmentVariablesConfig-' + jobIndex)}/>
+                                                    vm={vnode.state.vmState(`environmentVariablesConfig-${  jobIndex}`)}/>
                 </f.row>
                 <f.row>
                   <TasksConfigWidget tasks={job.tasks}
-                                     vm={vnode.state.vmState('tasksConfig-' + jobIndex)}/>
+                                     vm={vnode.state.vmState(`tasksConfig-${  jobIndex}`)}/>
                 </f.row>
 
                 <f.row>
                   <ArtifactsConfigWidget artifacts={job.artifacts}
                                          keys={job.artifacts().uuid()}
-                                         vm={vnode.state.vmState('artifactsConfig-' + jobIndex)}/>
+                                         vm={vnode.state.vmState(`artifactsConfig-${  jobIndex}`)}/>
                   <TabsConfigWidget tabs={job.tabs}
                                     keys={job.tabs().uuid()}
-                                    vm={vnode.state.vmState('tabsConfig-' + jobIndex)}/>
+                                    vm={vnode.state.vmState(`tabsConfig-${  jobIndex}`)}/>
                   <PropertiesConfigWidget properties={job.properties}
                                           keys={job.properties().uuid()}
-                                          vm={vnode.state.vmState('propertiesConfig-' + jobIndex)}/>
+                                          vm={vnode.state.vmState(`propertiesConfig-${  jobIndex}`)}/>
                 </f.row>
               </f.column>
             </f.row>

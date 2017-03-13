@@ -69,9 +69,9 @@ ElasticProfiles.Profile.get = (id) => new ElasticProfiles.Profile({id}).refresh(
 ElasticProfiles.Profile.create = (data) => new ElasticProfiles.Profile(data);
 
 ElasticProfiles.Profile.fromJSON = ({id, plugin_id, errors, properties}) => new ElasticProfiles.Profile({ //eslint-disable-line camelcase
-  id:         id,
+  id,
   pluginId:   plugin_id, //eslint-disable-line camelcase
-  errors:     errors,
+  errors,
   properties: PluginConfigurations.fromJSON(properties)
 });
 

@@ -4,7 +4,7 @@
  * http://laxarjs.org/license
  */
 
-/* eslint-disable no-var, prefer-arrow-callback */
+/* eslint-disable no-var, prefer-arrow-callback, object-shorthand, prefer-template */
 /* global document */
 
 // Fixup stack traces, using this approach: https://gist.github.com/guncha/f45ceef6d483c384290a

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,24 @@
  * limitations under the License.
  */
 
-var m                     = require('mithril');
-var Stream                = require('mithril/stream');
-var _                     = require('lodash');
-var f                     = require('helpers/form_helper');
-var s                     = require('string-plus');
-var Tasks                 = require('models/pipeline_configs/tasks');
-var ComponentMixins       = require('helpers/mithril_component_mixins');
-var RunIfConditionsWidget = require('views/pipeline_configs/run_if_conditions_widget');
-var TaskBasicViews        = require('views/pipeline_configs/task_basic_views_widget');
-var CancelTaskWidget      = require('views/pipeline_configs/cancel_task_widget');
-var PluginInfos           = require('models/pipeline_configs/plugin_infos');
+let m                     = require('mithril');
+let f                     = require('helpers/form_helper');
+let RunIfConditionsWidget = require('views/pipeline_configs/run_if_conditions_widget');
+let TaskBasicViews        = require('views/pipeline_configs/task_basic_views_widget');
+let CancelTaskWidget      = require('views/pipeline_configs/cancel_task_widget');
 
-var TaskSummaryView = {
-  view: function (vnode) {
+const Stream          = require('mithril/stream');
+const _               = require('lodash');
+const s               = require('string-plus');
+const Tasks           = require('models/pipeline_configs/tasks');
+const ComponentMixins = require('helpers/mithril_component_mixins');
+const PluginInfos     = require('models/pipeline_configs/plugin_infos');
+
+let TaskSummaryView = {
+  view (vnode) {
     return (
       <ul class='task-type'>
-        {_.map(vnode.attrs.task.summary(), function (v, k) {
+        {_.map(vnode.attrs.task.summary(), (v, k) => {
           return !s.isBlank(v) ? (
               <li><label class={_.toLower(k)}>{_.startCase(k)}</label> < span > {v}</span></li>) : undefined;
         })}
@@ -39,12 +40,12 @@ var TaskSummaryView = {
   }
 };
 
-var TaskViews  = {
+let TaskViews = {
   base: {
-    oninit: function (vnode) {
-      var self       = this;
-      self.args      = vnode.attrs;
-      var vmStateKey = 'taskEdit';
+    oninit (vnode) {
+      const self       = this;
+      self.args        = vnode.attrs;
+      const vmStateKey = 'taskEdit';
 
       ComponentMixins.HasViewModel.call(this);
       self.vmState(vmStateKey, Stream(vnode.attrs.task.isEmpty() ? true : false));
@@ -54,7 +55,7 @@ var TaskViews  = {
       };
 
       self.toggleIsEditing = function () {
-        var isEditing = self.vmState(vmStateKey)();
+        const isEditing = self.vmState(vmStateKey)();
         self.vmState(vmStateKey)(!isEditing);
       };
 
@@ -63,14 +64,14 @@ var TaskViews  = {
       };
     },
 
-    view: function (vnode) {
-      var children             = vnode.children;
-      var classNameForTaskBody = function () {
+    view (vnode) {
+      const children             = vnode.children;
+      const classNameForTaskBody = function () {
         return vnode.state.isEditing() ? 'show' : 'hide';
       };
 
       return (
-        <div class={'task-definition task-type-' + vnode.attrs.task.type()} data-task-index={vnode.attrs.taskIndex}>
+        <div class={`task-definition task-type-${  vnode.attrs.task.type()}`} data-task-index={vnode.attrs.taskIndex}>
           <div>
             <f.row class="task-summary" onclick={vnode.state.toggleIsEditing.bind(vnode.state)}>
               <f.column size={2} largeSize={2}><span>{vnode.state.taskDisplayName()}</span></f.column>
@@ -102,7 +103,7 @@ var TaskViews  = {
   },
 
   ant: {
-    view: function (vnode) {
+    view (vnode) {
       return (
         <TaskViews.base {...vnode.attrs}>
           <TaskBasicViews.ant {...vnode.attrs}/>
@@ -112,7 +113,7 @@ var TaskViews  = {
   },
 
   nant: {
-    view: function (vnode) {
+    view (vnode) {
       return (
         <TaskViews.base {...vnode.attrs}>
           <TaskBasicViews.nant {...vnode.attrs}/>
@@ -122,7 +123,7 @@ var TaskViews  = {
   },
 
   exec: {
-    view: function (vnode) {
+    view (vnode) {
       return (
         <TaskViews.base {...vnode.attrs}>
           <TaskBasicViews.exec {...vnode.attrs}/>
@@ -132,7 +133,7 @@ var TaskViews  = {
   },
 
   rake: {
-    view: function (vnode) {
+    view (vnode) {
       return (
         <TaskViews.base {...vnode.attrs}>
           <TaskBasicViews.rake {...vnode.attrs}/>
@@ -142,7 +143,7 @@ var TaskViews  = {
   },
 
   fetch: {
-    view: function (vnode) {
+    view (vnode) {
       return (
         <TaskViews.base {...vnode.attrs}>
           <TaskBasicViews.fetch {...vnode.attrs}/>
@@ -152,7 +153,7 @@ var TaskViews  = {
   },
 
   pluggable_task: { //eslint-disable-line camelcase
-    view: function (vnode) {
+    view (vnode) {
       return (
         <TaskViews.base {...vnode.attrs}>
           <TaskBasicViews.pluggable_task {...vnode.attrs}/>
@@ -161,4 +162,5 @@ var TaskViews  = {
     }
   }
 };
+
 module.exports = TaskViews;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-var m                      = require('mithril');
-var $                      = require('jquery');
-var Stream                 = require('mithril/stream');
-var f                      = require('helpers/form_helper');
-var SCMConfigAngularWidget = require('mithril');
-var SCMs                   = require('models/pipeline_configs/scms');
+let m = require('mithril');
+let f = require('helpers/form_helper');
+
+const $                      = require('jquery');
+const Stream                 = require('mithril/stream');
+const SCMConfigAngularWidget = require('mithril');
+const SCMs                   = require('models/pipeline_configs/scms');
+
 //This has to be done to get around mithril's controller caching
-var submodule              = function (module, args) {
+const submodule = function (module, args) {
   return module.view.bind(module, new module.controller(args));
 };
 
@@ -31,28 +33,28 @@ var submodule              = function (module, args) {
  be retained. To achieve this behaviour the widget works with a cloned copy of scm.
  */
 
-var fetchDependentPipelines = function (id) {
-  var pipelineUsedInUrl = ['/go/admin/materials/pluggable_scm/', id, '/pipelines_used_in'].join('');
+const fetchDependentPipelines = function (id) {
+  const pipelineUsedInUrl = ['/go/admin/materials/pluggable_scm/', id, '/pipelines_used_in'].join('');
 
   return $.Deferred(function () {
-    var deferred = this;
+    const deferred = this;
 
-    var jqXHR = $.ajax({
+    const jqXHR = $.ajax({
       method:      'GET',
       url:         pipelineUsedInUrl,
       contentType: false
     });
 
-    jqXHR.then(function (value) {
+    jqXHR.then((value) => {
       deferred.resolve(m.trust(value));
     });
 
   }).promise();
 };
 
-var SCMGlobalCopyWarningWidget = {
-  oninit: function (vnode) {
-    var self                = this;
+let SCMGlobalCopyWarningWidget = {
+  oninit (vnode) {
+    const self              = this;
     self.scm                = vnode.attrs.scm;
     self.dependentPipelines = Stream('');
 
@@ -61,8 +63,8 @@ var SCMGlobalCopyWarningWidget = {
     };
   },
 
-  view: function (vnode) {
-    var dependentPipelinesLink = !vnode.state.dependentPipelines() ?
+  view (vnode) {
+    const dependentPipelinesLink = !vnode.state.dependentPipelines() ?
       (<f.link onclick={vnode.state.showAssociatedPipelines.bind(vnode.state)}>Show pipelines using this SCM</f.link>)
       : undefined;
     return (
@@ -83,9 +85,9 @@ var SCMGlobalCopyWarningWidget = {
   }
 };
 
-var SCMConfigEditWidget = {
-  oninit: function (vnode) {
-    var self           = this;
+const SCMConfigEditWidget = {
+  oninit (vnode) {
+    const self         = this;
     self.parentView    = vnode.attrs.parentView;
     self.material      = vnode.attrs.material;
     self.scmForEdit    = vnode.attrs.material.scm().clone();
@@ -95,11 +97,11 @@ var SCMConfigEditWidget = {
     self.update = function () {
       self.vm.startUpdating();
 
-      self.scmForEdit.update().then(function (scm) {
+      self.scmForEdit.update().then((scm) => {
         self.vm.saveSuccess();
         self.material.scm().reInitialize(JSON.parse(JSON.stringify(scm)));
         self.parentView.close();
-      }, function (data) {
+      }, (data) => {
         self.vm.saveFailed(data);
         if (data.data) {
           self.scmForEdit.reInitialize(data.data);
@@ -107,14 +109,14 @@ var SCMConfigEditWidget = {
       });
     };
 
-    self.parentView.onClose(function () {
+    self.parentView.onClose(() => {
       self.scmForEdit.reInitialize(JSON.parse(JSON.stringify(vnode.attrs.material.scm())));
       self.vm.reset();
     });
   },
 
-  view: function (vnode) {
-    var errors = vnode.state.vm.hasErrors() ? (<f.alert>{vnode.state.vm.errors()}</f.alert>) : undefined;
+  view (vnode) {
+    const errors = vnode.state.vm.hasErrors() ? (<f.alert>{vnode.state.vm.errors()}</f.alert>) : undefined;
 
     return (
       <div class='modal-content'>
@@ -136,8 +138,8 @@ var SCMConfigEditWidget = {
           {vnode.state.angularModule()}
           <f.row>
             <f.button onclick={vnode.state.update.bind(vnode.state)}
-                      class={'save-pipeline ' + vnode.state.vm.saveState()}>
-              <span class={'save-state ' + vnode.state.vm.saveState()}/>
+                      class={`save-pipeline ${  vnode.state.vm.saveState()}`}>
+              <span class={`save-state ${  vnode.state.vm.saveState()}`}/>
               Save
             </f.button>
           </f.row>

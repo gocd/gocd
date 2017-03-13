@@ -552,7 +552,7 @@ describe('PluginInfos', () => {
     });
   });
 
-  var verifyBasicProperties = (pluginInfo, {id, type, version, about}) => {
+  const verifyBasicProperties = (pluginInfo, {id, type, version, about}) => {
     expect(pluginInfo.id()).toEqual(id);
     expect(pluginInfo.type()).toEqual(type);
     expect(pluginInfo.version()).toEqual(version);

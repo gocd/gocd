@@ -49,10 +49,10 @@ $(() => {
       }));
   }
 
-  var agents           = Stream(new Agents());
-  var showSpinner      = Stream(true);
-  var agentsViewModel  = new AgentsVM();
-  var permanentMessage = Stream({});
+  const agents           = Stream(new Agents());
+  const showSpinner      = Stream(true);
+  const agentsViewModel  = new AgentsVM();
+  const permanentMessage = Stream({});
   const currentRepeater  = Stream(createRepeater());
   const sortOrder        = Stream(new SortOrder());
 

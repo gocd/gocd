@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 describe('PluginInfos', () => {
 
   const PluginInfos = require("models/pipeline_configs/plugin_infos");
@@ -52,7 +53,7 @@ describe('PluginInfos', () => {
 
   function pluginInfoJSON() {
     /* eslint-disable camelcase */
-    let pluginInfoJSON = {
+    const pluginInfoJSON = {
       id:                          'plugin_id',
       name:                        'plugin_name',
       version:                     'plugin_version',

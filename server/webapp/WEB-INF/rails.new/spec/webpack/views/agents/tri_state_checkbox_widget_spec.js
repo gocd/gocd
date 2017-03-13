@@ -15,20 +15,20 @@
  */
 
 describe("TriStateCheckboxWidget", () => {
-  var m = require("mithril");
+  const m = require("mithril");
 
   require('jasmine-jquery');
 
-  var TriStateCheckboxWidget = require("views/agents/tri_state_checkbox_widget");
-  var TriStateCheckbox       = require("models/agents/tri_state_checkbox");
+  const TriStateCheckboxWidget = require("views/agents/tri_state_checkbox_widget");
+  const TriStateCheckbox       = require("models/agents/tri_state_checkbox");
 
-  var $root, root;
+  let $root, root;
   beforeEach(() => {
     [$root, root] = window.createDomElementForTest();
   });
   afterEach(window.destroyDomElementForTest);
 
-  var resources = [['Firefox'], ['Firefox', 'Chrome']];
+  const resources = [['Firefox'], ['Firefox', 'Chrome']];
 
   afterEach(() => {
     unmount();
@@ -36,40 +36,40 @@ describe("TriStateCheckboxWidget", () => {
 
   it('should have checkbox with value', () => {
     mount(new TriStateCheckbox('Firefox', resources));
-    var checkbox = $root.find('input')[0];
+    const checkbox = $root.find('input')[0];
     expect(checkbox).toHaveValue('Firefox');
   });
 
   it('should select the box as checked depending upon check field', () => {
     mount(new TriStateCheckbox('Firefox', resources));
-    var checkbox = $root.find('input')[0];
+    const checkbox = $root.find('input')[0];
     expect(checkbox).toBeChecked();
   });
 
   it('should select the box as unchecked depending upon check field', () => {
     mount(new TriStateCheckbox('Linux', resources));
-    var checkbox = $root.find('input')[0];
+    const checkbox = $root.find('input')[0];
     expect(checkbox).not.toBeChecked();
   });
 
   it('should select the box as indeterminate depending upon the isIndeterminate field', () => {
     mount(new TriStateCheckbox('Chrome', resources));
-    var checkbox = $root.find('input')[0];
+    const checkbox = $root.find('input')[0];
     expect(checkbox.indeterminate).toBe(true);
   });
 
-  var mount = (triStateCheckbox) => {
+  const mount = (triStateCheckbox) => {
     m.mount(root,
       {
         view() {
-          return m(TriStateCheckboxWidget, {'triStateCheckbox': triStateCheckbox, 'index': 1});
+          return m(TriStateCheckboxWidget, {triStateCheckbox, 'index': 1});
         }
       }
     );
     m.redraw();
   };
 
-  var unmount = () => {
+  const unmount = () => {
     m.mount(root, null);
     m.redraw();
   };

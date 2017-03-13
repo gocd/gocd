@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,22 +15,22 @@
  */
 describe("EnvironmentVariable Widget", () => {
 
-  var $             = require("jquery");
-  var m             = require('mithril');
-  var Stream        = require('mithril/stream');
-  var simulateEvent = require('simulate-event');
+  const $             = require("jquery");
+  const m             = require('mithril');
+  const Stream        = require('mithril/stream');
+  const simulateEvent = require('simulate-event');
 
   require('jasmine-jquery');
 
-  var EnvironmentVariables      = require("models/pipeline_configs/environment_variables");
-  var EnvironmentVariableWidget = require("views/pipeline_configs/environment_variables_config_widget");
+  const EnvironmentVariables      = require("models/pipeline_configs/environment_variables");
+  const EnvironmentVariableWidget = require("views/pipeline_configs/environment_variables_config_widget");
 
-  var $root, root;
+  let $root, root;
   beforeEach(() => {
     [$root, root] = window.createDomElementForTest();
   });
   afterEach(window.destroyDomElementForTest);
-  var variables;
+  let variables;
 
   beforeEach(() => {
     variables = Stream(EnvironmentVariables.fromJSON([
@@ -62,24 +62,24 @@ describe("EnvironmentVariable Widget", () => {
   });
 
   it("should display environment variables", () => {
-    var environmentVariableFields = $root.find('.environment-variables div.environment-variable[data-variable-name=COMMAND]');
-    var variableName              = environmentVariableFields.find("input[data-prop-name=name]");
-    var variableValue             = environmentVariableFields.find("input[data-prop-name=value]");
+    const environmentVariableFields = $root.find('.environment-variables div.environment-variable[data-variable-name=COMMAND]');
+    const variableName              = environmentVariableFields.find("input[data-prop-name=name]");
+    const variableValue             = environmentVariableFields.find("input[data-prop-name=value]");
 
     expect(variableName).toHaveValue("COMMAND");
     expect(variableValue).toHaveValue("echo");
   });
 
   it("should display normal text field for non-secure variables", () => {
-    var environmentVariableField = $root.find('.environment-variables div.environment-variable[data-variable-type=plain][data-variable-name=COMMAND]');
-    var valueField               = environmentVariableField.find("input[data-prop-name=value]");
+    const environmentVariableField = $root.find('.environment-variables div.environment-variable[data-variable-type=plain][data-variable-name=COMMAND]');
+    const valueField               = environmentVariableField.find("input[data-prop-name=value]");
 
     expect(valueField.attr('type')).toBe('text');
   });
 
   it("should display edit link for secure variable", () => {
-    var environmentVariableField = $root.find('.environment-variables div.environment-variable[data-variable-type=secure][data-variable-name=PASSWORD]');
-    var editLink                 = environmentVariableField.find("button.edit-secure-variable");
+    const environmentVariableField = $root.find('.environment-variables div.environment-variable[data-variable-type=secure][data-variable-name=PASSWORD]');
+    const editLink                 = environmentVariableField.find("button.edit-secure-variable");
 
     expect(editLink.length).toBe(1);
 

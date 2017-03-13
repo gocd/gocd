@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,18 +15,18 @@
  */
 describe("Materials Config Widget", () => {
 
-  var $      = require("jquery");
-  var m      = require('mithril');
-  var Stream = require('mithril/stream');
+  const $      = require("jquery");
+  const m      = require('mithril');
+  const Stream = require('mithril/stream');
 
 
   require('jasmine-jquery');
 
-  var Materials             = require("models/pipeline_configs/materials");
-  var MaterialsConfigWidget = require("views/pipeline_configs/materials_config_widget");
-  var Pipelines             = require("models/pipeline_configs/pipelines");
+  const Materials             = require("models/pipeline_configs/materials");
+  const MaterialsConfigWidget = require("views/pipeline_configs/materials_config_widget");
+  const Pipelines             = require("models/pipeline_configs/pipelines");
 
-  var $root, root;
+  let $root, root;
   beforeEach(() => {
     [$root, root] = window.createDomElementForTest();
   });
@@ -42,10 +42,10 @@ describe("Materials Config Widget", () => {
   });
 
   describe('SVN View', () => {
-    var material;
+    let material;
     beforeEach(() => {
-      var materials = new Materials();
-      material      = materials.createMaterial({
+      const materials = new Materials();
+      material        = materials.createMaterial({
         type:           'svn',
         url:            "http://svn.example.com/svn/myProject",
         username:       "bob",
@@ -112,10 +112,10 @@ describe("Materials Config Widget", () => {
   });
 
   describe('Git View', () => {
-    var material;
+    let material;
     beforeEach(() => {
-      var materials = new Materials();
-      material      = materials.createMaterial({
+      const materials = new Materials();
+      material        = materials.createMaterial({
         type:         'git',
         url:          "http://git.example.com/git/myProject",
         branch:       "release-1.2",
@@ -176,10 +176,10 @@ describe("Materials Config Widget", () => {
   });
 
   describe('Mercurial View', () => {
-    var material;
+    let material;
     beforeEach(() => {
-      var materials = new Materials();
-      material      = materials.createMaterial({
+      const materials = new Materials();
+      material        = materials.createMaterial({
         type:        'hg',
         url:         "http://hg.example.com/hg/myProject",
         destination: "projectA",
@@ -230,10 +230,10 @@ describe("Materials Config Widget", () => {
   });
 
   describe('Perforce View', () => {
-    var material;
+    let material;
     beforeEach(() => {
-      var materials = new Materials();
-      material      = materials.createMaterial({
+      const materials = new Materials();
+      material        = materials.createMaterial({
         type:         'p4',
         port:         "p4.example.com:1666",
         username:     "bob",
@@ -305,10 +305,10 @@ describe("Materials Config Widget", () => {
   });
 
   describe('TFS View', () => {
-    var material;
+    let material;
     beforeEach(() => {
-      var materials = new Materials();
-      material      = materials.createMaterial({
+      const materials = new Materials();
+      material        = materials.createMaterial({
         type:         'tfs',
         url:          "http://tfs.example.com/tfs/projectA",
         username:     "bob",
@@ -380,10 +380,10 @@ describe("Materials Config Widget", () => {
   });
 
   describe('Dependency View', () => {
-    var material;
+    let material;
     beforeEach(() => {
-      var materials = new Materials();
-      material      = materials.createMaterial({
+      const materials = new Materials();
+      material        = materials.createMaterial({
         type:       'dependency',
         name:       'dependencyMaterial',
         pipeline:   'pipeline1',
@@ -412,7 +412,7 @@ describe("Materials Config Widget", () => {
     });
   });
 
-  function mount(materials) {
+  const mount = (materials) => {
     m.mount(root, {
       view() {
         return m(MaterialsConfigWidget, {
@@ -422,9 +422,9 @@ describe("Materials Config Widget", () => {
       }
     });
     m.redraw();
-  }
+  };
 
-  var unmount = () => {
+  const unmount = () => {
     m.mount(root, null);
     m.redraw();
   };

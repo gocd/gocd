@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,25 @@
  * limitations under the License.
  */
 
-var m                     = require('mithril');
-var Stream                = require('mithril/stream');
-var _                     = require('lodash');
-var f                     = require('helpers/form_helper');
-var AgentStateCountWidget = require('views/agents/agent_state_count_widget');
-var AgentRowWidget        = require('views/agents/agent_row_widget');
-var AgentTableHeader      = require('views/agents/agent_table_header');
-var ButtonRowWidget       = require('views/agents/button_row_widget');
+let m                     = require('mithril');
+let f                     = require('helpers/form_helper');
+let AgentStateCountWidget = require('views/agents/agent_state_count_widget');
+let AgentRowWidget        = require('views/agents/agent_row_widget');
+let AgentTableHeader      = require('views/agents/agent_table_header');
+let ButtonRowWidget       = require('views/agents/button_row_widget');
 
-var AgentsWidget = {
-  oninit: function (vnode) {
-    var args = vnode.attrs;
+const Stream = require('mithril/stream');
+const _      = require('lodash');
 
-    var clearAllCheckboxes = function () {
+const AgentsWidget = {
+  oninit (vnode) {
+    const args = vnode.attrs;
+
+    const clearAllCheckboxes = function () {
       args.vm.agents.clearAllCheckboxes();
     };
 
-    var isUserAdmin = function () {
+    const isUserAdmin = function () {
       return args.isUserAdmin;
     };
 
@@ -67,16 +68,16 @@ var AgentsWidget = {
     };
 
     this.displaySuccessMessage = function (action) {
-      var count = this.selectedAgentsCount();
+      const count = this.selectedAgentsCount();
       this.message({type: 'success', message: `${action} ${count} ${_('agent').pluralize(count)}`});
     };
 
     this.displayErrorMessage = function (message) {
-      this.message({type: 'warning', message: message});
+      this.message({type: 'warning', message});
     };
 
     this.displayModifiedMessage = function (action, addedItems, removedItems) {
-      var count = this.selectedAgentsCount();
+      const count = this.selectedAgentsCount();
       this.message({
         type:    'success',
         message: `${_(action).pluralize(_.compact(_.concat(addedItems, removedItems)).length)} modified on ${count} ${_('agent').pluralize(count)}`
@@ -140,26 +141,26 @@ var AgentsWidget = {
     };
   },
 
-  view: function (vnode) {
-    var ctrl = vnode.state;
-    var args = vnode.attrs;
+  view (vnode) {
+    const ctrl = vnode.state;
+    const args = vnode.attrs;
 
     if (args.showSpinner()) {
       return (<span class="page-spinner"/>);
     }
 
-    var filterText                     = args.vm.filterText();
-    var filteredAgents                 = ctrl.filteredAndSortedAgents();
-    var maxCharsToBeDisplayedInMessage = 150;
-    var classForTableBody              = ["agents-table-body"];
+    const filterText                     = args.vm.filterText();
+    const filteredAgents                 = ctrl.filteredAndSortedAgents();
+    const maxCharsToBeDisplayedInMessage = 150;
+    const classForTableBody              = ["agents-table-body"];
 
-    var updateMessage;
-    var permanentMessage;
+    let updateMessage;
+    let permanentMessage;
 
     if (args.permanentMessage().message) {
       permanentMessage = (
         <f.row class="message">
-          <div data-alert class={"callout radius " + args.permanentMessage().type}
+          <div data-alert class={`callout radius ${  args.permanentMessage().type}`}
                title={args.permanentMessage().message}>
 
             {_.truncate(args.permanentMessage().message, {'length': maxCharsToBeDisplayedInMessage})}
@@ -173,7 +174,7 @@ var AgentsWidget = {
     if (ctrl.message().message) {
       updateMessage = (
         <f.row class="message">
-          <div data-alert class={"callout radius " + ctrl.message().type} title={ctrl.message().message}>
+          <div data-alert class={`callout radius ${  ctrl.message().type}`} title={ctrl.message().message}>
 
             {_.truncate(ctrl.message().message, {'length': maxCharsToBeDisplayedInMessage})}
             <a href="#" class="close"/>
@@ -234,9 +235,9 @@ var AgentsWidget = {
             <table class="go-table agents-table">
               <tbody>
               {
-                filteredAgents.mapAgents(function (agent) {
-                  var uuid          = agent.uuid();
-                  var checkboxModel = args.vm.agents.checkboxFor(uuid);
+                filteredAgents.mapAgents((agent) => {
+                  const uuid          = agent.uuid();
+                  const checkboxModel = args.vm.agents.checkboxFor(uuid);
 
                   return (
                     <AgentRowWidget agent={agent}

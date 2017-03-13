@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,15 @@
  */
 
 xdescribe("Pluggable SCM Widget", () => {
-  var $ = require("jquery");
-  var m = require("mithril");
+  const $ = require("jquery");
+  const m = require("mithril");
 
-  var Materials          = require("models/pipeline_configs/materials");
-  var SCMs               = require("models/pipeline_configs/scms");
-  var PluggableSCMWidget = require("views/pipeline_configs/pluggable_scm_widget");
-  var PluginInfos        = require("models/pipeline_configs/plugin_infos");
+  const Materials          = require("models/pipeline_configs/materials");
+  const SCMs               = require("models/pipeline_configs/scms");
+  const PluggableSCMWidget = require("views/pipeline_configs/pluggable_scm_widget");
+  const PluginInfos        = require("models/pipeline_configs/plugin_infos");
 
-  var $root, root;
+  let $root, root;
   beforeEach(() => {
     [$root, root] = window.createDomElementForTest();
   });
@@ -37,7 +37,7 @@ xdescribe("Pluggable SCM Widget", () => {
 
   describe('EditView', () => {
     /* eslint-disable camelcase */
-    var github = new SCMs.SCM({
+    const github = new SCMs.SCM({
       id:              '43c45e0b-1b0c-46f3-a60a-2bbc5cec069c',
       name:            'Github PR',
       auto_update:     true,
@@ -46,7 +46,7 @@ xdescribe("Pluggable SCM Widget", () => {
     });
     /* eslint-enable camelcase */
 
-    var pluggableMaterial = Materials.create({
+    const pluggableMaterial = Materials.create({
       type:        'plugin',
       scm:         github,
       filter:      new Materials.Filter({ignore: ['*.doc']}),
@@ -150,7 +150,7 @@ xdescribe("Pluggable SCM Widget", () => {
     m.redraw();
   }
 
-  var unmount = () => {
+  const unmount = () => {
     m.mount(root, null);
     m.redraw();
   };

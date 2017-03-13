@@ -15,27 +15,27 @@
  */
 
 describe("PipelineConfigWidget", () => {
-  var $             = require("jquery");
-  var m             = require('mithril');
-  var Stream        = require('mithril/stream');
-  var _             = require('lodash');
-  var s             = require('string-plus');
-  var simulateEvent = require('simulate-event');
+  const $             = require("jquery");
+  const m             = require('mithril');
+  const Stream        = require('mithril/stream');
+  const _             = require('lodash');
+  const s             = require('string-plus');
+  const simulateEvent = require('simulate-event');
 
   require('jasmine-jquery');
 
-  var Pipeline             = require("models/pipeline_configs/pipeline");
-  var Pipelines            = require("models/pipeline_configs/pipelines");
-  var PipelineConfigWidget = require("views/pipeline_configs/pipeline_config_widget");
+  const Pipeline             = require("models/pipeline_configs/pipeline");
+  const Pipelines            = require("models/pipeline_configs/pipelines");
+  const PipelineConfigWidget = require("views/pipeline_configs/pipeline_config_widget");
 
-  var $root, root;
+  let $root, root;
   beforeEach(() => {
     [$root, root] = window.createDomElementForTest();
 
     spyOn(Pipelines, 'init').and.callFake(() => $.Deferred().promise());
   });
   afterEach(window.destroyDomElementForTest);
-  var pipeline;
+  let pipeline;
 
   Pipeline.find = (_url, extract) => {
     extract(samplePipelineJSON(), "success", {
@@ -47,13 +47,13 @@ describe("PipelineConfigWidget", () => {
 
   beforeEach((done) => {
     // needed because the widget needs to fetch data via ajax, and complete rendering
-    var reallyDone = _.after(2, () => {
+    const reallyDone = _.after(2, () => {
       $root.find('.pipeline-settings>.accordion-item>a')[0].click();
       m.redraw();
       done();
     });
 
-    var component = PipelineConfigWidget({
+    const component = PipelineConfigWidget({
       url: Stream('/pipeline.json'), callback(controller) {
         pipeline = controller.pipeline();
         reallyDone();
@@ -97,7 +97,7 @@ describe("PipelineConfigWidget", () => {
   });
 
   it("should toggle pipeline enablePipelineLocking attribute", () => {
-    var lockedCheckBox = inputFieldFor('enablePipelineLocking').get(0);
+    const lockedCheckBox = inputFieldFor('enablePipelineLocking').get(0);
     lockedCheckBox.click();
     expect(pipeline.enablePipelineLocking()).toBe(false);
   });
@@ -107,8 +107,8 @@ describe("PipelineConfigWidget", () => {
   });
 
   it("should set the value of labelTemplate", () => {
-    var labelTextElem = inputFieldFor('labelTemplate');
-    var value         = "some-label-text";
+    const labelTextElem = inputFieldFor('labelTemplate');
+    const value         = "some-label-text";
     labelTextElem.val(value);
 
     expect(labelTextElem).toHaveValue(value);

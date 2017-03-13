@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,20 +15,20 @@
  */
 describe("Test Connection Widget", () => {
 
-  var $      = require('jquery');
-  var m      = require('mithril');
-  var Stream = require('mithril/stream');
+  const $      = require('jquery');
+  const m      = require('mithril');
+  const Stream = require('mithril/stream');
 
-  var Materials            = require("models/pipeline_configs/materials");
-  var TestConnectionWidget = require("views/pipeline_configs/test_connection_widget");
+  const Materials            = require("models/pipeline_configs/materials");
+  const TestConnectionWidget = require("views/pipeline_configs/test_connection_widget");
 
   describe('view', () => {
-    var $root, root;
+    let $root, root;
     beforeEach(() => {
       [$root, root] = window.createDomElementForTest();
     });
     afterEach(window.destroyDomElementForTest);
-    var material;
+    let material;
     beforeEach(() => {
       material = new Materials().createMaterial({
         type: 'git',
@@ -48,7 +48,7 @@ describe("Test Connection Widget", () => {
     });
 
     it("should render with test connection failure message", () => {
-      var state = new TestConnectionWidget.Connection.State();
+      const state = new TestConnectionWidget.Connection.State();
       state.status('Error');
       state.errorMessage('Test Connection Failed');
 
@@ -69,7 +69,7 @@ describe("Test Connection Widget", () => {
 
 
   describe('Controller testConnection', () => {
-    var vm, controller, deferred, pipelineName, material, vnode;
+    let vm, controller, deferred, pipelineName, material, vnode;
 
     beforeEach(() => {
       deferred     = $.Deferred();

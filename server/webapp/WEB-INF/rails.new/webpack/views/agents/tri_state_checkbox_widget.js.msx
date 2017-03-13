@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-var m = require('mithril');
-var _ = require('lodash');
+let m   = require('mithril');
+const _ = require('lodash');
 
-var TriStateCheckboxWidget = {
-  view: function (vnode) {
-    var args = vnode.attrs;
+const TriStateCheckboxWidget = {
+  view (vnode) {
+    const args = vnode.attrs;
 
     return (
       <li>
         <input type="checkbox"
-               id={"checkbox-" + args.index.toString()}
+               id={`checkbox-${  args.index.toString()}`}
                class="select-resource"
                key={args.triStateCheckbox.name()}
                checked={args.triStateCheckbox.isChecked()}
@@ -32,7 +32,7 @@ var TriStateCheckboxWidget = {
                value={args.triStateCheckbox.name()}
                onchange={args.triStateCheckbox.click}>
         </input>
-        <label for={"checkbox-" + args.index.toString()} title={args.triStateCheckbox.name()}>
+        <label for={`checkbox-${  args.index.toString()}`} title={args.triStateCheckbox.name()}>
           {_.truncate(args.triStateCheckbox.name(), {'length': 25})}
         </label>
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,10 +50,10 @@ Approval.AuthConfig = function({roles, users}) {
   this.users = s.withNewJSONImpl(Stream(s.defaultToIfBlank(users, '')), s.stringToArray);
 };
 
-Approval.AuthConfig.fromJSON = ({roles, users}) => new Approval.AuthConfig({roles: roles, users: users});
+Approval.AuthConfig.fromJSON = ({roles, users}) => new Approval.AuthConfig({roles, users});
 
 Approval.fromJSON = ({type, authorization}) => new Approval({
-  type:          type,
+  type,
   authorization: Approval.AuthConfig.fromJSON(authorization || {})
 });
 

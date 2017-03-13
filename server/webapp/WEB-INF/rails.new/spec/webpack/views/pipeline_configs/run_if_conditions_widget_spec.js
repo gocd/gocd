@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,12 @@
 
 describe("RunIfConditions Widget", () => {
 
-  var m = require("mithril");
+  const m = require("mithril");
 
-  var RunIfConditionsWidget = require("views/pipeline_configs/run_if_conditions_widget");
-  var Tasks                 = require("models/pipeline_configs/tasks");
+  const RunIfConditionsWidget = require("views/pipeline_configs/run_if_conditions_widget");
+  const Tasks                 = require("models/pipeline_configs/tasks");
 
-  var $root, root;
+  let $root, root;
   beforeEach(() => {
     [$root, root] = window.createDomElementForTest();
   });
@@ -36,7 +36,7 @@ describe("RunIfConditions Widget", () => {
     m.redraw(true);
   }
 
-  var unmount = () => {
+  const unmount = () => {
     m.mount(root, null);
     m.redraw(true);
   };
@@ -47,7 +47,7 @@ describe("RunIfConditions Widget", () => {
     });
 
     it("should render checkbox for runIf conditions", () => {
-      var task = new Tasks.Task.Exec({runIf: ['any']});
+      const task = new Tasks.Task.Exec({runIf: ['any']});
       mount(task);
 
       expect($root.find("input[type=checkbox][value=passed]").size()).toBe(1);
@@ -56,7 +56,7 @@ describe("RunIfConditions Widget", () => {
     });
 
     it("should have run_if conditions checked for tasks with runIf", () => {
-      var task = new Tasks.Task.Exec({runIf: ['passed', 'failed']});
+      const task = new Tasks.Task.Exec({runIf: ['passed', 'failed']});
       mount(task);
 
       expect($root.find("input[type=checkbox][value=passed]")).toBeChecked();
@@ -67,7 +67,7 @@ describe("RunIfConditions Widget", () => {
 
   describe("Selection", () => {
     it("should be either 'any' or 'passed || failed'", () => {
-      var task = new Tasks.Task.Exec({runIf: ['passed', 'failed']});
+      const task = new Tasks.Task.Exec({runIf: ['passed', 'failed']});
       mount(task);
 
       expect($root.find("input[type=checkbox][value=passed]")).toBeChecked();

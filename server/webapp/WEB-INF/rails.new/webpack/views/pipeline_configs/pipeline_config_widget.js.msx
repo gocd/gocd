@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 
-var m                      = require('mithril');
-var Stream                 = require('mithril/stream');
-var s                      = require('string-plus');
-var f                      = require('helpers/form_helper');
-var ComponentMixins        = require('helpers/mithril_component_mixins');
-var Pipeline               = require('models/pipeline_configs/pipeline');
-var PipelineSettingsWidget = require('views/pipeline_configs/pipeline_settings_widget');
-var MaterialsConfigWidget  = require('views/pipeline_configs/materials_config_widget');
-var PipelineFlowWidget     = require('views/pipeline_configs/pipeline_flow_widget');
-var Modal                  = require('views/shared/modal');
+let m                      = require('mithril');
+let f                      = require('helpers/form_helper');
+let PipelineSettingsWidget = require('views/pipeline_configs/pipeline_settings_widget');
+let MaterialsConfigWidget  = require('views/pipeline_configs/materials_config_widget');
+let PipelineFlowWidget     = require('views/pipeline_configs/pipeline_flow_widget');
 
-var ToggleViewWarning = {
-  view: function (vnode) {
+const Stream          = require('mithril/stream');
+const s               = require('string-plus');
+const ComponentMixins = require('helpers/mithril_component_mixins');
+const Pipeline        = require('models/pipeline_configs/pipeline');
+const Modal           = require('views/shared/modal');
+
+const ToggleViewWarning = {
+  view (vnode) {
     return (
       <div class='modal-content'>
         <p> 'Proceed' will discard any unsaved data.</p>
@@ -41,11 +42,11 @@ var ToggleViewWarning = {
   }
 };
 
-var PipelineConfigWidget = function (options) {
+const PipelineConfigWidget = function (options) {
   return {
-    oninit: function (vnode) {
-      var ctrl              = vnode.state;
-      var self              = vnode.state;
+    oninit (vnode) {
+      const ctrl            = vnode.state;
+      const self            = vnode.state;
       self.pipeline         = Stream();
       self.currentSelection = Stream();
       self.etag             = Stream();
@@ -64,11 +65,11 @@ var PipelineConfigWidget = function (options) {
       window.pipelineConfigWidget = Stream(this);
 
       self.setPipelineAndPreserveSelection = function (newPipeline) {
-        var oldPipeline = self.pipeline();
-        var newSelection;
+        const oldPipeline = self.pipeline();
+        let newSelection;
 
         if (oldPipeline) {
-          newSelection = newPipeline.stages().findStage(function (stage) {
+          newSelection = newPipeline.stages().findStage((stage) => {
             return stage.name() === ctrl.currentSelection().name();
           });
         }
@@ -79,14 +80,14 @@ var PipelineConfigWidget = function (options) {
         self.currentSelection(newSelection);
       };
 
-      var extractEtag = function (xhr) {
+      const extractEtag = function (xhr) {
         if (xhr.status === 200) {
           self.etag = Stream(xhr.getResponseHeader('ETag'));
         }
         return xhr.responseText;
       };
 
-      Pipeline.find(self.url(), function (data, _textStatus, xhr) {
+      Pipeline.find(self.url(), (data, _textStatus, xhr) => {
         extractEtag(xhr);
         self.setPipelineAndPreserveSelection(Pipeline.fromJSON(data));
         if (self.callback) {
@@ -105,13 +106,13 @@ var PipelineConfigWidget = function (options) {
 
         self.vm.updating();
 
-        var onReject  = function (data) {
+        const onReject  = function (data) {
           self.vm.saveFailed(data);
           if (data.data) {
             ctrl.setPipelineAndPreserveSelection(Pipeline.fromJSON(data.data));
           }
         };
-        var onFulfill = function (data) {
+        const onFulfill = function (data) {
           ctrl.setPipelineAndPreserveSelection(Pipeline.fromJSON(JSON.parse(data)));
           self.vm.saveSuccess();
         };
@@ -120,15 +121,15 @@ var PipelineConfigWidget = function (options) {
       };
     },
 
-    view: function (vnode) {
-      var pipeline = vnode.state.pipeline();
+    view (vnode) {
+      const pipeline = vnode.state.pipeline();
       if (!pipeline) {
         return (<form class='page-spinner'/>);
       }
 
-      var errors = vnode.state.vm.hasErrors() ? (<f.alert>{vnode.state.vm.errors()}</f.alert>) : undefined;
+      const errors = vnode.state.vm.hasErrors() ? (<f.alert>{vnode.state.vm.errors()}</f.alert>) : undefined;
 
-      var header = function () {
+      const header = function () {
         return (
           <header class="pipeline-page-header">
             <f.row class="heading">
@@ -143,8 +144,8 @@ var PipelineConfigWidget = function (options) {
               </f.column>
               <f.column size={1}>
                 <f.button onclick={vnode.state.onSavePipeline.bind(vnode.state)}
-                          class={'save-pipeline ' + vnode.state.vm.saveState()}>
-                  <span class={'save-state ' + vnode.state.vm.saveState()}/>
+                          class={`save-pipeline ${  vnode.state.vm.saveState()}`}>
+                  <span class={`save-state ${  vnode.state.vm.saveState()}`}/>
                   Save
                 </f.button>
               </f.column>
@@ -153,7 +154,7 @@ var PipelineConfigWidget = function (options) {
         );
       };
 
-      var pipelineFlowWidget = function () {
+      const pipelineFlowWidget = function () {
         if (!s.isBlank(vnode.state.pipeline().template())) {
           return (
             <f.info>{['Pipeline :', "'", vnode.state.pipeline().name(), "'", 'uses template :', "'", vnode.state.pipeline().template(), "'",

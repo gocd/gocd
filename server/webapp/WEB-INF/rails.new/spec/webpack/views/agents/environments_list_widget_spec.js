@@ -15,18 +15,18 @@
  */
 
 describe("Environments List Widget", () => {
-  var _                = require('lodash');
-  var $                = require("jquery");
-  var m                = require("mithril");
-  var TriStateCheckbox = require('models/agents/tri_state_checkbox');
+  const _                = require('lodash');
+  const $                = require("jquery");
+  const m                = require("mithril");
+  const TriStateCheckbox = require('models/agents/tri_state_checkbox');
   require("foundation-sites");
   require("jasmine-jquery");
   require('jasmine-ajax');
 
-  var Environments           = require('models/agents/environments');
-  var EnvironmentsListWidget = require("views/agents/environments_list_widget");
+  const Environments           = require('models/agents/environments');
+  const EnvironmentsListWidget = require("views/agents/environments_list_widget");
 
-  var root;
+  let root;
   beforeEach(() => {
     [, root] = window.createDomElementForTest();
   });
@@ -38,22 +38,22 @@ describe("Environments List Widget", () => {
   });
 
   beforeEach((done) => {
-    var selectedAgents = [
+    const selectedAgents = [
       {
-        uuid:         '1',
+        uuid: '1',
         environments() {
           return ['Dev', 'Testing'];
         }
       },
       {
-        uuid:         '2',
+        uuid: '2',
         environments() {
           return ['Build', 'Testing'];
         }
       }
     ];
 
-    var selectedAgentsEnvironments = _.map(selectedAgents, (agent) => agent.environments());
+    const selectedAgentsEnvironments = _.map(selectedAgents, (agent) => agent.environments());
 
     Environments.list = [
       new TriStateCheckbox('Build', selectedAgentsEnvironments),
@@ -72,7 +72,7 @@ describe("Environments List Widget", () => {
   });
 
   it('should contain all the environments checkbox', () => {
-    var allEnvironments = $.find('.resources-items :checkbox');
+    const allEnvironments = $.find('.resources-items :checkbox');
     expect(allEnvironments).toHaveLength(4);
     expect(allEnvironments[0]).toHaveValue('Build');
     expect(allEnvironments[1]).toHaveValue('Deploy');
@@ -81,13 +81,13 @@ describe("Environments List Widget", () => {
   });
 
   it('should check environments that are present on all the agents', () => {
-    var allEnvironments = $.find('.resources-items :checkbox');
+    const allEnvironments = $.find('.resources-items :checkbox');
     expect(allEnvironments[3]).toHaveValue('Testing');
     expect(allEnvironments[3]).toBeChecked();
   });
 
   it('should select environments as indeterminate that are present on some of the agents', () => {
-    var allEnvironments = $.find('.resources-items :checkbox');
+    const allEnvironments = $.find('.resources-items :checkbox');
     expect(allEnvironments[2]).toHaveValue('Dev');
     expect(allEnvironments[2].indeterminate).toBe(true);
 
@@ -96,13 +96,13 @@ describe("Environments List Widget", () => {
   });
 
   it('should uncheck environments that are not present on any the agents', () => {
-    var allEnvironments = $.find('.resources-items :checkbox');
+    const allEnvironments = $.find('.resources-items :checkbox');
     expect(allEnvironments[1]).toHaveValue('Deploy');
     expect(allEnvironments[1]).not.toBeChecked();
     expect(allEnvironments[1].indeterminate).toBe(false);
   });
 
-  var mount = (done) => {
+  const mount = (done) => {
     m.mount(root,
       {
         oncreate: done,
@@ -118,14 +118,14 @@ describe("Environments List Widget", () => {
     m.redraw();
   };
 
-  var hideDropDown         = () => {
+  const hideDropDown         = () => {
   };
-  var dropDownReset        = () => {
+  const dropDownReset        = () => {
   };
-  var onEnvironmentsUpdate = () => {
+  const onEnvironmentsUpdate = () => {
   };
 
-  var unmount = () => {
+  const unmount = () => {
     m.mount(root, null);
     m.redraw();
   };

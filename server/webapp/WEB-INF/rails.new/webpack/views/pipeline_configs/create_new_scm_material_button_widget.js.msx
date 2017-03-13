@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,25 @@
  * limitations under the License.
  */
 
-var m      = require('mithril');
-var Stream = require('mithril/stream');
+let m             = require('mithril');
+let f             = require('helpers/form_helper');
+let AngularPlugin = require('views/shared/angular_plugin');
 
-var f             = require('helpers/form_helper');
-var NewModal      = require('views/shared/new_modal');
-var SCMs          = require('models/pipeline_configs/scms');
-var AngularPlugin = require('views/shared/angular_plugin');
-var PluginInfos   = require('models/pipeline_configs/plugin_infos');
+const Stream      = require('mithril/stream');
+const NewModal    = require('views/shared/new_modal');
+const SCMs        = require('models/pipeline_configs/scms');
+const PluginInfos = require('models/pipeline_configs/plugin_infos');
 
 
-var ScmConfigModalBody = {
-  view: function (vnode) {
+let ScmConfigModalBody = {
+  view (vnode) {
     if (!vnode.attrs.pluginInfo()) {
       return (
         <div class="modal-spinner"/>
       );
     }
 
-    var errorMessageElem;
+    let errorMessageElem;
 
     if (vnode.attrs.errorMessage()) {
       errorMessageElem = (
@@ -72,33 +72,33 @@ var ScmConfigModalBody = {
   }
 };
 
-var CreateNewScmMaterialButtonWidget = {
-  oninit: function (vnode) {
+const CreateNewScmMaterialButtonWidget = {
+  oninit (vnode) {
     this.showModal = function () {
-      var scm = Stream(new SCMs.SCM({
+      const scm = Stream(new SCMs.SCM({
         'plugin_metadata': {
           id:      vnode.attrs.material.pluginInfo().id(),
           version: vnode.attrs.material.pluginInfo().version()
         }
       }));
 
-      var pluginInfo   = Stream();
-      var errorMessage = Stream();
+      const pluginInfo   = Stream();
+      const errorMessage = Stream();
 
-      var modal = new NewModal({
+      const modal = new NewModal({
         title:   'Create a new plugin SCM material',
         body:    () => (<ScmConfigModalBody scm={scm} pluginInfo={pluginInfo} errorMessage={errorMessage}/>),
         buttons: () => [
           {
-            text:    'Save',
-            onclick: function () {
-              var callback = function (savedScm) {
+            text: 'Save',
+            onclick () {
+              const callback = function (savedScm) {
                 vnode.attrs.material.scm(savedScm);
                 modal.destroy();
                 SCMs.init();
               };
 
-              var errback = function (json) {
+              const errback = function (json) {
                 errorMessage(json.message);
                 if (json.data) {
                   scm(new SCMs.SCM(json.data));
@@ -116,7 +116,7 @@ var CreateNewScmMaterialButtonWidget = {
     };
   },
 
-  view: function (vnode) {
+  view (vnode) {
     return (
       <f.row class='scm-selector' collapse>
         <f.column class='no-scm' size={4} largeSize={6} end>

@@ -16,9 +16,9 @@
 
 describe("SortOrder", () => {
 
-  var _         = require('lodash');
-  var m         = require('mithril');
-  var SortOrder = require('views/agents/models/sort_order');
+  const _         = require('lodash');
+  const m         = require('mithril');
+  const SortOrder = require('views/agents/models/sort_order');
 
   it("should default to correct values", () => {
     expect(new SortOrder().sortBy()).toEqual('agentState');
@@ -27,7 +27,7 @@ describe("SortOrder", () => {
 
   describe('toggleSortingOrder', () => {
     it("should toggle sort order on existing column", () => {
-      var sortOrder     = new SortOrder();
+      const sortOrder     = new SortOrder();
       sortOrder.perform = _.noop;
 
       sortOrder.toggleSortingOrder(sortOrder.sortBy());
@@ -40,7 +40,7 @@ describe("SortOrder", () => {
     });
 
     it("should reset sort order (to asc) when column changes", () => {
-      var sortOrder     = new SortOrder();
+      const sortOrder     = new SortOrder();
       sortOrder.perform = _.noop;
 
       sortOrder.toggleSortingOrder('bar');
@@ -51,7 +51,7 @@ describe("SortOrder", () => {
 
   describe("isSortedOn", () => {
     it("should return true if current sort column is the same as the one passed in", () => {
-      var sortOrder = new SortOrder();
+      const sortOrder = new SortOrder();
 
       expect(sortOrder.isSortedOn(sortOrder.sortBy())).toBe(true);
       expect(sortOrder.isSortedOn('blah')).toBe(false);
@@ -60,7 +60,7 @@ describe("SortOrder", () => {
 
   describe("initialize", () => {
     it("should initialize sortBy and orderBy values based on the routing params", () => {
-      let sortOrder     = new SortOrder();
+      const sortOrder     = new SortOrder();
       sortOrder.perform = _.noop;
 
       spyOn(m.route, "param").and.returnValues('resources', 'desc');
@@ -72,7 +72,7 @@ describe("SortOrder", () => {
     });
 
     it("should initialize sortBy and orderBy values to default when routing params are not present", () => {
-      let sortOrder     = new SortOrder();
+      const sortOrder     = new SortOrder();
       sortOrder.perform = _.noop;
 
       spyOn(m.route, "param").and.returnValues(undefined, undefined);
@@ -84,9 +84,9 @@ describe("SortOrder", () => {
     });
 
     it("should perform routing on initialize", () => {
-      let sortOrder = new SortOrder();
+      const sortOrder = new SortOrder();
 
-      var performSpy = spyOn(sortOrder, "perform");
+      const performSpy = spyOn(sortOrder, "perform");
 
       sortOrder.initialize();
 

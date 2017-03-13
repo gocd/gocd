@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,26 +14,28 @@
  * limitations under the License.
  */
 
-var m                                = require('mithril');
-var Stream                           = require('mithril/stream');
-var s                                = require('string-plus');
-var _                                = require('lodash');
-var f                                = require('helpers/form_helper');
-var tt                               = require('helpers/pipeline_configs/tooltips');
-var ComponentMixins                  = require('helpers/mithril_component_mixins');
-var ParametersConfigWidget           = require('views/pipeline_configs/parameters_config_widget');
-var TrackingToolWidget               = require('views/pipeline_configs/tracking_tool_widget');
-var EnvironmentVariablesConfigWidget = require('views/pipeline_configs/environment_variables_config_widget');
+let m                                = require('mithril');
+let f                                = require('helpers/form_helper');
+let tt                               = require('helpers/pipeline_configs/tooltips');
+let ParametersConfigWidget           = require('views/pipeline_configs/parameters_config_widget');
+let TrackingToolWidget               = require('views/pipeline_configs/tracking_tool_widget');
+let EnvironmentVariablesConfigWidget = require('views/pipeline_configs/environment_variables_config_widget');
 
-var PipelineSettingsWidget = {
-  oninit: function (vnode) {
+const ComponentMixins = require('helpers/mithril_component_mixins');
+const Stream          = require('mithril/stream');
+const s               = require('string-plus');
+const _               = require('lodash');
+
+
+const PipelineSettingsWidget = {
+  oninit (vnode) {
     this.args = vnode.attrs;
     ComponentMixins.HasViewModel.call(this);
   },
 
-  view: function (vnode) {
-    var pipeline                    = vnode.attrs.pipeline();
-    var pipelineAutoScheduleMessage = pipeline.isFirstStageAutoTriggered() ? 'Automatically triggered' : 'Manually triggered';
+  view (vnode) {
+    const pipeline                    = vnode.attrs.pipeline();
+    const pipelineAutoScheduleMessage = pipeline.isFirstStageAutoTriggered() ? 'Automatically triggered' : 'Manually triggered';
 
     return (
       <f.accordion accordionTitles={[(<span>Pipeline Settings</span>)]}
@@ -113,4 +115,4 @@ var PipelineSettingsWidget = {
     );
   }
 };
-module.exports             = PipelineSettingsWidget;
+module.exports               = PipelineSettingsWidget;

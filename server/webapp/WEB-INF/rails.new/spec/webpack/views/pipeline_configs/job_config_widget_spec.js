@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,22 +15,22 @@
  */
 describe("JobsConfig Widget", () => {
 
-  var m      = require('mithril');
-  var Stream = require('mithril/stream');
+  const m      = require('mithril');
+  const Stream = require('mithril/stream');
 
   require('jasmine-jquery');
 
-  var JobsConfigWidget = require("views/pipeline_configs/jobs_config_widget");
-  var Jobs             = require("models/pipeline_configs/jobs");
-  var ElasticProfiles  = require('models/elastic_profiles/elastic_profiles');
+  const JobsConfigWidget = require("views/pipeline_configs/jobs_config_widget");
+  const Jobs             = require("models/pipeline_configs/jobs");
+  const ElasticProfiles  = require('models/elastic_profiles/elastic_profiles');
 
-  var $root, root;
+  let $root, root;
   beforeEach(() => {
     [$root, root] = window.createDomElementForTest();
   });
   afterEach(window.destroyDomElementForTest);
-  var jobs;
-  var elasticProfiles;
+  let jobs;
+  let elasticProfiles;
 
   beforeEach(() => {
     jobs            = Stream(Jobs.fromJSON(data.jobs));
@@ -44,7 +44,7 @@ describe("JobsConfig Widget", () => {
   it('should disable elastic profile id text box if job is set to run on all agents', () => {
     mount(jobs);
     viewJob();
-    var elasticProfileInputBox = $root.find("input[data-prop-name='elasticProfileId']");
+    const elasticProfileInputBox = $root.find("input[data-prop-name='elasticProfileId']");
     expect(elasticProfileInputBox).toBeDisabled();
   });
 
@@ -52,7 +52,7 @@ describe("JobsConfig Widget", () => {
     jobs().firstJob().elasticProfileId('docker-test');
     mount(jobs);
     viewJob();
-    var checkbox = $root.find("input[type=radio]")[4];
+    const checkbox = $root.find("input[type=radio]")[4];
     expect(checkbox).toBeDisabled();
   });
 
@@ -61,21 +61,21 @@ describe("JobsConfig Widget", () => {
     m.redraw();
   }
 
-  var unmount = () => {
+  const unmount = () => {
     m.mount(root, null);
     m.redraw();
   };
 
-  function mount() {
+  const mount = () => {
     m.mount(root, {
       view() {
         return m(JobsConfigWidget, {jobs, key: jobs().uuid(), elasticProfiles});
       }
     });
     m.redraw();
-  }
+  };
 
-  var data = {
+  const data = {
     "jobs": [
       {
         "name":                  "up42_job",

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,34 +14,34 @@
  * limitations under the License.
  */
 
-var m     = require('mithril');
-var $     = require('jquery');
-var _     = require('lodash');
-var s     = require('string-plus');
-var Mixin = require('models/mixins/model_mixins');
+let m       = require('mithril');
+const $     = require('jquery');
+const _     = require('lodash');
+const s     = require('string-plus');
+const Mixin = require('models/mixins/model_mixins');
 require('foundation-sites');
 
-var deleteKeyAndReturnValue = function (object, key, defaultValue) {
+const deleteKeyAndReturnValue = function (object, key, defaultValue) {
   if (_.isNil(object)) {
     return defaultValue;
   }
-  var value = object[key];
+  const value = object[key];
   delete object[key];
   return _.isNil(value) ? defaultValue : value;
 };
 
-var compactClasses = function (args) {
-  var initialClasses = [].slice.call(arguments, 1);
+const compactClasses = function (args) {
+  const initialClasses = [].slice.call(arguments, 1);
   return _([initialClasses, deleteKeyAndReturnValue(args, 'class')]).flatten().compact().join(' ');
 };
 
 function setValue(items, cb) {
   return function (e) {
-    e                 = e || window.event;
-    var currentTarget = e.currentTarget || this;
+    e                   = e || window.event;
+    const currentTarget = e.currentTarget || this;
 
-    var mappings = _.reduce(items, function (memo, item) {
-      var id   = s.coerceToMprop(item.id)();
+    const mappings = _.reduce(items, (memo, item) => {
+      const id = s.coerceToMprop(item.id)();
       memo[id] = item;
       return memo;
     }, {});
@@ -50,13 +50,13 @@ function setValue(items, cb) {
   };
 }
 
-var f = {
+let f = {
   row: {
-    view: function (vnode) {
-      var args     = vnode.attrs;
-      var children = vnode.children;
+    view (vnode) {
+      const args     = vnode.attrs;
+      const children = vnode.children;
 
-      var collapse = deleteKeyAndReturnValue(args, 'collapse') ? 'collapse' : 'expanded';
+      const collapse = deleteKeyAndReturnValue(args, 'collapse') ? 'collapse' : 'expanded';
       return (
         <div
           class={compactClasses(args, 'row', collapse)}
@@ -68,16 +68,16 @@ var f = {
   },
 
   column: {
-    view: function (vnode) {
-      var args     = vnode.attrs;
-      var children = vnode.children;
+    view (vnode) {
+      const args     = vnode.attrs;
+      const children = vnode.children;
 
-      var end       = deleteKeyAndReturnValue(args, 'end') ? 'end' : null,
+      const end       = deleteKeyAndReturnValue(args, 'end') ? 'end' : null,
         size      = deleteKeyAndReturnValue(args, 'size', 6),
         largeSize = deleteKeyAndReturnValue(args, 'largeSize', size);
 
       return (
-        <div class={compactClasses(args, 'columns', 'medium-' + size, 'large-' + largeSize, end)}
+        <div class={compactClasses(args, 'columns', `medium-${  size}`, `large-${  largeSize}`, end)}
              {...args}>
           {children}
         </div>
@@ -86,10 +86,10 @@ var f = {
   },
 
   input: {
-    oninit: function () {
+    oninit () {
       this.onInput = function (model, attrName, callback, e) {
-        var currentTarget = (e || event).currentTarget;
-        var newValue      = currentTarget.value || currentTarget.getAttribute('value');
+        const currentTarget = (e || event).currentTarget;
+        const newValue      = currentTarget.value || currentTarget.getAttribute('value');
         model[attrName](newValue);
         if (callback) {
           callback();
@@ -97,11 +97,11 @@ var f = {
       };
     },
 
-    view: function (vnode) {
-      var args = vnode.attrs;
-      var ctrl = vnode.state;
+    view (vnode) {
+      const args = vnode.attrs;
+      const ctrl = vnode.state;
 
-      var model       = deleteKeyAndReturnValue(args, 'model'),
+      const model       = deleteKeyAndReturnValue(args, 'model'),
         attrName    = deleteKeyAndReturnValue(args, 'attrName'),
         type        = deleteKeyAndReturnValue(args, 'type', 'text'),
         placeholder = deleteKeyAndReturnValue(args, 'placeholder', ''),
@@ -113,9 +113,9 @@ var f = {
       args.size      = args.size || 6;
       args.largeSize = args.largeSize || 4;
 
-      var validationAttr = (validate && !_.isEqual(validate, 'all')) ? attrName : undefined;
+      const validationAttr = (validate && !_.isEqual(validate, 'all')) ? attrName : undefined;
 
-      var propertyError = (validate && model.errors().hasErrors(attrName)) ? (
+      const propertyError = (validate && model.errors().hasErrors(attrName)) ? (
           <span class='form-error is-visible'>{model.errors().errorsForDisplay(attrName)}</span>) : undefined;
 
       return (
@@ -141,10 +141,10 @@ var f = {
   },
 
   inputWithLabel: {
-    oninit: function () {
+    oninit () {
       this.onInput = function (model, attrName, callback, e) {
-        var currentTarget = (e || event).currentTarget;
-        var newValue      = currentTarget.value || currentTarget.getAttribute('value');
+        const currentTarget = (e || event).currentTarget;
+        const newValue      = currentTarget.value || currentTarget.getAttribute('value');
         model[attrName](newValue);
         if (callback) {
           callback();
@@ -152,11 +152,11 @@ var f = {
       };
     },
 
-    view: function (vnode) {
-      var ctrl = vnode.state;
-      var args = vnode.attrs;
+    view (vnode) {
+      const ctrl = vnode.state;
+      const args = vnode.attrs;
 
-      var model       = deleteKeyAndReturnValue(args, 'model'),
+      const model       = deleteKeyAndReturnValue(args, 'model'),
         attrName    = deleteKeyAndReturnValue(args, 'attrName'),
         type        = deleteKeyAndReturnValue(args, 'type', 'text'),
         placeholder = deleteKeyAndReturnValue(args, 'placeholder', ''),
@@ -172,21 +172,21 @@ var f = {
       args.size      = args.size || 6;
       args.largeSize = args.largeSize || 4;
 
-      var validationAttr = (validate && !_.isEqual(validate, 'all')) ? attrName : undefined;
+      const validationAttr = (validate && !_.isEqual(validate, 'all')) ? attrName : undefined;
 
-      var propertyError = (validate && model.errors().hasErrors(attrName)) ? (
+      const propertyError = (validate && model.errors().hasErrors(attrName)) ? (
           <span class='form-error is-visible'>{model.errors().errorsForDisplay(attrName)}</span>) : undefined;
 
-      var propertyMessage;
+      let propertyMessage;
       if (message) {
         propertyMessage = <f.tooltip tooltip={{type: 'info', content: message}}/>;
       }
 
-      var resetButton = function () {
+      const resetButton = function () {
         if (args.withReset && model[attrName]()) {
-          var capitalizedAttrName = _.upperFirst(attrName);
+          const capitalizedAttrName = _.upperFirst(attrName);
           return (
-            <f.resetButton onclick={model['resetToOriginal' + capitalizedAttrName].bind(model)}/>
+            <f.resetButton onclick={model[`resetToOriginal${  capitalizedAttrName}`].bind(model)}/>
           );
         }
       };
@@ -224,10 +224,10 @@ var f = {
   },
 
   textareaWithLabel: {
-    oninit: function () {
+    oninit () {
       this.onInput = function (model, attrName, callback, e) {
-        var currentTarget = (e || event).currentTarget;
-        var newValue      = currentTarget.value || "";
+        const currentTarget = (e || event).currentTarget;
+        const newValue      = currentTarget.value || "";
         model[attrName](newValue);
         if (callback) {
           callback();
@@ -235,10 +235,10 @@ var f = {
       };
     },
 
-    view: function (vnode) {
-      var ctrl        = vnode.state;
-      var args        = vnode.attrs;
-      var model       = deleteKeyAndReturnValue(args, 'model'),
+    view (vnode) {
+      const ctrl        = vnode.state;
+      const args        = vnode.attrs;
+      const model       = deleteKeyAndReturnValue(args, 'model'),
         attrName    = deleteKeyAndReturnValue(args, 'attrName'),
         placeholder = deleteKeyAndReturnValue(args, 'placeholder', ''),
         labelText   = deleteKeyAndReturnValue(args, 'label'),
@@ -249,9 +249,9 @@ var f = {
 
       args.size = args.size || 3;
 
-      var validationAttr = (validate && !_.isEqual(validate, 'all')) ? attrName : undefined;
+      const validationAttr = (validate && !_.isEqual(validate, 'all')) ? attrName : undefined;
 
-      var propertyError = (validate && model.errors().hasErrors(attrName)) ? (
+      const propertyError = (validate && model.errors().hasErrors(attrName)) ? (
           <small class='error'>{model.errors().errorsForDisplay(attrName)}</small>) : undefined;
 
       return (
@@ -279,10 +279,10 @@ var f = {
   },
 
   checkBox: {
-    view: function (vnode) {
-      var args = vnode.attrs;
+    view (vnode) {
+      const args = vnode.attrs;
 
-      var model      = deleteKeyAndReturnValue(args, 'model'),
+      const model      = deleteKeyAndReturnValue(args, 'model'),
         attrName   = deleteKeyAndReturnValue(args, 'attrName'),
         labelText  = deleteKeyAndReturnValue(args, 'label'),
         disabled   = deleteKeyAndReturnValue(args, 'disabled'),
@@ -295,7 +295,7 @@ var f = {
         args.size = 3;
       }
 
-      var padding;
+      let padding;
 
       if (addPadding) {
         padding = (<label class='check-box-spacing' style={{display: 'block'}}>{m.trust('&nbsp;')}</label>);
@@ -322,12 +322,12 @@ var f = {
   },
 
   multiSelectionBox: {
-    oninit: function (vnode) {
-      var args  = vnode.attrs;
-      this.attr = args.model[args.attrName];
+    oninit (vnode) {
+      const args = vnode.attrs;
+      this.attr  = args.model[args.attrName];
 
       this.onChange = function (e) {
-        var currentTarget = (e || event).currentTarget;
+        const currentTarget = (e || event).currentTarget;
 
         currentTarget.checked ? this.attr().push(currentTarget.value)
           : this.attr().pop(currentTarget.value);
@@ -338,11 +338,11 @@ var f = {
       };
     },
 
-    view: function (vnode) {
-      var args = vnode.attrs;
-      var ctrl = vnode.state;
+    view (vnode) {
+      const args = vnode.attrs;
+      const ctrl = vnode.state;
 
-      var model      = deleteKeyAndReturnValue(args, 'model'),
+      const model      = deleteKeyAndReturnValue(args, 'model'),
         attrName   = deleteKeyAndReturnValue(args, 'attrName'),
         value      = deleteKeyAndReturnValue(args, 'value'),
         labelText  = deleteKeyAndReturnValue(args, 'label'),
@@ -356,7 +356,7 @@ var f = {
         args.size = 3;
       }
 
-      var padding;
+      let padding;
 
       if (addPadding) {
         padding = (<label style={{display: 'block'}}>{m.trust('&nbsp;')}</label>);
@@ -384,7 +384,7 @@ var f = {
   },
 
   tabs: {
-    oninit: function (vnode) {
+    oninit (vnode) {
       this.selectedIndex = s.coerceToMprop(vnode.attrs.selectedIndex || 0);
 
       this.classNameForTab = function (tabIndex) {
@@ -395,19 +395,19 @@ var f = {
 
       this.prefixedClass = function (suffix) {
         if (!s.isBlank(this.componentClass)) {
-          return this.componentClass + '-' + suffix;
+          return `${this.componentClass  }-${  suffix}`;
         }
       };
     },
 
-    view: function (vnode) {
-      var children = vnode.children;
+    view (vnode) {
+      const children = vnode.children;
 
-      var tabs = (
+      const tabs = (
         <ul class={_.compact(['tabs', vnode.attrs.isVertical ? 'vertical' : undefined]).join(' ')}>
-          {_.map(vnode.attrs.tabTitles, function (tabTitle, tabIndex) {
+          {_.map(vnode.attrs.tabTitles, (tabTitle, tabIndex) => {
 
-            var tabTitleElem;
+            let tabTitleElem;
 
             if (s.isBlank(tabTitle)) {
               tabTitleElem = (<a href='javascript:void(0)'>{m.trust('&nbsp;')}</a>);
@@ -430,12 +430,12 @@ var f = {
         </ul>
       );
 
-      var tabsContent = (
+      const tabsContent = (
         <div
           class={_.compact([vnode.attrs.isVertical ? 'vertical' : undefined, 'tabs-content', 'tabs-content-container', vnode.state.prefixedClass('tabs-content-container')]).join(' ')}>
-          {_.map(_.flatten(children), function (child, tabIndex) {
+          {_.map(_.flatten(children), (child, tabIndex) => {
 
-            var renderedChild;
+            let renderedChild;
 
             if (tabIndex === vnode.state.selectedIndex()) {
               renderedChild = child;
@@ -476,14 +476,14 @@ var f = {
   },
 
   select: {
-    oninit: function (vnode) {
+    oninit (vnode) {
       this.value = s.coerceToMprop(vnode.attrs.value, '');
     },
 
-    view: function (vnode) {
-      var args = vnode.attrs;
+    view (vnode) {
+      const args = vnode.attrs;
 
-      var items         = deleteKeyAndReturnValue(args, 'items', [{}]),
+      const items         = deleteKeyAndReturnValue(args, 'items', [{}]),
         label         = deleteKeyAndReturnValue(args, 'label'),
         model         = deleteKeyAndReturnValue(args, 'model'),
         modelType     = deleteKeyAndReturnValue(args, 'modelType', (model.constructor ? model.constructor.modelType : null)),
@@ -497,23 +497,23 @@ var f = {
         args.size = 3;
       }
 
-      var propertyMessage;
+      let propertyMessage;
       if (message) {
         propertyMessage = <f.tooltip tooltip={{type: 'info', content: message}}/>;
       }
 
-      var onchange = receiveObject ? setValue(items, model[attrName]) : m.withAttr('value', model[attrName]);
+      const onchange = receiveObject ? setValue(items, model[attrName]) : m.withAttr('value', model[attrName]);
 
-      var selectedValue = model[attrName]();
-      var selectElem    = (
+      const selectedValue = model[attrName]();
+      const selectElem    = (
         <select value={selectedValue}
                 disabled={disabled}
                 data-prop-name={attrName}
                 data-model-type={modelType}
                 onchange={onchange}>
-          {_.map(items, function (item) {
-            var id   = s.coerceToMprop(item.id)();
-            var text = s.coerceToMprop(item.text)();
+          {_.map(items, (item) => {
+            const id   = s.coerceToMprop(item.id)();
+            const text = s.coerceToMprop(item.text)();
 
             return (
               <option value={id} selected={id === selectedValue}>{text}</option>
@@ -545,7 +545,7 @@ var f = {
   },
 
   accordion: {
-    oninit: function (vnode) {
+    oninit (vnode) {
       this.selectedIndex = Mixin.TogglingGetterSetter(s.coerceToMprop(vnode.attrs.selectedIndex || 0));
 
       this.classNameForAccordionIndex = function (tabIndex) {
@@ -557,15 +557,15 @@ var f = {
       };
     },
 
-    view: function (vnode) {
-      var ctrl     = vnode.state;
-      var args     = vnode.attrs;
-      var children = vnode.children;
+    view (vnode) {
+      const ctrl     = vnode.state;
+      const args     = vnode.attrs;
+      const children = vnode.children;
 
       return (
         <ul class={compactClasses(args, 'accordion')} data-accordion data-multi-expand="true">
-          {_.map(_.flatten(children), function (child, index) {
-            var renderedChild;
+          {_.map(_.flatten(children), (child, index) => {
+            let renderedChild;
 
             if (index === ctrl.selectedIndex()) {
               renderedChild = child;
@@ -591,9 +591,9 @@ var f = {
   },
 
   removeButton: {
-    view: function (vnode) {
-      var args     = vnode.attrs;
-      var children = vnode.children;
+    view (vnode) {
+      const args     = vnode.attrs;
+      const children = vnode.children;
 
       return (
         <button type={deleteKeyAndReturnValue(args, 'type', 'button')} class={compactClasses(args, 'remove')}
@@ -604,9 +604,9 @@ var f = {
   },
 
   editButton: {
-    view: function (vnode) {
-      var args     = vnode.attrs;
-      var children = vnode.children;
+    view (vnode) {
+      const args     = vnode.attrs;
+      const children = vnode.children;
 
       return (
         <button type={deleteKeyAndReturnValue(args, 'type', 'button')} class={compactClasses(args, 'edit')}
@@ -616,9 +616,9 @@ var f = {
   },
 
   resetButton: {
-    view: function (vnode) {
-      var args     = vnode.attrs;
-      var children = vnode.children;
+    view (vnode) {
+      const args     = vnode.attrs;
+      const children = vnode.children;
 
       return (
         <button type={deleteKeyAndReturnValue(args, 'type', 'button')} class={compactClasses(args, 'reset')}
@@ -628,7 +628,7 @@ var f = {
   },
 
   button: {
-    view: function (vnode) {
+    view (vnode) {
       return (
         <button type="button"
                 class={compactClasses(vnode.attrs, 'button')}
@@ -640,29 +640,30 @@ var f = {
   },
 
   link: {
-    view: function (vnode) {
+    view (vnode) {
       return (<a href="javascript:void(0)" class={compactClasses(vnode.attrs)} {...vnode.attrs}>{vnode.children}</a>);
     }
   },
 
   tooltip: {
-    view: function (vnode) {
-      var args     = vnode.attrs;
-      var children = vnode.children;
+    view (vnode) {
+      const args     = vnode.attrs;
+      const children = vnode.children;
 
       if (!args.tooltip && _.isEmpty(children)) {
         return <noscript/>;
       }
 
-      var direction = deleteKeyAndReturnValue(args.tooltip, 'direction', 'bottom'),
+      const direction = deleteKeyAndReturnValue(args.tooltip, 'direction', 'bottom'),
         size      = deleteKeyAndReturnValue(args.tooltip, 'size', 'medium'),
         content   = deleteKeyAndReturnValue(args.tooltip, 'content', children),
         clazz     = deleteKeyAndReturnValue(args.tooltip, 'class', null),
-        type      = deleteKeyAndReturnValue(args.tooltip, 'type', 'question-mark'),
-        tooltipId = 'tooltip-';
+        type      = deleteKeyAndReturnValue(args.tooltip, 'type', 'question-mark');
+
+      let tooltipId = 'tooltip-';
 
       if (args.model && args.model.uuid) {
-        tooltipId += (args.model.uuid() + '-' + args.attrName);
+        tooltipId += (`${args.model.uuid()  }-${  args.attrName}`);
       } else {
         tooltipId += s.uuid();
       }
@@ -697,9 +698,9 @@ var f = {
       $(vnode.dom).foundation('destroy');
     },
 
-    view: function (vnode) {
-      var args     = vnode.attrs;
-      var children = vnode.children;
+    view (vnode) {
+      const args     = vnode.attrs;
+      const children = vnode.children;
 
       return (
         <div {...args}>
@@ -710,27 +711,27 @@ var f = {
   },
 
   callout: {
-    view: function (vnode) {
-      var children = vnode.children;
-      var type     = deleteKeyAndReturnValue(vnode.attrs, 'type');
-      return (<div class={'callout ' + type} {...vnode.attrs}>{children}</div>);
+    view (vnode) {
+      const children = vnode.children;
+      const type     = deleteKeyAndReturnValue(vnode.attrs, 'type');
+      return (<div class={`callout ${  type}`} {...vnode.attrs}>{children}</div>);
     }
   },
 
   alert: {
-    view: function (vnode) {
+    view (vnode) {
       return (<f.callout type="alert" {...vnode.attrs}>{vnode.children}</f.callout>);
     }
   },
 
   warning: {
-    view: function (vnode) {
+    view (vnode) {
       return (<f.callout type="warning" {...vnode.attrs}>{vnode.children}</f.callout>);
     }
   },
 
   info: {
-    view: function (vnode) {
+    view (vnode) {
       return (<f.callout type="info" {...vnode.attrs}>{vnode.children}</f.callout>);
     }
   }

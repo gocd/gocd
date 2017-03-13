@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,29 +14,31 @@
  * limitations under the License.
  */
 
-var m          = require('mithril');
-var _          = require('lodash');
-var $          = require('jquery');
-var s          = require('string-plus');
-var Foundation = require('foundation-sites');
-var init       = function (uuid) {
+let m = require('mithril');
+
+const _          = require('lodash');
+const $          = require('jquery');
+const s          = require('string-plus');
+const Foundation = require('foundation-sites');
+
+const init = function (uuid) {
   return function (_elem, isInitialized) {
     if (!isInitialized) {
-      new Foundation.Reveal($("#modal-" + uuid)); //eslint-disable-line no-undef
+      new Foundation.Reveal($(`#modal-${  uuid}`)); //eslint-disable-line no-undef
     }
   };
 };
 
-var Modal = function (options) {
+const Modal = function (options) {
   this.subView = options.subView;
   this.title   = options.title;
   this.uuid    = s.uuid();
 
   this.view = function () {
-    var subViewArgs = _.merge({parentView: this}, this.subView.args);
+    const subViewArgs = _.merge({parentView: this}, this.subView.args);
 
     return (
-      <div class='reveal scm-plugin-modal' id={"modal-" + this.uuid} data-reveal data-close-on-click='false'
+      <div class='reveal scm-plugin-modal' id={`modal-${  this.uuid}`} data-reveal data-close-on-click='false'
            config={init(this.uuid)}>
         <h4 class='modal-title'>{this.title}</h4>
         <button class="close-button" onclick={this.close.bind(this)} aria-label="Close modal" type="button">
@@ -48,21 +50,21 @@ var Modal = function (options) {
   };
 
   this.close = function () {
-    $("#modal-" + this.uuid).foundation('close');
+    $(`#modal-${  this.uuid}`).foundation('close');
   };
 
   this.destroy = function () {
-    if ($("#modal-" + this.uuid).length > 0) {
-      $("#modal-" + this.uuid).foundation('destroy').remove();
+    if ($(`#modal-${  this.uuid}`).length > 0) {
+      $(`#modal-${  this.uuid}`).foundation('destroy').remove();
     }
   };
 
   this.open = function () {
-    $("#modal-" + this.uuid).foundation('open');
+    $(`#modal-${  this.uuid}`).foundation('open');
   };
 
   this.onClose = function (callback) {
-    $("#modal-" + this.uuid).on('closed.zf.reveal', callback);
+    $(`#modal-${  this.uuid}`).on('closed.zf.reveal', callback);
   };
 };
 

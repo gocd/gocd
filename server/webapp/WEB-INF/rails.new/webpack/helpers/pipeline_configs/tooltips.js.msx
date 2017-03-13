@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,26 +14,27 @@
  * limitations under the License.
  */
 
-var m      = require('mithril');
-var _      = require('lodash');
-var f      = require('helpers/form_helper');
-var Routes = require('gen/js-routes');
+let m   = require('mithril');
+const _ = require('lodash');
+let f   = require('helpers/form_helper');
 
-var UseThis = {
-  view: function (vnode) {
+const Routes = require('gen/js-routes');
+
+let UseThis = {
+  view (vnode) {
     return (<a title='Use this' onclick={_.wrap(vnode.attrs.toShow, vnode.attrs.callback)}>{vnode.attrs.toShow}</a>);
   }
 };
 
-var ExampleTable = {
-  view: function (vnode) {
+let ExampleTable = {
+  view (vnode) {
     return (
       <table>
         <caption>{vnode.attrs.tableTitle || 'Some Examples'}</caption>
         <tbody>
-        {_.map(vnode.attrs.examples, function (value, key) {
+        {_.map(vnode.attrs.examples, (value, key) => {
 
-          var toShow = vnode.attrs.callback ? (<UseThis callback={vnode.attrs.callback} toShow={key}/>) : key;
+          const toShow = vnode.attrs.callback ? (<UseThis callback={vnode.attrs.callback} toShow={key}/>) : key;
 
           return (
             <tr>
@@ -48,8 +49,8 @@ var ExampleTable = {
   }
 };
 
-var pipelineLabelTemplate = {
-  view: function (vnode) {
+const pipelineLabelTemplate = {
+  view (vnode) {
     return (
       <div>
         <p>
@@ -79,7 +80,7 @@ var pipelineLabelTemplate = {
   }
 };
 
-var pipelineEnablePipelineLocking = (
+const pipelineEnablePipelineLocking = (
   <div>
     <p>
       If checked, only a single instance of the pipeline can be run at a time and the lock
@@ -94,7 +95,7 @@ var pipelineEnablePipelineLocking = (
   </div>
 );
 
-var automaticPipelineScheduling = (
+const automaticPipelineScheduling = (
   <div>
     <p>
       This pipeline is automatically triggered as the first stage of this pipeline is set to 'success'.
@@ -102,7 +103,7 @@ var automaticPipelineScheduling = (
   </div>
 );
 
-var manualPipelineScheduling = (
+const manualPipelineScheduling = (
   <div>
     <p>
       This pipeline is can only be scheduled in response to a Manual/API/Timer trigger as the first stage of this
@@ -112,8 +113,8 @@ var manualPipelineScheduling = (
 );
 
 
-var trackingToolGenericRegex = {
-  view: function (vnode) {
+const trackingToolGenericRegex = {
+  view (vnode) {
     return (
       <div>
         <p>
@@ -144,8 +145,8 @@ var trackingToolGenericRegex = {
 };
 
 
-var trackingToolGenericUrlPattern = {
-  view: function (vnode) {
+const trackingToolGenericUrlPattern = {
+  view (vnode) {
     return (
       <div>
         <p>
@@ -166,8 +167,8 @@ var trackingToolGenericUrlPattern = {
   }
 };
 
-var trackingToolMingleBaseUrl = {
-  view: function (vnode) {
+const trackingToolMingleBaseUrl = {
+  view (vnode) {
     return (
       <div>
         <p>
@@ -184,8 +185,8 @@ var trackingToolMingleBaseUrl = {
   }
 };
 
-var trackingToolMingleProjectIdentifier = {
-  view: function () {
+const trackingToolMingleProjectIdentifier = {
+  view () {
     return (
       <div>
         <p>
@@ -197,8 +198,8 @@ var trackingToolMingleProjectIdentifier = {
   }
 };
 
-var trackingToolMingleGroupingConditions = {
-  view: function (vnode) {
+const trackingToolMingleGroupingConditions = {
+  view (vnode) {
     return (
       <div>
         <p>
@@ -216,7 +217,7 @@ var trackingToolMingleGroupingConditions = {
 };
 
 
-var environmentVariables = (
+const environmentVariables = (
   <div>
     <p>
       Environment variables defined here are set when executing your tasks.
@@ -237,13 +238,13 @@ var environmentVariables = (
   </div>
 );
 
-var materialDestination = (
+const materialDestination = (
   <div>
     <p>The destination directory where the contents of this repository will be checked out.</p>
   </div>
 );
 
-var materialName = (
+const materialName = (
   <div>
     <p>
       (Optional)
@@ -252,7 +253,7 @@ var materialName = (
   </div>
 );
 
-var materialIgnorePattern = function (word) {
+const materialIgnorePattern = function (word) {
   return (
     <div>
       <p>
@@ -263,8 +264,8 @@ var materialIgnorePattern = function (word) {
   );
 };
 
-var pipelineTimerSpec          = {
-  view: function (vnode) {
+const pipelineTimerSpec          = {
+  view (vnode) {
     return (
       <div class='cron-tooltip'>
         <p>
@@ -402,7 +403,7 @@ var pipelineTimerSpec          = {
     );
   }
 };
-var pipelineTimerOnlyOnChanges = (
+const pipelineTimerOnlyOnChanges = (
   <div>
     <p>
       Run only if the pipeline hasn't previously run with the latest material(s).
@@ -411,7 +412,7 @@ var pipelineTimerOnlyOnChanges = (
   </div>
 );
 
-var trackingToolMain = (
+const trackingToolMain = (
   <div>
     <p>
       Can be used to specify links to an issue tracker. Go will construct a link based on the commit message
@@ -421,13 +422,13 @@ var trackingToolMain = (
   </div>
 );
 
-var stageFetchMaterials = (
+const stageFetchMaterials = (
   <div>
     <p>Perform material updates or checkouts.</p>
   </div>
 );
 
-var stageType = (
+const stageType = (
   <div>
     <p>
       'On Success' option will automatically schedule the stage after the preceding stage completes successfully.
@@ -438,18 +439,18 @@ var stageType = (
   </div>
 );
 
-var stageNeverCleanupArtifacts = (
+const stageNeverCleanupArtifacts = (
   <div>
     <p>Never cleanup artifacts for this stage, if purging artifacts is configured at the
       Server Level.</p>
   </div>
 );
-var stageCleanWorkingDirectory = (
+const stageCleanWorkingDirectory = (
   <div>
     <p>Remove all files and directories before running this stage.</p>
   </div>
 );
-var pipelineParametersMain     = (
+const pipelineParametersMain     = (
   <div>
     <p>
       Parameters help reduce repetition within your configurations and combined with templates allow you
@@ -464,7 +465,7 @@ var pipelineParametersMain     = (
   </div>
 );
 
-var jobResources = (
+const jobResources = (
   <div>
     <p>
       Jobs tagged with these resources will only run on agents that satisfy these resources.
@@ -472,7 +473,7 @@ var jobResources = (
   </div>
 );
 
-var jobElasticProfile = (
+const jobElasticProfile = (
   <div>
     <p>
       Jobs associated with an elastic profile id will only run on elastic agents matching the elastic profile. <a
@@ -481,13 +482,13 @@ var jobElasticProfile = (
   </div>
 );
 
-var jobTimeout = (
+const jobTimeout = (
   <div>
     <p>If this job is inactive for more than the specified period (in minutes), Go will cancel it.</p>
   </div>
 );
 
-var jobRunOnOneAgent = (
+const jobRunOnOneAgent = (
   <div>
     <p>
       Specify the number of agents that this job will run on.
@@ -495,7 +496,7 @@ var jobRunOnOneAgent = (
   </div>
 );
 
-var jobRunOnAgents = (
+const jobRunOnAgents = (
   <div>
     <p>
       Specify the number of agents that this job will run on.
@@ -503,7 +504,7 @@ var jobRunOnAgents = (
   </div>
 );
 
-var jobRunOnAllAgents = (
+const jobRunOnAllAgents = (
   <div>
     <p>
       Job will run on all agents that match its resources (if any) and are in the same environment as this job's
@@ -512,7 +513,7 @@ var jobRunOnAllAgents = (
   </div>
 );
 
-var jobRunOnManyAgents = (
+const jobRunOnManyAgents = (
   <div>
     <p>
       Specified number of instances of job that will be created during schedule time.
@@ -520,7 +521,7 @@ var jobRunOnManyAgents = (
   </div>
 );
 
-var onCancelTask = (
+const onCancelTask = (
   <div>
     <p>
       Define clean up task which would run if the current task is killed upon stage cancel.
@@ -528,7 +529,7 @@ var onCancelTask = (
   </div>
 );
 
-var task = {
+const task = {
   lookup:         (
                     <div>
                       Lookup sample command snippets from your local
@@ -655,7 +656,7 @@ var task = {
   }
 };
 
-var artifacts = {
+const artifacts = {
   main:        (
                  <div>
                    Publish build artifacts to the artifact repository.
@@ -696,7 +697,7 @@ var artifacts = {
                )
 };
 
-var tabs = {
+const tabs = {
   main: (
           <div>
             <p>
@@ -719,17 +720,17 @@ var tabs = {
 };
 
 
-var tooltips   = {
+const tooltips = {
   pipeline: {
-    labelTemplate:               pipelineLabelTemplate,
-    enablePipelineLocking:       pipelineEnablePipelineLocking,
-    automaticPipelineScheduling: automaticPipelineScheduling,
-    manualPipelineScheduling:    manualPipelineScheduling,
-    timer:                       {
+    labelTemplate:         pipelineLabelTemplate,
+    enablePipelineLocking: pipelineEnablePipelineLocking,
+    automaticPipelineScheduling,
+    manualPipelineScheduling,
+    timer:                 {
       spec:          pipelineTimerSpec,
       onlyOnChanges: pipelineTimerOnlyOnChanges
     },
-    parameters:                  {
+    parameters:            {
       main: pipelineParametersMain
     }
   },
@@ -755,13 +756,13 @@ var tooltips   = {
   material: {
     name:        materialName,
     destination: materialDestination,
-    filter:      function (word) {
+    filter (word) {
       return materialIgnorePattern(word);
     }
   },
 
   stage: {
-    stageType:             stageType,
+    stageType,
     fetchMaterials:        stageFetchMaterials,
     neverCleanupArtifacts: stageNeverCleanupArtifacts,
     cleanWorkingDirectory: stageCleanWorkingDirectory
@@ -779,9 +780,9 @@ var tooltips   = {
     }
   },
 
-  task:         task,
-  artifacts:    artifacts,
-  tabs:         tabs,
-  onCancelTask: onCancelTask
+  task,
+  artifacts,
+  tabs,
+  onCancelTask
 };
 module.exports = tooltips;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,16 @@
 
 describe("PipelineStageField Widget", () => {
 
-  var m = require("mithril");
-  var _ = require("lodash");
+  const m = require("mithril");
+  const _ = require("lodash");
 
   require('jasmine-jquery');
 
-  var PipelineStageFieldWidget = require("views/pipeline_configs/pipeline_stage_field_widget");
-  var Pipelines                = require("models/pipeline_configs/pipelines");
-  var Materials                = require("models/pipeline_configs/materials");
+  const PipelineStageFieldWidget = require("views/pipeline_configs/pipeline_stage_field_widget");
+  const Pipelines                = require("models/pipeline_configs/pipelines");
+  const Materials                = require("models/pipeline_configs/materials");
 
-  var $root, root;
+  let $root, root;
   beforeEach(() => {
     [$root, root] = window.createDomElementForTest();
   });
@@ -43,7 +43,7 @@ describe("PipelineStageField Widget", () => {
     m.redraw();
   }
 
-  var unmount = () => {
+  const unmount = () => {
     m.mount(root, null);
     m.redraw();
   };
@@ -54,7 +54,7 @@ describe("PipelineStageField Widget", () => {
     });
 
     it('should render the pipeline stage field', () => {
-      var material = Materials.create({
+      const material = Materials.create({
         type:     "dependency",
         pipeline: "p1",
         stage:    "first_stage"
@@ -67,7 +67,7 @@ describe("PipelineStageField Widget", () => {
     });
 
     it('should render a empty text box in absence of pipeline', () => {
-      var material = Materials.create({
+      const material = Materials.create({
         type: "dependency"
       });
 
@@ -77,7 +77,7 @@ describe("PipelineStageField Widget", () => {
     });
 
     it('should assign pipeline_stage value to model', () => {
-      var material = Materials.create({
+      const material = Materials.create({
         type: "dependency"
       });
 
@@ -92,7 +92,7 @@ describe("PipelineStageField Widget", () => {
     });
 
     it('should validate the format of pipeline stage string', () => {
-      var material = Materials.create({
+      const material = Materials.create({
         type:     "dependency",
         pipeline: "p1",
         stage:    "first_stage"
@@ -112,7 +112,7 @@ describe("PipelineStageField Widget", () => {
     });
 
     it('should hide validation errors on providing valid input', () => {
-      var material = Materials.create({
+      const material = Materials.create({
         type: "dependency"
       });
 
@@ -133,7 +133,7 @@ describe("PipelineStageField Widget", () => {
     });
 
     it('should show server side validation errors', () => {
-      var material = Materials.create({
+      const material = Materials.create({
         type:     "dependency",
         pipeline: "a",
         stage:    "b",
@@ -151,7 +151,7 @@ describe("PipelineStageField Widget", () => {
     });
 
     it('should clear server side errors on valid input', () => {
-      var material = Materials.create({
+      const material = Materials.create({
         type:     "dependency",
         pipeline: "a",
         stage:    "b",

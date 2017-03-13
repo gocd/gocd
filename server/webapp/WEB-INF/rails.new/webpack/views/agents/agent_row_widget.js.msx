@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-var m                  = require('mithril');
-var f                  = require('helpers/form_helper');
-var BuildDetailsWidget = require('views/agents/build_details_widget');
+let m                  = require('mithril');
+let f                  = require('helpers/form_helper');
+let BuildDetailsWidget = require('views/agents/build_details_widget');
 
 
-var joinOrNoneSpecified = function (things) {
+const joinOrNoneSpecified = function (things) {
   if (things.length === 0) {
     return (<em>none specified</em>);
   } else {
@@ -27,20 +27,20 @@ var joinOrNoneSpecified = function (things) {
   }
 };
 
-var agentJobHistoryPath = function (uuid) {
-  return "/go/agents/" + uuid + "/job_run_history";
+const agentJobHistoryPath = function (uuid) {
+  return `/go/agents/${  uuid  }/job_run_history`;
 };
 
-var createBuildDetailsDropDown = function (agent, args) {
+const createBuildDetailsDropDown = function (agent, args) {
   return (
     <BuildDetailsWidget agent={agent}
                         dropdown={args.dropdown}/>
   );
 };
 
-var AgentRowWidget = {
-  oninit: function (vnode) {
-    var args = vnode.attrs;
+const AgentRowWidget = {
+  oninit (vnode) {
+    const args = vnode.attrs;
 
     this.buildDetailsClicked = function (name) {
       args.dropdown.create(name);
@@ -52,17 +52,17 @@ var AgentRowWidget = {
     };
   },
 
-  view: function (vnode) {
-    var ctrl = vnode.state;
-    var args = vnode.attrs;
+  view (vnode) {
+    const ctrl = vnode.state;
+    const args = vnode.attrs;
 
-    var agent           = args.agent;
-    var resources       = joinOrNoneSpecified(agent.resources());
-    var environments    = joinOrNoneSpecified(agent.environments());
-    var agentStatus     = agent.status();
-    var isBuildingAgent = !agent.buildDetails().isEmpty();
-    var selectAgentCheckbox;
-    var hostnameLink    = <span>{agent.hostname()}</span>;
+    const agent           = args.agent;
+    const resources       = joinOrNoneSpecified(agent.resources());
+    const environments    = joinOrNoneSpecified(agent.environments());
+    let agentStatus       = agent.status();
+    const isBuildingAgent = !agent.buildDetails().isEmpty();
+    let selectAgentCheckbox;
+    let hostnameLink      = <span>{agent.hostname()}</span>;
 
     if (isBuildingAgent) {
       agentStatus = <f.link onclick={ctrl.buildDetailsClicked.bind(ctrl, agent.uuid())}
@@ -103,4 +103,4 @@ var AgentRowWidget = {
     );
   }
 };
-module.exports     = AgentRowWidget;
+module.exports       = AgentRowWidget;

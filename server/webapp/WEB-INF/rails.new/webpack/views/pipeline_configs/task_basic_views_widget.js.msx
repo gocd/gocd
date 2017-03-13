@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,23 @@
  * limitations under the License.
  */
 
-var m                   = require('mithril');
-var _                   = require('lodash');
-var $                   = require('jquery');
-var angular             = require('angular');
-var f                   = require('helpers/form_helper');
-var Routes              = require('gen/js-routes');
-var Argument            = require('models/pipeline_configs/argument');
-var LookupCommandWidget = require('views/pipeline_configs/lookup_command_widget');
-var PluginInfos         = require('models/pipeline_configs/plugin_infos');
-var AngularPlugin       = require('views/shared/angular_plugin');
-var tt                  = require('helpers/pipeline_configs/tooltips');
+let m                   = require('mithril');
+let f                   = require('helpers/form_helper');
+let LookupCommandWidget = require('views/pipeline_configs/lookup_command_widget');
 
-var TaskBasicViews = {
+const _             = require('lodash');
+const $             = require('jquery');
+const angular       = require('angular');
+const Routes        = require('gen/js-routes');
+const Argument      = require('models/pipeline_configs/argument');
+const PluginInfos   = require('models/pipeline_configs/plugin_infos');
+const AngularPlugin = require('views/shared/angular_plugin');
+const tt            = require('helpers/pipeline_configs/tooltips');
+
+const TaskBasicViews = {
   ant: {
-    view: function (vnode) {
-      var task = vnode.attrs.task;
+    view (vnode) {
+      const task = vnode.attrs.task;
       return (
         <div class="task-basic">
           <f.row>
@@ -63,8 +64,8 @@ var TaskBasicViews = {
   },
 
   nant: {
-    view: function (vnode) {
-      var task = vnode.attrs.task;
+    view (vnode) {
+      const task = vnode.attrs.task;
       return (
         <div class="task-basic">
           <f.row>
@@ -109,10 +110,10 @@ var TaskBasicViews = {
   },
 
   exec: {
-    view: function (vnode) {
-      var task     = vnode.attrs.task;
-      var vm       = Argument.vm(task.args());
-      var taskArgs = function () {
+    view (vnode) {
+      const task     = vnode.attrs.task;
+      const vm       = Argument.vm(task.args());
+      const taskArgs = function () {
         if (task.args().isList()) {
           return (
             <f.column size={8}>
@@ -170,8 +171,8 @@ var TaskBasicViews = {
   },
 
   rake: {
-    view: function (vnode) {
-      var task = vnode.attrs.task;
+    view (vnode) {
+      const task = vnode.attrs.task;
       return (
         <div class="task-basic">
           <f.row>
@@ -205,8 +206,8 @@ var TaskBasicViews = {
   },
 
   fetch: {
-    view: function (vnode) {
-      var task = vnode.attrs.task;
+    view (vnode) {
+      const task = vnode.attrs.task;
       return (
         <div class="task-basic">
           <f.row>
@@ -267,14 +268,14 @@ var TaskBasicViews = {
   },
 
   pluggable_task: { //eslint-disable-line camelcase
-    oninit: function (vnode) {
-      var self              = this;
-      var ctrl              = self;
+    oninit (vnode) {
+      const self            = this;
+      const ctrl            = self;
       self.task             = vnode.attrs.task;
-      self.ngControllerName = 'controller-' + self.task.uuid();
-      self.appName          = 'app-' + self.task.uuid();
+      self.ngControllerName = `controller-${  self.task.uuid()}`;
+      self.appName          = `app-${  self.task.uuid()}`;
 
-      PluginInfos.PluginInfo.get(this.task.pluginId()).then(function (plugin) {
+      PluginInfos.PluginInfo.get(this.task.pluginId()).then((plugin) => {
         self.templateHTML      = AngularPlugin.template(plugin.viewTemplate());
         self.defaultTaskConfig = plugin.configurations();
 
@@ -291,9 +292,9 @@ var TaskBasicViews = {
 
           $scope.clearErrors();
 
-          var ajaxValidator = _.debounce(function (configuration, config, newValue) {
+          const ajaxValidator = _.debounce((configuration, config, newValue) => {
             configuration.setConfiguration(config.key, newValue);
-            var req = {
+            const req = {
               url:     Routes.apiInternalPluggableTaskValidationPath({
                 plugin_id: ctrl.task.pluginId()//eslint-disable-line camelcase
               }),
@@ -308,7 +309,7 @@ var TaskBasicViews = {
 
             $http(req).then(
               $scope.clearErrors.bind($scope),
-              function (response) {
+              (response) => {
                 if (response.status === 422) {
                   _.each(response.data, $scope.addError, $scope);
                 } else if (response.status === 520) {
@@ -317,11 +318,11 @@ var TaskBasicViews = {
               });
           }, 250);
 
-          _.map(self.defaultTaskConfig, function (config) {
-            var configuration  = ctrl.task.configuration();
-            $scope[config.key] = configuration.valueFor(config.key);
+          _.map(self.defaultTaskConfig, (config) => {
+            const configuration = ctrl.task.configuration();
+            $scope[config.key]  = configuration.valueFor(config.key);
 
-            $scope.$watch(config.key, function (newValue) {
+            $scope.$watch(config.key, (newValue) => {
               configuration.setConfiguration(config.key, newValue);
               ajaxValidator(configuration, config, newValue);
             });
@@ -330,16 +331,16 @@ var TaskBasicViews = {
       });
     },
 
-    view: function (vnode) {
-      var config = function (_elem, isInitialized) {
+    view (vnode) {
+      const config = function (_elem, isInitialized) {
         if (!isInitialized) {
-          var pluginTaskTemplateElement = $('#pluggable-task-template-' + vnode.state.task.uuid());
+          const pluginTaskTemplateElement = $(`#pluggable-task-template-${  vnode.state.task.uuid()}`);
           angular.bootstrap(pluginTaskTemplateElement.get(0), [vnode.state.appName]);
         }
       };
 
       return (
-        <div id={'pluggable-task-template-' + vnode.state.task.uuid()} ng-controller={vnode.state.ngControllerName}
+        <div id={`pluggable-task-template-${  vnode.state.task.uuid()}`} ng-controller={vnode.state.ngControllerName}
              class='task-basic'
              config={config}>
           <div class="callout alert"
@@ -352,4 +353,5 @@ var TaskBasicViews = {
     }
   }
 };
-module.exports     = TaskBasicViews;
+
+module.exports = TaskBasicViews;

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 xdescribe('SCMs', () => {
   const SCMs = require('models/pipeline_configs/scms');
 
@@ -192,7 +193,7 @@ xdescribe('SCMs', () => {
       });
 
       it('should patch to scm endpoint', () => {
-        let json = {
+        const json = {
           /* eslint-disable camelcase */
           id:              '43c45e0b-1b0c-46f3-a60a-2bbc5cec069c',
           name:            'material_name',
@@ -235,7 +236,7 @@ xdescribe('SCMs', () => {
       });
 
       it('should post to scm endpoint', () => {
-        let json = {
+        const json = {
           name:            'material_name',
           auto_update:     true, //eslint-disable-line camelcase
           plugin_metadata: {id: 'github.pr', version: '1.1'}, //eslint-disable-line camelcase

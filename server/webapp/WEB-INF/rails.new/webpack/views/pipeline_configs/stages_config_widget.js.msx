@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,25 @@
  * limitations under the License.
  */
 
-var m                                = require('mithril');
-var Stream                           = require('mithril/stream');
-var s                                = require('string-plus');
-var $                                = require('jquery');
-var f                                = require('helpers/form_helper');
-var tt                               = require('helpers/pipeline_configs/tooltips');
-var ComponentMixins                  = require('helpers/mithril_component_mixins');
-var Users                            = require('models/pipeline_configs/users');
-var Roles                            = require('models/pipeline_configs/roles');
-var EnvironmentVariablesConfigWidget = require('views/pipeline_configs/environment_variables_config_widget');
-var JobsConfigWidget                 = require('views/pipeline_configs/jobs_config_widget');
+let m                                = require('mithril');
+let f                                = require('helpers/form_helper');
+let EnvironmentVariablesConfigWidget = require('views/pipeline_configs/environment_variables_config_widget');
+let JobsConfigWidget                 = require('views/pipeline_configs/jobs_config_widget');
+
+const Stream          = require('mithril/stream');
+const s               = require('string-plus');
+const $               = require('jquery');
+const tt              = require('helpers/pipeline_configs/tooltips');
+const ComponentMixins = require('helpers/mithril_component_mixins');
+const Users           = require('models/pipeline_configs/users');
+const Roles           = require('models/pipeline_configs/roles');
+
 require('jquery-textcomplete');
 
-var autoComplete = function (values, model, attrName) {
+const autoComplete = function (values, model, attrName) {
   return function (elem, isInitialized, context) {
     if (!isInitialized) {
-      var $inputElem = $($(elem).find("input[data-prop-name='" + attrName + "']"));
+      const $inputElem = $($(elem).find(`input[data-prop-name='${  attrName  }']`));
 
       context.onunload = function () {
         $inputElem.textcomplete('destroy');
@@ -38,35 +40,35 @@ var autoComplete = function (values, model, attrName) {
 
       $inputElem.textcomplete([
         {
-          words:   values, //the list of auto-completes
-          match:   /(^|,)\s*([^,]+)$/,
-          index:   2, // use the second match in the regex to extract the search term
-          search:  function (term, callback) {
+          words: values, //the list of auto-completes
+          match: /(^|,)\s*([^,]+)$/,
+          index: 2, // use the second match in the regex to extract the search term
+          search (term, callback) {
             term = term.toLowerCase();
-            callback($.map(this.words, function (word) {
+            callback($.map(this.words, (word) => {
               return word.toLowerCase().indexOf(term) === 0 ? word : null;
             }));
           },
-          replace: function (word) {
-            return '$1 ' + word + ', ';
+          replace (word) {
+            return `$1 ${  word  }, `;
           }
         }
       ]);
 
-      $inputElem.on('textComplete:select', function () {
+      $inputElem.on('textComplete:select', () => {
         model[attrName]($inputElem.val());
       });
     }
   };
 };
 
-var ApprovalWidget = {
-  oninit: function (vnode) {
+let ApprovalWidget = {
+  oninit (vnode) {
     this.args = vnode.attrs;
     ComponentMixins.HasViewModel.call(this);
   },
 
-  view: function (vnode) {
+  view (vnode) {
     return (
       <f.accordion accordionTitles={[(<span>Stage Operate Permissions</span>)]}
                    accordionKeys={['stagePermissions']}
@@ -91,16 +93,16 @@ var ApprovalWidget = {
   }
 };
 
-var SettingsWidget = {
-  oninit: function (vnode) {
+let SettingsWidget = {
+  oninit (vnode) {
     this.args = vnode.attrs;
     ComponentMixins.HasViewModel.call(this);
   },
 
-  view: function (vnode) {
-    var stage           = vnode.attrs.stage;
-    var radioName       = 'radio-' + stage.uuid() + '-approval-type';
-    var settingSelected = s.isBlank(vnode.attrs.stage.name()) ? 0 : -1;
+  view (vnode) {
+    const stage           = vnode.attrs.stage;
+    const radioName       = `radio-${  stage.uuid()  }-approval-type`;
+    const settingSelected = s.isBlank(vnode.attrs.stage.name()) ? 0 : -1;
 
     return (
       <f.accordion accordionTitles={[(<span>Stage Settings</span>)]}
@@ -129,18 +131,18 @@ var SettingsWidget = {
               <f.column size={6} largeSize={6}>
                 <input type='radio'
                        name={radioName}
-                       id={radioName + '-success'}
+                       id={`${radioName  }-success`}
                        checked={stage.approval().isSuccess()}
                        onchange={stage.approval().makeOnSuccess.bind(stage.approval())}/>
-                <label for={radioName + '-success'}>On Success</label>
+                <label for={`${radioName  }-success`}>On Success</label>
               </f.column>
               <f.column size={6} largeSize={6} end>
                 <input type='radio'
                        name={radioName}
-                       id={radioName + '-manual'}
+                       id={`${radioName  }-manual`}
                        checked={stage.approval().isManual()}
                        onchange={stage.approval().makeManual.bind(stage.approval())}/>
-                <label for={radioName + '-manual'}>Manual</label>
+                <label for={`${radioName  }-manual`}>Manual</label>
               </f.column>
             </f.row>
           </f.column>
@@ -186,35 +188,35 @@ var SettingsWidget = {
   }
 };
 
-var StageConfigDefinitionWidget = {
-  oninit: function (vnode) {
+let StageConfigDefinitionWidget = {
+  oninit (vnode) {
     this.args = vnode.attrs;
     ComponentMixins.HasViewModel.call(this);
   },
 
-  view: function (vnode) {
-    var stage      = vnode.attrs.stage;
-    var stageIndex = vnode.attrs.pipeline().stages().indexOfStage(vnode.attrs.stage);
+  view (vnode) {
+    const stage      = vnode.attrs.stage;
+    const stageIndex = vnode.attrs.pipeline().stages().indexOfStage(vnode.attrs.stage);
 
     return (
       <div class='stage-definition' data-stage-name={stage.name()}>
         <f.removeButton onclick={vnode.attrs.onRemove} class="remove-stage"/>
 
         <SettingsWidget stage={stage}
-                        vm={vnode.state.vmState('settingsWidgetConfig-' + stageIndex)}/>
+                        vm={vnode.state.vmState(`settingsWidgetConfig-${  stageIndex}`)}/>
         <ApprovalWidget approval={stage.approval}
-                        vm={vnode.state.vmState('approvalWidgetConfig-' + stageIndex)}/>
+                        vm={vnode.state.vmState(`approvalWidgetConfig-${  stageIndex}`)}/>
         <EnvironmentVariablesConfigWidget title='Stages Environment Variables'
                                           variables={stage.environmentVariables}
                                           key={stage.environmentVariables().uuid()}
-                                          vm={vnode.state.vmState('environmentVariablesConfig-' + stageIndex)}/>
+                                          vm={vnode.state.vmState(`environmentVariablesConfig-${  stageIndex}`)}/>
 
         <f.row>
           <f.column size={12} end={true}>
             <JobsConfigWidget jobs={stage.jobs}
                               elasticProfiles={vnode.attrs.elasticProfiles}
                               key={stage.jobs().uuid()}
-                              vm={vnode.state.vmState('jobsWidgetConfig-' + stageIndex)}/>
+                              vm={vnode.state.vmState(`jobsWidgetConfig-${  stageIndex}`)}/>
           </f.column>
         </f.row>
       </div>
@@ -222,21 +224,21 @@ var StageConfigDefinitionWidget = {
   }
 };
 
-var StagesConfigWidget = {
-  oninit: function (vnode) {
+const StagesConfigWidget = {
+  oninit (vnode) {
     this.args = vnode.attrs;
     ComponentMixins.HasViewModel.call(this);
 
     this.removeStage = function (pipeline, stage) {
-      var previousStage = pipeline().stages().previousStage(stage);
+      const previousStage = pipeline().stages().previousStage(stage);
       pipeline().stages().removeStage(stage);
-      var firstStage = pipeline().stages().firstStage();
+      const firstStage = pipeline().stages().firstStage();
 
       vnode.attrs.currentSelection(previousStage || firstStage || pipeline().stages().createStage());
     };
   },
 
-  view: function (vnode) {
+  view (vnode) {
     return (
       <div class='stage-definition-container'>
         <StageConfigDefinitionWidget stage={vnode.attrs.currentSelection()}

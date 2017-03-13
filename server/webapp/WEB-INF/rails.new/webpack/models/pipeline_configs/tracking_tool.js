@@ -67,7 +67,7 @@ TrackingTool.Generic = function (data) {
 
 TrackingTool.Generic.fromJSON = ({url_pattern, regex}) => new TrackingTool.Generic({ //eslint-disable-line camelcase
   urlPattern: url_pattern, //eslint-disable-line camelcase
-  regex:      regex
+  regex
 });
 
 TrackingTool.Mingle = function (data) {

@@ -13,23 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 describe("Tracking Tool Widget", () => {
 
-  var m             = require('mithril');
-  var Stream        = require('mithril/stream');
-  var _             = require('lodash');
-  var simulateEvent = require('simulate-event');
+  const m             = require('mithril');
+  const Stream        = require('mithril/stream');
+  const _             = require('lodash');
+  const simulateEvent = require('simulate-event');
 
   require("jasmine-jquery");
 
-  var TrackingToolWidget = require("views/pipeline_configs/tracking_tool_widget");
+  const TrackingToolWidget = require("views/pipeline_configs/tracking_tool_widget");
 
-  var $root, root;
+  let $root, root;
   beforeEach(() => {
     [$root, root] = window.createDomElementForTest();
   });
   afterEach(window.destroyDomElementForTest);
-  var trackingToolProp;
+  let trackingToolProp;
 
   beforeEach(() => {
     trackingToolProp = Stream();
@@ -56,7 +57,7 @@ describe("Tracking Tool Widget", () => {
 
   it("should set proper tracking tool when it is selected", () => {
     _.each(['generic', 'mingle', 'generic', 'mingle'], (type) => {
-      var radioButton = $root.find(`#tracking-tool-${type}`).get(0);
+      const radioButton = $root.find(`#tracking-tool-${type}`).get(0);
       simulateEvent.simulate(radioButton, 'click');
       m.redraw();
 

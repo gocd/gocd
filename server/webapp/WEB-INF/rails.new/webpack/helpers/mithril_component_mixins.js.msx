@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-var s               = require('string-plus');
-var m               = require('mithril');
-var _               = require('lodash');
-var f               = require('helpers/form_helper');
-var ComponentMixins = {};
+let m = require('mithril');
+let f = require('helpers/form_helper');
+
+const s               = require('string-plus');
+const _               = require('lodash');
+const ComponentMixins = {};
 
 ComponentMixins.HasViewModel = function () {
-  var vm;
+  let vm;
 
   if (this.args && this.args.vm) {
     vm = this.args.vm || {};
@@ -43,25 +44,25 @@ ComponentMixins.HasViewModel = function () {
 };
 
 ComponentMixins.ManagesCollection = function (options) {
-  var associationName                  = options.as;
-  var associationNamePlural            = s.camelcase(s.defaultToIfBlank(options.plural, options.as + 's'), true);
-  var associationNamePluralCapitalized = s.camelcase(s.defaultToIfBlank(options.plural, options.as + 's'));
+  const associationName                  = options.as;
+  const associationNamePlural            = s.camelcase(s.defaultToIfBlank(options.plural, `${options.as  }s`), true);
+  const associationNamePluralCapitalized = s.camelcase(s.defaultToIfBlank(options.plural, `${options.as  }s`));
 
   this.add = options.add || function () {
-    this.args[associationNamePlural]()['create' + associationName]();
+    this.args[associationNamePlural]()[`create${  associationName}`]();
   };
 
   this.remove = function (thing) {
-    this.args[associationNamePlural]()['remove' + associationName](thing);
+    this.args[associationNamePlural]()[`remove${  associationName}`](thing);
     this.changed();
   };
 
   this.last = options.last || function () {
-    return this.args[associationNamePlural]()['last' + associationName]();
+    return this.args[associationNamePlural]()[`last${  associationName}`]();
   };
 
   this.changed = function () {
-    var last = this.last();
+    const last = this.last();
     if (!(last && last.isBlank())) {
       this.add();
     }
@@ -74,7 +75,7 @@ ComponentMixins.ManagesCollection = function (options) {
   };
 
   this.map = options.map || function (callback) {
-    return this.args[associationNamePlural]()['map' + associationNamePluralCapitalized](function (thing, index) {
+    return this.args[associationNamePlural]()[`map${  associationNamePluralCapitalized}`]((thing, index) => {
       return callback(thing, index);
     });
   };

@@ -68,7 +68,7 @@ const FormatValidator = function({format, message}) {
   };
 };
 
-var Validatable = function({errors}) {
+const Validatable = function({errors}) {
   const self                   = this;
   const attrToValidators       = {};
   const associationsToValidate = [];

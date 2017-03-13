@@ -114,7 +114,7 @@ Tasks.Task.Ant.fromJSON = ({attributes, errors}) => {
     buildFile:        attr.build_file,
     runIf:            attr.run_if,
     onCancelTask:     attr.on_cancel,
-    errors:           errors
+    errors
   });
 };
 
@@ -167,7 +167,7 @@ Tasks.Task.NAnt.fromJSON = ({attributes, errors}) => {
     nantPath:         attr.nant_path,
     runIf:            attr.run_if,
     onCancelTask:     attr.on_cancel,
-    errors:           errors
+    errors
   });
 };
 
@@ -208,7 +208,7 @@ Tasks.Task.Exec = function (data) {
   };
 };
 
-Tasks.Task.Exec.fromJSON = function({attributes, errors}) {
+Tasks.Task.Exec.fromJSON = function ({attributes, errors}) {
   const attr = attributes || {};
   return new Tasks.Task.Exec({
     command:          attr.command,
@@ -217,7 +217,7 @@ Tasks.Task.Exec.fromJSON = function({attributes, errors}) {
     workingDirectory: attr.working_directory,
     runIf:            attr.run_if,
     onCancelTask:     attr.on_cancel,
-    errors:           errors
+    errors
   });
 };
 
@@ -266,7 +266,7 @@ Tasks.Task.Rake.fromJSON = ({attributes, errors}) => {
     buildFile:        attr.build_file,
     runIf:            attr.run_if,
     onCancelTask:     attr.on_cancel,
-    errors:           errors
+    errors
   });
 };
 
@@ -331,7 +331,7 @@ Tasks.Task.FetchArtifact.fromJSON = ({attributes, errors}) => {
     destination:   attr.destination,
     runIf:         attr.run_if,
     onCancelTask:  attr.on_cancel,
-    errors:        errors
+    errors
   });
 };
 
@@ -385,7 +385,7 @@ Tasks.Task.PluginTask.fromJSON = ({attributes, errors}) => {
     configuration: Tasks.Task.PluginTask.Configurations.fromJSON(attr.configuration),
     runIf:         attr.run_if,
     onCancelTask:  attr.on_cancel,
-    errors:        errors
+    errors
   });
 };
 

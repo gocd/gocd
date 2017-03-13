@@ -16,21 +16,21 @@
 
 describe("Parameter Widget", () => {
 
-  var m             = require('mithril');
-  var Stream        = require('mithril/stream');
-  var simulateEvent = require('simulate-event');
+  const m             = require('mithril');
+  const Stream        = require('mithril/stream');
+  const simulateEvent = require('simulate-event');
 
   require("jasmine-jquery");
 
-  var Parameters             = require("models/pipeline_configs/parameters");
-  var ParametersConfigWidget = require("views/pipeline_configs/parameters_config_widget");
+  const Parameters             = require("models/pipeline_configs/parameters");
+  const ParametersConfigWidget = require("views/pipeline_configs/parameters_config_widget");
 
-  var $root, root;
+  let $root, root;
   beforeEach(() => {
     [$root, root] = window.createDomElementForTest();
   });
   afterEach(window.destroyDomElementForTest);
-  var parameters;
+  let parameters;
   beforeEach(() => {
     parameters = Stream(new Parameters.fromJSON([
       {name: "COMMAND", value: "echo"}
@@ -53,9 +53,9 @@ describe("Parameter Widget", () => {
 
   it("should display parameters", (done) => {
     setTimeout(() => {
-      var paramField = $root.find('.parameters div.parameter[data-parameter-name=COMMAND]');
-      var paramName  = paramField.find("input[data-prop-name=name]");
-      var paramValue = paramField.find("input[data-prop-name=value]");
+      const paramField = $root.find('.parameters div.parameter[data-parameter-name=COMMAND]');
+      const paramName  = paramField.find("input[data-prop-name=name]");
+      const paramValue = paramField.find("input[data-prop-name=value]");
 
       expect(paramName).toHaveValue("COMMAND");
       expect(paramValue).toHaveValue("echo");

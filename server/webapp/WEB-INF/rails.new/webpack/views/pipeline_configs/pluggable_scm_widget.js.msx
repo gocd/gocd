@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,30 +14,30 @@
  * limitations under the License.
  */
 
-var m      = require('mithril');
-var Stream = require('mithril/stream');
-var _      = require('lodash');
+let m                                = require('mithril');
+let f                                = require('helpers/form_helper');
+let CreateNewScmMaterialButtonWidget = require('views/pipeline_configs/create_new_scm_material_button_widget');
+let SCMConfigEditWidget              = require('views/pipeline_configs/scm_config_edit_widget');
+let MaterialFilterWidget             = require('views/pipeline_configs/material_filter_widget');
 
-var f                                = require('helpers/form_helper');
-var tt                               = require('helpers/pipeline_configs/tooltips');
-var Modal                            = require('views/shared/modal');
-var CreateNewScmMaterialButtonWidget = require('views/pipeline_configs/create_new_scm_material_button_widget');
-var SCMConfigEditWidget              = require('views/pipeline_configs/scm_config_edit_widget');
-var MaterialFilterWidget             = require('views/pipeline_configs/material_filter_widget');
-var PluginInfos                      = require('models/pipeline_configs/plugin_infos');
+const Stream      = require('mithril/stream');
+const _           = require('lodash');
+const tt          = require('helpers/pipeline_configs/tooltips');
+const Modal       = require('views/shared/modal');
+const PluginInfos = require('models/pipeline_configs/plugin_infos');
 
-var EditPluggableSCMWidget = {
-  oninit: function (vnode) {
-    var args = vnode.attrs;
+let EditPluggableSCMWidget = {
+  oninit (vnode) {
+    const args = vnode.attrs;
 
-    this.material         = args.material;
-    var saveButtonClasses = Stream(['save-pipeline']);
-    var modalErrors       = Stream([]);
+    this.material           = args.material;
+    const saveButtonClasses = Stream(['save-pipeline']);
+    const modalErrors       = Stream([]);
 
-    var updateMaterial = function () {
+    const updateMaterial = function () {
       saveButtonClasses.push('in-progress', 'disabled');
 
-      args.material.scm().clone().update().then(function (scm) {
+      args.material.scm().clone().update().then((scm) => {
         saveButtonClasses(['save-pipeline', 'success']);
         args.material.scm().reInitialize(JSON.parse(JSON.stringify(scm)));
         args.parentView.close();
@@ -46,7 +46,7 @@ var EditPluggableSCMWidget = {
 
         if (data.data) {
           if (data.data.configuration) {
-            modalErrors(_.concat(modalErrors(), _.flattenDeep(_.map(data.data.configuration, function (conf) {
+            modalErrors(_.concat(modalErrors(), _.flattenDeep(_.map(data.data.configuration, (conf) => {
               return _.values(conf.errors);
             }))));
           }
@@ -91,21 +91,21 @@ var EditPluggableSCMWidget = {
     };
   },
 
-  view: function (vnode) {
-    var ctrl = vnode.state;
+  view (vnode) {
+    const ctrl = vnode.state;
 
     ctrl.onunload = function () {
       ctrl.modal.destroy();
     };
 
-    var scm  = ctrl.material.scm();
-    var data = {Name: scm.name(), AutoUpdate: scm.autoUpdate()};
+    const scm  = ctrl.material.scm();
+    const data = {Name: scm.name(), AutoUpdate: scm.autoUpdate()};
 
-    scm.configuration().mapConfigurations(function (conf) {
+    scm.configuration().mapConfigurations((conf) => {
       data[_.capitalize(conf.key())] = conf.isSecureValue() ? "***********" : conf.value();
     });
 
-    var editButton = ctrl.isPluginMissing() ? (
+    const editButton = ctrl.isPluginMissing() ? (
         <f.alert><b>{scm.pluginMetadata().id()}</b> plugin seems to be removed.</f.alert>)
       : (<f.editButton class={null} onclick={ctrl.modal.open.bind(ctrl.modal)}/>);
 
@@ -115,7 +115,7 @@ var EditPluggableSCMWidget = {
           {editButton}
           <f.row>
             <ul>
-              {_.map(data, function (v, k) {
+              {_.map(data, (v, k) => {
                 return (
                   <li>
                     <label class={_.toLower(k)}>{k}</label><span>{v}</span>
@@ -143,8 +143,8 @@ var EditPluggableSCMWidget = {
   }
 };
 
-var PluggableSCMWidget = {
-  view: function (vnode) {
+const PluggableSCMWidget = {
+  view (vnode) {
     if (vnode.attrs.material.scm()) {
       return (<EditPluggableSCMWidget material={vnode.attrs.material}/>);
     } else {

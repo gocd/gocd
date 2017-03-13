@@ -105,11 +105,11 @@ CrudMixins.Delete = function (options) {
         contentType: false
       });
 
-      const didFulfill = (data, _textStatus, _jqXHR) => {
-        deferred.resolve(data.message);
+      const didFulfill = ({message}, _textStatus, _jqXHR) => {
+        deferred.resolve(message);
       };
-      const didReject  = (jqXHR, _textStatus, _errorThrown) => {
-        deferred.reject(mrequest.unwrapErrorExtractMessage(jqXHR.responseJSON));
+      const didReject  = ({responseJSON}, _textStatus, _errorThrown) => {
+        deferred.reject(mrequest.unwrapErrorExtractMessage(responseJSON));
       };
 
       jqXHR.then(didFulfill, didReject);
@@ -179,8 +179,8 @@ CrudMixins.Refresh = function (options) {
         deferred.resolve(entity);
       };
 
-      const didReject = (jqXHR, _textStatus, _errorThrown) => {
-        deferred.reject(mrequest.unwrapErrorExtractMessage(jqXHR.responseJSON));
+      const didReject = ({responseJSON}, _textStatus, _errorThrown) => {
+        deferred.reject(mrequest.unwrapErrorExtractMessage(responseJSON));
       };
 
       jqXHR.then(didFulfill, didReject);

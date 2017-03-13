@@ -27,11 +27,11 @@ const Tasks = function (data) {
   Mixins.HasMany.call(this, {factory: Tasks.createByType, as: 'Task', collection: data});
 };
 
-Tasks.createByType = data => {
-  if (Tasks.isBuiltInTaskType(data.type)) {
-    return new Tasks.Types[data.type].type({});
+Tasks.createByType = ({type, pluginInfo}) => {
+  if (Tasks.isBuiltInTaskType(type)) {
+    return new Tasks.Types[type].type({});
   } else {
-    return new Tasks.Task.PluginTask.fromPluginInfo(data.pluginInfo);
+    return new Tasks.Task.PluginTask.fromPluginInfo(pluginInfo);
   }
 };
 
@@ -106,15 +106,15 @@ Tasks.Task.Ant = function (data) {
   };
 };
 
-Tasks.Task.Ant.fromJSON = data => {
-  const attr = data.attributes || {};
+Tasks.Task.Ant.fromJSON = ({attributes, errors}) => {
+  const attr = attributes || {};
   return new Tasks.Task.Ant({
     target:           attr.target,
     workingDirectory: attr.working_directory,
     buildFile:        attr.build_file,
     runIf:            attr.run_if,
     onCancelTask:     attr.on_cancel,
-    errors:           data.errors
+    errors:           errors
   });
 };
 
@@ -158,8 +158,8 @@ Tasks.Task.NAnt = function (data) {
   };
 };
 
-Tasks.Task.NAnt.fromJSON = data => {
-  const attr = data.attributes || {};
+Tasks.Task.NAnt.fromJSON = ({attributes, errors}) => {
+  const attr = attributes || {};
   return new Tasks.Task.NAnt({
     target:           attr.target,
     workingDirectory: attr.working_directory,
@@ -167,7 +167,7 @@ Tasks.Task.NAnt.fromJSON = data => {
     nantPath:         attr.nant_path,
     runIf:            attr.run_if,
     onCancelTask:     attr.on_cancel,
-    errors:           data.errors
+    errors:           errors
   });
 };
 
@@ -208,8 +208,8 @@ Tasks.Task.Exec = function (data) {
   };
 };
 
-Tasks.Task.Exec.fromJSON = function (data) {
-  const attr = data.attributes || {};
+Tasks.Task.Exec.fromJSON = function({attributes, errors}) {
+  const attr = attributes || {};
   return new Tasks.Task.Exec({
     command:          attr.command,
     args:             attr.args,
@@ -217,7 +217,7 @@ Tasks.Task.Exec.fromJSON = function (data) {
     workingDirectory: attr.working_directory,
     runIf:            attr.run_if,
     onCancelTask:     attr.on_cancel,
-    errors:           data.errors
+    errors:           errors
   });
 };
 
@@ -258,15 +258,15 @@ Tasks.Task.Rake = function (data) {
   };
 };
 
-Tasks.Task.Rake.fromJSON = data => {
-  const attr = data.attributes || {};
+Tasks.Task.Rake.fromJSON = ({attributes, errors}) => {
+  const attr = attributes || {};
   return new Tasks.Task.Rake({
     target:           attr.target,
     workingDirectory: attr.working_directory,
     buildFile:        attr.build_file,
     runIf:            attr.run_if,
     onCancelTask:     attr.on_cancel,
-    errors:           data.errors
+    errors:           errors
   });
 };
 
@@ -320,8 +320,8 @@ Tasks.Task.FetchArtifact = function (data) {
 };
 
 
-Tasks.Task.FetchArtifact.fromJSON = data => {
-  const attr = data.attributes || {};
+Tasks.Task.FetchArtifact.fromJSON = ({attributes, errors}) => {
+  const attr = attributes || {};
   return new Tasks.Task.FetchArtifact({
     pipeline:      attr.pipeline,
     stage:         attr.stage,
@@ -331,7 +331,7 @@ Tasks.Task.FetchArtifact.fromJSON = data => {
     destination:   attr.destination,
     runIf:         attr.run_if,
     onCancelTask:  attr.on_cancel,
-    errors:        data.errors
+    errors:        errors
   });
 };
 
@@ -377,15 +377,15 @@ Tasks.Task.PluginTask = function (data) {
   };
 };
 
-Tasks.Task.PluginTask.fromJSON = data => {
-  const attr = data.attributes || {};
+Tasks.Task.PluginTask.fromJSON = ({attributes, errors}) => {
+  const attr = attributes || {};
   return new Tasks.Task.PluginTask({
     pluginId:      attr.plugin_configuration.id,
     version:       attr.plugin_configuration.version,
     configuration: Tasks.Task.PluginTask.Configurations.fromJSON(attr.configuration),
     runIf:         attr.run_if,
     onCancelTask:  attr.on_cancel,
-    errors:        data.errors
+    errors:        errors
   });
 };
 

@@ -99,8 +99,8 @@ const Pipeline = function (data) {
         deferred.resolve(extract(jqXHR));
       });
 
-      jqXHR.fail((response, _textStatus, _error) => {
-        deferred.reject(response.responseJSON);
+      jqXHR.fail(({responseJSON}, _textStatus, _error) => {
+        deferred.reject(responseJSON);
       });
 
       jqXHR.always(m.redraw);

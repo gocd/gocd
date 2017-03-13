@@ -18,9 +18,9 @@ const _      = require('lodash');
 const Stream = require('mithril/stream');
 const Mixins = require('models/mixins/model_mixins');
 
-const PluggableInstanceSettings = function (data) {
-  this.viewTemplate   = Stream(data.viewTemplate);
-  this.configurations = Stream(data.configurations);
+const PluggableInstanceSettings = function({viewTemplate, configurations}) {
+  this.viewTemplate   = Stream(viewTemplate);
+  this.configurations = Stream(configurations);
 };
 
 PluggableInstanceSettings.fromJSON = (data = {}) => new PluggableInstanceSettings({
@@ -38,10 +38,10 @@ PluggableInstanceSettings.Configurations = function (data) {
 
 };
 
-PluggableInstanceSettings.Configurations.Configuration = function (data) {
+PluggableInstanceSettings.Configurations.Configuration = function({key, metadata}) {
   this.parent   = Mixins.GetterSetter();
-  this.key      = Stream(data.key);
-  this.metadata = Stream(data.metadata);
+  this.key      = Stream(key);
+  this.metadata = Stream(metadata);
 };
 
 PluggableInstanceSettings.Configurations.Configuration.create = data => new PluggableInstanceSettings.Configurations.Configuration(data);

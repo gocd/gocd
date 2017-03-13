@@ -21,11 +21,11 @@ const Routes    = require('gen/js-routes');
 const mrequest  = require('helpers/mrequest');
 const Pipelines = Stream([]);
 
-Pipelines.Pipeline = function (data) {
-  this.name   = data.name;
-  this.stages = _.map(data.stages, stage => new function () {
-    this.name = stage.name;
-    this.jobs = stage.jobs;
+Pipelines.Pipeline = function({name, stages}) {
+  this.name   = name;
+  this.stages = _.map(stages, ({name, jobs}) => new function () {
+    this.name = name;
+    this.jobs = jobs;
   });
 };
 
@@ -38,8 +38,8 @@ Pipelines.init = rejectPipeline => {
     contentType: false
   });
 
-  const didFulfill = (data, _textStatus, _jqXHR) => {
-    const pipelines = _.reject(data._embedded.pipelines, pipeline => pipeline.name === rejectPipeline);
+  const didFulfill = ({_embedded}, _textStatus, _jqXHR) => {
+    const pipelines = _.reject(_embedded.pipelines, ({name}) => name === rejectPipeline);
 
     Pipelines(_.map(pipelines, pipeline => new Pipelines.Pipeline(pipeline)));
   };

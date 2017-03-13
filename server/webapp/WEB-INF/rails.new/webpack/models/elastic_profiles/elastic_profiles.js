@@ -68,11 +68,11 @@ ElasticProfiles.Profile.get = id => new ElasticProfiles.Profile({id}).refresh();
 
 ElasticProfiles.Profile.create = data => new ElasticProfiles.Profile(data);
 
-ElasticProfiles.Profile.fromJSON = data => new ElasticProfiles.Profile({
-  id:         data.id,
-  pluginId:   data.plugin_id,
-  errors:     data.errors,
-  properties: PluginConfigurations.fromJSON(data.properties)
+ElasticProfiles.Profile.fromJSON = ({id, plugin_id, errors, properties}) => new ElasticProfiles.Profile({
+  id:         id,
+  pluginId:   plugin_id,
+  errors:     errors,
+  properties: PluginConfigurations.fromJSON(properties)
 });
 
 Mixins.fromJSONCollection({

@@ -48,17 +48,17 @@ CrudMixins.Index({
   dataPath: '_embedded.plugin_info'
 });
 
-PluginInfos.PluginInfo = function (type, data) {
+PluginInfos.PluginInfo = function(type, {id, version, about, imageUrl}) {
   this.constructor.modelType = 'pluginInfo';
   this.parent                = Mixins.GetterSetter();
   Mixins.HasUUID.call(this);
 
   this.type = Stream(type);
 
-  this.id       = Stream(data.id);
-  this.version  = Stream(data.version);
-  this.about    = Stream(data.about);
-  this.imageUrl = Stream(data.imageUrl);
+  this.id       = Stream(id);
+  this.version  = Stream(version);
+  this.about    = Stream(about);
+  this.imageUrl = Stream(imageUrl);
 };
 
 PluginInfos.PluginInfo.Authentication = function (data) {
@@ -156,7 +156,7 @@ PluginInfos.PluginInfo.ElasticAgent.fromJSON = (data = {}) => new PluginInfos.Pl
   imageUrl:        _.get(data, '_links.image.href'),
 });
 
-PluginInfos.PluginInfo.createByType = data => new PluginInfos.Types[data.type]({});
+PluginInfos.PluginInfo.createByType = ({type}) => new PluginInfos.Types[type]({});
 
 PluginInfos.PluginInfo.fromJSON = (data = {}) => PluginInfos.Types[data.type].fromJSON(data);
 

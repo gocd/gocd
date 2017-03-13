@@ -20,11 +20,11 @@ const Mixins         = require('models/mixins/model_mixins');
 const Validatable    = require('models/mixins/validatable_mixin');
 const EncryptedValue = require('models/pipeline_configs/encrypted_value');
 
-const plainOrCipherValue = data => {
-  if (data.encrypted_value) {
-    return new EncryptedValue({cipherText: s.defaultToIfBlank(data.encrypted_value, '')});
+const plainOrCipherValue = ({encrypted_value, value}) => {
+  if (encrypted_value) {
+    return new EncryptedValue({cipherText: s.defaultToIfBlank(encrypted_value, '')});
   } else {
-    return new EncryptedValue({clearText: s.defaultToIfBlank(data.value, '')});
+    return new EncryptedValue({clearText: s.defaultToIfBlank(value, '')});
   }
 };
 

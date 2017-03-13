@@ -34,9 +34,9 @@ About.fromJSON = (data = {}) => new About({
   vendor:                About.Vendor.fromJSON(data.vendor)
 });
 
-About.Vendor = function (data) {
-  this.name = Stream(data.name);
-  this.url  = Stream(data.url);
+About.Vendor = function({name, url}) {
+  this.name = Stream(name);
+  this.url  = Stream(url);
 };
 
 About.Vendor.fromJSON = (data = {}) => new About.Vendor({

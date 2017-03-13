@@ -89,8 +89,8 @@ SCMs.SCM = function (data) {
         deferred.resolve(new SCMs.SCM(data));
       };
 
-      const errback = jqXHR => {
-        deferred.reject(jqXHR.responseJSON);
+      const errback = ({responseJSON}) => {
+        deferred.reject(responseJSON);
       };
 
       jqXHR.then(callback, errback);
@@ -122,8 +122,8 @@ SCMs.SCM = function (data) {
         deferred.resolve(new SCMs.SCM(data));
       };
 
-      const errback = jqXHR => {
-        deferred.reject(jqXHR.responseJSON);
+      const errback = ({responseJSON}) => {
+        deferred.reject(responseJSON);
       };
 
       jqXHR.then(resolve, errback);
@@ -132,9 +132,9 @@ SCMs.SCM = function (data) {
   };
 };
 
-SCMs.SCM.PluginMetadata = function (data) {
-  this.id      = Stream(s.defaultToIfBlank(data.id, ''));
-  this.version = Stream(s.defaultToIfBlank(data.version, ''));
+SCMs.SCM.PluginMetadata = function({id, version}) {
+  this.id      = Stream(s.defaultToIfBlank(id, ''));
+  this.version = Stream(s.defaultToIfBlank(version, ''));
 
   this.toJSON = function () {
     return {
@@ -157,8 +157,8 @@ SCMs.init = () => $.Deferred(function () {
     contentType: false
   });
 
-  jqXHR.then((data, _textStatus, _jqXHR) => {
-    SCMs(_.map(data._embedded.scms, scm => new SCMs.SCM(scm)));
+  jqXHR.then(({_embedded}, _textStatus, _jqXHR) => {
+    SCMs(_.map(_embedded.scms, scm => new SCMs.SCM(scm)));
     deferred.resolve();
   });
 }).promise();

@@ -37,11 +37,11 @@ const EnvironmentVariables = function (data) {
   };
 };
 
-function plainOrCipherValue(data) {
-  if (data.secure) {
-    return new EncryptedValue({cipherText: s.defaultToIfBlank(data.encryptedValue, '')});
+function plainOrCipherValue({secure, encryptedValue, value}) {
+  if (secure) {
+    return new EncryptedValue({cipherText: s.defaultToIfBlank(encryptedValue, '')});
   } else {
-    return new EncryptedValue({clearText: s.defaultToIfBlank(data.value, '')});
+    return new EncryptedValue({clearText: s.defaultToIfBlank(value, '')});
   }
 }
 
@@ -100,11 +100,11 @@ Mixins.fromJSONCollection({
   via:        'addVariable'
 });
 
-EnvironmentVariables.Variable.fromJSON = data => new EnvironmentVariables.Variable({
-  name:           data.name,
-  value:          data.value,
-  secure:         data.secure,
-  encryptedValue: data.encrypted_value
+EnvironmentVariables.Variable.fromJSON = ({name, value, secure, encrypted_value}) => new EnvironmentVariables.Variable({
+  name:           name,
+  value:          value,
+  secure:         secure,
+  encryptedValue: encrypted_value
 });
 
 module.exports = EnvironmentVariables;

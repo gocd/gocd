@@ -35,8 +35,8 @@ PluginInfos.all = type => $.Deferred(function () {
     contentType: false
   });
 
-  jqXHR.done((data, _textStatus, _jqXHR) => {
-    let pluginInfos = _.map(data._embedded.plugin_info, pluginInfo => new PluginInfos.PluginInfo(pluginInfo));
+  jqXHR.done(({_embedded}, _textStatus, _jqXHR) => {
+    let pluginInfos = _.map(_embedded.plugin_info, pluginInfo => new PluginInfos.PluginInfo(pluginInfo));
     deferred.resolve(pluginInfos);
   });
 }).promise();

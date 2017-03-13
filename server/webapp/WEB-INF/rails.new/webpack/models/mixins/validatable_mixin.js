@@ -56,23 +56,23 @@ const UrlPatternValidator = function () {
   };
 };
 
-const FormatValidator = function (options) {
+const FormatValidator = function({format, message}) {
   this.validate = (entity, attr) => {
     if (s.isBlank(entity[attr]())) {
       return;
     }
 
-    if (!entity[attr]().match(options.format)) {
-      entity.errors().add(attr, options.message || (`${s.humanize(attr)} format is in valid`));
+    if (!entity[attr]().match(format)) {
+      entity.errors().add(attr, message || (`${s.humanize(attr)} format is in valid`));
     }
   };
 };
 
-var Validatable = function (data) {
+var Validatable = function({errors}) {
   const self                   = this;
   const attrToValidators       = {};
   const associationsToValidate = [];
-  self.errors                = Mixins.GetterSetter(new Errors(data.errors));
+  self.errors                = Mixins.GetterSetter(new Errors(errors));
 
   const validateWith = (validator, attr) => {
     _.has(attrToValidators, attr) ? attrToValidators[attr].push(validator) : attrToValidators[attr] = [validator];

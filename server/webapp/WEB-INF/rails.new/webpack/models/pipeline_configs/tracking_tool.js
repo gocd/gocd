@@ -65,9 +65,9 @@ TrackingTool.Generic = function (data) {
   };
 };
 
-TrackingTool.Generic.fromJSON = data => new TrackingTool.Generic({
-  urlPattern: data.url_pattern,
-  regex:      data.regex
+TrackingTool.Generic.fromJSON = ({url_pattern, regex}) => new TrackingTool.Generic({
+  urlPattern: url_pattern,
+  regex:      regex
 });
 
 TrackingTool.Mingle = function (data) {
@@ -92,10 +92,10 @@ TrackingTool.Mingle = function (data) {
 
 };
 
-TrackingTool.Mingle.fromJSON = data => new TrackingTool.Mingle({
-  baseUrl:               data.base_url,
-  projectIdentifier:     data.project_identifier,
-  mqlGroupingConditions: data.mql_grouping_conditions
+TrackingTool.Mingle.fromJSON = ({base_url, project_identifier, mql_grouping_conditions}) => new TrackingTool.Mingle({
+  baseUrl:               base_url,
+  projectIdentifier:     project_identifier,
+  mqlGroupingConditions: mql_grouping_conditions
 });
 
 TrackingTool.Types = {

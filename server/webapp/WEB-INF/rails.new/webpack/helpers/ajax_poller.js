@@ -20,8 +20,8 @@ var Repeat = require('repeat');
 
 var AjaxPoller = function (fn) {
   var currentXHR = Stream();
-  var repeater   = Repeat(function (repeatAgain) {
-    fn(currentXHR).always(function () {
+  var repeater   = Repeat(repeatAgain => {
+    fn(currentXHR).always(() => {
       repeatAgain();
       currentXHR(null);
       m.redraw();
@@ -33,7 +33,7 @@ var AjaxPoller = function (fn) {
     return this;
   };
 
-  this.stop = function () {
+  this.stop = () => {
     repeater.stop();
     if (currentXHR()) {
       currentXHR().abort();

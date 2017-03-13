@@ -16,7 +16,7 @@
 
 var Users = {};
 
-Users.initializeWith = function (values) {
+Users.initializeWith = values => {
   Users.list = values || [];
 };
 

@@ -33,37 +33,23 @@ Mixins.HasEncryptedAttribute = function (options) {
     return _value().value.apply(_value(), arguments);
   };
 
-  this['isSecure' + capitalizedName] = function () {
-    return _value().isSecure();
-  };
+  this['isSecure' + capitalizedName] = () => _value().isSecure();
 
-  this['isPlain' + capitalizedName] = function () {
-    return _value().isPlain();
-  };
+  this['isPlain' + capitalizedName] = () => _value().isPlain();
 
-  this['edit' + capitalizedName] = function () {
+  this['edit' + capitalizedName] = () => {
     _value().edit();
   };
 
-  this['isDirty' + capitalizedName] = function () {
-    return _value().isDirty();
-  };
+  this['isDirty' + capitalizedName] = () => _value().isDirty();
 
-  this['isEditing' + capitalizedName] = function () {
-    return _value().isEditing();
-  };
+  this['isEditing' + capitalizedName] = () => _value().isEditing();
 
-  this['resetToOriginal' + capitalizedName] = function () {
-    return _value().resetToOriginal();
-  };
+  this['resetToOriginal' + capitalizedName] = () => _value().resetToOriginal();
 
-  this['becomeSecure' + capitalizedName] = function () {
-    return _value().becomeSecure();
-  };
+  this['becomeSecure' + capitalizedName] = () => _value().becomeSecure();
 
-  this['becomeUnSecure' + capitalizedName] = function () {
-    return _value().becomeUnSecure();
-  };
+  this['becomeUnSecure' + capitalizedName] = () => _value().becomeUnSecure();
 };
 
 Mixins.HasMany = function (options) {
@@ -74,13 +60,9 @@ Mixins.HasMany = function (options) {
   var uniqueOn              = options.uniqueOn;
   var collection            = Stream(s.defaultToIfBlank(options.collection, []));
 
-  this.toJSON = function () {
-    return _(collection()).map(function (item) {
-      return item.isBlank && item.isBlank() ? null : item;
-    }).compact().value();
-  };
+  this.toJSON = () => _(collection()).map(item => item.isBlank && item.isBlank() ? null : item).compact().value();
 
-  this['add' + associationName] = function (instance) {
+  this['add' + associationName] = instance => {
     collection().push(instance);
   };
 
@@ -92,83 +74,51 @@ Mixins.HasMany = function (options) {
     return instance;
   };
 
-  this['remove' + associationName] = function (thing) {
+  this['remove' + associationName] = thing => {
     _.remove(collection(), thing);
   };
 
-  this['first' + associationName] = function () {
-    return _.first(collection());
-  };
+  this['first' + associationName] = () => _.first(collection());
 
-  this[_.camelCase(associationName) + 'AtIndex'] = function (index) {
-    return collection()[index];
-  };
+  this[_.camelCase(associationName) + 'AtIndex'] = index => collection()[index];
 
-  this['set' + associationNamePlural] = function (newItems) {
-    return collection(newItems);
-  };
+  this['set' + associationNamePlural] = newItems => collection(newItems);
 
-  this['count' + associationName] = function () {
-    return collection().length;
-  };
+  this['count' + associationName] = () => collection().length;
 
-  this['isEmpty' + associationName] = function () {
-    return collection().length === 0;
-  };
+  this['isEmpty' + associationName] = () => collection().length === 0;
 
-  this['indexOf' + associationName] = function (thing) {
-    return _.indexOf(collection(), thing);
-  };
+  this['indexOf' + associationName] = thing => _.indexOf(collection(), thing);
 
   this['previous' + associationName] = function (thing) {
     return collection()[this['indexOf' + associationName](thing) - 1];
   };
 
-  this['last' + associationName] = function () {
-    return _.last(collection());
-  };
+  this['last' + associationName] = () => _.last(collection());
 
-  this['find' + associationName] = function (cb, thisArg) {
-    return _.find(collection(), cb, thisArg);
-  };
+  this['find' + associationName] = (cb, thisArg) => _.find(collection(), cb, thisArg);
 
-  this['filter' + associationName] = function (cb, thisArg) {
-    return _.filter(collection(), cb, thisArg);
-  };
+  this['filter' + associationName] = (cb, thisArg) => _.filter(collection(), cb, thisArg);
 
-  this['map' + associationNamePlural] = function (cb, thisArg) {
-    return _.map(collection(), cb, thisArg);
-  };
+  this['map' + associationNamePlural] = (cb, thisArg) => _.map(collection(), cb, thisArg);
 
-  this['each' + associationName] = function (cb, thisArg) {
+  this['each' + associationName] = (cb, thisArg) => {
     _.each(collection(), cb, thisArg);
   };
 
-  this['sortBy' + associationNamePlural] = function (cb, thisArg) {
-    return _.sortBy(collection(), cb, thisArg);
-  };
+  this['sortBy' + associationNamePlural] = (cb, thisArg) => _.sortBy(collection(), cb, thisArg);
 
-  this['every' + associationName] = function (cb, thisArg) {
-    return _.every(collection(), cb, thisArg);
-  };
+  this['every' + associationName] = (cb, thisArg) => _.every(collection(), cb, thisArg);
 
   this['collect' + associationName + 'Property'] = function (propName) {
-    return this['map' + associationNamePlural](function (child) {
-      return child[propName]();
-    });
+    return this['map' + associationNamePlural](child => child[propName]());
   };
 
-  this.validate = function () {
-    _.forEach(collection(), function (item) {
-      return item.validate();
-    });
+  this.validate = () => {
+    _.forEach(collection(), item => item.validate());
   };
 
-  this.isValid = function () {
-    return _.every(collection(), function (item) {
-      return item.isValid();
-    });
-  };
+  this.isValid = () => _.every(collection(), item => item.isValid());
 
   this.isUnique = function (childModel, uniqueOn) {
     if (_.isNil(childModel[uniqueOn]()) || _.isEmpty(childModel[uniqueOn]())) {
@@ -189,15 +139,15 @@ Mixins.HasMany = function (options) {
   }
 };
 
-Mixins.fromJSONCollection = function (options) {
+Mixins.fromJSONCollection = options => {
   var parentType     = options.parentType;
   var childType      = options.childType;
   var addChildMethod = options.via;
 
-  parentType.fromJSON = function (data) {
+  parentType.fromJSON = data => {
     var parentInstance = new parentType();
     if (!_.isEmpty(data)) {
-      var assignParent = function (childInstance) {
+      var assignParent = childInstance => {
         childInstance.parent(parentInstance);
         return childInstance;
       };
@@ -208,22 +158,18 @@ Mixins.fromJSONCollection = function (options) {
 };
 
 // copy of mithri's Stream without the toJSON on the getterSetter.
-Mixins.GetterSetter = function (store) {
-  return function () {
-    if (arguments.length) {
-      store = arguments[0];
-    }
-    return store;
-  };
+Mixins.GetterSetter = store => function () {
+  if (arguments.length) {
+    store = arguments[0];
+  }
+  return store;
 };
 
-Mixins.TogglingGetterSetter = function (store) {
-  return function () {
-    if (arguments.length) {
-      store(store() === arguments[0] ? undefined : arguments[0]);
-    }
-    return store();
-  };
+Mixins.TogglingGetterSetter = store => function () {
+  if (arguments.length) {
+    store(store() === arguments[0] ? undefined : arguments[0]);
+  }
+  return store();
 };
 
 Mixins.Validations = {};

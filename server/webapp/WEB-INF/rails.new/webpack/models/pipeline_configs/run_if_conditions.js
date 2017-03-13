@@ -42,8 +42,6 @@ var RunIfConditions = function (data) {
   };
 };
 
-RunIfConditions.create = function (data) {
-  return new RunIfConditions(data);
-};
+RunIfConditions.create = data => new RunIfConditions(data);
 
 module.exports = RunIfConditions;

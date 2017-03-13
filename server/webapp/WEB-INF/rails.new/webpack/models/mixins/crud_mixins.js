@@ -21,41 +21,38 @@ var mrequest = require('helpers/mrequest');
 
 var CrudMixins = {};
 
-CrudMixins.Index = function (options) {
+CrudMixins.Index = options => {
   var type     = options.type;
   var url      = options.indexUrl;
   var version  = options.version;
   var dataPath = options.dataPath;
 
-  type.all = function (cb) {
-    return $.Deferred(function () {
-      var deferred = this;
+  type.all = cb => $.Deferred(function () {
+    var deferred = this;
 
-      var jqXHR = $.ajax({
-        method:      'GET',
-        url:         url,
-        timeout:     mrequest.timeout,
-        beforeSend:  function (xhr) {
-          mrequest.xhrConfig.forVersion(version)(xhr);
-          if (cb) {
-            cb(xhr);
-          }
-        },
-        contentType: false
-      });
+    var jqXHR = $.ajax({
+      method:      'GET',
+      url:         url,
+      timeout:     mrequest.timeout,
+      beforeSend:  function (xhr) {
+        mrequest.xhrConfig.forVersion(version)(xhr);
+        if (cb) {
+          cb(xhr);
+        }
+      },
+      contentType: false
+    });
 
-      var didFulfill = function (data, _textStatus, _jqXHR) {
-        deferred.resolve(type.fromJSON(_.get(data, dataPath)));
-      };
+    var didFulfill = (data, _textStatus, _jqXHR) => {
+      deferred.resolve(type.fromJSON(_.get(data, dataPath)));
+    };
 
-      var didReject = function (jqXHR, _textStatus, _errorThrown) {
-        deferred.reject(mrequest.unwrapErrorExtractMessage(jqXHR.responseJSON, jqXHR));
-      };
+    var didReject = (jqXHR, _textStatus, _errorThrown) => {
+      deferred.reject(mrequest.unwrapErrorExtractMessage(jqXHR.responseJSON, jqXHR));
+    };
 
-      jqXHR.then(didFulfill, didReject);
-    }).promise();
-
-  };
+    jqXHR.then(didFulfill, didReject);
+  }).promise();
 };
 
 CrudMixins.Create = function (options) {
@@ -77,11 +74,11 @@ CrudMixins.Create = function (options) {
         contentType: 'application/json',
       });
 
-      var didFulfill = function (data, _textStatus, jqXHR) {
+      var didFulfill = (data, _textStatus, jqXHR) => {
         deferred.resolve(mrequest.unwrapMessageOrEntity(type)(data, jqXHR));
       };
 
-      var didReject = function (jqXHR, _textStatus, _errorThrown) {
+      var didReject = (jqXHR, _textStatus, _errorThrown) => {
         deferred.reject(mrequest.unwrapMessageOrEntity(type)(jqXHR.responseJSON, jqXHR));
       };
 
@@ -108,10 +105,10 @@ CrudMixins.Delete = function (options) {
         contentType: false
       });
 
-      var didFulfill = function (data, _textStatus, _jqXHR) {
+      var didFulfill = (data, _textStatus, _jqXHR) => {
         deferred.resolve(data.message);
       };
-      var didReject  = function (jqXHR, _textStatus, _errorThrown) {
+      var didReject  = (jqXHR, _textStatus, _errorThrown) => {
         deferred.reject(mrequest.unwrapErrorExtractMessage(jqXHR.responseJSON));
       };
 
@@ -144,11 +141,11 @@ CrudMixins.Update = function (options) {
         contentType: 'application/json',
       });
 
-      var didFulfill = function (data, _textStatus, jqXHR) {
+      var didFulfill = (data, _textStatus, jqXHR) => {
         deferred.resolve(mrequest.unwrapMessageOrEntity(type)(data, jqXHR));
       };
 
-      var didReject = function (jqXHR, _textStatus, _errorThrown) {
+      var didReject = (jqXHR, _textStatus, _errorThrown) => {
         deferred.reject(mrequest.unwrapMessageOrEntity(type, entity.etag())(jqXHR.responseJSON, jqXHR));
       };
 
@@ -176,13 +173,13 @@ CrudMixins.Refresh = function (options) {
         contentType: false
       });
 
-      var didFulfill = function (data, _textStatus, jqXHR) {
+      var didFulfill = (data, _textStatus, jqXHR) => {
         var entity = type.fromJSON(data);
         entity.etag(jqXHR.getResponseHeader('ETag'));
         deferred.resolve(entity);
       };
 
-      var didReject = function (jqXHR, _textStatus, _errorThrown) {
+      var didReject = (jqXHR, _textStatus, _errorThrown) => {
         deferred.reject(mrequest.unwrapErrorExtractMessage(jqXHR.responseJSON));
       };
 

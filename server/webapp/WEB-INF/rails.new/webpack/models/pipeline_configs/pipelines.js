@@ -23,15 +23,13 @@ var Pipelines = Stream([]);
 
 Pipelines.Pipeline = function (data) {
   this.name   = data.name;
-  this.stages = _.map(data.stages, function (stage) {
-    return new function () {
-      this.name = stage.name;
-      this.jobs = stage.jobs;
-    };
+  this.stages = _.map(data.stages, stage => new function () {
+    this.name = stage.name;
+    this.jobs = stage.jobs;
   });
 };
 
-Pipelines.init = function (rejectPipeline) {
+Pipelines.init = rejectPipeline => {
   var jqXHR = $.ajax({
     method:      'GET',
     url:         Routes.apiv1AdminInternalPipelinesPath(),
@@ -40,14 +38,10 @@ Pipelines.init = function (rejectPipeline) {
     contentType: false
   });
 
-  var didFulfill = function (data, _textStatus, _jqXHR) {
-    var pipelines = _.reject(data._embedded.pipelines, function (pipeline) {
-      return pipeline.name === rejectPipeline;
-    });
+  var didFulfill = (data, _textStatus, _jqXHR) => {
+    var pipelines = _.reject(data._embedded.pipelines, pipeline => pipeline.name === rejectPipeline);
 
-    Pipelines(_.map(pipelines, function (pipeline) {
-      return new Pipelines.Pipeline(pipeline);
-    }));
+    Pipelines(_.map(pipelines, pipeline => new Pipelines.Pipeline(pipeline)));
   };
 
   jqXHR.then(didFulfill);

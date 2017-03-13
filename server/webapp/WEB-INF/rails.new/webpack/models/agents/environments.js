@@ -23,22 +23,18 @@ var Routes           = require('gen/js-routes');
 var Environments     = {};
 Environments.list    = [];
 
-var getSortedEnvironments = function (environments, selectedAgents) {
-  var selectedAgentsEnvironments = _.map(selectedAgents, function (agent) {
-    return agent.environments();
-  });
+var getSortedEnvironments = (environments, selectedAgents) => {
+  var selectedAgentsEnvironments = _.map(selectedAgents, agent => agent.environments());
 
-  return _.map(environments.sort(), function (environment) {
-    return new TriStateCheckbox(environment, selectedAgentsEnvironments);
-  });
+  return _.map(environments.sort(), environment => new TriStateCheckbox(environment, selectedAgentsEnvironments));
 };
 
-Environments.init = function (selectedAgents) {
+Environments.init = selectedAgents => {
   $.ajax({
     method:     'GET',
     url:        Routes.apiv1AdminInternalEnvironmentsPath(),
     beforeSend: mrequest.xhrConfig.forVersion('v1')
-  }).then(function (data) {
+  }).then(data => {
     Environments.list = getSortedEnvironments(data, selectedAgents);
   }).always(m.redraw);
 };

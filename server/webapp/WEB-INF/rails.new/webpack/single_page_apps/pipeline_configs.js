@@ -29,7 +29,7 @@ var ElasticProfiles      = require('models/elastic_profiles/elastic_profiles');
 var VersionUpdater       = require('models/shared/version_updater');
 require('foundation-sites');
 
-$(function () {
+$(() => {
   var pipelineConfigElem = $('#pipeline-config');
   var url                = pipelineConfigElem.attr('data-pipeline-api-url');
   var allResourceNames   = JSON.parse(pipelineConfigElem.attr('data-resource-names'));
@@ -40,7 +40,7 @@ $(function () {
   Users.initializeWith(allUserNames);
   Roles.initializeWith(allRoleNames);
   new VersionUpdater().update();
-  Promise.all([PluginInfos.init(), SCMs.init(), ElasticProfiles.all()]).then(function (args) {
+  Promise.all([PluginInfos.init(), SCMs.init(), ElasticProfiles.all()]).then(args => {
 
     PluggableTasks.init();
     PluggableSCMs.init();

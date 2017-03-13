@@ -47,9 +47,7 @@ Stages.Stage = function (data) {
   this.validateAssociated('jobs');
 };
 
-Stages.Stage.create = function (data) {
-  return new Stages.Stage(data);
-};
+Stages.Stage.create = data => new Stages.Stage(data);
 
 Mixins.fromJSONCollection({
   parentType: Stages,
@@ -57,17 +55,15 @@ Mixins.fromJSONCollection({
   via:        'addStage'
 });
 
-Stages.Stage.fromJSON = function (data) {
-  return new Stages.Stage({
-    name:                  data.name,
-    fetchMaterials:        data.fetch_materials,
-    cleanWorkingDirectory: data.clean_working_directory,
-    neverCleanupArtifacts: data.never_cleanup_artifacts,
-    environmentVariables:  EnvironmentVariables.fromJSON(data.environment_variables),
-    jobs:                  Jobs.fromJSON(data.jobs),
-    approval:              Approval.fromJSON(data.approval || {}),
-    errors:                data.errors
-  });
-};
+Stages.Stage.fromJSON = data => new Stages.Stage({
+  name:                  data.name,
+  fetchMaterials:        data.fetch_materials,
+  cleanWorkingDirectory: data.clean_working_directory,
+  neverCleanupArtifacts: data.never_cleanup_artifacts,
+  environmentVariables:  EnvironmentVariables.fromJSON(data.environment_variables),
+  jobs:                  Jobs.fromJSON(data.jobs),
+  approval:              Approval.fromJSON(data.approval || {}),
+  errors:                data.errors
+});
 
 module.exports = Stages;

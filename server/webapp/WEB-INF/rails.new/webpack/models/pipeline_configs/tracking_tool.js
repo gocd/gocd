@@ -21,7 +21,7 @@ var Mixins      = require('models/mixins/model_mixins');
 var Validatable = require('models/mixins/validatable_mixin');
 
 var UrlPatternValidator = function () {
-  this.validate = function (entity) {
+  this.validate = entity => {
     if (!s.include(entity.urlPattern(), '${ID}')) {
       entity.errors().add('urlPattern', Validatable.ErrorMessages.mustContainString("urlPattern", '${ID}'));
     }
@@ -36,14 +36,12 @@ var TrackingTool = function (type) {
 
   var self = this;
 
-  this.toJSON = function () {
-    return {
-      type:       self.type(),
-      attributes: self._attributesToJSON()
-    };
-  };
+  this.toJSON = () => ({
+    type:       self.type(),
+    attributes: self._attributesToJSON()
+  });
 
-  this._attributesToJSON = function () {
+  this._attributesToJSON = () => {
     throw new Error("Subclass responsibility!");
   };
 };
@@ -67,12 +65,10 @@ TrackingTool.Generic = function (data) {
   };
 };
 
-TrackingTool.Generic.fromJSON = function (data) {
-  return new TrackingTool.Generic({
-    urlPattern: data.url_pattern,
-    regex:      data.regex
-  });
-};
+TrackingTool.Generic.fromJSON = data => new TrackingTool.Generic({
+  urlPattern: data.url_pattern,
+  regex:      data.regex
+});
 
 TrackingTool.Mingle = function (data) {
   TrackingTool.call(this, "mingle");
@@ -96,24 +92,20 @@ TrackingTool.Mingle = function (data) {
 
 };
 
-TrackingTool.Mingle.fromJSON = function (data) {
-  return new TrackingTool.Mingle({
-    baseUrl:               data.base_url,
-    projectIdentifier:     data.project_identifier,
-    mqlGroupingConditions: data.mql_grouping_conditions
-  });
-};
+TrackingTool.Mingle.fromJSON = data => new TrackingTool.Mingle({
+  baseUrl:               data.base_url,
+  projectIdentifier:     data.project_identifier,
+  mqlGroupingConditions: data.mql_grouping_conditions
+});
 
 TrackingTool.Types = {
   generic: {type: TrackingTool.Generic, description: "Generic"},
   mingle:  {type: TrackingTool.Mingle, description: "Mingle"}
 };
 
-TrackingTool.create = function (type) {
-  return new TrackingTool.Types[type].type({});
-};
+TrackingTool.create = type => new TrackingTool.Types[type].type({});
 
-TrackingTool.fromJSON = function (data) {
+TrackingTool.fromJSON = data => {
   if (!_.isEmpty(data)) {
     return TrackingTool.Types[data.type].type.fromJSON(data.attributes || {});
   }

@@ -19,8 +19,8 @@ var Materials     = require('models/pipeline_configs/materials');
 var PluginInfos   = require('models/pipeline_configs/plugin_infos');
 var PluggableSCMs = {};
 
-PluggableSCMs.init = function () {
-  _.each(PluginInfos.filterByType('scm'), function (pluginInfo) {
+PluggableSCMs.init = () => {
+  _.each(PluginInfos.filterByType('scm'), pluginInfo => {
     PluggableSCMs.Types[pluginInfo.id()] = {
       type:        Materials.Material.PluggableMaterial,
       description: pluginInfo.displayName()

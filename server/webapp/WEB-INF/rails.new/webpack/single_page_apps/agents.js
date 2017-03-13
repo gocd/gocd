@@ -26,7 +26,7 @@ var AjaxPoller     = require('helpers/ajax_poller');
 
 require('foundation-sites');
 
-$(function () {
+$(() => {
   new VersionUpdater().update();
   var $agentElem = $('#agents');
 
@@ -35,20 +35,18 @@ $(function () {
   $(document).foundation();
 
   function createRepeater() {
-    return new AjaxPoller(function (xhrCB) {
-      return Agents.all(xhrCB)
-        .then((agentsData) => {
-          agents(agentsData);
-          agentsViewModel.initializeWith(agentsData);
-          permanentMessage({});
-        })
-        .fail((errMsg) => {
-          permanentMessage({type: 'alert', message: errMsg});
-        })
-        .always(() => {
-          showSpinner(false);
-        });
-    });
+    return new AjaxPoller(xhrCB => Agents.all(xhrCB)
+      .then((agentsData) => {
+        agents(agentsData);
+        agentsViewModel.initializeWith(agentsData);
+        permanentMessage({});
+      })
+      .fail((errMsg) => {
+        permanentMessage({type: 'alert', message: errMsg});
+      })
+      .always(() => {
+        showSpinner(false);
+      }));
   }
 
   var agents           = Stream(new Agents());

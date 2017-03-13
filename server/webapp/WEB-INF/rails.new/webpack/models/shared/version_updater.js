@@ -20,23 +20,21 @@ var mrequest = require('helpers/mrequest');
 var Routes   = require('gen/js-routes');
 
 var VersionUpdater = function () {
-  this.update = function () {
+  this.update = () => {
     if (canUpdateVersion()) {
-      fetchStaleVersionInfo().then(function (data) {
+      fetchStaleVersionInfo().then(data => {
         _.isEmpty(data) ? markUpdateDone() : fetchLatestVersion(data);
       });
     }
   };
 
-  var fetchStaleVersionInfo = function () {
-    return $.ajax({
-      method:     'GET',
-      url:        Routes.apiv1StaleVersionInfoPath(),
-      beforeSend: mrequest.xhrConfig.forVersion('v1')
-    });
-  };
+  var fetchStaleVersionInfo = () => $.ajax({
+    method:     'GET',
+    url:        Routes.apiv1StaleVersionInfoPath(),
+    beforeSend: mrequest.xhrConfig.forVersion('v1')
+  });
 
-  var fetchLatestVersion = function (versionInfo) {
+  var fetchLatestVersion = versionInfo => {
     $.ajax({
       method:     'GET',
       url:        versionInfo['update_server_url'],
@@ -46,7 +44,7 @@ var VersionUpdater = function () {
     }).then(updateLatestVersion);
   };
 
-  var updateLatestVersion = function (data) {
+  var updateLatestVersion = data => {
     $.ajax({
       method:     'PATCH',
       beforeSend: mrequest.xhrConfig.forVersion('v1'),
@@ -55,7 +53,7 @@ var VersionUpdater = function () {
     }).then(markUpdateDone);
   };
 
-  var canUpdateVersion = function () {
+  var canUpdateVersion = () => {
     var versionCheckInfo = localStorage.getItem('versionCheckInfo');
     if (_.isEmpty(versionCheckInfo)) {
       return true;
@@ -66,7 +64,7 @@ var VersionUpdater = function () {
     return halfHourAgo > lastUpdateAt;
   };
 
-  var markUpdateDone = function () {
+  var markUpdateDone = () => {
     var versionCheckInfo = JSON.stringify({last_updated_at: new Date().getTime()}); //eslint-disable-line camelcase
     localStorage.setItem('versionCheckInfo', versionCheckInfo);
   };

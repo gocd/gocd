@@ -16,7 +16,7 @@
 
 var $ = require('jquery');
 
-var setHeaders = function (xhr, version) {
+var setHeaders = (xhr, version) => {
   xhr.setRequestHeader("Content-Type", "application/json");
   xhr.setRequestHeader("Accept", mrequest.versionHeader(version));
   var csrfToken = $('meta[name=csrf-token]').attr('content');
@@ -43,12 +43,12 @@ var mrequest   = {
     v4:         (xhr) => {
       setHeaders(xhr, 'v4');
     },
-    forVersion: (version) => function (xhr) {
+    forVersion: (version) => xhr => {
       setHeaders(xhr, version);
     }
   },
 
-  unwrapMessageOrEntity:     (type, originalEtag) => function (data, xhr) {
+  unwrapMessageOrEntity:     (type, originalEtag) => (data, xhr) => {
     if (xhr.status === 200) {
       var entity = type.fromJSON(data);
       entity.etag(xhr.getResponseHeader('ETag'));

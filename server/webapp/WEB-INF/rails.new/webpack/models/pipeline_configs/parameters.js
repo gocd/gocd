@@ -51,9 +51,7 @@ Parameters.Parameter = function (data) {
   this.validateUniquenessOf('name');
 };
 
-Parameters.Parameter.create = function (data) {
-  return new Parameters.Parameter(data);
-};
+Parameters.Parameter.create = data => new Parameters.Parameter(data);
 
 Mixins.fromJSONCollection({
   parentType: Parameters,
@@ -61,8 +59,6 @@ Mixins.fromJSONCollection({
   via:        'addParameter'
 });
 
-Parameters.Parameter.fromJSON = function (data) {
-  return new Parameters.Parameter(_.pick(data, ['name', 'value']));
-};
+Parameters.Parameter.fromJSON = data => new Parameters.Parameter(_.pick(data, ['name', 'value']));
 
 module.exports = Parameters;

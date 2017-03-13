@@ -45,9 +45,7 @@ Tabs.Tab = function (data) {
   this.validateUniquenessOf('name');
 };
 
-Tabs.Tab.create = function (data) {
-  return new Tabs.Tab(data);
-};
+Tabs.Tab.create = data => new Tabs.Tab(data);
 
 Mixins.fromJSONCollection({
   parentType: Tabs,
@@ -55,8 +53,6 @@ Mixins.fromJSONCollection({
   via:        'addTab'
 });
 
-Tabs.Tab.fromJSON = function (data) {
-  return new Tabs.Tab(_.pick(data, ['name', 'path']));
-};
+Tabs.Tab.fromJSON = data => new Tabs.Tab(_.pick(data, ['name', 'path']));
 
 module.exports = Tabs;

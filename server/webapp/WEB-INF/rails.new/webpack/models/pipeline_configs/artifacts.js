@@ -46,9 +46,7 @@ Artifacts.Artifact = function (data) {
   });
 };
 
-Artifacts.Artifact.create = function (data) {
-  return new Artifacts.Artifact(data);
-};
+Artifacts.Artifact.create = data => new Artifacts.Artifact(data);
 
 Mixins.fromJSONCollection({
   parentType: Artifacts,
@@ -56,8 +54,6 @@ Mixins.fromJSONCollection({
   via:        'addArtifact'
 });
 
-Artifacts.Artifact.fromJSON = function (data) {
-  return new Artifacts.Artifact(_.pick(data, ['type', 'source', 'destination']));
-};
+Artifacts.Artifact.fromJSON = data => new Artifacts.Artifact(_.pick(data, ['type', 'source', 'destination']));
 
 module.exports = Artifacts;

@@ -64,7 +64,7 @@ SCMs.SCM = function (data) {
   this.update = function () {
     var entity = this;
 
-    var config = function (xhr) {
+    var config = xhr => {
       xhr.setRequestHeader("Content-Type", "application/json");
       xhr.setRequestHeader("Accept", "application/vnd.go.cd.v1+json");
       xhr.setRequestHeader("If-Match", SCMs.scmIdToEtag[entity.id()]);
@@ -82,14 +82,14 @@ SCMs.SCM = function (data) {
         contentType: 'application/json'
       });
 
-      var callback = function (data, _textStatus, jqXHR) {
+      var callback = (data, _textStatus, jqXHR) => {
         if (jqXHR.status === 200) {
           SCMs.scmIdToEtag[data.id] = jqXHR.getResponseHeader('ETag');
         }
         deferred.resolve(new SCMs.SCM(data));
       };
 
-      var errback = function (jqXHR) {
+      var errback = jqXHR => {
         deferred.reject(jqXHR.responseJSON);
       };
 
@@ -115,14 +115,14 @@ SCMs.SCM = function (data) {
         contentType: 'application/json'
       });
 
-      var resolve = function (data, _textStatus, jqXHR) {
+      var resolve = (data, _textStatus, jqXHR) => {
         if (jqXHR.status === 200) {
           SCMs.scmIdToEtag[data.id] = jqXHR.getResponseHeader('ETag');
         }
         deferred.resolve(new SCMs.SCM(data));
       };
 
-      var errback = function (jqXHR) {
+      var errback = jqXHR => {
         deferred.reject(jqXHR.responseJSON);
       };
 
@@ -146,32 +146,26 @@ SCMs.SCM.PluginMetadata = function (data) {
 
 SCMs.SCM.Configurations = PluginConfigurations;
 
-SCMs.init = function () {
-  return $.Deferred(function () {
-    var deferred = this;
+SCMs.init = () => $.Deferred(function () {
+  var deferred = this;
 
-    var jqXHR = $.ajax({
-      method:      'GET',
-      url:         Routes.apiv1AdminScmsPath(),
-      timeout:     mrequest.timeout,
-      beforeSend:  mrequest.xhrConfig.forVersion('v1'),
-      contentType: false
-    });
+  var jqXHR = $.ajax({
+    method:      'GET',
+    url:         Routes.apiv1AdminScmsPath(),
+    timeout:     mrequest.timeout,
+    beforeSend:  mrequest.xhrConfig.forVersion('v1'),
+    contentType: false
+  });
 
-    jqXHR.then(function (data, _textStatus, _jqXHR) {
-      SCMs(_.map(data._embedded.scms, function (scm) {
-        return new SCMs.SCM(scm);
-      }));
-      deferred.resolve();
-    });
-  }).promise();
-};
+  jqXHR.then((data, _textStatus, _jqXHR) => {
+    SCMs(_.map(data._embedded.scms, scm => new SCMs.SCM(scm)));
+    deferred.resolve();
+  });
+}).promise();
 
-SCMs.filterByPluginId = function (pluginId) {
-  return _.filter(SCMs(), (scm) => scm.pluginMetadata().id() === pluginId);
-};
+SCMs.filterByPluginId = pluginId => _.filter(SCMs(), (scm) => scm.pluginMetadata().id() === pluginId);
 
-SCMs.findById = function (id) {
+SCMs.findById = id => {
   var scm = _.find(SCMs(), (scm) => scm.id() === id);
 
   if (!scm) {
@@ -189,7 +183,7 @@ SCMs.findById = function (id) {
       contentType: false
     });
 
-    jqXHR.then(function (data, _textStatus, jqXHR) {
+    jqXHR.then((data, _textStatus, jqXHR) => {
       SCMs.scmIdToEtag[scm.id()] = jqXHR.getResponseHeader('ETag');
       deferred.resolve(new SCMs.SCM(data));
     });

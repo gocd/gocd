@@ -29,15 +29,11 @@ var EnvironmentVariables = function (data) {
   });
 
   this.secureVariables = function () {
-    return this.filterVariable(function (variable) {
-      return variable.isSecureValue();
-    });
+    return this.filterVariable(variable => variable.isSecureValue());
   };
 
   this.plainVariables = function () {
-    return this.filterVariable(function (variable) {
-      return !variable.isSecureValue();
-    });
+    return this.filterVariable(variable => !variable.isSecureValue());
   };
 };
 
@@ -96,9 +92,7 @@ EnvironmentVariables.Variable = function (data) {
   this.validateUniquenessOf('name');
 };
 
-EnvironmentVariables.Variable.create = function (data) {
-  return new EnvironmentVariables.Variable(data);
-};
+EnvironmentVariables.Variable.create = data => new EnvironmentVariables.Variable(data);
 
 Mixins.fromJSONCollection({
   parentType: EnvironmentVariables,
@@ -106,13 +100,11 @@ Mixins.fromJSONCollection({
   via:        'addVariable'
 });
 
-EnvironmentVariables.Variable.fromJSON = function (data) {
-  return new EnvironmentVariables.Variable({
-    name:           data.name,
-    value:          data.value,
-    secure:         data.secure,
-    encryptedValue: data.encrypted_value
-  });
-};
+EnvironmentVariables.Variable.fromJSON = data => new EnvironmentVariables.Variable({
+  name:           data.name,
+  value:          data.value,
+  secure:         data.secure,
+  encryptedValue: data.encrypted_value
+});
 
 module.exports = EnvironmentVariables;

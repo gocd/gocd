@@ -30,7 +30,7 @@ var Jobs = function (data) {
 };
 
 var TimeoutValidator = function () {
-  this.validate = function (entity) {
+  this.validate = entity => {
     if (!(entity.isTimeoutNever() || entity.isTimeoutDefault() || entity.isTimeoutCustom())) {
       entity.errors().add('timeout', Validatable.ErrorMessages.mustBePositiveNumber('timeout'));
     }
@@ -38,7 +38,7 @@ var TimeoutValidator = function () {
 };
 
 var RunInstanceCountValidator = function () {
-  this.validate = function (entity) {
+  this.validate = entity => {
     if (!(entity.isRunOnAllAgents() || entity.isRunOnOneAgent() || entity.isRunOnSomeAgents())) {
       entity.errors().add('runInstanceCount', Validatable.ErrorMessages.mustBePositiveNumber('runInstanceCount'));
     }
@@ -121,9 +121,7 @@ Jobs.Job = function (data) {
   };
 };
 
-Jobs.Job.create = function (data) {
-  return new Jobs.Job(data);
-};
+Jobs.Job.create = data => new Jobs.Job(data);
 
 Mixins.fromJSONCollection({
   parentType: Jobs,
@@ -131,20 +129,18 @@ Mixins.fromJSONCollection({
   via:        'addJob'
 });
 
-Jobs.Job.fromJSON = function (data) {
-  return new Jobs.Job({
-    name:                 data.name,
-    runInstanceCount:     data.run_instance_count,
-    timeout:              data.timeout,
-    resources:            data.resources,
-    environmentVariables: EnvironmentVariables.fromJSON(data.environment_variables),
-    tasks:                Tasks.fromJSON(data.tasks),
-    artifacts:            Artifacts.fromJSON(data.artifacts),
-    tabs:                 Tabs.fromJSON(data.tabs),
-    properties:           Properties.fromJSON(data.properties),
-    elasticProfileId:     data.elastic_profile_id,
-    errors:               data.errors
-  });
-};
+Jobs.Job.fromJSON = data => new Jobs.Job({
+  name:                 data.name,
+  runInstanceCount:     data.run_instance_count,
+  timeout:              data.timeout,
+  resources:            data.resources,
+  environmentVariables: EnvironmentVariables.fromJSON(data.environment_variables),
+  tasks:                Tasks.fromJSON(data.tasks),
+  artifacts:            Artifacts.fromJSON(data.artifacts),
+  tabs:                 Tabs.fromJSON(data.tabs),
+  properties:           Properties.fromJSON(data.properties),
+  elasticProfileId:     data.elastic_profile_id,
+  errors:               data.errors
+});
 
 module.exports = Jobs;

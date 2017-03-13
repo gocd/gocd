@@ -50,15 +50,11 @@ Approval.AuthConfig = function (data) {
   this.users = s.withNewJSONImpl(Stream(s.defaultToIfBlank(data.users, '')), s.stringToArray);
 };
 
-Approval.AuthConfig.fromJSON = function (data) {
-  return new Approval.AuthConfig({roles: data.roles, users: data.users});
-};
+Approval.AuthConfig.fromJSON = data => new Approval.AuthConfig({roles: data.roles, users: data.users});
 
-Approval.fromJSON = function (data) {
-  return new Approval({
-    type:          data.type,
-    authorization: Approval.AuthConfig.fromJSON(data.authorization || {})
-  });
-};
+Approval.fromJSON = data => new Approval({
+  type:          data.type,
+  authorization: Approval.AuthConfig.fromJSON(data.authorization || {})
+});
 
 module.exports = Approval;

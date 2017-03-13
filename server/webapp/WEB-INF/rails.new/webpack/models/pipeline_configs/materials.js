@@ -38,10 +38,8 @@ var Materials = function (data) {
   Mixins.HasUUID.call(this);
 };
 
-Materials.create = function (data) {
-  return Materials.isBuiltInType(data.type) ? new Materials.Types[data.type].type(data)
-    : new Materials.Material.PluggableMaterial(data);
-};
+Materials.create = data => Materials.isBuiltInType(data.type) ? new Materials.Types[data.type].type(data)
+  : new Materials.Material.PluggableMaterial(data);
 
 Materials.Filter = function (data) {
   this.constructor.modelType = 'materialFilter';
@@ -68,7 +66,7 @@ Materials.Filter = function (data) {
   };
 };
 
-Materials.Filter.fromJSON = function (data) {
+Materials.Filter.fromJSON = data => {
   if (!_.isEmpty(data)) {
     return new Materials.Filter({
       ignore: data.ignore
@@ -105,9 +103,8 @@ Materials.Material = function (type, hasFilter, data) {
   this.testConnection = function (pipelineName) {
     var self = this;
 
-    var payload = function () {
-      return JSON.stringify(_.merge(self.toJSON(), {pipeline_name: pipelineName()})); //eslint-disable-line camelcase
-    };
+    var payload = () => //eslint-disable-line camelcase
+    JSON.stringify(_.merge(self.toJSON(), {pipeline_name: pipelineName()}));
 
     return $.Deferred(function () {
       var deferred = this;
@@ -120,11 +117,11 @@ Materials.Material = function (type, hasFilter, data) {
         contentType: 'application/json'
       });
 
-      var didFulfill = function (data) {
+      var didFulfill = data => {
         deferred.resolve(data);
       };
 
-      var didReject = function (jqXHR) {
+      var didReject = jqXHR => {
         deferred.reject(mrequest.unwrapErrorExtractMessage(jqXHR.responseJSON, jqXHR, 'There was an unknown error while checking connection'));
       };
 
@@ -133,7 +130,7 @@ Materials.Material = function (type, hasFilter, data) {
 
   };
 
-  this._attributesToJSON = function () {
+  this._attributesToJSON = () => {
     throw new Error("Subclass responsibility!");
   };
 
@@ -182,7 +179,7 @@ Materials.Material.SVN = function (data) {
   };
 };
 
-Materials.Material.SVN.fromJSON = function (data) {
+Materials.Material.SVN.fromJSON = data => {
   var attr = data.attributes || {};
   return new Materials.Material.SVN({
     url:               attr.url,
@@ -226,7 +223,7 @@ Materials.Material.Git = function (data) {
   };
 };
 
-Materials.Material.Git.fromJSON = function (data) {
+Materials.Material.Git.fromJSON = data => {
   var attr = data.attributes || {};
   return new Materials.Material.Git({
     url:          attr.url,
@@ -266,7 +263,7 @@ Materials.Material.Mercurial = function (data) {
   };
 };
 
-Materials.Material.Mercurial.fromJSON = function (data) {
+Materials.Material.Mercurial.fromJSON = data => {
   var attr = data.attributes || {};
   return new Materials.Material.Mercurial({
     url:          attr.url,
@@ -315,7 +312,7 @@ Materials.Material.Perforce = function (data) {
 
 };
 
-Materials.Material.Perforce.fromJSON = function (data) {
+Materials.Material.Perforce.fromJSON = data => {
   var attr = data.attributes || {};
   return new Materials.Material.Perforce({
     port:              attr.port,
@@ -368,7 +365,7 @@ Materials.Material.TFS = function (data) {
   };
 };
 
-Materials.Material.TFS.fromJSON = function (data) {
+Materials.Material.TFS.fromJSON = data => {
   var attr = data.attributes || {};
   return new Materials.Material.TFS({
     url:               attr.url,
@@ -404,7 +401,7 @@ Materials.Material.Dependency = function (data) {
   };
 };
 
-Materials.Material.Dependency.fromJSON = function (data) {
+Materials.Material.Dependency.fromJSON = data => {
   var attr = data.attributes || {};
   return new Materials.Material.Dependency({
     pipeline: attr.pipeline,
@@ -433,7 +430,7 @@ Materials.Material.PluggableMaterial = function (data) {
   };
 };
 
-Materials.Material.PluggableMaterial.fromJSON = function (data) {
+Materials.Material.PluggableMaterial.fromJSON = data => {
   var attr = data.attributes || {};
   return new Materials.Material.PluggableMaterial({
     scm:          SCMs.findById(attr.ref),
@@ -456,7 +453,7 @@ Materials.Material.PackageMaterial = function (data) {
   };
 };
 
-Materials.Material.PackageMaterial.fromJSON = function (data) {
+Materials.Material.PackageMaterial.fromJSON = data => {
   var attr = data.attributes || {};
   return new Materials.Material.PackageMaterial({
     ref:    attr.ref,
@@ -464,9 +461,7 @@ Materials.Material.PackageMaterial.fromJSON = function (data) {
   });
 };
 
-Materials.isBuiltInType = function (type) {
-  return _.hasIn(Materials.Types, type);
-};
+Materials.isBuiltInType = type => _.hasIn(Materials.Types, type);
 
 Materials.Types = {
   git:        {type: Materials.Material.Git, description: "Git"},
@@ -478,7 +473,7 @@ Materials.Types = {
 };
 
 
-Materials.Material.fromJSON = function (data) {
+Materials.Material.fromJSON = data => {
   if (Materials.isBuiltInType(data.type)) {
     return Materials.Types[data.type].type.fromJSON(data || {});
   }

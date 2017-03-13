@@ -75,7 +75,7 @@ var Pipeline = function (data) {
   this.validateAssociated('trackingTool');
 
   this.update = function (etag, extract) {
-    var config = function (xhr) {
+    var config = xhr => {
       xhr.setRequestHeader("Content-Type", "application/json");
       xhr.setRequestHeader("Accept", "application/vnd.go.cd.v3+json");
       xhr.setRequestHeader("If-Match", etag);
@@ -95,11 +95,11 @@ var Pipeline = function (data) {
         contentType: false
       });
 
-      jqXHR.then(function (_data, _textStatus, jqXHR) {
+      jqXHR.then((_data, _textStatus, jqXHR) => {
         deferred.resolve(extract(jqXHR));
       });
 
-      jqXHR.fail(function (response, _textStatus, _error) {
+      jqXHR.fail((response, _textStatus, _error) => {
         deferred.reject(response.responseJSON);
       });
 
@@ -115,21 +115,19 @@ var Pipeline = function (data) {
   };
 };
 
-Pipeline.fromJSON = function (data) {
-  return new Pipeline({
-    name:                  data.name,
-    enablePipelineLocking: data.enable_pipeline_locking,
-    templateName:          data.template_name,
-    labelTemplate:         data.label_template,
-    template:              data.template,
-    timer:                 Pipeline.Timer.fromJSON(data.timer),
-    trackingTool:          TrackingTool.fromJSON(data.tracking_tool),
-    environmentVariables:  EnvironmentVariables.fromJSON(data.environment_variables),
-    parameters:            Parameters.fromJSON(data.parameters),
-    materials:             Materials.fromJSON(data.materials),
-    stages:                Stages.fromJSON(data.stages)
-  });
-};
+Pipeline.fromJSON = data => new Pipeline({
+  name:                  data.name,
+  enablePipelineLocking: data.enable_pipeline_locking,
+  templateName:          data.template_name,
+  labelTemplate:         data.label_template,
+  template:              data.template,
+  timer:                 Pipeline.Timer.fromJSON(data.timer),
+  trackingTool:          TrackingTool.fromJSON(data.tracking_tool),
+  environmentVariables:  EnvironmentVariables.fromJSON(data.environment_variables),
+  parameters:            Parameters.fromJSON(data.parameters),
+  materials:             Materials.fromJSON(data.materials),
+  stages:                Stages.fromJSON(data.stages)
+});
 
 Pipeline.Timer = function (data) {
   this.constructor.modelType = 'pipelineTimer';
@@ -144,7 +142,7 @@ Pipeline.Timer = function (data) {
   };
 };
 
-Pipeline.Timer.fromJSON = function (data) {
+Pipeline.Timer.fromJSON = data => {
   if (!_.isEmpty(data)) {
     return new Pipeline.Timer({
       spec:          data.spec,
@@ -154,24 +152,22 @@ Pipeline.Timer.fromJSON = function (data) {
   }
 };
 
-Pipeline.find = function (url, extract) {
-  return $.Deferred(function () {
+Pipeline.find = (url, extract) => $.Deferred(() => {
 
-    var jqXHR = $.ajax({
-      method:      'GET',
-      url:         url,
-      beforeSend:  mrequest.xhrConfig.forVersion('v3'),
-      contentType: false
-    });
+  var jqXHR = $.ajax({
+    method:      'GET',
+    url:         url,
+    beforeSend:  mrequest.xhrConfig.forVersion('v3'),
+    contentType: false
+  });
 
-    jqXHR.done(extract);
+  jqXHR.done(extract);
 
-    jqXHR.always(function () {
-      m.redraw();
-    });
+  jqXHR.always(() => {
+    m.redraw();
+  });
 
-  }).promise();
-};
+}).promise();
 
 Pipeline.vm = function () {
   this.saveState = Stream('');
@@ -201,19 +197,15 @@ Pipeline.vm = function () {
     this.saveState('');
   };
 
-  this.clearErrors = function () {
+  this.clearErrors = () => {
     errors = [];
   };
 
-  this.errors = function () {
-    return errors;
-  };
+  this.errors = () => errors;
 
-  this.hasErrors = function () {
-    return !_.isEmpty(errors);
-  };
+  this.hasErrors = () => !_.isEmpty(errors);
 
-  this.markClientSideErrors = function () {
+  this.markClientSideErrors = () => {
     errors.push('There are errors on the page, fix them and save');
   };
 };

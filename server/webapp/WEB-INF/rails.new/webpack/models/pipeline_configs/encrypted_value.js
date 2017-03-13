@@ -46,14 +46,12 @@ var EncryptedValue = function (data) {
     return _value();
   };
 
-  this.edit = function () {
+  this.edit = () => {
     _canEdit(true);
     _value('');
   };
 
-  this.isEditing = function () {
-    return _canEdit();
-  };
+  this.isEditing = () => _canEdit();
 
   this.isDirty = function () {
     return this.value() !== _originalValue();
@@ -63,16 +61,14 @@ var EncryptedValue = function (data) {
     return !this.isSecure();
   };
 
-  this.isSecure = function () {
-    return _isEncrypted();
-  };
+  this.isSecure = () => _isEncrypted();
 
-  this.becomeSecure = function () {
+  this.becomeSecure = () => {
     _isEncrypted(true);
     _canEdit(false);
   };
 
-  this.becomeUnSecure = function () {
+  this.becomeUnSecure = () => {
     _isEncrypted(false);
     _canEdit(true);
   };

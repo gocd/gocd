@@ -36,9 +36,7 @@ var mixins = {
   },
 
   withNewJSONImpl: function (prop, jsonFunc) {
-    prop.toJSON = function () {
-      return jsonFunc(prop());
-    };
+    prop.toJSON = () => jsonFunc(prop());
 
     return prop;
   },
@@ -49,9 +47,7 @@ var mixins = {
     } else if (s.isBlank(string)) {
       return [];
     } else {
-      return _.chain(string.split(',')).map(_.trim).filter(function (thing) {
-        return !s.isBlank(thing);
-      }).value();
+      return _.chain(string.split(',')).map(_.trim).filter(thing => !s.isBlank(thing)).value();
     }
   },
 

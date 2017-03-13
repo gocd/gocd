@@ -23,22 +23,18 @@ var Routes           = require('gen/js-routes');
 var Resources        = {};
 Resources.list       = [];
 
-var getSortedResources = function (resources, selectedAgents) {
-  var selectedAgentsResources = _.map(selectedAgents, function (agent) {
-    return agent.resources();
-  });
+var getSortedResources = (resources, selectedAgents) => {
+  var selectedAgentsResources = _.map(selectedAgents, agent => agent.resources());
 
-  return _.map(resources.sort(), function (resource) {
-    return new TriStateCheckbox(resource, selectedAgentsResources);
-  });
+  return _.map(resources.sort(), resource => new TriStateCheckbox(resource, selectedAgentsResources));
 };
 
-Resources.init = function (selectedAgents) {
+Resources.init = selectedAgents => {
   $.ajax({
     method:     'GET',
     url:        Routes.apiv1AdminInternalResourcesPath(),
     beforeSend: mrequest.xhrConfig.forVersion('v1')
-  }).then(function (data) {
+  }).then(data => {
     Resources.list = getSortedResources(data, selectedAgents);
   }).always(m.redraw);
 };

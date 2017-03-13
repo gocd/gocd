@@ -19,7 +19,7 @@ var s                 = require('string-plus');
 var Errors            = require('models/mixins/errors');
 var Mixins            = require('models/mixins/model_mixins');
 var PresenceValidator = function (options) {
-  this.validate = function (entity, attr) {
+  this.validate = (entity, attr) => {
     if (options.condition && (!options.condition(entity))) {
       return;
     }
@@ -31,7 +31,7 @@ var PresenceValidator = function (options) {
 };
 
 var UniquenessValidator = function () {
-  this.validate = function (entity, attr) {
+  this.validate = (entity, attr) => {
     if (_.isNil(entity.parent()) || s.isBlank(entity[attr]())) {
       return;
     }
@@ -45,7 +45,7 @@ var UniquenessValidator = function () {
 var UrlPatternValidator = function () {
   var URL_REGEX = /^http(s)?:\/\/.+/;
 
-  this.validate = function (entity, attr) {
+  this.validate = (entity, attr) => {
     if (s.isBlank(entity[attr]())) {
       return;
     }
@@ -57,7 +57,7 @@ var UrlPatternValidator = function () {
 };
 
 var FormatValidator = function (options) {
-  this.validate = function (entity, attr) {
+  this.validate = (entity, attr) => {
     if (s.isBlank(entity[attr]())) {
       return;
     }
@@ -74,45 +74,45 @@ var Validatable = function (data) {
   var associationsToValidate = [];
   self.errors                = Mixins.GetterSetter(new Errors(data.errors));
 
-  var validateWith = function (validator, attr) {
+  var validateWith = (validator, attr) => {
     _.has(attrToValidators, attr) ? attrToValidators[attr].push(validator) : attrToValidators[attr] = [validator];
   };
 
-  var clearErrors = function (attr) {
+  var clearErrors = attr => {
     attr ? self.errors().clear(attr) : self.errors().clear();
   };
 
-  self.validatePresenceOf = function (attr, options) {
+  self.validatePresenceOf = (attr, options) => {
     validateWith(new PresenceValidator(options || {}), attr);
   };
 
-  self.validateUniquenessOf = function (attr, options) {
+  self.validateUniquenessOf = (attr, options) => {
     validateWith(new UniquenessValidator(options || {}), attr);
   };
 
-  self.validateFormatOf = function (attr, options) {
+  self.validateFormatOf = (attr, options) => {
     validateWith(new FormatValidator(options || {}), attr);
   };
 
-  self.validateUrlPattern = function (attr, options) {
+  self.validateUrlPattern = (attr, options) => {
     validateWith(new UrlPatternValidator(options || {}), attr);
   };
 
-  self.validateWith = function (attr, validator) {
+  self.validateWith = (attr, validator) => {
     validateWith(new validator(), attr);
   };
 
-  self.validateAssociated = function (association) {
+  self.validateAssociated = association => {
     associationsToValidate.push(association);
   };
 
-  self.validate = function (attr) {
+  self.validate = attr => {
     var attrs = attr ? [attr] : _.keys(attrToValidators);
 
     clearErrors(attr);
 
-    _.forEach(attrs, function (attr) {
-      _.forEach(attrToValidators[attr], function (validator) {
+    _.forEach(attrs, attr => {
+      _.forEach(attrToValidators[attr], validator => {
         validator.validate(self, attr);
       });
     });
@@ -120,12 +120,10 @@ var Validatable = function (data) {
     return self.errors();
   };
 
-  self.isValid = function () {
+  self.isValid = () => {
     self.validate();
 
-    return _.isEmpty(self.errors().errors()) && _.every(associationsToValidate, function (association) {
-      return self[association]() ? self[association]().isValid() : true;
-    });
+    return _.isEmpty(self.errors().errors()) && _.every(associationsToValidate, association => self[association]() ? self[association]().isValid() : true);
   };
 };
 

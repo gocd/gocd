@@ -27,7 +27,7 @@ var Tasks = function (data) {
   Mixins.HasMany.call(this, {factory: Tasks.createByType, as: 'Task', collection: data});
 };
 
-Tasks.createByType = function (data) {
+Tasks.createByType = data => {
   if (Tasks.isBuiltInTaskType(data.type)) {
     return new Tasks.Types[data.type].type({});
   } else {
@@ -45,14 +45,12 @@ Tasks.Task = function (type, data) {
 
   var self = this;
 
-  this.toJSON = function () {
-    return {
-      type:       self.type(),
-      attributes: self._attributesToJSON()
-    };
-  };
+  this.toJSON = () => ({
+    type:       self.type(),
+    attributes: self._attributesToJSON()
+  });
 
-  this._attributesToJSON = function () {
+  this._attributesToJSON = () => {
     throw new Error("Subclass responsibility!");
   };
 
@@ -108,7 +106,7 @@ Tasks.Task.Ant = function (data) {
   };
 };
 
-Tasks.Task.Ant.fromJSON = function (data) {
+Tasks.Task.Ant.fromJSON = data => {
   var attr = data.attributes || {};
   return new Tasks.Task.Ant({
     target:           attr.target,
@@ -160,7 +158,7 @@ Tasks.Task.NAnt = function (data) {
   };
 };
 
-Tasks.Task.NAnt.fromJSON = function (data) {
+Tasks.Task.NAnt.fromJSON = data => {
   var attr = data.attributes || {};
   return new Tasks.Task.NAnt({
     target:           attr.target,
@@ -260,7 +258,7 @@ Tasks.Task.Rake = function (data) {
   };
 };
 
-Tasks.Task.Rake.fromJSON = function (data) {
+Tasks.Task.Rake.fromJSON = data => {
   var attr = data.attributes || {};
   return new Tasks.Task.Rake({
     target:           attr.target,
@@ -322,7 +320,7 @@ Tasks.Task.FetchArtifact = function (data) {
 };
 
 
-Tasks.Task.FetchArtifact.fromJSON = function (data) {
+Tasks.Task.FetchArtifact.fromJSON = data => {
   var attr = data.attributes || {};
   return new Tasks.Task.FetchArtifact({
     pipeline:      attr.pipeline,
@@ -351,15 +349,13 @@ Tasks.Task.PluginTask = function (data) {
   };
 
   this.toString = function () {
-    return _.join(this.configuration().mapConfigurations(function (configuration) {
-      return _.join([configuration.key(), ':', ' ', configuration.value()], '');
-    }), ' ');
+    return _.join(this.configuration().mapConfigurations(configuration => _.join([configuration.key(), ':', ' ', configuration.value()], '')), ' ');
   };
 
   this.summary = function () {
     var data = {};
 
-    this.configuration().mapConfigurations(function (conf) {
+    this.configuration().mapConfigurations(conf => {
       data[_.capitalize(conf.key())] = conf.value();
     });
 
@@ -381,7 +377,7 @@ Tasks.Task.PluginTask = function (data) {
   };
 };
 
-Tasks.Task.PluginTask.fromJSON = function (data) {
+Tasks.Task.PluginTask.fromJSON = data => {
   var attr = data.attributes || {};
   return new Tasks.Task.PluginTask({
     pluginId:      attr.plugin_configuration.id,
@@ -393,13 +389,11 @@ Tasks.Task.PluginTask.fromJSON = function (data) {
   });
 };
 
-Tasks.Task.PluginTask.fromPluginInfo = function (pluginInfo) {
-  return new Tasks.Task.PluginTask({
-    pluginId:      pluginInfo.id(),
-    version:       pluginInfo.version(),
-    configuration: Tasks.Task.PluginTask.Configurations.fromJSON(pluginInfo.configurations())
-  });
-};
+Tasks.Task.PluginTask.fromPluginInfo = pluginInfo => new Tasks.Task.PluginTask({
+  pluginId:      pluginInfo.id(),
+  version:       pluginInfo.version(),
+  configuration: Tasks.Task.PluginTask.Configurations.fromJSON(pluginInfo.configurations())
+});
 
 Tasks.Task.PluginTask.Configurations = PluginConfigurations;
 
@@ -413,9 +407,9 @@ Tasks.BuiltInTypes = {
 
 Tasks.Types = _.assign({}, Tasks.BuiltInTypes);
 
-Tasks.findTypeFromDescription = function (description) {
+Tasks.findTypeFromDescription = description => {
   var matchedKey;
-  _.each(Tasks.Types, function (value, key) {
+  _.each(Tasks.Types, (value, key) => {
     if (value.description === description) {
       matchedKey = key;
     }
@@ -423,11 +417,9 @@ Tasks.findTypeFromDescription = function (description) {
   return matchedKey;
 };
 
-Tasks.isBuiltInTaskType = function (type) {
-  return !!Tasks.BuiltInTypes[type];
-};
+Tasks.isBuiltInTaskType = type => !!Tasks.BuiltInTypes[type];
 
-Tasks.Task.fromJSON = function (data) {
+Tasks.Task.fromJSON = data => {
   if (Tasks.isBuiltInTaskType(data.type)) {
     return Tasks.Types[data.type].type.fromJSON(data || {});
   } else {
@@ -435,7 +427,7 @@ Tasks.Task.fromJSON = function (data) {
   }
 };
 
-Tasks.Task.onCancelTask = function (data) {
+Tasks.Task.onCancelTask = data => {
   if (data) {
     return Tasks.Task.fromJSON(data);
   }

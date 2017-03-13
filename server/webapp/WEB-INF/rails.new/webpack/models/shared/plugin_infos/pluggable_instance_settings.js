@@ -23,12 +23,10 @@ var PluggableInstanceSettings = function (data) {
   this.configurations = Stream(data.configurations);
 };
 
-PluggableInstanceSettings.fromJSON = function (data = {}) {
-  return new PluggableInstanceSettings({
-    configurations: PluggableInstanceSettings.Configurations.fromJSON(data.configurations),
-    viewTemplate:   _.get(data, 'view.template'),
-  });
-};
+PluggableInstanceSettings.fromJSON = (data = {}) => new PluggableInstanceSettings({
+  configurations: PluggableInstanceSettings.Configurations.fromJSON(data.configurations),
+  viewTemplate:   _.get(data, 'view.template'),
+});
 
 PluggableInstanceSettings.Configurations = function (data) {
   Mixins.HasMany.call(this, {
@@ -46,16 +44,12 @@ PluggableInstanceSettings.Configurations.Configuration = function (data) {
   this.metadata = Stream(data.metadata);
 };
 
-PluggableInstanceSettings.Configurations.Configuration.create = function (data) {
-  return new PluggableInstanceSettings.Configurations.Configuration(data);
-};
+PluggableInstanceSettings.Configurations.Configuration.create = data => new PluggableInstanceSettings.Configurations.Configuration(data);
 
-PluggableInstanceSettings.Configurations.Configuration.fromJSON = function (data = {}) {
-  return new PluggableInstanceSettings.Configurations.Configuration.create({
-    key:      data.key,
-    metadata: data.metadata
-  });
-};
+PluggableInstanceSettings.Configurations.Configuration.fromJSON = (data = {}) => new PluggableInstanceSettings.Configurations.Configuration.create({
+  key:      data.key,
+  metadata: data.metadata
+});
 
 Mixins.fromJSONCollection({
   parentType: PluggableInstanceSettings.Configurations,

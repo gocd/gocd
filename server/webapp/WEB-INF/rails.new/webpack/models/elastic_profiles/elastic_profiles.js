@@ -64,22 +64,16 @@ ElasticProfiles.Profile = function (data) {
   });
 };
 
-ElasticProfiles.Profile.get = function (id) {
-  return new ElasticProfiles.Profile({id: id}).refresh();
-};
+ElasticProfiles.Profile.get = id => new ElasticProfiles.Profile({id: id}).refresh();
 
-ElasticProfiles.Profile.create = function (data) {
-  return new ElasticProfiles.Profile(data);
-};
+ElasticProfiles.Profile.create = data => new ElasticProfiles.Profile(data);
 
-ElasticProfiles.Profile.fromJSON = function (data) {
-  return new ElasticProfiles.Profile({
-    id:         data.id,
-    pluginId:   data.plugin_id,
-    errors:     data.errors,
-    properties: PluginConfigurations.fromJSON(data.properties)
-  });
-};
+ElasticProfiles.Profile.fromJSON = data => new ElasticProfiles.Profile({
+  id:         data.id,
+  pluginId:   data.plugin_id,
+  errors:     data.errors,
+  properties: PluginConfigurations.fromJSON(data.properties)
+});
 
 Mixins.fromJSONCollection({
   parentType: ElasticProfiles,

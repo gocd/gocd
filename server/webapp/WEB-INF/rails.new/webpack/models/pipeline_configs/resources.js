@@ -16,7 +16,7 @@
 
 var Resources = {};
 
-Resources.initializeWith = function (values) {
+Resources.initializeWith = values => {
   Resources.list = values || [];
 };
 

@@ -17,7 +17,7 @@
 var Stream = require('mithril/stream');
 var _      = require('lodash');
 
-var VM         = function () {
+var VM         = () => {
   var dropdownStates     = {};
   var agentCheckedStates = {};
   var allAgentsSelected  = Stream(false);
@@ -70,9 +70,7 @@ var VM         = function () {
 
     agents: {
       isAnyAgentSelected: function () {
-        return _.some(agentCheckedStates, function (boxState) {
-          return boxState();
-        });
+        return _.some(agentCheckedStates, boxState => boxState());
       },
 
       checkboxFor: function (uuid) {
@@ -80,13 +78,13 @@ var VM         = function () {
       },
 
       clearAllCheckboxes: function () {
-        _.each(agentCheckedStates, function (boxState) {
+        _.each(agentCheckedStates, boxState => {
           boxState(false);
         });
       },
 
       selectedAgentsUuids: function () {
-        return _.compact(_.map(agentCheckedStates, function (boxSate, agentId) {
+        return _.compact(_.map(agentCheckedStates, (boxSate, agentId) => {
           if (boxSate()) {
             return agentId;
           }
@@ -96,7 +94,7 @@ var VM         = function () {
       areAllAgentsSelected: function (allAgents) {
         var filterText = viewModel.filterText();
 
-        var isChecked = allAgents().filterBy(filterText).everyAgent(function (agent) {
+        var isChecked = allAgents().filterBy(filterText).everyAgent(agent => {
           var agentsCheckedState = agentCheckedStates[agent.uuid()];
           if (agentsCheckedState) {
             return agentsCheckedState();
@@ -111,7 +109,7 @@ var VM         = function () {
         var isChecked  = allAgentsSelected(!allAgentsSelected());
         var filterText = viewModel.filterText();
 
-        allAgents().filterBy(filterText).eachAgent(function (agent) {
+        allAgents().filterBy(filterText).eachAgent(agent => {
           agentCheckedStates[agent.uuid()](isChecked);
         });
       }
@@ -123,12 +121,12 @@ var VM         = function () {
       var agentUUIDsToRemoveFromVM  = _.difference(agentUUIDsKnownToVM, newAgentUUIDs);
       var newAgentUUIDsNotKnownToVM = _.difference(newAgentUUIDs, agentUUIDsKnownToVM);
 
-      _.each(agentUUIDsToRemoveFromVM, function (uuid) {
+      _.each(agentUUIDsToRemoveFromVM, uuid => {
         delete agentCheckedStates[uuid];
         delete dropdownStates[uuid];
       });
 
-      _.each(newAgentUUIDsNotKnownToVM, function (uuid) {
+      _.each(newAgentUUIDsNotKnownToVM, uuid => {
         agentCheckedStates[uuid] = Stream();
       });
     }

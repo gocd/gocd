@@ -19,8 +19,8 @@ var Tasks          = require('models/pipeline_configs/tasks');
 var PluginInfos    = require('models/pipeline_configs/plugin_infos');
 var PluggableTasks = {};
 
-PluggableTasks.init = function () {
-  _.each(PluginInfos.filterByType('task'), function (pluginInfo) {
+PluggableTasks.init = () => {
+  _.each(PluginInfos.filterByType('task'), pluginInfo => {
     PluggableTasks.Types[pluginInfo.id()] = {
       type:        Tasks.Task.PluginTask,
       description: pluginInfo.displayName()

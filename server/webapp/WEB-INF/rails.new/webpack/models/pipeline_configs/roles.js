@@ -16,7 +16,7 @@
 
 var Roles = {};
 
-Roles.initializeWith = function (values) {
+Roles.initializeWith = values => {
   Roles.list = values || [];
 };
 

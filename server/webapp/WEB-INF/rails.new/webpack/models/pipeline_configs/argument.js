@@ -36,13 +36,11 @@ var Argument = function (data) {
   };
 };
 
-Argument.create = function (args, argsList) {
-  return args ? new Argument(args) : new Argument(argsList || []);
-};
+Argument.create = (args, argsList) => args ? new Argument(args) : new Argument(argsList || []);
 
-Argument.vm = function (model) {
+Argument.vm = model => {
   var listVM = function () {
-    this.data = function (val) {
+    this.data = val => {
       if (val === undefined) {
         return model.data().join('\n');
       }
@@ -52,7 +50,7 @@ Argument.vm = function (model) {
   };
 
   var stringVM = function () {
-    this.data = function (val) {
+    this.data = val => {
       if (val === undefined) {
         return model.data();
       }

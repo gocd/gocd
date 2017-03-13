@@ -17,13 +17,13 @@
 var m             = require('mithril');
 var dragula       = require('dragula');
 var _             = require('lodash');
-var dragulaConfig = function (elem, options) {
+var dragulaConfig = (elem, options) => {
 
   var opts = _.extend({revertOnSpill: true, mirrorContainer: elem}, options.dragulaOptions);
 
   var drake = dragula([elem], opts);
 
-  drake.on('drop', function () {
+  drake.on('drop', () => {
     try {
       options.onDropCallback();
     } finally {

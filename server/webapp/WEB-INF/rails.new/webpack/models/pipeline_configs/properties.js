@@ -63,9 +63,7 @@ Properties.Property = function (data) {
   });
 };
 
-Properties.Property.create = function (data) {
-  return new Properties.Property(data);
-};
+Properties.Property.create = data => new Properties.Property(data);
 
 Mixins.fromJSONCollection({
   parentType: Properties,
@@ -74,8 +72,6 @@ Mixins.fromJSONCollection({
 });
 
 
-Properties.Property.fromJSON = function (data) {
-  return new Properties.Property(_.pick(data, ['name', 'source', 'xpath']));
-};
+Properties.Property.fromJSON = data => new Properties.Property(_.pick(data, ['name', 'source', 'xpath']));
 
 module.exports = Properties;

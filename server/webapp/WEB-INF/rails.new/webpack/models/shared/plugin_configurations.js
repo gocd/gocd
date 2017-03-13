@@ -20,7 +20,7 @@ var Mixins         = require('models/mixins/model_mixins');
 var Validatable    = require('models/mixins/validatable_mixin');
 var EncryptedValue = require('models/pipeline_configs/encrypted_value');
 
-var plainOrCipherValue = function (data) {
+var plainOrCipherValue = data => {
   if (data.encrypted_value) {
     return new EncryptedValue({cipherText: s.defaultToIfBlank(data.encrypted_value, '')});
   } else {
@@ -38,9 +38,7 @@ var PluginConfigurations = function (data) {
   });
 
   function configForKey(key) {
-    return this.findConfiguration(function (config) {
-      return config.key() === key;
-    });
+    return this.findConfiguration(config => config.key() === key);
   }
 
   this.valueFor = function (key) {
@@ -88,13 +86,9 @@ PluginConfigurations.Configuration = function (data) {
 
 };
 
-PluginConfigurations.Configuration.create = function (data) {
-  return new PluginConfigurations.Configuration(data);
-};
+PluginConfigurations.Configuration.create = data => new PluginConfigurations.Configuration(data);
 
-PluginConfigurations.Configuration.fromJSON = function (data) {
-  return new PluginConfigurations.Configuration(data);
-};
+PluginConfigurations.Configuration.fromJSON = data => new PluginConfigurations.Configuration(data);
 
 Mixins.fromJSONCollection({
   parentType: PluginConfigurations,

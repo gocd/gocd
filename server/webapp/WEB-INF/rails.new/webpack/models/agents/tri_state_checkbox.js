@@ -16,17 +16,9 @@
 
 var Stream         = require('mithril/stream');
 var _              = require('lodash');
-var isPresentOnAll = function (setOfValues, value) {
-  return _.every(setOfValues, function (values) {
-    return _.includes(values, value);
-  });
-};
+var isPresentOnAll = (setOfValues, value) => _.every(setOfValues, values => _.includes(values, value));
 
-var isPresentOnAny = function (setOfValues, value) {
-  return _.some(setOfValues, function (values) {
-    return _.includes(values, value);
-  });
-};
+var isPresentOnAny = (setOfValues, value) => _.some(setOfValues, values => _.includes(values, value));
 
 var TriStateCheckbox = function (value, setOfValues) {
   var isChecked       = isPresentOnAll(setOfValues, value);
@@ -37,7 +29,7 @@ var TriStateCheckbox = function (value, setOfValues) {
   var indeterminate = Stream(isIndeterminate);
   var self          = this;
 
-  this.click = function () {
+  this.click = () => {
     if (isIndeterminate) {
       if (self.isChecked()) {
         self.becomeUnchecked();
@@ -55,25 +47,21 @@ var TriStateCheckbox = function (value, setOfValues) {
     }
   };
 
-  this.isChecked = function () {
-    return checked();
-  };
+  this.isChecked = () => checked();
 
-  this.isIndeterminate = function () {
-    return indeterminate();
-  };
+  this.isIndeterminate = () => indeterminate();
 
-  this.becomeChecked = function () {
+  this.becomeChecked = () => {
     checked(true);
     indeterminate(false);
   };
 
-  this.becomeUnchecked = function () {
+  this.becomeUnchecked = () => {
     checked(false);
     indeterminate(false);
   };
 
-  this.becomeIndeterminate = function () {
+  this.becomeIndeterminate = () => {
     checked(false);
     indeterminate(true);
   };

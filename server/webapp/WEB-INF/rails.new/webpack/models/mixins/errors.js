@@ -19,30 +19,22 @@ var s      = require('string-plus');
 var Errors = function (errors) {
   errors = errors || {};
 
-  this.add = function (attrName, message) {
+  this.add = (attrName, message) => {
     errors[attrName] = errors[attrName] || [];
     errors[attrName].push(message);
   };
 
-  this.clear = function (optionalAttribute) {
+  this.clear = optionalAttribute => {
     optionalAttribute ? (errors[optionalAttribute] = []) : (errors = {});
   };
 
-  this.errors = function (optionalAttribute) {
-    return optionalAttribute ? errors[optionalAttribute] : errors;
-  };
+  this.errors = optionalAttribute => optionalAttribute ? errors[optionalAttribute] : errors;
 
-  this.hasErrors = function (attr) {
-    return !_.isEmpty(errors[attr]);
-  };
+  this.hasErrors = attr => !_.isEmpty(errors[attr]);
 
-  this._isEmpty = function () {
-    return _.isEmpty(errors);
-  };
+  this._isEmpty = () => _.isEmpty(errors);
 
-  this.errorsForDisplay = function (attrName) {
-    return _.map(errors[attrName] || [], s.terminateWithPeriod).join(" ");
-  };
+  this.errorsForDisplay = attrName => _.map(errors[attrName] || [], s.terminateWithPeriod).join(" ");
 };
 
 module.exports = Errors;

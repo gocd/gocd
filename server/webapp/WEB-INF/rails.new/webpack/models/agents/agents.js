@@ -26,7 +26,7 @@ var CrudMixins = require('models/mixins/crud_mixins');
 
 require('lodash-inflection');
 
-var statusComparator = function (agent) {
+var statusComparator = agent => {
   var rank = {
     "Pending":              1,
     "LostContact":          2,
@@ -41,31 +41,21 @@ var statusComparator = function (agent) {
   return rank[agent.status()];
 };
 
-var sortByAttrName = function (attrName) {
-  return function (agent) {
-    return _.toLower(agent[attrName]());
-  };
+var sortByAttrName = attrName => agent => _.toLower(agent[attrName]());
+
+var resolve = deferred => (data, _textStatus, jqXHR) => {
+  deferred.resolve(mrequest.unwrapMessage(data, jqXHR));
 };
 
-var resolve = function (deferred) {
-  return function (data, _textStatus, jqXHR) {
-    deferred.resolve(mrequest.unwrapMessage(data, jqXHR));
-  };
-};
-
-var reject = function (deferred) {
-  return function (jqXHR, _textStatus, _errorThrown) {
-    deferred.reject(mrequest.unwrapErrorExtractMessage(jqXHR.responseJSON, jqXHR));
-  };
+var reject = deferred => (jqXHR, _textStatus, _errorThrown) => {
+  deferred.reject(mrequest.unwrapErrorExtractMessage(jqXHR.responseJSON, jqXHR));
 };
 
 var Agents = function (data) {
   Mixins.HasMany.call(this, {factory: Agents.Agent.create, as: 'Agent', collection: data, uniqueOn: 'uuid'});
 
   var agentsWithState = function (state) {
-    return this.filterAgent(function (agent) {
-      return agent.agentConfigState() === state;
-    }).length;
+    return this.filterAgent(agent => agent.agentConfigState() === state).length;
   };
 
   this.countDisabledAgents = function () {
@@ -98,19 +88,15 @@ var Agents = function (data) {
 
   this.filterBy = function (text) {
     return new Agents(
-      this.filterAgent(function (agent) {
-        return agent.matches(text);
-      })
+      this.filterAgent(agent => agent.matches(text))
     );
   };
 
   this.findAgentByUuid = function (uuid) {
-    return this.findAgent(function (agent) {
-      return agent.uuid() === uuid;
-    });
+    return this.findAgent(agent => agent.uuid() === uuid);
   };
 
-  this.disableAgents = function (uuids) {
+  this.disableAgents = uuids => {
     var json = {
       uuids:              uuids,
       agent_config_state: 'Disabled'  //eslint-disable-line camelcase
@@ -132,7 +118,7 @@ var Agents = function (data) {
     }).promise();
   };
 
-  this.deleteAgents = function (uuids) {
+  this.deleteAgents = uuids => {
     var json = {uuids: uuids};
     return $.Deferred(function () {
       var deferred = this;
@@ -150,7 +136,7 @@ var Agents = function (data) {
     }).promise();
   };
 
-  this.enableAgents = function (uuids) {
+  this.enableAgents = uuids => {
     var json = {
       uuids:              uuids,
       agent_config_state: 'Enabled' //eslint-disable-line camelcase
@@ -172,7 +158,7 @@ var Agents = function (data) {
     }).promise();
   };
 
-  this.updateResources = function (uuids, add, remove) {
+  this.updateResources = (uuids, add, remove) => {
     var json = {
       uuids:      uuids,
       operations: {
@@ -196,7 +182,7 @@ var Agents = function (data) {
     }).promise();
   };
 
-  this.updateEnvironments = function (uuids, add, remove) {
+  this.updateEnvironments = (uuids, add, remove) => {
     var json = {
       uuids:      uuids,
       operations: {environments: {add: add, remove: remove}}
@@ -229,7 +215,7 @@ CrudMixins.Index({
   dataPath: '_embedded.agents'
 });
 
-var toHumanReadable = function (freeSpace) {
+var toHumanReadable = freeSpace => {
   try {
     if (_.isNumber(freeSpace)) {
       return filesize(freeSpace);
@@ -279,18 +265,16 @@ Agents.Agent = function (data) {
     return this.agentState();
   };
 
-  this.matches = function (filterText) {
+  this.matches = filterText => {
     var keys   = ['hostname', 'operatingSystem', 'ipAddress', 'status', 'environments', 'resources'];
     filterText = filterText.toLowerCase();
-    return _.some(keys, function (field) {
+    return _.some(keys, field => {
       var agentInfo = self[field]().toString().toLowerCase();
       return s.include(agentInfo, filterText);
     });
   };
 
-  this.isElasticAgent = function () {
-    return !_.isNil(self.elasticAgentId());
-  };
+  this.isElasticAgent = () => !_.isNil(self.elasticAgentId());
 
   this.toJSON = function () {
     return {
@@ -315,7 +299,7 @@ Agents.Agent.BuildDetails = function (data) {
   this.jobUrl       = Stream(data.jobUrl);
 };
 
-Agents.Agent.BuildDetails.fromJSON = function (data) {
+Agents.Agent.BuildDetails.fromJSON = data => {
   if (!data) {
     return new Agents.Agent.BuildDetails();
   } else {
@@ -330,28 +314,24 @@ Agents.Agent.BuildDetails.fromJSON = function (data) {
   }
 };
 
-Agents.Agent.fromJSON = function (data) {
-  return new Agents.Agent({
-    uuid:             data.uuid,
-    hostname:         data.hostname,
-    ipAddress:        data.ip_address,
-    sandbox:          data.sandbox,
-    operatingSystem:  data.operating_system,
-    freeSpace:        data.free_space,
-    agentConfigState: data.agent_config_state,
-    agentState:       data.agent_state,
-    buildState:       data.build_state,
-    resources:        data.resources,
-    environments:     data.environments,
-    buildDetails:     Agents.Agent.BuildDetails.fromJSON(data.build_details),
-    elasticAgentId:   data.elastic_agent_id,
-    elasticPluginId:  data.elastic_plugin_id
-  });
-};
+Agents.Agent.fromJSON = data => new Agents.Agent({
+  uuid:             data.uuid,
+  hostname:         data.hostname,
+  ipAddress:        data.ip_address,
+  sandbox:          data.sandbox,
+  operatingSystem:  data.operating_system,
+  freeSpace:        data.free_space,
+  agentConfigState: data.agent_config_state,
+  agentState:       data.agent_state,
+  buildState:       data.build_state,
+  resources:        data.resources,
+  environments:     data.environments,
+  buildDetails:     Agents.Agent.BuildDetails.fromJSON(data.build_details),
+  elasticAgentId:   data.elastic_agent_id,
+  elasticPluginId:  data.elastic_plugin_id
+});
 
-Agents.Agent.create = function (data) {
-  return new Agents.Agent(data);
-};
+Agents.Agent.create = data => new Agents.Agent(data);
 
 Mixins.fromJSONCollection({
   parentType: Agents,

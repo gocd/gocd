@@ -22,11 +22,11 @@ var PluginInfos           = require('models/shared/plugin_infos');
 var VersionUpdater        = require('models/shared/version_updater');
 require('foundation-sites');
 
-$(function () {
+$(() => {
   $(document).foundation();
   new VersionUpdater().update();
 
-  var onSuccess = function (pluginInfos) {
+  var onSuccess = pluginInfos => {
     var component = {
       view: function () {
         return m(ElasticProfilesWidget, {
@@ -38,7 +38,7 @@ $(function () {
     m.mount($("#elastic-profiles").get(0), component);
   };
 
-  var onFailure = function () {
+  var onFailure = () => {
     $("#elastic-profiles").html($('<div class="alert callout">')
       .append('<h5>There was a problem fetching the elastic profiles</h5>')
       .append('<p>Refresh <a href="javascript: window.location.reload()">this page</a> in some time, and if the problem persists, check the server logs.</p>')

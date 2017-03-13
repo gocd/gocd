@@ -41,7 +41,6 @@ dependencies {
   compile(group: 'org.jmock', name: 'jmock-legacy', version: '2.4.0') {
     exclude(module: 'cglib-nodep')
   }
-  compile group: 'ognl', name: 'ognl', version: '2.6.9'
   compile group: 'org.mozilla', name: 'rhino', version: '1.7.7'
   compile group: 'com.springsource', name: 'org.objenesis', version: '1.0.0'
   compile group: 'com.bea', name: 'stax.impl', version: '1.2.0'

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 description = 'GoCD Test Utilities'
 dependencies {
   compile project(':util')
-  compile group: 'org.apache.ant', name: 'ant', version: '1.9.7'
   compile group: 'org.antlr', name: 'antlr', version: '3.1.1'
   compile group: 'cglib', name: 'cglib', version: '2.1_3'
   compile group: 'dom4j', name: 'dom4j', version: '1.6.1'

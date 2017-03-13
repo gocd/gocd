@@ -17,55 +17,60 @@
 var viewAndEditAssociatedTemplate = function (templateSelector) {
 
   var addLinks = function (templateMap, parameterizedViewLink, parameterizedEditLink) {
-    var links = jQuery("#links");
-    links.html('');
+    if (areTemplatesDefined()) {
+      var links = jQuery("#links");
+      links.html('');
+      var canView = templateMap[selectedTemplateName()].canView;
+      var canEdit = templateMap[selectedTemplateName()].canEdit;
+      var editLink, viewLink;
 
-    var canView = templateMap[selectedTemplateName()].canView;
-    var canEdit = templateMap[selectedTemplateName()].canEdit;
-    var editLink, viewLink;
+      if (canView) {
+        var templateViewUrl = replaceUrlWithSelectedTemplate(parameterizedViewLink);
+        viewLink            = jQuery('<a>').attr({
+          href:  templateViewUrl,
+          class: 'view_template_link action_icon button view_icon skip_dirty_stop',
+        }).html('View');
 
-    if (canView) {
-      var templateViewUrl = replaceUrlWithSelectedTemplate(parameterizedViewLink);
-      viewLink        = jQuery('<a>').attr({
-        href:  templateViewUrl,
-        class: 'view_template_link action_icon button view_icon skip_dirty_stop',
-      }).html('View');
-
-      viewLink.on('click', function () {
-        Util.ajax_modal(templateViewUrl, {overlayClose: false, title: selectedTemplateName()}, function (text) {
-          return text;
+        viewLink.on('click', function () {
+          Util.ajax_modal(templateViewUrl, {overlayClose: false, title: selectedTemplateName()}, function (text) {
+            return text;
+          });
+          return false;
         });
-        return false;
-      });
-    }
-    else {
-      viewLink        = jQuery('<span>').attr({
-        class: 'view_template_link action_icon button view_icon_disabled skip_dirty_stop',
-        title: "Unauthorized to view template"
-      }).html('View');
-    }
+      }
+      else {
+        viewLink = jQuery('<span>').attr({
+          class: 'view_template_link action_icon button view_icon_disabled skip_dirty_stop',
+          title: "Unauthorized to view template"
+        }).html('View');
+      }
 
-    if (canEdit) {
-      var constructedTemplateEditUrl = replaceUrlWithSelectedTemplate(parameterizedEditLink);
-      editLink                   = jQuery('<a>').attr({
-        href:  constructedTemplateEditUrl,
-        class: 'action_icon edit_icon edit_template_link',
-      }).html('Edit');
+      if (canEdit) {
+        var constructedTemplateEditUrl = replaceUrlWithSelectedTemplate(parameterizedEditLink);
+        editLink                       = jQuery('<a>').attr({
+          href:  constructedTemplateEditUrl,
+          class: 'action_icon edit_icon edit_template_link',
+        }).html('Edit');
 
-    }
-    else {
-      editLink                   = jQuery('<span>').attr({
-        class: 'action_icon edit_icon_disabled edit_template_link',
-        title: "Unauthorized to edit template"
-      }).html('Edit');
-    }
+      }
+      else {
+        editLink = jQuery('<span>').attr({
+          class: 'action_icon edit_icon_disabled edit_template_link',
+          title: "Unauthorized to edit template"
+        }).html('Edit');
+      }
 
-    links.append(viewLink);
-    links.append(editLink);
+      links.append(viewLink);
+      links.append(editLink);
+    }
   };
 
   var selectedTemplateName = function () {
     return jQuery(templateSelector).val();
+  };
+
+  var areTemplatesDefined = function () {
+    return selectedTemplateName() ? true : false;
   };
 
   var replaceUrlWithSelectedTemplate = function (parameterizedUrl) {

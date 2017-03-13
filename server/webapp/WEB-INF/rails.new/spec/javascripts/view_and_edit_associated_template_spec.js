@@ -77,4 +77,16 @@ describe("ViewAndEditAssociatedTemplate", function () {
     assertEquals("Unauthorized to edit template", jQuery("span.edit_template_link").attr('title'));
   });
 
+  it('should not construct view and edit links if template name is blank', function () {
+    setFixtures("<div class='under_test'>\n" +
+      "    <div class=\"templates\">\n" +
+      "    </div>\n" +
+      "\n" +
+      "</div>");
+    viewAndEditAssociatedTemplate("#select_template").addViewAndEditTemplateLinks({}, "go/config_view/templates/__template_name__", "go/admin/templates/__template_name__/general" )
+    assertEquals(null, jQuery("span.edit_template_link").html());
+    assertEquals(null, jQuery("span.view_template_link").html());
+    assertEquals(null, jQuery("a.view_template_link").html());
+    assertEquals(null, jQuery("a.edit_template_link").html());
+  });
 });

@@ -30,7 +30,7 @@ Mixins.HasEncryptedAttribute = function (options) {
     capitalizedName = _.upperFirst(name);
 
   this[name] = function(...args) {
-    return _value().value.apply(_value(), args);
+    return _value().value(...args);
   };
 
   this['isSecure' + capitalizedName] = () => _value().isSecure();

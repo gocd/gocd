@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ Pipelines.Pipeline = function({name, stages}) {
   });
 };
 
-Pipelines.init = rejectPipeline => {
+Pipelines.init = (rejectPipeline) => {
   const jqXHR = $.ajax({
     method:      'GET',
     url:         Routes.apiv1AdminInternalPipelinesPath(),
@@ -41,7 +41,7 @@ Pipelines.init = rejectPipeline => {
   const didFulfill = ({_embedded}, _textStatus, _jqXHR) => {
     const pipelines = _.reject(_embedded.pipelines, ({name}) => name === rejectPipeline);
 
-    Pipelines(_.map(pipelines, pipeline => new Pipelines.Pipeline(pipeline)));
+    Pipelines(_.map(pipelines, (pipeline) => new Pipelines.Pipeline(pipeline)));
   };
 
   jqXHR.then(didFulfill);

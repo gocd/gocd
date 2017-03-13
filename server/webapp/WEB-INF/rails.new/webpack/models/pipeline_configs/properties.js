@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,7 +63,7 @@ Properties.Property = function (data) {
   });
 };
 
-Properties.Property.create = data => new Properties.Property(data);
+Properties.Property.create = (data) => new Properties.Property(data);
 
 Mixins.fromJSONCollection({
   parentType: Properties,
@@ -72,6 +72,6 @@ Mixins.fromJSONCollection({
 });
 
 
-Properties.Property.fromJSON = data => new Properties.Property(_.pick(data, ['name', 'source', 'xpath']));
+Properties.Property.fromJSON = (data) => new Properties.Property(_.pick(data, ['name', 'source', 'xpath']));
 
 module.exports = Properties;

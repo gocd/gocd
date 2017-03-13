@@ -21,13 +21,13 @@ const mrequest = require('helpers/mrequest');
 
 const CrudMixins = {};
 
-CrudMixins.Index = options => {
+CrudMixins.Index = (options) => {
   const type     = options.type;
   const url      = options.indexUrl;
   const version  = options.version;
   const dataPath = options.dataPath;
 
-  type.all = cb => $.Deferred(function () {
+  type.all = (cb) => $.Deferred(function () {
     const deferred = this;
 
     const jqXHR = $.ajax({

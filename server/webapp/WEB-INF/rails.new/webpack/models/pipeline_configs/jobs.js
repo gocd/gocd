@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ const Jobs = function (data) {
 };
 
 const TimeoutValidator = function () {
-  this.validate = entity => {
+  this.validate = (entity) => {
     if (!(entity.isTimeoutNever() || entity.isTimeoutDefault() || entity.isTimeoutCustom())) {
       entity.errors().add('timeout', Validatable.ErrorMessages.mustBePositiveNumber('timeout'));
     }
@@ -38,7 +38,7 @@ const TimeoutValidator = function () {
 };
 
 const RunInstanceCountValidator = function () {
-  this.validate = entity => {
+  this.validate = (entity) => {
     if (!(entity.isRunOnAllAgents() || entity.isRunOnOneAgent() || entity.isRunOnSomeAgents())) {
       entity.errors().add('runInstanceCount', Validatable.ErrorMessages.mustBePositiveNumber('runInstanceCount'));
     }
@@ -121,7 +121,7 @@ Jobs.Job = function (data) {
   };
 };
 
-Jobs.Job.create = data => new Jobs.Job(data);
+Jobs.Job.create = (data) => new Jobs.Job(data);
 
 Mixins.fromJSONCollection({
   parentType: Jobs,
@@ -129,7 +129,7 @@ Mixins.fromJSONCollection({
   via:        'addJob'
 });
 
-Jobs.Job.fromJSON = data => new Jobs.Job({
+Jobs.Job.fromJSON = (data) => new Jobs.Job({
   name:                 data.name,
   runInstanceCount:     data.run_instance_count,
   timeout:              data.timeout,

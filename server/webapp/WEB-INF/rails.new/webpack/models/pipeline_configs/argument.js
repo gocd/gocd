@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,9 +38,9 @@ const Argument = function (data) {
 
 Argument.create = (args, argsList) => args ? new Argument(args) : new Argument(argsList || []);
 
-Argument.vm = model => {
+Argument.vm = (model) => {
   const listVM = function () {
-    this.data = val => {
+    this.data = (val) => {
       if (val === undefined) {
         return model.data().join('\n');
       }
@@ -50,7 +50,7 @@ Argument.vm = model => {
   };
 
   const stringVM = function () {
-    this.data = val => {
+    this.data = (val) => {
       if (val === undefined) {
         return model.data();
       }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 describe('PluginInfos', () => {
 
   const PluginInfos = require("models/shared/plugin_infos");
@@ -541,7 +542,7 @@ describe('PluginInfos', () => {
       },
     };
 
-    _.each(_.keys(PluginInfos.Types), pluginType => {
+    _.each(_.keys(PluginInfos.Types), (pluginType) => {
       it(`should read image for ${pluginType}`, () => {
         const pluginInfoJSON = _.cloneDeep(json);
         pluginInfoJSON.type  = pluginType;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ const Mixins      = require('models/mixins/model_mixins');
 const Validatable = require('models/mixins/validatable_mixin');
 
 const UrlPatternValidator = function () {
-  this.validate = entity => {
+  this.validate = (entity) => {
     if (!s.include(entity.urlPattern(), '${ID}')) {
       entity.errors().add('urlPattern', Validatable.ErrorMessages.mustContainString("urlPattern", '${ID}'));
     }
@@ -65,8 +65,8 @@ TrackingTool.Generic = function (data) {
   };
 };
 
-TrackingTool.Generic.fromJSON = ({url_pattern, regex}) => new TrackingTool.Generic({
-  urlPattern: url_pattern,
+TrackingTool.Generic.fromJSON = ({url_pattern, regex}) => new TrackingTool.Generic({ //eslint-disable-line camelcase
+  urlPattern: url_pattern, //eslint-disable-line camelcase
   regex:      regex
 });
 
@@ -92,10 +92,10 @@ TrackingTool.Mingle = function (data) {
 
 };
 
-TrackingTool.Mingle.fromJSON = ({base_url, project_identifier, mql_grouping_conditions}) => new TrackingTool.Mingle({
-  baseUrl:               base_url,
-  projectIdentifier:     project_identifier,
-  mqlGroupingConditions: mql_grouping_conditions
+TrackingTool.Mingle.fromJSON = ({base_url, project_identifier, mql_grouping_conditions}) => new TrackingTool.Mingle({ //eslint-disable-line camelcase
+  baseUrl:               base_url, //eslint-disable-line camelcase
+  projectIdentifier:     project_identifier, //eslint-disable-line camelcase
+  mqlGroupingConditions: mql_grouping_conditions //eslint-disable-line camelcase
 });
 
 TrackingTool.Types = {
@@ -103,9 +103,9 @@ TrackingTool.Types = {
   mingle:  {type: TrackingTool.Mingle, description: "Mingle"}
 };
 
-TrackingTool.create = type => new TrackingTool.Types[type].type({});
+TrackingTool.create = (type) => new TrackingTool.Types[type].type({});
 
-TrackingTool.fromJSON = data => {
+TrackingTool.fromJSON = (data) => {
   if (!_.isEmpty(data)) {
     return TrackingTool.Types[data.type].type.fromJSON(data.attributes || {});
   }

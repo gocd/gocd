@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ $(() => {
   Users.initializeWith(allUserNames);
   Roles.initializeWith(allRoleNames);
   new VersionUpdater().update();
-  Promise.all([PluginInfos.init(), SCMs.init(), ElasticProfiles.all()]).then(args => {
+  Promise.all([PluginInfos.init(), SCMs.init(), ElasticProfiles.all()]).then((args) => {
 
     PluggableTasks.init();
     PluggableSCMs.init();

@@ -78,7 +78,7 @@ var Validatable = function({errors}) {
     _.has(attrToValidators, attr) ? attrToValidators[attr].push(validator) : attrToValidators[attr] = [validator];
   };
 
-  const clearErrors = attr => {
+  const clearErrors = (attr) => {
     attr ? self.errors().clear(attr) : self.errors().clear();
   };
 
@@ -102,17 +102,17 @@ var Validatable = function({errors}) {
     validateWith(new validator(), attr);
   };
 
-  self.validateAssociated = association => {
+  self.validateAssociated = (association) => {
     associationsToValidate.push(association);
   };
 
-  self.validate = attr => {
+  self.validate = (attr) => {
     const attrs = attr ? [attr] : _.keys(attrToValidators);
 
     clearErrors(attr);
 
-    _.forEach(attrs, attr => {
-      _.forEach(attrToValidators[attr], validator => {
+    _.forEach(attrs, (attr) => {
+      _.forEach(attrToValidators[attr], (validator) => {
         validator.validate(self, attr);
       });
     });
@@ -123,7 +123,7 @@ var Validatable = function({errors}) {
   self.isValid = () => {
     self.validate();
 
-    return _.isEmpty(self.errors().errors()) && _.every(associationsToValidate, association => self[association]() ? self[association]().isValid() : true);
+    return _.isEmpty(self.errors().errors()) && _.every(associationsToValidate, (association) => self[association]() ? self[association]().isValid() : true);
   };
 };
 

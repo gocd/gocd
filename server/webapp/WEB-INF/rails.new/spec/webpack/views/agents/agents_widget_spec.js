@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ describe("Agents Widget", () => {
     sortOrder().perform = _.noop;
   });
 
-  const route = isUserAdmin => {
+  const route = (isUserAdmin) => {
     m.route(root, '', {
       '':                  {
         view() {
@@ -452,7 +452,7 @@ describe("Agents Widget", () => {
 
   const clickAllAgents = () => {
     const uuids = agents().collectAgentProperty('uuid');
-    _.forEach(uuids, uuid => {
+    _.forEach(uuids, (uuid) => {
       agentsVM.agents.checkboxFor(uuid)(true);
     });
     m.redraw();
@@ -463,7 +463,7 @@ describe("Agents Widget", () => {
     m.redraw();
   };
 
-  const allowBulkUpdate = method => {
+  const allowBulkUpdate = (method) => {
     jasmine.Ajax.stubRequest(Routes.apiv4AgentsPath(), null, method).andReturn({
       responseText: JSON.stringify({}),
       headers:      {

@@ -20,7 +20,7 @@ const Repeat = require('repeat');
 
 const AjaxPoller = function (fn) {
   const currentXHR = Stream();
-  const repeater   = Repeat(repeatAgain => {
+  const repeater   = Repeat((repeatAgain) => {
     fn(currentXHR).always(() => {
       repeatAgain();
       currentXHR(null);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -128,7 +128,7 @@ describe("Stages Model", () => {
       expect(stage.cleanWorkingDirectory()).toBe(false);
       expect(stage.neverCleanupArtifacts()).toBe(true);
 
-      const expectedEnvironmentVarNames = stage.environmentVariables().mapVariables(variable => variable.name());
+      const expectedEnvironmentVarNames = stage.environmentVariables().mapVariables((variable) => variable.name());
 
       expect(expectedEnvironmentVarNames).toEqual(['MULTIPLE_LINES', 'COMPLEX']);
     });

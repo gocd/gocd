@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,17 +24,17 @@ const Resources        = {};
 Resources.list       = [];
 
 const getSortedResources = (resources, selectedAgents) => {
-  const selectedAgentsResources = _.map(selectedAgents, agent => agent.resources());
+  const selectedAgentsResources = _.map(selectedAgents, (agent) => agent.resources());
 
-  return _.map(resources.sort(), resource => new TriStateCheckbox(resource, selectedAgentsResources));
+  return _.map(resources.sort(), (resource) => new TriStateCheckbox(resource, selectedAgentsResources));
 };
 
-Resources.init = selectedAgents => {
+Resources.init = (selectedAgents) => {
   $.ajax({
     method:     'GET',
     url:        Routes.apiv1AdminInternalResourcesPath(),
     beforeSend: mrequest.xhrConfig.forVersion('v1')
-  }).then(data => {
+  }).then((data) => {
     Resources.list = getSortedResources(data, selectedAgents);
   }).always(m.redraw);
 };

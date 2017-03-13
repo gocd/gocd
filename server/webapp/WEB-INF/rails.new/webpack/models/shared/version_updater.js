@@ -22,7 +22,7 @@ const Routes   = require('gen/js-routes');
 const VersionUpdater = function () {
   this.update = () => {
     if (canUpdateVersion()) {
-      fetchStaleVersionInfo().then(data => {
+      fetchStaleVersionInfo().then((data) => {
         _.isEmpty(data) ? markUpdateDone() : fetchLatestVersion(data);
       });
     }
@@ -34,7 +34,7 @@ const VersionUpdater = function () {
     beforeSend: mrequest.xhrConfig.forVersion('v1')
   });
 
-  var fetchLatestVersion = versionInfo => {
+  var fetchLatestVersion = (versionInfo) => {
     $.ajax({
       method:     'GET',
       url:        versionInfo['update_server_url'],
@@ -44,7 +44,7 @@ const VersionUpdater = function () {
     }).then(updateLatestVersion);
   };
 
-  var updateLatestVersion = data => {
+  var updateLatestVersion = (data) => {
     $.ajax({
       method:     'PATCH',
       beforeSend: mrequest.xhrConfig.forVersion('v1'),

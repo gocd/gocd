@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,7 +70,7 @@ const VM         = () => {
 
     agents: {
       isAnyAgentSelected() {
-        return _.some(agentCheckedStates, boxState => boxState());
+        return _.some(agentCheckedStates, (boxState) => boxState());
       },
 
       checkboxFor(uuid) {
@@ -78,7 +78,7 @@ const VM         = () => {
       },
 
       clearAllCheckboxes() {
-        _.each(agentCheckedStates, boxState => {
+        _.each(agentCheckedStates, (boxState) => {
           boxState(false);
         });
       },
@@ -94,7 +94,7 @@ const VM         = () => {
       areAllAgentsSelected(allAgents) {
         const filterText = viewModel.filterText();
 
-        const isChecked = allAgents().filterBy(filterText).everyAgent(agent => {
+        const isChecked = allAgents().filterBy(filterText).everyAgent((agent) => {
           const agentsCheckedState = agentCheckedStates[agent.uuid()];
           if (agentsCheckedState) {
             return agentsCheckedState();
@@ -109,7 +109,7 @@ const VM         = () => {
         const isChecked  = allAgentsSelected(!allAgentsSelected());
         const filterText = viewModel.filterText();
 
-        allAgents().filterBy(filterText).eachAgent(agent => {
+        allAgents().filterBy(filterText).eachAgent((agent) => {
           agentCheckedStates[agent.uuid()](isChecked);
         });
       }
@@ -121,12 +121,12 @@ const VM         = () => {
       const agentUUIDsToRemoveFromVM  = _.difference(agentUUIDsKnownToVM, newAgentUUIDs);
       const newAgentUUIDsNotKnownToVM = _.difference(newAgentUUIDs, agentUUIDsKnownToVM);
 
-      _.each(agentUUIDsToRemoveFromVM, uuid => {
+      _.each(agentUUIDsToRemoveFromVM, (uuid) => {
         delete agentCheckedStates[uuid];
         delete dropdownStates[uuid];
       });
 
-      _.each(newAgentUUIDsNotKnownToVM, uuid => {
+      _.each(newAgentUUIDsNotKnownToVM, (uuid) => {
         agentCheckedStates[uuid] = Stream();
       });
     }

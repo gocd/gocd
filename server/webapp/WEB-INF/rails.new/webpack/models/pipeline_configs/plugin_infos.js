@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,9 @@ const Image       = require('models/shared/image');
 const Routes      = require('gen/js-routes');
 const PluginInfos = Stream([]);
 
-PluginInfos.init = type => PluginInfos.all(type).then(PluginInfos);
+PluginInfos.init = (type) => PluginInfos.all(type).then(PluginInfos);
 
-PluginInfos.all = type => $.Deferred(function () {
+PluginInfos.all = (type) => $.Deferred(function () {
   const deferred = this;
 
   const jqXHR = $.ajax({
@@ -36,17 +36,17 @@ PluginInfos.all = type => $.Deferred(function () {
   });
 
   jqXHR.done(({_embedded}, _textStatus, _jqXHR) => {
-    let pluginInfos = _.map(_embedded.plugin_info, pluginInfo => new PluginInfos.PluginInfo(pluginInfo));
+    let pluginInfos = _.map(_embedded.plugin_info, (pluginInfo) => new PluginInfos.PluginInfo(pluginInfo));
     deferred.resolve(pluginInfos);
   });
 }).promise();
 
-PluginInfos.findById = id => _.find(PluginInfos(), pluginInfo => _.isEqual(pluginInfo.id(), id));
+PluginInfos.findById = (id) => _.find(PluginInfos(), (pluginInfo) => _.isEqual(pluginInfo.id(), id));
 
-PluginInfos.filterByType = type => _.filter(PluginInfos(), pluginInfo => _.isEqual(pluginInfo.type(), type));
+PluginInfos.filterByType = (type) => _.filter(PluginInfos(), (pluginInfo) => _.isEqual(pluginInfo.type(), type));
 
 PluginInfos.PluginInfo = function (data) {
-  const view = settings => settings ? settings.view : {};
+  const view = (settings) => settings ? settings.view : {};
 
   this.id             = Stream(data.id);
   this.name           = Stream(data.name);
@@ -63,7 +63,7 @@ PluginInfos.PluginInfo = function (data) {
   }
 };
 
-PluginInfos.PluginInfo.get = id => $.Deferred(function () {
+PluginInfos.PluginInfo.get = (id) => $.Deferred(function () {
   const deferred = this;
 
   const jqXHR = $.ajax({

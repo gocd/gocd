@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,7 +75,7 @@ const Pipeline = function (data) {
   this.validateAssociated('trackingTool');
 
   this.update = function (etag, extract) {
-    const config = xhr => {
+    const config = (xhr) => {
       xhr.setRequestHeader("Content-Type", "application/json");
       xhr.setRequestHeader("Accept", "application/vnd.go.cd.v3+json");
       xhr.setRequestHeader("If-Match", etag);
@@ -115,7 +115,7 @@ const Pipeline = function (data) {
   };
 };
 
-Pipeline.fromJSON = data => new Pipeline({
+Pipeline.fromJSON = (data) => new Pipeline({
   name:                  data.name,
   enablePipelineLocking: data.enable_pipeline_locking,
   templateName:          data.template_name,
@@ -142,7 +142,7 @@ Pipeline.Timer = function (data) {
   };
 };
 
-Pipeline.Timer.fromJSON = data => {
+Pipeline.Timer.fromJSON = (data) => {
   if (!_.isEmpty(data)) {
     return new Pipeline.Timer({
       spec:          data.spec,

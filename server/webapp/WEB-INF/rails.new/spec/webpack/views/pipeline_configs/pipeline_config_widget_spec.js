@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ describe("PipelineConfigWidget", () => {
   };
 
 
-  beforeEach(done => {
+  beforeEach((done) => {
     // needed because the widget needs to fetch data via ajax, and complete rendering
     var reallyDone = _.after(2, () => {
       $root.find('.pipeline-settings>.accordion-item>a')[0].click();

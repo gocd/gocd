@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ const Mixins         = require('models/mixins/model_mixins');
 const Validatable    = require('models/mixins/validatable_mixin');
 const EncryptedValue = require('models/pipeline_configs/encrypted_value');
 
-const plainOrCipherValue = ({encrypted_value, value}) => {
-  if (encrypted_value) {
+const plainOrCipherValue = ({encrypted_value, value}) => { //eslint-disable-line camelcase
+  if (encrypted_value) { //eslint-disable-line camelcase
     return new EncryptedValue({cipherText: s.defaultToIfBlank(encrypted_value, '')});
   } else {
     return new EncryptedValue({clearText: s.defaultToIfBlank(value, '')});
@@ -38,7 +38,7 @@ const PluginConfigurations = function (data) {
   });
 
   function configForKey(key) {
-    return this.findConfiguration(config => config.key() === key);
+    return this.findConfiguration((config) => config.key() === key);
   }
 
   this.valueFor = function (key) {
@@ -86,9 +86,9 @@ PluginConfigurations.Configuration = function (data) {
 
 };
 
-PluginConfigurations.Configuration.create = data => new PluginConfigurations.Configuration(data);
+PluginConfigurations.Configuration.create = (data) => new PluginConfigurations.Configuration(data);
 
-PluginConfigurations.Configuration.fromJSON = data => new PluginConfigurations.Configuration(data);
+PluginConfigurations.Configuration.fromJSON = (data) => new PluginConfigurations.Configuration(data);
 
 Mixins.fromJSONCollection({
   parentType: PluginConfigurations,

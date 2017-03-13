@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -349,13 +349,13 @@ Tasks.Task.PluginTask = function (data) {
   };
 
   this.toString = function () {
-    return _.join(this.configuration().mapConfigurations(configuration => _.join([configuration.key(), ':', ' ', configuration.value()], '')), ' ');
+    return _.join(this.configuration().mapConfigurations((configuration) => _.join([configuration.key(), ':', ' ', configuration.value()], '')), ' ');
   };
 
   this.summary = function () {
     const data = {};
 
-    this.configuration().mapConfigurations(conf => {
+    this.configuration().mapConfigurations((conf) => {
       data[_.capitalize(conf.key())] = conf.value();
     });
 
@@ -389,7 +389,7 @@ Tasks.Task.PluginTask.fromJSON = ({attributes, errors}) => {
   });
 };
 
-Tasks.Task.PluginTask.fromPluginInfo = pluginInfo => new Tasks.Task.PluginTask({
+Tasks.Task.PluginTask.fromPluginInfo = (pluginInfo) => new Tasks.Task.PluginTask({
   pluginId:      pluginInfo.id(),
   version:       pluginInfo.version(),
   configuration: Tasks.Task.PluginTask.Configurations.fromJSON(pluginInfo.configurations())
@@ -407,7 +407,7 @@ Tasks.BuiltInTypes = {
 
 Tasks.Types = _.assign({}, Tasks.BuiltInTypes);
 
-Tasks.findTypeFromDescription = description => {
+Tasks.findTypeFromDescription = (description) => {
   let matchedKey;
   _.each(Tasks.Types, (value, key) => {
     if (value.description === description) {
@@ -417,9 +417,9 @@ Tasks.findTypeFromDescription = description => {
   return matchedKey;
 };
 
-Tasks.isBuiltInTaskType = type => !!Tasks.BuiltInTypes[type];
+Tasks.isBuiltInTaskType = (type) => !!Tasks.BuiltInTypes[type];
 
-Tasks.Task.fromJSON = data => {
+Tasks.Task.fromJSON = (data) => {
   if (Tasks.isBuiltInTaskType(data.type)) {
     return Tasks.Types[data.type].type.fromJSON(data || {});
   } else {
@@ -427,7 +427,7 @@ Tasks.Task.fromJSON = data => {
   }
 };
 
-Tasks.Task.onCancelTask = data => {
+Tasks.Task.onCancelTask = (data) => {
   if (data) {
     return Tasks.Task.fromJSON(data);
   }

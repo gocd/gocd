@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,13 +64,13 @@ ElasticProfiles.Profile = function (data) {
   });
 };
 
-ElasticProfiles.Profile.get = id => new ElasticProfiles.Profile({id}).refresh();
+ElasticProfiles.Profile.get = (id) => new ElasticProfiles.Profile({id}).refresh();
 
-ElasticProfiles.Profile.create = data => new ElasticProfiles.Profile(data);
+ElasticProfiles.Profile.create = (data) => new ElasticProfiles.Profile(data);
 
-ElasticProfiles.Profile.fromJSON = ({id, plugin_id, errors, properties}) => new ElasticProfiles.Profile({
+ElasticProfiles.Profile.fromJSON = ({id, plugin_id, errors, properties}) => new ElasticProfiles.Profile({ //eslint-disable-line camelcase
   id:         id,
-  pluginId:   plugin_id,
+  pluginId:   plugin_id, //eslint-disable-line camelcase
   errors:     errors,
   properties: PluginConfigurations.fromJSON(properties)
 });

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,9 +58,9 @@ Mixins.HasMany = function (options) {
   const uniqueOn              = options.uniqueOn;
   const collection            = Stream(s.defaultToIfBlank(options.collection, []));
 
-  this.toJSON = () => _(collection()).map(item => item.isBlank && item.isBlank() ? null : item).compact().value();
+  this.toJSON = () => _(collection()).map((item) => item.isBlank && item.isBlank() ? null : item).compact().value();
 
-  this[`add${associationName}`] = instance => {
+  this[`add${associationName}`] = (instance) => {
     collection().push(instance);
   };
 
@@ -72,21 +72,21 @@ Mixins.HasMany = function (options) {
     return instance;
   };
 
-  this[`remove${associationName}`] = thing => {
+  this[`remove${associationName}`] = (thing) => {
     _.remove(collection(), thing);
   };
 
   this[`first${associationName}`] = () => _.first(collection());
 
-  this[`${_.camelCase(associationName)}AtIndex`] = index => collection()[index];
+  this[`${_.camelCase(associationName)}AtIndex`] = (index) => collection()[index];
 
-  this[`set${associationNamePlural}`] = newItems => collection(newItems);
+  this[`set${associationNamePlural}`] = (newItems) => collection(newItems);
 
   this[`count${associationName}`] = () => collection().length;
 
   this[`isEmpty${associationName}`] = () => collection().length === 0;
 
-  this[`indexOf${associationName}`] = thing => _.indexOf(collection(), thing);
+  this[`indexOf${associationName}`] = (thing) => _.indexOf(collection(), thing);
 
   this[`previous${associationName}`] = function (thing) {
     return collection()[this[`indexOf${associationName}`](thing) - 1];
@@ -109,14 +109,14 @@ Mixins.HasMany = function (options) {
   this[`every${associationName}`] = (cb, thisArg) => _.every(collection(), cb, thisArg);
 
   this[`collect${associationName}Property`] = function (propName) {
-    return this[`map${associationNamePlural}`](child => child[propName]());
+    return this[`map${associationNamePlural}`]((child) => child[propName]());
   };
 
   this.validate = () => {
-    _.forEach(collection(), item => item.validate());
+    _.forEach(collection(), (item) => item.validate());
   };
 
-  this.isValid = () => _.every(collection(), item => item.isValid());
+  this.isValid = () => _.every(collection(), (item) => item.isValid());
 
   this.isUnique = function (childModel, uniqueOn) {
     if (_.isNil(childModel[uniqueOn]()) || _.isEmpty(childModel[uniqueOn]())) {
@@ -137,15 +137,15 @@ Mixins.HasMany = function (options) {
   }
 };
 
-Mixins.fromJSONCollection = options => {
+Mixins.fromJSONCollection = (options) => {
   const parentType     = options.parentType;
   const childType      = options.childType;
   const addChildMethod = options.via;
 
-  parentType.fromJSON = data => {
+  parentType.fromJSON = (data) => {
     const parentInstance = new parentType();
     if (!_.isEmpty(data)) {
-      const assignParent = childInstance => {
+      const assignParent = (childInstance) => {
         childInstance.parent(parentInstance);
         return childInstance;
       };
@@ -156,14 +156,14 @@ Mixins.fromJSONCollection = options => {
 };
 
 // copy of mithri's Stream without the toJSON on the getterSetter.
-Mixins.GetterSetter = store => function(...args) {
+Mixins.GetterSetter = (store) => function(...args) {
   if (args.length) {
     store = args[0];
   }
   return store;
 };
 
-Mixins.TogglingGetterSetter = store => function(...args) {
+Mixins.TogglingGetterSetter = (store) => function(...args) {
   if (args.length) {
     store(store() === args[0] ? undefined : args[0]);
   }

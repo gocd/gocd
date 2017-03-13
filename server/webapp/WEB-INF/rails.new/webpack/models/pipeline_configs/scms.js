@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,7 +64,7 @@ SCMs.SCM = function (data) {
   this.update = function () {
     const entity = this;
 
-    const config = xhr => {
+    const config = (xhr) => {
       xhr.setRequestHeader("Content-Type", "application/json");
       xhr.setRequestHeader("Accept", "application/vnd.go.cd.v1+json");
       xhr.setRequestHeader("If-Match", SCMs.scmIdToEtag[entity.id()]);
@@ -158,14 +158,14 @@ SCMs.init = () => $.Deferred(function () {
   });
 
   jqXHR.then(({_embedded}, _textStatus, _jqXHR) => {
-    SCMs(_.map(_embedded.scms, scm => new SCMs.SCM(scm)));
+    SCMs(_.map(_embedded.scms, (scm) => new SCMs.SCM(scm)));
     deferred.resolve();
   });
 }).promise();
 
-SCMs.filterByPluginId = pluginId => _.filter(SCMs(), (scm) => scm.pluginMetadata().id() === pluginId);
+SCMs.filterByPluginId = (pluginId) => _.filter(SCMs(), (scm) => scm.pluginMetadata().id() === pluginId);
 
-SCMs.findById = id => {
+SCMs.findById = (id) => {
   const scm = _.find(SCMs(), (scm) => scm.id() === id);
 
   if (!scm) {

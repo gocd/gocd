@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ const Materials = function (data) {
   Mixins.HasUUID.call(this);
 };
 
-Materials.create = data => Materials.isBuiltInType(data.type) ? new Materials.Types[data.type].type(data)
+Materials.create = (data) => Materials.isBuiltInType(data.type) ? new Materials.Types[data.type].type(data)
   : new Materials.Material.PluggableMaterial(data);
 
 Materials.Filter = function (data) {
@@ -66,7 +66,7 @@ Materials.Filter = function (data) {
   };
 };
 
-Materials.Filter.fromJSON = data => {
+Materials.Filter.fromJSON = (data) => {
   if (!_.isEmpty(data)) {
     return new Materials.Filter({
       ignore: data.ignore
@@ -103,8 +103,8 @@ Materials.Material = function (type, hasFilter, data) {
   this.testConnection = function (pipelineName) {
     const self = this;
 
-    const payload = () => //eslint-disable-line camelcase
-    JSON.stringify(_.merge(self.toJSON(), {pipeline_name: pipelineName()}));
+    const payload = () =>
+    JSON.stringify(_.merge(self.toJSON(), {pipeline_name: pipelineName()})); //eslint-disable-line camelcase
 
     return $.Deferred(function () {
       const deferred = this;
@@ -117,11 +117,11 @@ Materials.Material = function (type, hasFilter, data) {
         contentType: 'application/json'
       });
 
-      const didFulfill = data => {
+      const didFulfill = (data) => {
         deferred.resolve(data);
       };
 
-      const didReject = jqXHR => {
+      const didReject = (jqXHR) => {
         deferred.reject(mrequest.unwrapErrorExtractMessage(jqXHR.responseJSON, jqXHR, 'There was an unknown error while checking connection'));
       };
 
@@ -461,7 +461,7 @@ Materials.Material.PackageMaterial.fromJSON = ({attributes, errors}) => {
   });
 };
 
-Materials.isBuiltInType = type => _.hasIn(Materials.Types, type);
+Materials.isBuiltInType = (type) => _.hasIn(Materials.Types, type);
 
 Materials.Types = {
   git:        {type: Materials.Material.Git, description: "Git"},
@@ -473,7 +473,7 @@ Materials.Types = {
 };
 
 
-Materials.Material.fromJSON = data => {
+Materials.Material.fromJSON = (data) => {
   if (Materials.isBuiltInType(data.type)) {
     return Materials.Types[data.type].type.fromJSON(data || {});
   }

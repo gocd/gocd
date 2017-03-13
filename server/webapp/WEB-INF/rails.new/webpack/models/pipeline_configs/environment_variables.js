@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,11 +29,11 @@ const EnvironmentVariables = function (data) {
   });
 
   this.secureVariables = function () {
-    return this.filterVariable(variable => variable.isSecureValue());
+    return this.filterVariable((variable) => variable.isSecureValue());
   };
 
   this.plainVariables = function () {
-    return this.filterVariable(variable => !variable.isSecureValue());
+    return this.filterVariable((variable) => !variable.isSecureValue());
   };
 };
 
@@ -92,7 +92,7 @@ EnvironmentVariables.Variable = function (data) {
   this.validateUniquenessOf('name');
 };
 
-EnvironmentVariables.Variable.create = data => new EnvironmentVariables.Variable(data);
+EnvironmentVariables.Variable.create = (data) => new EnvironmentVariables.Variable(data);
 
 Mixins.fromJSONCollection({
   parentType: EnvironmentVariables,
@@ -100,11 +100,11 @@ Mixins.fromJSONCollection({
   via:        'addVariable'
 });
 
-EnvironmentVariables.Variable.fromJSON = ({name, value, secure, encrypted_value}) => new EnvironmentVariables.Variable({
+EnvironmentVariables.Variable.fromJSON = ({name, value, secure, encrypted_value}) => new EnvironmentVariables.Variable({ //eslint-disable-line camelcase
   name:           name,
   value:          value,
   secure:         secure,
-  encryptedValue: encrypted_value
+  encryptedValue: encrypted_value //eslint-disable-line camelcase
 });
 
 module.exports = EnvironmentVariables;

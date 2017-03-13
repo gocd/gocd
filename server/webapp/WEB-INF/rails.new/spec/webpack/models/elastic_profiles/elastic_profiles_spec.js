@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,7 +64,7 @@ describe('Elastic Agent Profile', () => {
           }
         });
 
-        const successCallback = jasmine.createSpy().and.callFake(profiles => {
+        const successCallback = jasmine.createSpy().and.callFake((profiles) => {
           expect(profiles.countProfile()).toBe(1);
           expect(profiles.firstProfile().id()).toBe("unit-tests");
           expect(profiles.firstProfile().pluginId()).toBe("cd.go.contrib.elastic-agent.docker");
@@ -241,7 +241,7 @@ describe('Elastic Agent Profile', () => {
           }
         });
 
-        const errorCallback = jasmine.createSpy().and.callFake(profileWithErrors => {
+        const errorCallback = jasmine.createSpy().and.callFake((profileWithErrors) => {
           expect(profileWithErrors.id()).toBe(profile.id());
           expect(profileWithErrors.pluginId()).toBe(profile.pluginId());
         });
@@ -276,7 +276,7 @@ describe('Elastic Agent Profile', () => {
           status:          200
         });
 
-        const successCallback = jasmine.createSpy().and.callFake(profile => {
+        const successCallback = jasmine.createSpy().and.callFake((profile) => {
           expect(profile.id()).toBe("unit-tests");
           expect(profile.pluginId()).toBe("cd.go.contrib.elastic-agent.docker");
           expect(profile.properties().collectConfigurationProperty('key')).toEqual(['Image', 'Environment']);

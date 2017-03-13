@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ Parameters.Parameter = function (data) {
   this.validateUniquenessOf('name');
 };
 
-Parameters.Parameter.create = data => new Parameters.Parameter(data);
+Parameters.Parameter.create = (data) => new Parameters.Parameter(data);
 
 Mixins.fromJSONCollection({
   parentType: Parameters,
@@ -59,6 +59,6 @@ Mixins.fromJSONCollection({
   via:        'addParameter'
 });
 
-Parameters.Parameter.fromJSON = data => new Parameters.Parameter(_.pick(data, ['name', 'value']));
+Parameters.Parameter.fromJSON = (data) => new Parameters.Parameter(_.pick(data, ['name', 'value']));
 
 module.exports = Parameters;

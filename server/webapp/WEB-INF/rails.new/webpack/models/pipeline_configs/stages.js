@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ Stages.Stage = function (data) {
   this.validateAssociated('jobs');
 };
 
-Stages.Stage.create = data => new Stages.Stage(data);
+Stages.Stage.create = (data) => new Stages.Stage(data);
 
 Mixins.fromJSONCollection({
   parentType: Stages,
@@ -55,7 +55,7 @@ Mixins.fromJSONCollection({
   via:        'addStage'
 });
 
-Stages.Stage.fromJSON = data => new Stages.Stage({
+Stages.Stage.fromJSON = (data) => new Stages.Stage({
   name:                  data.name,
   fetchMaterials:        data.fetch_materials,
   cleanWorkingDirectory: data.clean_working_directory,

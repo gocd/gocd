@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ describe("Agent Table Header Widget", () => {
     unmount();
   });
 
-  const route = isUserAdmin => {
+  const route = (isUserAdmin) => {
     m.route(root, '', {
       '':                  {
         view() {
@@ -95,7 +95,7 @@ describe("Agent Table Header Widget", () => {
     expect(headerAttribute).toHaveClass('desc');
   });
 
-  const agentTableHeaderComponent = isUserAdmin => m(AgentsTableHeader, {
+  const agentTableHeaderComponent = (isUserAdmin) => m(AgentsTableHeader, {
     onCheckboxClick: _.noop,
     checkboxValue,
     sortOrder,

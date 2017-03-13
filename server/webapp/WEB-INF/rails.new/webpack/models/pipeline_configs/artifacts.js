@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ Artifacts.Artifact = function (data) {
   });
 };
 
-Artifacts.Artifact.create = data => new Artifacts.Artifact(data);
+Artifacts.Artifact.create = (data) => new Artifacts.Artifact(data);
 
 Mixins.fromJSONCollection({
   parentType: Artifacts,
@@ -54,6 +54,6 @@ Mixins.fromJSONCollection({
   via:        'addArtifact'
 });
 
-Artifacts.Artifact.fromJSON = data => new Artifacts.Artifact(_.pick(data, ['type', 'source', 'destination']));
+Artifacts.Artifact.fromJSON = (data) => new Artifacts.Artifact(_.pick(data, ['type', 'source', 'destination']));
 
 module.exports = Artifacts;

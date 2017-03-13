@@ -46,18 +46,18 @@ Properties.Property = function (data) {
   };
 
   this.validatePresenceOf('name', {
-    condition: function (property) {
+    condition(property) {
       return (!s.isBlank(property.source()) || !s.isBlank(property.xpath()));
     }
   });
   this.validateUniquenessOf('name');
   this.validatePresenceOf('source', {
-    condition: function (property) {
+    condition(property) {
       return !property.isBlank();
     }
   });
   this.validatePresenceOf('xpath', {
-    condition: function (property) {
+    condition(property) {
       return !property.isBlank();
     }
   });

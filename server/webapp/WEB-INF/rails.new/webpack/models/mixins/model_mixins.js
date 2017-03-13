@@ -175,19 +175,19 @@ Mixins.TogglingGetterSetter = store => function(...args) {
 Mixins.Validations = {};
 
 Mixins.ErrorMessages = {
-  duplicate:            function (attribute) {
+  duplicate(attribute) {
     return s.humanize(attribute) + " is a duplicate";
   },
-  mustBePresent:        function (attribute) {
+  mustBePresent(attribute) {
     return s.humanize(attribute).replace(/\bxpath\b/i, 'XPath').replace(/\burl\b/i, 'URL') + " must be present";
   },
-  mustBeAUrl:           function (attribute) {
+  mustBeAUrl(attribute) {
     return s.humanize(attribute) + " must be a valid http(s) url";
   },
-  mustBePositiveNumber: function (attribute) {
+  mustBePositiveNumber(attribute) {
     return s.humanize(attribute) + " must be a positive integer";
   },
-  mustContainString:    function (attribute, string) {
+  mustContainString(attribute, string) {
     return s.humanize(attribute) + " must contain the string '" + string + "'";
   }
 };

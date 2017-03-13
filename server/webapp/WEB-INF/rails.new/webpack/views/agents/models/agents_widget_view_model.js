@@ -26,7 +26,7 @@ var VM         = () => {
     dropdown: {
       reset: Stream(true),
 
-      create: function (dropDownName) {
+      create(dropDownName) {
         if (!dropdownStates[dropDownName]) {
           dropdownStates[dropDownName] = Stream(false);
         }
@@ -34,11 +34,11 @@ var VM         = () => {
         return dropdownStates[dropDownName];
       },
 
-      hide: function (dropDownName) {
+      hide(dropDownName) {
         viewModel.dropdown.create(dropDownName)(false);
       },
 
-      hideAllDropDowns: function () {
+      hideAllDropDowns() {
         if (this.reset()) {
           for (var item in dropdownStates) {
             dropdownStates[item](false);
@@ -47,7 +47,7 @@ var VM         = () => {
         this.reset(true);
       },
 
-      hideOtherDropdowns: function (dropDownName) {
+      hideOtherDropdowns(dropDownName) {
         for (var item in dropdownStates) {
           if (item !== dropDownName) {
             this.hide(item);
@@ -55,13 +55,13 @@ var VM         = () => {
         }
       },
 
-      toggleDropDownState: function (dropDownName) {
+      toggleDropDownState(dropDownName) {
         this.reset(false);
         dropdownStates[dropDownName](!dropdownStates[dropDownName]());
         this.hideOtherDropdowns(dropDownName);
       },
 
-      isDropDownOpen: function (dropDownName) {
+      isDropDownOpen(dropDownName) {
         return this.create(dropDownName)();
       }
     },
@@ -69,21 +69,21 @@ var VM         = () => {
     filterText: Stream(''),
 
     agents: {
-      isAnyAgentSelected: function () {
+      isAnyAgentSelected() {
         return _.some(agentCheckedStates, boxState => boxState());
       },
 
-      checkboxFor: function (uuid) {
+      checkboxFor(uuid) {
         return agentCheckedStates[uuid];
       },
 
-      clearAllCheckboxes: function () {
+      clearAllCheckboxes() {
         _.each(agentCheckedStates, boxState => {
           boxState(false);
         });
       },
 
-      selectedAgentsUuids: function () {
+      selectedAgentsUuids() {
         return _.compact(_.map(agentCheckedStates, (boxSate, agentId) => {
           if (boxSate()) {
             return agentId;
@@ -91,7 +91,7 @@ var VM         = () => {
         }));
       },
 
-      areAllAgentsSelected: function (allAgents) {
+      areAllAgentsSelected(allAgents) {
         var filterText = viewModel.filterText();
 
         var isChecked = allAgents().filterBy(filterText).everyAgent(agent => {
@@ -105,7 +105,7 @@ var VM         = () => {
         return isChecked;
       },
 
-      selectAllAgents: function (allAgents) {
+      selectAllAgents(allAgents) {
         var isChecked  = allAgentsSelected(!allAgentsSelected());
         var filterText = viewModel.filterText();
 
@@ -115,7 +115,7 @@ var VM         = () => {
       }
     },
 
-    initializeWith: function (newAgents) {
+    initializeWith(newAgents) {
       var newAgentUUIDs             = newAgents.collectAgentProperty('uuid');
       var agentUUIDsKnownToVM       = _.keysIn(agentCheckedStates);
       var agentUUIDsToRemoveFromVM  = _.difference(agentUUIDsKnownToVM, newAgentUUIDs);

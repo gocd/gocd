@@ -38,7 +38,7 @@ Tabs.Tab = function (data) {
   };
 
   this.validatePresenceOf('name', {
-    condition: function (property) {
+    condition(property) {
       return (!s.isBlank(property.path()));
     }
   });

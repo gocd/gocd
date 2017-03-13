@@ -34,7 +34,7 @@ CrudMixins.Index = options => {
       method:      'GET',
       url,
       timeout:     mrequest.timeout,
-      beforeSend:  function (xhr) {
+      beforeSend(xhr) {
         mrequest.xhrConfig.forVersion(version)(xhr);
         if (cb) {
           cb(xhr);
@@ -133,7 +133,7 @@ CrudMixins.Update = function (options) {
         method:      'PUT',
         url:         url(entity.id()),
         timeout:     mrequest.timeout,
-        beforeSend:  function (xhr) {
+        beforeSend(xhr) {
           mrequest.xhrConfig.forVersion(version)(xhr);
           xhr.setRequestHeader('If-Match', entity.etag());
         },

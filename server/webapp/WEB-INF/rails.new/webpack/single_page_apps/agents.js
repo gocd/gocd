@@ -57,7 +57,7 @@ $(() => {
   var sortOrder        = Stream(new SortOrder());
 
   var component = {
-    view: function () {
+    view() {
       return m(AgentsWidget, {
         vm:                   agentsViewModel,
         allAgents:            agents,

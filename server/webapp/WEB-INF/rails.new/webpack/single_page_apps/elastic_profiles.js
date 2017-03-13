@@ -28,7 +28,7 @@ $(() => {
 
   var onSuccess = pluginInfos => {
     var component = {
-      view: function () {
+      view() {
         return m(ElasticProfilesWidget, {
           pluginInfos: Stream(pluginInfos.filterByType('elastic-agent'))
         });

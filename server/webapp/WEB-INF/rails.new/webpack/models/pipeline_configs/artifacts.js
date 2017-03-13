@@ -40,7 +40,7 @@ Artifacts.Artifact = function (data) {
   };
 
   this.validatePresenceOf('source', {
-    condition: function (property) {
+    condition(property) {
       return (!s.isBlank(property.destination()));
     }
   });

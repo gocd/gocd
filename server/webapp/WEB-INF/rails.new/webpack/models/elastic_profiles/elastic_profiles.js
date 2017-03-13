@@ -57,7 +57,7 @@ ElasticProfiles.Profile = function (data) {
   CrudMixins.AllOperations.call(this, ['refresh', 'update', 'delete', 'create'], {
     type:        ElasticProfiles.Profile,
     indexUrl:    Routes.apiv1ElasticProfilesPath(),
-    resourceUrl: function (id) {
+    resourceUrl(id) {
       return Routes.apiv1ElasticProfilePath(id);
     },
     version:     ElasticProfiles.API_VERSION

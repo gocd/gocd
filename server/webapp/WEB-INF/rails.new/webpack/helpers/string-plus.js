@@ -20,28 +20,28 @@ var Stream           = require('mithril/stream');
 var POSITIVE_INTEGER = /^\d+$/;
 
 var mixins = {
-  defaultToIfBlank: function (value, defaultValue) {
+  defaultToIfBlank(value, defaultValue) {
     return s.isBlank(value) ? defaultValue : value;
   },
 
-  coerceToMprop: function (param, defaultValue) {
+  coerceToMprop(param, defaultValue) {
     return typeof param === 'function' ? param : Stream(typeof param === 'undefined' ? defaultValue : param);
   },
 
-  collectionToJSON: function (prop) {
+  collectionToJSON(prop) {
     if (prop && prop() && prop().toJSON) {
       prop.toJSON = prop().toJSON;
     }
     return prop;
   },
 
-  withNewJSONImpl: function (prop, jsonFunc) {
+  withNewJSONImpl(prop, jsonFunc) {
     prop.toJSON = () => jsonFunc(prop());
 
     return prop;
   },
 
-  stringToArray: function (string) {
+  stringToArray(string) {
     if (_.isArray(string)) {
       return string;
     } else if (s.isBlank(string)) {
@@ -51,11 +51,11 @@ var mixins = {
     }
   },
 
-  isPositiveInteger: function (value) {
+  isPositiveInteger(value) {
     return POSITIVE_INTEGER.test(String(value).trim());
   },
 
-  snakeCaser: function (_key, value) {
+  snakeCaser(_key, value) {
     if (value && typeof value === 'object' && !_.isArray(value)) {
       var replacement = {};
       for (var k in value) {
@@ -79,7 +79,7 @@ var mixins = {
       s4() + '-' + s4() + s4() + s4();
   },
 
-  terminateWithPeriod: function (str) {
+  terminateWithPeriod(str) {
     if (s.endsWith(str, '.')) {
       return str;
     } else {

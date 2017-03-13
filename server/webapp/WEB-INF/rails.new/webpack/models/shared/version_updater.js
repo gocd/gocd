@@ -38,7 +38,7 @@ var VersionUpdater = function () {
     $.ajax({
       method:     'GET',
       url:        versionInfo['update_server_url'],
-      beforeSend: function (xhr) {
+      beforeSend(xhr) {
         xhr.setRequestHeader("Accept", "application/vnd.update.go.cd.v1+json");
       },
     }).then(updateLatestVersion);

@@ -27,7 +27,7 @@ var setHeaders = (xhr, version) => {
 
 var mrequest   = {
   timeout:       5000,
-  versionHeader: function (version) {
+  versionHeader(version) {
     return `application/vnd.go.cd.${version}+json`;
   },
   xhrConfig:     {

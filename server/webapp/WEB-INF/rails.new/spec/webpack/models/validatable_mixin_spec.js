@@ -58,7 +58,7 @@ describe('Validatable', () => {
         this.value = Stream('');
 
         this.validatePresenceOf('value', {
-          condition: function (variable) {
+          condition(variable) {
             return !s.isBlank(variable.name());
           }
         });

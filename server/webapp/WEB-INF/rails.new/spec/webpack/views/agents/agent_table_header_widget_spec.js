@@ -47,12 +47,12 @@ describe("Agent Table Header Widget", () => {
   var route = isUserAdmin => {
     m.route(root, '', {
       '':                  {
-        view: function () {
+        view() {
           return agentTableHeaderComponent(isUserAdmin);
         }
       },
       '/:sortBy/:orderBy': {
-        view: function () {
+        view() {
           return agentTableHeaderComponent(isUserAdmin);
         }
       }

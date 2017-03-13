@@ -99,7 +99,7 @@ describe("ElasticProfilesWidget", () => {
     });
 
     m.mount(root, {
-      view: function () {
+      view() {
         var fromJSON = PluginInfos.fromJSON(allPluginInfosJSON);
         return m(ElasticProfilesWidget, {
           pluginInfos: Stream(fromJSON)
@@ -131,7 +131,7 @@ describe("ElasticProfilesWidget", () => {
       });
 
       m.mount(root, {
-        view: function () {
+        view() {
           return m(ElasticProfilesWidget);
         }
       });

@@ -41,13 +41,13 @@ describe("Environments List Widget", () => {
     var selectedAgents = [
       {
         uuid:         '1',
-        environments: function () {
+        environments() {
           return ['Dev', 'Testing'];
         }
       },
       {
         uuid:         '2',
-        environments: function () {
+        environments() {
           return ['Build', 'Testing'];
         }
       }
@@ -106,7 +106,7 @@ describe("Environments List Widget", () => {
     m.mount(root,
       {
         oncreate: done,
-        view:     function () {
+        view() {
           return m(EnvironmentsListWidget, {
             hideDropDown,
             dropDownReset,

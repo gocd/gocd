@@ -414,7 +414,7 @@ describe("Materials Config Widget", () => {
 
   function mount(materials) {
     m.mount(root, {
-      view: function () {
+      view() {
         return m(MaterialsConfigWidget, {
           materials:    Stream(materials),
           pipelineName: Stream('testPipeLine')

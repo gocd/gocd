@@ -61,7 +61,7 @@ describe("TriStateCheckboxWidget", () => {
   var mount = triStateCheckbox => {
     m.mount(root,
       {
-        view: function () {
+        view() {
           return m(TriStateCheckboxWidget, {'triStateCheckbox': triStateCheckbox, 'index': 1});
         }
       }

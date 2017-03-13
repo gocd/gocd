@@ -143,7 +143,7 @@ xdescribe("Pluggable SCM Widget", () => {
 
   function mount(pluggableMaterial) {
     m.mount(root, {
-      view: function () {
+      view() {
         return m(PluggableSCMWidget, {material: pluggableMaterial});
       }
     });

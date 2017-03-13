@@ -40,10 +40,10 @@ describe("ResourcesListWidget", () => {
     vm.dropdown = {
       reset:  Stream(true),
       states: {},
-      add:    function () {
+      add() {
       },
 
-      hide: function (name) {
+      hide(name) {
         this.states[name](false);
       }
     };
@@ -159,7 +159,7 @@ describe("ResourcesListWidget", () => {
 
   var mount = () => {
     m.mount(root, {
-      view: function () {
+      view() {
         return m(ResourcesListWidget, {
           'hideDropDown':      hideDropDown,
           'dropDownReset':     dropDownReset,

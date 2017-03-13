@@ -45,7 +45,7 @@ describe("EnvironmentVariable Widget", () => {
     ]));
 
     m.mount(root, {
-      view: function () {
+      view() {
         return m(EnvironmentVariableWidget, {variables});
       }
     });

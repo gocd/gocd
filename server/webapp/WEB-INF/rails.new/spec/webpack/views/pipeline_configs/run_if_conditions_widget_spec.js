@@ -29,7 +29,7 @@ describe("RunIfConditions Widget", () => {
 
   function mount(task) {
     m.mount(root, {
-      view: function () {
+      view() {
         return m(RunIfConditionsWidget, {task});
       }
     });

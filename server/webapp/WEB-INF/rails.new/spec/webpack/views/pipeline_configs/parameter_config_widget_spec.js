@@ -37,7 +37,7 @@ describe("Parameter Widget", () => {
     ]));
 
     m.mount(root, {
-      view: function () {
+      view() {
         return m(ParametersConfigWidget, {parameters});
       }
     });

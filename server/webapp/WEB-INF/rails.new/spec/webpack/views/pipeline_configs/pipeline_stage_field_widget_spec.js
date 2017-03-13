@@ -33,7 +33,7 @@ describe("PipelineStageField Widget", () => {
 
   function mount(material, pipelines) {
     m.mount(root, {
-      view: function () {
+      view() {
         return m(PipelineStageFieldWidget, {
           material,
           pipelines

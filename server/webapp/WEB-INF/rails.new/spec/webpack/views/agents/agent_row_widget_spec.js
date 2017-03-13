@@ -132,7 +132,7 @@ describe("Agent Row Widget", () => {
 
   var mount = (agent, model, isUserAdmin) => {
     m.mount(root, {
-      view: function () {
+      view() {
         return m(AgentsRowWidget, {
           'agent':         agent,
           'checkBoxModel': model,

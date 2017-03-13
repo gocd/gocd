@@ -59,7 +59,7 @@ describe("Test Connection Widget", () => {
 
     function mount(material, vm) {
       m.mount(root, {
-        view: function () {
+        view() {
           return m(TestConnectionWidget, {material, pipelineName: 'testPipeLine', vm});
         }
       });

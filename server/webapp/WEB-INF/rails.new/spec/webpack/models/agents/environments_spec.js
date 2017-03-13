@@ -43,11 +43,11 @@ describe('Agent Environments Model', () => {
 
   it("should initialize the environments with state depending upon the checkedAgents", () => {
     var checkedAgents = [{
-      environments: function () {
+      environments() {
         return ['Test', 'QA'];
       }
     }, {
-      environments: function () {
+      environments() {
         return ['Test', 'Dev', 'QA'];
       }
     }];

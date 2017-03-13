@@ -55,7 +55,7 @@ describe("Agents Widget", () => {
   var route = isUserAdmin => {
     m.route(root, '', {
       '':                  {
-        view: function () {
+        view() {
           return m(AgentsWidget, {
             vm:                   agentsVM,
             allAgents:            agents,
@@ -69,7 +69,7 @@ describe("Agents Widget", () => {
         }
       },
       '/:sortBy/:orderBy': {
-        view: function () {
+        view() {
           return m(AgentsWidget, {
             vm:                   agentsVM,
             allAgents:            agents,

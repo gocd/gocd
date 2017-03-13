@@ -35,7 +35,7 @@ describe("Tracking Tool Widget", () => {
     trackingToolProp = Stream();
 
     m.mount(root, {
-      view: function () {
+      view() {
         return m(TrackingToolWidget, {trackingTool: trackingToolProp});
       }
     });

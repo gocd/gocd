@@ -107,7 +107,7 @@ describe("Button Row Widget", () => {
 
   var mount = areOperationsAllowed => {
     m.mount(root, {
-      view: function () {
+      view() {
         return m(ButtonRowWidget, {
           areOperationsAllowed,
           dropdown:             agentsVM.dropdown,

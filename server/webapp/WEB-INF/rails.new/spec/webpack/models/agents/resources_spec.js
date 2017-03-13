@@ -41,11 +41,11 @@ describe('Resources Model', () => {
 
   it("should initialize the resources with state depending upon the checkedAgents", () => {
     var checkedAgents = [{
-      resources: function () {
+      resources() {
         return ['Linux'];
       }
     }, {
-      resources: function () {
+      resources() {
         return ['Linux', 'Firefox'];
       }
     }];

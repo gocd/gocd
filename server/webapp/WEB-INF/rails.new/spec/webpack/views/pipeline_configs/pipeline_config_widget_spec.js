@@ -54,14 +54,14 @@ describe("PipelineConfigWidget", () => {
     });
 
     var component = PipelineConfigWidget({
-      url: Stream('/pipeline.json'), callback: function (controller) {
+      url: Stream('/pipeline.json'), callback(controller) {
         pipeline = controller.pipeline();
         reallyDone();
       }
     });
 
     m.mount(root, {
-      view: function () {
+      view() {
         return m(component);
       }
     });

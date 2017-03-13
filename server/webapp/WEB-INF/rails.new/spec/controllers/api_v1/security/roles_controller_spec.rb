@@ -20,10 +20,10 @@ describe ApiV1::Admin::Security::RolesController do
   include ApiHeaderSetupTeardown, ApiV1::ApiVersionHelper
 
   before :each do
-    @service = double('plugin_role_service')
+    @service = double('role_config_service')
     @entity_hashing_service = double('entity_hashing_service')
     controller.stub(:entity_hashing_service).and_return(@entity_hashing_service)
-    controller.stub(:plugin_role_service).and_return(@service)
+    controller.stub(:role_config_service).and_return(@service)
   end
 
   describe :index do

@@ -30,13 +30,17 @@ public class CapabilitiesTest {
         String json = "" +
                 "{\n" +
                 "  \"supported_auth_type\": \"web\",\n" +
-                "  \"can_search\": true\n" +
+                "  \"can_search\": true,\n" +
+                "  \"can_verify_connection\": true,\n" +
+                "  \"can_authorize\": true\n" +
                 "}";
 
         Capabilities capabilities = Capabilities.fromJSON(json);
 
         assertThat(capabilities.getSupportedAuthType(), is(SupportedAuthType.Web));
         assertThat(capabilities.canSearch(), is(true));
+        assertThat(capabilities.canAuthorize(), is(true));
+        assertThat(capabilities.canVerifyConnection(), is(true));
     }
 
 }

@@ -67,11 +67,11 @@ module ApiV1
         protected
 
         def service
-          plugin_role_service
+          role_config_service
         end
 
         def load_entity_from_config
-          plugin_role_service.findRole(params[:role_name]) || (raise ApiV1::RecordNotFound)
+          role_config_service.findRole(params[:role_name]) || (raise ApiV1::RecordNotFound)
         end
 
         def stale_message

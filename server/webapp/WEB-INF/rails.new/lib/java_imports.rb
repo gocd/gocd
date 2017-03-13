@@ -253,4 +253,8 @@ module JavaImports
   java_import com.thoughtworks.go.config.EnvironmentVariableConfig unless defined? EnvironmentVariableConfig
   java_import com.thoughtworks.go.config.elastic.ElasticProfile unless defined? ElasticProfile
   java_import com.thoughtworks.go.server.ui.TemplatesViewModel unless defined? TemplatesViewModel
+  java_import com.thoughtworks.go.config.PluginRoleConfig unless defined? PluginRoleConfig
+  java_import com.thoughtworks.go.config.RoleConfig unless defined? RoleConfig
+  java_import com.thoughtworks.go.config.RoleUser unless defined? RoleUser
+  java_import com.thoughtworks.go.config.SecurityAuthConfig unless defined? SecurityAuthConfig
 end

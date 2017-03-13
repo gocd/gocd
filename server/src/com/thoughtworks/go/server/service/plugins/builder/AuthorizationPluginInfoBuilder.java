@@ -25,6 +25,7 @@ import com.thoughtworks.go.server.ui.plugins.PluginConfiguration;
 import com.thoughtworks.go.server.ui.plugins.PluginView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class AuthorizationPluginInfoBuilder extends PluginConfigMetadataStoreBasedPluginInfoBuilder<AuthorizationPluginInfo, AuthorizationPluginConfigMetadataStore> {
 
@@ -44,9 +45,12 @@ public class AuthorizationPluginInfoBuilder extends PluginConfigMetadataStoreBas
         PluginView profileView = new PluginView(store.getProfileView(descriptor));
         PluggableInstanceSettings profileSettings = new PluggableInstanceSettings(pluginConfigurations, profileView);
 
-        ArrayList<PluginConfiguration> roleConfigurations = PluginConfiguration.getPluginConfigurations(store.getRoleMetadata(descriptor));
-        PluginView roleView = new PluginView(store.getRoleView(descriptor));
-        PluggableInstanceSettings roleSettings = new PluggableInstanceSettings(roleConfigurations, roleView);
+        PluggableInstanceSettings roleSettings = null;
+        if (store.canAuthorize(pluginId)) {
+            List<PluginConfiguration> roleConfigurations = PluginConfiguration.getPluginConfigurations(store.getRoleMetadata(descriptor));
+            PluginView roleView = new PluginView(store.getRoleView(descriptor));
+            roleSettings = new PluggableInstanceSettings(roleConfigurations, roleView);
+        }
 
 
         return new AuthorizationPluginInfo(descriptor, profileSettings, roleSettings, icon);

@@ -67,10 +67,12 @@ abstract class RoleConfigCommand implements EntityConfigUpdateCommand<Role> {
         preprocessedRole = findExistingRole(preprocessedConfig);
         preprocessedRole.validate(null);
         validate(preprocessedConfig);
+        final RolesConfig rolesConfig = preprocessedConfig.server().security().getRoles();
 
         if (preprocessedRole.errors().isEmpty()) {
-            preprocessedConfig.server().security().getRoles().validate(null);
+            rolesConfig.validate(null);
             BasicCruiseConfig.copyErrors(preprocessedRole, role);
+            role.errors().addAll(rolesConfig.errors());
             return preprocessedRole.getAllErrors().isEmpty() && role.errors().isEmpty();
         }
 

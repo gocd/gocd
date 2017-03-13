@@ -60,7 +60,7 @@ public class RoleConfigService {
             goConfigService.updateConfig(command, currentUser);
         } catch (Exception e) {
             if (e instanceof GoConfigInvalidException) {
-                result.unprocessableEntity(LocalizedMessage.string("ENTITY_CONFIG_VALIDATION_FAILED", getTagName(role), role.getName(), e.getMessage()));
+                result.unprocessableEntity(LocalizedMessage.string("ENTITY_CONFIG_VALIDATION_FAILED", getTagName(role), role.getName(), ((GoConfigInvalidException) e).getAllErrorMessages()));
             } else {
                 if (!result.hasMessage()) {
                     LOGGER.error(e.getMessage(), e);

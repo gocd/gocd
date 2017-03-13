@@ -19,12 +19,16 @@ let f                      = require('helpers/form_helper');
 let ResourcesListWidget    = require('views/agents/resources_list_widget');
 let EnvironmentsListWidget = require('views/agents/environments_list_widget');
 
+const Stream       = require('mithril/stream');
 const Resources    = require('models/agents/resources');
 const Environments = require('models/agents/environments');
 
 const ButtonRowWidget = {
   oninit (vnode) {
-    const args = vnode.attrs;
+    const args        = vnode.attrs;
+    const self        = this;
+    this.resources    = Stream();
+    this.environments = Stream();
 
     this.dropdownClass = function (name) {
       return args.dropdown.isDropDownOpen(name) ? 'has-dropdown is-open' : 'has-dropdown';
@@ -32,13 +36,17 @@ const ButtonRowWidget = {
 
     this.resourcesButtonClicked = function (e) {
       e.preventDefault();
-      Resources.init(args.selectedAgents());
+      Resources.all(args.selectedAgents())
+        .then(self.resources)
+        .always(m.redraw);
       args.dropdown.toggleDropDownState('resource');
     };
 
     this.environmentsButtonClicked = function (e) {
       e.preventDefault();
-      Environments.init(args.selectedAgents());
+      Environments.all(args.selectedAgents())
+        .then(self.environments)
+        .always(m.redraw);
       args.dropdown.toggleDropDownState('environment');
     };
 
@@ -87,6 +95,7 @@ const ButtonRowWidget = {
 
                 <ResourcesListWidget hideDropDown={args.dropdown.hide}
                                      dropDownReset={args.dropdown.reset}
+                                     resources={ctrl.resources}
                                      onResourcesUpdate={args.onResourcesUpdate}/>
               </li>
 
@@ -98,6 +107,7 @@ const ButtonRowWidget = {
 
                 <EnvironmentsListWidget hideDropDown={args.dropdown.hide}
                                         dropDownReset={args.dropdown.reset}
+                                        environments={ctrl.environments}
                                         onEnvironmentsUpdate={args.onEnvironmentsUpdate}/>
               </li>
             </ul>

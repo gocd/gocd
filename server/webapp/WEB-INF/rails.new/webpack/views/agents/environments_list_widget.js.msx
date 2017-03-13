@@ -18,8 +18,7 @@ let m                      = require('mithril');
 let f                      = require('helpers/form_helper');
 let TriStateCheckboxWidget = require('views/agents/tri_state_checkbox_widget');
 
-const _            = require('lodash');
-const Environments = require('models/agents/environments');
+const _ = require('lodash');
 
 const EnvironmentsListWidget = {
   oninit (vnode) {
@@ -31,15 +30,11 @@ const EnvironmentsListWidget = {
 
       hideEnvironmentsDropDown();
 
-      const environmentsToBeAdded = _.filter(Environments.list, (environment) => {
-        return environment.isChecked();
-      }).map((environment) => {
+      const environmentsToBeAdded = _.filter(args.environments(), (environment) => environment.isChecked()).map((environment) => {
         return environment.name();
       });
 
-      const environmentsToBeRemoved = _.filter(Environments.list, (environment) => {
-        return !environment.isIndeterminate() && !environment.isChecked();
-      }).map((environment) => {
+      const environmentsToBeRemoved = _.filter(args.environments(), (environment) => !environment.isIndeterminate() && !environment.isChecked()).map((environment) => {
         return environment.name();
       });
 
@@ -56,7 +51,7 @@ const EnvironmentsListWidget = {
     const ctrl = vnode.state;
     const args = vnode.attrs;
 
-    const isEnvironmentsEmpty    = _.isEmpty(Environments.list);
+    const isEnvironmentsEmpty    = _.isEmpty(args.environments());
     let environmentDropDownClass = "agent-button-group-dropdown env-dropdown ";
 
     if (isEnvironmentsEmpty) {
@@ -66,8 +61,9 @@ const EnvironmentsListWidget = {
     return (
       <div class={environmentDropDownClass} onclick={ctrl.closeDropdown}>
         <ul class="resources-items">
-          { _.map(Environments.list, (environment, index) => {
-            return (<TriStateCheckboxWidget triStateCheckbox={environment} index={index} key={environment.name()}/>);
+          {_.map(args.environments(), (environment, index) => {
+            return (
+              <TriStateCheckboxWidget triStateCheckbox={environment} index={index} key={environment.name()}/>);
           })
           }
         </ul>

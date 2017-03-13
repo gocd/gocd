@@ -17,8 +17,6 @@
 require('jasmine-jquery');
 require('jasmine-ajax');
 
-const Environments  = require('models/agents/environments');
-const Resources     = require('models/agents/resources');
 const PluginInfos   = require('models/pipeline_configs/plugin_infos');
 const PluggableSCMs = require('models/pipeline_configs/pluggable_scms');
 const SCMs          = require("models/pipeline_configs/scms");
@@ -56,8 +54,6 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  expect(Environments.list.length).toBe(0);
-  expect(Resources.list.length).toBe(0);
   expect(PluginInfos().length).toBe(0);
   expect(Pipelines().length).toBe(0);
 

@@ -16,14 +16,12 @@
 
 describe("Agents Widget", () => {
 
-  const $            = require("jquery");
-  const m            = require('mithril');
-  const Stream       = require('mithril/stream');
-  const _            = require('lodash');
-  const Environments = require('models/agents/environments');
-  const Resources    = require('models/agents/resources');
-  const Routes       = require('gen/js-routes');
-  const SortOrder    = require('views/agents/models/sort_order');
+  const $         = require("jquery");
+  const m         = require('mithril');
+  const Stream    = require('mithril/stream');
+  const _         = require('lodash');
+  const Routes    = require('gen/js-routes');
+  const SortOrder = require('views/agents/models/sort_order');
 
   const simulateEvent = require('simulate-event');
 
@@ -103,8 +101,6 @@ describe("Agents Widget", () => {
 
   afterEach(() => {
     unmount();
-    Resources.list    = [];
-    Environments.list = [];
   });
 
   it('should contain the agent rows equal to the number of agents', () => {

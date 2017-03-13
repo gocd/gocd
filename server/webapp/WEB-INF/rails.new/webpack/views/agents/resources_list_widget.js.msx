@@ -20,7 +20,6 @@ let TriStateCheckboxWidget = require('views/agents/tri_state_checkbox_widget');
 
 const Stream           = require('mithril/stream');
 const _                = require('lodash');
-const Resources        = require('models/agents/resources');
 const TriStateCheckbox = require('models/agents/tri_state_checkbox');
 
 const NewResourceVM = {
@@ -31,7 +30,7 @@ const NewResourceVM = {
 const ResourcesListWidget = {
   oninit (vnode) {
     this.addNewResource = function () {
-      const currentResources = Resources.list;
+      const currentResources = vnode.attrs.resources();
 
       const newResource = _.trim(NewResourceVM.newResource());
 
@@ -43,7 +42,7 @@ const ResourcesListWidget = {
 
       if ((!duplicateResource) && !(_.isEqual('', newResource))) {
         currentResources.push(new TriStateCheckbox(newResource, []));
-        Resources.list = currentResources;
+        vnode.attrs.resources(currentResources);
         NewResourceVM.newResource('');
         NewResourceVM.error('');
       }
@@ -52,15 +51,11 @@ const ResourcesListWidget = {
     this.updateResource = function (callback) {
       vnode.attrs.hideDropDown('resource');
 
-      const resourcesToBeAdded = _.filter(Resources.list, (resource) => {
-        return resource.isChecked();
-      }).map((resource) => {
+      const resourcesToBeAdded = _.filter(vnode.attrs.resources(), (resource) => resource.isChecked()).map((resource) => {
         return resource.name();
       });
 
-      const resourcesToBeRemoved = _.filter(Resources.list, (resource) => {
-        return !resource.isIndeterminate() && !resource.isChecked();
-      }).map((resource) => {
+      const resourcesToBeRemoved = _.filter(vnode.attrs.resources(), (resource) => !resource.isIndeterminate() && !resource.isChecked()).map((resource) => {
         return resource.name();
       });
 
@@ -86,7 +81,7 @@ const ResourcesListWidget = {
         <ul class="resources-items">
 
           {
-            _.map(Resources.list, (resource, index) => {
+            _.map(vnode.attrs.resources(), (resource, index) => {
               return <TriStateCheckboxWidget triStateCheckbox={resource} index={index} key={resource.name()}/>;
             })
           }

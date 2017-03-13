@@ -20,25 +20,23 @@ describe('Agent Environments Model', () => {
 
   require('jasmine-ajax');
 
-  beforeEach(() => {
-    jasmine.Ajax.install();
-    jasmine.Ajax.stubRequest(/\/api\/admin\/internal\/environments/).andReturn({
-      "responseText": JSON.stringify(["QA", "Dev", "Test"]),
-      "status":       200
-    });
-  });
-
-  afterEach(() => {
-    jasmine.Ajax.uninstall();
-    Environments.list = [];
-  });
-
   it("should initialize the environments in sorted order", () => {
-    Environments.init();
-    expect(Environments.list.length).toBe(3);
-    expect(Environments.list[0].name()).toBe('Dev');
-    expect(Environments.list[1].name()).toBe('QA');
-    expect(Environments.list[2].name()).toBe('Test');
+    jasmine.Ajax.withMock(() => {
+      jasmine.Ajax.stubRequest('/go/api/admin/internal/environments', undefined, 'GET').andReturn({
+        responseText: JSON.stringify(["QA", "Dev", "Test"]),
+        status:       200
+      });
+
+      const successCallback = jasmine.createSpy().and.callFake((environments) => {
+        expect(environments.length).toBe(3);
+        expect(environments[0].name()).toBe('Dev');
+        expect(environments[1].name()).toBe('QA');
+        expect(environments[2].name()).toBe('Test');
+      });
+
+      Environments.all().then(successCallback);
+      expect(successCallback).toHaveBeenCalled();
+    });
   });
 
   it("should initialize the environments with state depending upon the checkedAgents", () => {
@@ -51,17 +49,29 @@ describe('Agent Environments Model', () => {
         return ['Test', 'Dev', 'QA'];
       }
     }];
-    Environments.init(checkedAgents);
-    expect(Environments.list.length).toBe(3);
-    expect(Environments.list[0].name()).toBe('Dev');
-    expect(Environments.list[1].name()).toBe('QA');
-    expect(Environments.list[2].name()).toBe('Test');
 
-    expect(Environments.list[0].isChecked()).toBe(false);
-    expect(Environments.list[0].isIndeterminate()).toBe(true);
-    expect(Environments.list[1].isChecked()).toBe(true);
-    expect(Environments.list[1].isIndeterminate()).toBe(false);
-    expect(Environments.list[2].isChecked()).toBe(true);
-    expect(Environments.list[2].isIndeterminate()).toBe(false);
+    jasmine.Ajax.withMock(() => {
+      jasmine.Ajax.stubRequest('/go/api/admin/internal/environments', undefined, 'GET').andReturn({
+        responseText: JSON.stringify(["QA", "Dev", "Test"]),
+        status:       200
+      });
+
+      const successCallback = jasmine.createSpy().and.callFake((environments) => {
+        expect(environments.length).toBe(3);
+        expect(environments[0].name()).toBe('Dev');
+        expect(environments[1].name()).toBe('QA');
+        expect(environments[2].name()).toBe('Test');
+
+        expect(environments[0].isChecked()).toBe(false);
+        expect(environments[0].isIndeterminate()).toBe(true);
+        expect(environments[1].isChecked()).toBe(true);
+        expect(environments[1].isIndeterminate()).toBe(false);
+        expect(environments[2].isChecked()).toBe(true);
+        expect(environments[2].isIndeterminate()).toBe(false);
+      });
+
+      Environments.all(checkedAgents).then(successCallback);
+      expect(successCallback).toHaveBeenCalled();
+    });
   });
 });

@@ -15,13 +15,10 @@
  */
 
 const $                = require('jquery');
-const m                = require('mithril');
 const _                = require('lodash');
 const mrequest         = require('helpers/mrequest');
 const TriStateCheckbox = require('models/agents/tri_state_checkbox');
 const Routes           = require('gen/js-routes');
-const Resources        = {};
-Resources.list       = [];
 
 const getSortedResources = (resources, selectedAgents) => {
   const selectedAgentsResources = _.map(selectedAgents, (agent) => agent.resources());
@@ -29,14 +26,28 @@ const getSortedResources = (resources, selectedAgents) => {
   return _.map(resources.sort(), (resource) => new TriStateCheckbox(resource, selectedAgentsResources));
 };
 
-Resources.init = (selectedAgents) => {
-  $.ajax({
-    method:     'GET',
-    url:        Routes.apiv1AdminInternalResourcesPath(),
-    beforeSend: mrequest.xhrConfig.forVersion('v1')
-  }).then((data) => {
-    Resources.list = getSortedResources(data, selectedAgents);
-  }).always(m.redraw);
-};
+const Resources = {};
+
+Resources.all = (selectedAgents) => $.Deferred(function () {
+  const deferred = this;
+
+  const jqXHR = $.ajax({
+    method:      'GET',
+    url:         Routes.apiv1AdminInternalResourcesPath(),
+    timeout:     mrequest.timeout,
+    beforeSend:  mrequest.xhrConfig.forVersion('v1'),
+    contentType: false
+  });
+
+  const didFulfill = (data) => {
+    deferred.resolve(getSortedResources(data, selectedAgents));
+  };
+
+  const didReject = (jqXHR) => {
+    deferred.reject(mrequest.unwrapErrorExtractMessage(jqXHR.responseJSON, jqXHR));
+  };
+
+  jqXHR.then(didFulfill, didReject);
+}).promise();
 
 module.exports = Resources;

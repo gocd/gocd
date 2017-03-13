@@ -551,17 +551,17 @@ describe('PluginInfos', () => {
     });
   });
 
-  var verifyBasicProperties = (pluginInfo, json) => {
-    expect(pluginInfo.id()).toEqual(json.id);
-    expect(pluginInfo.type()).toEqual(json.type);
-    expect(pluginInfo.version()).toEqual(json.version);
-    expect(pluginInfo.about().name()).toEqual(json.about.name);
-    expect(pluginInfo.about().version()).toEqual(json.about.version);
-    expect(pluginInfo.about().targetGoVersion()).toEqual(json.about.target_go_version);
-    expect(pluginInfo.about().description()).toEqual(json.about.description);
-    expect(pluginInfo.about().targetOperatingSystem()).toEqual(json.about.target_operating_systems);
-    expect(pluginInfo.about().vendor().name()).toEqual(json.about.vendor.name);
-    expect(pluginInfo.about().vendor().url()).toEqual(json.about.vendor.url);
+  var verifyBasicProperties = (pluginInfo, {id, type, version, about}) => {
+    expect(pluginInfo.id()).toEqual(id);
+    expect(pluginInfo.type()).toEqual(type);
+    expect(pluginInfo.version()).toEqual(version);
+    expect(pluginInfo.about().name()).toEqual(about.name);
+    expect(pluginInfo.about().version()).toEqual(about.version);
+    expect(pluginInfo.about().targetGoVersion()).toEqual(about.target_go_version);
+    expect(pluginInfo.about().description()).toEqual(about.description);
+    expect(pluginInfo.about().targetOperatingSystem()).toEqual(about.target_operating_systems);
+    expect(pluginInfo.about().vendor().name()).toEqual(about.vendor.name);
+    expect(pluginInfo.about().vendor().url()).toEqual(about.vendor.url);
   };
 
 });

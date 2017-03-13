@@ -218,8 +218,8 @@ describe("Pipeline Model", () => {
           }
         });
 
-        var successCallback = jasmine.createSpy().and.callFake(response => {
-          expect(response.status).toBe(200);
+        var successCallback = jasmine.createSpy().and.callFake(({status}) => {
+          expect(status).toBe(200);
         });
 
         pipeline.update(url, successCallback);

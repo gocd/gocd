@@ -16,9 +16,7 @@
 
 var _      = require('lodash');
 var s      = require('string-plus');
-var Errors = function (errors) {
-  errors = errors || {};
-
+var Errors = function(errors = {}) {
   this.add = (attrName, message) => {
     errors[attrName] = errors[attrName] || [];
     errors[attrName].push(message);

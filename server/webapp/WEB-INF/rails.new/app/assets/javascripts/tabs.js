@@ -164,7 +164,7 @@ var TabsManager = Class.create({
     },
     getCurrentTabFromUrl: function() {
         var url = window.location.href;
-        
+
         try {
             if(url.lastIndexOf('#tab-') > -1) {
                 var tabName = url.substring(url.lastIndexOf('#tab-') + 5, url.length);
@@ -182,12 +182,15 @@ var TabsManager = Class.create({
             return null;
         }
     },
-    getCurrentTabFromBuildOrStageStatus: function(){
-        if(window.cruise_stage_or_build_detail_page_status){
-            if(window.cruise_stage_or_build_detail_page_status == 'passed'){
+    getCurrentTabFromBuildOrStageStatus: function() {
+        var job = jQuery(".job_details_content");
+
+        if (job.data("result")) {
+            if (job.data("result") === 'passed') {
                 return 'artifacts';
             }
-            if(window.cruise_stage_or_build_detail_page_status == 'failed' || window.cruise_stage_or_build_detail_page_status == 'failing'){
+
+            if (job.data("result") === 'failed' || job.data("result") === 'failing') {
                 return 'failures';
             }
         }

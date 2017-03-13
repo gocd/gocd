@@ -29,7 +29,7 @@
 
       beforeEach(function () {
           setFixtures("<div id=\"console\"></div>");
-          transformer = new LogOutputTransformer(output = $("#console"), FoldableSection);
+          transformer = new LogOutputTransformer(output = $("#console"), FoldableSection, false);
       });
 
       it("basic unprefixed append to console", function () {

@@ -50,6 +50,7 @@
       container.addClass(result.toLowerCase())
     },
     updateBuildSummary:      function updateBuildSummary(json) {
+      $(".job_details_content").attr("data-result", status).removeData("data-result");
       $('#build_scheduled_date').text(json.building_info.build_scheduled_date);
       $('#build_assigned_date').text(json.building_info.build_assigned_date);
       $('#build_preparing_date').text(json.building_info.build_preparing_date);

@@ -16,9 +16,10 @@
 ;(function ($, c) {
   "use strict";
 
-  function LogOutputTransformer(consoleElement, Section) {
+  function LogOutputTransformer(consoleElement, Section, deferTransform) {
     var self = this, writer = new Section.LineWriter();
     var currentSection, currentLine, lineNumber = 0;
+    var deferred = [];
 
     var PREFIXED_LOG_LINE = /^([^|]{2})\|(\d\d:\d\d:\d\d\.\d\d\d) (.*)/, // parses prefix, timestamp, and line content
         LEGACY_LOG_LINE   = /^(\d\d:\d\d:\d\d\.\d\d\d )?(.*)/; // timestamps are not guaranteed on each line in the old format
@@ -39,7 +40,15 @@
       }
     }
 
-    self.transform = function buildDomFromLogs(logLines) {
+    function dequeue() {
+      var lines;
+      while (lines = deferred.shift()) {
+        buildDomFromLogs(lines);
+      }
+      deferTransform = !consoleElement.is(":visible");
+    }
+
+    function buildDomFromLogs(logLines) {
       var rawLine, match, continuedSection;
       var residual, queue;
 
@@ -117,7 +126,20 @@
       }
 
       flushToDOM();
+    }
+
+    self.transform = function buildOrDeferLogLines(logLines) {
+      if (deferTransform) {
+        deferred.push(logLines);
+        return;
+      }
+
+      dequeue();
+
+      buildDomFromLogs(logLines);
     };
+
+    self.dequeue = dequeue;
   }
 
   // export

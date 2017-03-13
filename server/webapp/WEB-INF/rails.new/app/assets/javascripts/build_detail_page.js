@@ -23,6 +23,14 @@
         transformers[i].transform(logLines);
       }
     };
+
+    this.dequeue = function dequeueTransformers(name) {
+      for (var i = 0, len = transformers.length; i < len; i++) {
+        if (!name || transformers[i].name === name) {
+          transformers[i].dequeue();
+        }
+      }
+    }
   }
 
   $(function initConsolePageDomReady() {
@@ -37,6 +45,17 @@
 
     var build = $("[data-console-url]");
 
+    function triggerLogDequeue() {
+      var subTab = this;
+      jobDetails.trigger("dequeue", subTab.tab_name);
+    }
+
+    var uid = [jobDetails.data("pipeline"), jobDetails.data("stage"), jobDetails.data("job"), jobDetails.data("build")].join("-");
+    var tabsManager = new TabsManager(null, "build", uid, "console", {
+      "console":  new SubTabs($(".sub_tabs_container #build_console")[0], triggerLogDequeue),
+      "failures": new SubTabs($(".sub_tabs_container #failures_console")[0], triggerLogDequeue)
+    });
+
     if (build.length) {
       var consoleUrl = context_path("files/" + build.data("console-url"));
       var containers = build.find(".buildoutput_pre"), transformers = [];
@@ -50,11 +69,18 @@
 
       $.each(containers, function initEachConsoleArea(i, area) {
         var container = $(area);
-        transformers.push(new LogOutputTransformer(container, FoldableSection));
+        var name;
 
         if (container.is("#tab-content-of-console *")) {
           new ConsoleScroller(container, $("#build_console"), $('.auto-scroll')).startScroll();
+          name = "console"; // needs match tab name for dequeue() to work
+        } else {
+          name = "failures";
         }
+
+        var tfm = new LogOutputTransformer(container, FoldableSection, tabsManager.getCurrentTab() !== name);
+        tfm.name = name;
+        transformers.push(tfm);
 
         container.find(".console-action-bar").on("click", ".toggle-timestamps", function toggleLogTimestamps(e) {
           e.stopPropagation();
@@ -91,7 +117,9 @@
         consoleArea.find(".buildoutput_pre").trigger("consoleUpdated");
       });
 
-      executor.register(new ConsoleLogObserver(consoleUrl, new MultiplexingTransformer(transformers), {
+      var multiTransformer = new MultiplexingTransformer(transformers);
+
+      executor.register(new ConsoleLogObserver(consoleUrl, multiTransformer, {
         onUpdate:   function () {
           containers.trigger("consoleUpdated");
         },
@@ -99,12 +127,27 @@
           containers.trigger("consoleCompleted");
         }
       }));
+
+      jobDetails.on("dequeue", function (e, name) {
+        multiTransformer.dequeue(name);
+      });
+
     }
 
     executor.register(new TimerObserver(jobDetails.data("build")));
     executor.register(new BuildSummaryObserver($('.build_detail_summary')));
 
     executor.start();
+
+    $(document).on("click.fullScreen", '#full-screen', function () {
+      $(".content_wrapper_outer").toggleClass("full-screen");
+      $("#cruise_message_counts").toggleClass("hide");
+      $(window).trigger($.Event("resetPinOnScroll"), [{
+        calcRequiredScroll: function() {
+          return $(".console-area").offset().top - $("#header").outerHeight(true) - $(".page_header").outerHeight(true);
+        }
+      }]);
+    });
 
     build.on('click.changeTheme', '.change-theme', function () {
       $('.sub_tab_container_content').toggleClass('white-theme');

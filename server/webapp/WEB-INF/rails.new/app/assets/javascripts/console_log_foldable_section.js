@@ -153,22 +153,14 @@
         // However, we should use the one that matches the JobResult enum, which is "cancelled"
         section.attr("data-task-status", "cancelled").removeData("task-status");
         section.data("errored", true);
-      }
-
-      if (Types.PASS === prefix || Types.CANCEL_TASK_PASS === prefix) {
+      } else if (Types.PASS === prefix || Types.CANCEL_TASK_PASS === prefix) {
         section.attr("data-task-status", "passed").removeData("task-status");
-      }
-
-      if (Types.FAIL === prefix || Types.CANCEL_TASK_FAIL === prefix) {
+      } else if (Types.FAIL === prefix || Types.CANCEL_TASK_FAIL === prefix) {
         section.attr("data-task-status", "failed").removeData("task-status");
         section.data("errored", true);
-      }
-
-      if (Types.JOB_PASS === prefix) {
+      } else if (Types.JOB_PASS === prefix) {
         section.attr("data-job-status", "passed").removeData("job-status");
-      }
-
-      if (Types.JOB_FAIL === prefix) {
+      } else if (Types.JOB_FAIL === prefix) {
         section.attr("data-job-status", "failed").removeData("job-status");
         section.data("errored", true);
       }

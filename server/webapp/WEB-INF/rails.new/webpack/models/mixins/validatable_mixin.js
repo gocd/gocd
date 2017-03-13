@@ -63,7 +63,7 @@ var FormatValidator = function (options) {
     }
 
     if (!entity[attr]().match(options.format)) {
-      entity.errors().add(attr, options.message || (s.humanize(attr) + ' format is in valid'));
+      entity.errors().add(attr, options.message || (`${s.humanize(attr)} format is in valid`));
     }
   };
 };
@@ -129,19 +129,19 @@ var Validatable = function (data) {
 
 Validatable.ErrorMessages = {
   duplicate(attribute) {
-    return s.humanize(attribute) + " is a duplicate";
+    return `${s.humanize(attribute)} is a duplicate`;
   },
   mustBePresent(attribute) {
-    return s.humanize(attribute).replace(/\bxpath\b/i, 'XPath').replace(/\burl\b/i, 'URL') + " must be present";
+    return `${s.humanize(attribute).replace(/\bxpath\b/i, 'XPath').replace(/\burl\b/i, 'URL')} must be present`;
   },
   mustBeAUrl(attribute) {
-    return s.humanize(attribute) + " must be a valid http(s) url";
+    return `${s.humanize(attribute)} must be a valid http(s) url`;
   },
   mustBePositiveNumber(attribute) {
-    return s.humanize(attribute) + " must be a positive integer";
+    return `${s.humanize(attribute)} must be a positive integer`;
   },
   mustContainString(attribute, string) {
-    return s.humanize(attribute) + " must contain the string '" + string + "'";
+    return `${s.humanize(attribute)} must contain the string '${string}'`;
   }
 };
 module.exports            = Validatable;

@@ -20,7 +20,7 @@ var Image  = function (contentType, data) {
   this.data        = Stream(data);
 
   this.toDataURI = function () {
-    return "data:" + this.contentType() + ";base64," + this.data();
+    return `data:${this.contentType()};base64,${this.data()}`;
   };
 };
 

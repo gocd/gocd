@@ -21,7 +21,7 @@ var Stream = require('mithril/stream');
 var Mixins = {};
 
 Mixins.HasUUID = function () {
-  this.uuid = Mixins.GetterSetter(this.constructor.modelType + '-' + s.uuid());
+  this.uuid = Mixins.GetterSetter(`${this.constructor.modelType}-${s.uuid()}`);
 };
 
 Mixins.HasEncryptedAttribute = function (options) {
@@ -33,85 +33,85 @@ Mixins.HasEncryptedAttribute = function (options) {
     return _value().value(...args);
   };
 
-  this['isSecure' + capitalizedName] = () => _value().isSecure();
+  this[`isSecure${capitalizedName}`] = () => _value().isSecure();
 
-  this['isPlain' + capitalizedName] = () => _value().isPlain();
+  this[`isPlain${capitalizedName}`] = () => _value().isPlain();
 
-  this['edit' + capitalizedName] = () => {
+  this[`edit${capitalizedName}`] = () => {
     _value().edit();
   };
 
-  this['isDirty' + capitalizedName] = () => _value().isDirty();
+  this[`isDirty${capitalizedName}`] = () => _value().isDirty();
 
-  this['isEditing' + capitalizedName] = () => _value().isEditing();
+  this[`isEditing${capitalizedName}`] = () => _value().isEditing();
 
-  this['resetToOriginal' + capitalizedName] = () => _value().resetToOriginal();
+  this[`resetToOriginal${capitalizedName}`] = () => _value().resetToOriginal();
 
-  this['becomeSecure' + capitalizedName] = () => _value().becomeSecure();
+  this[`becomeSecure${capitalizedName}`] = () => _value().becomeSecure();
 
-  this['becomeUnSecure' + capitalizedName] = () => _value().becomeUnSecure();
+  this[`becomeUnSecure${capitalizedName}`] = () => _value().becomeUnSecure();
 };
 
 Mixins.HasMany = function (options) {
   Mixins.HasUUID.call(this);
   var factory               = options.factory;
   var associationName       = options.as;
-  var associationNamePlural = s.defaultToIfBlank(options.plural, options.as + 's');
+  var associationNamePlural = s.defaultToIfBlank(options.plural, `${options.as}s`);
   var uniqueOn              = options.uniqueOn;
   var collection            = Stream(s.defaultToIfBlank(options.collection, []));
 
   this.toJSON = () => _(collection()).map(item => item.isBlank && item.isBlank() ? null : item).compact().value();
 
-  this['add' + associationName] = instance => {
+  this[`add${associationName}`] = instance => {
     collection().push(instance);
   };
 
-  this['create' + associationName] = function (options) {
+  this[`create${associationName}`] = function (options) {
     var instance = factory(options || {});
     instance.parent(this);
 
-    this['add' + associationName](instance);
+    this[`add${associationName}`](instance);
     return instance;
   };
 
-  this['remove' + associationName] = thing => {
+  this[`remove${associationName}`] = thing => {
     _.remove(collection(), thing);
   };
 
-  this['first' + associationName] = () => _.first(collection());
+  this[`first${associationName}`] = () => _.first(collection());
 
-  this[_.camelCase(associationName) + 'AtIndex'] = index => collection()[index];
+  this[`${_.camelCase(associationName)}AtIndex`] = index => collection()[index];
 
-  this['set' + associationNamePlural] = newItems => collection(newItems);
+  this[`set${associationNamePlural}`] = newItems => collection(newItems);
 
-  this['count' + associationName] = () => collection().length;
+  this[`count${associationName}`] = () => collection().length;
 
-  this['isEmpty' + associationName] = () => collection().length === 0;
+  this[`isEmpty${associationName}`] = () => collection().length === 0;
 
-  this['indexOf' + associationName] = thing => _.indexOf(collection(), thing);
+  this[`indexOf${associationName}`] = thing => _.indexOf(collection(), thing);
 
-  this['previous' + associationName] = function (thing) {
-    return collection()[this['indexOf' + associationName](thing) - 1];
+  this[`previous${associationName}`] = function (thing) {
+    return collection()[this[`indexOf${associationName}`](thing) - 1];
   };
 
-  this['last' + associationName] = () => _.last(collection());
+  this[`last${associationName}`] = () => _.last(collection());
 
-  this['find' + associationName] = (cb, thisArg) => _.find(collection(), cb, thisArg);
+  this[`find${associationName}`] = (cb, thisArg) => _.find(collection(), cb, thisArg);
 
-  this['filter' + associationName] = (cb, thisArg) => _.filter(collection(), cb, thisArg);
+  this[`filter${associationName}`] = (cb, thisArg) => _.filter(collection(), cb, thisArg);
 
-  this['map' + associationNamePlural] = (cb, thisArg) => _.map(collection(), cb, thisArg);
+  this[`map${associationNamePlural}`] = (cb, thisArg) => _.map(collection(), cb, thisArg);
 
-  this['each' + associationName] = (cb, thisArg) => {
+  this[`each${associationName}`] = (cb, thisArg) => {
     _.each(collection(), cb, thisArg);
   };
 
-  this['sortBy' + associationNamePlural] = (cb, thisArg) => _.sortBy(collection(), cb, thisArg);
+  this[`sortBy${associationNamePlural}`] = (cb, thisArg) => _.sortBy(collection(), cb, thisArg);
 
-  this['every' + associationName] = (cb, thisArg) => _.every(collection(), cb, thisArg);
+  this[`every${associationName}`] = (cb, thisArg) => _.every(collection(), cb, thisArg);
 
-  this['collect' + associationName + 'Property'] = function (propName) {
-    return this['map' + associationNamePlural](child => child[propName]());
+  this[`collect${associationName}Property`] = function (propName) {
+    return this[`map${associationNamePlural}`](child => child[propName]());
   };
 
   this.validate = () => {
@@ -125,13 +125,13 @@ Mixins.HasMany = function (options) {
       return true;
     }
 
-    var occurences = _.countBy(this['collect' + associationName + 'Property'](uniqueOn));
+    var occurences = _.countBy(this[`collect${associationName}Property`](uniqueOn));
     return (occurences[childModel[uniqueOn]()] <= 1);
   };
 
   if (uniqueOn) {
-    this['validateUnique' + associationName + _.capitalize(uniqueOn)] = function (childModel, errors) {
-      var occurences = _.countBy(this['collect' + associationName + 'Property'](uniqueOn));
+    this[`validateUnique${associationName}${_.capitalize(uniqueOn)}`] = function (childModel, errors) {
+      var occurences = _.countBy(this[`collect${associationName}Property`](uniqueOn));
       if (occurences[childModel[uniqueOn]()] > 1) {
         errors.add(uniqueOn, Mixins.ErrorMessages.duplicate(uniqueOn));
       }
@@ -176,19 +176,19 @@ Mixins.Validations = {};
 
 Mixins.ErrorMessages = {
   duplicate(attribute) {
-    return s.humanize(attribute) + " is a duplicate";
+    return `${s.humanize(attribute)} is a duplicate`;
   },
   mustBePresent(attribute) {
-    return s.humanize(attribute).replace(/\bxpath\b/i, 'XPath').replace(/\burl\b/i, 'URL') + " must be present";
+    return `${s.humanize(attribute).replace(/\bxpath\b/i, 'XPath').replace(/\burl\b/i, 'URL')} must be present`;
   },
   mustBeAUrl(attribute) {
-    return s.humanize(attribute) + " must be a valid http(s) url";
+    return `${s.humanize(attribute)} must be a valid http(s) url`;
   },
   mustBePositiveNumber(attribute) {
-    return s.humanize(attribute) + " must be a positive integer";
+    return `${s.humanize(attribute)} must be a positive integer`;
   },
   mustContainString(attribute, string) {
-    return s.humanize(attribute) + " must contain the string '" + string + "'";
+    return `${s.humanize(attribute)} must contain the string '${string}'`;
   }
 };
 

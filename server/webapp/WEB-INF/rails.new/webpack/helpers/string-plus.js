@@ -75,15 +75,14 @@ var mixins = {
         .substring(1);
     }
 
-    return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-      s4() + '-' + s4() + s4() + s4();
+    return `${s4() + s4()}-${s4()}-${s4()}-${s4()}-${s4()}${s4()}${s4()}`;
   },
 
   terminateWithPeriod(str) {
     if (s.endsWith(str, '.')) {
       return str;
     } else {
-      return str + '.';
+      return `${str}.`;
     }
   }
 };

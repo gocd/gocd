@@ -124,7 +124,6 @@ dependencies {
     exclude(module: 'commons-logging')
     exclude(module: 'jms')
     exclude(module: 'servlet-api')
-    exclude(module: 'hibernate')
   }
   compile(group: 'org.apache.activemq', name: 'activemq-core', version: '5.5.0') {
     exclude(module: 'spring-context')
@@ -158,7 +157,6 @@ dependencies {
   }
   compile group: 'org.springframework.security', name: 'spring-security-core-tiger', version: '2.0.3'
   compile(group: 'org.springframework.ldap', name: 'spring-ldap', version: '1.2.1') {
-    exclude(module: 'spring-support')
     exclude(module: 'spring-core')
     exclude(module: 'spring-beans')
     exclude(module: 'commons-lang')

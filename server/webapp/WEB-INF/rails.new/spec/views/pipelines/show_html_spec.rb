@@ -18,7 +18,7 @@ require 'spec_helper'
 
 describe "/pipelines/show.html.erb" do
   before(:each)  do
-    @yesterday = org.joda.time.DateTime.new.minusDays(1).toDate()
+    @yesterday = org.joda.time.DateTime.new.minusHours(24).toDate()
     job_history = JobHistory.new()
     job_history.addJob("unit", JobState::Completed, JobResult::Passed, @yesterday)
     stage_history = StageInstanceModels.new()

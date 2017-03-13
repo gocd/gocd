@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-describe("PipelineConfigWidget", function () {
+describe("PipelineConfigWidget", () => {
   var $             = require("jquery");
   var m             = require('mithril');
   var Stream        = require('mithril/stream');
@@ -32,14 +32,12 @@ describe("PipelineConfigWidget", function () {
   beforeEach(() => {
     [$root, root] = window.createDomElementForTest();
 
-    spyOn(Pipelines, 'init').and.callFake(function () {
-      return $.Deferred().promise();
-    });
+    spyOn(Pipelines, 'init').and.callFake(() => $.Deferred().promise());
   });
   afterEach(window.destroyDomElementForTest);
   var pipeline;
 
-  Pipeline.find = function (_url, extract) {
+  Pipeline.find = (_url, extract) => {
     extract(samplePipelineJSON(), "success", {
       status:            200,
       getResponseHeader: Stream('etag')
@@ -47,9 +45,9 @@ describe("PipelineConfigWidget", function () {
   };
 
 
-  beforeEach(function (done) {
+  beforeEach(done => {
     // needed because the widget needs to fetch data via ajax, and complete rendering
-    var reallyDone = _.after(2, function () {
+    var reallyDone = _.after(2, () => {
       $root.find('.pipeline-settings>.accordion-item>a')[0].click();
       m.redraw();
       done();
@@ -71,7 +69,7 @@ describe("PipelineConfigWidget", function () {
     reallyDone();
   });
 
-  afterEach(function () {
+  afterEach(() => {
     m.mount(root, null);
     m.redraw();
   });
@@ -81,34 +79,34 @@ describe("PipelineConfigWidget", function () {
     return $root.find('.pipeline input[data-model-type=' + modelType + '][data-prop-name=' + propName + ']');
   }
 
-  it("should render the pipeline name", function () {
+  it("should render the pipeline name", () => {
     expect($root.find('.pipeline .heading h1')).toHaveText('Pipeline configuation for pipeline yourproject');
   });
 
-  it("should render enablePipelineLocking checkbox", function () {
+  it("should render enablePipelineLocking checkbox", () => {
     expect(inputFieldFor('enablePipelineLocking')).toBeChecked();
     expect(pipeline.enablePipelineLocking()).toBe(true);
   });
 
-  it("should render the pipeline scheduling type in the pipeline settings view", function () {
+  it("should render the pipeline scheduling type in the pipeline settings view", () => {
     expect($root.find('.pipeline-schedule')).toContainText('Automatically triggered');
   });
 
-  it("should show tooltip message for automatic pipeline scheduling", function () {
+  it("should show tooltip message for automatic pipeline scheduling", () => {
     expect($root.find('.pipeline-schedule')).toContainText("This pipeline is automatically triggered as the first stage of this pipeline is set to 'success'.");
   });
 
-  it("should toggle pipeline enablePipelineLocking attribute", function () {
+  it("should toggle pipeline enablePipelineLocking attribute", () => {
     var lockedCheckBox = inputFieldFor('enablePipelineLocking').get(0);
     lockedCheckBox.click();
     expect(pipeline.enablePipelineLocking()).toBe(false);
   });
 
-  it("should render value of timer", function () {
+  it("should render value of timer", () => {
     expect(inputFieldFor('spec', 'pipelineTimer')).toHaveValue("0 0 22 ? * MON-FRI");
   });
 
-  it("should set the value of labelTemplate", function () {
+  it("should set the value of labelTemplate", () => {
     var labelTextElem = inputFieldFor('labelTemplate');
     var value         = "some-label-text";
     labelTextElem.val(value);
@@ -116,7 +114,7 @@ describe("PipelineConfigWidget", function () {
     expect(labelTextElem).toHaveValue(value);
   });
 
-  it("should render the params (when clicked)", function () {
+  it("should render the params (when clicked)", () => {
     expect('.parameters .parameter').not.toBeInDOM();
     simulateEvent.simulate($root.find('.parameters.accordion .accordion-item > a').get(0), 'click');
     m.redraw();
@@ -129,7 +127,7 @@ describe("PipelineConfigWidget", function () {
 
   });
 
-  it("should render the environment variables", function () {
+  it("should render the environment variables", () => {
     expect('.environment-variables .environment-variable').not.toBeInDOM();
 
     simulateEvent.simulate($root.find('.environment-variables.accordion .accordion-item > a').get(0), 'click');
@@ -144,7 +142,7 @@ describe("PipelineConfigWidget", function () {
     })).toEqual(['USERNAME', 'PASSWORD']);
   });
 
-  it("should not render the template name if pipeline is not built from template", function () {
+  it("should not render the template name if pipeline is not built from template", () => {
     expect('input[name=template_name]').not.toBeInDOM();
   });
 

@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-describe('Resources Model', function () {
+describe('Resources Model', () => {
 
   var Resources = require('models/agents/resources');
 
   require('jasmine-ajax');
 
-  beforeEach(function () {
+  beforeEach(() => {
     jasmine.Ajax.install();
     jasmine.Ajax.stubRequest(/\/api\/admin\/internal\/resources/).andReturn({
       "responseText": JSON.stringify(["Linux", "Firefox"]),
@@ -27,19 +27,19 @@ describe('Resources Model', function () {
     });
   });
 
-  afterEach(function () {
+  afterEach(() => {
     Resources.list = [];
     jasmine.Ajax.uninstall();
   });
 
-  it("should initialize the resources in sorted order", function () {
+  it("should initialize the resources in sorted order", () => {
     Resources.init();
     expect(Resources.list.length).toBe(2);
     expect(Resources.list[0].name()).toBe('Firefox');
     expect(Resources.list[1].name()).toBe('Linux');
   });
 
-  it("should initialize the resources with state depending upon the checkedAgents", function () {
+  it("should initialize the resources with state depending upon the checkedAgents", () => {
     var checkedAgents = [{
       resources: function () {
         return ['Linux'];

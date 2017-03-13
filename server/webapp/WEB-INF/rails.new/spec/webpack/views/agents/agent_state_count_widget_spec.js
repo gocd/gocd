@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-describe("Agent State Count Widget", function () {
+describe("Agent State Count Widget", () => {
   var m      = require('mithril');
   var Stream = require('mithril/stream');
 
@@ -28,43 +28,43 @@ describe("Agent State Count Widget", function () {
     [$root, root] = window.createDomElementForTest();
   });
   afterEach(window.destroyDomElementForTest);
-  beforeEach(function () {
+  beforeEach(() => {
     var agents    = Stream();
     var allAgents = Agents.fromJSON(json());
     agents(allAgents);
     mount(agents);
   });
 
-  afterEach(function () {
+  afterEach(() => {
     unmount();
   });
 
-  it('should contain the agents state count information', function () {
+  it('should contain the agents state count information', () => {
     var children = $root.find('.search-summary').children();
     expect(children).toHaveLength(4);
     expect(children[0]).toContainText('Total');
     expect(children[0]).toContainText('1');
   });
 
-  it('should contain the agents Pending count information', function () {
+  it('should contain the agents Pending count information', () => {
     var children = $root.find('.search-summary').children();
     expect(children[1]).toContainText('Pending');
     expect(children[1]).toContainText('0');
   });
 
-  it('should contain the agents Enabled count information', function () {
+  it('should contain the agents Enabled count information', () => {
     var children = $root.find('.search-summary').children();
     expect(children[2]).toContainText('Enabled');
     expect(children[2]).toContainText('1');
   });
 
-  it('should contain the agents Disabled count information', function () {
+  it('should contain the agents Disabled count information', () => {
     var children = $root.find('.search-summary').children();
     expect(children[3]).toContainText('Disabled');
     expect(children[3]).toContainText('0');
   });
 
-  var mount = function (agents) {
+  var mount = agents => {
     m.mount(root,
       {
         view: function () {
@@ -75,42 +75,40 @@ describe("Agent State Count Widget", function () {
     m.redraw();
   };
 
-  var unmount = function () {
+  var unmount = () => {
     m.mount(root, null);
     m.redraw();
   };
 
-  var json = function () {
-    return [
-      {
-        "_links":             {
-          "self": {
-            "href": "https://ci.example.com/go/api/agents/dfdbe0b1-4521-4a52-ac2f-ca0cf6bdaa3e"
-          },
-          "doc":  {
-            "href": "https://api.gocd.io/#agents"
-          },
-          "find": {
-            "href": "https://ci.example.com/go/api/agents/:uuid"
-          }
+  var json = () => [
+    {
+      "_links":             {
+        "self": {
+          "href": "https://ci.example.com/go/api/agents/dfdbe0b1-4521-4a52-ac2f-ca0cf6bdaa3e"
         },
-        "uuid":               "dfdbe0b1-4521-4a52-ac2f-ca0cf6bdaa3e",
-        "hostname":           "in-john.local",
-        "ip_address":         "10.12.2.200",
-        "sandbox":            "",
-        "operating_system":   "",
-        "free_space":         "unknown",
-        "agent_config_state": "Enabled",
-        "agent_state":        "Missing",
-        "build_state":        "Unknown",
-        "resources":          [
-          "firefox"
-        ],
-        "environments":       [
-          "Dev"
-        ]
-      }
-    ];
-  };
+        "doc":  {
+          "href": "https://api.gocd.io/#agents"
+        },
+        "find": {
+          "href": "https://ci.example.com/go/api/agents/:uuid"
+        }
+      },
+      "uuid":               "dfdbe0b1-4521-4a52-ac2f-ca0cf6bdaa3e",
+      "hostname":           "in-john.local",
+      "ip_address":         "10.12.2.200",
+      "sandbox":            "",
+      "operating_system":   "",
+      "free_space":         "unknown",
+      "agent_config_state": "Enabled",
+      "agent_state":        "Missing",
+      "build_state":        "Unknown",
+      "resources":          [
+        "firefox"
+      ],
+      "environments":       [
+        "Dev"
+      ]
+    }
+  ];
 
 });

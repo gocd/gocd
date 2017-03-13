@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-describe("Parameter Model", function () {
+describe("Parameter Model", () => {
 
   var Parameters = require("models/pipeline_configs/parameters");
   var parameters, parameter;
-  beforeEach(function () {
+  beforeEach(() => {
     parameters = new Parameters();
 
     parameter = parameters.createParameter({
@@ -26,24 +26,24 @@ describe("Parameter Model", function () {
     });
   });
 
-  it("should initialize parameter model with name", function () {
+  it("should initialize parameter model with name", () => {
     expect(parameter.name()).toBe("WORKING_DIR");
   });
 
-  it("should initialize parameter model with value", function () {
+  it("should initialize parameter model with value", () => {
     expect(parameter.value()).toBe('/var/foo');
   });
 
 
-  describe("validations", function () {
-    it("should add error when name is blank but value is not", function () {
+  describe("validations", () => {
+    it("should add error when name is blank but value is not", () => {
       parameter.name("");
       parameter.value('foo');
       var errors = parameter.validate();
       expect(errors.errors('name')).toEqual(['Name must be present']);
     });
 
-    it("should NOT add error when both name and value are blank", function () {
+    it("should NOT add error when both name and value are blank", () => {
       parameter.name("");
       parameter.value("");
 
@@ -51,7 +51,7 @@ describe("Parameter Model", function () {
       expect(errors._isEmpty()).toBe(true);
     });
 
-    it("should not allow parameters with duplicate names", function () {
+    it("should not allow parameters with duplicate names", () => {
       var errorsOnOriginal = parameter.validate();
       expect(errorsOnOriginal._isEmpty()).toBe(true);
 
@@ -67,12 +67,12 @@ describe("Parameter Model", function () {
     });
   });
 
-  describe("Deserialization from JSON", function () {
-    beforeEach(function () {
+  describe("Deserialization from JSON", () => {
+    beforeEach(() => {
       parameter = Parameters.Parameter.fromJSON(sampleJSON());
     });
 
-    it("should initialize from json", function () {
+    it("should initialize from json", () => {
       expect(parameter.name()).toBe("WORKING_DIR");
       expect(parameter.value()).toBe('/var/foo');
     });

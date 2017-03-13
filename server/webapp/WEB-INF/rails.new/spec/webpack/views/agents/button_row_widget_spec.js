@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-describe("Button Row Widget", function () {
+describe("Button Row Widget", () => {
   var m      = require('mithril');
   var Stream = require('mithril/stream');
 
@@ -32,22 +32,22 @@ describe("Button Row Widget", function () {
   });
   afterEach(window.destroyDomElementForTest);
 
-  var selectedAgents     = function () {
+  var selectedAgents     = () => {
   };
-  var disableAgents      = function () {
+  var disableAgents      = () => {
   };
-  var enableAgents       = function () {
+  var enableAgents       = () => {
   };
-  var deleteAgents       = function () {
+  var deleteAgents       = () => {
   };
-  var updateResources    = function () {
+  var updateResources    = () => {
   };
-  var updateEnvironments = function () {
+  var updateEnvironments = () => {
   };
 
   var agentsVM = new AgentsVM();
 
-  beforeEach(function () {
+  beforeEach(() => {
     agents        = Stream();
     var allAgents = Agents.fromJSON(json());
     agents(allAgents);
@@ -56,19 +56,19 @@ describe("Button Row Widget", function () {
     m.redraw();
   });
 
-  afterEach(function () {
+  afterEach(() => {
     unmount();
   });
 
-  describe('Heading Row', function () {
-    it('should contain the agents page heading text', function () {
+  describe('Heading Row', () => {
+    it('should contain the agents page heading text', () => {
       var headingText = $root.find('.page-header h1');
       expect(headingText).toHaveText('Agents');
     });
   });
 
-  describe('Button Group', function () {
-    it('should contain the row elements', function () {
+  describe('Button Group', () => {
+    it('should contain the row elements', () => {
       var rowElementButtons = $root.find('.header-panel-button-group button');
       expect(rowElementButtons).toHaveLength(7);
       expect(rowElementButtons[0]).toHaveText("Delete");
@@ -82,7 +82,7 @@ describe("Button Row Widget", function () {
       expect(rowElementText[0]).toHaveText("No environments are defined");
     });
 
-    it('should disable the buttons if agents are not selected', function () {
+    it('should disable the buttons if agents are not selected', () => {
       var rowElements = $root.find('.header-panel-button-group button');
       expect(rowElements[0]).toBeDisabled();
       expect(rowElements[1]).toBeDisabled();
@@ -91,7 +91,7 @@ describe("Button Row Widget", function () {
       expect(rowElements[6]).toBeDisabled();
     });
 
-    it('should enable the buttons if at least one agent is selected', function () {
+    it('should enable the buttons if at least one agent is selected', () => {
       var areOperationsAllowed = Stream(true);
       mount(areOperationsAllowed);
       var rowElements = $root.find('.header-panel-button-group button');
@@ -105,7 +105,7 @@ describe("Button Row Widget", function () {
 
   });
 
-  var mount = function (areOperationsAllowed) {
+  var mount = areOperationsAllowed => {
     m.mount(root, {
       view: function () {
         return m(ButtonRowWidget, {
@@ -123,39 +123,37 @@ describe("Button Row Widget", function () {
     m.redraw();
   };
 
-  var unmount = function () {
+  var unmount = () => {
     m.mount(root, null);
     m.redraw();
   };
 
-  var json = function () {
-    return [
-      {
-        "_links":             {
-          "self": {
-            "href": "https://ci.example.com/go/api/agents/uuid-1"
-          },
-          "doc":  {
-            "href": "https://api.gocd.io/#agents"
-          },
-          "find": {
-            "href": "https://ci.example.com/go/api/agents/:uuid"
-          }
+  var json = () => [
+    {
+      "_links":             {
+        "self": {
+          "href": "https://ci.example.com/go/api/agents/uuid-1"
         },
-        "uuid":               "uuid-1",
-        "hostname":           "in-john.local",
-        "ip_address":         "10.12.2.200",
-        "sandbox":            "usr/local/foo",
-        "operating_system":   "Linux",
-        "free_space":         "unknown",
-        "agent_config_state": "Enabled",
-        "agent_state":        "Missing",
-        "build_state":        "Unknown",
-        "resources":          [
-          "Firefox"
-        ],
-        "environments":       []
-      }
-    ];
-  };
+        "doc":  {
+          "href": "https://api.gocd.io/#agents"
+        },
+        "find": {
+          "href": "https://ci.example.com/go/api/agents/:uuid"
+        }
+      },
+      "uuid":               "uuid-1",
+      "hostname":           "in-john.local",
+      "ip_address":         "10.12.2.200",
+      "sandbox":            "usr/local/foo",
+      "operating_system":   "Linux",
+      "free_space":         "unknown",
+      "agent_config_state": "Enabled",
+      "agent_state":        "Missing",
+      "build_state":        "Unknown",
+      "resources":          [
+        "Firefox"
+      ],
+      "environments":       []
+    }
+  ];
 });

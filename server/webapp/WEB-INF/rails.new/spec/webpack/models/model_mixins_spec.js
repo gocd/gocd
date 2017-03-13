@@ -13,23 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-describe("Model Mixins", function () {
+describe("Model Mixins", () => {
 
   var Stream = require('mithril/stream');
   var Mixin  = require('models/mixins/model_mixins');
 
-  describe("TogglingGetterSetter", function () {
+  describe("TogglingGetterSetter", () => {
     var model;
-    beforeEach(function () {
+    beforeEach(() => {
       model = Mixin.TogglingGetterSetter(Stream('foo'));
     });
 
-    it("should set a value for the first time", function () {
+    it("should set a value for the first time", () => {
       expect(model()).toBe('foo');
       expect(model()).toBe('foo');
     });
 
-    it("should unset value when set twice", function () {
+    it("should unset value when set twice", () => {
       expect(model('bar')).toBe('bar');
       expect(model('bar')).toBe(undefined);
       expect(model('bar')).toBe('bar');

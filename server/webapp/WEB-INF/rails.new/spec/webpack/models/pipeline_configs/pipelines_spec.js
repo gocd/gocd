@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-describe('Pipelines', function () {
+describe('Pipelines', () => {
   var Pipelines = require("models/pipeline_configs/pipelines");
 
-  describe('init', function () {
+  describe('init', () => {
 
-    afterEach(function () {
+    afterEach(() => {
       Pipelines([]);
     });
 
-    it('should get pipelines except rejected ones from admin internal api', function () {
-      jasmine.Ajax.withMock(function () {
+    it('should get pipelines except rejected ones from admin internal api', () => {
+      jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest('/go/api/admin/internal/pipelines', undefined, 'GET').andReturn({
           responseText: JSON.stringify({
             _embedded: {

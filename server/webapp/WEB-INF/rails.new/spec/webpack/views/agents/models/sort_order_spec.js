@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-describe("SortOrder", function () {
+describe("SortOrder", () => {
 
   var _         = require('lodash');
   var m         = require('mithril');
   var SortOrder = require('views/agents/models/sort_order');
 
-  it("should default to correct values", function () {
+  it("should default to correct values", () => {
     expect(new SortOrder().sortBy()).toEqual('agentState');
     expect(new SortOrder().orderBy()).toEqual('asc');
   });
 
-  describe('toggleSortingOrder', function () {
-    it("should toggle sort order on existing column", function () {
+  describe('toggleSortingOrder', () => {
+    it("should toggle sort order on existing column", () => {
       var sortOrder     = new SortOrder();
       sortOrder.perform = _.noop;
 
@@ -39,7 +39,7 @@ describe("SortOrder", function () {
       expect(sortOrder.orderBy()).toEqual('asc');
     });
 
-    it("should reset sort order (to asc) when column changes", function () {
+    it("should reset sort order (to asc) when column changes", () => {
       var sortOrder     = new SortOrder();
       sortOrder.perform = _.noop;
 
@@ -49,8 +49,8 @@ describe("SortOrder", function () {
     });
   });
 
-  describe("isSortedOn", function () {
-    it("should return true if current sort column is the same as the one passed in", function () {
+  describe("isSortedOn", () => {
+    it("should return true if current sort column is the same as the one passed in", () => {
       var sortOrder = new SortOrder();
 
       expect(sortOrder.isSortedOn(sortOrder.sortBy())).toBe(true);
@@ -58,8 +58,8 @@ describe("SortOrder", function () {
     });
   });
 
-  describe("initialize", function () {
-    it("should initialize sortBy and orderBy values based on the routing params", function () {
+  describe("initialize", () => {
+    it("should initialize sortBy and orderBy values based on the routing params", () => {
       let sortOrder     = new SortOrder();
       sortOrder.perform = _.noop;
 
@@ -71,7 +71,7 @@ describe("SortOrder", function () {
       expect(sortOrder.orderBy()).toEqual('desc');
     });
 
-    it("should initialize sortBy and orderBy values to default when routing params are not present", function () {
+    it("should initialize sortBy and orderBy values to default when routing params are not present", () => {
       let sortOrder     = new SortOrder();
       sortOrder.perform = _.noop;
 
@@ -83,7 +83,7 @@ describe("SortOrder", function () {
       expect(sortOrder.orderBy()).toEqual('asc');
     });
 
-    it("should perform routing on initialize", function () {
+    it("should perform routing on initialize", () => {
       let sortOrder = new SortOrder();
 
       var performSpy = spyOn(sortOrder, "perform");

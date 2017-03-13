@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-describe("PipelineStageField Widget", function () {
+describe("PipelineStageField Widget", () => {
 
   var m = require("mithril");
   var _ = require("lodash");
@@ -43,17 +43,17 @@ describe("PipelineStageField Widget", function () {
     m.redraw();
   }
 
-  var unmount = function () {
+  var unmount = () => {
     m.mount(root, null);
     m.redraw();
   };
 
-  describe('view', function () {
-    afterEach(function () {
+  describe('view', () => {
+    afterEach(() => {
       unmount();
     });
 
-    it('should render the pipeline stage field', function () {
+    it('should render the pipeline stage field', () => {
       var material = Materials.create({
         type:     "dependency",
         pipeline: "p1",
@@ -66,7 +66,7 @@ describe("PipelineStageField Widget", function () {
       expect('.form-error').not.toBeInDOM();
     });
 
-    it('should render a empty text box in absence of pipeline', function () {
+    it('should render a empty text box in absence of pipeline', () => {
       var material = Materials.create({
         type: "dependency"
       });
@@ -76,7 +76,7 @@ describe("PipelineStageField Widget", function () {
       expect($root.find("input[name='pipeline-stage']")).toHaveValue('');
     });
 
-    it('should assign pipeline_stage value to model', function () {
+    it('should assign pipeline_stage value to model', () => {
       var material = Materials.create({
         type: "dependency"
       });
@@ -91,7 +91,7 @@ describe("PipelineStageField Widget", function () {
       expect(material.stage()).toBe('stage');
     });
 
-    it('should validate the format of pipeline stage string', function () {
+    it('should validate the format of pipeline stage string', () => {
       var material = Materials.create({
         type:     "dependency",
         pipeline: "p1",
@@ -111,7 +111,7 @@ describe("PipelineStageField Widget", function () {
       expect(_.isEmpty(material.stage())).toBe(true);
     });
 
-    it('should hide validation errors on providing valid input', function () {
+    it('should hide validation errors on providing valid input', () => {
       var material = Materials.create({
         type: "dependency"
       });
@@ -132,7 +132,7 @@ describe("PipelineStageField Widget", function () {
       expect(_.isEmpty($root.find(".form-error"))).toBe(true);
     });
 
-    it('should show server side validation errors', function () {
+    it('should show server side validation errors', () => {
       var material = Materials.create({
         type:     "dependency",
         pipeline: "a",
@@ -150,7 +150,7 @@ describe("PipelineStageField Widget", function () {
       expect($root.find(".form-error")).toHaveText("Pipeline with name 'a' does not exist. Stage with name 'b' does not exist");
     });
 
-    it('should clear server side errors on valid input', function () {
+    it('should clear server side errors on valid input', () => {
       var material = Materials.create({
         type:     "dependency",
         pipeline: "a",

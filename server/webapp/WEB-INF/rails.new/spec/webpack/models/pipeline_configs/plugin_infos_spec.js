@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-describe('PluginInfos', function () {
+describe('PluginInfos', () => {
 
   var PluginInfos = require("models/pipeline_configs/plugin_infos");
 
-  afterEach(function () {
+  afterEach(() => {
     PluginInfos([]);
   });
 
-  describe('all', function () {
-    it('should fetch all plugin_infos', function () {
+  describe('all', () => {
+    it('should fetch all plugin_infos', () => {
 
-      jasmine.Ajax.withMock(function () {
+      jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest('/go/api/admin/plugin_info', undefined, 'GET').andReturn({
           responseText:    JSON.stringify({
             _embedded: {
@@ -37,7 +37,7 @@ describe('PluginInfos', function () {
           }
         });
 
-        var successCallback = jasmine.createSpy().and.callFake(function (pluginInfos) {
+        var successCallback = jasmine.createSpy().and.callFake(pluginInfos => {
           expect(pluginInfos.length).toEqual(1);
           expect(pluginInfos[0].id()).toEqual(pluginInfoJSON().id);
           expect(pluginInfos[0].name()).toEqual(pluginInfoJSON().name);
@@ -78,42 +78,42 @@ describe('PluginInfos', function () {
     return pluginInfoJSON;
   }
 
-  describe('PluginInfo', function () {
+  describe('PluginInfo', () => {
     var pluginInfo;
-    beforeEach(function () {
+    beforeEach(() => {
       pluginInfo = new PluginInfos.PluginInfo(pluginInfoJSON());
     });
 
-    it('should initialize with id', function () {
+    it('should initialize with id', () => {
       expect(pluginInfo.id()).toBe('plugin_id');
     });
 
-    it('should initialize with name', function () {
+    it('should initialize with name', () => {
       expect(pluginInfo.name()).toBe('plugin_name');
     });
 
-    it('should initialize with version', function () {
+    it('should initialize with version', () => {
       expect(pluginInfo.version()).toBe('plugin_version');
     });
 
-    it('should initialize with type', function () {
+    it('should initialize with type', () => {
       expect(pluginInfo.type()).toBe('plugin_type');
     });
 
-    it('should initialize with view template', function () {
+    it('should initialize with view template', () => {
       expect(pluginInfo.viewTemplate()).toBe('plugin_view_template');
     });
 
-    it('should initialize with display name', function () {
+    it('should initialize with display name', () => {
       expect(pluginInfo.displayName()).toBe('Plugin Display Name');
     });
 
-    it('should default to name in absence of display_name', function () {
+    it('should default to name in absence of display_name', () => {
       var plugin = new PluginInfos.PluginInfo({name: 'plugin_name'});
       expect(plugin.displayName()).toBe('plugin_name');
     });
 
-    it('should initialize with configurations', function () {
+    it('should initialize with configurations', () => {
       expect(pluginInfo.configurations()).toEqual([
         {
           key:      'url',
@@ -127,10 +127,10 @@ describe('PluginInfos', function () {
     });
   });
 
-  describe('PluginInfo.get', function () {
-    it('should fetch the plugin for the given id', function () {
+  describe('PluginInfo.get', () => {
+    it('should fetch the plugin for the given id', () => {
 
-      jasmine.Ajax.withMock(function () {
+      jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest(`/go/api/admin/plugin_info/${pluginInfoJSON().id}`, undefined, 'GET').andReturn({
           responseText:    JSON.stringify(pluginInfoJSON()),
           status:          200,
@@ -139,7 +139,7 @@ describe('PluginInfos', function () {
           }
         });
 
-        var successCallback = jasmine.createSpy().and.callFake(function (pluginInfo) {
+        var successCallback = jasmine.createSpy().and.callFake(pluginInfo => {
           expect(pluginInfo.id()).toEqual(pluginInfoJSON().id);
           expect(pluginInfo.name()).toEqual(pluginInfoJSON().name);
         });
@@ -151,8 +151,8 @@ describe('PluginInfos', function () {
     });
   });
 
-  describe('filterByType', function () {
-    it('should return plugins for the given type', function () {
+  describe('filterByType', () => {
+    it('should return plugins for the given type', () => {
       var scm            = new PluginInfos.PluginInfo({id: 'id1', type: 'scm'});
       var task1          = new PluginInfos.PluginInfo({id: 'id2', type: 'task'});
       var task2          = new PluginInfos.PluginInfo({id: 'id3', type: 'task'});
@@ -167,8 +167,8 @@ describe('PluginInfos', function () {
     });
   });
 
-  describe('findById', function () {
-    it('should return plugins for the given id', function () {
+  describe('findById', () => {
+    it('should return plugins for the given id', () => {
       var scm            = new PluginInfos.PluginInfo({id: 'id1', type: 'scm'});
       var task1          = new PluginInfos.PluginInfo({id: 'id2', type: 'task'});
       var task2          = new PluginInfos.PluginInfo({id: 'id3', type: 'task'});

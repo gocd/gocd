@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-describe('PluginInfos', function () {
+describe('PluginInfos', () => {
 
   var PluginInfos = require("models/shared/plugin_infos");
   var _           = require("lodash");
 
-  it("should deserialize collection", function () {
+  it("should deserialize collection", () => {
     var json = [
       {
         "id":      "github.oauth.login",
@@ -43,8 +43,8 @@ describe('PluginInfos', function () {
     expect(pluginInfos.firstPluginInfo().id()).toBe('github.oauth.login');
   });
 
-  describe("Authentication", function () {
-    it("should deserialize", function () {
+  describe("Authentication", () => {
+    it("should deserialize", () => {
       var json = {
         "id":      "github.oauth.login",
         "version": "1",
@@ -67,8 +67,8 @@ describe('PluginInfos', function () {
     });
   });
 
-  describe("ElasticAgent", function () {
-    it("should deserialize", function () {
+  describe("ElasticAgent", () => {
+    it("should deserialize", () => {
       var json = {
         "id":               "cd.go.contrib.elastic-agent.docker",
         "version":          "1",
@@ -127,8 +127,8 @@ describe('PluginInfos', function () {
     });
   });
 
-  describe("Notification", function () {
-    it("should deserialize", function () {
+  describe("Notification", () => {
+    it("should deserialize", () => {
       var json = {
         "id":      "github.pr.status",
         "version": "1",
@@ -151,8 +151,8 @@ describe('PluginInfos', function () {
     });
   });
 
-  describe("PackageRepository", function () {
-    it("should deserialize", function () {
+  describe("PackageRepository", () => {
+    it("should deserialize", () => {
       var json = {
         "id":                  "nuget",
         "version":             "1",
@@ -273,8 +273,8 @@ describe('PluginInfos', function () {
     });
   });
 
-  describe("Task", function () {
-    it("should deserialize", function () {
+  describe("Task", () => {
+    it("should deserialize", () => {
       var json = {
         "id":            "docker-task",
         "version":       "1",
@@ -344,8 +344,8 @@ describe('PluginInfos', function () {
     });
   });
 
-  describe("SCM", function () {
-    it("should deserialize", function () {
+  describe("SCM", () => {
+    it("should deserialize", () => {
       var json = {
         "id":           "github.pr",
         "version":      "1",
@@ -409,8 +409,8 @@ describe('PluginInfos', function () {
     });
   });
 
-  describe("Authorization", function () {
-    it("should deserialize", function () {
+  describe("Authorization", () => {
+    it("should deserialize", () => {
       var json = {
         "id":                   "cd.go.authorization.ldap",
         "version":              "1",
@@ -519,7 +519,7 @@ describe('PluginInfos', function () {
     });
   });
 
-  describe("Reading images", function () {
+  describe("Reading images", () => {
     var json = {
       "_links":  {
         "image": {
@@ -541,8 +541,8 @@ describe('PluginInfos', function () {
       },
     };
 
-    _.each(_.keys(PluginInfos.Types), function (pluginType) {
-      it(`should read image for ${pluginType}`, function () {
+    _.each(_.keys(PluginInfos.Types), pluginType => {
+      it(`should read image for ${pluginType}`, () => {
         var pluginInfoJSON  = _.cloneDeep(json);
         pluginInfoJSON.type = pluginType;
         var pluginInfo      = PluginInfos.PluginInfo.fromJSON(pluginInfoJSON);
@@ -551,7 +551,7 @@ describe('PluginInfos', function () {
     });
   });
 
-  var verifyBasicProperties = function (pluginInfo, json) {
+  var verifyBasicProperties = (pluginInfo, json) => {
     expect(pluginInfo.id()).toEqual(json.id);
     expect(pluginInfo.type()).toEqual(json.type);
     expect(pluginInfo.version()).toEqual(json.version);

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-xdescribe("Pluggable SCM Widget", function () {
+xdescribe("Pluggable SCM Widget", () => {
   var $ = require("jquery");
   var m = require("mithril");
 
@@ -29,13 +29,13 @@ xdescribe("Pluggable SCM Widget", function () {
   });
   afterEach(window.destroyDomElementForTest);
 
-  afterEach(function () {
+  afterEach(() => {
     SCMs([]);
     SCMs.scmIdToEtag = {};
   });
 
 
-  describe('EditView', function () {
+  describe('EditView', () => {
     /* eslint-disable camelcase */
     var github = new SCMs.SCM({
       id:              '43c45e0b-1b0c-46f3-a60a-2bbc5cec069c',
@@ -53,47 +53,47 @@ xdescribe("Pluggable SCM Widget", function () {
       destination: 'dest_folder'
     });
 
-    beforeEach(function () {
+    beforeEach(() => {
       spyOn(PluginInfos.PluginInfo, 'get').and.returnValue($.Deferred().promise());
       spyOn(angular, 'bootstrap');
       mount(pluggableMaterial);
     });
 
-    afterEach(function () {
+    afterEach(() => {
       unmount();
     });
 
-    it('should bind name', function () {
+    it('should bind name', () => {
       expect($root.find(".pluggable-scm li:nth-child(1)>label")).toHaveText('Name');
       expect($root.find(".pluggable-scm li:nth-child(1)>span")).toHaveText(github.name());
     });
 
-    it('should bind auto update field', function () {
+    it('should bind auto update field', () => {
       expect($root.find(".pluggable-scm li:nth-child(2)>label")).toHaveText('AutoUpdate');
       expect(Boolean($root.find(".pluggable-scm li:nth-child(2)>span").text())).toBe(github.autoUpdate());
     });
 
-    it('should bind url configuration', function () {
+    it('should bind url configuration', () => {
       expect($root.find(".pluggable-scm li:nth-child(3)>label")).toHaveText('Url');
       expect($root.find(".pluggable-scm li:nth-child(3)>span")).toHaveText('path/to/repo');
     });
 
-    it('should bind username configuration', function () {
+    it('should bind username configuration', () => {
       expect($root.find(".pluggable-scm li:nth-child(4)>label")).toHaveText('Username');
       expect($root.find(".pluggable-scm li:nth-child(4)>span")).toHaveText('some_name');
     });
 
-    it('should bind the ignore fields', function () {
+    it('should bind the ignore fields', () => {
       expect($root.find("input[data-prop-name='ignore']")).toHaveValue('*.doc');
     });
 
-    it('should bind destination', function () {
+    it('should bind destination', () => {
       expect($root.find("input[data-prop-name='destination']")).toHaveValue(pluggableMaterial.destination());
     });
   });
 
-  describe('NewView', function () {
-    beforeEach(function () {
+  describe('NewView', () => {
+    beforeEach(() => {
       SCMs([
         new SCMs.SCM({
           id:              'plugin_id_1',
@@ -112,11 +112,11 @@ xdescribe("Pluggable SCM Widget", function () {
       spyOn(angular, 'bootstrap');
     });
 
-    afterEach(function () {
+    afterEach(() => {
       SCMs([]);
     });
 
-    it('should have a dropdown to select a scm', function () {
+    it('should have a dropdown to select a scm', () => {
       mount(Materials.create({
         type:       'plugin',
         pluginInfo: new PluginInfos.PluginInfo({id: 'github.pr', version: '1.0.0'})
@@ -129,7 +129,7 @@ xdescribe("Pluggable SCM Widget", function () {
       unmount();
     });
 
-    it('should not have a dropdown in absence of matching scms', function () {
+    it('should not have a dropdown in absence of matching scms', () => {
       mount(Materials.create({
         type:       'plugin',
         pluginInfo: new PluginInfos.PluginInfo({id: 'unkown', version: '1.0.0'})
@@ -150,7 +150,7 @@ xdescribe("Pluggable SCM Widget", function () {
     m.redraw();
   }
 
-  var unmount = function () {
+  var unmount = () => {
     m.mount(root, null);
     m.redraw();
   };

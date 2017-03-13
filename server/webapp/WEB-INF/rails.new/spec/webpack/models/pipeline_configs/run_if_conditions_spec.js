@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-describe("RunIfConditions", function () {
+describe("RunIfConditions", () => {
   var RunIfConditions = require('models/pipeline_configs/run_if_conditions');
 
-  describe('RunIfConditions create', function () {
+  describe('RunIfConditions create', () => {
 
-    it('should create runIfConditions', function () {
+    it('should create runIfConditions', () => {
       var runIf = ['passed', 'failed'];
 
       var runIfConditions = RunIfConditions.create(runIf);
@@ -26,15 +26,15 @@ describe("RunIfConditions", function () {
       expect(runIfConditions.data()).toEqual(runIf);
     });
 
-    it('should create runIfConditions with default as "passed"', function () {
+    it('should create runIfConditions with default as "passed"', () => {
       var runIfConditions = RunIfConditions.create();
 
       expect(runIfConditions.data()).toEqual(['passed']);
     });
   });
 
-  describe('RunIfConditions push', function () {
-    it('should add a condition', function () {
+  describe('RunIfConditions push', () => {
+    it('should add a condition', () => {
       var runIfConditions = RunIfConditions.create([]);
 
       runIfConditions.push('any');
@@ -42,7 +42,7 @@ describe("RunIfConditions", function () {
       expect(runIfConditions.data()).toEqual(['any']);
     });
 
-    it("should either have 'any' or 'passed || failed' condition", function () {
+    it("should either have 'any' or 'passed || failed' condition", () => {
       var runIfConditions = RunIfConditions.create(['passed']);
 
       runIfConditions.push('any');
@@ -55,8 +55,8 @@ describe("RunIfConditions", function () {
     });
   });
 
-  describe('RunIfConditions pop', function () {
-    it('should pop out a condition', function () {
+  describe('RunIfConditions pop', () => {
+    it('should pop out a condition', () => {
       var runIfConditions = RunIfConditions.create(['passed', 'failed']);
 
       runIfConditions.pop();

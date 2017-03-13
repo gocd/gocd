@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-describe("Should sanitize JSON", function () {
+describe("Should sanitize JSON", () => {
   var s = require("string-plus");
 
-  it("should change the keys of JSON to snake case", function () {
+  it("should change the keys of JSON to snake case", () => {
     var input = {
       toSnakeCase: "value",
       nested:      {

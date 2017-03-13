@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-describe("EnvironmentVariable Widget", function () {
+describe("EnvironmentVariable Widget", () => {
 
   var $             = require("jquery");
   var m             = require('mithril');
@@ -32,7 +32,7 @@ describe("EnvironmentVariable Widget", function () {
   afterEach(window.destroyDomElementForTest);
   var variables;
 
-  beforeEach(function () {
+  beforeEach(() => {
     variables = Stream(EnvironmentVariables.fromJSON([
       {
         name:  "COMMAND",
@@ -56,12 +56,12 @@ describe("EnvironmentVariable Widget", function () {
     m.redraw();
   });
 
-  afterEach(function () {
+  afterEach(() => {
     m.mount(root, null);
     m.redraw();
   });
 
-  it("should display environment variables", function () {
+  it("should display environment variables", () => {
     var environmentVariableFields = $root.find('.environment-variables div.environment-variable[data-variable-name=COMMAND]');
     var variableName              = environmentVariableFields.find("input[data-prop-name=name]");
     var variableValue             = environmentVariableFields.find("input[data-prop-name=value]");
@@ -70,14 +70,14 @@ describe("EnvironmentVariable Widget", function () {
     expect(variableValue).toHaveValue("echo");
   });
 
-  it("should display normal text field for non-secure variables", function () {
+  it("should display normal text field for non-secure variables", () => {
     var environmentVariableField = $root.find('.environment-variables div.environment-variable[data-variable-type=plain][data-variable-name=COMMAND]');
     var valueField               = environmentVariableField.find("input[data-prop-name=value]");
 
     expect(valueField.attr('type')).toBe('text');
   });
 
-  it("should display edit link for secure variable", function () {
+  it("should display edit link for secure variable", () => {
     var environmentVariableField = $root.find('.environment-variables div.environment-variable[data-variable-type=secure][data-variable-name=PASSWORD]');
     var editLink                 = environmentVariableField.find("button.edit-secure-variable");
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-describe('Agent Model', function () {
+describe('Agent Model', () => {
 
   var s = require('string-plus');
 
@@ -22,7 +22,7 @@ describe('Agent Model', function () {
 
   var Agents = require('models/agents/agents');
 
-  it("should deserialize from json", function () {
+  it("should deserialize from json", () => {
     var agent = Agents.Agent.fromJSON(agentData[0]);
     expect(agent.uuid()).toBe('uuid-1');
     expect(agent.hostname()).toBe('host-1');
@@ -40,7 +40,7 @@ describe('Agent Model', function () {
     expect(agent.buildDetails().jobUrl()).toEqual("http://localhost:8153/go/tab/build/detail/up42/2/up42_stage/1/up42_job");
   });
 
-  it("should serialize to JSON", function () {
+  it("should serialize to JSON", () => {
     var agent = Agents.Agent.fromJSON(agentData[0]);
 
     expect(JSON.parse(JSON.stringify(agent, s.snakeCaser))).toEqual({
@@ -51,14 +51,14 @@ describe('Agent Model', function () {
     });
   });
 
-  it("should give the freeSpace in human readable format", function () {
+  it("should give the freeSpace in human readable format", () => {
     expect(new Agents.Agent({freeSpace: 1024}).readableFreeSpace()).toBe('1 KB');
     expect(new Agents.Agent({freeSpace: 2048526}).readableFreeSpace()).toBe('1.95 MB');
     expect(new Agents.Agent({freeSpace: 2199023255552}).readableFreeSpace()).toBe('2 TB');
     expect(new Agents.Agent({freeSpace: 'snafu'}).readableFreeSpace()).toBe('Unknown');
   });
 
-  it("should count agents with specific state", function () {
+  it("should count agents with specific state", () => {
     var agents = new Agents(
       [
         new Agents.Agent({agentConfigState: 'Pending'}),
@@ -72,40 +72,40 @@ describe('Agent Model', function () {
     expect(agents.countEnabledAgents()).toBe(1);
   });
 
-  describe("agent status", function () {
-    it("should be pending when agentConfigState is Pending", function () {
+  describe("agent status", () => {
+    it("should be pending when agentConfigState is Pending", () => {
       var agent = new Agents.Agent({agentConfigState: 'Pending'});
       expect(agent.status()).toBe('Pending');
     });
 
-    it("should be 'Disabled (Building)' when agentConfigState is 'Disabled' and buildState is 'Building'", function () {
+    it("should be 'Disabled (Building)' when agentConfigState is 'Disabled' and buildState is 'Building'", () => {
       var agent = new Agents.Agent({agentConfigState: 'Disabled', buildState: 'Building'});
       expect(agent.status()).toBe('Disabled (Building)');
     });
 
-    it("should be 'Disabled (Cancelled)' when agentConfigState is 'Disabled' and buildState is 'Cancelled'", function () {
+    it("should be 'Disabled (Cancelled)' when agentConfigState is 'Disabled' and buildState is 'Cancelled'", () => {
       var agent = new Agents.Agent({agentConfigState: 'Disabled', buildState: 'Cancelled'});
       expect(agent.status()).toBe('Disabled (Cancelled)');
     });
 
-    it("should be 'Disabled' when agentConfigState is 'Disabled'", function () {
+    it("should be 'Disabled' when agentConfigState is 'Disabled'", () => {
       var agent = new Agents.Agent({agentConfigState: 'Disabled'});
       expect(agent.status()).toBe('Disabled');
     });
 
-    it("should be 'Building (Cancelled)' when agentState is 'Building' and buildState is 'Cancelled'", function () {
+    it("should be 'Building (Cancelled)' when agentState is 'Building' and buildState is 'Cancelled'", () => {
       var agent = new Agents.Agent({agentState: 'Building', buildState: 'Cancelled'});
       expect(agent.status()).toBe('Building (Cancelled)');
     });
 
-    it("should be 'Building' when agentState is 'Building'", function () {
+    it("should be 'Building' when agentState is 'Building'", () => {
       var agent = new Agents.Agent({agentState: 'Building'});
       expect(agent.status()).toBe('Building');
     });
   });
 
-  it('get all agents via ajax', function () {
-    jasmine.Ajax.withMock(function () {
+  it('get all agents via ajax', () => {
+    jasmine.Ajax.withMock(() => {
       jasmine.Ajax.stubRequest('/go/api/agents').andReturn({
         "responseText":  JSON.stringify({
           "_embedded": {
@@ -118,7 +118,7 @@ describe('Agent Model', function () {
         }
       });
 
-      var successCallback = jasmine.createSpy().and.callFake(function (agents) {
+      var successCallback = jasmine.createSpy().and.callFake(agents => {
         expect(agents.countAgent()).toBe(9);
       });
 
@@ -127,8 +127,8 @@ describe('Agent Model', function () {
     });
   });
 
-  describe('agent matches', function () {
-    it("should tell whether the specified string matches the agent's information", function () {
+  describe('agent matches', () => {
+    it("should tell whether the specified string matches the agent's information", () => {
       var agent = Agents.Agent.fromJSON(agentData[0]);
       expect(agent.matches('host-1')).toBe(true);
       expect(agent.matches("Linux")).toBe(true);
@@ -139,8 +139,8 @@ describe('Agent Model', function () {
     });
   });
 
-  describe('sort the agents', function () {
-    it("should sort based on OS", function () {
+  describe('sort the agents', () => {
+    it("should sort based on OS", () => {
       var agents       = Agents.fromJSON(agentData);
       var sortedAgents = agents.sortBy('operatingSystem', 'asc');
 
@@ -148,7 +148,7 @@ describe('Agent Model', function () {
       expect(operatingSystemsOfSortedAgents).toEqual(agents.collectAgentProperty('operatingSystem').sort());
     });
 
-    it('should sort based on hostname', function () {
+    it('should sort based on hostname', () => {
       var agents       = Agents.fromJSON(agentData);
       var sortedAgents = agents.sortBy('hostname', 'asc');
 
@@ -156,7 +156,7 @@ describe('Agent Model', function () {
       expect(hostnamesOfSortedAgents).toEqual(agents.collectAgentProperty('hostname').sort());
     });
 
-    it("should sort based on agent location", function () {
+    it("should sort based on agent location", () => {
       var agents       = Agents.fromJSON(agentData);
       var sortedAgents = agents.sortBy('sandbox', 'asc');
 
@@ -164,7 +164,7 @@ describe('Agent Model', function () {
       expect(sandboxesOfSortedAgents).toEqual(agents.collectAgentProperty('sandbox').sort());
     });
 
-    it("should sort based on agent ip address", function () {
+    it("should sort based on agent ip address", () => {
       var agents       = Agents.fromJSON(agentData);
       var sortedAgents = agents.sortBy('ipAddress', 'asc');
 
@@ -172,7 +172,7 @@ describe('Agent Model', function () {
       expect(ipAddressesOfSortedAgents).toEqual(agents.collectAgentProperty('ipAddress').sort());
     });
 
-    it("should sort based on agent status", function () {
+    it("should sort based on agent status", () => {
       var agents       = Agents.fromJSON(agentData);
       var sortedAgents = agents.sortBy('agentState', 'asc');
 
@@ -180,7 +180,7 @@ describe('Agent Model', function () {
       expect(statesOfSortedAgents).toEqual(["Pending", "LostContact", "Missing", "Building", "Building (Cancelled)", "Idle", "Disabled (Building)", "Disabled (Cancelled)", "Disabled"]);
     });
 
-    it("should sort based on agent's free space", function () {
+    it("should sort based on agent's free space", () => {
       var agents       = Agents.fromJSON(agentData);
       var sortedAgents = agents.sortBy('freeSpace', 'asc');
 
@@ -188,7 +188,7 @@ describe('Agent Model', function () {
       expect(freeSpacesOfSortedAgents).toEqual(agents.collectAgentProperty('freeSpace').sort());
     });
 
-    it("should sort based on agent's resources", function () {
+    it("should sort based on agent's resources", () => {
       var agents       = Agents.fromJSON(agentData);
       var sortedAgents = agents.sortBy('resources', 'asc');
 
@@ -196,7 +196,7 @@ describe('Agent Model', function () {
       expect(resourcesOfSortedAgents).toEqual(agents.collectAgentProperty('resources').sort());
     });
 
-    it("should sort based on agent's environments", function () {
+    it("should sort based on agent's environments", () => {
       var agents       = Agents.fromJSON(agentData);
       var sortedAgents = agents.sortBy('environments', 'asc');
 
@@ -205,22 +205,22 @@ describe('Agent Model', function () {
     });
   });
 
-  describe('elastic agent properties', function () {
+  describe('elastic agent properties', () => {
 
-    it("should have elastic agent id and elastic plugin id", function () {
+    it("should have elastic agent id and elastic plugin id", () => {
       var elasticAgentData = agentData[7];
       var agent            = Agents.Agent.fromJSON(elasticAgentData);
       expect(agent.elasticAgentId()).toBe('0039ddc8-38a0-4f7b-be15-522fcb6f8649');
       expect(agent.elasticPluginId()).toBe('cd.go.contrib.elastic-agent.docker');
     });
 
-    it("should be able to say elastic agent or not", function () {
+    it("should be able to say elastic agent or not", () => {
       var elasticAgentData = agentData[7];
       var agent            = Agents.Agent.fromJSON(elasticAgentData);
       expect(agent.isElasticAgent()).toBeTruthy();
     });
 
-    it("should default resource to be empty if no resource provided", function () {
+    it("should default resource to be empty if no resource provided", () => {
       var elasticAgentData = agentData[7];
       var agent            = Agents.Agent.fromJSON(elasticAgentData);
       expect(agent.resources()).toEqual([]);

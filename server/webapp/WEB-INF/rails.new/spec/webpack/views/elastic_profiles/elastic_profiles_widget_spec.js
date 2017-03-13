@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-describe("ElasticProfilesWidget", function () {
+describe("ElasticProfilesWidget", () => {
 
   var $             = require("jquery");
   var m             = require("mithril");
@@ -91,7 +91,7 @@ describe("ElasticProfilesWidget", function () {
 
   var allPluginInfosJSON = [dockerPluginInfoJSON];
 
-  beforeEach(function () {
+  beforeEach(() => {
     jasmine.Ajax.install();
     jasmine.Ajax.stubRequest('/go/api/elastic/profiles', undefined, 'GET').andReturn({
       responseText: JSON.stringify(allProfilesJSON),
@@ -109,7 +109,7 @@ describe("ElasticProfilesWidget", function () {
     m.redraw(true);
   });
 
-  afterEach(function () {
+  afterEach(() => {
     jasmine.Ajax.uninstall();
 
     m.mount(root, null);
@@ -118,13 +118,13 @@ describe("ElasticProfilesWidget", function () {
     expect($('.new-modal-container .reveal')).not.toExist('Did you forget to close the modal before the test?');
   });
 
-  describe("list all profiles", function () {
-    it("should render a list of all profiles", function () {
+  describe("list all profiles", () => {
+    it("should render a list of all profiles", () => {
       expect($root.find('.profile-id')).toContainText(profileJSON.id);
       expect($root.find('.plugin-id')).toContainText(profileJSON.plugin_id);
     });
 
-    it("should render error if index call fails", function () {
+    it("should render error if index call fails", () => {
       jasmine.Ajax.stubRequest('/go/api/elastic/profiles').andReturn({
         responseText: JSON.stringify({message: 'Boom!'}),
         status:       401
@@ -141,10 +141,10 @@ describe("ElasticProfilesWidget", function () {
     });
   });
 
-  describe("add a new profile", function () {
+  describe("add a new profile", () => {
     afterEach(Modal.destroyAll);
 
-    it("should popup a new modal to allow adding a profile", function () {
+    it("should popup a new modal to allow adding a profile", () => {
       expect($root.find('.reveal:visible')).not.toBeInDOM();
       simulateEvent.simulate($root.find('.add-profile').get(0), 'click');
       m.redraw();
@@ -152,7 +152,7 @@ describe("ElasticProfilesWidget", function () {
       expect($('.reveal:visible input[data-prop-name]')).not.toBeDisabled();
     });
 
-    it("should allow saving a profile if save is successful", function () {
+    it("should allow saving a profile if save is successful", () => {
       simulateEvent.simulate($root.find('.add-profile').get(0), 'click');
       m.redraw();
 
@@ -186,7 +186,7 @@ describe("ElasticProfilesWidget", function () {
       expect($('.success')).toContainText('The profile unit-test was created successfully');
     });
 
-    it("should display error message", function () {
+    it("should display error message", () => {
       simulateEvent.simulate($root.find('.add-profile').get(0), 'click');
       m.redraw();
 
@@ -216,9 +216,9 @@ describe("ElasticProfilesWidget", function () {
     });
   });
 
-  describe("edit an existing profile", function () {
+  describe("edit an existing profile", () => {
     afterEach(Modal.destroyAll);
-    it("should popup a new modal to allow edditing a profile", function () {
+    it("should popup a new modal to allow edditing a profile", () => {
       jasmine.Ajax.stubRequest('/go/api/elastic/profiles/' + profileJSON.id, undefined, 'GET').andReturn({
         responseText: JSON.stringify(profileJSON),
         status:       200
@@ -231,7 +231,7 @@ describe("ElasticProfilesWidget", function () {
       expect($('.reveal:visible input[data-prop-name]')).toBeDisabled();
     });
 
-    it("should display error message if fetching a profile fails", function () {
+    it("should display error message if fetching a profile fails", () => {
       jasmine.Ajax.stubRequest('/go/api/elastic/profiles/' + profileJSON.id, undefined, 'GET').andReturn({
         responseText: JSON.stringify({message: 'Boom!'}),
         status:       401
@@ -244,7 +244,7 @@ describe("ElasticProfilesWidget", function () {
     });
 
 
-    it("should keep the profile expanded while edit modal is open", function () {
+    it("should keep the profile expanded while edit modal is open", () => {
       jasmine.Ajax.stubRequest('/go/api/elastic/profiles/' + profileJSON.id, undefined, 'GET').andReturn({
         responseText: JSON.stringify(profileJSON),
         status:       200
@@ -263,16 +263,16 @@ describe("ElasticProfilesWidget", function () {
     });
   });
 
-  describe("delete an existing profile", function () {
+  describe("delete an existing profile", () => {
     afterEach(Modal.destroyAll);
 
-    it("should show confirm modal when deleting a profile", function () {
+    it("should show confirm modal when deleting a profile", () => {
       simulateEvent.simulate($root.find('.delete-profile-confirm').get(0), 'click');
       m.redraw();
       expect($('.reveal:visible .modal-title')).toHaveText('Are you sure?');
     });
 
-    it("should show success message when profile is deleted", function () {
+    it("should show success message when profile is deleted", () => {
       jasmine.Ajax.stubRequest('/go/api/elastic/profiles/' + profileJSON.id, undefined, 'DELETE').andReturn({
         responseText: JSON.stringify({message: 'Success!'}),
         status:       200
@@ -286,7 +286,7 @@ describe("ElasticProfilesWidget", function () {
       expect($('.success')).toContainText('Success!');
     });
 
-    it("should show error message when deleting profile fails", function () {
+    it("should show error message when deleting profile fails", () => {
       jasmine.Ajax.stubRequest('/go/api/elastic/profiles/' + profileJSON.id, undefined, 'DELETE').andReturn({
         responseText: JSON.stringify({message: 'Boom!'}),
         status:       401

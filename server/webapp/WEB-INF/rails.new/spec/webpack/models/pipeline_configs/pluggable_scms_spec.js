@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-describe('PluggableSCMs', function () {
+describe('PluggableSCMs', () => {
 
   var _ = require('lodash');
 
@@ -21,14 +21,14 @@ describe('PluggableSCMs', function () {
   var PluginInfos   = require('models/pipeline_configs/plugin_infos');
   var Materials     = require('models/pipeline_configs/materials');
 
-  afterEach(function () {
+  afterEach(() => {
     PluginInfos([]);
     PluggableSCMs.Types = {};
   });
 
-  describe('init', function () {
+  describe('init', () => {
 
-    it('should build pluggable scm types from plugins', function () {
+    it('should build pluggable scm types from plugins', () => {
       var dockerTaskPlugin = new PluginInfos.PluginInfo({
         id:          'docker.task',
         type:        'task',

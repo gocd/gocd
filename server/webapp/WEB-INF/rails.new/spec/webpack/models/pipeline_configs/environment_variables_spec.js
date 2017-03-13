@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-describe("EnvironmentVariable Model", function () {
+describe("EnvironmentVariable Model", () => {
 
   var s = require('string-plus');
 
   var EnvironmentVariables = require("models/pipeline_configs/environment_variables");
 
   var variables, plainVariable, secureVariable;
-  beforeEach(function () {
+  beforeEach(() => {
     variables = new EnvironmentVariables();
 
     plainVariable = variables.createVariable({
@@ -37,31 +37,31 @@ describe("EnvironmentVariable Model", function () {
     });
   });
 
-  it("should initialize variable model with name", function () {
+  it("should initialize variable model with name", () => {
     expect(plainVariable.name()).toBe("WORKING_DIR");
   });
 
-  it("should initialize variable model with value", function () {
+  it("should initialize variable model with value", () => {
     expect(plainVariable.value()).toBe('/var/foo');
   });
 
-  it("should initialize variable model with secure flag", function () {
+  it("should initialize variable model with secure flag", () => {
     expect(plainVariable.isSecureValue()).toBe(false);
   });
 
-  it("should initialize variable model with encryptedValue", function () {
+  it("should initialize variable model with encryptedValue", () => {
     expect(secureVariable.value()).toBe('c!ph3rt3xt');
   });
 
-  describe("validations", function () {
-    it("should add error when name is blank but value is not", function () {
+  describe("validations", () => {
+    it("should add error when name is blank but value is not", () => {
       plainVariable.name("");
       plainVariable.value('foo');
       var errors = plainVariable.validate();
       expect(errors.errors('name')).toEqual(['Name must be present']);
     });
 
-    it("should NOT add error when both name and value are blank", function () {
+    it("should NOT add error when both name and value are blank", () => {
       plainVariable.name("");
       plainVariable.value("");
 
@@ -69,7 +69,7 @@ describe("EnvironmentVariable Model", function () {
       expect(errors._isEmpty()).toBe(true);
     });
 
-    it("should not allow variables with duplicate names", function () {
+    it("should not allow variables with duplicate names", () => {
       var errorsOnOriginal = plainVariable.validate();
       expect(errorsOnOriginal._isEmpty()).toBe(true);
 
@@ -85,29 +85,29 @@ describe("EnvironmentVariable Model", function () {
     });
   });
 
-  describe("Deserialization from JSON", function () {
-    beforeEach(function () {
+  describe("Deserialization from JSON", () => {
+    beforeEach(() => {
       plainVariable  = EnvironmentVariables.Variable.fromJSON(samplePlainVariableJSON());
       secureVariable = EnvironmentVariables.Variable.fromJSON(sampleSecureVariableJSON());
     });
 
-    it("should initialize plain variable from json", function () {
+    it("should initialize plain variable from json", () => {
       expect(plainVariable.name()).toBe("WORKING_DIR");
       expect(plainVariable.value()).toBe('/var/foo');
       expect(plainVariable.isSecureValue()).toBe(false);
     });
 
-    it("should initialize secure variable from json", function () {
+    it("should initialize secure variable from json", () => {
       expect(secureVariable.name()).toBe("HTTP_PASSWORD");
       expect(secureVariable.isSecureValue()).toBe(true);
       expect(secureVariable.value()).toBe('c!ph3rt3xt');
     });
 
-    it("should serialize plain variables to json", function () {
+    it("should serialize plain variables to json", () => {
       expect(JSON.parse(JSON.stringify(plainVariable, s.snakeCaser))).toEqual(samplePlainVariableJSON());
     });
 
-    it("should serialize encrypted variables to json", function () {
+    it("should serialize encrypted variables to json", () => {
       expect(JSON.parse(JSON.stringify(secureVariable, s.snakeCaser))).toEqual(sampleSecureVariableJSON());
     });
 

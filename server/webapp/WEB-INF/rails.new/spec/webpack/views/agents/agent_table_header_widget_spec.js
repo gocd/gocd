@@ -16,7 +16,7 @@
 
 //for skipped tests, jasmine isnt calling afterEach,
 // so skipped the test suit to make sure randomize doesnt cause any problem
-describe("Agent Table Header Widget", function () {
+describe("Agent Table Header Widget", () => {
 
   var $      = require("jquery");
   var _      = require('lodash');
@@ -34,17 +34,17 @@ describe("Agent Table Header Widget", function () {
   });
   afterEach(window.destroyDomElementForTest);
 
-  beforeEach(function () {
+  beforeEach(() => {
     sortOrder = Stream(new SortOrder());
     sortOrder().perform = _.noop;
     route(true);
   });
 
-  afterEach(function () {
+  afterEach(() => {
     unmount();
   });
 
-  var route = function (isUserAdmin) {
+  var route = isUserAdmin => {
     m.route(root, '', {
       '':                  {
         view: function () {
@@ -62,32 +62,32 @@ describe("Agent Table Header Widget", function () {
     m.redraw();
   };
 
-  var unmount = function () {
+  var unmount = () => {
     m.route.set('');
     m.mount(root, null);
     m.redraw();
   };
 
 
-  it('should select the checkbox depending upon the "checkboxValue" ', function () {
+  it('should select the checkbox depending upon the "checkboxValue" ', () => {
     var checkbox = $root.find('thead input')[0];
     expect(checkbox.checked).toBe(checkboxValue());
   });
 
-  it('should not display checkbox for non-admin user', function () {
+  it('should not display checkbox for non-admin user', () => {
     route(false);
     expect($('thead input')).not.toBeInDOM();
   });
 
 
-  it('should add the ascending css class to table header cell attribute when table is sorted ascending on the corresponding attribute', function () {
+  it('should add the ascending css class to table header cell attribute when table is sorted ascending on the corresponding attribute', () => {
     sortOrder().toggleSortingOrder('hostname');
     m.redraw();
     var headerAttribute = $root.find("th:contains('Agent Name') .sort");
     expect(headerAttribute).toHaveClass('asc');
   });
 
-  it('should add the descending css class to table header cell attribute when table is sorted descending on the corresponding attribute', function () {
+  it('should add the descending css class to table header cell attribute when table is sorted descending on the corresponding attribute', () => {
     sortOrder().toggleSortingOrder('hostname');
     sortOrder().toggleSortingOrder('hostname');
     m.redraw();
@@ -95,16 +95,12 @@ describe("Agent Table Header Widget", function () {
     expect(headerAttribute).toHaveClass('desc');
   });
 
-  var agentTableHeaderComponent = function (isUserAdmin) {
-    return m(AgentsTableHeader, {
-      onCheckboxClick: _.noop,
-      checkboxValue:   checkboxValue,
-      sortOrder:       sortOrder,
-      isUserAdmin:     isUserAdmin
-    });
-  };
+  var agentTableHeaderComponent = isUserAdmin => m(AgentsTableHeader, {
+    onCheckboxClick: _.noop,
+    checkboxValue:   checkboxValue,
+    sortOrder:       sortOrder,
+    isUserAdmin:     isUserAdmin
+  });
 
-  var checkboxValue = function () {
-    return false;
-  };
+  var checkboxValue = () => false;
 });

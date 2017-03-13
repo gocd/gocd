@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-describe("RunIfConditions Widget", function () {
+describe("RunIfConditions Widget", () => {
 
   var m = require("mithril");
 
@@ -36,17 +36,17 @@ describe("RunIfConditions Widget", function () {
     m.redraw(true);
   }
 
-  var unmount = function () {
+  var unmount = () => {
     m.mount(root, null);
     m.redraw(true);
   };
 
-  describe("View", function () {
-    afterEach(function () {
+  describe("View", () => {
+    afterEach(() => {
       unmount();
     });
 
-    it("should render checkbox for runIf conditions", function () {
+    it("should render checkbox for runIf conditions", () => {
       var task = new Tasks.Task.Exec({runIf: ['any']});
       mount(task);
 
@@ -55,7 +55,7 @@ describe("RunIfConditions Widget", function () {
       expect($root.find("input[type=checkbox][value=any]").size()).toBe(1);
     });
 
-    it("should have run_if conditions checked for tasks with runIf", function () {
+    it("should have run_if conditions checked for tasks with runIf", () => {
       var task = new Tasks.Task.Exec({runIf: ['passed', 'failed']});
       mount(task);
 
@@ -65,8 +65,8 @@ describe("RunIfConditions Widget", function () {
     });
   });
 
-  describe("Selection", function () {
-    it("should be either 'any' or 'passed || failed'", function () {
+  describe("Selection", () => {
+    it("should be either 'any' or 'passed || failed'", () => {
       var task = new Tasks.Task.Exec({runIf: ['passed', 'failed']});
       mount(task);
 

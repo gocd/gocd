@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-describe('Agent Environments Model', function () {
+describe('Agent Environments Model', () => {
 
   var Environments = require('models/agents/environments');
 
   require('jasmine-ajax');
 
-  beforeEach(function () {
+  beforeEach(() => {
     jasmine.Ajax.install();
     jasmine.Ajax.stubRequest(/\/api\/admin\/internal\/environments/).andReturn({
       "responseText": JSON.stringify(["QA", "Dev", "Test"]),
@@ -28,12 +28,12 @@ describe('Agent Environments Model', function () {
     });
   });
 
-  afterEach(function () {
+  afterEach(() => {
     jasmine.Ajax.uninstall();
     Environments.list = [];
   });
 
-  it("should initialize the environments in sorted order", function () {
+  it("should initialize the environments in sorted order", () => {
     Environments.init();
     expect(Environments.list.length).toBe(3);
     expect(Environments.list[0].name()).toBe('Dev');
@@ -41,7 +41,7 @@ describe('Agent Environments Model', function () {
     expect(Environments.list[2].name()).toBe('Test');
   });
 
-  it("should initialize the environments with state depending upon the checkedAgents", function () {
+  it("should initialize the environments with state depending upon the checkedAgents", () => {
     var checkedAgents = [{
       environments: function () {
         return ['Test', 'QA'];

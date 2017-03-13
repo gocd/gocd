@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-describe("Environments List Widget", function () {
+describe("Environments List Widget", () => {
   var _                = require('lodash');
   var $                = require("jquery");
   var m                = require("mithril");
@@ -32,12 +32,12 @@ describe("Environments List Widget", function () {
   });
   afterEach(window.destroyDomElementForTest);
 
-  beforeEach(function () {
+  beforeEach(() => {
     jasmine.Ajax.install();
     jasmine.Ajax.stubRequest(/\/api\/agents/).andReturn({"status": 304});
   });
 
-  beforeEach(function (done) {
+  beforeEach(done => {
     var selectedAgents = [
       {
         uuid:         '1',
@@ -53,9 +53,7 @@ describe("Environments List Widget", function () {
       }
     ];
 
-    var selectedAgentsEnvironments = _.map(selectedAgents, function (agent) {
-      return agent.environments();
-    });
+    var selectedAgentsEnvironments = _.map(selectedAgents, agent => agent.environments());
 
     Environments.list = [
       new TriStateCheckbox('Build', selectedAgentsEnvironments),
@@ -67,13 +65,13 @@ describe("Environments List Widget", function () {
     mount(done);
   });
 
-  afterEach(function () {
+  afterEach(() => {
     unmount();
     Environments.list = [];
     jasmine.Ajax.uninstall();
   });
 
-  it('should contain all the environments checkbox', function () {
+  it('should contain all the environments checkbox', () => {
     var allEnvironments = $.find('.resources-items :checkbox');
     expect(allEnvironments).toHaveLength(4);
     expect(allEnvironments[0]).toHaveValue('Build');
@@ -82,13 +80,13 @@ describe("Environments List Widget", function () {
     expect(allEnvironments[3]).toHaveValue('Testing');
   });
 
-  it('should check environments that are present on all the agents', function () {
+  it('should check environments that are present on all the agents', () => {
     var allEnvironments = $.find('.resources-items :checkbox');
     expect(allEnvironments[3]).toHaveValue('Testing');
     expect(allEnvironments[3]).toBeChecked();
   });
 
-  it('should select environments as indeterminate that are present on some of the agents', function () {
+  it('should select environments as indeterminate that are present on some of the agents', () => {
     var allEnvironments = $.find('.resources-items :checkbox');
     expect(allEnvironments[2]).toHaveValue('Dev');
     expect(allEnvironments[2].indeterminate).toBe(true);
@@ -97,14 +95,14 @@ describe("Environments List Widget", function () {
     expect(allEnvironments[0].indeterminate).toBe(true);
   });
 
-  it('should uncheck environments that are not present on any the agents', function () {
+  it('should uncheck environments that are not present on any the agents', () => {
     var allEnvironments = $.find('.resources-items :checkbox');
     expect(allEnvironments[1]).toHaveValue('Deploy');
     expect(allEnvironments[1]).not.toBeChecked();
     expect(allEnvironments[1].indeterminate).toBe(false);
   });
 
-  var mount = function (done) {
+  var mount = done => {
     m.mount(root,
       {
         oncreate: done,
@@ -120,14 +118,14 @@ describe("Environments List Widget", function () {
     m.redraw();
   };
 
-  var hideDropDown         = function () {
+  var hideDropDown         = () => {
   };
-  var dropDownReset        = function () {
+  var dropDownReset        = () => {
   };
-  var onEnvironmentsUpdate = function () {
+  var onEnvironmentsUpdate = () => {
   };
 
-  var unmount = function () {
+  var unmount = () => {
     m.mount(root, null);
     m.redraw();
   };

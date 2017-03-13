@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-describe("Agents Widget", function () {
+describe("Agents Widget", () => {
 
   var $            = require("jquery");
   var m            = require('mithril');
@@ -47,12 +47,12 @@ describe("Agents Widget", function () {
   var agents;
   var sortOrder;
 
-  beforeEach(function () {
+  beforeEach(() => {
     sortOrder           = Stream(new SortOrder());
     sortOrder().perform = _.noop;
   });
 
-  var route = function (isUserAdmin) {
+  var route = isUserAdmin => {
     m.route(root, '', {
       '':                  {
         view: function () {
@@ -87,13 +87,13 @@ describe("Agents Widget", function () {
     m.redraw();
   };
 
-  var unmount = function () {
+  var unmount = () => {
     m.route.set('');
     m.mount(root, null);
     m.redraw();
   };
 
-  beforeEach(function () {
+  beforeEach(() => {
     agentsVM = new AgentsVM();
     agents   = Stream(Agents.fromJSON(allAgentsJSON));
     agentsVM.initializeWith(agents());
@@ -101,18 +101,18 @@ describe("Agents Widget", function () {
     route(true);
   });
 
-  afterEach(function () {
+  afterEach(() => {
     unmount();
     Resources.list    = [];
     Environments.list = [];
   });
 
-  it('should contain the agent rows equal to the number of agents', function () {
+  it('should contain the agent rows equal to the number of agents', () => {
     var agentRows = $root.find('table tbody tr');
     expect(agentRows).toHaveLength(2);
   });
 
-  it('should contain the agent row information', function () {
+  it('should contain the agent row information', () => {
     var agentInfo      = $root.find('table tbody tr')[0];
     var firstAgentInfo = $(agentInfo).find('td');
     expect(firstAgentInfo).toHaveLength(9);
@@ -127,7 +127,7 @@ describe("Agents Widget", function () {
     expect(firstAgentInfo[8]).toHaveText('Dev, Test');
   });
 
-  it('should select all the agents when selectAll checkbox is checked', function () {
+  it('should select all the agents when selectAll checkbox is checked', () => {
     var allBoxes          = $root.find('tbody :checkbox');
     var selectAllCheckbox = $root.find('thead :checkbox');
 
@@ -143,7 +143,7 @@ describe("Agents Widget", function () {
 
   });
 
-  it('should check select all checkbox on selecting all the checkboxes', function () {
+  it('should check select all checkbox on selecting all the checkboxes', () => {
     var allBoxes          = $root.find('tbody :checkbox');
     var selectAllCheckbox = $root.find('thead :checkbox');
 
@@ -157,10 +157,10 @@ describe("Agents Widget", function () {
     expect(selectAllCheckbox[0]).toBeChecked();
   });
 
-  it('should hide all dropdown on click of the body', function () {
+  it('should hide all dropdown on click of the body', () => {
     clickAllAgents();
 
-    jasmine.Ajax.withMock(function () {
+    jasmine.Ajax.withMock(() => {
       stubResourcesList();
       var resourceButton = $root.find("button:contains('Resources')");
       resourceButton.click();
@@ -176,10 +176,10 @@ describe("Agents Widget", function () {
     });
   });
 
-  it('should not hide dropdown on click of dropdown list', function () {
+  it('should not hide dropdown on click of dropdown list', () => {
     clickAllAgents();
 
-    jasmine.Ajax.withMock(function () {
+    jasmine.Ajax.withMock(() => {
       stubResourcesList();
 
       var resourceButton = $root.find("button:contains('Resources')");
@@ -192,7 +192,7 @@ describe("Agents Widget", function () {
     });
   });
 
-  it('should not allow operations when user is non-admin', function () {
+  it('should not allow operations when user is non-admin', () => {
     unmount();
     route(false);
     clickAllAgents();
@@ -200,8 +200,8 @@ describe("Agents Widget", function () {
     expect(sampleButton).toBeDisabled();
   });
 
-  it('should show message after disabling the agents', function () {
-    jasmine.Ajax.withMock(function () {
+  it('should show message after disabling the agents', () => {
+    jasmine.Ajax.withMock(() => {
       clickAllAgents();
 
       allowBulkUpdate('PATCH');
@@ -215,8 +215,8 @@ describe("Agents Widget", function () {
   });
 
 
-  it('should show message after enabling the agents', function () {
-    jasmine.Ajax.withMock(function () {
+  it('should show message after enabling the agents', () => {
+    jasmine.Ajax.withMock(() => {
       clickAllAgents();
       allowBulkUpdate('PATCH');
 
@@ -229,8 +229,8 @@ describe("Agents Widget", function () {
     });
   });
 
-  it('should show message after deleting the agents', function () {
-    jasmine.Ajax.withMock(function () {
+  it('should show message after deleting the agents', () => {
+    jasmine.Ajax.withMock(() => {
       clickAllAgents();
       allowBulkUpdate('DELETE');
 
@@ -243,8 +243,8 @@ describe("Agents Widget", function () {
     });
   });
 
-  it('should show message after updating resource of the agents', function () {
-    jasmine.Ajax.withMock(function () {
+  it('should show message after updating resource of the agents', () => {
+    jasmine.Ajax.withMock(() => {
       clickAllAgents();
       allowBulkUpdate('PATCH');
       stubResourcesList();
@@ -263,8 +263,8 @@ describe("Agents Widget", function () {
     });
   });
 
-  it('should show message after updating environment of the agents', function () {
-    jasmine.Ajax.withMock(function () {
+  it('should show message after updating environment of the agents', () => {
+    jasmine.Ajax.withMock(() => {
       clickAllAgents();
       allowBulkUpdate('PATCH');
       stubEnvironmentsList();
@@ -283,7 +283,7 @@ describe("Agents Widget", function () {
     });
   });
 
-  it('should show only filtered agents after inserting filter text', function () {
+  it('should show only filtered agents after inserting filter text', () => {
     var searchField       = $root.find('#filter-agent').get(0);
     var agentsCountOnPage = $root.find('.agents-table-body .agents-table tbody tr');
     expect(agentsCountOnPage).toHaveLength(2);
@@ -303,7 +303,7 @@ describe("Agents Widget", function () {
     expect(agentsCountOnPage).toHaveLength(2);
   });
 
-  it('should preserve the selection of agents during filter', function () {
+  it('should preserve the selection of agents during filter', () => {
     var searchField = $root.find('#filter-agent').get(0);
 
     $(searchField).val('host-1');
@@ -311,7 +311,7 @@ describe("Agents Widget", function () {
     m.redraw();
 
     var allBoxes = $root.find('.agents-table-body .agents-table tbody tr input[type="checkbox"]');
-    allBoxes.each(function (_i, checkbox) {
+    allBoxes.each((_i, checkbox) => {
       simulateEvent.simulate(checkbox, 'click');
     });
 
@@ -325,13 +325,11 @@ describe("Agents Widget", function () {
     expect(allBoxes[1]).not.toBeChecked();
   });
 
-  it('should allow sorting', function () {
-    var getHostnamesInTable = function () {
+  it('should allow sorting', () => {
+    var getHostnamesInTable = () => {
       var hostnameCells = $root.find(".go-table tbody td:nth-child(2)");
 
-      return hostnameCells.map(function (_i, cell) {
-        return $(cell).text();
-      }).toArray();
+      return hostnameCells.map((_i, cell) => $(cell).text()).toArray();
     };
 
     var agentNameHeader = $root.find("label:contains('Agent Name')");
@@ -353,8 +351,8 @@ describe("Agents Widget", function () {
     expect(getHostnamesInTable()).toEqual(['host-1', 'host-2']);
   });
 
-  it('should toggle the resources list on click of the resources button', function () {
-    jasmine.Ajax.withMock(function () {
+  it('should toggle the resources list on click of the resources button', () => {
+    jasmine.Ajax.withMock(() => {
       clickAllAgents();
       stubResourcesList();
       var resourceButton = $root.find("button:contains('Resources')");
@@ -373,8 +371,8 @@ describe("Agents Widget", function () {
     });
   });
 
-  it('should toggle the environments list on click of the environments button', function () {
-    jasmine.Ajax.withMock(function () {
+  it('should toggle the environments list on click of the environments button', () => {
+    jasmine.Ajax.withMock(() => {
       clickAllAgents();
       stubEnvironmentsList();
 
@@ -393,8 +391,8 @@ describe("Agents Widget", function () {
     });
   });
 
-  it('should hide the resources list on click of the environments button', function () {
-    jasmine.Ajax.withMock(function () {
+  it('should hide the resources list on click of the environments button', () => {
+    jasmine.Ajax.withMock(() => {
       clickAllAgents();
       stubResourcesList();
       stubEnvironmentsList();
@@ -416,8 +414,8 @@ describe("Agents Widget", function () {
     });
   });
 
-  it('should hide the environment list on click of the resource button', function () {
-    jasmine.Ajax.withMock(function () {
+  it('should hide the environment list on click of the resource button', () => {
+    jasmine.Ajax.withMock(() => {
       clickAllAgents();
       stubResourcesList();
       stubEnvironmentsList();
@@ -440,7 +438,7 @@ describe("Agents Widget", function () {
     });
   });
 
-  it('should show build details dropdown for building agent', function () {
+  it('should show build details dropdown for building agent', () => {
     var buildingAgentStatus = $root.find(".agents-table tbody td:nth-child(6)")[0];
     expect(buildingAgentStatus).not.toHaveClass('is-open');
     var buildingDetailsLink = $(buildingAgentStatus).find('.has-build-details-drop-down')[0];
@@ -452,20 +450,20 @@ describe("Agents Widget", function () {
     expect(buildingAgentStatus).toHaveClass('is-open');
   });
 
-  var clickAllAgents = function () {
+  var clickAllAgents = () => {
     var uuids = agents().collectAgentProperty('uuid');
-    _.forEach(uuids, function (uuid) {
+    _.forEach(uuids, uuid => {
       agentsVM.agents.checkboxFor(uuid)(true);
     });
     m.redraw();
   };
 
-  var hideAllDropDowns = function () {
+  var hideAllDropDowns = () => {
     agentsVM.dropdown.hideAllDropDowns();
     m.redraw();
   };
 
-  var allowBulkUpdate = function (method) {
+  var allowBulkUpdate = method => {
     jasmine.Ajax.stubRequest(Routes.apiv4AgentsPath(), null, method).andReturn({
       responseText: JSON.stringify({}),
       headers:      {
@@ -475,7 +473,7 @@ describe("Agents Widget", function () {
     });
   };
 
-  var stubResourcesList = function () {
+  var stubResourcesList = () => {
     jasmine.Ajax.stubRequest('/go/api/admin/internal/resources', null, 'GET').andReturn({
       responseText: JSON.stringify(['Linux', 'Gauge', 'Java', 'Windows']),
       headers:      {
@@ -485,7 +483,7 @@ describe("Agents Widget", function () {
     });
   };
 
-  var stubEnvironmentsList = function () {
+  var stubEnvironmentsList = () => {
     jasmine.Ajax.stubRequest('/go/api/admin/internal/environments', null, 'GET').andReturn({
       responseText: JSON.stringify(['Dev', 'Build', 'Testing', 'Deploy']),
       headers:      {

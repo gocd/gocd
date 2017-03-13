@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-describe("VersionUpdater", function () {
+describe("VersionUpdater", () => {
 
   var VersionUpdater = require('models/shared/version_updater');
   require('jasmine-ajax');
 
-  describe('update', function () {
-    beforeEach(function () {
+  describe('update', () => {
+    beforeEach(() => {
       localStorage.clear();
     });
 
-    it('should fetch the stale version info', function () {
-      jasmine.Ajax.withMock(function () {
+    it('should fetch the stale version info', () => {
+      jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest('/go/api/version_infos/stale', undefined, 'GET').andReturn({
           responseText: JSON.stringify({}),
           status:       200
@@ -46,8 +46,8 @@ describe("VersionUpdater", function () {
       });
     });
 
-    it('should skip updates if update tried in last half hour', function () {
-      jasmine.Ajax.withMock(function () {
+    it('should skip updates if update tried in last half hour', () => {
+      jasmine.Ajax.withMock(() => {
         var twentyNineMinutesBack = new Date(Date.now() - 29 * 60 * 1000);
 
         localStorage.setItem('versionCheckInfo', JSON.stringify({last_updated_at: twentyNineMinutesBack})); //eslint-disable-line camelcase
@@ -58,8 +58,8 @@ describe("VersionUpdater", function () {
       });
     });
 
-    it('should skip updates in absence of stale version info and update local storage with last update time', function () {
-      jasmine.Ajax.withMock(function () {
+    it('should skip updates in absence of stale version info and update local storage with last update time', () => {
+      jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest('/go/api/version_infos/stale', undefined, 'GET').andReturn({
           responseText: JSON.stringify({}),
           status:       200
@@ -69,9 +69,7 @@ describe("VersionUpdater", function () {
 
         spyOn(window, 'Date').and.returnValue(myDate);
 
-        myDate.getTime.and.callFake(function () {
-          return 123;
-        });
+        myDate.getTime.and.callFake(() => 123);
 
         new VersionUpdater().update();
 
@@ -80,8 +78,8 @@ describe("VersionUpdater", function () {
       });
     });
 
-    it('should fetch latest version info if can update', function () {
-      jasmine.Ajax.withMock(function () {
+    it('should fetch latest version info if can update', () => {
+      jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest('/go/api/version_infos/stale', undefined, 'GET').andReturn({
           responseText: JSON.stringify({'update_server_url': 'update.server.url'}),
           status:       200
@@ -102,8 +100,8 @@ describe("VersionUpdater", function () {
       });
     });
 
-    it('should post the latest version info to server', function () {
-      jasmine.Ajax.withMock(function () {
+    it('should post the latest version info to server', () => {
+      jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest('/go/api/version_infos/stale', undefined, 'GET').andReturn({
           responseText: JSON.stringify({'update_server_url': 'update.server.url'}),
           headers:      {
@@ -132,9 +130,7 @@ describe("VersionUpdater", function () {
 
         spyOn(window, 'Date').and.returnValue(myDate);
 
-        myDate.getTime.and.callFake(function () {
-          return 123;
-        });
+        myDate.getTime.and.callFake(() => 123);
 
         new VersionUpdater().update();
 

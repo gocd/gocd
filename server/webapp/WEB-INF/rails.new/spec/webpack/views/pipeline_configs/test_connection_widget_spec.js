@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-describe("Test Connection Widget", function () {
+describe("Test Connection Widget", () => {
 
   var $      = require('jquery');
   var m      = require('mithril');
@@ -22,32 +22,32 @@ describe("Test Connection Widget", function () {
   var Materials            = require("models/pipeline_configs/materials");
   var TestConnectionWidget = require("views/pipeline_configs/test_connection_widget");
 
-  describe('view', function () {
+  describe('view', () => {
     var $root, root;
     beforeEach(() => {
       [$root, root] = window.createDomElementForTest();
     });
     afterEach(window.destroyDomElementForTest);
     var material;
-    beforeEach(function () {
+    beforeEach(() => {
       material = new Materials().createMaterial({
         type: 'git',
         url:  "http://git.example.com/git/myProject"
       });
     });
 
-    afterEach(function () {
+    afterEach(() => {
       m.mount(root, null);
       m.redraw();
     });
 
 
-    it("should render test connection button", function () {
+    it("should render test connection button", () => {
       mount(material);
       expect($($root.find(".test-connection")[0])).toHaveText('Test Connection');
     });
 
-    it("should render with test connection failure message", function () {
+    it("should render with test connection failure message", () => {
       var state = new TestConnectionWidget.Connection.State();
       state.status('Error');
       state.errorMessage('Test Connection Failed');
@@ -68,10 +68,10 @@ describe("Test Connection Widget", function () {
   });
 
 
-  describe('Controller testConnection', function () {
+  describe('Controller testConnection', () => {
     var vm, controller, deferred, pipelineName, material, vnode;
 
-    beforeEach(function () {
+    beforeEach(() => {
       deferred     = $.Deferred();
       material     = new Materials().createMaterial({
         type: 'git',
@@ -91,24 +91,22 @@ describe("Test Connection Widget", function () {
       TestConnectionWidget.oninit(vnode);
       controller = vnode.state;
 
-      spyOn(material, 'testConnection').and.callFake(function () {
-        return deferred.promise();
-      });
+      spyOn(material, 'testConnection').and.callFake(() => deferred.promise());
     });
 
-    afterEach(function () {
+    afterEach(() => {
       vm = new TestConnectionWidget.Connection.State();
       vm.status('');
       vm.errorMessage('');
     });
 
-    it('should mark connection state to in progress', function () {
+    it('should mark connection state to in progress', () => {
       controller.testConnection();
 
       expect(vm.status()).toBe('InProgress');
     });
 
-    it('should mark connection state to success if test passes', function () {
+    it('should mark connection state to success if test passes', () => {
       controller.testConnection();
       deferred.resolve();
 
@@ -116,7 +114,7 @@ describe("Test Connection Widget", function () {
       expect(vm.status()).toBe('Success');
     });
 
-    it('should mark connection state to error if test fails', function () {
+    it('should mark connection state to error if test fails', () => {
       controller.testConnection();
       deferred.reject();
 

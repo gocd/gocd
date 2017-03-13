@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-xdescribe('SCMs', function () {
+xdescribe('SCMs', () => {
   var SCMs = require('models/pipeline_configs/scms');
 
-  describe('init', function () {
-    afterEach(function () {
+  describe('init', () => {
+    afterEach(() => {
       SCMs([]);
     });
 
-    it('should fetch all scms', function () {
-      jasmine.Ajax.withMock(function () {
+    it('should fetch all scms', () => {
+      jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest('/go/api/admin/scms', undefined, 'GET').andReturn({
           responseText: JSON.stringify({
             _embedded: {
@@ -37,7 +37,7 @@ xdescribe('SCMs', function () {
           }
         });
 
-        var successCallback = jasmine.createSpy().and.callFake(function (scms) {
+        var successCallback = jasmine.createSpy().and.callFake(scms => {
           expect(scms.length).toBe(2);
 
           expect(scms[0].id()).toBe(1);
@@ -51,8 +51,8 @@ xdescribe('SCMs', function () {
 
   });
 
-  describe('findById', function () {
-    beforeEach(function () {
+  describe('findById', () => {
+    beforeEach(() => {
       SCMs([
         new SCMs.SCM({
           id:              'plugin_id_1',
@@ -68,13 +68,13 @@ xdescribe('SCMs', function () {
       ]);
     });
 
-    afterEach(function () {
+    afterEach(() => {
       SCMs([]);
       SCMs.scmIdToEtag = {};
     });
 
-    it('should fetch scm for a given id', function () {
-      jasmine.Ajax.withMock(function () {
+    it('should fetch scm for a given id', () => {
+      jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest('/go/api/admin/scms/material_2', undefined, 'GET').andReturn({
           responseText:    JSON.stringify({
             id:              'plugin_id_2',
@@ -88,7 +88,7 @@ xdescribe('SCMs', function () {
           }
         });
 
-        var successCallback = jasmine.createSpy().and.callFake(function (scm) {
+        var successCallback = jasmine.createSpy().and.callFake(scm => {
           expect(scm.id()).toBe('plugin_id_2');
           expect(SCMs.scmIdToEtag[scm.id()]).toBe('etag');
         });
@@ -98,13 +98,13 @@ xdescribe('SCMs', function () {
       });
     });
 
-    it('should return null if no SCM found for the given id', function () {
+    it('should return null if no SCM found for the given id', () => {
       expect(SCMs.findById('invalid_plugin_id')).toBe(null);
     });
   });
 
-  describe('filterByPluginId', function () {
-    beforeEach(function () {
+  describe('filterByPluginId', () => {
+    beforeEach(() => {
       SCMs([
         new SCMs.SCM({
           id:              'plugin_id_1',
@@ -122,11 +122,11 @@ xdescribe('SCMs', function () {
       ]);
     });
 
-    afterEach(function () {
+    afterEach(() => {
       SCMs([]);
     });
 
-    it('should find all SCMs for a given plugin id', function () {
+    it('should find all SCMs for a given plugin id', () => {
       var scms = SCMs.filterByPluginId('github.pr');
 
       expect(scms.length).toBe(2);
@@ -135,10 +135,10 @@ xdescribe('SCMs', function () {
     });
   });
 
-  describe('SCM', function () {
-    describe('constructor', function () {
+  describe('SCM', () => {
+    describe('constructor', () => {
       var scm;
-      beforeEach(function () {
+      beforeEach(() => {
         scm = new SCMs.SCM({
           /* eslint-disable camelcase */
           id:              '43c45e0b-1b0c-46f3-a60a-2bbc5cec069c',
@@ -150,29 +150,29 @@ xdescribe('SCMs', function () {
         });
       });
 
-      it('should initialize model with id', function () {
+      it('should initialize model with id', () => {
         expect(scm.id()).toBe('43c45e0b-1b0c-46f3-a60a-2bbc5cec069c');
       });
 
-      it('should initialize model with name', function () {
+      it('should initialize model with name', () => {
         expect(scm.name()).toBe('material_name');
       });
 
-      it('should initialize model with auto_update', function () {
+      it('should initialize model with auto_update', () => {
         expect(scm.autoUpdate()).toBe(false);
       });
 
-      it('should initialize model with plugin_metadata', function () {
+      it('should initialize model with plugin_metadata', () => {
         expect(scm.pluginMetadata().id()).toBe('github.pr');
         expect(scm.pluginMetadata().version()).toBe('1.1');
       });
 
-      it('should initialize model with configuration', function () {
+      it('should initialize model with configuration', () => {
         expect(scm.configuration().collectConfigurationProperty('key')).toEqual(['url', 'username']);
         expect(scm.configuration().collectConfigurationProperty('value')).toEqual(['path/to/repo', 'some_name']);
       });
 
-      it('should default auto_update to true if not provided', function () {
+      it('should default auto_update to true if not provided', () => {
         var pluggableScm = new SCMs.SCM({
           /* eslint-disable camelcase */
           id:              '43c45e0b-1b0c-46f3-a60a-2bbc5cec069c',
@@ -185,13 +185,13 @@ xdescribe('SCMs', function () {
       });
     });
 
-    describe('update', function () {
-      afterEach(function () {
+    describe('update', () => {
+      afterEach(() => {
         SCMs([]);
         SCMs.scmIdToEtag = {};
       });
 
-      it('should patch to scm endpoint', function () {
+      it('should patch to scm endpoint', () => {
         let json = {
           /* eslint-disable camelcase */
           id:              '43c45e0b-1b0c-46f3-a60a-2bbc5cec069c',
@@ -206,7 +206,7 @@ xdescribe('SCMs', function () {
 
         SCMs.scmIdToEtag['43c45e0b-1b0c-46f3-a60a-2bbc5cec069c'] = 'etag';
 
-        jasmine.Ajax.withMock(function () {
+        jasmine.Ajax.withMock(() => {
           jasmine.Ajax.stubRequest('/go/api/admin/scms/material_name', undefined, 'PATCH').andReturn({
             responseText:    JSON.stringify(json),
             status:          200,
@@ -216,7 +216,7 @@ xdescribe('SCMs', function () {
             }
           });
 
-          var successCallback = jasmine.createSpy().and.callFake(function (scm) {
+          var successCallback = jasmine.createSpy().and.callFake(scm => {
             expect(scm.name()).toBe('material_name');
             expect(SCMs.scmIdToEtag[scm.id()]).toBe('some-etag');
           });
@@ -228,13 +228,13 @@ xdescribe('SCMs', function () {
 
     });
 
-    describe('create', function () {
-      afterEach(function () {
+    describe('create', () => {
+      afterEach(() => {
         SCMs([]);
         SCMs.scmIdToEtag = {};
       });
 
-      it('should post to scm endpoint', function () {
+      it('should post to scm endpoint', () => {
         let json = {
           name:            'material_name',
           auto_update:     true, //eslint-disable-line camelcase
@@ -244,7 +244,7 @@ xdescribe('SCMs', function () {
 
         var scm = new SCMs.SCM(json);
 
-        jasmine.Ajax.withMock(function () {
+        jasmine.Ajax.withMock(() => {
           jasmine.Ajax.stubRequest('/go/api/admin/scms', undefined, 'POST').andReturn({
             responseText:    JSON.stringify(json),
             status:          200,
@@ -254,7 +254,7 @@ xdescribe('SCMs', function () {
             }
           });
 
-          var successCallback = jasmine.createSpy().and.callFake(function (scm) {
+          var successCallback = jasmine.createSpy().and.callFake(scm => {
             expect(scm.name()).toBe('material_name');
             expect(SCMs.scmIdToEtag[scm.id()]).toBe('some-etag');
           });
@@ -265,8 +265,8 @@ xdescribe('SCMs', function () {
       });
     });
 
-    describe('clone', function () {
-      it('should return a cloned copy of the object', function () {
+    describe('clone', () => {
+      it('should return a cloned copy of the object', () => {
         /* eslint-disable camelcase */
         var scm = new SCMs.SCM({
           id:              '43c45e0b-1b0c-46f3-a60a-2bbc5cec069c',
@@ -281,8 +281,8 @@ xdescribe('SCMs', function () {
       });
     });
 
-    describe('reInitialize', function () {
-      it('should re-initilaize with provided data', function () {
+    describe('reInitialize', () => {
+      it('should re-initilaize with provided data', () => {
         /* eslint-disable camelcase */
         var scm = new SCMs.SCM({
           id:              '43c45e0b-1b0c-46f3-a60a-2bbc5cec069c',
@@ -308,9 +308,9 @@ xdescribe('SCMs', function () {
     });
   });
 
-  describe('SCMs.SCM.Configurations', function () {
-    describe('fromJSON', function () {
-      it('should generate a list of configurations', function () {
+  describe('SCMs.SCM.Configurations', () => {
+    describe('fromJSON', () => {
+      it('should generate a list of configurations', () => {
         var configurations = SCMs.SCM.Configurations.fromJSON([{key: 'url', value: 'path/to/repo'}, {
           key:   'username',
           value: 'some_name'
@@ -323,7 +323,7 @@ xdescribe('SCMs', function () {
         expect(configurations.lastConfiguration().value()).toBe('some_name');
       });
 
-      it('should handle secure configurations', function () {
+      it('should handle secure configurations', () => {
         var configurations = SCMs.SCM.Configurations.fromJSON([{key: 'username', value: 'some_name'}, {
           key:             'password',
           encrypted_value: 'adkfkk=' // eslint-disable-line camelcase
@@ -335,8 +335,8 @@ xdescribe('SCMs', function () {
       });
     });
 
-    describe('toJSON', function () {
-      it('should serialize to JSON', function () {
+    describe('toJSON', () => {
+      it('should serialize to JSON', () => {
         var configurations = SCMs.SCM.Configurations.fromJSON([{key: 'url', value: 'path/to/repo'}, {
           key:   'username',
           value: 'some_name'
@@ -348,7 +348,7 @@ xdescribe('SCMs', function () {
         }, {key: 'username', value: 'some_name'}]);
       });
 
-      it('should handle secure configurations', function () {
+      it('should handle secure configurations', () => {
         var configurations = SCMs.SCM.Configurations.fromJSON([{key: 'username', value: 'some_name'}, {
           key:             'password',
           encrypted_value: 'adkfkk=' // eslint-disable-line camelcase
@@ -361,8 +361,8 @@ xdescribe('SCMs', function () {
       });
     });
 
-    describe('setConfiguration', function () {
-      it('should add a configuration', function () {
+    describe('setConfiguration', () => {
+      it('should add a configuration', () => {
         var configurations = new SCMs.SCM.Configurations([]);
 
         configurations.setConfiguration('key', 'val');
@@ -372,7 +372,7 @@ xdescribe('SCMs', function () {
         expect(configurations.firstConfiguration().value()).toBe('val');
       });
 
-      it('should update a configuration if present', function () {
+      it('should update a configuration if present', () => {
         var configurations = SCMs.SCM.Configurations.fromJSON([{key: 'url', value: 'path/to/repo'}]);
 
         configurations.setConfiguration('url', 'new/path');
@@ -382,7 +382,7 @@ xdescribe('SCMs', function () {
         expect(configurations.firstConfiguration().value()).toBe('new/path');
       });
 
-      it('should change a secure configuration to unsecure on update', function () {
+      it('should change a secure configuration to unsecure on update', () => {
         var configurations = SCMs.SCM.Configurations.fromJSON([{key: 'password', encrypted_value: 'jdbfj+='}]); //eslint-disable-line camelcase
 
         expect(configurations.firstConfiguration().isSecureValue()).toBe(true);
@@ -393,7 +393,7 @@ xdescribe('SCMs', function () {
         expect(configurations.firstConfiguration().value()).toBe('new_password');
       });
 
-      it('should not update a configuration if new value is same as old', function () {
+      it('should not update a configuration if new value is same as old', () => {
         var configurations = SCMs.SCM.Configurations.fromJSON([{key: 'password', encrypted_value: 'jdbfj+='}]); // eslint-disable-line camelcase
 
         expect(configurations.firstConfiguration().isSecureValue()).toBe(true);

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-describe('PluggableTasks', function () {
+describe('PluggableTasks', () => {
 
   var _ = require('lodash');
 
@@ -21,13 +21,13 @@ describe('PluggableTasks', function () {
   var PluginInfos    = require('models/pipeline_configs/plugin_infos');
   var Tasks          = require('models/pipeline_configs/tasks');
 
-  afterEach(function () {
+  afterEach(() => {
     PluginInfos([]);
   });
 
-  describe('init', function () {
+  describe('init', () => {
 
-    it('should build pluggable task types from plugins', function () {
+    it('should build pluggable task types from plugins', () => {
       var dockerTaskPlugin = new PluginInfos.PluginInfo({
         id:           'docker.task',
         type:         'task',

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-describe("Parameter Widget", function () {
+describe("Parameter Widget", () => {
 
   var m             = require('mithril');
   var Stream        = require('mithril/stream');
@@ -31,7 +31,7 @@ describe("Parameter Widget", function () {
   });
   afterEach(window.destroyDomElementForTest);
   var parameters;
-  beforeEach(function () {
+  beforeEach(() => {
     parameters = Stream(new Parameters.fromJSON([
       {name: "COMMAND", value: "echo"}
     ]));
@@ -46,13 +46,13 @@ describe("Parameter Widget", function () {
     m.redraw();
   });
 
-  afterEach(function () {
+  afterEach(() => {
     m.mount(root, null);
     m.redraw();
   });
 
-  it("should display parameters", function (done) {
-    setTimeout(function () {
+  it("should display parameters", done => {
+    setTimeout(() => {
       var paramField = $root.find('.parameters div.parameter[data-parameter-name=COMMAND]');
       var paramName  = paramField.find("input[data-prop-name=name]");
       var paramValue = paramField.find("input[data-prop-name=value]");

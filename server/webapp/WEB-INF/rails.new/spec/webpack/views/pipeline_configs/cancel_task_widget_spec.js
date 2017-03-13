@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-describe('Cancel Task Widget', function () {
+describe('Cancel Task Widget', () => {
 
   var $             = require("jquery");
   var m             = require("mithril");
@@ -29,8 +29,8 @@ describe('Cancel Task Widget', function () {
   });
   afterEach(window.destroyDomElementForTest);
   var task;
-  describe('view task with onCancel task', function () {
-    beforeEach(function () {
+  describe('view task with onCancel task', () => {
+    beforeEach(() => {
       /* eslint-disable camelcase */
       task = new Tasks.Task.Ant({
         buildFile:        'build-moduleA.xml',
@@ -52,37 +52,37 @@ describe('Cancel Task Widget', function () {
       mount(task);
     });
 
-    afterEach(function () {
+    afterEach(() => {
       unmount();
     });
 
-    it('should bind target', function () {
+    it('should bind target', () => {
       expect($root.find("input[data-prop-name='target']")).toHaveValue(task.onCancelTask.target());
     });
 
-    it('should bind working directory', function () {
+    it('should bind working directory', () => {
       expect($root.find("input[data-prop-name='buildFile']")).toHaveValue(task.onCancelTask.buildFile());
     });
 
-    it('should bind build file', function () {
+    it('should bind build file', () => {
       expect($root.find("input[data-prop-name='workingDirectory']")).toHaveValue(task.onCancelTask.workingDirectory());
     });
 
-    it('should bind nant path', function () {
+    it('should bind nant path', () => {
       expect($root.find("input[data-prop-name='nantPath']")).toHaveValue(task.onCancelTask.nantPath());
     });
 
-    it('should have the on cancel task checkbox checked', function () {
+    it('should have the on cancel task checkbox checked', () => {
       expect($root.find("input[type=checkbox][data-prop-name=checked]")).toBeChecked();
     });
 
-    it('should have onCancelTask type selected in dropdown', function () {
+    it('should have onCancelTask type selected in dropdown', () => {
       expect($root.find("select :checked")).toHaveValue(task.onCancelTask.type());
     });
   });
 
-  describe('view task without onCancel task', function () {
-    it('should render only checkbox to enable onCancel task', function () {
+  describe('view task without onCancel task', () => {
+    it('should render only checkbox to enable onCancel task', () => {
       var task = new Tasks.Task.Ant({
         buildFile:        'build-moduleA.xml',
         target:           'clean',
@@ -100,8 +100,8 @@ describe('Cancel Task Widget', function () {
     });
   });
 
-  describe('view on selection of onCancel', function () {
-    it('should render exec task on selection', function () {
+  describe('view on selection of onCancel', () => {
+    it('should render exec task on selection', () => {
       //todo: fix asnyc redraw
 
       var task = new Tasks.Task.Ant({
@@ -124,8 +124,8 @@ describe('Cancel Task Widget', function () {
 
   });
 
-  describe('change onCancel task', function () {
-    it('should allow selecting a different onCancel task', function () {
+  describe('change onCancel task', () => {
+    it('should allow selecting a different onCancel task', () => {
 
       /* eslint-disable camelcase */
       var task = new Tasks.Task.Ant({
@@ -161,12 +161,12 @@ describe('Cancel Task Widget', function () {
 
   });
 
-  var unmount = function () {
+  var unmount = () => {
     m.mount(root, null);
     m.redraw();
   };
 
-  var mount = function (task) {
+  var mount = task => {
     m.mount(root, {
       view: function () {
         return m(CancelTaskWidget, {task: task});

@@ -16,8 +16,8 @@
 
 package com.thoughtworks.go.server.initializers;
 
-import com.thoughtworks.go.config.ConfigCipherUpdater;
 import com.thoughtworks.go.config.CachedGoConfig;
+import com.thoughtworks.go.config.ConfigCipherUpdater;
 import com.thoughtworks.go.config.GoFileConfigDataSource;
 import com.thoughtworks.go.config.InvalidConfigMessageRemover;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistrar;
@@ -31,7 +31,6 @@ import com.thoughtworks.go.server.materials.DependencyMaterialUpdateNotifier;
 import com.thoughtworks.go.server.materials.MaterialUpdateService;
 import com.thoughtworks.go.server.materials.SCMMaterialSource;
 import com.thoughtworks.go.server.persistence.OauthTokenSweeper;
-import com.thoughtworks.go.server.security.GoCasServiceProperties;
 import com.thoughtworks.go.server.security.LdapContextFactory;
 import com.thoughtworks.go.server.security.RemoveAdminPermissionFilter;
 import com.thoughtworks.go.server.service.*;
@@ -107,8 +106,6 @@ public class ApplicationInitializerTest {
     private PipelineLockService pipelineLockService;
     @Mock
     private StageResourceImporter stageResourceImporter;
-    @Mock
-    private GoCasServiceProperties goCasServiceProperties;
     @Mock
     private GoDiskSpaceMonitor goDiskSpaceMonitor;
     @Mock

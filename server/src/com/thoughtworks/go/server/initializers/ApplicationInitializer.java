@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,10 @@
 
 package com.thoughtworks.go.server.initializers;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.CachedGoConfig;
+import com.thoughtworks.go.config.ConfigCipherUpdater;
+import com.thoughtworks.go.config.GoFileConfigDataSource;
+import com.thoughtworks.go.config.InvalidConfigMessageRemover;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistrar;
 import com.thoughtworks.go.domain.cctray.CcTrayActivityListener;
 import com.thoughtworks.go.plugin.infra.commons.PluginsZip;
@@ -28,7 +31,6 @@ import com.thoughtworks.go.server.materials.DependencyMaterialUpdateNotifier;
 import com.thoughtworks.go.server.materials.MaterialUpdateService;
 import com.thoughtworks.go.server.materials.SCMMaterialSource;
 import com.thoughtworks.go.server.persistence.OauthTokenSweeper;
-import com.thoughtworks.go.server.security.GoCasServiceProperties;
 import com.thoughtworks.go.server.security.LdapContextFactory;
 import com.thoughtworks.go.server.security.RemoveAdminPermissionFilter;
 import com.thoughtworks.go.server.service.*;
@@ -70,7 +72,6 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
     @Autowired private RemoveAdminPermissionFilter removeAdminPermissionFilter;
     @Autowired private PipelineLockService pipelineLockService;
     @Autowired private StageResourceImporter stageResourceImporter;
-    @Autowired private GoCasServiceProperties goCasServiceProperties;
     @Autowired private GoDiskSpaceMonitor goDiskSpaceMonitor;
     @Autowired private BackupService backupService;
     @Autowired private ArtifactsService artifactsService;
@@ -132,7 +133,6 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
             consoleActivityMonitor.populateActivityMap();
             timerScheduler.initialize();
             stageResourceImporter.initialize();
-            goCasServiceProperties.initialize();
             goDiskSpaceMonitor.initialize();
             backupService.initialize();
             railsAssetsService.initialize();

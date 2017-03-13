@@ -1,5 +1,0 @@
-<% @view_title = "CAS Login Error" -%>
-<%= content_wrapper_tag %>
-  <h1><%= @view_title -%></h1>
-  <h3><%= l.string("USER_NOT_KNOWN") -%> <%= link_to 'Sign in as someone else.', url_for_path('auth/logout') %></h3>
-<%= end_content_wrapper %>

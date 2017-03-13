@@ -439,6 +439,7 @@ task war(type: Jar) {
     exclude("**/rails.new/app/assets/")
     exclude("**/rails.new/app/views/**/*.*")
     exclude("**/rails.new/webpack/")
+    exclude("**/rails.new/vendor/assets/")
     findGemsToNotPack().each { gem ->
       theSpec.exclude("**/rails.new/vendor/bundle/jruby/1.9/gems/${gem}")
       theSpec.exclude("**/rails.new/vendor/bundle/jruby/1.9/specifications/${gem}.gemspec")

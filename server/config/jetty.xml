@@ -19,7 +19,7 @@
 
 <Configure id="Server" class="org.eclipse.jetty.server.Server">
     <!--Do not remove/modify the below line containing jetty version, else all your changes to this file will be reverted.-->
-    <!--jetty-v9.2.3-->
+    <!--jetty-9.4.6.v20170531-->
     <!-- =========================================================== -->
     <!-- Server Thread Pool                                          -->
     <!-- =========================================================== -->
@@ -54,25 +54,23 @@
     <!-- Logging                                                     -->
     <!-- =========================================================== -->
     <!-- To turn this on, set the log level for org.eclipse.jetty.server.RequestLog to INFO -->
-    <Get name="handler">
-        <Call name="addHandler">
-            <Arg>
-                <New class="org.eclipse.jetty.server.handler.RequestLogHandler">
-                    <Set name="requestLog">
-                        <New class="com.thoughtworks.go.server.logging.Slf4jRequestLogger">
-                            <Set name="extended">false</Set>
-                            <Set name="logCookies">false</Set>
-                            <Set name="logLatency">true</Set>
-                            <Set name="ignorePaths">
-                              <Array type="java.lang.String">
-                                <Item>/go/assets/*</Item>
-                                <Item>/go/server/messages.json</Item>
-                              </Array>
-                            </Set>
-                        </New>
-                    </Set>
-                </New>
-            </Arg>
-        </Call>
-    </Get>
+    <Call name="insertHandler">
+        <Arg>
+            <New class="org.eclipse.jetty.server.handler.RequestLogHandler">
+                <Set name="requestLog">
+                    <New class="com.thoughtworks.go.server.logging.Slf4jRequestLogger">
+                        <Set name="extended">false</Set>
+                        <Set name="logCookies">false</Set>
+                        <Set name="logLatency">true</Set>
+                        <Set name="ignorePaths">
+                          <Array type="java.lang.String">
+                            <Item>/go/assets/*</Item>
+                            <Item>/go/server/messages.json</Item>
+                          </Array>
+                        </Set>
+                    </New>
+                </Set>
+            </New>
+        </Arg>
+    </Call>
 </Configure>

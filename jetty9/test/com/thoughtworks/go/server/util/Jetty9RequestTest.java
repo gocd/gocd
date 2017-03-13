@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,28 +35,28 @@ public class Jetty9RequestTest {
     public void setUp() throws Exception {
         request = mock(Request.class);
         jetty9Request = new Jetty9Request(request);
-        when(request.getUri()).thenReturn(new HttpURI("foo/bar/baz"));
-        when(request.getRootURL()).thenReturn(new StringBuilder("http://junk/"));
+        when(request.getHttpURI()).thenReturn(new HttpURI("http://host:1234/foo/bar/baz?s=query"));
+        when(request.getRootURL()).thenReturn(new StringBuilder("http://junk:4567"));
     }
 
     @Test
     public void shouldGetUrl() {
-        assertThat(jetty9Request.getUrl(), is("http://junk/foo/bar/baz"));
+        assertThat(jetty9Request.getUrl(), is("http://junk:4567/foo/bar/baz?s=query"));
     }
 
     @Test
     public void shouldGetUriPath() {
-        assertThat(jetty9Request.getUriPath(), is("foo/bar/baz"));
+        assertThat(jetty9Request.getUriPath(), is("/foo/bar/baz"));
     }
 
     @Test
     public void shouldGetUriAsString() {
-        assertThat(jetty9Request.getUriAsString(), is("foo/bar/baz"));
+        assertThat(jetty9Request.getUriAsString(), is("/foo/bar/baz?s=query"));
     }
 
     @Test
     public void shouldSetRequestUri() {
         jetty9Request.setRequestURI("foo");
-        verify(request).setRequestURI("foo");
+        verify(request).setHttpURI(new HttpURI("foo"));
     }
 }

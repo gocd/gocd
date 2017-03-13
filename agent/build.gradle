@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -139,6 +139,8 @@ task verifyJar(type: VerifyJarTask) {
       "util-${project.version}.jar",
       "websocket-api-${versions.jetty}.jar",
       "websocket-client-${versions.jetty}.jar",
+      "jetty-client-${versions.jetty}.jar",
+      "jetty-http-${versions.jetty}.jar",
       "websocket-common-${versions.jetty}.jar",
       "xml-apis-1.0.b2.jar",
     ]

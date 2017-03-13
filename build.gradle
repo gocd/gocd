@@ -91,9 +91,9 @@ def partitionFiles(Collection originalFiles) {
 
 def COPYRIGHT_YEAR = '2017'
 def GO_VERSION_SEGMENTS = [
-  year: 17,
+  year         : 17,
   releaseInYear: 11,
-  patch: 0
+  patch        : 0
 ]
 def GO_VERSION = [GO_VERSION_SEGMENTS.year, GO_VERSION_SEGMENTS.releaseInYear, GO_VERSION_SEGMENTS.patch].join('.')
 def GO_VERSION_PREVIOUS = '17.10.0'
@@ -316,7 +316,7 @@ task allDependencies {
 ext.versions = [
   slf4j   : '1.7.21',
   log4j   : '1.2.17',
-  jetty   : '9.2.18.v20160721',
+  jetty   : '9.4.6.v20170531',
   junit   : '4.12',
   mockito : '1.9.5',
   hamcrest: '1.3',

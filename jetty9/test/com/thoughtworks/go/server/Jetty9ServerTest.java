@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,8 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.eclipse.jetty.jmx.MBeanContainer;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.eclipse.jetty.util.Jetty;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.JettyWebXmlConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebInfConfiguration;
@@ -76,6 +78,7 @@ public class Jetty9ServerTest {
         Mockito.doAnswer(setHandlerMock).when(server).setHandler(any(Handler.class));
 
         systemEnvironment = mock(SystemEnvironment.class);
+        when(server.getThreadPool()).thenReturn(new QueuedThreadPool());
         when(systemEnvironment.getServerPort()).thenReturn(1234);
         when(systemEnvironment.keystore()).thenReturn(temporaryFolder.newFolder());
         when(systemEnvironment.truststore()).thenReturn(temporaryFolder.newFolder());
@@ -142,7 +145,7 @@ public class Jetty9ServerTest {
         ConnectionFactory second = iterator.next();
         assertThat(first instanceof SslConnectionFactory, is(true));
         SslConnectionFactory sslConnectionFactory = (SslConnectionFactory) first;
-        assertThat(sslConnectionFactory.getProtocol(), is("SSL-HTTP/1.1"));
+        assertThat(sslConnectionFactory.getProtocol(), is("SSL"));
         assertThat(second instanceof HttpConnectionFactory, is(true));
     }
 
@@ -234,21 +237,6 @@ public class Jetty9ServerTest {
     }
 
     @Test
-    public void shouldAddResourceHandlerForAssets() throws Exception {
-        ArgumentCaptor<HandlerCollection> captor = ArgumentCaptor.forClass(HandlerCollection.class);
-        jetty9Server.configure();
-
-        verify(server, times(1)).setHandler(captor.capture());
-        HandlerCollection handlerCollection = captor.getValue();
-        assertThat(handlerCollection.getHandlers().length, is(3));
-
-        Handler handler = handlerCollection.getHandlers()[1];
-        assertThat(handler instanceof AssetsContextHandler, is(true));
-        AssetsContextHandler assetsContextHandler = (AssetsContextHandler) handler;
-        assertThat(assetsContextHandler.getContextPath(), is("context/assets"));
-    }
-
-    @Test
     public void shouldAddWebAppContextHandler() throws Exception {
         ArgumentCaptor<HandlerCollection> captor = ArgumentCaptor.forClass(HandlerCollection.class);
         jetty9Server.configure();
@@ -307,7 +295,7 @@ public class Jetty9ServerTest {
         File jettyXml = temporaryFolder.newFile("jetty.xml");
         when(systemEnvironment.getJettyConfigFile()).thenReturn(jettyXml);
 
-        String originalContent = "jetty-v9.2.3\nsome other local changes";
+        String originalContent = "jetty-" + Jetty.VERSION + "\nsome other local changes";
         FileUtil.writeContentToFile(originalContent, jettyXml);
         jetty9Server.replaceJettyXmlIfItBelongsToADifferentVersion(systemEnvironment.getJettyConfigFile());
         assertThat(FileUtil.readContentFromFile(systemEnvironment.getJettyConfigFile()), is(originalContent));

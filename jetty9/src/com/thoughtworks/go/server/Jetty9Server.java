@@ -30,6 +30,8 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.eclipse.jetty.server.handler.gzip.GzipHandler;
+import org.eclipse.jetty.util.Jetty;
 import org.eclipse.jetty.webapp.JettyWebXmlConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebInfConfiguration;
@@ -52,9 +54,23 @@ import java.lang.management.ManagementFactory;
 import static java.text.MessageFormat.format;
 
 public class Jetty9Server extends AppServer {
+    public static final String[] GZIP_MIME_TYPES = {"text/html",
+            "text/plain",
+            "text/xml",
+            "text/css",
+            "application/xhtml+xml",
+            "application/javascript",
+            "image/svg+xml",
+            "application/json",
+            "application/vnd.go.cd.v1+json",
+            "application/vnd.go.cd.v2+json",
+            "application/vnd.go.cd.v3+json",
+            "application/vnd.go.cd.v4+json",
+    };
+
     protected static String JETTY_XML_LOCATION_IN_JAR = "/defaultFiles/config";
     private static final String JETTY_XML = "jetty.xml";
-    private static final String JETTY_VERSION = "jetty-v9.2.3";
+    private static final String JETTY_VERSION = "jetty-" + Jetty.VERSION;
     private Server server;
     private WebAppContext webAppContext;
     private static final Logger LOG = LoggerFactory.getLogger(Jetty9Server.class);
@@ -78,8 +94,8 @@ public class Jetty9Server extends AppServer {
         server.addConnector(sslConnector());
         HandlerCollection handlers = new HandlerCollection();
         handlers.addHandler(welcomeFileHandler());
+        handlers.addHandler(gzipHandler());
         createWebAppContext();
-        addResourceHandler(handlers, webAppContext);
         handlers.addHandler(webAppContext);
         JettyCustomErrorPageHandler errorHandler = new JettyCustomErrorPageHandler();
         webAppContext.setErrorHandler(errorHandler);
@@ -87,6 +103,13 @@ public class Jetty9Server extends AppServer {
         server.setHandler(handlers);
         performCustomConfiguration();
         server.setStopAtShutdown(true);
+    }
+
+    private GzipHandler gzipHandler() {
+        GzipHandler gzipHandler = new GzipHandler();
+        gzipHandler.addIncludedMimeTypes(GZIP_MIME_TYPES);
+        gzipHandler.addIncludedMethods("HEAD", "GET", "POST", "PUT", "PATCH", "DELETE");
+        return gzipHandler;
     }
 
     @Override
@@ -107,7 +130,7 @@ public class Jetty9Server extends AppServer {
 
     @Override
     public void setCookieExpirePeriod(int cookieExpirePeriod) {
-        SessionCookieConfig cookieConfig = webAppContext.getSessionHandler().getSessionManager().getSessionCookieConfig();
+        SessionCookieConfig cookieConfig = webAppContext.getSessionHandler().getSessionCookieConfig();
         cookieConfig.setHttpOnly(true);
         cookieConfig.setMaxAge(cookieExpirePeriod);
     }
@@ -205,14 +228,6 @@ public class Jetty9Server extends AppServer {
         } finally {
             IOUtils.closeQuietly(inputStream);
         }
-    }
-
-
-    private void addResourceHandler(HandlerCollection handlers, WebAppContext webAppContext) throws IOException {
-        if (!systemEnvironment.useCompressedJs()) return;
-        AssetsContextHandler handler = new AssetsContextHandler(systemEnvironment);
-        handlers.addHandler(handler);
-        webAppContext.addLifeCycleListener(new AssetsContextHandlerInitializer(handler, webAppContext));
     }
 
 

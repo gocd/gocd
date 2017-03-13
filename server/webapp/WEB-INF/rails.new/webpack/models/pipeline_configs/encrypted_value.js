@@ -31,13 +31,13 @@ var EncryptedValue = function (data) {
   var _isEncrypted   = Stream(_.has(data, 'cipherText'));
   var _canEdit       = Stream(!_isEncrypted());
 
-  this.value = function () {
-    if (arguments.length) {
+  this.value = function(...args) {
+    if (args.length) {
       if (this.isPlain()) {
-        return _value(arguments[0]);
+        return _value(args[0]);
       } else {
         if (_canEdit()) {
-          return _value(arguments[0]);
+          return _value(args[0]);
         } else {
           throw "You cannot edit a cipher text value!";
         }

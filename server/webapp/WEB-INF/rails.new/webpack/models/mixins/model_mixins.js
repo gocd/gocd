@@ -29,8 +29,8 @@ Mixins.HasEncryptedAttribute = function (options) {
     name            = options.name,
     capitalizedName = _.upperFirst(name);
 
-  this[name] = function () {
-    return _value().value.apply(_value(), arguments);
+  this[name] = function(...args) {
+    return _value().value.apply(_value(), args);
   };
 
   this['isSecure' + capitalizedName] = () => _value().isSecure();
@@ -158,16 +158,16 @@ Mixins.fromJSONCollection = options => {
 };
 
 // copy of mithri's Stream without the toJSON on the getterSetter.
-Mixins.GetterSetter = store => function () {
-  if (arguments.length) {
-    store = arguments[0];
+Mixins.GetterSetter = store => function(...args) {
+  if (args.length) {
+    store = args[0];
   }
   return store;
 };
 
-Mixins.TogglingGetterSetter = store => function () {
-  if (arguments.length) {
-    store(store() === arguments[0] ? undefined : arguments[0]);
+Mixins.TogglingGetterSetter = store => function(...args) {
+  if (args.length) {
+    store(store() === args[0] ? undefined : args[0]);
   }
   return store();
 };

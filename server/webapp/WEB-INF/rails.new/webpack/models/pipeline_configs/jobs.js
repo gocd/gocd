@@ -62,13 +62,13 @@ Jobs.Job = function (data) {
   this.tabs                 = s.collectionToJSON(Stream(s.defaultToIfBlank(data.tabs, new Tabs())));
   this.properties           = s.collectionToJSON(Stream(s.defaultToIfBlank(data.properties, new Properties())));
   var _elasticProfileId     = Stream(s.defaultToIfBlank(data.elasticProfileId, null));
-  this.elasticProfileId     = function () {
-    if (arguments.length === 1) {
+  this.elasticProfileId     = function(...args) {
+    if (args.length === 1) {
       // setter
-      if (arguments[0] === 'null' || arguments[0] === 'undefined') {
+      if (args[0] === 'null' || args[0] === 'undefined') {
         return _elasticProfileId(null);
       }
-      return _elasticProfileId(arguments[0]);
+      return _elasticProfileId(args[0]);
     } else {
       // getter
       return _elasticProfileId();

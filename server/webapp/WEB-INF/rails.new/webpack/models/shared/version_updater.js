@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-var $        = require('jquery');
-var _        = require('lodash');
-var mrequest = require('helpers/mrequest');
-var Routes   = require('gen/js-routes');
+const $        = require('jquery');
+const _        = require('lodash');
+const mrequest = require('helpers/mrequest');
+const Routes   = require('gen/js-routes');
 
-var VersionUpdater = function () {
+const VersionUpdater = function () {
   this.update = () => {
     if (canUpdateVersion()) {
       fetchStaleVersionInfo().then(data => {
@@ -54,18 +54,18 @@ var VersionUpdater = function () {
   };
 
   var canUpdateVersion = () => {
-    var versionCheckInfo = localStorage.getItem('versionCheckInfo');
+    let versionCheckInfo = localStorage.getItem('versionCheckInfo');
     if (_.isEmpty(versionCheckInfo)) {
       return true;
     }
     versionCheckInfo = JSON.parse(versionCheckInfo);
-    var lastUpdateAt = new Date(versionCheckInfo.last_updated_at);
-    var halfHourAgo  = new Date(_.now() - 30 * 60 * 1000);
+    const lastUpdateAt = new Date(versionCheckInfo.last_updated_at);
+    const halfHourAgo  = new Date(_.now() - 30 * 60 * 1000);
     return halfHourAgo > lastUpdateAt;
   };
 
   var markUpdateDone = () => {
-    var versionCheckInfo = JSON.stringify({last_updated_at: new Date().getTime()}); //eslint-disable-line camelcase
+    const versionCheckInfo = JSON.stringify({last_updated_at: new Date().getTime()}); //eslint-disable-line camelcase
     localStorage.setItem('versionCheckInfo', versionCheckInfo);
   };
 };

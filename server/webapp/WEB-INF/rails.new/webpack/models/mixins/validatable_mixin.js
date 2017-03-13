@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-var _                 = require('lodash');
-var s                 = require('string-plus');
-var Errors            = require('models/mixins/errors');
-var Mixins            = require('models/mixins/model_mixins');
-var PresenceValidator = function (options) {
+const _                 = require('lodash');
+const s                 = require('string-plus');
+const Errors            = require('models/mixins/errors');
+const Mixins            = require('models/mixins/model_mixins');
+const PresenceValidator = function (options) {
   this.validate = (entity, attr) => {
     if (options.condition && (!options.condition(entity))) {
       return;
@@ -30,7 +30,7 @@ var PresenceValidator = function (options) {
   };
 };
 
-var UniquenessValidator = function () {
+const UniquenessValidator = function () {
   this.validate = (entity, attr) => {
     if (_.isNil(entity.parent()) || s.isBlank(entity[attr]())) {
       return;
@@ -42,8 +42,8 @@ var UniquenessValidator = function () {
   };
 };
 
-var UrlPatternValidator = function () {
-  var URL_REGEX = /^http(s)?:\/\/.+/;
+const UrlPatternValidator = function () {
+  const URL_REGEX = /^http(s)?:\/\/.+/;
 
   this.validate = (entity, attr) => {
     if (s.isBlank(entity[attr]())) {
@@ -56,7 +56,7 @@ var UrlPatternValidator = function () {
   };
 };
 
-var FormatValidator = function (options) {
+const FormatValidator = function (options) {
   this.validate = (entity, attr) => {
     if (s.isBlank(entity[attr]())) {
       return;
@@ -69,16 +69,16 @@ var FormatValidator = function (options) {
 };
 
 var Validatable = function (data) {
-  var self                   = this;
-  var attrToValidators       = {};
-  var associationsToValidate = [];
+  const self                   = this;
+  const attrToValidators       = {};
+  const associationsToValidate = [];
   self.errors                = Mixins.GetterSetter(new Errors(data.errors));
 
-  var validateWith = (validator, attr) => {
+  const validateWith = (validator, attr) => {
     _.has(attrToValidators, attr) ? attrToValidators[attr].push(validator) : attrToValidators[attr] = [validator];
   };
 
-  var clearErrors = attr => {
+  const clearErrors = attr => {
     attr ? self.errors().clear(attr) : self.errors().clear();
   };
 
@@ -107,7 +107,7 @@ var Validatable = function (data) {
   };
 
   self.validate = attr => {
-    var attrs = attr ? [attr] : _.keys(attrToValidators);
+    const attrs = attr ? [attr] : _.keys(attrToValidators);
 
     clearErrors(attr);
 

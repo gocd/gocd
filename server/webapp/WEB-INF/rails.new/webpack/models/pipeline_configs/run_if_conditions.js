@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-var Stream = require('mithril/stream');
-var _      = require('lodash');
-var s      = require('string-plus');
+const Stream = require('mithril/stream');
+const _      = require('lodash');
+const s      = require('string-plus');
 
-var RunIfConditions = function (data) {
+const RunIfConditions = function (data) {
   this.data = Stream(s.defaultToIfBlank(data, ['passed']));
 
   this.clear = function () {

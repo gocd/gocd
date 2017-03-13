@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-var Users = {};
+const Users = {};
 
 Users.initializeWith = values => {
   Users.list = values || [];

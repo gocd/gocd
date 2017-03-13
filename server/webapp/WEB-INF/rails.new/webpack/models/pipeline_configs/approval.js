@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-var Stream = require('mithril/stream');
-var s      = require('string-plus');
-var Mixins = require('models/mixins/model_mixins');
+const Stream = require('mithril/stream');
+const s      = require('string-plus');
+const Mixins = require('models/mixins/model_mixins');
 
-var Approval = function (data) {
+const Approval = function (data) {
   this.constructor.modelType = 'approval';
   Mixins.HasUUID.call(this);
 

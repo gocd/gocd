@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-var Stream    = require('mithril/stream');
-var _         = require('lodash');
-var $         = require('jquery');
-var Routes    = require('gen/js-routes');
-var mrequest  = require('helpers/mrequest');
-var Pipelines = Stream([]);
+const Stream    = require('mithril/stream');
+const _         = require('lodash');
+const $         = require('jquery');
+const Routes    = require('gen/js-routes');
+const mrequest  = require('helpers/mrequest');
+const Pipelines = Stream([]);
 
 Pipelines.Pipeline = function (data) {
   this.name   = data.name;
@@ -30,7 +30,7 @@ Pipelines.Pipeline = function (data) {
 };
 
 Pipelines.init = rejectPipeline => {
-  var jqXHR = $.ajax({
+  const jqXHR = $.ajax({
     method:      'GET',
     url:         Routes.apiv1AdminInternalPipelinesPath(),
     background:  true,
@@ -38,8 +38,8 @@ Pipelines.init = rejectPipeline => {
     contentType: false
   });
 
-  var didFulfill = (data, _textStatus, _jqXHR) => {
-    var pipelines = _.reject(data._embedded.pipelines, pipeline => pipeline.name === rejectPipeline);
+  const didFulfill = (data, _textStatus, _jqXHR) => {
+    const pipelines = _.reject(data._embedded.pipelines, pipeline => pipeline.name === rejectPipeline);
 
     Pipelines(_.map(pipelines, pipeline => new Pipelines.Pipeline(pipeline)));
   };

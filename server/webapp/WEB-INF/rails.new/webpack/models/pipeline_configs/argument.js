@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-var Stream = require('mithril/stream');
-var _      = require('lodash');
+const Stream = require('mithril/stream');
+const _      = require('lodash');
 
-var Argument = function (data) {
+const Argument = function (data) {
   this.data = Stream(data);
 
   this.isList = function () {
@@ -39,17 +39,17 @@ var Argument = function (data) {
 Argument.create = (args, argsList) => args ? new Argument(args) : new Argument(argsList || []);
 
 Argument.vm = model => {
-  var listVM = function () {
+  const listVM = function () {
     this.data = val => {
       if (val === undefined) {
         return model.data().join('\n');
       }
-      var args = _.isEmpty(val) ? [] : val.split('\n');
+      const args = _.isEmpty(val) ? [] : val.split('\n');
       model.data(args);
     };
   };
 
-  var stringVM = function () {
+  const stringVM = function () {
     this.data = val => {
       if (val === undefined) {
         return model.data();

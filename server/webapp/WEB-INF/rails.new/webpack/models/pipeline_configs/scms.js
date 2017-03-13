@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-var Stream               = require('mithril/stream');
-var _                    = require('lodash');
-var $                    = require('jquery');
-var s                    = require('string-plus');
-var mrequest             = require('helpers/mrequest');
-var Errors               = require('models/mixins/errors');
-var Validatable          = require('models/mixins/validatable_mixin');
-var PluginConfigurations = require('models/shared/plugin_configurations');
-var Routes               = require('gen/js-routes');
-var SCMs                 = Stream([]);
+const Stream               = require('mithril/stream');
+const _                    = require('lodash');
+const $                    = require('jquery');
+const s                    = require('string-plus');
+const mrequest             = require('helpers/mrequest');
+const Errors               = require('models/mixins/errors');
+const Validatable          = require('models/mixins/validatable_mixin');
+const PluginConfigurations = require('models/shared/plugin_configurations');
+const Routes               = require('gen/js-routes');
+const SCMs                 = Stream([]);
 SCMs.scmIdToEtag         = {};
 
 SCMs.SCM = function (data) {
@@ -62,18 +62,18 @@ SCMs.SCM = function (data) {
   };
 
   this.update = function () {
-    var entity = this;
+    const entity = this;
 
-    var config = xhr => {
+    const config = xhr => {
       xhr.setRequestHeader("Content-Type", "application/json");
       xhr.setRequestHeader("Accept", "application/vnd.go.cd.v1+json");
       xhr.setRequestHeader("If-Match", SCMs.scmIdToEtag[entity.id()]);
     };
 
     return $.Deferred(function () {
-      var deferred = this;
+      const deferred = this;
 
-      var jqXHR = $.ajax({
+      const jqXHR = $.ajax({
         method:      'PATCH',
         url:         Routes.apiv1AdminScmPath({material_name: entity.name()}), //eslint-disable-line camelcase
         background:  false,
@@ -82,14 +82,14 @@ SCMs.SCM = function (data) {
         contentType: 'application/json'
       });
 
-      var callback = (data, _textStatus, jqXHR) => {
+      const callback = (data, _textStatus, jqXHR) => {
         if (jqXHR.status === 200) {
           SCMs.scmIdToEtag[data.id] = jqXHR.getResponseHeader('ETag');
         }
         deferred.resolve(new SCMs.SCM(data));
       };
 
-      var errback = jqXHR => {
+      const errback = jqXHR => {
         deferred.reject(jqXHR.responseJSON);
       };
 
@@ -101,12 +101,12 @@ SCMs.SCM = function (data) {
   };
 
   this.create = function () {
-    var entity = this;
+    const entity = this;
 
     return $.Deferred(function () {
-      var deferred = this;
+      const deferred = this;
 
-      var jqXHR = $.ajax({
+      const jqXHR = $.ajax({
         method:      'POST',
         url:         Routes.apiv1AdminScmsPath(),
         background:  false,
@@ -115,14 +115,14 @@ SCMs.SCM = function (data) {
         contentType: 'application/json'
       });
 
-      var resolve = (data, _textStatus, jqXHR) => {
+      const resolve = (data, _textStatus, jqXHR) => {
         if (jqXHR.status === 200) {
           SCMs.scmIdToEtag[data.id] = jqXHR.getResponseHeader('ETag');
         }
         deferred.resolve(new SCMs.SCM(data));
       };
 
-      var errback = jqXHR => {
+      const errback = jqXHR => {
         deferred.reject(jqXHR.responseJSON);
       };
 
@@ -147,9 +147,9 @@ SCMs.SCM.PluginMetadata = function (data) {
 SCMs.SCM.Configurations = PluginConfigurations;
 
 SCMs.init = () => $.Deferred(function () {
-  var deferred = this;
+  const deferred = this;
 
-  var jqXHR = $.ajax({
+  const jqXHR = $.ajax({
     method:      'GET',
     url:         Routes.apiv1AdminScmsPath(),
     timeout:     mrequest.timeout,
@@ -166,16 +166,16 @@ SCMs.init = () => $.Deferred(function () {
 SCMs.filterByPluginId = pluginId => _.filter(SCMs(), (scm) => scm.pluginMetadata().id() === pluginId);
 
 SCMs.findById = id => {
-  var scm = _.find(SCMs(), (scm) => scm.id() === id);
+  const scm = _.find(SCMs(), (scm) => scm.id() === id);
 
   if (!scm) {
     return null;
   }
 
   return $.Deferred(function () {
-    var deferred = this;
+    const deferred = this;
 
-    var jqXHR = $.ajax({
+    const jqXHR = $.ajax({
       method:      'GET',
       url:         Routes.apiv1AdminScmPath({material_name: scm.name()}),  //eslint-disable-line camelcase
       background:  false,

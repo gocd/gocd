@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-var Stream               = require('mithril/stream');
-var _                    = require('lodash');
-var s                    = require('string-plus');
-var Mixins               = require('models/mixins/model_mixins');
-var Argument             = require('models/pipeline_configs/argument');
-var RunIfConditions      = require('models/pipeline_configs/run_if_conditions');
-var PluginConfigurations = require('models/shared/plugin_configurations');
-var Validatable          = require('models/mixins/validatable_mixin');
+const Stream               = require('mithril/stream');
+const _                    = require('lodash');
+const s                    = require('string-plus');
+const Mixins               = require('models/mixins/model_mixins');
+const Argument             = require('models/pipeline_configs/argument');
+const RunIfConditions      = require('models/pipeline_configs/run_if_conditions');
+const PluginConfigurations = require('models/shared/plugin_configurations');
+const Validatable          = require('models/mixins/validatable_mixin');
 
-var Tasks = function (data) {
+const Tasks = function (data) {
   Mixins.HasMany.call(this, {factory: Tasks.createByType, as: 'Task', collection: data});
 };
 
@@ -43,7 +43,7 @@ Tasks.Task = function (type, data) {
   this.type   = Stream(type);
   this.parent = Mixins.GetterSetter();
 
-  var self = this;
+  const self = this;
 
   this.toJSON = () => ({
     type:       self.type(),
@@ -107,7 +107,7 @@ Tasks.Task.Ant = function (data) {
 };
 
 Tasks.Task.Ant.fromJSON = data => {
-  var attr = data.attributes || {};
+  const attr = data.attributes || {};
   return new Tasks.Task.Ant({
     target:           attr.target,
     workingDirectory: attr.working_directory,
@@ -159,7 +159,7 @@ Tasks.Task.NAnt = function (data) {
 };
 
 Tasks.Task.NAnt.fromJSON = data => {
-  var attr = data.attributes || {};
+  const attr = data.attributes || {};
   return new Tasks.Task.NAnt({
     target:           attr.target,
     workingDirectory: attr.working_directory,
@@ -209,7 +209,7 @@ Tasks.Task.Exec = function (data) {
 };
 
 Tasks.Task.Exec.fromJSON = function (data) {
-  var attr = data.attributes || {};
+  const attr = data.attributes || {};
   return new Tasks.Task.Exec({
     command:          attr.command,
     args:             attr.args,
@@ -259,7 +259,7 @@ Tasks.Task.Rake = function (data) {
 };
 
 Tasks.Task.Rake.fromJSON = data => {
-  var attr = data.attributes || {};
+  const attr = data.attributes || {};
   return new Tasks.Task.Rake({
     target:           attr.target,
     workingDirectory: attr.working_directory,
@@ -321,7 +321,7 @@ Tasks.Task.FetchArtifact = function (data) {
 
 
 Tasks.Task.FetchArtifact.fromJSON = data => {
-  var attr = data.attributes || {};
+  const attr = data.attributes || {};
   return new Tasks.Task.FetchArtifact({
     pipeline:      attr.pipeline,
     stage:         attr.stage,
@@ -353,7 +353,7 @@ Tasks.Task.PluginTask = function (data) {
   };
 
   this.summary = function () {
-    var data = {};
+    const data = {};
 
     this.configuration().mapConfigurations(conf => {
       data[_.capitalize(conf.key())] = conf.value();
@@ -378,7 +378,7 @@ Tasks.Task.PluginTask = function (data) {
 };
 
 Tasks.Task.PluginTask.fromJSON = data => {
-  var attr = data.attributes || {};
+  const attr = data.attributes || {};
   return new Tasks.Task.PluginTask({
     pluginId:      attr.plugin_configuration.id,
     version:       attr.plugin_configuration.version,
@@ -408,7 +408,7 @@ Tasks.BuiltInTypes = {
 Tasks.Types = _.assign({}, Tasks.BuiltInTypes);
 
 Tasks.findTypeFromDescription = description => {
-  var matchedKey;
+  let matchedKey;
   _.each(Tasks.Types, (value, key) => {
     if (value.description === description) {
       matchedKey = key;

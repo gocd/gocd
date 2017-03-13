@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-var $                = require('jquery');
-var m                = require('mithril');
-var _                = require('lodash');
-var mrequest         = require('helpers/mrequest');
-var TriStateCheckbox = require('models/agents/tri_state_checkbox');
-var Routes           = require('gen/js-routes');
-var Resources        = {};
+const $                = require('jquery');
+const m                = require('mithril');
+const _                = require('lodash');
+const mrequest         = require('helpers/mrequest');
+const TriStateCheckbox = require('models/agents/tri_state_checkbox');
+const Routes           = require('gen/js-routes');
+const Resources        = {};
 Resources.list       = [];
 
-var getSortedResources = (resources, selectedAgents) => {
-  var selectedAgentsResources = _.map(selectedAgents, agent => agent.resources());
+const getSortedResources = (resources, selectedAgents) => {
+  const selectedAgentsResources = _.map(selectedAgents, agent => agent.resources());
 
   return _.map(resources.sort(), resource => new TriStateCheckbox(resource, selectedAgentsResources));
 };

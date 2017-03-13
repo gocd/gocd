@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-var Stream               = require('mithril/stream');
-var s                    = require('string-plus');
-var Mixins               = require('models/mixins/model_mixins');
-var PluginConfigurations = require('models/shared/plugin_configurations');
-var Routes               = require('gen/js-routes');
-var Validatable          = require('models/mixins/validatable_mixin');
-var CrudMixins           = require('models/mixins/crud_mixins');
+const Stream               = require('mithril/stream');
+const s                    = require('string-plus');
+const Mixins               = require('models/mixins/model_mixins');
+const PluginConfigurations = require('models/shared/plugin_configurations');
+const Routes               = require('gen/js-routes');
+const Validatable          = require('models/mixins/validatable_mixin');
+const CrudMixins           = require('models/mixins/crud_mixins');
 
-var ElasticProfiles = function (data) {
+const ElasticProfiles = function (data) {
   Mixins.HasMany.call(this, {
     factory:    ElasticProfiles.Profile.create,
     as:         'Profile',

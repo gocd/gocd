@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-var $              = require('jquery');
-var m              = require('mithril');
-var Stream         = require('mithril/stream');
-var Agents         = require('models/agents/agents');
-var AgentsWidget   = require('views/agents/agents_widget');
-var AgentsVM       = require('views/agents/models/agents_widget_view_model');
-var SortOrder      = require('views/agents/models/sort_order');
-var VersionUpdater = require('models/shared/version_updater');
-var AjaxPoller     = require('helpers/ajax_poller');
+const $              = require('jquery');
+const m              = require('mithril');
+const Stream         = require('mithril/stream');
+const Agents         = require('models/agents/agents');
+const AgentsWidget   = require('views/agents/agents_widget');
+const AgentsVM       = require('views/agents/models/agents_widget_view_model');
+const SortOrder      = require('views/agents/models/sort_order');
+const VersionUpdater = require('models/shared/version_updater');
+const AjaxPoller     = require('helpers/ajax_poller');
 
 require('foundation-sites');
 
 $(() => {
   new VersionUpdater().update();
-  var $agentElem = $('#agents');
+  const $agentElem = $('#agents');
 
-  var isUserAdmin = JSON.parse($agentElem.attr('data-is-current-user-an-admin'));
+  const isUserAdmin = JSON.parse($agentElem.attr('data-is-current-user-an-admin'));
 
   $(document).foundation();
 
@@ -53,10 +53,10 @@ $(() => {
   var showSpinner      = Stream(true);
   var agentsViewModel  = new AgentsVM();
   var permanentMessage = Stream({});
-  var currentRepeater  = Stream(createRepeater());
-  var sortOrder        = Stream(new SortOrder());
+  const currentRepeater  = Stream(createRepeater());
+  const sortOrder        = Stream(new SortOrder());
 
-  var component = {
+  const component = {
     view() {
       return m(AgentsWidget, {
         vm:                   agentsViewModel,

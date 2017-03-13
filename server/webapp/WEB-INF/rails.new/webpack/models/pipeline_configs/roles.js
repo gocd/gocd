@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-var Roles = {};
+const Roles = {};
 
 Roles.initializeWith = values => {
   Roles.list = values || [];

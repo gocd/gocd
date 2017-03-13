@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-var Stream      = require('mithril/stream');
-var _           = require('lodash');
-var s           = require('string-plus');
-var Mixins      = require('models/mixins/model_mixins');
-var Validatable = require('models/mixins/validatable_mixin');
+const Stream      = require('mithril/stream');
+const _           = require('lodash');
+const s           = require('string-plus');
+const Mixins      = require('models/mixins/model_mixins');
+const Validatable = require('models/mixins/validatable_mixin');
 
-var UrlPatternValidator = function () {
+const UrlPatternValidator = function () {
   this.validate = entity => {
     if (!s.include(entity.urlPattern(), '${ID}')) {
       entity.errors().add('urlPattern', Validatable.ErrorMessages.mustContainString("urlPattern", '${ID}'));
@@ -28,13 +28,13 @@ var UrlPatternValidator = function () {
   };
 };
 
-var TrackingTool = function (type) {
+const TrackingTool = function (type) {
   this.constructor.modelType = 'trackingTool';
   Mixins.HasUUID.call(this);
 
   this.type = Stream(type);
 
-  var self = this;
+  const self = this;
 
   this.toJSON = () => ({
     type:       self.type(),

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-var _      = require('lodash');
-var s      = require('string-plus');
-var Errors = function(errors = {}) {
+const _      = require('lodash');
+const s      = require('string-plus');
+const Errors = function(errors = {}) {
   this.add = (attrName, message) => {
     errors[attrName] = errors[attrName] || [];
     errors[attrName].push(message);

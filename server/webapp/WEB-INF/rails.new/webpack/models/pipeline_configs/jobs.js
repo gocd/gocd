@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-var Stream               = require('mithril/stream');
-var _                    = require('lodash');
-var s                    = require('string-plus');
-var Mixins               = require('models/mixins/model_mixins');
-var EnvironmentVariables = require('models/pipeline_configs/environment_variables');
-var Tasks                = require('models/pipeline_configs/tasks');
-var Artifacts            = require('models/pipeline_configs/artifacts');
-var Tabs                 = require('models/pipeline_configs/tabs');
-var Properties           = require('models/pipeline_configs/properties');
-var Validatable          = require('models/mixins/validatable_mixin');
+const Stream               = require('mithril/stream');
+const _                    = require('lodash');
+const s                    = require('string-plus');
+const Mixins               = require('models/mixins/model_mixins');
+const EnvironmentVariables = require('models/pipeline_configs/environment_variables');
+const Tasks                = require('models/pipeline_configs/tasks');
+const Artifacts            = require('models/pipeline_configs/artifacts');
+const Tabs                 = require('models/pipeline_configs/tabs');
+const Properties           = require('models/pipeline_configs/properties');
+const Validatable          = require('models/mixins/validatable_mixin');
 
-var Jobs = function (data) {
+const Jobs = function (data) {
   Mixins.HasMany.call(this, {factory: Jobs.Job.create, as: 'Job', collection: data, uniqueOn: 'name'});
 };
 
-var TimeoutValidator = function () {
+const TimeoutValidator = function () {
   this.validate = entity => {
     if (!(entity.isTimeoutNever() || entity.isTimeoutDefault() || entity.isTimeoutCustom())) {
       entity.errors().add('timeout', Validatable.ErrorMessages.mustBePositiveNumber('timeout'));
@@ -37,7 +37,7 @@ var TimeoutValidator = function () {
   };
 };
 
-var RunInstanceCountValidator = function () {
+const RunInstanceCountValidator = function () {
   this.validate = entity => {
     if (!(entity.isRunOnAllAgents() || entity.isRunOnOneAgent() || entity.isRunOnSomeAgents())) {
       entity.errors().add('runInstanceCount', Validatable.ErrorMessages.mustBePositiveNumber('runInstanceCount'));
@@ -61,7 +61,7 @@ Jobs.Job = function (data) {
   this.artifacts            = s.collectionToJSON(Stream(s.defaultToIfBlank(data.artifacts, new Artifacts())));
   this.tabs                 = s.collectionToJSON(Stream(s.defaultToIfBlank(data.tabs, new Tabs())));
   this.properties           = s.collectionToJSON(Stream(s.defaultToIfBlank(data.properties, new Properties())));
-  var _elasticProfileId     = Stream(s.defaultToIfBlank(data.elasticProfileId, null));
+  const _elasticProfileId     = Stream(s.defaultToIfBlank(data.elasticProfileId, null));
   this.elasticProfileId     = function(...args) {
     if (args.length === 1) {
       // setter

@@ -14,20 +14,18 @@
  * limitations under the License.
  */
 
-var _      = require('lodash');
-var s      = require('string-plus');
-var Stream = require('mithril/stream');
+const _      = require('lodash');
+const s      = require('string-plus');
+const Stream = require('mithril/stream');
 
-var Mixins = {};
+const Mixins = {};
 
 Mixins.HasUUID = function () {
   this.uuid = Mixins.GetterSetter(`${this.constructor.modelType}-${s.uuid()}`);
 };
 
 Mixins.HasEncryptedAttribute = function (options) {
-  var _value          = options.attribute,
-    name            = options.name,
-    capitalizedName = _.upperFirst(name);
+  const _value          = options.attribute, name            = options.name, capitalizedName = _.upperFirst(name);
 
   this[name] = function(...args) {
     return _value().value(...args);
@@ -54,11 +52,11 @@ Mixins.HasEncryptedAttribute = function (options) {
 
 Mixins.HasMany = function (options) {
   Mixins.HasUUID.call(this);
-  var factory               = options.factory;
-  var associationName       = options.as;
-  var associationNamePlural = s.defaultToIfBlank(options.plural, `${options.as}s`);
-  var uniqueOn              = options.uniqueOn;
-  var collection            = Stream(s.defaultToIfBlank(options.collection, []));
+  const factory               = options.factory;
+  const associationName       = options.as;
+  const associationNamePlural = s.defaultToIfBlank(options.plural, `${options.as}s`);
+  const uniqueOn              = options.uniqueOn;
+  const collection            = Stream(s.defaultToIfBlank(options.collection, []));
 
   this.toJSON = () => _(collection()).map(item => item.isBlank && item.isBlank() ? null : item).compact().value();
 
@@ -67,7 +65,7 @@ Mixins.HasMany = function (options) {
   };
 
   this[`create${associationName}`] = function (options) {
-    var instance = factory(options || {});
+    const instance = factory(options || {});
     instance.parent(this);
 
     this[`add${associationName}`](instance);
@@ -125,13 +123,13 @@ Mixins.HasMany = function (options) {
       return true;
     }
 
-    var occurences = _.countBy(this[`collect${associationName}Property`](uniqueOn));
+    const occurences = _.countBy(this[`collect${associationName}Property`](uniqueOn));
     return (occurences[childModel[uniqueOn]()] <= 1);
   };
 
   if (uniqueOn) {
     this[`validateUnique${associationName}${_.capitalize(uniqueOn)}`] = function (childModel, errors) {
-      var occurences = _.countBy(this[`collect${associationName}Property`](uniqueOn));
+      const occurences = _.countBy(this[`collect${associationName}Property`](uniqueOn));
       if (occurences[childModel[uniqueOn]()] > 1) {
         errors.add(uniqueOn, Mixins.ErrorMessages.duplicate(uniqueOn));
       }
@@ -140,14 +138,14 @@ Mixins.HasMany = function (options) {
 };
 
 Mixins.fromJSONCollection = options => {
-  var parentType     = options.parentType;
-  var childType      = options.childType;
-  var addChildMethod = options.via;
+  const parentType     = options.parentType;
+  const childType      = options.childType;
+  const addChildMethod = options.via;
 
   parentType.fromJSON = data => {
-    var parentInstance = new parentType();
+    const parentInstance = new parentType();
     if (!_.isEmpty(data)) {
-      var assignParent = childInstance => {
+      const assignParent = childInstance => {
         childInstance.parent(parentInstance);
         return childInstance;
       };

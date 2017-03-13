@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-var m = require('mithril');
-var Stream = require('mithril/stream');
-var Repeat = require('repeat');
+const m = require('mithril');
+const Stream = require('mithril/stream');
+const Repeat = require('repeat');
 
-var AjaxPoller = function (fn) {
-  var currentXHR = Stream();
-  var repeater   = Repeat(repeatAgain => {
+const AjaxPoller = function (fn) {
+  const currentXHR = Stream();
+  const repeater   = Repeat(repeatAgain => {
     fn(currentXHR).always(() => {
       repeatAgain();
       currentXHR(null);

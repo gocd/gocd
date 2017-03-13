@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-var Stream = require('mithril/stream');
-var _      = require('lodash');
+const Stream = require('mithril/stream');
+const _      = require('lodash');
 
-var VM         = () => {
-  var dropdownStates     = {};
-  var agentCheckedStates = {};
-  var allAgentsSelected  = Stream(false);
+const VM         = () => {
+  const dropdownStates     = {};
+  const agentCheckedStates = {};
+  const allAgentsSelected  = Stream(false);
 
-  var viewModel = {
+  const viewModel = {
     dropdown: {
       reset: Stream(true),
 
@@ -40,7 +40,7 @@ var VM         = () => {
 
       hideAllDropDowns() {
         if (this.reset()) {
-          for (var item in dropdownStates) {
+          for (const item in dropdownStates) {
             dropdownStates[item](false);
           }
         }
@@ -48,7 +48,7 @@ var VM         = () => {
       },
 
       hideOtherDropdowns(dropDownName) {
-        for (var item in dropdownStates) {
+        for (const item in dropdownStates) {
           if (item !== dropDownName) {
             this.hide(item);
           }
@@ -92,10 +92,10 @@ var VM         = () => {
       },
 
       areAllAgentsSelected(allAgents) {
-        var filterText = viewModel.filterText();
+        const filterText = viewModel.filterText();
 
-        var isChecked = allAgents().filterBy(filterText).everyAgent(agent => {
-          var agentsCheckedState = agentCheckedStates[agent.uuid()];
+        const isChecked = allAgents().filterBy(filterText).everyAgent(agent => {
+          const agentsCheckedState = agentCheckedStates[agent.uuid()];
           if (agentsCheckedState) {
             return agentsCheckedState();
           }
@@ -106,8 +106,8 @@ var VM         = () => {
       },
 
       selectAllAgents(allAgents) {
-        var isChecked  = allAgentsSelected(!allAgentsSelected());
-        var filterText = viewModel.filterText();
+        const isChecked  = allAgentsSelected(!allAgentsSelected());
+        const filterText = viewModel.filterText();
 
         allAgents().filterBy(filterText).eachAgent(agent => {
           agentCheckedStates[agent.uuid()](isChecked);
@@ -116,10 +116,10 @@ var VM         = () => {
     },
 
     initializeWith(newAgents) {
-      var newAgentUUIDs             = newAgents.collectAgentProperty('uuid');
-      var agentUUIDsKnownToVM       = _.keysIn(agentCheckedStates);
-      var agentUUIDsToRemoveFromVM  = _.difference(agentUUIDsKnownToVM, newAgentUUIDs);
-      var newAgentUUIDsNotKnownToVM = _.difference(newAgentUUIDs, agentUUIDsKnownToVM);
+      const newAgentUUIDs             = newAgents.collectAgentProperty('uuid');
+      const agentUUIDsKnownToVM       = _.keysIn(agentCheckedStates);
+      const agentUUIDsToRemoveFromVM  = _.difference(agentUUIDsKnownToVM, newAgentUUIDs);
+      const newAgentUUIDsNotKnownToVM = _.difference(newAgentUUIDs, agentUUIDsKnownToVM);
 
       _.each(agentUUIDsToRemoveFromVM, uuid => {
         delete agentCheckedStates[uuid];

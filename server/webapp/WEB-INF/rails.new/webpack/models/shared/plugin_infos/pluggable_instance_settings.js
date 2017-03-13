@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-var _      = require('lodash');
-var Stream = require('mithril/stream');
-var Mixins = require('models/mixins/model_mixins');
+const _      = require('lodash');
+const Stream = require('mithril/stream');
+const Mixins = require('models/mixins/model_mixins');
 
-var PluggableInstanceSettings = function (data) {
+const PluggableInstanceSettings = function (data) {
   this.viewTemplate   = Stream(data.viewTemplate);
   this.configurations = Stream(data.configurations);
 };

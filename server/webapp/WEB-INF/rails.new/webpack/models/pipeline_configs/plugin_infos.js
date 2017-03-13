@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-var $           = require('jquery');
-var Stream      = require('mithril/stream');
-var _           = require('lodash');
-var s           = require('string-plus');
-var mrequest    = require('helpers/mrequest');
-var Image       = require('models/shared/image');
-var Routes      = require('gen/js-routes');
-var PluginInfos = Stream([]);
+const $           = require('jquery');
+const Stream      = require('mithril/stream');
+const _           = require('lodash');
+const s           = require('string-plus');
+const mrequest    = require('helpers/mrequest');
+const Image       = require('models/shared/image');
+const Routes      = require('gen/js-routes');
+const PluginInfos = Stream([]);
 
 PluginInfos.init = type => PluginInfos.all(type).then(PluginInfos);
 
 PluginInfos.all = type => $.Deferred(function () {
-  var deferred = this;
+  const deferred = this;
 
-  var jqXHR = $.ajax({
+  const jqXHR = $.ajax({
     method:      'GET',
     url:         Routes.apiv2AdminPluginInfoIndexPath({'type': type}),
     beforeSend:  mrequest.xhrConfig.forVersion('v2'),
@@ -46,7 +46,7 @@ PluginInfos.findById = id => _.find(PluginInfos(), pluginInfo => _.isEqual(plugi
 PluginInfos.filterByType = type => _.filter(PluginInfos(), pluginInfo => _.isEqual(pluginInfo.type(), type));
 
 PluginInfos.PluginInfo = function (data) {
-  var view = settings => settings ? settings.view : {};
+  const view = settings => settings ? settings.view : {};
 
   this.id             = Stream(data.id);
   this.name           = Stream(data.name);
@@ -64,9 +64,9 @@ PluginInfos.PluginInfo = function (data) {
 };
 
 PluginInfos.PluginInfo.get = id => $.Deferred(function () {
-  var deferred = this;
+  const deferred = this;
 
-  var jqXHR = $.ajax({
+  const jqXHR = $.ajax({
     method:      'GET',
     url:         Routes.apiv2AdminPluginInfoPath({id}),
     beforeSend:  mrequest.xhrConfig.forVersion('v2'),

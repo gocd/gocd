@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-var Stream               = require('mithril/stream');
-var s                    = require('string-plus');
-var Mixins               = require('models/mixins/model_mixins');
-var Jobs                 = require('models/pipeline_configs/jobs');
-var EnvironmentVariables = require('models/pipeline_configs/environment_variables');
-var Approval             = require('models/pipeline_configs/approval');
-var Validatable          = require('models/mixins/validatable_mixin');
+const Stream               = require('mithril/stream');
+const s                    = require('string-plus');
+const Mixins               = require('models/mixins/model_mixins');
+const Jobs                 = require('models/pipeline_configs/jobs');
+const EnvironmentVariables = require('models/pipeline_configs/environment_variables');
+const Approval             = require('models/pipeline_configs/approval');
+const Validatable          = require('models/mixins/validatable_mixin');
 
-var Stages = function (data) {
+const Stages = function (data) {
   Mixins.HasMany.call(this, {factory: Stages.Stage.create, as: 'Stage', collection: data, uniqueOn: 'name'});
 };
 

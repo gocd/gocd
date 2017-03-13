@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-var $ = require('jquery');
+const $ = require('jquery');
 
-var setHeaders = (xhr, version) => {
+const setHeaders = (xhr, version) => {
   xhr.setRequestHeader("Content-Type", "application/json");
   xhr.setRequestHeader("Accept", mrequest.versionHeader(version));
-  var csrfToken = $('meta[name=csrf-token]').attr('content');
+  const csrfToken = $('meta[name=csrf-token]').attr('content');
   if (csrfToken) {
     xhr.setRequestHeader('X-CSRF-Token', csrfToken);
   }
@@ -50,12 +50,12 @@ var mrequest   = {
 
   unwrapMessageOrEntity:     (type, originalEtag) => (data, xhr) => {
     if (xhr.status === 200) {
-      var entity = type.fromJSON(data);
+      const entity = type.fromJSON(data);
       entity.etag(xhr.getResponseHeader('ETag'));
       return entity;
     }
     if (xhr.status === 422) {
-      var fromJSON = new type.fromJSON(data.data);
+      const fromJSON = new type.fromJSON(data.data);
       fromJSON.etag(originalEtag);
       return fromJSON;
     } else {

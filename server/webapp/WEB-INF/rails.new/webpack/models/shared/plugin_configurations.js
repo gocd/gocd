@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-var Stream         = require('mithril/stream');
-var s              = require('string-plus');
-var Mixins         = require('models/mixins/model_mixins');
-var Validatable    = require('models/mixins/validatable_mixin');
-var EncryptedValue = require('models/pipeline_configs/encrypted_value');
+const Stream         = require('mithril/stream');
+const s              = require('string-plus');
+const Mixins         = require('models/mixins/model_mixins');
+const Validatable    = require('models/mixins/validatable_mixin');
+const EncryptedValue = require('models/pipeline_configs/encrypted_value');
 
-var plainOrCipherValue = data => {
+const plainOrCipherValue = data => {
   if (data.encrypted_value) {
     return new EncryptedValue({cipherText: s.defaultToIfBlank(data.encrypted_value, '')});
   } else {
@@ -28,7 +28,7 @@ var plainOrCipherValue = data => {
   }
 };
 
-var PluginConfigurations = function (data) {
+const PluginConfigurations = function (data) {
   this.constructor.modelType = 'plugin-configurations';
 
   Mixins.HasMany.call(this, {
@@ -42,14 +42,14 @@ var PluginConfigurations = function (data) {
   }
 
   this.valueFor = function (key) {
-    var config = configForKey.call(this, key);
+    const config = configForKey.call(this, key);
     if (config) {
       return config.value();
     }
   };
 
   this.setConfiguration = function (key, value) {
-    var existingConfig = configForKey.call(this, key);
+    const existingConfig = configForKey.call(this, key);
 
     if (!existingConfig) {
       this.createConfiguration({key, value});
@@ -64,7 +64,7 @@ PluginConfigurations.Configuration = function (data) {
   this.constructor.modelType = 'plugin-configuration';
 
   this.key   = Stream(s.defaultToIfBlank(data.key, ''));
-  var _value = Stream(plainOrCipherValue(data));
+  const _value = Stream(plainOrCipherValue(data));
 
   Mixins.HasEncryptedAttribute.call(this, {attribute: _value, name: 'value'});
 

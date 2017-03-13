@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-var s                = require('string');
-var _                = require('lodash');
-var Stream           = require('mithril/stream');
-var POSITIVE_INTEGER = /^\d+$/;
+const s                = require('string');
+const _                = require('lodash');
+const Stream           = require('mithril/stream');
+const POSITIVE_INTEGER = /^\d+$/;
 
-var mixins = {
+const mixins = {
   defaultToIfBlank(value, defaultValue) {
     return s.isBlank(value) ? defaultValue : value;
   },
@@ -57,8 +57,8 @@ var mixins = {
 
   snakeCaser(_key, value) {
     if (value && typeof value === 'object' && !_.isArray(value)) {
-      var replacement = {};
-      for (var k in value) {
+      const replacement = {};
+      for (const k in value) {
         if (Object.hasOwnProperty.call(value, k)) {
           replacement[_.snakeCase(k)] = value[k];
         }

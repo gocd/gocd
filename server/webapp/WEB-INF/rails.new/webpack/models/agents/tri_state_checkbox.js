@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-var Stream         = require('mithril/stream');
-var _              = require('lodash');
-var isPresentOnAll = (setOfValues, value) => _.every(setOfValues, values => _.includes(values, value));
+const Stream         = require('mithril/stream');
+const _              = require('lodash');
+const isPresentOnAll = (setOfValues, value) => _.every(setOfValues, values => _.includes(values, value));
 
-var isPresentOnAny = (setOfValues, value) => _.some(setOfValues, values => _.includes(values, value));
+const isPresentOnAny = (setOfValues, value) => _.some(setOfValues, values => _.includes(values, value));
 
-var TriStateCheckbox = function (value, setOfValues) {
-  var isChecked       = isPresentOnAll(setOfValues, value);
-  var isIndeterminate = !isChecked && isPresentOnAny(setOfValues, value);
+const TriStateCheckbox = function (value, setOfValues) {
+  const isChecked       = isPresentOnAll(setOfValues, value);
+  const isIndeterminate = !isChecked && isPresentOnAny(setOfValues, value);
 
   this.name         = Stream(value);
-  var checked       = Stream(isChecked);
-  var indeterminate = Stream(isIndeterminate);
-  var self          = this;
+  const checked       = Stream(isChecked);
+  const indeterminate = Stream(isIndeterminate);
+  const self          = this;
 
   this.click = () => {
     if (isIndeterminate) {

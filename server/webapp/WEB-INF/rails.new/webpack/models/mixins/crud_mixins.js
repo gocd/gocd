@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-var $        = require('jquery');
-var _        = require('lodash');
-var s        = require('string-plus');
-var mrequest = require('helpers/mrequest');
+const $        = require('jquery');
+const _        = require('lodash');
+const s        = require('string-plus');
+const mrequest = require('helpers/mrequest');
 
-var CrudMixins = {};
+const CrudMixins = {};
 
 CrudMixins.Index = options => {
-  var type     = options.type;
-  var url      = options.indexUrl;
-  var version  = options.version;
-  var dataPath = options.dataPath;
+  const type     = options.type;
+  const url      = options.indexUrl;
+  const version  = options.version;
+  const dataPath = options.dataPath;
 
   type.all = cb => $.Deferred(function () {
-    var deferred = this;
+    const deferred = this;
 
-    var jqXHR = $.ajax({
+    const jqXHR = $.ajax({
       method:      'GET',
       url,
       timeout:     mrequest.timeout,
@@ -43,11 +43,11 @@ CrudMixins.Index = options => {
       contentType: false
     });
 
-    var didFulfill = (data, _textStatus, _jqXHR) => {
+    const didFulfill = (data, _textStatus, _jqXHR) => {
       deferred.resolve(type.fromJSON(_.get(data, dataPath)));
     };
 
-    var didReject = (jqXHR, _textStatus, _errorThrown) => {
+    const didReject = (jqXHR, _textStatus, _errorThrown) => {
       deferred.reject(mrequest.unwrapErrorExtractMessage(jqXHR.responseJSON, jqXHR));
     };
 
@@ -56,16 +56,16 @@ CrudMixins.Index = options => {
 };
 
 CrudMixins.Create = function (options) {
-  var url     = options.indexUrl;
-  var version = options.version;
-  var type    = options.type;
+  const url     = options.indexUrl;
+  const version = options.version;
+  const type    = options.type;
 
   this.create = function () {
-    var entity = this;
+    const entity = this;
     return $.Deferred(function () {
-      var deferred = this;
+      const deferred = this;
 
-      var jqXHR = $.ajax({
+      const jqXHR = $.ajax({
         method:      'POST',
         url,
         timeout:     mrequest.timeout,
@@ -74,11 +74,11 @@ CrudMixins.Create = function (options) {
         contentType: 'application/json',
       });
 
-      var didFulfill = (data, _textStatus, jqXHR) => {
+      const didFulfill = (data, _textStatus, jqXHR) => {
         deferred.resolve(mrequest.unwrapMessageOrEntity(type)(data, jqXHR));
       };
 
-      var didReject = (jqXHR, _textStatus, _errorThrown) => {
+      const didReject = (jqXHR, _textStatus, _errorThrown) => {
         deferred.reject(mrequest.unwrapMessageOrEntity(type)(jqXHR.responseJSON, jqXHR));
       };
 
@@ -89,15 +89,15 @@ CrudMixins.Create = function (options) {
 };
 
 CrudMixins.Delete = function (options) {
-  var url     = options.resourceUrl;
-  var version = options.version;
+  const url     = options.resourceUrl;
+  const version = options.version;
 
   this.delete = function () {
-    var entity = this;
+    const entity = this;
     return $.Deferred(function () {
-      var deferred = this;
+      const deferred = this;
 
-      var jqXHR = $.ajax({
+      const jqXHR = $.ajax({
         method:      'DELETE',
         url:         url(entity.id()),
         timeout:     mrequest.timeout,
@@ -105,10 +105,10 @@ CrudMixins.Delete = function (options) {
         contentType: false
       });
 
-      var didFulfill = (data, _textStatus, _jqXHR) => {
+      const didFulfill = (data, _textStatus, _jqXHR) => {
         deferred.resolve(data.message);
       };
-      var didReject  = (jqXHR, _textStatus, _errorThrown) => {
+      const didReject  = (jqXHR, _textStatus, _errorThrown) => {
         deferred.reject(mrequest.unwrapErrorExtractMessage(jqXHR.responseJSON));
       };
 
@@ -119,17 +119,17 @@ CrudMixins.Delete = function (options) {
 };
 
 CrudMixins.Update = function (options) {
-  var url     = options.resourceUrl;
-  var version = options.version;
-  var type    = options.type;
+  const url     = options.resourceUrl;
+  const version = options.version;
+  const type    = options.type;
 
   this.update = function () {
-    var entity = this;
+    const entity = this;
 
     return $.Deferred(function () {
-      var deferred = this;
+      const deferred = this;
 
-      var jqXHR = $.ajax({
+      const jqXHR = $.ajax({
         method:      'PUT',
         url:         url(entity.id()),
         timeout:     mrequest.timeout,
@@ -141,11 +141,11 @@ CrudMixins.Update = function (options) {
         contentType: 'application/json',
       });
 
-      var didFulfill = (data, _textStatus, jqXHR) => {
+      const didFulfill = (data, _textStatus, jqXHR) => {
         deferred.resolve(mrequest.unwrapMessageOrEntity(type)(data, jqXHR));
       };
 
-      var didReject = (jqXHR, _textStatus, _errorThrown) => {
+      const didReject = (jqXHR, _textStatus, _errorThrown) => {
         deferred.reject(mrequest.unwrapMessageOrEntity(type, entity.etag())(jqXHR.responseJSON, jqXHR));
       };
 
@@ -156,16 +156,16 @@ CrudMixins.Update = function (options) {
 };
 
 CrudMixins.Refresh = function (options) {
-  var url     = options.resourceUrl;
-  var version = options.version;
-  var type    = options.type;
+  const url     = options.resourceUrl;
+  const version = options.version;
+  const type    = options.type;
 
   this.refresh = function () {
-    var entity = this;
+    const entity = this;
     return $.Deferred(function () {
-      var deferred = this;
+      const deferred = this;
 
-      var jqXHR = $.ajax({
+      const jqXHR = $.ajax({
         method:      'GET',
         url:         url(entity.id()),
         timeout:     mrequest.timeout,
@@ -173,13 +173,13 @@ CrudMixins.Refresh = function (options) {
         contentType: false
       });
 
-      var didFulfill = (data, _textStatus, jqXHR) => {
-        var entity = type.fromJSON(data);
+      const didFulfill = (data, _textStatus, jqXHR) => {
+        const entity = type.fromJSON(data);
         entity.etag(jqXHR.getResponseHeader('ETag'));
         deferred.resolve(entity);
       };
 
-      var didReject = (jqXHR, _textStatus, _errorThrown) => {
+      const didReject = (jqXHR, _textStatus, _errorThrown) => {
         deferred.reject(mrequest.unwrapErrorExtractMessage(jqXHR.responseJSON));
       };
 

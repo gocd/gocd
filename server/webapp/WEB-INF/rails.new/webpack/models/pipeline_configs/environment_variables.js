@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-var Stream         = require('mithril/stream');
-var s              = require('string-plus');
-var Mixins         = require('models/mixins/model_mixins');
-var EncryptedValue = require('models/pipeline_configs/encrypted_value');
-var Validatable    = require('models/mixins/validatable_mixin');
+const Stream         = require('mithril/stream');
+const s              = require('string-plus');
+const Mixins         = require('models/mixins/model_mixins');
+const EncryptedValue = require('models/pipeline_configs/encrypted_value');
+const Validatable    = require('models/mixins/validatable_mixin');
 
-var EnvironmentVariables = function (data) {
+const EnvironmentVariables = function (data) {
   Mixins.HasMany.call(this, {
     factory:    EnvironmentVariables.Variable.create,
     as:         'Variable',
@@ -53,7 +53,7 @@ EnvironmentVariables.Variable = function (data) {
   this.parent = Mixins.GetterSetter();
 
   this.name  = Stream(s.defaultToIfBlank(data.name, ''));
-  var _value = Stream(plainOrCipherValue(data));
+  const _value = Stream(plainOrCipherValue(data));
   Mixins.HasEncryptedAttribute.call(this, {attribute: _value, name: 'value'});
 
   this.toJSON = function () {

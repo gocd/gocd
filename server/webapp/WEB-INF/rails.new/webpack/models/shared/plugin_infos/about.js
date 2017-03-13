@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-var Stream = require('mithril/stream');
+const Stream = require('mithril/stream');
 
-var About = function (data) {
+const About = function (data) {
   this.name                  = Stream(data.name);
   this.version               = Stream(data.version);
   this.targetGoVersion       = Stream(data.targetGoVersion);

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-var Stream         = require('mithril/stream');
-var _              = require('lodash');
-var s              = require('string-plus');
-var Mixins         = require('models/mixins/model_mixins');
-var EncryptedValue = function (data) {
+const Stream         = require('mithril/stream');
+const _              = require('lodash');
+const s              = require('string-plus');
+const Mixins         = require('models/mixins/model_mixins');
+const EncryptedValue = function (data) {
   this.constructor.modelType = 'encryptedValue';
   Mixins.HasUUID.call(this);
 
@@ -26,10 +26,10 @@ var EncryptedValue = function (data) {
     throw "You cannot initialize an encrypted value with both clear text and cipher text!";
   }
 
-  var _originalValue = Stream(_.has(data, 'cipherText') ? data.cipherText : data.clearText);
-  var _value         = Stream(_.has(data, 'cipherText') ? data.cipherText : data.clearText);
-  var _isEncrypted   = Stream(_.has(data, 'cipherText'));
-  var _canEdit       = Stream(!_isEncrypted());
+  const _originalValue = Stream(_.has(data, 'cipherText') ? data.cipherText : data.clearText);
+  const _value         = Stream(_.has(data, 'cipherText') ? data.cipherText : data.clearText);
+  const _isEncrypted   = Stream(_.has(data, 'cipherText'));
+  const _canEdit       = Stream(!_isEncrypted());
 
   this.value = function(...args) {
     if (args.length) {

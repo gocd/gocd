@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-var _             = require('lodash');
-var Materials     = require('models/pipeline_configs/materials');
-var PluginInfos   = require('models/pipeline_configs/plugin_infos');
-var PluggableSCMs = {};
+const _             = require('lodash');
+const Materials     = require('models/pipeline_configs/materials');
+const PluginInfos   = require('models/pipeline_configs/plugin_infos');
+const PluggableSCMs = {};
 
 PluggableSCMs.init = () => {
   _.each(PluginInfos.filterByType('scm'), pluginInfo => {

@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-var _                         = require('lodash');
-var Stream                    = require('mithril/stream');
-var Mixins                    = require('models/mixins/model_mixins');
-var Routes                    = require('gen/js-routes');
-var CrudMixins                = require('models/mixins/crud_mixins');
-var PluggableInstanceSettings = require('models/shared/plugin_infos/pluggable_instance_settings');
-var About                     = require('models/shared/plugin_infos/about');
+const _                         = require('lodash');
+const Stream                    = require('mithril/stream');
+const Mixins                    = require('models/mixins/model_mixins');
+const Routes                    = require('gen/js-routes');
+const CrudMixins                = require('models/mixins/crud_mixins');
+const PluggableInstanceSettings = require('models/shared/plugin_infos/pluggable_instance_settings');
+const About                     = require('models/shared/plugin_infos/about');
 
-var PluginInfos = function (data) {
+const PluginInfos = function (data) {
   Mixins.HasMany.call(this, {
     factory:    PluginInfos.PluginInfo.createByType,
     as:         'PluginInfo',

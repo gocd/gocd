@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-var m                    = require('mithril');
-var Stream               = require('mithril/stream');
-var _                    = require('lodash');
-var s                    = require('string-plus');
-var Mixins               = require('models/mixins/model_mixins');
-var EnvironmentVariables = require('models/pipeline_configs/environment_variables');
-var Parameters           = require('models/pipeline_configs/parameters');
-var Materials            = require('models/pipeline_configs/materials');
-var TrackingTool         = require('models/pipeline_configs/tracking_tool');
-var Stages               = require('models/pipeline_configs/stages');
-var mrequest             = require('helpers/mrequest');
-var Validatable          = require('models/mixins/validatable_mixin');
-var Routes               = require('gen/js-routes');
-var $                    = require('jquery');
+const m                    = require('mithril');
+const Stream               = require('mithril/stream');
+const _                    = require('lodash');
+const s                    = require('string-plus');
+const Mixins               = require('models/mixins/model_mixins');
+const EnvironmentVariables = require('models/pipeline_configs/environment_variables');
+const Parameters           = require('models/pipeline_configs/parameters');
+const Materials            = require('models/pipeline_configs/materials');
+const TrackingTool         = require('models/pipeline_configs/tracking_tool');
+const Stages               = require('models/pipeline_configs/stages');
+const mrequest             = require('helpers/mrequest');
+const Validatable          = require('models/mixins/validatable_mixin');
+const Routes               = require('gen/js-routes');
+const $                    = require('jquery');
 
-var Pipeline = function (data) {
+const Pipeline = function (data) {
   this.constructor.modelType = 'pipeline';
   Mixins.HasUUID.call(this);
   Validatable.call(this, data);
@@ -41,7 +41,7 @@ var Pipeline = function (data) {
   this.template              = Stream(data.template);
   this.timer                 = Stream(s.defaultToIfBlank(data.timer, new Pipeline.Timer({})));
   this.timer.toJSON          = function () {
-    var timer = this();
+    const timer = this();
 
     if (timer && timer.isBlank()) {
       return null;
@@ -54,7 +54,7 @@ var Pipeline = function (data) {
   this.materials             = s.collectionToJSON(Stream(s.defaultToIfBlank(data.materials, new Materials())));
   this.trackingTool          = Stream(data.trackingTool);
   this.trackingTool.toJSON   = function () {
-    var value = this();
+    const value = this();
     if (value) {
       return value.toJSON();
     } else {
@@ -75,18 +75,18 @@ var Pipeline = function (data) {
   this.validateAssociated('trackingTool');
 
   this.update = function (etag, extract) {
-    var config = xhr => {
+    const config = xhr => {
       xhr.setRequestHeader("Content-Type", "application/json");
       xhr.setRequestHeader("Accept", "application/vnd.go.cd.v3+json");
       xhr.setRequestHeader("If-Match", etag);
     };
 
-    var entity = this;
+    const entity = this;
 
     return $.Deferred(function () {
-      var deferred = this;
+      const deferred = this;
 
-      var jqXHR = $.ajax({
+      const jqXHR = $.ajax({
         method:      'PUT',
         url:         Routes.apiv3AdminPipelinePath({pipeline_name: entity.name()}), //eslint-disable-line camelcase
         timeout:     mrequest.timeout,
@@ -154,7 +154,7 @@ Pipeline.Timer.fromJSON = data => {
 
 Pipeline.find = (url, extract) => $.Deferred(() => {
 
-  var jqXHR = $.ajax({
+  const jqXHR = $.ajax({
     method:      'GET',
     url,
     beforeSend:  mrequest.xhrConfig.forVersion('v3'),
@@ -171,7 +171,7 @@ Pipeline.find = (url, extract) => $.Deferred(() => {
 
 Pipeline.vm = function () {
   this.saveState = Stream('');
-  var errors     = [];
+  let errors     = [];
 
   this.updating = function () {
     this.saveState('in-progress disabled');

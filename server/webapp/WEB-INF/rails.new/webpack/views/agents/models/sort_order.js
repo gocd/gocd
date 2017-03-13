@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-var m = require('mithril');
+const m = require('mithril');
 
-var SortOrder = function () {
-  var sortBy  = 'agentState';
-  var orderBy = 'asc';
+const SortOrder = function () {
+  let sortBy  = 'agentState';
+  let orderBy = 'asc';
 
   this.orderBy = () => orderBy;
 

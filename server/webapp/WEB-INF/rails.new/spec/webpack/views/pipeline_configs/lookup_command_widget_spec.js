@@ -80,7 +80,7 @@ describe("Lookup Command Widget", () => {
     });
 
     it("should render snippet description with more info", () => {
-      expect($root.find(".snippet>p")).toHaveText(snippet.description() + "more info");
+      expect($root.find(".snippet>p")).toHaveText(`${snippet.description()}more info`);
       expect($root.find(".snippet>p>a").attr('href')).toBe(snippet.moreInfo());
     });
 

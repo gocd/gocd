@@ -219,7 +219,7 @@ describe("ElasticProfilesWidget", () => {
   describe("edit an existing profile", () => {
     afterEach(Modal.destroyAll);
     it("should popup a new modal to allow edditing a profile", () => {
-      jasmine.Ajax.stubRequest('/go/api/elastic/profiles/' + profileJSON.id, undefined, 'GET').andReturn({
+      jasmine.Ajax.stubRequest(`/go/api/elastic/profiles/${profileJSON.id}`, undefined, 'GET').andReturn({
         responseText: JSON.stringify(profileJSON),
         status:       200
       });
@@ -232,7 +232,7 @@ describe("ElasticProfilesWidget", () => {
     });
 
     it("should display error message if fetching a profile fails", () => {
-      jasmine.Ajax.stubRequest('/go/api/elastic/profiles/' + profileJSON.id, undefined, 'GET').andReturn({
+      jasmine.Ajax.stubRequest(`/go/api/elastic/profiles/${profileJSON.id}`, undefined, 'GET').andReturn({
         responseText: JSON.stringify({message: 'Boom!'}),
         status:       401
       });
@@ -245,7 +245,7 @@ describe("ElasticProfilesWidget", () => {
 
 
     it("should keep the profile expanded while edit modal is open", () => {
-      jasmine.Ajax.stubRequest('/go/api/elastic/profiles/' + profileJSON.id, undefined, 'GET').andReturn({
+      jasmine.Ajax.stubRequest(`/go/api/elastic/profiles/${profileJSON.id}`, undefined, 'GET').andReturn({
         responseText: JSON.stringify(profileJSON),
         status:       200
       });
@@ -273,7 +273,7 @@ describe("ElasticProfilesWidget", () => {
     });
 
     it("should show success message when profile is deleted", () => {
-      jasmine.Ajax.stubRequest('/go/api/elastic/profiles/' + profileJSON.id, undefined, 'DELETE').andReturn({
+      jasmine.Ajax.stubRequest(`/go/api/elastic/profiles/${profileJSON.id}`, undefined, 'DELETE').andReturn({
         responseText: JSON.stringify({message: 'Success!'}),
         status:       200
       });
@@ -287,7 +287,7 @@ describe("ElasticProfilesWidget", () => {
     });
 
     it("should show error message when deleting profile fails", () => {
-      jasmine.Ajax.stubRequest('/go/api/elastic/profiles/' + profileJSON.id, undefined, 'DELETE').andReturn({
+      jasmine.Ajax.stubRequest(`/go/api/elastic/profiles/${profileJSON.id}`, undefined, 'DELETE').andReturn({
         responseText: JSON.stringify({message: 'Boom!'}),
         status:       401
       });

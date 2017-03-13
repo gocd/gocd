@@ -56,7 +56,7 @@ describe("Tracking Tool Widget", () => {
 
   it("should set proper tracking tool when it is selected", () => {
     _.each(['generic', 'mingle', 'generic', 'mingle'], type => {
-      var radioButton = $root.find('#tracking-tool-' + type).get(0);
+      var radioButton = $root.find(`#tracking-tool-${type}`).get(0);
       simulateEvent.simulate(radioButton, 'click');
       m.redraw();
 

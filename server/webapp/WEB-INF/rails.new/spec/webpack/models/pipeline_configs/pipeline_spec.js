@@ -208,7 +208,7 @@ describe("Pipeline Model", () => {
   describe('update', () => {
     it('should patch to pipeline endpoint', () => {
       jasmine.Ajax.withMock(() => {
-        let url = '/go/api/admin/pipelines/' + pipeline.name();
+        let url = `/go/api/admin/pipelines/${pipeline.name()}`;
 
         jasmine.Ajax.stubRequest(url, undefined, 'PUT').andReturn({
           responseText:    JSON.stringify(samplePipelineJSON()),

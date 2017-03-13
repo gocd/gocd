@@ -76,7 +76,7 @@ describe("PipelineConfigWidget", () => {
 
   function inputFieldFor(propName, modelType) {
     modelType = s.defaultToIfBlank(modelType, 'pipeline');
-    return $root.find('.pipeline input[data-model-type=' + modelType + '][data-prop-name=' + propName + ']');
+    return $root.find(`.pipeline input[data-model-type=${modelType}][data-prop-name=${propName}]`);
   }
 
   it("should render the pipeline name", () => {

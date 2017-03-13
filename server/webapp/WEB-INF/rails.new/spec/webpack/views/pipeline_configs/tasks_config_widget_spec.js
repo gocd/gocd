@@ -356,7 +356,7 @@ describe("TasksConfigWidget", () => {
   var mount = tasks => {
     m.mount(root, {
       view: function () {
-        return m(TasksConfigWidget, {tasks: tasks});
+        return m(TasksConfigWidget, {tasks});
       }
     });
     m.redraw();

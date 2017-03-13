@@ -97,9 +97,9 @@ describe("Agent Table Header Widget", () => {
 
   var agentTableHeaderComponent = isUserAdmin => m(AgentsTableHeader, {
     onCheckboxClick: _.noop,
-    checkboxValue:   checkboxValue,
-    sortOrder:       sortOrder,
-    isUserAdmin:     isUserAdmin
+    checkboxValue,
+    sortOrder,
+    isUserAdmin
   });
 
   var checkboxValue = () => false;

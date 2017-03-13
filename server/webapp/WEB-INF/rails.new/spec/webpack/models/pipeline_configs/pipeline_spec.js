@@ -28,7 +28,7 @@ describe("Pipeline Model", () => {
       enablePipelineLocking: true,
       templateName:          "BuildRPM",
       labelTemplate:         "foo-1.0.${COUNT}-${svn}",
-      timer:                 timer,
+      timer,
       environmentVariables:  ["foo=bar", "boo=baz"],
       parameters:            ["WORKING_DIR=something"],
       materials:             ["svn://svn.example.com/svn/myProject"],

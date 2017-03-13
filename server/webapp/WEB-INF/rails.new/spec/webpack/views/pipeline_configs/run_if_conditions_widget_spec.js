@@ -30,7 +30,7 @@ describe("RunIfConditions Widget", () => {
   function mount(task) {
     m.mount(root, {
       view: function () {
-        return m(RunIfConditionsWidget, {task: task});
+        return m(RunIfConditionsWidget, {task});
       }
     });
     m.redraw(true);

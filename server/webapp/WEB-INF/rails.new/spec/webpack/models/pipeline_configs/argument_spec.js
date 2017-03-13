@@ -59,7 +59,7 @@ describe("Argument", () => {
 
       var argument = Argument.create(args, undefined);
 
-      expect(argument.toJSON()).toEqual({args: args});
+      expect(argument.toJSON()).toEqual({args});
     });
 
     it('should be empty in absence of data', () => {

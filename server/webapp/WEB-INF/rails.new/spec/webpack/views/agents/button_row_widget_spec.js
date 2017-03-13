@@ -109,9 +109,9 @@ describe("Button Row Widget", () => {
     m.mount(root, {
       view: function () {
         return m(ButtonRowWidget, {
-          areOperationsAllowed: areOperationsAllowed,
+          areOperationsAllowed,
           dropdown:             agentsVM.dropdown,
-          selectedAgents:       selectedAgents,
+          selectedAgents,
           onDisable:            disableAgents,
           onEnable:             enableAgents,
           onDelete:             deleteAgents,

@@ -108,9 +108,9 @@ describe("Environments List Widget", () => {
         oncreate: done,
         view:     function () {
           return m(EnvironmentsListWidget, {
-            hideDropDown:         hideDropDown,
-            dropDownReset:        dropDownReset,
-            onEnvironmentsUpdate: onEnvironmentsUpdate,
+            hideDropDown,
+            dropDownReset,
+            onEnvironmentsUpdate,
           });
         }
       }

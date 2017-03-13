@@ -60,7 +60,7 @@ describe("Test Connection Widget", () => {
     function mount(material, vm) {
       m.mount(root, {
         view: function () {
-          return m(TestConnectionWidget, {material: material, pipelineName: 'testPipeLine', vm: vm});
+          return m(TestConnectionWidget, {material, pipelineName: 'testPipeLine', vm});
         }
       });
       m.redraw();
@@ -82,8 +82,8 @@ describe("Test Connection Widget", () => {
 
       vnode       = {};
       vnode.attrs = {
-        material:     material,
-        pipelineName: pipelineName,
+        material,
+        pipelineName,
         vm:           {connectionState: vm}
       };
       vnode.state = {};

@@ -169,7 +169,7 @@ describe('Cancel Task Widget', () => {
   var mount = task => {
     m.mount(root, {
       view: function () {
-        return m(CancelTaskWidget, {task: task});
+        return m(CancelTaskWidget, {task});
       }
     });
     m.redraw();

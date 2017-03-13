@@ -59,10 +59,10 @@ describe("Agents Widget", () => {
           return m(AgentsWidget, {
             vm:                   agentsVM,
             allAgents:            agents,
-            isUserAdmin:          isUserAdmin,
-            showSpinner:          showSpinner,
-            permanentMessage:     permanentMessage,
-            sortOrder:            sortOrder,
+            isUserAdmin,
+            showSpinner,
+            permanentMessage,
+            sortOrder,
             doCancelPolling:      _.noop,
             doRefreshImmediately: _.noop
           });
@@ -73,10 +73,10 @@ describe("Agents Widget", () => {
           return m(AgentsWidget, {
             vm:                   agentsVM,
             allAgents:            agents,
-            isUserAdmin:          isUserAdmin,
-            showSpinner:          showSpinner,
-            permanentMessage:     permanentMessage,
-            sortOrder:            sortOrder,
+            isUserAdmin,
+            showSpinner,
+            permanentMessage,
+            sortOrder,
             doCancelPolling:      _.noop,
             doRefreshImmediately: _.noop
           });

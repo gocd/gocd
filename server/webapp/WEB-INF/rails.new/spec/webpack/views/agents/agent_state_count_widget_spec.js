@@ -68,7 +68,7 @@ describe("Agent State Count Widget", () => {
     m.mount(root,
       {
         view: function () {
-          return m(AgentStateCountWidget, {agents: agents});
+          return m(AgentStateCountWidget, {agents});
         }
       }
     );

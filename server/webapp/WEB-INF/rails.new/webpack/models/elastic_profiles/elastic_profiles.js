@@ -64,7 +64,7 @@ ElasticProfiles.Profile = function (data) {
   });
 };
 
-ElasticProfiles.Profile.get = id => new ElasticProfiles.Profile({id: id}).refresh();
+ElasticProfiles.Profile.get = id => new ElasticProfiles.Profile({id}).refresh();
 
 ElasticProfiles.Profile.create = data => new ElasticProfiles.Profile(data);
 

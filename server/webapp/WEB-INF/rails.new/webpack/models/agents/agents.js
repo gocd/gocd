@@ -98,7 +98,7 @@ var Agents = function (data) {
 
   this.disableAgents = uuids => {
     var json = {
-      uuids:              uuids,
+      uuids,
       agent_config_state: 'Disabled'  //eslint-disable-line camelcase
     };
 
@@ -119,7 +119,7 @@ var Agents = function (data) {
   };
 
   this.deleteAgents = uuids => {
-    var json = {uuids: uuids};
+    var json = {uuids};
     return $.Deferred(function () {
       var deferred = this;
 
@@ -138,7 +138,7 @@ var Agents = function (data) {
 
   this.enableAgents = uuids => {
     var json = {
-      uuids:              uuids,
+      uuids,
       agent_config_state: 'Enabled' //eslint-disable-line camelcase
     };
 
@@ -160,9 +160,9 @@ var Agents = function (data) {
 
   this.updateResources = (uuids, add, remove) => {
     var json = {
-      uuids:      uuids,
+      uuids,
       operations: {
-        resources: {add: add, remove: remove}
+        resources: {add, remove}
       }
     };
 
@@ -184,8 +184,8 @@ var Agents = function (data) {
 
   this.updateEnvironments = (uuids, add, remove) => {
     var json = {
-      uuids:      uuids,
-      operations: {environments: {add: add, remove: remove}}
+      uuids,
+      operations: {environments: {add, remove}}
     };
 
     return $.Deferred(function () {

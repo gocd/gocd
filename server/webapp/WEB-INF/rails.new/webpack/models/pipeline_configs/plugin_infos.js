@@ -68,7 +68,7 @@ PluginInfos.PluginInfo.get = id => $.Deferred(function () {
 
   var jqXHR = $.ajax({
     method:      'GET',
-    url:         Routes.apiv2AdminPluginInfoPath({id: id}),
+    url:         Routes.apiv2AdminPluginInfoPath({id}),
     beforeSend:  mrequest.xhrConfig.forVersion('v2'),
     contentType: false
   });

@@ -156,7 +156,7 @@ Pipeline.find = (url, extract) => $.Deferred(() => {
 
   var jqXHR = $.ajax({
     method:      'GET',
-    url:         url,
+    url,
     beforeSend:  mrequest.xhrConfig.forVersion('v3'),
     contentType: false
   });

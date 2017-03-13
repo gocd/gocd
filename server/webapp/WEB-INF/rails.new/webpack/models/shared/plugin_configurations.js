@@ -52,7 +52,7 @@ var PluginConfigurations = function (data) {
     var existingConfig = configForKey.call(this, key);
 
     if (!existingConfig) {
-      this.createConfiguration({key: key, value: value});
+      this.createConfiguration({key, value});
     } else {
       existingConfig.value(value);
     }

@@ -32,7 +32,7 @@ CrudMixins.Index = options => {
 
     var jqXHR = $.ajax({
       method:      'GET',
-      url:         url,
+      url,
       timeout:     mrequest.timeout,
       beforeSend:  function (xhr) {
         mrequest.xhrConfig.forVersion(version)(xhr);
@@ -67,7 +67,7 @@ CrudMixins.Create = function (options) {
 
       var jqXHR = $.ajax({
         method:      'POST',
-        url:         url,
+        url,
         timeout:     mrequest.timeout,
         beforeSend:  mrequest.xhrConfig.forVersion(version),
         data:        JSON.stringify(entity, s.snakeCaser),

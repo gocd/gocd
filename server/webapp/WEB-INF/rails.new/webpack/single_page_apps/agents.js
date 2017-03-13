@@ -61,10 +61,10 @@ $(() => {
       return m(AgentsWidget, {
         vm:                   agentsViewModel,
         allAgents:            agents,
-        isUserAdmin:          isUserAdmin,
-        permanentMessage:     permanentMessage,
-        showSpinner:          showSpinner,
-        sortOrder:            sortOrder,
+        isUserAdmin,
+        permanentMessage,
+        showSpinner,
+        sortOrder,
         doCancelPolling:      () => currentRepeater().stop(),
         doRefreshImmediately: () => {
           currentRepeater().stop();

@@ -47,10 +47,8 @@ dependencies {
   compile group: 'org.mozilla', name: 'rhino', version: '1.7.7'
   compile group: 'com.springsource', name: 'org.objenesis', version: '1.0.0'
   compile group: 'com.bea', name: 'stax.impl', version: '1.2.0'
-  compile(group: 'org.dbunit', name: 'dbunit', version: '2.5.1') {
-    exclude(module: 'commons-lang')
-    exclude(module: 'slf4j-nop')
-  }
+  compile(group: 'org.dbunit', name: 'dbunit', version: '2.5.1')
+  
   compile group: 'org.eclipse.birt.runtime.3_7_1', name: 'org.mozilla.javascript', version: '1.7.2'
   compile group: 'org.apache.mina', name: 'mina-core', version: '2.0.0'
 }

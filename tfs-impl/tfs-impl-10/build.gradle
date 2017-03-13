@@ -21,9 +21,7 @@ description = 'GoCD TFS SDK wrapper v10'
 dependencies {
   compile project(':common')
   compile group: 'com.microsoft', name: 'tfs-sdk', version: '10.1.0'
-  compile(group: 'xalan', name: 'xalan', version: '2.7.1') {
-    exclude(module: 'xercesImpl')
-  }
+  compile(group: 'xalan', name: 'xalan', version: '2.7.1')
   testCompile group: 'junit', name: 'junit', version: '4.12'
   testCompile group: 'com.googlecode', name: 'junit-ext', version: '1.0'
   testCompile group: 'org.hamcrest', name: 'hamcrest-core', version: '1.3'

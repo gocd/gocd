@@ -28,7 +28,7 @@ $auth-config-icon-text-padding: 20px;
   margin-bottom: 0;
 }
 
-.delete-profile {
+.delete-auth-config {
   margin-top: 20px;
 }
 
@@ -44,8 +44,11 @@ $auth-config-icon-text-padding: 20px;
   margin:        10px;
   border:        0;
   border-radius: $global-border-radius;
-  padding:       10px;
   cursor:        pointer;
+}
+
+.auth-config-header {
+  padding: 10px;
 }
 
 .edit-auth-config {
@@ -61,6 +64,8 @@ $auth-config-icon-text-padding: 20px;
 
 .delete-auth-config-confirm {
   @include icon-before($type: trash, $color: $dark-gray);
+  position: relative;
+  top:      -2px;
   &:not(.disabled) {
     &:hover {
       &:before {
@@ -87,7 +92,7 @@ $auth-config-icon-text-padding: 20px;
   padding-left:   $auth-config-icon-text-padding;
   width:          calc(100% - #{$auth-config-plugin-icon-size});
 
-  .plugin-id, .profile-id {
+  .plugin-id, .auth-config-id {
     display:   inline-block;
     min-width: 300px;
   }
@@ -104,10 +109,22 @@ $auth-config-icon-text-padding: 20px;
 }
 
 .plugin-config-read-only {
-  padding-left: $auth-config-plugin-icon-size + $auth-config-icon-text-padding;
-  width:        95%;
-  box-sizing:   border-box;
-  margin:       20px 0 10px 0;
+  box-sizing: border-box;
+  padding:    10px 10px 10px 60px;
+  border-top: 1px solid $light-grey;
+  .key-value-pair {
+    dt {
+      width: 20%;
+    }
+    dd {
+      width: 80%;
+    }
+    pre {
+      width:       100%;
+      display:     block;
+      white-space: inherit;
+    }
+  }
 }
 
 .unknown-plugin-icon {

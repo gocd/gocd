@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-var Stream         = require('mithril/stream');
-var _              = require('lodash');
-var s              = require('string-plus');
-var Mixins         = require('models/mixins/model_mixins');
-var EncryptedValue = function (data) {
+const Stream         = require('mithril/stream');
+const _              = require('lodash');
+const s              = require('string-plus');
+const Mixins         = require('models/mixins/model_mixins');
+const EncryptedValue = function (data) {
   this.constructor.modelType = 'encryptedValue';
   Mixins.HasUUID.call(this);
 
@@ -26,18 +26,18 @@ var EncryptedValue = function (data) {
     throw "You cannot initialize an encrypted value with both clear text and cipher text!";
   }
 
-  var _originalValue = Stream(_.has(data, 'cipherText') ? data.cipherText : data.clearText);
-  var _value         = Stream(_.has(data, 'cipherText') ? data.cipherText : data.clearText);
-  var _isEncrypted   = Stream(_.has(data, 'cipherText'));
-  var _canEdit       = Stream(!_isEncrypted());
+  const _originalValue = Stream(_.has(data, 'cipherText') ? data.cipherText : data.clearText);
+  const _value         = Stream(_.has(data, 'cipherText') ? data.cipherText : data.clearText);
+  const _isEncrypted   = Stream(_.has(data, 'cipherText'));
+  const _canEdit       = Stream(!_isEncrypted());
 
-  this.value = function () {
-    if (arguments.length) {
+  this.value = function(...args) {
+    if (args.length) {
       if (this.isPlain()) {
-        return _value(arguments[0]);
+        return _value(args[0]);
       } else {
         if (_canEdit()) {
-          return _value(arguments[0]);
+          return _value(args[0]);
         } else {
           throw "You cannot edit a cipher text value!";
         }
@@ -46,14 +46,12 @@ var EncryptedValue = function (data) {
     return _value();
   };
 
-  this.edit = function () {
+  this.edit = () => {
     _canEdit(true);
     _value('');
   };
 
-  this.isEditing = function () {
-    return _canEdit();
-  };
+  this.isEditing = () => _canEdit();
 
   this.isDirty = function () {
     return this.value() !== _originalValue();
@@ -63,16 +61,14 @@ var EncryptedValue = function (data) {
     return !this.isSecure();
   };
 
-  this.isSecure = function () {
-    return _isEncrypted();
-  };
+  this.isSecure = () => _isEncrypted();
 
-  this.becomeSecure = function () {
+  this.becomeSecure = () => {
     _isEncrypted(true);
     _canEdit(false);
   };
 
-  this.becomeUnSecure = function () {
+  this.becomeUnSecure = () => {
     _isEncrypted(false);
     _canEdit(true);
   };

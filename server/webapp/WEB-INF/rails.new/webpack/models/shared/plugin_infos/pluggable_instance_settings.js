@@ -14,21 +14,19 @@
  * limitations under the License.
  */
 
-var _      = require('lodash');
-var Stream = require('mithril/stream');
-var Mixins = require('models/mixins/model_mixins');
+const _      = require('lodash');
+const Stream = require('mithril/stream');
+const Mixins = require('models/mixins/model_mixins');
 
-var PluggableInstanceSettings = function (data) {
-  this.viewTemplate   = Stream(data.viewTemplate);
-  this.configurations = Stream(data.configurations);
+const PluggableInstanceSettings = function({viewTemplate, configurations}) {
+  this.viewTemplate   = Stream(viewTemplate);
+  this.configurations = Stream(configurations);
 };
 
-PluggableInstanceSettings.fromJSON = function (data = {}) {
-  return new PluggableInstanceSettings({
-    configurations: PluggableInstanceSettings.Configurations.fromJSON(data.configurations),
-    viewTemplate:   _.get(data, 'view.template'),
-  });
-};
+PluggableInstanceSettings.fromJSON = (data = {}) => new PluggableInstanceSettings({
+  configurations: PluggableInstanceSettings.Configurations.fromJSON(data.configurations),
+  viewTemplate:   _.get(data, 'view.template'),
+});
 
 PluggableInstanceSettings.Configurations = function (data) {
   Mixins.HasMany.call(this, {
@@ -40,22 +38,18 @@ PluggableInstanceSettings.Configurations = function (data) {
 
 };
 
-PluggableInstanceSettings.Configurations.Configuration = function (data) {
+PluggableInstanceSettings.Configurations.Configuration = function({key, metadata}) {
   this.parent   = Mixins.GetterSetter();
-  this.key      = Stream(data.key);
-  this.metadata = Stream(data.metadata);
+  this.key      = Stream(key);
+  this.metadata = Stream(metadata);
 };
 
-PluggableInstanceSettings.Configurations.Configuration.create = function (data) {
-  return new PluggableInstanceSettings.Configurations.Configuration(data);
-};
+PluggableInstanceSettings.Configurations.Configuration.create = (data) => new PluggableInstanceSettings.Configurations.Configuration(data);
 
-PluggableInstanceSettings.Configurations.Configuration.fromJSON = function (data = {}) {
-  return new PluggableInstanceSettings.Configurations.Configuration.create({
-    key:      data.key,
-    metadata: data.metadata
-  });
-};
+PluggableInstanceSettings.Configurations.Configuration.fromJSON = (data = {}) => new PluggableInstanceSettings.Configurations.Configuration.create({
+  key:      data.key,
+  metadata: data.metadata
+});
 
 Mixins.fromJSONCollection({
   parentType: PluggableInstanceSettings.Configurations,

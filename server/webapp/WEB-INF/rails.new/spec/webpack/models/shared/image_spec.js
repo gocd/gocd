@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-describe("Image", function () {
+describe("Image", () => {
 
-  var Image = require("models/shared/image");
-  it("should render data uri", function () {
+  const Image = require("models/shared/image");
+  it("should render data uri", () => {
     expect(new Image("foo", "bar").toDataURI()).toBe('data:foo;base64,bar');
   });
 });

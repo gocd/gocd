@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,55 +14,51 @@
  * limitations under the License.
  */
 
-var s                = require('string');
-var _                = require('lodash');
-var Stream           = require('mithril/stream');
-var POSITIVE_INTEGER = /^\d+$/;
+const s                = require('string');
+const _                = require('lodash');
+const Stream           = require('mithril/stream');
+const POSITIVE_INTEGER = /^\d+$/;
 
-var mixins = {
-  defaultToIfBlank: function (value, defaultValue) {
+const mixins = {
+  defaultToIfBlank(value, defaultValue) {
     return s.isBlank(value) ? defaultValue : value;
   },
 
-  coerceToMprop: function (param, defaultValue) {
+  coerceToMprop(param, defaultValue) {
     return typeof param === 'function' ? param : Stream(typeof param === 'undefined' ? defaultValue : param);
   },
 
-  collectionToJSON: function (prop) {
+  collectionToJSON(prop) {
     if (prop && prop() && prop().toJSON) {
       prop.toJSON = prop().toJSON;
     }
     return prop;
   },
 
-  withNewJSONImpl: function (prop, jsonFunc) {
-    prop.toJSON = function () {
-      return jsonFunc(prop());
-    };
+  withNewJSONImpl(prop, jsonFunc) {
+    prop.toJSON = () => jsonFunc(prop());
 
     return prop;
   },
 
-  stringToArray: function (string) {
+  stringToArray(string) {
     if (_.isArray(string)) {
       return string;
     } else if (s.isBlank(string)) {
       return [];
     } else {
-      return _.chain(string.split(',')).map(_.trim).filter(function (thing) {
-        return !s.isBlank(thing);
-      }).value();
+      return _.chain(string.split(',')).map(_.trim).filter((thing) => !s.isBlank(thing)).value();
     }
   },
 
-  isPositiveInteger: function (value) {
+  isPositiveInteger(value) {
     return POSITIVE_INTEGER.test(String(value).trim());
   },
 
-  snakeCaser: function (_key, value) {
+  snakeCaser(_key, value) {
     if (value && typeof value === 'object' && !_.isArray(value)) {
-      var replacement = {};
-      for (var k in value) {
+      const replacement = {};
+      for (const k in value) {
         if (Object.hasOwnProperty.call(value, k)) {
           replacement[_.snakeCase(k)] = value[k];
         }
@@ -79,15 +75,14 @@ var mixins = {
         .substring(1);
     }
 
-    return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-      s4() + '-' + s4() + s4() + s4();
+    return `${s4() + s4()}-${s4()}-${s4()}-${s4()}-${s4()}${s4()}${s4()}`;
   },
 
-  terminateWithPeriod: function (str) {
+  terminateWithPeriod(str) {
     if (s.endsWith(str, '.')) {
       return str;
     } else {
-      return str + '.';
+      return `${str}.`;
     }
   }
 };

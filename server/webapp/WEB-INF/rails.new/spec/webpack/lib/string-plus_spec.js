@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-describe("Should sanitize JSON", function () {
-  var s = require("string-plus");
+describe("Should sanitize JSON", () => {
+  const s = require("string-plus");
 
-  it("should change the keys of JSON to snake case", function () {
-    var input = {
+  it("should change the keys of JSON to snake case", () => {
+    const input = {
       toSnakeCase: "value",
       nested:      {
         toSnakeCase:   "value",
@@ -28,7 +28,7 @@ describe("Should sanitize JSON", function () {
     };
 
     /* eslint-disable camelcase */
-    var expected = {
+    const expected = {
       to_snake_case: "value",
       nested:        {
         to_snake_case:   "value",

@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-describe("EncryptedValue", function () {
-  var EncryptedValue = require('models/pipeline_configs/encrypted_value');
+describe("EncryptedValue", () => {
+  const EncryptedValue = require('models/pipeline_configs/encrypted_value');
 
-  it("should be able to initialize itself from a clear text value", function () {
-    var encryptedValue = new EncryptedValue({clearText: 'password'});
+  it("should be able to initialize itself from a clear text value", () => {
+    const encryptedValue = new EncryptedValue({clearText: 'password'});
     expect(encryptedValue.isPlain()).toBe(true);
     expect(encryptedValue.isSecure()).toBe(false);
     expect(encryptedValue.value()).toBe('password');
@@ -25,8 +25,8 @@ describe("EncryptedValue", function () {
     expect(encryptedValue.isEditing()).toBe(true);
   });
 
-  it("should be able to convert a clear text value into an encrypted value", function () {
-    var encryptedValue = new EncryptedValue({clearText: 'password'});
+  it("should be able to convert a clear text value into an encrypted value", () => {
+    const encryptedValue = new EncryptedValue({clearText: 'password'});
     encryptedValue.becomeSecure();
 
     expect(encryptedValue.isPlain()).toBe(false);
@@ -35,22 +35,22 @@ describe("EncryptedValue", function () {
     expect(encryptedValue.isEditing()).toBe(false);
   });
 
-  it("should be able to initialize itself from a cipher text value", function () {
-    var encryptedValue = new EncryptedValue({cipherText: 'c!ph3rt3xt'});
+  it("should be able to initialize itself from a cipher text value", () => {
+    const encryptedValue = new EncryptedValue({cipherText: 'c!ph3rt3xt'});
     expect(encryptedValue.isPlain()).toBe(false);
     expect(encryptedValue.isSecure()).toBe(true);
     expect(encryptedValue.value()).toBe('c!ph3rt3xt');
     expect(encryptedValue.isEditing()).toBe(false);
   });
 
-  it("should not initialize with cleartext and cipher text", function () {
-    expect(function () {
+  it("should not initialize with cleartext and cipher text", () => {
+    expect(() => {
       new EncryptedValue({cipherText: 'c!ph3rt3xt', clearText: 'password'});
     }).toThrow("You cannot initialize an encrypted value with both clear text and cipher text!");
   });
 
-  it("should be able to update the value when it is plain text", function () {
-    var encryptedValue = new EncryptedValue({clearText: 'password'});
+  it("should be able to update the value when it is plain text", () => {
+    const encryptedValue = new EncryptedValue({clearText: 'password'});
     encryptedValue.value('new-password');
 
     expect(encryptedValue.isPlain()).toBe(true);
@@ -59,10 +59,10 @@ describe("EncryptedValue", function () {
     expect(encryptedValue.isDirty()).toBe(true);
   });
 
-  it("should not allow updating the cipher text value", function () {
-    var encryptedValue = new EncryptedValue({cipherText: 'c!ph3rt3xt'});
+  it("should not allow updating the cipher text value", () => {
+    const encryptedValue = new EncryptedValue({cipherText: 'c!ph3rt3xt'});
 
-    expect(function () {
+    expect(() => {
       encryptedValue.value('new-password');
     }).toThrow("You cannot edit a cipher text value!");
 
@@ -72,8 +72,8 @@ describe("EncryptedValue", function () {
     expect(encryptedValue.isDirty()).toBe(false);
   });
 
-  it("should allow updating the cipher text value when the cipher text is in edit mode", function () {
-    var encryptedValue = new EncryptedValue({cipherText: 'c!ph3rt3xt'});
+  it("should allow updating the cipher text value when the cipher text is in edit mode", () => {
+    const encryptedValue = new EncryptedValue({cipherText: 'c!ph3rt3xt'});
     expect(encryptedValue.isEditing()).toBe(false);
     encryptedValue.edit();
 
@@ -87,8 +87,8 @@ describe("EncryptedValue", function () {
     expect(encryptedValue.isDirty()).toBe(true);
   });
 
-  it("should allow resetting to original values after an edit", function () {
-    var encryptedValue = new EncryptedValue({cipherText: 'c!ph3rt3xt'});
+  it("should allow resetting to original values after an edit", () => {
+    const encryptedValue = new EncryptedValue({cipherText: 'c!ph3rt3xt'});
     encryptedValue.edit();
     encryptedValue.value('new-password');
     encryptedValue.resetToOriginal();

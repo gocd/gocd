@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-describe('PluginInfos', function () {
 
-  var PluginInfos = require("models/shared/plugin_infos");
-  var _           = require("lodash");
+describe('PluginInfos', () => {
 
-  it("should deserialize collection", function () {
-    var json = [
+  const PluginInfos = require("models/shared/plugin_infos");
+  const _           = require("lodash");
+
+  it("should deserialize collection", () => {
+    const json = [
       {
         "id":      "github.oauth.login",
         "version": "1",
@@ -38,14 +39,14 @@ describe('PluginInfos', function () {
       }
     ];
 
-    var pluginInfos = PluginInfos.fromJSON(json);
+    const pluginInfos = PluginInfos.fromJSON(json);
     expect(pluginInfos.countPluginInfo()).toBe(1);
     expect(pluginInfos.firstPluginInfo().id()).toBe('github.oauth.login');
   });
 
-  describe("Authentication", function () {
-    it("should deserialize", function () {
-      var json = {
+  describe("Authentication", () => {
+    it("should deserialize", () => {
+      const json = {
         "id":      "github.oauth.login",
         "version": "1",
         "type":    "authentication",
@@ -62,14 +63,14 @@ describe('PluginInfos', function () {
         }
       };
 
-      var pluginInfo = PluginInfos.PluginInfo.fromJSON(json);
+      const pluginInfo = PluginInfos.PluginInfo.fromJSON(json);
       verifyBasicProperties(pluginInfo, json);
     });
   });
 
-  describe("ElasticAgent", function () {
-    it("should deserialize", function () {
-      var json = {
+  describe("ElasticAgent", () => {
+    it("should deserialize", () => {
+      const json = {
         "id":               "cd.go.contrib.elastic-agent.docker",
         "version":          "1",
         "type":             "elastic-agent",
@@ -114,7 +115,7 @@ describe('PluginInfos', function () {
         }
       };
 
-      var pluginInfo = PluginInfos.PluginInfo.fromJSON(json);
+      const pluginInfo = PluginInfos.PluginInfo.fromJSON(json);
       verifyBasicProperties(pluginInfo, json);
 
       expect(pluginInfo.profileSettings().viewTemplate()).toEqual(json.profile_settings.view.template);
@@ -127,9 +128,9 @@ describe('PluginInfos', function () {
     });
   });
 
-  describe("Notification", function () {
-    it("should deserialize", function () {
-      var json = {
+  describe("Notification", () => {
+    it("should deserialize", () => {
+      const json = {
         "id":      "github.pr.status",
         "version": "1",
         "type":    "notification",
@@ -146,14 +147,14 @@ describe('PluginInfos', function () {
         }
       };
 
-      var pluginInfo = PluginInfos.PluginInfo.fromJSON(json);
+      const pluginInfo = PluginInfos.PluginInfo.fromJSON(json);
       verifyBasicProperties(pluginInfo, json);
     });
   });
 
-  describe("PackageRepository", function () {
-    it("should deserialize", function () {
-      var json = {
+  describe("PackageRepository", () => {
+    it("should deserialize", () => {
+      const json = {
         "id":                  "nuget",
         "version":             "1",
         "type":                "package-repository",
@@ -248,7 +249,7 @@ describe('PluginInfos', function () {
         }
       };
 
-      var pluginInfo = PluginInfos.PluginInfo.fromJSON(json);
+      const pluginInfo = PluginInfos.PluginInfo.fromJSON(json);
       verifyBasicProperties(pluginInfo, json);
 
       expect(pluginInfo.packageSettings().configurations().countConfiguration()).toEqual(4);
@@ -273,9 +274,9 @@ describe('PluginInfos', function () {
     });
   });
 
-  describe("Task", function () {
-    it("should deserialize", function () {
-      var json = {
+  describe("Task", () => {
+    it("should deserialize", () => {
+      const json = {
         "id":            "docker-task",
         "version":       "1",
         "type":          "task",
@@ -331,7 +332,7 @@ describe('PluginInfos', function () {
         }
       };
 
-      var pluginInfo = PluginInfos.PluginInfo.fromJSON(json);
+      const pluginInfo = PluginInfos.PluginInfo.fromJSON(json);
       verifyBasicProperties(pluginInfo, json);
 
       expect(pluginInfo.taskSettings().viewTemplate()).toEqual(json.task_settings.view.template);
@@ -344,9 +345,9 @@ describe('PluginInfos', function () {
     });
   });
 
-  describe("SCM", function () {
-    it("should deserialize", function () {
-      var json = {
+  describe("SCM", () => {
+    it("should deserialize", () => {
+      const json = {
         "id":           "github.pr",
         "version":      "1",
         "type":         "scm",
@@ -395,7 +396,7 @@ describe('PluginInfos', function () {
         }
       };
 
-      var pluginInfo = PluginInfos.PluginInfo.fromJSON(json);
+      const pluginInfo = PluginInfos.PluginInfo.fromJSON(json);
       verifyBasicProperties(pluginInfo, json);
 
       expect(pluginInfo.scmSettings().viewTemplate()).toEqual(json.scm_settings.view.template);
@@ -409,9 +410,9 @@ describe('PluginInfos', function () {
     });
   });
 
-  describe("Authorization", function () {
-    it("should deserialize", function () {
-      var json = {
+  describe("Authorization", () => {
+    it("should deserialize", () => {
+      const json = {
         "id":                   "cd.go.authorization.ldap",
         "version":              "1",
         "type":                 "authorization",
@@ -498,7 +499,7 @@ describe('PluginInfos', function () {
         }
       };
 
-      var pluginInfo = PluginInfos.PluginInfo.fromJSON(json);
+      const pluginInfo = PluginInfos.PluginInfo.fromJSON(json);
       verifyBasicProperties(pluginInfo, json);
 
       expect(pluginInfo.authConfigSettings().viewTemplate()).toEqual(json.auth_config_settings.view.template);
@@ -519,8 +520,8 @@ describe('PluginInfos', function () {
     });
   });
 
-  describe("Reading images", function () {
-    var json = {
+  describe("Reading images", () => {
+    const json = {
       "_links":  {
         "image": {
           "href": "http://localhost:8153/go/api/plugin_images/cd.go.contrib.elastic-agent.ecs/ff36b7db1762e22ea7523980d90ffa5759bc7f08393be910601f15bfea1f4ca6"
@@ -541,27 +542,27 @@ describe('PluginInfos', function () {
       },
     };
 
-    _.each(_.keys(PluginInfos.Types), function (pluginType) {
-      it(`should read image for ${pluginType}`, function () {
-        var pluginInfoJSON  = _.cloneDeep(json);
-        pluginInfoJSON.type = pluginType;
-        var pluginInfo      = PluginInfos.PluginInfo.fromJSON(pluginInfoJSON);
+    _.each(_.keys(PluginInfos.Types), (pluginType) => {
+      it(`should read image for ${pluginType}`, () => {
+        const pluginInfoJSON = _.cloneDeep(json);
+        pluginInfoJSON.type  = pluginType;
+        const pluginInfo     = PluginInfos.PluginInfo.fromJSON(pluginInfoJSON);
         expect(pluginInfo.imageUrl()).toBe(json._links.image.href);
       });
     });
   });
 
-  var verifyBasicProperties = function (pluginInfo, json) {
-    expect(pluginInfo.id()).toEqual(json.id);
-    expect(pluginInfo.type()).toEqual(json.type);
-    expect(pluginInfo.version()).toEqual(json.version);
-    expect(pluginInfo.about().name()).toEqual(json.about.name);
-    expect(pluginInfo.about().version()).toEqual(json.about.version);
-    expect(pluginInfo.about().targetGoVersion()).toEqual(json.about.target_go_version);
-    expect(pluginInfo.about().description()).toEqual(json.about.description);
-    expect(pluginInfo.about().targetOperatingSystem()).toEqual(json.about.target_operating_systems);
-    expect(pluginInfo.about().vendor().name()).toEqual(json.about.vendor.name);
-    expect(pluginInfo.about().vendor().url()).toEqual(json.about.vendor.url);
+  var verifyBasicProperties = (pluginInfo, {id, type, version, about}) => {
+    expect(pluginInfo.id()).toEqual(id);
+    expect(pluginInfo.type()).toEqual(type);
+    expect(pluginInfo.version()).toEqual(version);
+    expect(pluginInfo.about().name()).toEqual(about.name);
+    expect(pluginInfo.about().version()).toEqual(about.version);
+    expect(pluginInfo.about().targetGoVersion()).toEqual(about.target_go_version);
+    expect(pluginInfo.about().description()).toEqual(about.description);
+    expect(pluginInfo.about().targetOperatingSystem()).toEqual(about.target_operating_systems);
+    expect(pluginInfo.about().vendor().name()).toEqual(about.vendor.name);
+    expect(pluginInfo.about().vendor().url()).toEqual(about.vendor.url);
   };
 
 });

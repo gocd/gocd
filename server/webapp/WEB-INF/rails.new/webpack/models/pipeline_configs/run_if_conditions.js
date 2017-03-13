@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-var Stream = require('mithril/stream');
-var _      = require('lodash');
-var s      = require('string-plus');
+const Stream = require('mithril/stream');
+const _      = require('lodash');
+const s      = require('string-plus');
 
-var RunIfConditions = function (data) {
+const RunIfConditions = function (data) {
   this.data = Stream(s.defaultToIfBlank(data, ['passed']));
 
   this.clear = function () {
@@ -42,8 +42,6 @@ var RunIfConditions = function (data) {
   };
 };
 
-RunIfConditions.create = function (data) {
-  return new RunIfConditions(data);
-};
+RunIfConditions.create = (data) => new RunIfConditions(data);
 
 module.exports = RunIfConditions;

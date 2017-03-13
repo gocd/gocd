@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-var Stream = require('mithril/stream');
-var _      = require('lodash');
+const Stream = require('mithril/stream');
+const _      = require('lodash');
 
-var VM         = function () {
-  var dropdownStates     = {};
-  var agentCheckedStates = {};
-  var allAgentsSelected  = Stream(false);
+const VM         = () => {
+  const dropdownStates     = {};
+  const agentCheckedStates = {};
+  const allAgentsSelected  = Stream(false);
 
-  var viewModel = {
+  const viewModel = {
     dropdown: {
       reset: Stream(true),
 
-      create: function (dropDownName) {
+      create(dropDownName) {
         if (!dropdownStates[dropDownName]) {
           dropdownStates[dropDownName] = Stream(false);
         }
@@ -34,34 +34,34 @@ var VM         = function () {
         return dropdownStates[dropDownName];
       },
 
-      hide: function (dropDownName) {
+      hide(dropDownName) {
         viewModel.dropdown.create(dropDownName)(false);
       },
 
-      hideAllDropDowns: function () {
+      hideAllDropDowns() {
         if (this.reset()) {
-          for (var item in dropdownStates) {
+          for (const item in dropdownStates) {
             dropdownStates[item](false);
           }
         }
         this.reset(true);
       },
 
-      hideOtherDropdowns: function (dropDownName) {
-        for (var item in dropdownStates) {
+      hideOtherDropdowns(dropDownName) {
+        for (const item in dropdownStates) {
           if (item !== dropDownName) {
             this.hide(item);
           }
         }
       },
 
-      toggleDropDownState: function (dropDownName) {
+      toggleDropDownState(dropDownName) {
         this.reset(false);
         dropdownStates[dropDownName](!dropdownStates[dropDownName]());
         this.hideOtherDropdowns(dropDownName);
       },
 
-      isDropDownOpen: function (dropDownName) {
+      isDropDownOpen(dropDownName) {
         return this.create(dropDownName)();
       }
     },
@@ -69,35 +69,33 @@ var VM         = function () {
     filterText: Stream(''),
 
     agents: {
-      isAnyAgentSelected: function () {
-        return _.some(agentCheckedStates, function (boxState) {
-          return boxState();
-        });
+      isAnyAgentSelected() {
+        return _.some(agentCheckedStates, (boxState) => boxState());
       },
 
-      checkboxFor: function (uuid) {
+      checkboxFor(uuid) {
         return agentCheckedStates[uuid];
       },
 
-      clearAllCheckboxes: function () {
-        _.each(agentCheckedStates, function (boxState) {
+      clearAllCheckboxes() {
+        _.each(agentCheckedStates, (boxState) => {
           boxState(false);
         });
       },
 
-      selectedAgentsUuids: function () {
-        return _.compact(_.map(agentCheckedStates, function (boxSate, agentId) {
+      selectedAgentsUuids() {
+        return _.compact(_.map(agentCheckedStates, (boxSate, agentId) => {
           if (boxSate()) {
             return agentId;
           }
         }));
       },
 
-      areAllAgentsSelected: function (allAgents) {
-        var filterText = viewModel.filterText();
+      areAllAgentsSelected(allAgents) {
+        const filterText = viewModel.filterText();
 
-        var isChecked = allAgents().filterBy(filterText).everyAgent(function (agent) {
-          var agentsCheckedState = agentCheckedStates[agent.uuid()];
+        const isChecked = allAgents().filterBy(filterText).everyAgent((agent) => {
+          const agentsCheckedState = agentCheckedStates[agent.uuid()];
           if (agentsCheckedState) {
             return agentsCheckedState();
           }
@@ -107,28 +105,28 @@ var VM         = function () {
         return isChecked;
       },
 
-      selectAllAgents: function (allAgents) {
-        var isChecked  = allAgentsSelected(!allAgentsSelected());
-        var filterText = viewModel.filterText();
+      selectAllAgents(allAgents) {
+        const isChecked  = allAgentsSelected(!allAgentsSelected());
+        const filterText = viewModel.filterText();
 
-        allAgents().filterBy(filterText).eachAgent(function (agent) {
+        allAgents().filterBy(filterText).eachAgent((agent) => {
           agentCheckedStates[agent.uuid()](isChecked);
         });
       }
     },
 
-    initializeWith: function (newAgents) {
-      var newAgentUUIDs             = newAgents.collectAgentProperty('uuid');
-      var agentUUIDsKnownToVM       = _.keysIn(agentCheckedStates);
-      var agentUUIDsToRemoveFromVM  = _.difference(agentUUIDsKnownToVM, newAgentUUIDs);
-      var newAgentUUIDsNotKnownToVM = _.difference(newAgentUUIDs, agentUUIDsKnownToVM);
+    initializeWith(newAgents) {
+      const newAgentUUIDs             = newAgents.collectAgentProperty('uuid');
+      const agentUUIDsKnownToVM       = _.keysIn(agentCheckedStates);
+      const agentUUIDsToRemoveFromVM  = _.difference(agentUUIDsKnownToVM, newAgentUUIDs);
+      const newAgentUUIDsNotKnownToVM = _.difference(newAgentUUIDs, agentUUIDsKnownToVM);
 
-      _.each(agentUUIDsToRemoveFromVM, function (uuid) {
+      _.each(agentUUIDsToRemoveFromVM, (uuid) => {
         delete agentCheckedStates[uuid];
         delete dropdownStates[uuid];
       });
 
-      _.each(newAgentUUIDsNotKnownToVM, function (uuid) {
+      _.each(newAgentUUIDsNotKnownToVM, (uuid) => {
         agentCheckedStates[uuid] = Stream();
       });
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,31 +14,31 @@
  * limitations under the License.
  */
 
-var Stream               = require('mithril/stream');
-var _                    = require('lodash');
-var s                    = require('string-plus');
-var Mixins               = require('models/mixins/model_mixins');
-var EnvironmentVariables = require('models/pipeline_configs/environment_variables');
-var Tasks                = require('models/pipeline_configs/tasks');
-var Artifacts            = require('models/pipeline_configs/artifacts');
-var Tabs                 = require('models/pipeline_configs/tabs');
-var Properties           = require('models/pipeline_configs/properties');
-var Validatable          = require('models/mixins/validatable_mixin');
+const Stream               = require('mithril/stream');
+const _                    = require('lodash');
+const s                    = require('string-plus');
+const Mixins               = require('models/mixins/model_mixins');
+const EnvironmentVariables = require('models/pipeline_configs/environment_variables');
+const Tasks                = require('models/pipeline_configs/tasks');
+const Artifacts            = require('models/pipeline_configs/artifacts');
+const Tabs                 = require('models/pipeline_configs/tabs');
+const Properties           = require('models/pipeline_configs/properties');
+const Validatable          = require('models/mixins/validatable_mixin');
 
-var Jobs = function (data) {
+const Jobs = function (data) {
   Mixins.HasMany.call(this, {factory: Jobs.Job.create, as: 'Job', collection: data, uniqueOn: 'name'});
 };
 
-var TimeoutValidator = function () {
-  this.validate = function (entity) {
+const TimeoutValidator = function () {
+  this.validate = (entity) => {
     if (!(entity.isTimeoutNever() || entity.isTimeoutDefault() || entity.isTimeoutCustom())) {
       entity.errors().add('timeout', Validatable.ErrorMessages.mustBePositiveNumber('timeout'));
     }
   };
 };
 
-var RunInstanceCountValidator = function () {
-  this.validate = function (entity) {
+const RunInstanceCountValidator = function () {
+  this.validate = (entity) => {
     if (!(entity.isRunOnAllAgents() || entity.isRunOnOneAgent() || entity.isRunOnSomeAgents())) {
       entity.errors().add('runInstanceCount', Validatable.ErrorMessages.mustBePositiveNumber('runInstanceCount'));
     }
@@ -61,14 +61,14 @@ Jobs.Job = function (data) {
   this.artifacts            = s.collectionToJSON(Stream(s.defaultToIfBlank(data.artifacts, new Artifacts())));
   this.tabs                 = s.collectionToJSON(Stream(s.defaultToIfBlank(data.tabs, new Tabs())));
   this.properties           = s.collectionToJSON(Stream(s.defaultToIfBlank(data.properties, new Properties())));
-  var _elasticProfileId     = Stream(s.defaultToIfBlank(data.elasticProfileId, null));
-  this.elasticProfileId     = function () {
-    if (arguments.length === 1) {
+  const _elasticProfileId     = Stream(s.defaultToIfBlank(data.elasticProfileId, null));
+  this.elasticProfileId     = function(...args) {
+    if (args.length === 1) {
       // setter
-      if (arguments[0] === 'null' || arguments[0] === 'undefined') {
+      if (args[0] === 'null' || args[0] === 'undefined') {
         return _elasticProfileId(null);
       }
-      return _elasticProfileId(arguments[0]);
+      return _elasticProfileId(args[0]);
     } else {
       // getter
       return _elasticProfileId();
@@ -121,9 +121,7 @@ Jobs.Job = function (data) {
   };
 };
 
-Jobs.Job.create = function (data) {
-  return new Jobs.Job(data);
-};
+Jobs.Job.create = (data) => new Jobs.Job(data);
 
 Mixins.fromJSONCollection({
   parentType: Jobs,
@@ -131,20 +129,18 @@ Mixins.fromJSONCollection({
   via:        'addJob'
 });
 
-Jobs.Job.fromJSON = function (data) {
-  return new Jobs.Job({
-    name:                 data.name,
-    runInstanceCount:     data.run_instance_count,
-    timeout:              data.timeout,
-    resources:            data.resources,
-    environmentVariables: EnvironmentVariables.fromJSON(data.environment_variables),
-    tasks:                Tasks.fromJSON(data.tasks),
-    artifacts:            Artifacts.fromJSON(data.artifacts),
-    tabs:                 Tabs.fromJSON(data.tabs),
-    properties:           Properties.fromJSON(data.properties),
-    elasticProfileId:     data.elastic_profile_id,
-    errors:               data.errors
-  });
-};
+Jobs.Job.fromJSON = (data) => new Jobs.Job({
+  name:                 data.name,
+  runInstanceCount:     data.run_instance_count,
+  timeout:              data.timeout,
+  resources:            data.resources,
+  environmentVariables: EnvironmentVariables.fromJSON(data.environment_variables),
+  tasks:                Tasks.fromJSON(data.tasks),
+  artifacts:            Artifacts.fromJSON(data.artifacts),
+  tabs:                 Tabs.fromJSON(data.tabs),
+  properties:           Properties.fromJSON(data.properties),
+  elasticProfileId:     data.elastic_profile_id,
+  errors:               data.errors
+});
 
 module.exports = Jobs;

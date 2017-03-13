@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,55 +14,39 @@
  * limitations under the License.
  */
 
-var $           = require('jquery');
-var Stream      = require('mithril/stream');
-var _           = require('lodash');
-var s           = require('string-plus');
-var mrequest    = require('helpers/mrequest');
-var Image       = require('models/shared/image');
-var Routes      = require('gen/js-routes');
-var PluginInfos = Stream([]);
+const $           = require('jquery');
+const Stream      = require('mithril/stream');
+const _           = require('lodash');
+const s           = require('string-plus');
+const mrequest    = require('helpers/mrequest');
+const Image       = require('models/shared/image');
+const Routes      = require('gen/js-routes');
+const PluginInfos = Stream([]);
 
-PluginInfos.init = function (type) {
-  return PluginInfos.all(type).then(PluginInfos);
-};
+PluginInfos.init = (type) => PluginInfos.all(type).then(PluginInfos);
 
-PluginInfos.all = function (type) {
-  return $.Deferred(function () {
-    var deferred = this;
+PluginInfos.all = (type) => $.Deferred(function () {
+  const deferred = this;
 
-    var jqXHR = $.ajax({
-      method:      'GET',
-      url:         Routes.apiv2AdminPluginInfoIndexPath({'type': type}),
-      beforeSend:  mrequest.xhrConfig.forVersion('v2'),
-      contentType: false
-    });
-
-    jqXHR.done(function (data, _textStatus, _jqXHR) {
-      let pluginInfos = _.map(data._embedded.plugin_info, function (pluginInfo) {
-        return new PluginInfos.PluginInfo(pluginInfo);
-      });
-      deferred.resolve(pluginInfos);
-    });
-  }).promise();
-};
-
-PluginInfos.findById = function (id) {
-  return _.find(PluginInfos(), function (pluginInfo) {
-    return _.isEqual(pluginInfo.id(), id);
+  const jqXHR = $.ajax({
+    method:      'GET',
+    url:         Routes.apiv2AdminPluginInfoIndexPath({'type': type}),
+    beforeSend:  mrequest.xhrConfig.forVersion('v2'),
+    contentType: false
   });
-};
 
-PluginInfos.filterByType = function (type) {
-  return _.filter(PluginInfos(), function (pluginInfo) {
-    return _.isEqual(pluginInfo.type(), type);
+  jqXHR.done(({_embedded}, _textStatus, _jqXHR) => {
+    let pluginInfos = _.map(_embedded.plugin_info, (pluginInfo) => new PluginInfos.PluginInfo(pluginInfo));
+    deferred.resolve(pluginInfos);
   });
-};
+}).promise();
+
+PluginInfos.findById = (id) => _.find(PluginInfos(), (pluginInfo) => _.isEqual(pluginInfo.id(), id));
+
+PluginInfos.filterByType = (type) => _.filter(PluginInfos(), (pluginInfo) => _.isEqual(pluginInfo.type(), type));
 
 PluginInfos.PluginInfo = function (data) {
-  var view = function (settings) {
-    return settings ? settings.view : {};
-  };
+  const view = (settings) => settings ? settings.view : {};
 
   this.id             = Stream(data.id);
   this.name           = Stream(data.name);
@@ -79,25 +63,23 @@ PluginInfos.PluginInfo = function (data) {
   }
 };
 
-PluginInfos.PluginInfo.get = function (id) {
-  return $.Deferred(function () {
-    var deferred = this;
+PluginInfos.PluginInfo.get = (id) => $.Deferred(function () {
+  const deferred = this;
 
-    var jqXHR = $.ajax({
-      method:      'GET',
-      url:         Routes.apiv2AdminPluginInfoPath({id: id}),
-      beforeSend:  mrequest.xhrConfig.forVersion('v2'),
-      contentType: false
-    });
+  const jqXHR = $.ajax({
+    method:      'GET',
+    url:         Routes.apiv2AdminPluginInfoPath({id}),
+    beforeSend:  mrequest.xhrConfig.forVersion('v2'),
+    contentType: false
+  });
 
-    jqXHR.done(function (data, _textStatus, _jqXHR) {
-      deferred.resolve(new PluginInfos.PluginInfo(data));
-    });
+  jqXHR.done((data, _textStatus, _jqXHR) => {
+    deferred.resolve(new PluginInfos.PluginInfo(data));
+  });
 
-    jqXHR.fail(function (jqXHR, _textStatus, _errorThrown) {
-      deferred.reject(mrequest.unwrapErrorExtractMessage(jqXHR.responseJSON, jqXHR));
-    });
-  }).promise();
-};
+  jqXHR.fail((jqXHR, _textStatus, _errorThrown) => {
+    deferred.reject(mrequest.unwrapErrorExtractMessage(jqXHR.responseJSON, jqXHR));
+  });
+}).promise();
 
 module.exports = PluginInfos;

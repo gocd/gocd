@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-var $ = require('jquery');
+const $ = require('jquery');
 
-var setHeaders = function (xhr, version) {
+const setHeaders = (xhr, version) => {
   xhr.setRequestHeader("Content-Type", "application/json");
   xhr.setRequestHeader("Accept", mrequest.versionHeader(version));
-  var csrfToken = $('meta[name=csrf-token]').attr('content');
+  const csrfToken = $('meta[name=csrf-token]').attr('content');
   if (csrfToken) {
     xhr.setRequestHeader('X-CSRF-Token', csrfToken);
   }
@@ -27,7 +27,7 @@ var setHeaders = function (xhr, version) {
 
 var mrequest   = {
   timeout:       5000,
-  versionHeader: function (version) {
+  versionHeader(version) {
     return `application/vnd.go.cd.${version}+json`;
   },
   xhrConfig:     {
@@ -43,19 +43,19 @@ var mrequest   = {
     v4:         (xhr) => {
       setHeaders(xhr, 'v4');
     },
-    forVersion: (version) => function (xhr) {
+    forVersion: (version) => (xhr) => {
       setHeaders(xhr, version);
     }
   },
 
-  unwrapMessageOrEntity:     (type, originalEtag) => function (data, xhr) {
+  unwrapMessageOrEntity:     (type, originalEtag) => (data, xhr) => {
     if (xhr.status === 200) {
-      var entity = type.fromJSON(data);
+      const entity = type.fromJSON(data);
       entity.etag(xhr.getResponseHeader('ETag'));
       return entity;
     }
     if (xhr.status === 422) {
-      var fromJSON = new type.fromJSON(data.data);
+      const fromJSON = new type.fromJSON(data.data);
       fromJSON.etag(originalEtag);
       return fromJSON;
     } else {

@@ -14,73 +14,73 @@
  * limitations under the License.
  */
 
-describe("Argument", function () {
+describe("Argument", () => {
 
-  var Argument = require('models/pipeline_configs/argument');
+  const Argument = require('models/pipeline_configs/argument');
 
-  describe('Argument create', function () {
-    it('should create from a list of arguments', function () {
-      var args = ['arg1', 'arg2'];
+  describe('Argument create', () => {
+    it('should create from a list of arguments', () => {
+      const args = ['arg1', 'arg2'];
 
-      var argument = Argument.create(undefined, args);
+      const argument = Argument.create(undefined, args);
 
       expect(argument.data()).toBe(args);
       expect(argument.isList()).toBe(true);
     });
 
-    it('should create from a string argument', function () {
-      var args = "args";
+    it('should create from a string argument', () => {
+      const args = "args";
 
-      var argument = Argument.create(args, undefined);
+      const argument = Argument.create(args, undefined);
 
       expect(argument.data()).toBe(args);
       expect(argument.isList()).toBe(false);
     });
 
-    it('should create a list type in absence of any arguments', function () {
-      var argument = Argument.create(undefined, undefined);
+    it('should create a list type in absence of any arguments', () => {
+      const argument = Argument.create(undefined, undefined);
 
       expect(argument.data().length).toBe(0);
       expect(argument.isList()).toBe(true);
     });
   });
 
-  describe('Argument toJSON', function () {
-    it('should give json representation of list type', function () {
-      var args = ['arg1', 'arg2'];
+  describe('Argument toJSON', () => {
+    it('should give json representation of list type', () => {
+      const args = ['arg1', 'arg2'];
 
-      var argument = Argument.create(undefined, args);
+      const argument = Argument.create(undefined, args);
 
       expect(argument.toJSON()).toEqual({arguments: args});
     });
 
-    it('should convert argument object of type string to json', function () {
-      var args = "arg";
+    it('should convert argument object of type string to json', () => {
+      const args = "arg";
 
-      var argument = Argument.create(args, undefined);
+      const argument = Argument.create(args, undefined);
 
-      expect(argument.toJSON()).toEqual({args: args});
+      expect(argument.toJSON()).toEqual({args});
     });
 
-    it('should be empty in absence of data', function () {
-      var argument = Argument.create(undefined, undefined);
+    it('should be empty in absence of data', () => {
+      const argument = Argument.create(undefined, undefined);
 
       expect(argument.toJSON()).toEqual({});
     });
   });
 
-  describe('Argument list VM', function () {
-    describe('setter', function () {
-      it('should split the string args by newline char and assign to arguments', function () {
-        var argument = Argument.create(undefined, []);
+  describe('Argument list VM', () => {
+    describe('setter', () => {
+      it('should split the string args by newline char and assign to arguments', () => {
+        const argument = Argument.create(undefined, []);
 
         Argument.vm(argument).data("bundle\nexec");
 
         expect(argument.data()).toEqual(['bundle', 'exec']);
       });
 
-      it('should assign an empty array if args is empty', function () {
-        var argument = Argument.create(undefined, []);
+      it('should assign an empty array if args is empty', () => {
+        const argument = Argument.create(undefined, []);
 
         Argument.vm(argument).data("");
 
@@ -88,19 +88,19 @@ describe("Argument", function () {
       });
     });
 
-    describe('getter', function () {
-      it('should return args as string joined by newline char', function () {
-        var argument = Argument.create(undefined, ['bundle', 'exec']);
+    describe('getter', () => {
+      it('should return args as string joined by newline char', () => {
+        const argument = Argument.create(undefined, ['bundle', 'exec']);
 
         expect(Argument.vm(argument).data()).toEqual("bundle\nexec");
       });
     });
   });
 
-  describe('Argument string VM', function () {
-    describe('setter', function () {
-      it('should assign the given val to argument', function () {
-        var argument = Argument.create("bundle exec", undefined);
+  describe('Argument string VM', () => {
+    describe('setter', () => {
+      it('should assign the given val to argument', () => {
+        const argument = Argument.create("bundle exec", undefined);
 
         Argument.vm(argument).data("rake db:migrate");
 
@@ -108,9 +108,9 @@ describe("Argument", function () {
       });
     });
 
-    describe('getter', function () {
-      it('should return args as string joined by newline char', function () {
-        var argument = Argument.create("bundle exec", undefined);
+    describe('getter', () => {
+      it('should return args as string joined by newline char', () => {
+        const argument = Argument.create("bundle exec", undefined);
 
         expect(Argument.vm(argument).data()).toEqual("bundle exec");
       });

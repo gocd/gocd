@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-var Stream               = require('mithril/stream');
-var _                    = require('lodash');
-var s                    = require('string-plus');
-var Mixins               = require('models/mixins/model_mixins');
-var Argument             = require('models/pipeline_configs/argument');
-var RunIfConditions      = require('models/pipeline_configs/run_if_conditions');
-var PluginConfigurations = require('models/shared/plugin_configurations');
-var Validatable          = require('models/mixins/validatable_mixin');
+const Stream               = require('mithril/stream');
+const _                    = require('lodash');
+const s                    = require('string-plus');
+const Mixins               = require('models/mixins/model_mixins');
+const Argument             = require('models/pipeline_configs/argument');
+const RunIfConditions      = require('models/pipeline_configs/run_if_conditions');
+const PluginConfigurations = require('models/shared/plugin_configurations');
+const Validatable          = require('models/mixins/validatable_mixin');
 
-var Tasks = function (data) {
+const Tasks = function (data) {
   Mixins.HasMany.call(this, {factory: Tasks.createByType, as: 'Task', collection: data});
 };
 
-Tasks.createByType = function (data) {
-  if (Tasks.isBuiltInTaskType(data.type)) {
-    return new Tasks.Types[data.type].type({});
+Tasks.createByType = ({type, pluginInfo}) => {
+  if (Tasks.isBuiltInTaskType(type)) {
+    return new Tasks.Types[type].type({});
   } else {
-    return new Tasks.Task.PluginTask.fromPluginInfo(data.pluginInfo);
+    return new Tasks.Task.PluginTask.fromPluginInfo(pluginInfo);
   }
 };
 
@@ -43,16 +43,14 @@ Tasks.Task = function (type, data) {
   this.type   = Stream(type);
   this.parent = Mixins.GetterSetter();
 
-  var self = this;
+  const self = this;
 
-  this.toJSON = function () {
-    return {
-      type:       self.type(),
-      attributes: self._attributesToJSON()
-    };
-  };
+  this.toJSON = () => ({
+    type:       self.type(),
+    attributes: self._attributesToJSON()
+  });
 
-  this._attributesToJSON = function () {
+  this._attributesToJSON = () => {
     throw new Error("Subclass responsibility!");
   };
 
@@ -108,15 +106,15 @@ Tasks.Task.Ant = function (data) {
   };
 };
 
-Tasks.Task.Ant.fromJSON = function (data) {
-  var attr = data.attributes || {};
+Tasks.Task.Ant.fromJSON = ({attributes, errors}) => {
+  const attr = attributes || {};
   return new Tasks.Task.Ant({
     target:           attr.target,
     workingDirectory: attr.working_directory,
     buildFile:        attr.build_file,
     runIf:            attr.run_if,
     onCancelTask:     attr.on_cancel,
-    errors:           data.errors
+    errors:           errors
   });
 };
 
@@ -160,8 +158,8 @@ Tasks.Task.NAnt = function (data) {
   };
 };
 
-Tasks.Task.NAnt.fromJSON = function (data) {
-  var attr = data.attributes || {};
+Tasks.Task.NAnt.fromJSON = ({attributes, errors}) => {
+  const attr = attributes || {};
   return new Tasks.Task.NAnt({
     target:           attr.target,
     workingDirectory: attr.working_directory,
@@ -169,7 +167,7 @@ Tasks.Task.NAnt.fromJSON = function (data) {
     nantPath:         attr.nant_path,
     runIf:            attr.run_if,
     onCancelTask:     attr.on_cancel,
-    errors:           data.errors
+    errors:           errors
   });
 };
 
@@ -210,8 +208,8 @@ Tasks.Task.Exec = function (data) {
   };
 };
 
-Tasks.Task.Exec.fromJSON = function (data) {
-  var attr = data.attributes || {};
+Tasks.Task.Exec.fromJSON = function({attributes, errors}) {
+  const attr = attributes || {};
   return new Tasks.Task.Exec({
     command:          attr.command,
     args:             attr.args,
@@ -219,7 +217,7 @@ Tasks.Task.Exec.fromJSON = function (data) {
     workingDirectory: attr.working_directory,
     runIf:            attr.run_if,
     onCancelTask:     attr.on_cancel,
-    errors:           data.errors
+    errors:           errors
   });
 };
 
@@ -260,15 +258,15 @@ Tasks.Task.Rake = function (data) {
   };
 };
 
-Tasks.Task.Rake.fromJSON = function (data) {
-  var attr = data.attributes || {};
+Tasks.Task.Rake.fromJSON = ({attributes, errors}) => {
+  const attr = attributes || {};
   return new Tasks.Task.Rake({
     target:           attr.target,
     workingDirectory: attr.working_directory,
     buildFile:        attr.build_file,
     runIf:            attr.run_if,
     onCancelTask:     attr.on_cancel,
-    errors:           data.errors
+    errors:           errors
   });
 };
 
@@ -322,8 +320,8 @@ Tasks.Task.FetchArtifact = function (data) {
 };
 
 
-Tasks.Task.FetchArtifact.fromJSON = function (data) {
-  var attr = data.attributes || {};
+Tasks.Task.FetchArtifact.fromJSON = ({attributes, errors}) => {
+  const attr = attributes || {};
   return new Tasks.Task.FetchArtifact({
     pipeline:      attr.pipeline,
     stage:         attr.stage,
@@ -333,7 +331,7 @@ Tasks.Task.FetchArtifact.fromJSON = function (data) {
     destination:   attr.destination,
     runIf:         attr.run_if,
     onCancelTask:  attr.on_cancel,
-    errors:        data.errors
+    errors:        errors
   });
 };
 
@@ -351,15 +349,13 @@ Tasks.Task.PluginTask = function (data) {
   };
 
   this.toString = function () {
-    return _.join(this.configuration().mapConfigurations(function (configuration) {
-      return _.join([configuration.key(), ':', ' ', configuration.value()], '');
-    }), ' ');
+    return _.join(this.configuration().mapConfigurations((configuration) => _.join([configuration.key(), ':', ' ', configuration.value()], '')), ' ');
   };
 
   this.summary = function () {
-    var data = {};
+    const data = {};
 
-    this.configuration().mapConfigurations(function (conf) {
+    this.configuration().mapConfigurations((conf) => {
       data[_.capitalize(conf.key())] = conf.value();
     });
 
@@ -381,25 +377,23 @@ Tasks.Task.PluginTask = function (data) {
   };
 };
 
-Tasks.Task.PluginTask.fromJSON = function (data) {
-  var attr = data.attributes || {};
+Tasks.Task.PluginTask.fromJSON = ({attributes, errors}) => {
+  const attr = attributes || {};
   return new Tasks.Task.PluginTask({
     pluginId:      attr.plugin_configuration.id,
     version:       attr.plugin_configuration.version,
     configuration: Tasks.Task.PluginTask.Configurations.fromJSON(attr.configuration),
     runIf:         attr.run_if,
     onCancelTask:  attr.on_cancel,
-    errors:        data.errors
+    errors:        errors
   });
 };
 
-Tasks.Task.PluginTask.fromPluginInfo = function (pluginInfo) {
-  return new Tasks.Task.PluginTask({
-    pluginId:      pluginInfo.id(),
-    version:       pluginInfo.version(),
-    configuration: Tasks.Task.PluginTask.Configurations.fromJSON(pluginInfo.configurations())
-  });
-};
+Tasks.Task.PluginTask.fromPluginInfo = (pluginInfo) => new Tasks.Task.PluginTask({
+  pluginId:      pluginInfo.id(),
+  version:       pluginInfo.version(),
+  configuration: Tasks.Task.PluginTask.Configurations.fromJSON(pluginInfo.configurations())
+});
 
 Tasks.Task.PluginTask.Configurations = PluginConfigurations;
 
@@ -413,9 +407,9 @@ Tasks.BuiltInTypes = {
 
 Tasks.Types = _.assign({}, Tasks.BuiltInTypes);
 
-Tasks.findTypeFromDescription = function (description) {
-  var matchedKey;
-  _.each(Tasks.Types, function (value, key) {
+Tasks.findTypeFromDescription = (description) => {
+  let matchedKey;
+  _.each(Tasks.Types, (value, key) => {
     if (value.description === description) {
       matchedKey = key;
     }
@@ -423,11 +417,9 @@ Tasks.findTypeFromDescription = function (description) {
   return matchedKey;
 };
 
-Tasks.isBuiltInTaskType = function (type) {
-  return !!Tasks.BuiltInTypes[type];
-};
+Tasks.isBuiltInTaskType = (type) => !!Tasks.BuiltInTypes[type];
 
-Tasks.Task.fromJSON = function (data) {
+Tasks.Task.fromJSON = (data) => {
   if (Tasks.isBuiltInTaskType(data.type)) {
     return Tasks.Types[data.type].type.fromJSON(data || {});
   } else {
@@ -435,7 +427,7 @@ Tasks.Task.fromJSON = function (data) {
   }
 };
 
-Tasks.Task.onCancelTask = function (data) {
+Tasks.Task.onCancelTask = (data) => {
   if (data) {
     return Tasks.Task.fromJSON(data);
   }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-describe("ResourcesListWidget", function () {
+describe("ResourcesListWidget", () => {
   var $                = require("jquery");
   var simulateEvent    = require('simulate-event');
   var m                = require('mithril');
@@ -32,7 +32,7 @@ describe("ResourcesListWidget", function () {
   afterEach(window.destroyDomElementForTest);
 
   var vm;
-  beforeEach(function () {
+  beforeEach(() => {
     vm = {
       agentsCheckedState: {}
     };
@@ -40,10 +40,10 @@ describe("ResourcesListWidget", function () {
     vm.dropdown = {
       reset:  Stream(true),
       states: {},
-      add:    function () {
+      add() {
       },
 
-      hide: function (name) {
+      hide(name) {
         this.states[name](false);
       }
     };
@@ -64,12 +64,12 @@ describe("ResourcesListWidget", function () {
     mount();
   });
 
-  afterEach(function () {
+  afterEach(() => {
     unmount();
     Resources.list = [];
   });
 
-  it('should contain all the resources checkbox', function () {
+  it('should contain all the resources checkbox', () => {
     var allResources = $.find('.resources-items :checkbox');
     expect(allResources).toHaveLength(4);
     expect(allResources[0]).toHaveValue('Gauge');
@@ -78,13 +78,13 @@ describe("ResourcesListWidget", function () {
     expect(allResources[3]).toHaveValue('Windows');
   });
 
-  it('should check resources that are present on all the agents', function () {
+  it('should check resources that are present on all the agents', () => {
     var allResources = $.find('.resources-items :checkbox');
     expect(allResources[1]).toHaveValue('Java');
     expect(allResources[1]).toBeChecked();
   });
 
-  it('should select resources as indeterminate that are present on some of the agents', function () {
+  it('should select resources as indeterminate that are present on some of the agents', () => {
     var allResources = $.find('.resources-items :checkbox');
     expect(allResources[2]).toHaveValue('Linux');
     expect(allResources[2].indeterminate).toBe(true);
@@ -93,24 +93,24 @@ describe("ResourcesListWidget", function () {
     expect(allResources[0].indeterminate).toBe(true);
   });
 
-  it('should uncheck resources that are not present on any the agents', function () {
+  it('should uncheck resources that are not present on any the agents', () => {
     var allResources = $.find('.resources-items :checkbox');
     expect(allResources[3]).toHaveValue('Windows');
     expect(allResources[3]).not.toBeChecked();
     expect(allResources[3].indeterminate).toBe(false);
   });
 
-  it('should have button to add resources', function () {
+  it('should have button to add resources', () => {
     var addButton = $root.find('.add-resource :button')[0];
     expect(addButton).toHaveText("Add");
   });
 
-  it('should have button to apply resources', function () {
+  it('should have button to apply resources', () => {
     var applyButton = $root.find('.add-resource :button')[1];
     expect(applyButton).toHaveText("Apply");
   });
 
-  it('should add resource after invoking add button', function () {
+  it('should add resource after invoking add button', () => {
     var allResources = $root.find('.resources-items :checkbox');
     expect(allResources).toHaveLength(4);
 
@@ -128,7 +128,7 @@ describe("ResourcesListWidget", function () {
   });
 
 
-  it('should clear input-text box after adding resource', function () {
+  it('should clear input-text box after adding resource', () => {
     var inputBox = $root.find('.add-resource input');
     $(inputBox).val('Chrome').trigger('change');
 
@@ -141,7 +141,7 @@ describe("ResourcesListWidget", function () {
     expect(inputBox).toHaveValue('');
   });
 
-  it('should not add duplicate resources', function () {
+  it('should not add duplicate resources', () => {
     var allResources = $root.find('.resources-items input[type="Checkbox"]');
     expect(allResources).toHaveLength(4);
     expect(allResources[2]).toHaveValue('Linux');
@@ -157,9 +157,9 @@ describe("ResourcesListWidget", function () {
     expect(allResources).toHaveLength(4);
   });
 
-  var mount = function () {
+  var mount = () => {
     m.mount(root, {
-      view: function () {
+      view() {
         return m(ResourcesListWidget, {
           'hideDropDown':      hideDropDown,
           'dropDownReset':     dropDownReset,
@@ -171,13 +171,13 @@ describe("ResourcesListWidget", function () {
     m.redraw();
   };
 
-  var hideDropDown = function () {
+  var hideDropDown = () => {
   };
 
-  var dropDownReset = function () {
+  var dropDownReset = () => {
   };
 
-  var unmount = function () {
+  var unmount = () => {
     m.mount(root, null);
     m.redraw();
   };

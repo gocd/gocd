@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-var Stream = require('mithril/stream');
-var s      = require('string-plus');
-var Mixins = require('models/mixins/model_mixins');
+const Stream = require('mithril/stream');
+const s      = require('string-plus');
+const Mixins = require('models/mixins/model_mixins');
 
-var Approval = function (data) {
+const Approval = function({type, authorization}) {
   this.constructor.modelType = 'approval';
   Mixins.HasUUID.call(this);
 
-  this.type          = Stream(s.defaultToIfBlank(data.type, 'success'));
-  this.authorization = Stream(s.defaultToIfBlank(data.authorization, new Approval.AuthConfig({})));
+  this.type          = Stream(s.defaultToIfBlank(type, 'success'));
+  this.authorization = Stream(s.defaultToIfBlank(authorization, new Approval.AuthConfig({})));
 
   this.isManual = function () {
     return this.type() === 'manual';
@@ -42,23 +42,19 @@ var Approval = function (data) {
   };
 };
 
-Approval.AuthConfig = function (data) {
+Approval.AuthConfig = function({roles, users}) {
   this.constructor.modelType = 'approvalAuthorization';
   Mixins.HasUUID.call(this);
 
-  this.roles = s.withNewJSONImpl(Stream(s.defaultToIfBlank(data.roles, '')), s.stringToArray);
-  this.users = s.withNewJSONImpl(Stream(s.defaultToIfBlank(data.users, '')), s.stringToArray);
+  this.roles = s.withNewJSONImpl(Stream(s.defaultToIfBlank(roles, '')), s.stringToArray);
+  this.users = s.withNewJSONImpl(Stream(s.defaultToIfBlank(users, '')), s.stringToArray);
 };
 
-Approval.AuthConfig.fromJSON = function (data) {
-  return new Approval.AuthConfig({roles: data.roles, users: data.users});
-};
+Approval.AuthConfig.fromJSON = ({roles, users}) => new Approval.AuthConfig({roles: roles, users: users});
 
-Approval.fromJSON = function (data) {
-  return new Approval({
-    type:          data.type,
-    authorization: Approval.AuthConfig.fromJSON(data.authorization || {})
-  });
-};
+Approval.fromJSON = ({type, authorization}) => new Approval({
+  type:          type,
+  authorization: Approval.AuthConfig.fromJSON(authorization || {})
+});
 
 module.exports = Approval;

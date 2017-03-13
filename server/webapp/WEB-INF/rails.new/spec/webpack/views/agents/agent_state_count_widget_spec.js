@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,103 +14,101 @@
  * limitations under the License.
  */
 
-describe("Agent State Count Widget", function () {
-  var m      = require('mithril');
-  var Stream = require('mithril/stream');
+describe("Agent State Count Widget", () => {
+  const m      = require('mithril');
+  const Stream = require('mithril/stream');
 
   require("jasmine-jquery");
 
-  var Agents                = require('models/agents/agents');
-  var AgentStateCountWidget = require("views/agents/agent_state_count_widget");
+  const Agents                = require('models/agents/agents');
+  const AgentStateCountWidget = require("views/agents/agent_state_count_widget");
 
-  var $root, root;
+  let $root, root;
   beforeEach(() => {
     [$root, root] = window.createDomElementForTest();
   });
   afterEach(window.destroyDomElementForTest);
-  beforeEach(function () {
-    var agents    = Stream();
-    var allAgents = Agents.fromJSON(json());
+  beforeEach(() => {
+    const agents    = Stream();
+    const allAgents = Agents.fromJSON(json());
     agents(allAgents);
     mount(agents);
   });
 
-  afterEach(function () {
+  afterEach(() => {
     unmount();
   });
 
-  it('should contain the agents state count information', function () {
-    var children = $root.find('.search-summary').children();
+  it('should contain the agents state count information', () => {
+    const children = $root.find('.search-summary').children();
     expect(children).toHaveLength(4);
     expect(children[0]).toContainText('Total');
     expect(children[0]).toContainText('1');
   });
 
-  it('should contain the agents Pending count information', function () {
-    var children = $root.find('.search-summary').children();
+  it('should contain the agents Pending count information', () => {
+    const children = $root.find('.search-summary').children();
     expect(children[1]).toContainText('Pending');
     expect(children[1]).toContainText('0');
   });
 
-  it('should contain the agents Enabled count information', function () {
-    var children = $root.find('.search-summary').children();
+  it('should contain the agents Enabled count information', () => {
+    const children = $root.find('.search-summary').children();
     expect(children[2]).toContainText('Enabled');
     expect(children[2]).toContainText('1');
   });
 
-  it('should contain the agents Disabled count information', function () {
-    var children = $root.find('.search-summary').children();
+  it('should contain the agents Disabled count information', () => {
+    const children = $root.find('.search-summary').children();
     expect(children[3]).toContainText('Disabled');
     expect(children[3]).toContainText('0');
   });
 
-  var mount = function (agents) {
+  const mount = (agents) => {
     m.mount(root,
       {
-        view: function () {
-          return m(AgentStateCountWidget, {agents: agents});
+        view() {
+          return m(AgentStateCountWidget, {agents});
         }
       }
     );
     m.redraw();
   };
 
-  var unmount = function () {
+  const unmount = () => {
     m.mount(root, null);
     m.redraw();
   };
 
-  var json = function () {
-    return [
-      {
-        "_links":             {
-          "self": {
-            "href": "https://ci.example.com/go/api/agents/dfdbe0b1-4521-4a52-ac2f-ca0cf6bdaa3e"
-          },
-          "doc":  {
-            "href": "https://api.gocd.io/#agents"
-          },
-          "find": {
-            "href": "https://ci.example.com/go/api/agents/:uuid"
-          }
+  const json = () => [
+    {
+      "_links":             {
+        "self": {
+          "href": "https://ci.example.com/go/api/agents/dfdbe0b1-4521-4a52-ac2f-ca0cf6bdaa3e"
         },
-        "uuid":               "dfdbe0b1-4521-4a52-ac2f-ca0cf6bdaa3e",
-        "hostname":           "in-john.local",
-        "ip_address":         "10.12.2.200",
-        "sandbox":            "",
-        "operating_system":   "",
-        "free_space":         "unknown",
-        "agent_config_state": "Enabled",
-        "agent_state":        "Missing",
-        "build_state":        "Unknown",
-        "resources":          [
-          "firefox"
-        ],
-        "environments":       [
-          "Dev"
-        ]
-      }
-    ];
-  };
+        "doc":  {
+          "href": "https://api.gocd.io/#agents"
+        },
+        "find": {
+          "href": "https://ci.example.com/go/api/agents/:uuid"
+        }
+      },
+      "uuid":               "dfdbe0b1-4521-4a52-ac2f-ca0cf6bdaa3e",
+      "hostname":           "in-john.local",
+      "ip_address":         "10.12.2.200",
+      "sandbox":            "",
+      "operating_system":   "",
+      "free_space":         "unknown",
+      "agent_config_state": "Enabled",
+      "agent_state":        "Missing",
+      "build_state":        "Unknown",
+      "resources":          [
+        "firefox"
+      ],
+      "environments":       [
+        "Dev"
+      ]
+    }
+  ];
 
 });

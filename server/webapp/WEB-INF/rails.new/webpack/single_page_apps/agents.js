@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,59 +14,57 @@
  * limitations under the License.
  */
 
-var $              = require('jquery');
-var m              = require('mithril');
-var Stream         = require('mithril/stream');
-var Agents         = require('models/agents/agents');
-var AgentsWidget   = require('views/agents/agents_widget');
-var AgentsVM       = require('views/agents/models/agents_widget_view_model');
-var SortOrder      = require('views/agents/models/sort_order');
-var VersionUpdater = require('models/shared/version_updater');
-var AjaxPoller     = require('helpers/ajax_poller');
+const $              = require('jquery');
+const m              = require('mithril');
+const Stream         = require('mithril/stream');
+const Agents         = require('models/agents/agents');
+const AgentsWidget   = require('views/agents/agents_widget');
+const AgentsVM       = require('views/agents/models/agents_widget_view_model');
+const SortOrder      = require('views/agents/models/sort_order');
+const VersionUpdater = require('models/shared/version_updater');
+const AjaxPoller     = require('helpers/ajax_poller');
 
 require('foundation-sites');
 
-$(function () {
+$(() => {
   new VersionUpdater().update();
-  var $agentElem = $('#agents');
+  const $agentElem = $('#agents');
 
-  var isUserAdmin = JSON.parse($agentElem.attr('data-is-current-user-an-admin'));
+  const isUserAdmin = JSON.parse($agentElem.attr('data-is-current-user-an-admin'));
 
   $(document).foundation();
 
   function createRepeater() {
-    return new AjaxPoller(function (xhrCB) {
-      return Agents.all(xhrCB)
-        .then((agentsData) => {
-          agents(agentsData);
-          agentsViewModel.initializeWith(agentsData);
-          permanentMessage({});
-        })
-        .fail((errMsg) => {
-          permanentMessage({type: 'alert', message: errMsg});
-        })
-        .always(() => {
-          showSpinner(false);
-        });
-    });
+    return new AjaxPoller((xhrCB) => Agents.all(xhrCB)
+      .then((agentsData) => {
+        agents(agentsData);
+        agentsViewModel.initializeWith(agentsData);
+        permanentMessage({});
+      })
+      .fail((errMsg) => {
+        permanentMessage({type: 'alert', message: errMsg});
+      })
+      .always(() => {
+        showSpinner(false);
+      }));
   }
 
   var agents           = Stream(new Agents());
   var showSpinner      = Stream(true);
   var agentsViewModel  = new AgentsVM();
   var permanentMessage = Stream({});
-  var currentRepeater  = Stream(createRepeater());
-  var sortOrder        = Stream(new SortOrder());
+  const currentRepeater  = Stream(createRepeater());
+  const sortOrder        = Stream(new SortOrder());
 
-  var component = {
-    view: function () {
+  const component = {
+    view() {
       return m(AgentsWidget, {
         vm:                   agentsViewModel,
         allAgents:            agents,
-        isUserAdmin:          isUserAdmin,
-        permanentMessage:     permanentMessage,
-        showSpinner:          showSpinner,
-        sortOrder:            sortOrder,
+        isUserAdmin,
+        permanentMessage,
+        showSpinner,
+        sortOrder,
         doCancelPolling:      () => currentRepeater().stop(),
         doRefreshImmediately: () => {
           currentRepeater().stop();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,23 @@
  * limitations under the License.
  */
 
-var Stream    = require('mithril/stream');
-var _         = require('lodash');
-var $         = require('jquery');
-var Routes    = require('gen/js-routes');
-var mrequest  = require('helpers/mrequest');
-var Pipelines = Stream([]);
+const Stream    = require('mithril/stream');
+const _         = require('lodash');
+const $         = require('jquery');
+const Routes    = require('gen/js-routes');
+const mrequest  = require('helpers/mrequest');
+const Pipelines = Stream([]);
 
-Pipelines.Pipeline = function (data) {
-  this.name   = data.name;
-  this.stages = _.map(data.stages, function (stage) {
-    return new function () {
-      this.name = stage.name;
-      this.jobs = stage.jobs;
-    };
+Pipelines.Pipeline = function({name, stages}) {
+  this.name   = name;
+  this.stages = _.map(stages, ({name, jobs}) => new function () {
+    this.name = name;
+    this.jobs = jobs;
   });
 };
 
-Pipelines.init = function (rejectPipeline) {
-  var jqXHR = $.ajax({
+Pipelines.init = (rejectPipeline) => {
+  const jqXHR = $.ajax({
     method:      'GET',
     url:         Routes.apiv1AdminInternalPipelinesPath(),
     background:  true,
@@ -40,14 +38,10 @@ Pipelines.init = function (rejectPipeline) {
     contentType: false
   });
 
-  var didFulfill = function (data, _textStatus, _jqXHR) {
-    var pipelines = _.reject(data._embedded.pipelines, function (pipeline) {
-      return pipeline.name === rejectPipeline;
-    });
+  const didFulfill = ({_embedded}, _textStatus, _jqXHR) => {
+    const pipelines = _.reject(_embedded.pipelines, ({name}) => name === rejectPipeline);
 
-    Pipelines(_.map(pipelines, function (pipeline) {
-      return new Pipelines.Pipeline(pipeline);
-    }));
+    Pipelines(_.map(pipelines, (pipeline) => new Pipelines.Pipeline(pipeline)));
   };
 
   jqXHR.then(didFulfill);

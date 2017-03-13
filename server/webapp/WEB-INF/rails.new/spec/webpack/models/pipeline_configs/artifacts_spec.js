@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-describe("Artifact Model", function () {
-  var Artifacts = require("models/pipeline_configs/artifacts");
-  var artifact;
-  beforeEach(function () {
+describe("Artifact Model", () => {
+  const Artifacts = require("models/pipeline_configs/artifacts");
+  let artifact;
+  beforeEach(() => {
     artifact = new Artifacts.Artifact({
       type:        "test",
       source:      "dist/pkg",
@@ -25,39 +25,39 @@ describe("Artifact Model", function () {
   });
 
 
-  it("should initialize artifact model with type", function () {
+  it("should initialize artifact model with type", () => {
     expect(artifact.type()).toBe("test");
   });
 
-  it("should initialize artifact model with source", function () {
+  it("should initialize artifact model with source", () => {
     expect(artifact.source()).toBe('dist/pkg');
   });
 
-  it("should initialize artifact model with destination", function () {
+  it("should initialize artifact model with destination", () => {
     expect(artifact.destination()).toBe('pkg');
   });
 
-  describe("validations", function () {
-    it("should add error when source is blank", function () {
+  describe("validations", () => {
+    it("should add error when source is blank", () => {
       artifact.source("");
-      var errors = artifact.validate();
+      const errors = artifact.validate();
       expect(errors.errors('source')).toEqual(['Source must be present']);
     });
 
-    it("should NOT add error when both source and destination are blank", function () {
+    it("should NOT add error when both source and destination are blank", () => {
       artifact.destination("");
       artifact.source("");
-      var errors = artifact.validate();
+      const errors = artifact.validate();
       expect(errors._isEmpty()).toBe(true);
     });
   });
 
-  describe("Deserialization from JSON", function () {
-    beforeEach(function () {
+  describe("Deserialization from JSON", () => {
+    beforeEach(() => {
       artifact = Artifacts.Artifact.fromJSON(sampleArtifactJSON());
     });
 
-    it("should initialize from json", function () {
+    it("should initialize from json", () => {
       expect(artifact.type()).toBe("test");
       expect(artifact.source()).toBe('dist/pkg');
       expect(artifact.destination()).toBe("pkg");

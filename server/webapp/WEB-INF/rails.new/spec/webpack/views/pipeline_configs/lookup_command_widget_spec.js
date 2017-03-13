@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-describe("Lookup Command Widget", function () {
+describe("Lookup Command Widget", () => {
   var $ = require("jquery");
   var m = require("mithril");
 
@@ -30,19 +30,19 @@ describe("Lookup Command Widget", function () {
 
   function mount(model, snippet) {
     m.mount(root, {
-      view: function () {
-        return m(LookupCommandWidget, {model: model, snippet: snippet});
+      view() {
+        return m(LookupCommandWidget, {model, snippet});
       }
     });
     m.redraw();
   }
 
-  var unmount = function () {
+  var unmount = () => {
     m.mount(root, null);
     m.redraw();
   };
 
-  describe("view", function () {
+  describe("view", () => {
     var model, snippet, enableTextComplete;
 
     beforeEach(function () {
@@ -66,32 +66,32 @@ describe("Lookup Command Widget", function () {
       mount(model, snippet);
     });
 
-    afterEach(function () {
+    afterEach(() => {
       unmount();
     });
 
-    it("should render a text box with textcomplete enabled", function () {
+    it("should render a text box with textcomplete enabled", () => {
       expect($root.find("input[name=lookup]").size()).toBe(1);
       expect(enableTextComplete).toHaveBeenCalled();
     });
 
-    it("should render the command snippet title", function () {
+    it("should render the command snippet title", () => {
       expect($root.find(".snippet>header>h5.snippet-title")).toHaveText(snippet.name());
     });
 
-    it("should render snippet description with more info", function () {
-      expect($root.find(".snippet>p")).toHaveText(snippet.description() + "more info");
+    it("should render snippet description with more info", () => {
+      expect($root.find(".snippet>p")).toHaveText(`${snippet.description()}more info`);
       expect($root.find(".snippet>p>a").attr('href')).toBe(snippet.moreInfo());
     });
 
-    it("should render the snippet author info", function () {
+    it("should render the snippet author info", () => {
       expect($root.find(".snippet>header>div.author>a")).toHaveText(snippet.author());
       expect($root.find(".snippet>header>div.author>a").attr('href')).toBe(snippet.authorInfo());
     });
   });
 
-  describe('controller', function () {
-    describe('selectSnippet', function () {
+  describe('controller', () => {
+    describe('selectSnippet', () => {
       var snippet;
       beforeEach(function () {
         snippet = new LookupCommandWidget.Command.Snippet({
@@ -119,18 +119,16 @@ describe("Lookup Command Widget", function () {
       });
     });
 
-    describe('searchSnippet', function () {
+    describe('searchSnippet', () => {
       var deferred;
 
-      beforeEach(function () {
+      beforeEach(() => {
         deferred = $.Deferred();
 
-        spyOn(LookupCommandWidget.Command, 'lookup').and.callFake(function () {
-          return deferred.promise();
-        });
+        spyOn(LookupCommandWidget.Command, 'lookup').and.callFake(() => deferred.promise());
       });
 
-      it('should lookup for command snippets for a search term', function () {
+      it('should lookup for command snippets for a search term', () => {
         var vnode   = {};
         vnode.attrs = {};
         new LookupCommandWidget.oninit(vnode).searchSnippets('scp');
@@ -138,7 +136,7 @@ describe("Lookup Command Widget", function () {
         expect(LookupCommandWidget.Command.lookup).toHaveBeenCalledWith('scp');
       });
 
-      it('should call the textcomplete callback with snippet names on success of lookup', function () {
+      it('should call the textcomplete callback with snippet names on success of lookup', () => {
         var build    = new LookupCommandWidget.Command.Snippet({name: 'build'});
         var rake     = new LookupCommandWidget.Command.Snippet({name: 'rake'});
         var callback = jasmine.createSpy('callback');
@@ -151,7 +149,7 @@ describe("Lookup Command Widget", function () {
         expect(callback).toHaveBeenCalledWith(['build', 'rake']);
       });
 
-      it('should call the textcomplete callback with empty array on failure of lookup', function () {
+      it('should call the textcomplete callback with empty array on failure of lookup', () => {
         var callback = jasmine.createSpy('callback');
 
         var vnode = {
@@ -167,9 +165,9 @@ describe("Lookup Command Widget", function () {
     });
   });
 
-  describe('Command.Snippets', function () {
+  describe('Command.Snippets', () => {
     var snippets;
-    beforeEach(function () {
+    beforeEach(() => {
       var build   = new LookupCommandWidget.Command.Snippet({name: 'build'});
       var rake    = new LookupCommandWidget.Command.Snippet({name: 'rake'});
       var ansible = new LookupCommandWidget.Command.Snippet({name: 'ansible'});
@@ -177,15 +175,15 @@ describe("Lookup Command Widget", function () {
       snippets    = new LookupCommandWidget.Command.Snippets([build, rake, ansible, curl]);
     });
 
-    describe('findByName', function () {
-      it('should return a snippet matching the name', function () {
+    describe('findByName', () => {
+      it('should return a snippet matching the name', () => {
         var snippet = snippets.findByName('ansible');
 
         expect(snippet.name()).toBe('ansible');
       });
 
-      describe('allNames', function () {
-        it('should have names of all the snippets', function () {
+      describe('allNames', () => {
+        it('should have names of all the snippets', () => {
           var names = snippets.allNames();
 
           expect(names).toEqual(['build', 'rake', 'ansible', 'curl']);
@@ -194,10 +192,10 @@ describe("Lookup Command Widget", function () {
     });
   });
 
-  describe('Command.lookup', function () {
+  describe('Command.lookup', () => {
 
-    it('should get all the command snippets', function () {
-      jasmine.Ajax.withMock(function () {
+    it('should get all the command snippets', () => {
+      jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest('/go/api/admin/internal/command_snippets?prefix=rake', undefined, 'GET').andReturn({
           responseText: JSON.stringify({
             _embedded: {
@@ -215,7 +213,7 @@ describe("Lookup Command Widget", function () {
           contentType:  'appication/json'
         });
 
-        var successCallback = jasmine.createSpy().and.callFake(function (snippets) {
+        var successCallback = jasmine.createSpy().and.callFake((snippets) => {
           expect(snippets[0].name()).toBe('foo');
         });
         LookupCommandWidget.Command.lookup('rake').then(successCallback);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-var Stream               = require('mithril/stream');
-var s                    = require('string-plus');
-var Mixins               = require('models/mixins/model_mixins');
-var PluginConfigurations = require('models/shared/plugin_configurations');
-var Routes               = require('gen/js-routes');
-var Validatable          = require('models/mixins/validatable_mixin');
-var CrudMixins           = require('models/mixins/crud_mixins');
+const Stream               = require('mithril/stream');
+const s                    = require('string-plus');
+const Mixins               = require('models/mixins/model_mixins');
+const PluginConfigurations = require('models/shared/plugin_configurations');
+const Routes               = require('gen/js-routes');
+const Validatable          = require('models/mixins/validatable_mixin');
+const CrudMixins           = require('models/mixins/crud_mixins');
 
-var ElasticProfiles = function (data) {
+const ElasticProfiles = function (data) {
   Mixins.HasMany.call(this, {
     factory:    ElasticProfiles.Profile.create,
     as:         'Profile',
@@ -57,29 +57,23 @@ ElasticProfiles.Profile = function (data) {
   CrudMixins.AllOperations.call(this, ['refresh', 'update', 'delete', 'create'], {
     type:        ElasticProfiles.Profile,
     indexUrl:    Routes.apiv1ElasticProfilesPath(),
-    resourceUrl: function (id) {
+    resourceUrl(id) {
       return Routes.apiv1ElasticProfilePath(id);
     },
     version:     ElasticProfiles.API_VERSION
   });
 };
 
-ElasticProfiles.Profile.get = function (id) {
-  return new ElasticProfiles.Profile({id: id}).refresh();
-};
+ElasticProfiles.Profile.get = (id) => new ElasticProfiles.Profile({id}).refresh();
 
-ElasticProfiles.Profile.create = function (data) {
-  return new ElasticProfiles.Profile(data);
-};
+ElasticProfiles.Profile.create = (data) => new ElasticProfiles.Profile(data);
 
-ElasticProfiles.Profile.fromJSON = function (data) {
-  return new ElasticProfiles.Profile({
-    id:         data.id,
-    pluginId:   data.plugin_id,
-    errors:     data.errors,
-    properties: PluginConfigurations.fromJSON(data.properties)
-  });
-};
+ElasticProfiles.Profile.fromJSON = ({id, plugin_id, errors, properties}) => new ElasticProfiles.Profile({ //eslint-disable-line camelcase
+  id:         id,
+  pluginId:   plugin_id, //eslint-disable-line camelcase
+  errors:     errors,
+  properties: PluginConfigurations.fromJSON(properties)
+});
 
 Mixins.fromJSONCollection({
   parentType: ElasticProfiles,

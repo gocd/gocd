@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-describe("Tracking Tool Widget", function () {
+describe("Tracking Tool Widget", () => {
 
   var m             = require('mithril');
   var Stream        = require('mithril/stream');
@@ -31,11 +31,11 @@ describe("Tracking Tool Widget", function () {
   afterEach(window.destroyDomElementForTest);
   var trackingToolProp;
 
-  beforeEach(function () {
+  beforeEach(() => {
     trackingToolProp = Stream();
 
     m.mount(root, {
-      view: function () {
+      view() {
         return m(TrackingToolWidget, {trackingTool: trackingToolProp});
       }
     });
@@ -45,18 +45,18 @@ describe("Tracking Tool Widget", function () {
     m.redraw();
   });
 
-  afterEach(function () {
+  afterEach(() => {
     m.mount(root, null);
     m.redraw();
   });
 
-  it("should select none tracking tool when none is selected", function () {
+  it("should select none tracking tool when none is selected", () => {
     expect($root.find('#tracking-tool-none')).toBeChecked();
   });
 
-  it("should set proper tracking tool when it is selected", function () {
-    _.each(['generic', 'mingle', 'generic', 'mingle'], function (type) {
-      var radioButton = $root.find('#tracking-tool-' + type).get(0);
+  it("should set proper tracking tool when it is selected", () => {
+    _.each(['generic', 'mingle', 'generic', 'mingle'], (type) => {
+      var radioButton = $root.find(`#tracking-tool-${type}`).get(0);
       simulateEvent.simulate(radioButton, 'click');
       m.redraw();
 

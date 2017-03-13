@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-describe('Elastic Agent Profile', function () {
+describe('Elastic Agent Profile', () => {
 
-  var _ = require('lodash');
-  var s = require('string-plus');
+  const _ = require('lodash');
+  const s = require('string-plus');
 
-  var ElasticProfiles = require('models/elastic_profiles/elastic_profiles');
+  const ElasticProfiles = require('models/elastic_profiles/elastic_profiles');
 
-  var profileJSON     = {
+  const profileJSON     = {
     "id":         "unit-tests",
     "plugin_id":  "cd.go.contrib.elastic-agent.docker",
     "properties": [
@@ -34,28 +34,28 @@ describe('Elastic Agent Profile', function () {
       }
     ]
   };
-  var allProfilesJSON = {
+  const allProfilesJSON = {
     "_embedded": {
       "profiles": [profileJSON]
     }
   };
 
-  it('should deserialize a profile from JSON', function () {
-    var profile = ElasticProfiles.Profile.fromJSON(profileJSON);
+  it('should deserialize a profile from JSON', () => {
+    const profile = ElasticProfiles.Profile.fromJSON(profileJSON);
     expect(profile.id()).toBe("unit-tests");
     expect(profile.pluginId()).toBe("cd.go.contrib.elastic-agent.docker");
     expect(profile.properties().collectConfigurationProperty('key')).toEqual(['Image', 'Environment']);
     expect(profile.properties().collectConfigurationProperty('value')).toEqual(['gocdcontrib/gocd-dev-build', 'JAVA_HOME=/opt/java\nMAKE_OPTS=-j8']);
   });
 
-  it('should serialize a profile to JSON', function () {
-    var profile = ElasticProfiles.Profile.fromJSON(profileJSON);
+  it('should serialize a profile to JSON', () => {
+    const profile = ElasticProfiles.Profile.fromJSON(profileJSON);
     expect(JSON.parse(JSON.stringify(profile, s.snakeCaser))).toEqual(profileJSON);
   });
 
-  describe("list all profiles", function () {
-    it('should get all elastic profiles and call the success callback', function () {
-      jasmine.Ajax.withMock(function () {
+  describe("list all profiles", () => {
+    it('should get all elastic profiles and call the success callback', () => {
+      jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest('/go/api/elastic/profiles').andReturn({
           responseText:    JSON.stringify(allProfilesJSON),
           status:          200,
@@ -64,7 +64,7 @@ describe('Elastic Agent Profile', function () {
           }
         });
 
-        var successCallback = jasmine.createSpy().and.callFake(function (profiles) {
+        const successCallback = jasmine.createSpy().and.callFake((profiles) => {
           expect(profiles.countProfile()).toBe(1);
           expect(profiles.firstProfile().id()).toBe("unit-tests");
           expect(profiles.firstProfile().pluginId()).toBe("cd.go.contrib.elastic-agent.docker");
@@ -75,8 +75,8 @@ describe('Elastic Agent Profile', function () {
       });
     });
 
-    it('should get all elastic profiles and call the error callback on error', function () {
-      jasmine.Ajax.withMock(function () {
+    it('should get all elastic profiles and call the error callback on error', () => {
+      jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest('/go/api/elastic/profiles').andReturn({
           responseText:    JSON.stringify({message: 'Boom!'}),
           status:          401,
@@ -85,7 +85,7 @@ describe('Elastic Agent Profile', function () {
           }
         });
 
-        var errorCallback = jasmine.createSpy();
+        const errorCallback = jasmine.createSpy();
 
         ElasticProfiles.all().then(_.noop, errorCallback);
         expect(errorCallback).toHaveBeenCalledWith('Boom!');
@@ -93,13 +93,13 @@ describe('Elastic Agent Profile', function () {
     });
   });
 
-  describe("update a profile", function () {
-    it('should update a profile and call success callback', function () {
-      var profile = ElasticProfiles.Profile.fromJSON(profileJSON);
+  describe("update a profile", () => {
+    it('should update a profile and call success callback', () => {
+      const profile = ElasticProfiles.Profile.fromJSON(profileJSON);
       profile.etag("some-etag");
 
-      jasmine.Ajax.withMock(function () {
-        jasmine.Ajax.stubRequest('/go/api/elastic/profiles/' + profile.id(), undefined, 'PUT').andReturn({
+      jasmine.Ajax.withMock(() => {
+        jasmine.Ajax.stubRequest(`/go/api/elastic/profiles/${profile.id()}`, undefined, 'PUT').andReturn({
           responseText:    JSON.stringify({id: 'gocd', 'plugin_id': 'docker'}),
           status:          200,
           responseHeaders: {
@@ -108,7 +108,7 @@ describe('Elastic Agent Profile', function () {
         });
 
 
-        var successCallback = jasmine.createSpy();
+        const successCallback = jasmine.createSpy();
 
         profile.update().then(successCallback);
 
@@ -119,10 +119,10 @@ describe('Elastic Agent Profile', function () {
 
         expect(jasmine.Ajax.requests.count()).toBe(1);
 
-        var request = jasmine.Ajax.requests.mostRecent();
+        const request = jasmine.Ajax.requests.mostRecent();
 
         expect(request.method).toBe('PUT');
-        expect(request.url).toBe('/go/api/elastic/profiles/' + profile.id());
+        expect(request.url).toBe(`/go/api/elastic/profiles/${profile.id()}`);
         expect(request.requestHeaders['Content-Type']).toContain('application/json');
         expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
         expect(request.requestHeaders['If-Match']).toBe('some-etag');
@@ -130,12 +130,12 @@ describe('Elastic Agent Profile', function () {
       });
     });
 
-    it('should update a profile and call error callback on error', function () {
-      var profile = ElasticProfiles.Profile.fromJSON(profileJSON);
+    it('should update a profile and call error callback on error', () => {
+      const profile = ElasticProfiles.Profile.fromJSON(profileJSON);
       profile.etag("some-etag");
 
-      jasmine.Ajax.withMock(function () {
-        jasmine.Ajax.stubRequest('/go/api/elastic/profiles/' + profile.id(), undefined, 'PUT').andReturn({
+      jasmine.Ajax.withMock(() => {
+        jasmine.Ajax.stubRequest(`/go/api/elastic/profiles/${profile.id()}`, undefined, 'PUT').andReturn({
           responseText:    JSON.stringify({message: 'Boom!'}),
           status:          401,
           responseHeaders: {
@@ -143,7 +143,7 @@ describe('Elastic Agent Profile', function () {
           }
         });
 
-        var errorCallback = jasmine.createSpy();
+        const errorCallback = jasmine.createSpy();
 
         profile.update().then(_.noop, errorCallback);
 
@@ -151,10 +151,10 @@ describe('Elastic Agent Profile', function () {
 
         expect(jasmine.Ajax.requests.count()).toBe(1);
 
-        var request = jasmine.Ajax.requests.mostRecent();
+        const request = jasmine.Ajax.requests.mostRecent();
 
         expect(request.method).toBe('PUT');
-        expect(request.url).toBe('/go/api/elastic/profiles/' + profile.id());
+        expect(request.url).toBe(`/go/api/elastic/profiles/${profile.id()}`);
         expect(request.requestHeaders['Content-Type']).toContain('application/json');
         expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
         expect(request.requestHeaders['If-Match']).toBe('some-etag');
@@ -163,11 +163,11 @@ describe('Elastic Agent Profile', function () {
     });
   });
 
-  describe("create a profile", function () {
-    it("should create a profile and call the success callback", function () {
-      var profile = ElasticProfiles.Profile.fromJSON(profileJSON);
+  describe("create a profile", () => {
+    it("should create a profile and call the success callback", () => {
+      const profile = ElasticProfiles.Profile.fromJSON(profileJSON);
 
-      jasmine.Ajax.withMock(function () {
+      jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest('/go/api/elastic/profiles', undefined, 'POST').andReturn({
           responseText:    JSON.stringify(profileJSON),
           status:          200,
@@ -176,7 +176,7 @@ describe('Elastic Agent Profile', function () {
           }
         });
 
-        var successCallback = jasmine.createSpy();
+        const successCallback = jasmine.createSpy();
 
         profile.create().then(successCallback);
 
@@ -186,7 +186,7 @@ describe('Elastic Agent Profile', function () {
 
         expect(jasmine.Ajax.requests.count()).toBe(1);
 
-        var request = jasmine.Ajax.requests.mostRecent();
+        const request = jasmine.Ajax.requests.mostRecent();
 
         expect(request.method).toBe('POST');
         expect(JSON.parse(request.params)).toEqual(profileJSON);
@@ -198,10 +198,10 @@ describe('Elastic Agent Profile', function () {
 
     });
 
-    it("should not create a profile and call the error callback on non-422 failure code", function () {
-      var profile = ElasticProfiles.Profile.fromJSON(profileJSON);
+    it("should not create a profile and call the error callback on non-422 failure code", () => {
+      const profile = ElasticProfiles.Profile.fromJSON(profileJSON);
 
-      jasmine.Ajax.withMock(function () {
+      jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest('/go/api/elastic/profiles', undefined, 'POST').andReturn({
           responseText:    JSON.stringify({message: 'Boom!'}),
           status:          401,
@@ -210,7 +210,7 @@ describe('Elastic Agent Profile', function () {
           }
         });
 
-        var errorCallback = jasmine.createSpy();
+        const errorCallback = jasmine.createSpy();
 
         profile.create().then(_.noop, errorCallback);
 
@@ -218,7 +218,7 @@ describe('Elastic Agent Profile', function () {
 
         expect(jasmine.Ajax.requests.count()).toBe(1);
 
-        var request = jasmine.Ajax.requests.mostRecent();
+        const request = jasmine.Ajax.requests.mostRecent();
 
         expect(request.method).toBe('POST');
         expect(JSON.parse(request.params)).toEqual(profileJSON);
@@ -229,10 +229,10 @@ describe('Elastic Agent Profile', function () {
       });
     });
 
-    it("should not create a profile and call the error callback on 422 failure code with the profile object", function () {
-      var profile = ElasticProfiles.Profile.fromJSON(profileJSON);
+    it("should not create a profile and call the error callback on 422 failure code with the profile object", () => {
+      const profile = ElasticProfiles.Profile.fromJSON(profileJSON);
 
-      jasmine.Ajax.withMock(function () {
+      jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest('/go/api/elastic/profiles', undefined, 'POST').andReturn({
           responseText:    JSON.stringify({data: profileJSON}),
           status:          422,
@@ -241,7 +241,7 @@ describe('Elastic Agent Profile', function () {
           }
         });
 
-        var errorCallback = jasmine.createSpy().and.callFake(function (profileWithErrors) {
+        const errorCallback = jasmine.createSpy().and.callFake((profileWithErrors) => {
           expect(profileWithErrors.id()).toBe(profile.id());
           expect(profileWithErrors.pluginId()).toBe(profile.pluginId());
         });
@@ -252,7 +252,7 @@ describe('Elastic Agent Profile', function () {
 
         expect(jasmine.Ajax.requests.count()).toBe(1);
 
-        var request = jasmine.Ajax.requests.mostRecent();
+        const request = jasmine.Ajax.requests.mostRecent();
 
         expect(request.method).toBe('POST');
         expect(JSON.parse(request.params)).toEqual(profileJSON);
@@ -264,10 +264,10 @@ describe('Elastic Agent Profile', function () {
     });
   });
 
-  describe("find a profile", function () {
-    it('should find a profile and call the success callback', function () {
-      jasmine.Ajax.withMock(function () {
-        jasmine.Ajax.stubRequest('/go/api/elastic/profiles/' + profileJSON['id'], undefined, 'GET').andReturn({
+  describe("find a profile", () => {
+    it('should find a profile and call the success callback', () => {
+      jasmine.Ajax.withMock(() => {
+        jasmine.Ajax.stubRequest(`/go/api/elastic/profiles/${profileJSON['id']}`, undefined, 'GET').andReturn({
           responseText:    JSON.stringify(profileJSON),
           responseHeaders: {
             ETag:           'foo',
@@ -276,7 +276,7 @@ describe('Elastic Agent Profile', function () {
           status:          200
         });
 
-        var successCallback = jasmine.createSpy().and.callFake(function (profile) {
+        const successCallback = jasmine.createSpy().and.callFake((profile) => {
           expect(profile.id()).toBe("unit-tests");
           expect(profile.pluginId()).toBe("cd.go.contrib.elastic-agent.docker");
           expect(profile.properties().collectConfigurationProperty('key')).toEqual(['Image', 'Environment']);
@@ -289,16 +289,16 @@ describe('Elastic Agent Profile', function () {
         expect(successCallback).toHaveBeenCalled();
 
         expect(jasmine.Ajax.requests.count()).toBe(1);
-        var request = jasmine.Ajax.requests.mostRecent();
+        const request = jasmine.Ajax.requests.mostRecent();
         expect(request.method).toBe('GET');
-        expect(request.url).toBe('/go/api/elastic/profiles/' + profileJSON['id']);
+        expect(request.url).toBe(`/go/api/elastic/profiles/${profileJSON['id']}`);
         expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
       });
     });
 
-    it("should find a profile and call the error callback on error", function () {
-      jasmine.Ajax.withMock(function () {
-        jasmine.Ajax.stubRequest('/go/api/elastic/profiles/' + profileJSON['id'], undefined, 'GET').andReturn({
+    it("should find a profile and call the error callback on error", () => {
+      jasmine.Ajax.withMock(() => {
+        jasmine.Ajax.stubRequest(`/go/api/elastic/profiles/${profileJSON['id']}`, undefined, 'GET').andReturn({
           responseText:    JSON.stringify({message: 'Boom!'}),
           status:          401,
           responseHeaders: {
@@ -307,26 +307,26 @@ describe('Elastic Agent Profile', function () {
         });
 
 
-        var failureCallback = jasmine.createSpy();
+        const failureCallback = jasmine.createSpy();
 
         ElasticProfiles.Profile.get(profileJSON['id']).then(_.noop, failureCallback);
 
         expect(failureCallback).toHaveBeenCalledWith('Boom!');
 
         expect(jasmine.Ajax.requests.count()).toBe(1);
-        var request = jasmine.Ajax.requests.mostRecent();
+        const request = jasmine.Ajax.requests.mostRecent();
         expect(request.method).toBe('GET');
-        expect(request.url).toBe('/go/api/elastic/profiles/' + profileJSON['id']);
+        expect(request.url).toBe(`/go/api/elastic/profiles/${profileJSON['id']}`);
         expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
       });
     });
   });
 
-  describe('delete a profile', function () {
-    it("should call the success callback with the message", function () {
-      var profile = ElasticProfiles.Profile.fromJSON(profileJSON);
-      jasmine.Ajax.withMock(function () {
-        jasmine.Ajax.stubRequest('/go/api/elastic/profiles/' + profile.id()).andReturn({
+  describe('delete a profile', () => {
+    it("should call the success callback with the message", () => {
+      const profile = ElasticProfiles.Profile.fromJSON(profileJSON);
+      jasmine.Ajax.withMock(() => {
+        jasmine.Ajax.stubRequest(`/go/api/elastic/profiles/${profile.id()}`).andReturn({
           responseText:    JSON.stringify({message: 'Success!'}),
           status:          200,
           responseHeaders: {
@@ -334,22 +334,22 @@ describe('Elastic Agent Profile', function () {
           }
         });
 
-        var successCallback = jasmine.createSpy();
+        const successCallback = jasmine.createSpy();
 
         profile.delete().then(successCallback);
 
         expect(successCallback).toHaveBeenCalledWith('Success!');
         expect(jasmine.Ajax.requests.count()).toBe(1);
-        var request = jasmine.Ajax.requests.mostRecent();
+        const request = jasmine.Ajax.requests.mostRecent();
         expect(request.method).toBe('DELETE');
-        expect(request.url).toBe('/go/api/elastic/profiles/' + profile.id());
+        expect(request.url).toBe(`/go/api/elastic/profiles/${profile.id()}`);
       });
     });
 
-    it("should call the error callback with the message", function () {
-      var profile = ElasticProfiles.Profile.fromJSON(profileJSON);
-      jasmine.Ajax.withMock(function () {
-        jasmine.Ajax.stubRequest('/go/api/elastic/profiles/' + profile.id()).andReturn({
+    it("should call the error callback with the message", () => {
+      const profile = ElasticProfiles.Profile.fromJSON(profileJSON);
+      jasmine.Ajax.withMock(() => {
+        jasmine.Ajax.stubRequest(`/go/api/elastic/profiles/${profile.id()}`).andReturn({
           responseText:    JSON.stringify({message: 'Boom!'}),
           status:          422,
           responseHeaders: {
@@ -357,15 +357,15 @@ describe('Elastic Agent Profile', function () {
           }
         });
 
-        var errorCallback = jasmine.createSpy();
+        const errorCallback = jasmine.createSpy();
         profile.delete().then(_.noop, errorCallback);
 
         expect(errorCallback).toHaveBeenCalledWith('Boom!');
 
         expect(jasmine.Ajax.requests.count()).toBe(1);
-        var request = jasmine.Ajax.requests.mostRecent();
+        const request = jasmine.Ajax.requests.mostRecent();
         expect(request.method).toBe('DELETE');
-        expect(request.url).toBe('/go/api/elastic/profiles/' + profile.id());
+        expect(request.url).toBe(`/go/api/elastic/profiles/${profile.id()}`);
       });
     });
   });

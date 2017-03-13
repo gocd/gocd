@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-var $          = require('jquery');
-var Stream     = require('mithril/stream');
-var _          = require('lodash');
-var s          = require('string-plus');
-var Mixins     = require('models/mixins/model_mixins');
-var filesize   = require('filesize');
-var mrequest   = require('helpers/mrequest');
-var Routes     = require('gen/js-routes');
-var CrudMixins = require('models/mixins/crud_mixins');
+const $          = require('jquery');
+const Stream     = require('mithril/stream');
+const _          = require('lodash');
+const s          = require('string-plus');
+const Mixins     = require('models/mixins/model_mixins');
+const filesize   = require('filesize');
+const mrequest   = require('helpers/mrequest');
+const Routes     = require('gen/js-routes');
+const CrudMixins = require('models/mixins/crud_mixins');
 
 require('lodash-inflection');
 
-var statusComparator = function (agent) {
-  var rank = {
+const statusComparator = (agent) => {
+  const rank = {
     "Pending":              1,
     "LostContact":          2,
     "Missing":              3,
@@ -41,31 +41,21 @@ var statusComparator = function (agent) {
   return rank[agent.status()];
 };
 
-var sortByAttrName = function (attrName) {
-  return function (agent) {
-    return _.toLower(agent[attrName]());
-  };
+const sortByAttrName = (attrName) => (agent) => _.toLower(agent[attrName]());
+
+const resolve = (deferred) => (data, _textStatus, jqXHR) => {
+  deferred.resolve(mrequest.unwrapMessage(data, jqXHR));
 };
 
-var resolve = function (deferred) {
-  return function (data, _textStatus, jqXHR) {
-    deferred.resolve(mrequest.unwrapMessage(data, jqXHR));
-  };
+const reject = (deferred) => (jqXHR, _textStatus, _errorThrown) => {
+  deferred.reject(mrequest.unwrapErrorExtractMessage(jqXHR.responseJSON, jqXHR));
 };
 
-var reject = function (deferred) {
-  return function (jqXHR, _textStatus, _errorThrown) {
-    deferred.reject(mrequest.unwrapErrorExtractMessage(jqXHR.responseJSON, jqXHR));
-  };
-};
-
-var Agents = function (data) {
+const Agents = function (data) {
   Mixins.HasMany.call(this, {factory: Agents.Agent.create, as: 'Agent', collection: data, uniqueOn: 'uuid'});
 
-  var agentsWithState = function (state) {
-    return this.filterAgent(function (agent) {
-      return agent.agentConfigState() === state;
-    }).length;
+  const agentsWithState = function (state) {
+    return this.filterAgent((agent) => agent.agentConfigState() === state).length;
   };
 
   this.countDisabledAgents = function () {
@@ -81,7 +71,7 @@ var Agents = function (data) {
   };
 
   this.sortBy = function (attrName, order) {
-    var sortedAgents;
+    let sortedAgents;
 
     if (attrName === 'agentState') {
       sortedAgents = this.sortByAgents(statusComparator);
@@ -98,28 +88,24 @@ var Agents = function (data) {
 
   this.filterBy = function (text) {
     return new Agents(
-      this.filterAgent(function (agent) {
-        return agent.matches(text);
-      })
+      this.filterAgent((agent) => agent.matches(text))
     );
   };
 
   this.findAgentByUuid = function (uuid) {
-    return this.findAgent(function (agent) {
-      return agent.uuid() === uuid;
-    });
+    return this.findAgent((agent) => agent.uuid() === uuid);
   };
 
-  this.disableAgents = function (uuids) {
-    var json = {
-      uuids:              uuids,
+  this.disableAgents = (uuids) => {
+    const json = {
+      uuids,
       agent_config_state: 'Disabled'  //eslint-disable-line camelcase
     };
 
     return $.Deferred(function () {
-      var deferred = this;
+      const deferred = this;
 
-      var jqXHR = $.ajax({
+      const jqXHR = $.ajax({
         method:      'PATCH',
         url:         Routes.apiv4AgentsPath(),
         timeout:     mrequest.timeout,
@@ -132,12 +118,12 @@ var Agents = function (data) {
     }).promise();
   };
 
-  this.deleteAgents = function (uuids) {
-    var json = {uuids: uuids};
+  this.deleteAgents = (uuids) => {
+    const json = {uuids};
     return $.Deferred(function () {
-      var deferred = this;
+      const deferred = this;
 
-      var jqXHR = $.ajax({
+      const jqXHR = $.ajax({
         method:      'DELETE',
         url:         Routes.apiv4AgentsPath(),
         timeout:     mrequest.timeout,
@@ -150,16 +136,16 @@ var Agents = function (data) {
     }).promise();
   };
 
-  this.enableAgents = function (uuids) {
-    var json = {
-      uuids:              uuids,
+  this.enableAgents = (uuids) => {
+    const json = {
+      uuids,
       agent_config_state: 'Enabled' //eslint-disable-line camelcase
     };
 
     return $.Deferred(function () {
-      var deferred = this;
+      const deferred = this;
 
-      var jqXHR = $.ajax({
+      const jqXHR = $.ajax({
         method:      'PATCH',
         url:         Routes.apiv4AgentsPath(),
         timeout:     mrequest.timeout,
@@ -172,18 +158,18 @@ var Agents = function (data) {
     }).promise();
   };
 
-  this.updateResources = function (uuids, add, remove) {
-    var json = {
-      uuids:      uuids,
+  this.updateResources = (uuids, add, remove) => {
+    const json = {
+      uuids,
       operations: {
-        resources: {add: add, remove: remove}
+        resources: {add, remove}
       }
     };
 
     return $.Deferred(function () {
-      var deferred = this;
+      const deferred = this;
 
-      var jqXHR = $.ajax({
+      const jqXHR = $.ajax({
         method:      'PATCH',
         url:         Routes.apiv4AgentsPath(),
         timeout:     mrequest.timeout,
@@ -196,16 +182,16 @@ var Agents = function (data) {
     }).promise();
   };
 
-  this.updateEnvironments = function (uuids, add, remove) {
-    var json = {
-      uuids:      uuids,
-      operations: {environments: {add: add, remove: remove}}
+  this.updateEnvironments = (uuids, add, remove) => {
+    const json = {
+      uuids,
+      operations: {environments: {add, remove}}
     };
 
     return $.Deferred(function () {
-      var deferred = this;
+      const deferred = this;
 
-      var jqXHR = $.ajax({
+      const jqXHR = $.ajax({
         method:      'PATCH',
         url:         Routes.apiv4AgentsPath(),
         timeout:     mrequest.timeout,
@@ -229,7 +215,7 @@ CrudMixins.Index({
   dataPath: '_embedded.agents'
 });
 
-var toHumanReadable = function (freeSpace) {
+const toHumanReadable = (freeSpace) => {
   try {
     if (_.isNumber(freeSpace)) {
       return filesize(freeSpace);
@@ -242,7 +228,7 @@ var toHumanReadable = function (freeSpace) {
 };
 
 Agents.Agent = function (data) {
-  var self               = this;
+  const self               = this;
   this.uuid              = Stream(data.uuid);
   this.hostname          = Stream(data.hostname);
   this.ipAddress         = Stream(data.ipAddress);
@@ -279,18 +265,16 @@ Agents.Agent = function (data) {
     return this.agentState();
   };
 
-  this.matches = function (filterText) {
-    var keys   = ['hostname', 'operatingSystem', 'ipAddress', 'status', 'environments', 'resources'];
+  this.matches = (filterText) => {
+    const keys   = ['hostname', 'operatingSystem', 'ipAddress', 'status', 'environments', 'resources'];
     filterText = filterText.toLowerCase();
-    return _.some(keys, function (field) {
-      var agentInfo = self[field]().toString().toLowerCase();
+    return _.some(keys, (field) => {
+      const agentInfo = self[field]().toString().toLowerCase();
       return s.include(agentInfo, filterText);
     });
   };
 
-  this.isElasticAgent = function () {
-    return !_.isNil(self.elasticAgentId());
-  };
+  this.isElasticAgent = () => !_.isNil(self.elasticAgentId());
 
   this.toJSON = function () {
     return {
@@ -315,7 +299,7 @@ Agents.Agent.BuildDetails = function (data) {
   this.jobUrl       = Stream(data.jobUrl);
 };
 
-Agents.Agent.BuildDetails.fromJSON = function (data) {
+Agents.Agent.BuildDetails.fromJSON = (data) => {
   if (!data) {
     return new Agents.Agent.BuildDetails();
   } else {
@@ -330,28 +314,24 @@ Agents.Agent.BuildDetails.fromJSON = function (data) {
   }
 };
 
-Agents.Agent.fromJSON = function (data) {
-  return new Agents.Agent({
-    uuid:             data.uuid,
-    hostname:         data.hostname,
-    ipAddress:        data.ip_address,
-    sandbox:          data.sandbox,
-    operatingSystem:  data.operating_system,
-    freeSpace:        data.free_space,
-    agentConfigState: data.agent_config_state,
-    agentState:       data.agent_state,
-    buildState:       data.build_state,
-    resources:        data.resources,
-    environments:     data.environments,
-    buildDetails:     Agents.Agent.BuildDetails.fromJSON(data.build_details),
-    elasticAgentId:   data.elastic_agent_id,
-    elasticPluginId:  data.elastic_plugin_id
-  });
-};
+Agents.Agent.fromJSON = (data) => new Agents.Agent({
+  uuid:             data.uuid,
+  hostname:         data.hostname,
+  ipAddress:        data.ip_address,
+  sandbox:          data.sandbox,
+  operatingSystem:  data.operating_system,
+  freeSpace:        data.free_space,
+  agentConfigState: data.agent_config_state,
+  agentState:       data.agent_state,
+  buildState:       data.build_state,
+  resources:        data.resources,
+  environments:     data.environments,
+  buildDetails:     Agents.Agent.BuildDetails.fromJSON(data.build_details),
+  elasticAgentId:   data.elastic_agent_id,
+  elasticPluginId:  data.elastic_plugin_id
+});
 
-Agents.Agent.create = function (data) {
-  return new Agents.Agent(data);
-};
+Agents.Agent.create = (data) => new Agents.Agent(data);
 
 Mixins.fromJSONCollection({
   parentType: Agents,

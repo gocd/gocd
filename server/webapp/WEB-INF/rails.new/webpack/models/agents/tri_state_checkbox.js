@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,30 +14,22 @@
  * limitations under the License.
  */
 
-var Stream         = require('mithril/stream');
-var _              = require('lodash');
-var isPresentOnAll = function (setOfValues, value) {
-  return _.every(setOfValues, function (values) {
-    return _.includes(values, value);
-  });
-};
+const Stream         = require('mithril/stream');
+const _              = require('lodash');
+const isPresentOnAll = (setOfValues, value) => _.every(setOfValues, (values) => _.includes(values, value));
 
-var isPresentOnAny = function (setOfValues, value) {
-  return _.some(setOfValues, function (values) {
-    return _.includes(values, value);
-  });
-};
+const isPresentOnAny = (setOfValues, value) => _.some(setOfValues, (values) => _.includes(values, value));
 
-var TriStateCheckbox = function (value, setOfValues) {
-  var isChecked       = isPresentOnAll(setOfValues, value);
-  var isIndeterminate = !isChecked && isPresentOnAny(setOfValues, value);
+const TriStateCheckbox = function (value, setOfValues) {
+  const isChecked       = isPresentOnAll(setOfValues, value);
+  const isIndeterminate = !isChecked && isPresentOnAny(setOfValues, value);
 
   this.name         = Stream(value);
-  var checked       = Stream(isChecked);
-  var indeterminate = Stream(isIndeterminate);
-  var self          = this;
+  const checked       = Stream(isChecked);
+  const indeterminate = Stream(isIndeterminate);
+  const self          = this;
 
-  this.click = function () {
+  this.click = () => {
     if (isIndeterminate) {
       if (self.isChecked()) {
         self.becomeUnchecked();
@@ -55,25 +47,21 @@ var TriStateCheckbox = function (value, setOfValues) {
     }
   };
 
-  this.isChecked = function () {
-    return checked();
-  };
+  this.isChecked = () => checked();
 
-  this.isIndeterminate = function () {
-    return indeterminate();
-  };
+  this.isIndeterminate = () => indeterminate();
 
-  this.becomeChecked = function () {
+  this.becomeChecked = () => {
     checked(true);
     indeterminate(false);
   };
 
-  this.becomeUnchecked = function () {
+  this.becomeUnchecked = () => {
     checked(false);
     indeterminate(false);
   };
 
-  this.becomeIndeterminate = function () {
+  this.becomeIndeterminate = () => {
     checked(false);
     indeterminate(true);
   };

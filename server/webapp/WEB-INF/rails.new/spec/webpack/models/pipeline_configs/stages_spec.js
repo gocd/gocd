@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-describe("Stages Model", function () {
+describe("Stages Model", () => {
 
-  var s = require("string-plus");
+  const s = require("string-plus");
 
-  var Stages   = require("models/pipeline_configs/stages");
-  var Approval = require('models/pipeline_configs/approval');
+  const Stages   = require("models/pipeline_configs/stages");
+  const Approval = require('models/pipeline_configs/approval');
 
-  var stages, stage;
-  beforeEach(function () {
+  let stages, stage;
+  beforeEach(() => {
     stages = new Stages();
     stage  = stages.createStage({
       name:                  "UnitTest",
@@ -33,63 +33,63 @@ describe("Stages Model", function () {
     });
   });
 
-  it("should initialize stage model with name", function () {
+  it("should initialize stage model with name", () => {
     expect(stage.name()).toBe("UnitTest");
   });
 
-  it("should initialize stage model with fetchMaterials", function () {
+  it("should initialize stage model with fetchMaterials", () => {
     expect(stage.fetchMaterials()).toBe(true);
   });
 
-  it("should initialize stage model with cleanWorkingDirectory", function () {
+  it("should initialize stage model with cleanWorkingDirectory", () => {
     expect(stage.cleanWorkingDirectory()).toBe(true);
   });
 
-  it("should initialize stage model with neverCleanupArtifacts", function () {
+  it("should initialize stage model with neverCleanupArtifacts", () => {
     expect(stage.neverCleanupArtifacts()).toBe(true);
   });
 
-  it("should initialize stage model with environmentVariables", function () {
+  it("should initialize stage model with environmentVariables", () => {
     expect(stage.environmentVariables()).toEqual(['foo=bar', 'boo=baz']);
   });
 
-  it("should initialize stage model with approval", function () {
+  it("should initialize stage model with approval", () => {
     expect(stage.approval().type()).toEqual('manual');
   });
 
-  describe("validations", function () {
-    it("should not allow blank stage names", function () {
-      var errors = stage.validate();
+  describe("validations", () => {
+    it("should not allow blank stage names", () => {
+      let errors = stage.validate();
       expect(errors._isEmpty()).toBe(true);
 
       stage.name("");
-      var duplicateStage = stages.createStage({name: stage.name()});
+      const duplicateStage = stages.createStage({name: stage.name()});
 
       errors                = stage.validate();
-      var errorsOnDuplicate = duplicateStage.validate();
+      const errorsOnDuplicate = duplicateStage.validate();
 
       expect(errors.errors('name')).toEqual(['Name must be present']);
       expect(errorsOnDuplicate.errors('name')).toEqual(['Name must be present']);
     });
 
-    it("should not allow duplicate stage names", function () {
-      var errorsOnOriginal = stage.validate();
+    it("should not allow duplicate stage names", () => {
+      let errorsOnOriginal = stage.validate();
       expect(errorsOnOriginal._isEmpty()).toBe(true);
 
-      var duplicateStage = stages.createStage({
+      const duplicateStage = stages.createStage({
         name: "UnitTest"
       });
 
       errorsOnOriginal = stage.validate();
       expect(errorsOnOriginal.errors('name')).toEqual(['Name is a duplicate']);
 
-      var errorsOnDuplicate = duplicateStage.validate();
+      const errorsOnDuplicate = duplicateStage.validate();
       expect(errorsOnDuplicate.errors('name')).toEqual(['Name is a duplicate']);
     });
 
-    describe('validate associations', function () {
-      it('should validate environmental variables', function () {
-        var stage = Stages.Stage.fromJSON(sampleStageJSON());
+    describe('validate associations', () => {
+      it('should validate environmental variables', () => {
+        const stage = Stages.Stage.fromJSON(sampleStageJSON());
 
         expect(stage.isValid()).toBe(true);
 
@@ -99,8 +99,8 @@ describe("Stages Model", function () {
         expect(stage.environmentVariables().firstVariable().errors().errors('name')).toEqual(['Name must be present']);
       });
 
-      it('should validate jobs', function () {
-        var stage = Stages.Stage.fromJSON({
+      it('should validate jobs', () => {
+        const stage = Stages.Stage.fromJSON({
           name: 'stage1',
           jobs: [
             {name: 'job1'}
@@ -117,25 +117,23 @@ describe("Stages Model", function () {
     });
   });
 
-  describe("Serialization/De-serialization to/from JSON", function () {
-    beforeEach(function () {
+  describe("Serialization/De-serialization to/from JSON", () => {
+    beforeEach(() => {
       stage = Stages.Stage.fromJSON(sampleStageJSON());
     });
 
-    it("should de-serialize from JSON", function () {
+    it("should de-serialize from JSON", () => {
       expect(stage.name()).toBe("UnitTest");
       expect(stage.fetchMaterials()).toBe(true);
       expect(stage.cleanWorkingDirectory()).toBe(false);
       expect(stage.neverCleanupArtifacts()).toBe(true);
 
-      var expectedEnvironmentVarNames = stage.environmentVariables().mapVariables(function (variable) {
-        return variable.name();
-      });
+      const expectedEnvironmentVarNames = stage.environmentVariables().mapVariables((variable) => variable.name());
 
       expect(expectedEnvironmentVarNames).toEqual(['MULTIPLE_LINES', 'COMPLEX']);
     });
 
-    it("should serialize to JSON", function () {
+    it("should serialize to JSON", () => {
       expect(JSON.parse(JSON.stringify(stage, s.snakeCaser))).toEqual(sampleStageJSON());
     });
   });

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-describe("Materials Config Widget", function () {
+describe("Materials Config Widget", () => {
 
   var $      = require("jquery");
   var m      = require('mithril');
@@ -32,20 +32,18 @@ describe("Materials Config Widget", function () {
   });
   afterEach(window.destroyDomElementForTest);
 
-  beforeEach(function () {
-    spyOn(Pipelines, 'init').and.callFake(function () {
-      return $.Deferred().promise();
-    });
+  beforeEach(() => {
+    spyOn(Pipelines, 'init').and.callFake(() => $.Deferred().promise());
   });
 
-  afterEach(function () {
+  afterEach(() => {
     m.mount(root, null);
     m.redraw();
   });
 
-  describe('SVN View', function () {
+  describe('SVN View', () => {
     var material;
-    beforeEach(function () {
+    beforeEach(() => {
       var materials = new Materials();
       material      = materials.createMaterial({
         type:           'svn',
@@ -64,58 +62,58 @@ describe("Materials Config Widget", function () {
       viewMaterial();
     });
 
-    afterEach(function () {
+    afterEach(() => {
       unmount();
     });
 
-    it('should bind url', function () {
+    it('should bind url', () => {
       expect($root.find("input[data-prop-name='url']")).toHaveValue(material.url());
     });
 
-    it('should bind password', function () {
+    it('should bind password', () => {
       expect($root.find("input[data-prop-name='passwordValue']")).toHaveValue("p@ssw0rd");
     });
 
-    it('should bind username', function () {
+    it('should bind username', () => {
       expect($root.find("input[data-prop-name='username']")).toHaveValue(material.username());
     });
 
-    it('should bind checkExternals', function () {
+    it('should bind checkExternals', () => {
       expect($root.find("input[data-prop-name='checkExternals']")).toHaveValue('on');
     });
 
-    it('should bind name', function () {
+    it('should bind name', () => {
       expect($root.find("input[data-prop-name='name']")).toHaveValue(material.name());
     });
 
-    it('should bind destination', function () {
+    it('should bind destination', () => {
       expect($root.find("input[data-prop-name='destination']")).toHaveValue(material.destination());
     });
 
-    it('should bind the ignore fields', function () {
+    it('should bind the ignore fields', () => {
       expect($root.find("input[data-prop-name='ignore']")).toHaveValue('*.doc');
     });
 
-    it('should bind invertFilter', function () {
+    it('should bind invertFilter', () => {
       expect($root.find("input[data-prop-name='invertFilter']")).toBeChecked();
     });
 
-    it('should show tooltip message based on invertFilter', function () {
+    it('should show tooltip message based on invertFilter', () => {
       expect($root.html()).toContain('(Optional) Enter the paths to be included while triggering pipelines. Separate multiple entries with a comma.');
     });
 
-    it('should bind autoUpdate value', function () {
+    it('should bind autoUpdate value', () => {
       expect($root.find("input[data-prop-name='autoUpdate']")).toBeChecked();
     });
 
-    it('should show have material name in the header', function () {
+    it('should show have material name in the header', () => {
       expect($root.find(".material-definitions li")).toContainText("svn-repo");
     });
   });
 
-  describe('Git View', function () {
+  describe('Git View', () => {
     var material;
-    beforeEach(function () {
+    beforeEach(() => {
       var materials = new Materials();
       material      = materials.createMaterial({
         type:         'git',
@@ -132,54 +130,54 @@ describe("Materials Config Widget", function () {
       viewMaterial();
     });
 
-    afterEach(function () {
+    afterEach(() => {
       unmount();
     });
 
-    it('should bind url', function () {
+    it('should bind url', () => {
       expect($root.find("input[data-prop-name='url']")).toHaveValue(material.url());
     });
 
-    it('should bind branch', function () {
+    it('should bind branch', () => {
       expect($root.find("input[data-prop-name='branch']")).toHaveValue(material.branch());
     });
 
-    it('should bind name', function () {
+    it('should bind name', () => {
       expect($root.find("input[data-prop-name='name']")).toHaveValue(material.name());
     });
 
-    it('should bind destination', function () {
+    it('should bind destination', () => {
       expect($root.find("input[data-prop-name='destination']")).toHaveValue(material.destination());
     });
 
-    it('should bind the ignore fields', function () {
+    it('should bind the ignore fields', () => {
       expect($root.find("input[data-prop-name='ignore']")).toHaveValue('*.doc');
     });
 
-    it('should bind invertFilter', function () {
+    it('should bind invertFilter', () => {
       expect($root.find("input[data-prop-name='invertFilter']")).not.toBeChecked();
     });
 
-    it('should bind autoUpdate value', function () {
+    it('should bind autoUpdate value', () => {
       expect($root.find("input[data-prop-name='autoUpdate']")).not.toBeChecked();
     });
 
-    it('should show tooltip message based on invertFilter', function () {
+    it('should show tooltip message based on invertFilter', () => {
       expect($root.html()).toContain('(Optional) Enter the paths to be excluded while triggering pipelines. Separate multiple entries with a comma.');
     });
 
-    it('should bind shallow clone value', function () {
+    it('should bind shallow clone value', () => {
       expect($root.find("input[data-prop-name='shallowClone']")).toBeChecked();
     });
 
-    it('should show have material name in the header', function () {
+    it('should show have material name in the header', () => {
       expect($root.find(".material-definitions li")).toContainText("git-repo");
     });
   });
 
-  describe('Mercurial View', function () {
+  describe('Mercurial View', () => {
     var material;
-    beforeEach(function () {
+    beforeEach(() => {
       var materials = new Materials();
       material      = materials.createMaterial({
         type:        'hg',
@@ -194,46 +192,46 @@ describe("Materials Config Widget", function () {
       viewMaterial();
     });
 
-    afterEach(function () {
+    afterEach(() => {
       unmount();
     });
 
-    it('should bind url', function () {
+    it('should bind url', () => {
       expect($root.find("input[data-prop-name='url']")).toHaveValue(material.url());
     });
 
-    it('should bind name', function () {
+    it('should bind name', () => {
       expect($root.find("input[data-prop-name='name']")).toHaveValue(material.name());
     });
 
-    it('should bind destination', function () {
+    it('should bind destination', () => {
       expect($root.find("input[data-prop-name='destination']")).toHaveValue(material.destination());
     });
 
-    it('should bind the ignore fields', function () {
+    it('should bind the ignore fields', () => {
       expect($root.find("input[data-prop-name='ignore']")).toHaveValue('*.doc');
     });
 
-    it('should bind invertFilter', function () {
+    it('should bind invertFilter', () => {
       expect($root.find("input[data-prop-name='invertFilter']")).not.toBeChecked();
     });
 
-    it('should show tooltip message based on invertFilter', function () {
+    it('should show tooltip message based on invertFilter', () => {
       expect($root.html()).toContain('(Optional) Enter the paths to be excluded while triggering pipelines. Separate multiple entries with a comma.');
     });
 
-    it('should bind autoUpdate value', function () {
+    it('should bind autoUpdate value', () => {
       expect($root.find("input[data-prop-name='autoUpdate']")).toBeChecked();
     });
 
-    it('should show have material name in the header', function () {
+    it('should show have material name in the header', () => {
       expect($root.find(".material-definitions li")).toContainText("hg-repo");
     });
   });
 
-  describe('Perforce View', function () {
+  describe('Perforce View', () => {
     var material;
-    beforeEach(function () {
+    beforeEach(() => {
       var materials = new Materials();
       material      = materials.createMaterial({
         type:         'p4',
@@ -253,62 +251,62 @@ describe("Materials Config Widget", function () {
       viewMaterial();
     });
 
-    afterEach(function () {
+    afterEach(() => {
       unmount();
     });
 
-    it('should bind port', function () {
+    it('should bind port', () => {
       expect($root.find("input[data-prop-name='port']")).toHaveValue(material.port());
     });
 
-    it('should bind username', function () {
+    it('should bind username', () => {
       expect($root.find("input[data-prop-name='username']")).toHaveValue(material.username());
     });
 
-    it('should bind view', function () {
+    it('should bind view', () => {
       expect($root.find("textarea[data-prop-name='view']")).toHaveValue(material.view());
     });
 
-    it('should bind password value', function () {
+    it('should bind password value', () => {
       expect($root.find("input[data-prop-name='passwordValue']")).toHaveValue('p@ssw0rd');
     });
 
-    it('should bind useTickets value', function () {
+    it('should bind useTickets value', () => {
       expect($root.find("input[data-prop-name='useTickets']")).toHaveValue('on');
     });
 
-    it('should bind name', function () {
+    it('should bind name', () => {
       expect($root.find("input[data-prop-name='name']")).toHaveValue(material.name());
     });
 
-    it('should bind destination', function () {
+    it('should bind destination', () => {
       expect($root.find("input[data-prop-name='destination']")).toHaveValue(material.destination());
     });
 
-    it('should bind the ignore fields', function () {
+    it('should bind the ignore fields', () => {
       expect($root.find("input[data-prop-name='ignore']")).toHaveValue('*.doc');
     });
 
-    it('should bind invertFilter', function () {
+    it('should bind invertFilter', () => {
       expect($root.find("input[data-prop-name='invertFilter']")).toBeChecked();
     });
 
-    it('should show tooltip message based on invertFilter', function () {
+    it('should show tooltip message based on invertFilter', () => {
       expect($root.html()).toContain('(Optional) Enter the paths to be included while triggering pipelines. Separate multiple entries with a comma.');
     });
 
-    it('should bind autoUpdate value', function () {
+    it('should bind autoUpdate value', () => {
       expect($root.find("input[data-prop-name='autoUpdate']")).toBeChecked();
     });
 
-    it('should show have material name in the header', function () {
+    it('should show have material name in the header', () => {
       expect($root.find(".material-definitions li")).toContainText("perforce-repo");
     });
   });
 
-  describe('TFS View', function () {
+  describe('TFS View', () => {
     var material;
-    beforeEach(function () {
+    beforeEach(() => {
       var materials = new Materials();
       material      = materials.createMaterial({
         type:         'tfs',
@@ -328,62 +326,62 @@ describe("Materials Config Widget", function () {
       viewMaterial();
     });
 
-    afterEach(function () {
+    afterEach(() => {
       unmount();
     });
 
-    it('should bind url', function () {
+    it('should bind url', () => {
       expect($root.find("input[data-prop-name='url']")).toHaveValue(material.url());
     });
 
-    it('should bind username', function () {
+    it('should bind username', () => {
       expect($root.find("input[data-prop-name='username']")).toHaveValue(material.username());
     });
 
-    it('should bind domain', function () {
+    it('should bind domain', () => {
       expect($root.find("input[data-prop-name='domain']")).toHaveValue(material.domain());
     });
 
-    it('should bind password value', function () {
+    it('should bind password value', () => {
       expect($root.find("input[data-prop-name='passwordValue']")).toHaveValue('p@ssw0rd');
     });
 
-    it('should bind projectPath', function () {
+    it('should bind projectPath', () => {
       expect($root.find("input[data-prop-name='projectPath']")).toHaveValue(material.projectPath());
     });
 
-    it('should bind name', function () {
+    it('should bind name', () => {
       expect($root.find("input[data-prop-name='name']")).toHaveValue(material.name());
     });
 
-    it('should bind destination', function () {
+    it('should bind destination', () => {
       expect($root.find("input[data-prop-name='destination']")).toHaveValue(material.destination());
     });
 
-    it('should bind the ignore fields', function () {
+    it('should bind the ignore fields', () => {
       expect($root.find("input[data-prop-name='ignore']")).toHaveValue('*.doc');
     });
 
-    it('should bind invertFilter', function () {
+    it('should bind invertFilter', () => {
       expect($root.find("input[data-prop-name='invertFilter']")).toBeChecked();
     });
 
-    it('should show tooltip message based on invertFilter', function () {
+    it('should show tooltip message based on invertFilter', () => {
       expect($root.html()).toContain('(Optional) Enter the paths to be included while triggering pipelines. Separate multiple entries with a comma.');
     });
 
-    it('should bind autoUpdate value', function () {
+    it('should bind autoUpdate value', () => {
       expect($root.find("input[data-prop-name='autoUpdate']")).toBeChecked();
     });
 
-    it('should show have material name in the header', function () {
+    it('should show have material name in the header', () => {
       expect($root.find(".material-definitions li")).toContainText("tfs-repo");
     });
   });
 
-  describe('Dependency View', function () {
+  describe('Dependency View', () => {
     var material;
-    beforeEach(function () {
+    beforeEach(() => {
       var materials = new Materials();
       material      = materials.createMaterial({
         type:       'dependency',
@@ -397,26 +395,26 @@ describe("Materials Config Widget", function () {
       viewMaterial();
     });
 
-    afterEach(function () {
+    afterEach(() => {
       unmount();
     });
 
-    it('should bind name', function () {
+    it('should bind name', () => {
       expect($root.find("input[data-prop-name='name']")).toHaveValue(material.name());
     });
 
-    it('should bind pipeline and stage', function () {
+    it('should bind pipeline and stage', () => {
       expect($root.find("input[name='pipeline-stage']")).toHaveValue('pipeline1 [stage1]');
     });
 
-    it('should show have material name in the header', function () {
+    it('should show have material name in the header', () => {
       expect($root.find(".material-definitions li")).toContainText("dependencyMaterial");
     });
   });
 
   function mount(materials) {
     m.mount(root, {
-      view: function () {
+      view() {
         return m(MaterialsConfigWidget, {
           materials:    Stream(materials),
           pipelineName: Stream('testPipeLine')
@@ -426,7 +424,7 @@ describe("Materials Config Widget", function () {
     m.redraw();
   }
 
-  var unmount = function () {
+  var unmount = () => {
     m.mount(root, null);
     m.redraw();
   };

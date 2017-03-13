@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,31 +14,27 @@
  * limitations under the License.
  */
 
-var $                = require('jquery');
-var m                = require('mithril');
-var _                = require('lodash');
-var mrequest         = require('helpers/mrequest');
-var TriStateCheckbox = require('models/agents/tri_state_checkbox');
-var Routes           = require('gen/js-routes');
-var Resources        = {};
+const $                = require('jquery');
+const m                = require('mithril');
+const _                = require('lodash');
+const mrequest         = require('helpers/mrequest');
+const TriStateCheckbox = require('models/agents/tri_state_checkbox');
+const Routes           = require('gen/js-routes');
+const Resources        = {};
 Resources.list       = [];
 
-var getSortedResources = function (resources, selectedAgents) {
-  var selectedAgentsResources = _.map(selectedAgents, function (agent) {
-    return agent.resources();
-  });
+const getSortedResources = (resources, selectedAgents) => {
+  const selectedAgentsResources = _.map(selectedAgents, (agent) => agent.resources());
 
-  return _.map(resources.sort(), function (resource) {
-    return new TriStateCheckbox(resource, selectedAgentsResources);
-  });
+  return _.map(resources.sort(), (resource) => new TriStateCheckbox(resource, selectedAgentsResources));
 };
 
-Resources.init = function (selectedAgents) {
+Resources.init = (selectedAgents) => {
   $.ajax({
     method:     'GET',
     url:        Routes.apiv1AdminInternalResourcesPath(),
     beforeSend: mrequest.xhrConfig.forVersion('v1')
-  }).then(function (data) {
+  }).then((data) => {
     Resources.list = getSortedResources(data, selectedAgents);
   }).always(m.redraw);
 };

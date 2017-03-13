@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,62 +14,62 @@
  * limitations under the License.
  */
 
-describe("Button Row Widget", function () {
-  var m      = require('mithril');
-  var Stream = require('mithril/stream');
+describe("Button Row Widget", () => {
+  const m      = require('mithril');
+  const Stream = require('mithril/stream');
 
   require('jasmine-jquery');
 
-  var Agents          = require('models/agents/agents');
-  var ButtonRowWidget = require("views/agents/button_row_widget");
-  var AgentsVM        = require("views/agents/models/agents_widget_view_model");
+  const Agents          = require('models/agents/agents');
+  const ButtonRowWidget = require("views/agents/button_row_widget");
+  const AgentsVM        = require("views/agents/models/agents_widget_view_model");
 
-  var agents;
+  let agents;
 
-  var $root, root;
+  let $root, root;
   beforeEach(() => {
     [$root, root] = window.createDomElementForTest();
   });
   afterEach(window.destroyDomElementForTest);
 
-  var selectedAgents     = function () {
+  const selectedAgents     = () => {
   };
-  var disableAgents      = function () {
+  const disableAgents      = () => {
   };
-  var enableAgents       = function () {
+  const enableAgents       = () => {
   };
-  var deleteAgents       = function () {
+  const deleteAgents       = () => {
   };
-  var updateResources    = function () {
+  const updateResources    = () => {
   };
-  var updateEnvironments = function () {
+  const updateEnvironments = () => {
   };
 
-  var agentsVM = new AgentsVM();
+  const agentsVM = new AgentsVM();
 
-  beforeEach(function () {
+  beforeEach(() => {
     agents        = Stream();
-    var allAgents = Agents.fromJSON(json());
+    const allAgents = Agents.fromJSON(json());
     agents(allAgents);
-    var areOperationsAllowed = Stream(false);
+    const areOperationsAllowed = Stream(false);
     mount(areOperationsAllowed);
     m.redraw();
   });
 
-  afterEach(function () {
+  afterEach(() => {
     unmount();
   });
 
-  describe('Heading Row', function () {
-    it('should contain the agents page heading text', function () {
-      var headingText = $root.find('.page-header h1');
+  describe('Heading Row', () => {
+    it('should contain the agents page heading text', () => {
+      const headingText = $root.find('.page-header h1');
       expect(headingText).toHaveText('Agents');
     });
   });
 
-  describe('Button Group', function () {
-    it('should contain the row elements', function () {
-      var rowElementButtons = $root.find('.header-panel-button-group button');
+  describe('Button Group', () => {
+    it('should contain the row elements', () => {
+      const rowElementButtons = $root.find('.header-panel-button-group button');
       expect(rowElementButtons).toHaveLength(7);
       expect(rowElementButtons[0]).toHaveText("Delete");
       expect(rowElementButtons[1]).toHaveText("Disable");
@@ -78,12 +78,12 @@ describe("Button Row Widget", function () {
       expect(rowElementButtons[4]).toHaveText("Add");
       expect(rowElementButtons[5]).toHaveText("Apply");
       expect(rowElementButtons[6]).toHaveText("Environments");
-      var rowElementText = $root.find('.header-panel-button-group .no-environment');
+      const rowElementText = $root.find('.header-panel-button-group .no-environment');
       expect(rowElementText[0]).toHaveText("No environments are defined");
     });
 
-    it('should disable the buttons if agents are not selected', function () {
-      var rowElements = $root.find('.header-panel-button-group button');
+    it('should disable the buttons if agents are not selected', () => {
+      const rowElements = $root.find('.header-panel-button-group button');
       expect(rowElements[0]).toBeDisabled();
       expect(rowElements[1]).toBeDisabled();
       expect(rowElements[2]).toBeDisabled();
@@ -91,10 +91,10 @@ describe("Button Row Widget", function () {
       expect(rowElements[6]).toBeDisabled();
     });
 
-    it('should enable the buttons if at least one agent is selected', function () {
-      var areOperationsAllowed = Stream(true);
+    it('should enable the buttons if at least one agent is selected', () => {
+      const areOperationsAllowed = Stream(true);
       mount(areOperationsAllowed);
-      var rowElements = $root.find('.header-panel-button-group button');
+      const rowElements = $root.find('.header-panel-button-group button');
 
       expect(rowElements[0]).not.toBeDisabled();
       expect(rowElements[1]).not.toBeDisabled();
@@ -105,13 +105,13 @@ describe("Button Row Widget", function () {
 
   });
 
-  var mount = function (areOperationsAllowed) {
+  const mount = (areOperationsAllowed) => {
     m.mount(root, {
-      view: function () {
+      view() {
         return m(ButtonRowWidget, {
-          areOperationsAllowed: areOperationsAllowed,
+          areOperationsAllowed,
           dropdown:             agentsVM.dropdown,
-          selectedAgents:       selectedAgents,
+          selectedAgents,
           onDisable:            disableAgents,
           onEnable:             enableAgents,
           onDelete:             deleteAgents,
@@ -123,39 +123,37 @@ describe("Button Row Widget", function () {
     m.redraw();
   };
 
-  var unmount = function () {
+  const unmount = () => {
     m.mount(root, null);
     m.redraw();
   };
 
-  var json = function () {
-    return [
-      {
-        "_links":             {
-          "self": {
-            "href": "https://ci.example.com/go/api/agents/uuid-1"
-          },
-          "doc":  {
-            "href": "https://api.gocd.io/#agents"
-          },
-          "find": {
-            "href": "https://ci.example.com/go/api/agents/:uuid"
-          }
+  const json = () => [
+    {
+      "_links":             {
+        "self": {
+          "href": "https://ci.example.com/go/api/agents/uuid-1"
         },
-        "uuid":               "uuid-1",
-        "hostname":           "in-john.local",
-        "ip_address":         "10.12.2.200",
-        "sandbox":            "usr/local/foo",
-        "operating_system":   "Linux",
-        "free_space":         "unknown",
-        "agent_config_state": "Enabled",
-        "agent_state":        "Missing",
-        "build_state":        "Unknown",
-        "resources":          [
-          "Firefox"
-        ],
-        "environments":       []
-      }
-    ];
-  };
+        "doc":  {
+          "href": "https://api.gocd.io/#agents"
+        },
+        "find": {
+          "href": "https://ci.example.com/go/api/agents/:uuid"
+        }
+      },
+      "uuid":               "uuid-1",
+      "hostname":           "in-john.local",
+      "ip_address":         "10.12.2.200",
+      "sandbox":            "usr/local/foo",
+      "operating_system":   "Linux",
+      "free_space":         "unknown",
+      "agent_config_state": "Enabled",
+      "agent_state":        "Missing",
+      "build_state":        "Unknown",
+      "resources":          [
+        "Firefox"
+      ],
+      "environments":       []
+    }
+  ];
 });

@@ -14,39 +14,37 @@
  * limitations under the License.
  */
 
-var $        = require('jquery');
-var _        = require('lodash');
-var mrequest = require('helpers/mrequest');
-var Routes   = require('gen/js-routes');
+const $        = require('jquery');
+const _        = require('lodash');
+const mrequest = require('helpers/mrequest');
+const Routes   = require('gen/js-routes');
 
-var VersionUpdater = function () {
-  this.update = function () {
+const VersionUpdater = function () {
+  this.update = () => {
     if (canUpdateVersion()) {
-      fetchStaleVersionInfo().then(function (data) {
+      fetchStaleVersionInfo().then((data) => {
         _.isEmpty(data) ? markUpdateDone() : fetchLatestVersion(data);
       });
     }
   };
 
-  var fetchStaleVersionInfo = function () {
-    return $.ajax({
-      method:     'GET',
-      url:        Routes.apiv1StaleVersionInfoPath(),
-      beforeSend: mrequest.xhrConfig.forVersion('v1')
-    });
-  };
+  var fetchStaleVersionInfo = () => $.ajax({
+    method:     'GET',
+    url:        Routes.apiv1StaleVersionInfoPath(),
+    beforeSend: mrequest.xhrConfig.forVersion('v1')
+  });
 
-  var fetchLatestVersion = function (versionInfo) {
+  var fetchLatestVersion = (versionInfo) => {
     $.ajax({
       method:     'GET',
       url:        versionInfo['update_server_url'],
-      beforeSend: function (xhr) {
+      beforeSend(xhr) {
         xhr.setRequestHeader("Accept", "application/vnd.update.go.cd.v1+json");
       },
     }).then(updateLatestVersion);
   };
 
-  var updateLatestVersion = function (data) {
+  var updateLatestVersion = (data) => {
     $.ajax({
       method:     'PATCH',
       beforeSend: mrequest.xhrConfig.forVersion('v1'),
@@ -55,19 +53,19 @@ var VersionUpdater = function () {
     }).then(markUpdateDone);
   };
 
-  var canUpdateVersion = function () {
-    var versionCheckInfo = localStorage.getItem('versionCheckInfo');
+  var canUpdateVersion = () => {
+    let versionCheckInfo = localStorage.getItem('versionCheckInfo');
     if (_.isEmpty(versionCheckInfo)) {
       return true;
     }
     versionCheckInfo = JSON.parse(versionCheckInfo);
-    var lastUpdateAt = new Date(versionCheckInfo.last_updated_at);
-    var halfHourAgo  = new Date(_.now() - 30 * 60 * 1000);
+    const lastUpdateAt = new Date(versionCheckInfo.last_updated_at);
+    const halfHourAgo  = new Date(_.now() - 30 * 60 * 1000);
     return halfHourAgo > lastUpdateAt;
   };
 
-  var markUpdateDone = function () {
-    var versionCheckInfo = JSON.stringify({last_updated_at: new Date().getTime()}); //eslint-disable-line camelcase
+  var markUpdateDone = () => {
+    const versionCheckInfo = JSON.stringify({last_updated_at: new Date().getTime()}); //eslint-disable-line camelcase
     localStorage.setItem('versionCheckInfo', versionCheckInfo);
   };
 };

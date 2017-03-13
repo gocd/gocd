@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,43 +16,43 @@
 
 //for skipped tests, jasmine isnt calling afterEach,
 // so skipped the test suit to make sure randomize doesnt cause any problem
-describe("Agent Table Header Widget", function () {
+describe("Agent Table Header Widget", () => {
 
-  var $      = require("jquery");
-  var _      = require('lodash');
-  var m      = require("mithril");
-  var Stream = require("mithril/stream");
+  const $      = require("jquery");
+  const _      = require('lodash');
+  const m      = require("mithril");
+  const Stream = require("mithril/stream");
 
   require('jasmine-jquery');
 
-  var AgentsTableHeader = require("views/agents/agent_table_header");
-  var SortOrder         = require('views/agents/models/sort_order');
+  const AgentsTableHeader = require("views/agents/agent_table_header");
+  const SortOrder         = require('views/agents/models/sort_order');
 
-  var $root, root, sortOrder;
+  let $root, root, sortOrder;
   beforeEach(() => {
     [$root, root] = window.createDomElementForTest();
   });
   afterEach(window.destroyDomElementForTest);
 
-  beforeEach(function () {
+  beforeEach(() => {
     sortOrder = Stream(new SortOrder());
     sortOrder().perform = _.noop;
     route(true);
   });
 
-  afterEach(function () {
+  afterEach(() => {
     unmount();
   });
 
-  var route = function (isUserAdmin) {
+  const route = (isUserAdmin) => {
     m.route(root, '', {
       '':                  {
-        view: function () {
+        view() {
           return agentTableHeaderComponent(isUserAdmin);
         }
       },
       '/:sortBy/:orderBy': {
-        view: function () {
+        view() {
           return agentTableHeaderComponent(isUserAdmin);
         }
       }
@@ -62,49 +62,45 @@ describe("Agent Table Header Widget", function () {
     m.redraw();
   };
 
-  var unmount = function () {
+  const unmount = () => {
     m.route.set('');
     m.mount(root, null);
     m.redraw();
   };
 
 
-  it('should select the checkbox depending upon the "checkboxValue" ', function () {
-    var checkbox = $root.find('thead input')[0];
+  it('should select the checkbox depending upon the "checkboxValue" ', () => {
+    const checkbox = $root.find('thead input')[0];
     expect(checkbox.checked).toBe(checkboxValue());
   });
 
-  it('should not display checkbox for non-admin user', function () {
+  it('should not display checkbox for non-admin user', () => {
     route(false);
     expect($('thead input')).not.toBeInDOM();
   });
 
 
-  it('should add the ascending css class to table header cell attribute when table is sorted ascending on the corresponding attribute', function () {
+  it('should add the ascending css class to table header cell attribute when table is sorted ascending on the corresponding attribute', () => {
     sortOrder().toggleSortingOrder('hostname');
     m.redraw();
-    var headerAttribute = $root.find("th:contains('Agent Name') .sort");
+    const headerAttribute = $root.find("th:contains('Agent Name') .sort");
     expect(headerAttribute).toHaveClass('asc');
   });
 
-  it('should add the descending css class to table header cell attribute when table is sorted descending on the corresponding attribute', function () {
+  it('should add the descending css class to table header cell attribute when table is sorted descending on the corresponding attribute', () => {
     sortOrder().toggleSortingOrder('hostname');
     sortOrder().toggleSortingOrder('hostname');
     m.redraw();
-    var headerAttribute = $root.find("th:contains('Agent Name') .sort");
+    const headerAttribute = $root.find("th:contains('Agent Name') .sort");
     expect(headerAttribute).toHaveClass('desc');
   });
 
-  var agentTableHeaderComponent = function (isUserAdmin) {
-    return m(AgentsTableHeader, {
-      onCheckboxClick: _.noop,
-      checkboxValue:   checkboxValue,
-      sortOrder:       sortOrder,
-      isUserAdmin:     isUserAdmin
-    });
-  };
+  const agentTableHeaderComponent = (isUserAdmin) => m(AgentsTableHeader, {
+    onCheckboxClick: _.noop,
+    checkboxValue,
+    sortOrder,
+    isUserAdmin
+  });
 
-  var checkboxValue = function () {
-    return false;
-  };
+  const checkboxValue = () => false;
 });

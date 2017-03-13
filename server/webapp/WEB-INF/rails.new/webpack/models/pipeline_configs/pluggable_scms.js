@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-var _             = require('lodash');
-var Materials     = require('models/pipeline_configs/materials');
-var PluginInfos   = require('models/pipeline_configs/plugin_infos');
-var PluggableSCMs = {};
+const _             = require('lodash');
+const Materials     = require('models/pipeline_configs/materials');
+const PluginInfos   = require('models/pipeline_configs/plugin_infos');
+const PluggableSCMs = {};
 
-PluggableSCMs.init = function () {
-  _.each(PluginInfos.filterByType('scm'), function (pluginInfo) {
+PluggableSCMs.init = () => {
+  _.each(PluginInfos.filterByType('scm'), (pluginInfo) => {
     PluggableSCMs.Types[pluginInfo.id()] = {
       type:        Materials.Material.PluggableMaterial,
       description: pluginInfo.displayName()

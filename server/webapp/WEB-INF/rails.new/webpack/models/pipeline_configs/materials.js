@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,34 +14,32 @@
  * limitations under the License.
  */
 
-var Stream         = require('mithril/stream');
-var _              = require('lodash');
-var s              = require('string-plus');
-var $              = require('jquery');
-var Mixins         = require('models/mixins/model_mixins');
-var EncryptedValue = require('models/pipeline_configs/encrypted_value');
-var SCMs           = require('models/pipeline_configs/scms');
-var Validatable    = require('models/mixins/validatable_mixin');
-var Routes         = require('gen/js-routes');
-var mrequest       = require('helpers/mrequest');
+const Stream         = require('mithril/stream');
+const _              = require('lodash');
+const s              = require('string-plus');
+const $              = require('jquery');
+const Mixins         = require('models/mixins/model_mixins');
+const EncryptedValue = require('models/pipeline_configs/encrypted_value');
+const SCMs           = require('models/pipeline_configs/scms');
+const Validatable    = require('models/mixins/validatable_mixin');
+const Routes         = require('gen/js-routes');
+const mrequest       = require('helpers/mrequest');
 
-function plainOrCipherValue(data) {
-  if (data.encryptedPassword) {
-    return new EncryptedValue({cipherText: s.defaultToIfBlank(data.encryptedPassword, '')});
+function plainOrCipherValue({encryptedPassword, password}) {
+  if (encryptedPassword) {
+    return new EncryptedValue({cipherText: s.defaultToIfBlank(encryptedPassword, '')});
   } else {
-    return new EncryptedValue({clearText: s.defaultToIfBlank(data.password, '')});
+    return new EncryptedValue({clearText: s.defaultToIfBlank(password, '')});
   }
 }
 
-var Materials = function (data) {
+const Materials = function (data) {
   Mixins.HasMany.call(this, {factory: Materials.create, as: 'Material', collection: data, uniqueOn: 'name'});
   Mixins.HasUUID.call(this);
 };
 
-Materials.create = function (data) {
-  return Materials.isBuiltInType(data.type) ? new Materials.Types[data.type].type(data)
-    : new Materials.Material.PluggableMaterial(data);
-};
+Materials.create = (data) => Materials.isBuiltInType(data.type) ? new Materials.Types[data.type].type(data)
+  : new Materials.Material.PluggableMaterial(data);
 
 Materials.Filter = function (data) {
   this.constructor.modelType = 'materialFilter';
@@ -68,7 +66,7 @@ Materials.Filter = function (data) {
   };
 };
 
-Materials.Filter.fromJSON = function (data) {
+Materials.Filter.fromJSON = (data) => {
   if (!_.isEmpty(data)) {
     return new Materials.Filter({
       ignore: data.ignore
@@ -90,7 +88,7 @@ Materials.Material = function (type, hasFilter, data) {
   this.validateUniquenessOf('name');
 
   this.toJSON = function () {
-    var attrs = {};
+    const attrs = {};
 
     if (hasFilter) {
       _.merge(attrs, this.filter().toJSON());
@@ -103,16 +101,15 @@ Materials.Material = function (type, hasFilter, data) {
   };
 
   this.testConnection = function (pipelineName) {
-    var self = this;
+    const self = this;
 
-    var payload = function () {
-      return JSON.stringify(_.merge(self.toJSON(), {pipeline_name: pipelineName()})); //eslint-disable-line camelcase
-    };
+    const payload = () =>
+    JSON.stringify(_.merge(self.toJSON(), {pipeline_name: pipelineName()})); //eslint-disable-line camelcase
 
     return $.Deferred(function () {
-      var deferred = this;
+      const deferred = this;
 
-      var jqXHR = $.ajax({
+      const jqXHR = $.ajax({
         method:      'POST',
         url:         Routes.apiv1AdminInternalMaterialTestPath(),
         beforeSend:  mrequest.xhrConfig.forVersion('v1'),
@@ -120,11 +117,11 @@ Materials.Material = function (type, hasFilter, data) {
         contentType: 'application/json'
       });
 
-      var didFulfill = function (data) {
+      const didFulfill = (data) => {
         deferred.resolve(data);
       };
 
-      var didReject = function (jqXHR) {
+      const didReject = (jqXHR) => {
         deferred.reject(mrequest.unwrapErrorExtractMessage(jqXHR.responseJSON, jqXHR, 'There was an unknown error while checking connection'));
       };
 
@@ -133,7 +130,7 @@ Materials.Material = function (type, hasFilter, data) {
 
   };
 
-  this._attributesToJSON = function () {
+  this._attributesToJSON = () => {
     throw new Error("Subclass responsibility!");
   };
 
@@ -157,7 +154,7 @@ Materials.Material.SVN = function (data) {
   this.destination    = Stream(s.defaultToIfBlank(data.destination, ''));
   this.url            = Stream(s.defaultToIfBlank(data.url, ''));
   this.username       = Stream(s.defaultToIfBlank(data.username, ''));
-  var _password       = Stream(plainOrCipherValue(data));
+  const _password       = Stream(plainOrCipherValue(data));
   this.checkExternals = Stream(data.checkExternals);
   this.autoUpdate     = Stream(s.defaultToIfBlank(data.autoUpdate, true));
   this.invertFilter   = Stream(s.defaultToIfBlank(data.invertFilter, false));
@@ -167,7 +164,7 @@ Materials.Material.SVN = function (data) {
 
   this._attributesToJSON = function () {
     /* eslint-disable camelcase */
-    var attrs = {
+    const attrs = {
       name:           this.name(),
       destination:    this.destination(),
       url:            this.url(),
@@ -182,8 +179,8 @@ Materials.Material.SVN = function (data) {
   };
 };
 
-Materials.Material.SVN.fromJSON = function (data) {
-  var attr = data.attributes || {};
+Materials.Material.SVN.fromJSON = ({attributes, errors}) => {
+  const attr = attributes || {};
   return new Materials.Material.SVN({
     url:               attr.url,
     username:          attr.username,
@@ -195,7 +192,7 @@ Materials.Material.SVN.fromJSON = function (data) {
     autoUpdate:        attr.auto_update,
     filter:            Materials.Filter.fromJSON(attr.filter),
     invertFilter:      attr.invert_filter,
-    errors:            data.errors
+    errors:            errors
   });
 };
 
@@ -226,8 +223,8 @@ Materials.Material.Git = function (data) {
   };
 };
 
-Materials.Material.Git.fromJSON = function (data) {
-  var attr = data.attributes || {};
+Materials.Material.Git.fromJSON = ({attributes, errors}) => {
+  const attr = attributes || {};
   return new Materials.Material.Git({
     url:          attr.url,
     branch:       attr.branch,
@@ -237,7 +234,7 @@ Materials.Material.Git.fromJSON = function (data) {
     filter:       Materials.Filter.fromJSON(attr.filter),
     shallowClone: attr.shallow_clone,
     invertFilter: attr.invert_filter,
-    errors:       data.errors
+    errors:       errors
   });
 };
 
@@ -266,8 +263,8 @@ Materials.Material.Mercurial = function (data) {
   };
 };
 
-Materials.Material.Mercurial.fromJSON = function (data) {
-  var attr = data.attributes || {};
+Materials.Material.Mercurial.fromJSON = ({attributes, errors}) => {
+  const attr = attributes || {};
   return new Materials.Material.Mercurial({
     url:          attr.url,
     branch:       attr.branch,
@@ -276,7 +273,7 @@ Materials.Material.Mercurial.fromJSON = function (data) {
     autoUpdate:   attr.auto_update,
     filter:       Materials.Filter.fromJSON(attr.filter),
     invertFilter: attr.invert_filter,
-    errors:       data.errors
+    errors:       errors
   });
 };
 
@@ -286,7 +283,7 @@ Materials.Material.Perforce = function (data) {
   this.destination  = Stream(s.defaultToIfBlank(data.destination, ''));
   this.port         = Stream(s.defaultToIfBlank(data.port, ''));
   this.username     = Stream(s.defaultToIfBlank(data.username, ''));
-  var _password     = Stream(plainOrCipherValue(data));
+  const _password     = Stream(plainOrCipherValue(data));
   this.view         = Stream(s.defaultToIfBlank(data.view, ''));
   this.useTickets   = Stream(data.useTickets);
   this.autoUpdate   = Stream(s.defaultToIfBlank(data.autoUpdate, true));
@@ -298,7 +295,7 @@ Materials.Material.Perforce = function (data) {
 
   this._attributesToJSON = function () {
     /* eslint-disable camelcase */
-    var attrs = {
+    const attrs = {
       name:          this.name(),
       destination:   this.destination(),
       port:          this.port(),
@@ -315,8 +312,8 @@ Materials.Material.Perforce = function (data) {
 
 };
 
-Materials.Material.Perforce.fromJSON = function (data) {
-  var attr = data.attributes || {};
+Materials.Material.Perforce.fromJSON = ({attributes, errors}) => {
+  const attr = attributes || {};
   return new Materials.Material.Perforce({
     port:              attr.port,
     username:          attr.username,
@@ -329,7 +326,7 @@ Materials.Material.Perforce.fromJSON = function (data) {
     name:              attr.name,
     filter:            Materials.Filter.fromJSON(attr.filter),
     invertFilter:      attr.invert_filter,
-    errors:            data.errors
+    errors:            errors
   });
 };
 
@@ -340,7 +337,7 @@ Materials.Material.TFS = function (data) {
   this.url          = Stream(s.defaultToIfBlank(data.url, ''));
   this.domain       = Stream(s.defaultToIfBlank(data.domain, ''));
   this.username     = Stream(s.defaultToIfBlank(data.username, ''));
-  var _password     = Stream(plainOrCipherValue(data));
+  const _password     = Stream(plainOrCipherValue(data));
   this.projectPath  = Stream(s.defaultToIfBlank(data.projectPath, ''));
   this.autoUpdate   = Stream(s.defaultToIfBlank(data.autoUpdate, true));
   this.invertFilter = Stream(s.defaultToIfBlank(data.invertFilter, false));
@@ -352,7 +349,7 @@ Materials.Material.TFS = function (data) {
 
   this._attributesToJSON = function () {
     /* eslint-disable camelcase */
-    var attrs = {
+    const attrs = {
       name:          this.name(),
       destination:   this.destination(),
       url:           this.url(),
@@ -368,8 +365,8 @@ Materials.Material.TFS = function (data) {
   };
 };
 
-Materials.Material.TFS.fromJSON = function (data) {
-  var attr = data.attributes || {};
+Materials.Material.TFS.fromJSON = ({attributes, errors}) => {
+  const attr = attributes || {};
   return new Materials.Material.TFS({
     url:               attr.url,
     domain:            attr.domain,
@@ -382,7 +379,7 @@ Materials.Material.TFS.fromJSON = function (data) {
     name:              attr.name,
     filter:            Materials.Filter.fromJSON(attr.filter),
     invertFilter:      attr.invert_filter,
-    errors:            data.errors
+    errors:            errors
   });
 };
 
@@ -404,13 +401,13 @@ Materials.Material.Dependency = function (data) {
   };
 };
 
-Materials.Material.Dependency.fromJSON = function (data) {
-  var attr = data.attributes || {};
+Materials.Material.Dependency.fromJSON = ({attributes, errors}) => {
+  const attr = attributes || {};
   return new Materials.Material.Dependency({
     pipeline: attr.pipeline,
     stage:    attr.stage,
     name:     attr.name,
-    errors:   data.errors
+    errors:   errors
   });
 };
 
@@ -433,14 +430,14 @@ Materials.Material.PluggableMaterial = function (data) {
   };
 };
 
-Materials.Material.PluggableMaterial.fromJSON = function (data) {
-  var attr = data.attributes || {};
+Materials.Material.PluggableMaterial.fromJSON = ({attributes, errors}) => {
+  const attr = attributes || {};
   return new Materials.Material.PluggableMaterial({
     scm:          SCMs.findById(attr.ref),
     destination:  attr.destination,
     filter:       Materials.Filter.fromJSON(attr.filter),
     invertFilter: attr.invert_filter,
-    errors:       data.errors
+    errors:       errors
   });
 };
 
@@ -456,17 +453,15 @@ Materials.Material.PackageMaterial = function (data) {
   };
 };
 
-Materials.Material.PackageMaterial.fromJSON = function (data) {
-  var attr = data.attributes || {};
+Materials.Material.PackageMaterial.fromJSON = ({attributes, errors}) => {
+  const attr = attributes || {};
   return new Materials.Material.PackageMaterial({
     ref:    attr.ref,
-    errors: data.errors
+    errors: errors
   });
 };
 
-Materials.isBuiltInType = function (type) {
-  return _.hasIn(Materials.Types, type);
-};
+Materials.isBuiltInType = (type) => _.hasIn(Materials.Types, type);
 
 Materials.Types = {
   git:        {type: Materials.Material.Git, description: "Git"},
@@ -478,12 +473,12 @@ Materials.Types = {
 };
 
 
-Materials.Material.fromJSON = function (data) {
+Materials.Material.fromJSON = (data) => {
   if (Materials.isBuiltInType(data.type)) {
     return Materials.Types[data.type].type.fromJSON(data || {});
   }
 
-  var nonBuiltInTypes = {
+  const nonBuiltInTypes = {
     plugin:  Materials.Material.PluggableMaterial,
     package: Materials.Material.PackageMaterial
   };

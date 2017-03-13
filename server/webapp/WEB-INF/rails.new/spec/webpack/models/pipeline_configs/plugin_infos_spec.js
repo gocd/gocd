@@ -1,11 +1,11 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-describe('PluginInfos', function () {
+describe('PluginInfos', () => {
 
-  var PluginInfos = require("models/pipeline_configs/plugin_infos");
+  const PluginInfos = require("models/pipeline_configs/plugin_infos");
 
-  afterEach(function () {
+  afterEach(() => {
     PluginInfos([]);
   });
 
-  describe('all', function () {
-    it('should fetch all plugin_infos', function () {
+  describe('all', () => {
+    it('should fetch all plugin_infos', () => {
 
-      jasmine.Ajax.withMock(function () {
+      jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest('/go/api/admin/plugin_info', undefined, 'GET').andReturn({
           responseText:    JSON.stringify({
             _embedded: {
@@ -37,7 +37,7 @@ describe('PluginInfos', function () {
           }
         });
 
-        var successCallback = jasmine.createSpy().and.callFake(function (pluginInfos) {
+        const successCallback = jasmine.createSpy().and.callFake((pluginInfos) => {
           expect(pluginInfos.length).toEqual(1);
           expect(pluginInfos[0].id()).toEqual(pluginInfoJSON().id);
           expect(pluginInfos[0].name()).toEqual(pluginInfoJSON().name);
@@ -78,42 +78,42 @@ describe('PluginInfos', function () {
     return pluginInfoJSON;
   }
 
-  describe('PluginInfo', function () {
-    var pluginInfo;
-    beforeEach(function () {
+  describe('PluginInfo', () => {
+    let pluginInfo;
+    beforeEach(() => {
       pluginInfo = new PluginInfos.PluginInfo(pluginInfoJSON());
     });
 
-    it('should initialize with id', function () {
+    it('should initialize with id', () => {
       expect(pluginInfo.id()).toBe('plugin_id');
     });
 
-    it('should initialize with name', function () {
+    it('should initialize with name', () => {
       expect(pluginInfo.name()).toBe('plugin_name');
     });
 
-    it('should initialize with version', function () {
+    it('should initialize with version', () => {
       expect(pluginInfo.version()).toBe('plugin_version');
     });
 
-    it('should initialize with type', function () {
+    it('should initialize with type', () => {
       expect(pluginInfo.type()).toBe('plugin_type');
     });
 
-    it('should initialize with view template', function () {
+    it('should initialize with view template', () => {
       expect(pluginInfo.viewTemplate()).toBe('plugin_view_template');
     });
 
-    it('should initialize with display name', function () {
+    it('should initialize with display name', () => {
       expect(pluginInfo.displayName()).toBe('Plugin Display Name');
     });
 
-    it('should default to name in absence of display_name', function () {
-      var plugin = new PluginInfos.PluginInfo({name: 'plugin_name'});
+    it('should default to name in absence of display_name', () => {
+      const plugin = new PluginInfos.PluginInfo({name: 'plugin_name'});
       expect(plugin.displayName()).toBe('plugin_name');
     });
 
-    it('should initialize with configurations', function () {
+    it('should initialize with configurations', () => {
       expect(pluginInfo.configurations()).toEqual([
         {
           key:      'url',
@@ -127,10 +127,10 @@ describe('PluginInfos', function () {
     });
   });
 
-  describe('PluginInfo.get', function () {
-    it('should fetch the plugin for the given id', function () {
+  describe('PluginInfo.get', () => {
+    it('should fetch the plugin for the given id', () => {
 
-      jasmine.Ajax.withMock(function () {
+      jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest(`/go/api/admin/plugin_info/${pluginInfoJSON().id}`, undefined, 'GET').andReturn({
           responseText:    JSON.stringify(pluginInfoJSON()),
           status:          200,
@@ -139,7 +139,7 @@ describe('PluginInfos', function () {
           }
         });
 
-        var successCallback = jasmine.createSpy().and.callFake(function (pluginInfo) {
+        const successCallback = jasmine.createSpy().and.callFake((pluginInfo) => {
           expect(pluginInfo.id()).toEqual(pluginInfoJSON().id);
           expect(pluginInfo.name()).toEqual(pluginInfoJSON().name);
         });
@@ -151,15 +151,15 @@ describe('PluginInfos', function () {
     });
   });
 
-  describe('filterByType', function () {
-    it('should return plugins for the given type', function () {
-      var scm            = new PluginInfos.PluginInfo({id: 'id1', type: 'scm'});
-      var task1          = new PluginInfos.PluginInfo({id: 'id2', type: 'task'});
-      var task2          = new PluginInfos.PluginInfo({id: 'id3', type: 'task'});
-      var authentication = new PluginInfos.PluginInfo({id: 'id4', type: 'authentication'});
+  describe('filterByType', () => {
+    it('should return plugins for the given type', () => {
+      const scm            = new PluginInfos.PluginInfo({id: 'id1', type: 'scm'});
+      const task1          = new PluginInfos.PluginInfo({id: 'id2', type: 'task'});
+      const task2          = new PluginInfos.PluginInfo({id: 'id3', type: 'task'});
+      const authentication = new PluginInfos.PluginInfo({id: 'id4', type: 'authentication'});
 
       PluginInfos([scm, task1, task2, authentication]);
-      var pluginInfos = PluginInfos.filterByType('task');
+      const pluginInfos = PluginInfos.filterByType('task');
 
       expect(pluginInfos.length).toBe(2);
       expect(pluginInfos[0].type()).toBe('task');
@@ -167,15 +167,15 @@ describe('PluginInfos', function () {
     });
   });
 
-  describe('findById', function () {
-    it('should return plugins for the given id', function () {
-      var scm            = new PluginInfos.PluginInfo({id: 'id1', type: 'scm'});
-      var task1          = new PluginInfos.PluginInfo({id: 'id2', type: 'task'});
-      var task2          = new PluginInfos.PluginInfo({id: 'id3', type: 'task'});
-      var authentication = new PluginInfos.PluginInfo({id: 'id4', type: 'authentication'});
+  describe('findById', () => {
+    it('should return plugins for the given id', () => {
+      const scm            = new PluginInfos.PluginInfo({id: 'id1', type: 'scm'});
+      const task1          = new PluginInfos.PluginInfo({id: 'id2', type: 'task'});
+      const task2          = new PluginInfos.PluginInfo({id: 'id3', type: 'task'});
+      const authentication = new PluginInfos.PluginInfo({id: 'id4', type: 'authentication'});
 
       PluginInfos([scm, task1, task2, authentication]);
-      var pluginInfo = PluginInfos.findById('id2');
+      const pluginInfo = PluginInfos.findById('id2');
 
       expect(pluginInfo.id()).toBe('id2');
     });

@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-describe("Job Model", function () {
+describe("Job Model", () => {
 
-  var s    = require("string-plus");
-  var Jobs = require("models/pipeline_configs/jobs");
+  const s    = require("string-plus");
+  const Jobs = require("models/pipeline_configs/jobs");
 
-  var jobs, job;
-  beforeEach(function () {
+  let jobs, job;
+  beforeEach(() => {
     jobs = new Jobs();
     job  = jobs.createJob({
       name:                 "UnitTest",
@@ -35,43 +35,43 @@ describe("Job Model", function () {
     });
   });
 
-  it("should initialize job model with name", function () {
+  it("should initialize job model with name", () => {
     expect(job.name()).toBe("UnitTest");
   });
 
-  it("should initialize job model with runInstanceCount", function () {
+  it("should initialize job model with runInstanceCount", () => {
     expect(job.runInstanceCount()).toBe(10);
   });
 
-  it("should initialize job model with timeout", function () {
+  it("should initialize job model with timeout", () => {
     expect(job.timeout()).toBe(10);
   });
 
-  it("should initialize job model with environmentVariables", function () {
+  it("should initialize job model with environmentVariables", () => {
     expect(job.environmentVariables()).toEqual(['foo=bar', 'boo=baz']);
   });
 
-  it("should initialize job model with resources", function () {
+  it("should initialize job model with resources", () => {
     expect(job.resources()).toEqual(['java', 'firefox']);
   });
 
-  it("should initialize job model with tasks", function () {
+  it("should initialize job model with tasks", () => {
     expect(job.tasks()).toEqual(['ant', 'mvn']);
   });
 
-  it("should initialize job model with artifacts", function () {
+  it("should initialize job model with artifacts", () => {
     expect(job.artifacts()).toEqual(['pkgs', 'logs']);
   });
 
-  it("should initialize job model with tabs", function () {
+  it("should initialize job model with tabs", () => {
     expect(job.tabs()).toEqual(['twist', 'junit']);
   });
 
-  it("should initialize job model with elasticProfileId", function () {
+  it("should initialize job model with elasticProfileId", () => {
     expect(job.elasticProfileId()).toEqual('docker.unit-test');
   });
 
-  it("should handle setting a null or undefined string on elasticProfileId", function () {
+  it("should handle setting a null or undefined string on elasticProfileId", () => {
     job.elasticProfileId('foo');
     job.elasticProfileId('null');
     expect(job.elasticProfileId()).toBeNull();
@@ -81,11 +81,11 @@ describe("Job Model", function () {
     expect(job.elasticProfileId()).toBeNull();
   });
 
-  it('should be assigned to elastic agent', function () {
+  it('should be assigned to elastic agent', () => {
     expect(job.requiresElasticAgent()).toBe(true);
   });
 
-  it('should not be assigned to elastic agent', function () {
+  it('should not be assigned to elastic agent', () => {
     job = jobs.createJob({
       name:  "UnitTest",
       tasks: ['ant', 'mvn']
@@ -93,39 +93,39 @@ describe("Job Model", function () {
     expect(job.requiresElasticAgent()).toBe(false);
   });
 
-  describe("validations", function () {
-    it("should not allow blank job names", function () {
-      var errors = job.validate();
+  describe("validations", () => {
+    it("should not allow blank job names", () => {
+      let errors = job.validate();
       expect(errors._isEmpty()).toBe(true);
 
       job.name("");
-      var duplicateJob = jobs.createJob({name: job.name()});
+      const duplicateJob = jobs.createJob({name: job.name()});
 
       errors                = job.validate();
-      var errorsOnDuplicate = duplicateJob.validate();
+      const errorsOnDuplicate = duplicateJob.validate();
 
       expect(errors.errors('name')).toEqual(['Name must be present']);
       expect(errorsOnDuplicate.errors('name')).toEqual(['Name must be present']);
     });
 
-    it("should not allow jobs with duplicate names", function () {
-      var errorsOnOriginal = job.validate();
+    it("should not allow jobs with duplicate names", () => {
+      let errorsOnOriginal = job.validate();
       expect(errorsOnOriginal._isEmpty()).toBe(true);
 
-      var duplicateVariable = jobs.createJob({
+      const duplicateVariable = jobs.createJob({
         name: "UnitTest"
       });
 
       errorsOnOriginal = job.validate();
       expect(errorsOnOriginal.errors('name')).toEqual(['Name is a duplicate']);
 
-      var errorsOnDuplicate = duplicateVariable.validate();
+      const errorsOnDuplicate = duplicateVariable.validate();
       expect(errorsOnDuplicate.errors('name')).toEqual(['Name is a duplicate']);
     });
 
-    describe('validate associations', function () {
-      it('should validate environmental variables', function () {
-        var job = Jobs.Job.fromJSON(sampleJobJSON());
+    describe('validate associations', () => {
+      it('should validate environmental variables', () => {
+        const job = Jobs.Job.fromJSON(sampleJobJSON());
 
         expect(job.isValid()).toBe(true);
 
@@ -135,8 +135,8 @@ describe("Job Model", function () {
         expect(job.environmentVariables().firstVariable().errors().errors('name')).toEqual(['Name must be present']);
       });
 
-      it('should validate tasks', function () {
-        var job = Jobs.Job.fromJSON({
+      it('should validate tasks', () => {
+        const job = Jobs.Job.fromJSON({
           name:  "UnitTest",
           tasks: [
             {
@@ -157,8 +157,8 @@ describe("Job Model", function () {
       });
     });
 
-    it('should validate artifacts', function () {
-      var job = Jobs.Job.fromJSON(sampleJobJSON());
+    it('should validate artifacts', () => {
+      const job = Jobs.Job.fromJSON(sampleJobJSON());
 
       expect(job.isValid()).toBe(true);
 
@@ -168,8 +168,8 @@ describe("Job Model", function () {
       expect(job.artifacts().firstArtifact().errors().errors('source')).toEqual(['Source must be present']);
     });
 
-    it('should validate tabs', function () {
-      var job = Jobs.Job.fromJSON(sampleJobJSON());
+    it('should validate tabs', () => {
+      const job = Jobs.Job.fromJSON(sampleJobJSON());
 
       expect(job.isValid()).toBe(true);
 
@@ -179,8 +179,8 @@ describe("Job Model", function () {
       expect(job.tabs().firstTab().errors().errors('name')).toEqual(['Name must be present']);
     });
 
-    it('should validate properties', function () {
-      var job = Jobs.Job.fromJSON(sampleJobJSON());
+    it('should validate properties', () => {
+      const job = Jobs.Job.fromJSON(sampleJobJSON());
 
       expect(job.isValid()).toBe(true);
 
@@ -191,22 +191,22 @@ describe("Job Model", function () {
     });
   });
 
-  describe("Serialization from/to JSON", function () {
-    beforeEach(function () {
+  describe("Serialization from/to JSON", () => {
+    beforeEach(() => {
       job = Jobs.Job.fromJSON(sampleJobJSON());
     });
 
-    it("should de-serialize from JSON", function () {
+    it("should de-serialize from JSON", () => {
       expect(job.name()).toBe("UnitTest");
       expect(job.runInstanceCount()).toBe(10);
       expect(job.timeout()).toBe(20);
       expect(job.resources()).toEqual(['jdk5', 'tomcat']);
 
-      var expectedEnvironmentVarNames = job.environmentVariables().collectVariableProperty('name');
-      var expectedTasks               = job.tasks().collectTaskProperty('type');
-      var expectedArtifacts           = job.artifacts().collectArtifactProperty('source');
-      var expectedTabs                = job.tabs().collectTabProperty('name');
-      var expectedProperties          = job.properties().collectPropertyProperty('name');
+      const expectedEnvironmentVarNames = job.environmentVariables().collectVariableProperty('name');
+      const expectedTasks               = job.tasks().collectTaskProperty('type');
+      const expectedArtifacts           = job.artifacts().collectArtifactProperty('source');
+      const expectedTabs                = job.tabs().collectTabProperty('name');
+      const expectedProperties          = job.properties().collectPropertyProperty('name');
 
       expect(expectedEnvironmentVarNames).toEqual(['MULTIPLE_LINES', 'COMPLEX']);
       expect(expectedTasks).toEqual(['ant']);
@@ -215,16 +215,16 @@ describe("Job Model", function () {
       expect(expectedProperties).toEqual(['coverage.class']);
     });
 
-    it("should serialize to JSON", function () {
+    it("should serialize to JSON", () => {
       expect(JSON.parse(JSON.stringify(job, s.snakeCaser))).toEqual(sampleJobJSON());
     });
 
-    it("should serialize a comma separated resource string to array", function () {
+    it("should serialize a comma separated resource string to array", () => {
       job.resources('foo,bar,baz');
       expect(JSON.parse(JSON.stringify(job, s.snakeCaser))['resources']).toEqual(['foo', 'bar', 'baz']);
     });
 
-    it("should validate timeout", function () {
+    it("should validate timeout", () => {
       job.timeout('never');
       expect(job.validate().hasErrors()).toBe(false);
 
@@ -256,7 +256,7 @@ describe("Job Model", function () {
       expect(job.validate().errors('timeout')).toEqual(['Timeout must be a positive integer']);
     });
 
-    it("should validate runInstanceCount", function () {
+    it("should validate runInstanceCount", () => {
       job.runInstanceCount('all');
       expect(job.validate().hasErrors()).toBe(false);
 

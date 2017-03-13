@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-var m                    = require('mithril');
-var Stream               = require('mithril/stream');
-var _                    = require('lodash');
-var s                    = require('string-plus');
-var Mixins               = require('models/mixins/model_mixins');
-var EnvironmentVariables = require('models/pipeline_configs/environment_variables');
-var Parameters           = require('models/pipeline_configs/parameters');
-var Materials            = require('models/pipeline_configs/materials');
-var TrackingTool         = require('models/pipeline_configs/tracking_tool');
-var Stages               = require('models/pipeline_configs/stages');
-var mrequest             = require('helpers/mrequest');
-var Validatable          = require('models/mixins/validatable_mixin');
-var Routes               = require('gen/js-routes');
-var $                    = require('jquery');
+const m                    = require('mithril');
+const Stream               = require('mithril/stream');
+const _                    = require('lodash');
+const s                    = require('string-plus');
+const Mixins               = require('models/mixins/model_mixins');
+const EnvironmentVariables = require('models/pipeline_configs/environment_variables');
+const Parameters           = require('models/pipeline_configs/parameters');
+const Materials            = require('models/pipeline_configs/materials');
+const TrackingTool         = require('models/pipeline_configs/tracking_tool');
+const Stages               = require('models/pipeline_configs/stages');
+const mrequest             = require('helpers/mrequest');
+const Validatable          = require('models/mixins/validatable_mixin');
+const Routes               = require('gen/js-routes');
+const $                    = require('jquery');
 
-var Pipeline = function (data) {
+const Pipeline = function (data) {
   this.constructor.modelType = 'pipeline';
   Mixins.HasUUID.call(this);
   Validatable.call(this, data);
@@ -41,7 +41,7 @@ var Pipeline = function (data) {
   this.template              = Stream(data.template);
   this.timer                 = Stream(s.defaultToIfBlank(data.timer, new Pipeline.Timer({})));
   this.timer.toJSON          = function () {
-    var timer = this();
+    const timer = this();
 
     if (timer && timer.isBlank()) {
       return null;
@@ -54,7 +54,7 @@ var Pipeline = function (data) {
   this.materials             = s.collectionToJSON(Stream(s.defaultToIfBlank(data.materials, new Materials())));
   this.trackingTool          = Stream(data.trackingTool);
   this.trackingTool.toJSON   = function () {
-    var value = this();
+    const value = this();
     if (value) {
       return value.toJSON();
     } else {
@@ -75,18 +75,18 @@ var Pipeline = function (data) {
   this.validateAssociated('trackingTool');
 
   this.update = function (etag, extract) {
-    var config = function (xhr) {
+    const config = (xhr) => {
       xhr.setRequestHeader("Content-Type", "application/json");
       xhr.setRequestHeader("Accept", "application/vnd.go.cd.v3+json");
       xhr.setRequestHeader("If-Match", etag);
     };
 
-    var entity = this;
+    const entity = this;
 
     return $.Deferred(function () {
-      var deferred = this;
+      const deferred = this;
 
-      var jqXHR = $.ajax({
+      const jqXHR = $.ajax({
         method:      'PUT',
         url:         Routes.apiv3AdminPipelinePath({pipeline_name: entity.name()}), //eslint-disable-line camelcase
         timeout:     mrequest.timeout,
@@ -95,12 +95,12 @@ var Pipeline = function (data) {
         contentType: false
       });
 
-      jqXHR.then(function (_data, _textStatus, jqXHR) {
+      jqXHR.then((_data, _textStatus, jqXHR) => {
         deferred.resolve(extract(jqXHR));
       });
 
-      jqXHR.fail(function (response, _textStatus, _error) {
-        deferred.reject(response.responseJSON);
+      jqXHR.fail(({responseJSON}, _textStatus, _error) => {
+        deferred.reject(responseJSON);
       });
 
       jqXHR.always(m.redraw);
@@ -115,21 +115,19 @@ var Pipeline = function (data) {
   };
 };
 
-Pipeline.fromJSON = function (data) {
-  return new Pipeline({
-    name:                  data.name,
-    enablePipelineLocking: data.enable_pipeline_locking,
-    templateName:          data.template_name,
-    labelTemplate:         data.label_template,
-    template:              data.template,
-    timer:                 Pipeline.Timer.fromJSON(data.timer),
-    trackingTool:          TrackingTool.fromJSON(data.tracking_tool),
-    environmentVariables:  EnvironmentVariables.fromJSON(data.environment_variables),
-    parameters:            Parameters.fromJSON(data.parameters),
-    materials:             Materials.fromJSON(data.materials),
-    stages:                Stages.fromJSON(data.stages)
-  });
-};
+Pipeline.fromJSON = (data) => new Pipeline({
+  name:                  data.name,
+  enablePipelineLocking: data.enable_pipeline_locking,
+  templateName:          data.template_name,
+  labelTemplate:         data.label_template,
+  template:              data.template,
+  timer:                 Pipeline.Timer.fromJSON(data.timer),
+  trackingTool:          TrackingTool.fromJSON(data.tracking_tool),
+  environmentVariables:  EnvironmentVariables.fromJSON(data.environment_variables),
+  parameters:            Parameters.fromJSON(data.parameters),
+  materials:             Materials.fromJSON(data.materials),
+  stages:                Stages.fromJSON(data.stages)
+});
 
 Pipeline.Timer = function (data) {
   this.constructor.modelType = 'pipelineTimer';
@@ -144,7 +142,7 @@ Pipeline.Timer = function (data) {
   };
 };
 
-Pipeline.Timer.fromJSON = function (data) {
+Pipeline.Timer.fromJSON = (data) => {
   if (!_.isEmpty(data)) {
     return new Pipeline.Timer({
       spec:          data.spec,
@@ -154,28 +152,26 @@ Pipeline.Timer.fromJSON = function (data) {
   }
 };
 
-Pipeline.find = function (url, extract) {
-  return $.Deferred(function () {
+Pipeline.find = (url, extract) => $.Deferred(() => {
 
-    var jqXHR = $.ajax({
-      method:      'GET',
-      url:         url,
-      beforeSend:  mrequest.xhrConfig.forVersion('v3'),
-      contentType: false
-    });
+  const jqXHR = $.ajax({
+    method:      'GET',
+    url,
+    beforeSend:  mrequest.xhrConfig.forVersion('v3'),
+    contentType: false
+  });
 
-    jqXHR.done(extract);
+  jqXHR.done(extract);
 
-    jqXHR.always(function () {
-      m.redraw();
-    });
+  jqXHR.always(() => {
+    m.redraw();
+  });
 
-  }).promise();
-};
+}).promise();
 
 Pipeline.vm = function () {
   this.saveState = Stream('');
-  var errors     = [];
+  let errors     = [];
 
   this.updating = function () {
     this.saveState('in-progress disabled');
@@ -201,19 +197,15 @@ Pipeline.vm = function () {
     this.saveState('');
   };
 
-  this.clearErrors = function () {
+  this.clearErrors = () => {
     errors = [];
   };
 
-  this.errors = function () {
-    return errors;
-  };
+  this.errors = () => errors;
 
-  this.hasErrors = function () {
-    return !_.isEmpty(errors);
-  };
+  this.hasErrors = () => !_.isEmpty(errors);
 
-  this.markClientSideErrors = function () {
+  this.markClientSideErrors = () => {
     errors.push('There are errors on the page, fix them and save');
   };
 };

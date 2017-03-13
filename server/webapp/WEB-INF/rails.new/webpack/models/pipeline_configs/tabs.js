@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-var Stream      = require('mithril/stream');
-var _           = require('lodash');
-var s           = require('string-plus');
-var Mixins      = require('models/mixins/model_mixins');
-var Validatable = require('models/mixins/validatable_mixin');
-var Tabs        = function (data) {
+const Stream      = require('mithril/stream');
+const _           = require('lodash');
+const s           = require('string-plus');
+const Mixins      = require('models/mixins/model_mixins');
+const Validatable = require('models/mixins/validatable_mixin');
+const Tabs        = function (data) {
   Mixins.HasMany.call(this, {factory: Tabs.Tab.create, as: 'Tab', collection: data, uniqueOn: 'name'});
 };
 
@@ -38,16 +38,14 @@ Tabs.Tab = function (data) {
   };
 
   this.validatePresenceOf('name', {
-    condition: function (property) {
+    condition(property) {
       return (!s.isBlank(property.path()));
     }
   });
   this.validateUniquenessOf('name');
 };
 
-Tabs.Tab.create = function (data) {
-  return new Tabs.Tab(data);
-};
+Tabs.Tab.create = (data) => new Tabs.Tab(data);
 
 Mixins.fromJSONCollection({
   parentType: Tabs,
@@ -55,8 +53,6 @@ Mixins.fromJSONCollection({
   via:        'addTab'
 });
 
-Tabs.Tab.fromJSON = function (data) {
-  return new Tabs.Tab(_.pick(data, ['name', 'path']));
-};
+Tabs.Tab.fromJSON = (data) => new Tabs.Tab(_.pick(data, ['name', 'path']));
 
 module.exports = Tabs;

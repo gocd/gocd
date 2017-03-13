@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-var Stream      = require('mithril/stream');
-var _           = require('lodash');
-var s           = require('string-plus');
-var Mixins      = require('models/mixins/model_mixins');
-var Validatable = require('models/mixins/validatable_mixin');
+const Stream      = require('mithril/stream');
+const _           = require('lodash');
+const s           = require('string-plus');
+const Mixins      = require('models/mixins/model_mixins');
+const Validatable = require('models/mixins/validatable_mixin');
 
-var Properties = function (data) {
+const Properties = function (data) {
   Mixins.HasMany.call(this, {
     factory:    Properties.Property.create,
     as:         'Property',
@@ -46,26 +46,24 @@ Properties.Property = function (data) {
   };
 
   this.validatePresenceOf('name', {
-    condition: function (property) {
+    condition(property) {
       return (!s.isBlank(property.source()) || !s.isBlank(property.xpath()));
     }
   });
   this.validateUniquenessOf('name');
   this.validatePresenceOf('source', {
-    condition: function (property) {
+    condition(property) {
       return !property.isBlank();
     }
   });
   this.validatePresenceOf('xpath', {
-    condition: function (property) {
+    condition(property) {
       return !property.isBlank();
     }
   });
 };
 
-Properties.Property.create = function (data) {
-  return new Properties.Property(data);
-};
+Properties.Property.create = (data) => new Properties.Property(data);
 
 Mixins.fromJSONCollection({
   parentType: Properties,
@@ -74,8 +72,6 @@ Mixins.fromJSONCollection({
 });
 
 
-Properties.Property.fromJSON = function (data) {
-  return new Properties.Property(_.pick(data, ['name', 'source', 'xpath']));
-};
+Properties.Property.fromJSON = (data) => new Properties.Property(_.pick(data, ['name', 'source', 'xpath']));
 
 module.exports = Properties;

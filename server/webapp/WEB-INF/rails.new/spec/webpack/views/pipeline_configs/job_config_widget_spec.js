@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-describe("JobsConfig Widget", function () {
+describe("JobsConfig Widget", () => {
 
   var m      = require('mithril');
   var Stream = require('mithril/stream');
@@ -32,23 +32,23 @@ describe("JobsConfig Widget", function () {
   var jobs;
   var elasticProfiles;
 
-  beforeEach(function () {
+  beforeEach(() => {
     jobs            = Stream(Jobs.fromJSON(data.jobs));
     elasticProfiles = Stream(new ElasticProfiles());
   });
 
-  afterEach(function () {
+  afterEach(() => {
     unmount();
   });
 
-  it('should disable elastic profile id text box if job is set to run on all agents', function () {
+  it('should disable elastic profile id text box if job is set to run on all agents', () => {
     mount(jobs);
     viewJob();
     var elasticProfileInputBox = $root.find("input[data-prop-name='elasticProfileId']");
     expect(elasticProfileInputBox).toBeDisabled();
   });
 
-  it('should disable checkbox for run on all agents if job is set to elastic agent profile', function () {
+  it('should disable checkbox for run on all agents if job is set to elastic agent profile', () => {
     jobs().firstJob().elasticProfileId('docker-test');
     mount(jobs);
     viewJob();
@@ -61,15 +61,15 @@ describe("JobsConfig Widget", function () {
     m.redraw();
   }
 
-  var unmount = function () {
+  var unmount = () => {
     m.mount(root, null);
     m.redraw();
   };
 
   function mount() {
     m.mount(root, {
-      view: function () {
-        return m(JobsConfigWidget, {jobs: jobs, key: jobs().uuid(), elasticProfiles: elasticProfiles});
+      view() {
+        return m(JobsConfigWidget, {jobs, key: jobs().uuid(), elasticProfiles});
       }
     });
     m.redraw();

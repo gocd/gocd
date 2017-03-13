@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-var _                 = require('lodash');
-var s                 = require('string-plus');
-var Errors            = require('models/mixins/errors');
-var Mixins            = require('models/mixins/model_mixins');
-var PresenceValidator = function (options) {
-  this.validate = function (entity, attr) {
+const _                 = require('lodash');
+const s                 = require('string-plus');
+const Errors            = require('models/mixins/errors');
+const Mixins            = require('models/mixins/model_mixins');
+const PresenceValidator = function (options) {
+  this.validate = (entity, attr) => {
     if (options.condition && (!options.condition(entity))) {
       return;
     }
@@ -30,8 +30,8 @@ var PresenceValidator = function (options) {
   };
 };
 
-var UniquenessValidator = function () {
-  this.validate = function (entity, attr) {
+const UniquenessValidator = function () {
+  this.validate = (entity, attr) => {
     if (_.isNil(entity.parent()) || s.isBlank(entity[attr]())) {
       return;
     }
@@ -42,10 +42,10 @@ var UniquenessValidator = function () {
   };
 };
 
-var UrlPatternValidator = function () {
-  var URL_REGEX = /^http(s)?:\/\/.+/;
+const UrlPatternValidator = function () {
+  const URL_REGEX = /^http(s)?:\/\/.+/;
 
-  this.validate = function (entity, attr) {
+  this.validate = (entity, attr) => {
     if (s.isBlank(entity[attr]())) {
       return;
     }
@@ -56,63 +56,63 @@ var UrlPatternValidator = function () {
   };
 };
 
-var FormatValidator = function (options) {
-  this.validate = function (entity, attr) {
+const FormatValidator = function({format, message}) {
+  this.validate = (entity, attr) => {
     if (s.isBlank(entity[attr]())) {
       return;
     }
 
-    if (!entity[attr]().match(options.format)) {
-      entity.errors().add(attr, options.message || (s.humanize(attr) + ' format is in valid'));
+    if (!entity[attr]().match(format)) {
+      entity.errors().add(attr, message || (`${s.humanize(attr)} format is in valid`));
     }
   };
 };
 
-var Validatable = function (data) {
-  var self                   = this;
-  var attrToValidators       = {};
-  var associationsToValidate = [];
-  self.errors                = Mixins.GetterSetter(new Errors(data.errors));
+var Validatable = function({errors}) {
+  const self                   = this;
+  const attrToValidators       = {};
+  const associationsToValidate = [];
+  self.errors                = Mixins.GetterSetter(new Errors(errors));
 
-  var validateWith = function (validator, attr) {
+  const validateWith = (validator, attr) => {
     _.has(attrToValidators, attr) ? attrToValidators[attr].push(validator) : attrToValidators[attr] = [validator];
   };
 
-  var clearErrors = function (attr) {
+  const clearErrors = (attr) => {
     attr ? self.errors().clear(attr) : self.errors().clear();
   };
 
-  self.validatePresenceOf = function (attr, options) {
+  self.validatePresenceOf = (attr, options) => {
     validateWith(new PresenceValidator(options || {}), attr);
   };
 
-  self.validateUniquenessOf = function (attr, options) {
+  self.validateUniquenessOf = (attr, options) => {
     validateWith(new UniquenessValidator(options || {}), attr);
   };
 
-  self.validateFormatOf = function (attr, options) {
+  self.validateFormatOf = (attr, options) => {
     validateWith(new FormatValidator(options || {}), attr);
   };
 
-  self.validateUrlPattern = function (attr, options) {
+  self.validateUrlPattern = (attr, options) => {
     validateWith(new UrlPatternValidator(options || {}), attr);
   };
 
-  self.validateWith = function (attr, validator) {
+  self.validateWith = (attr, validator) => {
     validateWith(new validator(), attr);
   };
 
-  self.validateAssociated = function (association) {
+  self.validateAssociated = (association) => {
     associationsToValidate.push(association);
   };
 
-  self.validate = function (attr) {
-    var attrs = attr ? [attr] : _.keys(attrToValidators);
+  self.validate = (attr) => {
+    const attrs = attr ? [attr] : _.keys(attrToValidators);
 
     clearErrors(attr);
 
-    _.forEach(attrs, function (attr) {
-      _.forEach(attrToValidators[attr], function (validator) {
+    _.forEach(attrs, (attr) => {
+      _.forEach(attrToValidators[attr], (validator) => {
         validator.validate(self, attr);
       });
     });
@@ -120,30 +120,28 @@ var Validatable = function (data) {
     return self.errors();
   };
 
-  self.isValid = function () {
+  self.isValid = () => {
     self.validate();
 
-    return _.isEmpty(self.errors().errors()) && _.every(associationsToValidate, function (association) {
-      return self[association]() ? self[association]().isValid() : true;
-    });
+    return _.isEmpty(self.errors().errors()) && _.every(associationsToValidate, (association) => self[association]() ? self[association]().isValid() : true);
   };
 };
 
 Validatable.ErrorMessages = {
-  duplicate:            function (attribute) {
-    return s.humanize(attribute) + " is a duplicate";
+  duplicate(attribute) {
+    return `${s.humanize(attribute)} is a duplicate`;
   },
-  mustBePresent:        function (attribute) {
-    return s.humanize(attribute).replace(/\bxpath\b/i, 'XPath').replace(/\burl\b/i, 'URL') + " must be present";
+  mustBePresent(attribute) {
+    return `${s.humanize(attribute).replace(/\bxpath\b/i, 'XPath').replace(/\burl\b/i, 'URL')} must be present`;
   },
-  mustBeAUrl:           function (attribute) {
-    return s.humanize(attribute) + " must be a valid http(s) url";
+  mustBeAUrl(attribute) {
+    return `${s.humanize(attribute)} must be a valid http(s) url`;
   },
-  mustBePositiveNumber: function (attribute) {
-    return s.humanize(attribute) + " must be a positive integer";
+  mustBePositiveNumber(attribute) {
+    return `${s.humanize(attribute)} must be a positive integer`;
   },
-  mustContainString:    function (attribute, string) {
-    return s.humanize(attribute) + " must contain the string '" + string + "'";
+  mustContainString(attribute, string) {
+    return `${s.humanize(attribute)} must contain the string '${string}'`;
   }
 };
 module.exports            = Validatable;

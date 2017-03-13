@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-describe("Property Model", function () {
+describe("Property Model", () => {
 
-  var Properties = require("models/pipeline_configs/properties");
-  var properties, property;
+  const Properties = require("models/pipeline_configs/properties");
+  let properties, property;
 
-  beforeEach(function () {
+  beforeEach(() => {
     properties = new Properties();
 
     property = properties.createProperty({
@@ -28,57 +28,57 @@ describe("Property Model", function () {
     });
   });
 
-  it("should initialize param model with name", function () {
+  it("should initialize param model with name", () => {
     expect(property.name()).toBe("coverage.class");
   });
 
-  it("should initialize param model with source", function () {
+  it("should initialize param model with source", () => {
     expect(property.source()).toBe('target/emma/coverage.xml');
   });
 
-  it("should initialize param model with xpath", function () {
+  it("should initialize param model with xpath", () => {
     expect(property.xpath()).toBe("substring-before(//report/data/all/coverage[starts-with(@type,'class')]/@value, '%')");
   });
 
-  describe("validations", function () {
-    it("should add error when name is blank but source or xpath is not", function () {
+  describe("validations", () => {
+    it("should add error when name is blank but source or xpath is not", () => {
       property.name("");
-      var errors = property.validate();
+      const errors = property.validate();
       expect(errors.errors('name')).toEqual(['Name must be present']);
     });
 
-    it("should NOT add error when both name and source and xpath are blank", function () {
+    it("should NOT add error when both name and source and xpath are blank", () => {
       property.name("");
       property.source("");
       property.xpath('');
 
-      var errors = property.validate();
+      const errors = property.validate();
       expect(errors._isEmpty()).toBe(true);
     });
 
-    it("should not allow properties with duplicate names", function () {
-      var errorsOnOriginal = property.validate();
+    it("should not allow properties with duplicate names", () => {
+      let errorsOnOriginal = property.validate();
       expect(errorsOnOriginal._isEmpty()).toBe(true);
 
-      var duplicateProperty = properties.createProperty({
+      const duplicateProperty = properties.createProperty({
         name: property.name()
       });
 
       errorsOnOriginal = property.validate();
       expect(errorsOnOriginal.errors('name')).toEqual(['Name is a duplicate']);
 
-      var errorsOnDuplicate = duplicateProperty.validate();
+      const errorsOnDuplicate = duplicateProperty.validate();
       expect(errorsOnDuplicate.errors('name')).toEqual(['Name is a duplicate']);
     });
   });
 
 
-  describe("Deserialization from JSON", function () {
-    beforeEach(function () {
+  describe("Deserialization from JSON", () => {
+    beforeEach(() => {
       property = Properties.Property.fromJSON(sampleJSON());
     });
 
-    it("should initialize from json", function () {
+    it("should initialize from json", () => {
       expect(property.name()).toBe("coverage.class");
       expect(property.source()).toBe('target/emma/coverage.xml');
       expect(property.xpath()).toBe("substring-before(//report/data/all/coverage[starts-with(@type,'class')]/@value, '%')");

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,36 +14,34 @@
  * limitations under the License.
  */
 
-var Stream      = require('mithril/stream');
-var _           = require('lodash');
-var s           = require('string-plus');
-var Mixins      = require('models/mixins/model_mixins');
-var Validatable = require('models/mixins/validatable_mixin');
+const Stream      = require('mithril/stream');
+const _           = require('lodash');
+const s           = require('string-plus');
+const Mixins      = require('models/mixins/model_mixins');
+const Validatable = require('models/mixins/validatable_mixin');
 
-var UrlPatternValidator = function () {
-  this.validate = function (entity) {
+const UrlPatternValidator = function () {
+  this.validate = (entity) => {
     if (!s.include(entity.urlPattern(), '${ID}')) {
       entity.errors().add('urlPattern', Validatable.ErrorMessages.mustContainString("urlPattern", '${ID}'));
     }
   };
 };
 
-var TrackingTool = function (type) {
+const TrackingTool = function (type) {
   this.constructor.modelType = 'trackingTool';
   Mixins.HasUUID.call(this);
 
   this.type = Stream(type);
 
-  var self = this;
+  const self = this;
 
-  this.toJSON = function () {
-    return {
-      type:       self.type(),
-      attributes: self._attributesToJSON()
-    };
-  };
+  this.toJSON = () => ({
+    type:       self.type(),
+    attributes: self._attributesToJSON()
+  });
 
-  this._attributesToJSON = function () {
+  this._attributesToJSON = () => {
     throw new Error("Subclass responsibility!");
   };
 };
@@ -67,12 +65,10 @@ TrackingTool.Generic = function (data) {
   };
 };
 
-TrackingTool.Generic.fromJSON = function (data) {
-  return new TrackingTool.Generic({
-    urlPattern: data.url_pattern,
-    regex:      data.regex
-  });
-};
+TrackingTool.Generic.fromJSON = ({url_pattern, regex}) => new TrackingTool.Generic({ //eslint-disable-line camelcase
+  urlPattern: url_pattern, //eslint-disable-line camelcase
+  regex:      regex
+});
 
 TrackingTool.Mingle = function (data) {
   TrackingTool.call(this, "mingle");
@@ -96,24 +92,20 @@ TrackingTool.Mingle = function (data) {
 
 };
 
-TrackingTool.Mingle.fromJSON = function (data) {
-  return new TrackingTool.Mingle({
-    baseUrl:               data.base_url,
-    projectIdentifier:     data.project_identifier,
-    mqlGroupingConditions: data.mql_grouping_conditions
-  });
-};
+TrackingTool.Mingle.fromJSON = ({base_url, project_identifier, mql_grouping_conditions}) => new TrackingTool.Mingle({ //eslint-disable-line camelcase
+  baseUrl:               base_url, //eslint-disable-line camelcase
+  projectIdentifier:     project_identifier, //eslint-disable-line camelcase
+  mqlGroupingConditions: mql_grouping_conditions //eslint-disable-line camelcase
+});
 
 TrackingTool.Types = {
   generic: {type: TrackingTool.Generic, description: "Generic"},
   mingle:  {type: TrackingTool.Mingle, description: "Mingle"}
 };
 
-TrackingTool.create = function (type) {
-  return new TrackingTool.Types[type].type({});
-};
+TrackingTool.create = (type) => new TrackingTool.Types[type].type({});
 
-TrackingTool.fromJSON = function (data) {
+TrackingTool.fromJSON = (data) => {
   if (!_.isEmpty(data)) {
     return TrackingTool.Types[data.type].type.fromJSON(data.attributes || {});
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-var Stream               = require('mithril/stream');
-var s                    = require('string-plus');
-var Mixins               = require('models/mixins/model_mixins');
-var Jobs                 = require('models/pipeline_configs/jobs');
-var EnvironmentVariables = require('models/pipeline_configs/environment_variables');
-var Approval             = require('models/pipeline_configs/approval');
-var Validatable          = require('models/mixins/validatable_mixin');
+const Stream               = require('mithril/stream');
+const s                    = require('string-plus');
+const Mixins               = require('models/mixins/model_mixins');
+const Jobs                 = require('models/pipeline_configs/jobs');
+const EnvironmentVariables = require('models/pipeline_configs/environment_variables');
+const Approval             = require('models/pipeline_configs/approval');
+const Validatable          = require('models/mixins/validatable_mixin');
 
-var Stages = function (data) {
+const Stages = function (data) {
   Mixins.HasMany.call(this, {factory: Stages.Stage.create, as: 'Stage', collection: data, uniqueOn: 'name'});
 };
 
@@ -47,9 +47,7 @@ Stages.Stage = function (data) {
   this.validateAssociated('jobs');
 };
 
-Stages.Stage.create = function (data) {
-  return new Stages.Stage(data);
-};
+Stages.Stage.create = (data) => new Stages.Stage(data);
 
 Mixins.fromJSONCollection({
   parentType: Stages,
@@ -57,17 +55,15 @@ Mixins.fromJSONCollection({
   via:        'addStage'
 });
 
-Stages.Stage.fromJSON = function (data) {
-  return new Stages.Stage({
-    name:                  data.name,
-    fetchMaterials:        data.fetch_materials,
-    cleanWorkingDirectory: data.clean_working_directory,
-    neverCleanupArtifacts: data.never_cleanup_artifacts,
-    environmentVariables:  EnvironmentVariables.fromJSON(data.environment_variables),
-    jobs:                  Jobs.fromJSON(data.jobs),
-    approval:              Approval.fromJSON(data.approval || {}),
-    errors:                data.errors
-  });
-};
+Stages.Stage.fromJSON = (data) => new Stages.Stage({
+  name:                  data.name,
+  fetchMaterials:        data.fetch_materials,
+  cleanWorkingDirectory: data.clean_working_directory,
+  neverCleanupArtifacts: data.never_cleanup_artifacts,
+  environmentVariables:  EnvironmentVariables.fromJSON(data.environment_variables),
+  jobs:                  Jobs.fromJSON(data.jobs),
+  approval:              Approval.fromJSON(data.approval || {}),
+  errors:                data.errors
+});
 
 module.exports = Stages;

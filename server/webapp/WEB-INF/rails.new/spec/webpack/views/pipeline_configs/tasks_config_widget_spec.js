@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-describe("TasksConfigWidget", function () {
+describe("TasksConfigWidget", () => {
 
   var m             = require('mithril');
   var Stream        = require('mithril/stream');
@@ -31,9 +31,9 @@ describe("TasksConfigWidget", function () {
   });
   afterEach(window.destroyDomElementForTest);
 
-  describe('Ant Task View', function () {
+  describe('Ant Task View', () => {
     var task;
-    beforeEach(function () {
+    beforeEach(() => {
       var tasks = Stream(new Tasks());
 
       task = new Tasks.Task.Ant({
@@ -59,29 +59,29 @@ describe("TasksConfigWidget", function () {
       mount(tasks);
     });
 
-    afterEach(function () {
+    afterEach(() => {
       unmount();
     });
 
-    it('should bind target', function () {
+    it('should bind target', () => {
       expect($root.find("input[data-prop-name='target']")).toHaveValue(task.target());
     });
 
-    it('should bind build file', function () {
+    it('should bind build file', () => {
       expect($root.find("input[data-prop-name='buildFile']")).toHaveValue(task.buildFile());
     });
 
-    it('should bind working directory', function () {
+    it('should bind working directory', () => {
       expect($root.find("input[data-prop-name='workingDirectory']")).toHaveValue(task.workingDirectory());
     });
 
-    it('should render run_if conditions', function () {
+    it('should render run_if conditions', () => {
       expect($root.find("input[type=checkbox][value=passed]").size()).toBe(1);
       expect($root.find("input[type=checkbox][value=failed]").size()).toBe(1);
       expect($root.find("input[type=checkbox][value=any]").size()).toBe(1);
     });
 
-    it('should render onCancel task', function () {
+    it('should render onCancel task', () => {
       expect($root.find("input[data-prop-name='target']")).toHaveValue(task.onCancelTask.target());
       expect($root.find("input[data-prop-name='buildFile']")).toHaveValue(task.onCancelTask.buildFile());
       expect($root.find("input[data-prop-name='workingDirectory']")).toHaveValue(task.onCancelTask.workingDirectory());
@@ -91,9 +91,9 @@ describe("TasksConfigWidget", function () {
     });
   });
 
-  describe('Nant Task View', function () {
+  describe('Nant Task View', () => {
     var task;
-    beforeEach(function () {
+    beforeEach(() => {
       var tasks = Stream(new Tasks());
 
       task = new Tasks.Task.NAnt({
@@ -108,40 +108,40 @@ describe("TasksConfigWidget", function () {
       mount(tasks);
     });
 
-    afterEach(function () {
+    afterEach(() => {
       unmount();
     });
 
-    it('should bind target', function () {
+    it('should bind target', () => {
       expect($root.find("input[data-prop-name='target']")).toHaveValue(task.target());
     });
 
-    it('should bind working directory', function () {
+    it('should bind working directory', () => {
       expect($root.find("input[data-prop-name='buildFile']")).toHaveValue(task.buildFile());
     });
 
-    it('should bind build file', function () {
+    it('should bind build file', () => {
       expect($root.find("input[data-prop-name='workingDirectory']")).toHaveValue(task.workingDirectory());
     });
 
-    it('should bind nant path', function () {
+    it('should bind nant path', () => {
       expect($root.find("input[data-prop-name='nantPath']")).toHaveValue(task.nantPath());
     });
 
-    it('should render run_if conditions', function () {
+    it('should render run_if conditions', () => {
       expect($root.find("input[type=checkbox][value=passed]").size()).toBe(1);
       expect($root.find("input[type=checkbox][value=failed]").size()).toBe(1);
       expect($root.find("input[type=checkbox][value=any]").size()).toBe(1);
     });
 
-    it('should not have onCancel task', function () {
+    it('should not have onCancel task', () => {
       expect($root.find("input[type=checkbox][data-prop-name=checked]")).not.toBeChecked();
     });
   });
 
-  describe('Exec Task View', function () {
+  describe('Exec Task View', () => {
     var task;
-    beforeEach(function () {
+    beforeEach(() => {
       var tasks = Stream(new Tasks());
 
       task = new Tasks.Task.Exec({
@@ -155,38 +155,38 @@ describe("TasksConfigWidget", function () {
       mount(tasks);
     });
 
-    afterEach(function () {
+    afterEach(() => {
       unmount();
     });
 
-    describe('render', function () {
-      it('should bind the command', function () {
+    describe('render', () => {
+      it('should bind the command', () => {
         expect($root.find("input[data-prop-name='command']")).toHaveValue(task.command());
       });
 
-      it('should bind the working directory', function () {
+      it('should bind the working directory', () => {
         expect($root.find("input[data-prop-name='workingDirectory']")).toHaveValue(task.workingDirectory());
       });
 
-      it('should bind the args', function () {
+      it('should bind the args', () => {
         expect($root.find("textarea[data-prop-name='data']")).toHaveValue(task.args().data().join('\n'));
       });
 
-      it('should render run_if conditions', function () {
+      it('should render run_if conditions', () => {
         expect($root.find("input[type=checkbox][value=passed]").size()).toBe(1);
         expect($root.find("input[type=checkbox][value=failed]").size()).toBe(1);
         expect($root.find("input[type=checkbox][value=any]").size()).toBe(1);
       });
 
-      it('should not have onCancel task', function () {
+      it('should not have onCancel task', () => {
         expect($root.find("input[type=checkbox][data-prop-name=checked]")).not.toBeChecked();
       });
     });
   });
 
-  describe('Rake Task View', function () {
+  describe('Rake Task View', () => {
     var task;
-    beforeEach(function () {
+    beforeEach(() => {
       var tasks = Stream(new Tasks());
 
       task = new Tasks.Task.Rake({
@@ -200,36 +200,36 @@ describe("TasksConfigWidget", function () {
       mount(tasks);
     });
 
-    afterEach(function () {
+    afterEach(() => {
       unmount();
     });
 
-    it('should bind target', function () {
+    it('should bind target', () => {
       expect($root.find("input[data-prop-name='target']")).toHaveValue(task.target());
     });
 
-    it('should bind working directory', function () {
+    it('should bind working directory', () => {
       expect($root.find("input[data-prop-name='buildFile']")).toHaveValue(task.buildFile());
     });
 
-    it('should bind build file', function () {
+    it('should bind build file', () => {
       expect($root.find("input[data-prop-name='workingDirectory']")).toHaveValue(task.workingDirectory());
     });
 
-    it('should render run_if conditions', function () {
+    it('should render run_if conditions', () => {
       expect($root.find("input[type=checkbox][value=passed]").size()).toBe(1);
       expect($root.find("input[type=checkbox][value=failed]").size()).toBe(1);
       expect($root.find("input[type=checkbox][value=any]").size()).toBe(1);
     });
 
-    it('should not have onCancel task', function () {
+    it('should not have onCancel task', () => {
       expect($root.find("input[type=checkbox][data-prop-name=checked]")).not.toBeChecked();
     });
   });
 
-  describe('FetchArtifact Task View', function () {
+  describe('FetchArtifact Task View', () => {
     var task;
-    beforeEach(function () {
+    beforeEach(() => {
       var tasks = Stream(new Tasks());
 
       task = new Tasks.Task.FetchArtifact({
@@ -246,48 +246,48 @@ describe("TasksConfigWidget", function () {
       mount(tasks);
     });
 
-    afterEach(function () {
+    afterEach(() => {
       unmount();
     });
 
-    it('should bind pipeline', function () {
+    it('should bind pipeline', () => {
       expect($root.find("input[data-prop-name='pipeline']")).toHaveValue(task.pipeline());
     });
 
-    it('should bind stage', function () {
+    it('should bind stage', () => {
       expect($root.find("input[data-prop-name='stage']")).toHaveValue(task.stage());
     });
 
-    it('should bind job', function () {
+    it('should bind job', () => {
       expect($root.find("input[data-prop-name='job']")).toHaveValue(task.job());
     });
 
-    it('should bind source', function () {
+    it('should bind source', () => {
       expect($root.find("input[data-prop-name='source']")).toHaveValue(task.source());
     });
 
-    it('should bind destination', function () {
+    it('should bind destination', () => {
       expect($root.find("input[data-prop-name='destination']")).toHaveValue(task.destination());
     });
 
-    it('should bind source is a file ', function () {
+    it('should bind source is a file ', () => {
       expect($root.find("input[type=checkbox][data-prop-name=isSourceAFile]").is(':checked')).toBe(task.isSourceAFile());
     });
 
-    it('should render run_if conditions', function () {
+    it('should render run_if conditions', () => {
       expect($root.find("input[type=checkbox][value=passed]").size()).toBe(1);
       expect($root.find("input[type=checkbox][value=failed]").size()).toBe(1);
       expect($root.find("input[type=checkbox][value=any]").size()).toBe(1);
     });
 
-    it('should not have onCancel task', function () {
+    it('should not have onCancel task', () => {
       expect($root.find("input[type=checkbox][data-prop-name=checked]")).not.toBeChecked();
     });
   });
 
-  describe("Add Tasks", function () {
+  describe("Add Tasks", () => {
     var antTask, nantTask, execTask, rakeTask, fetchArtifactTask, tasks;
-    beforeEach(function () {
+    beforeEach(() => {
       antTask = new Tasks.Task.Ant({
         buildFile:        'build-moduleA.xml',
         target:           "clean",
@@ -330,18 +330,18 @@ describe("TasksConfigWidget", function () {
         execTask,
         rakeTask,
         fetchArtifactTask
-      ], function (task) {
+      ], (task) => {
         tasks().addTask(task);
       });
 
       mount(tasks);
     });
 
-    afterEach(function () {
+    afterEach(() => {
       unmount();
     });
 
-    it("should add a new task", function () {
+    it("should add a new task", () => {
       expect(tasks().countTask()).toBe(5);
       expect($root.find('.task-definition')).toHaveLength(5);
 
@@ -353,16 +353,16 @@ describe("TasksConfigWidget", function () {
     });
   });
 
-  var mount = function (tasks) {
+  var mount = (tasks) => {
     m.mount(root, {
-      view: function () {
-        return m(TasksConfigWidget, {tasks: tasks});
+      view() {
+        return m(TasksConfigWidget, {tasks});
       }
     });
     m.redraw();
   };
 
-  var unmount = function () {
+  var unmount = () => {
     m.mount(root, null);
     m.redraw();
   };

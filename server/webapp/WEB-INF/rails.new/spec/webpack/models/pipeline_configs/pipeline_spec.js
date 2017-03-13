@@ -13,22 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-describe("Pipeline Model", function () {
+describe("Pipeline Model", () => {
 
-  var s = require("string-plus");
+  const s = require("string-plus");
 
-  var Pipeline     = require("models/pipeline_configs/pipeline");
-  var TrackingTool = require('models/pipeline_configs/tracking_tool');
+  const Pipeline     = require("models/pipeline_configs/pipeline");
+  const TrackingTool = require('models/pipeline_configs/tracking_tool');
 
-  var pipeline, timer;
-  beforeEach(function () {
+  let pipeline, timer;
+  beforeEach(() => {
     timer    = new Pipeline.Timer({spec: "0 0 22 ? * MON-FRI"});
     pipeline = new Pipeline({
       name:                  "BuildRailsApp",
       enablePipelineLocking: true,
       templateName:          "BuildRPM",
       labelTemplate:         "foo-1.0.${COUNT}-${svn}",
-      timer:                 timer,
+      timer,
       environmentVariables:  ["foo=bar", "boo=baz"],
       parameters:            ["WORKING_DIR=something"],
       materials:             ["svn://svn.example.com/svn/myProject"],
@@ -39,48 +39,48 @@ describe("Pipeline Model", function () {
     });
   });
 
-  it("should initialize pipeline model with name", function () {
+  it("should initialize pipeline model with name", () => {
     expect(pipeline.name()).toBe("BuildRailsApp");
   });
 
-  it("should initialize pipeline model indicating enablePipelineLocking", function () {
+  it("should initialize pipeline model indicating enablePipelineLocking", () => {
     expect(pipeline.enablePipelineLocking()).toBe(true);
   });
 
-  it("should initialize pipeline model with template", function () {
+  it("should initialize pipeline model with template", () => {
     expect(pipeline.templateName()).toBe("BuildRPM");
   });
 
-  it("should initialize pipeline model with label template", function () {
+  it("should initialize pipeline model with label template", () => {
     expect(pipeline.labelTemplate()).toBe("foo-1.0.${COUNT}-${svn}");
   });
 
-  it("should initialize pipeline model with timer", function () {
+  it("should initialize pipeline model with timer", () => {
     expect(pipeline.timer()).toBe(timer);
   });
 
-  it("should initialize pipeline model with environmentVariables", function () {
+  it("should initialize pipeline model with environmentVariables", () => {
     expect(pipeline.environmentVariables()).toEqual(['foo=bar', 'boo=baz']);
   });
 
-  it("should initialize pipeline model with params", function () {
+  it("should initialize pipeline model with params", () => {
     expect(pipeline.parameters()).toEqual(["WORKING_DIR=something"]);
   });
 
-  it("should initialize pipeline model with materials", function () {
+  it("should initialize pipeline model with materials", () => {
     expect(pipeline.materials()).toEqual(["svn://svn.example.com/svn/myProject"]);
   });
 
-  it("should initialize pipeline model with trackingTool", function () {
+  it("should initialize pipeline model with trackingTool", () => {
     expect(pipeline.trackingTool().type()).toBe('generic');
   });
 
-  it("should default the pipeline auto scheduling to true", function () {
+  it("should default the pipeline auto scheduling to true", () => {
     expect(pipeline.isFirstStageAutoTriggered()).toBe(true);
   });
 
-  it("should default the pipeline scheduling type to the approval type of first stage", function () {
-    var pipeline = Pipeline.fromJSON({
+  it("should default the pipeline scheduling type to the approval type of first stage", () => {
+    const pipeline = Pipeline.fromJSON({
       stages: [{
         name:     'sampleStage',
         approval: {
@@ -94,22 +94,22 @@ describe("Pipeline Model", function () {
     expect(pipeline.isFirstStageAutoTriggered()).toBe(false);
   });
 
-  describe("validations", function () {
-    it("should validate presence of labelTemplate", function () {
+  describe("validations", () => {
+    it("should validate presence of labelTemplate", () => {
       pipeline.labelTemplate("");
-      var errors = pipeline.validate();
+      const errors = pipeline.validate();
       expect(errors.errors('labelTemplate')).toEqual(['Label template must be present']);
     });
 
-    it("should validate format of labelTemplate", function () {
+    it("should validate format of labelTemplate", () => {
       pipeline.labelTemplate("foo");
-      var errors = pipeline.validate();
+      const errors = pipeline.validate();
       expect(errors.errors('labelTemplate')).toEqual(["Label should be composed of alphanumeric text, it may contain the build number as ${COUNT}, it may contain a material revision as ${<material-name>} or ${<material-name>[:<length>]}, or use params as #{<param-name>}"]);
     });
 
-    describe('validate association', function () {
-      it('should validate materials', function () {
-        var pipeline = Pipeline.fromJSON(samplePipelineJSON());
+    describe('validate association', () => {
+      it('should validate materials', () => {
+        const pipeline = Pipeline.fromJSON(samplePipelineJSON());
 
         expect(pipeline.isValid()).toBe(true);
 
@@ -119,8 +119,8 @@ describe("Pipeline Model", function () {
         expect(pipeline.materials().firstMaterial().errors().errors('url')).toEqual(['URL must be present']);
       });
 
-      it('should validate environmental variables', function () {
-        var pipeline = Pipeline.fromJSON(samplePipelineJSON());
+      it('should validate environmental variables', () => {
+        const pipeline = Pipeline.fromJSON(samplePipelineJSON());
 
         expect(pipeline.isValid()).toBe(true);
 
@@ -130,8 +130,8 @@ describe("Pipeline Model", function () {
         expect(pipeline.environmentVariables().firstVariable().errors().errors('name')).toEqual(['Name must be present']);
       });
 
-      it('should validate parameters', function () {
-        var pipeline = Pipeline.fromJSON(samplePipelineJSON());
+      it('should validate parameters', () => {
+        const pipeline = Pipeline.fromJSON(samplePipelineJSON());
 
         expect(pipeline.isValid()).toBe(true);
 
@@ -141,8 +141,8 @@ describe("Pipeline Model", function () {
         expect(pipeline.parameters().firstParameter().errors().errors('name')).toEqual(['Name must be present']);
       });
 
-      it('should validate tracking tools', function () {
-        var pipeline = Pipeline.fromJSON(samplePipelineJSON());
+      it('should validate tracking tools', () => {
+        const pipeline = Pipeline.fromJSON(samplePipelineJSON());
 
         expect(pipeline.isValid()).toBe(true);
 
@@ -152,8 +152,8 @@ describe("Pipeline Model", function () {
         expect(pipeline.trackingTool().errors().errors('regex')).toEqual(['Regex must be present']);
       });
 
-      it('should validate stages', function () {
-        var pipeline = Pipeline.fromJSON({
+      it('should validate stages', () => {
+        const pipeline = Pipeline.fromJSON({
           /* eslint-disable camelcase */
           label_template: "foo-1.0.${COUNT}-${svn}",
           tracking_tool:  {
@@ -177,22 +177,22 @@ describe("Pipeline Model", function () {
     });
   });
 
-  describe("Serialization/De-serialization to/from JSON", function () {
-    var pipeline;
+  describe("Serialization/De-serialization to/from JSON", () => {
+    let pipeline;
 
-    beforeEach(function () {
+    beforeEach(() => {
       pipeline = Pipeline.fromJSON(samplePipelineJSON());
     });
 
-    it("should serialize to JSON", function () {
-      var result = JSON.stringify(pipeline, s.snakeCaser);
+    it("should serialize to JSON", () => {
+      const result = JSON.stringify(pipeline, s.snakeCaser);
       expect(JSON.parse(result)).toEqual(samplePipelineJSON());
     });
 
-    it("should de-serialize from JSON", function () {
-      var expectedParamNames          = pipeline.parameters().collectParameterProperty('name');
-      var expectedEnvironmentVarNames = pipeline.environmentVariables().collectVariableProperty('name');
-      var expectedMaterialNames       = pipeline.materials().collectMaterialProperty('name');
+    it("should de-serialize from JSON", () => {
+      const expectedParamNames          = pipeline.parameters().collectParameterProperty('name');
+      const expectedEnvironmentVarNames = pipeline.environmentVariables().collectVariableProperty('name');
+      const expectedMaterialNames       = pipeline.materials().collectMaterialProperty('name');
 
       expect(pipeline.name()).toBe("yourproject");
       expect(pipeline.trackingTool().type()).toBe('generic');
@@ -205,10 +205,10 @@ describe("Pipeline Model", function () {
     });
   });
 
-  describe('update', function () {
-    it('should patch to pipeline endpoint', function () {
-      jasmine.Ajax.withMock(function () {
-        let url = '/go/api/admin/pipelines/' + pipeline.name();
+  describe('update', () => {
+    it('should patch to pipeline endpoint', () => {
+      jasmine.Ajax.withMock(() => {
+        let url = `/go/api/admin/pipelines/${pipeline.name()}`;
 
         jasmine.Ajax.stubRequest(url, undefined, 'PUT').andReturn({
           responseText:    JSON.stringify(samplePipelineJSON()),
@@ -218,8 +218,8 @@ describe("Pipeline Model", function () {
           }
         });
 
-        var successCallback = jasmine.createSpy().and.callFake(function (response) {
-          expect(response.status).toBe(200);
+        var successCallback = jasmine.createSpy().and.callFake(({status}) => {
+          expect(status).toBe(200);
         });
 
         pipeline.update(url, successCallback);

@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-var m             = require('mithril');
-var dragula       = require('dragula');
-var _             = require('lodash');
-var dragulaConfig = function (elem, options) {
+const m             = require('mithril');
+const dragula       = require('dragula');
+const _             = require('lodash');
+const dragulaConfig = (elem, options) => {
 
-  var opts = _.extend({revertOnSpill: true, mirrorContainer: elem}, options.dragulaOptions);
+  const opts = _.extend({revertOnSpill: true, mirrorContainer: elem}, options.dragulaOptions);
 
-  var drake = dragula([elem], opts);
+  const drake = dragula([elem], opts);
 
-  drake.on('drop', function () {
+  drake.on('drop', () => {
     try {
       options.onDropCallback();
     } finally {

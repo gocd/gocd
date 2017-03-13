@@ -13,37 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-describe("RunIfConditions", function () {
-  var RunIfConditions = require('models/pipeline_configs/run_if_conditions');
+describe("RunIfConditions", () => {
+  const RunIfConditions = require('models/pipeline_configs/run_if_conditions');
 
-  describe('RunIfConditions create', function () {
+  describe('RunIfConditions create', () => {
 
-    it('should create runIfConditions', function () {
-      var runIf = ['passed', 'failed'];
+    it('should create runIfConditions', () => {
+      const runIf = ['passed', 'failed'];
 
-      var runIfConditions = RunIfConditions.create(runIf);
+      const runIfConditions = RunIfConditions.create(runIf);
 
       expect(runIfConditions.data()).toEqual(runIf);
     });
 
-    it('should create runIfConditions with default as "passed"', function () {
-      var runIfConditions = RunIfConditions.create();
+    it('should create runIfConditions with default as "passed"', () => {
+      const runIfConditions = RunIfConditions.create();
 
       expect(runIfConditions.data()).toEqual(['passed']);
     });
   });
 
-  describe('RunIfConditions push', function () {
-    it('should add a condition', function () {
-      var runIfConditions = RunIfConditions.create([]);
+  describe('RunIfConditions push', () => {
+    it('should add a condition', () => {
+      const runIfConditions = RunIfConditions.create([]);
 
       runIfConditions.push('any');
 
       expect(runIfConditions.data()).toEqual(['any']);
     });
 
-    it("should either have 'any' or 'passed || failed' condition", function () {
-      var runIfConditions = RunIfConditions.create(['passed']);
+    it("should either have 'any' or 'passed || failed' condition", () => {
+      const runIfConditions = RunIfConditions.create(['passed']);
 
       runIfConditions.push('any');
 
@@ -55,9 +55,9 @@ describe("RunIfConditions", function () {
     });
   });
 
-  describe('RunIfConditions pop', function () {
-    it('should pop out a condition', function () {
-      var runIfConditions = RunIfConditions.create(['passed', 'failed']);
+  describe('RunIfConditions pop', () => {
+    it('should pop out a condition', () => {
+      const runIfConditions = RunIfConditions.create(['passed', 'failed']);
 
       runIfConditions.pop();
 

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-var Stream = require('mithril/stream');
+const Stream = require('mithril/stream');
 
-var About = function (data) {
+const About = function (data) {
   this.name                  = Stream(data.name);
   this.version               = Stream(data.version);
   this.targetGoVersion       = Stream(data.targetGoVersion);
@@ -25,27 +25,23 @@ var About = function (data) {
   this.vendor                = Stream(data.vendor);
 };
 
-About.fromJSON = function (data = {}) {
-  return new About({
-    name:                  data.name,
-    version:               data.version,
-    targetGoVersion:       data.target_go_version,
-    description:           data.description,
-    targetOperatingSystem: data.target_operating_systems,
-    vendor:                About.Vendor.fromJSON(data.vendor)
-  });
+About.fromJSON = (data = {}) => new About({
+  name:                  data.name,
+  version:               data.version,
+  targetGoVersion:       data.target_go_version,
+  description:           data.description,
+  targetOperatingSystem: data.target_operating_systems,
+  vendor:                About.Vendor.fromJSON(data.vendor)
+});
+
+About.Vendor = function({name, url}) {
+  this.name = Stream(name);
+  this.url  = Stream(url);
 };
 
-About.Vendor = function (data) {
-  this.name = Stream(data.name);
-  this.url  = Stream(data.url);
-};
-
-About.Vendor.fromJSON = function (data = {}) {
-  return new About.Vendor({
-    name: data.name,
-    url:  data.url
-  });
-};
+About.Vendor.fromJSON = (data = {}) => new About.Vendor({
+  name: data.name,
+  url:  data.url
+});
 
 module.exports = About;

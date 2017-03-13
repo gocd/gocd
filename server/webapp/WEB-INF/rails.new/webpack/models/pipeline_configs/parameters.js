@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-var Stream      = require('mithril/stream');
-var _           = require('lodash');
-var s           = require('string-plus');
-var Mixins      = require('models/mixins/model_mixins');
-var Validatable = require('models/mixins/validatable_mixin');
+const Stream      = require('mithril/stream');
+const _           = require('lodash');
+const s           = require('string-plus');
+const Mixins      = require('models/mixins/model_mixins');
+const Validatable = require('models/mixins/validatable_mixin');
 
-var Parameters = function (data) {
+const Parameters = function (data) {
   Mixins.HasMany.call(this, {
     factory:    Parameters.Parameter.create,
     as:         'Parameter',
@@ -44,16 +44,14 @@ Parameters.Parameter = function (data) {
   };
 
   this.validatePresenceOf('name', {
-    condition: function (property) {
+    condition(property) {
       return (!s.isBlank(property.value()));
     }
   });
   this.validateUniquenessOf('name');
 };
 
-Parameters.Parameter.create = function (data) {
-  return new Parameters.Parameter(data);
-};
+Parameters.Parameter.create = (data) => new Parameters.Parameter(data);
 
 Mixins.fromJSONCollection({
   parentType: Parameters,
@@ -61,8 +59,6 @@ Mixins.fromJSONCollection({
   via:        'addParameter'
 });
 
-Parameters.Parameter.fromJSON = function (data) {
-  return new Parameters.Parameter(_.pick(data, ['name', 'value']));
-};
+Parameters.Parameter.fromJSON = (data) => new Parameters.Parameter(_.pick(data, ['name', 'value']));
 
 module.exports = Parameters;

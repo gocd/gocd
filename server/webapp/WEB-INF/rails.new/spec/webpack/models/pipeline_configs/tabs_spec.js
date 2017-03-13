@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-describe("Tabs Model", function () {
+describe("Tabs Model", () => {
 
-  var Tabs = require('models/pipeline_configs/tabs');
-  var tabs, tab;
+  const Tabs = require('models/pipeline_configs/tabs');
+  let tabs, tab;
 
-  beforeEach(function () {
+  beforeEach(() => {
     tabs = new Tabs();
 
     tab = tabs.createTab({
@@ -28,55 +28,55 @@ describe("Tabs Model", function () {
     });
   });
 
-  it('should initialize model with name', function () {
+  it('should initialize model with name', () => {
     expect(tab.name()).toBe('tab_name');
   });
 
-  it("should initialize model with path", function () {
+  it("should initialize model with path", () => {
     expect(tab.path()).toBe('tab_path');
   });
 
-  describe('validations', function () {
-    it("should add error when name is blank but path is not", function () {
+  describe('validations', () => {
+    it("should add error when name is blank but path is not", () => {
       tab.name('');
 
-      var errors = tab.validate();
+      const errors = tab.validate();
 
       expect(errors.errors('name')).toEqual(['Name must be present']);
     });
 
-    it("should NOT add error when both name and path are blank", function () {
+    it("should NOT add error when both name and path are blank", () => {
       tab.name('');
       tab.path('');
 
-      var errors = tab.validate();
+      const errors = tab.validate();
 
       expect(errors._isEmpty()).toBe(true);
     });
 
-    it("should not allow tabs with duplicate names", function () {
-      var errorsOnOriginal = tab.validate();
+    it("should not allow tabs with duplicate names", () => {
+      let errorsOnOriginal = tab.validate();
       expect(errorsOnOriginal._isEmpty()).toBe(true);
 
-      var duplicateTab = tabs.createTab({
+      const duplicateTab = tabs.createTab({
         name: tab.name()
       });
 
       errorsOnOriginal = tab.validate();
       expect(errorsOnOriginal.errors('name')).toEqual(['Name is a duplicate']);
 
-      var errorsOnDuplicate = duplicateTab.validate();
+      const errorsOnDuplicate = duplicateTab.validate();
       expect(errorsOnDuplicate.errors('name')).toEqual(['Name is a duplicate']);
     });
   });
 
 
-  describe("Deserialization from JSON", function () {
-    beforeEach(function () {
+  describe("Deserialization from JSON", () => {
+    beforeEach(() => {
       tab = Tabs.Tab.fromJSON(sampleJSON());
     });
 
-    it("should initialize from json", function () {
+    it("should initialize from json", () => {
       expect(tab.name()).toBe('tab_name');
       expect(tab.path()).toBe('tab_path');
     });

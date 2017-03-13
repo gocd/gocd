@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-var $                     = require('jquery');
-var m                     = require('mithril');
-var Stream                = require('mithril/stream');
-var ElasticProfilesWidget = require('views/elastic_profiles/elastic_profiles_widget');
-var PluginInfos           = require('models/shared/plugin_infos');
-var VersionUpdater        = require('models/shared/version_updater');
+const $                     = require('jquery');
+const m                     = require('mithril');
+const Stream                = require('mithril/stream');
+const ElasticProfilesWidget = require('views/elastic_profiles/elastic_profiles_widget');
+const PluginInfos           = require('models/shared/plugin_infos');
+const VersionUpdater        = require('models/shared/version_updater');
 require('foundation-sites');
 
-$(function () {
+$(() => {
   $(document).foundation();
   new VersionUpdater().update();
 
-  var onSuccess = function (pluginInfos) {
-    var component = {
-      view: function () {
+  const onSuccess = (pluginInfos) => {
+    const component = {
+      view() {
         return m(ElasticProfilesWidget, {
           pluginInfos: Stream(pluginInfos.filterByType('elastic-agent'))
         });
@@ -38,7 +38,7 @@ $(function () {
     m.mount($("#elastic-profiles").get(0), component);
   };
 
-  var onFailure = function () {
+  const onFailure = () => {
     $("#elastic-profiles").html($('<div class="alert callout">')
       .append('<h5>There was a problem fetching the elastic profiles</h5>')
       .append('<p>Refresh <a href="javascript: window.location.reload()">this page</a> in some time, and if the problem persists, check the server logs.</p>')

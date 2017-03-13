@@ -13,30 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-describe("Stage Approval Model", function () {
+describe("Stage Approval Model", () => {
 
-  var s        = require("string-plus");
-  var Approval = require("models/pipeline_configs/approval");
+  const s        = require("string-plus");
+  const Approval = require("models/pipeline_configs/approval");
 
-  var approval;
-  beforeEach(function () {
+  let approval;
+  beforeEach(() => {
     approval = new Approval({
       type:          'manual',
       authorization: new Approval.AuthConfig({roles: ['Administrators'], users: ['bob']})
     });
   });
 
-  it("should initialize with type", function () {
+  it("should initialize with type", () => {
     expect(approval.type()).toBe('manual');
   });
 
-  it("should initialize with authorization", function () {
+  it("should initialize with authorization", () => {
     expect(approval.authorization().roles()).toEqual(['Administrators']);
     expect(approval.authorization().users()).toEqual(['bob']);
   });
 
-  describe("Serialization from/to JSON", function () {
-    it("should de-serialize from json", function () {
+  describe("Serialization from/to JSON", () => {
+    it("should de-serialize from json", () => {
       approval = Approval.fromJSON(sampleJSON());
 
       expect(approval.type()).toBe('manual');
@@ -44,11 +44,11 @@ describe("Stage Approval Model", function () {
       expect(approval.authorization().users()).toEqual(['bob']);
     });
 
-    it("should serialize to json", function () {
+    it("should serialize to json", () => {
       expect(JSON.parse(JSON.stringify(approval, s.snakeCaser))).toEqual(sampleJSON());
     });
 
-    it("should serialize a comma separated user and role string to array", function () {
+    it("should serialize a comma separated user and role string to array", () => {
       approval.authorization().roles('Admins,Deployers,');
       approval.authorization().users('bob,alice,');
 

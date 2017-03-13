@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-describe("Material Model", function () {
+describe("Material Model", () => {
 
-  var Stream      = require('mithril/stream');
-  var Materials   = require("models/pipeline_configs/materials");
-  var SCMs        = require("models/pipeline_configs/scms");
-  var PluginInfos = require('models/pipeline_configs/plugin_infos');
+  const Stream      = require('mithril/stream');
+  const Materials   = require("models/pipeline_configs/materials");
+  const SCMs        = require("models/pipeline_configs/scms");
+  const PluginInfos = require('models/pipeline_configs/plugin_infos');
 
-  var materials, gitMaterial, svnMaterial, mercurialMaterial, perforceMaterial, tfsMaterial, dependencyMaterial;
-  afterEach(function () {
+  let materials, gitMaterial, svnMaterial, mercurialMaterial, perforceMaterial, tfsMaterial, dependencyMaterial;
+  afterEach(() => {
     SCMs([]);
     SCMs.scmIdToEtag = {};
   });
 
-  beforeEach(function () {
+  beforeEach(() => {
     materials = new Materials();
 
     gitMaterial = materials.createMaterial({
@@ -103,12 +103,12 @@ describe("Material Model", function () {
     });
   });
 
-  describe("validation", function () {
-    it("should not allow materials with duplicate names", function () {
-      var errorsOnOriginal = gitMaterial.validate();
+  describe("validation", () => {
+    it("should not allow materials with duplicate names", () => {
+      let errorsOnOriginal = gitMaterial.validate();
       expect(errorsOnOriginal._isEmpty()).toBe(true);
 
-      var duplicate = materials.createMaterial({
+      const duplicate = materials.createMaterial({
         type: 'git',
         name: gitMaterial.name()
       });
@@ -116,40 +116,40 @@ describe("Material Model", function () {
       errorsOnOriginal = gitMaterial.validate();
       expect(errorsOnOriginal.errors('name')).toEqual(['Name is a duplicate']);
 
-      var errorsOnDuplicate = duplicate.validate();
+      const errorsOnDuplicate = duplicate.validate();
       expect(errorsOnDuplicate.errors('name')).toEqual(['Name is a duplicate']);
     });
 
-    it("should allow multiple materials to have blank names", function () {
-      var materialA = materials.createMaterial({
+    it("should allow multiple materials to have blank names", () => {
+      const materialA = materials.createMaterial({
         type: 'git',
         name: '',
         url:  'https://github.com/gocd/gocd'
       });
 
-      var materialB = materials.createMaterial({
+      const materialB = materials.createMaterial({
         type: 'git',
         name: '',
         url:  'https://github.com/gocd/website'
       });
 
-      var errorsOnA = materialA.validate();
+      const errorsOnA = materialA.validate();
       expect(errorsOnA.hasErrors('name')).toBe(false);
 
-      var errorsOnB = materialB.validate();
+      const errorsOnB = materialB.validate();
       expect(errorsOnB.hasErrors('name')).toBe(false);
     });
   });
 
-  describe('Test Connection', function () {
-    describe('success', function () {
-      it('should post to material_test url', function () {
-        var material = new Materials().createMaterial({
+  describe('Test Connection', () => {
+    describe('success', () => {
+      it('should post to material_test url', () => {
+        const material = new Materials().createMaterial({
           type: 'git',
           url:  "http://git.example.com/git/myProject"
         });
 
-        jasmine.Ajax.withMock(function () {
+        jasmine.Ajax.withMock(() => {
           jasmine.Ajax.stubRequest('/go/api/admin/internal/material_test', undefined, 'POST').andReturn({
             responseText: JSON.stringify({status: 'success'}),
             status:       200,
@@ -158,7 +158,7 @@ describe("Material Model", function () {
             }
           });
 
-          var successCallback = jasmine.createSpy();
+          const successCallback = jasmine.createSpy();
 
           material.testConnection(Stream('testPipeline')).then(successCallback);
           expect(successCallback).toHaveBeenCalled();
@@ -166,14 +166,14 @@ describe("Material Model", function () {
       });
     });
 
-    describe('failure', function () {
-      it('should post to material_test url', function () {
-        var material = new Materials().createMaterial({
+    describe('failure', () => {
+      it('should post to material_test url', () => {
+        const material = new Materials().createMaterial({
           type: 'git',
           url:  "http://git.example.com/git/myProject"
         });
 
-        jasmine.Ajax.withMock(function () {
+        jasmine.Ajax.withMock(() => {
           jasmine.Ajax.stubRequest('/go/api/admin/internal/material_test', undefined, 'POST').andReturn({
             responseText: JSON.stringify({status: 'failure'}),
             status:       500,
@@ -182,7 +182,7 @@ describe("Material Model", function () {
             }
           });
 
-          var errorMessage = jasmine.createSpy().and.callFake(function (errorMessage) {
+          const errorMessage = jasmine.createSpy().and.callFake((errorMessage) => {
             expect(errorMessage).toBe('There was an unknown error while checking connection');
           });
 
@@ -193,62 +193,62 @@ describe("Material Model", function () {
     });
   });
 
-  describe("Material Type", function () {
-    describe("SVN", function () {
-      it("should initialize material model with type", function () {
+  describe("Material Type", () => {
+    describe("SVN", () => {
+      it("should initialize material model with type", () => {
         expect(svnMaterial.type()).toBe("svn");
       });
 
-      it("should initialize material model with url", function () {
+      it("should initialize material model with url", () => {
         expect(svnMaterial.url()).toBe("http://svn.example.com/svn/myProject");
       });
 
-      it("should initialize material model with username", function () {
+      it("should initialize material model with username", () => {
         expect(svnMaterial.username()).toBe("bob");
       });
 
-      it("should initialize material model with password", function () {
+      it("should initialize material model with password", () => {
         expect(svnMaterial.passwordValue()).toBe("p@ssw0rd");
       });
 
-      it("should initialize material model with checkExternals", function () {
+      it("should initialize material model with checkExternals", () => {
         expect(svnMaterial.checkExternals()).toBe(true);
       });
 
-      it("should initialize material model with destination", function () {
+      it("should initialize material model with destination", () => {
         expect(svnMaterial.destination()).toBe("projectA");
       });
 
-      it("should initialize material model with name", function () {
+      it("should initialize material model with name", () => {
         expect(svnMaterial.name()).toBe("svn-repo");
       });
 
-      it("should initialize material model with autoUpdate", function () {
+      it("should initialize material model with autoUpdate", () => {
         expect(svnMaterial.autoUpdate()).toBe(true);
       });
 
-      it("should initialize material model with filters", function () {
+      it("should initialize material model with filters", () => {
         expect(svnMaterial.filter().ignore()).toEqual(['*.doc']);
       });
 
-      it("should initialize material model with invert_filter", function () {
+      it("should initialize material model with invert_filter", () => {
         expect(svnMaterial.invertFilter()).toBe(true);
       });
 
-      describe("validation", function () {
-        it("should add error when url is blank", function () {
+      describe("validation", () => {
+        it("should add error when url is blank", () => {
           svnMaterial.url("");
-          var errors = svnMaterial.validate();
+          const errors = svnMaterial.validate();
           expect(errors.errors('url')).toEqual(['URL must be present']);
         });
       });
 
-      describe("Deserialization from JSON", function () {
-        beforeEach(function () {
+      describe("Deserialization from JSON", () => {
+        beforeEach(() => {
           svnMaterial = Materials.Material.fromJSON(sampleJSON());
         });
 
-        it("should initialize from json", function () {
+        it("should initialize from json", () => {
           expect(svnMaterial.type()).toBe("svn");
           expect(svnMaterial.url()).toBe("http://svn.example.com/svn/myProject");
           expect(svnMaterial.username()).toBe("bob");
@@ -261,8 +261,8 @@ describe("Material Model", function () {
           expect(svnMaterial.invertFilter()).toBe(true);
         });
 
-        it('should map server side errors', function () {
-          var material = Materials.Material.fromJSON({
+        it('should map server side errors', () => {
+          const material = Materials.Material.fromJSON({
             type:   "svn",
             errors: {
               url: [
@@ -298,57 +298,57 @@ describe("Material Model", function () {
       });
     });
 
-    describe("Git", function () {
-      it("should initialize material model with type", function () {
+    describe("Git", () => {
+      it("should initialize material model with type", () => {
         expect(gitMaterial.type()).toBe("git");
       });
 
-      it("should initialize material model with url", function () {
+      it("should initialize material model with url", () => {
         expect(gitMaterial.url()).toBe("http://git.example.com/git/myProject");
       });
 
-      it("should initialize material model with branch", function () {
+      it("should initialize material model with branch", () => {
         expect(gitMaterial.branch()).toBe("release-1.2");
       });
 
-      it("should initialize material model with destination", function () {
+      it("should initialize material model with destination", () => {
         expect(gitMaterial.destination()).toBe("projectA");
       });
 
-      it("should initialize material model with name", function () {
+      it("should initialize material model with name", () => {
         expect(gitMaterial.name()).toBe("git-repo");
       });
 
-      it("should initialize material model with autoUpdate", function () {
+      it("should initialize material model with autoUpdate", () => {
         expect(gitMaterial.autoUpdate()).toBe(true);
       });
 
-      it("should initialize material model with filters", function () {
+      it("should initialize material model with filters", () => {
         expect(gitMaterial.filter().ignore()).toEqual(['*.doc']);
       });
 
-      it("should initialize material model with shallow clone", function () {
+      it("should initialize material model with shallow clone", () => {
         expect(gitMaterial.shallowClone()).toBe(true);
       });
 
-      it("should initialize material model with invert_filter", function () {
+      it("should initialize material model with invert_filter", () => {
         expect(gitMaterial.invertFilter()).toBe(true);
       });
 
-      describe("validation", function () {
-        it("should add error when url is blank", function () {
+      describe("validation", () => {
+        it("should add error when url is blank", () => {
           gitMaterial.url("");
-          var errors = gitMaterial.validate();
+          const errors = gitMaterial.validate();
           expect(errors.errors('url')).toEqual(['URL must be present']);
         });
       });
 
-      describe("Default Value", function () {
-        beforeEach(function () {
+      describe("Default Value", () => {
+        beforeEach(() => {
           gitMaterial = Materials.Material.fromJSON(sampleJSON());
         });
 
-        it("should use the default branch value when not provided", function () {
+        it("should use the default branch value when not provided", () => {
           expect(gitMaterial.branch()).toBe('master');
         });
 
@@ -363,12 +363,12 @@ describe("Material Model", function () {
         }
       });
 
-      describe("Deserialization from JSON", function () {
-        beforeEach(function () {
+      describe("Deserialization from JSON", () => {
+        beforeEach(() => {
           gitMaterial = Materials.Material.fromJSON(sampleJSON());
         });
 
-        it("should initialize from json", function () {
+        it("should initialize from json", () => {
           expect(gitMaterial.type()).toBe("git");
           expect(gitMaterial.url()).toBe("http://git.example.com/git/myProject");
           expect(gitMaterial.branch()).toBe('release-1.2');
@@ -380,8 +380,8 @@ describe("Material Model", function () {
           expect(gitMaterial.invertFilter()).toBe(true);
         });
 
-        it('should map server side errors', function () {
-          var material = Materials.Material.fromJSON({
+        it('should map server side errors', () => {
+          const material = Materials.Material.fromJSON({
             type:   "git",
             errors: {
               url: [
@@ -416,53 +416,53 @@ describe("Material Model", function () {
       });
     });
 
-    describe("Mercurial", function () {
-      it("should initialize material model with type", function () {
+    describe("Mercurial", () => {
+      it("should initialize material model with type", () => {
         expect(mercurialMaterial.type()).toBe("hg");
       });
 
-      it("should initialize material model with url", function () {
+      it("should initialize material model with url", () => {
         expect(mercurialMaterial.url()).toBe("http://hg.example.com/hg/myProject");
       });
 
-      it("should initialize material model with branch", function () {
+      it("should initialize material model with branch", () => {
         expect(mercurialMaterial.branch()).toBe("release-1.2");
       });
 
-      it("should initialize material model with destination", function () {
+      it("should initialize material model with destination", () => {
         expect(mercurialMaterial.destination()).toBe("projectA");
       });
 
-      it("should initialize material model with name", function () {
+      it("should initialize material model with name", () => {
         expect(mercurialMaterial.name()).toBe("hg-repo");
       });
 
-      it("should initialize material model with autoUpdate", function () {
+      it("should initialize material model with autoUpdate", () => {
         expect(mercurialMaterial.autoUpdate()).toBe(true);
       });
 
-      it("should initialize material model with filters", function () {
+      it("should initialize material model with filters", () => {
         expect(mercurialMaterial.filter().ignore()).toEqual(['*.doc']);
       });
 
-      it("should initialize material model with invert_filter", function () {
+      it("should initialize material model with invert_filter", () => {
         expect(mercurialMaterial.invertFilter()).toBe(true);
       });
 
-      describe("validation", function () {
-        it("should add error when url is blank", function () {
+      describe("validation", () => {
+        it("should add error when url is blank", () => {
           mercurialMaterial.url("");
-          var errors = mercurialMaterial.validate();
+          const errors = mercurialMaterial.validate();
           expect(errors.errors('url')).toEqual(['URL must be present']);
         });
       });
 
-      describe("Deserialization from JSON", function () {
-        beforeEach(function () {
+      describe("Deserialization from JSON", () => {
+        beforeEach(() => {
           mercurialMaterial = Materials.Material.fromJSON(sampleJSON());
         });
 
-        it("should initialize from json", function () {
+        it("should initialize from json", () => {
           expect(mercurialMaterial.type()).toBe("hg");
           expect(mercurialMaterial.url()).toBe("http://hg.example.com/hg/myProject");
           expect(mercurialMaterial.branch()).toBe('release-1.2');
@@ -473,8 +473,8 @@ describe("Material Model", function () {
           expect(mercurialMaterial.invertFilter()).toBe(true);
         });
 
-        it('should map server side errors', function () {
-          var material = Materials.Material.fromJSON({
+        it('should map server side errors', () => {
+          const material = Materials.Material.fromJSON({
             type:   "hg",
             errors: {
               url: [
@@ -508,71 +508,71 @@ describe("Material Model", function () {
       });
     });
 
-    describe("Perforce", function () {
-      it("should initialize material model with type", function () {
+    describe("Perforce", () => {
+      it("should initialize material model with type", () => {
         expect(perforceMaterial.type()).toBe("p4");
       });
 
-      it("should initialize material model with port", function () {
+      it("should initialize material model with port", () => {
         expect(perforceMaterial.port()).toBe("p4.example.com:1666");
       });
 
-      it("should initialize material model with username", function () {
+      it("should initialize material model with username", () => {
         expect(perforceMaterial.username()).toBe("bob");
       });
 
-      it("should initialize material model with password", function () {
+      it("should initialize material model with password", () => {
         expect(perforceMaterial.passwordValue()).toBe("p@ssw0rd");
       });
 
-      it("should initialize material model with useTickets", function () {
+      it("should initialize material model with useTickets", () => {
         expect(perforceMaterial.useTickets()).toBe(true);
       });
 
-      it("should initialize material model with destination", function () {
+      it("should initialize material model with destination", () => {
         expect(perforceMaterial.destination()).toBe("projectA");
       });
 
-      it("should initialize material model with view", function () {
+      it("should initialize material model with view", () => {
         expect(perforceMaterial.view()).toBe("//depot/dev/source...          //anything/source/");
       });
 
-      it("should initialize material model with name", function () {
+      it("should initialize material model with name", () => {
         expect(perforceMaterial.name()).toBe("perforce-repo");
       });
 
-      it("should initialize material model with autoUpdate", function () {
+      it("should initialize material model with autoUpdate", () => {
         expect(perforceMaterial.autoUpdate()).toBe(true);
       });
 
-      it("should initialize material model with filters", function () {
+      it("should initialize material model with filters", () => {
         expect(perforceMaterial.filter().ignore()).toEqual(['*.doc']);
       });
 
-      it("should initialize material model with invert_filter", function () {
+      it("should initialize material model with invert_filter", () => {
         expect(perforceMaterial.invertFilter()).toBe(true);
       });
 
-      describe("validation", function () {
-        it("should add error when port is blank", function () {
+      describe("validation", () => {
+        it("should add error when port is blank", () => {
           perforceMaterial.port("");
-          var errors = perforceMaterial.validate();
+          const errors = perforceMaterial.validate();
           expect(errors.errors('port')).toEqual(['Port must be present']);
         });
 
-        it("should add error when view is blank", function () {
+        it("should add error when view is blank", () => {
           perforceMaterial.view("");
-          var errors = perforceMaterial.validate();
+          const errors = perforceMaterial.validate();
           expect(errors.errors('view')).toEqual(['View must be present']);
         });
       });
 
-      describe("Deserialization from JSON", function () {
-        beforeEach(function () {
+      describe("Deserialization from JSON", () => {
+        beforeEach(() => {
           perforceMaterial = Materials.Material.fromJSON(sampleJSON());
         });
 
-        it("should initialize from json", function () {
+        it("should initialize from json", () => {
           expect(perforceMaterial.type()).toBe("p4");
           expect(perforceMaterial.port()).toBe("p4.example.com:1666");
           expect(perforceMaterial.username()).toBe("bob");
@@ -586,8 +586,8 @@ describe("Material Model", function () {
           expect(perforceMaterial.invertFilter()).toBe(true);
         });
 
-        it('should map server side errors', function () {
-          var material = Materials.Material.fromJSON({
+        it('should map server side errors', () => {
+          const material = Materials.Material.fromJSON({
             type:   "p4",
             errors: {
               view: [
@@ -628,81 +628,81 @@ describe("Material Model", function () {
       });
     });
 
-    describe("TFS", function () {
-      it("should initialize material model with type", function () {
+    describe("TFS", () => {
+      it("should initialize material model with type", () => {
         expect(tfsMaterial.type()).toBe("tfs");
       });
 
-      it("should initialize material model with url", function () {
+      it("should initialize material model with url", () => {
         expect(tfsMaterial.url()).toBe("http://tfs.example.com/tfs/projectA");
       });
 
-      it("should initialize material model with username", function () {
+      it("should initialize material model with username", () => {
         expect(tfsMaterial.username()).toBe("bob");
       });
 
-      it("should initialize material model with password", function () {
+      it("should initialize material model with password", () => {
         expect(tfsMaterial.passwordValue()).toBe("p@ssw0rd");
       });
 
-      it("should initialize material model with domain", function () {
+      it("should initialize material model with domain", () => {
         expect(tfsMaterial.domain()).toBe('AcmeCorp');
       });
 
-      it("should initialize material model with destination", function () {
+      it("should initialize material model with destination", () => {
         expect(tfsMaterial.destination()).toBe("projectA");
       });
 
-      it("should initialize material model with projectPath", function () {
+      it("should initialize material model with projectPath", () => {
         expect(tfsMaterial.projectPath()).toBe("$/webApp");
       });
 
-      it("should initialize material model with name", function () {
+      it("should initialize material model with name", () => {
         expect(tfsMaterial.name()).toBe("tfs-repo");
       });
 
-      it("should initialize material model with autoUpdate", function () {
+      it("should initialize material model with autoUpdate", () => {
         expect(tfsMaterial.autoUpdate()).toBe(true);
       });
 
-      it("should initialize material model with filters", function () {
+      it("should initialize material model with filters", () => {
         expect(tfsMaterial.filter().ignore()).toEqual(['*.doc']);
       });
 
-      it("should initialize material model with invert_filter", function () {
+      it("should initialize material model with invert_filter", () => {
         expect(tfsMaterial.invertFilter()).toBe(true);
       });
 
-      describe("validation", function () {
-        it("should add error when url is blank", function () {
+      describe("validation", () => {
+        it("should add error when url is blank", () => {
           tfsMaterial.url("");
-          var errors = tfsMaterial.validate();
+          const errors = tfsMaterial.validate();
           expect(errors.errors('url')).toEqual(['URL must be present']);
         });
 
-        it("should add error when username is blank", function () {
+        it("should add error when username is blank", () => {
           tfsMaterial.username("");
-          var errors = tfsMaterial.validate();
+          const errors = tfsMaterial.validate();
           expect(errors.errors('username')).toEqual(['Username must be present']);
         });
 
-        it("should add error when projectPath is blank", function () {
+        it("should add error when projectPath is blank", () => {
           tfsMaterial.projectPath("");
-          var errors = tfsMaterial.validate();
+          const errors = tfsMaterial.validate();
           expect(errors.errors('projectPath')).toEqual(['Project path must be present']);
         });
       });
 
-      describe("Serialization/De-serialization to/from JSON", function () {
-        beforeEach(function () {
+      describe("Serialization/De-serialization to/from JSON", () => {
+        beforeEach(() => {
           tfsMaterial = Materials.Material.fromJSON(sampleJSON());
         });
 
-        it("should serialize to JSON", function () {
+        it("should serialize to JSON", () => {
           expect(tfsMaterial.toJSON()).toEqual(sampleJSON());
         });
 
-        it("should de-serialize from JSON", function () {
+        it("should de-serialize from JSON", () => {
           expect(tfsMaterial.type()).toBe("tfs");
           expect(tfsMaterial.url()).toBe("http://tfs.example.com/tfs/projectA");
           expect(tfsMaterial.username()).toBe("bob");
@@ -716,8 +716,8 @@ describe("Material Model", function () {
           expect(tfsMaterial.invertFilter()).toBe(true);
         });
 
-        it('should map server side errors', function () {
-          var material = Materials.Material.fromJSON({
+        it('should map server side errors', () => {
+          const material = Materials.Material.fromJSON({
             type:   "tfs",
             errors: {
               url:         [
@@ -762,58 +762,58 @@ describe("Material Model", function () {
       });
     });
 
-    describe('dependency', function () {
-      it('it should initialize material with type', function () {
+    describe('dependency', () => {
+      it('it should initialize material with type', () => {
         expect(dependencyMaterial.type()).toBe('dependency');
       });
 
-      it('it should initialize material with pipeline', function () {
+      it('it should initialize material with pipeline', () => {
         expect(dependencyMaterial.pipeline()).toBe('p1');
       });
 
-      it('it should initialize material with stage', function () {
+      it('it should initialize material with stage', () => {
         expect(dependencyMaterial.stage()).toBe('first_stage');
       });
 
-      it('it should initialize material with name', function () {
+      it('it should initialize material with name', () => {
         expect(dependencyMaterial.name()).toBe('p1_first_stage');
       });
 
-      describe("validation", function () {
-        var errors;
-        beforeEach(function () {
+      describe("validation", () => {
+        let errors;
+        beforeEach(() => {
           dependencyMaterial.pipeline('');
           dependencyMaterial.stage('');
           errors = dependencyMaterial.validate();
         });
 
-        it("should check presence of pipeline", function () {
+        it("should check presence of pipeline", () => {
           expect(errors.errors('pipeline')).toEqual(['Pipeline must be present']);
         });
 
-        it("should check presence of stage", function () {
+        it("should check presence of stage", () => {
           expect(errors.errors('stage')).toEqual(['Stage must be present']);
         });
       });
 
-      describe("Serialization/De-serialization to/from JSON", function () {
-        beforeEach(function () {
+      describe("Serialization/De-serialization to/from JSON", () => {
+        beforeEach(() => {
           dependencyMaterial = Materials.Material.fromJSON(sampleJSON());
         });
 
-        it("should serialize to JSON", function () {
+        it("should serialize to JSON", () => {
           expect(dependencyMaterial.toJSON()).toEqual(sampleJSON());
         });
 
-        it("should de-serialize from JSON", function () {
+        it("should de-serialize from JSON", () => {
           expect(dependencyMaterial.type()).toBe("dependency");
           expect(dependencyMaterial.name()).toBe("materialA");
           expect(dependencyMaterial.pipeline()).toBe('p1');
           expect(dependencyMaterial.stage()).toEqual('s1');
         });
 
-        it('should map server side errors', function () {
-          var material = Materials.Material.fromJSON({
+        it('should map server side errors', () => {
+          const material = Materials.Material.fromJSON({
             type:   "p4",
             errors: {
               pipeline: [
@@ -843,9 +843,9 @@ describe("Material Model", function () {
       });
     });
 
-    describe('plugin', function () {
-      var pluggableMaterial;
-      var github = new SCMs.SCM({
+    describe('plugin', () => {
+      let pluggableMaterial;
+      const github = new SCMs.SCM({
         /* eslint-disable camelcase */
         id:              '43c45e0b-1b0c-46f3-a60a-2bbc5cec069c',
         name:            'Github PR',
@@ -856,7 +856,7 @@ describe("Material Model", function () {
       });
 
 
-      beforeEach(function () {
+      beforeEach(() => {
         SCMs([github]);
         pluggableMaterial = Materials.create({
           type:         "plugin",
@@ -868,45 +868,45 @@ describe("Material Model", function () {
         spyOn(SCMs, 'findById').and.returnValue(github);
       });
 
-      afterEach(function () {
+      afterEach(() => {
         SCMs([]);
       });
 
-      it('it should initialize material with type', function () {
+      it('it should initialize material with type', () => {
         expect(pluggableMaterial.type()).toBe('plugin');
       });
 
-      it('it should initialize material with scm', function () {
+      it('it should initialize material with scm', () => {
         expect(pluggableMaterial.scm().id()).toBe('43c45e0b-1b0c-46f3-a60a-2bbc5cec069c');
       });
 
-      it("should initialize material model with filters", function () {
+      it("should initialize material model with filters", () => {
         expect(pluggableMaterial.filter().ignore()).toEqual(['*.doc']);
       });
 
-      it("should initialize material model with destination", function () {
+      it("should initialize material model with destination", () => {
         expect(pluggableMaterial.destination()).toBe('dest_folder');
       });
 
-      it("should initialize material model with pluginInfo", function () {
+      it("should initialize material model with pluginInfo", () => {
         expect(Materials.create({pluginInfo: new PluginInfos.PluginInfo({id: 'plugin_id'})}).pluginInfo().id()).toBe('plugin_id');
       });
 
-      it("should initialize material model with invert_filter", function () {
+      it("should initialize material model with invert_filter", () => {
         expect(pluggableMaterial.invertFilter()).toBe(true);
       });
 
-      describe("Serialization/De-serialization to/from JSON", function () {
-        beforeEach(function () {
+      describe("Serialization/De-serialization to/from JSON", () => {
+        beforeEach(() => {
           pluggableMaterial = Materials.Material.fromJSON(sampleJSON());
         });
 
-        it("should serialize to JSON", function () {
+        it("should serialize to JSON", () => {
           expect(pluggableMaterial.toJSON()).toEqual(sampleJSON());
           expect(SCMs.findById).toHaveBeenCalledWith('43c45e0b-1b0c-46f3-a60a-2bbc5cec069c');
         });
 
-        it("should de-serialize from JSON", function () {
+        it("should de-serialize from JSON", () => {
           expect(pluggableMaterial.type()).toBe("plugin");
           expect(pluggableMaterial.scm().id()).toBe("43c45e0b-1b0c-46f3-a60a-2bbc5cec069c");
           expect(pluggableMaterial.destination()).toBe('dest_folder');

@@ -17,7 +17,6 @@
 description = 'GoCD Test Utilities'
 dependencies {
   compile project(':util')
-  compile group: 'org.antlr', name: 'antlr', version: '3.1.1'
   compile group: 'cglib', name: 'cglib', version: '2.1_3'
   compile group: 'dom4j', name: 'dom4j', version: '1.6.1'
   compile group: 'org.objenesis', name: 'objenesis', version: '1.2'

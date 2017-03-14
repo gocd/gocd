@@ -83,7 +83,7 @@ if [ -z "${STDOUT_LOG_FILE}" ]; then
   if [ -d /var/log/go-server ]; then
     STDOUT_LOG_FILE=/var/log/go-server/go-server.out.log
   else
-    STDOUT_LOG_FILE=go-server.out.log
+    STDOUT_LOG_FILE=logs/go-server.out.log
   fi
 fi
 
@@ -180,6 +180,8 @@ SERVER_STARTUP_ARGS+=("-Duser.country=US" "-Dcruise.config.dir=$GO_CONFIG_DIR" "
 SERVER_STARTUP_ARGS+=("-Dcruise.server.port=$GO_SERVER_PORT" "-Dcruise.server.ssl.port=$GO_SERVER_SSL_PORT")
 
 RUN_CMD=("$(autoDetectJavaExecutable)" "${SERVER_STARTUP_ARGS[@]}" "-jar" "$SERVER_DIR/go.jar")
+
+mkdir -p "$(dirname "$STDOUT_LOG_FILE")"
 
 echo "[$(date)] Starting Go Server with command: ${RUN_CMD[@]}" >>"$STDOUT_LOG_FILE"
 echo "[$(date)] Starting Go Server in directory: $SERVER_WORK_DIR" >> $STDOUT_LOG_FILE

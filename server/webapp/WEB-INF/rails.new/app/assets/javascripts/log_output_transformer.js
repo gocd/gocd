@@ -90,7 +90,7 @@
 
           currentSection.detectStatus(prefix);
 
-          if (!currentSection.hasType()) {
+          if (!currentSection.type()) {
             currentSection.assignType(prefix);
             currentLine = writer.insertHeader(currentSection, prefix, line);
 

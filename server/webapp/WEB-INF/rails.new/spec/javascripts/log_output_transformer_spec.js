@@ -52,14 +52,14 @@
         ];
 
         transformer.transform(lines);
-        var section = output.find("[data-type='info']")
+        var section = output.find(".log-fs-type-info")
         assertTrue(!!section.length);
 
         var timestamps = extractText(section.find(".ts")).join(",");
         assertEquals(["01:01:00.123", "01:02:00.123"].join(","), timestamps);
 
         output.find(".ts").remove(); // exclude timestamps so it's easier to assert content
-        var actual = extractText(output.find("[data-prefix='##']"));
+        var actual = extractText(output.find(".log-fs-line-INFO"));
         assertEquals(["Starting build", "Build finished in no time!"].join("\n"), actual.join("\n")); // can't assertEquals() on arrays, so compare as strings
       });
 

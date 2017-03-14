@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-;(function ($, c) {
+;(function ($, c, _) {
   "use strict";
 
   var Types = {
@@ -23,6 +23,8 @@
     CANCEL_TASK_START: "!x", CANCEL_TASK_PASS: "x0", CANCEL_TASK_FAIL: "x1",
     JOB_PASS: "j0", JOB_FAIL: "j1"
   };
+
+  var ReverseTypes = _.invert(Types);
 
   function LineWriter() {
 
@@ -62,7 +64,7 @@
     }
 
     function insertBasic(cursor, line) {
-      var output = c("dd");
+      var output = c("dd", {class: "log-fs-line"});
 
       output.innerHTML = ansi.ansi_to_html(line);
       cursor.write(output);
@@ -70,7 +72,7 @@
     }
 
     function insertHeader(cursor, prefix, line) {
-      var header = c("dt", {"data-prefix": prefix});
+      var header = c("dt", {"class": "log-fs-line log-fs-line-" + ReverseTypes[prefix]});
 
       formatContent(header, prefix, line);
       cursor.write(header);
@@ -78,7 +80,7 @@
     }
 
     function insertLine(cursor, prefix, line) {
-      var output = c("dd", {"data-prefix": prefix});
+      var output = c("dd", {"class": "log-fs-line log-fs-line-" + ReverseTypes[prefix]});
 
       formatContent(output, prefix, line);
       cursor.write(output);
@@ -127,8 +129,8 @@
       cursor.appendChild(childNode);
     }
 
-    function hasType() {
-      return !!section.priv.type;
+    function type() {
+      return section.priv.type;
     }
 
     function getSection() {
@@ -153,17 +155,22 @@
       if (prefix === Types.CANCELLED || (section.priv.type === "task" && Types.CANCEL_TASK_START === prefix)) {
         // While "canceled" and "cancelled" are both correct spellings and are inconsistently used in our codebase.
         // However, we should use the one that matches the JobResult enum, which is "cancelled"
-        section.setAttribute("data-task-status", "cancelled");
+        section.classList.add("log-fs-status");
+        section.classList.add("log-fs-task-status-cancelled");
         section.priv.errored = true;
       } else if (Types.PASS === prefix || Types.CANCEL_TASK_PASS === prefix) {
-        section.setAttribute("data-task-status", "passed")
+        section.classList.add("log-fs-status");
+        section.classList.add("log-fs-task-status-passed");
       } else if (Types.FAIL === prefix || Types.CANCEL_TASK_FAIL === prefix) {
-        section.setAttribute("data-task-status", "failed");
+        section.classList.add("log-fs-status");
+        section.classList.add("log-fs-task-status-failed");
         section.priv.errored = true;
       } else if (Types.JOB_PASS === prefix) {
-        section.setAttribute("data-job-status", "passed");
+        section.classList.add("log-fs-status");
+        section.classList.add("log-fs-job-status-passed");
       } else if (Types.JOB_FAIL === prefix) {
-        section.setAttribute("data-job-status", "failed");
+        section.classList.add("log-fs-status");
+        section.classList.add("log-fs-job-status-failed");
         section.priv.errored = true;
       }
     }
@@ -183,7 +190,8 @@
         section.priv.type = "info";
       }
 
-      section.setAttribute("data-type", section.priv.type);
+      section.classList.add("log-fs-type");
+      section.classList.add("log-fs-type-" + section.priv.type);
     }
 
     function isPartOfSection(prefix) {
@@ -222,7 +230,7 @@
     this.detectStatus = detectStatus;
     this.markMultiline = markMultiline;
 
-    this.hasType = hasType;
+    this.type = type;
     this.assignType = assignType;
     this.isPartOfSection = isPartOfSection;
     this.isExplicitEndBoundary = isExplicitEndBoundary;
@@ -240,4 +248,4 @@
     LineWriter: LineWriter
   };
 
-})(jQuery, crel);
+})(jQuery, crel, _);

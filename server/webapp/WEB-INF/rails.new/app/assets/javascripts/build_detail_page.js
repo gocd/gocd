@@ -61,9 +61,11 @@
       var containers = build.find(".buildoutput_pre"), transformers = [];
 
       containers.on("consoleUpdated", function detectFoldable(e) {
-        var c = $(e.currentTarget);
-        if (c.find(".foldable-section[data-type]").length) {
+        var el = e.currentTarget;
+        var c = $(el);
+        if (!c.data("detected") && el.querySelector(".log-fs-type")) {
           c.siblings(".console-action-bar").find("[data-collapsed]").show();
+          c.data("detected", true);
         }
       });
 
@@ -103,7 +105,7 @@
 
         var trigger = $(e.currentTarget).removeData("collapsed");
         var consoleArea = trigger.closest(".console-area");
-        var foldableSections = consoleArea.find(".foldable-section[data-type]");
+        var foldableSections = consoleArea.find(".log-fs-type");
 
         if (!foldableSections.length) return;
 

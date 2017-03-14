@@ -30,8 +30,7 @@
 
     var cmd_re = /^(\s*\[go] (?:On Cancel )?Task: )(.*)/,
         status_re = /^(\s*\[go] (?:Current job|Task) status: )(.*)/,
-        ansi = new AnsiUp();
-    ansi.use_classes = true;
+        ansi = new HelloMrfANSIpants();
 
     function isTaskLine(prefix) {
       return [Types.TASK_START, Types.CANCEL_TASK_START].indexOf(prefix) > -1;
@@ -58,15 +57,14 @@
         if ("" === $.trim(line)) {
           c(node, c("br"));
         } else {
-          node.innerHTML = ansi.ansi_to_html(line);
+          c(node, ansi.process(line));
         }
       }
     }
 
     function insertBasic(cursor, line) {
-      var output = c("dd", {class: "log-fs-line"});
+      var output = c("dd", {class: "log-fs-line"}, ansi.process(line));
 
-      output.innerHTML = ansi.ansi_to_html(line);
       cursor.write(output);
       return output;
     }

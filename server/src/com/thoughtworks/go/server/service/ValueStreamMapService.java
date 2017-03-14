@@ -36,6 +36,8 @@ import com.thoughtworks.go.server.valuestreammap.RunStagesPopulator;
 import com.thoughtworks.go.server.valuestreammap.UnrunStagesPopulator;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -53,7 +55,7 @@ public class ValueStreamMapService {
     private final RunStagesPopulator runStagesPopulator;
     private final UnrunStagesPopulator unrunStagePopulator;
     private SecurityService securityService;
-    private static final org.apache.log4j.Logger LOGGER = org.apache.log4j.Logger.getLogger(ValueStreamMapService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ValueStreamMapService.class);
 
     @Autowired
     public ValueStreamMapService(PipelineService pipelineService, MaterialRepository materialRepository, GoConfigService goConfigService, DownstreamInstancePopulator downstreamInstancePopulator,
@@ -104,7 +106,7 @@ public class ValueStreamMapService {
 
         if (valueStreamMap.hasCycle()) {
             result.notImplemented(LocalizedMessage.string("VSM_CYCLIC_DEPENDENCY",pipelineName,counter));
-            LOGGER.error(String.format("[Value Stream Map] Cyclic dependency for pipeline %s with counter %s. Graph is %s", pipelineName, counter, valueStreamMap));
+            LOGGER.error("[Value Stream Map] Cyclic dependency for pipeline {} with counter {}. Graph is {}", pipelineName, counter, valueStreamMap);
             return null;
         }
         addInstanceInformationToTheGraph(valueStreamMap);

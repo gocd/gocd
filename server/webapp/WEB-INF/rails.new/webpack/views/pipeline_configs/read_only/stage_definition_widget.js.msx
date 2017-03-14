@@ -18,16 +18,18 @@ const m                             = require('mithril');
 const StageSettingsWidget           = require('views/pipeline_configs/read_only/stage_settings_widget');
 const StageOperatePermissionsWidget = require('views/pipeline_configs/read_only/stage_operate_permissions_widget');
 const EnvironmentVariablesWidget    = require('views/pipeline_configs/read_only/environment_variables_widget');
+const JobsConfigWidget              = require('views/pipeline_configs/read_only/jobs_config_widget');
 
 const StageDefinitionWidget = {
   view (vnode) {
-
     return (
       <div class='stage-definition-container'>
-        <div class='stage-definition' data-stage-name={vnode.attrs.currentSelection().name()}>
+        <div class='stage-definition' data-stage-name={vnode.attrs.currentSelection().name()}
+             key={vnode.attrs.currentSelection().uuid()}>
           <StageSettingsWidget stage={vnode.attrs.currentSelection}/>
           <StageOperatePermissionsWidget stage={vnode.attrs.currentSelection}/>
           <EnvironmentVariablesWidget stage={vnode.attrs.currentSelection}/>
+          <JobsConfigWidget stage={vnode.attrs.currentSelection}/>
         </div>
       </div>
     );

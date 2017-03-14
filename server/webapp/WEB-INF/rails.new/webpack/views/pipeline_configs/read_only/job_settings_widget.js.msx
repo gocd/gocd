@@ -1,0 +1,71 @@
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+const m = require('mithril');
+const _ = require('lodash');
+const f = require('helpers/form_helper');
+
+const JobSettingsWidget = {
+  view (vnode) {
+    const jobDescription = [
+      {key: 'name', displayKey: 'Job Name', modal: vnode.attrs.job},
+      {
+        key:      'resources', displayKey: 'Resources', modal: vnode.attrs.job,
+        renderer: (resources) => _.isArray(resources) ? resources.join(', ') : 'Not Specified'
+      },
+      {
+        key:      'elasticProfileId', displayKey: 'Elastic Profile ID', modal: vnode.attrs.job,
+        renderer: (id) => _.isNil(id) ? 'Not Specified' : id
+      }
+    ];
+
+    const jobRunInformation = [
+      {
+        key:      'timeout', displayKey: 'Timeout', modal: vnode.attrs.job,
+        renderer: (timeout) => {
+          const timeoutValue = _.isNumber(timeout) ? `Cancel after ${timeout} minute(s) of inactivity` : timeout;
+          return _.isNil(timeoutValue) ? 'Default (Never)' : timeoutValue;
+        }
+      },
+      {
+        key:      'runInstanceCount', displayKey: 'Run Type', modal: vnode.attrs.job,
+        renderer: (runInstanceCount) => {
+          if (vnode.attrs.job().isRunOnAllAgents()) {
+            return 'Run on all agents';
+          } else if (vnode.attrs.job().isRunOnOneAgent()) {
+            return 'Run on one agent';
+          }
+
+          return `Run ${runInstanceCount} instances of job`;
+        }
+      }
+    ];
+
+    return (
+      <div>
+        <f.row>
+          <f.readOnlyHeading value="Job Settings:"/>
+        </f.row>
+        <f.row>
+          <f.KVPairs keys={jobDescription}/>
+          <f.KVPairs keys={jobRunInformation}/>
+        </f.row>
+      </div>
+    );
+  }
+};
+
+module.exports = JobSettingsWidget;

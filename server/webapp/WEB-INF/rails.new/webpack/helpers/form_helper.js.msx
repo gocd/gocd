@@ -760,8 +760,8 @@ let f = {
     view (vnode) {
       return (
         <f.row>
-          <f.column>{vnode.attrs.key}:</f.column>
-          <f.column>{vnode.attrs.value}</f.column>
+          <f.column size={3} largeSize={4} end>{vnode.attrs.key}:</f.column>
+          <f.column size={6} largeSize={8} end>{vnode.attrs.value}</f.column>
         </f.row>
       );
     }
@@ -790,7 +790,7 @@ let f = {
       });
 
       return (
-        <f.column size={vnode.attrs.size || 4}>
+        <f.column>
           {keyValuePairs}
         </f.column>
       );

@@ -66,7 +66,7 @@
 
       output.innerHTML = ansi.ansi_to_html(line);
       cursor.write(output);
-      return $(output);
+      return output;
     }
 
     function insertHeader(cursor, prefix, line) {
@@ -74,7 +74,7 @@
 
       formatContent(header, prefix, line);
       cursor.write(header);
-      return $(header);
+      return header;
     }
 
     function insertLine(cursor, prefix, line) {
@@ -83,7 +83,7 @@
       formatContent(output, prefix, line);
       cursor.write(output);
 
-      return $(output);
+      return output;
     }
 
     this.insertHeader = insertHeader;

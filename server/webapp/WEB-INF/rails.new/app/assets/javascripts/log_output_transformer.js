@@ -122,7 +122,8 @@
           currentLine = writer.insertBasic(currentSection, line);
         }
 
-        currentLine.attr("data-line", lineNumber).prepend(c("span", {class: "ts"}, timestamp));
+        currentLine.setAttribute("data-line", lineNumber);
+        currentLine.insertBefore(c("span", {class: "ts"}, timestamp), currentLine.childNodes[0]);
       }
 
       flushToDOM();

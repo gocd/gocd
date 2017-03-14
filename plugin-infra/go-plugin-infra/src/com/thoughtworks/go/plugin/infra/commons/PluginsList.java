@@ -20,6 +20,8 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.json.JsonHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -32,7 +34,7 @@ import static com.thoughtworks.go.util.FileDigester.md5DigestOfFile;
 
 @Component
 public class PluginsList {
-    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(PluginsList.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PluginsList.class);
     private String pluginsJSON;
 
     private SystemEnvironment systemEnvironment;

@@ -21,16 +21,16 @@ import com.thoughtworks.go.plugin.infra.GoPluginFrameworkException;
 import com.thoughtworks.go.plugin.infra.PluginChangeListener;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import static java.lang.String.format;
-import static org.apache.log4j.Logger.getLogger;
 
 @Component
 public class SCMMetadataLoader implements PluginChangeListener {
-    private static final Logger LOGGER = getLogger(SCMMetadataLoader.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SCMMetadataLoader.class);
 
     SCMExtension scmExtension;
     private SCMMetadataStore scmMetadataStore = SCMMetadataStore.getInstance();

@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-var m      = require('mithril');
-var Stream = require('mithril/stream');
-var f      = require('helpers/form_helper');
-var _      = require('lodash');
+const m      = require('mithril');
+const f      = require('helpers/form_helper');
+const _      = require('lodash');
+const Stream = require('mithril/stream');
 
-var StageSettingsWidget = {
-  view: function (vnode) {
-    let plainTextVariables = _.map(vnode.attrs.stage().environmentVariables().plainVariables(), function (envVar) {
+
+const StageSettingsWidget = {
+  view (vnode) {
+    const plainTextVariables = _.map(vnode.attrs.stage().environmentVariables().plainVariables(), (envVar) => {
       return {key: 'value', displayKey: envVar.name(), modal: Stream(envVar)};
     });
 
-    let secureTextVariables = _.map(vnode.attrs.stage().environmentVariables().secureVariables(), function (envVar) {
+    const secureTextVariables = _.map(vnode.attrs.stage().environmentVariables().secureVariables(), (envVar) => {
       return {
         key:        'value',
         displayKey: envVar.name(),
@@ -34,7 +35,7 @@ var StageSettingsWidget = {
       };
     });
 
-    let allVariables = plainTextVariables.concat(secureTextVariables);
+    const allVariables = plainTextVariables.concat(secureTextVariables);
 
     let variablesList;
 

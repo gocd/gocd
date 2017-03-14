@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-var m                     = require('mithril');
-var _                     = require('lodash');
-var Stream                = require('mithril/stream');
-var f                     = require('helpers/form_helper');
-var ComponentMixins       = require('helpers/mithril_component_mixins');
-var StageDefinitionWidget = require('views/pipeline_configs/read_only/stage_definition_widget');
+const m                     = require('mithril');
+const _                     = require('lodash');
+const f                     = require('helpers/form_helper');
+const Stream                = require('mithril/stream');
+const ComponentMixins       = require('helpers/mithril_component_mixins');
+const StageDefinitionWidget = require('views/pipeline_configs/read_only/stage_definition_widget');
 
-var StagesConfigWidget = {
-  oninit: function (vnode) {
-    var self = this;
+const StagesConfigWidget = {
+  oninit (vnode) {
+    const self = this;
     ComponentMixins.HasViewModel.call(this);
     self.currentSelection = Stream(vnode.attrs.stages().firstStage());
   },
 
-  view: function (vnode) {
-    var classes = function (selection, additionalClasses) {
+  view (vnode) {
+    const classes = function (selection, additionalClasses) {
       return _(['pipeline-flow-box', additionalClasses, (vnode.state.currentSelection() === selection) ? 'active' : null]).flatten().compact().value().join(' ');
     };
 
@@ -42,7 +42,7 @@ var StagesConfigWidget = {
 
           <div class="stage-boxes">
             <div class="stages-wrapper">
-              {vnode.attrs.stages().mapStages(function (stage, stageIndex) {
+              {vnode.attrs.stages().mapStages((stage, stageIndex) => {
                 return (
                   <div class={classes(stage, 'stage')}
                        data-stage-index={stageIndex}

@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-var m = require('mithril');
-var f = require('helpers/form_helper');
+const m = require('mithril');
+const f = require('helpers/form_helper');
 
-var StageSettingsWidget = {
-  view: function (vnode) {
-    let checklistItems = [
+const StageSettingsWidget = {
+  view (vnode) {
+    const checklistItems = [
       {key: 'fetchMaterials', displayKey: 'Fetch materials', modal: vnode.attrs.stage},
       {key: 'neverCleanupArtifacts', displayKey: 'Never cleanup artifacts', modal: vnode.attrs.stage},
       {key: 'cleanWorkingDirectory', displayKey: 'Delete working directory on every build', modal: vnode.attrs.stage}
     ];
 
-    let keyValuePairs = [
+    const keyValuePairs = [
       {key: 'name', displayKey: 'Stage name', modal: vnode.attrs.stage},
       {key: 'type', displayKey: 'Stage type', modal: vnode.attrs.stage().approval}
     ];

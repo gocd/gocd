@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-var m = require('mithril');
-var _ = require('lodash');
-var f = require('helpers/form_helper');
+const m = require('mithril');
+const _ = require('lodash');
+const f = require('helpers/form_helper');
 
-var StageOperatePermissionsWidget = {
-  oninit: function (_vnode) {
+const StageOperatePermissionsWidget = {
+  oninit (_vnode) {
     this.renderer = (value) => {
       if (_.isEmpty(value)) {
         return 'Not specified.';
@@ -28,9 +28,9 @@ var StageOperatePermissionsWidget = {
     };
   },
 
-  view: function (vnode) {
+  view (vnode) {
 
-    let keyValuePairs = [
+    const keyValuePairs = [
       {
         key:        'users',
         displayKey: 'Users',

@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-describe("Read Only Environment Variables Widget", function () {
-  var $ = require("jquery");
-  var m = require("mithril");
+describe("Read Only Environment Variables Widget", () => {
+  const $ = require("jquery");
+  const m = require("mithril");
   require('jasmine-jquery');
 
-  var EnvironmentVariablesWidget = require("views/pipeline_configs/read_only/environment_variables_widget");
-  var Template                   = require("models/pipeline_configs/template");
+  const EnvironmentVariablesWidget = require("views/pipeline_configs/read_only/environment_variables_widget");
+  const Template                   = require("models/pipeline_configs/template");
 
-  var $root, root, template;
+  let $root, root, template;
   beforeEach(() => {
     [$root, root] = window.createDomElementForTest();
   });
   afterEach(window.destroyDomElementForTest);
 
-  describe("Plain Text Variables", function () {
-    beforeEach(function () {
+  describe("Plain Text Variables", () => {
+    beforeEach(() => {
       template = Template.fromJSON(rawTemplateJSONWithPlainEnvironmentVariables());
       mount();
     });
@@ -38,20 +38,20 @@ describe("Read Only Environment Variables Widget", function () {
       unmount();
     });
 
-    it('should render stage environment variables heading', function () {
+    it('should render stage environment variables heading', () => {
       expect($('h5')).toContainText('Environment Variables:');
     });
 
 
-    it('should render environment variables', function () {
-      let variable = rawTemplateJSONWithPlainEnvironmentVariables().stages[0].environment_variables[0];
+    it('should render environment variables', () => {
+      const variable = rawTemplateJSONWithPlainEnvironmentVariables().stages[0].environment_variables[0];
       expect($root).toContainText(variable.name);
       expect($root).toContainText(variable.value);
     });
   });
 
-  describe("Secure Variables", function () {
-    beforeEach(function () {
+  describe("Secure Variables", () => {
+    beforeEach(() => {
       template = Template.fromJSON(rawTemplateJSONWithSecureEnvironmentVariables());
       mount();
     });
@@ -60,20 +60,20 @@ describe("Read Only Environment Variables Widget", function () {
       unmount();
     });
 
-    it('should render stage environment variables heading', function () {
+    it('should render stage environment variables heading', () => {
       expect($('h5')).toContainText('Environment Variables:');
     });
 
 
-    it('should render environment variables', function () {
-      let variable = rawTemplateJSONWithSecureEnvironmentVariables().stages[0].environment_variables[0];
+    it('should render environment variables', () => {
+      const variable = rawTemplateJSONWithSecureEnvironmentVariables().stages[0].environment_variables[0];
       expect($root).toContainText(variable.name);
       expect($root).toContainText('******');
     });
   });
 
-  describe("No Variables Message", function () {
-    beforeEach(function () {
+  describe("No Variables Message", () => {
+    beforeEach(() => {
       template = Template.fromJSON(rawTemplateJSONWithNoEnvironmentVariables());
       mount();
     });
@@ -82,31 +82,31 @@ describe("Read Only Environment Variables Widget", function () {
       unmount();
     });
 
-    it('should render stage environment variables heading', function () {
+    it('should render stage environment variables heading', () => {
       expect($('h5')).toContainText('Environment Variables:');
     });
 
-    it('should render no environment variable message', function () {
+    it('should render no environment variable message', () => {
       expect($root).toContainText('No Environment Variables have been configured.');
     });
   });
 
 
-  var mount = function () {
+  const mount = function () {
     m.mount(root, {
-      view: function () {
+      view () {
         return m(EnvironmentVariablesWidget, {stage: template.stages().firstStage});
       }
     });
     m.redraw();
   };
 
-  var unmount = function () {
+  const unmount = function () {
     m.mount(root, null);
     m.redraw();
   };
 
-  var rawTemplateJSONWithPlainEnvironmentVariables = function () {
+  const rawTemplateJSONWithPlainEnvironmentVariables = function () {
     return {
       "name":   "template.name",
       "stages": [
@@ -124,7 +124,7 @@ describe("Read Only Environment Variables Widget", function () {
     };
   };
 
-  var rawTemplateJSONWithSecureEnvironmentVariables = function () {
+  const rawTemplateJSONWithSecureEnvironmentVariables = function () {
     return {
       "name":   "template.name",
       "stages": [
@@ -142,7 +142,7 @@ describe("Read Only Environment Variables Widget", function () {
     };
   };
 
-  var rawTemplateJSONWithNoEnvironmentVariables = function () {
+  const rawTemplateJSONWithNoEnvironmentVariables = function () {
     return {
       "name":   "template.name",
       "stages": [

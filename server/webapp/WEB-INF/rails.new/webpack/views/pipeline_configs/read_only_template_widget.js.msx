@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-var m                    = require('mithril');
-var f                    = require('helpers/form_helper');
-var Stream               = require('mithril/stream');
-var ComponentMixins      = require('helpers/mithril_component_mixins');
-var Template             = require('models/pipeline_configs/template');
-var ReadOnlyStagesWidget = require('views/pipeline_configs/read_only/stages_config_widget');
+const m                    = require('mithril');
+const f                    = require('helpers/form_helper');
+const Stream               = require('mithril/stream');
+const ComponentMixins      = require('helpers/mithril_component_mixins');
+const Template             = require('models/pipeline_configs/template');
+const ReadOnlyStagesWidget = require('views/pipeline_configs/read_only/stages_config_widget');
 
-var ReadOnlyTemplateWidget = {
-  oninit: function (vnode) {
-    var self      = this;
+const ReadOnlyTemplateWidget = {
+  oninit (vnode) {
+    const self    = this;
     self.template = Stream();
 
     Template.find(vnode.attrs.templateName).then(self.template);
@@ -31,8 +31,8 @@ var ReadOnlyTemplateWidget = {
     ComponentMixins.HasViewModel.call(self);
   },
 
-  view: function (vnode) {
-    var template = vnode.state.template();
+  view (vnode) {
+    const template = vnode.state.template();
     if (!template) {
       return (<div />);
     }

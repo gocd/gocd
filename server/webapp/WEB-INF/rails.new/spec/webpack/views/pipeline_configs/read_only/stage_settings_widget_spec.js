@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-describe("Read Only Stage Settings Widget", function () {
-  var $ = require("jquery");
-  var m = require("mithril");
+describe("Read Only Stage Settings Widget", () => {
+  const $ = require("jquery");
+  const m = require("mithril");
   require('jasmine-jquery');
 
-  var StagesSettingsWidget = require("views/pipeline_configs/read_only/stage_settings_widget");
-  var Template             = require("models/pipeline_configs/template");
+  const StagesSettingsWidget = require("views/pipeline_configs/read_only/stage_settings_widget");
+  const Template             = require("models/pipeline_configs/template");
 
-  var $root, root, template;
+  let $root, root, template;
   beforeEach(() => {
     [$root, root] = window.createDomElementForTest();
   });
   afterEach(window.destroyDomElementForTest);
 
-  beforeEach(function () {
+  beforeEach(() => {
     template = Template.fromJSON(rawTemplateJSON());
     mount();
   });
@@ -37,56 +37,56 @@ describe("Read Only Stage Settings Widget", function () {
     unmount();
   });
 
-  it('should render stage setting heading', function () {
+  it('should render stage setting heading', () => {
     expect($('h5')).toContainText('Stage Settings:');
   });
 
-  it('should render stage name', function () {
+  it('should render stage name', () => {
     expect($root).toContainText('Stage name:');
     expect($root).toContainText(rawTemplateJSON().stages[0].name);
   });
 
-  it('should render stage type', function () {
+  it('should render stage type', () => {
     expect($root).toContainText('Stage type:');
     expect($root).toContainText(rawTemplateJSON().stages[0].approval.type);
   });
 
-  it('should render fetch material checkbox icon', function () {
-    var checklist     = $($('.columns.medium-4.large-5.end')).children();
-    var fetchMaterial = checklist[0];
+  it('should render fetch material checkbox icon', () => {
+    const checklist     = $($('.columns.medium-4.large-5.end')).children();
+    const fetchMaterial = checklist[0];
     expect($(fetchMaterial)).toContainText('Fetch materials');
     expect($(fetchMaterial)).toHaveClass('checkbox-selected-icon');
   });
 
-  it('should render never cleanup artifacts checkbox icon', function () {
-    var checklist             = $($('.columns.medium-4.large-5.end')).children();
-    var neverCleanupArtifacts = checklist[1];
+  it('should render never cleanup artifacts checkbox icon', () => {
+    const checklist             = $($('.columns.medium-4.large-5.end')).children();
+    const neverCleanupArtifacts = checklist[1];
     expect($(neverCleanupArtifacts)).toContainText('Never cleanup artifacts');
     expect($(neverCleanupArtifacts)).toHaveClass('checkbox-unselected-icon');
   });
 
-  it('should render delete working directory on every build checkbox icon', function () {
-    var checklist             = $($('.columns.medium-4.large-5.end')).children();
-    var neverCleanupArtifacts = checklist[2];
+  it('should render delete working directory on every build checkbox icon', () => {
+    const checklist             = $($('.columns.medium-4.large-5.end')).children();
+    const neverCleanupArtifacts = checklist[2];
     expect($(neverCleanupArtifacts)).toContainText('Delete working directory on every build');
     expect($(neverCleanupArtifacts)).toHaveClass('checkbox-unselected-icon');
   });
 
-  var mount = function () {
+  const mount = function () {
     m.mount(root, {
-      view: function () {
+      view () {
         return m(StagesSettingsWidget, {stage: template.stages().firstStage});
       }
     });
     m.redraw();
   };
 
-  var unmount = function () {
+  const unmount = function () {
     m.mount(root, null);
     m.redraw();
   };
 
-  var rawTemplateJSON = function () {
+  const rawTemplateJSON = function () {
     return {
       "name":   "template.name",
       "stages": [

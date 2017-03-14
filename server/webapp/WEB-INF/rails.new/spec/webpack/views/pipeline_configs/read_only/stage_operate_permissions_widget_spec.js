@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-describe("Read Only Stage Operate Permissions Widget", function () {
-  var $ = require("jquery");
-  var m = require("mithril");
+describe("Read Only Stage Operate Permissions Widget", () => {
+  const $ = require("jquery");
+  const m = require("mithril");
   require('jasmine-jquery');
 
-  var StagesOperatePermissionsWidget = require("views/pipeline_configs/read_only/stage_operate_permissions_widget");
-  var Template             = require("models/pipeline_configs/template");
+  const StagesOperatePermissionsWidget = require("views/pipeline_configs/read_only/stage_operate_permissions_widget");
+  const Template             = require("models/pipeline_configs/template");
 
-  var $root, root, template;
+  let $root, root, template;
   beforeEach(() => {
     [$root, root] = window.createDomElementForTest();
   });
   afterEach(window.destroyDomElementForTest);
 
-  describe("Permissions Specified", function () {
-    beforeEach(function () {
+  describe("Permissions Specified", () => {
+    beforeEach(() => {
       template = Template.fromJSON(rawTemplateJSONWithPermissions());
       mount();
     });
@@ -38,27 +38,27 @@ describe("Read Only Stage Operate Permissions Widget", function () {
       unmount();
     });
 
-    it('should render stage operate permissions heading', function () {
+    it('should render stage operate permissions heading', () => {
       expect($('h5')).toContainText('Stage Operate Permissions:');
     });
 
-    it('should render users', function () {
-      let usersList = rawTemplateJSONWithPermissions().stages[0].approval.authorization.users.join(', ');
+    it('should render users', () => {
+      const usersList = rawTemplateJSONWithPermissions().stages[0].approval.authorization.users.join(', ');
 
       expect($root).toContainText('Users:');
       expect($root).toContainText(usersList);
     });
 
-    it('should render roles', function () {
-      let rolesList = rawTemplateJSONWithPermissions().stages[0].approval.authorization.roles.join(', ');
+    it('should render roles', () => {
+      const rolesList = rawTemplateJSONWithPermissions().stages[0].approval.authorization.roles.join(', ');
 
       expect($root).toContainText('Roles:');
       expect($root).toContainText(rolesList);
     });
   });
 
-  describe("Permissions Not Specified", function () {
-    beforeEach(function () {
+  describe("Permissions Not Specified", () => {
+    beforeEach(() => {
       template = Template.fromJSON(rawTemplateJSONWithoutPermissions());
       mount();
     });
@@ -67,40 +67,40 @@ describe("Read Only Stage Operate Permissions Widget", function () {
       unmount();
     });
 
-    it('should render stage operate permissions heading', function () {
+    it('should render stage operate permissions heading', () => {
       expect($('h5')).toContainText('Stage Operate Permissions:');
     });
 
-    it('should render users', function () {
-      let notSpecifiedMessage = 'Not specified.';
+    it('should render users', () => {
+      const notSpecifiedMessage = 'Not specified.';
 
       expect($root).toContainText('Users:');
       expect($root).toContainText(notSpecifiedMessage);
     });
 
-    it('should render roles', function () {
-      let notSpecifiedMessage = 'Not specified.';
+    it('should render roles', () => {
+      const notSpecifiedMessage = 'Not specified.';
 
       expect($root).toContainText('Roles:');
       expect($root).toContainText(notSpecifiedMessage);
     });
   });
 
-  var mount = function () {
+  const mount = function () {
     m.mount(root, {
-      view: function () {
+      view () {
         return m(StagesOperatePermissionsWidget, {stage: template.stages().firstStage});
       }
     });
     m.redraw();
   };
 
-  var unmount = function () {
+  const unmount = function () {
     m.mount(root, null);
     m.redraw();
   };
 
-  var rawTemplateJSONWithPermissions = function () {
+  const rawTemplateJSONWithPermissions = function () {
     return {
       "name":   "template.name",
       "stages": [
@@ -117,7 +117,7 @@ describe("Read Only Stage Operate Permissions Widget", function () {
     };
   };
 
-  var rawTemplateJSONWithoutPermissions = function () {
+  const rawTemplateJSONWithoutPermissions = function () {
     return {
       "name":   "template.name",
       "stages": [

@@ -14,26 +14,26 @@
  * limitations under the License.
  */
 
-describe("Read Only Template Widget", function () {
-  var $      = require("jquery");
-  var m      = require("mithril");
-  var Stream = require("mithril/stream");
+describe("Read Only Template Widget", () => {
+  const $      = require("jquery");
+  const m      = require("mithril");
+  const Stream = require("mithril/stream");
   require('jasmine-jquery');
   require('jasmine-ajax');
 
-  var TemplateWidget = require("views/pipeline_configs/read_only_template_widget");
-  var Template       = require("models/pipeline_configs/template");
+  const TemplateWidget = require("views/pipeline_configs/read_only_template_widget");
+  const Template       = require("models/pipeline_configs/template");
 
-  var root, template;
+  let root, template;
   beforeEach(() => {
     [, root] = window.createDomElementForTest();
   });
   afterEach(window.destroyDomElementForTest);
 
-  beforeEach(function () {
+  beforeEach(() => {
     template = Template.fromJSON(rawTemplateJSON());
     jasmine.Ajax.install();
-    jasmine.Ajax.stubRequest('/go/api/admin/templates/' + template.name(), null, 'GET').andReturn({
+    jasmine.Ajax.stubRequest(`/go/api/admin/templates/${  template.name()}`, null, 'GET').andReturn({
       responseText: JSON.stringify(rawTemplateJSON()),
       headers:      {
         'Content-Type': 'application/json'
@@ -48,30 +48,30 @@ describe("Read Only Template Widget", function () {
     unmount();
   });
 
-  it('should render template name', function () {
+  it('should render template name', () => {
     expect($('.accordion-content.show')).toContainText('name:');
     expect($('.accordion-content.show')).toContainText(template.name());
   });
 
-  it('should render template stages', function () {
+  it('should render template stages', () => {
     expect($('.stages')).toBeInDOM();
   });
 
-  var mount = function () {
+  const mount = function () {
     m.mount(root, {
-      view: function () {
+      view () {
         return m(TemplateWidget, {templateName: template.name(), currentSelection: Stream()});
       }
     });
     m.redraw();
   };
 
-  var unmount = function () {
+  const unmount = function () {
     m.mount(root, null);
     m.redraw();
   };
 
-  var rawTemplateJSON = function () {
+  const rawTemplateJSON = function () {
     return {
       "name":   "template.name",
       "stages": [

@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-describe("Read Only Stages Widget", function () {
-  var $             = require("jquery");
-  var m             = require("mithril");
-  var simulateEvent = require('simulate-event');
+describe("Read Only Stages Widget", () => {
+  const $             = require("jquery");
+  const m             = require("mithril");
+  const simulateEvent = require('simulate-event');
   require('jasmine-jquery');
   require('jasmine-ajax');
 
-  var StagesConfigWidget = require("views/pipeline_configs/read_only/stages_config_widget");
-  var Template           = require("models/pipeline_configs/template");
+  const StagesConfigWidget = require("views/pipeline_configs/read_only/stages_config_widget");
+  const Template           = require("models/pipeline_configs/template");
 
-  var $root, root, template;
+  let $root, root, template;
   beforeEach(() => {
     [$root, root] = window.createDomElementForTest();
   });
   afterEach(window.destroyDomElementForTest);
 
-  beforeEach(function () {
+  beforeEach(() => {
     template = Template.fromJSON(rawTemplateJSON());
     mount();
   });
@@ -39,29 +39,29 @@ describe("Read Only Stages Widget", function () {
     unmount();
   });
 
-  it('should render stage boxes for all the stages', function () {
-    var stageBoxes = $('.stages-wrapper>.stage');
+  it('should render stage boxes for all the stages', () => {
+    const stageBoxes = $('.stages-wrapper>.stage');
     expect(stageBoxes.length).toBe(2);
     expect($(stageBoxes[0]).text()).toBe(rawTemplateJSON().stages[0].name);
     expect($(stageBoxes[1]).text()).toBe(rawTemplateJSON().stages[1].name);
   });
 
-  it('should render the stage details for selected stage box', function () {
-    var selectedStageName = $('.stages-wrapper>.stage.active').text();
-    var renderedStageName = $('.stage-definition').attr('data-stage-name');
+  it('should render the stage details for selected stage box', () => {
+    const selectedStageName = $('.stages-wrapper>.stage.active').text();
+    const renderedStageName = $('.stage-definition').attr('data-stage-name');
 
     expect(selectedStageName).toBe(renderedStageName);
   });
 
-  it('should select the first stage by default', function () {
-    var selectedStageName = $('.stages-wrapper>.stage.active').text();
+  it('should select the first stage by default', () => {
+    const selectedStageName = $('.stages-wrapper>.stage.active').text();
 
     expect(selectedStageName).toBe(rawTemplateJSON().stages[0].name);
   });
 
-  it('should render the related stage details when another stage is selected', function () {
-    var selectedStage = () => $('.stages-wrapper>.stage.active');
-    var renderedStage = () => $('.stage-definition').attr('data-stage-name');
+  it('should render the related stage details when another stage is selected', () => {
+    const selectedStage = () => $('.stages-wrapper>.stage.active');
+    const renderedStage = () => $('.stage-definition').attr('data-stage-name');
 
     expect(selectedStage().text()).toBe(rawTemplateJSON().stages[0].name);
     expect(renderedStage()).toBe(rawTemplateJSON().stages[0].name);
@@ -72,21 +72,21 @@ describe("Read Only Stages Widget", function () {
     expect(renderedStage()).toBe(rawTemplateJSON().stages[1].name);
   });
 
-  var mount = function () {
+  const mount = function () {
     m.mount(root, {
-      view: function () {
+      view () {
         return m(StagesConfigWidget, {stages: template.stages});
       }
     });
     m.redraw();
   };
 
-  var unmount = function () {
+  const unmount = function () {
     m.mount(root, null);
     m.redraw();
   };
 
-  var rawTemplateJSON = function () {
+  const rawTemplateJSON = function () {
     return {
       "name":   "template.name",
       "stages": [

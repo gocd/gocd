@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-var m           = require('mithril');
-var Stream      = require('mithril/stream');
-var s           = require('string-plus');
-var Mixins      = require('models/mixins/model_mixins');
-var Stages      = require('models/pipeline_configs/stages');
-var mrequest    = require('helpers/mrequest');
-var Validatable = require('models/mixins/validatable_mixin');
-var Routes      = require('gen/js-routes');
-var $           = require('jquery');
+const m           = require('mithril');
+const Stream      = require('mithril/stream');
+const s           = require('string-plus');
+const Mixins      = require('models/mixins/model_mixins');
+const Stages      = require('models/pipeline_configs/stages');
+const mrequest    = require('helpers/mrequest');
+const Validatable = require('models/mixins/validatable_mixin');
+const Routes      = require('gen/js-routes');
+const $           = require('jquery');
 
-var Template = function (data) {
+const Template = function (data) {
   this.constructor.modelType = 'template';
   Mixins.HasUUID.call(this);
   Validatable.call(this, data);
@@ -42,16 +42,16 @@ Template.fromJSON = function (data) {
 
 Template.find = function (name) {
   return $.Deferred(function () {
-    var deferred = this;
+    const deferred = this;
 
-    var jqXHR = $.ajax({
+    const jqXHR = $.ajax({
       method:      'GET',
       url:         Routes.apiv3AdminTemplatePath({template_name: name}), //eslint-disable-line camelcase
       beforeSend:  mrequest.xhrConfig.forVersion('v3'),
       contentType: false
     });
 
-    jqXHR.done(function (data, _textStatus, _jqXHR) {
+    jqXHR.done((data, _textStatus, _jqXHR) => {
       deferred.resolve(Template.fromJSON(data));
     });
 

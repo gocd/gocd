@@ -14,36 +14,36 @@
  * limitations under the License.
  */
 
-var Template = require("models/pipeline_configs/template");
+const Template = require("models/pipeline_configs/template");
 
-describe("Template Model", function () {
-  var template;
-  beforeEach(function () {
+describe("Template Model", () => {
+  let template;
+  beforeEach(() => {
     template = Template.fromJSON(sampleTemplateJSON());
   });
 
-  it("should initialize template model with name", function () {
+  it("should initialize template model with name", () => {
     expect(template.name()).toBe("scratch");
   });
 
-  it("should initialize template model with stages", function () {
+  it("should initialize template model with stages", () => {
     expect(template.stages().countStage()).toBe(1);
     expect(template.stages().firstStage().name()).toBe('up42_stage');
   });
 
-  describe("De-serialization from JSON", function () {
-    it("should de-serialize from JSON", function () {
-      var template = Template.fromJSON(sampleTemplateJSON());
+  describe("De-serialization from JSON", () => {
+    it("should de-serialize from JSON", () => {
+      const template = Template.fromJSON(sampleTemplateJSON());
       expect(template.name()).toBe("scratch");
       expect(template.stages().countStage()).toBe(1);
       expect(template.stages().firstStage().name()).toBe('up42_stage');
     });
   });
 
-  describe('find', function () {
-    it('should fetch template using template name', function () {
-      jasmine.Ajax.withMock(function () {
-        let url = '/go/api/admin/templates/' + template.name();
+  describe('find', () => {
+    it('should fetch template using template name', () => {
+      jasmine.Ajax.withMock(() => {
+        const url = `/go/api/admin/templates/${  template.name()}`;
 
         jasmine.Ajax.stubRequest(url, undefined, 'GET').andReturn({
           responseText:    JSON.stringify(sampleTemplateJSON()),
@@ -53,7 +53,7 @@ describe("Template Model", function () {
           }
         });
 
-        var successCallback = jasmine.createSpy().and.callFake(function (template) {
+        const successCallback = jasmine.createSpy().and.callFake((template) => {
           expect(template.name()).toBe(sampleTemplateJSON().name);
         });
 

@@ -212,7 +212,6 @@ task fatJar(type: Jar,
     }
 
     from("${project(':installers').projectDir}/go-server/release/cruise-config.xml") { into 'defaultFiles/config' }
-    from("${project(':installers').projectDir}/go-server/release/config.properties") { into 'defaultFiles/config' }
     from("${project(':server').projectDir}/config/jetty.xml") { into 'defaultFiles/config' }
     from("${project(':server').projectDir}/config/go_update_server.pub") { into 'defaultFiles/config' }
     from("${project(':server').projectDir}/properties/src/log4j.properties") { into 'defaultFiles/config' }

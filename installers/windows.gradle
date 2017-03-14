@@ -98,7 +98,6 @@ private void copyServerSpecificFiles(versionedDir, buildRoot, flavour) {
   project.copy { from('go-server/release/server.cmd') into(versionedDir) }
   project.copy { from('go-server/release/start-server.bat') into(versionedDir) }
   project.copy { from('go-server/release/stop-server.bat') into(versionedDir) }
-  project.copy { from('go-server/release/config.properties') into(versionedDir) }
   project.copy { from('go-server/win/config') into("${versionedDir}/config") }
   project.file("${versionedDir}/tmp").mkdirs()
 }

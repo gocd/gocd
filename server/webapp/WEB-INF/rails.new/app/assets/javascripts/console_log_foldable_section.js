@@ -92,17 +92,19 @@
   }
 
   function SectionCursor(node, section) {
-    var cursor, me = this;
+    var cursor;
 
-    if (!section) section = $(blankSectionElement());
+    if (!section) section = blankSectionElement();
 
     if (node instanceof $) node = node[0];
-    if (!(section instanceof $)) section = $(section);
+    if (section instanceof $) section = section[0];
+
+    if ("undefined" === typeof section.priv) section.priv = {};
 
     // the internal cursor reference is the Node object to append new content.
     // sometimes this is the section element, and sometimes it is the "node" argument,
     // which may be a DocumentFragment that
-    cursor = $.contains(node, section[0]) ? section[0] : node;
+    cursor = $.contains(node, section) ? section : node;
 
     function blankSectionElement() {
       return c("dl", {class: "foldable-section open"});
@@ -114,7 +116,7 @@
       var element = blankSectionElement();
       parentNode.appendChild(element);
 
-      return new SectionCursor(parentNode, $(element));
+      return new SectionCursor(parentNode, element);
     }
 
     function cloneTo(newNode) {
@@ -126,7 +128,7 @@
     }
 
     function hasType() {
-      return section[0].hasAttribute("data-type");
+      return !!section.priv.type;
     }
 
     function getSection() {
@@ -134,70 +136,70 @@
     }
 
     function markMultiline() {
-      if (!section.data("multiline")) {
-        section.prepend(c("a", {class: "fa toggle"}));
-        section.data("multiline", true);
+      if (!section.priv.multiline) {
+        section.insertBefore(c("a", {class: "fa toggle"}), section.childNodes[0]);
+        section.priv.multiline = true;
       }
     }
 
     function onFinishSection() {
-      if (!section.data("errored")) {
-        section.removeClass("open");
+      if (!section.priv.errored) {
+        section.classList.remove("open");
       }
     }
 
     function detectStatus(prefix) {
       // either and explicit cancelled status or an implicit boundary (i.e. start of a cancel-task)
-      if (prefix === Types.CANCELLED || (section.data("type") === "task" && Types.CANCEL_TASK_START === prefix)) {
+      if (prefix === Types.CANCELLED || (section.priv.type === "task" && Types.CANCEL_TASK_START === prefix)) {
         // While "canceled" and "cancelled" are both correct spellings and are inconsistently used in our codebase.
         // However, we should use the one that matches the JobResult enum, which is "cancelled"
-        section.attr("data-task-status", "cancelled").removeData("task-status");
-        section.data("errored", true);
+        section.setAttribute("data-task-status", "cancelled");
+        section.priv.errored = true;
       } else if (Types.PASS === prefix || Types.CANCEL_TASK_PASS === prefix) {
-        section.attr("data-task-status", "passed").removeData("task-status");
+        section.setAttribute("data-task-status", "passed")
       } else if (Types.FAIL === prefix || Types.CANCEL_TASK_FAIL === prefix) {
-        section.attr("data-task-status", "failed").removeData("task-status");
-        section.data("errored", true);
+        section.setAttribute("data-task-status", "failed");
+        section.priv.errored = true;
       } else if (Types.JOB_PASS === prefix) {
-        section.attr("data-job-status", "passed").removeData("job-status");
+        section.setAttribute("data-job-status", "passed");
       } else if (Types.JOB_FAIL === prefix) {
-        section.attr("data-job-status", "failed").removeData("job-status");
-        section.data("errored", true);
+        section.setAttribute("data-job-status", "failed");
+        section.priv.errored = true;
       }
     }
 
     function assignType(prefix) {
       if (Types.INFO === prefix) {
-        section.attr("data-type", "info");
+        section.priv.type = "info";
       } else if ([Types.PREP, Types.PREP_ERR].indexOf(prefix) > -1) {
-        section.attr("data-type", "prep");
+        section.priv.type = "prep";
       } else if ([Types.TASK_START, Types.OUT, Types.ERR, Types.PASS, Types.FAIL, Types.CANCELLED].indexOf(prefix) > -1) {
-        section.attr("data-type", "task");
+        section.priv.type = "task";
       } else if ([Types.CANCEL_TASK_START, Types.CANCEL_TASK_PASS, Types.CANCEL_TASK_FAIL].indexOf(prefix) > -1) {
-        section.attr("data-type", "cancel");
+        section.priv.type = "cancel";
       } else if ([Types.JOB_PASS, Types.JOB_FAIL].indexOf(prefix) > -1) {
-        section.attr("data-type", "result");
+        section.priv.type = "result";
       } else {
-        section.attr("data-type", "info");
+        section.priv.type = "info";
       }
 
-      section.removeData("data-type");
+      section.setAttribute("data-type", section.priv.type);
     }
 
     function isPartOfSection(prefix) {
-      if (section.data("type") === "info") {
+      if (section.priv.type === "info") {
         return Types.INFO === prefix;
       }
 
-      if (section.data("type") === "prep") {
+      if (section.priv.type === "prep") {
         return [Types.PREP, Types.PREP_ERR].indexOf(prefix) > -1;
       }
 
-      if (section.data("type") === "task") {
+      if (section.priv.type === "task") {
         return [Types.OUT, Types.ERR, Types.PASS, Types.FAIL, Types.CANCELLED].indexOf(prefix) > -1;
       }
 
-      if (section.data("type") === "cancel") {
+      if (section.priv.type === "cancel") {
         return [Types.OUT, Types.ERR, Types.CANCEL_TASK_PASS, Types.CANCEL_TASK_FAIL].indexOf(prefix) > -1;
       }
 

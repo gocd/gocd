@@ -67,7 +67,7 @@
       }
 
       function flushToDOM() {
-        var leftover = residual, incomplete = continuedSection.element()[0];
+        var leftover = residual, incomplete = continuedSection.element();
         var added = queue, topLevel = consoleElement[0];
 
         resetBuffers();

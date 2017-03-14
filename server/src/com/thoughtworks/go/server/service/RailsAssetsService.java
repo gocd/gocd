@@ -23,6 +23,8 @@ import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.RegexFileFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.ServletContextAware;
@@ -37,7 +39,7 @@ import java.util.regex.Pattern;
 @Service
 public class RailsAssetsService implements ServletContextAware {
     private static final Pattern MANIFEST_FILE_PATTERN = Pattern.compile("^\\.sprockets-manifest.*\\.json$");
-    private static final org.apache.log4j.Logger LOG = org.apache.log4j.Logger.getLogger(RailsAssetsService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RailsAssetsService.class);
     private RailsAssetsManifest railsAssetsManifest;
     private ServletContext servletContext;
     private final SystemEnvironment systemEnvironment;
@@ -63,11 +65,11 @@ public class RailsAssetsService implements ServletContextAware {
 
         File manifestFile = (File) files.iterator().next();
 
-        LOG.info(String.format("Found rails assets manifest file named %s ", manifestFile.getName()));
+        LOG.info("Found rails assets manifest file named {}", manifestFile.getName());
         String manifest = FileUtil.readContentFromFile(manifestFile);
         Gson gson = new Gson();
         railsAssetsManifest = gson.fromJson(manifest, RailsAssetsManifest.class);
-        LOG.info(String.format("Successfully read rails assets manifest file located at %s", manifestFile.getAbsolutePath()));
+        LOG.info("Successfully read rails assets manifest file located at {}", manifestFile.getAbsolutePath());
     }
 
     public String getAssetPath(String asset) {

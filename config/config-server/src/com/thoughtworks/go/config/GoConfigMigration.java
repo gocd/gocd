@@ -23,10 +23,11 @@ import com.thoughtworks.go.util.CachedDigestUtils;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.input.SAXBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -51,7 +52,7 @@ import static com.thoughtworks.go.util.XmlUtils.buildXmlDocument;
  */
 @Component
 public class GoConfigMigration {
-    private static final Logger LOG = Logger.getLogger(GoConfigMigration.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GoConfigMigration.class);
     private final String schemaVersion = "schemaVersion";
     private final UpgradeFailedHandler upgradeFailed;
     private final ConfigRepository configRepository;
@@ -67,11 +68,11 @@ public class GoConfigMigration {
             public void handle(Exception e) {
                 e.printStackTrace();
                 System.err.println(
-                        "There are errors in the Cruise config file.  Please read the error message and correct the errors.\n"
-                                + "Once fixed, please restart Cruise.\nError: " + e.getMessage());
-                LOG.fatal(
-                        "There are errors in the Cruise config file.  Please read the error message and correct the errors.\n"
-                                + "Once fixed, please restart Cruise.\nError: " + e.getMessage());
+                        "There are errors in the GoCD config file.  Please read the error message and correct the errors.\n"
+                                + "Once fixed, please restart GoCD.\nError: " + e.getMessage());
+                LOG.error(
+                        "There are errors in the GoCD config file.  Please read the error message and correct the errors.\n"
+                                + "Once fixed, please restart GoCD.\nError: " + e.getMessage());
                 // Send exit signal in a separate thread otherwise it will deadlock jetty
                 new Thread(new Runnable() {
                     public void run() {

@@ -23,13 +23,14 @@ import com.thoughtworks.go.server.messaging.GoMessageChannel;
 import com.thoughtworks.go.server.messaging.GoMessageListener;
 import com.thoughtworks.go.server.perf.WorkAssignmentPerformanceLogger;
 import com.thoughtworks.go.server.service.BuildAssignmentService;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class WorkFinder implements GoMessageListener<IdleAgentMessage> {
-    private static final Logger LOGGER = Logger.getLogger(WorkFinder.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WorkFinder.class);
 
     private static final NoWork NO_WORK = new NoWork();
     private BuildAssignmentService buildAssignmentService;
@@ -63,7 +64,7 @@ public class WorkFinder implements GoMessageListener<IdleAgentMessage> {
             try {
                 assignedWorkTopic.post(new WorkAssignedMessage(agent, work));
             } catch (Throwable e) {
-                LOGGER.fatal(null, e);
+                LOGGER.error("Failed to post work assigned message", e);
             }
         }
     }

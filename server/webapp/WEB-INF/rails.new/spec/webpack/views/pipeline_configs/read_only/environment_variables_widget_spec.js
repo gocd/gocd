@@ -95,7 +95,7 @@ describe("Read Only Environment Variables Widget", () => {
   const mount = function () {
     m.mount(root, {
       view () {
-        return m(EnvironmentVariablesWidget, {stage: template.stages().firstStage});
+        return m(EnvironmentVariablesWidget, {environmentVariables: template.stages().firstStage().environmentVariables});
       }
     });
     m.redraw();

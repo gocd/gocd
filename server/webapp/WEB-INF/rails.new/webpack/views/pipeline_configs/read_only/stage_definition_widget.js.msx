@@ -28,7 +28,7 @@ const StageDefinitionWidget = {
              key={vnode.attrs.currentSelection().uuid()}>
           <StageSettingsWidget stage={vnode.attrs.currentSelection}/>
           <StageOperatePermissionsWidget stage={vnode.attrs.currentSelection}/>
-          <EnvironmentVariablesWidget stage={vnode.attrs.currentSelection}/>
+          <EnvironmentVariablesWidget environmentVariables={vnode.attrs.currentSelection().environmentVariables}/>
           <JobsConfigWidget stage={vnode.attrs.currentSelection}/>
         </div>
       </div>

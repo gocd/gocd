@@ -22,11 +22,11 @@ const Stream = require('mithril/stream');
 
 const StageSettingsWidget = {
   view (vnode) {
-    const plainTextVariables = _.map(vnode.attrs.stage().environmentVariables().plainVariables(), (envVar) => {
+    const plainTextVariables = _.map(vnode.attrs.environmentVariables().plainVariables(), (envVar) => {
       return {key: 'value', displayKey: envVar.name(), modal: Stream(envVar)};
     });
 
-    const secureTextVariables = _.map(vnode.attrs.stage().environmentVariables().secureVariables(), (envVar) => {
+    const secureTextVariables = _.map(vnode.attrs.environmentVariables().secureVariables(), (envVar) => {
       return {
         key:        'value',
         displayKey: envVar.name(),

@@ -30,7 +30,8 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.DirectoryWalker;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -42,7 +43,7 @@ public class CommandRepositoryDirectoryWalker extends DirectoryWalker {
     private SystemEnvironment systemEnvironment;
     private CommandSnippetXmlParser commandSnippetXmlParser;
 
-    private static final Logger LOGGER = Logger.getLogger(CommandRepositoryDirectoryWalker.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CommandRepositoryDirectoryWalker.class);
     private ThreadLocal<String> commandRepositoryBaseDirectory = new ThreadLocal<>();
 
     @Autowired
@@ -61,10 +62,10 @@ public class CommandRepositoryDirectoryWalker extends DirectoryWalker {
 
         String xmlContentOfFie = safeReadFileToString(file);
         if (xmlContentOfFie == null || !file.canRead()) {
-            serverHealthService.update(ServerHealthState.warning("Command Repository", "Failed to access command snippet XML file located in Go Server Directory at " + file.getPath() +
-                    ". Go does not have sufficient permissions to access it.", HealthStateType.commandRepositoryAccessibilityIssue(), systemEnvironment.getCommandRepoWarningTimeout()));
-            LOGGER.warn("[Command Repository] Failed to access command snippet XML file located in Go Server Directory at " + file.getAbsolutePath() +
-                    ". Go does not have sufficient permissions to access it.");
+            serverHealthService.update(ServerHealthState.warning("Command Repository", "Failed to access command snippet XML file located in GoCD Server Directory at " + file.getPath() +
+                    ". GoCD does not have sufficient permissions to access it.", HealthStateType.commandRepositoryAccessibilityIssue(), systemEnvironment.getCommandRepoWarningTimeout()));
+            LOGGER.warn("[Command Repository] Failed to access command snippet XML file located in GoCD Server Directory at " + file.getAbsolutePath() +
+                    ". GoCD does not have sufficient permissions to access it.");
             return;
         }
 
@@ -72,9 +73,10 @@ public class CommandRepositoryDirectoryWalker extends DirectoryWalker {
             String relativeFilePath = FileUtil.removeLeadingPath(commandRepositoryBaseDirectory.get(), file.getAbsolutePath());
             results.add(commandSnippetXmlParser.parse(xmlContentOfFie, FilenameUtils.getBaseName(fileName), relativeFilePath));
         } catch (Exception e) {
-            LOGGER.warn("Failed loading command snippet from " + file.getAbsolutePath());
+            String msg = "Failed loading command snippet from " + file.getAbsolutePath();
+            LOGGER.warn(msg);
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(e);
+                LOGGER.debug(msg, e);
             }
         }
     }
@@ -111,8 +113,8 @@ public class CommandRepositoryDirectoryWalker extends DirectoryWalker {
             if (commandRepositoryDirectory.isDirectory() && commandRepositoryDirectory.canRead() && commandRepositoryDirectory.canExecute()) {
                 return new CommandSnippets(walk(commandRepositoryDirectory));
             } else {
-                throw new IOException("Failed to access command repository located in Go Server Directory at " + repositoryDirectory +
-                        ". The directory does not exist or Go does not have sufficient permissions to access it.");
+                throw new IOException("Failed to access command repository located in GoCD Server Directory at " + repositoryDirectory +
+                        ". The directory does not exist or GoCD does not have sufficient permissions to access it.");
             }
         } catch (IOException e) {
             ServerHealthState serverHealthState = ServerHealthState.warning("Command Repository", e.getMessage(), HealthStateType.commandRepositoryAccessibilityIssue(),

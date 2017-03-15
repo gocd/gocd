@@ -46,6 +46,8 @@ public final class GoLauncher {
         FileUtils.deleteQuietly(new File("agent.jar"));
         FileUtils.deleteQuietly(new File("agent-launcher.jar"));
         FileUtils.deleteQuietly(new File(new SystemEnvironment().getConfigDir(), "gadget_truststore.jks"));
+        FileUtils.deleteQuietly(new File("config.properties"));
+        FileUtils.deleteQuietly(new File(new SystemEnvironment().getConfigDir(), "config.properties"));
     }
 
 }

@@ -177,7 +177,7 @@ const PipelineConfigWidget = function (options) {
       return (
         <form class='pipeline'>
           {header()}
-          <f.row class={`pipeline-body ${  vnode.state.vm.pageSaveState()}`}>
+          <f.row class={`pipeline-body ${vnode.state.vm.pageSaveState()}`}>
             {errors}
             <f.column end={true} size={12}>
               <PipelineSettingsWidget pipeline={vnode.state.pipeline}

@@ -65,11 +65,10 @@ agent-bootstrapper/target/
 agent-common/target/
 agent-launcher/target/
 agent-process-launcher/target/
-agent/*.log
+agent/logs/
 agent/agent-plugins.zip
 agent/config/
 agent/felix-cache/
-agent/log4j.properties
 agent/pipelines/
 agent/plugins_work/
 agent/plugins/

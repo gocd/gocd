@@ -18,16 +18,18 @@ package com.thoughtworks.go.agent;
 
 import com.thoughtworks.go.agent.common.AgentBootstrapperArgs;
 import com.thoughtworks.go.agent.common.AgentCLI;
-import com.thoughtworks.go.agent.common.util.LoggingHelper;
+import com.thoughtworks.go.logging.LogConfigurator;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 
 public final class AgentMain {
+    private static final String DEFAULT_LOG4J_CONFIGURATION_FILE = "agent-log4j.properties";
+
     public static void main(String... argv) throws Exception {
         AgentBootstrapperArgs args = new AgentCLI().parse(argv);
-
-        LoggingHelper.configureLoggerIfNoneExists("go-agent.log", "go-agent-log4j.properties");
+        LogConfigurator logConfigurator = new LogConfigurator(DEFAULT_LOG4J_CONFIGURATION_FILE);
+        logConfigurator.initialize();
 
         new SystemEnvironment().setProperty("go.process.type", "agent");
         new SystemEnvironment().setProperty(SystemEnvironment.SERVICE_URL, args.getServerUrl().toString());

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package com.thoughtworks.go.agent.bootstrapper.osx;
 
 import com.apple.eawt.Application;
 import com.thoughtworks.go.agent.common.AgentBootstrapperArgs;
-import com.thoughtworks.go.agent.bootstrapper.BootstrapperLoggingHelper;
+import com.thoughtworks.go.logging.LogConfigurator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -31,6 +31,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
 
+import static com.thoughtworks.go.agent.bootstrapper.AgentBootstrapper.DEFAULT_LOG4J_CONFIGURATION_FILE;
+
 public class AgentMacWindow extends JFrame {
     private static final File PREFS_FILE = new File(System.getProperty("user.home"), "/Library/Preferences/com.thoughtworks.go.agent.properties");
     private static final Log LOG = LogFactory.getLog(AgentMacWindow.class);
@@ -41,7 +43,8 @@ public class AgentMacWindow extends JFrame {
     private MacBootstrapperThread bootstrapLauncher;
 
     public static void main(String[] args) throws IOException {
-        BootstrapperLoggingHelper.initLog4j();
+        LogConfigurator logConfigurator = new LogConfigurator(DEFAULT_LOG4J_CONFIGURATION_FILE);
+        logConfigurator.initialize();
         new AgentMacWindow().go();
     }
 

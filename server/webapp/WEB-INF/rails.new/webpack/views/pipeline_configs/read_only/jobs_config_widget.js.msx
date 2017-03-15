@@ -22,6 +22,7 @@ const ComponentMixins = require('helpers/mithril_component_mixins');
 
 const JobSettingsWidget          = require('views/pipeline_configs/read_only/job_settings_widget');
 const EnvironmentVariablesWidget = require('views/pipeline_configs/read_only/environment_variables_widget');
+const ArtifactsWidget = require('views/pipeline_configs/read_only/artifacts_widget');
 
 const JobsConfigWidget = {
   oninit(_vnode){
@@ -45,6 +46,7 @@ const JobsConfigWidget = {
                 <f.row class='job-definition' key={job.uuid()}>
                   <JobSettingsWidget job={Stream(job)}/>
                   <EnvironmentVariablesWidget environmentVariables={job.environmentVariables}/>
+                  <ArtifactsWidget artifacts={job.artifacts}/>
                 </f.row>);
             })
           }

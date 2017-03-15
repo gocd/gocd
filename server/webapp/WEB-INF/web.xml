@@ -132,6 +132,10 @@
   </context-param>
 
   <listener>
+    <listener-class>com.thoughtworks.go.server.LoggingInitializer</listener-class>
+  </listener>
+
+  <listener>
     <!--
         The spring listener needs to be before Rails listener so that Spring container is initialized. We access some beans in Rails env.rb and hence need Spring to be inited first.
     -->

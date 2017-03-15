@@ -93,6 +93,7 @@ task mainJar(type: Jar, dependsOn: [':server-launcher:jar', ':jetty9:jar', ':app
   with(copySpec {
     from { zipTree(project(':base').jar.archivePath) }
 
+    include "**/LogConfigurator.class"
     include "**/OperatingSystem.class"
     include "**/SystemEnvironment*.class"
     include "**/ConfigDirProvider.class"
@@ -121,6 +122,8 @@ task mainJar(type: Jar, dependsOn: [':server-launcher:jar', ':jetty9:jar', ':app
 
     into('/')
   })
+
+  from("${project(':server').projectDir}/properties/src/config/log4j.properties") { into 'config' }
 }
 
 task h2deltasZip(type: Zip) {

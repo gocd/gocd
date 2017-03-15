@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.util;
 
+import com.thoughtworks.go.logging.LogConfigurator;
 import com.thoughtworks.go.server.GoServer;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -24,12 +25,19 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 
 public final class GoLauncher {
+
+    public static final String DEFAULT_LOG4J_CONFIGURATION_FILE = "log4j.properties";
+
     private GoLauncher() {
     }
 
     public static void main(String[] args) throws Exception {
         SystemEnvironment systemEnvironment = new SystemEnvironment();
         systemEnvironment.setProperty(GoConstants.USE_COMPRESSED_JAVASCRIPT, Boolean.toString(true));
+
+        LogConfigurator logConfigurator = new LogConfigurator(DEFAULT_LOG4J_CONFIGURATION_FILE);
+        logConfigurator.initialize();
+
         try {
             cleanupTempFiles();
             new GoServer().go();

@@ -171,10 +171,14 @@ Pipeline.find = (url, extract) => $.Deferred(() => {
 
 Pipeline.vm = function () {
   this.saveState = Stream('');
+  this.pageSaveSpinner = Stream('');
+  this.pageSaveState = Stream('');
   let errors     = [];
 
   this.updating = function () {
     this.saveState('in-progress disabled');
+    this.pageSaveSpinner('page-spinner');
+    this.pageSaveState('page-save-in-progress');
   };
 
   this.saveFailed = function (data) {
@@ -191,6 +195,8 @@ Pipeline.vm = function () {
 
   this.saveSuccess = function () {
     this.saveState('success');
+    this.pageSaveSpinner('');
+    this.pageSaveState('');
   };
 
   this.defaultState = function () {

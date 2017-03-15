@@ -105,6 +105,7 @@ const PipelineConfigWidget = function (options) {
         }
 
         self.vm.updating();
+        m.redraw();
 
         const onReject  = function (data) {
           self.vm.saveFailed(data);
@@ -176,7 +177,7 @@ const PipelineConfigWidget = function (options) {
       return (
         <form class='pipeline'>
           {header()}
-          <f.row class='pipeline-body'>
+          <f.row class={'pipeline-body ' + vnode.state.vm.pageSaveState()}>
             {errors}
             <f.column end={true} size={12}>
               <PipelineSettingsWidget pipeline={vnode.state.pipeline}
@@ -188,6 +189,7 @@ const PipelineConfigWidget = function (options) {
               {pipelineFlowWidget()}
             </f.column>
           </f.row>
+          <f.row class={vnode.state.vm.pageSaveSpinner()}/>
           {vnode.state.modal.view()}
         </form>
       );

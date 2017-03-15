@@ -48,12 +48,10 @@
       <div class="row">
         <div class="content_wrapper_inner">
           <div id="build-status-panel" class="bd-container rounded-corner-for-pipeline">
-
             <div class="maincol build_detail">
                 #parse("shared/_flash_message.vm")
                 #set($jobConfigName = $presenter.buildName)
               <div id="build_detail_summary_container" class="build_detail_summary">
-                <h3>$presenter.buildLocatorForDisplay job <span id="build_name_status">Status loading...</span></h3>
                 <ul id="build-detail-summary" class="summary">
                   <li><span class="header">Scheduled on: </span><span id="build_scheduled_date">Loading...</span></li>
                   <li><span class="header">Completed on: </span><span id="build_completed_date">Loading...</span><a
@@ -160,11 +158,6 @@
     </div>
   </div>
 </div>
-<!-- project summary -->
-##    <div id="sidebar" class="yui-b">
-##        #parse("sidebar/_sidebar_build_list.vm")
-##    </div>
-<!-- end project summary -->
 </div>
 <script type="text/javascript">
   var cruise_stage_or_build_detail_page_status = '$presenter.result';

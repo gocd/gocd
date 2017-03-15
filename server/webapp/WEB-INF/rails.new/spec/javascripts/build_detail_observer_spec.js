@@ -23,19 +23,19 @@ describe("build_detail_observer", function () {
         setFixtures("<div id=\"container\">\n" +
             "    <span class=\"page_panel\"><b class=\"rtop\"><b class=\"r1\"></b> <b class=\"r2\"></b> <b class=\"r3\"></b> <b class=\"r4\"></b></b></span>\n" +
             "\n" +
-            "    <div class=\"build_detail_summary\">\n" +
-            "        <h3>project1 is now <span id=\"build_status_id\" class='build_status'></span></h3>\n" +
-            "        <ul class=\"summary\">\n" +
-            "            <li><strong>Building since:</strong> $buildSince</li>\n" +
-            "            <li><strong>Elapsed time:</strong> <span id=\"${projectName}_time_elapsed\"><img\n" +
-            "                    src=\"images/spinner.gif\"/></span></li>\n" +
-            "            <li><strong>Previous successful build:</strong> $durationToSuccessfulBuild</li>\n" +
-            "            <li><strong>Remaining time:</strong> <span id=\"${projectName}_time_remaining\"><img\n" +
-            "                    src=\"images/spinner.gif\"/></span></li>\n" +
-            "            <span id=\"build_name_status\"></span>\n" +
-            "        </ul>\n" +
-            "    </div>\n" +
-            "    <span class=\"page_panel\"><b class=\"rbottom\"><b class=\"r4\"></b> <b class=\"r3\"></b> <b class=\"r2\"></b> <b\n" +
+            "<div id=\"build_status\" class=\"build-status\"></div>\n" +
+            "<div class=\"build_detail_summary\">\n" +
+            "    <ul class=\"summary\">\n" +
+            "        <li><strong>Building since:</strong> $buildSince</li>\n" +
+            "        <li><strong>Elapsed time:</strong> <span id=\"${projectName}_time_elapsed\"><img\n" +
+            "                src=\"images/spinner.gif\"/></span></li>\n" +
+            "        <li><strong>Previous successful build:</strong> $durationToSuccessfulBuild</li>\n" +
+            "        <li><strong>Remaining time:</strong> <span id=\"${projectName}_time_remaining\"><img\n" +
+            "                src=\"images/spinner.gif\"/></span></li>\n" +
+            "        <span id=\"build_status\"></span>\n" +
+            "    </ul>\n" +
+            "</div>\n" +
+            "<span class=\"page_panel\"><b class=\"rbottom\"><b class=\"r4\"></b> <b class=\"r3\"></b> <b class=\"r2\"></b> <b\n" +
             "            class=\"r1\"></b></b></span>\n" +
             "</div>\n" +
             "\n" +
@@ -53,10 +53,11 @@ describe("build_detail_observer", function () {
     });
 
     it("test_ajax_periodical_refresh_active_build_should_update_css", function () {
-        jQuery('.build_detail_summary').parent().addClass("building_passed");
+        var status = jQuery(".build-status");
+        status.addClass("building_passed");
         var json = failed_json('project1')
         observer.update_page(json);
-        assertTrue("failed", jQuery('.build_detail_summary').parent().hasClass("failed"));
+        assertTrue("failed", status.hasClass("failed"));
     });
 
     it("test_ajax_periodical_refresh_active_build_output_executer_oncomplete_should_update_output", function () {

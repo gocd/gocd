@@ -32,36 +32,10 @@ $page-margin: 15px;
 
 #build_detail_summary_container {
   zoom: 1;
-  padding: 0 0 10px 0;
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
   border-radius: 5px;
   border: 1px solid #ccc;
-}
-
-#build_detail_summary_container h3 {
-  font-size: 18px;
-  font-weight: 500;
-  padding: 8px 15px 10px 15px;
-  background-image: image_url('g9/backgrounds/bg_gradient_50.png');
-  background-repeat: repeat-x;
-  background-position: bottom left;
-  /* seems silly, but it's to fix background image overlap onto border radius of the parent */
-  -moz-border-radius-topright: 4px;
-  -moz-border-radius-topleft: 4px;
-  -webkit-border-top-right-radius: 4px;
-  -webkit-border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
-  border-top-left-radius: 4px;
-  margin-bottom: 15px;
-}
-
-#build_detail_summary_container h3 span {
-  font-size: 14px;
-  font-weight: 500;
-  border-left: 1px solid #fff;
-  padding-left: 10px;
-  margin-left: 5px;
 }
 
 .build_detail_summary li span {
@@ -680,45 +654,50 @@ a.collapse-all {
   background: #fAC361;
 }
 
-.build_detail_summary h3 {
-  font-size: 1.2em;
-  margin-bottom: 1em;
-  padding: 0.25em 0.64em;
+.build-status {
+  width: 36px;
+  height: 36px; //height of .page_header minus the top and bottom padding
+  border-radius: 50%;
+  float: right;
+  line-height: 18px;
+  &:before {
+    width: 18px;
+    text-align: center;
+  }
 }
 
-.cancelled h3 {
+.build-status.cancelled {
   background-color: #ffc11b;
   color: #000;
-  @include icon-after(ban, 16px, 0 0 0 10px);
+  @include icon-before($cancelled-icon, $margin: 9px);
 }
 
-.failed h3,
-.failing h3 {
+.build-status.failed,
+.build-status.failing {
   background-color: #fa2d2d;
   color: #fff;
-  @include icon-after(exclamation-circle, 16px, 0 0 0 10px);
-
+  @include icon-before($failed-icon, $margin: 9px);
 }
 
-.passed h3 {
+.build-status.passed {
   background-color: #78C42D;
   color: #fff;
-  @include icon-after(check, 16px, 0 0 0 10px);
+  @include icon-before($passed-icon, $margin: 9px);
 }
 
-.inactive h3,
-.building_unknown h3,
-.unknown h3,
-.discontinued h3 {
+.build-status.inactive,
+.build-status.building_unknown,
+.build-status.unknown,
+.build-status.discontinued {
   background: #EEEEEE;
   color: #000;
 }
 
-.scheduled h3,
-.assigned h3,
-.preparing h3,
-.building h3,
-.completing h3 {
+.build-status.scheduled,
+.build-status.assigned,
+.build-status.preparing,
+.build-status.building,
+.build-status.completing {
   background: #ebc26d;
   color: #000;
 }

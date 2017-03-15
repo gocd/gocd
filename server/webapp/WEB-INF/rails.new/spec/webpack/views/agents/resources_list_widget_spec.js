@@ -22,10 +22,10 @@ describe("ResourcesListWidget", () => {
   const TriStateCheckbox = require('models/agents/tri_state_checkbox');
   require("foundation-sites");
 
-  const Resources           = require('models/agents/resources');
   const ResourcesListWidget = require("views/agents/resources_list_widget");
 
-  let $root, root;
+
+  let $root, root, resources;
   beforeEach(() => {
     [$root, root] = window.createDomElementForTest();
   });
@@ -53,20 +53,18 @@ describe("ResourcesListWidget", () => {
 
     const selectedAgentsResources = [['Linux', 'Java'], ['Gauge', 'Java']];
 
-    const allResources = [
+    resources = [
       new TriStateCheckbox('Gauge', selectedAgentsResources),
       new TriStateCheckbox('Java', selectedAgentsResources),
       new TriStateCheckbox('Linux', selectedAgentsResources),
       new TriStateCheckbox('Windows', selectedAgentsResources),
     ];
 
-    Resources.list = allResources;
     mount();
   });
 
   afterEach(() => {
     unmount();
-    Resources.list = [];
   });
 
   it('should contain all the resources checkbox', () => {
@@ -163,7 +161,8 @@ describe("ResourcesListWidget", () => {
         return m(ResourcesListWidget, {
           hideDropDown,
           dropDownReset,
-          'onResourcesUpdate': Stream()
+          'onResourcesUpdate': Stream(),
+          'resources':         Stream(resources)
         });
       }
     });

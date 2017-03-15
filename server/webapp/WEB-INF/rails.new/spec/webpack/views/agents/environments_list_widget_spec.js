@@ -18,15 +18,16 @@ describe("Environments List Widget", () => {
   const _                = require('lodash');
   const $                = require("jquery");
   const m                = require("mithril");
+  const Stream           = require("mithril/stream");
   const TriStateCheckbox = require('models/agents/tri_state_checkbox');
+
   require("foundation-sites");
   require("jasmine-jquery");
   require('jasmine-ajax');
 
-  const Environments           = require('models/agents/environments');
   const EnvironmentsListWidget = require("views/agents/environments_list_widget");
 
-  let root;
+  let root, environments;
   beforeEach(() => {
     [, root] = window.createDomElementForTest();
   });
@@ -55,19 +56,19 @@ describe("Environments List Widget", () => {
 
     const selectedAgentsEnvironments = _.map(selectedAgents, (agent) => agent.environments());
 
-    Environments.list = [
+    environments = [
       new TriStateCheckbox('Build', selectedAgentsEnvironments),
       new TriStateCheckbox('Deploy', selectedAgentsEnvironments),
       new TriStateCheckbox('Dev', selectedAgentsEnvironments),
       new TriStateCheckbox('Testing', selectedAgentsEnvironments),
     ];
 
+
     mount(done);
   });
 
   afterEach(() => {
     unmount();
-    Environments.list = [];
     jasmine.Ajax.uninstall();
   });
 
@@ -111,6 +112,7 @@ describe("Environments List Widget", () => {
             hideDropDown,
             dropDownReset,
             onEnvironmentsUpdate,
+            environments: Stream(environments)
           });
         }
       }

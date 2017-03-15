@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
+
 const $                = require('jquery');
-const m                = require('mithril');
 const _                = require('lodash');
 const mrequest         = require('helpers/mrequest');
 const TriStateCheckbox = require('models/agents/tri_state_checkbox');
 const Routes           = require('gen/js-routes');
-const Environments     = {};
-Environments.list    = [];
 
 const getSortedEnvironments = (environments, selectedAgents) => {
   const selectedAgentsEnvironments = _.map(selectedAgents, (agent) => agent.environments());
@@ -29,14 +27,28 @@ const getSortedEnvironments = (environments, selectedAgents) => {
   return _.map(environments.sort(), (environment) => new TriStateCheckbox(environment, selectedAgentsEnvironments));
 };
 
-Environments.init = (selectedAgents) => {
-  $.ajax({
-    method:     'GET',
-    url:        Routes.apiv1AdminInternalEnvironmentsPath(),
-    beforeSend: mrequest.xhrConfig.forVersion('v1')
-  }).then((data) => {
-    Environments.list = getSortedEnvironments(data, selectedAgents);
-  }).always(m.redraw);
-};
+const Environments = {};
+
+Environments.all = (selectedAgents) => $.Deferred(function () {
+  const deferred = this;
+
+  const jqXHR = $.ajax({
+    method:      'GET',
+    url:         Routes.apiv1AdminInternalEnvironmentsPath(),
+    timeout:     mrequest.timeout,
+    beforeSend:  mrequest.xhrConfig.forVersion('v1'),
+    contentType: false
+  });
+
+  const didFulfill = (data) => {
+    deferred.resolve(getSortedEnvironments(data, selectedAgents));
+  };
+
+  const didReject = (jqXHR) => {
+    deferred.reject(mrequest.unwrapErrorExtractMessage(jqXHR.responseJSON, jqXHR));
+  };
+
+  jqXHR.then(didFulfill, didReject);
+}).promise();
 
 module.exports = Environments;

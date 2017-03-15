@@ -19,24 +19,22 @@ describe('Resources Model', () => {
 
   require('jasmine-ajax');
 
-  beforeEach(() => {
-    jasmine.Ajax.install();
-    jasmine.Ajax.stubRequest(/\/api\/admin\/internal\/resources/).andReturn({
-      "responseText": JSON.stringify(["Linux", "Firefox"]),
-      "status":       200
-    });
-  });
-
-  afterEach(() => {
-    Resources.list = [];
-    jasmine.Ajax.uninstall();
-  });
-
   it("should initialize the resources in sorted order", () => {
-    Resources.init();
-    expect(Resources.list.length).toBe(2);
-    expect(Resources.list[0].name()).toBe('Firefox');
-    expect(Resources.list[1].name()).toBe('Linux');
+    jasmine.Ajax.withMock(() => {
+      jasmine.Ajax.stubRequest('/go/api/admin/internal/resources', undefined, 'GET').andReturn({
+        "responseText": JSON.stringify(["Linux", "Firefox"]),
+        "status":       200
+      });
+
+      const successCallback = jasmine.createSpy().and.callFake((resources) => {
+        expect(resources.length).toBe(2);
+        expect(resources[0].name()).toBe('Firefox');
+        expect(resources[1].name()).toBe('Linux');
+      });
+
+      Resources.all().then(successCallback);
+      expect(successCallback).toHaveBeenCalled();
+    });
   });
 
   it("should initialize the resources with state depending upon the checkedAgents", () => {
@@ -49,14 +47,26 @@ describe('Resources Model', () => {
         return ['Linux', 'Firefox'];
       }
     }];
-    Resources.init(checkedAgents);
-    expect(Resources.list.length).toBe(2);
-    expect(Resources.list[0].name()).toBe('Firefox');
-    expect(Resources.list[1].name()).toBe('Linux');
 
-    expect(Resources.list[0].isChecked()).toBe(false);
-    expect(Resources.list[0].isIndeterminate()).toBe(true);
-    expect(Resources.list[1].isChecked()).toBe(true);
-    expect(Resources.list[1].isIndeterminate()).toBe(false);
+    jasmine.Ajax.withMock(() => {
+      jasmine.Ajax.stubRequest('/go/api/admin/internal/resources', undefined, 'GET').andReturn({
+        "responseText": JSON.stringify(["Linux", "Firefox"]),
+        "status":       200
+      });
+
+      const successCallback = jasmine.createSpy().and.callFake((resources) => {
+        expect(resources.length).toBe(2);
+        expect(resources[0].name()).toBe('Firefox');
+        expect(resources[1].name()).toBe('Linux');
+
+        expect(resources[0].isChecked()).toBe(false);
+        expect(resources[0].isIndeterminate()).toBe(true);
+        expect(resources[1].isChecked()).toBe(true);
+        expect(resources[1].isIndeterminate()).toBe(false);
+      });
+
+      Resources.all(checkedAgents).then(successCallback);
+      expect(successCallback).toHaveBeenCalled();
+    });
   });
 });

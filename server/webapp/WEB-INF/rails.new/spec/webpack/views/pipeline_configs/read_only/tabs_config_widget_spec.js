@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-describe("Read Only Job Artifacts Widget", () => {
+describe("Read Only Job Tabs Widget", () => {
   const $ = require("jquery");
   const m = require("mithril");
   require('jasmine-jquery');
 
-  const JobArtifactsWidget = require("views/pipeline_configs/read_only/artifacts_widget");
-  const Jobs               = require("models/pipeline_configs/jobs");
+  const TabsConfigWidget = require("views/pipeline_configs/read_only/tabs_config_widget");
+  const Jobs             = require("models/pipeline_configs/jobs");
 
   let $root, root, jobs;
   beforeEach(() => {
@@ -30,16 +30,14 @@ describe("Read Only Job Artifacts Widget", () => {
 
   describe('Render', () => {
     beforeEach(() => {
-      rawJobsJSON[0].artifacts = [
+      rawJobsJSON[0].tabs = [
         {
-          "source":      "target",
-          "destination": "result",
-          "type":        "build"
+          "name": "cobertura",
+          "path": "target/site/cobertura/index.html"
         },
         {
-          "source":      "test",
-          "destination": "res1",
-          "type":        "test"
+          "name": "cobertura2",
+          "path": "target/site/cobertura/report.html"
         }
       ];
 
@@ -51,34 +49,31 @@ describe("Read Only Job Artifacts Widget", () => {
       unmount();
     });
 
-    it('should render Artifacts heading', () => {
-      expect($('h5')).toContainText('Artifacts:');
+    it('should render Tabs heading', () => {
+      expect($('h5')).toContainText('Tabs:');
     });
 
-    it('should render the artifacts heading in tabular format', () => {
+    it('should render the tabs heading in tabular format', () => {
       const headings = $.find('table>tr>th');
-      expect(headings[0]).toContainText('source');
-      expect(headings[1]).toContainText('destination');
-      expect(headings[2]).toContainText('type');
+      expect(headings[0]).toContainText('name');
+      expect(headings[1]).toContainText('path');
     });
 
-    it('should render the artifacts', () => {
+    it('should render the tabs', () => {
       const row1 = $($.find('table>tr')[1]).children();
-      expect($(row1[0])).toContainText('target');
-      expect($(row1[1])).toContainText('result');
-      expect($(row1[2])).toContainText('build');
+      expect($(row1[0])).toContainText('cobertura');
+      expect($(row1[1])).toContainText('target/site/cobertura/index.html');
 
       const row2 = $($.find('table>tr')[2]).children();
-      expect($(row2[0])).toContainText('test');
-      expect($(row2[1])).toContainText('res1');
-      expect($(row2[2])).toContainText('test');
+      expect($(row2[0])).toContainText('cobertura2');
+      expect($(row2[1])).toContainText('target/site/cobertura/report.html');
     });
   });
 
   describe('Empty Message', () => {
     beforeEach(() => {
-      rawJobsJSON[0].artifacts = [];
-      jobs                     = Jobs.fromJSON(rawJobsJSON);
+      rawJobsJSON[0].tabs = [];
+      jobs                = Jobs.fromJSON(rawJobsJSON);
       mount();
     });
 
@@ -87,14 +82,14 @@ describe("Read Only Job Artifacts Widget", () => {
     });
 
     it('should render empty artifacts message when no artifacts have been specified.', () => {
-      expect($root).toContainText('No Artifacts have been configured.');
+      expect($root).toContainText('No Tabs have been configured.');
     });
   });
 
   const mount = function () {
     m.mount(root, {
       view () {
-        return m(JobArtifactsWidget, {artifacts: jobs.firstJob().artifacts});
+        return m(TabsConfigWidget, {tabs: jobs.firstJob().tabs});
       }
     });
 
@@ -108,8 +103,8 @@ describe("Read Only Job Artifacts Widget", () => {
 
   const rawJobsJSON = [
     {
-      "name":      "up42_job",
-      "artifacts": []
+      "name": "up42_job",
+      "tabs": []
     }
   ];
 });

@@ -20,7 +20,7 @@ let EnvironmentVariablesConfigWidget = require('views/pipeline_configs/environme
 let TasksConfigWidget                = require('views/pipeline_configs/tasks_config_widget');
 let ArtifactsConfigWidget            = require('views/pipeline_configs/artifacts_config_widget');
 let PropertiesConfigWidget           = require('views/pipeline_configs/properties_config_widget');
-let TabsConfigWidget                 = require('views/pipeline_configs/tabs_config_widget');
+let TabsConfigWidget                 = require('views/pipeline_configs/tabs_config_widget.js.msx');
 
 const Stream          = require('mithril/stream');
 const _               = require('lodash');

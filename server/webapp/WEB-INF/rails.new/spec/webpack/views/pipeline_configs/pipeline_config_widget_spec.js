@@ -83,6 +83,26 @@ describe("PipelineConfigWidget", () => {
     expect($root.find('.pipeline .heading h1')).toHaveText('Pipeline configuation for pipeline yourproject');
   });
 
+  it('should disable button and page edits while pipeline config save is in progress', () => {
+    jasmine.Ajax.install();
+    jasmine.Ajax.stubRequest('/go/api/admin/pipelines/yourproject', undefined, 'PATCH');
+
+    const saveButton = $root.find('button.save-pipeline');
+    const pipelineBody = $root.find('.pipeline-body');
+
+    expect($(saveButton)).not.toHaveClass('in-progress');
+    expect($(pipelineBody)).not.toHaveClass('page-save-in-progress');
+
+    $(saveButton).trigger('click');
+    m.redraw(true);
+
+    expect($(saveButton)).toHaveClass('in-progress');
+    expect($(saveButton)).toHaveClass('disabled');
+    expect($(pipelineBody)).toHaveClass('page-save-in-progress');
+
+    jasmine.Ajax.uninstall();
+  });
+
   it("should render enablePipelineLocking checkbox", () => {
     expect(inputFieldFor('enablePipelineLocking')).toBeChecked();
     expect(pipeline.enablePipelineLocking()).toBe(true);

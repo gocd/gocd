@@ -28,36 +28,54 @@ describe("Read Only Job Artifacts Widget", () => {
   });
   afterEach(window.destroyDomElementForTest);
 
-  beforeEach(() => {
-    jobs = Jobs.fromJSON(rawJobsJSON);
-    mount();
+  describe('Render', () => {
+    beforeEach(() => {
+      jobs = Jobs.fromJSON(rawJobsJSON);
+      mount();
+    });
+
+    afterEach(() => {
+      unmount();
+    });
+
+    it('should render job setting heading', () => {
+      expect($('h5')).toContainText('Artifacts:');
+    });
+
+    it('should render the artifacts heading in tabular format', () => {
+      const headings = $.find('table>tr>th');
+      expect(headings[0]).toContainText('source');
+      expect(headings[1]).toContainText('destination');
+      expect(headings[2]).toContainText('type');
+    });
+
+    it('should render the artifacts', () => {
+      const row1 = $($.find('table>tr')[1]).children();
+      expect($(row1[0])).toContainText('target');
+      expect($(row1[1])).toContainText('result');
+      expect($(row1[2])).toContainText('build');
+
+      const row2 = $($.find('table>tr')[2]).children();
+      expect($(row2[0])).toContainText('test');
+      expect($(row2[1])).toContainText('res1');
+      expect($(row2[2])).toContainText('test');
+    });
   });
 
-  afterEach(() => {
-    unmount();
-  });
+  describe('Empty Message', () => {
+    beforeEach(() => {
+      rawJobsJSON[0].artifacts = [];
+      jobs                  = Jobs.fromJSON(rawJobsJSON);
+      mount();
+    });
 
-  it('should render job setting heading', () => {
-    expect($('h5')).toContainText('Artifacts:');
-  });
+    afterEach(() => {
+      unmount();
+    });
 
-  it('should render the artifacts heading in tabular format', () => {
-    const headings = $.find('table>tr>th');
-    expect(headings[0]).toContainText('source');
-    expect(headings[1]).toContainText('destination');
-    expect(headings[2]).toContainText('type');
-  });
-
-  it('should render the artifacts', () => {
-    const row1 = $($.find('table>tr')[1]).children();
-    expect($(row1[0])).toContainText('target');
-    expect($(row1[1])).toContainText('result');
-    expect($(row1[2])).toContainText('build');
-
-    const row2 = $($.find('table>tr')[2]).children();
-    expect($(row2[0])).toContainText('test');
-    expect($(row2[1])).toContainText('res1');
-    expect($(row2[2])).toContainText('test');
+    it('should render empty artifacts message when no artifacts have been specified.', () => {
+      expect($root).toContainText('No Artifacts have been configured.');
+    });
   });
 
   const mount = function () {

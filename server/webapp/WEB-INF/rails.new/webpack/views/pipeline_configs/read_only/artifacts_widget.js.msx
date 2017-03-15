@@ -19,22 +19,26 @@ const f = require('helpers/form_helper');
 
 const ArtifactsWidget = {
   view (vnode) {
-    const artifacts = vnode.attrs.artifacts();
+    let artifacts;
 
-    const rows = artifacts.mapArtifacts((artifact) => ({
+    const rows = vnode.attrs.artifacts().mapArtifacts((artifact) => ({
       source:      artifact.source,
       destination: artifact.destination,
       type:        artifact.type
     }));
+
+    if (!vnode.attrs.artifacts().countArtifact()) {
+      artifacts = (<f.emptyMessage message="No Artifacts have been configured."/>);
+    } else {
+      artifacts = (<f.table rows={rows}/>);
+    }
 
     return (
       <div>
         <f.row>
           <f.readOnlyHeading value="Artifacts:"/>
         </f.row>
-        <f.row>
-          <f.table rows={rows}/>
-        </f.row>
+        {artifacts}
       </div>
     );
   }

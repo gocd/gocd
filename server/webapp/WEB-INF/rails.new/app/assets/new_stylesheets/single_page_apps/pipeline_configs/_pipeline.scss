@@ -219,3 +219,11 @@
     margin-top: 25px;
   }
 }
+
+// scss-lint:disable VendorPrefix
+.page-save-in-progress {
+  pointer-events: none;
+  -webkit-filter: blur(3px);
+}
+
+// scss-lint:enable VendorPrefix

@@ -138,10 +138,15 @@ define([
 
   Pipeline.vm = function () {
     this.saveState = m.prop('');
+    this.pageSaveSpinner = m.prop('');
+    this.pageSaveState = m.prop('');
+
     var errors    = [];
 
     this.updating = function () {
       this.saveState('in-progress disabled');
+      this.pageSaveSpinner('page-spinner');
+      this.pageSaveState('page-save-in-progress');
     };
 
     this.saveFailed = function (data) {
@@ -158,6 +163,8 @@ define([
 
     this.saveSuccess = function () {
       this.saveState('success');
+      this.pageSaveSpinner('');
+      this.pageSaveState('');
     };
 
     this.defaultState = function () {

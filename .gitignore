@@ -56,7 +56,7 @@ resources-generated/
 addon-api/database/target/
 agent-bootstrapper/.agent-bootstrapper.running
 agent-bootstrapper/.tmp.file.list
-agent-bootstrapper/*.log
+agent-bootstrapper/logs/
 agent-bootstrapper/*agent-launcher.jar
 agent-bootstrapper/agent-launcher.jar
 agent-bootstrapper/agent.jar

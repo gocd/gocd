@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import com.thoughtworks.go.agent.common.AgentBootstrapperArgs;
 import com.thoughtworks.go.agent.common.AgentCLI;
 import com.thoughtworks.go.agent.common.util.Downloader;
 import com.thoughtworks.go.agent.common.util.JarUtil;
+import com.thoughtworks.go.logging.LogConfigurator;
 import com.thoughtworks.go.util.SystemUtil;
 import com.thoughtworks.go.util.validators.FileValidator;
 import com.thoughtworks.go.util.validators.Validation;
@@ -35,6 +36,7 @@ public class AgentBootstrapper {
 
     private static final int DEFAULT_WAIT_TIME_BEFORE_RELAUNCH_IN_MS = 10000;
     public static final String WAIT_TIME_BEFORE_RELAUNCH_IN_MS = "agent.bootstrapper.wait.time.before.relaunch.in.ms";
+    public static final String DEFAULT_LOG4J_CONFIGURATION_FILE = "agent-bootstrapper-log4j.properties";
 
     int waitTimeBeforeRelaunch = SystemUtil.getIntProperty(WAIT_TIME_BEFORE_RELAUNCH_IN_MS, DEFAULT_WAIT_TIME_BEFORE_RELAUNCH_IN_MS);
     private static final Log LOG = LogFactory.getLog(AgentBootstrapper.class);
@@ -53,8 +55,9 @@ public class AgentBootstrapper {
     }
 
     public static void main(String[] argv) {
-        BootstrapperLoggingHelper.initLog4j();
         AgentBootstrapperArgs args = new AgentCLI().parse(argv);
+        LogConfigurator logConfigurator = new LogConfigurator(DEFAULT_LOG4J_CONFIGURATION_FILE);
+        logConfigurator.initialize();
         new AgentBootstrapper().go(true, args);
     }
 

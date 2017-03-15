@@ -54,14 +54,16 @@ ElasticProfiles.Profile = function (data) {
   this.validatePresenceOf('id');
   this.validatePresenceOf('pluginId');
 
-  CrudMixins.AllOperations.call(this, ['refresh', 'update', 'delete', 'create'], {
-    type:        ElasticProfiles.Profile,
-    indexUrl:    Routes.apiv1ElasticProfilesPath(),
-    resourceUrl(id) {
-      return Routes.apiv1ElasticProfilePath(id);
-    },
-    version:     ElasticProfiles.API_VERSION
-  });
+  CrudMixins.AllOperations.call(this, ['refresh', 'update', 'delete', 'create'],
+    {
+      type:     ElasticProfiles.Profile,
+      indexUrl: Routes.apiv1ElasticProfilesPath(),
+      version:  ElasticProfiles.API_VERSION,
+      resourceUrl(profile) {
+        return Routes.apiv1ElasticProfilePath(profile.id());
+      }
+    }
+  );
 };
 
 ElasticProfiles.Profile.get = (id) => new ElasticProfiles.Profile({id}).refresh();

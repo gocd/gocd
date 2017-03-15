@@ -99,7 +99,7 @@ CrudMixins.Delete = function (options) {
 
       const jqXHR = $.ajax({
         method:      'DELETE',
-        url:         url(entity.id()),
+        url:         url(entity),
         timeout:     mrequest.timeout,
         beforeSend:  mrequest.xhrConfig.forVersion(version),
         contentType: false
@@ -131,7 +131,7 @@ CrudMixins.Update = function (options) {
 
       const jqXHR = $.ajax({
         method:      'PUT',
-        url:         url(entity.id()),
+        url:         url(entity),
         timeout:     mrequest.timeout,
         beforeSend(xhr) {
           mrequest.xhrConfig.forVersion(version)(xhr);
@@ -167,7 +167,7 @@ CrudMixins.Refresh = function (options) {
 
       const jqXHR = $.ajax({
         method:      'GET',
-        url:         url(entity.id()),
+        url:         url(entity),
         timeout:     mrequest.timeout,
         beforeSend:  mrequest.xhrConfig.forVersion(version),
         contentType: false

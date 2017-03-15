@@ -28,7 +28,6 @@ dependencies {
   compile project(':server')
 
   packagingInDefaultFilesDir project(path: ':agent-launcher', configuration: 'fatJarConfig')
-  packagingInDefaultFilesDir project(path: ':agent-bootstrapper', configuration: 'fatJarConfig')
   packagingInDefaultFilesDir project(path: ':agent', configuration: 'fatJarConfig')
   packagingInDefaultFilesDir project(path: ':server', configuration: 'warConfig')
 
@@ -267,7 +266,6 @@ task verifyFatJar(type: VerifyJarTask) {
   jarTask = fatJar
   expectedJars = [
       "defaultFiles": [
-          "agent-bootstrapper.jar",
           "agent-launcher.jar",
           "agent.jar",
           "tfs-impl-10.jar",

@@ -57,10 +57,10 @@ const AuthConfigsWidget = {
     this.modal = null;
     this.authConfigs = Stream(new AuthConfigs());
 
-    this.message = Stream({type: undefined, message: undefined});
+    ctrl.message = Stream({type: undefined, message: undefined});
 
     this.clearMessage = function () {
-      this.message({});
+      ctrl.message({});
     };
 
     this.reloadPage = function () {
@@ -159,7 +159,7 @@ const AuthConfigsWidget = {
 
       deleteInProgress(true);
       m.redraw();
-      authConfig.delete().then(onSuccess, onFailure);
+      authConfig.delete().then(onSuccess, onFailure).always(m.redraw);
     };
 
     this.deleteConfirm = function (authConfig) {

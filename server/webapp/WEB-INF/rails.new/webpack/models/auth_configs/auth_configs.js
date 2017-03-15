@@ -29,6 +29,11 @@ const AuthConfigs = function (data) {
     collection: data,
     uniqueOn:   'id'
   });
+
+  this.findById = function (authConfigId) {
+    return this.findAuthConfig((authConfig) => authConfig.id() === authConfigId);
+  };
+
 };
 
 AuthConfigs.API_VERSION = 'v1';

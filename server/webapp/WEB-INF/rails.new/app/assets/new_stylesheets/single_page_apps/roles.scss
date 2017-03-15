@@ -1,5 +1,5 @@
-/*!
- * Copyright 2016 ThoughtWorks, Inc.
+/*
+ * Copyright 2017  ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@import '../shared/mixins';
-@import '../shared/autocomplete';
-@import '../shared/common';
-@import '../shared/modal';
-@import '../shared/header';
-@import '../shared/alert';
+@import 'shared/mixins';
+@import 'shared/autocomplete';
+@import 'shared/common';
+@import 'shared/modal';
+@import 'shared/header';
+@import 'shared/alert';
 
 $role-plugin-icon-size: 30px;
 $role-icon-text-padding: 20px;
@@ -28,7 +28,7 @@ $role-icon-text-padding: 20px;
   margin-bottom: 0;
 }
 
-.delete-profile {
+.delete-role {
   margin-top: 20px;
 }
 
@@ -44,8 +44,11 @@ $role-icon-text-padding: 20px;
   margin:        10px;
   border:        0;
   border-radius: $global-border-radius;
-  padding:       10px;
   cursor:        pointer;
+}
+
+.role-header {
+  padding: 10px;
 }
 
 .edit-role {
@@ -61,6 +64,8 @@ $role-icon-text-padding: 20px;
 
 .delete-role-confirm {
   @include icon-before($type: trash, $color: $dark-gray);
+  position: relative;
+  top:      -2px;
   &:not(.disabled) {
     &:hover {
       &:before {
@@ -87,7 +92,7 @@ $role-icon-text-padding: 20px;
   padding-left:   $role-icon-text-padding;
   width:          calc(100% - #{$role-plugin-icon-size});
 
-  .plugin-id, .profile-id {
+  .auth-config-id, .role-name {
     display:   inline-block;
     min-width: 300px;
   }
@@ -104,10 +109,22 @@ $role-icon-text-padding: 20px;
 }
 
 .plugin-config-read-only {
-  padding-left: $role-plugin-icon-size + $role-icon-text-padding;
-  width:        95%;
-  box-sizing:   border-box;
-  margin:       20px 0 10px 0;
+  box-sizing: border-box;
+  padding:    10px 10px 10px 60px;
+  border-top: 1px solid $light-grey;
+  .key-value-pair {
+    dt {
+      width: 20%;
+    }
+    dd {
+      width: 80%;
+    }
+    pre {
+      width:       100%;
+      display:     block;
+      white-space: inherit;
+    }
+  }
 }
 
 .unknown-plugin-icon {

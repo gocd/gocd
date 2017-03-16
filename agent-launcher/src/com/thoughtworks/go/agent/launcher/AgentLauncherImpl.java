@@ -23,7 +23,7 @@ import com.thoughtworks.go.agent.common.AgentBootstrapperBackwardCompatibility;
 import com.thoughtworks.go.agent.common.launcher.AgentProcessParent;
 import com.thoughtworks.go.agent.common.util.Downloader;
 import com.thoughtworks.go.agent.common.util.JarUtil;
-import com.thoughtworks.go.agent.common.util.LoggingHelper;
+import com.thoughtworks.go.logging.LogConfigurator;
 import com.thoughtworks.go.util.SslVerificationMode;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -58,7 +58,8 @@ public class AgentLauncherImpl implements AgentLauncher {
     public int launch(AgentLaunchDescriptor descriptor) {
         Thread shutdownHook = null;
         try {
-            LoggingHelper.configureLoggerIfNoneExists("go-agent-launcher.log", "go-agent-launcher-log4j.properties");
+            LogConfigurator logConfigurator = new LogConfigurator("agent-launcher-log4j.properties");
+            logConfigurator.initialize();
             int returnValue;
 
             if (!lockFile.tryLock()) {

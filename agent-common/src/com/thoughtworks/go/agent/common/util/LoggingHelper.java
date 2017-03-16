@@ -16,21 +16,16 @@
 
 package com.thoughtworks.go.agent.common.util;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Enumeration;
-
 import com.thoughtworks.go.util.StringUtil;
 import org.apache.log4j.Appender;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
-import org.apache.log4j.PropertyConfigurator;
 import org.apache.log4j.RollingFileAppender;
 import org.apache.log4j.spi.Filter;
 import org.apache.log4j.spi.LoggingEvent;
+
+import java.io.IOException;
+import java.util.Enumeration;
 
 public class LoggingHelper {
 
@@ -46,21 +41,6 @@ public class LoggingHelper {
     };
 
     public static enum CONSOLE_NDC {STDOUT, STDERR};
-
-    public static void configureLoggerIfNoneExists(final String logOutputFilename, String log4jConfigFilename) {
-        if (log4jConfigFileInWorkingDir(log4jConfigFilename)) {
-            System.out.println("Logging based on config in " + log4jConfigFilename);
-            PropertyConfigurator.configure(log4jConfigFilename);
-            return;
-        }
-        // If there are no appenders, then Log4J is not configured, so we create a default one.
-        if (noLog4jFileInClasspath()) {
-            BasicConfigurator.configure();
-            Logger.getRootLogger().setLevel(Level.INFO);
-            Appender fileAppender = createFileAppender(logOutputFilename);
-            Logger.getRootLogger().addAppender(fileAppender);
-        }
-    }
 
     private static Appender createFileAppender(String logOutputFilename) {
         RollingFileAppender appender;
@@ -130,11 +110,4 @@ public class LoggingHelper {
                 || CONSOLE_NDC.STDERR.name().equals(appender.getName());
     }
 
-    private static boolean log4jConfigFileInWorkingDir(String log4jConfigFilename) {
-        return new File(log4jConfigFilename).isFile();
-    }
-
-    private static boolean noLog4jFileInClasspath() {
-        return !LogManager.getRootLogger().getAllAppenders().hasMoreElements();
-    }
 }

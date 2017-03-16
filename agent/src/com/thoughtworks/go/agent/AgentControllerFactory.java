@@ -83,7 +83,7 @@ public class AgentControllerFactory {
     }
 
     public AgentController createInstance() {
-        if (systemEnvironment.isWebsocketEnabled()) {
+        if (systemEnvironment.isWebsocketsForAgentsEnabled()) {
             LOG.info("Connecting to server using WebSockets");
             return new AgentWebSocketClientController(
                     server,

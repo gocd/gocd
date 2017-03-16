@@ -63,6 +63,7 @@ agent-bootstrapper/agent.jar
 agent-bootstrapper/exploded_agent_launcher_dependencies/
 agent-bootstrapper/target/
 agent-common/target/
+agent-launcher/logs/
 agent-launcher/target/
 agent-process-launcher/target/
 agent/logs/

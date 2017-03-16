@@ -50,6 +50,9 @@ sslverify=true
   echo 'source /opt/rh/rh-ruby22/enable' > /etc/profile.d/ruby-22.sh
   echo 'export PATH=/opt/rh/rh-ruby22/root/usr/local/bin:$PATH' >> /etc/profile.d/ruby-22.sh
 
+  # remove a sudo binary that messes things up
+  rm -f /opt/rh/devtoolset-6/root/usr/bin/sudo
+
   echo 'source /opt/rh/devtoolset-6/enable' > /etc/profile.d/gcc.sh
   echo 'PATH=$PATH:/opt/rh/devtoolset-6/root/usr/bin' >> /etc/profile.d/gcc.sh
 

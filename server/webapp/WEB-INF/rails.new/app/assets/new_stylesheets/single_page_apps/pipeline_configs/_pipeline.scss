@@ -219,3 +219,8 @@
     margin-top: 25px;
   }
 }
+
+.page-save-in-progress {
+  pointer-events: none;
+  opacity:        0.3;
+}

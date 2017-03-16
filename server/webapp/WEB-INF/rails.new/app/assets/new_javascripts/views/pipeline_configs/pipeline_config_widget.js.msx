@@ -97,6 +97,7 @@ define([
           }
 
           self.vm.updating();
+          m.redraw();
 
           self.pipeline().update(self.etag(), extractEtag).then(function (data) {
             ctrl.setPipelineAndPreserveSelection(Pipeline.fromJSON(data));
@@ -158,7 +159,7 @@ define([
         return (
           <form class='pipeline'>
             {header()}
-            <f.row class='pipeline-body'>
+            <f.row class={'pipeline-body ' + ctrl.vm.pageSaveState()}>
               {errors}
               <f.column end={true} size={12}>
                 <PipelineSettingsWidget pipeline={ctrl.pipeline}
@@ -170,6 +171,7 @@ define([
                 {pipelineFlowWidget()}
               </f.column>
             </f.row>
+            <f.row class={ctrl.vm.pageSaveSpinner()}/>
             {ctrl.modal.view()}
           </form>
         );

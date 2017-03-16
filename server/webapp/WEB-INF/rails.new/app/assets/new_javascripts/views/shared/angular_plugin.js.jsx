@@ -1,0 +1,134 @@
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+define(['mithril', 'lodash', 'jquery', 'angular'], function (m, _, $, angular) {
+
+
+  var appName = function (configuration) {
+    return 'app-' + configuration.uuid();
+  };
+
+  var controllerName = function (configuration) {
+    return 'controller-' + configuration.uuid();
+  };
+
+  var pluginTemplate = function (pluginInfo) {
+    return m.trust(AngularPlugin.template(pluginInfo.viewTemplate()));
+  };
+
+  function config(scope, args) {
+    var config = function (elem, isInitialized) {
+      if (!isInitialized) {
+        angular.module(appName(args.configuration()), []).controller(controllerName(args.configuration()), ['$scope', function ($scope) {
+          scope($scope);
+
+          $scope.addError = function (field) {
+            $scope.GOINPUTNAME[field.key] = {
+              $error: {
+                server: field.errors.join()
+              }
+            };
+          };
+
+          $scope.clearErrors = function () {
+            $scope.GOINPUTNAME = {};
+          };
+
+          var listeners = [];
+
+          function unregisterExistingListeners() {
+            if (listeners.length !== 0) {
+              // we are re-initializing, so get rid of old watches
+              _.map(listeners, function (listener) {
+                listener();
+              });
+            }
+          }
+
+          function copyOverErrors(configurations, config) {
+            var matchingConfig = configurations.findConfiguration(function (eachConfig) {
+              return eachConfig.key() === config.key;
+            });
+            if (matchingConfig && matchingConfig.errors().hasErrors(config.key)) {
+              $scope.addError({key: config.key, errors: matchingConfig.errors().errors(config.key)});
+            }
+          }
+
+          function addListeners(configurations, config) {
+            var listener = $scope.$watch(config.key, function (newValue) {
+              configurations.setConfiguration(config.key, newValue);
+            });
+            listeners.push(listener);
+          }
+
+          $scope.initialize = function (pluginInfo, configurations) {
+            unregisterExistingListeners();
+            $scope.clearErrors();
+
+            _.map(pluginInfo.configurations(), function (config) {
+              $scope[config.key] = configurations.valueFor(config.key);
+              addListeners(configurations, config);
+              copyOverErrors(configurations, config);
+            });
+
+            var supportedConfigKeys = _.map(pluginInfo.configurations(), function (config) {
+              return config.key;
+            });
+
+            configurations.removeConfiguration(function (configuration) {
+              return !_.includes(supportedConfigKeys, configuration.key());
+            });
+          };
+
+          $scope.initialize(args.pluginInfo(), args.configuration());
+        }]);
+
+        angular.bootstrap(elem, [appName(args.configuration())]);
+      } else {
+        scope().initialize(args.pluginInfo(), args.configuration());
+        scope().$apply();
+      }
+    };
+    return config;
+  }
+
+  var AngularPlugin = {
+    template: function (template) {
+      return $('<div></div>').html(template.replace(/GOINPUTNAME\[([^\]]*)\]/g, function (_match, name) {
+        return "GOINPUTNAME['" + name + "']";
+      })).html();
+    },
+
+    controller: function () {
+      this.$scope = m.prop();
+    },
+
+    view: function (ctrl, args) {
+      if (!args.pluginInfo()) {
+        return (<div/>);
+      }
+
+      return (
+        <div class='plugin-view'
+             ng-controller={controllerName(args.configuration())}
+             config={config(ctrl.$scope, args)}>
+          {pluginTemplate(args.pluginInfo())}
+        </div>
+      );
+    }
+  };
+
+  return AngularPlugin;
+});

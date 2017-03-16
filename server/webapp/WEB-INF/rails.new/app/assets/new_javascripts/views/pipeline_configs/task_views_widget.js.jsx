@@ -1,0 +1,157 @@
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+define([
+  'mithril', 'lodash', 'helpers/form_helper', 'string-plus', 'models/pipeline_configs/tasks',
+  'helpers/mithril_component_mixins',
+  'views/pipeline_configs/run_if_conditions_widget', 'views/pipeline_configs/task_basic_views_widget', 'views/pipeline_configs/cancel_task_widget',
+  'models/pipeline_configs/plugin_infos'
+], function (m, _, f, s, Tasks, ComponentMixins,
+             RunIfConditionsWidget, TaskBasicViews, CancelTaskWidget, PluginInfos) {
+
+  var TaskSummaryView = {
+    view: function (_ctrl, args) {
+      return (
+        <ul class='task-type'>
+          {_.map(args.task.summary(), function (v, k) {
+            return !s.isBlank(v) ? (<li><label class={_.toLower(k)}>{_.startCase(k)}</label> < span > {v}</span></li>) : undefined;
+          })}
+        </ul>
+      );
+    }
+  };
+
+  var TaskViews = {
+    base: {
+      controller: function (args) {
+        var self = this;
+        self.args = args;
+        var vmStateKey = 'taskEdit';
+
+        ComponentMixins.HasViewModel.call(this);
+        self.vmState(vmStateKey, m.prop(args.task.isEmpty() ? true : false));
+
+        self.isEditing = function () {
+          return self.vmState(vmStateKey)();
+        };
+
+        self.toggleIsEditing = function () {
+          var isEditing = self.vmState(vmStateKey)();
+          self.vmState(vmStateKey)(!isEditing);
+        };
+
+        self.taskDisplayName = function () {
+          return Tasks.isBuiltInTaskType(args.task.type()) ? args.task.type() : PluginInfos.findById(args.task.pluginId()).displayName();
+        };
+      },
+
+      view: function (ctrl, args, children) {
+        var classNameForTaskBody = function () {
+          return ctrl.isEditing() ? 'show' : 'hide';
+        };
+
+        return (
+          <div class={'task-definition task-type-' + args.task.type()} data-task-index={args.taskIndex}>
+            <div>
+              <f.row class="task-summary" onclick={ctrl.toggleIsEditing.bind(ctrl)}>
+                <f.column size={2} largeSize={2}><span>{ctrl.taskDisplayName()}</span></f.column>
+                <f.column size={6} largeSize={6}>
+                  {!ctrl.isEditing() ? <TaskSummaryView task={args.task}/> : undefined}
+                </f.column>
+                <f.column size={2} largeSize={2}>
+                  {!ctrl.isEditing() ? (<span>{_.capitalize(args.task.runIf().data().join(' '))}</span>) : undefined}
+                </f.column>
+                <f.column size={2} largeSize={2}>
+                  {!ctrl.isEditing() ? (<span>{_.isNil(args.task.onCancelTask) ? 'No' : args.task.onCancelTask.type()}</span>) : undefined}
+                  <div class='actions'>
+                    <f.removeButton onclick={args.onRemove} class="remove-task"/>
+                    <f.editButton class={ctrl.isEditing() ? 'done' : null}/>
+                  </div>
+                </f.column>
+              </f.row>
+              <div class={_.compact(["task-body", classNameForTaskBody()]).join(' ')}>
+                {children}
+                <RunIfConditionsWidget task={args.task}/>
+                <CancelTaskWidget task={args.task}/>
+              </div>
+            </div>
+          </div>
+        );
+      }
+    },
+
+    ant: {
+      view: function (_ctrl, args) {
+        return (
+          <TaskViews.base {...args}>
+            <TaskBasicViews.ant {...args}/>
+          </TaskViews.base>
+        );
+      }
+    },
+
+    nant: {
+      view: function (_ctrl, args) {
+        return (
+          <TaskViews.base {...args}>
+            <TaskBasicViews.nant {...args}/>
+          </TaskViews.base>
+        );
+      }
+    },
+
+    exec: {
+      view: function (_ctrl, args) {
+        return (
+          <TaskViews.base {...args}>
+            <TaskBasicViews.exec {...args}/>
+          </TaskViews.base>
+        );
+      }
+    },
+
+    rake: {
+      view: function (_ctrl, args) {
+        return (
+          <TaskViews.base {...args}>
+            <TaskBasicViews.rake {...args}/>
+          </TaskViews.base>
+        );
+      }
+    },
+
+    fetch: {
+      view: function (_ctrl, args) {
+        return (
+          <TaskViews.base {...args}>
+            <TaskBasicViews.fetch {...args}/>
+          </TaskViews.base>
+        );
+      }
+    },
+
+    pluggable_task: { //eslint-disable-line camelcase
+      view: function (_ctrl, args) {
+        return (
+          <TaskViews.base {...args}>
+            <TaskBasicViews.pluggable_task {...args}/>
+          </TaskViews.base>
+        );
+      }
+    }
+  };
+  return TaskViews;
+});

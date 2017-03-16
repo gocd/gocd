@@ -172,8 +172,8 @@ public class AgentWebSocketClientControllerTest {
 
     @Test
     public void processAssignWorkActionWithConsoleLogsThroughWebsockets() throws IOException, InterruptedException {
-        System.setProperty("go.agent.websocket.enabled", "Y");
-        System.setProperty("go.agent.console.logs.websocket.enabled", "Y");
+        System.setProperty(SystemEnvironment.WEBSOCKET_ENABLED.propertyName(), "Y");
+        System.setProperty(SystemEnvironment.CONSOLE_LOGS_THROUGH_WEBSOCKET_ENABLED.propertyName(), "Y");
         ArgumentCaptor<Message> argumentCaptor = ArgumentCaptor.forClass(Message.class);
         agentController = createAgentController();
         agentController.init();

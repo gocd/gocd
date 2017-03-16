@@ -33,7 +33,7 @@ import static org.hibernate.cfg.Environment.GENERATE_STATISTICS;
  * @understands how to run a local development mode webserver so we can develop live
  * Set the following before running the main method:
  * Working directory: <project-path>/server
- * VM arguments: -Xms512m -Xmx1024m -XX:PermSize=400m -Djava.awt.headless=true
+ * VM arguments: -Xms512m -Xmx1024m -Djava.awt.headless=true
  * classpath: Use classpath of 'development-server'
  */
 

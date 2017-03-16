@@ -60,8 +60,6 @@
                 <string>512</string>
                 <key>cruise.server.maxmem</key>
                 <string>1024</string>
-                <key>cruise.server.permgen</key>
-                <string>128</string>
                 <key>cruise.server.maxpermgen</key>
                 <string>256</string>
                 <key>cruise.server.lang</key>

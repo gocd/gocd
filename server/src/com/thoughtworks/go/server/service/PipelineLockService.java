@@ -25,7 +25,6 @@ import com.thoughtworks.go.domain.PipelineState;
 import com.thoughtworks.go.domain.StageIdentifier;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
-import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.dao.PipelineStateDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -65,9 +64,7 @@ public class PipelineLockService implements ConfigChangedListener {
 
     public void lockIfNeeded(Pipeline pipeline) {
         if (goConfigService.isLockable(pipeline.getName())) {
-            synchronized (pipeline.getName().toLowerCase()) {
-                pipelineStateDao.lockPipeline(pipeline);
-            }
+            pipelineStateDao.lockPipeline(pipeline);
         }
     }
 
@@ -76,20 +73,16 @@ public class PipelineLockService implements ConfigChangedListener {
     }
 
     public StageIdentifier lockedPipeline(String pipelineName) {
-        synchronized (pipelineName.toLowerCase()) {
-            PipelineState pipelineState = pipelineStateDao.lockedPipeline(pipelineName);
-            if (pipelineState != null && pipelineState.isLocked()) {
-                return pipelineState.getLockedBy();
-            } else {
-                return null;
-            }
+        PipelineState pipelineState = pipelineStateDao.lockedPipeline(pipelineName);
+        if (pipelineState != null && pipelineState.isLocked()) {
+            return pipelineState.getLockedBy();
+        } else {
+            return null;
         }
     }
 
     public void unlock(String pipelineName) {
-        synchronized (pipelineName.toLowerCase()) {
-            pipelineStateDao.unlockPipeline(pipelineName);
-        }
+        pipelineStateDao.unlockPipeline(pipelineName);
     }
 
     public boolean canScheduleStageInPipeline(PipelineIdentifier pipeline) {

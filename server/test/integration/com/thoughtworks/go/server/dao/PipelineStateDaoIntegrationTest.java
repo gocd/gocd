@@ -104,18 +104,19 @@ public class PipelineStateDaoIntegrationTest {
 
     @Test
     public void shouldBombWhenLockingPipelineThatHasAlreadyBeenLocked() throws Exception {
-        Pipeline minglePipeline1 = schedulePipelineWithStages(PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", "defaultStage"));
-        Pipeline minglePipeline2 = schedulePipelineWithStages(PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", "defaultStage"));
+        String pipelineName = UUID.randomUUID().toString();
+        Pipeline minglePipeline1 = schedulePipelineWithStages(PipelineMother.twoBuildPlansWithResourcesAndMaterials(pipelineName, "defaultStage"));
+        Pipeline minglePipeline2 = schedulePipelineWithStages(PipelineMother.twoBuildPlansWithResourcesAndMaterials(pipelineName, "defaultStage"));
 
         pipelineStateDao.lockPipeline(minglePipeline1);
 
-        assertThat(pipelineStateDao.lockedPipeline("mingle").getLockedBy(), is(minglePipeline1.getFirstStage().getIdentifier()));
+        assertThat(pipelineStateDao.lockedPipeline(pipelineName).getLockedBy(), is(minglePipeline1.getFirstStage().getIdentifier()));
 
         try {
             pipelineStateDao.lockPipeline(minglePipeline2);
             fail("Should not be able to lock a different instance of an already locked pipeline");
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("Pipeline 'mingle' is already locked (counter = 1)"));
+            assertThat(e.getMessage(), is(String.format("Pipeline '%s' is already locked (counter = 1)", pipelineName)));
         }
     }
 

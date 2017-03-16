@@ -40,6 +40,8 @@ import org.springframework.orm.ibatis.SqlMapClientTemplate;
 import org.springframework.transaction.support.SimpleTransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 
+import java.util.UUID;
+
 import static com.thoughtworks.go.domain.PipelineState.NOT_LOCKED;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -102,7 +104,7 @@ public class PipelineStateDaoCachingTest {
 
     @Test
     public void lockedPipeline_shouldReturnNullIfPipelineIsNotLocked() throws Exception {
-        String pipelineName = "mingle";
+        String pipelineName = UUID.randomUUID().toString();
         pipelineStateDao.lockedPipeline(pipelineName);
         PipelineState actual = pipelineStateDao.lockedPipeline(pipelineName);
 

@@ -61,8 +61,13 @@ const AgentRowWidget = {
     const environments    = joinOrNoneSpecified(agent.environments());
     let agentStatus       = agent.status();
     const isBuildingAgent = !agent.buildDetails().isEmpty();
+    const isElasticAgent  = agent.isElasticAgent();
     let selectAgentCheckbox;
     let hostnameLink      = <span>{agent.hostname()}</span>;
+
+    if (isElasticAgent) {
+      agent.fetchElasticAgentIcon();
+    }
 
     if (isBuildingAgent) {
       agentStatus = <f.link onclick={ctrl.buildDetailsClicked.bind(ctrl, agent.uuid())}
@@ -85,6 +90,9 @@ const AgentRowWidget = {
       <tr key={agent.uuid()} class={agent.status().toLowerCase()}>
         <td key="checkbox">
           {selectAgentCheckbox}
+        </td>
+        <td key="agentIcon">
+          <img class='agent-icon' src={ isElasticAgent ? agent.elasticAgentIcon() : ''} />
         </td>
         <td key="hostname">
           {hostnameLink}

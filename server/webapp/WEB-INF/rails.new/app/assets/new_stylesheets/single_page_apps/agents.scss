@@ -222,15 +222,16 @@ $arrow-color: #000;
   margin:        0;
 
   $column-widths: (
-                    "1": 2%,
-                    "2": 13%,
-                    "3": 7%,
-                    "4": 10%,
+                    "1": 1%,
+                    "2": 2%,
+                    "3": 13%,
+                    "4": 7%,
                     "5": 10%,
-                    "6": 7%,
-                    "7": 11%,
-                    "8": 22%,
-                    "9": 18%,
+                    "6": 10%,
+                    "7": 7%,
+                    "8": 9%,
+                    "9": 22%,
+                    "10": 18%,
                   );
 
   @each $key, $val in $column-widths {
@@ -266,6 +267,14 @@ $arrow-color: #000;
   td {
     word-break:    break-all;
     border-bottom: 1px dotted #ddd;
+
+    .agent-icon {
+      height: 25%;
+
+      &[src=''] {
+        display: none;
+      }
+    }
   }
   .select-agent {
     margin: 0;

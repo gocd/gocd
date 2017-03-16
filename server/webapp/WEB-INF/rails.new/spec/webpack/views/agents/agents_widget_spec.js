@@ -111,16 +111,17 @@ describe("Agents Widget", () => {
   it('should contain the agent row information', () => {
     const agentInfo      = $root.find('table tbody tr')[0];
     const firstAgentInfo = $(agentInfo).find('td');
-    expect(firstAgentInfo).toHaveLength(9);
+    expect(firstAgentInfo).toHaveLength(10);
     expect($(firstAgentInfo[0]).find(':checkbox')).toExist();
-    expect(firstAgentInfo[1]).toHaveText('host-1');
-    expect(firstAgentInfo[2]).toHaveText('usr/local/foo');
-    expect(firstAgentInfo[3]).toHaveText('Linux');
-    expect(firstAgentInfo[4]).toHaveText('10.12.2.200');
-    expect(firstAgentInfo[5]).toContainText('Disabled (Building)');
-    expect(firstAgentInfo[6]).toHaveText('Unknown');
-    expect(firstAgentInfo[7]).toHaveText('Firefox');
-    expect(firstAgentInfo[8]).toHaveText('Dev, Test');
+    expect(firstAgentInfo[1]).toContainElement('img');
+    expect(firstAgentInfo[2]).toHaveText('host-1');
+    expect(firstAgentInfo[3]).toHaveText('usr/local/foo');
+    expect(firstAgentInfo[4]).toHaveText('Linux');
+    expect(firstAgentInfo[5]).toHaveText('10.12.2.200');
+    expect(firstAgentInfo[6]).toContainText('Disabled (Building)');
+    expect(firstAgentInfo[7]).toHaveText('Unknown');
+    expect(firstAgentInfo[8]).toHaveText('Firefox');
+    expect(firstAgentInfo[9]).toHaveText('Dev, Test');
   });
 
   it('should select all the agents when selectAll checkbox is checked', () => {
@@ -323,7 +324,7 @@ describe("Agents Widget", () => {
 
   it('should allow sorting', () => {
     const getHostnamesInTable = () => {
-      const hostnameCells = $root.find(".go-table tbody td:nth-child(2)");
+      const hostnameCells = $root.find(".go-table tbody td:nth-child(3)");
 
       return hostnameCells.map((_i, cell) => $(cell).text()).toArray();
     };
@@ -435,14 +436,14 @@ describe("Agents Widget", () => {
   });
 
   it('should show build details dropdown for building agent', () => {
-    let buildingAgentStatus = $root.find(".agents-table tbody td:nth-child(6)")[0];
+    let buildingAgentStatus = $root.find(".agents-table tbody td:nth-child(7)")[0];
     expect(buildingAgentStatus).not.toHaveClass('is-open');
     const buildingDetailsLink = $(buildingAgentStatus).find('.has-build-details-drop-down')[0];
 
     $(buildingDetailsLink).click();
     m.redraw();
 
-    buildingAgentStatus = $root.find(".agents-table tbody td:nth-child(6)")[0];
+    buildingAgentStatus = $root.find(".agents-table tbody td:nth-child(7)")[0];
     expect(buildingAgentStatus).toHaveClass('is-open');
   });
 

@@ -244,6 +244,7 @@ Agents.Agent = function (data) {
   this.buildDetails      = Stream(data.buildDetails);
   this.elasticAgentId    = Stream(data.elasticAgentId);
   this.elasticPluginId   = Stream(data.elasticPluginId);
+  this.elasticAgentIcon  = Stream();
   this.parent            = Mixins.GetterSetter();
 
   this.status = function () {
@@ -271,6 +272,18 @@ Agents.Agent = function (data) {
     return _.some(keys, (field) => {
       const agentInfo = self[field]().toString().toLowerCase();
       return s.include(agentInfo, filterText);
+    });
+  };
+
+  this.fetchElasticAgentIcon = function() {
+    $.ajax({
+      method:     'GET',
+      url:        Routes.apiv3AdminPluginInfoPath(self.elasticPluginId()),
+      timeout:    mrequest.timeout,
+      beforeSend: mrequest.xhrConfig.forVersion("v3"),
+      async: false
+    }).success((data) => {
+      self.elasticAgentIcon(data["_links"]["image"]["href"]);
     });
   };
 

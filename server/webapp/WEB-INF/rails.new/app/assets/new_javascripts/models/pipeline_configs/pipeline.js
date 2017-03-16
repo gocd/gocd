@@ -159,6 +159,8 @@ define([
       }
 
       this.saveState('alert');
+      this.pageSaveSpinner('');
+      this.pageSaveState('');
     };
 
     this.saveSuccess = function () {

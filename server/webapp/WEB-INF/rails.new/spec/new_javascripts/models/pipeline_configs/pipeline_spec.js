@@ -226,6 +226,95 @@ define(['mithril', 'jquery', "models/pipeline_configs/pipeline", 'models/pipelin
       });
     });
 
+    describe('Pipeline VM', () => {
+      let vm;
+
+      beforeEach(() => {
+        vm = new Pipeline.vm();
+      });
+
+      it('should initalize save state to empty', () => {
+        expect(vm.saveState()).toBe('');
+        expect(vm.pageSaveSpinner()).toBe('');
+        expect(vm.pageSaveState()).toBe('');
+      });
+
+      it('should change the page state while updating', () => {
+        vm.updating();
+
+        expect(vm.saveState()).toBe('in-progress disabled');
+        expect(vm.pageSaveSpinner()).toBe('page-spinner');
+        expect(vm.pageSaveState()).toBe('page-save-in-progress');
+      });
+
+      it('should change the page status to sucess when updating page results in sucess', () => {
+        vm.saveSuccess();
+
+        expect(vm.saveState()).toBe('success');
+        expect(vm.pageSaveSpinner()).toBe('');
+        expect(vm.pageSaveState()).toBe('');
+      });
+
+      it('should change the page status to failure when updating page results in failure', () => {
+        vm.updating();
+
+        expect(vm.saveState()).toBe('in-progress disabled');
+        expect(vm.pageSaveSpinner()).toBe('page-spinner');
+        expect(vm.pageSaveState()).toBe('page-save-in-progress');
+
+        vm.saveFailed({});
+
+        expect(vm.saveState()).toBe('alert');
+        expect(vm.pageSaveSpinner()).toBe('');
+        expect(vm.pageSaveState()).toBe('');
+      });
+
+      it('should populate errors', () => {
+        expect(vm.errors()).toEqual([]);
+        const failureMessage = 'Save failed!';
+        const entityError    = 'This is an entity related error!';
+        vm.saveFailed({
+          message: failureMessage,
+          data:    {
+            errors: [entityError]
+          }
+        });
+
+        expect(vm.errors()).toEqual([failureMessage, entityError]);
+      });
+
+      it('should reset the page to default state', () => {
+        vm.saveState('success');
+        expect(vm.saveState()).toBe('success');
+        vm.defaultState();
+        expect(vm.saveState()).toBe('');
+      });
+
+      it('should clear all errors', () => {
+        const err = 'Save failed!';
+        vm.saveFailed({message: err});
+        expect(vm.errors()).toEqual([err]);
+        vm.clearErrors();
+        expect(vm.errors()).toEqual([]);
+      });
+
+      it('should tell whether there are errors', () => {
+        expect(vm.hasErrors()).toBe(false);
+
+        const err = 'Save failed!';
+        vm.saveFailed({message: err});
+        expect(vm.errors()).toEqual([err]);
+        expect(vm.hasErrors()).toBe(true);
+      });
+
+      it('should populate generic global error while populating client side errors', () => {
+        expect(vm.hasErrors()).toBe(false);
+        vm.markClientSideErrors();
+        expect(vm.hasErrors()).toBe(true);
+        expect(vm.errors()[0]).toEqual('There are errors on the page, fix them and save');
+      });
+    });
+
     function samplePipelineJSON() {
       /* eslint-disable camelcase */
       return {

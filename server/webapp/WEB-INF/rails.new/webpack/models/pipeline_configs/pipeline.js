@@ -191,6 +191,8 @@ Pipeline.vm = function () {
     }
 
     this.saveState('alert');
+    this.pageSaveSpinner('');
+    this.pageSaveState('');
   };
 
   this.saveSuccess = function () {

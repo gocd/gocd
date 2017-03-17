@@ -242,6 +242,13 @@ describe ApiV3::Admin::TemplatesController do
         expect(controller).to allow_action(:post, :create)
       end
 
+      it 'should allow pipeline group admins, with security enabled' do
+        enable_security
+        login_as_group_admin
+
+        expect(controller).to allow_action(:post, :create)
+      end
+
       it 'show disallow template admin, with security enabled' do
         login_as_template_admin
 

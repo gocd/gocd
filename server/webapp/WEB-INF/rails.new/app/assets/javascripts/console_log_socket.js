@@ -17,38 +17,69 @@
 (function($) {
   "use strict";
 
-  function buildWebSocketUrl() {
-    var details = $(".job_details_content");
-    var l = document.location;
-    var protocol = l.protocol.replace("http", "ws"), host = l.host, path = [
-      "client-websocket",
-      details.data("pipeline"),
-      details.data("pipeline-label"),
-      details.data("stage"),
-      details.data("stage-counter"),
-      details.data("build")
-    ].join("/");
+  function startTailingConsole(observer) {
+    var startLine = 0, socket, ansi = ansi_up.ansi_to_html_obj();
 
-    return protocol + "//" + host + context_path(path);
-  }
+    var details = $(".job_details_content"), contentArea = $(".buildoutput_pre");
 
-  function displayOutput(e) {
-    var build_output = e.data;
-    if (build_output) {
-      var lines = build_output.match(/^.*([\n\r]+|$)/gm);
-      while (lines.length) {
-        var slice        = lines.splice(0, 1000);
-        var htmlContents = ansi_up.ansi_to_html_obj().ansi_to_html(slice.join("").escapeHTML(), {use_classes: true});
-        jQuery('.buildoutput_pre').append(htmlContents);
-        if (observer.enableTailing) {
-          observer.scrollToBottom();
+    if (!details.length) return;
+
+    function endpointUrl(startLine) {
+      var l = document.location;
+      var protocol = l.protocol.replace("http", "ws"), host = l.host, path = [
+        "client-websocket",
+        details.data("pipeline"),
+        details.data("pipeline-label"),
+        details.data("stage"),
+        details.data("stage-counter"),
+        details.data("build")
+      ].join("/");
+
+      return protocol + "//" + host + context_path(path) + "?startLine=" + startLine;
+    }
+
+    function init() {
+      socket = new WebSocket(endpointUrl(startLine));
+
+      socket.addEventListener("message", renderLines);
+      socket.addEventListener("error", maybeResume);
+      socket.addEventListener("close", maybeResume);
+    }
+
+    function maybeResume(e) {
+      if ((e instanceof CloseEvent || e.type === "close") && e.wasClean) {
+        startLine = 0;
+        return;
+      } else {
+        // assume connection closed abnormally - e.g. network disconnect
+        socket.close();
+      }
+      setTimeout(500, init);
+    }
+
+    function renderLines(e) {
+      var build_output = e.data, lines, slices = [];
+
+      function dequeueConsoleSlice() {
+        contentArea.append(slices.shift().join("\n") + "\n"); // ensure terminal newline
+        if (observer.enableTailing) observer.scrollToBottom();
+      }
+
+      if (build_output) {
+        lines = ansi.ansi_to_html(ansi.escape_for_html(build_output), {use_classes: true}).split(/\r?\n/);
+
+        while (lines.length > 0) {
+          slices.push(lines.splice(0, 250));
+
+          window.requestAnimationFrame(dequeueConsoleSlice);
         }
+
+        startLine += lines.length;
       }
     }
+
+    init();
   }
 
-  $(function() {
-    var logWebsocket = new WebSocket(buildWebSocketUrl());
-    logWebsocket.addEventListener('message', displayOutput);
-  });
+  window.startTailingConsole = startTailingConsole;
 })(jQuery);

@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.domain.ConsoleOut;
+import com.thoughtworks.go.domain.ConsoleStreamer;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.LocatableEntity;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
@@ -32,6 +33,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 
 import static com.thoughtworks.go.util.ArtifactLogUtil.getConsoleOutputFolderAndFileName;
 
@@ -57,6 +59,11 @@ public class ConsoleService {
     public void initialize() {
         chooser.add(new PathBasedArtifactsLocator(artifactsDirHolder.getArtifactsDir()));
         chooser.add(new BuildIdArtifactLocator(artifactsDirHolder.getArtifactsDir()));
+    }
+
+    public ConsoleStreamer getStreamer(long startingLine, JobIdentifier identifier) throws IllegalArtifactLocationException {
+        Path path = findConsoleArtifact(identifier).toPath();
+        return new ConsoleStreamer(path, startingLine);
     }
 
     ConsoleOut getConsoleOut(int startingLine, InputStream inputStream) throws IOException {

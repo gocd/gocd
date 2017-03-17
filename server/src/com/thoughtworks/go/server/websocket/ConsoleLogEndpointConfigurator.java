@@ -23,6 +23,8 @@ import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.UserService;
 import com.thoughtworks.go.server.util.UserHelper;
 import org.apache.commons.lang.reflect.FieldUtils;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.eclipse.jetty.websocket.api.UpgradeResponse;
 import org.springframework.security.Authentication;
 import org.springframework.security.context.SecurityContext;
@@ -37,6 +39,8 @@ import java.io.IOError;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
 
 import static org.springframework.security.context.HttpSessionContextIntegrationFilter.SPRING_SECURITY_CONTEXT_KEY;
 
@@ -56,10 +60,22 @@ public class ConsoleLogEndpointConfigurator extends ServerEndpointConfig.Configu
             return;
         }
 
-        sec.getUserProperties().put("handler", wac.getBean(ClientRemoteHandler.class));
+        Optional<NameValuePair> startLine = parseStartLine(request);
+
+        sec.getUserProperties().put("startLine", startLine.isPresent() ? Long.valueOf(startLine.get().getValue()) : 0L);
+        sec.getUserProperties().put("sender", wac.getBean(ConsoleLogSender.class));
         sec.getUserProperties().put("restfulService", wac.getBean(RestfulService.class));
 
         super.modifyHandshake(sec, request, response);
+    }
+
+    private Optional<NameValuePair> parseStartLine(HandshakeRequest request) {
+        return URLEncodedUtils.parse(request.getRequestURI(), "UTF-8").stream().filter(new Predicate<NameValuePair>() {
+            @Override
+            public boolean test(NameValuePair pair) {
+                return "startLine".equals(pair.getName());
+            }
+        }).findFirst();
     }
 
     boolean isAuthenticated(SecurityContext context) {
@@ -78,11 +94,8 @@ public class ConsoleLogEndpointConfigurator extends ServerEndpointConfig.Configu
 
         User user = getUser(userService, authentication);
 
-        if (!user.isEnabled()) {
-            return false;
-        }
+        return user.isEnabled() && securityService.hasViewPermissionForPipeline(user.getUsername(), pipelineName);
 
-        return securityService.hasViewPermissionForPipeline(user.getUsername(), pipelineName);
     }
 
     private User getUser(UserService userService, Authentication authentication) {

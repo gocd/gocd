@@ -46,9 +46,12 @@ public class ConsoleLogEndpoint {
         this.session = session;
         LOGGER.debug("{} connected.", this);
 
-        ClientRemoteHandler handler = (ClientRemoteHandler) config.getUserProperties().get("handler");
+        Long start = (Long) config.getUserProperties().get("startLine");
+        ConsoleLogSender sender = (ConsoleLogSender) config.getUserProperties().get("sender");
         JobIdentifier jobIdentifier = getJobIdentifier(config, pipelineName, pipelineLabel, stageName, stageCounter, jobName);
-        handler.process(this, jobIdentifier);
+
+        LOGGER.info("Sending logs for {} starting at line {}", jobIdentifier, start);
+        sender.process(this, jobIdentifier, start);
     }
 
     public void send(String msg) throws IOException {

@@ -83,7 +83,7 @@ const ElasticProfileModalBody = {
     return (
       <div>
         <f.row collapse="true">
-          <f.row key="static-stuff" class="id-and-plugin-id-wrapper">
+          <div class='row' key="static-stuff">
             <f.inputWithLabel model={vnode.attrs.profile()}
                               attrName="id"
                               validate="true"
@@ -102,7 +102,7 @@ const ElasticProfileModalBody = {
                       size={6}
                       end={"true"}/>
 
-          </f.row>
+          </div>
         </f.row>
 
         <div class="row collapse">

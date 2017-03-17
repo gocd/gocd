@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.domain.ConsoleOut;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.LocatableEntity;
 import com.thoughtworks.go.helper.JobIdentifierMother;
@@ -27,12 +26,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.IOException;
 
 import static com.thoughtworks.go.util.ArtifactLogUtil.getConsoleOutputFolderAndFileName;
-import static java.lang.System.getProperty;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
@@ -53,24 +49,6 @@ public class ConsoleServiceTest {
     @After
     public void tearDown() throws Exception {
         testFolder.delete();
-    }
-
-    @Test
-    public void shouldReturnConsoleUpdates() throws IOException {
-        String separator = getProperty("line.separator");
-        String output = "line1" + separator + "line2" + separator + "line3";
-        ByteArrayInputStream stream = new ByteArrayInputStream(output.getBytes());
-
-        ConsoleOut consoleOut = service.getConsoleOut(0, stream);
-        assertThat(consoleOut.output(), is(output + separator));
-        assertThat(consoleOut.calculateNextStart(), is(3));
-
-        output += separator + "line4" + separator + "line5";
-
-        stream = new ByteArrayInputStream(output.getBytes());
-        consoleOut = service.getConsoleOut(3, stream);
-        assertThat(consoleOut.output(), is("line4" + separator + "line5" + separator));
-        assertThat(consoleOut.calculateNextStart(), is(5));
     }
 
     @Test

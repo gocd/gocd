@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.controller;
 
-import com.thoughtworks.go.domain.ConsoleOut;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.server.cache.ZipArtifactCache;
@@ -38,7 +37,6 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -47,7 +45,6 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -238,28 +235,6 @@ public class ArtifactsController {
     }
 
     /* Other URLs */
-
-    @RequestMapping(value = "/**/consoleout.json", method = RequestMethod.GET)
-    public ModelAndView consoleout(@RequestParam("pipelineName") String pipelineName,
-                                   @RequestParam("pipelineLabel") String counterOrLabel,
-                                   @RequestParam("stageName") String stageName,
-                                   @RequestParam("buildName") String buildName,
-                                   @RequestParam(value = "stageCounter", required = false) String stageCounter,
-                                   @RequestParam(value = "startLineNumber", required = false) Integer start
-    ) throws Exception {
-
-        int startLine = start == null ? 0 : start;
-        try {
-            JobIdentifier identifier = restfulService.findJob(pipelineName, counterOrLabel, stageName, stageCounter,
-                    buildName);
-            ConsoleOut consoleOut = consoleService.getConsoleOut(identifier, startLine);
-            return new ModelAndView(new ConsoleOutView(consoleOut.calculateNextStart(), consoleOut.output()));
-        } catch (FileNotFoundException e) {
-            return new ModelAndView(new ConsoleOutView(0, ""));
-        } catch (Exception e) {
-            return buildNotFound(pipelineName, counterOrLabel, stageName, stageCounter, buildName);
-        }
-    }
 
     @ErrorHandler
     public ModelAndView handleError(HttpServletRequest request, HttpServletResponse response, Exception e) {

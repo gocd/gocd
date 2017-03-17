@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.domain.ConsoleOut;
 import com.thoughtworks.go.domain.ConsoleStreamer;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.LocatableEntity;
@@ -24,7 +23,6 @@ import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.server.view.artifacts.ArtifactDirectoryChooser;
 import com.thoughtworks.go.server.view.artifacts.BuildIdArtifactLocator;
 import com.thoughtworks.go.server.view.artifacts.PathBasedArtifactsLocator;
-import com.thoughtworks.go.util.FileUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
@@ -32,7 +30,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 
 import static com.thoughtworks.go.util.ArtifactLogUtil.getConsoleOutputFolderAndFileName;
@@ -66,34 +63,6 @@ public class ConsoleService {
         return new ConsoleStreamer(path, startingLine);
     }
 
-    ConsoleOut getConsoleOut(int startingLine, InputStream inputStream) throws IOException {
-        int lineNumber = 0;
-
-        StringBuilder builder = new StringBuilder();
-        try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-            String consoleLine;
-            while (null != (consoleLine = reader.readLine())) {
-                if (lineNumber >= startingLine) {
-                    builder.append(consoleLine);
-                    builder.append(FileUtil.lineSeparator());
-                }
-                lineNumber++;
-            }
-        } catch (FileNotFoundException ex) {
-            String message = "Could not read console out: " + ex.getMessage();
-            LOGGER.error(message);
-            LOGGER.trace(message, ex);
-        } finally {
-            inputStream.close();
-        }
-        return new ConsoleOut(builder.toString(), startingLine, lineNumber);
-    }
-
-    public ConsoleOut getConsoleOut(JobIdentifier identifier, int startingLine) throws IOException, IllegalArtifactLocationException {
-        return getConsoleOut(startingLine, new FileInputStream(findConsoleArtifact(identifier)));
-    }
-
     public File findConsoleArtifact(JobIdentifier identifier) throws IllegalArtifactLocationException {
         File file = chooser.temporaryConsoleFile(identifier);
         if (!file.exists()) {
@@ -101,7 +70,6 @@ public class ConsoleService {
         }
         return file;
     }
-
 
     public File consoleLogFile(JobIdentifier jobIdentifier) throws IllegalArtifactLocationException {
         File file = chooser.temporaryConsoleFile(jobIdentifier);

@@ -428,64 +428,6 @@ public class ArtifactsControllerIntegrationTest {
     }
 
     @Test
-    public void shouldReturnBuildOutputAsPlainText() throws Exception {
-        String firstLine = "Chris sucks.\n";
-        String secondLine = "Build succeeded.";
-        prepareConsoleOut(firstLine + secondLine + "\n");
-        Stage firstStage = pipeline.getFirstStage();
-        int startLineNumber = 1;
-        ModelAndView view = artifactsController.consoleout(pipeline.getName(), pipeline.getLabel(),
-                firstStage.getName(),
-                "build", String.valueOf(firstStage.getCounter()), startLineNumber);
-
-        assertThat(view.getView(), is(instanceOf(ConsoleOutView.class)));
-        assertThat(((ConsoleOutView) view.getView()).getOffset(), is(2));
-        assertThat(((ConsoleOutView) view.getView()).getContent(), containsString("Build succeeded."));
-    }
-
-    @Test
-    public void shouldStartAtBeginningWhenNoStartParameterIsGiven() throws Exception {
-        String firstLine = "Chris sucks.";
-        String secondLine = "Build succeeded.";
-        prepareConsoleOut(firstLine + "\n" + secondLine + "\n");
-        Stage firstStage = pipeline.getFirstStage();
-        ModelAndView view = artifactsController.consoleout(pipeline.getName(), pipeline.getLabel(),
-                firstStage.getName(),
-                "build", String.valueOf(firstStage.getCounter()), null);
-
-        assertThat(view.getView(), is(instanceOf(ConsoleOutView.class)));
-        assertThat(((ConsoleOutView) view.getView()).getOffset(), is(2));
-        assertThat(((ConsoleOutView) view.getView()).getContent(), containsString("Chris sucks."));
-        assertThat(((ConsoleOutView) view.getView()).getContent(), containsString("Build succeeded."));
-    }
-
-    @Test
-    public void nextLineShouldEqualsStartLineWhenNoOutputReturns() throws Exception {
-        prepareConsoleOut("");
-        Stage firstStage = pipeline.getFirstStage();
-        int startLineNumber = 0;
-        ModelAndView view = artifactsController.consoleout(pipeline.getName(), pipeline.getLabel(),
-                firstStage.getName(),
-                "build", String.valueOf(firstStage.getCounter()), startLineNumber);
-
-        assertThat(view.getView(), is(instanceOf(ConsoleOutView.class)));
-        assertThat(((ConsoleOutView) view.getView()).getOffset(), is(0));
-        assertThat(((ConsoleOutView) view.getView()).getContent(), is(""));
-    }
-
-    @Test
-    public void testConsoleOutShouldReturn404WhenJobIsNotFound() throws Exception {
-        prepareConsoleOut("");
-        Stage firstStage = pipeline.getFirstStage();
-        int startLineNumber = 0;
-        ModelAndView view = artifactsController.consoleout("snafu", "snafu", "snafu", "build", String.valueOf(firstStage.getCounter()), startLineNumber);
-
-        assertThat(view.getView().getContentType(), is(RESPONSE_CHARSET));
-        assertThat(view.getView(), is(instanceOf((ResponseCodeView.class))));
-        assertThat(((ResponseCodeView) view.getView()).getContent(), containsString("Job snafu/snafu/snafu/1/build not found."));
-    }
-
-    @Test
     public void shouldSaveChecksumFileInTheCruiseOutputFolder() throws Exception {
         File fooFile = createFile(artifactsRoot, "/tmp/foobar.html");
         FileUtils.writeStringToFile(fooFile, "FooBarBaz...");

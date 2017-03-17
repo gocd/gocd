@@ -36,16 +36,21 @@ public class ConsoleTransmission implements Serializable, Transmission {
     @Expose
     private String buildId;
     @Expose
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss.SSS");
+    private String timestamp;
 
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("HH:mm:ss.SSS");
 
     public ConsoleTransmission(String line, JobIdentifier jobIdentifier) {
         this.line = line;
+        // Dates don't serialize well (or at least with enough precision), so bake the timestamp as a String
+        this.timestamp = DATE_FORMAT.format(new Date());
         this.jobIdentifier = jobIdentifier;
     }
 
     public ConsoleTransmission(String line, String buildId) {
         this.line = line;
+        // Dates don't serialize well (or at least with enough precision), so bake the timestamp as a String
+        this.timestamp = DATE_FORMAT.format(new Date());
         this.buildId = buildId;
     }
 
@@ -54,7 +59,7 @@ public class ConsoleTransmission implements Serializable, Transmission {
     }
 
     public String getLine() {
-        return format("%s %s\n", dateFormat.format(new Date()), line);
+        return format("%s %s", timestamp, line) + "\n";
     }
 
     @Override

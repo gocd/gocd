@@ -2,165 +2,168 @@
 <%- @view_title = l.string("ADMINISTRATION") %>
 
 <div class="group_pipelines">
-	<h1>
-        Pipelines
-		<span class="title_secondary_info">
+  <h1>
+    Pipelines
+    <span class="title_secondary_info">
 			<% if @groups.size() == 0 %>
                 <%= link_to l.string("ADD_FIRST_PIPELINE"), pipeline_new_path(:group => com.thoughtworks.go.config.PipelineConfigs::DEFAULT_GROUP), :class => "link_as_button primary add_pipeline_to_group" -%>
 		    <% end %>
-		    <% if is_user_an_admin? %>
+      <% if is_user_an_admin? %>
 		            <a href="#" class="link_as_button primary" onclick="Modalbox.show('<%= pipeline_group_new_path -%>', {overlayClose: false,title: '<%= l.string("ADD_NEW_PIPELINE_GROUP") -%>'})">
 		                <%= l.string("ADD_NEW_PIPELINE_GROUP") -%>
 		            </a>
 		    <% end %>
 		</span>
-    </h1>
-    <div id="div_move_to_groups" class="hidden enhanced_dropdown">
-      <div class="resources_selector scrollable_panel" id="content_move_to_groups">
-      </div>
+  </h1>
+  <div id="div_move_to_groups" class="hidden enhanced_dropdown">
+    <div class="resources_selector scrollable_panel" id="content_move_to_groups">
     </div>
+  </div>
 
-    <% @groups.each do |group| %>
-        <div class="group pipeline_group">
-            <h2 class="group_name entity_title wrapped_word"><%= group.getGroup() %></h2>
-          <div class="title_action_wrapper">
-            <ul>
-              <li>
-                <%= link_to l.string("EDIT"), pipeline_group_edit_path(:group_name => group.getGroup()), :class=> "group_name_edit action_icon edit_icon" %>
-              </li>
-              <li>
-                <% if is_user_an_admin? %>
-                    <%= render :partial => 'delete_pipeline_group', :locals => {:scope => {:group => group}} %>
-                <% end %>
-              </li>
-            </ul>
-          </div>
+  <% @groups.each do |group| %>
+      <div class="group pipeline_group">
+        <h2 class="group_name entity_title wrapped_word"><%= group.getGroup() %></h2>
+        <div class="title_action_wrapper">
+          <ul>
+            <li>
+              <%= link_to l.string("EDIT"), pipeline_group_edit_path(:group_name => group.getGroup()), :class => "group_name_edit action_icon edit_icon" %>
+            </li>
+            <li>
+              <% if is_user_an_admin? %>
+                  <%= render :partial => 'delete_pipeline_group', :locals => {:scope => {:group => group}} %>
+              <% end %>
+            </li>
+          </ul>
+        </div>
 
 
-            <% if group.isEmpty() %>
-                <div class="no_pipeline_in_group">
-                    <div class="information"><%= l.string("NO_PIPELINE_IN_GROUP") %></div>
-                </div>
-                <div class="add_first_pipeline_in_group">
-                    <%= link_to l.string("ADD_PIPELINE_TO_GROUP"), pipeline_new_path(:group => group.getGroup()), :class => "add_link add_pipeline_to_group" -%>
-                </div>
-            <% else %>
+        <% if group.isEmpty() %>
+            <div class="no_pipeline_in_group">
+              <div class="information"><%= l.string("NO_PIPELINE_IN_GROUP") %></div>
+            </div>
+            <div class="add_first_pipeline_in_group">
+              <%= link_to l.string("ADD_PIPELINE_TO_GROUP"), pipeline_new_path(:group => group.getGroup()), :class => "add_link add_pipeline_to_group" -%>
+            </div>
+        <% else %>
 
-                <table class="list_table">
-                    <thead>
-                    <tr class="pipeline">
-                        <th class="name"><%= l.string("PIPELINE") %></th>
-                        <th class="actions"><%= l.string("ACTIONS") %></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <% group.each do |pipeline| %>
-                        <tr class="pipeline">
-                            <td class="name">
-                              <% if pipeline.isLocal() %>
-                                 <%= link_to pipeline.name(), pipeline_edit_path(:pipeline_name => pipeline.name(), :current_tab => "general"), :class => 'wrapped_word' %>
-                              <% else %>
+            <table class="list_table">
+              <thead>
+              <tr class="pipeline">
+                <th class="name"><%= l.string("PIPELINE") %></th>
+                <th class="actions"><%= l.string("ACTIONS") %></th>
+              </tr>
+              </thead>
+              <tbody>
+              <% group.each do |pipeline| %>
+                  <tr class="pipeline">
+                    <td class="name">
+                      <% if pipeline.isLocal() %>
+                          <%= link_to pipeline.name(), pipeline_edit_path(:pipeline_name => pipeline.name(), :current_tab => "general"), :class => 'wrapped_word' %>
+                      <% else %>
                                  <span class="wrapped_word">
                                     <%= pipeline.name() %>
                                  </span>
-                              <% end %>
-                            </td>
-                            <td class="actions">
-                                <ul>
-                                    <li>
-																			<% if pipeline.isLocal() %>
-                                      	<%= link_to l.string("EDIT"), pipeline_edit_path(:pipeline_name => pipeline.name(), :current_tab => "general"), :class=> "edit_pipeline edit_for_pipeline_#{pipeline.name()} action_icon edit_icon" %>
-																			<% else %>
-																				<span class="edit_pipeline action_icon edit_icon_disabled edit_for_pipeline_<%=pipeline.name()-%> action_icon" title="<%= l.string("CANNOT_EDIT_REMOTE_PIPELINE") -%>">
+                      <% end %>
+                    </td>
+                    <td class="actions">
+                      <ul>
+                        <li>
+                          <% if pipeline.isLocal() %>
+                              <%= link_to l.string("EDIT"), pipeline_edit_path(:pipeline_name => pipeline.name(), :current_tab => "general"), :class => "edit_pipeline edit_for_pipeline_#{pipeline.name()} action_icon edit_icon" %>
+                          <% else %>
+																				<span class="edit_pipeline action_icon edit_icon_disabled edit_for_pipeline_<%= pipeline.name() -%> action_icon" title="<%= l.string("CANNOT_EDIT_REMOTE_PIPELINE") -%>">
 																					<%= l.string("EDIT") -%>
 																				</span>
-																			<% end %>
-																		</li>
-                                    <%- if pipeline.isLocal() && @groups.size() > 1 -%>
-                                        <li>
-                                                <a id="a_move_<%=pipeline.name()-%>" href="<%= possible_groups_path(with_md5_param(:pipeline_name => pipeline.name())) -%>" class="move_pipeline move_icon action_icon"><%= l.string("MOVE_TO") -%>
-                                                    <span class="for_down_arrow">&nbsp;</span>
-                                                </a>
-                                        </li>
-                                    <%- end -%>
-                                    <li>
-																			<% if pipeline.isLocal() %>
-                                        <% pipeline_random_id_for_clone = random_dom_id('clone_button_for_') -%>
-                                        <a href="#" class="clone_pipeline clone_icon action_icon clone_button_for_<%= pipeline.name() -%>" id="<%= pipeline_random_id_for_clone -%>">
-                                            <%= l.string("CLONE") -%>
-                                        </a>
-                                        <script type="text/javascript">
-                                            Util.on_load(function() {
-                                                jQuery("#<%=pipeline_random_id_for_clone-%>").live('click',function() {
-                                                    var titleText = <%== "#{l.string("CLONE_PIPELINE")} - #{pipeline.name()}".to_json %>;
-                                                    Util.ajax_modal("<%= pipeline_clone_path(:pipeline_name => pipeline.name(), :group => group.getGroup()) -%>", {width: 805, title: titleText}, function(text){return text});
-                                                });
-                                            });
-                                        </script>
-																			<% else %>
-																				<span class="action_icon clone_icon_disabled clone_button_for_<%=pipeline.name()-%>" title="<%= l.string("CANNOT_CLONE_REMOTE_PIPELINE") -%>">
+                          <% end %>
+                        </li>
+                        <%- if pipeline.isLocal() && @groups.size() > 1 -%>
+                            <li>
+                              <a id="a_move_<%= pipeline.name() -%>" href="<%= possible_groups_path(with_md5_param(:pipeline_name => pipeline.name())) -%>" class="move_pipeline move_icon action_icon"><%= l.string("MOVE_TO") -%>
+                                <span class="for_down_arrow">&nbsp;</span>
+                              </a>
+                            </li>
+                        <%- end -%>
+                        <li>
+                          <% if pipeline.isLocal() %>
+                              <% pipeline_random_id_for_clone = random_dom_id('clone_button_for_') -%>
+                              <a href="#" class="clone_pipeline clone_icon action_icon clone_button_for_<%= pipeline.name() -%>" id="<%= pipeline_random_id_for_clone -%>">
+                                <%= l.string("CLONE") -%>
+                              </a>
+                              <script type="text/javascript">
+                                Util.on_load(function () {
+                                  jQuery("#<%=pipeline_random_id_for_clone-%>").live('click', function () {
+                                    var titleText = <%== "#{l.string("CLONE_PIPELINE")} - #{pipeline.name()}".to_json %>;
+                                    Util.ajax_modal("<%= pipeline_clone_path(:pipeline_name => pipeline.name(), :group => group.getGroup()) -%>", {
+                                      width: 805,
+                                      title: titleText
+                                    }, function (text) {
+                                      return text
+                                    });
+                                  });
+                                });
+                              </script>
+                          <% else %>
+																				<span class="action_icon clone_icon_disabled clone_button_for_<%= pipeline.name() -%>" title="<%= l.string("CANNOT_CLONE_REMOTE_PIPELINE") -%>">
 																					<%= l.string("CLONE") -%>
 																				</span>
-																			<% end %>
-                                    </li>
-                                    <li>
-                                        <%= render :partial => "delete_pipeline", :locals => {:scope => {:pipeline => pipeline, :pipeline_to_can_delete => @pipeline_to_can_delete}} %>
-                                    </li>
-                                    <% if is_user_an_admin? %>
-                                        <li>
-                                            <% if pipeline.hasTemplate() %>
-                                               <span class="action_icon add_icon_disabled extract_template_for_pipeline_<%=pipeline.name()-%>" title="<%= l.string("CANNOT_EXTRACT_TEMPLATE") -%>">
+                          <% end %>
+                        </li>
+                        <li>
+                          <%= render :partial => "delete_pipeline", :locals => {:scope => {:pipeline => pipeline, :pipeline_to_can_delete => @pipeline_to_can_delete}} %>
+                        </li>
+                        <li>
+                          <% if pipeline.hasTemplate() %>
+                                               <span class="action_icon add_icon_disabled extract_template_for_pipeline_<%= pipeline.name() -%>" title="<%= l.string("CANNOT_EXTRACT_TEMPLATE") -%>">
                                                    <%= l.string("EXTRACT_NEW_TEMPLATE") -%>
                                                </span>
-																						<% elsif !pipeline.isLocal() %>
-	                                               <span class="action_icon add_icon_disabled extract_template_for_pipeline_<%=pipeline.name()-%>" title="<%= l.string("CANNOT_EXTRACT_TEMPLATE_FROM_REMOTE") -%>">
+                          <% elsif !pipeline.isLocal() %>
+	                                               <span class="action_icon add_icon_disabled extract_template_for_pipeline_<%= pipeline.name() -%>" title="<%= l.string("CANNOT_EXTRACT_TEMPLATE_FROM_REMOTE") -%>">
 	                                                   <%= l.string("EXTRACT_NEW_TEMPLATE") -%>
 	                                               </span>
-                                            <% else %>
-                                                <span class="title_secondary_info extract_template_for_pipeline_<%=pipeline.name()-%>">
+                          <% else %>
+                                                <span class="title_secondary_info extract_template_for_pipeline_<%= pipeline.name() -%>">
                                                 <a href="#" class="add_link" onclick="Util.ajax_modal('<%= template_new_path(:pipelineToExtractFrom => pipeline.name()) -%>', {overlayClose: false, title: '<%= l.string("EXTRACT_NEW_TEMPLATE")-%>'}, function(text){return text})">
                                                     <%= l.string("EXTRACT_NEW_TEMPLATE") -%>
                                                 </a>
                                              </span>
-                                            <% end %>
-                                        </li>
-                                    <% end %>
-                                </ul>
-                            </td>
-                        </tr>
-                    <% end %>
-                    </tbody>
-                </table>
-                <%= link_to l.string("ADD_PIPELINE_TO_GROUP"), pipeline_new_path(:group => group.getGroup()), :class => "add_link add_pipeline_to_group" -%>
-            <% end %>
-        </div>
-    <% end %>
+                          <% end %>
+                        </li>
+                      </ul>
+                    </td>
+                  </tr>
+              <% end %>
+              </tbody>
+            </table>
+            <%= link_to l.string("ADD_PIPELINE_TO_GROUP"), pipeline_new_path(:group => group.getGroup()), :class => "add_link add_pipeline_to_group" -%>
+        <% end %>
+      </div>
+  <% end %>
 
 
 </div>
 
 <script type="text/javascript">
-      jQuery("li.move_to_group_option").live('click', function(event) {
-        var li = jQuery(this);
-        var form = li.parents("form").get(0);
-        jQuery(form["group_name"]).val(li.text());
-        form.submit();
-    });
+  jQuery("li.move_to_group_option").live('click', function (event) {
+    var li = jQuery(this);
+    var form = li.parents("form").get(0);
+    jQuery(form["group_name"]).val(li.text());
+    form.submit();
+  });
 
-    AjaxForm.error_box_selector = '#MB_content';
-    var content_box = jQuery("#content_move_to_groups");
-    var groupPopup = new MicroContentPopup("div_move_to_groups", new ContextualPropagatingAjaxPopupHandler(content_box.get(0),
-            function(event) {
-                var moveurl = event.target.getAttribute("href");
-                if (moveurl == null) {
-                    moveurl = jQuery(event.target).parent("a").attr("href");
-                }
-                return moveurl;
-            }));
+  AjaxForm.error_box_selector = '#MB_content';
+  var content_box             = jQuery("#content_move_to_groups");
+  var groupPopup              = new MicroContentPopup("div_move_to_groups", new ContextualPropagatingAjaxPopupHandler(content_box.get(0),
+    function (event) {
+      var moveurl = event.target.getAttribute("href");
+      if (moveurl == null) {
+        moveurl = jQuery(event.target).parent("a").attr("href");
+      }
+      return moveurl;
+    }));
 
-    var groupPopupShower = new MicroContentPopup.LiveShower(groupPopup);
-    jQuery('.move_pipeline').live('click', function(event) {
-        groupPopupShower.toggle_popup(event, this);
-    });
+  var groupPopupShower = new MicroContentPopup.LiveShower(groupPopup);
+  jQuery('.move_pipeline').live('click', function (event) {
+    groupPopupShower.toggle_popup(event, this);
+  });
 
 </script>

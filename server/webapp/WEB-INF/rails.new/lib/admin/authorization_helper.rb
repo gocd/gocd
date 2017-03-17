@@ -26,5 +26,13 @@ module Admin
         render 'shared/config_error', status: 401
       end
     end
+
+    def check_admin_user_or_group_admin_user_and_401
+      return unless security_service.isSecurityEnabled()
+      unless security_service.isUserAdmin(current_user) || security_service.isUserGroupAdmin(current_user)
+        Rails.logger.info("User '#{current_user.getUsername}' attempted to perform an unauthorized action!")
+        render 'shared/config_error', status: 401
+      end
+    end
   end
 end

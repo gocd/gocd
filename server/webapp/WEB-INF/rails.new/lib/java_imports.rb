@@ -267,4 +267,5 @@ module JavaImports
   java_import com.thoughtworks.go.plugin.domain.common.VerifyConnectionResponse unless defined? VerifyConnectionResponse
   java_import com.thoughtworks.go.plugin.domain.common.ValidationResult unless defined? ValidationResult
   java_import com.thoughtworks.go.plugin.domain.common.ValidationError unless defined? ValidationError
+  java_import com.thoughtworks.go.config.AdminUser unless defined? AdminUser
 end

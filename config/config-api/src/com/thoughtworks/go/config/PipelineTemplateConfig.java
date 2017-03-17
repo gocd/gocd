@@ -276,7 +276,7 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
             this.authorization = new Authorization();
         }
 
-        if(attributeMap.containsKey(ALLOW_GROUP_ADMINS)) {
+        if (attributeMap.containsKey(ALLOW_GROUP_ADMINS)) {
             this.authorization.setAllowGroupAdmins("true".equals(attributeMap.get(ALLOW_GROUP_ADMINS)));
         }
     }

@@ -6,14 +6,14 @@
   <h1>
     Pipeline Templates
     <span class="title_secondary_info">
-            <%- if !is_user_an_admin? -%>
-                <span class="add_icon_disabled" title="<%= l.string("UNAUTHORIZED_TO_CREATE_TEMPLATE") -%>">
-                    <%= l.string("ADD_NEW_TEMPLATE") -%>
-                </span>
-            <%- else -%>
+            <%- if is_user_an_admin? || is_user_a_group_admin? -%>
                 <a href="#" class="link_as_button primary" onclick="Modalbox.show('<%= template_new_path(:allow_pipeline_selection => true) -%>', {overlayClose: false,title: '<%= l.string("ADD_NEW_TEMPLATE") -%>'})">
                       <%= l.string("ADD_NEW_TEMPLATE") -%>
                 </a>
+            <%- else -%>
+                <span class="add_icon_disabled" title="<%= l.string("UNAUTHORIZED_TO_CREATE_TEMPLATE") -%>">
+                    <%= l.string("ADD_NEW_TEMPLATE") -%>
+                </span>
             <%- end -%>
 		</span>
 
@@ -32,11 +32,13 @@
 
 <script type="text/javascript">
   AjaxForm.error_box_selector = '#MB_content';
-  Util.on_load(function() {
-    jQuery("a.view_template_link").click(function(e) {
+  Util.on_load(function () {
+    jQuery("a.view_template_link").click(function (e) {
       var constructedUrl = e.target.href;
-      var templateName = e.target.id;
-      Util.ajax_modal(constructedUrl, {overlayClose: false, title: templateName}, function(text){return text});
+      var templateName   = e.target.id;
+      Util.ajax_modal(constructedUrl, {overlayClose: false, title: templateName}, function (text) {
+        return text
+      });
       return false;
     });
   });

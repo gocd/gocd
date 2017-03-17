@@ -17,53 +17,7 @@
 let m             = require("mithril");
 let f             = require('helpers/form_helper');
 let AngularPlugin = require('views/shared/angular_plugin');
-
-const _               = require('lodash');
-const $               = require('jquery');
 const ElasticProfiles = require('models/elastic_profiles/elastic_profiles');
-
-const autoCompleteCleanup = function (attrName) {
-  return function (vnode) {
-    const elem       = $(vnode.dom);
-    const $inputElem = $($(elem).find(`input[data-prop-name='${  attrName  }']`));
-    $inputElem.textcomplete('destroy');
-  };
-};
-
-const autoCompleteInitialize = function (model, pluginInfos, attrName, selectCb) {
-  return function (vnode) {
-    const elem       = $(vnode.dom);
-    const $inputElem = $($(elem).find(`input[data-prop-name='${  attrName  }']`));
-    const values     = pluginInfos().collectPluginInfoProperty('id');
-
-    $inputElem.textcomplete([
-      {
-        match: /([^\s].*)$/,
-        index: 1, // use the second match in the regex to extract the search term
-        search (term, callback) {
-          term                 = term.toLowerCase();
-          const filteredValues = _(values).map((word) => {
-            return word.toLowerCase().indexOf(term) >= 0 ? word : null;
-          }).compact().value();
-          callback(filteredValues);
-        },
-        replace (word) {
-          return word;
-        }
-      }
-    ], {
-      zIndex: '10000'
-    });
-
-    $inputElem.on('textComplete:select', () => {
-      model()[attrName]($inputElem.val());
-      if (selectCb) {
-        selectCb($inputElem.val());
-      }
-      m.redraw();
-    });
-  };
-};
 
 const ElasticProfileModalBody = {
   oninit (vnode) {
@@ -84,10 +38,23 @@ const ElasticProfileModalBody = {
       newProfile.etag(vnode.attrs.profile().etag());
       vnode.attrs.profile(newProfile);
     };
+
+    this.pluginInfoItems = function () {
+      return vnode.attrs.pluginInfos().mapPluginInfos((pluginInfo) => {
+        return {
+          id:   pluginInfo.id(),
+          text: pluginInfo.id()
+        };
+      });
+    };
   },
 
   view (vnode) {
-    let profileIdDisabledMessage;
+    if (!vnode.attrs.pluginInfo()) {
+      const firstPluginInfo = vnode.attrs.pluginInfos().firstPluginInfo();
+      vnode.attrs.pluginInfo(firstPluginInfo);
+      vnode.attrs.profile().pluginId(firstPluginInfo.id());
+    }
 
     if (vnode.attrs.errorMessage && vnode.attrs.errorMessage()) {
       return (
@@ -101,12 +68,12 @@ const ElasticProfileModalBody = {
       );
     }
 
+    let profileIdDisabledMessage;
     if (!vnode.attrs.newProfile) {
       profileIdDisabledMessage = (<div>Editing of profile ID is disabled</div>);
     }
 
     let angularPlugin;
-
     if (vnode.attrs.pluginInfo()) {
       angularPlugin = (<AngularPlugin pluginInfo={vnode.attrs.pluginInfo().profileSettings}
                                       configuration={vnode.attrs.profile().properties}
@@ -125,16 +92,16 @@ const ElasticProfileModalBody = {
                               message={profileIdDisabledMessage}
                               label="Id"
                               key="profile-id"/>
-            <f.inputWithLabel model={vnode.attrs.profile()}
-                              key="plugin-id-autocomplete"
-                              validate="true"
-                              attrName="pluginId"
-                              isRequired="true"
-                              label="Plugin Id"
-                              onChange={vnode.state.selectPluginId.bind(vnode.state)}
-                              oncreate={autoCompleteInitialize(vnode.attrs.profile, vnode.attrs.pluginInfos, 'pluginId', vnode.state.selectPluginId.bind(vnode.state))}
-                              onbeforeremove={autoCompleteCleanup('pluginId')}
-                              end="true"/>
+
+            <f.select model={vnode.attrs.profile()}
+                      attrName='pluginId'
+                      label='Plugin Id'
+                      onchange={vnode.state.selectPluginId.bind(vnode.state)}
+                      items={vnode.state.pluginInfoItems()}
+                      largeSize={4}
+                      size={6}
+                      end={"true"}/>
+
           </f.row>
         </f.row>
 

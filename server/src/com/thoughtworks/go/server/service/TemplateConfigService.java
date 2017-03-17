@@ -151,7 +151,7 @@ public class TemplateConfigService {
     }
 
     public List<PipelineConfig> allPipelinesNotUsingTemplates(Username username, LocalizedOperationResult result) {
-        if (!securityService.isUserAdmin(username)) {
+        if (!(securityService.isUserAdmin(username) || securityService.isUserGroupAdmin(username))) {
             result.unauthorized(LocalizedMessage.string("UNAUTHORIZED_TO_ADMINISTER"), HealthStateType.unauthorised());
             return null;
         }

@@ -286,7 +286,6 @@ div.build_detail_container_content {
   background-color: rgba(#333, 0.6);
   div {
     float: right;
-    width: 350px;
     background-color: transparent;
   }
 
@@ -831,4 +830,45 @@ a.collapse-all {
 
 .build-properties-operations-column {
   width: 150px;
+}
+
+#yui-main .content_wrapper_outer.full-screen {
+  margin: 0;
+
+  .compress {
+    display: inline;
+    @include icon-before("compress", $line-height: 1.22em, $margin: 0 5px);
+    padding: 5px 0;
+  }
+
+  .expand {
+    display: none;
+  }
+
+  .content_wrapper_inner {
+    padding: 0;
+    margin: 0;
+  }
+
+  #build-status-panel {
+    .build_detail_container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      margin: 0;
+    }
+
+    .sub_tab_container_content {
+      padding: 0;
+    }
+  }
+}
+
+.expand {
+  @include icon-before("expand", $line-height: 1.22em, $margin: 0 5px);
+}
+
+.compress {
+  display: none;
 }

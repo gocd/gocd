@@ -182,5 +182,13 @@
     });
   });
 
+  jQuery(function() {
+    jQuery(document).on("click.fullScreen", '#full-screen', function () {
+      jQuery(".content_wrapper_outer").toggleClass("full-screen");
+      jQuery("#cruise_message_counts").hide();
+      jQuery(window).trigger(jQuery.Event("resetPinOnScroll"));
+    });
+  });
+
 </script>
 #parse("shared/_footer.vm")

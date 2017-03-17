@@ -1808,8 +1808,11 @@ a:link#link-to-this-page, a:visited#link-to-this-page {
 }
 
 #tab-content-of-tests, #tab-content-of-failures, #tab-content-of-artifacts, #tab-content-of-properties, #tab-content-of-junit-time, #tab-content-of-console, #tab-content-of-gaugereport {
-  padding:   20px !important;
   font-size: 14px;
+}
+
+#build-status-panel .sub_tab_container_content {
+  padding:   20px;
 }
 
 #tab-content-of-materials {
@@ -2874,10 +2877,6 @@ table.variables th {
 #content_area textarea {
   width:      100%;
   max-height: 620px;
-}
-
-.console-action-bar div, .console-footer-action-bar div {
-  width: 420px !important;
 }
 
 pre, code, #admin-holder-for-admin-config-source-xml textarea {

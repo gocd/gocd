@@ -79,6 +79,11 @@
     }
   }
 
+  function overrideRequiredScroll(elem, opts) {
+    var newRequiredScroll = elem.offset().top - $(".application_nav").outerHeight(true) - $(".page_header").outerHeight(true);
+    opts.requiredScroll = newRequiredScroll;
+  }
+
   $.fn.pinOnScroll = function (opts) {
     this.each(function () {
       var elem = $(this);
@@ -104,7 +109,15 @@
           throttledFixElement(elem, opts);
         });
       })
-    });
+
+      $(window).on('resetPinOnScroll', function () {
+            if (opts.requiredScroll) {
+              overrideRequiredScroll(elem, opts);
+            }
+            throttledUnFixElement(elem, opts);
+            throttledFixElement(elem, opts);
+        });
+      });
 
     return this;
   };

@@ -35,6 +35,7 @@ const ButtonRowWidget = {
     };
 
     this.resourcesButtonClicked = function (e) {
+      self.resources(undefined);
       e.preventDefault();
       Resources.all(args.selectedAgents())
         .then(self.resources)
@@ -43,6 +44,7 @@ const ButtonRowWidget = {
     };
 
     this.environmentsButtonClicked = function (e) {
+      self.environments(undefined);
       e.preventDefault();
       Environments.all(args.selectedAgents())
         .then(self.environments)
@@ -91,7 +93,6 @@ const ButtonRowWidget = {
                           disabled={!args.areOperationsAllowed()}>
                   Resources
                 </f.button>
-
 
                 <ResourcesListWidget hideDropDown={args.dropdown.hide}
                                      dropDownReset={args.dropdown.reset}

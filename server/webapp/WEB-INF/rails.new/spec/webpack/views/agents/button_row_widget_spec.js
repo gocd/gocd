@@ -48,7 +48,7 @@ describe("Button Row Widget", () => {
   const agentsVM = new AgentsVM();
 
   beforeEach(() => {
-    agents        = Stream();
+    agents          = Stream();
     const allAgents = Agents.fromJSON(json());
     agents(allAgents);
     const areOperationsAllowed = Stream(false);
@@ -70,16 +70,12 @@ describe("Button Row Widget", () => {
   describe('Button Group', () => {
     it('should contain the row elements', () => {
       const rowElementButtons = $root.find('.header-panel-button-group button');
-      expect(rowElementButtons).toHaveLength(7);
+      expect(rowElementButtons).toHaveLength(5);
       expect(rowElementButtons[0]).toHaveText("Delete");
       expect(rowElementButtons[1]).toHaveText("Disable");
       expect(rowElementButtons[2]).toHaveText("Enable");
       expect(rowElementButtons[3]).toHaveText("Resources");
-      expect(rowElementButtons[4]).toHaveText("Add");
-      expect(rowElementButtons[5]).toHaveText("Apply");
-      expect(rowElementButtons[6]).toHaveText("Environments");
-      const rowElementText = $root.find('.header-panel-button-group .no-environment');
-      expect(rowElementText[0]).toHaveText("No environments are defined");
+      expect(rowElementButtons[4]).toHaveText("Environments");
     });
 
     it('should disable the buttons if agents are not selected', () => {
@@ -88,7 +84,7 @@ describe("Button Row Widget", () => {
       expect(rowElements[1]).toBeDisabled();
       expect(rowElements[2]).toBeDisabled();
       expect(rowElements[3]).toBeDisabled();
-      expect(rowElements[6]).toBeDisabled();
+      expect(rowElements[4]).toBeDisabled();
     });
 
     it('should enable the buttons if at least one agent is selected', () => {

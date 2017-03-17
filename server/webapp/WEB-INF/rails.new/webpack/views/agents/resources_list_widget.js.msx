@@ -76,8 +76,18 @@ const ResourcesListWidget = {
   },
 
   view (vnode) {
+    const spinner = (
+      <div class="agent-button-group-dropdown resource-dropdown empty-container" onclick={vnode.state.closeDropdown}>
+        <div class='page-spinner'/>
+      </div>
+    );
+
+    if (!vnode.attrs.resources()) {
+      return spinner;
+    }
+
     return (
-      <div class="agent-button-group-dropdown resource-dropdown" onclick={vnode.state.closeDropdown}>
+      <div class="agent-button-group-dropdown resource-dropdown empty-container" onclick={vnode.state.closeDropdown}>
         <ul class="resources-items">
 
           {

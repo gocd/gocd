@@ -64,7 +64,7 @@ describe("Environments List Widget", () => {
     ];
 
 
-    mount(done);
+    mount(done, environments);
   });
 
   afterEach(() => {
@@ -103,7 +103,16 @@ describe("Environments List Widget", () => {
     expect(allEnvironments[1].indeterminate).toBe(false);
   });
 
-  const mount = (done) => {
+  describe('Page Spinner', () => {
+    it('should show page spinner until environments are fetched', () =>{
+      mount(_.noop);
+      expect($('.page-spinner')).toBeInDOM();
+      mount(_.noop, environments);
+      expect($('.page-spinner')).not.toBeInDOM();
+    });
+  });
+
+  const mount = (done, environments) => {
     m.mount(root,
       {
         oncreate: done,

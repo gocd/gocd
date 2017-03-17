@@ -47,9 +47,18 @@ const EnvironmentsListWidget = {
   },
 
   view (vnode) {
-
     const ctrl = vnode.state;
     const args = vnode.attrs;
+
+    const spinner = (
+      <div class="agent-button-group-dropdown env-dropdown empty-container" onclick={ctrl.closeDropdown}>
+        <div class='page-spinner'/>
+      </div>
+    );
+
+    if (!args.environments()) {
+      return spinner;
+    }
 
     const isEnvironmentsEmpty    = _.isEmpty(args.environments());
     let environmentDropDownClass = "agent-button-group-dropdown env-dropdown ";

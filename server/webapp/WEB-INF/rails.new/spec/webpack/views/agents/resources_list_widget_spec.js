@@ -60,7 +60,7 @@ describe("ResourcesListWidget", () => {
       new TriStateCheckbox('Windows', selectedAgentsResources),
     ];
 
-    mount();
+    mount(resources);
   });
 
   afterEach(() => {
@@ -155,7 +155,16 @@ describe("ResourcesListWidget", () => {
     expect(allResources).toHaveLength(4);
   });
 
-  const mount = () => {
+  describe('Page Spinner', () => {
+    it('should show page spinner until resources are fetched', () =>{
+      mount(undefined);
+      expect($('.page-spinner')).toBeInDOM();
+      mount(resources);
+      expect($('.page-spinner')).not.toBeInDOM();
+    });
+  });
+
+  const mount = (resources) => {
     m.mount(root, {
       view() {
         return m(ResourcesListWidget, {

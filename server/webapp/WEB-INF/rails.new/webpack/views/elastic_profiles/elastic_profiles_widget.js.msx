@@ -78,20 +78,18 @@ const ElasticProfilesWidget = {
     this.edit = function (profile) {
       const newProfile   = Stream();
       const pluginInfo   = Stream(vnode.attrs.pluginInfos().findById(profile.pluginId()));
-      const saveDisabled = Stream(false);
       const errorMessage = Stream();
 
       ctrl.clearMessage();
 
       const modal = new Modal({
         size:    'large',
-        title:   `Edit profile ${  profile.id()}`,
+        title:   `Edit profile ${profile.id()}`,
         body:    () => (<ElasticProfileModalBody profile={newProfile}
                                                  pluginInfo={pluginInfo}
                                                  newProfile={false}
                                                  pluginInfos={vnode.attrs.pluginInfos}
-                                                 errorMessage={errorMessage}
-                                                 saveDisabled={saveDisabled}/>),
+                                                 errorMessage={errorMessage}/>),
         onclose: () => modal.destroy(),
         buttons: () => {
           if (!newProfile()) {
@@ -99,12 +97,11 @@ const ElasticProfilesWidget = {
           }
           return [
             {
-              text:     'Save',
-              class:    'save primary',
+              text:  'Save',
+              class: 'save primary',
               onclick () {
                 newProfile().update().then(showSuccess(modal, ctrl, `The profile ${  newProfile().id()  } was updated successfully.`), showErrors(modal, ctrl, newProfile)).always(m.redraw);
-              },
-              disabled: saveDisabled
+              }
             }
           ];
         }
@@ -123,7 +120,6 @@ const ElasticProfilesWidget = {
     this.add = function () {
       const newProfile    = Stream(new ElasticProfiles.Profile({}));
       const newPluginInfo = Stream(null);
-      const saveDisabled  = Stream(true);
 
       const modal = new Modal({
         size:    'large',
@@ -131,17 +127,15 @@ const ElasticProfilesWidget = {
         body:    () => (<ElasticProfileModalBody profile={newProfile}
                                                  newProfile={true}
                                                  pluginInfos={vnode.attrs.pluginInfos}
-                                                 pluginInfo={newPluginInfo}
-                                                 saveDisabled={saveDisabled}/>),
+                                                 pluginInfo={newPluginInfo}/>),
         onclose: () => modal.destroy(),
         buttons: [
           {
-            text:     'Save',
-            class:    'save primary',
+            text:  'Save',
+            class: 'save primary',
             onclick () {
               newProfile().create().then(showSuccess(modal, ctrl, `The profile ${  newProfile().id()  } was created successfully.`), showErrors(modal, ctrl, newProfile)).always(m.redraw);
-            },
-            disabled: saveDisabled
+            }
           }
         ]
       });
@@ -167,7 +161,7 @@ const ElasticProfilesWidget = {
 
       deleteInProgress(true);
       m.redraw();
-      profile.delete().then(onSuccess, onFailure);
+      profile.delete().then(onSuccess, onFailure).always(m.redraw);
     };
 
     this.deleteConfirm = function (profile) {
@@ -190,9 +184,10 @@ const ElasticProfilesWidget = {
   },
 
   view (vnode) {
-    let message;
+
+    let errorMessage;
     if (vnode.state.message().message) {
-      message = (
+      errorMessage = (
         <f.row>
           <f.callout type={vnode.state.message().type}>
             {vnode.state.message().message}
@@ -206,6 +201,26 @@ const ElasticProfilesWidget = {
       );
     }
 
+    const noElasticAgentPluginInstalled = (!vnode.attrs.pluginInfos || vnode.attrs.pluginInfos().countPluginInfo() === 0);
+
+    let noElasticAgentPluginMessage;
+    if (noElasticAgentPluginInstalled) {
+      noElasticAgentPluginMessage = (
+        <f.row>
+          <f.callout type="info">
+            No elastic agent plugin installed.
+          </f.callout>
+        </f.row>
+      );
+    }
+
+    const addElasticProfileButton = (
+      <f.button onclick={vnode.state.add.bind(vnode.state)} class="add-profile"
+                disabled={noElasticAgentPluginInstalled}>
+        Add
+      </f.button>
+    );
+
     return (
       <div>
         <div class="header-panel">
@@ -216,9 +231,7 @@ const ElasticProfilesWidget = {
               </f.column>
 
               <f.column size={6}>
-                <f.button onclick={vnode.state.add.bind(vnode.state)} class="add-profile">
-                  Add
-                </f.button>
+                {addElasticProfileButton}
               </f.column>
             </f.row>
           </header>
@@ -226,7 +239,8 @@ const ElasticProfilesWidget = {
 
 
         <div class="elastic-profiles">
-          {message}
+          {noElasticAgentPluginMessage}
+          {errorMessage}
           <f.row>
 
             {vnode.state.profiles().mapProfiles((profile) => {

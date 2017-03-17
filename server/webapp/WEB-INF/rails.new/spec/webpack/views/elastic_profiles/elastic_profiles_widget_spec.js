@@ -55,10 +55,10 @@ describe("ElasticProfilesWidget", () => {
   };
 
   const dockerPluginInfoJSON = {
-    "id":                          "cd.go.contrib.elastic-agent.docker",
-    "name":                        "Docker Elastic Agent Plugin",
-    "version":                     "0.5",
-    "type":                        "elastic-agent",
+    "id":               "cd.go.contrib.elastic-agent.docker",
+    "name":             "Docker Elastic Agent Plugin",
+    "version":          "0.5",
+    "type":             "elastic-agent",
     "profile_settings": {
       "configurations": [
         {
@@ -90,6 +90,7 @@ describe("ElasticProfilesWidget", () => {
   };
 
   const allPluginInfosJSON = [dockerPluginInfoJSON];
+  const allPluginInfos     = Stream(PluginInfos.fromJSON([]));
 
   beforeEach(() => {
     jasmine.Ajax.install();
@@ -98,11 +99,12 @@ describe("ElasticProfilesWidget", () => {
       status:       200
     });
 
+    allPluginInfos(PluginInfos.fromJSON(allPluginInfosJSON));
+
     m.mount(root, {
       view() {
-        const fromJSON = PluginInfos.fromJSON(allPluginInfosJSON);
         return m(ElasticProfilesWidget, {
-          pluginInfos: Stream(fromJSON)
+          pluginInfos: allPluginInfos
         });
       }
     });
@@ -116,6 +118,24 @@ describe("ElasticProfilesWidget", () => {
     m.redraw();
 
     expect($('.new-modal-container .reveal')).not.toExist('Did you forget to close the modal before the test?');
+  });
+
+  describe("no elastic agent plugin loaded", () => {
+    beforeEach(() => {
+      allPluginInfos(PluginInfos.fromJSON([]));
+      m.redraw(true);
+    });
+
+    it("should disable add button if no elastic plugin installed", () => {
+      expect($root.find('.add-profile').get(0)).toBeDisabled();
+    });
+
+    it("should list existing profiles in absence of elastic plugin", () => {
+      expect($root.find('.elastic-profiles .callout').text()).toEqual("No elastic agent plugin installed.");
+      expect($root.find('.profile-id .value').text()).toEqual(profileJSON.id);
+      expect($root.find('.plugin-id .value').text()).toEqual(profileJSON.plugin_id);
+    });
+
   });
 
   describe("list all profiles", () => {
@@ -152,11 +172,18 @@ describe("ElasticProfilesWidget", () => {
       expect($('.reveal:visible input[data-prop-name]')).not.toBeDisabled();
     });
 
-    it("should allow saving a profile if save is successful", () => {
+    it('should show modal and render profile view of first plugin id', () => {
       simulateEvent.simulate($root.find('.add-profile').get(0), 'click');
       m.redraw();
 
-      expect($('.reveal:visible .modal-buttons').find('.save')).toBeDisabled();
+      const pluginId = $('.reveal:visible .modal-body').find('[data-prop-name="pluginId"]').get(0);
+
+      expect($(pluginId).val()).toEqual(profileJSON.plugin_id);
+    });
+
+    it("should allow saving a profile if save is successful", () => {
+      simulateEvent.simulate($root.find('.add-profile').get(0), 'click');
+      m.redraw();
 
       const profileId = $('.reveal:visible .modal-body').find('[data-prop-name="id"]').get(0);
       $(profileId).val("unit-test");
@@ -167,8 +194,6 @@ describe("ElasticProfilesWidget", () => {
       simulateEvent.simulate(pluginId, 'input');
 
       m.redraw();
-
-      expect($('.reveal:visible .modal-buttons').find('.save')).not.toBeDisabled();
 
       jasmine.Ajax.stubRequest('/go/api/elastic/profiles', undefined, 'POST').andReturn({
         responseText: JSON.stringify({data: profileJSON}),

@@ -72,7 +72,7 @@ public class TemplateConfigService {
 
     public void createTemplateConfig(final Username currentUser, final PipelineTemplateConfig templateConfig, final LocalizedOperationResult result) {
         validatePluggableTasks(templateConfig);
-        CreateTemplateConfigCommand command = new CreateTemplateConfigCommand(templateConfig, currentUser, goConfigService, result);
+        CreateTemplateConfigCommand command = new CreateTemplateConfigCommand(templateConfig, currentUser, securityService, result);
         update(currentUser, result, command, templateConfig);
     }
 

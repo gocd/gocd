@@ -173,16 +173,12 @@ BuildOutputObserver.prototype = {
     },
     update_build_detail_summary_result : function (json) {
         var result = json.building_info.result.toLowerCase();
-        $('build_name_status').update(result);
-        var div = $$('.build_detail_summary')[0].ancestors()[0];
+        var div = $("build_status");
         clean_active_css_class_on_element(div);
         $(div).addClassName(result.toLowerCase());
     },
     update_build_detail_summary_status : function(json) {
-        var status = json.building_info.current_status.toLowerCase();
-        $('build_name_status').update(status);
         this.update_date($('build_scheduled_date'), json.building_info.build_scheduled_date);
-
         this.update_date($('build_assigned_date'), json.building_info.build_assigned_date)
         this.update_date($('build_preparing_date'), json.building_info.build_preparing_date)
         this.update_date($('build_building_date'), json.building_info.build_building_date)
@@ -190,7 +186,6 @@ BuildOutputObserver.prototype = {
         this.update_date($('build_completed_date'), json.building_info.build_completed_date)
         $('agent_name').setAttribute("href", context_path("agents/" + json.building_info.agent_uuid));
         $('agent_name').update(json.building_info.agent.escapeHTML() + ' (ip:' + json.building_info.agent_ip + ')');
-        // TODO: update css on building panel
         json_to_css.update_build_detail_header(json);
     },
     update_date : function(element, content) {

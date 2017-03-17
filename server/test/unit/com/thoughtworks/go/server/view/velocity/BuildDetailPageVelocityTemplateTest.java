@@ -57,7 +57,7 @@ public class BuildDetailPageVelocityTemplateTest {
     @Test
     public void shouldEscapeBuildCauseOnVelocityTemplate() throws Exception {
         Document actualDoc = Jsoup.parse(getBuildDetailVelocityView(createJobDetailModel()).render());
-        assertThat(actualDoc.select("#build-detail-summary li").last().html(), containsString("modified by Ernest Hemingway &lt;oldman@sea.com&gt;"));
+        assertThat(actualDoc.select("#build-detail-summary").last().html(), containsString("modified by Ernest Hemingway &lt;oldman@sea.com&gt;"));
     }
 
     @Test

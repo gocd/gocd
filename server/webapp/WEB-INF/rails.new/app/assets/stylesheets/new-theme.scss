@@ -599,10 +599,6 @@ h1.entity_title {
   background-color: $passed;
 }
 
-#build_detail_summary_container.passed h3 {
-  background-color: $passed;
-}
-
 .pipeline_bundle {
   .pipeline {
     border:     0;
@@ -771,6 +767,10 @@ ul.entity_title {
   margin: 8px 0 0 10px;
 }
 
+.job_details {
+  font-size: rem-calc(18px);
+}
+
 .admin_pause_info_and_controls {
   float:       left;
   margin-top:  7px;
@@ -870,6 +870,7 @@ ul.entity_title {
 
 #build_detail_summary_container {
   background: #fff;
+  padding: 10px 0;
 }
 
 .material_revision {
@@ -1790,12 +1791,6 @@ tr.Cancelled, tr.cancelled-stage {
   }
 }
 
-#build_detail_summary_container h3 {
-  background-image: none !important;
-  font-size:        14px !important;
-  font-weight:      600 !important;
-}
-
 .job_details_content .sub_tabs_container {
   margin-bottom: 0;
   position:      relative;
@@ -1995,7 +1990,6 @@ form#package_repositories_edit_form {
 }
 
 #yui-main .content_wrapper_outer, #yui-main .content_wrapper_inner {
-  margin:     15px 0;
   padding:    0;
   background: transparent;
 }

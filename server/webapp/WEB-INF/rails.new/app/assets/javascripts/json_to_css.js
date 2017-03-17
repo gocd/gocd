@@ -54,8 +54,8 @@ JsonToCss.prototype = {
     },
 
     update_build_detail_header : function(json) {
-		var css_class_name = json.building_info.current_status.toLowerCase();
-        this._renew_class_name('build_detail_summary_container', [css_class_name]);
+        var css_class_name = json.building_info.current_status.toLowerCase();
+        this._renew_class_name('build_status', [css_class_name]);
     },
 
 	update_build_list : function(json, id, imgSrc) {

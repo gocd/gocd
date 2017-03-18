@@ -270,10 +270,6 @@ $arrow-color: #000;
 
     .agent-icon {
       height: 25%;
-
-      &[src=''] {
-        display: none;
-      }
     }
   }
   .select-agent {

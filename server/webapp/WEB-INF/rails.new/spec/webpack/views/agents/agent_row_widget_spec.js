@@ -49,7 +49,7 @@ describe("Agent Row Widget", () => {
     const row         = $root.find('tr')[0];
     const checkbox    = $(row).find('input');
     const information = row.children;
-    expect(information[1]).toContainElement('img');
+    expect(information[1]).toExist();
     expect(information[2]).toHaveText('in-john.local');
     expect(information[2]).toContainElement('a');
     expect(information[3]).toHaveText('/var/lib/go-agent');

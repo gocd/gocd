@@ -22,6 +22,7 @@ const AgentsWidget   = require('views/agents/agents_widget');
 const AgentsVM       = require('views/agents/models/agents_widget_view_model');
 const SortOrder      = require('views/agents/models/sort_order');
 const VersionUpdater = require('models/shared/version_updater');
+const PluginInfos    = require('models/shared/plugin_infos');
 const AjaxPoller     = require('helpers/ajax_poller');
 
 require('foundation-sites');
@@ -56,31 +57,37 @@ $(() => {
   const currentRepeater  = Stream(createRepeater());
   const sortOrder        = Stream(new SortOrder());
 
-  const component = {
-    view() {
-      return m(AgentsWidget, {
-        vm:                   agentsViewModel,
-        allAgents:            agents,
-        isUserAdmin,
-        permanentMessage,
-        showSpinner,
-        sortOrder,
-        doCancelPolling:      () => currentRepeater().stop(),
-        doRefreshImmediately: () => {
-          currentRepeater().stop();
-          currentRepeater(createRepeater().start());
-        }
-      });
-    }
+  const onResponse        = (pluginInfos) => {
+    const component = {
+      view() {
+        return m(AgentsWidget, {
+          vm:                   agentsViewModel,
+          allAgents:            agents,
+          isUserAdmin,
+          permanentMessage,
+          showSpinner,
+          sortOrder,
+          pluginInfos: typeof pluginInfos === "string" ? Stream() : Stream(pluginInfos.filterByType('elastic-agent')),
+          doCancelPolling:      () => currentRepeater().stop(),
+          doRefreshImmediately: () => {
+            currentRepeater().stop();
+            currentRepeater(createRepeater().start());
+          }
+        });
+      }
+    };
+
+    m.route($agentElem.get(0), '', {
+      '':                  component,
+      '/:sortBy/:orderBy': component
+    });
+
+    currentRepeater().start();
+
+    sortOrder().initialize();
   };
 
-  currentRepeater().start();
-
-  m.route($agentElem.get(0), '', {
-    '':                  component,
-    '/:sortBy/:orderBy': component
-  });
-
-  sortOrder().initialize();
-});
+  PluginInfos.all().then(onResponse, onResponse);
+})
+;
 

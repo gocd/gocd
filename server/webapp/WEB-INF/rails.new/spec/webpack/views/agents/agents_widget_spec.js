@@ -113,7 +113,7 @@ describe("Agents Widget", () => {
     const firstAgentInfo = $(agentInfo).find('td');
     expect(firstAgentInfo).toHaveLength(10);
     expect($(firstAgentInfo[0]).find(':checkbox')).toExist();
-    expect(firstAgentInfo[1]).toContainElement('img');
+    expect(firstAgentInfo[1]).toExist();
     expect(firstAgentInfo[2]).toHaveText('host-1');
     expect(firstAgentInfo[3]).toHaveText('usr/local/foo');
     expect(firstAgentInfo[4]).toHaveText('Linux');

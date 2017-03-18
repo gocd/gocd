@@ -212,7 +212,7 @@ const AgentsWidget = {
                 </div>
               </f.column>
 
-              <f.column size={6} largeSize={8}>
+              <f.column size={6} largeSize={8} class="show-for-large-only">
                 <AgentStateCountWidget agents={ctrl.filteredAndSortedAgents.bind(ctrl)}/>
               </f.column>
 
@@ -220,21 +220,15 @@ const AgentsWidget = {
           </div>
           {permanentMessage}
           {updateMessage}
-          <f.row>
-            <div class="container">
-              <table class="go-table agents-table">
-                <AgentTableHeader
-                  sortOrder={args.sortOrder}
-                  onCheckboxClick={ctrl.selectAllAgents.bind(ctrl)}
-                  checkboxValue={ctrl.areAllAgentsSelected.bind(ctrl)}
-                  isUserAdmin={args.isUserAdmin}/>
-              </table>
-            </div>
-          </f.row>
         </div>
         <f.row class={classForTableBody}>
           <div class="container">
-            <table class="go-table agents-table">
+            <table class="go-table agents-table stack">
+              <AgentTableHeader
+                sortOrder={args.sortOrder}
+                onCheckboxClick={ctrl.selectAllAgents.bind(ctrl)}
+                checkboxValue={ctrl.areAllAgentsSelected.bind(ctrl)}
+                isUserAdmin={args.isUserAdmin}/>
               <tbody>
               {
                 filteredAgents.mapAgents((agent) => {

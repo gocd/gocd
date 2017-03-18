@@ -281,14 +281,16 @@ $arrow-color: #000;
 }
 
 .agents-table-body {
-  margin-top: 148px;
+  $foo: 44px;
+
+  margin-top: 148px - $foo;
 
   &.has-message, &.has-permanent-message {
-    margin-top: 212px;
+    margin-top: 212px - $foo;
   }
 
   &.has-message.has-permanent-message {
-    margin-top: 274px;
+    margin-top: 274px - $foo;
   }
 }
 
@@ -301,6 +303,30 @@ $arrow-color: #000;
         color:   $dark-grey;
         padding: 5px 10px;
       }
+    }
+  }
+
+  table-layout: fixed;
+
+  thead {
+    tr {
+      display:  block;
+      position: relative;
+    }
+  }
+
+  tbody {
+    $page-top-nav: 40px;
+    $page-header: 108px;
+    $page-footer: 76px;
+    $table-header: 38px;
+    display:  block;
+    overflow: auto;
+    height:   calc(100vh - #{$page-top-nav} - #{$page-header} - #{$page-footer} - #{$table-header} - 10px);
+
+    label {
+      min-width: 120px;
+      font-weight: $global-weight-bold;
     }
   }
 }

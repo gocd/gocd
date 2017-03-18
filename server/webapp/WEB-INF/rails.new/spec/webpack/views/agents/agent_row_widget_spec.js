@@ -46,19 +46,19 @@ describe("Agent Row Widget", () => {
     const model = Stream(true);
     mount(agents().firstAgent(), model, true);
 
-    const row         = $root.find('tr')[0];
+    const row         = $root.find('tr:first');
     const checkbox    = $(row).find('input');
-    const information = row.children;
+    const information = $(row).find('td');
     expect(information[1]).toExist();
-    expect(information[2]).toHaveText('in-john.local');
-    expect(information[2]).toContainElement('a');
-    expect(information[3]).toHaveText('/var/lib/go-agent');
-    expect(information[4]).toHaveText('Linux');
-    expect(information[5]).toHaveText('10.12.2.200');
-    expect(information[6]).toHaveText('Missing');
-    expect(information[7]).toHaveText('Unknown');
-    expect(information[8]).toHaveText('firefox');
-    expect(information[9]).toHaveText('Dev');
+    expect($(information[2]).find('.content')).toHaveText('in-john.local');
+    expect($(information[2]).find('.content')).toContainElement('a');
+    expect($(information[3]).find('.content')).toHaveText('/var/lib/go-agent');
+    expect($(information[4]).find('.content')).toHaveText('Linux');
+    expect($(information[5]).find('.content')).toHaveText('10.12.2.200');
+    expect($(information[6]).find('.content')).toHaveText('Missing');
+    expect($(information[7]).find('.content')).toHaveText('Unknown');
+    expect($(information[8]).find('.content')).toHaveText('firefox');
+    expect($(information[9]).find('.content')).toHaveText('Dev');
     expect(checkbox).toBeChecked();
   });
 
@@ -68,9 +68,9 @@ describe("Agent Row Widget", () => {
     mount(agents().firstAgent(), model, false);
 
     const row         = $root.find('tr')[0];
-    const information = row.children;
-    expect(information[2]).toHaveText('in-john.local');
-    expect(information[2]).not.toContainElement('a');
+    const information = $(row).find('td');
+    expect($(information[2]).find('.content')).toHaveText('in-john.local');
+    expect($(information[2]).find('.content')).not.toContainElement('a');
   });
 
   it('should check the value based on the checkbox model', () => {
@@ -92,16 +92,16 @@ describe("Agent Row Widget", () => {
     agents(allAgents.toJSON()[1]);
     mount(agents(), model, true);
     const row         = $root.find('tr')[0];
-    const information = row.children;
-    expect(information[8]).toHaveText('none specified');
+    const information = $(row).find('td');
+    expect($(information[8]).find('.content')).toHaveText('none specified');
   });
 
   it('should show none specified if agent has no environment', () => {
     agents(allAgents.toJSON()[1]);
     mount(agents(), model, true);
     const row         = $root.find('tr')[0];
-    const information = row.children;
-    expect(information[9]).toHaveText('none specified');
+    const information = $(row).find('td');
+    expect($(information[9]).find('.content')).toHaveText('none specified');
   });
 
   it('should set the class based on the status of the agent', () => {

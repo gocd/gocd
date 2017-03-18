@@ -44,7 +44,7 @@ const AgentsTableHeader = {
     if (vnode.attrs.isUserAdmin) {
       selectAllAgentsCheckbox = (
         <input type="checkbox"
-               class="select-agent"
+               class="select-agent show-for-large-only"
                checked={vnode.attrs.checkboxValue()}
                onclick={m.withAttr('checked', vnode.attrs.onCheckboxClick)}/>
       );

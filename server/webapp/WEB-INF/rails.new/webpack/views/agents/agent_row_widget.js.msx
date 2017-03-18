@@ -100,21 +100,44 @@ const AgentRowWidget = {
           {selectAgentCheckbox}
         </td>
         <td key="agentIcon">
-          {elasticAgentIcon}
+          <span class="show-for-large">{elasticAgentIcon}</span>
         </td>
         <td key="hostname">
-          {hostnameLink}
+          <label class="hide-for-large">Agent Name</label>
+          <span class="hide-for-large">{elasticAgentIcon}</span>
+          <span class="content">{hostnameLink}</span>
         </td>
-        <td key="sandbox">{agent.sandbox()}</td>
-        <td key="operatingSystem">{agent.operatingSystem()}</td>
-        <td key="ipAddress">{agent.ipAddress()}</td>
+        <td key="sandbox">
+          <label class="hide-for-large">Sandbox</label>
+          <span class="content">{agent.sandbox()}</span>
+        </td>
+        <td key="operatingSystem">
+          <label class="hide-for-large">OS</label>
+          <span class="content">{agent.operatingSystem()}</span>
+        </td>
+        <td key="ipAddress">
+          <label class="hide-for-large">IP Address</label>
+          <span class="content">{agent.ipAddress()}</span>
+        </td>
         <td key="status" class={ctrl.dropdownClass(agent.uuid())}>
-          {agentStatus}
-          {isBuildingAgent ? createBuildDetailsDropDown(agent, args) : ''}
+          <label class="hide-for-large">Status</label>
+          <span class="content">
+            {agentStatus}
+            {isBuildingAgent ? createBuildDetailsDropDown(agent, args) : ''}
+          </span>
         </td>
-        <td key="readableFreeSpace">{agent.readableFreeSpace()}</td>
-        <td key="resources">{resources}</td>
-        <td key="environments">{environments}</td>
+        <td key="readableFreeSpace">
+          <label class="hide-for-large">Free Space</label>
+          <span class="content">{agent.readableFreeSpace()}</span>
+        </td>
+        <td key="resources">
+          <label class="hide-for-large">Resources</label>
+          <span class="content">{resources}</span>
+        </td>
+        <td key="environments">
+          <label class="hide-for-large">Environments</label>
+          <span class="content">{environments}</span>
+        </td>
       </tr>
     );
   }

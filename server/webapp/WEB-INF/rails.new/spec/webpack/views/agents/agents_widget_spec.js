@@ -113,15 +113,14 @@ describe("Agents Widget", () => {
     const firstAgentInfo = $(agentInfo).find('td');
     expect(firstAgentInfo).toHaveLength(10);
     expect($(firstAgentInfo[0]).find(':checkbox')).toExist();
-    expect(firstAgentInfo[1]).toExist();
-    expect(firstAgentInfo[2]).toHaveText('host-1');
-    expect(firstAgentInfo[3]).toHaveText('usr/local/foo');
-    expect(firstAgentInfo[4]).toHaveText('Linux');
-    expect(firstAgentInfo[5]).toHaveText('10.12.2.200');
-    expect(firstAgentInfo[6]).toContainText('Disabled (Building)');
-    expect(firstAgentInfo[7]).toHaveText('Unknown');
-    expect(firstAgentInfo[8]).toHaveText('Firefox');
-    expect(firstAgentInfo[9]).toHaveText('Dev, Test');
+    expect($(firstAgentInfo[2]).find('.content')).toHaveText('host-1');
+    expect($(firstAgentInfo[3]).find('.content')).toHaveText('usr/local/foo');
+    expect($(firstAgentInfo[4]).find('.content')).toHaveText('Linux');
+    expect($(firstAgentInfo[5]).find('.content')).toHaveText('10.12.2.200');
+    expect($(firstAgentInfo[6]).find('.content')).toContainText('Disabled (Building)');
+    expect($(firstAgentInfo[7]).find('.content')).toHaveText('Unknown');
+    expect($(firstAgentInfo[8]).find('.content')).toHaveText('Firefox');
+    expect($(firstAgentInfo[9]).find('.content')).toHaveText('Dev, Test');
   });
 
   it('should select all the agents when selectAll checkbox is checked', () => {
@@ -326,7 +325,7 @@ describe("Agents Widget", () => {
     const getHostnamesInTable = () => {
       const hostnameCells = $root.find(".go-table tbody td:nth-child(3)");
 
-      return hostnameCells.map((_i, cell) => $(cell).text()).toArray();
+      return hostnameCells.map((_i, cell) => $(cell).find('.content').text()).toArray();
     };
 
     let agentNameHeader = $root.find("label:contains('Agent Name')");

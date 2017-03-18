@@ -23,6 +23,10 @@
         return _.map(collection, function (el) { return $(el).text(); });
       }
 
+      function extractAttr(collection, name) {
+        return _.map(collection, function (el) { return $(el).attr(name); });
+      }
+
       if ("function" !== window.requestAnimationFrame) {
         window.requestAnimationFrame = function (callback) { callback(); };
       }
@@ -55,8 +59,11 @@
         var section = output.find(".log-fs-type-info")
         assertTrue(!!section.length);
 
-        var timestamps = extractText(section.find(".ts")).join(",");
+        var timestamps = extractAttr(section.find(".log-fs-line"), "data-timestamp").join(",");
         assertEquals(["01:01:00.123", "01:02:00.123"].join(","), timestamps);
+
+        var lineNums = extractAttr(section.find(".log-fs-line"), "data-line").join(",");
+        assertEquals(["1", "2"].join(","), lineNums);
 
         output.find(".ts").remove(); // exclude timestamps so it's easier to assert content
         var actual = extractText(output.find(".log-fs-line-INFO"));

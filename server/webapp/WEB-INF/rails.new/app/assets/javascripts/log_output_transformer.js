@@ -123,7 +123,7 @@
         }
 
         currentLine.setAttribute("data-line", lineNumber);
-        currentLine.insertBefore(c("span", {class: "ts"}, timestamp), currentLine.childNodes[0]);
+        currentLine.setAttribute("data-timestamp", timestamp);
       }
 
       flushToDOM();

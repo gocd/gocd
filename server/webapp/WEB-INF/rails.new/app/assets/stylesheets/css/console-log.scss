@@ -31,21 +31,6 @@ $CONSOLE_SETUP_ERR: #A567A5;
 $CONSOLE_SETUP_ERR_WHITE: darken($CONSOLE_SETUP_ERR, 10%);
 
 .console-area {
-  .ts {
-    display: none;
-  }
-
-  &.with-timestamps .ts {
-    display: inline;
-    margin-right: 1ex;
-
-    &:empty {
-      // if nothing could be parsed, don't display at all; the margin-right rule above causes a shift,
-      // which doesn't make sense when there's no timestamp to display
-      display: none;
-    }
-  }
-
   [data-collapsed] {
     display: none;
   }
@@ -139,7 +124,7 @@ $CONSOLE_SETUP_ERR_WHITE: darken($CONSOLE_SETUP_ERR, 10%);
   margin-left: 2.5rem;
   padding-left: 1ex;
 
-  &:before {
+  &:after {
     position: absolute;
     content: attr(data-line);
     color: #666;
@@ -151,6 +136,11 @@ $CONSOLE_SETUP_ERR_WHITE: darken($CONSOLE_SETUP_ERR, 10%);
     text-overflow: ellipsis;
     overflow: hidden;
   }
+}
+
+.with-timestamps .log-fs-line:before {
+  display: inline;
+  content: attr(data-timestamp) " ";
 }
 
 dt.log-fs-line, dt.log-fs-line:before {

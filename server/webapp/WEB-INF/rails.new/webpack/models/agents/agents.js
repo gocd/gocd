@@ -275,18 +275,6 @@ Agents.Agent = function (data) {
     });
   };
 
-  this.fetchElasticAgentIcon = function() {
-    $.ajax({
-      method:     'GET',
-      url:        Routes.apiv3AdminPluginInfoPath(self.elasticPluginId()),
-      timeout:    mrequest.timeout,
-      beforeSend: mrequest.xhrConfig.forVersion("v3"),
-      async: false
-    }).success((data) => {
-      self.elasticAgentIcon(data["_links"]["image"]["href"]);
-    });
-  };
-
   this.isElasticAgent = () => !_.isNil(self.elasticAgentId());
 
   this.toJSON = function () {

@@ -244,6 +244,7 @@ Agents.Agent = function (data) {
   this.buildDetails      = Stream(data.buildDetails);
   this.elasticAgentId    = Stream(data.elasticAgentId);
   this.elasticPluginId   = Stream(data.elasticPluginId);
+  this.elasticAgentIcon  = Stream();
   this.parent            = Mixins.GetterSetter();
 
   this.status = function () {

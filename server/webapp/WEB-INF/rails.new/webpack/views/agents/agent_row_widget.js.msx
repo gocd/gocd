@@ -61,12 +61,22 @@ const AgentRowWidget = {
     const environments    = joinOrNoneSpecified(agent.environments());
     let agentStatus       = agent.status();
     const isBuildingAgent = !agent.buildDetails().isEmpty();
+    const isElasticAgent  = agent.isElasticAgent();
+    const pluginInfos     = args.pluginInfos;
     let selectAgentCheckbox;
+    let elasticAgentIcon;
     let hostnameLink      = <span>{agent.hostname()}</span>;
 
     if (isBuildingAgent) {
       agentStatus = <f.link onclick={ctrl.buildDetailsClicked.bind(ctrl, agent.uuid())}
                             class="has-build-details-drop-down">{agent.status()}</f.link>;
+    }
+
+    if (isElasticAgent && pluginInfos()) {
+      const elasticAgentIconURL = pluginInfos().findById(agent.elasticPluginId()).imageUrl;
+      elasticAgentIcon          = (
+        <img class="agent-icon" src={elasticAgentIconURL}/>
+      );
     }
 
     if (args.isUserAdmin) {
@@ -85,6 +95,9 @@ const AgentRowWidget = {
       <tr key={agent.uuid()} class={agent.status().toLowerCase()}>
         <td key="checkbox">
           {selectAgentCheckbox}
+        </td>
+        <td key="agentIcon">
+          {elasticAgentIcon}
         </td>
         <td key="hostname">
           {hostnameLink}

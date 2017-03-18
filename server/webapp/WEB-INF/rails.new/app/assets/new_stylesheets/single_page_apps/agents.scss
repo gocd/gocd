@@ -25,7 +25,6 @@
   }
 }
 
-
 .info {
   color:         #fff;
   clear:         right;
@@ -216,27 +215,31 @@
 $arrow-color: #000;
 
 .go-table {
-  border-bottom: 2px solid #ccc;
   background:    transparent;
   border:        0;
   margin:        0;
 
   $column-widths: (
-                    "1": 2%,
-                    "2": 13%,
-                    "3": 7%,
-                    "4": 10%,
+                    "1": 1%,
+                    "2": 38px,
+                    "3": 16%,
+                    "4": 7%,
                     "5": 10%,
-                    "6": 7%,
-                    "7": 11%,
-                    "8": 22%,
-                    "9": 18%,
+                    "6": 10%,
+                    "7": 7%,
+                    "8": 9%,
+                    "9": calc(22% - 38px),
+                    "10": 18%,
                   );
 
   @each $key, $val in $column-widths {
     td:nth-child(#{$key}), th:nth-child(#{$key}) {
       width: $val;
     }
+  }
+
+  td:nth-child(2), th:nth-child(2) {
+    padding: 0;
   }
 
   thead {
@@ -266,6 +269,11 @@ $arrow-color: #000;
   td {
     word-break:    break-all;
     border-bottom: 1px dotted #ddd;
+
+    .agent-icon {
+      height: 38px;
+      width:  38px;
+    }
   }
   .select-agent {
     margin: 0;

@@ -55,6 +55,7 @@ const AgentsTableHeader = {
         <th>
           {selectAllAgentsCheckbox}
         </th>
+        <th></th>
         <th>
           <SortHeaderWidget attrName='hostname'
                             attrLabel='Agent Name'

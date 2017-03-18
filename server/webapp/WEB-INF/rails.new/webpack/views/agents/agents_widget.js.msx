@@ -42,6 +42,8 @@ const AgentsWidget = {
 
     this.allAgents = args.allAgents;
 
+    this.pluginInfos = args.pluginInfos;
+
     this.donePerformingUpdate = function () {
       clearAllCheckboxes();
       args.doRefreshImmediately();
@@ -242,11 +244,11 @@ const AgentsWidget = {
                   return (
                     <AgentRowWidget agent={agent}
                                     key={uuid}
+                                    pluginInfos={ctrl.pluginInfos}
                                     checkBoxModel={checkboxModel}
                                     show={agent.matches(filterText)}
                                     dropdown={args.vm.dropdown}
                                     isUserAdmin={args.isUserAdmin}
-
                     />
                   );
 

@@ -215,21 +215,20 @@
 $arrow-color: #000;
 
 .go-table {
-  background:    transparent;
-  border:        0;
-  margin:        0;
+  background: transparent;
+  border:     0;
+  margin:     0;
 
   $column-widths: (
-                    "1": 1%,
-                    "2": 38px,
-                    "3": 16%,
-                    "4": 7%,
+                    "1": 2%,
+                    "2": 13%,
+                    "3": 11%,
+                    "4": 10%,
                     "5": 10%,
-                    "6": 10%,
-                    "7": 7%,
-                    "8": 9%,
-                    "9": calc(22% - 38px),
-                    "10": 18%,
+                    "6": 7%,
+                    "7": 11%,
+                    "8": 18%,
+                    "9": 18%,
                   );
 
   @each $key, $val in $column-widths {

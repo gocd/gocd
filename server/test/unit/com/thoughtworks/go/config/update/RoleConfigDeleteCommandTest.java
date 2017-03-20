@@ -30,8 +30,7 @@ import org.junit.rules.ExpectedException;
 
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -91,6 +90,9 @@ public class RoleConfigDeleteCommandTest {
         PluginRoleConfig stageAdmin = new PluginRoleConfig("stageAdmin", "ldap");
         cruiseConfig.server().security().addRole(stageAdmin);
 
+        cruiseConfig.server().security().adminsConfig().add(new AdminRole(readOnly.getName()));
+        cruiseConfig.server().security().adminsConfig().add(new AdminRole(superAdmin.getName()));
+
         PipelineConfig pipelineWithStageRequiringAuth = PipelineConfigMother.createPipelineConfigWithStage("myPipeline", "myStage");
         pipelineWithStageRequiringAuth.getFirstStageConfig().setApproval(new Approval(new AuthConfig(new AdminRole(stageAdmin.getName()))));
 
@@ -101,13 +103,13 @@ public class RoleConfigDeleteCommandTest {
                 new AdminsConfig(new AdminRole(superAdmin.getName()))
         ));
 
-        cruiseConfig.server().security().adminsConfig().add(new AdminRole(superAdmin.getName()));
         cruiseConfig.getGroups().add(pipelineGroupWithAuth);
         cruiseConfig.addTemplate(PipelineTemplateConfigMother.createTemplate("myTemplate", new Authorization(new AdminsConfig(new AdminRole(superAdmin.getName())))));
 
         RoleConfigCommand command = new RoleConfigDeleteCommand(null, readOnly, extension, null, new HttpLocalizedOperationResult());
         command.update(cruiseConfig);
 
+        assertThat(cruiseConfig.server().security().adminsConfig().getRoles(), hasSize(1));
         assertThat(cruiseConfig.server().security().getRoles().findByName(readOnly.getName()), is(nullValue()));
         assertFalse(cruiseConfig.getGroups().get(0).getAuthorization().getViewConfig().getRoles().contains(new AdminRole(readOnly.getName())));
         assertTrue(cruiseConfig.getGroups().get(0).getAuthorization().getViewConfig().getRoles().contains(new AdminRole(stageAdmin.getName())));

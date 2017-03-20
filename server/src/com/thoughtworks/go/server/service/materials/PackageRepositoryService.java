@@ -106,13 +106,13 @@ public class PackageRepositoryService {
             Result checkConnectionResult = packageRepositoryExtension.checkConnectionToRepository(packageRepository.getPluginConfiguration().getId(), populateConfiguration(packageRepository.getConfiguration()));
             String messages = checkConnectionResult.getMessagesForDisplay();
             if (!checkConnectionResult.isSuccessful()) {
-                result.connectionError(LocalizedMessage.string("PACKAGE_REPOSITORY_CHECK_CONNECTION_FAILED", messages));
+                result.connectionError(LocalizedMessage.string("CHECK_CONNECTION_FAILED", "package repository",messages));
                 return;
             }
             result.setMessage(LocalizedMessage.string("CONNECTION_OK", messages));
             return;
         } catch (Exception e) {
-            result.internalServerError(LocalizedMessage.string("PACKAGE_REPOSITORY_CHECK_CONNECTION_FAILED", e.getMessage()));
+            result.internalServerError(LocalizedMessage.string("CHECK_CONNECTION_FAILED", "package repository", e.getMessage()));
         }
     }
 

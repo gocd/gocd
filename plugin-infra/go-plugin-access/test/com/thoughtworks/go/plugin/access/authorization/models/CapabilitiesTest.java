@@ -39,5 +39,4 @@ public class CapabilitiesTest {
         assertTrue(capabilities.canSearch());
         assertTrue(capabilities.canAuthorize());
     }
-
 }

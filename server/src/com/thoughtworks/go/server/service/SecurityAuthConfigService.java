@@ -21,10 +21,15 @@ import com.thoughtworks.go.config.SecurityAuthConfigs;
 import com.thoughtworks.go.config.update.SecurityAuthConfigCreateCommand;
 import com.thoughtworks.go.config.update.SecurityAuthConfigDeleteCommand;
 import com.thoughtworks.go.config.update.SecurityAuthConfigUpdateCommand;
+import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.i18n.LocalizedMessage;
+import com.thoughtworks.go.plugin.access.PluginNotFoundException;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
+import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
+import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -47,7 +52,7 @@ public class SecurityAuthConfigService extends PluginProfilesService<SecurityAut
     }
 
     public void delete(Username currentUser, SecurityAuthConfig newSecurityAuthConfig, LocalizedOperationResult result) {
-        update(currentUser, newSecurityAuthConfig, result, new SecurityAuthConfigDeleteCommand(goConfigService, newSecurityAuthConfig,authorizationExtension, currentUser, result));
+        update(currentUser, newSecurityAuthConfig, result, new SecurityAuthConfigDeleteCommand(goConfigService, newSecurityAuthConfig, authorizationExtension, currentUser, result));
         if (result.isSuccessful()) {
             result.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", "security auth config", newSecurityAuthConfig.getId()));
         }
@@ -55,6 +60,36 @@ public class SecurityAuthConfigService extends PluginProfilesService<SecurityAut
 
     public void create(Username currentUser, SecurityAuthConfig securityAuthConfig, LocalizedOperationResult result) {
         update(currentUser, securityAuthConfig, result, new SecurityAuthConfigCreateCommand(goConfigService, securityAuthConfig, authorizationExtension, currentUser, result));
+    }
+
+
+    public void verifyConnection(SecurityAuthConfig securityAuthConfig, LocalizedOperationResult result) {
+        try {
+            ValidationResult validationResult = authorizationExtension.verifyConnection(securityAuthConfig.getPluginId(), securityAuthConfig.getConfigurationAsMap(true));
+            if (!validationResult.isSuccessful()) {
+                boolean isInvalidProfile = false;
+                for (ValidationError validationError : validationResult.getErrors()) {
+                    if (StringUtils.isBlank(validationError.getKey())) {
+                        result.stale(LocalizedMessage.string("CHECK_CONNECTION_FAILED", securityAuthConfig.getId(), validationError.getMessage()));
+                    } else {
+                        ConfigurationProperty property = securityAuthConfig.getProperty(validationError.getKey());
+                        if (property != null) {
+                            isInvalidProfile = true;
+                            property.addError(validationError.getKey(), validationError.getMessage());
+                        }
+                    }
+                }
+
+                if (isInvalidProfile) {
+                    result.unprocessableEntity(LocalizedMessage.string("CHECK_CONNECTION_FAILED", securityAuthConfig.getId(), "Could not verify connection!"));
+                } else if (!result.hasMessage()) {
+                    result.stale(LocalizedMessage.string("CHECK_CONNECTION_FAILED", securityAuthConfig.getId(), "Could not verify connection!"));
+                }
+            }
+
+        } catch (PluginNotFoundException e) {
+            result.internalServerError(LocalizedMessage.string("ASSOCIATED_PLUGIN_NOT_FOUND", securityAuthConfig.getPluginId()));
+        }
     }
 
 }

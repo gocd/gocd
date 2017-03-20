@@ -36,6 +36,7 @@ import static com.thoughtworks.go.config.Authorization.ALLOW_GROUP_ADMINS;
 /**
  * @understands abstracting a pipeline definition
  */
+
 @ConfigTag("pipeline")
 @ConfigCollection(value = StageConfig.class)
 public class PipelineTemplateConfig extends BaseCollection<StageConfig> implements Validatable, ParamsAttributeAware {
@@ -49,7 +50,8 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
 
     public static final String AUTHORIZATION = "authorization";
 
-    @ConfigSubtag @SkipParameterResolution
+    @ConfigSubtag
+    @SkipParameterResolution
     private Authorization authorization = new Authorization();
 
     private final ConfigErrors configErrors = new ConfigErrors();
@@ -109,7 +111,7 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
 
     private void validateElasticProfileId(JobConfig jobConfig, PipelineConfigSaveValidationContext preprocessedConfig) {
         String elasticProfileId = jobConfig.getElasticProfileId();
-        if(elasticProfileId != null && !preprocessedConfig.isValidProfileId(elasticProfileId)){
+        if (elasticProfileId != null && !preprocessedConfig.isValidProfileId(elasticProfileId)) {
             String message = String.format("No profile defined corresponding to profile_id '%s'", elasticProfileId);
             jobConfig.addError("elasticProfileId", message);
             this.errors().addAll(jobConfig.errors());
@@ -156,7 +158,7 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
 
     public void validateStageConfig(ValidationContext validationContext) {
         ValidationContext contextForChildren = validationContext.withParent(this);
-        for(StageConfig stageConfig : this) {
+        for (StageConfig stageConfig : this) {
             stageConfig.validateTree(contextForChildren);
         }
     }

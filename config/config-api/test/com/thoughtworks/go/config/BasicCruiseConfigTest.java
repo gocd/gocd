@@ -204,13 +204,13 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
         new GoConfigMother().addPipelineWithTemplate(cruiseConfig, "p1", "t1", "s1", "j1");
         new GoConfigMother().addPipelineWithTemplate(cruiseConfig, "p2", "t2", "s2", "j2");
 
-        HashMap<CaseInsensitiveString, List<CaseInsensitiveString>> map = new HashMap<>();
-        List<CaseInsensitiveString> template1Pipelines = Arrays.asList(new CaseInsensitiveString("p1"));
-        List<CaseInsensitiveString> template2Pipelines = Arrays.asList(new CaseInsensitiveString("p2"));
-        map.put(new CaseInsensitiveString("t1"), template1Pipelines);
-        map.put(new CaseInsensitiveString("t2"), template2Pipelines);
+        TemplatesToPipelines templates1 = new TemplatesToPipelines(new CaseInsensitiveString("t1"));
+        templates1.addPipeline(new CaseInsensitiveString("p1"), true);
+        TemplatesToPipelines templates2 = new TemplatesToPipelines(new CaseInsensitiveString("t2"));
+        templates2.addPipeline(new CaseInsensitiveString("p2"), true);
 
-        assertThat(cruiseConfig.templatesWithPipelinesForUser("admin", null), is(map));
+
+        assertThat(cruiseConfig.templatesWithPipelinesForUser("admin", null), is(Arrays.asList(templates1, templates2)));
     }
 
     @Test
@@ -221,10 +221,9 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
         PipelineTemplateConfig template2 = PipelineTemplateConfigMother.createTemplate("t2", new Authorization(new AdminsConfig(new AdminUser(templateAdmin))), StageConfigMother.manualStage("foo"));
         cruiseConfig.addTemplate(template2);
 
-        HashMap<CaseInsensitiveString, List<CaseInsensitiveString>> map = new HashMap<>();
-        map.put(new CaseInsensitiveString("t2"), new ArrayList<>());
+        TemplatesToPipelines templates = new TemplatesToPipelines(new CaseInsensitiveString("t2"));
 
-        assertThat(cruiseConfig.templatesWithPipelinesForUser(templateAdmin.toString(), null), is(map));
+        assertThat(cruiseConfig.templatesWithPipelinesForUser(templateAdmin.toString(), null), is(Arrays.asList(templates)));
     }
 
     @Test
@@ -234,10 +233,9 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
         PipelineTemplateConfig template2 = PipelineTemplateConfigMother.createTemplate("t2", new Authorization(new ViewConfig(new AdminUser(templateViewUser))), StageConfigMother.manualStage("foo"));
         cruiseConfig.addTemplate(template2);
 
-        HashMap<CaseInsensitiveString, List<CaseInsensitiveString>> map = new HashMap<>();
-        map.put(new CaseInsensitiveString("t2"), new ArrayList<>());
+        TemplatesToPipelines templates = new TemplatesToPipelines(new CaseInsensitiveString("t2"));
 
-        assertThat(cruiseConfig.templatesWithPipelinesForUser(templateViewUser.toString(), null), is(map));
+        assertThat(cruiseConfig.templatesWithPipelinesForUser(templateViewUser.toString(), null), is(Arrays.asList(templates)));
     }
 
     @Test
@@ -250,10 +248,9 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
         PipelineTemplateConfig template2 = PipelineTemplateConfigMother.createTemplate("t2", StageConfigMother.manualStage("foo"));
         cruiseConfig.addTemplate(template2);
 
-        HashMap<CaseInsensitiveString, List<CaseInsensitiveString>> map = new HashMap<>();
-        map.put(new CaseInsensitiveString("t2"), new ArrayList<>());
+        TemplatesToPipelines templates = new TemplatesToPipelines(new CaseInsensitiveString("t2"));
 
-        assertThat(cruiseConfig.templatesWithPipelinesForUser(groupAdmin.toString(), null), is(map));
+        assertThat(cruiseConfig.templatesWithPipelinesForUser(groupAdmin.toString(), null), is(Arrays.asList(templates)));
     }
 
     @Test
@@ -262,7 +259,7 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
         CaseInsensitiveString regularUser = new CaseInsensitiveString("view");
         new GoConfigMother().addPipelineWithTemplate(cruiseConfig, "p1", "t1", "s1", "j1");
 
-        assertThat(cruiseConfig.templatesWithPipelinesForUser(regularUser.toString(), null), is(new HashMap<>()));
+        assertThat(cruiseConfig.templatesWithPipelinesForUser(regularUser.toString(), null), is(new ArrayList<>()));
     }
 
     private BasicCruiseConfig getCruiseConfigWithSecurityEnabled() {

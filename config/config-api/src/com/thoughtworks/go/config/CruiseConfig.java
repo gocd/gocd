@@ -217,7 +217,7 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
 
     List<PipelineConfig> pipelinesForFetchArtifacts(String pipelineName);
 
-    Map<CaseInsensitiveString, List<CaseInsensitiveString>> templatesWithPipelinesForUser(String username, List<Role> roles);
+    List<TemplatesToPipelines> templatesWithPipelinesForUser(String username, List<Role> roles);
 
     List<CaseInsensitiveString> pipelinesAssociatedWithTemplate(CaseInsensitiveString templateName);
 

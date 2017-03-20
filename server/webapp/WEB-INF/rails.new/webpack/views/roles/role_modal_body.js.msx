@@ -14,38 +14,11 @@
  * limitations under the License.
  */
 
-const m             = require("mithril");
-const f             = require('helpers/form_helper');
-const Roles         = require('models/roles/roles');
-const AngularPlugin = require('views/shared/angular_plugin');
+const m              = require("mithril");
+const f              = require('helpers/form_helper');
+const RoleUserWidget = require('views/roles/role_user_widget');
 
 const RoleModalBody = {
-  oninit (vnode) {
-    this.changeAuthConfig = function () {
-      if (!vnode.attrs.role().authConfigId()) {
-        return;
-      }
-      const authConfig = vnode.attrs.authConfigs().findById(vnode.attrs.role().authConfigId());
-      const newRole    = new Roles.Role({name: vnode.attrs.role().name(), authConfigId: authConfig.id()});
-      newRole.etag(vnode.attrs.role().etag());
-      vnode.attrs.role(newRole);
-    };
-
-    this.authConfigItems = function () {
-      const items = [];
-      vnode.attrs.authConfigs().eachAuthConfig((authConfig) => {
-        const pluginInfo = vnode.attrs.pluginInfos().findById(authConfig.pluginId());
-        if (pluginInfo) {
-          items.push({
-            "id":   authConfig.id(),
-            "text": authConfig.id()
-          });
-        }
-      });
-      return items;
-    };
-  },
-
   view (vnode) {
     if (vnode.attrs.errorMessage && vnode.attrs.errorMessage()) {
       return (
@@ -59,23 +32,6 @@ const RoleModalBody = {
       );
     }
 
-    let angularPlugin;
-    let pluginInfo;
-    const authConfig = vnode.attrs.authConfigs().findById(vnode.attrs.role().authConfigId());
-
-    if (authConfig) {
-      pluginInfo = vnode.attrs.pluginInfos().findById(authConfig.pluginId());
-    } else {
-      const id = vnode.attrs.authConfigs().firstAuthConfig().id();
-      vnode.attrs.role().authConfigId(id);
-    }
-
-    if (pluginInfo) {
-      angularPlugin = (<AngularPlugin pluginInfo={pluginInfo.roleSettings}
-                                      configuration={vnode.attrs.role().properties}
-                                      key={pluginInfo.id()}/>);
-    }
-
     let roleNameDisabledMessage;
     if (!vnode.attrs.newRole) {
       roleNameDisabledMessage = (<div>Editing of role NAME is disabled</div>);
@@ -85,28 +41,25 @@ const RoleModalBody = {
       <div>
         <f.row collapse="true">
           <f.row key="static-stuff" class="id-and-plugin-id-wrapper">
-            <f.inputWithLabel model={vnode.attrs.role()}
-                              attrName="name"
-                              validate="true"
-                              isRequired="true"
-                              disabled={!vnode.attrs.newRole}
-                              message={roleNameDisabledMessage}
-                              label="name"
-                              key="role-name"/>
+            <f.input model={vnode.attrs.role()}
+                     attrName="name"
+                     validate="true"
+                     isRequired="true"
+                     disabled={!vnode.attrs.newRole}
+                     message={roleNameDisabledMessage}
+                     label="name"
+                     key="role-name"/>
 
-            <f.select model={vnode.attrs.role()}
-                      attrName='authConfigId'
-                      label='Auth Config Id'
-                      onchange={vnode.state.changeAuthConfig.bind(vnode.state)}
-                      items={vnode.state.authConfigItems()}
-                      largeSize={4}
-                      size={6}
-                      end={"true"}/>
           </f.row>
         </f.row>
 
         <div class="row collapse">
-          {angularPlugin}
+          <div class="role-users">
+            <div class="role-users-header">Role users</div>
+            <RoleUserWidget role={vnode.attrs.role}
+                            editable={true}
+                            showState={'show'}/>
+          </div>
         </div>
       </div>
     );

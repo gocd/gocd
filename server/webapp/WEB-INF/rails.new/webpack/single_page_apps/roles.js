@@ -26,9 +26,15 @@ $(() => {
   new VersionUpdater().update();
 
   Promise.all([PluginInfos.all(), AuthConfigs.all()]).then((args) => {
+
+    let authorizationPluginInfos = args[0].filterByType('authorization');
+    authorizationPluginInfos     = new PluginInfos(authorizationPluginInfos.filterPluginInfo((pi) => pi.capabilities().canAuthorize()));
+
+    const authConfigs = new AuthConfigs(args[1].filterAuthConfig((ac) => authorizationPluginInfos.findById(ac.pluginId())));
+
     m.mount($("#roles").get(0), RolesWidget({
-      pluginInfos: Stream(args[0].filterByType('authorization')),
-      authConfigs: Stream(args[1])
+      pluginInfos: Stream(authorizationPluginInfos),
+      authConfigs: Stream(authConfigs)
     }));
 
     $(document).foundation();

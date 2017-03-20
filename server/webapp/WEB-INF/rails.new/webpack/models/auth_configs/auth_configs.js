@@ -61,8 +61,8 @@ AuthConfigs.AuthConfig = function (data) {
   CrudMixins.AllOperations.call(this, ['refresh', 'update', 'delete', 'create'], {
     type:     AuthConfigs.AuthConfig,
     indexUrl: Routes.apiv1AdminSecurityAuthConfigsPath(),
-    resourceUrl (id) {
-      return Routes.apiv1AdminSecurityAuthConfigPath(id);
+    resourceUrl (authConfig) {
+      return Routes.apiv1AdminSecurityAuthConfigPath(authConfig.id());
     },
     version:  AuthConfigs.API_VERSION
   });

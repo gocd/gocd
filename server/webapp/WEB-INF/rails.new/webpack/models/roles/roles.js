@@ -44,7 +44,8 @@ CrudMixins.Index({
 Roles.Role = function (data) {
   const role        = this;
   role.name         = Stream(s.defaultToIfBlank(data.name, ''));
-  role.authConfigId = Stream(s.defaultToIfBlank(data.authConfigId, ''));
+  role.users        = Stream(s.defaultToIfBlank(data.users, null));
+  role.authConfigId = Stream(s.defaultToIfBlank(data.authConfigId, null));
   role.properties   = s.collectionToJSON(Stream(s.defaultToIfBlank(data.properties, new PluginConfigurations())));
   role.parent       = Mixins.GetterSetter();
   role.etag         = Mixins.GetterSetter();
@@ -59,9 +60,8 @@ Roles.Role = function (data) {
   CrudMixins.AllOperations.call(this, ['refresh', 'update', 'delete', 'create'], {
     type:     Roles.Role,
     indexUrl: Routes.apiv1AdminSecurityRolesPath(),
-    key:      "name",
-    resourceUrl (name) {
-      return Routes.apiv1AdminSecurityRolePath(name);
+    resourceUrl (role) {
+      return Routes.apiv1AdminSecurityRolePath(role.name());
     },
     version:  Roles.API_VERSION
   });
@@ -79,6 +79,7 @@ Roles.Role.fromJSON = function (data) {
   return new Roles.Role({
     name:         data.name,
     authConfigId: data.auth_config_id,
+    users:        data.users,
     errors:       data.errors,
     properties:   PluginConfigurations.fromJSON(data.properties)
   });

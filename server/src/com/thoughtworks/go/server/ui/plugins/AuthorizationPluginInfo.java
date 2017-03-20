@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.ui.plugins;
 
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConstants;
+import com.thoughtworks.go.plugin.access.authorization.models.Capabilities;
 import com.thoughtworks.go.plugin.access.common.models.Image;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 
@@ -24,12 +25,14 @@ public class AuthorizationPluginInfo extends NewPluginInfo {
     private final PluggableInstanceSettings authConfigSettings;
     private final PluggableInstanceSettings roleSettings;
     private final Image image;
+    private final Capabilities capabilities;
 
-    public AuthorizationPluginInfo(PluginDescriptor descriptor, PluggableInstanceSettings authConfigSettings, PluggableInstanceSettings roleSettings, Image image) {
+    public AuthorizationPluginInfo(PluginDescriptor descriptor, PluggableInstanceSettings authConfigSettings, PluggableInstanceSettings roleSettings, Image image, Capabilities capabilities) {
         super(descriptor, AuthorizationPluginConstants.EXTENSION_NAME);
         this.authConfigSettings = authConfigSettings;
         this.roleSettings = roleSettings;
         this.image = image;
+        this.capabilities = capabilities;
     }
 
     public PluggableInstanceSettings getAuthConfigSettings() {
@@ -44,6 +47,10 @@ public class AuthorizationPluginInfo extends NewPluginInfo {
         return image;
     }
 
+    public Capabilities getCapabilities() {
+        return capabilities;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -55,7 +62,8 @@ public class AuthorizationPluginInfo extends NewPluginInfo {
         if (authConfigSettings != null ? !authConfigSettings.equals(that.authConfigSettings) : that.authConfigSettings != null)
             return false;
         if (roleSettings != null ? !roleSettings.equals(that.roleSettings) : that.roleSettings != null) return false;
-        return image != null ? image.equals(that.image) : that.image == null;
+        if (image != null ? !image.equals(that.image) : that.image != null) return false;
+        return capabilities != null ? capabilities.equals(that.capabilities) : that.capabilities == null;
     }
 
     @Override
@@ -64,7 +72,7 @@ public class AuthorizationPluginInfo extends NewPluginInfo {
         result = 31 * result + (authConfigSettings != null ? authConfigSettings.hashCode() : 0);
         result = 31 * result + (roleSettings != null ? roleSettings.hashCode() : 0);
         result = 31 * result + (image != null ? image.hashCode() : 0);
+        result = 31 * result + (capabilities != null ? capabilities.hashCode() : 0);
         return result;
     }
-
 }

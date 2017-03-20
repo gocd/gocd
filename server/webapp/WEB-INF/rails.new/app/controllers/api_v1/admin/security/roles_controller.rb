@@ -75,7 +75,7 @@ module ApiV1
         end
 
         def stale_message
-          LocalizedMessage::string('STALE_RESOURCE_CONFIG', 'Security Auth Config', params[:role_name])
+          LocalizedMessage::string('STALE_RESOURCE_CONFIG', 'role', params[:role_name])
         end
 
         def etag_for_entity_in_config

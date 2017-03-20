@@ -26,6 +26,7 @@ $role-icon-text-padding: 20px;
 .add-role {
   float:         right;
   margin-bottom: 0;
+  margin-left:   10px;
 }
 
 .delete-role {
@@ -41,7 +42,7 @@ $role-icon-text-padding: 20px;
 .role {
   background:    $go-white;
   position:      relative;
-  margin:        10px;
+  margin-bottom: 10px;
   border:        0;
   border-radius: $global-border-radius;
   cursor:        pointer;
@@ -136,4 +137,46 @@ $role-icon-text-padding: 20px;
 
 .modal-body .id-and-plugin-id-wrapper .columns:first-child {
   padding-left: 0;
+}
+
+.tag {
+  margin-right:  5px;
+  padding:       7px 13px;
+  display:       inline-block;
+  font-size:     13px;
+  color:         #777;
+  font-weight:   600;
+  border-radius: 2px;
+  border:        1px solid #ddd;
+  cursor:        pointer;
+  a {
+    float: right;
+  }
+}
+
+.tag:hover {
+  border-color: #2ba6cb;
+  cursor:       pointer;
+}
+
+.role-read-only {
+  box-sizing: border-box;
+  border-top: 1px solid $light-grey;
+  padding:    10px;
+}
+
+.role-users {
+  margin-top: 10px;
+}
+
+.role-user-delete-icon {
+  float:       right;
+  margin-left: 10px;
+  cursor:      pointer;
+  font-size:   20px;
+  line-height: 1;
+}
+
+.role-user-delete-icon:hover {
+  color: #da4535;
 }

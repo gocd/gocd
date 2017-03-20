@@ -162,4 +162,8 @@ public class AuthorizationPluginConfigMetadataStore extends PluginConfigMetadata
         }
         throw new PluginNotFoundException(format("Did not find '%s' plugin with id '%s'. Looks like plugin is missing", EXTENSION_NAME, pluginId));
     }
+
+    public Capabilities getCapabilities(PluginDescriptor descriptor) {
+        return this.capabilities.get(descriptor);
+    }
 }

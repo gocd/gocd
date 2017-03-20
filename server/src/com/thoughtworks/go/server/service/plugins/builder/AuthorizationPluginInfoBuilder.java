@@ -53,7 +53,7 @@ public class AuthorizationPluginInfoBuilder extends PluginConfigMetadataStoreBas
         }
 
 
-        return new AuthorizationPluginInfo(descriptor, profileSettings, roleSettings, icon);
+        return new AuthorizationPluginInfo(descriptor, profileSettings, roleSettings, icon, store.getCapabilities(descriptor));
     }
 
 }

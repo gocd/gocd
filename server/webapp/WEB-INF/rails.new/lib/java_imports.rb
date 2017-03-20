@@ -257,4 +257,5 @@ module JavaImports
   java_import com.thoughtworks.go.config.RoleConfig unless defined? RoleConfig
   java_import com.thoughtworks.go.config.RoleUser unless defined? RoleUser
   java_import com.thoughtworks.go.config.SecurityAuthConfig unless defined? SecurityAuthConfig
+  java_import com.thoughtworks.go.plugin.access.authorization.models.Capabilities
 end

@@ -70,4 +70,26 @@ public class Capabilities {
     public static Capabilities fromJSON(String json) {
         return GSON.fromJson(json, Capabilities.class);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Capabilities that = (Capabilities) o;
+
+        if (canSearch != that.canSearch) return false;
+        if (canVerifyConnection != that.canVerifyConnection) return false;
+        if (canAuthorize != that.canAuthorize) return false;
+        return supportedAuthType == that.supportedAuthType;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = supportedAuthType != null ? supportedAuthType.hashCode() : 0;
+        result = 31 * result + (canSearch ? 1 : 0);
+        result = 31 * result + (canVerifyConnection ? 1 : 0);
+        result = 31 * result + (canAuthorize ? 1 : 0);
+        return result;
+    }
 }

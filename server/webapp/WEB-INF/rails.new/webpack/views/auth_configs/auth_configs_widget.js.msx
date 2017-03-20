@@ -15,12 +15,12 @@
  */
 
 const m                   = require('mithril');
-const Stream            = require('mithril/stream');
-const _                 = require('lodash');
+const Stream              = require('mithril/stream');
+const _                   = require('lodash');
 const f                   = require('helpers/form_helper');
-const Modal             = require('views/shared/new_modal');
-const ComponentMixins   = require('helpers/mithril_component_mixins');
-const AuthConfigs       = require('models/auth_configs/auth_configs');
+const Modal               = require('views/shared/new_modal');
+const ComponentMixins     = require('helpers/mithril_component_mixins');
+const AuthConfigs         = require('models/auth_configs/auth_configs');
 const AuthConfigWidget    = require('views/auth_configs/auth_config_widget');
 const AuthConfigModalBody = require('views/auth_configs/auth_config_modal_body');
 require('jquery-textcomplete');
@@ -54,7 +54,7 @@ const AuthConfigsWidget = {
     ComponentMixins.ManagesCollection.call(this, {as: 'AuthConfig'});
     ComponentMixins.HasViewModel.call(this);
 
-    this.modal = null;
+    this.modal       = null;
     this.authConfigs = Stream(new AuthConfigs());
 
     ctrl.message = Stream({type: undefined, message: undefined});
@@ -74,7 +74,7 @@ const AuthConfigsWidget = {
     this.reloadPage();
 
     this.edit = function (authConfig) {
-      const newAuthConfig = Stream();
+      const newAuthConfig = Stream(authConfig);
       const pluginInfo    = Stream(vnode.attrs.pluginInfos().findById(authConfig.pluginId()));
       const errorMessage  = Stream();
 
@@ -82,7 +82,7 @@ const AuthConfigsWidget = {
 
       const modal = new Modal({
         size:    'large',
-        title:   `Edit auth config ${  authConfig.id()}`,
+        title:   `Edit auth config ${authConfig.id()}`,
         body:    () => (<AuthConfigModalBody authConfig={newAuthConfig}
                                              pluginInfo={pluginInfo}
                                              newAuthConfig={false}

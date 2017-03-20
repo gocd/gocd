@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-const m               = require('mithril');
-const Stream          = require('mithril/stream');
-const _               = require('lodash');
-const f               = require('helpers/form_helper');
-const Modal           = require('views/shared/new_modal');
-const ComponentMixins = require('helpers/mithril_component_mixins');
-const Roles           = require('models/roles/roles');
-const RoleWidget      = require('views/roles/role_widget');
-const RoleModalBody   = require('views/roles/role_modal_body');
+const m                   = require('mithril');
+const Stream              = require('mithril/stream');
+const _                   = require('lodash');
+const f                   = require('helpers/form_helper');
+const Modal               = require('views/shared/new_modal');
+const ComponentMixins     = require('helpers/mithril_component_mixins');
+const Roles               = require('models/roles/roles');
+const RoleWidget          = require('views/roles/role_widget');
+const RoleModalBody       = require('views/roles/role_modal_body');
+const PluginRoleModalBody = require('views/roles/plugin_role_modal_body');
 require('jquery-textcomplete');
 
 function showErrors(modal, ctrl, newRole) {
@@ -77,6 +78,21 @@ const RolesWidget = function (options) {
 
       this.reloadPage();
 
+      this.getRoleModalBody = (role, errorMessage) => {
+        let roleView;
+        if (role().authConfigId()) {
+          roleView = (<PluginRoleModalBody role={role}
+                                           newRole={false}
+                                           pluginInfos={vnode.state.pluginInfos}
+                                           authConfigs={vnode.state.authConfigs}
+                                           errorMessage={errorMessage}/>);
+        } else {
+          roleView = (<RoleModalBody role={role}
+                                     newRole={false}/>);
+        }
+        return roleView;
+      };
+
       this.edit = function (role) {
         const newRole      = Stream(role);
         const errorMessage = Stream();
@@ -85,12 +101,8 @@ const RolesWidget = function (options) {
 
         const modal = new Modal({
           size:    'large',
-          title:   `Edit role ${  role.name()}`,
-          body:    () => (<RoleModalBody role={newRole}
-                                         newRole={false}
-                                         pluginInfos={vnode.state.pluginInfos}
-                                         authConfigs={vnode.state.authConfigs}
-                                         errorMessage={errorMessage}/>),
+          title:   `Edit role ${role.name()}`,
+          body:    () => (this.getRoleModalBody(newRole, errorMessage)),
           onclose: () => modal.destroy(),
           buttons: () => {
             if (!newRole()) {
@@ -117,16 +129,38 @@ const RolesWidget = function (options) {
         Roles.Role.get(role.name()).then(onFulfilled, errorMessage).always(m.redraw);
       };
 
-      this.add = function () {
+      this.addPluginRole = function () {
+        const newRole = Stream(new Roles.Role({}));
+
+        const modal = new Modal({
+          size:    'large',
+          title:   'Add a new role',
+          body:    () => (<PluginRoleModalBody role={newRole}
+                                               newRole={true}
+                                               pluginInfos={vnode.state.pluginInfos}
+                                               authConfigs={vnode.state.authConfigs}/>),
+          onclose: () => modal.destroy(),
+          buttons: [
+            {
+              text:  'Save',
+              class: 'save primary',
+              onclick () {
+                newRole().create().then(showSuccess(modal, ctrl, `The role ${  newRole().name()  } was created successfully.`), showErrors(modal, ctrl, newRole)).always(m.redraw);
+              }
+            }
+          ]
+        });
+        modal.render();
+      };
+
+      this.addRole = function () {
         const newRole = Stream(new Roles.Role({}));
 
         const modal = new Modal({
           size:    'large',
           title:   'Add a new role',
           body:    () => (<RoleModalBody role={newRole}
-                                         newRole={true}
-                                         pluginInfos={vnode.state.pluginInfos}
-                                         authConfigs={vnode.state.authConfigs}/>),
+                                         newRole={true}/>),
           onclose: () => modal.destroy(),
           buttons: [
             {
@@ -186,41 +220,56 @@ const RolesWidget = function (options) {
 
     view (vnode) {
 
-      this.errorMessage = function () {
-        if (vnode.state.message().message) {
-          return (
-            <f.row>
-              <f.callout type={vnode.state.message().type}>
-                {vnode.state.message().message}
+      const noPluginThatSupportsAuthorization = vnode.state.pluginInfos().countPluginInfo() === 0;
 
-                <button class="close-button" aria-label="Dismiss alert" type="button"
-                        onclick={vnode.state.clearMessage.bind(vnode.state)}>
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </f.callout>
-            </f.row>
-          );
-        }
-      };
+      let errorMessage;
+      if (vnode.state.message().message) {
+        errorMessage = (
+          <f.row>
+            <f.callout type={vnode.state.message().type}>
+              {vnode.state.message().message}
 
-      this.noAuthorizationPluginMessage = function () {
-        if (!vnode.state.pluginInfos || vnode.state.pluginInfos().countPluginInfo() === 0) {
-          return (<f.row>
-            <f.callout type="info">
-              No authorization plugin installed.
+              <button class="close-button" aria-label="Dismiss alert" type="button"
+                      onclick={vnode.state.clearMessage.bind(vnode.state)}>
+                <span aria-hidden="true">&times;</span>
+              </button>
             </f.callout>
-          </f.row>);
-        }
-      };
-
-      this.addRoleButton = function () {
-        const disabled = (!vnode.state.pluginInfos || vnode.state.pluginInfos().countPluginInfo() === 0);
-        return (
-          <f.button onclick={vnode.state.add.bind(vnode.state)} class="add-role" disabled={disabled}>
-            Add
-          </f.button>
+          </f.row>
         );
-      };
+      }
+
+      let noAuthorizationPluginMessage;
+      if (noPluginThatSupportsAuthorization) {
+        noAuthorizationPluginMessage = (<f.row>
+          <f.callout type="info">
+            No authorization plugin installed.
+          </f.callout>
+        </f.row>);
+      }
+
+      const noAuthorizationConfigurationCreated = vnode.state.authConfigs().countAuthConfig() === 0;
+
+      let noAuthorizationConfigurationCreatedMessage;
+      if (!noPluginThatSupportsAuthorization && noAuthorizationConfigurationCreated) {
+        noAuthorizationConfigurationCreatedMessage = (<f.row>
+          <f.callout type="info">
+            Need authorization configuration to add plugin role.
+          </f.callout>
+        </f.row>);
+      }
+
+      const addRoleButton = (
+        <f.button onclick={vnode.state.addRole.bind(vnode.state)} class="add-role">
+          Add
+        </f.button>
+      );
+
+      const disabled            = (noPluginThatSupportsAuthorization || noAuthorizationConfigurationCreated);
+      const addPluginRoleButton = (
+        <f.button onclick={vnode.state.addPluginRole.bind(vnode.state)} class="add-role" disabled={disabled}>
+          Add Plugin Role
+        </f.button>
+      );
 
       return (
         <div>
@@ -232,7 +281,8 @@ const RolesWidget = function (options) {
                 </f.column>
 
                 <f.column size={6}>
-                  {this.addRoleButton()}
+                  {addPluginRoleButton}
+                  {addRoleButton}
                 </f.column>
               </f.row>
             </header>
@@ -240,8 +290,9 @@ const RolesWidget = function (options) {
 
 
           <div class="roles">
-            {this.noAuthorizationPluginMessage()}
-            {this.errorMessage()}
+            {noAuthorizationPluginMessage}
+            {noAuthorizationConfigurationCreatedMessage}
+            {errorMessage}
             <f.row>
 
               {vnode.state.roles().mapRoles((role) => {
@@ -253,7 +304,7 @@ const RolesWidget = function (options) {
 
                 return (
                   <RoleWidget
-                    role={role}
+                    role={Stream(role)}
                     pluginInfo={pluginInfo}
                     key={role.name()}
                     vm={vnode.state.vmState(role.name())}

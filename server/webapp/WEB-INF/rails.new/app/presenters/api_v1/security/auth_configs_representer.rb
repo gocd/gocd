@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2016 ThoughtWorks, Inc.
+# Copyright 2017 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,22 +15,22 @@
 ##########################################################################
 
 module ApiV1
-  module Elastic
-    class ProfileRepresenter < ApiV1::PluginProfileRepresenter
-      alias_method :profile, :represented
-
-
+  module Security
+    class AuthConfigsRepresenter < BaseRepresenter
+      alias_method :profiles, :represented
       link :self do |opts|
-        opts[:url_builder].apiv1_elastic_profile_url(profile_id: profile.id) unless profile.id.blank?
+        opts[:url_builder].apiv1_admin_security_auth_configs_url
       end
 
       link :doc do |opts|
-        'https://api.gocd.io/#elastic-agent-profiles'
+        'https://api.gocd.io/#authorization-configuration'
       end
 
       link :find do |opts|
-        opts[:url_builder].apiv1_elastic_profile_url(profile_id: '__profile_id__').gsub('__profile_id__', ':profile_id')
+        opts[:url_builder].apiv1_admin_security_auth_config_url(auth_config_id: '__auth_config_id__').gsub('__auth_config_id__', ':auth_config_id')
       end
+
+      collection :profiles, as: :auth_configs, embedded: true, exec_context: :decorator, decorator: AuthConfigRepresenter
 
     end
   end

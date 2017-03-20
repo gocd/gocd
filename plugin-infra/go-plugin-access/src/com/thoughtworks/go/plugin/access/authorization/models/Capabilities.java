@@ -66,4 +66,24 @@ public class Capabilities {
         com.thoughtworks.go.plugin.domain.authorization.SupportedAuthType supportedAuthType = com.thoughtworks.go.plugin.domain.authorization.SupportedAuthType.valueOf(this.supportedAuthType.name());
         return new com.thoughtworks.go.plugin.domain.authorization.Capabilities(supportedAuthType, canSearch, canAuthorize);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Capabilities that = (Capabilities) o;
+
+        if (canSearch != that.canSearch) return false;
+        if (canAuthorize != that.canAuthorize) return false;
+        return supportedAuthType == that.supportedAuthType;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = supportedAuthType != null ? supportedAuthType.hashCode() : 0;
+        result = 31 * result + (canSearch ? 1 : 0);
+        result = 31 * result + (canAuthorize ? 1 : 0);
+        return result;
+    }
 }

@@ -63,11 +63,11 @@ public class PluginRoleConfig extends Configuration implements Role {
 
     @Override
     public void addUser(RoleUser user) {
-        throw new RuntimeException("PluginRoleConfig does not support adding users, should be added through RoleConfigService");
+        throw new UnsupportedOperationException("PluginRoleConfig does not support adding users, should be added through PluginRoleService");
     }
 
     public void removeUser(RoleUser roleUser) {
-        throw new RuntimeException("PluginRoleConfig does not support removing users, should be removed through RoleConfigService");
+        throw new UnsupportedOperationException("PluginRoleConfig does not support removing users, should be removed through PluginRoleService");
     }
 
     public ConfigErrors errors() {

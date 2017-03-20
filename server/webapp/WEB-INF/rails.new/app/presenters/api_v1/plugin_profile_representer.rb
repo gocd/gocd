@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2016 ThoughtWorks, Inc.
+# Copyright 2017 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,23 +15,26 @@
 ##########################################################################
 
 module ApiV1
-  module Elastic
-    class ProfileRepresenter < ApiV1::PluginProfileRepresenter
-      alias_method :profile, :represented
+  class PluginProfileRepresenter < BaseRepresenter
+    alias_method :profile, :represented
 
+    error_representer(
+      {
+        'pluginId' => 'plugin_id'
+      }
+    )
 
-      link :self do |opts|
-        opts[:url_builder].apiv1_elastic_profile_url(profile_id: profile.id) unless profile.id.blank?
-      end
+    property :id
+    property :plugin_id
 
-      link :doc do |opts|
-        'https://api.gocd.io/#elastic-agent-profiles'
-      end
+    collection :properties, exec_context: :decorator, decorator: ApiV1::Config::PluginConfigurationPropertyRepresenter, class: ConfigurationProperty
 
-      link :find do |opts|
-        opts[:url_builder].apiv1_elastic_profile_url(profile_id: '__profile_id__').gsub('__profile_id__', ':profile_id')
-      end
+    def properties
+      profile.to_a
+    end
 
+    def properties=(new_properties)
+      profile.addConfigurations(new_properties)
     end
   end
 end

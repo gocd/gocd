@@ -19,7 +19,7 @@ Go::Application.routes.draw do
   mount JasmineRails::Engine => '/jasmine-specs-new', as: :jasmine_new if defined?(JasmineRails)
 
   unless defined?(CONSTANTS)
-    ELASTIC_AGENT_PROFILE_ID_FORMAT = USER_NAME_FORMAT = GROUP_NAME_FORMAT = TEMPLATE_NAME_FORMAT = PIPELINE_NAME_FORMAT = STAGE_NAME_FORMAT = ENVIRONMENT_NAME_FORMAT = /[\w\-][\w\-.]*/
+    ROLE_NAME_FORMAT = ELASTIC_AGENT_PROFILE_ID_FORMAT = USER_NAME_FORMAT = GROUP_NAME_FORMAT = TEMPLATE_NAME_FORMAT = PIPELINE_NAME_FORMAT = STAGE_NAME_FORMAT = ENVIRONMENT_NAME_FORMAT = /[\w\-][\w\-.]*/
     JOB_NAME_FORMAT = /[\w\-.]+/
     PIPELINE_COUNTER_FORMAT = STAGE_COUNTER_FORMAT = /-?\d+/
     NON_NEGATIVE_INTEGER = /\d+/
@@ -229,6 +229,12 @@ Go::Application.routes.draw do
       end
 
       namespace :admin do
+        namespace :security do
+          resources :auth_configs, param: :auth_config_id, except: [:new, :edit,], constraints: {auth_config_id: ALLOW_DOTS}
+          resources :roles, param: :role_name, except: [:new, :edit], constraints: {role_name: ROLE_NAME_FORMAT}
+        end
+
+        resources :templates, param: :template_name, except: [:new, :edit], constraints: {template_name: TEMPLATE_NAME_FORMAT}
         resources :repositories, param: :repo_id, only: [:show, :index, :destroy, :create, :update], constraints: {repo_id: ALLOW_DOTS}
         resources :environments, param: :name, only: [:show, :destroy, :create, :update, :index], constraints: {:name => ENVIRONMENT_NAME_FORMAT} do
           patch on: :member, action: :patch
@@ -236,6 +242,7 @@ Go::Application.routes.draw do
         end
 
         post 'encrypt', controller: :encryption, action: :encrypt_value
+        post 'internal/security/auth_configs/verify_connection' => 'security/auth_configs#verify_connection_internal_api', as: :internal_verify_connection
         resources :packages, param: :package_id, only: [:show, :destroy, :index, :create, :update], constraints: {package_id: ALLOW_DOTS}
         namespace :internal do
           post :material_test, controller: :material_test, action: :test, as: :material_test
@@ -316,6 +323,11 @@ Go::Application.routes.draw do
   namespace :admin do
     resources :pipelines, only: [:edit], controller: :pipeline_configs, param: :pipeline_name, as: :pipeline_config, constraints: {pipeline_name: PIPELINE_NAME_FORMAT}
     resources :elastic_profiles, only: [:index], controller: :elastic_profiles, as: :elastic_profiles
+    namespace :security do
+      resources :auth_configs, only: [:index], controller: :auth_configs, as: :auth_configs
+      resources :roles, only: [:index], controller: :roles, as: :roles
+    end
+
     get 'agents', to: redirect('/go/agents')
   end
 

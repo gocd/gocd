@@ -85,7 +85,7 @@ public class RoleConfigService {
     public void delete(Username currentUser, Role role, LocalizedOperationResult result) {
         update(currentUser, role, result, new RoleConfigDeleteCommand(goConfigService, role, authorizationExtension, currentUser, result));
         if (result.isSuccessful()) {
-            result.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", "plugin role config", role.getName()));
+            result.setMessage(LocalizedMessage.string("RESOURCE_DELETE_SUCCESSFUL", getTagName(role).toLowerCase(), role.getName()));
         }
     }
 

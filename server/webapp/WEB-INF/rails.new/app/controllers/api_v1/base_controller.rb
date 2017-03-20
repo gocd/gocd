@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2015 ThoughtWorks, Inc.
+# Copyright 2017 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@ module ApiV1
 
     include AuthenticationHelper
 
-    FORMATS                = [:json_hal_v1]
-    DEFAULT_FORMAT         = FORMATS.last
+    FORMATS = [:json_hal_v1]
+    DEFAULT_FORMAT = FORMATS.last
     DEFAULT_ACCEPTS_HEADER = Mime[DEFAULT_FORMAT].to_s
 
     skip_before_filter :verify_authenticity_token
@@ -58,6 +58,17 @@ module ApiV1
     end
 
     protected
+
+    def handle_create_or_update_response(result, updated_entity)
+      json = entity_representer.new(updated_entity).to_hash(url_builder: self)
+      if result.isSuccessful
+        response.etag = [etag_for(updated_entity)]
+        render DEFAULT_FORMAT => json
+      else
+        render_http_operation_result(result, {data: json})
+      end
+    end
+
     def check_for_stale_request
       if request.env['HTTP_IF_MATCH'] != %Q{"#{Digest::MD5.hexdigest(etag_for_entity_in_config)}"}
         result = HttpLocalizedOperationResult.new
@@ -86,7 +97,7 @@ module ApiV1
     end
 
     def render_message(message, status = :ok, data = {})
-      render DEFAULT_FORMAT => { message: message.strip }.merge(data), status: status
+      render DEFAULT_FORMAT => {message: message.strip}.merge(data), status: status
     end
 
     def render_unprocessable_entity_error(exception)

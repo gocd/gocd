@@ -33,6 +33,14 @@ module ApiV3
                inherit: false,
                class: PluggableInstanceSettings,
                decorator: PluggableInstanceSettingsRepresenter
+
+      property :capabilities,
+               skip_nil: true,
+               expect_hash: true,
+               inherit: false,
+               class: Capabilities,
+               decorator: CapabilitiesRepresenter
+
     end
   end
 end

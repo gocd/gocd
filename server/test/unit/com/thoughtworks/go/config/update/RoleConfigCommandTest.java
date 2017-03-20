@@ -104,7 +104,7 @@ public class RoleConfigCommandTest {
         cruiseConfig.server().security().addRole(pluginRoleConfig);
 
         RoleConfigCommand command = new StubCommand(goConfigService, pluginRoleConfig, extension, currentUser, result);
-        thrown.expectMessage("Plugin role config name cannot be null.");
+        thrown.expectMessage("Role name cannot be null.");
         command.isValid(cruiseConfig);
     }
 

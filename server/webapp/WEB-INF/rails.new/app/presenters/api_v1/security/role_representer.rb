@@ -15,22 +15,23 @@
 ##########################################################################
 
 module ApiV1
-  module Elastic
-    class ProfileRepresenter < ApiV1::PluginProfileRepresenter
-      alias_method :profile, :represented
-
+  module Security
+    class RoleRepresenter < ApiV1::BaseRepresenter
+      alias_method :role, :represented
 
       link :self do |opts|
-        opts[:url_builder].apiv1_elastic_profile_url(profile_id: profile.id) unless profile.id.blank?
+        opts[:url_builder].apiv1_admin_security_role_url(role_name: role.name.to_s) unless role.name.blank?
       end
 
       link :doc do |opts|
-        'https://api.gocd.io/#elastic-agent-profiles'
+        'https://api.gocd.io/#roles'
       end
 
       link :find do |opts|
-        opts[:url_builder].apiv1_elastic_profile_url(profile_id: '__profile_id__').gsub('__profile_id__', ':profile_id')
+        opts[:url_builder].apiv1_admin_security_role_url(role_name: '__role_name__').gsub('__role_name__', ':role_name')
       end
+
+      property :name, case_insensitive_string: true
 
     end
   end

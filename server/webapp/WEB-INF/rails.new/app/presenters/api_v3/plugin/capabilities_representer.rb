@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2016 ThoughtWorks, Inc.
+# Copyright 2017 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,24 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ##########################################################################
+module ApiV3
+  module Plugin
+    class CapabilitiesRepresenter < BaseRepresenter
+      alias_method :capabilities, :represented
 
-module ApiV1
-  module Elastic
-    class ProfileRepresenter < ApiV1::PluginProfileRepresenter
-      alias_method :profile, :represented
-
-
-      link :self do |opts|
-        opts[:url_builder].apiv1_elastic_profile_url(profile_id: profile.id) unless profile.id.blank?
-      end
-
-      link :doc do |opts|
-        'https://api.gocd.io/#elastic-agent-profiles'
-      end
-
-      link :find do |opts|
-        opts[:url_builder].apiv1_elastic_profile_url(profile_id: '__profile_id__').gsub('__profile_id__', ':profile_id')
-      end
+      property :can_search
+      property :supported_auth_type
+      property :can_authorize
 
     end
   end

@@ -20,43 +20,31 @@ module ApiV1
       before_filter :check_admin_user_or_group_admin_user_and_401
       before_action :check_for_stale_request, :check_for_attempted_rename, only: [:update]
 
-      def index
-        profiles = elastic_profile_service.listAll.values.to_a
-        render DEFAULT_FORMAT => ProfilesRepresenter.new(profiles.to_a).to_hash(url_builder: self)
-      end
-
-      def show
-        profile = load_profile
-        if stale?(etag: etag_for(profile))
-          render DEFAULT_FORMAT => ProfileRepresenter.new(profile).to_hash(url_builder: self)
-        end
-      end
-
-      def update
-        profile = load_profile
-        profile_from_request = ProfileRepresenter.new(ElasticProfile.new).from_hash(params[:profile])
-
-        result = HttpLocalizedOperationResult.new
-        elastic_profile_service.update(current_user, etag_for(profile), profile_from_request, result)
-        handle_create_or_update_response(result, profile_from_request)
-      end
-
-      def create
-        result = HttpLocalizedOperationResult.new
-        profile = ProfileRepresenter.new(ElasticProfile.new).from_hash(params[:profile])
-        elastic_profile_service.create(current_user, profile, result)
-        handle_create_or_update_response(result, profile)
-      end
-
-      def destroy
-        result = HttpLocalizedOperationResult.new
-        elastic_profile_service.delete(current_user, load_profile, result)
-        render_http_operation_result(result)
-      end
+      include ProfilesControllerActions
 
       protected
 
-      def load_profile
+      def entity_json_from_request
+        params[:profile]
+      end
+
+      def service
+        elastic_profile_service
+      end
+
+      def all_entities_representer
+        ProfilesRepresenter
+      end
+
+      def entity_representer
+        ProfileRepresenter
+      end
+
+      def create_config_entity
+        ElasticProfile.new
+      end
+
+      def load_entity_from_config
         elastic_profile_service.findProfile(params[:profile_id]) || (raise ApiV1::RecordNotFound)
       end
 
@@ -65,22 +53,12 @@ module ApiV1
       end
 
       def etag_for_entity_in_config
-        etag_for(load_profile)
-      end
-
-      def handle_create_or_update_response(result, updated_profile)
-        json = ProfileRepresenter.new(updated_profile).to_hash(url_builder: self)
-        if result.isSuccessful
-          response.etag = [etag_for(updated_profile)]
-          render DEFAULT_FORMAT => json
-        else
-          render_http_operation_result(result, {data: json})
-        end
+        etag_for(load_entity_from_config)
       end
 
       def check_for_attempted_rename
         unless params[:profile].try(:[], :id).to_s == params[:profile_id].to_s
-          render_message('Renaming of profile IDs is not supported by this API.', :unprocessable_entity)
+          render_message('Renaming of elastic agent profile IDs is not supported by this API.', :unprocessable_entity)
         end
       end
 

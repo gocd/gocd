@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2015 ThoughtWorks, Inc.
+# Copyright 2017 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -183,7 +183,7 @@ RSpec::Matchers.define :allow_action do |verb, expected_action, params={}, heade
     end
 
     if @exception
-      messages << "An exception was raised #{exception.message}."
+      messages << "An exception was raised #{@exception.message}."
     end
 
     messages.join("\n")
@@ -235,7 +235,7 @@ RSpec::Matchers.define :disallow_action do |verb, expected_action, params={}, he
     end
 
     if @exception
-      messages << "An exception was raised #{exception.message}."
+      messages << "An exception was raised #{@exception.message}."
     end
 
     if @failed_with_bad_status

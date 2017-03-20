@@ -67,16 +67,15 @@ abstract class RoleConfigCommand implements EntityConfigUpdateCommand<Role> {
         preprocessedRole = findExistingRole(preprocessedConfig);
         preprocessedRole.validate(null);
         validate(preprocessedConfig);
+        BasicCruiseConfig.copyErrors(preprocessedRole, role);
         final RolesConfig rolesConfig = preprocessedConfig.server().security().getRoles();
 
         if (preprocessedRole.errors().isEmpty()) {
             rolesConfig.validate(null);
-            BasicCruiseConfig.copyErrors(preprocessedRole, role);
             role.errors().addAll(rolesConfig.errors());
             return preprocessedRole.getAllErrors().isEmpty() && role.errors().isEmpty();
         }
 
-        BasicCruiseConfig.copyErrors(preprocessedRole, role);
         return false;
     }
 
@@ -90,6 +89,7 @@ abstract class RoleConfigCommand implements EntityConfigUpdateCommand<Role> {
                 role.addError("authConfigId", "No such security auth configuration present " + role.getAuthConfigId());
                 return;
             }
+
             try {
                 ValidationResult result = extension.validateRoleConfiguration(securityAuthConfig.getPluginId(), role.getConfigurationAsMap(true));
                 if (!result.isSuccessful()) {
@@ -105,7 +105,7 @@ abstract class RoleConfigCommand implements EntityConfigUpdateCommand<Role> {
                     }
                 }
             } catch (PluginNotFoundException e) {
-                role.addError("authConfigId", "Could not find a security authorization config with id '" + role.getAuthConfigId() + "'.");
+                role.addError("authConfigId", e.getMessage());
             }
         }
     }
@@ -114,15 +114,15 @@ abstract class RoleConfigCommand implements EntityConfigUpdateCommand<Role> {
     final Role findExistingRole(CruiseConfig cruiseConfig) {
         if (role == null || isBlank(role.getName().toString())) {
             if (role != null) {
-                role.addError("name", "Plugin role config cannot have a blank name.");
+                role.addError("name", "Role cannot have a blank name.");
             }
-            result.unprocessableEntity(LocalizedMessage.string("ENTITY_ATTRIBUTE_NULL", "plugin role config", "name"));
-            throw new IllegalArgumentException("Plugin role config name cannot be null.");
+            result.unprocessableEntity(LocalizedMessage.string("ENTITY_ATTRIBUTE_NULL", getTagName(), "name"));
+            throw new IllegalArgumentException("Role name cannot be null.");
         } else {
             Role t = cruiseConfig.server().security().getRoles().findByName(role.getName());
             if (t == null) {
                 result.notFound(LocalizedMessage.string("RESOURCE_NOT_FOUND", getTagName(), role.getName()), HealthStateType.notFound());
-                throw new RoleNotFoundException("Plugin role config `" + role.getName() + "` does not exist.");
+                throw new RoleNotFoundException("Role `" + role.getName() + "` does not exist.");
             }
             return t;
         }

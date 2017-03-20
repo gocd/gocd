@@ -69,7 +69,7 @@ public class RoleConfigCreateCommandTest {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
 
         thrown.expect(RoleNotFoundException.class);
-        thrown.expectMessage("Plugin role config `blackbird` does not exist.");
+        thrown.expectMessage("Role `blackbird` does not exist.");
         command.isValid(cruiseConfig);
         command.update(cruiseConfig);
         assertThat(role.first().errors().size(), is(1));

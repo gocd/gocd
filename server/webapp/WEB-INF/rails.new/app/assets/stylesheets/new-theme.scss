@@ -3616,3 +3616,12 @@ form#package_repositories_edit_form {
     margin-left: 10px;
   }
 }
+
+body#login-page {
+  .page-wrap:before {
+    height: 0;
+  }
+  #error-container {
+    margin-top: -50px;
+  }
+}

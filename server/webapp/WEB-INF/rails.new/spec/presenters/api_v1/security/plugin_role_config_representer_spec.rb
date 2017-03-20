@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2016 ThoughtWorks, Inc.
+# Copyright 2017 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ describe ApiV1::Security::PluginRoleConfigRepresenter do
 
   it 'should serialize to json' do
     role = PluginRoleConfig.new('blackbird', 'ldap', ConfigurationPropertyMother.create('foo', false, 'bar'))
-    actual_json = ApiV1::Security::PluginRoleConfigRepresenter.new(role).to_hash(url_builder: UrlBuilder.new)
+    actual_json = ApiV1::Security::RoleConfigRepresenter.new(role).to_hash(url_builder: UrlBuilder.new)
 
     expect(actual_json).to have_links(:doc, :self, :find)
 
@@ -30,11 +30,11 @@ describe ApiV1::Security::PluginRoleConfigRepresenter do
 
     actual_json.delete(:_links)
 
-    expect(actual_json).to eq(name: 'blackbird', auth_config_id: 'ldap', properties: [{key: 'foo', value: 'bar'}])
+    expect(actual_json).to eq(name: 'blackbird', type: 'plugin', attributes: {auth_config_id: 'ldap', properties: [{key: 'foo', value: 'bar'}]})
   end
 
   it 'should deserialize from json' do
-    new_role = ApiV1::Security::PluginRoleConfigRepresenter.new(PluginRoleConfig.new).from_hash(name: 'blackbird', auth_config_id: 'ldap', properties: [{key: 'foo', value: 'bar'}])
+    new_role = ApiV1::Security::RoleConfigRepresenter.new(PluginRoleConfig.new).from_hash(name: 'blackbird', type: 'plugin', attributes: {auth_config_id: 'ldap', properties: [{key: 'foo', value: 'bar'}]})
 
     expect(new_role.name.to_s).to eq('blackbird')
     expect(new_role.auth_config_id).to eq('ldap')

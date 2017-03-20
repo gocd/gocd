@@ -1,0 +1,132 @@
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+const m             = require("mithril");
+const f             = require('helpers/form_helper');
+const Roles         = require('models/roles/roles');
+const AngularPlugin = require('views/shared/angular_plugin');
+
+const PluginRoleModalBody = {
+  oninit (vnode) {
+    this.changeAuthConfig = () => {
+      if (!vnode.attrs.role().authConfigId()) {
+        return;
+      }
+      const authConfig = vnode.attrs.authConfigs().findById(vnode.attrs.role().authConfigId());
+      const newRole    = new Roles.Role({name: vnode.attrs.role().name(), authConfigId: authConfig.id()});
+      newRole.etag(vnode.attrs.role().etag());
+      vnode.attrs.role(newRole);
+    };
+
+    this.authConfigItems = () => {
+      const items = [];
+      vnode.attrs.authConfigs().eachAuthConfig((authConfig) => {
+        const pluginInfo = vnode.attrs.pluginInfos().findById(authConfig.pluginId());
+        if (pluginInfo && pluginInfo.capabilities().canAuthorize) {
+          items.push({
+            id:   authConfig.id(),
+            text: `${authConfig.id()} (${pluginInfo.about().name() ? pluginInfo.about().name() : pluginInfo.id()})`
+          });
+        }
+      });
+      return items;
+    };
+
+    this.initializeWithAuthConfig = () => {
+      const authConfigId = vnode.attrs.role().authConfigId();
+      if (!authConfigId) {
+        const authConfig = vnode.attrs.authConfigs().firstAuthConfig();
+        vnode.attrs.role().authConfigId(authConfig.id());
+      }
+    };
+
+  },
+
+  view (vnode) {
+    this.initializeWithAuthConfig();
+    const role       = vnode.attrs.role();
+    const authConfig = vnode.attrs.authConfigs().findById(role.authConfigId());
+    const pluginInfo = vnode.attrs.pluginInfos().findById(authConfig.pluginId());
+
+    let angularPlugin;
+    if (!pluginInfo) {
+      return;
+    }
+
+    if (!pluginInfo.roleSettings().viewTemplate()) {
+      return (
+        <f.alert>Role template not defined.</f.alert>
+      );
+    }
+
+    if (vnode.attrs.errorMessage && vnode.attrs.errorMessage()) {
+      return (
+        <f.alert>{vnode.attrs.errorMessage()}</f.alert>
+      );
+    }
+
+    if (!role) {
+      return (
+        <div class="modal-spinner"/>
+      );
+    }
+
+    if (pluginInfo.roleSettings) {
+      angularPlugin = (<AngularPlugin pluginInfoSettings={pluginInfo.roleSettings}
+                                      configuration={role.properties}
+                                      key={pluginInfo.id()}/>);
+    }
+
+    let roleNameDisabledMessage;
+    if (!vnode.attrs.newRole) {
+      roleNameDisabledMessage = (<div>Editing of role NAME is disabled</div>);
+    }
+
+    return (
+      <div>
+        <f.row collapse="true">
+          <f.row key="static-stuff" class="id-and-plugin-id-wrapper">
+            <f.inputWithLabel model={role}
+                              attrName="name"
+                              validate="true"
+                              isRequired="true"
+                              disabled={!vnode.attrs.newRole}
+                              message={roleNameDisabledMessage}
+                              label="Role name"
+                              key="role-name"/>
+
+            <f.select model={role}
+                      attrName='authConfigId'
+                      label='Auth Config Id'
+                      validate="true"
+                      isRequired="true"
+                      onchange={vnode.state.changeAuthConfig.bind(vnode.state)}
+                      items={vnode.state.authConfigItems()}
+                      largeSize={5}
+                      size={7}
+                      end={"true"}/>
+          </f.row>
+        </f.row>
+
+        <div class="row collapse">
+          {angularPlugin}
+        </div>
+      </div>
+    );
+  }
+};
+
+module.exports = PluginRoleModalBody;

@@ -35,7 +35,21 @@
     margin-top: 20px;
     .button {
       margin: 0 1rem 0 0;
+      &.in-progress {
+        @include icon-before($type: spinner, $margin: 0 5px 0 0);
+        &:before {
+          @include animation(spin 1s linear infinite);
+        }
+      }
 
+      &.green-check {
+        @include icon-before($type: check, $margin: 0 5px 0 0);
+        background-color: map-get($foundation-palette, success);
+        transition:       all 0.5s ease-in-out;
+        &:before {
+          @include animation(fadeIn 1s ease-in);
+        }
+      }
     }
   }
   .button {

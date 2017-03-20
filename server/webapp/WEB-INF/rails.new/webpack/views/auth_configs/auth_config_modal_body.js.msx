@@ -1,0 +1,122 @@
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+const m             = require("mithril");
+const f             = require('helpers/form_helper');
+const AuthConfigs   = require('models/auth_configs/auth_configs');
+const AngularPlugin = require('views/shared/angular_plugin');
+
+const AuthConfigModalBody = {
+  oninit (vnode) {
+    this.setPluginInfo = function (pluginInfo) {
+      vnode.attrs.pluginInfo(pluginInfo);
+      vnode.attrs.verifyConnectionDisabled(!pluginInfo.capabilities().canVerifyConnection());
+    };
+
+    this.pluginIdChange = function () {
+      const pluginInfo = vnode.attrs.pluginInfos().findById(vnode.attrs.authConfig().pluginId());
+
+      if (!pluginInfo) {
+        return;
+      }
+
+      this.setPluginInfo(pluginInfo);
+      const newAuthConfig = new AuthConfigs.AuthConfig({id: vnode.attrs.authConfig().id(), pluginId: pluginInfo.id()});
+      newAuthConfig.etag(vnode.attrs.authConfig().etag());
+      vnode.attrs.authConfig(newAuthConfig);
+    };
+
+    this.pluginInfoItems = function () {
+      return vnode.attrs.pluginInfos().mapPluginInfos((pluginInfo) => {
+        return {
+          id:   pluginInfo.id(),
+          text: pluginInfo.about().name() ? pluginInfo.about().name() : pluginInfo.id()
+        };
+      });
+    };
+  },
+
+  view (vnode) {
+
+    let errorMessage;
+    if (vnode.attrs.errorMessage().message) {
+      errorMessage = (
+        <f.row collapse={true}>
+          <f.callout type={vnode.attrs.errorMessage().type}>
+            {vnode.attrs.errorMessage().message}
+          </f.callout>
+        </f.row>
+      );
+    }
+
+    if (!vnode.attrs.pluginInfo()) {
+      const firstPluginInfo = vnode.attrs.pluginInfos().firstPluginInfo();
+      this.setPluginInfo(firstPluginInfo);
+      vnode.attrs.authConfig().pluginId(firstPluginInfo.id());
+    }
+    
+    if (!vnode.attrs.authConfig()) {
+      return (
+        <div class="modal-spinner"/>
+      );
+    }
+
+    let authConfigIdDisabledMessage;
+    if (!vnode.attrs.newAuthConfig) {
+      authConfigIdDisabledMessage = (<div>Editing of auth config ID is disabled</div>);
+    }
+
+    let angularPlugin;
+
+    if (vnode.attrs.pluginInfo()) {
+      angularPlugin = (<AngularPlugin pluginInfoSettings={vnode.attrs.pluginInfo().authConfigSettings}
+                                      configuration={vnode.attrs.authConfig().properties}
+                                      key={vnode.attrs.pluginInfo().id()}/>);
+    }
+    return (
+      <div>
+        <f.row collapse={true}>
+          {errorMessage}
+          <f.row key="static-stuff" class="id-and-plugin-id-wrapper">
+            <f.inputWithLabel model={vnode.attrs.authConfig()}
+                              attrName="id"
+                              validate="true"
+                              isRequired="true"
+                              disabled={!vnode.attrs.newAuthConfig}
+                              message={authConfigIdDisabledMessage}
+                              label="Id"
+                              key="auth-config-id"/>
+
+            <f.select model={vnode.attrs.authConfig()}
+                      attrName='pluginId'
+                      label='Plugin Id'
+                      onchange={vnode.state.pluginIdChange.bind(vnode.state)}
+                      items={vnode.state.pluginInfoItems()}
+                      largeSize={4}
+                      size={6}
+                      end={"true"}/>
+          </f.row>
+        </f.row>
+
+        <div class="row collapse">
+          {angularPlugin}
+        </div>
+      </div>
+    );
+  }
+};
+
+module.exports = AuthConfigModalBody;

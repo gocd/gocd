@@ -1,0 +1,315 @@
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+const m                = require('mithril');
+const Stream           = require('mithril/stream');
+const _                = require('lodash');
+const f                = require('helpers/form_helper');
+const Modal            = require('views/shared/new_modal');
+const ComponentMixins  = require('helpers/mithril_component_mixins');
+const Roles            = require('models/roles/roles');
+const RoleWidget       = require('views/roles/role_widget');
+const RoleTypeSelector = require('views/roles/role_type_selector');
+require('jquery-textcomplete');
+
+function showErrors(modal, ctrl, newRole) {
+  return function (errorMessageOrRoleWithErrors) {
+    if (_.isString(errorMessageOrRoleWithErrors)) {
+      modal.destroy();
+      ctrl.message({type: 'alert', message: errorMessageOrRoleWithErrors});
+    } else {
+      ctrl.clearMessage();
+      newRole(errorMessageOrRoleWithErrors);
+    }
+  };
+}
+
+function showSuccess(modal, ctrl, message) {
+  return function () {
+    modal.destroy();
+    ctrl.reloadPage();
+    ctrl.message({
+      type: 'success',
+      message
+    });
+  };
+}
+
+const RolesWidget = function (options) {
+  return {
+    oninit (vnode) {
+      const ctrl                        = vnode.state;
+      ctrl.allAuthConfigs               = options.allAuthConfigs;
+      ctrl.pluginInfos                  = options.pluginInfos;
+      ctrl.authConfigsOfInstalledPlugin = options.authConfigsOfInstalledPlugin;
+
+      ComponentMixins.ManagesCollection.call(this, {as: 'Role'});
+      ComponentMixins.HasViewModel.call(this);
+
+      this.modal   = null;
+      this.roles   = Stream(new Roles());
+      this.message = Stream({type: undefined, message: undefined});
+
+      this.clearMessage = function () {
+        this.message({});
+      };
+
+      this.reloadPage = function () {
+        Roles.all().then((roles) => {
+          ctrl.roles(roles);
+        }, (message) => {
+          ctrl.message({type: 'alert', message});
+        }).always(m.redraw);
+      };
+
+      this.reloadPage();
+
+      this.createModal = function (options) {
+        const newRole       = options.newRole;
+        const selectedType  = options.selectedType;
+        const operationType = options.operationType;
+        const modalTitle    = options.modalTitle;
+        const isNew         = operationType === 'add' || operationType === 'clone';
+        const buttonName    = (operationType === 'add' || operationType === 'edit') ? 'Save' : 'Clone';
+
+        const modal = new Modal({
+          size:    'large',
+          title:   modalTitle,
+          body:    () => (<RoleTypeSelector role={newRole}
+                                            newRole={isNew}
+                                            pluginInfos={vnode.state.pluginInfos}
+                                            authConfigs={vnode.state.authConfigsOfInstalledPlugin}
+                                            selectedType={selectedType}/>),
+          onclose: () => modal.destroy(),
+          buttons: () => {
+            if (!newRole()) {
+              return [];
+            }
+            return [
+              {
+                text:  buttonName,
+                class: 'save primary',
+                onclick () {
+                  if (options.callback) {
+                    options.callback();
+                  }
+                }
+              }
+            ];
+          }
+        });
+
+        return modal;
+      };
+
+      this.edit = function (role) {
+        const newRole      = Stream();
+        const errorMessage = Stream();
+        const selectedType = Stream((role.authConfigId && role.authConfigId()) ? 'pluginRole' : 'role');
+        ctrl.clearMessage();
+
+        const modal = this.createModal({
+          newRole,
+          selectedType,
+          operationType: 'edit',
+          modalTitle:    `Edit role ${role.name()}`,
+          callback:      () => {
+            newRole().update().then(showSuccess(modal, ctrl, `The role ${newRole().name()} was updated successfully.`), showErrors(modal, ctrl, newRole)).always(m.redraw);
+          }
+        });
+
+        const onFulfilled = function (roleFromAjax) {
+          newRole(roleFromAjax);
+          errorMessage(null);
+        };
+
+        modal.render();
+        Roles.Role.get(role.name()).then(onFulfilled, errorMessage).always(m.redraw);
+      };
+
+      this.addRole = function () {
+        const newRole      = Stream(new Roles.Role({}));
+        const selectedType = Stream('role');
+
+        const modal = this.createModal({
+          newRole,
+          selectedType,
+          operationType: 'add',
+          modalTitle:    'Add a new role',
+          callback:      () => {
+            newRole().create().then(showSuccess(modal, ctrl, `The role ${  newRole().name()  } was created successfully.`), showErrors(modal, ctrl, newRole)).always(m.redraw);
+          }
+        });
+        modal.render();
+      };
+
+      this.clone = function (role) {
+        const newRole      = Stream();
+        const errorMessage = Stream();
+        const selectedType = Stream((role.authConfigId && role.authConfigId()) ? 'pluginRole' : 'role');
+        ctrl.clearMessage();
+
+        const modal = this.createModal({
+          newRole,
+          selectedType,
+          operationType: 'clone',
+          modalTitle:    `Clone role ${role.name()}`,
+          callback:      () => {
+            newRole().create().then(showSuccess(modal, ctrl, `The role ${newRole().name()} was cloned successfully.`), showErrors(modal, ctrl, newRole)).always(m.redraw);
+          }
+        });
+
+        const onFulfilled = function (roleFromAjax) {
+          newRole(roleFromAjax);
+          newRole().name('');
+          newRole().errors().add('name', 'Provide name to your clone');
+          errorMessage(null);
+        };
+
+        modal.render();
+        Roles.Role.get(role.name()).then(onFulfilled, errorMessage).always(m.redraw);
+      };
+
+      const deleteInProgress = Stream(false);
+
+      const performDelete = function (modal, role) {
+        const onSuccess = function (message) {
+          modal.destroy();
+          ctrl.deleteVm(role.name());
+          ctrl.reloadPage();
+          ctrl.message({type: 'success', message});
+          deleteInProgress(false);
+        };
+
+        const onFailure = function (message) {
+          modal.destroy();
+          ctrl.message({type: 'alert', message});
+          deleteInProgress(false);
+        };
+
+        deleteInProgress(true);
+        m.redraw();
+        role.delete().then(onSuccess, onFailure).always(m.redraw);
+      };
+
+      this.deleteConfirm = function (role) {
+        const modal = new Modal({
+          title:    'Are you sure?',
+          body:     () => (
+            <div>Are you sure you want to delete the role <strong>{role.name()}</strong>?</div>),
+          oncancel: () => modal.destroy(),
+          buttons:  () => [
+            {
+              text:  'Delete',
+              class: deleteInProgress() ? 'delete-role in-progress' : 'delete-role',
+              onclick () {
+                performDelete(modal, role);
+              }
+            }
+          ]
+        });
+        modal.render();
+      };
+
+    },
+
+    view (vnode) {
+
+      const noPluginThatSupportsAuthorization = vnode.state.pluginInfos().countPluginInfo() === 0;
+
+      let errorMessage;
+      if (vnode.state.message().message) {
+        errorMessage = (
+          <f.row>
+            <f.callout type={vnode.state.message().type}>
+              {vnode.state.message().message}
+
+              <button class="close-button" aria-label="Dismiss alert" type="button"
+                      onclick={vnode.state.clearMessage.bind(vnode.state)}>
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </f.callout>
+          </f.row>
+        );
+      }
+
+      let noAuthorizationPluginMessage;
+      if (noPluginThatSupportsAuthorization) {
+        noAuthorizationPluginMessage = (<f.row>
+          <f.callout type="info">
+            No authorization plugin installed.
+          </f.callout>
+        </f.row>);
+      }
+
+      const addRoleButton = (
+        <f.button onclick={vnode.state.addRole.bind(vnode.state)} class="add-role">
+          ADD ROLE
+        </f.button>
+      );
+
+      return (
+        <div>
+          <div class="header-panel">
+            <header class="page-header">
+              <f.row>
+                <f.column size={6}>
+                  <h1>Roles</h1>
+                </f.column>
+
+                <f.column size={6}>
+                  {addRoleButton}
+                </f.column>
+              </f.row>
+            </header>
+          </div>
+
+
+          <div class="roles">
+            {noAuthorizationPluginMessage}
+            {errorMessage}
+            <f.row>
+
+              {vnode.state.roles().mapRoles((role) => {
+                const authConfig = vnode.state.allAuthConfigs().findById(role.authConfigId());
+                let pluginInfo   = null;
+                if (authConfig) {
+                  pluginInfo = vnode.state.pluginInfos().findById(authConfig.pluginId());
+                }
+
+                return (
+                  <RoleWidget
+                    role={Stream(role)}
+                    pluginInfo={pluginInfo}
+                    key={role.name()}
+                    vm={vnode.state.vmState(role.name())}
+                    onEdit={vnode.state.edit.bind(vnode.state, role)}
+                    onDelete={vnode.state.deleteConfirm.bind(vnode.state, role)}
+                    onClone={vnode.state.clone.bind(vnode.state, role)}
+                    pluginInfos={vnode.state.pluginInfos}
+                    authConfigs={vnode.state.allAuthConfigs}/>
+                );
+              })}
+            </f.row>
+          </div>
+        </div>
+      );
+    }
+  };
+};
+
+module.exports = RolesWidget;
+

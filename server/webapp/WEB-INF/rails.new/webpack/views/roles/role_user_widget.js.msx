@@ -1,0 +1,155 @@
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+const m      = require('mithril');
+const Roles  = require('models/roles/roles');
+const Stream = require('mithril/stream');
+const f      = require('helpers/form_helper');
+const _      = require('lodash');
+
+const RoleUserWidget = {
+  oninit(vnode) {
+    vnode.state.currentUser   = '';
+    vnode.state.valueHolder   = '';
+    vnode.state.isUsersSorted = false;
+
+    this.updateRole = (role, users) => {
+      const newRole = new Roles.Role({name: role.name(), users});
+      newRole.etag(role.etag());
+      vnode.attrs.role(newRole);
+    };
+
+    this.deleteUser = (username) => {
+      vnode.state.currentUser = '';
+      const role              = vnode.attrs.role();
+      const users             = role.users();
+      const index             = users.indexOf(username);
+
+      if (index > -1) {
+        users.splice(index, 1);
+        this.updateRole(role, users);
+      }
+    };
+
+    this.onInputChange = (e) => {
+      const key               = e.which || e.keyCode;
+      const currentTarget     = (e || event).currentTarget;
+      const username          = currentTarget.value || currentTarget.getAttribute('value');
+      vnode.state.currentUser = username;
+      vnode.state.valueHolder = username;
+      if (key === 13) {
+        this.addUser(username);
+      }
+    };
+
+    this.addUser = (username) => {
+      if (!username || username.length === 0) {
+        return;
+      }
+
+      const users = vnode.attrs.role().users();
+      const index = _.findIndex(users, (item) => username.toLowerCase() === item.toLowerCase());
+      if (index < 0) {
+        users.push(username);
+        this.updateRole(vnode.attrs.role(), users);
+        vnode.state.isUsersSorted = false;
+      } else {
+        vnode.state.currentUser = users[index];
+      }
+      vnode.state.valueHolder = '';
+    };
+
+    this.usersComparator = (firstUser, secondUser) => {
+      return (firstUser.toLowerCase() < secondUser.toLowerCase() ? -1 : 1);
+    };
+
+    this.sortUsers = () => {
+      if (!vnode.state.isUsersSorted && vnode.attrs.role().users()) {
+        vnode.attrs.role().users(vnode.attrs.role().users().sort(this.usersComparator));
+        vnode.state.isUsersSorted = true;
+      }
+    };
+  },
+
+  view (vnode) {
+    const role     = vnode.attrs.role;
+    const editable = new Boolean(vnode.attrs.editable);
+    let showState  = vnode.attrs.showState;
+
+    if (!showState) {
+      showState = 'hide';
+    }
+
+    const noRoleUsers = !role().users() || role().users().length === 0;
+    if (noRoleUsers && !editable.valueOf()) {
+      return;
+    } else if (noRoleUsers) {
+      role().users = Stream([]);
+    }
+
+    this.sortUsers();
+
+    let addUserInput;
+    if (editable.valueOf()) {
+      addUserInput = (
+        <div class="add-role-user row show">
+          <div class="medium-3">
+            <input onkeyup={vnode.state.onInputChange.bind(vnode.state)} value={vnode.state.valueHolder}
+                   placeholder="username" type="text" class="columns medium-3 role-user"/>
+          </div>
+          <div class="columns medium-3 end">
+            <f.button onclick={vnode.state.addUser.bind(vnode.state, vnode.state.currentUser)}
+                      class="add-role-user-button">
+              Add
+            </f.button>
+          </div>
+        </div>
+      );
+    }
+
+    this.getDeleteButton = (user) => {
+      if (editable.valueOf()) {
+        return (<span aria-hidden="true" class="role-user-delete-icon"
+                      onclick={vnode.state.deleteUser.bind(vnode.state, user)}>&times;</span>);
+      }
+    };
+
+    this.getClass = (user) => {
+      return vnode.state.currentUser === user ? "tag current-user-tag" : "tag";
+    };
+
+    return (
+      <div>
+        <div class={`role-${editable.valueOf() ? 'edit' : 'read'}-only row ${showState}`}>
+          {
+            role().users().map((user) => {
+              return (
+                <div data-alert
+                     class={this.getClass(user)}>
+                  {user}
+                  {this.getDeleteButton(user)}
+                </div>
+              );
+            })
+          }
+        </div>
+        {addUserInput}
+      </div>);
+  }
+};
+
+module.exports = RoleUserWidget;
+
+

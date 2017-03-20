@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2017 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,10 +38,10 @@ define(['jquery', 'mithril', "models/pipeline_configs/plugin_infos"], function (
         requestArgs.config(xhr);
 
         expect(xhr.setRequestHeader).toHaveBeenCalledWith("Content-Type", "application/json");
-        expect(xhr.setRequestHeader).toHaveBeenCalledWith("Accept", "application/vnd.go.cd.v2+json");
+        expect(xhr.setRequestHeader).toHaveBeenCalledWith("Accept", "application/vnd.go.cd.v3+json");
       });
 
-      it('should not stop page redraw', function() {
+      it('should not stop page redraw', function () {
         expect(requestArgs.background).toBe(true);
       });
 
@@ -51,18 +51,18 @@ define(['jquery', 'mithril', "models/pipeline_configs/plugin_infos"], function (
         expect(requestArgs.unwrapSuccess(pluginInfos)).toEqual(['plugin']);
       });
 
-      it('should deserialize to PluginInfo object', function() {
+      it('should deserialize to PluginInfo object', function () {
         expect(requestArgs.type).toBe(PluginInfos.PluginInfo);
       });
 
-      it('should initialize PluginInfos on success', function() {
+      it('should initialize PluginInfos on success', function () {
         deferred.resolve(['plugin']);
 
         expect(PluginInfos()).toEqual(['plugin']);
       });
     });
 
-    describe('PluginInfo', function() {
+    describe('PluginInfo', function () {
       var pluginInfo;
       beforeAll(function () {
         /* eslint-disable camelcase */
@@ -107,8 +107,8 @@ define(['jquery', 'mithril', "models/pipeline_configs/plugin_infos"], function (
         expect(pluginInfo.type()).toBe('plugin_type');
       });
 
-      it('should initialize with view template', function () {
-        expect(pluginInfo.viewTemplate()).toBe('plugin_view_template');
+      it('should initialize with profile view template', function () {
+        expect(pluginInfo.profileSettings().view.template).toBe('plugin_view_template');
       });
 
       it('should initialize with display name', function () {
@@ -121,14 +121,14 @@ define(['jquery', 'mithril', "models/pipeline_configs/plugin_infos"], function (
       });
 
       it('should initialize with configurations', function () {
-        expect(pluginInfo.configurations()).toEqual([
+        expect(pluginInfo.profileSettings().configurations).toEqual([
           {
             key:      'url',
             metadata: {required: true, secure: false}
           },
           {
-            key:  'username',
-            type: 'package',
+            key:      'username',
+            type:     'package',
             metadata: {required: true, secure: false}
           }]);
       });
@@ -156,22 +156,22 @@ define(['jquery', 'mithril', "models/pipeline_configs/plugin_infos"], function (
         requestArgs.config(xhr);
 
         expect(xhr.setRequestHeader).toHaveBeenCalledWith("Content-Type", "application/json");
-        expect(xhr.setRequestHeader).toHaveBeenCalledWith("Accept", "application/vnd.go.cd.v2+json");
+        expect(xhr.setRequestHeader).toHaveBeenCalledWith("Accept", "application/vnd.go.cd.v3+json");
       });
 
-      it('should deserialize to Plugin object', function() {
+      it('should deserialize to Plugin object', function () {
         expect(requestArgs.type).toBe(PluginInfos.PluginInfo);
       });
     });
 
     describe('filterByType', function () {
-      it('should return plugins for the given type', function() {
-        var scm = new PluginInfos.PluginInfo({ id: 'id1', type: 'scm'});
-        var task1 = new PluginInfos.PluginInfo({id: 'id2', type: 'task'});
-        var task2 = new PluginInfos.PluginInfo({id: 'id3', type: 'task'});
+      it('should return plugins for the given type', function () {
+        var scm            = new PluginInfos.PluginInfo({id: 'id1', type: 'scm'});
+        var task1          = new PluginInfos.PluginInfo({id: 'id2', type: 'task'});
+        var task2          = new PluginInfos.PluginInfo({id: 'id3', type: 'task'});
         var authentication = new PluginInfos.PluginInfo({id: 'id4', type: 'authentication'});
 
-        PluginInfos([scm, task1, task2,  authentication]);
+        PluginInfos([scm, task1, task2, authentication]);
         var pluginInfos = PluginInfos.filterByType('task');
 
         expect(pluginInfos.length).toBe(2);
@@ -181,13 +181,13 @@ define(['jquery', 'mithril', "models/pipeline_configs/plugin_infos"], function (
     });
 
     describe('findById', function () {
-      it('should return plugins for the given id', function() {
-        var scm = new PluginInfos.PluginInfo({ id: 'id1', type: 'scm'});
-        var task1 = new PluginInfos.PluginInfo({id: 'id2', type: 'task'});
-        var task2 = new PluginInfos.PluginInfo({id: 'id3', type: 'task'});
+      it('should return plugins for the given id', function () {
+        var scm            = new PluginInfos.PluginInfo({id: 'id1', type: 'scm'});
+        var task1          = new PluginInfos.PluginInfo({id: 'id2', type: 'task'});
+        var task2          = new PluginInfos.PluginInfo({id: 'id3', type: 'task'});
         var authentication = new PluginInfos.PluginInfo({id: 'id4', type: 'authentication'});
 
-        PluginInfos([scm, task1, task2,  authentication]);
+        PluginInfos([scm, task1, task2, authentication]);
         var pluginInfo = PluginInfos.findById('id2');
 
         expect(pluginInfo.id()).toBe('id2');

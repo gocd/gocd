@@ -42,3 +42,9 @@
 <li role="presentation">
     <a href="$req.getContextPath()/admin/package_repositories/new">$l.localize("PACKAGE_REPOSITORY_TAB")</a>
 </li>
+<li role="presentation">
+    <a href="$req.getContextPath()/admin/security/auth_configs">Authorization Configuration</a>
+</li>
+<li role="presentation">
+    <a href="$req.getContextPath()/admin/security/roles">Role Configuration</a>
+</li>

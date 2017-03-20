@@ -1,0 +1,354 @@
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+const m                   = require('mithril');
+const Stream              = require('mithril/stream');
+const _                   = require('lodash');
+const f                   = require('helpers/form_helper');
+const Modal               = require('views/shared/new_modal');
+const ComponentMixins     = require('helpers/mithril_component_mixins');
+const AuthConfigs         = require('models/auth_configs/auth_configs');
+const AuthConfigWidget    = require('views/auth_configs/auth_config_widget');
+const AuthConfigModalBody = require('views/auth_configs/auth_config_modal_body');
+require('jquery-textcomplete');
+
+function showErrors(modal, ctrl, newAuthConfig) {
+  return function (errorMessageOrAuthConfigWithErrors) {
+    if (_.isString(errorMessageOrAuthConfigWithErrors)) {
+      modal.destroy();
+      ctrl.message({type: 'alert', message: errorMessageOrAuthConfigWithErrors});
+    } else {
+      ctrl.clearMessage();
+      newAuthConfig(errorMessageOrAuthConfigWithErrors);
+    }
+  };
+}
+
+function showErrorInModal(newAuthConfig, errorMessage, callback) {
+  return function (errorMessageOrAuthConfigWithErrors) {
+    if (_.isString(errorMessageOrAuthConfigWithErrors)) {
+      errorMessage({type: 'alert', message: errorMessageOrAuthConfigWithErrors});
+    } else {
+      errorMessage({});
+      newAuthConfig(errorMessageOrAuthConfigWithErrors);
+    }
+    if (callback) {
+      callback();
+    }
+  };
+}
+
+function showSuccess(modal, ctrl, message) {
+  return function () {
+    modal.destroy();
+    ctrl.reloadPage();
+    ctrl.message({
+      type: 'success',
+      message
+    });
+  };
+}
+
+const AuthConfigsWidget = {
+  oninit (vnode) {
+    const ctrl = vnode.state;
+    ComponentMixins.ManagesCollection.call(this, {as: 'AuthConfig'});
+    ComponentMixins.HasViewModel.call(this);
+
+    this.authConfigs       = Stream(new AuthConfigs());
+    ctrl.message           = Stream({type: undefined, message: undefined});
+    ctrl.modalErrorMessage = Stream({type: undefined, message: undefined});
+
+    ctrl.clearMessage = function () {
+      ctrl.message({});
+    };
+
+    this.reloadPage = function () {
+      AuthConfigs.all().then((authConfigs) => {
+        ctrl.authConfigs(authConfigs);
+      }, (message) => {
+        ctrl.message({type: 'alert', message});
+      }).always(m.redraw);
+    };
+
+    this.reloadPage();
+
+    this.verifyConnectionButton = (authConfig, isDisabled, classes) => {
+      return {
+        text:     'Check connection',
+        class:    classes(),
+        disabled: isDisabled,
+        onclick:  () => {
+          classes().splice(classes().indexOf("green-check"), 1, "in-progress");
+          m.redraw(true);
+
+          const onSuccess = () => {
+            classes().splice(classes().indexOf("in-progress"), 1, "green-check");
+            ctrl.modalErrorMessage({type: 'success', message: 'Connection OK.'});
+          };
+
+          const onFail = () => {
+            classes().splice(classes().indexOf("in-progress"));
+          };
+
+          authConfig().verifyConnection().then(onSuccess, showErrorInModal(authConfig, ctrl.modalErrorMessage, onFail)).always(m.redraw);
+        }
+      };
+    };
+
+    this.createModal = function (options) {
+      const operationType            = options.operationType;
+      const newAuthConfig            = options.newAuthConfig;
+      const pluginInfo               = options.pluginInfo;
+      const verifyConnectionDisabled = options.verifyConnectionDisabled;
+      const checkConnectionClasses   = options.checkConnectionClasses;
+      const modalTitle               = options.modalTitle;
+      const isNew                    = (operationType === 'add' || operationType === 'clone');
+      const buttonName               = (operationType === 'add' || operationType === 'edit') ? 'Save' : 'Clone';
+
+      const modal = new Modal({
+        size:    'large',
+        title:   modalTitle,
+        body:    () => (<AuthConfigModalBody authConfig={newAuthConfig}
+                                             pluginInfo={pluginInfo}
+                                             newAuthConfig={isNew}
+                                             pluginInfos={vnode.attrs.pluginInfos}
+                                             verifyConnectionDisabled={verifyConnectionDisabled}
+                                             errorMessage={ctrl.modalErrorMessage}/>),
+        onclose: () => modal.destroy(),
+        buttons: () => {
+          if (!newAuthConfig()) {
+            return [];
+          }
+          return [
+            {
+              text:  buttonName,
+              class: 'save primary',
+              onclick () {
+                if (options.callback) {
+                  options.callback();
+                }
+              }
+            }, this.verifyConnectionButton(newAuthConfig, verifyConnectionDisabled, checkConnectionClasses)
+          ];
+        }
+      });
+      return modal;
+    };
+
+    this.edit = function (authConfig) {
+      const newAuthConfig            = Stream(authConfig);
+      const pluginInfo               = Stream(vnode.attrs.pluginInfos().findById(authConfig.pluginId()));
+      const checkConnectionClasses   = Stream(['verify-connection', 'save', 'primary']);
+      const verifyConnectionDisabled = Stream(!(pluginInfo() && pluginInfo().capabilities().canVerifyConnection()));
+
+      ctrl.clearMessage();
+      ctrl.modalErrorMessage({});
+
+      const modal = this.createModal({
+        newAuthConfig,
+        pluginInfo,
+        verifyConnectionDisabled,
+        checkConnectionClasses,
+        operationType: 'edit',
+        modalTitle:    `Edit auth config ${authConfig.id()}`,
+        callback:      () => {
+          newAuthConfig().update().then(showSuccess(modal, ctrl, `The auth config ${newAuthConfig().id()} was updated successfully.`), showErrorInModal(newAuthConfig, ctrl.modalErrorMessage)).always(m.redraw);
+        }
+      });
+
+      const onFulfilled = function (authConfigFromAjax) {
+        newAuthConfig(authConfigFromAjax);
+        ctrl.clearMessage();
+        ctrl.modalErrorMessage({});
+      };
+
+      modal.render();
+      AuthConfigs.AuthConfig.get(authConfig.id()).then(onFulfilled, showErrors(modal, ctrl, newAuthConfig)).always(m.redraw);
+    };
+
+    this.clone = function (authConfig) {
+      const newAuthConfig            = Stream(authConfig);
+      const pluginInfo               = Stream(vnode.attrs.pluginInfos().findById(authConfig.pluginId()));
+      const checkConnectionClasses   = Stream(['verify-connection', 'save', 'primary']);
+      const verifyConnectionDisabled = Stream(!(pluginInfo() && pluginInfo().capabilities().canVerifyConnection()));
+
+      ctrl.clearMessage();
+      ctrl.modalErrorMessage({});
+
+      const modal = this.createModal({
+        newAuthConfig,
+        pluginInfo,
+        verifyConnectionDisabled,
+        checkConnectionClasses,
+        operationType: 'clone',
+        modalTitle:    `Clone auth config ${authConfig.id()}`,
+        callback:      () => {
+          newAuthConfig().create().then(showSuccess(modal, ctrl, `The auth config ${newAuthConfig().id()} was cloned successfully.`), showErrorInModal(newAuthConfig, ctrl.modalErrorMessage)).always(m.redraw);
+        }
+      });
+
+      const onFulfilled = function (authConfigFromAjax) {
+        newAuthConfig(authConfigFromAjax);
+        newAuthConfig().id('');
+        newAuthConfig().errors().add('id', 'Provide id to your clone');
+        ctrl.clearMessage();
+      };
+
+      modal.render();
+      AuthConfigs.AuthConfig.get(authConfig.id()).then(onFulfilled, showErrors(modal, ctrl, newAuthConfig)).always(m.redraw);
+    };
+
+    this.add = function () {
+      const newAuthConfig            = Stream(new AuthConfigs.AuthConfig({}));
+      const newPluginInfo            = Stream(null);
+      const checkConnectionClasses   = Stream(['verify-connection', 'save', 'primary']);
+      const verifyConnectionDisabled = Stream(true);
+
+      ctrl.clearMessage();
+      ctrl.modalErrorMessage({});
+
+      const modal = this.createModal({
+        newAuthConfig,
+        pluginInfo:    newPluginInfo,
+        verifyConnectionDisabled,
+        checkConnectionClasses,
+        operationType: 'add',
+        modalTitle:    'Add a new auth config',
+        callback:      () => {
+          newAuthConfig().create().then(showSuccess(modal, ctrl, `The auth config ${  newAuthConfig().id()  } was created successfully.`), showErrorInModal(newAuthConfig, ctrl.modalErrorMessage)).always(m.redraw);
+        }
+      });
+      modal.render();
+    };
+
+    const deleteInProgress = Stream(false);
+
+    const performDelete = function (modal, authConfig) {
+      const onSuccess = function (message) {
+        modal.destroy();
+        ctrl.deleteVm(authConfig.id());
+        ctrl.reloadPage();
+        ctrl.message({type: 'success', message});
+        deleteInProgress(false);
+      };
+
+      const onFailure = function (message) {
+        modal.destroy();
+        ctrl.message({type: 'alert', message});
+        deleteInProgress(false);
+      };
+
+      deleteInProgress(true);
+      m.redraw();
+      authConfig.delete().then(onSuccess, onFailure).always(m.redraw);
+    };
+
+    this.deleteConfirm = function (authConfig) {
+      const modal = new Modal({
+        title:    'Are you sure?',
+        body:     () => (
+          <div>Are you sure you want to delete the auth config <strong>{authConfig.id()}</strong>?</div>),
+        oncancel: () => modal.destroy(),
+        buttons:  () => [
+          {
+            text:  'Delete',
+            class: deleteInProgress() ? 'delete-auth-config in-progress' : 'delete-auth-config',
+            onclick () {
+              performDelete(modal, authConfig);
+            }
+          }
+        ]
+      });
+      modal.render();
+    };
+  },
+
+  view (vnode) {
+
+    let errorMessage;
+    if (vnode.state.message().message) {
+      errorMessage = (
+        <f.row>
+          <f.callout type={vnode.state.message().type}>
+            {vnode.state.message().message}
+
+            <button class="close-button" aria-label="Dismiss alert" type="button"
+                    onclick={vnode.state.clearMessage.bind(vnode.state)}>
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </f.callout>
+        </f.row>
+      );
+    }
+
+    let noAuthorizationPluginMessage;
+    if (!vnode.attrs.pluginInfos || vnode.attrs.pluginInfos().countPluginInfo() === 0) {
+      noAuthorizationPluginMessage = (<f.row>
+        <f.callout type="info">
+          No authorization plugin installed.
+        </f.callout>
+      </f.row>);
+    }
+
+    const disabled = (!vnode.attrs.pluginInfos || vnode.attrs.pluginInfos().countPluginInfo() === 0);
+
+    return (
+      <div>
+        <div class="header-panel">
+          <header class="page-header">
+            <f.row>
+              <f.column size={6}>
+                <h1>Authorization Configurations</h1>
+              </f.column>
+
+              <f.column size={6}>
+                <f.button onclick={vnode.state.add.bind(vnode.state)} class="add-auth-config" disabled={disabled}>
+                  Add
+                </f.button>
+              </f.column>
+            </f.row>
+          </header>
+        </div>
+
+
+        <div class="auth-configs">
+          {noAuthorizationPluginMessage}
+          {errorMessage}
+          <f.row>
+
+            {vnode.state.authConfigs().mapAuthConfigs((authConfig) => {
+              const pluginInfo = vnode.attrs.pluginInfos().findById(authConfig.pluginId());
+
+              return (
+                <AuthConfigWidget
+                  authConfig={authConfig}
+                  pluginInfo={pluginInfo}
+                  key={authConfig.id()}
+                  vm={vnode.state.vmState(authConfig.id())}
+                  onEdit={vnode.state.edit.bind(vnode.state, authConfig)}
+                  onClone={vnode.state.clone.bind(vnode.state, authConfig)}
+                  onDelete={vnode.state.deleteConfirm.bind(vnode.state, authConfig)}/>
+              );
+            })}
+          </f.row>
+        </div>
+      </div>
+    );
+  }
+};
+
+module.exports = AuthConfigsWidget;

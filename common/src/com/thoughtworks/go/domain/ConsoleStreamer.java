@@ -25,10 +25,14 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 /**
- * Created by marqueslee on 3/11/17.
+ * Encapsulates a stream of lines from a console log file while keeping track of the number of lines processed
+ * as well as the starting line to read.
  */
-public class ConsoleStreamer {
+public class ConsoleStreamer implements ConsoleConsumer {
     private Path path;
+    private Stream stream;
+    private Iterator iterator;
+
     private long start;
     private long count = 0L;
 
@@ -37,14 +41,32 @@ public class ConsoleStreamer {
         this.start = (start < 0L) ? 0L : start;
     }
 
+    /**
+     * Applies a lambda (or equivalent {@link Consumer}) to each line and increments the processedLineCount() until
+     * EOF. Multiple invocations to this method will continue from where it left off if new content was appended after
+     * the last read.
+     *
+     * @param action the lambda to apply to each line
+     * @throws IOException if the file does not exist or is otherwise not readable
+     */
     public void stream(Consumer<String> action) throws IOException {
-        try (Stream<String> raw = Files.lines(path, StandardCharsets.UTF_8); Stream<String> lines = raw.skip(start)) {
-            Iterator<String> it = lines.iterator();
-            while (it.hasNext()) {
-                action.accept(it.next());
-                count++;
-            }
+        if (null == stream) stream = Files.lines(path, StandardCharsets.UTF_8).skip(start);
+        if (null == iterator) iterator = stream.iterator();
+
+        while (iterator.hasNext()) {
+            action.accept((String) iterator.next());
+            count++;
         }
+    }
+
+    @Override
+    public void close() throws Exception {
+        if (null != stream) {
+            stream.close();
+        }
+
+        stream = null;
+        iterator = null;
     }
 
     public long processedLineCount() {

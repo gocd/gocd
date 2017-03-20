@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.domain.ConsoleConsumer;
 import com.thoughtworks.go.domain.ConsoleStreamer;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.LocatableEntity;
@@ -58,7 +59,7 @@ public class ConsoleService {
         chooser.add(new BuildIdArtifactLocator(artifactsDirHolder.getArtifactsDir()));
     }
 
-    public ConsoleStreamer getStreamer(long startingLine, JobIdentifier identifier) throws IllegalArtifactLocationException {
+    public ConsoleConsumer getStreamer(long startingLine, JobIdentifier identifier) throws IllegalArtifactLocationException {
         Path path = findConsoleArtifact(identifier).toPath();
         return new ConsoleStreamer(path, startingLine);
     }

@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.server.websocket;
 
-import com.thoughtworks.go.domain.ConsoleStreamer;
+import com.thoughtworks.go.domain.ConsoleConsumer;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.server.service.ConsoleService;
@@ -31,8 +31,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
-import static java.lang.String.format;
-
 @Component
 public class ConsoleLogSender {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConsoleLogSender.class);
@@ -43,7 +41,7 @@ public class ConsoleLogSender {
     private JobDetailService jobDetailService;
 
     @Autowired
-    public ConsoleLogSender(ConsoleService consoleService, JobDetailService jobDetailService) {
+    ConsoleLogSender(ConsoleService consoleService, JobDetailService jobDetailService) {
         this.consoleService = consoleService;
         this.jobDetailService = jobDetailService;
     }
@@ -54,18 +52,21 @@ public class ConsoleLogSender {
         // check if we're tailing a running build, or viewing a prior build's logs
         boolean isRunningBuild = !detectCompleted(jobIdentifier);
 
-        do {
-            start += sendLogs(webSocket, jobIdentifier, start);
 
-            // allow buffers to fill to avoid sending 1 line at a time for running builds
-            if (isRunningBuild) Thread.sleep(500);
-        } while (!detectCompleted(jobIdentifier));
+        try (ConsoleConsumer streamer = consoleService.getStreamer(start, jobIdentifier)) {
+            do {
+                start += sendLogs(webSocket, streamer, jobIdentifier);
 
-        // empty the tail end of the file because the build could have been marked completed, and exited the
-        // loop before we've seen the last content update
-        if (isRunningBuild) start += sendLogs(webSocket, jobIdentifier, start);
+                // allow buffers to fill to avoid sending 1 line at a time for running builds
+                if (isRunningBuild) Thread.sleep(500);
+            } while (!detectCompleted(jobIdentifier));
 
-        LOGGER.debug("Sent {} lines", start);
+            // empty the tail end of the file because the build could have been marked completed, and exited the
+            // loop before we've seen the last content update
+            if (isRunningBuild) start += sendLogs(webSocket, streamer, jobIdentifier);
+        }
+
+        LOGGER.debug("Sent {} log lines for {}", start, jobIdentifier);
         webSocket.close();
     }
 
@@ -73,10 +74,8 @@ public class ConsoleLogSender {
         return jobDetailService.findMostRecentBuild(jobIdentifier).isCompleted();
     }
 
-    private long sendLogs(ConsoleLogEndpoint webSocket, JobIdentifier jobIdentifier, final long start) throws IllegalArtifactLocationException, IOException {
+    private long sendLogs(ConsoleLogEndpoint webSocket, ConsoleConsumer console, JobIdentifier jobIdentifier) throws IllegalArtifactLocationException, IOException {
         final ArrayList<String> buffer = new ArrayList<>();
-
-        ConsoleStreamer console = consoleService.getStreamer(start, jobIdentifier);
 
         console.stream(new Consumer<String>() {
             @Override
@@ -89,8 +88,7 @@ public class ConsoleLogSender {
                     }
 
                 } catch (IOException e) {
-                    String message = format("Failed to send log line {} for {}", start + console.processedLineCount(), jobIdentifier);
-                    LOGGER.error(message, e);
+                    LOGGER.error("Failed to send log line {} for {}", console.processedLineCount(), jobIdentifier, e);
                 }
             }
         });

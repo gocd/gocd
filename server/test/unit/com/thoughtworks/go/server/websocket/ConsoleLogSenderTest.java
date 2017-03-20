@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.websocket;
 
+import com.thoughtworks.go.domain.ConsoleConsumer;
 import com.thoughtworks.go.domain.ConsoleStreamer;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobInstance;
@@ -27,6 +28,7 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.function.Consumer;
 
 import static org.mockito.Mockito.*;
 
@@ -63,18 +65,12 @@ public class ConsoleLogSenderTest {
 
     @Test
     public void shouldSendConsoleLogInMultipleMessagesIfBuildInProgress() throws Exception {
-        // simulate delayed append by using 2 different files to represent
-        // the log at different points in time
-        File consoleInitial = makeConsoleFile("First Output\n");
-        File consoleLater = makeConsoleFile("First Output\nSecond Output\n");
-
         when(jobInstance.isCompleted()).
                 thenReturn(false).
                 thenReturn(true);
 
         when(consoleService.getStreamer(anyLong(), eq(jobIdentifier))).
-                thenReturn(new ConsoleStreamer(consoleInitial.toPath(), 0L)).
-                thenReturn(new ConsoleStreamer(consoleLater.toPath(), 1L));
+                thenReturn(new FakeConsoleStreamer("First Output", "Second Output"));
 
         consoleLogSender.process(socket, jobIdentifier, 0L);
 
@@ -87,12 +83,11 @@ public class ConsoleLogSenderTest {
         File console = makeConsoleFile("First Output");
         when(jobInstance.isCompleted()).thenReturn(false).thenReturn(true);
         when(consoleService.getStreamer(anyLong(), eq(jobIdentifier))).
-                thenReturn(new ConsoleStreamer(console.toPath(), 0L)).
-                thenReturn(new ConsoleStreamer(console.toPath(), 1L));
+                thenReturn(new ConsoleStreamer(console.toPath(), 0L));
 
         consoleLogSender.process(socket, jobIdentifier, 0L);
 
-        verify(consoleService, times(2)).getStreamer(anyLong(), eq(jobIdentifier));
+        verify(jobInstance, times(2)).isCompleted();
         verify(socket, times(1)).send(anyString());
     }
 
@@ -112,5 +107,33 @@ public class ConsoleLogSenderTest {
 
         Files.write(console.toPath(), message.getBytes());
         return console;
+    }
+
+    /**
+     * allows us to simulate log appending by doing reads with multiple invocations to stream()
+     */
+    private class FakeConsoleStreamer implements ConsoleConsumer {
+
+        private String[] mockedLines;
+        private int count = 0;
+
+        FakeConsoleStreamer(String... mockedLines) {
+            this.mockedLines = mockedLines;
+        }
+
+        @Override
+        public void stream(Consumer<String> action) throws IOException {
+            action.accept(mockedLines[count]);
+            count++;
+        }
+
+        @Override
+        public long processedLineCount() {
+            return (long) count;
+        }
+
+        @Override
+        public void close() throws Exception {
+        }
     }
 }

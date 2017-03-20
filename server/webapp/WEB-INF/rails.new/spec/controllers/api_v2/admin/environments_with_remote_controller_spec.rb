@@ -38,7 +38,8 @@ describe ApiV2::Admin::EnvironmentsWithRemoteController do
 
         get_with_api_header :show, name: @environment_name
         expect(response.status).to eq(200)
-        expect(actual_response).to eq(expected_response(@environment_config, ApiV2::Config::EnvironmentConfigRepresenter))
+        expected_response = ApiV2::Config::EnvironmentConfigRepresenter.new(@environment_config, true).to_hash(url_builder: UrlBuilder.new)
+        expect(actual_response).to eq(expected_response)
       end
 
       it 'should render 404 when a environment does not exist' do

@@ -50,7 +50,7 @@ public class ConsoleLogEndpoint {
         ConsoleLogSender sender = (ConsoleLogSender) config.getUserProperties().get("sender");
         JobIdentifier jobIdentifier = getJobIdentifier(config, pipelineName, pipelineLabel, stageName, stageCounter, jobName);
 
-        LOGGER.info("Sending logs for {} starting at line {}", jobIdentifier, start);
+        LOGGER.debug("{} sending logs for {} starting at line {}", this, jobIdentifier, start);
         sender.process(this, jobIdentifier, start);
     }
 
@@ -70,7 +70,7 @@ public class ConsoleLogEndpoint {
 
     @OnError
     public void onError(Session session, Throwable error) {
-        LOGGER.error(toString() + " closing session because an error was thrown", error);
+        LOGGER.error("{} closing session because an error was thrown", this, error);
         close();
     }
 

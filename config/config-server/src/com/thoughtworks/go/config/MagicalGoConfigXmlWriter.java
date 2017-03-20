@@ -24,10 +24,7 @@ import com.thoughtworks.go.util.XmlUtils;
 import org.apache.log4j.Logger;
 import org.jdom2.*;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -41,7 +38,6 @@ import static com.thoughtworks.go.util.ExceptionUtils.bombIf;
 import static com.thoughtworks.go.util.ObjectUtil.nullSafeEquals;
 import static com.thoughtworks.go.util.XmlUtils.buildXmlDocument;
 import static java.text.MessageFormat.format;
-import static org.apache.commons.io.IOUtils.toInputStream;
 
 public class MagicalGoConfigXmlWriter {
     private static final Logger LOGGER = Logger.getLogger(MagicalGoConfigXmlWriter.class);
@@ -104,7 +100,7 @@ public class MagicalGoConfigXmlWriter {
     public void verifyXsdValid(Document document) throws Exception {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         XmlUtils.writeXml(document, buffer);
-        InputStream content = toInputStream(buffer.toString());
+        InputStream content = new ByteArrayInputStream(buffer.toByteArray());
         buildXmlDocument(content, GoConfigSchema.getCurrentSchema(), registry.xsds());
     }
 

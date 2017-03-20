@@ -217,10 +217,13 @@ public abstract class CruiseConfigTestBase {
         securityConfig.adminsConfig().add(new AdminUser(new CaseInsensitiveString("root")));
         cruiseConfig.server().useSecurity(securityConfig);
 
-        Map<CaseInsensitiveString, List<CaseInsensitiveString>> templateWithPipelines = cruiseConfig.templatesWithPipelinesForUser("root", null);
+        List<TemplatesToPipelines> templateWithPipelines = cruiseConfig.templatesWithPipelinesForUser("root", null);
 
         assertThat(templateWithPipelines.size(), is(1));
-        assertThat(templateWithPipelines.get(new CaseInsensitiveString("first_template")), is(Arrays.asList(new CaseInsensitiveString("first"), new CaseInsensitiveString("second"))));
+        TemplatesToPipelines templates = new TemplatesToPipelines(new CaseInsensitiveString("first_template"));
+        templates.addPipeline(new CaseInsensitiveString("first"), true);
+        templates.addPipeline(new CaseInsensitiveString("second"), true);
+        assertThat(templateWithPipelines.get(0), is(templates));
     }
 
     @Test
@@ -253,10 +256,12 @@ public abstract class CruiseConfigTestBase {
         securityConfig.adminsConfig().add(new AdminUser(new CaseInsensitiveString("root")));
         cruiseConfig.server().useSecurity(securityConfig);
 
-        Map<CaseInsensitiveString, List<CaseInsensitiveString>> templateWithPipelines = cruiseConfig.templatesWithPipelinesForUser("firstTemplate-admin", null);
+        List<TemplatesToPipelines> templateWithPipelines = cruiseConfig.templatesWithPipelinesForUser("firstTemplate-admin", null);
 
         assertThat(templateWithPipelines.size(), is(1));
-        assertThat(templateWithPipelines.get(new CaseInsensitiveString("first_template")), is(Arrays.asList(new CaseInsensitiveString("first"))));
+        TemplatesToPipelines templates = new TemplatesToPipelines(new CaseInsensitiveString("first_template"));
+        templates.addPipeline(new CaseInsensitiveString("first"), false);
+        assertThat(templateWithPipelines.get(0), is(templates));
     }
 
     @Test
@@ -287,11 +292,18 @@ public abstract class CruiseConfigTestBase {
         cruiseConfig.addTemplate(firstTemplate);
         cruiseConfig.addTemplate(secondTemplate);
 
-        Map<CaseInsensitiveString, List<CaseInsensitiveString>> templateWithPipelines = cruiseConfig.templatesWithPipelinesForUser("root", null);
+        List<TemplatesToPipelines> templateWithPipelines = cruiseConfig.templatesWithPipelinesForUser("root", null);
 
         assertThat(templateWithPipelines.size(), is(2));
-        assertThat(templateWithPipelines.get(new CaseInsensitiveString("first_template")), is(Arrays.asList(new CaseInsensitiveString("first"))));
-        assertThat(templateWithPipelines.get(new CaseInsensitiveString("second_template")), is(Arrays.asList(new CaseInsensitiveString("second"))));
+
+        TemplatesToPipelines templates1 = new TemplatesToPipelines(new CaseInsensitiveString("first_template"));
+        templates1.addPipeline(new CaseInsensitiveString("first"), true);
+        TemplatesToPipelines templates2 = new TemplatesToPipelines(new CaseInsensitiveString("second_template"));
+        templates2.addPipeline(new CaseInsensitiveString("second"), true);
+
+        assertThat(templateWithPipelines.get(0), is(templates1));
+        assertThat(templateWithPipelines.get(1), is(templates2));
+
     }
 
     private PipelineTemplateConfig template(final String name) {

@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2017 ThoughtWorks, Inc.
+# Copyright 2016 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,19 +15,23 @@
 ##########################################################################
 
 module ApiV4
-  module Config
-    class ErrorRepresenter < ApiV4::BaseRepresenter
-      alias_method :errors, :represented
+  module Admin
+    module Templates
+      class TemplatesConfigRepresenter < BaseRepresenter
 
-      def to_hash(*options)
-        hash = {}
-        errors.each do |key, value|
-          hash[key]||=[]
-          value.each do |message|
-            hash[key] << message
-          end
+        link :self do |opts|
+          opts[:url_builder].apiv4_admin_templates_url
         end
-        hash
+
+        link :doc do |opts|
+          'https://api.gocd.io/#template-config'
+        end
+
+        collection :templates, embedded: true, decorator: Admin::Templates::TemplateSummaryRepresenter, exec_context: :decorator
+
+        def templates
+          represented
+        end
       end
     end
   end

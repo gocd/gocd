@@ -337,15 +337,6 @@ describe "admin/pipeline_groups/index.html.erb" do
       end
     end
 
-    it "should not show extract template link if user is not admin" do
-      view.stub(:is_user_an_admin?).and_return(false)
-
-      render
-
-      expect(response.body).not_to have_selector("li a[class='add_link']", :text => "Extract Template")
-      expect(response.body).not_to have_selector("span[class='action_icon add_icon_disabled']", :text => "Extract Template")
-    end
-
     it "should disable extract template button for pipeline already using a template" do
       render
 

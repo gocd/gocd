@@ -71,7 +71,7 @@ module ApiV4
       end
 
       def error_representer(error_translation_map={}, &blk)
-        self.property :errors, exec_context: :decorator, decorator: ApiV4::Config::ErrorRepresenter, skip_parse: true, skip_render: lambda { |object, options| object.empty? }
+        self.property :errors, exec_context: :decorator, decorator: ApiV4::Shared::ErrorRepresenter, skip_parse: true, skip_render: lambda { |object, options| object.empty? }
         class_attribute :error_translation_map
         self.error_translation_map = block_given? ? blk : error_translation_map
 

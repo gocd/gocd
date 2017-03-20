@@ -39,6 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -60,7 +61,16 @@ public class TemplateConfigService {
     }
 
     public Map<CaseInsensitiveString, List<CaseInsensitiveString>> templatesWithPipelinesForUser(String username) {
-        return goConfigService.getCurrentConfig().templatesWithPipelinesForUser(username, goConfigService.rolesForUser(new CaseInsensitiveString(username)));
+        HashMap<CaseInsensitiveString, List<CaseInsensitiveString>> templatesToPipelinesMap = new HashMap<>();
+        List<TemplatesToPipelines> templatesToPipelines = goConfigService.getCurrentConfig().templatesWithPipelinesForUser(username, goConfigService.rolesForUser(new CaseInsensitiveString(username)));
+        for (TemplatesToPipelines templateToPipelines : templatesToPipelines) {
+            templatesToPipelinesMap.put(templateToPipelines.getTemplateName(), templateToPipelines.getPipelines());
+        }
+        return templatesToPipelinesMap;
+    }
+
+    public List<TemplatesToPipelines> getTemplatesList(Username username) {
+        return goConfigService.getCurrentConfig().templatesWithPipelinesForUser(username.getUsername().toString(), goConfigService.rolesForUser(username.getUsername()));
     }
 
     public void removeTemplate(String templateName, CruiseConfig cruiseConfig, String md5, HttpLocalizedOperationResult result) {

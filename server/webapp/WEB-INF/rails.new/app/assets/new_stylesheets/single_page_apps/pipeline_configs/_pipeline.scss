@@ -224,3 +224,26 @@
   pointer-events: none;
   opacity:        0.3;
 }
+
+.has-oncancel-task-drop-down {
+  @include icon-after($type: caret-down, $color: $dark-gray);
+  position: relative;
+  &:after {
+    font-size: 10px;
+    color:     #5d5b5b;
+
+  }
+}
+
+.oncancel-task-description {
+  position:      absolute;
+  background:    #fff;
+  border:        1px solid #ccc;
+  border-radius: 3px;
+  display:       none;
+  z-index:       $oncancel-task-dropdown-arrow-z-index;
+}
+
+.is-open {
+  display: block;
+}

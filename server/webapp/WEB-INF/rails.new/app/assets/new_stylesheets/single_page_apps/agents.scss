@@ -215,20 +215,20 @@
 $arrow-color: #000;
 
 .go-table {
-  background:    transparent;
-  border:        0;
-  margin:        0;
+  background: transparent;
+  border:     0;
+  margin:     0;
 
   $column-widths: (
                     "1": 1%,
                     "2": 38px,
                     "3": 16%,
-                    "4": 7%,
+                    "4": 9%,
                     "5": 10%,
                     "6": 10%,
                     "7": 7%,
                     "8": 9%,
-                    "9": calc(22% - 38px),
+                    "9": calc(20% - 38px),
                     "10": 18%,
                   );
 

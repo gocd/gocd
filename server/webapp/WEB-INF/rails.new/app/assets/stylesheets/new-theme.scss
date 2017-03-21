@@ -3616,3 +3616,20 @@ form#package_repositories_edit_form {
     margin-left: 10px;
   }
 }
+
+body#login-page {
+  .page-wrap:before {
+    height: 0;
+  }
+  #error-container {
+    margin-top: -50px;
+  }
+}
+
+.change_materials .materials .content_wrapper_outer {
+  clear: right;
+}
+
+.config-materials .action_icon.delete_icon_disabled {
+  padding-left: 3px;
+}

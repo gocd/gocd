@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.controller;
 
+import com.thoughtworks.go.domain.ConsoleConsumer;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.server.cache.ZipArtifactCache;
@@ -37,6 +38,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -57,15 +59,14 @@ import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
 @Controller
 public class ArtifactsController {
-    private ArtifactsService artifactsService;
-    private RestfulService restfulService;
-
     private static final Logger LOGGER = Logger.getLogger(ArtifactsController.class);
     private final ConsoleActivityMonitor consoleActivityMonitor;
-    private ConsoleService consoleService;
     private final ArtifactFolderViewFactory folderViewFactory;
     private final ArtifactFolderViewFactory jsonViewFactory;
     private final ArtifactFolderViewFactory zipViewFactory;
+    private ArtifactsService artifactsService;
+    private RestfulService restfulService;
+    private ConsoleService consoleService;
     private HeaderConstraint headerConstraint;
 
     @Autowired
@@ -136,7 +137,7 @@ public class ArtifactsController {
                                      @RequestParam(value = "attempt", required = false) Integer attempt,
                                      MultipartHttpServletRequest request) throws Exception {
         JobIdentifier jobIdentifier;
-        if(!headerConstraint.isSatisfied(request)) {
+        if (!headerConstraint.isSatisfied(request)) {
             return ResponseCodeView.create(HttpServletResponse.SC_BAD_REQUEST, "Missing required header 'Confirm'");
         }
         try {
@@ -235,6 +236,26 @@ public class ArtifactsController {
     }
 
     /* Other URLs */
+
+    @RequestMapping(value = "/**/consoleout.json", method = RequestMethod.GET)
+    public ModelAndView consoleout(@RequestParam("pipelineName") String pipelineName,
+                                   @RequestParam("pipelineLabel") String counterOrLabel,
+                                   @RequestParam("stageName") String stageName,
+                                   @RequestParam("buildName") String buildName,
+                                   @RequestParam(value = "stageCounter", required = false) String stageCounter,
+                                   @RequestParam(value = "startLineNumber", required = false) Long start
+    ) throws Exception {
+        start = start == null ? 0L : start;
+
+        try {
+            JobIdentifier job = restfulService.findJob(pipelineName, counterOrLabel, stageName, stageCounter,
+                    buildName);
+            ConsoleConsumer streamer = consoleService.getStreamer(start, job);
+            return new ModelAndView(new ConsoleOutView(streamer));
+        } catch (Exception e) {
+            return buildNotFound(pipelineName, counterOrLabel, stageName, stageCounter, buildName);
+        }
+    }
 
     @ErrorHandler
     public ModelAndView handleError(HttpServletRequest request, HttpServletResponse response, Exception e) {

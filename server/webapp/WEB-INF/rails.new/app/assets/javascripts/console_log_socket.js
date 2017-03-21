@@ -21,6 +21,7 @@
     var startLine = 0, socket, ansi = ansi_up.ansi_to_html_obj();
 
     var details = $(".job_details_content"), contentArea = $(".buildoutput_pre");
+    var fatal = false;
 
     if (!details.length) return;
 
@@ -43,17 +44,22 @@
       socket.addEventListener("open", function initHandlers() {
         socket.addEventListener("message", renderLines);
       });
-      socket.addEventListener("error", maybeResume);
+      socket.addEventListener("error", fallbackToPolling);
       socket.addEventListener("close", maybeResume);
     }
 
+    function fallbackToPolling(e) {
+      fatal = true; // prevent close handler from trying to reconnect
+      observer.shouldPollForLogs = true;
+      observer.update_live_output();
+    }
+
     function maybeResume(e) {
+      if (fatal) return;
+
       if ((e instanceof CloseEvent || e.type === "close") && e.wasClean && e.code !== 4004) {
         startLine = 0;
         return;
-      } else {
-        // assume connection closed abnormally - e.g. network disconnect
-        socket.close();
       }
 
       setTimeout(init, 500);

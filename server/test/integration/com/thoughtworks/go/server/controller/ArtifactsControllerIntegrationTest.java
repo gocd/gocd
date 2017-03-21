@@ -50,9 +50,12 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.zip.Deflater;
 
@@ -68,6 +71,8 @@ import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.number.OrderingComparison.lessThan;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -428,6 +433,61 @@ public class ArtifactsControllerIntegrationTest {
     }
 
     @Test
+    public void shouldReturnBuildOutputAsPlainText() throws Exception {
+        String firstLine = "Chris sucks.\n";
+        String secondLine = "Build succeeded.";
+        prepareConsoleOut(firstLine + secondLine + "\n");
+        Stage firstStage = pipeline.getFirstStage();
+        long startLineNumber = 1L;
+        ModelAndView view = artifactsController.consoleout(pipeline.getName(), pipeline.getLabel(),
+                firstStage.getName(),
+                "build", String.valueOf(firstStage.getCounter()), startLineNumber);
+
+        assertThat(view.getView(), is(instanceOf(ConsoleOutView.class)));
+
+        HttpServletResponse response = mock(HttpServletResponse.class);
+        ResponseOutput output = new ResponseOutput();
+        when(response.getWriter()).thenReturn(output.getWriter());
+        ConsoleOutView consoleOutView = (ConsoleOutView) view.getView();
+        consoleOutView.render(mock(Map.class), mock(HttpServletRequest.class), response);
+
+        assertEquals("Build succeeded.\n", output.getOutput());
+    }
+
+    @Test
+    public void shouldStartAtBeginningWhenNoStartParameterIsGiven() throws Exception {
+        String firstLine = "Chris sucks.";
+        String secondLine = "Build succeeded.";
+        prepareConsoleOut(firstLine + "\n" + secondLine + "\n");
+        Stage firstStage = pipeline.getFirstStage();
+        ModelAndView view = artifactsController.consoleout(pipeline.getName(), pipeline.getLabel(),
+                firstStage.getName(),
+                "build", String.valueOf(firstStage.getCounter()), null);
+
+        assertThat(view.getView(), is(instanceOf(ConsoleOutView.class)));
+
+        HttpServletResponse response = mock(HttpServletResponse.class);
+        ResponseOutput output = new ResponseOutput();
+        when(response.getWriter()).thenReturn(output.getWriter());
+        ConsoleOutView consoleOutView = (ConsoleOutView) view.getView();
+        consoleOutView.render(mock(Map.class), mock(HttpServletRequest.class), response);
+
+        assertEquals("Chris sucks.\nBuild succeeded.\n", output.getOutput());
+    }
+
+    @Test
+    public void testConsoleOutShouldReturn404WhenJobIsNotFound() throws Exception {
+        prepareConsoleOut("");
+        Stage firstStage = pipeline.getFirstStage();
+        long startLineNumber = 0L;
+        ModelAndView view = artifactsController.consoleout("snafu", "snafu", "snafu", "build", String.valueOf(firstStage.getCounter()), startLineNumber);
+
+        assertThat(view.getView().getContentType(), is(RESPONSE_CHARSET));
+        assertThat(view.getView(), is(instanceOf((ResponseCodeView.class))));
+        assertThat(((ResponseCodeView) view.getView()).getContent(), containsString("Job snafu/snafu/snafu/1/build not found."));
+    }
+
+    @Test
     public void shouldSaveChecksumFileInTheCruiseOutputFolder() throws Exception {
         File fooFile = createFile(artifactsRoot, "/tmp/foobar.html");
         FileUtils.writeStringToFile(fooFile, "FooBarBaz...");
@@ -569,4 +629,21 @@ public class ArtifactsControllerIntegrationTest {
         };
     }
 
+    class ResponseOutput {
+        private PrintWriter writer;
+        private ByteArrayOutputStream stream;
+
+        public ResponseOutput() {
+            stream = new ByteArrayOutputStream();
+            writer = new PrintWriter(stream);
+        }
+
+        public PrintWriter getWriter() {
+            return writer;
+        }
+
+        public String getOutput() {
+            return new String(stream.toByteArray());
+        }
+    }
 }

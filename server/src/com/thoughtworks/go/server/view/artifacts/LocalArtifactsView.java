@@ -44,7 +44,7 @@ public class LocalArtifactsView implements ArtifactsView {
 
     public final ModelAndView createView(String filePath, String sha) throws Exception {
         //return the artifact itself if this is a single file
-        File file = isConsoleOutput(filePath) ? consoleService.findConsoleArtifact(translatedId)
+        File file = isConsoleOutput(filePath) ? consoleService.consoleLogArtifact(translatedId)
                 : artifactsService.findArtifact(translatedId, filePath);
 
         if (file.exists() && file.isFile()) {

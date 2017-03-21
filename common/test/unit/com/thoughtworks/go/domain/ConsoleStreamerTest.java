@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.function.Consumer;
 
 import static org.junit.Assert.*;
 
@@ -34,20 +35,30 @@ public class ConsoleStreamerTest {
                 "Second line",
                 "Third line"
         };
-        final ArrayList<String> actual = new ArrayList<String>();
+        final ArrayList<String> actual = new ArrayList<>();
 
         ConsoleStreamer console = new ConsoleStreamer(makeConsoleFile(expected).toPath(), 0L);
-        console.stream(actual::add);
+        console.stream(new Consumer<String>() {
+            @Override
+            public void accept(String s) {
+                actual.add(s);
+            }
+        });
         assertArrayEquals(expected, actual.toArray());
         assertEquals(3L, console.processedLineCount());
     }
 
     @Test
     public void streamSkipsToStartLine() throws Exception {
-        final ArrayList<String> actual = new ArrayList<String>();
+        final ArrayList<String> actual = new ArrayList<>();
 
         ConsoleStreamer console = new ConsoleStreamer(makeConsoleFile("first", "second", "third", "fourth").toPath(), 2L);
-        console.stream(actual::add);
+        console.stream(new Consumer<String>() {
+            @Override
+            public void accept(String s) {
+                actual.add(s);
+            }
+        });
         assertArrayEquals(new String[]{"third", "fourth"}, actual.toArray());
         assertEquals(2L, console.processedLineCount());
 
@@ -60,20 +71,30 @@ public class ConsoleStreamerTest {
                 "Second line",
                 "Third line"
         };
-        final ArrayList<String> actual = new ArrayList<String>();
+        final ArrayList<String> actual = new ArrayList<>();
 
         ConsoleStreamer console = new ConsoleStreamer(makeConsoleFile(expected).toPath(), -1L);
-        console.stream(actual::add);
+        console.stream(new Consumer<String>() {
+            @Override
+            public void accept(String s) {
+                actual.add(s);
+            }
+        });
         assertArrayEquals(expected, actual.toArray());
         assertEquals(3L, console.processedLineCount());
     }
 
     @Test
     public void processesNothingWhenStartLineIsBeyondEOF() throws Exception {
-        final ArrayList<String> actual = new ArrayList<String>();
+        final ArrayList<String> actual = new ArrayList<>();
 
         ConsoleStreamer console = new ConsoleStreamer(makeConsoleFile("first", "second").toPath(), 5L);
-        console.stream(actual::add);
+        console.stream(new Consumer<String>() {
+            @Override
+            public void accept(String s) {
+                actual.add(s);
+            }
+        });
         assertTrue(actual.isEmpty());
         assertEquals(0L, console.processedLineCount());
     }

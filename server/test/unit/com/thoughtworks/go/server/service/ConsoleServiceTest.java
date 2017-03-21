@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.LocatableEntity;
 import com.thoughtworks.go.helper.JobIdentifierMother;
 import com.thoughtworks.go.server.view.artifacts.ArtifactDirectoryChooser;
 import org.junit.After;
@@ -31,7 +30,8 @@ import java.io.File;
 import static com.thoughtworks.go.util.ArtifactLogUtil.getConsoleOutputFolderAndFileName;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ConsoleServiceTest {
 
@@ -56,15 +56,17 @@ public class ConsoleServiceTest {
         JobIdentifier jobIdentifier = JobIdentifierMother.anyBuildIdentifier();
 
         File consoleFile = mock(File.class);
+        when(consoleFile.exists()).thenReturn(true);
+
+        File notExist = mock(File.class);
+        when(notExist.exists()).thenReturn(false);
 
         when(chooser.temporaryConsoleFile(jobIdentifier)).thenReturn(consoleFile);
-        when(consoleFile.exists()).thenReturn(true);
+        when(chooser.findArtifact(jobIdentifier, getConsoleOutputFolderAndFileName())).thenReturn(notExist);
 
         File file = service.consoleLogFile(jobIdentifier);
 
         assertThat(file, is(consoleFile));
-        verify(chooser).temporaryConsoleFile(jobIdentifier);
-        verify(chooser, never()).findArtifact(any(LocatableEntity.class), anyString());
     }
 
     @Test
@@ -84,9 +86,6 @@ public class ConsoleServiceTest {
         File file = service.consoleLogFile(jobIdentifier);
 
         assertThat(file, is(finalConsoleFile));
-
-        verify(chooser).temporaryConsoleFile(jobIdentifier);
-        verify(chooser).findArtifact(jobIdentifier, getConsoleOutputFolderAndFileName());
     }
 
     @Test
@@ -106,9 +105,6 @@ public class ConsoleServiceTest {
         File file = service.consoleLogFile(jobIdentifier);
 
         assertThat(file, is(consoleFile));
-
-        verify(chooser).temporaryConsoleFile(jobIdentifier);
-        verify(chooser).findArtifact(jobIdentifier, getConsoleOutputFolderAndFileName());
     }
 
     @Test

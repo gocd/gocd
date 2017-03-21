@@ -60,31 +60,21 @@ public class ConsoleService {
     }
 
     public ConsoleConsumer getStreamer(long startingLine, JobIdentifier identifier) throws IllegalArtifactLocationException {
-        Path path = findConsoleArtifact(identifier).toPath();
+        Path path = consoleLogFile(identifier).toPath();
         return new ConsoleStreamer(path, startingLine);
     }
 
-    public File findConsoleArtifact(JobIdentifier identifier) throws IllegalArtifactLocationException {
-        File file = chooser.temporaryConsoleFile(identifier);
-        if (!file.exists()) {
-            file = chooser.findArtifact(identifier, getConsoleOutputFolderAndFileName());
-        }
-        return file;
+    public File consoleLogArtifact(LocatableEntity jobIdentifier) throws IllegalArtifactLocationException {
+        return chooser.findArtifact(jobIdentifier, getConsoleOutputFolderAndFileName());
     }
 
-    public File consoleLogFile(JobIdentifier jobIdentifier) throws IllegalArtifactLocationException {
-        File file = chooser.temporaryConsoleFile(jobIdentifier);
-        if (file.exists()) {
-            return file;
-        }
-        File finalConsole = chooser.findArtifact(jobIdentifier, getConsoleOutputFolderAndFileName());
-        if (finalConsole.exists()) return finalConsole;
-        return file;
+    public File consoleLogFile(LocatableEntity jobIdentifier) throws IllegalArtifactLocationException {
+        File artifact = consoleLogArtifact(jobIdentifier);
+        return artifact.exists() ? artifact : chooser.temporaryConsoleFile(jobIdentifier);
     }
 
     public void appendToConsoleLog(JobIdentifier jobIdentifier, String text) throws IllegalArtifactLocationException, IOException {
-        File file = findConsoleArtifact(jobIdentifier);
-        updateConsoleLog(file, new ByteArrayInputStream(text.getBytes()));
+        updateConsoleLog(consoleLogFile(jobIdentifier), new ByteArrayInputStream(text.getBytes()));
     }
 
     public boolean updateConsoleLog(File dest, InputStream in) throws IOException {
@@ -111,7 +101,7 @@ public class ConsoleService {
             // Job cancellation skips temporary file creation. Force create one if it does not exist.
             FileUtils.touch(from);
 
-            File to = chooser.findArtifact(locatableEntity, getConsoleOutputFolderAndFileName());
+            File to = consoleLogArtifact(locatableEntity);
             FileUtils.moveFile(from, to);
         } catch (IOException | IllegalArtifactLocationException e) {
             throw new RuntimeException(e);

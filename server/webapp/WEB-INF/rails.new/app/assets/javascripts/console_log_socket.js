@@ -40,21 +40,23 @@
 
     function init() {
       socket = new WebSocket(endpointUrl(startLine));
-
-      socket.addEventListener("message", renderLines);
+      socket.addEventListener("open", function initHandlers() {
+        socket.addEventListener("message", renderLines);
+      });
       socket.addEventListener("error", maybeResume);
       socket.addEventListener("close", maybeResume);
     }
 
     function maybeResume(e) {
-      if ((e instanceof CloseEvent || e.type === "close") && e.wasClean) {
+      if ((e instanceof CloseEvent || e.type === "close") && e.wasClean && e.code !== 4004) {
         startLine = 0;
         return;
       } else {
         // assume connection closed abnormally - e.g. network disconnect
         socket.close();
       }
-      setTimeout(500, init);
+
+      setTimeout(init, 500);
     }
 
     function renderLines(e) {

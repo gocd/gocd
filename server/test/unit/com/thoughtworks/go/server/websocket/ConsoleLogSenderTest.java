@@ -20,6 +20,7 @@ import com.thoughtworks.go.domain.ConsoleConsumer;
 import com.thoughtworks.go.domain.ConsoleStreamer;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobInstance;
+import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.server.service.ConsoleService;
 import com.thoughtworks.go.server.service.JobDetailService;
 import org.junit.Before;
@@ -69,6 +70,9 @@ public class ConsoleLogSenderTest {
                 thenReturn(false).
                 thenReturn(true);
 
+        File fakeFile = mock(File.class);
+        when(fakeFile.exists()).thenReturn(true);
+        when(consoleService.consoleLogFile(jobIdentifier)).thenReturn(fakeFile);
         when(consoleService.getStreamer(anyLong(), eq(jobIdentifier))).
                 thenReturn(new FakeConsoleStreamer("First Output", "Second Output"));
 
@@ -93,17 +97,20 @@ public class ConsoleLogSenderTest {
 
     @Test
     public void shouldCloseSocketAfterProcessingMessage() throws Exception {
+        File console = makeConsoleFile("foo");
+
         when(jobInstance.isCompleted()).thenReturn(true);
-        when(consoleService.getStreamer(0L, jobIdentifier)).thenReturn(new ConsoleStreamer(makeConsoleFile("foo").toPath(), 0L));
+        when(consoleService.getStreamer(0L, jobIdentifier)).thenReturn(new ConsoleStreamer(console.toPath(), 0L));
 
         consoleLogSender.process(socket, jobIdentifier, 0L);
 
         verify(socket).close();
     }
 
-    private File makeConsoleFile(String message) throws IOException {
+    private File makeConsoleFile(String message) throws IOException, IllegalArtifactLocationException {
         File console = File.createTempFile("console", ".log");
         console.deleteOnExit();
+        when(consoleService.consoleLogFile(jobIdentifier)).thenReturn(console);
 
         Files.write(console.toPath(), message.getBytes());
         return console;

@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.websocket.CloseReason;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.function.Consumer;
@@ -52,6 +53,11 @@ public class ConsoleLogSender {
         // check if we're tailing a running build, or viewing a prior build's logs
         boolean isRunningBuild = !detectCompleted(jobIdentifier);
 
+        // Sometimes the log file may not have been created yet; leave it up to the client to handle reconnect logic.
+        if (!consoleService.consoleLogFile(jobIdentifier).exists()) {
+            webSocket.close(new CloseReason(ConsoleLogEndpoint.LOG_DOES_NOT_EXIST, String.format("Console log file does not yet exist for {}", jobIdentifier)));
+            return;
+        }
 
         try (ConsoleConsumer streamer = consoleService.getStreamer(start, jobIdentifier)) {
             do {

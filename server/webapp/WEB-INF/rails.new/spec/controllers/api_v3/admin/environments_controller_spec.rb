@@ -85,34 +85,75 @@ describe ApiV3::Admin::EnvironmentsController do
   end
 
   describe :show do
-    before(:each) do
-      @environment_name = 'foo-environment'
-      @environment_config = BasicEnvironmentConfig.new(CaseInsensitiveString.new(@environment_name))
-      @environment_config_service = double('environment-config-service')
-      controller.stub(:environment_config_service).and_return(@environment_config_service)
-      @environment_config_service.stub(:getEnvironmentForEdit).with(@environment_name).and_return(@environment_config)
-    end
-
-    describe :for_admins do
-      it 'should render the environment' do
-        login_as_admin
-
-        get_with_api_header :show, name: @environment_name
-        expect(response).to be_ok
-        expect(actual_response).to eq(expected_response(@environment_config, ApiV3::Admin::Environments::EnvironmentConfigRepresenter))
+    describe :local do
+      before(:each) do
+        @environment_name = 'foo-environment'
+        @environment_config = BasicEnvironmentConfig.new(CaseInsensitiveString.new(@environment_name))
+        @environment_config_service = double('environment-config-service')
+        controller.stub(:environment_config_service).and_return(@environment_config_service)
+        @environment_config_service.stub(:getEnvironmentForEdit).with(@environment_name).and_return(@environment_config)
       end
 
-      it 'should render 404 when a environment does not exist' do
-        login_as_admin
+      describe :for_admins do
+        it 'should render the environment' do
+          login_as_admin
 
-        @environment_name = SecureRandom.hex
-        @environment_config_service.stub(:getEnvironmentForEdit).and_return(nil)
-        get_with_api_header :show, name: @environment_name
-        expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
+          get_with_api_header :show, name: @environment_name
+          expect(response).to be_ok
+          expect(actual_response).to eq(expected_response(@environment_config, ApiV3::Admin::Environments::EnvironmentConfigRepresenter))
+        end
+
+        it 'should render 404 when a environment does not exist' do
+          login_as_admin
+
+          @environment_name = SecureRandom.hex
+          @environment_config_service.stub(:getEnvironmentForEdit).and_return(nil)
+          get_with_api_header :show, name: @environment_name
+          expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
+        end
+      end
+    end
+
+    describe :merged do
+      before(:each) do
+        @environment_name = 'foo-environment'
+        @environment_config = BasicEnvironmentConfig.new(CaseInsensitiveString.new(@environment_name))
+        @environment_config_service = double('environment-config-service')
+        controller.stub(:environment_config_service).and_return(@environment_config_service)
+        @environment_config_service.stub(:getEnvironmentForEdit).with(@environment_name).and_return(@environment_config)
+        environment_config_element = com.thoughtworks.go.domain.ConfigElementForEdit.new(@environment_config, "md5")
+        @environment_config_service.stub(:getMergedEnvironmentforDisplay).and_return(environment_config_element)
+      end
+
+      describe :for_admins do
+        it 'should render the environment' do
+          login_as_admin
+
+          get_with_api_header :show, name: @environment_name, withremote: 'true'
+          expect(response).to be_ok
+          expect(actual_response).to eq(expected_response(@environment_config, ApiV3::Admin::Environments::EnvironmentConfigRepresenter))
+        end
+
+        it 'should render 404 when a environment does not exist' do
+          login_as_admin
+
+          @environment_name = SecureRandom.hex
+          @environment_config_service.stub(:getMergedEnvironmentforDisplay).and_return(nil)
+          get_with_api_header :show, name: @environment_name, withremote: 'true'
+          expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
+        end
       end
     end
 
     describe :security do
+      before(:each) do
+        @environment_name = 'foo-environment'
+        @environment_config = BasicEnvironmentConfig.new(CaseInsensitiveString.new(@environment_name))
+        @environment_config_service = double('environment-config-service')
+        controller.stub(:environment_config_service).and_return(@environment_config_service)
+        @environment_config_service.stub(:getEnvironmentForEdit).with(@environment_name).and_return(@environment_config)
+      end
+
       it 'should allow anyone, with security disabled' do
         disable_security
         expect(controller).to allow_action(:get, :show, name: @environment_name)

@@ -18,7 +18,7 @@ module ApiV3
   module Admin
     class EnvironmentsController < ApiV3::BaseController
       before_action :check_admin_user_and_401
-      before_action :load_environment, only: [:show, :put, :patch, :destroy]
+      before_action :load_local_environment, only: [:put, :patch, :destroy]
       before_action :check_for_stale_request, only: [:put]
 
       def index
@@ -26,8 +26,17 @@ module ApiV3
       end
 
       def show
+        is_with_remote = params[:withremote]
+        environment_name = params[:name]
+
+        if is_with_remote.nil?
+          load_local_environment(environment_name)
+        elsif is_with_remote.downcase == 'true'
+          load_merged_environment(environment_name)
+        end
+
         json = ApiV3::Admin::Environments::EnvironmentConfigRepresenter.new(@environment_config).to_hash(url_builder: self)
-        render DEFAULT_FORMAT => json if stale?(etag: etag_for(@environment_config))
+        render DEFAULT_FORMAT => json if stale?(etag: etag_for(environment_config_service.getEnvironmentForEdit(environment_name)))
       end
 
       def create
@@ -75,10 +84,17 @@ module ApiV3
 
       protected
 
-      def load_environment(environment_name = params[:name])
+      def load_local_environment(environment_name = params[:name])
         @environment_config = environment_config_service.getEnvironmentForEdit(environment_name)
         raise ApiV3::RecordNotFound if @environment_config.nil?
         @environment_config.setOrigins(com.thoughtworks.go.config.remote.FileConfigOrigin.new)
+      end
+
+      def load_merged_environment(environment_name)
+        result = HttpLocalizedOperationResult.new
+        config_element = environment_config_service.getMergedEnvironmentforDisplay(environment_name, result)
+        raise ApiV3::RecordNotFound if config_element.nil?
+        @environment_config = config_element.getConfigElement()
       end
 
       def get_environment_from_request
@@ -89,7 +105,7 @@ module ApiV3
 
       def handle_config_save_result(result, environment_name)
         if result.isSuccessful
-          load_environment(environment_name)
+          load_local_environment(environment_name)
           json = ApiV3::Admin::Environments::EnvironmentConfigRepresenter.new(@environment_config).to_hash(url_builder: self)
           response.etag = [etag_for(@environment_config)]
           render DEFAULT_FORMAT => json

@@ -132,9 +132,27 @@ public class ArtifactsControllerIntegrationTest {
     }
 
     @After public void teardown() throws Exception {
-        if (artifactsRoot != null) {
-            deleteDirectory(artifactsRoot);
+        for (File f : FileUtils.listFiles(artifactsRoot, null, true)) {
+            String message = String.format("deleting {}, path: {}", f.getName(), f.getPath());
+            System.out.println(message);
+
+            if (!f.delete()) {
+                String deleteOnExitMessage = String.format("Couldn't delete {}, so marking deleteOnExit() path: {}", f.getName(), f.getPath());
+                System.out.println(deleteOnExitMessage);
+                f.deleteOnExit();
+            }
         }
+
+        if (artifactsRoot != null) {
+            try {
+                deleteDirectory(artifactsRoot);
+            } catch (IOException e) {
+                String deleteOnExitMessage = String.format("Couldn't delete {}, so marking deleteOnExit() path: {}", artifactsRoot.getName(), artifactsRoot.getPath());
+                System.out.println(deleteOnExitMessage);
+                artifactsRoot.deleteOnExit();
+            }
+        }
+
         dbHelper.onTearDown();
         configHelper.onTearDown();
     }

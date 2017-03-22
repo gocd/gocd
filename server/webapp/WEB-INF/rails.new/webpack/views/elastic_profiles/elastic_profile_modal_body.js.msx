@@ -23,7 +23,6 @@ const ElasticProfileModalBody = {
   oninit (vnode) {
     const setPluginInfo = function (pluginInfo) {
       vnode.attrs.pluginInfo(pluginInfo);
-      vnode.attrs.saveDisabled(!pluginInfo);
     };
 
     this.selectPluginId = function () {

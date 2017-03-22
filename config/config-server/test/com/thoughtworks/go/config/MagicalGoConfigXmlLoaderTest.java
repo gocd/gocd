@@ -21,7 +21,6 @@ import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.materials.*;
-import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
@@ -64,13 +63,15 @@ import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.api.task.TaskExecutor;
 import com.thoughtworks.go.plugin.api.task.TaskView;
 import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
+import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.ReflectionUtil;
+import com.thoughtworks.go.util.XsdValidationException;
 import com.thoughtworks.go.util.command.HgUrlArgument;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.Is;
 import org.junit.After;
@@ -3962,6 +3963,36 @@ public class MagicalGoConfigXmlLoaderTest {
         assertThat(config.server().security().ldapConfig().getEncryptedManagerPassword(), is(encryptedValue));
     }
 
+    @Test
+    public void shouldFailValidationForPipelineWithDuplicateStageNames() throws Exception {
+        try {
+            xmlLoader.loadConfigHolder(ConfigFileFixture.PIPELINES_WITH_DUPLICATE_STAGE_NAME);
+            fail();
+        } catch (Exception e) {
+            assertTrue(e instanceof RuntimeException);
+            assertThat(e.getMessage(), is("You have defined multiple stages called 'mingle'. Stage names are case-insensitive and must be unique."));
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionIfBuildPlansExistWithTheSameNameWithinAPipeline() throws Exception {
+        try {
+            xmlLoader.loadConfigHolder(ConfigFileFixture.JOBS_WITH_SAME_NAME);
+        } catch (Exception e) {
+            assertTrue(e instanceof XsdValidationException);
+            assertThat(e.getMessage(), is("Duplicate unique value [unit] declared for identity constraint \"uniqueJob\" of element \"jobs\"."));
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionIfPipelineDoesNotContainAnyBuildPlans() throws Exception {
+        try {
+            xmlLoader.loadConfigHolder(ConfigFileFixture.STAGE_WITH_NO_JOBS);
+        } catch (Exception e) {
+            assertTrue(e instanceof XsdValidationException);
+            assertThat(e.getMessage(), is("The content of element 'jobs' is not complete. One of '{job}' is expected."));
+        }
+    }
 
     private StageConfig stageWithJobResource(String resourceName) {
         StageConfig stage = StageConfigMother.custom("stage", "job");

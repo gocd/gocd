@@ -57,7 +57,7 @@
     function maybeResume(e) {
       if (fatal) return;
 
-      if ((e instanceof CloseEvent || e.type === "close") && e.wasClean && e.code !== 4004) {
+      if (e.type === "close" && e.code !== 4004) {
         startLine = 0;
         return;
       }
@@ -76,13 +76,13 @@
       if (build_output) {
         lines = ansi.ansi_to_html(ansi.escape_for_html(build_output), {use_classes: true}).split(/\r?\n/);
 
+        startLine += lines.length;
+
         while (lines.length > 0) {
           slices.push(lines.splice(0, 250));
 
           window.requestAnimationFrame(dequeueConsoleSlice);
         }
-
-        startLine += lines.length;
       }
     }
 

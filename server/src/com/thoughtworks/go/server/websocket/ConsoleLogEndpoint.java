@@ -33,7 +33,6 @@ public class ConsoleLogEndpoint {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConsoleLogEndpoint.class);
 
     static final CloseReason.CloseCode LOG_DOES_NOT_EXIST = CloseReason.CloseCodes.getCloseCode(4004);
-    private static final CloseReason CLEAN_SHUTDOWN = new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE, "Normal shutdown");
 
     private Session session;
 
@@ -61,14 +60,18 @@ public class ConsoleLogEndpoint {
     }
 
     public void close() {
-        close(CLEAN_SHUTDOWN);
+        close(null);
     }
 
     public void close(CloseReason closeReason) {
         LOGGER.debug("{} closing session.", this);
 
         try {
-            session.close(closeReason);
+            if (null == closeReason) {
+                session.close();
+            } else {
+                session.close(closeReason);
+            }
         } catch (IOException e) {
             LOGGER.warn("{} failed to close session.", this);
         }

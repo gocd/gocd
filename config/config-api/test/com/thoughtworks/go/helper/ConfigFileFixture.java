@@ -1415,7 +1415,7 @@ public final class ConfigFileFixture {
                     + "    </server>"
                     + "</cruise>";
 
-    public static final String PIPELINES_WITH_SAME_NAME
+    public static final String PIPELINES_WITH_DUPLICATE_STAGE_NAME
             = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>"
             + "<server artifactsdir=\"target/testfiles/tmpCCRoot/data/logs\"></server>"
             + "  <pipelines>"

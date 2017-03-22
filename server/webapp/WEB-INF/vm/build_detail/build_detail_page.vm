@@ -74,10 +74,6 @@
                 <div class="clear"></div>
               </div>
 
-
-              <div class="sidebar_history">
-                  #parse("sidebar/_sidebar_build_list.vm")
-              </div>
               <div class="job_details_content">
                 <div class="sub_tabs_container">
                   <ul>
@@ -119,6 +115,10 @@
 
                   <div class="clear"></div>
                 </div>
+
+              <div class="sidebar_history">
+                  #parse("sidebar/_sidebar_build_list.vm")
+              </div>
                 <div class="build_detail_container sub_tab_container rounded-corner-for-tab-container">
 
 

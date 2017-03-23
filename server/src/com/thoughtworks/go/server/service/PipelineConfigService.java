@@ -107,7 +107,7 @@ public class PipelineConfigService {
     }
 
     public PipelineConfig getPipelineConfig(String pipelineName) {
-        return goConfigService.getConfigForEditing().getPipelineConfigByName(new CaseInsensitiveString(pipelineName));
+        return goConfigService.getMergedConfigForEditing().getPipelineConfigByName(new CaseInsensitiveString(pipelineName));
     }
 
     private void update(Username currentUser, PipelineConfig pipelineConfig, LocalizedOperationResult result, EntityConfigUpdateCommand command) {

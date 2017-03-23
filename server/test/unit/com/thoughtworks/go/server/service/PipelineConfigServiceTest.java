@@ -64,6 +64,7 @@ public class PipelineConfigServiceTest {
         pluggableTaskService = mock(PluggableTaskService.class);
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
         when(goConfigService.getConfigForEditing()).thenReturn(cruiseConfig);
+        when(goConfigService.getMergedConfigForEditing()).thenReturn(cruiseConfig);
         pipelineConfigService = new PipelineConfigService(goConfigService, securityService, pluggableTaskService, null);
     }
 

@@ -76,6 +76,7 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
     private final Set<MaterialSource> materialSources = new HashSet<>();
     private final Set<MaterialUpdateCompleteListener> materialUpdateCompleteListeners = new HashSet<>();
     public static final String TYPE = "post_commit_hook_material_type";
+    private boolean skipUpdate = false;
 
     @Autowired
     public MaterialUpdateService(MaterialUpdateQueue queue, ConfigMaterialUpdateQueue configUpdateQueue,
@@ -148,6 +149,8 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
     }
 
     public boolean updateMaterial(Material material) {
+        if(skipUpdate) return false;
+
         Date inProgressSince = inProgress.putIfAbsent(material, new Date());
         if (inProgressSince == null || !material.isAutoUpdate()) {
             if (LOGGER.isDebugEnabled()) {
@@ -175,6 +178,16 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
             }
             return false;
         }
+    }
+
+    //    for integration tests
+    public void disableUpdates() {
+        this.skipUpdate = true;
+    }
+
+    //    for integration tests
+    public void enableUpdates() {
+        this.skipUpdate = false;
     }
 
     public void registerMaterialSources(MaterialSource materialSource) {

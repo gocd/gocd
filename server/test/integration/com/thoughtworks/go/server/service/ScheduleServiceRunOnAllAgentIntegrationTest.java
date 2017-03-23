@@ -34,7 +34,7 @@ import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.materials.DependencyMaterialUpdateNotifier;
+import com.thoughtworks.go.server.materials.MaterialUpdateService;
 import com.thoughtworks.go.server.scheduling.ScheduleOptions;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
@@ -73,7 +73,7 @@ public class ScheduleServiceRunOnAllAgentIntegrationTest {
     @Autowired private PipelineScheduleQueue pipelineScheduleQueue;
     @Autowired private AgentAssignment agentAssignment;
     @Autowired private GoCache goCache;
-    @Autowired private DependencyMaterialUpdateNotifier notifier;
+    @Autowired private MaterialUpdateService updateService;
 
     @Autowired private DatabaseAccessHelper dbHelper;
     private GoConfigFileHelper CONFIG_HELPER;
@@ -104,14 +104,14 @@ public class ScheduleServiceRunOnAllAgentIntegrationTest {
 
         CONFIG_HELPER.addPipeline("blahPipeline", "blahStage", MaterialConfigsMother.hgMaterialConfig("file:///home/cruise/projects/cruisen/manual-testing/ant_hg/dummy"), "job1", "job2");
         CONFIG_HELPER.makeJobRunOnAllAgents("blahPipeline", "blahStage", "job2");
-        notifier.disableUpdates();
+        updateService.disableUpdates();
 
     }
 
     @After
     public void teardown() throws Exception {
         dbHelper.onTearDown();
-        notifier.enableUpdates();
+        updateService.enableUpdates();
         FileUtil.deleteFolder(goConfigService.artifactsDir());
         pipelineScheduleQueue.clear();
         agentAssignment.clear();

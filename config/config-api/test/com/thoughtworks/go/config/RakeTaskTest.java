@@ -61,7 +61,7 @@ public class RakeTaskTest {
         rakeTask.setWorkingDirectory("lib");
 
         assertThat(rakeTask.describe(),
-                is("rake -f \"myrakefile.rb\" db:migrate VERSION=0 (workingDirectory: lib)"));
+                is("<rake buildfile=\"myrakefile.rb\" target=\"db:migrate VERSION=0\" workingdir=\"lib\" />"));
     }
 
     @Test

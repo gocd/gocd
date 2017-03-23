@@ -17,9 +17,6 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.util.FileUtil;
-import org.apache.commons.lang.StringUtils;
-
-import java.util.ArrayList;
 
 /**
  * @understands configuration of Ant
@@ -39,20 +36,18 @@ public class AntTask extends BuildTask {
     }
 
     public String arguments() {
-        ArrayList<String> args = new ArrayList<>();
+        StringBuffer buffer = new StringBuffer();
         if (buildFile != null) {
-            args.add("-f \"" + FileUtil.normalizePath(buildFile) + "\"");
+            buffer.append("-f \"").append(FileUtil.normalizePath(buildFile)).append('\"');
         }
-
         if (target != null) {
-            args.add(target);
+            buffer.append(" ").append(target);
         }
-
-        return StringUtils.join(args, " ");
+        return buffer.toString();
     }
 
     @Override
     public String command() {
-        return TYPE;
+        return "ant";
     }
 }

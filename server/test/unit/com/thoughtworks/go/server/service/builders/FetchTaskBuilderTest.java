@@ -190,7 +190,8 @@ public class FetchTaskBuilderTest {
         FetchTask fetchTask = new FetchTask(new CaseInsensitiveString(""), new CaseInsensitiveString("dev"), new CaseInsensitiveString("windows-3"), "cruise.zip", "dest\\subfolder");
         fetchTaskBuilder.createBuilder(builderFactory, fetchTask, pipeline(LABEL), resolver);
         assertThat(fetchTask.describe(),
-                is("fetch artifact [cruise.zip] => [dest/subfolder] from [cruise/dev/windows-3]"));
+                is("<fetchartifact pipeline=\"cruise\" stage=\"dev\" job=\"windows-3\" "
+                        + "srcfile=\"cruise.zip\" dest=\"dest\\subfolder\" />"));
     }
 
     @Test

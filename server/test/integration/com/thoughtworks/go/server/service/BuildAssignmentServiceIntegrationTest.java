@@ -683,7 +683,7 @@ public class BuildAssignmentServiceIntegrationTest {
 
         ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("PIPELINE_WHICH_WILL_EVENTUALLY_CHANGE_CASE", u.m(hgMaterial));
 
-        u.scheduleWith(p1, hgRevs);
+        Pipeline p1_1 = u.scheduleWith(p1, hgRevs);
         ScheduleTestUtil.AddedPipeline renamedPipeline = u.renamePipelineAndFirstStage(p1, "pipeline_which_will_eventually_change_case", "NEW_RANDOM_STAGE_NAME" + UUID.randomUUID());
 
         Pipeline p1_2 = u.scheduleWith(renamedPipeline, hgRevs);
@@ -691,8 +691,10 @@ public class BuildAssignmentServiceIntegrationTest {
         buildAssignmentService.onTimer();   // To Reload Job Plans
         buildAssignmentService.onConfigChange(cruiseConfig);
 
-        Stages allStages = stageDao.findAllStagesFor(p1_2.getName(), p1_2.getCounter());
-        assertThat(allStages.byName(CaseInsensitiveString.str(p1.config.first().name())).getState(), is(StageState.Cancelled));
+        Stages allStagesOfPipelineWithOldStageName = stageDao.findAllStagesFor(p1_1.getName(), p1_1.getCounter());
+        assertThat(allStagesOfPipelineWithOldStageName.byName(CaseInsensitiveString.str(p1.config.first().name())).getState(), is(StageState.Cancelled));
+        Stages allStagesOfPipelineWithNewStageName = stageDao.findAllStagesFor(p1_2.getName(), p1_2.getCounter());
+        assertThat(allStagesOfPipelineWithNewStageName.byName(CaseInsensitiveString.str(renamedPipeline.config.first().name())).getState(), is(StageState.Building));
     }
 
     @Test

@@ -103,7 +103,7 @@
     <update id="updatePipelineLabelCounter">
         UPDATE pipelineLabelCounts
         SET labelCount = #count#
-        WHERE pipelineName = #pipelineName#
+        WHERE lower(pipelineName) = lower(#pipelineName#)
     </update>
 
     <update id="lockPipeline">
@@ -136,6 +136,7 @@
         SELECT id as pipelineId, name as pipelineName, buildCauseType, label, buildCauseMessage, pipelines.counter as pipelineCounter, pipelines.naturalOrder
         FROM pipelines
         WHERE name = #name# AND counter=#counter#
+        ORDER BY pipelineId DESC LIMIT 1
     </select>
 
     <select id="findEarlierPipelineThatPassedForStage" resultMap="select-pipeline">
@@ -180,20 +181,21 @@
     <select id="hasPipelineInfoRow" parameterClass="java.lang.String" resultClass="java.lang.Integer">
         SELECT COUNT(*)
         FROM pipelineLabelCounts
-        WHERE pipelineName = #value#
+        WHERE lower(pipelineName) = lower(#value#)
     </select>
 
     <select id="getCounterForPipeline" parameterClass="java.lang.String" resultClass="java.lang.Integer">
-        SELECT labelCount
+        SELECT max(labelCount)
         FROM pipelineLabelCounts
-        WHERE pipelineName = #value#
-        ORDER BY id DESC
+        WHERE lower(pipelineName) = lower(#value#)
     </select>
 
     <select id="getPipelinePauseState" resultMap="select-pipeline-pause-info">
         SELECT pause_cause, pause_by, paused
         FROM pipelineLabelCounts
-        WHERE pipelineName = #value#
+        WHERE lower(pipelineName) = lower(#value#)
+        ORDER BY id DESC
+        limit 1
     </select>
 
     <insert id="insertPipelinePauseState">
@@ -204,7 +206,7 @@
     <update id="updatePipelinePauseState">
         UPDATE pipelineLabelCounts
         SET pause_cause = #pauseCause#, pause_by = #pauseBy#, paused = #paused#
-        WHERE pipelineName = #pipelineName#
+        WHERE lower(pipelineName) = lower(#pipelineName#)
     </update>
 
     <cacheModel id="pipeline-by-buildId" type="MEMORY" readOnly="true">

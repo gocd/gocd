@@ -440,7 +440,7 @@
         WHERE pipelines.name = #pipelineName#
         AND pipelines.counter = #pipelineCounter#
         AND stages.name = #stageName#
-        ORDER BY stages.counter
+        ORDER BY stages.counter ASC, stages.id DESC
     </select>
 
     <select id="getStageByCounter" resultMap="select-stage-map">

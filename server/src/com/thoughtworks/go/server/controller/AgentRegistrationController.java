@@ -240,6 +240,11 @@ public class AgentRegistrationController {
                 agentConfig = agentConfigService.updateAgent(compositeConfigCommand, uuid, result, agentService.agentUsername(uuid, ipAddress, preferredHostname));
                 if (!result.isSuccess()) {
                     List<ConfigErrors> errors = com.thoughtworks.go.config.ErrorCollector.getAllErrors(agentConfig);
+
+                    ConfigErrors e = new ConfigErrors();
+                    e.add("resultMessage", result.detailedMessage());
+
+                    errors.add(e);
                     throw new GoConfigInvalidException(null, new AllConfigErrors(errors).asString());
                 }
             }

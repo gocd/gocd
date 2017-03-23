@@ -30,18 +30,6 @@ public class AntTaskTest {
         antTask = new AntTask();
     }
 
-    @Test
-    public void shouldRetainDoubleQuotesInDescription() {
-        antTask.setTarget("\"foo bar\" baz —debug");
-        assertThat(antTask.describe(), is("ant \"foo bar\" baz —debug"));
-    }
-
-    @Test
-    public void shouldRetainSingleQuotesInDescription() {
-        antTask.setTarget("'foo bar' baz —debug");
-        assertThat(antTask.describe(), is("ant 'foo bar' baz —debug"));
-    }
-
     @Test public void shouldNotSetTargetOnBuilderWhenNotSet() throws Exception {
         assertThat(antTask.arguments(), is(""));
     }
@@ -49,7 +37,7 @@ public class AntTaskTest {
     @Test public void shouldSetTargetOnBuilderWhenAvailable() throws Exception {
         String target = "target";
         antTask.setTarget(target);
-        assertThat(antTask.arguments(), is(target));
+        assertThat(antTask.arguments(), is(" " + target));
     }
 
     @Test public void shouldSetBuildFileWhenAvailable() throws Exception {
@@ -69,7 +57,7 @@ public class AntTaskTest {
         antTask.setBuildFile("build.xml");
         antTask.setTarget("test");
         antTask.setWorkingDirectory("lib");
-        assertThat(antTask.describe(), is("ant -f \"build.xml\" test (workingDirectory: lib)"));
+        assertThat(antTask.describe(), is("<ant buildfile=\"build.xml\" target=\"test\" workingdir=\"lib\" />"));
     }
 
     @Test

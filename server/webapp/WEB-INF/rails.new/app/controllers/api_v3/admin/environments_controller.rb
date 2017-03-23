@@ -26,13 +26,16 @@ module ApiV3
       end
 
       def show
+        is_query_param_provided = params.length > 3
         is_with_remote = params[:withremote]
         environment_name = params[:name]
 
-        if is_with_remote.nil?
+        if is_with_remote.nil? and !is_query_param_provided
           load_local_environment(environment_name)
-        elsif is_with_remote.downcase == 'true'
+        elsif is_with_remote and is_with_remote.downcase == 'true'
           load_merged_environment(environment_name)
+        else
+          return render_not_found_error
         end
 
         json = ApiV3::Admin::Environments::EnvironmentConfigRepresenter.new(@environment_config).to_hash(url_builder: self)

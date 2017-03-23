@@ -145,6 +145,26 @@ describe ApiV3::Admin::EnvironmentsController do
       end
     end
 
+    describe :unsupported_query_param do
+      describe :for_admins do
+        it 'should render 404 when unknown query param is specified' do
+          login_as_admin
+
+          @environment_name = SecureRandom.hex
+          get_with_api_header :show, name: @environment_name, alongwithremote: 'true'
+          expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
+        end
+
+        it 'should render 404 when unknown value for withremote query param is specified' do
+          login_as_admin
+
+          @environment_name = SecureRandom.hex
+          get_with_api_header :show, name: @environment_name, withremote: 'false'
+          expect(response).to have_api_message_response(404, 'Either the resource you requested was not found, or you are not authorized to perform this action.')
+        end
+      end
+    end
+
     describe :security do
       before(:each) do
         @environment_name = 'foo-environment'

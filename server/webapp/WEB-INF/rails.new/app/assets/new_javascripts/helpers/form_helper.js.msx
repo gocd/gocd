@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es6shim'], function (m, $, _, s, Mixin) {
+define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'foundation.dropdown', 'es6shim'], function (m, $, _, s, Mixin) {
 
   var deleteKeyAndReturnValue = function (object, key, defaultValue) {
     var value = object[key];
@@ -25,14 +25,6 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
   var compactClasses = function (args) {
     var initialClasses = [].slice.call(arguments, 1);
     return _([initialClasses, deleteKeyAndReturnValue(args, 'class')]).flatten().compact().join(' ');
-  };
-
-  var foundationReflow = function () {
-    return function (elem, isInitialized) {
-      if (!isInitialized) {
-        $(elem).foundation();
-      }
-    };
   };
 
   function setValue(items, cb) {
@@ -605,7 +597,22 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
     },
 
     tooltip: {
-      view: function (_ctrl, args, children) {
+      controller: function(){
+        this.foundationReflow = function() {
+          return function (elem, isInitialized, ctx) {
+            if (!isInitialized) {
+              var $elem    = $(elem);
+              var dropdown = new window.Foundation.Dropdown($elem);
+
+              ctx.onunload = function () {
+                dropdown.destroy();
+              };
+
+            }
+          };
+        }
+      },
+      view: function (ctrl, args, children) {
         if (!args.tooltip && _.isEmpty(children)) {
           return <noscript/>;
         }
@@ -632,7 +639,7 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'es
                  data-dropdown
                  data-hover='true'
                  data-hover-pane='true'
-                 config={foundationReflow()}>
+                 config={ctrl.foundationReflow()}>
               {content}
             </div>
           </span>

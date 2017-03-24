@@ -82,7 +82,7 @@ public class PluginRoleService implements ConfigChangedListener, PluginChangeLis
 
     @Override
     public void onConfigChange(CruiseConfig newCruiseConfig) {
-        List<PluginRoleConfig> pluginRolesAfterConfigUpdate = newCruiseConfig.server().security().getRoles().getPluginRolesConfig();
+        List<PluginRoleConfig> pluginRolesAfterConfigUpdate = newCruiseConfig.server().security().getRoles().getPluginRoleConfigs();
 
         pluginRoleUsersStore.removePluginRolesNotIn(pluginRolesAfterConfigUpdate);
     }

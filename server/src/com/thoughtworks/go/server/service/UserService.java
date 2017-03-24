@@ -505,15 +505,11 @@ public class UserService {
 
     public AdminAndRoleSelections getAdminAndRoleSelections(List<String> users) {
         final SecurityConfig securityConfig = goConfigService.security();
-        Set<Role> roles = allRoles(securityConfig);
+        Set<Role> roles = new HashSet<>(securityConfig.getRoles().getRoleConfigs());
         final List<TriStateSelection> roleSelections = TriStateSelection.forRoles(roles, users);
         final TriStateSelection adminSelection = TriStateSelection.forSystemAdmin(securityConfig.adminsConfig(), roles, new SecurityService.UserRoleMatcherImpl(securityConfig),
                 users);
         return new AdminAndRoleSelections(adminSelection, roleSelections);
-    }
-
-    private HashSet<Role> allRoles(SecurityConfig security) {
-        return new HashSet<>(security.getRoles());
     }
 
     private boolean validate(LocalizedOperationResult result, User user) {

@@ -73,10 +73,13 @@ const AgentRowWidget = {
     }
 
     if (isElasticAgent && pluginInfos()) {
-      const elasticAgentIconURL = pluginInfos().findById(agent.elasticPluginId()).imageUrl;
-      elasticAgentIcon          = (
-        <img class="agent-icon" src={elasticAgentIconURL}/>
-      );
+      const pluginInfo = pluginInfos().findById(agent.elasticPluginId());
+      if (pluginInfo) {
+        const elasticAgentIconURL = pluginInfo.imageUrl;
+        elasticAgentIcon          = (
+          <img class="agent-icon" src={elasticAgentIconURL}/>
+        );
+      }
     }
 
     if (args.isUserAdmin) {

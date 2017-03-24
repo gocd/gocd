@@ -590,6 +590,18 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
+    public void getRoleSelectionOnlyForNonPluginRoles() throws Exception {
+        configFileHelper.addRole(new RoleConfig(new CaseInsensitiveString("core-role")));
+        configFileHelper.addRole(new PluginRoleConfig("plugin-role", "foo"));
+        addUser(new User("yogi"));
+        addUser(new User("shilpa"));
+        userService.modifyRolesAndUserAdminPrivileges(Arrays.asList("yogi", "shilpa"), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.nochange), Arrays.asList(new TriStateSelection("core-role", TriStateSelection.Action.add)), new HttpLocalizedOperationResult());
+        List<TriStateSelection> selections = userService.getAdminAndRoleSelections(Arrays.asList("yogi", "shilpa")).getRoleSelections();
+        assertThat(selections.size(), is(1));
+        assertRoleSelection(selections.get(0), "core-role", TriStateSelection.Action.add);
+    }
+
+    @Test
     public void shouldGetAdminSelectionWithCorrectState() throws Exception {
         configFileHelper.addAdmins("foo", "quux");
         assertThat(userService.getAdminAndRoleSelections(Arrays.asList("foo")).getAdminSelection(), is(new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.add)));

@@ -18,7 +18,11 @@ package com.thoughtworks.go.config;
 
 import org.junit.Test;
 
+import java.util.List;
+
 import static java.util.Arrays.asList;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -73,5 +77,51 @@ public class RolesConfigTest {
         RolesConfig rolesConfig = new RolesConfig(role1, role2);
         rolesConfig.validate(null);
         assertEquals(1, rolesConfig.errors().getAll().size());
+    }
+
+
+    @Test
+    public void getPluginRoleConfigsShouldReturnOnlyPluginRoles() {
+        Role admin = new RoleConfig(new CaseInsensitiveString("admin"));
+        Role view = new RoleConfig(new CaseInsensitiveString("view"));
+        Role blackbird = new PluginRoleConfig("blackbird", "foo");
+        Role spacetiger = new PluginRoleConfig("spacetiger", "foo");
+
+        RolesConfig rolesConfig = new RolesConfig(admin, blackbird, view, spacetiger);
+
+        List<PluginRoleConfig> roles = rolesConfig.getPluginRoleConfigs();
+
+        assertThat(roles, hasSize(2));
+        assertThat(roles, contains(blackbird, spacetiger));
+    }
+
+    @Test
+    public void getRoleConfigsShouldReturnOnlyNonPluginRoles() {
+        Role admin = new RoleConfig(new CaseInsensitiveString("admin"));
+        Role view = new RoleConfig(new CaseInsensitiveString("view"));
+        Role blackbird = new PluginRoleConfig("blackbird", "foo");
+        Role spacetiger = new PluginRoleConfig("spacetiger", "foo");
+
+        RolesConfig rolesConfig = new RolesConfig(admin, blackbird, view, spacetiger);
+
+        List<RoleConfig> roles = rolesConfig.getRoleConfigs();
+
+        assertThat(roles, hasSize(2));
+        assertThat(roles, contains(admin, view));
+    }
+
+    @Test
+    public void allRolesShouldReturnAllRoles() {
+        Role admin = new RoleConfig(new CaseInsensitiveString("admin"));
+        Role view = new RoleConfig(new CaseInsensitiveString("view"));
+        Role blackbird = new PluginRoleConfig("blackbird", "foo");
+        Role spacetiger = new PluginRoleConfig("spacetiger", "foo");
+
+        RolesConfig rolesConfig = new RolesConfig(admin, blackbird, view, spacetiger);
+
+        List<Role> roles = rolesConfig.allRoles();
+
+        assertThat(roles, hasSize(4));
+        assertThat(roles, contains(admin, blackbird, view, spacetiger));
     }
 }

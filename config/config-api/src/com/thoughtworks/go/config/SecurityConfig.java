@@ -220,7 +220,7 @@ public class SecurityConfig implements Validatable {
         List<PluginRoleConfig> result = new ArrayList<>();
 
         List<SecurityAuthConfig> authConfigs = securityAuthConfigs.findByPluginId(pluginId);
-        List<PluginRoleConfig> pluginRoles = rolesConfig.getPluginRolesConfig();
+        List<PluginRoleConfig> pluginRoles = rolesConfig.getPluginRoleConfigs();
 
         for (SecurityAuthConfig authConfig : authConfigs) {
             for (PluginRoleConfig pluginRole : pluginRoles) {

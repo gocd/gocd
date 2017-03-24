@@ -103,7 +103,7 @@ public class RolesConfig extends BaseCollection<Role> implements Validatable {
 
 
     public PluginRoleConfig findPluginRoleByName(CaseInsensitiveString pluginRoleName) {
-        for (PluginRoleConfig pluginRoleConfig : getPluginRolesConfig()) {
+        for (PluginRoleConfig pluginRoleConfig : getPluginRoleConfigs()) {
             if (pluginRoleConfig.getName().equals(pluginRoleName)) {
                 return pluginRoleConfig;
             }
@@ -125,24 +125,25 @@ public class RolesConfig extends BaseCollection<Role> implements Validatable {
         return result;
     }
 
-    public List<PluginRoleConfig> getPluginRolesConfig() {
-        List<PluginRoleConfig> pluginRolesConfig = new ArrayList<>();
-        for (Role role : this) {
-            if (role instanceof PluginRoleConfig) {
-                pluginRolesConfig.add((PluginRoleConfig) role);
-            }
-        }
-        return pluginRolesConfig;
+    public List<PluginRoleConfig> getPluginRoleConfigs() {
+        return filterRolesBy(PluginRoleConfig.class);
     }
 
-    public List<PluginRoleConfig> getPluginRolesConfig(String authConfigId) {
-        List<PluginRoleConfig> pluginRolesConfig = new ArrayList<>();
-        for (Role role : this) {
-            if (role instanceof PluginRoleConfig && ((PluginRoleConfig) role).getAuthConfigId().equals(authConfigId)) {
-                pluginRolesConfig.add((PluginRoleConfig) role);
-            }
-        }
-        return pluginRolesConfig;
+    public List<RoleConfig> getRoleConfigs() {
+        return filterRolesBy(RoleConfig.class);
     }
 
+    public RolesConfig allRoles() {
+        return new RolesConfig(this.toArray(new Role[0]));
+    }
+
+    private <T> List<T> filterRolesBy(Class<T> type) {
+        List<T> rolesConfig = new ArrayList<>();
+        for (Role role : this) {
+            if (role.getClass() == type) {
+                rolesConfig.add(type.cast(role));
+            }
+        }
+        return rolesConfig;
+    }
 }

@@ -673,7 +673,22 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'fo
     },
 
     infoToolTip: {
-      view: function (_ctrl, args) {
+      controller: function(){
+        this.foundationReflow = function() {
+          return function (elem, isInitialized, ctx) {
+            if (!isInitialized) {
+              var $elem    = $(elem);
+              var dropdown = new window.Foundation.Dropdown($elem);
+
+              ctx.onunload = function () {
+                dropdown.destroy();
+              };
+
+            }
+          };
+        };
+      },
+      view: function (ctrl, args) {
         var content   = deleteKeyAndReturnValue(args, 'content'),
           tooltipId = 'info-tooltip-' + s.uuid();
         return (
@@ -686,7 +701,7 @@ define(['mithril', 'jquery', 'lodash', 'string-plus', 'models/model_mixins', 'fo
                  data-dropdown
                  data-hover='true'
                  data-hover-pane='true'
-                 config={foundationReflow()}>
+                 config={ctrl.foundationReflow()}>
               {content}
             </div>
           </span>

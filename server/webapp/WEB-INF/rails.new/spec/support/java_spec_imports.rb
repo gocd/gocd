@@ -29,7 +29,7 @@ module JavaSpecImports
   java_import com.thoughtworks.go.domain.AgentConfigStatus unless defined? AgentConfigStatus
   java_import com.thoughtworks.go.helper.GoConfigMother unless defined? GoConfigMother
   java_import com.thoughtworks.go.helper.JobIdentifierMother unless defined? JobIdentifierMother
-  java_import com.thoughtworks.go.helper.JobInstanceMother  unless defined? JobInstanceMother
+  java_import com.thoughtworks.go.helper.JobInstanceMother unless defined? JobInstanceMother
   java_import com.thoughtworks.go.helper.JobInstanceMother unless defined? JobInstanceMother
   java_import com.thoughtworks.go.helper.MaterialsMother unless defined? MaterialsMother
   java_import com.thoughtworks.go.helper.MaterialConfigsMother unless defined? MaterialConfigsMother
@@ -42,7 +42,7 @@ module JavaSpecImports
   java_import com.thoughtworks.go.helper.BuildPlanMother unless defined? BuildPlanMother
   java_import com.thoughtworks.go.helper.StageMother unless defined? StageMother
   java_import com.thoughtworks.go.util.LogFixture unless defined? LogFixture
-  java_import com.thoughtworks.go.util.GoConfigFileHelper  unless defined? GoConfigFileHelper
+  java_import com.thoughtworks.go.util.GoConfigFileHelper unless defined? GoConfigFileHelper
   java_import com.thoughtworks.go.util.ReflectionUtil unless defined? ReflectionUtil
   java_import com.thoughtworks.go.server.service.UserService unless defined? UserService
   java_import com.thoughtworks.go.server.service.AdminService unless defined? AdminService
@@ -110,4 +110,6 @@ module JavaSpecImports
   java_import com.thoughtworks.go.domain.GoVersion unless defined? GoVersion
   java_import com.thoughtworks.go.domain.VersionInfo unless defined? VersionInfo
   java_import com.thoughtworks.go.server.service.CheckConnectionSubprocessExecutionContext unless defined? CheckConnectionSubprocessExecutionContext
+  java_import com.thoughtworks.go.config.remote.RepoConfigOrigin unless defined? RepoConfigOrigin
+  java_import com.thoughtworks.go.config.remote.ConfigRepoConfig unless defined? ConfigRepoConfig
 end

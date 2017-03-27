@@ -19,6 +19,7 @@ module ApiV3
     class PipelinesController < ApiV3::BaseController
       before_action :check_pipeline_group_admin_user_and_401
       before_action :load_pipeline, only: [:show, :update, :destroy]
+      before_action :check_if_pipeline_is_defined_remotely, only: [:update, :destroy]
       before_action :check_if_pipeline_by_same_name_already_exists, :check_group_not_blank, only: [:create]
       before_action :check_for_stale_request, :check_for_attempted_pipeline_rename, only: [:update]
 
@@ -97,6 +98,16 @@ module ApiV3
         if (!pipeline_config_service.getPipelineConfig(params[:pipeline][:name]).nil?)
           result = HttpLocalizedOperationResult.new
           result.unprocessableEntity(LocalizedMessage::string("RESOURCE_ALREADY_EXISTS", 'pipeline', params[:pipeline][:name]))
+          render_http_operation_result(result)
+        end
+      end
+
+      def check_if_pipeline_is_defined_remotely
+        if (!@pipeline_config.isLocal())
+          result = HttpLocalizedOperationResult.new
+          pipeline_name = @pipeline_config.name().toString()
+          origin = @pipeline_config.getOrigin().displayName()
+          result.unprocessableEntity(LocalizedMessage.string("CAN_NOT_OPERATE_ON_REMOTE_ENTITY", "pipeline", pipeline_name, origin))
           render_http_operation_result(result)
         end
       end

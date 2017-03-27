@@ -64,7 +64,7 @@ describe ApiV3::Admin::PipelinesController do
         enable_security
         login_as_pipeline_group_Non_Admin_user
         @security_service.stub(:hasViewPermissionForPipeline).and_return(false)
-        expect(controller).to disallow_action(:get, :show, { :pipeline_name => "pipeline1" }).with(401, "You are not authorized to perform this action.")
+        expect(controller).to disallow_action(:get, :show, {:pipeline_name => "pipeline1"}).with(401, "You are not authorized to perform this action.")
       end
 
       it 'should allow admin users, with security enabled' do
@@ -85,7 +85,7 @@ describe ApiV3::Admin::PipelinesController do
       it 'should disallow non-admin user, with security enabled' do
         enable_security
         login_as_pipeline_group_Non_Admin_user
-        expect(controller).to disallow_action(:put, :update, { :pipeline_name => "pipeline1" }).with(401, "You are not authorized to perform this action.")
+        expect(controller).to disallow_action(:put, :update, {:pipeline_name => "pipeline1"}).with(401, "You are not authorized to perform this action.")
       end
 
       it 'should allow admin users, with security enabled' do
@@ -160,7 +160,7 @@ describe ApiV3::Admin::PipelinesController do
 
       it "should not show pipeline config for Non Admin users" do
         login_as_pipeline_group_Non_Admin_user
-        pipeline      = PipelineConfigMother.pipelineConfig(@pipeline_name)
+        pipeline = PipelineConfigMother.pipelineConfig(@pipeline_name)
 
         get_with_api_header :show, :pipeline_name => @pipeline_name
 
@@ -171,7 +171,7 @@ describe ApiV3::Admin::PipelinesController do
 
       it 'should show pipeline config for an admin' do
         login_as_pipeline_group_admin_user(@group)
-        pipeline      = PipelineConfigMother.pipelineConfig(@pipeline_name)
+        pipeline = PipelineConfigMother.pipelineConfig(@pipeline_name)
         pipeline_md5 = 'md5_for_pipeline_config'
 
         @pipeline_config_service.should_receive(:getPipelineConfig).with(@pipeline_name).and_return(pipeline)
@@ -187,7 +187,7 @@ describe ApiV3::Admin::PipelinesController do
 
       it "should return 304 for show pipeline config if etag sent in request is fresh" do
         login_as_pipeline_group_admin_user(@group)
-        pipeline      = PipelineConfigMother.pipelineConfig(@pipeline_name)
+        pipeline = PipelineConfigMother.pipelineConfig(@pipeline_name)
         pipeline_md5 = 'md5_for_pipeline_config'
 
         @pipeline_config_service.should_receive(:getPipelineConfig).with(@pipeline_name).and_return(pipeline)
@@ -195,7 +195,7 @@ describe ApiV3::Admin::PipelinesController do
 
         controller.request.env['HTTP_IF_NONE_MATCH'] = Digest::MD5.hexdigest(pipeline_md5)
 
-        get_with_api_header :show, { :pipeline_name => @pipeline_name }
+        get_with_api_header :show, {:pipeline_name => @pipeline_name}
 
         expect(response.code).to eq('304')
         expect(response.body).to be_empty
@@ -214,7 +214,7 @@ describe ApiV3::Admin::PipelinesController do
 
       it "should show pipeline config if etag sent in request is stale" do
         login_as_pipeline_group_admin_user(@group)
-        pipeline      = PipelineConfigMother.pipelineConfig(@pipeline_name)
+        pipeline = PipelineConfigMother.pipelineConfig(@pipeline_name)
         pipeline_md5 = 'md5_for_pipeline_config'
 
         @pipeline_config_service.should_receive(:getPipelineConfig).with(@pipeline_name).and_return(pipeline)
@@ -222,7 +222,7 @@ describe ApiV3::Admin::PipelinesController do
 
         controller.request.env['HTTP_IF_NONE_MATCH'] = 'stale-etag'
 
-        get_with_api_header :show, { pipeline_name: @pipeline_name }
+        get_with_api_header :show, {pipeline_name: @pipeline_name}
         expect(response).to be_ok
         expect(response.body).to_not be_empty
       end
@@ -264,7 +264,7 @@ describe ApiV3::Admin::PipelinesController do
     describe :update do
       before(:each) do
         login_as_pipeline_group_admin_user(@group)
-        @pipeline      = PipelineConfigMother.pipelineConfig(@pipeline_name)
+        @pipeline = PipelineConfigMother.pipelineConfig(@pipeline_name)
         controller.send(:go_cache).put("GO_PIPELINE_CONFIGS_ETAGS_CACHE", @pipeline_name, "latest-etag")
       end
 
@@ -299,16 +299,27 @@ describe ApiV3::Admin::PipelinesController do
         put_with_api_header :update, pipeline_name: @pipeline_name, :pipeline => pipeline
 
         expect(response.code).to eq("412")
-        expect(actual_response).to eq({ :message => "Someone has modified the configuration for pipeline 'pipeline1'. Please update your copy of the config with the changes." })
+        expect(actual_response).to eq({:message => "Someone has modified the configuration for pipeline 'pipeline1'. Please update your copy of the config with the changes."})
       end
-
 
       it "should not update pipeline config if no etag is passed" do
         @pipeline_config_service.should_receive(:getPipelineConfig).with(@pipeline_name).and_return(@pipeline)
         put_with_api_header :update, pipeline_name: @pipeline_name, :pipeline => pipeline
 
         expect(response.code).to eq("412")
-        expect(actual_response).to eq({ :message => "Someone has modified the configuration for pipeline 'pipeline1'. Please update your copy of the config with the changes." })
+        expect(actual_response).to eq({:message => "Someone has modified the configuration for pipeline 'pipeline1'. Please update your copy of the config with the changes."})
+      end
+
+      it "should not update pipeline config when the pipeline is defined remotely" do
+        gitMaterial = GitMaterialConfig.new("https://github.com/config-repos/repo", "master")
+        origin = RepoConfigOrigin.new(ConfigRepoConfig.new(gitMaterial, "json-plugib"), "revision1")
+        @pipeline.setOrigin(origin)
+
+        @pipeline_config_service.should_receive(:getPipelineConfig).with(@pipeline_name).and_return(@pipeline)
+        put_with_api_header :update, pipeline_name: @pipeline_name, :pipeline => pipeline
+
+        expect(response.code).to eq("422")
+        expect(actual_response).to eq({:message => "Can not operate on pipeline 'pipeline1' as it is defined remotely in 'https://github.com/config-repos/repo at revision1'."})
       end
 
       it "should handle server validation errors" do
@@ -345,7 +356,7 @@ describe ApiV3::Admin::PipelinesController do
         put_with_api_header :update, pipeline_name: @pipeline_name, :pipeline => pipeline("renamed_pipeline")
 
         expect(response.code).to eq("406")
-        expect(actual_response).to eq({ :message => "Renaming the pipeline resource is not supported by this API." })
+        expect(actual_response).to eq({:message => "Renaming the pipeline resource is not supported by this API."})
       end
 
       it "should set package definition on to package material before save" do
@@ -413,7 +424,7 @@ describe ApiV3::Admin::PipelinesController do
 
     describe :create do
       before(:each) do
-        @pipeline      = PipelineConfigMother.pipelineConfig(@pipeline_name)
+        @pipeline = PipelineConfigMother.pipelineConfig(@pipeline_name)
       end
 
       it "should not allow non admin users to create a new pipeline config" do
@@ -582,7 +593,7 @@ describe ApiV3::Admin::PipelinesController do
       before(:each) do
         login_as_admin
         @pipeline_name = "pipeline1"
-        @pipeline      = PipelineConfigMother.pipelineConfig(@pipeline_name)
+        @pipeline = PipelineConfigMother.pipelineConfig(@pipeline_name)
         @pipeline_config_service.stub(:getPipelineConfig).with(@pipeline_name).and_return(@pipeline)
         @security_service.stub(:isUserAdminOfGroup).and_return(true)
       end
@@ -595,7 +606,7 @@ describe ApiV3::Admin::PipelinesController do
         put_with_api_header :destroy, pipeline_name: @pipeline_name
 
         expect(response.code).to eq("200")
-        expect(actual_response).to eq({ :message => "The pipeline 'pipeline1' was deleted successfully." })
+        expect(actual_response).to eq({:message => "The pipeline 'pipeline1' was deleted successfully."})
       end
 
 
@@ -604,7 +615,19 @@ describe ApiV3::Admin::PipelinesController do
         put_with_api_header :destroy, pipeline_name: @pipeline_name
 
         expect(response.code).to eq("404")
-        expect(actual_response).to eq({ :message => "Either the resource you requested was not found, or you are not authorized to perform this action." })
+        expect(actual_response).to eq({:message => "Either the resource you requested was not found, or you are not authorized to perform this action."})
+      end
+
+      it "should not delete pipeline config when the pipeline is defined remotely" do
+        gitMaterial = GitMaterialConfig.new("https://github.com/config-repos/repo", "master")
+        origin = RepoConfigOrigin.new(ConfigRepoConfig.new(gitMaterial, "json-plugib"), "revision1")
+        @pipeline.setOrigin(origin)
+
+        @pipeline_config_service.should_receive(:getPipelineConfig).with(@pipeline_name).and_return(@pipeline)
+        put_with_api_header :destroy, pipeline_name: @pipeline_name
+
+        expect(response.code).to eq("422")
+        expect(actual_response).to eq({:message => "Can not operate on pipeline 'pipeline1' as it is defined remotely in 'https://github.com/config-repos/repo at revision1'."})
       end
 
       describe :route do
@@ -645,50 +668,50 @@ describe ApiV3::Admin::PipelinesController do
     def expected_data_with_validation_errors
       {
         enable_pipeline_locking: false,
-        errors:                  { label_template: ["Invalid label. Label should be composed of alphanumeric text, it should contain the builder number as ${COUNT}, can contain a material revision as ${<material-name>} of ${<material-name>[:<number>]}, or use params as \#{<param-name>}."] },
-        label_template:          "${COUNT}",
-        materials:               [{ type: "svn", attributes: { url: "http://some/svn/url", destination: "svnDir", filter: nil, invert_filter:false, name: "http___some_svn_url", auto_update: true, check_externals: false, username: nil } }],
-        name:                    "pipeline1",
-        environment_variables:   [],
-        parameters:              [],
-        stages:                  [{ name: "mingle", fetch_materials: true, clean_working_directory: false, never_cleanup_artifacts: false, approval: { :type => "success", :authorization => { :roles => [], :users => [] } }, environment_variables: [], jobs: [] }],
-        template:                nil,
-        timer:                   nil,
-        tracking_tool:           nil
+        errors: {label_template: ["Invalid label. Label should be composed of alphanumeric text, it should contain the builder number as ${COUNT}, can contain a material revision as ${<material-name>} of ${<material-name>[:<number>]}, or use params as \#{<param-name>}."]},
+        label_template: "${COUNT}",
+        materials: [{type: "svn", attributes: {url: "http://some/svn/url", destination: "svnDir", filter: nil, invert_filter: false, name: "http___some_svn_url", auto_update: true, check_externals: false, username: nil}}],
+        name: "pipeline1",
+        environment_variables: [],
+        parameters: [],
+        stages: [{name: "mingle", fetch_materials: true, clean_working_directory: false, never_cleanup_artifacts: false, approval: {:type => "success", :authorization => {:roles => [], :users => []}}, environment_variables: [], jobs: []}],
+        template: nil,
+        timer: nil,
+        tracking_tool: nil
       }
     end
 
     def invalid_pipeline
       {
-        label_template:          "${COUNT}",
+        label_template: "${COUNT}",
         enable_pipeline_locking: false,
-        name:                    "pipeline1",
-        materials:               [
-                                   {
-                                     type:       "SvnMaterial",
-                                     attributes: {
-                                       name:            "http___some_svn_url",
-                                       auto_update:     true,
-                                       url:             "http://some/svn/url",
-                                       destination:     "svnDir",
-                                       filter:          nil,
-                                       check_externals: false,
-                                       username:        nil,
-                                       password:        nil
-                                     }
-                                   }
-                                 ],
-        stages:                  [{ name: "mingle", fetch_materials: true, clean_working_directory: false, never_cleanup_artifacts: false, approval: { type: "success", authorization: {} }, jobs: [] }],
-        errors:                  { label_template: ["Invalid label. Label should be composed of alphanumeric text, it should contain the builder number as ${COUNT}, can contain a material revision as ${<material-name>} of ${<material-name>[:<number>]}, or use params as \#{<param-name>}."] }
+        name: "pipeline1",
+        materials: [
+          {
+            type: "SvnMaterial",
+            attributes: {
+              name: "http___some_svn_url",
+              auto_update: true,
+              url: "http://some/svn/url",
+              destination: "svnDir",
+              filter: nil,
+              check_externals: false,
+              username: nil,
+              password: nil
+            }
+          }
+        ],
+        stages: [{name: "mingle", fetch_materials: true, clean_working_directory: false, never_cleanup_artifacts: false, approval: {type: "success", authorization: {}}, jobs: []}],
+        errors: {label_template: ["Invalid label. Label should be composed of alphanumeric text, it should contain the builder number as ${COUNT}, can contain a material revision as ${<material-name>} of ${<material-name>[:<number>]}, or use params as \#{<param-name>}."]}
       }
     end
 
     def pipeline (pipeline_name="pipeline1", material_type="hg", task_type="exec")
-      { label_template: "Jyoti-${COUNT}", enable_pipeline_locking: false, name: pipeline_name, template_name: nil, parameters: [], environment_variables: [], materials: [{ type: material_type, attributes: { url: "../manual-testing/ant_hg/dummy", destination: "dest_dir", filter: { ignore: [] } }, name: "dummyhg", auto_update: true }], stages: [{ name: "up42_stage", fetch_materials: true, clean_working_directory: false, never_cleanup_artifacts: false, approval: { type: "success", authorization: { roles: [], users: [] } }, environment_variables: [], jobs: [{ name: "up42_job", run_on_all_agents: false, environment_variables: [], resources: [], tasks: [{ type: task_type, attributes: { command: "ls", working_dir: nil }, run_if: [] }], tabs: [], artifacts: [], properties: [] }] }], mingle: { base_url: nil, project_identifier: nil, mql_grouping_conditions: nil } }
+      {label_template: "Jyoti-${COUNT}", enable_pipeline_locking: false, name: pipeline_name, template_name: nil, parameters: [], environment_variables: [], materials: [{type: material_type, attributes: {url: "../manual-testing/ant_hg/dummy", destination: "dest_dir", filter: {ignore: []}}, name: "dummyhg", auto_update: true}], stages: [{name: "up42_stage", fetch_materials: true, clean_working_directory: false, never_cleanup_artifacts: false, approval: {type: "success", authorization: {roles: [], users: []}}, environment_variables: [], jobs: [{name: "up42_job", run_on_all_agents: false, environment_variables: [], resources: [], tasks: [{type: task_type, attributes: {command: "ls", working_dir: nil}, run_if: []}], tabs: [], artifacts: [], properties: []}]}], mingle: {base_url: nil, project_identifier: nil, mql_grouping_conditions: nil}}
     end
 
     def pipeline_with_pluggable_material (pipeline_name, material_type, ref)
-      { label_template: "${COUNT}", name: pipeline_name, materials: [{ type: material_type, attributes: { ref: ref}}], stages: [{ name: "up42_stage", jobs: [{ name: "up42_job", tasks: [{ type: "exec", attributes: { command: "ls"} }] }] }] }
+      {label_template: "${COUNT}", name: pipeline_name, materials: [{type: material_type, attributes: {ref: ref}}], stages: [{name: "up42_stage", jobs: [{name: "up42_job", tasks: [{type: "exec", attributes: {command: "ls"}}]}]}]}
     end
   end
 

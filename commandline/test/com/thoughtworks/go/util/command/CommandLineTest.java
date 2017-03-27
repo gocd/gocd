@@ -33,6 +33,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.regex.Matcher;
 
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
@@ -108,8 +109,9 @@ public class CommandLineTest {
         final CommandLine cl2 = CommandLine.createCommandLine(EXEC_WITH_SPACES);
         final String argWithMismatchedDblQuote = "argMisMatch='singlequoted\"WithMismatchedDblQuote'";
         cl2.withArg(argWithMismatchedDblQuote);
-        assertEquals("Did behavior of mismatched quotes change? Previously it would truncate args.",
-                DBL_QUOTE + EXEC_WITH_SPACES + DBL_QUOTE + " ", cl2.toString());
+        assertEquals("Should escape double quotes inside the string",
+                DBL_QUOTE + EXEC_WITH_SPACES + DBL_QUOTE + " " +
+                        DBL_QUOTE + argWithMismatchedDblQuote.replaceAll("\"", Matcher.quoteReplacement("\\\"")) + DBL_QUOTE, cl2.toString());
     }
 
     @Test

@@ -206,11 +206,7 @@ public class CommandLine {
                 result.append(separator);
             }
             if (quote) {
-                try {
-                    result.append(CommandUtils.shellEscape(line[i]));
-                } catch (CommandUtils.ParseException e) {
-                    LOG.error("Error quoting argument.", e);
-                }
+                result.append(CommandUtils.quoteArgument(line[i]));
             } else {
                 result.append(line[i]);
             }

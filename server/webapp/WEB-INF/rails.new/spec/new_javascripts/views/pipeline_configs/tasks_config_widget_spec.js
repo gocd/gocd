@@ -302,7 +302,6 @@ define(["jquery", "mithril", "lodash", "models/pipeline_configs/tasks", "views/p
           });
         });
       });
-
     });
 
     describe("Add Tasks", function () {

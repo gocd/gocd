@@ -287,6 +287,42 @@ describe("TasksConfigWidget", () => {
     });
   });
 
+  describe('Plugin Task View', () => {
+    describe('Missing Plugin', () => {
+      let task;
+      beforeEach(() => {
+        const tasks = Stream(new Tasks());
+
+        task = new Tasks.Task.PluginTask({
+          pluginId:      'indix.s3fetch',
+          version:       1,
+          configuration: Tasks.Task.PluginTask.Configurations.fromJSON([
+            {key: "Repo", value: "foo"},
+            {key: "Package", value: "foobar-widgets"}
+          ]),
+          runIf:         ['any']
+        });
+        tasks().addTask(task);
+
+        mount(tasks);
+      });
+
+      afterEach(() => {
+        unmount();
+      });
+
+      afterAll(() => {
+        unmount();
+      });
+
+      describe('render', () => {
+        it('should show missing plugin error when no plugin is available', () => {
+          expect($root.find(".pluggable-task>.alert")).toContainText("Plugin 'indix.s3fetch' not found.");
+        });
+      });
+    });
+  });
+
   describe("Add Tasks", () => {
     let antTask, nantTask, execTask, rakeTask, fetchArtifactTask, tasks;
     beforeEach(() => {

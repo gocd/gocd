@@ -10,18 +10,8 @@
         <% if auto_refresh? %>
         AjaxRefreshers.addRefresher(new DashboardAjaxRefresher('<%= url_for(:action => 'index', :format=>"json") %>',
         {redirectUrl: '<%= url_for_login %>', className: '.environment', refreshCompleted: function(isPartialRefresh) {
-            jQuery('span.time').each(function() {
-                Util.convert_to_timeago(this);
-            });
         } }), true);
-        <% else %>
-        jQuery('span.time').each(function() {
-            Util.convert_to_timeago_on_timer(this)();
-        });
         <% end %>
-        jQuery('span.time').each(function() {
-            Util.convert_to_timeago(this);
-        });
         ElementAligner.hookupAlignEvents();
     });
 </script>

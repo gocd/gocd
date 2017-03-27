@@ -26,7 +26,9 @@ import com.thoughtworks.go.server.web.JsonView;
 import com.thoughtworks.go.util.TimeConverter;
 import org.joda.time.DateTime;
 
+import java.text.SimpleDateFormat;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import static com.thoughtworks.go.domain.JobState.*;
@@ -151,7 +153,8 @@ public class JobStatusJsonPresentationModel {
     }
 
     public String getHumanReadableScheduledDate() {
-        return timeConverter.getConvertedTime(instance.getScheduledDate()).toString();
+          return new SimpleDateFormat("MMM dd yyyy \'at\' HH:mm:ss [Z]", Locale.ENGLISH)
+                  .format(instance.getScheduledDate());
     }
 
     public boolean isCopy() {

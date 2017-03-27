@@ -29,8 +29,8 @@ define(["jquery", "mithril", "lodash", "models/pipeline_configs/tasks", "views/p
           target:           'clean',
           workingDirectory: 'moduleA',
           runIf:            ['passed', 'failed'],
-          onCancelTask: {
-            type:                "nant",
+          onCancelTask:     {
+            type:       "nant",
             attributes: {
               build_file:        'build-moduleA.xml',
               target:            'clean',
@@ -272,6 +272,39 @@ define(["jquery", "mithril", "lodash", "models/pipeline_configs/tasks", "views/p
       });
     });
 
+    describe('Plugin Task View', function () {
+      describe('Missing Plugin', function () {
+        var task;
+        beforeAll(function () {
+          var tasks = m.prop(new Tasks());
+
+          task = new Tasks.Task.PluginTask({
+            pluginId:      'indix.s3fetch',
+            version:       1,
+            configuration: Tasks.Task.PluginTask.Configurations.fromJSON([
+              {key: "Repo", value: "foo"},
+              {key: "Package", value: "foobar-widgets"}
+            ]),
+            runIf:         ['any']
+          });
+          tasks().addTask(task);
+
+          mount(tasks);
+        });
+
+        afterAll(function () {
+          unmount();
+        });
+
+        describe('render', function () {
+          it('should show missing plugin error when no plugin is available', function () {
+            expect($root.find(".pluggable-task>.alert")).toContainText("Plugin 'indix.s3fetch' not found.");
+          });
+        });
+      });
+
+    });
+
     describe("Add Tasks", function () {
       var antTask, nantTask, execTask, rakeTask, fetchArtifactTask, tasks;
       beforeEach(function () {
@@ -333,7 +366,7 @@ define(["jquery", "mithril", "lodash", "models/pipeline_configs/tasks", "views/p
         expect($root.find('.task-definition')).toHaveLength(5);
 
         var addTaskButton = $root.find('.add-button').get(0);
-        var evObj = document.createEvent('MouseEvents');
+        var evObj         = document.createEvent('MouseEvents');
         evObj.initEvent('click', true, false);
         addTaskButton.onclick(evObj);
         m.redraw(true);

@@ -27,7 +27,8 @@ define([
       return (
         <ul class='task-type'>
           {_.map(args.task.summary(), function (v, k) {
-            return !s.isBlank(v) ? (<li><label class={_.toLower(k)}>{_.startCase(k)}</label> < span > {v}</span></li>) : undefined;
+            return !s.isBlank(v) ? (
+                <li><label class={_.toLower(k)}>{_.startCase(k)}</label> < span > {v}</span></li>) : undefined;
           })}
         </ul>
       );
@@ -37,8 +38,8 @@ define([
   var TaskViews = {
     base: {
       controller: function (args) {
-        var self = this;
-        self.args = args;
+        var self       = this;
+        self.args      = args;
         var vmStateKey = 'taskEdit';
 
         ComponentMixins.HasViewModel.call(this);
@@ -54,14 +55,34 @@ define([
         };
 
         self.taskDisplayName = function () {
-          return Tasks.isBuiltInTaskType(args.task.type()) ? args.task.type() : PluginInfos.findById(args.task.pluginId()).displayName();
+          if (Tasks.isBuiltInTaskType(args.task.type())) {
+            return args.task.type();
+          }
+          let taskPlugin = PluginInfos.findById(args.task.pluginId());
+          return args.isPluginMissing() ? args.task.type() : taskPlugin.displayName();
         };
       },
 
       view: function (ctrl, args, children) {
+        let pluggableTask = !Tasks.isBuiltInTaskType(args.task.type());
+
         var classNameForTaskBody = function () {
           return ctrl.isEditing() ? 'show' : 'hide';
         };
+
+        let taskActions = (
+          <div class={_.compact(["task-body", classNameForTaskBody()]).join(' ')}>
+            {children}
+            <RunIfConditionsWidget task={args.task}/>
+            <CancelTaskWidget task={args.task}/>
+          </div>
+        );
+
+        if (pluggableTask && args.isPluginMissing()) {
+          taskActions = (<div class={"task-body " + classNameForTaskBody()}>
+            {children}
+          </div>);
+        }
 
         return (
           <div class={'task-definition task-type-' + args.task.type()} data-task-index={args.taskIndex}>
@@ -75,18 +96,15 @@ define([
                   {!ctrl.isEditing() ? (<span>{_.capitalize(args.task.runIf().data().join(' '))}</span>) : undefined}
                 </f.column>
                 <f.column size={2} largeSize={2}>
-                  {!ctrl.isEditing() ? (<span>{_.isNil(args.task.onCancelTask) ? 'No' : args.task.onCancelTask.type()}</span>) : undefined}
+                  {!ctrl.isEditing() ? (
+                      <span>{_.isNil(args.task.onCancelTask) ? 'No' : args.task.onCancelTask.type()}</span>) : undefined}
                   <div class='actions'>
                     <f.removeButton onclick={args.onRemove} class="remove-task"/>
                     <f.editButton class={ctrl.isEditing() ? 'done' : null}/>
                   </div>
                 </f.column>
               </f.row>
-              <div class={_.compact(["task-body", classNameForTaskBody()]).join(' ')}>
-                {children}
-                <RunIfConditionsWidget task={args.task}/>
-                <CancelTaskWidget task={args.task}/>
-              </div>
+              {taskActions}
             </div>
           </div>
         );
@@ -145,6 +163,19 @@ define([
 
     pluggable_task: { //eslint-disable-line camelcase
       view: function (_ctrl, args) {
+        let taskPlugin       = PluginInfos.findById(args.task.pluginId());
+        args.isPluginMissing = m.prop(!taskPlugin);
+
+        if (args.isPluginMissing()) {
+          return (<TaskViews.base {...args}>
+            <div id={'pluggable-task-template-' + args.task.uuid()} class='task-basic'>
+              <div class='pluggable-task'>
+                <f.alert>Plugin '{args.task.pluginId()}' not found.</f.alert>
+              </div>
+            </div>
+          </TaskViews.base>);
+        }
+
         return (
           <TaskViews.base {...args}>
             <TaskBasicViews.pluggable_task {...args}/>

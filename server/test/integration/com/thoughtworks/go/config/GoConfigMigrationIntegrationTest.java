@@ -68,6 +68,8 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -1460,6 +1462,94 @@ public class GoConfigMigrationIntegrationTest {
                 new ConfigurationProperty(new ConfigurationKey("ram"), new ConfigurationValue("1024")),
                 new ConfigurationProperty(new ConfigurationKey("diskSpace"), new ConfigurationValue("10G")));
         assertThat(profiles.get(1), is(expectedAWSProfile));
+    }
+
+    @Test
+    public void shouldMigrateLdapAndPasswordFileToAuthConfig_asPartOfMigration90And91() throws Exception {
+        String configXml = "<cruise schemaVersion='90'><server serverId='dev-id'><security>" +
+                "<passwordFile path=\"../manual-testing/ant_hg/password.properties\" />" +
+                "<ldap uri=\"ldap://ldap.server\" managerDn=\"cn=admin,ou=system,dc=example,dc=com\" encryptedManagerPassword=\"y10CG/z7QBs=\" searchFilter=\"uid\">\n" +
+                "   <bases>\n" +
+                "       <base value=\"ou=system\" />\n" +
+                "       <base value=\"ou=employee\" />\n" +
+                "   </bases>\n" +
+                "</ldap>" +
+                "</security></server></cruise>";
+
+        CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml, 90);
+        assertThat(migratedConfig.server().security().securityAuthConfigs(), hasSize(2));
+
+        SecurityAuthConfig passwordFile = migratedConfig.server().security().securityAuthConfigs().get(0);
+        assertThat(passwordFile.getProperty("PasswordFilePath").getValue(), is("../manual-testing/ant_hg/password.properties"));
+        assertThat(passwordFile.getId(), is("passwordFile"));
+        assertThat(passwordFile.getPluginId(), is("cd.go.authentication.passwordfile"));
+
+        SecurityAuthConfig ldap = migratedConfig.server().security().securityAuthConfigs().get(1);
+        assertThat(ldap.getId(), is("ldap"));
+        assertThat(ldap.getPluginId(), is("cd.go.authentication.ldap"));
+        assertThat(ldap.getProperty("Url").getValue(), is("ldap://ldap.server"));
+        assertThat(ldap.getProperty("ManagerDN").getValue(), is("cn=admin,ou=system,dc=example,dc=com"));
+        assertThat(ldap.getProperty("Password").getValue(), is("y10CG/z7QBs="));
+        assertThat(ldap.getProperty("SearchBases").getValue(), is("ou=system\nou=employee\n"));
+        assertThat(ldap.getProperty("LoginAttribute").getValue(), is("uid"));
+    }
+
+    @Test
+    public void shouldKeepExistingAuthConfigsWhileMigratingLdapAndPasswordFile_asPartOfMigration90And91() throws Exception {
+        String configXml = "<cruise schemaVersion='90'><server serverId='dev-id'><security>" +
+                "<passwordFile path=\"../manual-testing/ant_hg/password.properties\" />" +
+                "<ldap uri=\"ldap://ldap.server\" managerDn=\"cn=admin,ou=system,dc=example,dc=com\" encryptedManagerPassword=\"y10CG/z7QBs=\" searchFilter=\"uid\">\n" +
+                "   <bases>\n" +
+                "       <base value=\"ou=system\" />\n" +
+                "       <base value=\"ou=employee\" />\n" +
+                "   </bases>\n" +
+                "</ldap>" +
+                "<authConfigs><authConfig id=\"foo\" pluginId=\"cd.go.authentication.passwordfile\"><property><key>PasswordFilePath</key><value>../manual-testing/ant_hg/admins.properties</value></property></authConfig></authConfigs>" +
+                "</security></server></cruise>";
+
+        CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml, 90);
+        assertThat(migratedConfig.server().security().securityAuthConfigs(), hasSize(3));
+
+        SecurityAuthConfig existingPasswordFile = migratedConfig.server().security().securityAuthConfigs().get(0);
+        assertThat(existingPasswordFile.getProperty("PasswordFilePath").getValue(), is("../manual-testing/ant_hg/admins.properties"));
+        assertThat(existingPasswordFile.getId(), is("foo"));
+        assertThat(existingPasswordFile.getPluginId(), is("cd.go.authentication.passwordfile"));
+
+        SecurityAuthConfig passwordFile = migratedConfig.server().security().securityAuthConfigs().get(1);
+        assertThat(passwordFile.getProperty("PasswordFilePath").getValue(), is("../manual-testing/ant_hg/password.properties"));
+        assertThat(passwordFile.getId(), is("passwordFile"));
+        assertThat(passwordFile.getPluginId(), is("cd.go.authentication.passwordfile"));
+
+        SecurityAuthConfig ldap = migratedConfig.server().security().securityAuthConfigs().get(2);
+        assertThat(ldap.getId(), is("ldap"));
+        assertThat(ldap.getPluginId(), is("cd.go.authentication.ldap"));
+        assertThat(ldap.getProperty("Url").getValue(), is("ldap://ldap.server"));
+        assertThat(ldap.getProperty("ManagerDN").getValue(), is("cn=admin,ou=system,dc=example,dc=com"));
+        assertThat(ldap.getProperty("Password").getValue(), is("y10CG/z7QBs="));
+        assertThat(ldap.getProperty("SearchBases").getValue(), is("ou=system\nou=employee\n"));
+        assertThat(ldap.getProperty("LoginAttribute").getValue(), is("uid"));
+    }
+
+    @Test
+    public void migrationShouldNotChangeOtherSecurityConfig_asPartOfMigration90And91() throws Exception {
+        String configXml = "<cruise schemaVersion='90'><server serverId='dev-id'><security>" +
+                "<passwordFile path=\"../manual-testing/ant_hg/password.properties\" />" +
+                "<roles><role name=\"admin\"/></roles>" +
+                "<admins><user>bob</user></admins>" +
+                "</security></server></cruise>";
+
+        final CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml, 90);
+        final SecurityConfig securityConfig = migratedConfig.server().security();
+
+        assertThat(securityConfig.securityAuthConfigs(), hasSize(1));
+
+        SecurityAuthConfig passwordFile = securityConfig.securityAuthConfigs().get(0);
+        assertThat(passwordFile.getProperty("PasswordFilePath").getValue(), is("../manual-testing/ant_hg/password.properties"));
+        assertThat(passwordFile.getId(), is("passwordFile"));
+        assertThat(passwordFile.getPluginId(), is("cd.go.authentication.passwordfile"));
+
+        assertThat(securityConfig.getRoles(), hasItem(new RoleConfig(new CaseInsensitiveString("admin"))));
+        assertThat(securityConfig.adminsConfig(), hasItem(new AdminUser(new CaseInsensitiveString("bob"))));
     }
 
     private void assertStringsIgnoringCarriageReturnAreEqual(String expected, String actual) {

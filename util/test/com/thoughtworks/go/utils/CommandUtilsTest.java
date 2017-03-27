@@ -47,7 +47,10 @@ public class CommandUtilsTest {
         assertEquals(wrapQuotes(unmatchedDoubleQuotes.replaceAll("\"", Matcher.quoteReplacement("\\\""))), CommandUtils.quoteArgument(unmatchedDoubleQuotes));
         assertEquals(alreadyProperlyEscaped, CommandUtils.quoteArgument(alreadyProperlyEscaped));
         assertEquals(wrapQuotes(bashScript.replaceAll("\"", Matcher.quoteReplacement("\\\""))), CommandUtils.quoteArgument(bashScript));
-        assertEquals("Fixes unescaped quotes before quoting", wrapQuotes("I was \\\"so\\\" lazy I forgot to escape the other quote"), CommandUtils.quoteArgument(someQuotesEscapedSomeNot));
+        assertEquals("Should blindly escape internal double quotes; don't try to be smart and fix " +
+                        "only the unescaped quotes because that it would make it hard for users to determine why " +
+                        "improperly quoted commands fail to execute",
+                wrapQuotes("I was \\\\\"so\\\" lazy I forgot to escape the other quote"), CommandUtils.quoteArgument(someQuotesEscapedSomeNot));
     }
 
     @Test

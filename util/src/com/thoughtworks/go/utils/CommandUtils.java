@@ -32,7 +32,7 @@ public class CommandUtils {
 
     private static final Pattern QUOTED_STRING = Pattern.compile("^(['\"]).+(\\1)$");
     private static final Pattern UNESCAPED_SPACE_OR_QUOTES = Pattern.compile("(?<!\\\\)(?:\\\\{2})*[ '\"]");
-    private static final Pattern UNESCAPED_DOUBLE_QUOTE = Pattern.compile("((?<!\\\\)(?:\\\\{2})*\")");
+    private static final Pattern DOUBLE_QUOTE = Pattern.compile("(\")");
 
     public static class ParseException extends RuntimeException {
         public ParseException(String message) {
@@ -90,7 +90,7 @@ public class CommandUtils {
             return argument;
         }
 
-        return String.format("\"%s\"", UNESCAPED_DOUBLE_QUOTE.matcher(argument).replaceAll(Matcher.quoteReplacement("\\") + "$1"));
+        return String.format("\"%s\"", DOUBLE_QUOTE.matcher(argument).replaceAll(Matcher.quoteReplacement("\\") + "$1"));
     }
 
     public static String shellJoin(String... args) {

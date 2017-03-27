@@ -74,6 +74,7 @@ import com.thoughtworks.go.util.ExceptionUtils;
 import com.thoughtworks.go.util.ListUtil;
 import com.thoughtworks.go.util.ProcessManager;
 import com.thoughtworks.go.util.ProcessWrapper;
+import com.thoughtworks.go.utils.CommandUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -188,30 +189,6 @@ public class CommandLine {
         return toString(getCommandLineForDisplay(), false);
     }
 
-    /**
-     * Put quotes around the given String if necessary.
-     * <p/>
-     * <p>
-     * If the argument doesn't include spaces or quotes, return it as is. If it contains double quotes, use single
-     * quotes - else surround the argument by double quotes.
-     * </p>
-     *
-     * @throws CommandLineException if the argument contains both, single and double quotes.
-     */
-    public static String quoteArgument(String argument) throws CommandLineException {
-        if (argument.indexOf("\"") > -1) {
-            if (argument.indexOf("\'") > -1) {
-                throw new CommandLineException("Can't handle single and double quotes in same argument: " + argument);
-            } else {
-                return '\'' + argument + '\'';
-            }
-        } else if (argument.indexOf("\'") > -1 || argument.indexOf(" ") > -1) {
-            return '\"' + argument + '\"';
-        } else {
-            return argument;
-        }
-    }
-
     public static String toString(String[] line, boolean quote) {
         return toString(line, quote, " ");
     }
@@ -230,8 +207,8 @@ public class CommandLine {
             }
             if (quote) {
                 try {
-                    result.append(quoteArgument(line[i]));
-                } catch (CommandLineException e) {
+                    result.append(CommandUtils.shellEscape(line[i]));
+                } catch (CommandUtils.ParseException e) {
                     LOG.error("Error quoting argument.", e);
                 }
             } else {
@@ -443,7 +420,7 @@ public class CommandLine {
     }
 
     public void runScript(Script script, StreamConsumer buildOutputConsumer,
-                             EnvironmentVariableContext environmentVariableContext, String processTag) throws CheckedCommandLineException {
+                          EnvironmentVariableContext environmentVariableContext, String processTag) throws CheckedCommandLineException {
         LOG.info("Running command: " + toStringForDisplay());
 
         CompositeConsumer errorStreamConsumer = new CompositeConsumer(StreamLogger.getWarnLogger(LOG), buildOutputConsumer);

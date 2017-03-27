@@ -57,7 +57,7 @@ public class FetchTask extends AbstractTask implements Serializable {
     public static final String DEST = "dest";
     public static final String SRC = "src";
     public static final String ORIGIN = "origin";
-    public static final String TYPE="fetch";
+    public static final String TYPE = "fetch";
 
     public static final String IS_SOURCE_A_FILE = "isSourceAFile";
     private final String FETCH_ARTIFACT = "Fetch Artifact";
@@ -170,6 +170,11 @@ public class FetchTask extends AbstractTask implements Serializable {
         return taskProperties;
     }
 
+    @Override
+    public String describe() {
+        return String.format("fetch artifact [%s] => [%s] from [%s/%s/%s]", getSrc(), getDest(), getPipelineName(), getStage(), getJob());
+    }
+
     public File artifactDest(String pipelineName, final String fileName) {
         return new File(destOnAgent(pipelineName), fileName);
     }
@@ -199,7 +204,7 @@ public class FetchTask extends AbstractTask implements Serializable {
             if (isFile) {
                 this.srcfile = fileOrDir.equals("") ? null : fileOrDir;
                 this.srcdir = null;
-            } else  {
+            } else {
                 this.srcdir = fileOrDir.equals("") ? null : fileOrDir;
                 this.srcfile = null;
             }
@@ -228,8 +233,8 @@ public class FetchTask extends AbstractTask implements Serializable {
 
     protected void validateTask(ValidationContext validationContext) {
         validateAttributes(validationContext);
-        if ( stageAndOrJobIsBlank()){
-                return;
+        if (stageAndOrJobIsBlank()) {
+            return;
         }
         if (validationContext.isWithinPipelines()) {
             PipelineConfig currentPipeline = validationContext.getPipeline();
@@ -239,7 +244,7 @@ public class FetchTask extends AbstractTask implements Serializable {
             if (validateExistenceAndOrigin(currentPipeline, validationContext)) {
                 return;
             }
-            if(pipelineName.isAncestor()){
+            if (pipelineName.isAncestor()) {
                 validatePathFromAncestor(currentPipeline, validationContext);
             } else if (currentPipeline.name().equals(pipelineName.getPath())) {
                 validateStagesOfSamePipeline(validationContext, currentPipeline);
@@ -286,11 +291,11 @@ public class FetchTask extends AbstractTask implements Serializable {
 
     private boolean stageAndOrJobIsBlank() {
         boolean atLeastOneBlank = false;
-        if(CaseInsensitiveString.isBlank(stage)){
+        if (CaseInsensitiveString.isBlank(stage)) {
             atLeastOneBlank = true;
             addError(STAGE, "Stage is a required field.");
         }
-        if(CaseInsensitiveString.isBlank(job)){
+        if (CaseInsensitiveString.isBlank(job)) {
             atLeastOneBlank = true;
             addError(JOB, "Job is a required field.");
         }
@@ -459,7 +464,8 @@ public class FetchTask extends AbstractTask implements Serializable {
         return result;
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return "FetchTask{" +
                 "dest='" + dest + '\'' +
                 ", pipelineName='" + pipelineName + '\'' +

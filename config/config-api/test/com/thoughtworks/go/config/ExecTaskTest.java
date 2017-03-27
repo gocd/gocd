@@ -47,7 +47,7 @@ public class ExecTaskTest {
         ExecTask task = new ExecTask("ant", "-f build.xml run", "subfolder");
         task.setTimeout(600);
         assertThat(task.describe(),
-                Is.is("<exec command=\"ant\" args=\"-f build.xml run\" workingdir=\"subfolder\" timeout=\"600\" />"));
+                Is.is("ant -f build.xml run"));
     }
 
     @Test
@@ -55,7 +55,7 @@ public class ExecTaskTest {
         ExecTask task = new ExecTask("echo", null, new Arguments(new Argument("abc"), new Argument("hello baby!")));
         task.setTimeout(600);
         assertThat(task.describe(),
-                Is.is("<exec command=\"echo\" timeout=\"600\" >\n<arg>abc</arg>\n<arg>hello baby!</arg>\n</exec>"));
+                Is.is("echo abc \"hello baby!\""));
     }
 
     @Test

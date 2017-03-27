@@ -98,7 +98,7 @@ public class BuildWorkArtifactFetchingTest {
                 new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), null, null, null);
 
         assertThat(stubPublisher.consoleOut(), containsString("[go] Current job status: passed."));
-        assertThat(stubPublisher.consoleOut(), containsString("[go] Start to execute task: <fetchartifact pipeline=\"pipeline1\" stage=\"pre-mingle\" job=\"" + JOB_NAME + "\" srcfile=\"lib/hello.jar\" dest=\"lib\" />."));
+        assertThat(stubPublisher.consoleOut(), containsString("[go] Start to execute task: fetch artifact [lib/hello.jar] => [lib] from [pipeline1/pre-mingle/run-ant]."));
 
         assertThat(buildRepository.results, not(containsResult(Passed)));
         assertThat(buildRepository.results, containsResult(Failed));
@@ -112,7 +112,7 @@ public class BuildWorkArtifactFetchingTest {
                 new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), null, null, null);
 
         assertThat(stubPublisher.consoleOut(), containsString("[go] Current job status: failed."));
-        assertThat(stubPublisher.consoleOut(), containsString("[go] Start to execute task: <ant target=\"--help\" />."));
+        assertThat(stubPublisher.consoleOut(), containsString("[go] Start to execute task: ant --help."));
     }
 
     @Test

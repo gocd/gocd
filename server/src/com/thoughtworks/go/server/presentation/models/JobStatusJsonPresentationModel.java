@@ -153,8 +153,8 @@ public class JobStatusJsonPresentationModel {
     }
 
     public String getHumanReadableScheduledDate() {
-          return new SimpleDateFormat("MMM dd yyyy \'at\' HH:mm:ss [Z]", Locale.ENGLISH)
-                  .format(instance.getScheduledDate());
+        return timeConverter.getHumanReadableStringWithTimeZone(instance.getScheduledDate());
+
     }
 
     public boolean isCopy() {

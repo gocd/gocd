@@ -3,6 +3,10 @@
     <div>
         <a class="auto-scroll" title="Scroll to bottom">Scroll to end of logs</a>
         <a href="$req.getContextPath()/files/${presenter.consoleoutLocator}">Raw output</a>
+        <a id="full-screen">
+          <span class="expand">Fullscreen</span>
+          <span class="compress">Exit</span>
+        </a>
         <a class='change-theme' href="javascript:void(0);">Change theme</a>
     </div>
 </div>

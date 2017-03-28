@@ -25,16 +25,16 @@ describe Java::JavaUtil::Date do
     java.util.TimeZone.setDefault(@default_timezone)
   end
 
-  it "should format date as '20 Aug, 2010 at 18:03:44 [+0530]'" do
+  it "should format date as 'Aug 20 2010 at 18:03:44 [+0530]'" do
     joda_date      = org.joda.time.DateTime.new(2010, 8, 20, 18, 3, 44, 0, org.joda.time.DateTimeZone.forOffsetHoursMinutes(5, 30))
     formmated_date = joda_date.to_date.to_long_display_date_time
-    formmated_date.should == "20 Aug, 2010 at 18:03:44 [+0530]"
+    formmated_date.should == "Aug 20 2010 at 18:03:44 [+0530]"
   end
 
-  it "should format date for single digit dates as '07 Jul, 2010 at 07:03:04 [+0530]'" do
+  it "should format date for single digit dates as 'Jul 07 2010 at 07:03:04 [+0530]'" do
     joda_date      = org.joda.time.DateTime.new(2010, 7, 7, 7, 3, 4, 0, org.joda.time.DateTimeZone.forOffsetHoursMinutes(5, 30))
     formmated_date = joda_date.to_date.to_long_display_date_time
-    formmated_date.should == "07 Jul, 2010 at 07:03:04 [+0530]"
+    formmated_date.should == "Jul 07 2010 at 07:03:04 [+0530]"
   end
 
   it "should convert date in UTC timezone" do

@@ -56,8 +56,10 @@ describe("ElasticProfilesWidget", () => {
 
   const dockerPluginInfoJSON = {
     "id":               "cd.go.contrib.elastic-agent.docker",
-    "name":             "Docker Elastic Agent Plugin",
-    "version":          "0.5",
+    "about":            {
+      "name":    "Docker Elastic Agent Plugin",
+      "version": "0.5"
+    },
     "type":             "elastic-agent",
     "profile_settings": {
       "configurations": [
@@ -84,12 +86,27 @@ describe("ElasticProfilesWidget", () => {
         }
       ],
       "view":           {
-        "template": "<div></div>"
+        "template": '<div><label class="docker-image">Docker image</label></div>'
       }
     }
   };
 
-  const allPluginInfosJSON = [dockerPluginInfoJSON];
+  const ecsPluginInfoJSON = {
+    "id":               "cd.go.contrib.elastic-agent.ecs",
+    "about":            {
+      "name":    "ECS Elastic Agent Plugin",
+      "version": "0.5"
+    },
+    "type":             "elastic-agent",
+    "profile_settings": {
+      "configurations": [],
+      "view":           {
+        "template": '<div><label class="ecs-ami">AMI</label></div>'
+      }
+    }
+  };
+
+  const allPluginInfosJSON = [dockerPluginInfoJSON, ecsPluginInfoJSON];
   const allPluginInfos     = Stream(PluginInfos.fromJSON([]));
 
   beforeEach(() => {
@@ -239,6 +256,25 @@ describe("ElasticProfilesWidget", () => {
 
       expect($('.alert')).toContainText('Boom!');
     });
+
+    it("should change elastic profile view in modal on change of plugin from dropdown", () => {
+      simulateEvent.simulate($root.find('.add-profile').get(0), 'click');
+      m.redraw();
+
+      expect($('.reveal .modal-body input[data-prop-name]')).not.toBeDisabled();
+      expect($('.reveal .modal-body [data-prop-name=pluginId] option:selected').text()).toEqual(dockerPluginInfoJSON.about.name);
+      expect($('.reveal .modal-body label.docker-image').text()).toEqual("Docker image");
+
+      $('.reveal [data-prop-name=pluginId]').val("cd.go.contrib.elastic-agent.ecs");
+      simulateEvent.simulate($('.reveal [data-prop-name=pluginId]').get(0), 'change');
+      m.redraw();
+
+
+      expect($('.reveal input[data-prop-name]')).not.toBeDisabled();
+      expect($('.reveal .modal-body [data-prop-name=pluginId] option:selected').text()).toEqual(ecsPluginInfoJSON.about.name);
+      expect($('.reveal .modal-body label.ecs-ami').text()).toEqual("AMI");
+    });
+
   });
 
   describe("edit an existing profile", () => {

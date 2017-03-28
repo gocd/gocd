@@ -18,6 +18,7 @@ let m                 = require("mithril");
 let f                 = require('helpers/form_helper');
 let AngularPlugin     = require('views/shared/angular_plugin');
 const ElasticProfiles = require('models/elastic_profiles/elastic_profiles');
+const s               = require('string-plus');
 
 const ElasticProfileModalBody = {
   oninit (vnode) {
@@ -42,7 +43,7 @@ const ElasticProfileModalBody = {
       return vnode.attrs.pluginInfos().mapPluginInfos((pluginInfo) => {
         return {
           id:   pluginInfo.id(),
-          text: pluginInfo.id()
+          text: s.isBlank(pluginInfo.about().name()) ? pluginInfo.id() : pluginInfo.about().name()
         };
       });
     };

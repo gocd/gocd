@@ -18,8 +18,10 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.TaskProperty;
 import com.thoughtworks.go.domain.config.Arguments;
+import com.thoughtworks.go.util.ArrayUtil;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.StringUtil;
+import com.thoughtworks.go.utils.CommandUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,11 +34,16 @@ import java.util.Map;
 public class ExecTask extends AbstractTask implements CommandTask {
 
     public static final String TYPE = "exec";
-    @ConfigAttribute("command") private String command = "";
-    @ConfigAttribute(value = "args", allowNull = true) private String args = "";
-    @ConfigAttribute(value = "workingdir", allowNull = true) private String workingDirectory;
-    @ConfigAttribute("timeout") private Long timeout = NO_TIMEOUT_FOR_COMMANDLINE;
-    @ConfigSubtag(label = "arguments") private Arguments argList = new Arguments();
+    @ConfigAttribute("command")
+    private String command = "";
+    @ConfigAttribute(value = "args", allowNull = true)
+    private String args = "";
+    @ConfigAttribute(value = "workingdir", allowNull = true)
+    private String workingDirectory;
+    @ConfigAttribute("timeout")
+    private Long timeout = NO_TIMEOUT_FOR_COMMANDLINE;
+    @ConfigSubtag(label = "arguments")
+    private Arguments argList = new Arguments();
     public static final String EXEC_CONFIG_ERROR = "Can not use both 'args' attribute and 'arg' sub element in 'exec' element!";
 
     private static final long NO_TIMEOUT_FOR_COMMANDLINE = -1;
@@ -58,6 +65,19 @@ public class ExecTask extends AbstractTask implements CommandTask {
     //used for test
     public ExecTask(String args, Arguments argList) {
         this("echo", args, argList);//TODO: delete me, there is a validation that enforces not both attributes are populated - shilpa / jj
+    }
+
+    @Override
+    public String describe() {
+        if (null != argList && !argList.isEmpty()) {
+            return CommandUtils.shellJoin(ArrayUtil.pushToArray(command, argList.toStringArray()));
+        }
+
+        if (null != args && !"".equals(args)) {
+            return command + " " + args;
+        }
+
+        return command;
     }
 
     public ExecTask(String command, String args, Arguments argList) {
@@ -105,7 +125,6 @@ public class ExecTask extends AbstractTask implements CommandTask {
         for (String arg : arguments) {
             argList.add(new Argument(arg));
         }
-
     }
 
     public void setArgs(String val) {
@@ -142,8 +161,8 @@ public class ExecTask extends AbstractTask implements CommandTask {
             }
         }
 
-        for(Argument argument : getArgList()) {
-            if(!argument.errors().isEmpty()) {
+        for (Argument argument : getArgList()) {
+            if (!argument.errors().isEmpty()) {
                 errors.add(ARG_LIST_STRING, argument.errors().asString());
             }
         }

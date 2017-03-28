@@ -505,8 +505,7 @@ public class FetchTaskTest {
     public void describeTestForSrcFile() throws Exception {
         FetchTask fetchTask = new FetchTask(new CaseInsensitiveString("mingle"), new CaseInsensitiveString("dev"), new CaseInsensitiveString("windows-3"), "cruise.zip", "dest\\subfolder");
         assertThat(fetchTask.describe(),
-                is("<fetchartifact pipeline=\"mingle\" stage=\"dev\" job=\"windows-3\" "
-                        + "srcfile=\"cruise.zip\" dest=\"dest\\subfolder\" />"));
+                is("fetch artifact [cruise.zip] => [dest/subfolder] from [mingle/dev/windows-3]"));
     }
 
     @Test
@@ -514,8 +513,7 @@ public class FetchTaskTest {
         FetchTask fetchTask = new FetchTask(new CaseInsensitiveString("mingle"), new CaseInsensitiveString("dev"), new CaseInsensitiveString("windows-3"), "", "dest\\subfolder");
         fetchTask.setSrcdir("cruise-output");
         assertThat(fetchTask.describe(),
-                is("<fetchartifact pipeline=\"mingle\" stage=\"dev\" job=\"windows-3\" "
-                        + "srcdir=\"cruise-output\" dest=\"dest\\subfolder\" />"));
+                is("fetch artifact [cruise-output] => [dest/subfolder] from [mingle/dev/windows-3]"));
     }
 
     @Test
@@ -523,8 +521,7 @@ public class FetchTaskTest {
         FetchTask fetchTask = new FetchTask(new CaseInsensitiveString("mingle"), new CaseInsensitiveString("dev"), new CaseInsensitiveString("windows-3"), "cruise.zip", "dest\\subfolder");
         fetchTask.setSrcdir("cruise-output");
         assertThat(fetchTask.describe(),
-                is("<fetchartifact pipeline=\"mingle\" stage=\"dev\" job=\"windows-3\" srcfile=\"cruise.zip\" "
-                        + "srcdir=\"cruise-output\" dest=\"dest\\subfolder\" />"));
+                is("fetch artifact [cruise.zip] => [dest/subfolder] from [mingle/dev/windows-3]"));
     }
 
     @Test

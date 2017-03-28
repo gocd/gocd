@@ -169,7 +169,7 @@ task compileAssets(type: ExecuteUnderRailsTask) {
 task rspec(type: ExecuteUnderRailsTask) {
   outputs.upToDateWhen { false }
 
-  description = "Run specs (pass '-Ppots=...' to pass options)"
+  description = "Run specs (pass '-Popts=...' to pass options)"
 
   def rspecCommand = [project.findProject(':tools').file('rails/bin/rspec')]
   if (project.hasProperty('opts')) {
@@ -185,7 +185,7 @@ task rspec(type: ExecuteUnderRailsTask) {
 task parallelRspec(type: ExecuteUnderRailsTask) {
   outputs.upToDateWhen { false }
 
-  description = "Run specs in parallel (pass '-Ppots=...' to pass options)"
+  description = "Run specs in parallel (pass '-Popts=...' to pass options)"
 
   def rspecCommand = [project.findProject(':tools').file('rails/bin/rspec')]
 

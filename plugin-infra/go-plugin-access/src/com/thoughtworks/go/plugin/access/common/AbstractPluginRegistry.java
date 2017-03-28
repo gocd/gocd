@@ -30,16 +30,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 
-public abstract class AbstractPluginRegistry<Extension extends AbstractExtension, MetadataStore extends PluginConfigMetadataStore> implements PluginChangeListener {
+public abstract class AbstractPluginRegistry<Extension extends AbstractExtension> implements PluginChangeListener {
     protected final Extension extension;
     protected final List<PluginDescriptor> plugins;
-    protected MetadataStore store;
 
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
-    public AbstractPluginRegistry(PluginManager pluginManager, Extension extension, MetadataStore store) {
+    public AbstractPluginRegistry(PluginManager pluginManager, Extension extension) {
         this.extension = extension;
-        this.store = store;
         this.plugins = new ArrayList<>();
         pluginManager.addPluginChangeListener(this, GoPlugin.class);
     }
@@ -48,14 +46,12 @@ public abstract class AbstractPluginRegistry<Extension extends AbstractExtension
     public void pluginLoaded(GoPluginDescriptor pluginDescriptor) {
         if (extension.canHandlePlugin(pluginDescriptor.id())) {
             plugins.add(pluginDescriptor);
-            store.add(pluginDescriptor, this);
         }
     }
 
     @Override
     public void pluginUnLoaded(GoPluginDescriptor pluginDescriptor) {
         plugins.remove(pluginDescriptor);
-        store.remove(pluginDescriptor);
     }
 
     public List<PluginDescriptor> getPlugins() {

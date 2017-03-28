@@ -16,23 +16,23 @@
 
 package com.thoughtworks.go.server.service.plugins.builder;
 
-import com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConfigMetadataStore;
+import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConstants;
 import com.thoughtworks.go.plugin.access.common.models.Image;
-import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
-import com.thoughtworks.go.server.ui.plugins.PluggableInstanceSettings;
-import com.thoughtworks.go.server.ui.plugins.PluginConfiguration;
+import com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo;
 import com.thoughtworks.go.server.ui.plugins.PluginInfo;
-import com.thoughtworks.go.server.ui.plugins.PluginView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Deprecated
-class AuthorizationViewModelBuilder implements ViewModelBuilder {
-    private AuthorizationPluginConfigMetadataStore metadataStore;
+class AuthorizationViewModelBuilder extends AbstractViewModelBuilder {
 
-    AuthorizationViewModelBuilder(AuthorizationPluginConfigMetadataStore metadataStore) {
+
+    private AuthorizationMetadataStore metadataStore;
+
+    AuthorizationViewModelBuilder(AuthorizationMetadataStore metadataStore) {
+
         this.metadataStore = metadataStore;
     }
 
@@ -40,9 +40,9 @@ class AuthorizationViewModelBuilder implements ViewModelBuilder {
     public List<PluginInfo> allPluginInfos() {
         List<PluginInfo> pluginInfos = new ArrayList<>();
 
-        for (PluginDescriptor descriptor : metadataStore.getPlugins()) {
-            Image icon = metadataStore.getIcon(descriptor);
-            pluginInfos.add(new PluginInfo(descriptor, AuthorizationPluginConstants.EXTENSION_NAME, null, null, icon));
+        for (AuthorizationPluginInfo pluginInfo : metadataStore.getPlugins()) {
+            Image icon = image(pluginInfo.getImage());
+            pluginInfos.add(new PluginInfo(pluginInfo.getDescriptor(), AuthorizationPluginConstants.EXTENSION_NAME, null, null, icon));
         }
 
         return pluginInfos;
@@ -51,22 +51,13 @@ class AuthorizationViewModelBuilder implements ViewModelBuilder {
 
     @Override
     public PluginInfo pluginInfoFor(String pluginId) {
-        PluginDescriptor descriptor = metadataStore.find(pluginId);
+        AuthorizationPluginInfo pluginInfo = metadataStore.getPluginInfo(pluginId);
 
-        if (descriptor == null) {
+        if (pluginInfo == null) {
             return null;
         }
 
-        Image icon = metadataStore.getIcon(descriptor);
-        ArrayList<PluginConfiguration> pluginConfigurations = PluginConfiguration.getPluginConfigurations(metadataStore.getProfileMetadata(descriptor));
-        PluginView profileView = new PluginView(metadataStore.getProfileView(descriptor));
-        PluggableInstanceSettings profileSettings = new PluggableInstanceSettings(pluginConfigurations, profileView);
-
-        ArrayList<PluginConfiguration> roleConfigurations = PluginConfiguration.getPluginConfigurations(metadataStore.getRoleMetadata(descriptor));
-        PluginView roleView = new PluginView(metadataStore.getRoleView(descriptor));
-        PluggableInstanceSettings roleSettings = new PluggableInstanceSettings(roleConfigurations, roleView);
-
-        return new PluginInfo(descriptor, AuthorizationPluginConstants.EXTENSION_NAME, null, profileSettings, roleSettings, icon);
+        return new PluginInfo(pluginInfo.getDescriptor(), AuthorizationPluginConstants.EXTENSION_NAME, null,
+                settings(pluginInfo.getAuthConfigSettings()), settings(pluginInfo.getRoleSettings()), image(pluginInfo.getImage()));
     }
-
 }

@@ -24,6 +24,7 @@ include ':db'
 include ':database'
 include ':go-plugin-api-internal'
 include ':go-plugin-api'
+include ':go-plugin-domain'
 include ':go-plugin-activator'
 include ':go-plugin-infra'
 include ':go-plugin-access'
@@ -63,6 +64,7 @@ project(':go-plugin-api').projectDir = "$rootDir/plugin-infra/go-plugin-api" as 
 project(':go-plugin-activator').projectDir = "$rootDir/plugin-infra/go-plugin-activator" as File
 project(':go-plugin-infra').projectDir = "$rootDir/plugin-infra/go-plugin-infra" as File
 project(':go-plugin-access').projectDir = "$rootDir/plugin-infra/go-plugin-access" as File
+project(':go-plugin-domain').projectDir = "$rootDir/plugin-infra/go-plugin-domain" as File
 project(':plugin-metadata-store').projectDir = "$rootDir/plugin-infra/plugin-metadata-store" as File
 project(':config-api').projectDir = "$rootDir/config/config-api" as File
 project(':config-server').projectDir = "$rootDir/config/config-server" as File

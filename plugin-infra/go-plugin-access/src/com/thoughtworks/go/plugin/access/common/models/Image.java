@@ -53,6 +53,7 @@ public class Image {
         return data;
     }
 
+    @Deprecated // used only in v2 plugin info, which is going away
     public String toDataURI() {
         if (dataURI == null) {
             dataURI = "data:" + contentType + ";base64," + data;
@@ -76,5 +77,28 @@ public class Image {
 
     public static Image fromJSON(String responseData) {
         return GSON.fromJson(responseData, Image.class);
+    }
+
+    public com.thoughtworks.go.plugin.domain.common.Image toDomainImage() {
+        return new com.thoughtworks.go.plugin.domain.common.Image(this.contentType, this.data);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Image image = (Image) o;
+
+        if (contentType != null ? !contentType.equals(image.contentType) : image.contentType != null) return false;
+        return data != null ? data.equals(image.data) : image.data == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = contentType != null ? contentType.hashCode() : 0;
+        result = 31 * result + (data != null ? data.hashCode() : 0);
+        return result;
     }
 }

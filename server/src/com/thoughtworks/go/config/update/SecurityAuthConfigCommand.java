@@ -44,7 +44,7 @@ abstract class SecurityAuthConfigCommand extends PluginProfileCommand<SecurityAu
 
     @Override
     protected ValidationResult validateUsingExtension(String pluginId, Map<String, String> configuration) {
-        return extension.validatePluginConfiguration(pluginId, configuration);
+        return extension.validateAuthConfig(pluginId, configuration);
     }
 
     @Override

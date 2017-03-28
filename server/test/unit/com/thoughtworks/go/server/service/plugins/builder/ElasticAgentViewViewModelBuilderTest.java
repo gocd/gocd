@@ -17,34 +17,30 @@
 package com.thoughtworks.go.server.service.plugins.builder;
 
 import com.thoughtworks.go.plugin.access.common.models.Image;
-import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadata;
-import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKey;
-import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKeys;
+import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginConstants;
-import com.thoughtworks.go.plugin.access.elastic.ElasticPluginConfigMetadataStore;
+import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
+import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.ui.plugins.PluginConfiguration;
 import com.thoughtworks.go.server.ui.plugins.PluginInfo;
 import com.thoughtworks.go.server.ui.plugins.PluginView;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.List;
 
-import static com.thoughtworks.go.server.service.plugins.builder.ViewModelBuilder.REQUIRED_OPTION;
-import static com.thoughtworks.go.server.service.plugins.builder.ViewModelBuilder.SECURE_OPTION;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class ElasticAgentViewViewModelBuilderTest {
-    @Mock
-    private ElasticPluginConfigMetadataStore elasticPluginConfigMetadataStore;
-
     private ElasticAgentViewViewModelBuilder builder;
     private GoPluginDescriptor dockerPlugin;
     private GoPluginDescriptor awsPlugin;
@@ -52,7 +48,7 @@ public class ElasticAgentViewViewModelBuilderTest {
     @Before
     public void setUp() {
         initMocks(this);
-        builder = new ElasticAgentViewViewModelBuilder(elasticPluginConfigMetadataStore);
+        builder = new ElasticAgentViewViewModelBuilder(ElasticAgentMetadataStore.instance());
 
         dockerPlugin = new GoPluginDescriptor("cd.go.elastic-agent.docker", "1.0",
                 new GoPluginDescriptor.About("GoCD Docker Elastic Agent Plugin", "1.0", null, null, null, null),
@@ -64,9 +60,17 @@ public class ElasticAgentViewViewModelBuilderTest {
                 null, null, false);
     }
 
+    @After
+    public void tearDown() throws Exception {
+        ElasticAgentMetadataStore.instance().clear();
+    }
+
     @Test
     public void shouldBeAbleToFetchAllPluginInfos() throws Exception {
-        when(elasticPluginConfigMetadataStore.getPlugins()).thenReturn(new ArrayList<>(Arrays.asList(dockerPlugin, awsPlugin)));
+        ElasticAgentMetadataStore metadataStore = ElasticAgentMetadataStore.instance();
+        metadataStore.setPluginInfo(new ElasticAgentPluginInfo(dockerPlugin, null, null));
+        metadataStore.setPluginInfo(new ElasticAgentPluginInfo(awsPlugin, null, null));
+
         List<PluginInfo> pluginInfos = builder.allPluginInfos();
 
         assertThat(pluginInfos.size(), is(2));
@@ -80,22 +84,19 @@ public class ElasticAgentViewViewModelBuilderTest {
 
     @Test
     public void shouldBeAbleToFetchPluginInfoForSinglePlugin() throws Exception {
-        when(elasticPluginConfigMetadataStore.find(dockerPlugin.id())).thenReturn(dockerPlugin);
-        Image image = new Image("image/png", Base64.getEncoder().encodeToString("some-base64-encoded-data".getBytes(UTF_8)));;
-        when(elasticPluginConfigMetadataStore.getIcon(dockerPlugin)).thenReturn(image);
-        when(elasticPluginConfigMetadataStore.getProfileView(dockerPlugin)).thenReturn("html");
+        ElasticAgentMetadataStore metadataStore = ElasticAgentMetadataStore.instance();
+        com.thoughtworks.go.plugin.domain.common.Image image = new com.thoughtworks.go.plugin.domain.common.Image("image/png", Base64.getEncoder().encodeToString("some-base64-encoded-data".getBytes(UTF_8)));;
+        ElasticAgentPluginInfo elasticAgentPluginInfo = new ElasticAgentPluginInfo(dockerPlugin,
+                new PluggableInstanceSettings(Arrays.asList(new com.thoughtworks.go.plugin.domain.common.PluginConfiguration("foo", Collections.singletonMap("secure", true))),
+                new com.thoughtworks.go.plugin.domain.common.PluginView("foo_template")), image);
 
-        PluginProfileMetadataKey pluginProfileMetadataKey = new PluginProfileMetadataKey("foo", new PluginProfileMetadata(true, true));
-        PluginProfileMetadataKeys pluginProfileMetadataKeys = new PluginProfileMetadataKeys(Collections.singletonList(pluginProfileMetadataKey));
-        when(elasticPluginConfigMetadataStore.getProfileMetadata(dockerPlugin)).thenReturn(pluginProfileMetadataKeys);
+        metadataStore.setPluginInfo(elasticAgentPluginInfo);
 
-        PluginInfo pluginInfo = builder.pluginInfoFor(dockerPlugin.id());
+        PluginInfo pluginInfo = builder.pluginInfoFor(elasticAgentPluginInfo.getDescriptor().id());
 
-        assertThat(pluginInfo.getImage(), is(image));
-        assertThat(pluginInfo.getPluggableInstanceSettings().getView(), is(new PluginView("html")));
-        Map<String, Object> metadata = new HashMap<>();
-        metadata.put(REQUIRED_OPTION, true);
-        metadata.put(SECURE_OPTION, true);
-        assertEquals(pluginInfo.getPluggableInstanceSettings().getConfigurations(), Arrays.asList(new PluginConfiguration("foo", metadata, null)));
+        PluginInfo info = new PluginInfo(dockerPlugin, "elastic-agent", null, new com.thoughtworks.go.server.ui.plugins.PluggableInstanceSettings(Arrays.asList(new PluginConfiguration("foo", Collections.singletonMap("secure", true))),
+                new PluginView("foo_template")), new Image(image.getContentType(), image.getData()));
+
+        assertEquals(info, pluginInfo);
     }
 }

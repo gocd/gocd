@@ -22,13 +22,11 @@ import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.authentication.models.User;
 import com.thoughtworks.go.plugin.access.authorization.models.AuthenticationResponse;
-import com.thoughtworks.go.plugin.access.authorization.models.Capabilities;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
-import com.thoughtworks.go.plugin.access.common.models.Image;
-import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKeys;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -55,25 +53,25 @@ public class AuthorizationExtension extends AbstractExtension {
         messageHandlerMap.put(AuthorizationMessageConverterV1.VERSION, extensionHandler);
     }
 
-    public Capabilities getCapabilities(String pluginId) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_CAPABILITIES, new DefaultPluginInteractionCallback<Capabilities>() {
+    public com.thoughtworks.go.plugin.domain.authorization.Capabilities getCapabilities(String pluginId) {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_CAPABILITIES, new DefaultPluginInteractionCallback<com.thoughtworks.go.plugin.domain.authorization.Capabilities>() {
             @Override
-            public Capabilities onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public com.thoughtworks.go.plugin.domain.authorization.Capabilities onSuccess(String responseBody, String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).getCapabilitiesFromResponseBody(responseBody);
             }
         });
     }
 
-    PluginProfileMetadataKeys getPluginConfigurationMetadata(String pluginId) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_AUTH_CONFIG_METADATA, new DefaultPluginInteractionCallback<PluginProfileMetadataKeys>() {
+    List<PluginConfiguration> getAuthConfigMetadata(String pluginId) {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_AUTH_CONFIG_METADATA, new DefaultPluginInteractionCallback<List<PluginConfiguration>>() {
             @Override
-            public PluginProfileMetadataKeys onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public List<PluginConfiguration> onSuccess(String responseBody, String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).getPluginConfigMetadataResponseFromBody(responseBody);
             }
         });
     }
 
-    String getPluginConfigurationView(String pluginId) {
+    String getAuthConfigView(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_AUTH_CONFIG_VIEW, new DefaultPluginInteractionCallback<String>() {
             @Override
             public String onSuccess(String responseBody, String resolvedExtensionVersion) {
@@ -82,7 +80,7 @@ public class AuthorizationExtension extends AbstractExtension {
         });
     }
 
-    public ValidationResult validatePluginConfiguration(final String pluginId, final Map<String, String> configuration) {
+    public ValidationResult validateAuthConfig(final String pluginId, final Map<String, String> configuration) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_VALIDATE_AUTH_CONFIG, new DefaultPluginInteractionCallback<ValidationResult>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
@@ -97,7 +95,7 @@ public class AuthorizationExtension extends AbstractExtension {
     }
 
     public ValidationResult verifyConnection(final String pluginId, final Map<String, String> configuration) {
-        ValidationResult validationResult = validatePluginConfiguration(pluginId, configuration);
+        ValidationResult validationResult = validateAuthConfig(pluginId, configuration);
         if (!validationResult.isSuccessful()) {
             return validationResult;
         }
@@ -132,10 +130,10 @@ public class AuthorizationExtension extends AbstractExtension {
         });
     }
 
-    public PluginProfileMetadataKeys getRoleConfigurationMetadata(String pluginId) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_ROLE_CONFIG_METADATA, new DefaultPluginInteractionCallback<PluginProfileMetadataKeys>() {
+    public List<PluginConfiguration> getRoleConfigurationMetadata(String pluginId) {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_ROLE_CONFIG_METADATA, new DefaultPluginInteractionCallback<List<PluginConfiguration>>() {
             @Override
-            public PluginProfileMetadataKeys onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public List<PluginConfiguration> onSuccess(String responseBody, String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).getRoleConfigMetadataResponseFromBody(responseBody);
             }
         });
@@ -178,15 +176,14 @@ public class AuthorizationExtension extends AbstractExtension {
         });
     }
 
-    Image getIcon(String pluginId) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_PLUGIN_ICON, new DefaultPluginInteractionCallback<Image>() {
+    com.thoughtworks.go.plugin.domain.common.Image getIcon(String pluginId) {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_PLUGIN_ICON, new DefaultPluginInteractionCallback<com.thoughtworks.go.plugin.domain.common.Image>() {
             @Override
-            public Image onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public com.thoughtworks.go.plugin.domain.common.Image onSuccess(String responseBody, String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).getImageResponseFromBody(responseBody);
             }
         });
     }
-
 
     public AuthorizationMessageConverter getMessageConverter(String version) {
         return messageHandlerMap.get(version);

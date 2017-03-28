@@ -98,7 +98,7 @@ public class ElasticAgentExtensionConverterV1Test {
 
     @Test
     public void shouldUnJSONizeGetImageResponseFromBody() throws Exception {
-        Image image = new ElasticAgentExtensionConverterV1().getImageResponseFromBody("{\"content_type\":\"foo\", \"data\":\"bar\"}");
+        com.thoughtworks.go.plugin.domain.common.Image image = new ElasticAgentExtensionConverterV1().getImageResponseFromBody("{\"content_type\":\"foo\", \"data\":\"bar\"}");
         assertThat(image.getContentType(), is("foo"));
         assertThat(image.getData(), is("bar"));
     }

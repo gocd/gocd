@@ -23,7 +23,7 @@ import com.thoughtworks.go.plugin.access.authentication.AuthenticationExtension;
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationPluginRegistry;
 import com.thoughtworks.go.plugin.access.authentication.models.User;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
-import com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConfigMetadataStore;
+import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
 import com.thoughtworks.go.plugin.access.authorization.models.AuthenticationResponse;
 import com.thoughtworks.go.server.security.AuthorityGranter;
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
@@ -50,7 +50,7 @@ public class PluginAuthenticationProvider extends AbstractUserDetailsAuthenticat
     private AuthenticationExtension authenticationExtension;
 
     private final AuthorizationExtension authorizationExtension;
-    private final AuthorizationPluginConfigMetadataStore store;
+    private final AuthorizationMetadataStore store;
     private final AuthorityGranter authorityGranter;
     private GoConfigService configService;
     private PluginRoleService pluginRoleService;
@@ -58,13 +58,12 @@ public class PluginAuthenticationProvider extends AbstractUserDetailsAuthenticat
 
     @Autowired
     public PluginAuthenticationProvider(AuthenticationPluginRegistry authenticationPluginRegistry, AuthenticationExtension authenticationExtension,
-                                        AuthorizationExtension authorizationExtension, AuthorizationPluginConfigMetadataStore store,
-                                        AuthorityGranter authorityGranter, GoConfigService configService, PluginRoleService pluginRoleService,
-                                        UserService userService) {
+                                        AuthorizationExtension authorizationExtension, AuthorityGranter authorityGranter, GoConfigService configService,
+                                        PluginRoleService pluginRoleService, UserService userService) {
         this.authenticationPluginRegistry = authenticationPluginRegistry;
         this.authenticationExtension = authenticationExtension;
         this.authorizationExtension = authorizationExtension;
-        this.store = store;
+        this.store = AuthorizationMetadataStore.instance();
         this.authorityGranter = authorityGranter;
         this.configService = configService;
         this.pluginRoleService = pluginRoleService;

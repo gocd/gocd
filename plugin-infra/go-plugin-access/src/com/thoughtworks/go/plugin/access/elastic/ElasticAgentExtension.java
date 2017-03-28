@@ -19,16 +19,16 @@ package com.thoughtworks.go.plugin.access.elastic;
 import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
-import com.thoughtworks.go.plugin.access.common.models.Image;
-import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKeys;
 import com.thoughtworks.go.plugin.access.common.settings.*;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -79,10 +79,10 @@ public class ElasticAgentExtension extends AbstractExtension {
         return messageHandlerMap.get(version);
     }
 
-    PluginProfileMetadataKeys getProfileMetadata(String pluginId) {
-        return pluginRequestHelper.submitRequest(pluginId, ElasticAgentPluginConstants.REQUEST_GET_PROFILE_METADATA, new DefaultPluginInteractionCallback<PluginProfileMetadataKeys>() {
+    List<PluginConfiguration> getProfileMetadata(String pluginId) {
+        return pluginRequestHelper.submitRequest(pluginId, ElasticAgentPluginConstants.REQUEST_GET_PROFILE_METADATA, new DefaultPluginInteractionCallback<List<PluginConfiguration>>() {
             @Override
-            public PluginProfileMetadataKeys onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public List<PluginConfiguration> onSuccess(String responseBody, String resolvedExtensionVersion) {
                 return getElasticAgentMessageConverter(resolvedExtensionVersion).getProfileMetadataResponseFromBody(responseBody);
             }
         });
@@ -111,10 +111,10 @@ public class ElasticAgentExtension extends AbstractExtension {
         });
     }
 
-    Image getIcon(String pluginId) {
-        return pluginRequestHelper.submitRequest(pluginId, ElasticAgentPluginConstants.REQUEST_GET_PLUGIN_SETTINGS_ICON, new DefaultPluginInteractionCallback<Image>() {
+    com.thoughtworks.go.plugin.domain.common.Image getIcon(String pluginId) {
+        return pluginRequestHelper.submitRequest(pluginId, ElasticAgentPluginConstants.REQUEST_GET_PLUGIN_SETTINGS_ICON, new DefaultPluginInteractionCallback<com.thoughtworks.go.plugin.domain.common.Image>() {
             @Override
-            public Image onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public com.thoughtworks.go.plugin.domain.common.Image onSuccess(String responseBody, String resolvedExtensionVersion) {
                 return getElasticAgentMessageConverter(resolvedExtensionVersion).getImageResponseFromBody(responseBody);
             }
         });

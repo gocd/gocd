@@ -533,6 +533,7 @@ task verifyWar(type: VerifyJarTask) {
       "geronimo-j2ee-management_1.1_spec-1.0.1.jar",
       "geronimo-jms_1.1_spec-1.1.1.jar",
       "go-plugin-access-${project.version}.jar",
+      "go-plugin-domain-${project.version}.jar",
       "plugin-metadata-store-${project.version}.jar",
       "go-plugin-activator-${project.version}.jar",
       "go-plugin-api-${project.version}.jar",

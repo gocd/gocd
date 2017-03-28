@@ -17,8 +17,6 @@
 package com.thoughtworks.go.plugin.access.elastic;
 
 import com.thoughtworks.go.plugin.access.common.AbstractPluginRegistry;
-import com.thoughtworks.go.plugin.access.common.models.Image;
-import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKeys;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.infra.PluginManager;
@@ -28,11 +26,11 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 
 @Component
-public class ElasticAgentPluginRegistry extends AbstractPluginRegistry<ElasticAgentExtension, ElasticPluginConfigMetadataStore> {
+public class ElasticAgentPluginRegistry extends AbstractPluginRegistry<ElasticAgentExtension> {
 
     @Autowired
-    public ElasticAgentPluginRegistry(PluginManager pluginManager, ElasticAgentExtension elasticAgentExtension, ElasticPluginConfigMetadataStore store) {
-        super(pluginManager, elasticAgentExtension, store);
+    public ElasticAgentPluginRegistry(PluginManager pluginManager, ElasticAgentExtension elasticAgentExtension) {
+        super(pluginManager, elasticAgentExtension);
     }
 
     public void createAgent(final String pluginId, String autoRegisterKey, String environment, Map<String, String> configuration) {
@@ -57,18 +55,6 @@ public class ElasticAgentPluginRegistry extends AbstractPluginRegistry<ElasticAg
         boolean result = extension.shouldAssignWork(plugin.id(), agent, environment, configuration);
         LOGGER.debug("Done processing should assign work (result: {}) for plugin: {} with agent: {} with environment: {} with configuration {}", result, plugin.id(), agent, environment, configuration);
         return result;
-    }
-
-    public Image getIcon(String pluginId) {
-        return extension.getIcon(pluginId);
-    }
-
-    public PluginProfileMetadataKeys getProfileMetadata(String pluginId) {
-        return extension.getProfileMetadata(pluginId);
-    }
-
-    public String getProfileView(String pluginId) {
-        return extension.getProfileView(pluginId);
     }
 
     public boolean has(String pluginId) {

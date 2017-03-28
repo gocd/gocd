@@ -18,10 +18,10 @@ package com.thoughtworks.go.server.service.plugins.builder;
 
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationExtension;
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationPluginRegistry;
-import com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConfigMetadataStore;
+import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConstants;
+import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginConstants;
-import com.thoughtworks.go.plugin.access.elastic.ElasticPluginConfigMetadataStore;
 import com.thoughtworks.go.plugin.access.notification.NotificationExtension;
 import com.thoughtworks.go.plugin.access.notification.NotificationPluginRegistry;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
@@ -33,7 +33,10 @@ import com.thoughtworks.go.server.ui.plugins.PluginInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
 @Deprecated
@@ -44,16 +47,14 @@ public class PluginInfoBuilder {
     @Autowired
     public PluginInfoBuilder(AuthenticationPluginRegistry authenticationPluginRegistry,
                              NotificationPluginRegistry notificationPluginRegistry,
-                             ElasticPluginConfigMetadataStore elasticPluginConfigMetadataStore,
-                             AuthorizationPluginConfigMetadataStore authorizationPluginConfigMetadataStore,
                              PluginManager pluginManager) {
         pluginExtensionToBuilder.put(AuthenticationExtension.EXTENSION_NAME, new AuthenticationViewModelBuilder(pluginManager, authenticationPluginRegistry));
         pluginExtensionToBuilder.put(NotificationExtension.EXTENSION_NAME, new NotificationViewModelBuilder(pluginManager, notificationPluginRegistry));
         pluginExtensionToBuilder.put(PackageRepositoryExtension.EXTENSION_NAME, new PackageViewModelBuilder(pluginManager));
         pluginExtensionToBuilder.put(TaskExtension.TASK_EXTENSION, new PluggableTaskViewModelBuilder(pluginManager));
         pluginExtensionToBuilder.put(SCMExtension.EXTENSION_NAME, new SCMViewModelBuilder(pluginManager));
-        pluginExtensionToBuilder.put(ElasticAgentPluginConstants.EXTENSION_NAME, new ElasticAgentViewViewModelBuilder(elasticPluginConfigMetadataStore));
-        pluginExtensionToBuilder.put(AuthorizationPluginConstants.EXTENSION_NAME, new AuthorizationViewModelBuilder(authorizationPluginConfigMetadataStore));
+        pluginExtensionToBuilder.put(ElasticAgentPluginConstants.EXTENSION_NAME, new ElasticAgentViewViewModelBuilder(ElasticAgentMetadataStore.instance()));
+        pluginExtensionToBuilder.put(AuthorizationPluginConstants.EXTENSION_NAME, new AuthorizationViewModelBuilder(AuthorizationMetadataStore.instance()));
     }
 
     public List<PluginInfo> allPluginInfos(String type) {

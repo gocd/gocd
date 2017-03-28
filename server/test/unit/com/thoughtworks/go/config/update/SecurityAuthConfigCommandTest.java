@@ -115,7 +115,7 @@ public class SecurityAuthConfigCommandTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         SecurityAuthConfig securityAuthConfig = new SecurityAuthConfig("foo", "ldap");
         cruiseConfig.server().security().securityAuthConfigs().add(securityAuthConfig);
-        when(extension.validatePluginConfiguration(eq("ldap"), Matchers.<Map<String, String>>any())).thenReturn(new ValidationResult());
+        when(extension.validateAuthConfig(eq("ldap"), Matchers.<Map<String, String>>any())).thenReturn(new ValidationResult());
 
         SecurityAuthConfigCommand command = new SecurityAuthConfigCommandTest.StubCommand(goConfigService, securityAuthConfig, extension, currentUser, result);
         boolean isValid = command.isValid(cruiseConfig);

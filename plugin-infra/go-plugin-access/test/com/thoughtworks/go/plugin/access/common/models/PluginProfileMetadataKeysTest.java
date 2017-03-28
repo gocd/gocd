@@ -16,9 +16,15 @@
 
 package com.thoughtworks.go.plugin.access.common.models;
 
+import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import org.junit.Test;
 
+import java.util.HashMap;
+import java.util.List;
+
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
 
 public class PluginProfileMetadataKeysTest {
@@ -44,4 +50,61 @@ public class PluginProfileMetadataKeysTest {
         assertThat(bar.getMetadata().isSecure(), is(false));
     }
 
+    @Test
+    public void shouldGetPluginConfigurations() throws Exception {
+        PluginProfileMetadataKeys metadata = PluginProfileMetadataKeys.fromJSON("[{\n" +
+                "  \"key\": \"username\",\n" +
+                "  \"metadata\": {\n" +
+                "    \"secure\": true,\n" +
+                "    \"required\": false\n" +
+                "  }\n" +
+                "}, {\n" +
+                "  \"key\": \"password\",\n" +
+                "  \"metadata\": {\n" +
+                "    \"secure\": true,\n" +
+                "    \"required\": true\n" +
+                "  }\n" +
+                "}]");
+
+        List<PluginConfiguration> pluginConfigurations = metadata.toPluginConfigurations();
+
+        HashMap<String, Object> usernameData = new HashMap<>();
+        usernameData.put("required", false);
+        usernameData.put("secure", true);
+
+        HashMap<String, Object> passwordData = new HashMap<>();
+        passwordData.put("required", true);
+        passwordData.put("secure", true);
+
+        assertThat(pluginConfigurations, containsInAnyOrder(
+                new PluginConfiguration("username", usernameData),
+                new PluginConfiguration("password", passwordData)));
+    }
+
+    @Test
+    public void shouldGetPluginConfigurationsWithMetadataDefaultedToFalseInAbsenceOfPluginMetadata() throws Exception {
+        PluginProfileMetadataKeys metadata = PluginProfileMetadataKeys.fromJSON("[{\n" +
+                "  \"key\": \"username\"\n" +
+                "}, {\n" +
+                "  \"key\": \"password\",\n" +
+                "  \"metadata\": {\n" +
+                "    \"secure\": true,\n" +
+                "    \"required\": true\n" +
+                "  }\n" +
+                "}]");
+
+        List<PluginConfiguration> pluginConfigurations = metadata.toPluginConfigurations();
+
+        HashMap<String, Object> usernameData = new HashMap<>();
+        usernameData.put("required", false);
+        usernameData.put("secure", false);
+
+        HashMap<String, Object> passwordData = new HashMap<>();
+        passwordData.put("required", true);
+        passwordData.put("secure", true);
+
+        assertThat(pluginConfigurations, containsInAnyOrder(
+                new PluginConfiguration("username", usernameData),
+                new PluginConfiguration("password", passwordData)));
+    }
 }

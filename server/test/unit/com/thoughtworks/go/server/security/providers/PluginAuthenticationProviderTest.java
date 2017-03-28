@@ -25,14 +25,19 @@ import com.thoughtworks.go.plugin.access.authentication.AuthenticationExtension;
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationPluginRegistry;
 import com.thoughtworks.go.plugin.access.authentication.models.User;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
-import com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConfigMetadataStore;
+import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
 import com.thoughtworks.go.plugin.access.authorization.models.AuthenticationResponse;
+import com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo;
+import com.thoughtworks.go.plugin.domain.authorization.Capabilities;
+import com.thoughtworks.go.plugin.domain.authorization.SupportedAuthType;
+import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.security.AuthorityGranter;
 import com.thoughtworks.go.server.security.GoAuthority;
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.PluginRoleService;
 import com.thoughtworks.go.server.service.UserService;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -56,8 +61,6 @@ import static org.mockito.MockitoAnnotations.initMocks;
 public class PluginAuthenticationProviderTest {
     private static final AuthenticationResponse NULL_AUTH_RESPONSE = new AuthenticationResponse(null, null);
 
-    @Mock
-    private AuthorizationPluginConfigMetadataStore store;
     @Mock
     private AuthorizationExtension authorizationExtension;
     @Mock
@@ -90,11 +93,16 @@ public class PluginAuthenticationProviderTest {
         userAuthority = GoAuthority.ROLE_USER.asAuthority();
         when(authorityGranter.authorities("username")).thenReturn(new GrantedAuthority[]{userAuthority});
 
-        provider = new PluginAuthenticationProvider(authenticationPluginRegistry, authenticationExtension, authorizationExtension, store, authorityGranter,
+        provider = new PluginAuthenticationProvider(authenticationPluginRegistry, authenticationExtension, authorizationExtension, authorityGranter,
                 goConfigService, pluginRoleService, userService);
 
         securityConfig = new SecurityConfig();
         when(goConfigService.security()).thenReturn(securityConfig);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        AuthorizationMetadataStore.instance().clear();
     }
 
     @Test
@@ -102,9 +110,8 @@ public class PluginAuthenticationProviderTest {
         exception.expect(UsernameNotFoundException.class);
         exception.expectMessage("Unable to authenticate user: bob");
 
+        addPluginSupportingPasswordBasedAuthentication("ldap");
         when(authenticationPluginRegistry.getPluginsThatSupportsPasswordBasedAuthentication()).thenReturn(new HashSet<>(Arrays.asList("password")));
-        when(store.getPluginsThatSupportsPasswordBasedAuthentication()).thenReturn(new HashSet<>(Arrays.asList("ldap")));
-
         when(authorizationExtension.authenticateUser("ldap", "bob", "password", securityConfig.securityAuthConfigs().findByPluginId(null), null)).thenReturn(NULL_AUTH_RESPONSE);
         when(authenticationExtension.authenticateUser("password", "bob", "password")).thenReturn(null);
 
@@ -114,8 +121,9 @@ public class PluginAuthenticationProviderTest {
     @Test
     public void shouldAskAuthenticationPluginsWhenAuthorizationPluginIsUnableToAuthenticateUser() {
         String pluginId = "plugin-id-1";
+
+        addPluginSupportingPasswordBasedAuthentication(pluginId);
         when(authenticationPluginRegistry.getPluginsThatSupportsPasswordBasedAuthentication()).thenReturn(new HashSet<>(Arrays.asList(pluginId)));
-        when(store.getPluginsThatSupportsPasswordBasedAuthentication()).thenReturn(new HashSet<>(Arrays.asList(pluginId)));
         when(authorizationExtension.authenticateUser(pluginId, "username", "password", securityConfig.securityAuthConfigs().findByPluginId(pluginId), null)).thenReturn(NULL_AUTH_RESPONSE);
 
         try {
@@ -130,9 +138,10 @@ public class PluginAuthenticationProviderTest {
     @Test
     public void shouldAddUserIfDoesNotExistOnSuccessfulAuthenticationUsingTheAuthorizationPlugin() {
         String pluginId = "plugin-id-1";
+
+        addPluginSupportingPasswordBasedAuthentication(pluginId);
         securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("github", pluginId));
         when(authenticationPluginRegistry.getPluginsThatSupportsPasswordBasedAuthentication()).thenReturn(new HashSet<>(Arrays.asList()));
-        when(store.getPluginsThatSupportsPasswordBasedAuthentication()).thenReturn(new HashSet<>(Arrays.asList(pluginId)));
 
         AuthenticationResponse response = new AuthenticationResponse(new User("username", "display-name", "username@example.com"), Collections.emptyList());
         when(authorizationExtension.authenticateUser(pluginId, "username", "password", securityConfig.securityAuthConfigs().findByPluginId(pluginId), securityConfig.getPluginRoles(pluginId))).thenReturn(response);
@@ -157,7 +166,6 @@ public class PluginAuthenticationProviderTest {
     @Test(expected = UsernameNotFoundException.class)
     public void shouldErrorOutIfUnableToAuthenticateUsingAnyOfThePlugins() {
         when(authenticationPluginRegistry.getPluginsThatSupportsPasswordBasedAuthentication()).thenReturn(new HashSet<>(Arrays.asList()));
-        when(store.getPluginsThatSupportsPasswordBasedAuthentication()).thenReturn(new HashSet<>(Arrays.asList()));
 
         try {
             provider.retrieveUser("username", authenticationToken);
@@ -171,9 +179,11 @@ public class PluginAuthenticationProviderTest {
     public void shouldCreateGoUserPrincipalWhenAnAuthorizationPluginIsAbleToAuthenticateUser() {
         String pluginId1 = "plugin-id-1";
         String pluginId2 = "plugin-id-2";
+
+        addPluginSupportingPasswordBasedAuthentication(pluginId1);
+        addPluginSupportingPasswordBasedAuthentication(pluginId2);
         securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("github", pluginId2));
         securityConfig.addRole(new PluginRoleConfig("admin", "github", ConfigurationPropertyMother.create("foo")));
-        when(store.getPluginsThatSupportsPasswordBasedAuthentication()).thenReturn(new HashSet<>(Arrays.asList(pluginId1, pluginId2)));
         when(authorizationExtension.authenticateUser(pluginId1, "username", "password", securityConfig.securityAuthConfigs().findByPluginId(pluginId1), null)).thenReturn(NULL_AUTH_RESPONSE);
 
         AuthenticationResponse response = new AuthenticationResponse(new User("username", "display-name", "test@test.com"), Collections.emptyList());
@@ -211,15 +221,14 @@ public class PluginAuthenticationProviderTest {
     @Test
     public void shouldAnswerSupportsBasedOnPluginAvailability() {
         when(authenticationPluginRegistry.getPluginsThatSupportsPasswordBasedAuthentication()).thenReturn(new HashSet<>());
-        when(store.getPluginsThatSupportsPasswordBasedAuthentication()).thenReturn(new HashSet<>());
         assertThat(provider.supports(UsernamePasswordAuthenticationToken.class), is(false));
 
+        addPluginSupportingPasswordBasedAuthentication("plugin-id-1");
         when(authenticationPluginRegistry.getPluginsThatSupportsPasswordBasedAuthentication()).thenReturn(new HashSet<>());
-        when(store.getPluginsThatSupportsPasswordBasedAuthentication()).thenReturn(new HashSet<>(Arrays.asList("plugin-id-1")));
         assertThat(provider.supports(UsernamePasswordAuthenticationToken.class), is(true));
 
+        AuthorizationMetadataStore.instance().clear();
         when(authenticationPluginRegistry.getPluginsThatSupportsPasswordBasedAuthentication()).thenReturn(new HashSet<>(Arrays.asList("plugin-id-1")));
-        when(store.getPluginsThatSupportsPasswordBasedAuthentication()).thenReturn(new HashSet<>());
         assertThat(provider.supports(UsernamePasswordAuthenticationToken.class), is(true));
     }
 
@@ -231,8 +240,8 @@ public class PluginAuthenticationProviderTest {
         String pluginId1 = "cd.go.ldap";
         String pluginId2 = "cd.go.github";
 
-        when(store.getPluginsThatSupportsPasswordBasedAuthentication()).thenReturn(new HashSet<>(Arrays.asList(pluginId1, pluginId2)));
-
+        addPluginSupportingPasswordBasedAuthentication(pluginId1);
+        addPluginSupportingPasswordBasedAuthentication(pluginId2);
         when(authorizationExtension.authenticateUser(pluginId1, "username", "password", securityConfig.securityAuthConfigs().findByPluginId(pluginId1), securityConfig.getPluginRoles(pluginId1))).thenReturn(
                 new AuthenticationResponse(
                         new User("username", "bob", "bob@example.com"),
@@ -249,4 +258,10 @@ public class PluginAuthenticationProviderTest {
         verify(pluginRoleService).updatePluginRoles("cd.go.ldap", "username", CaseInsensitiveString.caseInsensitiveStrings(Arrays.asList("blackbird", "admins")));
     }
 
+    private void addPluginSupportingPasswordBasedAuthentication(String pluginId) {
+        AuthorizationPluginInfo pluginInfo = new AuthorizationPluginInfo(
+                new GoPluginDescriptor(pluginId, null, null, null, null, false), null, null, null,
+                new Capabilities(SupportedAuthType.Password, false));
+        AuthorizationMetadataStore.instance().setPluginInfo(pluginInfo);
+    }
 }

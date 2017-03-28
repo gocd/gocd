@@ -16,40 +16,24 @@
 
 package com.thoughtworks.go.server.service.plugins.builder;
 
-import com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConfigMetadataStore;
-import com.thoughtworks.go.plugin.access.common.models.Image;
-import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
+import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
 import com.thoughtworks.go.server.ui.plugins.AuthorizationPluginInfo;
-import com.thoughtworks.go.server.ui.plugins.PluggableInstanceSettings;
-import com.thoughtworks.go.server.ui.plugins.PluginConfiguration;
-import com.thoughtworks.go.server.ui.plugins.PluginView;
 
-import java.util.ArrayList;
+public class AuthorizationPluginInfoBuilder extends PluginConfigMetadataStoreBasedPluginInfoBuilder<AuthorizationPluginInfo, AuthorizationMetadataStore> {
 
-public class AuthorizationPluginInfoBuilder extends PluginConfigMetadataStoreBasedPluginInfoBuilder<AuthorizationPluginInfo, AuthorizationPluginConfigMetadataStore> {
-
-    public AuthorizationPluginInfoBuilder(AuthorizationPluginConfigMetadataStore store) {
+    public AuthorizationPluginInfoBuilder(AuthorizationMetadataStore store) {
         super(store);
     }
 
     @Override
     public AuthorizationPluginInfo pluginInfoFor(String pluginId) {
-        PluginDescriptor descriptor = store.find(pluginId);
-        if (descriptor == null) {
+        com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo pluginInfo = store.getPluginInfo(pluginId);
+
+        if(pluginInfo == null) {
             return null;
         }
 
-        Image icon = store.getIcon(descriptor);
-        ArrayList<PluginConfiguration> pluginConfigurations = PluginConfiguration.getPluginConfigurations(store.getProfileMetadata(descriptor));
-        PluginView profileView = new PluginView(store.getProfileView(descriptor));
-        PluggableInstanceSettings profileSettings = new PluggableInstanceSettings(pluginConfigurations, profileView);
-
-        ArrayList<PluginConfiguration> roleConfigurations = PluginConfiguration.getPluginConfigurations(store.getRoleMetadata(descriptor));
-        PluginView roleView = new PluginView(store.getRoleView(descriptor));
-        PluggableInstanceSettings roleSettings = new PluggableInstanceSettings(roleConfigurations, roleView);
-
-
-        return new AuthorizationPluginInfo(descriptor, profileSettings, roleSettings, icon);
+        return new AuthorizationPluginInfo(pluginInfo.getDescriptor(), settings(pluginInfo.getAuthConfigSettings()),
+                settings(pluginInfo.getRoleSettings()), image(pluginInfo.getImage()));
     }
-
 }

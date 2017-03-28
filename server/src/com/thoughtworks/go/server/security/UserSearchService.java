@@ -22,7 +22,7 @@ import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationExtension;
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationPluginRegistry;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
-import com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConfigMetadataStore;
+import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
 import com.thoughtworks.go.presentation.UserSearchModel;
 import com.thoughtworks.go.presentation.UserSourceType;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -43,7 +43,7 @@ import java.util.Set;
 public class UserSearchService {
     private final LdapUserSearch ldapUserSearch;
     private final PasswordFileUserSearch passwordFileUserSearch;
-    private final AuthorizationPluginConfigMetadataStore store;
+    private final AuthorizationMetadataStore store;
     private final AuthorizationExtension authorizationExtension;
     private GoConfigService goConfigService;
     private AuthenticationPluginRegistry authenticationPluginRegistry;
@@ -54,11 +54,11 @@ public class UserSearchService {
 
     @Autowired
     public UserSearchService(LdapUserSearch ldapUserSearch, PasswordFileUserSearch passwordFileUserSearch,
-                             AuthorizationPluginConfigMetadataStore store, AuthorizationExtension authorizationExtension,
-                             GoConfigService goConfigService, AuthenticationPluginRegistry authenticationPluginRegistry, AuthenticationExtension authenticationExtension) {
+                             AuthorizationExtension authorizationExtension, GoConfigService goConfigService,
+                             AuthenticationPluginRegistry authenticationPluginRegistry, AuthenticationExtension authenticationExtension) {
         this.ldapUserSearch = ldapUserSearch;
         this.passwordFileUserSearch = passwordFileUserSearch;
-        this.store = store;
+        this.store = AuthorizationMetadataStore.instance();
         this.authorizationExtension = authorizationExtension;
         this.goConfigService = goConfigService;
         this.authenticationPluginRegistry = authenticationPluginRegistry;

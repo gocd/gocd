@@ -68,7 +68,7 @@ public class SecurityAuthConfigCreateCommandTest {
     public void shouldInvokePluginValidationsBeforeSave() throws Exception {
         ValidationResult validationResult = new ValidationResult();
         validationResult.addError(new ValidationError("key", "error"));
-        when(extension.validatePluginConfiguration(eq("aws"), Matchers.<Map<String, String>>any())).thenReturn(validationResult);
+        when(extension.validateAuthConfig(eq("aws"), Matchers.<Map<String, String>>any())).thenReturn(validationResult);
         SecurityAuthConfig newProfile = new SecurityAuthConfig("foo", "aws", new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("val")));
         PluginProfileCommand command = new SecurityAuthConfigCreateCommand(mock(GoConfigService.class), newProfile, extension, null, new HttpLocalizedOperationResult());
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();

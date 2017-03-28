@@ -18,7 +18,7 @@ package com.thoughtworks.go.plugin.access.packagematerial;
 
 public class PackageMetadataStore extends AbstractMetaDataStore {
 
-    private static PackageMetadataStore packageMetadataStore=new PackageMetadataStore();
+    private static PackageMetadataStore packageMetadataStore = new PackageMetadataStore();
 
     private PackageMetadataStore() {
     }

@@ -23,11 +23,13 @@ import com.thoughtworks.go.plugin.access.common.models.Image;
 import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKeys;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import org.apache.commons.lang.StringUtils;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 public class ElasticAgentExtensionConverterV1 implements ElasticAgentMessageConverter {
@@ -81,8 +83,8 @@ public class ElasticAgentExtensionConverterV1 implements ElasticAgentMessageConv
     }
 
     @Override
-    public PluginProfileMetadataKeys getProfileMetadataResponseFromBody(String responseBody) {
-        return PluginProfileMetadataKeys.fromJSON(responseBody);
+    public List<PluginConfiguration> getProfileMetadataResponseFromBody(String responseBody) {
+        return PluginProfileMetadataKeys.fromJSON(responseBody).toPluginConfigurations();
     }
 
     @Override
@@ -95,8 +97,8 @@ public class ElasticAgentExtensionConverterV1 implements ElasticAgentMessageConv
     }
 
     @Override
-    public Image getImageResponseFromBody(String responseBody) {
-        return Image.fromJSON(responseBody);
+    public com.thoughtworks.go.plugin.domain.common.Image getImageResponseFromBody(String responseBody) {
+        return Image.fromJSON(responseBody).toDomainImage();
     }
 
     @Override

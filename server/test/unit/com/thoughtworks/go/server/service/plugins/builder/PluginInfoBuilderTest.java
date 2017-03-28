@@ -18,8 +18,8 @@ package com.thoughtworks.go.server.service.plugins.builder;
 
 import com.thoughtworks.go.helper.MetadataStoreHelper;
 import com.thoughtworks.go.plugin.access.authentication.AuthenticationPluginRegistry;
-import com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConfigMetadataStore;
-import com.thoughtworks.go.plugin.access.elastic.ElasticPluginConfigMetadataStore;
+import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
+import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
 import com.thoughtworks.go.plugin.access.notification.NotificationPluginRegistry;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfigurations;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageMetadataStore;
@@ -31,6 +31,8 @@ import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
 import com.thoughtworks.go.plugin.access.scm.SCMPreference;
 import com.thoughtworks.go.plugin.access.scm.SCMView;
 import com.thoughtworks.go.plugin.api.task.TaskView;
+import com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo;
+import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.service.plugins.InvalidPluginTypeException;
@@ -57,12 +59,6 @@ public class PluginInfoBuilderTest {
 
     @Mock
     NotificationPluginRegistry notificationPluginRegistry;
-
-    @Mock
-    ElasticPluginConfigMetadataStore elasticPluginConfigMetadataStore;
-
-    @Mock
-    AuthorizationPluginConfigMetadataStore authorizationPluginConfigMetadataStore;
 
     @Mock
     PluginManager manager;
@@ -119,8 +115,6 @@ public class PluginInfoBuilderTest {
 
         when(authenticationPluginRegistry.getAuthenticationPlugins()).thenReturn(new HashSet<>(Arrays.asList("github.oauth")));
         when(notificationPluginRegistry.getNotificationPlugins()).thenReturn(new HashSet<>(Arrays.asList("email.notifier")));
-        when(elasticPluginConfigMetadataStore.getPlugins()).thenReturn(new ArrayList<>(Arrays.asList(dockerElasticAgentPlugin)));
-        when(authorizationPluginConfigMetadataStore.getPlugins()).thenReturn(new ArrayList<>(Arrays.asList(ldapAuthPlugin)));
         when(jsonBasedPluggableTask.view()).thenReturn(taskView);
 
         when(manager.getPluginDescriptorFor("github.oauth")).thenReturn(githubDescriptor);
@@ -128,15 +122,15 @@ public class PluginInfoBuilderTest {
         when(manager.getPluginDescriptorFor("yum.poller")).thenReturn(yumPoller);
         when(manager.getPluginDescriptorFor("xunit.convertor")).thenReturn(xunitConvertor);
         when(manager.getPluginDescriptorFor("github.pr")).thenReturn(githubPR);
-        when(manager.getPluginDescriptorFor("cd.go.elastic-agent.docker")).thenReturn(dockerElasticAgentPlugin);
-        when(manager.getPluginDescriptorFor(ldapAuthPlugin.id())).thenReturn(ldapAuthPlugin);
+        ElasticAgentMetadataStore.instance().setPluginInfo(new ElasticAgentPluginInfo(dockerElasticAgentPlugin, null, null));
+        AuthorizationMetadataStore.instance().setPluginInfo(new AuthorizationPluginInfo(ldapAuthPlugin, null, null, null, null));
 
         MetadataStoreHelper.clear();
 
         PackageMetadataStore.getInstance().addMetadataFor(yumPoller.id(), new PackageConfigurations());
         PluggableTaskConfigStore.store().setPreferenceFor("xunit.convertor", new TaskPreference(jsonBasedPluggableTask));
         SCMMetadataStore.getInstance().setPreferenceFor("github.pr", new SCMPreference(new SCMConfigurations(), mock(SCMView.class)));
-        pluginViewModelBuilder = new PluginInfoBuilder(authenticationPluginRegistry, notificationPluginRegistry, elasticPluginConfigMetadataStore, authorizationPluginConfigMetadataStore, manager);
+        pluginViewModelBuilder = new PluginInfoBuilder(authenticationPluginRegistry, notificationPluginRegistry, manager);
     }
 
     @After

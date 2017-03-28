@@ -53,4 +53,9 @@ public class Capabilities {
     public static Capabilities fromJSON(String json) {
         return GSON.fromJson(json, Capabilities.class);
     }
+
+    public com.thoughtworks.go.plugin.domain.authorization.Capabilities toCapabilites() {
+        com.thoughtworks.go.plugin.domain.authorization.SupportedAuthType supportedAuthType = com.thoughtworks.go.plugin.domain.authorization.SupportedAuthType.valueOf(this.supportedAuthType.name());
+        return new com.thoughtworks.go.plugin.domain.authorization.Capabilities(supportedAuthType, canSearch);
+    }
 }

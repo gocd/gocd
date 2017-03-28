@@ -296,6 +296,10 @@ Go::Application.routes.draw do
   scope :api, as: :apiv4, format: false do
     api_version(:module => 'ApiV4', header: {name: 'Accept', value: 'application/vnd.go.cd.v4+json'}) do
 
+      namespace :admin do
+        resources :pipelines, param: :pipeline_name, only: [:show, :update, :create, :destroy], constraints: {pipeline_name: PIPELINE_NAME_FORMAT}
+      end
+
       resources :agents, param: :uuid, only: [:show, :destroy], constraints: {uuid: ALLOW_DOTS} do
         patch :update, on: :member
       end

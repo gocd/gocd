@@ -47,15 +47,30 @@ const EnvironmentsListWidget = {
   },
 
   view (vnode) {
-
-    const ctrl = vnode.state;
-    const args = vnode.attrs;
-
-    const isEnvironmentsEmpty    = _.isEmpty(args.environments());
+    const ctrl                   = vnode.state;
+    const args                   = vnode.attrs;
     let environmentDropDownClass = "agent-button-group-dropdown env-dropdown ";
 
+    const spinner = (
+      <div class={`${environmentDropDownClass} empty-container`} onclick={ctrl.closeDropdown}>
+        <div class='page-spinner'/>
+      </div>
+    );
+
+    if (args.environmentsFetchError()) {
+      return (<div class={`${environmentDropDownClass} empty-container`} onclick={vnode.state.closeDropdown}>
+        <f.alert>{vnode.attrs.environmentsFetchError()}</f.alert>
+      </div>);
+    }
+
+    if (!args.environments()) {
+      return spinner;
+    }
+
+    const isEnvironmentsEmpty = _.isEmpty(args.environments());
+
     if (isEnvironmentsEmpty) {
-      environmentDropDownClass = `${environmentDropDownClass  }empty`;
+      environmentDropDownClass = `${environmentDropDownClass} empty`;
     }
 
     return (

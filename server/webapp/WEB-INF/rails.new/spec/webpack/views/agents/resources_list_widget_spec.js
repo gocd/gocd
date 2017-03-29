@@ -60,7 +60,7 @@ describe("ResourcesListWidget", () => {
       new TriStateCheckbox('Windows', selectedAgentsResources),
     ];
 
-    mount();
+    mount(resources);
   });
 
   afterEach(() => {
@@ -155,12 +155,33 @@ describe("ResourcesListWidget", () => {
     expect(allResources).toHaveLength(4);
   });
 
-  const mount = () => {
+  describe('Page Spinner', () => {
+    it('should show page spinner until resources are fetched', () => {
+      mount(undefined);
+      expect($('.page-spinner')).toBeInDOM();
+      mount(resources);
+      expect($('.page-spinner')).not.toBeInDOM();
+    });
+  });
+
+  describe('Fetch Error', () => {
+    it('should show error when resources fetch fails', () => {
+      const err           = 'BOOM!';
+      resourcesFetchError = function () {
+        return err;
+      };
+      mount(resources);
+      expect($('.alert')).toContainText(err);
+    });
+  });
+
+  const mount = (resources) => {
     m.mount(root, {
       view() {
         return m(ResourcesListWidget, {
           hideDropDown,
           dropDownReset,
+          resourcesFetchError,
           'onResourcesUpdate': Stream(),
           'resources':         Stream(resources)
         });
@@ -174,6 +195,9 @@ describe("ResourcesListWidget", () => {
   };
 
   const dropDownReset = () => {
+  };
+
+  let resourcesFetchError = () => {
   };
 
   const unmount = () => {

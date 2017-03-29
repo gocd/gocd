@@ -64,7 +64,7 @@ describe("Environments List Widget", () => {
     ];
 
 
-    mount(done);
+    mount(done, environments);
   });
 
   afterEach(() => {
@@ -103,7 +103,27 @@ describe("Environments List Widget", () => {
     expect(allEnvironments[1].indeterminate).toBe(false);
   });
 
-  const mount = (done) => {
+  describe('Page Spinner', () => {
+    it('should show page spinner until environments are fetched', () => {
+      mount(_.noop);
+      expect($('.page-spinner')).toBeInDOM();
+      mount(_.noop, environments);
+      expect($('.page-spinner')).not.toBeInDOM();
+    });
+  });
+
+  describe('Fetch Error', () => {
+    it('should show error when environments fetch fails', () => {
+      const err              = 'BOOM!';
+      environmentsFetchError = function () {
+        return err;
+      };
+      mount(_.noop, environments);
+      expect($('.alert')).toContainText(err);
+    });
+  });
+
+  const mount = (done, environments) => {
     m.mount(root,
       {
         oncreate: done,
@@ -112,7 +132,8 @@ describe("Environments List Widget", () => {
             hideDropDown,
             dropDownReset,
             onEnvironmentsUpdate,
-            environments: Stream(environments)
+            environments: Stream(environments),
+            environmentsFetchError
           });
         }
       }
@@ -125,6 +146,8 @@ describe("Environments List Widget", () => {
   const dropDownReset        = () => {
   };
   const onEnvironmentsUpdate = () => {
+  };
+  let environmentsFetchError = () => {
   };
 
   const unmount = () => {

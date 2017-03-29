@@ -25,27 +25,31 @@ const Environments = require('models/agents/environments');
 
 const ButtonRowWidget = {
   oninit (vnode) {
-    const args        = vnode.attrs;
-    const self        = this;
-    this.resources    = Stream();
-    this.environments = Stream();
+    const args                  = vnode.attrs;
+    const self                  = this;
+    this.resources              = Stream();
+    this.resourcesFetchError    = Stream();
+    this.environments           = Stream();
+    this.environmentsFetchError = Stream();
 
     this.dropdownClass = function (name) {
       return args.dropdown.isDropDownOpen(name) ? 'has-dropdown is-open' : 'has-dropdown';
     };
 
     this.resourcesButtonClicked = function (e) {
+      self.resources(undefined);
       e.preventDefault();
       Resources.all(args.selectedAgents())
-        .then(self.resources)
+        .then(self.resources, self.resourcesFetchError)
         .always(m.redraw);
       args.dropdown.toggleDropDownState('resource');
     };
 
     this.environmentsButtonClicked = function (e) {
+      self.environments(undefined);
       e.preventDefault();
       Environments.all(args.selectedAgents())
-        .then(self.environments)
+        .then(self.environments, self.environmentsFetchError)
         .always(m.redraw);
       args.dropdown.toggleDropDownState('environment');
     };
@@ -92,10 +96,10 @@ const ButtonRowWidget = {
                   Resources
                 </f.button>
 
-
                 <ResourcesListWidget hideDropDown={args.dropdown.hide}
                                      dropDownReset={args.dropdown.reset}
                                      resources={ctrl.resources}
+                                     resourcesFetchError={ctrl.resourcesFetchError}
                                      onResourcesUpdate={args.onResourcesUpdate}/>
               </li>
 
@@ -108,6 +112,7 @@ const ButtonRowWidget = {
                 <EnvironmentsListWidget hideDropDown={args.dropdown.hide}
                                         dropDownReset={args.dropdown.reset}
                                         environments={ctrl.environments}
+                                        environmentsFetchError={ctrl.environmentsFetchError}
                                         onEnvironmentsUpdate={args.onEnvironmentsUpdate}/>
               </li>
             </ul>

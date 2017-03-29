@@ -104,11 +104,22 @@ describe("Environments List Widget", () => {
   });
 
   describe('Page Spinner', () => {
-    it('should show page spinner until environments are fetched', () =>{
+    it('should show page spinner until environments are fetched', () => {
       mount(_.noop);
       expect($('.page-spinner')).toBeInDOM();
       mount(_.noop, environments);
       expect($('.page-spinner')).not.toBeInDOM();
+    });
+  });
+
+  describe('Fetch Error', () => {
+    it('should show error when environments fetch fails', () => {
+      const err              = 'BOOM!';
+      environmentsFetchError = function () {
+        return err;
+      };
+      mount(_.noop, environments);
+      expect($('.alert')).toContainText(err);
     });
   });
 
@@ -121,7 +132,8 @@ describe("Environments List Widget", () => {
             hideDropDown,
             dropDownReset,
             onEnvironmentsUpdate,
-            environments: Stream(environments)
+            environments: Stream(environments),
+            environmentsFetchError
           });
         }
       }
@@ -134,6 +146,8 @@ describe("Environments List Widget", () => {
   const dropDownReset        = () => {
   };
   const onEnvironmentsUpdate = () => {
+  };
+  let environmentsFetchError = () => {
   };
 
   const unmount = () => {

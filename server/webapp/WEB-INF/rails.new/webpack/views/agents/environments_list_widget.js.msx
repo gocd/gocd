@@ -57,6 +57,12 @@ const EnvironmentsListWidget = {
       </div>
     );
 
+    if (args.environmentsFetchError()) {
+      return (<div class={`${environmentDropDownClass} empty-container`} onclick={vnode.state.closeDropdown}>
+        <f.alert>{vnode.attrs.environmentsFetchError()}</f.alert>
+      </div>);
+    }
+
     if (!args.environments()) {
       return spinner;
     }

@@ -156,11 +156,22 @@ describe("ResourcesListWidget", () => {
   });
 
   describe('Page Spinner', () => {
-    it('should show page spinner until resources are fetched', () =>{
+    it('should show page spinner until resources are fetched', () => {
       mount(undefined);
       expect($('.page-spinner')).toBeInDOM();
       mount(resources);
       expect($('.page-spinner')).not.toBeInDOM();
+    });
+  });
+
+  describe('Fetch Error', () => {
+    it('should show error when resources fetch fails', () => {
+      const err           = 'BOOM!';
+      resourcesFetchError = function () {
+        return err;
+      };
+      mount(resources);
+      expect($('.alert')).toContainText(err);
     });
   });
 
@@ -170,6 +181,7 @@ describe("ResourcesListWidget", () => {
         return m(ResourcesListWidget, {
           hideDropDown,
           dropDownReset,
+          resourcesFetchError,
           'onResourcesUpdate': Stream(),
           'resources':         Stream(resources)
         });
@@ -183,6 +195,9 @@ describe("ResourcesListWidget", () => {
   };
 
   const dropDownReset = () => {
+  };
+
+  let resourcesFetchError = () => {
   };
 
   const unmount = () => {

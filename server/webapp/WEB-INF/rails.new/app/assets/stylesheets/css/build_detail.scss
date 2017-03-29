@@ -851,17 +851,34 @@ a.collapse-all {
   }
 
   #build-status-panel {
+    padding: 0px;
+    
     .build_detail_container {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
       margin: 0;
+
+      div.clear {
+        height: 0px;
+      }
+      .sub_tab_container_content {
+        padding: 0;
+      }
     }
 
-    .sub_tab_container_content {
-      padding: 0;
+    .build_detail_summary {
+      display: none;
     }
+
+    .sidebar_history {
+      display: none;
+    }
+
+    .sub_tabs_container {
+      display: none;
+    }
+
+   .console-area {
+      position: relative;
+   }
   }
 }
 
@@ -870,5 +887,9 @@ a.collapse-all {
 }
 
 .compress {
+  display: none;
+}
+
+#cruise_message_counts.hide {
   display: none;
 }

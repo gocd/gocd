@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2016 ThoughtWorks, Inc.
+# Copyright 2017 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 module ApiV4
   module Admin
-    class PipelinesController < ApiV4::BaseController
+    class PipelinesController < BaseController
       before_action :check_pipeline_group_admin_user_and_401
       before_action :load_pipeline, only: [:show, :update, :destroy]
       before_action :check_if_pipeline_is_defined_remotely, only: [:update, :destroy]
@@ -25,7 +25,7 @@ module ApiV4
 
       def show
         if stale?(etag: etag_for(@pipeline_config))
-          json = ApiV4::Admin::Pipelines::PipelineConfigRepresenter.new(@pipeline_config).to_hash(url_builder: self)
+          json = Admin::Pipelines::PipelineConfigRepresenter.new(@pipeline_config).to_hash(url_builder: self)
           render DEFAULT_FORMAT => json
         end
       end
@@ -57,18 +57,18 @@ module ApiV4
 
       def get_pipeline_from_request
         @pipeline_config_from_request ||= PipelineConfig.new.tap do |config|
-          ApiV4::Admin::Pipelines::PipelineConfigRepresenter.new(config).from_hash(params[:pipeline], {go_config: go_config_service.getCurrentConfig()})
+          Admin::Pipelines::PipelineConfigRepresenter.new(config).from_hash(params[:pipeline], {go_config: go_config_service.getCurrentConfig()})
         end
       end
 
       def handle_config_save_or_update_result(result, pipeline_name = params[:pipeline_name])
         if result.isSuccessful
           load_pipeline(pipeline_name)
-          json = ApiV4::Admin::Pipelines::PipelineConfigRepresenter.new(@pipeline_config).to_hash(url_builder: self)
+          json = Admin::Pipelines::PipelineConfigRepresenter.new(@pipeline_config).to_hash(url_builder: self)
           response.etag = [etag_for(@pipeline_config)]
           render DEFAULT_FORMAT => json
         else
-          json = ApiV4::Admin::Pipelines::PipelineConfigRepresenter.new(@pipeline_config_from_request).to_hash(url_builder: self)
+          json = Admin::Pipelines::PipelineConfigRepresenter.new(@pipeline_config_from_request).to_hash(url_builder: self)
           render_http_operation_result(result, {data: json})
         end
       end
@@ -103,9 +103,9 @@ module ApiV4
       end
 
       def check_if_pipeline_is_defined_remotely
-        if (!@pipeline_config.isLocal())
+        unless @pipeline_config.isLocal()
           result = HttpLocalizedOperationResult.new
-          pipeline_name = @pipeline_config.name().toString()
+          pipeline_name = @pipeline_config.name()
           origin = @pipeline_config.getOrigin().displayName()
           result.unprocessableEntity(LocalizedMessage.string("CAN_NOT_OPERATE_ON_REMOTE_ENTITY", "pipeline", pipeline_name, origin))
           render_http_operation_result(result)

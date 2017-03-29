@@ -14,20 +14,23 @@
 # limitations under the License.
 ##########################################################################
 
-module ApiV4
-  module Admin
-    module Pipelines
-      module Materials
-        module EncryptedPasswordSupport
-          def from_hash(data, options={})
-            super
-            data = data.with_indifferent_access
-            encrypted_password = Services.password_deserializer.deserialize(data[:password], data[:encrypted_password], represented)
-            represented.setEncryptedPassword(encrypted_password)
-            represented
-          end
-        end
-      end
-    end
+require 'spec_helper'
+
+describe ApiV4::Shared::ConfigOrigin::ConfigXmlOriginRepresenter do
+  it 'should render local config origin' do
+    presenter = ApiV4::Shared::ConfigOrigin::ConfigXmlOriginRepresenter.new(get_config_xml_origin)
+    actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
+    expect(actual_json).to eq(expected_json)
+  end
+
+  def get_config_xml_origin
+    FileConfigOrigin.new
+  end
+
+  def expected_json
+    {
+      type: 'local',
+      file: 'cruise-config.xml'
+    }
   end
 end

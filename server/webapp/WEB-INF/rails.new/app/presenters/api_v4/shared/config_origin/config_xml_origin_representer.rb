@@ -15,17 +15,16 @@
 ##########################################################################
 
 module ApiV4
-  module Admin
-    module Pipelines
-      module Materials
-        module EncryptedPasswordSupport
-          def from_hash(data, options={})
-            super
-            data = data.with_indifferent_access
-            encrypted_password = Services.password_deserializer.deserialize(data[:password], data[:encrypted_password], represented)
-            represented.setEncryptedPassword(encrypted_password)
-            represented
-          end
+  module Shared
+    module ConfigOrigin
+      class ConfigXmlOriginRepresenter < BaseRepresenter
+        alias_method :origin, :represented
+
+        property :type, exec_context: :decorator
+        property :displayName, as: :file
+
+        def type
+          'local'
         end
       end
     end

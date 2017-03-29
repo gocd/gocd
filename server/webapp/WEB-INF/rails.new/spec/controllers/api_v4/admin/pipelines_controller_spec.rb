@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2016 ThoughtWorks, Inc.
+# Copyright 2017 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -265,6 +265,7 @@ describe ApiV4::Admin::PipelinesController do
       before(:each) do
         login_as_pipeline_group_admin_user(@group)
         @pipeline = PipelineConfigMother.pipelineConfig(@pipeline_name)
+        @pipeline.setOrigin(FileConfigOrigin.new)
         controller.send(:go_cache).put("GO_PIPELINE_CONFIGS_ETAGS_CACHE", @pipeline_name, "latest-etag")
       end
 
@@ -425,6 +426,7 @@ describe ApiV4::Admin::PipelinesController do
     describe :create do
       before(:each) do
         @pipeline = PipelineConfigMother.pipelineConfig(@pipeline_name)
+        @pipeline.setOrigin(FileConfigOrigin.new)
       end
 
       it "should not allow non admin users to create a new pipeline config" do
@@ -672,6 +674,10 @@ describe ApiV4::Admin::PipelinesController do
         label_template: "${COUNT}",
         materials: [{type: "svn", attributes: {url: "http://some/svn/url", destination: "svnDir", filter: nil, invert_filter: false, name: "http___some_svn_url", auto_update: true, check_externals: false, username: nil}}],
         name: "pipeline1",
+        origin: {
+          type: 'local',
+          file: 'cruise-config.xml'
+        },
         environment_variables: [],
         parameters: [],
         stages: [{name: "mingle", fetch_materials: true, clean_working_directory: false, never_cleanup_artifacts: false, approval: {:type => "success", :authorization => {:roles => [], :users => []}}, environment_variables: [], jobs: []}],

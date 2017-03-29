@@ -15,17 +15,22 @@
 ##########################################################################
 
 module ApiV4
-  module Admin
-    module Pipelines
-      module Materials
-        module EncryptedPasswordSupport
-          def from_hash(data, options={})
-            super
-            data = data.with_indifferent_access
-            encrypted_password = Services.password_deserializer.deserialize(data[:password], data[:encrypted_password], represented)
-            represented.setEncryptedPassword(encrypted_password)
-            represented
-          end
+  module Shared
+    module ConfigOrigin
+      class ConfigRepoOriginRepresenter < BaseRepresenter
+        alias_method :config_repo, :represented
+
+        property :type, exec_context: :decorator
+        property :repo, exec_context: :decorator
+
+        def type
+          'config repo'
+        end
+
+        def repo
+          material = ApiV4::Admin::Pipelines::Materials::MaterialRepresenter.new(config_repo.getMaterial).to_hash(url_builder: self)
+          material[:revision] = config_repo.getRevision()
+          material
         end
       end
     end

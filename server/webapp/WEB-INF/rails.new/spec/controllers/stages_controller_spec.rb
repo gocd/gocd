@@ -501,9 +501,9 @@ describe StagesController do
       get :stats, :pipeline_name => "pipeline-name", :pipeline_counter => "1", :stage_name => "stage", :stage_counter => "1", :page_number => "2"
 
       expect(assigns(:chart_stage_duration_passed)).to eq ([{"link" => "/pipelines/pipeline-name/1/stage/1/jobs", "x" => 1, "key" => "1_10", "y" => 10}, {"link" => "/pipelines/pipeline-name/2/stage/1/jobs", "x" => 2, "key" => "2_20", "y" => 20}]).to_json
-      expect(assigns(:chart_tooltip_data_passed)).to eq ({"1_10" => ["00:00:10", "Feb 22 2008 at 10:21:23 [+0530]", "LABEL-1"], "2_20" => ["00:00:20", "Feb 22 2008 at 10:21:23 [+0530]", "LABEL-2"]}).to_json
+      expect(assigns(:chart_tooltip_data_passed)).to eq ({"1_10" => ["00:00:10", "22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-1"], "2_20" => ["00:00:20", "22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-2"]}).to_json
       expect(assigns(:chart_stage_duration_failed)).to eq ([{"link" => "/pipelines/pipeline-name/3/stage/1/jobs", "x" => 3, "key" => "3_30", "y" => 30}]).to_json
-      expect(assigns(:chart_tooltip_data_failed)).to eq ({"3_30" => ["00:00:30", "Feb 22 2008 at 10:21:23 [+0530]", "LABEL-3"]}).to_json
+      expect(assigns(:chart_tooltip_data_failed)).to eq ({"3_30" => ["00:00:30", "22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-3"]}).to_json
       expect(assigns(:chart_scale)).to eq "secs"
       expect(assigns(:pagination)).to eq Pagination.pageStartingAt(12, 200, 10)
       expect(assigns(:start_end_dates)).to eq ["22 Feb 2008", "22 Feb 2008"]
@@ -523,7 +523,7 @@ describe StagesController do
       get :stats, :pipeline_name => "pipeline-name", :pipeline_counter => "1", :stage_name => "stage", :stage_counter => "1", :page_number => "2"
 
       expect(assigns(:chart_stage_duration_passed)).to eq ([{"link" => "/pipelines/pipeline-name/1/stage/1/jobs", "x" => 1, "key" => "1_600", "y" => 10.0}, {"link" => "/pipelines/pipeline-name/2/stage/1/jobs", "x" => 2, "key" => "2_1200", "y" => 20.0}]).to_json
-      expect(assigns(:chart_tooltip_data_passed)).to eq ({"1_600" => ["00:10:00", "Feb 22 2008 at 10:21:23 [+0530]", "LABEL-1"], "2_1200" => ["00:20:00", "Feb 22 2008 at 10:21:23 [+0530]", "LABEL-2"]}).to_json
+      expect(assigns(:chart_tooltip_data_passed)).to eq ({"1_600" => ["00:10:00", "22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-1"], "2_1200" => ["00:20:00", "22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-2"]}).to_json
       expect(assigns(:chart_scale)).to eq "mins"
       expect(assigns(:start_end_dates)).to eq ["22 Feb 2008", "22 Feb 2008"]
     end
@@ -561,7 +561,7 @@ describe StagesController do
       setup_stubs(stage_summary_model1, stage_summary_model2)
       get :stats, :pipeline_name => "pipeline-name", :pipeline_counter => "1", :stage_name => "stage", :stage_counter => "1", :page_number => "2"
 
-      expect(assigns(:chart_tooltip_data_passed)).to eq ({"1_600" => ["00:10:00", "Feb 22 2008 at 10:21:23 [+0530]", "LABEL-1"], "1_1200" => ["00:20:00", "Feb 22 2008 at 10:21:23 [+0530]", "LABEL-1 (run 2)"]}).to_json
+      expect(assigns(:chart_tooltip_data_passed)).to eq ({"1_600" => ["00:10:00", "22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-1"], "1_1200" => ["00:20:00", "22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-1 (run 2)"]}).to_json
     end
 
     it "should set the message when there is no stage history" do
@@ -596,7 +596,7 @@ describe StagesController do
       expect(assigns(:chart_stage_duration_passed)).to eq [].to_json
       expect(assigns(:chart_tooltip_data_passed)).to eq ({}).to_json
       expect(assigns(:chart_stage_duration_failed)).to eq ([{"link" => "/pipelines/pipeline-name/1/stage/1/jobs", "x" => 1, "key" => "1_600", "y" => 10.0}, {"link" => "/pipelines/pipeline-name/2/stage/1/jobs", "x" => 2, "key" => "2_1200", "y" => 20.0}]).to_json
-      expect(assigns(:chart_tooltip_data_failed)).to eq ({"1_600" => ["00:10:00", "Feb 22 2008 at 10:21:23 [+0530]", "LABEL-1"], "2_1200" => ["00:20:00", "Feb 22 2008 at 10:21:23 [+0530]", "LABEL-2"]}).to_json
+      expect(assigns(:chart_tooltip_data_failed)).to eq ({"1_600" => ["00:10:00", "22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-1"], "2_1200" => ["00:20:00", "22 Feb, 2008 at 10:21:23 [+0530]", "LABEL-2"]}).to_json
       expect(assigns(:chart_scale)).to eq "mins"
       expect(assigns(:start_end_dates)).to eq ["22 Feb 2008", "22 Feb 2008"]
     end

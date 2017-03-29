@@ -65,10 +65,10 @@ describe PipelinesHelper do
     it "should display the trigger message with username and isodate in title" do
       triggered_date = java.util.Date.new
       pim = pipeline_model("blah-pipeline", "blah-label", false, false, "working with agent", false).getLatestPipelineInstance()
-      message = trigger_message(triggered_date, pim)
+      message = trigger_message(triggered_date.getTime(), pim)
 
       expect(message).to have_selector(".who", text: "Anonymous")
-      expect(message).to have_selector("input[value='#{triggered_date}']")
+      expect(message).to have_selector("input[value='#{triggered_date.getTime()}']")
     end
 
     it "should not display the trigger message when the pipeline is being scheduled for the first time" do
@@ -84,14 +84,14 @@ describe PipelinesHelper do
       joda_date = org.joda.time.DateTime.new(2010, 8, 20, 18, 3, 44, 0, org.joda.time.DateTimeZone.forOffsetHoursMinutes(5, 30))
       message = trigger_message_with_formatted_date_time(joda_date.to_date, "Vipul")
       expect(message).to have_selector(".who", text: "Vipul")
-      expect(message).to have_selector(".time", text: "Aug 20 2010 at 18:03:44 [+0530]")
+      expect(message).to have_selector(".time", text: "20 Aug, 2010 at 18:03:44 [+0530]")
     end
 
     it "should display appropriate message when when auto triggered " do
       joda_date = org.joda.time.DateTime.new(2010, 8, 20, 18, 3, 44, 0, org.joda.time.DateTimeZone.forOffsetHoursMinutes(5, 30))
       message = trigger_message_with_formatted_date_time(joda_date.to_date, GoConstants::DEFAULT_APPROVED_BY)
       expect(message).to have_selector(".label", "Automatically triggered")
-      expect(message).to have_selector(".time", "Aug 20 2010 at 18:03:44 [+0530]")
+      expect(message).to have_selector(".time", "20 Aug, 2010 at 18:03:44 [+0530]")
     end
   end
 

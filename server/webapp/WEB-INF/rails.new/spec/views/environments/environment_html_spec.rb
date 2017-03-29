@@ -109,7 +109,7 @@ describe "/environments/_environment.html.erb" do
 
     it "should set the input to time that the pipeline was run for javascript to display the converted time" do
       expect(response).to have_selector(".pipeline .status .schedule_time", :text => /Triggered/)
-      expect(response).to have_selector(".pipeline .status .schedule_time input[type='hidden'][value='#{@stages_for_pipeline_1.getScheduledDate()}']")
+      expect(response).to have_selector(".pipeline .status .schedule_time input[type='hidden'][value='#{@stages_for_pipeline_1.getScheduledDate().getTime()}']")
     end
 
     it "should display all stages for the pipeline" do

@@ -59,7 +59,7 @@ Util = function() {
                 var shower = new MicroContentPopup.ClickShower(microContentPopup, {cleanup: true});
                 Util.namespace('build_cause').set(popup_panel_id, shower);
             };
-        },       
+        },
         set_value: function(field, value) {
             return function() {
                 $(field).value = value;
@@ -70,21 +70,6 @@ Util = function() {
         },
         enable: function(element) {
             enable(element, true);
-        },
-
-        convert_to_timeago: function(elem) {
-            var timestampInMillis = parseInt(jQuery(elem).siblings('input').val());
-            var timeAgoInMillis = this.timestamp_in_millis(this.server_timestamp()) - timestampInMillis;
-            jQuery(elem).text(jQuery.timeago.inWords(timeAgoInMillis));
-        },
-
-        convert_to_timeago_on_timer: function(elem) {
-            function timer() {
-                Util.convert_to_timeago(elem);
-                setTimeout(timer, 60000);
-            }
-
-            return timer;
         },
 
         timestamp_in_millis: function(timestamp) {
@@ -168,7 +153,7 @@ Util = function() {
                 }
             });
         },
-        
+
         server_timestamp: function() {
             var client_server_timestamp_delta = null;
 

@@ -30,7 +30,7 @@
 
     var cmd_re = /^(\s*\[go] (?:On Cancel )?Task: )(.*)/,
         status_re = /^(\s*\[go] (?:Current job|Task) status: )(.*)/,
-        ansi = new HelloMrfANSIpants();
+        ansi = new ANSIColors();
 
     function isTaskLine(prefix) {
       return [Types.TASK_START, Types.CANCEL_TASK_START].indexOf(prefix) > -1;

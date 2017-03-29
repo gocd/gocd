@@ -16,7 +16,7 @@
 ;(function (_, c) {
   "use strict";
 
-  function HelloMrfANSIpants() {
+  function ANSIColors() {
     this._sgr_regex = /^([!\x3c-\x3f]?)([\d;]*)([\x20-\x2f]?[\x40-\x7e])([\s\S]*)/m;
     this.ansi_colors = [
         [
@@ -47,7 +47,7 @@
     this._sgr_regex = /^([!\x3c-\x3f]?)([\d;]*)([\x20-\x2f]?[\x40-\x7e])([\s\S]*)/m;
   }
 
-  HelloMrfANSIpants.prototype.setup_256_palette = function () {
+  ANSIColors.prototype.setup_256_palette = function () {
       var _this = this;
       this.palette_256 = [];
       this.ansi_colors.forEach(function (palette) {
@@ -71,11 +71,11 @@
       }
   };
 
-  HelloMrfANSIpants.prototype.detect_incomplete_ansi = function (txt) {
+  ANSIColors.prototype.detect_incomplete_ansi = function (txt) {
     return !(/.*?[\x40-\x7e]/.test(txt));
   };
 
-  HelloMrfANSIpants.prototype.process = function (txt) {
+  ANSIColors.prototype.process = function (txt) {
     var _this = this;
     var pkt = this._buffer + txt;
     this._buffer = '';
@@ -109,7 +109,7 @@
     return blocks;
   };
 
-  HelloMrfANSIpants.prototype.maybe_wrap_text_in_node = function (txt) {
+  ANSIColors.prototype.maybe_wrap_text_in_node = function (txt) {
     if (txt.length === 0)
       return txt;
     if (!this.bright && this.fg === null && this.bg === null)
@@ -147,7 +147,7 @@
     return c("span", node_attr, txt);
   };
 
-  HelloMrfANSIpants.prototype.process_ansi = function (block) {
+  ANSIColors.prototype.process_ansi = function (block) {
     var matches = block.match(this._sgr_regex);
     if (!matches)
       return block;
@@ -215,6 +215,6 @@
     return orig_txt;
   };
 
-  window.HelloMrfANSIpants = HelloMrfANSIpants;
+  window.ANSIColors = ANSIColors;
 })(_, crel);
 

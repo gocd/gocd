@@ -127,14 +127,16 @@ public class TimeConverter {
         return new SimpleDateFormat("d MMM yyyy HH:mm 'GMT' Z", Locale.ENGLISH);
     }
 
-    public static String getHumanReadableString(Date date) {
-        return new SimpleDateFormat("MMM dd yyyy \'at\' HH:mm:ss", Locale.ENGLISH)
-                .format(date);
+    public String getHumanReadableString(Date date) {
+
+        return date == null ? ConvertedTime.NOT_AVAILABLE.toString() : new SimpleDateFormat("dd MMM, yyyy 'at' HH:mm:ss", Locale.ENGLISH)
+                    .format(date);
+
     }
 
-    public static String getHumanReadableStringWithTimeZone(Date date) {
-        return new SimpleDateFormat("MMM dd yyyy \'at\' HH:mm:ss [Z]", Locale.ENGLISH)
-                .format(date);
+    public String getHumanReadableStringWithTimeZone(Date date) {
+        return date == null ? ConvertedTime.NOT_AVAILABLE.toString() : new SimpleDateFormat("dd MMM, yyyy 'at' HH:mm:ss [Z]", Locale.ENGLISH)
+                    .format(date);
     }
 
     public ConvertedTime getConvertedTime(Date dateLogFileGenerated, Date dateCheckTheDuration) {

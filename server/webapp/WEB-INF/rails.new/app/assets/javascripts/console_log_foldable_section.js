@@ -55,7 +55,7 @@
         }
       } else {
         if ("" === $.trim(line)) {
-          c(node, c("br"));
+          c(node, "\n");
         } else {
           c(node, ansi.process(line));
         }

@@ -302,7 +302,7 @@
 
     it("LineWriter handles empty lines", function () {
       var h = $(lw.insertHeader(fs, t.INFO, ""));
-      assertEquals(1, h.find("br").length);
+      assertEquals("\n", h.text());
     });
 
   });

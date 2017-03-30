@@ -129,6 +129,7 @@ $CONSOLE_SETUP_ERR_WHITE: darken($CONSOLE_SETUP_ERR, 10%);
     content: attr(data-line);
     color: #666;
     left: -2.5rem;
+    top: 0;
     width: 2.5rem;
     text-align: right;
 

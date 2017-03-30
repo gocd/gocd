@@ -282,6 +282,9 @@ describe("ElasticProfilesWidget", () => {
     it("should popup a new modal to allow edditing a profile", () => {
       jasmine.Ajax.stubRequest(`/go/api/elastic/profiles/${profileJSON.id}`, undefined, 'GET').andReturn({
         responseText: JSON.stringify(profileJSON),
+        responseHeaders: {
+          'ETag': '"foo"'
+        },
         status:       200
       });
       expect($root.find('.reveal:visible')).not.toBeInDOM();
@@ -362,5 +365,35 @@ describe("ElasticProfilesWidget", () => {
     });
   });
 
+  describe("Clone an existing profile", () => {
+    afterEach(Modal.destroyAll);
+
+    it("should show modal with profile daa", () => {
+      jasmine.Ajax.stubRequest(`/go/api/elastic/profiles/${profileJSON.id}`, undefined, 'GET').andReturn({
+        responseText: JSON.stringify(profileJSON),
+        status:       200
+      });
+      expect($root.find('.reveal:visible')).not.toBeInDOM();
+
+      simulateEvent.simulate($root.find('.clone-profile').get(0), 'click');
+
+      m.redraw();
+      expect($('.reveal:visible')).toBeInDOM();
+      expect($('.reveal:visible input[data-prop-name]')).not.toBeDisabled();
+    });
+
+    it("should display error message if fetching a profile fails", () => {
+      jasmine.Ajax.stubRequest(`/go/api/elastic/profiles/${profileJSON.id}`, undefined, 'GET').andReturn({
+        responseText: JSON.stringify({message: 'Boom!'}),
+        status:       401
+      });
+
+      simulateEvent.simulate($root.find('.clone-profile').get(0), 'click');
+      m.redraw();
+
+      expect($('.alert')).toContainText('Boom!');
+    });
+
+  });
 
 });

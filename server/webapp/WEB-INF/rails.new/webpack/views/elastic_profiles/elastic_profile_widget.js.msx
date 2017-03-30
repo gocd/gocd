@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-let m = require('mithril');
-let f = require('helpers/form_helper');
-
+const m               = require('mithril');
+const f               = require('helpers/form_helper');
 const Stream          = require('mithril/stream');
 const ComponentMixins = require('helpers/mithril_component_mixins');
 
@@ -48,6 +47,7 @@ const ElasticProfileWidget = {
       actionIcons = (
         <div class="plugin-actions">
           <f.link class='edit-profile' onclick={vnode.attrs.onEdit}/>
+          <f.link class='clone-profile' onclick={vnode.attrs.onClone}/>
           <f.link class='delete-profile-confirm' onclick={vnode.attrs.onDelete}/>
         </div>
       );
@@ -56,7 +56,8 @@ const ElasticProfileWidget = {
       actionIcons = (
         <div class="plugin-actions">
           <f.link class='edit-profile disabled' title="Plugin not found"/>
-          <f.link class='delete-profile-confirm disabled' title="Plugin not found"/>
+          <f.link class='clone-profile disabled' title="Plugin not found"/>
+          <f.link class='delete-profile-confirm' onclick={vnode.attrs.onDelete}/>
         </div>
       );
     }

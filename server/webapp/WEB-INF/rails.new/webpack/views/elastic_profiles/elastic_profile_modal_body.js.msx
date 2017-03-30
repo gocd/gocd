@@ -69,7 +69,7 @@ const ElasticProfileModalBody = {
     }
 
     let profileIdDisabledMessage;
-    if (!vnode.attrs.newProfile) {
+    if (vnode.attrs.profile().etag()) {
       profileIdDisabledMessage = (<div>Editing of profile ID is disabled</div>);
     }
 
@@ -88,7 +88,7 @@ const ElasticProfileModalBody = {
                               attrName="id"
                               validate="true"
                               isRequired="true"
-                              disabled={!vnode.attrs.newProfile}
+                              disabled={vnode.attrs.profile().etag()}
                               message={profileIdDisabledMessage}
                               label="Id"
                               key="profile-id"/>

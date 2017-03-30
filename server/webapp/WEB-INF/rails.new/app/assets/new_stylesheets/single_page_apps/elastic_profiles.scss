@@ -22,6 +22,8 @@
 
 $elastic-profile-plugin-icon-size: 30px;
 $elastic-profile-icon-text-padding: 20px;
+$elastic-profile-icon-color: #555;
+$elastic-profile-icon-hover-color: #000;
 
 .add-profile {
   float:         right;
@@ -52,25 +54,46 @@ $elastic-profile-icon-text-padding: 20px;
 }
 
 .edit-profile {
-  @include icon-before($type: pencil-square-o, $color: $dark-gray);
+  @include icon-before($type: pencil-square-o, $color: $elastic-profile-icon-color);
   &:not(.disabled) {
     &:hover {
       &:before {
-        color: $black;
+        color: $elastic-profile-icon-hover-color;
       }
+    }
+  }
+
+  &.disabled {
+    &:before {
+      color: $dark-gray;
     }
   }
 }
 
 .delete-profile-confirm {
-  @include icon-before($type: trash, $color: $dark-gray);
+  @include icon-before($type: trash, $color: $elastic-profile-icon-color);
   position: relative;
   top:      -2px;
   &:not(.disabled) {
     &:hover {
       &:before {
-        color: $black;
+        color: $elastic-profile-icon-hover-color;
       }
+    }
+  }
+}
+
+.clone-profile {
+  @include icon-before($type: clone, $color: $elastic-profile-icon-color);
+  &:hover {
+    &:before {
+      color: $elastic-profile-icon-hover-color;
+    }
+  }
+
+  &.disabled {
+    &:before {
+      color: $dark-gray;
     }
   }
 }

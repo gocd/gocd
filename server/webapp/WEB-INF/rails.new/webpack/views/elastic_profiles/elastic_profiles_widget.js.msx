@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-let m                       = require('mithril');
-let f                       = require('helpers/form_helper');
-let ElasticProfileWidget    = require('views/elastic_profiles/elastic_profile_widget');
-let ElasticProfileModalBody = require('views/elastic_profiles/elastic_profile_modal_body');
-
-const Stream          = require('mithril/stream');
-const _               = require('lodash');
-const Modal           = require('views/shared/new_modal');
-const ComponentMixins = require('helpers/mithril_component_mixins');
-const ElasticProfiles = require('models/elastic_profiles/elastic_profiles');
+const m                       = require('mithril');
+const f                       = require('helpers/form_helper');
+const ElasticProfileWidget    = require('views/elastic_profiles/elastic_profile_widget');
+const ElasticProfileModalBody = require('views/elastic_profiles/elastic_profile_modal_body');
+const Stream                  = require('mithril/stream');
+const _                       = require('lodash');
+const Modal                   = require('views/shared/new_modal');
+const ComponentMixins         = require('helpers/mithril_component_mixins');
+const ElasticProfiles         = require('models/elastic_profiles/elastic_profiles');
 
 require('jquery-textcomplete');
 
@@ -56,10 +55,8 @@ const ElasticProfilesWidget = {
     ComponentMixins.ManagesCollection.call(this, {as: 'Profile'});
     ComponentMixins.HasViewModel.call(this);
 
-    this.modal    = null;
     this.profiles = Stream(new ElasticProfiles());
-
-    this.message = Stream({type: undefined, message: undefined});
+    this.message  = Stream({type: undefined, message: undefined});
 
     this.clearMessage = function () {
       this.message({});
@@ -75,35 +72,45 @@ const ElasticProfilesWidget = {
 
     this.reloadPage();
 
+    this.createModal = function (options) {
+      const newProfile   = options.newProfile;
+      const pluginInfo   = options.pluginInfo;
+      const modalTitle   = options.modalTitle;
+      const errorMessage = options.errorMessage;
+      const callback     = options.callback || _.noop;
+
+      const modal = new Modal({
+        size:    'large',
+        title:   modalTitle,
+        body:    () => (<ElasticProfileModalBody profile={newProfile}
+                                                 pluginInfos={vnode.attrs.pluginInfos}
+                                                 pluginInfo={pluginInfo}
+                                                 errorMessage={errorMessage}/>),
+        onclose: () => modal.destroy(),
+        buttons: [
+          {
+            text:    "Save",
+            class:   'save primary',
+            onclick: callback
+          }
+        ]
+      });
+      return modal;
+    };
+
     this.edit = function (profile) {
       const newProfile   = Stream();
       const pluginInfo   = Stream(vnode.attrs.pluginInfos().findById(profile.pluginId()));
       const errorMessage = Stream();
-
       ctrl.clearMessage();
 
-      const modal = new Modal({
-        size:    'large',
-        title:   `Edit profile ${profile.id()}`,
-        body:    () => (<ElasticProfileModalBody profile={newProfile}
-                                                 pluginInfo={pluginInfo}
-                                                 newProfile={false}
-                                                 pluginInfos={vnode.attrs.pluginInfos}
-                                                 errorMessage={errorMessage}/>),
-        onclose: () => modal.destroy(),
-        buttons: () => {
-          if (!newProfile()) {
-            return [];
-          }
-          return [
-            {
-              text:  'Save',
-              class: 'save primary',
-              onclick () {
-                newProfile().update().then(showSuccess(modal, ctrl, `The profile ${  newProfile().id()  } was updated successfully.`), showErrors(modal, ctrl, newProfile)).always(m.redraw);
-              }
-            }
-          ];
+      const modal = this.createModal({
+        newProfile,
+        pluginInfo,
+        modalTitle: `Add a new profile`,
+        errorMessage,
+        callback:   () => {
+          newProfile().update().then(showSuccess(modal, ctrl, `The profile ${newProfile().id()} was updated successfully.`), showErrors(modal, ctrl, newProfile)).always(m.redraw);
         }
       });
 
@@ -113,33 +120,52 @@ const ElasticProfilesWidget = {
       };
 
       modal.render();
-
       ElasticProfiles.Profile.get(profile.id()).then(onFulfilled, errorMessage).always(m.redraw);
     };
 
     this.add = function () {
       const newProfile    = Stream(new ElasticProfiles.Profile({}));
       const newPluginInfo = Stream(null);
+      const errorMessage  = Stream();
 
-      const modal = new Modal({
-        size:    'large',
-        title:   'Add a new profile',
-        body:    () => (<ElasticProfileModalBody profile={newProfile}
-                                                 newProfile={true}
-                                                 pluginInfos={vnode.attrs.pluginInfos}
-                                                 pluginInfo={newPluginInfo}/>),
-        onclose: () => modal.destroy(),
-        buttons: [
-          {
-            text:  'Save',
-            class: 'save primary',
-            onclick () {
-              newProfile().create().then(showSuccess(modal, ctrl, `The profile ${  newProfile().id()  } was created successfully.`), showErrors(modal, ctrl, newProfile)).always(m.redraw);
-            }
-          }
-        ]
+      const modal = this.createModal({
+        newProfile,
+        pluginInfo: newPluginInfo,
+        modalTitle: `Add a new profile`,
+        errorMessage,
+        callback:   () => {
+          newProfile().create().then(showSuccess(modal, ctrl, `The profile ${newProfile().id()} was created successfully.`), showErrors(modal, ctrl, newProfile)).always(m.redraw);
+        }
       });
       modal.render();
+    };
+
+    this.clone = (profile) => {
+      const newProfile   = Stream();
+      const pluginInfo   = Stream(vnode.attrs.pluginInfos().findById(profile.pluginId()));
+      const errorMessage = Stream();
+      ctrl.clearMessage();
+
+      const modal = this.createModal({
+        newProfile,
+        pluginInfo,
+        modalTitle: `Clone profile ${profile.id()}`,
+        errorMessage,
+        callback:   () => {
+          newProfile().create().then(showSuccess(modal, ctrl, `The profile ${newProfile().id()} was cloned successfully.`), showErrors(modal, ctrl, newProfile)).always(m.redraw);
+        }
+      });
+
+      modal.render();
+
+      const onFulfilled = function (profileFromAjax) {
+        newProfile(profileFromAjax);
+        newProfile().id('');
+        newProfile().errors().add('id', "Provide id to your clone.");
+        errorMessage(null);
+      };
+
+      ElasticProfiles.Profile.get(profile.id()).then(onFulfilled, errorMessage).always(m.redraw);
     };
 
     const deleteInProgress = Stream(false);
@@ -253,7 +279,8 @@ const ElasticProfilesWidget = {
                   key={profile.id()}
                   vm={vnode.state.vmState(profile.id())}
                   onEdit={vnode.state.edit.bind(vnode.state, profile)}
-                  onDelete={vnode.state.deleteConfirm.bind(vnode.state, profile)}/>
+                  onDelete={vnode.state.deleteConfirm.bind(vnode.state, profile)}
+                  onClone={vnode.state.clone.bind(vnode.state, profile, pluginInfo)}/>
               );
             })}
           </f.row>

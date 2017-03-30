@@ -349,6 +349,7 @@ const JobsConfigWidget = {
                 </f.row>
                 <f.row>
                   <TasksConfigWidget tasks={job.tasks}
+                                     pluginInfos={vnode.attrs.pluginInfos}
                                      vm={vnode.state.vmState(`tasksConfig-${  jobIndex}`)}/>
                 </f.row>
 

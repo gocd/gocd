@@ -22,7 +22,7 @@ const Resources            = require('models/pipeline_configs/resources');
 const Users                = require('models/pipeline_configs/users');
 const Roles                = require('models/pipeline_configs/roles');
 const PipelineConfigWidget = require('views/pipeline_configs/pipeline_config_widget');
-const PluginInfos          = require('models/pipeline_configs/plugin_infos');
+const PluginInfos          = require('models/shared/plugin_infos');
 const PluggableSCMs        = require('models/pipeline_configs/pluggable_scms');
 const SCMs                 = require('models/pipeline_configs/scms');
 const ElasticProfiles      = require('models/elastic_profiles/elastic_profiles');
@@ -40,12 +40,15 @@ $(() => {
   Users.initializeWith(allUserNames);
   Roles.initializeWith(allRoleNames);
   new VersionUpdater().update();
-  Promise.all([PluginInfos.init(), SCMs.init(), ElasticProfiles.all()]).then((args) => {
-
+  Promise.all([PluginInfos.all(), SCMs.init(), ElasticProfiles.all()]).then((args) => {
     PluggableTasks.init();
     PluggableSCMs.init();
 
-    m.mount(pipelineConfigElem.get(0), PipelineConfigWidget({url: Stream(url), elasticProfiles: Stream(args[2])}));
+    m.mount(pipelineConfigElem.get(0), PipelineConfigWidget({
+      url: Stream(url),
+      elasticProfiles: Stream(args[2]),
+      pluginInfos: Stream(args[0])
+    }));
     $(document).foundation();
   });
 

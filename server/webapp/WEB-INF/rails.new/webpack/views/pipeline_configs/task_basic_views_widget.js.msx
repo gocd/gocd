@@ -18,12 +18,7 @@ let m                   = require('mithril');
 let f                   = require('helpers/form_helper');
 let LookupCommandWidget = require('views/pipeline_configs/lookup_command_widget');
 
-const _             = require('lodash');
-const $             = require('jquery');
-const angular       = require('angular');
-const Routes        = require('gen/js-routes');
 const Argument      = require('models/pipeline_configs/argument');
-const PluginInfos   = require('models/pipeline_configs/plugin_infos');
 const AngularPlugin = require('views/shared/angular_plugin');
 const tt            = require('helpers/pipeline_configs/tooltips');
 
@@ -268,88 +263,11 @@ const TaskBasicViews = {
   },
 
   pluggable_task: { //eslint-disable-line camelcase
-    oninit (vnode) {
-      const self            = this;
-      const ctrl            = self;
-      self.task             = vnode.attrs.task;
-      self.ngControllerName = `controller-${  self.task.uuid()}`;
-      self.appName          = `app-${  self.task.uuid()}`;
-
-      PluginInfos.PluginInfo.get(this.task.pluginId()).then((plugin) => {
-        self.templateHTML      = AngularPlugin.template(plugin.viewTemplate());
-        self.defaultTaskConfig = plugin.configurations();
-
-        self.ngController = angular.module(self.appName, []).controller(self.ngControllerName, ['$scope', '$http', function ($scope, $http) {
-          $scope.addError = function (field) {
-            $scope.GOINPUTNAME[field.key]                              = {$error: {}};
-            $scope.GOINPUTNAME[field.key].$error[_.toLower(field.key)] = field.errors.join();
-          };
-
-          $scope.clearErrors = function () {
-            $scope.GOINPUTNAME               = {};
-            $scope.pluggableTaskGenericError = null;
-          };
-
-          $scope.clearErrors();
-
-          const ajaxValidator = _.debounce((configuration, config, newValue) => {
-            configuration.setConfiguration(config.key, newValue);
-            const req = {
-              url:     Routes.apiInternalPluggableTaskValidationPath({
-                plugin_id: ctrl.task.pluginId()//eslint-disable-line camelcase
-              }),
-              method:  'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Confirm':      true,
-                'X-CSRF-Token': $('meta[name=csrf-token]').attr('content')
-              },
-              data:    JSON.stringify(configuration)
-            };
-
-            $http(req).then(
-              $scope.clearErrors.bind($scope),
-              (response) => {
-                if (response.status === 422) {
-                  _.each(response.data, $scope.addError, $scope);
-                } else if (response.status === 520) {
-                  $scope.pluggableTaskGenericError = response.data.error;
-                }
-              });
-          }, 250);
-
-          _.map(self.defaultTaskConfig, (config) => {
-            const configuration = ctrl.task.configuration();
-            $scope[config.key]  = configuration.valueFor(config.key);
-
-            $scope.$watch(config.key, (newValue) => {
-              configuration.setConfiguration(config.key, newValue);
-              ajaxValidator(configuration, config, newValue);
-            });
-          });
-        }]);
-      });
-    },
-
     view (vnode) {
-      const config = function (_elem, isInitialized) {
-        if (!isInitialized) {
-          const pluginTaskTemplateElement = $(`#pluggable-task-template-${  vnode.state.task.uuid()}`);
-          angular.bootstrap(pluginTaskTemplateElement.get(0), [vnode.state.appName]);
-        }
-      };
-
-      return (
-        <div id={`pluggable-task-template-${  vnode.state.task.uuid()}`} ng-controller={vnode.state.ngControllerName}
-             class='task-basic'
-             config={config}>
-          <div class="callout alert"
-               ng-show="pluggableTaskGenericError">{'{{pluggableTaskGenericError}}'}</div>
-          <div class='pluggable-task'>
-            {m.trust(vnode.state.templateHTML)}
-          </div>
-        </div>
-      );
+      const pluginInfo = vnode.attrs.pluginInfos().findById(vnode.attrs.task.pluginId());
+      return (<AngularPlugin pluginInfoSettings={pluginInfo.taskSettings}
+                             configuration={vnode.attrs.task.configuration}
+                             key={pluginInfo.id()}/>);
     }
   }
 };

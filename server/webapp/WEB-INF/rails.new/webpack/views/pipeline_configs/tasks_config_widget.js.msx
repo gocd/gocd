@@ -22,10 +22,8 @@ const _               = require('lodash');
 const $               = require('jquery');
 const dragulaConfig   = require('helpers/dragula_config');
 const Tasks           = require('models/pipeline_configs/tasks');
-const PluggableTasks  = require('models/pipeline_configs/pluggable_tasks');
 const ComponentMixins = require('helpers/mithril_component_mixins');
 const TaskViews       = require('views/pipeline_configs/task_views_widget');
-const PluginInfos     = require('models/pipeline_configs/plugin_infos');
 
 let TaskTypeSelector = {
   oninit (vnode) {
@@ -36,13 +34,18 @@ let TaskTypeSelector = {
       if (Tasks.isBuiltInTaskType(type())) {
         self.tasks().createTask({type: type()});
       } else {
-        self.tasks().createTask({type: type(), pluginInfo: PluginInfos.findById(type())});
+        self.tasks().createTask({type: type(), pluginInfo: vnode.attrs.pluginInfos().findById(type())});
       }
     };
   },
 
   view (vnode) {
-    const items = _.reduce(_.merge({}, Tasks.Types, PluggableTasks.Types), (accumulator, value, key) => {
+    const pluggableTasks = {};
+    vnode.attrs.pluginInfos().filterByType('task').eachPluginInfo((pluginInfo) => {
+      pluggableTasks[pluginInfo.id()] = {description: pluginInfo.id()};
+    });
+
+    const items = _.reduce(_.merge({}, Tasks.Types, pluggableTasks), (accumulator, value, key) => {
       accumulator.push({id: key, text: value.description});
       return accumulator;
     }, []);
@@ -114,14 +117,17 @@ const TasksConfigWidget = {
             const taskView = TaskViews[task.type()];
             return (m(taskView, {
               task,
-              onRemove: vnode.attrs.tasks().removeTask.bind(vnode.attrs.tasks(), task),
+              onRemove:    vnode.attrs.tasks().removeTask.bind(vnode.attrs.tasks(), task),
               taskIndex,
-              key:      task.uuid(),
-              vm:       vnode.state.vmState(`task-${  taskIndex}`)
+              key:         task.uuid(),
+              vm:          vnode.state.vmState(`task-${  taskIndex}`),
+              pluginInfos: vnode.attrs.pluginInfos
             }));
           })}
         </span>
-          <TaskTypeSelector tasks={vnode.attrs.tasks} key="task-type-selector"/>
+          <TaskTypeSelector tasks={vnode.attrs.tasks}
+                            pluginInfos={vnode.attrs.pluginInfos}
+                            key="task-type-selector"/>
         </div>
       </f.accordion>
     );

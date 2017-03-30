@@ -53,6 +53,7 @@ const PipelineConfigWidget = function (options) {
       self.url              = options.url;
       self.callback         = options.callback;
       self.elasticProfiles  = options.elasticProfiles;
+      self.pluginInfos      = options.pluginInfos;
       self.vm               = new Pipeline.vm();
 
       ComponentMixins.HasViewModel.call(this);
@@ -168,6 +169,7 @@ const PipelineConfigWidget = function (options) {
 
         return (
           <PipelineFlowWidget pipeline={vnode.state.pipeline}
+                              pluginInfos={vnode.state.pluginInfos}
                               elasticProfiles={vnode.state.elasticProfiles}
                               currentSelection={vnode.state.currentSelection}
                               vm={vnode.state.vmState('pipelineFlowConfig')}/>

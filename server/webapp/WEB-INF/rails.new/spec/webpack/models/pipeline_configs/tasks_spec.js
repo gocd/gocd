@@ -19,7 +19,8 @@ describe("Task Model", () => {
 
   const Tasks = require("models/pipeline_configs/tasks");
 
-  const PluginInfos = require('models/pipeline_configs/plugin_infos');
+  const PluginInfos = require('models/shared/plugin_infos');
+
   let task;
   describe("Ant", () => {
     beforeEach(() => {
@@ -638,16 +639,31 @@ describe("Task Model", () => {
 
     describe('from pluginInfo', () => {
       it('should be created from a plugin', () => {
-        const plugin = new PluginInfos.PluginInfo({
-          id:      'plugin_id',
-          version: 'plugin_version'
-        });
+        const json = {
+          "id": "script-executor",
+          "version": "1",
+          "type": "task",
+          "about": {
+            "name": "Script Executor",
+            "version": "0.3.0",
+            "target_go_version": "16.1.0",
+            "description": "Thoughtworks Go plugin to run scripts",
+            "target_operating_systems": [
 
+            ],
+            "vendor": {
+              "name": "Srinivas Upadhya",
+              "url": "https://github.com/srinivasupadhya"
+            }
+          },
+          "display_name": "Script Executor",
+        };
+
+        const plugin = PluginInfos.PluginInfo.fromJSON(json);
         const task = Tasks.Task.PluginTask.fromPluginInfo(plugin);
 
-        expect(task.pluginId()).toBe('plugin_id');
-        expect(task.version()).toBe('plugin_version');
-        expect(task.configuration().isEmptyConfiguration()).toBe(true);
+        expect(task.pluginId()).toBe('script-executor');
+        expect(task.version()).toBe('1');
       });
     });
 

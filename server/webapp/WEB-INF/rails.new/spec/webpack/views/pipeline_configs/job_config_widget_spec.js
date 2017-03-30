@@ -22,6 +22,7 @@ describe("JobsConfig Widget", () => {
 
   const JobsConfigWidget = require("views/pipeline_configs/jobs_config_widget");
   const Jobs             = require("models/pipeline_configs/jobs");
+  const PluginInfos      = require("models/shared/plugin_infos");
   const ElasticProfiles  = require('models/elastic_profiles/elastic_profiles');
 
   let $root, root;
@@ -69,10 +70,40 @@ describe("JobsConfig Widget", () => {
   const mount = () => {
     m.mount(root, {
       view() {
-        return m(JobsConfigWidget, {jobs, key: jobs().uuid(), elasticProfiles});
+        return m(JobsConfigWidget, {
+          jobs,
+          key:         jobs().uuid(),
+          elasticProfiles,
+          pluginInfos: Stream(PluginInfos.fromJSON([taskPlugin]))
+        });
       }
     });
     m.redraw();
+  };
+
+
+  const taskPlugin = {
+    "id":            "script-executor",
+    "version":       "1",
+    "type":          "task",
+    "about":         {
+      "name":                     "Script Executor",
+      "version":                  "0.3.0",
+      "target_go_version":        "16.1.0",
+      "description":              "Thoughtworks Go plugin to run scripts",
+      "target_operating_systems": [],
+      "vendor":                   {
+        "name": "Srinivas Upadhya",
+        "url":  "https://github.com/srinivasupadhya"
+      }
+    },
+    "display_name":  "Script Executor",
+    "task_settings": {
+      "configurations": [{"key": "script", "metadata": {"secure": false, "required": true}},
+        {"key": "shtype", "metadata": {"secure": false, "required": true}}
+      ],
+      "view":           {"template": "<div />"}
+    }
   };
 
   const data = {

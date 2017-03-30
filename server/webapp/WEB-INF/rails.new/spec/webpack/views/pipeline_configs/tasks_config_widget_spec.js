@@ -24,6 +24,7 @@ describe("TasksConfigWidget", () => {
   require('jasmine-jquery');
 
   const Tasks             = require("models/pipeline_configs/tasks");
+  const PluginInfos       = require("models/shared/plugin_infos");
   const TasksConfigWidget = require("views/pipeline_configs/tasks_config_widget");
 
   let $root, root;
@@ -357,7 +358,10 @@ describe("TasksConfigWidget", () => {
   const mount = (tasks) => {
     m.mount(root, {
       view() {
-        return m(TasksConfigWidget, {tasks});
+        return m(TasksConfigWidget, {
+          tasks,
+          pluginInfos: Stream(PluginInfos.fromJSON([taskPlugin]))
+        });
       }
     });
     m.redraw();
@@ -366,6 +370,30 @@ describe("TasksConfigWidget", () => {
   const unmount = () => {
     m.mount(root, null);
     m.redraw();
+  };
+
+  const taskPlugin = {
+    "id":            "script-executor",
+    "version":       "1",
+    "type":          "task",
+    "about":         {
+      "name":                     "Script Executor",
+      "version":                  "0.3.0",
+      "target_go_version":        "16.1.0",
+      "description":              "Thoughtworks Go plugin to run scripts",
+      "target_operating_systems": [],
+      "vendor":                   {
+        "name": "Srinivas Upadhya",
+        "url":  "https://github.com/srinivasupadhya"
+      }
+    },
+    "display_name":  "Script Executor",
+    "task_settings": {
+      "configurations": [{"key": "script", "metadata": {"secure": false, "required": true}},
+        {"key": "shtype", "metadata": {"secure": false, "required": true}}
+      ],
+      "view":           {"template": "<div />"}
+    }
   };
 
 });

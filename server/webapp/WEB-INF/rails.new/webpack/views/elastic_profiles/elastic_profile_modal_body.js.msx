@@ -74,7 +74,7 @@ const ElasticProfileModalBody = {
 
     let angularPlugin;
     if (vnode.attrs.pluginInfo()) {
-      angularPlugin = (<AngularPlugin pluginSettings={vnode.attrs.pluginInfo().profileSettings}
+      angularPlugin = (<AngularPlugin pluginInfoSettings={vnode.attrs.pluginInfo().profileSettings}
                                       configuration={vnode.attrs.profile().properties}
                                       key={vnode.attrs.pluginInfo() ? vnode.attrs.pluginInfo().id() : 'no-plugin'}/>);
     }

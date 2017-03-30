@@ -86,6 +86,7 @@ const PipelineFlowWidget = {
           </div>
 
           <StagesConfigWidget pipeline={vnode.attrs.pipeline}
+                              pluginInfos={vnode.attrs.pluginInfos}
                               elasticProfiles={vnode.attrs.elasticProfiles}
                               currentSelection={vnode.state.currentSelection}
                               vm={vnode.state.vmState('stagesConfig')}/>

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-let m             = require("mithril");
-let f             = require('helpers/form_helper');
-let AngularPlugin = require('views/shared/angular_plugin');
+let m                 = require("mithril");
+let f                 = require('helpers/form_helper');
+let AngularPlugin     = require('views/shared/angular_plugin');
 const ElasticProfiles = require('models/elastic_profiles/elastic_profiles');
 
 const ElasticProfileModalBody = {
@@ -74,7 +74,7 @@ const ElasticProfileModalBody = {
 
     let angularPlugin;
     if (vnode.attrs.pluginInfo()) {
-      angularPlugin = (<AngularPlugin pluginInfo={vnode.attrs.pluginInfo().profileSettings}
+      angularPlugin = (<AngularPlugin pluginSettings={vnode.attrs.pluginInfo().profileSettings}
                                       configuration={vnode.attrs.profile().properties}
                                       key={vnode.attrs.pluginInfo() ? vnode.attrs.pluginInfo().id() : 'no-plugin'}/>);
     }

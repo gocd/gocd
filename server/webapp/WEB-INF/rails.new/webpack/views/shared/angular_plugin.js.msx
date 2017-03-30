@@ -29,8 +29,8 @@ const controllerName = function (configuration) {
   return `controller-${  configuration.uuid()}`;
 };
 
-const pluginTemplate = function (pluginInfo) {
-  return m.trust(AngularPlugin.template(pluginInfo.viewTemplate()));
+const pluginTemplate = function (pluginSettings) {
+  return m.trust(AngularPlugin.template(pluginSettings.viewTemplate()));
 };
 
 function onCreate(scope, args) {
@@ -79,24 +79,24 @@ function onCreate(scope, args) {
         listeners.push(listener);
       }
 
-      $scope.initialize = function (pluginInfo, configurations) {
+      $scope.initialize = function (pluginSettings, configurations) {
         unregisterExistingListeners();
         $scope.clearErrors();
 
-        pluginInfo.configurations().mapConfigurations((config) => {
+        pluginSettings.configurations().mapConfigurations((config) => {
           $scope[config.key()] = configurations.valueFor(config.key());
           addListeners(configurations, config.key());
           copyOverErrors(configurations, config.key());
         });
 
-        const supportedConfigKeys = pluginInfo.configurations().collectConfigurationProperty('key');
+        const supportedConfigKeys = pluginSettings.configurations().collectConfigurationProperty('key');
 
         configurations.removeConfiguration((configuration) => {
           return !_.includes(supportedConfigKeys, configuration.key());
         });
       };
 
-      $scope.initialize(args.pluginInfo(), args.configuration());
+      $scope.initialize(args.pluginSettings(), args.configuration());
     }]);
 
     angular.bootstrap(elem, [appName(args.configuration())]);
@@ -105,7 +105,7 @@ function onCreate(scope, args) {
 
 function onUpdate(scope, args) {
   return function (_vnode) {
-    scope().initialize(args.pluginInfo(), args.configuration());
+    scope().initialize(args.pluginSettings(), args.configuration());
     scope().$apply();
   };
 }
@@ -127,7 +127,7 @@ const AngularPlugin = {
            ng-controller={controllerName(vnode.attrs.configuration())}
            oncreate={onCreate(vnode.state.$scope, vnode.attrs)}
            onupdate={onUpdate(vnode.state.$scope, vnode.attrs)}>
-        {pluginTemplate(vnode.attrs.pluginInfo())}
+        {pluginTemplate(vnode.attrs.pluginSettings())}
       </div>
     );
   }

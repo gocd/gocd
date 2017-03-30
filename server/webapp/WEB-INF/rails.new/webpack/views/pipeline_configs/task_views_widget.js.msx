@@ -25,7 +25,6 @@ const _               = require('lodash');
 const s               = require('string-plus');
 const Tasks           = require('models/pipeline_configs/tasks');
 const ComponentMixins = require('helpers/mithril_component_mixins');
-const PluginInfos     = require('models/pipeline_configs/plugin_infos');
 
 let TaskSummaryView = {
   view (vnode) {
@@ -60,7 +59,11 @@ let TaskViews = {
       };
 
       self.taskDisplayName = function () {
-        return Tasks.isBuiltInTaskType(vnode.attrs.task.type()) ? vnode.attrs.task.type() : PluginInfos.findById(vnode.attrs.task.pluginId()).displayName();
+        if (Tasks.isBuiltInTaskType(vnode.attrs.task.type())) {
+          return vnode.attrs.task.type();
+        } else {
+          return vnode.attrs.pluginInfos().findById(vnode.attrs.task.pluginId()).about().name();
+        }
       };
     },
 

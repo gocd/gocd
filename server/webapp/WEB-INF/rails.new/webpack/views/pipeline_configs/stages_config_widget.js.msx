@@ -214,6 +214,7 @@ let StageConfigDefinitionWidget = {
         <f.row>
           <f.column size={12} end={true}>
             <JobsConfigWidget jobs={stage.jobs}
+                              pluginInfos={vnode.attrs.pluginInfos}
                               elasticProfiles={vnode.attrs.elasticProfiles}
                               key={stage.jobs().uuid()}
                               vm={vnode.state.vmState(`jobsWidgetConfig-${  stageIndex}`)}/>
@@ -242,6 +243,7 @@ const StagesConfigWidget = {
     return (
       <div class='stage-definition-container'>
         <StageConfigDefinitionWidget stage={vnode.attrs.currentSelection()}
+                                     pluginInfos={vnode.attrs.pluginInfos}
                                      elasticProfiles={vnode.attrs.elasticProfiles}
                                      pipeline={vnode.attrs.pipeline}
                                      onRemove={vnode.state.removeStage.bind(vnode.state, vnode.attrs.pipeline, vnode.attrs.currentSelection())}

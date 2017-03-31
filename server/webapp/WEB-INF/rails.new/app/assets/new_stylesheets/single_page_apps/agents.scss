@@ -276,7 +276,7 @@ $arrow-color: #000;
       min-width:   120px;
       font-weight: $global-weight-bold;
 
-      &+.content {
+      &.content {
         display: inline-block;
       }
     }
